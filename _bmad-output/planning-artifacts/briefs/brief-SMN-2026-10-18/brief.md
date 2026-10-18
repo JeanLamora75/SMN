@@ -10,7 +10,7 @@ language: fr
 
 # Product Brief — Scrum Master Notebook (SMN)
 
-> **Statut :** version de revue finale, non encore approuvée. Ce document distingue les règles déjà validées des hypothèses et des arbitrages restant à mener. Il ne constitue ni un PRD ni une approbation du MVP.
+> **Statut :** Product Brief final, approuvé par l'utilisateur le 18 octobre 2026. Il distingue les décisions fonctionnelles actées des points à détailler dans le PRD ; il ne constitue ni un PRD, ni une preuve que le MVP a déjà atteint ses objectifs.
 >
 > **Sources de référence :** [contexte du projet](../../../../docs/PROJECT-CONTEXT.md), [registre des 124 décisions F-01 à F-124](../../../../docs/DECISIONS-FONCTIONNELLES.md) et [cadrage fonctionnel](../../../../docs/CADRAGE-FONCTIONNEL.md).
 
