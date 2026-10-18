@@ -4,13 +4,13 @@ status: draft
 created: 2026-10-18
 updated: 2026-10-18
 workflow: bmad-product-brief
-phase: discovery
+phase: review
 language: fr
 ---
 
 # Product Brief — Scrum Master Notebook (SMN)
 
-> **Statut :** ébauche de découverte non finalisée. Ce document distingue les règles déjà validées des hypothèses et des arbitrages restant à mener. Il ne constitue ni un PRD ni une approbation du MVP.
+> **Statut :** version de revue finale, non encore approuvée. Ce document distingue les règles déjà validées des hypothèses et des arbitrages restant à mener. Il ne constitue ni un PRD ni une approbation du MVP.
 >
 > **Sources de référence :** [contexte du projet](../../../../docs/PROJECT-CONTEXT.md), [registre des 124 décisions F-01 à F-124](../../../../docs/DECISIONS-FONCTIONNELLES.md) et [cadrage fonctionnel](../../../../docs/CADRAGE-FONCTIONNEL.md).
 
@@ -61,7 +61,7 @@ Les trois difficultés confirmées suggèrent **trois axes de mesure** pour appr
 - **Centralisation et continuité historique :** retrouver directement les résultats et leur évolution sur plusieurs périodes, sans devoir rechercher une compilation extérieure ni reconstruire les tendances manuellement.
 - **Qualité de restitution :** capacité du rapport HTML/PDF à expliquer la période aux parties prenantes en associant résultats et contexte qualitatif.
 
-**Deux objectifs chiffrés désormais validés :** moins de 30 minutes pour la préparation finale d'un rapport de Sprint complet incluant des tendances historiques directement disponibles ; **15 à 30 minutes par semaine** pour la saisie et la tenue à jour courantes de SMN pendant le Sprint. Leur **faisabilité** reste à démontrer par des tests en situation réelle : aucun résultat du MVP n'est encore mesuré. Les axes « centralisation » et « qualité de restitution », la durée cible en Kanban, les modalités de chronométrage et les critères de passage vers le pilote restent à préciser.
+**Deux objectifs chiffrés désormais validés :** moins de 30 minutes pour la préparation finale d'un rapport de Sprint complet incluant des tendances historiques directement disponibles ; **15 à 30 minutes par semaine** pour la saisie et la tenue à jour courantes de SMN pendant le Sprint. Leur **faisabilité** reste à démontrer par des tests en situation réelle : aucun résultat du MVP n'est encore mesuré. Les axes « centralisation » et « qualité de restitution », la durée cible en Kanban et les modalités de chronométrage restent à préciser. Les cinq conditions de passage au pilote sont désormais validées, mais leur satisfaction effective devra être testée.
 
 ## Trajectoire des livraisons — orientation validée
 
@@ -151,7 +151,7 @@ Principes existants à respecter dans la conception : dates réelles des périod
 
 ## Vision et adoption progressive — orientation validée
 
-Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement si le MVP satisfait les attentes, puis envisager une diffusion élargie si l'adoption est effective. **Les indicateurs et seuils de validation de chacune de ces étapes restent ouverts.** Aucune stratégie de commercialisation ou de plateforme collaborative n'a été décidée.
+Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement si le MVP satisfait les attentes, puis envisager une diffusion élargie si l'adoption est effective. **Les cinq critères de passage au pilote sont validés ; les critères d'adoption justifiant une diffusion élargie restent ouverts.** Aucune stratégie de commercialisation ou de plateforme collaborative n'a été décidée.
 
 ## Prochaines questions du Product Brief
 
