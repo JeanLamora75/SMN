@@ -363,7 +363,7 @@ SMN distingue **l'achèvement calendaire** du Sprint et sa **clôture fonctionne
 
 ### 4.9 Génération des cérémonies Scrum et durées par défaut — MVP
 
-#### FR-17 — Générer les événements Scrum dès la création du Sprint (validé : D-PRD-041 à D-PRD-045, D-PRD-049, D-PRD-050 ; F-44 à F-48, F-53 à F-57)
+#### FR-17 — Générer les événements Scrum dès la création du Sprint (validé : D-PRD-041 à D-PRD-045, D-PRD-049 à D-PRD-051 ; F-44 à F-48, F-53 à F-57)
 
 Dès la **création d'un Sprint Scrum**, SMN génère automatiquement ses événements Agile récurrents ou ponctuels : **Sprint Planning**, **Daily Scrum**, **Sprint Review** et **Sprint Retrospective**. Les horaires et durées proposés sont paramétrables dans l'administration et personnalisables par équipe puis par occurrence ; le Scrum Master n'a pas à recréer manuellement les cérémonies de chaque Sprint.
 
