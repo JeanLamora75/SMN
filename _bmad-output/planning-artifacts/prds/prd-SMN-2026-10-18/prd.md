@@ -270,6 +270,8 @@ Le Scrum Master peut **consulter, créer et modifier les absences individuelles*
 
 **Détails restant à concevoir :** présentation du calendrier d'équipe sur ordinateur et mobile, sélection du membre, droits d'édition et affichage éventuel des absences sur des périodes sans affectation à cette équipe. Aucune création d'une fiche d'absence « par équipe » n'est demandée.
 
+**Hors MVP — D-PRD-025 :** la saisie groupée d'une même absence pour plusieurs membres n'est pas retenue, car cet usage est jugé rare. Elle reste une piste d'évolution ultérieure (P-PRD-005, non planifiée). Chaque absence concerne un seul membre ; cela n'exclut pas les vues consolidées du calendrier d'équipe.
+
 
 ## 5. Non-objectifs actés
 
@@ -315,7 +317,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-9 / D-PRD-014 :** pays par défaut de la première installation, prise en compte de régions/villes, fuseaux et changements de localisation au fil du temps, avec impacts sur l'historique.
 - **FR-10 / D-PRD-015 à D-PRD-023 :** import **CSV fixe + ICS** validé au MVP ; les sept pays initiaux sont validés ; **les calendriers fournis pour France, Allemagne et Royaume-Uni sont automatiquement recherchés dans un répertoire interne selon le pays à l'initialisation**, avec une couverture **N-2 à N+1 pour chaque calendrier livré**. Les **jours fériés ont obligatoirement une date et un nom**. Restent à préciser la maintenance des fichiers annuels, le schéma CSV, la convention du répertoire, la couverture ICS et les stratégies de fusion/remplacement.
 - **FR-11 / D-PRD-021 (précision de F-35) :** cas régionaux saisis en absences individuelles avec catégorie et nom. Ne pas implémenter au MVP de sélection automatique des calendriers régionaux ; conserver les règles de capacité et d'événements d'absence individuelle.
-- **FR-12 / D-PRD-024 :** deux points d'accès à la même absence centrale (fiche membre et calendrier d'équipe) validés ; préciser l'ergonomie mobile, la visibilité des périodes hors affectation et l'éventuelle gestion des absences concernant plusieurs membres.
+- **FR-12 / D-PRD-024 et D-PRD-025 :** deux points d'accès à la même absence centrale validés. **Aucune saisie groupée de plusieurs membres au MVP** (P-PRD-005 possible ultérieurement). Restent à préciser l'ergonomie mobile, la visibilité des périodes hors affectation et le formulaire de saisie.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
