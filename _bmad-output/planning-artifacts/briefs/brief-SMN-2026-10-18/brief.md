@@ -52,15 +52,16 @@ Le problème métier identifié par l'utilisateur combine **trois difficultés i
 
 La combinaison d'une **mémoire qualitative historisée**, de **chiffres facultatifs et explicables**, d'une **préparation de reporting réutilisant les données existantes**, et d'une **saisie centrée sur le SM/RTE** constitue le positionnement recherché. **À valider :** alternatives réellement utilisées, avantage perçu et différenciation démontrable. Aucun avantage concurrentiel exclusif n'est affirmé.
 
-## Critères de succès — mesures candidates à valider
+## Critères de succès — objectifs quantitatifs validés et mesures à préciser
 
 Les trois difficultés confirmées suggèrent **trois axes de mesure** pour apprécier le MVP lors de l'usage personnel :
 
-- **Efficacité — objectif MVP validé :** pouvoir produire un **reporting complet de fin de Sprint en moins de 30 minutes**, avec les tendances historiques disponibles dans SMN **sans reconstruction manuelle**. Référence déclarative actuelle : **une heure à une demi-journée** selon l'historique disponible. Cet objectif porte sur la **préparation finale** du rapport ; mesurer séparément l'effort de saisie et de tenue à jour pendant le Sprint, afin d'éviter un simple déplacement de la charge. La durée cible propre aux périodes Kanban et les conditions concrètes de mesure restent à préciser.
+- **Préparation du reporting — objectif MVP validé :** produire un **reporting complet de fin de Sprint en moins de 30 minutes**, avec tendances historiques disponibles dans SMN **sans reconstruction manuelle**. Référence déclarative actuelle : **une heure à une demi-journée** selon l'historique disponible. Cette durée concerne la préparation finale du rapport ; la durée cible propre aux périodes Kanban reste à préciser.
+- **Charge de saisie courante — objectif MVP validé :** viser **15 à 30 minutes par semaine** pour renseigner et tenir à jour SMN pendant un Sprint, afin de limiter la charge administrative du Scrum Master. Ce temps est distinct des moins de 30 minutes consacrées à la préparation finale du reporting. Le périmètre pratique du chronométrage (configuration initiale, événements exceptionnels, etc.) sera explicité au moment des tests.
 - **Centralisation et continuité historique :** retrouver directement les résultats et leur évolution sur plusieurs périodes, sans devoir rechercher une compilation extérieure ni reconstruire les tendances manuellement.
 - **Qualité de restitution :** capacité du rapport HTML/PDF à expliquer la période aux parties prenantes en associant résultats et contexte qualitatif.
 
-**Seuil désormais validé :** moins de 30 minutes pour la préparation finale d'un rapport de Sprint complet incluant des tendances historiques directement disponibles. La **faisabilité** reste à démontrer en test réel ; aucun résultat du MVP n'est encore mesuré. Les axes « centralisation » et « qualité de restitution » restent à opérationnaliser et l'effort de saisie au fil du Sprint à quantifier. Fréquence de mesure et critères de passage vers le pilote restent à définir.
+**Deux objectifs chiffrés désormais validés :** moins de 30 minutes pour la préparation finale d'un rapport de Sprint complet incluant des tendances historiques directement disponibles ; **15 à 30 minutes par semaine** pour la saisie et la tenue à jour courantes de SMN pendant le Sprint. Leur **faisabilité** reste à démontrer par des tests en situation réelle : aucun résultat du MVP n'est encore mesuré. Les axes « centralisation » et « qualité de restitution », la durée cible en Kanban, les modalités de chronométrage et les critères de passage vers le pilote restent à préciser.
 
 ## Trajectoire des livraisons — orientation validée
 
@@ -103,9 +104,9 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Charge de saisie :** quel temps maximal de tenue à jour de SMN pendant un Sprint serait acceptable pour ne pas déplacer le travail de reporting ?
-2. **MVP concret :** quelles capacités minimales et quels contenus de reporting HTML/PDF rendent le cycle complet Scrum/Kanban réellement utilisable ?
-3. **Critères de passage :** quelles observations (durée réelle, restitution, centralisation, usage) permettront d'ouvrir un pilote et, ensuite, d'envisager la diffusion élargie ?
+1. **Suivi qualitatif MVP :** quels registres historisés (risques, obstacles, dépendances, décisions, actions, faits marquants) doivent être opérationnels dès le premier cycle Scrum/Kanban ?
+2. **Contenu des rapports :** quelles informations et tendances doivent apparaître par défaut dans le premier rapport HTML/PDF ?
+3. **Critères de passage :** quelles observations (temps mesuré, restitution, centralisation et usage) permettront d'ouvrir un pilote puis d'envisager une diffusion élargie ?
 
 ---
 
