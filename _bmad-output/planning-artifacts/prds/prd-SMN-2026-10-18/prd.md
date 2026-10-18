@@ -42,6 +42,8 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 
 **Parcours de référence MVP validé :** initialiser le produit et l'équipe → préparer une période Scrum ou Kanban → suivre données, événements et informations qualitatives → dresser le bilan et clôturer manuellement → produire un rapport. L'écriture détaillée des UJ et de leurs cas limites sera travaillée en mode Coaching, sans inventer de parcours utilisateur déjà observé.
 
+**Initialisation — décisions D-PRD-002 et D-PRD-003 :** l'utilisateur peut choisir une initialisation Express (minimum indispensable) ou une initialisation Guidée/Tutorée. Les deux aboutissent au tableau de bord à la fin du parcours. Les éventuelles configurations complémentaires proposées dans le parcours guidé ne modifient pas les champs minimaux et les règles de configuration F-114, F-123 et F-124. L'illustration d'un UJ détaillé reste à co-construire.
+
 ## 3. Glossaire initial
 
 - **Installation SMN :** instance dédiée à un seul produit de référence, dont l'identité reste fixe ; le mode Scrum, Kanban ou SAFe y est également fixe.
@@ -51,10 +53,14 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 - **JH :** jour/homme, unité de capacité de développement ; distincte des Story Points.
 - **Registres qualitatifs :** risques, obstacles, dépendances, décisions, actions et faits marquants.
 - **Rapport :** restitution datée, contextualisée, sur période ouverte ou clôturée.
+- **Initialisation Express :** parcours d'installation limité aux informations nécessaires pour créer l'installation, le produit et la première équipe, avec les valeurs par défaut pertinentes.
+- **Initialisation Guidée/Tutorée :** parcours d'installation avec accompagnement et explications, permettant d'enrichir le paramétrage au-delà du minimum d'installation.
+- **Tableau de bord :** écran d'accueil de l'équipe après initialisation et point d'accès à la configuration restante.
+- **Aide de configuration post-installation (proposée) :** éventuelle liste de tâches facultatives pour compléter la configuration, distincte ou non du registre des actions métier (à arbitrer).
 
 ## 4. Fonctionnalités et exigences fonctionnelles
 
-Les groupes ci-dessous constituent un **plan de travail**, pas encore le catalogue détaillé de FR. Les FR seront élaborées et numérotées globalement après examen des comportements attendus et des critères vérifiables.
+Les groupes ci-dessous constituent le **plan de travail** du PRD. Les exigences fonctionnelles sont désormais numérotées globalement (FR-1 et suivantes) au fil de leur validation ; les groupes non détaillés sont à approfondir.
 
 | Groupe à spécifier | Principales références |
 | --- | --- |
@@ -69,6 +75,35 @@ Les groupes ci-dessous constituent un **plan de travail**, pas encore le catalog
 | Briefs TXT IA et analyses historiques | F-98 à F-109 |
 | Extensions SAFe / ART de la version 1.0 | F-17, F-18, F-40, F-47, F-49 à F-52, F-67, F-68, F-73, F-94, F-95, F-119 |
 
+### 4.1 Initialisation du produit et de l'équipe — MVP
+
+**Description :** au premier lancement, le SM renseigne les informations minimales requises (choix du mode Scrum ou Kanban avec explication, nom de la première équipe, nom du produit de référence), avec des valeurs par défaut pour les autres paramètres. Le mode SAFe demeure prévu pour la version 1.0. Le SM peut choisir un parcours Express ou un parcours Guidé/Tutoré ; l'initialisation aboutit au tableau de bord, sans rendre la configuration détaillée obligatoire à ce stade.
+
+#### FR-1 — Choix du parcours d'initialisation (validé : D-PRD-002 ; F-114, F-123, F-124)
+
+Le Scrum Master peut choisir entre **Express** et **Guidé/Tutoré** pour créer son installation.
+
+**Conditions d'acceptation de haut niveau :**
+- Le choix des deux parcours est disponible lors de la première initialisation.
+- Le parcours Express ne requiert que les données métier minimales déjà actées : mode Scrum ou Kanban, nom de la première équipe et nom du produit de référence. Le détail des réglages supplémentaires est différé.
+- Le parcours Guidé/Tutoré accompagne progressivement l'utilisateur dans le paramétrage ; les éléments facultatifs peuvent être laissés pour plus tard.
+- Dans les deux parcours, les règles F-41/F-49/F-114/F-123/F-124 demeurent applicables : mode fixe, produit unique et fixe, description du mode choisi, informations obligatoires limitées, valeurs par défaut cohérentes. La composition détaillée de l'assistant reste à concevoir.
+
+#### FR-2 — Accès au tableau de bord après l'initialisation (validé : D-PRD-003)
+
+Au terme de l'initialisation Express ou Guidée/Tutorée, le Scrum Master est dirigé vers le **tableau de bord** de l'équipe créée.
+
+**Conditions d'acceptation de haut niveau :**
+- Après validation du parcours Express, l'utilisateur accède au tableau de bord.
+- Après validation du parcours Guidé/Tutoré, l'utilisateur accède au même tableau de bord de référence.
+- Aucune configuration détaillée facultative n'est imposée pour accéder au tableau de bord.
+
+#### Fonction proposée, non encore approuvée — Aide au paramétrage restant (P-PRD-001)
+
+**Intention exprimée :** le tableau de bord pourrait mettre en évidence les réglages restant à effectuer, éventuellement via des actions de configuration facultatives que le Scrum Master choisit de réaliser ou non et peut clore.
+
+**Points ouverts avant conversion en FR :** liste de configuration séparée des actions métier F-85 à F-88, ou partage du registre ; état `Réalisée / Ignorée` ou clôture unique ; conditions de disparition, suivi de progression et traitement sur rapports. Ne pas considérer ces modalités comme validées.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP.
@@ -79,7 +114,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -103,6 +138,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 ## 9. Questions ouvertes à traiter progressivement
 
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
+- **P-PRD-001 :** validation d'une aide de configuration post-installation ; modèle de tâches (distinctes ou non du registre d'actions métier), états et possibilité de clore des tâches non réalisées.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
