@@ -1,7 +1,7 @@
 # Scrum Master Notebook — Cadrage fonctionnel consolidé
 
 > **État : 18 octobre 2026** — Synthèse de brainstorming BMAD avec Mary (Analyst).  
-> **Source de vérité des arbitrages :** [Registre F-01 à F-121](./DECISIONS-FONCTIONNELLES.md).  
+> **Source de vérité des arbitrages :** [Registre F-01 à F-122](./DECISIONS-FONCTIONNELLES.md).  
 > **Nature :** règles métier validées et pistes restant à spécifier. **Ce document n'est pas encore le PRD ni l'architecture technique.**  
 > **Vocabulaire :** SM = Scrum Master ; RTE = Release Train Engineer ; ART = Agile Release Train ; PI = Planning Interval ; JH = jour/homme ; SP = Story Points ; MVP = première version fonctionnelle à arbitrer.
 
@@ -24,7 +24,7 @@ Principes incontournables :
 
 ### 1.2 Portée des décisions
 
-Les **121 références F-01 à F-121** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
+Les **122 références F-01 à F-122** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
 
 ## 2. Modes d'installation, équipes et ART
 
@@ -346,7 +346,7 @@ Le **brief IA** est un **reporting moins visuel**, en **fichier texte `.txt`**, 
 - Le **mode Scrum/Kanban/SAFe reste fixe** après initialisation (F-41/F-42/F-49), sauf réinitialisation complète volontaire.
 - L'ordre des écrans, les champs obligatoires et l'éventuelle création d'un premier projet/produit dans ce parcours restent **ouverts**.
 
-## 11. Contexte projet/produit et règles de travail (F-116 à F-121)
+## 11. Contexte projet/produit et règles de travail (F-116 à F-122)
 
 ### 11.1 Projet/produit comme contexte métier
 
@@ -355,8 +355,10 @@ Le **brief IA** est un **reporting moins visuel**, en **fichier texte `.txt`**, 
 - L'identifiant, le nom, les éventuelles dates de rattachement et les versions de ses informations sont des éléments de modélisation à préciser.
 - **Règle de cardinalité validée (F-121)** : une **équipe Scrum ou Kanban autonome suit exactement un produit de référence**, et **un ART SAFe suit exactement un produit de référence, commun à toutes ses équipes** Scrum et Kanban. Pas de gestion de plusieurs produits simultanés dans une même équipe autonome ou un même ART.
 - **En SAFe, les équipes utilisent le produit de référence du train**, sans rattachement concurrent à un autre produit au niveau de l'équipe ; ses vision et Product Goal sont donc communs au périmètre ART.
-- Ne pas déduire de cette règle que plusieurs équipes autonomes ne peuvent pas partager un produit : cette question n'a pas été tranchée et n'est pas nécessaire au principe d'un seul produit par équipe.
-- L'éventualité d'un **changement de produit de référence au cours de la vie** d'une équipe ou d'un ART, et les règles d'historique correspondantes, restent à clarifier : la décision actuelle interdit le multi-produit simultané.
+- **Produit fixé pour la vie de l'installation (F-122)** : une installation SMN est consacrée à **un seul produit**. Si elle contient plusieurs équipes autonomes, elles relèvent donc du même produit ; en SAFe, toutes les équipes du train partagent déjà son produit (F-121).
+- **Aucune réaffectation d'une équipe ou d'un ART à un autre produit** en cours d'utilisation. Si la mission ou l'organisation bascule vers un autre produit, **créer une nouvelle installation SMN indépendante**, initialisée pour ce nouveau produit.
+- La **nouvelle installation** ne doit pas être confondue avec la **réinitialisation destructive** d'une installation existante (F-42). Elle n'entraîne pas en elle-même la suppression de l'historique de l'installation précédente ; celle-ci peut rester consultable si conservée.
+- L'**historisation** de la vision et du Product Goal (F-117), ainsi que les changements de nom ou de caractéristiques du **même produit**, ne constituent pas un changement de produit de référence. L'identité du produit reste stable.
 
 ### 11.2 Vision du produit et Product Goal
 
@@ -400,7 +402,7 @@ L'administration doit pouvoir ajuster sans toucher au code au minimum :
 - Modèles de reporting et de briefs IA ; catégories d'événements remontées automatiquement au journal.
 - Langue d'interface (FR/EN au MVP), palette de couleurs et mode clair/sombre (F-112/F-113/F-115).
 - Assistant de configuration initiale, ses valeurs proposées et leur reprise depuis l'administration (F-114).
-- Produit unique par équipe autonome / ART (F-121), versions de vision et de Product Goal, DoD/DoR en texte ou lien communs à l'ART en SAFe (F-116 à F-120).
+- Produit de référence **unique et fixe par installation** (F-121/F-122), versions de vision et de Product Goal, DoD/DoR en texte ou lien communs à l'ART en SAFe (F-116 à F-120).
 - Mécanisme de **réinitialisation complète** à confirmation stricte pour test/démonstration, avec sauvegarde optionnelle et suppression **uniquement des données et fichiers gérés par SMN** (y compris modèles, logos/imports/exports/briefs lorsqu'applicables), jamais de fichiers extérieurs.
 
 Tous les paramètres individuels/structurels nécessaires aux calculs doivent rester cohérents ; l'optionalité des KPI ne signifie pas l'absence de validation des affectations et rôles.
@@ -417,7 +419,7 @@ Tous les paramètres individuels/structurels nécessaires aux calculs doivent re
 
 ## 14. Points ouverts et besoins de précision pour Product Brief et PRD
 
-Ces éléments ne sont **pas tranchés** par les 121 décisions :
+Ces éléments ne sont **pas tranchés** par les 122 décisions :
 
 1. **MVP et releases** : sélectionner la première livraison sans présumer que tous les formats et toutes les vues seront simultanément disponibles.
 2. **Cérémonies** : catalogue officiel par Scrum/SAFe, détails du Kanban, formules de durées, dates et règles de récurrence par défaut ; vérifier les référentiels lorsque l'utilisateur autorise la recherche.
@@ -431,7 +433,7 @@ Ces éléments ne sont **pas tranchés** par les 121 décisions :
 10. **SAFe** : granularité des événements ART, associations objectifs PI/Sprint, traitement de l'IP Iteration avec des équipes Kanban.
 11. **Reset** : périmètre exact et procédure sécurisée.
 12. **Qualité** : règles d'acceptation, tests et stratégie de migration des données à spécifier.
-13. **Projet/produit** : principe « un produit par équipe autonome / ART » validé (F-121). Restent à préciser les changements éventuels de produit de référence dans le temps, le partage possible d'un même produit par plusieurs équipes autonomes et le lien éventuel aux objectifs de Sprint/PI.
+13. **Projet/produit** : un produit unique et fixe par installation validé (F-121/F-122). Les changements de produit au cours de l'installation sont exclus ; préciser seulement les modalités techniques d'une **nouvelle installation indépendante**, et les liens éventuels du Product Goal aux objectifs de Sprint/PI.
 14. **DoD/DoR** : versions, suivi historique des documents externes SharePoint et comportement en cas de lien inaccessible.
 15. **Internationalisation** : traitement des textes libres, langue des rapports, traductions futures.
 16. **Installation** : étapes, valeurs par défaut, champs indispensables et prise en compte du premier projet/produit.
@@ -446,4 +448,4 @@ Ces éléments ne sont **pas tranchés** par les 121 décisions :
 5. Jira reste le référentiel des tickets ; cette synthèse n'y crée ni ne modifie aucune Story par elle-même.
 6. Mettre à jour ces documents après tout nouvel arbitrage significatif.
 
-**Synthèse enrichie des décisions validées F-01 à F-121.**
+**Synthèse enrichie des décisions validées F-01 à F-122.**
