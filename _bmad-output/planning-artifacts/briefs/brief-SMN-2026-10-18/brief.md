@@ -38,7 +38,7 @@ Le produit cherche à simplifier la **constitution et la restitution d'une mémo
 - Génération des calendriers et cérémonies, gestion centralisée des membres et disponibilités, capacités de développement en JH, et saisie des exceptions plutôt que des opérations répétitives (F-26 à F-63).
 - Objectifs par période et par PI, indicateurs Scrum/Kanban **tous facultatifs**, clôtures manuelles et reprises historiques traçables (F-64 à F-73, F-91 à F-96).
 - Registres partagés et historisés des risques ROAM, obstacles, dépendances, décisions, actions et faits marquants (F-74 à F-90, F-110, F-111).
-- Reporting à tout moment, modèles configurables, prévisualisation et formats cibles PDF, PPTX, DOCX, XLSX et HTML (F-15, F-24, F-25, F-97 à F-109). **Le calendrier de livraison de ces formats n'est pas fixé.**
+- Reporting à tout moment, modèles configurables et prévisualisation ; **HTML et PDF dans le MVP** (consultation/prévisualisation dans l'application puis export partageable), **PPTX, DOCX et XLSX post-MVP**, selon un calendrier à préciser (F-15, F-24, F-25, F-97 à F-109).
 - Brief IA textuel TXT prévisualisable, archivé et immuable ; transmission manuelle à une IA externe et réintégration de son analyse, sans données individuelles de membres (F-98 à F-109).
 - Contexte produit, vision et Product Goal historisés, DoD/DoR restituables dans les rapports ; interface français/anglais dès le MVP, thèmes clair/sombre et CSS Bootstrap 5 (F-112 à F-124).
 
@@ -72,11 +72,18 @@ Le **parcours cible** suit les étapes suivantes :
 
 Ce parcours exprime **l'objectif de bout en bout validé**, pas encore une décision sur le détail de chaque écran, registre, calcul, automatisation ou export livré dans le MVP. Les fonctionnalités précises seront priorisées ultérieurement. Toutes les dispositions déjà validées dans F-01 à F-124 restent applicables à leur version de livraison respective.
 
+### Reporting MVP — formats validés
+
+- **HTML dès le MVP :** consulter et prévisualiser un rapport dans SMN.
+- **PDF dès le MVP :** exporter un rapport partageable avec les parties prenantes.
+- **PPTX, DOCX et XLSX :** fonctionnalités validées pour le produit cible (F-15), reportées **après le MVP**, sans préjuger de leur présence dans la version 1.0.
+- **Modèles configurables :** principe conservé conformément aux décisions existantes ; leur richesse initiale et le contenu par défaut des rapports restent à préciser.
+
 ### Limites et arbitrages en suspens
 
-**Principes non négociables issus du cadrage :** l'application n'est pas collaborative pour les équipiers, les KPI demeurent facultatifs, les données individuelles ne sont pas transmises aux IA et l'intégration automatique Jira/API IA n'est pas requise pour la première version. L'import CSV des valeurs numériques consolidées est prévu ; les cinq formats d'export restent des capacités cibles dont la séquence de livraison est ouverte (F-01, F-15, F-16, F-19, F-72, F-102, F-108).
+**Principes non négociables issus du cadrage :** l'application n'est pas collaborative pour les équipiers, les KPI demeurent facultatifs, les données individuelles ne sont pas transmises aux IA et l'intégration automatique Jira/API IA n'est pas requise pour la première version. L'import CSV des valeurs numériques consolidées est prévu ; les formats de reporting du **MVP sont HTML et PDF**, et les autres formats (PPTX, DOCX, XLSX) sont différés sans version cible fixée (F-01, F-15, F-16, F-19, F-72, F-102, F-108).
 
-**À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, quel niveau de détail de suivi inclure, quels exports livrer en priorité et quelles fonctions reporter hors MVP (SAFe étant déjà prévu en version 1.0).
+**À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, quel niveau de détail de suivi inclure, quels éléments faire apparaître par défaut dans les rapports HTML/PDF et quelles autres fonctions reporter hors MVP (SAFe étant déjà prévu en version 1.0).
 
 ## Vision et adoption progressive — orientation validée
 
@@ -85,7 +92,7 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 ## Prochaines questions du Product Brief
 
 1. **Problème prioritaire :** dans le travail réel de Scrum Master, quelle difficulté doit être résolue en premier et comment la constate-t-on ?
-2. **MVP concret :** quelles capacités minimales et quel(s) format(s) de reporting rendent le cycle complet Scrum/Kanban réellement utilisable ?
+2. **MVP concret :** quelles capacités minimales et quels contenus de reporting HTML/PDF rendent le cycle complet Scrum/Kanban réellement utilisable ?
 3. **Critères de passage :** comment juger que le MVP est concluant pour ouvrir un pilote, puis que les retours justifient une diffusion élargie ?
 
 ---
