@@ -238,12 +238,12 @@ Le MVP fournit un **catalogue initial de sept pays : France, Allemagne, Royaume-
 **À préciser :** pays proposé par défaut à la première installation (France proposée, pas encore explicitement confirmée), **fichiers préchargés pour France/Allemagne/Royaume-Uni** et modalités de maintenance des jeux de fichiers glissants N-2 à N+1 (D-PRD-022), convention de nommage/organisation du répertoire, schéma détaillé CSV, couverture iCalendar (événements sur plusieurs jours, récurrences, fuseaux et événements non fériés), choix fusion/remplacement, et parcours de correction après import. Le MVP ne prévoit pas de gestion automatique des calendriers régionaux (D-PRD-021). **L'import d'un fichier ICS est acquis au MVP ; aucune synchronisation par abonnement à une URL ICS n'est impliquée.** Aucun fournisseur ou API automatique de jours fériés n'est imposé à ce stade.
 
 
-#### FR-11 — Enregistrer une particularité régionale comme absence individuelle (validé : D-PRD-021 ; F-27 à F-29, F-35, F-55)
+#### FR-11 — Enregistrer une particularité régionale comme absence individuelle (validé : D-PRD-021, D-PRD-026, D-PRD-027 ; F-27 à F-29, F-35, F-55)
 
 Lorsqu'un membre bénéficie d'un jour non travaillé propre à sa région et non couvert par les jours fériés nationaux, le Scrum Master le renseigne comme une **absence individuelle**, avec **une catégorie** et **un nom/motif descriptif**.
 
 **Conditions d'acceptation de haut niveau :**
-- Le Scrum Master peut enregistrer dans le calendrier centralisé d'un membre une absence spécifique liée à une particularité régionale, avec date/période applicable, catégorie du catalogue d'absences (F-29) et libellé descriptif libre obligatoire pour identifier le motif de cette particularité.
+- Le Scrum Master peut enregistrer dans le calendrier centralisé d'un membre une absence spécifique liée à une particularité régionale, avec date/période applicable, catégorie du catalogue d'absences (F-29) et **nom/motif obligatoire, comme pour toute absence** (D-PRD-026, FR-12). Son nom et la couleur de sa catégorie sont visibles sur le calendrier (D-PRD-027, FR-13).
 - Cette absence est prise en compte dans la disponibilité et la capacité du membre pour toutes les équipes où il est affecté, sans double déduction en cas de recouvrement avec un jour férié national ou une autre indisponibilité (F-28/F-35/F-59).
 - Une absence régionale ainsi saisie suit les règles d'**absence individuelle**, non celles d'un jour férié national : elle n'entraîne pas à elle seule les alertes collectives ni la suppression automatique des Daily (F-55).
 - Le registre conserve cette information pour les périodes historiques ; une modification ultérieure ne doit pas réécrire silencieusement les capacités passées.
@@ -254,7 +254,7 @@ Lorsqu'un membre bénéficie d'un jour non travaillé propre à sa région et no
 
 ### 4.5 Saisie et consultation centralisées des absences — MVP
 
-#### FR-12 — Gérer une absence depuis deux points d'accès (validé : D-PRD-024 ; F-27 à F-29, F-35, F-55)
+#### FR-12 — Gérer une absence depuis deux points d'accès (validé : D-PRD-024, D-PRD-026, D-PRD-027 ; F-27 à F-29, F-35, F-55)
 
 Le Scrum Master peut **consulter, créer et modifier les absences individuelles** depuis (a) **le calendrier de la fiche centrale du membre** ou (b) **le calendrier de l'équipe** en sélectionnant le membre concerné. Ces deux parcours accèdent **au même enregistrement d'absence**, sans créer de copie par équipe.
 
@@ -264,6 +264,8 @@ Le Scrum Master peut **consulter, créer et modifier les absences individuelles*
 - Quel que soit le point d'accès, la même absence n'est enregistrée **qu'une seule fois au niveau central du membre** ; elle reste visible et prise en compte dans toutes les équipes auxquelles celui-ci est affecté aux dates concernées (F-28).
 - Une modification réalisée depuis l'un des deux points d'accès est visible depuis l'autre, sans nécessiter de ressaisie.
 - Les règles existantes relatives aux dates et demi-journées, aux catégories d'absence, au caractère **prévu ou imprévu** et à la saisie a posteriori sont respectées (F-27 à F-29).
+- Chaque absence possède obligatoirement **un nom/motif renseigné et non vide**, ainsi qu'une catégorie, une date ou période et la durée applicable ; ces données sont exigées quel que soit le point d'accès et y compris pour les absences anciennes saisies a posteriori (D-PRD-026).
+- Le calendrier individuel et le calendrier d'équipe **affichent le nom/motif de l'absence avec la couleur liée à sa catégorie**, sans dépendre exclusivement de cette couleur pour identifier l'événement (D-PRD-027, FR-13).
 - Les capacités de chaque équipe concernée tiennent compte de l'absence une seule fois, même lorsque des jours fériés ou d'autres indisponibilités coïncident (F-35/F-59).
 - La saisie d'une absence individuelle n'entraîne pas à elle seule d'alerte **collective** sur les événements Agile (F-55), y compris lorsqu'elle décrit un cas régional (FR-11).
 - L'enregistrement ou la correction d'une absence sur une période passée respecte les capacités historiques de référence et le processus de recalcul/traçabilité existant (F-30/F-31/F-93/F-96).
@@ -272,6 +274,22 @@ Le Scrum Master peut **consulter, créer et modifier les absences individuelles*
 
 **Hors MVP — D-PRD-025 :** la saisie groupée d'une même absence pour plusieurs membres n'est pas retenue, car cet usage est jugé rare. Elle reste une piste d'évolution ultérieure (P-PRD-005, non planifiée). Chaque absence concerne un seul membre ; cela n'exclut pas les vues consolidées du calendrier d'équipe.
 
+
+### 4.6 Catalogue administrable des catégories d'absence — MVP
+
+#### FR-13 — Administrer les catégories et couleurs des absences (validé : D-PRD-027 ; F-29)
+
+Le Scrum Master dispose, dans l'administration, d'un **catalogue des catégories d'absence paramétrable**. Chaque catégorie possède un **nom** et une **couleur** configurables qui servent à distinguer visuellement les absences dans les calendriers.
+
+**Conditions d'acceptation de haut niveau :**
+- Un catalogue initial est proposé avec les catégories déjà prévues par F-29 : **Congés**, **Formation**, **Maladie** (sans détail médical) et **Autre**. Chaque catégorie initiale dispose d'une couleur affichable, sans imposer ici de palette précise.
+- Le Scrum Master peut **créer une catégorie**, lui donner un nom et **choisir sa couleur**, puis modifier ces paramètres dans l'administration ; le nom et la couleur sont obligatoires et vérifiés avant enregistrement.
+- Lors de la création d'une absence, le Scrum Master sélectionne une catégorie du catalogue actif et saisit son **nom/motif obligatoire** (D-PRD-026, FR-12).
+- Dans les vues calendrier du membre et de l'équipe, chaque absence affiche **son nom/motif** et une **identification colorée utilisant la couleur de sa catégorie** (D-PRD-027) ; la couleur ne doit pas être l'unique moyen d'identifier la catégorie, pour l'accessibilité.
+- Les catégories déjà utilisées dans des absences historiques ne peuvent pas être supprimées de manière à rendre ces absences incohérentes ; leur désactivation, renommage, recoloration et impact sur les affichages passés doivent être précisés.
+- Les noms des absences de catégorie **Maladie** restent des libellés non médicaux : le formulaire ne doit pas solliciter de diagnostic ou de détail médical (F-29).
+
+**À préciser :** palette et contrôle de contraste, règles de couleur unique ou réutilisable entre catégories, désactivation et conservation de l'affichage historique, et présentation détaillée sur mobile.
 
 ## 5. Non-objectifs actés
 
@@ -316,8 +334,9 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-8 / D-PRD-013 :** calendrier individuel initial lundi-vendredi à temps plein, entièrement personnalisable. FR-9 précise le préremplissage de la localisation ; restent ouvertes les règles de date d'effet des changements.
 - **FR-9 / D-PRD-014 :** pays par défaut de la première installation, prise en compte de régions/villes, fuseaux et changements de localisation au fil du temps, avec impacts sur l'historique.
 - **FR-10 / D-PRD-015 à D-PRD-023 :** import **CSV fixe + ICS** validé au MVP ; les sept pays initiaux sont validés ; **les calendriers fournis pour France, Allemagne et Royaume-Uni sont automatiquement recherchés dans un répertoire interne selon le pays à l'initialisation**, avec une couverture **N-2 à N+1 pour chaque calendrier livré**. Les **jours fériés ont obligatoirement une date et un nom**. Restent à préciser la maintenance des fichiers annuels, le schéma CSV, la convention du répertoire, la couverture ICS et les stratégies de fusion/remplacement.
-- **FR-11 / D-PRD-021 (précision de F-35) :** cas régionaux saisis en absences individuelles avec catégorie et nom. Ne pas implémenter au MVP de sélection automatique des calendriers régionaux ; conserver les règles de capacité et d'événements d'absence individuelle.
-- **FR-12 / D-PRD-024 et D-PRD-025 :** deux points d'accès à la même absence centrale validés. **Aucune saisie groupée de plusieurs membres au MVP** (P-PRD-005 possible ultérieurement). Restent à préciser l'ergonomie mobile, la visibilité des périodes hors affectation et le formulaire de saisie.
+- **FR-11 / D-PRD-021, D-PRD-026 et D-PRD-027 (précision de F-35) :** cas régionaux saisis en absences individuelles avec catégorie et nom/motif obligatoire, affichés avec couleur liée à la catégorie. Ne pas implémenter au MVP de sélection automatique des calendriers régionaux ; conserver les règles de capacité et d'événements d'absence individuelle.
+- **FR-12 / D-PRD-024 à D-PRD-027 :** deux points d'accès à la même absence centrale validés. **Nom/motif obligatoire pour toute absence et affiché dans le calendrier, avec la couleur de sa catégorie** ; aucune saisie groupée au MVP (P-PRD-005 possible ultérieurement). Restent à préciser l'ergonomie mobile et la visibilité des périodes hors affectation.
+- **FR-13 / D-PRD-027 :** catalogue de catégories d'absences administrable (nom et couleur), initialisé avec Congés, Formation, Maladie sans détail médical, Autre. À spécifier : règles de désactivation, historisation des libellés et couleurs, accessibilité et affichage sur mobile.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
