@@ -1,7 +1,7 @@
 # Scrum Master Notebook — Cadrage fonctionnel consolidé
 
 > **État : 18 octobre 2026** — Synthèse de brainstorming BMAD avec Mary (Analyst).  
-> **Source de vérité des arbitrages :** [Registre F-01 à F-122](./DECISIONS-FONCTIONNELLES.md).  
+> **Source de vérité des arbitrages :** [Registre F-01 à F-123](./DECISIONS-FONCTIONNELLES.md).  
 > **Nature :** règles métier validées et pistes restant à spécifier. **Ce document n'est pas encore le PRD ni l'architecture technique.**  
 > **Vocabulaire :** SM = Scrum Master ; RTE = Release Train Engineer ; ART = Agile Release Train ; PI = Planning Interval ; JH = jour/homme ; SP = Story Points ; MVP = première version fonctionnelle à arbitrer.
 
@@ -24,7 +24,7 @@ Principes incontournables :
 
 ### 1.2 Portée des décisions
 
-Les **122 références F-01 à F-122** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
+Les **123 références F-01 à F-123** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
 
 ## 2. Modes d'installation, équipes et ART
 
@@ -344,14 +344,17 @@ Le **brief IA** est un **reporting moins visuel**, en **fichier texte `.txt`**, 
 - Paramètres candidats proposés lors du brainstorming : langue, palette et mode clair/sombre, mode Scrum/Kanban/SAFe, pays, fuseau horaire, jours travaillés, cadence (Sprint/période/PI) et horaires des cérémonies.
 - **Minimiser les saisies obligatoires**, proposer des valeurs cohérentes par défaut et permettre d'éditer ultérieurement les paramètres modifiables dans l'administration.
 - Le **mode Scrum/Kanban/SAFe reste fixe** après initialisation (F-41/F-42/F-49), sauf réinitialisation complète volontaire.
-- L'ordre des écrans, les champs obligatoires et l'éventuelle création d'un premier projet/produit dans ce parcours restent **ouverts**.
+- **Nom du produit de référence obligatoire dès l'assistant** : l'initialisation ne peut être finalisée sans ce nom (F-123). La création/configuration du produit est donc bien incluse dans ce parcours.
+- **Vision du produit et Product Goal facultatifs à l'installation** : l'utilisateur peut les laisser vides, puis les renseigner ou les compléter ultérieurement. Leurs modifications seront historisées conformément à F-117.
+- L'ordre des écrans et les **autres** champs obligatoires du parcours restent **à préciser**.
 
-## 11. Contexte projet/produit et règles de travail (F-116 à F-122)
+## 11. Contexte projet/produit et règles de travail (F-116 à F-123)
 
 ### 11.1 Projet/produit comme contexte métier
 
 - SMN identifie et **historise le projet ou produit suivi** quel que soit le mode Scrum, Kanban ou SAFe ; cette notion est distincte de l'équipe, de la période et de l'ART.
 - Le contexte sert à donner du sens aux indicateurs, aux objectifs et aux reportings, y compris rétrospectifs.
+- Le **nom du produit est requis pour achever la première installation**, tandis que sa vision et son Product Goal peuvent être complétés plus tard (F-123).
 - L'identifiant, le nom, les éventuelles dates de rattachement et les versions de ses informations sont des éléments de modélisation à préciser.
 - **Règle de cardinalité validée (F-121)** : une **équipe Scrum ou Kanban autonome suit exactement un produit de référence**, et **un ART SAFe suit exactement un produit de référence, commun à toutes ses équipes** Scrum et Kanban. Pas de gestion de plusieurs produits simultanés dans une même équipe autonome ou un même ART.
 - **En SAFe, les équipes utilisent le produit de référence du train**, sans rattachement concurrent à un autre produit au niveau de l'équipe ; ses vision et Product Goal sont donc communs au périmètre ART.
@@ -419,7 +422,7 @@ Tous les paramètres individuels/structurels nécessaires aux calculs doivent re
 
 ## 14. Points ouverts et besoins de précision pour Product Brief et PRD
 
-Ces éléments ne sont **pas tranchés** par les 122 décisions :
+Ces éléments ne sont **pas tranchés** par les 123 décisions :
 
 1. **MVP et releases** : sélectionner la première livraison sans présumer que tous les formats et toutes les vues seront simultanément disponibles.
 2. **Cérémonies** : catalogue officiel par Scrum/SAFe, détails du Kanban, formules de durées, dates et règles de récurrence par défaut ; vérifier les référentiels lorsque l'utilisateur autorise la recherche.
@@ -436,7 +439,7 @@ Ces éléments ne sont **pas tranchés** par les 122 décisions :
 13. **Projet/produit** : un produit unique et fixe par installation validé (F-121/F-122). Les changements de produit au cours de l'installation sont exclus ; préciser seulement les modalités techniques d'une **nouvelle installation indépendante**, et les liens éventuels du Product Goal aux objectifs de Sprint/PI.
 14. **DoD/DoR** : versions, suivi historique des documents externes SharePoint et comportement en cas de lien inaccessible.
 15. **Internationalisation** : traitement des textes libres, langue des rapports, traductions futures.
-16. **Installation** : étapes, valeurs par défaut, champs indispensables et prise en compte du premier projet/produit.
+16. **Installation** : nom du produit obligatoire, vision et Product Goal facultatifs (F-123) ; restent à spécifier les étapes, valeurs par défaut et autres champs indispensables.
 17. **Design** : palettes concrètes, accessibilité, couleurs de statut et modes clair/sombre.
 
 ## 15. Mode d'emploi pour les agents et conversations futures
@@ -448,4 +451,4 @@ Ces éléments ne sont **pas tranchés** par les 122 décisions :
 5. Jira reste le référentiel des tickets ; cette synthèse n'y crée ni ne modifie aucune Story par elle-même.
 6. Mettre à jour ces documents après tout nouvel arbitrage significatif.
 
-**Synthèse enrichie des décisions validées F-01 à F-122.**
+**Synthèse enrichie des décisions validées F-01 à F-123.**
