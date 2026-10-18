@@ -49,6 +49,9 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 - **Installation SMN :** instance dédiée à un seul produit de référence, dont l'identité reste fixe ; le mode Scrum, Kanban ou SAFe y est également fixe.
 - **Produit de référence :** produit suivi par l'installation, pouvant porter une vision et un Product Goal historisés.
 - **Équipe :** collectif Scrum ou Kanban associé au produit de référence.
+- **Membre :** personne référencée une seule fois dans l'installation et pouvant être affectée à plusieurs équipes, avec un historique de disponibilité et de participation (F-26 à F-31).
+- **Affectation :** rattachement daté d'un membre à une équipe ; y mettre fin ne supprime ni sa fiche centrale ni ses affectations dans d'autres équipes.
+- **Archivage de membre :** retrait réversible d'une fiche de membre de l'utilisation courante, tout en conservant les données métier et historiques liées.
 - **Période :** Sprint en Scrum ou période de reporting en Kanban autonome (mensuelle par défaut).
 - **JH :** jour/homme, unité de capacité de développement ; distincte des Story Points.
 - **Registres qualitatifs :** risques, obstacles, dépendances, décisions, actions et faits marquants.
@@ -114,6 +117,24 @@ Après une initialisation Express ou Guidée/Tutorée, le Scrum Master peut iden
 
 **Détails restant à arbitrer :** catalogue initial et conditions d'affichage des tâches, comportement d'une tâche **Ignorée** si le paramétrage est ensuite effectivement réalisé, réactivation des tâches et calcul de la progression, comportement de la zone une fois la configuration considérée complète. Aucun mécanisme de réouverture automatique ou de relance des tâches n'est encore acté.
 
+### 4.2 Cycle de vie des membres — MVP
+
+**Description :** les membres sont définis de manière centralisée et peuvent participer à plusieurs équipes (F-26 à F-31). Le Scrum Master doit pouvoir corriger une création faite par erreur sans compromettre l'historique des équipes, des capacités et des rapports. La suppression définitive, la fin d'affectation et l'archivage ne sont pas interchangeables.
+
+#### FR-4 — Supprimer, retirer d'une équipe ou archiver un membre (validé : D-PRD-006 ; F-26 à F-31, F-58 à F-63, F-93)
+
+Le Scrum Master peut gérer les membres devenus inutiles selon leur historique : **supprimer définitivement une fiche ne possédant aucune donnée métier ou historique à préserver**, **terminer l'affectation d'un membre à une équipe** ou **archiver sa fiche centrale lorsqu'elle ne doit plus servir au suivi courant**, tout en préservant l'historique.
+
+**Conditions d'acceptation de haut niveau :**
+- Avant toute suppression définitive, SMN vérifie l'absence de données métier et d'historique à préserver liés à la fiche concernée ; sinon, la suppression définitive n'est pas permise.
+- Pour un membre historisé, SMN permet de renseigner une **date de fin d'affectation** dans l'équipe concernée sans supprimer ses affectations dans d'autres équipes.
+- L'archivage d'un membre historisé conserve les données passées pertinentes (affectations, calendriers, absences et capacités), qui demeurent utilisables dans les bilans, tendances et analyses historiques.
+- L'archivage est **réversible** : un membre archivé peut être réactivé.
+- La fin d'affectation ou l'archivage n'altère pas rétroactivement les périodes historiques ni les exports déjà produits (F-30, F-31 et F-93).
+- Le système ne propose pas de suppression en cascade de l'historique métier pour contourner une restriction de suppression.
+
+**Détails à spécifier :** critère exact d'une fiche « sans données métier à préserver », confirmation avant suppression, traitement des affectations futures, comportement des affectations simultanées lors d'un archivage, restauration/réactivation et visibilité des fiches archivées. Les modalités techniques de stockage et de suppression seront définies en architecture.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP.
@@ -150,7 +171,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
 - **FR-3 / D-PRD-004 et D-PRD-005 :** catalogue des tâches de configuration, règles d'affichage et de réactivation, comptage de la progression, ainsi que la priorité entre état Ignorée choisi manuellement et achèvement détecté ultérieurement. Le principe du fonctionnement hybride est acté.
 - **P-PRD-002 — Création rapide des membres (proposition de l'utilisateur, non validée) :** renseigner le nombre de membres de l'équipe, générer des fiches provisoires avec seulement un prénom ou identifiant provisoire, puis compléter les informations ultérieurement. Spécifier le nommage, la validation d'une fiche incomplète et son exclusion éventuelle des calculs de capacité jusqu'à complétude.
-- **P-PRD-003 — Suppression et archivage des membres (proposition à arbitrer) :** suppression définitive uniquement pour une fiche sans données métier à préserver ; pour un membre historisé, fin datée de l'affectation à une équipe (sans supprimer les autres affectations), ou archivage global réversible lorsque la personne ne participe plus aux équipes de l'installation. Préserver composition, capacité et rapports historiques (F-26 à F-34, F-58 à F-63, F-93). Définir le critère précis de « sans données », le contrôle avant suppression et la réactivation ; aucune modalité de suppression n'est encore validée.
+- **FR-4 / D-PRD-006 :** principe de suppression des fiches vierges et de fin d'affectation/archivage réversible validé. Restent à spécifier les critères exacts d'une fiche sans historique, les confirmations, l'effet sur les affectations simultanées/futures et l'ergonomie de réactivation.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
