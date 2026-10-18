@@ -98,11 +98,28 @@ Les **six catégories** — **risques, obstacles, dépendances, décisions, acti
 - **PPTX, DOCX et XLSX :** fonctionnalités validées pour le produit cible (F-15), reportées **après le MVP**, sans préjuger de leur présence dans la version 1.0.
 - **Modèles configurables :** principe conservé conformément aux décisions existantes ; leur richesse initiale et le contenu par défaut des rapports restent à préciser.
 
+### Modèle de reporting standard du MVP — structure validée
+
+Le MVP propose un **modèle de rapport prérempli en six sections**, applicable aux **Sprints Scrum et aux périodes Kanban** :
+
+1. **Synthèse exécutive** — résultats essentiels, faits marquants et appréciation du Scrum Master.
+2. **Objectifs** — objectifs de la période et résultats d'atteinte individuels.
+3. **Indicateurs et tendances** — KPI disponibles selon le mode Scrum/Kanban, capacité applicable et évolutions historiques sans reconstruire manuellement les données.
+4. **Événements Agile** — cérémonies et événements significatifs de la période.
+5. **Points d'attention** — risques, obstacles et dépendances.
+6. **Décisions et actions** — arbitrages, actions réalisées et actions restant à suivre.
+
+**Souplesse validée :** toutes les sections sont proposées **par défaut**, mais le SM peut **masquer, réorganiser et compléter** le rapport avant la génération HTML ou PDF, en cohérence avec la prévisualisation et les modèles configurables déjà prévus (F-15, F-24, F-25, F-97).
+
+**Contenus facultatifs sur sélection :** vision du produit, Product Goal, DoD et DoR ; les DoD/DoR figurent à titre informatif en fin de rapport si sélectionnées (F-117 à F-120). Les KPI absents ne doivent pas être assimilés à zéro ni présentés comme des valeurs mesurées (F-71/F-72).
+
+**À détailler dans le PRD :** gabarits HTML/PDF, niveau de personnalisation, règles de sélection et de tri, indicateurs par mode, représentations des tendances et expérience de prévisualisation. Cette structure ne vaut pas validation des détails d'interface.
+
 ### Limites et arbitrages en suspens
 
 **Principes non négociables issus du cadrage :** l'application n'est pas collaborative pour les équipiers, les KPI demeurent facultatifs, les données individuelles ne sont pas transmises aux IA et l'intégration automatique Jira/API IA n'est pas requise pour la première version. L'import CSV des valeurs numériques consolidées est prévu ; les formats de reporting du **MVP sont HTML et PDF**, et les autres formats (PPTX, DOCX, XLSX) sont différés sans version cible fixée (F-01, F-15, F-16, F-19, F-72, F-102, F-108).
 
-**À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, les détails de saisie et de liaison des six catégories qualitatives, les éléments à afficher par défaut dans les rapports HTML/PDF et les fonctions avancées à reporter hors MVP (SAFe étant déjà prévu en version 1.0).
+**À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, les détails de saisie et de liaison des six catégories qualitatives, les contenus précis et les règles de personnalisation du modèle de rapport en six sections, ainsi que les fonctions avancées à reporter hors MVP (SAFe étant déjà prévu en version 1.0).
 
 ## Vision et adoption progressive — orientation validée
 
@@ -110,7 +127,7 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Contenu des rapports :** quelles informations quantitatives, qualitatives et tendances historiques doivent apparaître par défaut dans le premier rapport HTML/PDF ?
+1. **Brief IA :** la génération de fichiers TXT à transmettre manuellement à une IA externe fait-elle partie du MVP, ou arrive-t-elle dans une version ultérieure ? Les règles F-98 à F-109 restent validées pour le produit cible.
 2. **Simplicité du MVP :** quels détails des formulaires et relations entre les six catégories exigent un arbitrage PRD, tout en restant sous la cible de saisie hebdomadaire ?
 3. **Critères de passage :** quelles observations (temps mesuré, restitution, centralisation et usage) permettront d'ouvrir un pilote puis d'envisager une diffusion élargie ?
 
