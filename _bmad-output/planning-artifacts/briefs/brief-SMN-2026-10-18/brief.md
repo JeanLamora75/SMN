@@ -1,10 +1,10 @@
 ---
 title: "Product Brief — Scrum Master Notebook (SMN)"
-status: draft
+status: final
 created: 2026-10-18
 updated: 2026-10-18
 workflow: bmad-product-brief
-phase: review
+phase: complete
 language: fr
 ---
 
