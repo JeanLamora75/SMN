@@ -125,7 +125,19 @@ Le MVP propose un **modèle de rapport prérempli en six sections**, applicable 
 
 ### Expérimentation personnelle — décision validée
 
-Avant toute ouverture à un échantillon d'utilisateurs, **tester le MVP sur au moins trois Sprints complets**, en utilisation personnelle et en conditions réelles, **ainsi que sur un cycle de reporting Kanban**. Vérifier les durées de saisie hebdomadaire et de préparation finale, l'exactitude des bilans, la fiabilité des tendances historiques et l'utilité des rapports HTML/PDF. Les critères définitifs de passage au pilote restent à expliciter ; ces essais ne constituent pas encore une preuve que les objectifs chiffrés sont atteints.
+Avant toute ouverture à un échantillon d'utilisateurs, **tester le MVP sur au moins trois Sprints complets**, en utilisation personnelle et en conditions réelles, **ainsi que sur un cycle de reporting Kanban**. Vérifier les durées de saisie hebdomadaire et de préparation finale, l'exactitude des bilans, la fiabilité des tendances historiques et l'utilité des rapports HTML/PDF. Les cinq critères de passage au pilote sont détaillés ci-dessous ; leur atteinte réelle reste à démontrer.
+
+### Conditions de passage du MVP au pilote — validées
+
+L'ouverture à un échantillon d'utilisateurs est conditionnée aux cinq critères **cumulatifs** suivants :
+
+1. **Expérimentation réelle :** au moins trois Sprints complets et un cycle de reporting Kanban réalisés en conditions réelles.
+2. **Préparation du rapport :** moins de 30 minutes pour générer un rapport complet de fin de Sprint, avec des tendances disponibles sans reconstruction manuelle.
+3. **Effort courant :** 15 à 30 minutes de saisie et de suivi par semaine, plafonnées à 30 minutes et mesurées séparément du reporting final. La reprise initiale des Sprints passés est une opération exceptionnelle.
+4. **Fiabilité des tendances :** historique fiable, incluant les Sprints saisis rétrospectivement, sans confondre absence et valeur zéro.
+5. **Qualité des livrables :** rapports HTML/PDF exploitables et sans anomalie bloquante.
+
+Ces critères ont été **validés comme conditions de passage**, mais ne sont **pas encore atteints ou vérifiés**. Les modalités de mesure, d'acceptation et de constitution de l'échantillon pilote seront précisées ultérieurement.
 
 ### Reprise des Sprints passés — incluse dès le MVP
 
@@ -143,9 +155,9 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Passage au pilote :** après trois Sprints complets et un cycle Kanban, quels critères observables suffisent à considérer l'usage personnel concluant ?
+1. **Recette du MVP :** préciser dans le PRD comment mesurer et vérifier les cinq critères validés de passage au pilote.
 2. **Simplicité du MVP :** quels détails des formulaires et relations entre les six catégories exigent un arbitrage PRD, tout en restant sous la cible de saisie hebdomadaire ?
-3. **Critères de passage :** quelles observations (temps mesuré, restitution, centralisation et usage) permettront d'ouvrir un pilote puis d'envisager une diffusion élargie ?
+3. **Diffusion élargie :** déterminer ultérieurement les critères d'adoption et les enseignements du pilote nécessaires pour envisager une diffusion plus large.
 
 ---
 
