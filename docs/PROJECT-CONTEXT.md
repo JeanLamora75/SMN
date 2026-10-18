@@ -1,7 +1,7 @@
 # Scrum Master Notebook — Contexte de référence du projet
 
 > **Version initiale : 18 octobre 2026 — dernière consolidation : 18 octobre 2026**  
-> **Statut :** décisions fonctionnelles du brainstorming Mary (BMAD Analyst) consolidées et validées par l'utilisateur. Les choix techniques et le MVP sont encore à définir.  
+> **Statut :** décisions fonctionnelles du brainstorming Mary (BMAD Analyst) consolidées et validées par l'utilisateur. Le MVP et la plupart des choix techniques restent à définir ; **Bootstrap 5 a déjà été retenu comme framework CSS**.  
 > **Objectif :** point d'entrée durable pour les nouvelles conversations ChatGPT et les agents BMAD ; **ne remplace pas** le Product Brief, le PRD, l'architecture ou Jira.
 
 ## 1. Documents à lire en priorité
@@ -9,7 +9,7 @@
 | Ordre | Document | Objet |
 | --- | --- | --- |
 | 1 | **Ce fichier** — `docs/PROJECT-CONTEXT.md` | Vision, contraintes, état du projet et liens |
-| 2 | **[DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md)** | Registre chronologique et exhaustif des **111 décisions F-01 à F-111**, états et décisions remplacées |
+| 2 | **[DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md)** | Registre chronologique et exhaustif des **120 décisions F-01 à F-120**, états et décisions remplacées |
 | 3 | **[CADRAGE-FONCTIONNEL.md](./CADRAGE-FONCTIONNEL.md)** | Règles fonctionnelles détaillées et points restant à arbitrer |
 
 **Important :** le présent contexte initial portait sur F-01 à F-10. La suite F-11 à F-111 a été actée pendant les échanges de brainstorming. Les trois documents ci-dessus sont désormais le référentiel de reprise avant la rédaction du Product Brief / PRD.
@@ -80,15 +80,32 @@ La finalité est de **préparer, expliquer et produire à la demande des reporti
 - Analyses IA historiques **exclues par défaut** des nouveaux briefs ; inclusion optionnelle. Une analyse IA à la fois par brief, supprimable **sans supprimer le TXT**.
 - **Échange avec IA manuel pour la première version** : transmettre le TXT à l'IA choisie puis copier-coller la réponse dans SMN ; **pas d'intégration API IA exigée** au MVP.
 
+### 3.7 Langues, thèmes et première installation (F-112 à F-115)
+
+- **Français et anglais dès le MVP**, i18n prise en compte dans la conception ; futures langues via nouvelles User Stories.
+- **Bootstrap 5 choisi pour le CSS**, personnalisation via variables CSS, palettes sélectionnables, modes clair/sombre.
+- **Assistant au premier lancement** pour configurer les principaux paramètres par défaut ; saisie réduite et réglages modifiables ensuite, hors mode Scrum/Kanban/SAFe (règle de réinitialisation).
+- Le contenu éditorial métier multilingue et la langue des exports restent à spécifier.
+
+### 3.8 Projet/produit, vision, Product Goal, DoD et DoR (F-116 à F-120)
+
+- **Contexte projet/produit explicite et historisé** quel que soit le mode ; nombre de projets/produits associés aux équipes/ART à arbitrer.
+- **Vision du produit** et **Product Goal** provenant généralement du PO, saisissables/historisables par SM/RTE et sélectionnables dans les rapports.
+- **DoD** et **DoR** conservables dans SMN sous forme de texte complet ou de lien documentaire externe (ex. SharePoint).
+- **En SAFe : une seule DoD et une seule DoR définies au niveau ART, communes à toutes les équipes du train** ; hors SAFe, niveau équipe.
+- Présentation **optionnelle en fin de rapport** à titre informatif : texte ou lien. Une URL SharePoint ne garantit pas la version historique d'un document.
+
 ## 4. Ce qui reste à concevoir (ne pas traiter comme validé)
 
 - Périmètre **MVP**, découpage des releases, niveaux de priorité.
-- Architecture, hébergement, technologies et schéma de base de données ; **aucun stack applicatif SMN n'est acté**.
+- Architecture, hébergement, technologies backend/frontend JS et schéma de base de données ; **seul Bootstrap 5 est arrêté pour le CSS**.
 - Liste officielle des rôles, cérémonies et paramètres de durée selon les référentiels ; vérifier avant validation définitive.
 - Définition précise des KPI, seuils de criticité, données obligatoires structurelles et conventions Kanban.
 - Schémas CSV SMN, source des jours fériés, sauvegardes et droits d'accès.
 - Charte graphique des rapports, modèles d'export, détails des fichiers TXT et politiques de sécurité/rétention.
-- Prochains arbitrages listés dans **[CADRAGE-FONCTIONNEL.md §12](./CADRAGE-FONCTIONNEL.md#12-points-ouverts-et-besoins-de-précision-pour-product-brief-et-prd)**.
+- Cardinalité projet/produit ↔ équipes/ART, versions des documents SharePoint, langue des contenus libres et rapports.
+- Palettes finales, accessibilité et étapes détaillées de l'assistant d'installation.
+- Prochains arbitrages listés dans **[CADRAGE-FONCTIONNEL.md §14](./CADRAGE-FONCTIONNEL.md#14-points-ouverts-et-besoins-de-précision-pour-product-brief-et-prd)**.
 
 ## 5. Référentiels et méthode de travail
 
@@ -129,7 +146,7 @@ Le projet utilise BMAD via **ChatGPT et ses connecteurs**, en lisant les `SKILL.
 
 - Dépôt GitHub SMN et projet Jira SMN créés.
 - BMAD Method v6.12.4 installé avec les skills dans `.agents/skills/`, exploitation prévue depuis ChatGPT.
-- **Brainstorming fonctionnel consolidé en 111 décisions F-01 à F-111** et document thématique détaillé dans `docs/`.
+- **Brainstorming fonctionnel consolidé en 120 décisions F-01 à F-120** et document thématique détaillé dans `docs/`.
 - **Product Brief, PRD, architecture applicative et backlog détaillé restent à produire** à partir des arbitrages, selon les workflows BMAD.
 - Cette consolidation documentaire **ne constitue ni un développement, ni une création de tickets Jira, ni une validation technique de l'application**.
 
