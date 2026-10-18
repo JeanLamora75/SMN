@@ -52,17 +52,31 @@ Les résultats observables (temps économisé pour produire un rapport, régular
 
 ## Trajectoire des livraisons — orientation validée
 
-- **MVP :** version de validation personnelle limitée aux équipes **Scrum et Kanban**, sans mode SAFe. Les fonctionnalités détaillées réellement livrées dans ce MVP restent à prioriser.
+- **MVP :** version de validation personnelle limitée aux équipes **Scrum et Kanban**, sans mode SAFe, proposant un **cycle complet simplifié** : installation et équipe, période, suivi minimal, bilan/clôture puis rapport. Le détail des fonctionnalités livrées reste à prioriser.
 - **Version 1.0 :** extension fonctionnelle à **SAFe**, avec les ART, leurs équipes Scrum/Kanban et les mécanismes associés déjà décidés.
 - **Versions ultérieures :** améliorations du produit guidées notamment par l'usage et les retours collectés, sans liste prédéterminée.
 
 Cette trajectoire détermine **quand** livrer la dimension SAFe, sans annuler les règles fonctionnelles F-49/F-50 déjà établies. La diffusion pilote dépend de la conclusion du MVP et ne préjuge pas de la disponibilité des fonctions RTE avant la version 1.0.
 
-## Périmètre détaillé du MVP — encore à arbitrer
+## MVP — cycle complet simplifié validé
+
+**Principe validé par l'utilisateur :** le MVP doit permettre, en **Scrum comme en Kanban**, de parcourir un cycle de travail de bout en bout plutôt que de se limiter à une saisie ponctuelle pour produire un rapport.
+
+Le **parcours cible** suit les étapes suivantes :
+
+1. Initialiser le produit et créer une équipe Scrum ou Kanban.
+2. Préparer une période de travail : Sprint en Scrum ou période de suivi en Kanban.
+3. Suivre, avec une saisie réduite, les événements, objectifs, données chiffrées disponibles et informations qualitatives utiles.
+4. Réaliser le bilan et la clôture manuelle de la période.
+5. Générer un premier reporting contextualisé à partir des informations enregistrées.
+
+Ce parcours exprime **l'objectif de bout en bout validé**, pas encore une décision sur le détail de chaque écran, registre, calcul, automatisation ou export livré dans le MVP. Les fonctionnalités précises seront priorisées ultérieurement. Toutes les dispositions déjà validées dans F-01 à F-124 restent applicables à leur version de livraison respective.
+
+### Limites et arbitrages en suspens
 
 **Principes non négociables issus du cadrage :** l'application n'est pas collaborative pour les équipiers, les KPI demeurent facultatifs, les données individuelles ne sont pas transmises aux IA et l'intégration automatique Jira/API IA n'est pas requise pour la première version. L'import CSV des valeurs numériques consolidées est prévu ; les cinq formats d'export restent des capacités cibles dont la séquence de livraison est ouverte (F-01, F-15, F-16, F-19, F-72, F-102, F-108).
 
-**À décider :** parmi les fonctions Scrum/Kanban, le parcours opérationnel indispensable au MVP, les fonctions différées (autres que SAFe, déjà reporté) et les formats de reporting livrés en priorité. Aucun périmètre fonctionnel détaillé n'est encore validé.
+**À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, quel niveau de détail de suivi inclure, quels exports livrer en priorité et quelles fonctions reporter hors MVP (SAFe étant déjà prévu en version 1.0).
 
 ## Vision et adoption progressive — orientation validée
 
@@ -71,7 +85,7 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 ## Prochaines questions du Product Brief
 
 1. **Problème prioritaire :** dans le travail réel de Scrum Master, quelle difficulté doit être résolue en premier et comment la constate-t-on ?
-2. **MVP concret :** quel premier parcours complet Scrum/Kanban apporte suffisamment de valeur pour un usage personnel quotidien ou périodique ?
+2. **MVP concret :** quelles capacités minimales et quel(s) format(s) de reporting rendent le cycle complet Scrum/Kanban réellement utilisable ?
 3. **Critères de passage :** comment juger que le MVP est concluant pour ouvrir un pilote, puis que les retours justifient une diffusion élargie ?
 
 ---
