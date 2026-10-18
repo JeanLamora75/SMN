@@ -56,7 +56,7 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 - **Initialisation Express :** parcours d'installation limité aux informations nécessaires pour créer l'installation, le produit et la première équipe, avec les valeurs par défaut pertinentes.
 - **Initialisation Guidée/Tutorée :** parcours d'installation avec accompagnement et explications, permettant d'enrichir le paramétrage au-delà du minimum d'installation.
 - **Tableau de bord :** écran d'accueil de l'équipe après initialisation et point d'accès à la configuration restante.
-- **Aide de configuration post-installation (proposée) :** éventuelle liste de tâches facultatives pour compléter la configuration, distincte ou non du registre des actions métier (à arbitrer).
+- **Tâche de configuration :** élément facultatif de la liste de paramétrage du tableau de bord, distinct des actions métier ; états À faire, Terminée et Ignorée (D-PRD-004).
 
 ## 4. Fonctionnalités et exigences fonctionnelles
 
@@ -98,11 +98,18 @@ Au terme de l'initialisation Express ou Guidée/Tutorée, le Scrum Master est di
 - Après validation du parcours Guidé/Tutoré, l'utilisateur accède au même tableau de bord de référence.
 - Aucune configuration détaillée facultative n'est imposée pour accéder au tableau de bord.
 
-#### Fonction proposée, non encore approuvée — Aide au paramétrage restant (P-PRD-001)
+#### FR-3 — Suivi facultatif de la configuration depuis le tableau de bord (validé : D-PRD-004)
 
-**Intention exprimée :** le tableau de bord pourrait mettre en évidence les réglages restant à effectuer, éventuellement via des actions de configuration facultatives que le Scrum Master choisit de réaliser ou non et peut clore.
+Après une initialisation Express ou Guidée/Tutorée, le Scrum Master peut identifier sur le tableau de bord les tâches de paramétrage restant à traiter et décider librement de les réaliser ou non.
 
-**Points ouverts avant conversion en FR :** liste de configuration séparée des actions métier F-85 à F-88, ou partage du registre ; état `Réalisée / Ignorée` ou clôture unique ; conditions de disparition, suivi de progression et traitement sur rapports. Ne pas considérer ces modalités comme validées.
+**Conditions d'acceptation de haut niveau :**
+- Le tableau de bord présente une zone « Paramétrage à compléter » mettant en évidence les tâches de configuration restant à traiter.
+- Les tâches de configuration sont distinctes des **actions métier** du registre F-85 à F-88 : elles ne deviennent pas des actions de Sprint ou de période et ne sont pas incorporées à ce titre dans les reportings métier.
+- Une tâche de configuration dispose de trois états : **À faire**, **Terminée**, **Ignorée**. Le Scrum Master peut explicitement marquer une tâche comme Terminée ou Ignorée.
+- Une tâche Ignorée n'est pas assimilée à une tâche Terminée ; ni l'une ni l'autre ne bloque la navigation ou l'utilisation des fonctionnalités disponibles.
+- Le suivi facultatif du paramétrage est accessible depuis le tableau de bord après chacun des deux parcours d'installation.
+
+**Détails restant à arbitrer :** catalogue initial de tâches et conditions d'affichage, détection automatique éventuelle d'une tâche effectivement réalisée, réactivation d'une tâche ignorée/terminée, calcul de la progression et comportement une fois la configuration considérée complète. La clôture explicite par l'utilisateur est acquise ; la clôture automatique ne l'est pas.
 
 ## 5. Non-objectifs actés
 
@@ -114,7 +121,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées ou ignorées (D-PRD-004, FR-3). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -138,7 +145,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 ## 9. Questions ouvertes à traiter progressivement
 
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
-- **P-PRD-001 :** validation d'une aide de configuration post-installation ; modèle de tâches (distinctes ou non du registre d'actions métier), états et possibilité de clore des tâches non réalisées.
+- **FR-3 / D-PRD-004 :** catalogue des tâches de configuration, règles d'affichage, réactivation, comptage de la progression et éventuelle détection automatique de réalisation (comportement non encore décidé).
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
