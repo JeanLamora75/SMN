@@ -1,13 +1,13 @@
 # SMN — Scrum Master Notebook
 
-Scrum Master Notebook (SMN) : carnet de bord et outil de reporting pour **Scrum Masters** et **Release Train Engineers**, avec trois modes d'initialisation : **Scrum**, **Kanban** et **SAFe** (ART regroupant des équipes Scrum et/ou Kanban).
+Scrum Master Notebook (SMN) : carnet de bord et outil de reporting pour **Scrum Masters** et **Release Train Engineers**, avec trois modes d'initialisation : **Scrum**, **Kanban** et **SAFe** (ART regroupant des équipes Scrum et/ou Kanban). Le MVP propose une interface **française et anglaise**, utilise **Bootstrap 5** avec des palettes de thèmes et un assistant de première installation ; les contextes projet/produit, visions, Product Goals et DoD/DoR font partie du cadrage.
 
 ## Reprendre le projet avec ChatGPT / BMAD
 
 Lire dans cet ordre :
 
 1. [Contexte de référence du projet](docs/PROJECT-CONTEXT.md) — vision, contraintes et état.
-2. [Registre des décisions fonctionnelles F-01 à F-111](docs/DECISIONS-FONCTIONNELLES.md) — arbitrages validés, changements et points ouverts.
+2. [Registre des décisions fonctionnelles F-01 à F-120](docs/DECISIONS-FONCTIONNELLES.md) — arbitrages validés, changements et points ouverts.
 3. [Cadrage fonctionnel consolidé](docs/CADRAGE-FONCTIONNEL.md) — règles détaillées par domaine, utilisables pour préparer le Product Brief, le PRD et le backlog.
 
 Les documents sont rédigés en français. Ils regroupent le brainstorming fonctionnel consolidé du **18 octobre 2026** et ne constituent pas encore un PRD ou une architecture validée.
