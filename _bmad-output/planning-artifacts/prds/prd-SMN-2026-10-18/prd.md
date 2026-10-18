@@ -156,6 +156,18 @@ Lors de la configuration d'une équipe, le Scrum Master peut indiquer un **nombr
 
 **Limites restantes :** préciser la différence entre « fiche provisoire » et « membre configuré », les exigences de validation des calendriers nécessaires aux calculs, et les effets d'une équipe passant temporairement sous 3 membres actifs. La date d'arrivée **par affectation** est désormais validée (D-PRD-009).
 
+#### FR-6 — Adresse e-mail du membre (validé : D-PRD-008 ; F-28)
+
+Le Scrum Master peut **renseigner et modifier une adresse e-mail sur la fiche centrale d'un membre**, indépendamment des affectations de celui-ci aux différentes équipes.
+
+**Conditions d'acceptation de haut niveau :**
+- Une fiche membre offre un champ adresse e-mail éditable lors de la création ou ultérieurement.
+- Le champ est **facultatif pour le MVP** : les trois informations minimales de FR-5 restent suffisantes ; aucune adresse e-mail n'est requise pour créer ou suivre un membre.
+- Une adresse renseignée fait l'objet d'une vérification de format et reste associée à la fiche centrale, sans duplications divergentes par équipe.
+- Aucune fonctionnalité d'envoi d'e-mails, d'ouverture automatique d'Outlook ou d'intégration Outlook n'est exigée au MVP au seul motif de l'existence de ce champ.
+
+**Piste ultérieure P-PRD-004 (non décidée pour une version) :** possibilité d'initier des messages ou d'ouvrir Outlook depuis SMN. Authentification, consentements, usages précis, mécanismes techniques et conditions de sécurité seraient à étudier avant de spécifier une version.
+
 #### FR-7 — Préconfiguration d'une équipe d'au moins trois personnes (validé : D-PRD-010, D-PRD-011 ; F-38/F-39, F-62/F-63, F-114/F-124)
 
 Le parcours rapide de configuration des membres d'une équipe Scrum ou Kanban propose un **effectif de 3 personnes minimum**, les rôles initiaux Scrum Master, Product Owner et Développeur, et des valeurs de pourcentage membre à 100 % dans le respect des règles de cohérence des affectations et de capacité.
@@ -168,18 +180,6 @@ Le parcours rapide de configuration des membres d'une équipe Scrum ou Kanban pr
 - La règle de minimum 3 pour une équipe déjà active dont un membre part reste à préciser (alerte ou blocage) sans interdire une fin d'affectation historisée prévue par FR-4.
 
 **Note de cohérence :** « minimum 3 » est une règle de produit exprimée par l'utilisateur pour SMN, non une affirmation de norme générale applicable à tous les usages Scrum ou Kanban.
-
-#### FR-6 — Adresse e-mail du membre (validé : D-PRD-008 ; F-28)
-
-Le Scrum Master peut **renseigner et modifier une adresse e-mail sur la fiche centrale d'un membre**, indépendamment des affectations de celui-ci aux différentes équipes.
-
-**Conditions d'acceptation de haut niveau :**
-- Une fiche membre offre un champ adresse e-mail éditable lors de la création ou ultérieurement.
-- Le champ est **facultatif pour le MVP** : les trois informations minimales de FR-5 restent suffisantes ; aucune adresse e-mail n'est requise pour créer ou suivre un membre.
-- Une adresse renseignée fait l'objet d'une vérification de format et reste associée à la fiche centrale, sans duplications divergentes par équipe.
-- Aucune fonctionnalité d'envoi d'e-mails, d'ouverture automatique d'Outlook ou d'intégration Outlook n'est exigée au MVP au seul motif de l'existence de ce champ.
-
-**Piste ultérieure P-PRD-004 (non décidée pour une version) :** possibilité d'initier des messages ou d'ouvrir Outlook depuis SMN. Authentification, consentements, usages précis, mécanismes techniques et conditions de sécurité seraient à étudier avant de spécifier une version.
 
 ## 5. Non-objectifs actés
 
