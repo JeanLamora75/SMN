@@ -98,7 +98,7 @@ Au terme de l'initialisation Express ou Guidée/Tutorée, le Scrum Master est di
 - Après validation du parcours Guidé/Tutoré, l'utilisateur accède au même tableau de bord de référence.
 - Aucune configuration détaillée facultative n'est imposée pour accéder au tableau de bord.
 
-#### FR-3 — Suivi facultatif de la configuration depuis le tableau de bord (validé : D-PRD-004)
+#### FR-3 — Suivi facultatif de la configuration depuis le tableau de bord (validé : D-PRD-004, D-PRD-005)
 
 Après une initialisation Express ou Guidée/Tutorée, le Scrum Master peut identifier sur le tableau de bord les tâches de paramétrage restant à traiter et décider librement de les réaliser ou non.
 
@@ -107,9 +107,12 @@ Après une initialisation Express ou Guidée/Tutorée, le Scrum Master peut iden
 - Les tâches de configuration sont distinctes des **actions métier** du registre F-85 à F-88 : elles ne deviennent pas des actions de Sprint ou de période et ne sont pas incorporées à ce titre dans les reportings métier.
 - Une tâche de configuration dispose de trois états : **À faire**, **Terminée**, **Ignorée**. Le Scrum Master peut explicitement marquer une tâche comme Terminée ou Ignorée.
 - Une tâche Ignorée n'est pas assimilée à une tâche Terminée ; ni l'une ni l'autre ne bloque la navigation ou l'utilisation des fonctionnalités disponibles.
+- **Fonctionnement hybride validé :** lorsqu'une configuration correspondant à une tâche À faire est effectivement réalisée et que SMN peut le détecter, la tâche passe automatiquement à l'état Terminée sans saisie supplémentaire (D-PRD-005).
+- Le Scrum Master conserve la possibilité de marquer manuellement une tâche Terminée ou Ignorée, y compris si sa réalisation ne peut pas être détectée automatiquement (D-PRD-005).
+- La détection ne doit pas déclarer comme accomplie une configuration qui n'est pas effectivement réalisée ; lorsqu'aucun constat fiable n'est possible, la clôture reste manuelle.
 - Le suivi facultatif du paramétrage est accessible depuis le tableau de bord après chacun des deux parcours d'installation.
 
-**Détails restant à arbitrer :** catalogue initial de tâches et conditions d'affichage, détection automatique éventuelle d'une tâche effectivement réalisée, réactivation d'une tâche ignorée/terminée, calcul de la progression et comportement une fois la configuration considérée complète. La clôture explicite par l'utilisateur est acquise ; la clôture automatique ne l'est pas.
+**Détails restant à arbitrer :** catalogue initial et conditions d'affichage des tâches, comportement d'une tâche **Ignorée** si le paramétrage est ensuite effectivement réalisé, réactivation des tâches et calcul de la progression, comportement de la zone une fois la configuration considérée complète. Aucun mécanisme de réouverture automatique ou de relance des tâches n'est encore acté.
 
 ## 5. Non-objectifs actés
 
@@ -121,7 +124,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées ou ignorées (D-PRD-004, FR-3). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -145,7 +148,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 ## 9. Questions ouvertes à traiter progressivement
 
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
-- **FR-3 / D-PRD-004 :** catalogue des tâches de configuration, règles d'affichage, réactivation, comptage de la progression et éventuelle détection automatique de réalisation (comportement non encore décidé).
+- **FR-3 / D-PRD-004 et D-PRD-005 :** catalogue des tâches de configuration, règles d'affichage et de réactivation, comptage de la progression, ainsi que la priorité entre état Ignorée choisi manuellement et achèvement détecté ultérieurement. Le principe du fonctionnement hybride est acté.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
