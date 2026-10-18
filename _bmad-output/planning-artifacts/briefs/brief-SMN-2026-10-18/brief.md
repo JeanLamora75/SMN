@@ -56,11 +56,11 @@ La combinaison d'une **mémoire qualitative historisée**, de **chiffres faculta
 
 Les trois difficultés confirmées suggèrent **trois axes de mesure** pour apprécier le MVP lors de l'usage personnel :
 
-- **Efficacité :** temps nécessaire pour préparer un reporting complet de période (référence déclarative actuelle : **une heure à une demi-journée pour un Sprint**), en considérant aussi l'effort de saisie au fil des périodes afin de ne pas déplacer simplement le travail.
+- **Efficacité — objectif MVP validé :** pouvoir produire un **reporting complet de fin de Sprint en moins de 30 minutes**, avec les tendances historiques disponibles dans SMN **sans reconstruction manuelle**. Référence déclarative actuelle : **une heure à une demi-journée** selon l'historique disponible. Cet objectif porte sur la **préparation finale** du rapport ; mesurer séparément l'effort de saisie et de tenue à jour pendant le Sprint, afin d'éviter un simple déplacement de la charge. La durée cible propre aux périodes Kanban et les conditions concrètes de mesure restent à préciser.
 - **Centralisation et continuité historique :** retrouver directement les résultats et leur évolution sur plusieurs périodes, sans devoir rechercher une compilation extérieure ni reconstruire les tendances manuellement.
 - **Qualité de restitution :** capacité du rapport HTML/PDF à expliquer la période aux parties prenantes en associant résultats et contexte qualitatif.
 
-Ces axes sont **des propositions de mesure et non des seuils validés**. Fréquence de mesure, situation de référence, objectifs éventuels et critères de passage vers le pilote restent à définir.
+**Seuil désormais validé :** moins de 30 minutes pour la préparation finale d'un rapport de Sprint complet incluant des tendances historiques directement disponibles. La **faisabilité** reste à démontrer en test réel ; aucun résultat du MVP n'est encore mesuré. Les axes « centralisation » et « qualité de restitution » restent à opérationnaliser et l'effort de saisie au fil du Sprint à quantifier. Fréquence de mesure et critères de passage vers le pilote restent à définir.
 
 ## Trajectoire des livraisons — orientation validée
 
@@ -103,9 +103,9 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Objectif de temps :** quelle durée cible de préparation du rapport, sans reconstruction manuelle de l'historique, permettrait de juger le MVP concluant ?
+1. **Charge de saisie :** quel temps maximal de tenue à jour de SMN pendant un Sprint serait acceptable pour ne pas déplacer le travail de reporting ?
 2. **MVP concret :** quelles capacités minimales et quels contenus de reporting HTML/PDF rendent le cycle complet Scrum/Kanban réellement utilisable ?
-3. **Critères de passage :** comment juger que le MVP est concluant pour ouvrir un pilote, puis que les retours justifient une diffusion élargie ?
+3. **Critères de passage :** quelles observations (durée réelle, restitution, centralisation, usage) permettront d'ouvrir un pilote et, ensuite, d'envisager la diffusion élargie ?
 
 ---
 
