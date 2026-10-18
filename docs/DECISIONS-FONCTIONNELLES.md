@@ -1,4 +1,4 @@
-# SMN — Registre des décisions fonctionnelles F-01 à F-111
+# SMN — Registre des décisions fonctionnelles F-01 à F-120
 
 > **Mise à jour : 18 octobre 2026** — BMAD / Mary (Analyst), consolidation du brainstorming.  
 > **Source :** décisions exprimées et confirmées dans les échanges de cadrage SMN, et référentiel initial `docs/PROJECT-CONTEXT.md`.  
@@ -121,6 +121,15 @@
 | F-109 | Inclure aussi le contexte qualitatif collectif (risques, obstacles, dépendances, décisions, faits marquants), après vérification. | Validé |
 | F-110 | Journal chronologique des faits marquants, alimenté automatiquement depuis SMN et manuellement pour événements non couverts. | Validé |
 | F-111 | Journal distinct des historiques complets ; catégories de faits automatiques configurables, promotion/masquage sans altérer les sources. | Validé |
+| F-112 | Interface internationalisée dès le MVP : français et anglais ; autres langues à prévoir via de futures User Stories. | Validé ; langue des contenus libres et exports à préciser |
+| F-113 | Thèmes CSS personnalisables par palettes de couleurs, choisis par l'utilisateur et modifiables. | Validé ; palettes exactes à concevoir |
+| F-114 | Assistant d'initialisation / première installation pour définir les principaux paramètres par défaut, avec des valeurs proposées. | Validé ; étapes précises à spécifier |
+| F-115 | Bootstrap 5 est le framework CSS retenu ; thèmes avec variables CSS et modes clair/sombre. | Validé |
+| F-116 | Contexte métier projet/produit suivi et historisé dans SMN, quel que soit le mode Scrum, Kanban ou SAFe. | Validé ; cardinalités avec équipes et ART à définir |
+| F-117 | Vision du produit et Product Goal enregistrés dans le contexte projet/produit, historisés et sélectionnables dans des rapports, bien que provenant du PO. | Validé |
+| F-118 | Definition of Done (DoD) et Definition of Ready (DoR) représentables sous forme de texte intégral dans SMN ou de lien vers un document externe, par exemple SharePoint. | Validé |
+| F-119 | En SAFe, DoD et DoR uniques au niveau ART et communes à toutes les équipes du train ; hors SAFe, au niveau équipe. | Validé |
+| F-120 | DoD et DoR incluables de façon facultative, à titre informatif, en fin de reporting ; texte intégral interne ou lien externe. | Validé ; historicité du contenu externe à préciser |
 
 ## Corrections de cadrage à retenir impérativement
 
@@ -133,6 +142,9 @@
 7. **Pas de connexion Jira automatique ni d'API IA exigée en première version** (F-16/F-102). L'import CSV ne porte que sur des valeurs consolidées (F-19).
 8. **Pas de déduction automatique du temps des cérémonies de la capacité** (F-60), et **pas de conversion des Story Points en JH** (F-61).
 9. **Reporting à tout moment**, y compris sur période en cours et sur période clôturée (F-97). Recalcul sélectif possible après clôture (F-95/F-96).
+10. **MVP français/anglais, Bootstrap 5 et thèmes**, installation par assistant (F-112 à F-115).
+11. **Projet/produit suivi indépendamment du mode**, avec vision et Product Goal historisés (F-116/F-117).
+12. **DoD et DoR uniques pour toutes les équipes d'un ART** ; lien ou texte, intégration possible en fin de rapport (F-118 à F-120).
 
 ## Ce qui reste ouvert (ne pas présenter comme décidé)
 
@@ -144,6 +156,10 @@
 - Politique de conservation, suppression et visibilité des fichiers TXT d'IA (hors règles explicitement actées), schéma des modèles de briefs.
 - Catalogue initial des « faits marquants » automatiquement remontés (sélection administrable actée).
 - Identification des éventuels KPI ART comparables et règles d'agrégation ; ne pas sommer les SP des équipes.
+- Cardinalités projet/produit ↔ équipe/ART, changements de rattachement et lien entre Product Goal et objectifs de Sprint/PI.
+- Traduction des contenus métier saisis et des exports, paramètres régionaux, langues futures.
+- Palettes et accessibilité, étapes de l'assistant de première installation et paramètres exacts.
+- Références de versions DoD/DoR SharePoint : une URL ne préserve pas nécessairement le contenu historique.
 
 ## Règle d'utilisation
 
