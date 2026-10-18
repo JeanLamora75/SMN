@@ -1,4 +1,4 @@
-# SMN — Registre des décisions fonctionnelles F-01 à F-120
+# SMN — Registre des décisions fonctionnelles F-01 à F-121
 
 > **Mise à jour : 18 octobre 2026** — BMAD / Mary (Analyst), consolidation du brainstorming.  
 > **Source :** décisions exprimées et confirmées dans les échanges de cadrage SMN, et référentiel initial `docs/PROJECT-CONTEXT.md`.  
@@ -130,6 +130,7 @@
 | F-118 | Definition of Done (DoD) et Definition of Ready (DoR) représentables sous forme de texte intégral dans SMN ou de lien vers un document externe, par exemple SharePoint. | Validé |
 | F-119 | En SAFe, DoD et DoR uniques au niveau ART et communes à toutes les équipes du train ; hors SAFe, au niveau équipe. | Validé |
 | F-120 | DoD et DoR incluables de façon facultative, à titre informatif, en fin de reporting ; texte intégral interne ou lien externe. | Validé ; historicité du contenu externe à préciser |
+| F-121 | Chaque équipe Scrum/Kanban autonome suit un seul produit ; en SAFe, chaque ART suit un seul produit commun à toutes ses équipes, sans produits distincts par équipe. | Validé ; changements éventuels au fil du temps à préciser |
 
 ## Corrections de cadrage à retenir impérativement
 
@@ -145,6 +146,7 @@
 10. **MVP français/anglais, Bootstrap 5 et thèmes**, installation par assistant (F-112 à F-115).
 11. **Projet/produit suivi indépendamment du mode**, avec vision et Product Goal historisés (F-116/F-117).
 12. **DoD et DoR uniques pour toutes les équipes d'un ART** ; lien ou texte, intégration possible en fin de rapport (F-118 à F-120).
+13. **Un seul produit par équipe autonome ; un seul produit commun par ART** pour toutes ses équipes Scrum/Kanban (F-121).
 
 ## Ce qui reste ouvert (ne pas présenter comme décidé)
 
@@ -156,7 +158,7 @@
 - Politique de conservation, suppression et visibilité des fichiers TXT d'IA (hors règles explicitement actées), schéma des modèles de briefs.
 - Catalogue initial des « faits marquants » automatiquement remontés (sélection administrable actée).
 - Identification des éventuels KPI ART comparables et règles d'agrégation ; ne pas sommer les SP des équipes.
-- Cardinalités projet/produit ↔ équipe/ART, changements de rattachement et lien entre Product Goal et objectifs de Sprint/PI.
+- Principe produit unique par équipe autonome et par ART **tranché** (F-121). Restent à définir le traitement d'un éventuel changement de produit dans le temps et le lien entre Product Goal et objectifs de Sprint/PI.
 - Traduction des contenus métier saisis et des exports, paramètres régionaux, langues futures.
 - Palettes et accessibilité, étapes de l'assistant de première installation et paramètres exacts.
 - Références de versions DoD/DoR SharePoint : une URL ne préserve pas nécessairement le contenu historique.
