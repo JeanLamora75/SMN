@@ -322,6 +322,22 @@ Le Scrum Master dispose, dans l'administration, d'un **catalogue des catégories
 
 **À préciser :** mécanisme technique permettant de reconnaître l'ouverture effective en Scrum/Kanban, traitement des périodes Kanban définies a posteriori, présentation d'une capacité constatée provisoire avant clôture, méthode/provenance facultative ou obligatoire des estimations historiques, ergonomie du basculement explicite Saisie/Calcul lors de la correction d'une capacité initiale figée, et présentation de l'écart quand la capacité de référence est non renseignée (aucun faux écart numérique).
 
+### 4.8 Paramétrage de la cadence et génération des Sprints Scrum — MVP
+
+#### FR-15 — Configurer la durée et générer les Sprints (validé : D-PRD-036 ; F-43, F-44, F-45)
+
+Dans une installation en mode **Scrum**, SMN propose une durée de Sprint de **deux semaines par défaut**. Le Scrum Master peut choisir **une, deux, trois ou quatre semaines**. Après saisie de la **date de début du premier Sprint**, SMN peut **générer automatiquement les Sprints successifs** selon la cadence sélectionnée, tout en permettant de modifier leurs dates.
+
+**Conditions d'acceptation de haut niveau :**
+- Le paramétrage de l'équipe Scrum propose une durée par défaut de **2 semaines** ; seules les durées **1, 2, 3 ou 4 semaines** sont proposées au MVP (D-PRD-036).
+- Le Scrum Master renseigne la **date de début du premier Sprint** ; SMN en déduit les bornes des Sprints successifs selon la cadence, sans devoir créer chaque période manuellement (F-43).
+- Le calendrier et les fiches de Sprints exposent les dates calculées ; le Scrum Master peut **corriger les dates d'un Sprint** selon F-43, avec contrôle de cohérence avec les autres périodes.
+- La génération de périodes et leurs modifications ne doivent pas écraser silencieusement les données des Sprints déjà renseignés, les capacités initialement figées (FR-14) ou les historiques.
+- Ce réglage concerne le **mode Scrum autonome au MVP** ; les périodes Kanban mensuelles par défaut suivent F-49 et la cadence SAFe pilotée par l'ART suit F-50, sans assimilation de toutes les périodes à des Sprints.
+
+**À préciser :** nombre/horizon de Sprints générés à l'avance, convention de date et de fin inclusive/exclusive, jours de la semaine, comportement des Sprints existants en cas de changement de durée, propagation des ajustements de dates aux périodes suivantes, contrôle des chevauchements et lien avec la création automatique des événements Agile (F-44 à F-48).
+
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP.
@@ -368,6 +384,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-11 / D-PRD-021, D-PRD-026 et D-PRD-027 (précision de F-35) :** cas régionaux saisis en absences individuelles avec catégorie et nom/motif obligatoire, affichés avec couleur liée à la catégorie. Ne pas implémenter au MVP de sélection automatique des calendriers régionaux ; conserver les règles de capacité et d'événements d'absence individuelle.
 - **FR-12 / D-PRD-024 à D-PRD-027 :** deux points d'accès à la même absence centrale validés. **Nom/motif obligatoire pour toute absence et affiché dans le calendrier, avec la couleur de sa catégorie** ; aucune saisie groupée au MVP (P-PRD-005 possible ultérieurement). Restent à préciser l'ergonomie mobile et la visibilité des périodes hors affectation.
 - **FR-13 / D-PRD-027 à D-PRD-030 :** catalogue de catégories d'absences administrable (nom et couleur), initialisé avec Congés, Formation, Maladie sans détail médical, Autre. **Désactivation validée : catégorie absente des choix de nouvelles absences, tout en restant consultable dans l'historique**. **Changement de couleur rétroactif dans les calendriers dynamiques**, sans modifier les PDF déjà générés. **Renommage rétroactif des catégories dans les vues dynamiques**, sans changement du nom/motif individuel ni des PDF déjà générés. À spécifier : réactivation, audit des modifications, éventuelle suppression des catégories inutilisées, accessibilité et affichage sur mobile.
+- **FR-15 / D-PRD-036 :** durée des Sprints Scrum **1, 2, 3 ou 4 semaines**, **2 semaines par défaut** ; génération successive à partir de la date de début du premier Sprint, dates ajustables. Restent à préciser l'horizon de génération, les conventions de dates, le changement de cadence et la propagation des corrections de dates.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - **FR-14 / D-PRD-031 à D-PRD-035 :** capacité prévue et capacité réellement constatée suivies séparément, écarts disponibles dans les reportings. **Chaque indicateur affiche la référence calculée près du champ** ; **une valeur manuelle prévaut et persiste même si le calcul change** ; **effacer explicitement la saisie réactive le calcul automatique** lorsqu'il est disponible. La provenance Saisie/Calcul est conservée ; la qualité historique Connue / Estimée / Non renseignée reste distincte (aucune donnée absente transformée en 0 JH). Les références initiales figées et périodes clôturées conservent leurs garanties d'historisation. **Figement automatique à l'ouverture effective de la période (démarrage du Sprint Scrum ou de la période Kanban), sans bouton dédié** ; exceptions de reprise historique conservées. Restent à préciser la détection technique de l'ouverture, les capacités réelles provisoires et la justification des estimations.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
