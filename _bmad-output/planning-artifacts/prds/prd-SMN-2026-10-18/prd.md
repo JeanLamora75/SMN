@@ -84,7 +84,7 @@ Les groupes ci-dessous constituent le **plan de travail** du PRD. Les exigences 
 
 **Description :** au premier lancement, le SM renseigne les informations minimales requises (choix du mode Scrum ou Kanban avec explication, nom de la première équipe, nom du produit de référence), avec des valeurs par défaut pour les autres paramètres. Le mode SAFe demeure prévu pour la version 1.0. Le SM peut choisir un parcours Express ou un parcours Guidé/Tutoré ; l'initialisation aboutit au tableau de bord, sans rendre la configuration détaillée obligatoire à ce stade.
 
-#### FR-1 — Choix du parcours d'initialisation (validé : D-PRD-002 ; F-114, F-123, F-124)
+#### FR-1 — Choix du parcours d'initialisation (validé : D-PRD-002, D-PRD-042 ; F-114, F-123, F-124)
 
 Le Scrum Master peut choisir entre **Express** et **Guidé/Tutoré** pour créer son installation.
 
@@ -92,6 +92,7 @@ Le Scrum Master peut choisir entre **Express** et **Guidé/Tutoré** pour créer
 - Le choix des deux parcours est disponible lors de la première initialisation.
 - Le parcours Express ne requiert que les données métier minimales déjà actées : mode Scrum ou Kanban, nom de la première équipe et nom du produit de référence. Le détail des réglages supplémentaires est différé.
 - Le parcours Guidé/Tutoré accompagne progressivement l'utilisateur dans le paramétrage ; les éléments facultatifs peuvent être laissés pour plus tard.
+- Pour le **mode Scrum**, l'installation **Guidée** propose de paramétrer les **horaires des Daily Scrums** ainsi que le **jour et l'heure de début des Sprints** (D-PRD-042). Ces choix sont préremplis lorsque des défauts existent, personnalisables et modifiables ultérieurement ; ils ne deviennent pas des champs obligatoires du parcours Express.
 - Dans les deux parcours, les règles F-41/F-49/F-114/F-123/F-124 demeurent applicables : mode fixe, produit unique et fixe, description du mode choisi, informations obligatoires limitées, valeurs par défaut cohérentes. La composition détaillée de l'assistant reste à concevoir.
 
 #### FR-2 — Accès au tableau de bord après l'initialisation (validé : D-PRD-003)
@@ -330,6 +331,7 @@ Dans une installation en mode **Scrum**, SMN propose une durée de Sprint de **d
 
 **Conditions d'acceptation de haut niveau :**
 - Le paramétrage de l'équipe Scrum propose une durée par défaut de **2 semaines** ; seules les durées **1, 2, 3 ou 4 semaines** sont proposées au MVP (D-PRD-036).
+- La configuration par défaut de la cadence place le **début du Sprint le lundi à 09 h 00** et sa **fin le vendredi de la dernière semaine** (D-PRD-042), sans imposer à ce stade un horaire précis pour la fin du vendredi. Ces règles sont modifiables et ne désignent pas une date calendaire absolue de premier Sprint ; la date effective reste renseignée lors de la planification.
 - Le Scrum Master renseigne la **date de début du premier Sprint** ; **un seul Sprint est généré par défaut**, avec dates calculées selon la cadence (F-43).
 - Une commande de **création par lot** permet de choisir un nombre **X de Sprints** à générer en une opération ; SMN calcule les bornes successives selon la durée paramétrée, sans que le Scrum Master ait à créer chaque Sprint séparément. Aucune prolongation automatique de l'horizon calendaire n'est requise (D-PRD-037).
 - Depuis une sélection simple ou multiple, le Scrum Master peut **supprimer un ou plusieurs Sprints non démarrés**, avec confirmation explicite. **Un Sprint démarré n'est pas supprimable** par cette action ; ses données historiques et sa capacité de référence (FR-14) demeurent protégées. Les éventuels impacts sur les événements déjà planifiés pour des Sprints non démarrés doivent être visibles avant confirmation ; les règles détaillées de traitement de ces événements restent à définir.
@@ -358,6 +360,33 @@ SMN distingue **l'achèvement calendaire** du Sprint et sa **clôture fonctionne
 - Le retour exceptionnel à **À venir** pour replanification (FR-15/D-PRD-038) et la réouverture d'un Sprint clôturé sont des actions distinctes : elles n'autorisent jamais l'effacement silencieux des données.
 
 **À préciser :** événement exact de passage à « Terminé » (fin de date locale ou horodatage métier), ergonomie de la clôture/réouverture/reclôture, avertissements non bloquants sur les données manquantes et effets d'un décalage de date de fin sur un Sprint déjà terminé. **Le statut après réouverture est décidé : « Terminé » (D-PRD-040).**
+
+### 4.9 Génération des cérémonies Scrum et durées par défaut — MVP
+
+#### FR-17 — Générer les événements Scrum dès la création du Sprint (validé : D-PRD-041 à D-PRD-043 ; F-44 à F-48, F-53 à F-57)
+
+Dès la **création d'un Sprint Scrum**, SMN génère automatiquement ses événements Agile récurrents ou ponctuels : **Sprint Planning**, **Daily Scrum**, **Sprint Review** et **Sprint Retrospective**. Les horaires et durées proposés sont paramétrables dans l'administration et personnalisables par équipe puis par occurrence ; le Scrum Master n'a pas à recréer manuellement les cérémonies de chaque Sprint.
+
+**Conditions d'acceptation de haut niveau :**
+- La création d'un seul Sprint ou d'un lot de X Sprints (FR-15) déclenche la **génération des cérémonies associées à chaque Sprint**, de manière cohérente avec ses dates et avec les réglages de l'équipe (D-PRD-041).
+- Le **Sprint Planning** est positionné au début du Sprint ; **Sprint Review** et **Sprint Retrospective** à sa fin ; les **Daily Scrums** sont répartis sur les jours travaillés applicables de la période, à l'horaire paramétré (F-44/F-55). Le créneau horaire précis des cérémonies de fin reste modifiable.
+- En installation **Guidée**, pour une équipe Scrum, SMN demande les **horaires des Daily Scrums** et le **jour ainsi que l'heure de début des Sprints** (D-PRD-042). Pour l'installation **Express/par défaut**, le Sprint commence **le lundi à 09 h 00** et se termine **le vendredi de sa dernière semaine**. **L'heure par défaut des Daily n'est pas encore décidée** ; l'horaire de fin du vendredi non plus. Les réglages de calendrier sont modifiables ultérieurement sans exiger ces saisies pendant l'Express.
+- Le calcul des **durées initialement proposées** pour Planning, Review et Retrospective utilise les *timeboxes maximales* du **Scrum Guide** pour un Sprint d'**un mois** : **Planning 8 h, Review 4 h, Retrospective 3 h**. Pour la configuration MVP exprimée en **1 à 4 semaines**, SMN applique une **règle de prorata** avec **4 semaines comme référence pratique du mois** (D-PRD-043). Ce prorata est une règle de configuration **SMN**, pas une exigence chiffrée du Scrum Guide pour chaque durée de Sprint.
+- Tableau des durées initiales proposées par SMN (modifiable dans l'administration et sur les événements) :
+
+  | Durée du Sprint | Sprint Planning | Sprint Review | Sprint Retrospective |
+  | --- | ---: | ---: | ---: |
+  | 1 semaine | 2 h | 1 h | 45 min |
+  | 2 semaines | 4 h | 2 h | 1 h 30 |
+  | 3 semaines | 6 h | 3 h | 2 h 15 |
+  | 4 semaines | 8 h | 4 h | 3 h |
+
+- La **Daily Scrum** dure **15 minutes** quelle que soit la durée du Sprint, conformément au Scrum Guide ; son **horaire de début** est configurable. Les durées proposées pour les autres cérémonies restent des valeurs par défaut, non des durées imposées à l'utilisateur.
+- Le Scrum Master peut modifier **date, heure et durée** de chaque événement, tout en conservant l'heure prévue et l'heure réellement tenue pour les événements reportés (F-46) ; pour les séries récurrentes, les changements d'une occurrence ou d'une occurrence et des suivantes suivent F-57.
+- Les **Daily** sont présumées tenues sur les jours de travail prévus, et leurs absences de tenue sont saisies comme exceptions (F-55). Si toute l'équipe est collectivement non disponible, elles ne sont pas générées ; les indisponibilités individuelles ne provoquent pas d'annulation automatique ni d'alerte collective (F-54/F-55). Les autres cérémonies conservent leurs alertes non bloquantes sur les jours non travaillés collectifs sans suppression ou déplacement automatique (F-56).
+- Les dates, heures et durées sont interprétées selon le **fuseau horaire de référence de l'équipe** (F-53). Les modifications des Sprints existants ou leur suppression autorisée ne doivent pas recréer de doublons ou effacer silencieusement les événements et leur historique.
+
+**À préciser :** heure par défaut du Daily en parcours Express, heure de fin du vendredi, plages exactes des cérémonies Planning/Review/Rétro et leur éventuel placement automatique sans conflit, priorités de configuration administration/équipe/événement, comportements de régénération après modification d'un Sprint, cas des jours fériés et fermetures, règles détaillées de passage des séries lors des modifications de cadence.
 
 ## 5. Non-objectifs actés
 
@@ -409,6 +438,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - **FR-14 / D-PRD-031 à D-PRD-035 :** capacité prévue et capacité réellement constatée suivies séparément, écarts disponibles dans les reportings. **Chaque indicateur affiche la référence calculée près du champ** ; **une valeur manuelle prévaut et persiste même si le calcul change** ; **effacer explicitement la saisie réactive le calcul automatique** lorsqu'il est disponible. La provenance Saisie/Calcul est conservée ; la qualité historique Connue / Estimée / Non renseignée reste distincte (aucune donnée absente transformée en 0 JH). Les références initiales figées et périodes clôturées conservent leurs garanties d'historisation. **Figement automatique à l'ouverture effective de la période (démarrage du Sprint Scrum ou de la période Kanban), sans bouton dédié** ; exceptions de reprise historique conservées. Restent à préciser la détection technique de l'ouverture, les capacités réelles provisoires et la justification des estimations.
 - **FR-16 / D-PRD-039 et D-PRD-040 :** passage automatique à **Terminé** à la fin calendaire, puis **Clôturé uniquement sur action du Scrum Master** ; la **réouverture volontaire d'un Sprint clôturé le ramène à « Terminé »**, jamais à « En cours », et permet une nouvelle clôture sans effacer les capacités ni l'historique. KPI facultatifs au sens de F-72. À préciser : horodatage exact de fin, avertissements et effets de replanification après la date de fin.
+- **FR-1, FR-15 et FR-17 / D-PRD-041 à D-PRD-043 :** génération automatique des cérémonies à la création d'un Sprint ; installation guidée proposant l'horaire des Daily et le jour/heure de démarrage des Sprints ; par défaut, **lundi 09 h 00 → vendredi de la dernière semaine** ; durées Planning/Review/Rétro adaptées au prorata sur une base de 4 semaines à partir des timeboxes du Scrum Guide, Daily fixe 15 min. Reste à déterminer **l'heure du Daily par défaut pour l'installation Express**, l'heure de fin du vendredi et les règles exactes de positionnement des événements.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
 - Confidentialité, mécanismes de protection des données, sauvegardes, accessibilité, langue des contenus libres et exports.
