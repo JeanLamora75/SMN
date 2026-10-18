@@ -50,7 +50,8 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 - **Produit de référence :** produit suivi par l'installation, pouvant porter une vision et un Product Goal historisés.
 - **Équipe :** collectif Scrum ou Kanban associé au produit de référence.
 - **Membre :** personne référencée une seule fois dans l'installation et pouvant être affectée à plusieurs équipes, avec un historique de disponibilité et de participation (F-26 à F-31). Sa fiche centrale peut inclure une adresse e-mail (D-PRD-008).
-- **Fiche provisoire :** membre créé lors de l'ajout rapide, doté d'un nom provisoire modifiable, d'une date d'arrivée initialisée et d'un rôle Agile proposé, puis enrichissable ultérieurement (D-PRD-007).
+- **Fiche provisoire :** membre créé lors de l'ajout rapide, doté d'un nom provisoire modifiable, d'une date d'arrivée d'affectation initialisée et d'un rôle Agile proposé, puis enrichissable ultérieurement (D-PRD-007, D-PRD-009).
+- **Date d'arrivée dans une équipe :** date de début effective de l'affectation d'un membre à cette équipe, indépendante de la date de création de sa fiche centrale et des dates de ses autres affectations (D-PRD-009).
 - **Affectation :** rattachement daté d'un membre à une équipe ; y mettre fin ne supprime ni sa fiche centrale ni ses affectations dans d'autres équipes.
 - **Archivage de membre :** retrait réversible d'une fiche de membre de l'utilisation courante, tout en conservant les données métier et historiques liées.
 - **Période :** Sprint en Scrum ou période de reporting en Kanban autonome (mensuelle par défaut).
@@ -136,20 +137,37 @@ Le Scrum Master peut gérer les membres devenus inutiles selon leur historique :
 
 **Détails à spécifier :** critère exact d'une fiche « sans données métier à préserver », confirmation avant suppression, traitement des affectations futures, comportement des affectations simultanées lors d'un archivage, restauration/réactivation et visibilité des fiches archivées. Les modalités techniques de stockage et de suppression seront définies en architecture.
 
-#### FR-5 — Création rapide et enrichissement des membres (validé : D-PRD-007 ; F-05, F-28, F-31, F-38, F-39, F-58 à F-63)
+#### FR-5 — Création rapide et enrichissement des membres (validé : D-PRD-007, D-PRD-009, D-PRD-010 ; F-05, F-26, F-28, F-31, F-38, F-39, F-58 à F-63)
 
 Lors de la configuration d'une équipe, le Scrum Master peut indiquer un **nombre de membres** pour créer rapidement autant de fiches provisoires, puis les enrichir individuellement.
 
 **Conditions d'acceptation de haut niveau :**
-- Le Scrum Master indique le nombre de membres à créer ; SMN initialise autant de fiches identifiables avec un nom provisoire du type « Membre 1 », « Membre 2 », etc., remplaçable par un nom réel.
+- Le Scrum Master indique le nombre de membres à créer ; SMN propose **3 membres** par défaut, sans permettre de saisir un effectif inférieur à 3 dans ce parcours (D-PRD-010). SMN initialise autant de fiches identifiables avec un nom provisoire du type « Membre 1 », « Membre 2 », etc., remplaçable par un nom réel.
+- Les **trois premiers membres** reçoivent, respectivement, les rôles Agile **Scrum Master**, **Product Owner**, **Développeur** ; tous les membres supplémentaires reçoivent le rôle **Développeur** par défaut, aussi bien en mode Scrum qu'en mode Kanban (D-PRD-010). L'attribution reste modifiable ensuite selon les règles de rôles F-38/F-39.
 - Pour chaque fiche initiale, les trois informations minimales sont : **nom**, **date d'arrivée**, **rôle Agile**. Le nom est requis mais peut initialement être provisoire ; cette nature provisoire doit rester identifiable.
-- La **date d'arrivée est préremplie avec la date de création de la fiche membre** et peut être corrigée par le Scrum Master, notamment pour les membres déjà présents auparavant ; elle ne doit pas être interprétée comme une date forcément constatée.
-- Le **rôle Agile est obligatoire** et reçoit la valeur proposée « Développeur » par défaut, modifiable selon le catalogue de rôles de l'équipe (F-38, F-39).
+- La **date d'arrivée est propre à l'affectation d'un membre dans chaque équipe** (D-PRD-009, F-26/F-28/F-31) ; lors de sa création rapide, elle est proposée à la **date de création de la fiche membre**, puis reste modifiable. Un même membre peut avoir des dates d'arrivée différentes dans deux équipes ; la date de création de la fiche centrale reste distincte.
+- Le **rôle Agile est obligatoire** et prérempli selon la position du membre dans la création rapide (Scrum Master / Product Owner / Développeur, puis Développeur pour les suivants). Il reste modifiable selon le catalogue de rôles de l'équipe (F-38, F-39, D-PRD-010).
+- Les **paramètres de pourcentage du membre** sont proposés à **100 %** lorsqu'applicables (D-PRD-011) : temps contractuel, taux d'affectation à l'équipe, part du rôle Agile initial, coefficient de contribution. Le rôle initial représente 100 % de la répartition des rôles de ce membre dans cette équipe tant qu'aucun autre rôle n'est ajouté ; cela maintient la somme à 100 % (F-63).
+- La somme des affectations simultanées d'un même membre à plusieurs équipes **ne dépasse jamais 100 %** de son temps contractuel (F-62). Une nouvelle affectation préremplie à 100 % qui ferait dépasser cette limite doit être corrigée avant validation ; le préremplissage n'écarte pas le contrôle bloquant.
+- Un membre ayant 100 % d'activité Scrum Master ou Product Owner, sans part Développeur, n'ajoute pas de capacité de développement via ces rôles (F-58/F-59). Les **KPI de Sprint/Kanban restent facultatifs** et ne doivent pas être préremplis artificiellement à 100 % (F-72). La **marge de planification d'équipe** est un paramètre distinct (F-32) : son éventuelle valeur par défaut exacte reste à spécifier.
 - Le Scrum Master peut revenir compléter la fiche et ses données de capacité (calendrier, disponibilités, pourcentages d'affectation, parts d'activité par rôle, coefficient de contribution) ; toutes les règles bloquantes applicables sont respectées dès lors que les affectations sont finalisées (F-62/F-63).
 - Tant que les données requises pour calculer une contribution ne sont pas suffisantes et valides, la capacité correspondante est affichée **non calculable**, jamais présumée égale à zéro. Aucune fiche provisoire ne doit créer artificiellement une capacité dans les bilans.
 - La création rapide n'empêche ni la modification ultérieure, ni la suppression/fin d'affectation/archivage sous les conditions de FR-4.
 
-**Précision métier ouverte :** l'utilisateur a parlé de « date d'arrivée du membre ». Comme un membre peut rejoindre plusieurs équipes à des dates différentes (F-26/F-28/F-31), il faudra confirmer si cette date représente l'arrivée **dans chaque équipe** (rattachée à l'affectation) ou une date d'entrée globale. Aucun lien avec la date de naissance, ni collecte de cette dernière, n'est envisagé.
+**Limites restantes :** préciser la différence entre « fiche provisoire » et « membre configuré », les exigences de validation des calendriers nécessaires aux calculs, et les effets d'une équipe passant temporairement sous 3 membres actifs. La date d'arrivée **par affectation** est désormais validée (D-PRD-009).
+
+#### FR-7 — Préconfiguration d'une équipe d'au moins trois personnes (validé : D-PRD-010, D-PRD-011 ; F-38/F-39, F-62/F-63, F-114/F-124)
+
+Le parcours rapide de configuration des membres d'une équipe Scrum ou Kanban propose un **effectif de 3 personnes minimum**, les rôles initiaux Scrum Master, Product Owner et Développeur, et des valeurs de pourcentage membre à 100 % dans le respect des règles de cohérence des affectations et de capacité.
+
+**Conditions d'acceptation de haut niveau :**
+- Au démarrage de la configuration des membres de l'équipe, la quantité proposée est 3 et aucune valeur inférieure à 3 n'est acceptée par cette fonctionnalité.
+- Pour 3 membres : les rôles proposés sont Scrum Master / Product Owner / Développeur, chacun pour une fiche distincte. Pour 5 membres : les rôles proposés sont Scrum Master / Product Owner / Développeur / Développeur / Développeur.
+- Les pourcentages initiaux de temps contractuel, d'affectation, de rôle et de contribution sont **100 % chacun lorsqu'ils s'appliquent** ; ces propositions restent éditables et ne contournent pas les contrôles F-62 et F-63.
+- Un premier lancement en mode **Express** reste réalisable sans création ni configuration des membres, conformément à F-124 et FR-1 : l'effectif minimum concerne le parcours de **configuration des membres**, non les informations métier obligatoires dans l'assistant initial.
+- La règle de minimum 3 pour une équipe déjà active dont un membre part reste à préciser (alerte ou blocage) sans interdire une fin d'affectation historisée prévue par FR-4.
+
+**Note de cohérence :** « minimum 3 » est une règle de produit exprimée par l'utilisateur pour SMN, non une affirmation de norme générale applicable à tous les usages Scrum ou Kanban.
 
 #### FR-6 — Adresse e-mail du membre (validé : D-PRD-008 ; F-28)
 
@@ -173,7 +191,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'un nombre de membres choisi**, avec nom, date d'arrivée et rôle, et un **champ e-mail facultatif sur la fiche centrale**, sans envoi automatique de messages (FR-5, FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, et champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -198,7 +216,9 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
 - **FR-3 / D-PRD-004 et D-PRD-005 :** catalogue des tâches de configuration, règles d'affichage et de réactivation, comptage de la progression, ainsi que la priorité entre état Ignorée choisi manuellement et achèvement détecté ultérieurement. Le principe du fonctionnement hybride est acté.
-- **FR-5 / D-PRD-007 :** la création rapide de membres est validée avec nom provisoire modifiable, date d'arrivée modifiable (date de création par défaut) et rôle Agile obligatoire (Développeur par défaut). À préciser : date d'arrivée centrale ou propre à chaque affectation d'équipe (F-26, F-28, F-31), distinction fiche provisoire / fiche complète et validations des données historiques.
+- **FR-5 / D-PRD-007, D-PRD-009 à D-PRD-011 :** création rapide validée avec noms provisoires, date d'arrivée **propre à chaque affectation d'équipe**, modifiable, initialisée par la date de création de fiche ; 3 membres par défaut et minimum dans le formulaire, rôles initiaux Scrum Master/Product Owner/Développeur, puis Développeur pour les suivants. Pourcentages membres initiaux à 100 % sans contournement des validations F-62/F-63. À préciser : distinction fiche provisoire / complète et validations des données historiques.
+- **FR-7 / D-PRD-010 :** comportement d'une équipe historiquement active passant **sous 3 membres** à la suite d'un départ : alerte ou blocage à arbitrer ; l'initialisation Express ne doit pas être bloquée par l'absence de membres (F-124).
+- **D-PRD-011 :** la valeur de la **marge de planification d'équipe**, distincte des pourcentages membre (F-32), n'est pas fixée ; ne pas en déduire un taux de 100 % de marge.
 - **FR-4 / D-PRD-006 :** principe de suppression des fiches vierges et de fin d'affectation/archivage réversible validé. Restent à spécifier les critères exacts d'une fiche sans historique, les confirmations, l'effet sur les affectations simultanées/futures et l'ergonomie de réactivation.
 - **FR-6 / D-PRD-008 :** adresse e-mail centralisée éditable dès le MVP ; son caractère facultatif est une interprétation cohérente avec le minimum FR-5, à rectifier si souhaité. **P-PRD-004 :** envoi d'e-mails ou ouverture d'Outlook, possibilité future sans engagement de version.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
