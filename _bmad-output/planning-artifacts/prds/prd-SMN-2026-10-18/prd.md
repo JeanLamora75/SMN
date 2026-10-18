@@ -149,6 +149,8 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
 - **FR-3 / D-PRD-004 et D-PRD-005 :** catalogue des tâches de configuration, règles d'affichage et de réactivation, comptage de la progression, ainsi que la priorité entre état Ignorée choisi manuellement et achèvement détecté ultérieurement. Le principe du fonctionnement hybride est acté.
+- **P-PRD-002 — Création rapide des membres (proposition de l'utilisateur, non validée) :** renseigner le nombre de membres de l'équipe, générer des fiches provisoires avec seulement un prénom ou identifiant provisoire, puis compléter les informations ultérieurement. Spécifier le nommage, la validation d'une fiche incomplète et son exclusion éventuelle des calculs de capacité jusqu'à complétude.
+- **P-PRD-003 — Suppression et archivage des membres (proposition à arbitrer) :** suppression définitive uniquement pour une fiche sans données métier à préserver ; pour un membre historisé, fin datée de l'affectation à une équipe (sans supprimer les autres affectations), ou archivage global réversible lorsque la personne ne participe plus aux équipes de l'installation. Préserver composition, capacité et rapports historiques (F-26 à F-34, F-58 à F-63, F-93). Définir le critère précis de « sans données », le contrôle avant suppression et la réactivation ; aucune modalité de suppression n'est encore validée.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
