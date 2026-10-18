@@ -30,7 +30,7 @@ Le problème métier identifié par l'utilisateur combine **trois difficultés i
 
 **Conséquence recherchée :** une mémoire centralisée et historisée, alimentée progressivement et avec peu de saisie, qui permette de produire un reporting complet, intelligible et contextualisé sans reconstruire manuellement l'histoire d'une période.
 
-**Restent à documenter :** outils/supports actuellement utilisés, exemples concrets et temps de préparation de référence. Aucun gain chiffré n'a encore été établi.
+**Situation actuelle déclarée par l'utilisateur :** la préparation d'un reporting complet de fin de Sprint représente **entre une heure et une demi-journée**, selon que l'historique permettant de dégager une tendance est déjà compilé et retrouvable ou qu'il faut **le reconstruire**. Cette fourchette est une **estimation personnelle**, et non une mesure chronométrée. Les outils/supports concrets utilisés restent à documenter ; aucun gain chiffré n'a encore été établi.
 
 ## Utilisateurs et bénéficiaires — validé / à préciser
 
@@ -56,8 +56,8 @@ La combinaison d'une **mémoire qualitative historisée**, de **chiffres faculta
 
 Les trois difficultés confirmées suggèrent **trois axes de mesure** pour apprécier le MVP lors de l'usage personnel :
 
-- **Efficacité :** temps nécessaire pour préparer un reporting de période, comparé à une situation de référence documentée, en tenant compte du temps de saisie dans SMN.
-- **Centralisation :** facilité à retrouver dans SMN les informations utiles au bilan sans devoir recomposer manuellement plusieurs sources.
+- **Efficacité :** temps nécessaire pour préparer un reporting complet de période (référence déclarative actuelle : **une heure à une demi-journée pour un Sprint**), en considérant aussi l'effort de saisie au fil des périodes afin de ne pas déplacer simplement le travail.
+- **Centralisation et continuité historique :** retrouver directement les résultats et leur évolution sur plusieurs périodes, sans devoir rechercher une compilation extérieure ni reconstruire les tendances manuellement.
 - **Qualité de restitution :** capacité du rapport HTML/PDF à expliquer la période aux parties prenantes en associant résultats et contexte qualitatif.
 
 Ces axes sont **des propositions de mesure et non des seuils validés**. Fréquence de mesure, situation de référence, objectifs éventuels et critères de passage vers le pilote restent à définir.
@@ -103,7 +103,7 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Situation de référence :** combien de temps prend aujourd'hui la préparation d'un rapport de Sprint ou de période, et à partir de quels supports ?
+1. **Objectif de temps :** quelle durée cible de préparation du rapport, sans reconstruction manuelle de l'historique, permettrait de juger le MVP concluant ?
 2. **MVP concret :** quelles capacités minimales et quels contenus de reporting HTML/PDF rendent le cycle complet Scrum/Kanban réellement utilisable ?
 3. **Critères de passage :** comment juger que le MVP est concluant pour ouvrir un pilote, puis que les retours justifient une diffusion élargie ?
 
