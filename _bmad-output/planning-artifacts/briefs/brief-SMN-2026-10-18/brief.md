@@ -121,13 +121,27 @@ Le MVP propose un **modèle de rapport prérempli en six sections**, applicable 
 
 **À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, les détails de saisie et de liaison des six catégories qualitatives, les contenus précis et les règles de personnalisation du modèle de rapport en six sections, ainsi que les fonctions avancées à reporter hors MVP (SAFe étant déjà prévu en version 1.0).
 
+## Validation en conditions réelles et reprise d'historique
+
+### Expérimentation personnelle — décision validée
+
+Avant toute ouverture à un échantillon d'utilisateurs, **tester le MVP sur au moins trois Sprints complets**, en utilisation personnelle et en conditions réelles, **ainsi que sur un cycle de reporting Kanban**. Vérifier les durées de saisie hebdomadaire et de préparation finale, l'exactitude des bilans, la fiabilité des tendances historiques et l'utilité des rapports HTML/PDF. Les critères définitifs de passage au pilote restent à expliciter ; ces essais ne constituent pas encore une preuve que les objectifs chiffrés sont atteints.
+
+### Reprise des Sprints passés — possibilité demandée, version à décider
+
+Le produit doit **préserver la possibilité qu'un Scrum Master renseigne rétrospectivement des informations de Sprints antérieurs déjà terminés** pour les compiler dans SMN et obtenir des tendances dès le démarrage d'une installation. Cette possibilité de reprise d'historique **n'est pas à écarter** ; son intégration **dès le MVP ou dans une version ultérieure reste à arbitrer**.
+
+Principes existants à respecter dans la conception : dates réelles des périodes, distinction entre une donnée inconnue et zéro, préservation des références historiques et de la traçabilité des KPI (F-14, F-24, F-25, F-64, F-72, F-91 à F-96). Les imports CSV prévus par F-19 sont limités aux **chiffres consolidés à schéma fixe** et **n'incluent pas les tickets individuels** ; ils ne présument pas d'un import automatique de tous les autres éléments.
+
+**À préciser dans le PRD :** niveau de rétrosaisie manuelle des objectifs, métriques, commentaires et éléments qualitatifs ; représentation du caractère historique des saisies, sélection des périodes, gestion des corrections et de la traçabilité ; disponibilité au MVP ou non. **Aucune reconstitution automatique de faits non renseignés n'est supposée.**
+
 ## Vision et adoption progressive — orientation validée
 
 Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement si le MVP satisfait les attentes, puis envisager une diffusion élargie si l'adoption est effective. **Les indicateurs et seuils de validation de chacune de ces étapes restent ouverts.** Aucune stratégie de commercialisation ou de plateforme collaborative n'a été décidée.
 
 ## Prochaines questions du Product Brief
 
-1. **Validation du MVP en conditions réelles :** sur combien de Sprints ou de périodes Kanban faudra-t-il vérifier l'usage avant d'envisager le pilote auprès d'un échantillon d'utilisateurs ?
+1. **Reprise historique :** la saisie rétrospective manuelle de Sprints passés doit-elle être utilisable dès le MVP, ou peut-elle attendre une version ultérieure ?
 2. **Simplicité du MVP :** quels détails des formulaires et relations entre les six catégories exigent un arbitrage PRD, tout en restant sous la cible de saisie hebdomadaire ?
 3. **Critères de passage :** quelles observations (temps mesuré, restitution, centralisation et usage) permettront d'ouvrir un pilote puis d'envisager une diffusion élargie ?
 
