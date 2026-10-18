@@ -9,7 +9,7 @@
 | Ordre | Document | Objet |
 | --- | --- | --- |
 | 1 | **Ce fichier** — `docs/PROJECT-CONTEXT.md` | Vision, contraintes, état du projet et liens |
-| 2 | **[DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md)** | Registre chronologique et exhaustif des **120 décisions F-01 à F-120**, états et décisions remplacées |
+| 2 | **[DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md)** | Registre chronologique et exhaustif des **121 décisions F-01 à F-121**, états et décisions remplacées |
 | 3 | **[CADRAGE-FONCTIONNEL.md](./CADRAGE-FONCTIONNEL.md)** | Règles fonctionnelles détaillées et points restant à arbitrer |
 
 **Important :** le présent contexte initial portait sur F-01 à F-10. La suite F-11 à F-111 a été actée pendant les échanges de brainstorming. Les trois documents ci-dessus sont désormais le référentiel de reprise avant la rédaction du Product Brief / PRD.
@@ -87,9 +87,9 @@ La finalité est de **préparer, expliquer et produire à la demande des reporti
 - **Assistant au premier lancement** pour configurer les principaux paramètres par défaut ; saisie réduite et réglages modifiables ensuite, hors mode Scrum/Kanban/SAFe (règle de réinitialisation).
 - Le contenu éditorial métier multilingue et la langue des exports restent à spécifier.
 
-### 3.8 Projet/produit, vision, Product Goal, DoD et DoR (F-116 à F-120)
+### 3.8 Projet/produit, vision, Product Goal, DoD et DoR (F-116 à F-121)
 
-- **Contexte projet/produit explicite et historisé** quel que soit le mode ; nombre de projets/produits associés aux équipes/ART à arbitrer.
+- **Contexte projet/produit explicite et historisé** quel que soit le mode. **Un seul produit par équipe Scrum/Kanban autonome ; en SAFe, un seul produit pour l'ART et toutes ses équipes** (F-121).
 - **Vision du produit** et **Product Goal** provenant généralement du PO, saisissables/historisables par SM/RTE et sélectionnables dans les rapports.
 - **DoD** et **DoR** conservables dans SMN sous forme de texte complet ou de lien documentaire externe (ex. SharePoint).
 - **En SAFe : une seule DoD et une seule DoR définies au niveau ART, communes à toutes les équipes du train** ; hors SAFe, niveau équipe.
@@ -103,7 +103,7 @@ La finalité est de **préparer, expliquer et produire à la demande des reporti
 - Définition précise des KPI, seuils de criticité, données obligatoires structurelles et conventions Kanban.
 - Schémas CSV SMN, source des jours fériés, sauvegardes et droits d'accès.
 - Charte graphique des rapports, modèles d'export, détails des fichiers TXT et politiques de sécurité/rétention.
-- Cardinalité projet/produit ↔ équipes/ART, versions des documents SharePoint, langue des contenus libres et rapports.
+- Unicité du produit par équipe autonome et par ART **déjà validée** ; seuls les éventuels changements de produit dans le temps restent à préciser, ainsi que les versions des documents SharePoint et la langue des contenus libres et rapports.
 - Palettes finales, accessibilité et étapes détaillées de l'assistant d'installation.
 - Prochains arbitrages listés dans **[CADRAGE-FONCTIONNEL.md §14](./CADRAGE-FONCTIONNEL.md#14-points-ouverts-et-besoins-de-précision-pour-product-brief-et-prd)**.
 
@@ -146,7 +146,7 @@ Le projet utilise BMAD via **ChatGPT et ses connecteurs**, en lisant les `SKILL.
 
 - Dépôt GitHub SMN et projet Jira SMN créés.
 - BMAD Method v6.12.4 installé avec les skills dans `.agents/skills/`, exploitation prévue depuis ChatGPT.
-- **Brainstorming fonctionnel consolidé en 120 décisions F-01 à F-120** et document thématique détaillé dans `docs/`.
+- **Brainstorming fonctionnel consolidé en 121 décisions F-01 à F-121** et document thématique détaillé dans `docs/`.
 - **Product Brief, PRD, architecture applicative et backlog détaillé restent à produire** à partir des arbitrages, selon les workflows BMAD.
 - Cette consolidation documentaire **ne constitue ni un développement, ni une création de tickets Jira, ni une validation technique de l'application**.
 
