@@ -123,7 +123,7 @@ Après une initialisation Express ou Guidée/Tutorée, le Scrum Master peut iden
 
 **Description :** les membres sont définis de manière centralisée et peuvent participer à plusieurs équipes (F-26 à F-31). Le Scrum Master doit pouvoir corriger une création faite par erreur sans compromettre l'historique des équipes, des capacités et des rapports. La suppression définitive, la fin d'affectation et l'archivage ne sont pas interchangeables.
 
-#### FR-4 — Supprimer, retirer d'une équipe ou archiver un membre (validé : D-PRD-006 ; F-26 à F-31, F-58 à F-63, F-93)
+#### FR-4 — Supprimer, retirer d'une équipe ou archiver un membre (validé : D-PRD-006, D-PRD-012 ; F-26 à F-31, F-58 à F-63, F-93)
 
 Le Scrum Master peut gérer les membres devenus inutiles selon leur historique : **supprimer définitivement une fiche ne possédant aucune donnée métier ou historique à préserver**, **terminer l'affectation d'un membre à une équipe** ou **archiver sa fiche centrale lorsqu'elle ne doit plus servir au suivi courant**, tout en préservant l'historique.
 
@@ -134,6 +134,7 @@ Le Scrum Master peut gérer les membres devenus inutiles selon leur historique :
 - L'archivage est **réversible** : un membre archivé peut être réactivé.
 - La fin d'affectation ou l'archivage n'altère pas rétroactivement les périodes historiques ni les exports déjà produits (F-30, F-31 et F-93).
 - Le système ne propose pas de suppression en cascade de l'historique métier pour contourner une restriction de suppression.
+- Si une fin d'affectation fait passer l'effectif actif d'une équipe sous 3 personnes, SMN **enregistre le départ à sa date effective et affiche une alerte non bloquante** ; l'opération ne doit pas être refusée pour ce seul motif (D-PRD-012).
 
 **Détails à spécifier :** critère exact d'une fiche « sans données métier à préserver », confirmation avant suppression, traitement des affectations futures, comportement des affectations simultanées lors d'un archivage, restauration/réactivation et visibilité des fiches archivées. Les modalités techniques de stockage et de suppression seront définies en architecture.
 
@@ -168,7 +169,7 @@ Le Scrum Master peut **renseigner et modifier une adresse e-mail sur la fiche ce
 
 **Piste ultérieure P-PRD-004 (non décidée pour une version) :** possibilité d'initier des messages ou d'ouvrir Outlook depuis SMN. Authentification, consentements, usages précis, mécanismes techniques et conditions de sécurité seraient à étudier avant de spécifier une version.
 
-#### FR-7 — Préconfiguration d'une équipe d'au moins trois personnes (validé : D-PRD-010, D-PRD-011 ; F-38/F-39, F-62/F-63, F-114/F-124)
+#### FR-7 — Préconfiguration d'une équipe d'au moins trois personnes (validé : D-PRD-010, D-PRD-011, D-PRD-012 ; F-38/F-39, F-62/F-63, F-114/F-124)
 
 Le parcours rapide de configuration des membres d'une équipe Scrum ou Kanban propose un **effectif de 3 personnes minimum**, les rôles initiaux Scrum Master, Product Owner et Développeur, et des valeurs de pourcentage membre à 100 % dans le respect des règles de cohérence des affectations et de capacité.
 
@@ -177,7 +178,7 @@ Le parcours rapide de configuration des membres d'une équipe Scrum ou Kanban pr
 - Pour 3 membres : les rôles proposés sont Scrum Master / Product Owner / Développeur, chacun pour une fiche distincte. Pour 5 membres : les rôles proposés sont Scrum Master / Product Owner / Développeur / Développeur / Développeur.
 - Les pourcentages initiaux de temps contractuel, d'affectation, de rôle et de contribution sont **100 % chacun lorsqu'ils s'appliquent** ; ces propositions restent éditables et ne contournent pas les contrôles F-62 et F-63.
 - Un premier lancement en mode **Express** reste réalisable sans création ni configuration des membres, conformément à F-124 et FR-1 : l'effectif minimum concerne le parcours de **configuration des membres**, non les informations métier obligatoires dans l'assistant initial.
-- La règle de minimum 3 pour une équipe déjà active dont un membre part reste à préciser (alerte ou blocage) sans interdire une fin d'affectation historisée prévue par FR-4.
+- **Une équipe déjà active peut temporairement passer sous 3 membres après un départ** : SMN affiche alors une **alerte non bloquante**, tout en conservant la date réelle de fin d'affectation et l'intégralité de l'historique (D-PRD-012, FR-4). Le départ n'entraîne ni création automatique d'un remplaçant ni modification des affectations passées.
 
 **Note de cohérence :** « minimum 3 » est une règle de produit exprimée par l'utilisateur pour SMN, non une affirmation de norme générale applicable à tous les usages Scrum ou Kanban.
 
@@ -217,7 +218,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
 - **FR-3 / D-PRD-004 et D-PRD-005 :** catalogue des tâches de configuration, règles d'affichage et de réactivation, comptage de la progression, ainsi que la priorité entre état Ignorée choisi manuellement et achèvement détecté ultérieurement. Le principe du fonctionnement hybride est acté.
 - **FR-5 / D-PRD-007, D-PRD-009 à D-PRD-011 :** création rapide validée avec noms provisoires, date d'arrivée **propre à chaque affectation d'équipe**, modifiable, initialisée par la date de création de fiche ; 3 membres par défaut et minimum dans le formulaire, rôles initiaux Scrum Master/Product Owner/Développeur, puis Développeur pour les suivants. Pourcentages membres initiaux à 100 % sans contournement des validations F-62/F-63. À préciser : distinction fiche provisoire / complète et validations des données historiques.
-- **FR-7 / D-PRD-010 :** comportement d'une équipe historiquement active passant **sous 3 membres** à la suite d'un départ : alerte ou blocage à arbitrer ; l'initialisation Express ne doit pas être bloquée par l'absence de membres (F-124).
+- **FR-7 / D-PRD-010, D-PRD-012 :** effectif de 3 minimum dans le formulaire de création rapide, mais si l'effectif réel passe ensuite sous 3 à la suite d'un départ, **alerte non bloquante validée**. Reste à préciser où et combien de temps elle sera affichée. L'initialisation Express ne doit pas être bloquée par l'absence de membres (F-124).
 - **D-PRD-011 :** la valeur de la **marge de planification d'équipe**, distincte des pourcentages membre (F-32), n'est pas fixée ; ne pas en déduire un taux de 100 % de marge.
 - **FR-4 / D-PRD-006 :** principe de suppression des fiches vierges et de fin d'affectation/archivage réversible validé. Restent à spécifier les critères exacts d'une fiche sans historique, les confirmations, l'effet sur les affectations simultanées/futures et l'ergonomie de réactivation.
 - **FR-6 / D-PRD-008 :** adresse e-mail centralisée éditable dès le MVP ; son caractère facultatif est une interprétation cohérente avec le minimum FR-5, à rectifier si souhaité. **P-PRD-004 :** envoi d'e-mails ou ouverture d'Outlook, possibilité future sans engagement de version.
