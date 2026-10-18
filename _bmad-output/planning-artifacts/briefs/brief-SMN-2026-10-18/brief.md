@@ -20,11 +20,17 @@ language: fr
 
 Sa finalité est de **produire à la demande des reportings complets, explicables et contextualisés pour les parties prenantes**, avec une saisie manuelle minimale. Le SM ou RTE reste le principal utilisateur : SMN n'est ni un second Jira, ni un espace de saisie collaborative des équipiers, ni un outil de notation individuelle. Les informations qualitatives doivent donner du sens aux chiffres, y compris lorsque les KPI facultatifs ne sont pas disponibles. (F-01, F-08 à F-16, F-72, F-73, F-97)
 
-## Problème ciblé — à approfondir lors de la découverte
+## Problème ciblé — constat confirmé
 
-Le produit cherche à simplifier la **constitution et la restitution d'une mémoire fiable et intelligible du fonctionnement des équipes et de l'ART**, sans demander au SM/RTE de ressaisir plusieurs fois les mêmes données. Il vise à relier ce qui s'est passé (chiffres, faits marquants, événements), ce qui a été décidé et ce qui reste à suivre.
+Le problème métier identifié par l'utilisateur combine **trois difficultés indissociables** dans le travail de Scrum Master :
 
-**À confirmer par l'utilisateur :** situations de travail les plus pénibles aujourd'hui, solutions de contournement existantes et coût réel du reporting manuel. Aucun gain quantifié ni résultat d'étude utilisateur n'est revendiqué à ce stade.
+1. **Temps consacré au reporting :** rassembler, consolider et organiser les données nécessaires aux bilans et reportings demande un effort manuel.
+2. **Dispersion des informations :** les éléments utiles au suivi d'une équipe (chiffres, objectifs, décisions, risques, actions, faits marquants) sont à retrouver dans plusieurs supports.
+3. **Vision insuffisamment globale pour les parties prenantes :** la restitution doit articuler les résultats chiffrés, les événements et leur contexte qualitatif afin d'expliquer les évolutions.
+
+**Conséquence recherchée :** une mémoire centralisée et historisée, alimentée progressivement et avec peu de saisie, qui permette de produire un reporting complet, intelligible et contextualisé sans reconstruire manuellement l'histoire d'une période.
+
+**Restent à documenter :** outils/supports actuellement utilisés, exemples concrets et temps de préparation de référence. Aucun gain chiffré n'a encore été établi.
 
 ## Utilisateurs et bénéficiaires — validé / à préciser
 
@@ -46,9 +52,15 @@ Le produit cherche à simplifier la **constitution et la restitution d'une mémo
 
 La combinaison d'une **mémoire qualitative historisée**, de **chiffres facultatifs et explicables**, d'une **préparation de reporting réutilisant les données existantes**, et d'une **saisie centrée sur le SM/RTE** constitue le positionnement recherché. **À valider :** alternatives réellement utilisées, avantage perçu et différenciation démontrable. Aucun avantage concurrentiel exclusif n'est affirmé.
 
-## Critères de succès — ouverts
+## Critères de succès — mesures candidates à valider
 
-Les résultats observables (temps économisé pour produire un rapport, régularité du suivi, utilité des rapports pour les destinataires, qualité de la contextualisation, effort de saisie) sont **des candidats de mesure**, pas encore des objectifs chiffrés ni des critères d'acceptation validés.
+Les trois difficultés confirmées suggèrent **trois axes de mesure** pour apprécier le MVP lors de l'usage personnel :
+
+- **Efficacité :** temps nécessaire pour préparer un reporting de période, comparé à une situation de référence documentée, en tenant compte du temps de saisie dans SMN.
+- **Centralisation :** facilité à retrouver dans SMN les informations utiles au bilan sans devoir recomposer manuellement plusieurs sources.
+- **Qualité de restitution :** capacité du rapport HTML/PDF à expliquer la période aux parties prenantes en associant résultats et contexte qualitatif.
+
+Ces axes sont **des propositions de mesure et non des seuils validés**. Fréquence de mesure, situation de référence, objectifs éventuels et critères de passage vers le pilote restent à définir.
 
 ## Trajectoire des livraisons — orientation validée
 
@@ -91,7 +103,7 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Problème prioritaire :** dans le travail réel de Scrum Master, quelle difficulté doit être résolue en premier et comment la constate-t-on ?
+1. **Situation de référence :** combien de temps prend aujourd'hui la préparation d'un rapport de Sprint ou de période, et à partir de quels supports ?
 2. **MVP concret :** quelles capacités minimales et quels contenus de reporting HTML/PDF rendent le cycle complet Scrum/Kanban réellement utilisable ?
 3. **Critères de passage :** comment juger que le MVP est concluant pour ouvrir un pilote, puis que les retours justifient une diffusion élargie ?
 
