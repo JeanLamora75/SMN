@@ -294,6 +294,24 @@ Le Scrum Master dispose, dans l'administration, d'un **catalogue des catégories
 
 **À préciser :** palette et contrôle de contraste, règles de couleur unique ou réutilisable entre catégories, réactivation éventuelle d'une catégorie désactivée, modalités éventuelles d'audit des renommages/recolorations (leur effet sur l'affichage historique est tranché par D-PRD-029 et D-PRD-030), suppression éventuelle des catégories jamais utilisées et présentation détaillée sur mobile. **La désactivation sans perte de l'historique est validée** (D-PRD-028).
 
+
+### 4.7 Capacités de référence et capacités réellement constatées — MVP
+
+#### FR-14 — Figer la capacité initialement prévue et suivre la capacité réelle d'une période (validé : D-PRD-031 ; F-27 à F-34, F-58 à F-63, F-93/F-96)
+
+Au démarrage de chaque **Sprint Scrum** ou **période de suivi Kanban**, SMN conserve une **capacité de référence prévue en jours/homme (JH)** calculée à partir des informations disponibles à cet instant. La **capacité réellement constatée** est suivie séparément et reflète les disponibilités effectives de la période. Ces deux valeurs et leur écart sont exploitables dans les bilans et reportings historiques.
+
+**Conditions d'acceptation de haut niveau :**
+- À l'ouverture effective d'une période, la capacité prévue de référence est calculée et **figée**, par membre et au niveau de l'équipe, à partir des jours travaillés, jours fériés connus, absences déjà prévues, affectations, parts Développeur et coefficients de contribution applicables (F-26 à F-34, F-58/F-59).
+- Une absence **connue avant le début de la période** réduit déjà la capacité de référence ; une absence imprévue ou enregistrée **après le début** ne réécrit pas automatiquement cette référence, même si son type est ensuite marqué « Prévue ».
+- Les absences, indisponibilités, arrivées/départs et autres changements effectifs durant la période sont intégrés à la **capacité constatée**, sans double déduction et avec respect des dates d'effet et des règles de multi-affectation.
+- Le calcul de la capacité de développement reste conforme à F-59 et F-61 : disponibilité × affectation × part Développeur × coefficient de contribution, exprimée en JH ; aucune conversion à partir des Story Points.
+- SMN permet de comparer **capacité prévue initialement**, **capacité réelle** et **écart** dans les reportings d'une période Scrum ou Kanban. L'écart n'est pas assimilé à une mesure de performance individuelle.
+- Une correction rétroactive ou la réouverture d'une période suit F-93/F-96 : les recalculs sont **traçables** et ne modifient pas silencieusement la capacité de référence d'origine ni les rapports PDF déjà générés.
+- Si une période passée est saisie après coup et qu'aucune capacité initiale fiable n'est connue, SMN ne remplace pas la donnée manquante par **zéro** ni par une valeur reconstruite présentée comme un fait historique. La procédure de saisie ou d'estimation rétroactive et sa provenance restent à définir.
+
+**À préciser :** événement exact de figement au début de la période (ouverture, date de début ou validation du planning), traitement des périodes Kanban définies a posteriori, présentation d'une capacité constatée provisoire avant clôture, provenance et correction des références historiques reconstruites, et formules exactes de l'écart en présence de valeurs manquantes.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP.
@@ -341,6 +359,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-12 / D-PRD-024 à D-PRD-027 :** deux points d'accès à la même absence centrale validés. **Nom/motif obligatoire pour toute absence et affiché dans le calendrier, avec la couleur de sa catégorie** ; aucune saisie groupée au MVP (P-PRD-005 possible ultérieurement). Restent à préciser l'ergonomie mobile et la visibilité des périodes hors affectation.
 - **FR-13 / D-PRD-027 à D-PRD-030 :** catalogue de catégories d'absences administrable (nom et couleur), initialisé avec Congés, Formation, Maladie sans détail médical, Autre. **Désactivation validée : catégorie absente des choix de nouvelles absences, tout en restant consultable dans l'historique**. **Changement de couleur rétroactif dans les calendriers dynamiques**, sans modifier les PDF déjà générés. **Renommage rétroactif des catégories dans les vues dynamiques**, sans changement du nom/motif individuel ni des PDF déjà générés. À spécifier : réactivation, audit des modifications, éventuelle suppression des catégories inutilisées, accessibilité et affichage sur mobile.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
+- **FR-14 / D-PRD-031 :** capacité de référence figée au démarrage de chaque Sprint Scrum et période Kanban, capacité réellement constatée séparée, écarts disponibles dans les reportings. Restent à préciser l'événement exact de figement, les capacités réelles provisoires en cours de période, le traitement des périodes historiques et les formules d'écart avec données manquantes.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
 - Confidentialité, mécanismes de protection des données, sauvegardes, accessibilité, langue des contenus libres et exports.
