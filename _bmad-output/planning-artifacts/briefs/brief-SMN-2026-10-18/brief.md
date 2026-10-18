@@ -127,7 +127,7 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Brief IA :** la génération de fichiers TXT à transmettre manuellement à une IA externe fait-elle partie du MVP, ou arrive-t-elle dans une version ultérieure ? Les règles F-98 à F-109 restent validées pour le produit cible.
+1. **Validation du MVP en conditions réelles :** sur combien de Sprints ou de périodes Kanban faudra-t-il vérifier l'usage avant d'envisager le pilote auprès d'un échantillon d'utilisateurs ?
 2. **Simplicité du MVP :** quels détails des formulaires et relations entre les six catégories exigent un arbitrage PRD, tout en restant sous la cible de saisie hebdomadaire ?
 3. **Critères de passage :** quelles observations (temps mesuré, restitution, centralisation et usage) permettront d'ouvrir un pilote puis d'envisager une diffusion élargie ?
 
