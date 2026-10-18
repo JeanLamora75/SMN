@@ -1,7 +1,7 @@
 # Scrum Master Notebook — Cadrage fonctionnel consolidé
 
 > **État : 18 octobre 2026** — Synthèse de brainstorming BMAD avec Mary (Analyst).  
-> **Source de vérité des arbitrages :** [Registre F-01 à F-111](./DECISIONS-FONCTIONNELLES.md).  
+> **Source de vérité des arbitrages :** [Registre F-01 à F-120](./DECISIONS-FONCTIONNELLES.md).  
 > **Nature :** règles métier validées et pistes restant à spécifier. **Ce document n'est pas encore le PRD ni l'architecture technique.**  
 > **Vocabulaire :** SM = Scrum Master ; RTE = Release Train Engineer ; ART = Agile Release Train ; PI = Planning Interval ; JH = jour/homme ; SP = Story Points ; MVP = première version fonctionnelle à arbitrer.
 
@@ -24,7 +24,7 @@ Principes incontournables :
 
 ### 1.2 Portée des décisions
 
-Les **111 références F-01 à F-111** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
+Les **120 références F-01 à F-120** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
 
 ## 2. Modes d'installation, équipes et ART
 
@@ -320,7 +320,70 @@ Le **brief IA** est un **reporting moins visuel**, en **fichier texte `.txt`**, 
 
 **Stockage envisagé :** contenu dans un répertoire privé géré par l'application (ex. `data/ai-briefs/`), **métadonnées et références en base** (identifiant, date, périmètre, chemin, analyse associée). Empreinte SHA-256, organisation exacte, sauvegardes et politique de rétention sont des **recommandations techniques à confirmer**, pas des choix d'architecture actés. Les fichiers gérés doivent entrer dans le périmètre de sauvegarde et de réinitialisation propre à SMN.
 
-## 10. Administration et paramètres par défaut
+## 10. Internationalisation, apparence et assistant d'installation (F-112 à F-115)
+
+### 10.1 Langues et paramètres régionaux
+
+- **MVP disponible en français et en anglais**, y compris navigation, administration, formulaires, erreurs, validations et aides.
+- Conception **internationalisable dès l'origine** ; les autres langues seront introduites dans des **User Stories ultérieures** à la demande.
+- Possibilité pour l'utilisateur de changer la langue de l'interface après l'installation ; formats des dates, heures et nombres adaptés à la langue/région.
+- Langue de l'interface, pays et fuseau horaire restent des notions distinctes.
+- **Langue des textes métiers librement saisis et des rapports exportés : à spécifier**, sans présumer une traduction automatique. Les fichiers BMAD du projet restent rédigés en français.
+
+### 10.2 Framework CSS et thèmes
+
+- Le framework CSS **Bootstrap 5** est **arrêté** (F-115). Le choix d'un framework CSS ne fixe ni le frontend JavaScript, ni le backend, ni la base de données.
+- L'apparence utilise des **variables CSS** et plusieurs **palettes de couleurs** proposées à l'utilisateur ; le choix peut être changé dans ses préférences.
+- **Modes clair et sombre**, compatibles avec les palettes, également modifiables.
+- Les palettes illustrées pendant le brainstorming étaient des **exemples**, pas des couleurs officielles. Contrastes, accessibilité, usages des couleurs sémantiques et mise en œuvre détaillée restent à concevoir.
+- Préférer les composants responsives cohérents du framework pour les formulaires, calendriers, filtres, grilles et tableaux de bord.
+
+### 10.3 Parcours de première installation
+
+- Au **premier lancement**, proposer un **assistant d'initialisation** présentant les principaux réglages, leurs valeurs par défaut et un récapitulatif.
+- Paramètres candidats proposés lors du brainstorming : langue, palette et mode clair/sombre, mode Scrum/Kanban/SAFe, pays, fuseau horaire, jours travaillés, cadence (Sprint/période/PI) et horaires des cérémonies.
+- **Minimiser les saisies obligatoires**, proposer des valeurs cohérentes par défaut et permettre d'éditer ultérieurement les paramètres modifiables dans l'administration.
+- Le **mode Scrum/Kanban/SAFe reste fixe** après initialisation (F-41/F-42/F-49), sauf réinitialisation complète volontaire.
+- L'ordre des écrans, les champs obligatoires et l'éventuelle création d'un premier projet/produit dans ce parcours restent **ouverts**.
+
+## 11. Contexte projet/produit et règles de travail (F-116 à F-120)
+
+### 11.1 Projet/produit comme contexte métier
+
+- SMN identifie et **historise le projet ou produit suivi** quel que soit le mode Scrum, Kanban ou SAFe ; cette notion est distincte de l'équipe, de la période et de l'ART.
+- Le contexte sert à donner du sens aux indicateurs, aux objectifs et aux reportings, y compris rétrospectifs.
+- L'identifiant, le nom, les éventuelles dates de rattachement et les versions de ses informations sont des éléments de modélisation à préciser.
+- **Non arbitré** : une équipe ou un ART peuvent-ils suivre plusieurs projets/produits en parallèle ou un seul à la fois ? Ne pas créer implicitement une contrainte d'unicité.
+
+### 11.2 Vision du produit et Product Goal
+
+- **Vision du produit** et **Product Goal (objectif du produit)** sont deux contenus distincts, provenant généralement du **PO**, mais saisis et maintenus par le **SM/RTE** dans SMN ; le PO n'a pas besoin d'être utilisateur de l'application.
+- Les changements de vision ou de Product Goal doivent être **historisés** : ne pas écraser les anciennes formulations ; conserver les informations nécessaires pour savoir laquelle s'appliquait lors d'une période donnée.
+- Vision et Product Goal pourront être **sélectionnés** pour apparaître dans certains reportings et analyses historiques.
+- Le Product Goal ne remplace **pas** les objectifs de Sprint, de période Kanban ou de PI (F-66 à F-70). Un éventuel lien explicite entre ces objectifs reste à définir.
+- La politique de datation/versionnement (dates d'entrée en vigueur, coexistence ou succession d'objectifs) est à préciser au PRD.
+
+### 11.3 DoD et DoR — stockage et portée
+
+Deux informations distinctes :
+
+- **Definition of Done (DoD)** ;
+- **Definition of Ready (DoR)**.
+
+Pour chacune, proposer le **texte complet conservé dans SMN** ou **un lien vers le document de référence externe**, notamment SharePoint. Elles doivent rester consultables et utilisables par les rapports.
+
+**Règle structurante SAFe : les DoD et DoR sont communes à toutes les équipes du train**. Elles doivent être **définies une seule fois au niveau ART**, puis exposées aux équipes Scrum et Kanban de cet ART sans copies divergentes. **Hors SAFe**, la définition relève de l'équipe.
+
+L'historisation des changements de DoD/DoR est pertinente pour contextualiser les rapports ; si le texte est enregistré dans SMN, conserver ses versions datées. **Un lien SharePoint seul ne garantit pas de retrouver le contenu historique :** référencer une version précise ou archiver une copie est une solution **à étudier**, non une décision technique déjà prise. L'accès au document externe reste soumis aux droits SharePoint.
+
+### 11.4 Restitution dans les reportings
+
+- Vision et Product Goal pourront figurer, **sur sélection**, dans les reportings correspondants.
+- DoD et DoR pourront apparaître **facultativement en fin de reporting**, **pour information**, sans impact automatique sur l'évaluation des objectifs ou des KPI.
+- Si le texte est interne : restitution du **contenu intégral** pertinent.
+- Si le document est externe : restitution de son **titre et lien**, et, si connue, de la référence de version ; la présence d'une URL dans le rapport n'assure pas l'accès du destinataire.
+
+## 12. Administration et paramètres par défaut
 
 L'administration doit pouvoir ajuster sans toucher au code au minimum :
 
@@ -332,23 +395,26 @@ L'administration doit pouvoir ajuster sans toucher au code au minimum :
 - Marge de planification des équipes, profondeur historique par défaut des rapports.
 - Seuil **3 jours calendaires** avant l'échéance des actions/dépendances.
 - Modèles de reporting et de briefs IA ; catégories d'événements remontées automatiquement au journal.
+- Langue d'interface (FR/EN au MVP), palette de couleurs et mode clair/sombre (F-112/F-113/F-115).
+- Assistant de configuration initiale, ses valeurs proposées et leur reprise depuis l'administration (F-114).
+- Projet/produit suivi, versions de vision et de Product Goal, DoD/DoR en texte ou lien communs à l'ART en SAFe (F-116 à F-120).
 - Mécanisme de **réinitialisation complète** à confirmation stricte pour test/démonstration, avec sauvegarde optionnelle et suppression **uniquement des données et fichiers gérés par SMN** (y compris modèles, logos/imports/exports/briefs lorsqu'applicables), jamais de fichiers extérieurs.
 
 Tous les paramètres individuels/structurels nécessaires aux calculs doivent rester cohérents ; l'optionalité des KPI ne signifie pas l'absence de validation des affectations et rôles.
 
-## 11. Contraintes de réalisation et intégrations
+## 13. Contraintes de réalisation et intégrations
 
 - **Référentiels** : GitHub pour fichiers, code et BMAD ; Jira SMN pour Epic/Story/bug/tâche.
 - BMAD Method **v6.12.4** ; Skills `.agents/skills/`, configuration `_bmad/`, livrables `_bmad-output/`.
-- **Langue** : français.
+- **Langue des documents BMAD du projet** : français. **Interface produit au MVP** : français et anglais (F-112).
 - **Environnement local** : Windows 11 professionnel, sans droits admin, pas d'IDE ou de Codex CLI à installer. Node.js, npm, pnpm, PowerShell, GitHub Desktop disponibles.
 - Workflows BMAD via ChatGPT et connecteurs ; ne jamais présenter un script/CI/test non exécuté comme vérifié.
-- Aucune **architecture applicative précise** ni base de données / hébergement / framework n'a encore été validé pour SMN ; ne pas importer les choix d'un autre projet.
+- **Bootstrap 5 a été validé pour le CSS et les thèmes** (F-115). Aucun framework JavaScript, schéma de données, backend, hébergement ou architecture applicative globale n'est encore fixé ; ne pas importer les choix d'un autre projet.
 - Automatisations externes (Jira API, IA API) **ultérieures** ; tâches d'import consolidé manuel à prioriser.
 
-## 12. Points ouverts et besoins de précision pour Product Brief et PRD
+## 14. Points ouverts et besoins de précision pour Product Brief et PRD
 
-Ces éléments ne sont **pas tranchés** par les 111 décisions :
+Ces éléments ne sont **pas tranchés** par les 120 décisions :
 
 1. **MVP et releases** : sélectionner la première livraison sans présumer que tous les formats et toutes les vues seront simultanément disponibles.
 2. **Cérémonies** : catalogue officiel par Scrum/SAFe, détails du Kanban, formules de durées, dates et règles de récurrence par défaut ; vérifier les référentiels lorsque l'utilisateur autorise la recherche.
@@ -362,8 +428,13 @@ Ces éléments ne sont **pas tranchés** par les 111 décisions :
 10. **SAFe** : granularité des événements ART, associations objectifs PI/Sprint, traitement de l'IP Iteration avec des équipes Kanban.
 11. **Reset** : périmètre exact et procédure sécurisée.
 12. **Qualité** : règles d'acceptation, tests et stratégie de migration des données à spécifier.
+13. **Projet/produit** : cardinalités avec équipes et ART, historiques de rattachement, lien éventuel aux objectifs de Sprint/PI.
+14. **DoD/DoR** : versions, suivi historique des documents externes SharePoint et comportement en cas de lien inaccessible.
+15. **Internationalisation** : traitement des textes libres, langue des rapports, traductions futures.
+16. **Installation** : étapes, valeurs par défaut, champs indispensables et prise en compte du premier projet/produit.
+17. **Design** : palettes concrètes, accessibilité, couleurs de statut et modes clair/sombre.
 
-## 13. Mode d'emploi pour les agents et conversations futures
+## 15. Mode d'emploi pour les agents et conversations futures
 
 1. Lire [PROJECT-CONTEXT.md](./PROJECT-CONTEXT.md), puis [DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md), puis ce document.
 2. Pour chaque nouvelle Story/écran/processus, citer les **F-xx applicables** et distinguer validé / à arbitrer.
@@ -372,4 +443,4 @@ Ces éléments ne sont **pas tranchés** par les 111 décisions :
 5. Jira reste le référentiel des tickets ; cette synthèse n'y crée ni ne modifie aucune Story par elle-même.
 6. Mettre à jour ces documents après tout nouvel arbitrage significatif.
 
-**Fin de la synthèse de brainstorming validé F-01 à F-111.**
+**Synthèse enrichie des décisions validées F-01 à F-120.**
