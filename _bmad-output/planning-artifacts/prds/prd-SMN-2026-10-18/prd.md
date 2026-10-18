@@ -49,7 +49,8 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 - **Installation SMN :** instance dédiée à un seul produit de référence, dont l'identité reste fixe ; le mode Scrum, Kanban ou SAFe y est également fixe.
 - **Produit de référence :** produit suivi par l'installation, pouvant porter une vision et un Product Goal historisés.
 - **Équipe :** collectif Scrum ou Kanban associé au produit de référence.
-- **Membre :** personne référencée une seule fois dans l'installation et pouvant être affectée à plusieurs équipes, avec un historique de disponibilité et de participation (F-26 à F-31).
+- **Membre :** personne référencée une seule fois dans l'installation et pouvant être affectée à plusieurs équipes, avec un historique de disponibilité et de participation (F-26 à F-31). Sa fiche centrale peut inclure une adresse e-mail (D-PRD-008).
+- **Fiche provisoire :** membre créé lors de l'ajout rapide, doté d'un nom provisoire modifiable, d'une date d'arrivée initialisée et d'un rôle Agile proposé, puis enrichissable ultérieurement (D-PRD-007).
 - **Affectation :** rattachement daté d'un membre à une équipe ; y mettre fin ne supprime ni sa fiche centrale ni ses affectations dans d'autres équipes.
 - **Archivage de membre :** retrait réversible d'une fiche de membre de l'utilisation courante, tout en conservant les données métier et historiques liées.
 - **Période :** Sprint en Scrum ou période de reporting en Kanban autonome (mensuelle par défaut).
@@ -135,6 +136,33 @@ Le Scrum Master peut gérer les membres devenus inutiles selon leur historique :
 
 **Détails à spécifier :** critère exact d'une fiche « sans données métier à préserver », confirmation avant suppression, traitement des affectations futures, comportement des affectations simultanées lors d'un archivage, restauration/réactivation et visibilité des fiches archivées. Les modalités techniques de stockage et de suppression seront définies en architecture.
 
+#### FR-5 — Création rapide et enrichissement des membres (validé : D-PRD-007 ; F-05, F-28, F-31, F-38, F-39, F-58 à F-63)
+
+Lors de la configuration d'une équipe, le Scrum Master peut indiquer un **nombre de membres** pour créer rapidement autant de fiches provisoires, puis les enrichir individuellement.
+
+**Conditions d'acceptation de haut niveau :**
+- Le Scrum Master indique le nombre de membres à créer ; SMN initialise autant de fiches identifiables avec un nom provisoire du type « Membre 1 », « Membre 2 », etc., remplaçable par un nom réel.
+- Pour chaque fiche initiale, les trois informations minimales sont : **nom**, **date d'arrivée**, **rôle Agile**. Le nom est requis mais peut initialement être provisoire ; cette nature provisoire doit rester identifiable.
+- La **date d'arrivée est préremplie avec la date de création de la fiche membre** et peut être corrigée par le Scrum Master, notamment pour les membres déjà présents auparavant ; elle ne doit pas être interprétée comme une date forcément constatée.
+- Le **rôle Agile est obligatoire** et reçoit la valeur proposée « Développeur » par défaut, modifiable selon le catalogue de rôles de l'équipe (F-38, F-39).
+- Le Scrum Master peut revenir compléter la fiche et ses données de capacité (calendrier, disponibilités, pourcentages d'affectation, parts d'activité par rôle, coefficient de contribution) ; toutes les règles bloquantes applicables sont respectées dès lors que les affectations sont finalisées (F-62/F-63).
+- Tant que les données requises pour calculer une contribution ne sont pas suffisantes et valides, la capacité correspondante est affichée **non calculable**, jamais présumée égale à zéro. Aucune fiche provisoire ne doit créer artificiellement une capacité dans les bilans.
+- La création rapide n'empêche ni la modification ultérieure, ni la suppression/fin d'affectation/archivage sous les conditions de FR-4.
+
+**Précision métier ouverte :** l'utilisateur a parlé de « date d'arrivée du membre ». Comme un membre peut rejoindre plusieurs équipes à des dates différentes (F-26/F-28/F-31), il faudra confirmer si cette date représente l'arrivée **dans chaque équipe** (rattachée à l'affectation) ou une date d'entrée globale. Aucun lien avec la date de naissance, ni collecte de cette dernière, n'est envisagé.
+
+#### FR-6 — Adresse e-mail du membre (validé : D-PRD-008 ; F-28)
+
+Le Scrum Master peut **renseigner et modifier une adresse e-mail sur la fiche centrale d'un membre**, indépendamment des affectations de celui-ci aux différentes équipes.
+
+**Conditions d'acceptation de haut niveau :**
+- Une fiche membre offre un champ adresse e-mail éditable lors de la création ou ultérieurement.
+- Le champ est **facultatif pour le MVP** : les trois informations minimales de FR-5 restent suffisantes ; aucune adresse e-mail n'est requise pour créer ou suivre un membre.
+- Une adresse renseignée fait l'objet d'une vérification de format et reste associée à la fiche centrale, sans duplications divergentes par équipe.
+- Aucune fonctionnalité d'envoi d'e-mails, d'ouverture automatique d'Outlook ou d'intégration Outlook n'est exigée au MVP au seul motif de l'existence de ce champ.
+
+**Piste ultérieure P-PRD-004 (non décidée pour une version) :** possibilité d'initier des messages ou d'ouvrir Outlook depuis SMN. Authentification, consentements, usages précis, mécanismes techniques et conditions de sécurité seraient à étudier avant de spécifier une version.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP.
@@ -145,7 +173,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'un nombre de membres choisi**, avec nom, date d'arrivée et rôle, et un **champ e-mail facultatif sur la fiche centrale**, sans envoi automatique de messages (FR-5, FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -170,8 +198,9 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 
 - Degré de détail des parcours et formulaires, règles de validation nécessaires, notamment pour les six registres qualitatifs.
 - **FR-3 / D-PRD-004 et D-PRD-005 :** catalogue des tâches de configuration, règles d'affichage et de réactivation, comptage de la progression, ainsi que la priorité entre état Ignorée choisi manuellement et achèvement détecté ultérieurement. Le principe du fonctionnement hybride est acté.
-- **P-PRD-002 — Création rapide des membres (proposition de l'utilisateur, non validée) :** renseigner le nombre de membres de l'équipe, générer des fiches provisoires avec seulement un prénom ou identifiant provisoire, puis compléter les informations ultérieurement. Spécifier le nommage, la validation d'une fiche incomplète et son exclusion éventuelle des calculs de capacité jusqu'à complétude.
+- **FR-5 / D-PRD-007 :** la création rapide de membres est validée avec nom provisoire modifiable, date d'arrivée modifiable (date de création par défaut) et rôle Agile obligatoire (Développeur par défaut). À préciser : date d'arrivée centrale ou propre à chaque affectation d'équipe (F-26, F-28, F-31), distinction fiche provisoire / fiche complète et validations des données historiques.
 - **FR-4 / D-PRD-006 :** principe de suppression des fiches vierges et de fin d'affectation/archivage réversible validé. Restent à spécifier les critères exacts d'une fiche sans historique, les confirmations, l'effet sur les affectations simultanées/futures et l'ergonomie de réactivation.
+- **FR-6 / D-PRD-008 :** adresse e-mail centralisée éditable dès le MVP ; son caractère facultatif est une interprétation cohérente avec le minimum FR-5, à rectifier si souhaité. **P-PRD-004 :** envoi d'e-mails ou ouverture d'Outlook, possibilité future sans engagement de version.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
