@@ -15,7 +15,7 @@ language: fr
 
 ## 0. Objet et références du document
 
-Ce PRD précisera les capacités, exigences fonctionnelles (FR), exigences non fonctionnelles (NFR), parcours utilisateurs (UJ), limites de livraison et critères de succès (SM) permettant de préparer les travaux BMAD d'architecture, d'UX et de découpage en Epics et User Stories. Les FR auront des identifiants stables et des références explicites aux décisions F-xx. Le détail d'implémentation relève d'un addendum ou des travaux d'architecture.
+Ce PRD précisera les capacités, exigences fonctionnelles (FR), exigences non fonctionnelles (NFR), parcours utilisateurs (UJ), limites de livraison et critères de succès (SM) permettant de préparer les travaux BMAD d'architecture, d'UX et de découpage en Epics et User Stories. Les FR auront des identifiants stables et des références explicites aux décisions F-xx. Les décisions complémentaires intervenues pendant le PRD reçoivent un identifiant D-PRD-xxx, consigné dans le journal BMAD. Le détail d'implémentation relève d'un addendum ou des travaux d'architecture.
 
 Références fonctionnelles sur `main` :
 - [Contexte du projet](../../../../docs/PROJECT-CONTEXT.md)
@@ -31,6 +31,8 @@ Scrum Master Notebook (SMN) est un carnet de bord professionnel destiné au Scru
 Le problème métier réunit trois difficultés : le temps nécessaire à la préparation du reporting, la dispersion des informations et la difficulté de restituer aux parties prenantes une vision cohérente des résultats, événements et décisions. SMN réutilise l'historique plutôt que de demander de reconstruire les tendances manuellement.
 
 **Trajectoire validée :** MVP Scrum + Kanban en usage personnel ; version 1.0 avec SAFe et ART ; expérimentation pilote uniquement après satisfaction des cinq conditions cumulatives du Product Brief ; diffusion plus large conditionnée à l'usage observé.
+
+**Plateforme validée (D-PRD-001, 18/10/2026) :** application web accessible depuis un navigateur ; interface responsive sur ordinateur, tablette et smartphone **dès le MVP**. Cette décision ne fixe ni les technologies frontend/backend, ni un fonctionnement hors connexion, ni une application native.
 
 ## 2. Utilisateurs et besoins — socle validé
 
@@ -57,6 +59,7 @@ Les groupes ci-dessous constituent un **plan de travail**, pas encore le catalog
 | Groupe à spécifier | Principales références |
 | --- | --- |
 | Initialisation, produit unique, équipe, paramètres | F-01, F-05, F-41, F-49, F-112 à F-124 |
+| Interface web responsive, adaptée aux trois familles d'écrans | D-PRD-001, F-112 à F-115 |
 | Membres, calendriers, disponibilités, capacité | F-26 à F-39, F-53, F-58 à F-63 |
 | Périodes, événements, Daily et préparation des cérémonies | F-06, F-07, F-20 à F-23, F-43 à F-57, F-91 à F-96 |
 | Objectifs, KPI et imports de valeurs consolidées | F-08, F-14, F-16, F-19, F-64 à F-72 |
@@ -76,7 +79,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -93,6 +96,8 @@ Les protocoles de recette, contre-indicateurs, FR associées et critères mesura
 
 ## 8. Exigences non fonctionnelles — sujets à spécifier
 
+**NFR-1 — Compatibilité des supports et adaptation responsive (validé, D-PRD-001).** L'interface web du MVP doit être accessible via un navigateur et s'adapter aux formats d'écran d'un ordinateur, d'une tablette et d'un smartphone. **Critère vérifiable de haut niveau :** vérifier, sur chacun des trois types de supports, l'utilisation des parcours majeurs du MVP sans dépendance à une application native. Les navigateurs et versions cibles ainsi que les critères ergonomiques quantifiés restent à préciser.
+
 Sécurité et accès ; confidentialité des informations individuelles et des contenus destinés à l'IA ; traçabilité et provenance ; sauvegarde/restauration ; intégrité des historiques et des exports ; performance ; accessibilité ; ergonomie ; internationalisation ; résilience des imports et exports. Aucun seuil ou choix de solution non validé n'est figé ici.
 
 ## 9. Questions ouvertes à traiter progressivement
@@ -102,6 +107,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
 - Confidentialité, mécanismes de protection des données, sauvegardes, accessibilité, langue des contenus libres et exports.
+- Navigateurs/versions cibles et modalités de recette de l'interface responsive ; aucun fonctionnement hors connexion ou emballage PWA n'est actuellement décidé.
 - Méthode de mesure des cinq conditions de succès et contre-indicateurs.
 
 ## 10. Hypothèses
