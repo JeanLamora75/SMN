@@ -208,7 +208,7 @@ SMN peut proposer à chaque nouveau membre la **localisation configurée pour l'
 **Conditions d'acceptation de haut niveau :**
 - Un pays de référence peut être configuré dans les paramètres généraux de l'installation, sans ajouter de saisie obligatoire au parcours Express (F-114 et F-124).
 - Lorsqu'un membre est créé, son pays initial est proposé à partir du pays configuré pour l'installation ; sa localisation peut être modifiée indépendamment de celle des autres membres et de celle de l'équipe.
-- Les régions et fuseaux horaires sont pris en compte lorsque nécessaires à ses jours fériés et aux affichages, conformément à F-35 et F-53. Leur représentation précise sera définie en conception.
+- Les régions/villes peuvent être conservées à titre d'information sur la localisation, et le fuseau horaire individuel sert aux affichages (F-53). Au MVP, les jours fériés du catalogue sont **nationaux** et les particularités régionales se gèrent par **absences individuelles catégorisées et nommées** (D-PRD-021, FR-11). Leur représentation précise sera définie en conception.
 - Le **pays du membre**, le **fuseau horaire** et la **langue d'interface** restent des paramètres distincts ; changer l'un ne modifie pas automatiquement les autres (F-112).
 - Les données de localisation qui influent sur la capacité historique restent identifiables à la période applicable ; un changement de pays ne doit pas effacer ou invalider silencieusement les bilans passés.
 
