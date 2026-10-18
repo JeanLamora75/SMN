@@ -182,6 +182,22 @@ Le parcours rapide de configuration des membres d'une équipe Scrum ou Kanban pr
 
 **Note de cohérence :** « minimum 3 » est une règle de produit exprimée par l'utilisateur pour SMN, non une affirmation de norme générale applicable à tous les usages Scrum ou Kanban.
 
+### 4.3 Calendrier hebdomadaire individuel — MVP
+
+#### FR-8 — Initialiser et personnaliser le calendrier de travail d'un membre (validé : D-PRD-013 ; F-26 à F-30, F-35, F-59)
+
+À la création rapide d'un membre, SMN lui propose un **calendrier de travail individuel à temps plein du lundi au vendredi**, avec samedi et dimanche non travaillés. Le Scrum Master peut ensuite le personnaliser pour chaque membre sans modifier rétroactivement les périodes historiques déjà enregistrées.
+
+**Conditions d'acceptation de haut niveau :**
+- À la création de chaque membre, le modèle hebdomadaire initial comporte cinq journées travaillées du lundi au vendredi ; samedi et dimanche sont non travaillés.
+- Le Scrum Master peut modifier, **individuellement**, les jours travaillés et non travaillés, y compris les demi-journées, ainsi que les exceptions et absences conformément aux règles F-27 à F-29.
+- Le calendrier individuel est centralisé sur la fiche du membre : une modification de ses disponibilités est prise en compte pour ses différentes équipes selon leurs affectations et dates effectives (F-28).
+- Le temps contractuel est proposé à 100 % conformément à D-PRD-011 ; la trame hebdomadaire et le taux contractuel restent des paramètres distincts, modifiables.
+- Les jours fériés nationaux/régionaux et fermetures de société relèvent des règles F-35/F-36 : ils ne sont pas déduits arbitrairement sans localisation et calendrier applicables, et aucune journée indisponible ne doit être comptée deux fois.
+- La capacité planifiée et constatée en JH repose sur les disponibilités applicables à la période concernée, sans reconstituer l'historique à partir du calendrier courant (F-30/F-31). La trame initiale n'est pas une preuve d'absences ou de jours fériés passés.
+
+**Détails restant à préciser :** choix et modification de la localisation initiale (pays/région) par membre, modalités de prise en compte des jours fériés, et date d'effet des changements de calendrier ; aucune source externe de jours fériés n'est sélectionnée à ce stade.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP.
@@ -192,7 +208,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, et champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7), et **calendrier individuel initial lundi-vendredi à temps plein, personnalisable** (FR-8). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -222,6 +238,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **D-PRD-011 :** la valeur de la **marge de planification d'équipe**, distincte des pourcentages membre (F-32), n'est pas fixée ; ne pas en déduire un taux de 100 % de marge.
 - **FR-4 / D-PRD-006 :** principe de suppression des fiches vierges et de fin d'affectation/archivage réversible validé. Restent à spécifier les critères exacts d'une fiche sans historique, les confirmations, l'effet sur les affectations simultanées/futures et l'ergonomie de réactivation.
 - **FR-6 / D-PRD-008 :** adresse e-mail centralisée éditable dès le MVP ; son caractère facultatif est une interprétation cohérente avec le minimum FR-5, à rectifier si souhaité. **P-PRD-004 :** envoi d'e-mails ou ouverture d'Outlook, possibilité future sans engagement de version.
+- **FR-8 / D-PRD-013 :** calendrier individuel initial lundi-vendredi à temps plein, entièrement personnalisable. Restent à arbitrer la localisation (pays/région) proposée à la création, les règles de date d'effet des changements et la source de jours fériés (F-35).
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
