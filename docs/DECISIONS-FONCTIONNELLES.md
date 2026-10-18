@@ -1,4 +1,4 @@
-# SMN — Registre des décisions fonctionnelles F-01 à F-123
+# SMN — Registre des décisions fonctionnelles F-01 à F-124
 
 > **Mise à jour : 18 octobre 2026** — BMAD / Mary (Analyst), consolidation du brainstorming.  
 > **Source :** décisions exprimées et confirmées dans les échanges de cadrage SMN, et référentiel initial `docs/PROJECT-CONTEXT.md`.  
@@ -133,6 +133,7 @@
 | F-121 | Chaque équipe Scrum/Kanban autonome suit un seul produit ; en SAFe, chaque ART suit un seul produit commun à toutes ses équipes, sans produits distincts par équipe. | Validé ; complété par F-122 |
 | F-122 | Le produit de référence est fixé pour toute la durée de vie d'une installation SMN. Aucun changement ou remplacement de produit au sein de cette installation : un nouveau produit implique une nouvelle installation indépendante. L'ancienne installation et son historique ne sont pas automatiquement effacés. | Validé |
 | F-123 | Dans l'assistant d'installation initiale, le nom du produit de référence est obligatoire pour finaliser l'initialisation. La vision du produit et le Product Goal sont facultatifs et renseignables ou complétables ultérieurement depuis SMN ; ces évolutions restent historisées. | Validé |
+| F-124 | Au premier lancement, afficher le choix entre Scrum, Kanban et SAFe avec un court texte explicatif pour chaque mode ; après sélection, demander uniquement le nom de la première équipe en Scrum/Kanban, ou le nom de l'ART en SAFe (en complément du nom du produit déjà requis). Reporter la configuration détaillée de l'équipe et, en SAFe, la création de ses équipes après installation. | Validé |
 
 ## Corrections de cadrage à retenir impérativement
 
@@ -151,6 +152,7 @@
 13. **Un seul produit par équipe autonome ; un seul produit commun par ART** pour toutes ses équipes Scrum/Kanban (F-121).
 14. **Produit fixé pour toute l'installation** : aucun remplacement en cours de vie, nouvelle installation indépendante si changement de produit ; l'ancienne peut être conservée (F-122).
 15. **Initialisation** : nom du produit obligatoire ; vision et Product Goal facultatifs et complétables plus tard (F-123).
+16. **Choix du mode accompagné d'une explication** : Scrum/Kanban = nom d'équipe, SAFe = nom d'ART, création et paramétrage détaillés ensuite (F-124).
 
 ## Ce qui reste ouvert (ne pas présenter comme décidé)
 
@@ -164,7 +166,7 @@
 - Identification des éventuels KPI ART comparables et règles d'agrégation ; ne pas sommer les SP des équipes.
 - Produit unique et fixe pendant toute l'installation **tranché** (F-121/F-122). Restent à définir les modalités techniques de création d'une nouvelle installation indépendante, et le lien entre Product Goal et objectifs de Sprint/PI.
 - Traduction des contenus métier saisis et des exports, paramètres régionaux, langues futures.
-- Palettes et accessibilité, étapes détaillées de l'assistant de première installation et autres paramètres exacts ; **le nom du produit y est obligatoire, vision et Product Goal facultatifs** (F-123).
+- Palettes et accessibilité, organisation exacte des étapes et autres paramètres de première installation. **Acté : mode expliqué, nom du produit obligatoire, nom de l'équipe (Scrum/Kanban) ou de l'ART (SAFe), vision et Product Goal facultatifs ; configuration détaillée différée** (F-123/F-124).
 - Références de versions DoD/DoR SharePoint : une URL ne préserve pas nécessairement le contenu historique.
 
 ## Règle d'utilisation
