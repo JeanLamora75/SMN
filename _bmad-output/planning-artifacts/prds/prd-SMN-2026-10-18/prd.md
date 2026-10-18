@@ -214,12 +214,12 @@ SMN peut proposer à chaque nouveau membre la **localisation configurée pour l'
 
 **À préciser :** pays par défaut de la toute première installation, champs de région/ville initiaux, date d'effet des changements et éventuels cas de membres mobiles.
 
-#### FR-10 — Gérer les pays et leurs calendriers de jours fériés (validé : D-PRD-015, D-PRD-016, D-PRD-017 ; F-35/F-36)
+#### FR-10 — Gérer les pays et leurs calendriers de jours fériés (validé : D-PRD-015, D-PRD-016, D-PRD-017, D-PRD-018 ; F-35/F-36)
 
-Le MVP fournit un **petit catalogue initial de pays**, dont certains disposent de **calendriers de jours fériés préchargés** à titre d'exemple et de préparamétrage. Le Scrum Master peut **ajouter un pays** au catalogue et **importer un calendrier de jours fériés** pour celui-ci.
+Le MVP fournit un **catalogue initial de sept pays : France, Allemagne, Royaume-Uni, Espagne, Portugal, Italie et Canada**, dont certains disposent de **calendriers de jours fériés préchargés** à titre d'exemple et de préparamétrage. Le Scrum Master peut **ajouter un pays** au catalogue et **importer un calendrier de jours fériés** pour celui-ci.
 
 **Conditions d'acceptation de haut niveau :**
-- L'installation propose un nombre limité de pays initiaux (liste à définir) ; le catalogue n'est pas censé être exhaustif. Certains pays disposent d'un calendrier d'exemple associé, mais l'existence d'un pays ne signifie pas qu'il dispose de jours fériés pour toutes les années.
+- L'installation propose ces sept pays initiaux (D-PRD-018), et le catalogue peut être enrichi par l'utilisateur. Certains pays disposent d'un calendrier d'exemple associé, mais l'existence d'un pays ne signifie pas qu'il dispose de jours fériés pour toutes les années.
 - Le Scrum Master peut créer un pays dans l'administration, sans avoir à modifier le code de SMN, puis lui associer un ou plusieurs jeux de jours fériés.
 - Le MVP accepte **deux formats d'import de fichiers de jours fériés** (D-PRD-017) : **CSV au schéma SMN fixe**, déjà acté par F-35, et **iCalendar (.ics)**. Le détail du schéma CSV, des données iCalendar compatibles (notamment dates, récurrences et fuseaux), des régions, années et contrôles de données reste à spécifier.
 - Pour les deux formats, SMN permet d'associer l'import à un pays et, lorsque pertinent, à une région ; les journées importées sont traitées de manière cohérente dans le calendrier interne, quel que soit le format source.
@@ -230,7 +230,7 @@ Le MVP fournit un **petit catalogue initial de pays**, dont certains disposent d
 - En l'absence de calendrier de jours fériés applicable à un pays/une année, SMN ne suppose pas que ce pays n'a aucun jour férié ; il signale que ces données sont **manquantes/non configurées** plutôt que de générer des dates fictives.
 - Les corrections et réimports de jours fériés sont traçables et ne réécrivent pas silencieusement les capacités historiques de référence (F-30/F-31/F-93).
 
-**À préciser :** liste des pays initiaux, calendriers modèles et années livrées, régionalisation, schéma détaillé CSV, couverture iCalendar (événements sur plusieurs jours, récurrences, fuseaux et événements non fériés), choix fusion/remplacement, et parcours de correction après import. **L'import d'un fichier ICS est acquis au MVP ; aucune synchronisation par abonnement à une URL ICS n'est impliquée.** Aucun fournisseur ou API automatique de jours fériés n'est imposé à ce stade.
+**À préciser :** pays proposé par défaut à la première installation (France proposée, pas encore explicitement confirmée), calendriers modèles et années livrées, régionalisation, schéma détaillé CSV, couverture iCalendar (événements sur plusieurs jours, récurrences, fuseaux et événements non fériés), choix fusion/remplacement, et parcours de correction après import. **L'import d'un fichier ICS est acquis au MVP ; aucune synchronisation par abonnement à une URL ICS n'est impliquée.** Aucun fournisseur ou API automatique de jours fériés n'est imposé à ce stade.
 
 ## 5. Non-objectifs actés
 
@@ -274,7 +274,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-6 / D-PRD-008 :** adresse e-mail centralisée éditable dès le MVP ; son caractère facultatif est une interprétation cohérente avec le minimum FR-5, à rectifier si souhaité. **P-PRD-004 :** envoi d'e-mails ou ouverture d'Outlook, possibilité future sans engagement de version.
 - **FR-8 / D-PRD-013 :** calendrier individuel initial lundi-vendredi à temps plein, entièrement personnalisable. FR-9 précise le préremplissage de la localisation ; restent ouvertes les règles de date d'effet des changements.
 - **FR-9 / D-PRD-014 :** pays par défaut de la première installation, prise en compte de régions/villes, fuseaux et changements de localisation au fil du temps, avec impacts sur l'historique.
-- **FR-10 / D-PRD-015 à D-PRD-017 :** import **CSV fixe + ICS validé au MVP** ; restent à préciser la liste de pays et années préchargés, le schéma CSV, la couverture des événements ICS (récurrences, événements non fériés, fuseaux et journées multiples), et la stratégie de fusion/remplacement des imports.
+- **FR-10 / D-PRD-015 à D-PRD-017 :** import **CSV fixe + ICS validé au MVP** ; les sept pays initiaux sont validés ; restent à préciser les calendriers d'exemple et années préchargés, le schéma CSV, la couverture des événements ICS (récurrences, événements non fériés, fuseaux et journées multiples), et la stratégie de fusion/remplacement des imports.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
