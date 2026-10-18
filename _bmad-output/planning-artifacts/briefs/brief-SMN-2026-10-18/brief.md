@@ -43,7 +43,7 @@ Le problème métier identifié par l'utilisateur combine **trois difficultés i
 - **Produit cible :** fonctionnement dans **trois modes exclusifs par installation : Scrum, Kanban et SAFe**. Le MVP proposera les modes Scrum et Kanban ; le mode SAFe arrivera en **version 1.0**. À terme, un ART peut réunir des équipes Scrum et Kanban partageant la cadence de l'ART. Un produit unique et fixe est suivi par installation (F-41, F-49, F-50, F-121 à F-124).
 - Génération des calendriers et cérémonies, gestion centralisée des membres et disponibilités, capacités de développement en JH, et saisie des exceptions plutôt que des opérations répétitives (F-26 à F-63).
 - Objectifs par période et par PI, indicateurs Scrum/Kanban **tous facultatifs**, clôtures manuelles et reprises historiques traçables (F-64 à F-73, F-91 à F-96).
-- Registres partagés et historisés des risques ROAM, obstacles, dépendances, décisions, actions et faits marquants (F-74 à F-90, F-110, F-111).
+- **Dès le MVP Scrum/Kanban : les six catégories de suivi qualitatif** — risques ROAM, obstacles, dépendances, décisions, actions et faits marquants — avec une interface de saisie simple, leur historisation et leur exploitation dans les reportings (F-74 à F-90, F-110, F-111). Le séquencement des mécanismes avancés reste à définir.
 - Reporting à tout moment, modèles configurables et prévisualisation ; **HTML et PDF dans le MVP** (consultation/prévisualisation dans l'application puis export partageable), **PPTX, DOCX et XLSX post-MVP**, selon un calendrier à préciser (F-15, F-24, F-25, F-97 à F-109).
 - Brief IA textuel TXT prévisualisable, archivé et immuable ; transmission manuelle à une IA externe et réintégration de son analyse, sans données individuelles de membres (F-98 à F-109).
 - Contexte produit, vision et Product Goal historisés, DoD/DoR restituables dans les rapports ; interface français/anglais dès le MVP, thèmes clair/sombre et CSS Bootstrap 5 (F-112 à F-124).
@@ -85,6 +85,12 @@ Le **parcours cible** suit les étapes suivantes :
 
 Ce parcours exprime **l'objectif de bout en bout validé**, pas encore une décision sur le détail de chaque écran, registre, calcul, automatisation ou export livré dans le MVP. Les fonctionnalités précises seront priorisées ultérieurement. Toutes les dispositions déjà validées dans F-01 à F-124 restent applicables à leur version de livraison respective.
 
+### Suivi qualitatif MVP — périmètre validé
+
+Les **six catégories** — **risques, obstacles, dépendances, décisions, actions et faits marquants** — sont **toutes incluses dès le MVP** Scrum/Kanban. Leur saisie doit rester simple et compatible avec l'objectif de 15 à 30 minutes par semaine. Les enregistrements doivent conserver l'historique utile et fournir le contexte qualitatif des bilans et rapports HTML/PDF.
+
+**À préciser au PRD :** champs minimaux et règles de manipulation nécessaires pour chaque catégorie, ainsi que les fonctions avancées à livrer au MVP ou à différer (relations complexes, automatisations et visualisations particulières). Le report éventuel de mécanismes avancés ne supprime aucune des six catégories ni les règles cardinales de traçabilité déjà validées.
+
 ### Reporting MVP — formats validés
 
 - **HTML dès le MVP :** consulter et prévisualiser un rapport dans SMN.
@@ -96,7 +102,7 @@ Ce parcours exprime **l'objectif de bout en bout validé**, pas encore une déci
 
 **Principes non négociables issus du cadrage :** l'application n'est pas collaborative pour les équipiers, les KPI demeurent facultatifs, les données individuelles ne sont pas transmises aux IA et l'intégration automatique Jira/API IA n'est pas requise pour la première version. L'import CSV des valeurs numériques consolidées est prévu ; les formats de reporting du **MVP sont HTML et PDF**, et les autres formats (PPTX, DOCX, XLSX) sont différés sans version cible fixée (F-01, F-15, F-16, F-19, F-72, F-102, F-108).
 
-**À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, quel niveau de détail de suivi inclure, quels éléments faire apparaître par défaut dans les rapports HTML/PDF et quelles autres fonctions reporter hors MVP (SAFe étant déjà prévu en version 1.0).
+**À décider :** quelles fonctions précises retenir pour réaliser chacune des cinq étapes, les détails de saisie et de liaison des six catégories qualitatives, les éléments à afficher par défaut dans les rapports HTML/PDF et les fonctions avancées à reporter hors MVP (SAFe étant déjà prévu en version 1.0).
 
 ## Vision et adoption progressive — orientation validée
 
@@ -104,8 +110,8 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Suivi qualitatif MVP :** quels registres historisés (risques, obstacles, dépendances, décisions, actions, faits marquants) doivent être opérationnels dès le premier cycle Scrum/Kanban ?
-2. **Contenu des rapports :** quelles informations et tendances doivent apparaître par défaut dans le premier rapport HTML/PDF ?
+1. **Contenu des rapports :** quelles informations quantitatives, qualitatives et tendances historiques doivent apparaître par défaut dans le premier rapport HTML/PDF ?
+2. **Simplicité du MVP :** quels détails des formulaires et relations entre les six catégories exigent un arbitrage PRD, tout en restant sous la cible de saisie hebdomadaire ?
 3. **Critères de passage :** quelles observations (temps mesuré, restitution, centralisation et usage) permettront d'ouvrir un pilote puis d'envisager une diffusion élargie ?
 
 ---
