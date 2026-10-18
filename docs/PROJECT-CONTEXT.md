@@ -9,7 +9,7 @@
 | Ordre | Document | Objet |
 | --- | --- | --- |
 | 1 | **Ce fichier** — `docs/PROJECT-CONTEXT.md` | Vision, contraintes, état du projet et liens |
-| 2 | **[DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md)** | Registre chronologique et exhaustif des **123 décisions F-01 à F-123**, états et décisions remplacées |
+| 2 | **[DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md)** | Registre chronologique et exhaustif des **124 décisions F-01 à F-124**, états et décisions remplacées |
 | 3 | **[CADRAGE-FONCTIONNEL.md](./CADRAGE-FONCTIONNEL.md)** | Règles fonctionnelles détaillées et points restant à arbitrer |
 
 **Important :** le présent contexte initial portait sur F-01 à F-10. La suite F-11 à F-111 a été actée pendant les échanges de brainstorming. Les trois documents ci-dessus sont désormais le référentiel de reprise avant la rédaction du Product Brief / PRD.
@@ -84,7 +84,7 @@ La finalité est de **préparer, expliquer et produire à la demande des reporti
 
 - **Français et anglais dès le MVP**, i18n prise en compte dans la conception ; futures langues via nouvelles User Stories.
 - **Bootstrap 5 choisi pour le CSS**, personnalisation via variables CSS, palettes sélectionnables, modes clair/sombre.
-- **Assistant au premier lancement** pour configurer les principaux paramètres par défaut ; **nom du produit obligatoire** pour terminer l'initialisation, **vision et Product Goal facultatifs**, à compléter plus tard (F-123). Autres réglages modifiables ensuite, hors mode Scrum/Kanban/SAFe (règle de réinitialisation).
+- **Assistant au premier lancement** : expliquer brièvement les **trois modes Scrum/Kanban/SAFe**, laisser choisir le mode puis demander **uniquement le nom de l'équipe** (Scrum/Kanban) ou **le nom de l'ART** (SAFe) ; le **nom du produit est également obligatoire** pour achever l'installation (F-123/F-124). Vision et Product Goal facultatifs, équipes de l'ART, membres et autres configurations détaillées à compléter plus tard. Paramètres modifiables ensuite, hors mode et produit de référence (F-41/F-122).
 - Le contenu éditorial métier multilingue et la langue des exports restent à spécifier.
 
 ### 3.8 Projet/produit, vision, Product Goal, DoD et DoR (F-116 à F-123)
@@ -104,7 +104,7 @@ La finalité est de **préparer, expliquer et produire à la demande des reporti
 - Schémas CSV SMN, source des jours fériés, sauvegardes et droits d'accès.
 - Charte graphique des rapports, modèles d'export, détails des fichiers TXT et politiques de sécurité/rétention.
 - Produit unique et fixe par installation **déjà validé** (F-121/F-122) ; modalités techniques d'une nouvelle installation indépendante, versions des documents SharePoint et langue des contenus libres et rapports à préciser.
-- Palettes finales, accessibilité et autres étapes détaillées de l'assistant d'installation ; **nom du produit obligatoire** déjà acté.
+- Palettes finales, accessibilité et agencement des autres étapes de l'assistant d'installation ; **choix du mode expliqué, nom d'équipe/ART et nom du produit déjà actés comme minimum métier requis** (F-123/F-124).
 - Prochains arbitrages listés dans **[CADRAGE-FONCTIONNEL.md §14](./CADRAGE-FONCTIONNEL.md#14-points-ouverts-et-besoins-de-précision-pour-product-brief-et-prd)**.
 
 ## 5. Référentiels et méthode de travail
@@ -146,7 +146,7 @@ Le projet utilise BMAD via **ChatGPT et ses connecteurs**, en lisant les `SKILL.
 
 - Dépôt GitHub SMN et projet Jira SMN créés.
 - BMAD Method v6.12.4 installé avec les skills dans `.agents/skills/`, exploitation prévue depuis ChatGPT.
-- **Brainstorming fonctionnel consolidé en 123 décisions F-01 à F-123** et document thématique détaillé dans `docs/`.
+- **Brainstorming fonctionnel consolidé en 124 décisions F-01 à F-124** et document thématique détaillé dans `docs/`.
 - **Product Brief, PRD, architecture applicative et backlog détaillé restent à produire** à partir des arbitrages, selon les workflows BMAD.
 - Cette consolidation documentaire **ne constitue ni un développement, ni une création de tickets Jira, ni une validation technique de l'application**.
 

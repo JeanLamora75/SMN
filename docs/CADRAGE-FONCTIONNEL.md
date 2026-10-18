@@ -1,7 +1,7 @@
 # Scrum Master Notebook — Cadrage fonctionnel consolidé
 
 > **État : 18 octobre 2026** — Synthèse de brainstorming BMAD avec Mary (Analyst).  
-> **Source de vérité des arbitrages :** [Registre F-01 à F-123](./DECISIONS-FONCTIONNELLES.md).  
+> **Source de vérité des arbitrages :** [Registre F-01 à F-124](./DECISIONS-FONCTIONNELLES.md).  
 > **Nature :** règles métier validées et pistes restant à spécifier. **Ce document n'est pas encore le PRD ni l'architecture technique.**  
 > **Vocabulaire :** SM = Scrum Master ; RTE = Release Train Engineer ; ART = Agile Release Train ; PI = Planning Interval ; JH = jour/homme ; SP = Story Points ; MVP = première version fonctionnelle à arbitrer.
 
@@ -24,7 +24,7 @@ Principes incontournables :
 
 ### 1.2 Portée des décisions
 
-Les **123 références F-01 à F-123** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
+Les **124 références F-01 à F-124** sont répertoriées dans le registre. Les anciennes décisions F-02 et F-03 (Scrum/SAFe uniquement) sont remplacées par F-49. Les propositions citées comme « à spécifier » ne doivent pas devenir tacitement des exigences.
 
 ## 2. Modes d'installation, équipes et ART
 
@@ -346,7 +346,16 @@ Le **brief IA** est un **reporting moins visuel**, en **fichier texte `.txt`**, 
 - Le **mode Scrum/Kanban/SAFe reste fixe** après initialisation (F-41/F-42/F-49), sauf réinitialisation complète volontaire.
 - **Nom du produit de référence obligatoire dès l'assistant** : l'initialisation ne peut être finalisée sans ce nom (F-123). La création/configuration du produit est donc bien incluse dans ce parcours.
 - **Vision du produit et Product Goal facultatifs à l'installation** : l'utilisateur peut les laisser vides, puis les renseigner ou les compléter ultérieurement. Leurs modifications seront historisées conformément à F-117.
-- L'ordre des écrans et les **autres** champs obligatoires du parcours restent **à préciser**.
+- **Sélection du mode Scrum, Kanban ou SAFe d'abord**, avec pour chacun un **court texte explicatif** compréhensible par l'utilisateur (F-124) :
+  - **Scrum** : « Pour une équipe travaillant par Sprints, avec des objectifs, des événements Scrum et un suivi des résultats. »
+  - **Kanban** : « Pour une équipe travaillant en flux continu, avec un suivi du travail en cours, des délais et du débit. »
+  - **SAFe** : « Pour un Agile Release Train réunissant plusieurs équipes Scrum et/ou Kanban, synchronisées autour d'un même PI. »
+  Ces formulations sont des **propositions de microtextes**, non des descriptions normatives exhaustives des cadres méthodologiques ; elles seront traduites en anglais pour le MVP.
+- **Immédiatement après le choix du mode**, recueillir **uniquement le nom de la première équipe** en mode Scrum ou Kanban, **ou uniquement le nom de l'ART** en mode SAFe, sans demander les membres, les rôles, les équipes composant un ART, ni leur configuration détaillée.
+- Le **nom du produit** reste obligatoire dans l'assistant (F-123) ; ces informations minimales servent à initialiser l'organisation, sans configurer immédiatement son calendrier ni ses membres.
+- En SAFe, **ne pas créer ni demander les noms des équipes de l'ART dans l'assistant** : elles seront créées après l'installation.
+- Après l'installation, permettre d'enrichir l'équipe ou l'ART, créer les équipes du train, renseigner leurs membres et ajuster les paramètres administrables.
+- L'ordre relatif du choix de la langue, du thème et des autres étapes avec le produit reste à finaliser ; **ne pas exiger d'autres informations métier pendant le choix d'équipe ou d'ART**.
 
 ## 11. Contexte projet/produit et règles de travail (F-116 à F-123)
 
@@ -422,7 +431,7 @@ Tous les paramètres individuels/structurels nécessaires aux calculs doivent re
 
 ## 14. Points ouverts et besoins de précision pour Product Brief et PRD
 
-Ces éléments ne sont **pas tranchés** par les 123 décisions :
+Ces éléments ne sont **pas tranchés** par les 124 décisions :
 
 1. **MVP et releases** : sélectionner la première livraison sans présumer que tous les formats et toutes les vues seront simultanément disponibles.
 2. **Cérémonies** : catalogue officiel par Scrum/SAFe, détails du Kanban, formules de durées, dates et règles de récurrence par défaut ; vérifier les référentiels lorsque l'utilisateur autorise la recherche.
@@ -439,7 +448,7 @@ Ces éléments ne sont **pas tranchés** par les 123 décisions :
 13. **Projet/produit** : un produit unique et fixe par installation validé (F-121/F-122). Les changements de produit au cours de l'installation sont exclus ; préciser seulement les modalités techniques d'une **nouvelle installation indépendante**, et les liens éventuels du Product Goal aux objectifs de Sprint/PI.
 14. **DoD/DoR** : versions, suivi historique des documents externes SharePoint et comportement en cas de lien inaccessible.
 15. **Internationalisation** : traitement des textes libres, langue des rapports, traductions futures.
-16. **Installation** : nom du produit obligatoire, vision et Product Goal facultatifs (F-123) ; restent à spécifier les étapes, valeurs par défaut et autres champs indispensables.
+16. **Installation** : mode choisi avec explication, suivi du nom obligatoire de la première équipe (Scrum/Kanban) ou de l'ART (SAFe) (F-124) ; nom du produit obligatoire, vision et Product Goal facultatifs (F-123). Restent à définir uniquement la composition et le placement des autres écrans, ainsi que les valeurs par défaut.
 17. **Design** : palettes concrètes, accessibilité, couleurs de statut et modes clair/sombre.
 
 ## 15. Mode d'emploi pour les agents et conversations futures
@@ -451,4 +460,4 @@ Ces éléments ne sont **pas tranchés** par les 123 décisions :
 5. Jira reste le référentiel des tickets ; cette synthèse n'y crée ni ne modifie aucune Story par elle-même.
 6. Mettre à jour ces documents après tout nouvel arbitrage significatif.
 
-**Synthèse enrichie des décisions validées F-01 à F-123.**
+**Synthèse enrichie des décisions validées F-01 à F-124.**
