@@ -251,6 +251,26 @@ Lorsqu'un membre bénéficie d'un jour non travaillé propre à sa région et no
 **Précision de décision :** F-35 mentionnait initialement des jours fériés « nationaux/régionaux selon localisation ». **Pour le MVP, D-PRD-021 affine explicitement cette règle : calendriers de jours fériés nationaux préchargés/importables, exceptions régionales saisies manuellement comme absences individuelles catégorisées et nommées.** Une gestion automatisée des jours fériés régionaux pourra être réévaluée plus tard, sans être requise au MVP.
 
 
+
+### 4.5 Saisie et consultation centralisées des absences — MVP
+
+#### FR-12 — Gérer une absence depuis deux points d'accès (validé : D-PRD-024 ; F-27 à F-29, F-35, F-55)
+
+Le Scrum Master peut **consulter, créer et modifier les absences individuelles** depuis (a) **le calendrier de la fiche centrale du membre** ou (b) **le calendrier de l'équipe** en sélectionnant le membre concerné. Ces deux parcours accèdent **au même enregistrement d'absence**, sans créer de copie par équipe.
+
+**Conditions d'acceptation de haut niveau :**
+- Depuis la fiche d'un membre, le Scrum Master accède à son calendrier personnel et peut créer, consulter ou modifier une absence.
+- Depuis le calendrier d'une équipe, il peut consulter les indisponibilités des membres de cette équipe et créer, consulter ou modifier une absence du membre sélectionné.
+- Quel que soit le point d'accès, la même absence n'est enregistrée **qu'une seule fois au niveau central du membre** ; elle reste visible et prise en compte dans toutes les équipes auxquelles celui-ci est affecté aux dates concernées (F-28).
+- Une modification réalisée depuis l'un des deux points d'accès est visible depuis l'autre, sans nécessiter de ressaisie.
+- Les règles existantes relatives aux dates et demi-journées, aux catégories d'absence, au caractère **prévu ou imprévu** et à la saisie a posteriori sont respectées (F-27 à F-29).
+- Les capacités de chaque équipe concernée tiennent compte de l'absence une seule fois, même lorsque des jours fériés ou d'autres indisponibilités coïncident (F-35/F-59).
+- La saisie d'une absence individuelle n'entraîne pas à elle seule d'alerte **collective** sur les événements Agile (F-55), y compris lorsqu'elle décrit un cas régional (FR-11).
+- L'enregistrement ou la correction d'une absence sur une période passée respecte les capacités historiques de référence et le processus de recalcul/traçabilité existant (F-30/F-31/F-93/F-96).
+
+**Détails restant à concevoir :** présentation du calendrier d'équipe sur ordinateur et mobile, sélection du membre, droits d'édition et affichage éventuel des absences sur des périodes sans affectation à cette équipe. Aucune création d'une fiche d'absence « par équipe » n'est demandée.
+
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP.
@@ -295,6 +315,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-9 / D-PRD-014 :** pays par défaut de la première installation, prise en compte de régions/villes, fuseaux et changements de localisation au fil du temps, avec impacts sur l'historique.
 - **FR-10 / D-PRD-015 à D-PRD-023 :** import **CSV fixe + ICS** validé au MVP ; les sept pays initiaux sont validés ; **les calendriers fournis pour France, Allemagne et Royaume-Uni sont automatiquement recherchés dans un répertoire interne selon le pays à l'initialisation**, avec une couverture **N-2 à N+1 pour chaque calendrier livré**. Les **jours fériés ont obligatoirement une date et un nom**. Restent à préciser la maintenance des fichiers annuels, le schéma CSV, la convention du répertoire, la couverture ICS et les stratégies de fusion/remplacement.
 - **FR-11 / D-PRD-021 (précision de F-35) :** cas régionaux saisis en absences individuelles avec catégorie et nom. Ne pas implémenter au MVP de sélection automatique des calendriers régionaux ; conserver les règles de capacité et d'événements d'absence individuelle.
+- **FR-12 / D-PRD-024 :** deux points d'accès à la même absence centrale (fiche membre et calendrier d'équipe) validés ; préciser l'ergonomie mobile, la visibilité des périodes hors affectation et l'éventuelle gestion des absences concernant plusieurs membres.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
