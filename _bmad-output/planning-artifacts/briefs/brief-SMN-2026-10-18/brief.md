@@ -65,7 +65,7 @@ Les trois difficultés confirmées suggèrent **trois axes de mesure** pour appr
 
 ## Trajectoire des livraisons — orientation validée
 
-- **MVP :** version de validation personnelle limitée aux équipes **Scrum et Kanban**, sans mode SAFe, proposant un **cycle complet simplifié** : installation et équipe, période, suivi minimal, bilan/clôture puis rapport. Le détail des fonctionnalités livrées reste à prioriser.
+- **MVP :** version de validation personnelle limitée aux équipes **Scrum et Kanban**, sans mode SAFe, proposant un **cycle complet simplifié** : installation et équipe, période, suivi minimal, bilan/clôture puis rapport, **avec possibilité de saisir rétrospectivement des Sprints déjà terminés** pour alimenter les tendances. Le détail des fonctionnalités livrées reste à prioriser.
 - **Version 1.0 :** extension fonctionnelle à **SAFe**, avec les ART, leurs équipes Scrum/Kanban et les mécanismes associés déjà décidés.
 - **Versions ultérieures :** améliorations du produit guidées notamment par l'usage et les retours collectés, sans liste prédéterminée.
 
@@ -127,13 +127,15 @@ Le MVP propose un **modèle de rapport prérempli en six sections**, applicable 
 
 Avant toute ouverture à un échantillon d'utilisateurs, **tester le MVP sur au moins trois Sprints complets**, en utilisation personnelle et en conditions réelles, **ainsi que sur un cycle de reporting Kanban**. Vérifier les durées de saisie hebdomadaire et de préparation finale, l'exactitude des bilans, la fiabilité des tendances historiques et l'utilité des rapports HTML/PDF. Les critères définitifs de passage au pilote restent à expliciter ; ces essais ne constituent pas encore une preuve que les objectifs chiffrés sont atteints.
 
-### Reprise des Sprints passés — possibilité demandée, version à décider
+### Reprise des Sprints passés — incluse dès le MVP
 
-Le produit doit **préserver la possibilité qu'un Scrum Master renseigne rétrospectivement des informations de Sprints antérieurs déjà terminés** pour les compiler dans SMN et obtenir des tendances dès le démarrage d'une installation. Cette possibilité de reprise d'historique **n'est pas à écarter** ; son intégration **dès le MVP ou dans une version ultérieure reste à arbitrer**.
+**Décision validée :** le MVP doit permettre à un Scrum Master de **créer et renseigner manuellement des Sprints antérieurs déjà terminés** afin de constituer dès son démarrage un historique exploitable pour les compilations, les comparaisons et les tendances. La reprise initiale des Sprints passés est une activité exceptionnelle, distincte de l'objectif de 15 à 30 minutes de saisie hebdomadaire courante.
 
 Principes existants à respecter dans la conception : dates réelles des périodes, distinction entre une donnée inconnue et zéro, préservation des références historiques et de la traçabilité des KPI (F-14, F-24, F-25, F-64, F-72, F-91 à F-96). Les imports CSV prévus par F-19 sont limités aux **chiffres consolidés à schéma fixe** et **n'incluent pas les tickets individuels** ; ils ne présument pas d'un import automatique de tous les autres éléments.
 
-**À préciser dans le PRD :** niveau de rétrosaisie manuelle des objectifs, métriques, commentaires et éléments qualitatifs ; représentation du caractère historique des saisies, sélection des périodes, gestion des corrections et de la traçabilité ; disponibilité au MVP ou non. **Aucune reconstitution automatique de faits non renseignés n'est supposée.**
+**Parcours minimal retenu :** renseigner la période et ses dates réelles, ses objectifs, les indicateurs disponibles, et les commentaires ou faits qualitatifs connus. Une donnée inconnue reste absente plutôt que d'être considérée comme zéro. Les données reprises doivent participer aux rapports et aux tendances au même titre que les Sprints suivis dans SMN, sans fausse reconstitution des faits manquants.
+
+**À préciser dans le PRD :** champs obligatoires/minimaux, import des chiffres consolidés selon F-19, indication de la date de saisie rétrospective, réouverture/corrections et traçabilité, gestion des périodes chevauchantes, des évolutions de composition d'équipe et des métriques qui ne peuvent être recalculées faute de données. La reprise ne doit pas supposer une capacité historique reconstruite à partir de la composition actuelle de l'équipe.
 
 ## Vision et adoption progressive — orientation validée
 
@@ -141,7 +143,7 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 
 ## Prochaines questions du Product Brief
 
-1. **Reprise historique :** la saisie rétrospective manuelle de Sprints passés doit-elle être utilisable dès le MVP, ou peut-elle attendre une version ultérieure ?
+1. **Passage au pilote :** après trois Sprints complets et un cycle Kanban, quels critères observables suffisent à considérer l'usage personnel concluant ?
 2. **Simplicité du MVP :** quels détails des formulaires et relations entre les six catégories exigent un arbitrage PRD, tout en restant sous la cible de saisie hebdomadaire ?
 3. **Critères de passage :** quelles observations (temps mesuré, restitution, centralisation et usage) permettront d'ouvrir un pilote puis d'envisager une diffusion élargie ?
 
