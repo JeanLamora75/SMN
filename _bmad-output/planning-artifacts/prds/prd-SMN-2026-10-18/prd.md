@@ -196,7 +196,39 @@ Le parcours rapide de configuration des membres d'une équipe Scrum ou Kanban pr
 - Les jours fériés nationaux/régionaux et fermetures de société relèvent des règles F-35/F-36 : ils ne sont pas déduits arbitrairement sans localisation et calendrier applicables, et aucune journée indisponible ne doit être comptée deux fois.
 - La capacité planifiée et constatée en JH repose sur les disponibilités applicables à la période concernée, sans reconstituer l'historique à partir du calendrier courant (F-30/F-31). La trame initiale n'est pas une preuve d'absences ou de jours fériés passés.
 
-**Détails restant à préciser :** choix et modification de la localisation initiale (pays/région) par membre, modalités de prise en compte des jours fériés, et date d'effet des changements de calendrier ; aucune source externe de jours fériés n'est sélectionnée à ce stade.
+**Détails restant à préciser :** date d'effet des changements de calendrier individuel, choix des pays initialement livrés, correspondance pays/régions, années couvertes par les calendriers préchargés et suivi des mises à jour. Le préremplissage de la localisation et la gestion de pays/jours fériés sont précisés dans FR-9 et FR-10 ci-dessous.
+
+
+### 4.4 Localisation des membres, pays et jours fériés — MVP
+
+#### FR-9 — Localisation proposée depuis les paramètres de l'installation (validé : D-PRD-014 ; F-04, F-28, F-35, F-53, F-112)
+
+SMN peut proposer à chaque nouveau membre la **localisation configurée pour l'installation** comme valeur initiale ; le Scrum Master peut la corriger individuellement pour prendre en compte des membres répartis dans plusieurs pays, régions, villes et fuseaux horaires.
+
+**Conditions d'acceptation de haut niveau :**
+- Un pays de référence peut être configuré dans les paramètres généraux de l'installation, sans ajouter de saisie obligatoire au parcours Express (F-114 et F-124).
+- Lorsqu'un membre est créé, son pays initial est proposé à partir du pays configuré pour l'installation ; sa localisation peut être modifiée indépendamment de celle des autres membres et de celle de l'équipe.
+- Les régions et fuseaux horaires sont pris en compte lorsque nécessaires à ses jours fériés et aux affichages, conformément à F-35 et F-53. Leur représentation précise sera définie en conception.
+- Le **pays du membre**, le **fuseau horaire** et la **langue d'interface** restent des paramètres distincts ; changer l'un ne modifie pas automatiquement les autres (F-112).
+- Les données de localisation qui influent sur la capacité historique restent identifiables à la période applicable ; un changement de pays ne doit pas effacer ou invalider silencieusement les bilans passés.
+
+**À préciser :** pays par défaut de la toute première installation, champs de région/ville initiaux, date d'effet des changements et éventuels cas de membres mobiles.
+
+#### FR-10 — Gérer les pays et leurs calendriers de jours fériés (validé : D-PRD-015, D-PRD-016 ; F-35/F-36)
+
+Le MVP fournit un **petit catalogue initial de pays**, dont certains disposent de **calendriers de jours fériés préchargés** à titre d'exemple et de préparamétrage. Le Scrum Master peut **ajouter un pays** au catalogue et **importer un calendrier de jours fériés** pour celui-ci.
+
+**Conditions d'acceptation de haut niveau :**
+- L'installation propose un nombre limité de pays initiaux (liste à définir) ; le catalogue n'est pas censé être exhaustif. Certains pays disposent d'un calendrier d'exemple associé, mais l'existence d'un pays ne signifie pas qu'il dispose de jours fériés pour toutes les années.
+- Le Scrum Master peut créer un pays dans l'administration, sans avoir à modifier le code de SMN, puis lui associer un ou plusieurs jeux de jours fériés.
+- Le MVP accepte au minimum **l'import d'un CSV au schéma SMN fixe**, déjà acté par F-35 ; le détail des colonnes, des régions, de l'année et du contrôle des données est à spécifier.
+- Lors de l'import, SMN identifie le pays concerné, valide les dates, contrôle les enregistrements doublons et les données invalides, et présente un bilan des éléments acceptés ou refusés. Il ne mélange pas automatiquement les jours fériés de deux pays.
+- Les jours fériés applicables au pays et, lorsque disponible, à la région du membre, sont réutilisés pour les disponibilités/capacités et les alertes sur événements, dans le respect des règles F-35, F-36 et F-55 ; les fermetures d'entreprise restent un calendrier distinct.
+- Les chevauchements de jours non travaillés/absences/fermetures ne provoquent **aucune double déduction** de la capacité (F-35/F-59).
+- En l'absence de calendrier de jours fériés applicable à un pays/une année, SMN ne suppose pas que ce pays n'a aucun jour férié ; il signale que ces données sont **manquantes/non configurées** plutôt que de générer des dates fictives.
+- Les corrections et réimports de jours fériés sont traçables et ne réécrivent pas silencieusement les capacités historiques de référence (F-30/F-31/F-93).
+
+**À préciser :** liste des pays initiaux, calendriers modèles et années livrées, régionalisation, schéma détaillé CSV, import de remplacement ou fusion, éventuel import de fichiers **iCalendar (.ics)** en supplément (non décidé), et parcours de correction après import. Aucun fournisseur ou API automatique de jours fériés n'est imposé à ce stade.
 
 ## 5. Non-objectifs actés
 
@@ -208,7 +240,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
 
-Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7), et **calendrier individuel initial lundi-vendredi à temps plein, personnalisable** (FR-8). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7), et **calendrier individuel initial lundi-vendredi à temps plein, personnalisable** (FR-8), avec **localisation proposée à partir de l'installation mais personnalisable par membre**, et **gestion des pays et import de calendriers de jours fériés CSV au format fixe** (FR-9/FR-10). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
@@ -238,7 +270,9 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **D-PRD-011 :** la valeur de la **marge de planification d'équipe**, distincte des pourcentages membre (F-32), n'est pas fixée ; ne pas en déduire un taux de 100 % de marge.
 - **FR-4 / D-PRD-006 :** principe de suppression des fiches vierges et de fin d'affectation/archivage réversible validé. Restent à spécifier les critères exacts d'une fiche sans historique, les confirmations, l'effet sur les affectations simultanées/futures et l'ergonomie de réactivation.
 - **FR-6 / D-PRD-008 :** adresse e-mail centralisée éditable dès le MVP ; son caractère facultatif est une interprétation cohérente avec le minimum FR-5, à rectifier si souhaité. **P-PRD-004 :** envoi d'e-mails ou ouverture d'Outlook, possibilité future sans engagement de version.
-- **FR-8 / D-PRD-013 :** calendrier individuel initial lundi-vendredi à temps plein, entièrement personnalisable. Restent à arbitrer la localisation (pays/région) proposée à la création, les règles de date d'effet des changements et la source de jours fériés (F-35).
+- **FR-8 / D-PRD-013 :** calendrier individuel initial lundi-vendredi à temps plein, entièrement personnalisable. FR-9 précise le préremplissage de la localisation ; restent ouvertes les règles de date d'effet des changements.
+- **FR-9 / D-PRD-014 :** pays par défaut de la première installation, prise en compte de régions/villes, fuseaux et changements de localisation au fil du temps, avec impacts sur l'historique.
+- **FR-10 / D-PRD-015 et D-PRD-016 :** nombre et identité des pays préchargés, couverture temporelle des calendriers d'exemple, schéma CSV, modalités de correction et prise en charge éventuelle d'import **.ics en complément du CSV** (non décidée).
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
