@@ -1,128 +1,138 @@
 # Scrum Master Notebook — Contexte de référence du projet
 
-> Version initiale : 18 octobre 2026  
-> Statut : synthèse des échanges de cadrage ; les éléments marqués « à préciser » ne sont pas des décisions arrêtées.  
-> Objectif : fournir un point d'entrée durable aux conversations ChatGPT et aux agents BMAD.  
-> Ce document ne remplace ni le Product Brief, ni le PRD, ni l'architecture, ni les tickets Jira.
+> **Version initiale : 18 octobre 2026 — dernière consolidation : 18 octobre 2026**  
+> **Statut :** décisions fonctionnelles du brainstorming Mary (BMAD Analyst) consolidées et validées par l'utilisateur. Les choix techniques et le MVP sont encore à définir.  
+> **Objectif :** point d'entrée durable pour les nouvelles conversations ChatGPT et les agents BMAD ; **ne remplace pas** le Product Brief, le PRD, l'architecture ou Jira.
 
-## 1. Vision du produit
+## 1. Documents à lire en priorité
 
-**Scrum Master Notebook (SMN)** est une application de travail pour les **Scrum Masters (SM)** et les **Release Train Engineers (RTE)**. Elle doit faciliter la préparation, le suivi et la restitution des activités Agile, de l'équipe Scrum jusqu'à l'Agile Release Train (ART) en SAFe.
-
-La priorité est de **produire un reporting aussi exhaustif et exploitable que possible à destination des parties prenantes**, tout en **réduisant au minimum la saisie manuelle**.
-
-## 2. Principes fonctionnels validés
-
-| Référence | Décision | État |
+| Ordre | Document | Objet |
 | --- | --- | --- |
-| F-01 | L'application est principalement utilisée et renseignée par le SM ou le RTE, et n'a **pas vocation à être partagée avec les membres des équipes**. | Validé |
-| F-02 | L'application proposera **un mode Scrum et un mode SAFe**. | Validé |
-| F-03 | Le mode Scrum gère des équipes Scrum ; le mode SAFe doit gérer des **ART composés d'équipes Scrum**. | Validé (détails à préciser) |
-| F-04 | Les membres d'une même équipe peuvent travailler dans **des villes ou des pays différents**. | Validé |
-| F-05 | Une fonctionnalité de **gestion de l'équipe et de ses membres** est nécessaire. | Validé (attributs et règles à préciser) |
-| F-06 | Un **calendrier d'équipe** et les **événements Agile** doivent être pris en charge. | Validé (règles détaillées à préciser) |
-| F-07 | Les **Daily Scrums doivent être générés par défaut comme ayant lieu** ; le SM notera les exceptions lorsque le Daily n'a pas lieu. | Validé |
-| F-08 | Un suivi des **chiffres et métriques de sprint** est attendu. La saisie doit rester peu contraignante ; certaines données pourront être **reportées depuis Jira en fin de sprint** plutôt que ressaisies au fil de l'eau. | Orientation validée ; liste des métriques à préciser |
-| F-09 | La gestion des **risques et dépendances** fait partie du périmètre retenu. | Validé (modèles et processus à préciser) |
-| F-10 | Le reporting pour les parties prenantes est un objectif central ; il devra exploiter les informations des équipes, sprints, événements, risques et dépendances. | Validé (formats, indicateurs et destinataires à préciser) |
+| 1 | **Ce fichier** — `docs/PROJECT-CONTEXT.md` | Vision, contraintes, état du projet et liens |
+| 2 | **[DECISIONS-FONCTIONNELLES.md](./DECISIONS-FONCTIONNELLES.md)** | Registre chronologique et exhaustif des **111 décisions F-01 à F-111**, états et décisions remplacées |
+| 3 | **[CADRAGE-FONCTIONNEL.md](./CADRAGE-FONCTIONNEL.md)** | Règles fonctionnelles détaillées et points restant à arbitrer |
 
-### Décisions de périmètre
+**Important :** le présent contexte initial portait sur F-01 à F-10. La suite F-11 à F-111 a été actée pendant les échanges de brainstorming. Les trois documents ci-dessus sont désormais le référentiel de reprise avant la rédaction du Product Brief / PRD.
 
-- D'autres idées d'enrichissement du reporting ont été évoquées, mais **elles ne sont pas toutes retenues**. Ne pas les introduire comme exigences validées sans un nouvel arbitrage.
-- Préférer l'automatisation, les valeurs par défaut, la détection des exceptions et la réutilisation de données existantes plutôt que des formulaires de saisie systématiques.
-- Distinguer clairement le **fonctionnement de l'application SMN** de l'**organisation du projet de développement SMN**.
+## 2. Vision du produit
 
-## 3. Domaines fonctionnels à spécifier
+**Scrum Master Notebook (SMN)** est un **carnet de bord professionnel** dédié aux **Scrum Masters (SM)** et **Release Train Engineers (RTE)**. Il centralise le suivi d'équipes Agile et d'Agile Release Trains (ART), les événements et calendriers, les chiffres et objectifs des périodes, les risques, obstacles, dépendances, décisions, actions, faits marquants, analyses humaines et IA.
 
-### Gestion des équipes
+La finalité est de **préparer, expliquer et produire à la demande des reportings complets et contextualisés pour les parties prenantes**, avec **le moins de saisie manuelle possible**. Le SM/RTE est le principal utilisateur et responsable des données ; **SMN n'est pas un outil collaboratif partagé avec les membres des équipes**, ni un nouvel outil de suivi des tickets.
 
-- Constitution et suivi d'équipes Scrum et de leurs membres.
-- Prise en compte de membres répartis dans différentes villes et différents pays.
-- **À préciser :** données individuelles nécessaires, fuseaux horaires, rôles, disponibilités, historique des affectations et règles de confidentialité.
+## 3. Principes fondamentaux validés
 
-### Gestion SAFe
+### 3.1 Organisation Scrum / Kanban / SAFe
 
-- Mode SAFe avec ART regroupant plusieurs équipes Scrum.
-- **À préciser :** périmètre des événements ART, PI Planning, coordination interéquipes et reporting transverse.
+- L'initialisation choisit **Scrum, Kanban ou SAFe**. Ce choix est fixe pour l'installation, sauf réinitialisation complète volontaire (F-41/F-42/F-49).
+- **Scrum** : Sprints, objectifs, cérémonies et KPI adaptés.
+- **Kanban autonome** : périodes de reporting **mensuelles par défaut**, objectifs de période, indicateurs de flux, Daily, affinages, rétrospectives, démonstrations à la demande ; pas d'engagement ni de Sprint Planning artificiels.
+- **SAFe** : un ART réunissant des équipes **Scrum et/ou Kanban**. **La cadence de l'ART s'impose à toutes les équipes**. Par défaut, un PI comporte **cinq itérations de durée égale, dont la dernière est une IP Iteration** (F-50).
+- Un RTE dispose d'un cockpit PI, d'un **calendrier consolidé ART** qu'il peut modifier, et d'un accès détaillé aux équipes.
 
-### Calendrier et événements
+**Ne plus reprendre l'ancienne formulation « Scrum ou SAFe seulement »** : les décisions initiales F-02/F-03 sont remplacées/étendues par F-49.
 
-- Calendrier associé à l'équipe et suivi des événements Agile.
-- Génération par défaut des Daily Scrums ; enregistrement des exceptions lorsqu'un Daily n'a pas eu lieu.
-- **À préciser :** autres cérémonies, récurrence, jours fériés, absences, calendriers locaux et ajustements multisites.
+### 3.2 Équipes et capacité
 
-### Sprint et indicateurs
+- Membres **définis centralement**, pouvant intervenir dans plusieurs équipes, pays et fuseaux horaires ; calendriers, absences, temps partiels, jours fériés et fermetures d'entreprise.
+- Rôles Agile **propres à chaque équipe**, cumulables, pourcentages d'activité modifiables d'une période à l'autre ; référentiels de rôles administrables.
+- Capacité de **développement**, en **jours/homme (JH)** uniquement : disponibilité contractuelle × affectation à l'équipe × part du rôle Développeur × coefficient de contribution.
+- La somme des affectations simultanées aux équipes ne peut dépasser **100 %** du temps contractuel ; les parts des rôles d'une même affectation/période doivent totaliser **100 %**.
+- **Aucune déduction automatique du temps des cérémonies** ; marge de planification indépendante.
+- Capacité initiale prévue et réelle conservées pour chaque période ; **pas de conversion SP ⇄ JH**.
 
-- Suivi chiffré des sprints avec effort de saisie minimal.
-- Possibilité de reporter certaines métriques issues de Jira à la fin du sprint.
-- **À préciser :** indicateurs, définitions, provenance des valeurs, intégration automatique ou manuelle de Jira, et règles de consolidation.
+### 3.3 Calendrier et cérémonies
 
-### Risques et dépendances
+- Génération automatique des périodes et événements à partir de valeurs **administrables** : dates, heures, durées, récurrences, fuseaux de référence équipe/ART.
+- Distinction **date prévue / date réelle**, possibilité de reporter/annuler, d'éditer une occurrence ou toutes les suivantes.
+- **Daily générés et présumés tenus**, sauf exception ; pas de Daily quand toute l'équipe est collectivement non travaillante ; alerte non bloquante si une partie l'est.
+- Pour les autres cérémonies, **conserver et alerter** en cas de jour collectivement non travaillé ; **ne pas vérifier les absences individuelles pour les conflits de cérémonie**.
+- Cérémonies adaptées à Scrum, Kanban et SAFe (notamment PI Planning et Inspect & Adapt) ; réunions personnalisées dont affinages.
+- Préparer supports avant réunion, synthèses/décisions/actions après réunion ; ne pas saisir intégralement le contenu d'une rétrospective.
 
-- Suivi des risques et des dépendances au niveau adapté à l'équipe et/ou à l'ART.
-- **À préciser :** catégories, niveaux de criticité, propriétaires, échéances, liens entre équipes et indicateurs de reporting.
+### 3.4 KPI, objectifs et clôture
 
-### Reporting
+- **Tous les indicateurs chiffrés sont facultatifs** dans les trois modes (F-72), sans blocage des périodes ou des rapports. Absence de valeur ≠ zéro.
+- Scrum : SP **initiaux / ajoutés / retirés / terminés**, bilan du périmètre et vélocité ; SP non terminés **jamais ajoutés automatiquement** au Sprint suivant.
+- Kanban : métriques de flux consolidées (débit, WIP, blocages, Cycle Time, Lead Time, etc.), également facultatives.
+- Plusieurs objectifs par Sprint, période Kanban ou PI, évalués **individuellement**. En **SAFe**, les objectifs PI sont **uniquement au niveau ART** ; les équipes les déclinent en objectifs de Sprint/période, avec rattachement **facultatif**.
+- Les objectifs non/partiellement atteints ne sont reconduits **que manuellement**.
+- **Clôture manuelle**, aucune métrique obligatoire, nouvelle période possible malgré la précédente non clôturée ; PI clôturable malgré les bilans d'équipes en retard. **Réouverture et recalcul sélectif des KPI** possibles après clôture.
+- Source, calcul et instant des KPI consultables ; imports **CSV de données numériques consolidées à format fixe**, sans import de tickets individuels. Intégration automatique Jira reportée.
 
-- Restitutions destinées aux parties prenantes, recherchées comme exhaustives sur le périmètre retenu.
-- **À préciser :** tableaux de bord, historique, exports, périodicité, vues Scrum / SAFe et indicateurs clés.
+### 3.5 Suivi qualitatif et points d'attention
 
-## 4. Questions encore ouvertes
+- Registres historisés de **risques ROAM**, **obstacles**, **dépendances**, **décisions** et **actions**, fiches uniques partagées, liens croisés et avec objectifs, pérennité au-delà d'une période.
+- ROAM pour **tous les modes**, avec probabilité/impact facultatifs et criticité calculable quand renseignés.
+- Risque matérialisé → création assistée d'obstacle, cycles indépendants ; décision → création assistée d'actions.
+- États simples avec annulation, résolution et réouverture lorsque approprié ; traçabilité des arbitrages et décisions remplacées.
+- Cockpit **« Points d'attention »** avec objectifs exposés, actions/dépendances à échéance proche ou en retard, périodes à clôturer ; **seuil commun de 3 jours calendaires par défaut**, administrable, alertes non bloquantes et sans notification externe.
+- **Journal des faits marquants**, alimentation automatique **configurable** et compléments manuels, distinct de l'historique exhaustif.
 
-1. Définition du MVP et séquencement des fonctionnalités.
-2. Modèle exact des équipes, membres, rôles et ART.
-3. Règles du calendrier pour des équipes multisites et des fuseaux horaires différents.
-4. Liste et calcul des métriques de sprint.
-5. Modalités d'import ou de synchronisation des données Jira.
-6. Modèle et cycle de vie des risques et dépendances.
-7. Contenu, filtres et formats des reportings.
-8. Architecture applicative, technologies et schéma de données : **aucun choix technique applicatif n'est acté dans ce document**.
-9. Gestion des accès, persistance et déploiement : à concevoir.
+### 3.6 Reporting et IA
 
-## 5. Référentiels et outillage du projet
+- **Reporting à tout moment**, sur période ouverte ou clôturée, sélection de contenus et profondeur historique, modèles réutilisables, prévisualisation.
+- Formats **PDF, PPTX, DOCX, XLSX, HTML**, à séquencer dans le MVP.
+- Reporting ART : synthèse globale qualitative et métriques propres aux équipes ; **ne pas additionner les SP entre équipes**, ni mélanger des indicateurs non comparables.
+- Analyses humaines (SM/RTE) et IA **historisées comme données dans SMN**, consultables, éditables et supprimables ; l'origine IA et les modifications humaines sont identifiées.
+- **Brief IA = reporting textuel TXT** généré depuis le même moteur, contenant **données consolidées et contexte qualitatif d'équipe/ART**, **aucune donnée individuelle de membre**.
+- Modèles de briefs administrables. **Prévisualisation et enrichissement** avant archivage, texte exact conservé en fichier plat **immuable**, rejouable ou duplicable.
+- Analyses IA historiques **exclues par défaut** des nouveaux briefs ; inclusion optionnelle. Une analyse IA à la fois par brief, supprimable **sans supprimer le TXT**.
+- **Échange avec IA manuel pour la première version** : transmettre le TXT à l'IA choisie puis copier-coller la réponse dans SMN ; **pas d'intégration API IA exigée** au MVP.
+
+## 4. Ce qui reste à concevoir (ne pas traiter comme validé)
+
+- Périmètre **MVP**, découpage des releases, niveaux de priorité.
+- Architecture, hébergement, technologies et schéma de base de données ; **aucun stack applicatif SMN n'est acté**.
+- Liste officielle des rôles, cérémonies et paramètres de durée selon les référentiels ; vérifier avant validation définitive.
+- Définition précise des KPI, seuils de criticité, données obligatoires structurelles et conventions Kanban.
+- Schémas CSV SMN, source des jours fériés, sauvegardes et droits d'accès.
+- Charte graphique des rapports, modèles d'export, détails des fichiers TXT et politiques de sécurité/rétention.
+- Prochains arbitrages listés dans **[CADRAGE-FONCTIONNEL.md §12](./CADRAGE-FONCTIONNEL.md#12-points-ouverts-et-besoins-de-précision-pour-product-brief-et-prd)**.
+
+## 5. Référentiels et méthode de travail
 
 | Domaine | Référence |
 | --- | --- |
-| Dépôt de code, architecture et BMAD | [GitHub — JeanLamora75/SMN](https://github.com/JeanLamora75/SMN) |
-| Backlog, Epics, Stories, bugs et tâches | [Jira — SMN](https://lmn24.atlassian.net/jira/software/projects/SMN) |
-| Méthodologie | BMAD Method **v6.12.4** |
-| Skills BMAD | `.agents/skills/` |
-| Configuration et scripts BMAD | `_bmad/` |
-| Livrables de planification | `_bmad-output/planning-artifacts/` |
-| Livrables d'implémentation | `_bmad-output/implementation-artifacts/` |
-| Connaissance du projet | `docs/` |
-| Langue de conversation et des livrables | **Français** |
+| Code, architecture, BMAD et documentation | [GitHub — JeanLamora75/SMN](https://github.com/JeanLamora75/SMN) |
+| Epics, User Stories, bugs et tâches | [Jira — SMN](https://lmn24.atlassian.net/jira/software/projects/SMN) |
+| Méthode | **BMAD Method v6.12.4** |
+| Skills | `.agents/skills/` |
+| Configuration | `_bmad/` |
+| Livrables planification | `_bmad-output/planning-artifacts/` |
+| Livrables implémentation | `_bmad-output/implementation-artifacts/` |
+| Documents de référence | `docs/` |
+| Langue des échanges et livrables | **Français** |
 
-L'installation BMAD a été effectuée en générant les skills sous `.agents/skills/` via la cible Codex ; **cela n'implique pas que Codex CLI soit installé**.
+Le projet utilise BMAD via **ChatGPT et ses connecteurs**, en lisant les `SKILL.md` depuis GitHub. Le fait d'avoir installé des skills orientés Codex **ne signifie pas que Codex CLI est installé**.
 
 ## 6. Contraintes de développement
 
-- Poste Windows 11 d'entreprise, **sans droits administrateur**.
-- Pas de VS Code, d'autre IDE ou de Codex CLI à installer.
-- Outils disponibles : Node.js, npm, pnpm, PowerShell et **GitHub Desktop**.
-- Le binaire Git intégré à GitHub Desktop peut être rendu accessible temporairement dans PowerShell.
-- Les agents BMAD sont employés **depuis ChatGPT**, en consultant leurs `SKILL.md` et leurs références sur GitHub. Ce mode est une **adaptation des workflows**, pas une intégration native de BMAD à ChatGPT Web.
-- Les fonctionnalités nécessitant `uv` ou un moteur local ne doivent pas être déclarées exécutées sans exécution et vérification réelles.
+- Poste **Windows 11** d'entreprise, sans droits administrateur.
+- Pas de VS Code, d'IDE supplémentaire ni de Codex CLI à installer.
+- Outils disponibles : **Node.js, npm, pnpm, PowerShell, GitHub Desktop**.
+- Adaptations des workflows BMAD possibles via connecteurs ; ne **jamais prétendre** avoir exécuté une commande, un test, une validation ou un script BMAD non exécuté.
+- Interdiction de publier secrets et configurations personnelles telles que `config.user.toml`.
 
-## 7. Conventions de collaboration et de traçabilité
+## 7. Conventions de collaboration
 
-1. Au démarrage d'une mission, consulter ce document puis le `SKILL.md` de l'agent et les livrables pertinents.
-2. Traiter les **faits vérifiés**, les **décisions validées**, les **hypothèses** et les **questions ouvertes** séparément.
-3. Formaliser et faire valider les décisions structurantes ; les reporter ensuite dans GitHub et/ou Jira.
-4. Avant toute création ou modification de User Story Jira, rédiger besoin, critères d'acceptation, dépendances et impacts, puis demander l'accord de l'utilisateur sauf autorisation explicite.
-5. Avant tout développement, examiner le code existant, privilégier une branche dédiée et une Pull Request ; effectuer les vérifications possibles et ne pas déclarer de résultat non testé.
-6. Ne jamais publier de secrets ni de configurations personnelles (notamment `config.user.toml`).
-7. Pour le passage entre conversations et agents, s'appuyer sur les livrables versionnés plutôt que sur la mémoire présumée des conversations.
-8. Aucun agent ne doit créer de nouvelles exigences fonctionnelles implicites en transformant une simple idée en décision acquise.
+1. Au démarrage d'une nouvelle mission, lire **les trois documents de la section 1** ainsi que le `SKILL.md` de l'agent BMAD sollicité.
+2. Séparer **faits vérifiés**, **règles acceptées**, **hypothèses**, **propositions** et **questions ouvertes**.
+3. Réutiliser les décisions existantes ; citer leurs **F-xx** lorsqu'on spécifie une fonction, une Story ou une architecture.
+4. Jira est la référence des tickets ; avant toute création/modification de Story : besoin + critères d'acceptation + dépendances/impacts + autorisation de l'utilisateur, sauf mandat explicite contraire.
+5. Consulter le code existant avant modification ; privilégier branche dédiée et Pull Request ; ne pas déclarer une fonctionnalité « terminée » sans vérification.
+6. Les agents ne doivent **pas introduire implicitement** de nouvelles exigences en extrapolant une recommandation.
+7. Lors des reprises de conversation, **les documents versionnés sont la référence**, non la mémoire implicite.
+8. Ne pas lancer de recherche web avancée sans accord préalable de l'utilisateur.
 
 ## 8. État du projet au 18 octobre 2026
 
 - Dépôt GitHub SMN et projet Jira SMN créés.
-- BMAD Method v6.12.4 installé ; **29 fichiers `SKILL.md`** détectés localement et synchronisés sur GitHub.
-- Instructions du projet ChatGPT configurées pour utiliser BMAD, GitHub et Jira.
-- Cadrage fonctionnel initial amorcé ; **Product Brief, PRD, architecture et backlog détaillé restent à élaborer**.
-- Étape recommandée : lancer le travail de l'agent **Analyst** pour formaliser le Product Brief à partir des décisions ci-dessus, puis faire valider le périmètre avant le PRD.
+- BMAD Method v6.12.4 installé avec les skills dans `.agents/skills/`, exploitation prévue depuis ChatGPT.
+- **Brainstorming fonctionnel consolidé en 111 décisions F-01 à F-111** et document thématique détaillé dans `docs/`.
+- **Product Brief, PRD, architecture applicative et backlog détaillé restent à produire** à partir des arbitrages, selon les workflows BMAD.
+- Cette consolidation documentaire **ne constitue ni un développement, ni une création de tickets Jira, ni une validation technique de l'application**.
 
-## 9. Maintenance de ce document
+## 9. Maintenance
 
-Mettre à jour ce fichier lorsqu'une décision transversale est validée ou remplacée, avec une référence à la discussion, au livrable BMAD ou au ticket Jira correspondant lorsque disponible. Préférer les documents de spécification détaillés pour les règles précises et garder ce fichier comme **index synthétique et durable**.
+À chaque nouvelle décision structurante : mettre à jour **[le registre](./DECISIONS-FONCTIONNELLES.md)** et **[le cadrage détaillé](./CADRAGE-FONCTIONNEL.md)**, puis ajuster le présent document uniquement si la vision, les règles cardinales, les liens ou l'état du projet changent. Conserver ce fichier comme **index synthétique et durable**.
