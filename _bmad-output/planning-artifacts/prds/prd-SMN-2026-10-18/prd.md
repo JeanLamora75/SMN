@@ -277,7 +277,7 @@ Le Scrum Master peut **consulter, créer et modifier les absences individuelles*
 
 ### 4.6 Catalogue administrable des catégories d'absence — MVP
 
-#### FR-13 — Administrer les catégories et couleurs des absences (validé : D-PRD-027, D-PRD-028 ; F-29)
+#### FR-13 — Administrer les catégories et couleurs des absences (validé : D-PRD-027 à D-PRD-029 ; F-29)
 
 Le Scrum Master dispose, dans l'administration, d'un **catalogue des catégories d'absence paramétrable**. Chaque catégorie possède un **nom** et une **couleur** configurables qui servent à distinguer visuellement les absences dans les calendriers.
 
@@ -286,11 +286,12 @@ Le Scrum Master dispose, dans l'administration, d'un **catalogue des catégories
 - Le Scrum Master peut **créer une catégorie**, lui donner un nom et **choisir sa couleur**, puis modifier ces paramètres dans l'administration ; le nom et la couleur sont obligatoires et vérifiés avant enregistrement.
 - Lors de la création d'une absence, le Scrum Master sélectionne une catégorie du catalogue actif et saisit son **nom/motif obligatoire** (D-PRD-026, FR-12).
 - Dans les vues calendrier du membre et de l'équipe, chaque absence affiche **son nom/motif** et une **identification colorée utilisant la couleur de sa catégorie** (D-PRD-027) ; la couleur ne doit pas être l'unique moyen d'identifier la catégorie, pour l'accessibilité.
+- Lorsqu'une catégorie change de **couleur**, l'application utilise sa **nouvelle couleur pour toutes les absences de cette catégorie**, y compris celles des périodes passées lorsqu'elles sont consultées dans les calendriers et vues dynamiques (D-PRD-029). Les données métier et les capacités historiques restent inchangées. Les **rapports PDF déjà générés** sont immuables et conservent leur présentation d'origine ; un nouvel export reflète la couleur courante.
 - Le Scrum Master peut **désactiver une catégorie** depuis l'administration. Une catégorie désactivée n'est plus proposée à la création de nouvelles absences, mais **reste identifiable sur toutes les absences existantes**, dans les calendriers et les reportings historiques (D-PRD-028).
 - La désactivation ne modifie **ni la catégorie enregistrée sur une absence historique**, ni son nom/motif, ni ses dates, ni les capacités passées. Une catégorie encore utilisée par des absences ne peut pas être supprimée définitivement avec perte de référence. Le traitement de l'éventuelle suppression d'une catégorie jamais utilisée reste à préciser.
 - Les noms des absences de catégorie **Maladie** restent des libellés non médicaux : le formulaire ne doit pas solliciter de diagnostic ou de détail médical (F-29).
 
-**À préciser :** palette et contrôle de contraste, règles de couleur unique ou réutilisable entre catégories, réactivation éventuelle d'une catégorie désactivée, effets d'un renommage ou d'un changement de couleur sur les affichages historiques, suppression éventuelle des catégories jamais utilisées et présentation détaillée sur mobile. **La désactivation sans perte de l'historique est validée** (D-PRD-028).
+**À préciser :** palette et contrôle de contraste, règles de couleur unique ou réutilisable entre catégories, réactivation éventuelle d'une catégorie désactivée, effets d'un **renommage** sur les affichages historiques (changement de **couleur** déjà tranché par D-PRD-029), suppression éventuelle des catégories jamais utilisées et présentation détaillée sur mobile. **La désactivation sans perte de l'historique est validée** (D-PRD-028).
 
 ## 5. Non-objectifs actés
 
@@ -337,7 +338,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-10 / D-PRD-015 à D-PRD-023 :** import **CSV fixe + ICS** validé au MVP ; les sept pays initiaux sont validés ; **les calendriers fournis pour France, Allemagne et Royaume-Uni sont automatiquement recherchés dans un répertoire interne selon le pays à l'initialisation**, avec une couverture **N-2 à N+1 pour chaque calendrier livré**. Les **jours fériés ont obligatoirement une date et un nom**. Restent à préciser la maintenance des fichiers annuels, le schéma CSV, la convention du répertoire, la couverture ICS et les stratégies de fusion/remplacement.
 - **FR-11 / D-PRD-021, D-PRD-026 et D-PRD-027 (précision de F-35) :** cas régionaux saisis en absences individuelles avec catégorie et nom/motif obligatoire, affichés avec couleur liée à la catégorie. Ne pas implémenter au MVP de sélection automatique des calendriers régionaux ; conserver les règles de capacité et d'événements d'absence individuelle.
 - **FR-12 / D-PRD-024 à D-PRD-027 :** deux points d'accès à la même absence centrale validés. **Nom/motif obligatoire pour toute absence et affiché dans le calendrier, avec la couleur de sa catégorie** ; aucune saisie groupée au MVP (P-PRD-005 possible ultérieurement). Restent à préciser l'ergonomie mobile et la visibilité des périodes hors affectation.
-- **FR-13 / D-PRD-027 et D-PRD-028 :** catalogue de catégories d'absences administrable (nom et couleur), initialisé avec Congés, Formation, Maladie sans détail médical, Autre. **Désactivation validée : catégorie absente des choix de nouvelles absences, tout en restant consultable dans l'historique**. À spécifier : réactivation, historisation des libellés et couleurs modifiés, éventuelle suppression des catégories inutilisées, accessibilité et affichage sur mobile.
+- **FR-13 / D-PRD-027 à D-PRD-029 :** catalogue de catégories d'absences administrable (nom et couleur), initialisé avec Congés, Formation, Maladie sans détail médical, Autre. **Désactivation validée : catégorie absente des choix de nouvelles absences, tout en restant consultable dans l'historique**. **Changement de couleur rétroactif dans les calendriers dynamiques**, sans modifier les PDF déjà générés. À spécifier : réactivation, renommage et libellés historiques, éventuelle suppression des catégories inutilisées, accessibilité et affichage sur mobile.
 - Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
 - Gabarits HTML/PDF et amplitude des personnalisations du rapport.
