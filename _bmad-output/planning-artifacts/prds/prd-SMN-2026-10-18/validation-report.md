@@ -8,6 +8,12 @@
 - **Note globale :** **Fair — favorable sous réserves** (PRD exploitable pour démarrer l'architecture/UX, **non prêt à finalisation ni au découpage exhaustif des US**)
 - **Écarts uniques du rubric :** 0 critique, **5 élevés**, **9 moyens**, 1 faible. La revue adversariale fournit 12 scénarios complémentaires, partiellement recoupés : ils ne sont pas additionnés comme 12 écarts uniques.
 
+## Suivi après D-PRD-130 (19/10/2026)
+
+**Mise à jour de suivi postérieure à la revue initiale :** les écarts **A1 (événements rétrosaisis), A2 (capacité historique), A3 (instantanés V1/V2) et A4 (CSV atomique)** ont reçu un **arbitrage métier validé** en D-PRD-130. [Critères et scénarios approuvés](clarifications-d-prd-130.md) ; FR et annexes correspondantes mises à jour. Ils restent **à implémenter et à tester** : ce statut ne constitue pas un retest de l'application.
+
+Le verdict **Fair** et les **5 constats élevés** ci-dessous décrivent le **diagnostic historique initial**, et ne sont **pas** recalculés rétroactivement. Le constat élevé **A6 (séquencement du MVP)** demeure à traiter, ainsi que les constats secondaires non arbitrés.
+
 ## Synthèse et verdict
 
 La vision, les objectifs de diminution de la saisie, les règles de provenance, la non-confusion des données absentes et des zéros, les modes Scrum/Kanban au MVP, SAFe en v1.0, les exports et la confidentialité sont cohérents avec le Product Brief. Les **81 FR sont uniques et continues**, et les **129 décisions D-PRD sont retrouvées** dans le journal. Les cinq conditions cumulatives d'accès au pilote sont conservées **sans affirmer qu'elles ont été atteintes**.
