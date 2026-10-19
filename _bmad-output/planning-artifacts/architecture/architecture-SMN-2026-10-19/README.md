@@ -3,7 +3,7 @@
 **Agent :** Winston — System Architect.  
 **Workflow :** bmad-architecture, Coaching Path.  
 **Date :** 19 octobre 2026.  
-**État actuel :** architecture documentée (spine AD-1 à AD-30 et trois annexes) ; revue documentaire favorable sous réserves, spine en statut `draft` en attente des vérifications techniques et du Reviewer Gate complet.
+**État actuel :** architecture documentée (spine AD-1 à AD-31 et annexes) ; **contrat documentaire finalisé sous réserves**, vérifications techniques et Reviewer Gate indépendant encore à réaliser.
 
 ## Référence et portée
 
@@ -102,19 +102,29 @@ Responsive également vérifié à terme sur fenêtre de PC redimensionnée, con
 
 | Livrable | Objet | État |
 | --- | --- | --- |
-| [ARCHITECTURE-SPINE.md](ARCHITECTURE-SPINE.md) | Contrat BMAD des 30 AD stables et frontières des modules | Rédigé, `draft` en attente du Reviewer Gate complet |
+| [ARCHITECTURE-SPINE.md](ARCHITECTURE-SPINE.md) | Contrat BMAD des 31 AD stables et frontières des modules | **Final documentaire**, sous réserves et gates techniques |
 | [DESIGN-TECHNIQUE.md](DESIGN-TECHNIQUE.md) | Modèle PostgreSQL, contrats, calculs, temps, instantanés, CSV, restituables | Rédigé, à éprouver |
 | [SECURITE-EXPLOITATION.md](SECURITE-EXPLOITATION.md) | Accès, installation locale, sauvegardes, migrations, continuité et NFR | Rédigé, à éprouver |
-| [REVUE-COHERENCE-TRACABILITE.md](REVUE-COHERENCE-TRACABILITE.md) | Verdict documentaire, 5 points prioritaires, couverture FR/AD/I0–I6, réserves et preuves attendues | Rédigé, tests non exécutés |
-| [.memlog.md](.memlog.md) | Journal BMAD append-only des contraintes, validations et AD-1 à AD-30 | Complété sans effacer l'historique |
+| [REVUE-COHERENCE-TRACABILITE.md](REVUE-COHERENCE-TRACABILITE.md) | Verdict documentaire, 5 points prioritaires, couverture FR/AD/I0–I6, réserves et preuves attendues | Rapproché à la clôture, tests non exécutés |
+| [ARBITRAGES-FINAUX.md](ARBITRAGES-FINAUX.md) | Revue finale A5/A7/A8/A9/A10/A11/A12, rôles et portes de décision | Publié, arbitrages métier conservés ouverts |
+| [.memlog.md](.memlog.md) | Journal BMAD append-only des contraintes, validations et AD-1 à AD-31 | Complété sans effacer l'historique |
 
 Les choix architecturaux discutés sont désormais documentés ; il n'y a pas encore de code développé ni de validation d'exécution.
 
 ### Attention aux arbitrages non résolus
 
-- **D-ROLES :** le journal initial définit deux rôles Administrateur/Utilisateur et autorise l'utilisateur à consulter/télécharger les documents. La proposition ultérieure mentionne trois rôles. Ne pas modifier implicitement ce modèle sans décision de rapprochement avant les Stories de comptes.
+- **D-ROLES :** la décision AD-31 réconcilie le modèle historique à deux rôles avec la proposition ultérieure validée à trois profils : Administrateur/Opérateur/Lecteur, où le Lecteur conserve le droit de téléchargement des documents autorisés. Les droits de l'Opérateur sur les données individuelles restent à arbitrer avant leur octroi.
 - **A7 / A8 / A10 / A11 :** matrice de risques, faits marquants auto, archivage PDF et suppression/anonymisation nécessitent une décision métier spécifique avant les développements concernés.
 - **A5 / A9 / A12 :** NFR, reprise Kanban rétroactive complète et restitution multitemporelle restent dans le registre des réserves.
 - **POC I0 :** confirmer Windows + PostgreSQL, migrations, authentification, rendu PDF local, sauvegarde/restauration et versions des bibliothèques.
 
-**Méthode et limites :** lecture des référentiels et écriture via connecteur GitHub. Aucun changement sur `main`, Jira, code ou secrets. Les scripts `uv run`, `memlog.py`, `lint_spine.py`, les sous-agents BMAD Reviewer Gate et les tests locaux n'ont pas été exécutés ; la spine reste `draft` jusqu'à ces validations. Aucune recherche web avancée non autorisée n'a été lancée.
+**Méthode et limites :** lecture des référentiels et écriture via connecteur GitHub. Aucun changement sur `main`, Jira, code ou secrets. Les scripts `uv run`, `memlog.py`, `lint_spine.py`, les sous-agents BMAD Reviewer Gate et les tests locaux n'ont pas été exécutés ; la spine est **finalisée comme contrat documentaire**, mais cette finalisation ne vaut pas Reviewer Gate indépendant ni validation d'exécution. Aucune recherche web avancée non autorisée n'a été lancée.
+
+
+## Finalisation documentaire du 19 octobre 2026
+
+La [revue finale des arbitrages](ARBITRAGES-FINAUX.md) classe les décisions différables et précise leurs portes de sortie. **AD-31** conserve l'historique des droits du Lecteur et retient la structure récente à trois profils sans autoriser par défaut la consultation de données individuelles par l'Opérateur.
+
+Le contrôle automatisé **spécifique à cette session** a vérifié la continuité **AD-1 à AD-31**, la présence de `Binds/Prevents/Rule`, les sections attendues, les liens documentaires locaux et l'équilibrage des blocs de code Markdown. Ce contrôle n'est **pas** le script officiel `lint_spine.py`. Pour la portée exacte des vérifications, voir [CONTRÔLE-FINAL-BMAD.md](CONTROLE-FINAL-BMAD.md).
+
+**Travail restant :** revue indépendante officielle si l'environnement BMAD le permet, vérification des versions des dépendances après autorisation appropriée, POC Windows/PostgreSQL/PDF, arbitrages ciblés A7/A8/A10/A11 et habilitations individuelles de l'Opérateur avant leurs Stories ; recette I6 avant tout pilote. `main` et Jira restent inchangés.
