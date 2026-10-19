@@ -21,7 +21,7 @@ inputDocuments:
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories des 10 Epics ont été validées fonctionnellement par l'utilisateur le 19/10/2026.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
 **Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur a explicitement autorisé les publications groupées des Epics 2 à 10. Les 210 Stories sont validées fonctionnellement, y compris l'Epic 10 ; cette approbation documentaire n'atteste aucun développement, test ou passage au pilote. L'édition documentaire GitHub est autorisée sur la branche dédiée ; aucun développement, essai technique, fusion `main` ou lancement de pilote n'en découle.
-**Avancement** : Steps 1, 2 et 3 achevés ; 10 Epics / 210 Stories approuvées. Step 4 — revue finale de validation engagée à la demande de l'utilisateur le 19/10/2026. Document en `draft` jusqu'à la commande BMAD `[C] Complete Workflow` et finalisation explicite ; aucune exécution de recette.
+**Avancement** : Steps 1, 2 et 3 achevés ; 10 Epics / 210 Stories approuvées. Step 4 — revue finale du 19/10/2026 : couverture explicite des **81 FR**, **3 NFR** et **18 UX-DR** ; numérotation des Stories et dépendances revues, architecture modulaire cohérente avec le MVP. Quatre références UX ont été ajoutées aux Stories existantes sans modifier les critères métier. Reste la commande BMAD `[C] Complete Workflow` pour passer le livrable de `draft` à `final` ; aucun développement, test, mesure ni pilote exécuté.
 
 ## Requirements Inventory
 
@@ -3192,6 +3192,9 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 **When** l'action est exécutée,
 **Then** les motifs individuels confidentiels restent masqués et aucune date de cycle, absence ou événement historique n'est déplacée implicitement.
 
+
+**Traçabilité UX ajoutée lors de la revue finale :** UX-DR06 — Calendrier unifié, filtres et fuseaux fiables.
+
 #### Traçabilité et dépendances
 
 * FR : FR-62, FR-60.
@@ -4225,6 +4228,9 @@ Les 24 Stories de l'Epic 4 ont été approuvées globalement et sans remarque pa
 **When** je quitte l'écran,
 **Then** une confirmation Rester ou Quitter sans enregistrer évite toute perte silencieuse, sans sauvegarde automatique des autres blocs.
 
+
+**Traçabilité UX ajoutée lors de la revue finale :** UX-DR07 — Trois blocs de bilan éditables indépendants, tendances en lecture seule.
+
 #### Traçabilité
 
 * Epic : SMN-4. FR-20, FR-14, FR-16. D-PRD-067/068/071/072/073/074 ; AD-16/19.
@@ -4629,6 +4635,9 @@ Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19
 **Given** une criticité est affichée avec couleur,
 **When** le risque est consulté au clavier ou sans couleurs,
 **Then** un texte et une icône explicitent le résultat ; ROAM reste indépendant et toute modification enregistrée demeure auditée.
+
+
+**Traçabilité UX ajoutée lors de la revue finale :** UX-DR16 — Matrice 3×3 et criticité compréhensible sans seule couleur.
 
 #### Traçabilité et dépendances
 
@@ -9426,6 +9435,9 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 **Given** je modifie le contenu après validation,
 **When** je reviens à la finalisation,
 **Then** la validation précédente n'est plus valable et une nouvelle revue est nécessaire.
+
+
+**Traçabilité UX ajoutée lors de la revue finale :** UX-DR18 — Prévisualisation TXT complète et validation explicite de la confidentialité.
 
 #### Traçabilité et dépendances
 
