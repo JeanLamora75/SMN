@@ -1,9 +1,10 @@
 ---
-status: draft
+status: final
 stepsCompleted:
   - step-01-validate-prerequisites
   - step-02-design-epics
   - step-03-create-stories
+  - step-04-final-validation
 inputDocuments:
   - "_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/prd.md"
   - "_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/securite-exploitation.md"
@@ -21,7 +22,7 @@ inputDocuments:
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories des 10 Epics ont été validées fonctionnellement par l'utilisateur le 19/10/2026.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
 **Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur a explicitement autorisé les publications groupées des Epics 2 à 10. Les 210 Stories sont validées fonctionnellement, y compris l'Epic 10 ; cette approbation documentaire n'atteste aucun développement, test ou passage au pilote. L'édition documentaire GitHub est autorisée sur la branche dédiée ; aucun développement, essai technique, fusion `main` ou lancement de pilote n'en découle.
-**Avancement** : Steps 1, 2 et 3 achevés ; 10 Epics / 210 Stories approuvées. Step 4 — revue finale du 19/10/2026 : couverture explicite des **81 FR**, **3 NFR** et **18 UX-DR** ; numérotation des Stories et dépendances revues, architecture modulaire cohérente avec le MVP. Quatre références UX ont été ajoutées aux Stories existantes sans modifier les critères métier. Reste la commande BMAD `[C] Complete Workflow` pour passer le livrable de `draft` à `final` ; aucun développement, test, mesure ni pilote exécuté.
+**Avancement** : Steps 1, 2 et 3 achevés ; 10 Epics / 210 Stories approuvées. Step 4 — revue finale du 19/10/2026 : couverture explicite des **81 FR**, **3 NFR** et **18 UX-DR** ; numérotation des Stories et dépendances revues, architecture modulaire cohérente avec le MVP. Quatre références UX ont été ajoutées aux Stories existantes sans modifier les critères métier. La revue du Step 4 a abouti sans contrôle ouvert bloquant ; l'utilisateur a confirmé `C — Complete Workflow` le 19/10/2026 : **workflow BMAD Create Epics and Stories clôturé, document `status: final`**. La finalisation documentaire n'atteste aucun développement, test, mesure ou lancement de pilote.
 
 ## Requirements Inventory
 
@@ -11130,7 +11131,7 @@ Epic SMN-10 ; FR-76, FR-78 ; D-PRD-129/REC-03/05 ; condition de succès 5 du PRD
 **Statut de la Story 10.21 : validée fonctionnellement sans réserve le 19/10/2026 ; développement et recette non attestés.**
 
 
-**Statut de la Story 10.21 : validée fonctionnellement sans réserve le 19/10/2026 ; développement et recette non attestés.**
+
 
 
 **Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun essai exécuté.
