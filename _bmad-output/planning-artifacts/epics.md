@@ -20,7 +20,7 @@ inputDocuments:
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories de l'Epic 1 ont été validées globalement par l'utilisateur le même jour ; les Stories de l'Epic 2 ont été publiées sur Jira pour lecture et validation groupée.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
 **Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles des Epics 3, 4, 5 et 6 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
-**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3, 4, 5 et 6 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
+**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3, 4, 5, 6 et 7 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
 
 ## Requirements Inventory
 
@@ -5670,10 +5670,12 @@ Prévisualiser les rapports HTML, produire des PDF fidèles et conserver les arc
 * Epic : SMN-6 ; exigences : FR-26, FR-33 ; décisions : RPT-01 ; D-PRD-123 ; AD-22/31.
 * Dépendances existantes : Epic 4 : Sprint identifié ; Epics 1/2 : accès sécurisé et audit.
 * Incrément : I1–I2 ; MVP Scrum et Kanban ; SAFe v1.0 ; deux profils Administrateur/Utilisateur.
-* **Proposition publiée pour validation globale de l'Epic 6 ; pas encore validée, développée ni testée.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.2: Préparer un contrat de données commun aux rapports Scrum et Kanban
 **Jira :** https://lmn24.atlassian.net/browse/SMN-116
@@ -5717,7 +5719,11 @@ En tant que Scrum Master, je veux que les rapports exploitent une structure de d
 FR-26, FR-27, FR-30 ; RPT-01/02/05 ; D-PRD-123 ; AD-22. Dépendance : Story 6.1. Le moteur est testable avec données Scrum existantes et données de test Kanban, avant les écrans de l'Epic 7.
 
 Proposition de revue globale Epic 6 ; pas de développement ni de recette réalisés.
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+#### Validation fonctionnelle globale
+
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.3: Composer automatiquement les six sections standard du rapport
 **Jira :** https://lmn24.atlassian.net/browse/SMN-114
@@ -5763,10 +5769,12 @@ Proposition de revue globale Epic 6 ; pas de développement ni de recette réali
 * Epic : SMN-6 ; exigences : FR-27, FR-33 ; décisions : RPT-02/08 ; D-PRD-123 ; AD-22.
 * Dépendances existantes : Stories 6.1–6.2 et six registres de l'Epic 5.
 * Incrément : I1–I2 ; MVP Scrum et Kanban ; SAFe v1.0 ; deux profils Administrateur/Utilisateur.
-* **Proposition publiée pour validation globale de l'Epic 6 ; pas encore validée, développée ni testée.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.4: Ajouter introduction, commentaires et conclusion propres au rapport
 **Jira :** https://lmn24.atlassian.net/browse/SMN-115
@@ -5812,10 +5820,12 @@ Proposition de revue globale Epic 6 ; pas de développement ni de recette réali
 * Epic : SMN-6 ; exigences : FR-27 ; décisions : RPT-02 ; D-PRD-123 ; UX-DR17.
 * Dépendances existantes : Story 6.3.
 * Incrément : I1–I2 ; MVP Scrum et Kanban ; SAFe v1.0 ; deux profils Administrateur/Utilisateur.
-* **Proposition publiée pour validation globale de l'Epic 6 ; pas encore validée, développée ni testée.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.5: Sélectionner et réordonner les sections du rapport
 **Jira :** https://lmn24.atlassian.net/browse/SMN-117
@@ -5861,10 +5871,12 @@ Proposition de revue globale Epic 6 ; pas de développement ni de recette réali
 * Epic : SMN-6. FR-28, FR-27, RPT-02/03/05, D-PRD-123, D-PRD-134.
 * Dépendances : Stories 6.3–6.4.
 * MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
-* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.6: Choisir les KPI, graphiques et informations qualitatives
 **Jira :** https://lmn24.atlassian.net/browse/SMN-118
@@ -5910,10 +5922,12 @@ Proposition de revue globale Epic 6 ; pas de développement ni de recette réali
 * Epic : SMN-6. FR-28, FR-27, FR-33, RPT-02/03/05, D-PRD-123, D-PRD-134.
 * Dépendances : Stories 6.3 et 6.5 ; registres Epic 5.
 * MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
-* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.7: Régler la profondeur historique et limiter les tendances à cinq cycles
 **Jira :** https://lmn24.atlassian.net/browse/SMN-121
@@ -5955,8 +5969,12 @@ En tant que Scrum Master, je veux définir la profondeur historique d'un rapport
 #### Traçabilité
 
 FR-28, FR-30 ; RPT-03/05, D-PRD-123 et D-PRD-076–078. Dépendances : Stories 6.2, 6.6. I1–I2.  
-Proposition publiée pour validation globale de l'Epic 6 ; non développée ni testée.
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+**Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
+
+#### Validation fonctionnelle globale
+
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.8: Respecter les clichés historiques et indiquer la qualité des données
 **Jira :** https://lmn24.atlassian.net/browse/SMN-119
@@ -6002,10 +6020,12 @@ Proposition publiée pour validation globale de l'Epic 6 ; non développée ni t
 * Epic : SMN-6. FR-30, FR-27, FR-33, RPT-02/03/05, D-PRD-123, D-PRD-134.
 * Dépendances : Stories 6.2–6.7 et instantanés Vn Epics 4/5.
 * MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
-* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.9: Intégrer la vision, le Product Goal et les définitions d'équipe
 **Jira :** https://lmn24.atlassian.net/browse/SMN-120
@@ -6051,10 +6071,12 @@ Proposition publiée pour validation globale de l'Epic 6 ; non développée ni t
 * Epic : SMN-6. FR-28, FR-27, RPT-02/03/05, D-PRD-123, D-PRD-134.
 * Dépendances : Stories 6.3 et 6.5 ; données produit/équipe préexistantes.
 * MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
-* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.10: Fournir un modèle standard de rapport protégé
 **Jira :** https://lmn24.atlassian.net/browse/SMN-122
@@ -6100,10 +6122,12 @@ Proposition publiée pour validation globale de l'Epic 6 ; non développée ni t
 * Epic SMN-6 ; FR-29, FR-27 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
 * Dépendances : 6.3–6.9.
 * I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
-* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.11: Créer, dupliquer et modifier les modèles de rapport
 **Jira :** https://lmn24.atlassian.net/browse/SMN-123
@@ -6149,13 +6173,16 @@ Proposition publiée pour validation globale de l'Epic 6 ; non développée ni t
 * Epic SMN-6 ; FR-29, FR-28 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
 * Dépendances : 6.10 ; sélecteurs 6.5–6.9.
 * I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
-* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.12: Charger un modèle et adapter ponctuellement les options
 **Jira :** https://lmn24.atlassian.net/browse/SMN-133
+## Besoin utilisateur
 
 En tant que Scrum Master, je souhaite charger un modèle puis adapter les options de la génération courante sans altérer le modèle sauvegardé.
 
@@ -6194,7 +6221,11 @@ En tant que Scrum Master, je souhaite charger un modèle puis adapter les option
 #### Références
 
 FR-28, FR-29 ; RPT-03/04 ; Stories 6.10 et 6.11. Publication pour revue globale de l'Epic 6, sans validation préalable.
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+#### Validation fonctionnelle globale
+
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.13: Prévisualiser la totalité du rapport en HTML
 **Jira :** https://lmn24.atlassian.net/browse/SMN-124
@@ -6240,10 +6271,12 @@ FR-28, FR-29 ; RPT-03/04 ; Stories 6.10 et 6.11. Publication pour revue globale 
 * Epic SMN-6 ; FR-31, FR-27 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
 * Dépendances : 6.3–6.12.
 * I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
-* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.14: Choisir FR/EN pour les rubriques sans traduire les textes libres
 **Jira :** https://lmn24.atlassian.net/browse/SMN-125
@@ -6289,10 +6322,12 @@ FR-28, FR-29 ; RPT-03/04 ; Stories 6.10 et 6.11. Publication pour revue globale 
 * Epic SMN-6 ; FR-32, FR-31 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
 * Dépendances : 6.13 ; infrastructure de langue Epic 1.
 * I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
-* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.15: Présenter un en-tête professionnel et un logo facultatif
 **Jira :** https://lmn24.atlassian.net/browse/SMN-134
@@ -6334,7 +6369,11 @@ En tant que Scrum Master, je veux une présentation claire, contextualisée et u
 #### Traçabilité
 
 FR-33 et FR-31 ; RPT-06/08 ; D-PRD-123 ; Stories 6.13 et 6.14. Proposition pour revue globale Epic 6 ; aucun développement effectué.
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+#### Validation fonctionnelle globale
+
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.16: Exclure les données individuelles sensibles des rapports par défaut
 **Jira :** https://lmn24.atlassian.net/browse/SMN-126
@@ -6380,10 +6419,12 @@ FR-33 et FR-31 ; RPT-06/08 ; D-PRD-123 ; Stories 6.13 et 6.14. Proposition pour 
 * Epic SMN-6. FR-33, FR-27, FR-28 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
 * Dépendances : 6.3, 6.6, 6.13 ; filtrage serveur Epic 1
 * Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
-* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+* **Validation fonctionnelle globale acquise le 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.17: Exporter un PDF fidèle à la prévisualisation HTML
 **Jira :** https://lmn24.atlassian.net/browse/SMN-127
@@ -6429,10 +6470,12 @@ FR-33 et FR-31 ; RPT-06/08 ; D-PRD-123 ; Stories 6.13 et 6.14. Proposition pour 
 * Epic SMN-6. FR-31, FR-32, FR-33 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
 * Dépendances : 6.13–6.16
 * Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
-* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+* **Validation fonctionnelle globale acquise le 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.18: Archiver automatiquement le fichier PDF final exact après export réussi
 **Jira :** https://lmn24.atlassian.net/browse/SMN-128
@@ -6478,10 +6521,12 @@ FR-33 et FR-31 ; RPT-06/08 ; D-PRD-123 ; Stories 6.13 et 6.14. Proposition pour 
 * Epic SMN-6. FR-31, FR-33, FR-68, FR-71 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
 * Dépendances : 6.17 ; stockage privé et restauration Epic 2
 * Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
-* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+* **Validation fonctionnelle globale acquise le 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.19: Distinguer les rapports archivés par cycle, version et provenance
 **Jira :** https://lmn24.atlassian.net/browse/SMN-129
@@ -6527,10 +6572,12 @@ FR-33 et FR-31 ; RPT-06/08 ; D-PRD-123 ; Stories 6.13 et 6.14. Proposition pour 
 * Epic SMN-6. FR-29, FR-30, FR-31 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
 * Dépendances : 6.17–6.18
 * Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
-* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+* **Validation fonctionnelle globale acquise le 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.20: Rechercher et filtrer les rapports PDF archivés
 **Jira :** https://lmn24.atlassian.net/browse/SMN-130
@@ -6576,10 +6623,12 @@ FR-33 et FR-31 ; RPT-06/08 ; D-PRD-123 ; Stories 6.13 et 6.14. Proposition pour 
 * Epic SMN-6. FR-31, FR-33, FR-30 ; D-PRD-123, D-PRD-134/A10 et AD-27/31.
 * Dépendances : 6.18–6.19
 * MVP Scrum/Kanban, I1–I2. Ni code ni tests techniques exécutés.
-* **Story publiée pour revue groupée Epic 6, non approuvée individuellement.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.21: Consulter et télécharger les PDF autorisés
 **Jira :** https://lmn24.atlassian.net/browse/SMN-135
@@ -6621,7 +6670,11 @@ En tant que personne authentifiée autorisée, je veux consulter et télécharge
 #### Traçabilité
 
 FR-31, FR-33 ; AD-31 ; D-PRD-134 ; Stories 6.18 à 6.20. Proposition de revue globale Epic 6 ; non encore validée.
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+#### Validation fonctionnelle globale
+
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.22: Masquer ou supprimer exceptionnellement une archive avec confirmation
 **Jira :** https://lmn24.atlassian.net/browse/SMN-131
@@ -6667,10 +6720,12 @@ FR-31, FR-33 ; AD-31 ; D-PRD-134 ; Stories 6.18 à 6.20. Proposition de revue gl
 * Epic SMN-6. FR-31, FR-33, FR-69, FR-70 ; D-PRD-123, D-PRD-134/A10 et AD-27/31.
 * Dépendances : 6.18–6.21 ; règles d'effacement Epic 2
 * MVP Scrum/Kanban, I1–I2. Ni code ni tests techniques exécutés.
-* **Story publiée pour revue groupée Epic 6, non approuvée individuellement.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 ### Story 6.23: Traiter les erreurs d'export et les reprises sans archives incomplètes
 **Jira :** https://lmn24.atlassian.net/browse/SMN-132
@@ -6716,8 +6771,1142 @@ FR-31, FR-33 ; AD-31 ; D-PRD-134 ; Stories 6.18 à 6.20. Proposition de revue gl
 * Epic SMN-6. FR-31, FR-33, FR-68, FR-71 ; D-PRD-123, D-PRD-134/A10 et AD-27/31.
 * Dépendances : 6.17–6.22
 * MVP Scrum/Kanban, I1–I2. Ni code ni tests techniques exécutés.
-* **Story publiée pour revue groupée Epic 6, non approuvée individuellement.**
+  **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
+
+#### Validation fonctionnelle globale
+
+L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
 
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+## Epic 7: Piloter les périodes Kanban et leurs indicateurs de flux
+Générer des périodes Kanban et suivre leurs KPI et bilans avec les principes partagés Scrum/Kanban, sans convertir les métriques de flux en Story Points.
+**FRs couvertes :** FR-21, FR-22, FR-23.
+
+### Story 7.1: Configurer les cadences Kanban et le fuseau de l'équipe
+**Jira :** https://lmn24.atlassian.net/browse/SMN-136
+
+**En tant que** Scrum Master Administrateur,
+**je veux** choisir la cadence de suivi Kanban et ses bornes de référence,
+**afin de** travailler selon un rythme adapté sans créer de périodes automatiquement.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une installation Kanban a été initialisée par Express,
+**When** les paramètres sont consultés,
+**Then** la cadence est mensuelle par défaut et correspond à chaque mois civil complet, du premier au dernier jour inclus.
+
+#### AC2
+
+**Given** l'Administrateur choisit un mode hebdomadaire ou bihebdomadaire,
+**When** les paramètres sont sauvegardés,
+**Then** les durées sont 7 ou 14 jours calendaires consécutifs et le jour de départ est lundi par défaut, modifiable.
+
+#### AC3
+
+**Given** un mois commence un mercredi ou février a 28 ou 29 jours,
+**When** les dates mensuelles sont calculées,
+**Then** le mois couvre bien du 1er au dernier jour inclus, sans forcer un lundi ni une durée fixe en semaines.
+
+#### AC4
+
+**Given** une période de 7 ou 14 jours traverse un passage heure d'été/hiver,
+**When** les bornes sont déterminées,
+**Then** les dates et heures locales de l'équipe restent cohérentes grâce au fuseau IANA, sans décalage de jour artificiel.
+
+#### AC5
+
+**Given** un Administrateur demande une cadence libre de dix jours récurrente,
+**When** le contrôle de configuration s'exécute,
+**Then** cette quatrième cadence est indisponible au MVP et aucun cycle n'est créé par la seule modification de réglage.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23, FR-21 ; D-PRD-087/088/089/090/091/093/103.
+* Dépendances déjà livrées : Epic 1 : configuration de l'équipe ; Epic 3 : fuseau IANA.
+* Incrément I3 ; mode Kanban autonome au MVP ; aucune fonctionnalité SAFe, pas de Sprint Scrum généré dans Kanban.
+* **Statut : proposition pour revue globale de l'Epic 7, non approuvée ni développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.2: Créer une période Kanban unitaire sur demande
+**Jira :** https://lmn24.atlassian.net/browse/SMN-137
+
+**En tant que** Scrum Master Administrateur,
+**je veux** générer une seule période Kanban à partir des paramètres enregistrés,
+**afin de** démarrer son suivi sans ressaisir les deux bornes.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** aucune période Kanban n'existe,
+**When** j'ouvre la création unitaire,
+**Then** le nombre proposé vaut 1 et une date de départ doit être choisie explicitement.
+
+#### AC2
+
+**Given** des périodes existent déjà, quels que soient leurs statuts,
+**When** je prépare une nouvelle période,
+**Then** la date proposée suit la dernière période dans l'ordre chronologique et reste modifiable.
+
+#### AC3
+
+**Given** la date de départ change,
+**When** j'observe les bornes et le nom par défaut,
+**Then** ils sont recalculés selon 7 jours, 14 jours ou mois civil, sans modifier les périodes enregistrées.
+
+#### AC4
+
+**Given** les bornes sont valides et sans chevauchement avec une période de la même équipe,
+**When** je clique Générer,
+**Then** une période est créée immédiatement sans aperçu distinct ni confirmation additionnelle et la création est auditée.
+
+#### AC5
+
+**Given** les bornes sont invalides ou chevauchent une période existante,
+**When** je clique Générer,
+**Then** la création est refusée avec explication, sans période partielle ni génération automatique de la suivante.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23 ; D-PRD-093/094/098/099/103/104/105.
+* Dépendances déjà livrées : Story 7.1 et administration Epic 1.
+* Incrément I3 ; mode Kanban autonome au MVP ; aucune fonctionnalité SAFe, pas de Sprint Scrum généré dans Kanban.
+* **Statut : proposition pour revue globale de l'Epic 7, non approuvée ni développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.3: Prévisualiser un lot de deux à six périodes Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-138
+
+**En tant que** Scrum Master Administrateur,
+**je veux** examiner les périodes calculées avant leur création en lot,
+**afin de** éviter les séries incohérentes et les chevauchements.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** l'Administrateur ouvre la génération par lot,
+**When** il saisit une quantité,
+**Then** seuls les entiers de 1 à 6 sont acceptés ; pour 2 à 6 un écran de prévisualisation est obligatoire.
+
+#### AC2
+
+**Given** deux à six périodes sont demandées,
+**When** je consulte l'aperçu,
+**Then** les noms, dates de début et fin et éventuels conflits sont listés pour chacune sans écriture prématurée.
+
+#### AC3
+
+**Given** une des dates chevauche un cycle existant ou une autre proposition de la même équipe,
+**When** je regarde la prévisualisation,
+**Then** la confirmation est bloquée et les périodes en conflit sont identifiées.
+
+#### AC4
+
+**Given** un chevauchement est détecté,
+**When** je modifie la date de départ du lot,
+**Then** l'ensemble des périodes est recalculé à cadence constante ; aucune borne individuelle ni période existante n'est déplacée.
+
+#### AC5
+
+**Given** je ferme ou annule l'aperçu,
+**When** le formulaire est quitté,
+**Then** aucune période n'est créée et un nouvel aperçu actualisé sera requis pour un lot modifié.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23 ; D-PRD-094/095/096/097/098/100.
+* Dépendances déjà livrées : Stories 7.1–7.2.
+* Incrément I3 ; mode Kanban autonome au MVP ; aucune fonctionnalité SAFe, pas de Sprint Scrum généré dans Kanban.
+* **Statut : proposition pour revue globale de l'Epic 7, non approuvée ni développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.4: Créer atomiquement un lot Kanban et tracer sa provenance
+**Jira :** https://lmn24.atlassian.net/browse/SMN-139
+
+**En tant que** Scrum Master Administrateur,
+**je veux** confirmer en une fois les périodes Kanban valides prévisualisées,
+**afin de** constituer une planification cohérente sans créations partielles.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un lot de deux à six périodes a une prévisualisation valide,
+**When** je confirme explicitement,
+**Then** toutes les périodes proposées sont créées de façon atomique avec leurs identifiants et bornes.
+
+#### AC2
+
+**Given** une période du lot devient invalide avant la confirmation,
+**When** le serveur revérifie tous les conflits,
+**Then** l'intégralité du lot est rejetée et aucune période partielle n'est conservée.
+
+#### AC3
+
+**Given** une panne survient pendant le lot,
+**When** le traitement échoue,
+**Then** ni cycles partiels ni journal de succès fictif ne restent enregistrés.
+
+#### AC4
+
+**Given** un lot est créé avec succès,
+**When** je consulte le journal,
+**Then** auteur, horodatage, équipe, cadence, quantité, noms et identifiants des périodes créées sont tracés.
+
+#### AC5
+
+**Given** deux périodes sont successives sans chevauchement réel ou concernent deux équipes distinctes,
+**When** les conflits sont évalués,
+**Then** les dates contiguës et équipes différentes ne sont pas bloquées à tort.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23 ; D-PRD-095/096/101/102/103.
+* Dépendances déjà livrées : Story 7.3 et transaction/audit Epic 2.
+* Incrément I3 ; mode Kanban autonome au MVP ; aucune fonctionnalité SAFe, pas de Sprint Scrum généré dans Kanban.
+* **Statut : proposition pour revue globale de l'Epic 7, non approuvée ni développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.5: Nommer, personnaliser et renommer une période Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-140
+
+**En tant que** Scrum Master Administrateur,
+**je veux** identifier librement une période Kanban sans changer ses dates ni historiques,
+**afin de** retrouver facilement un cycle malgré des noms identiques ou des corrections.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période mensuelle est proposée,
+**When** je regarde son nom,
+**Then** le libellé initial est du type « Période Kanban — novembre 2026 » et dépend du mois calculé.
+
+#### AC2
+
+**Given** une période de 7 ou 14 jours est proposée,
+**When** je regarde son nom,
+**Then** le nom initial inclut les dates de début et fin ; il suit les dates recalculées uniquement tant qu'il n'a pas été personnalisé.
+
+#### AC3
+
+**Given** je renseigne un libellé composé uniquement d'espaces,
+**When** je tente de confirmer,
+**Then** le nom est refusé après suppression des espaces de début et fin ; accents, chiffres et espaces internes restent autorisés.
+
+#### AC4
+
+**Given** deux périodes portent le même nom dans la même équipe,
+**When** j'enregistre une création ou un renommage,
+**Then** une alerte non bloquante apparaît et l'opération reste permise, les dates et identifiants distinguant les périodes.
+
+#### AC5
+
+**Given** une période est Clôturée,
+**When** je modifie uniquement son nom,
+**Then** la modification est autorisée sans réouverture, auditée et visible dans les rapports futurs, sans changer dates, indicateurs, statut ni anciens PDF.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23, FR-21 ; D-PRD-105/106/107/108/109/110.
+* Dépendances déjà livrées : Stories 7.2 et 7.4.
+* Incrément I3 ; mode Kanban autonome au MVP ; aucune fonctionnalité SAFe, pas de Sprint Scrum généré dans Kanban.
+* **Statut : proposition pour revue globale de l'Epic 7, non approuvée ni développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.6: Supprimer les périodes Kanban futures jamais démarrées
+**Jira :** https://lmn24.atlassian.net/browse/SMN-141
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retirer une période Kanban planifiée mais non commencée,
+**afin de** corriger une planification erronée en préservant les cycles historiques.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période À venir n'a jamais été effectivement démarrée,
+**When** l'Administrateur demande sa suppression,
+**Then** les dates, références et événements associés concernés sont récapitulés avant confirmation.
+
+#### AC2
+
+**Given** la confirmation est annulée,
+**When** je reviens au calendrier,
+**Then** aucune période ni événement n'est supprimé.
+
+#### AC3
+
+**Given** une période a déjà été démarrée ou est Terminé ou Clôturé,
+**When** je demande sa suppression ordinaire,
+**Then** le serveur bloque la suppression et propose de conserver l'historique ou de suivre une procédure exceptionnelle.
+
+#### AC4
+
+**Given** une période future est supprimable,
+**When** la confirmation réussit,
+**Then** seule la période et les relations effaçables annoncées sont traitées, avec audit et absence de suppression partielle.
+
+#### AC5
+
+**Given** un Utilisateur appelle la même opération via une requête directe,
+**When** le contrôle de rôle a lieu,
+**Then** la suppression est refusée sans effet.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23 ; D-PRD-093/096/101 ; FR-69.
+* Dépendances : Stories 7.2 à 7.5 ; protections de suppression Epic 2.
+* Incrément I3 ; règles Kanban et protections communes, sans automatisation des créations ni SAFe MVP.
+* **Statut : proposition à relire globalement après publication ; non validée fonctionnellement, non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.7: Suivre les états calendaires sans générer la période suivante
+**Jira :** https://lmn24.atlassian.net/browse/SMN-142
+
+**En tant que** Scrum Master Administrateur,
+**je veux** voir les périodes À venir, En cours, Terminées ou Clôturées,
+**afin de** disposer d'un état fiable sans maintenance quotidienne ni création automatique.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période Kanban commence dans le futur,
+**When** sa fiche est consultée,
+**Then** elle apparaît À venir sans inventer de réalisé.
+
+#### AC2
+
+**Given** la borne de début effective est atteinte,
+**When** le service réconcilie la période,
+**Then** elle passe En cours et le cliché de capacité initiale est figé une seule fois selon les règles partagées.
+
+#### AC3
+
+**Given** la fin calendaire est dépassée,
+**When** le service met à jour l'état,
+**Then** la période devient Terminé, jamais Clôturé automatiquement.
+
+#### AC4
+
+**Given** l'application était arrêtée au passage d'une borne,
+**When** elle redémarre,
+**Then** les transitions sont reconstituées idempotemment avec provenance, sans reconstruire une capacité prétendument connue à une ouverture historique.
+
+#### AC5
+
+**Given** une période est créée, commence, se termine ou est clôturée,
+**When** le moteur traite cet événement,
+**Then** aucune nouvelle période suivante n'est automatiquement créée.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21, FR-23 ; D-PRD-093 ; F-91–96 ; D-PRD-079.
+* Dépendances : Story 7.2 ; mécanismes de capacité et statuts Epics 3/4.
+* Incrément I3 ; règles Kanban et protections communes, sans automatisation des créations ni SAFe MVP.
+* **Statut : proposition à relire globalement après publication ; non validée fonctionnellement, non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.8: Changer de cadence Kanban en préservant les cycles existants
+**Jira :** https://lmn24.atlassian.net/browse/SMN-143
+
+**En tant que** Scrum Master Administrateur,
+**je veux** modifier la cadence de suivi pour les prochaines périodes,
+**afin de** adapter le fonctionnement sans effacer les mesures collectées.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une équipe Kanban utilise la cadence mensuelle,
+**When** je choisis sept ou quatorze jours,
+**Then** les futures générations explicites utilisent le nouveau rythme après sauvegarde.
+
+#### AC2
+
+**Given** plusieurs périodes À venir ont déjà été créées,
+**When** je change la cadence,
+**Then** une proposition de recalcul des seules périodes futures non démarrées est présentée sans modification automatique.
+
+#### AC3
+
+**Given** je refuse la proposition de recalcul,
+**When** la nouvelle cadence est sauvegardée,
+**Then** les périodes existantes conservent leurs bornes et les prochaines créations utilisent la nouvelle cadence.
+
+#### AC4
+
+**Given** une période est En cours, Terminée ou Clôturée,
+**When** la cadence est modifiée,
+**Then** ses dates, bilans et instantanés restent intacts.
+
+#### AC5
+
+**Given** une adaptation des périodes futures est demandée,
+**When** la proposition est présentée,
+**Then** l'action exige une confirmation distincte et un contrôle de conflits avant tout déplacement, jamais une propagation implicite.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23, FR-21 ; D-PRD-092/093/111 ; F-91–96.
+* Dépendances : Stories 7.1–7.7 ; période et paramètres d'équipe enregistrés.
+* Incrément I3 ; règles Kanban et protections communes, sans automatisation des créations ni SAFe MVP.
+* **Statut : proposition à relire globalement après publication ; non validée fonctionnellement, non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.9: Replanifier une période Kanban après un aperçu d'impact
+**Jira :** https://lmn24.atlassian.net/browse/SMN-144
+
+**En tant que** Scrum Master Administrateur,
+**je veux** corriger les bornes d'une période existante avec une seule confirmation,
+**afin de** préserver mes informations et éviter les décalages implicites.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période existe et son nom et ses dates sont connus,
+**When** j'ouvre Corriger les dates,
+**Then** un récapitulatif unique montre bornes avant/après, références de capacité, valeurs manuelles préservées et avertissements pertinents.
+
+#### AC2
+
+**Given** les nouvelles bornes chevauchent une autre période de l'équipe,
+**When** je prévisualise,
+**Then** l'option de confirmation est bloquée, sans déplacer les périodes voisines.
+
+#### AC3
+
+**Given** la correction est possible,
+**When** j'examine les événements associés,
+**Then** Conserver les dates des événements est l'option par défaut ; le recalcul des événements n'est proposé qu'aux occurrences éligibles.
+
+#### AC4
+
+**Given** la prévisualisation est rejetée ou abandonnée,
+**When** je ferme l'écran,
+**Then** aucune date ni métrique source n'est modifiée.
+
+#### AC5
+
+**Given** une correction valide est confirmée,
+**When** la transaction est appliquée,
+**Then** les seules dates et références autorisées sont modifiées atomiquement ; capacité initiale figée, valeurs manuelles, PDF et autres cycles demeurent inchangés.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23, FR-21 ; D-PRD-111/112/114/115/118.
+* Dépendances : Stories 7.2–7.8 ; moteur de capacité Epic 3 et audit Epic 2.
+* Incrément I3 ; règles Kanban et protections communes, sans automatisation des créations ni SAFe MVP.
+* **Statut : proposition à relire globalement après publication ; non validée fonctionnellement, non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.10: Protéger les événements lors d'une replanification Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-145
+
+**En tant que** Scrum Master Administrateur,
+**je veux** choisir le déplacement des seules occurrences futures autorisées,
+**afin de** préserver les réunions réellement tenues et mes exceptions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une replanification Kanban propose de conserver les événements,
+**When** l'Administrateur confirme ce choix,
+**Then** les créneaux existants restent inchangés, avec avertissement pour ceux hors nouvelles bornes.
+
+#### AC2
+
+**Given** une occurrence future a été automatiquement générée et n'est ni personnalisée ni historique,
+**When** un recalcul est explicitement choisi,
+**Then** seule cette occurrence peut être proposée au déplacement, après prévisualisation.
+
+#### AC3
+
+**Given** une réunion est Tenue, Non tenue ou Annulée,
+**When** je replanifie le cycle,
+**Then** son créneau et son statut sont conservés, même si elle se retrouve en dehors de la période.
+
+#### AC4
+
+**Given** un événement a été personnalisé ou est exceptionnel,
+**When** j'active un recalcul global,
+**Then** ses dates demeurent intactes et aucun glisser-déposer implicite n'est appliqué.
+
+#### AC5
+
+**Given** une proposition de déplacement est invalidée par les contrôles d'intégrité,
+**When** je confirme les changements,
+**Then** l'opération atomique est refusée sans déplacement partiel ni suppression d'événement.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23 ; D-PRD-112/113/118.
+* Dépendances : Story 7.9 et socle des événements/calendrier des Epics 3 et 4.
+* Incrément I3 ; règles Kanban et protections communes, sans automatisation des créations ni SAFe MVP.
+* **Statut : proposition à relire globalement après publication ; non validée fonctionnellement, non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.11: Tracer les replanifications et conserver les relations qualitatives
+**Jira :** https://lmn24.atlassian.net/browse/SMN-146
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver chaque correction de dates et les risques associés,
+**afin de** expliquer les décisions calendaires sans perdre la continuité métier.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une replanification a été confirmée avec succès,
+**When** j'ouvre l'historique de la période,
+**Then** une entrée consultable indique auteur, horodatage, dates avant/après et motif facultatif.
+
+#### AC2
+
+**Given** des événements ont été conservés ou recalculés,
+**When** j'ouvre la trace,
+**Then** le choix et les références avant/après utiles sont conservés avec écarts de capacité et alertes signalées.
+
+#### AC3
+
+**Given** un risque ou une dépendance est associé à cette période,
+**When** les dates du cycle sont modifiées,
+**Then** sa fiche centrale conserve statut, responsable, échéance, relations et historique sans transfert.
+
+#### AC4
+
+**Given** une échéance qualitative devient incohérente avec les nouvelles bornes,
+**When** l'aperçu est consulté,
+**Then** un avertissement non bloquant invite à la vérifier ; aucune échéance n'est modifiée automatiquement.
+
+#### AC5
+
+**Given** une tentative est annulée ou échoue,
+**When** le journal des replanifications réussies est consulté,
+**Then** aucune entrée de succès fictif n'est créée ; l'audit des échecs reste séparé.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-23, FR-21 ; D-PRD-114–120 ; FR-25.
+* Dépendances : Stories 7.9–7.10 ; registre risques/dépendances Epic 5.
+* Incrément I3 ; règles Kanban et protections communes, sans automatisation des créations ni SAFe MVP.
+* **Statut : proposition à relire globalement après publication ; non validée fonctionnellement, non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.12: Afficher les quatre blocs du bilan de période Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-147
+
+**En tant que** Scrum Master Administrateur,
+**je veux** consulter une structure de bilan commune à Scrum et adaptée au Kanban,
+**afin de** retrouver les objectifs, mesures, capacités et tendances sans concepts Scrum inventés.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période Kanban existe,
+**When** l'Administrateur ouvre son bilan,
+**Then** les quatre blocs Objectifs, Métriques de la période, Capacité de la période et Tendances apparaissent dans cet ordre.
+
+#### AC2
+
+**Given** le bilan est affiché,
+**When** je consulte son en-tête,
+**Then** le nom de la période, ses dates, son équipe et son statut sont identifiables.
+
+#### AC3
+
+**Given** la période est en cours ou terminée non clôturée,
+**When** je consulte le bilan,
+**Then** les informations sont qualifiées comme provisoires et restent éditables selon les droits.
+
+#### AC4
+
+**Given** un Utilisateur est connecté,
+**When** il demande les données du bilan,
+**Then** seules les valeurs collectives accessibles sont retournées en lecture seule, sans données nominatives sensibles.
+
+#### AC5
+
+**Given** le mode d'installation est Kanban,
+**When** je parcours les quatre blocs,
+**Then** aucun champ Story Points Scrum ni cérémonie Scrum obligatoire n'est introduit.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21, FR-23 ; D-PRD-079/108 ; F-66–73.
+* Dépendances : Stories 7.2 et 7.7 ; composants de bilan de l'Epic 4.
+* Incrément I3 ; données de flux facultatives, distinctes de la capacité JH et des Story Points Scrum ; pas de connexion automatique Jira.
+* **Statut : proposition publiée pour revue fonctionnelle globale Epic 7 ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.13: Créer et évaluer plusieurs objectifs de période Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-148
+
+**En tant que** Scrum Master Administrateur,
+**je veux** suivre plusieurs objectifs Kanban indépendamment,
+**afin de** qualifier leur atteinte à l'issue de la période sans interpréter une absence de mesure comme un échec.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période Kanban est créée,
+**When** j'ouvre Objectifs de la période,
+**Then** je peux ajouter un ou plusieurs objectifs avec identité et description distinctes.
+
+#### AC2
+
+**Given** un objectif est créé sans évaluation,
+**When** je consulte son état initial,
+**Then** il est Non évalué et non assimilé à Non atteint.
+
+#### AC3
+
+**Given** un objectif est évalué,
+**When** je sélectionne son résultat,
+**Then** les statuts Atteint, Partiellement atteint ou Non atteint sont acceptés avec commentaire facultatif.
+
+#### AC4
+
+**Given** un objectif de période est modifié,
+**When** je sauvegarde le bloc,
+**Then** la correction est datée et n'enregistre ni Métriques ni Capacité en brouillon.
+
+#### AC5
+
+**Given** une période est Clôturée,
+**When** je tente de corriger l'évaluation,
+**Then** l'opération est refusée sans réouverture volontaire ni écriture sur le cliché de clôture.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21 ; D-PRD-079 ; F-66/69/70 ; D-PRD-117.
+* Dépendances : Story 7.12 et gestion d'objectifs de Sprint Epic 4.
+* Incrément I3 ; données de flux facultatives, distinctes de la capacité JH et des Story Points Scrum ; pas de connexion automatique Jira.
+* **Statut : proposition publiée pour revue fonctionnelle globale Epic 7 ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.14: Saisir séparément commencés, terminés et WIP final
+**Jira :** https://lmn24.atlassian.net/browse/SMN-149
+
+**En tant que** Scrum Master Administrateur,
+**je veux** renseigner les trois comptages de flux Kanban consolidés,
+**afin de** suivre le flux sans créer de tickets individuels dans SMN.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** le bloc Métriques est ouvert,
+**When** je renseigne le nombre d'éléments commencés dans la période,
+**Then** un compte entier non négatif est mémorisé indépendamment des deux autres champs.
+
+#### AC2
+
+**Given** des éléments ont été achevés pendant la période mais ont commencé avant,
+**When** je renseigne Throughput,
+**Then** le nombre terminé est accepté sans obligation d'être inférieur au nombre commencé pendant cette même période.
+
+#### AC3
+
+**Given** des éléments restent en cours à la fin de la période,
+**When** je renseigne WIP final,
+**Then** il représente l'encours à cette date et non un total cumulé d'entrées ou de passages.
+
+#### AC4
+
+**Given** un champ est laissé vide ou reçoit explicitement zéro,
+**When** le bilan est affiché,
+**Then** vide reste Non renseigné ; zéro est une valeur connue valide et n'est pas inventé.
+
+#### AC5
+
+**Given** des comptages sont saisis,
+**When** SMN présente ses calculs,
+**Then** aucun WIP, Throughput ou commencé n'est déduit arithmétiquement des deux autres ; SP et capacité JH restent distincts.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-22, FR-21 ; D-PRD-080/116 ; F-08/14/16/71/72.
+* Dépendances : Story 7.12.
+* Incrément I3 ; données de flux facultatives, distinctes de la capacité JH et des Story Points Scrum ; pas de connexion automatique Jira.
+* **Statut : proposition publiée pour revue fonctionnelle globale Epic 7 ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.15: Saisir Cycle Time et Lead Time moyens comparables
+**Jira :** https://lmn24.atlassian.net/browse/SMN-150
+
+**En tant que** Scrum Master Administrateur,
+**je veux** renseigner les deux moyennes consolidées du flux en jours calendaires,
+**afin de** mesurer les délais sans suivi individuel des éléments dans SMN.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période Kanban est consultée,
+**When** je renseigne Cycle Time moyen et Lead Time moyen,
+**Then** les deux champs sont facultatifs et indépendants, sans blocage de la clôture s'ils restent vides.
+
+#### AC2
+
+**Given** un élément est achevé pendant la période,
+**When** j'explicite la population Cycle Time,
+**Then** seuls les éléments achevés pendant cette période comptent, même si leur travail a commencé avant.
+
+#### AC3
+
+**Given** un élément est livré pendant la période,
+**When** j'explicite la population Lead Time,
+**Then** seuls les éléments livrés pendant cette période comptent, même si leur demande date d'avant ; les populations peuvent différer.
+
+#### AC4
+
+**Given** une valeur provient d'une source externe avec convention inconnue ou en jours ouvrés,
+**When** je prépare la comparaison,
+**Then** elle n'est pas déclarée directement comparable sans vérification ou conversion fiable et sa provenance est conservée.
+
+#### AC5
+
+**Given** une moyenne est affichée en français ou anglais,
+**When** je consulte la valeur,
+**Then** elle est présentée avec une décimale en jours calendaires, week-ends inclus ; l'arrondi d'affichage ne dégrade pas la valeur source enregistrée.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-22, FR-21 ; D-PRD-082/083/085/086.
+* Dépendances : Story 7.14 et bloc Métriques 7.12.
+* Incrément I3 ; données de flux facultatives, distinctes de la capacité JH et des Story Points Scrum ; pas de connexion automatique Jira.
+* **Statut : proposition publiée pour revue fonctionnelle globale Epic 7 ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.16: Enregistrer séparément les trois blocs de saisie du bilan Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-151
+
+**En tant que** Scrum Master Administrateur,
+**je veux** sauvegarder les objectifs, cinq métriques et capacités sans les mêler,
+**afin de** conserver le contrôle des corrections et brouillons.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** le bilan contient des modifications dans Objectifs et Métriques,
+**When** je clique Enregistrer dans Métriques,
+**Then** seules les cinq valeurs de ce bloc sont sauvegardées, sans enregistrer les objectifs modifiés.
+
+#### AC2
+
+**Given** une saisie du bloc Métriques n'est pas encore sauvegardée,
+**When** j'observe les graphiques de tendances,
+**Then** ils restent fondés exclusivement sur les données enregistrées.
+
+#### AC3
+
+**Given** un calcul ou affichage dérivé change pendant la saisie,
+**When** je consulte la valeur,
+**Then** elle est marquée provisoire jusqu'à confirmation du bouton du bloc concerné.
+
+#### AC4
+
+**Given** je quitte un bilan avec une ou plusieurs modifications non enregistrées,
+**When** une navigation est tentée,
+**Then** un avertissement permet de rester ou quitter sans perte silencieuse ; aucune sauvegarde automatique ne s'exécute.
+
+#### AC5
+
+**Given** un bloc Tendances est affiché,
+**When** je cherche les commandes d'édition,
+**Then** aucun bouton Enregistrer ni saisie propre aux tendances n'existe.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21, FR-22 ; D-PRD-071/072/073/074/079.
+* Dépendances : Stories 7.13–7.15 et mécanisme partagé d'enregistrement Epic 4.
+* Incrément I3 ; données de flux facultatives, distinctes de la capacité JH et des Story Points Scrum ; pas de connexion automatique Jira.
+* **Statut : proposition publiée pour revue fonctionnelle globale Epic 7 ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.17: Afficher les capacités initiale et réelle de la période en JH
+**Jira :** https://lmn24.atlassian.net/browse/SMN-152
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver les capacités Kanban issues du moteur commun,
+**afin de** comprendre l'écart de disponibilité sans conversion artificielle des métriques de flux.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période Kanban atteint son ouverture effective,
+**When** le service de capacité reçoit l'événement,
+**Then** la capacité initialement retenue est figée une seule fois, avec provenance et date réelle d'ouverture.
+
+#### AC2
+
+**Given** la période est À venir,
+**When** la capacité réelle est consultée,
+**Then** aucun réalisé fictif n'est calculé à partir de jours encore futurs.
+
+#### AC3
+
+**Given** une période En cours ou Terminée dispose de disponibilités connues,
+**When** le bloc Capacité est consulté,
+**Then** référence réelle en JH, valeur manuelle prioritaire et écart fiable sont présentés selon le statut.
+
+#### AC4
+
+**Given** une valeur réelle JH est absente ou la référence non calculable,
+**When** l'écart est demandé,
+**Then** Non renseigné ou Non calculable s'affiche sans zéro fictif ni conversion des comptes Kanban ou du Cycle Time.
+
+#### AC5
+
+**Given** une période a été Clôturée,
+**When** les disponibilités sont corrigées,
+**Then** ni la capacité initiale figée ni le réalisé clôturé ne sont réécrits sans réouverture et nouvelle version.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21 ; D-PRD-079/114/115 ; FR-14.
+* Dépendances : Stories 7.7 et 7.12 ; moteur de capacités Epic 3.
+* Incrément I3 ; données de flux facultatives, distinctes de la capacité JH et des Story Points Scrum ; pas de connexion automatique Jira.
+* **Statut : proposition publiée pour revue fonctionnelle globale Epic 7 ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.18: Visualiser trois tendances distinctes des comptes de flux
+**Jira :** https://lmn24.atlassian.net/browse/SMN-153
+
+**En tant que** Scrum Master Administrateur,
+**je veux** consulter l'évolution des commencés, terminés et WIP final,
+**afin de** identifier les tendances à partir des seules valeurs Kanban enregistrées.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** plusieurs périodes Kanban sont Clôturées,
+**When** j'ouvre Tendances,
+**Then** trois graphiques distincts présentent commencés, terminés (Throughput) et WIP final avec des noms et unités lisibles.
+
+#### AC2
+
+**Given** l'équipe possède plus de cinq périodes Clôturées,
+**When** une tendance est calculée,
+**Then** au plus cinq périodes clôturées éligibles de cette équipe sont affichées dans l'ordre chronologique.
+
+#### AC3
+
+**Given** je consulte le bilan d'une ancienne période,
+**When** les périodes comparables sont sélectionnées,
+**Then** aucune période postérieure à la période consultée n'apparaît.
+
+#### AC4
+
+**Given** un comptage passé est absent ou provient d'une saisie non sauvegardée,
+**When** le graphique est rendu,
+**Then** aucun point zéro, interpolation ni valeur provisoire n'est produit à sa place.
+
+#### AC5
+
+**Given** aucune période clôturée éligible n'existe,
+**When** je consulte le bloc,
+**Then** un état vide explicite apparaît, sans bouton Enregistrer et sans modifier les anciens PDF.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-22, FR-21 ; D-PRD-081/079 ; D-PRD-077/078.
+* Dépendances : Story 7.14 et bloc en lecture seule 7.16 ; statuts de cycle partagés Epic 4.
+* Incrément I3 ; Kanban MVP ; mécanismes communs d'objectif, capacité, bilan et reporting, sans équivalence artificielle avec Scrum ni SAFe opérationnel.
+* **Statut : proposition publiée pour revue globale Epic 7, non validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.19: Comparer Cycle Time et Lead Time dans un quatrième graphique
+**Jira :** https://lmn24.atlassian.net/browse/SMN-154
+
+**En tant que** Scrum Master Administrateur,
+**je veux** visualiser deux courbes de durées moyennes sur un même graphique,
+**afin de** comparer les délais de flux sans inventer de mesures ou normes de performance.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** des périodes clôturées comportent Cycle Time et Lead Time comparables,
+**When** je consulte le quatrième graphique,
+**Then** deux courbes identifiables portent chacune sa légende distincte, en jours calendaires.
+
+#### AC2
+
+**Given** plus de cinq périodes clôturées sont disponibles,
+**When** les valeurs sont sélectionnées,
+**Then** les cinq dernières périodes éligibles au maximum sont utilisées, sans période postérieure à un bilan historique.
+
+#### AC3
+
+**Given** une moyenne manque ou sa convention est inconnue,
+**When** la courbe est composée,
+**Then** la valeur est absente et non interpolée ; l'autre courbe exploitable peut rester visible.
+
+#### AC4
+
+**Given** une moyenne vaut zéro explicitement et une autre est non renseignée,
+**When** je consulte les points,
+**Then** le zéro s'affiche 0,0 jour, tandis que l'absence reste Non renseignée.
+
+#### AC5
+
+**Given** la langue d'affichage est le français ou l'anglais,
+**When** je lis les légendes/valeurs,
+**Then** les durées affichent une décimale et des libellés accessibles, sans seuil automatique de bonne ou mauvaise performance.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-22, FR-21 ; D-PRD-083/084/085/086.
+* Dépendances : Stories 7.15 et 7.18.
+* Incrément I3 ; Kanban MVP ; mécanismes communs d'objectif, capacité, bilan et reporting, sans équivalence artificielle avec Scrum ni SAFe opérationnel.
+* **Statut : proposition publiée pour revue globale Epic 7, non validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.20: Clôturer et rouvrir une période Kanban avec versions Vn
+**Jira :** https://lmn24.atlassian.net/browse/SMN-155
+
+**En tant que** Scrum Master Administrateur,
+**je veux** clôturer manuellement une période et corriger ensuite ses données,
+**afin de** conserver les mesures et événements connus à chaque clôture sans altérer le passé.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période a atteint sa fin calendaire,
+**When** le statut est réconcilié,
+**Then** elle devient Terminé mais ne passe jamais automatiquement à Clôturé.
+
+#### AC2
+
+**Given** une ou plusieurs des cinq métriques sont absentes,
+**When** je demande Clôturer,
+**Then** les données manquantes ne bloquent pas la clôture et ne deviennent pas des zéros.
+
+#### AC3
+
+**Given** un Administrateur confirme la clôture,
+**When** le service valide,
+**Then** un instantané V1 immuable du bilan, des capacités et des liens qualitatifs applicables est créé avec audit.
+
+#### AC4
+
+**Given** un Administrateur rouvre volontairement une période Clôturée,
+**When** la réouverture aboutit,
+**Then** la période redevient Terminé ; V1 et les PDF antérieurs restent consultables et intacts.
+
+#### AC5
+
+**Given** après corrections autorisées l'Administrateur reclôture,
+**When** la transaction réussit,
+**Then** un instantané V2/V3 distinct est conservé sans écraser les versions précédentes, et le bilan clôturé cible la dernière version.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21, FR-22, FR-23 ; F-91–96 ; D-PRD-079/130-A3.
+* Dépendances : Stories 7.12–7.19 ; mécanismes versionnés Epics 2/4/5.
+* Incrément I3 ; Kanban MVP ; mécanismes communs d'objectif, capacité, bilan et reporting, sans équivalence artificielle avec Scrum ni SAFe opérationnel.
+* **Statut : proposition publiée pour revue globale Epic 7, non validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.21: Préserver les cinq mesures et objectifs lors de la replanification Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-156
+
+**En tant que** Scrum Master Administrateur,
+**je veux** identifier les valeurs de bilan à vérifier après un changement de bornes,
+**afin de** ne pas recalculer artificiellement des indicateurs consolidés.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période contient trois comptes et deux moyennes de flux,
+**When** je modifie ses dates,
+**Then** les cinq valeurs sources enregistrées sont conservées sans recomposition à partir des bornes ou entre elles.
+
+#### AC2
+
+**Given** une modification de dates touche potentiellement les populations de mesure,
+**When** je consulte l'aperçu,
+**Then** les cinq métriques, conventions de Cycle Time/Lead Time et objectifs pertinents à vérifier sont signalés sans blocage automatique.
+
+#### AC3
+
+**Given** la période contient plusieurs objectifs avec évaluations/commentaires,
+**When** je confirme la replanification,
+**Then** les objectifs et leur historique restent attachés à la même période sans transfert vers une autre.
+
+#### AC4
+
+**Given** une période est En cours ou Terminée non Clôturée,
+**When** les dates changent avec confirmation,
+**Then** seules les références calculables de capacité réelle sont réévaluées ; valeurs manuelles, capacité initiale figée et PDF restent intacts.
+
+#### AC5
+
+**Given** une période est Clôturée,
+**When** je demande de corriger ses mesures, objectifs ou capacité,
+**Then** la réouverture volontaire est exigée et toute nouvelle clôture produit une version distincte, sans modifier les documents antérieurs.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21, FR-22, FR-23 ; D-PRD-114/115/116/117/118/119.
+* Dépendances : Stories 7.9–7.11, 7.13–7.17 et 7.20.
+* Incrément I3 ; Kanban MVP ; mécanismes communs d'objectif, capacité, bilan et reporting, sans équivalence artificielle avec Scrum ni SAFe opérationnel.
+* **Statut : proposition publiée pour revue globale Epic 7, non validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.22: Consulter les périodes Kanban et événements sur le calendrier commun
+**Jira :** https://lmn24.atlassian.net/browse/SMN-157
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver mes périodes Kanban et réunions réellement enregistrées au calendrier,
+**afin de** préparer le suivi sans voir apparaître de fausses cérémonies Scrum.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une ou plusieurs périodes Kanban existent,
+**When** j'ouvre le calendrier commun,
+**Then** leurs noms, dates et statuts sont affichés sans confondre période Kanban et Sprint Scrum.
+
+#### AC2
+
+**Given** une réunion ponctuelle ou un modèle réellement configuré existe,
+**When** je consulte ses occurrences,
+**Then** seules les occurrences enregistrées et autorisées apparaissent, avec leurs statuts réels.
+
+#### AC3
+
+**Given** aucune cérémonie Scrum n'a été explicitement créée pour cette équipe Kanban,
+**When** j'ouvre son calendrier,
+**Then** aucun Planning, Daily, Review ou Rétrospective Scrum n'est produit artificiellement.
+
+#### AC4
+
+**Given** une période a été replanifiée et une occurrence tenue a été préservée,
+**When** j'ouvre l'événement,
+**Then** sa date initiale, son statut et sa provenance restent intacts, même hors des nouvelles bornes.
+
+#### AC5
+
+**Given** un Utilisateur ouvre cette vue,
+**When** le serveur renvoie les événements,
+**Then** la lecture respecte les droits collectifs sans permettre de replanifier ou dévoiler des absences nominatives privées.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21, FR-23 ; D-PRD-079/093/108/112/113.
+* Dépendances : Stories 7.2 et 7.7 ; calendrier central Epic 3 et événements existants Epic 4.
+* Incrément I3 ; Kanban MVP ; mécanismes communs d'objectif, capacité, bilan et reporting, sans équivalence artificielle avec Scrum ni SAFe opérationnel.
+* **Statut : proposition publiée pour revue globale Epic 7, non validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
+
+### Story 7.23: Produire un rapport Kanban avec le moteur HTML/PDF partagé
+**Jira :** https://lmn24.atlassian.net/browse/SMN-158
+
+**En tant que** Scrum Master Administrateur,
+**je veux** générer un rapport sur une période Kanban selon les mêmes options que Scrum,
+**afin de** présenter les flux Kanban de façon fiable et retrouver un PDF archivé.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période Kanban est consultée,
+**When** j'ouvre Générer un rapport,
+**Then** le formulaire est prérempli avec son nom, ses dates, son statut, son équipe et les données Kanban disponibles.
+
+#### AC2
+
+**Given** les cinq métriques Kanban et capacités existent partiellement,
+**When** je choisis des rubriques,
+**Then** les comptes, durées moyennes en jours calendaires, capacité JH et tendances sont distingués ; aucune conversion en Story Points n'a lieu.
+
+#### AC3
+
+**Given** une période Kanban est ouverte ou clôturée,
+**When** je compose le rapport,
+**Then** l'état provisoire ou le cliché de clôture applicable est correctement utilisé et la sélection de tendances se limite aux périodes clôturées éligibles.
+
+#### AC4
+
+**Given** un aperçu HTML est consulté sans export,
+**When** je quitte la préparation,
+**Then** aucune archive PDF n'est créée.
+
+#### AC5
+
+**Given** un export PDF est réellement réussi,
+**When** le service archive le fichier,
+**Then** le PDF final exact est conservé et consultable par les profils autorisés selon Epic 6 ; les anciens PDF restent inchangés.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-7 ; FR-21, FR-22, FR-23 ; D-PRD-079/080/081/084/108 ; RPT-01–08 ; D-PRD-134.
+* Dépendances : Stories 7.12–7.20 et moteur de rapports Epic 6.
+* Incrément I3 ; Kanban MVP ; mécanismes communs d'objectif, capacité, bilan et reporting, sans équivalence artificielle avec Scrum ni SAFe opérationnel.
+* **Statut : proposition publiée pour revue globale Epic 7, non validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale ; non encore validée fonctionnellement, sans développement ni recette.
 
