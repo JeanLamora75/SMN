@@ -31,6 +31,8 @@ Cette validation ne définit pas encore le détail des champs de création, les 
 - Les **PDF et reportings déjà générés** restent inchangés. Une correction historique volontaire suit les protections de clôture, de réouverture et de traçabilité existantes : **aucune réécriture silencieuse** de l'instantané.
 - **Scrum/Kanban au MVP** ; **SAFe/ART en v1.0**, avec le même principe pour les PI et les objets associés, sans préjuger du détail du schéma SAFe.
 
-**À préciser en conception :** traitement d'une réouverture et d'une nouvelle clôture, coexistence des versions d'instantanés, reprise des périodes historiquement clôturées sans registre antérieur disponible et traçabilité des corrections volontaires. Ces limites ne remettent pas en question le principe métier approuvé.
+**Précision métier D-PRD-130/A3 :** chaque clôture crée **V1/V2/V3…** de l'instantané, **sans écraser les versions antérieures**. Une réouverture conserve V1 et consulte l'état courant tant que le cycle est non clôturé ; après reclôture, le nouveau bilan lit la dernière version, V1 restant accessible et les PDF existants figés. Une reprise historique ne peut attribuer à la date ancienne un statut actuel non prouvé. **[Règles et scénarios approuvés](clarifications-d-prd-130.md)**.
 
-**Références :** FR-25, D-PRD-120 (conservation à la replanification), D-PRD-121 (fiche centrale multi-cycles), F-91/F-93/F-96 (clôture et corrections), D-PRD-077/D-PRD-078 (tendances sur cycles clôturés).
+**Restent à préciser en conception :** stockage technique/versionnement, vues de comparaison des versions, traitement des données historiques authentifiées mais incomplètes et modalités des corrections volontaires, sous réserve des règles déjà actées.
+
+**Références :** FR-25, FR-41, D-PRD-130/A3, D-PRD-120 (conservation à la replanification), D-PRD-121 (fiche centrale multi-cycles), F-91/F-93/F-96 (clôture et corrections), D-PRD-077/D-PRD-078 (tendances sur cycles clôturés).
