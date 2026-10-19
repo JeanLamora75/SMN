@@ -77,7 +77,7 @@ Les groupes ci-dessous constituent le **plan de travail** du PRD. Les exigences 
 | Six catégories qualitatives, historique et points d'attention | F-11 à F-13, F-74 à F-90, F-110/F-111, **FR-25, FR-34 à FR-41 / D-PRD-124** |
 | Reprise rétrospective des Sprints et tendances | Product Brief, F-14/F-19/F-24/F-25/F-64/F-72/F-91 à F-96, **FR-42 à FR-49 / D-PRD-125** |
 | Reportings HTML/PDF, modèles et contextualisation | Product Brief, F-10, F-15, F-24/F-25, F-97, F-112, F-117 à F-120, **FR-26 à FR-33 / D-PRD-123** |
-| Briefs TXT IA et analyses historiques | F-98 à F-109 |
+| Briefs TXT IA et analyses historiques | F-98 à F-109, **FR-50 à FR-57 / D-PRD-126** |
 | Extensions SAFe / ART de la version 1.0 | F-17, F-18, F-40, F-47, F-49 à F-52, F-67, F-68, F-73, F-94, F-95, F-119 |
 
 ### 4.1 Initialisation du produit et de l'équipe — MVP
@@ -893,6 +893,36 @@ Consigner **auteur, horodatage, fichier/lot, lignes traitées, acceptées ou rej
 
 **Périmètre :** import CSV consolidé au MVP Scrum/Kanban, reprise manuelle des Sprints passés ; détail de la reprise Kanban à confirmer. Socle réutilisable en SAFe v1.0. [Critères complets et cas limites](reprise-imports-historiques.md).
 
+### 4.18 Briefs TXT et analyses IA — MVP Scrum/Kanban ; extension SAFe v1.0
+
+**D-PRD-126 — Validation groupée IA-01 à IA-08 (19/10/2026) :** parcours de briefs TXT et de gestion des analyses conforme à F-98 à F-109. **[Critères détaillés](briefs-analyses-ia.md)**.
+
+#### FR-50 — Générer un brief depuis un cycle, son bilan ou un rapport (IA-01)
+Le SM peut accéder au **même moteur TXT** depuis Sprint, période Kanban, bilan ou préparation de rapport, avec **contexte prérempli**. Cycle non clôturé identifié comme **provisoire**, aucune donnée individuelle incluse.
+
+#### FR-51 — Configurer des modèles réutilisables de briefs (IA-02)
+Modèles préconfigurés, **éditables et extensibles en administration**, pour rubriques, données, profondeur historique et questions/consignes. Réglages ponctuels possibles sans modifier le modèle ni les TXT déjà archivés.
+
+#### FR-52 — Structurer les faits et observations du TXT (IA-03)
+**TXT plat sans graphiques**, distinguant données/KPI collectifs, contexte qualitatif, observations humaines, analyses IA antérieures sélectionnées et instructions nouvelles. **Zéro fictif interdit** et interprétation distincte de la mesure.
+
+#### FR-53 — Contrôler la confidentialité du contenu transmis (IA-04)
+**Aucune donnée individuelle de membre**, y compris noms, e-mails, absences, calendriers ou capacités, dans les sources structurées ; **prévisualisation complète et vérification explicite du texte libre** avant finalisation. **Aucun appel ni transmission automatique à une IA externe au MVP**.
+
+#### FR-54 — Archiver un TXT immuable et le dupliquer (IA-05)
+Garder le **texte final exact** et ses métadonnées ; TXT consultable, exportable, réutilisable et **non modifiable depuis SMN**. La duplication crée un **nouveau brief lié au parent**. Supprimer l'analyse laisse intact le TXT.
+
+#### FR-55 — Coller la réponse IA et la relier au brief (IA-06)
+Associer la réponse **copiée-collée manuellement** au brief original, avec date, origine et IA utilisée lorsqu'elle est connue ; **une seule analyse IA active par brief**, sans second enregistrement ou écrasement implicite.
+
+#### FR-56 — Historiser et gérer les analyses (IA-07)
+Journal d'**analyses humaines ou IA**, consultables, modifiables et supprimables, avec date, origine et signalement d'une **retouche humaine du texte IA**. Analyses IA historiques **exclues par défaut** des nouveaux briefs, inclusion volontaire possible.
+
+#### FR-57 — Restituer les analyses sans les faire passer pour des mesures (IA-08)
+Sélection d'analyses dans HTML/PDF avec **origine, date, brief et retouches identifiables** ; interprétations IA distinctes des KPI et faits enregistrés. Rapports/briefs antérieurs figés, confidentialité TXT prioritaire.
+
+**Périmètre :** Scrum/Kanban au MVP, extension SAFe/ART v1.0. **TXT transmis manuellement puis réponse collée**, sans API IA. Stockage privé, intégrité, modèles initiaux, rétention et confidentialité des textes libres restent à préciser. **[Critères complets et points ouverts](briefs-analyses-ia.md)**.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP. **La saisie des heures réelles de début et de fin des réunions ainsi que le calcul automatique de l'heure réelle de fin sont reportés après le MVP (D-PRD-066)** ; la durée réelle reste modifiable.
@@ -903,7 +933,7 @@ Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six ca
 
 Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables. **Les parcours, critères et modèles détaillés validés au titre de D-PRD-123 figurent en FR-26 à FR-33 et dans [l'addendum Reporting](reportings-html-pdf.md).**
 
-Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7), et **calendrier individuel initial lundi-vendredi à temps plein, personnalisable** (FR-8), avec **localisation proposée à partir de l'installation mais personnalisable par membre**, **chargement des fichiers nationaux disponibles dans le répertoire livré avec SMN selon le pays**, **gestion des pays et import de jours fériés en CSV au format fixe SMN ou en ICS**, et **particularités régionales gérées comme des absences individuelles nommées et catégorisées** dès le MVP (FR-9/FR-10/FR-11). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
+Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7), et **calendrier individuel initial lundi-vendredi à temps plein, personnalisable** (FR-8), avec **localisation proposée à partir de l'installation mais personnalisable par membre**, **chargement des fichiers nationaux disponibles dans le répertoire livré avec SMN selon le pays**, **gestion des pays et import de jours fériés en CSV au format fixe SMN ou en ICS**, et **particularités régionales gérées comme des absences individuelles nommées et catégorisées** dès le MVP (FR-9/FR-10/FR-11). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée. Les parcours, modèles, protections, archives immuables et analyses associés sont précisés en **FR-50 à FR-57 / D-PRD-126** et dans [l'addendum IA](briefs-analyses-ia.md).
 
 **D-PRD-087, révisée par D-PRD-093 :** les périodes Kanban sont **générées à la demande du Scrum Master** à partir de la cadence configurée, par défaut mensuelle calendaire ; **aucune préparation automatique de la période suivante**. L'installation guidée propose ce réglage facultativement, l'Express conserve le défaut (FR-23).
 
@@ -967,6 +997,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-21/FR-22 / D-PRD-079 à D-PRD-121 :** bilan Kanban en quatre blocs, cinq KPI facultatifs (3 comptages, Cycle/Lead Time), quatre graphiques sur cinq périodes clôturées comparables. Durées en jours calendaires, affichées à une décimale sans perte de précision stockée. Détails FR-21/FR-22.
 - **FR-42 à FR-49 / D-PRD-125 :** reprise des Sprints, CSV consolidés, contrôles, protection des valeurs, provenance, bilans partiels, tendances et journal d'import. [Critères détaillés](reprise-imports-historiques.md). Ouverts : format CSV, doublons/conflits, stratégie des lots, cycles absents, reprise Kanban et états historiques manquants.
 - **FR-26 à FR-33 / D-PRD-123 :** reporting HTML/PDF (sections, modèles, historique, aperçu, FR/EN et confidentialité). [Critères](reportings-html-pdf.md). Ouverts : pagination, identité visuelle, stockage et sécurité.
+- **FR-50 à FR-57 / D-PRD-126 :** génération contextualisée, modèles administrables, TXT structuré, vérification confidentialité, archives immuables et duplication, réponse IA collée, journal d'analyses et reporting contextualisé. [Critères](briefs-analyses-ia.md). Ouverts : modèles initiaux, intégrité, stockage/rétention et sécurité des textes libres.
 - Confidentialité, mécanismes de protection des données, sauvegardes, accessibilité, langue des contenus libres et exports.
 - Navigateurs/versions cibles et modalités de recette de l'interface responsive ; aucun fonctionnement hors connexion ou emballage PWA n'est actuellement décidé.
 - Méthode de mesure des cinq conditions de succès et contre-indicateurs.
