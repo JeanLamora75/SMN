@@ -5,7 +5,7 @@ purpose: build-substrate
 altitude: feature
 paradigm: "monolithe modulaire à frontières métier et couches explicites"
 scope: "MVP Scrum/Kanban ; invariants extensibles à SAFe/ART v1.0"
-status: draft
+status: final
 created: "2026-10-19"
 updated: "2026-10-19"
 binds: ["FR-1..FR-81", "D-PRD-130", "D-PRD-131"]
@@ -17,11 +17,12 @@ companions:
   - "DESIGN-TECHNIQUE.md"
   - "SECURITE-EXPLOITATION.md"
   - "REVUE-COHERENCE-TRACABILITE.md"
+  - "ARBITRAGES-FINAUX.md"
 ---
 
 # Architecture Spine — Scrum Master Notebook
 
-> **Contrat de cohérence architectural, non constat d'implémentation.** Les AD-1 à AD-13 reprennent sans renumérotation les décisions déjà enregistrées dans le journal de cette branche. Les AD suivantes distillent les validations conversationnelles de Winston. Le PRD et ses annexes prévalent pour les règles métier. Les bibliothèques, leurs versions et le packaging doivent être vérifiés avant gel technique ; aucun développement ou essai applicatif n'est attesté.
+> **Contrat de cohérence architectural, non constat d'implémentation.** Les AD-1 à AD-13 reprennent sans renumérotation les décisions déjà enregistrées dans le journal de cette branche. Les AD suivantes distillent les validations conversationnelles de Winston. Le PRD et ses annexes prévalent pour les règles métier. **Statut final du contrat documentaire, avec réserves à portes de sortie** : le lint officiel BMAD, les relectures indépendantes, les versions/bibliothèques, le packaging Windows et les tests métier ne sont pas attestés. Les décisions métier A7/A8/A10/A11 demeurent ouvertes. Voir [revue finale des arbitrages](ARBITRAGES-FINAUX.md).
 
 ## Design Paradigm
 
@@ -84,7 +85,7 @@ flowchart TD
 ### AD-8 — Comptes et permissions distincts des membres [ADOPTED]
 - **Binds:** identité, administration et accès documents.
 - **Prevents:** permission implicite des membres ou lecture sans habilitation.
-- **Rule:** conserver comme base fonctionnelle explicitement consignée **Administrateur** et **Utilisateur** : l'administrateur opère/administre ; l'utilisateur consulte les données collectives et peut télécharger les rapports/briefs autorisés, mais n'édite pas les données. Les données individuelles réservées à l'administrateur restent protégées. La proposition ultérieure d'un rôle Opérateur supplémentaire constitue un **écart de formulation à arbitrer**, pas une création automatique de troisième rôle.
+- **Rule:** conserver les **garanties initialement approuvées** : Administrateur administre, l'ancien profil Utilisateur consulte les données collectives et télécharge les documents autorisés sans droit d'édition, et les données individuelles sensibles ne sont pas accessibles à ce profil. **La cardinalité initiale de deux rôles est étendue chronologiquement par AD-31**, sans perte de ce droit de téléchargement ni octroi tacite de droits individuels au nouveau rôle Opérateur.
 
 ### AD-9 — Comptes créés dans l'administration [ADOPTED]
 - **Binds:** MVP FR-66/72.
@@ -174,7 +175,7 @@ flowchart TD
 ### AD-26 — Identité et documents contrôlés côté serveur [ADOPTED]
 - **Binds:** sessions, comptes, PDF/TXT et fichiers privés.
 - **Prevents:** contrôle purement UI, IDOR et URL publique de fichier.
-- **Rule:** chaque lecture/action/téléchargement est autorisé côté serveur ; sessions révocables, cookies protégés ; aucun contenu métier anonyme après installation. Les rôles restent ceux d'AD-8 tant qu'un changement n'est pas arbitré.
+- **Rule:** chaque lecture/action/téléchargement est autorisé côté serveur ; sessions révocables, cookies protégés ; aucun contenu métier anonyme après installation. Le RBAC suit AD-8 **étendu par AD-31** ; les permissions sensibles nécessitent une décision explicite.
 
 ### AD-27 — Base et stockage privé cohérents [ADOPTED]
 - **Binds:** archives, exports et restauration.
@@ -196,6 +197,11 @@ flowchart TD
 - **Prevents:** revendication de qualité sans preuve ni glissement SAFe dans MVP.
 - **Rule:** POC I0 PostgreSQL/auth/packaging/PDF, tests unitaires/intégration/E2E, grille FR↔tests/preuves ; cinq conditions cumulatives validées humainement avant pilote, non réputées atteintes par approbation documentaire.
 
+### AD-31 — Évolution contrôlée des profils d'accès [ADOPTED]
+- **Binds:** identité/permissions FR-66–67/72, comptes MVP, rapports/briefs et données individuelles ; étend AD-8/9 selon la validation globale ultérieure AD-SEC.
+- **Prevents:** appliquer en silence le vieux périmètre à deux rôles en ignorant la proposition approuvée à trois rôles, ou faire perdre le droit de téléchargement du lecteur.
+- **Rule:** retenir trois profils architecturaux **Administrateur**, **Opérateur SM/RTE**, **Lecteur** : l'Administrateur administre et opère ; l'Opérateur gère les activités métier dans le périmètre autorisé ; le Lecteur consulte les données collectives et télécharge les rapports/briefs autorisés, sans édition. Les données individuelles nominatives restent interdites au Lecteur ; **l'Opérateur ne reçoit aucun droit individuel sensible par défaut**, sa matrice de permissions détaillée restant soumise à accord métier avant les Stories de comptes. Toutes les permissions sont contrôlées côté serveur. Aucune création de compte automatique pour les équipiers.
+
 ## Consistency Conventions
 
 | Concern | Convention contraignante |
@@ -207,8 +213,8 @@ flowchart TD
 | Écritures | Contrôles côté serveur, opérations sensibles transactionnelles, versions pour concurrence optimiste |
 | Calculs | Une librairie domaine pure, prévisualisation informative ; serveur décide la validité de l'écriture |
 | Architecture | Un propriétaire par agrégat ; pas de SQL dans les composants UI ; pas de dépendance du domaine aux adaptateurs |
-| Confidentialité | Rapport privé par défaut ; TXT collectif filtré avant rendu ; aucune URL anonyme des archives |
-| Documentation | FR/F/D-PRD inchangés ; AD-1–AD-13 conservés ; décisions supplémentaires justifiées dans memlog |
+| Confidentialité | Rapport privé par défaut ; TXT collectif filtré avant rendu ; aucune URL anonyme des archives ; RBAC AD-8/31 sans privilège sensible implicite |
+| Documentation | FR/F/D-PRD inchangés ; AD-1–AD-13 conservés et AD-31 ajoutée sans renumérotation ; décisions justifiées dans memlog |
 | Déploiement | PostgreSQL obligatoire, Windows utilisateur en cible initiale ; aucun secret dans GitHub |
 
 ## Stack — décision et vérification
@@ -239,7 +245,7 @@ src/
 
 | FR / capacité | Propriétaire | Invariants principaux | Incrément principal |
 | --- | --- | --- | --- |
-| FR-1–7 installation, organisation, équipes | Installation/Identity/Teams | AD-2/7/8/9/25/28 | I0–I1 |
+| FR-1–7 installation, organisation, équipes | Installation/Identity/Teams | AD-2/7/8/9/25/28/31 | I0–I1 |
 | FR-8–14 membres, absences, capacité | Members/Calendar/Capacity | AD-11/12/14/16/19 | I1–I2 |
 | FR-15–24 cycles, événements, Scrum/Kanban | Cycle/Event/Metric | AD-3/5/13/15/17/18 | I1–I3 |
 | FR-25 et FR-34–41 registres | Registers/Closure | AD-2/19/20 | I2–I3 |
@@ -247,7 +253,7 @@ src/
 | FR-42–49 reprise et CSV | History/Import | AD-19/20/21 | I4 |
 | FR-50–57 TXT et analyses IA | Brief/Analysis | AD-6/23/24/27 | I5 |
 | FR-58–65 UX | Web/UI + tous modules | AD-4/5/7/28 | I0–I5 |
-| FR-66–73 sécurité/exploitation | Identity/Infrastructure | AD-7/8/10/25–29 | Dès I0 |
+| FR-66–73 sécurité/exploitation | Identity/Infrastructure | AD-7/8/10/25–29/31 | Dès I0 |
 | FR-74–81 recette | Test/Quality | AD-30 | I6 (preuves dès I0) |
 
 ## Deferred — réserves explicites
@@ -258,7 +264,7 @@ src/
 - **A10 :** archivage systématique/rétention des PDF non décidés ; PDF exporté non réécrit et consultation privée obligatoires.
 - **A11 :** suppression/anonymisation personnelle, rémanence en snapshots/archives/backups à arbitrer avant implémentation et pilote.
 - **A12 :** rendu multitemporel couvert par AD-19/20/22 ; scénarios de restitution non testés.
-- **Divergence des rôles :** journal historique AD-8 = Administrateur/Utilisateur. Une proposition ultérieure a présenté Administrateur/Opérateur/Lecteur et a été globalement approuvée ; ne pas élargir silencieusement le référentiel des comptes. Résoudre la matrice de droits avant construction des Stories d'accès.
+- **Rôles, droits individuels :** AD-31 rapproche la proposition ultérieure à trois rôles et le profil Utilisateur d'AD-8 devenu Lecteur ; les droits d'accès de l'Opérateur aux absences, coordonnées et capacités individuelles **restent à arbitrer avant les Stories correspondantes**. Aucun accès sensible n'est accordé par défaut.
 - **Amorçage :** identifiant de compte initial déjà consigné dans le journal ; mécanisme de secret temporaire, récupération et rotation à spécifier sans exposer de secret.
 - **Versions et starter :** recherche web avancée non autorisée ; versions des frameworks, chiffrement, pilotes PostgreSQL, calendriers et export PDF à éprouver en I0 avant engagement.
 - **Implémentation et qualité :** absence d'architecture exécutée ; linter/reviewer gate BMAD, scripts `uv`, tests et tests de restauration non exécutés ; validation documentaire indépendante à réaliser après production de la spine.
