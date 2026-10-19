@@ -1,6 +1,6 @@
 ---
 title: "PRD — Scrum Master Notebook (SMN)"
-status: draft
+status: final
 created: 2026-10-18
 updated: 2026-10-19
 workflow: bmad-prd
@@ -11,18 +11,20 @@ language: fr
 
 # PRD — Scrum Master Notebook (SMN)
 
-> **Statut : brouillon initial — non approuvé.** Document de travail construit progressivement avec John (Product Manager). Les décisions F-01 à F-124 et le Product Brief approuvé sont des références actées ; les arbitrages supplémentaires devront être validés par l'utilisateur. Aucun détail technique non décidé n'est présenté comme une exigence.
+> **Statut : final — référence fonctionnelle pour l'architecture BMAD (19/10/2026).** Product Brief, F-01 à F-124 et D-PRD-001 à D-PRD-131 conservés. Les choix résiduels A5/A7–A12 sont [qualifiés pour Winston](handoff-architecture-winston.md) : finalisation documentaire ≠ architecture approuvée, logiciel développé ou pilote autorisé.
 
 ## 0. Objet et références du document
 
-Ce PRD précisera les capacités, exigences fonctionnelles (FR), exigences non fonctionnelles (NFR), parcours utilisateurs (UJ), limites de livraison et critères de succès (SM) permettant de préparer les travaux BMAD d'architecture, d'UX et de découpage en Epics et User Stories. Les FR auront des identifiants stables et des références explicites aux décisions F-xx. Les décisions complémentaires intervenues pendant le PRD reçoivent un identifiant D-PRD-xxx, consigné dans le journal BMAD. Le détail d'implémentation relève d'un addendum ou des travaux d'architecture.
+Ce PRD fixe le périmètre, les 81 FR, les NFR de principe, les cinq critères de succès, les références de décisions F/D-PRD et les frontières MVP/v1.0. Le détail des critères réside aussi dans les annexes. Les choix techniques et les arbitrages métier expressément ouverts sont réservés à l'architecture, à la recette ou à une validation ultérieure, sans ajout implicite de décision.
 
 Références fonctionnelles sur `main` :
 - [Contexte du projet](../../../../docs/PROJECT-CONTEXT.md)
 - [Registre F-01 à F-124](../../../../docs/DECISIONS-FONCTIONNELLES.md)
 - [Cadrage fonctionnel](../../../../docs/CADRAGE-FONCTIONNEL.md)
 
-Product Brief approuvé le 18/10/2026 et journal BMAD : `_bmad-output/planning-artifacts/briefs/brief-SMN-2026-10-18/`, actuellement dans la branche `docs/bmad-product-brief-smn-20261018` ([PR #7](https://github.com/JeanLamora75/SMN/pull/7), ouverte lors de l'initialisation du PRD).
+Product Brief approuvé le 18/10/2026 : `_bmad-output/planning-artifacts/briefs/brief-SMN-2026-10-18/` ; branche documentaire `docs/bmad-product-brief-smn-20261018` et [PR #7](https://github.com/JeanLamora75/SMN/pull/7) (référence historique).
+
+**Accès rapide :** [séquencement MVP I0–I6](sequencement-mvp-d-prd-131.md) · [reporting](reportings-html-pdf.md) · [registres](registres-qualitatifs.md) · [historique et CSV](reprise-imports-historiques.md) · [IA](briefs-analyses-ia.md) · [UX](parcours-utilisateur-ergonomie.md) · [sécurité](securite-exploitation.md) · [recette](recette-finalisation-mvp.md) · [passation Winston / réserves](handoff-architecture-winston.md).
 
 ## 1. Vision — socle validé
 
@@ -40,11 +42,11 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 
 **Besoins :** disposer d'une mémoire cohérente de la vie des équipes ; gérer les périodes, objectifs, événements et chiffres disponibles ; enregistrer les six registres qualitatifs ; conserver et reprendre les périodes passées ; expliquer les tendances ; obtenir rapidement un rapport partageable.
 
-**Parcours de référence MVP validé :** initialiser le produit et l'équipe → préparer une période Scrum ou Kanban → suivre données, événements et informations qualitatives → dresser le bilan et clôturer manuellement → produire un rapport. L'écriture détaillée des UJ et de leurs cas limites sera travaillée en mode Coaching, sans inventer de parcours utilisateur déjà observé.
+**Parcours de référence MVP :** initialiser produit et équipe → préparer un cycle Scrum/Kanban → suivre événements, données et registres → établir le bilan et clôturer volontairement → produire un rapport. Les dépendances et dix scénarios de vérification sont regroupés dans le [handoff Architecture](handoff-architecture-winston.md).
 
-**Initialisation — décisions D-PRD-002 et D-PRD-003 :** l'utilisateur peut choisir une initialisation Express (minimum indispensable) ou une initialisation Guidée/Tutorée. Les deux aboutissent au tableau de bord à la fin du parcours. Les éventuelles configurations complémentaires proposées dans le parcours guidé ne modifient pas les champs minimaux et les règles de configuration F-114, F-123 et F-124. L'illustration d'un UJ détaillé reste à co-construire.
+**Initialisation — D-PRD-002/003 :** parcours Express ou Guidé/Tutoré, tous deux jusqu'au tableau de bord ; les options guidées n'ajoutent pas de champs obligatoires (F-114, F-123/F-124).
 
-## 3. Glossaire initial
+## 3. Glossaire de référence
 
 - **Installation SMN :** instance dédiée à un seul produit de référence, dont l'identité reste fixe ; le mode Scrum, Kanban ou SAFe y est également fixe.
 - **Produit de référence :** produit suivi par l'installation, pouvant porter une vision et un Product Goal historisés.
@@ -65,9 +67,9 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 
 ## 4. Fonctionnalités et exigences fonctionnelles
 
-Les groupes ci-dessous constituent le **plan de travail** du PRD. Les exigences fonctionnelles sont désormais numérotées globalement (FR-1 et suivantes) au fil de leur validation ; les groupes non détaillés sont à approfondir.
+Les **81 exigences FR-1 à FR-81** sont validées et regroupées ci-dessous. Leur mise en œuvre suit les incréments I0–I6 de [D-PRD-131](sequencement-mvp-d-prd-131.md) ; critères détaillés et exceptions figurent dans les annexes.
 
-| Groupe à spécifier | Principales références |
+| Domaine fonctionnel | Principales références |
 | --- | --- |
 | Initialisation, produit unique, équipe, paramètres | F-01, F-05, F-41, F-49, F-112 à F-124 |
 | Interface web responsive, adaptée aux trois familles d'écrans | D-PRD-001, F-112 à F-115, **FR-58 à FR-65 / D-PRD-127** |
@@ -1085,4 +1087,4 @@ Aucune hypothèse fonctionnelle additionnelle n'est présentée comme une décis
 
 ---
 
-*Initialisé le 18 octobre 2026 sur une branche GitHub dédiée. Les exigences et la revue BMAD sont documentées ; la finalisation reste à mener.*
+*PRD finalisé le 19 octobre 2026 pour transmission à Winston. Les réserves ouvertes, leurs responsables et conditions de levée sont consignés dans [le dossier de passation Architecture](handoff-architecture-winston.md).*
