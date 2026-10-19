@@ -79,6 +79,7 @@ Les groupes ci-dessous constituent le **plan de travail** du PRD. Les exigences 
 | Reportings HTML/PDF, modèles et contextualisation | Product Brief, F-10, F-15, F-24/F-25, F-97, F-112, F-117 à F-120, **FR-26 à FR-33 / D-PRD-123** |
 | Briefs TXT IA et analyses historiques | F-98 à F-109, **FR-50 à FR-57 / D-PRD-126** |
 | Sécurité, continuité, intégrité et exploitation | **FR-66 à FR-73 / D-PRD-128** ; FR-4, FR-24, FR-33, FR-41, FR-53, FR-64 |
+| Recette du MVP et décision de passage au pilote | **FR-74 à FR-81 / D-PRD-129** ; cinq critères cumulatifs (section 7) |
 | Extensions SAFe / ART de la version 1.0 | F-17, F-18, F-40, F-47, F-49 à F-52, F-67, F-68, F-73, F-94, F-95, F-119 |
 
 ### 4.1 Initialisation du produit et de l'équipe — MVP
@@ -984,6 +985,36 @@ Succès annoncé **après persistance vérifiée** ; échecs, annulations et ré
 
 **Périmètre :** Scrum/Kanban MVP, extension SAFe v1.0. **[Critères d'acceptation complets](securite-exploitation.md)**.
 
+### 4.21 Recette et finalisation du MVP — Scrum et Kanban
+
+**D-PRD-129 — Validation groupée REC-01 à REC-08 (19/10/2026).** Définir la recette sans prétendre que le MVP est développé, testé ou prêt à diffuser. **[Critères d'acceptation détaillés](recette-finalisation-mvp.md)**.
+
+#### FR-74 — Tracer les exigences et les scénarios de recette (REC-01)
+Chaque FR applicable au MVP est liée à **scénarios, résultats, preuves et anomalies**, avec états **non exécutés distincts des réussites** ; périmètres Scrum et Kanban identifiables.
+
+#### FR-75 — Vérifier les parcours Scrum et Kanban de bout en bout (REC-02)
+Recetter les parcours **installation → équipe/calendrier → cycles → bilan → HTML/PDF** pour les deux modes, au besoin dans **deux installations distinctes** (mode fixe).
+
+#### FR-76 — Mesurer les cinq conditions de succès cumulatives (REC-03)
+Conserver **protocole, mesures, preuves et résultats** pour chacun des **cinq critères inchangés de la section 7** ; une condition **non démontrée** ne vaut pas atteinte.
+
+#### FR-77 — Vérifier la qualité des données historiques (REC-04)
+Tester valeurs **absentes/estimées/nulles**, imports CSV, corrections et clôture/réouverture, **tendances comparables** et instantanés ; aucun historique fictif.
+
+#### FR-78 — Contrôler les rapports et briefs IA TXT (REC-05)
+Comparer **HTML/PDF**, contrôler langue et confidentialité, générer puis archiver des **TXT immuables** ; réponses IA et retouches humaines clairement identifiées.
+
+#### FR-79 — Recetter sécurité et résilience (REC-06)
+Tester **accès privés, sauvegarde/restauration, erreurs, imports/exports et tout-ou-rien** des opérations atomiques ; sans faux succès ni secrets divulgués.
+
+#### FR-80 — Mesurer compatibilité et accessibilité (REC-07)
+Matrice de tests **ordinateur/tablette/smartphone**, FR/EN, thèmes clair/sombre et clavier ; **navigateurs, niveau WCAG et seuils précis restent à fixer**.
+
+#### FR-81 — Décider formellement du passage au pilote (REC-08)
+Checklist réunissant **couverture, preuves, cinq conditions cumulatives et anomalies bloquantes** ; **validation humaine explicite**. Pas de « prêt pilote » si contrôle requis non démontré ou anomalie bloquante.
+
+**Périmètre :** Scrum/Kanban au MVP ; SAFe/ART v1.0 aura sa recette propre. **Aucun test, performance, conformité ou passage au pilote n'est déclaré réalisé ici.** [Protocole et critères détaillés](recette-finalisation-mvp.md).
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP. **La saisie des heures réelles de début et de fin des réunions ainsi que le calcul automatique de l'heure réelle de fin sont reportés après le MVP (D-PRD-066)** ; la durée réelle reste modifiable.
@@ -1011,7 +1042,7 @@ Cinq conditions **cumulatives** conditionnent le passage au pilote :
 4. Tendances fiables, y compris avec Sprints rétrosaisis, sans confondre absence de donnée et zéro.
 5. Rapports HTML et PDF exploitables sans anomalie bloquante.
 
-Les protocoles de recette, contre-indicateurs, FR associées et critères mesurables particuliers à Kanban restent à établir. Ces seuils sont des **objectifs validés**, pas des résultats observés.
+**D-PRD-129 / FR-74 à FR-81 :** protocole et preuves détaillés dans [l'addendum Recette](recette-finalisation-mvp.md). **Ces cinq conditions restent des objectifs à mesurer**, pas des résultats déjà observés.
 
 ## 8. Exigences non fonctionnelles — sujets à spécifier
 
@@ -1021,7 +1052,7 @@ Les protocoles de recette, contre-indicateurs, FR associées et critères mesura
 
 **NFR-3 — Mutualisation des parcours et règles entre modes (D-PRD-079).** Les parcours et les règles de gestion réellement partagés entre Scrum, Kanban et SAFe doivent être conçus comme un socle commun, avec adaptations explicites lorsque la sémantique des périodes, métriques ou responsabilités diffère. **Critère de haut niveau :** vérifier la cohérence des quatre blocs de bilan et des règles de sauvegarde/historisation en Scrum et Kanban au MVP ; préparer la réutilisation SAFe en version 1.0 sans la réaliser prématurément.
 
-**D-PRD-128 / FR-66 à FR-73 :** accès, confidentialité, sauvegarde/restauration, suppression, audit, atomicité, secrets et traitement des erreurs sont désormais validés au niveau métier. **[Scénarios détaillés](securite-exploitation.md)**. Mécanismes d'authentification, RPO/RTO, rétention, chiffrement, compatibilité navigateurs, performance et niveaux d'accessibilité sont à préciser et mesurer ; aucune conformité ou technologie n'est déclarée acquise.
+**D-PRD-128 / FR-66 à FR-73 :** principes d'accès, confidentialité et exploitation ; [critères Sécurité](securite-exploitation.md). **D-PRD-129 / FR-74 à FR-81 :** scénarios, mesures et preuves de recette ; [critères Recette](recette-finalisation-mvp.md). Technologies et seuils techniques restent à préciser, sans conformité déclarée acquise.
 
 ## 9. Questions ouvertes à traiter progressivement
 
@@ -1035,7 +1066,8 @@ Les **37 questions ouvertes détaillées antérieures** sont conservées intégr
 - **FR-34 à FR-41 / D-PRD-124 :** matrice 3×3, faits marquants et reclôture ([Registres](registres-qualitatifs.md)).
 - **FR-26 à FR-33 / D-PRD-123 :** rendu et stockage HTML/PDF ([Reporting](reportings-html-pdf.md)).
 - **FR-25 / D-PRD-120 à D-PRD-122 :** liens et instantanés de risques/dépendances ([Registre](risques-dependances.md)).
-- **Transverse :** critères mesurables de performance, accessibilité, compatibilité, recette et pilote ; obligations légales à confirmer selon déploiement.
+- **FR-74 à FR-81 / D-PRD-129 :** matrice FR/tests/preuves, cinq critères cumulés, compatibilité et validation explicite du pilote. [Critères Recette](recette-finalisation-mvp.md).
+- **Transverse :** performance, accessibilité, compatibilité, obligations légales et tests réels à préciser selon déploiement.
 
 Aucune validation documentaire n'atteste l'exécution d'une recette ni n'autorise une diffusion.
 
