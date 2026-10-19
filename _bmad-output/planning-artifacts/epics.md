@@ -19,8 +19,8 @@ inputDocuments:
 ## Overview
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories de l'Epic 1 ont été validées globalement par l'utilisateur le même jour ; les Stories de l'Epic 2 ont été publiées sur Jira pour lecture et validation groupée.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
-**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe de toutes les Stories de l'Epic 2 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
-**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1 et 2 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
+**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles de l'Epic 3 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
+**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2 et 3 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
 
 ## Requirements Inventory
 
@@ -1329,6 +1329,7 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 
 ### Story 2.1: Consulter un journal fiable des opérations métier sensibles
 **Jira :** https://lmn24.atlassian.net/browse/SMN-29
+
 **En tant que** Administrateur SMN,
 **je veux** retrouver les modifications et décisions techniques importantes de mon installation,
 **afin de** pouvoir comprendre qui a fait quoi, quand et avec quel résultat.
@@ -1374,13 +1375,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : Epic 1 : comptes et sessions. Aucune Story ultérieure.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.2: Créer une sauvegarde manuelle complète de l'installation
 **Jira :** https://lmn24.atlassian.net/browse/SMN-30
+
 **En tant que** Administrateur,
 **je veux** déclencher une sauvegarde du carnet et de ses archives réellement stockées,
 **afin de** pouvoir retrouver l'état métier de SMN en cas d'incident.
@@ -1426,13 +1430,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : 2.1 pour audit ; uniquement données et fichiers déjà présents dans l'installation.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.3: Vérifier l'intégrité et l'inventaire d'une sauvegarde
 **Jira :** https://lmn24.atlassian.net/browse/SMN-31
+
 **En tant que** Administrateur,
 **je veux** consulter les sauvegardes disponibles et leur manifeste de cohérence,
 **afin de** identifier un jeu fiable avant toute restauration.
@@ -1478,13 +1485,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : 2.2.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.4: Configurer les 30 jours de conservation des sauvegardes gérées
 **Jira :** https://lmn24.atlassian.net/browse/SMN-32
+
 **En tant que** Administrateur,
 **je veux** régler et consulter la durée de conservation des sauvegardes gérées par SMN,
 **afin de** maîtriser le stockage et la confidentialité sans supprimer des archives métier.
@@ -1530,13 +1540,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : 2.3 et configuration Administrateur de l'Epic 1.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.5: Prévisualiser les effets et risques d'une restauration
 **Jira :** https://lmn24.atlassian.net/browse/SMN-33
+
 **En tant que** Administrateur,
 **je veux** examiner les données et fichiers que restaurer un jeu de sauvegarde affecterait,
 **afin de** décider en connaissance de cause avant une opération potentiellement destructive.
@@ -1582,13 +1595,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : 2.3, 2.4 et les contrôles de session Epic 1.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.6: Restaurer une sauvegarde de façon contrôlée et vérifiable
 **Jira :** https://lmn24.atlassian.net/browse/SMN-34
+
 **En tant que** Administrateur,
 **je veux** restaurer l'état complet d'une sauvegarde sélectionnée,
 **afin de** rétablir SMN sans casser les relations entre données et fichiers.
@@ -1634,13 +1650,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : 2.1, 2.2, 2.3 et 2.5 ; la protection vie privée de 2.12 renforcera ce flux sans en être un prérequis pour restaurer une installation jamais effacée.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.7: Préserver l'atomicité des opérations et l'immuabilité des archives
 **Jira :** https://lmn24.atlassian.net/browse/SMN-35
+
 **En tant que** Administrateur,
 **je veux** que les opérations critiques et leurs preuves restent cohérentes après une panne,
 **afin de** ne pas corrompre les données ou les archives du carnet.
@@ -1686,13 +1705,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : 2.1 et 2.2 ; mécanismes réutilisables, appliqués par chaque Epic métier au moment de livrer ses opérations.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.8: Distinguer archivage réversible et suppression ordinaire
 **Jira :** https://lmn24.atlassian.net/browse/SMN-36
+
 **En tant que** Administrateur,
 **je veux** archiver les objets éligibles ou refuser leur suppression lorsqu'un historique doit être conservé,
 **afin de** préserver la traçabilité sans confondre départ, archivage et effacement.
@@ -1738,13 +1760,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Dépendances sur capacités antérieures : 2.1 et le modèle d'installation/compte existant ; les membres Agile seront traités dans l'Epic 3 avec les mêmes garde-fous.
 * UX : écrans clairs et confirmations accessibles, états d'attente, refus autorisés et erreurs explicites ; deux profils MVP Administrateur et Utilisateur.
 * Référence officielle : PRD, annexe `securite-exploitation.md`, arbitrages `D-PRD-135`, architecture `SECURITE-EXPLOITATION.md` de la branche documentaire `docs/bmad-arbitrages-metier-valides-20261019`.
-* Revue : **proposition soumise à validation groupée de l'Epic 2** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
+* Revue : **validée globalement sans réserve le 19/10/2026** ; création Jira autorisée explicitement sans validation préalable le 19/10/2026 ; aucune implémentation ni vérification de conformité juridique réalisées.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.9: Réinitialiser une installation avec confirmation renforcée
 **Jira :** https://lmn24.atlassian.net/browse/SMN-37
+
 **En tant que** Administrateur,
 **je veux** réinitialiser explicitement l'installation après avoir mesuré les impacts,
 **afin de** repartir d'un état vierge sans supprimer involontairement des données.
@@ -1786,13 +1811,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * FR-69, FR-70, FR-73 ; AD-19/25/26/27/31 ; D-PRD-135 et annexe Sécurité du PRD.
 * Dépendances : Stories 2.1, 2.2 et 2.5 ; pas de Story future obligatoire.
 * Périmètre : MVP Scrum/Kanban ; seul l'Administrateur peut déclencher les actions destructives.
-* Revue : proposition soumise à validation groupée de l'Epic 2, sans tag « À relire » ; aucun développement n'est attesté.
+* Revue : validée globalement sans réserve le 19/10/2026, sans tag « À relire » ; aucun développement n'est attesté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.10: Prévisualiser une demande exceptionnelle d'effacement ou anonymisation
 **Jira :** https://lmn24.atlassian.net/browse/SMN-38
+
 **En tant que** Administrateur,
 **je veux** voir les conséquences d'une demande exceptionnelle d'effacement de données personnelles,
 **afin de** définir un traitement contrôlé avant toute destruction irréversible.
@@ -1834,13 +1862,16 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * FR-69, FR-70, FR-71 ; AD-19/25/26/27/31 ; D-PRD-135 et annexe Sécurité du PRD.
 * Dépendances : Stories 2.1 et 2.8 ; pas de Story future obligatoire.
 * Périmètre : MVP Scrum/Kanban ; seul l'Administrateur peut déclencher les actions destructives.
-* Revue : proposition soumise à validation groupée de l'Epic 2, sans tag « À relire » ; aucun développement n'est attesté.
+* Revue : validée globalement sans réserve le 19/10/2026, sans tag « À relire » ; aucun développement n'est attesté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.11: Appliquer un effacement ou une anonymisation exceptionnelle traçable
 **Jira :** https://lmn24.atlassian.net/browse/SMN-39
+
 **En tant que** Administrateur,
 **je veux** appliquer après confirmation un traitement exceptionnel d'effacement ou anonymisation,
 **afin de** réduire l'exposition des données personnelles sans altérer silencieusement l'historique.
@@ -1884,11 +1915,14 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Incréments : I0–I6, contrôle des sauvegardes et des reprises au pilote.
 * Revue : proposition soumise à validation groupée Epic 2. Aucun développement ni test attestés.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.12: Empêcher la réintroduction silencieuse après restauration de données effacées
 **Jira :** https://lmn24.atlassian.net/browse/SMN-40
+
 **En tant que** Administrateur,
 **je veux** bloquer le retour de données déjà effacées lors d'une restauration plus ancienne,
 **afin de** préserver les décisions de confidentialité après incident.
@@ -1932,11 +1966,14 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Incréments : I0–I6, contrôle des sauvegardes et des reprises au pilote.
 * Revue : proposition soumise à validation groupée Epic 2. Aucun développement ni test attestés.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 ### Story 2.13: Expliquer les interruptions et les résultats de récupération
 **Jira :** https://lmn24.atlassian.net/browse/SMN-41
+
 **En tant que** Administrateur,
 **je veux** comprendre les erreurs et le résultat réel des opérations de protection,
 **afin de** éviter les faux succès lors des incidents et relancer les traitements appropriés.
@@ -1981,5 +2018,1166 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 * Revue : proposition soumise à validation groupée Epic 2. Aucun développement ni test attestés.
 
 
-**Validation :** proposition publiée pour revue globale. Ne pas considérer comme fonctionnellement approuvée.
+**Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
+
+
+## Epic 3: Constituer ses équipes et fiabiliser leurs calendriers et capacités
+Configurer les membres, affectations, calendriers, absences et capacités sans saisie redondante.
+**FRs couvertes :** FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-61, FR-62.
+
+### Story 3.1: Créer rapidement les fiches des membres de l'équipe
+**Jira :** https://lmn24.atlassian.net/browse/SMN-42
+
+**En tant que** Scrum Master Administrateur,
+**je veux** définir rapidement l'effectif et créer les fiches provisoires d'une équipe Scrum ou Kanban,
+**afin de** obtenir une équipe de départ configurable en limitant la saisie.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une équipe Scrum ou Kanban vient d'être créée,
+**When** j'ouvre le parcours rapide de membres,
+**Then** l'effectif proposé est 3 et une saisie inférieure à 3 est refusée dans ce parcours, sans bloquer l'installation Express.
+
+#### AC2
+
+**Given** je demande la création de 5 membres,
+**When** je valide le formulaire,
+**Then** SMN crée 5 identités centrales distinctes avec noms provisoires identifiables et affectations initiales à cette équipe.
+
+#### AC3
+
+**Given** des membres sont créés par ordre,
+**When** les rôles initiaux sont proposés,
+**Then** les trois premiers sont Scrum Master, Product Owner, Développeur, puis tous les suivants Développeur.
+
+#### AC4
+
+**Given** les paramètres de pourcentage initiaux sont applicables,
+**When** les fiches provisoires sont initialisées,
+**Then** la proposition est 100 % par paramètre, sans supposer ni KPI de cycle ni capacité de développement pour un rôle sans part Développeur.
+
+#### AC5
+
+**Given** une erreur de création se produit,
+**When** le lot est confirmé,
+**Then** aucune fiche incohérente ni fausse capacité n'est déclarée créée ; la personne peut retenter.
+
+#### Traçabilité et dépendances
+
+* FR : FR-5, FR-7, FR-61.
+* Décisions et architecture : D-PRD-007/010/011/012 ; AD-12, AD-31.
+* Incréments : I1–I2 ; MVP Scrum/Kanban ; deux rôles Administrateur/Utilisateur.
+* Dépendances : Epic 1 : équipe et administrateur initialisés.
+* Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
+* **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.2: Compléter la fiche centrale du membre et son e-mail facultatif
+**Jira :** https://lmn24.atlassian.net/browse/SMN-43
+
+**En tant que** Scrum Master Administrateur,
+**je veux** compléter et corriger une fiche membre sans dupliquer les informations de la personne,
+**afin de** maintenir un référentiel unique même pour des personnes affectées à plusieurs équipes.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une fiche provisoire « Membre 2 » existe,
+**When** j'enregistre un nom réel,
+**Then** la fiche centrale est enrichie sans changer son identifiant ni ses affectations.
+
+#### AC2
+
+**Given** une fiche membre est créée ou modifiée,
+**When** je laisse l'adresse e-mail vide,
+**Then** l'enregistrement est autorisé sans compte de connexion applicatif ni messagerie automatique.
+
+#### AC3
+
+**Given** une adresse e-mail est saisie,
+**When** je confirme,
+**Then** le format est validé et l'information est rattachée à la fiche centrale, pas dupliquée par équipe.
+
+#### AC4
+
+**Given** un Utilisateur ouvre la même équipe,
+**When** il demande un champ e-mail ou une donnée personnelle,
+**Then** le serveur refuse l'accès aux données individuelles ; seule une synthèse collective autorisée est visible.
+
+#### AC5
+
+**Given** une fiche membre est enrichie,
+**When** je reviens sur un autre écran,
+**Then** les champs provisoires et confirmés demeurent distincts et aucune valeur fictive de capacité n'est produite.
+
+#### Traçabilité et dépendances
+
+* FR : FR-5, FR-6, FR-61.
+* Décisions et architecture : D-PRD-007/008/009 ; AD-12/19/31.
+* Incréments : I1–I2 ; MVP Scrum/Kanban ; deux rôles Administrateur/Utilisateur.
+* Dépendances : Story 3.1.
+* Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
+* **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.3: Affecter un membre à plusieurs équipes avec dates et rôles Agile
+**Jira :** https://lmn24.atlassian.net/browse/SMN-44
+
+**En tant que** Scrum Master Administrateur,
+**je veux** gérer les affectations et les parts de rôles dans chaque équipe,
+**afin de** suivre les contributions réelles sans dépasser le temps contractuel disponible.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un membre appartient à une équipe,
+**When** je l'affecte aussi à une deuxième équipe,
+**Then** une affectation datée distincte est créée sans dupliquer la fiche centrale ni imposer la même date d'arrivée.
+
+#### AC2
+
+**Given** une affectation à 100 % existe sur une période,
+**When** je tente d'en ajouter une autre à 100 % sur les mêmes jours,
+**Then** la somme dépassant 100 % du temps contractuel est refusée avant persistance.
+
+#### AC3
+
+**Given** un membre occupe deux rôles Agile dans une équipe,
+**When** je répartis leurs parts,
+**Then** le total des rôles dans cette affectation vaut 100 %, les parts restent éditables et le coefficient de contribution reste indépendant.
+
+#### AC4
+
+**Given** un membre exerce uniquement Scrum Master ou Product Owner,
+**When** une capacité Développeur est préparée,
+**Then** ces parts sans rôle Développeur n'ajoutent aucune capacité de développement.
+
+#### AC5
+
+**Given** une correction de rôle ou de taux entre en vigueur à une date,
+**When** je confirme,
+**Then** l'historique daté est conservé et les périodes précédentes ne sont pas silencieusement réécrites.
+
+#### Traçabilité et dépendances
+
+* FR : FR-4, FR-5, FR-7, FR-61.
+* Décisions et architecture : F-26–34, F-58–63 ; D-PRD-009/010/011 ; AD-12/16/19.
+* Incréments : I1–I2 ; MVP Scrum/Kanban ; deux rôles Administrateur/Utilisateur.
+* Dépendances : Stories 3.1 et 3.2.
+* Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
+* **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.4: Clore une affectation et conserver les membres archivés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-45
+
+**En tant que** Scrum Master Administrateur,
+**je veux** terminer la participation d'un membre ou archiver sa fiche en préservant son historique,
+**afin de** garder une composition d'équipe fiable au fil des départs.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un membre a plusieurs affectations,
+**When** je fixe la fin de son affectation à l'équipe A,
+**Then** l'affectation A se termine à date réelle, sans modifier l'équipe B ni les données historiques.
+
+#### AC2
+
+**Given** un départ fait passer une équipe à deux personnes,
+**When** je confirme le départ,
+**Then** l'affectation est enregistrée et une alerte non bloquante apparaît ; aucun membre de remplacement n'est créé.
+
+#### AC3
+
+**Given** un membre historisé n'est plus actif,
+**When** je demande son archivage puis sa réactivation,
+**Then** les identifiants, historiques, dates, absences et capacités restent disponibles et sa fiche redevient active sans duplication.
+
+#### AC4
+
+**Given** une fiche ne comporte aucune donnée métier ni historique à préserver,
+**When** je demande sa suppression après analyse d'impact,
+**Then** une confirmation est demandée et la suppression autorisée n'entraîne pas de cascade historique.
+
+#### AC5
+
+**Given** une fiche possède des références historiques,
+**When** je demande la suppression définitive,
+**Then** la suppression est refusée avec explication et propositions de fin d'affectation ou archivage.
+
+#### Traçabilité et dépendances
+
+* FR : FR-4, FR-7.
+* Décisions et architecture : D-PRD-006/012/135 ; AD-12/19/31 ; SEC-04.
+* Incréments : I1–I2 ; MVP Scrum/Kanban ; deux rôles Administrateur/Utilisateur.
+* Dépendances : Stories 3.1 à 3.3 ; règles communes d'archivage Epic 2.
+* Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
+* **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.5: Personnaliser le calendrier hebdomadaire individuel
+**Jira :** https://lmn24.atlassian.net/browse/SMN-46
+
+**En tant que** Scrum Master Administrateur,
+**je veux** configurer jours travaillés, demi-journées et exceptions de chaque membre,
+**afin de** disposer d'une base de disponibilité réaliste pour toutes ses équipes.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une fiche membre vient d'être créée,
+**When** j'ouvre le calendrier individuel,
+**Then** le lundi au vendredi sont proposés travaillés, samedi et dimanche non travaillés ; le taux contractuel reste une donnée distincte.
+
+#### AC2
+
+**Given** un membre ne travaille qu'une demi-journée certains jours,
+**When** je personnalise son modèle,
+**Then** les demi-journées et jours chômés sont sauvegardés selon les dates d'effet et réutilisables pour les calculs.
+
+#### AC3
+
+**Given** un membre appartient à plusieurs équipes,
+**When** je modifie sa disponibilité centrale,
+**Then** les affectations concernées peuvent utiliser la même source de calendrier selon leurs dates sans duplication de fiche.
+
+#### AC4
+
+**Given** un changement de modèle entre en vigueur plus tard,
+**When** je le confirme,
+**Then** l'ancien calendrier daté est préservé ; les capacités historiques figées ne sont pas recalculées rétroactivement.
+
+#### AC5
+
+**Given** une donnée est manquante,
+**When** j'affiche la disponibilité,
+**Then** le manque est explicite ; aucun jour d'absence ou capacité nul n'est inventé.
+
+#### Traçabilité et dépendances
+
+* FR : FR-8, FR-61.
+* Décisions et architecture : D-PRD-013 ; AD-12/14/16.
+* Incréments : I1–I2 ; MVP Scrum/Kanban ; deux rôles Administrateur/Utilisateur.
+* Dépendances : Story 3.1, éventuellement 3.3 pour l'effet des équipes.
+* Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
+* **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.6: Localiser un membre par pays et fuseau horaire
+**Jira :** https://lmn24.atlassian.net/browse/SMN-47
+
+**En tant que** Scrum Master Administrateur,
+**je veux** indiquer pays, région, ville et fuseau de chaque membre,
+**afin de** adapter les calendriers et les horaires sans confondre langue et pays.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un pays de référence est configuré pour l'installation,
+**When** un nouveau membre est créé,
+**Then** le pays proposé reprend la référence installée sans rendre ce champ obligatoire en parcours Express.
+
+#### AC2
+
+**Given** un membre habite dans un autre pays,
+**When** je modifie pays, ville/région ou zone IANA,
+**Then** sa localisation change individuellement et n'altère ni la langue d'interface ni celle des autres personnes.
+
+#### AC3
+
+**Given** des événements sont affichés pour un membre,
+**When** son fuseau IANA est appliqué,
+**Then** les heures sont converties correctement, y compris lors des changements d'heure, sans changer l'instant réel.
+
+#### AC4
+
+**Given** la localisation a changé à une date d'effet,
+**When** j'ouvre une période passée,
+**Then** les règles applicables historiquement demeurent reconstructibles sans utiliser silencieusement la localisation actuelle.
+
+#### AC5
+
+**Given** un membre est localisé dans une région particulière,
+**When** je consulte les jours non travaillés,
+**Then** seul le calendrier national du pays est automatique ; les particularités régionales sont des absences individuelles, sans calendrier régional automatique MVP.
+
+#### Traçabilité et dépendances
+
+* FR : FR-9, FR-8, FR-61.
+* Décisions et architecture : D-PRD-014/021 ; AD-12/14/31.
+* Incréments : I1–I2 ; MVP Scrum/Kanban ; deux rôles Administrateur/Utilisateur.
+* Dépendances : Stories 3.1 et 3.2 ; le pays et la zone IANA sont enregistrables individuellement avec validation de code même avant la livraison du catalogue administrable de Story 3.7. Celle-ci réutilisera ensuite le champ pays existant.
+* Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
+* **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.7: Administrer le catalogue des sept pays initiaux
+**Jira :** https://lmn24.atlassian.net/browse/SMN-48
+
+**En tant que** Administrateur,
+**je veux** consulter et enrichir la liste des pays proposés dans SMN,
+**afin de** configurer des équipes internationales sans modifier le code.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une installation vient d'être créée,
+**When** j'ouvre le catalogue des pays,
+**Then** France, Allemagne, Royaume-Uni, Espagne, Portugal, Italie et Canada sont présents et distinguables.
+
+#### AC2
+
+**Given** un pays non proposé doit être suivi,
+**When** je crée son entrée avec un code et un nom valides,
+**Then** le pays devient sélectionnable sans fichier jour férié obligatoire.
+
+#### AC3
+
+**Given** une entrée existe déjà avec le même code,
+**When** j'essaie de l'ajouter à nouveau,
+**Then** la création est rejetée sans doublon.
+
+#### AC4
+
+**Given** un Utilisateur sollicite l'administration des pays,
+**When** il tente une écriture directe,
+**Then** la mutation est refusée côté serveur.
+
+#### AC5
+
+**Given** un pays ne dispose pas de calendrier national,
+**When** je consulte ses disponibilités calendaires,
+**Then** l'absence de données fériées est indiquée « non configuré », jamais équivalente à aucun jour férié.
+
+#### Traçabilité
+
+* FR : FR-9, FR-10.
+* Architecture : D-PRD-015/018 ; AD-12/31.
+* Dépendances : Epic 1 (paramètres). Le catalogue est indépendant des calendriers et utilisable sans eux.
+* MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
+* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.8: Précharger les calendriers nationaux disponibles à l'installation
+**Jira :** https://lmn24.atlassian.net/browse/SMN-49
+
+**En tant que** Administrateur,
+**je veux** importer automatiquement les fichiers de jours fériés nationaux fournis avec SMN,
+**afin de** démarrer le suivi des disponibilités sans importer manuellement les dates connues.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une installation connaît son pays de référence,
+**When** l'initialisation du catalogue férié démarre,
+**Then** SMN recherche localement les fichiers fournis pour ce pays, sans accès à un service externe.
+
+#### AC2
+
+**Given** un des calendriers préchargés pour France, Allemagne ou Royaume-Uni est disponible,
+**When** son jeu est chargé,
+**Then** la couverture livrée porte sur N-2, N-1, N et N+1 par rapport à l'année d'installation et chaque date porte un nom non vide.
+
+#### AC3
+
+**Given** le même préchargement est relancé,
+**When** les données sont déjà présentes,
+**Then** l'import est idempotent, sans création de doublons.
+
+#### AC4
+
+**Given** le pays ou l'année n'a aucun fichier fourni,
+**When** l'initialisation se termine,
+**Then** elle reste possible et un état de couverture non configurée est visible.
+
+#### AC5
+
+**Given** une date nationale fournie est incohérente,
+**When** le fichier est validé,
+**Then** les entrées invalides ne sont pas inscrites silencieusement et le résultat peut être diagnostiqué.
+
+#### Traçabilité
+
+* FR : FR-10, FR-61.
+* Architecture : D-PRD-019/020/022/023 ; AD-12/16.
+* Dépendances : Story 3.7 ; mécanisme de validation des jours intégré à la Story.
+* MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
+* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.9: Importer des jours fériés nationaux à partir d'un CSV
+**Jira :** https://lmn24.atlassian.net/browse/SMN-50
+
+**En tant que** Administrateur,
+**je veux** importer et contrôler un fichier CSV de jours fériés pour un pays et des années libres,
+**afin de** compléter les calendriers manquants y compris historiques.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un pays est choisi et un fichier CSV au schéma SMN est fourni,
+**When** je lance une prévisualisation,
+**Then** SMN indique les dates, noms, doublons et lignes invalides en distinguant les entrées proposées et rejetées.
+
+#### AC2
+
+**Given** un CSV fournit des années antérieures à N-2 ou futures au-delà de N+1,
+**When** les dates sont valides,
+**Then** l'import n'est pas artificiellement limité à quatre ans.
+
+#### AC3
+
+**Given** une ligne a une date ou un nom vide, ou le pays est incohérent,
+**When** la validation s'exécute,
+**Then** la ligne est signalée et aucune valeur inventée n'est inscrite.
+
+#### AC4
+
+**Given** l'Administrateur confirme après l'aperçu,
+**When** les enregistrements admissibles sont persistés selon une politique de conflits explicite,
+**Then** le résultat détaille acceptés/refusés sans mélanger les jours de deux pays.
+
+#### AC5
+
+**Given** un import corrige des jours historiques,
+**When** la correction est enregistrée,
+**Then** la trace conserve la modification sans recalcul silencieux des capacités initiales figées ou PDF anciens.
+
+#### Traçabilité
+
+* FR : FR-10.
+* Architecture : D-PRD-017/020/022 ; AD-12/16/19.
+* Dépendances : Stories 3.7 et 3.8 ; réutilise l'entité calendrier national déjà créée.
+* MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
+* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.10: Importer et sélectionner des jours fériés nationaux depuis un fichier ICS
+**Jira :** https://lmn24.atlassian.net/browse/SMN-51
+
+**En tant que** Administrateur,
+**je veux** extraire des jours fériés depuis un fichier iCalendar après avoir choisi les événements pertinents,
+**afin de** réutiliser des calendriers extérieurs sans considérer chaque événement comme un jour non travaillé.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un fichier ICS est téléversé pour un pays choisi,
+**When** je demande sa lecture,
+**Then** SMN affiche les événements et leurs dates/noms normalisés sans insérer automatiquement de jour férié.
+
+#### AC2
+
+**Given** le fichier contient des réunions ou vacances qui ne sont pas des jours fériés,
+**When** je prévisualise,
+**Then** je peux retenir uniquement les événements voulus et rejeter les autres.
+
+#### AC3
+
+**Given** un événement sur plusieurs jours, avec récurrence ou fuseau, n'est pas interprétable sans ambiguïté,
+**When** l'import l'analyse,
+**Then** il est signalé comme nécessitant traitement ou refusé explicitement, sans inventer une date nationale.
+
+#### AC4
+
+**Given** je confirme la sélection d'événements valides,
+**When** l'import est exécuté,
+**Then** les dates sont associées au seul pays demandé, vérifiées contre les doublons et un bilan d'acceptation est rendu.
+
+#### AC5
+
+**Given** je renseigne une URL d'abonnement ICS,
+**When** je cherche une synchronisation permanente,
+**Then** le MVP ne crée aucun abonnement ni synchronisation automatique : seul le fichier local importé est accepté.
+
+#### Traçabilité
+
+* FR : FR-10.
+* Architecture : D-PRD-017/020/021 ; AD-12/14/16/19.
+* Dépendances : Stories 3.7 et 3.9 ; partage stockage et règles de validation avec CSV.
+* MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
+* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.11: Administrer les catégories et couleurs des absences
+**Jira :** https://lmn24.atlassian.net/browse/SMN-52
+
+**En tant que** Administrateur,
+**je veux** personnaliser les catégories d'absence sans perdre les références passées,
+**afin de** identifier visuellement les indisponibilités dans les calendriers.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** l'installation est active,
+**When** j'ouvre le catalogue de catégories,
+**Then** Congés, Formation, Maladie et Autre sont présents avec une couleur chacun.
+
+#### AC2
+
+**Given** je crée ou modifie une catégorie,
+**When** j'enregistre nom et couleur valides,
+**Then** les deux valeurs sont requises et la catégorie devient sélectionnable pour les absences nouvelles.
+
+#### AC3
+
+**Given** une catégorie utilisée est renommée ou recolorée,
+**When** les calendriers dynamiques sont consultés,
+**Then** le nouveau nom/couleur apparaît aussi pour les périodes anciennes, sans modifier le motif de chaque absence ni les PDF déjà archivés.
+
+#### AC4
+
+**Given** une catégorie utilisée est désactivée,
+**When** une nouvelle absence est créée,
+**Then** la catégorie n'est plus sélectionnable mais reste lisible sur les enregistrements anciens.
+
+#### AC5
+
+**Given** une catégorie utilisée est supprimée définitivement ou un libellé médical détaillé est sollicité,
+**When** l'action est soumise,
+**Then** la référence historique ne peut être détruite et le formulaire Maladie ne demande pas de diagnostic médical.
+
+#### Traçabilité
+
+* FR : FR-13.
+* Architecture : D-PRD-027/028/029/030 ; AD-12/19/31.
+* Dépendances : Epic 1 paramètres et conformité d'administration. Utilisable avant toute absence.
+* MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
+* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.12: Enregistrer et modifier une absence individuelle centralisée
+**Jira :** https://lmn24.atlassian.net/browse/SMN-53
+
+**En tant que** Administrateur,
+**je veux** créer et corriger les absences d'une personne avec dates, demi-journées, catégorie et motif,
+**afin de** déduire une fois la disponibilité sans dupliquer l'information entre équipes.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une fiche membre est disponible,
+**When** j'enregistre une absence depuis son calendrier,
+**Then** une seule fiche centrale avec dates ou demi-journées, catégorie, caractère prévu/imprévu et nom/motif non vide est persistée.
+
+#### AC2
+
+**Given** le nom/motif ou la catégorie manque,
+**When** j'essaie de sauvegarder,
+**Then** l'enregistrement est refusé avec erreur compréhensible, même pour une absence passée.
+
+#### AC3
+
+**Given** un membre possède deux affectations,
+**When** une absence est enregistrée puis consultée,
+**Then** l'indisponibilité est unique et réutilisable selon chaque équipe et période concernées, sans copies par équipe.
+
+#### AC4
+
+**Given** une absence est modifiée depuis la fiche membre,
+**When** je rouvre son calendrier,
+**Then** la catégorie et le nom/motif actualisés sont visibles avec une indication textuelle en plus de la couleur.
+
+#### AC5
+
+**Given** une absence est saisie ou corrigée a posteriori,
+**When** elle a une incidence sur une période clôturée,
+**Then** le changement est tracé sans modifier la capacité initiale figée ni les rapports archivés ; aucune alerte collective ni suppression de Daily n'est déclenchée par cette seule absence.
+
+#### Traçabilité
+
+* FR : FR-11, FR-12, FR-13.
+* Architecture : D-PRD-024/026/027 ; AD-12/14/16/19/31.
+* Dépendances : Stories 3.2, 3.5 et 3.11 ; l'accès par calendrier d'équipe sera livré en 3.14.
+* MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
+* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.13: Traiter les particularités régionales comme absences individuelles
+**Jira :** https://lmn24.atlassian.net/browse/SMN-54
+
+**En tant que** Administrateur,
+**je veux** représenter un jour régional non travaillé comme une absence d'un membre,
+**afin de** prendre en compte des règles locales sans administrer un catalogue férié régional.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une région a une journée non travaillée absente des jours fériés nationaux,
+**When** je crée une absence du membre,
+**Then** elle comporte sa période, une catégorie et un nom/motif non vide, comme toute absence individuelle.
+
+#### AC2
+
+**Given** cette date coïncide avec un jour férié national ou une absence déjà enregistrée,
+**When** les disponibilités sont calculées,
+**Then** la journée n'est déduite qu'une fois de la capacité.
+
+#### AC3
+
+**Given** un membre est affecté à plusieurs équipes,
+**When** le jour régional est enregistré,
+**Then** la même fiche d'absence centrale est prise en compte pour toutes les affectations applicables.
+
+#### AC4
+
+**Given** l'absence régionale est affichée,
+**When** un calendrier d'équipe est ouvert,
+**Then** son nom/motif et sa catégorie restent identifiables sans la seule couleur, selon les droits.
+
+#### AC5
+
+**Given** cette absence régionale est saisie,
+**When** des cérémonies collectives sont planifiées,
+**Then** aucune alerte collective ni suppression de Daily n'est générée du seul fait de cette absence.
+
+#### Traçabilité
+
+* FR : FR-11, FR-12.
+* Architecture/décisions : D-PRD-021/026/027 ; AD-12/16.
+* Dépendances : 3.6, 3.11 et 3.12.
+* MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
+* **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.14: Consulter le calendrier d'équipe et les absences selon les droits
+**Jira :** https://lmn24.atlassian.net/browse/SMN-55
+
+**En tant que** Administrateur et Utilisateur autorisé,
+**je veux** consulter les disponibilités et créer une absence depuis le calendrier d'équipe lorsque je suis Administrateur,
+**afin de** partager la visibilité sans multiplier les fiches d'absence.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** des membres sont affectés à une équipe,
+**When** un Administrateur consulte leur calendrier,
+**Then** il voit les absences autorisées avec nom/motif, catégorie et repère coloré doublé d'un texte.
+
+#### AC2
+
+**Given** l'Administrateur sélectionne un membre puis ajoute une absence,
+**When** il valide,
+**Then** la fiche créée est celle du membre central et se retrouve immédiatement depuis sa fiche personnelle et toute autre équipe concernée.
+
+#### AC3
+
+**Given** un même enregistrement d'absence est modifié depuis le calendrier d'équipe,
+**When** le calendrier personnel est rechargé,
+**Then** les mêmes valeurs actualisées apparaissent sans doublon.
+
+#### AC4
+
+**Given** un Utilisateur ouvre le calendrier collectif,
+**When** des données individuelles sensibles existent,
+**Then** il reçoit seulement la vue collective autorisée, sans motif ou détail nominatif sensible ni droit de modifier.
+
+#### AC5
+
+**Given** des filtres équipe, période, type ou membre autorisé existent,
+**When** une sélection est appliquée,
+**Then** le résultat est filtré sans altération de dates et sans produire de nouvel événement métier.
+
+#### Traçabilité
+
+* FR : FR-12, FR-62, FR-13.
+* Architecture/décisions : D-PRD-024/027 ; AD-14/16/31.
+* Dépendances : 3.3, 3.11, 3.12. Calendrier d'équipe utilisable avant les cycles de l'Epic 4.
+* MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
+* **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.15: Administrer les jours de fermeture de l'entreprise
+**Jira :** https://lmn24.atlassian.net/browse/SMN-56
+
+**En tant que** Administrateur,
+**je veux** renseigner les fermetures collectives indépendamment des jours fériés et absences individuelles,
+**afin de** calculer une disponibilité d'équipe fiable sans multiplier les absences.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un jour férié national, une absence individuelle et une fermeture d'entreprise peuvent coïncider,
+**When** je crée une fermeture datée,
+**Then** la fermeture constitue une entité distincte du catalogue national et des absences.
+
+#### AC2
+
+**Given** une fermeture applicable est enregistrée,
+**When** les disponibilités d'un membre concerné sont calculées,
+**Then** l'indisponibilité est déduite une seule fois même si plusieurs sources se superposent.
+
+#### AC3
+
+**Given** des équipes sont concernées par la fermeture,
+**When** le calendrier autorisé est consulté,
+**Then** l'événement collectif est identifiable, sans créer une absence nominative pour chaque membre.
+
+#### AC4
+
+**Given** une fermeture est corrigée à effet daté,
+**When** je consulte une période passée clôturée,
+**Then** le cliché historique de capacité et les PDF anciens ne sont pas recalculés silencieusement.
+
+#### AC5
+
+**Given** une fermeture concerne une date invalide,
+**When** je tente d'enregistrer,
+**Then** la requête échoue explicitement sans altérer le calendrier.
+
+#### Traçabilité
+
+* FR : FR-8, FR-10, FR-14, FR-62.
+* Architecture/décisions : F-36 ; AD-12/14/16 ; D-PRD-013.
+* Dépendances : 3.5 et 3.8 ; entité fermeture autonome.
+* MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
+* **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.16: Calculer une capacité de développement fiable en jours-homme
+**Jira :** https://lmn24.atlassian.net/browse/SMN-57
+
+**En tant que** Scrum Master Administrateur,
+**je veux** obtenir la référence de capacité d'une période à partir des disponibilités et affectations,
+**afin de** éviter les additions manuelles et les doubles déductions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une fenêtre de dates est sélectionnée avec données suffisantes,
+**When** je demande la référence calculée,
+**Then** SMN agrège en JH disponibilité × affectation × part Développeur × coefficient de contribution, avec paramètre heures/JH configurable (8 par défaut).
+
+#### AC2
+
+**Given** un membre a 100 % de part Product Owner sans activité Développeur,
+**When** le calcul est exécuté,
+**Then** sa contribution de développement est nulle sans fabriquer d'indicateur de Sprint/Kanban.
+
+#### AC3
+
+**Given** un jour est à la fois férié, fermé et couvert par une absence,
+**When** la capacité est calculée,
+**Then** cette période d'indisponibilité n'est déduite qu'une fois.
+
+#### AC4
+
+**Given** des calendriers ou affectations historiques sont absents,
+**When** le calcul est sollicité,
+**Then** la valeur est « Non calculable/Non renseigné » avec origine des données manquantes, jamais zéro fictif.
+
+#### AC5
+
+**Given** une demi-journée et un changement d'affectation daté existent,
+**When** le calcul est exécuté,
+**Then** les durées et taux applicables à chaque sous-période sont respectés, sans conversion de Story Points en JH.
+
+#### Traçabilité
+
+* FR : FR-14, FR-8, FR-9, FR-10, FR-61.
+* Architecture/décisions : D-PRD-031/033 ; AD-11/12/14/16/19.
+* Dépendances : 3.3, 3.5, 3.7–3.15. Moteur autonome par fenêtre temporelle, sans dépendre d'une future création de Sprint.
+* MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
+* **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.17: Arbitrer une capacité manuelle prioritaire face à la référence calculée
+**Jira :** https://lmn24.atlassian.net/browse/SMN-58
+
+**En tant que** Scrum Master Administrateur,
+**je veux** saisir ou effacer une valeur de capacité en JH en gardant la référence calculée visible,
+**afin de** conserver la maîtrise des données métier sans perdre la traçabilité.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une référence calculée de 30 JH est disponible,
+**When** je saisis manuellement 32 JH,
+**Then** la valeur retenue reste 32 JH, la référence calculée 30 JH reste affichée et la provenance « Saisie » est mémorisée.
+
+#### AC2
+
+**Given** une absence tardive fait recalculer la référence à 28 JH,
+**When** la période est consultée,
+**Then** la saisie manuelle de 32 JH n'est pas remplacée.
+
+#### AC3
+
+**Given** la valeur manuelle 0 JH est saisie explicitement,
+**When** j'enregistre,
+**Then** le zéro est considéré comme une valeur valide et distinct d'un champ vide.
+
+#### AC4
+
+**Given** une valeur saisie existe,
+**When** je l'efface volontairement et un calcul fiable est disponible,
+**Then** SMN rétablit le mode Calcul comme valeur retenue, avec historique du changement.
+
+#### AC5
+
+**Given** une période est clôturée ou la capacité initiale figée,
+**When** je tente de remplacer la valeur manuelle,
+**Then** la correction nécessite la procédure de réouverture ou d'ajustement historique autorisée, sans réécriture directe.
+
+#### Traçabilité
+
+* FR : FR-14, FR-61.
+* Architecture/décisions : D-PRD-033/034 ; AD-16/19.
+* Dépendances : 3.16 et Epic 1 protection des écritures.
+* MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
+* **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.18: Figer la capacité initiale à l'ouverture effective d'une période
+**Jira :** https://lmn24.atlassian.net/browse/SMN-59
+
+**En tant que** Scrum Master Administrateur,
+**je veux** conserver la capacité initialement retenue à l'ouverture réelle de la période,
+**afin de** comparer ensuite le prévisionnel à la réalité sans reconstitution trompeuse.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période de référence n'a pas encore été ouverte,
+**When** je consulte sa date théorique,
+**Then** aucun cliché n'est créé par la simple lecture de sa date.
+
+#### AC2
+
+**Given** un événement métier d'ouverture effective est déclenché une première fois,
+**When** le service de capacité le traite,
+**Then** la valeur manuelle retenue ou à défaut calculée fiable est figée automatiquement avec date réelle d'ouverture et provenance.
+
+#### AC3
+
+**Given** une absence est saisie après l'ouverture, même qualifiée ensuite Prévue,
+**When** la capacité recalculée évolue,
+**Then** le cliché initial reste identique et consultable.
+
+#### AC4
+
+**Given** un traitement d'ouverture est rejoué au redémarrage,
+**When** le service l'exécute,
+**Then** l'opération est idempotente, sans second cliché ni donnée postérieure reconstituée comme connue initialement.
+
+#### AC5
+
+**Given** une période entièrement passée est créée rétrospectivement,
+**When** la source initiale manque,
+**Then** aucune capacité initiale prétendument connue n'est reconstruite automatiquement ; l'état non renseigné ou estimé est respecté.
+
+#### Traçabilité
+
+* FR : FR-14.
+* Architecture/décisions : D-PRD-031–035 ; D-PRD-130/A2 ; AD-11/16/19/20.
+* Dépendances : 3.16 et 3.17 ; événement d'ouverture métier générique testable sans dépendre des Epics 4 ou 7, qui le déclencheront.
+* MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
+* **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.19: Calculer la capacité réellement constatée selon le statut de période
+**Jira :** https://lmn24.atlassian.net/browse/SMN-60
+
+**En tant que** Scrum Master Administrateur,
+**je veux** voir la capacité réellement constatée séparément de l'engagement initial,
+**afin de** identifier les écarts sans attribuer une performance à une personne.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** la période est À venir,
+**When** une capacité réelle est demandée,
+**Then** SMN ne présente aucun réalisé fictif et n'extrapole pas un temps futur.
+
+#### AC2
+
+**Given** la période est En cours et des données de disponibilité réelles sont connues,
+**When** le suivi est consulté,
+**Then** la référence constatée reflète les données effectives disponibles à cet instant sans présumer de journées futures.
+
+#### AC3
+
+**Given** la période est Terminée non Clôturée,
+**When** le calcul de réalisé est demandé,
+**Then** la référence peut être réévaluée sur la période achevée et l'écart est affiché seulement si les deux termes sont connus.
+
+#### AC4
+
+**Given** une valeur réelle a été saisie manuellement,
+**When** la référence calculée change,
+**Then** la valeur manuelle reste retenue, y compris le zéro explicitement saisi.
+
+#### AC5
+
+**Given** la période est Clôturée,
+**When** un recalcul est déclenché,
+**Then** la capacité conservée n'est pas modifiée sans réouverture autorisée ni nouvel instantané ; les PDF historiques restent figés.
+
+#### Traçabilité et dépendances
+
+* FR : FR-14.
+* Décisions : D-PRD-114/115 ; AD-11/16/19/20.
+* Dépendances : 3.16, 3.17 et 3.18 ; testé sur un statut métier de période, repris ensuite par les cycles Scrum/Kanban.
+* MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
+* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.20: Qualifier la fiabilité des capacités historiques sans créer de faux zéros
+**Jira :** https://lmn24.atlassian.net/browse/SMN-61
+
+**En tant que** Scrum Master Administrateur,
+**je veux** renseigner la qualité connue, estimée ou non renseignée d'une capacité passée,
+**afin de** comparer des périodes avec des données honnêtement qualifiées.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période historique est créée après sa fin,
+**When** une capacité initiale n'a pas été retrouvée,
+**Then** SMN conserve « Non renseignée » et ne reconstruit pas fictivement l'état à l'ouverture.
+
+#### AC2
+
+**Given** une valeur historique réellement sourcée est saisie,
+**When** je choisis Connue,
+**Then** sa provenance et son niveau de qualité sont mémorisés distinctement du mode Calcul/Saisie.
+
+#### AC3
+
+**Given** une capacité est reconstituée à partir de données partielles,
+**When** je choisis Estimée,
+**Then** elle reste signalée comme estimation même si la valeur en JH est calculable.
+
+#### AC4
+
+**Given** une capacité prévue est inconnue mais la capacité réelle est mesurée,
+**When** je consulte la période,
+**Then** la capacité réelle peut exister indépendamment, aucun écart numérique trompeur n'est inventé.
+
+#### AC5
+
+**Given** une correction d'estimation est enregistrée,
+**When** une vue historique est rechargée,
+**Then** l'évolution et sa source sont traçables ; les clichés et exports déjà produits ne sont pas réécrits.
+
+#### Traçabilité et dépendances
+
+* FR : FR-14, FR-61.
+* Décisions : D-PRD-130/A2 ; D-PRD-032/033 ; AD-11/16/19.
+* Dépendances : 3.16 et 3.17 ; la création de Sprint historique relève de l'Epic 8.
+* MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
+* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.21: Prévisualiser les effets d'une replanification sur les références de capacité
+**Jira :** https://lmn24.atlassian.net/browse/SMN-62
+
+**En tant que** Scrum Master Administrateur,
+**je veux** connaître les changements de capacité avant de modifier les bornes d'un cycle,
+**afin de** replanifier sans effacer des valeurs manuelles ou des références historiques.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une période existante possède des dates et des données de capacité,
+**When** je propose de nouvelles bornes,
+**Then** SMN calcule et présente les références Avant/Après et écarts JH s'ils sont fiables.
+
+#### AC2
+
+**Given** la capacité initiale a été figée,
+**When** je change les dates proposées,
+**Then** la valeur initiale figée reste inchangée ; les références recalculées sont seulement des propositions.
+
+#### AC3
+
+**Given** des valeurs prévues ou réelles ont été saisies manuellement,
+**When** une replanification est confirmée,
+**Then** leurs valeurs retenues ne sont pas remplacées par des références calculées.
+
+#### AC4
+
+**Given** une période est clôturée,
+**When** une replanification est soumise,
+**Then** l'opération est bloquée jusqu'à une réouverture autorisée et conserve les archives PDF existantes.
+
+#### AC5
+
+**Given** les données nécessaires au calcul manquent ou une erreur se produit,
+**When** une replanification est prévisualisée,
+**Then** les références sont « Non calculable » sans faux zéro, et le résultat n'est pas déclaré sauvegardé avant confirmation atomique.
+
+#### Traçabilité et dépendances
+
+* FR : FR-14.
+* Décisions : D-PRD-114/115 ; AD-17/18/19/20.
+* Dépendances : 3.16 à 3.20 ; cas de test autonome de période datée ; branchement aux cycles dans Epic 4/7.
+* MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
+* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.22: Préremplir les formulaires membres et calendriers sans écraser les choix
+**Jira :** https://lmn24.atlassian.net/browse/SMN-63
+
+**En tant que** Scrum Master Administrateur,
+**je veux** réutiliser les valeurs déjà connues dans les formulaires de l'équipe,
+**afin de** réduire les saisies en préservant la distinction entre valeurs sources et suggestions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** le pays de l'installation, le nom d'équipe et les réglages sont connus,
+**When** je crée une fiche,
+**Then** les champs modifiables reprennent les bonnes valeurs de contexte sans devenir obligatoires artificiellement.
+
+#### AC2
+
+**Given** un champ KPI, une absence, une capacité ou une date est inconnue,
+**When** j'ouvre un formulaire,
+**Then** aucun zéro, absence ou événement n'est inventé pour remplir le vide.
+
+#### AC3
+
+**Given** une saisie manuelle enregistrée existe avec un calcul distinct,
+**When** les paramètres évoluent,
+**Then** la référence calculée peut se mettre à jour sans écraser la saisie prioritaire.
+
+#### AC4
+
+**Given** une fiche provisoire attend des données facultatives,
+**When** je navigue vers un autre écran,
+**Then** la configuration incomplète ne bloque pas l'usage courant et reste explicite.
+
+#### AC5
+
+**Given** une opération nécessite confirmation formelle (import, lot ou correction historique),
+**When** j'affiche la prévisualisation,
+**Then** aucune écriture n'est déclenchée par le seul préremplissage.
+
+#### Traçabilité et dépendances
+
+* FR : FR-61, FR-5, FR-8, FR-9, FR-14.
+* Décisions : UX-04 ; AD-12/16/19.
+* Dépendances : Stories 3.1 à 3.21 ; composants réutilisables par les fonctionnalités existantes.
+* MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
+* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+
+### Story 3.23: Afficher cycles, événements et absences dans un calendrier central partagé
+**Jira :** https://lmn24.atlassian.net/browse/SMN-64
+
+**En tant que** Administrateur ou Utilisateur autorisé,
+**je veux** consulter dans une vue commune les cycles, réunions et indisponibilités disponibles,
+**afin de** préparer les activités sans perdre le contexte ni modifier les données par inadvertance.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un calendrier d'équipe comporte des membres et absences,
+**When** j'ouvre le calendrier central,
+**Then** les indisponibilités autorisées sont regroupées avec légendes et liens source ; les cycles/événements ne sont montrés que s'ils existent réellement.
+
+#### AC2
+
+**Given** une réunion Agile est disponible,
+**When** je consulte sa date et statut,
+**Then** sa valeur réelle est utilisée, sans affirmer qu'un événement ancien a été tenu si son statut est inconnu.
+
+#### AC3
+
+**Given** je filtre par équipe, période, type et membre selon mon profil,
+**When** les filtres sont activés,
+**Then** la vue change sans écriture métier ni duplication des fiches sources.
+
+#### AC4
+
+**Given** un membre travaille dans un fuseau différent ou sur un changement d'heure,
+**When** je consulte la vue,
+**Then** les instants UTC et zones IANA sont respectés, sans décalage artificiel des dates métier.
+
+#### AC5
+
+**Given** un Utilisateur consulte le calendrier ou quelqu'un tente un glisser-déposer,
+**When** l'action est exécutée,
+**Then** les motifs individuels confidentiels restent masqués et aucune date de cycle, absence ou événement historique n'est déplacée implicitement.
+
+#### Traçabilité et dépendances
+
+* FR : FR-62, FR-60.
+* Décisions : UX-05 ; AD-14/15/18/31.
+* Dépendances : 3.14 pour calendrier d'équipe ; intégration avec les cycles/événements au moment de leur livraison dans Epic 4/7 sans dépendance préalable.
+* MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
+* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+
+
+**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
 
