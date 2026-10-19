@@ -20,7 +20,7 @@ inputDocuments:
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories de l'Epic 1 ont été validées globalement par l'utilisateur le même jour ; les Stories de l'Epic 2 ont été publiées sur Jira pour lecture et validation groupée.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
 **Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles des Epics 3, 4, 5 et 6 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
-**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3, 4, 5, 6, 7 et 8 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
+**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3, 4, 5, 6, 7, 8 et 9 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
 
 ## Requirements Inventory
 
@@ -7958,7 +7958,7 @@ Les 23 Stories de l'Epic 7 ont été approuvées globalement sans réserve le 19
 
 
 ## Epic 8: Reconstituer les Sprints passés et fiabiliser les tendances
-Créer des Sprints rétrospectifs documentés et importer des métriques consolidées Scrum/Kanban sans fabriquer d'historique ni écraser de données.
+Créer des Sprints rétrospectifs documentés et importer des métriques consolidées Scrum/Kanban sans fabriquer d'historique ni écraser les données.
 **FRs couvertes :** FR-42, FR-43, FR-44, FR-45, FR-46, FR-47, FR-48, FR-49.
 
 ### Story 8.1: Créer un Sprint passé en reprise historique explicite
@@ -8005,10 +8005,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-42, FR-47 ; D-PRD-130/A1 ; HIS-01 ; FR-15/16.
 * Dépendances : Epic 4 : génération et statut des Sprints ; Epic 3 : équipe et calendrier.
 * Incrément I4 ; Scrum historique au MVP. Aucune reprise rétrospective Kanban complète ajoutée par cette Story. SAFe hors MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.2: Ne générer aucune cérémonie lors d'une reprise historique
 **Jira :** https://lmn24.atlassian.net/browse/SMN-160
@@ -8054,10 +8056,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-42, FR-47 ; D-PRD-130/A1 ; HIS-01 ; FR-17.
 * Dépendances : Story 8.1 ; gestion des cérémonies Epic 4.
 * Incrément I4 ; Scrum historique au MVP. Aucune reprise rétrospective Kanban complète ajoutée par cette Story. SAFe hors MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.3: Ajouter manuellement un événement historique réellement documenté
 **Jira :** https://lmn24.atlassian.net/browse/SMN-161
@@ -8103,10 +8107,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-42, FR-47 ; D-PRD-130/A1 ; HIS-01 ; FR-17/18.
 * Dépendances : Stories 8.1–8.2 ; saisie d'événement Epic 4.
 * Incrément I4 ; Scrum historique au MVP. Aucune reprise rétrospective Kanban complète ajoutée par cette Story. SAFe hors MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.4: Renseigner un bilan historique partiel à partir des objectifs retrouvés
 **Jira :** https://lmn24.atlassian.net/browse/SMN-162
@@ -8152,10 +8158,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-42, FR-47 ; HIS-01/06 ; D-PRD-130/A1/A3 ; FR-20.
 * Dépendances : Story 8.1 ; blocs de bilan Epic 4.
 * Incrément I4 ; Scrum historique au MVP. Aucune reprise rétrospective Kanban complète ajoutée par cette Story. SAFe hors MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; aucun développement ni test réalisé.**
+**Statut : validée fonctionnellement le 19/10/2026 ; pas de développement ni recette.**
 
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.5: Qualifier la capacité initiale historique comme connue, estimée ou absente
 **Jira :** https://lmn24.atlassian.net/browse/SMN-163
@@ -8201,10 +8207,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-42, FR-46, FR-47 ; D-PRD-130/A2 ; HIS-01/05 ; FR-14.
 * Dépendances : Story 8.1 ; moteur et provenance des capacités Epic 3.
 * Incrément I4 ; Scrum historique au MVP. Aucune reprise rétrospective Kanban complète ajoutée par cette Story. SAFe hors MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.6: Saisir une capacité réellement constatée sans la déduire du passé
 **Jira :** https://lmn24.atlassian.net/browse/SMN-164
@@ -8252,8 +8260,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * I4, MVP Scrum/Kanban pour le CSV ; reprise manuelle des Sprints Scrum uniquement. SAFe et intégration Jira hors MVP.
 * **Proposition publiée pour revue globale, non encore validée fonctionnellement ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.7: Distinguer la date historique, l'origine et le niveau de qualité
 **Jira :** https://lmn24.atlassian.net/browse/SMN-165
@@ -8301,8 +8311,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * I4, MVP Scrum/Kanban pour le CSV ; reprise manuelle des Sprints Scrum uniquement. SAFe et intégration Jira hors MVP.
 * **Proposition publiée pour revue globale, non encore validée fonctionnellement ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.8: Proposer un modèle CSV historique au contrat strict de quatre colonnes
 **Jira :** https://lmn24.atlassian.net/browse/SMN-166
@@ -8350,8 +8362,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * I4, MVP Scrum/Kanban pour le CSV ; reprise manuelle des Sprints Scrum uniquement. SAFe et intégration Jira hors MVP.
 * **Proposition publiée pour revue globale, non encore validée fonctionnellement ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.9: Contrôler le schéma et la syntaxe de tout CSV avant import
 **Jira :** https://lmn24.atlassian.net/browse/SMN-167
@@ -8399,8 +8413,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * I4, MVP Scrum/Kanban pour le CSV ; reprise manuelle des Sprints Scrum uniquement. SAFe et intégration Jira hors MVP.
 * **Proposition publiée pour revue globale, non encore validée fonctionnellement ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.10: Valider les cycles, les métriques et les doublons d'un lot CSV
 **Jira :** https://lmn24.atlassian.net/browse/SMN-168
@@ -8448,8 +8464,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * I4, MVP Scrum/Kanban pour le CSV ; reprise manuelle des Sprints Scrum uniquement. SAFe et intégration Jira hors MVP.
 * **Proposition publiée pour revue globale, non encore validée fonctionnellement ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.11: Prévisualiser chaque ligne et son impact avant tout import CSV
 **Jira :** https://lmn24.atlassian.net/browse/SMN-169
@@ -8497,8 +8515,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Incrément I4 ; CSV manuel Scrum/Kanban, sans création de tickets Jira ni de cycles implicites. Aucune validation individuelle préalable demandée.
 * **Proposition publiée pour revue globale Epic 8, non approuvée fonctionnellement ; aucun développement ni test effectué.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.12: Conserver par défaut toutes les valeurs historiques préexistantes
 **Jira :** https://lmn24.atlassian.net/browse/SMN-170
@@ -8546,8 +8566,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Incrément I4 ; CSV manuel Scrum/Kanban, sans création de tickets Jira ni de cycles implicites. Aucune validation individuelle préalable demandée.
 * **Proposition publiée pour revue globale Epic 8, non approuvée fonctionnellement ; aucun développement ni test effectué.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.13: Confirmer explicitement le remplacement d'une métrique existante
 **Jira :** https://lmn24.atlassian.net/browse/SMN-171
@@ -8595,8 +8617,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Incrément I4 ; CSV manuel Scrum/Kanban, sans création de tickets Jira ni de cycles implicites. Aucune validation individuelle préalable demandée.
 * **Proposition publiée pour revue globale Epic 8, non approuvée fonctionnellement ; aucun développement ni test effectué.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.14: Appliquer un CSV validé en une seule transaction atomique
 **Jira :** https://lmn24.atlassian.net/browse/SMN-172
@@ -8644,8 +8668,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Incrément I4 ; CSV manuel Scrum/Kanban, sans création de tickets Jira ni de cycles implicites. Aucune validation individuelle préalable demandée.
 * **Proposition publiée pour revue globale Epic 8, non approuvée fonctionnellement ; aucun développement ni test effectué.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.15: Tracer les imports CSV et distinguer aperçu, réussite et échec
 **Jira :** https://lmn24.atlassian.net/browse/SMN-173
@@ -8693,8 +8719,10 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Incrément I4 ; CSV manuel Scrum/Kanban, sans création de tickets Jira ni de cycles implicites. Aucune validation individuelle préalable demandée.
 * **Proposition publiée pour revue globale Epic 8, non approuvée fonctionnellement ; aucun développement ni test effectué.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.16: Consulter les valeurs reprises et leurs révisions historiques
 **Jira :** https://lmn24.atlassian.net/browse/SMN-174
@@ -8740,10 +8768,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-45, FR-46, FR-49 ; HIS-04/05/08 ; D-PRD-130/A2/A4.
 * Dépendances : Stories 8.5–8.7 et 8.12–8.15.
 * Incrément I4 ; reprise manuelle historique Scrum, CSV consolidé Scrum/Kanban. Respect des protections Vn et confidentialité du MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; développement et recette non effectués.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.17: Clôturer volontairement un bilan historique partiel sans fabriquer de preuves
 **Jira :** https://lmn24.atlassian.net/browse/SMN-175
@@ -8789,10 +8819,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-47, FR-42, FR-46 ; D-PRD-130/A1/A3 ; HIS-06 ; FR-16/41.
 * Dépendances : Stories 8.1–8.7 ; clôture versionnée Epic 4 et registres Epic 5.
 * Incrément I4 ; reprise manuelle historique Scrum, CSV consolidé Scrum/Kanban. Respect des protections Vn et confidentialité du MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; développement et recette non effectués.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.18: Préserver les versions V1/V2 lors des corrections et reclôtures historiques
 **Jira :** https://lmn24.atlassian.net/browse/SMN-176
@@ -8838,10 +8870,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-47, FR-45, FR-46 ; D-PRD-130/A3 ; HIS-06 ; FR-41.
 * Dépendances : Story 8.17 ; moteur de réouverture/reclôture Epics 4/5.
 * Incrément I4 ; reprise manuelle historique Scrum, CSV consolidé Scrum/Kanban. Respect des protections Vn et confidentialité du MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; développement et recette non effectués.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.19: Intégrer les Sprints repris aux tendances uniquement lorsqu'ils sont fiables
 **Jira :** https://lmn24.atlassian.net/browse/SMN-177
@@ -8887,10 +8921,12 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-48, FR-46, FR-47 ; HIS-07 ; D-PRD-076/077/078 ; D-PRD-130/A2.
 * Dépendances : Stories 8.1, 8.4–8.7 et 8.17 ; tendances Scrum Epic 4.
 * Incrément I4 ; reprise manuelle historique Scrum, CSV consolidé Scrum/Kanban. Respect des protections Vn et confidentialité du MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; développement et recette non effectués.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 8.20: Rendre les rapports historiques transparents et protéger les PDF existants
 **Jira :** https://lmn24.atlassian.net/browse/SMN-178
@@ -8936,7 +8972,1036 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 * Epic SMN-8 ; FR-47, FR-48, FR-46 ; HIS-06/07 ; D-PRD-130/A1/A2/A3 ; D-PRD-134.
 * Dépendances : Stories 8.1–8.19 ; bibliothèque HTML/PDF Epic 6.
 * Incrément I4 ; reprise manuelle historique Scrum, CSV consolidé Scrum/Kanban. Respect des protections Vn et confidentialité du MVP.
-* **Statut : spécification publiée pour revue globale de l'Epic 8, non encore validée fonctionnellement ; développement et recette non effectués.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
+
+#### Validation fonctionnelle globale
+
+Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
+**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
+
+
+## Epic 9: Préparer des briefs IA confidentiels et conserver les analyses
+Préparer des TXT plats et privés à partager manuellement, archiver leurs versions exactes et conserver les analyses distinctes des faits mesurés.
+**FRs couvertes :** FR-50, FR-51, FR-52, FR-53, FR-54, FR-55, FR-56, FR-57.
+
+### Story 9.1: Démarrer un brief IA depuis un cycle, son bilan ou un rapport
+**Jira :** https://lmn24.atlassian.net/browse/SMN-179
+
+**En tant que** Scrum Master Administrateur,
+**je veux** ouvrir la préparation d'un brief depuis mon activité courante,
+**afin de** retrouver immédiatement le contexte sans saisie redondante.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint ou une période Kanban est consulté,
+**When** je choisis « Générer un brief IA »,
+**Then** la préparation reprend son identifiant, équipe, produit, mode, dates et statut sans nouveau cycle.
+
+#### AC2
+
+**Given** je suis dans le bilan du cycle ou dans la préparation d'un rapport,
+**When** j'ouvre l'action de brief,
+**Then** les trois points d'entrée aboutissent au même parcours de préparation.
+
+#### AC3
+
+**Given** la période est non Clôturée,
+**When** j'ouvre le formulaire,
+**Then** son caractère provisoire et l'instant de préparation sont indiqués sans qualifier le bilan comme définitif.
+
+#### AC4
+
+**Given** je ferme la préparation avant finalisation,
+**When** je reviens à mon écran,
+**Then** aucune valeur métier, archive TXT ou analyse n'est créée ou modifiée.
+
+#### AC5
+
+**Given** un Utilisateur en lecture seule tente de déclencher une génération,
+**When** le serveur vérifie les droits,
+**Then** la création de brouillon de brief lui est refusée sans exposition de champs individuels.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-50 ; D-PRD-126/IA-01 ; F-98/103.
+* Dépendances antérieures : Cycles Scrum/Kanban Epics 4/7 ; préparation de rapport Epic 6.
+* Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
+* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.2: Disposer de modèles initiaux de briefs réutilisables
+**Jira :** https://lmn24.atlassian.net/browse/SMN-188
+
+En tant que Scrum Master Administrateur, je veux disposer de plusieurs modèles initiaux de briefs, afin de préparer rapidement des demandes adaptées à un bilan, à une tendance ou aux risques de mon équipe.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une installation SMN opérationnelle,
+**When** j'ouvre le catalogue des modèles de briefs,
+**Then** plusieurs modèles existent pour le bilan d'un cycle, les tendances et les risques ou dépendances.
+
+#### AC2
+
+**Given** un modèle initial est sélectionné,
+**When** je consulte ses paramètres,
+**Then** ses rubriques, questions, consignes et sélections de données sont visibles.
+
+#### AC3
+
+**Given** un modèle est utilisé pour Scrum ou Kanban,
+**When** le brief est préparé,
+**Then** seules les métriques correspondant au mode actif sont proposées.
+
+#### AC4
+
+**Given** des données sélectionnées manquent,
+**When** le modèle compose le brouillon,
+**Then** aucune valeur ni conclusion fictive n'est créée.
+
+#### AC5
+
+**Given** un modèle demande un champ individuel interdit,
+**When** la projection du brief est construite,
+**Then** la règle obligatoire de confidentialité l'exclut sans exception.
+
+#### Traçabilité et dépendances
+
+Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrément I5. Proposition pour revue globale de l'Epic 9 ; aucun développement ni recette.
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.3: Créer, modifier et gérer ses modèles de briefs en administration
+**Jira :** https://lmn24.atlassian.net/browse/SMN-180
+
+**En tant que** Scrum Master Administrateur,
+**je veux** maintenir des modèles adaptés à mon équipe et à mes usages,
+**afin de** réutiliser mes réglages de briefs plutôt que répéter la même préparation.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Administrateur ouvre un modèle,
+**When** il change l'ordre des rubriques, la profondeur, les données ou les consignes,
+**Then** les réglages explicitement choisis sont sauvegardés pour les futures utilisations.
+
+#### AC2
+
+**Given** un besoin n'est couvert par aucun modèle,
+**When** je crée un modèle nommé,
+**Then** un modèle distinct est conservé et réutilisable.
+
+#### AC3
+
+**Given** je demande de supprimer ou désactiver un modèle déjà référencé,
+**When** les conséquences sont présentées,
+**Then** les briefs TXT déjà archivés restent intacts et leur origine demeure identifiable.
+
+#### AC4
+
+**Given** un Utilisateur appelle une API de modification de modèle,
+**When** le serveur valide son profil,
+**Then** l'opération est refusée.
+
+#### AC5
+
+**Given** je modifie un modèle après la finalisation d'un brief,
+**When** je consulte l'archive ancienne,
+**Then** son texte final et ses métadonnées ne changent pas.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-51 ; D-PRD-126/IA-02 ; F-103/104.
+* Dépendances antérieures : Story 9.2 ; accès Administrateur Epic 1.
+* Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
+* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.4: Adapter ponctuellement un modèle sans modifier sa définition
+**Jira :** https://lmn24.atlassian.net/browse/SMN-181
+
+**En tant que** Scrum Master Administrateur,
+**je veux** ajuster les paramètres d'un seul brief,
+**afin de** produire une demande ciblée sans changer mes modèles de référence.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un modèle est sélectionné,
+**When** j'ouvre la préparation,
+**Then** ses sections, choix de données, profondeur historique et consignes sont préremplis.
+
+#### AC2
+
+**Given** je modifie seulement la préparation courante,
+**When** j'actualise son contenu,
+**Then** les réglages du modèle enregistré demeurent inchangés.
+
+#### AC3
+
+**Given** je veux changer durablement le modèle,
+**When** je choisis explicitement Enregistrer le modèle,
+**Then** une nouvelle révision de modèle est créée selon les droits.
+
+#### AC4
+
+**Given** une modification du modèle survient après ouverture du brouillon,
+**When** je poursuis ma préparation,
+**Then** le contenu ne mélange pas silencieusement les deux configurations et un rafraîchissement est proposé si nécessaire.
+
+#### AC5
+
+**Given** j'abandonne mes ajustements ponctuels,
+**When** je recharge le modèle,
+**Then** les valeurs persistées initiales sont retrouvées sans écriture métier.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-51, FR-52 ; D-PRD-126/IA-02/03 ; RPT-03/04.
+* Dépendances antérieures : Stories 9.1–9.3.
+* Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
+* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.5: Sélectionner les faits et métriques collectives avec provenance
+**Jira :** https://lmn24.atlassian.net/browse/SMN-182
+
+**En tant que** Scrum Master Administrateur,
+**je veux** choisir les informations collectives utiles au brief,
+**afin de** disposer de données exactes et explicables sans exposer les membres.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint contient SP, objectifs et capacité collective,
+**When** je sélectionne les indicateurs disponibles,
+**Then** les unités SP, JH et pourcentage restent distinctes et les valeurs source ne sont pas inventées.
+
+#### AC2
+
+**Given** une période Kanban comporte des flux,
+**When** je prépare sa projection,
+**Then** commencés, Throughput, WIP et délais moyens sont fournis selon leurs conventions sans métrique Scrum fictive.
+
+#### AC3
+
+**Given** des risques, obstacles, dépendances, décisions, actions et faits marquants existent,
+**When** je sélectionne le contexte collectif autorisé,
+**Then** seuls les éléments éligibles et les états historiques applicables sont retenus.
+
+#### AC4
+
+**Given** une valeur source est vide, estimée, calculée ou provisoire,
+**When** elle figure dans la projection,
+**Then** sa qualité/provenance reste visible et vide n'est jamais converti en zéro.
+
+#### AC5
+
+**Given** la sélection porte sur un cycle ancien clôturé,
+**When** les données sont lues,
+**Then** la dernière version de clôture applicable est respectée sans substituer des états qualitatifs récents aux états passés.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-52, FR-53 ; D-PRD-126/IA-03/04 ; FR-14/20/22/41.
+* Dépendances antérieures : Story 9.1 ; projections de reporting Epic 6 et registres Epic 5.
+* Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
+* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.6: Construire un TXT plat aux rubriques et sources explicites
+**Jira :** https://lmn24.atlassian.net/browse/SMN-183
+
+**En tant que** Scrum Master Administrateur,
+**je veux** obtenir un texte structuré utilisable hors de SMN,
+**afin de** transmettre le contexte sans graphiques ni interprétation masquée.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** la projection collective est disponible,
+**When** je génère l'aperçu TXT,
+**Then** un texte brut identifie équipe, produit, mode, cycle, dates, statut, date de préparation et modèle.
+
+#### AC2
+
+**Given** des faits et analyses humaines sont choisis,
+**When** les sections du TXT sont composées,
+**Then** faits chiffrés, contexte qualitatif, observations humaines et consignes à l'IA apparaissent dans des rubriques distinctes.
+
+#### AC3
+
+**Given** une donnée est Non renseignée, Estimée ou provisoire,
+**When** le texte est généré,
+**Then** elle conserve sa qualification et n'est pas présentée comme un constat certain.
+
+#### AC4
+
+**Given** un graphique du reporting HTML est sélectionné,
+**When** la version TXT est préparée,
+**Then** aucune image, graphique ou encodage propriétaire ne figure dans le document.
+
+#### AC5
+
+**Given** le modèle précise ordre ou profondeur historique,
+**When** je compose le TXT,
+**Then** ces paramètres sont respectés pour les sources disponibles et la limite de cinq cycles clôturés des tendances reste applicable.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-52 ; D-PRD-126/IA-03 ; F-103/108 ; RPT-07.
+* Dépendances : Stories 9.4–9.5.
+* Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
+* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.7: Ajouter et réviser ses observations et questions à l'IA
+**Jira :** https://lmn24.atlassian.net/browse/SMN-184
+
+**En tant que** Scrum Master Administrateur,
+**je veux** enrichir le brief avec mon contexte collectif et mes questions,
+**afin de** orienter l'analyse sans modifier les métriques source.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un brouillon TXT est prêt,
+**When** je saisis une observation humaine collective,
+**Then** le contenu est présenté dans une rubrique différente des faits et KPI.
+
+#### AC2
+
+**Given** je rédige une question ou une consigne,
+**When** je prévisualise,
+**Then** la consigne est rendue comme demande à l'IA, non comme résultat IA déjà obtenu.
+
+#### AC3
+
+**Given** je modifie les paragraphes du brouillon,
+**When** je reviens à la projection,
+**Then** ni les Story Points, ni les KPI Kanban, ni les fiches qualitatives ne sont changés.
+
+#### AC4
+
+**Given** un texte libre contient potentiellement une identité ou une information confidentielle,
+**When** j'enregistre le brouillon,
+**Then** il reste à vérifier explicitement avant toute finalisation.
+
+#### AC5
+
+**Given** un texte libre n'est pas renseigné,
+**When** je compose le TXT,
+**Then** aucune conclusion ou hypothèse artificielle n'est insérée pour remplir l'espace.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-52, FR-53 ; D-PRD-126/IA-03/04 ; F-104/109.
+* Dépendances : Story 9.6.
+* Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
+* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.8: Exclure les informations individuelles dès la projection du brief
+**Jira :** https://lmn24.atlassian.net/browse/SMN-185
+
+**En tant que** Scrum Master Administrateur,
+**je veux** garantir l'absence de champs personnels structurés dans mes briefs,
+**afin de** minimiser la divulgation involontaire de données sensibles.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un cycle comporte des fiches de membres,
+**When** le service construit la projection TXT,
+**Then** les noms, e-mails, calendriers, absences, capacités individuelles et appréciations personnelles structurés sont exclus.
+
+#### AC2
+
+**Given** un modèle demande l'inclusion de données individuelles,
+**When** le service prépare le brouillon,
+**Then** l'exclusion obligatoire reste appliquée côté serveur malgré le modèle.
+
+#### AC3
+
+**Given** un Utilisateur non administrateur essaie d'obtenir les données source exclues par un appel direct,
+**When** l'API reçoit la requête,
+**Then** les droits et les filtres serveur bloquent la divulgation.
+
+#### AC4
+
+**Given** un rapport HTML contient une attribution nominative permise pour une action collective,
+**When** le brief TXT est créé,
+**Then** la règle plus stricte du TXT empêche une copie automatique de données individuelles via le moteur commun.
+
+#### AC5
+
+**Given** un texte libre contenant un nom est présent,
+**When** la projection structurée est contrôlée,
+**Then** le filtrage des champs structurés n'est pas présenté comme une garantie d'anonymisation du texte libre ; sa revue explicite reste requise.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-53, FR-52 ; D-PRD-126/IA-04 ; F-106/108 ; AD-31.
+* Dépendances : Stories 9.5–9.7 ; sécurité serveur Epic 1.
+* Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
+* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.9: Prévisualiser intégralement le TXT et valider la confidentialité
+**Jira :** https://lmn24.atlassian.net/browse/SMN-186
+
+**En tant que** Scrum Master Administrateur,
+**je veux** relire le contenu exact avant de décider de le partager,
+**afin de** retirer les éléments personnels ou secrets sans croire à une vérification automatique parfaite.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un brouillon TXT est préparé,
+**When** je demande sa vérification,
+**Then** la totalité du texte à finaliser est affichée, y compris les commentaires et consignes libres.
+
+#### AC2
+
+**Given** un avertissement de confidentialité apparaît,
+**When** je lis son contenu,
+**Then** il signale explicitement les noms, informations privées et secrets possibles dans les textes libres.
+
+#### AC3
+
+**Given** je détecte un passage sensible,
+**When** je le retire ou le modifie,
+**Then** la prévisualisation entière est réactualisée avant nouvelle confirmation.
+
+#### AC4
+
+**Given** je n'ai pas validé la vérification du texte courant,
+**When** je cherche à finaliser ou présenter le TXT comme prêt au partage,
+**Then** l'action est bloquée jusqu'à une validation explicite de la version affichée.
+
+#### AC5
+
+**Given** je modifie le contenu après validation,
+**When** je reviens à la finalisation,
+**Then** la validation précédente n'est plus valable et une nouvelle revue est nécessaire.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-53 ; D-PRD-126/IA-04 ; F-109 ; AD-31.
+* Dépendances : Stories 9.6–9.8.
+* Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
+* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.10: Imposer une transmission manuelle sans appel automatique à une IA
+**Jira :** https://lmn24.atlassian.net/browse/SMN-187
+
+**En tant que** Scrum Master Administrateur,
+**je veux** garder la maîtrise du service IA auquel je transmets mon TXT,
+**afin de** décider personnellement si et quand une donnée sort de SMN.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** je prépare ou prévisualise un TXT,
+**When** j'observe les échanges de l'application,
+**Then** aucun texte n'est transmis à un prestataire IA externe automatiquement.
+
+#### AC2
+
+**Given** je valide la confidentialité du texte,
+**When** je demande sa finalisation,
+**Then** aucun appel automatique à une IA ni création automatique d'analyse n'a lieu.
+
+#### AC3
+
+**Given** je souhaite utiliser une IA externe,
+**When** je consulte le parcours,
+**Then** SMN indique que l'envoi/copier-coller vers ce service est une démarche volontaire à réaliser hors de l'application.
+
+#### AC4
+
+**Given** je consulte les informations de confidentialité,
+**When** je lis les avertissements,
+**Then** SMN ne prétend pas contrôler la conservation ou les politiques du prestataire externe choisi.
+
+#### AC5
+
+**Given** un modèle comporte une instruction de type « envoyer » ou une URL,
+**When** la préparation fonctionne,
+**Then** ces textes ne sont jamais interprétés comme des commandes réseau ou des appels IA automatiques.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-9 ; FR-53, FR-55 ; D-PRD-126/IA-04/06 ; F-102/106/108.
+* Dépendances : Story 9.9 et permissions Epic 1.
+* Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
+* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.11: Finaliser et archiver le texte TXT exact de manière immuable
+**Jira :** https://lmn24.atlassian.net/browse/SMN-189
+
+**En tant que** Scrum Master Administrateur,
+**je veux** conserver le contenu du brief définitivement approuvé,
+**afin de** retrouver la même version malgré les évolutions des cycles et des modèles.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un brouillon complet a été vérifié et approuvé pour confidentialité,
+**When** je clique explicitement Finaliser,
+**Then** le texte final exact est archivé avec identifiant stable, date, cycle et référence de modèle.
+
+#### AC2
+
+**Given** une simple prévisualisation est annulée,
+**When** je quitte la préparation,
+**Then** aucune archive TXT finale n'est créée.
+
+#### AC3
+
+**Given** les métriques sources ou le modèle évoluent après finalisation,
+**When** j'ouvre l'ancien brief,
+**Then** le contenu archivé reste exactement celui finalisé, sans recomposition depuis les sources actuelles.
+
+#### AC4
+
+**Given** une modification en place du TXT final est tentée,
+**When** le serveur reçoit l'écriture,
+**Then** l'opération est refusée : la duplication est le seul parcours normal de nouvelle version de brief.
+
+#### AC5
+
+**Given** l'écriture ou la cohérence entre fichier et métadonnées échoue,
+**When** la finalisation se termine,
+**Then** aucune archive réussie mais incomplète n'est annoncée et l'erreur est explicitée.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 : FR-54, FR-53 ; D-PRD-126/IA-05 ; F-99/107 ; AD-27.
+* Dépendances : Stories 9.6–9.10 ; stockage privé et audit Epics 1/2.
+* Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
+* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.12: Retrouver, consulter et télécharger les briefs TXT privés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-190
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver les TXT archivé et les récupérer sans nouveau calcul,
+**afin de** réutiliser le document d'origine depuis la bibliothèque privée.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un brief est archivé,
+**When** j'ouvre la liste privée des briefs,
+**Then** les références, dates, cycles, modèle et statut connus permettent de retrouver le TXT.
+
+#### AC2
+
+**Given** un Administrateur demande l'ouverture d'une archive autorisée,
+**When** le serveur la lit,
+**Then** le texte exact sauvegardé est retourné sans modification.
+
+#### AC3
+
+**Given** un Utilisateur authentifié dispose du droit de lire un brief autorisé,
+**When** il télécharge l'archive,
+**Then** le fichier existant peut être récupéré en lecture seule sans nouvelle génération.
+
+#### AC4
+
+**Given** une personne anonyme ou non autorisée connaît l'identifiant d'un brief,
+**When** elle appelle son URL directement,
+**Then** aucun texte privé n'est délivré.
+
+#### AC5
+
+**Given** un fichier est absent ou altéré,
+**When** le téléchargement est demandé,
+**Then** une erreur d'intégrité ou de disponibilité apparaît, sans reconstruction silencieuse.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 : FR-54, FR-53 ; D-PRD-126/IA-05 ; AD-31 ; F-107.
+* Dépendances : Story 9.11 ; matrice de droits Epic 1.
+* Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
+* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.13: Dupliquer un brief en préservant son parent et ses analyses
+**Jira :** https://lmn24.atlassian.net/browse/SMN-191
+
+**En tant que** Scrum Master Administrateur,
+**je veux** créer une variante révisable d'un ancien brief,
+**afin de** essayer d'autres consignes sans modifier le document d'origine.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un TXT est archivé,
+**When** je choisis Dupliquer,
+**Then** un nouveau brouillon possède son propre identifiant et un lien explicite vers le parent.
+
+#### AC2
+
+**Given** la copie s'ouvre,
+**When** je change ses consignes ou des passages collectifs,
+**Then** seul le nouveau brouillon est modifié, sans écriture sur l'archive parent.
+
+#### AC3
+
+**Given** le parent a une réponse IA enregistrée,
+**When** je consulte le nouveau brouillon,
+**Then** sa réponse IA n'est pas copiée comme analyse active du nouveau brief.
+
+#### AC4
+
+**Given** je finalise la copie après validation de confidentialité,
+**When** l'opération réussit,
+**Then** une nouvelle archive TXT distincte est créée et le lien de parenté reste consultable.
+
+#### AC5
+
+**Given** la duplication est annulée ou échoue,
+**When** je consulte le parent,
+**Then** son contenu, ses métadonnées et son analyse demeurent intacts.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 : FR-54 ; D-PRD-126/IA-05 ; F-99/107.
+* Dépendances : Stories 9.11–9.12 ; brouillon et confidentialité 9.7–9.9.
+* Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
+* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.14: Coller manuellement une réponse IA dans le brief d'origine
+**Jira :** https://lmn24.atlassian.net/browse/SMN-192
+
+**En tant que** Scrum Master Administrateur,
+**je veux** enregistrer une réponse reçue hors de SMN,
+**afin de** conserver l'interprétation et la relier au texte réellement transmis.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un TXT archivé existe et une réponse IA a été reçue manuellement,
+**When** j'ouvre sa fiche et colle la réponse,
+**Then** le texte est associé à l'identifiant exact du brief, sans altérer celui-ci.
+
+#### AC2
+
+**Given** le fournisseur ou modèle IA est connu,
+**When** je le renseigne facultativement,
+**Then** l'origine déclarée est conservée sans inventer de fournisseur si elle manque.
+
+#### AC3
+
+**Given** la réponse est sauvegardée,
+**When** je consulte les métadonnées,
+**Then** date d'enregistrement, périmètre et origine IA sont identifiables.
+
+#### AC4
+
+**Given** le texte de réponse est collé,
+**When** je navigue entre les deux documents,
+**Then** le brief original et la réponse restent consultables ensemble pour comparaison.
+
+#### AC5
+
+**Given** une personne tente de déclencher une IA en appuyant sur Enregistrer la réponse,
+**When** le serveur traite l'action,
+**Then** seul le contenu collé est persisté, sans requête externe ni affirmation de validation factuelle de l'IA.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 : FR-55 ; D-PRD-126/IA-06 ; F-98/100/102.
+* Dépendances : Stories 9.11–9.12 ; pas de transmission automatique.
+* Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
+* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.15: Garantir une seule réponse IA active par brief
+**Jira :** https://lmn24.atlassian.net/browse/SMN-193
+
+**En tant que** Scrum Master Administrateur,
+**je veux** éviter les réponses IA multiples ou leur écrasement accidentel,
+**afin de** savoir quelle analyse est effectivement liée à un TXT donné.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un brief possède déjà une analyse IA active,
+**When** j'essaie d'en créer une autre,
+**Then** le serveur bloque la seconde création et propose de modifier ou supprimer l'existante.
+
+#### AC2
+
+**Given** une analyse IA existe,
+**When** j'enregistre une nouvelle version du contenu via l'action Modifier,
+**Then** l'objet existant est actualisé avec sa date de modification et non remplacé silencieusement.
+
+#### AC3
+
+**Given** une analyse a été supprimée volontairement,
+**When** je colle une nouvelle réponse pour le même brief,
+**Then** l'enregistrement devient possible tout en conservant l'archive TXT initiale.
+
+#### AC4
+
+**Given** deux demandes de création sont reçues en même temps pour le même brief,
+**When** le serveur les arbitre,
+**Then** au plus une analyse IA active est persistée, sans doublon concurrent.
+
+#### AC5
+
+**Given** je duplique un brief avec analyse IA,
+**When** j'ouvre la copie,
+**Then** la réponse du parent ne devient pas une réponse active de l'enfant sans saisie volontaire.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 : FR-55, FR-54 ; D-PRD-126/IA-06 ; F-101.
+* Dépendances : Story 9.14 et contrôles de transaction Epic 2.
+* Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
+* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.16: Créer une analyse humaine distincte de toute réponse IA
+**Jira :** https://lmn24.atlassian.net/browse/SMN-194
+
+**En tant que** Scrum Master Administrateur,
+**je veux** enregistrer mes interprétations humaines sur un cycle ou un sujet,
+**afin de** garder un historique de réflexion sans le présenter comme un résultat de machine.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un cycle Scrum/Kanban ou un contexte collectif existe,
+**When** je crée une analyse humaine,
+**Then** son contenu est enregistré avec origine Humaine, périmètre et date.
+
+#### AC2
+
+**Given** un auteur est connu via la session,
+**When** je confirme l'analyse,
+**Then** l'auteur et l'horodatage sont mémorisés sans faire croire à une mesure observée.
+
+#### AC3
+
+**Given** je ne dispose pas d'un brief TXT pour cette réflexion,
+**When** j'enregistre l'analyse humaine,
+**Then** l'analyse peut exister sans brief IA parent obligatoire.
+
+#### AC4
+
+**Given** le texte d'une analyse humaine est modifié,
+**When** je le sauvegarde,
+**Then** la date de dernière modification est conservée.
+
+#### AC5
+
+**Given** un Utilisateur en lecture seule tente de créer une analyse,
+**When** le serveur reçoit sa requête,
+**Then** la mutation est refusée et le journal ne reçoit pas de fausse entrée.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 ; FR-56, FR-52 ; D-PRD-126/IA-07 ; F-98/100/105.
+* Dépendances : Cycles déjà définis Epics 4/7 ; journal qualitatif Epic 5 ; aucune autre Story Epic 9 requise.
+* Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
+* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.17: Consulter le journal commun des analyses humaines et IA
+**Jira :** https://lmn24.atlassian.net/browse/SMN-195
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver les analyses enregistrées avec leur contexte et origine,
+**afin de** réutiliser les réflexions pertinentes sans les mélanger aux faits.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** des analyses humaines et IA existent,
+**When** j'ouvre leur journal,
+**Then** toutes les analyses autorisées sont répertoriées avec type, date et périmètre.
+
+#### AC2
+
+**Given** une réponse IA est liée à un brief,
+**When** j'ouvre sa fiche depuis le journal,
+**Then** un lien mène au TXT original immuable sans régénération.
+
+#### AC3
+
+**Given** plusieurs cycles ou origines sont disponibles,
+**When** j'applique les filtres date, cycle et type,
+**Then** les analyses recherchées sont retrouvées sans modifier les données.
+
+#### AC4
+
+**Given** le journal est vide,
+**When** j'ouvre la page,
+**Then** un état vide explicite apparaît sans analyse ou commentaire inventé.
+
+#### AC5
+
+**Given** un Utilisateur consulte le journal,
+**When** le serveur produit les résultats,
+**Then** seuls les contenus qu'il peut lire sont retournés et aucune opération d'édition ne lui est accordée.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 ; FR-56, FR-55 ; D-PRD-126/IA-07 ; F-98/100/101.
+* Dépendances : Stories 9.14 à 9.16.
+* Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
+* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.18: Modifier les analyses et identifier les retouches humaines d'un texte IA
+**Jira :** https://lmn24.atlassian.net/browse/SMN-196
+
+**En tant que** Scrum Master Administrateur,
+**je veux** corriger une interprétation tout en conservant sa provenance,
+**afin de** distinguer une réponse brute d'une analyse qui a été éditée.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une analyse humaine existe,
+**When** l'Administrateur modifie son texte,
+**Then** le contenu et la date de dernière modification sont enregistrés avec origine Humaine.
+
+#### AC2
+
+**Given** une réponse IA existe,
+**When** je modifie manuellement son contenu,
+**Then** une indication « origine IA, retouchée par un humain » est persistée et visible.
+
+#### AC3
+
+**Given** je change une analyse IA,
+**When** je consulte sa provenance,
+**Then** l'IA éventuellement déclarée, son brief source et sa date d'origine restent identifiables.
+
+#### AC4
+
+**Given** une analyse est retouchée,
+**When** je prépare son affichage,
+**Then** elle n'est jamais requalifiée comme réponse IA brute, fait observé ou KPI.
+
+#### AC5
+
+**Given** une révision est enregistrée,
+**When** je consulte la fiche,
+**Then** la date initiale et la dernière modification sont distinctes, sans promettre l'historisation intégrale de toutes les versions du texte.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 ; FR-56, FR-57 ; D-PRD-126/IA-07/08 ; F-100/105.
+* Dépendances : Stories 9.14–9.17.
+* Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
+* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.19: Supprimer volontairement une analyse sans supprimer le brief TXT
+**Jira :** https://lmn24.atlassian.net/browse/SMN-197
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retirer une analyse devenue inutile ou inappropriée,
+**afin de** garder mes archives de briefs indépendantes de leurs interprétations.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une analyse IA est attachée à un brief,
+**When** je demande sa suppression,
+**Then** une confirmation identifie l'analyse et les conséquences, avant toute écriture.
+
+#### AC2
+
+**Given** j'annule la confirmation,
+**When** je retourne au journal,
+**Then** aucune analyse ni lien n'est supprimé.
+
+#### AC3
+
+**Given** je confirme la suppression de l'analyse IA,
+**When** l'opération réussit,
+**Then** le lien actif disparaît mais le fichier TXT final et ses métadonnées restent strictement intacts.
+
+#### AC4
+
+**Given** une réponse IA a été supprimée du brief,
+**When** je souhaite en coller une nouvelle,
+**Then** l'opération devient à nouveau possible sous la règle une analyse active par brief.
+
+#### AC5
+
+**Given** un PDF ancien contient l'analyse désormais supprimée,
+**When** je consulte cette archive,
+**Then** son contenu et ses octets ne sont pas reconstruits ni modifiés.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 ; FR-56, FR-55, FR-54 ; D-PRD-126/IA-06/07 ; F-101.
+* Dépendances : Stories 9.11, 9.15, 9.17.
+* Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
+* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.20: Inclure volontairement des analyses passées dans un nouveau brief TXT
+**Jira :** https://lmn24.atlassian.net/browse/SMN-198
+
+**En tant que** Scrum Master Administrateur,
+**je veux** sélectionner des observations humaines ou analyses IA antérieures pertinentes,
+**afin de** apporter un contexte utile sans alimenter l'IA avec ses réponses passées par défaut.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un nouveau brief est préparé avec un modèle quelconque,
+**When** j'ouvre la liste des analyses antérieures,
+**Then** les analyses IA historiques ne sont jamais présélectionnées par défaut.
+
+#### AC2
+
+**Given** une analyse IA passée est pertinente,
+**When** je l'inclus explicitement,
+**Then** sa rubrique la marque comme interprétation IA historique avec date et origine connues.
+
+#### AC3
+
+**Given** une analyse humaine passée est disponible,
+**When** je la sélectionne,
+**Then** elle est présentée comme observation/avis humain et non comme valeur mesurée.
+
+#### AC4
+
+**Given** un modèle comporte une rubrique d'analyses,
+**When** je l'applique à un nouveau brief,
+**Then** la rubrique n'active pas silencieusement l'inclusion d'analyses IA historiques.
+
+#### AC5
+
+**Given** une analyse sélectionnée possède des textes libres sensibles,
+**When** j'examine le TXT complet,
+**Then** le contrôle de confidentialité obligatoire est renouvelé avant finalisation et aucun envoi externe automatique n'a lieu.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 ; FR-56, FR-52, FR-53, FR-57 ; D-PRD-126/IA-03/07/08 ; F-105/108.
+* Dépendances : Stories 9.6–9.9 et 9.16–9.18.
+* Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
+* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+
+
+**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+### Story 9.21: Insérer des analyses choisies dans les rapports HTML/PDF avec attribution
+**Jira :** https://lmn24.atlassian.net/browse/SMN-199
+
+**En tant que** Scrum Master Administrateur,
+**je veux** présenter les analyses utiles dans les reportings sans les confondre avec les indicateurs,
+**afin de** partager des interprétations clairement séparées des faits et données sources.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un rapport HTML/PDF est en préparation,
+**When** je sélectionne une ou plusieurs analyses autorisées,
+**Then** seules celles choisies sont insérées, sans inclusion implicite.
+
+#### AC2
+
+**Given** une analyse humaine est sélectionnée,
+**When** elle apparaît dans le rapport,
+**Then** son origine Humaine, son contexte et sa date connus sont identifiables.
+
+#### AC3
+
+**Given** une analyse IA retouchée est sélectionnée,
+**When** elle apparaît dans le rapport,
+**Then** son origine IA, référence de brief et retouche humaine sont explicitement indiquées.
+
+#### AC4
+
+**Given** une analyse est affichée près des KPI,
+**When** le rendu HTML ou PDF est consulté,
+**Then** les interprétations sont distinguées textuellement des chiffres, sources enregistrées et observations.
+
+#### AC5
+
+**Given** une analyse incluse est ensuite modifiée ou supprimée,
+**When** un ancien PDF est consulté,
+**Then** ce document reste immuable ; les rapports ultérieurs reflètent les analyses encore disponibles et volontairement sélectionnées.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-9 ; FR-57, FR-56 ; D-PRD-126/IA-08 ; D-PRD-123 ; RPT-02/07.
+* Dépendances : Stories 9.16–9.20 ; sélection et export HTML/PDF Epic 6.
+* Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
+* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
 
 
 **Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
