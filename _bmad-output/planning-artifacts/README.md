@@ -11,7 +11,8 @@
 | Incréments I0 à I6 | [séquencement](prds/prd-SMN-2026-10-18/sequencement-mvp-d-prd-131.md) |
 | Architecture finale sous réserves techniques | [Architecture Spine](architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md) et [index](architecture/architecture-SMN-2026-10-19/README.md) |
 | Découpage actuel : 10 Epics / 212 Stories | [epics.md](epics.md) |
-| Contrôle Sprint Planning du 19/10 — CONCERNS | [Résultat et portes de preuve](implementation-readiness.md) ; [rapprochement des 210 Stories](implementation-readiness-evidence.json) |
+| Contrôle Sprint Planning du 19/10 — CONCERNS | [Résultat et portes de preuve](implementation-readiness.md) ; [rapprochement des 212 Stories](implementation-readiness-evidence.json) |
+| Préparation technique I0 — en cours | [Choix candidats, inventaire et protocole](preparation-technique-i0.md) ; aucun essai attesté |
 | Règles de publication Jira | [BMAD-JIRA-PUBLICATION-RULES.md](BMAD-JIRA-PUBLICATION-RULES.md) |
 | Journal de consolidation | [CONSOLIDATION-2026-10-19.md](CONSOLIDATION-2026-10-19.md) |
 
