@@ -37,5 +37,5 @@
 - Epic 9 : https://lmn24.atlassian.net/browse/SMN-9 — 21 Stories validées globalement.
 - Epic 10 : https://lmn24.atlassian.net/browse/SMN-10 — 21 Stories validées globalement ; aucune recette exécutée.
 - Au retour dans une autre conversation, relire ce document et les Epics Jira avant de proposer une nouvelle création ou correction.
-- Le **Step 3 est achevé** : 10 Epics détaillées et 210 Stories validées fonctionnellement, dont les 21 de SMN-10. La vérification finale **Step 4** est engagée à la demande de l'utilisateur et doit être clôturée avec la commande `[C] Complete Workflow` avant la mise au statut `final`.
+- Le **Step 3 est achevé** : 10 Epics détaillées et 210 Stories validées fonctionnellement, dont les 21 de SMN-10. La revue de couverture du **Step 4** a confirmé la traçabilité des **81 FR, 3 NFR et 18 UX-DR** ; les références UX-DR06/07/16/18 ont été ajoutées aux Stories existantes SMN-64/85/93/187 sans changement de périmètre ni de critères d'acceptation. Le document `epics.md` reste en `draft` avant confirmation explicite `[C] Complete Workflow`, qui seule autorise la finalisation du workflow BMAD.
 - L'approbation des Stories n'atteste ni développement, ni exécution de tests/mesures, ni satisfaction des cinq critères de succès, ni autorisation de pilote.
