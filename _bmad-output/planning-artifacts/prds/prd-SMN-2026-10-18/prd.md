@@ -954,35 +954,35 @@ Conserver les parcours **Express / Guidé-Tutoré** vers le **même tableau de b
 
 **Périmètre :** Scrum/Kanban MVP, extension SAFe/ART v1.0. Les règles du **calendrier**, des **indisponibilités individuelles**, du **mode/produit fixes** et de l'**historique** demeurent applicables. Parcours détaillés, textes, icônes, tailles d'écran, version de navigateurs, niveau d'accessibilité, conservation des brouillons et filtres restent à concevoir. **[Critères complets et points ouverts](parcours-utilisateur-ergonomie.md)**.
 
-### 4.20 Sécurité, continuité et exploitation — MVP Scrum/Kanban ; extension SAFe v1.0
+### 4.20 Sécurité, continuité et exploitation — MVP Scrum/Kanban ; SAFe v1.0
 
-**D-PRD-128 — Validation groupée SEC-01 à SEC-08 (19/10/2026) :** garantir la confidentialité, l'intégrité et la reprise des données de SMN, sans imposer prématurément une technologie. **[Critères d'acceptation détaillés](securite-exploitation.md)**.
+**D-PRD-128 / SEC-01 à SEC-08 :** exigences détaillées et scénarios disponibles dans **[l'annexe Sécurité](securite-exploitation.md)** ; choix techniques non figés.
 
 #### FR-66 — Protéger les accès et préparer les futurs droits (SEC-01)
-Interdire la **consultation, modification et récupération directe des données/fichiers privés par des personnes non autorisées** ; accès protégé simple pour un opérateur personnel au MVP, sans comptes membres obligatoires, architecture extensible à plusieurs habilitations. Authentification/sessions à définir.
+Interdire l'accès non autorisé aux **données et fichiers privés**, y compris par URL directe ; usage personnel MVP, habilitations futures possibles.
 
 #### FR-67 — Garantir la confidentialité des données et exports (SEC-02)
-Limiter l'exposition des **absences et données individuelles**, exclues par défaut des rapports externes ; **aucune donnée individuelle de membre dans les TXT IA**, textes libres vérifiables et **logs sans secrets**. Aucun envoi automatique de contexte à un prestataire IA dans le MVP.
+Protéger les informations individuelles ; rapports sans données nominatives superflues par défaut, **aucune donnée individuelle de membre dans les TXT IA**, et logs sans secrets.
 
 #### FR-68 — Permettre la sauvegarde et la restauration complètes (SEC-03)
-Sauvegarder et restaurer de façon cohérente **données et historiques, paramètres, instantanés, TXT archivés et fichiers/PDF effectivement conservés**, avec relations et métadonnées. Confirmer toute restauration destructive ; ne pas déclarer réussie une sauvegarde/restauration incomplète. Fréquence, format, support et RPO/RTO ouverts.
+Sauvegarder/restaurer **base, historique, paramètres, instantanés et fichiers TXT/PDF effectivement stockés** en préservant leurs liens. Confirmation avant restauration destructive ; fréquence/RPO/RTO ouverts.
 
 #### FR-69 — Sécuriser les suppressions, archivages et réinitialisations (SEC-04)
-Distinguer **archivage réversible, suppression autorisée et réinitialisation de l'installation**, annoncer impacts et demander confirmation des destructions ; préserver relations, historiques et documents figés. **Créer une nouvelle installation ne détruit pas l'ancienne**.
+Distinguer archivage, suppression et réinitialisation avec **confirmation des destructions** ; conserver l'historique nécessaire. Nouvelle installation ≠ effacement de l'ancienne.
 
 #### FR-70 — Tracer les opérations métier importantes (SEC-05)
-Conserver **auteur connu, date, opération, périmètre, résultat et avant/après pertinent** pour corrections, cycles, imports, suppressions/restaurations, changements majeurs. Une opération annulée/échouée n'est pas une réussite ; **aucun audit systématique de chaque clic** et aucun secret dans les traces.
+Consigner opérations majeures (**auteur, date, objet, résultat, avant/après utiles**) sans auditer chaque clic ; échecs non assimilés à des succès.
 
 #### FR-71 — Maintenir l'intégrité et l'atomicité validées (SEC-06)
-Garantir le **tout ou rien** pour lots de cycles D-PRD-101 et replanifications/audits D-PRD-118/119, sans écriture partielle. Préserver **sauvegardes indépendantes** des blocs du bilan, capacités initiales, instantanés, PDF et TXT immuables ainsi que liens entre fichiers et base.
+**Tout ou rien** pour lots/replanifications ; maintenir sauvegardes indépendantes des blocs et **archives/historiques figés**.
 
 #### FR-72 — Configurer l'application sans exposer de secrets (SEC-07)
-Paramètres administrables sans modification du code et avec portée temporelle respectée ; **aucun mot de passe, clé ni token dans GitHub/BMAD ou diagnostics**. Mode Agile et produit de référence fixes ; stockage/rotation des secrets à concevoir.
+Paramètres administrables, sans changement rétroactif silencieux ; **aucun secret dans GitHub, BMAD ou diagnostics**.
 
 #### FR-73 — Rendre les erreurs et interruptions explicites (SEC-08)
-Afficher **succès uniquement après confirmation**, distinguer échec, annulation et éventuel résultat partiel autorisé. Imports/exports, génération de lots, sauvegardes et restaurations résilients et traçables, messages compréhensibles sans exposition de secrets.
+Succès annoncé **après persistance vérifiée** ; échecs, annulations et résultats partiels autorisés explicités, sans secrets.
 
-**Périmètre :** exploitation personnelle Scrum/Kanban au MVP ; mécanismes extensibles SAFe/ART et futurs opérateurs. **Les modalités d'authentification, le chiffrement, les sauvegardes programmées ou manuelles, la rétention, les technologies et RPO/RTO restent à arbitrer** en architecture/sécurité et recette. **[Scénarios de vérification et limites](securite-exploitation.md)**.
+**Périmètre :** Scrum/Kanban MVP, extension SAFe v1.0. **[Critères d'acceptation complets](securite-exploitation.md)**.
 
 ## 5. Non-objectifs actés
 
@@ -1025,19 +1025,19 @@ Les protocoles de recette, contre-indicateurs, FR associées et critères mesura
 
 ## 9. Questions ouvertes à traiter progressivement
 
-**Les 37 questions ouvertes antérieures sont conservées intégralement**, avec leurs références et formulation au 19/10/2026, dans **[les questions ouvertes détaillées](questions-ouvertes-detaillees.md)**. Ce déplacement documentaire ne modifie **aucune décision métier ni aucun critère fonctionnel** : les exigences FR-1 à FR-65 restent dans la section 4, et les annexes de domaine restent la source de leurs critères détaillés.
+Les **37 questions ouvertes détaillées antérieures** sont conservées intégralement dans [l'archive du 19/10/2026](questions-ouvertes-detaillees.md). Le PRD et les annexes gardent leurs décisions et leurs critères d'acceptation.
 
-**Points ouverts à reprendre en priorité dans les prochaines étapes :**
-- **FR-58 à FR-65 / D-PRD-127 :** mise en page des écrans, parcours des liens et filtres, navigation mobile, conservation des brouillons, niveau d'accessibilité, navigateurs/tailles de référence et tests clavier. [Critères UX](parcours-utilisateur-ergonomie.md).
-- **FR-50 à FR-57 / D-PRD-126 :** modèles IA initiaux, stockage privé du TXT, sauvegardes, contrôle des textes libres et rétention. [Critères IA](briefs-analyses-ia.md).
-- **FR-42 à FR-49 / D-PRD-125 :** colonnes exactes CSV, conflits/lot total ou partiel, reprise Kanban et données historiques incomplètes. [Critères de reprise](reprise-imports-historiques.md).
-- **FR-34 à FR-41 / D-PRD-124 :** matrice de criticité 3×3, catégories de faits marquants, réouverture/reclôture et droits. [Critères qualitatifs](registres-qualitatifs.md).
-- **FR-26 à FR-33 / D-PRD-123 :** gabarits et pagination HTML/PDF, identité visuelle, stockage, confidentialité et accessibilité. [Critères Reporting](reportings-html-pdf.md).
-- **FR-25 / D-PRD-120 à D-PRD-122 :** droits/liens transverses et versions des instantanés en cas de reclôture. [Critères risques et dépendances](risques-dependances.md).
-- **FR-66 à FR-73 / D-PRD-128 :** accès protégé, confidentialité, sauvegarde/restauration, archivage/suppression, audit, intégrité, secrets et résilience sont actés comme principes. À préciser : authentification, droits détaillés, protection des sauvegardes, RPO/RTO, rétention, chiffrement, erreurs et objectifs de disponibilité. [Critères Sécurité](securite-exploitation.md).
-- **Exigences transverses à arbitrer** : niveaux mesurables de performance/accessibilité, protocole de recette MVP, exigences réglementaires applicables au pilote et contraintes d'exploitation.
+**À préciser en conception, architecture ou recette :**
+- **FR-66 à FR-73 / D-PRD-128 :** accès, secrets, sauvegardes, RPO/RTO, rétention et chiffrement ([Sécurité](securite-exploitation.md)).
+- **FR-58 à FR-65 / D-PRD-127 :** navigation, responsive, contrôle clavier et accessibilité mesurable ([UX](parcours-utilisateur-ergonomie.md)).
+- **FR-50 à FR-57 / D-PRD-126 :** modèles IA, confidentialité et stockage TXT ([IA](briefs-analyses-ia.md)).
+- **FR-42 à FR-49 / D-PRD-125 :** schéma CSV, doublons, import partiel et reprise Kanban ([Historique](reprise-imports-historiques.md)).
+- **FR-34 à FR-41 / D-PRD-124 :** matrice 3×3, faits marquants et reclôture ([Registres](registres-qualitatifs.md)).
+- **FR-26 à FR-33 / D-PRD-123 :** rendu et stockage HTML/PDF ([Reporting](reportings-html-pdf.md)).
+- **FR-25 / D-PRD-120 à D-PRD-122 :** liens et instantanés de risques/dépendances ([Registre](risques-dependances.md)).
+- **Transverse :** critères mesurables de performance, accessibilité, compatibilité, recette et pilote ; obligations légales à confirmer selon déploiement.
 
-**Règle de suivi :** les décisions nouvelles seront intégrées aux FR et annexes concernées, et les questions résolues seront retirées du suivi actif de manière tracée. La version historique conservée dans l'annexe demeure accessible, même lorsque les choix sont ensuite tranchés.
+Aucune validation documentaire n'atteste l'exécution d'une recette ni n'autorise une diffusion.
 
 ## 10. Hypothèses
 
