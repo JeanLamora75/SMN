@@ -1,5 +1,7 @@
 # SMN — Revue de cohérence, traçabilité et transmission BMAD
 
+> **Lecture historique — consolidation du 19/10/2026.** Les constats ci-dessous décrivent leur revue d'origine. A7/A8/A10/A11 ont depuis été validés ; D-PRD-136 fixe **deux rôles MVP : Administrateur et Utilisateur**. Les hypothèses à trois rôles et blocages métier correspondants sont supplantés par [les arbitrages validés](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). Les réserves techniques et l'absence de lint/Reviewer Gate officiel attesté restent applicables.
+
 > **Addendum métier ultérieur :** A7/A8/A10/A11 et la simplification AD-31 à **deux rôles** sont validés (D-PRD-132 à 136). Cette revue conserve les réserves identifiées **à l'époque** ; [annexe normative actualisée](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). Les tests décrits ci-dessous restent non exécutés.
 
 **Date :** 19 octobre 2026. **Portée :** cohérence documentaire des décisions architecturales discutées avec Winston ; pas de tests d'implémentation. **Sources :** PRD final, décisions F/D-PRD, annexes spécialisées, validation-report PRD, handoff architecture et séquencement I0–I6, plus journal architectural existant. **La note historique Fair du PRD n'est pas recalculée ni présentée comme une validation technique.**

@@ -1,5 +1,7 @@
 # SMN — Arbitrages ouverts : revue finale du 19 octobre 2026
 
+> **Lecture historique — consolidation du 19/10/2026.** Les constats ci-dessous décrivent leur revue d'origine. A7/A8/A10/A11 ont depuis été validés ; D-PRD-136 fixe **deux rôles MVP : Administrateur et Utilisateur**. Les hypothèses à trois rôles et blocages métier correspondants sont supplantés par [les arbitrages validés](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). Les réserves techniques et l'absence de lint/Reviewer Gate officiel attesté restent applicables.
+
 > **Mise à jour postérieure (19/10/2026) :** cette revue conserve l'**état historique avant validation**. A7/A8/A10/A11 ont depuis été approuvés et AD-31 corrigé à **deux profils MVP Administrateur/Utilisateur**, voir les [D-PRD-132 à 136](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). Les tableaux « ouvert » et les trois rôles ci-dessous ne sont plus normatifs pour le MVP.
 
 **Statut :** revue de clôture documentaire, sans modification du périmètre fonctionnel. Cette revue ne prétend ni remplacer une validation produit ni démontrer une implémentation.  

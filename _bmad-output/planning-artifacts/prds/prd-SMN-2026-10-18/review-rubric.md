@@ -1,5 +1,7 @@
 # Revue qualité BMAD du PRD — Scrum Master Notebook (SMN)
 
+> **Document historique — consolidation du 19/10/2026.** Cette revue est conservée avec ses constats d'origine. Pour l'état courant, consulter le [PRD final](prd.md), les [arbitrages D-PRD-132 à 136](arbitrages-metier-valides-2026-10-19.md) et le [suivi BMAD](../../../../docs/ETAT-PROJET-BMAD.md). Les points A7/A8/A10/A11 et la matrice à deux profils sont désormais validés ; aucune preuve technique n'est ajoutée ici.
+
 **Date :** 2026-10-19 · **Mode :** Validate (lecture et critique uniquement) · **État examiné :** branche `docs/bmad-prd-smn-20261018`, `prd.md` (blob `8c850e143bb3db15daafe68b675a6b607763407a`) et les annexes du même dossier.  
 **Référentiel :** `.agents/skills/bmad-prd/assets/prd-validation-checklist.md` (sept dimensions), Product Brief final, `docs/DECISIONS-FONCTIONNELLES.md` et `docs/CADRAGE-FONCTIONNEL.md`.  
 **Portée de vérification :** documentaire seulement. Aucun test logiciel, aucune commande BMAD locale ni certification n'a été exécuté.

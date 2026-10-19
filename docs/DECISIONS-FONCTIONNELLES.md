@@ -1,5 +1,7 @@
 # SMN — Registre des décisions fonctionnelles F-01 à F-124
 
+> **Référentiel initial conservé — 19/10/2026.** Le [PRD final](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/prd.md) et les [décisions D-PRD-132 à 136](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md) complètent et, en cas de divergence, précisent ce cadrage. Voir [l'état courant de BMAD](ETAT-PROJET-BMAD.md).
+
 > **Mise à jour : 18 octobre 2026** — BMAD / Mary (Analyst), consolidation du brainstorming.  
 > **Source :** décisions exprimées et confirmées dans les échanges de cadrage SMN, et référentiel initial `docs/PROJECT-CONTEXT.md`.  
 > **Statut :** ce registre synthétise les décisions utilisateur ; il ne vaut ni PRD finalisé ni choix d'architecture.  

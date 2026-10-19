@@ -1,5 +1,7 @@
 # Scrum Master Notebook — Cadrage fonctionnel consolidé
 
+> **Référentiel initial conservé — 19/10/2026.** Le [PRD final](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/prd.md) et les [décisions D-PRD-132 à 136](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md) complètent et, en cas de divergence, précisent ce cadrage. Voir [l'état courant de BMAD](ETAT-PROJET-BMAD.md).
+
 > **État : 18 octobre 2026** — Synthèse de brainstorming BMAD avec Mary (Analyst).  
 > **Source de vérité des arbitrages :** [Registre F-01 à F-124](./DECISIONS-FONCTIONNELLES.md).  
 > **Nature :** règles métier validées et pistes restant à spécifier. **Ce document n'est pas encore le PRD ni l'architecture technique.**  

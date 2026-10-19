@@ -1,5 +1,7 @@
 # SMN — Questions ouvertes détaillées du PRD
 
+> **Document historique — consolidation du 19/10/2026.** Cette revue est conservée avec ses constats d'origine. Pour l'état courant, consulter le [PRD final](prd.md), les [arbitrages D-PRD-132 à 136](arbitrages-metier-valides-2026-10-19.md) et le [suivi BMAD](../../../../docs/ETAT-PROJET-BMAD.md). Les points A7/A8/A10/A11 et la matrice à deux profils sont désormais validés ; aucune preuve technique n'est ajoutée ici.
+
 Ce document conserve **intégralement** les questions ouvertes de la section 9 du PRD, telles qu'elles étaient rédigées avant leur déplacement documentaire le **19 octobre 2026**. Les références fonctionnelles des sections 4.1 à 4.18 du [PRD principal](prd.md) restent normatives et inchangées par ce déplacement. Le détail ci-dessous permet de retrouver tous les points de conception non arbitrés ; il ne constitue pas une nouvelle décision métier.
 
 ## 9. Questions ouvertes à traiter progressivement

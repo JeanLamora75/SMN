@@ -9,6 +9,8 @@
 
 ## Référence et portée
 
+Pour la lecture courante, suivre [l'index consolidé](../../README.md) et [l'état BMAD](../../../../docs/ETAT-PROJET-BMAD.md). La branche ci-dessous identifie la provenance historique ; le découpage Epics/Stories est depuis clôturé.
+
 Branche documentaire : `docs/bmad-architecture-smn-20261019`, créée depuis le commit PRD `93f2eb87e45487b1d8044436728940ba3358841d` de `docs/bmad-prd-smn-20261018`.
 
 - [PRD final et 81 FR](../../prds/prd-SMN-2026-10-18/prd.md)

@@ -1,5 +1,7 @@
 # Revue adversariale du PRD — SMN
 
+> **Document historique — consolidation du 19/10/2026.** Cette revue est conservée avec ses constats d'origine. Pour l'état courant, consulter le [PRD final](prd.md), les [arbitrages D-PRD-132 à 136](arbitrages-metier-valides-2026-10-19.md) et le [suivi BMAD](../../../../docs/ETAT-PROJET-BMAD.md). Les points A7/A8/A10/A11 et la matrice à deux profils sont désormais validés ; aucune preuve technique n'est ajoutée ici.
+
 **Portée :** PRD `prd.md` et ses annexes, branche `docs/bmad-prd-smn-20261018`, le 2026-10-19.  
 **Méthode :** lecture critique des conflits inter-exigences, variantes d'état et cas limites ; la présence d'un point ouvert connu n'est pas interprétée comme un échec technique exécuté.
 

@@ -1,5 +1,7 @@
 # SMN — Contrôle final de cohérence architecturale BMAD
 
+> **Lecture historique — consolidation du 19/10/2026.** Les constats ci-dessous décrivent leur revue d'origine. A7/A8/A10/A11 ont depuis été validés ; D-PRD-136 fixe **deux rôles MVP : Administrateur et Utilisateur**. Les hypothèses à trois rôles et blocages métier correspondants sont supplantés par [les arbitrages validés](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). Les réserves techniques et l'absence de lint/Reviewer Gate officiel attesté restent applicables.
+
 **Date :** 19 octobre 2026. **Type :** contrôle documentaire spécifique à la session, associé à une revue critique interne. **Statut du livrable :** `ARCHITECTURE-SPINE.md` finalisée comme contrat documentaire **avec réserves tracées**. **Ce document n'est PAS un rapport de succès du Reviewer Gate officiel** (script et sous-agents non exécutés).
 
 ## 1. Base des contrôles

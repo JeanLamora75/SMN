@@ -1,5 +1,7 @@
 # Rapport de validation globale BMAD — PRD Scrum Master Notebook
 
+> **Document historique — consolidation du 19/10/2026.** Cette revue est conservée avec ses constats d'origine. Pour l'état courant, consulter le [PRD final](prd.md), les [arbitrages D-PRD-132 à 136](arbitrages-metier-valides-2026-10-19.md) et le [suivi BMAD](../../../../docs/ETAT-PROJET-BMAD.md). Les points A7/A8/A10/A11 et la matrice à deux profils sont désormais validés ; aucune preuve technique n'est ajoutée ici.
+
 - **Branche :** `docs/bmad-prd-smn-20261018`
 - **PRD au moment de la revue initiale :** [prd.md](prd.md) (`status: draft` à la date de cette revue ; voir l'actualisation de finalisation ci-dessous).
 - **Sources :** Product Brief final, registre F-01 à F-124, cadrage fonctionnel, 81 exigences FR et annexes, journal D-PRD-001 à D-PRD-129.
