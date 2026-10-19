@@ -86,3 +86,8 @@ Node 24 et pnpm 12 appartiennent aux lignes compatibles selon la qualification d
 Prochaine donnée utile : version du serveur PostgreSQL obtenue depuis la connexion utilisée, par `SHOW server_version;` dans l'outil SQL déjà disponible. `psql --version` ne renseigne que le client ; les versions `pg_dump`/`pg_restore` devront également être relevées avant les essais de continuité. Ne pas déduire un numéro installé de la date de publication d'une distribution.
 
 La présence du runtime Visual C++ et les droits de migration restent non vérifiés. Les POC Windows, sessions, PDF et restauration restent non exécutés. CONCERNS maintenu.
+
+
+## Préparation du contrat d'accès
+
+Un [contrat d'accès proposé](contrat-acces-i0-proposition.md) détaille sessions serveur, révocation, amorçage et récupération locale. Les durées proposées (8 heures maximum, 30 minutes d'inactivité) attendent validation utilisateur ; elles ne sont ni acquises ni implémentées. La confirmation de la version PostgreSQL peut attendre sans bloquer cette préparation.
