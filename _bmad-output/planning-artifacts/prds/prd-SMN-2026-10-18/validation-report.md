@@ -1,13 +1,21 @@
 # Rapport de validation globale BMAD — PRD Scrum Master Notebook
 
 - **Branche :** `docs/bmad-prd-smn-20261018`
-- **PRD :** [prd.md](prd.md) (`status: draft`)
+- **PRD au moment de la revue initiale :** [prd.md](prd.md) (`status: draft` à la date de cette revue ; voir l'actualisation de finalisation ci-dessous).
 - **Sources :** Product Brief final, registre F-01 à F-124, cadrage fonctionnel, 81 exigences FR et annexes, journal D-PRD-001 à D-PRD-129.
 - **Référentiel :** `.agents/skills/bmad-prd/assets/prd-validation-checklist.md`, sept dimensions, avec revue complémentaire adversariale.
 - **Date :** 2026-10-19
 - **Note globale :** **Fair — favorable sous réserves** (PRD exploitable pour démarrer l'architecture/UX, **non prêt à finalisation ni au découpage exhaustif des US**)
 - **Écarts uniques du rubric :** 0 critique, **5 élevés**, **9 moyens**, 1 faible. La revue adversariale fournit 12 scénarios complémentaires, partiellement recoupés : ils ne sont pas additionnés comme 12 écarts uniques.
 
+
+## Clôture documentaire du PRD et transmission à Winston (19/10/2026)
+
+**Statut courant :** le [PRD](prd.md) est passé à `final` **en tant que référence fonctionnelle pour engager l'architecture**, à la demande explicite de l'utilisateur. Le [dossier de passation Winston](handoff-architecture-winston.md) recense les décisions établies, la matrice de dix scénarios transverses et les réserves toujours ouvertes. Les **81 FR** restent uniques et numérotées, et **D-PRD-001 à D-PRD-131** sont traçables dans le journal. La décision D-PRD-131 n'a modifié ni le périmètre MVP ni les cinq conditions cumulatives.
+
+**Suivi des écarts de la revue initiale :** A1/A2/A3/A4 résolus **fonctionnellement** par D-PRD-130, A6 par D-PRD-131 ; A13 traité éditorialement, A14 synthétisé pour l'architecture, A15 atténué par index et handoff sans raccourcissement intégral du PRD. **A5, A7, A8, A9, A10, A11, A12** conservent les restrictions et portes de sortie exposées dans le dossier de passation : notamment **A7/A8/A10/A11 exigent un arbitrage métier avant l'implémentation de leurs fonctionnalités**. Aucun choix métier nouveau n'est présumé validé.
+
+**Verdict de revue :** le score historique **Fair — favorable sous réserves** reste celui de l'examen initial, sans faux recalcul ni annonce d'une seconde revue indépendante. La finalisation n'est **ni la certification d'une architecture, ni un test applicatif, ni une autorisation de créer des tickets Jira, fusionner `main` ou démarrer un pilote**.
 
 ## Suivi après D-PRD-131 (19/10/2026)
 
