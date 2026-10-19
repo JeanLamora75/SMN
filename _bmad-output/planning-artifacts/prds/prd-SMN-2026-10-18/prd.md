@@ -11,7 +11,7 @@ language: fr
 
 # PRD — Scrum Master Notebook (SMN)
 
-> **Statut : final — référence fonctionnelle pour l'architecture BMAD (19/10/2026).** Product Brief, F-01 à F-124 et D-PRD-001 à D-PRD-131 conservés. Les choix résiduels A5/A7–A12 sont [qualifiés pour Winston](handoff-architecture-winston.md) : finalisation documentaire ≠ architecture approuvée, logiciel développé ou pilote autorisé.
+> **Statut final documentaire, actualisé par [D-PRD-132 à D-PRD-136](arbitrages-metier-valides-2026-10-19.md).** F-01 à F-124 et D-PRD-001 à D-PRD-131 conservés. A7/A8/A10/A11 **validés** ; AD-31 **corrigé à deux rôles MVP, Administrateur et Utilisateur**. Les réserves techniques A5/A12 et la frontière A9 persistent ; la passation Winston représente l'état historique avant ces décisions. Aucun développement ou pilote attesté.
 
 ## 0. Objet et références du document
 
@@ -24,7 +24,7 @@ Références fonctionnelles sur `main` :
 
 Product Brief approuvé le 18/10/2026 : `_bmad-output/planning-artifacts/briefs/brief-SMN-2026-10-18/` ; branche documentaire `docs/bmad-product-brief-smn-20261018` et [PR #7](https://github.com/JeanLamora75/SMN/pull/7) (référence historique).
 
-**Accès rapide :** [séquencement MVP I0–I6](sequencement-mvp-d-prd-131.md) · [reporting](reportings-html-pdf.md) · [registres](registres-qualitatifs.md) · [historique et CSV](reprise-imports-historiques.md) · [IA](briefs-analyses-ia.md) · [UX](parcours-utilisateur-ergonomie.md) · [sécurité](securite-exploitation.md) · [recette](recette-finalisation-mvp.md) · [passation Winston / réserves](handoff-architecture-winston.md).
+**Accès rapide :** [arbitrages validés D-PRD-132–136](arbitrages-metier-valides-2026-10-19.md) · [séquencement MVP I0–I6](sequencement-mvp-d-prd-131.md) · [reporting](reportings-html-pdf.md) · [registres](registres-qualitatifs.md) · [historique et CSV](reprise-imports-historiques.md) · [IA](briefs-analyses-ia.md) · [UX](parcours-utilisateur-ergonomie.md) · [sécurité](securite-exploitation.md) · [recette](recette-finalisation-mvp.md) · [passation Winston / réserves](handoff-architecture-winston.md).
 
 ## 1. Vision — socle validé
 
@@ -854,7 +854,7 @@ Parcours commun de **création rapide** pour six types, avec **titre requis, dat
 Vues centrales des six registres, **filtres pertinents équipe, cycle, statut et responsable**, fiches uniques et **relations multiples bidirectionnelles historisées** lorsque prévues par F-13/F-79 et D-PRD-121 ; retirer un lien ne supprime ni la fiche ni son historique.
 
 #### FR-36 — Évaluer la criticité indicative des risques (QLT-03)
-La **probabilité** et l'**impact** facultatifs de niveaux **Faible/Moyen/Élevé** alimentent une **matrice indicative 3 × 3**, distincte du ROAM ; **aucune criticité déduite si une valeur manque**. Le classement exact des neuf cases, les seuils et couleurs doivent être précisés avant implémentation : **aucune formule ou seuil numérique non validé n'est imposé**.
+La **probabilité** et l'**impact** facultatifs de niveaux **Faible/Moyen/Élevé** alimentent une **matrice indicative 3 × 3**, distincte du ROAM ; **aucune criticité déduite si une valeur manque**. **D-PRD-132/A7 :** score ordinal P×I (Faible=1, Moyen=2, Élevé=3), 1–2 Faible, 3–4 Moyenne, 6–9 Élevée ; valeur manquante = Non évaluée, indépendance ROAM, seuil non paramétrable MVP. [Matrice et critères](arbitrages-metier-valides-2026-10-19.md).
 
 #### FR-37 — Créer des objets liés avec assistance (QLT-04)
 Depuis un **risque matérialisé**, proposer la création d'un **obstacle distinct, prérempli et relié dans les deux sens** ; depuis une **décision**, créer une ou plusieurs **actions préremplies et liées**. Aucun changement automatique du statut ou de l'historique des fiches sources.
@@ -866,7 +866,7 @@ Une **dépendance unique** peut désigner des équipes SMN ou une **équipe exte
 Le cockpit regroupe **risques élevés connus, obstacles ouverts, dépendances « À risque », actions/dépendances avec échéances à surveiller et objectifs exposés**. Seuil commun **3 jours calendaires par défaut, administrable** (F-82/F-83), accès aux fiches et filtres d'équipe ; **alertes informatives, non bloquantes, sans notification externe ni changement d'état automatique**.
 
 #### FR-40 — Alimenter et administrer les faits marquants (QLT-07)
-Journal chronologique distinct de l'audit, alimenté **manuellement et par catégories significatives configurables** ; les faits automatiques **référencent leur source**, peuvent être **promus ou masqués** sans changer les objets initiaux, et sont sélectionnables dans les rapports. Le catalogue exact des déclencheurs reste à déterminer avant développement.
+Journal chronologique distinct de l'audit, alimenté **manuellement et par catégories significatives configurables** ; les faits automatiques **référencent leur source**, peuvent être **promus ou masqués** sans changer les objets initiaux, et sont sélectionnables dans les rapports. **D-PRD-133/A8 :** six catégories initiales avec activation définie, déclenchement sur événement métier enregistré, déduplication, corrections et validation globale des faits dans les rapports. [Catalogue et critères](arbitrages-metier-valides-2026-10-19.md).
 
 #### FR-41 — Figer les six registres à la clôture pour les bilans (QLT-08)
 À la **clôture de chaque cycle**, conserver les états qualitatifs **associés au cycle à cet instant** pour **risques et dépendances** (D-PRD-122), ainsi que **obstacles, décisions, actions et faits marquants** ; bilan historique utilisant cet instantané, bilan non clôturé utilisant l'état courant. Les fiches centrales continuent d'évoluer **sans réécrire les instantanés ni anciens PDF**. **D-PRD-130/A3 :** clôtures **V1/V2…** immuables, anciennes versions consultables ; bilan d'un cycle clôturé = dernière version, cycle rouvert = données courantes ; **aucun état historique fictif** pour les reprises sans preuve. [Détails](clarifications-d-prd-130.md).
@@ -1088,3 +1088,7 @@ Aucune hypothèse fonctionnelle additionnelle n'est présentée comme une décis
 ---
 
 *PRD finalisé le 19 octobre 2026 pour transmission à Winston. Les réserves ouvertes, leurs responsables et conditions de levée sont consignés dans [le dossier de passation Architecture](handoff-architecture-winston.md).*
+
+## Complément métier final — D-PRD-132 à 136
+
+L'[annexe des cinq arbitrages approuvés](arbitrages-metier-valides-2026-10-19.md) complète les FR existantes sans renumérotation. A10 : archivage automatique de tout PDF exporté avec succès, sans purge automatique par ancienneté. A11 : traitement différencié des données individuelles et **30 jours par défaut pour les sauvegardes gérées**, distincts de la conservation PDF. AD-31 : **deux rôles pour le MVP (Administrateur et Utilisateur)** ; Utilisateur en lecture seule collective avec téléchargement des PDF/TXT autorisés, sans donnée individuelle ni génération. Les mentions antérieures « ouvert » et « trois profils » ne prévalent plus sur ces décisions explicites. Séquencement I0–I6 et PostgreSQL maintenus.

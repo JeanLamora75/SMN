@@ -1,5 +1,7 @@
 # SMN — Arbitrages ouverts : revue finale du 19 octobre 2026
 
+> **Mise à jour postérieure (19/10/2026) :** cette revue conserve l'**état historique avant validation**. A7/A8/A10/A11 ont depuis été approuvés et AD-31 corrigé à **deux profils MVP Administrateur/Utilisateur**, voir les [D-PRD-132 à 136](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). Les tableaux « ouvert » et les trois rôles ci-dessous ne sont plus normatifs pour le MVP.
+
 **Statut :** revue de clôture documentaire, sans modification du périmètre fonctionnel. Cette revue ne prétend ni remplacer une validation produit ni démontrer une implémentation.  
 **Sources :** PRD final et handoff Winston ; décisions D-PRD-130/131 ; journal BMAD de cette branche ; validations directes en conversation des domaines AD-TIME, AD-HIST, AD-RPT et AD-SEC, avec PostgreSQL choisi explicitement.
 
@@ -63,3 +65,7 @@ Conserver l'historique de **AD-8 et AD-9** sans le réécrire comme si les trois
 - A5 : seuils NFR mesurés et approuvés sur configuration de référence avant acceptation technique et pilote.
 
 **Règle de finalisation BMAD :** le document de contrat peut être finalisé avec ces réserves isolées, car elles ont un propriétaire, une frontière et une porte de sortie. Cela ne signifie **ni** que les arbitrages métier sont tranchés, **ni** que le Reviewer Gate indépendant, le lint officiel, les prototypes et la recette sont réussis.
+
+## Décisions postérieures à la revue
+
+**A7 D-PRD-132, A8 D-PRD-133, A10 D-PRD-134, A11 D-PRD-135 : validés par l'utilisateur** avec leurs exigences et critères de recette. **AD-31 D-PRD-136 : correction validée, deux profils Administrateur/Utilisateur uniquement au MVP**, sans rôle Opérateur ni Lecteur séparé, ni matrice de permissions fine. Les anciennes lignes ci-dessus sont conservées volontairement pour la traçabilité de Winston. Les portes techniques A5/A12, POC I0, sécurité, restauration et revue juridique A11 restent non levées.

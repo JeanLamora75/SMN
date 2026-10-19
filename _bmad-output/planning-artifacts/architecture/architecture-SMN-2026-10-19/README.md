@@ -1,5 +1,7 @@
 # SMN — Architecture BMAD : espace de travail
 
+> **Mise à jour métier validée 19/10/2026 :** décisions A7/A8/A10/A11 résolues et AD-31 corrigée au **MVP deux profils Administrateur/Utilisateur**. Les sections datées de la revue Winston à trois rôles représentent l'historique ; la [nouvelle annexe normative PRD](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md) et la [spine corrigée](ARCHITECTURE-SPINE.md) prévalent. Les contrôles techniques sont à exécuter.
+
 **Agent :** Winston — System Architect.  
 **Workflow :** bmad-architecture, Coaching Path.  
 **Date :** 19 octobre 2026.  
@@ -129,3 +131,7 @@ La [revue finale des arbitrages](ARBITRAGES-FINAUX.md) classe les décisions dif
 Le contrôle automatisé **spécifique à cette session** a vérifié la continuité **AD-1 à AD-31**, la présence de `Binds/Prevents/Rule`, les sections attendues, les liens documentaires locaux et l'équilibrage des blocs de code Markdown. Ce contrôle n'est **pas** le script officiel `lint_spine.py`. Pour la portée exacte des vérifications, voir [CONTRÔLE-FINAL-BMAD.md](CONTROLE-FINAL-BMAD.md).
 
 **Travail restant :** revue indépendante officielle si l'environnement BMAD le permet, vérification des versions des dépendances après autorisation appropriée, POC Windows/PostgreSQL/PDF, arbitrages ciblés A7/A8/A10/A11 et habilitations individuelles de l'Opérateur avant leurs Stories ; recette I6 avant tout pilote. `main` et Jira restent inchangés.
+
+## Consolidation métier postérieure à la revue Winston
+
+La branche documentaire de consolidation du 19/10/2026 intègre les **D-PRD-132/133/134/135/136** : criticité A7, faits marquants A8, archives PDF A10, effacement A11 et **AD-31 à deux profils seulement**. La proposition intermédiaire Administrateur/Opérateur/Lecteur et les phrases historiques « A7/A8/A10/A11 ouverts » ne sont plus les règles applicables au MVP. [Registre des cinq validations](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). `main` et Jira non modifiés.

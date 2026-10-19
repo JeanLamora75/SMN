@@ -47,7 +47,7 @@
 2. Lorsque **les deux valeurs** sont connues, SMN calcule et montre une **criticité indicative** à partir d'une **matrice 3 × 3 cohérente**. Un changement de probabilité ou d'impact actualise la criticité calculable.
 3. Si **une des deux valeurs manque**, afficher « Non calculable » ou un équivalent explicite, **jamais Faible ni zéro par défaut**.
 4. La **criticité et la classification ROAM** sont **indépendantes** : changer ROAM ne change ni la probabilité, ni l'impact, ni la criticité, et inversement.
-5. La matrice doit classer des niveaux croissants de probabilité et impact sans inversion de gravité. **La correspondance exacte des neuf cellules aux classes de criticité, les seuils/couleurs et leur éventuel paramétrage restent à arbitrer avant implémentation** : aucune table numérique précise n'est réputée approuvée par la seule validation QLT-03.
+5. La matrice doit classer des niveaux croissants de probabilité et impact sans inversion de gravité. **La matrice exacte est maintenant validée par D-PRD-132/A7** : score P×I, classes 1–2 / 3–4 / 6–9, sans paramétrage au MVP. [Neuf cases et dix critères](arbitrages-metier-valides-2026-10-19.md).
 6. Les bilans et points d'attention n'affichent une criticité mesurée/calculée que si les deux champs existent, en conservant la provenance des données.
 
 ### FR-37 / QLT-04 — Créer des fiches liées avec assistance
@@ -110,11 +110,15 @@
 4. Sprint créé rétrospectivement sans preuve des états d'époque → **état historique indisponible**, pas d'attribution automatique des statuts actuels à la date passée. Toute information retrouvée possède sa provenance et une date de saisie distincte de l'époque décrite.
 ## 3. Limites et points à finaliser
 
-- **QLT-03 :** table exacte des neuf combinaisons (criticité faible/moyenne/élevée), seuils, couleur et éventuel paramétrage. La décision valide la **matrice 3×3 indicative**, pas une formule numérique arbitraire.
-- **QLT-07 :** catalogue initial exact et règles de qualification des « faits significatifs » ; déclencheurs, prévention des doublons et traitements en cas de changement du paramétrage.
+- **QLT-03 :** A7 **résolu** par D-PRD-132, matrice des neuf cases validée.
+- **QLT-07 :** A8 **résolu** par D-PRD-133, six catégories, transitions confirmées, déduplication et correction définies.
 - **QLT-08 :** le **principe métier de versionnement V1/V2 et d'utilisation de la dernière version** est arbitré en D-PRD-130/A3. Restent ouverts : modèle technique, présentation des versions et preuve/provenance des faits historiques saisis après leur période.
 - **QLT-01/02/05 :** validations supplémentaires spécifiques des six fiches, règles de suppression/archivage, propriétés des liens interéquipes/externes, droits de modification et ergonomie responsive.
 - Les champs et scénarios techniques de sauvegarde/restauration, confidentialité/autorisation et rétention seront détaillés dans le domaine **Sécurité et exploitation** ; aucun changement de droits global n'est décidé ici.
 - Aucun service de notification externe, nouvelle intégration Jira ou mécanisme de collaboration des équipiers n'est inclus dans ces décisions.
 
 **Traçabilité :** D-PRD-120 à D-PRD-122, D-PRD-124 (QLT-01 à QLT-08), FR-25, F-11 à F-13, F-74 à F-90, F-91 à F-96, F-110/F-111, D-PRD-123 sur les rapports. Les règles du registre risques/dépendances déjà détaillées dans [risques-dependances.md](risques-dependances.md) demeurent applicables sans duplication de leur fiche centrale.
+
+### Addendum du 19/10/2026 — A7 et A8
+
+[D-PRD-132/133](arbitrages-metier-valides-2026-10-19.md) définissent désormais les règles normatives de criticité, les six catégories de faits automatiques (cinq activées, « Dépendance satisfaite » désactivée par défaut), la déduplication par événement source, l'invalidation des erreurs et la validation globale des faits avant reporting. Les exemples de catégories QLT-07 ci-dessus sont **historiques et indicatifs** ; seul le catalogue validé de l'annexe fait foi.

@@ -1,5 +1,7 @@
 # SMN — Dossier de finalisation du PRD et transmission à Winston (Architecte BMAD)
 
+> **Addendum métier postérieur :** cette passation est un document historique. A7/A8/A10/A11 sont validés par D-PRD-132 à 135 ; AD-31 est corrigé par D-PRD-136 à **deux profils MVP**. Voir le [registre normatif](arbitrages-metier-valides-2026-10-19.md). Les réserves métier ci-dessous décrivent la situation antérieure.
+
 **Date :** 2026-10-19  
 **Statut :** PRD finalisé sur le plan documentaire et prêt pour **le démarrage de l'architecture**, avec arbitrages métier résiduels **explicitement réservés** avant les développements concernés.  
 **Références :** [PRD](prd.md), [journal BMAD](.memlog.md), [revue initiale](validation-report.md), [rubric](review-rubric.md), [revue adversariale](review-adversarial-general.md), [D-PRD-130](clarifications-d-prd-130.md), [D-PRD-131](sequencement-mvp-d-prd-131.md), [questions ouvertes historiques](questions-ouvertes-detaillees.md).

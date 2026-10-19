@@ -95,7 +95,11 @@
 ## 3. Hors MVP et questions à traiter en conception
 
 - Hors MVP : éditeur de mise en page avancé, **traduction automatique**, exports programmés, dispositif complet de snapshots/archivage documentaire de chaque prévisualisation, intégration automatique Jira ou API IA, formats PPTX/DOCX/XLSX (sans version attribuée).
-- À préciser en architecture/UX : gabarits HTML/PDF exacts, logo et thème, pagination, accessibilité WCAG, options de personnalisation visuelle, stratégie de stockage de fichiers PDF si retenue, gestion d'erreurs d'export et performances.
+- À préciser en architecture/UX : gabarits HTML/PDF exacts, logo et thème, pagination, accessibilité WCAG, options de personnalisation visuelle, modalités techniques de stockage privé des PDF automatiquement archivés en vertu de D-PRD-134, gestion d'erreurs d'export et performances.
 - À préciser dans les autres blocs PRD : confidentialité et droits d'accès détaillés, durée de rétention et restauration, gestion de l'historique à réouverture/reclôture, statut des données rétrosaisies et définition exacte des points qualitatifs qui alimentent les rapports.
 
 **Traçabilité :** F-10/F-14/F-15/F-24/F-25/F-71 à F-73/F-91 à F-98/F-112/F-117 à F-120 ; D-PRD-076 à D-PRD-086, D-PRD-111 à D-PRD-122 ; D-PRD-123 (validation de RPT-01 à RPT-08). Le PRD principal reste la source structurante, le présent document portant ses critères d'acceptation détaillés.
+
+## Addendum du 19/10/2026 — D-PRD-134/A10
+
+Un PDF effectivement exporté est automatiquement archivé comme **fichier final exact** dans SMN ; la prévisualisation HTML ne crée pas d'archive. Plusieurs PDF d'un cycle/Vn restent indépendants, consultables dans une bibliothèque filtrable et depuis le cycle. Aucun effacement automatique selon l'âge. Suppression/masquage administrateur avec contrôle et audit, sans suppression des cycles et historiques ; sauvegarde/restauration cohérentes et téléchargement par l'**Utilisateur** pour les documents autorisés. Les PDF déjà produits ne sont pas réécrits ; une opération exceptionnelle A11 peut retirer un fichier contenant des informations personnelles à effacer. [A10-AC01 à 16](arbitrages-metier-valides-2026-10-19.md).

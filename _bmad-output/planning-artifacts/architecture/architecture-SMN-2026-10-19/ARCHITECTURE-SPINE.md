@@ -8,7 +8,7 @@ scope: "MVP Scrum/Kanban ; invariants extensibles à SAFe/ART v1.0"
 status: final
 created: "2026-10-19"
 updated: "2026-10-19"
-binds: ["FR-1..FR-81", "D-PRD-130", "D-PRD-131"]
+binds: ["FR-1..FR-81", "D-PRD-130", "D-PRD-131", "D-PRD-132..136"]
 sources:
   - "../../prds/prd-SMN-2026-10-18/prd.md"
   - "../../prds/prd-SMN-2026-10-18/handoff-architecture-winston.md"
@@ -23,7 +23,7 @@ companions:
 
 # Architecture Spine — Scrum Master Notebook
 
-> **Contrat de cohérence architectural, non constat d'implémentation.** Les AD-1 à AD-13 reprennent sans renumérotation les décisions déjà enregistrées dans le journal de cette branche. Les AD suivantes distillent les validations conversationnelles de Winston. Le PRD et ses annexes prévalent pour les règles métier. **Statut final du contrat documentaire, avec réserves à portes de sortie** : le lint officiel BMAD, les relectures indépendantes, les versions/bibliothèques, le packaging Windows et les tests métier ne sont pas attestés. Les décisions métier A7/A8/A10/A11 demeurent ouvertes. Voir [revue finale des arbitrages](ARBITRAGES-FINAUX.md) et [contrôle final documentaire](CONTROLE-FINAL-BMAD.md).
+> **Contrat de cohérence architectural, non constat d'implémentation.** Les AD-1 à AD-13 reprennent sans renumérotation les décisions déjà enregistrées dans le journal de cette branche. Les AD suivantes distillent les validations conversationnelles de Winston. Le PRD et ses annexes prévalent pour les règles métier. **Statut final du contrat documentaire, avec réserves à portes de sortie** : le lint officiel BMAD, les relectures indépendantes, les versions/bibliothèques, le packaging Windows et les tests métier ne sont pas attestés. Les décisions **A7/A8/A10/A11 sont maintenant validées**, et AD-31 précise **Administrateur / Utilisateur uniquement au MVP** (D-PRD-132 à 136). Voir [revue finale des arbitrages](ARBITRAGES-FINAUX.md) et [contrôle final documentaire](CONTROLE-FINAL-BMAD.md).
 
 ## Design Paradigm
 
@@ -86,7 +86,7 @@ flowchart TD
 ### AD-8 — Comptes et permissions distincts des membres [ADOPTED]
 - **Binds:** identité, administration et accès documents.
 - **Prevents:** permission implicite des membres ou lecture sans habilitation.
-- **Rule:** conserver les **garanties initialement approuvées** : Administrateur administre, l'ancien profil Utilisateur consulte les données collectives et télécharge les documents autorisés sans droit d'édition, et les données individuelles sensibles ne sont pas accessibles à ce profil. **La cardinalité initiale de deux rôles est étendue chronologiquement par AD-31**, sans perte de ce droit de téléchargement ni octroi tacite de droits individuels au nouveau rôle Opérateur.
+- **Rule:** conserver les **garanties initialement approuvées** : Administrateur administre, l'ancien profil Utilisateur consulte les données collectives et télécharge les documents autorisés sans droit d'édition, et les données individuelles sensibles ne sont pas accessibles à ce profil. **D-PRD-136 corrige cette extension : deux rôles seulement au MVP, Administrateur et Utilisateur** ; l'hypothèse Opérateur/Lecteur à trois profils reste historique, non applicable à l'implémentation du MVP.
 
 ### AD-9 — Comptes créés dans l'administration [ADOPTED]
 - **Binds:** MVP FR-66/72.
@@ -181,7 +181,7 @@ flowchart TD
 ### AD-27 — Base et stockage privé cohérents [ADOPTED]
 - **Binds:** archives, exports et restauration.
 - **Prevents:** fichier déclaré archivé sans fichier ou métadonnées associées.
-- **Rule:** TXT définitif stocké de préférence transactionnellement dans PostgreSQL avec empreinte ; PDF par rendu local contrôlé, non archivé systématiquement sans décision A10 ; stockage privé à état de finalisation explicite.
+- **Rule:** TXT définitif stocké de préférence transactionnellement dans PostgreSQL avec empreinte ; PDF par rendu local contrôlé, **archivé automatiquement à chaque export effectivement réussi selon D-PRD-134/A10**, stockage privé à état de finalisation explicite, sauvegarde cohérente et traitement des exceptions d'effacement A11.
 
 ### AD-28 — Déploiement utilisateur et évolutivité [ADOPTED]
 - **Binds:** I0, Windows local et éventuel web.
@@ -191,17 +191,17 @@ flowchart TD
 ### AD-29 — Exploitation et conservation vérifiables [ADOPTED]
 - **Binds:** migrations, sauvegardes/restaurations, erreurs, journaux.
 - **Prevents:** backups incohérents et succès fictifs.
-- **Rule:** backup PostgreSQL + archives réellement stockées avec manifeste et test de restauration ; migration versionnée avec backup préalable ; journaux métier/sécurité/techniques séparés, sans secrets ; échecs explicités. RPO/RTO/fréquence/rétention non approuvés définitivement.
+- **Rule:** backup PostgreSQL + archives réellement stockées avec manifeste et test de restauration ; migration versionnée avec backup préalable ; journaux métier/sécurité/techniques séparés, sans secrets ; échecs explicités. RPO/RTO et fréquence à confirmer ; **30 jours par défaut pour conservation des sauvegardes gérées selon D-PRD-135**, distincts des PDF sans purge automatique d'ancienneté.
 
 ### AD-30 — Vérification progressive et portes de sortie [ADOPTED]
 - **Binds:** incréments I0–I6, FR-74–81.
 - **Prevents:** revendication de qualité sans preuve ni glissement SAFe dans MVP.
 - **Rule:** POC I0 PostgreSQL/auth/packaging/PDF, tests unitaires/intégration/E2E, grille FR↔tests/preuves ; cinq conditions cumulatives validées humainement avant pilote, non réputées atteintes par approbation documentaire.
 
-### AD-31 — Évolution contrôlée des profils d'accès [ADOPTED]
-- **Binds:** identité/permissions FR-66–67/72, comptes MVP, rapports/briefs et données individuelles ; étend AD-8/9 selon la validation globale ultérieure AD-SEC.
-- **Prevents:** appliquer en silence le vieux périmètre à deux rôles en ignorant la proposition approuvée à trois rôles, ou faire perdre le droit de téléchargement du lecteur.
-- **Rule:** retenir trois profils architecturaux **Administrateur**, **Opérateur SM/RTE**, **Lecteur** : l'Administrateur administre et opère ; l'Opérateur gère les activités métier dans le périmètre autorisé ; le Lecteur consulte les données collectives et télécharge les rapports/briefs autorisés, sans édition. Les données individuelles nominatives restent interdites au Lecteur ; **l'Opérateur ne reçoit aucun droit individuel sensible par défaut**, sa matrice de permissions détaillée restant soumise à accord métier avant les Stories de comptes. Toutes les permissions sont contrôlées côté serveur. Aucune création de compte automatique pour les équipiers.
+### AD-31 — Évolution contrôlée des profils d'accès [ADOPTED — CORRIGÉ D-PRD-136]
+- **Binds:** identité/permissions FR-66–67/72, comptes MVP, rapports/briefs et données individuelles ; correction de la proposition AD-SEC intermédiaire.
+- **Prevents:** introduire au MVP trois profils ou un moteur d'habilitations complexes contre la validation finale ; supprimer le droit de téléchargement de l'Utilisateur.
+- **Rule:** exactement **deux profils MVP : Administrateur et Utilisateur**. Le Scrum Master est l'Administrateur de son installation : il gère l'application, équipes, membres, métriques, documents et opérations sensibles. L'Utilisateur est en **lecture seule des données collectives** et peut **consulter/télécharger les PDF/TXT autorisés**, mais ne peut ni éditer, ni générer de documents, ni accéder aux données individuelles, ni administrer. Formulaire de création des comptes par Administrateur au MVP ; aucune création automatique de comptes pour les équipiers. Contrôles côté serveur sur chaque consultation/action/téléchargement. La proposition de trois rôles est conservée dans le journal **comme étape historique supplantée** ; permissions par équipe et rôles avancés différés à une éventuelle version web.
 
 ## Consistency Conventions
 
@@ -257,15 +257,15 @@ src/
 | FR-66–73 sécurité/exploitation | Identity/Infrastructure | AD-7/8/10/25–29/31 | Dès I0 |
 | FR-74–81 recette | Test/Quality | AD-30 | I6 (preuves dès I0) |
 
-## Deferred — réserves explicites
+## Deferred — réserves techniques et décisions métier désormais levées
 
-- **A5 :** seuils NFR, matériel/volumes de référence, navigateurs cibles, niveaux WCAG et RPO/RTO à valider après POC ; objectifs précédemment proposés non contractuels.
-- **A7 / A8 :** classes exactes de matrice 3×3 et catalogue de faits marquants automatiques ; arbitrages fonctionnels préalables aux Stories.
-- **A9 :** reprise manuelle complète de périodes Kanban passées non acquise au MVP ; import de métriques sur cycles existants acquis.
-- **A10 :** archivage systématique/rétention des PDF non décidés ; PDF exporté non réécrit et consultation privée obligatoires.
-- **A11 :** suppression/anonymisation personnelle, rémanence en snapshots/archives/backups à arbitrer avant implémentation et pilote.
-- **A12 :** rendu multitemporel couvert par AD-19/20/22 ; scénarios de restitution non testés.
-- **Rôles, droits individuels :** AD-31 rapproche la proposition ultérieure à trois rôles et le profil Utilisateur d'AD-8 devenu Lecteur ; les droits d'accès de l'Opérateur aux absences, coordonnées et capacités individuelles **restent à arbitrer avant les Stories correspondantes**. Aucun accès sensible n'est accordé par défaut.
+- **A5 :** seuils NFR, matériel/volumes, navigateurs, accessibilité et RPO/RTO restent à valider après POC.
+- **A7 et A8 : VALIDÉS** par D-PRD-132/133 : matrice 3×3 et faits automatiques définis, tests à prévoir.
+- **A9 :** création rétrospective complète de cycles Kanban non engagée au MVP ; import des métriques sur cycles existants conservé.
+- **A10 : VALIDÉ** D-PRD-134 : PDF définitif systématiquement archivé à l'export, pas de purge automatique d'ancienneté, suppression sous contrôle administrateur.
+- **A11 : VALIDÉ** D-PRD-135 : effacement personnel contrôlé, exceptions historiques/documentaires ; sauvegardes gérées conservées 30 jours par défaut ; revue sécurité/juridique et tests encore nécessaires.
+- **A12 :** contrat temporel AD-19/20/22 maintenu ; scénarios de restitution à tester.
+- **Droits AD-31 : CORRIGÉS** D-PRD-136 : **Administrateur / Utilisateur seulement au MVP**, sans profil Opérateur ni habilitations par équipe ; droit de téléchargement de l'Utilisateur maintenu. [Source normative](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md).
 - **Amorçage :** identifiant de compte initial déjà consigné dans le journal ; mécanisme de secret temporaire, récupération et rotation à spécifier sans exposer de secret.
 - **Versions et starter :** recherche web avancée non autorisée ; versions des frameworks, chiffrement, pilotes PostgreSQL, calendriers et export PDF à éprouver en I0 avant engagement.
 - **Implémentation et qualité :** absence d'architecture exécutée ; linter/reviewer gate BMAD, scripts `uv`, tests et tests de restauration non exécutés ; validation documentaire indépendante à réaliser après production de la spine.

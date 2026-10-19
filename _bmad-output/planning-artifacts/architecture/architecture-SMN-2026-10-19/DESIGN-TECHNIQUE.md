@@ -161,7 +161,7 @@ Journal d'opération : tentative/prévisualisation/annulation/échec/validation,
 7. HTML/PDF et TXT consultables/téléchargeables par **utilisateurs authentifiés et autorisés** ; aucune URL statique anonyme.
 8. Rapport standard six sections (synthèse, objectifs, indicateurs/tendances, événements, points d'attention, décisions/actions), sections masquables/réordonnables ; vision/Product Goal en option, DoD/DoR facultatives en fin de document. FR/EN pour libellés, textes libres non traduits.
 
-**Important :** archive TXT obligatoire ; archivage systématique PDF = A10 non décidé. Les mécanismes de relecture des documents doivent être compatibles avec les autorisations d'AD-8 et AD-31, y compris le téléchargement par le Lecteur.
+**Important :** archive TXT obligatoire ; **archivage systématique de chaque PDF effectivement exporté adopté par D-PRD-134**, sans archive pour les prévisualisations HTML. Les mécanismes de relecture des documents doivent être compatibles avec les autorisations d'AD-8 et AD-31, y compris le téléchargement par le Lecteur.
 
 ## 8. Contrats API de haut niveau (non routage imposé)
 
@@ -186,7 +186,11 @@ Ces opérations impliquent autorisation serveur et journal adapté ; **l'API HTT
 - Pilote PostgreSQL et ORM (Prisma/Drizzle candidats), contraintes d'exclusion, stratégie migratoire et jeux de données.
 - Next.js/React et export PDF local sans administrateur ni Docker ; starter et versions à vérifier.
 - Sauvegarde/restauration cohérente, accès PostgreSQL sans superuser et publication contrôlée de documents.
-- Rôles : AD-31 rapproche la validation ultérieure à trois profils (Administrateur / Opérateur / Lecteur) avec l'ancien profil Utilisateur, devenu Lecteur ; ce dernier conserve le téléchargement de documents autorisés. Les droits de l'Opérateur sur les données individuelles restent à préciser avant les Stories concernées.
-- A5/A7/A8/A9/A10/A11/A12, sans modification des décisions métier antérieures.
+- Rôles : **D-PRD-136 corrige AD-31 pour le MVP à deux profils Administrateur/Utilisateur**. Administrateur : toutes opérations ; Utilisateur : lecture collective et téléchargement de PDF/TXT autorisés, aucune génération/édition/donnée individuelle. La proposition intermédiaire à trois profils est historique ; moteur d'habilitations multiéquipes non demandé au MVP.
+- A7/A8/A10/A11 sont **validés métier D-PRD-132 à 135** ; A5/A9/A12 et les essais techniques restent distincts. Sauvegardes gérées : 30 jours par défaut ; archive PDF sans purge automatique par ancienneté.
 
 Voir [sécurité et exploitation](SECURITE-EXPLOITATION.md) et [revue/traçabilité](REVUE-COHERENCE-TRACABILITE.md).
+
+## Contrats métier consolidés postérieurs à l'architecture initiale
+
+Appliquer la [spécification validée D-PRD-132 à 136](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md) : calcul pur de la matrice des risques ; événements sources idempotents pour faits automatiques ; rendu PDF archivé comme objet immuable avec manifeste et empreinte, non crée par aperçu ; opérations d'effacement exceptionnel contrôlé (PII, snapshots, archives et restauration) ; **RBAC minimal à deux rôles**, sans table de permissions détaillées par équipe. Conserver les transactions, interfaces de modules et invariants Vn de la première conception ; aucun code, migration ou test n'est effectué par cette mise à jour documentaire.
