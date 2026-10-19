@@ -1,0 +1,3161 @@
+{
+  "summary": {
+    "date": "2026-10-19",
+    "source_commit": "8c2dead6598bb2c7a128ca2e26591c2bc5680399",
+    "jira_query": "project = SMN ORDER BY key ASC",
+    "jira_pages": [
+      100,
+      100,
+      20
+    ],
+    "issues": 220,
+    "epics": 10,
+    "stories": 210,
+    "ac_total": 1052,
+    "clauses_total": 3163,
+    "all_clauses_match": true,
+    "all_fr_refs_match": true,
+    "all_parents_match": true,
+    "statuses": {
+      "À faire": 220
+    },
+    "fr_refs": [
+      "FR-1",
+      "FR-2",
+      "FR-3",
+      "FR-4",
+      "FR-5",
+      "FR-6",
+      "FR-7",
+      "FR-8",
+      "FR-9",
+      "FR-10",
+      "FR-11",
+      "FR-12",
+      "FR-13",
+      "FR-14",
+      "FR-15",
+      "FR-16",
+      "FR-17",
+      "FR-18",
+      "FR-19",
+      "FR-20",
+      "FR-21",
+      "FR-22",
+      "FR-23",
+      "FR-24",
+      "FR-25",
+      "FR-26",
+      "FR-27",
+      "FR-28",
+      "FR-29",
+      "FR-30",
+      "FR-31",
+      "FR-32",
+      "FR-33",
+      "FR-34",
+      "FR-35",
+      "FR-36",
+      "FR-37",
+      "FR-38",
+      "FR-39",
+      "FR-40",
+      "FR-41",
+      "FR-42",
+      "FR-43",
+      "FR-44",
+      "FR-45",
+      "FR-46",
+      "FR-47",
+      "FR-48",
+      "FR-49",
+      "FR-50",
+      "FR-51",
+      "FR-52",
+      "FR-53",
+      "FR-54",
+      "FR-55",
+      "FR-56",
+      "FR-57",
+      "FR-58",
+      "FR-59",
+      "FR-60",
+      "FR-61",
+      "FR-62",
+      "FR-63",
+      "FR-64",
+      "FR-65",
+      "FR-66",
+      "FR-67",
+      "FR-68",
+      "FR-69",
+      "FR-70",
+      "FR-71",
+      "FR-72",
+      "FR-73",
+      "FR-74",
+      "FR-75",
+      "FR-76",
+      "FR-77",
+      "FR-78",
+      "FR-79",
+      "FR-80",
+      "FR-81"
+    ],
+    "nfr_refs": [
+      "NFR-1",
+      "NFR-2",
+      "NFR-3"
+    ],
+    "ux_refs": [
+      "UX-DR01",
+      "UX-DR02",
+      "UX-DR03",
+      "UX-DR04",
+      "UX-DR05",
+      "UX-DR06",
+      "UX-DR07",
+      "UX-DR08",
+      "UX-DR09",
+      "UX-DR10",
+      "UX-DR11",
+      "UX-DR12",
+      "UX-DR13",
+      "UX-DR14",
+      "UX-DR15",
+      "UX-DR16",
+      "UX-DR17",
+      "UX-DR18"
+    ],
+    "limits": "Comparaison structurelle des clauses et références, non preuve exhaustive de couverture sémantique ni résultat de test applicatif. Les détails de traçabilité hors clauses ne sont pas comparés textuellement."
+  },
+  "stories": [
+    {
+      "story": "1.1",
+      "jira": "SMN-11",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 6,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-66",
+        "FR-72"
+      ],
+      "jira_description_sha256": "3988a8c17a2d960824a122300b70c8be1d9ef45981185184797a1afc8acada6e"
+    },
+    {
+      "story": "1.2",
+      "jira": "SMN-12",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-2",
+        "FR-65",
+        "FR-66",
+        "FR-72"
+      ],
+      "jira_description_sha256": "a6800b46b2695c976c6ecd1abf8c15cab88c275974b8cd7257210493fa9dabe2"
+    },
+    {
+      "story": "1.3",
+      "jira": "SMN-13",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-2",
+        "FR-65"
+      ],
+      "jira_description_sha256": "3f5c01061aaf4bdfeabddeff7507f6bbd4f79c8ee9a56c148321d6bee841dea9"
+    },
+    {
+      "story": "1.4",
+      "jira": "SMN-14",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-66",
+        "FR-67"
+      ],
+      "jira_description_sha256": "a81e99f8f73563971cd2c0b11f7efc4cc01e94604781034af24957f43ca21df4"
+    },
+    {
+      "story": "1.5",
+      "jira": "SMN-15",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-66",
+        "FR-72"
+      ],
+      "jira_description_sha256": "4fa9ecf5f359a1771694bc6362e1daa279dcf7b5454f73f57a7307a131a1babe"
+    },
+    {
+      "story": "1.6",
+      "jira": "SMN-16",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 6,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-66",
+        "FR-67",
+        "FR-72"
+      ],
+      "jira_description_sha256": "743fbc1a7a2cd5d2bd97cc3a817e2fa9686e78df3a5c8b794ffa3f1c905a7c1d"
+    },
+    {
+      "story": "1.7",
+      "jira": "SMN-17",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-66",
+        "FR-67",
+        "FR-72"
+      ],
+      "jira_description_sha256": "90a962d0d839a16c1d8593898b4fbb1623cf78f6a6c9171c6bd11c9af27e8401"
+    },
+    {
+      "story": "1.8",
+      "jira": "SMN-18",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-63",
+        "FR-65",
+        "FR-72"
+      ],
+      "jira_description_sha256": "a859c0b9dd3a835f723767b689c6c1ee798629d54daffadff9ade974124b9cd6"
+    },
+    {
+      "story": "1.9",
+      "jira": "SMN-19",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-67",
+        "FR-72"
+      ],
+      "jira_description_sha256": "aa9036a83df9c149a937b164b39239de3fea2f57946cf517d4e50edb76192c8a"
+    },
+    {
+      "story": "1.10",
+      "jira": "SMN-20",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-3",
+        "FR-58",
+        "FR-65"
+      ],
+      "jira_description_sha256": "6668fdde521ead7bb9db363134d0f2c521aa8da7d1e9b854898050fb23f4ca91"
+    },
+    {
+      "story": "1.11",
+      "jira": "SMN-21",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-2",
+        "FR-58",
+        "FR-66",
+        "FR-67"
+      ],
+      "jira_description_sha256": "b558b87e82f3063908d7f1d3cad9abdf514779ddddea89d34b3125d9f198007c"
+    },
+    {
+      "story": "1.12",
+      "jira": "SMN-22",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-59",
+        "FR-63",
+        "FR-66"
+      ],
+      "jira_description_sha256": "11c8d37dc9bdf7e314156f28a66b9027c2787376ebf3b57e7c8a8e5ceff79748"
+    },
+    {
+      "story": "1.13",
+      "jira": "SMN-23",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-58",
+        "FR-59",
+        "FR-60"
+      ],
+      "jira_description_sha256": "f6a23048b65632c4542d1659c539e9206b45f6c1cb0126a0d8a1d221ad77b64c"
+    },
+    {
+      "story": "1.14",
+      "jira": "SMN-27",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-59",
+        "FR-63",
+        "FR-72"
+      ],
+      "jira_description_sha256": "d1655a9597ea87a303da72731a38f82c4eacc229de6a54de829be5cd40ff6e87"
+    },
+    {
+      "story": "1.15",
+      "jira": "SMN-24",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-63",
+        "FR-72"
+      ],
+      "jira_description_sha256": "f097d04fb9a89717b2253531a944fd26767d69e4be24bede9ad879c950672a2a"
+    },
+    {
+      "story": "1.16",
+      "jira": "SMN-25",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-59",
+        "FR-63",
+        "FR-65"
+      ],
+      "jira_description_sha256": "116473341be48c51348356b2ed955296ca3865b3c67ae71f15374093335804ea"
+    },
+    {
+      "story": "1.17",
+      "jira": "SMN-28",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-2",
+        "FR-64",
+        "FR-65",
+        "FR-72"
+      ],
+      "jira_description_sha256": "19875d74aafe437e8f3692c05d5f5f0d22b9e4f105340e50100e991b2f1d486a"
+    },
+    {
+      "story": "1.18",
+      "jira": "SMN-26",
+      "parent": "SMN-1",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-58",
+        "FR-66",
+        "FR-67"
+      ],
+      "jira_description_sha256": "ab6c6f9fba52a51eeafeb4359ed4031853761eeef75a54780212315270038297"
+    },
+    {
+      "story": "2.1",
+      "jira": "SMN-29",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-70",
+        "FR-73"
+      ],
+      "jira_description_sha256": "40543d6bd2a5adf3106a4ddf6f2718803c2438b7e0a835f23b8b5d09a2bb9fa4"
+    },
+    {
+      "story": "2.2",
+      "jira": "SMN-30",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-71",
+        "FR-73"
+      ],
+      "jira_description_sha256": "97f09eb57813e09fb7247d8f3cabd8c9ea5ce4e3aec1defd2fd7efc3dbe4db6a"
+    },
+    {
+      "story": "2.3",
+      "jira": "SMN-31",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-73"
+      ],
+      "jira_description_sha256": "2bdfde33a7259455b21834d9bb9b996029075692690bd7d941593a21a16b22db"
+    },
+    {
+      "story": "2.4",
+      "jira": "SMN-32",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-69",
+        "FR-72"
+      ],
+      "jira_description_sha256": "f4c19fe2a04f4bc7701a749b04e4f6aa13d065ebf5471b8aaa16948225895825"
+    },
+    {
+      "story": "2.5",
+      "jira": "SMN-33",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-69",
+        "FR-73"
+      ],
+      "jira_description_sha256": "6ac2c4a305288197d7e07f1278f3cc581362f95b827903741db57c2dc99e2be1"
+    },
+    {
+      "story": "2.6",
+      "jira": "SMN-34",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-70",
+        "FR-71",
+        "FR-73"
+      ],
+      "jira_description_sha256": "35656658a112f07c0957c5e90a2e5ada4567272b24947fd810f0c0e446306075"
+    },
+    {
+      "story": "2.7",
+      "jira": "SMN-35",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-70",
+        "FR-71",
+        "FR-73"
+      ],
+      "jira_description_sha256": "a0287c85f3e70257ef4f10d775aa2795e81995a6a8700979b90496c27e18d6f4"
+    },
+    {
+      "story": "2.8",
+      "jira": "SMN-36",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-69",
+        "FR-70",
+        "FR-71"
+      ],
+      "jira_description_sha256": "2d468dbdd83673d3fe1f72c50e658d85ae28e7b8d7759c6324eb2229d9d9335f"
+    },
+    {
+      "story": "2.9",
+      "jira": "SMN-37",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-69",
+        "FR-70",
+        "FR-73"
+      ],
+      "jira_description_sha256": "14f61d6935667350688d18930468875b57e0a1bd5a55285d7898698b4a39cb95"
+    },
+    {
+      "story": "2.10",
+      "jira": "SMN-38",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-69",
+        "FR-70",
+        "FR-71"
+      ],
+      "jira_description_sha256": "e8b2b5dfec2b0daeeb5bb5204841088a5eba8979da8c4d3b56be99a962ad8888"
+    },
+    {
+      "story": "2.11",
+      "jira": "SMN-39",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-69",
+        "FR-70",
+        "FR-71",
+        "FR-73"
+      ],
+      "jira_description_sha256": "c027c56c1a3b3dfdac448c78dcf400ac8156c7c547f0cd09bb71993cd9f5b4d2"
+    },
+    {
+      "story": "2.12",
+      "jira": "SMN-40",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-69",
+        "FR-70",
+        "FR-73"
+      ],
+      "jira_description_sha256": "818f9535c124a64a6e91e7f41214f5c983a24961e5993ac53689d648160a9126"
+    },
+    {
+      "story": "2.13",
+      "jira": "SMN-41",
+      "parent": "SMN-2",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-70",
+        "FR-71",
+        "FR-73"
+      ],
+      "jira_description_sha256": "afc8bb63c5938a16a65c86a40147ac30bba0b03ad41c0b2fff9b2d080a3b56b8"
+    },
+    {
+      "story": "3.1",
+      "jira": "SMN-42",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-5",
+        "FR-7",
+        "FR-61"
+      ],
+      "jira_description_sha256": "21df1e0e1bdb7c51e3821ecddd5f0bc1d727cb940a0859208749bcc2beeec25f"
+    },
+    {
+      "story": "3.2",
+      "jira": "SMN-43",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-5",
+        "FR-6",
+        "FR-61"
+      ],
+      "jira_description_sha256": "a3b5ad9d1674f8218d5e03260276b929aeb67564e5e01a682a6434841ea8c3c0"
+    },
+    {
+      "story": "3.3",
+      "jira": "SMN-44",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-4",
+        "FR-5",
+        "FR-7",
+        "FR-61"
+      ],
+      "jira_description_sha256": "b718e8e72a543c5607af5f9e48b651ce4a6c152556a8a2edbdc8408a40bb67d3"
+    },
+    {
+      "story": "3.4",
+      "jira": "SMN-45",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-4",
+        "FR-7"
+      ],
+      "jira_description_sha256": "55e8bae0bc1ec2475bc34069fe64e43adee68a0b0794ca68ca17cf1a7c5c1a71"
+    },
+    {
+      "story": "3.5",
+      "jira": "SMN-46",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-8",
+        "FR-61"
+      ],
+      "jira_description_sha256": "d6214b18b4a59cd4cbf344249b5ff91f79cc98939af8a876262ff2cbd33c792f"
+    },
+    {
+      "story": "3.6",
+      "jira": "SMN-47",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-8",
+        "FR-9",
+        "FR-61"
+      ],
+      "jira_description_sha256": "038562d5d469f370c33902aaf1e15319b690dc0a504ee6b50e8f24381a2a8ce2"
+    },
+    {
+      "story": "3.7",
+      "jira": "SMN-48",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-9",
+        "FR-10"
+      ],
+      "jira_description_sha256": "e4591afe8fc462d997f1597280878e732b40588a5dcd64e89f16ba7538298234"
+    },
+    {
+      "story": "3.8",
+      "jira": "SMN-49",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-10",
+        "FR-61"
+      ],
+      "jira_description_sha256": "3bcf1570f08768bbe952983d8f3204f248133eec57d988ec5144005a1442c2a1"
+    },
+    {
+      "story": "3.9",
+      "jira": "SMN-50",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-10"
+      ],
+      "jira_description_sha256": "a43571a9db8f474db88203a59717eaccdecd01300728e9bd0f394836cf1d58a9"
+    },
+    {
+      "story": "3.10",
+      "jira": "SMN-51",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-10"
+      ],
+      "jira_description_sha256": "92d2e59c6d3ae9e7e5416cd6185c474975c5d426318395a231f272decf02b046"
+    },
+    {
+      "story": "3.11",
+      "jira": "SMN-52",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-13"
+      ],
+      "jira_description_sha256": "747a5e485a9799266bf283ce8dd06cf4f65bc897b5fe6def7db7ff5cb358242a"
+    },
+    {
+      "story": "3.12",
+      "jira": "SMN-53",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-11",
+        "FR-12",
+        "FR-13"
+      ],
+      "jira_description_sha256": "10a5b7966a0d5ff9dc48c4b3b9aaf456f6a2c0270b3bdc7938a7b9b9d9f03bb4"
+    },
+    {
+      "story": "3.13",
+      "jira": "SMN-54",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-11",
+        "FR-12"
+      ],
+      "jira_description_sha256": "11327bed53b3f2c3ac17df9f5bef98cb45af86359fa3cbc9577e3ed40333e50e"
+    },
+    {
+      "story": "3.14",
+      "jira": "SMN-55",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-12",
+        "FR-13",
+        "FR-62"
+      ],
+      "jira_description_sha256": "e3f38c9163bfab9279966ad1a43e0a99e913dfea478e198156a306a2d31c172c"
+    },
+    {
+      "story": "3.15",
+      "jira": "SMN-56",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-8",
+        "FR-10",
+        "FR-14",
+        "FR-62"
+      ],
+      "jira_description_sha256": "c47badf36cae41c3430b04394cf986c232c147e75c426532d3825709b5c49e77"
+    },
+    {
+      "story": "3.16",
+      "jira": "SMN-57",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-8",
+        "FR-9",
+        "FR-10",
+        "FR-14",
+        "FR-61"
+      ],
+      "jira_description_sha256": "ff658eb34ed9f0eed294bee42d7b3a8cac5db7e60d7b0f8aa7d1428b343e5a86"
+    },
+    {
+      "story": "3.17",
+      "jira": "SMN-58",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-61"
+      ],
+      "jira_description_sha256": "0ffabbe646ad6f67426e48ed54059f26de007909c685d0faa5c5da3d5402e078"
+    },
+    {
+      "story": "3.18",
+      "jira": "SMN-59",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14"
+      ],
+      "jira_description_sha256": "9334a910d96bef485ffd5328d748f888e89242ccd09908d6846a1783990d39ee"
+    },
+    {
+      "story": "3.19",
+      "jira": "SMN-60",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14"
+      ],
+      "jira_description_sha256": "6c7bbc38c5159e8a7b925a44fd372dc07ac95bdaa564da6e4cee91cd0cf30298"
+    },
+    {
+      "story": "3.20",
+      "jira": "SMN-61",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-61"
+      ],
+      "jira_description_sha256": "d4dbbef0bcacb8b970eaee296a755ba0ab36a8197d811d207eaf11c7af5fd487"
+    },
+    {
+      "story": "3.21",
+      "jira": "SMN-62",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14"
+      ],
+      "jira_description_sha256": "8175ebd3d3102e9cb3a5cdaa7a3230b13b37dd606fa8aa7dbdf5375102ebae24"
+    },
+    {
+      "story": "3.22",
+      "jira": "SMN-63",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-5",
+        "FR-8",
+        "FR-9",
+        "FR-14",
+        "FR-61"
+      ],
+      "jira_description_sha256": "0c9cd9e264c90486dd96ab552cb6fd053116263afde5361abec0d11fb84e3ffc"
+    },
+    {
+      "story": "3.23",
+      "jira": "SMN-64",
+      "parent": "SMN-3",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-60",
+        "FR-62"
+      ],
+      "jira_description_sha256": "fa1d4697bc6e7eab88bdb2dafc7e73adaeee54f26ae27f9e2222adc8c518d0fb"
+    },
+    {
+      "story": "4.1",
+      "jira": "SMN-65",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-17",
+        "FR-24"
+      ],
+      "jira_description_sha256": "a8e0e33d592626ed5b87db03916a0de5660a1cfb3ffcd9c511f262937240ffff"
+    },
+    {
+      "story": "4.2",
+      "jira": "SMN-66",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-24"
+      ],
+      "jira_description_sha256": "c725123750defbb68a5e5efb45ebe62048ce9ef161926aa0811f3478cb61bd3b"
+    },
+    {
+      "story": "4.3",
+      "jira": "SMN-67",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-24"
+      ],
+      "jira_description_sha256": "af6a51fae30c96ce22b2980cd3b6d355a66c6328c51b3bd2ab234b008c9f1d88"
+    },
+    {
+      "story": "4.4",
+      "jira": "SMN-68",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-24"
+      ],
+      "jira_description_sha256": "a6d5d90caab69846b9014a7a364339b098942aa824323e1f414f078b6bac168b"
+    },
+    {
+      "story": "4.5",
+      "jira": "SMN-69",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-24"
+      ],
+      "jira_description_sha256": "de787bbdb3dca61cb7d67fb3d18c071629ca009866be3db4ded60ed7b73b456f"
+    },
+    {
+      "story": "4.6",
+      "jira": "SMN-70",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-24"
+      ],
+      "jira_description_sha256": "0adc0a066c3dfe2dcefe7fbbc29cca895d7983a55d64194dae2f3b12251845ed"
+    },
+    {
+      "story": "4.7",
+      "jira": "SMN-71",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-16",
+        "FR-24"
+      ],
+      "jira_description_sha256": "0c573eb5250598a3b228898b2319e2d89be629e3603ef838ffc684068e27f57e"
+    },
+    {
+      "story": "4.8",
+      "jira": "SMN-72",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-17"
+      ],
+      "jira_description_sha256": "951cc9b74d322777592f329595d298bf30c311321e3bc935191fd33ae4a23cc4"
+    },
+    {
+      "story": "4.9",
+      "jira": "SMN-73",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17"
+      ],
+      "jira_description_sha256": "aa72e6278dfd2a59301ab4c0378d026c402f1e440c336b41ba7e810dacba02c8"
+    },
+    {
+      "story": "4.10",
+      "jira": "SMN-74",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17",
+        "FR-18"
+      ],
+      "jira_description_sha256": "158c2fb54e06d2964bbb195325ae3bc8486ff81bc1246af2bda7389ce99c85f1"
+    },
+    {
+      "story": "4.11",
+      "jira": "SMN-75",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17",
+        "FR-18"
+      ],
+      "jira_description_sha256": "6dbb918eb41ba1c333dcbc7b06e8bc7d95aba88db3045a4592e1ac155c0d977e"
+    },
+    {
+      "story": "4.12",
+      "jira": "SMN-76",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-18"
+      ],
+      "jira_description_sha256": "1d854d8d203703d8a14d9fd8e1aa5832e5baf7ca4f27bd45bb1ce9d30db7bd07"
+    },
+    {
+      "story": "4.13",
+      "jira": "SMN-77",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17",
+        "FR-18"
+      ],
+      "jira_description_sha256": "4e3ab4c3fb825b1b630893ed0799487bdc7cdb528dbcdc8e6704d3cd173ebb9b"
+    },
+    {
+      "story": "4.14",
+      "jira": "SMN-78",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-18",
+        "FR-19"
+      ],
+      "jira_description_sha256": "c626ef3ba9259056ce2a7e0634811bc4a6aa4f369fb88c64855896407aa604e5"
+    },
+    {
+      "story": "4.15",
+      "jira": "SMN-79",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17",
+        "FR-18"
+      ],
+      "jira_description_sha256": "c03cd62df9c775eb807917126e3b91966ade336ad323e04ba28b704007e9cbad"
+    },
+    {
+      "story": "4.16",
+      "jira": "SMN-80",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17",
+        "FR-18",
+        "FR-19"
+      ],
+      "jira_description_sha256": "ee4c3399c0a6506b9d500eab658fd4a12de1a96b1131f3108be161d1c6fb73be"
+    },
+    {
+      "story": "4.17",
+      "jira": "SMN-81",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-19"
+      ],
+      "jira_description_sha256": "93cf0c074256c3d1047a85d7d70b91c953ec5150bc2a488249e05acf8cbc7c4f"
+    },
+    {
+      "story": "4.18",
+      "jira": "SMN-82",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-17",
+        "FR-24"
+      ],
+      "jira_description_sha256": "ecab3493677501f668f944959152db4cbcb0fb2af049625b2cc912672fee8644"
+    },
+    {
+      "story": "4.19",
+      "jira": "SMN-83",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-16",
+        "FR-20"
+      ],
+      "jira_description_sha256": "b12b9d4a0ee752a8c01c9984020a1ff11acff7d09c2d0a1017766c11e711d42e"
+    },
+    {
+      "story": "4.20",
+      "jira": "SMN-84",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-16",
+        "FR-20"
+      ],
+      "jira_description_sha256": "e0e74c36715da8c6b65e5b9034fb77be09a7648eaa3780fc81a6120be977992d"
+    },
+    {
+      "story": "4.21",
+      "jira": "SMN-85",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-16",
+        "FR-20"
+      ],
+      "jira_description_sha256": "d870f07e3f27203bf1556c010e52c2a76f3479c2b91ce811efdd44fd3d27add9"
+    },
+    {
+      "story": "4.22",
+      "jira": "SMN-86",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-20"
+      ],
+      "jira_description_sha256": "633f6895d01dfcca45f63234b63c2dbeaee63b1448235d1f51934664b219eaaf"
+    },
+    {
+      "story": "4.23",
+      "jira": "SMN-87",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-16",
+        "FR-20"
+      ],
+      "jira_description_sha256": "c5f6505215734eb1ba31a583455a9077913e46aa8ced6e98b76ffde7ee94595f"
+    },
+    {
+      "story": "4.24",
+      "jira": "SMN-88",
+      "parent": "SMN-4",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-16",
+        "FR-20",
+        "FR-24"
+      ],
+      "jira_description_sha256": "de333127b63c71275255f1c2e41e23849b25ca9ce1a680deab3a10c02a4cc1c6"
+    },
+    {
+      "story": "5.1",
+      "jira": "SMN-89",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-35"
+      ],
+      "jira_description_sha256": "d04c2a65ee8efad0d4c14f21742083b1d2b77c5888d6462d916518efc22158d2"
+    },
+    {
+      "story": "5.2",
+      "jira": "SMN-90",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-35"
+      ],
+      "jira_description_sha256": "04a50ef6b162323ed0e4800fc6e9c42946ec71ee56994cba71747a9c43ffeea1"
+    },
+    {
+      "story": "5.3",
+      "jira": "SMN-91",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-35",
+        "FR-41"
+      ],
+      "jira_description_sha256": "b256a6761c4b2655168263e77d01b2f2702aabc4770d292d5a84d78bf7f35d01"
+    },
+    {
+      "story": "5.4",
+      "jira": "SMN-92",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-36"
+      ],
+      "jira_description_sha256": "63c45c1b3d99284f3e22187127bd2d20e8476feaa5ee616a44c5c1e6de99079a"
+    },
+    {
+      "story": "5.5",
+      "jira": "SMN-93",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-36",
+        "FR-39",
+        "FR-41"
+      ],
+      "jira_description_sha256": "d2317dda5fdaac573820bcfb42f6e17883095f2da4926c6d471af75da5d8e550"
+    },
+    {
+      "story": "5.6",
+      "jira": "SMN-94",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-35",
+        "FR-37",
+        "FR-39"
+      ],
+      "jira_description_sha256": "ccfcf9c7c5b4b69df692b24ef1428a947b5a66c833009ea41c077545e1545cc9"
+    },
+    {
+      "story": "5.7",
+      "jira": "SMN-95",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-25",
+        "FR-38"
+      ],
+      "jira_description_sha256": "4469a7560cb23495d6be0223d444e2484def441cf925bf5c1438df4f9986b4ae"
+    },
+    {
+      "story": "5.8",
+      "jira": "SMN-96",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-38",
+        "FR-39",
+        "FR-40"
+      ],
+      "jira_description_sha256": "8c1d5edd1bf615b9f6d9a9cfe7b0cea2bf0a23a7d53640124a5fad952b17eed3"
+    },
+    {
+      "story": "5.9",
+      "jira": "SMN-97",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-25",
+        "FR-35",
+        "FR-38"
+      ],
+      "jira_description_sha256": "82ed90ab3fcf5351a7caa90aae6365099bcaec084e7476f67e2fb0db5543e5f8"
+    },
+    {
+      "story": "5.10",
+      "jira": "SMN-98",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-35",
+        "FR-37"
+      ],
+      "jira_description_sha256": "8bd1c02fded4e7b60c3bb0ce97b16cff9a7c4e0c28ca60f03335a1d50781a48f"
+    },
+    {
+      "story": "5.11",
+      "jira": "SMN-99",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-35",
+        "FR-37",
+        "FR-39"
+      ],
+      "jira_description_sha256": "4c222f54fca91e5dbd08f710d5eebc26d7288f192c57bb5c58e3fe65fbafc0c3"
+    },
+    {
+      "story": "5.12",
+      "jira": "SMN-100",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-35",
+        "FR-37"
+      ],
+      "jira_description_sha256": "27340c426e98fc757c5054951f4b73768fd75dd9bfc00d4128e72e14e925f573"
+    },
+    {
+      "story": "5.13",
+      "jira": "SMN-101",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-37"
+      ],
+      "jira_description_sha256": "462a1f7d41e4924b5d13b84d2773597ac7066ea122b9e0730062add58fb01f7d"
+    },
+    {
+      "story": "5.14",
+      "jira": "SMN-102",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-37"
+      ],
+      "jira_description_sha256": "4e62fdb60f174a750949da37200711d11a731c9596d55b32ad512c51a95c173b"
+    },
+    {
+      "story": "5.15",
+      "jira": "SMN-103",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-38",
+        "FR-39"
+      ],
+      "jira_description_sha256": "0a4b9514f26bdcc0d7de2cf7be935350af2ed4d7f78e029b32b90b97ad636427"
+    },
+    {
+      "story": "5.16",
+      "jira": "SMN-104",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-25",
+        "FR-36",
+        "FR-39"
+      ],
+      "jira_description_sha256": "69fd55df7323fc4efd511d81cf484041a16451d28897f0ab3e4a7b44d7b492f8"
+    },
+    {
+      "story": "5.17",
+      "jira": "SMN-105",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-25",
+        "FR-38",
+        "FR-41"
+      ],
+      "jira_description_sha256": "3cbedd7ac01dcd8dd58323df352ec11e986cf03a8713be3dee124e1959ea375d"
+    },
+    {
+      "story": "5.18",
+      "jira": "SMN-106",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-34",
+        "FR-35",
+        "FR-40"
+      ],
+      "jira_description_sha256": "98b22037683140252babc11e260391ec5f73bd3ec1be30321b4472b03f8fcf8e"
+    },
+    {
+      "story": "5.19",
+      "jira": "SMN-107",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-40",
+        "FR-41"
+      ],
+      "jira_description_sha256": "5f55e7b084df3e770c467fa174722e666c3671bbbcc60a3abd4b639890df3d6a"
+    },
+    {
+      "story": "5.20",
+      "jira": "SMN-108",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-36",
+        "FR-39",
+        "FR-40"
+      ],
+      "jira_description_sha256": "d6e5b8e5395eb9e883328088b2ea4485ea51bb60d19b0d05ce0722703321c86b"
+    },
+    {
+      "story": "5.21",
+      "jira": "SMN-109",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-40",
+        "FR-41"
+      ],
+      "jira_description_sha256": "8d3f8c27b9b844d47e8b024380633f1e0139c6420dc17b654f02079dd5ddfb84"
+    },
+    {
+      "story": "5.22",
+      "jira": "SMN-110",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-26",
+        "FR-35",
+        "FR-40"
+      ],
+      "jira_description_sha256": "115bd1eabc1f177e323c38f35746930444b7a44103c50ed6a6319a511dd00aa9"
+    },
+    {
+      "story": "5.23",
+      "jira": "SMN-111",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-25",
+        "FR-41"
+      ],
+      "jira_description_sha256": "b32e031ba7c9d747eb1ea53c57141129aef55b46c2b1093f395674292d8050f4"
+    },
+    {
+      "story": "5.24",
+      "jira": "SMN-112",
+      "parent": "SMN-5",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-25",
+        "FR-41"
+      ],
+      "jira_description_sha256": "cb855eccd89fb938641cc103de2066e545be1d28815476e689c9bc6983543ef6"
+    },
+    {
+      "story": "6.1",
+      "jira": "SMN-113",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-26",
+        "FR-33"
+      ],
+      "jira_description_sha256": "75247bdf5fbc58ecd68afbfdbaec2f27cbb325c76ba2244101f3c4dfb34edaa5"
+    },
+    {
+      "story": "6.2",
+      "jira": "SMN-116",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-26",
+        "FR-27",
+        "FR-30"
+      ],
+      "jira_description_sha256": "2604b94789a0b2216f151a4c14a029a01cc5d6ef21d2f071fd37886023ae4493"
+    },
+    {
+      "story": "6.3",
+      "jira": "SMN-114",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-33"
+      ],
+      "jira_description_sha256": "fec0ea933dcc51f4277ffbf51c98e1b5e9ec9e235b2ec0153e8f6495960bde77"
+    },
+    {
+      "story": "6.4",
+      "jira": "SMN-115",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27"
+      ],
+      "jira_description_sha256": "85c0b889d7181f3300c623540819937e969fcccce6d1dd4341b1e8cf63cb0823"
+    },
+    {
+      "story": "6.5",
+      "jira": "SMN-117",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-28"
+      ],
+      "jira_description_sha256": "eb0a727fd266a6ffc8612427da6fb17c2e3120a31b6e6b514c56a8044f3fdf86"
+    },
+    {
+      "story": "6.6",
+      "jira": "SMN-118",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-28",
+        "FR-33"
+      ],
+      "jira_description_sha256": "c0284b838764aa4efaf1af9534cc9d2d44d33dbc0f8668ec014f291a3f26e6e1"
+    },
+    {
+      "story": "6.7",
+      "jira": "SMN-121",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-28",
+        "FR-30"
+      ],
+      "jira_description_sha256": "4515a9d51a78de8ab0c10045c0d24d84092de41f391a6f9b8826c8afbe1127ed"
+    },
+    {
+      "story": "6.8",
+      "jira": "SMN-119",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-30",
+        "FR-33"
+      ],
+      "jira_description_sha256": "a3565916de07f888b1851d125c51e845244793445bf87b7420445971807894a0"
+    },
+    {
+      "story": "6.9",
+      "jira": "SMN-120",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-28"
+      ],
+      "jira_description_sha256": "84882dd9d41871d793011dc1239f754980a5e10ada0da76e17eebf28dfe3c560"
+    },
+    {
+      "story": "6.10",
+      "jira": "SMN-122",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-29"
+      ],
+      "jira_description_sha256": "475b731d01c779a2a4ab23afd8246d9c0881e59eea0aee0feec2add7e5866a02"
+    },
+    {
+      "story": "6.11",
+      "jira": "SMN-123",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-28",
+        "FR-29"
+      ],
+      "jira_description_sha256": "bc21d8ed18d512cabdc44f1652b21e334b908456aec37970f3d4004e38b03d9e"
+    },
+    {
+      "story": "6.12",
+      "jira": "SMN-133",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-28",
+        "FR-29"
+      ],
+      "jira_description_sha256": "716e8eae248cef520a38dbfc814643d886e83aede2199860a0007e71d3408a79"
+    },
+    {
+      "story": "6.13",
+      "jira": "SMN-124",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-31"
+      ],
+      "jira_description_sha256": "d79282eeeee8d7ad62d9038ae54709e839372c271a2349450a22f21484f14ea2"
+    },
+    {
+      "story": "6.14",
+      "jira": "SMN-125",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-31",
+        "FR-32"
+      ],
+      "jira_description_sha256": "1e8935f9f4c59e131b67515b4b7bbcb08ae1b5ee81950657f78fb4e24a96fa66"
+    },
+    {
+      "story": "6.15",
+      "jira": "SMN-134",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-31",
+        "FR-33"
+      ],
+      "jira_description_sha256": "b7ccb054193470970a87d1028da32229b9ebac82cd985f6ef1faf02eff9eaf3d"
+    },
+    {
+      "story": "6.16",
+      "jira": "SMN-126",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-27",
+        "FR-28",
+        "FR-33"
+      ],
+      "jira_description_sha256": "56e6e88c586ae63e34d6d69dc5758e24c008397df1ad154af02f4c315ef156a8"
+    },
+    {
+      "story": "6.17",
+      "jira": "SMN-127",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-31",
+        "FR-32",
+        "FR-33"
+      ],
+      "jira_description_sha256": "3b60433f31c6c356cb9fa6cbd2de4248714e74480cd597863c7c67c2f11a854a"
+    },
+    {
+      "story": "6.18",
+      "jira": "SMN-128",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-31",
+        "FR-33",
+        "FR-68",
+        "FR-71"
+      ],
+      "jira_description_sha256": "66d1569756fa4dd417f670df92769eff002c260985e91dafaaadcf2af2a78a4b"
+    },
+    {
+      "story": "6.19",
+      "jira": "SMN-129",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-29",
+        "FR-30",
+        "FR-31"
+      ],
+      "jira_description_sha256": "bf2db403d82015263053c0841bfde7864840ba60ab8c1742d51467559aaa79db"
+    },
+    {
+      "story": "6.20",
+      "jira": "SMN-130",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-30",
+        "FR-31",
+        "FR-33"
+      ],
+      "jira_description_sha256": "2da0bb5572b4164a473206c009cbf5f0fc7941395c24ceecbf2f6898e27a9c89"
+    },
+    {
+      "story": "6.21",
+      "jira": "SMN-135",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-31",
+        "FR-33"
+      ],
+      "jira_description_sha256": "583df9f2090b4356426ac30e3e113094b28d884292f288744df70f875d10ab72"
+    },
+    {
+      "story": "6.22",
+      "jira": "SMN-131",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-31",
+        "FR-33",
+        "FR-69",
+        "FR-70"
+      ],
+      "jira_description_sha256": "ca6d68885386bc56215b77d0a7c90971365c34af2ad22d169e915a730d4b021b"
+    },
+    {
+      "story": "6.23",
+      "jira": "SMN-132",
+      "parent": "SMN-6",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-31",
+        "FR-33",
+        "FR-68",
+        "FR-71"
+      ],
+      "jira_description_sha256": "3143b5df0642864040a29094857929a3db58ddcd7ea4f91275f56805912f911c"
+    },
+    {
+      "story": "7.1",
+      "jira": "SMN-136",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23"
+      ],
+      "jira_description_sha256": "d14bb8f6e234a5ead67e1f595a8d09bfd0d121dab1bcfcf7e267df4404d75054"
+    },
+    {
+      "story": "7.2",
+      "jira": "SMN-137",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-23"
+      ],
+      "jira_description_sha256": "807e45345fe78e5c67a461b8e4cc3729cd1e65611669226be5770ecddffcb960"
+    },
+    {
+      "story": "7.3",
+      "jira": "SMN-138",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-23"
+      ],
+      "jira_description_sha256": "2f40c07b36be1e5ebde642a20c2339ca6e41dbb48a08954dfe53dbbbe8e21931"
+    },
+    {
+      "story": "7.4",
+      "jira": "SMN-139",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-23"
+      ],
+      "jira_description_sha256": "47b4be8c19fb79284b511fa015ef8d171061bcdac9439303be98dc8c4868278e"
+    },
+    {
+      "story": "7.5",
+      "jira": "SMN-140",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23"
+      ],
+      "jira_description_sha256": "038d1e53f802e5470812da54ae3bc2499fa09bfd67b0e413f85d1b71ca3e38fd"
+    },
+    {
+      "story": "7.6",
+      "jira": "SMN-141",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-23",
+        "FR-69"
+      ],
+      "jira_description_sha256": "7e2b03a6df3c19e5de074ed81e7a978df15376076900d241ba9a391cefd2afba"
+    },
+    {
+      "story": "7.7",
+      "jira": "SMN-142",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23"
+      ],
+      "jira_description_sha256": "cccb70c8a1ec1cf643fc5cb8437caa9b322da5d0f74acefd2bc9555557fbc27f"
+    },
+    {
+      "story": "7.8",
+      "jira": "SMN-143",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23"
+      ],
+      "jira_description_sha256": "1735ec2edbe5dbd37db32c4638dfe833f092fa08dc05435507e0c02e3df207bf"
+    },
+    {
+      "story": "7.9",
+      "jira": "SMN-144",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23"
+      ],
+      "jira_description_sha256": "05673476254fe48a53f450f03b74e351ac448c90f9b35b2207ae1fca9ed81282"
+    },
+    {
+      "story": "7.10",
+      "jira": "SMN-145",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-23"
+      ],
+      "jira_description_sha256": "599f783402ba663b1707ba9df1267f6476f9321b4b6912c5cb146140fc51e100"
+    },
+    {
+      "story": "7.11",
+      "jira": "SMN-146",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23",
+        "FR-25"
+      ],
+      "jira_description_sha256": "d4f3b226e034c0f5482235c52fc8b92a012c4bb9f65cb0292648a4ca81a29393"
+    },
+    {
+      "story": "7.12",
+      "jira": "SMN-147",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23"
+      ],
+      "jira_description_sha256": "6da2c58e179f107088f46231940d4c1f2b28abc5a35f05ca247c09a1a0afa0dc"
+    },
+    {
+      "story": "7.13",
+      "jira": "SMN-148",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21"
+      ],
+      "jira_description_sha256": "cecc8b43f73c60f9687aacce9247afb082f8d28be2daa693e37685692e41a537"
+    },
+    {
+      "story": "7.14",
+      "jira": "SMN-149",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22"
+      ],
+      "jira_description_sha256": "33ae4de0b49d2f0e99ab4a03d12287fad659e7a72130e440c3c81bc6ec90d860"
+    },
+    {
+      "story": "7.15",
+      "jira": "SMN-150",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22"
+      ],
+      "jira_description_sha256": "22b11564bf265e92ec47362a1ca30b97d7c6a4babe7a5054c63a3b1f3a5a49a9"
+    },
+    {
+      "story": "7.16",
+      "jira": "SMN-151",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22"
+      ],
+      "jira_description_sha256": "7001be119510b00e2c86d149920a4720eba99bc58a4de82f08fe60ec97d40eb5"
+    },
+    {
+      "story": "7.17",
+      "jira": "SMN-152",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-21"
+      ],
+      "jira_description_sha256": "95802c452556a87f3cfffc4b3d526d250d5cf9fa603e6631983ce3fe068204fa"
+    },
+    {
+      "story": "7.18",
+      "jira": "SMN-153",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22"
+      ],
+      "jira_description_sha256": "746ed9946ef4c4fcdd36e84d5a31fdb1e28f6987f2f09b3128fe3007130dd140"
+    },
+    {
+      "story": "7.19",
+      "jira": "SMN-154",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22"
+      ],
+      "jira_description_sha256": "c974564c66fff3448ff2e62803dd783b89275577c4597dea95dcb5d5f41c2c5a"
+    },
+    {
+      "story": "7.20",
+      "jira": "SMN-155",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22",
+        "FR-23"
+      ],
+      "jira_description_sha256": "5fb8ae84b43ab573741f18103792d18de983c355e93224071087b4769bbfcc2f"
+    },
+    {
+      "story": "7.21",
+      "jira": "SMN-156",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22",
+        "FR-23"
+      ],
+      "jira_description_sha256": "9f43858ba6916183bf9f3ce8b8ca7acf7f9083fc7e73cf58891e1480aab1142a"
+    },
+    {
+      "story": "7.22",
+      "jira": "SMN-157",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-23"
+      ],
+      "jira_description_sha256": "3a22ea4e3691cfe186043190aa3e232133e5ab860205dd6fdbe0224509dfa04b"
+    },
+    {
+      "story": "7.23",
+      "jira": "SMN-158",
+      "parent": "SMN-7",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-21",
+        "FR-22",
+        "FR-23"
+      ],
+      "jira_description_sha256": "d1e6d39a4065ae7e02e5bb005650c261490ae7ae38c903eb17066c795277ec3e"
+    },
+    {
+      "story": "8.1",
+      "jira": "SMN-159",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-15",
+        "FR-42",
+        "FR-47"
+      ],
+      "jira_description_sha256": "6c2ba118a31308c06a6fb23f3cc58264d3abcb41c5242cca87dd7485966ca5b4"
+    },
+    {
+      "story": "8.2",
+      "jira": "SMN-160",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17",
+        "FR-42",
+        "FR-47"
+      ],
+      "jira_description_sha256": "0a69e792863d7635c3ff70489f30c44c4296c6feb309a969ebed1620d0de9313"
+    },
+    {
+      "story": "8.3",
+      "jira": "SMN-161",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-17",
+        "FR-42",
+        "FR-47"
+      ],
+      "jira_description_sha256": "c10572f6995561ea7c8d35044dc8b2a8b55c96025b179ee7528676b0af0fc49d"
+    },
+    {
+      "story": "8.4",
+      "jira": "SMN-162",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-20",
+        "FR-42",
+        "FR-47"
+      ],
+      "jira_description_sha256": "75b36c1f5d17543b202d67c12a41088445838648e979b2b32b3c54469be07cd3"
+    },
+    {
+      "story": "8.5",
+      "jira": "SMN-163",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-42",
+        "FR-46",
+        "FR-47"
+      ],
+      "jira_description_sha256": "b0d801e74805e39a2e4b1c3a32b3a0347312c69c4e3be3acbbf4a3f5df4b00bc"
+    },
+    {
+      "story": "8.6",
+      "jira": "SMN-164",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-42",
+        "FR-46",
+        "FR-47"
+      ],
+      "jira_description_sha256": "6f03bcd3f4d66676bf7330b4a17be0c1b6f58d7034c739e4b3c2e4a51e101efa"
+    },
+    {
+      "story": "8.7",
+      "jira": "SMN-165",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-46",
+        "FR-47"
+      ],
+      "jira_description_sha256": "5aab210e50b442fce3f6e4c1f2d70a62fb070a75751122d93debb00f5e883d7e"
+    },
+    {
+      "story": "8.8",
+      "jira": "SMN-166",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-43",
+        "FR-46"
+      ],
+      "jira_description_sha256": "56e91cb1f6624af257e5c3c7940b26767679548642f59b9546fbb79bba00ff80"
+    },
+    {
+      "story": "8.9",
+      "jira": "SMN-167",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-43",
+        "FR-44"
+      ],
+      "jira_description_sha256": "56a1d50824a398ad30ea0d702c3da58fd9fa340599c671133b60bdd3df7460fa"
+    },
+    {
+      "story": "8.10",
+      "jira": "SMN-168",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-20",
+        "FR-43",
+        "FR-44"
+      ],
+      "jira_description_sha256": "d389c33702f7db436b7bc2c4642cab688a6553b12d7ca9dbc1172f36c157b3ee"
+    },
+    {
+      "story": "8.11",
+      "jira": "SMN-169",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-44",
+        "FR-45"
+      ],
+      "jira_description_sha256": "ff6914fb71c1e2a4def281f251cb7fcf246113ad10caa40619da965b9298ffee"
+    },
+    {
+      "story": "8.12",
+      "jira": "SMN-170",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-44",
+        "FR-45"
+      ],
+      "jira_description_sha256": "13006fb894c8a115420f49fed6d242bed5fe2e212e0b3a52bf0f0f87a0716dab"
+    },
+    {
+      "story": "8.13",
+      "jira": "SMN-171",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-44",
+        "FR-45",
+        "FR-46"
+      ],
+      "jira_description_sha256": "8b67c3e2baf7ae90a26b84608bea7e9960975ce97326b1f8fd2998bf45e127d7"
+    },
+    {
+      "story": "8.14",
+      "jira": "SMN-172",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-44",
+        "FR-45",
+        "FR-49"
+      ],
+      "jira_description_sha256": "5d6e5ee8f09109890ac5f6b31e3abd57911b6b7c6d71a2f2166294034f9d6bf4"
+    },
+    {
+      "story": "8.15",
+      "jira": "SMN-173",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-46",
+        "FR-49"
+      ],
+      "jira_description_sha256": "c2f9ff1d3b46db79d5e0f832f84c3b28bc708845ac4be4736d2f5454eb19fecc"
+    },
+    {
+      "story": "8.16",
+      "jira": "SMN-174",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-45",
+        "FR-46",
+        "FR-49"
+      ],
+      "jira_description_sha256": "eab2d005938d97ebd10ed7f4f3307595113167bd60f9c53b8a0542e2f13bdba1"
+    },
+    {
+      "story": "8.17",
+      "jira": "SMN-175",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-16",
+        "FR-42",
+        "FR-46",
+        "FR-47"
+      ],
+      "jira_description_sha256": "0687327a1479ca898b2a424f695e57e31220ce332a52e0c3841aba9976a96c55"
+    },
+    {
+      "story": "8.18",
+      "jira": "SMN-176",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-41",
+        "FR-45",
+        "FR-46",
+        "FR-47"
+      ],
+      "jira_description_sha256": "6bbc4bfd70c7183096c2626620cbdbd7171eee1da51b4bcea1969c0623b1fa4e"
+    },
+    {
+      "story": "8.19",
+      "jira": "SMN-177",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-46",
+        "FR-47",
+        "FR-48"
+      ],
+      "jira_description_sha256": "7f3015798fa93c9df4ae23023a52340fa635c319bb30914182311f51239774bf"
+    },
+    {
+      "story": "8.20",
+      "jira": "SMN-178",
+      "parent": "SMN-8",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-46",
+        "FR-47",
+        "FR-48"
+      ],
+      "jira_description_sha256": "82aac2f7f1a67d1c4fe7fdfdb4b8edfb64aae061b472e6973dcc6335d024b848"
+    },
+    {
+      "story": "9.1",
+      "jira": "SMN-179",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-50"
+      ],
+      "jira_description_sha256": "10f61b45b6edb96bffd87c37fb97d57c1b005165e10247c864e0a1d7ee748749"
+    },
+    {
+      "story": "9.2",
+      "jira": "SMN-188",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-51",
+        "FR-52"
+      ],
+      "jira_description_sha256": "5d2a3dd11dc93c085083199f29c87d203157aa138c639a50558c50f90d3357f8"
+    },
+    {
+      "story": "9.3",
+      "jira": "SMN-180",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-51"
+      ],
+      "jira_description_sha256": "4f565a2eb31b618fbc4f77adc12af176889380e2eb6d04430f9bb78ef1e83f36"
+    },
+    {
+      "story": "9.4",
+      "jira": "SMN-181",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-51",
+        "FR-52"
+      ],
+      "jira_description_sha256": "9a718ad5e9ab8058fba0b6a6f4657677a13d580e4aa39a8337ef807320b34738"
+    },
+    {
+      "story": "9.5",
+      "jira": "SMN-182",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-14",
+        "FR-52",
+        "FR-53"
+      ],
+      "jira_description_sha256": "38758aa98193228fbe1f66649e65d98073bec82443311ce37e60b285e1e1e410"
+    },
+    {
+      "story": "9.6",
+      "jira": "SMN-183",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-52"
+      ],
+      "jira_description_sha256": "9adc1157204b071359ff0ed9dab054ad10b571ec48e526b45ab66dc9af6c2bd8"
+    },
+    {
+      "story": "9.7",
+      "jira": "SMN-184",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-52",
+        "FR-53"
+      ],
+      "jira_description_sha256": "e6b72f218de4fbd9e1624c9041a1259b002e1d7193fe4b201bc07691e8b065f3"
+    },
+    {
+      "story": "9.8",
+      "jira": "SMN-185",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-52",
+        "FR-53"
+      ],
+      "jira_description_sha256": "4dd14bfee111ac513764337cf414e715911357e338f21e566867d6da6d8df1c8"
+    },
+    {
+      "story": "9.9",
+      "jira": "SMN-186",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-53"
+      ],
+      "jira_description_sha256": "7d6515a498254477c3eb09b0e85e3ef4d613b086034298de0a80be67296fac39"
+    },
+    {
+      "story": "9.10",
+      "jira": "SMN-187",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-53",
+        "FR-55"
+      ],
+      "jira_description_sha256": "7ce51669277ec9727a5627429f7564440e6a9b8c710127b57ca6024c489bee90"
+    },
+    {
+      "story": "9.11",
+      "jira": "SMN-189",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-53",
+        "FR-54"
+      ],
+      "jira_description_sha256": "7170e80f01fd209679a899cc5d2cc13885bcdd7832ecc266c35dceb226d80ad5"
+    },
+    {
+      "story": "9.12",
+      "jira": "SMN-190",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-53",
+        "FR-54"
+      ],
+      "jira_description_sha256": "2140456bca78b3a9f9bb6c3484587ba2dbf00d7749926f9addc4d51920286fe6"
+    },
+    {
+      "story": "9.13",
+      "jira": "SMN-191",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-54"
+      ],
+      "jira_description_sha256": "cc89864eca721b60ee85544f0ddc25ca566467effb512553b65d07009f42acbc"
+    },
+    {
+      "story": "9.14",
+      "jira": "SMN-192",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-55"
+      ],
+      "jira_description_sha256": "8aaacc250f24d473386be860763ee7d14496c39539b3c93d5cee9ba3c5ea24cc"
+    },
+    {
+      "story": "9.15",
+      "jira": "SMN-193",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-54",
+        "FR-55"
+      ],
+      "jira_description_sha256": "4d5ea118dcb47571e880572767a55e373ea98904bf1d1966c560e002f3769727"
+    },
+    {
+      "story": "9.16",
+      "jira": "SMN-194",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-52",
+        "FR-56"
+      ],
+      "jira_description_sha256": "d3fb28177c524c491be0442b9b5949e7d4b1b19a6e658e263b824bcddcdd13a7"
+    },
+    {
+      "story": "9.17",
+      "jira": "SMN-195",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-55",
+        "FR-56"
+      ],
+      "jira_description_sha256": "97b35d9e3f64ded35450792dcc54465829e6dc697d9040a5cdc2675bf7168cfd"
+    },
+    {
+      "story": "9.18",
+      "jira": "SMN-196",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-56",
+        "FR-57"
+      ],
+      "jira_description_sha256": "e69b08b88c43a24ab918701edaabecb36b68b73a1da10b599f58eb1668f30ab2"
+    },
+    {
+      "story": "9.19",
+      "jira": "SMN-197",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-54",
+        "FR-55",
+        "FR-56"
+      ],
+      "jira_description_sha256": "ae022956f9a418cd2f3ae850683405649be98594524d689e0b2dcd61bea699ef"
+    },
+    {
+      "story": "9.20",
+      "jira": "SMN-198",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-52",
+        "FR-53",
+        "FR-56",
+        "FR-57"
+      ],
+      "jira_description_sha256": "bedff12ec115c78165b33ea372c9b8262c8e957ccf85d4257a52272c9df82fb5"
+    },
+    {
+      "story": "9.21",
+      "jira": "SMN-199",
+      "parent": "SMN-9",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-56",
+        "FR-57"
+      ],
+      "jira_description_sha256": "22d1868fdcb385110f4f857b74b17a096f06deefe6273cd7957ec821758cd1e3"
+    },
+    {
+      "story": "10.1",
+      "jira": "SMN-200",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-3",
+        "FR-74",
+        "FR-81"
+      ],
+      "jira_description_sha256": "7d72f2272add67231a587c9e52c32d9c3b329d82cfcf41ac5aa52b4449fac14d"
+    },
+    {
+      "story": "10.2",
+      "jira": "SMN-201",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-74"
+      ],
+      "jira_description_sha256": "af6564b12b8a9ec653b495b962f2bb12b83c1775250c9a3c2e10cc6248ead2a6"
+    },
+    {
+      "story": "10.3",
+      "jira": "SMN-202",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-74",
+        "FR-81"
+      ],
+      "jira_description_sha256": "fb2481560e4f5f9d78b219c1b7b718db2ce404f18edb2121b29fbdf70f02208d"
+    },
+    {
+      "story": "10.4",
+      "jira": "SMN-203",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-75"
+      ],
+      "jira_description_sha256": "fe7d66b06af4cc8669aee41919166a7e1d36cbe2459c1c63c6468bab6ef7edce"
+    },
+    {
+      "story": "10.5",
+      "jira": "SMN-204",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-75"
+      ],
+      "jira_description_sha256": "eaba7741003ed2cca77f79c6e7fd6754c6f40fffcf923c7d67c66a60b90fee79"
+    },
+    {
+      "story": "10.6",
+      "jira": "SMN-205",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-75",
+        "FR-77"
+      ],
+      "jira_description_sha256": "c45b14b994e17ac2d0aedb1d42df5335df72f96bb8d9c555807c6659ec652e15"
+    },
+    {
+      "story": "10.7",
+      "jira": "SMN-206",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-76"
+      ],
+      "jira_description_sha256": "1eb009eb20342ae1c75b18a33a01ff95ec38782c35d6b5a7664aeb52b2d16cc9"
+    },
+    {
+      "story": "10.8",
+      "jira": "SMN-207",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-75",
+        "FR-76"
+      ],
+      "jira_description_sha256": "96bf0313f79b4f83f8aafc07d08f1803f7458823aea363108df9ec2dd2d1b823"
+    },
+    {
+      "story": "10.9",
+      "jira": "SMN-208",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-76",
+        "FR-78"
+      ],
+      "jira_description_sha256": "71649accc130e2c56d06a9f7e23d103dec0f8fa831c965c37c7f6b63d7f8abbd"
+    },
+    {
+      "story": "10.10",
+      "jira": "SMN-209",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-76"
+      ],
+      "jira_description_sha256": "846234b7f139aaa96b6ff6d2852c8aeddafeb05eea9e5699bc9972c0a2a37da8"
+    },
+    {
+      "story": "10.11",
+      "jira": "SMN-210",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-76",
+        "FR-77"
+      ],
+      "jira_description_sha256": "058e4fb920c0e372bb0c5a65bf244040a4200b2c60ce07d9c657d7a7e7d6314d"
+    },
+    {
+      "story": "10.12",
+      "jira": "SMN-214",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-76",
+        "FR-78"
+      ],
+      "jira_description_sha256": "35d68ee3bd6b0b350800fe1fba161fb7d4f191a542aa2d39137d69bf4a7f9d2c"
+    },
+    {
+      "story": "10.13",
+      "jira": "SMN-211",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-77"
+      ],
+      "jira_description_sha256": "9c75a41344e0a969fb74bcdd6622573c9c890f0f7580c9e9ef2095f3846e8d11"
+    },
+    {
+      "story": "10.14",
+      "jira": "SMN-212",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-78"
+      ],
+      "jira_description_sha256": "2567e29d4b93778fdf2b8f6c1f5439e69c50e085e515b82fe1b66e63c04f7708"
+    },
+    {
+      "story": "10.15",
+      "jira": "SMN-213",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-66",
+        "FR-79"
+      ],
+      "jira_description_sha256": "22b1a49c91807394d19b98246135bb01dc3c69a56576628ccecccd678090cb91"
+    },
+    {
+      "story": "10.16",
+      "jira": "SMN-215",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-68",
+        "FR-79"
+      ],
+      "jira_description_sha256": "4138040295216451a22dc897179c3606d7002db04ff07b6aa23342e9e49264af"
+    },
+    {
+      "story": "10.17",
+      "jira": "SMN-216",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-23",
+        "FR-77",
+        "FR-79"
+      ],
+      "jira_description_sha256": "28555aa50d5e90caf5a8fbc85df74c153ae128b5b617146065ef0e3fcfb251cb"
+    },
+    {
+      "story": "10.18",
+      "jira": "SMN-217",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-80"
+      ],
+      "jira_description_sha256": "95e2c8d5426e6df1e9703434de8c369c32f62434ad4d4deda71d87c0a073f5e7"
+    },
+    {
+      "story": "10.19",
+      "jira": "SMN-218",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-1",
+        "FR-80"
+      ],
+      "jira_description_sha256": "aa7e4fa9b9f5db387cf6181cf41af213e98108d2072fdfc1d1a5ee5838fbd131"
+    },
+    {
+      "story": "10.20",
+      "jira": "SMN-219",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-74",
+        "FR-76",
+        "FR-81"
+      ],
+      "jira_description_sha256": "4fbee483801489362761368f2046d4a48e97096bdc64bf4d33f88665795210ce"
+    },
+    {
+      "story": "10.21",
+      "jira": "SMN-220",
+      "parent": "SMN-10",
+      "status": "À faire",
+      "ac_count": 5,
+      "clauses_match": true,
+      "fr_refs_match": true,
+      "fr_refs": [
+        "FR-76",
+        "FR-81"
+      ],
+      "jira_description_sha256": "2662a2605617a4d7bb80173812feb5b6417b664f23bc3e387b7341fa0852c6b5"
+    }
+  ]
+}

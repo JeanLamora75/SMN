@@ -12,7 +12,7 @@
 | Architecture — Winston | [Contrat final AD-1 à AD-31](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md), réserves techniques maintenues |
 | Create Epics and Stories | [Final](../_bmad-output/planning-artifacts/epics.md), quatre étapes achevées, confirmation utilisateur C — Complete Workflow |
 | Jira | 10 Epics / 210 Stories, toutes À faire lors de la vérification du 19/10 |
-| Sprint Planning | Aucun sprint-status.yaml présent dans les sources consolidées |
+| Sprint Planning | [Contrôle du 19/10 : CONCERNS](../_bmad-output/planning-artifacts/implementation-readiness.md) ; suivi non généré, choix corriger/poursuivre attendu |
 | Développement / recette / pilote | Aucune implémentation applicative, campagne de recette ou aptitude au pilote attestée |
 
 Le découpage final déclare la couverture des 81 FR, 3 NFR et 18 UX-DR. Il s'agit de couverture documentaire, pas de résultats de tests.
@@ -27,7 +27,7 @@ Les décisions UX sont documentées dans le PRD et les UX-DR ; aucun livrable au
 
 ## Prochaine étape officielle
 
-**[SP] Sprint Planning — `bmad-sprint-planning`**, dans une nouvelle conversation avec lecture du [skill installé](../.agents/skills/bmad-sprint-planning/SKILL.md).
+**[SP] Sprint Planning — `bmad-sprint-planning`** activé le 19/10 : [verdict CONCERNS et actions](../_bmad-output/planning-artifacts/implementation-readiness.md). Choix utilisateur requis par le gate entre corriger les réserves ou poursuivre malgré elles. Aucun `sprint-status.yaml` généré. Les constats concernent notamment les producteurs du contexte produit, une ambiguïté de cardinalité équipe, les choix techniques I0 et le séquencement des capacités.
 
 Le catalogue BMAD 6.12.4 installé prévoit : contrôle de préparation **PASS/CONCERNS/FAIL**, puis génération du suivi `sprint-status.yaml` sur PASS. Aucun résultat de ce contrôle n'est acquis par cette consolidation. Après planification, **[BD] Build — `bmad-build`**, avec priorité au socle et aux preuves I0 conformément au séquencement validé.
 
@@ -41,3 +41,4 @@ Le catalogue BMAD 6.12.4 installé prévoit : contrôle de préparation **PASS/C
 | docs/bmad-prd-smn-20261018 et docs/bmad-architecture-smn-20261019 | Comparées ; leurs fichiers sont repris ou amendés dans la branche des arbitrages |
 
 Les branches d'origine et journaux sont conservés. La PR historique du Product Brief reste une trace de sa transmission initiale ; l'index présent donne accès à sa copie consolidée.
+

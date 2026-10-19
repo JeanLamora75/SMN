@@ -58,6 +58,11 @@ Poste Windows 11 sans droits administrateur ; Node.js, npm, pnpm, PowerShell et 
 - Toute modification fonctionnelle structurante demande validation ; aucune nouvelle exigence implicite.
 - Toute recherche web avancée requiert un accord préalable.
 
+## Contrôle de préparation du 19 octobre 2026
+
+Le [contrôle Sprint Planning](../_bmad-output/planning-artifacts/implementation-readiness.md) aboutit à **CONCERNS** ; le suivi n’est pas généré avant le choix requis par le gate. Les 210 Stories et leurs 1 052 AC correspondent structurellement à Jira, mais cela ne résout pas les lacunes de couverture sémantique identifiées. Premier travail futur : préparation technique I0 puis SMN-11, sous mandat de construction distinct. Aucun ticket Jira ni décision fonctionnelle modifié.
+
 ## 6. Maintenance
 
 Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalon. Conserver les décisions historiques et ajouter des amendements identifiables ; ne pas renuméroter les F, D-PRD ou AD. Une consolidation documentaire ne démontre ni implémentation, ni conformité, ni aptitude au pilote.
+
