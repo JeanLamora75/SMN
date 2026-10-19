@@ -19,8 +19,8 @@ inputDocuments:
 ## Overview
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories de l'Epic 1 ont été validées globalement par l'utilisateur le même jour ; les Stories de l'Epic 2 ont été publiées sur Jira pour lecture et validation groupée.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
-**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles de l'Epic 3 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
-**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2 et 3 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
+**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles des Epics 3 et 4 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
+**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3 et 4 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
 
 ## Requirements Inventory
 
@@ -2027,7 +2027,6 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 
 ### Story 3.1: Créer rapidement les fiches des membres de l'équipe
 **Jira :** https://lmn24.atlassian.net/browse/SMN-42
-
 **En tant que** Scrum Master Administrateur,
 **je veux** définir rapidement l'effectif et créer les fiches provisoires d'une équipe Scrum ou Kanban,
 **afin de** obtenir une équipe de départ configurable en limitant la saisie.
@@ -2073,12 +2072,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
 * **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.2: Compléter la fiche centrale du membre et son e-mail facultatif
 **Jira :** https://lmn24.atlassian.net/browse/SMN-43
-
 **En tant que** Scrum Master Administrateur,
 **je veux** compléter et corriger une fiche membre sans dupliquer les informations de la personne,
 **afin de** maintenir un référentiel unique même pour des personnes affectées à plusieurs équipes.
@@ -2124,12 +2124,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
 * **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.3: Affecter un membre à plusieurs équipes avec dates et rôles Agile
 **Jira :** https://lmn24.atlassian.net/browse/SMN-44
-
 **En tant que** Scrum Master Administrateur,
 **je veux** gérer les affectations et les parts de rôles dans chaque équipe,
 **afin de** suivre les contributions réelles sans dépasser le temps contractuel disponible.
@@ -2175,12 +2176,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
 * **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.4: Clore une affectation et conserver les membres archivés
 **Jira :** https://lmn24.atlassian.net/browse/SMN-45
-
 **En tant que** Scrum Master Administrateur,
 **je veux** terminer la participation d'un membre ou archiver sa fiche en préservant son historique,
 **afin de** garder une composition d'équipe fiable au fil des départs.
@@ -2226,12 +2228,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
 * **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.5: Personnaliser le calendrier hebdomadaire individuel
 **Jira :** https://lmn24.atlassian.net/browse/SMN-46
-
 **En tant que** Scrum Master Administrateur,
 **je veux** configurer jours travaillés, demi-journées et exceptions de chaque membre,
 **afin de** disposer d'une base de disponibilité réaliste pour toutes ses équipes.
@@ -2277,12 +2280,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
 * **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.6: Localiser un membre par pays et fuseau horaire
 **Jira :** https://lmn24.atlassian.net/browse/SMN-47
-
 **En tant que** Scrum Master Administrateur,
 **je veux** indiquer pays, région, ville et fuseau de chaque membre,
 **afin de** adapter les calendriers et les horaires sans confondre langue et pays.
@@ -2328,12 +2332,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Source : PRD/architecture SMN sur branche `docs/bmad-arbitrages-metier-valides-20261019`.
 * **Statut : proposition de spécification publiée en lot pour revue globale de l'Epic 3 ; ni validation fonctionnelle, ni développement, ni recette réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.7: Administrer le catalogue des sept pays initiaux
 **Jira :** https://lmn24.atlassian.net/browse/SMN-48
-
 **En tant que** Administrateur,
 **je veux** consulter et enrichir la liste des pays proposés dans SMN,
 **afin de** configurer des équipes internationales sans modifier le code.
@@ -2376,14 +2381,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Architecture : D-PRD-015/018 ; AD-12/31.
 * Dépendances : Epic 1 (paramètres). Le catalogue est indépendant des calendriers et utilisable sans eux.
 * MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
-* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+* **Revue : VALIDÉE FONCTIONNELLEMENT GLOBALEMENT LE 19/10/2026** ; aucun développement ni test exécuté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.8: Précharger les calendriers nationaux disponibles à l'installation
 **Jira :** https://lmn24.atlassian.net/browse/SMN-49
-
 **En tant que** Administrateur,
 **je veux** importer automatiquement les fichiers de jours fériés nationaux fournis avec SMN,
 **afin de** démarrer le suivi des disponibilités sans importer manuellement les dates connues.
@@ -2426,14 +2432,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Architecture : D-PRD-019/020/022/023 ; AD-12/16.
 * Dépendances : Story 3.7 ; mécanisme de validation des jours intégré à la Story.
 * MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
-* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+* **Revue : VALIDÉE FONCTIONNELLEMENT GLOBALEMENT LE 19/10/2026** ; aucun développement ni test exécuté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.9: Importer des jours fériés nationaux à partir d'un CSV
 **Jira :** https://lmn24.atlassian.net/browse/SMN-50
-
 **En tant que** Administrateur,
 **je veux** importer et contrôler un fichier CSV de jours fériés pour un pays et des années libres,
 **afin de** compléter les calendriers manquants y compris historiques.
@@ -2476,14 +2483,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Architecture : D-PRD-017/020/022 ; AD-12/16/19.
 * Dépendances : Stories 3.7 et 3.8 ; réutilise l'entité calendrier national déjà créée.
 * MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
-* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+* **Revue : VALIDÉE FONCTIONNELLEMENT GLOBALEMENT LE 19/10/2026** ; aucun développement ni test exécuté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.10: Importer et sélectionner des jours fériés nationaux depuis un fichier ICS
 **Jira :** https://lmn24.atlassian.net/browse/SMN-51
-
 **En tant que** Administrateur,
 **je veux** extraire des jours fériés depuis un fichier iCalendar après avoir choisi les événements pertinents,
 **afin de** réutiliser des calendriers extérieurs sans considérer chaque événement comme un jour non travaillé.
@@ -2526,14 +2534,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Architecture : D-PRD-017/020/021 ; AD-12/14/16/19.
 * Dépendances : Stories 3.7 et 3.9 ; partage stockage et règles de validation avec CSV.
 * MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
-* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+* **Revue : VALIDÉE FONCTIONNELLEMENT GLOBALEMENT LE 19/10/2026** ; aucun développement ni test exécuté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.11: Administrer les catégories et couleurs des absences
 **Jira :** https://lmn24.atlassian.net/browse/SMN-52
-
 **En tant que** Administrateur,
 **je veux** personnaliser les catégories d'absence sans perdre les références passées,
 **afin de** identifier visuellement les indisponibilités dans les calendriers.
@@ -2576,14 +2585,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Architecture : D-PRD-027/028/029/030 ; AD-12/19/31.
 * Dépendances : Epic 1 paramètres et conformité d'administration. Utilisable avant toute absence.
 * MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
-* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+* **Revue : VALIDÉE FONCTIONNELLEMENT GLOBALEMENT LE 19/10/2026** ; aucun développement ni test exécuté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.12: Enregistrer et modifier une absence individuelle centralisée
 **Jira :** https://lmn24.atlassian.net/browse/SMN-53
-
 **En tant que** Administrateur,
 **je veux** créer et corriger les absences d'une personne avec dates, demi-journées, catégorie et motif,
 **afin de** déduire une fois la disponibilité sans dupliquer l'information entre équipes.
@@ -2626,14 +2636,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Architecture : D-PRD-024/026/027 ; AD-12/14/16/19/31.
 * Dépendances : Stories 3.2, 3.5 et 3.11 ; l'accès par calendrier d'équipe sera livré en 3.14.
 * MVP Scrum/Kanban ; incréments I1–I2 ; seule l'administration peut modifier les données individuelles.
-* **Revue : proposition publiée en lot pour lecture globale de l'Epic 3, non encore validée ; pas de développement ni test.**
+* **Revue : VALIDÉE FONCTIONNELLEMENT GLOBALEMENT LE 19/10/2026** ; aucun développement ni test exécuté.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.13: Traiter les particularités régionales comme absences individuelles
 **Jira :** https://lmn24.atlassian.net/browse/SMN-54
-
 **En tant que** Administrateur,
 **je veux** représenter un jour régional non travaillé comme une absence d'un membre,
 **afin de** prendre en compte des règles locales sans administrer un catalogue férié régional.
@@ -2678,12 +2689,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
 * **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.14: Consulter le calendrier d'équipe et les absences selon les droits
 **Jira :** https://lmn24.atlassian.net/browse/SMN-55
-
 **En tant que** Administrateur et Utilisateur autorisé,
 **je veux** consulter les disponibilités et créer une absence depuis le calendrier d'équipe lorsque je suis Administrateur,
 **afin de** partager la visibilité sans multiplier les fiches d'absence.
@@ -2728,12 +2740,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
 * **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.15: Administrer les jours de fermeture de l'entreprise
 **Jira :** https://lmn24.atlassian.net/browse/SMN-56
-
 **En tant que** Administrateur,
 **je veux** renseigner les fermetures collectives indépendamment des jours fériés et absences individuelles,
 **afin de** calculer une disponibilité d'équipe fiable sans multiplier les absences.
@@ -2778,12 +2791,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
 * **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.16: Calculer une capacité de développement fiable en jours-homme
 **Jira :** https://lmn24.atlassian.net/browse/SMN-57
-
 **En tant que** Scrum Master Administrateur,
 **je veux** obtenir la référence de capacité d'une période à partir des disponibilités et affectations,
 **afin de** éviter les additions manuelles et les doubles déductions.
@@ -2828,12 +2842,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
 * **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.17: Arbitrer une capacité manuelle prioritaire face à la référence calculée
 **Jira :** https://lmn24.atlassian.net/browse/SMN-58
-
 **En tant que** Scrum Master Administrateur,
 **je veux** saisir ou effacer une valeur de capacité en JH en gardant la référence calculée visible,
 **afin de** conserver la maîtrise des données métier sans perdre la traçabilité.
@@ -2878,12 +2893,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
 * **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.18: Figer la capacité initiale à l'ouverture effective d'une période
 **Jira :** https://lmn24.atlassian.net/browse/SMN-59
-
 **En tant que** Scrum Master Administrateur,
 **je veux** conserver la capacité initialement retenue à l'ouverture réelle de la période,
 **afin de** comparer ensuite le prévisionnel à la réalité sans reconstitution trompeuse.
@@ -2928,12 +2944,13 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * MVP Scrum/Kanban, incréments I1–I2 ; données personnelles réservées à l'Administrateur.
 * **Statut : publication groupée pour revue globale de l'Epic 3. Non validée, non développée, non testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.19: Calculer la capacité réellement constatée selon le statut de période
 **Jira :** https://lmn24.atlassian.net/browse/SMN-60
-
 **En tant que** Scrum Master Administrateur,
 **je veux** voir la capacité réellement constatée séparément de l'engagement initial,
 **afin de** identifier les écarts sans attribuer une performance à une personne.
@@ -2976,14 +2993,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Décisions : D-PRD-114/115 ; AD-11/16/19/20.
 * Dépendances : 3.16, 3.17 et 3.18 ; testé sur un statut métier de période, repris ensuite par les cycles Scrum/Kanban.
 * MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
-* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+* Statut : **validation fonctionnelle globale le 19/10/2026 ; développement et recette non réalisés**.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.20: Qualifier la fiabilité des capacités historiques sans créer de faux zéros
 **Jira :** https://lmn24.atlassian.net/browse/SMN-61
-
 **En tant que** Scrum Master Administrateur,
 **je veux** renseigner la qualité connue, estimée ou non renseignée d'une capacité passée,
 **afin de** comparer des périodes avec des données honnêtement qualifiées.
@@ -3026,14 +3044,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Décisions : D-PRD-130/A2 ; D-PRD-032/033 ; AD-11/16/19.
 * Dépendances : 3.16 et 3.17 ; la création de Sprint historique relève de l'Epic 8.
 * MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
-* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+* Statut : **validation fonctionnelle globale le 19/10/2026 ; développement et recette non réalisés**.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.21: Prévisualiser les effets d'une replanification sur les références de capacité
 **Jira :** https://lmn24.atlassian.net/browse/SMN-62
-
 **En tant que** Scrum Master Administrateur,
 **je veux** connaître les changements de capacité avant de modifier les bornes d'un cycle,
 **afin de** replanifier sans effacer des valeurs manuelles ou des références historiques.
@@ -3076,14 +3095,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Décisions : D-PRD-114/115 ; AD-17/18/19/20.
 * Dépendances : 3.16 à 3.20 ; cas de test autonome de période datée ; branchement aux cycles dans Epic 4/7.
 * MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
-* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+* Statut : **validation fonctionnelle globale le 19/10/2026 ; développement et recette non réalisés**.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.22: Préremplir les formulaires membres et calendriers sans écraser les choix
 **Jira :** https://lmn24.atlassian.net/browse/SMN-63
-
 **En tant que** Scrum Master Administrateur,
 **je veux** réutiliser les valeurs déjà connues dans les formulaires de l'équipe,
 **afin de** réduire les saisies en préservant la distinction entre valeurs sources et suggestions.
@@ -3126,14 +3146,15 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Décisions : UX-04 ; AD-12/16/19.
 * Dépendances : Stories 3.1 à 3.21 ; composants réutilisables par les fonctionnalités existantes.
 * MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
-* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+* Statut : **validation fonctionnelle globale le 19/10/2026 ; développement et recette non réalisés**.
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 ### Story 3.23: Afficher cycles, événements et absences dans un calendrier central partagé
 **Jira :** https://lmn24.atlassian.net/browse/SMN-64
-
 **En tant que** Administrateur ou Utilisateur autorisé,
 **je veux** consulter dans une vue commune les cycles, réunions et indisponibilités disponibles,
 **afin de** préparer les activités sans perdre le contexte ni modifier les données par inadvertance.
@@ -3176,8 +3197,1143 @@ Configurer les membres, affectations, calendriers, absences et capacités sans s
 * Décisions : UX-05 ; AD-14/15/18/31.
 * Dépendances : 3.14 pour calendrier d'équipe ; intégration avec les cycles/événements au moment de leur livraison dans Epic 4/7 sans dépendance préalable.
 * MVP Scrum/Kanban, incréments I1–I2 ; sauvegardes et protections communes selon les Epics 1 et 2.
-* Statut : **publication groupée pour validation globale ultérieure de l'Epic 3, sans approbation automatique ; développement et recette non réalisés**.
+* Statut : **validation fonctionnelle globale le 19/10/2026 ; développement et recette non réalisés**.
+
+#### Validation fonctionnelle globale
+
+L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
 
-**Validation :** proposition de rédaction publiée dans Jira pour revue groupée ; non approuvée fonctionnellement à ce jour.
+## Epic 4: Préparer, suivre et clôturer ses Sprints Scrum
+Générer et suivre les Sprints Scrum, leurs cérémonies, leurs objectifs, leur bilan et les clôtures versionnées.
+**FRs couvertes :** FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, FR-24.
+
+### Story 4.1: Configurer la cadence et les horaires d'une équipe Scrum
+**Jira :** https://lmn24.atlassian.net/browse/SMN-65
+**En tant que** Scrum Master Administrateur,
+**je veux** modifier les paramètres qui serviront aux futurs Sprints,
+**afin de** adapter Scrum à l'organisation de mon équipe.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** L'installation est en mode Scrum,
+**When** j'ouvre les paramètres d'équipe,
+**Then** la durée initiale est deux semaines ; seules 1, 2, 3 ou 4 semaines sont acceptées.
+
+#### AC2
+
+**Given** Une équipe est initialisée,
+**When** je consulte les bornes par défaut,
+**Then** le démarrage est lundi 09 h et la fin vendredi de la dernière semaine à 18 h dans le fuseau IANA de l'équipe.
+
+#### AC3
+
+**Given** Les paramètres sont modifiables,
+**When** je change le jour et l'heure de début ou de fin,
+**Then** la nouvelle cadence est validée, horodatée et sera utilisée pour les prochains Sprints seulement.
+
+#### AC4
+
+**Given** Des Sprints ou événements existent déjà,
+**When** je modifie les paramètres par défaut,
+**Then** leurs bornes et occurrences restent inchangées, y compris si les Sprints sont futurs.
+
+#### AC5
+
+**Given** Un Utilisateur sans droit de modification tente la même opération,
+**When** la requête parvient au serveur,
+**Then** l'écriture est refusée ; le paramétrage reste sous contrôle Administrateur.
+
+#### Traçabilité
+
+* Epic : SMN-4 ; FR-15, FR-17, FR-24 ; D-PRD-036/042/044/049 ; AD-14/17.
+* Incréments : I1–I2. MVP Scrum uniquement ; capacité de base déjà disponible via Epics 1–3 ; aucune Story future exigée pour fonctionner.
+* **État : proposition publiée pour revue globale de l'Epic 4, non validée fonctionnellement ; aucun développement/test réalisé.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.2: Générer un Sprint unitaire à la demande
+**Jira :** https://lmn24.atlassian.net/browse/SMN-66
+**En tant que** Scrum Master Administrateur,
+**je veux** créer un Sprint selon la cadence active,
+**afin de** disposer d'un cycle planifié sans opération complexe.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Aucun Sprint n'existe,
+**When** j'ouvre la génération unitaire,
+**Then** SMN me demande une date de départ choisie explicitement et propose X = 1.
+
+#### AC2
+
+**Given** Un Sprint existe déjà, quel que soit son statut,
+**When** j'ouvre la création,
+**Then** SMN propose le début du cycle qui suivrait le dernier Sprint chronologique, librement corrigeable.
+
+#### AC3
+
+**Given** Une date de départ est saisie,
+**When** je la modifie,
+**Then** le nom initial basé sur les dates et les bornes calculées sont mis à jour tant que le nom n'a pas été personnalisé.
+
+#### AC4
+
+**Given** La proposition unitaire est valide,
+**When** je clique Générer,
+**Then** un Sprint est enregistré sans écran de prévisualisation distinct ni confirmation supplémentaire, avec audit de réussite.
+
+#### AC5
+
+**Given** Les dates se chevauchent dans la même équipe ou sont invalides,
+**When** je clique Générer,
+**Then** la création est refusée sans Sprint partiel ; une équipe distincte n'est pas bloquée pour ces mêmes dates.
+
+#### Traçabilité
+
+* Epic : SMN-4 ; FR-15, FR-24 ; D-PRD-037/099/104/105/106 ; AD-15/17.
+* Incréments : I1–I2. MVP Scrum uniquement ; capacité de base déjà disponible via Epics 1–3 ; aucune Story future exigée pour fonctionner.
+* **État : proposition publiée pour revue globale de l'Epic 4, non validée fonctionnellement ; aucun développement/test réalisé.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.3: Prévisualiser et corriger un lot de Sprints
+**Jira :** https://lmn24.atlassian.net/browse/SMN-67
+**En tant que** Scrum Master Administrateur,
+**je veux** voir plusieurs Sprints calculés avant leur génération,
+**afin de** éviter les chevauchements et créations accidentelles.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un nombre de cycles est demandé,
+**When** je saisis une valeur différente d'un entier entre 1 et 6,
+**Then** une erreur bloque l'opération sans créer de Sprint.
+
+#### AC2
+
+**Given** Je demande entre 2 et 6 Sprints,
+**When** j'ouvre la prévisualisation,
+**Then** SMN liste noms, dates locales de début et de fin et éventuels conflits de chacun des Sprints proposés.
+
+#### AC3
+
+**Given** Un Sprint proposé chevauche un Sprint de la même équipe ou un autre du lot,
+**When** je consulte l'aperçu,
+**Then** la confirmation est bloquée, les cycles et bornes en conflit sont indiqués.
+
+#### AC4
+
+**Given** Un conflit bloque un lot,
+**When** je modifie la date de départ du lot,
+**Then** tous les cycles proposés sont recalculés ; les cycles existants ne sont pas déplacés et les dates individuelles du lot ne sont pas éditables.
+
+#### AC5
+
+**Given** Je ferme l'aperçu ou change un paramètre,
+**When** je reviens à la génération,
+**Then** aucune création n'a lieu ; un nouvel aperçu actuel est requis avant confirmation.
+
+#### Traçabilité
+
+* Epic : SMN-4 ; FR-15, FR-24 ; D-PRD-094/095/096/097/098/099/100/101 ; AD-15/17.
+* Incréments : I1–I2. MVP Scrum uniquement ; capacité de base déjà disponible via Epics 1–3 ; aucune Story future exigée pour fonctionner.
+* **État : proposition publiée pour revue globale de l'Epic 4, non validée fonctionnellement ; aucun développement/test réalisé.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.4: Confirmer un lot valide avec écriture atomique et audit
+**Jira :** https://lmn24.atlassian.net/browse/SMN-68
+**En tant que** Scrum Master Administrateur,
+**je veux** générer un lot de Sprints après prévisualisation complète,
+**afin de** préparer plusieurs cycles sans risque d'un résultat partiel.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un aperçu de 2 à 6 Sprints est valide,
+**When** je confirme explicitement,
+**Then** tous les Sprints proposés sont créés dans une transaction cohérente avec identifiants et bornes conservés.
+
+#### AC2
+
+**Given** Une anomalie de cadence, borne ou chevauchement apparaît sur un seul Sprint,
+**When** je confirme le lot,
+**Then** l'intégralité du lot est rejetée, même si les autres Sprints sont valides.
+
+#### AC3
+
+**Given** Une panne survient pendant la persistance,
+**When** le service reprend,
+**Then** aucun Sprint ni audit de succès partiel n'est conservé ; le résultat est Échec.
+
+#### AC4
+
+**Given** Le lot est créé,
+**When** j'ouvre son historique,
+**Then** SMN retrace auteur, instant UTC, équipe, cadence, identifiants, noms et bornes des cycles créés.
+
+#### AC5
+
+**Given** Deux Sprints se touchent sans durée commune, ou sont dans des équipes différentes,
+**When** la validation des chevauchements s'exécute,
+**Then** ils ne sont pas considérés comme un conflit ; le fuseau IANA et le changement d'heure ne décalent pas les horaires locaux.
+
+#### Traçabilité
+
+* Epic : SMN-4 ; FR-15, FR-24 ; D-PRD-095/096/101/102/103 ; AD-15/17/19.
+* Incréments : I1–I2. MVP Scrum uniquement ; capacité de base déjà disponible via Epics 1–3 ; aucune Story future exigée pour fonctionner.
+* **État : proposition publiée pour revue globale de l'Epic 4, non validée fonctionnellement ; aucun développement/test réalisé.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.5: Renommer un Sprint sans toucher à ses données historiques
+**Jira :** https://lmn24.atlassian.net/browse/SMN-69
+**En tant que** Scrum Master Administrateur,
+**je veux** adapter le nom d'un Sprint avant ou après création,
+**afin de** reconnaître mes périodes sans perdre leurs dates et traces.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint est généré,
+**When** je consulte son nom proposé,
+**Then** le libellé « Sprint du JJ/MM/AAAA au JJ/MM/AAAA » correspond à ses dates et reste modifiable.
+
+#### AC2
+
+**Given** Un nom est personnalisé,
+**When** les bornes proposées sont recalculées avant création,
+**Then** le nom personnalisé est conservé au lieu d'être remplacé automatiquement.
+
+#### AC3
+
+**Given** Je saisis un nom vide ou composé seulement d'espaces,
+**When** je tente d'enregistrer,
+**Then** le nom est refusé ; seuls les espaces de début et fin d'un nom non vide sont retirés.
+
+#### AC4
+
+**Given** Deux Sprints de la même équipe portent le même nom,
+**When** je sauvegarde le second,
+**Then** une alerte non bloquante apparaît et les deux noms sont autorisés ; dates et identifiants permettent de les distinguer.
+
+#### AC5
+
+**Given** Un Sprint est Clôturé,
+**When** je le renomme,
+**Then** il reste Clôturé sans réouverture ; identifiant, objectifs, valeurs, dates et anciens PDF demeurent inchangés, et l'action est auditée.
+
+#### Traçabilité
+
+* Epic : SMN-4 ; FR-15, FR-24 ; D-PRD-105/106/107/108/109/110 ; AD-19/20.
+* Incréments : I1–I2. MVP Scrum uniquement ; capacité de base déjà disponible via Epics 1–3 ; aucune Story future exigée pour fonctionner.
+* **État : proposition publiée pour revue globale de l'Epic 4, non validée fonctionnellement ; aucun développement/test réalisé.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.6: Supprimer après confirmation des Sprints jamais démarrés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-70
+**En tant que** Scrum Master Administrateur,
+**je veux** retirer un ou plusieurs Sprints À venir,
+**afin de** nettoyer une planification erronée sans effacer d'historique.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un ou plusieurs Sprints n'ont jamais démarré,
+**When** je les sélectionne pour suppression,
+**Then** SMN récapitule les cycles et les conséquences pour les événements déjà planifiés et demande une confirmation.
+
+#### AC2
+
+**Given** La confirmation n'a pas été donnée,
+**When** je ferme le dialogue,
+**Then** aucun Sprint ni événement n'est supprimé.
+
+#### AC3
+
+**Given** Un Sprint a démarré, même s'il est Terminé ou Clôturé,
+**When** je tente de le supprimer par ce parcours,
+**Then** l'opération est refusée sans effacer métriques, événements ou capacité figée.
+
+#### AC4
+
+**Given** Tous les cycles sélectionnés sont supprimables,
+**When** je confirme,
+**Then** seules les références autorisées sont retirées de façon cohérente avec audit de l'opération.
+
+#### AC5
+
+**Given** Un Utilisateur essaie la suppression,
+**When** il appelle l'API directement,
+**Then** l'action est refusée côté serveur.
+
+#### Traçabilité
+
+* Epic : SMN-4 ; FR-15, FR-24 ; D-PRD-037 ; AD-18/19 ; SEC-04.
+* Incréments : I1–I2. MVP Scrum uniquement ; capacité de base déjà disponible via Epics 1–3 ; aucune Story future exigée pour fonctionner.
+* **État : proposition publiée pour revue globale de l'Epic 4, non validée fonctionnellement ; aucun développement/test réalisé.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.7: Suivre les transitions automatiques d'état du Sprint
+**Jira :** https://lmn24.atlassian.net/browse/SMN-71
+**En tant que** Scrum Master Administrateur,
+**je veux** distinguer les états calendaires d'un Sprint et sa clôture volontaire,
+**afin de** voir les périodes pertinentes sans action manuelle quotidienne.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint planifié commence dans le futur,
+**When** je consulte son statut,
+**Then** il est À venir sans ouverture de capacité initiale avant un démarrage réel.
+
+#### AC2
+
+**Given** La borne de début d'un Sprint est atteinte,
+**When** SMN applique la transition temporelle,
+**Then** le statut devient En cours et le déclencheur d'ouverture de capacité est traité une seule fois.
+
+#### AC3
+
+**Given** La fin locale du Sprint est atteinte,
+**When** SMN réconcilie le statut,
+**Then** le Sprint passe automatiquement à Terminé, jamais à Clôturé.
+
+#### AC4
+
+**Given** Le Scrum Master a exceptionnellement remis un Sprint En cours à À venir pour correction,
+**When** un traitement automatique se produit,
+**Then** cette suspension volontaire est respectée jusqu'à replanification ou reprise explicite.
+
+#### AC5
+
+**Given** L'application était arrêtée pendant une transition,
+**When** elle redémarre,
+**Then** les transitions dues sont réconciliées idempotemment avec distinction date métier et instant de traitement, sans inventer une connaissance historique absente.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-15, FR-16, FR-24. D-PRD-038/039/040/049 ; AD-11/18.
+* Incréments : I1–I2 ; protection des accès (Epic 1), calendriers/capacités (Epic 3) et Sprints déjà disponibles dans les Stories antérieures de l'Epic 4.
+* Statut : proposition publiée pour revue globale, pas encore validée, ni développée ni testée.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.8: Générer les cérémonies Scrum standards avec chaque Sprint
+**Jira :** https://lmn24.atlassian.net/browse/SMN-72
+**En tant que** Scrum Master Administrateur,
+**je veux** obtenir automatiquement les Planning, Daily, Review et Rétrospective,
+**afin de** disposer de cérémonies prêtes à être ajustées sans ressaisie.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint ordinaire est nouvellement créé,
+**When** le calendrier associé est généré,
+**Then** un Planning au début, des Daily sur jours collectifs travaillés et une Review puis Rétrospective en fin de Sprint sont associés au bon identifiant.
+
+#### AC2
+
+**Given** Un Planning est prévu le premier jour du Sprint,
+**When** la séquence Daily est produite,
+**Then** aucun Daily n'est généré ce premier jour ; une absence individuelle seule n'efface pas les autres Daily.
+
+#### AC3
+
+**Given** La durée du Sprint est de 1, 2, 3 ou 4 semaines,
+**When** je consulte les timeboxes proposées,
+**Then** Planning=2/4/6/8 h, Review=1/2/3/4 h, Rétro=45/90/135/180 min et Daily=15 min, valeurs modifiables.
+
+#### AC4
+
+**Given** Un Sprint standard de deux semaines se termine vendredi à 18 h,
+**When** les cérémonies finales sont calculées,
+**Then** Review puis Rétro sont consécutives sans chevauchement, avec marge finale de 30 minutes par défaut.
+
+#### AC5
+
+**Given** Un Sprint est créé après sa date réelle de fin comme reprise historique,
+**When** sa création est confirmée,
+**Then** aucune cérémonie n'est fabriquée automatiquement ; seules les occurrences historiques connues pourront être saisies manuellement.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-17, FR-15. D-PRD-041/043/044/045/050/051/052 ; AD-17.
+* Incréments : I1–I2 ; protection des accès (Epic 1), calendriers/capacités (Epic 3) et Sprints déjà disponibles dans les Stories antérieures de l'Epic 4.
+* Statut : proposition publiée pour revue globale, pas encore validée, ni développée ni testée.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.9: Respecter la pause déjeuner et les cérémonies à segments
+**Jira :** https://lmn24.atlassian.net/browse/SMN-73
+**En tant que** Scrum Master Administrateur,
+**je veux** planifier les cérémonies Scrum sans occuper la pause déjeuner de l'équipe,
+**afin de** disposer de créneaux réalistes même pour de longues réunions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Une équipe n'a pas personnalisé sa pause,
+**When** j'ouvre ses paramètres de planification,
+**Then** la plage 12 h–13 h est exclue de la planification automatique, sans réduire la capacité Développeur.
+
+#### AC2
+
+**Given** Une cérémonie calculée chevauche la pause,
+**When** le planificateur crée les créneaux,
+**Then** aucune minute de réunion effective n'est placée dans la pause.
+
+#### AC3
+
+**Given** Une cérémonie ne peut pas être placée d'un seul tenant,
+**When** le planificateur répartit l'événement,
+**Then** une seule cérémonie logique contient deux segments ; sa durée est la somme des segments hors pause.
+
+#### AC4
+
+**Given** Review et Rétro occupent la fin du Sprint,
+**When** l'ordonnancement tient compte des durées et de la marge,
+**Then** les deux cérémonies demeurent successives sans chevauchement, et la marge configurée avant fin Sprint est respectée.
+
+#### AC5
+
+**Given** La pause configurée est modifiée,
+**When** un Sprint déjà créé est consulté,
+**Then** ses occurrences ne sont pas réécrites ; seuls les futurs Sprints utilisent le nouveau paramètre.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-17. D-PRD-050/051/052/053/054 ; AD-14/17.
+* Incréments : I1–I2 ; protection des accès (Epic 1), calendriers/capacités (Epic 3) et Sprints déjà disponibles dans les Stories antérieures de l'Epic 4.
+* Statut : proposition publiée pour revue globale, pas encore validée, ni développée ni testée.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.10: Signaler sans bloquer les conflits de réunions
+**Jira :** https://lmn24.atlassian.net/browse/SMN-74
+**En tant que** Scrum Master Administrateur,
+**je veux** être averti des chevauchements entre événements d'équipe,
+**afin de** corriger si nécessaire les créneaux sans perdre de planification.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Une génération propose deux réunions en conflit,
+**When** j'ouvre la proposition ou le calendrier,
+**Then** les événements et plages qui se chevauchent sont signalés clairement.
+
+#### AC2
+
+**Given** Une réunion personnelle ou exceptionnelle est déjà planifiée,
+**When** j'ajoute une cérémonie automatique au même créneau,
+**Then** un avertissement non bloquant apparaît sans suppression ni déplacement de la réunion existante.
+
+#### AC3
+
+**Given** Je crée ou modifie manuellement un événement,
+**When** le créneau chevauche une autre réunion,
+**Then** l'alerte est affichée mais l'enregistrement reste possible après choix explicite.
+
+#### AC4
+
+**Given** Une série de réunions ne présente aucun conflit,
+**When** je valide les créneaux,
+**Then** aucune fausse alerte n'est générée.
+
+#### AC5
+
+**Given** Une cérémonie tombe sur un jour collectif non travaillé,
+**When** le calendrier est proposé,
+**Then** une alerte pertinente est affichée sans déplacer automatiquement les cérémonies autres que les Daily collectivement non planifiées.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-17, FR-18. D-PRD-055/056 ; AD-14/18.
+* Incréments : I1–I2 ; protection des accès (Epic 1), calendriers/capacités (Epic 3) et Sprints déjà disponibles dans les Stories antérieures de l'Epic 4.
+* Statut : proposition publiée pour revue globale, pas encore validée, ni développée ni testée.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.11: Personnaliser une occurrence ou une série de cérémonies
+**Jira :** https://lmn24.atlassian.net/browse/SMN-75
+**En tant que** Scrum Master Administrateur,
+**je veux** modifier un événement individuel ou les occurrences récurrentes permises,
+**afin de** adapter l'agenda sans altérer le passé des réunions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Une cérémonie générée possède un créneau planifié,
+**When** je modifie sa date, heure ou durée prévue,
+**Then** seule l'occurrence visée change, la provenance personnalisée et la révision sont conservées.
+
+#### AC2
+
+**Given** Une série de Daily futures est disponible,
+**When** je choisis une modification de série,
+**Then** SMN distingue l'occurrence seule de l'occurrence et des suivantes, selon un périmètre explicite.
+
+#### AC3
+
+**Given** Une occurrence est marquée Tenue, Non tenue ou Annulée,
+**When** un recalcul de calendrier est demandé,
+**Then** son horaire et historique ne sont pas modifiés automatiquement, même si la date se situe dans le futur.
+
+#### AC4
+
+**Given** Une réunion a été reportée,
+**When** je consulte son historique,
+**Then** le créneau initial et le nouveau créneau planifié sont traçables sans effacer l'ancienne décision.
+
+#### AC5
+
+**Given** Un événement est modifié,
+**When** il entre en conflit avec un autre,
+**Then** l'alerte est non bloquante, et le changement ne réécrit aucun autre événement.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-17, FR-18. F-46/57 ; D-PRD-044/056/112/113 ; AD-18/19.
+* Incréments : I1–I2 ; protection des accès (Epic 1), calendriers/capacités (Epic 3) et Sprints déjà disponibles dans les Stories antérieures de l'Epic 4.
+* Statut : proposition publiée pour revue globale, pas encore validée, ni développée ni testée.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.12: Administrer les modèles de cérémonies personnalisées
+**Jira :** https://lmn24.atlassian.net/browse/SMN-76
+**En tant que** Scrum Master Administrateur,
+**je veux** créer et désactiver des modèles récurrents propres à mon équipe,
+**afin de** réutiliser la structure de mes réunions au prochain Sprint.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Je crée un modèle d'équipe,
+**When** je renseigne nom, fréquence, heure et durée,
+**Then** le modèle est persisté seulement si les champs et la règle de positionnement sont valides.
+
+#### AC2
+
+**Given** Une fréquence est choisie,
+**When** j'ouvre son paramétrage,
+**Then** les valeurs permises sont quotidienne, hebdomadaire avec jour, ou une fois par Sprint avec position.
+
+#### AC3
+
+**Given** Un modèle actif est modifié,
+**When** je l'enregistre,
+**Then** la nouvelle version s'applique aux futurs Sprints sans altérer les occurrences existantes même futures.
+
+#### AC4
+
+**Given** Un modèle est désactivé,
+**When** je consulte un Sprint ancien,
+**Then** les occurrences qui ont été produites restent liées et visibles.
+
+#### AC5
+
+**Given** Un modèle correspond à une cérémonie récurrente,
+**When** je consulte ses effets sur la capacité,
+**Then** aucune option de déduction de capacité n'est proposée, conformément à la non-déduction des cérémonies.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-18. D-PRD-046/044/048 ; AD-17/19.
+* Incréments : I1–I2 ; protection des accès (Epic 1), calendriers/capacités (Epic 3) et Sprints déjà disponibles dans les Stories antérieures de l'Epic 4.
+* Statut : proposition publiée pour revue globale, pas encore validée, ni développée ni testée.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.13: Générer les occurrences des modèles de cérémonie actifs
+**Jira :** https://lmn24.atlassian.net/browse/SMN-77
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver les réunions personnalisées dans chaque nouveau Sprint,
+**afin de** éviter de programmer manuellement les réunions récurrentes.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Une équipe dispose d'un modèle actif quotidien,
+**When** un Sprint ordinaire est créé,
+**Then** les occurrences sont produites seulement sur les jours/positions applicables, sans doublon.
+
+#### AC2
+
+**Given** Un modèle hebdomadaire ou une fois par Sprint est actif,
+**When** une génération de Sprint est confirmée,
+**Then** les occurrences respectent le jour ou la position et leurs horaires et durées en fuseau équipe.
+
+#### AC3
+
+**Given** Un modèle a été désactivé,
+**When** un nouveau Sprint est généré,
+**Then** aucune nouvelle occurrence n'est ajoutée pour ce modèle, sans suppression des anciennes.
+
+#### AC4
+
+**Given** Un modèle est modifié après génération d'un Sprint,
+**When** je consulte les occurrences existantes,
+**Then** leurs dates, statuts et personnalisations restent inchangés ; la nouvelle définition est utilisée pour les prochains Sprints.
+
+#### AC5
+
+**Given** Un Sprint est rétrosaisi après sa date de fin,
+**When** sa création est confirmée,
+**Then** aucune occurrence personnalisée historique n'est inventée par ce mécanisme.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-18, FR-17. D-PRD-046/048/044 ; AD-17/18.
+* Incréments : I1–I2 ; s'appuie sur les opérations Sprint/calendrier et capacité antérieures, sans attente d'une future Story au sein de l'Epic 4.
+* Statut : spécification publiée pour revue globale ; non validée fonctionnellement, pas de développement/test exécutés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.14: Créer des réunions exceptionnelles ponctuelles
+**Jira :** https://lmn24.atlassian.net/browse/SMN-78
+**En tant que** Scrum Master Administrateur,
+**je veux** ajouter une réunion non récurrente propre à un Sprint,
+**afin de** tracer les réunions utiles sans les reproduire automatiquement.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint existant est ouvert,
+**When** je crée une réunion exceptionnelle,
+**Then** son nom, date/heure de début et durée prévue sont exigés et validés.
+
+#### AC2
+
+**Given** Une réunion exceptionnelle est enregistrée,
+**When** je crée un Sprint suivant,
+**Then** l'événement ne se reproduit pas automatiquement, contrairement aux modèles récurrents actifs.
+
+#### AC3
+
+**Given** Une réunion exceptionnelle traverse un créneau existant,
+**When** je l'enregistre,
+**Then** une alerte de chevauchement non bloquante apparaît et ne modifie aucun événement tiers.
+
+#### AC4
+
+**Given** Une réunion est inscrite au calendrier,
+**When** je la consulte depuis sa fiche ou le Sprint,
+**Then** identité, statut, horaire initial et corrections possibles sont visibles avec les droits adaptés.
+
+#### AC5
+
+**Given** Une réunion est créée sur une période Clôturée,
+**When** je tente de changer son historique,
+**Then** la procédure de réouverture ou de protection de période s'applique avant l'écriture.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-18, FR-19. D-PRD-046/056/058 ; AD-14/17/19.
+* Incréments : I1–I2 ; s'appuie sur les opérations Sprint/calendrier et capacité antérieures, sans attente d'une future Story au sein de l'Epic 4.
+* Statut : spécification publiée pour revue globale ; non validée fonctionnellement, pas de développement/test exécutés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.15: Constater, annuler et corriger la tenue des événements
+**Jira :** https://lmn24.atlassian.net/browse/SMN-79
+**En tant que** Scrum Master Administrateur,
+**je veux** enregistrer le statut réel des cérémonies et réunions,
+**afin de** conserver un historique des événements sans validation quotidienne excessive.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Une cérémonie standard, récurrente personnalisée ou exceptionnelle possède un créneau futur,
+**When** je consulte sa tenue,
+**Then** elle n'est pas signalée Tenue avant que son horaire soit passé.
+
+#### AC2
+
+**Given** Le créneau prévu d'un événement éligible est passé,
+**When** une réconciliation s'exécute,
+**Then** il est présumé Tenue sans validation manuelle systématique, sauf état explicite déjà conservé.
+
+#### AC3
+
+**Given** Un événement doit être annulé avant son horaire prévu,
+**When** je le marque Annulée,
+**Then** la décision est conservée avec l'événement, et le passage du temps ne le requalifie pas automatiquement en Tenue.
+
+#### AC4
+
+**Given** Un créneau est passé sans réunion,
+**When** je marque l'événement Non tenue avec motif facultatif,
+**Then** l'événement reste visible au calendrier, à l'historique et aux rapports.
+
+#### AC5
+
+**Given** Une qualification Annulée ou Non tenue était erronée,
+**When** je la corrige en Tenue,
+**Then** ancien et nouveau statuts, auteur et date sont historisés ; les PDF déjà générés ne sont pas réécrits.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-17, FR-18. D-PRD-057/058/060/061 ; AD-18/19.
+* Incréments : I1–I2 ; s'appuie sur les opérations Sprint/calendrier et capacité antérieures, sans attente d'une future Story au sein de l'Epic 4.
+* Statut : spécification publiée pour revue globale ; non validée fonctionnellement, pas de développement/test exécutés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.16: Saisir la durée réellement constatée sans déplacer les créneaux
+**Jira :** https://lmn24.atlassian.net/browse/SMN-80
+**En tant que** Scrum Master Administrateur,
+**je veux** ajuster la durée réelle d'une réunion tout en conservant sa planification initiale,
+**afin de** mesurer les écarts de durée sans complexifier la saisie.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un événement est créé,
+**When** je consulte son suivi,
+**Then** la durée réelle est préremplie avec la durée prévue, sans le qualifier comme déjà Tenue.
+
+#### AC2
+
+**Given** Une cérémonie dure moins ou plus que prévu,
+**When** j'édite la durée réelle,
+**Then** elle est enregistrée séparément de la durée prévue, y compris en cas de dépassement.
+
+#### AC3
+
+**Given** La durée réelle est modifiée,
+**When** je retourne au calendrier,
+**Then** le créneau prévu et ceux des autres événements demeurent inchangés ; la fiche expose l'écart.
+
+#### AC4
+
+**Given** Un formulaire de durée réelle est ouvert,
+**When** je renseigne seulement la durée,
+**Then** aucune heure réelle de début ou fin n'est demandée dans le MVP.
+
+#### AC5
+
+**Given** Un événement archivé ou sur Sprint Clôturé doit être corrigé,
+**When** une modification non autorisée est demandée,
+**Then** les contrôles de réouverture et de traçabilité protègent le passé.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-17, FR-18, FR-19. D-PRD-064/065/066 ; AD-19.
+* Incréments : I1–I2 ; s'appuie sur les opérations Sprint/calendrier et capacité antérieures, sans attente d'une future Story au sein de l'Epic 4.
+* Statut : spécification publiée pour revue globale ; non validée fonctionnellement, pas de développement/test exécutés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.17: Déduire facultativement les réunions exceptionnelles de la capacité
+**Jira :** https://lmn24.atlassian.net/browse/SMN-81
+**En tant que** Scrum Master Administrateur,
+**je veux** choisir si une réunion exceptionnelle doit réduire la capacité de développement,
+**afin de** refléter la perte réelle de disponibilité sans double déduction.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Une réunion exceptionnelle ponctuelle est créée,
+**When** je consulte son incidence,
+**Then** le toggle « Impacte la capacité » est désactivé par défaut et n'existe pas sur les cérémonies standard ou récurrentes.
+
+#### AC2
+
+**Given** Une réunion exceptionnelle est déclarée impactante,
+**When** la capacité est calculée,
+**Then** seules les parts Développeur de l'équipe sont considérées, sans saisie individuelle obligatoire des participants.
+
+#### AC3
+
+**Given** Un Développeur a des plages connues,
+**When** la réunion chevauche son temps disponible,
+**Then** seul le chevauchement réellement disponible est déduit ; sans plages, la durée est proratisée par sa quotité d'équipe.
+
+#### AC4
+
+**Given** Une réunion de 2 h touche un Développeur à 50 % sans plages renseignées,
+**When** la référence de capacité utilise 8 heures par JH,
+**Then** la déduction théorique est 1 h soit 0,125 JH, plafonnée et jamais comptée deux fois.
+
+#### AC5
+
+**Given** Une réunion impactante est finalement Annulée ou Non tenue, puis corrigée en Tenue,
+**When** la capacité réelle calculée est réévaluée,
+**Then** la déduction est retirée puis réappliquée avec la durée réelle quand tenue ; capacité initiale figée et saisie manuelle réelle restent intactes.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-19, FR-14. D-PRD-047–048/059–064 ; AD-16/19.
+* Incréments : I1–I2 ; s'appuie sur les opérations Sprint/calendrier et capacité antérieures, sans attente d'une future Story au sein de l'Epic 4.
+* Statut : spécification publiée pour revue globale ; non validée fonctionnellement, pas de développement/test exécutés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.18: Replanifier les dates d'un Sprint sans déplacer les événements protégés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-82
+**En tant que** Scrum Master Administrateur,
+**je veux** corriger les bornes d'un Sprint existant après aperçu des conséquences,
+**afin de** ajuster le calendrier sans altérer les événements historiques et les autres Sprints.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint existe,
+**When** je propose de nouvelles dates,
+**Then** le système refuse les chevauchements avec les Sprints de la même équipe, sans déplacer un Sprint tiers.
+
+#### AC2
+
+**Given** Je prépare le changement de bornes,
+**When** SMN présente les options,
+**Then** « Conserver les dates des événements » est présélectionné, ou je peux demander un recalcul explicite.
+
+#### AC3
+
+**Given** Je sélectionne le recalcul,
+**When** j'affiche l'aperçu,
+**Then** seuls les événements futurs, générés automatiquement, non personnalisés et sans état historique peuvent être proposés au déplacement.
+
+#### AC4
+
+**Given** Des événements sont Tenue, Non tenue, Annulée, personnalisés ou exceptionnels,
+**When** une replanification est confirmée,
+**Then** leurs créneaux, statuts et historiques sont préservés, même s'ils sont hors nouvelles bornes ; les avertissements sont visibles.
+
+#### AC5
+
+**Given** Je confirme la nouvelle période après aperçu,
+**When** l'opération aboutit,
+**Then** changement de dates, ajustements explicitement autorisés et audit sont enregistrés de façon atomique ; valeurs manuelles et capacité initiale figée restent inchangées, anciens PDF intacts.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-15, FR-17, FR-24. D-PRD-111–119 ; AD-15/17/18/19.
+* Incréments : I1–I2 ; s'appuie sur les opérations Sprint/calendrier et capacité antérieures, sans attente d'une future Story au sein de l'Epic 4.
+* Statut : spécification publiée pour revue globale ; non validée fonctionnellement, pas de développement/test exécutés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.19: Gérer et évaluer plusieurs objectifs de Sprint dans le bilan
+**Jira :** https://lmn24.atlassian.net/browse/SMN-83
+**En tant que** Scrum Master Administrateur,
+**je veux** créer des objectifs et qualifier individuellement leur atteinte,
+**afin de** rendre visible le résultat du Sprint sans confondre absence d'évaluation et échec.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint existe,
+**When** j'ouvre son bilan,
+**Then** le bloc « Objectifs du Sprint » est affiché en premier avec nom et dates du Sprint.
+
+#### AC2
+
+**Given** Je crée un objectif,
+**When** je confirme son enregistrement,
+**Then** un identifiant durable et un statut initial Non évalué sont conservés.
+
+#### AC3
+
+**Given** Un objectif est prêt à être évalué,
+**When** je choisis son état,
+**Then** seuls Non évalué, Atteint, Partiellement atteint ou Non atteint sont proposés avec commentaire facultatif.
+
+#### AC4
+
+**Given** Deux objectifs existent,
+**When** je modifie l'un d'eux et j'enregistre le bloc,
+**Then** les valeurs de l'autre et des autres blocs du bilan restent inchangées.
+
+#### AC5
+
+**Given** Un Sprint est Clôturé,
+**When** je tente de corriger un objectif ou son résultat,
+**Then** l'édition nécessite une réouverture volontaire, reste traçable et ne modifie pas d'ancien PDF.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-20, FR-16. D-PRD-067/069/070/071/117 ; AD-19/20.
+* Incréments : I1–I2 ; s'appuie sur les Stories précédentes, sur les capacités JH de l'Epic 3 et sur les protections de l'Epic 2 ; aucune Story future requise pour fonctionner.
+* Statut : proposition publiée pour revue globale de l'Epic 4 ; ni validation métier ni développement ou test technique attestés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.20: Saisir les quatre valeurs de Story Points et calculer les dérivés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-84
+**En tant que** Scrum Master Administrateur,
+**je veux** renseigner les Story Points sources et visualiser les résultats calculables,
+**afin de** suivre les engagements et réalisations sans faux zéros ni plafonnement.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint Scrum possède son bilan,
+**When** je consulte le bloc Story Points,
+**Then** engagement initial, SP ajoutés, SP retirés et SP terminés sont proposés comme quatre saisies facultatives distinctes.
+
+#### AC2
+
+**Given** Les trois entrées d'engagement sont disponibles,
+**When** je les renseigne,
+**Then** engagement final = engagement initial + ajoutés − retirés ; SP non terminés = engagement final − SP terminés si disponibles.
+
+#### AC3
+
+**Given** L'engagement final est strictement positif et les SP terminés connus,
+**When** le taux est calculé,
+**Then** taux de réalisation = SP terminés / engagement final × 100, sans arrondir ni plafonner artificiellement.
+
+#### AC4
+
+**Given** Les SP terminés dépassent l'engagement final positif,
+**When** j'enregistre le bloc,
+**Then** la valeur et un taux supérieur à 100 % sont acceptés avec un signalement non bloquant, sans correction forcée.
+
+#### AC5
+
+**Given** Une source est absente ou l'engagement final n'est pas strictement positif,
+**When** je consulte les dérivés,
+**Then** les données insuffisantes rendent les dérivés concernés Non calculable ; une prévisualisation avant sauvegarde est provisoire, sans alimenter les tendances ni reporter automatiquement les SP restants.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-20, FR-16. D-PRD-067/071–075/116 ; AD-13/19.
+* Incréments : I1–I2 ; s'appuie sur les Stories précédentes, sur les capacités JH de l'Epic 3 et sur les protections de l'Epic 2 ; aucune Story future requise pour fonctionner.
+* Statut : proposition publiée pour revue globale de l'Epic 4 ; ni validation métier ni développement ou test technique attestés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.21: Présenter les capacités et sauvegarder séparément les trois blocs du bilan
+**Jira :** https://lmn24.atlassian.net/browse/SMN-85
+**En tant que** Scrum Master Administrateur,
+**je veux** consulter et enregistrer objectifs, Story Points et capacité dans un même écran,
+**afin de** limiter les ressaisies tout en conservant des sauvegardes indépendantes.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un bilan Scrum est ouvert,
+**When** je parcours ses sections,
+**Then** l'ordre est Objectifs, Story Points, Capacité du Sprint ; chaque bloc de saisie possède son propre bouton Enregistrer.
+
+#### AC2
+
+**Given** Une capacité initiale et une réelle sont disponibles,
+**When** j'ouvre Capacité du Sprint,
+**Then** valeurs retenues, références calculées, provenance et écart fiable sont visibles en JH, distincts des SP.
+
+#### AC3
+
+**Given** Une source de capacité est manquante ou non fiable,
+**When** j'affiche l'écart,
+**Then** aucun écart numérique ni zéro fictif n'est produit.
+
+#### AC4
+
+**Given** J'enregistre seulement Story Points,
+**When** la persistance réussit,
+**Then** Objectifs et Capacité restent inchangés ; seuls les brouillons réellement enregistrés perdent leur état Modifications non enregistrées.
+
+#### AC5
+
+**Given** Un autre bloc contient des modifications non enregistrées,
+**When** je quitte l'écran,
+**Then** une confirmation Rester ou Quitter sans enregistrer évite toute perte silencieuse, sans sauvegarde automatique des autres blocs.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-20, FR-14, FR-16. D-PRD-067/068/071/072/073/074 ; AD-16/19.
+* Incréments : I1–I2 ; s'appuie sur les Stories précédentes, sur les capacités JH de l'Epic 3 et sur les protections de l'Epic 2 ; aucune Story future requise pour fonctionner.
+* Statut : proposition publiée pour revue globale de l'Epic 4 ; ni validation métier ni développement ou test technique attestés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.22: Visualiser les tendances de cinq Sprints clôturés contextualisés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-86
+**En tant que** Scrum Master Administrateur,
+**je veux** voir l'évolution de l'équipe depuis les valeurs réellement enregistrées,
+**afin de** préparer la rétrospective et les reportings sans comparer des données provisoires.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un bilan Scrum est ouvert,
+**When** je consulte le quatrième bloc Tendances,
+**Then** aucun bouton Enregistrer n'existe et les séries SP terminés, taux de réalisation et capacité réelle JH restent distinctes.
+
+#### AC2
+
+**Given** Cinq Sprints ou davantage ont été clôturés dans la même équipe,
+**When** les graphiques sont chargés,
+**Then** seuls les cinq plus récents clôturés éligibles sont affichés chronologiquement ; les Sprints ouverts ou rouverts sont exclus.
+
+#### AC3
+
+**Given** Je consulte un Sprint ancien,
+**When** les tendances sont composées,
+**Then** aucun Sprint postérieur au Sprint consulté n'est inclus ; le Sprint consulté n'entre que s'il est clôturé.
+
+#### AC4
+
+**Given** Aucun Sprint clôturé n'existe, ou une métrique manque,
+**When** le bloc est consulté,
+**Then** un état vide ou une lacune de série apparaît explicitement, sans interpolation ni zéro inventé.
+
+#### AC5
+
+**Given** Je modifie un chiffre encore non sauvegardé dans Story Points,
+**When** le bloc Tendances reste visible,
+**Then** la courbe demeure fondée sur les valeurs persistées et ne réagit pas à un simple brouillon.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-20, FR-14. D-PRD-076/077/078 ; AD-20/22.
+* Incréments : I1–I2 ; s'appuie sur les Stories précédentes, sur les capacités JH de l'Epic 3 et sur les protections de l'Epic 2 ; aucune Story future requise pour fonctionner.
+* Statut : proposition publiée pour revue globale de l'Epic 4 ; ni validation métier ni développement ou test technique attestés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.23: Clôturer, rouvrir et reclôturer un Sprint avec instantanés versionnés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-87
+**En tant que** Scrum Master Administrateur,
+**je veux** formaliser la clôture d'un Sprint et corriger si nécessaire son bilan,
+**afin de** garder une photographie fiable de chaque décision de clôture.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint a atteint sa fin calendaire,
+**When** je consulte son état,
+**Then** il est Terminé mais jamais Clôturé automatiquement ; son bilan et ses enseignements de rétrospective restent modifiables.
+
+#### AC2
+
+**Given** Des métriques ou objectifs facultatifs sont manquants,
+**When** je demande la clôture,
+**Then** les données absentes n'interdisent pas la clôture par elles-mêmes et ne deviennent pas des zéros fictifs.
+
+#### AC3
+
+**Given** Un Administrateur confirme Clôturer,
+**When** la transaction aboutit,
+**Then** le Sprint passe Clôturé, un instantané immuable V1 des valeurs/associations disponibles est créé avec audit, sans modifier les anciens PDF.
+
+#### AC4
+
+**Given** Je rouvre volontairement un Sprint Clôturé,
+**When** la réouverture aboutit,
+**Then** son statut devient Terminé, jamais En cours ; capacité initiale figée et versions V1 restent intactes, les corrections autorisées deviennent traçables.
+
+#### AC5
+
+**Given** Après corrections je confirme une nouvelle clôture,
+**When** la transaction aboutit,
+**Then** un instantané V2/V3 distinct est créé sans effacer V1 ; la consultation Clôturé cible la dernière version, les anciennes restent accessibles.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-16, FR-20. D-PRD-039/040/110/115/116/117/130-A3 ; AD-18/19/20.
+* Incréments : I1–I2 ; s'appuie sur les Stories précédentes, sur les capacités JH de l'Epic 3 et sur les protections de l'Epic 2 ; aucune Story future requise pour fonctionner.
+* Statut : proposition publiée pour revue globale de l'Epic 4 ; ni validation métier ni développement ou test technique attestés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 4.24: Signaler les métriques et objectifs à réexaminer après replanification
+**Jira :** https://lmn24.atlassian.net/browse/SMN-88
+**En tant que** Scrum Master Administrateur,
+**je veux** être prévenu des données du bilan potentiellement impactées par un changement de dates,
+**afin de** vérifier volontairement mes mesures sans corrections automatiques.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** Un Sprint avec objectifs, SP et capacités existe,
+**When** je prévisualise une replanification,
+**Then** SMN distingue les nouvelles références calculées des valeurs sources retenues et alerte sur la pertinence des objectifs et SP pour la nouvelle période.
+
+#### AC2
+
+**Given** Les dates sont confirmées,
+**When** la transaction aboutit,
+**Then** aucun objectif ni évaluation, commentaire, SP source ou valeur manuelle n'est transféré ou remplacé automatiquement.
+
+#### AC3
+
+**Given** Le cycle est En cours ou Terminé non clôturé,
+**When** je confirme de nouvelles bornes,
+**Then** seules les références calculables de capacité réelle sont réévaluées selon les disponibilités connues et les bornes ; la capacité initiale figée demeure intacte.
+
+#### AC4
+
+**Given** Le cycle est Clôturé,
+**When** je demande une correction de métrique, objectif ou capacité,
+**Then** l'opération exige d'abord une réouverture volontaire ; une simple correction de nom reste permise sans réouverture.
+
+#### AC5
+
+**Given** Une modification est acceptée ou refusée,
+**When** l'audit est consulté,
+**Then** les sources, la date et le résultat sont tracés sans produire de nouvel indicateur à partir du seul déplacement de dates, et aucun PDF ancien ne change.
+
+#### Traçabilité
+
+* Epic : SMN-4. FR-15, FR-16, FR-20, FR-24. D-PRD-114/115/116/117/118/119 ; AD-18/19/20.
+* Incréments : I1–I2 ; s'appuie sur les Stories précédentes, sur les capacités JH de l'Epic 3 et sur les protections de l'Epic 2 ; aucune Story future requise pour fonctionner.
+* Statut : proposition publiée pour revue globale de l'Epic 4 ; ni validation métier ni développement ou test technique attestés.
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
 
