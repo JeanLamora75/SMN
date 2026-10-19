@@ -35,7 +35,7 @@ Sécurité, intégrité et testabilité sont examinées transversalement dès le
 La documentation sert au porteur du projet et aux futurs agents de conception/développement pour préparer les Epics/Stories puis construire progressivement SMN.
 
 - `.memlog.md` : mémoire append-only des décisions, justifications, contraintes et points ouverts ; aucun statut de cycle de vie dans ce journal.
-- `ARCHITECTURE-SPINE.md` : contrat concis à distiller à la finalisation depuis les décisions validées, avec identifiants AD stables et champs Binds/Prevents/Rule. Ce fichier n'est pas encore produit.
+- `ARCHITECTURE-SPINE.md` : contrat concis avec identifiants AD stables et champs Binds/Prevents/Rule. **Maintenant produit et finalisé documentairement** ; ce paragraphe reprend l'organisation initiale.
 - Annexes ciblées : modèle de données, temps/calculs, exploitation et stratégie de tests, au fil des arbitrages utiles.
 - Matrice de traçabilité : FR, décisions architecturales, incréments et réserves.
 
@@ -107,6 +107,7 @@ Responsive également vérifié à terme sur fenêtre de PC redimensionnée, con
 | [SECURITE-EXPLOITATION.md](SECURITE-EXPLOITATION.md) | Accès, installation locale, sauvegardes, migrations, continuité et NFR | Rédigé, à éprouver |
 | [REVUE-COHERENCE-TRACABILITE.md](REVUE-COHERENCE-TRACABILITE.md) | Verdict documentaire, 5 points prioritaires, couverture FR/AD/I0–I6, réserves et preuves attendues | Rapproché à la clôture, tests non exécutés |
 | [ARBITRAGES-FINAUX.md](ARBITRAGES-FINAUX.md) | Revue finale A5/A7/A8/A9/A10/A11/A12, rôles et portes de décision | Publié, arbitrages métier conservés ouverts |
+| [CONTROLE-FINAL-BMAD.md](CONTROLE-FINAL-BMAD.md) | Contrôle de structure, revues critiques internes, limites des vérifications | Réalisé, ne remplace pas le Reviewer Gate indépendant |
 | [.memlog.md](.memlog.md) | Journal BMAD append-only des contraintes, validations et AD-1 à AD-31 | Complété sans effacer l'historique |
 
 Les choix architecturaux discutés sont désormais documentés ; il n'y a pas encore de code développé ni de validation d'exécution.
