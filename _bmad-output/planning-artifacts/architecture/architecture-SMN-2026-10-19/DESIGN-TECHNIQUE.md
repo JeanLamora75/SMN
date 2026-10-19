@@ -201,3 +201,8 @@ Appliquer la [spécification validée D-PRD-132 à 136](../../prds/prd-SMN-2026-
 L'installation possède exactement une équipe en Scrum/Kanban MVP. La cardinalité générale Installation → plusieurs Team du diagramme décrit l'extension SAFe v1.0 : elle n'autorise pas la création d'une seconde équipe au MVP. Valider la cardinalité côté serveur et dans les opérations transactionnelles d'installation ; ne pas s'appuyer sur le seul masquage de l'interface.
 
 Organisation possède la vision, le Product Goal, la DoD et la DoR et leurs révisions : référence d'équipe au MVP, référence de train en SAFe futur. Le produit de référence reste une identité fixe distincte de ce propriétaire. Conserver auteur/horodatage/version des contenus ; texte ou URL pour DoD/DoR sans supposer archivé le document distant. Reporting lit ces contrats via Stories 3.24/3.25 puis 6.9. Aucun schéma SQL final ou code n'est créé par cet amendement. [Décision normative](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
+
+
+## Stack retenue sous réserve I0 — 19/10/2026
+
+La validation utilisateur remplace le statut de simples candidats : Next.js 16/React 19, Prisma ORM 7, Better Auth avec sessions PostgreSQL et Playwright/Chromium local sont retenus sous réserve des essais I0, avec TypeScript, Node 24, pnpm et Bootstrap 5.3. Versions exactes/adaptateurs restent à figer et tester. Voir [ADR-I0-001](ADR-I0-001-STACK.md). Aucun code ou schéma exécuté ; domaine indépendant des adaptateurs.

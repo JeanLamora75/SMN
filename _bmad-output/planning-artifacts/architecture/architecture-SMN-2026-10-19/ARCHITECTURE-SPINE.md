@@ -222,13 +222,21 @@ flowchart TD
 
 ## Stack — décision et vérification
 
+**Validation utilisateur du 19/10/2026 à 22:29 :** [ADR-I0-001](ADR-I0-001-STACK.md), sous réserve des essais I0.
+
 | Élément | État |
 | --- | --- |
-| TypeScript | **Approuvé** — version à épingler après vérification |
-| PostgreSQL | **Approuvé** — version locale de référence à relever, cible supportée à figer |
-| Node.js, pnpm, Bootstrap 5 | Node/pnpm disponibles et Bootstrap retenu ; versions à figer |
-| React, Next.js | **Candidats approuvés sous réserve de POC**, pas de version vérifiée |
-| ORM, PDF, tests, bibliothèque temporelle | **Non figés** — compatibilité/version/sécurité à vérifier avec autorisation de recherche ou POC |
+| TypeScript | Approuvé ; version exacte à figer |
+| PostgreSQL | Approuvé ; version serveur et clients à confirmer |
+| Node.js / pnpm | Node 24 LTS et pnpm retenus ; versions déclarées 24.21.0 / 12.10.0, essais non réalisés |
+| Bootstrap | 5.3 retenu, sans Tailwind ; correctif à figer |
+| React / Next.js | React 19 et Next.js 16 App Router **retenus sous réserve des essais I0** |
+| ORM | **Prisma ORM 7 retenu**, adaptateur et migrations à qualifier |
+| Authentification | **Better Auth avec sessions PostgreSQL retenu**, contrôles serveur et intégration à éprouver |
+| PDF | **Playwright / Chromium local retenu pour qualification I0** |
+| Bibliothèque temporelle / tests unitaires | Non figés ; sélection complémentaire à préparer |
+
+Les correctifs exacts ne sont pas verrouillés et aucun résultat Windows n'est acquis. Le monolithe modulaire reste indépendant de ces adaptateurs ; aucun serveur NestJS séparé n'est requis.
 
 ## Structural Seed
 

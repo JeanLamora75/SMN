@@ -42,3 +42,8 @@ Le catalogue BMAD 6.12.4 installé prévoit : contrôle de préparation **PASS/C
 
 Les branches d'origine et journaux sont conservés. La PR historique du Product Brief reste une trace de sa transmission initiale ; l'index présent donne accès à sa copie consolidée.
 
+
+
+## Préparation technique — complément du 19/10/2026 à 22:29
+
+Politique de sessions D-PRD-138 et principe de récupération locale D-PRD-139 validés. Stack désormais retenue sous réserve des essais I0 : [ADR-I0-001](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md). Node 24.21.0 et pnpm 12.10.0 sont déclarés ; PostgreSQL serveur reste à confirmer. C3 reste ouvert pour mécanismes, compatibilité exacte et preuves ; C4 reste ouvert pour ordre de livraison. Prochaine conception : migrations et secrets. Aucun développement, test applicatif, génération de suivi ou fusion attesté.

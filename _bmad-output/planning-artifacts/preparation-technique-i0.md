@@ -102,3 +102,8 @@ En cas de mot de passe administrateur oublié, une commande locale fournie avec 
 **Limite de la validation :** le mécanisme de contrôle du propriétaire de l'installation, les protections de la commande, la cohérence transactionnelle du renouvellement/révocation et les modalités de reprise restent à concevoir et à tester. La seule présence sur le poste ou une requête loopback ne constitue pas une preuve d'autorisation ; aucun bouton ou endpoint anonyme de récupération n'est introduit. Pas de mot de passe en argument de commande, dans Git ou dans les journaux.
 
 Complète FR-66/67/70/72 et AD-7/9/10/26/31 ; [ticket de référence](https://lmn24.atlassian.net/browse/SMN-17). Les deux profils, la politique de session D-PRD-138 et le produit fixe restent inchangés. La récupération d'accès ne doit pas prétendre récupérer automatiquement les clés de chiffrement perdues. Aucun développement ni essai de récupération exécuté.
+
+
+## Validation de la stack — 19/10/2026 à 22:29
+
+L'utilisateur a validé [ADR-I0-001](architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md) : TypeScript, Node 24 LTS, pnpm, Next.js 16/React 19, Bootstrap 5.3, PostgreSQL/Prisma 7, Better Auth avec sessions PostgreSQL, Playwright/Chromium local. Aucun serveur NestJS séparé. L'ancien statut de candidat des composants retenus est supplanté par ce choix conditionnel. Correctifs exacts, prérequis et essais I0 restent ouverts ; PostgreSQL précis reste à confirmer. Prochain travail de conception : migrations et secrets, sans développement.

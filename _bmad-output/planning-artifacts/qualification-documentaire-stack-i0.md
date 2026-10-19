@@ -72,3 +72,8 @@ Secret initial à usage contrôlé, durée de session, limitation des tentatives
 - PDF : https://playwright.dev/docs/intro ; https://playwright.dev/docs/api/class-page#page-pdf
 
 **Confiance : élevée sur les observations documentaires datées ; moyenne sur la stack proposée tant que l'inventaire du poste et les POC ne sont pas réalisés.** Les recommandations d'assemblage et de priorisation sont une analyse SMN, pas une certification des éditeurs.
+
+
+## Validation postérieure à cette qualification — 19/10/2026 à 22:29
+
+L'utilisateur a approuvé la stack proposée sous réserve des essais I0. [ADR-I0-001](architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md) fait référence pour les choix retenus ; les mots « candidat » ou « proposition » précédents décrivent l'état avant approbation. Cette validation ne modifie pas les faits sourcés ni les limites de preuve : aucun correctif exact verrouillé et aucun POC exécuté.

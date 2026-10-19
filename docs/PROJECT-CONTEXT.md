@@ -44,7 +44,7 @@ SMN est un carnet de bord professionnel pour préparer, expliquer et produire à
 
 **Décidé :** monolithe modulaire TypeScript, PostgreSQL dès le MVP, domaine indépendant des adaptateurs, transactions des opérations atomiques, stockage privé et contrôle serveur des accès.
 
-**À démontrer :** versions et choix finaux des bibliothèques, serveur local/packaging, migrations, PDF, sauvegarde/restauration, concurrence et reprise temporelle. React/Next.js restent candidats sous réserve des vérifications I0. Aucun seuil NFR indicatif ne doit être présenté comme accepté ou mesuré.
+**À démontrer :** versions et choix finaux des bibliothèques, serveur local/packaging, migrations, PDF, sauvegarde/restauration, concurrence et reprise temporelle. Next.js 16/React 19, Prisma 7, Better Auth et Playwright/Chromium local sont désormais retenus sous réserve des essais I0, selon ADR-I0-001 (19/10 à 22:29) ; aucun numéro de correctif n'est verrouillé. Aucun seuil NFR indicatif ne doit être présenté comme accepté ou mesuré.
 
 Poste Windows 11 sans droits administrateur ; Node.js, npm, pnpm, PowerShell et GitHub Desktop disponibles selon déclaration utilisateur. Pas d'installation d'IDE ni dépendance à Codex CLI. Ne pas imposer Docker. Ne pas publier de secrets ou configuration personnelle.
 
@@ -67,3 +67,6 @@ Le [contrôle Sprint Planning](../_bmad-output/planning-artifacts/implementation
 
 Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalon. Conserver les décisions historiques et ajouter des amendements identifiables ; ne pas renuméroter les F, D-PRD ou AD. Une consolidation documentaire ne démontre ni implémentation, ni conformité, ni aptitude au pilote.
 
+
+
+**Stack actualisée le 19/10/2026 à 22:29 :** [ADR-I0-001](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md). Les choix sont validés sous réserve I0, les essais et l'épinglage exact restent à faire ; aucune fusion ni construction lancée.
