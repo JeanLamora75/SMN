@@ -90,4 +90,4 @@ La présence du runtime Visual C++ et les droits de migration restent non vérif
 
 ## Préparation du contrat d'accès
 
-Un [contrat d'accès proposé](contrat-acces-i0-proposition.md) détaille sessions serveur, révocation, amorçage et récupération locale. Les durées proposées (8 heures maximum, 30 minutes d'inactivité) attendent validation utilisateur ; elles ne sont ni acquises ni implémentées. La confirmation de la version PostgreSQL peut attendre sans bloquer cette préparation.
+Un [contrat d'accès proposé](contrat-acces-i0-proposition.md) détaille sessions serveur, révocation, amorçage et récupération locale. D-PRD-138 valide 8 heures maximum, expiration après 30 minutes d'inactivité et absence d'option « Se souvenir de moi ». Ces règles sont consignées dans SMN-14, sans être implémentées. La procédure de récupération et le choix de bibliothèque restent à qualifier. La confirmation de la version PostgreSQL peut attendre sans bloquer cette préparation.

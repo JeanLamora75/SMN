@@ -1,6 +1,6 @@
-# SMN — Contrat d'accès I0 : proposition à valider
+# SMN — Contrat d'accès I0 : durées validées, conception à qualifier
 
-**19 octobre 2026. Statut : préparation documentaire ; compléments techniques proposés, non implémentés.**
+**19 octobre 2026. Statut : préparation documentaire ; durées validées par D-PRD-138 ; compléments techniques proposés, non implémentés.**
 Sources internes : [Spine](architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md), [sécurité](architecture/architecture-SMN-2026-10-19/SECURITE-EXPLOITATION.md), [préparation I0](preparation-technique-i0.md). PostgreSQL précis sera confirmé ultérieurement ; cela ne bloque pas la préparation de ce contrat.
 
 ## 1. Garanties déjà approuvées
@@ -22,14 +22,14 @@ Deux profils, authentification après installation vierge, premier administrateu
 
 L'exemple de récupération locale n'est pas une autorisation universelle de contourner l'authentification. La vérification de possession/contrôle de l'installation, le jeton à usage unique, le traitement des clés et l'audit doivent être définis avant livraison. La bibliothèque ne garantit pas à elle seule l'amorçage atomique multi-modules.
 
-## 3. Nouvelle politique de durée proposée — validation utilisateur nécessaire
+## 3. Politique de durée validée — D-PRD-138
 
 - **Durée maximale de session : 8 heures**, à compter de la connexion ; au-delà, nouvelle authentification.
 - **Expiration après 30 minutes d'inactivité**.
 - Pas de session persistante « se souvenir de moi » dans cette première politique proposée.
 - Expiration et nouvelle connexion doivent respecter la protection des brouillons prévue au PRD : pas de succès fictif, pas d'enregistrement automatique implicite. Le comportement de reprise du formulaire doit être conçu et testé.
 
-**Ces valeurs sont des propositions SMN pour discussion**, pas des seuils déjà validés, ni les paramètres recommandés par l'éditeur. Le seuil d'inactivité devra être distingué de l'expiration absolue et de l'actualisation automatique de session : des requêtes de fond ne doivent pas maintenir arbitrairement une session en vie.
+**Ces valeurs ont été explicitement validées par l'utilisateur le 19/10/2026 à 22:19**, sous D-PRD-138. Ce sont les règles SMN, pas une recommandation de paramètres de l'éditeur. Le seuil d'inactivité devra être distingué de l'expiration absolue et de l'actualisation automatique de session : des requêtes de fond ne doivent pas maintenir arbitrairement une session en vie.
 
 ## 4. Constats issus de la documentation officielle
 
@@ -41,7 +41,7 @@ La documentation décrit des fonctions de révocation et la révocation des autr
 - https://better-auth.com/docs/authentication/email-password
 - https://better-auth.com/docs/reference/options
 
-Les orientations de récupération et les durées de la section 3 sont notre proposition, pas une fonctionnalité prête à activer telle quelle dans la bibliothèque.
+Les orientations de récupération restent proposées ; les durées de la section 3 sont désormais validées par l'utilisateur, pas une fonctionnalité prête à activer telle quelle dans la bibliothèque.
 
 ## 5. Preuves à produire lors de la construction autorisée
 
@@ -53,8 +53,20 @@ Les orientations de récupération et les durées de la section 3 sont notre pro
 | Compte désactivé ou rôle réduit | Anciennes permissions refusées à la requête suivante |
 | Déconnexion ou révocation | Ancienne session inutilisable |
 | Changement de mot de passe | Révocation conforme à la politique et échec sans faux succès |
-| Expiration absolue et inactivité | Comportements distincts, testés avec horloge contrôlée après validation des seuils |
+| Expiration absolue et inactivité | Comportements distincts, testés avec horloge contrôlée selon les seuils validés |
 | Récupération administrateur | Procédure documentée à usage contrôlé, pas de porte dérobée ni secret publié |
 | Retour après expiration | Aucun brouillon présenté à tort comme sauvegardé ; droits revérifiés |
 
-**Non exécutés :** tous ces tests, toute installation de Better Auth, toute mutation PostgreSQL et tout développement. La réserve C3 reste ouverte. Pas de changement Jira pour des valeurs encore proposées ; suivi de Sprint non généré.
+**Non exécutés :** tous ces tests, toute installation de Better Auth, toute mutation PostgreSQL et tout développement. La réserve C3 reste ouverte. SMN-14 est actualisé avec les durées validées ; suivi de Sprint non généré.
+
+
+## D-PRD-138 — Durée des sessions MVP
+
+**19 octobre 2026 à 22:19 (Europe/Paris) — politique explicitement validée par l'utilisateur.**
+
+- Durée absolue maximale : **8 heures** depuis la connexion. Une nouvelle authentification est requise à l'échéance, même si la personne est active.
+- Expiration après **30 minutes d'inactivité utilisateur** ; les requêtes de fond ne constituent pas à elles seules une activité de la personne.
+- **Aucune option « Se souvenir de moi » au MVP.**
+- Contrôle côté serveur ; les refus et garanties de confidentialité existants restent applicables. La protection des brouillons reste celle du PRD ; cette politique n'introduit pas d'enregistrement automatique implicite.
+
+S'applique aux deux profils MVP sans nouveau rôle. Complète FR-66/67 et les garanties AD-7/26/31 ; [SMN-14](https://lmn24.atlassian.net/browse/SMN-14) porte les critères correspondants. La validation de ces durées ne finalise ni le choix de Better Auth ni la procédure de récupération administrateur. Aucun développement, essai d'expiration ou résultat de sécurité attesté.

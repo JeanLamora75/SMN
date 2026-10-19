@@ -547,6 +547,24 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 **When** une opération modifiante est sollicitée,
 **Then** les protections de cookie HttpOnly/SameSite et contre requêtes intersites sont appliquées ; Secure est obligatoire en contexte HTTPS, sans exiger HTTPS pour le loopback local.
 
+#### AC6 — Durée maximale absolue
+
+**Given** une session a été créée après authentification,
+**When** 8 heures se sont écoulées depuis cette connexion,
+**Then** la session est expirée côté serveur et une nouvelle authentification est requise ; l'activité ou le renouvellement technique ne repoussent pas cette limite absolue.
+
+#### AC7 — Expiration sur inactivité
+
+**Given** une session n'a pas encore atteint sa limite absolue,
+**When** aucune activité utilisateur n'a eu lieu pendant 30 minutes,
+**Then** elle est expirée côté serveur ; des requêtes de fond seules ne maintiennent pas indéfiniment l'accès.
+
+#### AC8 — Absence de connexion persistante
+
+**Given** le parcours de connexion du MVP est ouvert,
+**When** la personne se connecte,
+**Then** aucune option « Se souvenir de moi » ne permet de prolonger la session au-delà de la politique validée.
+
 #### Traçabilité et périmètre
 
 * Epic parente : SMN-1.
@@ -563,6 +581,9 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 
 L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/2026. Cette validation documentaire ne vaut ni développement ni recette exécutés.
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
+
+
+**D-PRD-138 — Validé le 19/10/2026 :** 8 heures absolues, 30 minutes d'inactivité et aucune option « Se souvenir de moi » ; aucun test exécuté.
 
 ### Story 1.5: Créer et administrer les comptes des utilisateurs
 **Jira :** https://lmn24.atlassian.net/browse/SMN-15

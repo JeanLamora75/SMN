@@ -1,7 +1,7 @@
 {
   "summary": {
     "date": "2026-10-19",
-    "source_commit": "e7e1bd1f07a9936a860e3ed46b03993a04655362",
+    "source_commit": "251a50862d153ef93ef292cfd2097490107414f4",
     "jira_query": "project = SMN ORDER BY key ASC",
     "jira_pages": [
       100,
@@ -11,8 +11,8 @@
     "issues": 222,
     "epics": 10,
     "stories": 212,
-    "ac_total": 1064,
-    "clauses_total": 3199,
+    "ac_total": 1067,
+    "clauses_total": 3208,
     "all_clauses_match": true,
     "all_fr_refs_match": true,
     "all_parents_match": true,
@@ -128,9 +128,10 @@
       "UX-DR18"
     ],
     "limits": "Comparaison structurelle des clauses et références, non preuve exhaustive de couverture sémantique ni résultat de test applicatif. Les détails de traçabilité hors clauses ne sont pas comparés textuellement.",
-    "amendment": "D-PRD-137",
+    "amendment": "D-PRD-137 / D-PRD-138",
     "source_branch": "docs/bmad-sprint-readiness-20261019",
-    "source_commit_note": "Commit de base avant amendement ; les Stories de la branche sont celles rapprochées après D-PRD-137."
+    "source_commit_note": "Base avant ajout documentaire de D-PRD-138 ; données SMN-14 mises à jour après relecture Jira.",
+    "session_policy_update": "SMN-14 relu après mise à jour D-PRD-138 ; autres lignes conservées du rapprochement complet précédent."
   },
   "stories": [
     {
@@ -185,14 +186,14 @@
       "jira": "SMN-14",
       "parent": "SMN-1",
       "status": "À faire",
-      "ac_count": 5,
+      "ac_count": 8,
       "clauses_match": true,
       "fr_refs_match": true,
       "fr_refs": [
         "FR-66",
         "FR-67"
       ],
-      "jira_description_sha256": "a81e99f8f73563971cd2c0b11f7efc4cc01e94604781034af24957f43ca21df4"
+      "jira_description_sha256": "27d6ba2f32f670297a999669b2a78d227df1b8f45ac959b901e4780cc44e684e"
     },
     {
       "story": "1.5",

@@ -1113,3 +1113,15 @@ Vision et Product Goal restent distincts et facultatifs, saisissables/modifiable
 **Découpage explicite :** Story 3.24 / [SMN-221](https://lmn24.atlassian.net/browse/SMN-221) (vision/Product Goal) et Story 3.25 / [SMN-222](https://lmn24.atlassian.net/browse/SMN-222) (DoD/DoR), sous Epic 3, I1–I2 ; Story 6.9 / SMN-120 consomme ces données et leurs versions. Les contrats peuvent prévoir le propriétaire ART futur, sans implémentation SAFe au MVP.
 
 Cet amendement complète les FR existantes (notamment FR-1/5/7/27/28/61/66/70/71) et les décisions F-26–34/F-58–63/F-116–124, sans renumérotation ni annulation de l'historique. Il prévaut sur les passages antérieurs incompatibles et clôt les ambiguïtés métier C1/C2 du contrôle de préparation, une fois la correspondance Jira vérifiée. Les réserves techniques C3/C4 et le séquencement I0–I6 demeurent. Aucun développement ni test applicatif effectué.
+
+
+## D-PRD-138 — Durée des sessions MVP
+
+**19 octobre 2026 à 22:19 (Europe/Paris) — politique explicitement validée par l'utilisateur.**
+
+- Durée absolue maximale : **8 heures** depuis la connexion. Une nouvelle authentification est requise à l'échéance, même si la personne est active.
+- Expiration après **30 minutes d'inactivité utilisateur** ; les requêtes de fond ne constituent pas à elles seules une activité de la personne.
+- **Aucune option « Se souvenir de moi » au MVP.**
+- Contrôle côté serveur ; les refus et garanties de confidentialité existants restent applicables. La protection des brouillons reste celle du PRD ; cette politique n'introduit pas d'enregistrement automatique implicite.
+
+S'applique aux deux profils MVP sans nouveau rôle. Complète FR-66/67 et les garanties AD-7/26/31 ; [SMN-14](https://lmn24.atlassian.net/browse/SMN-14) porte les critères correspondants. La validation de ces durées ne finalise ni le choix de Better Auth ni la procédure de récupération administrateur. Aucun développement, essai d'expiration ou résultat de sécurité attesté.

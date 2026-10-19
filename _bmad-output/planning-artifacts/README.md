@@ -14,7 +14,7 @@
 | Contrôle Sprint Planning du 19/10 — CONCERNS | [Résultat et portes de preuve](implementation-readiness.md) ; [rapprochement des 212 Stories](implementation-readiness-evidence.json) |
 | Préparation technique I0 — en cours | [Choix candidats, inventaire et protocole](preparation-technique-i0.md) ; aucun essai attesté |
 | Qualification documentaire de la stack I0 | [Sources officielles, versions observées et contraintes Windows](qualification-documentaire-stack-i0.md) — POC non réalisés |
-| Contrat d'accès I0 — proposition | [Sessions, amorçage et récupération locale](contrat-acces-i0-proposition.md) ; durées à valider |
+| Contrat d'accès I0 — durées validées | [Sessions, amorçage et récupération locale](contrat-acces-i0-proposition.md) ; D-PRD-138, mécanismes à qualifier |
 | Règles de publication Jira | [BMAD-JIRA-PUBLICATION-RULES.md](BMAD-JIRA-PUBLICATION-RULES.md) |
 | Journal de consolidation | [CONSOLIDATION-2026-10-19.md](CONSOLIDATION-2026-10-19.md) |
 
