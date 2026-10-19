@@ -19,8 +19,8 @@ inputDocuments:
 ## Overview
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories de l'Epic 1 ont été validées globalement par l'utilisateur le même jour ; les Stories de l'Epic 2 ont été publiées sur Jira pour lecture et validation groupée.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
-**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles des Epics 3, 4 et 5 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
-**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3, 4 et 5 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
+**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles des Epics 3, 4, 5 et 6 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
+**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3, 4, 5 et 6 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
 
 ## Requirements Inventory
 
@@ -4427,10 +4427,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : D-PRD-124/QLT-01 ; AD-19/31.
 * Dépendances : Epics 1 et 2 : authentification et journal d'audit.
 * Incréments I1–I3 ; MVP Scrum/Kanban ; aucune collaboration des équipiers, notification externe ou intégration Jira automatique.
-* État : **proposition pour revue globale de l'Epic 5, non encore validée**, aucun développement ni test exécuté.
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.2: Consulter les six registres avec recherche et filtres
 **Jira :** https://lmn24.atlassian.net/browse/SMN-90
@@ -4477,10 +4479,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : D-PRD-124/QLT-02 ; AD-31.
 * Dépendances : Story 5.1.
 * Incréments I1–I3 ; MVP Scrum/Kanban ; aucune collaboration des équipiers, notification externe ou intégration Jira automatique.
-* État : **proposition pour revue globale de l'Epic 5, non encore validée**, aucun développement ni test exécuté.
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.3: Modifier les fiches qualitatives en conservant leurs révisions
 **Jira :** https://lmn24.atlassian.net/browse/SMN-91
@@ -4527,10 +4531,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : D-PRD-124/QLT-01/02 ; AD-19/20/31.
 * Dépendances : Stories 5.1–5.2 ; le socle d'audit Epic 2 existe.
 * Incréments I1–I3 ; MVP Scrum/Kanban ; aucune collaboration des équipiers, notification externe ou intégration Jira automatique.
-* État : **proposition pour revue globale de l'Epic 5, non encore validée**, aucun développement ni test exécuté.
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.4: Gérer la classification ROAM et les états des risques
 **Jira :** https://lmn24.atlassian.net/browse/SMN-92
@@ -4577,10 +4583,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : F-75/76 ; D-PRD-124/QLT-03 ; D-PRD-132.
 * Dépendances : Stories 5.1 et 5.3.
 * Incréments I1–I3 ; MVP Scrum/Kanban ; aucune collaboration des équipiers, notification externe ou intégration Jira automatique.
-* État : **proposition pour revue globale de l'Epic 5, non encore validée**, aucun développement ni test exécuté.
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.5: Évaluer la criticité des risques avec la matrice fixe 3×3
 **Jira :** https://lmn24.atlassian.net/browse/SMN-93
@@ -4627,10 +4635,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : D-PRD-132/A7 ; A7-AC01 à A7-AC10.
 * Dépendances : Stories 5.1, 5.3 et 5.4.
 * Incréments I1–I3 ; MVP Scrum/Kanban ; aucune collaboration des équipiers, notification externe ou intégration Jira automatique.
-* État : **proposition pour revue globale de l'Epic 5, non encore validée**, aucun développement ni test exécuté.
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.6: Suivre le cycle de vie des obstacles sans effacer les résolutions
 **Jira :** https://lmn24.atlassian.net/browse/SMN-94
@@ -4677,10 +4687,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : F-77/78/89 ; D-PRD-124/QLT-01/02/04.
 * Dépendances : Stories 5.1–5.3.
 * MVP Scrum/Kanban ; I1–I3 ; SAFe, notification externe et synchronisation Jira hors MVP.
-* **État : proposition publiée pour validation groupée Epic 5 ; aucun développement ou test exécuté.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.7: Décrire une dépendance interne ou vers une équipe externe
 **Jira :** https://lmn24.atlassian.net/browse/SMN-95
@@ -4727,10 +4739,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : F-74/83/90 ; D-PRD-121 ; QLT-05.
 * Dépendances : Stories 5.1 et 5.3, équipes existantes Epic 3.
 * MVP Scrum/Kanban ; I1–I3 ; SAFe, notification externe et synchronisation Jira hors MVP.
-* **État : proposition publiée pour validation groupée Epic 5 ; aucun développement ou test exécuté.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.8: Piloter les états et le signal À risque d'une dépendance
 **Jira :** https://lmn24.atlassian.net/browse/SMN-96
@@ -4777,10 +4791,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : F-74/83/90 ; D-PRD-133 ; QLT-05/06.
 * Dépendances : Stories 5.1, 5.3 et 5.7.
 * MVP Scrum/Kanban ; I1–I3 ; SAFe, notification externe et synchronisation Jira hors MVP.
-* **État : proposition publiée pour validation groupée Epic 5 ; aucun développement ou test exécuté.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.9: Associer un risque ou une dépendance à plusieurs cycles
 **Jira :** https://lmn24.atlassian.net/browse/SMN-97
@@ -4827,10 +4843,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : D-PRD-120/121/122 ; QLT-02/05 ; AD-19/20.
 * Dépendances : Stories 5.1–5.3 et 5.7 ; cycles Scrum existants Epic 4, périodes Kanban ajoutées par Epic 7.
 * MVP Scrum/Kanban ; I1–I3 ; SAFe, notification externe et synchronisation Jira hors MVP.
-* **État : proposition publiée pour validation groupée Epic 5 ; aucun développement ou test exécuté.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.10: Gérer les décisions, justifications et remplacements
 **Jira :** https://lmn24.atlassian.net/browse/SMN-98
@@ -4877,10 +4895,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références : F-85/86 ; D-PRD-124 ; AD-19.
 * Dépendances : Stories 5.1–5.3.
 * MVP Scrum/Kanban ; I1–I3 ; SAFe, notification externe et synchronisation Jira hors MVP.
-* **État : proposition publiée pour validation groupée Epic 5 ; aucun développement ou test exécuté.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.11: Suivre les actions et leurs responsables en texte libre
 **Jira :** https://lmn24.atlassian.net/browse/SMN-99
@@ -4927,10 +4947,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références métier : F-87/88 ; QLT-01/02/06 ; AD-19.
 * Dépendances : Stories 5.1–5.3.
 * I1–I3, MVP Scrum et Kanban ; SAFe reporté à v1.0. Aucun accès éditeur pour le profil Utilisateur.
-* **État : proposition publiée pour revue groupée, sans validation fonctionnelle ni développement/test.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.12: Relier les fiches qualitatives et les objectifs de façon traçable
 **Jira :** https://lmn24.atlassian.net/browse/SMN-100
@@ -4977,10 +4999,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références métier : F-13/79 ; QLT-02/04 ; AD-19/20.
 * Dépendances : Stories 5.1, 5.6, 5.10, 5.11 ; objectifs Scrum Epic 4.
 * I1–I3, MVP Scrum et Kanban ; SAFe reporté à v1.0. Aucun accès éditeur pour le profil Utilisateur.
-* **État : proposition publiée pour revue groupée, sans validation fonctionnelle ni développement/test.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.13: Créer un obstacle assisté à partir d'un risque matérialisé
 **Jira :** https://lmn24.atlassian.net/browse/SMN-101
@@ -5027,10 +5051,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références métier : F-77/89 ; QLT-04 ; AD-19.
 * Dépendances : Stories 5.4, 5.6 et 5.12.
 * I1–I3, MVP Scrum et Kanban ; SAFe reporté à v1.0. Aucun accès éditeur pour le profil Utilisateur.
-* **État : proposition publiée pour revue groupée, sans validation fonctionnelle ni développement/test.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.14: Créer plusieurs actions assistées depuis une décision
 **Jira :** https://lmn24.atlassian.net/browse/SMN-102
@@ -5077,10 +5103,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références métier : F-85–88 ; QLT-04.
 * Dépendances : Stories 5.10, 5.11 et 5.12.
 * I1–I3, MVP Scrum et Kanban ; SAFe reporté à v1.0. Aucun accès éditeur pour le profil Utilisateur.
-* **État : proposition publiée pour revue groupée, sans validation fonctionnelle ni développement/test.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.15: Surveiller les échéances des actions et dépendances ouvertes
 **Jira :** https://lmn24.atlassian.net/browse/SMN-103
@@ -5127,10 +5155,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Références métier : F-80–84 ; QLT-06 ; AD-31.
 * Dépendances : Stories 5.7, 5.8 et 5.11.
 * I1–I3, MVP Scrum et Kanban ; SAFe reporté à v1.0. Aucun accès éditeur pour le profil Utilisateur.
-* **État : proposition publiée pour revue groupée, sans validation fonctionnelle ni développement/test.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.16: Afficher un cockpit des points d'attention collectifs
 **Jira :** https://lmn24.atlassian.net/browse/SMN-104
@@ -5176,10 +5206,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic SMN-5 ; FR-39, FR-25, FR-36 ; QLT-06 ; D-PRD-132 ; F-80–84.
 * Dépendances antérieures : Stories 5.5, 5.6, 5.8, 5.12 et 5.15 ; objectifs de Sprint Epic 4.
 * I1–I3 ; deux rôles MVP, aucune intégration Jira, notification externe ni fonctionnalité SAFe obligatoire.
-* **Statut : proposition publiée pour revue globale ; non validée fonctionnellement, ni développée ni testée.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.17: Préserver risques et dépendances lors de la replanification d'un cycle
 **Jira :** https://lmn24.atlassian.net/browse/SMN-105
@@ -5225,10 +5257,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic SMN-5 ; FR-25, FR-38, FR-41 ; D-PRD-120/121/122 ; AD-18/19/20.
 * Dépendances antérieures : Stories 5.7–5.9 et service de replanification Sprint Epic 4.
 * I1–I3 ; deux rôles MVP, aucune intégration Jira, notification externe ni fonctionnalité SAFe obligatoire.
-* **Statut : proposition publiée pour revue globale ; non validée fonctionnellement, ni développée ni testée.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.18: Saisir des faits marquants manuels dans un journal chronologique
 **Jira :** https://lmn24.atlassian.net/browse/SMN-106
@@ -5274,10 +5308,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic SMN-5 ; FR-40, FR-34, FR-35 ; QLT-07 ; F-110/111 ; AD-19.
 * Dépendances antérieures : Stories 5.1–5.3 ; le journal distingue les faits manuels des fiches d'audit Epic 2.
 * I1–I3 ; deux rôles MVP, aucune intégration Jira, notification externe ni fonctionnalité SAFe obligatoire.
-* **Statut : proposition publiée pour revue globale ; non validée fonctionnellement, ni développée ni testée.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.19: Paramétrer les six catégories de faits marquants automatiques
 **Jira :** https://lmn24.atlassian.net/browse/SMN-107
@@ -5323,10 +5359,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic SMN-5 ; FR-40, FR-41 ; D-PRD-133/A8 ; A8-AC01 ; QLT-07.
 * Dépendances antérieures : Story 5.18, paramètres Administrateur Epic 1.
 * I1–I3 ; deux rôles MVP, aucune intégration Jira, notification externe ni fonctionnalité SAFe obligatoire.
-* **Statut : proposition publiée pour revue globale ; non validée fonctionnellement, ni développée ni testée.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.20: Produire les faits marquants automatiques sur événements métier confirmés
 **Jira :** https://lmn24.atlassian.net/browse/SMN-108
@@ -5372,10 +5410,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic SMN-5 ; FR-40, FR-36, FR-39 ; D-PRD-133/A8 ; A8-AC02/03 ; QLT-07.
 * Dépendances antérieures : Stories 5.4–5.8, 5.10, 5.16, 5.18–5.19 ; objectif de Sprint Epic 4.
 * I1–I3 ; deux rôles MVP, aucune intégration Jira, notification externe ni fonctionnalité SAFe obligatoire.
-* **Statut : proposition publiée pour revue globale ; non validée fonctionnellement, ni développée ni testée.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.21: Dédupliquer et corriger les faits automatiques sans falsifier le journal
 **Jira :** https://lmn24.atlassian.net/browse/SMN-109
@@ -5421,10 +5461,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic : SMN-5. FR-40, FR-41 ; D-PRD-133/A8 ; A8-AC04/05/06 ; AD-19/20.
 * Dépendances : Stories 5.18–5.20 et audit commun Epic 2.
 * Incrément I1–I3 ; MVP Scrum/Kanban ; SAFe v1.0 ultérieur ; RBAC Admin/Utilisateur de l'Epic 1.
-* **Statut : proposition publiée dans Jira pour revue globale Epic 5, non encore validée ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.22: Masquer, promouvoir et sélectionner les faits pour les reportings
 **Jira :** https://lmn24.atlassian.net/browse/SMN-110
@@ -5470,10 +5512,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic : SMN-5. FR-40, FR-35 ; D-PRD-133/A8 ; QLT-07 ; FR-26–33.
 * Dépendances : Stories 5.18–5.21 ; l'Epic 6 pourra réutiliser la sélection sans être nécessaire à cette Story.
 * Incrément I1–I3 ; MVP Scrum/Kanban ; SAFe v1.0 ultérieur ; RBAC Admin/Utilisateur de l'Epic 1.
-* **Statut : proposition publiée dans Jira pour revue globale Epic 5, non encore validée ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.23: Figer les six registres associés lors de la clôture d'un cycle
 **Jira :** https://lmn24.atlassian.net/browse/SMN-111
@@ -5519,10 +5563,12 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic : SMN-5. FR-25, FR-41 ; D-PRD-122/124/130-A3 ; QLT-08 ; AD-20.
 * Dépendances : Stories 5.1–5.22 ; événement de clôture explicite existant dans Epic 4.
 * Incrément I1–I3 ; MVP Scrum/Kanban ; SAFe v1.0 ultérieur ; RBAC Admin/Utilisateur de l'Epic 1.
-* **Statut : proposition publiée dans Jira pour revue globale Epic 5, non encore validée ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
 ### Story 5.24: Conserver V1, V2 et les états historiques lors des reclôtures
 **Jira :** https://lmn24.atlassian.net/browse/SMN-112
@@ -5568,7 +5614,1109 @@ Gérer les six registres qualitatifs, les alertes collectives et les faits marqu
 * Epic : SMN-5. FR-25, FR-41 ; D-PRD-130/A3 ; D-PRD-122 ; AD-19/20.
 * Dépendances : Story 5.23 ; réouverture/reclôture existante Epic 4.
 * Incrément I1–I3 ; MVP Scrum/Kanban ; SAFe v1.0 ultérieur ; RBAC Admin/Utilisateur de l'Epic 1.
-* **Statut : proposition publiée dans Jira pour revue globale Epic 5, non encore validée ; aucun développement ni test réalisé.**
+  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
+
+#### Validation fonctionnelle globale
+
+Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
+**Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
+
+
+## Epic 6: Composer, exporter et retrouver des rapports professionnels
+Prévisualiser les rapports HTML, produire des PDF fidèles et conserver les archives documentaires autorisées.
+**FRs couvertes :** FR-26, FR-27, FR-28, FR-29, FR-30, FR-31, FR-32, FR-33.
+
+### Story 6.1: Lancer un rapport depuis la fiche d'un Sprint
+**Jira :** https://lmn24.atlassian.net/browse/SMN-113
+
+**En tant que** Scrum Master Administrateur,
+**je veux** préparer un rapport à partir du Sprint Scrum que je consulte,
+**afin de** éviter de ressaisir le contexte et obtenir un reporting à la demande.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint À venir, En cours, Terminé ou Clôturé existe,
+**When** je clique sur Générer un rapport depuis sa fiche,
+**Then** le formulaire reprend exactement le Sprint, son équipe, son produit, ses dates et son statut enregistrés.
+
+#### AC2
+
+**Given** la préparation s'ouvre,
+**When** le cycle possède des valeurs sources fiables,
+**Then** les données disponibles et le modèle standard sont proposés sans saisie manuelle obligatoire.
+
+#### AC3
+
+**Given** le Sprint est ouvert ou non clôturé,
+**When** j'ouvre sa préparation,
+**Then** le caractère provisoire du rapport est explicitement indiqué.
+
+#### AC4
+
+**Given** je quitte la préparation sans exporter,
+**When** je reviens à la fiche,
+**Then** aucun KPI ni objectif source n'est modifié et aucun PDF n'est produit.
+
+#### AC5
+
+**Given** un Utilisateur en lecture seule tente l'action ou forge une URL d'export,
+**When** le serveur vérifie les droits,
+**Then** la création d'un nouveau rapport est refusée sans fuite de données.
+
+#### Traçabilité
+
+* Epic : SMN-6 ; exigences : FR-26, FR-33 ; décisions : RPT-01 ; D-PRD-123 ; AD-22/31.
+* Dépendances existantes : Epic 4 : Sprint identifié ; Epics 1/2 : accès sécurisé et audit.
+* Incrément : I1–I2 ; MVP Scrum et Kanban ; SAFe v1.0 ; deux profils Administrateur/Utilisateur.
+* **Proposition publiée pour validation globale de l'Epic 6 ; pas encore validée, développée ni testée.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.2: Préparer un contrat de données commun aux rapports Scrum et Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-116
+
+En tant que Scrum Master, je veux que les rapports exploitent une structure de données adaptée aux modes Scrum et Kanban, afin de réutiliser le même moteur de rendu sans mélanger les métriques.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un jeu de données Scrum existant
+**When** le moteur prépare la projection
+**Then** les SP, les JH et les objectifs sont conservés avec leurs unités.
+
+#### AC2
+
+**Given** un jeu de données de test Kanban conforme au contrat
+**When** le moteur prépare la projection
+**Then** les indicateurs de flux sont reconnus sans créer de cérémonies Scrum fictives.
+
+#### AC3
+
+**Given** une valeur absente
+**When** le rapport est composé
+**Then** aucune valeur zéro ou estimation n'est inventée.
+
+#### AC4
+
+**Given** une source historisée
+**When** le moteur compose la projection
+**Then** le cycle, la provenance, les dates et versions connues sont conservés.
+
+#### AC5
+
+**Given** un mode non disponible au MVP
+**When** le contrat est utilisé
+**Then** il ne produit pas une consolidation factice.
+
+#### Traçabilité
+
+FR-26, FR-27, FR-30 ; RPT-01/02/05 ; D-PRD-123 ; AD-22. Dépendance : Story 6.1. Le moteur est testable avec données Scrum existantes et données de test Kanban, avant les écrans de l'Epic 7.
+
+Proposition de revue globale Epic 6 ; pas de développement ni de recette réalisés.
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.3: Composer automatiquement les six sections standard du rapport
+**Jira :** https://lmn24.atlassian.net/browse/SMN-114
+
+**En tant que** Scrum Master Administrateur,
+**je veux** obtenir un rapport structuré à partir des données enregistrées,
+**afin de** produire une synthèse professionnelle sans compilation manuelle.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint enregistré dispose de données métier,
+**When** je demande le contenu standard,
+**Then** les sections Synthèse exécutive, Objectifs, Indicateurs et tendances, Événements Agile, Points d'attention, Décisions et actions apparaissent dans cet ordre.
+
+#### AC2
+
+**Given** une section possède des objets sources associés,
+**When** la composition est effectuée,
+**Then** les seuls objectifs, chiffres et faits réellement enregistrés sont présents avec liens ou contexte vérifiables.
+
+#### AC3
+
+**Given** une section ne dispose d'aucune donnée exploitable,
+**When** je consulte le contenu,
+**Then** un état vide ou une omission conforme aux options apparaît, sans chiffre ou conclusion inventés.
+
+#### AC4
+
+**Given** des états qualitatifs sont associés au cycle,
+**When** le rapport les compose,
+**Then** ils suivent les relations et contraintes d'accès de l'Epic 5, sans inventer une fiche.
+
+#### AC5
+
+**Given** les informations sources sont modifiées après simple consultation,
+**When** je vérifie le rapport préparé,
+**Then** aucune modification métier n'a été produite par la seule composition.
+
+#### Traçabilité
+
+* Epic : SMN-6 ; exigences : FR-27, FR-33 ; décisions : RPT-02/08 ; D-PRD-123 ; AD-22.
+* Dépendances existantes : Stories 6.1–6.2 et six registres de l'Epic 5.
+* Incrément : I1–I2 ; MVP Scrum et Kanban ; SAFe v1.0 ; deux profils Administrateur/Utilisateur.
+* **Proposition publiée pour validation globale de l'Epic 6 ; pas encore validée, développée ni testée.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.4: Ajouter introduction, commentaires et conclusion propres au rapport
+**Jira :** https://lmn24.atlassian.net/browse/SMN-115
+
+**En tant que** Scrum Master Administrateur,
+**je veux** compléter volontairement les données par ma rédaction,
+**afin de** apporter contexte et interprétation sans altérer les sources.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un rapport standard est en préparation,
+**When** je saisis introduction, conclusion ou commentaire de section,
+**Then** les textes libres sont attachés au brouillon du rapport, indépendamment des données source.
+
+#### AC2
+
+**Given** aucun texte libre n'est saisi,
+**When** je consulte la synthèse,
+**Then** SMN n'invente aucune conclusion ni affirmation de réalisation.
+
+#### AC3
+
+**Given** une donnée source a besoin d'être corrigée,
+**When** je modifie un commentaire seulement,
+**Then** ni objectif, ni KPI, ni fiche du registre ne sont modifiés par la rédaction.
+
+#### AC4
+
+**Given** une saisie de commentaire est encore non enregistrée dans le brouillon,
+**When** je quitte l'écran,
+**Then** la protection des modifications non enregistrées avertit avant abandon.
+
+#### AC5
+
+**Given** un commentaire est inclus ou exclu volontairement,
+**When** je consulte le contenu composé,
+**Then** sa présence suit la sélection et conserve sa langue d'origine.
+
+#### Traçabilité
+
+* Epic : SMN-6 ; exigences : FR-27 ; décisions : RPT-02 ; D-PRD-123 ; UX-DR17.
+* Dépendances existantes : Story 6.3.
+* Incrément : I1–I2 ; MVP Scrum et Kanban ; SAFe v1.0 ; deux profils Administrateur/Utilisateur.
+* **Proposition publiée pour validation globale de l'Epic 6 ; pas encore validée, développée ni testée.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.5: Sélectionner et réordonner les sections du rapport
+**Jira :** https://lmn24.atlassian.net/browse/SMN-117
+
+**En tant que** Scrum Master Administrateur,
+**je veux** choisir les rubriques et leur ordre pour un rapport particulier,
+**afin de** adapter le document au lecteur sans modifier les données métier.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un rapport possède ses six sections standard,
+**When** j'ouvre les options,
+**Then** je peux afficher/masquer et réordonner chaque rubrique facultative sans modifier les données sources.
+
+#### AC2
+
+**Given** une section a été masquée,
+**When** je prévisualise le contenu,
+**Then** elle ne figure pas dans le rendu, ni dans le futur PDF basé sur cette sélection.
+
+#### AC3
+
+**Given** je réorganise les sections,
+**When** je confirme mes options,
+**Then** le nouvel ordre est appliqué à ce rapport uniquement.
+
+#### AC4
+
+**Given** je masque une rubrique,
+**When** le document est composé,
+**Then** produit, équipe, cycle, dates, statut et génération demeurent identifiables.
+
+#### AC5
+
+**Given** je reviens sur mes choix,
+**When** je relance la composition,
+**Then** le choix de sections est réutilisé sans écriture sur les cycles, KPI ni registres.
+
+#### Traçabilité
+
+* Epic : SMN-6. FR-28, FR-27, RPT-02/03/05, D-PRD-123, D-PRD-134.
+* Dépendances : Stories 6.3–6.4.
+* MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
+* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.6: Choisir les KPI, graphiques et informations qualitatives
+**Jira :** https://lmn24.atlassian.net/browse/SMN-118
+
+**En tant que** Scrum Master Administrateur,
+**je veux** sélectionner les métriques et faits qui sont pertinents pour mes destinataires,
+**afin de** éviter des rapports chargés ou trompeurs.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** les données métriques d'un Sprint sont disponibles,
+**When** je choisis les KPI et graphiques autorisés,
+**Then** les unités SP, JH et % restent séparées et les valeurs sont issues des mesures enregistrées.
+
+#### AC2
+
+**Given** des faits marquants, risques, dépendances, décisions et actions existent,
+**When** je sélectionne les éléments à restituer,
+**Then** les filtres et états masqué/invalide de l'Epic 5 sont respectés.
+
+#### AC3
+
+**Given** un KPI ou un graphique sélectionné n'a pas les données requises,
+**When** la prévisualisation est calculée,
+**Then** il apparaît comme indisponible ou est omis explicitement, jamais rempli de zéros fictifs.
+
+#### AC4
+
+**Given** une analyse humaine existante est disponible et autorisée,
+**When** je l'intègre à ma sélection,
+**Then** son contenu et sa provenance sont distingués des chiffres source ; aucune nouvelle analyse IA n'est créée.
+
+#### AC5
+
+**Given** un élément est retiré des choix du rapport,
+**When** je consulte la composition,
+**Then** cet élément n'est pas réinséré implicitement au moment du PDF.
+
+#### Traçabilité
+
+* Epic : SMN-6. FR-28, FR-27, FR-33, RPT-02/03/05, D-PRD-123, D-PRD-134.
+* Dépendances : Stories 6.3 et 6.5 ; registres Epic 5.
+* MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
+* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.7: Régler la profondeur historique et limiter les tendances à cinq cycles
+**Jira :** https://lmn24.atlassian.net/browse/SMN-121
+
+En tant que Scrum Master, je veux définir la profondeur historique d'un rapport, afin de présenter des tendances fiables.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un rapport en préparation
+**When** j'ouvre ses options
+**Then** je peux changer sa profondeur historique sans modifier le modèle.
+
+#### AC2
+
+**Given** plus de cinq Sprints clôturés
+**When** une série de tendances est composée
+**Then** seuls cinq cycles clôturés éligibles au plus sont présents.
+
+#### AC3
+
+**Given** un Sprint ancien consulté
+**When** les tendances sont sélectionnées
+**Then** aucun Sprint chronologiquement postérieur n'est inclus.
+
+#### AC4
+
+**Given** un Sprint ouvert ou rouvert
+**When** une série historique est composée
+**Then** il n'est pas compté comme cycle clôturé.
+
+#### AC5
+
+**Given** une métrique passée non renseignée
+**When** le graphique s'affiche
+**Then** il montre une donnée absente sans valeur inventée ; la profondeur des autres éléments historiques n'est pas limitée à cinq.
+
+#### Traçabilité
+
+FR-28, FR-30 ; RPT-03/05, D-PRD-123 et D-PRD-076–078. Dépendances : Stories 6.2, 6.6. I1–I2.  
+Proposition publiée pour validation globale de l'Epic 6 ; non développée ni testée.
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.8: Respecter les clichés historiques et indiquer la qualité des données
+**Jira :** https://lmn24.atlassian.net/browse/SMN-119
+
+**En tant que** Scrum Master Administrateur,
+**je veux** produire un rapport fidèle au statut historique et à la provenance des valeurs,
+**afin de** éviter d'attribuer à une ancienne période la situation actuelle de l'équipe.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint Clôturé possède un cliché V1 ou V2,
+**When** un rapport est composé,
+**Then** les risques, dépendances et autres informations qualitatives utilisent le dernier cliché applicable à cette clôture.
+
+#### AC2
+
+**Given** un Sprint est ouvert ou rouvert,
+**When** un rapport est composé,
+**Then** les données courantes connues sont utilisées et le résultat est qualifié de provisoire.
+
+#### AC3
+
+**Given** la source d'une capacité est connue, estimée, calculée ou saisie manuellement,
+**When** elle est affichée,
+**Then** sa provenance et qualité connues restent distinguables.
+
+#### AC4
+
+**Given** une valeur historique n'a jamais été enregistrée,
+**When** le rapport présente les résultats,
+**Then** aucun état passé, KPI ou statut de fiche n'est reconstruit à partir de l'état actuel.
+
+#### AC5
+
+**Given** un ancien PDF lié à V1 existe et le cycle est reclôturé V2,
+**When** un nouveau rapport est préparé,
+**Then** le nouveau rapport peut s'appuyer sur V2, tandis que le PDF ancien reste strictement inchangé.
+
+#### Traçabilité
+
+* Epic : SMN-6. FR-30, FR-27, FR-33, RPT-02/03/05, D-PRD-123, D-PRD-134.
+* Dépendances : Stories 6.2–6.7 et instantanés Vn Epics 4/5.
+* MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
+* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.9: Intégrer la vision, le Product Goal et les définitions d'équipe
+**Jira :** https://lmn24.atlassian.net/browse/SMN-120
+
+**En tant que** Scrum Master Administrateur,
+**je veux** ajouter sur choix des éléments de contexte produit et la DoD/DoR,
+**afin de** éclairer les rapports sans répéter les informations du produit.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une vision et un Product Goal sont enregistrés,
+**When** je sélectionne leur présence,
+**Then** leurs textes disponibles sont présentés dans les sections choisies sans traduction automatique.
+
+#### AC2
+
+**Given** la DoD et la DoR sont disponibles sous forme de texte,
+**When** je les inclue,
+**Then** elles apparaissent facultativement en fin de rapport à titre informatif.
+
+#### AC3
+
+**Given** une DoD ou DoR est fournie comme lien,
+**When** je l'inclus,
+**Then** l'URL connue peut être présentée sans prétendre que la cible distante a été vérifiée ou archivée.
+
+#### AC4
+
+**Given** un de ces éléments n'est pas renseigné,
+**When** la composition est effectuée,
+**Then** un texte fictif n'est pas inventé, et la génération reste possible.
+
+#### AC5
+
+**Given** le rapport est modifié,
+**When** je sauvegarde les options du rapport,
+**Then** aucune modification n'est transmise automatiquement aux champs source de la vision, du Product Goal, de la DoD ou DoR.
+
+#### Traçabilité
+
+* Epic : SMN-6. FR-28, FR-27, RPT-02/03/05, D-PRD-123, D-PRD-134.
+* Dépendances : Stories 6.3 et 6.5 ; données produit/équipe préexistantes.
+* MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
+* **Proposition à valider globalement pour l'Epic 6 ; non encore approuvée ou implémentée.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.10: Fournir un modèle standard de rapport protégé
+**Jira :** https://lmn24.atlassian.net/browse/SMN-122
+
+**En tant que** Scrum Master Administrateur,
+**je veux** partir d'un modèle standard utilisable immédiatement,
+**afin de** créer mon premier rapport sans paramétrer une mise en page.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** l'installation est initialisée,
+**When** j'ouvre les modèles de rapport,
+**Then** un modèle standard à six rubriques est disponible.
+
+#### AC2
+
+**Given** le modèle standard est sélectionné,
+**When** je prépare un rapport,
+**Then** les sections et choix de contenu par défaut sont utilisables immédiatement.
+
+#### AC3
+
+**Given** je demande la suppression du modèle standard,
+**When** le serveur valide l'action,
+**Then** la suppression est refusée, même via API.
+
+#### AC4
+
+**Given** je demande une copie personnalisable du modèle standard,
+**When** l'opération réussit,
+**Then** une nouvelle identité de modèle est créée sans modifier l'original.
+
+#### AC5
+
+**Given** des données facultatives sont absentes,
+**When** j'utilise le modèle standard,
+**Then** le rapport demeure préparé sans transformer les absences en zéros fictifs.
+
+#### Traçabilité
+
+* Epic SMN-6 ; FR-29, FR-27 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
+* Dépendances : 6.3–6.9.
+* I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
+* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.11: Créer, dupliquer et modifier les modèles de rapport
+**Jira :** https://lmn24.atlassian.net/browse/SMN-123
+
+**En tant que** Scrum Master Administrateur,
+**je veux** mémoriser des configurations de rapport personnalisées,
+**afin de** retrouver mes préférences de sections et d'indicateurs à chaque génération.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un modèle standard ou personnalisé existe,
+**When** je le duplique,
+**Then** un modèle personnel distinct et renommable est créé.
+
+#### AC2
+
+**Given** je configure un modèle personnalisé,
+**When** j'enregistre sections, ordre, indicateurs, graphiques et profondeur historique,
+**Then** les valeurs sont conservées et pourront être rechargées.
+
+#### AC3
+
+**Given** je modifie un modèle personnalisé,
+**When** une sauvegarde échoue,
+**Then** la configuration précédente reste cohérente et aucun succès fictif n'apparaît.
+
+#### AC4
+
+**Given** je souhaite supprimer un modèle personnalisé déjà référencé,
+**When** j'ouvre la confirmation,
+**Then** les impacts sur les anciennes archives et les sélections sont présentés et le standard reste intouchable.
+
+#### AC5
+
+**Given** un Utilisateur tente de créer, modifier ou supprimer un modèle,
+**When** le serveur reçoit la demande,
+**Then** l'écriture est refusée et les modèles restent inchangés.
+
+#### Traçabilité
+
+* Epic SMN-6 ; FR-29, FR-28 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
+* Dépendances : 6.10 ; sélecteurs 6.5–6.9.
+* I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
+* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.12: Charger un modèle et adapter ponctuellement les options
+**Jira :** https://lmn24.atlassian.net/browse/SMN-133
+
+En tant que Scrum Master, je souhaite charger un modèle puis adapter les options de la génération courante sans altérer le modèle sauvegardé.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un modèle enregistré
+**When** je le sélectionne
+**Then** ses options sont reprises.
+
+#### AC2
+
+**Given** un modèle chargé
+**When** je change une section
+**Then** le changement concerne le document en préparation.
+
+#### AC3
+
+**Given** j'abandonne les changements
+**When** je recharge le modèle
+**Then** son état d'origine est conservé.
+
+#### AC4
+
+**Given** je confirme Enregistrer le modèle
+**When** l'écriture réussit
+**Then** les nouvelles options sont mémorisées.
+
+#### AC5
+
+**Given** le modèle devient indisponible
+**When** je tente de le charger
+**Then** un message permet de choisir un autre modèle sans mélange des options.
+
+#### Références
+
+FR-28, FR-29 ; RPT-03/04 ; Stories 6.10 et 6.11. Publication pour revue globale de l'Epic 6, sans validation préalable.
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.13: Prévisualiser la totalité du rapport en HTML
+**Jira :** https://lmn24.atlassian.net/browse/SMN-124
+
+**En tant que** Scrum Master Administrateur,
+**je veux** lire intégralement le rapport avant d'exporter,
+**afin de** vérifier rubriques, chiffres, textes et graphiques sans produire de PDF.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un rapport a été préparé,
+**When** je clique sur Prévisualiser,
+**Then** tout le contenu sélectionné apparaît en HTML, dans l'ordre choisi et avec les graphiques concernés.
+
+#### AC2
+
+**Given** la prévisualisation est affichée,
+**When** je reviens modifier les options puis je l'actualise,
+**Then** la nouvelle version d'aperçu reflète mes changements sans modifier les sources métier.
+
+#### AC3
+
+**Given** une section a été masquée ou un KPI est absent,
+**When** l'aperçu est rendu,
+**Then** aucune donnée n'est réinsérée, inventée ou remplacée par zéro.
+
+#### AC4
+
+**Given** une période non clôturée est choisie,
+**When** j'ouvre l'aperçu,
+**Then** le caractère provisoire et la date de situation sont explicitement visibles.
+
+#### AC5
+
+**Given** seule la prévisualisation HTML est demandée,
+**When** je quitte la préparation,
+**Then** aucun export PDF réussi ni archive définitive n'est créé automatiquement.
+
+#### Traçabilité
+
+* Epic SMN-6 ; FR-31, FR-27 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
+* Dépendances : 6.3–6.12.
+* I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
+* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.14: Choisir FR/EN pour les rubriques sans traduire les textes libres
+**Jira :** https://lmn24.atlassian.net/browse/SMN-125
+
+**En tant que** Scrum Master Administrateur,
+**je veux** obtenir un rapport aux libellés français ou anglais,
+**afin de** partager le document avec différents interlocuteurs sans dénaturer la rédaction.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** le rapport est en préparation,
+**When** je sélectionne Français ou Anglais,
+**Then** titres, rubriques et libellés standards utilisent la langue choisie.
+
+#### AC2
+
+**Given** le rapport contient des commentaires ou objectifs libres,
+**When** je change la langue standard,
+**Then** ces textes métier restent dans leur langue source, sans traduction automatique.
+
+#### AC3
+
+**Given** un aperçu HTML puis un PDF sont produits pour la même sélection,
+**When** je compare les deux,
+**Then** les mêmes libellés standard sont dans la même langue.
+
+#### AC4
+
+**Given** la langue choisie diffère de celle de l'interface SMN,
+**When** je compose le rapport,
+**Then** la langue de la page ne force pas la traduction des textes libres.
+
+#### AC5
+
+**Given** un libellé standard est indisponible en langue cible,
+**When** le moteur traduit la structure,
+**Then** une langue de repli connue est utilisée sans champ technique brut ni texte libre modifié.
+
+#### Traçabilité
+
+* Epic SMN-6 ; FR-32, FR-31 ; D-PRD-123, RPT-03/04/06/07 et D-PRD-134 selon le périmètre.
+* Dépendances : 6.13 ; infrastructure de langue Epic 1.
+* I1–I2 ; MVP Scrum/Kanban ; l'Administrateur génère les documents, l'Utilisateur les lit selon ses droits.
+* **Proposition de l'Epic 6 pour revue globale ; aucune validation métier individuelle, réalisation ou recette.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.15: Présenter un en-tête professionnel et un logo facultatif
+**Jira :** https://lmn24.atlassian.net/browse/SMN-134
+
+En tant que Scrum Master, je veux une présentation claire, contextualisée et un logo facultatif, afin de remettre un document professionnel.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un rapport en préparation
+**When** le document est rendu
+**Then** produit, équipe, cycle, dates, statut et date de génération sont identifiables.
+
+#### AC2
+
+**Given** un cycle n'est pas clôturé
+**When** le rapport s'affiche
+**Then** le caractère provisoire est explicite.
+
+#### AC3
+
+**Given** aucun logo n'est fourni
+**When** le rapport est rendu
+**Then** le document demeure complet et lisible.
+
+#### AC4
+
+**Given** un logo autorisé est configuré
+**When** je le sélectionne
+**Then** sa présence n'altère ni chiffres ni rubriques.
+
+#### AC5
+
+**Given** des graphiques ou des tableaux sont inclus
+**When** le rendu HTML ou PDF est consulté
+**Then** titres, légendes, contrastes et textes de contexte demeurent accessibles.
+
+#### Traçabilité
+
+FR-33 et FR-31 ; RPT-06/08 ; D-PRD-123 ; Stories 6.13 et 6.14. Proposition pour revue globale Epic 6 ; aucun développement effectué.
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.16: Exclure les données individuelles sensibles des rapports par défaut
+**Jira :** https://lmn24.atlassian.net/browse/SMN-126
+
+**En tant que** Scrum Master Administrateur,
+**je veux** générer des rapports collectifs respectueux des droits et de la confidentialité,
+**afin de** partager des informations utiles sans dévoiler les absences et coordonnées personnelles.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un rapport contient des indicateurs d'équipe et des fiches membres,
+**When** la projection serveur est produite,
+**Then** les absences nominatives, e-mails, coordonnées et capacités individuelles sensibles sont exclus par défaut.
+
+#### AC2
+
+**Given** une action comporte un responsable métier légitime,
+**When** elle figure dans un registre sélectionné,
+**Then** le nom utile à l'action peut être affiché sans exposer les autres données personnelles du membre.
+
+#### AC3
+
+**Given** un champ non autorisé est demandé par une requête directe,
+**When** le serveur filtre la sortie,
+**Then** aucune donnée privée interdite n'est livrée en HTML ou PDF.
+
+#### AC4
+
+**Given** une sélection de rapport inclut des faits textuels,
+**When** le rendu est préparé,
+**Then** les droits sont respectés et aucun texte n'est transmis à une API IA ou autre service externe non prévu.
+
+#### AC5
+
+**Given** un brief TXT IA est demandé,
+**When** le moteur de rapport évalue la demande,
+**Then** la politique de confidentialité renforcée de l'Epic 9 ne peut pas être contournée au moyen du rapport.
+
+#### Traçabilité
+
+* Epic SMN-6. FR-33, FR-27, FR-28 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
+* Dépendances : 6.3, 6.6, 6.13 ; filtrage serveur Epic 1
+* Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
+* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.17: Exporter un PDF fidèle à la prévisualisation HTML
+**Jira :** https://lmn24.atlassian.net/browse/SMN-127
+
+**En tant que** Scrum Master Administrateur,
+**je veux** produire un PDF partageable correspondant au rapport validé,
+**afin de** diffuser un document stable sans changements silencieux du contenu.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un aperçu HTML complet a été validé,
+**When** je lance l'export PDF,
+**Then** les mêmes sections, leur ordre, textes, chiffres, langue et graphiques sont utilisés.
+
+#### AC2
+
+**Given** la pagination diffère du rendu écran,
+**When** je consulte le PDF final,
+**Then** seules des différences raisonnables de pagination et présentation sont admises, sans disparition ou ajout de données métier.
+
+#### AC3
+
+**Given** des données source ont changé depuis l'aperçu,
+**When** l'export commence,
+**Then** la préparation s'appuie sur un rendu de référence stable ou demande un nouvel aperçu, sans mélange de versions.
+
+#### AC4
+
+**Given** une page est longue ou contient un graphique,
+**When** le PDF est généré,
+**Then** les tableaux et légendes restent lisibles et les informations contextuelles sont identifiables.
+
+#### AC5
+
+**Given** un Utilisateur en lecture seule tente de produire un nouveau PDF,
+**When** le serveur contrôle l'opération,
+**Then** la génération est interdite même s'il pourra télécharger une archive explicitement autorisée.
+
+#### Traçabilité
+
+* Epic SMN-6. FR-31, FR-32, FR-33 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
+* Dépendances : 6.13–6.16
+* Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
+* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.18: Archiver automatiquement le fichier PDF final exact après export réussi
+**Jira :** https://lmn24.atlassian.net/browse/SMN-128
+
+**En tant que** Scrum Master Administrateur,
+**je veux** conserver le PDF réellement exporté dans l'espace privé SMN,
+**afin de** retrouver le même document sans le reconstruire à partir de données ultérieures.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un export PDF aboutit réellement,
+**When** la finalisation est confirmée,
+**Then** le fichier PDF final exact est archivé automatiquement avec un identifiant unique et une empreinte d'intégrité.
+
+#### AC2
+
+**Given** un aperçu HTML est consulté sans export,
+**When** je quitte la page,
+**Then** aucune archive PDF finale n'est créée.
+
+#### AC3
+
+**Given** une archive est produite,
+**When** ses métadonnées sont consultées,
+**Then** auteur, date, langue, modèle, équipe, cycle, statut, version Vn et manifeste sont conservés quand pertinents.
+
+#### AC4
+
+**Given** le même Sprint est exporté plusieurs fois,
+**When** les fichiers sont finalisés,
+**Then** chaque PDF dispose d'une archive distincte et immuable sans écraser les versions précédentes.
+
+#### AC5
+
+**Given** le stockage ou la validation du PDF échoue,
+**When** le traitement se termine,
+**Then** aucune archive finale incomplète n'est déclarée réussie ; le téléchargement privé n'est ouvert qu'après cohérence fichier/métadonnées.
+
+#### Traçabilité
+
+* Epic SMN-6. FR-31, FR-33, FR-68, FR-71 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
+* Dépendances : 6.17 ; stockage privé et restauration Epic 2
+* Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
+* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.19: Distinguer les rapports archivés par cycle, version et provenance
+**Jira :** https://lmn24.atlassian.net/browse/SMN-129
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver plusieurs éditions du même rapport sans perdre leur historique,
+**afin de** comparer les versions produites tout en préservant les preuves documentaires.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** deux PDF ont été produits pour un cycle identique,
+**When** je consulte ses archives,
+**Then** les deux identifiants, dates et fichiers sont conservés.
+
+#### AC2
+
+**Given** un Sprint est réouvert puis reclôturé en V2,
+**When** un nouveau PDF est produit,
+**Then** l'archive de V1 et sa référence historique restent immuables, celle de V2 est séparée.
+
+#### AC3
+
+**Given** un modèle est renommé ou supprimé après un export autorisé,
+**When** je consulte une ancienne archive,
+**Then** le modèle et les options utilisés à l'export restent traçables via les métadonnées figées.
+
+#### AC4
+
+**Given** les données centrales ont évolué,
+**When** une archive ancienne est téléchargée,
+**Then** ses octets restent ceux initialement exportés, indépendants du nouveau bilan.
+
+#### AC5
+
+**Given** un PDF présente une empreinte incohérente ou manque dans le stockage privé,
+**When** son contrôle est effectué,
+**Then** l'archive est signalée dégradée ou indisponible, sans reconstitution silencieuse et sans faux succès.
+
+#### Traçabilité
+
+* Epic SMN-6. FR-29, FR-30, FR-31 ; D-PRD-123/134, RPT-06/07/08, A10-AC01 à A10-AC16.
+* Dépendances : 6.17–6.18
+* Incrément I1–I2, MVP Scrum/Kanban, SAFe différé. Aucune génération ou test technique réalisé.
+* **Proposition pour validation groupée de l'Epic 6, non encore approuvée fonctionnellement.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.20: Rechercher et filtrer les rapports PDF archivés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-130
+
+**En tant que** Scrum Master Administrateur,
+**je veux** retrouver les PDF conservés dans une bibliothèque dédiée,
+**afin de** accéder à un rapport ancien sans devoir le régénérer.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** plusieurs PDF sont archivés,
+**When** j'ouvre Rapports archivés,
+**Then** je vois une bibliothèque distincte des aperçus temporaires, avec identifiants et métadonnées utiles.
+
+#### AC2
+
+**Given** des rapports concernent plusieurs cycles et versions,
+**When** je filtre par cycle, date, modèle ou statut,
+**Then** les archives correspondantes sont retrouvables sans modification de leurs fichiers.
+
+#### AC3
+
+**Given** un rapport est archivé pour un Sprint,
+**When** j'ouvre la fiche Sprint,
+**Then** un accès vers ses archives autorisées permet de retrouver ses éditions.
+
+#### AC4
+
+**Given** un filtre ne trouve aucun PDF,
+**When** la bibliothèque est rendue,
+**Then** un état vide explicite apparaît sans création de fichier.
+
+#### AC5
+
+**Given** un rapport masqué ou non autorisé existe,
+**When** une personne consulte la bibliothèque,
+**Then** le serveur ne révèle pas le document aux comptes auxquels l'accès est interdit.
+
+#### Traçabilité
+
+* Epic SMN-6. FR-31, FR-33, FR-30 ; D-PRD-123, D-PRD-134/A10 et AD-27/31.
+* Dépendances : 6.18–6.19
+* MVP Scrum/Kanban, I1–I2. Ni code ni tests techniques exécutés.
+* **Story publiée pour revue groupée Epic 6, non approuvée individuellement.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.21: Consulter et télécharger les PDF autorisés
+**Jira :** https://lmn24.atlassian.net/browse/SMN-135
+
+En tant que personne authentifiée autorisée, je veux consulter et télécharger un rapport PDF déjà archivé, afin de disposer d'une copie sans demander une nouvelle génération.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un compte Administrateur authentifié et une archive autorisée
+**When** le document est demandé
+**Then** le PDF archivé exact est récupéré depuis le stockage privé.
+
+#### AC2
+
+**Given** un compte Utilisateur authentifié et un PDF autorisé
+**When** il demande le téléchargement
+**Then** la lecture et le téléchargement sont permis.
+
+#### AC3
+
+**Given** un Utilisateur demande un nouvel export
+**When** le serveur contrôle ses droits
+**Then** la génération est refusée.
+
+#### AC4
+
+**Given** une personne anonyme connaît l'identifiant d'un rapport
+**When** elle appelle son adresse directe
+**Then** aucun fichier privé n'est divulgué.
+
+#### AC5
+
+**Given** le fichier est absent ou corrompu
+**When** son téléchargement est demandé
+**Then** une erreur de disponibilité ou d'intégrité apparaît, sans recréer silencieusement le rapport.
+
+#### Traçabilité
+
+FR-31, FR-33 ; AD-31 ; D-PRD-134 ; Stories 6.18 à 6.20. Proposition de revue globale Epic 6 ; non encore validée.
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.22: Masquer ou supprimer exceptionnellement une archive avec confirmation
+**Jira :** https://lmn24.atlassian.net/browse/SMN-131
+
+**En tant que** Scrum Master Administrateur,
+**je veux** gérer une archive devenue inappropriée sans détruire les historiques métier,
+**afin de** maîtriser la confidentialité en conservant une traçabilité des exceptions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une archive est présente dans la bibliothèque,
+**When** l'Administrateur choisit de la masquer,
+**Then** son accès ordinaire est retiré selon sa politique, sans supprimer le cycle ni d'autres PDF.
+
+#### AC2
+
+**Given** une suppression exceptionnelle est demandée,
+**When** l'interface présente les impacts et demande confirmation,
+**Then** aucun fichier n'est supprimé par une simple prévisualisation ou une annulation.
+
+#### AC3
+
+**Given** l'Administrateur confirme l'effacement autorisé d'un PDF,
+**When** l'opération aboutit,
+**Then** seuls le fichier et ses liens documentaires concernés sont traités avec trace d'audit appropriée.
+
+#### AC4
+
+**Given** un ancien PDF doit être expurgé pour une raison justifiée,
+**When** l'Administrateur prépare une nouvelle édition,
+**Then** le fichier original n'est jamais réécrit silencieusement ; une nouvelle archive distincte est nécessaire.
+
+#### AC5
+
+**Given** un Utilisateur tente de masquer ou supprimer une archive,
+**When** le serveur contrôle son rôle,
+**Then** l'opération est refusée ; métriques, clôtures et autres archives demeurent intactes.
+
+#### Traçabilité
+
+* Epic SMN-6. FR-31, FR-33, FR-69, FR-70 ; D-PRD-123, D-PRD-134/A10 et AD-27/31.
+* Dépendances : 6.18–6.21 ; règles d'effacement Epic 2
+* MVP Scrum/Kanban, I1–I2. Ni code ni tests techniques exécutés.
+* **Story publiée pour revue groupée Epic 6, non approuvée individuellement.**
+
+
+**Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
+
+### Story 6.23: Traiter les erreurs d'export et les reprises sans archives incomplètes
+**Jira :** https://lmn24.atlassian.net/browse/SMN-132
+
+**En tant que** Scrum Master Administrateur,
+**je veux** obtenir un résultat fiable lorsque la génération ou l'archivage PDF échoue,
+**afin de** éviter tout PDF corrompu ou faux message de succès.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** le moteur PDF échoue pendant le rendu,
+**When** j'attends le résultat de l'export,
+**Then** SMN indique Échec et ne présente aucun fichier partiel comme un PDF réussi.
+
+#### AC2
+
+**Given** le rendu est correct mais l'écriture de l'archive échoue,
+**When** le processus finalise le résultat,
+**Then** le succès global d'un export avec archivage obligatoire n'est pas annoncé et le système sait nettoyer les fichiers incomplets.
+
+#### AC3
+
+**Given** une requête identique est réessayée après incident,
+**When** le service gère les essais,
+**Then** une opération n'entraîne pas de doublon accidentel pour le même succès ; des exports volontaires distincts créent des archives distinctes.
+
+#### AC4
+
+**Given** les métadonnées et le PDF doivent être cohérents,
+**When** l'écriture s'exécute,
+**Then** une vérification d'intégrité permet de retrouver le fichier exact sans référence orpheline.
+
+#### AC5
+
+**Given** une erreur technique est journalisée,
+**When** l'Administrateur consulte son diagnostic,
+**Then** les informations utiles apparaissent sans secret, lien privé public ou contenu confidentiel brut.
+
+#### Traçabilité
+
+* Epic SMN-6. FR-31, FR-33, FR-68, FR-71 ; D-PRD-123, D-PRD-134/A10 et AD-27/31.
+* Dépendances : 6.17–6.22
+* MVP Scrum/Kanban, I1–I2. Ni code ni tests techniques exécutés.
+* **Story publiée pour revue groupée Epic 6, non approuvée individuellement.**
 
 
 **Validation :** proposition publiée dans Jira pour revue groupée, non encore approuvée ; développement et recette non attestés.
