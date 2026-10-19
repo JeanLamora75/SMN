@@ -70,7 +70,7 @@ Les groupes ci-dessous constituent le **plan de travail** du PRD. Les exigences 
 | Groupe à spécifier | Principales références |
 | --- | --- |
 | Initialisation, produit unique, équipe, paramètres | F-01, F-05, F-41, F-49, F-112 à F-124 |
-| Interface web responsive, adaptée aux trois familles d'écrans | D-PRD-001, F-112 à F-115 |
+| Interface web responsive, adaptée aux trois familles d'écrans | D-PRD-001, F-112 à F-115, **FR-58 à FR-65 / D-PRD-127** |
 | Membres, calendriers, disponibilités, capacité | F-26 à F-39, F-53, F-58 à F-63 |
 | Périodes, événements, Daily et préparation des cérémonies | F-06, F-07, F-20 à F-23, F-43 à F-57, F-91 à F-96 |
 | Objectifs, KPI et imports de valeurs consolidées | F-08, F-14, F-16, F-19, F-64 à F-72 |
@@ -923,6 +923,36 @@ Sélection d'analyses dans HTML/PDF avec **origine, date, brief et retouches ide
 
 **Périmètre :** Scrum/Kanban au MVP, extension SAFe/ART v1.0. **TXT transmis manuellement puis réponse collée**, sans API IA. Stockage privé, intégrité, modèles initiaux, rétention et confidentialité des textes libres restent à préciser. **[Critères complets et points ouverts](briefs-analyses-ia.md)**.
 
+### 4.19 Parcours utilisateur et ergonomie — MVP Scrum/Kanban ; extension SAFe v1.0
+
+**Validation groupée D-PRD-127 — UX-01 à UX-08 (19/10/2026) :** huit exigences UX complètent le socle déjà validé de **Bootstrap 5**, interface responsive et FR/EN, initialisation Express/Guidée, bilans et sauvegardes. **[Critères d'acceptation détaillés](parcours-utilisateur-ergonomie.md)**.
+
+#### FR-58 — Tableau de bord de pilotage courant (UX-01)
+Afficher **équipe/produit, cycle courant, objectifs, KPI disponibles, événements Agile et points d'attention**, avec liens aux sources. Prévoir les cycles absents ou bilans en attente, sans création automatique d'une période ni chiffre fictif.
+
+#### FR-59 — Navigation fonctionnelle regroupée (UX-02)
+Organiser les accès en **Pilotage, Calendrier, Cycles et bilans, Registres, Reportings et briefs IA, Administration** ; menu compact et cohérent sur ordinateur/tablette/mobile, adapté au mode et aux fonctions effectivement disponibles.
+
+#### FR-60 — Liens de navigation contextuels (UX-03)
+Depuis un **indicateur, événement, alerte ou objet lié**, accéder à sa fiche source ou section pertinente. Conserver le périmètre historique et indiquer un objet inaccessible ; navigation seule **sans modification métier**.
+
+#### FR-61 — Préremplissage fiable et saisie minimale (UX-04)
+Proposer les **données connues avec fiabilité**, permettre la correction des champs modifiables et l'enrichissement progressif. **Champs facultatifs réellement facultatifs**, manque ≠ zéro, aucun contournement des protections de clôture ni des confirmations explicites.
+
+#### FR-62 — Calendrier central et filtres (UX-05)
+Consulter sur une **même interface** cycles, événements Agile/réunions, absences et indisponibilités pertinentes, avec filtres **type/période/équipe/membre autorisé**, accès aux fiches, fuseaux horaires cohérents et affichage des statuts réellement connus. Aucune modification implicite par glisser-déposer.
+
+#### FR-63 — Responsive et accessibilité des parcours essentiels (UX-06)
+Garantir **installation, dashboard, calendrier, cycles/bilans, registres, rapports et briefs IA** sur navigateur ordinateur/tablette/smartphone ; composants Bootstrap cohérents, navigation clavier, messages explicites et états non indiqués par couleur seule. **Niveau WCAG cible et mesures de recette restent à définir**, sans déclarer de conformité déjà mesurée.
+
+#### FR-64 — Protection des modifications non enregistrées (UX-07)
+Afficher les **changements non sauvegardés**, confirmations de réussite uniquement après persistance, erreurs et conséquences d'une sortie d'écran. Respecter les **sauvegardes indépendantes des blocs** (D-PRD-071/074) et les opérations **atomiques** de replanification (D-PRD-118) ; aucun autosave implicite destructeur.
+
+#### FR-65 — Assistance initiale progressive (UX-08)
+Conserver les parcours **Express / Guidé-Tutoré** vers le **même tableau de bord**, en demandant seulement les champs initialement obligatoires. Liste facultative de tâches de paramétrage **À faire / Terminée / Ignorée**, distincte des actions métier, avec terminaison automatique uniquement si constat fiable ; réglages modifiables ensuite selon leurs propres règles.
+
+**Périmètre :** Scrum/Kanban MVP, extension SAFe/ART v1.0. Les règles du **calendrier**, des **indisponibilités individuelles**, du **mode/produit fixes** et de l'**historique** demeurent applicables. Parcours détaillés, textes, icônes, tailles d'écran, version de navigateurs, niveau d'accessibilité, conservation des brouillons et filtres restent à concevoir. **[Critères complets et points ouverts](parcours-utilisateur-ergonomie.md)**.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP. **La saisie des heures réelles de début et de fin des réunions ainsi que le calcul automatique de l'heure réelle de fin sont reportés après le MVP (D-PRD-066)** ; la durée réelle reste modifiable.
@@ -964,43 +994,18 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 
 ## 9. Questions ouvertes à traiter progressivement
 
-- **FR-25 / D-PRD-120 à 122 :** risques/dépendances uniques et reliés à plusieurs cycles, protégés lors des replanifications, instantanés à la clôture et corrections tracées. [Détails](risques-dependances.md). Ouverts : liens transverses et reclôture.
-- **FR-34 à FR-41 / D-PRD-124 :** saisie rapide des six registres, liens, criticité 3×3 indicative, créations assistées, alertes, faits marquants et instantanés. [Critères](registres-qualitatifs.md). À préciser : matrice exacte, événements significatifs et réouverture.
-- **FR-3 / D-PRD-004 et D-PRD-005 :** catalogue des tâches de configuration, règles d'affichage et de réactivation, comptage de la progression, ainsi que la priorité entre état Ignorée choisi manuellement et achèvement détecté ultérieurement. Le principe du fonctionnement hybride est acté.
-- **FR-5 / D-PRD-007/009 à D-PRD-011 :** membres rapides avec nom provisoire, date d'arrivée par équipe, 3 membres/roles par défaut et pourcentages initiaux 100 % sous conditions F-62/F-63. Règles de validation complètes FR-5/FR-7. À préciser : enrichissement et reprise historique.
-- **FR-7 / D-PRD-010, D-PRD-012 :** effectif de 3 minimum dans le formulaire de création rapide, mais si l'effectif réel passe ensuite sous 3 à la suite d'un départ, **alerte non bloquante validée**. Reste à préciser où et combien de temps elle sera affichée. L'initialisation Express ne doit pas être bloquée par l'absence de membres (F-124).
-- **D-PRD-011 :** la valeur de la **marge de planification d'équipe**, distincte des pourcentages membre (F-32), n'est pas fixée ; ne pas en déduire un taux de 100 % de marge.
-- **FR-4 / D-PRD-006 :** principe de suppression des fiches vierges et de fin d'affectation/archivage réversible validé. Restent à spécifier les critères exacts d'une fiche sans historique, les confirmations, l'effet sur les affectations simultanées/futures et l'ergonomie de réactivation.
-- **FR-6 / D-PRD-008 :** adresse e-mail centralisée éditable dès le MVP ; son caractère facultatif est une interprétation cohérente avec le minimum FR-5, à rectifier si souhaité. **P-PRD-004 :** envoi d'e-mails ou ouverture d'Outlook, possibilité future sans engagement de version.
-- **FR-8 / D-PRD-013 :** calendrier individuel initial lundi-vendredi à temps plein, entièrement personnalisable. FR-9 précise le préremplissage de la localisation ; restent ouvertes les règles de date d'effet des changements.
-- **FR-9 / D-PRD-014 :** pays par défaut de la première installation, prise en compte de régions/villes, fuseaux et changements de localisation au fil du temps, avec impacts sur l'historique.
-- **FR-10 / D-PRD-015 à D-PRD-023 :** CSV fixe + ICS au MVP ; sept pays initiaux, fichiers France/Allemagne/Royaume-Uni trouvés par pays en répertoire interne, couverture N-2 à N+1, date et nom du jour férié requis. Maintenance, schéma CSV, fusion, chemin et ICS à préciser. Détails FR-10.
-- **FR-11 / D-PRD-021/026/027 :** particularités régionales saisies comme absences individuelles nommées et catégorisées, sans calendrier régional automatique au MVP ; capacité et calendrier impactés. Voir FR-11.
-- **FR-12 / D-PRD-024 à 027 :** absence unique accessible par deux parcours ; nom/motif et couleur catégorie visibles au calendrier. Pas de saisie groupée MVP ; UX mobile et hors affectation à préciser. Voir FR-12.
-- **FR-13 / D-PRD-027 à D-PRD-030 :** catégories d'absence administrables et historisées, noms/couleurs et valeurs initiales validées. Détails complets FR-13 ; à préciser : effet d'une désactivation sur les absences historiques.
-- **FR-15 / D-PRD-036 à D-PRD-038, D-PRD-049 et D-PRD-099 à D-PRD-120 :** Sprints de 1 à 4 semaines (2 par défaut), création à la demande jusqu'à 6 par lot, statuts et corrections tracés. Détails en FR-15/FR-24 ; ouverts : UX des replanifications et événements/capacités.
-- Frontière des fonctionnalités avancées entre MVP, version 1.0 et versions ultérieures.
-- **FR-14 / D-PRD-031 à D-PRD-035/114/115 :** capacité initiale figée, référence calculée et réalisé distingués ; saisies manuelles prioritaires, provenance/qualité et vide ≠ 0 ; recalcul par statut FR-14/FR-24. À préciser : réel partiel.
-- **FR-16 / D-PRD-039/040 :** passage automatique à **Terminé** en fin de Sprint, puis **Clôturé** seulement manuellement ; réouverture revient à **Terminé**, nouvelle clôture sans perte d'historique/capacité, KPI facultatifs. Date de fin, alertes et replanification historique à préciser ; voir FR-16.
-- **FR-1/FR-15/FR-17 / D-PRD-041 à D-PRD-044/D-PRD-049 :** cérémonies générées à la création du Sprint ; Daily 09 h, Sprint lundi 09 h à vendredi final 18 h par défaut ; paramètres du parcours guidé modifiables sans réécriture historique. Voir FR-1/FR-15/FR-17.
-- **FR-17 / D-PRD-045/050 à D-PRD-057/112/113 :** pas de Daily le jour du Planning lorsque concomitants, Review suivie de Rétro avant fin du Sprint, pause configurable, collisions signalées sans déplacement forcé, événements historiques préservés. Timeboxes et horaires en FR-17/FR-18.
-- **FR-17/FR-18 / D-PRD-057/058/060 :** cérémonies/réunions présumées tenues après créneau ; « Annulée » avant, « Non tenue » après, correctif historisé. Exception impactante annulée/non tenue : aucune déduction de capacité réelle. Événements historiques protégés. Voir FR-17 à FR-19.
-- **FR-18 / D-PRD-046 et D-PRD-112 à D-PRD-113 :** réunion exceptionnelle attachée à un Sprint et modèles de réunions personnalisées créés automatiquement à chaque nouveau Sprint, aux fréquences **quotidienne, hebdomadaire ou une fois par Sprint**, avec heure de début et durée paramétrables.
-- **FR-17/FR-18 / D-PRD-066 :** **pas de saisie d'heure réelle de début ou de fin** au MVP et pas de calcul d'heure réelle de fin ; conserver uniquement le créneau prévu et la durée réelle modifiable, sans déplacer les événements. À réexaminer dans une évolution future.
-- **FR-17/FR-18 / D-PRD-065 :** modifier la durée réelle ne déplace ni le créneau planifié ni d'autres réunions. Durées prévue/réelle et écart visibles même en dépassement. Voir FR-17/FR-18.
-- **FR-17 à FR-19 / D-PRD-064 :** durée réelle initialisée à la durée prévue et ajustable, conservée séparément dans calendrier/historique/reportings. Seules les réunions exceptionnelles tenues et impactantes déduisent du réel ; capacité initiale et anciens PDF intacts. Horaires réels post-MVP (D-PRD-066). Détails et effets des dépassements en FR-17 à FR-19.
-- **FR-17 à FR-19 / D-PRD-061 :** correction rétroactive et tracée des statuts Tenue/Annulée/Non tenue ; recalcul du réel pour réunions exceptionnelles impactantes, sans modifier capacité initiale, valeurs manuelles ni PDF. Voir FR-17 à FR-19.
-- **FR-18/FR-19 / D-PRD-047/048/059/060/062/063 :** seules réunions exceptionnelles tenues et impactantes (toggle désactivé par défaut) déduites de la capacité réelle des développeurs, sur base 8 h/JH, plages ou quotité, sans double déduction. Cérémonies standard/personnalisées non déduites ; valeurs manuelles et initiales figées protégées. Voir FR-18/FR-19.
-- **FR-20 / D-PRD-067 à D-PRD-078, D-PRD-108/116/117 :** bilan Scrum en quatre blocs, sauvegarde indépendante, dérivés prévisualisés, vide ≠ zéro et tendances sur cinq Sprints clôturés antérieurs/égaux. Formules en FR-20 ; à préciser : arrondis et UX.
-- **FR-23 / D-PRD-087 à D-PRD-120 :** périodes Kanban générées à la demande (7/14 jours ou mois complet par défaut), lundi proposé pour cycles hebdomadaires, création unitaire ou lot de six maximum. Contrôles, exceptions et points UX en FR-23/FR-24.
-- **FR-24 / D-PRD-094 à D-PRD-120 :** génération à la demande par lots (maximum **6 Sprints, 6 périodes Kanban ou 3 PI SAFe**), aperçu, contrôle des conflits et audit. Replanification sans propagation, choix explicite des événements, références de capacité recalculées sans écraser l'historique, conservation des métriques/objectifs/risques/dépendances ; validation atomique avec historique (D-PRD-111 à 120). PDF passés figés. Règles détaillées FR-24 ; UX/fuseaux/PI à préciser.
-- **FR-21/FR-22 / D-PRD-079 à D-PRD-121 :** bilan Kanban en quatre blocs, cinq KPI facultatifs (3 comptages, Cycle/Lead Time), quatre graphiques sur cinq périodes clôturées comparables. Durées en jours calendaires, affichées à une décimale sans perte de précision stockée. Détails FR-21/FR-22.
-- **FR-42 à FR-49 / D-PRD-125 :** reprise des Sprints, CSV consolidés, contrôles, protection des valeurs, provenance, bilans partiels, tendances et journal d'import. [Critères détaillés](reprise-imports-historiques.md). Ouverts : format CSV, doublons/conflits, stratégie des lots, cycles absents, reprise Kanban et états historiques manquants.
-- **FR-26 à FR-33 / D-PRD-123 :** reporting HTML/PDF (sections, modèles, historique, aperçu, FR/EN et confidentialité). [Critères](reportings-html-pdf.md). Ouverts : pagination, identité visuelle, stockage et sécurité.
-- **FR-50 à FR-57 / D-PRD-126 :** génération contextualisée, modèles administrables, TXT structuré, vérification confidentialité, archives immuables et duplication, réponse IA collée, journal d'analyses et reporting contextualisé. [Critères](briefs-analyses-ia.md). Ouverts : modèles initiaux, intégrité, stockage/rétention et sécurité des textes libres.
-- Confidentialité, mécanismes de protection des données, sauvegardes, accessibilité, langue des contenus libres et exports.
-- Navigateurs/versions cibles et modalités de recette de l'interface responsive ; aucun fonctionnement hors connexion ou emballage PWA n'est actuellement décidé.
-- Méthode de mesure des cinq conditions de succès et contre-indicateurs.
+**Les 37 questions ouvertes antérieures sont conservées intégralement**, avec leurs références et formulation au 19/10/2026, dans **[les questions ouvertes détaillées](questions-ouvertes-detaillees.md)**. Ce déplacement documentaire ne modifie **aucune décision métier ni aucun critère fonctionnel** : les exigences FR-1 à FR-65 restent dans la section 4, et les annexes de domaine restent la source de leurs critères détaillés.
+
+**Points ouverts à reprendre en priorité dans les prochaines étapes :**
+- **FR-58 à FR-65 / D-PRD-127 :** mise en page des écrans, parcours des liens et filtres, navigation mobile, conservation des brouillons, niveau d'accessibilité, navigateurs/tailles de référence et tests clavier. [Critères UX](parcours-utilisateur-ergonomie.md).
+- **FR-50 à FR-57 / D-PRD-126 :** modèles IA initiaux, stockage privé du TXT, sauvegardes, contrôle des textes libres et rétention. [Critères IA](briefs-analyses-ia.md).
+- **FR-42 à FR-49 / D-PRD-125 :** colonnes exactes CSV, conflits/lot total ou partiel, reprise Kanban et données historiques incomplètes. [Critères de reprise](reprise-imports-historiques.md).
+- **FR-34 à FR-41 / D-PRD-124 :** matrice de criticité 3×3, catégories de faits marquants, réouverture/reclôture et droits. [Critères qualitatifs](registres-qualitatifs.md).
+- **FR-26 à FR-33 / D-PRD-123 :** gabarits et pagination HTML/PDF, identité visuelle, stockage, confidentialité et accessibilité. [Critères Reporting](reportings-html-pdf.md).
+- **FR-25 / D-PRD-120 à D-PRD-122 :** droits/liens transverses et versions des instantanés en cas de reclôture. [Critères risques et dépendances](risques-dependances.md).
+- **Exigences transverses à arbitrer** : sécurité et autorisations, sauvegarde/restauration, résilience, politiques de conservation, seuils mesurables de performance/accessibilité, protocole de recette MVP et contraintes de pilotage du pilote.
+
+**Règle de suivi :** les décisions nouvelles seront intégrées aux FR et annexes concernées, et les questions résolues seront retirées du suivi actif de manière tracée. La version historique conservée dans l'annexe demeure accessible, même lorsque les choix sont ensuite tranchés.
 
 ## 10. Hypothèses
 
