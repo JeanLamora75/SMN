@@ -76,7 +76,7 @@ Les groupes ci-dessous constituent le **plan de travail** du PRD. Les exigences 
 | Objectifs, KPI et imports de valeurs consolidées | F-08, F-14, F-16, F-19, F-64 à F-72 |
 | Six catégories qualitatives, historique et points d'attention | F-11 à F-13, F-74 à F-90, F-110, F-111 |
 | Reprise rétrospective des Sprints et tendances | Product Brief, F-14, F-24, F-25, F-64, F-72, F-91 à F-96 |
-| Reportings HTML/PDF, modèles et contextualisation | Product Brief, F-10, F-15, F-24, F-25, F-97, F-117 à F-120 |
+| Reportings HTML/PDF, modèles et contextualisation | Product Brief, F-10, F-15, F-24/F-25, F-97, F-112, F-117 à F-120, **FR-26 à FR-33 / D-PRD-123** |
 | Briefs TXT IA et analyses historiques | F-98 à F-109 |
 | Extensions SAFe / ART de la version 1.0 | F-17, F-18, F-40, F-47, F-49 à F-52, F-67, F-68, F-73, F-94, F-95, F-119 |
 
@@ -799,6 +799,38 @@ Le responsable peut **revenir au formulaire pour modifier les paramètres ou l'o
 
 **À préciser :** schéma détaillé des registres, rattachements multiples ou transverses, contrôles des échéances et droits de correction. Cette FR précise la conservation lors de la replanification ; D-PRD-121 établit le registre et les liens multi-cycles. La gestion détaillée reste à préciser.
 
+### 4.15 Reporting HTML/PDF — MVP Scrum/Kanban ; extension ART en v1.0
+
+**Validation groupée D-PRD-123 — RPT-01 à RPT-08 (19/10/2026) :** huit exigences détaillées constituent le parcours de reporting de SMN, sans modifier les formats et le modèle en six sections déjà approuvés. **[Critères d'acceptation détaillés et scénarios](reportings-html-pdf.md)**.
+
+#### FR-26 — Lancer un rapport depuis la fiche d'un cycle (RPT-01)
+Le SM peut déclencher « Générer un rapport » depuis un Sprint Scrum ou une période Kanban. Le formulaire **préremplit cycle, périmètre, dates, statut, modèle et données fiables disponibles**, sans modifier les sources ni imposer d'autres saisies.
+
+#### FR-27 — Préremplir les six sections et permettre des commentaires volontaires (RPT-02)
+Les six sections standards (synthèse exécutive ; objectifs ; indicateurs et tendances ; événements Agile ; points d'attention ; décisions et actions) réutilisent **uniquement les données enregistrées**. Le SM peut ajouter introduction, commentaires et conclusion propres au rapport ; **aucun fait ou chiffre n'est inventé** et les compléments de rapport **n'écrasent pas les données métier**.
+
+#### FR-28 — Sélectionner les contenus du rapport (RPT-03)
+Le SM sélectionne **sections, ordre, KPI, graphiques, analyses et registres qualitatifs**, ainsi que la **profondeur historique configurable** ; les options d'un modèle sont restaurées et restent modifiables ponctuellement. Vision/Product Goal sélectionnables ; DoD/DoR facultatives en fin de document (texte disponible ou lien). **Aucune donnée absente n'est transformée en zéro**.
+
+#### FR-29 — Réutiliser des modèles de rapport (RPT-04)
+Un **modèle standard non supprimable**, utilisable et **duplicable**, est livré. Les modèles personnalisés mémorisent les **sections, leur ordre, les choix de contenu et la profondeur historique** ; modifier les réglages d'une génération ne modifie pas implicitement le modèle enregistré.
+
+#### FR-30 — Garantir la fidélité des tendances et données historiques (RPT-05)
+Distinguer **période examinée, statut de clôture, historique et provenance des valeurs**. Les **graphiques de tendance** suivent les règles existantes de **cinq cycles clôturés maximum**, sans limiter le reste de la profondeur historique sélectionnable. Utiliser les **instantanés de clôture des risques/dépendances** (D-PRD-122) pour les cycles clôturés ; afficher l'état courant des cycles non clôturés ; aucun chiffre passé reconstruit artificiellement, aucun PDF existant réécrit.
+
+#### FR-31 — Prévisualiser le rapport HTML et exporter un PDF fidèle (RPT-06)
+Prévisualiser **tout le contenu HTML**, revenir modifier les options puis exporter un **PDF cohérent avec la sélection et les données prévisualisées** ; seules les différences de mise en page/pagination sont acceptables. La prévisualisation seule ne crée aucune archive permanente obligatoire ; un échec d'export n'est pas présenté comme réussi.
+
+#### FR-32 — Produire les libellés en français ou anglais sans traduire les textes libres (RPT-07)
+Le rapport propose **FR/EN** pour titres, rubriques et libellés standard ; **commentaires, descriptions et objectifs restent dans leur langue d'origine**, sans traduction automatique. Le PDF et l'aperçu appliquent le même choix de langue standardisée.
+
+#### FR-33 — Présenter un rapport professionnel respectueux de la confidentialité (RPT-08)
+Le rapport affiche **produit, équipe ou ART, cycle, dates, statut et date/heure de génération**, et indique clairement les situations provisoires. Présentation lisible et **logo facultatif** ; **absences nominatives, e-mails, coordonnées et données individuelles non nécessaires exclus par défaut**. Ne pas déduire du reporting interne une autorisation d'exposer des informations individuelles dans les **briefs TXT IA**, soumis à F-106/F-108/F-109.
+
+**Périmètre :** FR-26 à FR-33 sont livrées pour Scrum/Kanban au **MVP** : HTML dans l'application et PDF partageable. L'extension **ART/SAFe v1.0** réutilisera ces exigences, avec données par équipe et consolidations strictement comparables (F-73). Les exports PPTX/DOCX/XLSX restent post-MVP, sans version attribuée. L'éditeur de mise en page avancé, la traduction automatique et les exports programmés ne sont pas inclus au MVP.
+
+**Règles transverses :** rapports sur demande sur périodes ouvertes ou clôturées (F-97), profondeur historique paramétrable (F-24/F-25), KPI facultatifs (F-71/F-72), fiches qualitatives historiques D-PRD-121/122, anciens PDF inchangés. Les critères complets sont dans l'[addendum Reporting](reportings-html-pdf.md) ; les détails d'ergonomie, de stockage, de sécurité et de pagination relèvent des travaux UX/architecture et du bloc sécurité.
+
 ## 5. Non-objectifs actés
 
 SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un système de tickets remplaçant Jira, ni un outil de notation des personnes ou d'animation détaillée des cérémonies. Les intégrations automatiques Jira et IA sont différées. Les formats PPTX, DOCX et XLSX sont prévus pour le produit cible mais exclus du MVP. **La saisie des heures réelles de début et de fin des réunions ainsi que le calcul automatique de l'heure réelle de fin sont reportés après le MVP (D-PRD-066)** ; la durée réelle reste modifiable.
@@ -807,7 +839,7 @@ SMN n'est ni un outil de saisie collaborative destiné aux membres, ni un systè
 
 Le MVP couvre **Scrum et Kanban** avec un cycle complet simplifié, les **six catégories qualitatives**, la **reprise manuelle des Sprints terminés**, la consultation et prévisualisation des rapports en **HTML** et l'export partageable en **PDF**.
 
-Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables.
+Le modèle standard prérempli du rapport propose six sections : 1. synthèse exécutive ; 2. objectifs ; 3. indicateurs et tendances ; 4. événements Agile ; 5. points d'attention ; 6. décisions et actions. Les sections peuvent être masquées, réorganisées et complétées ; vision, Product Goal, DoD et DoR sont sélectionnables. **Les parcours, critères et modèles détaillés validés au titre de D-PRD-123 figurent en FR-26 à FR-33 et dans [l'addendum Reporting](reportings-html-pdf.md).**
 
 Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **tableau de bord** de l'équipe (D-PRD-002 et D-PRD-003), avec une liste facultative de **tâches de configuration distinctes des actions métier**, pouvant être terminées automatiquement lorsque leur réalisation est détectable, ou terminées/ignorées manuellement (D-PRD-004, D-PRD-005, FR-3). Il permet la **création rapide d'au moins trois membres dans le parcours de configuration**, avec noms provisoires, dates d'arrivée par équipe, rôles Scrum Master/Product Owner/Développeur par défaut puis Développeur pour les suivants, champs de pourcentage membre préremplis à 100 % sous réserve des validations existantes (FR-5, FR-7), et **calendrier individuel initial lundi-vendredi à temps plein, personnalisable** (FR-8), avec **localisation proposée à partir de l'installation mais personnalisable par membre**, **chargement des fichiers nationaux disponibles dans le répertoire livré avec SMN selon le pays**, **gestion des pays et import de jours fériés en CSV au format fixe SMN ou en ICS**, et **particularités régionales gérées comme des absences individuelles nommées et catégorisées** dès le MVP (FR-9/FR-10/FR-11). Le **champ e-mail facultatif** figure sur la fiche centrale, sans envoi automatique de messages (FR-6). Le MVP est une **application web accessible depuis un navigateur** avec une **interface responsive ordinateur, tablette et smartphone** (D-PRD-001). Il est disponible en **français et anglais**. **Bootstrap 5** est le framework CSS acté, avec personnalisation par palettes et modes clair/sombre. Les KPI restent facultatifs dans tous les modes ; valeur absente et zéro ne sont pas équivalents. Le brief IA TXT est transmis manuellement à une IA externe ; aucune API IA n'est exigée.
 
@@ -872,7 +904,7 @@ Sécurité et accès ; confidentialité des informations individuelles et des co
 - **FR-24 / D-PRD-094 à D-PRD-120 :** les règles validées de génération et de replanification figurent intégralement en FR-24 : génération uniquement sur demande (jusqu'à **6 Sprints Scrum, 6 périodes Kanban ou 3 PI SAFe par lot**), contrôle des chevauchements, aperçu et confirmation des lots multiples, création unitaire simplifiée, noms modifiables et audit (D-PRD-094 à D-PRD-110). Pour modifier un cycle existant : pas de propagation des dates (D-PRD-111), choix explicite de conserver/recalculer les événements éligibles (D-PRD-112/113), références de capacité recalculées mais historiques et saisies manuelles protégés (D-PRD-114/115), métriques et objectifs préservés (D-PRD-116/117), aperçu global et transaction atomique (D-PRD-118), historique détaillé (D-PRD-119), risques et dépendances conservés avec alertes sur échéances (D-PRD-120). Les **PDF antérieurs restent figés**. À préciser : ergonomie, catalogue des erreurs, fuseaux et détails PI/itérations SAFe. Le présent rappel ne remplace pas les critères précis de FR-24.
 - **FR-21 / D-PRD-079, D-PRD-081 à D-PRD-086, D-PRD-108, D-PRD-110 et D-PRD-114 à D-PRD-121 ; FR-22 / D-PRD-080 à D-PRD-086, D-PRD-116 :** bilan Kanban à quatre blocs validé. Le bloc Métriques comprend cinq valeurs facultatives : trois comptes d'éléments (commencés, terminés/Throughput, WIP final) et deux durées moyennes (Cycle Time, Lead Time), renseignables manuellement sans intégration Jira automatique. Le bloc Tendances comporte **quatre graphiques** sur jusqu'à cinq périodes Kanban clôturées : **trois graphiques de comptages distincts** (D-PRD-081), puis **un graphique à deux courbes Cycle Time et Lead Time exprimées en jours calendaires** (D-PRD-084/D-PRD-083). Aucun zéro fictif pour les données absentes ; les conventions de mesure doivent être compatibles, sans valeurs provisoires non enregistrées. **Les deux durées moyennes s'affichent avec une décimale dans les champs du bilan et le graphique combiné (D-PRD-085)**, sans réduire la précision enregistrée ; l'absence de donnée ne devient pas 0,0. **Les moyennes sont calculées par la source sur les éléments achevés (Cycle Time) ou livrés (Lead Time) pendant la période, même si leur début ou demande est plus ancien, en excluant les éléments inachevés/non livrés (D-PRD-086)**. Restent à préciser les modalités techniques d'arrondi, la définition exacte des états et les frontières de comptage, la source/provenance et la présentation responsive/accessibilité. SAFe demeure en version 1.0.
 - Méthodes de calcul et unités exactes des KPI ; correction, traçabilité et imports CSV.
-- Gabarits HTML/PDF et amplitude des personnalisations du rapport.
+- **FR-26 à FR-33 / D-PRD-123 :** huit règles de reporting HTML/PDF validées globalement (RPT-01 à RPT-08) : démarrage depuis le cycle, six sections préremplies, sélection des données, modèles, historique fidèle, prévisualisation HTML/PDF, libellés FR/EN, confidentialité/branding sobre. Critères détaillés : [reportings-html-pdf.md](reportings-html-pdf.md). Restent à concevoir : pagination, ergonomie responsive, identité visuelle exacte, stockage/gestion du PDF et sécurité d'accès.
 - Confidentialité, mécanismes de protection des données, sauvegardes, accessibilité, langue des contenus libres et exports.
 - Navigateurs/versions cibles et modalités de recette de l'interface responsive ; aucun fonctionnement hors connexion ou emballage PWA n'est actuellement décidé.
 - Méthode de mesure des cinq conditions de succès et contre-indicateurs.
