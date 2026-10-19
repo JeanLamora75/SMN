@@ -9028,7 +9028,7 @@ Préparer des TXT plats à transmettre manuellement, archiver leurs versions exa
 * Epic : SMN-9 ; FR-50 ; D-PRD-126/IA-01 ; F-98/103.
 * Dépendances antérieures : Cycles Scrum/Kanban Epics 4/7 ; préparation de rapport Epic 6.
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
-* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9074,7 +9074,7 @@ En tant que Scrum Master Administrateur, je veux disposer de plusieurs modèles 
 
 #### Traçabilité et dépendances
 
-Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrément I5. Proposition pour revue globale de l'Epic 9 ; aucun développement ni recette.
+Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrément I5. Validation fonctionnelle globale acquise le 19/10/2026 ; aucun développement ni recette.
 
 #### Validation fonctionnelle globale
 
@@ -9125,7 +9125,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-51 ; D-PRD-126/IA-02 ; F-103/104.
 * Dépendances antérieures : Story 9.2 ; accès Administrateur Epic 1.
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
-* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9176,7 +9176,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-51, FR-52 ; D-PRD-126/IA-02/03 ; RPT-03/04.
 * Dépendances antérieures : Stories 9.1–9.3.
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
-* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9227,7 +9227,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-52, FR-53 ; D-PRD-126/IA-03/04 ; FR-14/20/22/41.
 * Dépendances antérieures : Story 9.1 ; projections de reporting Epic 6 et registres Epic 5.
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
-* **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9278,7 +9278,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-52 ; D-PRD-126/IA-03 ; F-103/108 ; RPT-07.
 * Dépendances : Stories 9.4–9.5.
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
-* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9329,7 +9329,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-52, FR-53 ; D-PRD-126/IA-03/04 ; F-104/109.
 * Dépendances : Story 9.6.
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
-* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9380,7 +9380,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-53, FR-52 ; D-PRD-126/IA-04 ; F-106/108 ; AD-31.
 * Dépendances : Stories 9.5–9.7 ; sécurité serveur Epic 1.
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
-* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9431,7 +9431,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-53 ; D-PRD-126/IA-04 ; F-109 ; AD-31.
 * Dépendances : Stories 9.6–9.8.
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
-* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9482,7 +9482,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic : SMN-9 ; FR-53, FR-55 ; D-PRD-126/IA-04/06 ; F-102/106/108.
 * Dépendances : Story 9.9 et permissions Epic 1.
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
-* **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9533,7 +9533,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 : FR-54, FR-53 ; D-PRD-126/IA-05 ; F-99/107 ; AD-27.
 * Dépendances : Stories 9.6–9.10 ; stockage privé et audit Epics 1/2.
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
-* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9584,7 +9584,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 : FR-54, FR-53 ; D-PRD-126/IA-05 ; AD-31 ; F-107.
 * Dépendances : Story 9.11 ; matrice de droits Epic 1.
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
-* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9635,7 +9635,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 : FR-54 ; D-PRD-126/IA-05 ; F-99/107.
 * Dépendances : Stories 9.11–9.12 ; brouillon et confidentialité 9.7–9.9.
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
-* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9686,7 +9686,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 : FR-55 ; D-PRD-126/IA-06 ; F-98/100/102.
 * Dépendances : Stories 9.11–9.12 ; pas de transmission automatique.
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
-* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9737,7 +9737,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 : FR-55, FR-54 ; D-PRD-126/IA-06 ; F-101.
 * Dépendances : Story 9.14 et contrôles de transaction Epic 2.
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
-* **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9788,7 +9788,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 ; FR-56, FR-52 ; D-PRD-126/IA-07 ; F-98/100/105.
 * Dépendances : Cycles déjà définis Epics 4/7 ; journal qualitatif Epic 5 ; aucune autre Story Epic 9 requise.
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
-* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9839,7 +9839,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 ; FR-56, FR-55 ; D-PRD-126/IA-07 ; F-98/100/101.
 * Dépendances : Stories 9.14 à 9.16.
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
-* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9890,7 +9890,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 ; FR-56, FR-57 ; D-PRD-126/IA-07/08 ; F-100/105.
 * Dépendances : Stories 9.14–9.17.
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
-* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9941,7 +9941,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 ; FR-56, FR-55, FR-54 ; D-PRD-126/IA-06/07 ; F-101.
 * Dépendances : Stories 9.11, 9.15, 9.17.
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
-* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -9992,7 +9992,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 ; FR-56, FR-52, FR-53, FR-57 ; D-PRD-126/IA-03/07/08 ; F-105/108.
 * Dépendances : Stories 9.6–9.9 et 9.16–9.18.
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
-* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
@@ -10043,7 +10043,7 @@ Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validati
 * Epic SMN-9 ; FR-57, FR-56 ; D-PRD-126/IA-08 ; D-PRD-123 ; RPT-02/07.
 * Dépendances : Stories 9.16–9.20 ; sélection et export HTML/PDF Epic 6.
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
-* **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
+* **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; aucun développement ni test exécuté.**
 
 #### Validation fonctionnelle globale
 
