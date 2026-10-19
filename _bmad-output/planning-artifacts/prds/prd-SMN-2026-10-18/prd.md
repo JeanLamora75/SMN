@@ -26,6 +26,8 @@ Product Brief approuvé le 18/10/2026 : `_bmad-output/planning-artifacts/briefs/
 
 **Accès rapide :** [arbitrages validés D-PRD-132–136](arbitrages-metier-valides-2026-10-19.md) · [séquencement MVP I0–I6](sequencement-mvp-d-prd-131.md) · [reporting](reportings-html-pdf.md) · [registres](registres-qualitatifs.md) · [historique et CSV](reprise-imports-historiques.md) · [IA](briefs-analyses-ia.md) · [UX](parcours-utilisateur-ergonomie.md) · [sécurité](securite-exploitation.md) · [recette](recette-finalisation-mvp.md) · [passation Winston / réserves](handoff-architecture-winston.md).
 
+> **Amendement applicable D-PRD-137 :** une équipe unique par installation Scrum/Kanban au MVP ; plusieurs équipes dans le train SAFe v1.0. Vision, Product Goal, DoD et DoR rattachés à l'équipe ou au train selon le mode. [Règles et Stories productrices](clarification-equipe-contexte-d-prd-137.md). Les anciennes règles multiéquipes sont limitées au futur SAFe.
+
 ## 1. Vision — socle validé
 
 Scrum Master Notebook (SMN) est un carnet de bord professionnel destiné au Scrum Master puis au Release Train Engineer. Il réunit la mémoire quantitative et qualitative du fonctionnement des équipes Agile afin de préparer et produire des reportings contextualisés, explicables et partageables à la demande, avec un effort de saisie réduit.
@@ -49,9 +51,9 @@ Le problème métier réunit trois difficultés : le temps nécessaire à la pr�
 ## 3. Glossaire de référence
 
 - **Installation SMN :** instance dédiée à un seul produit de référence, dont l'identité reste fixe ; le mode Scrum, Kanban ou SAFe y est également fixe.
-- **Produit de référence :** produit suivi par l'installation, pouvant porter une vision et un Product Goal historisés.
+- **Produit de référence :** produit unique et fixe suivi par l'installation ; vision et Product Goal historisés rattachés à l'équipe en Scrum/Kanban et au train en SAFe (D-PRD-137).
 - **Équipe :** collectif Scrum ou Kanban associé au produit de référence.
-- **Membre :** personne référencée une seule fois dans l'installation et pouvant être affectée à plusieurs équipes, avec un historique de disponibilité et de participation (F-26 à F-31). Sa fiche centrale peut inclure une adresse e-mail (D-PRD-008).
+- **Membre :** personne référencée une seule fois dans l'installation, affectée à son équipe unique Scrum/Kanban au MVP ; affectations multiéquipes réservées au train SAFe v1.0, avec historique daté de disponibilité et de participation (D-PRD-137 ; F-26 à F-31). Sa fiche centrale peut inclure une adresse e-mail (D-PRD-008).
 - **Fiche provisoire :** membre créé lors de l'ajout rapide, doté d'un nom provisoire modifiable, d'une date d'arrivée d'affectation initialisée et d'un rôle Agile proposé, puis enrichissable ultérieurement (D-PRD-007, D-PRD-009).
 - **Date d'arrivée dans une équipe :** date de début effective de l'affectation d'un membre à cette équipe, indépendante de la date de création de sa fiche centrale et des dates de ses autres affectations (D-PRD-009).
 - **Affectation :** rattachement daté d'un membre à une équipe ; y mettre fin ne supprime ni sa fiche centrale ni ses affectations dans d'autres équipes.
@@ -127,7 +129,7 @@ Après une initialisation Express ou Guidée/Tutorée, le Scrum Master peut iden
 
 ### 4.2 Cycle de vie des membres — MVP
 
-**Description :** les membres sont définis de manière centralisée et peuvent participer à plusieurs équipes (F-26 à F-31). Le Scrum Master doit pouvoir corriger une création faite par erreur sans compromettre l'historique des équipes, des capacités et des rapports. La suppression définitive, la fin d'affectation et l'archivage ne sont pas interchangeables.
+**Description :** les membres sont définis de manière centralisée et affectés à l'équipe unique de l'installation Scrum/Kanban au MVP ; la participation à plusieurs équipes est réservée à SAFe v1.0 (D-PRD-137 ; F-26 à F-31). Le Scrum Master doit pouvoir corriger une création faite par erreur sans compromettre l'historique des équipes, des capacités et des rapports. La suppression définitive, la fin d'affectation et l'archivage ne sont pas interchangeables.
 
 #### FR-4 — Supprimer, retirer d'une équipe ou archiver un membre (validé : D-PRD-006, D-PRD-012 ; F-26 à F-31, F-58 à F-63, F-93)
 
@@ -155,7 +157,7 @@ Lors de la configuration d'une équipe, le Scrum Master peut indiquer un **nombr
 - La **date d'arrivée est propre à l'affectation d'un membre dans chaque équipe** (D-PRD-009, F-26/F-28/F-31) ; lors de sa création rapide, elle est proposée à la **date de création de la fiche membre**, puis reste modifiable. Un même membre peut avoir des dates d'arrivée différentes dans deux équipes ; la date de création de la fiche centrale reste distincte.
 - Le **rôle Agile est obligatoire** et prérempli selon la position du membre dans la création rapide (Scrum Master / Product Owner / Développeur, puis Développeur pour les suivants). Il reste modifiable selon le catalogue de rôles de l'équipe (F-38, F-39, D-PRD-010).
 - Les **paramètres de pourcentage du membre** sont proposés à **100 %** lorsqu'applicables (D-PRD-011) : temps contractuel, taux d'affectation à l'équipe, part du rôle Agile initial, coefficient de contribution. Le rôle initial représente 100 % de la répartition des rôles de ce membre dans cette équipe tant qu'aucun autre rôle n'est ajouté ; cela maintient la somme à 100 % (F-63).
-- La somme des affectations simultanées d'un même membre à plusieurs équipes **ne dépasse jamais 100 %** de son temps contractuel (F-62). Une nouvelle affectation préremplie à 100 % qui ferait dépasser cette limite doit être corrigée avant validation ; le préremplissage n'écarte pas le contrôle bloquant.
+- En SAFe v1.0, la somme des affectations simultanées d'un même membre à plusieurs équipes **ne dépasse jamais 100 %** de son temps contractuel (F-62). Au MVP, seule l'affectation à l'équipe unique est disponible et reste bornée au temps contractuel (D-PRD-137). Une nouvelle affectation préremplie à 100 % qui ferait dépasser cette limite doit être corrigée avant validation ; le préremplissage n'écarte pas le contrôle bloquant.
 - Un membre ayant 100 % d'activité Scrum Master ou Product Owner, sans part Développeur, n'ajoute pas de capacité de développement via ces rôles (F-58/F-59). Les **KPI de Sprint/Kanban restent facultatifs** et ne doivent pas être préremplis artificiellement à 100 % (F-72). La **marge de planification d'équipe** est un paramètre distinct (F-32) : son éventuelle valeur par défaut exacte reste à spécifier.
 - Le Scrum Master peut revenir compléter la fiche et ses données de capacité (calendrier, disponibilités, pourcentages d'affectation, parts d'activité par rôle, coefficient de contribution) ; toutes les règles bloquantes applicables sont respectées dès lors que les affectations sont finalisées (F-62/F-63).
 - Tant que les données requises pour calculer une contribution ne sont pas suffisantes et valides, la capacité correspondante est affichée **non calculable**, jamais présumée égale à zéro. Aucune fiche provisoire ne doit créer artificiellement une capacité dans les bilans.
@@ -1092,3 +1094,22 @@ Aucune hypothèse fonctionnelle additionnelle n'est présentée comme une décis
 ## Complément métier final — D-PRD-132 à 136
 
 L'[annexe des cinq arbitrages approuvés](arbitrages-metier-valides-2026-10-19.md) complète les FR existantes sans renumérotation. A10 : archivage automatique de tout PDF exporté avec succès, sans purge automatique par ancienneté. A11 : traitement différencié des données individuelles et **30 jours par défaut pour les sauvegardes gérées**, distincts de la conservation PDF. AD-31 : **deux rôles pour le MVP (Administrateur et Utilisateur)** ; Utilisateur en lecture seule collective avec téléchargement des PDF/TXT autorisés, sans donnée individuelle ni génération. Les mentions antérieures « ouvert » et « trois profils » ne prévalent plus sur ces décisions explicites. Séquencement I0–I6 et PostgreSQL maintenus.
+
+
+## D-PRD-137 — Équipe unique MVP et rattachement du contexte Agile
+
+**19 octobre 2026 — décision explicitement validée par l'utilisateur, puis mise à jour de Jira et de la documentation autorisée.**
+
+| Règle | Scrum / Kanban — MVP | SAFe — v1.0 |
+| --- | --- | --- |
+| Équipes par installation | Exactement une équipe | Plusieurs équipes dans le train |
+| Vision et Product Goal | Rattachés à l'équipe | Rattachés au train (ART) |
+| DoD et DoR | Rattachées à l'équipe | Rattachées au train (ART), communes aux équipes |
+
+Le produit reste unique et fixe pour la durée de l'installation. Le MVP n'expose aucun ajout de seconde équipe interne, aucune affectation multiéquipes interne et aucun écran ART. Le serveur doit refuser ces opérations même par API. Les dépendances vers des équipes externes restent permises par nom libre, sans créer d'équipe interne ni de compte. Les règles multiéquipes antérieures sont réservées à SAFe v1.0 ; elles ne constituent plus des critères MVP.
+
+Vision et Product Goal restent distincts et facultatifs, saisissables/modifiables par l'Administrateur, avec versions datées conservées. DoD et DoR restent facultatives, sous forme de texte interne ou de lien externe ; les révisions enregistrées restent identifiables. Un historique d'URL ne garantit ni l'archivage ni l'historicité du contenu distant. Ces contenus ne changent pas le produit fixe, les KPI ou les objectifs de cycle et ne réécrivent pas les anciens PDF. L'Utilisateur n'a aucun droit de modification ; sa consultation collective autorisée conserve les protections de D-PRD-136.
+
+**Découpage explicite :** Story 3.24 / [SMN-221](https://lmn24.atlassian.net/browse/SMN-221) (vision/Product Goal) et Story 3.25 / [SMN-222](https://lmn24.atlassian.net/browse/SMN-222) (DoD/DoR), sous Epic 3, I1–I2 ; Story 6.9 / SMN-120 consomme ces données et leurs versions. Les contrats peuvent prévoir le propriétaire ART futur, sans implémentation SAFe au MVP.
+
+Cet amendement complète les FR existantes (notamment FR-1/5/7/27/28/61/66/70/71) et les décisions F-26–34/F-58–63/F-116–124, sans renumérotation ni annulation de l'historique. Il prévaut sur les passages antérieurs incompatibles et clôt les ambiguïtés métier C1/C2 du contrôle de préparation, une fois la correspondance Jira vérifiée. Les réserves techniques C3/C4 et le séquencement I0–I6 demeurent. Aucun développement ni test applicatif effectué.

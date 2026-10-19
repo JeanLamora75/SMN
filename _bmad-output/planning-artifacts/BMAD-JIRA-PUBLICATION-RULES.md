@@ -47,3 +47,8 @@
 - **Prochaine étape recommandée par le catalogue BMAD local** : `[SP] Sprint Planning`, skill `.agents/skills/bmad-sprint-planning/SKILL.md`, qui effectue le contrôle de *readiness* (PASS/CONCERNS/FAIL) puis, sur PASS, génère `sprint-status.yaml` dans `implementation_artifacts`.
 - **L'enchaînement réel** : contrôle d'implémentabilité, préparation des incréments I0–I6, suivi de Sprint, puis workflow `[BD] Build` sur les Stories prêtes. Ne pas déclarer le MVP développé, testé ou prêt au pilote ; les décisions cumulatives de l'Epic 10 ne sont pas démontrées.
 - **Garde-fous** : la finalisation du workflow n'autorise pas le commit sur `main`, une fusion/PR, un déploiement ou un développement sans instruction supplémentaire. Travail en français et sans outils locaux supplémentaires imposés (Windows 11 sans privilèges administrateur ni IDE).
+
+
+## Amendement autorisé du 19/10/2026 — D-PRD-137
+
+Après clarification explicite, l'utilisateur a demandé « Met a jour le jira et la documentation ». Cette autorisation couvre les 7 Stories et 2 Epics corrigées pour le périmètre d'équipe et la création de 3.24/SMN-221 et 3.25/SMN-222, producteurs des données de 6.9. Backlog actuel : 10 Epics, 212 Stories (222 tickets). La clôture historique Create Epics and Stories reste celle des 210 Stories initiales ; elle n'est pas présentée comme une revue globale des nouvelles Stories. Aucun label a-relire ou proposition-fonctionnelle ajouté ; les nouveaux scénarios sont dérivés des décisions validées et publiés sur mandat, sans prétendre à une recette. Branche documentaire de travail : docs/bmad-sprint-readiness-20261019, PR 9 non fusionnée. Pas d'autorisation de développement ou de fusion.

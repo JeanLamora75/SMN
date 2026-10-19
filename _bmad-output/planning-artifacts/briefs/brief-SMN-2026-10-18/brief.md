@@ -162,3 +162,8 @@ Faire mûrir SMN par l'usage personnel d'abord, par un pilote ensuite seulement 
 ---
 
 *Les 124 décisions F-01 à F-124 restent dans le registre de référence. Toute nouvelle décision issue du Product Brief devra être validée avant d'être présentée comme actée.*
+
+
+## Clarification postérieure au Brief — D-PRD-137 du 19/10/2026
+
+Le Brief est conservé dans son état validé, avec cette précision de portée applicable : une équipe unique par installation Scrum/Kanban au MVP ; plusieurs équipes dans le train SAFe en v1.0. Vision, Product Goal, DoD et DoR appartiennent à l'équipe en Scrum/Kanban et au train en SAFe. Produit unique et fixe inchangé. [Décision normative](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).

@@ -194,3 +194,10 @@ Voir [sécurité et exploitation](SECURITE-EXPLOITATION.md) et [revue/traçabili
 ## Contrats métier consolidés postérieurs à l'architecture initiale
 
 Appliquer la [spécification validée D-PRD-132 à 136](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md) : calcul pur de la matrice des risques ; événements sources idempotents pour faits automatiques ; rendu PDF archivé comme objet immuable avec manifeste et empreinte, non crée par aperçu ; opérations d'effacement exceptionnel contrôlé (PII, snapshots, archives et restauration) ; **RBAC minimal à deux rôles**, sans table de permissions détaillées par équipe. Conserver les transactions, interfaces de modules et invariants Vn de la première conception ; aucun code, migration ou test n'est effectué par cette mise à jour documentaire.
+
+
+## Amendement D-PRD-137 — Propriétaire et cardinalité
+
+L'installation possède exactement une équipe en Scrum/Kanban MVP. La cardinalité générale Installation → plusieurs Team du diagramme décrit l'extension SAFe v1.0 : elle n'autorise pas la création d'une seconde équipe au MVP. Valider la cardinalité côté serveur et dans les opérations transactionnelles d'installation ; ne pas s'appuyer sur le seul masquage de l'interface.
+
+Organisation possède la vision, le Product Goal, la DoD et la DoR et leurs révisions : référence d'équipe au MVP, référence de train en SAFe futur. Le produit de référence reste une identité fixe distincte de ce propriétaire. Conserver auteur/horodatage/version des contenus ; texte ou URL pour DoD/DoR sans supposer archivé le document distant. Reporting lit ces contrats via Stories 3.24/3.25 puis 6.9. Aucun schéma SQL final ou code n'est créé par cet amendement. [Décision normative](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).

@@ -103,3 +103,8 @@
 ## Addendum du 19/10/2026 — D-PRD-134/A10
 
 Un PDF effectivement exporté est automatiquement archivé comme **fichier final exact** dans SMN ; la prévisualisation HTML ne crée pas d'archive. Plusieurs PDF d'un cycle/Vn restent indépendants, consultables dans une bibliothèque filtrable et depuis le cycle. Aucun effacement automatique selon l'âge. Suppression/masquage administrateur avec contrôle et audit, sans suppression des cycles et historiques ; sauvegarde/restauration cohérentes et téléchargement par l'**Utilisateur** pour les documents autorisés. Les PDF déjà produits ne sont pas réécrits ; une opération exceptionnelle A11 peut retirer un fichier contenant des informations personnelles à effacer. [A10-AC01 à 16](arbitrages-metier-valides-2026-10-19.md).
+
+
+## Amendement de rattachement — D-PRD-137
+
+En Scrum/Kanban, vision, Product Goal, DoD et DoR viennent de l'équipe unique, avec versions conservées par les Stories 3.24/SMN-221 et 3.25/SMN-222. La Story 6.9/SMN-120 en dépend pour ses contenus. En SAFe v1.0, ces quatre contenus sont rattachés au train et communs aux équipes. Le produit fixe reste inchangé ; les versions documentaires et les anciens PDF ne sont pas réécrits. [Décision](clarification-equipe-contexte-d-prd-137.md).

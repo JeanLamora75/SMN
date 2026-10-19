@@ -11,7 +11,7 @@
 | PRD — John | [Final](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/prd.md), 81 FR et décisions jusqu'à D-PRD-136 |
 | Architecture — Winston | [Contrat final AD-1 à AD-31](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md), réserves techniques maintenues |
 | Create Epics and Stories | [Final](../_bmad-output/planning-artifacts/epics.md), quatre étapes achevées, confirmation utilisateur C — Complete Workflow |
-| Jira | 10 Epics / 210 Stories, toutes À faire lors de la vérification du 19/10 |
+| Jira | 10 Epics / 212 Stories après D-PRD-137 ; 222 tickets À faire lors de la relecture du 19/10 |
 | Sprint Planning | [Contrôle du 19/10 : CONCERNS](../_bmad-output/planning-artifacts/implementation-readiness.md) ; suivi non généré, choix corriger/poursuivre attendu |
 | Développement / recette / pilote | Aucune implémentation applicative, campagne de recette ou aptitude au pilote attestée |
 
@@ -27,7 +27,7 @@ Les décisions UX sont documentées dans le PRD et les UX-DR ; aucun livrable au
 
 ## Prochaine étape officielle
 
-**[SP] Sprint Planning — `bmad-sprint-planning`** activé le 19/10 : [verdict CONCERNS et actions](../_bmad-output/planning-artifacts/implementation-readiness.md). Choix utilisateur requis par le gate entre corriger les réserves ou poursuivre malgré elles. Aucun `sprint-status.yaml` généré. Les constats concernent notamment les producteurs du contexte produit, une ambiguïté de cardinalité équipe, les choix techniques I0 et le séquencement des capacités.
+**[SP] Sprint Planning — `bmad-sprint-planning`** activé le 19/10 : [verdict CONCERNS et actions](../_bmad-output/planning-artifacts/implementation-readiness.md). Choix utilisateur requis par le gate entre corriger les réserves ou poursuivre malgré elles. Aucun `sprint-status.yaml` généré. D-PRD-137 résout les ambiguïtés métier C1/C2 : équipe unique au MVP et quatre contenus rattachés à l'équipe, train en SAFe. Stories 3.24/SMN-221 et 3.25/SMN-222 ajoutées, 7 Stories et 2 Epics corrigées. Les choix techniques I0 et le séquencement C3/C4 restent ouverts.
 
 Le catalogue BMAD 6.12.4 installé prévoit : contrôle de préparation **PASS/CONCERNS/FAIL**, puis génération du suivi `sprint-status.yaml` sur PASS. Aucun résultat de ce contrôle n'est acquis par cette consolidation. Après planification, **[BD] Build — `bmad-build`**, avec priorité au socle et aux preuves I0 conformément au séquencement validé.
 

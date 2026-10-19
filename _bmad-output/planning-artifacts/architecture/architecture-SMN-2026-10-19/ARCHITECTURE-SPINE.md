@@ -8,7 +8,7 @@ scope: "MVP Scrum/Kanban ; invariants extensibles à SAFe/ART v1.0"
 status: final
 created: "2026-10-19"
 updated: "2026-10-19"
-binds: ["FR-1..FR-81", "D-PRD-130", "D-PRD-131", "D-PRD-132..136"]
+binds: ["FR-1..FR-81", "D-PRD-130", "D-PRD-131", "D-PRD-132..137"]
 sources:
   - "../../prds/prd-SMN-2026-10-18/prd.md"
   - "../../prds/prd-SMN-2026-10-18/handoff-architecture-winston.md"
@@ -24,6 +24,8 @@ companions:
 # Architecture Spine — Scrum Master Notebook
 
 > **Contrat de cohérence architectural, non constat d'implémentation.** Les AD-1 à AD-13 reprennent sans renumérotation les décisions déjà enregistrées dans le journal de cette branche. Les AD suivantes distillent les validations conversationnelles de Winston. Le PRD et ses annexes prévalent pour les règles métier. **Statut final du contrat documentaire, avec réserves à portes de sortie** : le lint officiel BMAD, les relectures indépendantes, les versions/bibliothèques, le packaging Windows et les tests métier ne sont pas attestés. Les décisions **A7/A8/A10/A11 sont maintenant validées**, et AD-31 précise **Administrateur / Utilisateur uniquement au MVP** (D-PRD-132 à 136). Voir [revue finale des arbitrages](ARBITRAGES-FINAUX.md) et [contrôle final documentaire](CONTROLE-FINAL-BMAD.md).
+
+> **Amendement architectural D-PRD-137 :** un produit fixe et exactement une équipe au MVP Scrum/Kanban ; plusieurs équipes seulement au sein du train SAFe v1.0. Les quatre contenus Vision/Product Goal/DoD/DoR sont possédés par l'équipe au MVP et par le train en SAFe. Cette précision borne les règles multiéquipes des AD, sans développer SAFe.
 
 ## Design Paradigm
 
@@ -56,7 +58,7 @@ flowchart TD
 ### AD-2 — Propriétaire unique par donnée [ADOPTED]
 - **Binds:** installation, membres, cycles, objectifs/mesures, registres, restitution.
 - **Prevents:** copies divergentes et écritures directes croisées.
-- **Rule:** toute mutation passe par le module propriétaire ; les autres consomment des contrats de lecture ou des opérations de ce propriétaire.
+- **Rule:** toute mutation passe par le module propriétaire ; Organisation possède les contenus et versions Vision/Product Goal/DoD/DoR avec référence d'équipe au MVP, référence ART en SAFe futur ; les autres consomment des contrats de lecture ou des opérations de ce propriétaire.
 
 ### AD-3 — Orchestration des mutations transverses [ADOPTED]
 - **Binds:** génération, replanification, clôture, import, audit.
