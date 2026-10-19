@@ -97,14 +97,22 @@
 3. Pour un cycle **clôturé**, les **bilans historiques et nouveaux rapports** utilisent les **états instantanés enregistrés à la clôture**, sans substituer le dernier statut de la fiche centrale à l'état passé.
 4. Les registres centraux peuvent **continuer d'évoluer pour les cycles suivants** ; les anciens instantanés et **PDF déjà exportés** ne sont **ni écrasés ni reconstruits automatiquement**.
 5. Pour un **fait marquant**, figer l'existence, la date et les informations de restitution connues à la clôture ; ne pas lui inventer de statut de workflow s'il n'en possède pas. Conserver l'identité et les liens de la source, y compris en cas de masquage/promotion distincte dans le journal.
-6. Les corrections après clôture, la **réouverture/reclôture**, les versions des instantanés et la reprise de périodes historiquement closes sans données antérieures fiables doivent être **spécifiées avant implémentation** ; aucune opération ne réécrit silencieusement un instantané historique ou ancien PDF.
+6. **D-PRD-130/A3 :** chaque clôture crée un **nouvel instantané immuable V1, V2, etc.** ; une réouverture conserve les versions précédentes, et une reclôture produit la suivante. Les nouveaux bilans des cycles **clôturés** utilisent **la dernière version**, les cycles **rouverts et donc non clôturés** l'état courant. Les versions précédentes restent consultables, les PDF existants inchangés ; pour une période rétrosaisie, ne pas inventer une photographie passée sans preuve.
 7. Le traitement s'applique au **MVP Scrum/Kanban** et s'étend aux **PI SAFe v1.0** en respectant les liens interéquipes et la consolidation du train.
 
+## 2 bis. D-PRD-130/A3 — Scénarios de vérification des instantanés
+
+**[Règle et scénarios détaillés](clarifications-d-prd-130.md) :** la version d'instantané est liée au **cycle et à une clôture effective horodatée**, contient les associations connues à cette clôture et les états des six registres, sans changer les fiches centrales.
+
+1. Première clôture d'un Sprint → **V1** (statuts, données et associations) ; création d'un PDF depuis V1.
+2. Réouverture → statut **Terminé**, V1 **consultable et non modifiée** ; le bilan provisoire lit le registre courant.
+3. Mise à jour volontaire d'un risque et d'une action, puis reclôture → **V2** ; nouveau rapport utilisant V2 ; V1 et PDF précédent inchangés.
+4. Sprint créé rétrospectivement sans preuve des états d'époque → **état historique indisponible**, pas d'attribution automatique des statuts actuels à la date passée. Toute information retrouvée possède sa provenance et une date de saisie distincte de l'époque décrite.
 ## 3. Limites et points à finaliser
 
 - **QLT-03 :** table exacte des neuf combinaisons (criticité faible/moyenne/élevée), seuils, couleur et éventuel paramétrage. La décision valide la **matrice 3×3 indicative**, pas une formule numérique arbitraire.
 - **QLT-07 :** catalogue initial exact et règles de qualification des « faits significatifs » ; déclencheurs, prévention des doublons et traitements en cas de changement du paramétrage.
-- **QLT-08 :** conditions précises de correction après clôture, conservation/versionnement en cas de réouverture/reclôture, données historiques incomplètes, relation entre date réelle des événements et date de saisie.
+- **QLT-08 :** le **principe métier de versionnement V1/V2 et d'utilisation de la dernière version** est arbitré en D-PRD-130/A3. Restent ouverts : modèle technique, présentation des versions et preuve/provenance des faits historiques saisis après leur période.
 - **QLT-01/02/05 :** validations supplémentaires spécifiques des six fiches, règles de suppression/archivage, propriétés des liens interéquipes/externes, droits de modification et ergonomie responsive.
 - Les champs et scénarios techniques de sauvegarde/restauration, confidentialité/autorisation et rétention seront détaillés dans le domaine **Sécurité et exploitation** ; aucun changement de droits global n'est décidé ici.
 - Aucun service de notification externe, nouvelle intégration Jira ou mécanisme de collaboration des équipiers n'est inclus dans ces décisions.
