@@ -279,3 +279,8 @@ src/
 - **Amorçage :** identifiant de compte initial déjà consigné dans le journal ; mécanisme de secret temporaire, récupération et rotation à spécifier sans exposer de secret.
 - **Versions et starter :** recherche web avancée non autorisée ; versions des frameworks, chiffrement, pilotes PostgreSQL, calendriers et export PDF à éprouver en I0 avant engagement.
 - **Implémentation et qualité :** absence d'architecture exécutée ; linter/reviewer gate BMAD, scripts `uv`, tests et tests de restauration non exécutés ; validation documentaire indépendante à réaliser après production de la spine.
+
+
+## Principes de migrations et secrets validés le 19/10/2026
+
+[ADR-I0-002](ADR-I0-002-MIGRATIONS-SECRETS.md) précise base dédiée, migrations versionnées avec impact/confirmation, sauvegarde préalable pour données existantes, blocage sur schéma incompatible, droits runtime/migrateur séparés et secrets en dossier privé. Une copie protégée des clés doit être prévue ; mécanisme de protection à préciser. Ces principes sont validés, aucun essai ni opération PostgreSQL exécuté.

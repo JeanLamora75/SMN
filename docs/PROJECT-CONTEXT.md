@@ -70,3 +70,6 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
 
 
 **Stack actualisée le 19/10/2026 à 22:29 :** [ADR-I0-001](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md). Les choix sont validés sous réserve I0, les essais et l'épinglage exact restent à faire ; aucune fusion ni construction lancée.
+
+
+**Migrations et secrets, accord du 19/10/2026 à 22:32 :** [ADR-I0-002](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md). Base dédiée, migrations versionnées contrôlées et secrets privés validés ; copie protégée des clés à prévoir, mécanisme à préciser. Les vérifications et essais restent ouverts.

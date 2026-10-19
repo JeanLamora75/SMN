@@ -396,6 +396,15 @@ Créer une installation privée, administrer deux profils et accéder à une int
 
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
 
+
+#### Amendement ADR-I0-002 — Validé le 19/10/2026
+
+Base dédiée SMN indépendante des autres applications ; migrations versionnées générées sur une base de développement séparée, application ordonnée après présentation des impacts et confirmation. Sauvegarde préalable pour modification de données existantes. Schéma incompatible ou échec : accès métier bloqué, diagnostic et reprise explicites. Runtime à droits limités, privilèges de migration séparés et à vérifier. Secrets dans un dossier privé hors Git et fichiers publics, sans journalisation. Copie de récupération protégée des clés à prévoir ; son mécanisme reste à préciser.
+
+Ces principes complètent les capacités concernées au cours d'I0, sans prétendre qu'une restauration complète est un prérequis au tout premier diagnostic. Critères transverses et limites : https://github.com/JeanLamora75/SMN/blob/docs/bmad-sprint-readiness-20261019/_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md
+
+Aucun développement, migration ou essai exécuté.
+
 ### Story 1.2: Initialiser une installation Express et son Administrateur de manière sûre
 **Jira :** https://lmn24.atlassian.net/browse/SMN-12
 **En tant que** Scrum Master lors du premier lancement,
@@ -892,6 +901,15 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 
 L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/2026. Cette validation documentaire ne vaut ni développement ni recette exécutés.
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
+
+
+#### Amendement ADR-I0-002 — Validé le 19/10/2026
+
+Base dédiée SMN indépendante des autres applications ; migrations versionnées générées sur une base de développement séparée, application ordonnée après présentation des impacts et confirmation. Sauvegarde préalable pour modification de données existantes. Schéma incompatible ou échec : accès métier bloqué, diagnostic et reprise explicites. Runtime à droits limités, privilèges de migration séparés et à vérifier. Secrets dans un dossier privé hors Git et fichiers publics, sans journalisation. Copie de récupération protégée des clés à prévoir ; son mécanisme reste à préciser.
+
+Ces principes complètent les capacités concernées au cours d'I0, sans prétendre qu'une restauration complète est un prérequis au tout premier diagnostic. Critères transverses et limites : https://github.com/JeanLamora75/SMN/blob/docs/bmad-sprint-readiness-20261019/_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md
+
+Aucun développement, migration ou essai exécuté.
 
 ### Story 1.10: Suivre les tâches facultatives de configuration depuis le tableau de bord
 **Jira :** https://lmn24.atlassian.net/browse/SMN-20

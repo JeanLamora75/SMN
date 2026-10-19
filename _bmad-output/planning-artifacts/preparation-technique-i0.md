@@ -107,3 +107,8 @@ Complète FR-66/67/70/72 et AD-7/9/10/26/31 ; [ticket de référence](https://lm
 ## Validation de la stack — 19/10/2026 à 22:29
 
 L'utilisateur a validé [ADR-I0-001](architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md) : TypeScript, Node 24 LTS, pnpm, Next.js 16/React 19, Bootstrap 5.3, PostgreSQL/Prisma 7, Better Auth avec sessions PostgreSQL, Playwright/Chromium local. Aucun serveur NestJS séparé. L'ancien statut de candidat des composants retenus est supplanté par ce choix conditionnel. Correctifs exacts, prérequis et essais I0 restent ouverts ; PostgreSQL précis reste à confirmer. Prochain travail de conception : migrations et secrets, sans développement.
+
+
+## Migrations et secrets — principes validés à 22:32
+
+Les principes sont consignés dans [ADR-I0-002](architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md) et les tickets concernés. Prochaine décision : protection et récupération des clés de chiffrement ; ne pas confondre cette question avec la récupération du compte administrateur. La vérification PostgreSQL et les essais restent à réaliser.

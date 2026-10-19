@@ -1,7 +1,7 @@
 {
   "summary": {
     "date": "2026-10-19",
-    "source_commit": "b09cb34d0b8162927a05b0131838c9f1731c0e7a",
+    "source_commit": "290b26c05d3b31042fd2930c494e0d5876fa66b7",
     "jira_query": "project = SMN ORDER BY key ASC",
     "jira_pages": [
       100,
@@ -132,7 +132,8 @@
     "source_branch": "docs/bmad-sprint-readiness-20261019",
     "source_commit_note": "Base avant ajout documentaire D-PRD-139 ; SMN-17 rapproché après sa mise à jour Jira.",
     "session_policy_update": "SMN-14 relu après mise à jour D-PRD-138 ; autres lignes conservées du rapprochement complet précédent.",
-    "recovery_update": "Relecture ciblée SMN-17 après D-PRD-139 ; autres lignes issues du rapprochement précédent."
+    "recovery_update": "Relecture ciblée SMN-17 après D-PRD-139 ; autres lignes issues du rapprochement précédent.",
+    "migrations_update": "Relecture ciblée SMN-11 et SMN-19 après annotation ADR-I0-002 ; critères Given/When/Then inchangés, obligations transverses dans ADR."
   },
   "stories": [
     {
@@ -148,7 +149,7 @@
         "FR-66",
         "FR-72"
       ],
-      "jira_description_sha256": "3988a8c17a2d960824a122300b70c8be1d9ef45981185184797a1afc8acada6e"
+      "jira_description_sha256": "528d5e6aac3a1c96bbb0a92a42ce51d7af2ffc8ebd668a6b45de11acb8595877"
     },
     {
       "story": "1.2",
@@ -267,7 +268,7 @@
         "FR-67",
         "FR-72"
       ],
-      "jira_description_sha256": "aa9036a83df9c149a937b164b39239de3fea2f57946cf517d4e50edb76192c8a"
+      "jira_description_sha256": "cfbba53e5444d2b7d4b284fce746f2a929b85245cb2fbeae8ef6875f8ebad7e5"
     },
     {
       "story": "1.10",
