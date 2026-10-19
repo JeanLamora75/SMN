@@ -1039,6 +1039,8 @@ Le MVP propose une **initialisation Express ou Guidée/Tutorée**, suivie du **t
 
 **Hors MVP :** SAFe et les ART (version 1.0) ; les formats de rapport PPTX/DOCX/XLSX (post-MVP, version non attribuée). L'arbitrage détaillé des mécanismes avancés demeure ouvert.
 
+**D-PRD-131 — Séquencement MVP validé :** sept incréments **I0 socle → I1 premier parcours Scrum et HTML → I2 Scrum complet/PDF → I3 Kanban mutualisé → I4 reprise/CSV/tendances → I5 briefs IA et UX consolidée → I6 recette/pilote**. L'ordre ne retire aucune FR, sécurité et intégrité commencent dès les premiers incréments ; versionnement prévu dès les premières clôtures. **I1 n'est pas le MVP achevé**, I6 exige les cinq conditions cumulatives. SAFe reste v1.0. [Dépendances, livrables et critères de démonstration I0–I6](sequencement-mvp-d-prd-131.md).
+
 ## 7. Critères de succès validés — modalités de mesure à définir
 
 Cinq conditions **cumulatives** conditionnent le passage au pilote :
