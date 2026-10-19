@@ -3,7 +3,7 @@
 **Agent :** Winston — System Architect.  
 **Workflow :** bmad-architecture, Coaching Path.  
 **Date :** 19 octobre 2026.  
-**État :** domaine 1 validé ; architecture globale en cours de décision.
+**État :** domaine 1 validé ; accès/rôles/protection précisés et validés ; domaine 2 et architecture globale en cours de décision.
 
 ## Référence et portée
 
@@ -56,7 +56,7 @@ Accès protégé, audit et persistance : services transverses. Ces frontières i
 
 ## Points restant ouverts
 
-- Stack, versions, starter, base de données, hébergement et mode concret d'installation : non choisis.
+- Node.js et PostgreSQL installés et premiers essais déclarés par l'utilisateur : base de travail. Usage initial local sur PC personnel confirmé ; plateforme web ultérieure possible. Frameworks, versions, starter, accès aux données et procédure de lancement restent à choisir.
 - A5 : objectifs techniques mesurables ; A12 : restitution des temporalités.
 - A7/A8/A10/A11 : arbitrages métier réservés, à obtenir avant les fonctions concernées.
 - A9 : imports Kanban sur cycles existants au MVP ; création rétrospective complète non engagée.
@@ -69,6 +69,29 @@ Skills Architecte et Architecture, personnalisations, configuration, template et
 
 Contrôle documentaire initial : FR-1 à FR-81 uniques et continues ; 131 identifiants de décisions D-PRD retrouvés dans le journal. Aucun test applicatif, benchmark, validation de compatibilité ou revue finale d'architecture n'est déclaré exécuté.
 
-Toute recherche web nécessite une autorisation préalable. Le workflow demande de vérifier les technologies et leurs versions avant engagement : cette recherche reste à autoriser pour le domaine 2.
+Toute recherche web nécessite une autorisation préalable. Le workflow demande de vérifier les technologies et leurs versions avant engagement : l'utilisateur a décliné cette recherche. Aucun choix de version ou compatibilité non vérifié ne sera présenté comme acquis.
 
 Aucun développement applicatif, ticket Jira, modification de main ou fusion de PR autorisé par cette validation.
+
+## Accès et comptes — précisions MVP validées le 19 octobre 2026
+
+Références : FR-66/67/72, complétées explicitement par l'utilisateur ; AD-7 à AD-10 dans le journal.
+
+| Fonction | Administrateur | Utilisateur identifié |
+|---|---|---|
+| Consultation des données collectives | Oui | Oui |
+| Consultation et téléchargement des rapports/briefs autorisés | Oui | Oui |
+| Création/modification/suppression métier | Oui, selon protections existantes | Non |
+| Coordonnées, absences nominatives, capacités individuelles | Oui | Non |
+| Administration, sauvegarde/restauration | Oui | Non |
+| Formulaire de création de comptes et attribution du rôle | Oui, au MVP | Non |
+
+L'authentification est obligatoire pour l'application, y compris l'accès direct aux fichiers. Exception : parcours d'installation initiale d'une instance vierge, limité localement et fermé après initialisation. Cette exception ne permet pas de consulter les données métier sans identification.
+
+Le compte administrateur d'amorçage utilise l'identifiant exact demandé `admin@locahost.com`. Son secret temporaire convenu doit être changé avant l'accès métier ; il n'est jamais rétabli par redémarrage ou mise à jour. L'assistant Express/Guidé conserve les règles fonctionnelles validées.
+
+La correction utilisateur autorise l'export des documents consultables. Interprétation annoncée : téléchargement de documents existants ; génération de nouveaux rapports/briefs réservée à l'administrateur, à préciser seulement si une extension est souhaitée. Cela ne tranche pas l'archivage systématique des PDF (A10).
+
+Protection validée au niveau des principes : mots de passe hachés avec sel individuel, secrets hors dépôt/base, chiffrement authentifié ciblé des coordonnées et motifs d'absence. Choix cryptographiques précis, clés, copies historiques, documents et sauvegardes restent à concevoir.
+
+Responsive également vérifié à terme sur fenêtre de PC redimensionnée, conformément à l'usage de juxtaposition indiqué par l'utilisateur. Aucun test applicatif n'est exécuté à cette étape.
