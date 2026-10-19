@@ -330,6 +330,8 @@ Le Scrum Master dispose, dans l'administration, d'un **catalogue des catégories
 
 ### 4.8 Paramétrage de la cadence et génération des Sprints Scrum — MVP
 
+**D-PRD-130/A2 — exception historique :** pour un Sprint créé après sa fin, la capacité initiale n'est **pas calculée rétroactivement** depuis les affectations/absences actuelles. Saisie volontaire en JH **Connue** ou **Estimée** et tracée ; sinon **Non renseignée**. La valeur historique reste protégée. [Critères](clarifications-d-prd-130.md).
+
 #### FR-15 — Configurer la durée, créer et gérer les Sprints (validé : D-PRD-036 à D-PRD-038, D-PRD-044, D-PRD-049, D-PRD-094 à D-PRD-120 ; F-43, F-44, F-45, F-93/F-96)
 
 Dans une installation en mode **Scrum**, SMN propose une durée de Sprint de **deux semaines par défaut**, configurable à **une, deux, trois ou quatre semaines**. À partir de la **date de début du premier Sprint**, l'application **génère un Sprint par défaut**. Le Scrum Master peut demander la création de **X Sprints en une seule opération** (**X entier de 1 à 6**, D-PRD-097), ajuster leurs dates et **supprimer un ou plusieurs Sprints non démarrés** (D-PRD-037). Aucune génération automatique sur un horizon glissant de six mois n'est retenue.
@@ -381,6 +383,8 @@ SMN distingue **l'achèvement calendaire** du Sprint et sa **clôture fonctionne
 
 ### 4.9 Génération des cérémonies Scrum et durées par défaut — MVP
 
+**D-PRD-130/A1/A3 :** un Sprint rétrosaisi après sa fin commence **Terminé**, jamais clôturé automatiquement. Réouverture puis reclôture : **nouvel instantané V2/V3** sans effacer V1 ; anciens PDF préservés.
+
 #### FR-17 — Générer les événements Scrum dès la création du Sprint (validé : D-PRD-041 à D-PRD-045, D-PRD-049 à D-PRD-057, D-PRD-060, D-PRD-061, D-PRD-064 à D-PRD-066, D-PRD-112 à D-PRD-113 ; F-44 à F-48, F-53 à F-57)
 
 Dès la **création d'un Sprint Scrum**, SMN génère automatiquement ses événements Agile récurrents ou ponctuels : **Sprint Planning**, **Daily Scrum**, **Sprint Review** et **Sprint Retrospective**. Les horaires et durées proposés sont paramétrables dans l'administration et personnalisables par équipe puis par occurrence ; le Scrum Master n'a pas à recréer manuellement les cérémonies de chaque Sprint.
@@ -422,6 +426,8 @@ Dès la **création d'un Sprint Scrum**, SMN génère automatiquement ses évén
 **À préciser :** représentation et édition ergonomiques des segments d'**une même cérémonie scindée autour de la pause (D-PRD-054)**, et gestion de l'enchaînement en cas de personnalisation des horaires ou durées ; plages exactes des cérémonies Planning/Review/Rétro et ergonomie des **alertes non bloquantes de conflit** (D-PRD-055), priorités entre défauts globaux/équipe/occurrence, comportements de régénération après modification d'un Sprint (notamment déplacement du Planning hors du premier jour), cas des jours fériés et fermetures, règles détaillées de passage des séries lors des modifications de cadence. **Daily 09 h 00 par défaut (D-PRD-044) ; pas de Daily le premier jour si Planning ce jour-là (D-PRD-045) ; Review puis Rétrospective le dernier vendredi, sans chevauchement entre elles (D-PRD-050).**
 
 ### 4.10 Réunions exceptionnelles et cérémonies personnalisées — MVP
+
+**D-PRD-130/A1 :** exception aux générations ordinaires : **aucune cérémonie n'est générée automatiquement** pour un Sprint créé après sa date réelle de fin ; seules les cérémonies historiques documentées sont ajoutées manuellement, avec date et statut connus.
 
 #### FR-18 — Créer une réunion exceptionnelle ou un modèle récurrent propre à l'équipe (validé : D-PRD-046, D-PRD-048, D-PRD-056 à D-PRD-058, D-PRD-060, D-PRD-061, D-PRD-064 à D-PRD-066, D-PRD-112 à D-PRD-113 ; F-45, F-48, F-53, F-56/F-57, F-60)
 
@@ -861,7 +867,7 @@ Le cockpit regroupe **risques élevés connus, obstacles ouverts, dépendances �
 Journal chronologique distinct de l'audit, alimenté **manuellement et par catégories significatives configurables** ; les faits automatiques **référencent leur source**, peuvent être **promus ou masqués** sans changer les objets initiaux, et sont sélectionnables dans les rapports. Le catalogue exact des déclencheurs reste à déterminer avant développement.
 
 #### FR-41 — Figer les six registres à la clôture pour les bilans (QLT-08)
-À la **clôture de chaque cycle**, conserver les états qualitatifs **associés au cycle à cet instant** pour **risques et dépendances** (D-PRD-122), ainsi que **obstacles, décisions, actions et faits marquants** ; bilan historique utilisant cet instantané, bilan non clôturé utilisant l'état courant. Les fiches centrales continuent d'évoluer **sans réécrire les instantanés ni anciens PDF**. Les modalités d'une réouverture/reclôture et de reprise historique sans état fiable restent à spécifier.
+À la **clôture de chaque cycle**, conserver les états qualitatifs **associés au cycle à cet instant** pour **risques et dépendances** (D-PRD-122), ainsi que **obstacles, décisions, actions et faits marquants** ; bilan historique utilisant cet instantané, bilan non clôturé utilisant l'état courant. Les fiches centrales continuent d'évoluer **sans réécrire les instantanés ni anciens PDF**. **D-PRD-130/A3 :** clôtures **V1/V2…** immuables, anciennes versions consultables ; bilan d'un cycle clôturé = dernière version, cycle rouvert = données courantes ; **aucun état historique fictif** pour les reprises sans preuve. [Détails](clarifications-d-prd-130.md).
 
 **Périmètre :** Scrum/Kanban au MVP ; extension PI et ART en v1.0. Pas de saisie collaborative par les membres, pas de notification externe ni d'intégration Jira automatique. Les décisions de métier F-74 à F-90 demeurent la référence sur les statuts ROAM, obstacles, dépendances, décisions et actions. **[Critères d'acceptation testables et points ouverts](registres-qualitatifs.md)**.
 
@@ -870,28 +876,28 @@ Journal chronologique distinct de l'audit, alimenté **manuellement et par caté
 **Validation groupée D-PRD-125 — HIS-01 à HIS-08 (19/10/2026) :** reprise fiable sans inventer des informations passées. **[Critères d'acceptation détaillés](reprise-imports-historiques.md)**.
 
 #### FR-42 — Reprendre manuellement des Sprints historiques (HIS-01)
-Créer des Sprints passés et saisir les informations réellement retrouvées, **sans inventer événements, absences ni capacité réelle**, en respectant dates, clôture et audit. Préparer l'extension possible aux périodes Kanban, sans présumer de sa livraison au MVP.
+Créer des Sprints passés avec seulement les informations retrouvées. **D-PRD-130/A1/A2 :** créé après sa fin → **Terminé, sans cérémonie générée**, capacité initiale historique **Connue/Estimée/Non renseignée**, jamais recalculée depuis les données présentes ; audit et clôture volontaire. Préparer l'extension possible aux périodes Kanban, sans présumer de sa livraison au MVP.
 
 #### FR-43 — Importer des CSV de chiffres consolidés (HIS-02)
-Import manuel d'un **CSV à schéma fixe SMN** pour valeurs numériques consolidées et cycles identifiables. **Ni tickets Jira individuels ni intégration automatique.**
+**D-PRD-130/A4 :** CSV de métriques sources consolidées, quatre colonnes **cycle_id,metric_code,value,quality**, quality **known/estimated**, cycle existant et code compatible ; aucun ticket individuel Jira. [Contrat](clarifications-d-prd-130.md).
 
 #### FR-44 — Prévisualiser l'import (HIS-03)
-Afficher les lignes et cycles cibles, **erreurs, doublons et conflits** avant toute écriture ; permettre l'annulation et exiger une confirmation explicite. Traitement total/partiel à arbitrer.
+Prévisualiser lignes, cycles, erreurs, doublons et conflits. **D-PRD-130/A4 :** une ligne invalide bloque **tout le fichier**, sans écriture ; après confirmation explicite, écriture **atomique tout ou rien**.
 
 #### FR-45 — Protéger les valeurs préexistantes (HIS-04)
-**Aucun écrasement silencieux** ; conserver les valeurs par défaut, comparer avant/après et tracer toute correction volontaire. Champ vide ≠ zéro/effacement ; clôture, capacité initiale figée et anciens PDF protégés.
+**Aucun écrasement silencieux** ; préserver les valeurs par défaut, comparer avant/après et historiser toute correction **explicitement sélectionnée** (D-PRD-130/A4). Un cycle clôturé doit être rouvert. Champ vide ≠ zéro/effacement ; clôture, capacité initiale figée et anciens PDF protégés.
 
 #### FR-46 — Qualifier les données historiques (HIS-05)
-Conserver **provenance et qualité** Connue/Estimée/Non renseignée selon le type de donnée ; distinguer source, calcul, zéro enregistré et information absente.
+Conserver **provenance et qualité** Connue/Estimée/Non renseignée ; zéro explicite ≠ absence. **D-PRD-130/A2/A4 :** capacité rétrosaisie volontaire, qualité CSV `known`/`estimated`, aucune preuve historique fabriquée.
 
 #### FR-47 — Accepter des bilans historiques partiels (HIS-06)
-Permettre un bilan avec valeurs manquantes sans créer de faits non observés ni **d'instantanés de clôture fictifs** ; signaler les absences de preuve historique.
+Bilan partiel possible sans inventer de faits ni d'instantanés. **D-PRD-130/A3 :** distinguer date d'effet passée et clôture SMN ; conserver les **versions V1/V2** et la provenance des preuves historiques.
 
 #### FR-48 — Intégrer les périodes reprises aux tendances (HIS-07)
 Ne retenir que des cycles **clôturés avec valeurs sources exploitables et comparables** ; limite existante de **cinq cycles**, jamais de cycles postérieurs à celui examiné, données absentes ≠ zéro.
 
 #### FR-49 — Historiser les imports CSV (HIS-08)
-Consigner **auteur, horodatage, fichier/lot, lignes traitées, acceptées ou rejetées et erreurs** ; distinguer aperçu, échec et import confirmé. Archivage du CSV brut non imposé.
+Consigner **auteur, horodatage, lot, lignes lues, appliquées, conservées ou rejetées et erreurs** ; distinguer aperçu, échec et import **atomique confirmé** (D-PRD-130/A4). Archivage du CSV brut non imposé.
 
 **Périmètre :** import CSV consolidé au MVP Scrum/Kanban, reprise manuelle des Sprints passés ; détail de la reprise Kanban à confirmer. Socle réutilisable en SAFe v1.0. [Critères complets et cas limites](reprise-imports-historiques.md).
 
@@ -925,35 +931,35 @@ Sélection d'analyses dans HTML/PDF avec **origine, date, brief et retouches ide
 
 **Périmètre :** Scrum/Kanban au MVP, extension SAFe/ART v1.0. **TXT transmis manuellement puis réponse collée**, sans API IA. Stockage privé, intégrité, modèles initiaux, rétention et confidentialité des textes libres restent à préciser. **[Critères complets et points ouverts](briefs-analyses-ia.md)**.
 
-### 4.19 Parcours utilisateur et ergonomie — MVP Scrum/Kanban ; extension SAFe v1.0
+### 4.19 Parcours utilisateur et ergonomie — MVP Scrum/Kanban ; SAFe v1.0
 
-**Validation groupée D-PRD-127 — UX-01 à UX-08 (19/10/2026) :** huit exigences UX complètent le socle déjà validé de **Bootstrap 5**, interface responsive et FR/EN, initialisation Express/Guidée, bilans et sauvegardes. **[Critères d'acceptation détaillés](parcours-utilisateur-ergonomie.md)**.
+**D-PRD-127 / UX-01 à UX-08 :** les règles détaillées restent intégralement conservées dans [l'annexe UX](parcours-utilisateur-ergonomie.md) (Bootstrap 5, responsive, FR/EN, sauvegardes).
 
 #### FR-58 — Tableau de bord de pilotage courant (UX-01)
-Afficher **équipe/produit, cycle courant, objectifs, KPI disponibles, événements Agile et points d'attention**, avec liens aux sources. Prévoir les cycles absents ou bilans en attente, sans création automatique d'une période ni chiffre fictif.
+Équipe, produit, cycle, objectifs, KPI enregistrés, événements et points d'attention ; liens et états vides fiables.
 
 #### FR-59 — Navigation fonctionnelle regroupée (UX-02)
-Organiser les accès en **Pilotage, Calendrier, Cycles et bilans, Registres, Reportings et briefs IA, Administration** ; menu compact et cohérent sur ordinateur/tablette/mobile, adapté au mode et aux fonctions effectivement disponibles.
+Accès Pilotage, Calendrier, Cycles/bilans, Registres, Rapports/IA et Administration, sur tous supports.
 
 #### FR-60 — Liens de navigation contextuels (UX-03)
-Depuis un **indicateur, événement, alerte ou objet lié**, accéder à sa fiche source ou section pertinente. Conserver le périmètre historique et indiquer un objet inaccessible ; navigation seule **sans modification métier**.
+Depuis indicateur, événement ou alerte, ouvrir l'objet source en respectant contexte et droits, sans modification métier.
 
 #### FR-61 — Préremplissage fiable et saisie minimale (UX-04)
-Proposer les **données connues avec fiabilité**, permettre la correction des champs modifiables et l'enrichissement progressif. **Champs facultatifs réellement facultatifs**, manque ≠ zéro, aucun contournement des protections de clôture ni des confirmations explicites.
+Préremplir seulement les données connues, respecter les champs facultatifs et interdire les faux zéros.
 
 #### FR-62 — Calendrier central et filtres (UX-05)
-Consulter sur une **même interface** cycles, événements Agile/réunions, absences et indisponibilités pertinentes, avec filtres **type/période/équipe/membre autorisé**, accès aux fiches, fuseaux horaires cohérents et affichage des statuts réellement connus. Aucune modification implicite par glisser-déposer.
+Réunir cycles, événements et absences, filtres autorisés, fuseaux fiables ; aucune modification implicite.
 
 #### FR-63 — Responsive et accessibilité des parcours essentiels (UX-06)
-Garantir **installation, dashboard, calendrier, cycles/bilans, registres, rapports et briefs IA** sur navigateur ordinateur/tablette/smartphone ; composants Bootstrap cohérents, navigation clavier, messages explicites et états non indiqués par couleur seule. **Niveau WCAG cible et mesures de recette restent à définir**, sans déclarer de conformité déjà mesurée.
+Navigateur ordinateur/tablette/smartphone, FR/EN, thèmes clair/sombre et clavier ; mesures à définir.
 
 #### FR-64 — Protection des modifications non enregistrées (UX-07)
-Afficher les **changements non sauvegardés**, confirmations de réussite uniquement après persistance, erreurs et conséquences d'une sortie d'écran. Respecter les **sauvegardes indépendantes des blocs** (D-PRD-071/074) et les opérations **atomiques** de replanification (D-PRD-118) ; aucun autosave implicite destructeur.
+Signaler modifications et résultats de sauvegarde ; préserver blocs indépendants et écritures atomiques.
 
 #### FR-65 — Assistance initiale progressive (UX-08)
-Conserver les parcours **Express / Guidé-Tutoré** vers le **même tableau de bord**, en demandant seulement les champs initialement obligatoires. Liste facultative de tâches de paramétrage **À faire / Terminée / Ignorée**, distincte des actions métier, avec terminaison automatique uniquement si constat fiable ; réglages modifiables ensuite selon leurs propres règles.
+Express/Guidé vers le même tableau de bord, tâches facultatives À faire/Terminée/Ignorée, non bloquantes.
 
-**Périmètre :** Scrum/Kanban MVP, extension SAFe/ART v1.0. Les règles du **calendrier**, des **indisponibilités individuelles**, du **mode/produit fixes** et de l'**historique** demeurent applicables. Parcours détaillés, textes, icônes, tailles d'écran, version de navigateurs, niveau d'accessibilité, conservation des brouillons et filtres restent à concevoir. **[Critères complets et points ouverts](parcours-utilisateur-ergonomie.md)**.
+**Détails, critères et questions ouvertes :** [annexe UX](parcours-utilisateur-ergonomie.md).
 
 ### 4.20 Sécurité, continuité et exploitation — MVP Scrum/Kanban ; SAFe v1.0
 
@@ -1065,7 +1071,7 @@ Les **37 questions ouvertes détaillées antérieures** sont conservées intégr
 - **FR-42 à FR-49 / D-PRD-125 :** schéma CSV, doublons, import partiel et reprise Kanban ([Historique](reprise-imports-historiques.md)).
 - **FR-34 à FR-41 / D-PRD-124 :** matrice 3×3, faits marquants et reclôture ([Registres](registres-qualitatifs.md)).
 - **FR-26 à FR-33 / D-PRD-123 :** rendu et stockage HTML/PDF ([Reporting](reportings-html-pdf.md)).
-- **FR-25 / D-PRD-120 à D-PRD-122 :** liens et instantanés de risques/dépendances ([Registre](risques-dependances.md)).
+- **FR-14/16/17/41/42 à 49 / D-PRD-130 :** règles A1–A4 résolues : reprise sans cérémonie, capacité historique qualifiée, instantanés V1/V2 et CSV atomique quatre colonnes. [Critères D-PRD-130](clarifications-d-prd-130.md).
 - **FR-74 à FR-81 / D-PRD-129 :** matrice FR/tests/preuves, cinq critères cumulés, compatibilité et validation explicite du pilote. [Critères Recette](recette-finalisation-mvp.md).
 - **Transverse :** performance, accessibilité, compatibilité, obligations légales et tests réels à préciser selon déploiement.
 
