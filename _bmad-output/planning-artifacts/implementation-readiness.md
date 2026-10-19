@@ -7,16 +7,16 @@ remaining_findings: C3-C4
 workflow: bmad-sprint-planning
 intent: sprint-planning
 gate: CONCERNS
-status: awaiting-gate-decision
+status: tracking-generated-under-concerns
 source_commit: 8c2dead6598bb2c7a128ca2e26591c2bc5680399
-tracking_generated: false
+tracking_generated: true
 ---
 
 # SMN — Contrôle de préparation au développement
 
 **Verdict : CONCERNS.** Le cadrage permet de préparer le socle I0 ; l'ensemble des 212 Stories ne peut pas être considéré uniformément prêt à construire. Après clarification et publication D-PRD-137, les producteurs des données et la cardinalité d'équipe sont explicités (C1/C2 traités). Certains prérequis techniques ne sont pas encore décidés et l'ordre de livraison demande une sélection par incrément (C3/C4 maintenus). Aucun blocage global du projet n'est établi. Aucun PASS, développement, test applicatif ou engagement de Sprint n'est déduit des validations fonctionnelles.
 
-Le [readiness gate officiel](../../.agents/skills/bmad-sprint-planning/references/readiness-gate.md) impose sur CONCERNS de demander si l'utilisateur souhaite poursuivre malgré les réserves ou corriger d'abord. Le mandat autorise la publication de ce contrôle ; il ne constitue pas une acceptation anticipée des constats encore inconnus. **Le suivi `sprint-status.yaml` n'est donc pas généré à cette étape.**
+Le [readiness gate officiel](../../.agents/skills/bmad-sprint-planning/references/readiness-gate.md) impose sur CONCERNS de demander si l'utilisateur souhaite poursuivre malgré les réserves ou corriger d'abord. Le mandat autorise la publication de ce contrôle ; il ne constitue pas une acceptation anticipée des constats encore inconnus. **Historique : le suivi n'avait pas été généré au contrôle initial. Le 19/10 à 22:41, Eric a explicitement autorisé la poursuite malgré CONCERNS ; le suivi a ensuite été généré et validé.**
 
 ## Actualisation après la clarification utilisateur — D-PRD-137
 
@@ -25,6 +25,10 @@ Le contrôle initial ci-dessous est conservé comme trace. L'utilisateur a préc
 **C1/C2 traités documentairement** : 7 Stories et 2 Epics corrigées ; producteurs ajoutés sous Epic 3, [SMN-221](https://lmn24.atlassian.net/browse/SMN-221) et [SMN-222](https://lmn24.atlassian.net/browse/SMN-222) ; 6.9 dépend désormais de 3.24/3.25. Les usages multiéquipes contradictoires de 3.3/3.5/3.13 et la dépendance 5.7 sont rectifiés, sans retirer les équipes externes. [Décision complète](prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
 
 Relecture complète de Jira après mutations : **222 tickets, 212 Stories, 1 064 AC**. Les clauses des Stories sont rapprochées à nouveau dans les preuves structurées. Les anciennes valeurs 220/210/1 052 ci-dessous décrivent le contrôle initial. **CONCERNS maintenu pour C3/C4**, sans génération du suivi ni PASS acquis. Cette correction documentaire n'est pas une preuve technique et ne vaut pas décision de poursuite malgré les réserves restantes.
+
+## Poursuite autorisée et suivi généré — 19/10/2026 à 22:41
+
+L'utilisateur a confirmé la poursuite sous réserves selon le gate. **CONCERNS reste le verdict**, et les 212 Stories restent backlog. Le [compte rendu Sprint Planning](sprint-planning-2026-10-19.md) décrit la génération officielle, la validation et les réserves restantes. Les mentions de suivi non généré dans la revue d'origine décrivent l'étape antérieure, pas l'état présent. Aucun mandat de développement ou de fusion n'en découle.
 
 ## 1. Référentiel effectivement contrôlé
 

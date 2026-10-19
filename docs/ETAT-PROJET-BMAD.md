@@ -12,7 +12,7 @@
 | Architecture — Winston | [Contrat final AD-1 à AD-31](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md), réserves techniques maintenues |
 | Create Epics and Stories | [Final](../_bmad-output/planning-artifacts/epics.md), quatre étapes achevées, confirmation utilisateur C — Complete Workflow |
 | Jira | 10 Epics / 212 Stories après D-PRD-137 ; 222 tickets À faire lors de la relecture du 19/10 |
-| Sprint Planning | [Contrôle du 19/10 : CONCERNS](../_bmad-output/planning-artifacts/implementation-readiness.md) ; suivi non généré, choix corriger/poursuivre attendu |
+| Sprint Planning | Poursuite sous CONCERNS autorisée le 19/10 à 22:41 ; [suivi généré et validé](../_bmad-output/implementation-artifacts/sprint-status.yaml), 212 Stories backlog |
 | Développement / recette / pilote | Aucune implémentation applicative, campagne de recette ou aptitude au pilote attestée |
 
 Le découpage final déclare la couverture des 81 FR, 3 NFR et 18 UX-DR. Il s'agit de couverture documentaire, pas de résultats de tests.
@@ -27,9 +27,9 @@ Les décisions UX sont documentées dans le PRD et les UX-DR ; aucun livrable au
 
 ## Prochaine étape officielle
 
-**[SP] Sprint Planning — `bmad-sprint-planning`** activé le 19/10 : [verdict CONCERNS et actions](../_bmad-output/planning-artifacts/implementation-readiness.md). Choix utilisateur requis par le gate entre corriger les réserves ou poursuivre malgré elles. Aucun `sprint-status.yaml` généré. D-PRD-137 résout les ambiguïtés métier C1/C2 : équipe unique au MVP et quatre contenus rattachés à l'équipe, train en SAFe. Stories 3.24/SMN-221 et 3.25/SMN-222 ajoutées, 7 Stories et 2 Epics corrigées. Les choix techniques I0 et le séquencement C3/C4 restent ouverts.
+**Sprint Planning poursuivi sous CONCERNS avec accord explicite d'Eric.** Le [compte rendu](../_bmad-output/planning-artifacts/sprint-planning-2026-10-19.md) et le suivi sont générés. 10 Epics et 212 Stories backlog, 10 rétrospectives optional ; aucune Story ready-for-dev ou en cours. C3/C4 restent tracés.
 
-Le catalogue BMAD 6.12.4 installé prévoit : contrôle de préparation **PASS/CONCERNS/FAIL**, puis génération du suivi `sprint-status.yaml` sur PASS. Aucun résultat de ce contrôle n'est acquis par cette consolidation. Après planification, **[BD] Build — `bmad-build`**, avec priorité au socle et aux preuves I0 conformément au séquencement validé.
+Affiner le premier Sprint selon capacité et disponibilités, puis préparer le premier travail via bmad-build sous mandat de construction distinct. Aucun Sprint Jira créé/démarré, aucune fusion ni implémentation.
 
 ## Sources réunies
 

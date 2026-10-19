@@ -1,0 +1,281 @@
+# Gate : CONCERNS — poursuite explicitement autorisée par Eric le 19/10/2026 à 22:41 Europe/Paris.
+# Les statuts backlog ne sont pas une attestation de préparation technique ou de réalisation.
+# Jira demeure la référence des tickets ; ce fichier ne synchronise pas automatiquement Jira.
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 10-19-2026 22:41
+last_updated: 10-19-2026 22:41
+project: SMN
+project_key: SMN
+tracking_system: jira
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  epic-1: backlog
+  1-1-démarrer-smn-localement-et-vérifier-les-prérequis: backlog
+  1-2-initialiser-une-installation-express-et-son-administrateur-d: backlog
+  1-3-accompagner-l-initialisation-avec-un-parcours-guidé-facultat: backlog
+  1-4-se-connecter-se-déconnecter-et-protéger-les-sessions: backlog
+  1-5-créer-et-administrer-les-comptes-des-utilisateurs: backlog
+  1-6-faire-respecter-la-matrice-administrateur-utilisateur-côté-s: backlog
+  1-7-révoquer-les-accès-compromis-et-renouveler-son-mot-de-passe: backlog
+  1-8-modifier-les-paramètres-généraux-sans-réécrire-l-historique: backlog
+  1-9-protéger-la-configuration-privée-et-les-secrets-de-l-applica: backlog
+  1-10-suivre-les-tâches-facultatives-de-configuration-depuis-le-ta: backlog
+  1-11-afficher-un-tableau-de-bord-fiable-et-contextualisé-par-équi: backlog
+  1-12-naviguer-entre-les-grandes-fonctions-selon-son-mode-et-son-r: backlog
+  1-13-conserver-le-contexte-lors-des-navigations-vers-les-fiches-l: backlog
+  1-14-choisir-le-français-ou-l-anglais-pour-l-interface: backlog
+  1-15-personnaliser-l-apparence-avec-thèmes-clair-et-sombre: backlog
+  1-16-utiliser-le-socle-de-smn-sur-ordinateur-tablette-et-smartpho: backlog
+  1-17-avertir-avant-perte-de-saisie-et-afficher-le-résultat-réel-d: backlog
+  1-18-ne-transmettre-que-les-informations-collectives-autorisées-a: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-consulter-un-journal-fiable-des-opérations-métier-sensibles: backlog
+  2-2-créer-une-sauvegarde-manuelle-complète-de-l-installation: backlog
+  2-3-vérifier-l-intégrité-et-l-inventaire-d-une-sauvegarde: backlog
+  2-4-configurer-les-30-jours-de-conservation-des-sauvegardes-géré: backlog
+  2-5-prévisualiser-les-effets-et-risques-d-une-restauration: backlog
+  2-6-restaurer-une-sauvegarde-de-façon-contrôlée-et-vérifiable: backlog
+  2-7-préserver-l-atomicité-des-opérations-et-l-immuabilité-des-ar: backlog
+  2-8-distinguer-archivage-réversible-et-suppression-ordinaire: backlog
+  2-9-réinitialiser-une-installation-avec-confirmation-renforcée: backlog
+  2-10-prévisualiser-une-demande-exceptionnelle-d-effacement-ou-ano: backlog
+  2-11-appliquer-un-effacement-ou-une-anonymisation-exceptionnelle: backlog
+  2-12-empêcher-la-réintroduction-silencieuse-après-restauration-de: backlog
+  2-13-expliquer-les-interruptions-et-les-résultats-de-récupération: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-créer-rapidement-les-fiches-des-membres-de-l-équipe: backlog
+  3-2-compléter-la-fiche-centrale-du-membre-et-son-e-mail-facultat: backlog
+  3-3-gérer-l-affectation-datée-et-les-rôles-agile-dans-l-équipe-u: backlog
+  3-4-clore-une-affectation-et-conserver-les-membres-archivés: backlog
+  3-5-personnaliser-le-calendrier-hebdomadaire-individuel: backlog
+  3-6-localiser-un-membre-par-pays-et-fuseau-horaire: backlog
+  3-7-administrer-le-catalogue-des-sept-pays-initiaux: backlog
+  3-8-précharger-les-calendriers-nationaux-disponibles-à-l-install: backlog
+  3-9-importer-des-jours-fériés-nationaux-à-partir-d-un-csv: backlog
+  3-10-importer-et-sélectionner-des-jours-fériés-nationaux-depuis-u: backlog
+  3-11-administrer-les-catégories-et-couleurs-des-absences: backlog
+  3-12-enregistrer-et-modifier-une-absence-individuelle-centralisée: backlog
+  3-13-traiter-les-particularités-régionales-comme-absences-individ: backlog
+  3-14-consulter-le-calendrier-d-équipe-et-les-absences-selon-les-d: backlog
+  3-15-administrer-les-jours-de-fermeture-de-l-entreprise: backlog
+  3-16-calculer-une-capacité-de-développement-fiable-en-jours-homme: backlog
+  3-17-arbitrer-une-capacité-manuelle-prioritaire-face-à-la-référen: backlog
+  3-18-figer-la-capacité-initiale-à-l-ouverture-effective-d-une-pér: backlog
+  3-19-calculer-la-capacité-réellement-constatée-selon-le-statut-de: backlog
+  3-20-qualifier-la-fiabilité-des-capacités-historiques-sans-créer: backlog
+  3-21-prévisualiser-les-effets-d-une-replanification-sur-les-référ: backlog
+  3-22-préremplir-les-formulaires-membres-et-calendriers-sans-écras: backlog
+  3-23-afficher-cycles-événements-et-absences-dans-un-calendrier-ce: backlog
+  3-24-renseigner-et-historiser-la-vision-et-le-product-goal-de-l-é: backlog
+  3-25-renseigner-et-historiser-la-dod-et-la-dor-de-l-équipe: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-configurer-la-cadence-et-les-horaires-d-une-équipe-scrum: backlog
+  4-2-générer-un-sprint-unitaire-à-la-demande: backlog
+  4-3-prévisualiser-et-corriger-un-lot-de-sprints: backlog
+  4-4-confirmer-un-lot-valide-avec-écriture-atomique-et-audit: backlog
+  4-5-renommer-un-sprint-sans-toucher-à-ses-données-historiques: backlog
+  4-6-supprimer-après-confirmation-des-sprints-jamais-démarrés: backlog
+  4-7-suivre-les-transitions-automatiques-d-état-du-sprint: backlog
+  4-8-générer-les-cérémonies-scrum-standards-avec-chaque-sprint: backlog
+  4-9-respecter-la-pause-déjeuner-et-les-cérémonies-à-segments: backlog
+  4-10-signaler-sans-bloquer-les-conflits-de-réunions: backlog
+  4-11-personnaliser-une-occurrence-ou-une-série-de-cérémonies: backlog
+  4-12-administrer-les-modèles-de-cérémonies-personnalisées: backlog
+  4-13-générer-les-occurrences-des-modèles-de-cérémonie-actifs: backlog
+  4-14-créer-des-réunions-exceptionnelles-ponctuelles: backlog
+  4-15-constater-annuler-et-corriger-la-tenue-des-événements: backlog
+  4-16-saisir-la-durée-réellement-constatée-sans-déplacer-les-créne: backlog
+  4-17-déduire-facultativement-les-réunions-exceptionnelles-de-la-c: backlog
+  4-18-replanifier-les-dates-d-un-sprint-sans-déplacer-les-événemen: backlog
+  4-19-gérer-et-évaluer-plusieurs-objectifs-de-sprint-dans-le-bilan: backlog
+  4-20-saisir-les-quatre-valeurs-de-story-points-et-calculer-les-dé: backlog
+  4-21-présenter-les-capacités-et-sauvegarder-séparément-les-trois: backlog
+  4-22-visualiser-les-tendances-de-cinq-sprints-clôturés-contextual: backlog
+  4-23-clôturer-rouvrir-et-reclôturer-un-sprint-avec-instantanés-ve: backlog
+  4-24-signaler-les-métriques-et-objectifs-à-réexaminer-après-repla: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-créer-rapidement-une-fiche-dans-l-un-des-six-registres: backlog
+  5-2-consulter-les-six-registres-avec-recherche-et-filtres: backlog
+  5-3-modifier-les-fiches-qualitatives-en-conservant-leurs-révisio: backlog
+  5-4-gérer-la-classification-roam-et-les-états-des-risques: backlog
+  5-5-évaluer-la-criticité-des-risques-avec-la-matrice-fixe-3-3: backlog
+  5-6-suivre-le-cycle-de-vie-des-obstacles-sans-effacer-les-résolu: backlog
+  5-7-décrire-une-dépendance-interne-ou-vers-une-équipe-externe: backlog
+  5-8-piloter-les-états-et-le-signal-à-risque-d-une-dépendance: backlog
+  5-9-associer-un-risque-ou-une-dépendance-à-plusieurs-cycles: backlog
+  5-10-gérer-les-décisions-justifications-et-remplacements: backlog
+  5-11-suivre-les-actions-et-leurs-responsables-en-texte-libre: backlog
+  5-12-relier-les-fiches-qualitatives-et-les-objectifs-de-façon-tra: backlog
+  5-13-créer-un-obstacle-assisté-à-partir-d-un-risque-matérialisé: backlog
+  5-14-créer-plusieurs-actions-assistées-depuis-une-décision: backlog
+  5-15-surveiller-les-échéances-des-actions-et-dépendances-ouvertes: backlog
+  5-16-afficher-un-cockpit-des-points-d-attention-collectifs: backlog
+  5-17-préserver-risques-et-dépendances-lors-de-la-replanification: backlog
+  5-18-saisir-des-faits-marquants-manuels-dans-un-journal-chronolog: backlog
+  5-19-paramétrer-les-six-catégories-de-faits-marquants-automatique: backlog
+  5-20-produire-les-faits-marquants-automatiques-sur-événements-mét: backlog
+  5-21-dédupliquer-et-corriger-les-faits-automatiques-sans-falsifie: backlog
+  5-22-masquer-promouvoir-et-sélectionner-les-faits-pour-les-report: backlog
+  5-23-figer-les-six-registres-associés-lors-de-la-clôture-d-un-cyc: backlog
+  5-24-conserver-v1-v2-et-les-états-historiques-lors-des-reclôtures: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-lancer-un-rapport-depuis-la-fiche-d-un-sprint: backlog
+  6-2-préparer-un-contrat-de-données-commun-aux-rapports-scrum-et: backlog
+  6-3-composer-automatiquement-les-six-sections-standard-du-rappor: backlog
+  6-4-ajouter-introduction-commentaires-et-conclusion-propres-au-r: backlog
+  6-5-sélectionner-et-réordonner-les-sections-du-rapport: backlog
+  6-6-choisir-les-kpi-graphiques-et-informations-qualitatives: backlog
+  6-7-régler-la-profondeur-historique-et-limiter-les-tendances-à-c: backlog
+  6-8-respecter-les-clichés-historiques-et-indiquer-la-qualité-des: backlog
+  6-9-intégrer-la-vision-le-product-goal-et-les-définitions-d-équi: backlog
+  6-10-fournir-un-modèle-standard-de-rapport-protégé: backlog
+  6-11-créer-dupliquer-et-modifier-les-modèles-de-rapport: backlog
+  6-12-charger-un-modèle-et-adapter-ponctuellement-les-options: backlog
+  6-13-prévisualiser-la-totalité-du-rapport-en-html: backlog
+  6-14-choisir-fr-en-pour-les-rubriques-sans-traduire-les-textes-li: backlog
+  6-15-présenter-un-en-tête-professionnel-et-un-logo-facultatif: backlog
+  6-16-exclure-les-données-individuelles-sensibles-des-rapports-par: backlog
+  6-17-exporter-un-pdf-fidèle-à-la-prévisualisation-html: backlog
+  6-18-archiver-automatiquement-le-fichier-pdf-final-exact-après-ex: backlog
+  6-19-distinguer-les-rapports-archivés-par-cycle-version-et-proven: backlog
+  6-20-rechercher-et-filtrer-les-rapports-pdf-archivés: backlog
+  6-21-consulter-et-télécharger-les-pdf-autorisés: backlog
+  6-22-masquer-ou-supprimer-exceptionnellement-une-archive-avec-con: backlog
+  6-23-traiter-les-erreurs-d-export-et-les-reprises-sans-archives-i: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-configurer-les-cadences-kanban-et-le-fuseau-de-l-équipe: backlog
+  7-2-créer-une-période-kanban-unitaire-sur-demande: backlog
+  7-3-prévisualiser-un-lot-de-deux-à-six-périodes-kanban: backlog
+  7-4-créer-atomiquement-un-lot-kanban-et-tracer-sa-provenance: backlog
+  7-5-nommer-personnaliser-et-renommer-une-période-kanban: backlog
+  7-6-supprimer-les-périodes-kanban-futures-jamais-démarrées: backlog
+  7-7-suivre-les-états-calendaires-sans-générer-la-période-suivant: backlog
+  7-8-changer-de-cadence-kanban-en-préservant-les-cycles-existants: backlog
+  7-9-replanifier-une-période-kanban-après-un-aperçu-d-impact: backlog
+  7-10-protéger-les-événements-lors-d-une-replanification-kanban: backlog
+  7-11-tracer-les-replanifications-et-conserver-les-relations-quali: backlog
+  7-12-afficher-les-quatre-blocs-du-bilan-de-période-kanban: backlog
+  7-13-créer-et-évaluer-plusieurs-objectifs-de-période-kanban: backlog
+  7-14-saisir-séparément-commencés-terminés-et-wip-final: backlog
+  7-15-saisir-cycle-time-et-lead-time-moyens-comparables: backlog
+  7-16-enregistrer-séparément-les-trois-blocs-de-saisie-du-bilan-ka: backlog
+  7-17-afficher-les-capacités-initiale-et-réelle-de-la-période-en-j: backlog
+  7-18-visualiser-trois-tendances-distinctes-des-comptes-de-flux: backlog
+  7-19-comparer-cycle-time-et-lead-time-dans-un-quatrième-graphique: backlog
+  7-20-clôturer-et-rouvrir-une-période-kanban-avec-versions-vn: backlog
+  7-21-préserver-les-cinq-mesures-et-objectifs-lors-de-la-replanifi: backlog
+  7-22-consulter-les-périodes-kanban-et-événements-sur-le-calendrie: backlog
+  7-23-produire-un-rapport-kanban-avec-le-moteur-html-pdf-partagé: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-créer-un-sprint-passé-en-reprise-historique-explicite: backlog
+  8-2-ne-générer-aucune-cérémonie-lors-d-une-reprise-historique: backlog
+  8-3-ajouter-manuellement-un-événement-historique-réellement-docu: backlog
+  8-4-renseigner-un-bilan-historique-partiel-à-partir-des-objectif: backlog
+  8-5-qualifier-la-capacité-initiale-historique-comme-connue-estim: backlog
+  8-6-saisir-une-capacité-réellement-constatée-sans-la-déduire-du: backlog
+  8-7-distinguer-la-date-historique-l-origine-et-le-niveau-de-qual: backlog
+  8-8-proposer-un-modèle-csv-historique-au-contrat-strict-de-quatr: backlog
+  8-9-contrôler-le-schéma-et-la-syntaxe-de-tout-csv-avant-import: backlog
+  8-10-valider-les-cycles-les-métriques-et-les-doublons-d-un-lot-cs: backlog
+  8-11-prévisualiser-chaque-ligne-et-son-impact-avant-tout-import-c: backlog
+  8-12-conserver-par-défaut-toutes-les-valeurs-historiques-préexist: backlog
+  8-13-confirmer-explicitement-le-remplacement-d-une-métrique-exist: backlog
+  8-14-appliquer-un-csv-validé-en-une-seule-transaction-atomique: backlog
+  8-15-tracer-les-imports-csv-et-distinguer-aperçu-réussite-et-éche: backlog
+  8-16-consulter-les-valeurs-reprises-et-leurs-révisions-historique: backlog
+  8-17-clôturer-volontairement-un-bilan-historique-partiel-sans-fab: backlog
+  8-18-préserver-les-versions-v1-v2-lors-des-corrections-et-reclôtu: backlog
+  8-19-intégrer-les-sprints-repris-aux-tendances-uniquement-lorsqu: backlog
+  8-20-rendre-les-rapports-historiques-transparents-et-protéger-les: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-démarrer-un-brief-ia-depuis-un-cycle-son-bilan-ou-un-rapport: backlog
+  9-2-disposer-de-modèles-initiaux-de-briefs-réutilisables: backlog
+  9-3-créer-modifier-et-gérer-ses-modèles-de-briefs-en-administrat: backlog
+  9-4-adapter-ponctuellement-un-modèle-sans-modifier-sa-définition: backlog
+  9-5-sélectionner-les-faits-et-métriques-collectives-avec-provena: backlog
+  9-6-construire-un-txt-plat-aux-rubriques-et-sources-explicites: backlog
+  9-7-ajouter-et-réviser-ses-observations-et-questions-à-l-ia: backlog
+  9-8-exclure-les-informations-individuelles-dès-la-projection-du: backlog
+  9-9-prévisualiser-intégralement-le-txt-et-valider-la-confidentia: backlog
+  9-10-imposer-une-transmission-manuelle-sans-appel-automatique-à-u: backlog
+  9-11-finaliser-et-archiver-le-texte-txt-exact-de-manière-immuable: backlog
+  9-12-retrouver-consulter-et-télécharger-les-briefs-txt-privés: backlog
+  9-13-dupliquer-un-brief-en-préservant-son-parent-et-ses-analyses: backlog
+  9-14-coller-manuellement-une-réponse-ia-dans-le-brief-d-origine: backlog
+  9-15-garantir-une-seule-réponse-ia-active-par-brief: backlog
+  9-16-créer-une-analyse-humaine-distincte-de-toute-réponse-ia: backlog
+  9-17-consulter-le-journal-commun-des-analyses-humaines-et-ia: backlog
+  9-18-modifier-les-analyses-et-identifier-les-retouches-humaines-d: backlog
+  9-19-supprimer-volontairement-une-analyse-sans-supprimer-le-brief: backlog
+  9-20-inclure-volontairement-des-analyses-passées-dans-un-nouveau: backlog
+  9-21-insérer-des-analyses-choisies-dans-les-rapports-html-pdf-ave: backlog
+  epic-9-retrospective: optional
+
+  epic-10: backlog
+  10-1-établir-la-matrice-de-traçabilité-des-exigences-mvp: backlog
+  10-2-consigner-l-exécution-les-preuves-et-les-résultats-de-chaque: backlog
+  10-3-suivre-les-anomalies-décisions-correctives-et-contre-tests: backlog
+  10-4-recetter-le-parcours-scrum-complet-de-l-installation-au-rapp: backlog
+  10-5-recetter-le-parcours-kanban-complet-sans-cérémonies-scrum-ar: backlog
+  10-6-vérifier-les-cas-limites-de-génération-statuts-et-saisies-de: backlog
+  10-7-définir-avant-mesures-le-protocole-des-cinq-conditions-de-su: backlog
+  10-8-conserver-les-preuves-des-trois-sprints-réels-et-d-un-cycle: backlog
+  10-9-chronométrer-le-rapport-complet-de-sprint-sans-reconstructio: backlog
+  10-10-mesurer-la-saisie-courante-hebdomadaire-séparément-des-excep: backlog
+  10-11-prouver-la-fiabilité-des-tendances-et-des-reprises-historiqu: backlog
+  10-12-vérifier-l-exploitabilité-des-rapports-html-et-pdf: backlog
+  10-13-tester-les-imports-csv-historiques-et-les-valeurs-atypiques: backlog
+  10-14-recetter-les-briefs-txt-et-les-analyses-ia-sans-transmission: backlog
+  10-15-contrôler-les-accès-privés-les-deux-profils-et-les-secrets: backlog
+  10-16-vérifier-la-sauvegarde-complète-et-la-restauration-contrôlée: backlog
+  10-17-tester-les-transactions-atomiques-et-les-échecs-d-opérations: backlog
+  10-18-constituer-la-matrice-de-compatibilité-appareils-navigateurs: backlog
+  10-19-recetter-l-accessibilité-clavier-et-la-lisibilité-des-compos: backlog
+  10-20-consolider-la-checklist-de-préparation-du-mvp-au-pilote: backlog
+  10-21-enregistrer-une-décision-humaine-explicite-de-passage-au-pil: backlog
+  epic-10-retrospective: optional

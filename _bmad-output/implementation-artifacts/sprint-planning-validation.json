@@ -1,0 +1,49 @@
+{
+  "gate": "CONCERNS",
+  "continuation_authorized": true,
+  "authorization": "Eric, 2026-10-19 22:41 Europe/Paris",
+  "generate_dry_run": {
+    "ok": true,
+    "action": "generate",
+    "status_file": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+    "dry_run": true,
+    "fresh": false,
+    "epics": 10,
+    "stories": 212,
+    "counts": {
+      "backlog": 222,
+      "optional": 10
+    },
+    "generated": "10-19-2026 22:41",
+    "last_updated": "10-19-2026 22:41",
+    "warnings": [
+      "unparsed Epic/Story-like heading at _bmad-output/planning-artifacts/epics.md:19: # Scrum Master Notebook (SMN) - Epic Breakdown",
+      "unparsed Epic/Story-like heading at _bmad-output/planning-artifacts/epics.md:263: ## Epic List",
+      "unparsed Epic/Story-like heading at _bmad-output/planning-artifacts/epics.md:3323: #### User Story",
+      "unparsed Epic/Story-like heading at _bmad-output/planning-artifacts/epics.md:3381: #### User Story"
+    ],
+    "new_entries": [],
+    "preserved": 232,
+    "changed": 0,
+    "upgraded_from_disk": [],
+    "dropped_orphans": [],
+    "legacy_mapped": [],
+    "illegal": [],
+    "in_sync": true,
+    "explicit_set": []
+  },
+  "validate": {
+    "ok": true,
+    "action": "validate",
+    "status_file": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+    "valid": true,
+    "problems": [],
+    "legacy_mapped": []
+  },
+  "mapping_check": {
+    "stories": 212,
+    "unique_tracking_keys": 212,
+    "unique_jira_keys": 212
+  },
+  "limits": "Contrôles du suivi uniquement ; aucune preuve applicative, aucune synchronisation Jira."
+}

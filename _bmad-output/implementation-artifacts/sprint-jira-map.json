@@ -1,0 +1,1278 @@
+{
+  "project": "SMN",
+  "note": "Correspondance documentaire ; aucune synchronisation automatique ni mutation Jira.",
+  "stories": [
+    {
+      "story": "1.1",
+      "tracking_key": "1-1-démarrer-smn-localement-et-vérifier-les-prérequis",
+      "jira_key": "SMN-11",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-11"
+    },
+    {
+      "story": "1.2",
+      "tracking_key": "1-2-initialiser-une-installation-express-et-son-administrateur-d",
+      "jira_key": "SMN-12",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-12"
+    },
+    {
+      "story": "1.3",
+      "tracking_key": "1-3-accompagner-l-initialisation-avec-un-parcours-guidé-facultat",
+      "jira_key": "SMN-13",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-13"
+    },
+    {
+      "story": "1.4",
+      "tracking_key": "1-4-se-connecter-se-déconnecter-et-protéger-les-sessions",
+      "jira_key": "SMN-14",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-14"
+    },
+    {
+      "story": "1.5",
+      "tracking_key": "1-5-créer-et-administrer-les-comptes-des-utilisateurs",
+      "jira_key": "SMN-15",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-15"
+    },
+    {
+      "story": "1.6",
+      "tracking_key": "1-6-faire-respecter-la-matrice-administrateur-utilisateur-côté-s",
+      "jira_key": "SMN-16",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-16"
+    },
+    {
+      "story": "1.7",
+      "tracking_key": "1-7-révoquer-les-accès-compromis-et-renouveler-son-mot-de-passe",
+      "jira_key": "SMN-17",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-17"
+    },
+    {
+      "story": "1.8",
+      "tracking_key": "1-8-modifier-les-paramètres-généraux-sans-réécrire-l-historique",
+      "jira_key": "SMN-18",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-18"
+    },
+    {
+      "story": "1.9",
+      "tracking_key": "1-9-protéger-la-configuration-privée-et-les-secrets-de-l-applica",
+      "jira_key": "SMN-19",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-19"
+    },
+    {
+      "story": "1.10",
+      "tracking_key": "1-10-suivre-les-tâches-facultatives-de-configuration-depuis-le-ta",
+      "jira_key": "SMN-20",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-20"
+    },
+    {
+      "story": "1.11",
+      "tracking_key": "1-11-afficher-un-tableau-de-bord-fiable-et-contextualisé-par-équi",
+      "jira_key": "SMN-21",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-21"
+    },
+    {
+      "story": "1.12",
+      "tracking_key": "1-12-naviguer-entre-les-grandes-fonctions-selon-son-mode-et-son-r",
+      "jira_key": "SMN-22",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-22"
+    },
+    {
+      "story": "1.13",
+      "tracking_key": "1-13-conserver-le-contexte-lors-des-navigations-vers-les-fiches-l",
+      "jira_key": "SMN-23",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-23"
+    },
+    {
+      "story": "1.14",
+      "tracking_key": "1-14-choisir-le-français-ou-l-anglais-pour-l-interface",
+      "jira_key": "SMN-27",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-27"
+    },
+    {
+      "story": "1.15",
+      "tracking_key": "1-15-personnaliser-l-apparence-avec-thèmes-clair-et-sombre",
+      "jira_key": "SMN-24",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-24"
+    },
+    {
+      "story": "1.16",
+      "tracking_key": "1-16-utiliser-le-socle-de-smn-sur-ordinateur-tablette-et-smartpho",
+      "jira_key": "SMN-25",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-25"
+    },
+    {
+      "story": "1.17",
+      "tracking_key": "1-17-avertir-avant-perte-de-saisie-et-afficher-le-résultat-réel-d",
+      "jira_key": "SMN-28",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-28"
+    },
+    {
+      "story": "1.18",
+      "tracking_key": "1-18-ne-transmettre-que-les-informations-collectives-autorisées-a",
+      "jira_key": "SMN-26",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-26"
+    },
+    {
+      "story": "2.1",
+      "tracking_key": "2-1-consulter-un-journal-fiable-des-opérations-métier-sensibles",
+      "jira_key": "SMN-29",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-29"
+    },
+    {
+      "story": "2.2",
+      "tracking_key": "2-2-créer-une-sauvegarde-manuelle-complète-de-l-installation",
+      "jira_key": "SMN-30",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-30"
+    },
+    {
+      "story": "2.3",
+      "tracking_key": "2-3-vérifier-l-intégrité-et-l-inventaire-d-une-sauvegarde",
+      "jira_key": "SMN-31",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-31"
+    },
+    {
+      "story": "2.4",
+      "tracking_key": "2-4-configurer-les-30-jours-de-conservation-des-sauvegardes-géré",
+      "jira_key": "SMN-32",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-32"
+    },
+    {
+      "story": "2.5",
+      "tracking_key": "2-5-prévisualiser-les-effets-et-risques-d-une-restauration",
+      "jira_key": "SMN-33",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-33"
+    },
+    {
+      "story": "2.6",
+      "tracking_key": "2-6-restaurer-une-sauvegarde-de-façon-contrôlée-et-vérifiable",
+      "jira_key": "SMN-34",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-34"
+    },
+    {
+      "story": "2.7",
+      "tracking_key": "2-7-préserver-l-atomicité-des-opérations-et-l-immuabilité-des-ar",
+      "jira_key": "SMN-35",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-35"
+    },
+    {
+      "story": "2.8",
+      "tracking_key": "2-8-distinguer-archivage-réversible-et-suppression-ordinaire",
+      "jira_key": "SMN-36",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-36"
+    },
+    {
+      "story": "2.9",
+      "tracking_key": "2-9-réinitialiser-une-installation-avec-confirmation-renforcée",
+      "jira_key": "SMN-37",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-37"
+    },
+    {
+      "story": "2.10",
+      "tracking_key": "2-10-prévisualiser-une-demande-exceptionnelle-d-effacement-ou-ano",
+      "jira_key": "SMN-38",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-38"
+    },
+    {
+      "story": "2.11",
+      "tracking_key": "2-11-appliquer-un-effacement-ou-une-anonymisation-exceptionnelle",
+      "jira_key": "SMN-39",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-39"
+    },
+    {
+      "story": "2.12",
+      "tracking_key": "2-12-empêcher-la-réintroduction-silencieuse-après-restauration-de",
+      "jira_key": "SMN-40",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-40"
+    },
+    {
+      "story": "2.13",
+      "tracking_key": "2-13-expliquer-les-interruptions-et-les-résultats-de-récupération",
+      "jira_key": "SMN-41",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-41"
+    },
+    {
+      "story": "3.1",
+      "tracking_key": "3-1-créer-rapidement-les-fiches-des-membres-de-l-équipe",
+      "jira_key": "SMN-42",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-42"
+    },
+    {
+      "story": "3.2",
+      "tracking_key": "3-2-compléter-la-fiche-centrale-du-membre-et-son-e-mail-facultat",
+      "jira_key": "SMN-43",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-43"
+    },
+    {
+      "story": "3.3",
+      "tracking_key": "3-3-gérer-l-affectation-datée-et-les-rôles-agile-dans-l-équipe-u",
+      "jira_key": "SMN-44",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-44"
+    },
+    {
+      "story": "3.4",
+      "tracking_key": "3-4-clore-une-affectation-et-conserver-les-membres-archivés",
+      "jira_key": "SMN-45",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-45"
+    },
+    {
+      "story": "3.5",
+      "tracking_key": "3-5-personnaliser-le-calendrier-hebdomadaire-individuel",
+      "jira_key": "SMN-46",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-46"
+    },
+    {
+      "story": "3.6",
+      "tracking_key": "3-6-localiser-un-membre-par-pays-et-fuseau-horaire",
+      "jira_key": "SMN-47",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-47"
+    },
+    {
+      "story": "3.7",
+      "tracking_key": "3-7-administrer-le-catalogue-des-sept-pays-initiaux",
+      "jira_key": "SMN-48",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-48"
+    },
+    {
+      "story": "3.8",
+      "tracking_key": "3-8-précharger-les-calendriers-nationaux-disponibles-à-l-install",
+      "jira_key": "SMN-49",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-49"
+    },
+    {
+      "story": "3.9",
+      "tracking_key": "3-9-importer-des-jours-fériés-nationaux-à-partir-d-un-csv",
+      "jira_key": "SMN-50",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-50"
+    },
+    {
+      "story": "3.10",
+      "tracking_key": "3-10-importer-et-sélectionner-des-jours-fériés-nationaux-depuis-u",
+      "jira_key": "SMN-51",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-51"
+    },
+    {
+      "story": "3.11",
+      "tracking_key": "3-11-administrer-les-catégories-et-couleurs-des-absences",
+      "jira_key": "SMN-52",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-52"
+    },
+    {
+      "story": "3.12",
+      "tracking_key": "3-12-enregistrer-et-modifier-une-absence-individuelle-centralisée",
+      "jira_key": "SMN-53",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-53"
+    },
+    {
+      "story": "3.13",
+      "tracking_key": "3-13-traiter-les-particularités-régionales-comme-absences-individ",
+      "jira_key": "SMN-54",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-54"
+    },
+    {
+      "story": "3.14",
+      "tracking_key": "3-14-consulter-le-calendrier-d-équipe-et-les-absences-selon-les-d",
+      "jira_key": "SMN-55",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-55"
+    },
+    {
+      "story": "3.15",
+      "tracking_key": "3-15-administrer-les-jours-de-fermeture-de-l-entreprise",
+      "jira_key": "SMN-56",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-56"
+    },
+    {
+      "story": "3.16",
+      "tracking_key": "3-16-calculer-une-capacité-de-développement-fiable-en-jours-homme",
+      "jira_key": "SMN-57",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-57"
+    },
+    {
+      "story": "3.17",
+      "tracking_key": "3-17-arbitrer-une-capacité-manuelle-prioritaire-face-à-la-référen",
+      "jira_key": "SMN-58",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-58"
+    },
+    {
+      "story": "3.18",
+      "tracking_key": "3-18-figer-la-capacité-initiale-à-l-ouverture-effective-d-une-pér",
+      "jira_key": "SMN-59",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-59"
+    },
+    {
+      "story": "3.19",
+      "tracking_key": "3-19-calculer-la-capacité-réellement-constatée-selon-le-statut-de",
+      "jira_key": "SMN-60",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-60"
+    },
+    {
+      "story": "3.20",
+      "tracking_key": "3-20-qualifier-la-fiabilité-des-capacités-historiques-sans-créer",
+      "jira_key": "SMN-61",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-61"
+    },
+    {
+      "story": "3.21",
+      "tracking_key": "3-21-prévisualiser-les-effets-d-une-replanification-sur-les-référ",
+      "jira_key": "SMN-62",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-62"
+    },
+    {
+      "story": "3.22",
+      "tracking_key": "3-22-préremplir-les-formulaires-membres-et-calendriers-sans-écras",
+      "jira_key": "SMN-63",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-63"
+    },
+    {
+      "story": "3.23",
+      "tracking_key": "3-23-afficher-cycles-événements-et-absences-dans-un-calendrier-ce",
+      "jira_key": "SMN-64",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-64"
+    },
+    {
+      "story": "3.24",
+      "tracking_key": "3-24-renseigner-et-historiser-la-vision-et-le-product-goal-de-l-é",
+      "jira_key": "SMN-221",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-221"
+    },
+    {
+      "story": "3.25",
+      "tracking_key": "3-25-renseigner-et-historiser-la-dod-et-la-dor-de-l-équipe",
+      "jira_key": "SMN-222",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-222"
+    },
+    {
+      "story": "4.1",
+      "tracking_key": "4-1-configurer-la-cadence-et-les-horaires-d-une-équipe-scrum",
+      "jira_key": "SMN-65",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-65"
+    },
+    {
+      "story": "4.2",
+      "tracking_key": "4-2-générer-un-sprint-unitaire-à-la-demande",
+      "jira_key": "SMN-66",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-66"
+    },
+    {
+      "story": "4.3",
+      "tracking_key": "4-3-prévisualiser-et-corriger-un-lot-de-sprints",
+      "jira_key": "SMN-67",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-67"
+    },
+    {
+      "story": "4.4",
+      "tracking_key": "4-4-confirmer-un-lot-valide-avec-écriture-atomique-et-audit",
+      "jira_key": "SMN-68",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-68"
+    },
+    {
+      "story": "4.5",
+      "tracking_key": "4-5-renommer-un-sprint-sans-toucher-à-ses-données-historiques",
+      "jira_key": "SMN-69",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-69"
+    },
+    {
+      "story": "4.6",
+      "tracking_key": "4-6-supprimer-après-confirmation-des-sprints-jamais-démarrés",
+      "jira_key": "SMN-70",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-70"
+    },
+    {
+      "story": "4.7",
+      "tracking_key": "4-7-suivre-les-transitions-automatiques-d-état-du-sprint",
+      "jira_key": "SMN-71",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-71"
+    },
+    {
+      "story": "4.8",
+      "tracking_key": "4-8-générer-les-cérémonies-scrum-standards-avec-chaque-sprint",
+      "jira_key": "SMN-72",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-72"
+    },
+    {
+      "story": "4.9",
+      "tracking_key": "4-9-respecter-la-pause-déjeuner-et-les-cérémonies-à-segments",
+      "jira_key": "SMN-73",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-73"
+    },
+    {
+      "story": "4.10",
+      "tracking_key": "4-10-signaler-sans-bloquer-les-conflits-de-réunions",
+      "jira_key": "SMN-74",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-74"
+    },
+    {
+      "story": "4.11",
+      "tracking_key": "4-11-personnaliser-une-occurrence-ou-une-série-de-cérémonies",
+      "jira_key": "SMN-75",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-75"
+    },
+    {
+      "story": "4.12",
+      "tracking_key": "4-12-administrer-les-modèles-de-cérémonies-personnalisées",
+      "jira_key": "SMN-76",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-76"
+    },
+    {
+      "story": "4.13",
+      "tracking_key": "4-13-générer-les-occurrences-des-modèles-de-cérémonie-actifs",
+      "jira_key": "SMN-77",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-77"
+    },
+    {
+      "story": "4.14",
+      "tracking_key": "4-14-créer-des-réunions-exceptionnelles-ponctuelles",
+      "jira_key": "SMN-78",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-78"
+    },
+    {
+      "story": "4.15",
+      "tracking_key": "4-15-constater-annuler-et-corriger-la-tenue-des-événements",
+      "jira_key": "SMN-79",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-79"
+    },
+    {
+      "story": "4.16",
+      "tracking_key": "4-16-saisir-la-durée-réellement-constatée-sans-déplacer-les-créne",
+      "jira_key": "SMN-80",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-80"
+    },
+    {
+      "story": "4.17",
+      "tracking_key": "4-17-déduire-facultativement-les-réunions-exceptionnelles-de-la-c",
+      "jira_key": "SMN-81",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-81"
+    },
+    {
+      "story": "4.18",
+      "tracking_key": "4-18-replanifier-les-dates-d-un-sprint-sans-déplacer-les-événemen",
+      "jira_key": "SMN-82",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-82"
+    },
+    {
+      "story": "4.19",
+      "tracking_key": "4-19-gérer-et-évaluer-plusieurs-objectifs-de-sprint-dans-le-bilan",
+      "jira_key": "SMN-83",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-83"
+    },
+    {
+      "story": "4.20",
+      "tracking_key": "4-20-saisir-les-quatre-valeurs-de-story-points-et-calculer-les-dé",
+      "jira_key": "SMN-84",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-84"
+    },
+    {
+      "story": "4.21",
+      "tracking_key": "4-21-présenter-les-capacités-et-sauvegarder-séparément-les-trois",
+      "jira_key": "SMN-85",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-85"
+    },
+    {
+      "story": "4.22",
+      "tracking_key": "4-22-visualiser-les-tendances-de-cinq-sprints-clôturés-contextual",
+      "jira_key": "SMN-86",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-86"
+    },
+    {
+      "story": "4.23",
+      "tracking_key": "4-23-clôturer-rouvrir-et-reclôturer-un-sprint-avec-instantanés-ve",
+      "jira_key": "SMN-87",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-87"
+    },
+    {
+      "story": "4.24",
+      "tracking_key": "4-24-signaler-les-métriques-et-objectifs-à-réexaminer-après-repla",
+      "jira_key": "SMN-88",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-88"
+    },
+    {
+      "story": "5.1",
+      "tracking_key": "5-1-créer-rapidement-une-fiche-dans-l-un-des-six-registres",
+      "jira_key": "SMN-89",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-89"
+    },
+    {
+      "story": "5.2",
+      "tracking_key": "5-2-consulter-les-six-registres-avec-recherche-et-filtres",
+      "jira_key": "SMN-90",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-90"
+    },
+    {
+      "story": "5.3",
+      "tracking_key": "5-3-modifier-les-fiches-qualitatives-en-conservant-leurs-révisio",
+      "jira_key": "SMN-91",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-91"
+    },
+    {
+      "story": "5.4",
+      "tracking_key": "5-4-gérer-la-classification-roam-et-les-états-des-risques",
+      "jira_key": "SMN-92",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-92"
+    },
+    {
+      "story": "5.5",
+      "tracking_key": "5-5-évaluer-la-criticité-des-risques-avec-la-matrice-fixe-3-3",
+      "jira_key": "SMN-93",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-93"
+    },
+    {
+      "story": "5.6",
+      "tracking_key": "5-6-suivre-le-cycle-de-vie-des-obstacles-sans-effacer-les-résolu",
+      "jira_key": "SMN-94",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-94"
+    },
+    {
+      "story": "5.7",
+      "tracking_key": "5-7-décrire-une-dépendance-interne-ou-vers-une-équipe-externe",
+      "jira_key": "SMN-95",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-95"
+    },
+    {
+      "story": "5.8",
+      "tracking_key": "5-8-piloter-les-états-et-le-signal-à-risque-d-une-dépendance",
+      "jira_key": "SMN-96",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-96"
+    },
+    {
+      "story": "5.9",
+      "tracking_key": "5-9-associer-un-risque-ou-une-dépendance-à-plusieurs-cycles",
+      "jira_key": "SMN-97",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-97"
+    },
+    {
+      "story": "5.10",
+      "tracking_key": "5-10-gérer-les-décisions-justifications-et-remplacements",
+      "jira_key": "SMN-98",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-98"
+    },
+    {
+      "story": "5.11",
+      "tracking_key": "5-11-suivre-les-actions-et-leurs-responsables-en-texte-libre",
+      "jira_key": "SMN-99",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-99"
+    },
+    {
+      "story": "5.12",
+      "tracking_key": "5-12-relier-les-fiches-qualitatives-et-les-objectifs-de-façon-tra",
+      "jira_key": "SMN-100",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-100"
+    },
+    {
+      "story": "5.13",
+      "tracking_key": "5-13-créer-un-obstacle-assisté-à-partir-d-un-risque-matérialisé",
+      "jira_key": "SMN-101",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-101"
+    },
+    {
+      "story": "5.14",
+      "tracking_key": "5-14-créer-plusieurs-actions-assistées-depuis-une-décision",
+      "jira_key": "SMN-102",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-102"
+    },
+    {
+      "story": "5.15",
+      "tracking_key": "5-15-surveiller-les-échéances-des-actions-et-dépendances-ouvertes",
+      "jira_key": "SMN-103",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-103"
+    },
+    {
+      "story": "5.16",
+      "tracking_key": "5-16-afficher-un-cockpit-des-points-d-attention-collectifs",
+      "jira_key": "SMN-104",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-104"
+    },
+    {
+      "story": "5.17",
+      "tracking_key": "5-17-préserver-risques-et-dépendances-lors-de-la-replanification",
+      "jira_key": "SMN-105",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-105"
+    },
+    {
+      "story": "5.18",
+      "tracking_key": "5-18-saisir-des-faits-marquants-manuels-dans-un-journal-chronolog",
+      "jira_key": "SMN-106",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-106"
+    },
+    {
+      "story": "5.19",
+      "tracking_key": "5-19-paramétrer-les-six-catégories-de-faits-marquants-automatique",
+      "jira_key": "SMN-107",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-107"
+    },
+    {
+      "story": "5.20",
+      "tracking_key": "5-20-produire-les-faits-marquants-automatiques-sur-événements-mét",
+      "jira_key": "SMN-108",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-108"
+    },
+    {
+      "story": "5.21",
+      "tracking_key": "5-21-dédupliquer-et-corriger-les-faits-automatiques-sans-falsifie",
+      "jira_key": "SMN-109",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-109"
+    },
+    {
+      "story": "5.22",
+      "tracking_key": "5-22-masquer-promouvoir-et-sélectionner-les-faits-pour-les-report",
+      "jira_key": "SMN-110",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-110"
+    },
+    {
+      "story": "5.23",
+      "tracking_key": "5-23-figer-les-six-registres-associés-lors-de-la-clôture-d-un-cyc",
+      "jira_key": "SMN-111",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-111"
+    },
+    {
+      "story": "5.24",
+      "tracking_key": "5-24-conserver-v1-v2-et-les-états-historiques-lors-des-reclôtures",
+      "jira_key": "SMN-112",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-112"
+    },
+    {
+      "story": "6.1",
+      "tracking_key": "6-1-lancer-un-rapport-depuis-la-fiche-d-un-sprint",
+      "jira_key": "SMN-113",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-113"
+    },
+    {
+      "story": "6.2",
+      "tracking_key": "6-2-préparer-un-contrat-de-données-commun-aux-rapports-scrum-et",
+      "jira_key": "SMN-116",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-116"
+    },
+    {
+      "story": "6.3",
+      "tracking_key": "6-3-composer-automatiquement-les-six-sections-standard-du-rappor",
+      "jira_key": "SMN-114",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-114"
+    },
+    {
+      "story": "6.4",
+      "tracking_key": "6-4-ajouter-introduction-commentaires-et-conclusion-propres-au-r",
+      "jira_key": "SMN-115",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-115"
+    },
+    {
+      "story": "6.5",
+      "tracking_key": "6-5-sélectionner-et-réordonner-les-sections-du-rapport",
+      "jira_key": "SMN-117",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-117"
+    },
+    {
+      "story": "6.6",
+      "tracking_key": "6-6-choisir-les-kpi-graphiques-et-informations-qualitatives",
+      "jira_key": "SMN-118",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-118"
+    },
+    {
+      "story": "6.7",
+      "tracking_key": "6-7-régler-la-profondeur-historique-et-limiter-les-tendances-à-c",
+      "jira_key": "SMN-121",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-121"
+    },
+    {
+      "story": "6.8",
+      "tracking_key": "6-8-respecter-les-clichés-historiques-et-indiquer-la-qualité-des",
+      "jira_key": "SMN-119",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-119"
+    },
+    {
+      "story": "6.9",
+      "tracking_key": "6-9-intégrer-la-vision-le-product-goal-et-les-définitions-d-équi",
+      "jira_key": "SMN-120",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-120"
+    },
+    {
+      "story": "6.10",
+      "tracking_key": "6-10-fournir-un-modèle-standard-de-rapport-protégé",
+      "jira_key": "SMN-122",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-122"
+    },
+    {
+      "story": "6.11",
+      "tracking_key": "6-11-créer-dupliquer-et-modifier-les-modèles-de-rapport",
+      "jira_key": "SMN-123",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-123"
+    },
+    {
+      "story": "6.12",
+      "tracking_key": "6-12-charger-un-modèle-et-adapter-ponctuellement-les-options",
+      "jira_key": "SMN-133",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-133"
+    },
+    {
+      "story": "6.13",
+      "tracking_key": "6-13-prévisualiser-la-totalité-du-rapport-en-html",
+      "jira_key": "SMN-124",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-124"
+    },
+    {
+      "story": "6.14",
+      "tracking_key": "6-14-choisir-fr-en-pour-les-rubriques-sans-traduire-les-textes-li",
+      "jira_key": "SMN-125",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-125"
+    },
+    {
+      "story": "6.15",
+      "tracking_key": "6-15-présenter-un-en-tête-professionnel-et-un-logo-facultatif",
+      "jira_key": "SMN-134",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-134"
+    },
+    {
+      "story": "6.16",
+      "tracking_key": "6-16-exclure-les-données-individuelles-sensibles-des-rapports-par",
+      "jira_key": "SMN-126",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-126"
+    },
+    {
+      "story": "6.17",
+      "tracking_key": "6-17-exporter-un-pdf-fidèle-à-la-prévisualisation-html",
+      "jira_key": "SMN-127",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-127"
+    },
+    {
+      "story": "6.18",
+      "tracking_key": "6-18-archiver-automatiquement-le-fichier-pdf-final-exact-après-ex",
+      "jira_key": "SMN-128",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-128"
+    },
+    {
+      "story": "6.19",
+      "tracking_key": "6-19-distinguer-les-rapports-archivés-par-cycle-version-et-proven",
+      "jira_key": "SMN-129",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-129"
+    },
+    {
+      "story": "6.20",
+      "tracking_key": "6-20-rechercher-et-filtrer-les-rapports-pdf-archivés",
+      "jira_key": "SMN-130",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-130"
+    },
+    {
+      "story": "6.21",
+      "tracking_key": "6-21-consulter-et-télécharger-les-pdf-autorisés",
+      "jira_key": "SMN-135",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-135"
+    },
+    {
+      "story": "6.22",
+      "tracking_key": "6-22-masquer-ou-supprimer-exceptionnellement-une-archive-avec-con",
+      "jira_key": "SMN-131",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-131"
+    },
+    {
+      "story": "6.23",
+      "tracking_key": "6-23-traiter-les-erreurs-d-export-et-les-reprises-sans-archives-i",
+      "jira_key": "SMN-132",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-132"
+    },
+    {
+      "story": "7.1",
+      "tracking_key": "7-1-configurer-les-cadences-kanban-et-le-fuseau-de-l-équipe",
+      "jira_key": "SMN-136",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-136"
+    },
+    {
+      "story": "7.2",
+      "tracking_key": "7-2-créer-une-période-kanban-unitaire-sur-demande",
+      "jira_key": "SMN-137",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-137"
+    },
+    {
+      "story": "7.3",
+      "tracking_key": "7-3-prévisualiser-un-lot-de-deux-à-six-périodes-kanban",
+      "jira_key": "SMN-138",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-138"
+    },
+    {
+      "story": "7.4",
+      "tracking_key": "7-4-créer-atomiquement-un-lot-kanban-et-tracer-sa-provenance",
+      "jira_key": "SMN-139",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-139"
+    },
+    {
+      "story": "7.5",
+      "tracking_key": "7-5-nommer-personnaliser-et-renommer-une-période-kanban",
+      "jira_key": "SMN-140",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-140"
+    },
+    {
+      "story": "7.6",
+      "tracking_key": "7-6-supprimer-les-périodes-kanban-futures-jamais-démarrées",
+      "jira_key": "SMN-141",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-141"
+    },
+    {
+      "story": "7.7",
+      "tracking_key": "7-7-suivre-les-états-calendaires-sans-générer-la-période-suivant",
+      "jira_key": "SMN-142",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-142"
+    },
+    {
+      "story": "7.8",
+      "tracking_key": "7-8-changer-de-cadence-kanban-en-préservant-les-cycles-existants",
+      "jira_key": "SMN-143",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-143"
+    },
+    {
+      "story": "7.9",
+      "tracking_key": "7-9-replanifier-une-période-kanban-après-un-aperçu-d-impact",
+      "jira_key": "SMN-144",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-144"
+    },
+    {
+      "story": "7.10",
+      "tracking_key": "7-10-protéger-les-événements-lors-d-une-replanification-kanban",
+      "jira_key": "SMN-145",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-145"
+    },
+    {
+      "story": "7.11",
+      "tracking_key": "7-11-tracer-les-replanifications-et-conserver-les-relations-quali",
+      "jira_key": "SMN-146",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-146"
+    },
+    {
+      "story": "7.12",
+      "tracking_key": "7-12-afficher-les-quatre-blocs-du-bilan-de-période-kanban",
+      "jira_key": "SMN-147",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-147"
+    },
+    {
+      "story": "7.13",
+      "tracking_key": "7-13-créer-et-évaluer-plusieurs-objectifs-de-période-kanban",
+      "jira_key": "SMN-148",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-148"
+    },
+    {
+      "story": "7.14",
+      "tracking_key": "7-14-saisir-séparément-commencés-terminés-et-wip-final",
+      "jira_key": "SMN-149",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-149"
+    },
+    {
+      "story": "7.15",
+      "tracking_key": "7-15-saisir-cycle-time-et-lead-time-moyens-comparables",
+      "jira_key": "SMN-150",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-150"
+    },
+    {
+      "story": "7.16",
+      "tracking_key": "7-16-enregistrer-séparément-les-trois-blocs-de-saisie-du-bilan-ka",
+      "jira_key": "SMN-151",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-151"
+    },
+    {
+      "story": "7.17",
+      "tracking_key": "7-17-afficher-les-capacités-initiale-et-réelle-de-la-période-en-j",
+      "jira_key": "SMN-152",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-152"
+    },
+    {
+      "story": "7.18",
+      "tracking_key": "7-18-visualiser-trois-tendances-distinctes-des-comptes-de-flux",
+      "jira_key": "SMN-153",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-153"
+    },
+    {
+      "story": "7.19",
+      "tracking_key": "7-19-comparer-cycle-time-et-lead-time-dans-un-quatrième-graphique",
+      "jira_key": "SMN-154",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-154"
+    },
+    {
+      "story": "7.20",
+      "tracking_key": "7-20-clôturer-et-rouvrir-une-période-kanban-avec-versions-vn",
+      "jira_key": "SMN-155",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-155"
+    },
+    {
+      "story": "7.21",
+      "tracking_key": "7-21-préserver-les-cinq-mesures-et-objectifs-lors-de-la-replanifi",
+      "jira_key": "SMN-156",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-156"
+    },
+    {
+      "story": "7.22",
+      "tracking_key": "7-22-consulter-les-périodes-kanban-et-événements-sur-le-calendrie",
+      "jira_key": "SMN-157",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-157"
+    },
+    {
+      "story": "7.23",
+      "tracking_key": "7-23-produire-un-rapport-kanban-avec-le-moteur-html-pdf-partagé",
+      "jira_key": "SMN-158",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-158"
+    },
+    {
+      "story": "8.1",
+      "tracking_key": "8-1-créer-un-sprint-passé-en-reprise-historique-explicite",
+      "jira_key": "SMN-159",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-159"
+    },
+    {
+      "story": "8.2",
+      "tracking_key": "8-2-ne-générer-aucune-cérémonie-lors-d-une-reprise-historique",
+      "jira_key": "SMN-160",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-160"
+    },
+    {
+      "story": "8.3",
+      "tracking_key": "8-3-ajouter-manuellement-un-événement-historique-réellement-docu",
+      "jira_key": "SMN-161",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-161"
+    },
+    {
+      "story": "8.4",
+      "tracking_key": "8-4-renseigner-un-bilan-historique-partiel-à-partir-des-objectif",
+      "jira_key": "SMN-162",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-162"
+    },
+    {
+      "story": "8.5",
+      "tracking_key": "8-5-qualifier-la-capacité-initiale-historique-comme-connue-estim",
+      "jira_key": "SMN-163",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-163"
+    },
+    {
+      "story": "8.6",
+      "tracking_key": "8-6-saisir-une-capacité-réellement-constatée-sans-la-déduire-du",
+      "jira_key": "SMN-164",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-164"
+    },
+    {
+      "story": "8.7",
+      "tracking_key": "8-7-distinguer-la-date-historique-l-origine-et-le-niveau-de-qual",
+      "jira_key": "SMN-165",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-165"
+    },
+    {
+      "story": "8.8",
+      "tracking_key": "8-8-proposer-un-modèle-csv-historique-au-contrat-strict-de-quatr",
+      "jira_key": "SMN-166",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-166"
+    },
+    {
+      "story": "8.9",
+      "tracking_key": "8-9-contrôler-le-schéma-et-la-syntaxe-de-tout-csv-avant-import",
+      "jira_key": "SMN-167",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-167"
+    },
+    {
+      "story": "8.10",
+      "tracking_key": "8-10-valider-les-cycles-les-métriques-et-les-doublons-d-un-lot-cs",
+      "jira_key": "SMN-168",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-168"
+    },
+    {
+      "story": "8.11",
+      "tracking_key": "8-11-prévisualiser-chaque-ligne-et-son-impact-avant-tout-import-c",
+      "jira_key": "SMN-169",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-169"
+    },
+    {
+      "story": "8.12",
+      "tracking_key": "8-12-conserver-par-défaut-toutes-les-valeurs-historiques-préexist",
+      "jira_key": "SMN-170",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-170"
+    },
+    {
+      "story": "8.13",
+      "tracking_key": "8-13-confirmer-explicitement-le-remplacement-d-une-métrique-exist",
+      "jira_key": "SMN-171",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-171"
+    },
+    {
+      "story": "8.14",
+      "tracking_key": "8-14-appliquer-un-csv-validé-en-une-seule-transaction-atomique",
+      "jira_key": "SMN-172",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-172"
+    },
+    {
+      "story": "8.15",
+      "tracking_key": "8-15-tracer-les-imports-csv-et-distinguer-aperçu-réussite-et-éche",
+      "jira_key": "SMN-173",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-173"
+    },
+    {
+      "story": "8.16",
+      "tracking_key": "8-16-consulter-les-valeurs-reprises-et-leurs-révisions-historique",
+      "jira_key": "SMN-174",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-174"
+    },
+    {
+      "story": "8.17",
+      "tracking_key": "8-17-clôturer-volontairement-un-bilan-historique-partiel-sans-fab",
+      "jira_key": "SMN-175",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-175"
+    },
+    {
+      "story": "8.18",
+      "tracking_key": "8-18-préserver-les-versions-v1-v2-lors-des-corrections-et-reclôtu",
+      "jira_key": "SMN-176",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-176"
+    },
+    {
+      "story": "8.19",
+      "tracking_key": "8-19-intégrer-les-sprints-repris-aux-tendances-uniquement-lorsqu",
+      "jira_key": "SMN-177",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-177"
+    },
+    {
+      "story": "8.20",
+      "tracking_key": "8-20-rendre-les-rapports-historiques-transparents-et-protéger-les",
+      "jira_key": "SMN-178",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-178"
+    },
+    {
+      "story": "9.1",
+      "tracking_key": "9-1-démarrer-un-brief-ia-depuis-un-cycle-son-bilan-ou-un-rapport",
+      "jira_key": "SMN-179",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-179"
+    },
+    {
+      "story": "9.2",
+      "tracking_key": "9-2-disposer-de-modèles-initiaux-de-briefs-réutilisables",
+      "jira_key": "SMN-188",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-188"
+    },
+    {
+      "story": "9.3",
+      "tracking_key": "9-3-créer-modifier-et-gérer-ses-modèles-de-briefs-en-administrat",
+      "jira_key": "SMN-180",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-180"
+    },
+    {
+      "story": "9.4",
+      "tracking_key": "9-4-adapter-ponctuellement-un-modèle-sans-modifier-sa-définition",
+      "jira_key": "SMN-181",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-181"
+    },
+    {
+      "story": "9.5",
+      "tracking_key": "9-5-sélectionner-les-faits-et-métriques-collectives-avec-provena",
+      "jira_key": "SMN-182",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-182"
+    },
+    {
+      "story": "9.6",
+      "tracking_key": "9-6-construire-un-txt-plat-aux-rubriques-et-sources-explicites",
+      "jira_key": "SMN-183",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-183"
+    },
+    {
+      "story": "9.7",
+      "tracking_key": "9-7-ajouter-et-réviser-ses-observations-et-questions-à-l-ia",
+      "jira_key": "SMN-184",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-184"
+    },
+    {
+      "story": "9.8",
+      "tracking_key": "9-8-exclure-les-informations-individuelles-dès-la-projection-du",
+      "jira_key": "SMN-185",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-185"
+    },
+    {
+      "story": "9.9",
+      "tracking_key": "9-9-prévisualiser-intégralement-le-txt-et-valider-la-confidentia",
+      "jira_key": "SMN-186",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-186"
+    },
+    {
+      "story": "9.10",
+      "tracking_key": "9-10-imposer-une-transmission-manuelle-sans-appel-automatique-à-u",
+      "jira_key": "SMN-187",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-187"
+    },
+    {
+      "story": "9.11",
+      "tracking_key": "9-11-finaliser-et-archiver-le-texte-txt-exact-de-manière-immuable",
+      "jira_key": "SMN-189",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-189"
+    },
+    {
+      "story": "9.12",
+      "tracking_key": "9-12-retrouver-consulter-et-télécharger-les-briefs-txt-privés",
+      "jira_key": "SMN-190",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-190"
+    },
+    {
+      "story": "9.13",
+      "tracking_key": "9-13-dupliquer-un-brief-en-préservant-son-parent-et-ses-analyses",
+      "jira_key": "SMN-191",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-191"
+    },
+    {
+      "story": "9.14",
+      "tracking_key": "9-14-coller-manuellement-une-réponse-ia-dans-le-brief-d-origine",
+      "jira_key": "SMN-192",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-192"
+    },
+    {
+      "story": "9.15",
+      "tracking_key": "9-15-garantir-une-seule-réponse-ia-active-par-brief",
+      "jira_key": "SMN-193",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-193"
+    },
+    {
+      "story": "9.16",
+      "tracking_key": "9-16-créer-une-analyse-humaine-distincte-de-toute-réponse-ia",
+      "jira_key": "SMN-194",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-194"
+    },
+    {
+      "story": "9.17",
+      "tracking_key": "9-17-consulter-le-journal-commun-des-analyses-humaines-et-ia",
+      "jira_key": "SMN-195",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-195"
+    },
+    {
+      "story": "9.18",
+      "tracking_key": "9-18-modifier-les-analyses-et-identifier-les-retouches-humaines-d",
+      "jira_key": "SMN-196",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-196"
+    },
+    {
+      "story": "9.19",
+      "tracking_key": "9-19-supprimer-volontairement-une-analyse-sans-supprimer-le-brief",
+      "jira_key": "SMN-197",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-197"
+    },
+    {
+      "story": "9.20",
+      "tracking_key": "9-20-inclure-volontairement-des-analyses-passées-dans-un-nouveau",
+      "jira_key": "SMN-198",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-198"
+    },
+    {
+      "story": "9.21",
+      "tracking_key": "9-21-insérer-des-analyses-choisies-dans-les-rapports-html-pdf-ave",
+      "jira_key": "SMN-199",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-199"
+    },
+    {
+      "story": "10.1",
+      "tracking_key": "10-1-établir-la-matrice-de-traçabilité-des-exigences-mvp",
+      "jira_key": "SMN-200",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-200"
+    },
+    {
+      "story": "10.2",
+      "tracking_key": "10-2-consigner-l-exécution-les-preuves-et-les-résultats-de-chaque",
+      "jira_key": "SMN-201",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-201"
+    },
+    {
+      "story": "10.3",
+      "tracking_key": "10-3-suivre-les-anomalies-décisions-correctives-et-contre-tests",
+      "jira_key": "SMN-202",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-202"
+    },
+    {
+      "story": "10.4",
+      "tracking_key": "10-4-recetter-le-parcours-scrum-complet-de-l-installation-au-rapp",
+      "jira_key": "SMN-203",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-203"
+    },
+    {
+      "story": "10.5",
+      "tracking_key": "10-5-recetter-le-parcours-kanban-complet-sans-cérémonies-scrum-ar",
+      "jira_key": "SMN-204",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-204"
+    },
+    {
+      "story": "10.6",
+      "tracking_key": "10-6-vérifier-les-cas-limites-de-génération-statuts-et-saisies-de",
+      "jira_key": "SMN-205",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-205"
+    },
+    {
+      "story": "10.7",
+      "tracking_key": "10-7-définir-avant-mesures-le-protocole-des-cinq-conditions-de-su",
+      "jira_key": "SMN-206",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-206"
+    },
+    {
+      "story": "10.8",
+      "tracking_key": "10-8-conserver-les-preuves-des-trois-sprints-réels-et-d-un-cycle",
+      "jira_key": "SMN-207",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-207"
+    },
+    {
+      "story": "10.9",
+      "tracking_key": "10-9-chronométrer-le-rapport-complet-de-sprint-sans-reconstructio",
+      "jira_key": "SMN-208",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-208"
+    },
+    {
+      "story": "10.10",
+      "tracking_key": "10-10-mesurer-la-saisie-courante-hebdomadaire-séparément-des-excep",
+      "jira_key": "SMN-209",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-209"
+    },
+    {
+      "story": "10.11",
+      "tracking_key": "10-11-prouver-la-fiabilité-des-tendances-et-des-reprises-historiqu",
+      "jira_key": "SMN-210",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-210"
+    },
+    {
+      "story": "10.12",
+      "tracking_key": "10-12-vérifier-l-exploitabilité-des-rapports-html-et-pdf",
+      "jira_key": "SMN-214",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-214"
+    },
+    {
+      "story": "10.13",
+      "tracking_key": "10-13-tester-les-imports-csv-historiques-et-les-valeurs-atypiques",
+      "jira_key": "SMN-211",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-211"
+    },
+    {
+      "story": "10.14",
+      "tracking_key": "10-14-recetter-les-briefs-txt-et-les-analyses-ia-sans-transmission",
+      "jira_key": "SMN-212",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-212"
+    },
+    {
+      "story": "10.15",
+      "tracking_key": "10-15-contrôler-les-accès-privés-les-deux-profils-et-les-secrets",
+      "jira_key": "SMN-213",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-213"
+    },
+    {
+      "story": "10.16",
+      "tracking_key": "10-16-vérifier-la-sauvegarde-complète-et-la-restauration-contrôlée",
+      "jira_key": "SMN-215",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-215"
+    },
+    {
+      "story": "10.17",
+      "tracking_key": "10-17-tester-les-transactions-atomiques-et-les-échecs-d-opérations",
+      "jira_key": "SMN-216",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-216"
+    },
+    {
+      "story": "10.18",
+      "tracking_key": "10-18-constituer-la-matrice-de-compatibilité-appareils-navigateurs",
+      "jira_key": "SMN-217",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-217"
+    },
+    {
+      "story": "10.19",
+      "tracking_key": "10-19-recetter-l-accessibilité-clavier-et-la-lisibilité-des-compos",
+      "jira_key": "SMN-218",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-218"
+    },
+    {
+      "story": "10.20",
+      "tracking_key": "10-20-consolider-la-checklist-de-préparation-du-mvp-au-pilote",
+      "jira_key": "SMN-219",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-219"
+    },
+    {
+      "story": "10.21",
+      "tracking_key": "10-21-enregistrer-une-décision-humaine-explicite-de-passage-au-pil",
+      "jira_key": "SMN-220",
+      "jira_url": "https://lmn24.atlassian.net/browse/SMN-220"
+    }
+  ]
+}

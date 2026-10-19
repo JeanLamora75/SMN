@@ -61,7 +61,7 @@ Poste Windows 11 sans droits administrateur ; Node.js, npm, pnpm, PowerShell et 
 
 ## Contrôle de préparation du 19 octobre 2026
 
-Le [contrôle Sprint Planning](../_bmad-output/planning-artifacts/implementation-readiness.md) aboutit à **CONCERNS** ; le suivi n’est pas généré avant le choix requis par le gate. Le contrôle initial rapprochait 210 Stories et 1 052 AC. Après D-PRD-137, le backlog comprend 212 Stories et 1 064 AC : C1/C2 traités par clarification, correction des Stories et ajout des deux producteurs. C3/C4 restent ouverts ; le verdict ne devient pas PASS automatiquement. Premier travail futur : préparation technique I0 puis SMN-11, sous mandat de construction distinct. La clarification D-PRD-137 est publiée dans les tickets concernés sur demande explicite ; aucune implémentation n'est engagée.
+Le [contrôle Sprint Planning](../_bmad-output/planning-artifacts/implementation-readiness.md) aboutit à **CONCERNS** ; la poursuite sous réserves a été explicitement autorisée le 19/10 à 22:41. Le [suivi BMAD](../_bmad-output/implementation-artifacts/sprint-status.yaml) est généré et validé ; les 212 Stories restent backlog. Le contrôle initial rapprochait 210 Stories et 1 052 AC. Après D-PRD-137, le backlog comprend 212 Stories ; les politiques D-PRD-138/139 portent les critères GWT documentés à 1 071 : C1/C2 traités par clarification, correction des Stories et ajout des deux producteurs. C3/C4 restent ouverts ; le verdict ne devient pas PASS automatiquement. Premier travail futur : préparation technique I0 puis SMN-11, sous mandat de construction distinct. La clarification D-PRD-137 est publiée dans les tickets concernés sur demande explicite ; aucune implémentation n'est engagée.
 
 ## 6. Maintenance
 
@@ -73,3 +73,6 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
 
 
 **Migrations et secrets, accord du 19/10/2026 à 22:32 :** [ADR-I0-002](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md). Base dédiée, migrations versionnées contrôlées et secrets privés validés ; copie protégée des clés à prévoir, mécanisme à préciser. Les vérifications et essais restent ouverts.
+
+
+**Sprint Planning — jalon du 19/10 à 22:41 :** [compte rendu et premier Sprint proposé](../_bmad-output/planning-artifacts/sprint-planning-2026-10-19.md). CONCERNS maintenu avec poursuite autorisée ; aucun travail marqué prêt ou réalisé. Durée, capacité et dates restent à renseigner avant engagement.
