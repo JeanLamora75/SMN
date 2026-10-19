@@ -40,7 +40,9 @@ Aucune entrée illégale, orpheline ou normalisation de statut ancien signalée.
 
 **Objectif proposé :** démontrer le lancement local et une première installation privée cohérente, persistée dans PostgreSQL.
 
-Le périmètre est une proposition à affiner, pas un engagement de délai. I0 peut couvrir plusieurs Sprints. La capacité disponible, la durée et la date de début ne sont pas encore connues ; aucune vélocité ou estimation n'est inventée.
+Le périmètre est une proposition à affiner, pas un engagement de délai. I0 peut couvrir plusieurs Sprints. Eric déclare une disponibilité de **40 heures par semaine**. Cette disponibilité inclut préparation, développement, essais, revue et documentation ; elle ne constitue ni une estimation du backlog ni une vélocité mesurée.
+
+**Cadence proposée, à confirmer :** un premier Sprint d'une semaine, soit 40 heures nominales avant indisponibilités éventuelles. Ce cycle court doit permettre de vérifier le socle I0 et de réévaluer la charge à partir des premiers résultats. La date de début reste à préciser. Aucun engagement de périmètre ou calendrier n'est déduit de la seule disponibilité.
 
 Ordre proposé des premières capacités :
 
@@ -71,7 +73,7 @@ Démarrage sous compte Windows standard, diagnostic PostgreSQL sans secret expos
 | --- | --- | --- |
 | C1/C2 | Clarifications métier et producteurs documentés, Jira aligné | Ne pas rouvrir les décisions validées |
 | C3 | Stack/principes validés, correctifs exacts et mécanismes encore à qualifier | Préparation et essais par capacité I0, pas de ready-for-dev automatique |
-| C4 | Premier ordre proposé ; taille et capacité non estimées | Affiner avant engagement du Sprint |
+| C4 | Premier ordre proposé ; disponibilité déclarée de 40 h/semaine, charge non estimée | Affiner avant engagement du Sprint |
 | PostgreSQL poste | Version exacte non confirmée | Avant POC DB et verrouillage des outils |
 | Récupération/cryptographie | Principes D-PRD-139 et ADR-I0-003 validés ; mécanismes non prouvés | Avant mise en service des capacités concernées |
 | NFR et pilote | Protocoles/seuils et preuves à compléter | Avant acceptation technique et décision de pilote |
