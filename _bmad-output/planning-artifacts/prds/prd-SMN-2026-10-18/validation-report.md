@@ -8,6 +8,11 @@
 - **Note globale :** **Fair — favorable sous réserves** (PRD exploitable pour démarrer l'architecture/UX, **non prêt à finalisation ni au découpage exhaustif des US**)
 - **Écarts uniques du rubric :** 0 critique, **5 élevés**, **9 moyens**, 1 faible. La revue adversariale fournit 12 scénarios complémentaires, partiellement recoupés : ils ne sont pas additionnés comme 12 écarts uniques.
 
+
+## Suivi après D-PRD-131 (19/10/2026)
+
+**A6 — Séquencement du MVP : arbitré fonctionnellement.** L'utilisateur a validé globalement sept incréments I0 à I6, privilégiant le premier parcours Scrum HTML, puis Scrum complet/PDF, Kanban mutualisé, reprise/imports, IA/UX et recette. Voir [séquencement détaillé, dépendances et critères](sequencement-mvp-d-prd-131.md) et [PRD](prd.md). Toutes les FR restent au MVP Scrum/Kanban, sans modification de SAFe v1.0. Sécurité et intégrité commencent dès I0 ; I6 constitue la recette, non le début des protections. Les cinq conditions cumulatives de passage au pilote restent inchangées. **Le verdict Fair et les constats initiaux de cette revue ne sont pas recalculés**, et les observations secondaires demandent encore un traitement de finalisation. Ni implémentation ni tests applicatifs ne sont attestés.
+
 ## Suivi après D-PRD-130 (19/10/2026)
 
 **Mise à jour de suivi postérieure à la revue initiale :** les écarts **A1 (événements rétrosaisis), A2 (capacité historique), A3 (instantanés V1/V2) et A4 (CSV atomique)** ont reçu un **arbitrage métier validé** en D-PRD-130. [Critères et scénarios approuvés](clarifications-d-prd-130.md) ; FR et annexes correspondantes mises à jour. Ils restent **à implémenter et à tester** : ce statut ne constitue pas un retest de l'application.
