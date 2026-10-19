@@ -1,7 +1,7 @@
 {
   "summary": {
     "date": "2026-10-19",
-    "source_commit": "290b26c05d3b31042fd2930c494e0d5876fa66b7",
+    "source_commit": "26fa57af9acc18e55a3c803b9f733d7e3c88b4cf",
     "jira_query": "project = SMN ORDER BY key ASC",
     "jira_pages": [
       100,
@@ -130,10 +130,11 @@
     "limits": "Comparaison structurelle des clauses et références, non preuve exhaustive de couverture sémantique ni résultat de test applicatif. Les détails de traçabilité hors clauses ne sont pas comparés textuellement.",
     "amendment": "D-PRD-137 / D-PRD-138 / D-PRD-139",
     "source_branch": "docs/bmad-sprint-readiness-20261019",
-    "source_commit_note": "Base avant ajout documentaire D-PRD-139 ; SMN-17 rapproché après sa mise à jour Jira.",
+    "source_commit_note": "Base avant publication de l'ADR-I0-003 ; notes Jira correspondantes relues.",
     "session_policy_update": "SMN-14 relu après mise à jour D-PRD-138 ; autres lignes conservées du rapprochement complet précédent.",
     "recovery_update": "Relecture ciblée SMN-17 après D-PRD-139 ; autres lignes issues du rapprochement précédent.",
-    "migrations_update": "Relecture ciblée SMN-11 et SMN-19 après annotation ADR-I0-002 ; critères Given/When/Then inchangés, obligations transverses dans ADR."
+    "migrations_update": "Relecture ciblée SMN-11 et SMN-19 après annotation ADR-I0-002 ; critères Given/When/Then inchangés, obligations transverses dans ADR.",
+    "keys_update": "Relecture ciblée SMN-19/30/34 après annotation ADR-I0-003 ; clauses GWT inchangées, critères transverses dans ADR."
   },
   "stories": [
     {
@@ -268,7 +269,7 @@
         "FR-67",
         "FR-72"
       ],
-      "jira_description_sha256": "cfbba53e5444d2b7d4b284fce746f2a929b85245cb2fbeae8ef6875f8ebad7e5"
+      "jira_description_sha256": "498ee039560512355b9a29bfd958840c3c275cd76a1bde4c7bf82e8d0c8522eb"
     },
     {
       "story": "1.10",
@@ -435,7 +436,7 @@
         "FR-71",
         "FR-73"
       ],
-      "jira_description_sha256": "97f09eb57813e09fb7247d8f3cabd8c9ea5ce4e3aec1defd2fd7efc3dbe4db6a"
+      "jira_description_sha256": "26a8036fc5bc7af8f93639da091a6b5c42eea1c66faa423e6bca8989f2eb0dc9"
     },
     {
       "story": "2.3",
@@ -495,7 +496,7 @@
         "FR-71",
         "FR-73"
       ],
-      "jira_description_sha256": "35656658a112f07c0957c5e90a2e5ada4567272b24947fd810f0c0e446306075"
+      "jira_description_sha256": "39b8dd24530f61f7d81878bc851513a7f8d79af3caae5479a8d67c987a40b95a"
     },
     {
       "story": "2.7",

@@ -45,3 +45,8 @@ Exigences FR-66/68/70/71/72/73 ; AD-10/25/27/28/29. [Démarrage et prérequis](h
 Ces obligations s'appliquent aux capacités concernées au moment de leur livraison, sans exiger que tout le système de restauration soit implémenté avant le premier diagnostic de démarrage. Les contrats et preuves complètent I0 progressivement.
 
 **Aucun script, migration, sauvegarde, changement de droit, installation ou développement exécuté.** Numéro PostgreSQL précis, outillage, contrôle de récupération locale et protection des clés restent ouverts. CONCERNS maintenu ; suivi non généré ; PR non fusionnée.
+
+
+## Complément validé — récupération des clés
+
+[ADR-I0-003](ADR-I0-003-RECUPERATION-CLES.md) fixe le parcours : copie de la clé protégée par une phrase distincte choisie à la première sauvegarde complète, demandée pour restauration sur un autre PC ; clé locale utilisable au quotidien sans ressaisie de cette phrase. Format et mécanismes restent à qualifier ; aucun essai exécuté.

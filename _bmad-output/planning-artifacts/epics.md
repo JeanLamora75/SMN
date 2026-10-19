@@ -911,6 +911,13 @@ Ces principes complètent les capacités concernées au cours d'I0, sans préten
 
 Aucun développement, migration ou essai exécuté.
 
+
+#### Amendement ADR-I0-003 — Validé le 19/10/2026
+
+Clé locale dans le dossier privé, sans phrase supplémentaire à chaque connexion. La sauvegarde complète inclut une copie de récupération de la clé protégée par une phrase distincte du mot de passe administrateur, choisie lors de la première sauvegarde complète. La restauration sur un autre PC demande cette phrase et doit être testée réellement. Ni la phrase ni une copie non protégée de la clé ne doivent être exposées dans l'archive exportable ou les journaux. En cas de perte simultanée de la clé locale et de la phrase, la récupérabilité des données chiffrées n'est pas garantie ; la récupération du compte administrateur ne recrée pas la clé.
+
+Format et mécanismes cryptographiques restent à qualifier. Voir ADR-I0-003 dans la documentation d'architecture de la PR 9. Aucun développement ni essai exécuté.
+
 ### Story 1.10: Suivre les tâches facultatives de configuration depuis le tableau de bord
 **Jira :** https://lmn24.atlassian.net/browse/SMN-20
 **En tant que** Scrum Master ayant initialisé SMN,
@@ -1512,6 +1519,13 @@ Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remar
 Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
 **Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
+
+#### Amendement ADR-I0-003 — Validé le 19/10/2026
+
+Clé locale dans le dossier privé, sans phrase supplémentaire à chaque connexion. La sauvegarde complète inclut une copie de récupération de la clé protégée par une phrase distincte du mot de passe administrateur, choisie lors de la première sauvegarde complète. La restauration sur un autre PC demande cette phrase et doit être testée réellement. Ni la phrase ni une copie non protégée de la clé ne doivent être exposées dans l'archive exportable ou les journaux. En cas de perte simultanée de la clé locale et de la phrase, la récupérabilité des données chiffrées n'est pas garantie ; la récupération du compte administrateur ne recrée pas la clé.
+
+Format et mécanismes cryptographiques restent à qualifier. Voir ADR-I0-003 dans la documentation d'architecture de la PR 9. Aucun développement ni essai exécuté.
+
 ### Story 2.3: Vérifier l'intégrité et l'inventaire d'une sauvegarde
 **Jira :** https://lmn24.atlassian.net/browse/SMN-31
 
@@ -1731,6 +1745,13 @@ Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remar
 
 Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
 **Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
+
+
+#### Amendement ADR-I0-003 — Validé le 19/10/2026
+
+Clé locale dans le dossier privé, sans phrase supplémentaire à chaque connexion. La sauvegarde complète inclut une copie de récupération de la clé protégée par une phrase distincte du mot de passe administrateur, choisie lors de la première sauvegarde complète. La restauration sur un autre PC demande cette phrase et doit être testée réellement. Ni la phrase ni une copie non protégée de la clé ne doivent être exposées dans l'archive exportable ou les journaux. En cas de perte simultanée de la clé locale et de la phrase, la récupérabilité des données chiffrées n'est pas garantie ; la récupération du compte administrateur ne recrée pas la clé.
+
+Format et mécanismes cryptographiques restent à qualifier. Voir ADR-I0-003 dans la documentation d'architecture de la PR 9. Aucun développement ni essai exécuté.
 
 ### Story 2.7: Préserver l'atomicité des opérations et l'immuabilité des archives
 **Jira :** https://lmn24.atlassian.net/browse/SMN-35

@@ -112,3 +112,8 @@ L'utilisateur a validé [ADR-I0-001](architecture/architecture-SMN-2026-10-19/AD
 ## Migrations et secrets — principes validés à 22:32
 
 Les principes sont consignés dans [ADR-I0-002](architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md) et les tickets concernés. Prochaine décision : protection et récupération des clés de chiffrement ; ne pas confondre cette question avec la récupération du compte administrateur. La vérification PostgreSQL et les essais restent à réaliser.
+
+
+## Copie de récupération des clés — principe validé à 22:36
+
+[ADR-I0-003](architecture/architecture-SMN-2026-10-19/ADR-I0-003-RECUPERATION-CLES.md) consigne le parcours de protection par phrase distincte et de restauration sur autre PC. Le choix utilisateur est validé ; permissions locales, format cryptographique et essais de restauration restent à réaliser. Aucun secret réel créé ou sauvegardé.
