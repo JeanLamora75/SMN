@@ -1,23 +1,22 @@
 # SMN — Scrum Master Notebook
 
-Scrum Master Notebook (SMN) : carnet de bord et outil de reporting pour **Scrum Masters** et **Release Train Engineers**, avec trois modes d'initialisation : **Scrum**, **Kanban** et **SAFe** (ART regroupant des équipes Scrum et/ou Kanban). Le MVP propose une interface **française et anglaise**, utilise **Bootstrap 5** avec des palettes de thèmes et un assistant de première installation ; les contextes projet/produit, visions, Product Goals et DoD/DoR font partie du cadrage.
+Scrum Master Notebook est un carnet de bord pour les Scrum Masters : équipes, calendriers, capacités, cycles, registres qualitatifs et rapports professionnels, avec une saisie minimale.
 
-## Reprendre le projet avec ChatGPT / BMAD
+Le **MVP couvre Scrum et Kanban**, en usage local sur PC et depuis un navigateur responsive, en français et en anglais. **SAFe et les ART sont prévus pour la version 1.0.** Le socle décidé est un monolithe modulaire TypeScript, PostgreSQL et Bootstrap 5 ; les bibliothèques et le packaging restent à éprouver.
 
-Lire dans cet ordre :
+## Reprendre le projet
 
-1. [Contexte de référence du projet](docs/PROJECT-CONTEXT.md) — vision, contraintes et état.
-2. [Registre des décisions fonctionnelles F-01 à F-120](docs/DECISIONS-FONCTIONNELLES.md) — arbitrages validés, changements et points ouverts.
-3. [Cadrage fonctionnel consolidé](docs/CADRAGE-FONCTIONNEL.md) — règles détaillées par domaine, utilisables pour préparer le Product Brief, le PRD et le backlog.
+1. [Contexte et règles de reprise](docs/PROJECT-CONTEXT.md).
+2. [État BMAD, réserves et prochaine étape](docs/ETAT-PROJET-BMAD.md).
+3. [Index des livrables BMAD](_bmad-output/planning-artifacts/README.md) : Product Brief, PRD et annexes, architecture et découpage final.
+4. [Epics et Stories](_bmad-output/planning-artifacts/epics.md) et [Jira SMN](https://lmn24.atlassian.net/jira/software/projects/SMN), référence des tickets.
 
-Les documents sont rédigés en français. Ils regroupent le brainstorming fonctionnel consolidé du **18 octobre 2026** et ne constituent pas encore un PRD ou une architecture validée.
+**État au 19 octobre 2026 :** Product Brief et PRD finalisés ; architecture documentaire finale sous réserves techniques ; workflow Create Epics and Stories clôturé. **10 Epics et 210 Stories validées fonctionnellement**, toutes À faire lors de la vérification Jira. Aucun développement applicatif ni recette attestés. Prochaine étape : **[SP] Sprint Planning**, avec contrôle de préparation avant génération du suivi.
 
 ## Référentiels
 
-- **GitHub** : code, documentation, architecture et fichiers BMAD.
-- **[Jira SMN](https://lmn24.atlassian.net/jira/software/projects/SMN)** : Epics, User Stories, bugs et tâches.
-- **BMAD Method v6.12.4** : skills dans `.agents/skills/`, configuration dans `_bmad/`, livrables dans `_bmad-output/`.
-
-## Principes de collaboration
-
-L'application vise une **saisie minimale** et des **reportings complets à la demande**. Les décisions validées et les questions ouvertes doivent rester distinctes ; aucun KPI quantitatif n'est obligatoire. Les contraintes du poste utilisateur et les autorisations de modification Jira/GitHub sont détaillées dans le contexte de référence.
+- GitHub : code, architecture, documentation et fichiers BMAD.
+- Jira : Epics, Stories, bugs et tâches.
+- BMAD Method **6.12.4** : skills dans `.agents/skills/`, configuration dans `_bmad/`, livrables dans `_bmad-output/`.
+- [Décisions initiales F-01 à F-124](docs/DECISIONS-FONCTIONNELLES.md) et [cadrage initial](docs/CADRAGE-FONCTIONNEL.md) : historique complété par le PRD et les décisions D-PRD.
+- Langue de collaboration et des livrables : français.

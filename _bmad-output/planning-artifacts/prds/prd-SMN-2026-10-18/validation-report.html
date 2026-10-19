@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>PRD Validation: Scrum Master Notebook</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+
+    --grade-exc: #16a34a;
+    --grade-good: #65a30d;
+    --grade-fair: #d97706;
+    --grade-poor: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .grade {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .grade-excellent { background: var(--grade-exc); }
+  .grade-good { background: var(--grade-good); }
+  .grade-fair { background: var(--grade-fair); }
+  .grade-poor { background: var(--grade-poor); }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+</style></head><body>
+<aside style="padding:1rem;border:2px solid #975a16;background:#fffaf0;color:#1a202c"><strong>Rapport historique — consolidation du 19 octobre 2026.</strong> Les constats ci-dessous décrivent leur revue d'origine. A7/A8/A10/A11 sont désormais validés et le MVP comporte deux rôles : Administrateur et Utilisateur. Consulter le <a href="prd.md">PRD final</a>, les <a href="arbitrages-metier-valides-2026-10-19.md">arbitrages validés</a> et <a href="../../../../docs/ETAT-PROJET-BMAD.md">l'état BMAD</a>. Les validations techniques restent à démontrer.</aside><div class="container">
+<header class="report-header"><div class="title"><h1>SMN — Revue globale du PRD</h1><div class="subtitle">_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/prd.md · 2026-10-19</div></div><div class="grade grade-fair">FAIR — Sous réserves</div></header>
+<div class="synthesis"><p><strong>Verdict :</strong> utilisable pour préparer l'architecture et l'UX, mais des règles métier restent à trancher avant la finalisation et le découpage complet en User Stories.</p><p>La vision, la priorité Scrum/Kanban et les cinq conditions de succès sont cohérentes. L'audit documentaire vérifie 81 FR continues et 129 décisions D-PRD tracées. Aucun test logiciel n'a été exécuté.</p><p><strong>Écarts :</strong> 5 élevés, 9 moyens, 1 faible, 0 critique. La revue adversariale explore 12 scénarios, en partie recoupés avec ces 15 écarts.</p></div>
+<div class="synthesis"><p><strong>Suivi après D-PRD-130 — 19/10/2026 :</strong> les écarts A1 à A4 ont été <strong>arbitrés fonctionnellement</strong> et leurs FR/annexes mis à jour. L'implémentation et les tests restent à effectuer. Le diagnostic initial Fair (5 élevés, 9 moyens, 1 faible) est conservé comme état historique ; A6 (séquencement MVP) reste à traiter. <a href="clarifications-d-prd-130.md">Voir les règles validées D-PRD-130</a>.</p></div>
+<div class="dimension-summary"><div class="dim-card"><div class="dim-name">Décisions prêtes à arbitrer</div><div class="dim-verdict" style="color:var(--verdict-thin)">à renforcer</div></div>
+<div class="dim-card"><div class="dim-name">Substance métier</div><div class="dim-verdict" style="color:var(--verdict-adequate)">adéquat</div></div>
+<div class="dim-card"><div class="dim-name">Cohérence stratégique</div><div class="dim-verdict" style="color:var(--verdict-adequate)">adéquat</div></div>
+<div class="dim-card"><div class="dim-name">Critères vérifiables</div><div class="dim-verdict" style="color:var(--verdict-thin)">à renforcer</div></div>
+<div class="dim-card"><div class="dim-name">Honnêteté du périmètre</div><div class="dim-verdict" style="color:var(--verdict-adequate)">adéquat</div></div>
+<div class="dim-card"><div class="dim-name">Utilisabilité pour les étapes suivantes</div><div class="dim-verdict" style="color:var(--verdict-thin)">à renforcer</div></div>
+<div class="dim-card"><div class="dim-name">Adéquation de la structure</div><div class="dim-verdict" style="color:var(--verdict-thin)">à renforcer</div></div></div>
+<section class="dimension"><details open><summary><h2>Décisions prêtes à arbitrer</h2><span class="verdict-pill verdict-thin">à renforcer</span></summary><div class="dim-body"><div class="dim-judgment"><p>La majorité des choix ont un statut explicite et des références D-PRD ; cependant, plusieurs règles dont dépend directement le comportement utilisateur sont volontairement restées « à préciser », y compris sur des parcours indispensables au MVP. Les décisions à différer en architecture sont généralement correctement annoncées ; il faut distinguer les choix techniques des **exceptions métier** qui ne peuvent être déduites des FR actuelles.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-high">HIGH</span><h3 class="finding-title">A1 — Exceptions aux automatismes pour les Sprints rétrosaisis non finalisées</h3><span class="finding-location">`prd.md` FR-17, lignes 384–390 ; FR-42, lignes 872–873 ; `reprise-imports-historiques.md` FR-42</span></header><div class="finding-note">FR-17 génère les événements à chaque création de Sprint tandis que HIS-01 exige de ne pas fabriquer des événements tenus dans le passé. La distinction entre événement théorique et événement réellement tenu n'est pas définie dans ce parcours.</div><div class="finding-fix"><strong>Correction :</strong> décider un comportement spécifique « reprise historique », états initiaux admissibles et présentation sans observation fictive.</div></article>
+<article class="finding"><header><span class="badge badge-sev-high">HIGH</span><h3 class="finding-title">A2 — Gel de capacité initiale sans événement d'ouverture fiable dans le passé</h3><span class="finding-location">`prd.md` FR-14, lignes 304–311 ; FR-42 ; `reprise-imports-historiques.md` FR-42/FR-46</span></header><div class="finding-note">à la création d'un Sprint déjà achevé, l'ouverture réelle est antérieure à l'entrée dans SMN. Calculer avec la composition et les absences actuelles créerait une fausse valeur initiale.</div><div class="finding-fix"><strong>Correction :</strong> arbitrer « valeur historique renseignée avec preuve » / « non renseignée » et interdire un recalcul présenté comme valeur réellement figée au début.</div></article>
+<article class="finding"><header><span class="badge badge-sev-high">HIGH</span><h3 class="finding-title">A3 — Réouverture/reclôture et versions des instantanés non arbitrées</h3><span class="finding-location">`prd.md` FR-16, FR-41 ; `registres-qualitatifs.md` FR-41, lignes 92–107</span></header><div class="finding-note">les registres centraux évoluent, tandis que l'instantané à la clôture doit représenter le passé. Après réouverture, le traitement de l'ancienne photographie et de la nouvelle clôture n'est pas déterminé.</div><div class="finding-fix"><strong>Correction :</strong> choisir une politique d'instantanés versionnés/consultables et de nouveaux bilans, tout en gardant les PDF antérieurs immuables.</div></article>
+<article class="finding"><header><span class="badge badge-sev-high">HIGH</span><h3 class="finding-title">A4 — Contrat d'import CSV et politique de lot insuffisants pour une US testable</h3><span class="finding-location">`prd.md` FR-43 à FR-45 ; `reprise-imports-historiques.md`, lignes 31–65 et 99–105</span></header><div class="finding-note">colonnes/types/identification de cycle, collisions et comportement **tout-ou-rien ou application partielle confirmée** sont explicitement ouverts.</div><div class="finding-fix"><strong>Correction :</strong> rédiger la v1 du schéma CSV et une matrice d'erreurs/doublons et d'engagement transactionnel avant le découpage des stories d'import.</div></article></div></div></details></section>
+<section class="dimension"><details ><summary><h2>Substance métier</h2><span class="verdict-pill verdict-adequate">adéquat</span></summary><div class="dim-body"><div class="dim-judgment"><p>Le PRD ne se contente pas de noms d'écrans : capacités, périodes, événements, métriques, sources et provenance sont détaillés ; les annexes donnent huit séries de critères d'acceptation par domaine récent. Les principes « vide ≠ zéro », « SP ≠ JH », « aucun TXT envoyé automatiquement » et « pas de notation individuelle » sont concrets et cohérents. Les NFR ont de vrais enjeux métier, mais leur vérifiabilité technique reste faible.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A5 — Exigences non fonctionnelles sans bornes de recette encore arrêtées</h3><span class="finding-location">`prd.md` §8 ; `securite-exploitation.md` FR-66 à FR-73 ; `recette-finalisation-mvp.md` FR-79/FR-80</span></header><div class="finding-note">navigateurs/versions, WCAG cible, budgets de performance, restauration (RPO/RTO), conservation et seuils de disponibilité restent ouverts.</div><div class="finding-fix"><strong>Correction :</strong> faire prendre en charge ces paramètres par l'architecture et établir la matrice de recette avant toute affirmation de conformité.</div></article></div></div></details></section>
+<section class="dimension"><details ><summary><h2>Cohérence stratégique</h2><span class="verdict-pill verdict-adequate">adéquat</span></summary><div class="dim-body"><div class="dim-judgment"><p>La stratégie du Product Brief est respectée : utilisateur SM/RTE, faible saisie, mémoire contextuelle, reports HTML/PDF, Scrum/Kanban avant SAFe et cinq conditions cumulatives pour le pilote. La richesse de la couverture fonctionnelle peut néanmoins entrer en tension avec la recherche de simplicité et le temps disponible.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-high">HIGH</span><h3 class="finding-title">A6 — MVP étendu sans séquencement de réalisation et de test explicite</h3><span class="finding-location">`prd.md` §§4 à 7, 81 FR ; Product Brief « MVP — cycle complet simplifié »</span></header><div class="finding-note">le MVP porte 81 FR, six registres, exports, briefs IA, snapshots, sécurité/backup et recette ; l'ordre et les dépendances entre lots ne sont pas définis.</div><div class="finding-fix"><strong>Correction :</strong> produire une **carte de livraison MVP par incréments**, préservant les capacités validées, avec un chemin critique vers la première expérimentation et un budget de saisie mesurable ; ne pas repousser silencieusement une exigence approuvée.</div></article></div></div></details></section>
+<section class="dimension"><details open><summary><h2>Critères vérifiables</h2><span class="verdict-pill verdict-thin">à renforcer</span></summary><div class="dim-body"><div class="dim-judgment"><p>Les FR nouvelles sont plus directement testables grâce aux annexes, mais plusieurs décisions encore ouvertes commandent les résultats attendus des tests. Les scénarios négatifs importants sont identifiés sans comportement de résolution exact.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A7 — Matrice probabilité × impact 3×3 sans correspondance des neuf cases</h3><span class="finding-location">`registres-qualitatifs.md` FR-36, lignes 43–51, et FR-39</span></header><div class="finding-note">le cockpit « risques élevés » dépend de la classification, or aucune table des neuf combinaisons n'est validée.</div><div class="finding-fix"><strong>Correction :</strong> valider la matrice exacte et les cas « Non calculable » avant création des critères de test du calcul.</div></article>
+<article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A8 — Déclencheurs des faits marquants automatiques et prévention des doublons encore ouverts</h3><span class="finding-location">`registres-qualitatifs.md` FR-40, §3</span></header><div class="finding-note">aucun catalogue minimal avec source, déclencheur, date d'effet et politique de déduplication n'est arrêté.</div><div class="finding-fix"><strong>Correction :</strong> fixer un catalogue initial court, administrable et idempotent.</div></article>
+<article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A9 — Reprise Kanban historique optionnelle dans un domaine annoncé MVP Scrum/Kanban</h3><span class="finding-location">`prd.md` FR-42 et §6 ; `reprise-imports-historiques.md` FR-42, ligne 29</span></header><div class="finding-note">seule la rétrosaisie des Sprints est expressément engagée, mais le titre du domaine et les imports couvrent les deux modes.</div><div class="finding-fix"><strong>Correction :</strong> afficher dans une matrice MVP ce qui est livré en **création rétrospective** Kanban, en **import de KPI** Kanban et dans les bilans historiques.</div></article></div></div></details></section>
+<section class="dimension"><details ><summary><h2>Honnêteté du périmètre</h2><span class="verdict-pill verdict-adequate">adéquat</span></summary><div class="dim-body"><div class="dim-judgment"><p>Les formats post-MVP, intégrations automatiques, non-collaboration des membres et usages SAFe v1.0 sont correctement identifiés. Les exceptions régionales (D-PRD-021), les absences de données et les limites des imports sont exposées plutôt que cachées. Il faut rendre certaines frontières de persistance et de sécurité plus explicites.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A10 — Statut de conservation des PDF exportés et politique de suppression non explicites</h3><span class="finding-location">`prd.md` FR-31, FR-69 ; `reportings-html-pdf.md` FR-31 ; `securite-exploitation.md` FR-68/FR-69</span></header><div class="finding-note">« ancien PDF inchangé » n'indique pas si SMN conserve et propose de retrouver **tous** les exports ; FR-68 ne sauvegarde que ceux « effectivement stockés ».</div><div class="finding-fix"><strong>Correction :</strong> choisir si le MVP archive les PDF, où l'utilisateur les retrouve, et ce qui est supprimable sans casser l'historique ; retenir à l'architecture la politique technique de rétention.</div></article>
+<article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A11 — Suppression de données nominatives versus archives immuables à réconcilier</h3><span class="finding-location">`prd.md` FR-4/FR-54/FR-69 ; `securite-exploitation.md` FR-67/FR-69</span></header><div class="finding-note">l'archivage stable protège les preuves historiques, mais la suppression des données personnelles et des fichiers associés doit être gouvernée.</div><div class="finding-fix"><strong>Correction :</strong> établir un régime fonctionnel des suppressions/masquages et de conservation, puis examiner les obligations légales applicables avant diffusion.</div></article></div></div></details></section>
+<section class="dimension"><details open><summary><h2>Utilisabilité pour les étapes suivantes</h2><span class="verdict-pill verdict-thin">à renforcer</span></summary><div class="dim-body"><div class="dim-judgment"><p>Les identifiants FR-1 à FR-81 sont complets, les références D-PRD-001 à D-PRD-129 sont toutes présentes dans le journal, les annexes de domaine sont reliées. En revanche, la documentation est très dense et la phrase « voir FR-X » ne suffit pas pour qu'un architecte trouve rapidement les règles et exceptions qui doivent être implémentées ensemble.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A12 — Bases temporelles hétérogènes non explicitées en restitution</h3><span class="finding-location">`prd.md` FR-20/D-PRD-078, ligne 492 ; FR-41, ligne 864 ; `reportings-html-pdf.md` FR-30</span></header><div class="finding-note">les tendances chiffrées historiques peuvent utiliser des corrections enregistrées **ultérieurement**, alors que les états qualitatifs reprennent l'instantané **de clôture**. Les deux choix sont documentés, mais un même rapport historique pourrait être mal interprété.</div><div class="finding-fix"><strong>Correction :</strong> indiquer l'origine temporelle et les corrections éventuelles dans le reporting, sans modifier la règle existante.</div></article>
+<article class="finding"><header><span class="badge badge-sev-low">LOW</span><h3 class="finding-title">A13 — Documentation de navigation et statut du PRD non actualisés</h3><span class="finding-location">`prd.md` introduction, §§0/4/9</span></header><div class="finding-note">l'en-tête « brouillon initial » et l'annonce de UJ/SM « à écrire » datent du début, alors que 81 FR et les critères de succès ont déjà été documentés.</div><div class="finding-fix"><strong>Correction :</strong> après arbitrages, remplacer ces indications par un index des annexes, un statut de revue et la liste des livrables encore réellement manquants.</div></article>
+<article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A14 — Scénarios transverses non regroupés dans une matrice de dépendances</h3><span class="finding-location">`prd.md` §§4.7–4.21 ; annexes</span></header><div class="finding-note">des règles similaires sont dispersées (dates → événements → capacité → registres → export ; création historique → clôture → tendances).</div><div class="finding-fix"><strong>Correction :</strong> synthétiser 6 à 10 scénarios de bout en bout et leurs FR sources dans une vue compacte pour Architecture et Epics.</div></article></div></div></details></section>
+<section class="dimension"><details open><summary><h2>Adéquation de la structure</h2><span class="verdict-pill verdict-thin">à renforcer</span></summary><div class="dim-body"><div class="dim-judgment"><p>Le choix de la **spécification par capacités** convient à cet outil interne piloté par un seul opérateur ; des User Journeys détaillées et artificielles ne sont pas nécessaires. Toutefois, le PRD principal compte environ 250 000 caractères, avec des répétitions et des règles de conception déjà très approfondies, ce qui complique l'usage comme document d'arbitrage pour les étapes BMAD suivantes.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">MEDIUM</span><h3 class="finding-title">A15 — PRD trop long et proche d'un backlog narratif</h3><span class="finding-location">`prd.md` §4 et annexes, 81 FR</span></header><div class="finding-note">le parcours de lecture stratégique est noyé dans les détails, même si le découpage en annexes a commencé.</div><div class="finding-fix"><strong>Correction :</strong> à l'étape Update/Polish, distinguer une synthèse structurante (vision, MVP, règles transversales, succès, non-objectifs), une table FR/versions et les annexes d'acceptation, **sans supprimer la traçabilité des 129 décisions**.</div></article></div></div></details></section>
+<section class="reviewer-section"><details><summary><h2>Revue adversariale — 12 chemins à risque</h2><span class="reviewer-source">review-adversarial-general.md</span></summary><div class="dim-body"><div class="dim-judgment"><p>Scénarios complémentaires, qui peuvent recouper les constats du rubric.</p></div><div class="findings-list"><article class="finding"><header><h3 class="finding-title">1. Création rétrospective d'un Sprint et événements automatiques</h3><span class="finding-location">`prd.md` FR-17/FR-42 ; `reprise-imports-historiques.md` FR-42.</span></header><div class="finding-note">l'utilisateur crée aujourd'hui un Sprint qui s'est terminé plusieurs mois auparavant. — fausses statistiques de cérémonies tenues, et reportings historiques trompeurs.</div><div class="finding-fix"><strong>À prévoir :</strong> imposer une branche métier « reprise historique » qui ne qualifie jamais les événements générés comme réellement tenus sans preuve.</div></article>
+<article class="finding"><header><h3 class="finding-title">2. Gel rétroactif d'une capacité initiale inconnue</h3><span class="finding-location">`prd.md` FR-14/FR-42.</span></header><div class="finding-note">une période passée n'existait pas dans SMN lors de son démarrage réel. — référence historique calculée avec des affectations actuelles.</div><div class="finding-fix"><strong>À prévoir :</strong> ne figer la valeur initiale qu'à partir d'une donnée de l'époque explicitement connue ; sinon « non renseignée ».</div></article>
+<article class="finding"><header><h3 class="finding-title">3. Reclôture d'un cycle et photographies divergentes</h3><span class="finding-location">`prd.md` FR-16/FR-41 ; `registres-qualitatifs.md` FR-41.</span></header><div class="finding-note">clôture, réouverture, correction d'un risque ou d'une action, puis nouvelle clôture. — un rapport historique peut changer sans règle de correction auditable.</div><div class="finding-fix"><strong>À prévoir :</strong> versionner et dater les états figés, définir quel bilan futur lit quelle version.</div></article>
+<article class="finding"><header><h3 class="finding-title">4. Import avec erreurs et lignes valides</h3><span class="finding-location">`reprise-imports-historiques.md` FR-43 à FR-45.</span></header><div class="finding-note">100 lignes CSV dont 5 invalides et 10 modifiant des données déjà enregistrées. — import partiel indétectable ou comportement divergent suivant l'écran.</div><div class="finding-fix"><strong>À prévoir :</strong> préciser le contrat de fichier, l'arbitrage de lot tout-ou-rien vs sous-ensemble confirmé, les collisions et le compte rendu.</div></article>
+<article class="finding"><header><h3 class="finding-title">5. Échéance de risque extérieure à la période replanifiée</h3><span class="finding-location">`prd.md` FR-25 ; `risques-dependances.md` D-PRD-120/121.</span></header><div class="finding-note">une dépendance transverse conserve volontairement une échéance au-delà du cycle. — prolifération d'alertes trompeuses, puis désactivation des contrôles utiles.</div><div class="finding-fix"><strong>À prévoir :</strong> définir une heuristique d'alerte **potentielle** qui explique le contexte sans marquer toute date extérieure comme erreur.</div></article>
+<article class="finding"><header><h3 class="finding-title">6. Désassociation après clôture</h3><span class="finding-location">`risques-dependances.md` D-PRD-121/122 ; `registres-qualitatifs.md` FR-41.</span></header><div class="finding-note">un risque associé à trois cycles est détaché du plus ancien après clôture. — disparition d'un risque du bilan passé ou contradiction entre fiche centrale et photographie.</div><div class="finding-fix"><strong>À prévoir :</strong> figer aussi l'ensemble des associations à date et imposer une procédure de correction de lien historique.</div></article>
+<article class="finding"><header><h3 class="finding-title">7. Criticité inconnue et cockpit des risques élevés</h3><span class="finding-location">`registres-qualitatifs.md` FR-36/FR-39.</span></header><div class="finding-note">probabilité ou impact manquant ; une autre fiche est élevée selon la matrice non définie. — le cockpit masque un risque important ou crée une fausse alerte.</div><div class="finding-fix"><strong>À prévoir :</strong> valider les neuf cases 3×3 et tester « Non calculable » séparément du niveau Faible.</div></article>
+<article class="finding"><header><h3 class="finding-title">8. Suppression autorisée d'une personne historisée</h3><span class="finding-location">`prd.md` FR-4/FR-69 ; `securite-exploitation.md` FR-67/FR-69.</span></header><div class="finding-note">demande d'effacement tandis que des instantanés, TXT, journaux ou sauvegardes conservent des traces. — conflit entre confidentialité, traçabilité et archives.</div><div class="finding-fix"><strong>À prévoir :</strong> fixer une politique de conservation, masquage, suppression et restauration adaptée au périmètre et aux obligations applicables.</div></article>
+<article class="finding"><header><h3 class="finding-title">9. Un rapport ancien contient chiffres corrigés et photographies qualitatives originales</h3><span class="finding-location">`prd.md` FR-20/D-PRD-078, FR-41 ; `reportings-html-pdf.md` FR-30.</span></header><div class="finding-note">une valeur chiffrée est corrigée après clôture tandis que le risque archivé garde son état original. — lecteur croyant toutes les valeurs figées à la même date.</div><div class="finding-fix"><strong>À prévoir :</strong> afficher provenance, date de correction et temporalité des deux catégories sans modifier les anciennes exports.</div></article>
+<article class="finding"><header><h3 class="finding-title">10. Rapport PDF exporté et non conservé dans l'application</h3><span class="finding-location">`prd.md` FR-31/FR-68 ; `reportings-html-pdf.md` FR-31.</span></header><div class="finding-note">un PDF est téléchargé mais aucune copie n'est stockée par SMN. — promesse perçue d'historique de rapports impossible à satisfaire.</div><div class="finding-fix"><strong>À prévoir :</strong> distinguer explicitement export immuable, archive consultable dans SMN et sauvegarde des fichiers réellement stockés.</div></article>
+<article class="finding"><header><h3 class="finding-title">11. Charge MVP incompatible avec l'objectif de 15 à 30 minutes hebdomadaires</h3><span class="finding-location">`prd.md` sections 4, 6 et 7 ; `recette-finalisation-mvp.md` FR-76.</span></header><div class="finding-note">tous les champs qualitatifs, KPI et liens exigent une saisie manuelle durant le pilote. — outil complet mais trop lourd pour être adopté.</div><div class="finding-fix"><strong>À prévoir :</strong> prioriser le préremplissage et tester le parcours minimum réellement utile avant d'élargir les fonctions avancées déjà approuvées.</div></article>
+<article class="finding"><header><h3 class="finding-title">12. Déploiement personnel dans l'environnement professionnel contraint</h3><span class="finding-location">`prd.md` FR-63/FR-66 et NFR-1 à NFR-3 ; `securite-exploitation.md` FR-66/FR-68.</span></header><div class="finding-note">environnement Windows professionnel sans droits d'administration ni IDE installable. — architecture théoriquement conforme mais impossible à utiliser par le premier opérateur.</div><div class="finding-fix"><strong>À prévoir :</strong> expliciter cette contrainte au cahier de charge architecte et tester le parcours d'installation/démarrage/restauration retenu.</div></article></div></div></details></section>
+<div class="mechanical"><h3>Contrôles documentaires</h3><ul><li>FR-1 à FR-81 : identifiants uniques et continus.</li><li>D-PRD-001 à D-PRD-129 : décisions identifiées dans le journal BMAD.</li><li>Annexes du PRD consultées sur la branche documentaire ; 5 critères cumulatifs du pilote conservés.</li><li>PRD maintenu au statut draft. Pas de modification de règle métier, de code ou de Jira.</li><li>Les scripts BMAD locaux et l'ouverture graphique du rapport ne sont pas disponibles dans cet environnement GitHub ; revue séquentielle effectuée manuellement.</li></ul></div>
+<footer class="report-footer"><div class="meta"><span>Rubric : .agents/skills/bmad-prd/assets/prd-validation-checklist.md</span><span>Généré : 2026-10-19</span><span>Fichiers : review-rubric.md, review-adversarial-general.md, validation-report.md</span></div></footer>
+</div></body></html>
