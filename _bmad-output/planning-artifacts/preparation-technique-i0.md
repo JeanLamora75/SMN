@@ -1,10 +1,10 @@
 # SMN — Préparation technique I0
 
 **19 octobre 2026 — préparation documentaire engagée à la demande de l'utilisateur.**
-**État :** protocole préparé, choix candidats non qualifiés, aucun essai ni développement exécuté.
+**État :** protocole préparé, qualification documentaire effectuée, validation sur poste non exécutée, aucun essai ni développement exécuté.
 **Références :** [contrôle CONCERNS](implementation-readiness.md), [architecture](architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md), [sécurité/exploitation](architecture/architecture-SMN-2026-10-19/SECURITE-EXPLOITATION.md).
 
-L'utilisateur accepte la recommandation de traiter d'abord stack, Windows, PostgreSQL/migrations et sécurité des accès. Cet accord autorise leur préparation ; il ne vaut ni approbation de versions non vérifiées, ni autorisation de recherche web, de fusion ou de construction applicative.
+L'utilisateur accepte la recommandation de traiter d'abord stack, Windows, PostgreSQL/migrations et sécurité des accès. Cet accord autorise leur préparation ; il ne vaut ni approbation de versions non vérifiées, ni autorisation de fusion ou de construction applicative. L'utilisateur a ensuite autorisé la consultation ciblée des documentations officielles le 19/10/2026 à 21:51.
 
 ## 1. Base acquise
 
@@ -66,4 +66,9 @@ Les valeurs d'expiration de session, les paramètres cryptographiques, RPO/RTO e
 
 Premier travail futur : [SMN-11](https://lmn24.atlassian.net/browse/SMN-11). Aucun détail d'US n'est reproduit dans les réponses à l'utilisateur, conformément à sa préférence.
 
-Prochaine action nécessitant une confirmation : consultation ciblée des documentations officielles pour vérifier les versions supportées, contraintes Windows et compatibilités des candidats. Ensuite, compléter la matrice et préparer les essais sur le poste cible. Le workflow de construction reste soumis à un mandat distinct. CONCERNS maintenu, suivi non généré, PR non fusionnée.
+La consultation ciblée a été autorisée puis réalisée : [qualification documentaire et recommandations](qualification-documentaire-stack-i0.md). Prochaine action : recueillir l'inventaire réel du poste, préciser les choix exacts et préparer les essais sur le poste cible. Le workflow de construction reste soumis à un mandat distinct. CONCERNS maintenu, suivi non généré, PR non fusionnée.
+
+
+## Résultat de la qualification documentaire du 19/10/2026
+
+Node 24 LTS et Next 16/React 19 sont proposés pour le premier POC, avec Bootstrap 5.3 et PostgreSQL supporté déjà disponible si adapté. Prisma 7 reste candidat sous contrôle des prérequis Windows et des migrations ; Better Auth et Playwright sont des candidats à éprouver. Versions exactes non verrouillées, aucun test réel exécuté. Les principaux nouveaux contrôles sont Visual C++ pour la configuration Prisma retenue, séparation de la shadow database de développement et cohérence des versions pg_dump/serveur. Le rapport lié détaille les sources et limites ; ses propositions ne changent pas le statut des candidats dans la spine.
