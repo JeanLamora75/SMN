@@ -3,7 +3,7 @@
 **Agent :** Winston — System Architect.  
 **Workflow :** bmad-architecture, Coaching Path.  
 **Date :** 19 octobre 2026.  
-**État :** domaine 1 validé ; accès/rôles/protection précisés et validés ; domaine 2 et architecture globale en cours de décision.
+**État actuel :** architecture documentée (spine AD-1 à AD-30 et trois annexes) ; revue documentaire favorable sous réserves, spine en statut `draft` en attente des vérifications techniques et du Reviewer Gate complet.
 
 ## Référence et portée
 
@@ -108,7 +108,7 @@ Responsive également vérifié à terme sur fenêtre de PC redimensionnée, con
 | [REVUE-COHERENCE-TRACABILITE.md](REVUE-COHERENCE-TRACABILITE.md) | Verdict documentaire, 5 points prioritaires, couverture FR/AD/I0–I6, réserves et preuves attendues | Rédigé, tests non exécutés |
 | [.memlog.md](.memlog.md) | Journal BMAD append-only des contraintes, validations et AD-1 à AD-30 | Complété sans effacer l'historique |
 
-**Rectification de l'ancien statut en tête :** la mention « domaine 1 validé, architecture en cours » décrit l'état **avant** cette publication ; se reporter à la section présente et à la spine pour l'état actuel. Les choix d'architectures discutés sont traduits, mais il n'y a pas encore de code développé ni de validation d'exécution.
+Les choix architecturaux discutés sont désormais documentés ; il n'y a pas encore de code développé ni de validation d'exécution.
 
 ### Attention aux arbitrages non résolus
 
