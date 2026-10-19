@@ -17,10 +17,10 @@ inputDocuments:
 # Scrum Master Notebook (SMN) - Epic Breakdown
 
 ## Overview
-Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories de l'Epic 1 ont été validées globalement par l'utilisateur le même jour ; les Stories de l'Epic 2 ont été publiées sur Jira pour lecture et validation groupée.
+Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories des Epics 1 à 9 ont été validées globalement. Les Stories de l'Epic 10 ont été publiées dans Jira pour revue et validation globales.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
-**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur autorise l'édition documentaire GitHub sur branche dédiée ainsi que la publication directe des Stories de l'Epic 2 et, sur la base de la poursuite demandée, celles des Epics 3, 4, 5 et 6 pour revue groupée. Aucun développement, test technique, fusion `main` ou validation des Stories de l'Epic 2 n'est impliqué.
-**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Epics 1, 2, 3, 4, 5, 6, 7, 8 et 9 renseignées sur 10). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
+**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur a explicitement autorisé les publications groupées des Epics 2 à 10. Toutes les Stories des Epics 1 à 9 sont validées fonctionnellement, celles de l'Epic 10 attendent une revue globale. L'édition documentaire GitHub est autorisée sur la branche dédiée ; aucun développement, essai technique, fusion `main` ou lancement de pilote n'en découle.
+**Avancement** : Steps 1 et 2 clos. Step 3 en cours (Les dix Epics disposent maintenant de leurs Stories ; l'Epic 10 attend sa validation fonctionnelle globale). Ne pas passer au Step 4 avant achèvement du Step 3 et nouvelle confirmation BMAD.
 
 ## Requirements Inventory
 
@@ -8981,7 +8981,7 @@ Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans r�
 
 
 ## Epic 9: Préparer des briefs IA confidentiels et conserver les analyses
-Préparer des TXT plats et privés à partager manuellement, archiver leurs versions exactes et conserver les analyses distinctes des faits mesurés.
+Préparer des TXT plats à transmettre manuellement, archiver leurs versions exactes et gérer des analyses distinctes des faits mesurés.
 **FRs couvertes :** FR-50, FR-51, FR-52, FR-53, FR-54, FR-55, FR-56, FR-57.
 
 ### Story 9.1: Démarrer un brief IA depuis un cycle, son bilan ou un rapport
@@ -9030,8 +9030,10 @@ Préparer des TXT plats et privés à partager manuellement, archiver leurs vers
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
 * **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.2: Disposer de modèles initiaux de briefs réutilisables
 **Jira :** https://lmn24.atlassian.net/browse/SMN-188
@@ -9073,7 +9075,11 @@ En tant que Scrum Master Administrateur, je veux disposer de plusieurs modèles 
 #### Traçabilité et dépendances
 
 Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrément I5. Proposition pour revue globale de l'Epic 9 ; aucun développement ni recette.
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+
+#### Validation fonctionnelle globale
+
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.3: Créer, modifier et gérer ses modèles de briefs en administration
 **Jira :** https://lmn24.atlassian.net/browse/SMN-180
@@ -9121,8 +9127,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
 * **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.4: Adapter ponctuellement un modèle sans modifier sa définition
 **Jira :** https://lmn24.atlassian.net/browse/SMN-181
@@ -9170,8 +9178,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
 * **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.5: Sélectionner les faits et métriques collectives avec provenance
 **Jira :** https://lmn24.atlassian.net/browse/SMN-182
@@ -9219,8 +9229,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban, profils Administrateur et Utilisateur ; transmission à l'IA exclusivement manuelle, sans API ou connecteur au MVP.
 * **Statut : proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, pas de développement ni de tests exécutés.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.6: Construire un TXT plat aux rubriques et sources explicites
 **Jira :** https://lmn24.atlassian.net/browse/SMN-183
@@ -9268,8 +9280,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
 * **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.7: Ajouter et réviser ses observations et questions à l'IA
 **Jira :** https://lmn24.atlassian.net/browse/SMN-184
@@ -9317,8 +9331,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
 * **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.8: Exclure les informations individuelles dès la projection du brief
 **Jira :** https://lmn24.atlassian.net/browse/SMN-185
@@ -9366,8 +9382,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
 * **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.9: Prévisualiser intégralement le TXT et valider la confidentialité
 **Jira :** https://lmn24.atlassian.net/browse/SMN-186
@@ -9415,8 +9433,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
 * **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.10: Imposer une transmission manuelle sans appel automatique à une IA
 **Jira :** https://lmn24.atlassian.net/browse/SMN-187
@@ -9464,8 +9484,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5 ; TXT plat et communication manuelle uniquement, sans API IA ; sécurité Admin/Utilisateur appliquée côté serveur.
 * **Proposition publiée pour revue globale de l'Epic 9 ; non validée fonctionnellement, ni développée ni testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.11: Finaliser et archiver le texte TXT exact de manière immuable
 **Jira :** https://lmn24.atlassian.net/browse/SMN-189
@@ -9513,8 +9535,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
 * **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.12: Retrouver, consulter et télécharger les briefs TXT privés
 **Jira :** https://lmn24.atlassian.net/browse/SMN-190
@@ -9562,8 +9586,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
 * **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.13: Dupliquer un brief en préservant son parent et ses analyses
 **Jira :** https://lmn24.atlassian.net/browse/SMN-191
@@ -9611,8 +9637,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
 * **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.14: Coller manuellement une réponse IA dans le brief d'origine
 **Jira :** https://lmn24.atlassian.net/browse/SMN-192
@@ -9660,8 +9688,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
 * **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.15: Garantir une seule réponse IA active par brief
 **Jira :** https://lmn24.atlassian.net/browse/SMN-193
@@ -9709,8 +9739,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, MVP Scrum/Kanban. Aucune API IA, envoi automatique ni surveillance du prestataire externe.
 * **Statut : spécification publiée pour revue globale de l'Epic 9, non encore validée fonctionnellement et non développée/testée.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.16: Créer une analyse humaine distincte de toute réponse IA
 **Jira :** https://lmn24.atlassian.net/browse/SMN-194
@@ -9758,8 +9790,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
 * **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.17: Consulter le journal commun des analyses humaines et IA
 **Jira :** https://lmn24.atlassian.net/browse/SMN-195
@@ -9807,8 +9841,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
 * **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.18: Modifier les analyses et identifier les retouches humaines d'un texte IA
 **Jira :** https://lmn24.atlassian.net/browse/SMN-196
@@ -9856,8 +9892,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
 * **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.19: Supprimer volontairement une analyse sans supprimer le brief TXT
 **Jira :** https://lmn24.atlassian.net/browse/SMN-197
@@ -9905,8 +9943,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
 * **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.20: Inclure volontairement des analyses passées dans un nouveau brief TXT
 **Jira :** https://lmn24.atlassian.net/browse/SMN-198
@@ -9954,8 +9994,10 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
 * **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
 
 ### Story 9.21: Insérer des analyses choisies dans les rapports HTML/PDF avec attribution
 **Jira :** https://lmn24.atlassian.net/browse/SMN-199
@@ -10003,6 +10045,1037 @@ Epic SMN-9, FR-51 et FR-52, D-PRD-126/IA-02/03. Dépendance : Story 9.1. Incrém
 * Incrément I5, profils MVP Administrateur/Utilisateur, analyses humaines et IA en texte libre ; aucun envoi automatique à un modèle externe.
 * **Statut : proposition publiée pour revue globale de l'Epic 9, non encore approuvée fonctionnellement ; aucun développement ni test exécuté.**
 
+#### Validation fonctionnelle globale
 
-**Validation :** spécification publiée pour revue globale, non encore validée fonctionnellement ; développement et recette non attestés.
+Approuvée sans réserve avec les 21 Stories de l'Epic 9 le 19/10/2026. Validation de la spécification seulement ; aucun développement, aucune recette exécutée.
+**Validation :** approuvée fonctionnellement sans réserve le 19/10/2026 ; ni développement ni tests exécutés.
+
+
+## Epic 10: Prouver la qualité du MVP et décider de son passage au pilote
+Conserver des scénarios, mesures et preuves de recette Scrum/Kanban, contrôler les cinq conditions cumulatives, puis documenter une décision humaine de pilote.
+**FRs couvertes :** FR-74, FR-75, FR-76, FR-77, FR-78, FR-79, FR-80, FR-81.
+
+### Story 10.1: Établir la matrice de traçabilité des exigences MVP
+**Jira :** https://lmn24.atlassian.net/browse/SMN-200
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** rattacher chaque exigence applicable à des scénarios de recette identifiables,
+**afin de** savoir ce qui doit être contrôlé avant de déclarer le MVP prêt.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** les 81 FR du PRD sont disponibles,
+**When** je construis la matrice de recette,
+**Then** chaque FR applicable au MVP est reliée à au moins un scénario avec référence, préconditions, données, action et résultat attendu.
+
+#### AC2
+
+**Given** une exigence relève de Scrum, Kanban ou d'une règle commune,
+**When** je la classe,
+**Then** son périmètre explicite est conservé et les différences entre les modes ne sont pas masquées.
+
+#### AC3
+
+**Given** une exigence relève exclusivement de SAFe/ART v1.0,
+**When** je contrôle la couverture du MVP,
+**Then** elle est identifiée hors périmètre sans être comptée comme anomalie ni comme scénario MVP réussi.
+
+#### AC4
+
+**Given** une FR ou décision importante est absente des liens,
+**When** je consulte la matrice,
+**Then** une lacune de couverture est signalée et ne peut pas être présentée comme testée.
+
+#### AC5
+
+**Given** une règle de sécurité, dates, valeur facultative, clôture ou transaction atomique existe,
+**When** les scénarios sont identifiés,
+**Then** les chemins positifs et négatifs pertinents sont traçables plutôt qu'une simple mention de conformité.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-10 ; FR-74 ; D-PRD-129/REC-01 ; NFR-1 à NFR-3.
+* Dépendances : PRD validé FR-1 à FR-81 et arbitrages ; aucune Story future Epic 10.
+* Incrément I6 ; MVP Scrum/Kanban, SAFe/ART v1.0 hors de la recette MVP ; aucun test réel n'est réputé exécuté par la rédaction de cette Story.
+* **Statut : proposition publiée pour revue globale de l'Epic 10, non validée fonctionnellement ; ni développement ni recette exécutés.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.2: Consigner l'exécution, les preuves et les résultats de chaque scénario
+**Jira :** https://lmn24.atlassian.net/browse/SMN-201
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** enregistrer le résultat réel et ses preuves pour chaque scénario,
+**afin de** séparer les essais effectivement réalisés des intentions de recette.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un scénario de recette est créé,
+**When** j'ouvre sa fiche de suivi,
+**Then** il est Non exécuté et ne possède aucune preuve de réussite fabriquée.
+
+#### AC2
+
+**Given** une exécution a eu lieu,
+**When** je consigne date, version, périmètre, données utilisées et résultat,
+**Then** seuls Non exécuté, Réussi, Échoué, Bloqué et Non applicable sont permis avec justification adaptée.
+
+#### AC3
+
+**Given** un scénario a échoué ou est bloqué,
+**When** je renseigne le résultat,
+**Then** l'anomalie ou le motif de blocage est associé, sans transformer le résultat en succès.
+
+#### AC4
+
+**Given** une exécution réellement réalisée possède captures, traces ou fichiers témoins,
+**When** je les référence,
+**Then** les preuves sont consultables selon les droits sans déclarer un script exécuté s'il ne l'a pas été.
+
+#### AC5
+
+**Given** une exigence possède plusieurs scénarios dont un Non exécuté,
+**When** je calcule le bilan de couverture,
+**Then** le scénario non exécuté demeure distinct des réussites et la couverture n'est pas présentée comme intégralement démontrée.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-10 ; FR-74 ; D-PRD-129/REC-01 ; SEC-04.
+* Dépendances : Story 10.1.
+* Incrément I6 ; MVP Scrum/Kanban, SAFe/ART v1.0 hors de la recette MVP ; aucun test réel n'est réputé exécuté par la rédaction de cette Story.
+* **Statut : proposition publiée pour revue globale de l'Epic 10, non validée fonctionnellement ; ni développement ni recette exécutés.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.3: Suivre les anomalies, décisions correctives et contre-tests
+**Jira :** https://lmn24.atlassian.net/browse/SMN-202
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** lier chaque échec à un suivi de correction et à une nouvelle exécution,
+**afin de** ne pas masquer les défauts pouvant empêcher le pilote.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un scénario de recette est Échoué,
+**When** j'enregistre une anomalie,
+**Then** elle est liée au scénario, à la version et à la preuve de l'échec.
+
+#### AC2
+
+**Given** une anomalie est détectée,
+**When** je documente sa criticité et la décision de traitement,
+**Then** son statut et son caractère bloquant restent explicites ; aucun seuil de sévérité non arbitré n'est considéré validé.
+
+#### AC3
+
+**Given** une correction est déclarée disponible,
+**When** je lance un contre-test,
+**Then** son résultat, sa date, sa version et ses preuves sont enregistrés comme nouvelle exécution.
+
+#### AC4
+
+**Given** une anomalie reste ouverte après contre-test,
+**When** je consulte la checklist,
+**Then** elle demeure listée selon sa sévérité sans disparition automatique.
+
+#### AC5
+
+**Given** un défaut a été corrigé puis retesté avec succès,
+**When** je consulte les exécutions,
+**Then** l'échec initial et la preuve de réussite ultérieure demeurent traçables.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-10 ; FR-74, FR-81 ; D-PRD-129/REC-01/08.
+* Dépendances : Stories 10.1–10.2 ; tickets d'anomalies Jira autorisés.
+* Incrément I6 ; MVP Scrum/Kanban, SAFe/ART v1.0 hors de la recette MVP ; aucun test réel n'est réputé exécuté par la rédaction de cette Story.
+* **Statut : proposition publiée pour revue globale de l'Epic 10, non validée fonctionnellement ; ni développement ni recette exécutés.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.4: Recetter le parcours Scrum complet de l'installation au rapport
+**Jira :** https://lmn24.atlassian.net/browse/SMN-203
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** vérifier de bout en bout les fonctions Scrum du MVP,
+**afin de** établir que la chaîne de valeur Scrum fonctionne réellement.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une installation de recette Scrum isolée est préparée,
+**When** le scénario commence,
+**Then** configuration, authentification, produit, équipe, membres, calendriers et absences sont couverts avec version et données identifiées.
+
+#### AC2
+
+**Given** la configuration Scrum est opérationnelle,
+**When** le parcours crée un Sprint à la demande,
+**Then** objectifs, événements, métriques et capacité sont exercés sans données fictives.
+
+#### AC3
+
+**Given** des éléments qualitatifs sont disponibles,
+**When** le scénario suit le Sprint,
+**Then** risques, décisions et autres registres liés apparaissent dans le bilan au périmètre prévu.
+
+#### AC4
+
+**Given** le Sprint arrive à son terme,
+**When** l'Administrateur le clôture volontairement,
+**Then** un instantané est créé et le parcours HTML puis PDF est contrôlé.
+
+#### AC5
+
+**Given** une étape n'a pas été exécutée ou échoue,
+**When** je consigne le scénario,
+**Then** le résultat global reste Bloqué/Échoué/Non exécuté selon les preuves, jamais Réussi par présomption.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-10 ; FR-75 ; D-PRD-129/REC-02 ; Epics 1/3/4/5/6.
+* Dépendances : Stories 10.1–10.2 et fonctions Scrum déjà spécifiées.
+* Incrément I6 ; MVP Scrum/Kanban, SAFe/ART v1.0 hors de la recette MVP ; aucun test réel n'est réputé exécuté par la rédaction de cette Story.
+* **Statut : proposition publiée pour revue globale de l'Epic 10, non validée fonctionnellement ; ni développement ni recette exécutés.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.5: Recetter le parcours Kanban complet sans cérémonies Scrum artificielles
+**Jira :** https://lmn24.atlassian.net/browse/SMN-204
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** vérifier de bout en bout le suivi Kanban dans son mode propre,
+**afin de** prouver que la mutualisation n'impose pas de règles Scrum erronées.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une installation Kanban de recette est initialisée,
+**When** je prépare l'équipe et sa cadence,
+**Then** le mois calendaire par défaut ou les rythmes de 7/14 jours sont vérifiés sans changer le mode d'une installation Scrum.
+
+#### AC2
+
+**Given** une période Kanban est créée sur demande,
+**When** le scénario déroule la période,
+**Then** les trois comptes de flux, les deux délais moyens, les objectifs et la capacité sont testés comme champs facultatifs distincts.
+
+#### AC3
+
+**Given** la période est suivie puis achevée,
+**When** l'Administrateur la clôture volontairement,
+**Then** les liens qualitatifs, l'instantané et le bilan sont vérifiés sans cérémonie Scrum obligatoire.
+
+#### AC4
+
+**Given** un rapport Kanban est préparé,
+**When** la prévisualisation HTML et l'export PDF sont effectués,
+**Then** les KPI Kanban restent dans leurs unités et aucun Story Point Scrum n'est fabriqué.
+
+#### AC5
+
+**Given** une installation n'autorise qu'un mode fixe,
+**When** les parcours Scrum et Kanban sont évalués,
+**Then** deux installations distinctes peuvent servir de preuves, sans conversion de l'une vers l'autre.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-10 ; FR-75 ; D-PRD-129/REC-02 ; Epic 7 ; RPT-01.
+* Dépendances : Stories 10.1–10.2 et fonctions Kanban existantes Epics 3/5/6/7.
+* Incrément I6 ; MVP Scrum/Kanban, SAFe/ART v1.0 hors de la recette MVP ; aucun test réel n'est réputé exécuté par la rédaction de cette Story.
+* **Statut : proposition publiée pour revue globale de l'Epic 10, non validée fonctionnellement ; ni développement ni recette exécutés.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.6: Vérifier les cas limites de génération, statuts et saisies des cycles
+**Jira :** https://lmn24.atlassian.net/browse/SMN-205
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** tester les protections métier communes aux deux modes,
+**afin de** éviter que des cas particuliers faussent les cycles et leur bilan.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un lot demande plus de six cycles ou chevauche une période existante,
+**When** je teste les créations unitaires et par lot,
+**Then** les refus, prévisualisations et garanties tout-ou-rien sont consignés pour les modes applicables.
+
+#### AC2
+
+**Given** une période passe de À venir à En cours puis Terminé,
+**When** je vérifie les transitions,
+**Then** la clôture reste manuelle et les transitions sont idempotentes après arrêt/reprise.
+
+#### AC3
+
+**Given** un bilan contient des objectifs, données de flux, SP et capacité,
+**When** je teste séparément chaque bloc applicable,
+**Then** les sauvegardes n'enregistrent pas les autres brouillons et l'absence de donnée n'est pas assimilée à zéro.
+
+#### AC4
+
+**Given** un événement Tenue/Non tenue/Annulée ou personnalisé est lié au cycle,
+**When** je replanifie ses dates,
+**Then** les dates historiques protégées restent intouchées et les alertes non bloquantes sont vérifiées.
+
+#### AC5
+
+**Given** un scénario échoue,
+**When** j'enregistre l'exécution,
+**Then** l'échec et les preuves sont reliés à une anomalie, sans déclarer un parcours complet réussi.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-75, FR-77 ; D-PRD-129/REC-02/04 ; D-PRD-130.
+* Dépendances : Stories 10.4–10.5 ; opérations des Epics 3/4/7.
+* Incrément I6 ; objectifs non considérés atteints sans mesures réelles ; périmètre Scrum/Kanban, pas SAFe MVP.
+* **Statut : proposition pour validation globale de l'Epic 10, sans validation fonctionnelle ni test exécuté.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.7: Définir avant mesures le protocole des cinq conditions de succès
+**Jira :** https://lmn24.atlassian.net/browse/SMN-206
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** fixer un protocole traçable pour évaluer les critères de succès déjà validés,
+**afin de** prendre une décision fondée sur des observations et non des impressions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** je prépare la recette métier,
+**When** je consulte le protocole,
+**Then** les cinq conditions sont présentes ensemble avec méthode, données, mesure, preuve attendue et version de référence.
+
+#### AC2
+
+**Given** la condition portant sur les cycles est paramétrée,
+**When** je lis sa définition,
+**Then** au moins trois Sprints complets et un cycle Kanban en conditions réelles sont exigés, sans remplacement par des simulations.
+
+#### AC3
+
+**Given** les deux critères de temps sont configurés,
+**When** je consulte les seuils,
+**Then** le rapport de Sprint doit être produit en strictement moins de 30 minutes et la saisie courante être mesurée séparément, au maximum 30 minutes hebdomadaires.
+
+#### AC4
+
+**Given** les conditions tendances et rapports sont définies,
+**When** je consulte les contrôles,
+**Then** les reprises historiques doivent rester fiables et les rapports HTML/PDF exploitables sans anomalie bloquante.
+
+#### AC5
+
+**Given** l'échantillon et l'outillage sont précisés avant l'observation,
+**When** je valide le protocole,
+**Then** ces choix sont documentés sans inventer un nombre de mesures supplémentaire prétendument approuvé.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-76 ; D-PRD-129/REC-03 ; PRD section 7.
+* Dépendances : Stories 10.1–10.2 ; cinq conditions inchangées du PRD.
+* Incrément I6 ; objectifs non considérés atteints sans mesures réelles ; périmètre Scrum/Kanban, pas SAFe MVP.
+* **Statut : proposition pour validation globale de l'Epic 10, sans validation fonctionnelle ni test exécuté.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.8: Conserver les preuves des trois Sprints réels et d'un cycle Kanban
+**Jira :** https://lmn24.atlassian.net/browse/SMN-207
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** mesurer la réalisation de cycles de travail authentiques avant le pilote,
+**afin de** éviter de valider le produit sur de simples démonstrations.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** aucune observation réelle n'est encore disponible,
+**When** j'ouvre la condition 1,
+**Then** son état demeure Non démontrée, sans résultat inventé.
+
+#### AC2
+
+**Given** un Sprint Scrum a été effectivement réalisé,
+**When** je consigne le cycle,
+**Then** identité, dates, statut, contexte réel, clôture et preuve de reporting sont associés.
+
+#### AC3
+
+**Given** un cycle de reporting Kanban réel a eu lieu,
+**When** je le documente,
+**Then** l'installation Kanban, sa période, sa clôture et son rapport sont identifiés séparément.
+
+#### AC4
+
+**Given** moins de trois Sprints complets ou aucun cycle Kanban réel sont prouvés,
+**When** le bilan est calculé,
+**Then** la condition n'est pas marquée Atteinte.
+
+#### AC5
+
+**Given** au moins trois Sprints complets et un cycle Kanban réel sont effectivement documentés,
+**When** je demande l'évaluation,
+**Then** le résultat peut être Atteinte uniquement après vérification des preuves, sans prétendre que ces observations ont déjà eu lieu.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-76, FR-75 ; D-PRD-129/REC-03 ; critère de succès 1.
+* Dépendances : Story 10.7 et capacités de cycles Epics 4/7.
+* Incrément I6 ; objectifs non considérés atteints sans mesures réelles ; périmètre Scrum/Kanban, pas SAFe MVP.
+* **Statut : proposition pour validation globale de l'Epic 10, sans validation fonctionnelle ni test exécuté.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.9: Chronométrer le rapport complet de Sprint sans reconstruction manuelle
+**Jira :** https://lmn24.atlassian.net/browse/SMN-208
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** mesurer le temps de production d'un rapport complet de fin de Sprint,
+**afin de** vérifier l'objectif de moins de 30 minutes pour la restitution.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint a les informations nécessaires à son reporting,
+**When** je commence un essai chronométré,
+**Then** le début et le périmètre du parcours sont enregistrés selon le protocole.
+
+#### AC2
+
+**Given** le PDF/rapport est prêt à être partagé,
+**When** je termine le chronométrage,
+**Then** le temps mesuré, la preuve du livrable et les opérations accomplies sont conservés.
+
+#### AC3
+
+**Given** l'accès aux tendances requiert une consolidation manuelle hors SMN,
+**When** je clos l'essai,
+**Then** la condition n'est pas considérée atteinte sur ce constat.
+
+#### AC4
+
+**Given** le temps mesuré est égal à 30 minutes ou supérieur,
+**When** je compare le résultat,
+**Then** le seuil strictement inférieur à 30 minutes n'est pas satisfait.
+
+#### AC5
+
+**Given** aucune mesure valable n'a été réalisée,
+**When** je consulte la conclusion,
+**Then** la condition reste Non démontrée, sans importer arbitrairement un temps estimé.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-76, FR-78 ; D-PRD-129/REC-03/05 ; critère de succès 2.
+* Dépendances : Story 10.7 ; génération de rapports Epic 6.
+* Incrément I6 ; objectifs non considérés atteints sans mesures réelles ; périmètre Scrum/Kanban, pas SAFe MVP.
+* **Statut : proposition pour validation globale de l'Epic 10, sans validation fonctionnelle ni test exécuté.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.10: Mesurer la saisie courante hebdomadaire séparément des exceptions
+**Jira :** https://lmn24.atlassian.net/browse/SMN-209
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** chronométrer mon temps ordinaire de saisie dans SMN,
+**afin de** vérifier que l'administration de l'outil demeure légère au quotidien.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une semaine de suivi réel est observée,
+**When** j'enregistre les temps de saisie courante,
+**Then** les durées et les dates de la semaine sont conservées selon le protocole approuvé.
+
+#### AC2
+
+**Given** un rapport final est produit ou une reprise historique exceptionnelle est réalisée,
+**When** je mesure les durées,
+**Then** ces travaux sont enregistrés séparément et exclus du temps de saisie ordinaire.
+
+#### AC3
+
+**Given** une semaine a une durée courante supérieure à 30 minutes,
+**When** j'évalue la condition,
+**Then** la semaine et l'écart sont explicités et la limite n'est pas réputée respectée.
+
+#### AC4
+
+**Given** les semaines observées ont une durée dans la cible 15 à 30 minutes,
+**When** je consulte la synthèse,
+**Then** les données brutes et leur provenance restent visibles sans effacer les autres semaines.
+
+#### AC5
+
+**Given** aucune observation hebdomadaire réelle n'existe,
+**When** je consulte le résultat,
+**Then** il demeure Non démontrée, sans inventer un temps de saisie ou une conformité.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-76 ; D-PRD-129/REC-03 ; critère de succès 3.
+* Dépendances : Story 10.7 ; parcours de saisie déjà définis Epics 1–9.
+* Incrément I6 ; objectifs non considérés atteints sans mesures réelles ; périmètre Scrum/Kanban, pas SAFe MVP.
+* **Statut : proposition pour validation globale de l'Epic 10, sans validation fonctionnelle ni test exécuté.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.11: Prouver la fiabilité des tendances et des reprises historiques
+**Jira :** https://lmn24.atlassian.net/browse/SMN-210
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** comparer les tendances aux données sources connues et à leurs lacunes,
+**afin de** vérifier qu'une reconstitution ne produit pas de fausses évolutions.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** des Sprints ordinaires et rétrosaisis sont disponibles,
+**When** je vérifie des séries de tendance,
+**Then** les cycles sont placés dans leur chronologie, avec cinq clôtures éligibles maximum sans cycle ultérieur au cycle consulté.
+
+#### AC2
+
+**Given** une valeur historique est Non renseignée, Estimée, Connue ou explicitement zéro,
+**When** je contrôle graphique et bilan,
+**Then** chaque état garde sa signification et aucune absence n'est transformée en zéro.
+
+#### AC3
+
+**Given** une moyenne Kanban n'a pas la même population ou convention,
+**When** je compare les délais,
+**Then** les données non comparables ne sont pas agrégées sans qualification ou transformation vérifiable.
+
+#### AC4
+
+**Given** un ancien Sprint est rouvert et reclôturé après correction,
+**When** j'examine les versions,
+**Then** les instantanés V1/V2 et anciens PDF restent intacts et la tendance courante tient compte seulement des états éligibles.
+
+#### AC5
+
+**Given** une situation de tendance n'a pas été réellement contrôlée,
+**When** j'évalue le critère de succès 4,
+**Then** la condition est Non démontrée, avec scénario et preuve manquante, sans déclaration de fiabilité.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-76, FR-77 ; D-PRD-129/REC-03/04 ; critère de succès 4 ; D-PRD-130.
+* Dépendances : Stories 10.2, 10.7 ; tendances Epics 4/7/8.
+* Incrément I6, recette du MVP Scrum/Kanban ; cette rédaction ne prouve aucune conformité ou résultat observé.
+* **Statut : Story publiée pour validation globale de l'Epic 10, non encore approuvée ni développée ni testée.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.12: Vérifier l'exploitabilité des rapports HTML et PDF
+**Jira :** https://lmn24.atlassian.net/browse/SMN-214
+
+**En tant que** Scrum Master responsable de la recette,
+**je veux** vérifier l'exploitabilité des rapports HTML et PDF,
+**afin de** ne pas considérer un livrable défectueux comme utilisable au pilote.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint avec rapport complet,
+**When** je compare la prévisualisation HTML et le PDF,
+**Then** les rubriques, données et graphiques coïncident, sous réserve de la pagination.
+
+#### AC2
+
+**Given** un rapport Kanban,
+**When** je compare HTML et PDF,
+**Then** les indicateurs et leurs unités de flux restent fidèles.
+
+#### AC3
+
+**Given** un cycle provisoire, historique ou clôturé,
+**When** je lis les versions française et anglaise,
+**Then** statut, date, clichés et libellés sont corrects sans traduction automatique des commentaires.
+
+#### AC4
+
+**Given** un défaut empêchant la lecture ou l'utilisation du PDF,
+**When** j'enregistre le résultat de recette,
+**Then** une anomalie bloquante est tracée et la condition n'est pas considérée satisfaite.
+
+#### AC5
+
+**Given** les contrôles n'ont pas eu lieu,
+**When** la condition de succès est examinée,
+**Then** elle reste Non démontrée sans résultat d'exécution inventé.
+
+#### Traçabilité
+
+Epic SMN-10 ; FR-76, FR-78 ; D-PRD-129/REC-03/05 ; condition de succès 5 du PRD. Dépendances : Stories 10.4, 10.5, 10.7 et génération de rapports Epic 6. Incrément I6 ; spécification en attente de revue globale, aucun test exécuté.
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.13: Tester les imports CSV historiques et les valeurs atypiques
+**Jira :** https://lmn24.atlassian.net/browse/SMN-211
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** recetter les cas d'import et d'historisation les plus sensibles,
+**afin de** prouver qu'aucune donnée passée n'est inventée ou écrasée involontairement.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un Sprint historique terminé est repris,
+**When** je contrôle sa création,
+**Then** aucune cérémonie passée n'est fabriquée et la capacité initiale Connue/Estimée/Non renseignée reste distincte.
+
+#### AC2
+
+**Given** un CSV à quatre colonnes contient des valeurs valides Scrum ou Kanban,
+**When** je vérifie l'aperçu,
+**Then** les cycles, métriques, qualités et éventuels remplacements apparaissent avant confirmation.
+
+#### AC3
+
+**Given** une ligne CSV est invalide, dupliquée ou cible un cycle inconnu,
+**When** je tente de confirmer,
+**Then** l'import complet est refusé sans écriture partielle.
+
+#### AC4
+
+**Given** une métrique existante est ciblée,
+**When** je vérifie Conserver puis Remplacer volontairement,
+**Then** la conservation par défaut, la protection des clôtures et la traçabilité avant/après sont respectées.
+
+#### AC5
+
+**Given** un cycle historique est corrigé puis reclôturé,
+**When** je consulte ses rapports anciens,
+**Then** les PDF/TXT déjà archivés restent immuables, sans prétendre disposer d'états qualitatifs passés inconnus.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-77 ; D-PRD-129/REC-04 ; D-PRD-130/A1–A4.
+* Dépendances : Stories 10.1–10.2 ; import et historique Epic 8.
+* Incrément I6, recette du MVP Scrum/Kanban ; cette rédaction ne prouve aucune conformité ou résultat observé.
+* **Statut : Story publiée pour validation globale de l'Epic 10, non encore approuvée ni développée ni testée.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.14: Recetter les briefs TXT et les analyses IA sans transmission automatique
+**Jira :** https://lmn24.atlassian.net/browse/SMN-212
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** prouver la confidentialité et l'historique des briefs IA du MVP,
+**afin de** éviter une fuite ou une confusion entre interprétation et fait mesuré.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un cycle Scrum ou Kanban est choisi,
+**When** je prépare un brief TXT,
+**Then** les rubriques collectives, modèle, statut, sources et consignes sont disponibles sans champ personnel structuré ni graphique.
+
+#### AC2
+
+**Given** un texte libre contient potentiellement une information confidentielle,
+**When** je prépare la finalisation,
+**Then** la prévisualisation complète et l'approbation explicite de confidentialité sont exigées.
+
+#### AC3
+
+**Given** un brief est finalisé puis dupliqué,
+**When** je contrôle les deux archives,
+**Then** le texte exact du parent demeure immuable, l'enfant reçoit un autre identifiant et aucune réponse IA n'est copiée implicitement.
+
+#### AC4
+
+**Given** une réponse externe est collée puis corrigée ou supprimée,
+**When** je vérifie les analyses,
+**Then** une seule analyse IA active par brief, retouche humaine identifiable et brief d'origine conservé sont démontrables.
+
+#### AC5
+
+**Given** un brief est prévisualisé ou archivé,
+**When** je contrôle les échanges réseau prévus par le scénario,
+**Then** aucune transmission automatique à un prestataire IA n'est exécutée ; une analyse antérieure sélectionnée reste présentée comme interprétation.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-78 ; D-PRD-129/REC-05 ; D-PRD-126/IA-01 à IA-08.
+* Dépendances : Stories 10.1–10.2 ; parcours IA Epic 9.
+* Incrément I6, recette du MVP Scrum/Kanban ; cette rédaction ne prouve aucune conformité ou résultat observé.
+* **Statut : Story publiée pour validation globale de l'Epic 10, non encore approuvée ni développée ni testée.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.15: Contrôler les accès privés, les deux profils et les secrets
+**Jira :** https://lmn24.atlassian.net/browse/SMN-213
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** vérifier que données et actions de l'installation restent protégées,
+**afin de** ne pas diffuser le MVP avec des accès ou secrets exposés.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une personne n'est pas authentifiée,
+**When** elle essaie d'ouvrir une page, une API ou une archive PDF/TXT privée,
+**Then** l'accès est refusé même avec une URL ou un identifiant de fichier connu.
+
+#### AC2
+
+**Given** un Utilisateur authentifié tente de créer un compte, de modifier une fiche ou de générer un rapport,
+**When** le serveur traite l'opération,
+**Then** l'écriture est refusée ; les lectures et téléchargements explicitement autorisés restent possibles.
+
+#### AC3
+
+**Given** l'Administrateur utilise le parcours normal,
+**When** les opérations de gestion des comptes et des données lui sont proposées,
+**Then** les droits sont exercés sans matrice de rôles complexe ni contournement côté API.
+
+#### AC4
+
+**Given** des erreurs d'authentification ou d'export surviennent,
+**When** je consulte messages et journaux,
+**Then** les secrets, identifiants sensibles et textes privés ne sont pas exposés.
+
+#### AC5
+
+**Given** une fonction n'a pas été soumise à un essai de contrôle d'accès,
+**When** la matrice de recette est consultée,
+**Then** la sécurité de cette fonction reste Non exécuté/Non démontrée et non déclarée conforme.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-79 ; D-PRD-129/REC-06 ; AD-31 ; FR-66–73.
+* Dépendances : Stories 10.1–10.2 ; sécurité et droits Epic 1.
+* Incrément I6, recette du MVP Scrum/Kanban ; cette rédaction ne prouve aucune conformité ou résultat observé.
+* **Statut : Story publiée pour validation globale de l'Epic 10, non encore approuvée ni développée ni testée.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.16: Vérifier la sauvegarde complète et la restauration contrôlée
+**Jira :** https://lmn24.atlassian.net/browse/SMN-215
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** prouver que les données et documents SMN peuvent être restaurés sans perte silencieuse,
+**afin de** réduire le risque de perdre un carnet Agile avant son pilote.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** une sauvegarde gérée conforme au périmètre existe,
+**When** je prépare un essai de restauration isolé,
+**Then** les données métier, registres, historiques, PDF, TXT et métadonnées attendues sont listés pour comparaison.
+
+#### AC2
+
+**Given** une restauration réussit dans l'environnement de recette,
+**When** je compare l'avant et l'après,
+**Then** les comptes, cycles, clichés Vn et archives privées sont cohérents et les écarts éventuels sont consignés.
+
+#### AC3
+
+**Given** une archive de sauvegarde est invalide ou incomplète,
+**When** je tente une restauration contrôlée,
+**Then** un échec explicite est signalé sans présenter l'installation comme restaurée.
+
+#### AC4
+
+**Given** une restauration implique le remplacement de données,
+**When** je lance le parcours sensible,
+**Then** les conséquences et l'accord Administrateur sont vérifiés, sans effacer implicitement une autre installation.
+
+#### AC5
+
+**Given** un essai de sauvegarde ou restauration n'a pas été effectué,
+**When** je consulte sa ligne de recette,
+**Then** le contrôle reste Non exécuté ou Non démontré, même si les paramètres de sauvegarde sont documentés.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-79 ; D-PRD-129/REC-06 ; AD-27 ; FR-68–71.
+* Dépendances : Stories 10.1–10.2 ; sauvegardes et restauration Epic 2.
+* Incrément I6 ; recette Scrum/Kanban, pas SAFe v1.0 ; tests, mesures et conformité non attestés à ce stade.
+* **Statut : proposition publiée pour revue groupée, non approuvée fonctionnellement et non réalisée techniquement.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.17: Tester les transactions atomiques et les échecs d'opérations sensibles
+**Jira :** https://lmn24.atlassian.net/browse/SMN-216
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** vérifier que les interruptions ne laissent pas de données métier incohérentes,
+**afin de** préserver l'intégrité du carnet et ne jamais annoncer de faux succès.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un lot de cycles contient un conflit,
+**When** je demande sa confirmation,
+**Then** aucun cycle du lot n'est créé et les raisons sont affichées.
+
+#### AC2
+
+**Given** une replanification avec événements échoue pendant sa transaction,
+**When** je simule un échec lorsque l'environnement de recette le permet,
+**Then** les dates, événements, références de capacité et audit de réussite ne restent pas partiellement modifiés.
+
+#### AC3
+
+**Given** un CSV contient une ligne invalide après plusieurs lignes valides,
+**When** je tente l'import,
+**Then** aucune ligne n'est persistée et l'erreur est reliée à son origine.
+
+#### AC4
+
+**Given** un export PDF/TXT ou archivage est interrompu,
+**When** j'examine son résultat,
+**Then** aucun fichier partiel n'est déclaré final et un ancien document reste intact.
+
+#### AC5
+
+**Given** une suppression, purge ou réinitialisation est demandée,
+**When** j'examine confirmation et droits,
+**Then** les impacts sont annoncés et aucune action destructrice ne survient sans validation autorisée.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-79, FR-77 ; D-PRD-129/REC-06 ; D-PRD-130/A4 ; FR-23/44.
+* Dépendances : Stories 10.1–10.2, 10.6, 10.13 ; opérations Epics 2/4/7/8.
+* Incrément I6 ; recette Scrum/Kanban, pas SAFe v1.0 ; tests, mesures et conformité non attestés à ce stade.
+* **Statut : proposition publiée pour revue groupée, non approuvée fonctionnellement et non réalisée techniquement.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.18: Constituer la matrice de compatibilité appareils, navigateurs et langues
+**Jira :** https://lmn24.atlassian.net/browse/SMN-217
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** recenser les combinaisons d'interface à tester et leurs résultats,
+**afin de** identifier les régressions sur ordinateur, tablette et téléphone.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** la matrice de compatibilité est initialisée,
+**When** je définis les environnements cibles,
+**Then** ordinateur, tablette et smartphone en navigateur sont représentés pour les parcours essentiels.
+
+#### AC2
+
+**Given** un scénario est joué en français ou en anglais,
+**When** je consigne l'essai,
+**Then** langue, navigateur/version, appareil/taille d'écran, thème, date et résultat sont associés.
+
+#### AC3
+
+**Given** je teste thèmes clair/sombre et palettes utilisables,
+**When** je parcours tableau de bord, calendriers, bilans, registres, rapports, briefs et administration,
+**Then** les actions métier essentielles et leurs libellés restent accessibles sans perdre de donnée.
+
+#### AC4
+
+**Given** une combinaison n'a pas été réellement vérifiée,
+**When** je consulte la matrice,
+**Then** elle demeure Non exécutée, distincte de la compatibilité démontrée.
+
+#### AC5
+
+**Given** les versions minimales ou tailles de référence ne sont pas encore arbitrées,
+**When** je prépare la campagne,
+**Then** elles sont signalées À définir avant acceptation technique, sans seuil ou compatibilité inventés.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-80 ; D-PRD-129/REC-07 ; NFR-1 ; D-PRD-127.
+* Dépendances : Stories 10.1–10.2 ; parcours UX Epics 1–9.
+* Incrément I6 ; recette Scrum/Kanban, pas SAFe v1.0 ; tests, mesures et conformité non attestés à ce stade.
+* **Statut : proposition publiée pour revue groupée, non approuvée fonctionnellement et non réalisée techniquement.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.19: Recetter l'accessibilité clavier et la lisibilité des composants
+**Jira :** https://lmn24.atlassian.net/browse/SMN-218
+
+**En tant que** Scrum Master responsable de la recette du MVP,
+**je veux** vérifier les interactions essentielles sans souris ni seule dépendance à la couleur,
+**afin de** rendre le MVP utilisable par des profils et supports variés.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** un formulaire important est ouvert,
+**When** je le parcours au clavier,
+**Then** navigation, ordre de focus, champs obligatoires, boutons et messages d'erreur restent opérables.
+
+#### AC2
+
+**Given** un indicateur ou une alerte emploie une couleur,
+**When** je consulte la vue sans distinguer cette couleur,
+**Then** son texte, icône ou autre repère explicite l'information.
+
+#### AC3
+
+**Given** un tableau, graphique ou calendrier apparaît sur écran étroit,
+**When** je vérifie ses actions principales,
+**Then** les informations essentielles restent lisibles ou leur mode de consultation alternatif est vérifié.
+
+#### AC4
+
+**Given** un élément réagit aux interactions,
+**When** je déplace le focus et provoque un échec contrôlé,
+**Then** focus visible, libellés compréhensibles et erreurs interprétables sont contrôlés.
+
+#### AC5
+
+**Given** un niveau WCAG ou un seuil précis n'a pas été arbitré ou mesuré,
+**When** je rédige le résultat de la campagne,
+**Then** aucune conformité normative totale n'est déclarée sans périmètre, mesures et preuves explicites.
+
+#### Traçabilité et dépendances
+
+* Epic SMN-10 ; FR-80 ; D-PRD-129/REC-07 ; UX-01–08 ; NFR-1.
+* Dépendances : Story 10.18 ; composants et formulaires Epics 1–9.
+* Incrément I6 ; recette Scrum/Kanban, pas SAFe v1.0 ; tests, mesures et conformité non attestés à ce stade.
+* **Statut : proposition publiée pour revue groupée, non approuvée fonctionnellement et non réalisée techniquement.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.20: Consolider la checklist de préparation du MVP au pilote
+**Jira :** https://lmn24.atlassian.net/browse/SMN-219
+
+**En tant que** Scrum Master responsable de la décision de pilote,
+**je veux** voir une synthèse traçable des exigences, essais, preuves et anomalies,
+**afin de** identifier clairement les points encore bloquants avant toute décision de pilote.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** des résultats de scénarios ont été consignés,
+**When** j'ouvre la checklist du MVP,
+**Then** couverture FR, preuves, anomalies, restaurations, sécurité, HTML/PDF/TXT et compatibilité sont consolidées avec leur état.
+
+#### AC2
+
+**Given** les cinq conditions métier sont évaluées séparément,
+**When** la checklist est produite,
+**Then** elles figurent toutes avec Atteinte/Non atteinte/Non démontrée et leurs preuves, sans conclusion artificielle.
+
+#### AC3
+
+**Given** un contrôle applicable est Non exécuté,
+**When** la checklist en déduit le statut,
+**Then** il reste Non démontré et ne peut être masqué comme Non applicable.
+
+#### AC4
+
+**Given** une anomalie bloquante demeure ouverte,
+**When** j'examine le bilan,
+**Then** la préparation est signalée comme non satisfaisante et l'anomalie est liée à son suivi.
+
+#### AC5
+
+**Given** des anomalies non bloquantes subsistent,
+**When** la checklist est renseignée,
+**Then** elles restent visibles avec traitement envisagé et risque résiduel, sans affirmation de conformité complète.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-10 ; FR-81, FR-74, FR-76 ; D-PRD-129/REC-08 ; section 7 du PRD ; I6.
+* Dépendances : Stories 10.1–10.19.
+* Incrément I6. **La validation des spécifications et la création de tickets ne constituent aucune preuve de recette ni autorisation de pilote.**
+* **Statut : proposition publiée pour revue groupée de l'Epic 10, en attente d'approbation fonctionnelle.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
+
+### Story 10.21: Enregistrer une décision humaine explicite de passage au pilote
+**Jira :** https://lmn24.atlassian.net/browse/SMN-220
+
+**En tant que** Scrum Master responsable de la décision de pilote,
+**je veux** statuer formellement sur la préparation réelle du MVP,
+**afin de** ne pas lancer un pilote sur la seule base d'un backlog rédigé ou de tests non exécutés.
+
+**Critères d'acceptation :**
+
+#### AC1
+
+**Given** la checklist présente au moins une condition métier Non démontrée ou Non atteinte,
+**When** je demande la conclusion,
+**Then** SMN affiche Non prêt pour pilote ou Décision suspendue ; aucune validation automatique n'est accordée.
+
+#### AC2
+
+**Given** une anomalie bloquante est toujours ouverte,
+**When** la décision est examinée,
+**Then** le statut Prêt pour pilote est impossible, même si certains scénarios sont réussis.
+
+#### AC3
+
+**Given** toutes les conditions cumulatives sont effectivement démontrées, aucun blocage ne subsiste et les contrôles requis sont satisfaits,
+**When** le responsable habilité examine le dossier,
+**Then** il peut explicitement signer une décision de passage au pilote ; cette possibilité ne vaut pas décision déjà prise.
+
+#### AC4
+
+**Given** une décision humaine est prise,
+**When** je la conserve,
+**Then** date, auteur habilité, version MVP, périmètre Scrum/Kanban et références des preuves examinées sont historisés.
+
+#### AC5
+
+**Given** une décision favorable au pilote a été enregistrée,
+**When** la question d'une diffusion plus large est soulevée,
+**Then** aucune généralisation automatique ni lancement technique du pilote n'est déclenché : une décision distincte après retours d'usage sera nécessaire.
+
+#### Traçabilité et dépendances
+
+* Epic : SMN-10 ; FR-81, FR-76 ; D-PRD-129/REC-08 ; section 7 du PRD ; D-PRD-131.
+* Dépendances : Story 10.20 et protocoles/observations 10.7–10.19.
+* Incrément I6. **La validation des spécifications et la création de tickets ne constituent aucune preuve de recette ni autorisation de pilote.**
+* **Statut : proposition publiée pour revue groupée de l'Epic 10, en attente d'approbation fonctionnelle.**
+
+
+**Validation :** publiée dans Jira pour revue globale ; non encore approuvée fonctionnellement et aucun test exécuté.
 
