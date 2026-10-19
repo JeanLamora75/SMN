@@ -18,11 +18,12 @@ companions:
   - "SECURITE-EXPLOITATION.md"
   - "REVUE-COHERENCE-TRACABILITE.md"
   - "ARBITRAGES-FINAUX.md"
+  - "CONTROLE-FINAL-BMAD.md"
 ---
 
 # Architecture Spine — Scrum Master Notebook
 
-> **Contrat de cohérence architectural, non constat d'implémentation.** Les AD-1 à AD-13 reprennent sans renumérotation les décisions déjà enregistrées dans le journal de cette branche. Les AD suivantes distillent les validations conversationnelles de Winston. Le PRD et ses annexes prévalent pour les règles métier. **Statut final du contrat documentaire, avec réserves à portes de sortie** : le lint officiel BMAD, les relectures indépendantes, les versions/bibliothèques, le packaging Windows et les tests métier ne sont pas attestés. Les décisions métier A7/A8/A10/A11 demeurent ouvertes. Voir [revue finale des arbitrages](ARBITRAGES-FINAUX.md).
+> **Contrat de cohérence architectural, non constat d'implémentation.** Les AD-1 à AD-13 reprennent sans renumérotation les décisions déjà enregistrées dans le journal de cette branche. Les AD suivantes distillent les validations conversationnelles de Winston. Le PRD et ses annexes prévalent pour les règles métier. **Statut final du contrat documentaire, avec réserves à portes de sortie** : le lint officiel BMAD, les relectures indépendantes, les versions/bibliothèques, le packaging Windows et les tests métier ne sont pas attestés. Les décisions métier A7/A8/A10/A11 demeurent ouvertes. Voir [revue finale des arbitrages](ARBITRAGES-FINAUX.md) et [contrôle final documentaire](CONTROLE-FINAL-BMAD.md).
 
 ## Design Paradigm
 
