@@ -42,7 +42,11 @@ Aucune entrée illégale, orpheline ou normalisation de statut ancien signalée.
 
 Le périmètre est une proposition à affiner, pas un engagement de délai. I0 peut couvrir plusieurs Sprints. Eric déclare une disponibilité de **40 heures par semaine**. Cette disponibilité inclut préparation, développement, essais, revue et documentation ; elle ne constitue ni une estimation du backlog ni une vélocité mesurée.
 
-**Cadence proposée, à confirmer :** un premier Sprint d'une semaine, soit 40 heures nominales avant indisponibilités éventuelles. Ce cycle court doit permettre de vérifier le socle I0 et de réévaluer la charge à partir des premiers résultats. La date de début reste à préciser. Aucun engagement de périmètre ou calendrier n'est déduit de la seule disponibilité.
+**Cadence validée :** premier Sprint d'une semaine, sur la base de 40 heures nominales avant indisponibilités éventuelles. Eric confirme le 19 octobre 2026 à 22:48 (Europe/Paris) et demande le démarrage le plus tôt possible.
+
+**Calendrier prévisionnel retenu :** du mardi 20 au lundi 26 octobre 2026 inclus (Europe/Paris), avec revue et rétrospective en fin de cycle. Le 20 octobre est retenu compte tenu du retour annoncé sur le PC ce jour-là ; aucune heure de début n'est inventée. Les 40 heures couvrent l'ensemble du travail et ne supposent pas de travailler le week-end.
+
+Le premier travail porte sur la préparation I0 et la vérification de l'environnement Windows/PostgreSQL. La préparation documentaire peut continuer dès maintenant. La version serveur PostgreSQL, les droits et les dépendances compatibles doivent être relevés avant les essais concernés. Le périmètre livrable reste à affiner : aucune vélocité ni charge de Story n'est déduite des 40 heures. Cette inscription au calendrier ne crée ni ne démarre un Sprint Jira et ne vaut pas mandat de développement applicatif.
 
 Ordre proposé des premières capacités :
 
