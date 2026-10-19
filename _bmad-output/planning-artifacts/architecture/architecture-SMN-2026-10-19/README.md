@@ -95,3 +95,26 @@ La correction utilisateur autorise l'export des documents consultables. Interpr�
 Protection validée au niveau des principes : mots de passe hachés avec sel individuel, secrets hors dépôt/base, chiffrement authentifié ciblé des coordonnées et motifs d'absence. Choix cryptographiques précis, clés, copies historiques, documents et sauvegardes restent à concevoir.
 
 Responsive également vérifié à terme sur fenêtre de PC redimensionnée, conformément à l'usage de juxtaposition indiqué par l'utilisateur. Aucun test applicatif n'est exécuté à cette étape.
+
+## État de la publication architecturale — 19 octobre 2026
+
+**Publication documentaire autorisée par l'utilisateur.** Les discussions de Winston ont validé les domaines données/calculs, calendrier/temps, historisation, reporting et sécurité/exploitation, avec **PostgreSQL obligatoire dès le MVP**. La branche existante a été reprise et les fichiers suivants sont désormais la documentation architecturale principale :
+
+| Livrable | Objet | État |
+| --- | --- | --- |
+| [ARCHITECTURE-SPINE.md](ARCHITECTURE-SPINE.md) | Contrat BMAD des 30 AD stables et frontières des modules | Rédigé, `draft` en attente du Reviewer Gate complet |
+| [DESIGN-TECHNIQUE.md](DESIGN-TECHNIQUE.md) | Modèle PostgreSQL, contrats, calculs, temps, instantanés, CSV, restituables | Rédigé, à éprouver |
+| [SECURITE-EXPLOITATION.md](SECURITE-EXPLOITATION.md) | Accès, installation locale, sauvegardes, migrations, continuité et NFR | Rédigé, à éprouver |
+| [REVUE-COHERENCE-TRACABILITE.md](REVUE-COHERENCE-TRACABILITE.md) | Verdict documentaire, 5 points prioritaires, couverture FR/AD/I0–I6, réserves et preuves attendues | Rédigé, tests non exécutés |
+| [.memlog.md](.memlog.md) | Journal BMAD append-only des contraintes, validations et AD-1 à AD-30 | Complété sans effacer l'historique |
+
+**Rectification de l'ancien statut en tête :** la mention « domaine 1 validé, architecture en cours » décrit l'état **avant** cette publication ; se reporter à la section présente et à la spine pour l'état actuel. Les choix d'architectures discutés sont traduits, mais il n'y a pas encore de code développé ni de validation d'exécution.
+
+### Attention aux arbitrages non résolus
+
+- **D-ROLES :** le journal initial définit deux rôles Administrateur/Utilisateur et autorise l'utilisateur à consulter/télécharger les documents. La proposition ultérieure mentionne trois rôles. Ne pas modifier implicitement ce modèle sans décision de rapprochement avant les Stories de comptes.
+- **A7 / A8 / A10 / A11 :** matrice de risques, faits marquants auto, archivage PDF et suppression/anonymisation nécessitent une décision métier spécifique avant les développements concernés.
+- **A5 / A9 / A12 :** NFR, reprise Kanban rétroactive complète et restitution multitemporelle restent dans le registre des réserves.
+- **POC I0 :** confirmer Windows + PostgreSQL, migrations, authentification, rendu PDF local, sauvegarde/restauration et versions des bibliothèques.
+
+**Méthode et limites :** lecture des référentiels et écriture via connecteur GitHub. Aucun changement sur `main`, Jira, code ou secrets. Les scripts `uv run`, `memlog.py`, `lint_spine.py`, les sous-agents BMAD Reviewer Gate et les tests locaux n'ont pas été exécutés ; la spine reste `draft` jusqu'à ces validations. Aucune recherche web avancée non autorisée n'a été lancée.
