@@ -733,11 +733,35 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 **When** une session de ce compte tente une nouvelle requête,
 **Then** l'accès est immédiatement rejeté côté serveur.
 
-#### AC5 — Le secret courant est incorrect ou une récupération administrateur serait demandée
+#### AC5 — Récupération locale contrôlée
 
-**Given** Le secret courant est incorrect ou une récupération administrateur serait demandée,
-**When** une action non autorisée ou non spécifiée est tentée,
-**Then** aucune réinitialisation anonyme, porte dérobée ou second administrateur fictif n'est possible ; la procédure de récupération contrôlée reste un point technique à préciser avant sa mise en service.
+**Given** le mot de passe administrateur est oublié et l'installation locale est identifiée,
+**When** son propriétaire utilise la commande de récupération fournie avec SMN et satisfait les contrôles locaux prévus,
+**Then** le mot de passe du compte administrateur existant peut être renouvelé ; aucune réinitialisation anonyme par navigateur ni porte dérobée n'est ouverte.
+
+#### AC6 — Saisie et outillage
+
+**Given** la procédure locale autorise le renouvellement,
+**When** le nouveau mot de passe est saisi,
+**Then** la saisie est masquée ; aucun mot de passe n'est passé en argument visible ou journalisé et aucun outil supplémentaire n'est à installer.
+
+#### AC7 — Révocation et traçabilité
+
+**Given** le renouvellement administrateur réussit,
+**When** la procédure confirme son résultat,
+**Then** toutes les sessions de ce compte sont révoquées et une trace de récupération est conservée sans mot de passe ni jeton secret.
+
+#### AC8 — Conservation du compte et autonomie locale
+
+**Given** la récupération est exécutée,
+**When** le compte existant est traité,
+**Then** aucun second administrateur n'est créé, aucune modification SQL manuelle n'est demandée à l'utilisateur et aucun envoi d'e-mail n'est requis.
+
+#### AC9 — Refus ou échec de récupération
+
+**Given** le contrôle local échoue ou une étape de renouvellement/révocation ne peut aboutir,
+**When** la procédure présente son résultat,
+**Then** elle n'annonce pas de succès complet et n'autorise pas une connexion par défaut ; la situation et la reprise restent explicites, sans exposer de secret.
 
 #### Traçabilité et périmètre
 
@@ -755,6 +779,9 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 
 L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/2026. Cette validation documentaire ne vaut ni développement ni recette exécutés.
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
+
+
+**D-PRD-139 — Principe de récupération locale validé le 19/10/2026 ; contrôles techniques et tests à réaliser.**
 
 ### Story 1.8: Modifier les paramètres généraux sans réécrire l'historique
 **Jira :** https://lmn24.atlassian.net/browse/SMN-18

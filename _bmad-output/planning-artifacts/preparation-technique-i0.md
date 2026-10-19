@@ -90,4 +90,15 @@ La présence du runtime Visual C++ et les droits de migration restent non vérif
 
 ## Préparation du contrat d'accès
 
-Un [contrat d'accès proposé](contrat-acces-i0-proposition.md) détaille sessions serveur, révocation, amorçage et récupération locale. D-PRD-138 valide 8 heures maximum, expiration après 30 minutes d'inactivité et absence d'option « Se souvenir de moi ». Ces règles sont consignées dans SMN-14, sans être implémentées. La procédure de récupération et le choix de bibliothèque restent à qualifier. La confirmation de la version PostgreSQL peut attendre sans bloquer cette préparation.
+Un [contrat d'accès proposé](contrat-acces-i0-proposition.md) détaille sessions serveur, révocation, amorçage et récupération locale. D-PRD-138 valide 8 heures maximum, expiration après 30 minutes d'inactivité et absence d'option « Se souvenir de moi ». Ces règles sont consignées dans SMN-14, sans être implémentées. Le principe de récupération locale est désormais validé par D-PRD-139 ; ses contrôles techniques et le choix de bibliothèque restent à qualifier. La confirmation de la version PostgreSQL peut attendre sans bloquer cette préparation.
+
+
+## D-PRD-139 — Récupération locale du compte administrateur MVP
+
+**19 octobre 2026 à 22:23 (Europe/Paris) — principe explicitement validé par l'utilisateur.**
+
+En cas de mot de passe administrateur oublié, une commande locale fournie avec SMN permet de définir un nouveau mot de passe, avec saisie masquée, sans installer d'outil supplémentaire ni demander une modification SQL manuelle. La récupération vise le compte administrateur existant : elle ne crée aucun second administrateur et ne dépend pas d'un envoi d'e-mail. Après réussite, toutes les sessions de ce compte sont révoquées ; une trace est conservée sans le mot de passe.
+
+**Limite de la validation :** le mécanisme de contrôle du propriétaire de l'installation, les protections de la commande, la cohérence transactionnelle du renouvellement/révocation et les modalités de reprise restent à concevoir et à tester. La seule présence sur le poste ou une requête loopback ne constitue pas une preuve d'autorisation ; aucun bouton ou endpoint anonyme de récupération n'est introduit. Pas de mot de passe en argument de commande, dans Git ou dans les journaux.
+
+Complète FR-66/67/70/72 et AD-7/9/10/26/31 ; [ticket de référence](https://lmn24.atlassian.net/browse/SMN-17). Les deux profils, la politique de session D-PRD-138 et le produit fixe restent inchangés. La récupération d'accès ne doit pas prétendre récupérer automatiquement les clés de chiffrement perdues. Aucun développement ni essai de récupération exécuté.

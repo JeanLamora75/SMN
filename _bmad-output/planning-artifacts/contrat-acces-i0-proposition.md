@@ -1,6 +1,6 @@
-# SMN — Contrat d'accès I0 : durées validées, conception à qualifier
+# SMN — Contrat d'accès I0 : durées et récupération validées, conception à qualifier
 
-**19 octobre 2026. Statut : préparation documentaire ; durées validées par D-PRD-138 ; compléments techniques proposés, non implémentés.**
+**19 octobre 2026. Statut : préparation documentaire ; durées validées par D-PRD-138 et principe de récupération validé par D-PRD-139 ; mécanismes à qualifier, non implémentés.**
 Sources internes : [Spine](architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md), [sécurité](architecture/architecture-SMN-2026-10-19/SECURITE-EXPLOITATION.md), [préparation I0](preparation-technique-i0.md). PostgreSQL précis sera confirmé ultérieurement ; cela ne bloque pas la préparation de ce contrat.
 
 ## 1. Garanties déjà approuvées
@@ -18,7 +18,7 @@ Deux profils, authentification après installation vierge, premier administrateu
 | Rôles | Changement/désactivation par Administrateur ; anciennes sessions privées de leurs anciens droits à la requête suivante | Garantie existante |
 | Mots de passe | Dérivation par bibliothèque éprouvée, limitation des essais, aucun secret en log ou document | Paramétrage à vérifier, pas d'algorithme maison |
 | Amorçage | Création cohérente de l'installation, équipe et administrateur, avec contrôle de concurrence et fermeture durable de l'assistant | Architecture existante ; vérifier l'atomicité réelle de l'intégration |
-| Récupération | Procédure locale contrôlée, sans dépendance à l'envoi d'e-mails et sans réinitialisation anonyme accessible par navigateur | Orientation proposée ; procédure détaillée encore à spécifier |
+| Récupération | Procédure locale contrôlée, sans dépendance à l'envoi d'e-mails et sans réinitialisation anonyme accessible par navigateur | Principe validé D-PRD-139 ; contrôles techniques à spécifier |
 
 L'exemple de récupération locale n'est pas une autorisation universelle de contourner l'authentification. La vérification de possession/contrôle de l'installation, le jeton à usage unique, le traitement des clés et l'audit doivent être définis avant livraison. La bibliothèque ne garantit pas à elle seule l'amorçage atomique multi-modules.
 
@@ -41,7 +41,7 @@ La documentation décrit des fonctions de révocation et la révocation des autr
 - https://better-auth.com/docs/authentication/email-password
 - https://better-auth.com/docs/reference/options
 
-Les orientations de récupération restent proposées ; les durées de la section 3 sont désormais validées par l'utilisateur, pas une fonctionnalité prête à activer telle quelle dans la bibliothèque.
+Le principe de récupération est validé par D-PRD-139, ses contrôles techniques restent à spécifier ; les durées de la section 3 sont désormais validées par l'utilisateur, pas une fonctionnalité prête à activer telle quelle dans la bibliothèque.
 
 ## 5. Preuves à produire lors de la construction autorisée
 
@@ -70,3 +70,14 @@ Les orientations de récupération restent proposées ; les durées de la sectio
 - Contrôle côté serveur ; les refus et garanties de confidentialité existants restent applicables. La protection des brouillons reste celle du PRD ; cette politique n'introduit pas d'enregistrement automatique implicite.
 
 S'applique aux deux profils MVP sans nouveau rôle. Complète FR-66/67 et les garanties AD-7/26/31 ; [SMN-14](https://lmn24.atlassian.net/browse/SMN-14) porte les critères correspondants. La validation de ces durées ne finalise ni le choix de Better Auth ni la procédure de récupération administrateur. Aucun développement, essai d'expiration ou résultat de sécurité attesté.
+
+
+## D-PRD-139 — Récupération locale du compte administrateur MVP
+
+**19 octobre 2026 à 22:23 (Europe/Paris) — principe explicitement validé par l'utilisateur.**
+
+En cas de mot de passe administrateur oublié, une commande locale fournie avec SMN permet de définir un nouveau mot de passe, avec saisie masquée, sans installer d'outil supplémentaire ni demander une modification SQL manuelle. La récupération vise le compte administrateur existant : elle ne crée aucun second administrateur et ne dépend pas d'un envoi d'e-mail. Après réussite, toutes les sessions de ce compte sont révoquées ; une trace est conservée sans le mot de passe.
+
+**Limite de la validation :** le mécanisme de contrôle du propriétaire de l'installation, les protections de la commande, la cohérence transactionnelle du renouvellement/révocation et les modalités de reprise restent à concevoir et à tester. La seule présence sur le poste ou une requête loopback ne constitue pas une preuve d'autorisation ; aucun bouton ou endpoint anonyme de récupération n'est introduit. Pas de mot de passe en argument de commande, dans Git ou dans les journaux.
+
+Complète FR-66/67/70/72 et AD-7/9/10/26/31 ; [ticket de référence](https://lmn24.atlassian.net/browse/SMN-17). Les deux profils, la politique de session D-PRD-138 et le produit fixe restent inchangés. La récupération d'accès ne doit pas prétendre récupérer automatiquement les clés de chiffrement perdues. Aucun développement ni essai de récupération exécuté.

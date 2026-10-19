@@ -1,7 +1,7 @@
 {
   "summary": {
     "date": "2026-10-19",
-    "source_commit": "251a50862d153ef93ef292cfd2097490107414f4",
+    "source_commit": "b09cb34d0b8162927a05b0131838c9f1731c0e7a",
     "jira_query": "project = SMN ORDER BY key ASC",
     "jira_pages": [
       100,
@@ -11,8 +11,8 @@
     "issues": 222,
     "epics": 10,
     "stories": 212,
-    "ac_total": 1067,
-    "clauses_total": 3208,
+    "ac_total": 1071,
+    "clauses_total": 3220,
     "all_clauses_match": true,
     "all_fr_refs_match": true,
     "all_parents_match": true,
@@ -128,10 +128,11 @@
       "UX-DR18"
     ],
     "limits": "Comparaison structurelle des clauses et références, non preuve exhaustive de couverture sémantique ni résultat de test applicatif. Les détails de traçabilité hors clauses ne sont pas comparés textuellement.",
-    "amendment": "D-PRD-137 / D-PRD-138",
+    "amendment": "D-PRD-137 / D-PRD-138 / D-PRD-139",
     "source_branch": "docs/bmad-sprint-readiness-20261019",
-    "source_commit_note": "Base avant ajout documentaire de D-PRD-138 ; données SMN-14 mises à jour après relecture Jira.",
-    "session_policy_update": "SMN-14 relu après mise à jour D-PRD-138 ; autres lignes conservées du rapprochement complet précédent."
+    "source_commit_note": "Base avant ajout documentaire D-PRD-139 ; SMN-17 rapproché après sa mise à jour Jira.",
+    "session_policy_update": "SMN-14 relu après mise à jour D-PRD-138 ; autres lignes conservées du rapprochement complet précédent.",
+    "recovery_update": "Relecture ciblée SMN-17 après D-PRD-139 ; autres lignes issues du rapprochement précédent."
   },
   "stories": [
     {
@@ -229,7 +230,7 @@
       "jira": "SMN-17",
       "parent": "SMN-1",
       "status": "À faire",
-      "ac_count": 5,
+      "ac_count": 9,
       "clauses_match": true,
       "fr_refs_match": true,
       "fr_refs": [
@@ -237,7 +238,7 @@
         "FR-67",
         "FR-72"
       ],
-      "jira_description_sha256": "90a962d0d839a16c1d8593898b4fbb1623cf78f6a6c9171c6bd11c9af27e8401"
+      "jira_description_sha256": "08332d00773b7fc9a8aca05725a54e432ea980ae7459e66eb49d74adf1011b09"
     },
     {
       "story": "1.8",
