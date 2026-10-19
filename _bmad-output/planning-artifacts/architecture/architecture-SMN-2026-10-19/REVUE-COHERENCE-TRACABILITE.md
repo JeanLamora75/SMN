@@ -4,9 +4,9 @@
 
 ## 1. Verdict documenté
 
-**Favorable sous réserves.** Aucune contradiction critique imposant de remettre en cause le modèle Scrum/Kanban/PostgreSQL. Les frontières, la temporalité, la traçabilité et la protection des anciens artefacts sont compatibles avec le PRD. En revanche, l'exécution réelle sur Windows, l'authentification, les transactions/sauvegardes, les rôles et le rendu PDF doivent être confirmés avant de considérer la conception prête à implémentation sans réserve.
+**Architecture contractuelle finalisée sous réserves explicites.** Aucune contradiction critique imposant de remettre en cause le modèle Scrum/Kanban/PostgreSQL. Les frontières, la temporalité, la traçabilité et la protection des anciens artefacts sont compatibles avec le PRD. En revanche, l'exécution réelle sur Windows, l'authentification, les transactions/sauvegardes, les rôles et le rendu PDF doivent être confirmés avant de considérer la conception prête à implémentation sans réserve.
 
-Cette revue est **réalisée par rapprochement documentaire**, pas via des sous-agents indépendants. Le `lint_spine.py` officiel, la revue adversariale externe, les tests applicatifs, la comparaison de versions de bibliothèques sur le web et l'accès au poste Windows n'ont pas été exécutés. Le `status: draft` de la spine reflète cette limite.
+Cette revue est **réalisée par rapprochement documentaire**, pas via des sous-agents indépendants. Le `lint_spine.py` officiel, la revue adversariale externe, les tests applicatifs, la comparaison de versions de bibliothèques sur le web et l'accès au poste Windows n'ont pas été exécutés. Le statut `final` de la spine signifie **contrat documentaire stabilisé avec portes de sortie**, et non passage du Reviewer Gate indépendant ou attestation de compatibilité technique.
 
 ## 2. Cinq constats prioritaires et remédiations
 
@@ -18,13 +18,13 @@ Cette revue est **réalisée par rapprochement documentaire**, pas via des sous-
 | G4 | Base et fichiers n'ont pas automatiquement la même atomicité | Élevée | AD-24/27/29, TXT final de préférence en PostgreSQL, manifeste/backups ; tests d'archive/restauration |
 | G5 | Stack Next.js/React/PDF et packaging non vérifiés sur poste cible | Élevée | AD-28/30, POC I0, versions et bibliothèques épinglées après vérification, tests navigateur/PDF |
 
-**Écart additionnel D-ROLES :** le journal existant adopte explicitement **deux rôles** et un droit de téléchargement pour l'utilisateur ; la dernière proposition de sécurité décrivait trois rôles. Le dernier accord utilisateur « pour le reste je suis d'accord » ne détaille pas une migration de rôles. Par prudence, **ne pas implémenter silencieusement une troisième classe de permission** : obtenir une réconciliation formelle avant les Stories de comptes. Cela ne bloque pas la rédaction de la spine.
+**D-ROLES rapproché par AD-31 :** le journal initial conserve l'approbation de **deux rôles** et du téléchargement pour l'Utilisateur. La proposition ultérieure à **trois profils** a été globalement approuvée (sauf SGBD, remplacé par PostgreSQL) ; AD-31 retient Administrateur/Opérateur/Lecteur, l'ancien Utilisateur étant assimilé au Lecteur **sans perte du droit de téléchargement**. Le détail de l'accès Opérateur aux données individuelles sensibles reste une porte d'arbitrage avant Stories concernées.
 
 ## 3. Matrice FR / décisions / lots
 
 | Exigences PRD | Couverture conceptuelle | AD normatives | Incrément(s) concerné(s) | Validation restante |
 | --- | --- | --- | --- | --- |
-| FR-1 à FR-3 | Installation, mode et produit fixes, paramètres | 1/2/7/8/9/25/28 | I0 | POC provisioning PostgreSQL, droits |
+| FR-1 à FR-3 | Installation, mode et produit fixes, paramètres | 1/2/7/8/9/25/28/31 | I0 | POC provisioning PostgreSQL, droits |
 | FR-4 à FR-7 | Équipe, membre, configuration, rôles | 2/8/9/12/16 | I0–I1 | droits, historique membres |
 | FR-8 à FR-13 | Calendrier, absences, pays, disponibilités | 12/14/15/16 | I1–I2 | imports CSV/ICS, calendriers manquants |
 | FR-14 | Capacité initiale/réelle, gel et provenance | 11/12/16/19 | I1–I2 | cas d'arrêt, temps partiel, JH |
@@ -63,7 +63,7 @@ Une telle matrice établit que les domaines sont **attribués**, pas que chaque 
 | Famille de décisions discutées | Traduction dans la spine | Statut |
 | --- | --- | --- |
 | Domaine 1 : monolithe, modules, responsabilité unique, moteur commun | AD-1 à 6 | Adopté |
-| Accès initial : installation exceptionnelle, rôles, comptes, protections | AD-7 à 10 | Adopté avec D-ROLES ouvert |
+| Accès initial : installation exceptionnelle, rôles, comptes, protections | AD-7 à 10 et AD-31 | Profilage à trois rôles consolidé ; droits sensibles Opérateur en attente |
 | Données et calculs : précision, provenance, Scrum > engagement | AD-11 à 13, AD-16 et 19 | Adopté |
 | Temps et calendriers : 8 AD-TIME | AD-11/12/14–18 | Adopté ; algorithme de récupération à éprouver |
 | Historisation : 10 AD-HIST | AD-3/19–22/25/27 | Adopté ; mécanismes PostgreSQL à éprouver |
@@ -84,7 +84,7 @@ Les identifiants thématiques `AD-TIME-xx`, `AD-HIST-xx`, `AD-RPT-xx` et `AD-SEC
 | A10 | stockage automatique et rétention PDF ; John + utilisateur | archivage PDF permanent |
 | A11 | suppression/anonymisation et historique des données personnelles, sauvegardes ; John + utilisateur, validation sécurité | implémentation purge nominative et pilote |
 | A12 | visualisation des chiffres corrigés, snapshots qualitatifs, PDF immuables ; Winston + UX/recette | recette de reporting historique |
-| D-ROLES | deux rôles explicitement documentés contre trois rôles proposés ensuite ; utilisateur + Winston | Stories d'administration des comptes |
+| D-ROLES | rapproché : AD-31, trois rôles ; droits sensibles Opérateur encore à préciser ; utilisateur + Winston | Stories d'habilitation de l'Opérateur |
 | TECH-VERSIONS | versions bibliothèques, versions PostgreSQL/Node, ORM, moteur PDF et compatibilité Windows | gel du stack, pipeline CI |
 | TECH-CRYPTO | algorithmes/rotation/récupération clés et modèle de menace | chiffrement des données personnelles en production |
 
