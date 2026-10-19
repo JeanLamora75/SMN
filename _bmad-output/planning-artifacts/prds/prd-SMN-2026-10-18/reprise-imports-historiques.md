@@ -1,7 +1,7 @@
 # SMN — Reprise et imports historiques : exigences et critères d’acceptation
 
 **Statut :** validé fonctionnellement le 19 octobre 2026 ; détails de conception non arbitrés conservés comme questions ouvertes.  
-**Référence :** [PRD principal](prd.md), FR-42 à FR-49 ; **D-PRD-125** (validation groupée HIS-01 à HIS-08).  
+**Référence :** [PRD principal](prd.md), FR-14/FR-16/FR-17/FR-42 à FR-49 ; **D-PRD-125** (HIS-01 à HIS-08), puis **D-PRD-130** ([clarifications A1, A2 et A4](clarifications-d-prd-130.md)).  
 **Périmètre :** MVP Scrum/Kanban ; la reprise manuelle des **Sprints Scrum terminés** est actée dès le MVP. Les mécanismes sont conçus pour les périodes Kanban, dont l’extension à la reprise rétrospective doit être précisée sans la présenter comme définitivement exigée au MVP. La version SAFe/PI appartient à la v1.0.
 
 ## 1. Décisions antérieures préservées
@@ -24,7 +24,7 @@
 1. Le Scrum Master peut **créer un Sprint dans le passé**, avec dates effectives, rattachement à l’équipe et identifiant stable, sans imposer sa saisie dans le présent ni générer de données fictives.
 2. Il peut renseigner **les objectifs, valeurs numériques et commentaires effectivement retrouvés**, et laisser vides les données indisponibles, dans le respect des champs facultatifs du bilan.
 3. Les **règles de dates, de non-chevauchement dans un même périmètre et de cycle de vie** validées restent applicables, avec identification explicite du fait qu’il s’agit d’une **reprise rétrospective**. Aucun autre cycle existant n’est automatiquement déplacé.
-4. Les événements, absences et disponibilités antérieurs **ne sont pas présumés observés** s’ils n’ont pas été documentés : aucune cérémonie « tenue » ou capacité « réelle » ne doit être fabriquée du seul fait de la création rétrospective. Les adaptations exactes des générations automatiques pour les cycles repris seront précisées avant développement.
+4. Les événements, absences et disponibilités antérieurs **ne sont pas présumés observés** s’ils n’ont pas été documentés : aucune cérémonie « tenue » ou capacité « réelle » ne doit être fabriquée du seul fait de la création rétrospective. **D-PRD-130/A1 :** si le Sprint est créé après sa date/heure réelle de fin, **aucune cérémonie n'est générée automatiquement** ; il est créé « Terminé » et non clôturé. Les événements réellement connus peuvent être ajoutés manuellement ; la date de création SMN reste distincte des dates historiques.
 5. Les valeurs reprises restent **consultables et modifiables selon le statut**, avec provenance/historique lorsque disponible ; une correction d’un cycle clôturé respecte les règles de réouverture F-93/F-96.
 6. La même approche métier **pourra être étendue aux périodes Kanban** sans créer un moteur indépendant ; la présence exacte de la création rétrospective Kanban au MVP reste **à arbitrer**, car HIS-01 l’exprimait comme possibilité d’extension.
 
@@ -33,10 +33,10 @@
 **Critères d’acceptation :**
 1. SMN accepte un **CSV à structure fixe documentée** comportant les seules **valeurs numériques consolidées** des cycles/équipes et les identifiants nécessaires à leur rattachement.
 2. L’import ne crée **aucun ticket Jira, backlog item ni élément individuel** ; les intégrations automatiques avec Jira demeurent hors MVP (F-16/F-19).
-3. Le fichier peut viser des cycles déjà existants ou des cycles historiques explicitement identifiables ; **le comportement exact lorsqu’un cycle n’existe pas doit être configuré/validé**, jamais créer implicitement un cycle avec des dates inventées.
+3. Le fichier ne vise que des **cycles déjà existants dans l'installation** ; un cycle inconnu rend le fichier invalide et ne déclenche aucune création de cycle (D-PRD-130/A4).
 4. Les métriques importées respectent le **mode** (Story Points Scrum et métriques de flux Kanban), les **unités**, le caractère facultatif des valeurs et les **calculs dérivés** depuis les sources enregistrées ; ne pas convertir SP en JH ni confondre une absence de champ avec zéro.
 5. L’import utilise une méthode **manuelle déclenchée par le SM**, enregistrée dans son historique d’opérations.
-6. **À spécifier avant implémentation :** colonnes et types du CSV, séparateur/encodage, identifiants stables de rattachement, conventions de dates et prise en charge exacte des cycles Kanban historiques.
+6. **Contrat déjà approuvé D-PRD-130/A4 :** colonnes `cycle_id`, `metric_code`, `value`, `quality` ; qualité `known` ou `estimated`, cycle existant, métriques sources éligibles. À préciser techniquement : codes du catalogue, encodage/séparateur, sérialisation numérique et identifiants stables.
 
 ### FR-44 / HIS-03 — Prévisualiser, contrôler et confirmer l’import
 
@@ -46,7 +46,7 @@
 3. Une ligne ambiguë ou invalide **n’est jamais appliquée silencieusement**, et l’absence de correspondance de cycle n’est pas compensée par une date/équipe fictive.
 4. Le Scrum Master peut **annuler sans écrire de valeur métier**, corriger le fichier puis relancer le contrôle, ou **confirmer explicitement les données effectivement acceptées**.
 5. L’aperçu distingue **création de valeurs manquantes et modification de valeurs préexistantes**, conformément à HIS-04.
-6. **À arbitrer en conception :** import atomique de tout le lot ou validation partielle explicitement sélectionnée, et règles d’unicité/gestion des lignes en doublon. Les erreurs ne doivent jamais aboutir à un succès partiel dissimulé.
+6. **D-PRD-130/A4 :** ligne invalide ou doublon (`cycle_id`, `metric_code`) = **fichier entier refusé** sans écriture. Une fois toutes les lignes valides, **confirmation explicite puis transaction atomique** ; valeur existante conservée par défaut, remplacement seulement choisi après comparaison avant/après. Aucun succès partiel caché.
 
 ### FR-45 / HIS-04 — Préserver les valeurs historiques déjà enregistrées
 
@@ -91,18 +91,27 @@
 **Critères d’acceptation :**
 1. Chaque **tentative d’import CSV** dispose d’un compte rendu traçable, comprenant **date/heure, utilisateur/opérateur, nom du fichier ou identifiant de lot, type et périmètre d’import**, si connus.
 2. Le journal indique **lignes lues, reconnues/acceptées, rejetées, éventuellement corrigées**, ainsi que les motifs d’erreur et conflits détectés sans diffuser de secrets.
-3. Il distingue un **aperçu annulé**, un **import effectivement validé**, un **échec** et, si la conception l’autorise, une validation partielle explicitement choisie ; **aucun échec ou aperçu n’est enregistré comme import intégralement réussi**.
+3. Il distingue un **aperçu annulé**, un **import effectivement validé**, un **échec** ou un lot confirmé appliqué atomiquement ; **aucun échec ou aperçu n’est enregistré comme import intégralement réussi**.
 4. Depuis le journal, le SM peut retrouver le **résultat de l’opération et les cycles affectés**, ainsi que les corrections autorisées qui ont été enregistrées, sans modifier ces valeurs en consultant le journal.
 5. L’audit d’import est **distinct de l’historique métier** des valeurs modifiées et des historiques de création/replanification de cycles, tout en permettant d’en relier les références.
 6. La sauvegarde obligatoire du **fichier CSV original** n’est pas présumée validée ; la rétention, le masquage des données personnelles et les modalités de conservation relèvent du domaine Sécurité et exploitation.
 
+## 2 bis. Précisions validées D-PRD-130 — reprises et imports
+
+Les critères HIS-01 à HIS-08 restent applicables, complétés par les [quatre arbitrages D-PRD-130](clarifications-d-prd-130.md) :
+
+- **A1 / FR-42/FR-16/FR-17 :** Sprint créé après sa fin : **Terminé**, zéro cérémonie générée, événements historiques ajoutés seulement manuellement avec date/statut connus, puis clôture volontaire.
+- **A2 / FR-14/FR-42/FR-46 :** capacité initiale historique **Connue** ou **Estimée** par saisie volontaire, sinon **Non renseignée** ; aucun calcul depuis les données actuelles ; provenance, date de saisie et protection des historiques conservées.
+- **A4 / FR-43 à FR-45/FR-49 :** CSV à quatre colonnes **cycle_id, metric_code, value, quality** ; quality = known ou estimated ; quatre métriques SP sources Scrum, cinq métriques de flux Kanban. Tout fichier avec ligne invalide, cycle absent, code incompatible ou doublon est **refusé intégralement**, aucune écriture. Prévisualisation, conservation par défaut des champs déjà saisis, confirmation explicite des remplacements puis transaction **tout ou rien**.
+- **A3 / FR-41/FR-47 :** conserver les instantanés **V1/V2...**, dernière version utilisée pour le nouveau bilan après reclôture ; aucune création de photographie historique fictive lors d'une saisie passée.
+- **Tests :** données manquantes distinctes de zéro, conflits et remplacements explicites, échec de lot atomique, Sprint historique sans cérémonies, capacité estimée identifiée, reclôture sans altération des anciennes versions/PDF.
+
+**Questions encore ouvertes :** codes techniques des métriques, encodage CSV, schéma technique des identifiants, modalités de provenance ; reprise rétrospective Kanban complète non engagée au MVP.
 ## 3. Décisions de conception encore ouvertes
 
-- **Matrice CSV fixe exacte** : colonnes, types, séparateur/encodage, format de dates, identifiants, options facultatives et choix des données Kanban.
-- **Validation du lot** : atomique intégrale ou sélection explicite des seules lignes valides, sans réussite partielle silencieuse.
-- **Correspondance de cycles absents et doublons** : comportement lors d’un cycle non créé, gestion d’une ligne répétée et proposition de correction visible.
+- **Contrat CSV et transaction :** arbitrés par D-PRD-130/A4 : quatre colonnes, cycle existant, métriques sources compatibles, erreur/doublon bloquant le lot, prévisualisation, remplacement explicite, puis écriture atomique. Restent techniques : codes du catalogue, encodage/séparateur, format des nombres et identifiants.
 - **Reprise Kanban rétrospective** : calendrier de livraison et traitement exact des périodes passées ; ne pas la présumer engagée au MVP au-delà de l’architecture réutilisable.
-- **Règles d’historique** : génération d’événements dans une reprise manuelle, qualité des données historiques, instantanés de clôture manquants et reclôture.
+- **Règles d'historique :** A1/A2 fixent la reprise sans génération de cérémonie ni capacité historique fictive ; A3 impose des instantanés versionnés et la conservation des versions antérieures. Restent à concevoir les preuves et la reprise d'un Sprint commencé mais non terminé.
 - **Sécurité et conservation** : accès aux fichiers, rétention du CSV original facultative, contenu du journal et anonymisation des informations sensibles.
 
 **Traçabilité :** F-14/F-16/F-19/F-24/F-25/F-64/F-71/F-72/F-91 à F-96 ; D-PRD-031 à D-PRD-035, D-PRD-076 à D-PRD-086, D-PRD-111 à D-PRD-125 ; FR-14/FR-15/FR-20/FR-22/FR-23/FR-24/FR-30/FR-41. Les sources détaillées demeurent [PRD](prd.md), [Reporting](reportings-html-pdf.md) et [Registres qualitatifs](registres-qualitatifs.md).
