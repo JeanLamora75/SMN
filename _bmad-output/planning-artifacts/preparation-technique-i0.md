@@ -72,3 +72,17 @@ La consultation ciblée a été autorisée puis réalisée : [qualification docu
 ## Résultat de la qualification documentaire du 19/10/2026
 
 Node 24 LTS et Next 16/React 19 sont proposés pour le premier POC, avec Bootstrap 5.3 et PostgreSQL supporté déjà disponible si adapté. Prisma 7 reste candidat sous contrôle des prérequis Windows et des migrations ; Better Auth et Playwright sont des candidats à éprouver. Versions exactes non verrouillées, aucun test réel exécuté. Les principaux nouveaux contrôles sont Visual C++ pour la configuration Prisma retenue, séparation de la shadow database de développement et cohérence des versions pg_dump/serveur. Le rapport lié détaille les sources et limites ; ses propositions ne changent pas le statut des candidats dans la spine.
+
+## Inventaire déclaré par l'utilisateur — 19/10/2026 à 22:14 (Europe/Paris)
+
+| Élément | Information reçue | Niveau de preuve |
+| --- | --- | --- |
+| Node.js | 24.21.0 | Version déclarée ; sortie de commande non fournie |
+| pnpm | 12.10.0 | Version déclarée ; sortie de commande non fournie |
+| PostgreSQL | « dernière distribution stable » | Numéro serveur, distribution et outils clients non relevés |
+
+Node 24 et pnpm 12 appartiennent aux lignes compatibles selon la qualification documentaire liée. Cela ne prouve pas l'installation ni le fonctionnement de SMN. Aucun changement de version n'est effectué ou imposé par cet inventaire.
+
+Prochaine donnée utile : version du serveur PostgreSQL obtenue depuis la connexion utilisée, par `SHOW server_version;` dans l'outil SQL déjà disponible. `psql --version` ne renseigne que le client ; les versions `pg_dump`/`pg_restore` devront également être relevées avant les essais de continuité. Ne pas déduire un numéro installé de la date de publication d'une distribution.
+
+La présence du runtime Visual C++ et les droits de migration restent non vérifiés. Les POC Windows, sessions, PDF et restauration restent non exécutés. CONCERNS maintenu.
