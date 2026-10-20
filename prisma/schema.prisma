@@ -1,18 +1,44 @@
-// Contrat de la future installation (SMN-12). Aucun migrate automatique dans SMN-11.
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
-
-datasource db {
-  provider = "postgresql"
-}
-
+datasource db { provider = "postgresql" }
 model SmnInstallation {
-  id            String   @id
-  state         String
-  schemaVersion Int      @map("schema_version")
-  createdAt     DateTime @default(now()) @map("created_at")
-
+  id String @id
+  state String
+  schemaVersion Int @map("schema_version")
+  mode String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  products SmnProduct[]
+  teams SmnTeam[]
+  accounts SmnAccount[]
   @@map("smn_installation")
+}
+model SmnProduct {
+  id String @id
+  installationId String @unique @map("installation_id")
+  name String
+  installation SmnInstallation @relation(fields: [installationId], references: [id])
+  teams SmnTeam[]
+  @@map("smn_product")
+}
+model SmnTeam {
+  id String @id
+  installationId String @unique @map("installation_id")
+  productId String @map("product_id")
+  name String
+  installation SmnInstallation @relation(fields: [installationId], references: [id])
+  product SmnProduct @relation(fields: [productId], references: [id])
+  @@map("smn_team")
+}
+model SmnAccount {
+  id String @id
+  installationId String @map("installation_id")
+  email String @unique
+  role String
+  passwordHash String @map("password_hash")
+  mustChangePassword Boolean @default(true) @map("must_change_password")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  installation SmnInstallation @relation(fields: [installationId], references: [id])
+  @@map("smn_account")
 }

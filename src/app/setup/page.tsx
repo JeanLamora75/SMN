@@ -2,26 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { currentInstallationDiagnostic } from "@/server/installation/current";
 import { canVisitSetup } from "@/server/access-policy";
-import { browserLanguage } from "@/lib/messages";
-
+import SetupForm from "./setup-form";
 export const dynamic = "force-dynamic";
-
 export default async function SetupPage() {
   const diagnostic = await currentInstallationDiagnostic();
   if (!canVisitSetup(diagnostic)) notFound();
-  const en = (await browserLanguage()) === "en";
-  return (
-    <main className="smn-page container py-5">
-      <div className="smn-panel p-4">
-        <h1 className="h3">{en ? "Prepare your installation" : "Préparer votre installation"}</h1>
-        <p>{en ? "Your dedicated SMN database is empty." : "Votre base de données SMN dédiée est vierge."}</p>
-        <p className="smn-subtitle">
-          {en
-            ? "The guided setup, database creation and administrator account will be implemented in SMN-12. No installation changes are made here."
-            : "L'assistant, la création de la base et du compte administrateur seront livrés dans SMN-12. Cette page ne modifie rien."}
-        </p>
-        <Link href="/" className="btn btn-outline-primary">{en ? "Back to diagnostics" : "Retour au diagnostic"}</Link>
-      </div>
-    </main>
-  );
+  return <main className="smn-page container py-5"><section className="smn-panel p-4 p-md-5">
+    <h1 className="h3">Installer Scrum Master Notebook</h1>
+    <p className="smn-subtitle">Installation Express — Scrum ou Kanban, un produit, une équipe et un Administrateur.</p>
+    <p>État de la base : <strong>{diagnostic.status === "database-missing" ? "base SMN à créer" : "base SMN vierge"}</strong>.</p>
+    <p className="small text-secondary">La confirmation autorise uniquement la création de la base dédiée configurée et les tables initiales. Aucune autre base n'est modifiée. Aucune session ni tableau de bord n'est ouvert avant SMN-14.</p>
+    <SetupForm/><Link href="/" className="btn btn-link mt-3">Retour au diagnostic</Link>
+  </section></main>;
 }
