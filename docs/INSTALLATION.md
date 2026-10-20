@@ -74,7 +74,7 @@ pnpm start
 1. Démarrer sans `SMN_DATABASE_URL` : diagnostic « configuration manquante », pas de faux succès.
 2. Arrêter PostgreSQL / fournir volontairement une URL incorrecte : diagnostic relançable et sans secret.
 3. Vérifier qu'une URL contenant `/lmn24` est rejetée **avant connexion**.
-4. Vérifier la coexistence : les services existants restent sur 3000/3001/3002 ; SMN démarre sur 3003 sans interrompre les autres serveurs. Vérifier aussi le cas où 3003 est occupé.
+4. Vérifier séparément que l'autre projet démarre sur 3000/3001/3002 et que SMN démarre sur 3003. L'utilisateur a confirmé le 20/10/2026 qu'il utilisera les deux projets **alternativement**, sans obligation d'exécution simultanée. Si 3003 est occupé, diagnostiquer le conflit et sélectionner au besoin un autre port libre avec `SMN_PORT`.
 5. Tester `/app` : refus/404 en l'absence d'authentification.
 6. Tester `/setup` : accès refusé sauf si le diagnostic confirme une base SMN dédiée vierge.
 7. Vérifier qu'aucune base ni objet métier n'a été créé par le lancement.
@@ -83,4 +83,4 @@ pnpm start
 
 ## Preuves et limites
 
-GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Le 20/10/2026, l'utilisateur a confirmé par capture d'écran que la page d'accueil SMN s'ouvre sur son PC Windows 11 avec le diagnostic « La connexion à la base SMN n'est pas encore configurée » après démarrage local. Cette preuve est **limitée à l'affichage et au démarrage** : les accès directs `/setup` et `/app` (refus visuel confirmé par deux captures supplémentaires du 20/10/2026), la coexistence effective avec les trois autres services, les droits PostgreSQL 18.6 et l'authentification restent à recetter sur le poste. Aucune base SMN réelle n'a été touchée par l'agent.
+GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Le 20/10/2026, l'utilisateur a confirmé par capture d'écran que la page d'accueil SMN s'ouvre sur son PC Windows 11 avec le diagnostic « La connexion à la base SMN n'est pas encore configurée » après démarrage local. Cette preuve est **limitée à l'affichage et au démarrage** : les accès directs `/setup` et `/app` (refus visuel confirmé par deux captures supplémentaires du 20/10/2026), les droits PostgreSQL 18.6 et l'authentification restent à recetter sur le poste. L'utilisateur a confirmé que les deux projets fonctionnent séparément et a choisi de ne pas les exécuter simultanément. Aucune base SMN réelle n'a été touchée par l'agent.
