@@ -9,6 +9,7 @@ import { readFile } from "node:fs/promises";
 import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import { prepareExisting } from "../src/server/bootstrap/existing";
 import { authenticate, changeInitialPassword } from "../src/server/auth/credentials";
+import { ensureAccountsSchema, ACCOUNTS_MIGRATION_SQL } from "../src/server/accounts/migration";
 
 // Base créée et supprimée exclusivement par le runner éphémère GitHub Actions.
 const source = process.env.SMN_TEST_DATABASE_URL;
@@ -108,6 +109,9 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       assert.equal(data.rows[0].email, "admin@localhot.com");
       assert.equal(data.rows[0].must_change_password, true);
       assert.equal(data.rows[0].password_hash.includes(input.password), false);
+      await withClient(target.toString(), client => ensureAccountsSchema(client));
+      assert.equal((await readFile("prisma/migrations/20261020_smn15_accounts/migration.sql","utf8")), ACCOUNTS_MIGRATION_SQL);
+      assert.equal(classifySnapshot(await probePostgres(target.toString())).status, "initialized");
       // SMN-14 : authentification effective sur la base PostgreSQL installée,
       // renouvellement initial obligatoire, suppression du secret précédent.
       await withClient(target.toString(), async client => {
