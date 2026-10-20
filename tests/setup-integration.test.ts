@@ -8,6 +8,7 @@ import { parseConnectionSettings } from "../src/server/db/config";
 import { readFile } from "node:fs/promises";
 import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import { prepareExisting } from "../src/server/bootstrap/existing";
+import { authenticate, changeInitialPassword } from "../src/server/auth/credentials";
 
 // Base créée et supprimée exclusivement par le runner éphémère GitHub Actions.
 const source = process.env.SMN_TEST_DATABASE_URL;
@@ -107,6 +108,23 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       assert.equal(data.rows[0].email, "admin@localhot.com");
       assert.equal(data.rows[0].must_change_password, true);
       assert.equal(data.rows[0].password_hash.includes(input.password), false);
+      // SMN-14 : authentification effective sur la base PostgreSQL installée,
+      // renouvellement initial obligatoire, suppression du secret précédent.
+      await withClient(target.toString(), async client => {
+        const valid = await authenticate(client, "admin", input.password);
+        assert.ok(valid);
+        assert.equal(valid.must_change_password, true);
+        assert.equal((await authenticate(client, "admin@localhot.com", input.password))?.id, valid.id);
+        assert.equal(await authenticate(client, "admin", "incorrect"), null);
+        assert.equal(await authenticate(client, "unknown", input.password), null);
+        assert.equal(await changeInitialPassword(client, valid, "incorrect", "newPassword123"), false);
+        assert.equal(await changeInitialPassword(client, valid, input.password, input.password), false);
+        assert.equal(await changeInitialPassword(client, valid, input.password, "newPassword123"), true);
+        assert.equal(await authenticate(client, "admin", input.password), null);
+        const updated = await authenticate(client, "admin", "newPassword123");
+        assert.ok(updated);
+        assert.equal(updated.must_change_password, false);
+      });
       assert.equal((await installExpress(input, target.toString())).ok, false);
       const accounts = await withClient(target.toString(), async (client) =>
         client.query("SELECT id FROM public.smn_account"));
