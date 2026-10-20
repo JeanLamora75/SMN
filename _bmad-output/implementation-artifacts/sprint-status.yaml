@@ -45,7 +45,7 @@ development_status:
   1-4-se-connecter-se-déconnecter-et-protéger-les-sessions: done
   1-5-créer-et-administrer-les-comptes-des-utilisateurs: review
   1-6-faire-respecter-la-matrice-administrateur-utilisateur-côté-s: review
-  1-7-révoquer-les-accès-compromis-et-renouveler-son-mot-de-passe: in-progress
+  1-7-révoquer-les-accès-compromis-et-renouveler-son-mot-de-passe: review
   1-8-modifier-les-paramètres-généraux-sans-réécrire-l-historique: backlog
   1-9-protéger-la-configuration-privée-et-les-secrets-de-l-applica: backlog
   1-10-suivre-les-tâches-facultatives-de-configuration-depuis-le-ta: backlog
