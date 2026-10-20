@@ -4,7 +4,7 @@ type: "feature"
 created: "2026-10-20"
 status: "in-review"
 route: "dispatch"
-review_loop_iteration: 0
+review_loop_iteration: 1
 baseline_commit: "9f6cc9ba1a1a23d47234511d7801e5a0cc54fe86"
 context:
   - "_bmad-output/implementation-artifacts/epic-1-context.md"
@@ -83,7 +83,13 @@ context:
 
 ## Spec Change Log
 
+- 2026-10-20 — **Boucle de revue 1 / révision non gelée.** Les relecteurs ont détecté une insuffisance du Code Map / Tasks & Acceptance : la preuve d'un état « vierge » ou « initialisé » repose sur un scan SQL incomplet, une liste de deux tables et un seul marqueur sans preuves de migrations. **Plan corrigé :** inspecter tous les objets applicatifs, vérifier les droits séparément et la version PostgreSQL, tester `probePostgres` réellement, n'admettre « initialized » qu'après examen de l'historique des migrations et de la politique de schéma/version explicitement enregistrée ; état inconnu = refus d'accès. Corriger URLs, scripts, i18n, least-privilege CI et contrôles Windows. **État connu mauvais à éviter :** faux `virgin` sur une base étrangère et faux `initialized` sur une installation partielle. **KEEP :** socle Next/Prisma, refus des routes anonymes, aucun accès ou mutation sur LMN24, ports 3000–3002 réservés, port SMN 3003, preuves CI et recette Windows obtenues. Adaptation connecteur : faute de clone Git local et de sous-agents directs, révision traçable par commits sur la même branche plutôt qu'un revert matériel du socle fonctionnel avant re-dérivation ; ne pas déclarer la revue close avant nouvelle vérification.
+
+
 ## Review Triage Log
+
+La table individualisée des **74 constats (20 B, 32 E, 18 V, 4 O)** avec verdict, preuve et route figure dans [review-smn-11-triage.md](review-smn-11-triage.md). Ce journal est la référence exhaustive du premier passage. 15 hauts, 50 moyens, 4 faibles et 5 réfutés avant regroupement ; les défauts de conception `bad_spec` entraînent la boucle n°1. Le bloc de besoin approuvé demeure inchangé.
+
 
 ## Design Notes
 
