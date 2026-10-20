@@ -38,6 +38,6 @@ Les comptes, produits, équipes et données existants ne sont pas réinstallés 
 
 ## Vérification et limites
 
-Tests unitaires de la dérivation, validation, traces et transactions ; sonde HTTP réelle de la préparation de phrase, des autorisations et des révocations sur PostgreSQL éphémère ; CI Linux et Windows. Le test du paquet autonome Windows refuse une récupération via stdin non interactif. **La saisie interactive de secours et la récupération effective sur le PC de l'utilisateur restent à valider dans la recette globale.**
+Tests unitaires de la dérivation, validation, traces et transactions ; sonde HTTP réelle de la préparation de phrase, des autorisations et des révocations sur PostgreSQL éphémère. [CI Linux/PostgreSQL et Windows réussie](https://github.com/JeanLamora75/SMN/actions/runs/39472442560) et [paquet Windows autonome vérifié](https://github.com/JeanLamora75/SMN/actions/runs/39472442745), avec [artefact Windows](https://github.com/JeanLamora75/SMN/actions/runs/39472442745/artifacts/12286339309). Le test du paquet autonome Windows refuse une récupération via stdin non interactif. **La saisie interactive de secours et la récupération effective sur le PC de l'utilisateur restent à valider dans la recette globale.**
 
 Sources : [SMN-17 dans Jira](https://lmn24.atlassian.net/browse/SMN-17), [spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-17-renouvellement-acces.md).
