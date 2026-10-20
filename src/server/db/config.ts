@@ -2,7 +2,8 @@ export type ConnectionSettings =
   | { ok: true; uri: string }
   | { ok: false; status: "configuration-missing" | "configuration-invalid" };
 
-// Une URL ne peut jamais désigner arbitrairement une base tierce (ex : LMN24).
+// Les paramètres supplémentaires des URL peuvent être interprétés par pg
+// comme des options de connexion. Ne transmettre que l'URL validée sans option.
 export function parseConnectionSettings(raw: string | undefined): ConnectionSettings {
   if (!raw?.trim()) return { ok: false, status: "configuration-missing" };
   try {
@@ -14,11 +15,12 @@ export function parseConnectionSettings(raw: string | undefined): ConnectionSett
       !localHosts.has(parsed.hostname) ||
       !/^smn(?:_[a-zA-Z0-9_]+)?$/.test(database) ||
       !parsed.username ||
-      parsed.hash
-    ) {
-      return { ok: false, status: "configuration-invalid" };
-    }
-    return { ok: true, uri: raw };
+      !!parsed.hash ||
+      !!parsed.search ||
+      !/^\d{0,5}$/.test(parsed.port)
+    ) return { ok: false, status: "configuration-invalid" };
+    // Ne jamais inclure l'URL réelle dans un journal ou une réponse HTTP.
+    return { ok: true, uri: parsed.toString() };
   } catch {
     return { ok: false, status: "configuration-invalid" };
   }

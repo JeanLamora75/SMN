@@ -6,10 +6,9 @@ import type { DiagnosticStatus } from "../src/server/installation/diagnostic";
 describe("SMN-11 — refus côté serveur sans authentification", () => {
   const states: DiagnosticStatus[] = [
     "configuration-missing", "configuration-invalid", "database-missing",
-    "connection-error", "permissions-insufficient", "virgin",
-    "initialized", "schema-incompatible", "installation-incomplete",
+    "connection-error", "permissions-insufficient", "server-version-unsupported",
+    "virgin", "initialized", "schema-incompatible", "installation-incomplete",
   ];
-
   for (const status of states) {
     it("route setup pour l'état " + status, () => {
       const isVirgin = status === "virgin";

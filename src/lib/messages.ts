@@ -4,10 +4,27 @@ import type { DiagnosticStatus } from "@/server/installation/diagnostic";
 
 export type Language = "fr" | "en";
 
+export function negotiateLanguage(acceptLanguage: string | null | undefined): Language {
+  if (!acceptLanguage) return "fr";
+  const supported: { lang: Language; q: number; order: number }[] = [];
+  for (const [order, part] of acceptLanguage.toLowerCase().split(",").entries()) {
+    const [tag, ...params] = part.trim().split(";");
+    const language = tag.split("-")[0];
+    if (language !== "fr" && language !== "en") continue;
+    let q = 1;
+    for (const p of params) {
+      const m = /^\s*q=([0-9]+(?:\.[0-9]+)?)\s*$/.exec(p);
+      if (m) q = Number(m[1]);
+    }
+    if (q > 0 && q <= 1) supported.push({ lang: language, q, order });
+  }
+  supported.sort((a, b) => b.q - a.q || a.order - b.order);
+  return supported[0]?.lang ?? "fr";
+}
+
 export async function browserLanguage(): Promise<Language> {
-  const requestHeaders = await headers();
-  const value = requestHeaders.get("accept-language")?.toLowerCase() ?? "";
-  return value.startsWith("en") ? "en" : "fr";
+  const req = await headers();
+  return negotiateLanguage(req.get("accept-language"));
 }
 
 export const translations: Record<Language, Record<DiagnosticStatus, string>> = {
@@ -17,6 +34,7 @@ export const translations: Record<Language, Record<DiagnosticStatus, string>> = 
     "database-missing": "La base SMN n'existe pas encore : elle sera créée par le futur installateur après confirmation.",
     "connection-error": "Connexion PostgreSQL impossible. Vérifiez le service et les paramètres locaux, puis réessayez.",
     "permissions-insufficient": "Le compte PostgreSQL ne possède pas les accès nécessaires pour vérifier cette installation.",
+    "server-version-unsupported": "Version de PostgreSQL non qualifiée pour SMN I0 : vérifiez la version 18 avant l'installation.",
     virgin: "Base SMN vierge détectée. Vous pouvez consulter la préparation de l'installation.",
     initialized: "Installation SMN existante : une authentification sera nécessaire pour accéder aux données.",
     "schema-incompatible": "Le schéma de la base n'est pas reconnu ; aucune modification ne sera appliquée automatiquement.",
@@ -28,6 +46,7 @@ export const translations: Record<Language, Record<DiagnosticStatus, string>> = 
     "database-missing": "The SMN database does not exist yet. The upcoming installer will request confirmation before creating it.",
     "connection-error": "Could not connect to PostgreSQL. Check the local service and settings, then retry.",
     "permissions-insufficient": "The PostgreSQL account lacks the permissions required to inspect this installation.",
+    "server-version-unsupported": "This PostgreSQL version has not been qualified for SMN I0. Check for version 18.",
     virgin: "An empty SMN database was detected. You can review the installation preparation.",
     initialized: "An existing SMN installation was found. Authentication will be required to access data.",
     "schema-incompatible": "The database schema is not recognized. No automatic changes will be applied.",
