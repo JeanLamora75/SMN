@@ -15,15 +15,18 @@ const port = 3003;
 const base = "http://127.0.0.1:" + port;
 let server;
 try {
+  let serverOutput = "";
   server = spawn(path.join(root, "node.exe"), [path.join(root, "server.js")], {
-    cwd: root, stdio: "ignore", windowsHide: true, shell: false,
+    cwd: root, stdio: ["ignore","pipe","pipe"], windowsHide: true, shell: false,
     env: { ...process.env, NODE_ENV: "production", HOSTNAME: "127.0.0.1", PORT: String(port),
       SMN_DATABASE_URL: "", SMN_SETUP_TOKEN: "" },
   });
-  server.on("error", () => undefined);
+  server.stdout.on("data", b => { serverOutput = (serverOutput + String(b)).slice(-2200); });
+  server.stderr.on("data", b => { serverOutput = (serverOutput + String(b)).slice(-2200); });
+  server.on("error", e => { serverOutput = e.message; });
   let ready = false;
   for (let i = 0; i < 120; i++) {
-    if (server.exitCode !== null) throw new Error("Le paquet a quitté avant de démarrer.");
+    if (server.exitCode !== null) throw new Error("Le paquet a quitté avant de démarrer : " + serverOutput);
     try {
       const response = await fetch(base, { signal: AbortSignal.timeout(1000) });
       const html = await response.text();
