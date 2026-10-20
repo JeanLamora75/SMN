@@ -1,0 +1,7 @@
+:root { color-scheme: light; }
+body { min-height: 100vh; background: #f5f7fb; color: #15233b; }
+.smn-page { max-width: 870px; }
+.smn-mark { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #154d8d; color: #fff; font-weight: 800; letter-spacing: .03em; }
+.smn-panel { border: 1px solid #d9e2ee; border-radius: 18px; background: #fff; box-shadow: 0 14px 42px rgba(15,32,57,.06); }
+.smn-subtitle { color: #51617a; }
+code { overflow-wrap: anywhere; }

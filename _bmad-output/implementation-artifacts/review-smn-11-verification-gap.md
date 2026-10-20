@@ -1,0 +1,6779 @@
+# SMN-11 — Verification Gap Reviewer — Prompt autonome de revue
+
+> **Snapshot de revue actualisé** sur le commit de code/documentation `cc9a08cc6517cc47029309779a943998743297c5` (20/10/2026), incluant le changement de port 3003, les tests et la recette Windows. Les trois prompts de revue générés eux-mêmes sont exclus du diff pour éviter toute récursion. Exécuter **dans une conversation distincte**, sans modifier GitHub/Jira ; retourner uniquement les constats. Ce fichier prépare la revue, **il ne prouve aucune exécution**.
+
+Launch a context-free subagent with this prompt:
+
+Read 
+===== BEGIN VERIFICATION GAP INSTRUCTIONS =====
+# Verification Gap Review
+
+**Goal:** Find changed behavior that could break without reliable verification catching it. Ask one question — "if the behavior this change is supposed to produce broke where it's actually used, would verification fail?" Do not hunt for correctness bugs, but report genuine problems you notice while tracing verification.
+
+The main verification gap shapes are:
+
+1. **Regression gap:** the changed code regresses where it's used, and no test covering that use would fail.
+2. **Missing-adoption gap:** a place that should now use the new behavior doesn't; it handles the same case its own way, or not at all, and no test would flag the omission.
+3. **Broken-verification gap:** a test appears to cover the changed behavior, but would not actually protect it because it is skipped, flaky, not run in the normal verification path, or too weak to observe the regression.
+
+## Evidence Rules
+
+- Read a test before claiming what it covers, runs, asserts, or misses.
+- Before claiming no test exists, search the whole repo by the symbol under test and by import references; expected file locations are not enough.
+- Never assert what you did not verify. If a finding cannot be grounded, drop it.
+- In a finding, say what you actually checked — "none of the tests I read cover this" — and show how far you looked. Say a test doesn't exist anywhere only when the symbol/import-reference search actually shows that.
+- Do not assign severity, confidence, priority, or ranking.
+
+## Review Sequence
+
+### Step 1: Screen for behavioral change
+
+Screen each part of the change separately. If a part is non-behavioral, skip it. Call a part non-behavioral only when the changed code does not alter return values, thrown errors, caller-visible side effects, or observable state (including iteration order and emitted messages). Once a part meets that test, move on; do not inspect callers or tests for extra confirmation.
+
+Common non-behavioral examples: formatting, comments, whitespace; pure renames; trivial getters/setters and pass-throughs; type-only or compiler-enforced changes with no runtime effect; etc.
+
+Only outcomes produced by deterministic code are worth automatically testing; tests are useless on static source text and brittle on LLM output. Skip those parts.
+
+If every part is skipped, output the clean result (see Output Format).
+
+### Step 2: Find the behavior that changed
+
+Identify what behavior changed compared to the previous version: output, side effect, branch, error path, schema/event shape, config default, validation/authorization rule, external contract, etc. If the change affects more than one behavior, handle each separately.
+
+Treat broad-impact changes as behavioral even when no single changed line looks important: dependency, toolchain, build/config, data-file, etc.
+
+### Step 3: Trace where that behavior is used
+
+Trace the changed behavior to the places that observe it. Start with direct callers and registered entry points (routes, commands, DI), contract consumers (schemas, events, APIs, database readers), and reverse-dependency info if already available.
+
+Follow a path only while the changed behavior is reachable and unverified. Stop when a test at that boundary would fail, the consumer does not observe the changed behavior, or the next hop is guesswork (dynamic dispatch, reflection, outside-repo consumers, etc.). Prefer the nearest observable boundary, often one to three hops away, especially across contract, integration, or service edges. If there are more than five similar consumers, group obvious repeats and check representative paths; expand only when a consumer observes the behavior differently.
+
+### Step 4: Qualify the consumer, then check its test
+
+For each consumer, name the smallest realistic regression this consumer would observe: invert the branch, drop the default, omit the field, return the old error code, skip the integration call, etc. This is the Demonstration. If no such regression exists, drop the path; untested downstream code is not a finding.
+
+A `Missing-adoption gap` qualifies not by the adoption failure alone but by a supersession signal: the change gives clear evidence the new behavior is meant to replace the local one — PR intent, naming or docs, a replaced sibling site, deleted duplicate logic, or a test defining the new rule — and the local site shares the same observable contract. Without a supersession signal and a shared observable contract, it is a refactor suggestion, not a verification-gap finding. Once both hold, check whether any test for that site would flag the non-adoption; missing coverage of the non-adoption is the gap itself, not a disqualifier.
+
+Find and read the relevant test. Ask whether the Demonstration would make an assertion fail.
+
+- If yes, the behavior is verified. No finding.
+- For a regression-style Demonstration: if no test runs the path, the test is skipped/flaky/not run normally, or the test runs the code without checking the changed result, report a `Regression gap` or `Broken-verification gap`.
+- For a qualifying Missing-adoption case: if none of the site tests you found assert it adopts the new behavior, report a `Missing-adoption gap`.
+
+A test counts only if it runs normally and an assertion observes the changed output, branch, or contract. These do not count: no execution; source-text assertions that match a file's wording instead of running it; success/no-throw/snapshot-only checks; mock/log-call checks; human-only checks; tests that mock away the integration; e2e tests that pass through without checking the changed output; stale assertions or fixtures.
+
+For example, `expect(x ?? DEFAULT).toBe(DEFAULT)` passes when `x` is missing.
+
+Common patterns:
+
+- **Caller-path gap** — helper test covers the branch, but caller values skip it.
+- **Contract drift** — payload/schema/event changes must be verified at the consumer.
+- **Migration compatibility** — tests only create new-format rows or fresh schemas.
+- **Phantom exception** — handled partial-failure path has no test.
+- **Missing-adoption gap** — sibling site should use the new rule/helper and does not.
+- **Removed verification** — deleted test or weakened assertion leaves behavior unpinned; removing a source-text assertion is not this, since it never counted.
+
+### Step 5: Confirm each finding is real
+
+Before writing a finding, re-open the specific tests or search results the finding relies on. Verify the Demonstration would not make any test you checked fail, or that the absence claim is backed by the symbol/import-reference search. Do not claim more than you verified; drop any finding you cannot ground.
+
+Explain why the test misses the bug using what the test sets up and checks.
+
+Do not report: compiler/type-checker-enforced cases; behavior already verified by an integration, contract, or e2e test; implementation-detail or mock-only tests; low coverage or a missing test file by itself; legacy untested code the change did not affect.
+
+Report genuine problems you noticed while tracing verification, even if they are not verification gaps. Put them under `Other findings` in the output. This permits reporting what you already reached, not extra hunting. A claim that code misbehaves is a defect, not a gap — it goes under `Other findings` for standard triage, however you found it.
+
+## OUTPUT FORMAT
+
+Emit each verification-gap finding as one block. No general advice, no severity or confidence. Triage trusts a gap finding as filed and does not re-verify it, so each block must stand on its own evidence.
+
+```markdown
+### <one-line title naming the gap>
+
+- **Changed surface:** the exact behavior or contract that changed — `file:line`.
+- **Impacted consumer or site:** named concretely with `file:line` (e.g. "the `createInvoice` mutation used by the billing dashboard at `billing/dashboard.ts:88`," not "callers of this function").
+- **Existing test evidence:**
+  - `Regression gap`: what the relevant test actually asserts, with `file:line`; or, if none, the symbol/import-reference searches run and their result.
+  - `Missing-adoption gap`: tests for the impacted site, and whether any assert it adopts the new behavior.
+  - `Broken-verification gap`: the apparent test or verification path, and why it does not count.
+- **Missing verification:** the precise assertion or check that's absent.
+- **Demonstration:**
+  - `Regression gap` / `Broken-verification gap`: the concrete regression that would ship undetected, and why the tests you checked would not fail.
+  - `Missing-adoption gap`: the case the site mishandles by not adopting the new behavior, and that none of the tests you read assert adoption.
+- **Consequence:** the concrete thing that ships wrong — a regression the checked evidence would not catch, or a site that should use the new behavior and doesn't.
+- **Disposition:** `patch` — name the test to add, fit to the repo's own way of verifying (don't impose a generic test pyramid) — or `defer` when the gap is real but not worth closing as part of this change, with one sentence of why.
+```
+
+If you noticed genuine non-gap problems while tracing verification, append:
+
+```markdown
+## Other findings
+
+- <description only; no severity, confidence, priority, or ranking>
+```
+
+When you find no verification gaps and no other findings, output exactly this single line, not an empty response:
+
+`No verification gaps found.`
+
+## CONTENT SOURCE
+
+"Review content:" in the message that launched you gives the content itself or a path to read it from. Read the file when it is a path; either way that is the content under review, and this instruction file never is. If no content is supplied, or the file it points to is missing, empty, or unreadable, say exactly that and stop — never report a clean review for content you could not read.
+
+===== END VERIFICATION GAP INSTRUCTIONS =====
+ completely and follow it as your review instructions.
+
+Review content: the unified diff at 
+
+===== BEGIN UNIFIED DIFF — baseline 9f6cc9ba1a1a23d47234511d7801e5a0cc54fe86 → revue cc9a08cc6517cc47029309779a943998743297c5 ; 39 fichiers hors artefacts auto-référents de prompts =====
+diff --git a/.env.example b/.env.example
+new file mode 100644
+index 0000000..03b5bd5
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,3 @@
++# Exemple documentaire uniquement, sans identifiant réel et non destiné à être commité en .env
++# Le nom de base doit être smn ou commencer par smn_ ; hôte local uniquement.
++# SMN_DATABASE_URL=postgresql://UTILISATEUR_LOCAL:MOT_DE_PASSE_LOCAL@127.0.0.1:5432/smn
+diff --git a/.github/workflows/bmad-build-activation.yml b/.github/workflows/bmad-build-activation.yml
+new file mode 100644
+index 0000000..f33175d
+--- /dev/null
++++ b/.github/workflows/bmad-build-activation.yml
+@@ -0,0 +1,43 @@
++name: "BMAD build — activation officielle I0"
++
++on:
++  push:
++    branches:
++      - "dev/bmad-i0-20261020"
++    paths:
++      - ".github/workflows/bmad-build-activation.yml"
++
++permissions:
++  contents: read
++
++jobs:
++  render-official-build:
++    runs-on: ubuntu-latest
++    steps:
++      - name: Checkout du dépôt
++        uses: actions/checkout@v4
++
++      - name: Outillage uv (sur le runner GitHub, pas sur le PC)
++        uses: astral-sh/setup-uv@v6
++
++      - name: Exécuter le rendu officiel une seule fois
++        shell: bash
++        run: |
++          set -euo pipefail
++          uv run --no-cache "$GITHUB_WORKSPACE/_bmad/scripts/render_skill.py" --project-root "$GITHUB_WORKSPACE" --skill "$GITHUB_WORKSPACE/.agents/skills/bmad-build" | tee "$RUNNER_TEMP/bmad-render.txt"
++          WORKFLOW="$(sed -n 's/^read and follow //p' "$RUNNER_TEMP/bmad-render.txt" | tail -n 1)"
++          if [[ ! -f "$WORKFLOW" ]]; then
++            echo "HALT: workflow officiel non rendu" >&2
++            exit 1
++          fi
++          echo "=== BMAD WORKFLOW START ==="
++          cat "$WORKFLOW"
++          echo "=== BMAD WORKFLOW END ==="
++          FIRST_STEP="$(dirname "$WORKFLOW")/step-01-clarify-and-route.md"
++          if [[ ! -f "$FIRST_STEP" ]]; then
++            echo "HALT: première étape absente du rendu" >&2
++            exit 1
++          fi
++          echo "=== BMAD STEP 01 START ==="
++          cat "$FIRST_STEP"
++          echo "=== BMAD STEP 01 END ==="
+diff --git a/.github/workflows/verify-i0.yml b/.github/workflows/verify-i0.yml
+new file mode 100644
+index 0000000..c81df4d
+--- /dev/null
++++ b/.github/workflows/verify-i0.yml
+@@ -0,0 +1,113 @@
++name: Vérification I0
++
++on:
++  push:
++    branches: ["dev/bmad-i0-20261020"]
++    paths:
++      - "package.json"
++      - "pnpm-workspace.yaml"
++      - "pnpm-lock.yaml"
++      - "src/**"
++      - "tests/**"
++      - "scripts/**"
++      - "prisma/**"
++      - "tsconfig.json"
++      - "next.config.ts"
++      - "eslint.config.mjs"
++      - ".github/workflows/verify-i0.yml"
++
++permissions:
++  contents: write
++
++jobs:
++  verifier:
++    runs-on: ubuntu-latest
++    services:
++      postgres:
++        image: postgres:18
++        env:
++          POSTGRES_USER: smn_ci
++          POSTGRES_PASSWORD: smn_ci_ephemeral_test
++          POSTGRES_DB: smn_ci
++        ports: ["5432:5432"]
++        options: >-
++          --health-cmd "pg_isready -U smn_ci -d smn_ci"
++          --health-interval 10s
++          --health-timeout 5s
++          --health-retries 5
++    env:
++      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
++      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          persist-credentials: true
++      - uses: actions/setup-node@v4
++        with:
++          node-version: "24"
++      - uses: pnpm/action-setup@v4
++        with:
++          version: "12.10.0"
++          run_install: false
++      - name: Installer les dépendances
++        run: |
++          if test -f pnpm-lock.yaml; then
++            pnpm install --frozen-lockfile
++          else
++            pnpm install --lockfile-only
++            pnpm install --frozen-lockfile
++          fi
++      - name: Lint
++        run: pnpm lint
++      - name: Tests unitaires
++        run: pnpm test
++      - name: Typecheck
++        run: pnpm typecheck
++      - name: Valider le diagnostic de port
++        run: |
++          node scripts/doctor.mjs
++          SMN_PORT=3010 node scripts/doctor.mjs
++          if SMN_PORT=3000 node scripts/doctor.mjs; then
++            echo "Erreur : SMN a accepté un port réservé."
++            exit 1
++          fi
++      - name: Build de production
++        run: pnpm build
++        env:
++          NEXT_TELEMETRY_DISABLED: "1"
++      - name: Vérifier les routes HTTP sur le serveur de production
++        shell: bash
++        run: |
++          set -euo pipefail
++          # Simuler l'autre projet sur 3000 sans exposer de réseau extérieur.
++          node -e 'require("node:http").createServer((_req, res) => res.end("other-project")).listen(3000, "127.0.0.1")' > /tmp/smn-port3000.log 2>&1 &
++          OTHER_PID=$!
++          pnpm start > /tmp/smn-next.log 2>&1 &
++          SERVER_PID=$!
++          trap 'kill "$SERVER_PID" "$OTHER_PID" 2>/dev/null || true' EXIT
++          test "$(curl --silent --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/)" = "other-project"
++          for i in {1..30}; do
++            if curl --silent --fail http://127.0.0.1:3003/ > /dev/null; then break; fi
++            sleep 1
++          done
++          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/)" = "200"
++          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/setup)" = "200"
++          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/app)" = "404"
++          test "$(curl --silent http://127.0.0.1:3000/)" = "other-project"
++          curl --silent --fail http://127.0.0.1:3003/api/diagnostic | node -e 'let s="";process.stdin.on("data",x=>s+=x);process.stdin.on("end",()=>{const d=JSON.parse(s);if(d.status!=="virgin"||!d.canEnterSetup)process.exit(1)})'
++      - name: Publier le lockfile généré une seule fois
++        if: success()
++        run: |
++          if ! git ls-files --error-unmatch pnpm-lock.yaml >/dev/null 2>&1; then
++            git config user.name "github-actions[bot]"
++            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
++            git add pnpm-lock.yaml
++            git commit -m "build: figer le lockfile pnpm pour SMN-11"
++            # Aucun force-push : réintégrer les commits arrivés depuis le checkout.
++            # Next peut réécrire les fichiers déclaratifs pendant le build ;
++            # ne jamais inclure ces modifications générées dans un commit de lockfile.
++            git restore -- tsconfig.json next-env.d.ts
++            git fetch origin dev/bmad-i0-20261020
++            git rebase origin/dev/bmad-i0-20261020
++            git push origin HEAD:dev/bmad-i0-20261020
++          fi
+diff --git a/.gitignore b/.gitignore
+index 6ded88f..c6702cb 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,16 +1,22 @@
+-﻿# BMAD - configuration personnelle
++# BMAD - configuration personnelle
+ _bmad/config.user.toml
+ _bmad/custom/config.user.toml
+-
+-# BMAD - fichiers temporaires
+ _bmad/render/
+ 
+-# Environnement et secrets
++# Secrets et environnement
+ .env
+ .env.*
+ !.env.example
+ node_modules/
+ 
++# Fichiers générés
++.next/
++out/
++dist/
++build/
++*.tsbuildinfo
++src/generated/
++
+ # Windows
+ Thumbs.db
+ Desktop.ini
+diff --git a/README.md b/README.md
+index 026d271..45f5a71 100644
+--- a/README.md
++++ b/README.md
+@@ -1,22 +1,21 @@
+ # SMN — Scrum Master Notebook
+ 
+-Scrum Master Notebook est un carnet de bord pour les Scrum Masters : équipes, calendriers, capacités, cycles, registres qualitatifs et rapports professionnels, avec une saisie minimale.
++Application destinée aux Scrum Masters, développée selon BMAD 6.12.4. MVP Scrum et Kanban, usage local initial sur Windows 11, avec Next.js 16/React 19, TypeScript, Bootstrap 5.3, PostgreSQL et Prisma 7.
+ 
+-Le **MVP couvre Scrum et Kanban**, en usage local sur PC et depuis un navigateur responsive, en français et en anglais. **SAFe et les ART sont prévus pour la version 1.0.** Le socle décidé est un monolithe modulaire TypeScript, PostgreSQL et Bootstrap 5 ; les bibliothèques et le packaging restent à éprouver.
++## État technique
+ 
+-## Reprendre le projet
++**Travail I0 / SMN-11 en construction :** diagnostic local des prérequis, sans installation complète ni authentification disponible. Les routes privées restent fermées ; aucun démarrage ne crée de base, compte, équipe ou Sprint. La base SMN dédiée doit être créée **par le futur installateur SMN-12**, avec vérification des droits et confirmation préalable, et non manuellement dans le parcours normal.
+ 
+-1. [Contexte et règles de reprise](docs/PROJECT-CONTEXT.md).
+-2. [État BMAD, réserves et prochaine étape](docs/ETAT-PROJET-BMAD.md).
+-3. [Index des livrables BMAD](_bmad-output/planning-artifacts/README.md) : Product Brief, PRD et annexes, architecture et découpage final.
+-4. [Epics et Stories](_bmad-output/planning-artifacts/epics.md) et [Jira SMN](https://lmn24.atlassian.net/jira/software/projects/SMN), référence des tickets.
++**Port web de SMN : 3003 par défaut**, afin de préserver les applications existantes sur 3000, 3001 et 3002. `SMN_PORT` permet de choisir un autre port libre (hors de ces trois ports réservés).
+ 
+-**État au 19 octobre 2026 :** Product Brief et PRD finalisés ; architecture documentaire finale sous réserves techniques ; workflow Create Epics and Stories clôturé. **10 Epics et 210 Stories validées fonctionnellement**, toutes À faire lors de la vérification Jira. Aucun développement applicatif ni recette attestés. Prochaine étape : **[SP] Sprint Planning**, avec contrôle de préparation avant génération du suivi.
++Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes, le port et les limites vérifiables.
+ 
+-## Référentiels
++## Référentiels du projet
+ 
+-- GitHub : code, architecture, documentation et fichiers BMAD.
+-- Jira : Epics, Stories, bugs et tâches.
+-- BMAD Method **6.12.4** : skills dans `.agents/skills/`, configuration dans `_bmad/`, livrables dans `_bmad-output/`.
+-- [Décisions initiales F-01 à F-124](docs/DECISIONS-FONCTIONNELLES.md) et [cadrage initial](docs/CADRAGE-FONCTIONNEL.md) : historique complété par le PRD et les décisions D-PRD.
+-- Langue de collaboration et des livrables : français.
++- [Contexte et décisions](docs/PROJECT-CONTEXT.md)
++- [État du projet BMAD](docs/ETAT-PROJET-BMAD.md)
++- [Index BMAD](_bmad-output/planning-artifacts/README.md)
++- [User Stories Jira](https://lmn24.atlassian.net/jira/software/projects/SMN)
++- [Travail I0 / SMN-11](https://lmn24.atlassian.net/browse/SMN-11)
++
++La préparation documentaire demeure sous verdict **CONCERNS** jusqu'aux preuves complémentaires. Les tests GitHub Actions ne prouvent pas à eux seuls le bon fonctionnement sur un poste Windows 11.
+diff --git a/_bmad-output/implementation-artifacts/epic-1-context.md b/_bmad-output/implementation-artifacts/epic-1-context.md
+new file mode 100644
+index 0000000..cfcd2fc
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/epic-1-context.md
+@@ -0,0 +1,61 @@
++# Epic 1 Context: Initialiser et utiliser un espace SMN privé
++
++<!-- Compiled from planning artifacts. Edit freely. Regenerate with compile-epic-context if planning docs change. -->
++
++## Goal
++
++Mettre à disposition une installation locale privée de Scrum Master Notebook utilisable sur Windows 11 sans privilèges Windows élevés, avec une entrée d'initialisation contrôlée, deux profils au MVP, des accès sécurisés côté serveur et une interface bilingue, responsive et exploitable au quotidien. La création initiale de la base dédiée est prise en charge par l'installation lorsque les droits PostgreSQL le permettent ; aucun accès métier n'est présenté comme fonctionnel avant les vérifications de persistance et d'accès.
++
++## Stories
++
++- Story 1.1: Démarrer SMN localement et vérifier les prérequis
++- Story 1.2: Initialiser une installation Express et son Administrateur de manière sûre
++- Story 1.3: Accompagner l'initialisation avec un parcours Guidé facultatif
++- Story 1.4: Se connecter, se déconnecter et protéger les sessions
++- Story 1.5: Créer et administrer les comptes des utilisateurs
++- Story 1.6: Faire respecter la matrice Administrateur / Utilisateur côté serveur
++- Story 1.7: Révoquer les accès compromis et renouveler son mot de passe
++- Story 1.8: Modifier les paramètres généraux sans réécrire l'historique
++- Story 1.9: Protéger la configuration privée et les secrets de l'application
++- Story 1.10: Suivre les tâches facultatives de configuration depuis le tableau de bord
++- Story 1.11: Afficher un tableau de bord fiable et contextualisé par équipe
++- Story 1.12: Naviguer entre les grandes fonctions selon son mode et son rôle
++- Story 1.13: Conserver le contexte lors des navigations vers les fiches liées
++- Story 1.14: Choisir le français ou l'anglais pour l'interface
++- Story 1.15: Personnaliser l'apparence avec thèmes clair et sombre
++- Story 1.16: Utiliser le socle de SMN sur ordinateur, tablette et smartphone
++- Story 1.17: Avertir avant perte de saisie et afficher le résultat réel des sauvegardes
++- Story 1.18: Ne transmettre que les informations collectives autorisées aux vues et documents
++
++## Requirements & Constraints
++
++- Usage initial sur PC personnel et navigateur, sans Docker, IDE ni élévation Windows imposés. La session Windows ordinaire doit pouvoir démarrer le service local et obtenir une URL ouvrable.
++- MVP limité aux modes Scrum et Kanban, choisis une fois par installation, avec un produit fixe et une seule équipe. SAFe et les ART sont différés.
++- Une installation vierge peut présenter une initialisation Express et facultativement guidée ; démarrer le serveur ne crée ni équipe, ni Sprint, ni période. Une installation déjà initialisée ne doit exposer ni assistant anonyme ni données privées.
++- Deux profils exactement : Administrateur (Scrum Master) et Utilisateur. Les comptes techniques sont indépendants des membres de l'équipe ; seuls les administrateurs réalisent des mutations. L'Utilisateur accède aux informations collectives et au téléchargement de rapports autorisés, jamais aux données individuelles sensibles.
++- Les contrôles d'identité et de privilège doivent être exécutés côté serveur, y compris contre les accès directs aux URL, fichiers et API. Une erreur de connexion ou de migration bloque le parcours métier, sans faux succès.
++- Session : 8 h de durée absolue maximale, 30 minutes d'inactivité, aucune mémorisation durable. Une récupération locale du compte administrateur est prévue sans créer de second admin et avec révocation des sessions ; les mécanismes restent à qualifier.
++- Diagnostic lisible et relançable des prérequis et des échecs, sans affichage, fichier public ou journal de mot de passe, URL avec identifiants ou secret.
++- Interface en français et anglais, Bootstrap 5.3 (sans Tailwind), utilisable clavier et responsive sur ordinateur, tablette et smartphone ; thèmes clair et sombre.
++
++## Technical Decisions
++
++- Monolithe modulaire TypeScript ; Next.js 16 App Router, React 19, Node.js 24 LTS, pnpm, Bootstrap 5.3 ; PostgreSQL et Prisma ORM 7 ; Better Auth avec sessions stockées dans PostgreSQL. Les versions exactes restent à verrouiller par essais I0.
++- Couche domaine indépendante des frameworks, de l'ORM et des adaptateurs ; pas de service NestJS séparé. Les autorisations métier s'appliquent côté serveur, non uniquement dans les composants de présentation.
++- Serveur PostgreSQL 18.6 rapporté par résultat utilisateur de `SHOW server_version;`; Node 24.21.0 et pnpm 12.10.0 déclarés. Ces versions ne constituent ni validation des dépendances réelles ni tests Windows.
++- Base de données dédiée à SMN ; le programme d'installation doit diagnostiquer les droits, présenter la cible et demander confirmation avant création. Aucun droit CREATEDB présumé, aucune création de rôle ou élévation automatique. Reprise explicite si droits insuffisants, base existante ou état partiel.
++- Migrations versionnées générées sur base de développement séparée, appliquées dans l'ordre et sous contrôle, sauvegarde préalable si données existantes modifiées ; détecter schéma incompatible et interrompre l'accès métier.
++- Distinguer les privilèges de création/migration des droits du runtime. Mettre secrets et clé locale dans un dossier privé hors Git, jamais dans les sorties de diagnostic. Ne pas toucher aux autres bases, dont LMN24.
++- Validation progressive du POC Windows/PostgreSQL, des protections serveur et des mécanismes de reprise. Les démonstrations de PDF et de restauration sont réservées aux capacités I0 correspondantes.
++
++## UX & Interaction Patterns
++
++- L'utilisateur ouvre une URL locale compréhensible ; première visite avant initialisation propose d'amorcer l'installation après diagnostic, puis connexion obligatoire.
++- Messages d'erreur explicites avec action de relance, sans prétendre que la base ou l'installation est prête avant vérification ; confirmation préalable des opérations structurantes.
++- L'interface doit préserver la saisie en cas d'erreur et informer du résultat réel d'une sauvegarde, avec affichage adapté au rôle et au mode Agile.
++
++## Cross-Story Dependencies
++
++- Démarrage et vérification des prérequis (1.1) précèdent l'amorçage (1.2), qui précède les parcours d'accès authentifiés (1.4 à 1.7). Les principes de secrets, migrations et permissions sont transverses dès le premier travail.
++- Les capacités 1.2/1.3 définissent et créent l'installation ; aucune implémentation superficielle en 1.1 ne doit rendre l'amorçage anonyme utilisable après une initialisation.
++- Les données sensibles nécessaires au reste du MVP et les exports relèvent des contrôles de confidentialité du socle ; l'implémentation complète des rapports et des sauvegardes appartient à d'autres Epics.
+diff --git a/_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md b/_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md
+new file mode 100644
+index 0000000..d44ef51
+--- /dev/null
++++ b/_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md
+@@ -0,0 +1,100 @@
++---
++title: "SMN-11 — Démarrage local et diagnostic des prérequis"
++type: "feature"
++created: "2026-10-20"
++status: "in-review"
++route: "dispatch"
++review_loop_iteration: 0
++baseline_commit: "9f6cc9ba1a1a23d47234511d7801e5a0cc54fe86"
++context:
++  - "_bmad-output/implementation-artifacts/epic-1-context.md"
++  - "_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md"
++  - "_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md"
++---
++
++<frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
++
++## Intent
++
++**Problem:** SMN n'a encore aucun exécutable : le Scrum Master ne peut ni lancer l'application sous Windows 11 ni vérifier PostgreSQL sans intervention technique.
++
++**Approach:** Créer le socle web local et un diagnostic serveur fiable. N'autoriser l'entrée de première installation que lorsque son état réel est connu ; refuser les routes privées sans authentification.
++
++## Boundaries & Constraints
++
++**Always:** TypeScript, Node 24, pnpm, Next 16/React 19, Bootstrap 5.3 (pas Tailwind), PostgreSQL/Prisma 7 ; aucun IDE, Docker ou privilège Windows élevé. Loopback local. Contrôles côté serveur, échecs explicites et relançables, aucun secret dans les URL/logs/Git. Vérifier les droits effectifs sans présumer CREATEDB.
++
++**Never:** Modifier LMN24 ; créer silencieusement des bases, rôles, comptes, équipes ou cycles ; migrer des données existantes sans confirmation ; simuler une session ; déclarer SMN-12 (installation complète) livré par SMN-11.
++
++## I/O & Edge-Case Matrix
++
++| État | Comportement attendu |
++|---|---|
++| Windows standard, dépendances OK | URL locale affichée, page accessible |
++| PostgreSQL et base SMN vierge | Diagnostic « à initialiser », aucun objet métier créé |
++| Base SMN absente | Signaler que l'installateur devra la créer, aucun faux succès |
++| Service arrêté, identifiants erronés, délai dépassé | Échec compréhensible sans secret ; relance possible |
++| Connexion possible mais droits limités | Identifier les droits manquants ; pas d'élévation |
++| Installation existante ou requête anonyme /app | Refuser /setup et les routes privées côté serveur |
++| Base étrangère ou schéma incompatible | Ne pas l'adopter et bloquer le parcours métier |
++
++</frozen-after-approval>
++
++## Code Map
++
++- Aucun code applicatif, `package.json` ni lockfile dans la branche documentaire consultée : partir d'un nouveau socle.
++- `_bmad-output/implementation-artifacts/epic-1-context.md` : règles de l'Epic 1.
++- `_bmad-output/planning-artifacts/preparation-premier-travail-i0.md` : parcours et cas à tester.
++- `_bmad-output/implementation-artifacts/sprint-status.yaml` : suivi en backlog, clé Story 1.1.
++- Emplacements `src/app/`, `src/server/`, `prisma/`, `scripts/` inexistants à créer, sans altérer les skills installés.
++
++## Tasks & Acceptance
++
++**Execution:**
++- [x] `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.ts` — initialiser la stack et figer des versions réellement compatibles.
++- [x] `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/globals.css` — écran de démarrage minimal, lisible et responsive en français/anglais.
++- [x] `src/server/installation/diagnostic.ts`, `src/server/db/connection.ts` — états PostgreSQL, droits minimaux et absence de fuite de secrets.
++- [x] `src/app/setup/page.tsx`, `src/app/app/page.tsx` — gardes serveur fermés sans session ; aucune initialisation implicite.
++- [x] `scripts/doctor.mjs`, `prisma/schema.prisma` — diagnostic des prérequis et contrat minimal d'état de schéma, sans écriture ni migration automatique.
++- [x] `tests/installation-diagnostic.test.ts`, `tests/access-guards.test.ts` — tester tous les cas de la matrice, avec doubles de test et vérification serveur.
++- [x] `docs/INSTALLATION.md`, `README.md` — consignes Windows, secrets privés, limitations actuelles et commandes reproductibles.
++- [x] `_bmad-output/implementation-artifacts/sprint-status.yaml` — renseigner uniquement une progression réellement démontrée.
++
++**Acceptance Criteria:**
++- Given un Windows 11 ordinaire avec prérequis, when SMN démarre, then l'URL locale s'ouvre sans IDE ni élévation.
++- Given une base SMN accessible, when le diagnostic passe, then l'état vierge ou initialisé est distingué sans créer d'équipe ni cycle.
++- Given une connexion, un schéma ou des droits incorrects, when la vérification échoue, then l'utilisateur obtient une erreur relançable sans secret.
++- Given un visiteur anonyme, when il ouvre /app ou /setup sur une installation existante, then le serveur refuse l'accès.
++- Given le lockfile, when l'installation, les tests et le build sont exécutés, then leurs résultats sont tracés sans faux succès.
++
++## Implementation Notes
++
++- Implémentation livrée sur la branche `dev/bmad-i0-20261020` : Next.js 16, React 19, TypeScript, Bootstrap 5.3, diagnostics PostgreSQL en lecture seule, gardes serveur fermés, état d'installation connu/absent/incompatible.
++- CI GitHub Actions sur Node.js 24, pnpm 12.10.0 et PostgreSQL 18.6 éphémère : **19 tests sur 19 réussis**, ESLint, TypeScript, build de production et contrôle HTTP `/` (200), `/setup` (200 sur base vierge), `/app` (404), `/api/diagnostic` (état vierge) réussis. Preuve : https://github.com/JeanLamora75/SMN/actions/runs/39386473764.
++- `pnpm-lock.yaml` généré par le runner après approbation ciblée des scripts pnpm et publié sur la branche ; présence relue directement depuis GitHub.
++- Adaptation : dépôt absent du conteneur de l'assistant et accès GitHub par connecteur ; implémentation vérifiée par comparaison de commits GitHub et runner CI plutôt que travail Git local. Aucune migration, aucune base utilisateur ni secret n'ont été modifiés.
++- **Preuve restante :** lancement `pnpm dev`, comportement et droits effectifs sur le poste Windows 11 standard de l'utilisateur ; non attestés. SMN-12 et SMN-14 ne sont pas livrés. Le ticket Jira ne doit pas être marqué terminé.
++- **Revue BMAD indépendante :** en attente des trois couches prévues par l'étape 04 (aucune capacité subagent dans cette session) ; l'état `in-review` n'est pas une validation de revue.
++
++- **Contrainte utilisateur complémentaire du 20/10/2026 (après approbation initiale) :** les ports localhost 3000, 3001 et 3002 sont occupés par un autre projet. Implémentation additionnelle sans toucher au bloc d'intention gelé : port SMN par défaut 3003 pour `pnpm dev` et `pnpm start`, paramètre optionnel `SMN_PORT`, refus des trois ports réservés et aucune bascule implicite. Tests dans `tests/port-config.test.mjs`, `scripts/port-config.mjs` et `scripts/serve.mjs`, documentation et CI mises à jour.
++- **Vérification CI additionnelle :** [GitHub Actions](https://github.com/JeanLamora75/SMN/actions/runs/39388328841) : 23 tests/23 réussis, lint, typecheck et build validés ; test HTTP de coexistence d'un serveur sur le port 3000 et de SMN sur 3003 réussi. Contrôle Windows réel encore nécessaire.
++
++- **Recette utilisateur Windows partielle (20/10/2026) :** le démarrage SMN et l'affichage de la page de diagnostic sur localhost:3003 sont confirmés par capture d'écran utilisateur. Message visible : « La connexion à la base SMN n'est pas encore configurée ». L'utilisateur a installé et lancé l'application via pnpm et GitHub Desktop ; commande Git CLI absente du PATH, sans incidence pour ce parcours. Deux captures supplémentaires du 20/10/2026 confirment visuellement le refus d'accès (« Accès indisponible / Access unavailable ») pour `http://localhost:3003/app` et `http://localhost:3003/setup`. Le statut HTTP 404 de ces routes a été démontré en CI Linux, pas mesuré sur le PC Windows. L'utilisateur a confirmé le 20/10/2026 que les deux projets fonctionnent **séparément** sur son PC et qu'il les démarrera alternativement : leur exécution simultanée sur Windows n'est **pas un critère exigé**. La démonstration de coexistence reste limitée à la CI Linux. Les droits PostgreSQL locaux et les autres cas de diagnostic restent à vérifier sur le poste.
++
++## Spec Change Log
++
++## Review Triage Log
++
++## Design Notes
++
++Le diagnostic ne crée pas de base : l'installateur SMN-12 assurera sa création confirmée sur le poste. État incertain = refus d'accès privé, jamais interprété comme installation vierge. Le futur domaine reste indépendant des adaptateurs.
++
++## Verification
++
++**Commands:**
++- `pnpm install --frozen-lockfile` — reproductibilité.
++- `pnpm lint && pnpm test && pnpm build` — contrôles automatisés.
++- `pnpm dev` — démarrage, à recetter sous Windows standard.
++
++**Manual checks:**
++- Sur le PC : PostgreSQL arrêté, mauvaise connexion, droits insuffisants, base absente, vierge ou existante et URL privée directe. Aucun secret transmis au chat.
+diff --git a/_bmad-output/implementation-artifacts/sprint-status.yaml b/_bmad-output/implementation-artifacts/sprint-status.yaml
+index 9b25405..521fdea 100644
+--- a/_bmad-output/implementation-artifacts/sprint-status.yaml
++++ b/_bmad-output/implementation-artifacts/sprint-status.yaml
+@@ -32,14 +32,14 @@
+ # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+ # - Retrospective appends its action items to action_items; the status view surfaces open ones
+ generated: 10-19-2026 22:41
+-last_updated: 10-19-2026 22:41
++last_updated: 10-20-2026 09:10
+ project: SMN
+ project_key: SMN
+ tracking_system: jira
+ story_location: _bmad-output/implementation-artifacts
+ development_status:
+-  epic-1: backlog
+-  1-1-démarrer-smn-localement-et-vérifier-les-prérequis: backlog
++  epic-1: in-progress
++  1-1-démarrer-smn-localement-et-vérifier-les-prérequis: in-progress
+   1-2-initialiser-une-installation-express-et-son-administrateur-d: backlog
+   1-3-accompagner-l-initialisation-avec-un-parcours-guidé-facultat: backlog
+   1-4-se-connecter-se-déconnecter-et-protéger-les-sessions: backlog
+diff --git a/docs/ETAT-PROJET-BMAD.md b/docs/ETAT-PROJET-BMAD.md
+index 866c7ac..54bb46b 100644
+--- a/docs/ETAT-PROJET-BMAD.md
++++ b/docs/ETAT-PROJET-BMAD.md
+@@ -55,3 +55,11 @@ PostgreSQL **18.6** déclaré par Eric ; le numéro remplace l'information manqu
+ 
+ 
+ **Complément du 20/10/2026 à 08:39 (Europe/Paris) :** Eric rapporte `SHOW server_version;` → **18.6**. Numéro du serveur interrogé confirmé par ce résultat utilisateur ; requête non exécutée par l'assistant. Connexion SMN, droits, migrations et compatibilité restent à éprouver. Voir l'inventaire technique actualisé ; CONCERNS maintenu.
++
++## Développement I0 — état opérationnel du 20 octobre 2026
++
++La Story [SMN-11](https://lmn24.atlassian.net/browse/SMN-11) est **En cours** sur Jira et `in-review` dans son artefact BMAD. La branche `dev/bmad-i0-20261020` est présentée dans la [PR nº 10](https://github.com/JeanLamora75/SMN/pull/10) (brouillon, non fusionnée).
++
++**Contrainte de coexistence confirmée par l'utilisateur :** l'autre projet utilise les ports locaux 3000, 3001 et 3002. SMN a été déplacé au **port 3003** pour les démarrages développement et production, avec `SMN_PORT` personnalisable hors des ports réservés. Le [guide Windows](../docs/INSTALLATION.md) a été actualisé.
++
++**Preuve Linux CI** : [exécution GitHub Actions](https://github.com/JeanLamora75/SMN/actions/runs/39388328841), 23 tests réussis sur 23, lint/typecheck/build et tests HTTP. La CI a maintenu un serveur simulé sur le port 3000 tout en vérifiant SMN sur 3003. **Non attesté** : usage simultané des deux projets sur le PC Windows 11, permissions PostgreSQL locales et revues BMAD indépendantes ; CONCERNS maintenu. L'ancien état « aucun développement » décrit la situation à sa date historique et ne s'applique plus à cette section.
+diff --git a/docs/INSTALLATION.md b/docs/INSTALLATION.md
+new file mode 100644
+index 0000000..df8d15e
+--- /dev/null
++++ b/docs/INSTALLATION.md
+@@ -0,0 +1,86 @@
++# SMN — Lancement et diagnostic I0 / SMN-11
++
++**Portée actuelle :** première interface locale et lecture seule du diagnostic PostgreSQL. Ni création de base, ni assistant Express, ni compte administrateur, ni migration ne sont encore livrés. Ces capacités appartiennent notamment à SMN-12 et SMN-14.
++
++## Préparation du poste Windows 11
++
++Utiliser une session Windows ordinaire. Prérequis déclarés par l'utilisateur : Node.js 24.21.0, pnpm 12.10.0, serveur PostgreSQL 18.6. Aucun IDE, Docker, NestJS ni élévation Windows n'est requis par la conception ; **son fonctionnement effectif sous Windows reste à tester**.
++
++Depuis GitHub Desktop, sélectionner la branche `dev/bmad-i0-20261020`, cliquer sur **Fetch origin** puis **Pull origin** si nécessaire. Le binaire Git fourni avec GitHub Desktop n'est pas forcément disponible comme commande `git` dans PowerShell : **aucune installation supplémentaire de Git CLI n'est requise**.
++
++Depuis le répertoire SMN récupéré avec GitHub Desktop, ouvrir PowerShell et contrôler :
++
++```powershell
++node --version
++pnpm --version
++pnpm install --frozen-lockfile
++pnpm doctor
++pnpm lint
++pnpm test
++pnpm typecheck
++pnpm build
++```
++
++Le lockfile doit être présent dans la branche téléchargée avant d'utiliser `--frozen-lockfile`. Ne pas activer un changement de versions sans l'examiner.
++
++### Port HTTP réservé à SMN
++
++Les ports **3000, 3001 et 3002** sont déjà utilisés par une autre application et doivent lui rester réservés. SMN utilise **3003 par défaut**, pour `pnpm dev` comme pour `pnpm start`. Aucune modification de l'autre projet n'est nécessaire.
++
++L'adresse par défaut est **http://127.0.0.1:3003** (ou `http://localhost:3003`). Si 3003 est lui aussi occupé, SMN doit échouer en signalant que ce port n'est pas disponible, sans essayer les ports 3000 à 3002. Vous pouvez choisir un autre port libre, par exemple 3010, **uniquement pour la session PowerShell courante** :
++
++```powershell
++$env:SMN_PORT = "3010"
++pnpm dev
++```
++
++Pour revenir au port par défaut :
++
++```powershell
++Remove-Item Env:SMN_PORT -ErrorAction SilentlyContinue
++pnpm dev
++```
++
++Le contrôle `pnpm doctor` affiche aussi l'adresse configurée et refuse explicitement `SMN_PORT=3000`, `3001` ou `3002`. On ne peut pas conclure que 3003 est libre sans l'avoir testé sur le poste.
++
++### Connexion privée à PostgreSQL
++
++SMN lit uniquement `SMN_DATABASE_URL`. L'hôte doit être `localhost`, `127.0.0.1` ou `::1`, et le nom de la base doit être `smn` ou commencer par `smn_`. **Aucune valeur `DATABASE_URL` n'est réutilisée implicitement.** Ne jamais pointer vers LMN24 ou une autre base.
++
++La saisie ci-dessous masque les caractères tapés ; elle laisse néanmoins temporairement l’URL dans la variable d’environnement du processus. La protection définitive des secrets locaux sera livrée avec l’installateur. Pour un diagnostic temporaire sur le PC, utiliser dans une session PowerShell privée (ne **jamais** copier le secret dans ChatGPT ou un commit) :
++
++```powershell
++# Optionnel : saisir localement une URL de connexion déjà autorisée.
++# Attention : une variable d'environnement de session ne constitue pas
++# un coffre de secrets ; fermer cette session après le test.
++$inputSecret = Read-Host "URL PostgreSQL locale SMN" -AsSecureString
++$env:SMN_DATABASE_URL = [System.Net.NetworkCredential]::new("", $inputSecret).Password
++Remove-Variable inputSecret
++pnpm dev
++```
++
++Éviter toute capture d'écran/commande contenant des mots de passe ou URL réels. Le formulaire de secret masqué et le dossier privé viendront avec l'installation guidée. En l'absence d'URL configurée, lancer simplement `pnpm dev` pour obtenir un diagnostic non connecté.
++
++Ouvrir **http://127.0.0.1:3003**. Si la base n'existe pas encore, le diagnostic doit l'indiquer et ne doit pas proposer de l'effacer ou de la créer en silence. L'écran `/setup` présente uniquement les prérequis dans le cas d'une base vierge ; l'installation effective sera implémentée dans SMN-12. `/app` reste bloqué.
++
++Pour lancer le build compilé après `pnpm build` :
++
++```powershell
++pnpm start
++```
++
++## Essais non destructifs sur le PC
++
++1. Démarrer sans `SMN_DATABASE_URL` : diagnostic « configuration manquante », pas de faux succès.
++2. Arrêter PostgreSQL / fournir volontairement une URL incorrecte : diagnostic relançable et sans secret.
++3. Vérifier qu'une URL contenant `/lmn24` est rejetée **avant connexion**.
++4. Vérifier séparément que l'autre projet démarre sur 3000/3001/3002 et que SMN démarre sur 3003. L'utilisateur a confirmé le 20/10/2026 qu'il utilisera les deux projets **alternativement**, sans obligation d'exécution simultanée. Si 3003 est occupé, diagnostiquer le conflit et sélectionner au besoin un autre port libre avec `SMN_PORT`.
++5. Tester `/app` : refus/404 en l'absence d'authentification.
++6. Tester `/setup` : accès refusé sauf si le diagnostic confirme une base SMN dédiée vierge.
++7. Vérifier qu'aucune base ni objet métier n'a été créé par le lancement.
++
++**Ne créez pas de base SMN manuellement par défaut.** La création avec confirmation et contrôle des droits appartient au travail d'installation SMN-12. Aucune commande `prisma db push`, `prisma migrate dev` ou remise à zéro n'est demandée sur une base réelle.
++
++## Preuves et limites
++
++GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Le 20/10/2026, l'utilisateur a confirmé par capture d'écran que la page d'accueil SMN s'ouvre sur son PC Windows 11 avec le diagnostic « La connexion à la base SMN n'est pas encore configurée » après démarrage local. Cette preuve est **limitée à l'affichage et au démarrage** : les accès directs `/setup` et `/app` (refus visuel confirmé par deux captures supplémentaires du 20/10/2026), les droits PostgreSQL 18.6 et l'authentification restent à recetter sur le poste. L'utilisateur a confirmé que les deux projets fonctionnent séparément et a choisi de ne pas les exécuter simultanément. Aucune base SMN réelle n'a été touchée par l'agent.
+diff --git a/docs/PROJECT-CONTEXT.md b/docs/PROJECT-CONTEXT.md
+index 5b8f275..2e8e85f 100644
+--- a/docs/PROJECT-CONTEXT.md
++++ b/docs/PROJECT-CONTEXT.md
+@@ -76,3 +76,10 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
+ 
+ 
+ **Sprint Planning — jalon du 19/10 à 22:41 :** [compte rendu et premier Sprint proposé](../_bmad-output/planning-artifacts/sprint-planning-2026-10-19.md). CONCERNS maintenu avec poursuite autorisée ; aucun travail marqué prêt ou réalisé. Durée, capacité et dates restent à renseigner avant engagement.
++
++## Décision technique complémentaire — ports HTTP locaux (20 octobre 2026)
++
++- Un **autre projet existant** utilise déjà `http://localhost:3000`, `http://localhost:3001` et `http://localhost:3002` : **SMN ne doit ni démarrer ni reprendre ces ports**, et ne doit pas modifier la configuration de l'autre projet.
++- Les commandes `pnpm dev` et `pnpm start` démarrent **SMN sur 127.0.0.1:3003 par défaut**. Le port est paramétrable localement par `SMN_PORT` (par exemple 3010), mais les valeurs 3000 à 3002 sont refusées explicitement.
++- Si le port 3003 est occupé, aucune bascule automatique sur les ports de l'autre projet : diagnostiquer le conflit et laisser l'utilisateur choisir un port libre.
++- [Procédure Windows et contrôle de coexistence](../docs/INSTALLATION.md). La CI a testé simultanément un serveur sur 3000 et SMN sur 3003 ; les preuves Windows restent à obtenir.
+diff --git a/eslint.config.mjs b/eslint.config.mjs
+new file mode 100644
+index 0000000..69f6e82
+--- /dev/null
++++ b/eslint.config.mjs
+@@ -0,0 +1,7 @@
++import { defineConfig, globalIgnores } from "eslint/config";
++import nextVitals from "eslint-config-next/core-web-vitals";
++
++export default defineConfig([
++  ...nextVitals,
++  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "src/generated/**"]),
++]);
+diff --git a/next-env.d.ts b/next-env.d.ts
+new file mode 100644
+index 0000000..5b82486
+--- /dev/null
++++ b/next-env.d.ts
+@@ -0,0 +1,3 @@
++/// <reference types="next" />
++/// <reference types="next/image-types/global" />
++// Ce fichier est géré par Next.js.
+diff --git a/next.config.ts b/next.config.ts
+new file mode 100644
+index 0000000..2f6491c
+--- /dev/null
++++ b/next.config.ts
+@@ -0,0 +1,7 @@
++import type { NextConfig } from "next";
++
++const nextConfig: NextConfig = {
++  reactStrictMode: true,
++};
++
++export default nextConfig;
+diff --git a/package.json b/package.json
+new file mode 100644
+index 0000000..e344d4d
+--- /dev/null
++++ b/package.json
+@@ -0,0 +1,39 @@
++{
++  "name": "scrum-master-notebook",
++  "version": "0.1.0",
++  "private": true,
++  "engines": {
++    "node": ">=24 <25"
++  },
++  "packageManager": "pnpm@12.10.0",
++  "scripts": {
++    "dev": "node scripts/serve.mjs dev",
++    "build": "next build",
++    "start": "node scripts/serve.mjs start",
++    "lint": "eslint .",
++    "test": "tsx --test tests/*.test.ts tests/*.test.mjs",
++    "typecheck": "tsc --noEmit",
++    "doctor": "node scripts/doctor.mjs"
++  },
++  "dependencies": {
++    "@prisma/adapter-pg": "7.0.0",
++    "@prisma/client": "7.0.0",
++    "better-auth": "1.4.5",
++    "bootstrap": "5.3.8",
++    "next": "16.0.0",
++    "pg": "8.16.3",
++    "react": "19.2.0",
++    "react-dom": "19.2.0"
++  },
++  "devDependencies": {
++    "@types/node": "24.9.1",
++    "@types/pg": "8.15.5",
++    "@types/react": "19.2.2",
++    "@types/react-dom": "19.2.2",
++    "eslint": "9.39.1",
++    "eslint-config-next": "16.0.0",
++    "prisma": "7.0.0",
++    "tsx": "4.20.6",
++    "typescript": "5.9.3"
++  }
++}
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+new file mode 100644
+index 0000000..d4dfd2b
+--- /dev/null
++++ b/pnpm-lock.yaml
+@@ -0,0 +1,5221 @@
++---
++lockfileVersion: '9.0'
++
++importers:
++
++  .:
++    configDependencies: {}
++    packageManagerDependencies:
++      pnpm:
++        specifier: 12.10.0
++        version: 12.10.0
++
++packages:
++
++  '@pnpm/exe.android-arm64@12.10.0':
++    resolution: {integrity: sha512-QMMRzOI/7CU4xLbKY6O2BZn3VI4+a8LLyim18H7it8llBWuBPMqDqUURE8045k+7lI8/lI2/tElhyKptEviKDQ==}
++    cpu: [arm64]
++    os: [android]
++
++  '@pnpm/exe.android-x64@12.10.0':
++    resolution: {integrity: sha512-41zwlROW+t523Nfqo4rWp8IPiSK5vnAWrnCey26Je45rX1SMNc4ABY7OFmPw41/t+Y0CE+4tjTj+0s9YGqPM5w==}
++    cpu: [x64]
++    os: [android]
++
++  '@pnpm/exe.darwin-arm64@12.10.0':
++    resolution: {integrity: sha512-L+r7AD8Fjf8Vcc4ZRJl+Pjzc27CIeQ/FiRwPmOluFO2UcXubmGHdW+OuMUxrU0vkoXiGR61Ft0RtaPwTRY4W/g==}
++    cpu: [arm64]
++    os: [darwin]
++
++  '@pnpm/exe.darwin-x64@12.10.0':
++    resolution: {integrity: sha512-/TCF1K6E+4PnbkLgqGS1Iqlf5bHp6FDzuXgu6++PMMAFkF7Yk5EF3BcfG1gYYjpkvlJBccvVMsRBnWFbSyqu1w==}
++    cpu: [x64]
++    os: [darwin]
++
++  '@pnpm/exe.freebsd-x64@12.10.0':
++    resolution: {integrity: sha512-k7/WFA91E2qhnR/2EOEv402U8bjP758y2pybbdiB5Hrd4KhgviVOJp5cFrXpKgd8HZJs/RZN7cdmMvU2Q2BVgg==}
++    cpu: [x64]
++    os: [freebsd]
++
++  '@pnpm/exe.linux-arm64-musl@12.10.0':
++    resolution: {integrity: sha512-ChD8bN0lRCRaL+CMOaMUgZQ4WHzEkDXmDHrZgXgdoo6yymQKKzr66Ic7Sl/D7Ky1cVUcFEzHjlq4fGDJwt6Lqg==}
++    cpu: [arm64]
++    os: [linux]
++    libc: [musl]
++
++  '@pnpm/exe.linux-arm64@12.10.0':
++    resolution: {integrity: sha512-egl5RUSQFh7kETBdmMhaTuaQKP1pjH6Cxq370zgpFFKJXF+GGkIzK+jLNazrjX9pKIWF3iqn7kUeyP6yKxzBoA==}
++    cpu: [arm64]
++    os: [linux]
++    libc: [glibc]
++
++  '@pnpm/exe.linux-ppc64@12.10.0':
++    resolution: {integrity: sha512-YJ6bEZ+stPpv71CGfGQQeyIpMx/zSMEcAXQzG+rjBtzVfyNsxYciRevhJ+PE9b2qKqN78Mh/1tOMmx9ly4VXGw==}
++    cpu: [ppc64]
++    os: [linux]
++    libc: [glibc]
++
++  '@pnpm/exe.linux-riscv64@12.10.0':
++    resolution: {integrity: sha512-njfd4euctC1zH1nVBbm6+r1c+0y/TtgqN523rk/KMSxqItpV5QAVa9Yz48Rt5DOIKmuLq7xXOhsQodBlbTk3pw==}
++    cpu: [riscv64]
++    os: [linux]
++    libc: [glibc]
++
++  '@pnpm/exe.linux-s390x@12.10.0':
++    resolution: {integrity: sha512-4JI2F8pYGMcsG6ny61OiBSvZeDozc64TbPozbTU2X5uCsaFCsCvcpr/WwyypwCv+/mNjcIhaKhlxpwJYsnteIg==}
++    cpu: [s390x]
++    os: [linux]
++    libc: [glibc]
++
++  '@pnpm/exe.linux-x64-musl@12.10.0':
++    resolution: {integrity: sha512-xayd2iG8ugdvjlGeOvsfm+iSe0bFu9RTX3/8HWOLAQmHdbLKi4hPbxP0S4c9tj8pNej/IxVBQLJksRXFlhNjPw==}
++    cpu: [x64]
++    os: [linux]
++    libc: [musl]
++
++  '@pnpm/exe.linux-x64@12.10.0':
++    resolution: {integrity: sha512-PFkzWEghFLKuocxMHtn57mlJ59f5aBbqjX6FCUtiunEHqxTxOibSduQPs3Llm6VWbAXBjD3VrX29Z+bjU1Dpyw==}
++    cpu: [x64]
++    os: [linux]
++    libc: [glibc]
++
++  '@pnpm/exe.win32-arm64@12.10.0':
++    resolution: {integrity: sha512-0HtTS+TLONWd/dNSczyOkK0UeZ36cbdhC/2ljZ61DPhvc4jTb7ur0yU47On0in7Im3yXwzTY4vtF8ykrDwc+NQ==}
++    cpu: [arm64]
++    os: [win32]
++
++  '@pnpm/exe.win32-x64@12.10.0':
++    resolution: {integrity: sha512-IcW3rehTGzJ7YnmHEWnbnJakjbBmnH0r29qiajK9+6b9psMF9IjocFr0dyitRVSfXxyW/FI5PIK3mOswGoyFTg==}
++    cpu: [x64]
++    os: [win32]
++
++  pnpm@12.10.0:
++    resolution: {integrity: sha512-Eip7bd+dQCaLwNsal4CJm5Xk+out/Ke9RQYVrYz3wmWfX1acIO18U4hrx7CNDVClT0rVBwaEf1aC7GxQSEFlOQ==}
++    engines: {node: '>=18.*'}
++    hasBin: true
++
++snapshots:
++
++  '@pnpm/exe.android-arm64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.android-x64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.darwin-arm64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.darwin-x64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.freebsd-x64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.linux-arm64-musl@12.10.0':
++    optional: true
++
++  '@pnpm/exe.linux-arm64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.linux-ppc64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.linux-riscv64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.linux-s390x@12.10.0':
++    optional: true
++
++  '@pnpm/exe.linux-x64-musl@12.10.0':
++    optional: true
++
++  '@pnpm/exe.linux-x64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.win32-arm64@12.10.0':
++    optional: true
++
++  '@pnpm/exe.win32-x64@12.10.0':
++    optional: true
++
++  pnpm@12.10.0:
++    optionalDependencies:
++      '@pnpm/exe.android-arm64': 12.10.0
++      '@pnpm/exe.android-x64': 12.10.0
++      '@pnpm/exe.darwin-arm64': 12.10.0
++      '@pnpm/exe.darwin-x64': 12.10.0
++      '@pnpm/exe.freebsd-x64': 12.10.0
++      '@pnpm/exe.linux-arm64': 12.10.0
++      '@pnpm/exe.linux-arm64-musl': 12.10.0
++      '@pnpm/exe.linux-ppc64': 12.10.0
++      '@pnpm/exe.linux-riscv64': 12.10.0
++      '@pnpm/exe.linux-s390x': 12.10.0
++      '@pnpm/exe.linux-x64': 12.10.0
++      '@pnpm/exe.linux-x64-musl': 12.10.0
++      '@pnpm/exe.win32-arm64': 12.10.0
++      '@pnpm/exe.win32-x64': 12.10.0
++
++---
++lockfileVersion: '9.0'
++
++settings:
++  autoInstallPeers: true
++  excludeLinksFromLockfile: false
++
++importers:
++
++  .:
++    dependencies:
++      '@prisma/adapter-pg':
++        specifier: 7.0.0
++        version: 7.0.0
++      '@prisma/client':
++        specifier: 7.0.0
++        version: 7.0.0(prisma@7.0.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)
++      better-auth:
++        specifier: 1.4.5
++        version: 1.4.5(next@16.0.0(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
++      bootstrap:
++        specifier: 5.3.8
++        version: 5.3.8(@popperjs/core@2.11.8)
++      next:
++        specifier: 16.0.0
++        version: 16.0.0(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
++      pg:
++        specifier: 8.16.3
++        version: 8.16.3
++      react:
++        specifier: 19.2.0
++        version: 19.2.0
++      react-dom:
++        specifier: 19.2.0
++        version: 19.2.0(react@19.2.0)
++    devDependencies:
++      '@types/node':
++        specifier: 24.9.1
++        version: 24.9.1
++      '@types/pg':
++        specifier: 8.15.5
++        version: 8.15.5
++      '@types/react':
++        specifier: 19.2.2
++        version: 19.2.2
++      '@types/react-dom':
++        specifier: 19.2.2
++        version: 19.2.2(@types/react@19.2.2)
++      eslint:
++        specifier: 9.39.1
++        version: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      eslint-config-next:
++        specifier: 16.0.0
++        version: 16.0.0(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      prisma:
++        specifier: 7.0.0
++        version: 7.0.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
++      tsx:
++        specifier: 4.20.6
++        version: 4.20.6
++      typescript:
++        specifier: 5.9.3
++        version: 5.9.3
++
++packages:
++
++  '@babel/code-frame@7.29.7':
++    resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/compat-data@7.29.7':
++    resolution: {integrity: sha512-locTkQyKvwIEgBzVrn8693ebc97F2U8ZHjbXwDXJ5Fn2TCpNwTlKcaKLkdHop5c/icOFE7qt7Q9JC5hnKNa6Gg==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/core@7.29.7':
++    resolution: {integrity: sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/generator@7.29.8':
++    resolution: {integrity: sha512-gZbepsdh3WDtgZKWL+vTPh71LSBrm/Y4/QDZBVCcYfmeTEEuoOYwlSy+G1StfJg+/Zy550u/3TATbm7qDbbMtg==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/helper-compilation-targets@7.29.7':
++    resolution: {integrity: sha512-wem6WaBj4NaVYVdNhLPPVacES6ZJ+KBBfSkTMD3YZxbP3rm3Di85tJU5ljaUNhaOynt+Aj0xruhYuzQBt8n71g==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/helper-globals@7.29.7':
++    resolution: {integrity: sha512-3nQVUAtvkKH9zahfWgw96Jc/uFOmjACE1kQz82E2lqWmHBgjzbNlsC22nuQTfahmWeQtTq5nQ/4Nnd2A1wj4zA==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/helper-module-imports@7.29.7':
++    resolution: {integrity: sha512-ejHwrQQYcm9xnTivShn2IDOlIzInN34AXskvq9QicvCtEzq1Vzclu/tKF8Jq1Cg8JG2GL6/EmjgsCT7lXepE3g==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/helper-module-transforms@7.29.7':
++    resolution: {integrity: sha512-UPUVSyXbOh627KiCIGQSgwWzGeBKLkaJ9PJEdrngIwMSzxLR4jS4+f1f1jb7VzBbg8nFLaYotvVPFCTqdrmTAg==}
++    engines: {node: '>=6.9.0'}
++    peerDependencies:
++      '@babel/core': ^7.0.0
++
++  '@babel/helper-string-parser@7.29.7':
++    resolution: {integrity: sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/helper-validator-identifier@7.29.7':
++    resolution: {integrity: sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/helper-validator-option@7.29.7':
++    resolution: {integrity: sha512-N9ZErrD+yW5geCDtBqnOoxmR8+tNKiGuxKlDpuJxfsqpa2dFcexaziGAE/qoHLiDDreVNMupxGmSoNlyvsA3gw==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/helpers@7.29.10':
++    resolution: {integrity: sha512-EMCx3AGZ3WfAl6ht7AyQoPm2Lh+BGYEMdc4Q6Hf7uSCDOZFuLq44qNwL+iaim8VlyYhRAo4X43+weadK8ZB4Yg==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/parser@7.29.9':
++    resolution: {integrity: sha512-CjXrNHTnvqBVqHgdBysY3vk2T8tpJHb5/RMeHJBTyVa9xgugCB0CJTx/3oO8RV2QRQP391RWpB7D6hLjm8V9uA==}
++    engines: {node: '>=6.0.0'}
++    hasBin: true
++
++  '@babel/template@7.29.7':
++    resolution: {integrity: sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/traverse@7.29.10':
++    resolution: {integrity: sha512-B3lYAs2nkKskbgQ1nfy8Ma9ao9Q1rntTAQHrzzyDuj+TSO+X3le6PfWwqDvodsb+OumE10eMFfuMCTQSQ5iuIQ==}
++    engines: {node: '>=6.9.0'}
++
++  '@babel/types@7.29.8':
++    resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
++    engines: {node: '>=6.9.0'}
++
++  '@better-auth/core@1.4.5':
++    resolution: {integrity: sha512-dQ3hZOkUJzeBXfVEPTm2LVbzmWwka1nqd9KyWmB2OMlMfjr7IdUeBX4T7qJctF67d7QDhlX95jMoxu6JG0Eucw==}
++    peerDependencies:
++      '@better-auth/utils': 0.3.0
++      '@better-fetch/fetch': 1.1.18
++      better-call: 1.1.4
++      jose: ^6.1.0
++      kysely: ^0.28.5
++      nanostores: ^1.0.1
++
++  '@better-auth/telemetry@1.4.5':
++    resolution: {integrity: sha512-r3NyksbaBYA10SC86JA6QwmZfHwFutkUGcphgWGfu6MVx1zutYmZehIeC8LxTjOWZqqF9FI8vLjglWBHvPQeTg==}
++    peerDependencies:
++      '@better-auth/core': 1.4.5
++
++  '@better-auth/utils@0.3.0':
++    resolution: {integrity: sha512-W+Adw6ZA6mgvnSnhOki270rwJ42t4XzSK6YWGF//BbVXL6SwCLWfyzBc1lN2m/4RM28KubdBKQ4X5VMoLRNPQw==}
++
++  '@better-fetch/fetch@1.1.18':
++    resolution: {integrity: sha512-rEFOE1MYIsBmoMJtQbl32PGHHXuG2hDxvEd7rUHE0vCBoFQVSDqaVs9hkZEtHCxRoY+CljXKFCOuJ8uxqw1LcA==}
++
++  '@chevrotain/cst-dts-gen@10.5.0':
++    resolution: {integrity: sha512-lhmC/FyqQ2o7pGK4Om+hzuDrm9rhFYIJ/AXoQBeongmn870Xeb0L6oGEiuR8nohFNL5sMaQEJWCxr1oIVIVXrw==}
++
++  '@chevrotain/gast@10.5.0':
++    resolution: {integrity: sha512-pXdMJ9XeDAbgOWKuD1Fldz4ieCs6+nLNmyVhe2gZVqoO7v8HXuHYs5OV2EzUtbuai37TlOAQHrTDvxMnvMJz3A==}
++
++  '@chevrotain/types@10.5.0':
++    resolution: {integrity: sha512-f1MAia0x/pAVPWH/T73BJVyO2XU5tI4/iE7cnxb7tqdNTNhQI3Uq3XkqcoteTmD4t1aM0LbHCJOhgIDn07kl2A==}
++
++  '@chevrotain/utils@10.5.0':
++    resolution: {integrity: sha512-hBzuU5+JjB2cqNZyszkDHZgOSrUUT8V3dhgRl8Q9Gp6dAj/H5+KILGjbhDpc3Iy9qmqlm/akuOI2ut9VUtzJxQ==}
++
++  '@electric-sql/pglite-socket@0.0.6':
++    resolution: {integrity: sha512-6RjmgzphIHIBA4NrMGJsjNWK4pu+bCWJlEWlwcxFTVY3WT86dFpKwbZaGWZV6C5Rd7sCk1Z0CI76QEfukLAUXw==}
++    hasBin: true
++    peerDependencies:
++      '@electric-sql/pglite': 0.3.2
++
++  '@electric-sql/pglite-tools@0.2.7':
++    resolution: {integrity: sha512-9dAccClqxx4cZB+Ar9B+FZ5WgxDc/Xvl9DPrTWv+dYTf0YNubLzi4wHHRGRGhrJv15XwnyKcGOZAP1VXSneSUg==}
++    peerDependencies:
++      '@electric-sql/pglite': 0.3.2
++
++  '@electric-sql/pglite@0.3.2':
++    resolution: {integrity: sha512-zfWWa+V2ViDCY/cmUfRqeWY1yLto+EpxjXnZzenB1TyxsTiXaTWeZFIZw6mac52BsuQm0RjCnisjBtdBaXOI6w==}
++
++  '@emnapi/core@1.10.0':
++    resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
++
++  '@emnapi/runtime@1.10.0':
++    resolution: {integrity: sha512-ewvYlk86xUoGI0zQRNq/mC+16R1QeDlKQy21Ki3oSYXNgLb45GV1P6A0M+/s6nyCuNDqe5VpaY84BzXGwVbwFA==}
++
++  '@emnapi/runtime@1.11.3':
++    resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
++
++  '@emnapi/wasi-threads@1.2.1':
++    resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
++
++  '@esbuild/aix-ppc64@0.25.12':
++    resolution: {integrity: sha512-Hhmwd6CInZ3dwpuGTF8fJG6yoWmsToE+vYgD4nytZVxcu1ulHpUQRAB1UJ8+N1Am3Mz4+xOByoQoSZf4D+CpkA==}
++    engines: {node: '>=18'}
++    cpu: [ppc64]
++    os: [aix]
++
++  '@esbuild/android-arm64@0.25.12':
++    resolution: {integrity: sha512-6AAmLG7zwD1Z159jCKPvAxZd4y/VTO0VkprYy+3N2FtJ8+BQWFXU+OxARIwA46c5tdD9SsKGZ/1ocqBS/gAKHg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [android]
++
++  '@esbuild/android-arm@0.25.12':
++    resolution: {integrity: sha512-VJ+sKvNA/GE7Ccacc9Cha7bpS8nyzVv0jdVgwNDaR4gDMC/2TTRc33Ip8qrNYUcpkOHUT5OZ0bUcNNVZQ9RLlg==}
++    engines: {node: '>=18'}
++    cpu: [arm]
++    os: [android]
++
++  '@esbuild/android-x64@0.25.12':
++    resolution: {integrity: sha512-5jbb+2hhDHx5phYR2By8GTWEzn6I9UqR11Kwf22iKbNpYrsmRB18aX/9ivc5cabcUiAT/wM+YIZ6SG9QO6a8kg==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [android]
++
++  '@esbuild/darwin-arm64@0.25.12':
++    resolution: {integrity: sha512-N3zl+lxHCifgIlcMUP5016ESkeQjLj/959RxxNYIthIg+CQHInujFuXeWbWMgnTo4cp5XVHqFPmpyu9J65C1Yg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [darwin]
++
++  '@esbuild/darwin-x64@0.25.12':
++    resolution: {integrity: sha512-HQ9ka4Kx21qHXwtlTUVbKJOAnmG1ipXhdWTmNXiPzPfWKpXqASVcWdnf2bnL73wgjNrFXAa3yYvBSd9pzfEIpA==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [darwin]
++
++  '@esbuild/freebsd-arm64@0.25.12':
++    resolution: {integrity: sha512-gA0Bx759+7Jve03K1S0vkOu5Lg/85dou3EseOGUes8flVOGxbhDDh/iZaoek11Y8mtyKPGF3vP8XhnkDEAmzeg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [freebsd]
++
++  '@esbuild/freebsd-x64@0.25.12':
++    resolution: {integrity: sha512-TGbO26Yw2xsHzxtbVFGEXBFH0FRAP7gtcPE7P5yP7wGy7cXK2oO7RyOhL5NLiqTlBh47XhmIUXuGciXEqYFfBQ==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [freebsd]
++
++  '@esbuild/linux-arm64@0.25.12':
++    resolution: {integrity: sha512-8bwX7a8FghIgrupcxb4aUmYDLp8pX06rGh5HqDT7bB+8Rdells6mHvrFHHW2JAOPZUbnjUpKTLg6ECyzvas2AQ==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [linux]
++
++  '@esbuild/linux-arm@0.25.12':
++    resolution: {integrity: sha512-lPDGyC1JPDou8kGcywY0YILzWlhhnRjdof3UlcoqYmS9El818LLfJJc3PXXgZHrHCAKs/Z2SeZtDJr5MrkxtOw==}
++    engines: {node: '>=18'}
++    cpu: [arm]
++    os: [linux]
++
++  '@esbuild/linux-ia32@0.25.12':
++    resolution: {integrity: sha512-0y9KrdVnbMM2/vG8KfU0byhUN+EFCny9+8g202gYqSSVMonbsCfLjUO+rCci7pM0WBEtz+oK/PIwHkzxkyharA==}
++    engines: {node: '>=18'}
++    cpu: [ia32]
++    os: [linux]
++
++  '@esbuild/linux-loong64@0.25.12':
++    resolution: {integrity: sha512-h///Lr5a9rib/v1GGqXVGzjL4TMvVTv+s1DPoxQdz7l/AYv6LDSxdIwzxkrPW438oUXiDtwM10o9PmwS/6Z0Ng==}
++    engines: {node: '>=18'}
++    cpu: [loong64]
++    os: [linux]
++
++  '@esbuild/linux-mips64el@0.25.12':
++    resolution: {integrity: sha512-iyRrM1Pzy9GFMDLsXn1iHUm18nhKnNMWscjmp4+hpafcZjrr2WbT//d20xaGljXDBYHqRcl8HnxbX6uaA/eGVw==}
++    engines: {node: '>=18'}
++    cpu: [mips64el]
++    os: [linux]
++
++  '@esbuild/linux-ppc64@0.25.12':
++    resolution: {integrity: sha512-9meM/lRXxMi5PSUqEXRCtVjEZBGwB7P/D4yT8UG/mwIdze2aV4Vo6U5gD3+RsoHXKkHCfSxZKzmDssVlRj1QQA==}
++    engines: {node: '>=18'}
++    cpu: [ppc64]
++    os: [linux]
++
++  '@esbuild/linux-riscv64@0.25.12':
++    resolution: {integrity: sha512-Zr7KR4hgKUpWAwb1f3o5ygT04MzqVrGEGXGLnj15YQDJErYu/BGg+wmFlIDOdJp0PmB0lLvxFIOXZgFRrdjR0w==}
++    engines: {node: '>=18'}
++    cpu: [riscv64]
++    os: [linux]
++
++  '@esbuild/linux-s390x@0.25.12':
++    resolution: {integrity: sha512-MsKncOcgTNvdtiISc/jZs/Zf8d0cl/t3gYWX8J9ubBnVOwlk65UIEEvgBORTiljloIWnBzLs4qhzPkJcitIzIg==}
++    engines: {node: '>=18'}
++    cpu: [s390x]
++    os: [linux]
++
++  '@esbuild/linux-x64@0.25.12':
++    resolution: {integrity: sha512-uqZMTLr/zR/ed4jIGnwSLkaHmPjOjJvnm6TVVitAa08SLS9Z0VM8wIRx7gWbJB5/J54YuIMInDquWyYvQLZkgw==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [linux]
++
++  '@esbuild/netbsd-arm64@0.25.12':
++    resolution: {integrity: sha512-xXwcTq4GhRM7J9A8Gv5boanHhRa/Q9KLVmcyXHCTaM4wKfIpWkdXiMog/KsnxzJ0A1+nD+zoecuzqPmCRyBGjg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [netbsd]
++
++  '@esbuild/netbsd-x64@0.25.12':
++    resolution: {integrity: sha512-Ld5pTlzPy3YwGec4OuHh1aCVCRvOXdH8DgRjfDy/oumVovmuSzWfnSJg+VtakB9Cm0gxNO9BzWkj6mtO1FMXkQ==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [netbsd]
++
++  '@esbuild/openbsd-arm64@0.25.12':
++    resolution: {integrity: sha512-fF96T6KsBo/pkQI950FARU9apGNTSlZGsv1jZBAlcLL1MLjLNIWPBkj5NlSz8aAzYKg+eNqknrUJ24QBybeR5A==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [openbsd]
++
++  '@esbuild/openbsd-x64@0.25.12':
++    resolution: {integrity: sha512-MZyXUkZHjQxUvzK7rN8DJ3SRmrVrke8ZyRusHlP+kuwqTcfWLyqMOE3sScPPyeIXN/mDJIfGXvcMqCgYKekoQw==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [openbsd]
++
++  '@esbuild/openharmony-arm64@0.25.12':
++    resolution: {integrity: sha512-rm0YWsqUSRrjncSXGA7Zv78Nbnw4XL6/dzr20cyrQf7ZmRcsovpcRBdhD43Nuk3y7XIoW2OxMVvwuRvk9XdASg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [openharmony]
++
++  '@esbuild/sunos-x64@0.25.12':
++    resolution: {integrity: sha512-3wGSCDyuTHQUzt0nV7bocDy72r2lI33QL3gkDNGkod22EsYl04sMf0qLb8luNKTOmgF/eDEDP5BFNwoBKH441w==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [sunos]
++
++  '@esbuild/win32-arm64@0.25.12':
++    resolution: {integrity: sha512-rMmLrur64A7+DKlnSuwqUdRKyd3UE7oPJZmnljqEptesKM8wx9J8gx5u0+9Pq0fQQW8vqeKebwNXdfOyP+8Bsg==}
++    engines: {node: '>=18'}
++    cpu: [arm64]
++    os: [win32]
++
++  '@esbuild/win32-ia32@0.25.12':
++    resolution: {integrity: sha512-HkqnmmBoCbCwxUKKNPBixiWDGCpQGVsrQfJoVGYLPT41XWF8lHuE5N6WhVia2n4o5QK5M4tYr21827fNhi4byQ==}
++    engines: {node: '>=18'}
++    cpu: [ia32]
++    os: [win32]
++
++  '@esbuild/win32-x64@0.25.12':
++    resolution: {integrity: sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA==}
++    engines: {node: '>=18'}
++    cpu: [x64]
++    os: [win32]
++
++  '@eslint-community/eslint-utils@4.10.1':
++    resolution: {integrity: sha512-cuadcxVFE8sDK6iWJbs8Sn0av2Nrh2QSGQhVlBW9AaAHqHwjWsZHT8LJ4hFGPh7ASBV2deFdM7H/DPjulmh8rg==}
++    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
++    peerDependencies:
++      eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
++
++  '@eslint-community/regexpp@4.12.2':
++    resolution: {integrity: sha512-EriSTlt5OC9/7SXkRSCAhfSxxoSUgBm33OH+IkwbdpgoqsSsUg7y3uh+IICI/Qg4BBWr3U2i39RpmycbxMq4ew==}
++    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
++
++  '@eslint/config-array@0.21.2':
++    resolution: {integrity: sha512-nJl2KGTlrf9GjLimgIru+V/mzgSK0ABCDQRvxw5BjURL7WfH5uoWmizbH7QB6MmnMBd8cIC9uceWnezL1VZWWw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@eslint/config-helpers@0.4.2':
++    resolution: {integrity: sha512-gBrxN88gOIf3R7ja5K9slwNayVcZgK6SOUORm2uBzTeIEfeVaIhOpCtTox3P6R7o2jLFwLFTLnC7kU/RGcYEgw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@eslint/core@0.17.0':
++    resolution: {integrity: sha512-yL/sLrpmtDaFEiUj1osRP4TI2MDz1AddJL+jZ7KSqvBuliN4xqYY54IfdN8qD8Toa6g1iloph1fxQNkjOxrrpQ==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@eslint/eslintrc@3.3.7':
++    resolution: {integrity: sha512-F42g89Qd5oAWtp0k0nnSrjziAKza7w8SVT4mStc18LZMaRb4J1HQAHLCalEtDCxrTuksx7NU9qsmeLwpOfPqWw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@eslint/js@9.39.1':
++    resolution: {integrity: sha512-S26Stp4zCy88tH94QbBv3XCuzRQiZ9yXofEILmglYTh/Ug/a9/umqvgFtYBAo3Lp0nsI/5/qH1CCrbdK3AP1Tw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@eslint/object-schema@2.1.7':
++    resolution: {integrity: sha512-VtAOaymWVfZcmZbp6E2mympDIHvyjXs/12LqWYjVw6qjrfF+VK+fyG33kChz3nnK+SU5/NeHOqrTEHS8sXO3OA==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@eslint/plugin-kit@0.4.1':
++    resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@hono/node-server@1.14.2':
++    resolution: {integrity: sha512-GHjpOeHYbr9d1vkID2sNUYkl5IxumyhDrUJB7wBp7jvqYwPFt+oNKsAPBRcdSbV7kIrXhouLE199ks1QcK4r7A==}
++    engines: {node: '>=18.14.1'}
++    peerDependencies:
++      hono: ^4
++
++  '@humanfs/core@0.19.2':
++    resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
++    engines: {node: '>=18.18.0'}
++
++  '@humanfs/node@0.16.8':
++    resolution: {integrity: sha512-gE1eQNZ3R++kTzFUpdGlpmy8kDZD/MLyHqDwqjkVQI0JMdI1D51sy1H958PNXYkM2rAac7e5/CnIKZrHtPh3BQ==}
++    engines: {node: '>=18.18.0'}
++
++  '@humanfs/types@0.15.0':
++    resolution: {integrity: sha512-ZZ1w0aoQkwuUuC7Yf+7sdeaNfqQiiLcSRbfI08oAxqLtpXQr9AIVX7Ay7HLDuiLYAaFPu8oBYNq/QIi9URHJ3Q==}
++    engines: {node: '>=18.18.0'}
++
++  '@humanwhocodes/module-importer@1.0.1':
++    resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
++    engines: {node: '>=12.22'}
++
++  '@humanwhocodes/retry@0.4.3':
++    resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
++    engines: {node: '>=18.18'}
++
++  '@img/colour@1.1.0':
++    resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
++    engines: {node: '>=18'}
++
++  '@img/sharp-darwin-arm64@0.34.5':
++    resolution: {integrity: sha512-imtQ3WMJXbMY4fxb/Ndp6HBTNVtWCUI0WdobyheGf5+ad6xX8VIDO8u2xE4qc/fr08CKG/7dDseFtn6M6g/r3w==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [arm64]
++    os: [darwin]
++
++  '@img/sharp-darwin-x64@0.34.5':
++    resolution: {integrity: sha512-YNEFAF/4KQ/PeW0N+r+aVVsoIY0/qxxikF2SWdp+NRkmMB7y9LBZAVqQ4yhGCm/H3H270OSykqmQMKLBhBJDEw==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [x64]
++    os: [darwin]
++
++  '@img/sharp-libvips-darwin-arm64@1.2.4':
++    resolution: {integrity: sha512-zqjjo7RatFfFoP0MkQ51jfuFZBnVE2pRiaydKJ1G/rHZvnsrHAOcQALIi9sA5co5xenQdTugCvtb1cuf78Vf4g==}
++    cpu: [arm64]
++    os: [darwin]
++
++  '@img/sharp-libvips-darwin-x64@1.2.4':
++    resolution: {integrity: sha512-1IOd5xfVhlGwX+zXv2N93k0yMONvUlANylbJw1eTah8K/Jtpi15KC+WSiaX/nBmbm2HxRM1gZ0nSdjSsrZbGKg==}
++    cpu: [x64]
++    os: [darwin]
++
++  '@img/sharp-libvips-linux-arm64@1.2.4':
++    resolution: {integrity: sha512-excjX8DfsIcJ10x1Kzr4RcWe1edC9PquDRRPx3YVCvQv+U5p7Yin2s32ftzikXojb1PIFc/9Mt28/y+iRklkrw==}
++    cpu: [arm64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-libvips-linux-arm@1.2.4':
++    resolution: {integrity: sha512-bFI7xcKFELdiNCVov8e44Ia4u2byA+l3XtsAj+Q8tfCwO6BQ8iDojYdvoPMqsKDkuoOo+X6HZA0s0q11ANMQ8A==}
++    cpu: [arm]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-libvips-linux-ppc64@1.2.4':
++    resolution: {integrity: sha512-FMuvGijLDYG6lW+b/UvyilUWu5Ayu+3r2d1S8notiGCIyYU/76eig1UfMmkZ7vwgOrzKzlQbFSuQfgm7GYUPpA==}
++    cpu: [ppc64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-libvips-linux-riscv64@1.2.4':
++    resolution: {integrity: sha512-oVDbcR4zUC0ce82teubSm+x6ETixtKZBh/qbREIOcI3cULzDyb18Sr/Wcyx7NRQeQzOiHTNbZFF1UwPS2scyGA==}
++    cpu: [riscv64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-libvips-linux-s390x@1.2.4':
++    resolution: {integrity: sha512-qmp9VrzgPgMoGZyPvrQHqk02uyjA0/QrTO26Tqk6l4ZV0MPWIW6LTkqOIov+J1yEu7MbFQaDpwdwJKhbJvuRxQ==}
++    cpu: [s390x]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-libvips-linux-x64@1.2.4':
++    resolution: {integrity: sha512-tJxiiLsmHc9Ax1bz3oaOYBURTXGIRDODBqhveVHonrHJ9/+k89qbLl0bcJns+e4t4rvaNBxaEZsFtSfAdquPrw==}
++    cpu: [x64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-libvips-linuxmusl-arm64@1.2.4':
++    resolution: {integrity: sha512-FVQHuwx1IIuNow9QAbYUzJ+En8KcVm9Lk5+uGUQJHaZmMECZmOlix9HnH7n1TRkXMS0pGxIJokIVB9SuqZGGXw==}
++    cpu: [arm64]
++    os: [linux]
++    libc: [musl]
++
++  '@img/sharp-libvips-linuxmusl-x64@1.2.4':
++    resolution: {integrity: sha512-+LpyBk7L44ZIXwz/VYfglaX/okxezESc6UxDSoyo2Ks6Jxc4Y7sGjpgU9s4PMgqgjj1gZCylTieNamqA1MF7Dg==}
++    cpu: [x64]
++    os: [linux]
++    libc: [musl]
++
++  '@img/sharp-linux-arm64@0.34.5':
++    resolution: {integrity: sha512-bKQzaJRY/bkPOXyKx5EVup7qkaojECG6NLYswgktOZjaXecSAeCWiZwwiFf3/Y+O1HrauiE3FVsGxFg8c24rZg==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [arm64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-linux-arm@0.34.5':
++    resolution: {integrity: sha512-9dLqsvwtg1uuXBGZKsxem9595+ujv0sJ6Vi8wcTANSFpwV/GONat5eCkzQo/1O6zRIkh0m/8+5BjrRr7jDUSZw==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [arm]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-linux-ppc64@0.34.5':
++    resolution: {integrity: sha512-7zznwNaqW6YtsfrGGDA6BRkISKAAE1Jo0QdpNYXNMHu2+0dTrPflTLNkpc8l7MUP5M16ZJcUvysVWWrMefZquA==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [ppc64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-linux-riscv64@0.34.5':
++    resolution: {integrity: sha512-51gJuLPTKa7piYPaVs8GmByo7/U7/7TZOq+cnXJIHZKavIRHAP77e3N2HEl3dgiqdD/w0yUfiJnII77PuDDFdw==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [riscv64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-linux-s390x@0.34.5':
++    resolution: {integrity: sha512-nQtCk0PdKfho3eC5MrbQoigJ2gd1CgddUMkabUj+rBevs8tZ2cULOx46E7oyX+04WGfABgIwmMC0VqieTiR4jg==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [s390x]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-linux-x64@0.34.5':
++    resolution: {integrity: sha512-MEzd8HPKxVxVenwAa+JRPwEC7QFjoPWuS5NZnBt6B3pu7EG2Ge0id1oLHZpPJdn3OQK+BQDiw9zStiHBTJQQQQ==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [x64]
++    os: [linux]
++    libc: [glibc]
++
++  '@img/sharp-linuxmusl-arm64@0.34.5':
++    resolution: {integrity: sha512-fprJR6GtRsMt6Kyfq44IsChVZeGN97gTD331weR1ex1c1rypDEABN6Tm2xa1wE6lYb5DdEnk03NZPqA7Id21yg==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [arm64]
++    os: [linux]
++    libc: [musl]
++
++  '@img/sharp-linuxmusl-x64@0.34.5':
++    resolution: {integrity: sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [x64]
++    os: [linux]
++    libc: [musl]
++
++  '@img/sharp-wasm32@0.34.5':
++    resolution: {integrity: sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [wasm32]
++
++  '@img/sharp-win32-arm64@0.34.5':
++    resolution: {integrity: sha512-WQ3AgWCWYSb2yt+IG8mnC6Jdk9Whs7O0gxphblsLvdhSpSTtmu69ZG1Gkb6NuvxsNACwiPV6cNSZNzt0KPsw7g==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [arm64]
++    os: [win32]
++
++  '@img/sharp-win32-ia32@0.34.5':
++    resolution: {integrity: sha512-FV9m/7NmeCmSHDD5j4+4pNI8Cp3aW+JvLoXcTUo0IqyjSfAZJ8dIUmijx1qaJsIiU+Hosw6xM5KijAWRJCSgNg==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [ia32]
++    os: [win32]
++
++  '@img/sharp-win32-x64@0.34.5':
++    resolution: {integrity: sha512-+29YMsqY2/9eFEiW93eqWnuLcWcufowXewwSNIT6UwZdUUCrM3oFjMWH/Z6/TMmb4hlFenmfAVbpWeup2jryCw==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++    cpu: [x64]
++    os: [win32]
++
++  '@jridgewell/gen-mapping@0.3.13':
++    resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
++
++  '@jridgewell/remapping@2.3.5':
++    resolution: {integrity: sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==}
++
++  '@jridgewell/resolve-uri@3.1.2':
++    resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
++    engines: {node: '>=6.0.0'}
++
++  '@jridgewell/sourcemap-codec@1.6.0':
++    resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
++
++  '@jridgewell/trace-mapping@0.3.31':
++    resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
++
++  '@mrleebo/prisma-ast@0.12.1':
++    resolution: {integrity: sha512-JwqeCQ1U3fvccttHZq7Tk0m/TMC6WcFAQZdukypW3AzlJYKYTGNVd1ANU2GuhKnv4UQuOFj3oAl0LLG/gxFN1w==}
++    engines: {node: '>=16'}
++
++  '@napi-rs/wasm-runtime@1.2.5':
++    resolution: {integrity: sha512-HshSvXzmBxNzqejd3k/KemgQ3hdREUYFRRrgxOZ+gPljDIsO2SDZrVZMd4Z/HsxudQbE62OVyVFE8z9BCurfjA==}
++    engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
++    peerDependencies:
++      '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.4
++      '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.4
++
++  '@next/env@16.0.0':
++    resolution: {integrity: sha512-s5j2iFGp38QsG1LWRQaE2iUY3h1jc014/melHFfLdrsMJPqxqDQwWNwyQTcNoUSGZlCVZuM7t7JDMmSyRilsnA==}
++
++  '@next/eslint-plugin-next@16.0.0':
++    resolution: {integrity: sha512-IB7RzmmtrPOrpAgEBR1PIQPD0yea5lggh5cq54m51jHjjljU80Ia+czfxJYMlSDl1DPvpzb8S9TalCc0VMo9Hw==}
++
++  '@next/swc-darwin-arm64@16.0.0':
++    resolution: {integrity: sha512-/CntqDCnk5w2qIwMiF0a9r6+9qunZzFmU0cBX4T82LOflE72zzH6gnOjCwUXYKOBlQi8OpP/rMj8cBIr18x4TA==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [darwin]
++
++  '@next/swc-darwin-x64@16.0.0':
++    resolution: {integrity: sha512-hB4GZnJGKa8m4efvTGNyii6qs76vTNl+3dKHTCAUaksN6KjYy4iEO3Q5ira405NW2PKb3EcqWiRaL9DrYJfMHg==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [darwin]
++
++  '@next/swc-linux-arm64-gnu@16.0.0':
++    resolution: {integrity: sha512-E2IHMdE+C1k+nUgndM13/BY/iJY9KGCphCftMh7SXWcaQqExq/pJU/1Hgn8n/tFwSoLoYC/yUghOv97tAsIxqg==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [linux]
++    libc: [glibc]
++
++  '@next/swc-linux-arm64-musl@16.0.0':
++    resolution: {integrity: sha512-xzgl7c7BVk4+7PDWldU+On2nlwnGgFqJ1siWp3/8S0KBBLCjonB6zwJYPtl4MUY7YZJrzzumdUpUoquu5zk8vg==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [linux]
++    libc: [musl]
++
++  '@next/swc-linux-x64-gnu@16.0.0':
++    resolution: {integrity: sha512-sdyOg4cbiCw7YUr0F/7ya42oiVBXLD21EYkSwN+PhE4csJH4MSXUsYyslliiiBwkM+KsuQH/y9wuxVz6s7Nstg==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [linux]
++    libc: [glibc]
++
++  '@next/swc-linux-x64-musl@16.0.0':
++    resolution: {integrity: sha512-IAXv3OBYqVaNOgyd3kxR4L3msuhmSy1bcchPHxDOjypG33i2yDWvGBwFD94OuuTjjTt/7cuIKtAmoOOml6kfbg==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [linux]
++    libc: [musl]
++
++  '@next/swc-win32-arm64-msvc@16.0.0':
++    resolution: {integrity: sha512-bmo3ncIJKUS9PWK1JD9pEVv0yuvp1KPuOsyJTHXTv8KDrEmgV/K+U0C75rl9rhIaODcS7JEb6/7eJhdwXI0XmA==}
++    engines: {node: '>= 10'}
++    cpu: [arm64]
++    os: [win32]
++
++  '@next/swc-win32-x64-msvc@16.0.0':
++    resolution: {integrity: sha512-O1cJbT+lZp+cTjYyZGiDwsOjO3UHHzSqobkPNipdlnnuPb1swfcuY6r3p8dsKU4hAIEO4cO67ZCfVVH/M1ETXA==}
++    engines: {node: '>= 10'}
++    cpu: [x64]
++    os: [win32]
++
++  '@noble/ciphers@2.4.0':
++    resolution: {integrity: sha512-AnjFn0Jv92laAkvMrghlFZq4qQCIN/4DxFV/eooqtC2YTjB7kBeLMS2T9KJX4Dn+ZVXLOwK0lSgqDtx9gvxtiw==}
++    engines: {node: '>= 20.19.0'}
++
++  '@noble/hashes@2.4.0':
++    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
++    engines: {node: '>= 20.19.0'}
++
++  '@nodelib/fs.scandir@2.1.5':
++    resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
++    engines: {node: '>= 8'}
++
++  '@nodelib/fs.stat@2.0.5':
++    resolution: {integrity: sha512-RkhPPp2zrqDAQA/2jNhnztcPAlv64XdhIp7a7454A5ovI7Bukxgt7MX7udwAu3zg1DcpPU0rz3VV1SeaqvY4+A==}
++    engines: {node: '>= 8'}
++
++  '@nodelib/fs.walk@1.2.8':
++    resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
++    engines: {node: '>= 8'}
++
++  '@nolyfill/is-core-module@1.0.39':
++    resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
++    engines: {node: '>=12.4.0'}
++
++  '@popperjs/core@2.11.8':
++    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
++
++  '@prisma/adapter-pg@7.0.0':
++    resolution: {integrity: sha512-cis1Ib+TVbtSi2VU5Zm1fSmAcA8jg7KwUTbJ6LcWIm1eww380utXM8G23F3UCEPOJO4HiKt6adP/Q1hukjAkgw==}
++
++  '@prisma/client-runtime-utils@7.0.0':
++    resolution: {integrity: sha512-PAiFgMBPrLSaakBwUpML5NevipuKSL3rtNr8pZ8CZ3OBXo0BFcdeGcBIKw/CxJP6H4GNa4+l5bzJPrk8Iq6tDw==}
++
++  '@prisma/client@7.0.0':
++    resolution: {integrity: sha512-FM1NtJezl0zH3CybLxcbJwShJt7xFGSRg+1tGhy3sCB8goUDnxnBR+RC/P35EAW8gjkzx7kgz7bvb0MerY2VSw==}
++    engines: {node: ^20.19 || ^22.12 || ^24.0}
++    peerDependencies:
++      prisma: '*'
++      typescript: '>=5.4.0'
++    peerDependenciesMeta:
++      prisma:
++        optional: true
++      typescript:
++        optional: true
++
++  '@prisma/config@7.0.0':
++    resolution: {integrity: sha512-TDASB57hyGUwHB0IPCSkoJcXFrJOKA1+R/1o4np4PbS+E0F5MiY5aAyUttO0mSuNQaX7t8VH/GkDemffF1mQzg==}
++
++  '@prisma/debug@6.8.2':
++    resolution: {integrity: sha512-4muBSSUwJJ9BYth5N8tqts8JtiLT8QI/RSAzEogwEfpbYGFo9mYsInsVo8dqXdPO2+Rm5OG5q0qWDDE3nyUbVg==}
++
++  '@prisma/debug@7.0.0':
++    resolution: {integrity: sha512-SdS3qzfMASHtWimywtkiRcJtrHzacbmMVhElko3DYUZSB0TTLqRYWpddRBJdeGgSLmy1FD55p7uGzIJ+MtfhMg==}
++
++  '@prisma/dev@0.13.0':
++    resolution: {integrity: sha512-QMmF6zFeUF78yv1HYbHvod83AQnl7u6NtKyDhTRZOJup3h1icWs8R7RUVxBJZvM2tBXNAMpLQYYM/8kPlOPegA==}
++
++  '@prisma/driver-adapter-utils@7.0.0':
++    resolution: {integrity: sha512-ZEvzFaIapnfNKFPgZu/Zy4g6jfO5C0ZmMp+IjO9hNKNDwVKrDlBKw7F3Y9oRK0U0kfb9lKWP4Dz7DgtKs4TTbA==}
++
++  '@prisma/engines-version@6.20.0-16.next-0c19ccc313cf9911a90d99d2ac2eb0280c76c513':
++    resolution: {integrity: sha512-7bzyN8Gp9GbDFbTDzVUH9nFcgRWvsWmjrGgBJvIC/zEoAuv/lx62gZXgAKfjn/HoPkxz/dS+TtsnduFx8WA+cw==}
++
++  '@prisma/engines@7.0.0':
++    resolution: {integrity: sha512-ojCL3OFLMCz33UbU9XwH32jwaeM+dWb8cysTuY8eK6ZlMKXJdy6ogrdG3MGB3meKLGdQBmOpUUGJ7eLIaxbrcg==}
++
++  '@prisma/fetch-engine@7.0.0':
++    resolution: {integrity: sha512-qcyWTeWDjVDaDQSrVIymZU1xCYlvmwCzjA395lIuFjUESOH3YQCb8i/hpd4vopfq3fUR4v6+MjjtIGvnmErQgw==}
++
++  '@prisma/get-platform@6.8.2':
++    resolution: {integrity: sha512-vXSxyUgX3vm1Q70QwzwkjeYfRryIvKno1SXbIqwSptKwqKzskINnDUcx85oX+ys6ooN2ATGSD0xN2UTfg6Zcow==}
++
++  '@prisma/get-platform@7.0.0':
++    resolution: {integrity: sha512-zyhzrAa+y/GfyCzTnuk0D9lfkvDzo7IbsNyuhTqhPu/AN0txm0x26HAR4tJLismla/fHf5fBzYwSivYSzkpakg==}
++
++  '@prisma/query-plan-executor@6.18.0':
++    resolution: {integrity: sha512-jZ8cfzFgL0jReE1R10gT8JLHtQxjWYLiQ//wHmVYZ2rVkFHoh0DT8IXsxcKcFlfKN7ak7k6j0XMNn2xVNyr5cA==}
++
++  '@prisma/studio-core-licensed@0.8.0':
++    resolution: {integrity: sha512-SXCcgFvo/SC6/11kEOaQghJgCWNEWZUvPYKn/gpvMB9HLSG/5M8If7dWZtEQHhchvl8bh9A89Hw6mEKpsXFimA==}
++    peerDependencies:
++      '@types/react': ^18.0.0 || ^19.0.0
++      react: ^18.0.0 || ^19.0.0
++      react-dom: ^18.0.0 || ^19.0.0
++
++  '@rtsao/scc@1.1.0':
++    resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
++
++  '@standard-schema/spec@1.1.0':
++    resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
++
++  '@swc/helpers@0.5.15':
++    resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
++
++  '@tybys/wasm-util@0.10.4':
++    resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
++
++  '@types/estree@1.0.9':
++    resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
++
++  '@types/json-schema@7.0.15':
++    resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
++
++  '@types/json5@0.0.29':
++    resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
++
++  '@types/node@24.9.1':
++    resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
++
++  '@types/pg@8.15.5':
++    resolution: {integrity: sha512-LF7lF6zWEKxuT3/OR8wAZGzkg4ENGXFNyiV/JeOt9z5B+0ZVwbql9McqX5c/WStFq1GaGso7H1AzP/qSzmlCKQ==}
++
++  '@types/react-dom@19.2.2':
++    resolution: {integrity: sha512-9KQPoO6mZCi7jcIStSnlOWn2nEF3mNmyr3rIAsGnAbQKYbRLyqmeSc39EVgtxXVia+LMT8j3knZLAZAh+xLmrw==}
++    peerDependencies:
++      '@types/react': ^19.2.0
++
++  '@types/react@19.2.2':
++    resolution: {integrity: sha512-6mDvHUFSjyT2B2yeNx2nUgMxh9LtOWvkhIU3uePn2I2oyNymUAX1NIsdgviM4CH+JSrp2D2hsMvJOkxY+0wNRA==}
++
++  '@typescript-eslint/eslint-plugin@8.71.2':
++    resolution: {integrity: sha512-K72/pvT7qpm8q3k8G5u93NCSN1RcLxX5h7Gw0bQpbMXviBHeY6Nx1WEwmk9wP+eKTSQ8ecxvcgt/ZX/rB938xQ==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      '@typescript-eslint/parser': ^8.71.2
++      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
++      typescript: '>=4.8.4 <6.1.0'
++
++  '@typescript-eslint/parser@8.71.2':
++    resolution: {integrity: sha512-aTtmZjp/x3gsGHkDs04/1I8kNogBJkpQaeGaN0PfiG43NzDEmW2n+OP5im9wfsvyX0yP1UZWBrAGtDBfH9jEVw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
++      typescript: '>=4.8.4 <6.1.0'
++
++  '@typescript-eslint/project-service@8.71.2':
++    resolution: {integrity: sha512-Pd68GsLVh5ZXlcEccFPdhSOvtHZ/2WU0XsA8zmXOS3F158lVlcTLhfQ6qvtL1RzbMie0Kp8xtbVwAg4nejKPHw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      typescript: '>=4.8.4 <6.1.0'
++
++  '@typescript-eslint/scope-manager@8.71.2':
++    resolution: {integrity: sha512-YF4wgg5iUX5Obywoac27B56FhozMNFhdJSbh11H5GBAwmBtfyRhmgTQqW9tRNNmHDvsZ2CX6UGzoz+YfYn2Leg==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@typescript-eslint/tsconfig-utils@8.71.2':
++    resolution: {integrity: sha512-jz49TAWokm/7yWD9/o837nYax9DyALxIPOImdImvVzo6canBCZYzin8zJyqNR5k1j9K1DE0bVvr0XYB+99uAdg==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      typescript: '>=4.8.4 <6.1.0'
++
++  '@typescript-eslint/type-utils@8.71.2':
++    resolution: {integrity: sha512-cC8UaalCViJkb3rH/xLIvidEwoFRtMZMUqDjjJMGEKaTFwYRHYBcoczlEGHuvkHEO8svRDrgZ0yQgOArFmwang==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
++      typescript: '>=4.8.4 <6.1.0'
++
++  '@typescript-eslint/types@8.71.2':
++    resolution: {integrity: sha512-y5Ukl3oVp7e/VGxqIoEXoeb/Roj71PAJ4WG/N/RGj+eeDvKRLM15kGr9MijLbN0i03S52zxu31Z98E5gWChJKw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@typescript-eslint/typescript-estree@8.71.2':
++    resolution: {integrity: sha512-DgNOEsl4pdYzwSL+N/Cl33tX1Hlw3FvId73LnKXfq7jnrF2viOEn7X+P7RBkkSWCVm92gnWd28GIC5vJuLREeA==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      typescript: '>=4.8.4 <6.1.0'
++
++  '@typescript-eslint/utils@8.71.2':
++    resolution: {integrity: sha512-RyKa1G1M9rKHDhrk+HJtiF1MvLD5Ux2JW3TSkzw+02pRALdpJb+QzG1Y5em+LvCgzGwgg8H7mBRFKljNz7ImPw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
++      typescript: '>=4.8.4 <6.1.0'
++
++  '@typescript-eslint/visitor-keys@8.71.2':
++    resolution: {integrity: sha512-zozlN0UA32bSG2zkKAgQyRYSbEISVoyU6vvkKYo2aSny74D8Jh4e+POkJ6Lk0dlezZi5x7TtD+88Xb06IB8nhg==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  '@unrs/resolver-binding-android-arm-eabi@1.12.2':
++    resolution: {integrity: sha512-g5T90pqg1bo/7mytQx6F4iBNC0Wsh9cu+z9veDbFjc7HjpesJFWD7QMS0NGStXM075+7dJPPVvBbpZlnrdpi/w==}
++    cpu: [arm]
++    os: [android]
++
++  '@unrs/resolver-binding-android-arm64@1.12.2':
++    resolution: {integrity: sha512-YGCRZv/9GLhwmz6mYDeTsm/92BAyR28l6c2ReweVW5pWgfsitWLY8upvfRlGdoyD8HjeTHSYJWyZGD4KJA/nFQ==}
++    cpu: [arm64]
++    os: [android]
++
++  '@unrs/resolver-binding-darwin-arm64@1.12.2':
++    resolution: {integrity: sha512-u9DiNT1auQMO20A9SyTuG3wUgQWB9Z7KjAg0uFuCDR1FsAY8A0CG2S6JpHS1xwm/w1G08bjXZDcyOCjv1WAm2w==}
++    cpu: [arm64]
++    os: [darwin]
++
++  '@unrs/resolver-binding-darwin-x64@1.12.2':
++    resolution: {integrity: sha512-f7rPLi/T1HVKZu/u6t87lroib16n8vrSzcyxI7lg4BGO9UF26KhQL44sd9eOUgrTYhvRXtWOIZT5PejdPyJfUA==}
++    cpu: [x64]
++    os: [darwin]
++
++  '@unrs/resolver-binding-freebsd-x64@1.12.2':
++    resolution: {integrity: sha512-BpcOjWCJub6nRZUS2zA20pmLvjtqAtGejETaIyRLiZiQf++cbrjltLA5NN/xaXfqeOBOSlMFbemIl5/S5tljmg==}
++    cpu: [x64]
++    os: [freebsd]
++
++  '@unrs/resolver-binding-linux-arm-gnueabihf@1.12.2':
++    resolution: {integrity: sha512-vZTDvdSISZjJx66OzJqtsOhzifbqRjbmI1Mnu49fQDwog5GtDI4QidRiEAYbZCRj9C8YZEW+3ZjqsyS9GR4k2A==}
++    cpu: [arm]
++    os: [linux]
++
++  '@unrs/resolver-binding-linux-arm-musleabihf@1.12.2':
++    resolution: {integrity: sha512-BiPI+IrIlwcW4nLLMM21+B1dFPzd55yAVgVGrdgDjNef+ch03GdxrcyaIz8X9SsQirh/kCQ7mviyWlMxdh2D7g==}
++    cpu: [arm]
++    os: [linux]
++
++  '@unrs/resolver-binding-linux-arm64-gnu@1.12.2':
++    resolution: {integrity: sha512-zJc0H99FEPoFfSrNpa91HYfxzfAJCr502oxNK1cfdC9hlaFI43RT+JFCann9JUgZmLzzntChHyn13Sgn9ljHNg==}
++    cpu: [arm64]
++    os: [linux]
++    libc: [glibc]
++
++  '@unrs/resolver-binding-linux-arm64-musl@1.12.2':
++    resolution: {integrity: sha512-KQ3Lki6l+Pz1k/eBipN41ES+YUK30beLGb9YqcB1O542cyLCNE6GaxrfcY3T6EezmGGk84wb5XyO9loTM9tkcA==}
++    cpu: [arm64]
++    os: [linux]
++    libc: [musl]
++
++  '@unrs/resolver-binding-linux-loong64-gnu@1.12.2':
++    resolution: {integrity: sha512-3SJGEh1DborhG6pyxvhPzCT4bbSIVihsvgJc13P1bHG7KLdNDaF9T3gsTwFc7Jw/5Y5/iWOjkEx7Zy0NvCGX3Q==}
++    cpu: [loong64]
++    os: [linux]
++    libc: [glibc]
++
++  '@unrs/resolver-binding-linux-loong64-musl@1.12.2':
++    resolution: {integrity: sha512-jiuG/Obbel7uw1PwHNFfrkiKhLAF6mnyZ6aWlOAVN9WqKm8v0OFGnciJIHu8+CMvXLQ8AD51LPzAoUfT21D5Ew==}
++    cpu: [loong64]
++    os: [linux]
++    libc: [musl]
++
++  '@unrs/resolver-binding-linux-ppc64-gnu@1.12.2':
++    resolution: {integrity: sha512-q7xRvVpmcfeL+LlZg8Pbbo6QaTZwDU5BaGZbwfhkEsXJn3Was8xYfE0RBH266xZt0rM6B7i8xAYIvjthuUIWHg==}
++    cpu: [ppc64]
++    os: [linux]
++    libc: [glibc]
++
++  '@unrs/resolver-binding-linux-riscv64-gnu@1.12.2':
++    resolution: {integrity: sha512-0CVdx6lcnT3Q9inOH8tsMIOJ6ImndllMjqJHg8RLVdB7Vq4SfkEXl9mCSsVNuNA4MCYycRicCUxPCabVHJRr6A==}
++    cpu: [riscv64]
++    os: [linux]
++    libc: [glibc]
++
++  '@unrs/resolver-binding-linux-riscv64-musl@1.12.2':
++    resolution: {integrity: sha512-iOwlRo9vnp6R6ohHQS11n0NnfdXx/omhkocmIfaPRpQhKZ+3BDMkkdRVh53qjkFkpPddf+FETA28NwGN7l5l+w==}
++    cpu: [riscv64]
++    os: [linux]
++    libc: [musl]
++
++  '@unrs/resolver-binding-linux-s390x-gnu@1.12.2':
++    resolution: {integrity: sha512-HYJtLfXq94q8iZNFT1lknx258wlkkWhZeUXJRqzKBBUJ00CvZ+N33zgbCqimLjsyw5Va6uUxhVa12mI+kaveEw==}
++    cpu: [s390x]
++    os: [linux]
++    libc: [glibc]
++
++  '@unrs/resolver-binding-linux-x64-gnu@1.12.2':
++    resolution: {integrity: sha512-mPsUhunKKDih5O96Y6enDQyHc1SqBPlY1E/SfMWDM3EdJ95Z9CArPeCVwCCqbP45ljvivdEk8Fxn+SIb1rDAJQ==}
++    cpu: [x64]
++    os: [linux]
++    libc: [glibc]
++
++  '@unrs/resolver-binding-linux-x64-musl@1.12.2':
++    resolution: {integrity: sha512-azrt6+5ydLd8Vt210AAFis/lZevSfPw93EJRIJG+xPu4WCJ8K0kppCTpMyLPcKT7H15M4Jnt2tMp5bOvCkRC6A==}
++    cpu: [x64]
++    os: [linux]
++    libc: [musl]
++
++  '@unrs/resolver-binding-openharmony-arm64@1.12.2':
++    resolution: {integrity: sha512-YZ9hP4O0X9PQb8eO980qmLNGH4zT3I9+SZTdt0Pr0YyuGQhYKoOZkV02VzrzyOZJ5xIJ3UFIenKkUkGg8GjgWQ==}
++    cpu: [arm64]
++    os: [openharmony]
++
++  '@unrs/resolver-binding-wasm32-wasi@1.12.2':
++    resolution: {integrity: sha512-tYFDIkMxSflfEc/h92ZWNsZlHSwgimbNHSO3PL2JWQHfCuC2q316jMyYU9TIWZsFK2bQwyK5VAdYgn8ygPj69A==}
++    engines: {node: '>=14.0.0'}
++    cpu: [wasm32]
++
++  '@unrs/resolver-binding-win32-arm64-msvc@1.12.2':
++    resolution: {integrity: sha512-qzNyg3xL0VPQmCaUh+N5jSitce6k+uCBfMDesWRnlULOZaqUkaJ0ybdT+UqlAWJoQjuqfIU/0Ptx9bteN4D82g==}
++    cpu: [arm64]
++    os: [win32]
++
++  '@unrs/resolver-binding-win32-ia32-msvc@1.12.2':
++    resolution: {integrity: sha512-WD9sY00OfpHVGfsnHZoA8jVT+esS/Bg8z8jzxp5BnDCjjwsuKsPQrzswwpFy4J1AUJbXPRfkpcX0mXrzeXW79g==}
++    cpu: [ia32]
++    os: [win32]
++
++  '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
++    resolution: {integrity: sha512-nAB74NfSNKknqQ1RrYj6uz8FcXEomu/MATJZxh/x+BArzN2U3JbOYC0APYzUIGhVY3m5hRxA8VPNdPBoG8txlA==}
++    cpu: [x64]
++    os: [win32]
++
++  acorn-jsx@5.3.2:
++    resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
++    peerDependencies:
++      acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
++
++  acorn@8.19.0:
++    resolution: {integrity: sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw==}
++    engines: {node: '>=0.4.0'}
++    hasBin: true
++
++  ajv@6.15.0:
++    resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
++
++  ansi-styles@4.3.0:
++    resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
++    engines: {node: '>=8'}
++
++  argparse@2.0.1:
++    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
++
++  aria-query@5.3.2:
++    resolution: {integrity: sha512-COROpnaoap1E2F000S62r6A60uHZnmlvomhfyT2DlTcrY1OrBKn2UhH7qn5wTC9zMvD0AY7csdPSNwKP+7WiQw==}
++    engines: {node: '>= 0.4'}
++
++  array-buffer-byte-length@1.0.2:
++    resolution: {integrity: sha512-LHE+8BuR7RYGDKvnrmcuSq3tDcKv9OFEXQt/HpbZhY7V6h0zlUXutnAD82GiFx9rdieCMjkvtcsPqBwgUl1Iiw==}
++    engines: {node: '>= 0.4'}
++
++  array-includes@3.2.0:
++    resolution: {integrity: sha512-VXY5eFRarnXcYxwBjJzPmEhH55+rmP79/+ueDhi0F+TuqfHCItagIHqxeUZrmgrOPa31QTh9H85DjX3FfJ0FTg==}
++    engines: {node: '>= 0.4'}
++
++  array.prototype.findlast@1.2.5:
++    resolution: {integrity: sha512-CVvd6FHg1Z3POpBLxO6E6zr+rSKEQ9L6rZHAaY7lLfhKsWYUBBOuMs0e9o24oopj6H+geRCX0YJ+TJLBK2eHyQ==}
++    engines: {node: '>= 0.4'}
++
++  array.prototype.findlastindex@1.2.6:
++    resolution: {integrity: sha512-F/TKATkzseUExPlfvmwQKGITM3DGTK+vkAsCZoDc5daVygbJBnjEUCbgkAvVFsgfXfX4YIqZ/27G3k3tdXrTxQ==}
++    engines: {node: '>= 0.4'}
++
++  array.prototype.flat@1.3.3:
++    resolution: {integrity: sha512-rwG/ja1neyLqCuGZ5YYrznA62D4mZXg0i1cIskIUKSiqF3Cje9/wXAls9B9s1Wa2fomMsIv8czB8jZcPmxCXFg==}
++    engines: {node: '>= 0.4'}
++
++  array.prototype.flatmap@1.3.3:
++    resolution: {integrity: sha512-Y7Wt51eKJSyi80hFrJCePGGNo5ktJCslFuboqJsbf57CCPcm5zztluPlc4/aD8sWsKvlwatezpV4U1efk8kpjg==}
++    engines: {node: '>= 0.4'}
++
++  array.prototype.tosorted@1.1.4:
++    resolution: {integrity: sha512-p6Fx8B7b7ZhL/gmUsAy0D15WhvDccw3mnGNbZpi3pmeJdxtWsj2jEaI4Y6oo3XiHfzuSgPwKc04MYt6KgvC/wA==}
++    engines: {node: '>= 0.4'}
++
++  arraybuffer.prototype.slice@1.0.4:
++    resolution: {integrity: sha512-BNoCY6SXXPQ7gF2opIP4GBE+Xw7U+pHMYKuzjgCN3GwiaIR09UUeKfheyIry77QtrCBlC0KK0q5/TER/tYh3PQ==}
++    engines: {node: '>= 0.4'}
++
++  ast-types-flow@0.0.8:
++    resolution: {integrity: sha512-OH/2E5Fg20h2aPrbe+QL8JZQFko0YZaF+j4mnQ7BGhfavO7OpSLa8a0y9sBwomHdSbkhTS8TQNayBfnW5DwbvQ==}
++
++  async-function@1.0.0:
++    resolution: {integrity: sha512-hsU18Ae8CDTR6Kgu9DYf0EbCr/a5iGL0rytQDobUcdpYOKokk8LEjVphnXkDkgpi0wYVsqrXuP0bZxJaTqdgoA==}
++    engines: {node: '>= 0.4'}
++
++  available-typed-arrays@1.0.7:
++    resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
++    engines: {node: '>= 0.4'}
++
++  aws-ssl-profiles@1.1.2:
++    resolution: {integrity: sha512-NZKeq9AfyQvEeNlN0zSYAaWrmBffJh3IELMZfRpJVWgrpEbtEpnjvzqBPf+mxoI287JohRDoa+/nsfqqiZmF6g==}
++    engines: {node: '>= 6.0.0'}
++
++  axe-core@4.14.0:
++    resolution: {integrity: sha512-9WTZxEjsZ7b13TH8JPmbV2z8CHbl80/2hm3XPEG4JgNdQLK81IBRXmSxHfMAOkSqQeRxT/0dwNDz2GOm3zzpcQ==}
++    engines: {node: '>=4'}
++
++  axobject-query@4.1.0:
++    resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
++    engines: {node: '>= 0.4'}
++
++  balanced-match@1.0.2:
++    resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
++
++  balanced-match@4.0.4:
++    resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
++    engines: {node: 18 || 20 || >=22}
++
++  baseline-browser-mapping@2.11.29:
++    resolution: {integrity: sha512-YeesxhUmR4h5y5V8KF8iBCqJb8YFrBJ++XBTeGcWIaQOYXGN19JM0FoiOjAhwuDoln8owMgXcWBmgHtYSkky2w==}
++    engines: {node: '>=6.0.0'}
++    hasBin: true
++
++  better-auth@1.4.5:
++    resolution: {integrity: sha512-pHV2YE0OogRHvoA6pndHXCei4pcep/mjY7psSaHVrRgjBtumVI68SV1g9U9XPRZ4KkoGca9jfwuv+bB2UILiFw==}
++    peerDependencies:
++      '@lynx-js/react': '*'
++      '@sveltejs/kit': ^2.0.0
++      '@tanstack/react-start': ^1.0.0
++      next: ^14.0.0 || ^15.0.0 || ^16.0.0
++      react: ^18.0.0 || ^19.0.0
++      react-dom: ^18.0.0 || ^19.0.0
++      solid-js: ^1.0.0
++      svelte: ^4.0.0 || ^5.0.0
++      vue: ^3.0.0
++    peerDependenciesMeta:
++      '@lynx-js/react':
++        optional: true
++      '@sveltejs/kit':
++        optional: true
++      '@tanstack/react-start':
++        optional: true
++      next:
++        optional: true
++      react:
++        optional: true
++      react-dom:
++        optional: true
++      solid-js:
++        optional: true
++      svelte:
++        optional: true
++      vue:
++        optional: true
++
++  better-call@1.1.4:
++    resolution: {integrity: sha512-NJouLY6IVKv0nDuFoc6FcbKDFzEnmgMNofC9F60Mwx1Ecm7X6/Ecyoe5b+JSVZ42F/0n46/M89gbYP1ZCVv8xQ==}
++    peerDependencies:
++      zod: ^4.0.0
++    peerDependenciesMeta:
++      zod:
++        optional: true
++
++  bootstrap@5.3.8:
++    resolution: {integrity: sha512-HP1SZDqaLDPwsNiqRqi5NcP0SSXciX2s9E+RyqJIIqGo+vJeN5AJVM98CXmW/Wux0nQ5L7jeWUdplCEf0Ee+tg==}
++    peerDependencies:
++      '@popperjs/core': ^2.11.8
++
++  brace-expansion@1.1.21:
++    resolution: {integrity: sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw==}
++
++  brace-expansion@5.0.12:
++    resolution: {integrity: sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==}
++    engines: {node: 20 || >=22}
++
++  braces@3.0.3:
++    resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
++    engines: {node: '>=8'}
++
++  browserslist@4.29.3:
++    resolution: {integrity: sha512-1R4kiYKXGViqEN0CnoDrXc1StD9niAwu+j2dukWzrD4bJgsD4lDmEp0CRbc6E/vYJIfTHwPmwyaKtVSudICdPA==}
++    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
++    hasBin: true
++
++  c12@3.1.0:
++    resolution: {integrity: sha512-uWoS8OU1MEIsOv8p/5a82c3H31LsWVR5qiyXVfBNOzfffjUWtPnhAb4BYI2uG2HfGmZmFjCtui5XNWaps+iFuw==}
++    peerDependencies:
++      magicast: ^0.3.5
++    peerDependenciesMeta:
++      magicast:
++        optional: true
++
++  call-bind-apply-helpers@1.0.2:
++    resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
++    engines: {node: '>= 0.4'}
++
++  call-bind@1.0.9:
++    resolution: {integrity: sha512-a/hy+pNsFUTR+Iz8TCJvXudKVLAnz/DyeSUo10I5yvFDQJBFU2s9uqQpoSrJlroHUKoKqzg+epxyP9lqFdzfBQ==}
++    engines: {node: '>= 0.4'}
++
++  call-bound@1.0.4:
++    resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
++    engines: {node: '>= 0.4'}
++
++  callsites@3.1.0:
++    resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
++    engines: {node: '>=6'}
++
++  caniuse-lite@1.0.30001816:
++    resolution: {integrity: sha512-+8Yx7BXCoqk6IF8yTicjfUR6D/ldJzdlsodlEOiOSPmhK844WIgk67/zIQaGAOxNkZyyvBlrRFnLvqKIoqbAFw==}
++
++  chalk@4.1.2:
++    resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
++    engines: {node: '>=10'}
++
++  chevrotain@10.5.0:
++    resolution: {integrity: sha512-Pkv5rBY3+CsHOYfV5g/Vs5JY9WTHHDEKOlohI2XeygaZhUeqhAlldZ8Hz9cRmxu709bvS08YzxHdTPHhffc13A==}
++
++  chokidar@4.0.3:
++    resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
++    engines: {node: '>= 14.16.0'}
++
++  citty@0.1.6:
++    resolution: {integrity: sha512-tskPPKEs8D2KPafUypv2gxwJP8h/OaJmC82QQGGDQcHvXX43xF2VDACcJVmZ0EuSxkpO9Kc4MlrA3q0+FG58AQ==}
++
++  citty@0.2.2:
++    resolution: {integrity: sha512-+6vJA3L98yv+IdfKGZHBNiGW5KHn22e/JwID0Strsz8h4S/csAu/OuICwxrg44k5MRiZHWIo8XXuJgQTriRP4w==}
++
++  client-only@0.0.1:
++    resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
++
++  color-convert@2.0.1:
++    resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
++    engines: {node: '>=7.0.0'}
++
++  color-name@1.1.4:
++    resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
++
++  concat-map@0.0.1:
++    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
++
++  confbox@0.2.4:
++    resolution: {integrity: sha512-ysOGlgTFbN2/Y6Cg3Iye8YKulHw+R2fNXHrgSmXISQdMnomY6eNDprVdW9R5xBguEqI954+S6709UyiO7B+6OQ==}
++
++  confbox@0.3.1:
++    resolution: {integrity: sha512-cKUSoKa8YxFZZSmraVi7onONx3amu77ngK3kGpsYHDH7drPwCRkQE1RYMPlLRrMtnciRj274XNRxcHxnKmDSnA==}
++
++  consola@3.4.2:
++    resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
++    engines: {node: ^14.18.0 || >=16.10.0}
++
++  convert-source-map@2.0.0:
++    resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
++
++  cross-spawn@7.0.6:
++    resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
++    engines: {node: '>= 8'}
++
++  csstype@3.2.3:
++    resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
++
++  damerau-levenshtein@1.0.8:
++    resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
++
++  data-view-buffer@1.0.2:
++    resolution: {integrity: sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==}
++    engines: {node: '>= 0.4'}
++
++  data-view-byte-length@1.0.2:
++    resolution: {integrity: sha512-tuhGbE6CfTM9+5ANGf+oQb72Ky/0+s3xKUpHvShfiz2RxMFgFPjsXuRLBVMtvMs15awe45SRb83D6wH4ew6wlQ==}
++    engines: {node: '>= 0.4'}
++
++  data-view-byte-offset@1.0.1:
++    resolution: {integrity: sha512-BS8PfmtDGnrgYdOonGZQdLZslWIeCGFP9tpan0hi1Co2Zr2NKADsvGYA8XxuG/4UWgJ6Cjtv+YJnB6MM69QGlQ==}
++    engines: {node: '>= 0.4'}
++
++  debug@3.2.7:
++    resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
++    peerDependencies:
++      supports-color: '*'
++    peerDependenciesMeta:
++      supports-color:
++        optional: true
++
++  debug@4.4.3:
++    resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
++    engines: {node: '>=6.0'}
++    peerDependencies:
++      supports-color: '*'
++    peerDependenciesMeta:
++      supports-color:
++        optional: true
++
++  deep-is@0.1.4:
++    resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
++
++  deepmerge-ts@7.1.5:
++    resolution: {integrity: sha512-HOJkrhaYsweh+W+e74Yn7YStZOilkoPb6fycpwNLKzSPtruFs48nYis0zy5yJz1+ktUhHxoRDJ27RQAWLIJVJw==}
++    engines: {node: '>=16.0.0'}
++
++  define-data-property@1.1.4:
++    resolution: {integrity: sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A==}
++    engines: {node: '>= 0.4'}
++
++  define-properties@1.2.1:
++    resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
++    engines: {node: '>= 0.4'}
++
++  defu@6.1.7:
++    resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
++
++  denque@2.1.0:
++    resolution: {integrity: sha512-HVQE3AAb/pxF8fQAoiqpvg9i3evqug3hoiwakOyZAwJm+6vZehbkYXZ0l4JxS+I3QxM97v5aaRNhj8v5oBhekw==}
++    engines: {node: '>=0.10'}
++
++  destr@2.0.5:
++    resolution: {integrity: sha512-ugFTXCtDZunbzasqBxrK93Ik/DRYsO6S/fedkWEMKqt04xZ4csmnmwGDBAb07QWNaGMAmnTIemsYZCksjATwsA==}
++
++  detect-libc@2.1.2:
++    resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
++    engines: {node: '>=8'}
++
++  doctrine@2.1.0:
++    resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
++    engines: {node: '>=0.10.0'}
++
++  dotenv@16.6.1:
++    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
++    engines: {node: '>=12'}
++
++  dunder-proto@1.0.1:
++    resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
++    engines: {node: '>= 0.4'}
++
++  effect@3.18.4:
++    resolution: {integrity: sha512-b1LXQJLe9D11wfnOKAk3PKxuqYshQ0Heez+y5pnkd3jLj1yx9QhM72zZ9uUrOQyNvrs2GZZd/3maL0ZV18YuDA==}
++
++  electron-to-chromium@1.5.459:
++    resolution: {integrity: sha512-4SC9HHSFjO/liAhifpdOL5hG9b4BP7/5G3y3UPZVO8trlAXr1CaUEEJL0gWK3kOcYcZrOA5rkwG45Gra/lTIgg==}
++
++  emoji-regex@9.2.2:
++    resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
++
++  empathic@2.0.0:
++    resolution: {integrity: sha512-i6UzDscO/XfAcNYD75CfICkmfLedpyPDdozrLMmQc5ORaQcdMoc21OnlEylMIqI7U8eniKrPMxxtj8k0vhmJhA==}
++    engines: {node: '>=14'}
++
++  es-abstract-get@1.0.0:
++    resolution: {integrity: sha512-6PMWXpdhshVvFp+FoWYs1EvG1Nj0tvk0dZM+XcK0xMEM1czRVcP6ohqPWHy6qPagSpC8j4+p89WXlT+xXJs/fg==}
++    engines: {node: '>= 0.4'}
++
++  es-abstract@1.24.2:
++    resolution: {integrity: sha512-2FpH9Q5i2RRwyEP1AylXe6nYLR5OhaJTZwmlcP0dL/+JCbgg7yyEo/sEK6HeGZRf3dFpWwThaRHVApXSkW3xeg==}
++    engines: {node: '>= 0.4'}
++
++  es-define-property@1.0.1:
++    resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
++    engines: {node: '>= 0.4'}
++
++  es-errors@1.3.0:
++    resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
++    engines: {node: '>= 0.4'}
++
++  es-iterator-helpers@1.4.0:
++    resolution: {integrity: sha512-c/A0P0oxkACDc+cKWw8evLXK83oBKgn0qPOqCYT4x9uolpCIJAcYvJC9QYKNDRPsTeGyCrQ326jrvgZWdCdK5Q==}
++    engines: {node: '>= 0.4'}
++
++  es-object-atoms@1.1.2:
++    resolution: {integrity: sha512-HWcBoN6NileqtSydK2FqHbS/LoDd2pqrnQHLyJzBj4kOp/ky2MWMN694xOfkK8/SnUsW2DH7EfyVlydKCsm1Zw==}
++    engines: {node: '>= 0.4'}
++
++  es-set-tostringtag@2.1.0:
++    resolution: {integrity: sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==}
++    engines: {node: '>= 0.4'}
++
++  es-shim-unscopables@1.1.0:
++    resolution: {integrity: sha512-d9T8ucsEhh8Bi1woXCf+TIKDIROLG5WCkxg8geBCbvk22kzwC5G2OnXVMO6FUsvQlgUUXQ2itephWDLqDzbeCw==}
++    engines: {node: '>= 0.4'}
++
++  es-to-primitive@1.3.4:
++    resolution: {integrity: sha512-yPDz7wqpg1/mmHLmS3tcfTfbw5f1eryXvyghYBffGdERwe+mV7ZcWzTR8LR17Kvqt3qfPurjlonmnq3MKXIOXw==}
++    engines: {node: '>= 0.4'}
++
++  esbuild@0.25.12:
++    resolution: {integrity: sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==}
++    engines: {node: '>=18'}
++    hasBin: true
++
++  escalade@3.2.0:
++    resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
++    engines: {node: '>=6'}
++
++  escape-string-regexp@4.0.0:
++    resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
++    engines: {node: '>=10'}
++
++  eslint-config-next@16.0.0:
++    resolution: {integrity: sha512-DWKT1YAO9ex2rK0/EeiPpKU++ghTiG59z6m08/ReLRECOYIaEv17maSCYT8zmFQLwIrY5lhJ+iaJPQdT4sJd4g==}
++    peerDependencies:
++      eslint: '>=9.0.0'
++      typescript: '>=3.3.1'
++    peerDependenciesMeta:
++      typescript:
++        optional: true
++
++  eslint-import-resolver-node@0.3.10:
++    resolution: {integrity: sha512-tRrKqFyCaKict5hOd244sL6EQFNycnMQnBe+j8uqGNXYzsImGbGUU4ibtoaBmv5FLwJwcFJNeg1GeVjQfbMrDQ==}
++
++  eslint-import-resolver-typescript@3.10.1:
++    resolution: {integrity: sha512-A1rHYb06zjMGAxdLSkN2fXPBwuSaQ0iO5M/hdyS0Ajj1VBaRp0sPD3dn1FhME3c/JluGFbwSxyCfqdSbtQLAHQ==}
++    engines: {node: ^14.18.0 || >=16.0.0}
++    peerDependencies:
++      eslint: '*'
++      eslint-plugin-import: '*'
++      eslint-plugin-import-x: '*'
++    peerDependenciesMeta:
++      eslint-plugin-import:
++        optional: true
++      eslint-plugin-import-x:
++        optional: true
++
++  eslint-module-utils@2.14.0:
++    resolution: {integrity: sha512-W2WCRZ9Dqntd+2u8jJcVMV2PKulc6RdLgUUoh/yQr3uB6lo/ZOeGx11sv60/8S4QFFKNslAlWhr9u0Ef7ZW6Ig==}
++    engines: {node: '>=4'}
++    peerDependencies:
++      '@typescript-eslint/parser': '*'
++      eslint: '*'
++      eslint-import-resolver-node: '*'
++      eslint-import-resolver-typescript: '*'
++      eslint-import-resolver-webpack: '*'
++    peerDependenciesMeta:
++      '@typescript-eslint/parser':
++        optional: true
++      eslint:
++        optional: true
++      eslint-import-resolver-node:
++        optional: true
++      eslint-import-resolver-typescript:
++        optional: true
++      eslint-import-resolver-webpack:
++        optional: true
++
++  eslint-plugin-import@2.32.0:
++    resolution: {integrity: sha512-whOE1HFo/qJDyX4SnXzP4N6zOWn79WhnCUY/iDR0mPfQZO8wcYE4JClzI2oZrhBnnMUCBCHZhO6VQyoBU95mZA==}
++    engines: {node: '>=4'}
++    peerDependencies:
++      '@typescript-eslint/parser': '*'
++      eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8 || ^9
++    peerDependenciesMeta:
++      '@typescript-eslint/parser':
++        optional: true
++
++  eslint-plugin-jsx-a11y@6.10.2:
++    resolution: {integrity: sha512-scB3nz4WmG75pV8+3eRUQOHZlNSUhFNq37xnpgRkCCELU3XMvXAxLk1eqWWyE22Ki4Q01Fnsw9BA3cJHDPgn2Q==}
++    engines: {node: '>=4.0'}
++    peerDependencies:
++      eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9
++
++  eslint-plugin-react-hooks@7.1.1:
++    resolution: {integrity: sha512-f2I7Gw6JbvCexzIInuSbZpfdQ44D7iqdWX01FKLvrPgqxoE7oMj8clOfto8U6vYiz4yd5oKu39rRSVOe1zRu0g==}
++    engines: {node: '>=18'}
++    peerDependencies:
++      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0 || ^10.0.0
++
++  eslint-plugin-react@7.37.5:
++    resolution: {integrity: sha512-Qteup0SqU15kdocexFNAJMvCJEfa2xUKNV4CC1xsVMrIIqEy3SQ/rqyxCWNzfrd3/ldy6HMlD2e0JDVpDg2qIA==}
++    engines: {node: '>=4'}
++    peerDependencies:
++      eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
++
++  eslint-scope@8.4.0:
++    resolution: {integrity: sha512-sNXOfKCn74rt8RICKMvJS7XKV/Xk9kA7DyJr8mJik3S7Cwgy3qlkkmyS2uQB3jiJg6VNdZd/pDBJu0nvG2NlTg==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  eslint-visitor-keys@3.4.3:
++    resolution: {integrity: sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag==}
++    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
++
++  eslint-visitor-keys@4.2.1:
++    resolution: {integrity: sha512-Uhdk5sfqcee/9H/rCOJikYz67o0a2Tw2hGRPOG2Y1R2dg7brRe1uG0yaNQDHu+TO/uQPF/5eCapvYSmHUjt7JQ==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  eslint-visitor-keys@5.0.1:
++    resolution: {integrity: sha512-tD40eHxA35h0PEIZNeIjkHoDR4YjjJp34biM0mDvplBe//mB+IHCqHDGV7pxF+7MklTvighcCPPZC7ynWyjdTA==}
++    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
++
++  eslint@9.39.1:
++    resolution: {integrity: sha512-BhHmn2yNOFA9H9JmmIVKJmd288g9hrVRDkdoIgRCRuSySRUHH7r/DI6aAXW9T1WwUuY3DFgrcaqB+deURBLR5g==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
++    hasBin: true
++    peerDependencies:
++      jiti: '*'
++    peerDependenciesMeta:
++      jiti:
++        optional: true
++
++  espree@10.4.0:
++    resolution: {integrity: sha512-j6PAQ2uUr79PZhBjP5C5fhl8e39FmRnOjsD5lGnWrFU8i2G776tBK7+nP8KuQUTTyAZUwfQqXAgrVH5MbH9CYQ==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++
++  esquery@1.7.0:
++    resolution: {integrity: sha512-Ap6G0WQwcU/LHsvLwON1fAQX9Zp0A2Y6Y/cJBl9r/JbW90Zyg4/zbG6zzKa2OTALELarYHmKu0GhpM5EO+7T0g==}
++    engines: {node: '>=0.10'}
++
++  esrecurse@4.3.0:
++    resolution: {integrity: sha512-KmfKL3b6G+RXvP8N1vr3Tq1kL/oCFgn2NYXEtqP8/L3pKapUA4G8cFVaoF3SU323CD4XypR/ffioHmkti6/Tag==}
++    engines: {node: '>=4.0'}
++
++  estraverse@5.3.0:
++    resolution: {integrity: sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==}
++    engines: {node: '>=4.0'}
++
++  esutils@2.0.3:
++    resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
++    engines: {node: '>=0.10.0'}
++
++  exsolve@1.1.3:
++    resolution: {integrity: sha512-kuzL9zherLQoqDeQaS55AiiIg1kb4KYXaSusTtgZTPlvKP2gGCI82LNmBNh5RjDVUXIcmgx+/Mx7vPwRzBbhJA==}
++
++  fast-check@3.23.2:
++    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
++    engines: {node: '>=8.0.0'}
++
++  fast-deep-equal@3.1.3:
++    resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
++
++  fast-glob@3.3.1:
++    resolution: {integrity: sha512-kNFPyjhh5cKjrUltxs+wFx+ZkbRaxxmZ+X0ZU31SOsxCEtP9VPgtq2teZw1DebupL5GmDaNQ6yKMMVcM41iqDg==}
++    engines: {node: '>=8.6.0'}
++
++  fast-json-stable-stringify@2.1.0:
++    resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
++
++  fast-levenshtein@2.0.6:
++    resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
++
++  fastq@1.20.3:
++    resolution: {integrity: sha512-XKv5nnLs6nLF71NgiKJLIZFLkPyIEuOselLG7ujZnGrRfQK8HpvY+WqKhAJUAdLomwVHErVS4LfxFlPq0/FTAw==}
++
++  fdir@6.5.0:
++    resolution: {integrity: sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==}
++    engines: {node: '>=12.0.0'}
++    peerDependencies:
++      picomatch: ^3 || ^4
++    peerDependenciesMeta:
++      picomatch:
++        optional: true
++
++  file-entry-cache@8.0.0:
++    resolution: {integrity: sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ==}
++    engines: {node: '>=16.0.0'}
++
++  fill-range@7.1.1:
++    resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
++    engines: {node: '>=8'}
++
++  find-up@5.0.0:
++    resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
++    engines: {node: '>=10'}
++
++  flat-cache@4.0.1:
++    resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
++    engines: {node: '>=16'}
++
++  flatted@3.4.4:
++    resolution: {integrity: sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q==}
++
++  for-each@0.3.5:
++    resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
++    engines: {node: '>= 0.4'}
++
++  foreground-child@3.3.1:
++    resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
++    engines: {node: '>=14'}
++
++  fsevents@2.3.3:
++    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
++    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
++    os: [darwin]
++
++  function-bind@1.1.2:
++    resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
++
++  function.prototype.name@1.2.0:
++    resolution: {integrity: sha512-jObKIik1P2QjPHP5nz5BaOtUlfgS0fWo8IUByNXkM+o+02sJOi94em77GwJKQSJ3gfPHdgzLNrHc1uokV4P/ew==}
++    engines: {node: '>= 0.4'}
++
++  functions-have-names@1.2.3:
++    resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
++
++  generate-function@2.3.1:
++    resolution: {integrity: sha512-eeB5GfMNeevm/GRYq20ShmsaGcmI81kIX2K9XQx5miC8KdHaC6Jm0qQ8ZNeGOi7wYB8OsdxKs+Y2oVuTFuVwKQ==}
++
++  generator-function@2.0.1:
++    resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
++    engines: {node: '>= 0.4'}
++
++  gensync@1.0.0-beta.2:
++    resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
++    engines: {node: '>=6.9.0'}
++
++  get-intrinsic@1.3.0:
++    resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
++    engines: {node: '>= 0.4'}
++
++  get-port-please@3.1.2:
++    resolution: {integrity: sha512-Gxc29eLs1fbn6LQ4jSU4vXjlwyZhF5HsGuMAa7gqBP4Rw4yxxltyDUuF5MBclFzDTXO+ACchGQoeela4DSfzdQ==}
++
++  get-proto@1.0.1:
++    resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
++    engines: {node: '>= 0.4'}
++
++  get-symbol-description@1.1.0:
++    resolution: {integrity: sha512-w9UMqWwJxHNOvoNzSJ2oPF5wvYcvP7jUvYzhp67yEhTi17ZDBBC1z9pTdGuzjD+EFIqLSYRweZjqfiPzQ06Ebg==}
++    engines: {node: '>= 0.4'}
++
++  get-tsconfig@4.14.3:
++    resolution: {integrity: sha512-++QEw4DIY7WGoukz+/+A/8dGYPT9l9yIadnmSgZ8Rjr3YVSVDipQSO9CdnJo9ePqFqUUqh+wk9uIaoiAwsiPkA==}
++
++  giget@2.0.0:
++    resolution: {integrity: sha512-L5bGsVkxJbJgdnwyuheIunkGatUF/zssUoxxjACCseZYAVbaqdh9Tsmmlkl8vYan09H7sbvKt4pS8GqKLBrEzA==}
++    hasBin: true
++
++  glob-parent@5.1.2:
++    resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
++    engines: {node: '>= 6'}
++
++  glob-parent@6.0.2:
++    resolution: {integrity: sha512-XxwI8EOhVQgWp6iDL+3b0r86f4d6AX6zSU55HfB4ydCEuXLXc5FcYeOu+nnGftS4TEju/11rt4KJPTMgbfmv4A==}
++    engines: {node: '>=10.13.0'}
++
++  globals@14.0.0:
++    resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
++    engines: {node: '>=18'}
++
++  globals@16.4.0:
++    resolution: {integrity: sha512-ob/2LcVVaVGCYN+r14cnwnoDPUufjiYgSqRhiFD0Q1iI4Odora5RE8Iv1D24hAz5oMophRGkGz+yuvQmmUMnMw==}
++    engines: {node: '>=18'}
++
++  globalthis@1.0.4:
++    resolution: {integrity: sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ==}
++    engines: {node: '>= 0.4'}
++
++  gopd@1.2.0:
++    resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
++    engines: {node: '>= 0.4'}
++
++  graceful-fs@4.2.11:
++    resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
++
++  grammex@3.1.13:
++    resolution: {integrity: sha512-LnPnhOBLEJEVKS8WFDVaA397L9Kq55Q9oSITJiVLHVdhAclfUkWzQv74KhvZHKL2Q09Pb1XdsrOsZ4LfTFFTEg==}
++
++  has-bigints@1.1.0:
++    resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
++    engines: {node: '>= 0.4'}
++
++  has-flag@4.0.0:
++    resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
++    engines: {node: '>=8'}
++
++  has-property-descriptors@1.0.2:
++    resolution: {integrity: sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg==}
++
++  has-proto@1.2.0:
++    resolution: {integrity: sha512-KIL7eQPfHQRC8+XluaIw7BHUwwqL19bQn4hzNgdr+1wXoU0KKj6rufu47lhY7KbJR2C6T6+PfyN0Ea7wkSS+qQ==}
++    engines: {node: '>= 0.4'}
++
++  has-symbols@1.1.0:
++    resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
++    engines: {node: '>= 0.4'}
++
++  has-tostringtag@1.0.2:
++    resolution: {integrity: sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==}
++    engines: {node: '>= 0.4'}
++
++  hasown@2.0.4:
++    resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
++    engines: {node: '>= 0.4'}
++
++  hermes-estree@0.25.1:
++    resolution: {integrity: sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==}
++
++  hermes-parser@0.25.1:
++    resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
++
++  hono@4.7.10:
++    resolution: {integrity: sha512-QkACju9MiN59CKSY5JsGZCYmPZkA6sIW6OFCUp7qDjZu6S6KHtJHhAc9Uy9mV9F8PJ1/HQ3ybZF2yjCa/73fvQ==}
++    engines: {node: '>=16.9.0'}
++
++  http-status-codes@2.3.0:
++    resolution: {integrity: sha512-RJ8XvFvpPM/Dmc5SV+dC4y5PCeOhT3x1Hq0NU3rjGeg5a/CqlhZ7uudknPwZFz4aeAXDcbAyaeP7GAo9lvngtA==}
++
++  iconv-lite@0.7.3:
++    resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
++    engines: {node: '>=0.10.0'}
++
++  ignore@5.3.2:
++    resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
++    engines: {node: '>= 4'}
++
++  ignore@7.0.12:
++    resolution: {integrity: sha512-/8UvqAPU9DGTI9k4mxtf49U37Isfwr8Uts96+SBHIkFxPJnHS0Ew4f00sM4Scd8V8EjM0jUNtVDdv1kPdt35lg==}
++    engines: {node: '>= 4'}
++
++  import-fresh@3.3.1:
++    resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
++    engines: {node: '>=6'}
++
++  imurmurhash@0.1.4:
++    resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
++    engines: {node: '>=0.8.19'}
++
++  internal-slot@1.1.0:
++    resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
++    engines: {node: '>= 0.4'}
++
++  is-array-buffer@3.0.5:
++    resolution: {integrity: sha512-DDfANUiiG2wC1qawP66qlTugJeL5HyzMpfr8lLK+jMQirGzNod0B12cFB/9q838Ru27sBwfw78/rdoU7RERz6A==}
++    engines: {node: '>= 0.4'}
++
++  is-async-function@2.1.1:
++    resolution: {integrity: sha512-9dgM/cZBnNvjzaMYHVoxxfPj2QXt22Ev7SuuPrs+xav0ukGB0S6d4ydZdEiM48kLx5kDV+QBPrpVnFyefL8kkQ==}
++    engines: {node: '>= 0.4'}
++
++  is-bigint@1.1.0:
++    resolution: {integrity: sha512-n4ZT37wG78iz03xPRKJrHTdZbe3IicyucEtdRsV5yglwc3GyUfbAfpSeD0FJ41NbUNSt5wbhqfp1fS+BgnvDFQ==}
++    engines: {node: '>= 0.4'}
++
++  is-boolean-object@1.2.2:
++    resolution: {integrity: sha512-wa56o2/ElJMYqjCjGkXri7it5FbebW5usLw/nPmCMs5DeZ7eziSYZhSmPRn0txqeW4LnAmQQU7FgqLpsEFKM4A==}
++    engines: {node: '>= 0.4'}
++
++  is-bun-module@2.0.0:
++    resolution: {integrity: sha512-gNCGbnnnnFAUGKeZ9PdbyeGYJqewpmc2aKHUEMO5nQPWU9lOmv7jcmQIv+qHD8fXW6W7qfuCwX4rY9LNRjXrkQ==}
++
++  is-callable@1.2.7:
++    resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
++    engines: {node: '>= 0.4'}
++
++  is-core-module@2.17.0:
++    resolution: {integrity: sha512-J/vG0zBCbIKOQFfufSwyXdMrsohyJIUNkrnmo6WZGzoM7tr/lsbfW5b2BvisL6zsyMzK9UxV9L6c7AoFbyXHOA==}
++    engines: {node: '>= 0.4'}
++
++  is-data-view@1.0.2:
++    resolution: {integrity: sha512-RKtWF8pGmS87i2D6gqQu/l7EYRlVdfzemCJN/P3UOs//x1QE7mfhvzHIApBTRf7axvT6DMGwSwBXYCT0nfB9xw==}
++    engines: {node: '>= 0.4'}
++
++  is-date-object@1.1.0:
++    resolution: {integrity: sha512-PwwhEakHVKTdRNVOw+/Gyh0+MzlCl4R6qKvkhuvLtPMggI1WAHt9sOwZxQLSGpUaDnrdyDsomoRgNnCfKNSXXg==}
++    engines: {node: '>= 0.4'}
++
++  is-document.all@1.0.0:
++    resolution: {integrity: sha512-+XSoyS05OdBbhFuELhgTCpFNHkpBOJqtsZfUFFpe5QTw+9Sjbh8zitxhQkYAo6wV7e1Vb8cAPvpCk9jGam/82g==}
++    engines: {node: '>= 0.4'}
++
++  is-extglob@2.1.1:
++    resolution: {integrity: sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==}
++    engines: {node: '>=0.10.0'}
++
++  is-finalizationregistry@1.1.1:
++    resolution: {integrity: sha512-1pC6N8qWJbWoPtEjgcL2xyhQOP491EQjeUo3qTKcmV8YSDDJrOepfG8pcC7h/QgnQHYSv0mJ3Z/ZWxmatVrysg==}
++    engines: {node: '>= 0.4'}
++
++  is-generator-function@1.1.2:
++    resolution: {integrity: sha512-upqt1SkGkODW9tsGNG5mtXTXtECizwtS2kA161M+gJPc1xdb/Ax629af6YrTwcOeQHbewrPNlE5Dx7kzvXTizA==}
++    engines: {node: '>= 0.4'}
++
++  is-glob@4.0.3:
++    resolution: {integrity: sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==}
++    engines: {node: '>=0.10.0'}
++
++  is-map@2.0.3:
++    resolution: {integrity: sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==}
++    engines: {node: '>= 0.4'}
++
++  is-negative-zero@2.0.3:
++    resolution: {integrity: sha512-5KoIu2Ngpyek75jXodFvnafB6DJgr3u8uuK0LEZJjrU19DrMD3EVERaR8sjz8CCGgpZvxPl9SuE1GMVPFHx1mw==}
++    engines: {node: '>= 0.4'}
++
++  is-number-object@1.1.1:
++    resolution: {integrity: sha512-lZhclumE1G6VYD8VHe35wFaIif+CTy5SJIi5+3y4psDgWu4wPDoBhF8NxUOinEc7pHgiTsT6MaBb92rKhhD+Xw==}
++    engines: {node: '>= 0.4'}
++
++  is-number@7.0.0:
++    resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
++    engines: {node: '>=0.12.0'}
++
++  is-property@1.0.2:
++    resolution: {integrity: sha512-Ks/IoX00TtClbGQr4TWXemAnktAQvYB7HzcCxDGqEZU6oCmb2INHuOoKxbtR+HFkmYWBKv/dOZtGRiAjDhj92g==}
++
++  is-regex@1.2.1:
++    resolution: {integrity: sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==}
++    engines: {node: '>= 0.4'}
++
++  is-set@2.0.3:
++    resolution: {integrity: sha512-iPAjerrse27/ygGLxw+EBR9agv9Y6uLeYVJMu+QNCoouJ1/1ri0mGrcWpfCqFZuzzx3WjtwxG098X+n4OuRkPg==}
++    engines: {node: '>= 0.4'}
++
++  is-shared-array-buffer@1.0.4:
++    resolution: {integrity: sha512-ISWac8drv4ZGfwKl5slpHG9OwPNty4jOWPRIhBpxOoD+hqITiwuipOQ2bNthAzwA3B4fIjO4Nln74N0S9byq8A==}
++    engines: {node: '>= 0.4'}
++
++  is-string@1.1.1:
++    resolution: {integrity: sha512-BtEeSsoaQjlSPBemMQIrY1MY0uM6vnS1g5fmufYOtnxLGUZM2178PKbhsk7Ffv58IX+ZtcvoGwccYsh0PglkAA==}
++    engines: {node: '>= 0.4'}
++
++  is-symbol@1.1.1:
++    resolution: {integrity: sha512-9gGx6GTtCQM73BgmHQXfDmLtfjjTUDSyoxTCbp5WtoixAhfgsDirWIcVQ/IHpvI5Vgd5i/J5F7B9cN/WlVbC/w==}
++    engines: {node: '>= 0.4'}
++
++  is-typed-array@1.1.15:
++    resolution: {integrity: sha512-p3EcsicXjit7SaskXHs1hA91QxgTw46Fv6EFKKGS5DRFLD8yKnohjF3hxoju94b/OcMZoQukzpPpBE9uLVKzgQ==}
++    engines: {node: '>= 0.4'}
++
++  is-weakmap@2.0.2:
++    resolution: {integrity: sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==}
++    engines: {node: '>= 0.4'}
++
++  is-weakref@1.1.1:
++    resolution: {integrity: sha512-6i9mGWSlqzNMEqpCp93KwRS1uUOodk2OJ6b+sq7ZPDSy2WuI5NFIxp/254TytR8ftefexkWn5xNiHUNpPOfSew==}
++    engines: {node: '>= 0.4'}
++
++  is-weakset@2.0.4:
++    resolution: {integrity: sha512-mfcwb6IzQyOKTs84CQMrOwW4gQcaTOAWJ0zzJCl2WSPDrWk/OzDaImWFH3djXhb24g4eudZfLRozAvPGw4d9hQ==}
++    engines: {node: '>= 0.4'}
++
++  isarray@2.0.5:
++    resolution: {integrity: sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==}
++
++  isexe@2.0.0:
++    resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
++
++  iterator.prototype@1.1.5:
++    resolution: {integrity: sha512-H0dkQoCa3b2VEeKQBOxFph+JAbcrQdE7KC0UkqwpLmv2EC4P41QXP+rqo9wYodACiG5/WM5s9oDApTU8utwj9g==}
++    engines: {node: '>= 0.4'}
++
++  jiti@2.7.0:
++    resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
++    hasBin: true
++
++  jose@6.2.12:
++    resolution: {integrity: sha512-9NiFmJEex0sy2Dk58j2UGBSHgUs2ypF9eZSu4L6vjOX3Dp96Sw1F3uL+H+D1sx02jZZdzUT0HgvCy59CuvXcWw==}
++
++  js-tokens@4.0.0:
++    resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
++
++  js-yaml@4.3.2:
++    resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
++    hasBin: true
++
++  jsesc@3.1.0:
++    resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
++    engines: {node: '>=6'}
++    hasBin: true
++
++  json-buffer@3.0.1:
++    resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
++
++  json-schema-traverse@0.4.1:
++    resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
++
++  json-stable-stringify-without-jsonify@1.0.1:
++    resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
++
++  json5@1.0.2:
++    resolution: {integrity: sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==}
++    hasBin: true
++
++  json5@2.2.3:
++    resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
++    engines: {node: '>=6'}
++    hasBin: true
++
++  jsx-ast-utils@3.3.5:
++    resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
++    engines: {node: '>=4.0'}
++
++  keyv@4.5.4:
++    resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
++
++  kysely@0.28.18:
++    resolution: {integrity: sha512-lf6nEHwPlaWbUDw5rycPSkEVGVC7sF7hzY7kH0OryleqK8Ym0zZ+RjI8o+RpHHlxpbKVC1d+UoQSW8GFxGQf4Q==}
++    engines: {node: '>=20.0.0'}
++
++  language-subtag-registry@0.3.23:
++    resolution: {integrity: sha512-0K65Lea881pHotoGEa5gDlMxt3pctLi2RplBb7Ezh4rRdLEOtgi7n4EwK9lamnUCkKBqaeKRVebTq6BAxSkpXQ==}
++
++  language-tags@1.0.9:
++    resolution: {integrity: sha512-MbjN408fEndfiQXbFQ1vnd+1NoLDsnQW41410oQBXiyXDMYH5z505juWa4KUE1LqxRC7DgOgZDbKLxHIwm27hA==}
++    engines: {node: '>=0.10'}
++
++  levn@0.4.1:
++    resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
++    engines: {node: '>= 0.8.0'}
++
++  lilconfig@2.1.0:
++    resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
++    engines: {node: '>=10'}
++
++  locate-path@6.0.0:
++    resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
++    engines: {node: '>=10'}
++
++  lodash.merge@4.6.2:
++    resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
++
++  lodash@4.17.21:
++    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
++
++  long@5.3.2:
++    resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
++
++  loose-envify@1.4.0:
++    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
++    hasBin: true
++
++  lru-cache@5.1.1:
++    resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
++
++  lru.min@1.1.5:
++    resolution: {integrity: sha512-5J9ysMYUpYIg9RF2vJpy9SinEmSviFSe0GyPpCQ4L5QSkLAgeLXlTAOu2ZwWUU5m+0SBl6gUU1R1ZQB3aKypfA==}
++    engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
++
++  math-intrinsics@1.1.0:
++    resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
++    engines: {node: '>= 0.4'}
++
++  merge2@1.4.1:
++    resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
++    engines: {node: '>= 8'}
++
++  micromatch@4.0.8:
++    resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
++    engines: {node: '>=8.6'}
++
++  minimatch@10.2.6:
++    resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
++    engines: {node: 18 || 20 || >=22}
++
++  minimatch@3.1.5:
++    resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
++
++  minimist@1.2.8:
++    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
++
++  ms@2.1.3:
++    resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
++
++  ms@4.0.0-nightly.202508271359:
++    resolution: {integrity: sha512-WC/Eo7NzFrOV/RRrTaI0fxKVbNCzEy76j2VqNV8SxDf9D69gSE2Lh0QwYvDlhiYmheBYExAvEAxVf5NoN0cj2A==}
++    engines: {node: '>=20'}
++
++  mysql2@3.15.3:
++    resolution: {integrity: sha512-FBrGau0IXmuqg4haEZRBfHNWB5mUARw6hNwPDXXGg0XzVJ50mr/9hb267lvpVMnhZ1FON3qNd4Xfcez1rbFwSg==}
++    engines: {node: '>= 8.0'}
++
++  named-placeholders@1.1.6:
++    resolution: {integrity: sha512-Tz09sEL2EEuv5fFowm419c1+a/jSMiBjI9gHxVLrVdbUkkNUUfjsVYs9pVZu5oCon/kmRh9TfLEObFtkVxmY0w==}
++    engines: {node: '>=8.0.0'}
++
++  nanoid@3.3.20:
++    resolution: {integrity: sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ==}
++    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
++    hasBin: true
++
++  nanostores@1.5.5:
++    resolution: {integrity: sha512-FixtE239Gl6Gz0ZGCK0WzvNwObNCIwVT+L7zQcf1QgcA6AzBxblzqe9OT88qiucNkhsjSOqiogSaF5jVbJiqSA==}
++    engines: {node: ^20.0.0 || >=22.0.0}
++
++  napi-postinstall@0.3.4:
++    resolution: {integrity: sha512-PHI5f1O0EP5xJ9gQmFGMS6IZcrVvTjpXjz7Na41gTE7eE2hK11lg04CECCYEEjdc17EV4DO+fkGEtt7TpTaTiQ==}
++    engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
++    hasBin: true
++
++  natural-compare@1.4.0:
++    resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
++
++  next@16.0.0:
++    resolution: {integrity: sha512-nYohiNdxGu4OmBzggxy9rczmjIGI+TpR5vbKTsE1HqYwNm1B+YSiugSrFguX6omMOKnDHAmBPY4+8TNJk0Idyg==}
++    engines: {node: '>=20.9.0'}
++    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
++    hasBin: true
++    peerDependencies:
++      '@opentelemetry/api': ^1.1.0
++      '@playwright/test': ^1.51.1
++      babel-plugin-react-compiler: '*'
++      react: ^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0
++      react-dom: ^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0
++      sass: ^1.3.0
++    peerDependenciesMeta:
++      '@opentelemetry/api':
++        optional: true
++      '@playwright/test':
++        optional: true
++      babel-plugin-react-compiler:
++        optional: true
++      sass:
++        optional: true
++
++  node-exports-info@1.6.2:
++    resolution: {integrity: sha512-kXs9Go0cah0qHVV2v389IXQLdLCeE1xfFtjOAF+iobu0OIoG1pje8At2vMHyaPMiPMnG/LWP50twML21eMcAag==}
++    engines: {node: '>= 0.4'}
++
++  node-fetch-native@1.6.7:
++    resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
++
++  node-releases@2.0.59:
++    resolution: {integrity: sha512-5qr2okC4ItAI0hG5SaV0HoYMpnM/Y6+Oqr7AmPYy/2uEoGvS+GbSKLeRxSS1uAdu59yz0ouzcuXievSgg///WA==}
++    engines: {node: '>=18'}
++
++  nypm@0.6.10:
++    resolution: {integrity: sha512-W72Hrj1petq+b3Hk2aAC+9zswetlIFTnDW4s5djseZh2nYqBbyQLOtj472HwcbcWykPBUW1WpWpjOd4nK6gMRw==}
++    engines: {node: '>=18'}
++    hasBin: true
++
++  object-assign@4.1.1:
++    resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
++    engines: {node: '>=0.10.0'}
++
++  object-inspect@1.13.4:
++    resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
++    engines: {node: '>= 0.4'}
++
++  object-keys@1.1.1:
++    resolution: {integrity: sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==}
++    engines: {node: '>= 0.4'}
++
++  object.assign@4.1.7:
++    resolution: {integrity: sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw==}
++    engines: {node: '>= 0.4'}
++
++  object.entries@1.1.9:
++    resolution: {integrity: sha512-8u/hfXFRBD1O0hPUjioLhoWFHRmt6tKA4/vZPyckBr18l1KE9uHrFaFaUi8MDRTpi4uak2goyPTSNJLXX2k2Hw==}
++    engines: {node: '>= 0.4'}
++
++  object.fromentries@2.0.8:
++    resolution: {integrity: sha512-k6E21FzySsSK5a21KRADBd/NGneRegFO5pLHfdQLpRDETUNJueLXs3WCzyQ3tFRDYgbq3KHGXfTbi2bs8WQ6rQ==}
++    engines: {node: '>= 0.4'}
++
++  object.groupby@1.0.3:
++    resolution: {integrity: sha512-+Lhy3TQTuzXI5hevh8sBGqbmurHbbIjAi0Z4S63nthVLmLxfbj4T54a4CfZrXIrt9iP4mVAPYMo/v99taj3wjQ==}
++    engines: {node: '>= 0.4'}
++
++  object.values@1.2.1:
++    resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
++    engines: {node: '>= 0.4'}
++
++  ohash@2.0.12:
++    resolution: {integrity: sha512-65S/5gk9YSsaRjcyf7Nfa6h/d3E8/1gslpXfI4W7Dxn/oap8IKRuNT5VXkLQ1YFKIEg4apRY4Pj6aiwFzrDdmw==}
++
++  optionator@0.9.4:
++    resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
++    engines: {node: '>= 0.8.0'}
++
++  own-keys@1.0.2:
++    resolution: {integrity: sha512-19YVAg7T+WTrxggPukVq7DjTv6+PJ867TmhCvBsYwmbFCsZd344rq2Ld1p0wo8f8Qrrhgp82c6FJRqdXWtSEhg==}
++    engines: {node: '>= 0.4'}
++
++  p-limit@3.1.0:
++    resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
++    engines: {node: '>=10'}
++
++  p-locate@5.0.0:
++    resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
++    engines: {node: '>=10'}
++
++  parent-module@1.0.1:
++    resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
++    engines: {node: '>=6'}
++
++  path-exists@4.0.0:
++    resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
++    engines: {node: '>=8'}
++
++  path-key@3.1.1:
++    resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
++    engines: {node: '>=8'}
++
++  path-parse@1.0.7:
++    resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
++
++  pathe@2.0.3:
++    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
++
++  perfect-debounce@1.0.0:
++    resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
++
++  pg-cloudflare@1.4.1:
++    resolution: {integrity: sha512-6PQbsFWZcp9EmJEwy5cGQ2La+AMWpP46lgbb8X+U/XsHIUweYDNCpeuKck5RxL2MdVFi7krbbEi5nX4Zh7JhrQ==}
++
++  pg-connection-string@2.14.1:
++    resolution: {integrity: sha512-qR3kGNPBLpCNtz0evbKA0Y/MRFXwSSdT+pTJvYp/bXTcReZbvX1kzF0IyTc1QnxqF7AZbOeBhNL8R5mYQZV/MA==}
++
++  pg-int8@1.0.1:
++    resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
++    engines: {node: '>=4.0.0'}
++
++  pg-pool@3.14.0:
++    resolution: {integrity: sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==}
++    peerDependencies:
++      pg: '>=8.0'
++
++  pg-protocol@1.16.1:
++    resolution: {integrity: sha512-p9VOFMiHB/ZbJATetbg+99PxssTVSQRnyuPSQ67mN1+1KBOjZaZ83ZQzltnxPhJwSsC3nwVjJ10DVJlerbFzLg==}
++
++  pg-types@2.2.0:
++    resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
++    engines: {node: '>=4'}
++
++  pg@8.16.3:
++    resolution: {integrity: sha512-enxc1h0jA/aq5oSDMvqyW3q89ra6XIIDZgCX9vkMrnz5DFTw/Ny3Li2lFQ+pt3L6MCgm/5o2o8HW9hiJji+xvw==}
++    engines: {node: '>= 16.0.0'}
++    peerDependencies:
++      pg-native: '>=3.0.1'
++    peerDependenciesMeta:
++      pg-native:
++        optional: true
++
++  pgpass@1.0.5:
++    resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
++
++  picocolors@1.1.1:
++    resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
++
++  picomatch@2.3.2:
++    resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
++    engines: {node: '>=8.6'}
++
++  picomatch@4.0.7:
++    resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
++    engines: {node: '>=12'}
++
++  pkg-types@2.3.3:
++    resolution: {integrity: sha512-j/lCFdcppV0JxWpCEITdbDltBxPP6cHT+yNJ6Go2OgoSA9518X847X9z0p6LtA4Nc16+eQzCZjRrWanTGvHJ5w==}
++
++  possible-typed-array-names@1.1.0:
++    resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
++    engines: {node: '>= 0.4'}
++
++  postcss@8.4.31:
++    resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
++    engines: {node: ^10 || ^12 || >=14}
++
++  postgres-array@2.0.0:
++    resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
++    engines: {node: '>=4'}
++
++  postgres-array@3.0.4:
++    resolution: {integrity: sha512-nAUSGfSDGOaOAEGwqsRY27GPOea7CNipJPOA7lPbdEpx5Kg3qzdP0AaWC5MlhTWV9s4hFX39nomVZ+C4tnGOJQ==}
++    engines: {node: '>=12'}
++
++  postgres-bytea@1.0.1:
++    resolution: {integrity: sha512-5+5HqXnsZPE65IJZSMkZtURARZelel2oXUEO8rH83VS/hxH5vv1uHquPg5wZs8yMAfdv971IU+kcPUczi7NVBQ==}
++    engines: {node: '>=0.10.0'}
++
++  postgres-date@1.0.7:
++    resolution: {integrity: sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==}
++    engines: {node: '>=0.10.0'}
++
++  postgres-interval@1.2.0:
++    resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
++    engines: {node: '>=0.10.0'}
++
++  postgres@3.4.7:
++    resolution: {integrity: sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw==}
++    engines: {node: '>=12'}
++
++  prelude-ls@1.2.1:
++    resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
++    engines: {node: '>= 0.8.0'}
++
++  prisma@7.0.0:
++    resolution: {integrity: sha512-VZObZ1pQV/OScarYg68RYUx61GpFLH2mJGf9fUX4XxQxTst/6ZK7nkY86CSZ3zBW6U9lKRTsBrZWVz20X5G/KQ==}
++    engines: {node: ^20.19 || ^22.12 || ^24.0}
++    hasBin: true
++    peerDependencies:
++      better-sqlite3: '>=9.0.0'
++      typescript: '>=5.4.0'
++    peerDependenciesMeta:
++      better-sqlite3:
++        optional: true
++      typescript:
++        optional: true
++
++  prop-types@15.8.1:
++    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
++
++  proper-lockfile@4.1.2:
++    resolution: {integrity: sha512-TjNPblN4BwAWMXU8s9AEz4JmQxnD1NNL7bNOY/AKUzyamc379FWASUhc/K1pL2noVb+XmZKLL68cjzLsiOAMaA==}
++
++  punycode@2.3.1:
++    resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
++    engines: {node: '>=6'}
++
++  pure-rand@6.1.0:
++    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
++
++  queue-microtask@1.2.3:
++    resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
++
++  rc9@2.1.2:
++    resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
++
++  react-dom@19.2.0:
++    resolution: {integrity: sha512-UlbRu4cAiGaIewkPyiRGJk0imDN2T3JjieT6spoL2UeSf5od4n5LB/mQ4ejmxhCFT1tYe8IvaFulzynWovsEFQ==}
++    peerDependencies:
++      react: ^19.2.0
++
++  react-is@16.13.1:
++    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
++
++  react@19.2.0:
++    resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
++    engines: {node: '>=0.10.0'}
++
++  readdirp@4.1.2:
++    resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
++    engines: {node: '>= 14.18.0'}
++
++  reflect.getprototypeof@1.0.10:
++    resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
++    engines: {node: '>= 0.4'}
++
++  regexp-to-ast@0.5.0:
++    resolution: {integrity: sha512-tlbJqcMHnPKI9zSrystikWKwHkBqu2a/Sgw01h3zFjvYrMxEDYHzzoMZnUrbIfpTFEsoRnnviOXNCzFiSc54Qw==}
++
++  regexp.prototype.flags@1.5.4:
++    resolution: {integrity: sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==}
++    engines: {node: '>= 0.4'}
++
++  remeda@2.21.3:
++    resolution: {integrity: sha512-XXrZdLA10oEOQhLLzEJEiFFSKi21REGAkHdImIb4rt/XXy8ORGXh5HCcpUOsElfPNDb+X6TA/+wkh+p2KffYmg==}
++
++  resolve-from@4.0.0:
++    resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
++    engines: {node: '>=4'}
++
++  resolve-pkg-maps@1.0.0:
++    resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
++
++  resolve@2.0.0-next.7:
++    resolution: {integrity: sha512-tqt+NBWwyaMgw3zDsnygx4CByWjQEJHOPMdslYhppaQSJUtL/D4JO9CcBBlhPoI8lz9oJIDXkwXfhF4aWqP8xQ==}
++    engines: {node: '>= 0.4'}
++    hasBin: true
++
++  retry@0.12.0:
++    resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
++    engines: {node: '>= 4'}
++
++  reusify@1.1.0:
++    resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
++    engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
++
++  rou3@0.7.12:
++    resolution: {integrity: sha512-iFE4hLDuloSWcD7mjdCDhx2bKcIsYbtOTpfH5MHHLSKMOUyjqQXTeZVa289uuwEGEKFoE/BAPbhaU4B774nceg==}
++
++  run-parallel@1.2.0:
++    resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
++
++  safe-array-concat@1.1.4:
++    resolution: {integrity: sha512-wtZlHyOje6OZTGqAoaDKxFkgRtkF9CnHAVnCHKfuj200wAgL+bSJhdsCD2l0Qx/2ekEXjPWcyKkfGb5CPboslg==}
++    engines: {node: '>=0.4'}
++
++  safe-push-apply@1.0.0:
++    resolution: {integrity: sha512-iKE9w/Z7xCzUMIZqdBsp6pEQvwuEebH4vdpjcDWnyzaI6yl6O9FHvVpmGelvEHNsoY6wGblkxR6Zty/h00WiSA==}
++    engines: {node: '>= 0.4'}
++
++  safe-regex-test@1.1.0:
++    resolution: {integrity: sha512-x/+Cz4YrimQxQccJf5mKEbIa1NzeCRNI5Ecl/ekmlYaampdNLPalVyIcCZNNH3MvmqBugV5TMYZXv0ljslUlaw==}
++    engines: {node: '>= 0.4'}
++
++  safer-buffer@2.1.2:
++    resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
++
++  scheduler@0.27.0:
++    resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
++
++  semver@6.3.1:
++    resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
++    hasBin: true
++
++  semver@7.8.5:
++    resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
++    engines: {node: '>=10'}
++    hasBin: true
++
++  seq-queue@0.0.5:
++    resolution: {integrity: sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q==}
++
++  set-cookie-parser@2.7.2:
++    resolution: {integrity: sha512-oeM1lpU/UvhTxw+g3cIfxXHyJRc/uidd3yK1P242gzHds0udQBYzs3y8j4gCCW+ZJ7ad0yctld8RYO+bdurlvw==}
++
++  set-function-length@1.2.2:
++    resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
++    engines: {node: '>= 0.4'}
++
++  set-function-name@2.0.2:
++    resolution: {integrity: sha512-7PGFlmtwsEADb0WYyvCMa1t+yke6daIG4Wirafur5kcf+MhUnPms1UeR0CKQdTZD81yESwMHbtn+TR+dMviakQ==}
++    engines: {node: '>= 0.4'}
++
++  set-proto@1.0.0:
++    resolution: {integrity: sha512-RJRdvCo6IAnPdsvP/7m6bsQqNnn1FCBX5ZNtFL98MmFF/4xAIJTIg1YbHW5DC2W5SKZanrC6i4HsJqlajw/dZw==}
++    engines: {node: '>= 0.4'}
++
++  sharp@0.34.5:
++    resolution: {integrity: sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==}
++    engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
++
++  shebang-command@2.0.0:
++    resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
++    engines: {node: '>=8'}
++
++  shebang-regex@3.0.0:
++    resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
++    engines: {node: '>=8'}
++
++  side-channel-list@1.0.1:
++    resolution: {integrity: sha512-mjn/0bi/oUURjc5Xl7IaWi/OJJJumuoJFQJfDDyO46+hBWsfaVM65TBHq2eoZBhzl9EchxOijpkbRC8SVBQU0w==}
++    engines: {node: '>= 0.4'}
++
++  side-channel-map@1.0.1:
++    resolution: {integrity: sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==}
++    engines: {node: '>= 0.4'}
++
++  side-channel-weakmap@1.0.2:
++    resolution: {integrity: sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==}
++    engines: {node: '>= 0.4'}
++
++  side-channel@1.1.1:
++    resolution: {integrity: sha512-6x6dK6zJdpTzF4sQeNYxwtvBzf6Eg4GtlesS94HOvTudUeyK2WXAaIfmDgsyslYrRBeFIlsi54AYsFGUuhmvrQ==}
++    engines: {node: '>= 0.4'}
++
++  signal-exit@3.0.7:
++    resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
++
++  signal-exit@4.1.0:
++    resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
++    engines: {node: '>=14'}
++
++  source-map-js@1.2.2:
++    resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
++    engines: {node: '>=0.10.0'}
++
++  split2@4.2.0:
++    resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
++    engines: {node: '>= 10.x'}
++
++  sqlstring@2.3.3:
++    resolution: {integrity: sha512-qC9iz2FlN7DQl3+wjwn3802RTyjCx7sDvfQEXchwa6CWOx07/WVfh91gBmQ9fahw8snwGEWU3xGzOt4tFyHLxg==}
++    engines: {node: '>= 0.6'}
++
++  stable-hash@0.0.5:
++    resolution: {integrity: sha512-+L3ccpzibovGXFK+Ap/f8LOS0ahMrHTf3xu7mMLSpEGU0EO9ucaysSylKo9eRDFNhWve/y275iPmIZ4z39a9iA==}
++
++  std-env@3.9.0:
++    resolution: {integrity: sha512-UGvjygr6F6tpH7o2qyqR6QYpwraIjKSdtzyBdyytFOHmPZY917kwdwLG0RbOjWOnKmnm3PeHjaoLLMie7kPLQw==}
++
++  stop-iteration-iterator@1.1.0:
++    resolution: {integrity: sha512-eLoXW/DHyl62zxY4SCaIgnRhuMr6ri4juEYARS8E6sCEqzKpOiE521Ucofdx+KnDZl5xmvGYaaKCk5FEOxJCoQ==}
++    engines: {node: '>= 0.4'}
++
++  string.prototype.includes@2.0.1:
++    resolution: {integrity: sha512-o7+c9bW6zpAdJHTtujeePODAhkuicdAryFsfVKwA+wGw89wJ4GTY484WTucM9hLtDEOpOvI+aHnzqnC5lHp4Rg==}
++    engines: {node: '>= 0.4'}
++
++  string.prototype.matchall@4.1.0:
++    resolution: {integrity: sha512-tHNHTxInrYLCga9O9YGxWA3G9/nnzQw8UGAyqGx3Ar1pSTTzIuM4woFSq4SowkXCjJIwq5sIiQvEfRI9tCH1qQ==}
++    engines: {node: '>= 0.4'}
++
++  string.prototype.repeat@1.0.0:
++    resolution: {integrity: sha512-0u/TldDbKD8bFCQ/4f5+mNRrXwZ8hg2w7ZR8wa16e8z9XpePWl3eGEcUD0OXpEH/VJH/2G3gjUtR3ZOiBe2S/w==}
++
++  string.prototype.trim@1.2.11:
++    resolution: {integrity: sha512-PwvK7BU+CMTJGYQCTZb5RWXIML92lftJLhQz1tBzgKiqGxJaMlBAa48POXaNAC2s4y8jr3EFqrkF9+44neS46w==}
++    engines: {node: '>= 0.4'}
++
++  string.prototype.trimend@1.0.10:
++    resolution: {integrity: sha512-2+3aDAOmPTmuFwjDnmJG2ctEkQKVki7vOSqaxkv42Mowj1V6PnvuwFCRrR5lChUux1TBskPjfkeTOhqczDMxTw==}
++    engines: {node: '>= 0.4'}
++
++  string.prototype.trimstart@1.0.8:
++    resolution: {integrity: sha512-UXSH262CSZY1tfu3G3Secr6uGLCFVPMhIqHjlgCUtCCcgihYc/xKs9djMTMUOb2j1mVSeU8EU6NWc/iQKU6Gfg==}
++    engines: {node: '>= 0.4'}
++
++  strip-bom@3.0.0:
++    resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
++    engines: {node: '>=4'}
++
++  strip-json-comments@3.1.1:
++    resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
++    engines: {node: '>=8'}
++
++  styled-jsx@5.1.6:
++    resolution: {integrity: sha512-qSVyDTeMotdvQYoHWLNGwRFJHC+i+ZvdBRYosOFgC+Wg1vx4frN2/RG/NA7SYqqvKNLf39P2LSRA2pu6n0XYZA==}
++    engines: {node: '>= 12.0.0'}
++    peerDependencies:
++      '@babel/core': '*'
++      babel-plugin-macros: '*'
++      react: '>= 16.8.0 || 17.x.x || ^18.0.0-0 || ^19.0.0-0'
++    peerDependenciesMeta:
++      '@babel/core':
++        optional: true
++      babel-plugin-macros:
++        optional: true
++
++  supports-color@7.2.0:
++    resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
++    engines: {node: '>=8'}
++
++  supports-preserve-symlinks-flag@1.0.0:
++    resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
++    engines: {node: '>= 0.4'}
++
++  tinyexec@1.3.1:
++    resolution: {integrity: sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==}
++    engines: {node: '>=18'}
++
++  tinyglobby@0.2.17:
++    resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
++    engines: {node: '>=12.0.0'}
++
++  to-regex-range@5.0.1:
++    resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
++    engines: {node: '>=8.0'}
++
++  ts-api-utils@2.5.0:
++    resolution: {integrity: sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA==}
++    engines: {node: '>=18.12'}
++    peerDependencies:
++      typescript: '>=4.8.4'
++
++  tsconfig-paths@3.15.0:
++    resolution: {integrity: sha512-2Ac2RgzDe/cn48GvOe3M+o82pEFewD3UPbyoUHHdKasHwJKjds4fLXWf/Ux5kATBKN20oaFGu+jbElp1pos0mg==}
++
++  tslib@2.8.1:
++    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
++
++  tsx@4.20.6:
++    resolution: {integrity: sha512-ytQKuwgmrrkDTFP4LjR0ToE2nqgy886GpvRSpU0JAnrdBYppuY5rLkRUYPU1yCryb24SsKBTL/hlDQAEFVwtZg==}
++    engines: {node: '>=18.0.0'}
++    hasBin: true
++
++  type-check@0.4.0:
++    resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
++    engines: {node: '>= 0.8.0'}
++
++  type-fest@4.41.0:
++    resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
++    engines: {node: '>=16'}
++
++  typed-array-buffer@1.0.3:
++    resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
++    engines: {node: '>= 0.4'}
++
++  typed-array-byte-length@1.0.3:
++    resolution: {integrity: sha512-BaXgOuIxz8n8pIq3e7Atg/7s+DpiYrxn4vdot3w9KbnBhcRQq6o3xemQdIfynqSeXeDrF32x+WvfzmOjPiY9lg==}
++    engines: {node: '>= 0.4'}
++
++  typed-array-byte-offset@1.0.5:
++    resolution: {integrity: sha512-0FHJvLPqZ7KJzp17O13jfsAjsqazgrxBu2zEK95PmUz8lv2+GjRuxUInCr2Rk9Dms3ihN21zJ929ZO43yJ95QQ==}
++    engines: {node: '>= 0.4'}
++
++  typed-array-length@1.0.8:
++    resolution: {integrity: sha512-phPGCwqr2+Qo0fwniCE8e4pKnGu/yFb5nD5Y8bf0EEeiI5GklnACYA9GFy/DrAeRrKHXvHn+1SUsOWgJp6RO+g==}
++    engines: {node: '>= 0.4'}
++
++  typescript-eslint@8.71.2:
++    resolution: {integrity: sha512-Rz4effbMy2g9wnvOJZG6SbVavX313Lap1vNEbk1RUochzickvzP8P4HB+bkNg5e50eVz1hQGjh9K1omI1xB4Bw==}
++    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
++    peerDependencies:
++      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
++      typescript: '>=4.8.4 <6.1.0'
++
++  typescript@5.9.3:
++    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
++    engines: {node: '>=14.17'}
++    hasBin: true
++
++  unbox-primitive@1.1.0:
++    resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
++    engines: {node: '>= 0.4'}
++
++  undici-types@7.16.0:
++    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
++
++  unrs-resolver@1.12.2:
++    resolution: {integrity: sha512-dmlRxBJJayXjqTwC+JtF1HhJmgf3ftQ3YejFcZrf4+KKtJv0qDsK1pjqaaVjG7wJ5NJ6UVP1OqRMQ71Z4C3rxQ==}
++
++  update-browserslist-db@1.3.4:
++    resolution: {integrity: sha512-t8wonIOdQyOjtPd2VktlBu6QjTVTks6v8bSi7kd0r2Vll8TK1JYDZtRRdbmCHOAMphkZgrzK+L+vXK4pyZ8t4A==}
++    hasBin: true
++    peerDependencies:
++      browserslist: '>= 4.21.0'
++
++  uri-js@4.4.1:
++    resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
++
++  valibot@1.1.0:
++    resolution: {integrity: sha512-Nk8lX30Qhu+9txPYTwM0cFlWLdPFsFr6LblzqIySfbZph9+BFsAHsNvHOymEviUepeIW6KFHzpX8TKhbptBXXw==}
++    peerDependencies:
++      typescript: '>=5'
++    peerDependenciesMeta:
++      typescript:
++        optional: true
++
++  which-boxed-primitive@1.1.1:
++    resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
++    engines: {node: '>= 0.4'}
++
++  which-builtin-type@1.2.1:
++    resolution: {integrity: sha512-6iBczoX+kDQ7a3+YJBnh3T+KZRxM/iYNPXicqk66/Qfm1b93iu+yOImkg0zHbj5LNOcNv1TEADiZ0xa34B4q6Q==}
++    engines: {node: '>= 0.4'}
++
++  which-collection@1.0.2:
++    resolution: {integrity: sha512-K4jVyjnBdgvc86Y6BkaLZEN933SwYOuBFkdmBu9ZfkcAbdVbpITnDmjvZ/aQjRXQrv5EPkTnD1s39GiiqbngCw==}
++    engines: {node: '>= 0.4'}
++
++  which-typed-array@1.1.24:
++    resolution: {integrity: sha512-wk4Mf4pR5mRP7eYuuTBCIQ9d0ud2Fv2jRLQpfgnRjbOxAFHmjKFValgTpitVKzJJS8ajnYQV2Du1SZ8j6b/EUQ==}
++    engines: {node: '>= 0.4'}
++
++  which@2.0.2:
++    resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
++    engines: {node: '>= 8'}
++    hasBin: true
++
++  word-wrap@1.2.5:
++    resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
++    engines: {node: '>=0.10.0'}
++
++  xtend@4.0.2:
++    resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
++    engines: {node: '>=0.4'}
++
++  yallist@3.1.1:
++    resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
++
++  yocto-queue@0.1.0:
++    resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
++    engines: {node: '>=10'}
++
++  zeptomatch@2.0.2:
++    resolution: {integrity: sha512-H33jtSKf8Ijtb5BW6wua3G5DhnFjbFML36eFu+VdOoVY4HD9e7ggjqdM6639B+L87rjnR6Y+XeRzBXZdy52B/g==}
++
++  zod-validation-error@4.0.2:
++    resolution: {integrity: sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ==}
++    engines: {node: '>=18.0.0'}
++    peerDependencies:
++      zod: ^3.25.0 || ^4.0.0
++
++  zod@4.6.7:
++    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
++
++snapshots:
++
++  '@babel/code-frame@7.29.7':
++    dependencies:
++      '@babel/helper-validator-identifier': 7.29.7
++      js-tokens: 4.0.0
++      picocolors: 1.1.1
++
++  '@babel/compat-data@7.29.7': {}
++
++  '@babel/core@7.29.7(supports-color@7.2.0)':
++    dependencies:
++      '@babel/code-frame': 7.29.7
++      '@babel/generator': 7.29.8
++      '@babel/helper-compilation-targets': 7.29.7
++      '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)
++      '@babel/helpers': 7.29.10
++      '@babel/parser': 7.29.9
++      '@babel/template': 7.29.7
++      '@babel/traverse': 7.29.10(supports-color@7.2.0)
++      '@babel/types': 7.29.8
++      '@jridgewell/remapping': 2.3.5
++      convert-source-map: 2.0.0
++      debug: 4.4.3(supports-color@7.2.0)
++      gensync: 1.0.0-beta.2
++      json5: 2.2.3
++      semver: 6.3.1
++    transitivePeerDependencies:
++      - supports-color
++
++  '@babel/generator@7.29.8':
++    dependencies:
++      '@babel/parser': 7.29.9
++      '@babel/types': 7.29.8
++      '@jridgewell/gen-mapping': 0.3.13
++      '@jridgewell/trace-mapping': 0.3.31
++      jsesc: 3.1.0
++
++  '@babel/helper-compilation-targets@7.29.7':
++    dependencies:
++      '@babel/compat-data': 7.29.7
++      '@babel/helper-validator-option': 7.29.7
++      browserslist: 4.29.3
++      lru-cache: 5.1.1
++      semver: 6.3.1
++
++  '@babel/helper-globals@7.29.7': {}
++
++  '@babel/helper-module-imports@7.29.7(supports-color@7.2.0)':
++    dependencies:
++      '@babel/traverse': 7.29.10(supports-color@7.2.0)
++      '@babel/types': 7.29.8
++    transitivePeerDependencies:
++      - supports-color
++
++  '@babel/helper-module-transforms@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)':
++    dependencies:
++      '@babel/core': 7.29.7(supports-color@7.2.0)
++      '@babel/helper-module-imports': 7.29.7(supports-color@7.2.0)
++      '@babel/helper-validator-identifier': 7.29.7
++      '@babel/traverse': 7.29.10(supports-color@7.2.0)
++    transitivePeerDependencies:
++      - supports-color
++
++  '@babel/helper-string-parser@7.29.7': {}
++
++  '@babel/helper-validator-identifier@7.29.7': {}
++
++  '@babel/helper-validator-option@7.29.7': {}
++
++  '@babel/helpers@7.29.10':
++    dependencies:
++      '@babel/template': 7.29.7
++      '@babel/types': 7.29.8
++
++  '@babel/parser@7.29.9':
++    dependencies:
++      '@babel/types': 7.29.8
++
++  '@babel/template@7.29.7':
++    dependencies:
++      '@babel/code-frame': 7.29.7
++      '@babel/parser': 7.29.9
++      '@babel/types': 7.29.8
++
++  '@babel/traverse@7.29.10(supports-color@7.2.0)':
++    dependencies:
++      '@babel/code-frame': 7.29.7
++      '@babel/generator': 7.29.8
++      '@babel/helper-globals': 7.29.7
++      '@babel/parser': 7.29.9
++      '@babel/template': 7.29.7
++      '@babel/types': 7.29.8
++      debug: 4.4.3(supports-color@7.2.0)
++    transitivePeerDependencies:
++      - supports-color
++
++  '@babel/types@7.29.8':
++    dependencies:
++      '@babel/helper-string-parser': 7.29.7
++      '@babel/helper-validator-identifier': 7.29.7
++
++  '@better-auth/core@1.4.5(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.4(zod@4.6.7))(jose@6.2.12)(kysely@0.28.18)(nanostores@1.5.5)':
++    dependencies:
++      '@better-auth/utils': 0.3.0
++      '@better-fetch/fetch': 1.1.18
++      '@standard-schema/spec': 1.1.0
++      better-call: 1.1.4(zod@4.6.7)
++      jose: 6.2.12
++      kysely: 0.28.18
++      nanostores: 1.5.5
++      zod: 4.6.7
++
++  '@better-auth/telemetry@1.4.5(@better-auth/core@1.4.5(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.4(zod@4.6.7))(jose@6.2.12)(kysely@0.28.18)(nanostores@1.5.5))':
++    dependencies:
++      '@better-auth/core': 1.4.5(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.4(zod@4.6.7))(jose@6.2.12)(kysely@0.28.18)(nanostores@1.5.5)
++      '@better-auth/utils': 0.3.0
++      '@better-fetch/fetch': 1.1.18
++
++  '@better-auth/utils@0.3.0': {}
++
++  '@better-fetch/fetch@1.1.18': {}
++
++  '@chevrotain/cst-dts-gen@10.5.0':
++    dependencies:
++      '@chevrotain/gast': 10.5.0
++      '@chevrotain/types': 10.5.0
++      lodash: 4.17.21
++
++  '@chevrotain/gast@10.5.0':
++    dependencies:
++      '@chevrotain/types': 10.5.0
++      lodash: 4.17.21
++
++  '@chevrotain/types@10.5.0': {}
++
++  '@chevrotain/utils@10.5.0': {}
++
++  '@electric-sql/pglite-socket@0.0.6(@electric-sql/pglite@0.3.2)':
++    dependencies:
++      '@electric-sql/pglite': 0.3.2
++
++  '@electric-sql/pglite-tools@0.2.7(@electric-sql/pglite@0.3.2)':
++    dependencies:
++      '@electric-sql/pglite': 0.3.2
++
++  '@electric-sql/pglite@0.3.2': {}
++
++  '@emnapi/core@1.10.0':
++    dependencies:
++      '@emnapi/wasi-threads': 1.2.1
++      tslib: 2.8.1
++    optional: true
++
++  '@emnapi/runtime@1.10.0':
++    dependencies:
++      tslib: 2.8.1
++    optional: true
++
++  '@emnapi/runtime@1.11.3':
++    dependencies:
++      tslib: 2.8.1
++    optional: true
++
++  '@emnapi/wasi-threads@1.2.1':
++    dependencies:
++      tslib: 2.8.1
++    optional: true
++
++  '@esbuild/aix-ppc64@0.25.12':
++    optional: true
++
++  '@esbuild/android-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/android-arm@0.25.12':
++    optional: true
++
++  '@esbuild/android-x64@0.25.12':
++    optional: true
++
++  '@esbuild/darwin-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/darwin-x64@0.25.12':
++    optional: true
++
++  '@esbuild/freebsd-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/freebsd-x64@0.25.12':
++    optional: true
++
++  '@esbuild/linux-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/linux-arm@0.25.12':
++    optional: true
++
++  '@esbuild/linux-ia32@0.25.12':
++    optional: true
++
++  '@esbuild/linux-loong64@0.25.12':
++    optional: true
++
++  '@esbuild/linux-mips64el@0.25.12':
++    optional: true
++
++  '@esbuild/linux-ppc64@0.25.12':
++    optional: true
++
++  '@esbuild/linux-riscv64@0.25.12':
++    optional: true
++
++  '@esbuild/linux-s390x@0.25.12':
++    optional: true
++
++  '@esbuild/linux-x64@0.25.12':
++    optional: true
++
++  '@esbuild/netbsd-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/netbsd-x64@0.25.12':
++    optional: true
++
++  '@esbuild/openbsd-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/openbsd-x64@0.25.12':
++    optional: true
++
++  '@esbuild/openharmony-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/sunos-x64@0.25.12':
++    optional: true
++
++  '@esbuild/win32-arm64@0.25.12':
++    optional: true
++
++  '@esbuild/win32-ia32@0.25.12':
++    optional: true
++
++  '@esbuild/win32-x64@0.25.12':
++    optional: true
++
++  '@eslint-community/eslint-utils@4.10.1(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))':
++    dependencies:
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      eslint-visitor-keys: 3.4.3
++
++  '@eslint-community/regexpp@4.12.2': {}
++
++  '@eslint/config-array@0.21.2(supports-color@7.2.0)':
++    dependencies:
++      '@eslint/object-schema': 2.1.7
++      debug: 4.4.3(supports-color@7.2.0)
++      minimatch: 3.1.5
++    transitivePeerDependencies:
++      - supports-color
++
++  '@eslint/config-helpers@0.4.2':
++    dependencies:
++      '@eslint/core': 0.17.0
++
++  '@eslint/core@0.17.0':
++    dependencies:
++      '@types/json-schema': 7.0.15
++
++  '@eslint/eslintrc@3.3.7(supports-color@7.2.0)':
++    dependencies:
++      ajv: 6.15.0
++      debug: 4.4.3(supports-color@7.2.0)
++      espree: 10.4.0
++      globals: 14.0.0
++      ignore: 5.3.2
++      import-fresh: 3.3.1
++      js-yaml: 4.3.2
++      minimatch: 3.1.5
++      strip-json-comments: 3.1.1
++    transitivePeerDependencies:
++      - supports-color
++
++  '@eslint/js@9.39.1': {}
++
++  '@eslint/object-schema@2.1.7': {}
++
++  '@eslint/plugin-kit@0.4.1':
++    dependencies:
++      '@eslint/core': 0.17.0
++      levn: 0.4.1
++
++  '@hono/node-server@1.14.2(hono@4.7.10)':
++    dependencies:
++      hono: 4.7.10
++
++  '@humanfs/core@0.19.2':
++    dependencies:
++      '@humanfs/types': 0.15.0
++
++  '@humanfs/node@0.16.8':
++    dependencies:
++      '@humanfs/core': 0.19.2
++      '@humanfs/types': 0.15.0
++      '@humanwhocodes/retry': 0.4.3
++
++  '@humanfs/types@0.15.0': {}
++
++  '@humanwhocodes/module-importer@1.0.1': {}
++
++  '@humanwhocodes/retry@0.4.3': {}
++
++  '@img/colour@1.1.0':
++    optional: true
++
++  '@img/sharp-darwin-arm64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-darwin-arm64': 1.2.4
++    optional: true
++
++  '@img/sharp-darwin-x64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-darwin-x64': 1.2.4
++    optional: true
++
++  '@img/sharp-libvips-darwin-arm64@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-darwin-x64@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linux-arm64@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linux-arm@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linux-ppc64@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linux-riscv64@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linux-s390x@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linux-x64@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linuxmusl-arm64@1.2.4':
++    optional: true
++
++  '@img/sharp-libvips-linuxmusl-x64@1.2.4':
++    optional: true
++
++  '@img/sharp-linux-arm64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linux-arm64': 1.2.4
++    optional: true
++
++  '@img/sharp-linux-arm@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linux-arm': 1.2.4
++    optional: true
++
++  '@img/sharp-linux-ppc64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linux-ppc64': 1.2.4
++    optional: true
++
++  '@img/sharp-linux-riscv64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linux-riscv64': 1.2.4
++    optional: true
++
++  '@img/sharp-linux-s390x@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linux-s390x': 1.2.4
++    optional: true
++
++  '@img/sharp-linux-x64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linux-x64': 1.2.4
++    optional: true
++
++  '@img/sharp-linuxmusl-arm64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linuxmusl-arm64': 1.2.4
++    optional: true
++
++  '@img/sharp-linuxmusl-x64@0.34.5':
++    optionalDependencies:
++      '@img/sharp-libvips-linuxmusl-x64': 1.2.4
++    optional: true
++
++  '@img/sharp-wasm32@0.34.5':
++    dependencies:
++      '@emnapi/runtime': 1.11.3
++    optional: true
++
++  '@img/sharp-win32-arm64@0.34.5':
++    optional: true
++
++  '@img/sharp-win32-ia32@0.34.5':
++    optional: true
++
++  '@img/sharp-win32-x64@0.34.5':
++    optional: true
++
++  '@jridgewell/gen-mapping@0.3.13':
++    dependencies:
++      '@jridgewell/sourcemap-codec': 1.6.0
++      '@jridgewell/trace-mapping': 0.3.31
++
++  '@jridgewell/remapping@2.3.5':
++    dependencies:
++      '@jridgewell/gen-mapping': 0.3.13
++      '@jridgewell/trace-mapping': 0.3.31
++
++  '@jridgewell/resolve-uri@3.1.2': {}
++
++  '@jridgewell/sourcemap-codec@1.6.0': {}
++
++  '@jridgewell/trace-mapping@0.3.31':
++    dependencies:
++      '@jridgewell/resolve-uri': 3.1.2
++      '@jridgewell/sourcemap-codec': 1.6.0
++
++  '@mrleebo/prisma-ast@0.12.1':
++    dependencies:
++      chevrotain: 10.5.0
++      lilconfig: 2.1.0
++
++  '@napi-rs/wasm-runtime@1.2.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
++    dependencies:
++      '@emnapi/core': 1.10.0
++      '@emnapi/runtime': 1.10.0
++      '@tybys/wasm-util': 0.10.4
++    optional: true
++
++  '@next/env@16.0.0': {}
++
++  '@next/eslint-plugin-next@16.0.0':
++    dependencies:
++      fast-glob: 3.3.1
++
++  '@next/swc-darwin-arm64@16.0.0':
++    optional: true
++
++  '@next/swc-darwin-x64@16.0.0':
++    optional: true
++
++  '@next/swc-linux-arm64-gnu@16.0.0':
++    optional: true
++
++  '@next/swc-linux-arm64-musl@16.0.0':
++    optional: true
++
++  '@next/swc-linux-x64-gnu@16.0.0':
++    optional: true
++
++  '@next/swc-linux-x64-musl@16.0.0':
++    optional: true
++
++  '@next/swc-win32-arm64-msvc@16.0.0':
++    optional: true
++
++  '@next/swc-win32-x64-msvc@16.0.0':
++    optional: true
++
++  '@noble/ciphers@2.4.0': {}
++
++  '@noble/hashes@2.4.0': {}
++
++  '@nodelib/fs.scandir@2.1.5':
++    dependencies:
++      '@nodelib/fs.stat': 2.0.5
++      run-parallel: 1.2.0
++
++  '@nodelib/fs.stat@2.0.5': {}
++
++  '@nodelib/fs.walk@1.2.8':
++    dependencies:
++      '@nodelib/fs.scandir': 2.1.5
++      fastq: 1.20.3
++
++  '@nolyfill/is-core-module@1.0.39': {}
++
++  '@popperjs/core@2.11.8': {}
++
++  '@prisma/adapter-pg@7.0.0':
++    dependencies:
++      '@prisma/driver-adapter-utils': 7.0.0
++      pg: 8.16.3
++      postgres-array: 3.0.4
++    transitivePeerDependencies:
++      - pg-native
++
++  '@prisma/client-runtime-utils@7.0.0': {}
++
++  '@prisma/client@7.0.0(prisma@7.0.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)':
++    dependencies:
++      '@prisma/client-runtime-utils': 7.0.0
++    optionalDependencies:
++      prisma: 7.0.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
++      typescript: 5.9.3
++
++  '@prisma/config@7.0.0':
++    dependencies:
++      c12: 3.1.0
++      deepmerge-ts: 7.1.5
++      effect: 3.18.4
++      empathic: 2.0.0
++    transitivePeerDependencies:
++      - magicast
++
++  '@prisma/debug@6.8.2': {}
++
++  '@prisma/debug@7.0.0': {}
++
++  '@prisma/dev@0.13.0(typescript@5.9.3)':
++    dependencies:
++      '@electric-sql/pglite': 0.3.2
++      '@electric-sql/pglite-socket': 0.0.6(@electric-sql/pglite@0.3.2)
++      '@electric-sql/pglite-tools': 0.2.7(@electric-sql/pglite@0.3.2)
++      '@hono/node-server': 1.14.2(hono@4.7.10)
++      '@mrleebo/prisma-ast': 0.12.1
++      '@prisma/get-platform': 6.8.2
++      '@prisma/query-plan-executor': 6.18.0
++      foreground-child: 3.3.1
++      get-port-please: 3.1.2
++      hono: 4.7.10
++      http-status-codes: 2.3.0
++      pathe: 2.0.3
++      proper-lockfile: 4.1.2
++      remeda: 2.21.3
++      std-env: 3.9.0
++      valibot: 1.1.0(typescript@5.9.3)
++      zeptomatch: 2.0.2
++    transitivePeerDependencies:
++      - typescript
++
++  '@prisma/driver-adapter-utils@7.0.0':
++    dependencies:
++      '@prisma/debug': 7.0.0
++
++  '@prisma/engines-version@6.20.0-16.next-0c19ccc313cf9911a90d99d2ac2eb0280c76c513': {}
++
++  '@prisma/engines@7.0.0':
++    dependencies:
++      '@prisma/debug': 7.0.0
++      '@prisma/engines-version': 6.20.0-16.next-0c19ccc313cf9911a90d99d2ac2eb0280c76c513
++      '@prisma/fetch-engine': 7.0.0
++      '@prisma/get-platform': 7.0.0
++
++  '@prisma/fetch-engine@7.0.0':
++    dependencies:
++      '@prisma/debug': 7.0.0
++      '@prisma/engines-version': 6.20.0-16.next-0c19ccc313cf9911a90d99d2ac2eb0280c76c513
++      '@prisma/get-platform': 7.0.0
++
++  '@prisma/get-platform@6.8.2':
++    dependencies:
++      '@prisma/debug': 6.8.2
++
++  '@prisma/get-platform@7.0.0':
++    dependencies:
++      '@prisma/debug': 7.0.0
++
++  '@prisma/query-plan-executor@6.18.0': {}
++
++  '@prisma/studio-core-licensed@0.8.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
++    dependencies:
++      '@types/react': 19.2.2
++      react: 19.2.0
++      react-dom: 19.2.0(react@19.2.0)
++
++  '@rtsao/scc@1.1.0': {}
++
++  '@standard-schema/spec@1.1.0': {}
++
++  '@swc/helpers@0.5.15':
++    dependencies:
++      tslib: 2.8.1
++
++  '@tybys/wasm-util@0.10.4':
++    dependencies:
++      tslib: 2.8.1
++    optional: true
++
++  '@types/estree@1.0.9': {}
++
++  '@types/json-schema@7.0.15': {}
++
++  '@types/json5@0.0.29': {}
++
++  '@types/node@24.9.1':
++    dependencies:
++      undici-types: 7.16.0
++
++  '@types/pg@8.15.5':
++    dependencies:
++      '@types/node': 24.9.1
++      pg-protocol: 1.16.1
++      pg-types: 2.2.0
++
++  '@types/react-dom@19.2.2(@types/react@19.2.2)':
++    dependencies:
++      '@types/react': 19.2.2
++
++  '@types/react@19.2.2':
++    dependencies:
++      csstype: 3.2.3
++
++  '@typescript-eslint/eslint-plugin@8.71.2(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)':
++    dependencies:
++      '@eslint-community/regexpp': 4.12.2
++      '@typescript-eslint/parser': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/scope-manager': 8.71.2
++      '@typescript-eslint/type-utils': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/utils': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/visitor-keys': 8.71.2
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      ignore: 7.0.12
++      natural-compare: 1.4.0
++      ts-api-utils: 2.5.0(typescript@5.9.3)
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - supports-color
++
++  '@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)':
++    dependencies:
++      '@typescript-eslint/scope-manager': 8.71.2
++      '@typescript-eslint/types': 8.71.2
++      '@typescript-eslint/typescript-estree': 8.71.2(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/visitor-keys': 8.71.2
++      debug: 4.4.3(supports-color@7.2.0)
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - supports-color
++
++  '@typescript-eslint/project-service@8.71.2(supports-color@7.2.0)(typescript@5.9.3)':
++    dependencies:
++      '@typescript-eslint/tsconfig-utils': 8.71.2(typescript@5.9.3)
++      '@typescript-eslint/types': 8.71.2
++      debug: 4.4.3(supports-color@7.2.0)
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - supports-color
++
++  '@typescript-eslint/scope-manager@8.71.2':
++    dependencies:
++      '@typescript-eslint/types': 8.71.2
++      '@typescript-eslint/visitor-keys': 8.71.2
++
++  '@typescript-eslint/tsconfig-utils@8.71.2(typescript@5.9.3)':
++    dependencies:
++      typescript: 5.9.3
++
++  '@typescript-eslint/type-utils@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)':
++    dependencies:
++      '@typescript-eslint/types': 8.71.2
++      '@typescript-eslint/typescript-estree': 8.71.2(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/utils': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      debug: 4.4.3(supports-color@7.2.0)
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      ts-api-utils: 2.5.0(typescript@5.9.3)
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - supports-color
++
++  '@typescript-eslint/types@8.71.2': {}
++
++  '@typescript-eslint/typescript-estree@8.71.2(supports-color@7.2.0)(typescript@5.9.3)':
++    dependencies:
++      '@typescript-eslint/project-service': 8.71.2(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/tsconfig-utils': 8.71.2(typescript@5.9.3)
++      '@typescript-eslint/types': 8.71.2
++      '@typescript-eslint/visitor-keys': 8.71.2
++      debug: 4.4.3(supports-color@7.2.0)
++      minimatch: 10.2.6
++      semver: 7.8.5
++      tinyglobby: 0.2.17
++      ts-api-utils: 2.5.0(typescript@5.9.3)
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - supports-color
++
++  '@typescript-eslint/utils@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)':
++    dependencies:
++      '@eslint-community/eslint-utils': 4.10.1(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))
++      '@typescript-eslint/scope-manager': 8.71.2
++      '@typescript-eslint/types': 8.71.2
++      '@typescript-eslint/typescript-estree': 8.71.2(supports-color@7.2.0)(typescript@5.9.3)
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - supports-color
++
++  '@typescript-eslint/visitor-keys@8.71.2':
++    dependencies:
++      '@typescript-eslint/types': 8.71.2
++      eslint-visitor-keys: 5.0.1
++
++  '@unrs/resolver-binding-android-arm-eabi@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-android-arm64@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-darwin-arm64@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-darwin-x64@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-freebsd-x64@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-arm-gnueabihf@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-arm-musleabihf@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-arm64-gnu@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-arm64-musl@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-loong64-gnu@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-loong64-musl@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-ppc64-gnu@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-riscv64-gnu@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-riscv64-musl@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-s390x-gnu@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-x64-gnu@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-linux-x64-musl@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-openharmony-arm64@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-wasm32-wasi@1.12.2':
++    dependencies:
++      '@emnapi/core': 1.10.0
++      '@emnapi/runtime': 1.10.0
++      '@napi-rs/wasm-runtime': 1.2.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
++    optional: true
++
++  '@unrs/resolver-binding-win32-arm64-msvc@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-win32-ia32-msvc@1.12.2':
++    optional: true
++
++  '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
++    optional: true
++
++  acorn-jsx@5.3.2(acorn@8.19.0):
++    dependencies:
++      acorn: 8.19.0
++
++  acorn@8.19.0: {}
++
++  ajv@6.15.0:
++    dependencies:
++      fast-deep-equal: 3.1.3
++      fast-json-stable-stringify: 2.1.0
++      json-schema-traverse: 0.4.1
++      uri-js: 4.4.1
++
++  ansi-styles@4.3.0:
++    dependencies:
++      color-convert: 2.0.1
++
++  argparse@2.0.1: {}
++
++  aria-query@5.3.2: {}
++
++  array-buffer-byte-length@1.0.2:
++    dependencies:
++      call-bound: 1.0.4
++      is-array-buffer: 3.0.5
++
++  array-includes@3.2.0:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-object-atoms: 1.1.2
++      es-shim-unscopables: 1.1.0
++      is-string: 1.1.1
++      math-intrinsics: 1.1.0
++
++  array.prototype.findlast@1.2.5:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++      es-shim-unscopables: 1.1.0
++
++  array.prototype.findlastindex@1.2.6:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++      es-shim-unscopables: 1.1.0
++
++  array.prototype.flat@1.3.3:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-shim-unscopables: 1.1.0
++
++  array.prototype.flatmap@1.3.3:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-shim-unscopables: 1.1.0
++
++  array.prototype.tosorted@1.1.4:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-errors: 1.3.0
++      es-shim-unscopables: 1.1.0
++
++  arraybuffer.prototype.slice@1.0.4:
++    dependencies:
++      array-buffer-byte-length: 1.0.2
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-errors: 1.3.0
++      get-intrinsic: 1.3.0
++      is-array-buffer: 3.0.5
++
++  ast-types-flow@0.0.8: {}
++
++  async-function@1.0.0: {}
++
++  available-typed-arrays@1.0.7:
++    dependencies:
++      possible-typed-array-names: 1.1.0
++
++  aws-ssl-profiles@1.1.2: {}
++
++  axe-core@4.14.0: {}
++
++  axobject-query@4.1.0: {}
++
++  balanced-match@1.0.2: {}
++
++  balanced-match@4.0.4: {}
++
++  baseline-browser-mapping@2.11.29: {}
++
++  better-auth@1.4.5(next@16.0.0(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
++    dependencies:
++      '@better-auth/core': 1.4.5(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.4(zod@4.6.7))(jose@6.2.12)(kysely@0.28.18)(nanostores@1.5.5)
++      '@better-auth/telemetry': 1.4.5(@better-auth/core@1.4.5(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.4(zod@4.6.7))(jose@6.2.12)(kysely@0.28.18)(nanostores@1.5.5))
++      '@better-auth/utils': 0.3.0
++      '@better-fetch/fetch': 1.1.18
++      '@noble/ciphers': 2.4.0
++      '@noble/hashes': 2.4.0
++      better-call: 1.1.4(zod@4.6.7)
++      defu: 6.1.7
++      jose: 6.2.12
++      kysely: 0.28.18
++      ms: 4.0.0-nightly.202508271359
++      nanostores: 1.5.5
++      zod: 4.6.7
++    optionalDependencies:
++      next: 16.0.0(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
++      react: 19.2.0
++      react-dom: 19.2.0(react@19.2.0)
++
++  better-call@1.1.4(zod@4.6.7):
++    dependencies:
++      '@better-auth/utils': 0.3.0
++      '@better-fetch/fetch': 1.1.18
++      rou3: 0.7.12
++      set-cookie-parser: 2.7.2
++    optionalDependencies:
++      zod: 4.6.7
++
++  bootstrap@5.3.8(@popperjs/core@2.11.8):
++    dependencies:
++      '@popperjs/core': 2.11.8
++
++  brace-expansion@1.1.21:
++    dependencies:
++      balanced-match: 1.0.2
++      concat-map: 0.0.1
++
++  brace-expansion@5.0.12:
++    dependencies:
++      balanced-match: 4.0.4
++
++  braces@3.0.3:
++    dependencies:
++      fill-range: 7.1.1
++
++  browserslist@4.29.3:
++    dependencies:
++      baseline-browser-mapping: 2.11.29
++      caniuse-lite: 1.0.30001816
++      electron-to-chromium: 1.5.459
++      node-releases: 2.0.59
++      update-browserslist-db: 1.3.4(browserslist@4.29.3)
++
++  c12@3.1.0:
++    dependencies:
++      chokidar: 4.0.3
++      confbox: 0.2.4
++      defu: 6.1.7
++      dotenv: 16.6.1
++      exsolve: 1.1.3
++      giget: 2.0.0
++      jiti: 2.7.0
++      ohash: 2.0.12
++      pathe: 2.0.3
++      perfect-debounce: 1.0.0
++      pkg-types: 2.3.3
++      rc9: 2.1.2
++
++  call-bind-apply-helpers@1.0.2:
++    dependencies:
++      es-errors: 1.3.0
++      function-bind: 1.1.2
++
++  call-bind@1.0.9:
++    dependencies:
++      call-bind-apply-helpers: 1.0.2
++      es-define-property: 1.0.1
++      get-intrinsic: 1.3.0
++      set-function-length: 1.2.2
++
++  call-bound@1.0.4:
++    dependencies:
++      call-bind-apply-helpers: 1.0.2
++      get-intrinsic: 1.3.0
++
++  callsites@3.1.0: {}
++
++  caniuse-lite@1.0.30001816: {}
++
++  chalk@4.1.2:
++    dependencies:
++      ansi-styles: 4.3.0
++      supports-color: 7.2.0
++
++  chevrotain@10.5.0:
++    dependencies:
++      '@chevrotain/cst-dts-gen': 10.5.0
++      '@chevrotain/gast': 10.5.0
++      '@chevrotain/types': 10.5.0
++      '@chevrotain/utils': 10.5.0
++      lodash: 4.17.21
++      regexp-to-ast: 0.5.0
++
++  chokidar@4.0.3:
++    dependencies:
++      readdirp: 4.1.2
++
++  citty@0.1.6:
++    dependencies:
++      consola: 3.4.2
++
++  citty@0.2.2: {}
++
++  client-only@0.0.1: {}
++
++  color-convert@2.0.1:
++    dependencies:
++      color-name: 1.1.4
++
++  color-name@1.1.4: {}
++
++  concat-map@0.0.1: {}
++
++  confbox@0.2.4: {}
++
++  confbox@0.3.1: {}
++
++  consola@3.4.2: {}
++
++  convert-source-map@2.0.0: {}
++
++  cross-spawn@7.0.6:
++    dependencies:
++      path-key: 3.1.1
++      shebang-command: 2.0.0
++      which: 2.0.2
++
++  csstype@3.2.3: {}
++
++  damerau-levenshtein@1.0.8: {}
++
++  data-view-buffer@1.0.2:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      is-data-view: 1.0.2
++
++  data-view-byte-length@1.0.2:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      is-data-view: 1.0.2
++
++  data-view-byte-offset@1.0.1:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      is-data-view: 1.0.2
++
++  debug@3.2.7(supports-color@7.2.0):
++    dependencies:
++      ms: 2.1.3
++    optionalDependencies:
++      supports-color: 7.2.0
++
++  debug@4.4.3(supports-color@7.2.0):
++    dependencies:
++      ms: 2.1.3
++    optionalDependencies:
++      supports-color: 7.2.0
++
++  deep-is@0.1.4: {}
++
++  deepmerge-ts@7.1.5: {}
++
++  define-data-property@1.1.4:
++    dependencies:
++      es-define-property: 1.0.1
++      es-errors: 1.3.0
++      gopd: 1.2.0
++
++  define-properties@1.2.1:
++    dependencies:
++      define-data-property: 1.1.4
++      has-property-descriptors: 1.0.2
++      object-keys: 1.1.1
++
++  defu@6.1.7: {}
++
++  denque@2.1.0: {}
++
++  destr@2.0.5: {}
++
++  detect-libc@2.1.2:
++    optional: true
++
++  doctrine@2.1.0:
++    dependencies:
++      esutils: 2.0.3
++
++  dotenv@16.6.1: {}
++
++  dunder-proto@1.0.1:
++    dependencies:
++      call-bind-apply-helpers: 1.0.2
++      es-errors: 1.3.0
++      gopd: 1.2.0
++
++  effect@3.18.4:
++    dependencies:
++      '@standard-schema/spec': 1.1.0
++      fast-check: 3.23.2
++
++  electron-to-chromium@1.5.459: {}
++
++  emoji-regex@9.2.2: {}
++
++  empathic@2.0.0: {}
++
++  es-abstract-get@1.0.0:
++    dependencies:
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++      is-callable: 1.2.7
++      object-inspect: 1.13.4
++
++  es-abstract@1.24.2:
++    dependencies:
++      array-buffer-byte-length: 1.0.2
++      arraybuffer.prototype.slice: 1.0.4
++      available-typed-arrays: 1.0.7
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      data-view-buffer: 1.0.2
++      data-view-byte-length: 1.0.2
++      data-view-byte-offset: 1.0.1
++      es-define-property: 1.0.1
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++      es-set-tostringtag: 2.1.0
++      es-to-primitive: 1.3.4
++      function.prototype.name: 1.2.0
++      get-intrinsic: 1.3.0
++      get-proto: 1.0.1
++      get-symbol-description: 1.1.0
++      globalthis: 1.0.4
++      gopd: 1.2.0
++      has-property-descriptors: 1.0.2
++      has-proto: 1.2.0
++      has-symbols: 1.1.0
++      hasown: 2.0.4
++      internal-slot: 1.1.0
++      is-array-buffer: 3.0.5
++      is-callable: 1.2.7
++      is-data-view: 1.0.2
++      is-negative-zero: 2.0.3
++      is-regex: 1.2.1
++      is-set: 2.0.3
++      is-shared-array-buffer: 1.0.4
++      is-string: 1.1.1
++      is-typed-array: 1.1.15
++      is-weakref: 1.1.1
++      math-intrinsics: 1.1.0
++      object-inspect: 1.13.4
++      object-keys: 1.1.1
++      object.assign: 4.1.7
++      own-keys: 1.0.2
++      regexp.prototype.flags: 1.5.4
++      safe-array-concat: 1.1.4
++      safe-push-apply: 1.0.0
++      safe-regex-test: 1.1.0
++      set-proto: 1.0.0
++      stop-iteration-iterator: 1.1.0
++      string.prototype.trim: 1.2.11
++      string.prototype.trimend: 1.0.10
++      string.prototype.trimstart: 1.0.8
++      typed-array-buffer: 1.0.3
++      typed-array-byte-length: 1.0.3
++      typed-array-byte-offset: 1.0.5
++      typed-array-length: 1.0.8
++      unbox-primitive: 1.1.0
++      which-typed-array: 1.1.24
++
++  es-define-property@1.0.1: {}
++
++  es-errors@1.3.0: {}
++
++  es-iterator-helpers@1.4.0:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-errors: 1.3.0
++      es-set-tostringtag: 2.1.0
++      function-bind: 1.1.2
++      get-intrinsic: 1.3.0
++      globalthis: 1.0.4
++      gopd: 1.2.0
++      has-property-descriptors: 1.0.2
++      has-proto: 1.2.0
++      has-symbols: 1.1.0
++      internal-slot: 1.1.0
++      iterator.prototype: 1.1.5
++      math-intrinsics: 1.1.0
++
++  es-object-atoms@1.1.2:
++    dependencies:
++      es-errors: 1.3.0
++
++  es-set-tostringtag@2.1.0:
++    dependencies:
++      es-errors: 1.3.0
++      get-intrinsic: 1.3.0
++      has-tostringtag: 1.0.2
++      hasown: 2.0.4
++
++  es-shim-unscopables@1.1.0:
++    dependencies:
++      hasown: 2.0.4
++
++  es-to-primitive@1.3.4:
++    dependencies:
++      es-abstract-get: 1.0.0
++      es-define-property: 1.0.1
++      es-errors: 1.3.0
++      is-callable: 1.2.7
++      is-date-object: 1.1.0
++      is-symbol: 1.1.1
++
++  esbuild@0.25.12:
++    optionalDependencies:
++      '@esbuild/aix-ppc64': 0.25.12
++      '@esbuild/android-arm': 0.25.12
++      '@esbuild/android-arm64': 0.25.12
++      '@esbuild/android-x64': 0.25.12
++      '@esbuild/darwin-arm64': 0.25.12
++      '@esbuild/darwin-x64': 0.25.12
++      '@esbuild/freebsd-arm64': 0.25.12
++      '@esbuild/freebsd-x64': 0.25.12
++      '@esbuild/linux-arm': 0.25.12
++      '@esbuild/linux-arm64': 0.25.12
++      '@esbuild/linux-ia32': 0.25.12
++      '@esbuild/linux-loong64': 0.25.12
++      '@esbuild/linux-mips64el': 0.25.12
++      '@esbuild/linux-ppc64': 0.25.12
++      '@esbuild/linux-riscv64': 0.25.12
++      '@esbuild/linux-s390x': 0.25.12
++      '@esbuild/linux-x64': 0.25.12
++      '@esbuild/netbsd-arm64': 0.25.12
++      '@esbuild/netbsd-x64': 0.25.12
++      '@esbuild/openbsd-arm64': 0.25.12
++      '@esbuild/openbsd-x64': 0.25.12
++      '@esbuild/openharmony-arm64': 0.25.12
++      '@esbuild/sunos-x64': 0.25.12
++      '@esbuild/win32-arm64': 0.25.12
++      '@esbuild/win32-ia32': 0.25.12
++      '@esbuild/win32-x64': 0.25.12
++
++  escalade@3.2.0: {}
++
++  escape-string-regexp@4.0.0: {}
++
++  eslint-config-next@16.0.0(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3):
++    dependencies:
++      '@next/eslint-plugin-next': 16.0.0
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      eslint-import-resolver-node: 0.3.10(supports-color@7.2.0)
++      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
++      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
++      eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))
++      eslint-plugin-react: 7.37.5(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))
++      eslint-plugin-react-hooks: 7.1.1(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
++      globals: 16.4.0
++      typescript-eslint: 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++    optionalDependencies:
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - '@typescript-eslint/parser'
++      - eslint-import-resolver-webpack
++      - eslint-plugin-import-x
++      - supports-color
++
++  eslint-import-resolver-node@0.3.10(supports-color@7.2.0):
++    dependencies:
++      debug: 3.2.7(supports-color@7.2.0)
++      is-core-module: 2.17.0
++      resolve: 2.0.0-next.7
++    transitivePeerDependencies:
++      - supports-color
++
++  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0):
++    dependencies:
++      '@nolyfill/is-core-module': 1.0.39
++      debug: 4.4.3(supports-color@7.2.0)
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      get-tsconfig: 4.14.3
++      is-bun-module: 2.0.0
++      stable-hash: 0.0.5
++      tinyglobby: 0.2.17
++      unrs-resolver: 1.12.2
++    optionalDependencies:
++      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
++    transitivePeerDependencies:
++      - supports-color
++
++  eslint-module-utils@2.14.0(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint-import-resolver-node@0.3.10(supports-color@7.2.0))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0):
++    dependencies:
++      debug: 3.2.7(supports-color@7.2.0)
++    optionalDependencies:
++      '@typescript-eslint/parser': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      eslint-import-resolver-node: 0.3.10(supports-color@7.2.0)
++      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
++    transitivePeerDependencies:
++      - supports-color
++
++  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0):
++    dependencies:
++      '@rtsao/scc': 1.1.0
++      array-includes: 3.2.0
++      array.prototype.findlastindex: 1.2.6
++      array.prototype.flat: 1.3.3
++      array.prototype.flatmap: 1.3.3
++      debug: 3.2.7(supports-color@7.2.0)
++      doctrine: 2.1.0
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      eslint-import-resolver-node: 0.3.10(supports-color@7.2.0)
++      eslint-module-utils: 2.14.0(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint-import-resolver-node@0.3.10(supports-color@7.2.0))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
++      hasown: 2.0.4
++      is-core-module: 2.17.0
++      is-glob: 4.0.3
++      minimatch: 3.1.5
++      object.fromentries: 2.0.8
++      object.groupby: 1.0.3
++      object.values: 1.2.1
++      semver: 6.3.1
++      string.prototype.trimend: 1.0.10
++      tsconfig-paths: 3.15.0
++    optionalDependencies:
++      '@typescript-eslint/parser': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++    transitivePeerDependencies:
++      - eslint-import-resolver-typescript
++      - eslint-import-resolver-webpack
++      - supports-color
++
++  eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0)):
++    dependencies:
++      aria-query: 5.3.2
++      array-includes: 3.2.0
++      array.prototype.flatmap: 1.3.3
++      ast-types-flow: 0.0.8
++      axe-core: 4.14.0
++      axobject-query: 4.1.0
++      damerau-levenshtein: 1.0.8
++      emoji-regex: 9.2.2
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      hasown: 2.0.4
++      jsx-ast-utils: 3.3.5
++      language-tags: 1.0.9
++      minimatch: 3.1.5
++      object.fromentries: 2.0.8
++      safe-regex-test: 1.1.0
++      string.prototype.includes: 2.0.1
++
++  eslint-plugin-react-hooks@7.1.1(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0):
++    dependencies:
++      '@babel/core': 7.29.7(supports-color@7.2.0)
++      '@babel/parser': 7.29.9
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      hermes-parser: 0.25.1
++      zod: 4.6.7
++      zod-validation-error: 4.0.2(zod@4.6.7)
++    transitivePeerDependencies:
++      - supports-color
++
++  eslint-plugin-react@7.37.5(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0)):
++    dependencies:
++      array-includes: 3.2.0
++      array.prototype.findlast: 1.2.5
++      array.prototype.flatmap: 1.3.3
++      array.prototype.tosorted: 1.1.4
++      doctrine: 2.1.0
++      es-iterator-helpers: 1.4.0
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      estraverse: 5.3.0
++      hasown: 2.0.4
++      jsx-ast-utils: 3.3.5
++      minimatch: 3.1.5
++      object.entries: 1.1.9
++      object.fromentries: 2.0.8
++      object.values: 1.2.1
++      prop-types: 15.8.1
++      resolve: 2.0.0-next.7
++      semver: 6.3.1
++      string.prototype.matchall: 4.1.0
++      string.prototype.repeat: 1.0.0
++
++  eslint-scope@8.4.0:
++    dependencies:
++      esrecurse: 4.3.0
++      estraverse: 5.3.0
++
++  eslint-visitor-keys@3.4.3: {}
++
++  eslint-visitor-keys@4.2.1: {}
++
++  eslint-visitor-keys@5.0.1: {}
++
++  eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0):
++    dependencies:
++      '@eslint-community/eslint-utils': 4.10.1(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))
++      '@eslint-community/regexpp': 4.12.2
++      '@eslint/config-array': 0.21.2(supports-color@7.2.0)
++      '@eslint/config-helpers': 0.4.2
++      '@eslint/core': 0.17.0
++      '@eslint/eslintrc': 3.3.7(supports-color@7.2.0)
++      '@eslint/js': 9.39.1
++      '@eslint/plugin-kit': 0.4.1
++      '@humanfs/node': 0.16.8
++      '@humanwhocodes/module-importer': 1.0.1
++      '@humanwhocodes/retry': 0.4.3
++      '@types/estree': 1.0.9
++      ajv: 6.15.0
++      chalk: 4.1.2
++      cross-spawn: 7.0.6
++      debug: 4.4.3(supports-color@7.2.0)
++      escape-string-regexp: 4.0.0
++      eslint-scope: 8.4.0
++      eslint-visitor-keys: 4.2.1
++      espree: 10.4.0
++      esquery: 1.7.0
++      esutils: 2.0.3
++      fast-deep-equal: 3.1.3
++      file-entry-cache: 8.0.0
++      find-up: 5.0.0
++      glob-parent: 6.0.2
++      ignore: 5.3.2
++      imurmurhash: 0.1.4
++      is-glob: 4.0.3
++      json-stable-stringify-without-jsonify: 1.0.1
++      lodash.merge: 4.6.2
++      minimatch: 3.1.5
++      natural-compare: 1.4.0
++      optionator: 0.9.4
++    optionalDependencies:
++      jiti: 2.7.0
++    transitivePeerDependencies:
++      - supports-color
++
++  espree@10.4.0:
++    dependencies:
++      acorn: 8.19.0
++      acorn-jsx: 5.3.2(acorn@8.19.0)
++      eslint-visitor-keys: 4.2.1
++
++  esquery@1.7.0:
++    dependencies:
++      estraverse: 5.3.0
++
++  esrecurse@4.3.0:
++    dependencies:
++      estraverse: 5.3.0
++
++  estraverse@5.3.0: {}
++
++  esutils@2.0.3: {}
++
++  exsolve@1.1.3: {}
++
++  fast-check@3.23.2:
++    dependencies:
++      pure-rand: 6.1.0
++
++  fast-deep-equal@3.1.3: {}
++
++  fast-glob@3.3.1:
++    dependencies:
++      '@nodelib/fs.stat': 2.0.5
++      '@nodelib/fs.walk': 1.2.8
++      glob-parent: 5.1.2
++      merge2: 1.4.1
++      micromatch: 4.0.8
++
++  fast-json-stable-stringify@2.1.0: {}
++
++  fast-levenshtein@2.0.6: {}
++
++  fastq@1.20.3:
++    dependencies:
++      reusify: 1.1.0
++
++  fdir@6.5.0(picomatch@4.0.7):
++    optionalDependencies:
++      picomatch: 4.0.7
++
++  file-entry-cache@8.0.0:
++    dependencies:
++      flat-cache: 4.0.1
++
++  fill-range@7.1.1:
++    dependencies:
++      to-regex-range: 5.0.1
++
++  find-up@5.0.0:
++    dependencies:
++      locate-path: 6.0.0
++      path-exists: 4.0.0
++
++  flat-cache@4.0.1:
++    dependencies:
++      flatted: 3.4.4
++      keyv: 4.5.4
++
++  flatted@3.4.4: {}
++
++  for-each@0.3.5:
++    dependencies:
++      is-callable: 1.2.7
++
++  foreground-child@3.3.1:
++    dependencies:
++      cross-spawn: 7.0.6
++      signal-exit: 4.1.0
++
++  fsevents@2.3.3:
++    optional: true
++
++  function-bind@1.1.2: {}
++
++  function.prototype.name@1.2.0:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      es-define-property: 1.0.1
++      es-errors: 1.3.0
++      functions-have-names: 1.2.3
++      has-property-descriptors: 1.0.2
++      hasown: 2.0.4
++      is-callable: 1.2.7
++      is-document.all: 1.0.0
++
++  functions-have-names@1.2.3: {}
++
++  generate-function@2.3.1:
++    dependencies:
++      is-property: 1.0.2
++
++  generator-function@2.0.1: {}
++
++  gensync@1.0.0-beta.2: {}
++
++  get-intrinsic@1.3.0:
++    dependencies:
++      call-bind-apply-helpers: 1.0.2
++      es-define-property: 1.0.1
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++      function-bind: 1.1.2
++      get-proto: 1.0.1
++      gopd: 1.2.0
++      has-symbols: 1.1.0
++      hasown: 2.0.4
++      math-intrinsics: 1.1.0
++
++  get-port-please@3.1.2: {}
++
++  get-proto@1.0.1:
++    dependencies:
++      dunder-proto: 1.0.1
++      es-object-atoms: 1.1.2
++
++  get-symbol-description@1.1.0:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      get-intrinsic: 1.3.0
++
++  get-tsconfig@4.14.3:
++    dependencies:
++      resolve-pkg-maps: 1.0.0
++
++  giget@2.0.0:
++    dependencies:
++      citty: 0.1.6
++      consola: 3.4.2
++      defu: 6.1.7
++      node-fetch-native: 1.6.7
++      nypm: 0.6.10
++      pathe: 2.0.3
++
++  glob-parent@5.1.2:
++    dependencies:
++      is-glob: 4.0.3
++
++  glob-parent@6.0.2:
++    dependencies:
++      is-glob: 4.0.3
++
++  globals@14.0.0: {}
++
++  globals@16.4.0: {}
++
++  globalthis@1.0.4:
++    dependencies:
++      define-properties: 1.2.1
++      gopd: 1.2.0
++
++  gopd@1.2.0: {}
++
++  graceful-fs@4.2.11: {}
++
++  grammex@3.1.13: {}
++
++  has-bigints@1.1.0: {}
++
++  has-flag@4.0.0: {}
++
++  has-property-descriptors@1.0.2:
++    dependencies:
++      es-define-property: 1.0.1
++
++  has-proto@1.2.0:
++    dependencies:
++      dunder-proto: 1.0.1
++
++  has-symbols@1.1.0: {}
++
++  has-tostringtag@1.0.2:
++    dependencies:
++      has-symbols: 1.1.0
++
++  hasown@2.0.4:
++    dependencies:
++      function-bind: 1.1.2
++
++  hermes-estree@0.25.1: {}
++
++  hermes-parser@0.25.1:
++    dependencies:
++      hermes-estree: 0.25.1
++
++  hono@4.7.10: {}
++
++  http-status-codes@2.3.0: {}
++
++  iconv-lite@0.7.3:
++    dependencies:
++      safer-buffer: 2.1.2
++
++  ignore@5.3.2: {}
++
++  ignore@7.0.12: {}
++
++  import-fresh@3.3.1:
++    dependencies:
++      parent-module: 1.0.1
++      resolve-from: 4.0.0
++
++  imurmurhash@0.1.4: {}
++
++  internal-slot@1.1.0:
++    dependencies:
++      es-errors: 1.3.0
++      hasown: 2.0.4
++      side-channel: 1.1.1
++
++  is-array-buffer@3.0.5:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      get-intrinsic: 1.3.0
++
++  is-async-function@2.1.1:
++    dependencies:
++      async-function: 1.0.0
++      call-bound: 1.0.4
++      get-proto: 1.0.1
++      has-tostringtag: 1.0.2
++      safe-regex-test: 1.1.0
++
++  is-bigint@1.1.0:
++    dependencies:
++      has-bigints: 1.1.0
++
++  is-boolean-object@1.2.2:
++    dependencies:
++      call-bound: 1.0.4
++      has-tostringtag: 1.0.2
++
++  is-bun-module@2.0.0:
++    dependencies:
++      semver: 7.8.5
++
++  is-callable@1.2.7: {}
++
++  is-core-module@2.17.0:
++    dependencies:
++      hasown: 2.0.4
++
++  is-data-view@1.0.2:
++    dependencies:
++      call-bound: 1.0.4
++      get-intrinsic: 1.3.0
++      is-typed-array: 1.1.15
++
++  is-date-object@1.1.0:
++    dependencies:
++      call-bound: 1.0.4
++      has-tostringtag: 1.0.2
++
++  is-document.all@1.0.0:
++    dependencies:
++      call-bound: 1.0.4
++
++  is-extglob@2.1.1: {}
++
++  is-finalizationregistry@1.1.1:
++    dependencies:
++      call-bound: 1.0.4
++
++  is-generator-function@1.1.2:
++    dependencies:
++      call-bound: 1.0.4
++      generator-function: 2.0.1
++      get-proto: 1.0.1
++      has-tostringtag: 1.0.2
++      safe-regex-test: 1.1.0
++
++  is-glob@4.0.3:
++    dependencies:
++      is-extglob: 2.1.1
++
++  is-map@2.0.3: {}
++
++  is-negative-zero@2.0.3: {}
++
++  is-number-object@1.1.1:
++    dependencies:
++      call-bound: 1.0.4
++      has-tostringtag: 1.0.2
++
++  is-number@7.0.0: {}
++
++  is-property@1.0.2: {}
++
++  is-regex@1.2.1:
++    dependencies:
++      call-bound: 1.0.4
++      gopd: 1.2.0
++      has-tostringtag: 1.0.2
++      hasown: 2.0.4
++
++  is-set@2.0.3: {}
++
++  is-shared-array-buffer@1.0.4:
++    dependencies:
++      call-bound: 1.0.4
++
++  is-string@1.1.1:
++    dependencies:
++      call-bound: 1.0.4
++      has-tostringtag: 1.0.2
++
++  is-symbol@1.1.1:
++    dependencies:
++      call-bound: 1.0.4
++      has-symbols: 1.1.0
++      safe-regex-test: 1.1.0
++
++  is-typed-array@1.1.15:
++    dependencies:
++      which-typed-array: 1.1.24
++
++  is-weakmap@2.0.2: {}
++
++  is-weakref@1.1.1:
++    dependencies:
++      call-bound: 1.0.4
++
++  is-weakset@2.0.4:
++    dependencies:
++      call-bound: 1.0.4
++      get-intrinsic: 1.3.0
++
++  isarray@2.0.5: {}
++
++  isexe@2.0.0: {}
++
++  iterator.prototype@1.1.5:
++    dependencies:
++      define-data-property: 1.1.4
++      es-object-atoms: 1.1.2
++      get-intrinsic: 1.3.0
++      get-proto: 1.0.1
++      has-symbols: 1.1.0
++      set-function-name: 2.0.2
++
++  jiti@2.7.0: {}
++
++  jose@6.2.12: {}
++
++  js-tokens@4.0.0: {}
++
++  js-yaml@4.3.2:
++    dependencies:
++      argparse: 2.0.1
++
++  jsesc@3.1.0: {}
++
++  json-buffer@3.0.1: {}
++
++  json-schema-traverse@0.4.1: {}
++
++  json-stable-stringify-without-jsonify@1.0.1: {}
++
++  json5@1.0.2:
++    dependencies:
++      minimist: 1.2.8
++
++  json5@2.2.3: {}
++
++  jsx-ast-utils@3.3.5:
++    dependencies:
++      array-includes: 3.2.0
++      array.prototype.flat: 1.3.3
++      object.assign: 4.1.7
++      object.values: 1.2.1
++
++  keyv@4.5.4:
++    dependencies:
++      json-buffer: 3.0.1
++
++  kysely@0.28.18: {}
++
++  language-subtag-registry@0.3.23: {}
++
++  language-tags@1.0.9:
++    dependencies:
++      language-subtag-registry: 0.3.23
++
++  levn@0.4.1:
++    dependencies:
++      prelude-ls: 1.2.1
++      type-check: 0.4.0
++
++  lilconfig@2.1.0: {}
++
++  locate-path@6.0.0:
++    dependencies:
++      p-locate: 5.0.0
++
++  lodash.merge@4.6.2: {}
++
++  lodash@4.17.21: {}
++
++  long@5.3.2: {}
++
++  loose-envify@1.4.0:
++    dependencies:
++      js-tokens: 4.0.0
++
++  lru-cache@5.1.1:
++    dependencies:
++      yallist: 3.1.1
++
++  lru.min@1.1.5: {}
++
++  math-intrinsics@1.1.0: {}
++
++  merge2@1.4.1: {}
++
++  micromatch@4.0.8:
++    dependencies:
++      braces: 3.0.3
++      picomatch: 2.3.2
++
++  minimatch@10.2.6:
++    dependencies:
++      brace-expansion: 5.0.12
++
++  minimatch@3.1.5:
++    dependencies:
++      brace-expansion: 1.1.21
++
++  minimist@1.2.8: {}
++
++  ms@2.1.3: {}
++
++  ms@4.0.0-nightly.202508271359: {}
++
++  mysql2@3.15.3:
++    dependencies:
++      aws-ssl-profiles: 1.1.2
++      denque: 2.1.0
++      generate-function: 2.3.1
++      iconv-lite: 0.7.3
++      long: 5.3.2
++      lru.min: 1.1.5
++      named-placeholders: 1.1.6
++      seq-queue: 0.0.5
++      sqlstring: 2.3.3
++
++  named-placeholders@1.1.6:
++    dependencies:
++      lru.min: 1.1.5
++
++  nanoid@3.3.20: {}
++
++  nanostores@1.5.5: {}
++
++  napi-postinstall@0.3.4: {}
++
++  natural-compare@1.4.0: {}
++
++  next@16.0.0(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
++    dependencies:
++      '@next/env': 16.0.0
++      '@swc/helpers': 0.5.15
++      caniuse-lite: 1.0.30001816
++      postcss: 8.4.31
++      react: 19.2.0
++      react-dom: 19.2.0(react@19.2.0)
++      styled-jsx: 5.1.6(@babel/core@7.29.7(supports-color@7.2.0))(react@19.2.0)
++    optionalDependencies:
++      '@next/swc-darwin-arm64': 16.0.0
++      '@next/swc-darwin-x64': 16.0.0
++      '@next/swc-linux-arm64-gnu': 16.0.0
++      '@next/swc-linux-arm64-musl': 16.0.0
++      '@next/swc-linux-x64-gnu': 16.0.0
++      '@next/swc-linux-x64-musl': 16.0.0
++      '@next/swc-win32-arm64-msvc': 16.0.0
++      '@next/swc-win32-x64-msvc': 16.0.0
++      sharp: 0.34.5
++    transitivePeerDependencies:
++      - '@babel/core'
++      - babel-plugin-macros
++
++  node-exports-info@1.6.2:
++    dependencies:
++      array.prototype.flatmap: 1.3.3
++      es-errors: 1.3.0
++      object.entries: 1.1.9
++      semver: 6.3.1
++
++  node-fetch-native@1.6.7: {}
++
++  node-releases@2.0.59: {}
++
++  nypm@0.6.10:
++    dependencies:
++      citty: 0.2.2
++      pathe: 2.0.3
++      tinyexec: 1.3.1
++
++  object-assign@4.1.1: {}
++
++  object-inspect@1.13.4: {}
++
++  object-keys@1.1.1: {}
++
++  object.assign@4.1.7:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-object-atoms: 1.1.2
++      has-symbols: 1.1.0
++      object-keys: 1.1.1
++
++  object.entries@1.1.9:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-object-atoms: 1.1.2
++
++  object.fromentries@2.0.8:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-object-atoms: 1.1.2
++
++  object.groupby@1.0.3:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++
++  object.values@1.2.1:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-object-atoms: 1.1.2
++
++  ohash@2.0.12: {}
++
++  optionator@0.9.4:
++    dependencies:
++      deep-is: 0.1.4
++      fast-levenshtein: 2.0.6
++      levn: 0.4.1
++      prelude-ls: 1.2.1
++      type-check: 0.4.0
++      word-wrap: 1.2.5
++
++  own-keys@1.0.2:
++    dependencies:
++      call-bound: 1.0.4
++      get-intrinsic: 1.3.0
++      object-keys: 1.1.1
++      safe-push-apply: 1.0.0
++
++  p-limit@3.1.0:
++    dependencies:
++      yocto-queue: 0.1.0
++
++  p-locate@5.0.0:
++    dependencies:
++      p-limit: 3.1.0
++
++  parent-module@1.0.1:
++    dependencies:
++      callsites: 3.1.0
++
++  path-exists@4.0.0: {}
++
++  path-key@3.1.1: {}
++
++  path-parse@1.0.7: {}
++
++  pathe@2.0.3: {}
++
++  perfect-debounce@1.0.0: {}
++
++  pg-cloudflare@1.4.1:
++    optional: true
++
++  pg-connection-string@2.14.1: {}
++
++  pg-int8@1.0.1: {}
++
++  pg-pool@3.14.0(pg@8.16.3):
++    dependencies:
++      pg: 8.16.3
++
++  pg-protocol@1.16.1: {}
++
++  pg-types@2.2.0:
++    dependencies:
++      pg-int8: 1.0.1
++      postgres-array: 2.0.0
++      postgres-bytea: 1.0.1
++      postgres-date: 1.0.7
++      postgres-interval: 1.2.0
++
++  pg@8.16.3:
++    dependencies:
++      pg-connection-string: 2.14.1
++      pg-pool: 3.14.0(pg@8.16.3)
++      pg-protocol: 1.16.1
++      pg-types: 2.2.0
++      pgpass: 1.0.5
++    optionalDependencies:
++      pg-cloudflare: 1.4.1
++
++  pgpass@1.0.5:
++    dependencies:
++      split2: 4.2.0
++
++  picocolors@1.1.1: {}
++
++  picomatch@2.3.2: {}
++
++  picomatch@4.0.7: {}
++
++  pkg-types@2.3.3:
++    dependencies:
++      confbox: 0.3.1
++      exsolve: 1.1.3
++      pathe: 2.0.3
++
++  possible-typed-array-names@1.1.0: {}
++
++  postcss@8.4.31:
++    dependencies:
++      nanoid: 3.3.20
++      picocolors: 1.1.1
++      source-map-js: 1.2.2
++
++  postgres-array@2.0.0: {}
++
++  postgres-array@3.0.4: {}
++
++  postgres-bytea@1.0.1: {}
++
++  postgres-date@1.0.7: {}
++
++  postgres-interval@1.2.0:
++    dependencies:
++      xtend: 4.0.2
++
++  postgres@3.4.7: {}
++
++  prelude-ls@1.2.1: {}
++
++  prisma@7.0.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3):
++    dependencies:
++      '@prisma/config': 7.0.0
++      '@prisma/dev': 0.13.0(typescript@5.9.3)
++      '@prisma/engines': 7.0.0
++      '@prisma/studio-core-licensed': 0.8.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
++      mysql2: 3.15.3
++      postgres: 3.4.7
++    optionalDependencies:
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - '@types/react'
++      - magicast
++      - react
++      - react-dom
++
++  prop-types@15.8.1:
++    dependencies:
++      loose-envify: 1.4.0
++      object-assign: 4.1.1
++      react-is: 16.13.1
++
++  proper-lockfile@4.1.2:
++    dependencies:
++      graceful-fs: 4.2.11
++      retry: 0.12.0
++      signal-exit: 3.0.7
++
++  punycode@2.3.1: {}
++
++  pure-rand@6.1.0: {}
++
++  queue-microtask@1.2.3: {}
++
++  rc9@2.1.2:
++    dependencies:
++      defu: 6.1.7
++      destr: 2.0.5
++
++  react-dom@19.2.0(react@19.2.0):
++    dependencies:
++      react: 19.2.0
++      scheduler: 0.27.0
++
++  react-is@16.13.1: {}
++
++  react@19.2.0: {}
++
++  readdirp@4.1.2: {}
++
++  reflect.getprototypeof@1.0.10:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++      get-intrinsic: 1.3.0
++      get-proto: 1.0.1
++      which-builtin-type: 1.2.1
++
++  regexp-to-ast@0.5.0: {}
++
++  regexp.prototype.flags@1.5.4:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-errors: 1.3.0
++      get-proto: 1.0.1
++      gopd: 1.2.0
++      set-function-name: 2.0.2
++
++  remeda@2.21.3:
++    dependencies:
++      type-fest: 4.41.0
++
++  resolve-from@4.0.0: {}
++
++  resolve-pkg-maps@1.0.0: {}
++
++  resolve@2.0.0-next.7:
++    dependencies:
++      es-errors: 1.3.0
++      is-core-module: 2.17.0
++      node-exports-info: 1.6.2
++      object-keys: 1.1.1
++      path-parse: 1.0.7
++      supports-preserve-symlinks-flag: 1.0.0
++
++  retry@0.12.0: {}
++
++  reusify@1.1.0: {}
++
++  rou3@0.7.12: {}
++
++  run-parallel@1.2.0:
++    dependencies:
++      queue-microtask: 1.2.3
++
++  safe-array-concat@1.1.4:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      get-intrinsic: 1.3.0
++      has-symbols: 1.1.0
++      isarray: 2.0.5
++
++  safe-push-apply@1.0.0:
++    dependencies:
++      es-errors: 1.3.0
++      isarray: 2.0.5
++
++  safe-regex-test@1.1.0:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      is-regex: 1.2.1
++
++  safer-buffer@2.1.2: {}
++
++  scheduler@0.27.0: {}
++
++  semver@6.3.1: {}
++
++  semver@7.8.5: {}
++
++  seq-queue@0.0.5: {}
++
++  set-cookie-parser@2.7.2: {}
++
++  set-function-length@1.2.2:
++    dependencies:
++      define-data-property: 1.1.4
++      es-errors: 1.3.0
++      function-bind: 1.1.2
++      get-intrinsic: 1.3.0
++      gopd: 1.2.0
++      has-property-descriptors: 1.0.2
++
++  set-function-name@2.0.2:
++    dependencies:
++      define-data-property: 1.1.4
++      es-errors: 1.3.0
++      functions-have-names: 1.2.3
++      has-property-descriptors: 1.0.2
++
++  set-proto@1.0.0:
++    dependencies:
++      dunder-proto: 1.0.1
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++
++  sharp@0.34.5:
++    dependencies:
++      '@img/colour': 1.1.0
++      detect-libc: 2.1.2
++      semver: 7.8.5
++    optionalDependencies:
++      '@img/sharp-darwin-arm64': 0.34.5
++      '@img/sharp-darwin-x64': 0.34.5
++      '@img/sharp-libvips-darwin-arm64': 1.2.4
++      '@img/sharp-libvips-darwin-x64': 1.2.4
++      '@img/sharp-libvips-linux-arm': 1.2.4
++      '@img/sharp-libvips-linux-arm64': 1.2.4
++      '@img/sharp-libvips-linux-ppc64': 1.2.4
++      '@img/sharp-libvips-linux-riscv64': 1.2.4
++      '@img/sharp-libvips-linux-s390x': 1.2.4
++      '@img/sharp-libvips-linux-x64': 1.2.4
++      '@img/sharp-libvips-linuxmusl-arm64': 1.2.4
++      '@img/sharp-libvips-linuxmusl-x64': 1.2.4
++      '@img/sharp-linux-arm': 0.34.5
++      '@img/sharp-linux-arm64': 0.34.5
++      '@img/sharp-linux-ppc64': 0.34.5
++      '@img/sharp-linux-riscv64': 0.34.5
++      '@img/sharp-linux-s390x': 0.34.5
++      '@img/sharp-linux-x64': 0.34.5
++      '@img/sharp-linuxmusl-arm64': 0.34.5
++      '@img/sharp-linuxmusl-x64': 0.34.5
++      '@img/sharp-wasm32': 0.34.5
++      '@img/sharp-win32-arm64': 0.34.5
++      '@img/sharp-win32-ia32': 0.34.5
++      '@img/sharp-win32-x64': 0.34.5
++    optional: true
++
++  shebang-command@2.0.0:
++    dependencies:
++      shebang-regex: 3.0.0
++
++  shebang-regex@3.0.0: {}
++
++  side-channel-list@1.0.1:
++    dependencies:
++      es-errors: 1.3.0
++      object-inspect: 1.13.4
++
++  side-channel-map@1.0.1:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      get-intrinsic: 1.3.0
++      object-inspect: 1.13.4
++
++  side-channel-weakmap@1.0.2:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      get-intrinsic: 1.3.0
++      object-inspect: 1.13.4
++      side-channel-map: 1.0.1
++
++  side-channel@1.1.1:
++    dependencies:
++      es-errors: 1.3.0
++      object-inspect: 1.13.4
++      side-channel-list: 1.0.1
++      side-channel-map: 1.0.1
++      side-channel-weakmap: 1.0.2
++
++  signal-exit@3.0.7: {}
++
++  signal-exit@4.1.0: {}
++
++  source-map-js@1.2.2: {}
++
++  split2@4.2.0: {}
++
++  sqlstring@2.3.3: {}
++
++  stable-hash@0.0.5: {}
++
++  std-env@3.9.0: {}
++
++  stop-iteration-iterator@1.1.0:
++    dependencies:
++      es-errors: 1.3.0
++      internal-slot: 1.1.0
++
++  string.prototype.includes@2.0.1:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++
++  string.prototype.matchall@4.1.0:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-errors: 1.3.0
++      es-object-atoms: 1.1.2
++      get-intrinsic: 1.3.0
++      gopd: 1.2.0
++      has-symbols: 1.1.0
++      internal-slot: 1.1.0
++      regexp.prototype.flags: 1.5.4
++      set-function-name: 2.0.2
++      side-channel: 1.1.1
++
++  string.prototype.repeat@1.0.0:
++    dependencies:
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++
++  string.prototype.trim@1.2.11:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-data-property: 1.1.4
++      define-properties: 1.2.1
++      es-abstract: 1.24.2
++      es-object-atoms: 1.1.2
++      has-property-descriptors: 1.0.2
++      safe-regex-test: 1.1.0
++
++  string.prototype.trimend@1.0.10:
++    dependencies:
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      define-properties: 1.2.1
++      es-object-atoms: 1.1.2
++
++  string.prototype.trimstart@1.0.8:
++    dependencies:
++      call-bind: 1.0.9
++      define-properties: 1.2.1
++      es-object-atoms: 1.1.2
++
++  strip-bom@3.0.0: {}
++
++  strip-json-comments@3.1.1: {}
++
++  styled-jsx@5.1.6(@babel/core@7.29.7(supports-color@7.2.0))(react@19.2.0):
++    dependencies:
++      client-only: 0.0.1
++      react: 19.2.0
++    optionalDependencies:
++      '@babel/core': 7.29.7(supports-color@7.2.0)
++
++  supports-color@7.2.0:
++    dependencies:
++      has-flag: 4.0.0
++
++  supports-preserve-symlinks-flag@1.0.0: {}
++
++  tinyexec@1.3.1: {}
++
++  tinyglobby@0.2.17:
++    dependencies:
++      fdir: 6.5.0(picomatch@4.0.7)
++      picomatch: 4.0.7
++
++  to-regex-range@5.0.1:
++    dependencies:
++      is-number: 7.0.0
++
++  ts-api-utils@2.5.0(typescript@5.9.3):
++    dependencies:
++      typescript: 5.9.3
++
++  tsconfig-paths@3.15.0:
++    dependencies:
++      '@types/json5': 0.0.29
++      json5: 1.0.2
++      minimist: 1.2.8
++      strip-bom: 3.0.0
++
++  tslib@2.8.1: {}
++
++  tsx@4.20.6:
++    dependencies:
++      esbuild: 0.25.12
++      get-tsconfig: 4.14.3
++    optionalDependencies:
++      fsevents: 2.3.3
++
++  type-check@0.4.0:
++    dependencies:
++      prelude-ls: 1.2.1
++
++  type-fest@4.41.0: {}
++
++  typed-array-buffer@1.0.3:
++    dependencies:
++      call-bound: 1.0.4
++      es-errors: 1.3.0
++      is-typed-array: 1.1.15
++
++  typed-array-byte-length@1.0.3:
++    dependencies:
++      call-bind: 1.0.9
++      for-each: 0.3.5
++      gopd: 1.2.0
++      has-proto: 1.2.0
++      is-typed-array: 1.1.15
++
++  typed-array-byte-offset@1.0.5:
++    dependencies:
++      available-typed-arrays: 1.0.7
++      call-bind: 1.0.9
++      for-each: 0.3.5
++      gopd: 1.2.0
++      is-typed-array: 1.1.15
++      reflect.getprototypeof: 1.0.10
++
++  typed-array-length@1.0.8:
++    dependencies:
++      call-bind: 1.0.9
++      for-each: 0.3.5
++      gopd: 1.2.0
++      is-typed-array: 1.1.15
++      possible-typed-array-names: 1.1.0
++      reflect.getprototypeof: 1.0.10
++
++  typescript-eslint@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3):
++    dependencies:
++      '@typescript-eslint/eslint-plugin': 8.71.2(@typescript-eslint/parser@8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3))(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/parser': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/typescript-estree': 8.71.2(supports-color@7.2.0)(typescript@5.9.3)
++      '@typescript-eslint/utils': 8.71.2(eslint@9.39.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
++      eslint: 9.39.1(jiti@2.7.0)(supports-color@7.2.0)
++      typescript: 5.9.3
++    transitivePeerDependencies:
++      - supports-color
++
++  typescript@5.9.3: {}
++
++  unbox-primitive@1.1.0:
++    dependencies:
++      call-bound: 1.0.4
++      has-bigints: 1.1.0
++      has-symbols: 1.1.0
++      which-boxed-primitive: 1.1.1
++
++  undici-types@7.16.0: {}
++
++  unrs-resolver@1.12.2:
++    dependencies:
++      napi-postinstall: 0.3.4
++    optionalDependencies:
++      '@unrs/resolver-binding-android-arm-eabi': 1.12.2
++      '@unrs/resolver-binding-android-arm64': 1.12.2
++      '@unrs/resolver-binding-darwin-arm64': 1.12.2
++      '@unrs/resolver-binding-darwin-x64': 1.12.2
++      '@unrs/resolver-binding-freebsd-x64': 1.12.2
++      '@unrs/resolver-binding-linux-arm-gnueabihf': 1.12.2
++      '@unrs/resolver-binding-linux-arm-musleabihf': 1.12.2
++      '@unrs/resolver-binding-linux-arm64-gnu': 1.12.2
++      '@unrs/resolver-binding-linux-arm64-musl': 1.12.2
++      '@unrs/resolver-binding-linux-loong64-gnu': 1.12.2
++      '@unrs/resolver-binding-linux-loong64-musl': 1.12.2
++      '@unrs/resolver-binding-linux-ppc64-gnu': 1.12.2
++      '@unrs/resolver-binding-linux-riscv64-gnu': 1.12.2
++      '@unrs/resolver-binding-linux-riscv64-musl': 1.12.2
++      '@unrs/resolver-binding-linux-s390x-gnu': 1.12.2
++      '@unrs/resolver-binding-linux-x64-gnu': 1.12.2
++      '@unrs/resolver-binding-linux-x64-musl': 1.12.2
++      '@unrs/resolver-binding-openharmony-arm64': 1.12.2
++      '@unrs/resolver-binding-wasm32-wasi': 1.12.2
++      '@unrs/resolver-binding-win32-arm64-msvc': 1.12.2
++      '@unrs/resolver-binding-win32-ia32-msvc': 1.12.2
++      '@unrs/resolver-binding-win32-x64-msvc': 1.12.2
++
++  update-browserslist-db@1.3.4(browserslist@4.29.3):
++    dependencies:
++      browserslist: 4.29.3
++      escalade: 3.2.0
++      picocolors: 1.1.1
++
++  uri-js@4.4.1:
++    dependencies:
++      punycode: 2.3.1
++
++  valibot@1.1.0(typescript@5.9.3):
++    optionalDependencies:
++      typescript: 5.9.3
++
++  which-boxed-primitive@1.1.1:
++    dependencies:
++      is-bigint: 1.1.0
++      is-boolean-object: 1.2.2
++      is-number-object: 1.1.1
++      is-string: 1.1.1
++      is-symbol: 1.1.1
++
++  which-builtin-type@1.2.1:
++    dependencies:
++      call-bound: 1.0.4
++      function.prototype.name: 1.2.0
++      has-tostringtag: 1.0.2
++      is-async-function: 2.1.1
++      is-date-object: 1.1.0
++      is-finalizationregistry: 1.1.1
++      is-generator-function: 1.1.2
++      is-regex: 1.2.1
++      is-weakref: 1.1.1
++      isarray: 2.0.5
++      which-boxed-primitive: 1.1.1
++      which-collection: 1.0.2
++      which-typed-array: 1.1.24
++
++  which-collection@1.0.2:
++    dependencies:
++      is-map: 2.0.3
++      is-set: 2.0.3
++      is-weakmap: 2.0.2
++      is-weakset: 2.0.4
++
++  which-typed-array@1.1.24:
++    dependencies:
++      available-typed-arrays: 1.0.7
++      call-bind: 1.0.9
++      call-bound: 1.0.4
++      for-each: 0.3.5
++      get-proto: 1.0.1
++      gopd: 1.2.0
++      has-tostringtag: 1.0.2
++
++  which@2.0.2:
++    dependencies:
++      isexe: 2.0.0
++
++  word-wrap@1.2.5: {}
++
++  xtend@4.0.2: {}
++
++  yallist@3.1.1: {}
++
++  yocto-queue@0.1.0: {}
++
++  zeptomatch@2.0.2:
++    dependencies:
++      grammex: 3.1.13
++
++  zod-validation-error@4.0.2(zod@4.6.7):
++    dependencies:
++      zod: 4.6.7
++
++  zod@4.6.7: {}
+diff --git a/pnpm-workspace.yaml b/pnpm-workspace.yaml
+new file mode 100644
+index 0000000..9447115
+--- /dev/null
++++ b/pnpm-workspace.yaml
+@@ -0,0 +1,14 @@
++# Politique stricte pnpm 12 : approbation explicite des seuls hooks attendus.
++allowBuilds:
++  "@prisma/engines": true
++  "esbuild": true
++  "prisma": true
++  "sharp": true
++  "unrs-resolver": true
++# Compatibilité avec les versions plus anciennes de pnpm.
++onlyBuiltDependencies:
++  - "@prisma/engines"
++  - "esbuild"
++  - "prisma"
++  - "sharp"
++  - "unrs-resolver"
+diff --git a/prisma.config.ts b/prisma.config.ts
+new file mode 100644
+index 0000000..4d4dcf6
+--- /dev/null
++++ b/prisma.config.ts
+@@ -0,0 +1,9 @@
++import { defineConfig } from "prisma/config";
++
++// La génération/application des migrations est réservée à SMN-12.
++// Ne jamais déduire une URL de connexion depuis DATABASE_URL (risque LMN24).
++export default defineConfig({
++  schema: "prisma/schema.prisma",
++  migrations: { path: "prisma/migrations" },
++  datasource: { url: process.env.SMN_DATABASE_URL || "" },
++});
+diff --git a/prisma/schema.prisma b/prisma/schema.prisma
+new file mode 100644
+index 0000000..a54f014
+--- /dev/null
++++ b/prisma/schema.prisma
+@@ -0,0 +1,18 @@
++// Contrat de la future installation (SMN-12). Aucun migrate automatique dans SMN-11.
++generator client {
++  provider = "prisma-client"
++  output   = "../src/generated/prisma"
++}
++
++datasource db {
++  provider = "postgresql"
++}
++
++model SmnInstallation {
++  id            String   @id
++  state         String
++  schemaVersion Int      @map("schema_version")
++  createdAt     DateTime @default(now()) @map("created_at")
++
++  @@map("smn_installation")
++}
+diff --git a/scripts/doctor.mjs b/scripts/doctor.mjs
+new file mode 100644
+index 0000000..784567e
+--- /dev/null
++++ b/scripts/doctor.mjs
+@@ -0,0 +1,18 @@
++#!/usr/bin/env node
++import { resolveSmnPort } from "./port-config.mjs";
++// Préconditions non sensibles. Le contrôle de connexion est réalisé par la page serveur.
++const major = Number(process.versions.node.split(".")[0]);
++if (major !== 24) {
++  console.error("SMN requiert Node.js 24 LTS. Version détectée : " + process.versions.node);
++  process.exitCode = 1;
++} else {
++  console.log("Node.js 24 LTS détecté.");
++}
++console.log("Configuration PostgreSQL : à renseigner localement (SMN_DATABASE_URL).");
++try {
++  const port = resolveSmnPort();
++  console.log(`Le diagnostic PostgreSQL est disponible après démarrage sur http://127.0.0.1:${port}.`);
++} catch (error) {
++  console.error(error instanceof Error ? error.message : "Port SMN invalide.");
++  process.exitCode = 1;
++}
+diff --git a/scripts/port-config.mjs b/scripts/port-config.mjs
+new file mode 100644
+index 0000000..a280d03
+--- /dev/null
++++ b/scripts/port-config.mjs
+@@ -0,0 +1,18 @@
++// Configuration locale unique des ports web SMN. Aucune lecture de secrets.
++export const DEFAULT_SMN_PORT = 3003;
++export const RESERVED_PORTS = Object.freeze([3000, 3001, 3002]);
++
++export function resolveSmnPort(raw = process.env.SMN_PORT) {
++  if (raw === undefined || raw === "") return DEFAULT_SMN_PORT;
++  if (!/^[0-9]+$/.test(raw)) {
++    throw new Error("SMN_PORT doit contenir un numéro de port entier (1024 à 65535).");
++  }
++  const port = Number(raw);
++  if (!Number.isSafeInteger(port) || port < 1024 || port > 65535) {
++    throw new Error("SMN_PORT doit être compris entre 1024 et 65535.");
++  }
++  if (RESERVED_PORTS.includes(port)) {
++    throw new Error("Les ports 3000, 3001 et 3002 sont réservés à l'autre projet. Choisissez un autre port.");
++  }
++  return port;
++}
+diff --git a/scripts/serve.mjs b/scripts/serve.mjs
+new file mode 100644
+index 0000000..d9e8318
+--- /dev/null
++++ b/scripts/serve.mjs
+@@ -0,0 +1,35 @@
++#!/usr/bin/env node
++// Démarre Next.js sur un port dédié, identique en développement et production.
++// Passer les arguments séparément évite toute interpolation shell et toute fuite de secrets.
++import { spawn } from "node:child_process";
++import { fileURLToPath } from "node:url";
++import { resolveSmnPort } from "./port-config.mjs";
++
++const mode = process.argv[2];
++if (mode !== "dev" && mode !== "start" || process.argv.length !== 3) {
++  console.error("Usage : pnpm dev ou pnpm start.");
++  process.exitCode = 1;
++} else {
++  let port;
++  try {
++    port = resolveSmnPort();
++  } catch (error) {
++    console.error(error instanceof Error ? error.message : "Configuration de port invalide.");
++    process.exit(1);
++  }
++
++  console.log(`SMN : http://127.0.0.1:${port} (port configurable avec SMN_PORT)`);
++  const nextCli = fileURLToPath(new URL("../node_modules/next/dist/bin/next", import.meta.url));
++  const child = spawn(
++    process.execPath,
++    [nextCli, mode, "--hostname", "127.0.0.1", "--port", String(port)],
++    { stdio: "inherit", shell: false },
++  );
++  child.on("error", () => {
++    console.error("Impossible de démarrer Next.js. Vérifiez pnpm install et la disponibilité du port SMN.");
++    process.exitCode = 1;
++  });
++  child.on("exit", (code, signal) => {
++    process.exitCode = code ?? (signal === "SIGINT" ? 130 : 1);
++  });
++}
+diff --git a/src/app/api/diagnostic/route.ts b/src/app/api/diagnostic/route.ts
+new file mode 100644
+index 0000000..b8a8d85
+--- /dev/null
++++ b/src/app/api/diagnostic/route.ts
+@@ -0,0 +1,11 @@
++import { NextResponse } from "next/server";
++import { currentInstallationDiagnostic } from "@/server/installation/current";
++
++export const dynamic = "force-dynamic";
++
++export async function GET() {
++  const diagnostic = await currentInstallationDiagnostic();
++  return NextResponse.json(diagnostic, {
++    headers: { "Cache-Control": "no-store, private", "X-Content-Type-Options": "nosniff" },
++  });
++}
+diff --git a/src/app/app/page.tsx b/src/app/app/page.tsx
+new file mode 100644
+index 0000000..c596860
+--- /dev/null
++++ b/src/app/app/page.tsx
+@@ -0,0 +1,8 @@
++import { notFound } from "next/navigation";
++import { canVisitPrivate } from "@/server/access-policy";
++
++export default function PrivatePage() {
++  if (!canVisitPrivate()) notFound();
++  // Impossible pour SMN-11 : l'authentification sera introduite par SMN-14.
++  notFound();
++}
+diff --git a/src/app/globals.css b/src/app/globals.css
+new file mode 100644
+index 0000000..5ce061e
+--- /dev/null
++++ b/src/app/globals.css
+@@ -0,0 +1,7 @@
++:root { color-scheme: light; }
++body { min-height: 100vh; background: #f5f7fb; color: #15233b; }
++.smn-page { max-width: 870px; }
++.smn-mark { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 14px; background: #154d8d; color: #fff; font-weight: 800; letter-spacing: .03em; }
++.smn-panel { border: 1px solid #d9e2ee; border-radius: 18px; background: #fff; box-shadow: 0 14px 42px rgba(15,32,57,.06); }
++.smn-subtitle { color: #51617a; }
++code { overflow-wrap: anywhere; }
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+new file mode 100644
+index 0000000..ca7fe4a
+--- /dev/null
++++ b/src/app/layout.tsx
+@@ -0,0 +1,17 @@
++import "bootstrap/dist/css/bootstrap.min.css";
++import "./globals.css";
++import type { Metadata } from "next";
++import type { ReactNode } from "react";
++
++export const metadata: Metadata = {
++  title: "Scrum Master Notebook",
++  description: "Démarrage et diagnostic de l'installation locale SMN",
++};
++
++export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
++  return (
++    <html lang="fr">
++      <body>{children}</body>
++    </html>
++  );
++}
+diff --git a/src/app/not-found.tsx b/src/app/not-found.tsx
+new file mode 100644
+index 0000000..6e0d7a3
+--- /dev/null
++++ b/src/app/not-found.tsx
+@@ -0,0 +1,13 @@
++import Link from "next/link";
++
++export default function NotFoundPage() {
++  return (
++    <main className="smn-page container py-5">
++      <div className="smn-panel p-4">
++        <h1 className="h3">Accès indisponible / Access unavailable</h1>
++        <p>L&apos;accès est refusé ou la page n&apos;existe pas. / Access is denied or this page does not exist.</p>
++        <Link href="/" className="btn btn-outline-primary">Accueil / Home</Link>
++      </div>
++    </main>
++  );
++}
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+new file mode 100644
+index 0000000..f2af930
+--- /dev/null
++++ b/src/app/page.tsx
+@@ -0,0 +1,45 @@
++import Link from "next/link";
++import { browserLanguage, translations } from "@/lib/messages";
++import { currentInstallationDiagnostic } from "@/server/installation/current";
++import { canVisitSetup } from "@/server/access-policy";
++
++export const dynamic = "force-dynamic";
++
++export default async function HomePage() {
++  const [diagnostic, lang] = await Promise.all([
++    currentInstallationDiagnostic(),
++    browserLanguage(),
++  ]);
++  const en = lang === "en";
++  const status = translations[lang][diagnostic.status];
++
++  return (
++    <main className="smn-page container py-5">
++      <header className="d-flex align-items-center gap-3 mb-5">
++        <span className="smn-mark">SMN</span>
++        <div>
++          <h1 className="h3 mb-1">Scrum Master Notebook</h1>
++          <p className="smn-subtitle mb-0">{en ? "Local startup & requirements" : "Démarrage local et prérequis"}</p>
++        </div>
++      </header>
++      <section className="smn-panel p-4 p-md-5" aria-labelledby="diagnostic-heading">
++        <h2 id="diagnostic-heading" className="h4 mb-3">{en ? "Installation diagnostics" : "Diagnostic de l'installation"}</h2>
++        <p role="status" className="lead">{status}</p>
++        <p className="smn-subtitle">
++          {en
++            ? "No database or account is created when the server starts. Private routes are blocked until secure login is implemented."
++            : "Le démarrage ne crée aucune base ni aucun compte. Les pages privées restent protégées jusqu'à la livraison de l'authentification."}
++        </p>
++        <div className="d-flex flex-wrap gap-2 mt-4">
++          <Link className="btn btn-outline-primary" href="/">{en ? "Retry diagnostics" : "Relancer le diagnostic"}</Link>
++          {canVisitSetup(diagnostic) && (
++            <Link className="btn btn-primary" href="/setup">
++              {en ? "Prepare installation" : "Préparer l'installation"}
++            </Link>
++          )}
++        </div>
++      </section>
++      <p className="small smn-subtitle mt-4">{en ? "I0 / SMN-11 — prerequisite checks only" : "I0 / SMN-11 — contrôle des prérequis uniquement"}</p>
++    </main>
++  );
++}
+diff --git a/src/app/setup/page.tsx b/src/app/setup/page.tsx
+new file mode 100644
+index 0000000..c996e1e
+--- /dev/null
++++ b/src/app/setup/page.tsx
+@@ -0,0 +1,27 @@
++import Link from "next/link";
++import { notFound } from "next/navigation";
++import { currentInstallationDiagnostic } from "@/server/installation/current";
++import { canVisitSetup } from "@/server/access-policy";
++import { browserLanguage } from "@/lib/messages";
++
++export const dynamic = "force-dynamic";
++
++export default async function SetupPage() {
++  const diagnostic = await currentInstallationDiagnostic();
++  if (!canVisitSetup(diagnostic)) notFound();
++  const en = (await browserLanguage()) === "en";
++  return (
++    <main className="smn-page container py-5">
++      <div className="smn-panel p-4">
++        <h1 className="h3">{en ? "Prepare your installation" : "Préparer votre installation"}</h1>
++        <p>{en ? "Your dedicated SMN database is empty." : "Votre base de données SMN dédiée est vierge."}</p>
++        <p className="smn-subtitle">
++          {en
++            ? "The guided setup, database creation and administrator account will be implemented in SMN-12. No installation changes are made here."
++            : "L'assistant, la création de la base et du compte administrateur seront livrés dans SMN-12. Cette page ne modifie rien."}
++        </p>
++        <Link href="/" className="btn btn-outline-primary">{en ? "Back to diagnostics" : "Retour au diagnostic"}</Link>
++      </div>
++    </main>
++  );
++}
+diff --git a/src/lib/messages.ts b/src/lib/messages.ts
+new file mode 100644
+index 0000000..ee0ba71
+--- /dev/null
++++ b/src/lib/messages.ts
+@@ -0,0 +1,36 @@
++import "server-only";
++import { headers } from "next/headers";
++import type { DiagnosticStatus } from "@/server/installation/diagnostic";
++
++export type Language = "fr" | "en";
++
++export async function browserLanguage(): Promise<Language> {
++  const requestHeaders = await headers();
++  const value = requestHeaders.get("accept-language")?.toLowerCase() ?? "";
++  return value.startsWith("en") ? "en" : "fr";
++}
++
++export const translations: Record<Language, Record<DiagnosticStatus, string>> = {
++  fr: {
++    "configuration-missing": "La connexion à la base SMN n'est pas encore configurée.",
++    "configuration-invalid": "Le paramétrage SMN doit désigner une base dédiée sur PostgreSQL local.",
++    "database-missing": "La base SMN n'existe pas encore : elle sera créée par le futur installateur après confirmation.",
++    "connection-error": "Connexion PostgreSQL impossible. Vérifiez le service et les paramètres locaux, puis réessayez.",
++    "permissions-insufficient": "Le compte PostgreSQL ne possède pas les accès nécessaires pour vérifier cette installation.",
++    virgin: "Base SMN vierge détectée. Vous pouvez consulter la préparation de l'installation.",
++    initialized: "Installation SMN existante : une authentification sera nécessaire pour accéder aux données.",
++    "schema-incompatible": "Le schéma de la base n'est pas reconnu ; aucune modification ne sera appliquée automatiquement.",
++    "installation-incomplete": "L'installation paraît partielle. Aucun accès métier n'est autorisé.",
++  },
++  en: {
++    "configuration-missing": "The SMN database connection has not been configured.",
++    "configuration-invalid": "SMN must target a dedicated local PostgreSQL database.",
++    "database-missing": "The SMN database does not exist yet. The upcoming installer will request confirmation before creating it.",
++    "connection-error": "Could not connect to PostgreSQL. Check the local service and settings, then retry.",
++    "permissions-insufficient": "The PostgreSQL account lacks the permissions required to inspect this installation.",
++    virgin: "An empty SMN database was detected. You can review the installation preparation.",
++    initialized: "An existing SMN installation was found. Authentication will be required to access data.",
++    "schema-incompatible": "The database schema is not recognized. No automatic changes will be applied.",
++    "installation-incomplete": "The installation appears incomplete. Private data access remains blocked.",
++  },
++};
+diff --git a/src/server/access-policy.ts b/src/server/access-policy.ts
+new file mode 100644
+index 0000000..4cc2b49
+--- /dev/null
++++ b/src/server/access-policy.ts
+@@ -0,0 +1,11 @@
++import type { Diagnostic } from "./installation/diagnostic";
++
++// Aucun dispositif de session n'est livré dans SMN-11 : refus par défaut.
++// L'autorisation réelle ne sera ouverte qu'après SMN-12/SMN-14.
++export function canVisitSetup(diagnostic: Diagnostic): boolean {
++  return diagnostic.status === "virgin" && diagnostic.canEnterSetup;
++}
++
++export function canVisitPrivate(): boolean {
++  return false;
++}
+diff --git a/src/server/db/config.ts b/src/server/db/config.ts
+new file mode 100644
+index 0000000..a088a3a
+--- /dev/null
++++ b/src/server/db/config.ts
+@@ -0,0 +1,25 @@
++export type ConnectionSettings =
++  | { ok: true; uri: string }
++  | { ok: false; status: "configuration-missing" | "configuration-invalid" };
++
++// Une URL ne peut jamais désigner arbitrairement une base tierce (ex : LMN24).
++export function parseConnectionSettings(raw: string | undefined): ConnectionSettings {
++  if (!raw?.trim()) return { ok: false, status: "configuration-missing" };
++  try {
++    const parsed = new URL(raw);
++    const database = decodeURIComponent(parsed.pathname.slice(1));
++    const localHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
++    if (
++      !["postgresql:", "postgres:"].includes(parsed.protocol) ||
++      !localHosts.has(parsed.hostname) ||
++      !/^smn(?:_[a-zA-Z0-9_]+)?$/.test(database) ||
++      !parsed.username ||
++      parsed.hash
++    ) {
++      return { ok: false, status: "configuration-invalid" };
++    }
++    return { ok: true, uri: raw };
++  } catch {
++    return { ok: false, status: "configuration-invalid" };
++  }
++}
+diff --git a/src/server/db/connection.ts b/src/server/db/connection.ts
+new file mode 100644
+index 0000000..3e73083
+--- /dev/null
++++ b/src/server/db/connection.ts
+@@ -0,0 +1,51 @@
++import "server-only";
++
++import { Client } from "pg";
++import type { Snapshot } from "@/server/installation/diagnostic";
++
++// Toutes les requêtes ci-dessous sont de simples SELECT, sur la base dédiée passée à pg.
++export async function probePostgres(uri: string): Promise<Snapshot> {
++  const client = new Client({
++    connectionString: uri,
++    connectionTimeoutMillis: 2500,
++    query_timeout: 2500,
++    statement_timeout: 2500,
++    application_name: "smn-diagnostic",
++  });
++  try {
++    await client.connect();
++    const rights = await client.query<{ allowed: boolean }>(
++      "SELECT has_schema_privilege(current_user, 'public', 'USAGE') AS allowed",
++    );
++    if (rights.rows[0]?.allowed !== true) {
++      return { schemaUsage: false, tables: [] };
++    }
++    const tables = await client.query<{ name: string }>(
++      "SELECT c.relname AS name FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p')",
++    );
++    const names = tables.rows.map((table) => table.name);
++    if (!names.includes("smn_installation") || names.some((n) => n !== "smn_installation" && n !== "_prisma_migrations")) {
++      return { schemaUsage: true, tables: names };
++    }
++    const read = await client.query<{ allowed: boolean }>(
++      "SELECT has_table_privilege(current_user, 'public.smn_installation', 'SELECT') AS allowed",
++    );
++    if (read.rows[0]?.allowed !== true) {
++      return { schemaUsage: true, tables: names, tableRead: false };
++    }
++    const installation = await client.query<{
++      id: string;
++      state: string;
++      schema_version: number;
++    }>("SELECT id, state, schema_version FROM public.smn_installation LIMIT 2");
++    return {
++      schemaUsage: true,
++      tables: names,
++      tableRead: true,
++      installations: installation.rows,
++    };
++  } finally {
++    // Évite qu'un échec de clôture masque un résultat de diagnostic.
++    await client.end().catch(() => undefined);
++  }
++}
+diff --git a/src/server/installation/current.ts b/src/server/installation/current.ts
+new file mode 100644
+index 0000000..8de8154
+--- /dev/null
++++ b/src/server/installation/current.ts
+@@ -0,0 +1,13 @@
++import "server-only";
++import type { Diagnostic } from "@/server/installation/diagnostic";
++import { diagnoseInstallation } from "@/server/installation/diagnostic";
++import { parseConnectionSettings } from "@/server/db/config";
++import { probePostgres } from "@/server/db/connection";
++
++export async function currentInstallationDiagnostic(): Promise<Diagnostic> {
++  const settings = parseConnectionSettings(process.env.SMN_DATABASE_URL);
++  if (!settings.ok) {
++    return { status: settings.status, canEnterSetup: false };
++  }
++  return diagnoseInstallation(() => probePostgres(settings.uri));
++}
+diff --git a/src/server/installation/diagnostic.ts b/src/server/installation/diagnostic.ts
+new file mode 100644
+index 0000000..2cf743b
+--- /dev/null
++++ b/src/server/installation/diagnostic.ts
+@@ -0,0 +1,68 @@
++// Domaine du diagnostic : aucune dépendance à Next, React, Prisma ou au pilote PG.
++export type DiagnosticStatus =
++  | "configuration-missing"
++  | "configuration-invalid"
++  | "database-missing"
++  | "connection-error"
++  | "permissions-insufficient"
++  | "virgin"
++  | "initialized"
++  | "schema-incompatible"
++  | "installation-incomplete";
++
++export type Diagnostic = Readonly<{
++  status: DiagnosticStatus;
++  canEnterSetup: boolean;
++}>;
++
++export type Snapshot = Readonly<{
++  schemaUsage: boolean;
++  tables: readonly string[];
++  tableRead?: boolean;
++  installations?: readonly { id: string; state: string; schema_version: number }[];
++}>;
++
++export type DiagnosticProbe = () => Promise<Snapshot>;
++
++function result(status: DiagnosticStatus): Diagnostic {
++  return { status, canEnterSetup: status === "virgin" };
++}
++
++// Ne jamais exposer l'exception PG : elle peut contenir des fragments de connexion.
++export function classifyDatabaseError(error: unknown): DiagnosticStatus {
++  const code =
++    typeof error === "object" && error !== null && "code" in error
++      ? (error as { code?: unknown }).code
++      : undefined;
++  if (code === "3D000") return "database-missing";
++  if (code === "42501") return "permissions-insufficient";
++  return "connection-error";
++}
++
++export function classifySnapshot(snapshot: Snapshot): Diagnostic {
++  if (!snapshot.schemaUsage) return result("permissions-insufficient");
++  const names = new Set(snapshot.tables);
++  const permitted = new Set(["smn_installation", "_prisma_migrations"]);
++  if ([...names].some((table) => !permitted.has(table))) {
++    return result("schema-incompatible");
++  }
++  if (!names.has("smn_installation")) {
++    return result(names.size === 0 ? "virgin" : "installation-incomplete");
++  }
++  if (snapshot.tableRead !== true) return result("permissions-insufficient");
++  const records = snapshot.installations;
++  if (!records || records.length !== 1 || records[0].id !== "singleton") {
++    return result("installation-incomplete");
++  }
++  if (records[0].schema_version !== 1) return result("schema-incompatible");
++  if (records[0].state !== "initialized") return result("installation-incomplete");
++  return result("initialized");
++}
++
++export async function diagnoseInstallation(probe: DiagnosticProbe): Promise<Diagnostic> {
++  try {
++    return classifySnapshot(await probe());
++  } catch (error) {
++    return result(classifyDatabaseError(error));
++  }
++}
+diff --git a/tests/access-guards.test.ts b/tests/access-guards.test.ts
+new file mode 100644
+index 0000000..8d3e18d
+--- /dev/null
++++ b/tests/access-guards.test.ts
+@@ -0,0 +1,23 @@
++import assert from "node:assert/strict";
++import { describe, it } from "node:test";
++import { canVisitSetup, canVisitPrivate } from "../src/server/access-policy";
++import type { DiagnosticStatus } from "../src/server/installation/diagnostic";
++
++describe("SMN-11 — refus côté serveur sans authentification", () => {
++  const states: DiagnosticStatus[] = [
++    "configuration-missing", "configuration-invalid", "database-missing",
++    "connection-error", "permissions-insufficient", "virgin",
++    "initialized", "schema-incompatible", "installation-incomplete",
++  ];
++
++  for (const status of states) {
++    it("route setup pour l'état " + status, () => {
++      const isVirgin = status === "virgin";
++      assert.equal(canVisitSetup({ status, canEnterSetup: isVirgin }), isVirgin);
++      assert.equal(canVisitPrivate(), false);
++    });
++  }
++  it("refuse setup si le diagnostic n'autorise pas le parcours", () => {
++    assert.equal(canVisitSetup({ status: "virgin", canEnterSetup: false }), false);
++  });
++});
+diff --git a/tests/installation-diagnostic.test.ts b/tests/installation-diagnostic.test.ts
+new file mode 100644
+index 0000000..67dbda3
+--- /dev/null
++++ b/tests/installation-diagnostic.test.ts
+@@ -0,0 +1,75 @@
++import assert from "node:assert/strict";
++import { describe, it } from "node:test";
++import {
++  classifySnapshot,
++  diagnoseInstallation,
++  type Snapshot,
++} from "../src/server/installation/diagnostic";
++import { parseConnectionSettings } from "../src/server/db/config";
++
++const virgin: Snapshot = { schemaUsage: true, tables: [] };
++const valid: Snapshot = {
++  schemaUsage: true,
++  tables: ["smn_installation", "_prisma_migrations"],
++  tableRead: true,
++  installations: [{ id: "singleton", state: "initialized", schema_version: 1 }],
++};
++
++describe("SMN-11 — diagnostic sans mutation", () => {
++  it("reconnaît une base vierge sans créer de compte ou d'équipe", async () => {
++    assert.deepEqual(await diagnoseInstallation(async () => virgin), {
++      status: "virgin",
++      canEnterSetup: true,
++    });
++  });
++
++  it("reconnaît une installation valide et ferme l'assistant", () => {
++    assert.equal(classifySnapshot(valid).status, "initialized");
++    assert.equal(classifySnapshot(valid).canEnterSetup, false);
++  });
++
++  it("ne confond pas une base étrangère avec une base vierge", () => {
++    assert.equal(classifySnapshot({ schemaUsage: true, tables: ["articles"] }).status, "schema-incompatible");
++    assert.equal(classifySnapshot({ schemaUsage: true, tables: ["_prisma_migrations"] }).status, "installation-incomplete");
++    assert.equal(classifySnapshot({ schemaUsage: true, tables: ["smn_installation", "articles"] }).status, "schema-incompatible");
++  });
++
++  it("refuse les schémas modifiés et les installations partielles", () => {
++    assert.equal(classifySnapshot({ ...valid, installations: [{ id: "singleton", state: "initialized", schema_version: 2 }] }).status, "schema-incompatible");
++    assert.equal(classifySnapshot({ ...valid, installations: [] }).status, "installation-incomplete");
++    assert.equal(classifySnapshot({ ...valid, installations: [{ id: "singleton", state: "pending", schema_version: 1 }] }).status, "installation-incomplete");
++    assert.equal(classifySnapshot({ ...valid, installations: [{ id: "x", state: "initialized", schema_version: 1 }] }).status, "installation-incomplete");
++  });
++
++  it("distingue les privilèges manquants, sans exiger CREATEDB", () => {
++    assert.equal(classifySnapshot({ schemaUsage: false, tables: [] }).status, "permissions-insufficient");
++    assert.equal(classifySnapshot({ ...valid, tableRead: false }).status, "permissions-insufficient");
++    assert.equal(classifySnapshot(virgin).status, "virgin");
++  });
++
++  it("classe les échecs PostgreSQL sans révéler l'erreur brute", async () => {
++    for (const [code, expected] of [
++      ["3D000", "database-missing"],
++      ["42501", "permissions-insufficient"],
++      ["28P01", "connection-error"],
++      ["ECONNREFUSED", "connection-error"],
++      ["ETIMEDOUT", "connection-error"],
++    ]) {
++      const failure = Object.assign(new Error("password=secret-should-not-leak"), { code });
++      const result = await diagnoseInstallation(async () => { throw failure; });
++      assert.equal(result.status, expected);
++      assert.equal(JSON.stringify(result).includes("secret"), false);
++      assert.equal(result.canEnterSetup, false);
++    }
++  });
++
++  it("rejette une configuration absente ou dirigée vers une autre application", () => {
++    assert.deepEqual(parseConnectionSettings(undefined), { ok: false, status: "configuration-missing" });
++    assert.deepEqual(parseConnectionSettings("bad-uri"), { ok: false, status: "configuration-invalid" });
++    assert.deepEqual(parseConnectionSettings("postgresql://local:pass@localhost:5432/lmn24"), { ok: false, status: "configuration-invalid" });
++    assert.deepEqual(parseConnectionSettings("postgresql://local:pass@remote.example:5432/smn"), { ok: false, status: "configuration-invalid" });
++    assert.equal(parseConnectionSettings("postgresql://local:pass@localhost:5432/smn").ok, true);
++    assert.equal(parseConnectionSettings("postgresql://local:pass@[::1]:5432/smn_test").ok, true);
++    assert.equal(JSON.stringify(parseConnectionSettings("bad-uri")).includes("bad-uri"), false);
++  });
++});
+diff --git a/tests/port-config.test.mjs b/tests/port-config.test.mjs
+new file mode 100644
+index 0000000..d2d85e9
+--- /dev/null
++++ b/tests/port-config.test.mjs
+@@ -0,0 +1,26 @@
++import assert from "node:assert/strict";
++import { describe, it } from "node:test";
++import { DEFAULT_SMN_PORT, RESERVED_PORTS, resolveSmnPort } from "../scripts/port-config.mjs";
++
++describe("SMN-11 — coexistence des serveurs locaux", () => {
++  it("utilise 3003 par défaut, hors des ports réservés", () => {
++    assert.equal(resolveSmnPort(undefined), 3003);
++    assert.equal(DEFAULT_SMN_PORT, 3003);
++    assert.equal(RESERVED_PORTS.includes(resolveSmnPort(undefined)), false);
++  });
++  it("accepte un port personnalisé non réservé sans changer la valeur par défaut", () => {
++    assert.equal(resolveSmnPort("3010"), 3010);
++    assert.equal(resolveSmnPort("3003"), 3003);
++    assert.equal(resolveSmnPort(""), DEFAULT_SMN_PORT);
++  });
++  it("rejette les ports 3000 à 3002 déjà attribués à l'autre projet", () => {
++    for (const port of RESERVED_PORTS) {
++      assert.throws(() => resolveSmnPort(String(port)), /réservés/);
++    }
++  });
++  it("rejette les numéros invalides, partiels ou non autorisés", () => {
++    for (const value of ["0", "80", "65536", "3003x", "-3003", "3003.5", " 3003", "Infinity"]) {
++      assert.throws(() => resolveSmnPort(value));
++    }
++  });
++});
+diff --git a/tests/postgres-integration.test.ts b/tests/postgres-integration.test.ts
+new file mode 100644
+index 0000000..27aba61
+--- /dev/null
++++ b/tests/postgres-integration.test.ts
+@@ -0,0 +1,40 @@
++import assert from "node:assert/strict";
++import { describe, it } from "node:test";
++import { Client } from "pg";
++import { classifySnapshot, diagnoseInstallation } from "../src/server/installation/diagnostic";
++import { parseConnectionSettings } from "../src/server/db/config";
++
++// Probe intégrée en CI sur une base PostgreSQL éphémère, jamais sur le PC utilisateur.
++const uri = process.env.SMN_TEST_DATABASE_URL;
++describe("SMN-11 — PostgreSQL réel (CI uniquement)", { skip: !uri }, () => {
++  it("connexion au PostgreSQL de test, état vierge et classification", async () => {
++    assert.ok(uri);
++    const settings = parseConnectionSettings(uri);
++    assert.equal(settings.ok, true);
++    const client = new Client({ connectionString: uri });
++    try {
++      await client.connect();
++      const tables = await client.query<{ name: string }>(
++        "SELECT c.relname AS name FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind IN ('r','p')",
++      );
++      assert.equal(classifySnapshot({ schemaUsage: true, tables: tables.rows.map((r) => r.name) }).status, "virgin");
++    } finally {
++      await client.end().catch(() => undefined);
++    }
++  });
++
++  it("classe un nom de base inexistant comme absent, sans écriture", async () => {
++    assert.ok(uri);
++    const missing = uri.replace(/\/smn_ci(?:\?|$)/, "/smn_database_missing");
++    const diagnosis = await diagnoseInstallation(async () => {
++      const client = new Client({ connectionString: missing, connectionTimeoutMillis: 1000 });
++      try {
++        await client.connect();
++      } finally {
++        await client.end().catch(() => undefined);
++      }
++      return { schemaUsage: true, tables: [] };
++    });
++    assert.equal(diagnosis.status, "database-missing");
++  });
++});
+diff --git a/tsconfig.json b/tsconfig.json
+new file mode 100644
+index 0000000..d3b92a0
+--- /dev/null
++++ b/tsconfig.json
+@@ -0,0 +1,21 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "lib": ["dom", "dom.iterable", "esnext"],
++    "allowJs": true,
++    "skipLibCheck": true,
++    "strict": true,
++    "noEmit": true,
++    "esModuleInterop": true,
++    "module": "esnext",
++    "moduleResolution": "bundler",
++    "resolveJsonModule": true,
++    "isolatedModules": true,
++    "jsx": "react-jsx",
++    "incremental": true,
++    "plugins": [{ "name": "next" }],
++    "paths": { "@/*": ["./src/*"] }
++  },
++  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],
++  "exclude": ["node_modules"]
++}
+
+===== END UNIFIED DIFF =====
+. Read that file — it is the content under review.
+
+Do not invoke any skill, and do not spawn subagents of your own — you are the reviewer. If the instruction file is unreadable, report that exact failure and stop. Return your findings as text in your final message; do not route them through any findings-reporting tool the host may offer.

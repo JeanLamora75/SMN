@@ -1,0 +1,18 @@
+// Contrat de la future installation (SMN-12). Aucun migrate automatique dans SMN-11.
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model SmnInstallation {
+  id            String   @id
+  state         String
+  schemaVersion Int      @map("schema_version")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("smn_installation")
+}

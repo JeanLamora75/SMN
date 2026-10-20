@@ -1,0 +1,14 @@
+# Politique stricte pnpm 12 : approbation explicite des seuls hooks attendus.
+allowBuilds:
+  "@prisma/engines": true
+  "esbuild": true
+  "prisma": true
+  "sharp": true
+  "unrs-resolver": true
+# Compatibilité avec les versions plus anciennes de pnpm.
+onlyBuiltDependencies:
+  - "@prisma/engines"
+  - "esbuild"
+  - "prisma"
+  - "sharp"
+  - "unrs-resolver"

@@ -1,15 +1,21 @@
-﻿# BMAD - configuration personnelle
+# BMAD - configuration personnelle
 _bmad/config.user.toml
 _bmad/custom/config.user.toml
-
-# BMAD - fichiers temporaires
 _bmad/render/
 
-# Environnement et secrets
+# Secrets et environnement
 .env
 .env.*
 !.env.example
 node_modules/
+
+# Fichiers générés
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+src/generated/
 
 # Windows
 Thumbs.db
