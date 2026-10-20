@@ -31,8 +31,8 @@ La saisie ci-dessous masque les caractères tapés ; elle laisse néanmoins temp
 # Optionnel : saisir localement une URL de connexion déjà autorisée.
 # Attention : une variable d'environnement de session ne constitue pas
 # un coffre de secrets ; fermer cette session après le test.
-${"inputSecret"} = Read-Host "URL PostgreSQL locale SMN" -AsSecureString
-$env:SMN_DATABASE_URL = [System.Net.NetworkCredential]::new("", ${"inputSecret"}).Password
+$inputSecret = Read-Host "URL PostgreSQL locale SMN" -AsSecureString
+$env:SMN_DATABASE_URL = [System.Net.NetworkCredential]::new("", $inputSecret).Password
 Remove-Variable inputSecret
 pnpm dev
 ```
