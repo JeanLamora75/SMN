@@ -63,6 +63,14 @@ jobs:
         run: pnpm test
       - name: Typecheck
         run: pnpm typecheck
+      - name: Valider le diagnostic de port
+        run: |
+          node scripts/doctor.mjs
+          SMN_PORT=3010 node scripts/doctor.mjs
+          if SMN_PORT=3000 node scripts/doctor.mjs; then
+            echo "Erreur : SMN a accepté un port réservé."
+            exit 1
+          fi
       - name: Build de production
         run: pnpm build
         env:
@@ -71,17 +79,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Simuler l'autre projet sur 3000 sans exposer de réseau extérieur.
+          node -e 'require("node:http").createServer((_req, res) => res.end("other-project")).listen(3000, "127.0.0.1")' > /tmp/smn-port3000.log 2>&1 &
+          OTHER_PID=$!
           pnpm start > /tmp/smn-next.log 2>&1 &
           SERVER_PID=$!
-          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          trap 'kill "$SERVER_PID" "$OTHER_PID" 2>/dev/null || true' EXIT
+          test "$(curl --silent --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/)" = "other-project"
           for i in {1..30}; do
-            if curl --silent --fail http://127.0.0.1:3000/ > /dev/null; then break; fi
+            if curl --silent --fail http://127.0.0.1:3003/ > /dev/null; then break; fi
             sleep 1
           done
-          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)" = "200"
-          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/setup)" = "200"
-          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/app)" = "404"
-          curl --silent --fail http://127.0.0.1:3000/api/diagnostic | node -e 'let s="";process.stdin.on("data",x=>s+=x);process.stdin.on("end",()=>{const d=JSON.parse(s);if(d.status!=="virgin"||!d.canEnterSetup)process.exit(1)})'
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/)" = "200"
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/setup)" = "200"
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/app)" = "404"
+          test "$(curl --silent http://127.0.0.1:3000/)" = "other-project"
+          curl --silent --fail http://127.0.0.1:3003/api/diagnostic | node -e 'let s="";process.stdin.on("data",x=>s+=x);process.stdin.on("end",()=>{const d=JSON.parse(s);if(d.status!=="virgin"||!d.canEnterSetup)process.exit(1)})'
       - name: Publier le lockfile généré une seule fois
         if: success()
         run: |

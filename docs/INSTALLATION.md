@@ -21,6 +21,26 @@ pnpm build
 
 Le lockfile doit être présent dans la branche téléchargée avant d'utiliser `--frozen-lockfile`. Ne pas activer un changement de versions sans l'examiner.
 
+### Port HTTP réservé à SMN
+
+Les ports **3000, 3001 et 3002** sont déjà utilisés par une autre application et doivent lui rester réservés. SMN utilise **3003 par défaut**, pour `pnpm dev` comme pour `pnpm start`. Aucune modification de l'autre projet n'est nécessaire.
+
+L'adresse par défaut est **http://127.0.0.1:3003** (ou `http://localhost:3003`). Si 3003 est lui aussi occupé, SMN doit échouer en signalant que ce port n'est pas disponible, sans essayer les ports 3000 à 3002. Vous pouvez choisir un autre port libre, par exemple 3010, **uniquement pour la session PowerShell courante** :
+
+```powershell
+$env:SMN_PORT = "3010"
+pnpm dev
+```
+
+Pour revenir au port par défaut :
+
+```powershell
+Remove-Item Env:SMN_PORT -ErrorAction SilentlyContinue
+pnpm dev
+```
+
+Le contrôle `pnpm doctor` affiche aussi l'adresse configurée et refuse explicitement `SMN_PORT=3000`, `3001` ou `3002`. On ne peut pas conclure que 3003 est libre sans l'avoir testé sur le poste.
+
 ### Connexion privée à PostgreSQL
 
 SMN lit uniquement `SMN_DATABASE_URL`. L'hôte doit être `localhost`, `127.0.0.1` ou `::1`, et le nom de la base doit être `smn` ou commencer par `smn_`. **Aucune valeur `DATABASE_URL` n'est réutilisée implicitement.** Ne jamais pointer vers LMN24 ou une autre base.
@@ -39,7 +59,7 @@ pnpm dev
 
 Éviter toute capture d'écran/commande contenant des mots de passe ou URL réels. Le formulaire de secret masqué et le dossier privé viendront avec l'installation guidée. En l'absence d'URL configurée, lancer simplement `pnpm dev` pour obtenir un diagnostic non connecté.
 
-Ouvrir **http://127.0.0.1:3000**. Si la base n'existe pas encore, le diagnostic doit l'indiquer et ne doit pas proposer de l'effacer ou de la créer en silence. L'écran `/setup` présente uniquement les prérequis dans le cas d'une base vierge ; l'installation effective sera implémentée dans SMN-12. `/app` reste bloqué.
+Ouvrir **http://127.0.0.1:3003**. Si la base n'existe pas encore, le diagnostic doit l'indiquer et ne doit pas proposer de l'effacer ou de la créer en silence. L'écran `/setup` présente uniquement les prérequis dans le cas d'une base vierge ; l'installation effective sera implémentée dans SMN-12. `/app` reste bloqué.
 
 Pour lancer le build compilé après `pnpm build` :
 
@@ -52,9 +72,10 @@ pnpm start
 1. Démarrer sans `SMN_DATABASE_URL` : diagnostic « configuration manquante », pas de faux succès.
 2. Arrêter PostgreSQL / fournir volontairement une URL incorrecte : diagnostic relançable et sans secret.
 3. Vérifier qu'une URL contenant `/lmn24` est rejetée **avant connexion**.
-4. Tester `/app` : refus/404 en l'absence d'authentification.
-5. Tester `/setup` : accès refusé sauf si le diagnostic confirme une base SMN dédiée vierge.
-6. Vérifier qu'aucune base ni objet métier n'a été créé par le lancement.
+4. Vérifier la coexistence : les services existants restent sur 3000/3001/3002 ; SMN démarre sur 3003 sans interrompre les autres serveurs. Vérifier aussi le cas où 3003 est occupé.
+5. Tester `/app` : refus/404 en l'absence d'authentification.
+6. Tester `/setup` : accès refusé sauf si le diagnostic confirme une base SMN dédiée vierge.
+7. Vérifier qu'aucune base ni objet métier n'a été créé par le lancement.
 
 **Ne créez pas de base SMN manuellement par défaut.** La création avec confirmation et contrôle des droits appartient au travail d'installation SMN-12. Aucune commande `prisma db push`, `prisma migrate dev` ou remise à zéro n'est demandée sur une base réelle.
 

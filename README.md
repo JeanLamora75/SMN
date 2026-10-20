@@ -6,7 +6,9 @@ Application destinée aux Scrum Masters, développée selon BMAD 6.12.4. MVP Scr
 
 **Travail I0 / SMN-11 en construction :** diagnostic local des prérequis, sans installation complète ni authentification disponible. Les routes privées restent fermées ; aucun démarrage ne crée de base, compte, équipe ou Sprint. La base SMN dédiée doit être créée **par le futur installateur SMN-12**, avec vérification des droits et confirmation préalable, et non manuellement dans le parcours normal.
 
-Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes et limites vérifiables.
+**Port web de SMN : 3003 par défaut**, afin de préserver les applications existantes sur 3000, 3001 et 3002. `SMN_PORT` permet de choisir un autre port libre (hors de ces trois ports réservés).
+
+Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes, le port et les limites vérifiables.
 
 ## Référentiels du projet
 
