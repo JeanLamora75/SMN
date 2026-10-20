@@ -28,7 +28,7 @@ async function run(exe: string, args: string[], input?: string): Promise<string>
     child.on("close", code => {
       // Ne jamais remonter stdout/stderr PG : peuvent contenir des détails privés.
       if (code === 0) resolve(out.trim());
-      else reject(new Error("managed-process-failed:" + path.basename(exe)));
+      else reject(new Error("managed-process-failed:" + path.basename(exe) + (path.basename(exe).toLowerCase() === "tar.exe" ? ":" + err.slice(-500).replace(/[\\r\\n]+/g, " ") : "")));
     });
     child.stdin.end(input);
   });
