@@ -2,6 +2,8 @@
 
 **Story Jira :** https://lmn24.atlassian.net/browse/SMN-23
 
+**Livraison GitHub :** [PR #18 fusionnée sur `main`](https://github.com/JeanLamora75/SMN/pull/18), commit `b65dd486b597732e8ff23991195ae478fcbec999`. **Recette non attestée.**
+
 **Architecture :** Next.js 16 / React 19 / PostgreSQL 18 / JSON i18n (FR/EN), sans migration SQL.
 
 ## Parcours réel I0

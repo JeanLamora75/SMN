@@ -15,4 +15,4 @@
 
 Documentation d'implémentation : [docs/NAVIGATION-CONTEXTUELLE-SMN-23.md](../../docs/NAVIGATION-CONTEXTUELLE-SMN-23.md). Tests unitaires et HTTP décrits dans ce document.
 
-**Statut : développement codé, recette Windows/CI et revue métier en attente.** La validation documentaire fonctionnelle du 19/10/2026 ne vaut pas preuve d'exécution des tests.
+**Statut : code fusionné à `main` via [PR #18](https://github.com/JeanLamora75/SMN/pull/18), recette Windows/CI et revue métier en attente.** La validation documentaire fonctionnelle du 19/10/2026 ne vaut pas preuve d'exécution des tests.

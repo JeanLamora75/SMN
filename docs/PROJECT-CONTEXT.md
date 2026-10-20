@@ -123,3 +123,5 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Route `/app/team/[id]` ouverte uniquement avec une session active et la permission collective ; fiche manquante ou refusée → même 404 sans fuite d'identité. Le lien depuis la synthèse transporte uniquement des paramètres contextuels allowlistés.
 - Les données historiques de cycles/versions ne sont pas encore produites au MVP ; aucun état historique n'est simulé. Un avertissement distingue explicitement contexte de retour historique demandé et données actuelles visibles.
 - Nouveaux textes FR/EN centralisés en JSON sous `detail`. Les tests ont été écrits mais l'exécution CI/Windows est à confirmer.
+
+- **Intégration SMN-23 confirmée :** [PR #18](https://github.com/JeanLamora75/SMN/pull/18) fusionnée dans `main` (commit `b65dd486b597732e8ff23991195ae478fcbec999`). Story Jira conservée En cours en l'absence d'exécution effective de la CI et de la recette Windows.
