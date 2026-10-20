@@ -91,6 +91,9 @@ jobs:
             git add pnpm-lock.yaml
             git commit -m "build: figer le lockfile pnpm pour SMN-11"
             # Aucun force-push : réintégrer les commits arrivés depuis le checkout.
+            # Next peut réécrire les fichiers déclaratifs pendant le build ;
+            # ne jamais inclure ces modifications générées dans un commit de lockfile.
+            git restore -- tsconfig.json next-env.d.ts
             git fetch origin dev/bmad-i0-20261020
             git rebase origin/dev/bmad-i0-20261020
             git push origin HEAD:dev/bmad-i0-20261020
