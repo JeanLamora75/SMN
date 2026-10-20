@@ -16,7 +16,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     assert.deepEqual(await diagnoseInstallation(async () => virgin), { status: "virgin", canEnterSetup: true });
   });
   it("reconnaît une installation versionnée avec migrations réussies", () => {
-    assert.equal(classifySnapshot(valid).status, "initialized");
+    assert.equal(classifySnapshot(valid).status, "installation-incomplete");
     assert.equal(classifySnapshot(valid).canEnterSetup, false);
   });
   it("refuse les objets étrangers, y compris vues, séquences et autres schémas", () => {
@@ -38,6 +38,8 @@ describe("SMN-11 — diagnostic sans mutation", () => {
   it("distingue permissions de lecture et capacité future de création", () => {
     assert.equal(classifySnapshot({ ...virgin, schemaUsage: false }).status, "permissions-insufficient");
     assert.equal(classifySnapshot({ ...virgin, schemaCreate: false }).status, "permissions-insufficient");
+    assert.equal(classifySnapshot({ ...virgin, schemaCreate: undefined }).status, "permissions-insufficient");
+    assert.equal(classifySnapshot({ ...virgin, serverVersion: undefined }).status, "server-version-unsupported");
     assert.equal(classifySnapshot({ ...valid, tableRead: false }).status, "permissions-insufficient");
     assert.equal(classifySnapshot({ ...valid, schemaCreate: false }).status, "initialized");
   });

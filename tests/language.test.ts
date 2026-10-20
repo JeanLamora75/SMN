@@ -13,5 +13,6 @@ describe("SMN-11 — langue et préférences du navigateur", () => {
     assert.equal(negotiateLanguage("en;q=0,fr;q=0.8"), "fr");
     assert.equal(negotiateLanguage("en;q=0"), "fr");
     assert.equal(negotiateLanguage("en;q=0.3,fr-FR;q=0.9"), "fr");
+    assert.equal(negotiateLanguage("en;q=abc,fr;q=0.8"), "fr");
   });
 });

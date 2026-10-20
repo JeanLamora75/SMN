@@ -10,10 +10,13 @@ export function negotiateLanguage(acceptLanguage: string | null | undefined): La
     const language = tag.split("-")[0];
     if (language !== "fr" && language !== "en") continue;
     let q = 1;
+    let valid = true;
     for (const p of params) {
       const m = /^\s*q=([0-9]+(?:\.[0-9]+)?)\s*$/.exec(p);
       if (m) q = Number(m[1]);
+      else valid = false;
     }
+    if (!valid) continue;
     if (q > 0 && q <= 1) supported.push({ lang: language, q, order });
   }
   supported.sort((a, b) => b.q - a.q || a.order - b.order);

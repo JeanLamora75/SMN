@@ -59,7 +59,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.schemaUsage) return result("permissions-insufficient");
   // Qualification I0 réalisée sur PostgreSQL 18 : aucun faux « prêt »
   // pour une version serveur encore non qualifiée.
-  if (snapshot.serverVersion !== undefined && Math.floor(snapshot.serverVersion / 10000) !== 18) {
+  if (!Number.isInteger(snapshot.serverVersion) || Math.floor(snapshot.serverVersion! / 10000) !== 18) {
     return result("server-version-unsupported");
   }
   const names = new Set(snapshot.tables);
@@ -67,7 +67,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const history = "public._prisma_migrations:r";
   if (!names.has(marker)) {
     if (names.size === 0) {
-      return result(snapshot.schemaCreate === false ? "permissions-insufficient" : "virgin");
+      return result(snapshot.schemaCreate === true ? "virgin" : "permissions-insufficient");
     }
     return result(names.size === 1 && names.has(history) ? "installation-incomplete" : "schema-incompatible");
   }
@@ -86,7 +86,10 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (snapshot.migrations.some((m) => !m.finished_at || !!m.rolled_back_at)) {
     return result("installation-incomplete");
   }
-  return result("initialized");
+  // Aucune migration SMN-11 officielle ne définit encore l'état initialisé.
+  // Ne pas valider un historique arbitraire : SMN-12 enregistrera le manifeste
+  // Prisma effectif et déverrouillera cet état après vérification du schéma.
+  return result("installation-incomplete");
 }
 
 export async function diagnoseInstallation(probe: DiagnosticProbe): Promise<Diagnostic> {
