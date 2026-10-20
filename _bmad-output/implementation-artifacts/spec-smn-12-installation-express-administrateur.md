@@ -86,6 +86,9 @@ La demande utilisateur **approuve explicitement l'installation complète incluan
 
 ## Spec Change Log
 
+- 2026-10-20 — Retour direct utilisateur de la recette : l'installateur portable échouait après environ deux minutes sans message exploitable, le champ de mot de passe Admin de 14 caractères est rejeté, et les identifiants PostgreSQL sont demandés pour un serveur déjà installé. Correctifs fonctionnels : modes PostgreSQL existant ou portable, champs user/pwd/port, configuration locale chiffrée, valeurs Admin MVP `admin@localhot.com`/`admin`/`admin`, minimum 4 caractères, et progression par étapes. Le formulaire utilise le texte d'accueil exact demandé. Seuls des tests CI complets et un retour utilisateur permettront de déclarer cette nouvelle itération achevée.
+
+
 ## Review Triage Log
 
 - Phase 1 de revue par tests et correction itérative : échec lint JSX puis correctifs, erreur Prisma datasource puis correction, nouvelle couverture PostgreSQL créée. Aucune revue externe officielle encore recueillie pour SMN-12. Le statut `in-review` représente une préparation à la recette et à l'examen de la PR, **pas une acceptation utilisateur ni une fusion dans main**.

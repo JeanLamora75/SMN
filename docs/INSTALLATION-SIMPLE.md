@@ -1,6 +1,6 @@
 # Installer Scrum Master Notebook — pilote Windows
 
-**Objectif :** ouvrir SMN puis cliquer sur « Installer SMN ». Il n'est pas nécessaire de préparer une base PostgreSQL, de créer un utilisateur SQL ou de recopier un jeton d'installation.
+**Objectif :** ouvrir SMN puis cliquer sur « Installer SMN ». Aucune ligne de commande ni configuration manuelle n'est requise. Pour utiliser un PostgreSQL local déjà installé, renseigner simplement son utilisateur et son mot de passe dans l'assistant. Pour utiliser la version portable, les identifiants techniques sont générés automatiquement.
 
 ## Utilisateur pilote — paquet autonome
 
@@ -8,11 +8,11 @@ Dès qu'un paquet a **réussi ses contrôles Windows**, le télécharger depuis 
 
 1. Extraire complètement l'archive ZIP dans un dossier personnel standard. **Ne pas lancer le programme depuis l'archive compressée.**
 2. Double-cliquer sur `Demarrer SMN.cmd` dans le dossier `SMN-Windows`. Une fenêtre ouvre le serveur local, puis le navigateur sur `http://127.0.0.1:3003`.
-3. Cliquer **Installer SMN**. Saisir le mode Scrum ou Kanban, le nom du produit, le nom de l'équipe et un mot de passe administrateur (avec confirmation). L'adresse initiale documentée reste `admin@locahost.com`.
-4. Lire l'avertissement de création puis cocher la confirmation et cliquer **Installer SMN**. Attendre la fin de la préparation de PostgreSQL : elle peut durer plusieurs minutes au premier lancement.
+3. Cliquer **Installer SMN**. Choisir « Utiliser PostgreSQL déjà installé » (valeur par défaut, utilisateur PostgreSQL, mot de passe et port, normalement 5432), ou « Installer un PostgreSQL dédié à SMN ». Saisir Scrum/Kanban, le produit et l'équipe, puis vérifier le compte admin modifiable : **e-mail `admin@localhot.com`, utilisateur `admin`, mot de passe `admin`** pour le pilote. Le mot de passe Admin peut comporter 4 caractères minimum ; changer le mot de passe par défaut est fortement conseillé.
+4. Confirmer la création et cliquer **Installer SMN**. Une barre de progression décrit les étapes franchies ; avec PostgreSQL existant, vérifier d'abord qu'il fonctionne et que le compte peut créer une base. Avec l'option portable, la préparation des composants peut prendre plusieurs minutes.
 5. Vérifier le message de réussite. L'accès au tableau de bord reste désactivé jusqu'à la Story [SMN-14](https://lmn24.atlassian.net/browse/SMN-14).
 
-L'archive doit contenir **Node.js 24 et les binaires PostgreSQL 18.6 vérifiés**, sans ajout de service Windows. Les fichiers de données SMN sont conservés sous `%LOCALAPPDATA%\ScrumMasterNotebook`, hors du dossier de l'application. Ne pas supprimer ce répertoire pour « réinstaller » : il contient les données et la configuration.
+L'archive doit contenir **Node.js 24 et les binaires PostgreSQL 18.6 vérifiés**, sans ajout de service Windows. Les paramètres de connexion SMN sont enregistrés dans `%LOCALAPPDATA%\ScrumMasterNotebook\postgres-connection.json` avec un mot de passe chiffré pour le mode PostgreSQL existant ; la clé locale est aussi conservée dans le profil Windows. Les fichiers de la base portable sont conservés sous `%LOCALAPPDATA%\ScrumMasterNotebook`, hors du dossier de l'application. Ne pas supprimer ce répertoire pour « réinstaller » : il contient les données et la configuration.
 
 **Sécurité et limites :** aucune opération n'est appliquée au PostgreSQL d'un autre projet, en particulier LMN24. Les ports 3000–3002 restent réservés, SMN utilise 3003 et son propre PostgreSQL utilise 55432. Une politique de sécurité Windows peut empêcher l'exécution de binaires portables ; SMN doit alors signaler la restriction, sans réclamer de droits administrateur. L'archive elle-même et la procédure complète **restent en cours de qualification** tant que le workflow Windows de packaging et l'installation sur un poste utilisateur standard n'ont pas réussi.
 
@@ -25,7 +25,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Ouvrir `http://localhost:3003` : l'absence de configuration SMN doit maintenant afficher le bouton **Installer SMN**, et non un formulaire d'URL PostgreSQL. **Aucune manipulation de PostgreSQL, de variable `SMN_DATABASE_URL` ni de jeton `SMN_SETUP_TOKEN` n'est requise.** Les utilisateurs de l'archive autonome n'auront pas à exécuter ces commandes.
+Ouvrir `http://localhost:3003` : l'absence de configuration SMN doit maintenant afficher le bouton **Installer SMN**, et non un formulaire d'URL PostgreSQL. **Aucune variable `SMN_DATABASE_URL` ni jeton `SMN_SETUP_TOKEN` ne sont requis : les champs PostgreSQL existant sont saisis dans le navigateur.** Les utilisateurs de l'archive autonome n'auront pas à exécuter ces commandes.
 
 Ne jamais communiquer le mot de passe administrateur dans ChatGPT ou Jira. Une installation ne doit être considérée comme validée localement qu'après résultat du formulaire et vérification de la réouverture sans réinitialisation.
 
