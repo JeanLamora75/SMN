@@ -5,7 +5,7 @@ import { parseConnectionSettings } from "../db/config";
 import { probePostgres } from "../db/probe";
 import { classifySnapshot } from "./diagnostic";
 import { INITIAL_MIGRATION, validateExpressInput } from "./contract";
-import { INITIAL_SCHEMA_SQL } from "./migration";
+import { INITIAL_SCHEMA_SQL, PRISMA_HISTORY_SQL } from "./migration";
 
 const scrypt = promisify(scryptCb);
 export type InstallResult = { ok: true } | { ok: false; status: string };
@@ -62,6 +62,7 @@ export async function installExpress(rawBody: unknown, rawUri: string | undefine
       "SELECT count(*)::text AS count FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S','f','c')",
     );
     if (objects.rows[0]?.count !== "0") return { ok: false, status: "not-empty" };
+    await dbClient.query(PRISMA_HISTORY_SQL);
     await dbClient.query(INITIAL_SCHEMA_SQL);
     await dbClient.query("INSERT INTO public.smn_installation(id,state,schema_version,mode) VALUES('singleton','initialized',1,$1)", [input.mode]);
     await dbClient.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES('product','singleton',$1)", [input.product]);
