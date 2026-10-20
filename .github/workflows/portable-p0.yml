@@ -1,0 +1,27 @@
+name: SMN — Faisabilité PostgreSQL portable Windows
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/windows/**"
+      - ".github/workflows/portable-p0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-portable:
+    runs-on: windows-latest
+    timeout-minutes: 18
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Valider les binaires officiels et le cluster portable
+        run: node scripts/windows/verify-postgres-portable.mjs
