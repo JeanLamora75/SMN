@@ -8,7 +8,17 @@ describe("SMN-12 — diagnostic du démarrage PostgreSQL portable", () => {
       "LOG: could not bind IPv4 address \"127.0.0.1\": Address already in use",
     ), "managed-pg-port-in-use");
   });
-  it("différencie les erreurs de permissions", () => {
+  it("reconnaît le refus de socket Windows localisé en français", () => {
+    const log = `2026-10-20 LOG: démarrage de PostgreSQL 18.6 on x86_64-windows
+2026-10-20 LOG: n'a pas pu lier IPv4 à l'adresse « 127.0.0.1 » : Permission denied
+2026-10-20 ATTENTION: n'a pas pu créer le socket d'écoute pour « 127.0.0.1 »
+2026-10-20 FATAL: n'a pas pu créer de socket TCP/IP`;
+    assert.equal(classifyPostgresStartupLog(log), "managed-pg-bind-denied");
+    assert.equal(classifyPostgresStartupLog(
+      'LOG: could not bind IPv4 address "127.0.0.1": Permission denied',
+    ), "managed-pg-bind-denied");
+  });
+    it("différencie les erreurs de permissions", () => {
     assert.equal(classifyPostgresStartupLog(
       "FATAL: could not open configuration file: Permission denied",
     ), "managed-pg-permission-denied");
