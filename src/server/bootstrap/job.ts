@@ -4,6 +4,32 @@ import { prepareExisting, rememberExisting, validateExistingDbInput } from "./ex
 import { installExpress } from "../installation/install";
 
 type Status = "idle" | "working" | "complete" | "failed";
+/**
+ * Only pre-declared, non-sensitive diagnostic identifiers may reach an
+ * unauthenticated installation status endpoint. Never forward arbitrary
+ * errors from fs, pg, spawn or libraries (paths and credentials may appear).
+ */
+const publicBootstrapErrors = new Set([
+  "postgres-credentials-invalid","unsupported-postgres","postgres-auth-invalid",
+  "postgres-permission-denied","postgres-unreachable","postgres-connection-failed",
+  "configuration-key-missing","configuration-key-invalid","configuration-key-unavailable",
+  "configuration-decryption-failed","postgres-config-invalid","postgres-config-save-failed",
+  "managed-config-invalid","managed-cluster-unrecognized","managed-cluster-needs-recovery",
+  "managed-cluster-running","managed-cluster-unsafe","managed-pg-no-bindable-port",
+  "managed-pg-bind-denied","managed-pg-port-in-use","managed-pg-locked","managed-pg-shared-memory",
+  "managed-pg-permission-denied","managed-pg-runtime-incomplete","managed-pg-config-invalid",
+  "managed-pg-data-incompatible","managed-pg-start-failed","postgres-runtime-invalid",
+  "postgres-download-unavailable","postgres-archive-invalid","postgres-archive-too-large",
+  "manual-connection-configured","windows-required","installation-failed",
+  "verification-failed","not-empty","createdb-required","database-already-present",
+  "database-missing","configuration-missing","configuration-invalid","virgin",
+  "initialized","schema-incompatible","installation-incomplete","connection-error",
+  "permissions-insufficient","server-version-unsupported",
+]);
+export function safeBootstrapError(error: unknown): string {
+  const code = error instanceof Error ? error.message : "";
+  return publicBootstrapErrors.has(code) ? code : "installation-failed";
+}
 type BootstrapState = { status: Status; step: string; progress: number; error: string | null; task: Promise<void> | null };
 type Store = { secret: string; state: BootstrapState };
 declare global { var __smnInstaller: Store | undefined; }
@@ -70,7 +96,7 @@ export function beginBootstrap(body: unknown): boolean {
       s.progress = 100; s.status = "complete"; s.step = "Installation terminée";
     } catch (error) {
       s.status = "failed";
-      s.error = error instanceof Error ? error.message : "installation-failed";
+      s.error = safeBootstrapError(error);
       s.step = "Installation interrompue : voir le message de diagnostic";
     }
   })();
