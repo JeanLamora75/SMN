@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import net from "node:net";
 import { Client } from "pg";
-import { randomBytes, scryptSync, createHash } from "node:crypto";
+import { randomBytes, randomUUID, scryptSync, createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
 const uri = process.env.SMN_TEST_DATABASE_URL;
@@ -145,7 +145,7 @@ try {
         applied_steps_count integer NOT NULL DEFAULT 0)`);
       await client.query(schemaSql);
       await client.query("INSERT INTO public.smn_installation(id,state,schema_version,mode) VALUES('singleton','initialized',1,'scrum')");
-      await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES('ci-admin','singleton','admin','admin@localhot.com','admin',$1,true)", [hash]);
+      await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($2,'singleton','admin','admin@localhot.com','admin',$1,true)", [hash,randomUUID()]);
       await client.query(`INSERT INTO public._prisma_migrations
         (id,checksum,finished_at,migration_name,applied_steps_count)
         VALUES('ci-version',$1,now(),'20261020_smn12_initial',1)`,
