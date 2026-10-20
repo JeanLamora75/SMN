@@ -16,6 +16,16 @@ L'archive doit contenir **Node.js 24 et les binaires PostgreSQL 18.6 vérifiés*
 
 **Sécurité et limites :** aucune opération n'est appliquée au PostgreSQL d'un autre projet, en particulier LMN24. Les ports 3000–3002 restent réservés, SMN utilise 3003 et son propre PostgreSQL utilise 55432. Une politique de sécurité Windows peut empêcher l'exécution de binaires portables ; SMN doit alors signaler la restriction, sans réclamer de droits administrateur. L'archive elle-même et la procédure complète **restent en cours de qualification** tant que le workflow Windows de packaging et l'installation sur un poste utilisateur standard n'ont pas réussi.
 
+## PostgreSQL portable ne démarre pas (échec pg_ctl à 60 %)
+
+L'initialisation du dossier PostgreSQL peut avoir réussi alors que le démarrage du serveur a échoué. **Ne jamais effacer `data`, `runtime.json`, `recovery` ou `pgsql` en réponse à cette erreur.** Le message `managed-process-failed:pg_ctl.exe` ne permet pas de connaître la cause.
+
+Depuis le correctif SMN-12, l'application lit uniquement les nouvelles lignes de son propre `postgres.log` et distingue, quand les messages sont explicites : port 55432 déjà utilisé, répertoire verrouillé, accès refusé, bibliothèque Windows absente, mémoire partagée ou configuration incompatible. Le serveur fournit un **code diagnostique**, jamais le journal brut.
+
+Pour investiguer un poste pilote, ouvrir dans l'Explorateur de fichiers Windows le chemin `%LOCALAPPDATA%\\ScrumMasterNotebook\\postgres.log`, puis examiner les **15 à 20 dernières lignes** avec le Bloc-notes. Les copier pour support seulement après avoir masqué les chemins d'utilisateur, noms personnels et toute donnée sensible. Si ce fichier n'existe pas, le signaler : il peut indiquer un blocage Windows avant le démarrage de PostgreSQL.
+
+L'existence d'un `runtime.json` peut permettre une reprise du démarrage avec la nouvelle version du code ; **ne pas demander une seconde récupération ni déplacer les données**. Le test complet sur Windows utilisateur reste distinct de la CI.
+
 ## Reprendre une installation PostgreSQL portable interrompue
 
 Si l'assistant affiche « Une ancienne installation partielle existe », SMN a trouvé un dossier `%LOCALAPPDATA%\\ScrumMasterNotebook\\data` sans configuration portable valide. C'est possible après l'échec d'une préparation précédente. **Ne supprimez pas ce dossier, ne réinitialisez pas votre PostgreSQL personnel.**
