@@ -1,0 +1,65 @@
+/* Tableau de bord du pilote : composants Bootstrap 5 et styles adaptés à tous les écrans. */
+.smn-dashboard { min-height: 100vh; background: #f5f7fb; color: #14213b; }
+.smn-dashboard-width { max-width: 1510px; padding-left: clamp(18px,3vw,46px); padding-right: clamp(18px,3vw,46px); }
+.smn-dashboard-topbar { background: #fff; border-bottom: 1px solid #e4e9f2; }
+.smn-dashboard-topbar>.container-fluid { min-height: 84px; padding-top: 12px; padding-bottom: 12px; }
+.smn-brand { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; color: #152645; }
+.smn-brand-name { font-size: 1.1rem; font-weight: 500; letter-spacing: -.03em; }
+.smn-brand-name strong { font-weight: 800; }
+.smn-account-pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #e3e9f2; border-radius: 50px; padding: 9px 13px; font-size: .84rem; font-weight: 650; color: #30415e; }
+.smn-account-dot { background: #149a77; border-radius: 50%; width: 8px; height: 8px; }
+.smn-dashboard-topbar .btn { font-size: .84rem; border-radius: 9px; }
+.smn-dashboard-columns { padding-top: 32px; }
+.smn-dashboard-nav { position: sticky; top: 22px; padding: 7px 10px 0 0; }
+.smn-nav-eyebrow,.smn-eyebrow { font-size: .68rem; letter-spacing: .13em; font-weight: 800; color: #70809b; }
+.smn-nav-eyebrow { padding: 8px 14px 12px; }
+.smn-nav-link { display: flex; align-items: center; gap: 13px; margin-bottom: 5px; padding: 12px 14px; border-radius: 11px; color: #455772; text-decoration: none; font-size: .9rem; font-weight: 550; }
+.smn-nav-link span { width: 19px; flex-shrink: 0; font-size: 1.2rem; line-height: 1; }
+.smn-nav-link:hover { background: #edf2fa; color: #194c86; }
+.smn-nav-link:focus-visible { outline: 3px solid #6297d2; outline-offset: 3px; }
+.smn-nav-link.is-active { background: #e5eefb; color: #154d8d; font-weight: 800; }
+.smn-nav-help { background: #eaf0f9; padding: 18px; border-radius: 14px; color: #2b486c; font-size: .84rem; }
+.smn-dashboard-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 25px; }
+.smn-dashboard-title { font-weight: 800; font-size: clamp(1.7rem,3vw,2.3rem); line-height: 1.15; letter-spacing: -.045em; margin: 9px 0 10px; }
+.smn-heading-separator { padding: 0 9px; opacity: .6; }
+.smn-pilot-label { font-size: .82rem; font-weight: 700; color: #1b548b; background: #e4effc; border: 1px solid #d0e2fa; border-radius: 30px; padding: 9px 15px; white-space: nowrap; }
+.smn-context-card { display: flex; flex-wrap: wrap; align-items: stretch; background: linear-gradient(125deg,#14487d,#0d3566 63%,#112b50); border-radius: 18px; color: #fff; overflow: hidden; box-shadow: 0 15px 35px rgba(14,52,100,.12); }
+.smn-context-main { flex: 1 1 400px; padding: clamp(24px,4vw,36px); }
+.smn-context-overline { font-size: .67rem; font-weight: 800; letter-spacing: .16em; color: #b8d0ec; }
+.smn-context-main h2 { font-size: clamp(1.6rem,3vw,2.35rem); margin: 12px 0 18px; letter-spacing: -.035em; font-weight: 750; overflow-wrap: anywhere; }
+.smn-context-team { display: inline-flex; align-items: center; gap: 9px; color: #e8f1fc; }
+.smn-context-circle { color: #66c9bc; }
+.smn-context-meta { min-width: 195px; flex: 0 1 250px; padding: 26px 34px; background: rgba(255,255,255,.07); border-left: 1px solid rgba(255,255,255,.16); }
+.smn-context-label { color: #c6d9ec; font-size: .73rem; margin-bottom: 4px; }
+.smn-section-title { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 10px; margin-bottom: 17px; }
+.smn-section-title h2 { margin-top: 7px; color: #182b49; }
+.smn-section-meta { font-size: .79rem; color: #7a8799; }
+.smn-dashboard-card { background: #fff; border: 1px solid #e0e7f0; border-radius: 15px; padding: 24px; box-shadow: 0 8px 22px rgba(22,41,71,.035); }
+.smn-dashboard-card p { line-height: 1.65; }
+.smn-card-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #eff5fc; color: #235c99; border-radius: 12px; font-size: 1.25rem; }
+.smn-not-available { color: #697992; font-size: .69rem; border-radius: 30px; padding: 6px 10px; background: #f2f5f9; white-space: nowrap; }
+.smn-cycle-empty { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; padding: 27px 29px; }
+.smn-cycle-symbol { color: #396eb2; background: #eaf2fd; border: 1px solid #dce9fa; width: 68px; height: 68px; border-radius: 18px; display: grid; place-items: center; font-size: 2.25rem; flex-shrink: 0; }
+.smn-cycle-empty .flex-grow-1 { flex-basis: 260px; }
+.smn-coming-soon { font-size: .77rem; padding: 10px 13px; border: 1px dashed #cfd8e7; color: #6d7d95; border-radius: 9px; white-space: nowrap; }
+.smn-inline-note { color: #39709e; font-size: .78rem; font-weight: 600; }
+.smn-pending-cycle { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; border-radius: 12px; border: 1px solid #e4eaf4; background: #eff3f9; padding: 17px 22px; font-size: .83rem; }
+.smn-attention-card { min-height: 225px; }
+.smn-dashboard-footer { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; border-top: 1px solid #e3e9f1; padding-top: 20px; margin-top: 34px; color: #7a8799; font-size: .76rem; }
+@media (max-width:991.98px) {
+ .smn-dashboard-columns { padding-top: 24px; }
+ .smn-dashboard-nav { position: static; display: flex; gap: 6px; flex-wrap: wrap; padding: 0 0 14px; border-bottom: 1px solid #dee6f1; }
+ .smn-nav-eyebrow,.smn-nav-help { display: none; }
+ .smn-nav-link { font-size: .8rem; margin: 0; padding: 10px 12px; }
+ .smn-context-meta { flex: 1 1 100%; border-left: 0; border-top: 1px solid rgba(255,255,255,.16); }
+}
+@media (max-width:575.98px) {
+ .smn-brand-name { font-size: .94rem; }
+ .smn-dashboard-topbar>.container-fluid { min-height: 74px; }
+ .smn-context-main,.smn-context-meta { padding: 23px; }
+ .smn-dashboard-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 12px; }
+ .smn-nav-link { white-space: nowrap; }
+ .smn-cycle-empty { padding: 23px; gap: 13px; }
+ .smn-coming-soon { white-space: normal; }
+ .smn-dashboard-topbar .btn { padding: 6px 9px; }
+}

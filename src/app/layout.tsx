@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
+import "./dashboard.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { browserLanguage } from "@/lib/messages";
