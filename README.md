@@ -1,22 +1,19 @@
 # SMN — Scrum Master Notebook
 
-Scrum Master Notebook est un carnet de bord pour les Scrum Masters : équipes, calendriers, capacités, cycles, registres qualitatifs et rapports professionnels, avec une saisie minimale.
+Application destinée aux Scrum Masters, développée selon BMAD 6.12.4. MVP Scrum et Kanban, usage local initial sur Windows 11, avec Next.js 16/React 19, TypeScript, Bootstrap 5.3, PostgreSQL et Prisma 7.
 
-Le **MVP couvre Scrum et Kanban**, en usage local sur PC et depuis un navigateur responsive, en français et en anglais. **SAFe et les ART sont prévus pour la version 1.0.** Le socle décidé est un monolithe modulaire TypeScript, PostgreSQL et Bootstrap 5 ; les bibliothèques et le packaging restent à éprouver.
+## État technique
 
-## Reprendre le projet
+**Travail I0 / SMN-11 en construction :** diagnostic local des prérequis, sans installation complète ni authentification disponible. Les routes privées restent fermées ; aucun démarrage ne crée de base, compte, équipe ou Sprint. La base SMN dédiée doit être créée **par le futur installateur SMN-12**, avec vérification des droits et confirmation préalable, et non manuellement dans le parcours normal.
 
-1. [Contexte et règles de reprise](docs/PROJECT-CONTEXT.md).
-2. [État BMAD, réserves et prochaine étape](docs/ETAT-PROJET-BMAD.md).
-3. [Index des livrables BMAD](_bmad-output/planning-artifacts/README.md) : Product Brief, PRD et annexes, architecture et découpage final.
-4. [Epics et Stories](_bmad-output/planning-artifacts/epics.md) et [Jira SMN](https://lmn24.atlassian.net/jira/software/projects/SMN), référence des tickets.
+Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes et limites vérifiables.
 
-**État au 19 octobre 2026 :** Product Brief et PRD finalisés ; architecture documentaire finale sous réserves techniques ; workflow Create Epics and Stories clôturé. **10 Epics et 210 Stories validées fonctionnellement**, toutes À faire lors de la vérification Jira. Aucun développement applicatif ni recette attestés. Prochaine étape : **[SP] Sprint Planning**, avec contrôle de préparation avant génération du suivi.
+## Référentiels du projet
 
-## Référentiels
+- [Contexte et décisions](docs/PROJECT-CONTEXT.md)
+- [État du projet BMAD](docs/ETAT-PROJET-BMAD.md)
+- [Index BMAD](_bmad-output/planning-artifacts/README.md)
+- [User Stories Jira](https://lmn24.atlassian.net/jira/software/projects/SMN)
+- [Travail I0 / SMN-11](https://lmn24.atlassian.net/browse/SMN-11)
 
-- GitHub : code, architecture, documentation et fichiers BMAD.
-- Jira : Epics, Stories, bugs et tâches.
-- BMAD Method **6.12.4** : skills dans `.agents/skills/`, configuration dans `_bmad/`, livrables dans `_bmad-output/`.
-- [Décisions initiales F-01 à F-124](docs/DECISIONS-FONCTIONNELLES.md) et [cadrage initial](docs/CADRAGE-FONCTIONNEL.md) : historique complété par le PRD et les décisions D-PRD.
-- Langue de collaboration et des livrables : français.
+La préparation documentaire demeure sous verdict **CONCERNS** jusqu'aux preuves complémentaires. Les tests GitHub Actions ne prouvent pas à eux seuls le bon fonctionnement sur un poste Windows 11.
