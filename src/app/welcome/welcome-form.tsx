@@ -12,6 +12,14 @@ const errors: Record<string,string> = {
   "managed-cluster-running-or-unclean": "Le dossier PostgreSQL semble utilisé ou contient une trace d’arrêt incomplet. Aucune opération n’a été effectuée.",
   "managed-cluster-unsafe": "Le dossier PostgreSQL n’est pas un dossier ordinaire de SMN : aucune reprise automatique n’est possible.",
   "managed-port-occupied": "Le port PostgreSQL privé de SMN (55432) est occupé.",
+  "managed-pg-port-in-use": "PostgreSQL ne peut pas écouter sur le port 55432 : ce port est déjà utilisé. Le dossier de données a été conservé.",
+  "managed-pg-permission-denied": "Windows refuse à PostgreSQL l’accès à un fichier ou un répertoire. Vérifiez les autorisations du profil Windows ; aucun fichier n’a été supprimé.",
+  "managed-pg-shared-memory": "PostgreSQL n’a pas pu réserver la mémoire partagée nécessaire au démarrage. Consultez son journal local.",
+  "managed-pg-locked": "Le dossier PostgreSQL semble déjà utilisé ou verrouillé par une autre instance. Aucune récupération n’a été lancée.",
+  "managed-pg-runtime-incomplete": "Un composant Windows nécessaire à PostgreSQL manque ou n’a pas pu être chargé.",
+  "managed-pg-config-invalid": "PostgreSQL a détecté une erreur dans sa configuration de démarrage. Ses données restent inchangées.",
+  "managed-pg-data-incompatible": "PostgreSQL ne reconnaît pas les données de ce dossier. SMN les conserve sans les modifier.",
+  "managed-pg-start-failed": "PostgreSQL n’a pas pu démarrer. La raison détaillée est disponible dans le journal local postgres.log.",
   "postgres-archive-invalid": "L’archive PostgreSQL a échoué au contrôle d’intégrité.",
   "postgres-download-unavailable": "Impossible de récupérer les fichiers PostgreSQL.",
   "postgres-runtime-invalid": "Les fichiers PostgreSQL portables ne sont pas valides.",
@@ -172,9 +180,14 @@ export default function SetupWelcome() {
       </div>
       <p className="mt-2">{status.step}</p>
     </section>}
-    {status.status === "failed" && <p role="alert" className="alert alert-warning">
-      {errors[status.error ?? ""] ?? "Une erreur est survenue : " + (status.error ?? "inconnue") + ". Aucune donnée existante n’a été supprimée."}
-    </p>}
+    {status.status === "failed" && <div role="alert" className="alert alert-warning">
+      <p className="mb-1">{errors[status.error ?? ""] ?? "L’installation a été interrompue. Aucun dossier de données n’a été supprimé."}</p>
+      {status.error?.startsWith("managed-pg-") && <p className="small mb-0">
+        Pour identifier la cause précise, consultez les dernières lignes de
+        <code> %LOCALAPPDATA%\\ScrumMasterNotebook\\postgres.log </code>.
+        Ne partagez pas d’identifiants, de mots de passe ou de chemins personnels.
+      </p>}
+    </div>}
     {message && <p role="alert">{message}</p>}
   </form>;
 }
