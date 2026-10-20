@@ -174,3 +174,8 @@
 ## Règle d'utilisation
 
 Pour un nouvel agent BMAD : lire **dans cet ordre** `docs/PROJECT-CONTEXT.md`, ce registre, puis `docs/CADRAGE-FONCTIONNEL.md`. Repartir de ces décisions, signaler les contradictions ou les questions ouvertes et ne pas inventer des spécifications manquantes. Toute modification substantielle doit mettre à jour les documents et, lorsqu'approprié, les tickets Jira après autorisation.
+
+
+## Amendement de portée — D-PRD-137, 19 octobre 2026
+
+Les décisions F précédentes restent conservées historiquement. Leur application est précisée : une seule équipe par installation Scrum/Kanban au MVP ; plusieurs équipes uniquement au sein du train SAFe en v1.0. Vision, Product Goal, DoD et DoR sont rattachés à l'équipe dans Scrum/Kanban et au train en SAFe. Le produit unique et fixe demeure. Les mentions de participation ou disponibilité multiéquipes des F-26–34/F-58–63 sont donc réservées à SAFe. F-116/F-117/F-123 ne justifient pas un propriétaire Produit séparé pour ces contenus au MVP. [Décision et critères](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).

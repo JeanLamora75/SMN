@@ -7,10 +7,20 @@
 | Product Brief final | [brief.md](briefs/brief-SMN-2026-10-18/brief.md) |
 | PRD final et annexes | [prd.md](prds/prd-SMN-2026-10-18/prd.md) |
 | Arbitrages finaux applicables | [D-PRD-132 à 136](prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md) |
+| Clarification équipe/contexte applicable | [D-PRD-137](prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md) — équipe unique MVP, multiéquipes SAFe, rattachements et Stories productrices |
 | Incréments I0 à I6 | [séquencement](prds/prd-SMN-2026-10-18/sequencement-mvp-d-prd-131.md) |
 | Architecture finale sous réserves techniques | [Architecture Spine](architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md) et [index](architecture/architecture-SMN-2026-10-19/README.md) |
-| Découpage final : 10 Epics / 210 Stories | [epics.md](epics.md) |
+| Découpage actuel : 10 Epics / 212 Stories | [epics.md](epics.md) |
+| Contrôle du 19/10 — CONCERNS, poursuite autorisée | [Résultat et portes de preuve](implementation-readiness.md) ; [rapprochement des 212 Stories](implementation-readiness-evidence.json) |
+| Stack validée sous réserve I0 | [ADR-I0-001](architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md) — versions exactes et fonctionnement à qualifier |
+| Migrations et secrets — principes validés | [ADR-I0-002](architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md) ; protection des clés à préciser |
+| Récupération des clés — principe validé | [ADR-I0-003](architecture/architecture-SMN-2026-10-19/ADR-I0-003-RECUPERATION-CLES.md) ; cryptographie et essais à qualifier |
+| Préparation technique I0 — en cours | [Choix candidats, inventaire et protocole](preparation-technique-i0.md) ; aucun essai attesté |
+| Qualification documentaire de la stack I0 | [Sources officielles, versions observées et contraintes Windows](qualification-documentaire-stack-i0.md) — POC non réalisés |
+| Contrat d'accès I0 — durées validées | [Sessions, amorçage et récupération locale](contrat-acces-i0-proposition.md) ; D-PRD-138, mécanismes à qualifier |
+| Sprint Planning — suivi généré et validé | [Compte rendu et proposition du premier Sprint](sprint-planning-2026-10-19.md) ; [suivi BMAD](../implementation-artifacts/sprint-status.yaml) |
 | Règles de publication Jira | [BMAD-JIRA-PUBLICATION-RULES.md](BMAD-JIRA-PUBLICATION-RULES.md) |
 | Journal de consolidation | [CONSOLIDATION-2026-10-19.md](CONSOLIDATION-2026-10-19.md) |
 
 Le PRD et ses décisions ultérieures prévalent sur les hypothèses des documents historiques. A7/A8/A10/A11 sont validés ; seuls les rôles Administrateur et Utilisateur sont applicables au MVP. Les rapports de revue antérieurs restent datés et ne prouvent pas l'exécution des contrôles techniques.
+

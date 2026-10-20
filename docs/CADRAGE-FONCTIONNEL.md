@@ -369,7 +369,7 @@ Le **brief IA** est un **reporting moins visuel**, en **fichier texte `.txt`**, 
 - L'identifiant, le nom, les éventuelles dates de rattachement et les versions de ses informations sont des éléments de modélisation à préciser.
 - **Règle de cardinalité validée (F-121)** : une **équipe Scrum ou Kanban autonome suit exactement un produit de référence**, et **un ART SAFe suit exactement un produit de référence, commun à toutes ses équipes** Scrum et Kanban. Pas de gestion de plusieurs produits simultanés dans une même équipe autonome ou un même ART.
 - **En SAFe, les équipes utilisent le produit de référence du train**, sans rattachement concurrent à un autre produit au niveau de l'équipe ; ses vision et Product Goal sont donc communs au périmètre ART.
-- **Produit fixé pour la vie de l'installation (F-122)** : une installation SMN est consacrée à **un seul produit**. Si elle contient plusieurs équipes autonomes, elles relèvent donc du même produit ; en SAFe, toutes les équipes du train partagent déjà son produit (F-121).
+- **Produit fixé pour la vie de l'installation (F-122)** : une installation SMN est consacrée à **un seul produit**. Au MVP Scrum/Kanban, elle contient exactement une équipe ; en SAFe v1.0, plusieurs équipes peuvent partager le produit du train (D-PRD-137) (F-121).
 - **Aucune réaffectation d'une équipe ou d'un ART à un autre produit** en cours d'utilisation. Si la mission ou l'organisation bascule vers un autre produit, **créer une nouvelle installation SMN indépendante**, initialisée pour ce nouveau produit.
 - La **nouvelle installation** ne doit pas être confondue avec la **réinitialisation destructive** d'une installation existante (F-42). Elle n'entraîne pas en elle-même la suppression de l'historique de l'installation précédente ; celle-ci peut rester consultable si conservée.
 - L'**historisation** de la vision et du Product Goal (F-117), ainsi que les changements de nom ou de caractéristiques du **même produit**, ne constituent pas un changement de produit de référence. L'identité du produit reste stable.
@@ -463,3 +463,8 @@ Ces éléments ne sont **pas tranchés** par les 124 décisions :
 6. Mettre à jour ces documents après tout nouvel arbitrage significatif.
 
 **Synthèse enrichie des décisions validées F-01 à F-124.**
+
+
+## Clarification postérieure D-PRD-137 — 19/10/2026
+
+Une seule équipe par installation Scrum/Kanban au MVP. Le multiéquipes est réservé au train SAFe v1.0. Vision, Product Goal, DoD et DoR sont rattachés à l'équipe en Scrum/Kanban et au train en SAFe. Les passages multiéquipes de ce cadrage initial ne décrivent plus le MVP. [Décision normative](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).

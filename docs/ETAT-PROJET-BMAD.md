@@ -11,8 +11,8 @@
 | PRD — John | [Final](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/prd.md), 81 FR et décisions jusqu'à D-PRD-136 |
 | Architecture — Winston | [Contrat final AD-1 à AD-31](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ARCHITECTURE-SPINE.md), réserves techniques maintenues |
 | Create Epics and Stories | [Final](../_bmad-output/planning-artifacts/epics.md), quatre étapes achevées, confirmation utilisateur C — Complete Workflow |
-| Jira | 10 Epics / 210 Stories, toutes À faire lors de la vérification du 19/10 |
-| Sprint Planning | Aucun sprint-status.yaml présent dans les sources consolidées |
+| Jira | 10 Epics / 212 Stories après D-PRD-137 ; 222 tickets À faire lors de la relecture du 19/10 |
+| Sprint Planning | Poursuite sous CONCERNS autorisée le 19/10 à 22:41 ; [suivi généré et validé](../_bmad-output/implementation-artifacts/sprint-status.yaml), 212 Stories backlog |
 | Développement / recette / pilote | Aucune implémentation applicative, campagne de recette ou aptitude au pilote attestée |
 
 Le découpage final déclare la couverture des 81 FR, 3 NFR et 18 UX-DR. Il s'agit de couverture documentaire, pas de résultats de tests.
@@ -27,9 +27,9 @@ Les décisions UX sont documentées dans le PRD et les UX-DR ; aucun livrable au
 
 ## Prochaine étape officielle
 
-**[SP] Sprint Planning — `bmad-sprint-planning`**, dans une nouvelle conversation avec lecture du [skill installé](../.agents/skills/bmad-sprint-planning/SKILL.md).
+**Sprint Planning poursuivi sous CONCERNS avec accord explicite d'Eric.** Le [compte rendu](../_bmad-output/planning-artifacts/sprint-planning-2026-10-19.md) et le suivi sont générés. 10 Epics et 212 Stories backlog, 10 rétrospectives optional ; aucune Story ready-for-dev ou en cours. C3/C4 restent tracés.
 
-Le catalogue BMAD 6.12.4 installé prévoit : contrôle de préparation **PASS/CONCERNS/FAIL**, puis génération du suivi `sprint-status.yaml` sur PASS. Aucun résultat de ce contrôle n'est acquis par cette consolidation. Après planification, **[BD] Build — `bmad-build`**, avec priorité au socle et aux preuves I0 conformément au séquencement validé.
+Affiner le premier Sprint selon capacité et disponibilités, puis préparer le premier travail via bmad-build sous mandat de construction distinct. Aucun Sprint Jira créé/démarré, aucune fusion ni implémentation.
 
 ## Sources réunies
 
@@ -41,3 +41,17 @@ Le catalogue BMAD 6.12.4 installé prévoit : contrôle de préparation **PASS/C
 | docs/bmad-prd-smn-20261018 et docs/bmad-architecture-smn-20261019 | Comparées ; leurs fichiers sont repris ou amendés dans la branche des arbitrages |
 
 Les branches d'origine et journaux sont conservés. La PR historique du Product Brief reste une trace de sa transmission initiale ; l'index présent donne accès à sa copie consolidée.
+
+
+
+## Préparation technique — complément du 19/10/2026 à 22:29
+
+Politique de sessions D-PRD-138 et principe de récupération locale D-PRD-139 validés. Stack désormais retenue sous réserve des essais I0 : [ADR-I0-001](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md). Node 24.21.0 et pnpm 12.10.0 sont déclarés ; PostgreSQL serveur reste à confirmer. C3 reste ouvert pour mécanismes, compatibilité exacte et preuves ; C4 reste ouvert pour ordre de livraison. Prochaine conception : migrations et secrets. Aucun développement, test applicatif, génération de suivi ou fusion attesté.
+
+
+## Actualisation du poste — 20/10/2026 à 08:36 (Europe/Paris)
+
+PostgreSQL **18.6** déclaré par Eric ; le numéro remplace l'information manquante du complément historique du 19 octobre. Le serveur effectif, la connexion, les droits et la compatibilité exacte restent à vérifier : voir l'[inventaire actualisé](../_bmad-output/planning-artifacts/preparation-technique-i0.md). Aucune recherche web ni essai DB effectué. CONCERNS maintenu. Le premier Sprint d'une semaine est prévu du 20 au 26 octobre, sur 40 heures nominales ; aucun Sprint Jira n'est démarré.
+
+
+**Complément du 20/10/2026 à 08:39 (Europe/Paris) :** Eric rapporte `SHOW server_version;` → **18.6**. Numéro du serveur interrogé confirmé par ce résultat utilisateur ; requête non exécutée par l'assistant. Connexion SMN, droits, migrations et compatibilité restent à éprouver. Voir l'inventaire technique actualisé ; CONCERNS maintenu.

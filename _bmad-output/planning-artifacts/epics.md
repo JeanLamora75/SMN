@@ -21,8 +21,12 @@ inputDocuments:
 ## Overview
 Découpage BMAD Method v6.12.4. Structure de **10 Epics approuvée le 19/10/2026**. Les Stories des 10 Epics ont été validées fonctionnellement par l'utilisateur le 19/10/2026.
 **Périmètre** : MVP Scrum et Kanban ; deux rôles seulement (Administrateur / Utilisateur), SAFe différé. Les incréments I0–I6 ne déterminent pas les limites des Epics.
-**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur a explicitement autorisé les publications groupées des Epics 2 à 10. Les 210 Stories sont validées fonctionnellement, y compris l'Epic 10 ; cette approbation documentaire n'atteste aucun développement, test ou passage au pilote. L'édition documentaire GitHub est autorisée sur la branche dédiée ; aucun développement, essai technique, fusion `main` ou lancement de pilote n'en découle.
-**Avancement** : Steps 1, 2 et 3 achevés ; 10 Epics / 210 Stories approuvées. Step 4 — revue finale du 19/10/2026 : couverture explicite des **81 FR**, **3 NFR** et **18 UX-DR** ; numérotation des Stories et dépendances revues, architecture modulaire cohérente avec le MVP. Quatre références UX ont été ajoutées aux Stories existantes sans modifier les critères métier. La revue du Step 4 a abouti sans contrôle ouvert bloquant ; l'utilisateur a confirmé `C — Complete Workflow` le 19/10/2026 : **workflow BMAD Create Epics and Stories clôturé, document `status: final`**. La finalisation documentaire n'atteste aucun développement, test, mesure ou lancement de pilote.
+**Publication** : Jira est la référence des tickets ; ce document conserve leur contenu et traçabilité. L'utilisateur a explicitement autorisé les publications groupées des Epics 2 à 10. Les 210 Stories initiales sont validées fonctionnellement, y compris l'Epic 10 ; cette approbation documentaire n'atteste aucun développement, test ou passage au pilote. L'édition documentaire GitHub est autorisée sur la branche dédiée ; aucun développement, essai technique, fusion `main` ou lancement de pilote n'en découle.
+**Avancement** : Steps 1, 2 et 3 achevés ; 10 Epics / 212 Stories approuvées. Step 4 — revue finale du 19/10/2026 : couverture explicite des **81 FR**, **3 NFR** et **18 UX-DR** ; numérotation des Stories et dépendances revues, architecture modulaire cohérente avec le MVP. Quatre références UX ont été ajoutées aux Stories existantes sans modifier les critères métier. La revue du Step 4 a abouti sans contrôle ouvert bloquant ; l'utilisateur a confirmé `C — Complete Workflow` le 19/10/2026 : **workflow BMAD Create Epics and Stories clôturé, document `status: final`**. La finalisation documentaire n'atteste aucun développement, test, mesure ou lancement de pilote.
+
+## Amendement D-PRD-137 — 19/10/2026
+
+Le MVP Scrum/Kanban contient une seule équipe par installation ; le multiéquipes appartient au train SAFe en v1.0. Vision, Product Goal, DoD et DoR sont rattachés à l'équipe au MVP et au train en SAFe. Ajout de Stories 3.24/SMN-221 et 3.25/SMN-222 pour les producteurs des données de 6.9. Le backlog actuel compte 212 Stories ; la clôture historique Create Epics and Stories portait sur 210. Les amendements métier sont validés et leur publication autorisée ; les nouveaux scénarios sont dérivés de ces décisions, sans assimilation à une recette ou à une validation globale antérieure.
 
 ## Requirements Inventory
 
@@ -270,7 +274,7 @@ Sauvegarder et restaurer l'installation, tracer les opérations sensibles et ma�
 **Incrément(s) :** I0–I6.
 **Jira :** https://lmn24.atlassian.net/browse/SMN-2
 
-### Epic 3: Constituer ses équipes et fiabiliser leurs calendriers et capacités
+### Epic 3: Constituer son équipe et fiabiliser ses calendriers, capacités et définitions
 Configurer les membres, affectations, calendriers, absences et capacités sans saisie redondante.
 **FRs couvertes :** FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-61, FR-62.
 **Incrément(s) :** I1–I2.
@@ -392,10 +396,19 @@ Créer une installation privée, administrer deux profils et accéder à une int
 
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
 
+
+#### Amendement ADR-I0-002 — Validé le 19/10/2026
+
+Base dédiée SMN indépendante des autres applications ; migrations versionnées générées sur une base de développement séparée, application ordonnée après présentation des impacts et confirmation. Sauvegarde préalable pour modification de données existantes. Schéma incompatible ou échec : accès métier bloqué, diagnostic et reprise explicites. Runtime à droits limités, privilèges de migration séparés et à vérifier. Secrets dans un dossier privé hors Git et fichiers publics, sans journalisation. Copie de récupération protégée des clés à prévoir ; son mécanisme reste à préciser.
+
+Ces principes complètent les capacités concernées au cours d'I0, sans prétendre qu'une restauration complète est un prérequis au tout premier diagnostic. Critères transverses et limites : https://github.com/JeanLamora75/SMN/blob/docs/bmad-sprint-readiness-20261019/_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md
+
+Aucun développement, migration ou essai exécuté.
+
 ### Story 1.2: Initialiser une installation Express et son Administrateur de manière sûre
 **Jira :** https://lmn24.atlassian.net/browse/SMN-12
 **En tant que** Scrum Master lors du premier lancement,
-**je veux** initialiser mon installation par le parcours Express en renseignant son mode, son produit et sa première équipe,
+**je veux** initialiser mon installation par le parcours Express en renseignant son mode, son produit et son équipe unique,
 **afin de** accéder à un espace cohérent et privé avec le minimum de saisie métier.
 
 **Critères d'acceptation :**
@@ -404,13 +417,13 @@ Créer une installation privée, administrer deux profils et accéder à une int
 
 **Given** Base PostgreSQL vierge accessible et contexte local d'amorçage autorisé,
 **When** le Scrum Master ouvre l'assistant Express,
-**Then** un choix expliqué Scrum/Kanban, un nom de produit et un nom de première équipe sont les seules données métier obligatoires ; SAFe n'est pas proposé comme mode actif.
+**Then** un choix expliqué Scrum/Kanban, un nom de produit et un nom d'équipe unique sont les seules données métier obligatoires ; SAFe n'est pas proposé comme mode actif.
 
 #### AC2 — Les trois données métier sont valides et l'administrateur initial peut être créé de manière sûre
 
 **Given** Les trois données métier sont valides et l'administrateur initial peut être créé de manière sûre,
 **When** le Scrum Master confirme l'initialisation,
-**Then** l'installation unique, son produit de référence, sa première équipe et le compte Administrateur sont enregistrés dans une opération cohérente ; la navigation conduit au tableau de bord, sans création de cycles.
+**Then** l'installation unique, son produit de référence, son équipe unique et le compte Administrateur sont enregistrés dans une opération cohérente ; la navigation conduit au tableau de bord, sans création de cycles.
 
 #### AC3 — Une installation a été créée
 
@@ -446,6 +459,9 @@ Créer une installation privée, administrer deux profils et accéder à une int
 
 L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/2026. Cette validation documentaire ne vaut ni développement ni recette exécutés.
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
+
+
+**Amendement D-PRD-137 (19/10/2026) :** une seule équipe Scrum/Kanban par installation au MVP ; multiéquipes réservé au train SAFe v1.0 ; vision, Product Goal, DoD et DoR rattachés à l'équipe au MVP et au train en SAFe. Mise à jour autorisée, aucun développement ni test.
 
 ### Story 1.3: Accompagner l'initialisation avec un parcours Guidé facultatif
 **Jira :** https://lmn24.atlassian.net/browse/SMN-13
@@ -540,6 +556,24 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 **When** une opération modifiante est sollicitée,
 **Then** les protections de cookie HttpOnly/SameSite et contre requêtes intersites sont appliquées ; Secure est obligatoire en contexte HTTPS, sans exiger HTTPS pour le loopback local.
 
+#### AC6 — Durée maximale absolue
+
+**Given** une session a été créée après authentification,
+**When** 8 heures se sont écoulées depuis cette connexion,
+**Then** la session est expirée côté serveur et une nouvelle authentification est requise ; l'activité ou le renouvellement technique ne repoussent pas cette limite absolue.
+
+#### AC7 — Expiration sur inactivité
+
+**Given** une session n'a pas encore atteint sa limite absolue,
+**When** aucune activité utilisateur n'a eu lieu pendant 30 minutes,
+**Then** elle est expirée côté serveur ; des requêtes de fond seules ne maintiennent pas indéfiniment l'accès.
+
+#### AC8 — Absence de connexion persistante
+
+**Given** le parcours de connexion du MVP est ouvert,
+**When** la personne se connecte,
+**Then** aucune option « Se souvenir de moi » ne permet de prolonger la session au-delà de la politique validée.
+
 #### Traçabilité et périmètre
 
 * Epic parente : SMN-1.
@@ -556,6 +590,9 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 
 L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/2026. Cette validation documentaire ne vaut ni développement ni recette exécutés.
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
+
+
+**D-PRD-138 — Validé le 19/10/2026 :** 8 heures absolues, 30 minutes d'inactivité et aucune option « Se souvenir de moi » ; aucun test exécuté.
 
 ### Story 1.5: Créer et administrer les comptes des utilisateurs
 **Jira :** https://lmn24.atlassian.net/browse/SMN-15
@@ -705,11 +742,35 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 **When** une session de ce compte tente une nouvelle requête,
 **Then** l'accès est immédiatement rejeté côté serveur.
 
-#### AC5 — Le secret courant est incorrect ou une récupération administrateur serait demandée
+#### AC5 — Récupération locale contrôlée
 
-**Given** Le secret courant est incorrect ou une récupération administrateur serait demandée,
-**When** une action non autorisée ou non spécifiée est tentée,
-**Then** aucune réinitialisation anonyme, porte dérobée ou second administrateur fictif n'est possible ; la procédure de récupération contrôlée reste un point technique à préciser avant sa mise en service.
+**Given** le mot de passe administrateur est oublié et l'installation locale est identifiée,
+**When** son propriétaire utilise la commande de récupération fournie avec SMN et satisfait les contrôles locaux prévus,
+**Then** le mot de passe du compte administrateur existant peut être renouvelé ; aucune réinitialisation anonyme par navigateur ni porte dérobée n'est ouverte.
+
+#### AC6 — Saisie et outillage
+
+**Given** la procédure locale autorise le renouvellement,
+**When** le nouveau mot de passe est saisi,
+**Then** la saisie est masquée ; aucun mot de passe n'est passé en argument visible ou journalisé et aucun outil supplémentaire n'est à installer.
+
+#### AC7 — Révocation et traçabilité
+
+**Given** le renouvellement administrateur réussit,
+**When** la procédure confirme son résultat,
+**Then** toutes les sessions de ce compte sont révoquées et une trace de récupération est conservée sans mot de passe ni jeton secret.
+
+#### AC8 — Conservation du compte et autonomie locale
+
+**Given** la récupération est exécutée,
+**When** le compte existant est traité,
+**Then** aucun second administrateur n'est créé, aucune modification SQL manuelle n'est demandée à l'utilisateur et aucun envoi d'e-mail n'est requis.
+
+#### AC9 — Refus ou échec de récupération
+
+**Given** le contrôle local échoue ou une étape de renouvellement/révocation ne peut aboutir,
+**When** la procédure présente son résultat,
+**Then** elle n'annonce pas de succès complet et n'autorise pas une connexion par défaut ; la situation et la reprise restent explicites, sans exposer de secret.
 
 #### Traçabilité et périmètre
 
@@ -727,6 +788,9 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 
 L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/2026. Cette validation documentaire ne vaut ni développement ni recette exécutés.
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
+
+
+**D-PRD-139 — Principe de récupération locale validé le 19/10/2026 ; contrôles techniques et tests à réaliser.**
 
 ### Story 1.8: Modifier les paramètres généraux sans réécrire l'historique
 **Jira :** https://lmn24.atlassian.net/browse/SMN-18
@@ -837,6 +901,22 @@ L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/
 
 L'utilisateur a approuvé toutes les Stories de l'Epic 1 sans réserve le 19/10/2026. Cette validation documentaire ne vaut ni développement ni recette exécutés.
 **Validation :** validée fonctionnellement par l'utilisateur le 19/10/2026.
+
+
+#### Amendement ADR-I0-002 — Validé le 19/10/2026
+
+Base dédiée SMN indépendante des autres applications ; migrations versionnées générées sur une base de développement séparée, application ordonnée après présentation des impacts et confirmation. Sauvegarde préalable pour modification de données existantes. Schéma incompatible ou échec : accès métier bloqué, diagnostic et reprise explicites. Runtime à droits limités, privilèges de migration séparés et à vérifier. Secrets dans un dossier privé hors Git et fichiers publics, sans journalisation. Copie de récupération protégée des clés à prévoir ; son mécanisme reste à préciser.
+
+Ces principes complètent les capacités concernées au cours d'I0, sans prétendre qu'une restauration complète est un prérequis au tout premier diagnostic. Critères transverses et limites : https://github.com/JeanLamora75/SMN/blob/docs/bmad-sprint-readiness-20261019/_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md
+
+Aucun développement, migration ou essai exécuté.
+
+
+#### Amendement ADR-I0-003 — Validé le 19/10/2026
+
+Clé locale dans le dossier privé, sans phrase supplémentaire à chaque connexion. La sauvegarde complète inclut une copie de récupération de la clé protégée par une phrase distincte du mot de passe administrateur, choisie lors de la première sauvegarde complète. La restauration sur un autre PC demande cette phrase et doit être testée réellement. Ni la phrase ni une copie non protégée de la clé ne doivent être exposées dans l'archive exportable ou les journaux. En cas de perte simultanée de la clé locale et de la phrase, la récupérabilité des données chiffrées n'est pas garantie ; la récupération du compte administrateur ne recrée pas la clé.
+
+Format et mécanismes cryptographiques restent à qualifier. Voir ADR-I0-003 dans la documentation d'architecture de la PR 9. Aucun développement ni essai exécuté.
 
 ### Story 1.10: Suivre les tâches facultatives de configuration depuis le tableau de bord
 **Jira :** https://lmn24.atlassian.net/browse/SMN-20
@@ -1439,6 +1519,13 @@ Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remar
 Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
 **Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
+
+#### Amendement ADR-I0-003 — Validé le 19/10/2026
+
+Clé locale dans le dossier privé, sans phrase supplémentaire à chaque connexion. La sauvegarde complète inclut une copie de récupération de la clé protégée par une phrase distincte du mot de passe administrateur, choisie lors de la première sauvegarde complète. La restauration sur un autre PC demande cette phrase et doit être testée réellement. Ni la phrase ni une copie non protégée de la clé ne doivent être exposées dans l'archive exportable ou les journaux. En cas de perte simultanée de la clé locale et de la phrase, la récupérabilité des données chiffrées n'est pas garantie ; la récupération du compte administrateur ne recrée pas la clé.
+
+Format et mécanismes cryptographiques restent à qualifier. Voir ADR-I0-003 dans la documentation d'architecture de la PR 9. Aucun développement ni essai exécuté.
+
 ### Story 2.3: Vérifier l'intégrité et l'inventaire d'une sauvegarde
 **Jira :** https://lmn24.atlassian.net/browse/SMN-31
 
@@ -1658,6 +1745,13 @@ Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remar
 
 Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remarque par l'utilisateur le 19/10/2026. Développement et tests non réalisés.
 **Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
+
+
+#### Amendement ADR-I0-003 — Validé le 19/10/2026
+
+Clé locale dans le dossier privé, sans phrase supplémentaire à chaque connexion. La sauvegarde complète inclut une copie de récupération de la clé protégée par une phrase distincte du mot de passe administrateur, choisie lors de la première sauvegarde complète. La restauration sur un autre PC demande cette phrase et doit être testée réellement. Ni la phrase ni une copie non protégée de la clé ne doivent être exposées dans l'archive exportable ou les journaux. En cas de perte simultanée de la clé locale et de la phrase, la récupérabilité des données chiffrées n'est pas garantie ; la récupération du compte administrateur ne recrée pas la clé.
+
+Format et mécanismes cryptographiques restent à qualifier. Voir ADR-I0-003 dans la documentation d'architecture de la PR 9. Aucun développement ni essai exécuté.
 
 ### Story 2.7: Préserver l'atomicité des opérations et l'immuabilité des archives
 **Jira :** https://lmn24.atlassian.net/browse/SMN-35
@@ -2023,7 +2117,7 @@ Les Stories 2.1 à 2.13 de l'Epic 2 ont été approuvées globalement sans remar
 **Validation :** approuvée globalement par l'utilisateur le 19/10/2026, sans réserve.
 
 
-## Epic 3: Constituer ses équipes et fiabiliser leurs calendriers et capacités
+## Epic 3: Constituer son équipe et fiabiliser ses calendriers, capacités et définitions
 Configurer les membres, affectations, calendriers, absences et capacités sans saisie redondante.
 **FRs couvertes :** FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-61, FR-62.
 
@@ -2083,7 +2177,7 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 **Jira :** https://lmn24.atlassian.net/browse/SMN-43
 **En tant que** Scrum Master Administrateur,
 **je veux** compléter et corriger une fiche membre sans dupliquer les informations de la personne,
-**afin de** maintenir un référentiel unique même pour des personnes affectées à plusieurs équipes.
+**afin de** maintenir un référentiel unique pour les membres de l'équipe unique du MVP ; la mutualisation multiéquipes est réservée à SAFe v1.0.
 
 **Critères d'acceptation :**
 
@@ -2131,25 +2225,28 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
 **Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
 
-### Story 3.3: Affecter un membre à plusieurs équipes avec dates et rôles Agile
+
+**Amendement D-PRD-137 (19/10/2026) :** une seule équipe Scrum/Kanban par installation au MVP ; multiéquipes réservé au train SAFe v1.0 ; vision, Product Goal, DoD et DoR rattachés à l'équipe au MVP et au train en SAFe. Mise à jour autorisée, aucun développement ni test.
+
+### Story 3.3: Gérer l'affectation datée et les rôles Agile dans l'équipe unique
 **Jira :** https://lmn24.atlassian.net/browse/SMN-44
 **En tant que** Scrum Master Administrateur,
-**je veux** gérer les affectations et les parts de rôles dans chaque équipe,
+**je veux** gérer l'affectation datée et les parts de rôles dans l'équipe unique,
 **afin de** suivre les contributions réelles sans dépasser le temps contractuel disponible.
 
 **Critères d'acceptation :**
 
 #### AC1
 
-**Given** un membre appartient à une équipe,
-**When** je l'affecte aussi à une deuxième équipe,
-**Then** une affectation datée distincte est créée sans dupliquer la fiche centrale ni imposer la même date d'arrivée.
+**Given** un membre existe dans l'installation Scrum ou Kanban,
+**When** je l'affecte à l'équipe unique,
+**Then** une affectation datée est créée sans dupliquer sa fiche centrale ; aucune seconde équipe interne n'est créée.
 
 #### AC2
 
-**Given** une affectation à 100 % existe sur une période,
-**When** je tente d'en ajouter une autre à 100 % sur les mêmes jours,
-**Then** la somme dépassant 100 % du temps contractuel est refusée avant persistance.
+**Given** une installation Scrum ou Kanban possède déjà son équipe,
+**When** une requête d'interface ou d'API tente de créer une seconde équipe interne ou une affectation vers une autre équipe interne,
+**Then** le serveur refuse sans écriture ; le taux d'affectation à l'équipe unique reste borné au temps contractuel disponible.
 
 #### AC3
 
@@ -2182,6 +2279,9 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 
 L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
 **Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
+
+
+**Amendement D-PRD-137 (19/10/2026) :** une seule équipe Scrum/Kanban par installation au MVP ; multiéquipes réservé au train SAFe v1.0 ; vision, Product Goal, DoD et DoR rattachés à l'équipe au MVP et au train en SAFe. Mise à jour autorisée, aucun développement ni test.
 
 ### Story 3.4: Clore une affectation et conserver les membres archivés
 **Jira :** https://lmn24.atlassian.net/browse/SMN-45
@@ -2239,7 +2339,7 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 **Jira :** https://lmn24.atlassian.net/browse/SMN-46
 **En tant que** Scrum Master Administrateur,
 **je veux** configurer jours travaillés, demi-journées et exceptions de chaque membre,
-**afin de** disposer d'une base de disponibilité réaliste pour toutes ses équipes.
+**afin de** disposer d'une base de disponibilité réaliste pour l'équipe unique du MVP.
 
 **Critères d'acceptation :**
 
@@ -2257,9 +2357,9 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 
 #### AC3
 
-**Given** un membre appartient à plusieurs équipes,
+**Given** un membre appartient à l'équipe unique du MVP,
 **When** je modifie sa disponibilité centrale,
-**Then** les affectations concernées peuvent utiliser la même source de calendrier selon leurs dates sans duplication de fiche.
+**Then** son affectation utilise cette source de calendrier selon ses dates d'effet sans duplication de fiche ; aucune équipe supplémentaire n'est requise.
 
 #### AC4
 
@@ -2286,6 +2386,9 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 
 L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
 **Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
+
+
+**Amendement D-PRD-137 (19/10/2026) :** une seule équipe Scrum/Kanban par installation au MVP ; multiéquipes réservé au train SAFe v1.0 ; vision, Product Goal, DoD et DoR rattachés à l'équipe au MVP et au train en SAFe. Mise à jour autorisée, aucun développement ni test.
 
 ### Story 3.6: Localiser un membre par pays et fuseau horaire
 **Jira :** https://lmn24.atlassian.net/browse/SMN-47
@@ -2667,9 +2770,9 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 
 #### AC3
 
-**Given** un membre est affecté à plusieurs équipes,
+**Given** un membre est affecté à l'équipe unique du MVP,
 **When** le jour régional est enregistré,
-**Then** la même fiche d'absence centrale est prise en compte pour toutes les affectations applicables.
+**Then** sa fiche d'absence centrale est prise en compte pour son affectation applicable, sans duplication ni seconde équipe interne.
 
 #### AC4
 
@@ -2695,6 +2798,9 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 
 L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
 **Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
+
+
+**Amendement D-PRD-137 (19/10/2026) :** une seule équipe Scrum/Kanban par installation au MVP ; multiéquipes réservé au train SAFe v1.0 ; vision, Product Goal, DoD et DoR rattachés à l'équipe au MVP et au train en SAFe. Mise à jour autorisée, aucun développement ni test.
 
 ### Story 3.14: Consulter le calendrier d'équipe et les absences selon les droits
 **Jira :** https://lmn24.atlassian.net/browse/SMN-55
@@ -3208,6 +3314,122 @@ L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10
 
 L'utilisateur a validé toutes les 23 Stories de l'Epic 3 sans réserve le 19/10/2026. Cette approbation porte sur les exigences, non sur une implémentation ou recette.
 **Validation :** approuvée globalement sans réserve le 19/10/2026 ; développement et recette non attestés.
+
+
+
+### Story 3.24: Renseigner et historiser la vision et le Product Goal de l'équipe
+**Jira :** https://lmn24.atlassian.net/browse/SMN-221
+
+#### User Story
+
+**En tant que** Scrum Master Administrateur,
+**je veux** renseigner et modifier la vision et le Product Goal depuis la fiche de mon équipe,
+**afin de** conserver son contexte et le réutiliser dans les rapports sans ressaisie.
+
+#### Critères d'acceptation — Given / When / Then
+
+##### AC1
+
+**Given** l'équipe unique d'une installation Scrum ou Kanban existe,
+**When** l'Administrateur ouvre sa fiche de contexte,
+**Then** Vision et Product Goal sont deux champs distincts et facultatifs rattachés à cette équipe ; leur absence ne bloque ni l'installation ni le reporting.
+
+##### AC2
+
+**Given** un contenu a été saisi ou modifié,
+**When** l'Administrateur confirme l'enregistrement,
+**Then** le contenu et sa révision sont enregistrés avec équipe, auteur et horodatage ; les versions précédentes restent consultables sans écrasement.
+
+##### AC3
+
+**Given** une version antérieure ou un rapport déjà archivé existe,
+**When** la formulation courante est modifiée,
+**Then** ses versions datées et les anciens PDF restent inchangés ; le nouveau contenu ne change ni le produit fixe ni les objectifs de cycle.
+
+##### AC4
+
+**Given** un rapport demande le contexte de l'équipe,
+**When** sa projection est construite,
+**Then** elle expose les contenus disponibles et leurs références de version selon le contrat historique AD-22, sans inventer un contenu absent ni le traduire automatiquement.
+
+##### AC5
+
+**Given** un Utilisateur ou une personne non authentifiée tente une modification par interface ou API,
+**When** le serveur contrôle la demande,
+**Then** l'écriture est refusée ; les lectures collectives autorisées restent soumises à l'authentification.
+
+##### AC6
+
+**Given** une validation ou une sauvegarde échoue,
+**When** le résultat est présenté,
+**Then** aucun succès fictif, nouvelle version partielle ou remplacement de l'ancien contenu n'est annoncé.
+
+
+#### Traçabilité, dépendances et impacts
+
+* Décision D-PRD-137, clarification et publication autorisées explicitement le 19/10/2026 ; F-116 à F-120 et F-123 ; FR-27, FR-28, FR-61, FR-66, FR-70, FR-71 ; AD-2/12/19/22/31.
+* Epic SMN-3 ; I1–I2 avant acceptation complète de Story 6.9. Dépendances : Story 1.2 (équipe unique), Stories 1.4/1.6 (accès serveur), socle d'audit 2.1.
+* Impacts techniques : stockage des contenus et révisions avec identifiant d'équipe ; transaction de sauvegarde/audit, lecture historique pour le reporting, absence de dépendance aux écrans SAFe. Les contrats doivent permettre le futur rattachement au train sans le développer au MVP.
+* MVP Scrum/Kanban uniquement. Utilisateur en lecture collective autorisée ; aucune mutation. Pas de transfert IA, traduction automatique ou création d'équipe supplémentaire.
+* Statut : décision métier validée par l'utilisateur ; scénarios détaillés dérivés pour sa réalisation. Aucun développement, test ou conformité attestés.
+
+
+
+### Story 3.25: Renseigner et historiser la DoD et la DoR de l'équipe
+**Jira :** https://lmn24.atlassian.net/browse/SMN-222
+
+#### User Story
+
+**En tant que** Scrum Master Administrateur,
+**je veux** maintenir la DoD et la DoR dans la fiche de mon équipe sous forme de texte ou de lien,
+**afin de** disposer de définitions identifiables et sélectionnables dans les rapports.
+
+#### Critères d'acceptation — Given / When / Then
+
+##### AC1
+
+**Given** l'équipe unique d'une installation Scrum ou Kanban existe,
+**When** l'Administrateur renseigne sa DoD ou sa DoR,
+**Then** chaque définition est distincte, facultative, rattachée à cette équipe et représentable sous forme de texte intégral interne ou de lien externe.
+
+##### AC2
+
+**Given** une définition ou son lien est modifié,
+**When** l'Administrateur confirme,
+**Then** une révision datée et attribuée est conservée avec l'ancienne représentation ; aucune version précédente ni aucun PDF archivé n'est réécrit.
+
+##### AC3
+
+**Given** une définition est fournie par un lien externe,
+**When** elle est consultée ou sélectionnée dans un rapport,
+**Then** SMN présente le lien enregistré sans affirmer avoir vérifié, téléchargé ou archivé le contenu distant ; l'historique de l'URL ne prouve pas celui du document distant.
+
+##### AC4
+
+**Given** la DoD ou la DoR n'est pas renseignée,
+**When** un rapport est préparé,
+**Then** aucune définition fictive n'est créée et la génération reste possible ; leur inclusion facultative en fin de rapport demeure informative.
+
+##### AC5
+
+**Given** un Utilisateur ou une personne non authentifiée tente une modification par interface ou API,
+**When** le serveur contrôle la demande,
+**Then** l'écriture est refusée ; un contenu individuel sensible ne peut être ajouté à une projection collective autorisée.
+
+##### AC6
+
+**Given** une sauvegarde échoue ou un brouillon est abandonné,
+**When** la fiche est relue,
+**Then** seule la dernière représentation réellement enregistrée est présentée comme persistée, sans nouvelle révision fictive.
+
+
+#### Traçabilité, dépendances et impacts
+
+* Décision D-PRD-137, clarification et publication autorisées explicitement le 19/10/2026 ; F-116 à F-120 et F-123 ; FR-27, FR-28, FR-61, FR-66, FR-70, FR-71 ; AD-2/12/19/22/31.
+* Epic SMN-3 ; I1–I2 avant acceptation complète de Story 6.9. Dépendances : Story 1.2 (équipe unique), Stories 1.4/1.6 (accès serveur), socle d'audit 2.1.
+* Impacts techniques : stockage des contenus et révisions avec identifiant d'équipe ; transaction de sauvegarde/audit, lecture historique pour le reporting, absence de dépendance aux écrans SAFe. Les contrats doivent permettre le futur rattachement au train sans le développer au MVP.
+* MVP Scrum/Kanban uniquement. Utilisateur en lecture collective autorisée ; aucune mutation. Pas de transfert IA, traduction automatique ou création d'équipe supplémentaire.
+* Statut : décision métier validée par l'utilisateur ; scénarios détaillés dérivés pour sa réalisation. Aucun développement, test ou conformité attestés.
 
 
 ## Epic 4: Préparer, suivre et clôturer ses Sprints Scrum
@@ -4718,7 +4940,7 @@ Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19
 
 **Given** une dépendance est créée,
 **When** je renseigne l'équipe demandeuse et la contributrice,
-**Then** je peux sélectionner une équipe SMN existante ou saisir un nom libre d'équipe externe.
+**Then** je peux sélectionner l'équipe unique de l'installation ou saisir un nom libre d'équipe externe.
 
 #### AC2
 
@@ -4734,7 +4956,7 @@ Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19
 
 #### AC4
 
-**Given** un même élément concerne plusieurs équipes ou cycles,
+**Given** un même élément concerne l'équipe locale, des équipes externes ou plusieurs cycles,
 **When** je consulte ses informations,
 **Then** la référence est celle d'une fiche centrale unique, pas une copie par équipe.
 
@@ -4748,7 +4970,7 @@ Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19
 
 * Epic : SMN-5 ; FR-38, FR-25.
 * Références : F-74/83/90 ; D-PRD-121 ; QLT-05.
-* Dépendances : Stories 5.1 et 5.3, équipes existantes Epic 3.
+* Dépendances : Stories 5.1 et 5.3, équipe unique initialisée en 1.2 ; les autres équipes sont externes et décrites par nom libre.
 * MVP Scrum/Kanban ; I1–I3 ; SAFe, notification externe et synchronisation Jira hors MVP.
   **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026 ; développement et tests non réalisés.**
 
@@ -4756,6 +4978,9 @@ Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19
 
 Les 24 Stories de l'Epic 5 ont été approuvées globalement sans réserve le 19/10/2026. Cela ne vaut ni développement ni recette.
 **Validation :** approuvée globalement sans réserve le 19/10/2026, sans développement ni recette attestés.
+
+
+**Amendement D-PRD-137 (19/10/2026) :** une seule équipe Scrum/Kanban par installation au MVP ; multiéquipes réservé au train SAFe v1.0 ; vision, Product Goal, DoD et DoR rattachés à l'équipe au MVP et au train en SAFe. Mise à jour autorisée, aucun développement ni test.
 
 ### Story 5.8: Piloter les états et le signal À risque d'une dépendance
 **Jira :** https://lmn24.atlassian.net/browse/SMN-96
@@ -6042,20 +6267,20 @@ L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. 
 **Jira :** https://lmn24.atlassian.net/browse/SMN-120
 
 **En tant que** Scrum Master Administrateur,
-**je veux** ajouter sur choix des éléments de contexte produit et la DoD/DoR,
+**je veux** ajouter sur choix la vision, le Product Goal et la DoD/DoR rattachés à l'équipe,
 **afin de** éclairer les rapports sans répéter les informations du produit.
 
 **Critères d'acceptation :**
 
 #### AC1
 
-**Given** une vision et un Product Goal sont enregistrés,
+**Given** une vision et un Product Goal sont enregistrés sur l'équipe du cycle,
 **When** je sélectionne leur présence,
 **Then** leurs textes disponibles sont présentés dans les sections choisies sans traduction automatique.
 
 #### AC2
 
-**Given** la DoD et la DoR sont disponibles sous forme de texte,
+**Given** la DoD et la DoR de l'équipe sont disponibles sous forme de texte,
 **When** je les inclue,
 **Then** elles apparaissent facultativement en fin de rapport à titre informatif.
 
@@ -6080,14 +6305,17 @@ L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. 
 #### Traçabilité
 
 * Epic : SMN-6. FR-28, FR-27, RPT-02/03/05, D-PRD-123, D-PRD-134.
-* Dépendances : Stories 6.3 et 6.5 ; données produit/équipe préexistantes.
-* MVP Scrum/Kanban, I1–I2, un seul produit/équipe par installation ; aucune API IA ni export programmé.
+* Dépendances : Stories 6.3, 6.5, 3.24 et 3.25 ; les données de contexte sont produites et historisées au niveau de l'équipe.
+* MVP Scrum/Kanban, I1–I2, un produit fixe et une seule équipe par installation ; aucune API IA ni export programmé.
   **Statut fonctionnel : VALIDÉE GLOBALEMENT LE 19/10/2026, sans développement ni recette.**
 
 #### Validation fonctionnelle globale
 
 L'utilisateur a validé sans remarque les 23 Stories de l'Epic 6 le 19/10/2026. Cette validation ne vaut ni développement ni exécution des tests.
 **Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun développement ni recette attestés.
+
+
+**Amendement D-PRD-137 (19/10/2026) :** une seule équipe Scrum/Kanban par installation au MVP ; multiéquipes réservé au train SAFe v1.0 ; vision, Product Goal, DoD et DoR rattachés à l'équipe au MVP et au train en SAFe. Mise à jour autorisée, aucun développement ni test.
 
 ### Story 6.10: Fournir un modèle standard de rapport protégé
 **Jira :** https://lmn24.atlassian.net/browse/SMN-122
