@@ -1,0 +1,45 @@
+# SMN-22 — Navigation structurée selon le rôle et le mode
+
+- Story Jira : https://lmn24.atlassian.net/browse/SMN-22
+- Branche : `feat/smn-22-navigation-mode-role`
+- Epic : SMN-1 ; incrément I0
+- Statut : développée sur branche, recette sur PC / CI à confirmer
+
+## Fonctionnement livré
+
+Le layout partagé `src/app/app/layout.tsx` donne le même en-tête, le même contexte produit/équipe, le même contrôle de session, la même navigation et la même activité de session aux écrans du tableau de bord, de sécurité et d'administration. L'authentification et le profil sont relus côté serveur ; les liens d'administration sont affichés uniquement pour le profil Administrateur.
+
+Le modèle pur `src/lib/private-navigation.ts` expose les six rubriques Pilotage, Calendrier, Cycles/bilans, Registres, Rapports/IA et Administration. La dernière est absente pour le profil Utilisateur ; seules les routes effectivement livrées sont cliquables : `/app`, `/app/security`, `/app/admin/users` et `/app/admin/settings`. Les modules futurs affichent « À venir » sans lien ni route prétendument opérationnelle.
+
+Pour Scrum, la rubrique Cycles annonce « Sprints » ; pour Kanban, « Périodes Kanban ». SAFe/ART n'est pas présenté comme disponible au MVP. Si la lecture du contexte échoue, ni produit/équipe ni mode agile ne sont inventés ; un message d'indisponibilité remplace les données manquantes.
+
+L'entrée active reflète la page courante (y compris les sous-pages), et la navigation comporte un lien d'évitement clavier, des états accessibles et une disposition responsive. Les labels FR/EN sont exclusivement dans `src/i18n/fr.json` et `src/i18n/en.json`, pas dupliqués dans les composants.
+
+## Contrôles de sécurité
+
+Le masquage n'est pas une autorisation. `src/server/access-policy.ts`, `src/server/auth/authorization.ts` et les pages/API d'administration existantes continuent de vérifier le rôle, la session active et l'origine HTTP des modifications. Aucun endpoint de nouvelle opération métier n'a été ajouté.
+
+## Traçabilité
+
+| Exigence | Réalisation | Vérification |
+| --- | --- | --- |
+| AC1 | Groupe métier visible dans le menu commun | `tests/private-navigation.test.ts` |
+| AC2 | Scrum/Kanban selon l'installation, aucune fonction SAFe/ART active | `tests/private-navigation.test.ts` |
+| AC3 | Contexte affiché, page active, responsive et accès clavier | `src/app/app/layout.tsx`, `src/app/app/private-navigation.tsx`, `src/app/dashboard.css` |
+| AC4 | Menus administration admin uniquement et protection côté serveur conservée | `tests/private-navigation.test.ts`, `tests/authorization.test.ts` |
+| AC5 | Fonctions non livrées en états indisponibles non cliquables | `src/lib/private-navigation.ts`, `tests/private-navigation.test.ts` |
+
+## Commandes de recette
+
+```powershell
+git checkout main
+git pull origin main
+pnpm install --frozen-lockfile
+pnpm i18n:check
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm dev
+```
+
+Sur PC : vérifier les profils Admin et Utilisateur, les modes Scrum et Kanban, la mise en évidence de chaque page, l'écran étroit, la navigation clavier et les accès directs aux routes API d'administration. La publication de la branche ne vaut pas preuve d'exécution de ces commandes.
