@@ -242,7 +242,25 @@ try {
       mode:"scrum",product:"Produit de recette CI"});
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
-    )).rows[0].schema_version)),4);
+    )).rows[0].schema_version)),5);
+    // SMN-20 — registre de configuration strictement privé aux administrateurs.
+    const readChecklist=async(cookie=replacement)=>{
+      const response=await get("/api/admin/configuration-tasks",{headers:{Cookie:cookie}});
+      assert.equal(response.status,200);
+      return response.json();
+    };
+    const patchTask=(input,cookie=replacement,origin=base)=>get("/api/admin/configuration-tasks",{
+      method:"PATCH",redirect:"manual",
+      headers:{"Content-Type":"application/json",Origin:origin,...(cookie?{Cookie:cookie}:{})},
+      body:JSON.stringify(input),
+    });
+    assert.equal((await get("/api/admin/configuration-tasks")).status,403);
+    assert.equal((await patchTask({key:"display-preferences",status:"done"},"")).status,403);
+    assert.equal((await patchTask({key:"display-preferences",status:"done"},replacement,"http://evil.test")).status,403);
+    assert.equal((await patchTask({key:"fake",status:"done"})).status,400);
+    assert.deepEqual((await readChecklist()).tasks.map(x=>x.status),["todo","todo","todo"]);
+    assert.equal((await patchTask({key:"display-preferences",status:"ignored"})).status,200);
+    assert.equal((await readChecklist()).tasks[2].status,"ignored");
     const currentValues=()=>withDb(async client=>(await client.query(
       "SELECT locale,theme,reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'"
     )).rows[0]);
@@ -260,6 +278,8 @@ try {
     assert.equal(payload.settings.revision,1);
     assert.equal(payload.settings.mode,"scrum");
     assert.equal(payload.settings.product,"Produit de recette CI");
+    assert.deepEqual((await readChecklist()).tasks.map(x=>x.status),["done","todo","ignored"],
+      "Le pays est détecté, la tâche ignorée reste ignorée et aucune autre réussite n'est inventée");
     assert.equal((await patchSettings({locale:"fr",theme:"light",referenceCountry:null,revision:0})).status,409);
     const noChange=await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:1});
     assert.equal(noChange.status,200);
@@ -306,6 +326,8 @@ try {
     )).rows[0]);
     assert.match(recoveryRow.phrase_hash,/^scrypt:1:/);
     assert.equal(recoveryRow.phrase_hash.includes(phrase),false);
+    assert.deepEqual((await readChecklist()).tasks.map(x=>x.status),["done","done","ignored"],
+      "La préparation effective de la phrase termine uniquement la tâche concernée");
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT count(*)::int AS count FROM public.smn_auth_audit WHERE action='recovery_prepared'"
     )).rows[0].count)),1);
@@ -383,6 +405,8 @@ try {
     assert.equal(userChanged.status,200);
     const userReady=tokenCookie(userChanged);
     assert.equal((await get("/api/admin/settings",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await get("/api/admin/configuration-tasks",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await patchTask({key:"display-preferences",status:"done"},userReady)).status,403);
     assert.equal((await patchSettings({locale:"fr",theme:"light",referenceCountry:null,revision:1},userReady)).status,403);
     const blockedSettingsPage=await get("/app/admin/settings",{headers:{Cookie:userReady},redirect:"manual"});
     assert.equal(blockedSettingsPage.status,307);

@@ -372,5 +372,37 @@
       "forbidden": "Invalid local token or request origin.",
       "confirmation-required": "Explicitly confirm the installation before proceeding."
     }
+  },
+  "configuration": {
+    "menu": "Configuration",
+    "eyebrow": "CONFIGURATION",
+    "title": "Configuration to complete",
+    "intro": "These settings are optional. They never block your work and are not included in business reports.",
+    "todoCount": "To do",
+    "doneCount": "Completed",
+    "ignoredCount": "Ignored",
+    "fieldLabel": "Task status",
+    "open": "Open setting",
+    "saving": "Saving…",
+    "error": "Could not save the change. The previous status remains; please retry.",
+    "status": {
+      "todo": "To do",
+      "done": "Completed",
+      "ignored": "Ignored"
+    },
+    "tasks": {
+      "referenceCountry": {
+        "title": "Set a reference country",
+        "description": "This value is proposed for future team members. Saving the country automatically completes the task."
+      },
+      "recoveryPhrase": {
+        "title": "Prepare a recovery phrase",
+        "description": "Protect administrator access. Successfully saving the phrase automatically completes the task."
+      },
+      "displayPreferences": {
+        "title": "Review display preferences",
+        "description": "Review your language and theme. Completion remains manual because defaults do not prove personalization."
+      }
+    }
   }
 }

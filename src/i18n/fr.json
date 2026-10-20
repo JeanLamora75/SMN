@@ -372,5 +372,37 @@
       "forbidden": "Jeton local ou origine de la requête invalide.",
       "confirmation-required": "Confirmez explicitement l’installation avant de continuer."
     }
+  },
+  "configuration": {
+    "menu": "Configuration",
+    "eyebrow": "CONFIGURATION",
+    "title": "Paramétrage à compléter",
+    "intro": "Ces réglages sont facultatifs. Ils ne bloquent jamais l'application et ne sont pas inclus dans les rapports métier.",
+    "todoCount": "À faire",
+    "doneCount": "Terminées",
+    "ignoredCount": "Ignorées",
+    "fieldLabel": "État de la tâche",
+    "open": "Ouvrir le réglage",
+    "saving": "Enregistrement…",
+    "error": "Enregistrement impossible. L'état précédent est conservé ; réessayez.",
+    "status": {
+      "todo": "À faire",
+      "done": "Terminée",
+      "ignored": "Ignorée"
+    },
+    "tasks": {
+      "referenceCountry": {
+        "title": "Définir le pays de référence",
+        "description": "Valeur proposée pour les futurs membres. L'enregistrement du pays termine automatiquement cette tâche."
+      },
+      "recoveryPhrase": {
+        "title": "Préparer une phrase de secours",
+        "description": "Protégez l'accès administrateur. La sauvegarde effective de la phrase termine automatiquement la tâche."
+      },
+      "displayPreferences": {
+        "title": "Vérifier les préférences d'affichage",
+        "description": "Contrôlez la langue et le thème. La clôture est manuelle : les valeurs par défaut ne prouvent pas une personnalisation."
+      }
+    }
   }
 }
