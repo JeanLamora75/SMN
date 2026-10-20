@@ -76,10 +76,11 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       assert.equal(classifySnapshot(snapshot).status, "initialized");
       const data = await withClient(target.toString(), async (client) =>
         client.query<{ email: string; password_hash: string; must_change_password: boolean }>(
-          "SELECT email,password_hash,must_change_password FROM public.smn_account",
+          "SELECT username,email,password_hash,must_change_password FROM public.smn_account",
         ));
       assert.equal(data.rowCount, 1);
-      assert.equal(data.rows[0].email, "admin@locahost.com");
+      assert.equal((data.rows[0] as {username: string}).username, "admin");
+      assert.equal(data.rows[0].email, "admin@localhot.com");
       assert.equal(data.rows[0].must_change_password, true);
       assert.equal(data.rows[0].password_hash.includes(input.password), false);
       assert.equal((await installExpress(input, target.toString())).ok, false);
