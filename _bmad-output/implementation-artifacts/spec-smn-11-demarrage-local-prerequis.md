@@ -2,7 +2,7 @@
 title: "SMN-11 — Démarrage local et diagnostic des prérequis"
 type: "feature"
 created: "2026-10-20"
-status: "in-review"
+status: "done"
 route: "dispatch"
 review_loop_iteration: 1
 baseline_commit: "9f6cc9ba1a1a23d47234511d7801e5a0cc54fe86"
@@ -85,6 +85,13 @@ context:
 - **Limite technique conservée / SMN-12 :** la politique de reconnaissance des migrations est un contrat I0 conservateur sur le marqueur de schéma version 1 ; la Story d'installation devra fixer la liste exacte des migrations livrées et les futurs objets métier, avant d'autoriser l'état initialisé sur une véritable installation complète. Aucun assistant d'installation fonctionnel ni session ne sont fournis par SMN-11.
 
 ## Spec Change Log
+
+- 2026-10-20 — **Décision d'itération et feedback utilisateur après deuxième revue.** Pas de troisième salve automatique de trois relecteurs ; traiter les problèmes qui mettent en danger l'état de la base, le diagnostic et la confiance dans les tests, puis livrer l'incrément I0. Les améliorations non bloquantes et l'installation réelle sont inscrites au travail reporté et à SMN-12. Ceci est une **adaptation explicite** au cycle de revue BMAD, sans prétendre à une troisième revue indépendante.
+- **Correctifs de la deuxième revue :** détection de types composites PostgreSQL, refus d'une version serveur non fournie, refus d'accès préparation sans preuve de CREATE, et interdiction de valider un marqueur de schéma/migration arbitraire en l'absence de manifeste Prisma officiel. Les schémas contenant un marqueur passent temporairement en `installation-incomplete` ; **SMN-12 est responsable de la reconnaissance de ses migrations réellement livrées**.
+- **Fiabilité de la vérification :** assertions des ports réservés corrigées (processus vivant n'est jamais succès), contrôle du port avant démarrage, arrêt vérifié des processus de test, protection des fixtures après erreur, restriction de l'exécution destructive à la CI GitHub Actions et base `smn_ci`. Le parseur de langues ignore les paramètres de qualité malformés.
+- **Preuve CI complète de cette itération :** Linux/PostgreSQL 18 : 30/30 tests, contrôles HTTP de production, lint, build, typecheck ; Windows : tests (intégration PG ignorée), build et démarrage `pnpm dev` sur loopback — https://github.com/JeanLamora75/SMN/actions/runs/39411560620 (réussi). Une vérification du serveur sur Windows réel a également été communiquée par l'utilisateur avant la deuxième revue.
+- **Limites acceptées / suivies :** les protections de non-élévation sur Windows, l'identité exacte du processus au niveau OS, l'intégration PostgreSQL Windows et les tests de concurrence restent à améliorer par feedback. La suite `smn_ci` utilise des fixtures seulement sur runner GitHub ; le caractère éphémère de la base provient de la configuration GitHub Actions et n'est pas démontrable par le seul nom SQL.
+
 
 - 2026-10-20 — **Boucle de revue 1 / révision non gelée.** Les relecteurs ont détecté une insuffisance du Code Map / Tasks & Acceptance : la preuve d'un état « vierge » ou « initialisé » repose sur un scan SQL incomplet, une liste de deux tables et un seul marqueur sans preuves de migrations. **Plan corrigé :** inspecter tous les objets applicatifs, vérifier les droits séparément et la version PostgreSQL, tester `probePostgres` réellement, n'admettre « initialized » qu'après examen de l'historique des migrations et de la politique de schéma/version explicitement enregistrée ; état inconnu = refus d'accès. Corriger URLs, scripts, i18n, least-privilege CI et contrôles Windows. **État connu mauvais à éviter :** faux `virgin` sur une base étrangère et faux `initialized` sur une installation partielle. **KEEP :** socle Next/Prisma, refus des routes anonymes, aucun accès ou mutation sur LMN24, ports 3000–3002 réservés, port SMN 3003, preuves CI et recette Windows obtenues. Adaptation connecteur : faute de clone Git local et de sous-agents directs, révision traçable par commits sur la même branche plutôt qu'un revert matériel du socle fonctionnel avant re-dérivation ; ne pas déclarer la revue close avant nouvelle vérification.
 
@@ -170,6 +177,14 @@ Les **74 constats distincts** des trois relectures sont classés individuellemen
 | O03 | high | bad_spec | La requête PG ignore les objets non-table et les schémas autres que public. |
 | O04 | medium | patch | Une erreur SQL 42703 est classée connection-error. |
 
+
+### Triage de la deuxième revue — clôture par les risques
+
+- **Sources :** 12 constats Blind Hunter, 26 cas Edge Case Hunter, 14 lacunes Verification Gap et 5 constats complémentaires. Un même défaut peut être rapporté par plusieurs agents : **57 observations, pas 57 défauts distincts**.
+- **Corrigés / couverture ajoutée** : classification `virgin` sur types composites et snapshots incomplets ; faux `initialized` sur fausse migration ; tests de ports interdits et d'occupation ; protection du déclenchement des fixtures dans la CI ; correction des `q` malformés ; vérification des arrêts de serveurs et de la disponibilité initiale.
+- **Report SMN-12 obligatoire** : manifeste Prisma, noms/checksums des migrations et schéma réellement créé ; aucun état `initialized` n'est autorisé aujourd'hui sans ces éléments. Cette limitation empêche le faux positif, tout en permettant d'implémenter la vraie installation par itération.
+- **Report amélioration incrémentale** : tests du refus de `USAGE` et `SELECT` sur rôles PostgreSQL, vérification de l'adresse d'écoute au niveau OS, tests d'authentification PG et des modifications concurrentes, robustesse de processus, Windows PostgreSQL réel / utilisateur non élevé, gestion linguistique q=0 de toutes les langues, budget global de délai et historique de migrations volumineux. Ces lacunes ne permettent pas d'ouvrir l'accès privé : les gardes serveur restent fermés.
+- **Adaptation BMAD validée par la demande de l'utilisateur** : clôturer l'incrément sur les preuves vérifiées, sans boucle supplémentaire de trois agents ; poursuivre par retours terrain et nouvelles Stories. Les résultats R2 ont été recueillis, mais **aucune troisième revue indépendante n'a été exécutée**.
 
 ## Design Notes
 

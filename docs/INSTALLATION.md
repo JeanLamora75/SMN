@@ -91,3 +91,10 @@ GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépe
 Le diagnostic serveur inspecte les objets applicatifs (tables, vues, séquences, fonctions, types) et les schémas distincts de `public`, et ne considère pas une installation comme complète sans historique de migration réussi. La politique de schéma I0 est volontairement limitée au marqueur de version 1 ; **SMN-12 devra enregistrer explicitement la liste attendue de ses migrations et tables métier**. Les statuts inconnus bloquent l'accès.
 
 Le diagnostic CLI `pnpm run doctor` contrôle la version Node et le port configuré ; il **ne réalise pas une connexion PostgreSQL** : son message indique si `SMN_DATABASE_URL` est présente, puis invite à consulter le contrôle serveur au démarrage. Aucun mot de passe ni chaîne de connexion n'est affiché.
+
+
+## Décision de livraison après revue nº 2 (20/10/2026)
+
+Après arbitrage utilisateur pour avancer par itérations, SMN-11 conserve la page de démarrage et le diagnostic **sans création de base**. Le mode « installation initialisée » ne pourra être déclaré qu'après définition des migrations officielles dans SMN-12 ; toute prétendue installation reconnue à partir d'un marqueur isolé est classée **installation incomplète**. Il s'agit d'une mesure de prudence pour éviter les faux succès jusqu'à l'installateur réel.
+
+La [CI de clôture](https://github.com/JeanLamora75/SMN/actions/runs/39411560620) a réussi ses tests Linux/PostgreSQL et Windows. Les détails des vérifications supplémentaires restent tracés dans [le triage BMAD](../_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md). Les droits PostgreSQL Windows sur la future base utilisateur n'ont **pas** été essayés ; aucun nouveau test manuel destructif n'est demandé.
