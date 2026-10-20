@@ -1,30 +1,12 @@
 import "server-only";
 import { headers } from "next/headers";
+import { negotiateLanguage } from "./language";
+import type { Language } from "./language";
 import type { DiagnosticStatus } from "@/server/installation/diagnostic";
 
-export type Language = "fr" | "en";
-
-export function negotiateLanguage(acceptLanguage: string | null | undefined): Language {
-  if (!acceptLanguage) return "fr";
-  const supported: { lang: Language; q: number; order: number }[] = [];
-  for (const [order, part] of acceptLanguage.toLowerCase().split(",").entries()) {
-    const [tag, ...params] = part.trim().split(";");
-    const language = tag.split("-")[0];
-    if (language !== "fr" && language !== "en") continue;
-    let q = 1;
-    for (const p of params) {
-      const m = /^\s*q=([0-9]+(?:\.[0-9]+)?)\s*$/.exec(p);
-      if (m) q = Number(m[1]);
-    }
-    if (q > 0 && q <= 1) supported.push({ lang: language, q, order });
-  }
-  supported.sort((a, b) => b.q - a.q || a.order - b.order);
-  return supported[0]?.lang ?? "fr";
-}
-
+export type { Language } from "./language";
 export async function browserLanguage(): Promise<Language> {
-  const req = await headers();
-  return negotiateLanguage(req.get("accept-language"));
+  return negotiateLanguage((await headers()).get("accept-language"));
 }
 
 export const translations: Record<Language, Record<DiagnosticStatus, string>> = {
