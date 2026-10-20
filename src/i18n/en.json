@@ -1,0 +1,32 @@
+{
+  "configuration": {
+    "title": "Configuration to complete",
+    "intro": "These settings are optional. They never block your work or appear in business reports.",
+    "todoCount": "To do",
+    "doneCount": "Completed",
+    "ignoredCount": "Ignored",
+    "fieldLabel": "Task status",
+    "open": "Open setting",
+    "status": {
+      "todo": "To do",
+      "done": "Completed",
+      "ignored": "Ignored"
+    },
+    "saving": "Saving…",
+    "error": "Could not save the change. The previous status remains; please retry.",
+    "tasks": {
+      "reference-country": {
+        "title": "Set a reference country",
+        "description": "This country is the default for future team members. Saving a country automatically completes this task."
+      },
+      "recovery-phrase": {
+        "title": "Prepare a recovery phrase",
+        "description": "Protect access recovery for the administrator. Saving a phrase automatically completes this task."
+      },
+      "display-preferences": {
+        "title": "Review display preferences",
+        "description": "Review your language and theme choices. Completion remains manual because default values do not prove customization."
+      }
+    }
+  }
+}

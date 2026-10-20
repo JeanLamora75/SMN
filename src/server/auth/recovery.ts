@@ -32,7 +32,6 @@ export async function renewPassword(
     await client.query("DELETE FROM public.smn_recovery_phrase WHERE account_id=$1",[account.id]);
     await client.query(`INSERT INTO public.smn_auth_audit(id,account_id,action)
       VALUES($1,$2,'password_changed')`, [randomUUID(),account.id]);
-    await completeConfigurationTask(client,"recovery-phrase");
     await client.query("COMMIT");
     return true;
   } catch (error) {
@@ -61,6 +60,7 @@ export async function prepareRecoveryPhrase(
       SET phrase_hash=excluded.phrase_hash,created_at=now()`,[account.id,phraseHash]);
     await client.query(`INSERT INTO public.smn_auth_audit(id,account_id,action)
       VALUES($1,$2,'recovery_prepared')`,[randomUUID(),account.id]);
+    await completeConfigurationTask(client,"recovery-phrase");
     await client.query("COMMIT");
     return true;
   } catch (error) {

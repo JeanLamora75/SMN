@@ -6,6 +6,8 @@ import { canAccess } from "@/server/access-policy";
 import { readCollectiveDashboard } from "@/server/dashboard/read";
 import LogoutControl from "./logout-control";
 import SessionActivity from "./session-activity";
+import ConfigurationChecklist from "./configuration-checklist";
+import { readConfigurationChecklist } from "@/server/configuration/tasks";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +52,9 @@ export default async function DashboardPage() {
     </main>;
   }
 
+  const canManageConfiguration=canAccess(account,"read",{type:"settings",exists:true,inScope:true});
+  const configuration=canManageConfiguration
+    ? await withAuthDb(readConfigurationChecklist).catch(()=>null) : null;
   const { context } = dashboard;
   const scrum = context.mode === "scrum";
   const cycleName = scrum ? "Sprint" : "Période Kanban";
@@ -88,6 +93,7 @@ export default async function DashboardPage() {
               <div className="smn-nav-eyebrow mt-4">ADMINISTRATION</div>
               <Link className="smn-nav-link" href="/app/admin/users"><span aria-hidden="true">⚙</span>Comptes utilisateurs</Link>
               <Link className="smn-nav-link" href="/app/admin/settings"><span aria-hidden="true">⚙</span>Paramètres généraux</Link>
+              <a className="smn-nav-link" href="#configuration"><span aria-hidden="true">☑</span>Configuration</a>
             </>}
             <div className="smn-nav-help mt-4">
               <span className="fw-semibold">Une interface qui grandit avec vous</span>
@@ -121,6 +127,8 @@ export default async function DashboardPage() {
               <div className="fw-semibold">Non renseigné</div>
             </div>
           </section>
+
+          {configuration&&<ConfigurationChecklist initial={configuration}/>}
 
           <section className="mt-4" id="cycles" aria-labelledby="cycle-heading">
             <div className="smn-section-title">

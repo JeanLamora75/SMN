@@ -1,0 +1,32 @@
+{
+  "configuration": {
+    "title": "Paramétrage à compléter",
+    "intro": "Ces réglages sont facultatifs. Ils ne bloquent jamais le travail de l'équipe et n'apparaissent pas dans les rapports métier.",
+    "todoCount": "À faire",
+    "doneCount": "Terminées",
+    "ignoredCount": "Ignorées",
+    "fieldLabel": "État de la tâche",
+    "open": "Ouvrir le réglage",
+    "status": {
+      "todo": "À faire",
+      "done": "Terminée",
+      "ignored": "Ignorée"
+    },
+    "saving": "Enregistrement…",
+    "error": "Enregistrement impossible. L'état précédent est conservé ; réessayez.",
+    "tasks": {
+      "reference-country": {
+        "title": "Définir le pays de référence",
+        "description": "Le pays est utilisé par défaut pour de futurs membres. Il est détecté automatiquement après enregistrement."
+      },
+      "recovery-phrase": {
+        "title": "Préparer une phrase de secours",
+        "description": "Sécurisez la récupération de l'accès administrateur. L'enregistrement valide termine cette tâche."
+      },
+      "display-preferences": {
+        "title": "Vérifier les préférences d'affichage",
+        "description": "Contrôlez la langue et le thème souhaités. La confirmation reste manuelle : les valeurs par défaut ne prouvent pas une personnalisation."
+      }
+    }
+  }
+}
