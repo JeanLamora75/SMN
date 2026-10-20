@@ -2,7 +2,7 @@ name: Vérification I0
 
 on:
   push:
-    branches: ["dev/bmad-i0-20261020", "main"]
+    branches: ["dev/bmad-i0-20261020", "dev/bmad-i0-smn12-20261020", "main"]
   pull_request:
     branches: ["main", "docs/bmad-sprint-readiness-20261019"]
 
