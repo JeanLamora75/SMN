@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
+import { completeConfigurationTask } from "../configuration/tasks";
 
 export type SettingsValues = Readonly<{
   locale: "fr" | "en";
@@ -85,6 +86,7 @@ export async function updateGeneralSettings(client:Client,actorId:string,raw:unk
        (id,installation_id,actor_id,old_values,new_values)
        VALUES($1,'singleton',$2,$3::jsonb,$4::jsonb)`,
        [randomUUID(),actorId,JSON.stringify(before),JSON.stringify(after)]);
+    if (input.referenceCountry !== null) await completeConfigurationTask(client,"reference-country");
     await client.query("COMMIT");
     const newRow=changed.rows[0];
     return {ok:true,changed:true,settings:{...previous,...after,revision:newRow.revision,updatedAt:newRow.updated_at}};
