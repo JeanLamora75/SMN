@@ -336,5 +336,40 @@
       "already-running": "An installation is already in progress.",
       "invalid-input": "Check the form fields."
     }
+  },
+  "legacySetup": {
+    "mode": "Working mode",
+    "product": "Product name",
+    "team": "Team name",
+    "pilotInfo": "Administrator account: admin@locahost.com. No default password is provided.",
+    "password": "Initial Administrator password (at least 14 characters, with letters and numbers)",
+    "confirmPassword": "Confirm Administrator password",
+    "token": "Local installation token (SMN_SETUP_TOKEN)",
+    "confirm": "I confirm creation of the dedicated SMN database, if required, and application of its initial schema.",
+    "working": "Installing…",
+    "initialize": "Initialize SMN",
+    "mismatch": "Passwords do not match.",
+    "success": "Installation succeeded. Dashboard access will be enabled with SMN-14.",
+    "failed": "Installation incomplete: {detail}. No session was created.",
+    "error": "Installation error",
+    "network": "Connection unavailable. Check prerequisites and retry.",
+    "errors": {
+      "invalid-input": "Check names and password (at least 14 characters, with letters and numbers).",
+      "configuration-missing": "The SMN PostgreSQL connection is not configured.",
+      "configuration-invalid": "The configured connection is not a dedicated local SMN database.",
+      "database-missing": "The SMN database does not exist yet.",
+      "createdb-required": "This PostgreSQL account lacks CREATEDB permission. Use an authorized account or a dedicated pre-created SMN database.",
+      "postgres-error": "Could not connect to PostgreSQL, or permissions are insufficient. Check access and retry.",
+      "permissions-insufficient": "The PostgreSQL account lacks the required permissions in the SMN database.",
+      "schema-incompatible": "The database contains an unknown schema. No changes were made.",
+      "installation-incomplete": "A partial installation was detected. A second installation is not allowed.",
+      "not-empty": "The database is no longer empty. Reload the diagnostic before trying again.",
+      "database-already-present": "The database appeared between checks. Reload the diagnostic.",
+      "unsupported-postgres": "PostgreSQL version 18 is required.",
+      "installation-failed": "Setup failed. Transaction changes were rolled back; consult the diagnostic.",
+      "verification-failed": "Writes completed but final verification failed. Do not reset; consult the diagnostic.",
+      "forbidden": "Invalid local token or request origin.",
+      "confirmation-required": "Explicitly confirm the installation before proceeding."
+    }
   }
 }
