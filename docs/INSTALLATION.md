@@ -25,13 +25,15 @@ Le lockfile doit être présent dans la branche téléchargée avant d'utiliser 
 
 SMN lit uniquement `SMN_DATABASE_URL`. L'hôte doit être `localhost`, `127.0.0.1` ou `::1`, et le nom de la base doit être `smn` ou commencer par `smn_`. **Aucune valeur `DATABASE_URL` n'est réutilisée implicitement.** Ne jamais pointer vers LMN24 ou une autre base.
 
-La saisie et la protection définitives des secrets locaux seront livrées avec l'installateur. Pour un diagnostic temporaire sur le PC, utiliser dans une session PowerShell privée (ne **jamais** copier le secret dans ChatGPT ou un commit) :
+La saisie ci-dessous masque les caractères tapés ; elle laisse néanmoins temporairement l’URL dans la variable d’environnement du processus. La protection définitive des secrets locaux sera livrée avec l’installateur. Pour un diagnostic temporaire sur le PC, utiliser dans une session PowerShell privée (ne **jamais** copier le secret dans ChatGPT ou un commit) :
 
 ```powershell
 # Optionnel : saisir localement une URL de connexion déjà autorisée.
 # Attention : une variable d'environnement de session ne constitue pas
 # un coffre de secrets ; fermer cette session après le test.
-$env:SMN_DATABASE_URL = Read-Host "URL PostgreSQL locale SMN"
+${"inputSecret"} = Read-Host "URL PostgreSQL locale SMN" -AsSecureString
+$env:SMN_DATABASE_URL = [System.Net.NetworkCredential]::new("", ${"inputSecret"}).Password
+Remove-Variable inputSecret
 pnpm dev
 ```
 

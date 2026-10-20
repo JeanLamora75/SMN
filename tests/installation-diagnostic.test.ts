@@ -64,10 +64,10 @@ describe("SMN-11 — diagnostic sans mutation", () => {
   });
 
   it("rejette une configuration absente ou dirigée vers une autre application", () => {
-    assert.equal(parseConnectionSettings(undefined).status, "configuration-missing");
-    assert.equal(parseConnectionSettings("bad-uri").status, "configuration-invalid");
-    assert.equal(parseConnectionSettings("postgresql://local:pass@localhost:5432/lmn24").status, "configuration-invalid");
-    assert.equal(parseConnectionSettings("postgresql://local:pass@remote.example:5432/smn").status, "configuration-invalid");
+    assert.deepEqual(parseConnectionSettings(undefined), { ok: false, status: "configuration-missing" });
+    assert.deepEqual(parseConnectionSettings("bad-uri"), { ok: false, status: "configuration-invalid" });
+    assert.deepEqual(parseConnectionSettings("postgresql://local:pass@localhost:5432/lmn24"), { ok: false, status: "configuration-invalid" });
+    assert.deepEqual(parseConnectionSettings("postgresql://local:pass@remote.example:5432/smn"), { ok: false, status: "configuration-invalid" });
     assert.equal(parseConnectionSettings("postgresql://local:pass@localhost:5432/smn").ok, true);
     assert.equal(parseConnectionSettings("postgresql://local:pass@[::1]:5432/smn_test").ok, true);
     assert.equal(JSON.stringify(parseConnectionSettings("bad-uri")).includes("bad-uri"), false);
