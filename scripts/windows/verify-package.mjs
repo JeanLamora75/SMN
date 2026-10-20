@@ -19,6 +19,9 @@ const port = 3003;
 const base = "http://127.0.0.1:" + port;
 let server;
 let blockedPostgresPort;
+function fetchTimed(url, options = {}) {
+  return fetch(url, { signal: AbortSignal.timeout(10000), ...options });
+}
 try {
   let serverOutput = "";
   server = spawn(path.join(root, "node.exe"), [path.join(root, "server.js")], {
@@ -33,20 +36,20 @@ try {
   for (let i = 0; i < 120; i++) {
     if (server.exitCode !== null) throw new Error("Le paquet a quitté avant de démarrer : " + serverOutput);
     try {
-      const response = await fetch(base, { signal: AbortSignal.timeout(1000) });
+      const response = await fetchTimed(base, { signal: AbortSignal.timeout(1000) });
       const html = await response.text();
       if (response.ok && html.includes("Scrum Master Notebook")) { ready = true; break; }
     } catch { /* attente */ }
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   assert.equal(ready, true, "Le serveur livré ne répond pas");
-  const welcome = await fetch(base + "/welcome");
+  const welcome = await fetchTimed(base + "/welcome");
   assert.equal(welcome.status, 200);
   assert.match(await welcome.text(), /Installer Scrum Master Notebook/);
-  const status = await fetch(base + "/api/bootstrap");
+  const status = await fetchTimed(base + "/api/bootstrap");
   assert.equal(status.status, 200);
   assert.equal((await status.json()).status, "idle");
-  assert.equal((await fetch(base + "/app", { redirect: "manual" })).status, 307);
+  assert.equal((await fetchTimed(base + "/app", { redirect: "manual" })).status, 307);
 
   if (process.env.SMN_FULL_INSTALL_TEST === "true") {
     const setCookie = status.headers.get("set-cookie") ?? "";
@@ -75,7 +78,7 @@ try {
     }
     const payload = { dbMode: "portable", mode: "scrum", product: "SMN pilote CI", team: "Équipe Windows CI",
       password: "MonMotDePasseTest2026", confirmed: true };
-    const start = await fetch(base + "/api/bootstrap", {
+    const start = await fetchTimed(base + "/api/bootstrap", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Origin": base, "Cookie": "smn-local-setup=" + match[1] },
       body: JSON.stringify(payload),
@@ -86,7 +89,7 @@ try {
       let blocked = false;
       for (let i = 0; i < 40; i++) {
         await new Promise(resolve => setTimeout(resolve, 500));
-        const poll = await (await fetch(base + "/api/bootstrap")).json();
+        const poll = await (await fetchTimed(base + "/api/bootstrap")).json();
         if (poll.status === "failed") {
           assert.equal(poll.error, "managed-cluster-needs-recovery");
           blocked = true;
@@ -95,7 +98,7 @@ try {
       }
       assert.equal(blocked, true, "Le dossier interrompu doit rester intact sans accord explicite");
       assert.equal(await readFile(path.join(initialData, "ancien-essai.txt"), "utf8"), "donnees-preservees");
-      const retry = await fetch(base + "/api/bootstrap", {
+      const retry = await fetchTimed(base + "/api/bootstrap", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Origin": base,
           "Cookie": "smn-local-setup=" + match[1] },
@@ -105,9 +108,12 @@ try {
     }
     let done = false;
     let lastStep = "";
-    for (let i = 0; i < 300; i++) {
+    const deadline = Date.now() + 600000;
+    while (Date.now() < deadline) {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const poll = await (await fetch(base + "/api/bootstrap")).json();
+      let poll;
+      try { poll = await (await fetchTimed(base + "/api/bootstrap")).json(); }
+      catch { throw new Error("Suivi de préparation indisponible ; dernière étape : " + lastStep); }
       const step = `${poll.status}: ${poll.step} (${poll.progress}%)`;
       if (step !== lastStep) { console.log("Préparation Windows : " + step); lastStep = step; }
       if (poll.status === "failed") throw new Error("Installation Windows échouée : " + poll.error);
@@ -127,12 +133,16 @@ try {
       assert.equal(await readFile(path.join(backups, entries[0], "ancien-essai.txt"), "utf8"), "donnees-preservees");
       console.log("PASS : l'ancienne tentative est archivée sans suppression avant la nouvelle installation.");
     }
-    const diag = await (await fetch(base + "/api/diagnostic")).json();
+    const diag = await (await fetchTimed(base + "/api/diagnostic")).json();
     assert.equal(diag.status, "initialized");
-    const privatePage = await fetch(base + "/app", { redirect: "manual" });
+    const privatePage = await fetchTimed(base + "/app", { redirect: "manual" });
     assert.equal(privatePage.status, 307);
-    assert.equal(new URL(privatePage.headers.get("location"), base).pathname, "/login");
-    assert.equal((await fetch(base + "/welcome")).status, 404);
+    const loginUrl = new URL(privatePage.headers.get("location"), base);
+    assert.equal(loginUrl.pathname, "/login");
+    const loginPage = await fetchTimed(loginUrl, { redirect: "manual" });
+    assert.equal(loginPage.status, 200);
+    assert.match(await loginPage.text(), /Se connecter à Scrum Master Notebook/);
+    assert.equal((await fetchTimed(base + "/welcome")).status, 404);
     console.log("PASS : installation Express complète dans une base Windows isolée.");
   } else {
     console.log("PASS : page d'accueil et assistant accessibles sans base implicite.");

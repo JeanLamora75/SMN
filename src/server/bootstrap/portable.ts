@@ -1,5 +1,4 @@
 import { randomBytes } from "node:crypto";
-import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -10,6 +9,7 @@ import { encryptSetting, decryptSetting } from "./settings";
 import { archiveIncompleteCluster } from "./recovery";
 import { classifyPostgresStartupLog } from "./postgres-startup";
 import { canBindLoopback, selectLoopbackPort } from "./managed-port";
+import { runManagedProcess as run } from "./managed-process";
 
 // SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
@@ -22,21 +22,6 @@ function privateRoot(): string {
   return path.join(base, "ScrumMasterNotebook");
 }
 function configPath(): string { return path.join(privateRoot(), "runtime.json"); }
-async function run(exe: string, args: string[], input?: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(exe, args, { windowsHide: true, shell: false, stdio: ["pipe", "pipe", "pipe"] });
-    let out = "", err = "";
-    child.stdout.on("data", (b) => { out += String(b); if (out.length > 15000) child.kill(); });
-    child.stderr.on("data", (b) => { err += String(b); if (err.length > 15000) child.kill(); });
-    child.on("error", reject);
-    child.on("close", code => {
-      // Ne jamais remonter stdout/stderr PG : peuvent contenir des détails privés.
-      if (code === 0) resolve(out.trim());
-      else reject(new Error("managed-process-failed:" + path.basename(exe) + (process.env.GITHUB_ACTIONS === "true" && path.basename(exe).toLowerCase() === "powershell.exe" ? ":" + err.slice(-900) : "")));
-    });
-    child.stdin.end(input);
-  });
-}
 
 async function loadManaged(): Promise<ManagedConfig | null> {
   try {
