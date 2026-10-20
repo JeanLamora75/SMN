@@ -3,7 +3,7 @@ import { promisify } from "node:util";
 import { Client } from "pg";
 import { parseConnectionSettings } from "../db/config";
 import { probePostgres } from "../db/probe";
-import { classifySnapshot } from "./diagnostic";
+import { classifySnapshot, diagnoseInstallation } from "./diagnostic";
 import { INITIAL_MIGRATION, validateExpressInput } from "./contract";
 import { INITIAL_SCHEMA_SQL, PRISMA_HISTORY_SQL } from "./migration";
 
@@ -28,24 +28,31 @@ export async function installExpress(rawBody: unknown, rawUri: string | undefine
   const uri = new URL(settings.uri);
   const dbName = decodeURIComponent(uri.pathname.slice(1));
   const adminHash = await passwordHash(input.password);
-  const maintenance = new URL(uri); maintenance.pathname = "/postgres";
-  const maint = new Client({ connectionString: maintenance.toString(), connectionTimeoutMillis: 3000 });
+  // Une base déjà préparée ne nécessite pas de connexion administrative à
+  // postgres. Le compte existant doit seulement pouvoir créer les tables.
+  const before = await diagnoseInstallation(() => probePostgres(uri.toString()));
+  if (before.status !== "virgin" && before.status !== "database-missing") {
+    return { ok: false, status: before.status };
+  }
   let created = false;
-  try {
-    await maint.connect();
-    const server = await maint.query<{ v: string; cancreate: boolean }>(
-      "SELECT current_setting('server_version_num') AS v, coalesce((SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user),false) AS cancreate",
-    );
-    if (Math.floor(Number(server.rows[0]?.v) / 10000) !== 18) return { ok: false, status: "unsupported-postgres" };
-    const db = await maint.query<{ present: boolean }>("SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname=$1) AS present", [dbName]);
-    if (db.rows[0]?.present !== true) {
+  if (before.status === "database-missing") {
+    const maintenance = new URL(uri); maintenance.pathname = "/postgres";
+    const maint = new Client({ connectionString: maintenance.toString(), connectionTimeoutMillis: 3000 });
+    try {
+      await maint.connect();
+      const server = await maint.query<{ v: string; cancreate: boolean }>(
+        "SELECT current_setting('server_version_num') AS v, coalesce((SELECT rolcreatedb FROM pg_roles WHERE rolname=current_user),false) AS cancreate",
+      );
+      if (Math.floor(Number(server.rows[0]?.v) / 10000) !== 18) return { ok: false, status: "unsupported-postgres" };
+      const db = await maint.query<{ present: boolean }>("SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname=$1) AS present", [dbName]);
+      if (db.rows[0]?.present === true) return { ok: false, status: "database-already-present" };
       if (!server.rows[0]?.cancreate) return { ok: false, status: "createdb-required" };
       await maint.query(`CREATE DATABASE "${dbName}"`);
       created = true;
-    }
-  } catch {
-    return { ok: false, status: "postgres-error" };
-  } finally { await maint.end().catch(() => undefined); }
+    } catch {
+      return { ok: false, status: "postgres-error" };
+    } finally { await maint.end().catch(() => undefined); }
+  }
   let dbClient: Client | undefined;
   let transaction = false;
   try {
@@ -58,9 +65,19 @@ export async function installExpress(rawBody: unknown, rawUri: string | undefine
     await dbClient.query("BEGIN");
     transaction = true;
     await dbClient.query("SELECT pg_advisory_xact_lock(20261020, 12)");
-    const objects = await dbClient.query<{ count: string }>(
-      "SELECT count(*)::text AS count FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','S','f','c')",
-    );
+    const objects = await dbClient.query<{ count: string }>(`
+      SELECT (
+        (SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+          WHERE n.nspname NOT IN ('pg_catalog','information_schema')
+          AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp%'
+          AND c.relkind IN ('r','p','v','m','S','f','c'))
+        + (SELECT count(*) FROM pg_namespace n WHERE n.nspname NOT IN ('public','pg_catalog','information_schema')
+          AND n.nspname NOT LIKE 'pg_%')
+        + (SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public')
+        + (SELECT count(*) FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace
+          WHERE n.nspname='public' AND t.typtype IN ('d','e','r','m'))
+      )::text AS count
+    `);
     if (objects.rows[0]?.count !== "0") return { ok: false, status: "not-empty" };
     await dbClient.query(PRISMA_HISTORY_SQL);
     await dbClient.query(INITIAL_SCHEMA_SQL);
