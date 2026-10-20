@@ -91,9 +91,8 @@
  .smn-private-navigation {grid-template-columns:1fr;gap:5px;}
  .smn-nav-workspace {grid-column:auto;}
  .smn-nav-group {border-bottom:1px solid #e3e9f1;padding-bottom:4px;}
- .smn-private-nav-list {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;}
+ .smn-private-nav-list {display:grid;grid-template-columns:1fr;gap:5px;}
  .smn-private-nav-list .smn-nav-link {height:100%;padding:10px 8px;gap:7px;}
  .smn-private-nav-list .smn-nav-link>span:first-child {width:15px;font-size:.9rem;}
- .smn-nav-soon {display:none;}
- .smn-private-nav-list .smn-nav-disabled::after {content:"·";font-weight:800;opacity:.7;}
+ .smn-nav-soon {display:inline-block;}
 }
