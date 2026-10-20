@@ -18,6 +18,7 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
       SMN_FULL_INSTALL_TEST: "true"
       SMN_RECOVERY_TEST: "true"
+      SMN_PORT_FALLBACK_TEST: "true"
       SMN_PACKAGE_DIR: "_package/SMN-Windows"
     steps:
       - uses: actions/checkout@v4
