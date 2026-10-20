@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
@@ -50,6 +50,15 @@ try {
     const setCookie = status.headers.get("set-cookie") ?? "";
     const match = /smn-local-setup=([a-f0-9]{64})/.exec(setCookie);
     assert.ok(match, "Session d'amorçage manquante");
+    // Simuler une tentative précédente interrompue après création du dossier,
+    // exactement comme le retour de recette SMN-12.
+    const testRecovery = process.env.SMN_RECOVERY_TEST === "true";
+    const initialData = path.join(isolatedHome, "ScrumMasterNotebook", "data");
+    if (testRecovery) {
+      await mkdir(initialData, { recursive: true });
+      await writeFile(path.join(initialData, "PG_VERSION"), "18");
+      await writeFile(path.join(initialData, "ancien-essai.txt"), "donnees-preservees");
+    }
     const payload = { dbMode: "portable", mode: "scrum", product: "SMN pilote CI", team: "Équipe Windows CI",
       password: "MonMotDePasseTest2026", confirmed: true };
     const start = await fetch(base + "/api/bootstrap", {
@@ -59,6 +68,27 @@ try {
     });
     const begun = await start.json();
     assert.equal(start.status, 202, "Amorçage non démarré : " + JSON.stringify(begun));
+    if (testRecovery) {
+      let blocked = false;
+      for (let i = 0; i < 40; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const poll = await (await fetch(base + "/api/bootstrap")).json();
+        if (poll.status === "failed") {
+          assert.equal(poll.error, "managed-cluster-needs-recovery");
+          blocked = true;
+          break;
+        }
+      }
+      assert.equal(blocked, true, "Le dossier interrompu doit rester intact sans accord explicite");
+      assert.equal(await readFile(path.join(initialData, "ancien-essai.txt"), "utf8"), "donnees-preservees");
+      const retry = await fetch(base + "/api/bootstrap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Origin": base,
+          "Cookie": "smn-local-setup=" + match[1] },
+        body: JSON.stringify({ ...payload, recoverPartial: true }),
+      });
+      assert.equal(retry.status, 202, "La reprise confirmée doit être acceptée");
+    }
     let done = false;
     for (let i = 0; i < 300; i++) {
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -67,6 +97,13 @@ try {
       if (poll.status === "complete") { done = true; break; }
     }
     assert.equal(done, true, "La préparation a dépassé dix minutes");
+    if (testRecovery) {
+      const backups = path.join(isolatedHome, "ScrumMasterNotebook", "recovery");
+      const entries = await readdir(backups);
+      assert.equal(entries.length, 1, "Une seule archive est attendue");
+      assert.equal(await readFile(path.join(backups, entries[0], "ancien-essai.txt"), "utf8"), "donnees-preservees");
+      console.log("PASS : l'ancienne tentative est archivée sans suppression avant la nouvelle installation.");
+    }
     const diag = await (await fetch(base + "/api/diagnostic")).json();
     assert.equal(diag.status, "initialized");
     assert.equal((await fetch(base + "/app")).status, 404);
