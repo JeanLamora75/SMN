@@ -72,7 +72,10 @@ export async function installExpress(rawBody: unknown, rawUri: string | undefine
       VALUES($1,$2,now(),$3,1)`, [randomUUID(), createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex"), INITIAL_MIGRATION]);
     await dbClient.query("COMMIT");
     transaction = false;
-    return { ok: true };
+    // Une réussite est annoncée uniquement si le véritable probe reconnaît
+    // la migration et le schéma enregistrés, jamais sur le seul COMMIT.
+    const verified = classifySnapshot(await probePostgres(uri.toString()));
+    return verified.status === "initialized" ? { ok: true } : { ok: false, status: "verification-failed" };
   } catch {
     return { ok: false, status: "installation-failed" };
   } finally {
