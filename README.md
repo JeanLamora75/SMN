@@ -2,6 +2,8 @@
 
 Application destinée aux Scrum Masters, développée selon BMAD 6.12.4. MVP Scrum et Kanban, usage local initial sur Windows 11, avec Next.js 16/React 19, TypeScript, Bootstrap 5.3, PostgreSQL et Prisma 7.
 
+**Pour installer SMN sans configurer PostgreSQL :** [Guide pilote en quelques clics](docs/INSTALLATION-SIMPLE.md). Le paquet autonome Windows est en cours de qualification ; utiliser seulement un artifact du workflow Windows réussi.
+
 ## État du pilote — 20 octobre 2026
 
 **SMN-11 est livré sur `main`.** SMN démarre sur `127.0.0.1:3003` ; les ports 3000 à 3002 restent réservés à l'autre projet.
