@@ -222,6 +222,23 @@ try {
       { currentPassword:"admin",newPassword:"nouveau2026" }, original);
     assert.equal(changed.status, 200);
     const replacement = tokenCookie(changed);
+    // SMN-17 : phrase préparée uniquement par admin avec preuve du secret actuel.
+    assert.equal((await get("/app/security",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
+    const phrase="Sauvegarde de secours CI distincte 2026 !";
+    const prepare={currentPassword:"nouveau2026",recoveryPhrase:phrase};
+    assert.equal((await postAuth("/api/auth/recovery-phrase",prepare,"")).status,401);
+    assert.equal((await postAuth("/api/auth/recovery-phrase",{...prepare,currentPassword:"faux"},replacement)).status,400);
+    assert.equal((await postAuth("/api/auth/recovery-phrase",prepare,replacement,"http://invalid.example")).status,403);
+    assert.equal((await postAuth("/api/auth/recovery-phrase",prepare,replacement)).status,200);
+    const recoveryRow=await withDb(async client=>(await client.query(
+      "SELECT phrase_hash FROM public.smn_recovery_phrase WHERE account_id=(SELECT id FROM public.smn_account WHERE username='admin')"
+    )).rows[0]);
+    assert.match(recoveryRow.phrase_hash,/^scrypt:1:/);
+    assert.equal(recoveryRow.phrase_hash.includes(phrase),false);
+    assert.equal((await withDb(async client=>(await client.query(
+      "SELECT count(*)::int AS count FROM public.smn_auth_audit WHERE action='recovery_prepared'"
+    )).rows[0].count)),1);
+
     assert.notEqual(replacement, original);
     assert.equal((await get("/api/auth/me", { headers:{Cookie:original} })).status, 401);
     const privatePage = await get("/app", { headers:{Cookie:replacement},redirect:"manual" });
@@ -294,6 +311,9 @@ try {
       {currentPassword:"pilot1234",newPassword:"piloteChange2026"},userCookie);
     assert.equal(userChanged.status,200);
     const userReady=tokenCookie(userChanged);
+    assert.equal((await postAuth("/api/auth/recovery-phrase",
+      {currentPassword:"piloteChange2026",recoveryPhrase:"Utilisateur non autorise 2026 !"},userReady)).status,403);
+
     await verifyDashboard(userReady);
     const rejectedPage=await get("/app/admin/users",{headers:{Cookie:userReady},redirect:"manual"});
     assert.equal(rejectedPage.status,307);
@@ -385,11 +405,29 @@ try {
     assert.equal((await postAuth("/api/auth/logout", {}, replacement)).status, 200);
     assert.equal((await get("/api/auth/me", { headers:{Cookie:replacement} })).status, 401);
     assert.equal((await postAuth("/api/auth/login", {identity:"admin",password:"admin"})).status, 401);
-    assert.equal((await postAuth("/api/auth/login", {identity:"admin@localhot.com",password:"nouveau2026"})).status, 200);
+    const secondLogin=await postAuth("/api/auth/login", {identity:"admin@localhot.com",password:"nouveau2026"});
+    assert.equal(secondLogin.status,200);
+    const oldValidCookie=tokenCookie(secondLogin);
+    const renewed=await postAuth("/api/auth/change-password",
+      {currentPassword:"nouveau2026",newPassword:"RenouveleCI2026"},oldValidCookie);
+    assert.equal(renewed.status,200);
+    const newValidCookie=tokenCookie(renewed);
+    assert.notEqual(newValidCookie,oldValidCookie);
+    assert.equal((await get("/api/auth/me",{headers:{Cookie:oldValidCookie}})).status,401);
+    assert.equal((await get("/api/auth/me",{headers:{Cookie:newValidCookie}})).status,200);
+    const recoveryDeleted=await withDb(async client=>(await client.query(
+      "SELECT count(*)::int AS count FROM public.smn_recovery_phrase"
+    )).rows[0].count);
+    assert.equal(recoveryDeleted,0,"La rotation doit invalider la phrase de secours");
+    const audit=await withDb(async client=>(await client.query(
+      "SELECT action,count(*)::int AS count FROM public.smn_auth_audit GROUP BY action"
+    )).rows);
+    assert.ok(audit.some(x=>x.action==="password_changed"&&x.count>=2));
+    console.log("SMN-17 : préparation, contrôle de rôle, rotation et révocation sans divulgation vérifiés.");
     console.log("SMN-14 : auth, rotation, déconnexion, refus CSRF et ACL HTTP PostgreSQL vérifiés.");
   } finally {
     await withDb(async client => {
-      for (const table of ["smn_account","smn_team","smn_product","smn_installation","_prisma_migrations"]) {
+      for (const table of ["smn_auth_audit","smn_recovery_phrase","smn_account","smn_team","smn_product","smn_installation","_prisma_migrations"]) {
         await client.query("DROP TABLE IF EXISTS public." + table + " CASCADE");
       }
     });
