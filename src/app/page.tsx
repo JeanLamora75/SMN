@@ -33,11 +33,16 @@ export default async function HomePage() {
         <p role="status" className="lead">{status}</p>
         <p className="smn-subtitle">
           {canInstall ? (en ? "A dedicated database will be prepared only after you confirm installation." : "Une base de données dédiée à SMN sera préparée uniquement après votre confirmation.") : en
-            ? "No database or account is created when the server starts. Private routes are blocked until secure login is implemented."
-            : "Le démarrage ne crée aucune base ni aucun compte. Les pages privées restent protégées jusqu'à la livraison de l'authentification."}
+            ? "No database or account is created when the server starts. Private routes require a valid session."
+            : "Le démarrage ne crée aucune base ni aucun compte. Les pages privées sont accessibles après connexion et vérification de la session."}
         </p>
         <div className="d-flex flex-wrap gap-2 mt-4">
           <Link className="btn btn-outline-primary" href="/">{en ? "Retry diagnostics" : "Relancer le diagnostic"}</Link>
+          {diagnostic.status === "initialized" && (
+            <Link className="btn btn-primary" href="/login">
+              {en ? "Sign in" : "Se connecter"}
+            </Link>
+          )}
           {firstRun ? (
             <Link className="btn btn-primary" href="/welcome">Installer SMN</Link>
           ) : canVisitSetup(diagnostic) && (
@@ -47,7 +52,7 @@ export default async function HomePage() {
           )}
         </div>
       </section>
-      <p className="small smn-subtitle mt-4">{en ? "I0 / SMN-12 — Express setup" : "I0 / SMN-12 — installation Express"}</p>
+      <p className="small smn-subtitle mt-4">{en ? "I0 / SMN-14 — Authentication" : "I0 / SMN-14 — authentification"}</p>
     </main>
   );
 }
