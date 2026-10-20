@@ -2,7 +2,7 @@
 title: "SMN-14 — Se connecter, se déconnecter et protéger les sessions"
 type: "feature"
 created: "2026-10-20"
-status: "in-progress"
+status: "done"
 route: "pilot-direct-main"
 review_loop_iteration: 0
 baseline_commit: "ceec7bf0f334753815d12980a598b7e2900fa56f"
@@ -29,12 +29,12 @@ context:
 
 ## Tasks & Acceptance
 
-- [ ] `src/server/auth/session.ts` : sessions opaques aléatoires en mémoire du processus serveur ; aucune persistance navigateur, expiration absolue 8 h/inactivité 30 min, révocation et vérification du compte réel en DB.
-- [ ] `src/server/auth/credentials.ts` : login username/email + scrypt existant, réponse uniforme en cas d'échec et limitation de tentatives sans enregistrer les secrets.
-- [ ] `src/app/api/auth/**` : login, logout, changement du mot de passe initial et signal explicite d'activité humaine ; cookies HttpOnly/SameSite/HTTPS ; contrôle d'origine strict pour les mutations.
-- [ ] `src/app/login/**`, `src/app/change-password/**`, `src/app/app/**` : UI de connexion, renouvellement obligatoire avant métier, contenu privé minimal selon rôle et déconnexion.
-- [ ] `tests/**` : limites 8 h/30 min, absence de prolongation via lecture, échec générique, sessions révoquées, CSRF, connexion sur base PostgreSQL temporaire.
-- [ ] `docs/**`, Jira, BMAD : consignes de recette Windows et risques résiduels.
+- [x] `src/server/auth/session.ts` : sessions opaques aléatoires en mémoire du processus serveur ; aucune persistance navigateur, expiration absolue 8 h/inactivité 30 min, révocation et vérification du compte réel en DB.
+- [x] `src/server/auth/credentials.ts` : login username/email + scrypt existant, réponse uniforme en cas d'échec et limitation de tentatives sans enregistrer les secrets.
+- [x] `src/app/api/auth/**` : login, logout, changement du mot de passe initial et signal explicite d'activité humaine ; cookies HttpOnly/SameSite/HTTPS ; contrôle d'origine strict pour les mutations.
+- [x] `src/app/login/**`, `src/app/change-password/**`, `src/app/app/**` : UI de connexion, renouvellement obligatoire avant métier, contenu privé minimal selon rôle et déconnexion.
+- [x] `tests/**` : limites 8 h/30 min, absence de prolongation via lecture, échec générique, sessions révoquées, CSRF, connexion sur base PostgreSQL temporaire.
+- [x] `docs/**`, Jira, BMAD : consignes de recette Windows et risques résiduels.
 
 **Given** compte actif et mot de passe exact, **when** connexion, **then** session serveur contrôlée ; si mot de passe initial, redirection vers changement obligatoire.
 **Given** pas de session ou session révoquée/expirée, **when** accès page/API privé, **then** refus sans données métier.
@@ -52,4 +52,8 @@ context:
 
 ## Verification
 
-CI à renseigner après exécution réelle.
+**CI effectivement réussie sur `main` :** [GitHub Actions — vérification I0, run 39448628187](https://github.com/JeanLamora75/SMN/actions/runs/39448628187). Jobs Linux/PostgreSQL 18 et Windows réussis ; Linux **61 tests, 60 réussis, 0 échoué, 1 ignoré car réservé à Windows**. Le smoke HTTP sur PostgreSQL jetable vérifie login, changement initial, rotation/révocation, déconnexion, refus CSRF et ACL ; les unitaires vérifient la limite 8 h/30 min et le refus des lectures de fond renouvelant la session. Tests réalisés par GitHub Actions, non par ChatGPT sur le PC utilisateur.
+
+**Recette utilisateur :** confirmation en conversation et capture du 20/10/2026 montrant `/app`, « Bienvenue admin », profil Administrateur et bouton « Se déconnecter ». **Cette capture atteste seulement le parcours de connexion jusqu'à l'espace privé, pas une validation utilisateur de la déconnexion ni de l'expiration après 30 min/8 h** (ces cas sont couverts automatiquement). Aucune modification de schéma ni de base utilisateur pendant le développement de SMN-14.
+
+**Limitations pilote :** sessions uniquement en mémoire, invalidées par redémarrage, non partagées entre processus ; minimum de 4 caractères convenu pour pilote local seulement ; pas de revue BMAD indépendante formelle. La livraison multi-instance/web est hors périmètre.
