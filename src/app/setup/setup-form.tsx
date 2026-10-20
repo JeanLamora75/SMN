@@ -4,10 +4,13 @@ import { useState, type FormEvent } from "react";
 
 export default function SetupForm() {
   const [state, setState] = useState({ mode: "scrum", product: "", team: "", password: "", setupToken: "", confirmed: false });
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [result, setResult] = useState("");
   const [busy, setBusy] = useState(false);
   async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault(); setBusy(true); setResult("");
+    e.preventDefault();
+    if (state.password !== passwordConfirmation) { setResult("Les mots de passe ne correspondent pas."); return; }
+    setBusy(true); setResult("");
     try {
       const response = await fetch("/api/setup", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -17,7 +20,10 @@ export default function SetupForm() {
       setResult(message.ok
         ? "Installation réussie. L'accès au tableau de bord sera activé avec SMN-14."
         : "Installation non terminée : " + (message.status ?? "erreur") + ". Aucune session n'a été créée.");
-      if (message.ok) setState((v) => ({ ...v, password: "", setupToken: "" }));
+      if (message.ok) {
+        setState((v) => ({ ...v, password: "", setupToken: "" }));
+        setPasswordConfirmation("");
+      }
     } catch { setResult("Connexion indisponible. Vérifiez les prérequis et réessayez."); }
     finally { setBusy(false); }
   }
@@ -36,6 +42,9 @@ export default function SetupForm() {
     <p className="small text-secondary">Compte administrateur : admin@locahost.com. Aucun mot de passe n’est fourni par défaut.</p>
     <label className="form-label">Mot de passe administrateur initial (14 caractères minimum, lettres et chiffres)
       <input required minLength={14} maxLength={256} type="password" autoComplete="new-password" className="form-control" value={state.password} onChange={(e)=>setState({...state,password:e.target.value})}/>
+    </label>
+    <label className="form-label">Confirmer le mot de passe Administrateur
+      <input required type="password" autoComplete="new-password" className="form-control" value={passwordConfirmation} onChange={(e)=>setPasswordConfirmation(e.target.value)}/>
     </label>
     <label className="form-label">Jeton local d’installation (SMN_SETUP_TOKEN)
       <input required type="password" autoComplete="off" className="form-control" value={state.setupToken} onChange={(e)=>setState({...state,setupToken:e.target.value})}/>
