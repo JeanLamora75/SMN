@@ -25,18 +25,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-      - uses: pnpm/action-setup@v4
-        with:
-          version: "12.10.0"
-          run_install: false
-      - name: Installer sans symlink Windows pour le paquet Next standalone
-        run: |
-          Add-Content -Path pnpm-workspace.yaml -Value "nodeLinker: hoisted"
-          pnpm install --frozen-lockfile
-          if (Test-Path "node_modules/.pnpm") { throw "Installation isolée pnpm détectée : paquet non portable." }
-
+      - name: Installer les dépendances Windows en dossiers physiques
+        # Le build pilote autonome nécessite des fichiers copiables, pas les
+        # jonctions Windows générées par le linker pnpm du poste de CI.
+        run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
       - name: Compiler SMN
-        run: pnpm build
+        run: npm run build
       - name: Construire le paquet Node et PostgreSQL Windows vérifiés
         run: node scripts/windows/package-portable.mjs
       - name: Contrôler le lancement autonome du paquet
