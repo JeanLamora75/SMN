@@ -1,0 +1,95 @@
+import { randomUUID } from "node:crypto";
+import type { Client } from "pg";
+
+export type SettingsValues = Readonly<{
+  locale: "fr" | "en";
+  theme: "light" | "dark";
+  referenceCountry: string | null;
+}>;
+export type GeneralSettings = SettingsValues & Readonly<{
+  revision: number;
+  updatedAt: Date;
+  mode: "scrum" | "kanban";
+  product: string;
+}>;
+export type SettingsResult = {ok:true;settings:GeneralSettings;changed:boolean} |
+  {ok:false;error:"invalid-input"|"conflict"|"configuration-unavailable"};
+
+const keys = ["locale","theme","referenceCountry","revision"];
+export function parseGeneralSettings(input: unknown): (SettingsValues & {revision:number}) | null {
+  if (!input || typeof input!=="object" || Array.isArray(input)) return null;
+  const obj = input as Record<string,unknown>;
+  // An explicit allowlist prevents changing the immutable mode/product through this endpoint.
+  if (Object.keys(obj).length!==keys.length || Object.keys(obj).some(k=>!keys.includes(k))) return null;
+  if ((obj.locale!=="fr" && obj.locale!=="en") ||
+      (obj.theme!=="light" && obj.theme!=="dark") ||
+      !Number.isSafeInteger(obj.revision) || (obj.revision as number)<0 ||
+      !(obj.referenceCountry===null || (typeof obj.referenceCountry==="string" &&
+        /^[A-Z]{2}$/.test(obj.referenceCountry)))) return null;
+  return {
+    locale:obj.locale,theme:obj.theme,referenceCountry:obj.referenceCountry as string|null,
+    revision:obj.revision as number,
+  };
+}
+
+type Row = {locale:string;theme:string;reference_country:string|null;revision:number;
+  updated_at:Date;mode:string;product:string};
+function project(row:Row):GeneralSettings {
+  if ((row.locale!=="fr" && row.locale!=="en") ||
+      (row.theme!=="light" && row.theme!=="dark") ||
+      (row.mode!=="scrum" && row.mode!=="kanban") ||
+      !Number.isSafeInteger(row.revision) ||
+      (row.reference_country!==null && !/^[A-Z]{2}$/.test(row.reference_country)) ||
+      typeof row.product!=="string") throw new Error("settings-corrupt");
+  return {locale:row.locale,theme:row.theme,referenceCountry:row.reference_country,
+    revision:row.revision,updatedAt:row.updated_at,
+    mode:row.mode,product:row.product};
+}
+const select = `SELECT s.locale,s.theme,s.reference_country,s.revision,s.updated_at,i.mode,p.name AS product
+ FROM public.smn_general_settings s
+ JOIN public.smn_installation i ON i.id=s.installation_id
+ JOIN public.smn_product p ON p.installation_id=i.id
+ WHERE s.installation_id='singleton' AND i.state='initialized'`;
+export async function readGeneralSettings(client:Client):Promise<GeneralSettings> {
+  const rows=await client.query<Row>(select);
+  if (rows.rowCount!==1) throw new Error("settings-unavailable");
+  return project(rows.rows[0]);
+}
+export async function updateGeneralSettings(client:Client,actorId:string,raw:unknown):Promise<SettingsResult> {
+  const input=parseGeneralSettings(raw);
+  if (!input || typeof actorId!=="string" || !actorId) return {ok:false,error:"invalid-input"};
+  await client.query("BEGIN");
+  try {
+    // Row lock + optimistic revision prevents lost updates from concurrent tabs.
+    const rows=await client.query<Row>(select+" FOR UPDATE OF s");
+    if (rows.rowCount!==1) {await client.query("ROLLBACK");return {ok:false,error:"configuration-unavailable"};}
+    const previous=project(rows.rows[0]);
+    if (previous.revision!==input.revision) {
+      await client.query("ROLLBACK");return {ok:false,error:"conflict"};
+    }
+    const before={locale:previous.locale,theme:previous.theme,referenceCountry:previous.referenceCountry};
+    const after={locale:input.locale,theme:input.theme,referenceCountry:input.referenceCountry};
+    if (JSON.stringify(before)===JSON.stringify(after)) {
+      await client.query("COMMIT");
+      return {ok:true,settings:previous,changed:false};
+    }
+    const changed=await client.query<{
+      locale:string;theme:string;reference_country:string|null;revision:number;updated_at:Date
+    }>(`UPDATE public.smn_general_settings SET locale=$1,theme=$2,reference_country=$3,
+      revision=revision+1,updated_at=now(),updated_by=$4
+      WHERE installation_id='singleton' AND revision=$5
+      RETURNING locale,theme,reference_country,revision,updated_at`,
+      [input.locale,input.theme,input.referenceCountry,actorId,input.revision]);
+    if (changed.rowCount!==1) throw new Error("settings-update-failed");
+    await client.query(`INSERT INTO public.smn_general_settings_audit
+       (id,installation_id,actor_id,old_values,new_values)
+       VALUES($1,'singleton',$2,$3::jsonb,$4::jsonb)`,
+       [randomUUID(),actorId,JSON.stringify(before),JSON.stringify(after)]);
+    await client.query("COMMIT");
+    const newRow=changed.rows[0];
+    return {ok:true,changed:true,settings:{...previous,...after,revision:newRow.revision,updatedAt:newRow.updated_at}};
+  } catch(error) {
+    await client.query("ROLLBACK").catch(()=>undefined);
+    throw error;
+  }
+}

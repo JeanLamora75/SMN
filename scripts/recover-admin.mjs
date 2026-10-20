@@ -101,7 +101,7 @@ async function recover() {
     await client.query("BEGIN");
     const a=await client.query(`SELECT a.id,a.password_hash FROM public.smn_account a
       JOIN public.smn_installation i ON i.id=a.installation_id
-      WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version=3
+      WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version IN (3,4)
         AND a.role='admin' AND a.is_active=true
         AND (lower(a.username)=lower($1) OR lower(a.email)=lower($1)) FOR UPDATE OF a`,[identity.trim()]);
     if(a.rowCount!==1) throw new Error("Récupération refusée.");

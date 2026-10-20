@@ -87,6 +87,7 @@ export default async function DashboardPage() {
             {canAccess(account,"read",{type:"accounts",exists:true,inScope:true})&&<>
               <div className="smn-nav-eyebrow mt-4">ADMINISTRATION</div>
               <Link className="smn-nav-link" href="/app/admin/users"><span aria-hidden="true">⚙</span>Comptes utilisateurs</Link>
+              <Link className="smn-nav-link" href="/app/admin/settings"><span aria-hidden="true">⚙</span>Paramètres généraux</Link>
             </>}
             <div className="smn-nav-help mt-4">
               <span className="fw-semibold">Une interface qui grandit avec vous</span>
