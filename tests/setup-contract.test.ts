@@ -6,6 +6,8 @@ import { verifyPassword } from "../src/server/auth/password";
 import { classifySnapshot, type Snapshot } from "../src/server/installation/diagnostic";
 import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import { createHash } from "node:crypto";
+import { validateExistingDbInput } from "../src/server/bootstrap/existing";
+import { validateDatabaseChoice } from "../src/server/bootstrap/job";
 const base = { mode: "scrum", product: "Alpha", team: "Bravo", password: "SecretFort2026ABC" };
 describe("SMN-12 — contrat d'installation", () => {
   it("valide Scrum/Kanban et rejette les saisies incomplètes", () => {
@@ -16,6 +18,16 @@ describe("SMN-12 — contrat d'installation", () => {
     assert.equal(validateExpressInput({ ...base, mode: "safe" }), null);
     assert.equal(validateExpressInput({ ...base, team: "" }), null);
     assert.equal(validateExpressInput({ ...base, password: "abc" }), null);
+  });
+  it("valide la connexion PostgreSQL existante et autorise une instance portable sans identifiants", () => {
+    const existing = { dbMode: "existing", postgresUser: "postgres", postgresPassword: "secret", postgresPort: 5432 };
+    assert.equal(validateDatabaseChoice(existing), true);
+    assert.equal(validateDatabaseChoice({ dbMode: "portable" }), true);
+    assert.equal(validateDatabaseChoice({ ...existing, postgresPassword: "" }), false);
+    assert.equal(validateDatabaseChoice({ ...existing, postgresPort: -1 }), false);
+    assert.equal(validateDatabaseChoice({ ...existing, postgresUser: "invalid/user" }), false);
+    assert.equal(validateDatabaseChoice({ dbMode: "foreign" }), false);
+    assert.deepEqual(validateExistingDbInput(existing), { postgresUser: "postgres", postgresPassword: "secret", postgresPort: 5432 });
   });
   it("protège le jeton local et dérive le secret", async () => {
     const token = "A".repeat(40);

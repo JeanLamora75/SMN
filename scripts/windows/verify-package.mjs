@@ -50,7 +50,7 @@ try {
     const setCookie = status.headers.get("set-cookie") ?? "";
     const match = /smn-local-setup=([a-f0-9]{64})/.exec(setCookie);
     assert.ok(match, "Session d'amorçage manquante");
-    const payload = { mode: "scrum", product: "SMN pilote CI", team: "Équipe Windows CI",
+    const payload = { dbMode: "portable", mode: "scrum", product: "SMN pilote CI", team: "Équipe Windows CI",
       password: "MonMotDePasseTest2026", confirmed: true };
     const start = await fetch(base + "/api/bootstrap", {
       method: "POST",
