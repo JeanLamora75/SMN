@@ -7,7 +7,10 @@ const errors: Record<string,string> = {
   "windows-required": "L’installation locale est actuellement disponible sur Windows uniquement.",
   "manual-connection-configured": "SMN utilise déjà une configuration PostgreSQL manuelle.",
   "managed-config-invalid": "La configuration de l’instance SMN existante est invalide. Aucune donnée n’a été supprimée.",
-  "managed-cluster-needs-recovery": "Une ancienne installation partielle existe. Ses données ont été préservées ; une vérification est nécessaire.",
+  "managed-cluster-needs-recovery": "Une précédente tentative a créé un dossier PostgreSQL sans terminer la configuration. Vous pouvez conserver ce dossier puis reprendre l’installation.",
+  "managed-cluster-running": "Le serveur PostgreSQL SMN est encore en cours d’exécution : il ne peut pas être déplacé.",
+  "managed-cluster-running-or-unclean": "Le dossier PostgreSQL semble utilisé ou contient une trace d’arrêt incomplet. Aucune opération n’a été effectuée.",
+  "managed-cluster-unsafe": "Le dossier PostgreSQL n’est pas un dossier ordinaire de SMN : aucune reprise automatique n’est possible.",
   "managed-port-occupied": "Le port PostgreSQL privé de SMN (55432) est occupé.",
   "postgres-archive-invalid": "L’archive PostgreSQL a échoué au contrôle d’intégrité.",
   "postgres-download-unavailable": "Impossible de récupérer les fichiers PostgreSQL.",
@@ -43,8 +46,10 @@ export default function SetupWelcome() {
   const [adminUsername, setAdminUsername] = useState("admin");
   const [password, setPassword] = useState("admin");
   const [confirmed, setConfirmed] = useState(false);
+  const [recoveryApproved, setRecoveryApproved] = useState(false);
   const [status, setStatus] = useState<Status>(init);
   const [message, setMessage] = useState("");
+  const needsRecovery = dbMode === "portable" && status.status === "failed" && status.error === "managed-cluster-needs-recovery";
   useEffect(() => {
     let active = true;
     const refresh = async () => {
@@ -52,7 +57,10 @@ export default function SetupWelcome() {
         const r = await fetch("/api/bootstrap", { cache: "no-store" });
         if (!r.ok) throw new Error();
         const data = (await r.json()) as Status;
-        if (active) setStatus(data);
+        if (active) {
+          setStatus(data);
+          if (data.status === "complete") { setPassword(""); setPostgresPassword(""); }
+        }
       } catch { if (active) setMessage("Impossible de lire l’état de l’installation."); }
     };
     void refresh();
@@ -61,19 +69,24 @@ export default function SetupWelcome() {
   }, []);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (needsRecovery && !recoveryApproved) {
+      setMessage("Confirmez la conservation de l’ancienne tentative avant de reprendre.");
+      return;
+    }
     setMessage("");
     try {
       const r = await fetch("/api/bootstrap", {
         method: "POST", cache: "no-store", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dbMode, postgresUser, postgresPassword, postgresPort: Number(postgresPort),
-          mode, product, team, password, adminEmail, adminUsername, confirmed }),
+          mode, product, team, password, adminEmail, adminUsername, confirmed,
+          recoverPartial: needsRecovery && recoveryApproved }),
       });
       const data = await r.json() as { status: string };
       if (r.status !== 202) {
         setMessage(errors[data.status] ?? "L’installation n’a pas pu démarrer.");
         return;
       }
-      setPostgresPassword(""); setPassword("");
+      setRecoveryApproved(false);
       setStatus({ status: "working", step: "Vérification des informations", progress: 5, error: null });
     } catch { setMessage("Connexion au serveur SMN impossible."); }
   }
@@ -131,7 +144,24 @@ export default function SetupWelcome() {
         <input type="checkbox" className="form-check-input" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/>
         <span className="form-check-label">Je confirme la création de la base et des données SMN.</span>
       </label>
-      <button className="btn btn-primary" type="submit" disabled={!confirmed}>Installer SMN</button>
+      {needsRecovery && (
+        <div className="alert alert-info">
+          <p><strong>Une ancienne tentative d’installation a été détectée.</strong></p>
+          <p>SMN peut déplacer le dossier de données incomplet vers
+            <code> %LOCALAPPDATA%\\ScrumMasterNotebook\\recovery </code>
+            pour le conserver, puis créer une nouvelle instance PostgreSQL. Aucun fichier existant n’est supprimé.
+            Cette opération concerne uniquement l’instance privée de SMN, pas votre PostgreSQL habituel.</p>
+          <label className="form-check">
+            <input type="checkbox" className="form-check-input" checked={recoveryApproved}
+              onChange={e=>setRecoveryApproved(e.target.checked)}/>
+            <span className="form-check-label">J’autorise SMN à mettre de côté son ancienne tentative d’installation et à recommencer.</span>
+          </label>
+        </div>
+      )}
+      <button className="btn btn-primary" type="submit"
+        disabled={!confirmed || (needsRecovery && !recoveryApproved)}>
+        {needsRecovery ? "Conserver l’ancienne tentative et reprendre" : "Installer SMN"}
+      </button>
     </fieldset>
     {(status.status === "working" || status.status === "failed") && <section aria-live="polite">
       <div className="d-flex justify-content-between align-items-center mb-2">
