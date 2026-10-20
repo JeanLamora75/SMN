@@ -13,6 +13,7 @@ export const translations: Record<Language, Record<DiagnosticStatus, string>> = 
   fr: {
     "configuration-missing": "La connexion à la base SMN n'est pas encore configurée.",
     "configuration-invalid": "Le paramétrage SMN doit désigner une base dédiée sur PostgreSQL local.",
+    "configuration-key-missing": "La clé privée de cette installation est introuvable. Ne réinstallez pas : restaurez la clé d’origine ou contactez l’administrateur.",
     "database-missing": "La base SMN n'existe pas encore : elle sera créée par le futur installateur après confirmation.",
     "connection-error": "Connexion PostgreSQL impossible. Vérifiez le service et les paramètres locaux, puis réessayez.",
     "permissions-insufficient": "Le compte PostgreSQL ne possède pas les accès nécessaires pour vérifier cette installation.",
@@ -25,6 +26,7 @@ export const translations: Record<Language, Record<DiagnosticStatus, string>> = 
   en: {
     "configuration-missing": "The SMN database connection has not been configured.",
     "configuration-invalid": "SMN must target a dedicated local PostgreSQL database.",
+    "configuration-key-missing": "This installation’s private key is missing. Do not reinstall: restore the original key or contact the administrator.",
     "database-missing": "The SMN database does not exist yet. The upcoming installer will request confirmation before creating it.",
     "connection-error": "Could not connect to PostgreSQL. Check the local service and settings, then retry.",
     "permissions-insufficient": "The PostgreSQL account lacks the permissions required to inspect this installation.",
