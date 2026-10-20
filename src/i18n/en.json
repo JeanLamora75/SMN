@@ -435,7 +435,8 @@
       "reporting": "Reports",
       "briefs": "AI briefs",
       "users": "User accounts",
-      "settings": "General settings"
+      "settings": "General settings",
+      "cyclesUnknown": "Cycles (mode unavailable)"
     }
   }
 }

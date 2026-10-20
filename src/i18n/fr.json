@@ -435,7 +435,8 @@
       "reporting": "Rapports",
       "briefs": "Briefs IA",
       "users": "Comptes utilisateurs",
-      "settings": "Paramètres généraux"
+      "settings": "Paramètres généraux",
+      "cyclesUnknown": "Cycles (mode indisponible)"
     }
   }
 }

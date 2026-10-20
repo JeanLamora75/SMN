@@ -36,14 +36,13 @@ export default async function DashboardPage() {
   try {
     dashboard = await withAuthDb(readCollectiveDashboard);
   } catch {
-    return <main className="container py-5">
+    return <div className="container py-5">
       <section className="smn-panel p-4" role="alert">
         <h1 className="h4">{t("dashboard.unavailableTitle")}</h1>
         <p>{t("dashboard.unavailableDescription")}</p>
         <Link className="btn btn-outline-primary" href="/app">{t("dashboard.retry")}</Link>
-        <div className="mt-3"><LogoutControl/></div>
       </section>
-    </main>;
+    </div>;
   }
 
   const canManageConfiguration=canAccess(account,"read",{type:"settings",exists:true,inScope:true});

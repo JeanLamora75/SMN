@@ -44,7 +44,7 @@ export default async function PrivateLayout({children}:{children:ReactNode}) {
     </header>
     <div className="container-fluid smn-dashboard-width">
       <div className="row g-4 smn-dashboard-columns">
-        <PrivateNavigation mode={context?.mode??"scrum"} role={role}
+        <PrivateNavigation mode={context?.mode??null} role={role}
           product={context?.product??null} team={context?.team??null}/>
         <main id="smn-main" className="col-12 col-lg-9 col-xl-10 pb-5">
           {children}

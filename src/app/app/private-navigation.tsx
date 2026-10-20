@@ -5,7 +5,7 @@ import {useTranslation} from "@/i18n/client";
 import {privateNavigation,activePrivateEntry,type PrivateMode,type PrivateRole} from "@/lib/private-navigation";
 
 export default function PrivateNavigation({mode,role,product,team}:{
-  mode:PrivateMode;role:PrivateRole;product:string|null;team:string|null;
+  mode:PrivateMode|null;role:PrivateRole;product:string|null;team:string|null;
 }) {
   const pathname=usePathname();
   const t=useTranslation();
@@ -16,7 +16,7 @@ export default function PrivateNavigation({mode,role,product,team}:{
         <div className="smn-nav-eyebrow">{t("navigation.context")}</div>
         <strong className="smn-nav-product">{product??t("navigation.contextUnavailable")}</strong>
         {team&&<div className="smn-nav-team">{team}</div>}
-        <span className="smn-nav-mode">{t(mode==="scrum"?"navigation.modes.scrum":"navigation.modes.kanban")}</span>
+        <span className="smn-nav-mode">{t(mode==="scrum"?"navigation.modes.scrum":mode==="kanban"?"navigation.modes.kanban":"navigation.contextUnavailable")}</span>
       </div>
       {groups.map(group=><section key={group.id} className="smn-nav-group" aria-label={t(group.label)}>
         <h2 className="smn-nav-eyebrow">{t(group.label)}</h2>

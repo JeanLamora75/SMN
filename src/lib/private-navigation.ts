@@ -15,8 +15,8 @@ export type NavigationGroup = Readonly<{
 }>;
 
 /** Navigation explicite : aucune route de fonctionnalité future n'est cliquable. */
-export function privateNavigation(mode: PrivateMode, role: PrivateRole): readonly NavigationGroup[] {
-  if (mode !== "scrum" && mode !== "kanban") throw new Error("navigation-mode-unsupported");
+export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): readonly NavigationGroup[] {
+  if (mode !== null && mode !== "scrum" && mode !== "kanban") throw new Error("navigation-mode-unsupported");
   if (role !== "admin" && role !== "user") throw new Error("navigation-role-unsupported");
   const groups: NavigationGroup[] = [
     {id:"pilotage",label:"navigation.groups.pilotage",entries:[
@@ -27,7 +27,7 @@ export function privateNavigation(mode: PrivateMode, role: PrivateRole): readonl
       {id:"events",label:"navigation.entries.events",href:null,icon:"◫"},
     ]},
     {id:"cycles",label:"navigation.groups.cycles",entries:[
-      {id:"cycles",label:mode==="scrum"?"navigation.entries.sprints":"navigation.entries.kanbanPeriods",href:null,icon:"◷"},
+      {id:"cycles",label:mode==="scrum"?"navigation.entries.sprints":mode==="kanban"?"navigation.entries.kanbanPeriods":"navigation.entries.cyclesUnknown",href:null,icon:"◷"},
       {id:"reviews",label:"navigation.entries.reviews",href:null,icon:"▤"},
     ]},
     {id:"registers",label:"navigation.groups.registers",entries:[
