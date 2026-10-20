@@ -10,7 +10,7 @@
 2. Des migrations versionnées dans GitHub, générées sur une base de développement séparée puis appliquées dans l'ordre. La base temporaire Prisma, si utilisée, est strictement distincte de la base métier.
 3. Lorsqu'une mise à jour nécessite une migration, afficher son impact et obtenir la confirmation avant application. Une sauvegarde préalable est requise lorsque la migration touche des données existantes.
 4. En cas de schéma incompatible ou d'échec de migration, ne pas ouvrir l'application métier ; afficher un diagnostic et une procédure de reprise. Ne pas promettre un retour arrière automatique pour toute migration.
-5. Le runtime dispose de droits PostgreSQL limités ; les droits supplémentaires nécessaires aux migrations restent séparés et ne sont pas présumés disponibles. La base doit être précréée si le compte disponible ne peut pas la créer.
+5. Le runtime dispose de droits PostgreSQL limités ; les droits supplémentaires nécessaires aux migrations restent séparés et ne sont pas présumés disponibles. Le script d'installation prend en charge la création de la base après accord lorsque les droits le permettent. Si le compte disponible ne peut pas la créer, proposer une reprise avec un compte autorisé ou une base dédiée précréée par une personne habilitée ; ne pas imposer la création manuelle dans le parcours normal (clarification du 20/10/2026).
 6. Identifiants PostgreSQL et secrets applicatifs conservés dans un dossier privé de l'installation, hors GitHub et des fichiers publics ; aucun secret dans les journaux.
 7. Prévoir une copie de récupération protégée des clés servant au chiffrement des données individuelles : une restauration de base seule ne suffit pas si les clés sont perdues.
 
@@ -50,3 +50,8 @@ Ces obligations s'appliquent aux capacités concernées au moment de leur livrai
 ## Complément validé — récupération des clés
 
 [ADR-I0-003](ADR-I0-003-RECUPERATION-CLES.md) fixe le parcours : copie de la clé protégée par une phrase distincte choisie à la première sauvegarde complète, demandée pour restauration sur un autre PC ; clé locale utilisable au quotidien sans ressaisie de cette phrase. Format et mécanismes restent à qualifier ; aucun essai exécuté.
+
+
+## Clarification du 20 octobre — installation
+
+L'utilisateur confirme qu'aucune base SMN n'existe et attend sa création par le script d'installation. Le [dossier de préparation](../../preparation-premier-travail-i0.md) précise les cas base absente/existante, droits insuffisants et reprise. Aucun droit supplémentaire n'est présumé ; cette clarification n'atteste aucune implémentation.

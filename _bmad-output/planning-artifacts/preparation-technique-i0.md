@@ -131,3 +131,8 @@ C3 et le verdict CONCERNS restent ouverts : cette déclaration ne démontre ni c
 ### Confirmation serveur — 20/10/2026 à 08:39 (Europe/Paris)
 
 Eric rapporte que `SHOW server_version;` renvoie **18.6**. Le numéro serveur est donc confirmé par résultat de commande rapporté par l'utilisateur sur l'instance interrogée, au-delà de la simple déclaration d'installation. L'assistant n'a pas exécuté cette requête et n'a pas de connexion au poste. Cette preuve ne démontre pas les droits du futur compte SMN, une base dédiée, la compatibilité des dépendances ou les migrations. Aucune vérification de publication officielle ni recherche web n'est réalisée. CONCERNS maintenu pour les autres réserves.
+
+
+## Installation — clarification du 20 octobre 2026
+
+Aucune base SMN n'a été créée. Le parcours normal attendu est sa création par le script d'installation après accord et vérification des droits, avec reprise explicite si les privilèges manquent. Voir le [dossier de préparation du premier travail](preparation-premier-travail-i0.md) et ADR-I0-002 actualisé. Aucun changement de base ou de ticket Jira ; construction non autorisée à ce stade.
