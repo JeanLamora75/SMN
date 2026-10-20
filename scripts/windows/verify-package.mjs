@@ -14,6 +14,10 @@ const root = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd()
 for (const file of ["node.exe", "server.js", "Demarrer SMN.cmd", "launch-portable.mjs", "recover-admin.mjs", "Recuperer admin SMN.cmd"]) {
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
+for (const forbidden of [".env",".settings-key","postgres-connection.json","runtime.json","postgres.log"]) {
+  assert.equal(existsSync(path.join(root,forbidden)),false,
+    "Un fichier de configuration sensible a été inclus dans le paquet : "+forbidden);
+}
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const recoveryProbe=spawnSync(path.join(root,"node.exe"),[path.join(root,"recover-admin.mjs")],{
   cwd:root,windowsHide:true,encoding:"utf8",stdio:["pipe","pipe","pipe"],
