@@ -27,3 +27,15 @@ export function translate(locale:Language,key:TranslationKey,
   return source.replace(/\{([a-zA-Z][a-zA-Z0-9_]*)\}/g,
     (_match,name:string)=>Object.prototype.hasOwnProperty.call(params,name)?String(params[name]):"");
 }
+
+/** Backend setup exposes safe but French-language step labels for compatibility. */
+export function translateBootstrapStep(locale:Language,step:string):string{
+  const record=Object.entries(fr.welcome.steps).find(([,value])=>value===step);
+  if(!record)return translate(locale,"welcome.unknownStep");
+  return translate(locale,`welcome.steps.${record[0]}` as TranslationKey);
+}
+export function translateBootstrapError(locale:Language,error:string|null|undefined):string{
+  if(!error || !Object.prototype.hasOwnProperty.call(fr.welcome.errors,error))
+    return translate(locale,"welcome.interrupted");
+  return translate(locale,`welcome.errors.${error}` as TranslationKey);
+}

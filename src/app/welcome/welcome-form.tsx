@@ -1,50 +1,14 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import {useLocale,useTranslation} from "@/i18n/client";
+import {translateBootstrapStep,translateBootstrapError} from "@/i18n/catalog";
 type Status = { status: "idle" | "working" | "complete" | "failed"; step: string; progress: number; error: string | null };
 const init: Status = { status: "idle", step: "", progress: 0, error: null };
-const errors: Record<string,string> = {
-  "windows-required": "L’installation locale est actuellement disponible sur Windows uniquement.",
-  "manual-connection-configured": "SMN utilise déjà une configuration PostgreSQL manuelle.",
-  "managed-config-invalid": "La configuration de l’instance SMN existante est invalide. Aucune donnée n’a été supprimée.",
-  "managed-cluster-needs-recovery": "Une précédente tentative a créé un dossier PostgreSQL sans terminer la configuration. Vous pouvez conserver ce dossier puis reprendre l’installation.",
-  "managed-cluster-running": "Le serveur PostgreSQL SMN est encore en cours d’exécution : il ne peut pas être déplacé.",
-  "managed-cluster-running-or-unclean": "Le dossier PostgreSQL semble utilisé ou contient une trace d’arrêt incomplet. Aucune opération n’a été effectuée.",
-  "managed-cluster-unsafe": "Le dossier PostgreSQL n’est pas un dossier ordinaire de SMN : aucune reprise automatique n’est possible.",
-  "managed-port-occupied": "Le port PostgreSQL privé de SMN (55432) est occupé.",
-  "managed-pg-bind-denied": "Windows refuse à PostgreSQL d’ouvrir le port TCP local, même après plusieurs essais. Vérifiez les restrictions réseau du poste. Les données sont conservées.",
-  "managed-pg-no-bindable-port": "Aucun port TCP local autorisé n’a été trouvé pour PostgreSQL. Vérifiez les restrictions du poste Windows.",
-  "managed-pg-port-in-use": "PostgreSQL ne peut pas ouvrir le port demandé. SMN a tenté un autre port sans toucher aux autres applications.",
-  "managed-pg-permission-denied": "Windows refuse à PostgreSQL l’accès à un fichier ou un répertoire. Vérifiez les autorisations du profil Windows ; aucun fichier n’a été supprimé.",
-  "managed-pg-shared-memory": "PostgreSQL n’a pas pu réserver la mémoire partagée nécessaire au démarrage. Consultez son journal local.",
-  "managed-pg-locked": "Le dossier PostgreSQL semble déjà utilisé ou verrouillé par une autre instance. Aucune récupération n’a été lancée.",
-  "managed-pg-runtime-incomplete": "Un composant Windows nécessaire à PostgreSQL manque ou n’a pas pu être chargé.",
-  "managed-pg-config-invalid": "PostgreSQL a détecté une erreur dans sa configuration de démarrage. Ses données restent inchangées.",
-  "managed-pg-data-incompatible": "PostgreSQL ne reconnaît pas les données de ce dossier. SMN les conserve sans les modifier.",
-  "managed-pg-start-failed": "PostgreSQL n’a pas pu démarrer. La raison détaillée est disponible dans le journal local postgres.log.",
-  "postgres-archive-invalid": "L’archive PostgreSQL a échoué au contrôle d’intégrité.",
-  "postgres-download-unavailable": "Impossible de récupérer les fichiers PostgreSQL.",
-  "postgres-runtime-invalid": "Les fichiers PostgreSQL portables ne sont pas valides.",
-  "postgres-auth-invalid": "Identifiant ou mot de passe PostgreSQL incorrect.",
-  "postgres-unreachable": "Le serveur PostgreSQL local ne répond pas sur le port indiqué. Vérifiez qu’il est démarré.",
-  "postgres-connection-failed": "Connexion PostgreSQL impossible. Vérifiez le port et les informations de connexion.",
-  "postgres-permission-denied": "Le compte PostgreSQL n’a pas les droits nécessaires.",
-  "postgres-credentials-invalid": "Renseignez un utilisateur, un mot de passe et un port PostgreSQL valides.",
-  "createdb-required": "Le compte PostgreSQL doit posséder l’autorisation de créer la base SMN.",
-  "permissions-insufficient": "Droits PostgreSQL insuffisants pour créer les tables SMN.",
-  "server-version-unsupported": "PostgreSQL 18 est requis.",
-  "unsupported-postgres": "PostgreSQL 18 est requis.",
-  "database-already-present": "La base SMN existe déjà : relancez le diagnostic avant toute modification.",
-  "schema-incompatible": "La base cible contient un schéma inconnu. Aucune modification n’a été effectuée.",
-  "installation-incomplete": "Une installation partielle a été détectée. SMN ne la réinitialise pas automatiquement.",
-  "not-empty": "La base contient déjà des objets. SMN refuse de les modifier.",
-  "verification-failed": "La base a été écrite, mais la vérification finale a échoué. N’essayez pas de réinitialiser.",
-  "installation-failed": "Impossible d’achever la création des tables ou du compte administrateur.",
-  "configuration-key-invalid": "La clé locale de configuration n’est pas valide.",
-  "already-running": "Une installation est déjà en cours.",
-  "invalid-input": "Vérifiez les champs du formulaire.",
-};
+
 export default function SetupWelcome() {
+  const t=useTranslation();
+  const locale=useLocale();
   const [dbMode, setDbMode] = useState<"existing"|"portable">("existing");
   const [postgresUser, setPostgresUser] = useState("postgres");
   const [postgresPassword, setPostgresPassword] = useState("");
@@ -71,16 +35,16 @@ export default function SetupWelcome() {
           setStatus(data);
           if (data.status === "complete") { setPassword(""); setPostgresPassword(""); }
         }
-      } catch { if (active) setMessage("Impossible de lire l’état de l’installation."); }
+      } catch { if (active) setMessage(t("welcome.readFailed")); }
     };
     void refresh();
     const handle = setInterval(() => { void refresh(); }, 1200);
     return () => { active = false; clearInterval(handle); };
-  }, []);
+  }, [t]);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (needsRecovery && !recoveryApproved) {
-      setMessage("Confirmez la conservation de l’ancienne tentative avant de reprendre.");
+      setMessage(t("welcome.confirmRecovery"));
       return;
     }
     setMessage("");
@@ -93,99 +57,98 @@ export default function SetupWelcome() {
       });
       const data = await r.json() as { status: string };
       if (r.status !== 202) {
-        setMessage(errors[data.status] ?? "L’installation n’a pas pu démarrer.");
+        setMessage(translateBootstrapError(locale,data.status));
         return;
       }
       setRecoveryApproved(false);
-      setStatus({ status: "working", step: "Vérification des informations", progress: 5, error: null });
-    } catch { setMessage("Connexion au serveur SMN impossible."); }
+      setStatus({ status: "working", step: "", progress: 5, error: null });
+    } catch { setMessage(t("welcome.network")); }
   }
   if (status.status === "complete") return <div role="status" className="alert alert-success">
-    <h2 className="h5">Installation terminée</h2>
-    <p>La base SMN, le produit, l’équipe et le compte administrateur ont été créés. L’accès au tableau de bord sera disponible avec SMN-14.</p>
-    <Link href="/" className="btn btn-outline-primary">Retour à l’accueil</Link>
+    <h2 className="h5">{t("welcome.complete")}</h2>
+    <p>{t("welcome.completeInfo")}</p>
+    <Link href="/" className="btn btn-outline-primary">{t("welcome.back")}</Link>
   </div>;
   return <form onSubmit={submit} className="d-grid gap-3">
     <fieldset disabled={status.status === "working"} className="d-grid gap-3">
-      <h2 className="h5">Connexion PostgreSQL</h2>
-      <label className="form-label">Type d’installation
+      <h2 className="h5">{t("welcome.dbConnection")}</h2>
+      <label className="form-label">{t("welcome.installationType")}
         <select className="form-select" value={dbMode} onChange={e=>setDbMode(e.target.value as "existing"|"portable")}>
-          <option value="existing">Utiliser PostgreSQL déjà installé</option>
-          <option value="portable">Installer un PostgreSQL dédié à SMN</option>
+          <option value="existing">{t("welcome.existing")}</option>
+          <option value="portable">{t("welcome.portable")}</option>
         </select>
       </label>
       {dbMode === "existing" && <>
-        <label className="form-label">Nom d’utilisateur PostgreSQL
+        <label className="form-label">{t("welcome.postgresUser")}
           <input required className="form-control" autoComplete="username" value={postgresUser} onChange={e=>setPostgresUser(e.target.value)}/>
         </label>
-        <label className="form-label">Mot de passe PostgreSQL
+        <label className="form-label">{t("welcome.postgresPassword")}
           <input required type="password" className="form-control" autoComplete="current-password" value={postgresPassword} onChange={e=>setPostgresPassword(e.target.value)}/>
         </label>
-        <label className="form-label">Port PostgreSQL
+        <label className="form-label">{t("welcome.postgresPort")}
           <input required type="number" min={1} max={65535} className="form-control" value={postgresPort} onChange={e=>setPostgresPort(e.target.value)}/>
         </label>
-        <p className="small text-secondary">SMN créera uniquement sa base « smn » sur ce serveur. La configuration sera conservée localement dans votre profil Windows, avec le mot de passe chiffré.</p>
+        <p className="small text-secondary">{t("welcome.dbExistingInfo")}</p>
       </>}
-      {dbMode === "portable" && <p className="small text-secondary">SMN créera une instance PostgreSQL privée, avec un mot de passe technique généré automatiquement.</p>}
-      <h2 className="h5">Votre espace de travail</h2>
-      <label className="form-label">Mode
+      {dbMode === "portable" && <p className="small text-secondary">{t("welcome.dbPortableInfo")}</p>}
+      <h2 className="h5">{t("welcome.workspace")}</h2>
+      <label className="form-label">{t("welcome.mode")}
         <select className="form-select" value={mode} onChange={e=>setMode(e.target.value)}>
           <option value="scrum">Scrum</option><option value="kanban">Kanban</option>
         </select>
       </label>
-      <label className="form-label">Produit
+      <label className="form-label">{t("welcome.product")}
         <input required maxLength={120} className="form-control" value={product} onChange={e=>setProduct(e.target.value)}/>
       </label>
-      <label className="form-label">Équipe
+      <label className="form-label">{t("welcome.team")}
         <input required maxLength={120} className="form-control" value={team} onChange={e=>setTeam(e.target.value)}/>
       </label>
-      <h2 className="h5">Compte administrateur</h2>
-      <label className="form-label">Adresse e-mail
+      <h2 className="h5">{t("welcome.admin")}</h2>
+      <label className="form-label">{t("welcome.email")}
         <input required type="email" className="form-control" value={adminEmail} onChange={e=>setAdminEmail(e.target.value)}/>
       </label>
-      <label className="form-label">Nom d’utilisateur
+      <label className="form-label">{t("welcome.username")}
         <input required minLength={2} maxLength={50} className="form-control" value={adminUsername} onChange={e=>setAdminUsername(e.target.value)}/>
       </label>
-      <label className="form-label">Mot de passe
+      <label className="form-label">{t("welcome.password")}
         <input required minLength={4} maxLength={256} type="password" autoComplete="new-password" className="form-control" value={password} onChange={e=>setPassword(e.target.value)}/>
       </label>
-      {password === "admin" && <p className="small text-warning">Le mot de passe par défaut « admin » convient uniquement au pilote local. Pensez à le modifier avant toute utilisation réelle.</p>}
+      {password === "admin" && <p className="small text-warning">{t("welcome.pilotWarning")}</p>}
       <label className="form-check">
         <input type="checkbox" className="form-check-input" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/>
-        <span className="form-check-label">Je confirme la création de la base et des données SMN.</span>
+        <span className="form-check-label">{t("welcome.confirmation")}</span>
       </label>
       {needsRecovery && (
         <div className="alert alert-info">
-          <p><strong>Une ancienne tentative d’installation a été détectée.</strong></p>
-          <p>SMN peut déplacer le dossier de données incomplet vers
+          <p><strong>{t("welcome.recoveryTitle")}</strong></p>
+          <p>{t("welcome.recoveryBefore")}
             <code> %LOCALAPPDATA%\\ScrumMasterNotebook\\recovery </code>
-            pour le conserver, puis créer une nouvelle instance PostgreSQL. Aucun fichier existant n’est supprimé.
-            Cette opération concerne uniquement l’instance privée de SMN, pas votre PostgreSQL habituel.</p>
+            {t("welcome.recoveryAfter")}</p>
           <label className="form-check">
             <input type="checkbox" className="form-check-input" checked={recoveryApproved}
               onChange={e=>setRecoveryApproved(e.target.checked)}/>
-            <span className="form-check-label">J’autorise SMN à mettre de côté son ancienne tentative d’installation et à recommencer.</span>
+            <span className="form-check-label">{t("welcome.recoveryAccept")}</span>
           </label>
         </div>
       )}
       <button className="btn btn-primary" type="submit"
         disabled={!confirmed || (needsRecovery && !recoveryApproved)}>
-        {needsRecovery ? "Conserver l’ancienne tentative et reprendre" : "Installer SMN"}
+        {t(needsRecovery?"welcome.resume":"welcome.install")}
       </button>
     </fieldset>
     {(status.status === "working" || status.status === "failed") && <section aria-live="polite">
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <strong>Progression de l’installation</strong><span>{status.progress}%</span>
+        <strong>{t("welcome.progress")}</strong><span>{status.progress}%</span>
       </div>
-      <div className="progress" role="progressbar" aria-label="Installation SMN" aria-valuemin={0} aria-valuemax={100} aria-valuenow={status.progress}>
+      <div className="progress" role="progressbar" aria-label={t("welcome.progressAria")} aria-valuemin={0} aria-valuemax={100} aria-valuenow={status.progress}>
         <div className="progress-bar progress-bar-striped progress-bar-animated" style={{ width: status.progress + "%" }}/>
       </div>
-      <p className="mt-2">{status.step}</p>
+      <p className="mt-2">{translateBootstrapStep(locale,status.step)}</p>
     </section>}
     {status.status === "failed" && <div role="alert" className="alert alert-warning">
-      <p className="mb-1">{errors[status.error ?? ""] ?? "L’installation a été interrompue. Aucun dossier de données n’a été supprimé."}</p>
+      <p className="mb-1">{translateBootstrapError(locale,status.error)}</p>
       {status.error?.startsWith("managed-pg-") && <p className="small mb-0">
-        Pour identifier la cause précise, consultez les dernières lignes de
+        {t("welcome.logBefore")}
         <code> %LOCALAPPDATA%\\ScrumMasterNotebook\\postgres.log </code>.
         Ne partagez pas d’identifiants, de mots de passe ou de chemins personnels.
       </p>}
