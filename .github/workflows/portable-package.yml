@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 22
     env:
       NEXT_TELEMETRY_DISABLED: "1"
+      SMN_FULL_INSTALL_TEST: "true"
       SMN_PACKAGE_DIR: "_package/SMN-Windows"
     steps:
       - uses: actions/checkout@v4
