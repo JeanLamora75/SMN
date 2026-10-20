@@ -12,11 +12,16 @@ export function appDataDirectory(): string {
 function isMissing(error: unknown): boolean {
   return !!error && typeof error === "object" && "code" in error && error.code === "ENOENT";
 }
-async function safePrivateDirectory(): Promise<string> {
+async function safePrivateDirectory(create=false): Promise<string|null> {
   const dir=appDataDirectory();
-  // A new folder inherits the per-user access policy of the Windows profile.
-  await mkdir(dir,{recursive:true,mode:0o700});
-  const details=await lstat(dir);
+  // Read-only diagnostics must not create a profile folder as a side effect.
+  if(create) await mkdir(dir,{recursive:true,mode:0o700});
+  let details;
+  try { details=await lstat(dir); }
+  catch(error) {
+    if(!create && isMissing(error)) return null;
+    throw new Error("private-directory-unavailable");
+  }
   if(!details.isDirectory() || details.isSymbolicLink()) throw new Error("private-directory-invalid");
   return dir;
 }
@@ -24,6 +29,7 @@ async function safePrivateDirectory(): Promise<string> {
 /** Reject symlinks, directories and oversized files before inspecting any private file. */
 export async function readPrivateFile(name: "postgres-connection.json" | "runtime.json" | ".settings-key"): Promise<Buffer|null> {
   const dir=await safePrivateDirectory();
+  if(!dir) return null;
   const filename=path.join(dir,name);
   let info;
   try { info=await lstat(filename); } catch(e) { if(isMissing(e))return null;throw new Error("private-file-unavailable"); }
@@ -42,7 +48,8 @@ async function privateKey(createIfAbsent=false): Promise<Buffer> {
   // This remains true for password changes in existing and managed installations.
   if(!createIfAbsent || await readPrivateFile("postgres-connection.json") ||
     await readPrivateFile("runtime.json")) throw new Error("configuration-key-missing");
-  const dir=await safePrivateDirectory();
+  const dir=await safePrivateDirectory(true);
+  if(!dir) throw new Error("private-directory-unavailable");
   const filename=path.join(dir,".settings-key");
   try {
     await writeFile(filename,randomBytes(32),{flag:"wx",mode:0o600});
@@ -89,7 +96,8 @@ export async function saveExistingConfig(user:string,password:string,port:number
   existingUri(user,password,port);
   const config:DatabaseConfig={version:1,kind:"existing",user,port,
     passwordEncrypted:await encryptSetting(password)};
-  const dir=await safePrivateDirectory();
+  const dir=await safePrivateDirectory(true);
+  if(!dir) throw new Error("private-directory-unavailable");
   const filename=path.join(dir,"postgres-connection.json");
   // Atomic replace only after encryption succeeds; no predictable .new secret file.
   const tmp=filename+"."+randomBytes(8).toString("hex")+".tmp";
