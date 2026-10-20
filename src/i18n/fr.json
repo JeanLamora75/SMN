@@ -42,7 +42,8 @@
       "virgin": "Base SMN vierge détectée. Vous pouvez consulter la préparation de l'installation.",
       "initialized": "Installation SMN existante : une authentification sera nécessaire pour accéder aux données.",
       "schema-incompatible": "Le schéma de la base n'est pas reconnu ; aucune modification ne sera appliquée automatiquement.",
-      "installation-incomplete": "L'installation paraît partielle. Aucun accès métier n'est autorisé."
+      "installation-incomplete": "L'installation paraît partielle. Aucun accès métier n'est autorisé.",
+      "configuration-key-missing": "La clé privée de cette installation est introuvable. Ne réinstallez pas : restaurez la clé d’origine ou contactez l’administrateur."
     }
   },
   "notFound": {

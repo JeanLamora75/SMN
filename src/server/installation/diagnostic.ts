@@ -5,7 +5,7 @@ import { ACCOUNTS_MIGRATION, ACCOUNTS_MIGRATION_SQL } from "../accounts/migratio
 import { RECOVERY_MIGRATION, RECOVERY_MIGRATION_SQL } from "../accounts/recovery-migration";
 import { SETTINGS_MIGRATION, SETTINGS_MIGRATION_SQL } from "../settings/migration";
 import { CONFIGURATION_MIGRATION, CONFIGURATION_MIGRATION_SQL } from "../configuration/migration";
-export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
+export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "configuration-key-missing" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
 export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean }>;

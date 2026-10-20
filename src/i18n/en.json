@@ -42,7 +42,8 @@
       "virgin": "An empty SMN database was detected. You can review the installation preparation.",
       "initialized": "An existing SMN installation was found. Authentication will be required to access data.",
       "schema-incompatible": "The database schema is not recognized. No automatic changes will be applied.",
-      "installation-incomplete": "The installation appears incomplete. Private data access remains blocked."
+      "installation-incomplete": "The installation appears incomplete. Private data access remains blocked.",
+      "configuration-key-missing": "This installation’s private key is missing. Do not reinstall: restore the original key or contact the administrator."
     }
   },
   "notFound": {

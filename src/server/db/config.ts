@@ -14,7 +14,7 @@ export function parseConnectionSettings(raw: string | undefined): ConnectionSett
       !["postgresql:", "postgres:"].includes(parsed.protocol) ||
       !localHosts.has(parsed.hostname) ||
       !/^smn(?:_[a-zA-Z0-9_]+)?$/.test(database) ||
-      !parsed.username ||
+      !parsed.username || !parsed.password ||
       !!parsed.hash ||
       !!parsed.search ||
       !/^\d{0,5}$/.test(parsed.port)
