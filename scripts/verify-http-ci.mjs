@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import net from "node:net";
+import { request as httpRequest } from "node:http";
 import { Client } from "pg";
 import { randomBytes, randomUUID, scryptSync, createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -52,6 +53,19 @@ async function waitHttp(port, child) {
 }
 async function get(path, options = {}) {
   return fetch(base + path, { cache: "no-store", ...options });
+}
+function rawStatus(path, headers) {
+  // Fetch remplace Host ; la sonde doit transmettre le vrai Host falsifié.
+  return new Promise((resolve, reject) => {
+    const request = httpRequest(new URL(path, base), { headers, timeout: 5000 }, response => {
+      response.resume();
+      response.once("end", () => resolve(response.statusCode));
+      response.once("error", reject);
+    });
+    request.once("timeout", () => request.destroy(new Error("Délai de sonde HTTP dépassé")));
+    request.once("error", reject);
+    request.end();
+  });
 }
 async function withDb(fn) {
   const client = new Client({ connectionString: uri });
@@ -238,7 +252,7 @@ try {
       ));
     }
     await verifyDashboard(replacement);
-    assert.equal((await get("/api/dashboard",{headers:{Cookie:replacement,Host:"evil.example:3003"}})).status,403);
+    assert.equal(await rawStatus("/api/dashboard",{Cookie:replacement,Host:"evil.example:3003"}),403);
     // Gestion des comptes : seuls les administrateurs authentifiés peuvent agir.
     assert.equal((await get("/api/admin/accounts")).status,403);
     assert.equal((await postAuth("/api/admin/accounts",{
