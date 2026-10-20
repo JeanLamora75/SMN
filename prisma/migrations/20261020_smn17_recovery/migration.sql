@@ -5,7 +5,7 @@ CREATE TABLE public.smn_recovery_phrase (
 );
 CREATE TABLE public.smn_auth_audit (
   id text PRIMARY KEY,
-  account_id text NOT NULL REFERENCES public.smn_account(id),
+  account_id text NOT NULL REFERENCES public.smn_account(id) ON DELETE CASCADE,
   action text NOT NULL CHECK (action IN ('password_changed','recovery_prepared','recovery_used')),
   created_at timestamptz NOT NULL DEFAULT now()
 );
