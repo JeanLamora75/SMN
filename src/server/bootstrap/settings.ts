@@ -109,5 +109,11 @@ export async function loadExistingUri():Promise<string|null> {
   if(!config || config.version!==1 || config.kind!=="existing" ||
     typeof config.passwordEncrypted!=="string") throw new Error("postgres-config-invalid");
   try{return existingUri(config.user,await decryptSetting(config.passwordEncrypted),config.port);}
-  catch{throw new Error("postgres-config-invalid");}
+  catch(error){
+    if(error instanceof Error && [
+      "configuration-key-missing","configuration-key-invalid","configuration-decryption-failed",
+      "private-file-invalid","private-file-unavailable"
+    ].includes(error.message)) throw error;
+    throw new Error("postgres-config-invalid");
+  }
 }
