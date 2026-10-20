@@ -76,3 +76,10 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
 
 
 **Sprint Planning — jalon du 19/10 à 22:41 :** [compte rendu et premier Sprint proposé](../_bmad-output/planning-artifacts/sprint-planning-2026-10-19.md). CONCERNS maintenu avec poursuite autorisée ; aucun travail marqué prêt ou réalisé. Durée, capacité et dates restent à renseigner avant engagement.
+
+## Décision technique complémentaire — ports HTTP locaux (20 octobre 2026)
+
+- Un **autre projet existant** utilise déjà `http://localhost:3000`, `http://localhost:3001` et `http://localhost:3002` : **SMN ne doit ni démarrer ni reprendre ces ports**, et ne doit pas modifier la configuration de l'autre projet.
+- Les commandes `pnpm dev` et `pnpm start` démarrent **SMN sur 127.0.0.1:3003 par défaut**. Le port est paramétrable localement par `SMN_PORT` (par exemple 3010), mais les valeurs 3000 à 3002 sont refusées explicitement.
+- Si le port 3003 est occupé, aucune bascule automatique sur les ports de l'autre projet : diagnostiquer le conflit et laisser l'utilisateur choisir un port libre.
+- [Procédure Windows et contrôle de coexistence](../docs/INSTALLATION.md). La CI a testé simultanément un serveur sur 3000 et SMN sur 3003 ; les preuves Windows restent à obtenir.

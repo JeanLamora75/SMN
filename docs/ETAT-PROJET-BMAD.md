@@ -55,3 +55,11 @@ PostgreSQL **18.6** déclaré par Eric ; le numéro remplace l'information manqu
 
 
 **Complément du 20/10/2026 à 08:39 (Europe/Paris) :** Eric rapporte `SHOW server_version;` → **18.6**. Numéro du serveur interrogé confirmé par ce résultat utilisateur ; requête non exécutée par l'assistant. Connexion SMN, droits, migrations et compatibilité restent à éprouver. Voir l'inventaire technique actualisé ; CONCERNS maintenu.
+
+## Développement I0 — état opérationnel du 20 octobre 2026
+
+La Story [SMN-11](https://lmn24.atlassian.net/browse/SMN-11) est **En cours** sur Jira et `in-review` dans son artefact BMAD. La branche `dev/bmad-i0-20261020` est présentée dans la [PR nº 10](https://github.com/JeanLamora75/SMN/pull/10) (brouillon, non fusionnée).
+
+**Contrainte de coexistence confirmée par l'utilisateur :** l'autre projet utilise les ports locaux 3000, 3001 et 3002. SMN a été déplacé au **port 3003** pour les démarrages développement et production, avec `SMN_PORT` personnalisable hors des ports réservés. Le [guide Windows](../docs/INSTALLATION.md) a été actualisé.
+
+**Preuve Linux CI** : [exécution GitHub Actions](https://github.com/JeanLamora75/SMN/actions/runs/39388328841), 23 tests réussis sur 23, lint/typecheck/build et tests HTTP. La CI a maintenu un serveur simulé sur le port 3000 tout en vérifiant SMN sur 3003. **Non attesté** : usage simultané des deux projets sur le PC Windows 11, permissions PostgreSQL locales et revues BMAD indépendantes ; CONCERNS maintenu. L'ancien état « aucun développement » décrit la situation à sa date historique et ne s'applique plus à cette section.

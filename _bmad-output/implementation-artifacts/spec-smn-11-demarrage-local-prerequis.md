@@ -76,6 +76,9 @@ context:
 - **Preuve restante :** lancement `pnpm dev`, comportement et droits effectifs sur le poste Windows 11 standard de l'utilisateur ; non attestés. SMN-12 et SMN-14 ne sont pas livrés. Le ticket Jira ne doit pas être marqué terminé.
 - **Revue BMAD indépendante :** en attente des trois couches prévues par l'étape 04 (aucune capacité subagent dans cette session) ; l'état `in-review` n'est pas une validation de revue.
 
+- **Contrainte utilisateur complémentaire du 20/10/2026 (après approbation initiale) :** les ports localhost 3000, 3001 et 3002 sont occupés par un autre projet. Implémentation additionnelle sans toucher au bloc d'intention gelé : port SMN par défaut 3003 pour `pnpm dev` et `pnpm start`, paramètre optionnel `SMN_PORT`, refus des trois ports réservés et aucune bascule implicite. Tests dans `tests/port-config.test.mjs`, `scripts/port-config.mjs` et `scripts/serve.mjs`, documentation et CI mises à jour.
+- **Vérification CI additionnelle :** [GitHub Actions](https://github.com/JeanLamora75/SMN/actions/runs/39388328841) : 23 tests/23 réussis, lint, typecheck et build validés ; test HTTP de coexistence d'un serveur sur le port 3000 et de SMN sur 3003 réussi. Contrôle Windows réel encore nécessaire.
+
 ## Spec Change Log
 
 ## Review Triage Log
