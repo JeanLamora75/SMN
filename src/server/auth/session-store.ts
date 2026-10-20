@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 export type StoredSession = {
   accountId: string;
   passwordFingerprint: string;
+  role?: "admin" | "user";
   createdAt: number;
   lastActivityAt: number;
 };
@@ -12,10 +13,10 @@ const keyOf = (token: string) => createHash("sha256").update(token).digest("hex"
 
 export class SessionStore {
   private readonly sessions = new Map<string, StoredSession>();
-  issue(accountId: string, passwordFingerprint: string, now = Date.now()): string {
+  issue(accountId: string, passwordFingerprint: string, now = Date.now(), role?: "admin" | "user"): string {
     this.prune(now);
     const token = randomBytes(32).toString("hex");
-    this.sessions.set(keyOf(token), { accountId, passwordFingerprint, createdAt: now, lastActivityAt: now });
+    this.sessions.set(keyOf(token), { accountId, passwordFingerprint, role, createdAt: now, lastActivityAt: now });
     return token;
   }
   get(token: string | undefined, now = Date.now()): StoredSession | null {

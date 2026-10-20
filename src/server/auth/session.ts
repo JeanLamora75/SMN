@@ -13,7 +13,7 @@ function state(): AuthState {
 }
 export function authLimiter(): LoginLimiter { return state().limiter; }
 export function issueSession(account: Account): string {
-  return state().sessions.issue(account.id, passwordFingerprint(account.password_hash));
+  return state().sessions.issue(account.id, passwordFingerprint(account.password_hash), Date.now(), account.role);
 }
 export function revokeSession(token: string | undefined): void { state().sessions.revoke(token); }
 export function revokeAccountSessions(accountId: string): void { state().sessions.revokeAccount(accountId); }
@@ -22,7 +22,7 @@ export async function sessionAccount(token: string | undefined): Promise<Account
   if (!session) return null;
   try {
     const account = await withAuthDb(client => accountById(client, session.accountId));
-    if (!account || passwordFingerprint(account.password_hash) !== session.passwordFingerprint) {
+    if (!account || passwordFingerprint(account.password_hash) !== session.passwordFingerprint || account.role !== session.role) {
       state().sessions.revoke(token);
       return null;
     }

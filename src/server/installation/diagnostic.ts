@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { INITIAL_MIGRATION, INSTALLATION_RELATIONS } from "./contract";
 import { INITIAL_SCHEMA_SQL } from "./migration";
+import { ACCOUNTS_MIGRATION, ACCOUNTS_MIGRATION_SQL } from "../accounts/migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
-export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean }>;
+export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean }>;
 export type DiagnosticProbe = () => Promise<Snapshot>;
 function result(status: DiagnosticStatus): Diagnostic { return { status, canEnterSetup: status === "virgin" }; }
 export function classifyDatabaseError(error: unknown): DiagnosticStatus {
@@ -26,12 +27,21 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (records[0].schema_version !== 1) return result("schema-incompatible");
+  if (records[0].schema_version !== 1 && records[0].schema_version !== 2) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INSTALLATION_RELATIONS.every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
-  if (snapshot.migrations?.length !== 1 || snapshot.migrations[0].migration_name !== INITIAL_MIGRATION ||
-      snapshot.migrations[0].checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
-      !snapshot.migrations[0].finished_at || snapshot.migrations[0].rolled_back_at) return result("installation-incomplete");
+  const migrations = snapshot.migrations;
+  const isV2 = records[0].schema_version === 2;
+  if (migrations?.length !== (isV2 ? 2 : 1)) return result("installation-incomplete");
+  const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
+  if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
+      !base.finished_at || base.rolled_back_at) return result("installation-incomplete");
+  if (isV2) {
+    const next = migrations.find(m => m.migration_name === ACCOUNTS_MIGRATION);
+    if (!next || next.checksum !== createHash("sha256").update(ACCOUNTS_MIGRATION_SQL).digest("hex") ||
+        !next.finished_at || next.rolled_back_at || !snapshot.accountActiveColumn)
+      return result("installation-incomplete");
+  }
   return result("initialized");
 }
 export async function diagnoseInstallation(probe: DiagnosticProbe): Promise<Diagnostic> { try { return classifySnapshot(await probe()); } catch (error) { return result(classifyDatabaseError(error)); } }

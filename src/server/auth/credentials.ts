@@ -9,6 +9,7 @@ export type Account = {
   role: "admin" | "user";
   password_hash: string;
   must_change_password: boolean;
+  is_active: boolean;
 };
 const FAKE_PASSWORD_HASH = "scrypt:1:" + "0".repeat(32) + ":" + "0".repeat(128);
 export function passwordFingerprint(hash: string): string {
@@ -17,10 +18,10 @@ export function passwordFingerprint(hash: string): string {
 export async function authenticate(client: Client, identity: string, password: string): Promise<Account | null> {
   if (!identity || identity.length > 200 || !password || password.length > 256) return null;
   const query = await client.query<Account>(`
-    SELECT a.id, a.username, a.email, a.role, a.password_hash, a.must_change_password
+    SELECT a.id, a.username, a.email, a.role, a.password_hash, a.must_change_password, a.is_active
     FROM public.smn_account a
     JOIN public.smn_installation i ON i.id=a.installation_id
-    WHERE i.state='initialized' AND (lower(a.username)=lower($1) OR lower(a.email)=lower($1))
+    WHERE i.state='initialized' AND a.is_active=true AND (lower(a.username)=lower($1) OR lower(a.email)=lower($1))
     LIMIT 2
   `, [identity.trim()]);
   const account = query.rows.length === 1 ? query.rows[0] : undefined;
@@ -30,10 +31,10 @@ export async function authenticate(client: Client, identity: string, password: s
 }
 export async function accountById(client: Client, id: string): Promise<Account | null> {
   const response = await client.query<Account>(`
-    SELECT a.id,a.username,a.email,a.role,a.password_hash,a.must_change_password
+    SELECT a.id,a.username,a.email,a.role,a.password_hash,a.must_change_password,a.is_active
     FROM public.smn_account a
     JOIN public.smn_installation i ON i.id=a.installation_id
-    WHERE a.id=$1 AND i.state='initialized' LIMIT 1
+    WHERE a.id=$1 AND i.state='initialized' AND a.is_active=true LIMIT 1
   `, [id]);
   const a = response.rows[0];
   return a && (a.role === "admin" || a.role === "user") ? a : null;
