@@ -61,6 +61,6 @@ model SmnAuthAudit {
   accountId String @map("account_id")
   action String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  account SmnAccount @relation(fields: [accountId], references: [id])
+  account SmnAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
   @@map("smn_auth_audit")
 }
