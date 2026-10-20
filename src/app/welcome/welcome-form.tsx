@@ -150,7 +150,7 @@ export default function SetupWelcome() {
       {status.error?.startsWith("managed-pg-") && <p className="small mb-0">
         {t("welcome.logBefore")}
         <code> %LOCALAPPDATA%\\ScrumMasterNotebook\\postgres.log </code>.
-        Ne partagez pas d’identifiants, de mots de passe ou de chemins personnels.
+        {t("welcome.logAfter")}
       </p>}
     </div>}
     {message && <p role="alert">{message}</p>}
