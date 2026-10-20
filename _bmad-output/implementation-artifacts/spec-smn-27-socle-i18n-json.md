@@ -143,3 +143,23 @@ La version `en.json` conservera exactement ces clés et proposera leurs traducti
 - Inspection des premières pages migrées : **46 références littérales** de traduction identifiées dans les TSX contrôlés, toutes résolues dans les deux catalogues (0 clé littérale inconnue). Les clés dynamiques (`installation.diagnostic.*`, `settings.countries.*`) restent à exercer par des tests et un contrôle applicatif.
 - Cette inspection statique **ne constitue pas** une exécution de `pnpm i18n:check`, `pnpm test`, `pnpm typecheck`, `pnpm build` ou d'un parcours HTTP. Aucune vérification automatisée de SMN-27 n'est déclarée réussie.
 - [Run I0 39485897634](https://github.com/JeanLamora75/SMN/actions/runs/39485897634) et [run paquet Windows 39485897688](https://github.com/JeanLamora75/SMN/actions/runs/39485897688) : **failure sans aucune étape exécutable publiée**, sur la PR [#15](https://github.com/JeanLamora75/SMN/pull/15). Le blocage de runner persiste ; ne pas fusionner.
+
+
+## Deuxième lot implémenté sur branche — 20 octobre 2026
+
+**Commit de référence :** [PR #15](https://github.com/JeanLamora75/SMN/pull/15), branche `dev/smn-27-i18n-json-20261020`. Cette section met à jour, sans réécrire les constats antérieurs, l'état initial de la préparation.
+
+- [x] Migrés en ressources `fr.json` / `en.json` : `src/app/app/page.tsx` (tableau de bord, menus, états vides, navigation, informations de contexte) et `src/app/app/logout-control.tsx`.
+- [x] Migrés : `src/app/app/admin/users/page.tsx` et `users-admin.tsx` (tableau et formulaire, erreurs serveur converties par codes autorisés).
+- [x] Migrés : `src/app/app/security/page.tsx` et `security-form.tsx` ; `src/app/change-password/page.tsx` et `password-form.tsx`.
+- [x] Migrés : `src/app/welcome/page.tsx` et `welcome-form.tsx` ; formulaire historique `src/app/setup/setup-form.tsx` conservé et traduit, bien que la route `/setup` redirige vers `/welcome`.
+- [x] Les étapes de l'installateur continuent à circuler dans le contrat backend existant, puis sont résolues par correspondance vers des clés JSON via `translateBootstrapStep`. Les codes d'échec autorisés sont transformés via `translateBootstrapError` ; le texte inconnu ne s'affiche jamais brut.
+- [x] Tests unitaires ajoutés pour les diagnostics, les étapes, les valeurs inconnues et les paramètres dynamiques. Ces tests **n'ont pas été exécutés**.
+
+**Audit statique ponctuel :** 333 clés feuilles dans chaque JSON, mêmes ensembles, placeholders identiques ; scan ciblé des composants migrés sans références littérales inconnues ni fragments français visibles détectés par l'heuristique. Cela **ne prouve pas** l'absence de tout texte codé en dur (valeurs sans accent, JSX composés, langues non françaises) et ne remplace ni compilation TS ni tests fonctionnels.
+
+**CI :** [I0 #39488611760](https://github.com/JeanLamora75/SMN/actions/runs/39488611760) et [Windows #39488611972](https://github.com/JeanLamora75/SMN/actions/runs/39488611972) sur le commit précédent `5587fb16` : échec avant runner, aucune étape (Linux/Windows/paquet). Statut fonctionnel non vérifié ; la PR reste **draft**, `main` inchangée, SMN-27 Jira **En cours**.
+
+**Restant avant revue et fusion :** corriger le blocage de CI, exécuter réellement `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (PostgreSQL isolé), `pnpm build`, paquet Windows et parcours FR/EN complets, y compris rechargement `<html lang>` après changement de paramètre et reprise du flux d'installation. Ajouter les diagnostics de clé de configuration introduits par SMN-19 **après intégration** de cette Story, sans modifier sa PR non validée. Revue indépendante attendue.
+
+Aucune fermeture de Story, recette réelle Windows ou fusion dans `main` n'est attestée.
