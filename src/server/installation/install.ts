@@ -1,24 +1,19 @@
-import { randomBytes, randomUUID, scrypt as scryptCb, createHash, timingSafeEqual } from "node:crypto";
-import { promisify } from "node:util";
+import { randomUUID, createHash, timingSafeEqual } from "node:crypto";
 import { Client } from "pg";
 import { parseConnectionSettings } from "../db/config";
 import { probePostgres } from "../db/probe";
 import { classifySnapshot, diagnoseInstallation } from "./diagnostic";
 import { INITIAL_MIGRATION, validateExpressInput } from "./contract";
 import { INITIAL_SCHEMA_SQL, PRISMA_HISTORY_SQL } from "./migration";
+import { passwordHash } from "../auth/password";
+export { passwordHash } from "../auth/password";
 
-const scrypt = promisify(scryptCb);
 export type InstallResult = { ok: true } | { ok: false; status: string };
 export function setupAuthorized(configured: string | undefined, supplied: unknown): boolean {
   if (!configured || configured.length < 32 || typeof supplied !== "string") return false;
   const a = Buffer.from(configured);
   const b = Buffer.from(supplied);
   return a.length === b.length && timingSafeEqual(a, b);
-}
-export async function passwordHash(password: string): Promise<string> {
-  const salt = randomBytes(16);
-  const derived = await scrypt(password, salt, 64) as Buffer;
-  return `scrypt:1:${salt.toString("hex")}:${derived.toString("hex")}`;
 }
 export async function installExpress(rawBody: unknown, rawUri: string | undefined): Promise<InstallResult> {
   const input = validateExpressInput(rawBody);
