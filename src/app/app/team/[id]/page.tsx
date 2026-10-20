@@ -2,8 +2,7 @@ import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
-import {withAuthDb} from "@/server/auth/database";
-import {readTeamDetail} from "@/server/dashboard/team-detail";
+import {readInstalledTeamDetail} from "@/server/dashboard/team-detail";
 import {safeDashboardReturn,requestedHistoricalContext} from "@/lib/context-navigation";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
@@ -19,7 +18,7 @@ export default async function TeamDetailPage({params,searchParams}:{
   if(!account)redirect("/login");
   if(!canAccess(account,"read",{type:"collective",exists:true,inScope:true}))notFound();
   const {id}=await params;
-  const team=await withAuthDb(client=>readTeamDetail(client,id)).catch(()=>null);
+  const team=await readInstalledTeamDetail(id).catch(()=>null);
   if(!team)notFound();
   const request=await searchParams;
   const returnTo=safeDashboardReturn(request.returnTo,team.teamId);
