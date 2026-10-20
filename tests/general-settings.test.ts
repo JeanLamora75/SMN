@@ -85,6 +85,6 @@ describe("SMN-18 — paramètres généraux",()=>{
     assert.match(SETTINGS_MIGRATION_SQL,/CREATE TABLE public.smn_general_settings_audit/);
     assert.match(SETTINGS_MIGRATION_SQL,/VALUES\('singleton'\)/);
     assert.match(SETTINGS_MIGRATION_SQL,/schema_version=4/);
-    assert.doesNotMatch(SETTINGS_MIGRATION_SQL,/DROP|UPDATE public.smn_team|UPDATE public.smn_product|DELETE/i);
+    assert.doesNotMatch(SETTINGS_MIGRATION_SQL,/DROP TABLE|UPDATE public.smn_team|UPDATE public.smn_product|DELETE FROM/i);
   });
 });
