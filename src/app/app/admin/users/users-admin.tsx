@@ -36,7 +36,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       setStatus("ready");
     } catch {setStatus("error");setMessage("Impossible de récupérer les comptes.");}
   },[]);
-  useEffect(()=>{void refresh();},[refresh]);
+  useEffect(()=>{void Promise.resolve().then(refresh);},[refresh]);
   async function create(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();setBusy(true);setMessage("");
     try {
