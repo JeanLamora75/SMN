@@ -38,6 +38,9 @@ describe("SMN-19 — confidentialité des secrets et diagnostics",()=>{
     const password="SHOULD-NEVER-APPEAR-IN-FILES-2026";
     try{
       process.env.LOCALAPPDATA=tmp;
+      // Reading a missing private configuration must not even create its directory.
+      assert.equal(await readPrivateFile(".settings-key"),null);
+      await assert.rejects(()=>lstat(appDataDirectory()),{code:"ENOENT"});
       await saveExistingConfig("postgres",password,5432);
       const dir=appDataDirectory();
       const config=await readFile(path.join(dir,"postgres-connection.json"),"utf8");
