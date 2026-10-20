@@ -3,10 +3,11 @@ import { INITIAL_MIGRATION, INSTALLATION_RELATIONS } from "./contract";
 import { INITIAL_SCHEMA_SQL } from "./migration";
 import { ACCOUNTS_MIGRATION, ACCOUNTS_MIGRATION_SQL } from "../accounts/migration";
 import { RECOVERY_MIGRATION, RECOVERY_MIGRATION_SQL } from "../accounts/recovery-migration";
+import { SETTINGS_MIGRATION, SETTINGS_MIGRATION_SQL } from "../settings/migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
-export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean }>;
+export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean }>;
 export type DiagnosticProbe = () => Promise<Snapshot>;
 function result(status: DiagnosticStatus): Diagnostic { return { status, canEnterSetup: status === "virgin" }; }
 export function classifyDatabaseError(error: unknown): DiagnosticStatus {
@@ -28,13 +29,14 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
   const isV2 = records[0].schema_version >= 2;
-  const isV3 = records[0].schema_version === 3;
-  if (migrations?.length !== (isV3 ? 3 : isV2 ? 2 : 1)) return result("installation-incomplete");
+  const isV3 = records[0].schema_version >= 3;
+  const isV4 = records[0].schema_version === 4;
+  if (migrations?.length !== (isV4 ? 4 : isV3 ? 3 : isV2 ? 2 : 1)) return result("installation-incomplete");
   const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
   if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
       !base.finished_at || base.rolled_back_at) return result("installation-incomplete");
@@ -49,6 +51,13 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
     if (!third || third.checksum !== createHash("sha256").update(RECOVERY_MIGRATION_SQL).digest("hex") ||
         !third.finished_at || third.rolled_back_at || !snapshot.recoverySchemaValid ||
         !names.has("public.smn_recovery_phrase:r") || !names.has("public.smn_auth_audit:r"))
+      return result("installation-incomplete");
+  }
+  if (isV4) {
+    const fourth=migrations.find(m=>m.migration_name === SETTINGS_MIGRATION);
+    if (!fourth || fourth.checksum!==createHash("sha256").update(SETTINGS_MIGRATION_SQL).digest("hex") ||
+        !fourth.finished_at || fourth.rolled_back_at || !snapshot.settingsSchemaValid ||
+        !names.has("public.smn_general_settings:r") || !names.has("public.smn_general_settings_audit:r"))
       return result("installation-incomplete");
   }
   return result("initialized");
