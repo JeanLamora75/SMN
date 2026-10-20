@@ -2,7 +2,7 @@
 title: "SMN-12 — Installation Express et premier Administrateur"
 type: "feature"
 created: "2026-10-20"
-status: "draft"
+status: "in-progress"
 route: "dispatch"
 review_loop_iteration: 0
 baseline_commit: "4bf60ae4724f1015c68c8a23adf95958d135cd0d"
@@ -23,6 +23,8 @@ context:
 
 **Toujours :** Windows 11 sans élévation, Next 16/React 19, PostgreSQL 18/Prisma 7, Bootstrap, port 3003 (3000–3002 réservés). Trois données métier requises : Scrum/Kanban, produit, équipe unique. Compte initial `admin@locahost.com` (orthographe Jira), secret dérivé/stocké sans clair, changement obligatoire avant accès métier. Base locale dédiée, confirmation avant toute écriture, contrôles côté serveur, reprise explicite sur échec.
 
+**Décision approuvée du 20/10/2026 (option A) :** après une installation réussie, afficher une confirmation sans accès privé ; la connexion, le changement du secret initial et le tableau de bord seront livrés avec SMN-14. Le secret initial ne doit jamais être créé ou affiché de manière implicite.
+
 **Jamais :** modifier LMN24/autre base ; effacer ou réinitialiser silencieusement ; créer un rôle PostgreSQL ou des cycles automatiquement ; activer SAFe ; exposer secret, données privées ou faux accès authentifié.
 
 ## I/O & Edge-Case Matrix
@@ -35,13 +37,9 @@ context:
 | Base étrangère/partielle | blocage, aucune adoption |
 | Mode/produit/équipe invalides | rejet avant écriture |
 | Double initialisation/panne | une réussite maximum ; pas de succès partiel |
-| Installation terminée | verrouiller l'amorçage anonyme et les données privées |
+| Installation terminée | afficher le succès sans session ni tableau de bord ; verrouiller l'amorçage anonyme et les données privées |
 
 </frozen-after-approval>
-
-## Open Questions
-
-- **Après installation :** Jira AC2 prévoit un tableau de bord, mais la connexion appartient à SMN-14. **A — recommandé :** afficher un écran de succès sans accès métier puis livrer la connexion et le tableau de bord avec SMN-14. **B :** intégrer maintenant une première connexion et le changement forcé de secret à SMN-12 (travail de sécurité supplémentaire).
 
 ## Code Map
 
@@ -67,6 +65,8 @@ context:
 - Given le premier compte, when on termine, then aucune donnée métier anonyme ni secret en clair n'est exposé.
 
 ## Implementation Notes
+
+- 2026-10-20 : option A explicitement approuvée. Adaptation ChatGPT : exécution locale obligatoire du rendu BMAD impossible depuis le connecteur GitHub ; application manuelle traçable de la spécification et des étapes disponibles, sans prétendre avoir exécuté `uv run`.
 
 ## Spec Change Log
 
