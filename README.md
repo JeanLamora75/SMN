@@ -2,15 +2,15 @@
 
 Application destinée aux Scrum Masters, développée selon BMAD 6.12.4. MVP Scrum et Kanban, usage local initial sur Windows 11, avec Next.js 16/React 19, TypeScript, Bootstrap 5.3, PostgreSQL et Prisma 7.
 
-## État technique
+## État du pilote — 20 octobre 2026
 
-**Travail I0 / SMN-11 en construction :** diagnostic local des prérequis, sans installation complète ni authentification disponible. Les routes privées restent fermées ; aucun démarrage ne crée de base, compte, équipe ou Sprint. La base SMN dédiée doit être créée **par le futur installateur SMN-12**, avec vérification des droits et confirmation préalable, et non manuellement dans le parcours normal.
+**SMN-11 est livré sur `main`.** SMN démarre sur `127.0.0.1:3003` ; les ports 3000 à 3002 restent réservés à l'autre projet.
 
-**Port web de SMN : 3003 par défaut**, afin de préserver les applications existantes sur 3000, 3001 et 3002. `SMN_PORT` permet de choisir un autre port libre (hors de ces trois ports réservés).
+**SMN-12 est désormais aussi intégré à `main`** via la [PR nº 11](https://github.com/JeanLamora75/SMN/pull/11). L'assistant Express peut créer, après confirmation explicite, sa base PostgreSQL locale dédiée, appliquer la migration initiale et enregistrer le produit, l'équipe et le compte Administrateur. **La recette sur le PC utilisateur reste à effectuer.** Le tableau de bord et les connexions restent bloqués avant SMN-14.
 
-Les revues BMAD indépendantes ont révélé des lacunes de détection PostgreSQL et de vérification qui font l'objet d'une boucle corrective sur la branche I0. **La Story n'est pas encore clôturée.**
+**Mode de travail du pilote, selon demande utilisateur (20/10/2026) :** développer et publier directement sur `main` sans branche ni PR obligatoires, en gardant les commits Git, les contrôles CI et la documentation à jour. Aucune création de base ou opération destructive n'est implicite.
 
-Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes, le port et les limites vérifiables.
+Voir [Installation et essais](docs/INSTALLATION.md) pour GitHub Desktop et PowerShell.
 
 ## Référentiels du projet
 
@@ -22,5 +22,3 @@ Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes, le port 
 
 La préparation documentaire demeure sous verdict **CONCERNS** jusqu'aux preuves complémentaires. Les tests GitHub Actions ne prouvent pas à eux seuls le bon fonctionnement sur un poste Windows 11.
 
-
-**SMN-12 (développement en cours)** : assistant Express après confirmation de création de base dédiée et compte admin initial, sans connexion ni tableau de bord avant SMN-14. [Procédure](docs/INSTALLATION.md).

@@ -63,3 +63,14 @@ La Story [SMN-11](https://lmn24.atlassian.net/browse/SMN-11) est **En cours** su
 **Contrainte de coexistence confirmée par l'utilisateur :** l'autre projet utilise les ports locaux 3000, 3001 et 3002. SMN a été déplacé au **port 3003** pour les démarrages développement et production, avec `SMN_PORT` personnalisable hors des ports réservés. Le [guide Windows](../docs/INSTALLATION.md) a été actualisé.
 
 **Preuve Linux CI** : [exécution GitHub Actions](https://github.com/JeanLamora75/SMN/actions/runs/39388328841), 23 tests réussis sur 23, lint/typecheck/build et tests HTTP. La CI a maintenu un serveur simulé sur le port 3000 tout en vérifiant SMN sur 3003. **Non attesté** : usage simultané des deux projets sur le PC Windows 11, permissions PostgreSQL locales et revues BMAD indépendantes ; CONCERNS maintenu. L'ancien état « aucun développement » décrit la situation à sa date historique et ne s'applique plus à cette section.
+
+
+## Actualisation — livraison pilote directement sur `main` (20 octobre 2026)
+
+Le jalon plus haut, indiquant SMN-11 sur branche et PR brouillon, est **historique et dépassé**. [SMN-11](https://lmn24.atlassian.net/browse/SMN-11) est terminée et [PR nº 10](https://github.com/JeanLamora75/SMN/pull/10) fusionnée.
+
+[SMN-12](https://lmn24.atlassian.net/browse/SMN-12) : installation Express (Scrum/Kanban, produit, équipe, Administrateur) livrée sur `main` via [PR nº 11](https://github.com/JeanLamora75/SMN/pull/11), CI Linux/PostgreSQL 18 et Windows réussie (37/37 tests Linux). **La Story n'est pas encore déclarée terminée : recette sur PostgreSQL 18.6 Windows personnel à confirmer.** L'option A reste appliquée : sans connexion ni tableau de bord avant SMN-14.
+
+L'ancienne [PR nº 7](https://github.com/JeanLamora75/SMN/pull/7) Product Brief est **clôturée sans merge**, ses lignes étant déjà incluses dans `main`, qui contient en outre l'arbitrage D-PRD-137. Aucune suppression de contenu.
+
+**Processus souhaité pendant le pilote** : à compter des prochains travaux, commits directement sur `main` sans cycle de branches/PR, en conservant tests CI, traçabilité Git/Jira et garde-fous des migrations. Dans GitHub Desktop, sélectionner `main` puis Fetch/Pull.

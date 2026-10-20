@@ -1,6 +1,6 @@
-# SMN — Lancement et diagnostic I0 / SMN-11
+# SMN — Installation locale Windows et diagnostic du pilote
 
-**Portée actuelle :** première interface locale et lecture seule du diagnostic PostgreSQL. Ni création de base, ni assistant Express, ni compte administrateur, ni migration ne sont encore livrés. Ces capacités appartiennent notamment à SMN-12 et SMN-14.
+**État au 20 octobre 2026 :** SMN-11 et SMN-12 sont disponibles sur **`main`**. SMN-12 fournit l'assistant Express et la migration initiale après confirmation ; SMN-14 fournira la connexion et le changement de secret. Les tests Linux/PostgreSQL 18 et Windows en CI ont réussi, mais l'installation sur le PostgreSQL 18.6 personnel attend la recette utilisateur.
 
 ## Préparation du poste Windows 11
 
@@ -102,9 +102,9 @@ La [CI de clôture](https://github.com/JeanLamora75/SMN/actions/runs/39411560620
 
 ## SMN-12 — Première installation Express (branche de développement)
 
-**Aucune création de base utilisateur n'est effectuée par la CI ou ChatGPT.** Cette procédure devient applicable lorsque SMN-12 a passé ses tests et que l'utilisateur choisit de la recetter sur son PC. Les ports 3000 à 3002 restent réservés à l'autre projet ; SMN écoute seulement sur 3003.
+**Aucune création de base utilisateur n'est effectuée par la CI ou ChatGPT.** SMN-12 a passé ses contrôles automatisés ; l'utilisateur choisit le moment de la recette PostgreSQL sur son PC et confirme explicitement les écritures dans le formulaire. Les ports 3000 à 3002 restent réservés à l'autre projet ; SMN écoute seulement sur 3003.
 
-1. Sur GitHub Desktop, récupérer la branche SMN-12 (tant que la PR n'est pas intégrée) puis `pnpm install --frozen-lockfile`.
+1. Dans **GitHub Desktop**, sélectionner **`main`** dans **Current branch**, utiliser **Fetch origin** puis **Pull origin**. Ouvrir PowerShell dans le répertoire SMN et lancer `pnpm install --frozen-lockfile`. La commande Git CLI n'est pas nécessaire.
 2. Préparer PostgreSQL 18 et un compte **déjà autorisé** à créer une base. Ne pas utiliser les identifiants d'une autre application : l'installateur refuse toute cible autre qu'une base commençant par `smn`. Le rôle courant doit disposer de `CREATEDB` si la base n'existe pas, et de `CREATE` sur le schéma `public` de la base neuve.
 3. Configurer `SMN_DATABASE_URL` pour pointer vers **une base SMN dédiée** (exemple de structure uniquement : `postgresql://UTILISATEUR:MOT_DE_PASSE@127.0.0.1:5432/smn`). Les caractères spéciaux du mot de passe doivent être encodés dans l'URL. **Ne jamais partager la valeur réelle** ni la publier dans Git ou ChatGPT.
 4. Dans la même session PowerShell, générer un jeton local aléatoire : `$env:SMN_SETUP_TOKEN = node -e "process.stdout.write(require('node:crypto').randomBytes(24).toString('hex'))"`. Il n'est pas enregistré sur GitHub et doit rester secret ; le formulaire le demandera à l'écran, sans le renvoyer dans une URL.
@@ -133,9 +133,16 @@ try {
 }
 $env:SMN_SETUP_TOKEN = node -e "process.stdout.write(require('node:crypto').randomBytes(24).toString('hex'))"
 pnpm run doctor
+# Avant pnpm dev, recopier le jeton dans le presse-papiers uniquement sur ce PC :
+$env:SMN_SETUP_TOKEN | Set-Clipboard
 pnpm dev
 ```
 
-La valeur du jeton est disponible **uniquement dans cette session PowerShell** : pour le saisir dans le formulaire, le copier localement (`$env:SMN_SETUP_TOKEN | Set-Clipboard`) et effacer ensuite le presse-papiers. Ne jamais coller ces secrets dans Jira, ChatGPT ou une capture d'écran.
+Le jeton est défini **uniquement dans cette session PowerShell** ; le script le copie dans le presse-papiers avant le démarrage du serveur pour permettre de le coller dans le formulaire. Effacer le presse-papiers après utilisation. Ne jamais coller ces secrets dans Jira, ChatGPT ou une capture d'écran.
 
 **Important :** garder le mot de passe choisi pour l'Administrateur dans un gestionnaire de mots de passe. Le compte est créé avec un indicateur de renouvellement obligatoire ; le formulaire de changement et l'ouverture d'une session privée arriveront avec SMN-14. Ne pas considérer un écran de confirmation comme une session authentifiée.
+
+
+### Workflow pilote simplifié
+
+Les prochains changements seront publiés directement sur **`main`**, sans branche ou PR obligatoire. Pour récupérer les nouveautés, utiliser **GitHub Desktop → Current branch : main → Fetch origin → Pull origin**. Garder PowerShell pour `pnpm` seulement ; l'historique Git et la CI sont conservés pour pouvoir diagnostiquer ou revenir à une version stable.

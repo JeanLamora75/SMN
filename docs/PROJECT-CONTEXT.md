@@ -83,3 +83,12 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
 - Les commandes `pnpm dev` et `pnpm start` démarrent **SMN sur 127.0.0.1:3003 par défaut**. Le port est paramétrable localement par `SMN_PORT` (par exemple 3010), mais les valeurs 3000 à 3002 sont refusées explicitement.
 - Si le port 3003 est occupé, aucune bascule automatique sur les ports de l'autre projet : diagnostiquer le conflit et laisser l'utilisateur choisir un port libre.
 - [Procédure Windows et contrôle de coexistence](../docs/INSTALLATION.md). La CI a testé simultanément un serveur sur 3000 et SMN sur 3003 ; les preuves Windows restent à obtenir.
+
+
+## Convention de développement pendant le pilote (décision utilisateur du 20/10/2026)
+
+- **Branche de livraison : `main` uniquement** pour les prochains incréments pilotes : modification et publication directes, sans exiger de branches temporaires ni de Pull Requests. Les anciennes PR ont été traitées : [PR nº 11](https://github.com/JeanLamora75/SMN/pull/11) fusionnée, [PR nº 7](https://github.com/JeanLamora75/SMN/pull/7) clôturée car le Product Brief était déjà intégralement sur `main` avec complément postérieur.
+- Cette simplification **ne désactive pas l'historique Git** : conserver les commits pour revenir à un état stable si besoin, maintenir Jira/BMAD et les tests CI, ne jamais déclarer un changement terminé sans preuve.
+- Après chaque livraison, l'utilisateur récupère **`main` via GitHub Desktop** avec `Fetch origin`, puis `Pull origin` ; aucune commande `git` en PowerShell n'est requise.
+- **Précaution inchangée** : création de base et migrations destructives uniquement après confirmation explicite et contrôle des droits, jamais d'accès ou de changement dans LMN24. Le mode direct sur `main` ne vaut pas autorisation de manipuler les données locales.
+- **État à date** : SMN-11 terminé ; SMN-12 intégré à `main`, Jira/BMAD encore en revue avant retour de recette réelle Windows/PostgreSQL 18.6 ; SMN-14 pour l'authentification, SMN-19 pour les secrets persistants.
