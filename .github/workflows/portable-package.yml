@@ -31,7 +31,7 @@ jobs:
           run_install: false
       - name: Installer sans symlink Windows pour le paquet Next standalone
         run: |
-          Set-Content -Path .npmrc -Value "node-linker=hoisted"
+          Add-Content -Path pnpm-workspace.yaml -Value "nodeLinker: hoisted"
           pnpm install --frozen-lockfile
           if (Test-Path "node_modules/.pnpm") { throw "Installation isolée pnpm détectée : paquet non portable." }
 
