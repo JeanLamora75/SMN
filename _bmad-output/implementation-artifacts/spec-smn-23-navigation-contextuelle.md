@@ -13,6 +13,6 @@
 
 ## Traçabilité et résultat
 
-Documentation d'implémentation : [docs/NAVIGATION-CONTEXTUELLE-SMN-23.md](../../../docs/NAVIGATION-CONTEXTUELLE-SMN-23.md). Tests unitaires et HTTP décrits dans ce document.
+Documentation d'implémentation : [docs/NAVIGATION-CONTEXTUELLE-SMN-23.md](../../docs/NAVIGATION-CONTEXTUELLE-SMN-23.md). Tests unitaires et HTTP décrits dans ce document.
 
 **Statut : développement codé, recette Windows/CI et revue métier en attente.** La validation documentaire fonctionnelle du 19/10/2026 ne vaut pas preuve d'exécution des tests.

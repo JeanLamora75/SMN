@@ -119,7 +119,7 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 
 - Story : https://lmn24.atlassian.net/browse/SMN-23
 - Référence : [docs/NAVIGATION-CONTEXTUELLE-SMN-23.md](NAVIGATION-CONTEXTUELLE-SMN-23.md)
-- Source de vérité : `src/server/dashboard/read.ts` pour le contexte produit/équipe/identifiants stables, `src/server/dashboard/team-detail.ts` pour la fiche d'équipe consultée en lecture seule, `src/lib/context-navigation.ts` pour les retours locaux filtrés.
+- Source de vérité : `src/server/dashboard/read.ts` pour le contexte produit/équipe/identifiants stables, `src/server/dashboard/team-detail.ts` pour la requête de fiche d'équipe, `src/server/dashboard/team-detail-db.ts` pour sa transaction dédiée en lecture seule, `src/lib/context-navigation.ts` pour les retours locaux filtrés.
 - Route `/app/team/[id]` ouverte uniquement avec une session active et la permission collective ; fiche manquante ou refusée → même 404 sans fuite d'identité. Le lien depuis la synthèse transporte uniquement des paramètres contextuels allowlistés.
 - Les données historiques de cycles/versions ne sont pas encore produites au MVP ; aucun état historique n'est simulé. Un avertissement distingue explicitement contexte de retour historique demandé et données actuelles visibles.
 - Nouveaux textes FR/EN centralisés en JSON sous `detail`. Les tests ont été écrits mais l'exécution CI/Windows est à confirmer.
