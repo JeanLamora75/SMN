@@ -5,6 +5,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, writeFile, readFile, readdir, rm } from "node:fs/promises";
 import os from "node:os";
+import net from "node:net";
 import path from "node:path";
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Smoke autonome réservé au runner Windows");
@@ -17,6 +18,7 @@ const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const port = 3003;
 const base = "http://127.0.0.1:" + port;
 let server;
+let blockedPostgresPort;
 try {
   let serverOutput = "";
   server = spawn(path.join(root, "node.exe"), [path.join(root, "server.js")], {
@@ -59,6 +61,18 @@ try {
       await writeFile(path.join(initialData, "PG_VERSION"), "18");
       await writeFile(path.join(initialData, "ancien-essai.txt"), "donnees-preservees");
     }
+    const portFallback = process.env.SMN_PORT_FALLBACK_TEST === "true";
+    if (portFallback) {
+      blockedPostgresPort = net.createServer();
+      try {
+        await new Promise((resolve, reject) => {
+          blockedPostgresPort.once("error", reject);
+          blockedPostgresPort.listen(55432, "127.0.0.1", resolve);
+        });
+      } catch {
+        // Un port déjà réservé par Windows exerce exactement le même cas.
+      }
+    }
     const payload = { dbMode: "portable", mode: "scrum", product: "SMN pilote CI", team: "Équipe Windows CI",
       password: "MonMotDePasseTest2026", confirmed: true };
     const start = await fetch(base + "/api/bootstrap", {
@@ -97,6 +111,12 @@ try {
       if (poll.status === "complete") { done = true; break; }
     }
     assert.equal(done, true, "La préparation a dépassé dix minutes");
+    if (portFallback) {
+      const cfg = JSON.parse(await readFile(
+        path.join(isolatedHome, "ScrumMasterNotebook", "runtime.json"), "utf8"));
+      assert.notEqual(cfg.port, 55432, "SMN doit utiliser un autre port PostgreSQL si 55432 est interdit");
+      console.log("PASS : port PostgreSQL automatiquement remplacé et persisté : " + cfg.port);
+    }
     if (testRecovery) {
       const backups = path.join(isolatedHome, "ScrumMasterNotebook", "recovery");
       const entries = await readdir(backups);
@@ -113,7 +133,10 @@ try {
     console.log("PASS : page d'accueil et assistant accessibles sans base implicite.");
   }
 
-} finally {
+ } finally {
+  if (blockedPostgresPort?.listening) {
+    await new Promise(resolve => blockedPostgresPort.close(resolve));
+  }
   const smnRoot = path.join(isolatedHome, "ScrumMasterNotebook");
   const ctl = path.join(smnRoot, "pgsql", "bin", "pg_ctl.exe");
   if (existsSync(ctl) && existsSync(path.join(smnRoot, "data"))) {
