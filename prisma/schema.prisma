@@ -2,7 +2,9 @@ generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
-datasource db { provider = "postgresql" }
+datasource db {
+  provider = "postgresql"
+}
 model SmnInstallation {
   id String @id
   state String
