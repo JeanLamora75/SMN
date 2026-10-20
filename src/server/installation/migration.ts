@@ -19,10 +19,12 @@ CREATE TABLE public.smn_account (
  password_hash text NOT NULL, must_change_password boolean NOT NULL DEFAULT true,
  created_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE TABLE public._prisma_migrations (
+
+`;
+
+export const PRISMA_HISTORY_SQL = `CREATE TABLE public._prisma_migrations (
  id varchar(36) PRIMARY KEY, checksum varchar(64) NOT NULL,
  finished_at timestamptz, migration_name varchar(255) NOT NULL,
  logs text, rolled_back_at timestamptz, started_at timestamptz NOT NULL DEFAULT now(),
  applied_steps_count integer NOT NULL DEFAULT 0
-);
-`;
+);`;
