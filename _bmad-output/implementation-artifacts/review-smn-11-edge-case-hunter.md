@@ -1,6 +1,6 @@
 # SMN-11 — Edge Case Hunter — Prompt autonome de revue
 
-> Exécuter dans une conversation distincte et retourner uniquement les constats. Ce fichier prépare la revue, il ne prouve aucune exécution.
+> **Snapshot de revue actualisé** sur le commit de code/documentation `cc9a08cc6517cc47029309779a943998743297c5` (20/10/2026), incluant le changement de port 3003, les tests et la recette Windows. Les trois prompts de revue générés eux-mêmes sont exclus du diff pour éviter toute récursion. Exécuter **dans une conversation distincte**, sans modifier GitHub/Jira ; retourner uniquement les constats. Ce fichier prépare la revue, **il ne prouve aucune exécution**.
 
 Launch a context-free subagent with this prompt:
 
@@ -225,7 +225,7 @@ Le diagnostic ne crée pas de base : l'installateur SMN-12 assurera sa création
 
 Review content: the unified diff at 
 
-===== BEGIN UNIFIED DIFF (PR #10, 238867 caractères) =====
+===== BEGIN UNIFIED DIFF — baseline 9f6cc9ba1a1a23d47234511d7801e5a0cc54fe86 → revue cc9a08cc6517cc47029309779a943998743297c5 ; 39 fichiers hors artefacts auto-référents de prompts =====
 diff --git a/.env.example b/.env.example
 new file mode 100644
 index 0000000..03b5bd5
@@ -286,10 +286,10 @@ index 0000000..f33175d
 +          echo "=== BMAD STEP 01 END ==="
 diff --git a/.github/workflows/verify-i0.yml b/.github/workflows/verify-i0.yml
 new file mode 100644
-index 0000000..a4573d6
+index 0000000..c81df4d
 --- /dev/null
 +++ b/.github/workflows/verify-i0.yml
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,113 @@
 +name: Vérification I0
 +
 +on:
@@ -355,6 +355,14 @@ index 0000000..a4573d6
 +        run: pnpm test
 +      - name: Typecheck
 +        run: pnpm typecheck
++      - name: Valider le diagnostic de port
++        run: |
++          node scripts/doctor.mjs
++          SMN_PORT=3010 node scripts/doctor.mjs
++          if SMN_PORT=3000 node scripts/doctor.mjs; then
++            echo "Erreur : SMN a accepté un port réservé."
++            exit 1
++          fi
 +      - name: Build de production
 +        run: pnpm build
 +        env:
@@ -363,17 +371,22 @@ index 0000000..a4573d6
 +        shell: bash
 +        run: |
 +          set -euo pipefail
++          # Simuler l'autre projet sur 3000 sans exposer de réseau extérieur.
++          node -e 'require("node:http").createServer((_req, res) => res.end("other-project")).listen(3000, "127.0.0.1")' > /tmp/smn-port3000.log 2>&1 &
++          OTHER_PID=$!
 +          pnpm start > /tmp/smn-next.log 2>&1 &
 +          SERVER_PID=$!
-+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
++          trap 'kill "$SERVER_PID" "$OTHER_PID" 2>/dev/null || true' EXIT
++          test "$(curl --silent --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/)" = "other-project"
 +          for i in {1..30}; do
-+            if curl --silent --fail http://127.0.0.1:3000/ > /dev/null; then break; fi
++            if curl --silent --fail http://127.0.0.1:3003/ > /dev/null; then break; fi
 +            sleep 1
 +          done
-+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)" = "200"
-+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/setup)" = "200"
-+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/app)" = "404"
-+          curl --silent --fail http://127.0.0.1:3000/api/diagnostic | node -e 'let s="";process.stdin.on("data",x=>s+=x);process.stdin.on("end",()=>{const d=JSON.parse(s);if(d.status!=="virgin"||!d.canEnterSetup)process.exit(1)})'
++          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/)" = "200"
++          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/setup)" = "200"
++          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/app)" = "404"
++          test "$(curl --silent http://127.0.0.1:3000/)" = "other-project"
++          curl --silent --fail http://127.0.0.1:3003/api/diagnostic | node -e 'let s="";process.stdin.on("data",x=>s+=x);process.stdin.on("end",()=>{const d=JSON.parse(s);if(d.status!=="virgin"||!d.canEnterSetup)process.exit(1)})'
 +      - name: Publier le lockfile généré une seule fois
 +        if: success()
 +        run: |
@@ -422,10 +435,10 @@ index 6ded88f..c6702cb 100644
  Thumbs.db
  Desktop.ini
 diff --git a/README.md b/README.md
-index 026d271..bb0a887 100644
+index 026d271..45f5a71 100644
 --- a/README.md
 +++ b/README.md
-@@ -1,22 +1,19 @@
+@@ -1,22 +1,21 @@
  # SMN — Scrum Master Notebook
  
 -Scrum Master Notebook est un carnet de bord pour les Scrum Masters : équipes, calendriers, capacités, cycles, registres qualitatifs et rapports professionnels, avec une saisie minimale.
@@ -441,23 +454,25 @@ index 026d271..bb0a887 100644
 -2. [État BMAD, réserves et prochaine étape](docs/ETAT-PROJET-BMAD.md).
 -3. [Index des livrables BMAD](_bmad-output/planning-artifacts/README.md) : Product Brief, PRD et annexes, architecture et découpage final.
 -4. [Epics et Stories](_bmad-output/planning-artifacts/epics.md) et [Jira SMN](https://lmn24.atlassian.net/jira/software/projects/SMN), référence des tickets.
-+Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes et limites vérifiables.
++**Port web de SMN : 3003 par défaut**, afin de préserver les applications existantes sur 3000, 3001 et 3002. `SMN_PORT` permet de choisir un autre port libre (hors de ces trois ports réservés).
  
 -**État au 19 octobre 2026 :** Product Brief et PRD finalisés ; architecture documentaire finale sous réserves techniques ; workflow Create Epics and Stories clôturé. **10 Epics et 210 Stories validées fonctionnellement**, toutes À faire lors de la vérification Jira. Aucun développement applicatif ni recette attestés. Prochaine étape : **[SP] Sprint Planning**, avec contrôle de préparation avant génération du suivi.
-+## Référentiels du projet
++Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes, le port et les limites vérifiables.
  
 -## Référentiels
-+- [Contexte et décisions](docs/PROJECT-CONTEXT.md)
-+- [État du projet BMAD](docs/ETAT-PROJET-BMAD.md)
-+- [Index BMAD](_bmad-output/planning-artifacts/README.md)
-+- [User Stories Jira](https://lmn24.atlassian.net/jira/software/projects/SMN)
-+- [Travail I0 / SMN-11](https://lmn24.atlassian.net/browse/SMN-11)
++## Référentiels du projet
  
 -- GitHub : code, architecture, documentation et fichiers BMAD.
 -- Jira : Epics, Stories, bugs et tâches.
 -- BMAD Method **6.12.4** : skills dans `.agents/skills/`, configuration dans `_bmad/`, livrables dans `_bmad-output/`.
 -- [Décisions initiales F-01 à F-124](docs/DECISIONS-FONCTIONNELLES.md) et [cadrage initial](docs/CADRAGE-FONCTIONNEL.md) : historique complété par le PRD et les décisions D-PRD.
 -- Langue de collaboration et des livrables : français.
++- [Contexte et décisions](docs/PROJECT-CONTEXT.md)
++- [État du projet BMAD](docs/ETAT-PROJET-BMAD.md)
++- [Index BMAD](_bmad-output/planning-artifacts/README.md)
++- [User Stories Jira](https://lmn24.atlassian.net/jira/software/projects/SMN)
++- [Travail I0 / SMN-11](https://lmn24.atlassian.net/browse/SMN-11)
++
 +La préparation documentaire demeure sous verdict **CONCERNS** jusqu'aux preuves complémentaires. Les tests GitHub Actions ne prouvent pas à eux seuls le bon fonctionnement sur un poste Windows 11.
 diff --git a/_bmad-output/implementation-artifacts/epic-1-context.md b/_bmad-output/implementation-artifacts/epic-1-context.md
 new file mode 100644
@@ -528,10 +543,10 @@ index 0000000..cfcd2fc
 +- Les données sensibles nécessaires au reste du MVP et les exports relèvent des contrôles de confidentialité du socle ; l'implémentation complète des rapports et des sauvegardes appartient à d'autres Epics.
 diff --git a/_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md b/_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md
 new file mode 100644
-index 0000000..c5dfaaa
+index 0000000..d44ef51
 --- /dev/null
 +++ b/_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,100 @@
 +---
 +title: "SMN-11 — Démarrage local et diagnostic des prérequis"
 +type: "feature"
@@ -610,6 +625,11 @@ index 0000000..c5dfaaa
 +- **Preuve restante :** lancement `pnpm dev`, comportement et droits effectifs sur le poste Windows 11 standard de l'utilisateur ; non attestés. SMN-12 et SMN-14 ne sont pas livrés. Le ticket Jira ne doit pas être marqué terminé.
 +- **Revue BMAD indépendante :** en attente des trois couches prévues par l'étape 04 (aucune capacité subagent dans cette session) ; l'état `in-review` n'est pas une validation de revue.
 +
++- **Contrainte utilisateur complémentaire du 20/10/2026 (après approbation initiale) :** les ports localhost 3000, 3001 et 3002 sont occupés par un autre projet. Implémentation additionnelle sans toucher au bloc d'intention gelé : port SMN par défaut 3003 pour `pnpm dev` et `pnpm start`, paramètre optionnel `SMN_PORT`, refus des trois ports réservés et aucune bascule implicite. Tests dans `tests/port-config.test.mjs`, `scripts/port-config.mjs` et `scripts/serve.mjs`, documentation et CI mises à jour.
++- **Vérification CI additionnelle :** [GitHub Actions](https://github.com/JeanLamora75/SMN/actions/runs/39388328841) : 23 tests/23 réussis, lint, typecheck et build validés ; test HTTP de coexistence d'un serveur sur le port 3000 et de SMN sur 3003 réussi. Contrôle Windows réel encore nécessaire.
++
++- **Recette utilisateur Windows partielle (20/10/2026) :** le démarrage SMN et l'affichage de la page de diagnostic sur localhost:3003 sont confirmés par capture d'écran utilisateur. Message visible : « La connexion à la base SMN n'est pas encore configurée ». L'utilisateur a installé et lancé l'application via pnpm et GitHub Desktop ; commande Git CLI absente du PATH, sans incidence pour ce parcours. Deux captures supplémentaires du 20/10/2026 confirment visuellement le refus d'accès (« Accès indisponible / Access unavailable ») pour `http://localhost:3003/app` et `http://localhost:3003/setup`. Le statut HTTP 404 de ces routes a été démontré en CI Linux, pas mesuré sur le PC Windows. L'utilisateur a confirmé le 20/10/2026 que les deux projets fonctionnent **séparément** sur son PC et qu'il les démarrera alternativement : leur exécution simultanée sur Windows n'est **pas un critère exigé**. La démonstration de coexistence reste limitée à la CI Linux. Les droits PostgreSQL locaux et les autres cas de diagnostic restent à vérifier sur le poste.
++
 +## Spec Change Log
 +
 +## Review Triage Log
@@ -649,12 +669,28 @@ index 9b25405..521fdea 100644
    1-2-initialiser-une-installation-express-et-son-administrateur-d: backlog
    1-3-accompagner-l-initialisation-avec-un-parcours-guidé-facultat: backlog
    1-4-se-connecter-se-déconnecter-et-protéger-les-sessions: backlog
+diff --git a/docs/ETAT-PROJET-BMAD.md b/docs/ETAT-PROJET-BMAD.md
+index 866c7ac..54bb46b 100644
+--- a/docs/ETAT-PROJET-BMAD.md
++++ b/docs/ETAT-PROJET-BMAD.md
+@@ -55,3 +55,11 @@ PostgreSQL **18.6** déclaré par Eric ; le numéro remplace l'information manqu
+ 
+ 
+ **Complément du 20/10/2026 à 08:39 (Europe/Paris) :** Eric rapporte `SHOW server_version;` → **18.6**. Numéro du serveur interrogé confirmé par ce résultat utilisateur ; requête non exécutée par l'assistant. Connexion SMN, droits, migrations et compatibilité restent à éprouver. Voir l'inventaire technique actualisé ; CONCERNS maintenu.
++
++## Développement I0 — état opérationnel du 20 octobre 2026
++
++La Story [SMN-11](https://lmn24.atlassian.net/browse/SMN-11) est **En cours** sur Jira et `in-review` dans son artefact BMAD. La branche `dev/bmad-i0-20261020` est présentée dans la [PR nº 10](https://github.com/JeanLamora75/SMN/pull/10) (brouillon, non fusionnée).
++
++**Contrainte de coexistence confirmée par l'utilisateur :** l'autre projet utilise les ports locaux 3000, 3001 et 3002. SMN a été déplacé au **port 3003** pour les démarrages développement et production, avec `SMN_PORT` personnalisable hors des ports réservés. Le [guide Windows](../docs/INSTALLATION.md) a été actualisé.
++
++**Preuve Linux CI** : [exécution GitHub Actions](https://github.com/JeanLamora75/SMN/actions/runs/39388328841), 23 tests réussis sur 23, lint/typecheck/build et tests HTTP. La CI a maintenu un serveur simulé sur le port 3000 tout en vérifiant SMN sur 3003. **Non attesté** : usage simultané des deux projets sur le PC Windows 11, permissions PostgreSQL locales et revues BMAD indépendantes ; CONCERNS maintenu. L'ancien état « aucun développement » décrit la situation à sa date historique et ne s'applique plus à cette section.
 diff --git a/docs/INSTALLATION.md b/docs/INSTALLATION.md
 new file mode 100644
-index 0000000..88290b6
+index 0000000..df8d15e
 --- /dev/null
 +++ b/docs/INSTALLATION.md
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,86 @@
 +# SMN — Lancement et diagnostic I0 / SMN-11
 +
 +**Portée actuelle :** première interface locale et lecture seule du diagnostic PostgreSQL. Ni création de base, ni assistant Express, ni compte administrateur, ni migration ne sont encore livrés. Ces capacités appartiennent notamment à SMN-12 et SMN-14.
@@ -662,6 +698,8 @@ index 0000000..88290b6
 +## Préparation du poste Windows 11
 +
 +Utiliser une session Windows ordinaire. Prérequis déclarés par l'utilisateur : Node.js 24.21.0, pnpm 12.10.0, serveur PostgreSQL 18.6. Aucun IDE, Docker, NestJS ni élévation Windows n'est requis par la conception ; **son fonctionnement effectif sous Windows reste à tester**.
++
++Depuis GitHub Desktop, sélectionner la branche `dev/bmad-i0-20261020`, cliquer sur **Fetch origin** puis **Pull origin** si nécessaire. Le binaire Git fourni avec GitHub Desktop n'est pas forcément disponible comme commande `git` dans PowerShell : **aucune installation supplémentaire de Git CLI n'est requise**.
 +
 +Depuis le répertoire SMN récupéré avec GitHub Desktop, ouvrir PowerShell et contrôler :
 +
@@ -677,6 +715,26 @@ index 0000000..88290b6
 +```
 +
 +Le lockfile doit être présent dans la branche téléchargée avant d'utiliser `--frozen-lockfile`. Ne pas activer un changement de versions sans l'examiner.
++
++### Port HTTP réservé à SMN
++
++Les ports **3000, 3001 et 3002** sont déjà utilisés par une autre application et doivent lui rester réservés. SMN utilise **3003 par défaut**, pour `pnpm dev` comme pour `pnpm start`. Aucune modification de l'autre projet n'est nécessaire.
++
++L'adresse par défaut est **http://127.0.0.1:3003** (ou `http://localhost:3003`). Si 3003 est lui aussi occupé, SMN doit échouer en signalant que ce port n'est pas disponible, sans essayer les ports 3000 à 3002. Vous pouvez choisir un autre port libre, par exemple 3010, **uniquement pour la session PowerShell courante** :
++
++```powershell
++$env:SMN_PORT = "3010"
++pnpm dev
++```
++
++Pour revenir au port par défaut :
++
++```powershell
++Remove-Item Env:SMN_PORT -ErrorAction SilentlyContinue
++pnpm dev
++```
++
++Le contrôle `pnpm doctor` affiche aussi l'adresse configurée et refuse explicitement `SMN_PORT=3000`, `3001` ou `3002`. On ne peut pas conclure que 3003 est libre sans l'avoir testé sur le poste.
 +
 +### Connexion privée à PostgreSQL
 +
@@ -696,7 +754,7 @@ index 0000000..88290b6
 +
 +Éviter toute capture d'écran/commande contenant des mots de passe ou URL réels. Le formulaire de secret masqué et le dossier privé viendront avec l'installation guidée. En l'absence d'URL configurée, lancer simplement `pnpm dev` pour obtenir un diagnostic non connecté.
 +
-+Ouvrir **http://127.0.0.1:3000**. Si la base n'existe pas encore, le diagnostic doit l'indiquer et ne doit pas proposer de l'effacer ou de la créer en silence. L'écran `/setup` présente uniquement les prérequis dans le cas d'une base vierge ; l'installation effective sera implémentée dans SMN-12. `/app` reste bloqué.
++Ouvrir **http://127.0.0.1:3003**. Si la base n'existe pas encore, le diagnostic doit l'indiquer et ne doit pas proposer de l'effacer ou de la créer en silence. L'écran `/setup` présente uniquement les prérequis dans le cas d'une base vierge ; l'installation effective sera implémentée dans SMN-12. `/app` reste bloqué.
 +
 +Pour lancer le build compilé après `pnpm build` :
 +
@@ -709,15 +767,31 @@ index 0000000..88290b6
 +1. Démarrer sans `SMN_DATABASE_URL` : diagnostic « configuration manquante », pas de faux succès.
 +2. Arrêter PostgreSQL / fournir volontairement une URL incorrecte : diagnostic relançable et sans secret.
 +3. Vérifier qu'une URL contenant `/lmn24` est rejetée **avant connexion**.
-+4. Tester `/app` : refus/404 en l'absence d'authentification.
-+5. Tester `/setup` : accès refusé sauf si le diagnostic confirme une base SMN dédiée vierge.
-+6. Vérifier qu'aucune base ni objet métier n'a été créé par le lancement.
++4. Vérifier séparément que l'autre projet démarre sur 3000/3001/3002 et que SMN démarre sur 3003. L'utilisateur a confirmé le 20/10/2026 qu'il utilisera les deux projets **alternativement**, sans obligation d'exécution simultanée. Si 3003 est occupé, diagnostiquer le conflit et sélectionner au besoin un autre port libre avec `SMN_PORT`.
++5. Tester `/app` : refus/404 en l'absence d'authentification.
++6. Tester `/setup` : accès refusé sauf si le diagnostic confirme une base SMN dédiée vierge.
++7. Vérifier qu'aucune base ni objet métier n'a été créé par le lancement.
 +
 +**Ne créez pas de base SMN manuellement par défaut.** La création avec confirmation et contrôle des droits appartient au travail d'installation SMN-12. Aucune commande `prisma db push`, `prisma migrate dev` ou remise à zéro n'est demandée sur une base réelle.
 +
 +## Preuves et limites
 +
-+GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Les essais Windows 11, permissions effectives PostgreSQL 18.6 et authentification restent à valider sur le poste. Aucune base SMN réelle n'a été touchée par l'agent.
++GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Le 20/10/2026, l'utilisateur a confirmé par capture d'écran que la page d'accueil SMN s'ouvre sur son PC Windows 11 avec le diagnostic « La connexion à la base SMN n'est pas encore configurée » après démarrage local. Cette preuve est **limitée à l'affichage et au démarrage** : les accès directs `/setup` et `/app` (refus visuel confirmé par deux captures supplémentaires du 20/10/2026), les droits PostgreSQL 18.6 et l'authentification restent à recetter sur le poste. L'utilisateur a confirmé que les deux projets fonctionnent séparément et a choisi de ne pas les exécuter simultanément. Aucune base SMN réelle n'a été touchée par l'agent.
+diff --git a/docs/PROJECT-CONTEXT.md b/docs/PROJECT-CONTEXT.md
+index 5b8f275..2e8e85f 100644
+--- a/docs/PROJECT-CONTEXT.md
++++ b/docs/PROJECT-CONTEXT.md
+@@ -76,3 +76,10 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
+ 
+ 
+ **Sprint Planning — jalon du 19/10 à 22:41 :** [compte rendu et premier Sprint proposé](../_bmad-output/planning-artifacts/sprint-planning-2026-10-19.md). CONCERNS maintenu avec poursuite autorisée ; aucun travail marqué prêt ou réalisé. Durée, capacité et dates restent à renseigner avant engagement.
++
++## Décision technique complémentaire — ports HTTP locaux (20 octobre 2026)
++
++- Un **autre projet existant** utilise déjà `http://localhost:3000`, `http://localhost:3001` et `http://localhost:3002` : **SMN ne doit ni démarrer ni reprendre ces ports**, et ne doit pas modifier la configuration de l'autre projet.
++- Les commandes `pnpm dev` et `pnpm start` démarrent **SMN sur 127.0.0.1:3003 par défaut**. Le port est paramétrable localement par `SMN_PORT` (par exemple 3010), mais les valeurs 3000 à 3002 sont refusées explicitement.
++- Si le port 3003 est occupé, aucune bascule automatique sur les ports de l'autre projet : diagnostiquer le conflit et laisser l'utilisateur choisir un port libre.
++- [Procédure Windows et contrôle de coexistence](../docs/INSTALLATION.md). La CI a testé simultanément un serveur sur 3000 et SMN sur 3003 ; les preuves Windows restent à obtenir.
 diff --git a/eslint.config.mjs b/eslint.config.mjs
 new file mode 100644
 index 0000000..69f6e82
@@ -755,22 +829,24 @@ index 0000000..2f6491c
 +export default nextConfig;
 diff --git a/package.json b/package.json
 new file mode 100644
-index 0000000..4b0cb59
+index 0000000..e344d4d
 --- /dev/null
 +++ b/package.json
-@@ -0,0 +1,37 @@
+@@ -0,0 +1,39 @@
 +{
 +  "name": "scrum-master-notebook",
 +  "version": "0.1.0",
 +  "private": true,
-+  "engines": { "node": ">=24 <25" },
++  "engines": {
++    "node": ">=24 <25"
++  },
 +  "packageManager": "pnpm@12.10.0",
 +  "scripts": {
-+    "dev": "next dev --hostname 127.0.0.1",
++    "dev": "node scripts/serve.mjs dev",
 +    "build": "next build",
-+    "start": "next start --hostname 127.0.0.1",
++    "start": "node scripts/serve.mjs start",
 +    "lint": "eslint .",
-+    "test": "tsx --test tests/*.test.ts",
++    "test": "tsx --test tests/*.test.ts tests/*.test.mjs",
 +    "typecheck": "tsc --noEmit",
 +    "doctor": "node scripts/doctor.mjs"
 +  },
@@ -6084,11 +6160,12 @@ index 0000000..a54f014
 +}
 diff --git a/scripts/doctor.mjs b/scripts/doctor.mjs
 new file mode 100644
-index 0000000..9d80bcb
+index 0000000..784567e
 --- /dev/null
 +++ b/scripts/doctor.mjs
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,18 @@
 +#!/usr/bin/env node
++import { resolveSmnPort } from "./port-config.mjs";
 +// Préconditions non sensibles. Le contrôle de connexion est réalisé par la page serveur.
 +const major = Number(process.versions.node.split(".")[0]);
 +if (major !== 24) {
@@ -6098,7 +6175,78 @@ index 0000000..9d80bcb
 +  console.log("Node.js 24 LTS détecté.");
 +}
 +console.log("Configuration PostgreSQL : à renseigner localement (SMN_DATABASE_URL).");
-+console.log("Le diagnostic PostgreSQL détaillé est disponible sur http://127.0.0.1:3000.");
++try {
++  const port = resolveSmnPort();
++  console.log(`Le diagnostic PostgreSQL est disponible après démarrage sur http://127.0.0.1:${port}.`);
++} catch (error) {
++  console.error(error instanceof Error ? error.message : "Port SMN invalide.");
++  process.exitCode = 1;
++}
+diff --git a/scripts/port-config.mjs b/scripts/port-config.mjs
+new file mode 100644
+index 0000000..a280d03
+--- /dev/null
++++ b/scripts/port-config.mjs
+@@ -0,0 +1,18 @@
++// Configuration locale unique des ports web SMN. Aucune lecture de secrets.
++export const DEFAULT_SMN_PORT = 3003;
++export const RESERVED_PORTS = Object.freeze([3000, 3001, 3002]);
++
++export function resolveSmnPort(raw = process.env.SMN_PORT) {
++  if (raw === undefined || raw === "") return DEFAULT_SMN_PORT;
++  if (!/^[0-9]+$/.test(raw)) {
++    throw new Error("SMN_PORT doit contenir un numéro de port entier (1024 à 65535).");
++  }
++  const port = Number(raw);
++  if (!Number.isSafeInteger(port) || port < 1024 || port > 65535) {
++    throw new Error("SMN_PORT doit être compris entre 1024 et 65535.");
++  }
++  if (RESERVED_PORTS.includes(port)) {
++    throw new Error("Les ports 3000, 3001 et 3002 sont réservés à l'autre projet. Choisissez un autre port.");
++  }
++  return port;
++}
+diff --git a/scripts/serve.mjs b/scripts/serve.mjs
+new file mode 100644
+index 0000000..d9e8318
+--- /dev/null
++++ b/scripts/serve.mjs
+@@ -0,0 +1,35 @@
++#!/usr/bin/env node
++// Démarre Next.js sur un port dédié, identique en développement et production.
++// Passer les arguments séparément évite toute interpolation shell et toute fuite de secrets.
++import { spawn } from "node:child_process";
++import { fileURLToPath } from "node:url";
++import { resolveSmnPort } from "./port-config.mjs";
++
++const mode = process.argv[2];
++if (mode !== "dev" && mode !== "start" || process.argv.length !== 3) {
++  console.error("Usage : pnpm dev ou pnpm start.");
++  process.exitCode = 1;
++} else {
++  let port;
++  try {
++    port = resolveSmnPort();
++  } catch (error) {
++    console.error(error instanceof Error ? error.message : "Configuration de port invalide.");
++    process.exit(1);
++  }
++
++  console.log(`SMN : http://127.0.0.1:${port} (port configurable avec SMN_PORT)`);
++  const nextCli = fileURLToPath(new URL("../node_modules/next/dist/bin/next", import.meta.url));
++  const child = spawn(
++    process.execPath,
++    [nextCli, mode, "--hostname", "127.0.0.1", "--port", String(port)],
++    { stdio: "inherit", shell: false },
++  );
++  child.on("error", () => {
++    console.error("Impossible de démarrer Next.js. Vérifiez pnpm install et la disponibilité du port SMN.");
++    process.exitCode = 1;
++  });
++  child.on("exit", (code, signal) => {
++    process.exitCode = code ?? (signal === "SIGINT" ? 130 : 1);
++  });
++}
 diff --git a/src/app/api/diagnostic/route.ts b/src/app/api/diagnostic/route.ts
 new file mode 100644
 index 0000000..b8a8d85
@@ -6617,6 +6765,38 @@ index 0000000..67dbda3
 +    assert.equal(parseConnectionSettings("postgresql://local:pass@localhost:5432/smn").ok, true);
 +    assert.equal(parseConnectionSettings("postgresql://local:pass@[::1]:5432/smn_test").ok, true);
 +    assert.equal(JSON.stringify(parseConnectionSettings("bad-uri")).includes("bad-uri"), false);
++  });
++});
+diff --git a/tests/port-config.test.mjs b/tests/port-config.test.mjs
+new file mode 100644
+index 0000000..d2d85e9
+--- /dev/null
++++ b/tests/port-config.test.mjs
+@@ -0,0 +1,26 @@
++import assert from "node:assert/strict";
++import { describe, it } from "node:test";
++import { DEFAULT_SMN_PORT, RESERVED_PORTS, resolveSmnPort } from "../scripts/port-config.mjs";
++
++describe("SMN-11 — coexistence des serveurs locaux", () => {
++  it("utilise 3003 par défaut, hors des ports réservés", () => {
++    assert.equal(resolveSmnPort(undefined), 3003);
++    assert.equal(DEFAULT_SMN_PORT, 3003);
++    assert.equal(RESERVED_PORTS.includes(resolveSmnPort(undefined)), false);
++  });
++  it("accepte un port personnalisé non réservé sans changer la valeur par défaut", () => {
++    assert.equal(resolveSmnPort("3010"), 3010);
++    assert.equal(resolveSmnPort("3003"), 3003);
++    assert.equal(resolveSmnPort(""), DEFAULT_SMN_PORT);
++  });
++  it("rejette les ports 3000 à 3002 déjà attribués à l'autre projet", () => {
++    for (const port of RESERVED_PORTS) {
++      assert.throws(() => resolveSmnPort(String(port)), /réservés/);
++    }
++  });
++  it("rejette les numéros invalides, partiels ou non autorisés", () => {
++    for (const value of ["0", "80", "65536", "3003x", "-3003", "3003.5", " 3003", "Infinity"]) {
++      assert.throws(() => resolveSmnPort(value));
++    }
 +  });
 +});
 diff --git a/tests/postgres-integration.test.ts b/tests/postgres-integration.test.ts
