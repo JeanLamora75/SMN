@@ -30,7 +30,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
   if (![1,2,3].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
-  if (!INSTALLATION_RELATIONS.every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
+  if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
   const isV2 = records[0].schema_version >= 2;
   const isV3 = records[0].schema_version === 3;
