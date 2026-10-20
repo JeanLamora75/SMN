@@ -22,6 +22,17 @@ async function withClient<T>(uri: string, task: (client: Client) => Promise<T>):
   finally { await client.end().catch(() => undefined); }
 }
 describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enabled }, () => {
+  it("contrôle les identifiants PostgreSQL fournis avant création de la base SMN", async () => {
+    assert.ok(source);
+    const input = new URL(source);
+    const user = decodeURIComponent(input.username);
+    const password = decodeURIComponent(input.password);
+    const port = Number(input.port || "5432");
+    const uri = await prepareExisting({ postgresUser: user, postgresPassword: password, postgresPort: port });
+    assert.equal(new URL(uri).pathname, "/smn");
+    await assert.rejects(() => prepareExisting({ postgresUser: user, postgresPassword: "invalid-ci-password", postgresPort: port }), /postgres-auth-invalid/);
+  });
+
   it("vérifie les identifiants PostgreSQL fournis sans aucune écriture", async () => {
     assert.ok(source);
     const url = new URL(source);
