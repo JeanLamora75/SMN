@@ -6,6 +6,7 @@
  */
 export type PgStartupFailure =
   | "managed-pg-port-in-use"
+  | "managed-pg-bind-denied"
   | "managed-pg-permission-denied"
   | "managed-pg-shared-memory"
   | "managed-pg-locked"
@@ -16,6 +17,10 @@ export type PgStartupFailure =
 
 export function classifyPostgresStartupLog(newLines: string): PgStartupFailure {
   const text = newLines.slice(-12000).toLowerCase();
+  const bindIssue = /(n.a pas pu lier|could not bind|could not create (?:any )?tcp\/ip sockets|n.a pas pu créer.*socket tcp\/ip|n.a pas pu créer le socket d.écoute)/i.test(text);
+  if (bindIssue && /(permission denied|access denied|access is denied|accès refusé)/i.test(text)) {
+    return "managed-pg-bind-denied";
+  }
   if (/(address already in use|could not bind.*address|only one usage of each socket|adresse.*déjà utilisée|port.*already in use)/i.test(text)) {
     return "managed-pg-port-in-use";
   }
