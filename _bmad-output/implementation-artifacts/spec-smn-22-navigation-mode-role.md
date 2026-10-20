@@ -15,4 +15,4 @@
 
 Voir `docs/NAVIGATION-SMN-22.md`. Tests créés `tests/private-navigation.test.ts`. Tests CI non attestés à ce stade.
 
-**Statut BMAD :** implémentation publiée sur branche, validation fonctionnelle de l'Epic 1 déjà accordée, vérification Windows/CI à compléter.
+**Statut BMAD :** implémentation fusionnée dans `main` par [PR #17](https://github.com/JeanLamora75/SMN/pull/17), validation fonctionnelle de l'Epic 1 déjà accordée ; vérification Windows/CI à compléter avant passage à « Terminé ».

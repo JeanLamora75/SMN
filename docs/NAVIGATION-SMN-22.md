@@ -3,7 +3,7 @@
 - Story Jira : https://lmn24.atlassian.net/browse/SMN-22
 - Branche : `feat/smn-22-navigation-mode-role`
 - Epic : SMN-1 ; incrément I0
-- Statut : développée sur branche, recette sur PC / CI à confirmer
+- Statut : **intégrée dans `main` via [PR #17](https://github.com/JeanLamora75/SMN/pull/17)** ; recette sur PC / CI non attestée
 
 ## Fonctionnement livré
 
@@ -32,8 +32,6 @@ Le masquage n'est pas une autorisation. `src/server/access-policy.ts`, `src/serv
 ## Commandes de recette
 
 ```powershell
-git checkout main
-git pull origin main
 pnpm install --frozen-lockfile
 pnpm i18n:check
 pnpm typecheck
@@ -41,5 +39,7 @@ pnpm test
 pnpm build
 pnpm dev
 ```
+
+Avec GitHub Desktop, effectuer **Fetch origin**, puis **Pull origin** sur la branche `main`, avant les commandes ci-dessus.
 
 Sur PC : vérifier les profils Admin et Utilisateur, les modes Scrum et Kanban, la mise en évidence de chaque page, l'écran étroit, la navigation clavier et les accès directs aux routes API d'administration. La publication de la branche ne vaut pas preuve d'exécution de ces commandes.

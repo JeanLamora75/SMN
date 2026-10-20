@@ -103,3 +103,14 @@ La mise en place du socle internationalisé est spécifiée dans [le dossier BMA
 ## Suivi du lot SMN-27 — 20 octobre 2026
 
 Le socle i18n JSON FR/EN et la migration des écrans existants (public, installation, tableau de bord, administration, sécurité) ont été **codés sur la branche de travail** [PR nº 15](https://github.com/JeanLamora75/SMN/pull/15), et **non fusionnés dans `main`**. La règle ADR-I0-004 reste obligatoire pour toutes les futures Stories. La CI GitHub Actions bloque avant l'affectation des jobs et **ne permet pas d'attester les tests** ; Jira SMN-27 est en cours, pas terminé. Les affirmations plus haut décrivant des fichiers encore « non créés » correspondent à l'état de `main` avant fusion.
+
+## État intégré des développements I0 — 20 octobre 2026 (référence actuelle)
+
+Cette section **remplace, pour l'état présent, les mentions historiques plus haut** indiquant que les catalogues i18n seraient absents ou que les PR seraient encore ouvertes. Ces mentions décrivent uniquement la chronologie des travaux.
+
+- **SMN-19 — sécurité des secrets** : intégré à `main`, [PR #14](https://github.com/JeanLamora75/SMN/pull/14).
+- **SMN-27 — i18n JSON centralisée** : intégré à `main`, [PR #15](https://github.com/JeanLamora75/SMN/pull/15). Les catalogues `src/i18n/fr.json` et `src/i18n/en.json` existent et tous les nouveaux textes doivent y être centralisés.
+- **SMN-20 — tâches facultatives de configuration** : intégré à `main`, [PR #16](https://github.com/JeanLamora75/SMN/pull/16).
+- **SMN-22 — navigation contextualisée par rôle et mode** : intégré à `main`, [PR #17](https://github.com/JeanLamora75/SMN/pull/17). Menu commun aux pages privées, groupes Pilotage, Calendrier, Cycles/bilans, Registres, Rapports/IA, Administration. Rôles admin/utilisateur, modes Scrum/Kanban, fonctions futures signalées comme indisponibles. Références : [documentation](NAVIGATION-SMN-22.md), [spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-22-navigation-mode-role.md).
+- **Qualification** : le fait qu'une PR soit fusionnée prouve l'intégration du code, pas le passage de la recette. Les jobs GitHub Actions restent en échec avant l'exécution de leurs étapes ; tant que tests et recette Windows ne sont pas exécutés, ne pas déclarer les Stories « Terminées ».
+- **Livraison** : `main` est la seule branche de référence du pilote ; utiliser **GitHub Desktop → Fetch origin → Pull origin** pour récupérer les nouveautés. Les agents suivants privilégient les changements directement sur `main`, conformément à l'arbitrage déjà noté ci-dessus ; toute branche temporaire doit être fusionnée immédiatement et ne doit pas devenir une nouvelle référence.
