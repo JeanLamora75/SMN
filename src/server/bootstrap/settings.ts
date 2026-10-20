@@ -45,8 +45,7 @@ export function existingUri(user: string, password: string, port = 5432): string
     "@127.0.0.1:" + port + "/smn";
 }
 export async function saveExistingConfig(user: string, password: string, port: number): Promise<void> {
-  const uri = existingUri(user, password, port);
-  void uri;
+  existingUri(user, password, port);
   const config: DatabaseConfig = { version: 1, kind: "existing", user, port,
     passwordEncrypted: await encryptSetting(password) };
   const filename = path.join(appDataDirectory(), "postgres-connection.json");
