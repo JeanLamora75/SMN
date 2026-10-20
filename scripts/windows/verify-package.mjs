@@ -104,13 +104,16 @@ try {
       assert.equal(retry.status, 202, "La reprise confirmée doit être acceptée");
     }
     let done = false;
+    let lastStep = "";
     for (let i = 0; i < 300; i++) {
       await new Promise(resolve => setTimeout(resolve, 2000));
       const poll = await (await fetch(base + "/api/bootstrap")).json();
+      const step = `${poll.status}: ${poll.step} (${poll.progress}%)`;
+      if (step !== lastStep) { console.log("Préparation Windows : " + step); lastStep = step; }
       if (poll.status === "failed") throw new Error("Installation Windows échouée : " + poll.error);
       if (poll.status === "complete") { done = true; break; }
     }
-    assert.equal(done, true, "La préparation a dépassé dix minutes");
+    assert.equal(done, true, "La préparation a dépassé dix minutes ; dernière étape : " + lastStep);
     if (portFallback) {
       const cfg = JSON.parse(await readFile(
         path.join(isolatedHome, "ScrumMasterNotebook", "runtime.json"), "utf8"));
@@ -126,7 +129,9 @@ try {
     }
     const diag = await (await fetch(base + "/api/diagnostic")).json();
     assert.equal(diag.status, "initialized");
-    assert.equal((await fetch(base + "/app")).status, 404);
+    const privatePage = await fetch(base + "/app", { redirect: "manual" });
+    assert.equal(privatePage.status, 307);
+    assert.equal(new URL(privatePage.headers.get("location"), base).pathname, "/login");
     assert.equal((await fetch(base + "/welcome")).status, 404);
     console.log("PASS : installation Express complète dans une base Windows isolée.");
   } else {
