@@ -113,7 +113,17 @@ try {
   alt = launch("start", 3010, { SMN_DATABASE_URL: uri });
   await waitHttp(3010, alt);
   assert.equal((await fetch("http://127.0.0.1:3010/")).status, 200);
-  console.log("SMN-11 : HTTP, diagnostics PG, langues, headers et ports réussis.");
+  await stop(alt);
+  alt = undefined;
+  const invalid = launch("start", 3010, {
+    SMN_DATABASE_URL: "postgresql://nobody:invalid@127.0.0.1:5432/lmn24",
+  });
+  alt = invalid;
+  await waitHttp(3010, alt);
+  const invalidDiagnostic = await (await fetch("http://127.0.0.1:3010/api/diagnostic")).json();
+  assert.equal(invalidDiagnostic.status, "configuration-invalid");
+  assert.equal((await fetch("http://127.0.0.1:3010/setup")).status, 404);
+  console.log("SMN-11 : HTTP, diagnostics PG, langues, headers, routes et ports réussis.");
 } finally {
   await stop(app);
   await stop(alt);
