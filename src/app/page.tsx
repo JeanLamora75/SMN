@@ -31,7 +31,7 @@ export default async function HomePage() {
             : "Le démarrage ne crée aucune base ni aucun compte. Les pages privées restent protégées jusqu'à la livraison de l'authentification."}
         </p>
         <div className="d-flex flex-wrap gap-2 mt-4">
-          <a className="btn btn-outline-primary" href="/">{en ? "Retry diagnostics" : "Relancer le diagnostic"}</a>
+          <Link className="btn btn-outline-primary" href="/">{en ? "Retry diagnostics" : "Relancer le diagnostic"}</Link>
           {canVisitSetup(diagnostic) && (
             <Link className="btn btn-primary" href="/setup">
               {en ? "Prepare installation" : "Préparer l'installation"}

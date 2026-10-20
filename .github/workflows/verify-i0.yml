@@ -22,6 +22,22 @@ permissions:
 jobs:
   verifier:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: smn_ci
+          POSTGRES_PASSWORD: smn_ci_ephemeral_test
+          POSTGRES_DB: smn_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U smn_ci -d smn_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,6 +67,21 @@ jobs:
         run: pnpm build
         env:
           NEXT_TELEMETRY_DISABLED: "1"
+      - name: Vérifier les routes HTTP sur le serveur de production
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm start > /tmp/smn-next.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:3000/ > /dev/null; then break; fi
+            sleep 1
+          done
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)" = "200"
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/setup)" = "200"
+          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/app)" = "404"
+          curl --silent --fail http://127.0.0.1:3000/api/diagnostic | node -e 'let s="";process.stdin.on("data",x=>s+=x);process.stdin.on("end",()=>{const d=JSON.parse(s);if(d.status!=="virgin"||!d.canEnterSetup)process.exit(1)})'
       - name: Publier le lockfile généré une seule fois
         if: success()
         run: |
