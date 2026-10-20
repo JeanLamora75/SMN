@@ -2,7 +2,7 @@
 title: "SMN-12 — Installation Express et premier Administrateur"
 type: "feature"
 created: "2026-10-20"
-status: "in-progress"
+status: "in-review"
 route: "dispatch"
 review_loop_iteration: 0
 baseline_commit: "4bf60ae4724f1015c68c8a23adf95958d135cd0d"
@@ -51,12 +51,12 @@ context:
 ## Tasks & Acceptance
 
 **Execution :**
-- [ ] `src/server/installation/**` : préflight, cible et droits, autorisation locale temporaire, confirmation et reprise.
-- [ ] `src/server/db/**`, `prisma/schema.prisma`, `prisma/migrations/**` : création contrôlée de la base, migrations versionnées et manifeste, garde-fous et transaction métier.
-- [ ] `src/app/setup/**`, `src/app/page.tsx` : formulaire Express, validations, erreurs et succès sans fuite de secrets.
-- [ ] `src/server/auth/**` : Administrateur unique et secret sécurisé, changement obligatoire avant métier.
-- [ ] `tests/**`, `.github/workflows/**` : tests sur PG éphémère des créations, droits limités, refus, panne et concurrence ; Windows.
-- [ ] `docs/INSTALLATION.md`, `README.md` : instructions PowerShell/GitHub Desktop et reprise sans SQL manuel normal.
+- [x] `src/server/installation/**` : préflight, cible et droits, autorisation locale temporaire, confirmation et reprise.
+- [x] `src/server/db/**`, `prisma/schema.prisma`, `prisma/migrations/**` : création contrôlée de la base, migrations versionnées et manifeste, garde-fous et transaction métier.
+- [x] `src/app/setup/**`, `src/app/page.tsx` : formulaire Express, validations, erreurs et succès sans fuite de secrets.
+- [x] `src/server/auth/**` : Administrateur unique et secret sécurisé, changement obligatoire avant métier.
+- [x] `tests/**`, `.github/workflows/**` : tests sur PG éphémère des créations, droits limités, refus, panne et concurrence ; Windows.
+- [x] `docs/INSTALLATION.md`, `README.md` : instructions PowerShell/GitHub Desktop et reprise sans SQL manuel normal.
 
 **Acceptance Criteria :**
 - Given une base absente, when l'utilisateur confirme et dispose du droit, then SMN crée seulement sa base dédiée.
@@ -66,11 +66,21 @@ context:
 
 ## Implementation Notes
 
+- 2026-10-20 — Option A approuvée et reflétée dans la description Jira SMN-12 : l'installation crée les premières données et l'Administrateur, mais le tableau de bord et le changement du secret initial restent à SMN-14.
+- Réalisation : `src/app/setup` (interface et confirmation), `src/app/api/setup/route.ts` (jeton local et contrôle d'origine), `src/server/installation/install.ts` (préflight, création contrôlée et transaction), `prisma/migrations/20261020_smn12_initial/migration.sql` (schéma versionné), `src/server/db/probe.ts` (reconnaissance du schéma et du checksum), `prisma/schema.prisma` (contrat), tests et documentation.
+- Les tests d'écriture PostgreSQL s'exécutent seulement sur un service éphémère GitHub Actions ; sur Windows CI, la suite PG est volontairement ignorée. Aucun essai sur le PostgreSQL réel de l'utilisateur n'a été réalisé.
+- **Validation CI** : https://github.com/JeanLamora75/SMN/actions/runs/39417243723 — **Linux : 37 tests/37 réussis, lint/typecheck/build, validation du schéma Prisma et smoke HTTP** ; **Windows : tests applicatifs, build et smoke de démarrage réussis**. Les essais incluent le refus de la double initialisation et deux requêtes concurrentes sur une base dédiée jetable.
+- **Restes à valider en recette locale** : saisie et confirmation dans le navigateur Windows standard, droits effectifs du rôle PostgreSQL 18.6 de l'utilisateur, dossier de secrets privé durable (SMN-19), authentification et changement forcé du mot de passe initial (SMN-14). La mutation sur la base réelle ne sera effectuée qu'après confirmation depuis le formulaire.
+- **Adaptation BMAD** : `uv run .../render_skill.py` n'a pas été exécuté sur le poste utilisateur, car les commandes de ce dépôt ne sont pas accessibles localement par les connecteurs ; étapes BMAD suivies manuellement et preuve issue de GitHub Actions. Aucune revue indépendante supplémentaire n'est affirmée.
+
+
 - 2026-10-20 : option A explicitement approuvée. Adaptation ChatGPT : exécution locale obligatoire du rendu BMAD impossible depuis le connecteur GitHub ; application manuelle traçable de la spécification et des étapes disponibles, sans prétendre avoir exécuté `uv run`.
 
 ## Spec Change Log
 
 ## Review Triage Log
+
+- Phase 1 de revue par tests et correction itérative : échec lint JSX puis correctifs, erreur Prisma datasource puis correction, nouvelle couverture PostgreSQL créée. Aucune revue externe officielle encore recueillie pour SMN-12. Le statut `in-review` représente une préparation à la recette et à l'examen de la PR, **pas une acceptation utilisateur ni une fusion dans main**.
 
 ## Design Notes
 
