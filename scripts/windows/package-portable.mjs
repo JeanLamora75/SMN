@@ -11,7 +11,9 @@ if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
 const target = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd(), "_package", "SMN-Windows"));
 if (!existsSync(".next/standalone/server.js")) throw new Error("Next standalone manquant. Vérifier next.config et pnpm build.");
 await mkdir(target, { recursive: true });
-await cp(".next/standalone", target, { recursive: true, force: true });
+// pnpm/Next produisent des liens symboliques vers .next/standalone ; un paquet
+// autonome doit copier leurs cibles, sinon Node cherchera les fichiers source.
+await cp(".next/standalone", target, { recursive: true, force: true, dereference: true });
 await mkdir(path.join(target, ".next", "static"), { recursive: true });
 await cp(".next/static", path.join(target, ".next", "static"), { recursive: true, force: true });
 if (existsSync("public")) await cp("public", path.join(target, "public"), { recursive: true, force: true });
