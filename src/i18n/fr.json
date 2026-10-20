@@ -44,5 +44,54 @@
       "schema-incompatible": "Le schéma de la base n'est pas reconnu ; aucune modification ne sera appliquée automatiquement.",
       "installation-incomplete": "L'installation paraît partielle. Aucun accès métier n'est autorisé."
     }
+  },
+  "notFound": {
+    "title": "Accès indisponible",
+    "message": "L'accès est refusé ou la page n'existe pas.",
+    "home": "Retour à l’accueil"
+  },
+  "settings": {
+    "title": "Paramètres généraux",
+    "intro": "Personnaliser l'installation sans modifier son produit, son mode Agile ou les historiques enregistrés.",
+    "back": "Retour au tableau de bord",
+    "fixed": "Choix fixes de l'installation",
+    "fixedInfo": "Le mode et le produit de référence sont définis lors de l'installation. Leur modification nécessite une installation distincte.",
+    "mode": "Mode Agile",
+    "product": "Produit",
+    "editable": "Préférences administrables",
+    "locale": "Langue préférée",
+    "localeInfo": "Langue utilisée par les écrans déjà migrés dans SMN-27. La migration des autres écrans se poursuit.",
+    "theme": "Thème préféré",
+    "themeInfo": "Préférence enregistrée ; l'application complète du thème est prévue par une prochaine Story.",
+    "country": "Pays de référence",
+    "countryEmpty": "Non renseigné",
+    "unknownCountry": "{code} — pays existant",
+    "countryInfo": "Pays par défaut des futures fiches membres ; aucun calendrier, membre ou bilan passé n'est recalculé.",
+    "displayInfo": "Les préférences d'affichage sont disponibles pour les modules compatibles. Les paramètres influençant les créations s'appliquent uniquement aux nouvelles données, sans modifier les historiques et documents archivés.",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer les paramètres",
+    "reload": "Recharger",
+    "revision": "Révision {revision} — dernière modification : {date}",
+    "retryLoad": "Réessayer de charger",
+    "loadError": "Impossible de charger les paramètres. Aucun changement enregistré.",
+    "conflict": "Ces paramètres ont été modifiés dans un autre onglet. Rechargez les valeurs avant de réessayer.",
+    "invalid": "Valeur non autorisée. Vérifiez les réglages.",
+    "saveError": "Enregistrement indisponible : les anciens paramètres sont conservés.",
+    "saved": "Paramètres enregistrés. L'historique existant n'a pas été modifié.",
+    "unchanged": "Aucun changement nécessaire : les paramètres sont déjà à jour.",
+    "network": "Connexion interrompue. Vérifiez les valeurs après rechargement avant tout nouvel essai.",
+    "light": "Clair",
+    "dark": "Sombre",
+    "french": "Français",
+    "english": "English",
+    "countries": {
+      "FR": "France",
+      "DE": "Allemagne",
+      "GB": "Royaume-Uni",
+      "ES": "Espagne",
+      "PT": "Portugal",
+      "IT": "Italie",
+      "CA": "Canada"
+    }
   }
 }
