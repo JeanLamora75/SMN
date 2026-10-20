@@ -2,7 +2,7 @@
 title: "SMN-17 — Révoquer les accès compromis et renouveler son mot de passe"
 type: feature
 created: "2026-10-20"
-status: in-progress
+status: review
 route: dispatch
 review_loop_iteration: 0
 remote_baseline_commit: "313482fa3fbd6f12c11c410fb079ecb706be31bd"
@@ -43,8 +43,8 @@ Jamais de mot de passe en clair en base, de second administrateur automatique, d
 - [x] Migration additive avec verrou, checksum et audit sans secret.
 - [x] Interface authentifiée pour préparer la phrase, contrôlée au serveur.
 - [x] Commande locale sans secrets en arguments, phrase à usage unique, mot de passe saisi masqué.
-- [ ] CI sur révision finale Linux PostgreSQL, HTTP, TypeScript et Windows.
-- [ ] Contrôle du paquet Windows autonome sur révision finale.
+- [x] CI sur révision stabilisée Linux PostgreSQL, HTTP, TypeScript et Windows, [run 39472442560](https://github.com/JeanLamora75/SMN/actions/runs/39472442560), réussite.
+- [x] Contrôle du paquet Windows autonome sur révision stabilisée, [run 39472442745](https://github.com/JeanLamora75/SMN/actions/runs/39472442745), réussite et artefact 12286339309.
 - [ ] Relectures BMAD indépendantes du diff stabilisé et triage.
 - [ ] Recette globale Windows 11 de l'utilisateur. Jira demeure En cours.
 
@@ -54,4 +54,4 @@ L'autre session disposait d'une implémentation locale non publiée de SMN-17 au
 Les commandes de tests applicatives CI sont exécutées exclusivement contre le service PostgreSQL éphémère GitHub Actions. Aucune modification de base utilisateur, aucune suppression ni réinstallation.
 
 ## Preuves et limites
-À compléter sur la révision stabilisée, avec les liens précis CI et la distinction entre exécutions et intentions de test. Les tests sur poste Windows 11 sont expressément différés.
+Le commit vérifié `af81af224a97bf8ab8bf0484fb3f1fb496824197` a réussi la CI Linux/PostgreSQL 18, tests HTTP et Windows ([39472442560](https://github.com/JeanLamora75/SMN/actions/runs/39472442560)). Le paquet Windows autonome a passé compilation, installation isolée et smoke incluant l'exécutable de récupération sans TTY ([39472442745](https://github.com/JeanLamora75/SMN/actions/runs/39472442745)). La non-régression est exécutée sur des données CI éphémères, et non la base utilisateur. Ces preuves ne constituent pas une récupération réelle sur le PC de l'utilisateur ; les trois revues indépendantes BMAD ne sont pas attestées. La recette globale Windows 11 demeure différée.
