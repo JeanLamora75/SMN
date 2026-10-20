@@ -10,6 +10,7 @@ import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import { prepareExisting } from "../src/server/bootstrap/existing";
 import { authenticate, changeInitialPassword } from "../src/server/auth/credentials";
 import { ensureAccountsSchema, ACCOUNTS_MIGRATION_SQL } from "../src/server/accounts/migration";
+import { listAccounts,createAccount,updateAccount } from "../src/server/accounts/manager";
 
 // Base créée et supprimée exclusivement par le runner éphémère GitHub Actions.
 const source = process.env.SMN_TEST_DATABASE_URL;
@@ -133,6 +134,35 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       const accounts = await withClient(target.toString(), async (client) =>
         client.query("SELECT id FROM public.smn_account"));
       assert.equal(accounts.rowCount, 1);
+      await withClient(target.toString(), async client => {
+        const admin=(await authenticate(client,"admin","newPassword123"))!;
+        const newUser=await createAccount(client,{
+          username:"consultant",email:"consultant@example.test",password:"pilot1234",role:"user",
+        });
+        assert.equal(newUser.ok,true);
+        if (!newUser.ok) return;
+        const userId=newUser.data.id;
+        assert.equal((await listAccounts(client)).length,2);
+        assert.equal((await authenticate(client,"consultant","pilot1234"))?.role,"user");
+        const duplicate=await createAccount(client,{
+          username:"CONSULTANT",email:"other@example.test",password:"pilot1234",role:"user",
+        });
+        assert.deepEqual(duplicate,{ok:false,error:"duplicate-account"});
+        assert.equal((await listAccounts(client)).length,2,"Pas de ligne créée après collision");
+        const lastAdmin=await updateAccount(client,admin.id,userId,{role:"user",isActive:false});
+        assert.deepEqual(lastAdmin,{ok:false,error:"last-admin"});
+        assert.equal((await updateAccount(client,userId,userId,{role:"admin",isActive:true})).ok,false);
+        const promote=await updateAccount(client,userId,admin.id,{role:"admin",isActive:true});
+        assert.equal(promote.ok,true);
+        assert.equal((await authenticate(client,"consultant","pilot1234"))?.role,"admin");
+        const disabled=await updateAccount(client,userId,admin.id,{role:"user",isActive:false});
+        assert.equal(disabled.ok,true);
+        assert.equal(await authenticate(client,"consultant","pilot1234"),null);
+        assert.equal((await listAccounts(client)).find(x=>x.id===userId)?.is_active,false);
+        const enabled=await updateAccount(client,userId,admin.id,{role:"user",isActive:true});
+        assert.equal(enabled.ok,true);
+        assert.equal((await authenticate(client,"consultant","pilot1234"))?.role,"user");
+      });
     } finally {
       await withClient(maintenance.toString(), async (client) => {
         await client.query("DROP DATABASE IF EXISTS smn_ci_setup WITH (FORCE)");
