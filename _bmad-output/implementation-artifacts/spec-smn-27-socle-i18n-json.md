@@ -117,3 +117,49 @@ La version `en.json` conservera exactement ces clés et proposera leurs traducti
 **Verification Gap Reviewer :** comparer le diff et les tests I18N-01 à 11, distinguer tests exécutés/ignorés/simulés, repérer les textes résiduels, les différences SSR/CSR, les accès aux paramètres globaux et les failles de fuite des erreurs. La simple présence de fichiers JSON ne constitue pas la conformité.
 
 **Livrable de cette étape : ce dossier de préparation et les liens dans Jira/BMAD. Aucun code runtime n'est ajouté.**
+
+
+## État du développement du socle — 20/10/2026
+
+**État BMAD : in-progress** ; la Story ne peut pas passer en review. Développement sur `dev/smn-27-i18n-json-20261020` **sans intégration dans `main`**, car les contrôles d'exécution restent bloqués.
+
+- [x] `src/i18n/fr.json` et `src/i18n/en.json` créés : catalogue de départ pour diagnostics, accueil, connexion, paramètres et 404 ; structure identique.
+- [x] `src/i18n/catalog.ts` avec clés typées, interpolation et repli français ; `src/i18n/client.tsx` comme provider React.
+- [x] `src/i18n/locale.server.ts` : négociation navigateur avant installation, lecture SELECT des paramètres SMN-18 après installation, sans migration.
+- [x] Première migration `src/app/{layout,page,login/**,not-found}.tsx`, page et formulaire d'administration des paramètres.
+- [x] Dictionnaire historique `src/lib/messages.ts` réduit à un adaptateur des clés JSON, sans textes duplicatifs.
+- [x] Ajout du contrôle indépendant `scripts/verify-i18n.mjs`, `pnpm i18n:check`, tests unitaires et jobs CI Linux/Windows/packaging.
+- [ ] Migration restante des écrans privés (tableau de bord, navigation, sessions, comptes, sécurité et changement de mot de passe) et installateurs (Express/Guidé).
+- [ ] Revue du risque de performance/effets de bord lié à la résolution de la locale PostgreSQL au layout ; validation de la chaîne SSR/hydratation.
+- [ ] Tests exécutés avec Node 24 et PostgreSQL, lint/typecheck, builds Linux et Windows, artefact Windows. Rien de ceci n'est revendiqué comme réussi.
+- [ ] Revue indépendante et recette globale utilisateur.
+
+**Preuve limitée :** les deux catalogues ont été comparés *en mémoire* en lisant les fichiers GitHub : 36 clés de départ de chaque côté sans différence ni paramètres divergents, avant ajout des libellés paramètres/404. Cette comparaison n'est pas une exécution du script Node ou de la CI. Le nouveau script doit s'exécuter réellement et réussir avant fusion. Les règles de repli et d'interpolation nécessitent également les tests TypeScript et l'exécution de l'application.
+
+
+### Contrôle statique après raccordement (branche, 20/10/2026)
+
+- Lecture et analyse des **fichiers réellement présents sur la branche** : `fr.json` et `en.json` possèdent chacun **79 clés feuilles** ; mêmes ensembles de clés (0 manquante).
+- Inspection des premières pages migrées : **46 références littérales** de traduction identifiées dans les TSX contrôlés, toutes résolues dans les deux catalogues (0 clé littérale inconnue). Les clés dynamiques (`installation.diagnostic.*`, `settings.countries.*`) restent à exercer par des tests et un contrôle applicatif.
+- Cette inspection statique **ne constitue pas** une exécution de `pnpm i18n:check`, `pnpm test`, `pnpm typecheck`, `pnpm build` ou d'un parcours HTTP. Aucune vérification automatisée de SMN-27 n'est déclarée réussie.
+- [Run I0 39485897634](https://github.com/JeanLamora75/SMN/actions/runs/39485897634) et [run paquet Windows 39485897688](https://github.com/JeanLamora75/SMN/actions/runs/39485897688) : **failure sans aucune étape exécutable publiée**, sur la PR [#15](https://github.com/JeanLamora75/SMN/pull/15). Le blocage de runner persiste ; ne pas fusionner.
+
+
+## Deuxième lot implémenté sur branche — 20 octobre 2026
+
+**Commit de référence :** [PR #15](https://github.com/JeanLamora75/SMN/pull/15), branche `dev/smn-27-i18n-json-20261020`. Cette section met à jour, sans réécrire les constats antérieurs, l'état initial de la préparation.
+
+- [x] Migrés en ressources `fr.json` / `en.json` : `src/app/app/page.tsx` (tableau de bord, menus, états vides, navigation, informations de contexte) et `src/app/app/logout-control.tsx`.
+- [x] Migrés : `src/app/app/admin/users/page.tsx` et `users-admin.tsx` (tableau et formulaire, erreurs serveur converties par codes autorisés).
+- [x] Migrés : `src/app/app/security/page.tsx` et `security-form.tsx` ; `src/app/change-password/page.tsx` et `password-form.tsx`.
+- [x] Migrés : `src/app/welcome/page.tsx` et `welcome-form.tsx` ; formulaire historique `src/app/setup/setup-form.tsx` conservé et traduit, bien que la route `/setup` redirige vers `/welcome`.
+- [x] Les étapes de l'installateur continuent à circuler dans le contrat backend existant, puis sont résolues par correspondance vers des clés JSON via `translateBootstrapStep`. Les codes d'échec autorisés sont transformés via `translateBootstrapError` ; le texte inconnu ne s'affiche jamais brut.
+- [x] Tests unitaires ajoutés pour les diagnostics, les étapes, les valeurs inconnues et les paramètres dynamiques. Ces tests **n'ont pas été exécutés**.
+
+**Audit statique ponctuel :** 333 clés feuilles dans chaque JSON, mêmes ensembles, placeholders identiques ; scan ciblé des composants migrés sans références littérales inconnues ni fragments français visibles détectés par l'heuristique. Cela **ne prouve pas** l'absence de tout texte codé en dur (valeurs sans accent, JSX composés, langues non françaises) et ne remplace ni compilation TS ni tests fonctionnels.
+
+**CI :** [I0 #39488611760](https://github.com/JeanLamora75/SMN/actions/runs/39488611760) et [Windows #39488611972](https://github.com/JeanLamora75/SMN/actions/runs/39488611972) sur le commit précédent `5587fb16` : échec avant runner, aucune étape (Linux/Windows/paquet). Statut fonctionnel non vérifié ; la PR reste **draft**, `main` inchangée, SMN-27 Jira **En cours**.
+
+**Restant avant revue et fusion :** corriger le blocage de CI, exécuter réellement `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test` (PostgreSQL isolé), `pnpm build`, paquet Windows et parcours FR/EN complets, y compris rechargement `<html lang>` après changement de paramètre et reprise du flux d'installation. Ajouter les diagnostics de clé de configuration introduits par SMN-19 **après intégration** de cette Story, sans modifier sa PR non validée. Revue indépendante attendue.
+
+Aucune fermeture de Story, recette réelle Windows ou fusion dans `main` n'est attestée.

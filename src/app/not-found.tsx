@@ -1,13 +1,13 @@
 import Link from "next/link";
-
-export default function NotFoundPage() {
-  return (
-    <main className="smn-page container py-5">
-      <div className="smn-panel p-4">
-        <h1 className="h3">Accès indisponible / Access unavailable</h1>
-        <p>L&apos;accès est refusé ou la page n&apos;existe pas. / Access is denied or this page does not exist.</p>
-        <Link href="/" className="btn btn-outline-primary">Accueil / Home</Link>
-      </div>
-    </main>
-  );
+import {requestLocale} from "@/i18n/locale.server";
+import {translate} from "@/i18n/catalog";
+export default async function NotFoundPage(){
+  const locale=await requestLocale();
+  return <main className="smn-page container py-5">
+    <div className="smn-panel p-4">
+      <h1 className="h3">{translate(locale,"notFound.title")}</h1>
+      <p>{translate(locale,"notFound.message")}</p>
+      <Link href="/" className="btn btn-outline-primary">{translate(locale,"notFound.home")}</Link>
+    </div>
+  </main>;
 }

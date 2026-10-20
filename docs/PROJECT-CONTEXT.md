@@ -98,3 +98,8 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
 ## Préparation technique de SMN-27 — 20 octobre 2026
 
 La mise en place du socle internationalisé est spécifiée dans [le dossier BMAD de SMN-27](../_bmad-output/implementation-artifacts/spec-smn-27-socle-i18n-json.md) et [le plan opérationnel de migration](I18N-IMPLEMENTATION-PLAN.md). La décision [ADR-I0-004](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md) demeure obligatoire. **Les catalogues `fr.json` et `en.json` ne sont pas encore créés et aucun composant n'a été migré.** Jira SMN-27 reste À faire tant que le développement n'est pas commencé et les dépendances/CI restent à vérifier. L'application utilise aujourd'hui une locale navigateur pour le layout, malgré la présence d'une préférence `locale` conservée en base ; cette divergence sera corrigée dans SMN-27.
+
+
+## Suivi du lot SMN-27 — 20 octobre 2026
+
+Le socle i18n JSON FR/EN et la migration des écrans existants (public, installation, tableau de bord, administration, sécurité) ont été **codés sur la branche de travail** [PR nº 15](https://github.com/JeanLamora75/SMN/pull/15), et **non fusionnés dans `main`**. La règle ADR-I0-004 reste obligatoire pour toutes les futures Stories. La CI GitHub Actions bloque avant l'affectation des jobs et **ne permet pas d'attester les tests** ; Jira SMN-27 est en cours, pas terminé. Les affirmations plus haut décrivant des fichiers encore « non créés » correspondent à l'état de `main` avant fusion.

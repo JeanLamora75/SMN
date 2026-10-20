@@ -41,3 +41,10 @@ Le développement sera considéré terminé seulement si tous les parcours FR/EN
 **Points de vigilance existants :** la page racine choisit actuellement la langue navigateur, même lorsque `locale` est sauvegardée ; des textes restent codés en dur, et le formulaire de paramètres référence par erreur SMN-24 pour la langue, au lieu de SMN-27.
 
 **Blocages à surveiller :** Stories Jira SMN-12 et SMN-18 « En cours », SMN-22 « À faire » ; et CI GitHub Actions des développements SMN-19 échouant sans runner attribué. Ne pas changer automatiquement ces statuts sans preuve.
+
+
+## Réalisation du lot 2 — 20/10/2026
+
+La branche `dev/smn-27-i18n-json-20261020` (PR [#15](https://github.com/JeanLamora75/SMN/pull/15), brouillon) contient maintenant les catalogues JSON et la migration des écrans existants : accueil et connexion, tableau de bord/navigation, comptes, paramètres, sécurité, mot de passe, installation guidée et formulaire setup historique. Les textes d'erreur et la progression de l'installation utilisent des traductions JSON sans exposer les codes bruts.
+
+**Ceci n'est pas une déclaration de livraison.** Les tests automatisés Linux/Windows ne démarrent pas (absence de runner/étapes sur GitHub Actions) et la recette manuelle reste à effectuer. `main` n'a pas reçu les changements applicatifs. Les travaux seront à contrôler sur un environnement Node 24 / pnpm 12.10.0, PostgreSQL 18 isolé, puis sur le poste Windows 11 utilisateur.
