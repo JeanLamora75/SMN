@@ -4,7 +4,7 @@
 
 ## Préparation du poste Windows 11
 
-Utiliser une session Windows ordinaire. Prérequis déclarés par l'utilisateur : Node.js 24.21.0, pnpm 12.10.0, serveur PostgreSQL 18.6. Aucun IDE, Docker, NestJS ni élévation Windows n'est requis par la conception ; **son fonctionnement effectif sous Windows reste à tester**.
+Utiliser une session Windows ordinaire. Prérequis déclarés par l'utilisateur : Node.js 24.21.0, pnpm 12.10.0, serveur PostgreSQL 18.6. Aucun IDE, Docker, NestJS ni élévation Windows n'est requis par la conception ; **le démarrage local, l'accueil et les refus visuels /app et /setup ont été validés sur le PC utilisateur** ; les autres diagnostics PostgreSQL restent à qualifier.
 
 Depuis GitHub Desktop, sélectionner la branche `dev/bmad-i0-20261020`, cliquer sur **Fetch origin** puis **Pull origin** si nécessaire. Le binaire Git fourni avec GitHub Desktop n'est pas forcément disponible comme commande `git` dans PowerShell : **aucune installation supplémentaire de Git CLI n'est requise**.
 
@@ -14,14 +14,14 @@ Depuis le répertoire SMN récupéré avec GitHub Desktop, ouvrir PowerShell et 
 node --version
 pnpm --version
 pnpm install --frozen-lockfile
-pnpm doctor
+pnpm run doctor
 pnpm lint
 pnpm test
 pnpm typecheck
 pnpm build
 ```
 
-Le lockfile doit être présent dans la branche téléchargée avant d'utiliser `--frozen-lockfile`. Ne pas activer un changement de versions sans l'examiner.
+Le lockfile doit être présent dans la branche téléchargée avant d'utiliser `--frozen-lockfile`. Sur le PC local, `pnpm test` ignore explicitement les tests d'intégration PostgreSQL réservés à la base `smn_ci` éphémère du runner GitHub Actions ; ces tests ne doivent jamais être exécutés avec une base réelle. Ne pas activer un changement de versions sans l'examiner.
 
 ### Port HTTP réservé à SMN
 
@@ -41,7 +41,7 @@ Remove-Item Env:SMN_PORT -ErrorAction SilentlyContinue
 pnpm dev
 ```
 
-Le contrôle `pnpm doctor` affiche aussi l'adresse configurée et refuse explicitement `SMN_PORT=3000`, `3001` ou `3002`. On ne peut pas conclure que 3003 est libre sans l'avoir testé sur le poste.
+Le contrôle `pnpm run doctor` (ne pas confondre avec `pnpm doctor`, qui vérifie pnpm lui-même) affiche l'adresse configurée et refuse explicitement `SMN_PORT=3000`, `3001` ou `3002`. On ne peut pas conclure que 3003 est libre sans l'avoir testé sur le poste.
 
 ### Connexion privée à PostgreSQL
 
@@ -84,3 +84,10 @@ pnpm start
 ## Preuves et limites
 
 GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Le 20/10/2026, l'utilisateur a confirmé par capture d'écran que la page d'accueil SMN s'ouvre sur son PC Windows 11 avec le diagnostic « La connexion à la base SMN n'est pas encore configurée » après démarrage local. Cette preuve est **limitée à l'affichage et au démarrage** : les accès directs `/setup` et `/app` (refus visuel confirmé par deux captures supplémentaires du 20/10/2026), les droits PostgreSQL 18.6 et l'authentification restent à recetter sur le poste. L'utilisateur a confirmé que les deux projets fonctionnent séparément et a choisi de ne pas les exécuter simultanément. Aucune base SMN réelle n'a été touchée par l'agent.
+
+
+### Preuves après revue BMAD
+
+Le diagnostic serveur inspecte les objets applicatifs (tables, vues, séquences, fonctions, types) et les schémas distincts de `public`, et ne considère pas une installation comme complète sans historique de migration réussi. La politique de schéma I0 est volontairement limitée au marqueur de version 1 ; **SMN-12 devra enregistrer explicitement la liste attendue de ses migrations et tables métier**. Les statuts inconnus bloquent l'accès.
+
+Le diagnostic CLI `pnpm run doctor` contrôle la version Node et le port configuré ; il **ne réalise pas une connexion PostgreSQL** : son message indique si `SMN_DATABASE_URL` est présente, puis invite à consulter le contrôle serveur au démarrage. Aucun mot de passe ni chaîne de connexion n'est affiché.
