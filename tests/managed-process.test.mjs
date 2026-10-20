@@ -4,7 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import test from "node:test";
-import { runManagedProcess } from "../src/server/bootstrap/managed-process.ts";
+import * as processRunner from "../src/server/bootstrap/managed-process.ts";
+
+// tsx loads this TypeScript file as CommonJS; native Node exposes ESM exports.
+const { runManagedProcess } = processRunner.default ?? processRunner;
 
 async function within(promise, message) {
   let timer;
