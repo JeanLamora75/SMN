@@ -72,7 +72,9 @@ try {
   assert.match(r.headers.get("cache-control") ?? "", /no-store/);
   assert.equal(r.headers.get("x-content-type-options"), "nosniff");
   assert.equal((await get("/setup")).status, 200);
-  assert.equal((await get("/app")).status, 404);
+  const privateResponse = await get("/app", { redirect: "manual" });
+  assert.equal(privateResponse.status, 307);
+  assert.equal(new URL(privateResponse.headers.get("location"), base).pathname, "/login");
   const french = await (await get("/", { headers: { "Accept-Language": "fr-FR" } })).text();
   assert.match(french, /<html lang="fr"/);
   assert.match(french, /Base SMN vierge/);
