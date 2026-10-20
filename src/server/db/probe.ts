@@ -1,6 +1,7 @@
 // Adaptateur PostgreSQL directement testable (sans side effect server-only de Next).
 import { Client } from "pg";
 import type { Snapshot } from "../installation/diagnostic";
+import { INSTALLATION_RELATIONS } from "../installation/contract";
 
 // Chaque diagnostic lit un instantané cohérent, sans aucune écriture.
 export async function probePostgres(uri: string): Promise<Snapshot> {
@@ -57,7 +58,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const tables = objects.rows.map((row) => row.name);
     const marker = "public.smn_installation:r";
     const history = "public._prisma_migrations:r";
-    if (!tables.includes(marker) || tables.some((name) => name !== marker && name !== history)) {
+    if (!tables.includes(marker) || tables.some((name) => !(INSTALLATION_RELATIONS as readonly string[]).includes(name))) {
       return { schemaUsage, schemaCreate, serverVersion, tables };
     }
     const perms = await client.query<{ installation: boolean; migrations: boolean }>(
@@ -71,12 +72,17 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const installations = await client.query<{
       id: string; state: string; schema_version: number;
     }>("SELECT id, state, schema_version FROM public.smn_installation LIMIT 2");
-    const migrations = tables.includes(history)
-      ? (await client.query<{ migration_name: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-          "SELECT migration_name, finished_at, rolled_back_at FROM public._prisma_migrations",
-        )).rows
-      : [];
-    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations };
+    const required = ["smn_installation:id", "smn_installation:state", "smn_installation:schema_version", "smn_installation:mode", "smn_installation:created_at", "smn_product:id", "smn_product:installation_id", "smn_product:name", "smn_team:id", "smn_team:installation_id", "smn_team:product_id", "smn_team:name", "smn_account:id", "smn_account:installation_id", "smn_account:email", "smn_account:role", "smn_account:password_hash", "smn_account:must_change_password", "smn_account:created_at", "_prisma_migrations:id", "_prisma_migrations:checksum", "_prisma_migrations:migration_name", "_prisma_migrations:finished_at", "_prisma_migrations:rolled_back_at", "_prisma_migrations:started_at", "_prisma_migrations:applied_steps_count"];
+    const cols = await client.query<{ label: string }>(
+      "SELECT table_name || ':' || column_name AS label FROM information_schema.columns WHERE table_schema='public'",
+    );
+    const columnSet = new Set(cols.rows.map((r) => r.label));
+    const shapeValid = required.every((name) => columnSet.has(name));
+    if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
+    const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 2",
+    )).rows;
+    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid };
   } finally {
     if (transaction) await client.query("ROLLBACK").catch(() => undefined);
     await client.end().catch(() => undefined);

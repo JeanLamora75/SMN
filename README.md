@@ -21,3 +21,6 @@ Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes, le port 
 - [Travail I0 / SMN-11](https://lmn24.atlassian.net/browse/SMN-11)
 
 La préparation documentaire demeure sous verdict **CONCERNS** jusqu'aux preuves complémentaires. Les tests GitHub Actions ne prouvent pas à eux seuls le bon fonctionnement sur un poste Windows 11.
+
+
+**SMN-12 (développement en cours)** : assistant Express après confirmation de création de base dédiée et compte admin initial, sans connexion ni tableau de bord avant SMN-14. [Procédure](docs/INSTALLATION.md).

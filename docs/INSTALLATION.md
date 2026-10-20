@@ -98,3 +98,44 @@ Le diagnostic CLI `pnpm run doctor` contrôle la version Node et le port configu
 Après arbitrage utilisateur pour avancer par itérations, SMN-11 conserve la page de démarrage et le diagnostic **sans création de base**. Le mode « installation initialisée » ne pourra être déclaré qu'après définition des migrations officielles dans SMN-12 ; toute prétendue installation reconnue à partir d'un marqueur isolé est classée **installation incomplète**. Il s'agit d'une mesure de prudence pour éviter les faux succès jusqu'à l'installateur réel.
 
 La [CI de clôture](https://github.com/JeanLamora75/SMN/actions/runs/39411560620) a réussi ses tests Linux/PostgreSQL et Windows. Les détails des vérifications supplémentaires restent tracés dans [le triage BMAD](../_bmad-output/implementation-artifacts/spec-smn-11-demarrage-local-prerequis.md). Les droits PostgreSQL Windows sur la future base utilisateur n'ont **pas** été essayés ; aucun nouveau test manuel destructif n'est demandé.
+
+
+## SMN-12 — Première installation Express (branche de développement)
+
+**Aucune création de base utilisateur n'est effectuée par la CI ou ChatGPT.** Cette procédure devient applicable lorsque SMN-12 a passé ses tests et que l'utilisateur choisit de la recetter sur son PC. Les ports 3000 à 3002 restent réservés à l'autre projet ; SMN écoute seulement sur 3003.
+
+1. Sur GitHub Desktop, récupérer la branche SMN-12 (tant que la PR n'est pas intégrée) puis `pnpm install --frozen-lockfile`.
+2. Préparer PostgreSQL 18 et un compte **déjà autorisé** à créer une base. Ne pas utiliser les identifiants d'une autre application : l'installateur refuse toute cible autre qu'une base commençant par `smn`. Le rôle courant doit disposer de `CREATEDB` si la base n'existe pas, et de `CREATE` sur le schéma `public` de la base neuve.
+3. Configurer `SMN_DATABASE_URL` pour pointer vers **une base SMN dédiée** (exemple de structure uniquement : `postgresql://UTILISATEUR:MOT_DE_PASSE@127.0.0.1:5432/smn`). Les caractères spéciaux du mot de passe doivent être encodés dans l'URL. **Ne jamais partager la valeur réelle** ni la publier dans Git ou ChatGPT.
+4. Dans la même session PowerShell, générer un jeton local aléatoire : `$env:SMN_SETUP_TOKEN = node -e "process.stdout.write(require('node:crypto').randomBytes(24).toString('hex'))"`. Il n'est pas enregistré sur GitHub et doit rester secret ; le formulaire le demandera à l'écran, sans le renvoyer dans une URL.
+5. Démarrer `pnpm dev` puis ouvrir `http://127.0.0.1:3003` ; accéder à **Installer SMN**. Choisir Scrum/Kanban, produit, équipe, un mot de passe Administrateur robuste, puis saisir le jeton et confirmer la création de la base dédiée et des tables. La mutation n'a lieu qu'après cette confirmation.
+6. En cas de succès, l'assistant n'est plus ouvert à une nouvelle installation et les données privées restent fermées **jusqu'à SMN-14** (connexion et changement de secret initial). Aucune session ou tableau de bord ne sont simulés.
+7. Si PostgreSQL refuse la création, corriger les permissions avec un compte autorisé ; **ne pas créer un rôle automatiquement**. Si la création de la base a réussi mais l'initialisation a échoué, consulter le diagnostic et reprendre sans suppression silencieuse. Ne jamais tester la réinitialisation sur une base contenant déjà des données.
+
+Le mot de passe PostgreSQL et le jeton sont des secrets **uniquement locaux** ; préférer une session PowerShell privée et ne pas les inscrire dans l'historique sous forme littérale. Cette phase ne fournit pas encore le coffre de configuration privée qui relève de SMN-19.
+ 
+
+### Saisie locale des identifiants PostgreSQL sans les inscrire dans l'historique PowerShell
+
+Dans une **nouvelle session PowerShell privée**, ouverte dans le répertoire SMN, exécuter (les valeurs sont saisies au clavier dans les invites, jamais écrites dans les commandes) :
+
+```powershell
+$pgUser = Read-Host "Utilisateur PostgreSQL autorisé"
+$pgSecret = Read-Host "Mot de passe PostgreSQL" -AsSecureString
+$ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($pgSecret)
+try {
+    $pgEncoded = [uri]::EscapeDataString([Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr))
+    $userEncoded = [uri]::EscapeDataString($pgUser)
+    $env:SMN_DATABASE_URL = "postgresql://{0}:{1}@127.0.0.1:5432/smn" -f $userEncoded, $pgEncoded
+} finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+    Remove-Variable pgEncoded -ErrorAction SilentlyContinue
+}
+$env:SMN_SETUP_TOKEN = node -e "process.stdout.write(require('node:crypto').randomBytes(24).toString('hex'))"
+pnpm run doctor
+pnpm dev
+```
+
+La valeur du jeton est disponible **uniquement dans cette session PowerShell** : pour le saisir dans le formulaire, le copier localement (`$env:SMN_SETUP_TOKEN | Set-Clipboard`) et effacer ensuite le presse-papiers. Ne jamais coller ces secrets dans Jira, ChatGPT ou une capture d'écran.
+
+**Important :** garder le mot de passe choisi pour l'Administrateur dans un gestionnaire de mots de passe. Le compte est créé avec un indicateur de renouvellement obligatoire ; le formulaire de changement et l'ouverture d'une session privée arriveront avec SMN-14. Ne pas considérer un écran de confirmation comme une session authentifiée.
