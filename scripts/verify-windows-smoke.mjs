@@ -31,7 +31,9 @@ try {
   assert.equal(ready, true, "SMN ne répond pas sur 3003.");
   const response = await fetch("http://127.0.0.1:3003/api/diagnostic");
   assert.equal((await response.json()).status, "configuration-missing");
-  assert.equal((await fetch("http://127.0.0.1:3003/app")).status, 404);
+  const privateResponse = await fetch("http://127.0.0.1:3003/app", { redirect: "manual" });
+  assert.equal(privateResponse.status, 307);
+  assert.equal(new URL(privateResponse.headers.get("location")!, "http://127.0.0.1:3003").pathname, "/login");
   assert.equal((await fetch("http://127.0.0.1:3003/setup")).status, 404);
   assert.equal(child.exitCode, null, "Le serveur démarré doit rester vivant pendant les vérifications.");
   console.log("Smoke démarrage dev sur Windows/Linux réussi (sans PostgreSQL).");
