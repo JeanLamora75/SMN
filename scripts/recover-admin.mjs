@@ -138,4 +138,23 @@ async function recover() {
     await client.end().catch(()=>undefined);
   }
 }
-recover().catch(err=>{console.error(err instanceof Error?err.message:"Récupération impossible.");process.exitCode=1;});
+// Never print a raw filesystem, JSON parser, libpq or crypto exception: error
+// text may include private paths or fragments of local configuration.
+const publicRecoveryErrors=new Set([
+  "SMN doit être lancé depuis le profil Windows de l'installation.",
+  "Connexion SMN locale invalide.","Configuration locale SMN absente.",
+  "Configuration locale SMN inaccessible.","Configuration locale SMN invalide.",
+  "Configuration de récupération invalide.","Clé locale SMN invalide.",
+  "Configuration invalide.","Cluster SMN non reconnu.",
+  "Un terminal interactif est obligatoire ; aucune saisie par redirection n'est acceptée.",
+  "Ouvrez un terminal interactif Windows.","Opération annulée.",
+  "Saisie invalide, aucun accès modifié.","Récupération refusée.",
+  "Aucun argument n'est accepté, en particulier aucun secret.",
+  "Récupération impossible : vérifiez que PostgreSQL SMN est démarré et que la base est prête.",
+]);
+recover().catch(err=>{
+  const message=err instanceof Error && publicRecoveryErrors.has(err.message)
+    ? err.message : "Récupération impossible : configuration ou base locale indisponible.";
+  console.error(message);
+  process.exitCode=1;
+});
