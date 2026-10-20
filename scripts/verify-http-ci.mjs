@@ -276,7 +276,7 @@ try {
     // Force an audit failure to prove rollback of the preference update.
     await withDb(async client=>{
       await client.query(`CREATE FUNCTION public.smn_ci_reject_settings_audit() RETURNS trigger
-        LANGUAGE plpgsql AS $smn$ BEGIN RAISE EXCEPTION 'ci-audit-failure'; END $smn$`);
+        LANGUAGE plpgsql AS $smn$ BEGIN RAISE EXCEPTION 'ci-audit-failure'; END; $smn$`);
       await client.query(`CREATE TRIGGER smn_ci_audit_failure BEFORE INSERT ON public.smn_general_settings_audit
         FOR EACH ROW EXECUTE FUNCTION public.smn_ci_reject_settings_audit()`);
     });
