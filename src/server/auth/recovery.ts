@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { passwordHash, verifyPassword } from "./password";
 import type { Account } from "./credentials";
+import { completeConfigurationTask } from "../configuration/tasks";
 
 export function validRecoveryPhrase(value: unknown): value is string {
   return typeof value === "string" && value.length >= 20 && value.length <= 256 &&
@@ -31,6 +32,7 @@ export async function renewPassword(
     await client.query("DELETE FROM public.smn_recovery_phrase WHERE account_id=$1",[account.id]);
     await client.query(`INSERT INTO public.smn_auth_audit(id,account_id,action)
       VALUES($1,$2,'password_changed')`, [randomUUID(),account.id]);
+    await completeConfigurationTask(client,"recovery-phrase");
     await client.query("COMMIT");
     return true;
   } catch (error) {
