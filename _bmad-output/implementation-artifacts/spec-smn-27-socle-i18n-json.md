@@ -135,3 +135,11 @@ La version `en.json` conservera exactement ces clés et proposera leurs traducti
 - [ ] Revue indépendante et recette globale utilisateur.
 
 **Preuve limitée :** les deux catalogues ont été comparés *en mémoire* en lisant les fichiers GitHub : 36 clés de départ de chaque côté sans différence ni paramètres divergents, avant ajout des libellés paramètres/404. Cette comparaison n'est pas une exécution du script Node ou de la CI. Le nouveau script doit s'exécuter réellement et réussir avant fusion. Les règles de repli et d'interpolation nécessitent également les tests TypeScript et l'exécution de l'application.
+
+
+### Contrôle statique après raccordement (branche, 20/10/2026)
+
+- Lecture et analyse des **fichiers réellement présents sur la branche** : `fr.json` et `en.json` possèdent chacun **79 clés feuilles** ; mêmes ensembles de clés (0 manquante).
+- Inspection des premières pages migrées : **46 références littérales** de traduction identifiées dans les TSX contrôlés, toutes résolues dans les deux catalogues (0 clé littérale inconnue). Les clés dynamiques (`installation.diagnostic.*`, `settings.countries.*`) restent à exercer par des tests et un contrôle applicatif.
+- Cette inspection statique **ne constitue pas** une exécution de `pnpm i18n:check`, `pnpm test`, `pnpm typecheck`, `pnpm build` ou d'un parcours HTTP. Aucune vérification automatisée de SMN-27 n'est déclarée réussie.
+- [Run I0 39485897634](https://github.com/JeanLamora75/SMN/actions/runs/39485897634) et [run paquet Windows 39485897688](https://github.com/JeanLamora75/SMN/actions/runs/39485897688) : **failure sans aucune étape exécutable publiée**, sur la PR [#15](https://github.com/JeanLamora75/SMN/pull/15). Le blocage de runner persiste ; ne pas fusionner.
