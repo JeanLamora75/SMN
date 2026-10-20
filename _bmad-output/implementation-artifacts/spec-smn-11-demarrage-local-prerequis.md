@@ -2,9 +2,10 @@
 title: "SMN-11 — Démarrage local et diagnostic des prérequis"
 type: "feature"
 created: "2026-10-20"
-status: "draft"
+status: "in-progress"
 route: "dispatch"
 review_loop_iteration: 0
+baseline_commit: "9f6cc9ba1a1a23d47234511d7801e5a0cc54fe86"
 context:
   - "_bmad-output/implementation-artifacts/epic-1-context.md"
   - "_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md"
