@@ -53,6 +53,8 @@ describe("SMN-17 — sécurité du renouvellement et de la récupération locale
     assert.match(queries,/BEGIN/);
     assert.match(queries,/DELETE FROM public.smn_recovery_phrase/);
     assert.match(queries,/password_changed/);
+    assert.doesNotMatch(queries,/UPDATE public.smn_configuration_task/,
+      "La rotation du mot de passe n'est pas la preuve de préparation d'une phrase");
     assert.match(queries,/COMMIT/);
     assert.equal(queries.includes("NouveauSecret2026"),false);
     const updated=fake.calls.find(x=>x.sql.includes("UPDATE public.smn_account"));
@@ -71,6 +73,9 @@ describe("SMN-17 — sécurité du renouvellement et de la récupération locale
     assert.ok(row);
     assert.equal(await verifyPassword(phrase,row.args[1] as string),true);
     assert.equal(fake.calls.some(x=>x.sql.includes("recovery_prepared")),true);
+    const taskIndex=fake.calls.findIndex(x=>x.sql.includes("UPDATE public.smn_configuration_task"));
+    assert.ok(taskIndex>fake.calls.findIndex(x=>x.sql.includes("recovery_prepared")));
+    assert.ok(taskIndex<fake.calls.findIndex(x=>x.sql==="COMMIT"));
   });
   it("refuse une rotation concurrente après verrouillage, sans écrire de trace",async()=>{
     const account=await validAccount();

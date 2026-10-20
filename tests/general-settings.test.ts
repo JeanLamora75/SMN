@@ -68,6 +68,10 @@ describe("SMN-18 — paramètres généraux",()=>{
       assert.equal(result.settings.mode,"scrum");assert.equal(result.settings.product,"Produit original");}
     const executed=db.calls.map(x=>x.sql);
     assert.match(executed.join("\n"),/INSERT INTO public.smn_general_settings_audit/);
+    assert.match(executed.join("\n"),/UPDATE public.smn_configuration_task/);
+    const taskIndex=executed.findIndex(x=>x.includes("UPDATE public.smn_configuration_task"));
+    assert.ok(taskIndex>executed.findIndex(x=>x.includes("INSERT INTO public.smn_general_settings_audit")));
+    assert.ok(taskIndex<executed.indexOf("COMMIT"));
     const auditIndex=executed.findIndex(x=>x.includes("INSERT INTO public.smn_general_settings_audit"));
     assert.ok(auditIndex<executed.indexOf("COMMIT"));
     const update= db.calls.find(x=>x.sql.includes("UPDATE public.smn_general_settings"));
