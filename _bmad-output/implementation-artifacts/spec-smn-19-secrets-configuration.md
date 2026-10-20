@@ -51,3 +51,12 @@ ADR-I0-002/003 : secrets dans le profil privé, chiffrement local sans question 
 Aucun accès à la base personnelle de l'utilisateur. Les tests de CI attestent le comportement du runner, jamais les ACL réelles de son profil Windows. Récupération de clé par phrase de sauvegarde : **hors périmètre SMN-19**, non développée et non testée ici.
 
 Les liens et résultats précis de CI sont ajoutés après l'exécution.
+
+
+## État de vérification au 20/10/2026
+
+- [CI I0 — run 39477583968](https://github.com/JeanLamora75/SMN/actions/runs/39477583968) : **échec non diagnostiqué**, tentative initiale et relance. Les deux jobs retournent `failure` sans aucune étape visible et le téléchargement des journaux des jobs signale `404 BlobNotFound`. **Aucun test exécuté attesté** pour SMN-19.
+- [CI paquet Windows — run 39477584166](https://github.com/JeanLamora75/SMN/actions/runs/39477584166) : **échec non diagnostiqué** dans les mêmes conditions (aucune étape visible, journal inaccessible), même après relance.
+- Le statut **In progress** est maintenu, la [PR #14](https://github.com/JeanLamora75/SMN/pull/14) reste **draft**, aucun merge vers `main` ; l'échec d'infrastructure est une **hypothèse**, non une cause prouvée. Ne pas déclarer la CI verte.
+- Reprise ciblée : retrouver les annotations GitHub Actions / résoudre l'indisponibilité des jobs, puis revalider les tests Linux/PostgreSQL, Windows et le paquet autonome, consulter le diff et fusionner seulement après preuve.
+- L'utilisateur a reporté une recette Windows 11 **globale**, distincte des vérifications sur runners.
