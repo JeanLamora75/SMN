@@ -1,0 +1,48 @@
+{
+  "common": {
+    "translationUnavailable": "Translation unavailable.",
+    "retry": "Retry",
+    "signIn": "Sign in",
+    "home": "Home",
+    "save": "Save"
+  },
+  "home": {
+    "subtitle": "Local startup & requirements",
+    "heading": "Installation diagnostics",
+    "firstRun": "SMN is not installed on this computer yet. You can set it up in a few clicks.",
+    "willPrepare": "A dedicated database will be prepared only after you confirm installation.",
+    "noAutoSetup": "No database or account is created when the server starts. Private routes require a valid session.",
+    "retryDiagnostics": "Retry diagnostics",
+    "install": "Install SMN",
+    "prepare": "Prepare installation",
+    "footer": "I0 / SMN-14 — Authentication"
+  },
+  "login": {
+    "title": "Sign in to Scrum Master Notebook",
+    "intro": "Use the username or email address configured during installation.",
+    "back": "Back to home",
+    "identity": "Username or email address",
+    "password": "Password",
+    "submit": "Sign in",
+    "busy": "Signing in…",
+    "pilotInfo": "If you kept the pilot defaults during installation, the initial account is admin / admin. You must change the password before accessing the application.",
+    "tooMany": "Too many attempts. Try again in fifteen minutes.",
+    "unavailable": "The SMN database is unavailable. Check that it is running, then try again.",
+    "incorrect": "Incorrect username or password.",
+    "network": "Cannot connect to the server."
+  },
+  "installation": {
+    "diagnostic": {
+      "configuration-missing": "The SMN database connection has not been configured.",
+      "configuration-invalid": "SMN must target a dedicated local PostgreSQL database.",
+      "database-missing": "The SMN database does not exist yet. The upcoming installer will request confirmation before creating it.",
+      "connection-error": "Could not connect to PostgreSQL. Check the local service and settings, then retry.",
+      "permissions-insufficient": "The PostgreSQL account lacks the permissions required to inspect this installation.",
+      "server-version-unsupported": "This PostgreSQL version has not been qualified for SMN I0. Check for version 18.",
+      "virgin": "An empty SMN database was detected. You can review the installation preparation.",
+      "initialized": "An existing SMN installation was found. Authentication will be required to access data.",
+      "schema-incompatible": "The database schema is not recognized. No automatic changes will be applied.",
+      "installation-incomplete": "The installation appears incomplete. Private data access remains blocked."
+    }
+  }
+}
