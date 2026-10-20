@@ -36,6 +36,7 @@ model SmnTeam {
 model SmnAccount {
   id String @id
   installationId String @map("installation_id")
+  username String @unique
   email String @unique
   role String
   passwordHash String @map("password_hash")

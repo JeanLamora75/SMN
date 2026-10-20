@@ -14,7 +14,7 @@ CREATE TABLE public.smn_team (
 );
 CREATE TABLE public.smn_account (
  id text PRIMARY KEY, installation_id text NOT NULL REFERENCES public.smn_installation(id),
- email text NOT NULL UNIQUE, role text NOT NULL CHECK (role IN ('admin','user')),
+ username text NOT NULL UNIQUE, email text NOT NULL UNIQUE, role text NOT NULL CHECK (role IN ('admin','user')),
  password_hash text NOT NULL, must_change_password boolean NOT NULL DEFAULT true,
  created_at timestamptz NOT NULL DEFAULT now()
 );

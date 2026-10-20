@@ -79,7 +79,10 @@ export async function installExpress(rawBody: unknown, rawUri: string | undefine
     await dbClient.query("INSERT INTO public.smn_installation(id,state,schema_version,mode) VALUES('singleton','initialized',1,$1)", [input.mode]);
     await dbClient.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES('product','singleton',$1)", [input.product]);
     await dbClient.query("INSERT INTO public.smn_team(id,installation_id,product_id,name) VALUES('team','singleton','product',$1)", [input.team]);
-    await dbClient.query("INSERT INTO public.smn_account(id,installation_id,email,role,password_hash,must_change_password) VALUES($1,'singleton','admin@locahost.com','admin',$2,true)", [randomUUID(), adminHash]);
+    await dbClient.query(
+      "INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($1,'singleton',$2,$3,'admin',$4,true)",
+      [randomUUID(), input.adminUsername, input.adminEmail, adminHash],
+    );
     await dbClient.query(`INSERT INTO public._prisma_migrations(id,checksum,finished_at,migration_name,applied_steps_count)
       VALUES($1,$2,now(),$3,1)`, [randomUUID(), createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex"), INITIAL_MIGRATION]);
     await dbClient.query("COMMIT");
