@@ -1,0 +1,48 @@
+{
+  "common": {
+    "translationUnavailable": "Traduction indisponible.",
+    "retry": "Réessayer",
+    "signIn": "Se connecter",
+    "home": "Accueil",
+    "save": "Enregistrer"
+  },
+  "home": {
+    "subtitle": "Démarrage local et prérequis",
+    "heading": "Diagnostic de l'installation",
+    "firstRun": "SMN n’est pas encore installé sur ce PC. Vous pouvez l’installer en quelques clics.",
+    "willPrepare": "Une base de données dédiée à SMN sera préparée uniquement après votre confirmation.",
+    "noAutoSetup": "Le démarrage ne crée aucune base ni aucun compte. Les pages privées sont accessibles après connexion et vérification de la session.",
+    "retryDiagnostics": "Relancer le diagnostic",
+    "install": "Installer SMN",
+    "prepare": "Préparer l'installation",
+    "footer": "I0 / SMN-14 — authentification"
+  },
+  "login": {
+    "title": "Se connecter à Scrum Master Notebook",
+    "intro": "Utilisez le nom d’utilisateur ou l’adresse e-mail définis lors de l’installation.",
+    "back": "Retour à l’accueil",
+    "identity": "Nom d’utilisateur ou adresse e-mail",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "busy": "Connexion…",
+    "pilotInfo": "Si vous avez conservé les valeurs du pilote lors de l’installation, le compte initial est admin / admin. Le changement du mot de passe sera exigé avant toute page métier.",
+    "tooMany": "Trop de tentatives. Réessayez dans quinze minutes.",
+    "unavailable": "La base SMN n’est pas disponible. Réessayez après avoir vérifié son démarrage.",
+    "incorrect": "Identifiant ou mot de passe incorrect.",
+    "network": "Connexion au serveur impossible."
+  },
+  "installation": {
+    "diagnostic": {
+      "configuration-missing": "La connexion à la base SMN n'est pas encore configurée.",
+      "configuration-invalid": "Le paramétrage SMN doit désigner une base dédiée sur PostgreSQL local.",
+      "database-missing": "La base SMN n'existe pas encore : elle sera créée par le futur installateur après confirmation.",
+      "connection-error": "Connexion PostgreSQL impossible. Vérifiez le service et les paramètres locaux, puis réessayez.",
+      "permissions-insufficient": "Le compte PostgreSQL ne possède pas les accès nécessaires pour vérifier cette installation.",
+      "server-version-unsupported": "Version de PostgreSQL non qualifiée pour SMN I0 : vérifiez la version 18 avant l'installation.",
+      "virgin": "Base SMN vierge détectée. Vous pouvez consulter la préparation de l'installation.",
+      "initialized": "Installation SMN existante : une authentification sera nécessaire pour accéder aux données.",
+      "schema-incompatible": "Le schéma de la base n'est pas reconnu ; aucune modification ne sera appliquée automatiquement.",
+      "installation-incomplete": "L'installation paraît partielle. Aucun accès métier n'est autorisé."
+    }
+  }
+}
