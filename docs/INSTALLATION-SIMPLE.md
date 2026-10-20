@@ -16,6 +16,19 @@ L'archive doit contenir **Node.js 24 et les binaires PostgreSQL 18.6 vérifiés*
 
 **Sécurité et limites :** aucune opération n'est appliquée au PostgreSQL d'un autre projet, en particulier LMN24. Les ports 3000–3002 restent réservés, SMN utilise 3003 et son propre PostgreSQL utilise 55432. Une politique de sécurité Windows peut empêcher l'exécution de binaires portables ; SMN doit alors signaler la restriction, sans réclamer de droits administrateur. L'archive elle-même et la procédure complète **restent en cours de qualification** tant que le workflow Windows de packaging et l'installation sur un poste utilisateur standard n'ont pas réussi.
 
+## Reprendre une installation PostgreSQL portable interrompue
+
+Si l'assistant affiche « Une ancienne installation partielle existe », SMN a trouvé un dossier `%LOCALAPPDATA%\\ScrumMasterNotebook\\data` sans configuration portable valide. C'est possible après l'échec d'une préparation précédente. **Ne supprimez pas ce dossier, ne réinitialisez pas votre PostgreSQL personnel.**
+
+Depuis la version corrigée disponible sur `main` :
+
+1. Garder `Installer un PostgreSQL dédié à SMN` sélectionné. Après le premier diagnostic d'échec, une confirmation de récupération est affichée dans le formulaire.
+2. Lire la proposition, puis cocher **« J'autorise SMN à mettre de côté son ancienne tentative d'installation et à recommencer. »**
+3. Cliquer **« Conserver l'ancienne tentative et reprendre »**, puis suivre la progression. SMN déplace uniquement son propre dossier `data` vers `%LOCALAPPDATA%\\ScrumMasterNotebook\\recovery\\data-partial-...` avant de recommencer : **aucun fichier n'est effacé**.
+4. En cas de refus lié à un cluster encore actif, à un `postmaster.pid` ou à un dossier symbolique, **ne pas forcer la reprise**. Le dossier est préservé pour diagnostic.
+
+La récupération ne s'active que **si l'utilisateur a d'abord reçu l'erreur**, avec un accord distinct. L'instance de LMN24 n'est jamais ciblée. Une nouvelle installation fonctionnelle ne supprime pas les archives précédentes ; les conserver tant que la situation n'est pas clarifiée.
+
 ## Développeur du pilote — projet déjà récupéré depuis GitHub Desktop
 
 Sur le PC où SMN fonctionnait déjà via `pnpm dev`, récupérer les nouveautés depuis la branche **`main`** dans GitHub Desktop (**Fetch origin**, puis **Pull origin**). Conserver ensuite le mode de démarrage déjà opérationnel :
