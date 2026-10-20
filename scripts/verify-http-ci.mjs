@@ -197,8 +197,12 @@ try {
     const privatePage = await get("/app", { headers:{Cookie:replacement},redirect:"manual" });
     assert.equal(privatePage.status, 200);
     const privateHtml = await privatePage.text();
-    assert.match(privateHtml, /Espace privé/);
-    assert.match(privateHtml, /Administrateur/);
+    assert.match(privateHtml, /Vue d.ensemble/);
+    assert.match(privateHtml, /Produit de recette CI/);
+    assert.match(privateHtml, /Equipe CI/);
+    assert.match(privateHtml, /Aucun sprint enregistr/);
+    assert.doesNotMatch(privateHtml, /admin@localhot.com/);
+    assert.doesNotMatch(privateHtml, /Story Points.*>0</);
     // Gestion des comptes : seuls les administrateurs authentifiés peuvent agir.
     assert.equal((await get("/api/admin/accounts")).status,403);
     assert.equal((await postAuth("/api/admin/accounts",{
@@ -235,6 +239,15 @@ try {
     assert.equal(rejectedPage.status,307);
     assert.equal(new URL(rejectedPage.headers.get("location"),base).pathname,"/app");
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
+    const userDashboard=await get("/app",{headers:{Cookie:userReady},redirect:"manual"});
+    assert.equal(userDashboard.status,200);
+    const userHtml=await userDashboard.text();
+    assert.match(userHtml,/Produit de recette CI/);
+    assert.match(userHtml,/Equipe CI/);
+    assert.match(userHtml,/Vue d.ensemble/);
+    assert.doesNotMatch(userHtml,/Comptes utilisateurs/);
+    assert.doesNotMatch(userHtml,/admin@localhot.com/);
+
     const forbiddenEdit=await postAuth("/api/admin/accounts",{...newUser,username:"not_allowed"},userReady);
     assert.equal(forbiddenEdit.status,403);
     const patchAccount=(id,fields,cookie= replacement,origin=base)=>
