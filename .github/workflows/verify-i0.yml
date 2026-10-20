@@ -5,6 +5,7 @@ on:
     branches: ["dev/bmad-i0-20261020"]
     paths:
       - "package.json"
+      - "pnpm-workspace.yaml"
       - "pnpm-lock.yaml"
       - "src/**"
       - "tests/**"
