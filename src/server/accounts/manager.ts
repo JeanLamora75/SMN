@@ -60,7 +60,7 @@ export async function updateAccount(
   client:Client,id:string,actorId:string,body:unknown,
 ):Promise<AccountResult<ListedAccount>> {
   const input=parseAccountChange(body);
-  if (!input || !/^[a-f0-9-]{36}$/.test(id)) return invalid();
+  if (!input || !/^[A-Za-z0-9_-]{1,64}$/.test(id)) return invalid();
   await client.query("BEGIN");
   try {
     await client.query("SELECT pg_advisory_xact_lock(20261020, 15)");
