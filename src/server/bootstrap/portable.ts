@@ -29,7 +29,7 @@ async function run(exe: string, args: string[], input?: string): Promise<string>
     child.on("close", code => {
       // Ne jamais remonter stdout/stderr PG : peuvent contenir des détails privés.
       if (code === 0) resolve(out.trim());
-      else reject(new Error("managed-process-failed:" + path.basename(exe) + (path.basename(exe).toLowerCase() === "tar.exe" ? ":" + err.slice(-500).replace(/[\\r\\n]+/g, " ") : "")));
+      else reject(new Error("managed-process-failed:" + path.basename(exe)));
     });
     child.stdin.end(input);
   });
@@ -121,7 +121,7 @@ export async function prepareManaged(onProgress: (step: string) => void): Promis
   const archive = path.join(root, PG_ARCHIVE);
   const bundle = path.join(process.cwd(), "runtime", "postgres", PG_ARCHIVE);
   onProgress("Préparation des composants PostgreSQL — le premier lancement peut prendre quelques minutes");
-  await acquirePgArchive(archive, existsSync(bundle) ? bundle : undefined);
+  const verifiedArchive = await acquirePgArchive(archive, existsSync(bundle) ? bundle : undefined);
   const pgRoot = path.join(root, "pgsql");
   if (!existsSync(path.join(pgRoot, "bin", "initdb.exe"))) {
     // Limiter la longueur des chemins internes de la distribution Windows EDB.
@@ -129,7 +129,7 @@ export async function prepareManaged(onProgress: (step: string) => void): Promis
     const tmp = path.join(os.tmpdir(), "smnp-" + randomBytes(4).toString("hex"));
     await mkdir(tmp, { recursive: false });
     try {
-      await run("tar.exe", ["-xf", archive, "-C", tmp]);
+      await run("tar.exe", ["-xf", verifiedArchive, "-C", tmp]);
       const { readdir } = await import("node:fs/promises");
       const dirs = await readdir(tmp);
       const actual = dirs.includes("pgsql") ? path.join(tmp, "pgsql") : tmp;
