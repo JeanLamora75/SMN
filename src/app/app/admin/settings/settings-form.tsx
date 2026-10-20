@@ -55,8 +55,8 @@ export default function SettingsForm() {
   return <div className="d-grid gap-4">
     {loaded&&saved&&<form onSubmit={submit} className="smn-panel p-4 d-grid gap-4">
       <section>
-        <h2 className="h5">Choix fixes de l'installation</h2>
-        <p className="small text-secondary">Le mode et le produit de référence sont définis lors de l'installation. Leur modification nécessite une installation distincte.</p>
+        <h2 className="h5">Choix fixes de l&apos;installation</h2>
+        <p className="small text-secondary">Le mode et le produit de référence sont définis lors de l&apos;installation. Leur modification nécessite une installation distincte.</p>
         <div className="row g-3">
           <div className="col-md-6"><label className="form-label" htmlFor="fixed-mode">Mode Agile</label>
             <input className="form-control" id="fixed-mode" value={saved.mode==="scrum"?"Scrum":"Kanban"} readOnly/></div>
@@ -71,13 +71,13 @@ export default function SettingsForm() {
             <select id="locale" className="form-select" value={locale} disabled={busy} onChange={e=>setLocale(e.target.value as "fr"|"en")}>
               <option value="fr">Français</option><option value="en">English</option>
             </select>
-            <p className="small text-secondary mt-1">Préférence enregistrée ; l'application complète de la langue est prévue par SMN-24.</p>
+            <p className="small text-secondary mt-1">Préférence enregistrée ; l&apos;application complète de la langue est prévue par SMN-24.</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="theme">Thème préféré</label>
             <select id="theme" className="form-select" value={theme} disabled={busy} onChange={e=>setTheme(e.target.value as "light"|"dark")}>
               <option value="light">Clair</option><option value="dark">Sombre</option>
             </select>
-            <p className="small text-secondary mt-1">Préférence enregistrée ; l'application complète du thème est prévue par une prochaine Story.</p>
+            <p className="small text-secondary mt-1">Préférence enregistrée ; l&apos;application complète du thème est prévue par une prochaine Story.</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="country">Pays de référence</label>
             <select id="country" className="form-select" value={country} disabled={busy} onChange={e=>setCountry(e.target.value)}>
@@ -86,13 +86,13 @@ export default function SettingsForm() {
                 <option value={saved.referenceCountry}>{saved.referenceCountry} — pays existant</option>}
               {countries.map(c=><option key={c.code} value={c.code}>{c.label}</option>)}
             </select>
-            <p className="small text-secondary mt-1">Pays par défaut des futures fiches membres ; aucun calendrier, membre ou bilan passé n'est recalculé.</p>
+            <p className="small text-secondary mt-1">Pays par défaut des futures fiches membres ; aucun calendrier, membre ou bilan passé n&apos;est recalculé.</p>
           </div>
         </div>
       </section>
-      <p className="small text-secondary mb-0">Les préférences d'affichage sont disponibles immédiatement pour les futurs modules.
-        Les paramètres influençant des créations de données s'appliquent uniquement aux nouvelles données,
-        à compter de l'enregistrement. Aucun Sprint, période, capacité, registre ou document archivé n'est modifié.</p>
+      <p className="small text-secondary mb-0">Les préférences d&apos;affichage sont disponibles immédiatement pour les futurs modules.
+        Les paramètres influençant des créations de données s&apos;appliquent uniquement aux nouvelles données,
+        à compter de l&apos;enregistrement. Aucun Sprint, période, capacité, registre ou document archivé n&apos;est modifié.</p>
       <div className="d-flex gap-2 flex-wrap">
         <button type="submit" className="btn btn-primary" disabled={busy||!dirty}>{busy?"Enregistrement…":"Enregistrer les paramètres"}</button>
         <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>void reload()}>Recharger</button>
