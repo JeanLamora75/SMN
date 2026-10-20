@@ -114,3 +114,12 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - **SMN-22 — navigation contextualisée par rôle et mode** : intégré à `main`, [PR #17](https://github.com/JeanLamora75/SMN/pull/17). Menu commun aux pages privées, groupes Pilotage, Calendrier, Cycles/bilans, Registres, Rapports/IA, Administration. Rôles admin/utilisateur, modes Scrum/Kanban, fonctions futures signalées comme indisponibles. Références : [documentation](NAVIGATION-SMN-22.md), [spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-22-navigation-mode-role.md).
 - **Qualification** : le fait qu'une PR soit fusionnée prouve l'intégration du code, pas le passage de la recette. Les jobs GitHub Actions restent en échec avant l'exécution de leurs étapes ; tant que tests et recette Windows ne sont pas exécutés, ne pas déclarer les Stories « Terminées ».
 - **Livraison** : `main` est la seule branche de référence du pilote ; utiliser **GitHub Desktop → Fetch origin → Pull origin** pour récupérer les nouveautés. Les agents suivants privilégient les changements directement sur `main`, conformément à l'arbitrage déjà noté ci-dessus ; toute branche temporaire doit être fusionnée immédiatement et ne doit pas devenir une nouvelle référence.
+
+## SMN-23 — Navigation contextuelle (20 octobre 2026)
+
+- Story : https://lmn24.atlassian.net/browse/SMN-23
+- Référence : [docs/NAVIGATION-CONTEXTUELLE-SMN-23.md](NAVIGATION-CONTEXTUELLE-SMN-23.md)
+- Source de vérité : `src/server/dashboard/read.ts` pour le contexte produit/équipe/identifiants stables, `src/server/dashboard/team-detail.ts` pour la fiche d'équipe consultée en lecture seule, `src/lib/context-navigation.ts` pour les retours locaux filtrés.
+- Route `/app/team/[id]` ouverte uniquement avec une session active et la permission collective ; fiche manquante ou refusée → même 404 sans fuite d'identité. Le lien depuis la synthèse transporte uniquement des paramètres contextuels allowlistés.
+- Les données historiques de cycles/versions ne sont pas encore produites au MVP ; aucun état historique n'est simulé. Un avertissement distingue explicitement contexte de retour historique demandé et données actuelles visibles.
+- Nouveaux textes FR/EN centralisés en JSON sous `detail`. Les tests ont été écrits mais l'exécution CI/Windows est à confirmer.
