@@ -44,5 +44,23 @@ model SmnAccount {
   isActive Boolean @default(true) @map("is_active")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   installation SmnInstallation @relation(fields: [installationId], references: [id])
+  recovery SmnRecoveryPhrase?
+  authAudit SmnAuthAudit[]
   @@map("smn_account")
+}
+
+model SmnRecoveryPhrase {
+  accountId String @id @map("account_id")
+  phraseHash String @map("phrase_hash")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  account SmnAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  @@map("smn_recovery_phrase")
+}
+model SmnAuthAudit {
+  id String @id
+  accountId String @map("account_id")
+  action String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  account SmnAccount @relation(fields: [accountId], references: [id])
+  @@map("smn_auth_audit")
 }
