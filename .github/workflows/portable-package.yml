@@ -29,8 +29,12 @@ jobs:
         with:
           version: "12.10.0"
           run_install: false
-      - name: Installer les dépendances figées
-        run: pnpm install --frozen-lockfile --config.node-linker=hoisted
+      - name: Installer sans symlink Windows pour le paquet Next standalone
+        run: |
+          Set-Content -Path .npmrc -Value "node-linker=hoisted"
+          pnpm install --frozen-lockfile
+          if (Test-Path "node_modules/.pnpm") { throw "Installation isolée pnpm détectée : paquet non portable." }
+
       - name: Compiler SMN
         run: pnpm build
       - name: Construire le paquet Node et PostgreSQL Windows vérifiés
