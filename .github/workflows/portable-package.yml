@@ -5,7 +5,14 @@ on:
     paths:
       - "next.config.ts"
       - "src/**"
-      - "scripts/windows/**"
+      - "scripts/**"
+      - ".github/workflows/portable-package.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "next.config.ts"
+      - "src/**"
+      - "scripts/**"
       - ".github/workflows/portable-package.yml"
   workflow_dispatch:
 permissions:
