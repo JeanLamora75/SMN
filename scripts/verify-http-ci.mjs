@@ -76,7 +76,7 @@ try {
   const french = await (await get("/", { headers: { "Accept-Language": "fr-FR" } })).text();
   assert.match(french, /<html lang="fr"/);
   assert.match(french, /Base SMN vierge/);
-  assert.match(french, /href="\/setup"/);
+  assert.match(french, /href="\/welcome"/);
   const english = await (await get("/", { headers: { "Accept-Language": "en-US" } })).text();
   assert.match(english, /<html lang="en"/);
   assert.match(english, /An empty SMN database/);
