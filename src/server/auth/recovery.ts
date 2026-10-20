@@ -5,7 +5,7 @@ import type { Account } from "./credentials";
 
 export function validRecoveryPhrase(value: unknown): value is string {
   return typeof value === "string" && value.length >= 20 && value.length <= 256 &&
-    value.trim() === value && !/[\\r\\n\\x00]/.test(value);
+    value.trim() === value && !value.includes("\r") && !value.includes("\n") && !value.includes("\0");
 }
 export function validNewPassword(value: unknown): value is string {
   return typeof value === "string" && value.length >= 4 && value.length <= 256;
