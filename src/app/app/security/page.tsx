@@ -15,7 +15,7 @@ export default async function SecurityPage() {
     <section className="smn-panel p-4 my-4">
       <h2 className="h5">Changer mon mot de passe</h2>
       <p className="text-secondary small">Toutes les sessions antérieures seront invalidées. La session actuelle sera renouvelée.</p>
-      <PasswordChangeForm initial={false}/>
+      <PasswordChangeForm/>
     </section>
     {account.role==="admin" && <section className="smn-panel p-4">
       <h2 className="h5">Préparer une récupération locale</h2>
