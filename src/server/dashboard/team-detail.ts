@@ -1,5 +1,4 @@
-import {Client} from "pg";
-import {installedDatabaseUri} from "@/server/auth/database";
+import type {Client} from "pg";
 import {validRecordId, type DashboardContext} from "./read";
 
 /** Fiche collective courante uniquement : ni données personnelles ni vue historique inventée. */
@@ -22,27 +21,3 @@ export async function readTeamDetail(client: Client, id: string): Promise<Dashbo
   return {productId:row.product_id,product:row.product,teamId:id,team:row.team,mode:row.mode};
 }
 
-/** Connexion isolée, transaction SQL en lecture seule ; aucune migration sur la fiche. */
-export async function readInstalledTeamDetail(id:string):Promise<DashboardContext|null>{
-  if(!validRecordId(id))return null;
-  const uri=await installedDatabaseUri();
-  const client=new Client({
-    connectionString:uri,connectionTimeoutMillis:3500,statement_timeout:5000,
-    query_timeout:5000,application_name:"smn-team-readonly",
-  });
-  let begun=false;
-  try{
-    await client.connect();
-    await client.query("BEGIN READ ONLY");
-    begun=true;
-    const team=await readTeamDetail(client,id);
-    await client.query("COMMIT");
-    begun=false;
-    return team;
-  }catch(error){
-    if(begun)await client.query("ROLLBACK").catch(()=>undefined);
-    throw error;
-  }finally{
-    await client.end().catch(()=>undefined);
-  }
-}

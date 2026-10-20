@@ -2,7 +2,7 @@ import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
-import {readInstalledTeamDetail} from "@/server/dashboard/team-detail";
+import {readInstalledTeamDetail} from "@/server/dashboard/team-detail-db";
 import {safeDashboardReturn,requestedHistoricalContext} from "@/lib/context-navigation";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
