@@ -12,7 +12,9 @@ export default async function HomePage() {
     browserLanguage(),
   ]);
   const en = lang === "en";
-  const firstRun = diagnostic.status === "configuration-missing" && canOfferPortable();
+  // Une tentative interrompue ne doit pas supprimer le bouton de reprise.
+  const canInstall = canOfferPortable() && diagnostic.status !== "initialized";
+  const firstRun = diagnostic.status === "configuration-missing" && canInstall;
   const status = firstRun
     ? (en ? "SMN is not installed on this computer yet. You can set it up in a few clicks." : "SMN n’est pas encore installé sur ce PC. Vous pouvez l’installer en quelques clics.")
     : translations[lang][diagnostic.status];
@@ -30,7 +32,7 @@ export default async function HomePage() {
         <h2 id="diagnostic-heading" className="h4 mb-3">{en ? "Installation diagnostics" : "Diagnostic de l'installation"}</h2>
         <p role="status" className="lead">{status}</p>
         <p className="smn-subtitle">
-          {firstRun ? (en ? "A dedicated database will be prepared only after you confirm installation." : "Une base de données dédiée à SMN sera préparée uniquement après votre confirmation.") : en
+          {canInstall ? (en ? "A dedicated database will be prepared only after you confirm installation." : "Une base de données dédiée à SMN sera préparée uniquement après votre confirmation.") : en
             ? "No database or account is created when the server starts. Private routes are blocked until secure login is implemented."
             : "Le démarrage ne crée aucune base ni aucun compte. Les pages privées restent protégées jusqu'à la livraison de l'authentification."}
         </p>
