@@ -11,62 +11,60 @@ context:
   - "_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md"
 ---
 
-<frozen-after-approval reason="intent métier validé dans Jira ; arbitrage restant à confirmer">
+<frozen-after-approval reason="intention validée dans Jira ; arbitrage de séquencement restant">
 
 ## Intent
 
-**Problème :** SMN-11 démarre mais ne peut pas encore installer une base ni enregistrer le produit, l'équipe et l'administrateur initial. Le Scrum Master attend un parcours Express sans SQL manuel.
+**Problème :** SMN démarre mais ne permet pas d'installer sa base, son produit, son équipe et son compte Administrateur.
 
-**Approche :** assistant local en deux phases : préparation/confirmation explicite de la création de la base dédiée `smn`, puis initialisation cohérente du mode Scrum/Kanban, produit, équipe unique et administrateur. Aucun accès privé anonyme.
+**Approche :** proposer un parcours Express local : vérifier PostgreSQL, faire confirmer la cible et la création éventuelle de la base SMN, appliquer les migrations versionnées et enregistrer atomiquement l'installation, le produit, l'équipe et l'Administrateur.
 
 ## Boundaries & Constraints
 
-**Toujours :** Windows 11 sans privilèges élevés, Node 24/pnpm, Next 16/React 19, Prisma 7/PostgreSQL 18, Bootstrap ; port SMN 3003, autres ports 3000–3002 réservés. Administrateur initial `admin@locahost.com` (graphie validée dans l'architecture), secret jamais publié ni enregistré en clair, changement obligatoire avant métier. Les seules données *métier* requises sont mode Scrum/Kanban, produit et équipe unique. Base dédiée locale, confirmation préalable des impacts et droits, migrations versionnées, protections serveur, état incohérent = blocage.
+**Toujours :** Windows 11 sans élévation, Next 16/React 19, PostgreSQL 18/Prisma 7, Bootstrap, port 3003 (3000–3002 réservés). Trois données métier requises : Scrum/Kanban, produit, équipe unique. Compte initial `admin@locahost.com` (orthographe Jira), secret dérivé/stocké sans clair, changement obligatoire avant accès métier. Base locale dédiée, confirmation avant toute écriture, contrôles côté serveur, reprise explicite sur échec.
 
-**Jamais :** LMN24, modifications d'une base étrangère, suppression/recréation silencieuse, création de rôle PostgreSQL sans autorisation, SAFe/ART, Sprint ou période Kanban automatique, publication de secrets dans GitHub ou les journaux, faux login, privilèges Windows élevés, accès aux données métier sans session.
+**Jamais :** modifier LMN24/autre base ; effacer ou réinitialiser silencieusement ; créer un rôle PostgreSQL ou des cycles automatiquement ; activer SAFe ; exposer secret, données privées ou faux accès authentifié.
 
 ## I/O & Edge-Case Matrix
 
-| État / scénario | Résultat |
+| Cas | Résultat |
 |---|---|
-| Base absente / droits CREATEDB disponibles | afficher cible et impacts, recueillir confirmation, créer seulement `smn` ; pas avant |
-| Base absente / privilèges insuffisants | expliquer la reprise, aucune création revendiquée |
-| Base dédiée vierge | préparer/appliquer uniquement les migrations validées après confirmation |
-| Base étrangère ou état non reconnu | refuser toute adoption / modification |
-| Mode, produit ou équipe invalides | rejet sans écriture, validation côté serveur |
-| Installation Express réussie | installation, produit, équipe et compte admin uniques et persistants, sans cycle |
-| Double requête / panne à mi-parcours | une seule initialisation ; absence de succès partiel, reprise explicite |
-| Réouverture anonyme | assistant d'écriture refusé après succès, données privées jamais accessibles |
+| Base absente, CREATEDB disponible | créer seulement SMN après confirmation |
+| Base absente, droits insuffisants | aucune création ; indiquer comment reprendre |
+| Base SMN vierge | appliquer uniquement des migrations officielles validées |
+| Base étrangère/partielle | blocage, aucune adoption |
+| Mode/produit/équipe invalides | rejet avant écriture |
+| Double initialisation/panne | une réussite maximum ; pas de succès partiel |
+| Installation terminée | verrouiller l'amorçage anonyme et les données privées |
 
 </frozen-after-approval>
 
 ## Open Questions
 
-- **Accès après l'initialisation (conflit d'étapes Jira) :** SMN-12 AC2 demande d'aller au tableau de bord, alors que SMN-14 porte la connexion et la protection des sessions. **A (recommandé) :** SMN-12 crée le compte et affiche un succès sans ouvrir le tableau de bord privé ; SMN-14 ajoutera connexion et accès au tableau de bord. **B :** SMN-12 inclut dès maintenant une authentification minimale avec changement obligatoire du secret initial pour accéder à un premier tableau de bord ; périmètre et risques supplémentaires.
+- **Après installation :** Jira AC2 prévoit un tableau de bord, mais la connexion appartient à SMN-14. **A — recommandé :** afficher un écran de succès sans accès métier puis livrer la connexion et le tableau de bord avec SMN-14. **B :** intégrer maintenant une première connexion et le changement forcé de secret à SMN-12 (travail de sécurité supplémentaire).
 
 ## Code Map
 
-- `src/server/installation/diagnostic.ts`, `src/server/db/probe.ts` — garde-fous de SMN-11 : mise à jour nécessaire pour reconnaître les migrations officielles plutôt que des fixtures.
-- `src/app/setup/page.tsx`, `src/app/page.tsx`, `src/server/access-policy.ts` — flux Express et verrouillage anonyme.
-- `prisma/schema.prisma`, `prisma.config.ts` — contrat et migrations versionnées ; ne pas lancer `prisma db push` sur la base utilisateur.
-- `scripts/serve.mjs`, `docs/INSTALLATION.md` — configuration locale et procédure Windows existantes, préserver 3003.
-- `tests/postgres-integration.test.ts`, `.github/workflows/verify-i0.yml` — PostgreSQL éphémère / jobs Linux et Windows ; aucune fixture sur une vraie base utilisateur.
+- `src/server/installation/diagnostic.ts`, `src/server/db/probe.ts` : diagnostic conservateur SMN-11, à raccorder aux migrations vérifiées.
+- `src/app/setup/page.tsx`, `src/app/page.tsx`, `src/server/access-policy.ts` : routes d'installation à protéger.
+- `prisma/schema.prisma`, `prisma.config.ts` : schéma actuel de marqueur, migration métier à ajouter.
+- `tests/postgres-integration.test.ts`, `.github/workflows/verify-i0.yml` : CI éphémère Linux/Windows, ne jamais viser la base personnelle.
 
 ## Tasks & Acceptance
 
 **Execution :**
-- [ ] `src/server/installation/**` — états d'amorçage et contrôles de droits/versions, choix de cible, confirmation explicite, idempotence et revalidation avant mutation.
-- [ ] `src/server/db/**`, `prisma/migrations/**`, `prisma/schema.prisma` — création dédiée si absente et autorisée, schéma réel versionné, transactions et journal des migrations ; ne toucher aucune base existante inconnue.
-- [ ] `src/app/setup/**`, `src/app/page.tsx` — interface Express (Scrum/Kanban, produit, équipe) et saisie de l'administrateur ; secrets masqués, pas de données métier en URL.
-- [ ] `src/server/auth/**` — compte initial unique, secret dérivé avec sel et indicateur de changement obligatoire ; fermer l'anonymat après initialisation.
-- [ ] `tests/**`, `.github/workflows/**` — base absente, vierge, étrangère, privilèges limités, installation interrompue/concurrente, validations et absence de fuite ; CI Linux PG18 + Windows.
-- [ ] `docs/INSTALLATION.md`, `README.md` — guide GitHub Desktop/PowerShell, confirmation de création, sauvegarde et reprise, sans secrets réels.
+- [ ] `src/server/installation/**` : préflight, cible et droits, autorisation locale temporaire, confirmation et reprise.
+- [ ] `src/server/db/**`, `prisma/schema.prisma`, `prisma/migrations/**` : création contrôlée de la base, migrations versionnées et manifeste, garde-fous et transaction métier.
+- [ ] `src/app/setup/**`, `src/app/page.tsx` : formulaire Express, validations, erreurs et succès sans fuite de secrets.
+- [ ] `src/server/auth/**` : Administrateur unique et secret sécurisé, changement obligatoire avant métier.
+- [ ] `tests/**`, `.github/workflows/**` : tests sur PG éphémère des créations, droits limités, refus, panne et concurrence ; Windows.
+- [ ] `docs/INSTALLATION.md`, `README.md` : instructions PowerShell/GitHub Desktop et reprise sans SQL manuel normal.
 
-**Critères d'acceptation :**
-- Given un PostgreSQL 18 local, when l'utilisateur confirme une installation dédiée, then seule la base SMN visée est créée si les privilèges le permettent, jamais LMN24.
-- Given les données Express valides, when l'installation est confirmée, then produit, équipe et administrateur sont persistés de manière cohérente sans cycle.
-- Given deux installations concurrentes ou une panne, when l'amorçage échoue, then aucune seconde installation ni accès métier anonyme n'est obtenu.
-- Given un compte initial, when SMN prépare l'accès, then le secret n'est pas publié et son changement est obligatoire avant l'usage métier.
+**Acceptance Criteria :**
+- Given une base absente, when l'utilisateur confirme et dispose du droit, then SMN crée seulement sa base dédiée.
+- Given les données Express valides, when l'utilisateur confirme, then installation, produit, équipe et admin sont persistés ensemble, sans Sprint.
+- Given un schéma étranger ou une requête concurrente, when on tente d'initialiser, then aucune mutation illégitime ni second admin n'est créé.
+- Given le premier compte, when on termine, then aucune donnée métier anonyme ni secret en clair n'est exposé.
 
 ## Implementation Notes
 
@@ -76,10 +74,8 @@ context:
 
 ## Design Notes
 
-**Ordre de livraison visé :** base et droits → migrations versionnées → formulaire Express → compte initial et contrôle d'unicité → tests sur base éphémère → recette Windows après validation. La création PostgreSQL `CREATE DATABASE` n'est pas transactionnelle ; reprendre explicitement après interruption. Conserver un accès local d'amorçage à usage unique sans considérer le seul loopback comme une authentification.
+Création de base PostgreSQL non transactionnelle : diagnostic et reprise entre création, migration et amorçage. Après succès, seul un manifeste de migrations officiel permet l'état `initialized`. La seule écoute loopback ne vaut pas autorisation de mutation : prévoir une preuve locale à usage unique.
 
 ## Verification
 
-**Commandes :** `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test`, `pnpm typecheck`, `pnpm build`, smoke HTTP et PostgreSQL 18 en runner isolé, Windows en CI.
-
-**Recette réelle ultérieure :** installer depuis GitHub Desktop sur Windows standard et confirmer chaque écriture ; ne transmettre aucun identifiant PostgreSQL à ChatGPT.
+`pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test`, `pnpm typecheck`, `pnpm build`, CI PG18 éphémère/Windows. Tests Windows utilisateur seulement après autorisation de création, sans partager d'identifiants.
