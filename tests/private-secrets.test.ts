@@ -46,7 +46,7 @@ describe("SMN-19 — confidentialité des secrets et diagnostics",()=>{
       assert.equal(key?.length,32);
       assert.equal(decodeURIComponent(new URL((await loadExistingUri())!).password),password);
       await rm(path.join(dir,".settings-key"));
-      await assert.rejects(()=>loadExistingUri());
+      await assert.rejects(()=>loadExistingUri(),/configuration-key-missing/);
       await assert.rejects(()=>encryptSetting("new secret"),/configuration-key-missing/);
       await assert.rejects(()=>decryptSetting(JSON.parse(config).passwordEncrypted),/configuration-key-missing/);
       await assert.rejects(()=>lstat(path.join(dir,".settings-key")),{code:"ENOENT"});
@@ -54,9 +54,11 @@ describe("SMN-19 — confidentialité des secrets et diagnostics",()=>{
       await writeFile(path.join(dir,".settings-key"),key!,{flag:"wx"});
       assert.equal(decodeURIComponent(new URL((await loadExistingUri())!).password),password);
       const tampered=JSON.parse(config);
-      tampered.passwordEncrypted=tampered.passwordEncrypted.slice(0,-2)+"aa";
+      const chunks=tampered.passwordEncrypted.split(":");
+      chunks[1]=(chunks[1][0]==="a"?"b":"a")+chunks[1].slice(1);
+      tampered.passwordEncrypted=chunks.join(":");
       await writeFile(path.join(dir,"postgres-connection.json"),JSON.stringify(tampered));
-      await assert.rejects(()=>loadExistingUri());
+      await assert.rejects(()=>loadExistingUri(),/configuration-decryption-failed/);
       const raw=await readPrivateFile("postgres-connection.json");
       assert.ok(raw&&!raw.toString("utf8").includes(password));
       await mkdir(path.join(dir,"runtime.json"),{recursive:false});
