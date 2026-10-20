@@ -93,3 +93,8 @@ Actualiser ce contexte et [l'état BMAD](ETAT-PROJET-BMAD.md) après chaque jalo
 - Après chaque livraison, l'utilisateur récupère **`main` via GitHub Desktop** avec `Fetch origin`, puis `Pull origin` ; aucune commande `git` en PowerShell n'est requise.
 - **Précaution inchangée** : création de base et migrations destructives uniquement après confirmation explicite et contrôle des droits, jamais d'accès ou de changement dans LMN24. Le mode direct sur `main` ne vaut pas autorisation de manipuler les données locales.
 - **État à date** : SMN-11 terminé ; SMN-12 intégré à `main`, Jira/BMAD encore en revue avant retour de recette réelle Windows/PostgreSQL 18.6 ; SMN-14 pour l'authentification, SMN-19 pour les secrets persistants.
+
+
+## Préparation technique de SMN-27 — 20 octobre 2026
+
+La mise en place du socle internationalisé est spécifiée dans [le dossier BMAD de SMN-27](../_bmad-output/implementation-artifacts/spec-smn-27-socle-i18n-json.md) et [le plan opérationnel de migration](I18N-IMPLEMENTATION-PLAN.md). La décision [ADR-I0-004](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md) demeure obligatoire. **Les catalogues `fr.json` et `en.json` ne sont pas encore créés et aucun composant n'a été migré.** Jira SMN-27 reste À faire tant que le développement n'est pas commencé et les dépendances/CI restent à vérifier. L'application utilise aujourd'hui une locale navigateur pour le layout, malgré la présence d'une préférence `locale` conservée en base ; cette divergence sera corrigée dans SMN-27.

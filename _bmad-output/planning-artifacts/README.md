@@ -14,6 +14,7 @@
 | Contrôle du 19/10 — CONCERNS, poursuite autorisée | [Résultat et portes de preuve](implementation-readiness.md) ; [rapprochement des 212 Stories](implementation-readiness-evidence.json) |
 | Stack validée sous réserve I0 | [ADR-I0-001](architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md) — versions exactes et fonctionnement à qualifier |
 | Migrations et secrets — principes validés | [ADR-I0-002](architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md) ; protection des clés à préciser |
+| **Préparation technique de SMN-27 — aucun code encore développé** | [Dossier BMAD SMN-27](../implementation-artifacts/spec-smn-27-socle-i18n-json.md) et [plan de migration](../../docs/I18N-IMPLEMENTATION-PLAN.md) ; dépendances/CI à vérifier |
 | **Internationalisation obligatoire — décision approuvée le 20/10/2026** | **[ADR-I0-004 — un JSON par langue, toutes les Epics](architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md)** ; mise en œuvre à planifier dans SMN-27, aucune implémentation revendiquée |
 
 | Récupération des clés — principe validé | [ADR-I0-003](architecture/architecture-SMN-2026-10-19/ADR-I0-003-RECUPERATION-CLES.md) ; cryptographie et essais à qualifier |
