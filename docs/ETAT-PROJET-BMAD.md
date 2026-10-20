@@ -19,6 +19,10 @@ Le découpage final déclare la couverture des 81 FR, 3 NFR et 18 UX-DR. Il s'ag
 
 ## Décisions applicables et réserves
 
+**Nouvelle décision d'architecture transversale, 20/10/2026 :** [ADR-I0-004](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md) impose la centralisation de **tous les textes standards dans un JSON par langue**, FR/EN MVP, sans libellés codés en dur dans les pages ni traduction automatique des contenus libres. Applicabilité **Epics 1 à 10**, mise en place technique à traiter dans [SMN-27](https://lmn24.atlassian.net/browse/SMN-27). Décision validée ; développement et tests non effectués lors de cette mise à jour.
+
+
+
 A7 (criticité), A8 (faits automatiques), A10 (archives PDF), A11 (données personnelles) sont **validés**. AD-31 est corrigé à **deux rôles Administrateur/Utilisateur** par [D-PRD-132 à 136](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). Les anciennes propositions à trois rôles et leurs blocages métier sont historiques.
 
 Restent à traiter aux portes prévues : A5 (seuils et protocoles NFR), A12 (preuve de restitution multitemporelle), POC I0 Windows/PostgreSQL/PDF, choix et versions des bibliothèques, migrations, sessions, concurrence, sauvegarde/restauration, sécurité et cohérence temporelle. Le lint officiel et le Reviewer Gate indépendant d'architecture ne sont pas attestés. A9 (création rétrospective complète de périodes Kanban) demeure hors engagement MVP.

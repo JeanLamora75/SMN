@@ -39,6 +39,7 @@ SMN est un carnet de bord professionnel pour préparer, expliquer et produire à
 - Briefs IA TXT : données collectives autorisées, échange manuel avec l'IA, texte archivé exact et analyses identifiées. Pas de transmission API automatique.
 - Sauvegardes gérées : 30 jours par défaut, paramétrables. Effacement exceptionnel contrôlé ; historique et restauration traités selon D-PRD-135.
 - Interface française et anglaise, Bootstrap 5, thèmes clair/sombre, usages ordinateur/tablette/smartphone.
+- **Décision transversale obligatoire du 20/10/2026 : tous les textes standards visibles et exportables doivent provenir d'un fichier JSON par langue** (`src/i18n/fr.json`, `src/i18n/en.json` comme architecture cible ; pas encore implémentée). Aucun texte d'interface codé en dur dans TSX/JSX, aucun `lang === "en" ? "texte" : "texte"` ; toute Story doit enrichir les deux catalogues, utiliser des clés stables et respecter le repli français. Les contenus libres des utilisateurs ne sont pas traduits. [ADR-I0-004](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md), [Story 1.14/SMN-27](https://lmn24.atlassian.net/browse/SMN-27).
 
 ## 4. Architecture et contraintes
 

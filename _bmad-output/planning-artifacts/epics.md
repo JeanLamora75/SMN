@@ -30,6 +30,14 @@ Le MVP Scrum/Kanban contient une seule équipe par installation ; le multiéquip
 
 ## Requirements Inventory
 
+## Décision transversale obligatoire — Catalogues JSON d'internationalisation (20/10/2026)
+
+**Décision utilisateur approuvée ; applicable à toutes les Epics SMN-1 à SMN-10 et à toute Story existante ou future.** Les textes UI standardisés (titres, menus, formulaires, validations, erreurs, aides, états vides) et les libellés standards des rapports HTML/PDF et briefs TXT doivent utiliser **un catalogue JSON par langue**, cible `src/i18n/fr.json` / `src/i18n/en.json`. Les pages ne codent pas en dur les libellés ni les traductions FR/EN. Français et anglais au MVP, repli français explicite, clés sémantiques stables et parité de structure vérifiée ; langue préférée déjà persistée par SMN-18 et rendue effective dans [Story 1.14 — SMN-27](https://lmn24.atlassian.net/browse/SMN-27). Les textes métiers saisis et l'historique restent **dans leur langue d'origine** : aucune traduction ni mutation automatique. Les exports ont leur langue de sortie standard propre.
+
+**À toute implémentation :** alimenter les deux JSON, couvrir le rendu FR/EN, les erreurs, le repli et l'accessibilité ; intégrer ces contrôles à la Definition of Done et à la recette. **Ne pas déclarer le socle déjà développé.** L'existant (chaînes TSX et `src/lib/messages.ts`) requiert une migration ultérieure. [ADR-I0-004](architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md) est la source normative technique ; ce complément ne change ni le nombre de Stories ni leurs critères métier préalablement approuvés.
+
+
+
 ### Functional Requirements
 - **FR-1** — Choix du parcours d'initialisation (validé : D-PRD-002, D-PRD-042, D-PRD-044, D-PRD-087 à D-PRD-091 ; F-114, F-123, F-124)
 - **FR-2** — Accès au tableau de bord après l'initialisation (validé : D-PRD-003)

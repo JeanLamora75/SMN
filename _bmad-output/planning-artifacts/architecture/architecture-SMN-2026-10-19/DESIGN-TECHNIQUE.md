@@ -4,6 +4,10 @@
 
 ## 1. Frontières, propriété et flux d'écriture
 
+> **Règle d'architecture i18n (20/10/2026) :** [ADR-I0-004](ADR-I0-004-I18N-JSON.md) impose un fichier JSON par langue (`src/i18n/fr.json`, `src/i18n/en.json`, chemins cibles), des clés sémantiques réutilisées par tous les rendus UI/HTML/PDF/TXT, une parité de clés et un repli fr testé. Les pages/composants n'intègrent pas de chaînes d'interface en dur. Le rendu doit appliquer la préférence enregistrée par SMN-18 lors de SMN-27 sans traduire les champs libres. Aucun fichier ni composant n'est développé par ce seul amendement.
+
+
+
 | Module logique | Source de vérité et opérations possédées | Interfaces consommées |
 | --- | --- | --- |
 | Installation/Identité | Installation unique, produit/mode fixes, comptes, rôles et sessions | Audit, configuration privée |

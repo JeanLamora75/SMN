@@ -29,6 +29,10 @@ companions:
 
 ## Design Paradigm
 
+> **Décision d'architecture complémentaire du 20/10/2026 — obligatoire dans tous les modules :** [ADR-I0-004 — internationalisation JSON](ADR-I0-004-I18N-JSON.md). Un fichier JSON de ressources **par langue** (`src/i18n/fr.json`, `src/i18n/en.json`, chemins cibles) constitue l'unique source des libellés SMN. Les pages, composants, formulaires, notifications, diagnostics visibles, tableaux de bord, rendus et exports standardisés utilisent des clés de traduction, jamais du texte utilisateur codé en dur ni des ternaires FR/EN dans les composants. Choix de langue connecté aux paramètres persistés SMN-18 dans la Story SMN-27 ; langue française comme repli ; les contenus métier libres ne sont ni traduits ni réécrits. Toute Epic doit satisfaire cette règle et ses tests. **Il s'agit d'une décision, pas d'une implémentation accomplie.**
+
+
+
 **Monolithe modulaire TypeScript, application web locale d'abord.** Un seul ensemble applicatif, séparant présentation, cas d'usage/orchestration, domaine pur, persistance et adaptateurs d'export ; PostgreSQL dès le MVP. Dépendances : `UI/API → Application → Domaine` et `Infrastructure → contrats du Domaine/Application`. Le domaine ne dépend ni de React/Next.js, ni de PostgreSQL, ni de Bootstrap. Aucun accès SQL direct depuis les vues. Un propriétaire par agrégat métier ; orchestration explicite des opérations entre modules.
 
 ```mermaid

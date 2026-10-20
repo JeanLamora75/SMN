@@ -15,6 +15,10 @@ language: fr
 
 ## 0. Objet et références du document
 
+> **Précision technique transversale validée le 20/10/2026 (sans changement du besoin FR/EN) :** l'interface, les libellés standardisés des exports et tous les écrans SMN utilisent des traductions centralisées dans **un catalogue JSON par langue** (`src/i18n/fr.json`, `src/i18n/en.json`, cibles non encore créées). Aucun texte d'interface codé en dur dans les composants ; parité des clés, repli `fr`, sélection via la préférence sauvegardée et conservation intégrale des textes libres. La réalisation relève de [SMN-27](https://lmn24.atlassian.net/browse/SMN-27) et de l'application transversale aux Epics 1 à 10. [Décision normative ADR-I0-004](../../architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md). **Amendement documentaire, non développement ni recette.**
+
+
+
 Ce PRD fixe le périmètre, les 81 FR, les NFR de principe, les cinq critères de succès, les références de décisions F/D-PRD et les frontières MVP/v1.0. Le détail des critères réside aussi dans les annexes. Les choix techniques et les arbitrages métier expressément ouverts sont réservés à l'architecture, à la recette ou à une validation ultérieure, sans ajout implicite de décision.
 
 Références fonctionnelles sur `main` :

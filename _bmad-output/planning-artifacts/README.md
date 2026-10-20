@@ -14,6 +14,8 @@
 | Contrôle du 19/10 — CONCERNS, poursuite autorisée | [Résultat et portes de preuve](implementation-readiness.md) ; [rapprochement des 212 Stories](implementation-readiness-evidence.json) |
 | Stack validée sous réserve I0 | [ADR-I0-001](architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md) — versions exactes et fonctionnement à qualifier |
 | Migrations et secrets — principes validés | [ADR-I0-002](architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md) ; protection des clés à préciser |
+| **Internationalisation obligatoire — décision approuvée le 20/10/2026** | **[ADR-I0-004 — un JSON par langue, toutes les Epics](architecture/architecture-SMN-2026-10-19/ADR-I0-004-I18N-JSON.md)** ; mise en œuvre à planifier dans SMN-27, aucune implémentation revendiquée |
+
 | Récupération des clés — principe validé | [ADR-I0-003](architecture/architecture-SMN-2026-10-19/ADR-I0-003-RECUPERATION-CLES.md) ; cryptographie et essais à qualifier |
 | Préparation technique I0 — en cours | [Choix candidats, inventaire et protocole](preparation-technique-i0.md) ; aucun essai attesté |
 | Qualification documentaire de la stack I0 | [Sources officielles, versions observées et contraintes Windows](qualification-documentaire-stack-i0.md) — POC non réalisés |
