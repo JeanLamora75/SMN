@@ -96,3 +96,9 @@
  .smn-private-nav-list .smn-nav-link>span:first-child {width:15px;font-size:.9rem;}
  .smn-nav-soon {display:inline-block;}
 }
+
+/* SMN-23 : accès à une fiche collective et retour au contexte. */
+.smn-context-detail-link {border-color:rgba(255,255,255,.75);font-weight:650;}
+.smn-context-detail-link:focus-visible,.smn-context-back:focus-visible {outline:3px solid #8dc3ff;outline-offset:3px;}
+.smn-context-back {color:#154d8d;font-weight:650;text-decoration:none;}
+.smn-context-back:hover {text-decoration:underline;}

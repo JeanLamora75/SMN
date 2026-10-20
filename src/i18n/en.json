@@ -438,5 +438,22 @@
       "settings": "General settings",
       "cyclesUnknown": "Cycles (mode unavailable)"
     }
+  },
+  "detail": {
+    "openTeam": "Open team details",
+    "breadcrumbLabel": "Breadcrumb",
+    "back": "Back to previous view",
+    "teamEyebrow": "TEAM DETAILS",
+    "subtitle": "Review this team's current reference details without changing any data.",
+    "currentHeading": "Current information",
+    "currentLabel": "Current state",
+    "teamName": "Team",
+    "productName": "Product",
+    "agileMode": "Agile mode",
+    "identifierInfo": "This page is opened using the team's stable ID and is scoped to the active installation.",
+    "historicalTitle": "Historical consultation context",
+    "historicalNotice": "The return link retains the requested period or version selection. The details below are current data, not a historical snapshot or closure version.",
+    "missingTitle": "Details unavailable",
+    "missingDescription": "This item does not exist, is no longer available, or you do not have permission to view it. No private information was disclosed."
   }
 }

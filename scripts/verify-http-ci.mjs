@@ -208,7 +208,7 @@ try {
       assert.match(response.headers.get("cache-control")??"",/no-store/);
       const projection=await response.json();
       assert.deepEqual(projection,{
-        context:{product:"Produit de recette CI",team:"Equipe CI",mode:"scrum"},
+        context:{productId:"product",product:"Produit de recette CI",teamId:"team",team:"Equipe CI",mode:"scrum"},
         currentCycle:null,pendingCycles:[],objectives:[],metrics:[],events:[],attention:[],
       },"Projection collective explicite, sans champ individuel ni coordonnées");
       assert.doesNotMatch(JSON.stringify(projection),/email|password|absence|capacity|username|is_active/i);
@@ -337,19 +337,42 @@ try {
     const privatePage = await get("/app", { headers:{Cookie:replacement},redirect:"manual" });
     assert.equal(privatePage.status, 200);
     const privateHtml = await privatePage.text();
-    assert.match(privateHtml, /Vue d.{1,15}ensemble/);
+    assert.match(privateHtml, /(Vue d.{1,15}ensemble|Overview)/i);
     assert.match(privateHtml, /Produit de recette CI/);
     assert.match(privateHtml, /Equipe CI/);
-    assert.match(privateHtml.replace(/<!--.*?-->/g, ""), /Aucun sprint enregistr/);
+    assert.match(privateHtml.replace(/<!--.*?-->/g, ""), /(Aucun sprint enregistr|No sprint has been recorded)/i);
     assert.doesNotMatch(privateHtml, /admin@localhot.com/);
     assert.doesNotMatch(privateHtml, /Story Points.*>0</);
     await verifyDashboard(replacement);
+    // SMN-23 : navigation HTML en lecture seule, liée à une vraie équipe I0.
+    const detailPath="/app/team/team";
+    assert.equal((await get(detailPath,{redirect:"manual"})).status,307);
+    const linked=await get("/app?filter=sample&cycleId=cycle-42&version=2&asOf=2026-10-20",
+      {headers:{Cookie:replacement},redirect:"manual"});
+    assert.equal(linked.status,200);
+    const linkedHtml=await linked.text();
+    assert.match(linkedHtml,/\/app\/team\/team\?/);
+    const details=await get(detailPath+"?"+new URLSearchParams({
+      returnTo:"/app?teamId=team&cycleId=cycle-42&filter=sample&version=2&asOf=2026-10-20",
+    }),{headers:{Cookie:replacement},redirect:"manual"});
+    assert.equal(details.status,200);
+    const detailHtml=await details.text();
+    assert.match(detailHtml,/Equipe CI/);
+    assert.match(detailHtml,/Produit de recette CI/);
+    assert.match(detailHtml,/(informations actuelles|current information)/i);
+    assert.match(detailHtml,/(contexte de consultation historique|historical consultation context)/i);
+    assert.doesNotMatch(detailHtml,/admin@localhot.com|password_hash/);
+    const unknownDetail=await get("/app/team/unknown",{headers:{Cookie:replacement},redirect:"manual"});
+    assert.equal(unknownDetail.status,404);
+    assert.doesNotMatch(await unknownDetail.text(),/admin@localhot.com|password_hash/);
     const teamRow=await withDb(async client=>(await client.query(
       "SELECT row_to_json(t)::text AS snapshot FROM public.smn_team t WHERE id='team'"
     )).rows[0]);
     assert.ok(teamRow);
     try {
       await withDb(client=>client.query("DELETE FROM public.smn_team WHERE id='team'"));
+      const removedTeam=await get("/app/team/team",{headers:{Cookie:replacement},redirect:"manual"});
+      assert.equal(removedTeam.status,404);
       const missingContext=await get("/api/dashboard",{headers:{Cookie:replacement}});
       assert.equal(missingContext.status,403);
       assert.deepEqual(await missingContext.json(),{error:"forbidden"});
@@ -419,12 +442,16 @@ try {
     assert.equal(rejectedPage.status,307);
     assert.equal(new URL(rejectedPage.headers.get("location"),base).pathname,"/app");
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
+    // Une fiche collective est lisible pour l'utilisateur, contrairement aux réglages administratifs.
+    const userTeam=await get("/app/team/team",{headers:{Cookie:userReady},redirect:"manual"});
+    assert.equal(userTeam.status,200);
+    assert.match(await userTeam.text(),/Equipe CI/);
     const userDashboard=await get("/app",{headers:{Cookie:userReady},redirect:"manual"});
     assert.equal(userDashboard.status,200);
     const userHtml=await userDashboard.text();
     assert.match(userHtml,/Produit de recette CI/);
     assert.match(userHtml,/Equipe CI/);
-    assert.match(userHtml,/Vue d.{1,15}ensemble/);
+    assert.match(userHtml,/(Vue d.{1,15}ensemble|Overview)/i);
     assert.doesNotMatch(userHtml,/Comptes utilisateurs/);
     assert.doesNotMatch(userHtml,/admin@localhot.com/);
 
