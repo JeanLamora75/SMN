@@ -41,7 +41,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     assert.equal(classifySnapshot({ ...virgin, schemaCreate: undefined }).status, "permissions-insufficient");
     assert.equal(classifySnapshot({ ...virgin, serverVersion: undefined }).status, "server-version-unsupported");
     assert.equal(classifySnapshot({ ...valid, tableRead: false }).status, "permissions-insufficient");
-    assert.equal(classifySnapshot({ ...valid, schemaCreate: false }).status, "initialized");
+    assert.equal(classifySnapshot({ ...valid, schemaCreate: false }).status, "installation-incomplete");
   });
   it("rejette un PostgreSQL hors version qualifiée", () => {
     assert.equal(classifySnapshot({ ...virgin, serverVersion: 170006 }).status, "server-version-unsupported");
