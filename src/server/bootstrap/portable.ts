@@ -7,6 +7,7 @@ import os from "node:os";
 import net from "node:net";
 import { Client } from "pg";
 import { acquirePgArchive, PG_ARCHIVE } from "./archive";
+import { encryptSetting, decryptSetting } from "./settings";
 
 // SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
@@ -34,13 +35,7 @@ async function run(exe: string, args: string[], input?: string): Promise<string>
     child.stdin.end(input);
   });
 }
-async function dpapi(value: string, decrypt = false): Promise<string> {
-  // Le secret passe uniquement par stdin, jamais par les arguments, le dépôt ou les logs.
-  const script = decrypt
-    ? "$ErrorActionPreference='Stop'; $v=[Console]::In.ReadToEnd(); $raw=[Convert]::FromBase64String($v.Trim()); $data=[System.Security.Cryptography.ProtectedData]::Unprotect($raw,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Text.Encoding]::UTF8.GetString($data))"
-    : "$ErrorActionPreference='Stop'; $v=[Console]::In.ReadToEnd(); $raw=[Text.Encoding]::UTF8.GetBytes($v); $data=[System.Security.Cryptography.ProtectedData]::Protect($raw,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Convert]::ToBase64String($data))";
-  return run("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", script], value);
-}
+
 async function portInUse(port: number): Promise<boolean> {
   return new Promise(resolve => {
     const s = net.connect({ host: "127.0.0.1", port });
@@ -102,7 +97,7 @@ export async function existingManagedUri(): Promise<string | null> {
   const cfg = await loadManaged();
   if (!cfg) return null;
   await ensureRunning(cfg);
-  const password = await dpapi(cfg.encryptedPassword, true);
+  const password = await decryptSetting(cfg.encryptedPassword);
   const uri = buildUri(cfg.user, password, cfg.port);
   await validateOwner(uri);
   return uri;
@@ -151,7 +146,7 @@ export async function prepareManaged(onProgress: (step: string) => void): Promis
   // Le secret durable est protégé par DPAPI CurrentUser ; pas de secret en clair sur disque.
   const cfg: ManagedConfig = {
     version: VERSION, pgBin: path.join(pgRoot, "bin"), cluster: path.join(root, "data"),
-    port: PORT, user: "smn_owner", encryptedPassword: await dpapi(password),
+    port: PORT, user: "smn_owner", encryptedPassword: await encryptSetting(password),
   };
   const pending = configPath() + ".new";
   await writeFile(pending, JSON.stringify(cfg), { mode: 0o600, flag: "wx" });
