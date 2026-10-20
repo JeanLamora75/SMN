@@ -11,7 +11,7 @@ if (process.platform !== "win32" || process.env.GITHUB_ACTIONS !== "true") {
   throw new Error("Smoke autonome réservé au runner Windows");
 }
 const root = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd(), "_package", "SMN-Windows"));
-for (const file of ["node.exe", "server.js", "Demarrer SMN.cmd", "launch-portable.mjs"]) {
+for (const file of ["node.exe", "server.js", "Demarrer SMN.cmd", "launch-portable.mjs", "recover-admin.mjs", "Recuperer admin SMN.cmd"]) {
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
