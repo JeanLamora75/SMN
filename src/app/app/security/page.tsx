@@ -19,7 +19,7 @@ export default async function SecurityPage() {
     </section>
     {account.role==="admin" && <section className="smn-panel p-4">
       <h2 className="h5">Préparer une récupération locale</h2>
-      <p className="text-secondary small">Définissez une phrase de secours distincte du mot de passe et de la phrase des sauvegardes. En cas d'oubli du mot de passe, la commande locale SMN permet de la consommer une seule fois. Sans préparation préalable, aucune récupération n'est possible.</p>
+      <p className="text-secondary small">Définissez une phrase de secours distincte du mot de passe et de la phrase des sauvegardes. En cas d&apos;oubli du mot de passe, la commande locale SMN permet de la consommer une seule fois. Sans préparation préalable, aucune récupération n&apos;est possible.</p>
       <SecurityForm/>
     </section>}
     <SessionActivity/>
