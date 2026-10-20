@@ -82,7 +82,8 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
       "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 3",
     )).rows;
-    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, accountActiveColumn: columnSet.has("smn_account:is_active") };
+    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
+      recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)) };
   } finally {
     if (transaction) await client.query("ROLLBACK").catch(() => undefined);
     await client.end().catch(() => undefined);

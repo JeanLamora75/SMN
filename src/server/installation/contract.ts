@@ -1,7 +1,7 @@
 export const INITIAL_MIGRATION = "20261020_smn12_initial";
 export const INSTALLATION_RELATIONS = [
   "public._prisma_migrations:r", "public.smn_installation:r", "public.smn_product:r",
-  "public.smn_team:r", "public.smn_account:r",
+  "public.smn_team:r", "public.smn_account:r", "public.smn_recovery_phrase:r", "public.smn_auth_audit:r",
 ] as const;
 export type ExpressInput = Readonly<{ mode: "scrum" | "kanban"; product: string; team: string; password: string; adminUsername: string; adminEmail: string }>;
 export function validateExpressInput(body: unknown): ExpressInput | null {

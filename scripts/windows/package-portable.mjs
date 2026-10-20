@@ -19,6 +19,9 @@ await cp(".next/static", path.join(target, ".next", "static"), { recursive: true
 if (existsSync("public")) await cp("public", path.join(target, "public"), { recursive: true, force: true });
 await copyFile(process.execPath, path.join(target, "node.exe"));
 await copyFile("scripts/windows/launch-portable.mjs", path.join(target, "launch-portable.mjs"));
+await copyFile("scripts/recover-admin.mjs", path.join(target, "recover-admin.mjs"));
+const recoverLaunch = `@echo off\r\ncd /d "%~dp0"\r\n"%~dp0node.exe" "%~dp0recover-admin.mjs"\r\nif errorlevel 1 pause\r\n`;
+await writeFile(path.join(target, "Recuperer admin SMN.cmd"), recoverLaunch, "utf8");
 const launch = `@echo off\r\ncd /d "%~dp0"\r\n"%~dp0node.exe" "%~dp0launch-portable.mjs"\r\nif errorlevel 1 pause\r\n`;
 await writeFile(path.join(target, "Demarrer SMN.cmd"), launch, "utf8");
 const pgFolder = path.join(target, "runtime", "postgres");
