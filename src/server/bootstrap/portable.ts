@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import net from "node:net";
@@ -9,6 +9,7 @@ import { Client } from "pg";
 import { acquirePgArchive, PG_ARCHIVE } from "./archive";
 import { encryptSetting, decryptSetting } from "./settings";
 import { archiveIncompleteCluster } from "./recovery";
+import { classifyPostgresStartupLog } from "./postgres-startup";
 
 // SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
@@ -68,9 +69,22 @@ async function ensureRunning(config: ManagedConfig): Promise<void> {
   if (await statusIsOwned(config)) return;
   if (await portInUse(config.port)) throw new Error("managed-port-occupied");
   const log = path.join(privateRoot(), "postgres.log");
-  await run(path.join(config.pgBin, "pg_ctl.exe"), [
-    "-D", config.cluster, "-l", log, "-o", "-h 127.0.0.1 -p " + config.port, "-w", "start",
-  ]);
+  const oldLength = (await stat(log).catch(() => null))?.size ?? 0;
+  try {
+    await run(path.join(config.pgBin, "pg_ctl.exe"), [
+      "-D", config.cluster, "-l", log, "-o", "-h 127.0.0.1 -p " + config.port, "-w", "start",
+    ]);
+  } catch {
+    // pg_ctl renvoie seulement son code de sortie ; la raison se trouve
+    // dans postgres.log. Lire exclusivement les nouvelles lignes, puis
+    // retourner un code connu, jamais le contenu ni le chemin Windows.
+    let recent = "";
+    try {
+      const bytes = await readFile(log);
+      recent = bytes.subarray(bytes.length >= oldLength ? oldLength : 0).toString("utf8");
+    } catch { /* journal absent : erreur explicite générique */ }
+    throw new Error(classifyPostgresStartupLog(recent));
+  }
 }
 function buildUri(user: string, password: string, port: number): string {
   return "postgresql://" + encodeURIComponent(user) + ":" + encodeURIComponent(password) +
@@ -164,7 +178,7 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
       "-A", "scram-sha-256", "--pwfile", pwFile, "--encoding", "UTF8", "--no-instructions",
     ]);
   } finally { await rm(pwFile, { force: true }); }
-  // Le secret durable est protégé par DPAPI CurrentUser ; pas de secret en clair sur disque.
+  // Le secret durable est chiffré dans le profil Windows. La clé locale doit rester privée ; aucun mot de passe n'est écrit en clair.
   const cfg: ManagedConfig = {
     version: VERSION, pgBin: path.join(pgRoot, "bin"), cluster: path.join(root, "data"),
     port: PORT, user: "smn_owner", encryptedPassword: await encryptSetting(password),
