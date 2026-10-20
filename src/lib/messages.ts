@@ -9,7 +9,7 @@ export async function browserLanguage():Promise<Language>{
   return negotiateLanguage((await headers()).get("accept-language"));
 }
 const codes:DiagnosticStatus[]=[
-  "configuration-missing","configuration-invalid","database-missing",
+  "configuration-missing","configuration-invalid","configuration-key-missing","database-missing",
   "connection-error","permissions-insufficient","server-version-unsupported",
   "virgin","initialized","schema-incompatible","installation-incomplete",
 ];

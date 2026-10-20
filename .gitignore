@@ -17,6 +17,13 @@ build/
 *.tsbuildinfo
 src/generated/
 
+# Clés, configurations locales et journaux privés SMN
+.settings-key
+postgres-connection.json
+runtime.json
+.init-password-*
+postgres.log
+
 # Windows
 Thumbs.db
 Desktop.ini

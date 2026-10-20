@@ -15,7 +15,9 @@ export async function currentInstallationDiagnostic(): Promise<Diagnostic> {
         if (existing) return diagnoseInstallation(() => probePostgres(existing));
         const uri = await existingManagedUri();
         if (uri) return diagnoseInstallation(() => probePostgres(uri));
-      } catch {
+      } catch(error) {
+        if (error instanceof Error && error.message === "configuration-key-missing")
+          return { status: "configuration-key-missing", canEnterSetup: false };
         return { status: "connection-error", canEnterSetup: false };
       }
     }
