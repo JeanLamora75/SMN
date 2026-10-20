@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { canOfferPortable } from "@/server/bootstrap/portable";
-import { bootstrapStatus, beginBootstrap, checkLocalCookie, localCookieValue } from "@/server/bootstrap/job";
+import { bootstrapStatus, beginBootstrap, checkLocalCookie, localCookieValue, validateDatabaseChoice } from "@/server/bootstrap/job";
 import { validateExpressInput } from "@/server/installation/contract";
 export const dynamic = "force-dynamic";
 function allowed(request: NextRequest): boolean {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   let body: unknown;
   try { body = await request.json(); } catch { return NextResponse.json({ status: "invalid-input" }, { status: 400 }); }
   if (!body || typeof body !== "object" || (body as Record<string,unknown>).confirmed !== true ||
-      !validateExpressInput(body)) {
+      !validateExpressInput(body) || !validateDatabaseChoice(body)) {
     return NextResponse.json({ status: "invalid-input" }, { status: 400 });
   }
   if (!beginBootstrap(body)) return NextResponse.json({ status: "invalid-input-or-running" }, { status: 409 });
