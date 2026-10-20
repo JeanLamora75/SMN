@@ -1,6 +1,25 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+const installationErrors: Record<string,string> = {
+  "invalid-input": "Vérifiez les noms et le mot de passe (au moins 14 caractères, avec lettres et chiffres).",
+  "configuration-missing": "La connexion PostgreSQL SMN n’est pas configurée.",
+  "configuration-invalid": "La connexion configurée ne désigne pas une base SMN locale dédiée.",
+  "database-missing": "La base SMN n’existe pas encore.",
+  "createdb-required": "Ce compte PostgreSQL n’a pas le droit CREATEDB. Utilisez un compte autorisé ou une base SMN dédiée précréée.",
+  "postgres-error": "Connexion à PostgreSQL impossible ou autorisation insuffisante. Vérifiez les droits et réessayez.",
+  "permissions-insufficient": "Le compte PostgreSQL ne possède pas les droits nécessaires dans la base SMN.",
+  "schema-incompatible": "La base contient un schéma non reconnu. Aucune modification automatique n’a été effectuée.",
+  "installation-incomplete": "Une installation partielle est détectée. Aucune seconde installation n’est autorisée.",
+  "not-empty": "La base n’est plus vierge. Rechargez le diagnostic avant toute nouvelle tentative.",
+  "database-already-present": "La base est apparue entre deux vérifications. Rechargez le diagnostic.",
+  "unsupported-postgres": "La version PostgreSQL requise est 18.",
+  "installation-failed": "L’amorçage a échoué. Les modifications de la transaction ont été annulées ; consultez le diagnostic.",
+  "verification-failed": "Les écritures sont terminées mais la vérification finale a échoué : n’essayez pas de réinitialiser ; consultez le diagnostic.",
+  "forbidden": "Jeton local ou origine de la requête invalide.",
+  "confirmation-required": "Confirmez explicitement l’installation avant de continuer.",
+};
+
 
 export default function SetupForm() {
   const [state, setState] = useState({ mode: "scrum", product: "", team: "", password: "", setupToken: "", confirmed: false });
