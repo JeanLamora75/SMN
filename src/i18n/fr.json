@@ -438,5 +438,22 @@
       "settings": "Paramètres généraux",
       "cyclesUnknown": "Cycles (mode indisponible)"
     }
+  },
+  "detail": {
+    "openTeam": "Consulter la fiche équipe",
+    "breadcrumbLabel": "Fil de navigation",
+    "back": "Retour à la vue d'origine",
+    "teamEyebrow": "FICHE COLLECTIVE",
+    "subtitle": "Consulter les informations de référence de cette équipe sans modifier ses données.",
+    "currentHeading": "Informations actuelles",
+    "currentLabel": "État courant",
+    "teamName": "Équipe",
+    "productName": "Produit",
+    "agileMode": "Mode Agile",
+    "identifierInfo": "Cette fiche est ouverte par l'identifiant stable de l'équipe et limitée à l'installation active.",
+    "historicalTitle": "Contexte de consultation historique",
+    "historicalNotice": "Le lien de retour conserve la sélection de période ou de version demandée. Les informations ci-dessous sont les données actuelles : elles ne constituent pas une reconstitution historique ni une version de clôture.",
+    "missingTitle": "Fiche indisponible",
+    "missingDescription": "Cette fiche n'existe pas, n'est plus disponible ou vous n'êtes pas autorisé à la consulter. Aucune information privée n'a été communiquée."
   }
 }

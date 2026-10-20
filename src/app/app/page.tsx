@@ -8,6 +8,7 @@ import ConfigurationChecklist from "./configuration-checklist";
 import {readConfigurationChecklist} from "@/server/configuration/tasks";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
+import {dashboardReturnPath,teamDetailPath,type DashboardQuery} from "@/lib/context-navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ function EmptyBlock({ heading, description, symbol, unavailable }: Readonly<{
   </article>;
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({searchParams}:{searchParams:Promise<DashboardQuery>}) {
   const account = await currentAccount();
   if (!account) redirect("/login");
   if (!canAccess(account, "read", { type: "collective", exists: true, inScope: true }))
@@ -49,6 +50,8 @@ export default async function DashboardPage() {
   const configuration=canManageConfiguration
     ? await withAuthDb(readConfigurationChecklist).catch(()=>null) : null;
   const { context } = dashboard;
+  const returnTo=dashboardReturnPath(await searchParams,context.teamId);
+  const teamHref=teamDetailPath(context.teamId,returnTo);
   const scrum = context.mode === "scrum";
   const cycleName=t(scrum?"dashboard.sprint":"dashboard.kanbanCycle");
 
@@ -70,6 +73,11 @@ export default async function DashboardPage() {
               <p className="mb-0 smn-context-team">
                 <span className="smn-context-circle" aria-hidden="true">◉</span> {t("dashboard.team",{team:context.team})}
               </p>
+              <div className="mt-3">
+                <Link href={teamHref} className="btn btn-outline-light btn-sm smn-context-detail-link">
+                  {t("detail.openTeam")} <span aria-hidden="true">→</span>
+                </Link>
+              </div>
             </div>
             <div className="smn-context-meta">
               <div className="smn-context-label">{t("dashboard.framework")}</div>
