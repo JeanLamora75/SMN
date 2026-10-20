@@ -16,6 +16,6 @@ export function validateExpressInput(body: unknown): ExpressInput | null {
   if (product.length < 1 || product.length > 120 || team.length < 1 || team.length > 120 ||
       typeof password !== "string" || password.length < 4 || password.length > 256 ||
       !/^[a-zA-Z0-9_.-]{2,50}$/.test(adminUsername) ||
-      !/^[^\\s@]{1,80}@[^\\s@]{1,100}\\.[^\\s@]{2,20}$/.test(adminEmail)) return null;
+      !/^[^\s@]{1,80}@[^\s@]{1,100}\.[^\s@]{2,20}$/.test(adminEmail)) return null;
   return { mode: v.mode, product, team, password, adminUsername, adminEmail };
 }
