@@ -12,7 +12,7 @@
 
 ## Sorties contrôlées et erreurs
 
-Le diagnostic public `/api/diagnostic` ne renvoie qu'un état normalisé ; `/api/bootstrap` expose uniquement étape, pourcentage et codes d'erreur appartenant à une **liste exhaustive contrôlée**. Toute erreur technique imprévue, exception `pg`, chemin privé ou message système se traduit par `installation-failed`. Aucune exception brute ne doit être retournée par HTTP ou reprise telle quelle dans l'interface.
+Une clé locale absente donne le diagnostic explicite `configuration-key-missing` et un message FR/EN invitant à restaurer la clé d'origine sans réinstallation. Une lecture d'un fichier privé absent ne crée pas le répertoire de configuration. Le diagnostic public `/api/diagnostic` ne renvoie qu'un état normalisé ; `/api/bootstrap` expose uniquement étape, pourcentage et codes d'erreur appartenant à une **liste exhaustive contrôlée**. Toute erreur technique imprévue, exception `pg`, chemin privé ou message système se traduit par `installation-failed`. Aucune exception brute ne doit être retournée par HTTP ou reprise telle quelle dans l'interface.
 
 L'Administrateur peut consulter `/api/admin/settings`, qui expose **seulement** langue, thème, pays, révision, date, mode et produit. L'Utilisateur ne peut pas y accéder. Il n'existe pas d'export de secrets ; ne jamais placer un mot de passe ou une clé dans une capture d'écran, une demande d'assistance, un log, une URL, un argument de commande ou un rapport.
 
@@ -36,3 +36,7 @@ Les contrôles d'ACL Windows effectives, de récupération interactive réelle e
 - [Spécification BMAD SMN-19](../_bmad-output/implementation-artifacts/spec-smn-19-secrets-configuration.md)
 - [ADR-I0-002](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-002-MIGRATIONS-SECRETS.md)
 - [ADR-I0-003](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-003-RECUPERATION-CLES.md)
+
+## État de recette automatisée au 20 octobre 2026
+
+La [PR #14](https://github.com/JeanLamora75/SMN/pull/14) demeure **en brouillon** : [CI Linux/Windows](https://github.com/JeanLamora75/SMN/actions/runs/39479862588) et [paquet Windows](https://github.com/JeanLamora75/SMN/actions/runs/39479862524) sont bloqués avant l'affectation d'un runner, sans étapes exécutées. Les contrôles de code sont relus, mais **pas exécutés** dans ces jobs. L'installation de l'utilisateur n'a pas été touchée. Voir la spécification BMAD pour la traçabilité et les réserves.

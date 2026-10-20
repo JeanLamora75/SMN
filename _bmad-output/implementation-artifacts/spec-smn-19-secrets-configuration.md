@@ -41,9 +41,9 @@ ADR-I0-002/003 : secrets dans le profil privé, chiffrement local sans question 
 - [x] Diagnostic public à erreurs normalisées.
 - [x] Format URI PostgreSQL sans mot de passe refusé.
 - [x] Exclusion des fichiers sensibles du packaging et Git.
-- [x] Tests automatisés ajoutés.
+- [x] Tests automatisés ajoutés (exécution GitHub Actions toujours indisponible).
 - [ ] CI Linux / Windows / paquet autonome finale.
-- [ ] Vérification indépendante du diff.
+- [x] Relecture statique du diff par le développeur (ne remplace pas une revue indépendante).
 - [ ] Recette sur Windows 11 utilisateur (différée).
 
 ## Limites d'attestation
@@ -60,3 +60,35 @@ Les liens et résultats précis de CI sont ajoutés après l'exécution.
 - Le statut **In progress** est maintenu, la [PR #14](https://github.com/JeanLamora75/SMN/pull/14) reste **draft**, aucun merge vers `main` ; l'échec d'infrastructure est une **hypothèse**, non une cause prouvée. Ne pas déclarer la CI verte.
 - Reprise ciblée : retrouver les annotations GitHub Actions / résoudre l'indisponibilité des jobs, puis revalider les tests Linux/PostgreSQL, Windows et le paquet autonome, consulter le diff et fusionner seulement après preuve.
 - L'utilisateur a reporté une recette Windows 11 **globale**, distincte des vérifications sur runners.
+
+## Relecture statique complémentaire du 20/10/2026 — périmètre et preuves
+
+Les constats suivants portent sur **le code commité et inspecté**, non sur des tests exécutés. La distinction demeure obligatoire.
+
+| AC | Vérification de code | Résultat statique |
+| --- | --- | --- |
+| AC1 | `src/server/bootstrap/settings.ts` : clé AES-256-GCM aléatoire, configuration chiffrée dans LocalAppData, absence de génération au déchiffrement ; `src/server/auth/session.ts` : session aléatoire en mémoire ; `src/server/db/config.ts` : URL locale avec mot de passe | Conforme au contrat de code inspecté ; ACL Windows à recetter |
+| AC2 | `src/server/bootstrap/job.ts` : liste positive de codes d'erreur publics ; `scripts/recover-admin.mjs` : messages d'exception whitelistés ; `src/server/installation/current.ts` et `src/lib/messages.ts` : erreur `configuration-key-missing` normalisée sans chemin | Conforme au contrat de code inspecté ; test HTTP complet à exécuter |
+| AC3 | `src/app/api/admin/settings/route.ts` et `src/server/settings/manager.ts` existants : projection explicite des seuls réglages non secrets avec authentification/autorisation | Régression interdite, parcours CI initialement validé dans SMN-18 ; exécution sur cette branche manquante |
+| AC4 | `.gitignore` exclut clés et fichiers privés ; `.env.example` contient seulement des placeholders ; `scripts/windows/verify-package.mjs` vérifie absence de fichiers sensibles à la racine | Inspection conforme ; paquet de cette branche non construit |
+| AC5 | `src/server/bootstrap/settings.ts` refuse la clé absente et la décryption corrompue ; lecture absente ne crée pas le répertoire ; `src/server/installation/current.ts` expose un code sans secret | Conforme au contrat de code inspecté ; tests Windows non exécutés |
+
+### Corrections complémentaires postérieures à la PR initiale
+
+- `src/server/bootstrap/settings.ts` : préserver l'erreur sûre `configuration-key-missing` et `configuration-decryption-failed` plutôt que la masquer derrière `postgres-config-invalid` ; aucun dossier n'est créé par une simple lecture.
+- `src/server/installation/{current,diagnostic}.ts`, `src/lib/messages.ts` : diagnostic FR/EN d'une clé manquante, en bloquant l'accès métier et sans proposer une réinstallation implicite.
+- `scripts/recover-admin.mjs` : filtrer les erreurs terminales avant tout affichage ; les messages potentiellement construits par JSON, pg ou crypto ne sont pas reproduits.
+- `tests/private-secrets.test.ts` : test déterministe de l'altération AES-GCM, de l'absence d'une clé et des lectures non créatrices.
+
+### Bloquant GitHub Actions documenté
+
+Pour le commit de code [`04affb72`](https://github.com/JeanLamora75/SMN/commit/04affb728d86c109104403ec9153111039ad323c) :
+
+- [Vérification I0 39479862588](https://github.com/JeanLamora75/SMN/actions/runs/39479862588) : `failure` ; jobs sans runner attribué, zéro étape publiée.
+- [Paquet Windows 39479862524](https://github.com/JeanLamora75/SMN/actions/runs/39479862524) : `failure` ; zéro étape publiée. Les échecs identiques sont observés sur plusieurs commits précédents, y compris deux tentatives de runs initiaux.
+- Les jobs meurent en environ une à deux secondes et aucun test n'est attesté. Les journaux de jobs précédents renvoyaient `404 BlobNotFound`. Aucune preuve ne permet d'affirmer une cause exacte (facturation/quota, indisponibilité des runners ou autre). Les trois jobs échouent **avant toute attribution de runner**.
+- À titre de référence et **pas de validation de SMN-19**, les suites du `main` antérieur ont réussi : [I0 39475715289](https://github.com/JeanLamora75/SMN/actions/runs/39475715289) et [paquet 39475618860](https://github.com/JeanLamora75/SMN/actions/runs/39475618860).
+
+**Décision de sécurité : PR #14 maintenue draft, pas de fusion sur main, BMAD in-progress/Jira En cours.** Pour achever la vérification, l'exécution effective des jobs Linux/PostgreSQL, Windows et packaging ainsi qu'une revue indépendante reste indispensable. La recette sur le PC Windows 11 personnel est différée conformément à l'accord. Ne jamais transformer les contrôles statiques en déclarations de tests réussis.
+
+La reprise technique peut partir de la [PR n°14](https://github.com/JeanLamora75/SMN/pull/14), sans recommencer le développement. Vérifier dans GitHub Actions la capacité des runners et les notifications de limite de consommation/facturation si présentes (non établi ici), puis relancer les workflows.
