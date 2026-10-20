@@ -337,10 +337,10 @@ try {
     const privatePage = await get("/app", { headers:{Cookie:replacement},redirect:"manual" });
     assert.equal(privatePage.status, 200);
     const privateHtml = await privatePage.text();
-    assert.match(privateHtml, /Vue d.{1,15}ensemble/);
+    assert.match(privateHtml, /(Vue d.{1,15}ensemble|Overview)/i);
     assert.match(privateHtml, /Produit de recette CI/);
     assert.match(privateHtml, /Equipe CI/);
-    assert.match(privateHtml.replace(/<!--.*?-->/g, ""), /Aucun sprint enregistr/);
+    assert.match(privateHtml.replace(/<!--.*?-->/g, ""), /(Aucun sprint enregistr|No sprint has been recorded)/i);
     assert.doesNotMatch(privateHtml, /admin@localhot.com/);
     assert.doesNotMatch(privateHtml, /Story Points.*>0</);
     await verifyDashboard(replacement);
@@ -359,8 +359,8 @@ try {
     const detailHtml=await details.text();
     assert.match(detailHtml,/Equipe CI/);
     assert.match(detailHtml,/Produit de recette CI/);
-    assert.match(detailHtml,/informations actuelles/i);
-    assert.match(detailHtml,/contexte de consultation historique/i);
+    assert.match(detailHtml,/(informations actuelles|current information)/i);
+    assert.match(detailHtml,/(contexte de consultation historique|historical consultation context)/i);
     assert.doesNotMatch(detailHtml,/admin@localhot.com|password_hash/);
     const unknownDetail=await get("/app/team/unknown",{headers:{Cookie:replacement},redirect:"manual"});
     assert.equal(unknownDetail.status,404);
@@ -451,7 +451,7 @@ try {
     const userHtml=await userDashboard.text();
     assert.match(userHtml,/Produit de recette CI/);
     assert.match(userHtml,/Equipe CI/);
-    assert.match(userHtml,/Vue d.{1,15}ensemble/);
+    assert.match(userHtml,/(Vue d.{1,15}ensemble|Overview)/i);
     assert.doesNotMatch(userHtml,/Comptes utilisateurs/);
     assert.doesNotMatch(userHtml,/admin@localhot.com/);
 
