@@ -117,3 +117,21 @@ La version `en.json` conservera exactement ces clés et proposera leurs traducti
 **Verification Gap Reviewer :** comparer le diff et les tests I18N-01 à 11, distinguer tests exécutés/ignorés/simulés, repérer les textes résiduels, les différences SSR/CSR, les accès aux paramètres globaux et les failles de fuite des erreurs. La simple présence de fichiers JSON ne constitue pas la conformité.
 
 **Livrable de cette étape : ce dossier de préparation et les liens dans Jira/BMAD. Aucun code runtime n'est ajouté.**
+
+
+## État du développement du socle — 20/10/2026
+
+**État BMAD : in-progress** ; la Story ne peut pas passer en review. Développement sur `dev/smn-27-i18n-json-20261020` **sans intégration dans `main`**, car les contrôles d'exécution restent bloqués.
+
+- [x] `src/i18n/fr.json` et `src/i18n/en.json` créés : catalogue de départ pour diagnostics, accueil, connexion, paramètres et 404 ; structure identique.
+- [x] `src/i18n/catalog.ts` avec clés typées, interpolation et repli français ; `src/i18n/client.tsx` comme provider React.
+- [x] `src/i18n/locale.server.ts` : négociation navigateur avant installation, lecture SELECT des paramètres SMN-18 après installation, sans migration.
+- [x] Première migration `src/app/{layout,page,login/**,not-found}.tsx`, page et formulaire d'administration des paramètres.
+- [x] Dictionnaire historique `src/lib/messages.ts` réduit à un adaptateur des clés JSON, sans textes duplicatifs.
+- [x] Ajout du contrôle indépendant `scripts/verify-i18n.mjs`, `pnpm i18n:check`, tests unitaires et jobs CI Linux/Windows/packaging.
+- [ ] Migration restante des écrans privés (tableau de bord, navigation, sessions, comptes, sécurité et changement de mot de passe) et installateurs (Express/Guidé).
+- [ ] Revue du risque de performance/effets de bord lié à la résolution de la locale PostgreSQL au layout ; validation de la chaîne SSR/hydratation.
+- [ ] Tests exécutés avec Node 24 et PostgreSQL, lint/typecheck, builds Linux et Windows, artefact Windows. Rien de ceci n'est revendiqué comme réussi.
+- [ ] Revue indépendante et recette globale utilisateur.
+
+**Preuve limitée :** les deux catalogues ont été comparés *en mémoire* en lisant les fichiers GitHub : 36 clés de départ de chaque côté sans différence ni paramètres divergents, avant ajout des libellés paramètres/404. Cette comparaison n'est pas une exécution du script Node ou de la CI. Le nouveau script doit s'exécuter réellement et réussir avant fusion. Les règles de repli et d'interpolation nécessitent également les tests TypeScript et l'exécution de l'application.

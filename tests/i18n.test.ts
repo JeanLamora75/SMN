@@ -11,6 +11,10 @@ describe("SMN-27 — JSON i18n",()=>{
   it("does not display unknown technical keys",()=>{
     assert.equal(translate("en","unknown.key" as never),"Translation unavailable.");
   });
+  it("substitutes variables without ever interpreting HTML",()=>{
+    assert.equal(translate("fr","settings.unknownCountry",{code:"DE"}),"DE — pays existant");
+    assert.equal(translate("en","settings.unknownCountry",{code:"<script>"}),"<script> — existing country");
+  });
   it("preserves language negotiation before setup",()=>{
     assert.equal(negotiateLanguage("en-US,en;q=0.8"),"en");
     assert.equal(negotiateLanguage("de-DE"),"fr");

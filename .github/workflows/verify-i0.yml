@@ -42,6 +42,8 @@ jobs:
           run_install: false
       - name: Installer exclusivement les versions verrouillées
         run: pnpm install --frozen-lockfile
+      - name: Parité des catalogues FR/EN
+        run: pnpm i18n:check
       - name: Lint
         run: pnpm lint
       - name: Tests unitaires et intégration PG réelle

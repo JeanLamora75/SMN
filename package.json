@@ -14,7 +14,8 @@
     "test": "tsx --test tests/*.test.ts tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "doctor": "node scripts/doctor.mjs",
-    "recover:admin": "node scripts/recover-admin.mjs"
+    "recover:admin": "node scripts/recover-admin.mjs",
+    "i18n:check": "node scripts/verify-i18n.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",

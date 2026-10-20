@@ -38,6 +38,8 @@ jobs:
         # Le build pilote autonome nécessite des fichiers copiables, pas les
         # jonctions Windows générées par le linker pnpm du poste de CI.
         run: npm install --no-package-lock --no-audit --no-fund --legacy-peer-deps
+      - name: Parité des catalogues FR/EN
+        run: npm run i18n:check
       - name: Compiler SMN
         run: npm run build
       - name: Construire le paquet Node et PostgreSQL Windows vérifiés
