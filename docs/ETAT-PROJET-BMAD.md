@@ -52,3 +52,6 @@ Politique de sessions D-PRD-138 et principe de récupération locale D-PRD-139 v
 ## Actualisation du poste — 20/10/2026 à 08:36 (Europe/Paris)
 
 PostgreSQL **18.6** déclaré par Eric ; le numéro remplace l'information manquante du complément historique du 19 octobre. Le serveur effectif, la connexion, les droits et la compatibilité exacte restent à vérifier : voir l'[inventaire actualisé](../_bmad-output/planning-artifacts/preparation-technique-i0.md). Aucune recherche web ni essai DB effectué. CONCERNS maintenu. Le premier Sprint d'une semaine est prévu du 20 au 26 octobre, sur 40 heures nominales ; aucun Sprint Jira n'est démarré.
+
+
+**Complément du 20/10/2026 à 08:39 (Europe/Paris) :** Eric rapporte `SHOW server_version;` → **18.6**. Numéro du serveur interrogé confirmé par ce résultat utilisateur ; requête non exécutée par l'assistant. Connexion SMN, droits, migrations et compatibilité restent à éprouver. Voir l'inventaire technique actualisé ; CONCERNS maintenu.

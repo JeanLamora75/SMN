@@ -126,3 +126,8 @@ Eric déclare **PostgreSQL 18.6** sur son poste. Cette information remplace l'ab
 Le numéro n'est donc plus inconnu au niveau déclaratif. Avant les essais DB, relever `SHOW server_version;` sur l'instance destinée à SMN pour distinguer serveur et outil client, vérifier la connexion et les droits disponibles sur une base SMN dédiée. Ne transmettre aucun mot de passe ni chaîne de connexion. Les versions de pg_dump/pg_restore seront contrôlées avant les essais de sauvegarde/restauration ; leur présence n'est pas un blocage de la préparation documentaire.
 
 C3 et le verdict CONCERNS restent ouverts : cette déclaration ne démontre ni compatibilité des dépendances exactes, ni migrations, ni fonctionnement sur Windows. Aucun essai ou développement n'a été réalisé par cette actualisation.
+
+
+### Confirmation serveur — 20/10/2026 à 08:39 (Europe/Paris)
+
+Eric rapporte que `SHOW server_version;` renvoie **18.6**. Le numéro serveur est donc confirmé par résultat de commande rapporté par l'utilisateur sur l'instance interrogée, au-delà de la simple déclaration d'installation. L'assistant n'a pas exécuté cette requête et n'a pas de connexion au poste. Cette preuve ne démontre pas les droits du futur compte SMN, une base dédiée, la compatibilité des dépendances ou les migrations. Aucune vérification de publication officielle ni recherche web n'est réalisée. CONCERNS maintenu pour les autres réserves.
