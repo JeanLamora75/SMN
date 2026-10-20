@@ -8,6 +8,7 @@ import net from "node:net";
 import { Client } from "pg";
 import { acquirePgArchive, PG_ARCHIVE } from "./archive";
 import { encryptSetting, decryptSetting } from "./settings";
+import { archiveIncompleteCluster } from "./recovery";
 
 // SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
@@ -102,16 +103,36 @@ export async function existingManagedUri(): Promise<string | null> {
   await validateOwner(uri);
   return uri;
 }
-export async function prepareManaged(onProgress: (step: string) => void): Promise<string> {
+export async function prepareManaged(onProgress: (step: string) => void, recoveryApproved = false): Promise<string> {
   if (!canOfferPortable()) throw new Error("windows-required");
   if (process.env.SMN_DATABASE_URL) throw new Error("manual-connection-configured");
   onProgress("Recherche d'une installation SMN existante");
   const existing = await existingManagedUri();
   if (existing) return existing;
   const root = privateRoot();
-  // Si un cluster existe sans manifeste privé valide, jamais de réinit.
-  if (existsSync(path.join(root, "data"))) throw new Error("managed-cluster-needs-recovery");
+  // Une ancienne tentative peut avoir créé le dossier data avant que le
+  // manifeste de connexion ait été écrit (SMN-12). N'y toucher que sur
+  // confirmation distincte ; l'ancien dossier est ARCHIVÉ, jamais supprimé.
+  const partial = existsSync(path.join(root, "data"));
+  if (partial && !recoveryApproved) throw new Error("managed-cluster-needs-recovery");
   if (await portInUse(PORT)) throw new Error("managed-port-occupied");
+  if (partial) {
+    if (existsSync(configPath())) throw new Error("managed-config-invalid");
+    const ctl = path.join(root, "pgsql", "bin", "pg_ctl.exe");
+    if (existsSync(ctl)) {
+      // Code 0 = cluster en cours d'exécution : ne jamais l'archiver.
+      try {
+        await run(ctl, ["-D", path.join(root, "data"), "status"]);
+        throw new Error("managed-cluster-running");
+      } catch (error) {
+        if (error instanceof Error && error.message === "managed-cluster-running") throw error;
+        if (!(error instanceof Error && error.message === "managed-process-failed:pg_ctl.exe"))
+          throw new Error("managed-cluster-unsafe");
+      }
+    }
+    onProgress("Conservation de la tentative précédente dans une sauvegarde");
+    await archiveIncompleteCluster(root);
+  }
   await mkdir(root, { recursive: true, mode: 0o700 });
   const archive = path.join(root, PG_ARCHIVE);
   const bundle = path.join(process.cwd(), "runtime", "postgres", PG_ARCHIVE);
