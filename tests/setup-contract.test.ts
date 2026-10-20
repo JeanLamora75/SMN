@@ -9,10 +9,13 @@ import { createHash } from "node:crypto";
 const base = { mode: "scrum", product: "Alpha", team: "Bravo", password: "SecretFort2026ABC" };
 describe("SMN-12 — contrat d'installation", () => {
   it("valide Scrum/Kanban et rejette les saisies incomplètes", () => {
-    assert.ok(validateExpressInput(base)); assert.ok(validateExpressInput({ ...base, mode: "kanban" }));
+    assert.ok(validateExpressInput(base));
+    assert.equal(validateExpressInput({ ...base, password: "admin" })?.adminUsername, "admin");
+    assert.equal(validateExpressInput({ ...base, password: "admin" })?.adminEmail, "admin@localhot.com");
+    assert.equal(validateExpressInput({ ...base, adminUsername: "autre", adminEmail: "autre@example.test" })?.adminUsername, "autre"); assert.ok(validateExpressInput({ ...base, mode: "kanban" }));
     assert.equal(validateExpressInput({ ...base, mode: "safe" }), null);
     assert.equal(validateExpressInput({ ...base, team: "" }), null);
-    assert.equal(validateExpressInput({ ...base, password: "short" }), null);
+    assert.equal(validateExpressInput({ ...base, password: "abc" }), null);
   });
   it("protège le jeton local et dérive le secret", async () => {
     const token = "A".repeat(40);
