@@ -32,7 +32,11 @@ export function validateDatabaseChoice(raw: unknown): boolean {
 export function beginBootstrap(body: unknown): boolean {
   const owner = store(), s = owner.state;
   if (!validateDatabaseChoice(body) || (s.status !== "idle" && s.status !== "failed")) return false;
-  const data = body as { dbMode: "portable" | "existing" };
+  const data = body as { dbMode: "portable" | "existing"; recoverPartial?: unknown };
+  // Consentement de récupération séparé et lié au diagnostic observé.
+  const approvedRecovery = data.dbMode === "portable" && data.recoverPartial === true;
+  if (data.recoverPartial === true && !approvedRecovery) return false;
+  if (approvedRecovery && !(s.status === "failed" && s.error === "managed-cluster-needs-recovery")) return false;
   s.status = "working"; s.error = null; s.progress = 5; s.step = "Vérification des informations";
   s.task = (async () => {
     try {
@@ -51,7 +55,7 @@ export function beginBootstrap(body: unknown): boolean {
           if (step.includes("composants")) s.progress = 25;
           else if (step.includes("Création d'une instance")) s.progress = 45;
           else if (step.includes("Démarrage")) s.progress = 60;
-        });
+        }, approvedRecovery);
         s.progress = 65;
       }
       s.step = "Création de la base SMN et de ses tables"; s.progress = 70;
