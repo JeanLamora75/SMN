@@ -12,7 +12,8 @@ describe("SMN-11 — refus côté serveur sans authentification", () => {
   for (const status of states) {
     it("route setup pour l'état " + status, () => {
       const isVirgin = status === "virgin";
-      assert.equal(canVisitSetup({ status, canEnterSetup: isVirgin }), isVirgin);
+      const canPrepare = isVirgin || status === "database-missing";
+      assert.equal(canVisitSetup({ status, canEnterSetup: isVirgin }), canPrepare);
       assert.equal(canVisitPrivate(), false);
     });
   }
