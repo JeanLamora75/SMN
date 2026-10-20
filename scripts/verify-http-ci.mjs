@@ -202,7 +202,7 @@ try {
     assert.match(privateHtml, /Vue d.{1,15}ensemble/);
     assert.match(privateHtml, /Produit de recette CI/);
     assert.match(privateHtml, /Equipe CI/);
-    assert.match(privateHtml, /Aucun sprint enregistr/);
+    assert.match(privateHtml.replace(/<!--.*?-->/g, ""), /Aucun sprint enregistr/);
     assert.doesNotMatch(privateHtml, /admin@localhot.com/);
     assert.doesNotMatch(privateHtml, /Story Points.*>0</);
     // Gestion des comptes : seuls les administrateurs authentifiés peuvent agir.
