@@ -7,6 +7,7 @@ import { probePostgres } from "../src/server/db/probe";
 import { parseConnectionSettings } from "../src/server/db/config";
 import { readFile } from "node:fs/promises";
 import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
+import { prepareExisting } from "../src/server/bootstrap/existing";
 
 // Base créée et supprimée exclusivement par le runner éphémère GitHub Actions.
 const source = process.env.SMN_TEST_DATABASE_URL;
@@ -21,6 +22,18 @@ async function withClient<T>(uri: string, task: (client: Client) => Promise<T>):
   finally { await client.end().catch(() => undefined); }
 }
 describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enabled }, () => {
+  it("vérifie les identifiants PostgreSQL fournis sans aucune écriture", async () => {
+    assert.ok(source);
+    const url = new URL(source);
+    const user = decodeURIComponent(url.username);
+    const password = decodeURIComponent(url.password);
+    const verified = await prepareExisting({ postgresUser: user, postgresPassword: password, postgresPort: 5432 });
+    assert.match(verified, /\/smn$/);
+    await assert.rejects(
+      () => prepareExisting({ postgresUser: user, postgresPassword: "incorrect1234", postgresPort: 5432 }),
+      /postgres-auth-invalid/,
+    );
+  });
   it("le fichier de migration Prisma correspond exactement au schéma versionné", async () => {
     assert.equal(await readFile("prisma/migrations/20261020_smn12_initial/migration.sql", "utf8"), INITIAL_SCHEMA_SQL);
   });
