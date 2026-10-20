@@ -6,24 +6,26 @@ import { canAccess } from "@/server/access-policy";
 import { readCollectiveDashboard } from "@/server/dashboard/read";
 import LogoutControl from "./logout-control";
 import SessionActivity from "./session-activity";
+import {requestLocale} from "@/i18n/locale.server";
+import {translate,type TranslationKey} from "@/i18n/catalog";
 
 export const dynamic = "force-dynamic";
 
 const nav = [
-  { anchor: "#pilotage", title: "Vue d'ensemble", glyph: "◫" },
-  { anchor: "#cycles", title: "Cycles et bilans", glyph: "◷" },
-  { anchor: "#calendrier", title: "Calendrier Agile", glyph: "▦" },
-  { anchor: "#registres", title: "Points d'attention", glyph: "◇" },
-  { anchor: "#reportings", title: "Reportings et briefs", glyph: "▤" },
+  { anchor: "#pilotage", key: "overview", glyph: "◫" },
+  { anchor: "#cycles", key: "cycles", glyph: "◷" },
+  { anchor: "#calendrier", key: "calendar", glyph: "▦" },
+  { anchor: "#registres", key: "attention", glyph: "◇" },
+  { anchor: "#reportings", key: "reports", glyph: "▤" },
 ] as const;
 
-function EmptyBlock({ heading, description, symbol }: Readonly<{
-  heading: string; description: string; symbol: string;
+function EmptyBlock({ heading, description, symbol, unavailable }: Readonly<{
+  heading: string; description: string; symbol: string; unavailable: string;
 }>) {
   return <article className="smn-dashboard-card h-100">
     <div className="d-flex justify-content-between align-items-start gap-3">
       <span className="smn-card-icon" aria-hidden="true">{symbol}</span>
-      <span className="smn-not-available">Non renseigné</span>
+      <span className="smn-not-available">{unavailable}</span>
     </div>
     <h3 className="h6 fw-bold mt-4">{heading}</h3>
     <p className="small text-secondary mb-0">{description}</p>
@@ -35,6 +37,8 @@ export default async function DashboardPage() {
   if (!account) redirect("/login");
   if (!canAccess(account, "read", { type: "collective", exists: true, inScope: true }))
     redirect("/change-password");
+  const locale=await requestLocale();
+  const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
 
   let dashboard: Awaited<ReturnType<typeof readCollectiveDashboard>>;
   try {
@@ -42,9 +46,9 @@ export default async function DashboardPage() {
   } catch {
     return <main className="container py-5">
       <section className="smn-panel p-4" role="alert">
-        <h1 className="h4">Le tableau de bord est temporairement indisponible</h1>
-        <p>SMN n&apos;a pas pu retrouver le contexte produit et équipe. Aucune donnée n&apos;a été modifiée.</p>
-        <Link className="btn btn-outline-primary" href="/app">Réessayer</Link>
+        <h1 className="h4">{t("dashboard.unavailableTitle")}</h1>
+        <p>{t("dashboard.unavailableDescription")}</p>
+        <Link className="btn btn-outline-primary" href="/app">{t("dashboard.retry")}</Link>
         <div className="mt-3"><LogoutControl/></div>
       </section>
     </main>;
@@ -52,19 +56,19 @@ export default async function DashboardPage() {
 
   const { context } = dashboard;
   const scrum = context.mode === "scrum";
-  const cycleName = scrum ? "Sprint" : "Période Kanban";
+  const cycleName=t(scrum?"dashboard.sprint":"dashboard.kanbanCycle");
 
   return <div className="smn-dashboard">
     <header className="smn-dashboard-topbar">
       <div className="container-fluid smn-dashboard-width d-flex align-items-center justify-content-between gap-3">
-        <Link href="/app" className="smn-brand" aria-label="Retour au tableau de bord">
+        <Link href="/app" className="smn-brand" aria-label={t("dashboard.back")}>
           <span className="smn-mark" aria-hidden="true">SMN</span>
           <span className="smn-brand-name">Scrum Master <strong>Notebook</strong></span>
         </Link>
         <div className="d-flex align-items-center gap-3">
           <span className="smn-account-pill"><span className="smn-account-dot" aria-hidden="true"/>
             <span className="d-none d-sm-inline">{account.username}</span>
-            <span className="visually-hidden">Compte connecté : {account.username}</span>
+            <span className="visually-hidden">{t("dashboard.connected",{username:account.username})}</span>
           </span>
           <LogoutControl/>
         </div>
@@ -73,25 +77,25 @@ export default async function DashboardPage() {
 
     <div className="container-fluid smn-dashboard-width">
       <div className="row g-4 smn-dashboard-columns">
-        <aside className="col-12 col-lg-3 col-xl-2" aria-label="Navigation principale">
+        <aside className="col-12 col-lg-3 col-xl-2" aria-label={t("dashboard.principalNav")}>
           <nav className="smn-dashboard-nav">
-            <div className="smn-nav-eyebrow">ESPACE DE TRAVAIL</div>
+            <div className="smn-nav-eyebrow">{t("dashboard.workspace")}</div>
             <Link href="/app" className="smn-nav-link is-active" aria-current="page">
-              <span aria-hidden="true">▦</span> Tableau de bord
+              <span aria-hidden="true">▦</span> {t("dashboard.dashboard")}
             </Link>
-            <Link className="smn-nav-link" href="/app/security"><span aria-hidden="true">♧</span> Sécurité du compte</Link>
-            <div className="smn-nav-eyebrow mt-4">RUBRIQUES</div>
+            <Link className="smn-nav-link" href="/app/security"><span aria-hidden="true">♧</span> {t("dashboard.security")}</Link>
+            <div className="smn-nav-eyebrow mt-4">{t("dashboard.sections")}</div>
             {nav.map(link=><a key={link.anchor} href={link.anchor} className="smn-nav-link">
-              <span aria-hidden="true">{link.glyph}</span>{link.title}
+              <span aria-hidden="true">{link.glyph}</span>{t(`dashboard.nav.${link.key}` as TranslationKey)}
             </a>)}
             {canAccess(account,"read",{type:"accounts",exists:true,inScope:true})&&<>
-              <div className="smn-nav-eyebrow mt-4">ADMINISTRATION</div>
-              <Link className="smn-nav-link" href="/app/admin/users"><span aria-hidden="true">⚙</span>Comptes utilisateurs</Link>
-              <Link className="smn-nav-link" href="/app/admin/settings"><span aria-hidden="true">⚙</span>Paramètres généraux</Link>
+              <div className="smn-nav-eyebrow mt-4">{t("dashboard.administration")}</div>
+              <Link className="smn-nav-link" href="/app/admin/users"><span aria-hidden="true">⚙</span>{t("dashboard.users")}</Link>
+              <Link className="smn-nav-link" href="/app/admin/settings"><span aria-hidden="true">⚙</span>{t("dashboard.settings")}</Link>
             </>}
             <div className="smn-nav-help mt-4">
-              <span className="fw-semibold">Une interface qui grandit avec vous</span>
-              <p className="small mb-0 mt-2">Les fonctions se complètent progressivement. Aucune donnée fictive n&apos;est affichée.</p>
+              <span className="fw-semibold">{t("dashboard.helperTitle")}</span>
+              <p className="small mb-0 mt-2">{t("dashboard.helperText")}</p>
             </div>
           </nav>
         </aside>
@@ -99,71 +103,71 @@ export default async function DashboardPage() {
         <main className="col-12 col-lg-9 col-xl-10 pb-5">
           <div id="pilotage" className="smn-dashboard-heading">
             <div>
-              <div className="smn-eyebrow">PILOTAGE <span className="smn-heading-separator">/</span> TABLEAU DE BORD</div>
-              <h1 className="smn-dashboard-title">Vue d&apos;ensemble</h1>
-              <p className="text-secondary mb-0">Toutes les informations utiles à votre équipe, au même endroit.</p>
+              <div className="smn-eyebrow">{t("dashboard.management")} <span className="smn-heading-separator">/</span> {t("dashboard.dashboard")}</div>
+              <h1 className="smn-dashboard-title">{t("dashboard.overviewTitle")}</h1>
+              <p className="text-secondary mb-0">{t("dashboard.overviewDesc")}</p>
             </div>
-            <span className="smn-pilot-label">Mode {scrum?"Scrum":"Kanban"}</span>
+            <span className="smn-pilot-label">{t("dashboard.mode",{mode:scrum?"Scrum":"Kanban"})}</span>
           </div>
 
           <section className="smn-context-card" aria-labelledby="context-heading">
             <div className="smn-context-main">
-              <div className="smn-context-overline">VOTRE ESPACE DE PILOTAGE</div>
+              <div className="smn-context-overline">{t("dashboard.workspaceTitle")}</div>
               <h2 id="context-heading">{context.product}</h2>
               <p className="mb-0 smn-context-team">
-                <span className="smn-context-circle" aria-hidden="true">◉</span> Équipe {context.team}
+                <span className="smn-context-circle" aria-hidden="true">◉</span> {t("dashboard.team",{team:context.team})}
               </p>
             </div>
             <div className="smn-context-meta">
-              <div className="smn-context-label">Cadre de travail</div>
+              <div className="smn-context-label">{t("dashboard.framework")}</div>
               <div className="fw-semibold">{scrum?"Scrum":"Kanban"}</div>
-              <div className="smn-context-label mt-3">Cycle actuel</div>
-              <div className="fw-semibold">Non renseigné</div>
+              <div className="smn-context-label mt-3">{t("dashboard.currentCycle")}</div>
+              <div className="fw-semibold">{t("dashboard.unavailable")}</div>
             </div>
           </section>
 
           <section className="mt-4" id="cycles" aria-labelledby="cycle-heading">
             <div className="smn-section-title">
               <div>
-                <div className="smn-eyebrow">01 · CADENCE</div>
-                <h2 className="h5 fw-bold mb-0" id="cycle-heading">Cycles et bilans</h2>
+                <div className="smn-eyebrow">{t("dashboard.cadence")}</div>
+                <h2 className="h5 fw-bold mb-0" id="cycle-heading">{t("dashboard.nav.cycles")}</h2>
               </div>
-              <span className="smn-section-meta">Équipe : {context.team}</span>
+              <span className="smn-section-meta">{t("dashboard.teamMeta",{team:context.team})}</span>
             </div>
             <div className="smn-dashboard-card smn-cycle-empty">
               <div className="smn-cycle-symbol" aria-hidden="true">◷</div>
               <div className="flex-grow-1">
-                <h3 className="h6 fw-bold mb-2">Aucun {cycleName.toLowerCase()} enregistré pour le moment</h3>
-                <p className="text-secondary mb-2">Votre installation est prête. Le premier cycle pourra être créé à la demande lorsque la gestion des {scrum?"Sprints":"périodes Kanban"} sera disponible.</p>
-                <span className="smn-inline-note">Aucun cycle n&apos;est généré automatiquement.</span>
+                <h3 className="h6 fw-bold mb-2">{t("dashboard.noCycle",{cycle:cycleName.toLowerCase()})}</h3>
+                <p className="text-secondary mb-2">{t("dashboard.noCycleIntro",{cycles:t(scrum?"dashboard.sprintCycles":"dashboard.kanbanCycles")})}</p>
+                <span className="smn-inline-note">{t("dashboard.noAutoCycle")}</span>
               </div>
-              <span className="smn-coming-soon" title="La création de cycles sera livrée dans une prochaine User Story">
-                Création bientôt disponible
+              <span className="smn-coming-soon" title={t("dashboard.comingTitle")}>
+                {t("dashboard.coming")}
               </span>
             </div>
             <div className="smn-pending-cycle mt-3">
-              <span className="fw-semibold">Bilans en attente</span>
-              <span className="text-secondary">Aucun cycle enregistré — aucun bilan en attente identifiable.</span>
+              <span className="fw-semibold">{t("dashboard.pending")}</span>
+              <span className="text-secondary">{t("dashboard.pendingInfo")}</span>
             </div>
           </section>
 
           <section className="mt-5" aria-labelledby="summary-heading">
             <div className="smn-section-title">
               <div>
-                <div className="smn-eyebrow">02 · SUIVI COLLECTIF</div>
-                <h2 className="h5 fw-bold mb-0" id="summary-heading">L&apos;essentiel de votre équipe</h2>
+                <div className="smn-eyebrow">{t("dashboard.summary")}</div>
+                <h2 className="h5 fw-bold mb-0" id="summary-heading">{t("dashboard.essential")}</h2>
               </div>
-              <span className="smn-section-meta">Données réelles uniquement</span>
+              <span className="smn-section-meta">{t("dashboard.real")}</span>
             </div>
             <div className="row g-3">
               <div className="col-12 col-md-6 col-xl-4">
-                <EmptyBlock symbol="◎" heading="Objectifs" description="Les objectifs de cycle apparaîtront ici dès qu'ils seront enregistrés."/>
+                <EmptyBlock unavailable={t("dashboard.unavailable")} symbol="◎" heading={t("dashboard.goals")} description={t("dashboard.goalsDesc")}/>
               </div>
               <div className="col-12 col-md-6 col-xl-4">
-                <EmptyBlock symbol="▥" heading="Indicateurs" description="Les métriques disponibles seront présentées avec leurs sources, sans valeur à zéro par défaut."/>
+                <EmptyBlock unavailable={t("dashboard.unavailable")} symbol="▥" heading={t("dashboard.metrics")} description={t("dashboard.metricsDesc")}/>
               </div>
               <div className="col-12 col-md-6 col-xl-4" id="calendrier">
-                <EmptyBlock symbol="▦" heading="Événements Agile" description="Les prochaines cérémonies et réunions apparaîtront lorsqu'elles auront été planifiées."/>
+                <EmptyBlock unavailable={t("dashboard.unavailable")} symbol="▦" heading={t("dashboard.events")} description={t("dashboard.eventsDesc")}/>
               </div>
             </div>
           </section>
@@ -172,36 +176,36 @@ export default async function DashboardPage() {
             <section className="col-12 col-xl-7" id="registres" aria-labelledby="attention-heading">
               <div className="smn-section-title">
                 <div>
-                  <div className="smn-eyebrow">03 · VISIBILITÉ</div>
-                  <h2 className="h5 fw-bold mb-0" id="attention-heading">Points d&apos;attention</h2>
+                  <div className="smn-eyebrow">{t("dashboard.visibility")}</div>
+                  <h2 className="h5 fw-bold mb-0" id="attention-heading">{t("dashboard.nav.attention")}</h2>
                 </div>
               </div>
               <div className="smn-dashboard-card smn-attention-card">
                 <div className="smn-card-icon mb-3" aria-hidden="true">◇</div>
-                <h3 className="h6 fw-bold">Aucun point d&apos;attention disponible</h3>
-                <p className="small text-secondary mb-3">Les risques, obstacles et dépendances enregistrés seront visibles ici. Les alertes resteront informatives et ne modifieront aucun statut.</p>
-                <span className="smn-inline-note">Aucune alerte fictive.</span>
+                <h3 className="h6 fw-bold">{t("dashboard.attentionTitle")}</h3>
+                <p className="small text-secondary mb-3">{t("dashboard.attentionDesc")}</p>
+                <span className="smn-inline-note">{t("dashboard.noFake")}</span>
               </div>
             </section>
             <section className="col-12 col-xl-5" id="reportings" aria-labelledby="reporting-heading">
               <div className="smn-section-title">
                 <div>
-                  <div className="smn-eyebrow">04 · PARTAGE</div>
-                  <h2 className="h5 fw-bold mb-0" id="reporting-heading">Reportings et briefs</h2>
+                  <div className="smn-eyebrow">{t("dashboard.sharing")}</div>
+                  <h2 className="h5 fw-bold mb-0" id="reporting-heading">{t("dashboard.nav.reports")}</h2>
                 </div>
               </div>
               <div className="smn-dashboard-card smn-attention-card">
                 <div className="smn-card-icon mb-3" aria-hidden="true">▤</div>
-                <h3 className="h6 fw-bold">Aucun rapport disponible</h3>
-                <p className="small text-secondary mb-3">Vous retrouverez ici les bilans et reportings créés à partir de données collectives enregistrées.</p>
-                <span className="smn-inline-note">Module à venir</span>
+                <h3 className="h6 fw-bold">{t("dashboard.noReport")}</h3>
+                <p className="small text-secondary mb-3">{t("dashboard.reportDesc")}</p>
+                <span className="smn-inline-note">{t("dashboard.future")}</span>
               </div>
             </section>
           </div>
 
           <footer className="smn-dashboard-footer">
-            <span>Scrum Master Notebook · Pilote MVP</span>
-            <span>Les champs non disponibles ne sont pas interprétés comme des résultats nuls.</span>
+            <span>{t("dashboard.footer")}</span>
+            <span>{t("dashboard.footerHint")}</span>
           </footer>
         </main>
       </div>
