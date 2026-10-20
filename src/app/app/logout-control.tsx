@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
+import {useTranslation} from "@/i18n/client";
 export default function LogoutControl() {
+  const t=useTranslation();
   const [busy,setBusy] = useState(false);
   async function logout() {
     setBusy(true);
@@ -13,6 +15,6 @@ export default function LogoutControl() {
   }
   return <button type="button" className="btn btn-outline-secondary"
     disabled={busy} onClick={()=>{void logout();}}>
-    {busy ? "Déconnexion…" : "Se déconnecter"}
+    {t(busy?"session.loggingOut":"session.logout")}
   </button>;
 }
