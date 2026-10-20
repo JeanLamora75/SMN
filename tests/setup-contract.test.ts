@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { validateExpressInput, INITIAL_MIGRATION, INSTALLATION_RELATIONS } from "../src/server/installation/contract";
 import { setupAuthorized, passwordHash } from "../src/server/installation/install";
+import { verifyPassword } from "../src/server/auth/password";
 import { classifySnapshot, type Snapshot } from "../src/server/installation/diagnostic";
 import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import { createHash } from "node:crypto";
@@ -21,6 +22,9 @@ describe("SMN-12 — contrat d'installation", () => {
     const hash = await passwordHash(base.password);
     assert.match(hash, /^scrypt:1:[a-f0-9]+:[a-f0-9]+$/);
     assert.equal(hash.includes(base.password), false);
+    assert.equal(await verifyPassword(base.password, hash), true);
+    assert.equal(await verifyPassword("mauvais", hash), false);
+    assert.equal(await verifyPassword(base.password, "invalid-hash"), false);
   });
   it("reconnaît uniquement le manifeste officiel complet", () => {
     const ready: Snapshot = { schemaUsage: true, schemaCreate: true, serverVersion: 180006,
