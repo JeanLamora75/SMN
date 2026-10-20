@@ -2,7 +2,7 @@
 title: "SMN-11 — Démarrage local et diagnostic des prérequis"
 type: "feature"
 created: "2026-10-20"
-status: "in-progress"
+status: "in-review"
 route: "dispatch"
 review_loop_iteration: 0
 baseline_commit: "9f6cc9ba1a1a23d47234511d7801e5a0cc54fe86"
@@ -51,14 +51,14 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.ts` — initialiser la stack et figer des versions réellement compatibles.
-- [ ] `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/globals.css` — écran de démarrage minimal, lisible et responsive en français/anglais.
-- [ ] `src/server/installation/diagnostic.ts`, `src/server/db/connection.ts` — états PostgreSQL, droits minimaux et absence de fuite de secrets.
-- [ ] `src/app/setup/page.tsx`, `src/app/app/page.tsx` — gardes serveur fermés sans session ; aucune initialisation implicite.
-- [ ] `scripts/doctor.mjs`, `prisma/schema.prisma` — diagnostic des prérequis et contrat minimal d'état de schéma, sans écriture ni migration automatique.
-- [ ] `tests/installation-diagnostic.test.ts`, `tests/access-guards.test.ts` — tester tous les cas de la matrice, avec doubles de test et vérification serveur.
-- [ ] `docs/INSTALLATION.md`, `README.md` — consignes Windows, secrets privés, limitations actuelles et commandes reproductibles.
-- [ ] `_bmad-output/implementation-artifacts/sprint-status.yaml` — renseigner uniquement une progression réellement démontrée.
+- [x] `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.ts` — initialiser la stack et figer des versions réellement compatibles.
+- [x] `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/globals.css` — écran de démarrage minimal, lisible et responsive en français/anglais.
+- [x] `src/server/installation/diagnostic.ts`, `src/server/db/connection.ts` — états PostgreSQL, droits minimaux et absence de fuite de secrets.
+- [x] `src/app/setup/page.tsx`, `src/app/app/page.tsx` — gardes serveur fermés sans session ; aucune initialisation implicite.
+- [x] `scripts/doctor.mjs`, `prisma/schema.prisma` — diagnostic des prérequis et contrat minimal d'état de schéma, sans écriture ni migration automatique.
+- [x] `tests/installation-diagnostic.test.ts`, `tests/access-guards.test.ts` — tester tous les cas de la matrice, avec doubles de test et vérification serveur.
+- [x] `docs/INSTALLATION.md`, `README.md` — consignes Windows, secrets privés, limitations actuelles et commandes reproductibles.
+- [x] `_bmad-output/implementation-artifacts/sprint-status.yaml` — renseigner uniquement une progression réellement démontrée.
 
 **Acceptance Criteria:**
 - Given un Windows 11 ordinaire avec prérequis, when SMN démarre, then l'URL locale s'ouvre sans IDE ni élévation.
@@ -68,6 +68,13 @@ context:
 - Given le lockfile, when l'installation, les tests et le build sont exécutés, then leurs résultats sont tracés sans faux succès.
 
 ## Implementation Notes
+
+- Implémentation livrée sur la branche `dev/bmad-i0-20261020` : Next.js 16, React 19, TypeScript, Bootstrap 5.3, diagnostics PostgreSQL en lecture seule, gardes serveur fermés, état d'installation connu/absent/incompatible.
+- CI GitHub Actions sur Node.js 24, pnpm 12.10.0 et PostgreSQL 18.6 éphémère : **19 tests sur 19 réussis**, ESLint, TypeScript, build de production et contrôle HTTP `/` (200), `/setup` (200 sur base vierge), `/app` (404), `/api/diagnostic` (état vierge) réussis. Preuve : https://github.com/JeanLamora75/SMN/actions/runs/39386473764.
+- `pnpm-lock.yaml` généré par le runner après approbation ciblée des scripts pnpm et publié sur la branche ; présence relue directement depuis GitHub.
+- Adaptation : dépôt absent du conteneur de l'assistant et accès GitHub par connecteur ; implémentation vérifiée par comparaison de commits GitHub et runner CI plutôt que travail Git local. Aucune migration, aucune base utilisateur ni secret n'ont été modifiés.
+- **Preuve restante :** lancement `pnpm dev`, comportement et droits effectifs sur le poste Windows 11 standard de l'utilisateur ; non attestés. SMN-12 et SMN-14 ne sont pas livrés. Le ticket Jira ne doit pas être marqué terminé.
+- **Revue BMAD indépendante :** en attente des trois couches prévues par l'étape 04 (aucune capacité subagent dans cette session) ; l'état `in-review` n'est pas une validation de revue.
 
 ## Spec Change Log
 
