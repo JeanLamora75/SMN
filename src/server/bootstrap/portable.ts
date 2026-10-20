@@ -5,7 +5,7 @@ import path from "node:path";
 import os from "node:os";
 import { Client } from "pg";
 import { acquirePgArchive, PG_ARCHIVE } from "./archive";
-import { encryptSetting, decryptSetting } from "./settings";
+import { encryptSetting, decryptSetting, readPrivateFile } from "./settings";
 import { archiveIncompleteCluster } from "./recovery";
 import { classifyPostgresStartupLog } from "./postgres-startup";
 import { canBindLoopback, selectLoopbackPort } from "./managed-port";
@@ -25,7 +25,9 @@ function configPath(): string { return path.join(privateRoot(), "runtime.json");
 
 async function loadManaged(): Promise<ManagedConfig | null> {
   try {
-    const parsed = JSON.parse(await readFile(configPath(), "utf8")) as ManagedConfig;
+    const privateBytes=await readPrivateFile("runtime.json");
+    if (!privateBytes) return null;
+    const parsed = JSON.parse(privateBytes.toString("utf8")) as ManagedConfig;
     const root = privateRoot();
     // Aucune valeur provenant d'une base, d'une URL ou de l'utilisateur.
     if (parsed.version !== VERSION || !Number.isInteger(parsed.port) || parsed.port < 1024 || parsed.port > 65535 || parsed.user !== "smn_owner" ||
@@ -191,9 +193,11 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
     version: VERSION, pgBin: path.join(pgRoot, "bin"), cluster: path.join(root, "data"),
     port: PORT, user: "smn_owner", encryptedPassword: await encryptSetting(password),
   };
-  const pending = configPath() + ".new";
-  await writeFile(pending, JSON.stringify(cfg), { mode: 0o600, flag: "wx" });
-  await rename(pending, configPath());
+  const pending = configPath() + ".new-" + randomBytes(8).toString("hex");
+  try {
+    await writeFile(pending, JSON.stringify(cfg), { mode: 0o600, flag: "wx" });
+    await rename(pending, configPath());
+  } finally { await rm(pending, { force: true }).catch(() => undefined); }
   onProgress("Démarrage de la base dédiée et vérification");
   const running = await ensureRunning(cfg);
   const uri = buildUri(running.user, password, running.port);
