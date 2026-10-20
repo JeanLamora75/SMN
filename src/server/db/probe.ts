@@ -37,6 +37,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
       WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
         AND n.nspname NOT LIKE 'pg_toast%'
         AND n.nspname NOT LIKE 'pg_temp%'
+        AND c.relkind IN ('r','p','v','m','S','f')
       UNION ALL
       SELECT n.nspname || '.<schema>' AS name
       FROM pg_catalog.pg_namespace n
