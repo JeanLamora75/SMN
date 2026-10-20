@@ -1,0 +1,8 @@
+# Autoriser uniquement les scripts de construction requis par le socle vérifié.
+# pnpm 12 bloque les scripts non approuvés ; ne pas utiliser dangerouslyAllowAllBuilds.
+onlyBuiltDependencies:
+  - "@prisma/engines"
+  - "esbuild"
+  - "prisma"
+  - "sharp"
+  - "unrs-resolver"
