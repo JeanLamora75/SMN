@@ -30,7 +30,7 @@ jobs:
           version: "12.10.0"
           run_install: false
       - name: Installer les dépendances figées
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --config.node-linker=hoisted
       - name: Compiler SMN
         run: pnpm build
       - name: Construire le paquet Node et PostgreSQL Windows vérifiés
