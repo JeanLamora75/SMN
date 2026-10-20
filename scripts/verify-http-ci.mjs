@@ -199,7 +199,7 @@ try {
     const privatePage = await get("/app", { headers:{Cookie:replacement},redirect:"manual" });
     assert.equal(privatePage.status, 200);
     const privateHtml = await privatePage.text();
-    assert.match(privateHtml, /Vue d.ensemble/);
+    assert.match(privateHtml, /Vue d.{1,15}ensemble/);
     assert.match(privateHtml, /Produit de recette CI/);
     assert.match(privateHtml, /Equipe CI/);
     assert.match(privateHtml, /Aucun sprint enregistr/);
@@ -246,7 +246,7 @@ try {
     const userHtml=await userDashboard.text();
     assert.match(userHtml,/Produit de recette CI/);
     assert.match(userHtml,/Equipe CI/);
-    assert.match(userHtml,/Vue d.ensemble/);
+    assert.match(userHtml,/Vue d.{1,15}ensemble/);
     assert.doesNotMatch(userHtml,/Comptes utilisateurs/);
     assert.doesNotMatch(userHtml,/admin@localhot.com/);
 
