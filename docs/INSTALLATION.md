@@ -6,6 +6,8 @@
 
 Utiliser une session Windows ordinaire. Prérequis déclarés par l'utilisateur : Node.js 24.21.0, pnpm 12.10.0, serveur PostgreSQL 18.6. Aucun IDE, Docker, NestJS ni élévation Windows n'est requis par la conception ; **son fonctionnement effectif sous Windows reste à tester**.
 
+Depuis GitHub Desktop, sélectionner la branche `dev/bmad-i0-20261020`, cliquer sur **Fetch origin** puis **Pull origin** si nécessaire. Le binaire Git fourni avec GitHub Desktop n'est pas forcément disponible comme commande `git` dans PowerShell : **aucune installation supplémentaire de Git CLI n'est requise**.
+
 Depuis le répertoire SMN récupéré avec GitHub Desktop, ouvrir PowerShell et contrôler :
 
 ```powershell
@@ -81,4 +83,4 @@ pnpm start
 
 ## Preuves et limites
 
-GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Les essais Windows 11, permissions effectives PostgreSQL 18.6 et authentification restent à valider sur le poste. Aucune base SMN réelle n'a été touchée par l'agent.
+GitHub Actions fournit, lorsqu'il réussit, des preuves d'installation des dépendances, tests unitaires, typecheck et build **sur Linux**. Les tests PostgreSQL de CI ciblent exclusivement une instance éphémère. Le 20/10/2026, l'utilisateur a confirmé par capture d'écran que la page d'accueil SMN s'ouvre sur son PC Windows 11 avec le diagnostic « La connexion à la base SMN n'est pas encore configurée » après démarrage local. Cette preuve est **limitée à l'affichage et au démarrage** : les accès directs `/setup` et `/app`, la coexistence effective avec les trois autres services, les droits PostgreSQL 18.6 et l'authentification restent à recetter sur le poste. Aucune base SMN réelle n'a été touchée par l'agent.
