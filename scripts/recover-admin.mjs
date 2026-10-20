@@ -21,7 +21,7 @@ async function privateFile(root,name) {
   // Do not follow a manually injected symlink outside the SMN profile.
   const filename=path.join(root,name);
   let info;
-  try { info=await lstat(filename); } catch {throw new Error("Configuration locale SMN absente.");}
+  try { info=await lstat(filename); } catch(e) {if(e?.code==="ENOENT") throw e; throw new Error("Configuration locale SMN inaccessible.");}
   if(!info.isFile() || info.isSymbolicLink() || info.size<1 || info.size>16384)
     throw new Error("Configuration locale SMN invalide.");
   return readFile(filename);
