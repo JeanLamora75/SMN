@@ -145,6 +145,8 @@ try {
         applied_steps_count integer NOT NULL DEFAULT 0)`);
       await client.query(schemaSql);
       await client.query("INSERT INTO public.smn_installation(id,state,schema_version,mode) VALUES('singleton','initialized',1,'scrum')");
+      await client.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES('product','singleton','Produit de recette CI')");
+      await client.query("INSERT INTO public.smn_team(id,installation_id,product_id,name) VALUES('team','singleton','product','Equipe CI')");
       await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($2,'singleton','admin','admin@localhot.com','admin',$1,true)", [hash,randomUUID()]);
       await client.query(`INSERT INTO public._prisma_migrations
         (id,checksum,finished_at,migration_name,applied_steps_count)
