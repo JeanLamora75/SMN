@@ -5,6 +5,7 @@ import { parseConnectionSettings } from "@/server/db/config";
 import { probePostgres } from "@/server/db/connection";
 import { existingManagedUri, canOfferPortable } from "@/server/bootstrap/portable";
 import { loadExistingUri } from "@/server/bootstrap/settings";
+import { loadExistingUri } from "@/server/bootstrap/settings";
 
 export async function currentInstallationDiagnostic(): Promise<Diagnostic> {
   const settings = parseConnectionSettings(process.env.SMN_DATABASE_URL);
