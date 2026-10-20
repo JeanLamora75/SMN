@@ -98,6 +98,8 @@ describe("SMN-11 — probe PostgreSQL réel (CI et base éphémère exclusivemen
       assert.equal((await diagnoseInstallation(() => probePostgres(settings.toString()))).status, "permissions-insufficient");
     } finally {
       await withConnection(async (client) => {
+        await client.query(`REVOKE USAGE ON SCHEMA public FROM ${username}`);
+        await client.query(`REVOKE CONNECT ON DATABASE smn_ci FROM ${username}`);
         await client.query(`DROP ROLE IF EXISTS ${username}`);
       });
     }
