@@ -196,7 +196,9 @@ try {
     assert.equal((await get("/api/auth/me", { headers:{Cookie:original} })).status, 401);
     const privatePage = await get("/app", { headers:{Cookie:replacement},redirect:"manual" });
     assert.equal(privatePage.status, 200);
-    assert.match(await privatePage.text(), /Bienvenue admin/);
+    const privateHtml = await privatePage.text();
+    assert.match(privateHtml, /Espace privé/);
+    assert.match(privateHtml, /Administrateur/);
     assert.equal((await postAuth("/api/auth/activity", {}, replacement, "http://invalid.example")).status, 403);
     assert.equal((await postAuth("/api/auth/activity", {}, replacement)).status, 200);
     assert.equal((await postAuth("/api/auth/logout", {}, replacement)).status, 200);
