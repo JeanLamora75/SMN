@@ -71,6 +71,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
     }
     return result(names.size === 1 && names.has(history) ? "installation-incomplete" : "schema-incompatible");
   }
+  if ([...names].some((name) => name !== marker && name !== history)) return result("schema-incompatible");
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records || records.length !== 1 || records[0].id !== "singleton") {
