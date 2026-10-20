@@ -24,6 +24,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
       assert.equal(classifySnapshot({ ...virgin, tables: [name] }).status, "schema-incompatible");
     }
     assert.equal(classifySnapshot({ ...virgin, tables: ["public._prisma_migrations:r"] }).status, "installation-incomplete");
+    assert.equal(classifySnapshot({ ...valid, tables: [...names, "public.unexpected_view:v"], tableRead: false }).status, "schema-incompatible");
   });
   it("refuse les installations partielles et versions futures inconnues", () => {
     assert.equal(classifySnapshot({ ...valid, migrations: [] }).status, "installation-incomplete");
