@@ -2,25 +2,15 @@ name: Vérification I0
 
 on:
   push:
-    branches: ["dev/bmad-i0-20261020"]
-    paths:
-      - "package.json"
-      - "pnpm-workspace.yaml"
-      - "pnpm-lock.yaml"
-      - "src/**"
-      - "tests/**"
-      - "scripts/**"
-      - "prisma/**"
-      - "tsconfig.json"
-      - "next.config.ts"
-      - "eslint.config.mjs"
-      - ".github/workflows/verify-i0.yml"
+    branches: ["dev/bmad-i0-20261020", "main"]
+  pull_request:
+    branches: ["main", "docs/bmad-sprint-readiness-20261019"]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  verifier:
+  linux-postgres:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -38,10 +28,11 @@ jobs:
     env:
       SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
       SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -49,65 +40,53 @@ jobs:
         with:
           version: "12.10.0"
           run_install: false
-      - name: Installer les dépendances
-        run: |
-          if test -f pnpm-lock.yaml; then
-            pnpm install --frozen-lockfile
-          else
-            pnpm install --lockfile-only
-            pnpm install --frozen-lockfile
-          fi
+      - name: Installer exclusivement les versions verrouillées
+        run: pnpm install --frozen-lockfile
       - name: Lint
         run: pnpm lint
-      - name: Tests unitaires
+      - name: Tests unitaires et intégration PG réelle
         run: pnpm test
       - name: Typecheck
         run: pnpm typecheck
-      - name: Valider le diagnostic de port
+      - name: Diagnostic de port et de prérequis
         run: |
-          node scripts/doctor.mjs
-          SMN_PORT=3010 node scripts/doctor.mjs
-          if SMN_PORT=3000 node scripts/doctor.mjs; then
-            echo "Erreur : SMN a accepté un port réservé."
+          pnpm run doctor
+          SMN_PORT=3010 pnpm run doctor
+          if SMN_PORT=3000 pnpm run doctor; then
+            echo "SMN a accepté un port réservé."
             exit 1
           fi
       - name: Build de production
         run: pnpm build
+      - name: HTTP production et diagnostics PostgreSQL
+        run: node scripts/verify-http-ci.mjs
+
+  windows-smoke:
+    runs-on: windows-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances (Windows sans élévation)
+        run: pnpm install --frozen-lockfile
+      - name: Test de langage, ports et règles (PG réel explicitement ignoré hors CI DB)
+        run: pnpm test
         env:
-          NEXT_TELEMETRY_DISABLED: "1"
-      - name: Vérifier les routes HTTP sur le serveur de production
-        shell: bash
+          CI: "false"
+      - name: Typecheck et build Windows
         run: |
-          set -euo pipefail
-          # Simuler l'autre projet sur 3000 sans exposer de réseau extérieur.
-          node -e 'require("node:http").createServer((_req, res) => res.end("other-project")).listen(3000, "127.0.0.1")' > /tmp/smn-port3000.log 2>&1 &
-          OTHER_PID=$!
-          pnpm start > /tmp/smn-next.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill "$SERVER_PID" "$OTHER_PID" 2>/dev/null || true' EXIT
-          test "$(curl --silent --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/)" = "other-project"
-          for i in {1..30}; do
-            if curl --silent --fail http://127.0.0.1:3003/ > /dev/null; then break; fi
-            sleep 1
-          done
-          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/)" = "200"
-          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/setup)" = "200"
-          test "$(curl --silent -o /dev/null -w '%{http_code}' http://127.0.0.1:3003/app)" = "404"
-          test "$(curl --silent http://127.0.0.1:3000/)" = "other-project"
-          curl --silent --fail http://127.0.0.1:3003/api/diagnostic | node -e 'let s="";process.stdin.on("data",x=>s+=x);process.stdin.on("end",()=>{const d=JSON.parse(s);if(d.status!=="virgin"||!d.canEnterSetup)process.exit(1)})'
-      - name: Publier le lockfile généré une seule fois
-        if: success()
-        run: |
-          if ! git ls-files --error-unmatch pnpm-lock.yaml >/dev/null 2>&1; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add pnpm-lock.yaml
-            git commit -m "build: figer le lockfile pnpm pour SMN-11"
-            # Aucun force-push : réintégrer les commits arrivés depuis le checkout.
-            # Next peut réécrire les fichiers déclaratifs pendant le build ;
-            # ne jamais inclure ces modifications générées dans un commit de lockfile.
-            git restore -- tsconfig.json next-env.d.ts
-            git fetch origin dev/bmad-i0-20261020
-            git rebase origin/dev/bmad-i0-20261020
-            git push origin HEAD:dev/bmad-i0-20261020
-          fi
+          pnpm typecheck
+          pnpm build
+      - name: Diagnostiquer les prérequis
+        run: pnpm run doctor
+      - name: Démarrer Next en mode dev sous Windows
+        run: node scripts/verify-windows-smoke.mjs
