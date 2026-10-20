@@ -199,6 +199,62 @@ try {
     const privateHtml = await privatePage.text();
     assert.match(privateHtml, /Espace privé/);
     assert.match(privateHtml, /Administrateur/);
+    // Gestion des comptes : seuls les administrateurs authentifiés peuvent agir.
+    assert.equal((await get("/api/admin/accounts")).status,403);
+    assert.equal((await postAuth("/api/admin/accounts",{
+      username:"intrus",email:"intrus@example.test",role:"admin",password:"pilot1234",
+    })).status,403);
+    const adminPage=await get("/app/admin/users",{headers:{Cookie:replacement},redirect:"manual"});
+    assert.equal(adminPage.status,200);
+    assert.match(await adminPage.text(),/Administration des utilisateurs/);
+    const newUser={username:"pilote",email:"pilote@example.test",role:"user",password:"pilot1234"};
+    assert.equal((await postAuth("/api/admin/accounts",newUser,replacement,"http://evil.example")).status,403);
+    const created=await postAuth("/api/admin/accounts",newUser,replacement);
+    assert.equal(created.status,201);
+    const createdBody=await created.json();
+    const userId=createdBody.account.id;
+    assert.equal(createdBody.account.role,"user");
+    assert.equal(JSON.stringify(createdBody).includes("password_hash"),false);
+    assert.equal(JSON.stringify(createdBody).includes("pilot1234"),false);
+    const dupe=await postAuth("/api/admin/accounts",
+      {...newUser,username:"PILOTE",email:"different@example.test"},replacement);
+    assert.equal(dupe.status,409);
+    const listed=await get("/api/admin/accounts",{headers:{Cookie:replacement}});
+    assert.equal(listed.status,200);
+    assert.equal((await listed.json()).accounts.length,2);
+    const userLogin=await postAuth("/api/auth/login",{identity:"pilote",password:"pilot1234"});
+    assert.equal(userLogin.status,200);
+    const userCookie=tokenCookie(userLogin);
+    assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userCookie}})).status,403);
+    assert.equal((await postAuth("/api/admin/accounts",{...newUser,username:"bad"},userCookie)).status,403);
+    const userChanged=await postAuth("/api/auth/change-password",
+      {currentPassword:"pilot1234",newPassword:"piloteChange2026"},userCookie);
+    assert.equal(userChanged.status,200);
+    const userReady=tokenCookie(userChanged);
+    const rejectedPage=await get("/app/admin/users",{headers:{Cookie:userReady},redirect:"manual"});
+    assert.equal(rejectedPage.status,307);
+    assert.equal(new URL(rejectedPage.headers.get("location"),base).pathname,"/app");
+    assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
+    const forbiddenEdit=await postAuth("/api/admin/accounts",{...newUser,username:"not_allowed"},userReady);
+    assert.equal(forbiddenEdit.status,403);
+    const patchAccount=(id,fields,cookie= replacement,origin=base)=>
+      get("/api/admin/accounts/"+id,{
+        method:"PATCH",redirect:"manual",
+        headers:{"Content-Type":"application/json",Origin:origin,Cookie:cookie},
+        body:JSON.stringify(fields),
+      });
+    assert.equal((await patchAccount(userId,{role:"admin",isActive:true},userReady)).status,403);
+    const promoted=await patchAccount(userId,{role:"admin",isActive:true});
+    assert.equal(promoted.status,200);
+    assert.equal((await get("/api/auth/me",{headers:{Cookie:userReady}})).status,401,
+      "Ancienne session utilisateur révoquée après changement de rôle");
+    const disabled=await patchAccount(userId,{role:"user",isActive:false});
+    assert.equal(disabled.status,200);
+    assert.equal((await postAuth("/api/auth/login",{identity:"pilote",password:"piloteChange2026"})).status,401);
+    const selfId=(await (await get("/api/admin/accounts",{headers:{Cookie:replacement}})).json()).accounts
+      .find(a=>a.username==="admin").id;
+    assert.equal((await patchAccount(selfId,{role:"user",isActive:false})).status,409);
+    console.log("SMN-15 : création, unicité, refus simple utilisateur, session révoquée et désactivation vérifiés.");
     assert.equal((await postAuth("/api/auth/activity", {}, replacement, "http://invalid.example")).status, 403);
     assert.equal((await postAuth("/api/auth/activity", {}, replacement)).status, 200);
     assert.equal((await postAuth("/api/auth/logout", {}, replacement)).status, 200);
