@@ -46,7 +46,7 @@ try {
   const status = await fetch(base + "/api/bootstrap");
   assert.equal(status.status, 200);
   assert.equal((await status.json()).status, "idle");
-  assert.equal((await fetch(base + "/app")).status, 404);
+  assert.equal((await fetch(base + "/app", { redirect: "manual" })).status, 307);
 
   if (process.env.SMN_FULL_INSTALL_TEST === "true") {
     const setCookie = status.headers.get("set-cookie") ?? "";
