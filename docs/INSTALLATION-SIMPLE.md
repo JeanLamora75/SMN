@@ -28,3 +28,12 @@ pnpm dev
 Ouvrir `http://localhost:3003` : l'absence de configuration SMN doit maintenant afficher le bouton **Installer SMN**, et non un formulaire d'URL PostgreSQL. **Aucune manipulation de PostgreSQL, de variable `SMN_DATABASE_URL` ni de jeton `SMN_SETUP_TOKEN` n'est requise.** Les utilisateurs de l'archive autonome n'auront pas à exécuter ces commandes.
 
 Ne jamais communiquer le mot de passe administrateur dans ChatGPT ou Jira. Une installation ne doit être considérée comme validée localement qu'après résultat du formulaire et vérification de la réouverture sans réinitialisation.
+
+
+## Configuration enregistrée et sécurité du pilote
+
+Pour l'option **PostgreSQL existant**, SMN enregistre l'utilisateur et le port dans `%LOCALAPPDATA%\\ScrumMasterNotebook\\postgres-connection.json`. Le mot de passe PostgreSQL est **chiffré** avec AES-256-GCM et une clé aléatoire distincte conservée dans le même répertoire privé, protégé par les droits du compte Windows. Ce mécanisme évite le mot de passe en clair dans le fichier de configuration mais **n'est pas un coffre-fort DPAPI ou un gestionnaire de secrets d'entreprise** : le compte Windows propriétaire du dossier peut retrouver le secret. Ne pas copier ni diffuser ce dossier.
+
+Pour ce pilote purement local, le compte administrateur peut commencer avec **admin / admin** ; le flag `must_change_password` reste activé. Avant une éventuelle exposition réseau, une connexion et un changement obligatoire du mot de passe seront nécessaires (SMN-14). Les routes métier restent fermées anonymement.
+
+Si une ancienne tentative portable a créé un dossier PostgreSQL sans configuration valide, **SMN ne le supprimera pas automatiquement**. Choisissez l'option PostgreSQL existant lorsque vous disposez déjà d'une installation PostgreSQL 18 accessible.
