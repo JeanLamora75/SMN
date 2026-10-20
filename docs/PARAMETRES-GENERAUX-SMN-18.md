@@ -1,6 +1,6 @@
 # SMN-18 — Paramètres généraux
 
-**Statut :** développement en cours de vérification. La recette globale Windows 11 de l'utilisateur reste différée ; Jira doit rester **En cours** tant que la recette n'est pas confirmée.
+**Statut :** code livré pour revue après vérification automatisée, recette Windows 11 différée. La recette globale Windows 11 de l'utilisateur reste différée ; Jira doit rester **En cours** tant que la recette n'est pas confirmée.
 
 ## Administration
 
@@ -34,7 +34,7 @@ Aucune réinstallation, suppression ou reconstruction des comptes, équipes ou p
 
 ## Tests et limites
 
-Vérifications prévues dans la CI : validation stricte, contrôles de rôle côté serveur, schéma réel PostgreSQL 18, propriété fixe mode/produit, conflits de révision, audit transactionnel, rollback forcé par échec de trigger, compatibilité des parcours d'authentification et installation Windows autonome. Les modules de cycles et leur historique n'existent pas encore : leur intégrité est garantie par l'absence d'écriture métier dans ce module et doit être vérifiée dans leurs propres Stories.
+Vérifications exécutées en CI [Linux/PostgreSQL et Windows](https://github.com/JeanLamora75/SMN/actions/runs/39474997208) : validation stricte, contrôles de rôle côté serveur, schéma réel PostgreSQL 18, propriété fixe mode/produit, conflits de révision, audit transactionnel, rollback forcé par échec de trigger, compatibilité des parcours d'authentification et installation Windows autonome. [Paquet Windows autonome vérifié](https://github.com/JeanLamora75/SMN/actions/runs/39474562070) sur la même révision applicative (la comparaison ultérieure ne modifie que documentation et sonde HTTP). Les modules de cycles et leur historique n'existent pas encore : leur intégrité est garantie par l'absence d'écriture métier dans ce module et doit être vérifiée dans leurs propres Stories.
 
 - [Jira SMN-18](https://lmn24.atlassian.net/browse/SMN-18)
 - [Spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-18-parametres-generaux.md)

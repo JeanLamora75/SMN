@@ -2,7 +2,7 @@
 title: "SMN-18 — Paramètres généraux et préservation des historiques"
 type: feature
 created: "2026-10-20"
-status: in-progress
+status: review
 route: dispatch
 review_loop_iteration: 0
 remote_baseline_commit: "560f3e8e8b1f101305463ab7dcaa88b15494c643"
@@ -42,9 +42,10 @@ Jamais : nouveau rôle, changement de mode/produit, actualisation automatique de
 - [x] Lecture et écriture serveur réservées à l'Administrateur.
 - [x] Contrôle transactionnel, trace et révision concurrente.
 - [x] Présentation des effets et limites de portée.
-- [ ] CI finale Linux/PostgreSQL 18, Windows, paquet autonome.
+- [x] CI applicative Linux/PostgreSQL 18/HTTP/TypeScript + Windows sur `77c913ef` : [run 39474997208](https://github.com/JeanLamora75/SMN/actions/runs/39474997208), réussite.
+- [x] Paquet Windows autonome sur `f71f39d4` : [run 39474562070](https://github.com/JeanLamora75/SMN/actions/runs/39474562070), réussite. La comparaison GitHub entre `f71f39d4` et `77c913ef` ne relève aucune modification de code applicatif, seulement documentation et scénario HTTP. Exécution ultérieure sur `77c913ef` non encore attestée.
 - [ ] Revue indépendante complète du diff.
 - [ ] Recette globale utilisateur Windows 11.
 
 ## Vérification
-À compléter par les liens de runs CI attestés et les limites. Les contrôles du poste utilisateur sont **différés**, jamais présentés comme exécutés.
+**Preuves exécutées — 20 octobre 2026** : la [CI I0 39474997208](https://github.com/JeanLamora75/SMN/actions/runs/39474997208) sur la révision de code `77c913ef` réussit Linux/PostgreSQL 18, tests unitaires, sondes HTTP (y compris rollback après audit PostgreSQL forcé), Prisma, TypeScript, build et Windows. Le [paquet Windows 39474562070](https://github.com/JeanLamora75/SMN/actions/runs/39474562070) réussit sur `f71f39d4`, même code applicatif selon [la comparaison](https://github.com/JeanLamora75/SMN/compare/f71f39d4...77c913ef). Les tests sont exécutés sur runner éphémère, pas sur la base personnelle de l'utilisateur. **Recette Windows 11 réelle et revue indépendante encore à effectuer**, statut review sans clôture Jira.
