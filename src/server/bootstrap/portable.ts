@@ -2,11 +2,10 @@ import { randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import net from "node:net";
 import { Client } from "pg";
-import { acquirePgArchive, PG_ARCHIVE } from "../../../scripts/windows/postgres-archive.mjs";
+import { acquirePgArchive, PG_ARCHIVE } from "./archive";
 
 // SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
@@ -19,9 +18,6 @@ function privateRoot(): string {
   return path.join(base, "ScrumMasterNotebook");
 }
 function configPath(): string { return path.join(privateRoot(), "runtime.json"); }
-function formatError(error: unknown): string {
-  return error instanceof Error ? error.message : "unknown-error";
-}
 async function run(exe: string, args: string[], input?: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(exe, args, { windowsHide: true, shell: false, stdio: ["pipe", "pipe", "pipe"] });

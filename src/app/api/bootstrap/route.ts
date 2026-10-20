@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { randomBytes, timingSafeEqual } from "node:crypto";
 import { canOfferPortable } from "@/server/bootstrap/portable";
 import { bootstrapStatus, beginBootstrap, checkLocalCookie, localCookieValue } from "@/server/bootstrap/job";
 import { validateExpressInput } from "@/server/installation/contract";
@@ -13,7 +12,7 @@ function allowed(request: NextRequest): boolean {
 export async function GET(request: NextRequest) {
   if (!allowed(request)) return NextResponse.json({ status: "forbidden" }, { status: 403 });
   const response = NextResponse.json(bootstrapStatus(), { headers: { "Cache-Control": "no-store" } });
-  if (!request.cookies.get("smn-local-setup")?.value) {
+  {
     response.cookies.set("smn-local-setup", localCookieValue(), {
       httpOnly: true, sameSite: "strict", secure: false, path: "/api/bootstrap", maxAge: 1800,
     });

@@ -32,7 +32,9 @@ export default async function HomePage() {
         </p>
         <div className="d-flex flex-wrap gap-2 mt-4">
           <Link className="btn btn-outline-primary" href="/">{en ? "Retry diagnostics" : "Relancer le diagnostic"}</Link>
-          {canVisitSetup(diagnostic) && (
+          {diagnostic.status === "configuration-missing" ? (
+            <Link className="btn btn-primary" href="/welcome">Installer SMN</Link>
+          ) : canVisitSetup(diagnostic) && (
             <Link className="btn btn-primary" href="/setup">
               {en ? "Prepare installation" : "Préparer l'installation"}
             </Link>
