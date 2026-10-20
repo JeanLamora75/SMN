@@ -117,3 +117,12 @@ Les principes sont consignés dans [ADR-I0-002](architecture/architecture-SMN-20
 ## Copie de récupération des clés — principe validé à 22:36
 
 [ADR-I0-003](architecture/architecture-SMN-2026-10-19/ADR-I0-003-RECUPERATION-CLES.md) consigne le parcours de protection par phrase distincte et de restauration sur autre PC. Le choix utilisateur est validé ; permissions locales, format cryptographique et essais de restauration restent à réaliser. Aucun secret réel créé ou sauvegardé.
+
+
+## Actualisation de l'inventaire — 20/10/2026 à 08:36 (Europe/Paris)
+
+Eric déclare **PostgreSQL 18.6** sur son poste. Cette information remplace l'absence de numéro dans l'inventaire du 19 octobre. Elle est enregistrée comme déclaration utilisateur : aucune sortie du serveur, connexion ni vérification de publication officielle n'a été examinée à cette étape. Aucune recherche web n'a été lancée.
+
+Le numéro n'est donc plus inconnu au niveau déclaratif. Avant les essais DB, relever `SHOW server_version;` sur l'instance destinée à SMN pour distinguer serveur et outil client, vérifier la connexion et les droits disponibles sur une base SMN dédiée. Ne transmettre aucun mot de passe ni chaîne de connexion. Les versions de pg_dump/pg_restore seront contrôlées avant les essais de sauvegarde/restauration ; leur présence n'est pas un blocage de la préparation documentaire.
+
+C3 et le verdict CONCERNS restent ouverts : cette déclaration ne démontre ni compatibilité des dépendances exactes, ni migrations, ni fonctionnement sur Windows. Aucun essai ou développement n'a été réalisé par cette actualisation.

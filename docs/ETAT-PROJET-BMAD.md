@@ -47,3 +47,8 @@ Les branches d'origine et journaux sont conservés. La PR historique du Product 
 ## Préparation technique — complément du 19/10/2026 à 22:29
 
 Politique de sessions D-PRD-138 et principe de récupération locale D-PRD-139 validés. Stack désormais retenue sous réserve des essais I0 : [ADR-I0-001](../_bmad-output/planning-artifacts/architecture/architecture-SMN-2026-10-19/ADR-I0-001-STACK.md). Node 24.21.0 et pnpm 12.10.0 sont déclarés ; PostgreSQL serveur reste à confirmer. C3 reste ouvert pour mécanismes, compatibilité exacte et preuves ; C4 reste ouvert pour ordre de livraison. Prochaine conception : migrations et secrets. Aucun développement, test applicatif, génération de suivi ou fusion attesté.
+
+
+## Actualisation du poste — 20/10/2026 à 08:36 (Europe/Paris)
+
+PostgreSQL **18.6** déclaré par Eric ; le numéro remplace l'information manquante du complément historique du 19 octobre. Le serveur effectif, la connexion, les droits et la compatibilité exacte restent à vérifier : voir l'[inventaire actualisé](../_bmad-output/planning-artifacts/preparation-technique-i0.md). Aucune recherche web ni essai DB effectué. CONCERNS maintenu. Le premier Sprint d'une semaine est prévu du 20 au 26 octobre, sur 40 heures nominales ; aucun Sprint Jira n'est démarré.

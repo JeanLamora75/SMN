@@ -46,7 +46,7 @@ Le périmètre est une proposition à affiner, pas un engagement de délai. I0 p
 
 **Calendrier prévisionnel retenu :** du mardi 20 au lundi 26 octobre 2026 inclus (Europe/Paris), avec revue et rétrospective en fin de cycle. Le 20 octobre est retenu compte tenu du retour annoncé sur le PC ce jour-là ; aucune heure de début n'est inventée. Les 40 heures couvrent l'ensemble du travail et ne supposent pas de travailler le week-end.
 
-Le premier travail porte sur la préparation I0 et la vérification de l'environnement Windows/PostgreSQL. La préparation documentaire peut continuer dès maintenant. La version serveur PostgreSQL, les droits et les dépendances compatibles doivent être relevés avant les essais concernés. Le périmètre livrable reste à affiner : aucune vélocité ni charge de Story n'est déduite des 40 heures. Cette inscription au calendrier ne crée ni ne démarre un Sprint Jira et ne vaut pas mandat de développement applicatif.
+Le premier travail porte sur la préparation I0 et la vérification de l'environnement Windows/PostgreSQL. La préparation documentaire peut continuer dès maintenant. PostgreSQL 18.6 est déclaré par Eric le 20 octobre ; le numéro serveur effectif, les droits et les dépendances compatibles restent à vérifier avant les essais concernés. Le périmètre livrable reste à affiner : aucune vélocité ni charge de Story n'est déduite des 40 heures. Cette inscription au calendrier ne crée ni ne démarre un Sprint Jira et ne vaut pas mandat de développement applicatif.
 
 Ordre proposé des premières capacités :
 
@@ -59,7 +59,7 @@ Les noms et critères détaillés des US restent consultables par liens. Aucun t
 ### Travaux techniques inclus dans la préparation
 
 - Fixer les correctifs/adaptateurs compatibles de la stack approuvée ADR-I0-001, avec installation reproductible et séparation du domaine.
-- Relever la version serveur PostgreSQL et les droits disponibles ; version à confirmer au retour sur le PC, sans bloquer la préparation documentaire.
+- PostgreSQL 18.6 déclaré le 20 octobre : confirmer le serveur via `SHOW server_version;`, puis vérifier la connexion et les droits disponibles avant les essais DB.
 - Définir et éprouver les migrations selon ADR-I0-002 ; secrets protégés dès la première connexion.
 - Concevoir l'amorçage atomique et les contrôles de session, puis les tester lors des capacités concernées.
 - Introduire les protections nécessaires à chaque écriture dès sa livraison ; ne pas attendre une interface administrative ultérieure pour protéger secrets, transactions et audit.
@@ -78,7 +78,7 @@ Démarrage sous compte Windows standard, diagnostic PostgreSQL sans secret expos
 | C1/C2 | Clarifications métier et producteurs documentés, Jira aligné | Ne pas rouvrir les décisions validées |
 | C3 | Stack/principes validés, correctifs exacts et mécanismes encore à qualifier | Préparation et essais par capacité I0, pas de ready-for-dev automatique |
 | C4 | Premier ordre proposé ; disponibilité déclarée de 40 h/semaine, charge non estimée | Affiner avant engagement du Sprint |
-| PostgreSQL poste | Version exacte non confirmée | Avant POC DB et verrouillage des outils |
+| PostgreSQL poste | 18.6 déclaré le 20 octobre ; serveur effectif, connexion et droits non vérifiés | Avant POC DB et verrouillage des outils |
 | Récupération/cryptographie | Principes D-PRD-139 et ADR-I0-003 validés ; mécanismes non prouvés | Avant mise en service des capacités concernées |
 | NFR et pilote | Protocoles/seuils et preuves à compléter | Avant acceptation technique et décision de pilote |
 
