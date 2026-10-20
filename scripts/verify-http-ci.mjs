@@ -222,6 +222,77 @@ try {
       { currentPassword:"admin",newPassword:"nouveau2026" }, original);
     assert.equal(changed.status, 200);
     const replacement = tokenCookie(changed);
+    // SMN-18 — contrôle de la configuration sur le véritable serveur et PostgreSQL CI.
+    const patchSettings=(settings,cookie=replacement,origin=base)=>get("/api/admin/settings",{
+      method:"PATCH",redirect:"manual",
+      headers:{"Content-Type":"application/json",Origin:origin,...(cookie?{Cookie:cookie}:{})},
+      body:JSON.stringify(settings),
+    });
+    assert.equal((await get("/api/admin/settings")).status,403);
+    assert.equal((await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:0},"")).status,403);
+    assert.equal((await get("/app/admin/settings",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
+    const settingsInitialResponse=await get("/api/admin/settings",{headers:{Cookie:replacement}});
+    assert.equal(settingsInitialResponse.status,200);
+    const settingsInitial=(await settingsInitialResponse.json()).settings;
+    assert.deepEqual({
+      locale:settingsInitial.locale,theme:settingsInitial.theme,
+      referenceCountry:settingsInitial.referenceCountry,revision:settingsInitial.revision,
+      mode:settingsInitial.mode,product:settingsInitial.product,
+    },{locale:"fr",theme:"light",referenceCountry:null,revision:0,
+      mode:"scrum",product:"Produit de recette CI"});
+    assert.equal((await withDb(async client=>(await client.query(
+      "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
+    )).rows[0].schema_version)),4);
+    const currentValues=()=>withDb(async client=>(await client.query(
+      "SELECT locale,theme,reference_country,revision FROM public.smn_general_settings WHERE installation_id='singleton'"
+    )).rows[0]);
+    const baseValues=await currentValues();
+    const rejected=await patchSettings({...baseValues,locale:"en",theme:"dark",
+      referenceCountry:"DE",revision:0,product:"produit falsifié"});
+    assert.equal(rejected.status,400);
+    assert.equal((await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:0},
+      replacement,"http://attacker.invalid")).status,403);
+    assert.deepEqual(await currentValues(),baseValues,"Refus API : aucune préférence écrite");
+    const updated=await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:0});
+    assert.equal(updated.status,200);
+    const payload=await updated.json();
+    assert.equal(payload.changed,true);
+    assert.equal(payload.settings.revision,1);
+    assert.equal(payload.settings.mode,"scrum");
+    assert.equal(payload.settings.product,"Produit de recette CI");
+    assert.equal((await patchSettings({locale:"fr",theme:"light",referenceCountry:null,revision:0})).status,409);
+    const noChange=await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:1});
+    assert.equal(noChange.status,200);
+    assert.equal((await noChange.json()).changed,false);
+    assert.equal((await withDb(async client=>(await client.query(
+      "SELECT count(*)::int AS n FROM public.smn_general_settings_audit"
+    )).rows[0].n)),1);
+    assert.deepEqual((await withDb(async client=>(await client.query(
+      "SELECT name FROM public.smn_product WHERE id='product'"
+    )).rows[0])),{name:"Produit de recette CI"});
+    assert.equal((await withDb(async client=>(await client.query(
+      "SELECT mode FROM public.smn_installation WHERE id='singleton'"
+    )).rows[0].mode)),"scrum");
+    // Force an audit failure to prove rollback of the preference update.
+    await withDb(async client=>{
+      await client.query(`CREATE FUNCTION public.smn_ci_reject_settings_audit() RETURNS trigger
+        LANGUAGE plpgsql AS $ BEGIN RAISE EXCEPTION 'ci-audit-failure'; END $`);
+      await client.query(`CREATE TRIGGER smn_ci_audit_failure BEFORE INSERT ON public.smn_general_settings_audit
+        FOR EACH ROW EXECUTE FUNCTION public.smn_ci_reject_settings_audit()`);
+    });
+    try {
+      const beforeFailure=await currentValues();
+      const failed=await patchSettings({locale:"fr",theme:"light",referenceCountry:"FR",revision:1});
+      assert.equal(failed.status,503);
+      assert.deepEqual(await currentValues(),beforeFailure,"Echec d'audit : mise à jour atomiquement annulée");
+    }finally{
+      await withDb(async client=>{
+        await client.query("DROP TRIGGER IF EXISTS smn_ci_audit_failure ON public.smn_general_settings_audit");
+        await client.query("DROP FUNCTION IF EXISTS public.smn_ci_reject_settings_audit()");
+      });
+    }
+    assert.equal((await get("/api/diagnostic").then(x=>x.json())).status,"initialized");
+
     // SMN-17 : phrase préparée uniquement par admin avec preuve du secret actuel.
     assert.equal((await get("/app/security",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
     const phrase="Sauvegarde de secours CI distincte 2026 !";
@@ -311,6 +382,11 @@ try {
       {currentPassword:"pilot1234",newPassword:"piloteChange2026"},userCookie);
     assert.equal(userChanged.status,200);
     const userReady=tokenCookie(userChanged);
+    assert.equal((await get("/api/admin/settings",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await patchSettings({locale:"fr",theme:"light",referenceCountry:null,revision:1},userReady)).status,403);
+    const blockedSettingsPage=await get("/app/admin/settings",{headers:{Cookie:userReady},redirect:"manual"});
+    assert.equal(blockedSettingsPage.status,307);
+
     assert.equal((await postAuth("/api/auth/recovery-phrase",
       {currentPassword:"piloteChange2026",recoveryPhrase:"Utilisateur non autorise 2026 !"},userReady)).status,403);
 
@@ -427,7 +503,7 @@ try {
     console.log("SMN-14 : auth, rotation, déconnexion, refus CSRF et ACL HTTP PostgreSQL vérifiés.");
   } finally {
     await withDb(async client => {
-      for (const table of ["smn_auth_audit","smn_recovery_phrase","smn_account","smn_team","smn_product","smn_installation","_prisma_migrations"]) {
+      for (const table of ["smn_general_settings_audit","smn_general_settings","smn_auth_audit","smn_recovery_phrase","smn_account","smn_team","smn_product","smn_installation","_prisma_migrations"]) {
         await client.query("DROP TABLE IF EXISTS public." + table + " CASCADE");
       }
     });
