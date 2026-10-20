@@ -30,6 +30,6 @@ export async function POST(request: NextRequest) {
       !validateExpressInput(body)) {
     return NextResponse.json({ status: "invalid-input" }, { status: 400 });
   }
-  if (!beginBootstrap(body)) return NextResponse.json({ status: "already-running" }, { status: 409 });
+  if (!beginBootstrap(body)) return NextResponse.json({ status: "invalid-input-or-running" }, { status: 409 });
   return NextResponse.json({ status: "working" }, { status: 202, headers: { "Cache-Control": "no-store" } });
 }
