@@ -8,6 +8,8 @@ Application destinée aux Scrum Masters, développée selon BMAD 6.12.4. MVP Scr
 
 **Port web de SMN : 3003 par défaut**, afin de préserver les applications existantes sur 3000, 3001 et 3002. `SMN_PORT` permet de choisir un autre port libre (hors de ces trois ports réservés).
 
+Les revues BMAD indépendantes ont révélé des lacunes de détection PostgreSQL et de vérification qui font l'objet d'une boucle corrective sur la branche I0. **La Story n'est pas encore clôturée.**
+
 Voir [Installation et essais](docs/INSTALLATION.md) pour les commandes, le port et les limites vérifiables.
 
 ## Référentiels du projet
