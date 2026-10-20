@@ -14,6 +14,8 @@ model SmnInstallation {
   products SmnProduct[]
   teams SmnTeam[]
   accounts SmnAccount[]
+  generalSettings SmnGeneralSettings?
+  generalSettingsHistory SmnGeneralSettingsAudit[]
   @@map("smn_installation")
 }
 model SmnProduct {
@@ -46,6 +48,8 @@ model SmnAccount {
   installation SmnInstallation @relation(fields: [installationId], references: [id])
   recovery SmnRecoveryPhrase?
   authAudit SmnAuthAudit[]
+  changedSettings SmnGeneralSettings[]
+  settingsAudit SmnGeneralSettingsAudit[]
   @@map("smn_account")
 }
 
@@ -63,4 +67,28 @@ model SmnAuthAudit {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   account SmnAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
   @@map("smn_auth_audit")
+}
+
+model SmnGeneralSettings {
+  installationId String @id @map("installation_id")
+  locale String @default("fr")
+  theme String @default("light")
+  referenceCountry String? @map("reference_country")
+  revision Int @default(0)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by")
+  installation SmnInstallation @relation(fields:[installationId],references:[id])
+  editor SmnAccount? @relation(fields:[updatedBy],references:[id],onDelete:SetNull)
+  @@map("smn_general_settings")
+}
+model SmnGeneralSettingsAudit {
+  id String @id
+  installationId String @map("installation_id")
+  actorId String? @map("actor_id")
+  oldValues Json @map("old_values")
+  newValues Json @map("new_values")
+  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+  installation SmnInstallation @relation(fields:[installationId],references:[id])
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@map("smn_general_settings_audit")
 }
