@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SMN-17 — Récupération locale. Ne reçoit aucun secret via argv, URL ou fichier de log.
 import { randomUUID, scryptSync, timingSafeEqual, randomBytes, createDecipheriv } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, lstat } from "node:fs/promises";
 import path from "node:path";
 import * as readline from "node:readline";
 import { Client } from "pg";
@@ -17,11 +17,20 @@ function checkUri(uri) {
       url.search || url.hash || !url.username || !url.password) throw new Error("Connexion SMN locale invalide.");
   return uri;
 }
+async function privateFile(root,name) {
+  // Do not follow a manually injected symlink outside the SMN profile.
+  const filename=path.join(root,name);
+  let info;
+  try { info=await lstat(filename); } catch {throw new Error("Configuration locale SMN absente.");}
+  if(!info.isFile() || info.isSymbolicLink() || info.size<1 || info.size>16384)
+    throw new Error("Configuration locale SMN invalide.");
+  return readFile(filename);
+}
 async function decrypt(value,root) {
   const [nonce,tag,ciphertext,...rest]=value.split(":");
   if (rest.length || !/^[a-f0-9]{24}$/.test(nonce||"") || !/^[a-f0-9]{32}$/.test(tag||"") ||
       !/^(?:[a-f0-9]{2})+$/.test(ciphertext||"")) throw new Error("Configuration de récupération invalide.");
-  const key=await readFile(path.join(root,".settings-key"));
+  const key=await privateFile(root,".settings-key");
   if (key.length!==32) throw new Error("Clé locale SMN invalide.");
   const decipher=createDecipheriv("aes-256-gcm",key,Buffer.from(nonce,"hex"));
   decipher.setAuthTag(Buffer.from(tag,"hex"));
@@ -32,7 +41,7 @@ async function localUri() {
   const root=privateRoot();
   let cfg;
   try {
-    cfg=JSON.parse(await readFile(path.join(root,"postgres-connection.json"),"utf8"));
+    cfg=JSON.parse((await privateFile(root,"postgres-connection.json")).toString("utf8"));
     if (cfg.version!==1 || cfg.kind!=="existing" || !/^[A-Za-z_][\w.-]{0,62}$/.test(cfg.user||"") ||
         !Number.isInteger(cfg.port) || cfg.port<1 || cfg.port>65535) throw new Error("Configuration invalide.");
     return checkUri("postgresql://"+encodeURIComponent(cfg.user)+":"+
@@ -40,7 +49,7 @@ async function localUri() {
   } catch(e) {
     if (!(e && e.code==="ENOENT")) throw e;
   }
-  cfg=JSON.parse(await readFile(path.join(root,"runtime.json"),"utf8"));
+  cfg=JSON.parse((await privateFile(root,"runtime.json")).toString("utf8"));
   if (cfg.version!==1 || cfg.user!=="smn_owner" ||
       cfg.pgBin!==path.join(root,"pgsql","bin") || cfg.cluster!==path.join(root,"data") ||
       !Number.isInteger(cfg.port) || cfg.port<1024 || cfg.port>65535) throw new Error("Cluster SMN non reconnu.");
