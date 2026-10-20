@@ -404,5 +404,39 @@
         "description": "Review your language and theme. Completion remains manual because defaults do not prove personalization."
       }
     }
+  },
+  "navigation": {
+    "ariaLabel": "SMN main navigation",
+    "skip": "Skip to main content",
+    "context": "WORKSPACE",
+    "contextUnavailable": "Context unavailable",
+    "unavailable": "Feature unavailable in this increment",
+    "soon": "Coming",
+    "modes": {
+      "scrum": "Scrum mode",
+      "kanban": "Kanban mode"
+    },
+    "groups": {
+      "pilotage": "OVERVIEW",
+      "calendar": "CALENDAR",
+      "cycles": "CYCLES & REVIEWS",
+      "registers": "REGISTERS",
+      "reports": "REPORTS / AI",
+      "admin": "ADMINISTRATION"
+    },
+    "entries": {
+      "dashboard": "Dashboard",
+      "security": "Account security",
+      "events": "Agile events",
+      "sprints": "Sprints",
+      "kanbanPeriods": "Kanban periods",
+      "reviews": "Cycle reviews",
+      "risks": "Risks and impediments",
+      "reporting": "Reports",
+      "briefs": "AI briefs",
+      "users": "User accounts",
+      "settings": "General settings",
+      "cyclesUnknown": "Cycles (mode unavailable)"
+    }
   }
 }

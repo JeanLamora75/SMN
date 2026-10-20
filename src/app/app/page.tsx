@@ -4,22 +4,12 @@ import { currentAccount } from "@/server/auth/session";
 import { withAuthDb } from "@/server/auth/database";
 import { canAccess } from "@/server/access-policy";
 import { readCollectiveDashboard } from "@/server/dashboard/read";
-import LogoutControl from "./logout-control";
-import SessionActivity from "./session-activity";
 import ConfigurationChecklist from "./configuration-checklist";
 import {readConfigurationChecklist} from "@/server/configuration/tasks";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 
 export const dynamic = "force-dynamic";
-
-const nav = [
-  { anchor: "#pilotage", key: "overview", glyph: "◫" },
-  { anchor: "#cycles", key: "cycles", glyph: "◷" },
-  { anchor: "#calendrier", key: "calendar", glyph: "▦" },
-  { anchor: "#registres", key: "attention", glyph: "◇" },
-  { anchor: "#reportings", key: "reports", glyph: "▤" },
-] as const;
 
 function EmptyBlock({ heading, description, symbol, unavailable }: Readonly<{
   heading: string; description: string; symbol: string; unavailable: string;
@@ -46,14 +36,13 @@ export default async function DashboardPage() {
   try {
     dashboard = await withAuthDb(readCollectiveDashboard);
   } catch {
-    return <main className="container py-5">
+    return <div className="container py-5">
       <section className="smn-panel p-4" role="alert">
         <h1 className="h4">{t("dashboard.unavailableTitle")}</h1>
         <p>{t("dashboard.unavailableDescription")}</p>
         <Link className="btn btn-outline-primary" href="/app">{t("dashboard.retry")}</Link>
-        <div className="mt-3"><LogoutControl/></div>
       </section>
-    </main>;
+    </div>;
   }
 
   const canManageConfiguration=canAccess(account,"read",{type:"settings",exists:true,inScope:true});
@@ -63,50 +52,8 @@ export default async function DashboardPage() {
   const scrum = context.mode === "scrum";
   const cycleName=t(scrum?"dashboard.sprint":"dashboard.kanbanCycle");
 
-  return <div className="smn-dashboard">
-    <header className="smn-dashboard-topbar">
-      <div className="container-fluid smn-dashboard-width d-flex align-items-center justify-content-between gap-3">
-        <Link href="/app" className="smn-brand" aria-label={t("dashboard.back")}>
-          <span className="smn-mark" aria-hidden="true">SMN</span>
-          <span className="smn-brand-name">Scrum Master <strong>Notebook</strong></span>
-        </Link>
-        <div className="d-flex align-items-center gap-3">
-          <span className="smn-account-pill"><span className="smn-account-dot" aria-hidden="true"/>
-            <span className="d-none d-sm-inline">{account.username}</span>
-            <span className="visually-hidden">{t("dashboard.connected",{username:account.username})}</span>
-          </span>
-          <LogoutControl/>
-        </div>
-      </div>
-    </header>
+  return <>
 
-    <div className="container-fluid smn-dashboard-width">
-      <div className="row g-4 smn-dashboard-columns">
-        <aside className="col-12 col-lg-3 col-xl-2" aria-label={t("dashboard.principalNav")}>
-          <nav className="smn-dashboard-nav">
-            <div className="smn-nav-eyebrow">{t("dashboard.workspace")}</div>
-            <Link href="/app" className="smn-nav-link is-active" aria-current="page">
-              <span aria-hidden="true">▦</span> {t("dashboard.dashboard")}
-            </Link>
-            <Link className="smn-nav-link" href="/app/security"><span aria-hidden="true">♧</span> {t("dashboard.security")}</Link>
-            <div className="smn-nav-eyebrow mt-4">{t("dashboard.sections")}</div>
-            {nav.map(link=><a key={link.anchor} href={link.anchor} className="smn-nav-link">
-              <span aria-hidden="true">{link.glyph}</span>{t(`dashboard.nav.${link.key}` as TranslationKey)}
-            </a>)}
-            {canAccess(account,"read",{type:"accounts",exists:true,inScope:true})&&<>
-              <div className="smn-nav-eyebrow mt-4">{t("dashboard.administration")}</div>
-              <Link className="smn-nav-link" href="/app/admin/users"><span aria-hidden="true">⚙</span>{t("dashboard.users")}</Link>
-              <Link className="smn-nav-link" href="/app/admin/settings"><span aria-hidden="true">⚙</span>{t("dashboard.settings")}</Link>
-              <a className="smn-nav-link" href="#configuration"><span aria-hidden="true">☑</span>{t("configuration.menu")}</a>
-            </>}
-            <div className="smn-nav-help mt-4">
-              <span className="fw-semibold">{t("dashboard.helperTitle")}</span>
-              <p className="small mb-0 mt-2">{t("dashboard.helperText")}</p>
-            </div>
-          </nav>
-        </aside>
-
-        <main className="col-12 col-lg-9 col-xl-10 pb-5">
           <div id="pilotage" className="smn-dashboard-heading">
             <div>
               <div className="smn-eyebrow">{t("dashboard.management")} <span className="smn-heading-separator">/</span> {t("dashboard.dashboard")}</div>
@@ -215,9 +162,6 @@ export default async function DashboardPage() {
             <span>{t("dashboard.footer")}</span>
             <span>{t("dashboard.footerHint")}</span>
           </footer>
-        </main>
-      </div>
-    </div>
-    <SessionActivity/>
-  </div>;
+
+  </>;
 }

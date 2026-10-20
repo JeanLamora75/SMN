@@ -404,5 +404,39 @@
         "description": "Contrôlez la langue et le thème. La clôture est manuelle : les valeurs par défaut ne prouvent pas une personnalisation."
       }
     }
+  },
+  "navigation": {
+    "ariaLabel": "Navigation principale SMN",
+    "skip": "Aller au contenu principal",
+    "context": "ESPACE DE TRAVAIL",
+    "contextUnavailable": "Contexte indisponible",
+    "unavailable": "Fonction non disponible dans cet incrément",
+    "soon": "À venir",
+    "modes": {
+      "scrum": "Mode Scrum",
+      "kanban": "Mode Kanban"
+    },
+    "groups": {
+      "pilotage": "PILOTAGE",
+      "calendar": "CALENDRIER",
+      "cycles": "CYCLES ET BILANS",
+      "registers": "REGISTRES",
+      "reports": "RAPPORTS / IA",
+      "admin": "ADMINISTRATION"
+    },
+    "entries": {
+      "dashboard": "Tableau de bord",
+      "security": "Sécurité du compte",
+      "events": "Événements Agile",
+      "sprints": "Sprints",
+      "kanbanPeriods": "Périodes Kanban",
+      "reviews": "Bilans de cycles",
+      "risks": "Risques et obstacles",
+      "reporting": "Rapports",
+      "briefs": "Briefs IA",
+      "users": "Comptes utilisateurs",
+      "settings": "Paramètres généraux",
+      "cyclesUnknown": "Cycles (mode indisponible)"
+    }
   }
 }
