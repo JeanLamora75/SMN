@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import net from "node:net";
 import { Client } from "pg";
+import { randomBytes, scryptSync, createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 
 const uri = process.env.SMN_TEST_DATABASE_URL;
 if (process.env.CI !== "true" || process.env.GITHUB_ACTIONS !== "true" || !uri || !/^postgresql:\/\/smn_ci:[^@]+@127\.0\.0\.1:5432\/smn_ci$/.test(uri)) {
@@ -126,6 +128,88 @@ try {
     assert.notEqual(forbidden.exitCode, 0, "Port réservé accepté : " + port);
     assert.equal(await portBusy(port), false, "SMN ne doit pas écouter sur le port réservé " + port);
     await stop(forbidden);
+  }
+  // SMN-14 — vérifier un vrai login HTTP sur une fixture construite
+  // EXCLUSIVEMENT dans smn_ci, la base jetable du runner GitHub Actions.
+  const schemaSql = await readFile("prisma/migrations/20261020_smn12_initial/migration.sql", "utf8");
+  const salt = randomBytes(16);
+  const digest = scryptSync("admin", salt, 64);
+  const hash = "scrypt:1:" + salt.toString("hex") + ":" + digest.toString("hex");
+  await withDb(async client => {
+    await client.query("BEGIN");
+    try {
+      await client.query(`CREATE TABLE public._prisma_migrations (
+        id varchar(36) PRIMARY KEY, checksum varchar(64) NOT NULL,
+        finished_at timestamptz, migration_name varchar(255) NOT NULL,
+        logs text, rolled_back_at timestamptz, started_at timestamptz NOT NULL DEFAULT now(),
+        applied_steps_count integer NOT NULL DEFAULT 0)`);
+      await client.query(schemaSql);
+      await client.query("INSERT INTO public.smn_installation(id,state,schema_version,mode) VALUES('singleton','initialized',1,'scrum')");
+      await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES('ci-admin','singleton','admin','admin@localhot.com','admin',$1,true)", [hash]);
+      await client.query(`INSERT INTO public._prisma_migrations
+        (id,checksum,finished_at,migration_name,applied_steps_count)
+        VALUES('ci-version',$1,now(),'20261020_smn12_initial',1)`,
+        [createHash("sha256").update(schemaSql).digest("hex")]);
+      await client.query("COMMIT");
+    } catch(error) {
+      await client.query("ROLLBACK");
+      throw error;
+    }
+  });
+  try {
+    const postAuth = (route, input, cookie, origin = base) => get(route, {
+      method: "POST", redirect: "manual",
+      headers: { "Content-Type": "application/json", Origin: origin, ...(cookie ? { Cookie: cookie } : {}) },
+      body: JSON.stringify(input),
+    });
+    assert.equal((await (await get("/api/diagnostic")).json()).status, "initialized");
+    assert.equal((await get("/login")).status, 200);
+    assert.equal((await get("/api/auth/me")).status, 401);
+    assert.equal((await postAuth("/api/auth/login", {identity:"admin",password:"admin"}, "", "http://evil.example")).status, 403);
+    const wrong = await postAuth("/api/auth/login", {identity:"admin",password:"wrong"});
+    const missing = await postAuth("/api/auth/login", {identity:"missing",password:"wrong"});
+    assert.equal(wrong.status, 401);
+    assert.equal(missing.status, 401);
+    assert.deepEqual(await wrong.json(), await missing.json(), "Échecs uniformes sans énumération");
+    const login = await postAuth("/api/auth/login", {identity:"admin",password:"admin"});
+    assert.equal(login.status, 200);
+    assert.equal((await login.json()).mustChangePassword, true);
+    function tokenCookie(response) {
+      const raw = response.headers.get("set-cookie") ?? "";
+      assert.match(raw, /HttpOnly/i);
+      assert.match(raw, /SameSite=Strict/i);
+      const match = /smn_session=([a-f0-9]{64})/.exec(raw);
+      assert.ok(match);
+      return "smn_session=" + match[1];
+    }
+    const original = tokenCookie(login);
+    const beforeChange = await get("/app", { headers: { Cookie: original }, redirect:"manual" });
+    assert.equal(beforeChange.status, 307);
+    assert.equal(new URL(beforeChange.headers.get("location"), base).pathname, "/change-password");
+    assert.equal((await postAuth("/api/auth/change-password",
+      { currentPassword:"wrong",newPassword:"nouveau2026" }, original)).status, 400);
+    const changed = await postAuth("/api/auth/change-password",
+      { currentPassword:"admin",newPassword:"nouveau2026" }, original);
+    assert.equal(changed.status, 200);
+    const replacement = tokenCookie(changed);
+    assert.notEqual(replacement, original);
+    assert.equal((await get("/api/auth/me", { headers:{Cookie:original} })).status, 401);
+    const privatePage = await get("/app", { headers:{Cookie:replacement},redirect:"manual" });
+    assert.equal(privatePage.status, 200);
+    assert.match(await privatePage.text(), /Bienvenue admin/);
+    assert.equal((await postAuth("/api/auth/activity", {}, replacement, "http://invalid.example")).status, 403);
+    assert.equal((await postAuth("/api/auth/activity", {}, replacement)).status, 200);
+    assert.equal((await postAuth("/api/auth/logout", {}, replacement)).status, 200);
+    assert.equal((await get("/api/auth/me", { headers:{Cookie:replacement} })).status, 401);
+    assert.equal((await postAuth("/api/auth/login", {identity:"admin",password:"admin"})).status, 401);
+    assert.equal((await postAuth("/api/auth/login", {identity:"admin@localhot.com",password:"nouveau2026"})).status, 200);
+    console.log("SMN-14 : auth, rotation, déconnexion, refus CSRF et ACL HTTP PostgreSQL vérifiés.");
+  } finally {
+    await withDb(async client => {
+      for (const table of ["smn_account","smn_team","smn_product","smn_installation","_prisma_migrations"]) {
+        await client.query("DROP TABLE IF EXISTS public." + table + " CASCADE");
+      }
+    });
   }
   await stop(app);
   app = undefined;
