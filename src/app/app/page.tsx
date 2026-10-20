@@ -43,7 +43,7 @@ export default async function DashboardPage() {
     return <main className="container py-5">
       <section className="smn-panel p-4" role="alert">
         <h1 className="h4">Le tableau de bord est temporairement indisponible</h1>
-        <p>SMN n'a pas pu retrouver le contexte produit et équipe. Aucune donnée n'a été modifiée.</p>
+        <p>SMN n&apos;a pas pu retrouver le contexte produit et équipe. Aucune donnée n&apos;a été modifiée.</p>
         <Link className="btn btn-outline-primary" href="/app">Réessayer</Link>
         <div className="mt-3"><LogoutControl/></div>
       </section>
@@ -89,7 +89,7 @@ export default async function DashboardPage() {
             </>}
             <div className="smn-nav-help mt-4">
               <span className="fw-semibold">Une interface qui grandit avec vous</span>
-              <p className="small mb-0 mt-2">Les fonctions se complètent progressivement. Aucune donnée fictive n'est affichée.</p>
+              <p className="small mb-0 mt-2">Les fonctions se complètent progressivement. Aucune donnée fictive n&apos;est affichée.</p>
             </div>
           </nav>
         </aside>
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
           <div id="pilotage" className="smn-dashboard-heading">
             <div>
               <div className="smn-eyebrow">PILOTAGE <span className="smn-heading-separator">/</span> TABLEAU DE BORD</div>
-              <h1 className="smn-dashboard-title">Vue d'ensemble</h1>
+              <h1 className="smn-dashboard-title">Vue d&apos;ensemble</h1>
               <p className="text-secondary mb-0">Toutes les informations utiles à votre équipe, au même endroit.</p>
             </div>
             <span className="smn-pilot-label">Mode {scrum?"Scrum":"Kanban"}</span>
@@ -133,7 +133,7 @@ export default async function DashboardPage() {
               <div className="flex-grow-1">
                 <h3 className="h6 fw-bold mb-2">Aucun {cycleName.toLowerCase()} enregistré pour le moment</h3>
                 <p className="text-secondary mb-2">Votre installation est prête. Le premier cycle pourra être créé à la demande lorsque la gestion des {scrum?"Sprints":"périodes Kanban"} sera disponible.</p>
-                <span className="smn-inline-note">Aucun cycle n'est généré automatiquement.</span>
+                <span className="smn-inline-note">Aucun cycle n&apos;est généré automatiquement.</span>
               </div>
               <span className="smn-coming-soon" title="La création de cycles sera livrée dans une prochaine User Story">
                 Création bientôt disponible
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
             <div className="smn-section-title">
               <div>
                 <div className="smn-eyebrow">02 · SUIVI COLLECTIF</div>
-                <h2 className="h5 fw-bold mb-0" id="summary-heading">L'essentiel de votre équipe</h2>
+                <h2 className="h5 fw-bold mb-0" id="summary-heading">L&apos;essentiel de votre équipe</h2>
               </div>
               <span className="smn-section-meta">Données réelles uniquement</span>
             </div>
@@ -171,12 +171,12 @@ export default async function DashboardPage() {
               <div className="smn-section-title">
                 <div>
                   <div className="smn-eyebrow">03 · VISIBILITÉ</div>
-                  <h2 className="h5 fw-bold mb-0" id="attention-heading">Points d'attention</h2>
+                  <h2 className="h5 fw-bold mb-0" id="attention-heading">Points d&apos;attention</h2>
                 </div>
               </div>
               <div className="smn-dashboard-card smn-attention-card">
                 <div className="smn-card-icon mb-3" aria-hidden="true">◇</div>
-                <h3 className="h6 fw-bold">Aucun point d'attention disponible</h3>
+                <h3 className="h6 fw-bold">Aucun point d&apos;attention disponible</h3>
                 <p className="small text-secondary mb-3">Les risques, obstacles et dépendances enregistrés seront visibles ici. Les alertes resteront informatives et ne modifieront aucun statut.</p>
                 <span className="smn-inline-note">Aucune alerte fictive.</span>
               </div>
