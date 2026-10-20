@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { currentAccount } from "@/server/auth/session";
 import { canVisitPrivate } from "@/server/access-policy";
 import LogoutControl from "./logout-control";
+import Link from "next/link";
 import SessionActivity from "./session-activity";
 export const dynamic = "force-dynamic";
 export default async function PrivatePage() {
@@ -21,6 +22,7 @@ export default async function PrivatePage() {
       <p>Votre installation est prête. Les futures pages Scrum et Kanban seront ajoutées progressivement au MVP.</p>
       <p className="small text-secondary">Votre session expire après 30 minutes d’inactivité ou 8 heures au maximum,
         même si vous restez actif. Aucune connexion persistante n’est créée.</p>
+      {account.role === "admin" && <p><Link className="btn btn-primary" href="/app/admin/users">Administrer les comptes utilisateurs</Link></p>}
       <LogoutControl/>
     </section>
     <SessionActivity/>
