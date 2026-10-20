@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import os from "node:os";
 import net from "node:net";
 import { Client } from "pg";
 import { acquirePgArchive, PG_ARCHIVE } from "./archive";
@@ -123,9 +124,10 @@ export async function prepareManaged(onProgress: (step: string) => void): Promis
   await acquirePgArchive(archive, existsSync(bundle) ? bundle : undefined);
   const pgRoot = path.join(root, "pgsql");
   if (!existsSync(path.join(pgRoot, "bin", "initdb.exe"))) {
-    const tmp = path.join(root, "unpack");
-    await rm(tmp, { recursive: true, force: true });
-    await mkdir(tmp);
+    // Limiter la longueur des chemins internes de la distribution Windows EDB.
+    // Certains fichiers d’archive dépasseraient MAX_PATH sous un LocalAppData profond.
+    const tmp = path.join(os.tmpdir(), "smnp-" + randomBytes(4).toString("hex"));
+    await mkdir(tmp, { recursive: false });
     try {
       await run("tar.exe", ["-xf", archive, "-C", tmp]);
       const { readdir } = await import("node:fs/promises");
