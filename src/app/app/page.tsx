@@ -79,6 +79,7 @@ export default async function DashboardPage() {
             <Link href="/app" className="smn-nav-link is-active" aria-current="page">
               <span aria-hidden="true">▦</span> Tableau de bord
             </Link>
+            <Link className="smn-nav-link" href="/app/security"><span aria-hidden="true">♧</span> Sécurité du compte</Link>
             <div className="smn-nav-eyebrow mt-4">RUBRIQUES</div>
             {nav.map(link=><a key={link.anchor} href={link.anchor} className="smn-nav-link">
               <span aria-hidden="true">{link.glyph}</span>{link.title}
