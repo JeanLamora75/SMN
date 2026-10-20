@@ -39,7 +39,7 @@ export default async function HomePage() {
           )}
         </div>
       </section>
-      <p className="small smn-subtitle mt-4">{en ? "I0 / SMN-11 — prerequisite checks only" : "I0 / SMN-11 — contrôle des prérequis uniquement"}</p>
+      <p className="small smn-subtitle mt-4">{en ? "I0 / SMN-12 — Express setup" : "I0 / SMN-12 — installation Express"}</p>
     </main>
   );
 }
