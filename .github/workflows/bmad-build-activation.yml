@@ -1,0 +1,43 @@
+name: "BMAD build — activation officielle I0"
+
+on:
+  push:
+    branches:
+      - "dev/bmad-i0-20261020"
+    paths:
+      - ".github/workflows/bmad-build-activation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  render-official-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Outillage uv (sur le runner GitHub, pas sur le PC)
+        uses: astral-sh/setup-uv@v6
+
+      - name: Exécuter le rendu officiel une seule fois
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv run --no-cache "$GITHUB_WORKSPACE/_bmad/scripts/render_skill.py" --project-root "$GITHUB_WORKSPACE" --skill "$GITHUB_WORKSPACE/.agents/skills/bmad-build" | tee "$RUNNER_TEMP/bmad-render.txt"
+          WORKFLOW="$(sed -n 's/^read and follow //p' "$RUNNER_TEMP/bmad-render.txt" | tail -n 1)"
+          if [[ ! -f "$WORKFLOW" ]]; then
+            echo "HALT: workflow officiel non rendu" >&2
+            exit 1
+          fi
+          echo "=== BMAD WORKFLOW START ==="
+          cat "$WORKFLOW"
+          echo "=== BMAD WORKFLOW END ==="
+          FIRST_STEP="$(dirname "$WORKFLOW")/step-01-clarify-and-route.md"
+          if [[ ! -f "$FIRST_STEP" ]]; then
+            echo "HALT: première étape absente du rendu" >&2
+            exit 1
+          fi
+          echo "=== BMAD STEP 01 START ==="
+          cat "$FIRST_STEP"
+          echo "=== BMAD STEP 01 END ==="
