@@ -4,12 +4,12 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
-import net from "node:net";
 import { Client } from "pg";
 import { acquirePgArchive, PG_ARCHIVE } from "./archive";
 import { encryptSetting, decryptSetting } from "./settings";
 import { archiveIncompleteCluster } from "./recovery";
 import { classifyPostgresStartupLog } from "./postgres-startup";
+import { canBindLoopback, selectLoopbackPort } from "./managed-port";
 
 // SMN gère UNIQUEMENT son propre cluster sous LocalAppData. Le système ou
 // l'autre application ne sont jamais interrogés, adoptés ou arrêtés.
@@ -38,20 +38,12 @@ async function run(exe: string, args: string[], input?: string): Promise<string>
   });
 }
 
-async function portInUse(port: number): Promise<boolean> {
-  return new Promise(resolve => {
-    const s = net.connect({ host: "127.0.0.1", port });
-    s.once("connect", () => { s.destroy(); resolve(true); });
-    s.once("error", () => { s.destroy(); resolve(false); });
-    s.setTimeout(1000, () => { s.destroy(); resolve(true); });
-  });
-}
 async function loadManaged(): Promise<ManagedConfig | null> {
   try {
     const parsed = JSON.parse(await readFile(configPath(), "utf8")) as ManagedConfig;
     const root = privateRoot();
     // Aucune valeur provenant d'une base, d'une URL ou de l'utilisateur.
-    if (parsed.version !== VERSION || parsed.port !== PORT || parsed.user !== "smn_owner" ||
+    if (parsed.version !== VERSION || !Number.isInteger(parsed.port) || parsed.port < 1024 || parsed.port > 65535 || parsed.user !== "smn_owner" ||
         parsed.pgBin !== path.join(root, "pgsql", "bin") ||
         parsed.cluster !== path.join(root, "data") ||
         typeof parsed.encryptedPassword !== "string") throw new Error("managed-config-invalid");
@@ -65,27 +57,58 @@ async function statusIsOwned(config: ManagedConfig): Promise<boolean> {
   try { await run(path.join(config.pgBin, "pg_ctl.exe"), ["-D", config.cluster, "status"]); return true; }
   catch { return false; }
 }
-async function ensureRunning(config: ManagedConfig): Promise<void> {
-  if (await statusIsOwned(config)) return;
-  if (await portInUse(config.port)) throw new Error("managed-port-occupied");
-  const log = path.join(privateRoot(), "postgres.log");
-  const oldLength = (await stat(log).catch(() => null))?.size ?? 0;
-  try {
-    await run(path.join(config.pgBin, "pg_ctl.exe"), [
-      "-D", config.cluster, "-l", log, "-o", "-h 127.0.0.1 -p " + config.port, "-w", "start",
-    ]);
-  } catch {
-    // pg_ctl renvoie seulement son code de sortie ; la raison se trouve
-    // dans postgres.log. Lire exclusivement les nouvelles lignes, puis
-    // retourner un code connu, jamais le contenu ni le chemin Windows.
-    let recent = "";
-    try {
-      const bytes = await readFile(log);
-      recent = bytes.subarray(bytes.length >= oldLength ? oldLength : 0).toString("utf8");
-    } catch { /* journal absent : erreur explicite générique */ }
-    throw new Error(classifyPostgresStartupLog(recent));
-  }
+async function saveManagedRuntime(config: ManagedConfig): Promise<void> {
+  const filename = configPath();
+  const pending = filename + ".port-" + randomBytes(5).toString("hex");
+  await writeFile(pending, JSON.stringify(config), { mode: 0o600, flag: "wx" });
+  try { await rename(pending, filename); }
+  finally { await rm(pending, { force: true }).catch(() => undefined); }
 }
+
+async function ensureRunning(config: ManagedConfig): Promise<ManagedConfig> {
+  if (await statusIsOwned(config)) return config;
+  const logfile = path.join(privateRoot(), "postgres.log");
+  let lastPortFailure = "managed-pg-no-bindable-port";
+  // Un port inaccessible sous Windows n'est pas nécessairement "occupé" :
+  // Hyper-V, WSL ou une règle du poste peuvent le réserver sans listener.
+  // Faire un vrai bind loopback avant de lancer pg_ctl, puis si nécessaire
+  // demander un autre port au système, SANS toucher aux ports d'autres apps.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const port = attempt === 0 ? config.port : await selectLoopbackPort();
+    if (!await canBindLoopback(port)) {
+      lastPortFailure = "managed-pg-no-bindable-port";
+      continue;
+    }
+    const candidate = { ...config, port };
+    // Enregistrer le port AVANT le démarrage, pour retrouver le bon
+    // emplacement même en cas de redémarrage abrupt de l'applicatif.
+    if (port !== config.port) await saveManagedRuntime(candidate);
+    const oldLength = (await stat(logfile).catch(() => null))?.size ?? 0;
+    try {
+      await run(path.join(config.pgBin, "pg_ctl.exe"), [
+        "-D", config.cluster, "-l", logfile,
+        "-o", "-h 127.0.0.1 -p " + port, "-w", "start",
+      ]);
+    } catch {
+      let recent = "";
+      try {
+        const bytes = await readFile(logfile);
+        recent = bytes.subarray(bytes.length >= oldLength ? oldLength : 0).toString("utf8");
+      } catch { /* Aucun détail de journal envoyé au navigateur */ }
+      const reason = classifyPostgresStartupLog(recent);
+      if (reason === "managed-pg-bind-denied" || reason === "managed-pg-port-in-use") {
+        lastPortFailure = reason;
+        if (attempt < 4) continue;
+      }
+      throw new Error(reason);
+    }
+    const password = await decryptSetting(candidate.encryptedPassword);
+    await validateOwner(buildUri(candidate.user, password, port));
+    return candidate;
+  }
+  throw new Error(lastPortFailure);
+}
+
 function buildUri(user: string, password: string, port: number): string {
   return "postgresql://" + encodeURIComponent(user) + ":" + encodeURIComponent(password) +
     "@127.0.0.1:" + port + "/smn";
@@ -111,9 +134,9 @@ export async function existingManagedUri(): Promise<string | null> {
   if (!canOfferPortable()) return null;
   const cfg = await loadManaged();
   if (!cfg) return null;
-  await ensureRunning(cfg);
-  const password = await decryptSetting(cfg.encryptedPassword);
-  const uri = buildUri(cfg.user, password, cfg.port);
+  const running = await ensureRunning(cfg);
+  const password = await decryptSetting(running.encryptedPassword);
+  const uri = buildUri(running.user, password, running.port);
   await validateOwner(uri);
   return uri;
 }
@@ -129,7 +152,7 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
   // confirmation distincte ; l'ancien dossier est ARCHIVÉ, jamais supprimé.
   const partial = existsSync(path.join(root, "data"));
   if (partial && !recoveryApproved) throw new Error("managed-cluster-needs-recovery");
-  if (await portInUse(PORT)) throw new Error("managed-port-occupied");
+  // Le bind du port sera choisi et testé juste avant le démarrage de pg_ctl.
   if (partial) {
     if (existsSync(configPath())) throw new Error("managed-config-invalid");
     const ctl = path.join(root, "pgsql", "bin", "pg_ctl.exe");
@@ -187,8 +210,8 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
   await writeFile(pending, JSON.stringify(cfg), { mode: 0o600, flag: "wx" });
   await rename(pending, configPath());
   onProgress("Démarrage de la base dédiée et vérification");
-  await ensureRunning(cfg);
-  const uri = buildUri(cfg.user, password, cfg.port);
+  const running = await ensureRunning(cfg);
+  const uri = buildUri(running.user, password, running.port);
   await validateOwner(uri);
   return uri;
 }
