@@ -2,7 +2,7 @@
 title: "SMN-12 — Installation Express et premier Administrateur"
 type: "feature"
 created: "2026-10-20"
-status: "in-review"
+status: "in-progress"
 route: "dispatch"
 review_loop_iteration: 0
 baseline_commit: "4bf60ae4724f1015c68c8a23adf95958d135cd0d"
@@ -40,6 +40,14 @@ context:
 | Installation terminée | afficher le succès sans session ni tableau de bord ; verrouiller l'amorçage anonyme et les données privées |
 
 </frozen-after-approval>
+
+## Amendement approuvé — installation autonome du pilote (20/10/2026)
+
+La demande utilisateur **approuve explicitement l'installation complète incluant PostgreSQL portable lorsque nécessaire, sans droits administrateur ni aucune saisie technique**. Cette décision ultérieure **supplante les préconditions de PostgreSQL préinstallé et de configuration PowerShell manuelle** inscrites dans la première conception ci-dessus, sans effacer leur historique approuvé. Les critères ajoutés et la procédure détaillée figurent dans le [plan d'installation portable sur `main`](../../../docs/SMN-12-CONCEPTION-INSTALLATION-PORTABLE-PILOTE.md).
+
+**Périmètre de reconception :** produire une distribution Windows x64 avec Node intégré, qualifier la distribution PostgreSQL 18 portable (source, licences, SHA-256, prérequis), lancer un cluster SMN strictement dédié sous le compte Windows, protéger automatiquement la configuration locale et fournir un assistant pilotable par double-clic, sans jeton, URL ni commande manuelle. Instance PostgreSQL d'une autre application : jamais de réutilisation ou modification implicite. Confirmation avant toute création ; aucun accès métier avant SMN-14.
+
+**État de réalisation réel :** l'implémentation SMN-12 initiale a passé sa CI mais nécessite encore `SMN_DATABASE_URL` et `SMN_SETUP_TOKEN` ; elle **ne satisfait pas** les nouveaux critères d'installation autonome. La Story revient donc à `in-progress`. Les coches existantes sous Tasks & Acceptance correspondent **seulement à l'ancienne implémentation**, pas au nouveau paquet portable. Phase suivante : P0 faisabilité du binaire Windows standard avant de promettre une livraison utilisable.
 
 ## Code Map
 
