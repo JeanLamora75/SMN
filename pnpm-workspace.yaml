@@ -1,5 +1,11 @@
-# Autoriser uniquement les scripts de construction requis par le socle vérifié.
-# pnpm 12 bloque les scripts non approuvés ; ne pas utiliser dangerouslyAllowAllBuilds.
+# Politique stricte pnpm 12 : approbation explicite des seuls hooks attendus.
+allowBuilds:
+  "@prisma/engines": true
+  "esbuild": true
+  "prisma": true
+  "sharp": true
+  "unrs-resolver": true
+# Compatibilité avec les versions plus anciennes de pnpm.
 onlyBuiltDependencies:
   - "@prisma/engines"
   - "esbuild"
