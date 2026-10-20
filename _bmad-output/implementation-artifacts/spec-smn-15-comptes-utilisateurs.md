@@ -2,7 +2,7 @@
 title: "SMN-15 — Créer et administrer les comptes des utilisateurs"
 type: "feature"
 created: "2026-10-20"
-status: "in-progress"
+status: "review"
 route: "pilot-direct-main"
 review_loop_iteration: 0
 ---
@@ -35,4 +35,4 @@ Le skill `.agents/skills/bmad-build/SKILL.md` requiert un script `uv run ... ren
 - Tests automatisés : collisions d'identifiants, rôle et état actif, protection contre auto-désactivation, dernier administrateur, transactions, authentification d'un compte désactivé, accès HTTP refusé aux simples utilisateurs, session révoquée après changement de rôle.
 - Les tests PostgreSQL d'écriture s'exécutent sur un service CI éphémère uniquement, jamais sur le PostgreSQL personnel.
 - La gestion des comptes reste dédiée à l'installation locale du MVP ; la gestion des e-mails et des invitations à distance n'est pas livrée.
-- **Réalisation/CI/recette : à confirmer avant de passer cette Story en done.**
+- **CI validée sur `main`** : [GitHub Actions, run 39452021758](https://github.com/JeanLamora75/SMN/actions/runs/39452021758). Linux/PostgreSQL 18 et Windows réussis ; 61 tests Linux dont 60 réussis, 0 échec et 1 ignoré parce qu'il cible Windows. Tests HTTP sur base éphémère : création de compte, doublons, refus d'accès aux Utilisateurs, modification de rôle avec invalidation de la session antérieure, désactivation, interdiction de l'auto-rétrogradation. Validation Prisma et build inclus. **Recette Windows 11 par l'utilisateur non encore effectuée sur SMN-15** ; rester en `review` jusqu'au retour réel sur l'interface et le redémarrage. La CI du paquet autonome ZIP constitue un flux distinct et n'est pas incluse dans cette preuve.
