@@ -1,0 +1,45 @@
+name: SMN — Paquet Windows pilote
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "next.config.ts"
+      - "src/**"
+      - "scripts/windows/**"
+      - ".github/workflows/portable-package.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portable-windows:
+    runs-on: windows-latest
+    timeout-minutes: 22
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      SMN_PACKAGE_DIR: "${{ runner.temp }}\\SMN-Windows"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances figées
+        run: pnpm install --frozen-lockfile
+      - name: Compiler SMN
+        run: pnpm build
+      - name: Construire le paquet Node et PostgreSQL Windows vérifiés
+        run: node scripts/windows/package-portable.mjs
+      - name: Contrôler le lancement autonome du paquet
+        run: node scripts/windows/verify-package.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SMN-Pilote-Windows-x64
+          path: "${{ runner.temp }}\\SMN-Windows"
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
