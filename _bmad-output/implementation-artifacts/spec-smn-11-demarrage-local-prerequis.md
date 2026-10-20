@@ -1,5 +1,5 @@
 ---
-title: "SMN-11 — Démarrage local et diagnostic fiable des prérequis"
+title: "SMN-11 — Démarrage local et diagnostic des prérequis"
 type: "feature"
 created: "2026-10-20"
 status: "draft"
@@ -15,55 +15,56 @@ context:
 
 ## Intent
 
-**Problem:** Aucune application SMN exécutable n'existe : impossible de lancer le projet sous Windows 11 ou de savoir si PostgreSQL est utilisable sans exposer de secrets.
+**Problem:** SMN n'a encore aucun exécutable : le Scrum Master ne peut ni lancer l'application sous Windows 11 ni vérifier PostgreSQL sans intervention technique.
 
-**Approach:** Fournir le socle Next.js local et un diagnostic serveur explicite, relançable et sécurisé. Montrer une entrée d'installation uniquement si la base dédiée SMN est accessible et non initialisée ; fermer par défaut les routes privées.
+**Approach:** Créer le socle web local et un diagnostic serveur fiable. N'autoriser l'entrée de première installation que lorsque son état réel est connu ; refuser les routes privées sans authentification.
 
 ## Boundaries & Constraints
 
-**Always:** TypeScript, Node 24 LTS, pnpm, Next.js 16/React 19, Bootstrap 5.3, PostgreSQL/Prisma 7 ; aucun droit administrateur Windows, IDE, Docker ou NestJS requis. Produit fixe, modes Scrum/Kanban, serveur loopback. Les secrets sont fournis localement, jamais dans le dépôt, les URL, les messages ou journaux. Le succès nécessite une vérification réelle ; connexion et privilèges runtime contrôlés sans présumer CREATEDB. Tout accès privé et tout second amorçage anonyme restent refusés.
+**Always:** TypeScript, Node 24, pnpm, Next 16/React 19, Bootstrap 5.3 (pas Tailwind), PostgreSQL/Prisma 7 ; aucun IDE, Docker ou privilège Windows élevé. Loopback local. Contrôles côté serveur, échecs explicites et relançables, aucun secret dans les URL/logs/Git. Vérifier les droits effectifs sans présumer CREATEDB.
 
-**Never:** Créer ou modifier LMN24 ; exécuter des migrations contre des données existantes sans confirmation ; installer silencieusement une base, créer un compte, une équipe ou un cycle au démarrage ; simuler l'authentification ; déclarer le parcours Express complet dans cette Story (SMN-12).
+**Never:** Modifier LMN24 ; créer silencieusement des bases, rôles, comptes, équipes ou cycles ; migrer des données existantes sans confirmation ; simuler une session ; déclarer SMN-12 (installation complète) livré par SMN-11.
 
 ## I/O & Edge-Case Matrix
 
-| Scenario | Input / State | Expected Output / Behavior | Error Handling |
-|---|---|---|---|
-| Démarrage | Windows standard, dépendances installées | URL locale et page de diagnostic accessible | Échec de démarrage explicite |
-| PostgreSQL vierge SMN | Base dédiée accessible, schéma non initialisé | État « à initialiser » et entrée de parcours préparée | Aucune donnée métier créée |
-| Base absente | PostgreSQL répond, base SMN manquante | État « base à créer pendant l'installation » | Ne pas affirmer que l'installation est opérationnelle |
-| Connexion impossible | Service arrêté, mauvais identifiants ou timeout | Diagnostic sans secret et nouvelle tentative possible | Aucun faux succès |
-| Droits insuffisants | Connexion possible, droits runtime manquants | État bloquant et droits nécessaires indiqués | Aucune élévation ni privilège présumé |
-| Instance déjà initialisée | Marqueur de schéma et état d'installation connus | Refus côté serveur de /setup sans session | Aucune seconde initialisation |
-| Requête anonyme privée | Accès direct à /app ou API métier | Accès refusé côté serveur | Pas de donnée sensible retournée |
+| État | Comportement attendu |
+|---|---|
+| Windows standard, dépendances OK | URL locale affichée, page accessible |
+| PostgreSQL et base SMN vierge | Diagnostic « à initialiser », aucun objet métier créé |
+| Base SMN absente | Signaler que l'installateur devra la créer, aucun faux succès |
+| Service arrêté, identifiants erronés, délai dépassé | Échec compréhensible sans secret ; relance possible |
+| Connexion possible mais droits limités | Identifier les droits manquants ; pas d'élévation |
+| Installation existante ou requête anonyme /app | Refuser /setup et les routes privées côté serveur |
+| Base étrangère ou schéma incompatible | Ne pas l'adopter et bloquer le parcours métier |
 
 </frozen-after-approval>
 
 ## Code Map
 
-- Aucun `package.json`, code Next.js, schéma Prisma ni fichier de verrouillage dans la branche documentaire lue ; construire un socle neuf, sans modifier les fichiers BMAD installés.
-- `docs/PROJECT-CONTEXT.md`, `docs/ETAT-PROJET-BMAD.md` : règles de reprise et de suivi.
-- `_bmad-output/planning-artifacts/preparation-premier-travail-i0.md` : scénario d'installation, limites et preuves attendues.
-- `_bmad-output/implementation-artifacts/sprint-status.yaml` : clé `1-1-démarrer-smn-localement-et-vérifier-les-prérequis`, état initial backlog.
-- `src/app/`, `src/server/`, `prisma/`, `scripts/` : emplacements futurs ; ne pas feindre qu'ils existent déjà.
+- Aucun code applicatif, `package.json` ni lockfile dans la branche documentaire consultée : partir d'un nouveau socle.
+- `_bmad-output/implementation-artifacts/epic-1-context.md` : règles de l'Epic 1.
+- `_bmad-output/planning-artifacts/preparation-premier-travail-i0.md` : parcours et cas à tester.
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` : suivi en backlog, clé Story 1.1.
+- Emplacements `src/app/`, `src/server/`, `prisma/`, `scripts/` inexistants à créer, sans altérer les skills installés.
 
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.ts` — initialiser et verrouiller une chaîne reproductible Next 16/React 19/Prisma 7/Bootstrap 5.3 compatible Node 24.
-- [ ] `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/globals.css` — rendre la page locale et son état serveur en français, adaptée aux écrans courants.
-- [ ] `src/server/installation/diagnostic.ts`, `src/server/db/connection.ts` — vérifier réellement l'accès PostgreSQL et les privilèges de lecture nécessaires, classifier les états sans fuite de secret.
-- [ ] `src/app/setup/page.tsx`, `src/app/app/page.tsx` — placer des gardes serveur par défaut, sans inventer le login ou le parcours complet des Stories suivantes.
-- [ ] `scripts/doctor.mjs`, `prisma/schema.prisma` — contrôler les prérequis et définir seulement le contrat minimal de version/état, sans création ni migration implicites.
-- [ ] `tests/installation-diagnostic.test.ts`, `tests/access-guards.test.ts` — couvrir la matrice (y compris service arrêté, base étrangère et défaillance d'autorisation) par doubles de test et tests serveur.
-- [ ] `docs/INSTALLATION.md`, `README.md`, `_bmad-output/implementation-artifacts/sprint-status.yaml` — décrire commandes exactes, limites et preuves ; mettre le suivi à jour selon l'état réel, sans annoncer une livraison non testée.
+- [ ] `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.ts` — initialiser la stack et figer des versions réellement compatibles.
+- [ ] `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/globals.css` — écran de démarrage minimal, lisible et responsive en français.
+- [ ] `src/server/installation/diagnostic.ts`, `src/server/db/connection.ts` — états PostgreSQL, droits minimaux et absence de fuite de secrets.
+- [ ] `src/app/setup/page.tsx`, `src/app/app/page.tsx` — gardes serveur fermés sans session ; aucune initialisation implicite.
+- [ ] `scripts/doctor.mjs`, `prisma/schema.prisma` — diagnostic des prérequis et contrat minimal d'état de schéma, sans écriture ni migration automatique.
+- [ ] `tests/installation-diagnostic.test.ts`, `tests/access-guards.test.ts` — tester tous les cas de la matrice, avec doubles de test et vérification serveur.
+- [ ] `docs/INSTALLATION.md`, `README.md` — consignes Windows, secrets privés, limitations actuelles et commandes reproductibles.
+- [ ] `_bmad-output/implementation-artifacts/sprint-status.yaml` — renseigner uniquement une progression réellement démontrée.
 
 **Acceptance Criteria:**
-- Given un environnement Windows standard conforme, when SMN est lancé, then une adresse locale est affichée et le navigateur peut ouvrir la page sans IDE ni droits élevés.
-- Given une base dédiée accessible, when le diagnostic s'exécute, then il distingue installation vierge et installation déjà amorcée sans créer d'objets métier.
-- Given une erreur de connexion ou de privilège, when le contrôle échoue, then le message est relançable, explicite et ne révèle aucun secret.
-- Given un visiteur anonyme après initialisation, when il accède à /setup ou /app directement, then le serveur refuse la requête sans modifier le système.
-- Given les dépendances figées, when l'installation, le lint, les tests et le build sont exécutés, then les échecs sont corrigés ou documentés honnêtement avant revue.
+- Given un Windows 11 ordinaire avec prérequis, when SMN démarre, then l'URL locale s'ouvre sans IDE ni élévation.
+- Given une base SMN accessible, when le diagnostic passe, then l'état vierge ou initialisé est distingué sans créer d'équipe ni cycle.
+- Given une connexion, un schéma ou des droits incorrects, when la vérification échoue, then l'utilisateur obtient une erreur relançable sans secret.
+- Given un visiteur anonyme, when il ouvre /app ou /setup sur une installation existante, then le serveur refuse l'accès.
+- Given le lockfile, when l'installation, les tests et le build sont exécutés, then leurs résultats sont tracés sans faux succès.
 
 ## Implementation Notes
 
@@ -73,15 +74,14 @@ context:
 
 ## Design Notes
 
-**Découplage indispensable :** le diagnostic SMN-11 ne crée aucune base ; le script d'installation SMN-12 assurera cette création avec consentement et droits contrôlés. Si la base est absente, le diagnostic l'indique, mais ne prétend pas que l'application métier est prête. Gardes fermés jusqu'à la livraison d'une authentification réelle.
+Le diagnostic ne crée pas de base : l'installateur SMN-12 assurera sa création confirmée sur le poste. État incertain = refus d'accès privé, jamais interprété comme installation vierge. Le futur domaine reste indépendant des adaptateurs.
 
 ## Verification
 
 **Commands:**
-- `pnpm install --frozen-lockfile` — dépendances reproductibles.
-- `pnpm lint` et `pnpm test` — vérifications statiques et comportements simulés.
-- `pnpm build` — build de production sans exiger d'accès à une base inexistante.
-- `pnpm dev` — lancement local en compte ordinaire (preuve Windows sur le PC de l'utilisateur).
+- `pnpm install --frozen-lockfile` — reproductibilité.
+- `pnpm lint && pnpm test && pnpm build` — contrôles automatisés.
+- `pnpm dev` — démarrage, à recetter sous Windows standard.
 
-**Manual checks (if no CLI):**
-- Sous Windows, tester service PostgreSQL arrêté, credentials invalides, droits limités, base absente ou vierge et accès anonyme aux routes ; ne pas transmettre de secrets dans la conversation.
+**Manual checks:**
+- Sur le PC : PostgreSQL arrêté, mauvaise connexion, droits insuffisants, base absente, vierge ou existante et URL privée directe. Aucun secret transmis au chat.
