@@ -31,7 +31,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     // Inclure aussi les vues, séquences, tables étrangères, schémas privés,
     // fonctions et types utilisateur ; pas seulement les tables de public.
     const objects = await client.query<{ name: string }>(`
-      SELECT n.nspname || '.' || c.relname || ':' || c.relkind AS name
+      SELECT n.nspname || '.' || c.relname || ':' || c.relkind::text AS name
       FROM pg_catalog.pg_class c
       JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
       WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
