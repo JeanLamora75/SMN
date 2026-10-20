@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 type Status = { status: "idle" | "working" | "complete" | "failed"; step: string; error: string | null };
 const init: Status = { status: "idle", step: "", error: null };
 const errors: Record<string,string> = {
@@ -33,8 +34,7 @@ export default function SetupWelcome() {
         if (!r.ok) throw new Error();
         const data = (await r.json()) as Status;
         if (active) setStatus(data);
-        if (data.status === "working" || data.status === "idle") return;
-        if (handle) clearInterval(handle);
+        // Conserver le polling : une erreur corrigible peut être retentée.
       } catch { if (active) setMessage("Impossible de lire l’état de l’installation."); }
     }
     void refresh();
@@ -57,7 +57,7 @@ export default function SetupWelcome() {
   if (status.status === "complete") return <div role="status" className="alert alert-success">
     <h2 className="h5">Installation réussie</h2>
     <p>Votre produit, votre équipe et votre compte administrateur ont été créés. La connexion et le tableau de bord seront disponibles dans SMN-14.</p>
-    <a href="/" className="btn btn-outline-primary">Voir le diagnostic</a>
+    <Link href="/" className="btn btn-outline-primary">Voir le diagnostic</Link>
   </div>;
   return <form onSubmit={submit} className="d-grid gap-3">
     <label className="form-label">Mode de travail
