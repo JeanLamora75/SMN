@@ -1,0 +1,3 @@
+/** Migration additive SMN-17 : aucun secret ni jeton dans les traces. */
+export const RECOVERY_MIGRATION = "20261020_smn17_recovery";
+export const RECOVERY_MIGRATION_SQL = "CREATE TABLE public.smn_recovery_phrase (\n  account_id text PRIMARY KEY REFERENCES public.smn_account(id) ON DELETE CASCADE,\n  phrase_hash text NOT NULL,\n  created_at timestamptz NOT NULL DEFAULT now()\n);\nCREATE TABLE public.smn_auth_audit (\n  id text PRIMARY KEY,\n  account_id text NOT NULL REFERENCES public.smn_account(id),\n  action text NOT NULL CHECK (action IN ('password_changed','recovery_prepared','recovery_used')),\n  created_at timestamptz NOT NULL DEFAULT now()\n);\nUPDATE public.smn_installation SET schema_version=3 WHERE id='singleton' AND schema_version=2;\n";
