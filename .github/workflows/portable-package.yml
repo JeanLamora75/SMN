@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 22
     env:
       NEXT_TELEMETRY_DISABLED: "1"
-      SMN_PACKAGE_DIR: "${{ runner.temp }}\\SMN-Windows"
+      SMN_PACKAGE_DIR: "_package/SMN-Windows"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: SMN-Pilote-Windows-x64
-          path: "${{ runner.temp }}\\SMN-Windows"
+          path: "_package/SMN-Windows"
           if-no-files-found: error
           retention-days: 14
           compression-level: 0
