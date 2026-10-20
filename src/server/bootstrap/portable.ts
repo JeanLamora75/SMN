@@ -29,7 +29,7 @@ async function run(exe: string, args: string[], input?: string): Promise<string>
     child.on("close", code => {
       // Ne jamais remonter stdout/stderr PG : peuvent contenir des détails privés.
       if (code === 0) resolve(out.trim());
-      else reject(new Error("managed-process-failed:" + path.basename(exe)));
+      else reject(new Error("managed-process-failed:" + path.basename(exe) + (process.env.GITHUB_ACTIONS === "true" && path.basename(exe).toLowerCase() === "powershell.exe" ? ":" + err.slice(-900) : "")));
     });
     child.stdin.end(input);
   });
@@ -37,8 +37,8 @@ async function run(exe: string, args: string[], input?: string): Promise<string>
 async function dpapi(value: string, decrypt = false): Promise<string> {
   // Le secret passe uniquement par stdin, jamais par les arguments, le dépôt ou les logs.
   const script = decrypt
-    ? "$ErrorActionPreference='Stop'; $v=[Console]::In.ReadToEnd(); $raw=[Convert]::FromBase64String($v.Trim()); $data=[Security.Cryptography.ProtectedData]::Unprotect($raw,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Text.Encoding]::UTF8.GetString($data))"
-    : "$ErrorActionPreference='Stop'; $v=[Console]::In.ReadToEnd(); $raw=[Text.Encoding]::UTF8.GetBytes($v); $data=[Security.Cryptography.ProtectedData]::Protect($raw,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Convert]::ToBase64String($data))";
+    ? "$ErrorActionPreference='Stop'; $v=[Console]::In.ReadToEnd(); $raw=[Convert]::FromBase64String($v.Trim()); $data=[System.Security.Cryptography.ProtectedData]::Unprotect($raw,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Text.Encoding]::UTF8.GetString($data))"
+    : "$ErrorActionPreference='Stop'; $v=[Console]::In.ReadToEnd(); $raw=[Text.Encoding]::UTF8.GetBytes($v); $data=[System.Security.Cryptography.ProtectedData]::Protect($raw,$null,[System.Security.Cryptography.DataProtectionScope]::CurrentUser); [Console]::Out.Write([Convert]::ToBase64String($data))";
   return run("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", script], value);
 }
 async function portInUse(port: number): Promise<boolean> {
