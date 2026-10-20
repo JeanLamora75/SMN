@@ -24,6 +24,40 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
   it("le fichier de migration Prisma correspond exactement au schéma versionné", async () => {
     assert.equal(await readFile("prisma/migrations/20261020_smn12_initial/migration.sql", "utf8"), INITIAL_SCHEMA_SQL);
   });
+  it("rejette l'installation non valide avant de créer une base", async () => {
+    assert.ok(source && target);
+    const unknown = new URL(target);
+    unknown.pathname = "/smn_ci_invalid";
+    const result = await installExpress({ ...input, mode: "invalid" }, unknown.toString());
+    assert.deepEqual(result, { ok: false, status: "invalid-input" });
+    const maintenance = new URL(source); maintenance.pathname = "/postgres";
+    const present = await withClient(maintenance.toString(), async (client) => {
+      const check = await client.query<{ present: boolean }>("SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname='smn_ci_invalid') AS present");
+      return check.rows[0].present;
+    });
+    assert.equal(present, false);
+  });
+
+  it("n'autorise qu'une installation concurrente sur une base neuve", async () => {
+    assert.ok(source && target);
+    const targetRace = new URL(target);
+    targetRace.pathname = "/smn_ci_race";
+    const maintenance = new URL(source); maintenance.pathname = "/postgres";
+    try {
+      const results = await Promise.all([installExpress(input, targetRace.toString()), installExpress(input, targetRace.toString())]);
+      assert.equal(results.filter((r) => r.ok).length, 1, "Une seule initialisation doit réussir");
+      const count = await withClient(targetRace.toString(), async (client) => {
+        const data = await client.query<{ count: string }>("SELECT count(*)::text AS count FROM public.smn_account");
+        return data.rows[0].count;
+      });
+      assert.equal(count, "1");
+    } finally {
+      await withClient(maintenance.toString(), async (client) => {
+        await client.query("DROP DATABASE IF EXISTS smn_ci_race WITH (FORCE)");
+      });
+    }
+  });
+
   it("crée une seule installation et refuse la répétition, sans secret en clair", async () => {
     assert.ok(source && target);
     assert.equal(parseConnectionSettings(target.toString()).ok, true);
