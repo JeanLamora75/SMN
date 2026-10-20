@@ -44,5 +44,54 @@
       "schema-incompatible": "The database schema is not recognized. No automatic changes will be applied.",
       "installation-incomplete": "The installation appears incomplete. Private data access remains blocked."
     }
+  },
+  "notFound": {
+    "title": "Access unavailable",
+    "message": "Access is denied or this page does not exist.",
+    "home": "Back to home"
+  },
+  "settings": {
+    "title": "General settings",
+    "intro": "Customize this installation without changing its product, Agile mode or recorded history.",
+    "back": "Back to dashboard",
+    "fixed": "Fixed installation choices",
+    "fixedInfo": "The Agile mode and reference product were set during installation. To change them, use a separate installation.",
+    "mode": "Agile mode",
+    "product": "Product",
+    "editable": "Editable preferences",
+    "locale": "Preferred language",
+    "localeInfo": "Language used by screens already migrated under SMN-27. Other screens are being migrated.",
+    "theme": "Preferred theme",
+    "themeInfo": "Preference stored; full theme support is planned for a future Story.",
+    "country": "Reference country",
+    "countryEmpty": "Not specified",
+    "unknownCountry": "{code} — existing country",
+    "countryInfo": "Default country for future team members; past calendars, members and reports will not be recalculated.",
+    "displayInfo": "Display preferences are available for compatible modules. Settings affecting newly created data apply only to new data, without modifying history or archived documents.",
+    "saving": "Saving…",
+    "save": "Save settings",
+    "reload": "Reload",
+    "revision": "Revision {revision} — last modified: {date}",
+    "retryLoad": "Try loading again",
+    "loadError": "Could not load settings. No change was saved.",
+    "conflict": "These settings were changed in another tab. Reload the values before retrying.",
+    "invalid": "Invalid value. Check your settings.",
+    "saveError": "Could not save settings. Previous values were preserved.",
+    "saved": "Settings saved. Existing history was not modified.",
+    "unchanged": "No changes needed: settings are already up to date.",
+    "network": "Connection interrupted. Reload the values to confirm before retrying.",
+    "light": "Light",
+    "dark": "Dark",
+    "french": "Français",
+    "english": "English",
+    "countries": {
+      "FR": "France",
+      "DE": "Germany",
+      "GB": "United Kingdom",
+      "ES": "Spain",
+      "PT": "Portugal",
+      "IT": "Italy",
+      "CA": "Canada"
+    }
   }
 }
