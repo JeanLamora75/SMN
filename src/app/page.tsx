@@ -41,7 +41,7 @@ export default async function HomePage() {
           {firstRun ? (
             <Link className="btn btn-primary" href="/welcome">Installer SMN</Link>
           ) : canVisitSetup(diagnostic) && (
-            <Link className="btn btn-primary" href="/setup">
+            <Link className="btn btn-primary" href="/welcome">
               {en ? "Prepare installation" : "Préparer l'installation"}
             </Link>
           )}
