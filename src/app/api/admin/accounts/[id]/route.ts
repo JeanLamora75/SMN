@@ -1,15 +1,16 @@
 import { NextRequest } from "next/server";
-import { SESSION_COOKIE } from "@/server/auth/guards";
-import { sessionAccount, revokeAccountSessions } from "@/server/auth/session";
+import { authorizeApi } from "@/server/auth/authorization";
+import { revokeAccountSessions } from "@/server/auth/session";
 import { withAuthDb } from "@/server/auth/database";
 import { updateAccount } from "@/server/accounts/manager";
-import { allowMutation, jsonResult, readJsonObject } from "@/server/auth/request";
+import { jsonResult, readJsonObject } from "@/server/auth/request";
 
 export const dynamic = "force-dynamic";
 export async function PATCH(request:NextRequest,context:{params:Promise<{id:string}>}) {
-  if (!allowMutation(request)) return jsonResult({error:"forbidden"},403);
-  const actor=await sessionAccount(request.cookies.get(SESSION_COOKIE)?.value);
-  if (!actor || actor.role!=="admin" || actor.must_change_password)
+  // L'opération vise la collection des comptes ; le gestionnaire conserve
+  // la résolution de la cible et les erreurs/protections de gestion des comptes.
+  const actor=await authorizeApi(request,"write",{type:"accounts",exists:true,inScope:true});
+  if (!actor)
     return jsonResult({error:"forbidden"},403);
   const body=await readJsonObject(request);
   if (!body) return jsonResult({error:"invalid-input"},400);

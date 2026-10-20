@@ -35,7 +35,7 @@ export function parseAccountChange(raw: unknown): {role:Role;isActive:boolean} |
 export async function listAccounts(client: Client): Promise<ListedAccount[]> {
   const r=await client.query<ListedAccount>(`
     SELECT id,username,email,role,is_active,must_change_password,created_at
-    FROM public.smn_account ORDER BY created_at ASC,username ASC LIMIT 500`);
+    FROM public.smn_account WHERE installation_id='singleton' ORDER BY created_at ASC,username ASC LIMIT 500`);
   return r.rows;
 }
 export async function createAccount(client:Client,body:unknown):Promise<AccountResult<ListedAccount>> {
@@ -66,7 +66,7 @@ export async function updateAccount(
     await client.query("SELECT pg_advisory_xact_lock(20261020, 15)");
     const row=await client.query<ListedAccount>(`
       SELECT id,username,email,role,is_active,must_change_password,created_at
-      FROM public.smn_account WHERE id=$1 FOR UPDATE`,[id]);
+      FROM public.smn_account WHERE id=$1 AND installation_id='singleton' FOR UPDATE`,[id]);
     const current=row.rows[0];
     if (!current) {
       await client.query("ROLLBACK");
@@ -79,14 +79,14 @@ export async function updateAccount(
     if (current.role==="admin" && current.is_active && (input.role!=="admin" || !input.isActive)) {
       const count=await client.query<{count:string}>(`
         SELECT count(*)::text AS count FROM public.smn_account
-        WHERE role='admin' AND is_active=true`);
+        WHERE installation_id='singleton' AND role='admin' AND is_active=true`);
       if (Number(count.rows[0]?.count)<=1) {
         await client.query("ROLLBACK");
         return {ok:false,error:"last-admin"};
       }
     }
     const result=await client.query<ListedAccount>(`
-      UPDATE public.smn_account SET role=$2,is_active=$3 WHERE id=$1
+      UPDATE public.smn_account SET role=$2,is_active=$3 WHERE id=$1 AND installation_id='singleton'
       RETURNING id,username,email,role,is_active,must_change_password,created_at`,
       [id,input.role,input.isActive]);
     await client.query("COMMIT");

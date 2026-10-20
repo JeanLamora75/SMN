@@ -1,26 +1,19 @@
 import { NextRequest } from "next/server";
-import { SESSION_COOKIE, validLocalHost } from "@/server/auth/guards";
-import { sessionAccount } from "@/server/auth/session";
+import { authorizeApi } from "@/server/auth/authorization";
 import { withAuthDb } from "@/server/auth/database";
 import { listAccounts, createAccount } from "@/server/accounts/manager";
-import { allowMutation, jsonResult, readJsonObject } from "@/server/auth/request";
+import { jsonResult, readJsonObject } from "@/server/auth/request";
 
 export const dynamic = "force-dynamic";
-async function isAdmin(request:NextRequest) {
-  const account=await sessionAccount(request.cookies.get(SESSION_COOKIE)?.value);
-  return !!account && account.role==="admin" && !account.must_change_password;
-}
 export async function GET(request:NextRequest) {
-  if (!validLocalHost(request.headers.get("host"))) return jsonResult({error:"forbidden"},403);
-  if (!await isAdmin(request)) return jsonResult({error:"forbidden"},403);
+  if (!await authorizeApi(request,"read",{type:"accounts",exists:true,inScope:true})) return jsonResult({error:"forbidden"},403);
   try {
     const accounts=await withAuthDb(listAccounts);
     return jsonResult({accounts});
   } catch { return jsonResult({error:"service-unavailable"},503); }
 }
 export async function POST(request:NextRequest) {
-  if (!allowMutation(request)) return jsonResult({error:"forbidden"},403);
-  if (!await isAdmin(request)) return jsonResult({error:"forbidden"},403);
+  if (!await authorizeApi(request,"write",{type:"accounts",exists:true,inScope:true})) return jsonResult({error:"forbidden"},403);
   const body=await readJsonObject(request);
   if (!body) return jsonResult({error:"invalid-input"},400);
   try {

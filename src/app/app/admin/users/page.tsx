@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentAccount } from "@/server/auth/session";
+import { canAccess } from "@/server/access-policy";
 import SessionActivity from "../../session-activity";
 import UsersAdmin from "./users-admin";
 
@@ -9,7 +10,7 @@ export default async function UsersPage() {
   const account=await currentAccount();
   if (!account) redirect("/login");
   if (account.must_change_password) redirect("/change-password");
-  if (account.role!=="admin") redirect("/app");
+  if (!canAccess(account,"read",{type:"accounts",exists:true,inScope:true})) redirect("/app");
   return <main className="smn-page container py-5">
     <header className="mb-4">
       <h1 className="h3">Administration des utilisateurs</h1>

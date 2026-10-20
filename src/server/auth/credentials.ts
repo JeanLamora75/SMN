@@ -21,7 +21,7 @@ export async function authenticate(client: Client, identity: string, password: s
     SELECT a.id, a.username, a.email, a.role, a.password_hash, a.must_change_password, a.is_active
     FROM public.smn_account a
     JOIN public.smn_installation i ON i.id=a.installation_id
-    WHERE i.state='initialized' AND a.is_active=true AND (lower(a.username)=lower($1) OR lower(a.email)=lower($1))
+    WHERE i.id='singleton' AND i.state='initialized' AND a.is_active=true AND (lower(a.username)=lower($1) OR lower(a.email)=lower($1))
     LIMIT 2
   `, [identity.trim()]);
   const account = query.rows.length === 1 ? query.rows[0] : undefined;
@@ -34,7 +34,7 @@ export async function accountById(client: Client, id: string): Promise<Account |
     SELECT a.id,a.username,a.email,a.role,a.password_hash,a.must_change_password,a.is_active
     FROM public.smn_account a
     JOIN public.smn_installation i ON i.id=a.installation_id
-    WHERE a.id=$1 AND i.state='initialized' AND a.is_active=true LIMIT 1
+    WHERE a.id=$1 AND i.id='singleton' AND i.state='initialized' AND a.is_active=true LIMIT 1
   `, [id]);
   const a = response.rows[0];
   return a && (a.role === "admin" || a.role === "user") ? a : null;
@@ -45,7 +45,7 @@ export async function changeInitialPassword(client: Client, account: Account, ol
   const newHash = await passwordHash(nextPassword);
   const r = await client.query(`
     UPDATE public.smn_account SET password_hash=$1, must_change_password=false
-    WHERE id=$2 AND password_hash=$3 AND must_change_password=true
+    WHERE id=$2 AND installation_id='singleton' AND password_hash=$3 AND must_change_password=true
   `, [newHash, account.id, account.password_hash]);
   return r.rowCount === 1;
 }

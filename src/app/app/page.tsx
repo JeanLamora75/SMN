@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentAccount } from "@/server/auth/session";
 import { withAuthDb } from "@/server/auth/database";
-import { canVisitPrivate } from "@/server/access-policy";
+import { canAccess } from "@/server/access-policy";
 import { readCollectiveDashboard } from "@/server/dashboard/read";
 import LogoutControl from "./logout-control";
 import SessionActivity from "./session-activity";
@@ -33,7 +33,7 @@ function EmptyBlock({ heading, description, symbol }: Readonly<{
 export default async function DashboardPage() {
   const account = await currentAccount();
   if (!account) redirect("/login");
-  if (!canVisitPrivate({ role: account.role, mustChangePassword: account.must_change_password }))
+  if (!canAccess(account, "read", { type: "collective", exists: true, inScope: true }))
     redirect("/change-password");
 
   let dashboard: Awaited<ReturnType<typeof readCollectiveDashboard>>;
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
             {nav.map(link=><a key={link.anchor} href={link.anchor} className="smn-nav-link">
               <span aria-hidden="true">{link.glyph}</span>{link.title}
             </a>)}
-            {account.role==="admin"&&<>
+            {canAccess(account,"read",{type:"accounts",exists:true,inScope:true})&&<>
               <div className="smn-nav-eyebrow mt-4">ADMINISTRATION</div>
               <Link className="smn-nav-link" href="/app/admin/users"><span aria-hidden="true">⚙</span>Comptes utilisateurs</Link>
             </>}

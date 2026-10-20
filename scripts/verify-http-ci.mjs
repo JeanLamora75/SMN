@@ -185,6 +185,20 @@ try {
       return "smn_session=" + match[1];
     }
     const original = tokenCookie(login);
+    assert.equal((await get("/api/dashboard")).status,403);
+    assert.deepEqual(await (await get("/api/dashboard")).json(),{error:"forbidden"});
+    assert.equal((await get("/api/dashboard",{headers:{Cookie:original}})).status,403);
+    async function verifyDashboard(cookie) {
+      const response=await get("/api/dashboard",{headers:{Cookie:cookie}});
+      assert.equal(response.status,200);
+      assert.match(response.headers.get("cache-control")??"",/no-store/);
+      const projection=await response.json();
+      assert.deepEqual(projection,{
+        context:{product:"Produit de recette CI",team:"Equipe CI",mode:"scrum"},
+        currentCycle:null,pendingCycles:[],objectives:[],metrics:[],events:[],attention:[],
+      },"Projection collective explicite, sans champ individuel ni coordonnées");
+      assert.doesNotMatch(JSON.stringify(projection),/email|password|absence|capacity|username|is_active/i);
+    }
     const beforeChange = await get("/app", { headers: { Cookie: original }, redirect:"manual" });
     assert.equal(beforeChange.status, 307);
     assert.equal(new URL(beforeChange.headers.get("location"), base).pathname, "/change-password");
@@ -205,6 +219,26 @@ try {
     assert.match(privateHtml.replace(/<!--.*?-->/g, ""), /Aucun sprint enregistr/);
     assert.doesNotMatch(privateHtml, /admin@localhot.com/);
     assert.doesNotMatch(privateHtml, /Story Points.*>0</);
+    await verifyDashboard(replacement);
+    const teamRow=await withDb(async client=>(await client.query(
+      "SELECT row_to_json(t)::text AS snapshot FROM public.smn_team t WHERE id='team'"
+    )).rows[0]);
+    assert.ok(teamRow);
+    try {
+      await withDb(client=>client.query("DELETE FROM public.smn_team WHERE id='team'"));
+      const missingContext=await get("/api/dashboard",{headers:{Cookie:replacement}});
+      assert.equal(missingContext.status,403);
+      assert.deepEqual(await missingContext.json(),{error:"forbidden"});
+      assert.match(missingContext.headers.get("cache-control")??"",/no-store/);
+      assert.match(missingContext.headers.get("cache-control")??"",/private/);
+    } finally {
+      await withDb(client=>client.query(
+        "INSERT INTO public.smn_team SELECT * FROM json_populate_record(NULL::public.smn_team,$1::json)",
+        [teamRow.snapshot],
+      ));
+    }
+    await verifyDashboard(replacement);
+    assert.equal((await get("/api/dashboard",{headers:{Cookie:replacement,Host:"evil.example:3003"}})).status,403);
     // Gestion des comptes : seuls les administrateurs authentifiés peuvent agir.
     assert.equal((await get("/api/admin/accounts")).status,403);
     assert.equal((await postAuth("/api/admin/accounts",{
@@ -215,6 +249,14 @@ try {
     assert.match(await adminPage.text(),/Administration des utilisateurs/);
     const newUser={username:"pilote",email:"pilote@example.test",role:"user",password:"pilot1234"};
     assert.equal((await postAuth("/api/admin/accounts",newUser,replacement,"http://evil.example")).status,403);
+    const accountCount=()=>withDb(async client=>(await client.query("SELECT count(*)::text AS count FROM public.smn_account")).rows[0].count);
+    const beforeMissingOrigin=await accountCount();
+    const missingOrigin=await get("/api/admin/accounts",{
+      method:"POST",headers:{"Content-Type":"application/json",Cookie:replacement},
+      body:JSON.stringify({...newUser,username:"missing_origin",email:"missing-origin@example.test"}),
+    });
+    assert.equal(missingOrigin.status,403);
+    assert.equal(await accountCount(),beforeMissingOrigin,"POST administrateur sans Origin : aucun compte ajouté");
     const created=await postAuth("/api/admin/accounts",newUser,replacement);
     assert.equal(created.status,201);
     const createdBody=await created.json();
@@ -231,12 +273,14 @@ try {
     const userLogin=await postAuth("/api/auth/login",{identity:"pilote",password:"pilot1234"});
     assert.equal(userLogin.status,200);
     const userCookie=tokenCookie(userLogin);
+    assert.equal((await get("/api/dashboard",{headers:{Cookie:userCookie}})).status,403);
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userCookie}})).status,403);
     assert.equal((await postAuth("/api/admin/accounts",{...newUser,username:"bad"},userCookie)).status,403);
     const userChanged=await postAuth("/api/auth/change-password",
       {currentPassword:"pilot1234",newPassword:"piloteChange2026"},userCookie);
     assert.equal(userChanged.status,200);
     const userReady=tokenCookie(userChanged);
+    await verifyDashboard(userReady);
     const rejectedPage=await get("/app/admin/users",{headers:{Cookie:userReady},redirect:"manual"});
     assert.equal(rejectedPage.status,307);
     assert.equal(new URL(rejectedPage.headers.get("location"),base).pathname,"/app");
@@ -250,6 +294,10 @@ try {
     assert.doesNotMatch(userHtml,/Comptes utilisateurs/);
     assert.doesNotMatch(userHtml,/admin@localhot.com/);
 
+    const accountSnapshot=()=>withDb(async client=>(await client.query(
+      "SELECT id,username,email,role,password_hash,must_change_password,is_active FROM public.smn_account ORDER BY id"
+    )).rows);
+    const beforeUserMutations=await accountSnapshot();
     const forbiddenEdit=await postAuth("/api/admin/accounts",{...newUser,username:"not_allowed"},userReady);
     assert.equal(forbiddenEdit.status,403);
     const patchAccount=(id,fields,cookie= replacement,origin=base)=>
@@ -259,16 +307,64 @@ try {
         body:JSON.stringify(fields),
       });
     assert.equal((await patchAccount(userId,{role:"admin",isActive:true},userReady)).status,403);
+    assert.deepEqual(await accountSnapshot(),beforeUserMutations,
+      "POST et PATCH refusés à l'utilisateur : aucun compte ni secret modifié");
+    // Les lignes d'une autre installation ne sont ni listées ni modifiables.
+    const foreignId=randomUUID();
+    let movedId;
+    await withDb(async client=>{
+      await client.query("INSERT INTO public.smn_installation(id,state,schema_version,mode) VALUES('foreign-ci','initialized',1,'scrum')");
+      await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password,is_active) VALUES($1,'foreign-ci','foreign_ci','foreign@example.test','admin',$2,false,true)",[foreignId,hash]);
+    });
+    try {
+      const temporary=await postAuth("/api/admin/accounts",{
+        username:"moved_ci",email:"moved@example.test",role:"user",password:"temporary2026",
+      },replacement);
+      assert.equal(temporary.status,201);
+      movedId=(await temporary.json()).account.id;
+      const temporaryLogin=await postAuth("/api/auth/login",{identity:"moved_ci",password:"temporary2026"});
+      assert.equal(temporaryLogin.status,200);
+      const temporaryChanged=await postAuth("/api/auth/change-password",{
+        currentPassword:"temporary2026",newPassword:"movedChange2026",
+      },tokenCookie(temporaryLogin));
+      assert.equal(temporaryChanged.status,200);
+      const movedCookie=tokenCookie(temporaryChanged);
+      await verifyDashboard(movedCookie);
+      await withDb(client=>client.query("UPDATE public.smn_account SET installation_id='foreign-ci' WHERE id=$1",[movedId]));
+      assert.equal((await get("/api/dashboard",{headers:{Cookie:movedCookie}})).status,403);
+      assert.equal((await get("/api/auth/me",{headers:{Cookie:movedCookie}})).status,401);
+      const visible=await (await get("/api/admin/accounts",{headers:{Cookie:replacement}})).json();
+      assert.equal(visible.accounts.some(account=>account.id===foreignId),false);
+      const foreignPatch=await patchAccount(foreignId,{role:"user",isActive:false});
+      const absentPatch=await patchAccount(randomUUID(),{role:"user",isActive:false});
+      assert.equal(foreignPatch.status,absentPatch.status);
+      assert.deepEqual(await foreignPatch.json(),await absentPatch.json());
+      const foreign=await withDb(async client=>(await client.query("SELECT role,is_active FROM public.smn_account WHERE id=$1",[foreignId])).rows[0]);
+      assert.deepEqual(foreign,{role:"admin",is_active:true});
+      assert.equal((await postAuth("/api/auth/login",{identity:"foreign_ci",password:"admin"})).status,401);
+    } finally {
+      await withDb(async client=>{
+        await client.query("DELETE FROM public.smn_account WHERE id=$1 OR id=$2",[foreignId,movedId??null]);
+        await client.query("DELETE FROM public.smn_installation WHERE id='foreign-ci'");
+      });
+    }
     const promoted=await patchAccount(userId,{role:"admin",isActive:true});
     assert.equal(promoted.status,200);
+    assert.equal((await get("/api/dashboard",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/auth/me",{headers:{Cookie:userReady}})).status,401,
       "Ancienne session utilisateur révoquée après changement de rôle");
+    const promotedLogin=await postAuth("/api/auth/login",{identity:"pilote",password:"piloteChange2026"});
+    assert.equal(promotedLogin.status,200);
+    const promotedCookie=tokenCookie(promotedLogin);
+    await verifyDashboard(promotedCookie);
     const disabled=await patchAccount(userId,{role:"user",isActive:false});
     assert.equal(disabled.status,200);
+    assert.equal((await get("/api/dashboard",{headers:{Cookie:promotedCookie}})).status,403);
     assert.equal((await postAuth("/api/auth/login",{identity:"pilote",password:"piloteChange2026"})).status,401);
     const selfId=(await (await get("/api/admin/accounts",{headers:{Cookie:replacement}})).json()).accounts
       .find(a=>a.username==="admin").id;
     assert.equal((await patchAccount(selfId,{role:"user",isActive:false})).status,409);
+    console.log("SMN-16 : dashboard admin/user, projection collective, refus anonymes/initiaux et mutations user sans effet vérifiés.");
     console.log("SMN-15 : création, unicité, refus simple utilisateur, session révoquée et désactivation vérifiés.");
     assert.equal((await postAuth("/api/auth/activity", {}, replacement, "http://invalid.example")).status, 403);
     assert.equal((await postAuth("/api/auth/activity", {}, replacement)).status, 200);
