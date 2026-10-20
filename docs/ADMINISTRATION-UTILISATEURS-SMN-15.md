@@ -22,6 +22,16 @@ Le diagnostic PostgreSQL accepte ensuite aussi bien une installation valide v1 e
 
 ## À vérifier en recette
 
-Créer un compte Utilisateur, se connecter avec lui dans une navigation privée, changer son mot de passe initial ; vérifier qu'il ne peut pas administrer d'autres comptes. Depuis le compte Administrateur, changer le rôle de ce compte, constater l'expiration de son ancienne session, puis le désactiver et vérifier le refus d'une nouvelle connexion. Ne pas modifier le compte Administrateur initial pendant ce test.
+1. Après Pull origin sur `main`, arrêter puis relancer `pnpm dev`. Se reconnecter avec l'Administrateur existant, puis ouvrir `http://localhost:3003/app/admin/users`.
+2. Créer un compte test **Utilisateur**. Retenter le même identifiant : une erreur explicite doit apparaître et une seule ligne doit rester dans la liste.
+3. Dans une fenêtre privée, connecter ce compte, changer son mot de passe initial et vérifier que `/app/admin/users` lui est refusé.
+4. Depuis l'Administrateur, promouvoir ce compte puis vérifier l'invalidation de son ancienne session. Après reconnexion, le désactiver et vérifier qu'il ne peut plus se connecter. Le réactiver en Utilisateur.
+5. Arrêter puis relancer SMN : vérifier que les comptes, rôles et états sont conservés et que l'Administrateur initial peut toujours se connecter.
+
+Ne pas modifier l'Administrateur initial pendant cette recette. Ne pas réinstaller l'application ou supprimer la base ; la migration des comptes existants est automatique.
 
 Les contrôles automatiques CI et la recette utilisateur réelle sont des preuves distinctes : attendre la CI réussie avant de considérer ce développement livré.
+
+## État de vérification au 20/10/2026
+
+[CI applicative réussie](https://github.com/JeanLamora75/SMN/actions/runs/39461255011) : PostgreSQL, HTTP, TypeScript, Linux et Windows. [Installation du paquet Windows réussie](https://github.com/JeanLamora75/SMN/actions/runs/39460961259). Ces tests utilisent uniquement des environnements temporaires. La recette de l'installation Windows 11 existante reste à confirmer ; SMN-15 demeure ouverte jusque-là.
