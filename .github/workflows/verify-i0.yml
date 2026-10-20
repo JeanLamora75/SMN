@@ -46,6 +46,8 @@ jobs:
         run: pnpm lint
       - name: Tests unitaires et intégration PG réelle
         run: pnpm test
+      - name: Valider le schéma Prisma
+        run: pnpm exec prisma validate
       - name: Typecheck
         run: pnpm typecheck
       - name: Diagnostic de port et de prérequis
