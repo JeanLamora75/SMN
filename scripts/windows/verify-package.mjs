@@ -15,6 +15,14 @@ for (const file of ["node.exe", "server.js", "Demarrer SMN.cmd", "launch-portabl
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
+const recoveryProbe=spawnSync(path.join(root,"node.exe"),[path.join(root,"recover-admin.mjs")],{
+  cwd:root,windowsHide:true,encoding:"utf8",stdio:["pipe","pipe","pipe"],
+  env:{...process.env,SMN_DATABASE_URL:""},
+});
+assert.notEqual(recoveryProbe.status,0,"Sans terminal interactif, la récupération doit échouer");
+assert.match(recoveryProbe.stderr??"",/Ouvrez un terminal interactif Windows/,
+  "Le script de récupération autonome doit charger ses dépendances et refuser la saisie non interactive");
+
 const port = 3003;
 const base = "http://127.0.0.1:" + port;
 let server;
