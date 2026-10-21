@@ -25,6 +25,7 @@ export function canAccess(actor: AccessActor | null | undefined, action: string,
     (actor.role !== "admin" && actor.role !== "user") ||
     !actionTypes.includes(action) || !resourceTypes.includes(resource.type) ||
     resource.exists !== true || resource.inScope !== true) return false;
+  if (resource.type === "audit") return actor.role === "admin" && action === "read";
   if (resource.type === "documents") {
     if (action === "generate") return actor.role === "admin" && resource.collection === true;
     if (action === "read" || action === "download") {

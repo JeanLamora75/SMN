@@ -12,7 +12,7 @@ for (const role of ["admin", "user", "unknown"]) {
   for (const type of resources) for (const action of actions) {
     test(`${role}: ${action} ${type}`, () => {
       const expected = role === "admin"
-        ? !(type === "documents" && action === "generate")
+        ? (type === "audit" ? action === "read" : !(type === "documents" && action === "generate"))
         : role === "user" && ((type === "collective" && action === "read") ||
           (type === "documents" && (action === "read" || action === "download")));
       assert.equal(canAccess(actor(role), action, resource(type)), expected);

@@ -3,7 +3,7 @@ import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
-import {readAuditJournal,type AuditAction} from "@/server/audit/journal";
+import {readAuditJournal} from "@/server/audit/journal";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 export const dynamic="force-dynamic";
