@@ -80,20 +80,20 @@ export default function SettingsForm() {
         <h2 className="h5">{t("settings.editable")}</h2>
         <div className="row g-3">
           <div className="col-md-6"><label className="form-label" htmlFor="locale">{t("settings.locale")}</label>
-            <select id="locale" aria-describedby="settings-locale-help" className="form-select" value={locale} disabled={busy} onChange={e=>setLocale(e.target.value as "fr"|"en")}>
+            <select id="locale" aria-describedby="settings-locale-help" className="form-select" value={locale} disabled={busy} onChange={e=>{setLocale(e.target.value as "fr"|"en");setError("");setSuccess("");}}>
               <option value="fr">{t("settings.french")}</option><option value="en">{t("settings.english")}</option>
             </select>
             <p id="settings-locale-help" className="small text-secondary mt-1">{t("settings.localeInfo")}</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="theme">{t("settings.theme")}</label>
-            <select id="theme" aria-describedby="settings-theme-help" className="form-select" value={theme} disabled={busy} onChange={e=>setTheme(e.target.value as "light"|"dark")}>
+            <select id="theme" aria-describedby="settings-theme-help" className="form-select" value={theme} disabled={busy} onChange={e=>{setTheme(e.target.value as "light"|"dark");setError("");setSuccess("");}}>
               <option value="light">{t("settings.light")}</option><option value="dark">{t("settings.dark")}</option>
             </select>
             <p id="settings-theme-help" className="small text-secondary mt-1">{t("settings.themeInfo")}</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="palette">{t("settings.palette")}</label>
             <select id="palette" aria-describedby="settings-palette-help" className="form-select" value={palette} disabled={busy}
-              onChange={e=>setPalette(e.target.value as Palette)}>
+              onChange={e=>{setPalette(e.target.value as Palette);setError("");setSuccess("");}}>
               <option value="ocean">{t("settings.paletteOcean")}</option>
               <option value="forest">{t("settings.paletteForest")}</option>
               <option value="violet">{t("settings.paletteViolet")}</option>
@@ -101,7 +101,7 @@ export default function SettingsForm() {
             <p id="settings-palette-help" className="small text-secondary mt-1">{t("settings.paletteInfo")}</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="country">{t("settings.country")}</label>
-            <select id="country" aria-describedby="settings-country-help" className="form-select" value={country} disabled={busy} onChange={e=>setCountry(e.target.value)}>
+            <select id="country" aria-describedby="settings-country-help" className="form-select" value={country} disabled={busy} onChange={e=>{setCountry(e.target.value);setError("");setSuccess("");}}>
               <option value="">{t("settings.countryEmpty")}</option>
               {saved.referenceCountry&&!countries.includes(saved.referenceCountry as typeof countries[number])&&
                 <option value={saved.referenceCountry}>{t("settings.unknownCountry",{code:saved.referenceCountry})}</option>}

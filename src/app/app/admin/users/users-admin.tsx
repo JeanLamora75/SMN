@@ -86,15 +86,15 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       {dirtyCreation&&<p className="small fw-semibold">{t("draft.provisional")}</p>}
       <form onSubmit={create} className="row g-3" aria-describedby={message?"accounts-feedback":undefined}>
         <div className="col-md-6"><label className="form-label">{t("accounts.username")}<input className="form-control" required minLength={2} maxLength={50}
-            value={username} onChange={e=>setUsername(e.target.value)} disabled={busy} autoComplete="off"/>
+            value={username} onChange={e=>{setUsername(e.target.value);setMessage("");}} disabled={busy} autoComplete="off"/>
         </label></div>
         <div className="col-md-6"><label className="form-label">{t("accounts.email")}<input className="form-control" type="email" required maxLength={200}
-            value={email} onChange={e=>setEmail(e.target.value)} disabled={busy} autoComplete="off"/>
+            value={email} onChange={e=>{setEmail(e.target.value);setMessage("");}} disabled={busy} autoComplete="off"/>
         </label></div>
         <div className="col-md-6"><label className="form-label">{t("accounts.initialPassword")}<input className="form-control" type="password" required minLength={4} maxLength={256}
-            value={password} onChange={e=>setPassword(e.target.value)} disabled={busy} autoComplete="new-password"/>
+            value={password} onChange={e=>{setPassword(e.target.value);setMessage("");}} disabled={busy} autoComplete="new-password"/>
         </label></div>
-        <div className="col-md-6"><label className="form-label">{t("accounts.roleCol")}<select className="form-select" value={role} onChange={e=>setRole(e.target.value as Role)} disabled={busy}>
+        <div className="col-md-6"><label className="form-label">{t("accounts.roleCol")}<select className="form-select" value={role} onChange={e=>{setRole(e.target.value as Role);setMessage("");}} disabled={busy}>
             <option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
           </select>
         </label></div>
@@ -120,12 +120,12 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
               <td role="cell" data-label={t("accounts.emailCol")}>{account.email}</td>
               <td role="cell" data-label={t("accounts.roleCol")}><select aria-label={t("accounts.roleFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.role} disabled={busy||self} onChange={e=>
-                  setEdits(prev=>({...prev,[account.id]:{...edit,role:e.target.value as Role}}))}>
+                  {setMessage("");setEdits(prev=>({...prev,[account.id]:{...edit,role:e.target.value as Role}}));}}>
                 <option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
               </select></td>
               <td role="cell" data-label={t("accounts.accessCol")}><select aria-label={t("accounts.accessFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.isActive?"active":"inactive"} disabled={busy||self} onChange={e=>
-                  setEdits(prev=>({...prev,[account.id]:{...edit,isActive:e.target.value==="active"}}))}>
+                  {setMessage("");setEdits(prev=>({...prev,[account.id]:{...edit,isActive:e.target.value==="active"}}));}}>
                 <option value="active">{t("accounts.active")}</option><option value="inactive">{t("accounts.inactive")}</option>
               </select></td>
               <td role="cell" data-label={t("accounts.actionCol")}><button className="btn btn-outline-primary btn-sm" disabled={busy||self||!changed}
