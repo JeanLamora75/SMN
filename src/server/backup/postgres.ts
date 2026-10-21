@@ -47,8 +47,10 @@ export async function encryptedPgDump(connectionString:string,key:Buffer,destina
  child.stderr?.resume();
  const nonce=randomBytes(12),cipher=createCipheriv("aes-256-gcm",key,nonce);
  const hash=createHash("sha256");let originalSize=0;
+ const header=Buffer.alloc(5);let headerBytes=0;
  const tally=new Transform({transform(chunk:Buffer,_encoding,done){
   originalSize+=chunk.length;
+  if(headerBytes<5){headerBytes+=chunk.copy(header,headerBytes,0,5-headerBytes);}
   hash.update(chunk);
   if(originalSize>8*1024*1024*1024){
    done(new Error("backup-database-too-large"));return;
@@ -63,7 +65,8 @@ export async function encryptedPgDump(connectionString:string,key:Buffer,destina
   createWriteStream(destination,{flags:"wx",mode:0o600}));
  try{
   await Promise.all([stream,exited]);
-  if(originalSize<=0)throw new Error("backup-database-empty");
+  if(originalSize<=0||header.toString("ascii")!=="PGDMP")
+   throw new Error("backup-database-invalid");
   const {stat}=await import("node:fs/promises");
   const size=(await stat(destination)).size;
   const encryptedHash=createHash("sha256");
