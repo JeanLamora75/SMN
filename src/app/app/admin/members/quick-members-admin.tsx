@@ -5,10 +5,12 @@ import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import MemberProfileEditor,{type EditableMember} from "./member-profile-editor";
 import AssignmentEditor from "./assignment-editor";
+import MemberLifecycleEditor from "./member-lifecycle-editor";
 
 type AgileRole="scrum_master"|"product_owner"|"developer";
 type Member={id:string;memberNumber:number;displayName:string;email:string|null;revision:number;isProvisional:boolean;
- agileRole:AgileRole;startOn:string;contractPercent:number;allocationPercent:number;
+ agileRole:AgileRole|null;startOn:string|null;endOn:string|null;archived:boolean;archivedAt:string|null;isAssigned:boolean;
+ contractPercent:number;allocationPercent:number;
  rolePercent:number;contributionPercent:number;roleShares:{scrumMaster:number;productOwner:number;developer:number};developmentCapacityJh:null};
 type Roster={team:{id:string;name:string;mode:"scrum"|"kanban"};members:Member[]};
 type State="loading"|"ready"|"error";
@@ -22,6 +24,7 @@ export default function QuickMembersAdmin(){
  const [busy,setBusy]=useState(false);
  const [editingId,setEditingId]=useState<string|null>(null);
  const [assigningId,setAssigningId]=useState<string|null>(null);
+ const [lifecycleId,setLifecycleId]=useState<string|null>(null);
  const [message,setMessage]=useState("");
  const [error,setError]=useState(false);
  const requestId=useRef<string|null>(null);
@@ -47,6 +50,15 @@ export default function QuickMembersAdmin(){
  const dirty=count!=="3"&&roster?.members.length===0;
  const selectedMember=roster?.members.find(m=>m.id===editingId)??null;
  const selectedAssignment=roster?.members.find(m=>m.id===assigningId)??null;
+ const selectedLifecycle=roster?.members.find(m=>m.id===lifecycleId)??null;
+ const savedLifecycle=(action:"close"|"archive"|"reactivate"|"delete",smallTeam:boolean)=>{
+  setLifecycleId(null);
+  void refresh().then(()=>{
+   setError(false);
+   setMessage(t("members.lifecycle."+action+"Saved")+
+    (smallTeam?" "+t("members.lifecycle.smallTeam"):""));
+  }).catch(()=>{setError(true);setMessage(t("members.lifecycle.failedLoad"));});
+ };
  const savedAssignment=()=>{
   setAssigningId(null);
   void refresh().then(()=>{setMessage(t("members.assignment.saved"));setError(false);})
@@ -58,6 +70,7 @@ export default function QuickMembersAdmin(){
    productOwner:member.agileRole==="product_owner"?100:0,
    developer:member.agileRole==="developer"?100:0
   };
+  if(!member.isAssigned)return t("members.lifecycle.noActiveAssignment");
   return ([
    ["scrumMaster","members.roles.scrumMaster"],
    ["productOwner","members.roles.productOwner"],
@@ -156,6 +169,7 @@ export default function QuickMembersAdmin(){
      <thead><tr>
       <th scope="col">{t("members.name")}</th>
       <th scope="col">{t("members.role")}</th>
+      <th scope="col">{t("members.lifecycle.status")}</th>
       <th scope="col">{t("members.arrival")}</th>
       <th scope="col">{t("members.percent")}</th>
       <th scope="col">{t("members.capacity")}</th>
@@ -168,24 +182,35 @@ export default function QuickMembersAdmin(){
        <span className="small text-secondary d-block">{t(member.isProvisional?
         "members.provisional":"members.profile.confirmed")}</span></td>
       <td>{rolesSummary(member)}</td>
-      <td><time dateTime={member.startOn}>{member.startOn}</time></td>
+      <td>{t(member.archived?"members.lifecycle.archived":
+       member.isAssigned?"members.lifecycle.active":"members.lifecycle.unassigned")}</td>
+      <td>{member.startOn?<time dateTime={member.startOn}>{member.startOn}</time>:"—"}</td>
       <td>{t("members.percentValue",{value:member.allocationPercent})}</td>
       <td>{t("members.notCalculated")}</td>
       <td>{member.email??t("members.profile.noEmail")}</td>
       <td><button type="button" className="btn btn-outline-primary btn-sm"
-       disabled={busy||editingId!==null||assigningId!==null}
+       disabled={busy||member.archived||editingId!==null||assigningId!==null||lifecycleId!==null}
        onClick={()=>{setMessage("");setEditingId(member.id);}}>
        {t("members.profile.edit")}
       </button>
       <button type="button" className="btn btn-outline-primary btn-sm mt-1"
-       disabled={busy||editingId!==null||assigningId!==null}
+       disabled={busy||member.archived||editingId!==null||assigningId!==null||lifecycleId!==null}
        onClick={()=>{setMessage("");setAssigningId(member.id);}}>
        {t("members.assignment.edit")}
+      </button>
+      <button type="button" className="btn btn-outline-secondary btn-sm mt-1"
+       disabled={busy||editingId!==null||assigningId!==null||lifecycleId!==null}
+       onClick={()=>{setMessage("");setLifecycleId(member.id);}}>
+       {t("members.lifecycle.manage")}
       </button></td>
      </tr>)}</tbody>
     </table>
    </div>
    <p className="small text-secondary mb-0">{t("members.futureEdits")}</p>
+   {selectedLifecycle&&<div className="mt-4">
+    <MemberLifecycleEditor key={selectedLifecycle.id} memberId={selectedLifecycle.id}
+     onSaved={savedLifecycle} onCancel={()=>setLifecycleId(null)}/>
+   </div>}
    {selectedAssignment&&roster&&<div className="mt-4">
     <AssignmentEditor key={selectedAssignment.id} memberId={selectedAssignment.id}
      teamId={roster.team.id} onSaved={savedAssignment}
