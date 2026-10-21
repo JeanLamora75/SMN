@@ -16,8 +16,10 @@ const from=(j:number|null)=>({team:{id:"team-main",name:"MVP",mode:"scrum"},
  start:dates.oldStart,end:dates.oldEnd,totalJh:j,
  missing:j===null?[{source:"work-calendar",memberId:"m1",date:dates.oldStart}]:[]});
 function fixture(options:{manual?:number|null;actual?:number|null;frozen?:boolean;
- closed?:boolean;targetOccupied?:boolean}={}){
- let row={id:"source-period",manual_jh:options.manual??null,revision:1,
+ closed?:boolean;targetOccupied?:boolean;noPeriod?:boolean}={}){
+ let row:{id:string;manual_jh:number|null;revision:number;frozen_at:string|null;
+  closed_at:string|null}|null=options.noPeriod?null:{
+  id:"source-period",manual_jh:options.manual??null,revision:1,
   frozen_at:options.frozen?"2026-10-21":null,
   closed_at:options.closed?"2026-10-21":null};
  let plan:{id:string;period_id:string;target_start_on:string;
@@ -36,7 +38,7 @@ function fixture(options:{manual?:number|null;actual?:number|null;frozen?:boolea
    return {rows:[{manual_jh:options.actual??null}],rowCount:1};
   if(sql.startsWith("SELECT id,manual_jh::float8")&&
    sql.includes("smn_capacity_period_override"))
-   return {rows:[{...row}],rowCount:1};
+   return {rows:row?[{...row}]:[],rowCount:row?1:0};
   if(sql.startsWith("SELECT id FROM public.smn_capacity_period_override")){
    return {rows:options.targetOccupied?[{id:"another-period"}]:[],rowCount:options.targetOccupied?1:0};
   }
@@ -46,6 +48,10 @@ function fixture(options:{manual?:number|null;actual?:number|null;frozen?:boolea
   if(sql.startsWith("SELECT h.confirmed_values")){
    return {rows:saved?.event_id===args[0]?[{...saved}]:[],
     rowCount:saved?.event_id===args[0]?1:0};
+  }
+  if(sql.startsWith("INSERT INTO public.smn_capacity_period_override")){
+   row={id:String(args[0]),manual_jh:null,revision:1,frozen_at:null,closed_at:null};
+   return {rows:[],rowCount:1};
   }
   if(sql.startsWith("INSERT INTO public.smn_capacity_replanning_history")){
    saved={confirmed_values:JSON.parse(String(args[5])) as ReplanningPreview,
@@ -75,7 +81,7 @@ function fixture(options:{manual?:number|null;actual?:number|null;frozen?:boolea
   return {fn,get calls(){return calls}};
  };
  return {db,queries,calc,get plan(){return plan},get saved(){return saved},
-  changeManual(value:number|null){row.manual_jh=value;row.revision++;}};
+  changeManual(value:number|null){if(row){row.manual_jh=value;row.revision++;}}};
 }
 describe("SMN-62 — prévisualiser une replanification sans écraser les capacités",()=>{
  it("AC1 — calcule Avant 30, Après 28, écart -2 sans écriture",async()=>{
@@ -91,6 +97,22 @@ describe("SMN-62 — prévisualiser une replanification sans écraser les capaci
   assert.ok(f.queries.every(s=>s.startsWith("SELECT")||
    s.startsWith("BEGIN")||s==="COMMIT"));
   assert.equal(f.plan,null);
+ });
+ it("période seulement calculée : aucune création au GET, source créée au POST",async()=>{
+  const f=fixture({noPeriod:true});
+  const before=await previewReplanning(f.db,dates,f.calc(30,28).fn);
+  assert.equal(before.ok,true);if(!before.ok)return;
+  assert.equal(before.preview.manualPlannedJh,null);
+  assert.equal(before.preview.referenceDeltaJh,-2);
+  assert.equal(f.queries.some(q=>q.includes("INSERT INTO")),false);
+  const outcome=await confirmReplanning(f.db,actor,{
+   ...dates,previewDigest:before.preview.previewDigest,revision:0,eventId
+  },f.calc(30,28).fn);
+  assert.equal(outcome.ok,true);
+  assert.equal(f.queries.filter(q=>q.startsWith(
+   "INSERT INTO public.smn_capacity_period_override")).length,1);
+  assert.equal(f.queries.some(q=>q.startsWith(
+   "UPDATE public.smn_capacity_initial_snapshot")),false);
  });
  it("AC2 — initiale figée 40 JH inchangée après confirmation et recalcul",async()=>{
   const f=fixture({frozen:true});
