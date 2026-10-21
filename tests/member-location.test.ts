@@ -83,6 +83,10 @@ describe("Localisation individuelle historisée et zones IANA",()=>{
   const nyAfter=formatMemberEvent("2026-03-08T07:30:00Z","America/New_York");
   assert.equal(nyBefore.parts.hour,"01");
   assert.equal(nyAfter.parts.hour,"03");
+  assert.throws(()=>formatMemberEvent("2026-02-30T12:00:00Z","Europe/Paris"),
+   /member-event-invalid-input/);
+  assert.throws(()=>formatMemberEvent("2026-03-29T01:30:00Z","Mars/Olympus_Mons"),
+   /member-event-invalid-input/);
  });
  it("insère une version dans une transaction sans mettre à jour les comptes, la langue ni les affectations",async()=>{
   const m=mock();
