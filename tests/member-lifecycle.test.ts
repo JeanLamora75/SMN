@@ -38,7 +38,7 @@ describe("Clôture, archivage et conservation de l'historique",()=>{
   assert.equal(parseLifecycleAction({action:"delete",revision:2,confirmation:"non"}),null);
  });
  it("clôture sans effacer les versions; signale une équipe de deux",async()=>{
-  const f=fake();
+  const f=fake({count:2});
   const result=await applyLifecycleAction(f.db,memberId,"admin",
    {action:"close",assignmentId,endOn:"2026-10-21",revision:2});
   assert.equal(result.ok,true);
