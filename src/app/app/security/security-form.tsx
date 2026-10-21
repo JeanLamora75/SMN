@@ -1,6 +1,7 @@
 "use client";
 import { useState, type FormEvent } from "react";
 import {useTranslation} from "@/i18n/client";
+import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 export default function SecurityForm() {
   const t=useTranslation();
   const [current,setCurrent]=useState("");
@@ -23,7 +24,10 @@ export default function SecurityForm() {
     }catch{setError(true);setMessage(t("security.network"));}
     finally{setBusy(false);}
   }
+  const dirty=!!(current||phrase||confirm);
+  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
   return <form onSubmit={submit} className="d-grid gap-3" aria-describedby={message?"security-feedback":undefined}>
+    {dirty&&<p role="status" className="alert alert-warning mb-0">{t("draft.pending")}</p>}
     <label>{t("security.current")}
       <input type="password" className="form-control" autoComplete="current-password" value={current}
         onChange={e=>setCurrent(e.target.value)} required disabled={busy}/>

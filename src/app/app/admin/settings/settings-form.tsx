@@ -3,6 +3,7 @@ import { useCallback,useEffect,useState,type FormEvent } from "react";
 import {useRouter} from "next/navigation";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {type Palette} from "@/lib/appearance";
+import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 type Settings={
   locale:"fr"|"en";theme:"light"|"dark";palette:Palette;referenceCountry:string|null;
   revision:number;updatedAt:string;mode:"scrum"|"kanban";product:string;
@@ -57,7 +58,13 @@ export default function SettingsForm() {
     finally{setBusy(false);}
   }
   const dirty=!!saved&&(locale!==saved.locale||theme!==saved.theme||palette!==saved.palette||country!==(saved.referenceCountry??""));
+  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
+  const discardAndReload=()=>{
+    if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+    void reload();
+  };
   return <div className="d-grid gap-4">
+    {dirty&&<p role="status" className="alert alert-warning mb-0">{t("draft.pending")}</p>}
     {loaded&&saved&&<form onSubmit={submit} className="smn-panel p-4 d-grid gap-4" aria-describedby={error?"settings-feedback":undefined}>
       <section>
         <h2 className="h5">{t("settings.fixed")}</h2>
@@ -107,7 +114,7 @@ export default function SettingsForm() {
       <p className="small text-secondary mb-0">{t("settings.displayInfo")}</p>
       <div className="d-flex gap-2 flex-wrap">
         <button type="submit" className="btn btn-primary" disabled={busy||!dirty}>{t(busy?"settings.saving":"settings.save")}</button>
-        <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>void reload()}>{t("settings.reload")}</button>
+        <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={discardAndReload}>{t("settings.reload")}</button>
       </div>
       <p className="small text-secondary mb-0">{t("settings.revision",{revision:saved.revision,
         date:new Date(saved.updatedAt).toLocaleString(currentLocale==="en"?"en-GB":"fr-FR")})}</p>
