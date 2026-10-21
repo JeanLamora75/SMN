@@ -64,22 +64,28 @@ export default function PrivateShell({children,username,role,mode,product,team,t
           <div className="smn-header-field smn-header-team">
             <label htmlFor="smn-current-team">{t("dashboard.shell.team")}</label>
             <select id="smn-current-team" className="form-select form-select-sm"
-              value={teamId??""} disabled title={t("dashboard.shell.singleTeam")}>
+              value={teamId??""} disabled title={t("dashboard.shell.singleTeam")}
+              aria-describedby="smn-team-help">
               <option value={teamId??""}>{team??t("dashboard.shell.noTeam")}</option>
             </select>
+            <span id="smn-team-help" className="visually-hidden">{t("dashboard.shell.singleTeam")}</span>
           </div>
           <div className="smn-header-field smn-header-cycle">
             <label htmlFor="smn-current-cycle">{t(cycleLabel)}</label>
             <select id="smn-current-cycle" className="form-select form-select-sm"
-              value="" disabled title={t("dashboard.shell.noCycle")}>
+              value="" disabled title={t("dashboard.shell.noCycle")}
+              aria-describedby="smn-cycle-help">
               <option value="">{t("dashboard.shell.noCycle")}</option>
             </select>
+            <span id="smn-cycle-help" className="visually-hidden">{t("dashboard.shell.noCycle")}</span>
           </div>
           <div className="smn-header-field smn-header-search">
             <label htmlFor="smn-global-search">{t("dashboard.shell.search")}</label>
             <input id="smn-global-search" type="search" className="form-control form-control-sm"
               disabled placeholder={t("dashboard.shell.searchUnavailable")}
-              title={t("dashboard.shell.searchUnavailable")}/>
+              title={t("dashboard.shell.searchUnavailable")}
+              aria-describedby="smn-search-help"/>
+            <span id="smn-search-help" className="visually-hidden">{t("dashboard.shell.searchUnavailable")}</span>
           </div>
         </div>
         <div className="smn-header-account">
