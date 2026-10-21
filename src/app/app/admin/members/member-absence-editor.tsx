@@ -153,6 +153,7 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange,o
       <p className="mb-1">{t("regionalAbsence.unknownAvailability")}</p>:null}
     <p className="text-secondary mb-0">{t("regionalAbsence.capacityPending")}</p>
    </div>}
+   <p className="small text-secondary">{t("prefill.noInventedAbsence")}</p>
    <form onSubmit={save} className="d-grid gap-3">
     <h5 className="h6">{t(form.id?"members.absence.editTitle":"members.absence.newTitle")}</h5>
     <div className="row g-2">
