@@ -3,6 +3,7 @@ import {describe,it} from "node:test";
 import type {Client} from "pg";
 import {COUNTRY_SEEDS,parseCountryInput,listCountries,createCountry} from "../src/server/countries/catalog";
 import {COUNTRIES_MIGRATION_SQL} from "../src/server/countries/migration";
+import {canAccess} from "../src/server/access-policy";
 
 function dbFixture(options:{existing?:boolean;fail?:boolean}={}){
  const sql:string[]=[],params:unknown[][]=[];
@@ -43,6 +44,13 @@ describe("Catalogue des pays initiaux",()=>{
   assert.equal(rows.length,7);
   assert.deepEqual(rows.map(r=>r.code),["CA","DE","ES","FR","GB","IT","PT"]);
   assert.ok(rows.every(r=>r.nationalCalendar.status==="not-configured"&&r.nationalCalendar.holidays===null));
+ });
+ it("écriture de référentiel interdite au rôle Utilisateur",()=>{
+  const resource={type:"settings",exists:true,inScope:true};
+  assert.equal(canAccess({role:"user",is_active:true,must_change_password:false},
+   "write",resource),false);
+  assert.equal(canAccess({role:"admin",is_active:true,must_change_password:false},
+   "write",resource),true);
  });
  it("création atomique sans obligation de fichier férié",async()=>{
   const f=dbFixture();
