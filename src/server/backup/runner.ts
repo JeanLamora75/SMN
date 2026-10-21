@@ -83,8 +83,9 @@ async function readLast(root:string):Promise<BackupState["last"]>{
 export async function backupState():Promise<BackupState>{
  const root=backupRootPath();
  try{await privateFolder(root);}catch{return {needsRecoveryPhrase:true,last:null};}
- const key=await loadKey(root);
- return {needsRecoveryPhrase:key===null,last:await readLast(root)};
+ let hasKey=false;
+ try{hasKey=(await loadKey(root))!==null;}catch{/* Inventaire accessible même si la clé locale est endommagée. */}
+ return {needsRecoveryPhrase:!hasKey,last:await readLast(root)};
 }
 /** Publication atomique : un répertoire .partial n'est jamais une sauvegarde réussie. */
 export async function createManualBackup(actor:Admin,phrase?:string):Promise<PublicBackupResult>{
