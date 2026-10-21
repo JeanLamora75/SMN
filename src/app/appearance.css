@@ -94,3 +94,12 @@ a:not(.btn) {color:var(--smn-link);}
 [data-bs-theme="dark"] .smn-account-dot {background:#49d9a9;}
 [data-bs-theme="dark"] .smn-dashboard-card .alert,
 [data-bs-theme="dark"] .smn-panel .alert {color:var(--bs-alert-color);}
+
+/* Composants Bootstrap qui utilisent les tokens RGB plutôt que les valeurs CSS directes. */
+[data-bs-theme="light"][data-smn-palette="ocean"] {--bs-primary-rgb:21,77,141;--bs-link-color-rgb:21,77,141;}
+[data-bs-theme="light"][data-smn-palette="forest"] {--bs-primary-rgb:8,102,83;--bs-link-color-rgb:8,102,83;}
+[data-bs-theme="light"][data-smn-palette="violet"] {--bs-primary-rgb:96,55,167;--bs-link-color-rgb:96,55,167;}
+[data-bs-theme="dark"][data-smn-palette="ocean"] {--bs-primary-rgb:144,189,251;--bs-link-color-rgb:166,203,255;}
+[data-bs-theme="dark"][data-smn-palette="forest"] {--bs-primary-rgb:134,226,196;--bs-link-color-rgb:156,235,210;}
+[data-bs-theme="dark"][data-smn-palette="violet"] {--bs-primary-rgb:198,176,255;--bs-link-color-rgb:209,191,255;}
+html {--bs-focus-ring-color:var(--smn-focus);}
