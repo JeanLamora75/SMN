@@ -1171,5 +1171,25 @@
     "memberCountry": "Member country not known for this date.",
     "nationalCoverage": "National holiday coverage insufficient or unknown.",
     "disclaimer": "Availability × allocation rate × Developer role share × contribution coefficient. Contract rate is not multiplied again because it already bounds allocation. Story Points are never converted to person-days, nor are Sprints or Kanban indicators created automatically."
+  },
+  "manualCapacity": {
+    "retained": "Retained capacity",
+    "reference": "Calculated reference",
+    "provenance": "Source",
+    "sourceManual": "Manual entry",
+    "sourceCalculated": "Calculated",
+    "sourceUnknown": "Not calculable",
+    "editTitle": "Manual capacity override",
+    "input": "Manual capacity (person-days)",
+    "empty": "Empty = no manual override",
+    "zeroHint": "0 person-days is a valid explicit value. To return to calculated mode, use 'Clear manual entry': emptying the input text is not enough.",
+    "save": "Save manual entry",
+    "clear": "Clear manual entry",
+    "saved": "Manual capacity saved; it remains authoritative when the reference is recalculated.",
+    "cleared": "Manual entry cleared and audited. The calculated reference is used again if reliable.",
+    "protected": "Period closed or initial capacity frozen: direct editing is blocked. Use the authorized reopening or historical-adjustment workflow once available.",
+    "invalid": "Enter a nonnegative number of person-days with up to 4 decimal places; the field cannot be blank.",
+    "conflict": "This period changed since you opened it. Recalculate to load the current revision.",
+    "failed": "Unable to confirm the save. Reload the period before trying again."
   }
 }
