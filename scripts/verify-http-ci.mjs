@@ -371,6 +371,65 @@ try {
      [assignmentBefore.assignmentId]
     )).rows[0].count)),2);
     // Availability is absent until explicitly saved; suggested Mon-Fri is not actual absence/capacity data.
+    const locationPath=id=>"/api/admin/members/"+encodeURIComponent(id)+"/location";
+    const locationRead=(id,cookie=replacement,suffix="")=>get(locationPath(id)+suffix,{
+      headers:cookie?{Cookie:cookie}:{}});
+    const locationWrite=(id,payload,cookie=replacement)=>
+      postAuth(locationPath(id),payload,cookie);
+    assert.equal((await locationRead(memberWithRoles.id,"")).status,403);
+    const locationInitial=await (await locationRead(memberWithRoles.id)).json();
+    assert.equal(locationInitial.configured,false);
+    assert.equal(locationInitial.effective,null);
+    assert.equal(locationInitial.display,null);
+    assert.equal(locationInitial.regionalHolidayAuto,false);
+    assert.equal(locationInitial.holidayDataAvailable,false);
+    const initialLocation={countryIso2:"FR",region:"Île-de-France",city:"Paris",
+      timeZone:"Europe/Paris",effectiveFrom:locationInitial.today,revision:0};
+    assert.equal((await locationWrite(memberWithRoles.id,{
+      ...initialLocation,countryIso2:"XXX"
+    })).status,400);
+    assert.equal((await locationWrite(memberWithRoles.id,{
+      ...initialLocation,timeZone:"Mars/Olympus_Mons"
+    })).status,400);
+    const savedLocation=await locationWrite(memberWithRoles.id,initialLocation);
+    assert.equal(savedLocation.status,201);
+    assert.equal((await savedLocation.json()).revision,1);
+    assert.equal((await locationWrite(memberWithRoles.id,initialLocation)).status,409);
+    const memberLocation=(await (await locationRead(memberWithRoles.id)).json());
+    assert.equal(memberLocation.current.countryIso2,"FR");
+    assert.equal(memberLocation.current.timeZone,"Europe/Paris");
+    assert.equal(memberLocation.versions.length,1);
+    const dstYear=Number(locationInitial.today.slice(0,4))+1;
+    const marchEnd=new Date(Date.UTC(dstYear,2,31));
+    marchEnd.setUTCDate(marchEnd.getUTCDate()-marchEnd.getUTCDay());
+    const dstDay=marchEnd.toISOString().slice(0,10);
+    const beforeDst=dstDay+"T00:30:00Z",afterDst=dstDay+"T01:30:00Z";
+    const before=(await (await locationRead(memberWithRoles.id,replacement,
+      "?at="+encodeURIComponent(beforeDst))).json()).display;
+    const after=(await (await locationRead(memberWithRoles.id,replacement,
+      "?at="+encodeURIComponent(afterDst))).json()).display;
+    assert.equal(before.parts.hour,"01");
+    assert.equal(after.parts.hour,"03");
+    assert.equal(after.utc,afterDst.slice(0,-1)+".000Z");
+    const switchDate=new Date(locationInitial.today+"T00:00:00Z");
+    switchDate.setUTCDate(switchDate.getUTCDate()+7);
+    const futureLocationDate=switchDate.toISOString().slice(0,10);
+    assert.equal((await locationWrite(memberWithRoles.id,{
+      ...initialLocation,revision:1,effectiveFrom:futureLocationDate,
+      countryIso2:"CA",region:"Québec",city:"Montréal",timeZone:"America/Toronto"
+    })).status,201);
+    const oldLocation=(await (await locationRead(memberWithRoles.id,replacement,
+      "?onDate="+locationInitial.today)).json());
+    const newLocation=(await (await locationRead(memberWithRoles.id,replacement,
+      "?onDate="+futureLocationDate)).json());
+    assert.equal(oldLocation.effective.countryIso2,"FR");
+    assert.equal(newLocation.effective.countryIso2,"CA");
+    assert.equal(oldLocation.versions.length,2);
+    assert.equal(oldLocation.current.countryIso2,"FR");
+    assert.equal((await withDb(async c=>(await c.query(
+     "SELECT count(*)::int AS count FROM public.smn_member_location WHERE member_id=$1",
+     [memberWithRoles.id]
+    )).rows[0].count)),2);
     const calendarPath=id=>"/api/admin/members/"+encodeURIComponent(id)+"/calendar";
     const calendarRead=(id,cookie=replacement,suffix="")=>get(calendarPath(id)+suffix,{
       headers:cookie?{Cookie:cookie}:{}});
@@ -778,6 +837,10 @@ try {
     assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/members",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await getVersions(userReady)).status,403);
+    assert.equal((await locationRead(memberWithRoles.id,userReady)).status,403);
+    assert.equal((await locationWrite(memberWithRoles.id,{
+      ...initialLocation,revision:2,effectiveFrom:futureLocationDate
+    },userReady)).status,403);
     assert.equal((await calendarRead(memberWithRoles.id,userReady)).status,403);
     assert.equal((await calendarWrite(memberWithRoles.id,{action:"weekly",revision:2,
       effectiveFrom:futureFrom,days:futureDays},userReady)).status,403);
