@@ -20,7 +20,8 @@ const EVENT_REASONS:Record<string,string>={
  "multi-day-or-invalid-end":"ics.multiday",
  "invalid-end":"ics.multiday",
  "invalid-name":"ics.noName",
- "malformed-event":"ics.malformed"
+ "malformed-event":"ics.malformed",
+ "nested-component":"ics.nested"
 };
 const CSV_REASONS:Record<string,string>={
  "duplicate-in-file":"countries.csvReasonDuplicate",
