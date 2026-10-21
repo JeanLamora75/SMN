@@ -1363,5 +1363,31 @@
       "cancelled": "Annulée (statut enregistré)",
       "unknown": "Statut non renseigné"
     }
+  },
+  "scrumCadence": {
+    "title": "Cadence de l’équipe Scrum",
+    "intro": "Définissez la cadence des prochains Sprints. Les Sprints déjà enregistrés, même futurs, conservent leurs dates.",
+    "weeks": "Durée du Sprint (semaines)",
+    "startDay": "Jour de début",
+    "startTime": "Heure de début",
+    "endDay": "Jour de fin",
+    "endTime": "Heure de fin",
+    "timeZone": "Fuseau IANA de l’équipe",
+    "futureOnly": "Ces paramètres s'appliquent uniquement aux Sprints créés après la modification.",
+    "save": "Enregistrer la cadence",
+    "saved": "Cadence enregistrée.",
+    "revision": "Révision {revision}",
+    "loadError": "Chargement des paramètres impossible.",
+    "saveError": "Impossible d’enregistrer la cadence. Vérifiez les jours et les horaires.",
+    "conflict": "Ces paramètres ont été modifiés. Rechargez la page.",
+    "days": {
+      "1": "Lundi",
+      "2": "Mardi",
+      "3": "Mercredi",
+      "4": "Jeudi",
+      "5": "Vendredi",
+      "6": "Samedi",
+      "7": "Dimanche"
+    }
   }
 }
