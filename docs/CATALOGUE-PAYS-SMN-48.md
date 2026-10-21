@@ -14,9 +14,9 @@ L'indication **« Calendrier national : Non configuré »** signifie qu'aucune s
 
 ## État technique et recette
 
-Le développement se trouve sur la branche `feat/smn-48-country-catalog` et n'est **pas fusionné sur main** tant que la sonde d'installation et sa liste de tables autorisées n'auront pas été adaptées à la migration v15. Ces mises à jour ont été bloquées par l'outil d'édition du dépôt.
+Les contrôles d'installation prennent désormais en compte la table `smn_country` et le schéma PostgreSQL v15. La publication du code ne vaut pas validation des tests : les pipelines de vérification échouent avant le démarrage de leurs étapes. La recette sur poste Windows/PostgreSQL 18.6 reste obligatoire.
 
-Une fois ces prérequis résolus, faire la recette sur PostgreSQL 18.6 pilote (jamais sur une base importante sans sauvegarde/restauration qualifiée), puis exécuter :
+Après récupération de `main`, faire la recette sur PostgreSQL 18.6 pilote (jamais sur une base importante sans sauvegarde/restauration qualifiée), puis exécuter :
 
 ```powershell
 pnpm i18n:check
