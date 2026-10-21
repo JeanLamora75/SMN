@@ -53,6 +53,8 @@ describe("SMN-28 — brouillons, sauvegardes explicites et sécurité",()=>{
     const guard=source("src/app/app/use-unsaved-changes.ts");
     assert.match(guard,/addEventListener\("beforeunload"/);
     assert.match(guard,/addEventListener\("click",links,true\)/);
+    assert.match(guard,/data-smn-navigation-action/);
+    assert.match(source("src/app/app/logout-control.tsx"),/data-smn-navigation-action="logout"/);
     assert.match(guard,/window\.confirm\(warning\)/);
     assert.match(guard,/event\.preventDefault\(\)/);
     assert.doesNotMatch(guard,/localStorage|sessionStorage|document\.cookie/);

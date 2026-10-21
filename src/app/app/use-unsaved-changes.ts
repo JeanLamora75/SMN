@@ -9,7 +9,9 @@ import {useEffect} from "react";
 export function useUnsavedChanges(dirty:boolean,warning:string):void{
   useEffect(()=>{
     if(!dirty)return;
+    let approvedLogout=false;
     const before=(event:BeforeUnloadEvent)=>{
+      if(approvedLogout)return;
       event.preventDefault();
       event.returnValue="";
     };
@@ -17,6 +19,12 @@ export function useUnsavedChanges(dirty:boolean,warning:string):void{
       if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||
         event.shiftKey||event.altKey)return;
       if(!(event.target instanceof Element))return;
+      const logout=event.target.closest('[data-smn-navigation-action="logout"]');
+      if(logout){
+        if(window.confirm(warning)){approvedLogout=true;return;}
+        event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+        return;
+      }
       const anchor=event.target.closest("a[href]");
       if(!(anchor instanceof HTMLAnchorElement)||anchor.target==="_blank"||anchor.hasAttribute("download"))return;
       let next:URL;
