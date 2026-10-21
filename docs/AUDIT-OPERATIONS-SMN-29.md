@@ -8,7 +8,7 @@ Le journal est accessible uniquement à l'Administrateur depuis **Administration
 
 Sources unifiées, sans dupliquer leurs traces :
 - `smn_general_settings_audit` : modifications effectivement persistées des paramètres généraux et préférences de langue/apparence.
-- `smn_auth_audit` : changements de mot de passe, préparation/récupération du mécanisme de secours.
+- `smn_auth_audit` : premiers changements et renouvellements de mot de passe, préparation/récupération du mécanisme de secours.
 - **Nouvelle table** `smn_account_audit` : créations et changements de rôle/état actif des comptes, avec journalisation transactionnelle.
 
 Chaque entrée contient une **référence unique d'opération**, une date UTC, l'identifiant de l'auteur (ou inconnu si l'historique ne le permet plus), l'action, l'ID d'objet, le périmètre de l'installation, le résultat **Réussie** et les différences pertinentes parmi les champs autorisés. Seules les traces de succès ayant été effectivement validées sont persistées ; une erreur ou un refus ne donne jamais lieu à un faux événement de succès. Le journal n'est pas un enregistreur de tous les clics et consultations.
@@ -18,6 +18,7 @@ Chaque entrée contient une **référence unique d'opération**, une date UTC, l
 - L'API vérifie la session active et le rôle Administrateur côté serveur, par `authorizeApi`. La page répète ce contrôle et refuse l'accès à un Utilisateur ou à un visiteur.
 - Les anciens JSONB des paramètres et les nouveaux JSONB des comptes ne sont **jamais envoyés bruts**. Les différences sont projetées par liste blanche : rôle, état d'accès, langue, thème, palette, pays de référence. Rien concernant adresse e-mail, mot de passe, empreinte de mot de passe, phrase de secours, jeton ou URL privée.
 - La base n'a pas de colonne secrète dans `smn_account_audit` ; les références concernent un ID de compte, jamais un nom d'utilisateur ou une adresse de contact.
+- Le changement initial de mot de passe écrit aussi un événement `password_changed` dans la transaction avant validation, sans stocker le secret.
 - Les créations et mises à jour de comptes utilisent `BEGIN` / `COMMIT` pour **l'opération et son audit** ; en cas d'échec de l'audit, `ROLLBACK` annule les deux.
 - Les requêtes refusées ou invalides ne créent aucun audit de réussite ; un changement réellement nul n'ajoute pas d'événement.
 - Les erreurs de lecture renvoient un état générique et ne journalisent aucun secret.
