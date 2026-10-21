@@ -11,7 +11,7 @@ const initial={memberId,teamId:"team",effectiveFrom:"2026-10-22",contractPercent
 const row={id:"assignment-one",member_id:memberId,team_id:"team",start_on:"2026-10-20",end_on:null};
 const version={revision:1,effective_from:"2026-10-20",contract_percent:100,allocation_percent:100,
  contribution_percent:100,scrum_master_percent:100,product_owner_percent:0,developer_percent:0};
-function dbFixture(options:{missing?:boolean;noAssignment?:boolean;conflict?:boolean;failWrite?:boolean}={}){
+function dbFixture(options:{missing?:boolean;noAssignment?:boolean;conflict?:boolean;future?:boolean;failWrite?:boolean}={}){
  const queries:string[]=[],params:unknown[][]=[];
  const db={query:async(sql:string,values:unknown[]=[])=>{
   queries.push(sql);params.push(values);
@@ -22,7 +22,7 @@ function dbFixture(options:{missing?:boolean;noAssignment?:boolean;conflict?:boo
    return {rows:options.noAssignment?[]:[row],rowCount:options.noAssignment?0:1};
   if(sql.includes("FROM public.smn_member_assignment_version WHERE assignment_id=$1")){
    if(options.noAssignment)return {rows:[],rowCount:0};
-   return {rows:[{...version,revision:options.conflict?2:1}],rowCount:1};
+   return {rows:[{...version,revision:options.conflict?2:1,effective_from:options.future?"2026-11-01":version.effective_from}],rowCount:1};
   }
   if(sql.includes("INSERT INTO public.smn_member_assignment_version")){
    if(options.failWrite)throw new Error("db-write-failed");
@@ -103,12 +103,11 @@ describe("Affectations et rôles Agile à effet daté",()=>{
    assert.ok(!trace.queries.some(q=>q.includes("INSERT INTO public.smn_member_assignment_version")));
   }
  });
- it("refuse une réécriture antérieure à une version future déjà publiée",async()=>{
-  const f=dbFixture();
-  const result=await saveMemberAssignment(f.db,memberId,"actor",{...initial,effectiveFrom:"2026-10-21"});
-  assert.equal(result.ok,true);
-  const original=dbFixture({conflict:true});
-  assert.deepEqual(await saveMemberAssignment(original.db,memberId,"actor",initial),{ok:false,error:"conflict"});
+ it("refuse une date antérieure à la dernière version future",async()=>{
+  const f=dbFixture({future:true});
+  const result=await saveMemberAssignment(f.db,memberId,"actor",initial);
+  assert.deepEqual(result,{ok:false,error:"date-before-latest"});
+  assert.equal(f.queries.at(-1),"ROLLBACK");
  });
  it("erreur SQL => ROLLBACK atomique",async()=>{
   const f=dbFixture({failWrite:true});
