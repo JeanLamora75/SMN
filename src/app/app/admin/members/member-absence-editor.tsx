@@ -143,10 +143,11 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange}:
      <p className="mb-1">{t("regionalAbsence.nationalHoliday",{name:data.dayAvailability.nationalHolidayName??""})}</p>}
     {data.dayAvailability.nationalOverlap&&
      <p className="mb-1">{t("regionalAbsence.notDoubleCounted")}</p>}
-    {data.dayAvailability.status==="known"&&data.dayAvailability.deductedHalfDays!==null?
+    {data.dayAvailability.assignmentApplicable&&data.dayAvailability.status==="known"&&data.dayAvailability.deductedHalfDays!==null?
      <p className="mb-1">{t("regionalAbsence.unavailableHalfDays",{
       count:data.dayAvailability.deductedHalfDays})}</p>:
-     <p className="mb-1">{t("regionalAbsence.unknownAvailability")}</p>}
+     data.dayAvailability.assignmentApplicable?
+      <p className="mb-1">{t("regionalAbsence.unknownAvailability")}</p>:null}
     <p className="text-secondary mb-0">{t("regionalAbsence.capacityPending")}</p>
    </div>}
    <form onSubmit={save} className="d-grid gap-3">
