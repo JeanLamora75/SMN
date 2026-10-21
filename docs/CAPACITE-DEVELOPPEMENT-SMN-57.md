@@ -8,6 +8,8 @@ La [prévisualisation de replanification SMN-62](REPLANIFICATION-CAPACITE-SMN-62
 
 Le [préremplissage prudent SMN-63](PREFILL-FORMULAIRES-SMN-63.md) laisse les périodes métier inconnues vides et empêche les réglages de faire perdre un brouillon de capacité manuelle.
 
+L'[agenda central SMN-64](CALENDRIER-CENTRAL-SMN-64.md) affiche les indisponibilités et fermetures réellement connues sans transformer les périodes de capacité en cycles Scrum/Kanban fictifs.
+
 ## Utilisation
 
 Ouvrir **Calendrier d'équipe → Calculer la capacité en JH** comme Administrateur. Sélectionner une période de **1 à 93 jours** et cliquer sur **Calculer la capacité**. Le résultat affiche la contribution de chaque membre, le total et le détail journalier.
