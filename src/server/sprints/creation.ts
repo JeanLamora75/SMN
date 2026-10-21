@@ -80,7 +80,8 @@ async function latest(db:Client,teamId:string){
  const count=await db.query<{next_number:number}>("SELECT COALESCE(MAX(number),0)+1 AS next_number FROM public.smn_sprint WHERE team_id=$1",[teamId]);
  return {last:r.rows[0]??null,nextNumber:count.rows[0]?.next_number??1};
 }
-const suggest=(startOn:string,endOn:string)=>`Sprint ${startOn} — ${endOn}`;
+const formatSprintDate=(value:string)=>`${value.slice(8,10)}/${value.slice(5,7)}/${value.slice(0,4)}`;
+const suggest=(startOn:string,endOn:string)=>`Sprint du ${formatSprintDate(startOn)} au ${formatSprintDate(endOn)}`;
 export async function sprintProposal(db:Client,startOn?:string){
  await ensureSprintSchema(db);
  const {teamId,cadence}=await context(db);

@@ -1425,5 +1425,17 @@
     "stale": "Aperçu expiré ou devenu obsolète. Recalculez-le avant confirmation.",
     "history": "Historique des lots",
     "emptyHistory": "Aucun lot généré."
+  },
+  "sprintRename": {
+    "title": "Renommer un Sprint",
+    "select": "Sprint existant",
+    "choose": "Choisir un Sprint",
+    "name": "Nouveau nom",
+    "duplicate": "Un autre Sprint de cette équipe porte déjà ce nom. L'enregistrement reste autorisé.",
+    "save": "Enregistrer le nom",
+    "saved": "Nom modifié et action auditée.",
+    "savedDuplicate": "Nom modifié et audité. Attention : un autre Sprint porte le même nom.",
+    "loadError": "Chargement des Sprints impossible.",
+    "saveError": "Impossible d'enregistrer le nouveau nom."
   }
 }
