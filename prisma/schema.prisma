@@ -43,6 +43,8 @@ model SmnTeam {
   historicalQualities SmnCapacityHistoricalQuality[]
   scrumCadence SmnScrumCadence?
   sprints SmnSprint[]
+  sprintBatchPreviews SmnSprintBatchPreview[]
+  sprintBatchAudits SmnSprintBatchAudit[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -630,4 +632,28 @@ model SmnSprintAudit {
  details Json @db.JsonB
  sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
  @@map("smn_sprint_audit")
+}
+
+model SmnSprintBatchPreview {
+ token String @id
+ teamId String @map("team_id")
+ actorId String @map("actor_id")
+ startOn DateTime @map("start_on") @db.Date
+ count Int
+ digest String
+ expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+ consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_batch_preview")
+}
+model SmnSprintBatchAudit {
+ id String @id
+ teamId String @map("team_id")
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ cadence Json @db.JsonB
+ sprints Json @db.JsonB
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_batch_audit")
 }
