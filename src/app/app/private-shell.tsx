@@ -60,7 +60,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
             <span className="smn-brand-name">Scrum Master <strong>Notebook</strong></span>
           </Link>
         </div>
-        <div className="smn-header-controls" aria-label={t("dashboard.shell.contextControls")}>
+        <div className="smn-header-controls" role="group" aria-label={t("dashboard.shell.contextControls")}>
           <div className="smn-header-field smn-header-team">
             <label htmlFor="smn-current-team">{t("dashboard.shell.team")}</label>
             <select id="smn-current-team" className="form-select form-select-sm"
