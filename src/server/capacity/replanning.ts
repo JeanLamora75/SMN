@@ -78,7 +78,7 @@ function reference(r:CapacityReport):Reference{
   missing:[...new Set(r.missing.map(x=>x.source))]};
 }
 const digest=(payload:unknown)=>createHash("sha256").update(JSON.stringify(payload)).digest("hex");
-type Context={teamId:string;origin:PeriodRow;plan:PlanningRow|null;
+type Context={teamId:string;origin:PeriodRow|null;plan:PlanningRow|null;
  initialJh:number|null;initialSource:string|null;actualManualJh:number|null;
  targetOccupied:boolean};
 async function load(db:Client,dates:Dates,lock:boolean):
@@ -87,18 +87,18 @@ async function load(db:Client,dates:Dates,lock:boolean):
  if(teams.rows.length!==1)throw Error("replanning-team-unavailable");
  const teamId=teams.rows[0].id;
  const origin=(await db.query<PeriodRow>(originSql+(lock?" FOR UPDATE":" LIMIT 1"),
-  [teamId,dates.oldStart,dates.oldEnd])).rows[0];
- if(!origin)return null;
+  [teamId,dates.oldStart,dates.oldEnd])).rows[0]??null;
  const [plan,initial,actual,target]=await Promise.all([
-  db.query<PlanningRow>(plannedSql+(lock?" FOR UPDATE":" LIMIT 1"),[origin.id]),
-  db.query<{initial_jh:number|null;provenance:string}>([
+  origin?db.query<PlanningRow>(plannedSql+(lock?" FOR UPDATE":" LIMIT 1"),[origin.id]):
+   Promise.resolve({rows:[] as PlanningRow[]}),
+  origin?db.query<{initial_jh:number|null;provenance:string}>([
    "SELECT initial_jh::float8 AS initial_jh,provenance",
    "FROM public.smn_capacity_initial_snapshot WHERE period_id=$1 LIMIT 1"
-  ].join(" "),[origin.id]),
-  db.query<{manual_jh:number|null}>([
+  ].join(" "),[origin.id]):Promise.resolve({rows:[] as {initial_jh:number|null;provenance:string}[]}),
+  origin?db.query<{manual_jh:number|null}>([
    "SELECT manual_jh::float8 AS manual_jh",
    "FROM public.smn_capacity_actual_override WHERE period_id=$1 LIMIT 1"
-  ].join(" "),[origin.id]),
+  ].join(" "),[origin.id]):Promise.resolve({rows:[] as {manual_jh:number|null}[]}),
   db.query<{id:string}>([
    "SELECT id FROM public.smn_capacity_period_override",
    "WHERE team_id=$1 AND start_on=$2::date AND end_on=$3::date LIMIT 1"
@@ -108,7 +108,7 @@ async function load(db:Client,dates:Dates,lock:boolean):
   initialJh:initial.rows[0]?.initial_jh??null,
   initialSource:initial.rows[0]?.provenance??null,
   actualManualJh:actual.rows[0]?.manual_jh??null,
-  targetOccupied:target.rows.length>0&&target.rows[0].id!==origin.id};
+  targetOccupied:target.rows.length>0&&target.rows[0].id!==origin?.id};
 }
 async function compute(db:Client,dates:Dates,ctx:Context,
  calculate:(db:Client,start:string,end:string,options:{externalTransaction:true})=>
@@ -122,28 +122,28 @@ async function compute(db:Client,dates:Dates,ctx:Context,
  const before=reference(current),after=reference(future);
  const same=dates.oldStart===dates.newStart&&dates.oldEnd===dates.newEnd;
  const blockers:ReplanningPreview["blockers"]=[];
- if(ctx.origin.closed_at)blockers.push("closed");
+ if(ctx.origin?.closed_at)blockers.push("closed");
  if(ctx.targetOccupied)blockers.push("target-in-use");
  if(same)blockers.push("same-period");
  if(before.jh===null||after.jh===null)blockers.push("missing-reference");
- const manual=ctx.origin.manual_jh;
+ const manual=ctx.origin?.manual_jh??null;
  const retainedBefore=manual!==null?manual:before.jh;
  // This is a PROPOSAL only: no manual value is copied to the target row.
  const proposedAfter=manual!==null?manual:after.jh;
- const facts={dates,teamId:ctx.teamId,originId:ctx.origin.id,
-  originRevision:ctx.origin.revision,originalClosed:Boolean(ctx.origin.closed_at),
+ const facts={dates,teamId:ctx.teamId,originId:ctx.origin?.id??null,
+  originRevision:ctx.origin?.revision??0,originalClosed:Boolean(ctx.origin?.closed_at),
   initialJh:ctx.initialJh,initialSource:ctx.initialSource,
   actualManualJh:ctx.actualManualJh,manual,planRevision:ctx.plan?.revision??0,
   planTarget:ctx.plan?{
    start:ctx.plan.target_start_on,end:ctx.plan.target_end_on
   }:null,occupied:ctx.targetOccupied,before,after};
  return {...dates,teamId:ctx.teamId,revision:ctx.plan?.revision??0,
-  originRevision:ctx.origin.revision,previewDigest:digest(facts),
+  originRevision:ctx.origin?.revision??0,previewDigest:digest(facts),
   before,after,referenceDeltaJh:capacityDelta(before.jh,after.jh),
   manualPlannedJh:manual,manualActualJh:ctx.actualManualJh,
   retainedBeforeJh:retainedBefore,proposedRetainedAfterJh:proposedAfter,
   initialFrozenJh:ctx.initialJh,initialFrozenSource:ctx.initialSource,
-  originalClosed:Boolean(ctx.origin.closed_at),targetOccupied:ctx.targetOccupied,
+  originalClosed:Boolean(ctx.origin?.closed_at),targetOccupied:ctx.targetOccupied,
   canConfirm:blockers.length===0,blockers};
 }
 export async function previewReplanning(db:Client,raw:unknown,
@@ -154,7 +154,6 @@ export async function previewReplanning(db:Client,raw:unknown,
  await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  try{
   const ctx=await load(db,dates,false);
-  if(!ctx){await db.query("ROLLBACK");return {ok:false,error:"period-not-found"};}
   const preview=await compute(db,dates,ctx,calculate);
   await db.query("COMMIT");
   return {ok:true,preview};
@@ -178,7 +177,6 @@ export async function confirmReplanning(db:Client,actorId:string,raw:unknown,
    await db.query("ROLLBACK");return {ok:false,error};
   };
   const ctx=await load(db,value,true);
-  if(!ctx)return fail("period-not-found");
   const replay=await db.query<EventRow>([
    "SELECT h.confirmed_values,p.period_id FROM public.smn_capacity_replanning_history h",
    "JOIN public.smn_capacity_replanning p ON p.id=h.replanning_id",
@@ -186,7 +184,7 @@ export async function confirmReplanning(db:Client,actorId:string,raw:unknown,
   ].join(" "),[value.eventId]);
   if(replay.rows[0]){
    const stored=replay.rows[0];
-   if(stored.period_id!==ctx.origin.id||
+   if(stored.period_id!==ctx.origin?.id||
     stored.confirmed_values.newStart!==value.newStart||
     stored.confirmed_values.newEnd!==value.newEnd)
     return fail("conflict");
@@ -202,6 +200,16 @@ export async function confirmReplanning(db:Client,actorId:string,raw:unknown,
   if(!preview.canConfirm)return fail("not-calculable");
   if(preview.previewDigest!==value.previewDigest)return fail("conflict");
   const nextRevision=value.revision+1;
+  // A computed-only period has no persistence row until an actual confirmation.
+  let originalPeriodId=ctx.origin?.id;
+  if(!originalPeriodId){
+   originalPeriodId=randomUUID();
+   await db.query([
+    "INSERT INTO public.smn_capacity_period_override",
+    "(id,team_id,start_on,end_on,manual_jh,revision)",
+    "VALUES($1,$2,$3::date,$4::date,NULL,1)"
+   ].join(" "),[originalPeriodId,ctx.teamId,value.oldStart,value.oldEnd]);
+  }
   const id=ctx.plan?.id??randomUUID();
   if(ctx.plan){
    const updated=await db.query([
@@ -215,7 +223,7 @@ export async function confirmReplanning(db:Client,actorId:string,raw:unknown,
     "INSERT INTO public.smn_capacity_replanning",
     "(id,period_id,target_start_on,target_end_on,revision,confirmed_by)",
     "VALUES($1,$2,$3::date,$4::date,1,$5)"
-   ].join(" "),[id,ctx.origin.id,value.newStart,value.newEnd,actorId]);
+   ].join(" "),[id,originalPeriodId,value.newStart,value.newEnd,actorId]);
   }
   const oldValue=ctx.plan?{
    newStart:ctx.plan.target_start_on,newEnd:ctx.plan.target_end_on,
