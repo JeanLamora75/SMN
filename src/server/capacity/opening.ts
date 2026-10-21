@@ -141,6 +141,9 @@ export async function openCapacityPeriod(db:Client,actorId:string,raw:unknown,
   return {ok:true,snapshot:present(stored.rows[0]),alreadyOpened:false};
  }catch(error){
   await db.query("ROLLBACK").catch(()=>undefined);
+  // A reused eventId for a different period is a conflict, never a new opening.
+  if((error as {code?:string})?.code==="23505")
+   return {ok:false,error:"conflict"};
   throw error;
  }
 }
