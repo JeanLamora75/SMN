@@ -624,6 +624,7 @@
     "cleanupConfirm": "Permanently delete {count} verified, expired managed backup(s)? Exported copies and business archives will not be affected.",
     "cleanupSuccess": "Cleanup completed: {count} managed backup(s) removed.",
     "cleanupFailed": "Cleanup not confirmed. Check the inventory and audit trail before retrying.",
-    "externalDisclaimer": "Business PDF/TXT files and Vn snapshots are excluded. SMN cannot monitor or delete backups exported outside managed storage."
+    "externalDisclaimer": "Business PDF/TXT files and Vn snapshots are excluded. SMN cannot monitor or delete backups exported outside managed storage.",
+    "retentionUnsaved": "Save or revert the pending duration change before starting cleanup."
   }
 }
