@@ -28,8 +28,6 @@ type Selection={
  revision:number;frozen:boolean;closed:boolean;updatedAt:string|null;
 };
 type Setting={hoursPerJh:number;revision:number;updatedAt:string};
-const todayLocal=()=>{const d=new Date();return d.getFullYear()+"-"+
- String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
 const fmt=(v:number)=>v.toLocaleString("fr-FR",{maximumFractionDigits:4});
 const missingKey:Record<MissingCode,string>={
  "no-assignments":"noAssignments","ambiguous-assignment":"ambiguousAssignment",
@@ -39,8 +37,9 @@ const missingKey:Record<MissingCode,string>={
 
 export default function DevelopmentCapacityView(){
  const t=useTranslation();
- const [start,setStart]=useState(()=>todayLocal());
- const [end,setEnd]=useState(()=>todayLocal());
+ // No operational period date can be inferred merely from today's browser clock.
+ const [start,setStart]=useState("");
+ const [end,setEnd]=useState("");
  const [report,setReport]=useState<Report|null>(null);
  const [settings,setSettings]=useState<Setting|null>(null);
  const [hours,setHours]=useState("8");
@@ -68,6 +67,11 @@ export default function DevelopmentCapacityView(){
    .catch(()=>{if(live)setSettingsError(t("developmentCapacity.settingsError"));});
   return ()=>{live=false;};
  },[t]);
+ const setPeriodBoundary=(which:"start"|"end",date:string)=>{
+  if(manualDirty&&!window.confirm(t("draft.discardWarning")))return;
+  if(which==="start")setStart(date);else setEnd(date);
+  setReport(null);setManualDraft("");setManualError("");setManualSaved("");
+ };
  const load=async()=>{
   setBusy(true);setError("");setReport(null);
   try{
@@ -117,7 +121,7 @@ export default function DevelopmentCapacityView(){
   finally{setManualBusy(false);}
  };
  const openEffective=async()=>{
-  if(!report||report.initialSnapshot||openingBusy||manualBusy)return;
+  if(!report||report.initialSnapshot||openingBusy||manualBusy||manualDirty)return;
   if(!window.confirm(t("initialCapacity.confirm")))return;
   setOpeningBusy(true);setOpeningError("");
   try{
@@ -135,6 +139,7 @@ export default function DevelopmentCapacityView(){
  };
  const saveSettings=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(!settings||settingsBusy)return;
+  if(manualDirty){setSettingsError(t("prefill.unsavedCapacity"));return;}
   setSettingsBusy(true);setSettingsError("");
   try{
    const res=await fetch("/api/admin/capacity-settings",{
@@ -159,21 +164,26 @@ export default function DevelopmentCapacityView(){
    <h1 className="h3">{t("developmentCapacity.title")}</h1>
    <p className="text-secondary">{t("developmentCapacity.intro")}</p>
   </header>
-  <form className="smn-panel p-3 d-grid gap-3" onSubmit={e=>{e.preventDefault();void load();}}>
+  <form className="smn-panel p-3 d-grid gap-3" onSubmit={e=>{
+    e.preventDefault();
+    if(manualDirty&&!window.confirm(t("draft.discardWarning")))return;
+    void load();
+   }}>
    <h2 className="h5">{t("developmentCapacity.periodTitle")}</h2>
    <div className="row g-3">
     <div className="col-md-5"><label htmlFor="capacity-start" className="form-label">
      {t("developmentCapacity.start")}</label>
      <input id="capacity-start" type="date" className="form-control" value={start}
       min="1900-01-01" max="2200-12-31" required
-      onChange={e=>{setStart(e.target.value);setReport(null);}}/></div>
+      onChange={e=>setPeriodBoundary("start",e.target.value)}/></div>
     <div className="col-md-5"><label htmlFor="capacity-end" className="form-label">
      {t("developmentCapacity.end")}</label>
      <input id="capacity-end" type="date" className="form-control" value={end}
       min="1900-01-01" max="2200-12-31" required
-      onChange={e=>{setEnd(e.target.value);setReport(null);}}/></div>
+      onChange={e=>setPeriodBoundary("end",e.target.value)}/></div>
    </div>
    <p className="small text-secondary">{t("developmentCapacity.maxPeriod")}</p>
+   <p className="small text-secondary">{t("prefill.unknownPeriod")}</p>
    <button className="btn btn-primary align-self-start" disabled={busy} type="submit">
     {t("developmentCapacity.compute")}</button>
   </form>
