@@ -460,5 +460,11 @@
     "historicalNotice": "The return link retains the requested period or version selection. The details below are current data, not a historical snapshot or closure version.",
     "missingTitle": "Details unavailable",
     "missingDescription": "This item does not exist, is no longer available, or you do not have permission to view it. No private information was disclosed."
+  },
+  "draft": {
+    "pending": "Unsaved changes: your changes are still a draft.",
+    "provisional": "Draft only: these values have not been saved.",
+    "leaveWarning": "You have unsaved changes. Leave this page without saving them?",
+    "discardWarning": "Discard your pending changes and reload saved values?"
   }
 }

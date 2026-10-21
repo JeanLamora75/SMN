@@ -3,6 +3,7 @@ import { useCallback,useEffect,useState,type FormEvent } from "react";
 import {useRouter} from "next/navigation";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {type Palette} from "@/lib/appearance";
+import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 type Settings={
   locale:"fr"|"en";theme:"light"|"dark";palette:Palette;referenceCountry:string|null;
   revision:number;updatedAt:string;mode:"scrum"|"kanban";product:string;
@@ -57,7 +58,13 @@ export default function SettingsForm() {
     finally{setBusy(false);}
   }
   const dirty=!!saved&&(locale!==saved.locale||theme!==saved.theme||palette!==saved.palette||country!==(saved.referenceCountry??""));
+  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
+  const discardAndReload=()=>{
+    if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+    void reload();
+  };
   return <div className="d-grid gap-4">
+    {dirty&&<p role="status" className="alert alert-warning mb-0">{t("draft.pending")}</p>}
     {loaded&&saved&&<form onSubmit={submit} className="smn-panel p-4 d-grid gap-4" aria-describedby={error?"settings-feedback":undefined}>
       <section>
         <h2 className="h5">{t("settings.fixed")}</h2>
@@ -73,20 +80,20 @@ export default function SettingsForm() {
         <h2 className="h5">{t("settings.editable")}</h2>
         <div className="row g-3">
           <div className="col-md-6"><label className="form-label" htmlFor="locale">{t("settings.locale")}</label>
-            <select id="locale" aria-describedby="settings-locale-help" className="form-select" value={locale} disabled={busy} onChange={e=>setLocale(e.target.value as "fr"|"en")}>
+            <select id="locale" aria-describedby="settings-locale-help" className="form-select" value={locale} disabled={busy} onChange={e=>{setLocale(e.target.value as "fr"|"en");setError("");setSuccess("");}}>
               <option value="fr">{t("settings.french")}</option><option value="en">{t("settings.english")}</option>
             </select>
             <p id="settings-locale-help" className="small text-secondary mt-1">{t("settings.localeInfo")}</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="theme">{t("settings.theme")}</label>
-            <select id="theme" aria-describedby="settings-theme-help" className="form-select" value={theme} disabled={busy} onChange={e=>setTheme(e.target.value as "light"|"dark")}>
+            <select id="theme" aria-describedby="settings-theme-help" className="form-select" value={theme} disabled={busy} onChange={e=>{setTheme(e.target.value as "light"|"dark");setError("");setSuccess("");}}>
               <option value="light">{t("settings.light")}</option><option value="dark">{t("settings.dark")}</option>
             </select>
             <p id="settings-theme-help" className="small text-secondary mt-1">{t("settings.themeInfo")}</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="palette">{t("settings.palette")}</label>
             <select id="palette" aria-describedby="settings-palette-help" className="form-select" value={palette} disabled={busy}
-              onChange={e=>setPalette(e.target.value as Palette)}>
+              onChange={e=>{setPalette(e.target.value as Palette);setError("");setSuccess("");}}>
               <option value="ocean">{t("settings.paletteOcean")}</option>
               <option value="forest">{t("settings.paletteForest")}</option>
               <option value="violet">{t("settings.paletteViolet")}</option>
@@ -94,7 +101,7 @@ export default function SettingsForm() {
             <p id="settings-palette-help" className="small text-secondary mt-1">{t("settings.paletteInfo")}</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="country">{t("settings.country")}</label>
-            <select id="country" aria-describedby="settings-country-help" className="form-select" value={country} disabled={busy} onChange={e=>setCountry(e.target.value)}>
+            <select id="country" aria-describedby="settings-country-help" className="form-select" value={country} disabled={busy} onChange={e=>{setCountry(e.target.value);setError("");setSuccess("");}}>
               <option value="">{t("settings.countryEmpty")}</option>
               {saved.referenceCountry&&!countries.includes(saved.referenceCountry as typeof countries[number])&&
                 <option value={saved.referenceCountry}>{t("settings.unknownCountry",{code:saved.referenceCountry})}</option>}
@@ -107,7 +114,7 @@ export default function SettingsForm() {
       <p className="small text-secondary mb-0">{t("settings.displayInfo")}</p>
       <div className="d-flex gap-2 flex-wrap">
         <button type="submit" className="btn btn-primary" disabled={busy||!dirty}>{t(busy?"settings.saving":"settings.save")}</button>
-        <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>void reload()}>{t("settings.reload")}</button>
+        <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={discardAndReload}>{t("settings.reload")}</button>
       </div>
       <p className="small text-secondary mb-0">{t("settings.revision",{revision:saved.revision,
         date:new Date(saved.updatedAt).toLocaleString(currentLocale==="en"?"en-GB":"fr-FR")})}</p>

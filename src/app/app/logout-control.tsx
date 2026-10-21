@@ -13,7 +13,7 @@ export default function LogoutControl() {
       window.location.assign("/login");
     }
   }
-  return <button type="button" className="btn btn-outline-secondary"
+  return <button type="button" data-smn-navigation-action="logout" className="btn btn-outline-secondary"
     disabled={busy} onClick={()=>{void logout();}}>
     {t(busy?"session.loggingOut":"session.logout")}
   </button>;
