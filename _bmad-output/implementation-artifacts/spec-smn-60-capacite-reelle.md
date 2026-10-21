@@ -1,0 +1,31 @@
+# SMN-60 — Story 3.19 — Calculer la capacité réellement constatée selon le statut de période
+
+**Référence Jira :** https://lmn24.atlassian.net/browse/SMN-60 · Epic 3. **Dépendances :** SMN-57 calcul de capacité, SMN-58 saisie manuelle prioritaire, SMN-59 engagement initial immuable.
+
+## Décisions fonctionnelles et critères
+
+Le **réalisé collectif** est un objet métier **distinct** de la capacité initiale figée, de la référence de capacité prévisionnelle et de la surcharge prévisionnelle SMN-58. Il n'utilise pas les Story Points comme unité, ne produit aucune note individuelle et ne modifie aucun PDF historique.
+
+Le statut est déterminé par les **bornes inclusives** de la période, la date métier du serveur PostgreSQL en **Europe/Paris** et le champ `closed_at` de la période : `upcoming` (début futur), `in-progress` (date du jour comprise), `finished` (fin passée et non clôturée), `closed` (marqueur de clôture, toujours prioritaire).
+
+- **AC1 — À venir :** `referenceJh=null`, `retainedJh=null`, `observedThrough=null`. Aucune exécution du moteur SMN-57 sur des jours futurs. Les saisies de réalisé sur une période entièrement future sont refusées, y compris zéro.
+- **AC2 — En cours :** le calcul réutilise les versions datées des affectations, les demi-journées et les indisponibilités effectives du moteur SMN-57, mais avec **fin de fenêtre plafonnée à la veille du jour métier** (dernière journée entièrement écoulée). Cette règle prudente exclut toute demi-journée du jour courant encore susceptible d'évoluer, et toute projection future. Si aucune journée n'est terminée : référence constatée **non renseignée**, jamais zéro artificiel. Les lacunes des sources continuent d'être signalées comme non calculables.
+- **AC3 — Terminée non clôturée :** référence calculée à nouveau sur toute la période, sans modifier l'engagement initial SMN-59. L'écart collectif `gapJh = retainedJh - initialJh` n'est renvoyé **que si les deux nombres sont connus**, y compris les zéros explicites. Aucun delta pour une période en cours ou à venir ; aucun classement individuel.
+- **AC4 — Saisie manuelle réelle :** table autonome `smn_capacity_actual_override` rattachée à l'identité exacte de la période (équipe, date de début et fin) de SMN-58, mais indépendante de `manual_jh` de **capacité prévisionnelle**. `0` est distinct de `NULL`. `manual_jh` est prioritaire à chaque lecture sur la référence calculée, même si celle-ci change ; effacement explicite `clear` avec journal avant/après, date, acteur et révision. Il n'y a jamais d'écriture dans les tables d'engagement initial.
+- **AC5 — Clôturée :** un **événement métier explicite** `POST /api/admin/capacity-actual/close`, réservé à une période **entièrement terminée**, fige la référence et le réalisé retenu dans `smn_capacity_actual_snapshot`, avec provenance, événement UUID et date réelle. `closed_at` de la ligne de période est posé **dans la même transaction**. Toute lecture d'une période clôturée retourne **uniquement le cliché sauvegardé**, sans appeler le moteur de calcul : même si les absences changent ensuite, aucun recalcul n'écrase l'archive. Rejeu idempotent : le cliché existant est retourné tel quel. Si une période est déjà marquée fermée mais dépourvue de cliché, elle reste « Non renseigné » ; aucun historique n'est reconstitué. Les modifications manuelles directes sont refusées (HTTP 423). Aucun workflow de réouverture implicite ; une future réouverture nécessiterait un événement explicitement autorisé et un nouveau mécanisme d'instantanés, dans sa propre Story.
+
+## Architecture
+
+- Migration **additive v23 → v24** : `smn_capacity_actual_override` (saisie réelle nullable), `smn_capacity_actual_override_history` (audit set/clear) et `smn_capacity_actual_snapshot` (valeur retenue ET référence calculée au moment de clôture, événement, source et horodatage). Contraintes `UNIQUE(period_id)` et `UNIQUE(event_id)`, clés étrangères `ON DELETE RESTRICT`. **Trigger PostgreSQL BEFORE UPDATE OR DELETE** sur le cliché final pour une immutabilité garantie même au niveau SQL. Aucun schéma historique SMN-59 modifié.
+- `src/server/capacity/actual.ts` : `periodStatus`, `realThrough`, `readActualCapacity`, `saveActualCapacity`, `closeActualCapacity`. Lecture `REPEATABLE READ READ ONLY`, conversion explicite du statut et sélection manuelle ou calculée. Écriture/fermeture transactionnelles avec verrou sur l'équipe et la période, contrôle de révision et validation stricte des dates/montants.
+- `GET/POST /api/admin/capacity-actual` et `POST /api/admin/capacity-actual/close` protégés par `authorizeApi` `members:read/write` côté serveur, **Administrateur uniquement**. Gestion standard de l'origine des POST.
+- `src/app/app/admin/development-capacity/actual-capacity-panel.tsx` dans l'écran existant SMN-57–59 : état, période réellement observée, référence et retenue, provenance, initial, écart collectif et causes de non-calculabilité ; saisie zéro, effacement, clôture confirmée. Aucun calcul de performance par membre.
+- `src/i18n/fr.json` / `en.json`, Prisma, sonde et diagnostic v24, tests `tests/capacity-actual.test.ts` couvrant les AC1 à AC5.
+
+## Précisions et limites
+
+Le début et la fin de période définissent le statut **en l'absence de tout autre cycle métier**. Les futurs cycles Scrum/Kanban devront déclencher la clôture effective via ce service et garder la même identité de période ; la simple expiration d'une date **ne clôture pas** automatiquement.
+
+Le calcul de référence constatée exploite les **meilleures données de disponibilité connues au moment de la consultation**. Il n'établit pas un journal irréfutable des présences passées : une correction d'absence sur une période terminée mais non clôturée peut changer la référence, conformément à l'AC3. Pour une période en cours, on exclut par prudence la journée présente en entier faute d'horaires effectifs ou de validation des demi-journées. La clôture ne réécrit ni PDF ni cliché initial.
+
+**Qualification** : revue statique GitHub et tests de contrat écrits ; aucune exécution de `pnpm`, TypeScript, PostgreSQL 18.6, API ou recette navigateur n'a été faite dans cette session. GitHub Actions indisponible et volontairement non utilisé. Jira **En cours**, BMAD `review` jusqu'aux vérifications locales. Workflow BMAD rendu via une adaptation aux connecteurs (runner `uv` non disponible).

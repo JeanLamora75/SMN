@@ -74,6 +74,9 @@ model SmnAccount {
   capacityOverridesEdited SmnCapacityPeriodOverride[]
   capacityOverridesHistory SmnCapacityPeriodOverrideHistory[]
   initialCapacityOpenings SmnCapacityInitialSnapshot[]
+  actualCapacityEditors SmnCapacityActualOverride[]
+  actualCapacityAuditActors SmnCapacityActualOverrideHistory[]
+  actualCapacityClosers SmnCapacityActualSnapshot[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
@@ -425,6 +428,8 @@ model SmnCapacityPeriodOverride {
  updater SmnAccount? @relation(fields:[updatedBy],references:[id],onDelete:SetNull)
  history SmnCapacityPeriodOverrideHistory[]
  initialSnapshot SmnCapacityInitialSnapshot?
+ actualOverride SmnCapacityActualOverride?
+ actualSnapshot SmnCapacityActualSnapshot?
  @@unique([teamId,startOn,endOn])
  @@index([teamId,startOn,endOn])
  @@map("smn_capacity_period_override")
@@ -459,4 +464,45 @@ model SmnCapacityInitialSnapshot {
  actor SmnAccount? @relation(fields:[openedBy],references:[id],onDelete:SetNull)
  @@index([actualOpenedAt])
  @@map("smn_capacity_initial_snapshot")
+}
+
+model SmnCapacityActualOverride {
+ id String @id
+ periodId String @unique @map("period_id")
+ manualJh Decimal? @map("manual_jh") @db.Decimal(12,4)
+ revision Int @default(1)
+ updatedBy String? @map("updated_by")
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ period SmnCapacityPeriodOverride @relation(fields:[periodId],references:[id],onDelete:Restrict)
+ editor SmnAccount? @relation(fields:[updatedBy],references:[id],onDelete:SetNull)
+ history SmnCapacityActualOverrideHistory[]
+ @@map("smn_capacity_actual_override")
+}
+model SmnCapacityActualOverrideHistory {
+ id String @id
+ actualId String @map("actual_id")
+ revision Int
+ operation String
+ beforeJh Decimal? @map("before_jh") @db.Decimal(12,4)
+ afterJh Decimal? @map("after_jh") @db.Decimal(12,4)
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ actual SmnCapacityActualOverride @relation(fields:[actualId],references:[id],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
+ @@unique([actualId,revision])
+ @@map("smn_capacity_actual_override_history")
+}
+model SmnCapacityActualSnapshot {
+ id String @id
+ periodId String @unique @map("period_id")
+ eventId String @unique @map("event_id")
+ retainedJh Decimal? @map("retained_jh") @db.Decimal(12,4)
+ referenceJh Decimal? @map("reference_jh") @db.Decimal(12,4)
+ provenance String
+ closedAt DateTime @map("closed_at") @db.Timestamptz(6)
+ recordedAt DateTime @default(now()) @map("recorded_at") @db.Timestamptz(6)
+ closedBy String? @map("closed_by")
+ period SmnCapacityPeriodOverride @relation(fields:[periodId],references:[id],onDelete:Restrict)
+ closer SmnAccount? @relation(fields:[closedBy],references:[id],onDelete:SetNull)
+ @@map("smn_capacity_actual_snapshot")
 }

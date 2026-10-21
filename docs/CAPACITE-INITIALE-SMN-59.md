@@ -4,6 +4,8 @@
 
 La lecture d'une **date théorique** n'enregistre pas de capacité initiale. Pour créer le cliché, l'Administrateur doit déclencher un **événement explicite d'ouverture effective** depuis l'écran de capacité, avec confirmation.
 
+Le [réalisé collectif SMN-60](CAPACITE-REELLE-SMN-60.md) est calculé séparément après l'ouverture ; il ne remplace jamais cet engagement initial.
+
 Le cliché initial conserve alors la **capacité retenue au moment exact de l'ouverture** : saisie manuelle prioritaire, y compris 0 JH, ou référence calculée fiable. Il conserve la provenance (Saisie, Calcul, Non renseigné), la date réelle fournie par PostgreSQL et l'identifiant de l'événement. Le cliché est immuable : une nouvelle absence, même requalifiée Prévue, ne l'écrase pas ; la référence courante reste dynamique.
 
 Un second appel, même après redémarrage, retourne le cliché original sans le régénérer. L'ouverture marque aussi la période SMN-58 comme figée, de sorte qu'une correction manuelle directe est refusée.

@@ -16,6 +16,8 @@ Les jours fériés, fermetures et absences ne sont déduits qu'une fois par cré
 
 En l'absence de trame, de version historique, de pays, de couverture nationale ou d'affectation non ambiguë, le total affiche **Non calculable / Non renseigné**, accompagné de la date, du membre et de la source manquante : jamais zéro par défaut.
 
+La [capacité réellement constatée SMN-60](CAPACITE-REELLE-SMN-60.md) est distincte de la capacité prévisionnelle et de l'engagement initial : elle ne prend pas de jours futurs pour du réalisé, permet une saisie réelle prioritaire et se fige à la clôture.
+
 Le moteur ne crée ni Sprint ni indicateur Kanban ; il ne convertit aucun Story Point et ne modifie ni ancien PDF ni capacité figée.
 
 **SMN-59** [fige la capacité initiale lors de l'ouverture réelle](CAPACITE-INITIALE-SMN-59.md), sans reconstituer les périodes passées. **SMN-58** permet maintenant de [saisir une capacité manuelle prioritaire](CAPACITE-MANUELLE-SMN-58.md) pour la période : la référence calculée reste visible, la saisie 0 JH est distincte du champ vide et l'effacement volontaire rétablit le calcul en conservant l'historique. Le verrouillage effectif des périodes dépend des futurs mécanismes de figement/clôture.
