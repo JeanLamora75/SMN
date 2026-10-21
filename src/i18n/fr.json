@@ -624,6 +624,7 @@
     "cleanupConfirm": "Supprimer définitivement {count} sauvegarde(s) gérée(s), vérifiée(s) et expirée(s) ? Les copies exportées et les archives métier ne seront pas touchées.",
     "cleanupSuccess": "Nettoyage terminé : {count} sauvegarde(s) gérée(s) supprimée(s).",
     "cleanupFailed": "Nettoyage non confirmé. Vérifiez l'inventaire et les traces avant tout nouvel essai.",
-    "externalDisclaimer": "Les fichiers PDF/TXT métier et snapshots Vn sont exclus de cette rétention. Les copies exportées hors du dossier géré ne sont ni surveillées ni supprimables par SMN."
+    "externalDisclaimer": "Les fichiers PDF/TXT métier et snapshots Vn sont exclus de cette rétention. Les copies exportées hors du dossier géré ne sont ni surveillées ni supprimables par SMN.",
+    "retentionUnsaved": "Enregistrez ou annulez la modification de durée avant de lancer le nettoyage."
   }
 }
