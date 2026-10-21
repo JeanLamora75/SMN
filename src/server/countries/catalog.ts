@@ -24,7 +24,7 @@ export async function listCountries(db:Client):Promise<Country[]>{
  const r=await db.query<Row>(`SELECT code,name,origin,created_at::text AS created_at
  FROM public.smn_country ORDER BY code ASC LIMIT 251`);
  if(r.rows.length>250)throw new Error("country-catalog-limit");
- return r.rows.map(project);
+ return r.rows.map(project).sort((a,b)=>a.code.localeCompare(b.code));
 }
 export async function createCountry(db:Client,actorId:string,raw:unknown){
  const input=parseCountryInput(raw);
