@@ -3,7 +3,7 @@ import {describe,it} from "node:test";
 import type {Client} from "pg";
 import {parseCategoryChange,listAbsenceCategories,saveAbsenceCategory}
  from "../src/server/members/absence-categories";
-import {parseAbsenceChange,readMemberAbsences} from "../src/server/members/absence";
+import {parseAbsenceChange,readMemberAbsences,saveMemberAbsence} from "../src/server/members/absence";
 import {canAccess} from "../src/server/access-policy";
 
 type Row={id:string;name:string;color:string;is_active:boolean;updated_at:string;usage_count:number};
@@ -31,6 +31,12 @@ function fakeDb(){
   if(sql.includes("COALESCE(count(a.id)"))return {rowCount:categories.length,rows:categories
    .map(x=>({id:x.id,name:x.name,color:x.color,is_active:x.is_active,
     updated_at:x.updated_at,usage_count:x.usage_count}))};
+  if(sql.includes("FROM public.smn_member m")&&sql.includes("JOIN public.smn_installation i"))
+   return {rowCount:1,rows:[{id:"11111111-1111-4111-8111-111111111111",archived_at:null}]};
+  if(sql.includes("FROM public.smn_absence_category")&&sql.includes("WHERE id=$1 FOR SHARE")){
+   const matched=categories.filter(c=>c.id===args[0]);
+   return {rowCount:matched.length,rows:matched};
+  }
   if(sql.includes("FROM public.smn_absence_category")&&sql.includes("WHERE id=$1 FOR UPDATE")){
    const found=categories.filter(x=>x.id===args[0]);
    return {rowCount:found.length,rows:found};
@@ -92,6 +98,20 @@ describe("catalogue de catégories d'absence",()=>{
   assert.equal(r.category.isActive,true);
   assert.equal(f.categories.length,5);
   assert.equal(f.queries.at(-1),"COMMIT");
+ });
+ it("bloque la création d'une absence nouvelle sur une catégorie désactivée",async()=>{
+  const f=fakeDb();
+  const result=await saveAbsenceCategory(f.db,update({isActive:false}));
+  assert.equal(result.ok,true);
+  const blocked=await saveMemberAbsence(f.db,
+   "11111111-1111-4111-8111-111111111111",
+   "22222222-2222-4222-8222-222222222222",{
+    action:"create",revision:0,categoryId:"leave",startOn:"2026-10-01",
+    endOn:"2026-10-01",startSlot:"morning",endSlot:"afternoon",
+    isPlanned:true,reason:"Indisponibilité"
+   });
+  assert.deepEqual(blocked,{ok:false,error:"category-inactive"});
+  assert.equal(f.queries.at(-1),"ROLLBACK");
  });
  it("renomme et recolore en place une catégorie utilisée : même id, motif non touché",async()=>{
   const f=fakeDb();
