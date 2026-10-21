@@ -60,6 +60,7 @@ model SmnAccount {
   changedCalendarExceptions SmnMemberCalendarException[]
   changedLocations SmnMemberLocation[]
   createdCountries SmnCountry[]
+  holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
 
@@ -243,6 +244,7 @@ model SmnCountry {
   actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
   nationalHolidays SmnNationalHoliday[]
   calendarCoverage SmnNationalCalendarCoverage[]
+  holidayAudits SmnNationalHolidayAudit[]
   @@map("smn_country")
 }
 
@@ -266,4 +268,20 @@ model SmnNationalCalendarCoverage {
   country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
   @@id([countryCode,calendarYear])
   @@map("smn_national_calendar_coverage")
+}
+
+model SmnNationalHolidayAudit {
+  id String @id
+  countryCode String @map("country_code")
+  holidayDate DateTime @map("holiday_date") @db.Date
+  previousName String? @map("previous_name")
+  newName String @map("new_name")
+  action String
+  origin String
+  actorId String? @map("actor_id")
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([countryCode,holidayDate,occurredAt])
+  @@map("smn_national_holiday_audit")
 }
