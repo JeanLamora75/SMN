@@ -3,7 +3,8 @@ import {describe,it} from "node:test";
 import type {Client} from "pg";
 import {parseCategoryChange,listAbsenceCategories,saveAbsenceCategory}
  from "../src/server/members/absence-categories";
-import {parseAbsenceChange} from "../src/server/members/absence";
+import {parseAbsenceChange,readMemberAbsences} from "../src/server/members/absence";
+import {canAccess} from "../src/server/access-policy";
 
 type Row={id:string;name:string;color:string;is_active:boolean;updated_at:string;usage_count:number};
 const initial:Row[]=[
@@ -125,6 +126,47 @@ describe("catalogue de catégories d'absence",()=>{
   assert.equal(changed.ok,true);
   const conflict=await saveAbsenceCategory(f.db,update({color:"#123456"}));
   assert.deepEqual(conflict,{ok:false,error:"conflict"});
+ });
+ it("répercute un renommage sur une absence ancienne sans réécrire son motif",async()=>{
+  const f=fakeDb();
+  const memberId="11111111-1111-4111-8111-111111111111";
+  const category=f.categories.find(x=>x.id==="leave")!;
+  const reader={query:async(sql:string)=>{
+   if(sql.includes("FROM public.smn_member m"))return {
+    rowCount:1,rows:[{id:memberId,archived_at:null}]};
+   if(sql.includes("FROM public.smn_absence_category ORDER BY"))
+    return {rowCount:f.categories.length,rows:f.categories};
+   if(sql.includes("FROM public.smn_member_absence a")&&sql.includes("ORDER BY a.start_on DESC"))
+    return {rowCount:1,rows:[{
+     id:"33333333-3333-4333-8333-333333333333",member_id:memberId,
+     category_id:"leave",category_name:category.name,category_color:category.color,
+     revision:1,start_on:"2020-05-01",end_on:"2020-05-01",
+     start_slot:"morning",end_slot:"afternoon",is_planned:true,
+     reason:"Motif conservé",created_at:"2020-04-01",updated_at:"2020-04-01"
+    }]};
+   throw Error("unexpected query: "+sql);
+  }} as unknown as Client;
+  const before=await readMemberAbsences(reader,memberId,"2020-05-01");
+  assert.equal(before.absences[0].categoryName,"Congés");
+  const changed=await saveAbsenceCategory(f.db,update({
+   name:"Vacances annuelles",color:"#123DEF",isActive:false}));
+  assert.equal(changed.ok,true);
+  const after=await readMemberAbsences(reader,memberId,"2020-05-01");
+  assert.equal(after.absences[0].categoryName,"Vacances annuelles");
+  assert.equal(after.absences[0].categoryColor,"#123DEF");
+  assert.equal(after.absences[0].reason,"Motif conservé");
+  assert.equal(after.categories.find(c=>c.id==="leave")?.isActive,false);
+ });
+ it("respecte la politique réservant l'administration aux administrateurs",()=>{
+  const target={type:"members",exists:true,inScope:true};
+  assert.equal(canAccess({role:"admin",is_active:true,must_change_password:false},
+   "read",target),true);
+  assert.equal(canAccess({role:"admin",is_active:true,must_change_password:false},
+   "write",target),true);
+  assert.equal(canAccess({role:"user",is_active:true,must_change_password:false},
+   "read",target),false);
+  assert.equal(canAccess({role:"user",is_active:true,must_change_password:false},
+   "write",target),false);
  });
  it("exclut les détails médicaux du contrat et préserve la sélection active de SMN-53",()=>{
   assert.deepEqual(parseCategoryChange(update({medicalDetails:"diagnostic"})),
