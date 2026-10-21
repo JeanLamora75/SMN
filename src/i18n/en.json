@@ -63,7 +63,7 @@
     "locale": "Preferred language",
     "localeInfo": "Language used by screens already migrated under SMN-27. Other screens are being migrated.",
     "theme": "Preferred theme",
-    "themeInfo": "Preference stored; full theme support is planned for a future Story.",
+    "themeInfo": "Global theme applies after saving and stays consistent across pages. Light and dark palettes are predefined to preserve contrast.",
     "country": "Reference country",
     "countryEmpty": "Not specified",
     "unknownCountry": "{code} — existing country",

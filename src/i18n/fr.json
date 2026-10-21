@@ -63,7 +63,7 @@
     "locale": "Langue préférée",
     "localeInfo": "Langue utilisée par les écrans déjà migrés dans SMN-27. La migration des autres écrans se poursuit.",
     "theme": "Thème préféré",
-    "themeInfo": "Préférence enregistrée ; l'application complète du thème est prévue par une prochaine Story.",
+    "themeInfo": "Thème global appliqué immédiatement après enregistrement et conservé entre les pages. Les palettes claire et sombre sont prédéfinies pour préserver le contraste.",
     "country": "Pays de référence",
     "countryEmpty": "Non renseigné",
     "unknownCountry": "{code} — pays existant",

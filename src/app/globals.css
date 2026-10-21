@@ -5,3 +5,55 @@ body { min-height: 100vh; background: #f5f7fb; color: #15233b; }
 .smn-panel { border: 1px solid #d9e2ee; border-radius: 18px; background: #fff; box-shadow: 0 14px 42px rgba(15,32,57,.06); }
 .smn-subtitle { color: #51617a; }
 code { overflow-wrap: anywhere; }
+
+/* SMN-24 : Bootstrap 5 semantic tokens, fixed accessible light/dark palettes. */
+:root,[data-bs-theme="light"]{
+ color-scheme:light;
+ --smn-background:#f5f7fb;--smn-surface:#ffffff;--smn-foreground:#15233b;
+ --smn-muted:#51617a;--smn-border:#d9e2ee;--smn-brand:#154d8d;--smn-nav-hover:#edf2fa;
+ --smn-nav-active:#e5eefb;--smn-soft:#eaf0f9;--smn-muted-soft:#f2f5f9;
+ --smn-heading:#182b49;--smn-brand-contrast:#ffffff;
+ --bs-body-bg:var(--smn-background);--bs-body-color:var(--smn-foreground);
+ --bs-secondary-color:var(--smn-muted);--bs-border-color:var(--smn-border);
+ --bs-primary:#154d8d;--bs-primary-rgb:21,77,141;
+ --bs-link-color:#154d8d;--bs-link-hover-color:#103d72;
+}
+[data-bs-theme="dark"]{
+ color-scheme:dark;
+ --smn-background:#101827;--smn-surface:#1a2638;--smn-foreground:#eef3fb;
+ --smn-muted:#b9c8db;--smn-border:#42546c;--smn-brand:#85baff;--smn-nav-hover:#283a51;
+ --smn-nav-active:#304b70;--smn-soft:#23354b;--smn-muted-soft:#29384c;
+ --smn-heading:#f5f8ff;--smn-brand-contrast:#101827;
+ --bs-body-bg:var(--smn-background);--bs-body-color:var(--smn-foreground);
+ --bs-secondary-color:var(--smn-muted);--bs-border-color:var(--smn-border);
+ --bs-primary:#85baff;--bs-primary-rgb:133,186,255;
+ --bs-link-color:#9dcaff;--bs-link-hover-color:#c1deff;
+ --bs-tertiary-bg:#263951;--bs-secondary-bg:#1d2c40;
+ --bs-emphasis-color:#ffffff;--bs-heading-color:var(--smn-heading);
+}
+body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground);}
+.smn-panel,.smn-dashboard-card,.smn-dashboard-topbar{background:var(--smn-surface);color:var(--smn-foreground);border-color:var(--smn-border);}
+.smn-brand,.smn-section-title h2,.smn-nav-product{color:var(--smn-heading);}
+.smn-account-pill,.smn-nav-workspace,.smn-context-back,.smn-pilot-label,.smn-pending-cycle,.smn-nav-help{
+ border-color:var(--smn-border);color:var(--smn-foreground);}
+.smn-account-pill{background:var(--smn-surface);}
+.smn-nav-workspace,.smn-nav-help,.smn-pending-cycle{background:var(--smn-soft);}
+.smn-nav-team,.smn-nav-mode,.smn-nav-eyebrow,.smn-eyebrow,.smn-section-meta,.smn-dashboard-footer{color:var(--smn-muted);}
+.smn-nav-link{color:var(--smn-muted);}
+.smn-nav-link:hover{color:var(--smn-brand);background:var(--smn-nav-hover);}
+.smn-nav-link.is-active{color:var(--smn-brand);background:var(--smn-nav-active);}
+.smn-private-nav-list .smn-nav-disabled{color:var(--smn-muted);background:var(--smn-muted-soft);}
+.smn-nav-soon,.smn-not-available,.smn-coming-soon{color:var(--smn-muted);background:var(--smn-muted-soft);border-color:var(--smn-border);}
+.smn-card-icon,.smn-cycle-symbol{background:var(--smn-soft);color:var(--smn-brand);border-color:var(--smn-border);}
+.smn-inline-note,.smn-context-back{color:var(--smn-brand);}
+.smn-pilot-label{color:var(--smn-brand);background:var(--smn-soft);}
+.smn-dashboard-footer,.smn-private-nav-list,.smn-nav-group,.smn-pending-cycle{border-color:var(--smn-border);}
+.smn-mark{background:#154d8d;color:#ffffff;}
+[data-bs-theme="dark"] .smn-context-card{background:linear-gradient(125deg,#253e61,#172c49 65%,#142439);}
+[data-bs-theme="dark"] .smn-context-overline,[data-bs-theme="dark"] .smn-context-label{color:#d4e5fa;}
+[data-bs-theme="dark"] .smn-context-team{color:#eef3fb;}
+[data-bs-theme="dark"] .smn-context-meta{background:rgba(255,255,255,.06);}
+[data-bs-theme="dark"] .smn-brand,[data-bs-theme="dark"] .smn-brand-name{color:var(--smn-heading);}
+[data-bs-theme="dark"] .btn-primary{--bs-btn-color:#101827;--bs-btn-bg:#85baff;--bs-btn-border-color:#85baff;--bs-btn-hover-bg:#a7cdff;--bs-btn-hover-color:#101827;--bs-btn-hover-border-color:#a7cdff;--bs-btn-disabled-color:#101827;--bs-btn-disabled-bg:#85baff;}
+[data-bs-theme="dark"] .btn-outline-primary{--bs-btn-color:#9dcaff;--bs-btn-border-color:#9dcaff;--bs-btn-hover-color:#101827;--bs-btn-hover-bg:#9dcaff;}
+[data-bs-theme="dark"] .smn-context-back:focus-visible,[data-bs-theme="dark"] .smn-nav-link:focus-visible{outline-color:#b9d8ff;}
