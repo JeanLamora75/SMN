@@ -82,7 +82,7 @@ function isEmpty(member:MemberRow){
 }
 async function hasCascadeRisk(client:Client){
  const result=await client.query<{refs:number}>(`SELECT count(*)::int AS refs FROM pg_constraint
- WHERE contype='f' AND confrelid='public.smn_member'::regclass AND confdeltype='c'`);
+ WHERE contype='f' AND confrelid='public.smn_member'::regclass AND confdeltype IN ('c','n','d')`);
  return (result.rows[0]?.refs??0)>0;
 }
 export async function inspectMemberLifecycle(client:Client,id:string):Promise<LifecycleImpact>{
