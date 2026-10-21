@@ -40,3 +40,12 @@ pnpm dev
 ```
 
 Recette manuelle : au clavier, ouvrir Installation, Connexion, Renouvellement du mot de passe, Tableau de bord, Fiche d'équipe, Paramètres et Comptes ; vérifier focus, messages d'erreur et actions. Sur mobile, vérifier qu'une action de compte ne demande pas un défilement horizontal.
+
+
+## Contrats UX du tableau de bord — validés le 21 octobre 2026
+
+Références obligatoires pour les agents BMAD : [DESIGN.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/DESIGN.md) · [EXPERIENCE.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/EXPERIENCE.md) · [synthèse UXD-01 à UXD-27](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/SYNTHESE-CADRAGE-UX-SMN.md). Ces contrats sont validés mais **pas encore implémentés ni testés**.
+
+**Règles clés :** pleine largeur, menu rétractable, header équipe/cycle, 4–6 métriques et 4 colonnes de suivi, 5 éléments maximum, tri automatique, comparaison entre cycles, historique fiable ou « Aucun éléments à ce jour », compteur **lundi–vendredi**, **engagement initial** SP et tickets, **aucune carte Avancement global** sans règle, responsive 4/2/1, personnalisation accessible.
+
+**Précision métier :** Grille 4/2/1 selon largeur utile ; ordre des métriques et colonnes modifiable au clavier, sans glisser-déposer obligatoire. Ne pas attester WCAG avant recette.
