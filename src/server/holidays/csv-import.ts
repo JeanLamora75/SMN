@@ -40,10 +40,8 @@ function scanCsv(csv:string):{ok:true;lines:CsvLine[]}|{ok:false;error:"invalid-
  const lines:CsvLine[]=[];
  function append(){
   cells.push(field.trim());field="";closed=false;
-  if(cells.some(cell=>cell!=="")){
-   if(lines.length>MAX_ROWS)return false;
-   lines.push({line:begin,cells});
-  }
+  if(lines.length>MAX_ROWS)return false;
+  lines.push({line:begin,cells});
   cells=[];begin=line;
   return true;
  }
