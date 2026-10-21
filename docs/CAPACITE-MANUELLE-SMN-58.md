@@ -16,6 +16,8 @@ Pour fixer une capacité prioritaire, saisir un nombre positif ou **0** puis cli
 
 Chaque modification est conservée par période exacte (équipe, première date, dernière date) : avant/après, auteur, date et révision. Si les dates sélectionnées changent, une nouvelle période est consultée ; l'ancien arbitrage reste attaché à ses dates initiales.
 
+La [saisie manuelle du réalisé SMN-60](CAPACITE-REELLE-SMN-60.md) est distincte de la surcharge prévisionnelle décrite ici. Une clôture effective conserve son cliché séparé et active la protection de la période.
+
 ## Périodes protégées — frontière avec les futures Stories
 
 L'API refuse les modifications d'une période portant un marqueur `frozen_at` ou `closed_at` (423). Aucun contournement par ce formulaire, même pour `0` ou une action Effacer. **SMN-59 crée désormais le marqueur `frozen_at` sur cette même période lors de l'ouverture effective, même sans saisie manuelle, et conserve le cliché initial à part.** La création du marqueur `closed_at` et les procédures de réouverture ou d'ajustement historique restent dépendantes des futures Stories. [Guide SMN-59](CAPACITE-INITIALE-SMN-59.md). Le fait que la protection soit codée ne prouve pas encore qu'une période fermée dans un écran futur sera automatiquement reconnue : le raccordement est explicitement à vérifier.
