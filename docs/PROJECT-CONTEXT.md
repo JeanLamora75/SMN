@@ -152,3 +152,11 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Les futurs écrans métier doivent respecter ce contrat responsive et clavier. Aucune recette appareil réel, navigation clavier de bout en bout, audit lecteur d'écran ou attestation de conformité WCAG à ce stade.
 
 - **Intégration SMN-25 :** [PR #21](https://github.com/JeanLamora75/SMN/pull/21) fusionnée sur `main` (commit `42745c491788a9fcf41f645affea285560e7d5b1`) après réconciliation avec les nouvelles palettes SMN-24. Source statique contrôlée : **400 clés FR/EN** et placeholders identiques. Les jobs Linux/Windows échouent sans exécuter d'étapes ; aucune déclaration de conformité WCAG ni validation mobile/clavier n'est produite. Jira reste En cours.
+
+## SMN-28 — Brouillons et sauvegardes confirmées (21/10/2026)
+
+- Jira [SMN-28](https://lmn24.atlassian.net/browse/SMN-28) — Story 1.17, qui précède SMN-26 (Story 1.18). Référence d'implémentation : [docs/BROUILLONS-SMN-28.md](BROUILLONS-SMN-28.md).
+- `src/app/app/use-unsaved-changes.ts` : avertissement avant la sortie navigateur, l'activation des liens ou la déconnexion quand un brouillon est en cours ; restauration du contrôle de session avant logout ; aucun stockage de brouillon sensible.
+- `src/lib/account-drafts.ts` : ne remplace pas les autres modifications en cours lorsqu'une seule ligne des comptes est sauvegardée ou lors de la création d'un compte. API conserve ses droits, sa validation et sa persistance atomique existants.
+- Les écrans de paramètres, de comptes et de sécurité distinguent état local non enregistré, refus serveur et réussite confirmée. Fichiers JSON FR/EN centralisés pour les avertissements et l'état provisoire.
+- Tests unitaires dédiés écrits ; **tests Node, CI et recette Windows/navigateur non attestés**. Les liens SPA et `beforeunload` sont couverts en code, mais le comportement des historiques Précédent/Suivant propre aux navigateurs et des parcours futur métier reste à vérifier. Ne pas déclarer conforme ni terminer Jira sans recette.
