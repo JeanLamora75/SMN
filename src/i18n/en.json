@@ -178,6 +178,32 @@
       "closeMenu": "Close navigation",
       "expandMenu": "Expand navigation",
       "collapseMenu": "Collapse navigation"
+    },
+    "cockpit": {
+      "noCycle": "No cycle created",
+      "noSprintHelp": "No Sprint has been recorded for this team. No cycle is created automatically.",
+      "noPeriodHelp": "No Kanban period has been recorded for this team. No period is created automatically.",
+      "details": "Cycle information",
+      "dates": "Cycle dates",
+      "status": "Status",
+      "goals": "Goals",
+      "notAvailable": "Not available",
+      "notSpecified": "Not specified",
+      "metrics": "Cycle indicators",
+      "noPreviousCycle": "No previous cycle",
+      "capacity": "Capacity",
+      "plannedCapacity": "Planned capacity",
+      "actualCapacity": "Actual capacity",
+      "storyPoints": "Story points",
+      "initialStoryPoints": "Initially committed story points",
+      "completedStoryPoints": "Completed story points",
+      "tickets": "Tickets",
+      "initialTickets": "Initially committed tickets",
+      "completedTickets": "Completed tickets",
+      "ticketsUnit": "tickets",
+      "workingDays": "Working days remaining",
+      "notCalculable": "Cannot be calculated",
+      "workingDaysHelp": "Monday to Friday. The countdown requires reliable cycle dates and a fully defined reference rule."
     }
   },
   "session": {
