@@ -10,6 +10,7 @@ export type DayAvailability={
  assignmentApplicable:boolean;
  nationalHoliday:boolean|null;
  nationalHolidayName:string|null;
+ companyClosureName:string|null;
  nationalCalendarStatus:"configured"|"partial"|"not-configured"|"invalid"|"unknown";
  workingSlots:Slots|null;
  absenceSlots:Slots;
@@ -22,7 +23,8 @@ export type DayAvailability={
 /** Unavailability is a union of half-days, never the sum of source records. */
 export function resolveDayAvailability(
  onDate:string,workingSlots:Slots|null,nationalHoliday:boolean|null,
- absences:readonly Pick<AbsenceItem,"startOn"|"endOn"|"startSlot"|"endSlot">[]
+ absences:readonly Pick<AbsenceItem,"startOn"|"endOn"|"startSlot"|"endSlot">[],
+ companyClosure=false
 ):Pick<DayAvailability,"absenceSlots"|"unavailableSlots"|"availableSlots"|
  "deductedHalfDays"|"nationalOverlap"|"status">{
  if(!isValidDate(onDate))throw Error("member-availability-invalid-date");
@@ -32,12 +34,12 @@ export function resolveDayAvailability(
    afternoon:result.afternoon||slots.afternoon};
  },{morning:false,afternoon:false});
  const unavailableSlots={
-  morning:nationalHoliday===true||absenceSlots.morning,
-  afternoon:nationalHoliday===true||absenceSlots.afternoon
+  morning:nationalHoliday===true||companyClosure||absenceSlots.morning,
+  afternoon:nationalHoliday===true||companyClosure||absenceSlots.afternoon
  };
- const nationalOverlap=nationalHoliday===true&&(absenceSlots.morning||absenceSlots.afternoon);
+ const nationalOverlap=nationalHoliday===true&&(companyClosure||absenceSlots.morning||absenceSlots.afternoon);
  // Missing work calendar or incomplete national calendar is unknown, not zero availability.
- if(workingSlots===null||nationalHoliday===null)return {
+ if(workingSlots===null||(nationalHoliday===null&&!companyClosure))return {
   absenceSlots,unavailableSlots,availableSlots:null,deductedHalfDays:null,
   nationalOverlap,status:"unknown"
  };
@@ -57,7 +59,7 @@ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 export async function readMemberDayAvailability(db:Client,memberId:string,onDate:string,
  absences:readonly AbsenceItem[]):Promise<DayAvailability>{
  if(!UUID.test(memberId)||!isValidDate(onDate))throw Error("member-availability-invalid-input");
- const [weeks,exceptions,locations,assignments]=await Promise.all([
+ const [weeks,exceptions,locations,assignments,closures]=await Promise.all([
   db.query<WeekRow>([
    "SELECT revision,effective_from::text AS effective_from,days,created_at::text AS created_at",
    "FROM public.smn_member_calendar_week WHERE member_id=$1 AND effective_from<=$2::date",
@@ -80,6 +82,15 @@ export async function readMemberDayAvailability(db:Client,memberId:string,onDate
    "WHERE a.member_id=$1 AND t.installation_id='singleton'",
    "AND i.state='initialized' AND i.mode IN ('scrum','kanban')",
    "AND a.start_on<=$2::date AND (a.end_on IS NULL OR a.end_on>=$2::date)"
+  ].join(" "),[memberId,onDate]),
+  db.query<{name:string}>([
+   "SELECT c.name FROM public.smn_company_closure c",
+   "JOIN public.smn_member_assignment a ON a.team_id=c.team_id",
+   "JOIN public.smn_team t ON t.id=c.team_id AND t.installation_id='singleton'",
+   "WHERE a.member_id=$1 AND a.start_on<=$2::date",
+   "AND (a.end_on IS NULL OR a.end_on>=$2::date)",
+   "AND c.is_active=true AND c.start_on<=$2::date AND c.end_on>=$2::date",
+   "ORDER BY c.id LIMIT 2"
   ].join(" "),[memberId,onDate])
  ]);
  if(Number(assignments.rows[0]?.team_count)>1)
@@ -104,7 +115,9 @@ export async function readMemberDayAvailability(db:Client,memberId:string,onDate
   if(nationalHolidayName!==null)nationalHoliday=true;
   else if(nationalCalendarStatus==="configured")nationalHoliday=false;
  }
- const resolved=resolveDayAvailability(onDate,day.slots,nationalHoliday,absences);
- return {onDate,countryIso2,assignmentApplicable,nationalHoliday,nationalHolidayName,
+ const companyClosureName=closures.rows[0]?.name??null;
+ const resolved=resolveDayAvailability(onDate,day.slots,nationalHoliday,absences,
+  companyClosureName!==null);
+ return {onDate,countryIso2,assignmentApplicable,nationalHoliday,nationalHolidayName,companyClosureName,
   nationalCalendarStatus,workingSlots:day.slots,...resolved};
 }
