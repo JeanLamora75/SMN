@@ -41,6 +41,7 @@ model SmnTeam {
   companyClosures SmnCompanyClosure[]
   capacityOverrides SmnCapacityPeriodOverride[]
   historicalQualities SmnCapacityHistoricalQuality[]
+  scrumCadence SmnScrumCadence?
   @@map("smn_team")
 }
 model SmnAccount {
@@ -573,4 +574,32 @@ model SmnCapacityReplanningHistory {
  actor SmnAccount? @relation(fields:[confirmedBy],references:[id],onDelete:SetNull)
  @@unique([replanningId,revision])
  @@map("smn_capacity_replanning_history")
+}
+
+model SmnScrumCadence {
+ teamId String @id @map("team_id")
+ durationWeeks Int @default(2) @map("duration_weeks")
+ startDay Int @default(1) @map("start_day")
+ startTime DateTime @default(dbgenerated("'09:00'")) @map("start_time") @db.Time(0)
+ endDay Int @default(5) @map("end_day")
+ endTime DateTime @default(dbgenerated("'18:00'")) @map("end_time") @db.Time(0)
+ timeZone String @default("Europe/Paris") @map("time_zone")
+ revision Int @default(1)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ updatedBy String? @map("updated_by")
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ audit SmnScrumCadenceAudit[]
+ @@map("smn_scrum_cadence")
+}
+model SmnScrumCadenceAudit {
+ id String @id
+ teamId String @map("team_id")
+ revision Int
+ beforeValues Json @map("before_values") @db.JsonB
+ afterValues Json @map("after_values") @db.JsonB
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ cadence SmnScrumCadence @relation(fields:[teamId],references:[teamId],onDelete:Restrict)
+ @@unique([teamId,revision])
+ @@map("smn_scrum_cadence_audit")
 }
