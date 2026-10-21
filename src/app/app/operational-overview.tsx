@@ -55,12 +55,12 @@ function UnavailableColumn({definition,locale}:Readonly<{definition:PanelDefinit
         aria-label={t("dashboard.operational.countUnavailable")}>
         <span aria-hidden="true">—</span>
       </span>
+      <p className="smn-operational-all-unavailable">
+        <span>{t("dashboard.operational.seeAll")}</span>
+        <span className="smn-operational-status">{t("dashboard.operational.unavailable")}</span>
+      </p>
     </header>
     <p className="smn-operational-description">{t(definition.description)}</p>
-    <p className="smn-operational-all-unavailable">
-      <span>{t("dashboard.operational.seeAll")}</span>
-      <span className="smn-operational-status">{t("dashboard.operational.unavailable")}</span>
-    </p>
     <div className="smn-operational-content">
       <div className="smn-operational-empty">
         <p className="smn-operational-empty-title">{t("dashboard.operational.empty")}</p>
