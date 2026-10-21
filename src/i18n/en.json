@@ -944,6 +944,7 @@
     "invalidFile": "Invalid ICS file or unsupported iCalendar format.",
     "tooLarge": "ICS file exceeds the size limit.",
     "invalidSelection": "Invalid selection: an ineligible event cannot be imported.",
-    "saved": "ICS import confirmed: {created} dates added, {replaced} replaced, {rejected} duplicates or conflicts rejected."
+    "saved": "ICS import confirmed: {created} dates added, {replaced} replaced, {rejected} duplicates or conflicts rejected.",
+    "nested": "Nested iCalendar component not supported for this event"
   }
 }
