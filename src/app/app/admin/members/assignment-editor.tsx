@@ -25,8 +25,8 @@ function draftFrom(state:AssignmentState):Draft{
  };
 }
 const num=(s:string)=>/^(0|[1-9][0-9]{0,2})$/.test(s)?Number(s):NaN;
-export default function AssignmentEditor({memberId,teamId,onSaved,onCancel}:{
- memberId:string;teamId:string;onSaved:()=>void;onCancel:()=>void;
+export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCancel}:{
+ memberId:string;teamId:string;teamName:string;onSaved:()=>void;onCancel:()=>void;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AssignmentState|null>(null);
@@ -87,9 +87,12 @@ export default function AssignmentEditor({memberId,teamId,onSaved,onCancel}:{
  return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="assignment-heading">
   <h3 className="h5" id="assignment-heading">{t("members.assignment.heading")}</h3>
   <p className="small text-secondary mb-0">{t("members.assignment.intro")}</p>
+  <p className="small text-secondary mb-0">{t("prefill.teamContext",{team:teamName})}</p>
   {status==="loading"&&<p role="status">{t("members.assignment.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.assignment.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
+   <p className="small text-secondary">{t(state.versions.length>0?
+    "prefill.savedAssignment":"prefill.suggestedAssignment")}</p>
    <form onSubmit={submit} className="d-grid gap-3">
     <div className="row g-3">
      <div className="col-md-4">
