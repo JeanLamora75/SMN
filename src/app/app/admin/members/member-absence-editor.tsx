@@ -25,8 +25,8 @@ type Form={id:string|null;revision:number;categoryId:string;startOn:string;endOn
 const initial=(date:string):Form=>({id:null,revision:0,categoryId:"",startOn:date,
  endOn:date,startSlot:"morning",endSlot:"afternoon",isPlanned:true,reason:""});
 
-export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange}:{
- memberId:string;selectedOn:string;onDirtyChange:(dirty:boolean)=>void;
+export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange,onSaved}:{
+ memberId:string;selectedOn:string;onDirtyChange:(dirty:boolean)=>void;onSaved?:()=>void;
 }){
  const t=useTranslation();
  const [data,setData]=useState<State|null>(null);
@@ -108,6 +108,7 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange}:
     return;
    }
    await load(selectedOn);
+   onSaved?.();
    const next=initial(selectedOn);setForm(next);setBaseline(JSON.stringify(next));
    setMessage(t(result.created?"members.absence.created":"members.absence.updated"));
   }catch{setError(t("members.absence.failed"));}
