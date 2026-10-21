@@ -33,7 +33,7 @@ export async function previewSprintBatch(db:Client,raw:unknown){
    conflicts.push({id:e.id,name:e.name,startAt:new Date(e.start_at).toISOString(),endAt:new Date(e.end_at).toISOString(),kind:"existing"});
   for(const prior of items)if(overlaps(dates,prior))
    conflicts.push({id:"batch-"+prior.number,name:prior.name,startAt:prior.startAt,endAt:prior.endAt,kind:"batch"});
-  items.push({number:nextNumber+i,name:`Sprint ${dates.startOn} — ${dates.endOn}`,...dates,conflicts});
+  items.push({number:nextNumber+i,name:`Sprint du ${dates.startOn.slice(8,10)}/${dates.startOn.slice(5,7)}/${dates.startOn.slice(0,4)} au ${dates.endOn.slice(8,10)}/${dates.endOn.slice(5,7)}/${dates.endOn.slice(0,4)}`,...dates,conflicts});
   cursor=new Date(Date.parse(dates.startOn+"T00:00:00Z")+c.rows[0].duration_weeks*7*dayMs).toISOString().slice(0,10);
  }
  return {ok:true as const,items,valid:items.every(i=>i.conflicts.length===0),count:raw.count};
