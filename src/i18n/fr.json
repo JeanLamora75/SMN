@@ -847,7 +847,7 @@
       "convert": "Afficher l'heure locale",
       "eventResult": "Instant : {utc} · Affichage : {local} ({zone})",
       "missingZone": "Fuseau absent pour cet événement : aucun horaire local n'est supposé.",
-      "invalidInstant": "Instant UTC invalide : utilisez par exemple 2026-03-29T01:30:00Z.",
+      "invalidInstant": "Instant UTC invalide : utilisez par exemple 2027-03-28T01:30:00Z.",
       "nationalOnly": "Les futurs jours fériés automatiques concernent uniquement le pays. Les particularités régionales seront traitées comme absences individuelles ; aucun calendrier régional automatique n'est créé."
     }
   }
