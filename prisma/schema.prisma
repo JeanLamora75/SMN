@@ -15,6 +15,7 @@ model SmnInstallation {
   teams SmnTeam[]
   accounts SmnAccount[]
   generalSettings SmnGeneralSettings?
+  capacitySettings SmnCapacitySettings?
   generalSettingsHistory SmnGeneralSettingsAudit[]
   memberBatches SmnMemberBatch[]
   members SmnMember[]
@@ -67,6 +68,8 @@ model SmnAccount {
   createdClosures SmnCompanyClosure[] @relation("ClosureCreatedBy")
   updatedClosures SmnCompanyClosure[] @relation("ClosureUpdatedBy")
   closureEdits SmnCompanyClosureHistory[]
+  capacitySettingsEdits SmnCapacitySettings[]
+  capacitySettingsAudit SmnCapacitySettingsAudit[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
@@ -376,4 +379,29 @@ model SmnCompanyClosureHistory {
  @@unique([closureId,revision])
  @@index([closureId,changedAt])
  @@map("smn_company_closure_history")
+}
+
+model SmnCapacitySettings {
+ installationId String @id @map("installation_id")
+ hoursPerJh Decimal @default(8) @map("hours_per_jh") @db.Decimal(4,2)
+ revision Int @default(1)
+ updatedBy String? @map("updated_by")
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ installation SmnInstallation @relation(fields:[installationId],references:[id],onDelete:Restrict)
+ editor SmnAccount? @relation(fields:[updatedBy],references:[id],onDelete:SetNull)
+ changes SmnCapacitySettingsAudit[]
+ @@map("smn_capacity_settings")
+}
+model SmnCapacitySettingsAudit {
+ id String @id
+ installationId String @map("installation_id")
+ revision Int
+ previousHours Decimal @map("previous_hours") @db.Decimal(4,2)
+ newHours Decimal @map("new_hours") @db.Decimal(4,2)
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ settings SmnCapacitySettings @relation(fields:[installationId],references:[installationId],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
+ @@unique([installationId,revision])
+ @@map("smn_capacity_settings_audit")
 }
