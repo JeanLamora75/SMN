@@ -85,7 +85,8 @@ export async function sprintProposal(db:Client,startOn?:string){
  await ensureSprintSchema(db);
  const {teamId,cadence}=await context(db);
  const {last,nextNumber}=await latest(db,teamId);
- const recommended=last?iso(addDays(dateParts(last.end_at.slice(0,10)),1)):null;
+ const localEnd=last?zonedParts(new Date(last.end_at),cadence.time_zone):null;
+ const recommended=localEnd?iso(addDays(dateParts(`${localEnd.year}-${localEnd.month}-${localEnd.day}`),1)):null;
  const selected=startOn??recommended;
  if(!selected)return {first:true,nextNumber,recommended:null,proposal:null};
  const dates=calculateSprint(selected,cadence);
