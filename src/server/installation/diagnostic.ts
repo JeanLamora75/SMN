@@ -17,6 +17,7 @@ import {MEMBER_LOCATION_MIGRATION,MEMBER_LOCATION_MIGRATION_SQL} from "../member
 import {COUNTRIES_MIGRATION,COUNTRIES_MIGRATION_SQL} from "../countries/migration";
 import {HOLIDAYS_MIGRATION,HOLIDAYS_MIGRATION_SQL} from "../holidays/migration";
 import {HOLIDAY_CSV_MIGRATION,HOLIDAY_CSV_MIGRATION_SQL} from "../holidays/csv-migration";
+import {HOLIDAY_ICS_MIGRATION,HOLIDAY_ICS_MIGRATION_SQL} from "../holidays/ics-migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "configuration-key-missing" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
@@ -42,7 +43,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
@@ -62,6 +63,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const isV15 = records[0].schema_version >= 15;
   const isV16 = records[0].schema_version >= 16;
   const isV17 = records[0].schema_version >= 17;
+  const isV18 = records[0].schema_version >= 18;
   if (migrations?.length !== records[0].schema_version) return result("installation-incomplete");
   const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
   if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
@@ -169,6 +171,12 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if(isV17){
     const migration=migrations.find(m=>m.migration_name===HOLIDAY_CSV_MIGRATION);
     if(!migration||migration.checksum!==createHash("sha256").update(HOLIDAY_CSV_MIGRATION_SQL).digest("hex")||
+      !migration.finished_at||migration.rolled_back_at||!snapshot.holidayCsvSchemaValid||
+      !names.has("public.smn_national_holiday_audit:r"))return result("installation-incomplete");
+  }
+  if(isV18){
+    const migration=migrations.find(m=>m.migration_name===HOLIDAY_ICS_MIGRATION);
+    if(!migration||migration.checksum!==createHash("sha256").update(HOLIDAY_ICS_MIGRATION_SQL).digest("hex")||
       !migration.finished_at||migration.rolled_back_at||!snapshot.holidayCsvSchemaValid||
       !names.has("public.smn_national_holiday_audit:r"))return result("installation-incomplete");
   }
