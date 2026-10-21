@@ -60,3 +60,6 @@ Architecture de référence : `_bmad-output/planning-artifacts/prds/prd-SMN-2026
 - Le contenu métier de la page d'accueil demeure provisoirement celui du pilote ; bandeau Sprint, métriques et colonnes appartiennent aux lots 2 et 3.
 
 **Vérifications prévues :** `tests/dashboard-shell-ux.test.ts`, `tests/responsive-accessibility.test.ts`, contrôle i18n FR/EN, lint, typecheck, build et CI `verify-i0.yml`. La recette utilisateur doit vérifier le comportement au clavier, à 320/375/768/1024/1440 px, au zoom 200 % et sur les six variantes de thème/palette ; aucun test statique ne prouve à lui seul une conformité WCAG.
+
+
+**Résultats de contrôle au 21/10/2026 :** 12 assertions de cohérence sur le contenu réel des fichiers GitHub réussies (structure, accès, états désactivés, CSS, i18n et sécurité) et 26 vérifications source complémentaires réussies. Catalogues FR/EN : 462 clés communes sans écart ni paramètre de substitution manquant. Les workflows GitHub Actions de la PR #26 ont été déclenchés mais ont échoué en 2 secondes **sans runner attribué et sans aucune étape exécutée** sur Linux/Windows : [Vérification I0](https://github.com/JeanLamora75/SMN/actions/runs/39580664197). Aucun résultat de `pnpm test`, lint, typecheck ou build n'est donc revendiqué ; revue d'exécution et recette navigateur restent à effectuer.
