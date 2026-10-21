@@ -80,7 +80,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const shapeValid = required.every((name) => columnSet.has(name));
     if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 15",
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 16",
     )).rows;
     return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
@@ -94,6 +94,11 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
         "smn_backup_retention_audit:action","smn_backup_retention_audit:old_days","smn_backup_retention_audit:new_days",
         "smn_backup_retention_audit:package_id","smn_backup_retention_audit:occurred_at"]
         .every(col=>columnSet.has(col)),
+      holidaysSchemaValid: [
+        ...["country_code","holiday_date","name"].map(n=>"smn_national_holiday:"+n),
+        ...["country_code","calendar_year","status","entries_count","diagnostic","source_file","checked_at"]
+         .map(n=>"smn_national_calendar_coverage:"+n)
+      ].every(n=>columnSet.has(n)),
       countriesSchemaValid: ["code","name","origin","created_by","created_at"]
        .every(name=>columnSet.has("smn_country:"+name)),
       memberLocationSchemaValid: ["id","member_id","revision","effective_from","country_iso2",

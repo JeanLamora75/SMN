@@ -15,6 +15,7 @@ import {LIFECYCLE_MIGRATION,LIFECYCLE_MIGRATION_SQL} from "../members/lifecycle-
 import {MEMBER_CALENDAR_MIGRATION,MEMBER_CALENDAR_MIGRATION_SQL} from "../members/calendar-migration";
 import {MEMBER_LOCATION_MIGRATION,MEMBER_LOCATION_MIGRATION_SQL} from "../members/location-migration";
 import {COUNTRIES_MIGRATION,COUNTRIES_MIGRATION_SQL} from "../countries/migration";
+import {HOLIDAYS_MIGRATION,HOLIDAYS_MIGRATION_SQL} from "../holidays/migration";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -36,7 +37,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       "SELECT schema_version,state FROM public.smn_installation WHERE id='singleton' FOR UPDATE");
     if (records.rowCount !== 1 || records.rows[0].state !== "initialized") throw new Error("smn-schema-not-ready");
     let version=records.rows[0].schema_version;
-    if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].includes(version)) throw new Error("smn-schema-incompatible");
+    if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].includes(version)) throw new Error("smn-schema-incompatible");
     const migrations = await client.query<{migration_name:string;checksum:string;finished_at:Date|null;rolled_back_at:Date|null}>(
       "SELECT migration_name,checksum,finished_at,rolled_back_at FROM public._prisma_migrations ORDER BY migration_name");
     const applied=(name:string,sql:string)=>migrations.rows.some(x=>x.migration_name===name &&
@@ -272,6 +273,24 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       WHERE table_schema='public' AND table_name='smn_country'
         AND column_name IN ('code','name','origin','created_by','created_at')`);
     if(countriesShape.rows[0]?.count!=="5")throw new Error("smn-schema-incompatible");
+    if(version===15){
+      await client.query(HOLIDAYS_MIGRATION_SQL);
+      await client.query(`INSERT INTO public._prisma_migrations
+        (id,checksum,finished_at,migration_name,applied_steps_count)
+        VALUES($1,$2,now(),$3,1)`,
+        [randomUUID(),checksum(HOLIDAYS_MIGRATION_SQL),HOLIDAYS_MIGRATION]);
+      version=16;
+    }else if(!applied(HOLIDAYS_MIGRATION,HOLIDAYS_MIGRATION_SQL)){
+      throw new Error("smn-schema-incompatible");
+    }
+    const holidayColumns=await client.query<{count:string}>(`
+      SELECT count(*)::text AS count FROM information_schema.columns
+      WHERE table_schema='public' AND
+      ((table_name='smn_national_holiday' AND column_name IN
+        ('country_code','holiday_date','name'))
+       OR (table_name='smn_national_calendar_coverage' AND column_name IN
+        ('country_code','calendar_year','status','entries_count','diagnostic','source_file','checked_at')))`);
+    if(holidayColumns.rows[0]?.count!=="10")throw new Error("smn-schema-incompatible");
     await client.query("COMMIT");
   } catch(error) {
     await client.query("ROLLBACK").catch(()=>undefined);

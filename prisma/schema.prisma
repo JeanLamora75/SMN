@@ -241,5 +241,29 @@ model SmnCountry {
   createdBy String? @map("created_by")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
+  nationalHolidays SmnNationalHoliday[]
+  calendarCoverage SmnNationalCalendarCoverage[]
   @@map("smn_country")
+}
+
+model SmnNationalHoliday {
+  countryCode String @map("country_code")
+  holidayDate DateTime @map("holiday_date") @db.Date
+  name String
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  @@id([countryCode,holidayDate])
+  @@map("smn_national_holiday")
+}
+
+model SmnNationalCalendarCoverage {
+  countryCode String @map("country_code")
+  calendarYear Int @map("calendar_year")
+  status String
+  entriesCount Int @default(0) @map("entries_count")
+  diagnostic String?
+  sourceFile String? @map("source_file")
+  checkedAt DateTime @default(now()) @map("checked_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  @@id([countryCode,calendarYear])
+  @@map("smn_national_calendar_coverage")
 }

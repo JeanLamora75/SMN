@@ -18,6 +18,6 @@ export default async function CountriesPage(){
    <p>{translate(locale,"countries.intro")}</p>
    <Link href="/app" className="btn btn-outline-secondary">{translate(locale,"members.back")}</Link>
   </header>
-  <CountryAdmin/>
+  <CountryAdmin canManage={canAccess(actor,"write",{type:"settings",exists:true,inScope:true})}/>
  </div>;
 }
