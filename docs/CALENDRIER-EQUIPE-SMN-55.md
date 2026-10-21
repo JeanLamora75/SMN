@@ -14,6 +14,10 @@ L'Utilisateur voit, pour chaque date, uniquement les **effectifs collectifs** : 
 
 Une personne absente au titre d'un jour régional et simultanément d'un jour férié national est **comptée une fois** dans la synthèse. Une référence nationale incomplète ou un calendrier de travail inexistant donne une disponibilité *inconnue*, jamais faussement zéro.
 
+## Fermetures d'entreprise (SMN-56)
+
+Le calendrier affiche désormais les **fermetures collectives** comme événements datés et identifiables, séparés des absences et des jours fériés nationaux. Le libellé collectif est visible aux deux rôles ; l'Administrateur dispose du bouton **Administrer les fermetures** pour créer ou corriger. Le chevauchement entre fermeture, jour férié et absence ne déduit chaque créneau qu'une fois. Consulter le [guide SMN-56](FERMETURES-ENTREPRISE-SMN-56.md).
+
 ### Vue Administrateur
 
 L'Administrateur voit aussi la **grille par membre et par jour affecté** : jour férié national identifié, absence(s) avec catégorie et motif écrits, pastille couleur complémentaire, caractère prévu/imprévu. Une journée sans affectation applicable apparaît comme « Non affecté ».
