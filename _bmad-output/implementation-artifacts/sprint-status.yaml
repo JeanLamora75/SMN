@@ -32,7 +32,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-19-2026 22:41
-last_updated: 2026-10-20
+last_updated: 2026-10-21
 project: SMN
 project_key: SMN
 tracking_system: jira
@@ -75,8 +75,8 @@ development_status:
   2-13-expliquer-les-interruptions-et-les-résultats-de-récupération: backlog
   epic-2-retrospective: optional
 
-  epic-3: backlog
-  3-1-créer-rapidement-les-fiches-des-membres-de-l-équipe: backlog
+  epic-3: in-progress
+  3-1-créer-rapidement-les-fiches-des-membres-de-l-équipe: review
   3-2-compléter-la-fiche-centrale-du-membre-et-son-e-mail-facultat: backlog
   3-3-gérer-l-affectation-datée-et-les-rôles-agile-dans-l-équipe-u: backlog
   3-4-clore-une-affectation-et-conserver-les-membres-archivés: backlog
