@@ -1191,5 +1191,19 @@
     "invalid": "Enter a nonnegative number of person-days with up to 4 decimal places; the field cannot be blank.",
     "conflict": "This period changed since you opened it. Recalculate to load the current revision.",
     "failed": "Unable to confirm the save. Reload the period before trying again."
+  },
+  "initialCapacity": {
+    "title": "Initial capacity frozen at the actual opening",
+    "notOpened": "Period not opened: no initial snapshot has been recorded.",
+    "openedAt": "Actual opening recorded on",
+    "provenance": "Initial source",
+    "manual": "Manual entry",
+    "calculated": "Calculation",
+    "unknown": "Not supplied",
+    "immutable": "This initial snapshot is immutable. Later absences and corrections do not overwrite it.",
+    "openAction": "Trigger actual opening",
+    "openHint": "This explicit business operation records the actual opening time, freezes the retained capacity and blocks direct manual edits. Merely viewing the theoretical date does not open the period. A fully past period without original evidence is frozen as 'Not supplied'.",
+    "confirm": "Confirm the actual opening of this period? This freezes the initial reference and prevents reconstructing it from later changes.",
+    "failed": "The opening could not be confirmed. Reload the period before trying again."
   }
 }
