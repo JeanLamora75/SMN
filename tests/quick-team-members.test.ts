@@ -21,7 +21,7 @@ function fixture(options:{existing?:number;failAt?:number;batch?:boolean}={}){
    if(options.failAt===insertion)throw new Error("fixture-insertion-failed");
    return {rowCount:1,rows:[]};
   }
-  if(query.includes("FROM public.smn_member m")&&query.includes("JOIN public.smn_member_assignment a")){
+  if(query.includes("FROM public.smn_member m")&&query.includes("FROM public.smn_member_assignment a")){
    if(options.batch){
     const rows=Array.from({length:5},(_,i)=>({
      id:randomUUID(),member_number:i+1,display_name:"Membre "+(i+1),
