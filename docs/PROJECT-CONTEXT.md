@@ -169,3 +169,5 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Les projections du tableau de bord et de la fiche équipe passent par une liste blanche commune. Le contrat des futurs briefs IA n'accepte que le contexte collectif et ne doit pas recevoir de données individuelles ni de champs libres sans revue métier.
 - L'API de téléchargement PDF/TXT vérifie la session, les droits, l'équipe active et un manifeste privé avec empreinte SHA-256. Le stockage se configure hors de l'application ; aucun document n'est généré par le socle I0. En l'absence de stockage, les téléchargements restent fermés.
 - Les modules métier futurs sont responsables de la création, des permissions de partage et des contrôles de textes libres. Les tests, la CI et la recette Windows doivent être exécutés avant toute clôture Jira.
+
+- **Intégration SMN-26** : [PR #23](https://github.com/JeanLamora75/SMN/pull/23) fusionnée sur `main` (`8c81b1493cd26abb4803498aab080876381f6a9b`). CI Linux/Windows échouée avant les tests ; documents privés non préinstallés et recette Windows à effectuer. Statut Jira En cours.

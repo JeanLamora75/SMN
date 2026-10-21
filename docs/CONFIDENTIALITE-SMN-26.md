@@ -21,3 +21,7 @@ Les générateurs de rapports, les briefs IA, la procédure de publication de fi
 Tests écrits : tests/collective-privacy.test.ts, tests/private-documents.test.ts. Vérifications HTTP négatives ajoutées à scripts/verify-http-ci.mjs. Les tests automatisés réels, les navigateurs, l'accès effectif à un document produit par un module métier et une recette Windows restent à valider.
 
 Commandes prévues : pnpm i18n:check ; pnpm lint ; pnpm typecheck ; pnpm test ; pnpm build. Ne pas déclarer la story terminée avant ces validations.
+
+## Publication
+
+[PR #23](https://github.com/JeanLamora75/SMN/pull/23) fusionnée dans `main` le 21/10/2026, commit `8c81b1493cd26abb4803498aab080876381f6a9b`. Les [jobs Linux et Windows](https://github.com/JeanLamora75/SMN/actions/runs/39552546737) et [Windows portable](https://github.com/JeanLamora75/SMN/actions/runs/39552546729) ont échoué avant toute étape ; les tests ne sont pas attestés. Recette Windows et téléchargement réel à faire.

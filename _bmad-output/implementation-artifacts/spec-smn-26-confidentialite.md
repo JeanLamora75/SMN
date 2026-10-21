@@ -9,3 +9,7 @@ La nouvelle lecture de documents privés vérifie la session, le périmètre d'�
 Les refus d'accès ne permettent pas de distinguer un ID absent d'un ID hors du périmètre. Aucun contenu, nom de chemin privé ou donnée brute sensible n'est consigné dans les diagnostics.
 
 Traçabilité et limitations : [documentation SMN-26](../../docs/CONFIDENTIALITE-SMN-26.md). Tests unitaires et assertions HTTP rédigés ; leur exécution en CI et sur Windows reste nécessaire. Pas de clôture Jira sans recette.
+
+## Intégration
+
+PR #23 fusionnée dans `main` le 21/10/2026 : `8c81b1493cd26abb4803498aab080876381f6a9b`. Les tests automatisés et la recette Windows ne sont pas exécutés ; Jira reste En cours.
