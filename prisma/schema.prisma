@@ -40,6 +40,7 @@ model SmnTeam {
   memberAssignments SmnMemberAssignment[]
   companyClosures SmnCompanyClosure[]
   capacityOverrides SmnCapacityPeriodOverride[]
+  historicalQualities SmnCapacityHistoricalQuality[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -77,6 +78,8 @@ model SmnAccount {
   actualCapacityEditors SmnCapacityActualOverride[]
   actualCapacityAuditActors SmnCapacityActualOverrideHistory[]
   actualCapacityClosers SmnCapacityActualSnapshot[]
+  historicalQualitiesEdited SmnCapacityHistoricalQuality[]
+  historicalQualityRevisions SmnCapacityHistoricalQualityHistory[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
@@ -505,4 +508,37 @@ model SmnCapacityActualSnapshot {
  period SmnCapacityPeriodOverride @relation(fields:[periodId],references:[id],onDelete:Restrict)
  closer SmnAccount? @relation(fields:[closedBy],references:[id],onDelete:SetNull)
  @@map("smn_capacity_actual_snapshot")
+}
+
+model SmnCapacityHistoricalQuality {
+ id String @id
+ teamId String @map("team_id")
+ startOn DateTime @map("start_on") @db.Date
+ endOn DateTime @map("end_on") @db.Date
+ quality String
+ qualifiedJh Decimal? @map("qualified_jh") @db.Decimal(12,4)
+ sourceKind String? @map("source_kind")
+ sourceRef String? @map("source_ref")
+ rationale String
+ revision Int @default(1)
+ updatedBy String? @map("updated_by")
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ editor SmnAccount? @relation(fields:[updatedBy],references:[id],onDelete:SetNull)
+ history SmnCapacityHistoricalQualityHistory[]
+ @@unique([teamId,startOn,endOn])
+ @@map("smn_capacity_historical_quality")
+}
+model SmnCapacityHistoricalQualityHistory {
+ id String @id
+ qualificationId String @map("qualification_id")
+ revision Int
+ beforeValues Json? @map("before_values") @db.JsonB
+ afterValues Json @map("after_values") @db.JsonB
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ qualification SmnCapacityHistoricalQuality @relation(fields:[qualificationId],references:[id],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
+ @@unique([qualificationId,revision])
+ @@map("smn_capacity_historical_quality_history")
 }

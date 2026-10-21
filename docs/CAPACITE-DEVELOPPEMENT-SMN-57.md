@@ -2,6 +2,8 @@
 
 [Jira SMN-57](https://lmn24.atlassian.net/browse/SMN-57) · [Contrat BMAD](../_bmad-output/implementation-artifacts/spec-smn-57-capacite-jh.md)
 
+Pour les périodes anciennes, consulter aussi la [qualification de fiabilité SMN-61](FIABILITE-CAPACITES-HISTORIQUES-SMN-61.md) : les estimations restent identifiées comme telles et les inconnues ne deviennent pas 0 JH.
+
 ## Utilisation
 
 Ouvrir **Calendrier d'équipe → Calculer la capacité en JH** comme Administrateur. Sélectionner une période de **1 à 93 jours** et cliquer sur **Calculer la capacité**. Le résultat affiche la contribution de chaque membre, le total et le détail journalier.
