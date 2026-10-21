@@ -7,7 +7,7 @@ type Holiday = {date:string;name:string};
 type LocalBundle = {country:string;years:Record<string,unknown>};
 type YearResult = {year:number;status:"configured"|"not-configured"|"invalid";count:number;diagnostic:string|null};
 const BUNDLES:Record<string,unknown>={FR,DE,GB};
-const ISO_DATE=/^\\d{4}-\\d{2}-\\d{2}$/;
+const ISO_DATE=/^\d{4}-\d{2}-\d{2}$/;
 
 export function validateNationalYear(raw:unknown,code:string,year:number):
  {ok:true;holidays:Holiday[]}|{ok:false;diagnostic:string}{
@@ -26,7 +26,7 @@ export function validateNationalYear(raw:unknown,code:string,year:number):
   const v=item as Record<string,unknown>;
   if(Object.keys(v).length!==2||typeof v.date!=="string"||!ISO_DATE.test(v.date)||
    Number(v.date.slice(0,4))!==year||typeof v.name!=="string"||
-   v.name.trim().length<1||v.name.length>120||/[\\u0000-\\u001f\\u007f]/u.test(v.name))
+   v.name.trim().length<1||v.name.length>120||/[\u0000-\u001f\u007f]/u.test(v.name))
     return {ok:false,diagnostic:`invalid-entry:${i+1}`};
   const [y,m,d]=v.date.split("-").map(Number);
   const resolved=new Date(Date.UTC(y,m-1,d));
