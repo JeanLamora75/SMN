@@ -71,7 +71,7 @@ describe("Création rapide des membres initiaux",()=>{
    assert.ok(result.members.every(m=>m.developmentCapacityJh===null));
   }
   assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member\n")).length,5);
-  assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member_assignment")).length,5);
+  assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member_assignment\\n")).length,5);
   assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member_assignment_version")).length,5);
   assert.equal(sql.at(-1),"COMMIT");
   assert.ok(sql.every(q=>!q.includes("INSERT INTO public.smn_account")));
