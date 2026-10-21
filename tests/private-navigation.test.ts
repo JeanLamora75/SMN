@@ -21,6 +21,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
       const links=entries.filter(entry=>entry.href!==null).map(entry=>entry.href);
       assert.ok(links.includes("/app"));
       assert.ok(links.includes("/app/security"));
+      assert.ok(links.includes("/app/team-calendar"));
       assert.equal(links.includes("/app/admin/users"),role==="admin");
       assert.equal(links.includes("/app/admin/settings"),role==="admin");
       assert.equal(links.includes("/app/admin/audit"),role==="admin");
@@ -37,7 +38,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
     for(const groups of [scrum,kanban]){
       const text=JSON.stringify(groups);
       assert.doesNotMatch(text,/safe|art|train/i);
-      for(const future of groups.flatMap(group=>group.entries).filter(entry=>entry.id!=="dashboard"&&entry.id!=="security"&&entry.id!=="members"))
+      for(const future of groups.flatMap(group=>group.entries).filter(entry=>!["dashboard","security","members","centralCalendar"].includes(entry.id)))
         assert.equal(future.href,null,"Aucun module futur ne peut être présenté comme actif");
     }
   });
@@ -52,6 +53,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
     for(const pathname of ["/app","/app/security","/app/admin/users","/app/admin/settings","/app/admin/audit","/app/admin/members"]){
       assert.deepEqual(links.filter(entry=>activePrivateEntry(pathname,entry)).map(entry=>entry.href),[pathname]);
     }
+    assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/team-calendar",entry)).map(entry=>entry.id),["centralCalendar"]);
     assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/calendrier",entry)),[]);
     assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/unknown",entry)),[]);
   });

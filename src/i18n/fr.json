@@ -1336,5 +1336,32 @@
     "noInventedAbsence": "La date consultée ne crée aucune absence. Aucune catégorie ou motif n'est déduit automatiquement. Seul le bouton Enregistrer ajoute une absence.",
     "unknownPeriod": "Aucune période opérationnelle n'est déduite de la date du jour. Indiquez les bornes de la période à consulter.",
     "unsavedCapacity": "Une capacité manuelle modifiée mais non enregistrée est présente. Enregistrez-la ou annulez vos modifications avant de changer les réglages."
+  },
+  "centralCalendar": {
+    "title": "Calendrier central partagé",
+    "readOnly": "Lecture seule : les éléments proviennent de leurs fiches source. Le filtrage et la consultation ne déplacent aucun événement et aucun glisser-déposer n'est autorisé.",
+    "legend": "Légende des éléments",
+    "teamFilter": "Équipe",
+    "noTeam": "Équipe non disponible",
+    "singleTeam": "MVP monoéquipe : seule l'équipe autorisée est consultable.",
+    "typeFilter": "Type d'élément",
+    "allTypes": "Tous les types",
+    "absence": "Indisponibilité",
+    "closure": "Fermeture collective",
+    "holiday": "Jour férié",
+    "cycle": "Cycle Scrum / Kanban",
+    "meeting": "Réunion Agile",
+    "noCycles": "Aucun cycle opérationnel enregistré dans le référentiel actuel. Aucun cycle fictif n'est affiché.",
+    "noMeetings": "Aucune réunion Agile enregistrée actuellement. Aucune réunion passée n'est supposée avoir été tenue.",
+    "noItems": "Aucun élément du type sélectionné sur cette période.",
+    "source": "Ouvrir la source",
+    "aggregate": "{count} membre(s) avec une indisponibilité déclarée (sans données individuelles)",
+    "utc": "Instant UTC",
+    "status": {
+      "scheduled": "Planifiée (statut enregistré)",
+      "held": "Tenue (statut enregistré)",
+      "cancelled": "Annulée (statut enregistré)",
+      "unknown": "Statut non renseigné"
+    }
   }
 }
