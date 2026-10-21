@@ -42,9 +42,7 @@ function fakeDb(options:{archived?:boolean;categories?:string[];days?:Array<{
    return {rows:found.map(d=>({...d,category_name:"Congés",category_color:"#4F83CC",
     created_at:"2024-01-01",updated_at:"2024-01-01"})),rowCount:found.length};
   }
-  if(sql.includes("INSERT INTO public.smn_member_absence
-")||
-   sql.includes("INSERT INTO public.smn_member_absence")){
+  if(sql.includes("INSERT INTO public.smn_member_absence") && !sql.includes("history")){
    days.push({id:String(params[0]),member_id:String(params[1]),category_id:String(params[2]),
     start_on:String(params[3]),end_on:String(params[4]),start_slot:String(params[5]),
     end_slot:String(params[6]),is_planned:params[7]===true,reason:String(params[8]),revision:1});
