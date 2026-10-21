@@ -248,6 +248,42 @@ try {
     assert.match(firstAudit.headers.get("cache-control")??"",/no-store/);
     assert.ok(Array.isArray((await firstAudit.json()).entries));
     assert.equal((await get("/app/admin/audit",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
+    // Identities of team members are independent from login accounts and protected by RBAC.
+    assert.equal((await get("/api/admin/members")).status,403);
+    assert.equal((await postAuth("/api/admin/members",{teamId:"team",count:5,requestId:randomUUID()},"")).status,403);
+    assert.equal((await get("/app/admin/members",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
+    const initialRoster=await get("/api/admin/members",{headers:{Cookie:replacement}});
+    assert.equal(initialRoster.status,200);
+    const initialRosterData=await initialRoster.json();
+    assert.equal(initialRosterData.team.id,"team");
+    assert.equal(initialRosterData.members.length,0);
+    const quickCreate=(body,cookie=replacement)=>postAuth("/api/admin/members",body,cookie);
+    const requestId=randomUUID();
+    assert.equal((await quickCreate({teamId:"team",count:2,requestId})).status,400);
+    assert.equal((await quickCreate({teamId:"wrong",count:5,requestId})).status,404);
+    const firstRosterCreate=await quickCreate({teamId:"team",count:5,requestId});
+    assert.equal(firstRosterCreate.status,201);
+    const rosterCreated=await firstRosterCreate.json();
+    assert.equal(rosterCreated.created,true);
+    assert.equal(rosterCreated.members.length,5);
+    assert.deepEqual(rosterCreated.members.map(m=>m.agileRole),
+      ["scrum_master","product_owner","developer","developer","developer"]);
+    assert.ok(rosterCreated.members.every(m=>m.isProvisional&&m.contractPercent===100&&
+      m.allocationPercent===100&&m.rolePercent===100&&m.contributionPercent===100&&
+      m.developmentCapacityJh===null));
+    const repeated=await quickCreate({teamId:"team",count:5,requestId});
+    assert.equal(repeated.status,200);
+    assert.equal((await repeated.json()).created,false);
+    assert.equal((await quickCreate({teamId:"team",count:5,requestId:randomUUID()})).status,409);
+    const rosterAfter=await (await get("/api/admin/members",{headers:{Cookie:replacement}})).json();
+    assert.equal(rosterAfter.members.length,5);
+    assert.deepEqual(rosterAfter.members.map(m=>m.memberNumber),[1,2,3,4,5]);
+    assert.equal((await withDb(async c=>(await c.query(
+     "SELECT count(*)::int AS count FROM public.smn_member WHERE installation_id='singleton'"
+    )).rows[0].count)),5);
+    assert.equal((await withDb(async c=>(await c.query(
+     "SELECT count(*)::int AS count FROM public.smn_member_assignment"
+    )).rows[0].count)),5);
     const initialBackupStatus=await get("/api/admin/backups",{headers:{Cookie:replacement}});
     assert.equal(initialBackupStatus.status,200);
     assert.equal((await initialBackupStatus.json()).needsRecoveryPhrase,true);
@@ -529,6 +565,9 @@ try {
     assert.equal(new URL(rejectedPage.headers.get("location"),base).pathname,"/app");
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await get("/api/admin/members",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await quickCreate({teamId:"team",count:5,requestId:randomUUID()},userReady)).status,403);
+    assert.notEqual((await get("/app/admin/members",{headers:{Cookie:userReady},redirect:"manual"})).status,200);
     assert.equal((await backupRequest({},userReady)).status,403);
     assert.notEqual((await get("/app/admin/backups",{headers:{Cookie:userReady},redirect:"manual"})).status,200);
     assert.equal((await get("/api/admin/audit",{headers:{Cookie:userReady}})).status,403);
