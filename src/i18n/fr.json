@@ -441,7 +441,8 @@
       "briefs": "Briefs IA",
       "users": "Comptes utilisateurs",
       "settings": "Paramètres généraux",
-      "cyclesUnknown": "Cycles (mode indisponible)"
+      "cyclesUnknown": "Cycles (mode indisponible)",
+      "audit": "Journal des opérations"
     }
   },
   "detail": {
@@ -466,5 +467,39 @@
     "provisional": "Saisie provisoire : ces valeurs ne sont pas encore enregistrées.",
     "leaveWarning": "Vous avez des modifications non enregistrées. Quitter cette page sans les sauvegarder ?",
     "discardWarning": "Abandonner les modifications en cours et recharger les valeurs enregistrées ?"
+  },
+  "audit": {
+    "title": "Journal des opérations sensibles",
+    "intro": "Historique des changements réellement enregistrés. Les secrets et les simples consultations ne sont pas consignés ici.",
+    "back": "Retour au tableau de bord",
+    "unavailable": "Le journal est momentanément indisponible. Aucune lecture n’a été confirmée.",
+    "empty": "Aucune opération sensible enregistrée pour le moment.",
+    "success": "Réussie",
+    "actor": "Auteur",
+    "unknownActor": "Auteur non disponible",
+    "object": "Objet",
+    "scope": "Périmètre",
+    "operationId": "Référence de l’opération",
+    "actions": {
+      "account_created": "Compte créé",
+      "account_updated": "Compte modifié",
+      "settings_updated": "Paramètres modifiés",
+      "password_changed": "Mot de passe renouvelé",
+      "recovery_prepared": "Phrase de secours préparée",
+      "recovery_used": "Récupération de compte effectuée"
+    },
+    "types": {
+      "account": "Compte",
+      "settings": "Paramètres généraux",
+      "authentication": "Authentification"
+    },
+    "fields": {
+      "role": "Rôle",
+      "isActive": "Accès actif",
+      "locale": "Langue",
+      "theme": "Thème",
+      "palette": "Palette",
+      "referenceCountry": "Pays de référence"
+    }
   }
 }

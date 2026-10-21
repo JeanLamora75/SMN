@@ -441,7 +441,8 @@
       "briefs": "AI briefs",
       "users": "User accounts",
       "settings": "General settings",
-      "cyclesUnknown": "Cycles (mode unavailable)"
+      "cyclesUnknown": "Cycles (mode unavailable)",
+      "audit": "Operations log"
     }
   },
   "detail": {
@@ -466,5 +467,39 @@
     "provisional": "Draft only: these values have not been saved.",
     "leaveWarning": "You have unsaved changes. Leave this page without saving them?",
     "discardWarning": "Discard your pending changes and reload saved values?"
+  },
+  "audit": {
+    "title": "Sensitive operations log",
+    "intro": "History of changes actually saved. Secrets and routine page views are not logged here.",
+    "back": "Back to dashboard",
+    "unavailable": "The audit log is temporarily unavailable. No read was confirmed.",
+    "empty": "No sensitive operations recorded yet.",
+    "success": "Successful",
+    "actor": "Actor",
+    "unknownActor": "Unknown actor",
+    "object": "Object",
+    "scope": "Scope",
+    "operationId": "Operation reference",
+    "actions": {
+      "account_created": "Account created",
+      "account_updated": "Account updated",
+      "settings_updated": "Settings updated",
+      "password_changed": "Password changed",
+      "recovery_prepared": "Recovery phrase prepared",
+      "recovery_used": "Account recovered"
+    },
+    "types": {
+      "account": "Account",
+      "settings": "General settings",
+      "authentication": "Authentication"
+    },
+    "fields": {
+      "role": "Role",
+      "isActive": "Active access",
+      "locale": "Language",
+      "theme": "Theme",
+      "palette": "Palette",
+      "referenceCountry": "Reference country"
+    }
   }
 }
