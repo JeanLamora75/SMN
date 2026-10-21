@@ -1,6 +1,7 @@
 "use client";
 
 import {useEffect,useMemo,useState} from "react";
+import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
 
@@ -12,14 +13,16 @@ type Absence={
 };
 type MemberDay={
  date:string;workingSlots:Slot|null;availableSlots:Slot|null;deductedHalfDays:number|null;
- status:"known"|"unknown";nationalHolidayName:string|null;absences:Absence[];
+ status:"known"|"unknown";nationalHolidayName:string|null;
+ companyClosureName:string|null;absences:Absence[];
 };
 type Member={id:string;displayName:string;memberNumber:number;days:MemberDay[]};
 type Summary={date:string;assigned:number;reportedUnavailable:number;
  known:number;unknown:number;availableMembers:number};
 type Calendar={
  team:{id:string;name:string;mode:string};start:string;end:string;days:7|14|28;
- collective:Summary[];admin?:{members:Member[];categories:{id:string;name:string}[]};
+ collective:Summary[];
+ closures:{id:string;name:string;startOn:string;endOn:string}[];admin?:{members:Member[];categories:{id:string;name:string}[]};
 };
 function todayLocal(){
  const date=new Date();
@@ -98,6 +101,8 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
    <h1 className="h3">{title}</h1>
    <p className="text-secondary">{t(isAdmin?
     "teamCalendar.adminIntro":"teamCalendar.userIntro")}</p>
+   {isAdmin&&<Link href="/app/admin/company-closures" className="btn btn-outline-primary">
+    {t("companyClosures.manage")}</Link>}
   </header>
   <div className="smn-panel p-3 d-grid gap-3">
    <div className="row g-3 align-items-end">
@@ -174,6 +179,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
     <div className="table-responsive">
      <table className="table table-bordered table-sm align-middle">
       <thead><tr><th scope="col">{t("teamCalendar.day")}</th>
+       <th scope="col">{t("companyClosures.collective")}</th>
        <th scope="col">{t("teamCalendar.assigned")}</th>
        <th scope="col">{t("teamCalendar.reportedUnavailable")}</th>
        <th scope="col">{t("teamCalendar.available")}</th>
@@ -181,6 +187,9 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
       </tr></thead>
       <tbody>{state.collective.map(d=><tr key={d.date}>
        <th scope="row">{d.date}</th>
+       <td>{state.closures.filter(c=>c.startOn<=d.date&&c.endOn>=d.date)
+        .map(c=><div key={c.id}><strong>{t("companyClosures.shortLabel")}</strong> {c.name}</div>)}
+        {!state.closures.some(c=>c.startOn<=d.date&&c.endOn>=d.date)&&"—"}</td>
        <td>{d.assigned}</td><td>{d.reportedUnavailable}</td>
        <td>{d.availableMembers}</td><td>{d.unknown}</td>
       </tr>)}</tbody>
@@ -203,6 +212,8 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
          const day=member.days.find(x=>x.date===d.date);
          return <td key={d.date} style={{minWidth:"10rem",verticalAlign:"top"}}>
           {day?<>
+           {day.companyClosureName&&<p className="small mb-1">
+            <strong>{t("companyClosures.shortLabel")}</strong> {day.companyClosureName}</p>}
            {day.nationalHolidayName&&<p className="small mb-1">
             <strong>{t("teamCalendar.holiday")}</strong> {day.nationalHolidayName}</p>}
            {day.absences.map(absence=><div key={absence.id} className="small mb-2">
