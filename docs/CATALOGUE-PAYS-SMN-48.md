@@ -10,7 +10,7 @@ Pour ajouter un pays, renseigner son **code ISO à deux lettres** et son **nom**
 
 Le catalogue apparaît aussi dans les suggestions du champ **Pays** de chaque fiche individuelle sous **Administration → Membres → Localisation**. Cela ne déduit pas automatiquement un fuseau horaire, ne modifie pas la langue de l'application et n'altère pas les pays historiques.
 
-L'indication **« Calendrier national : Non configuré »** signifie qu'aucune source de jours fériés n'a encore été chargée : elle ne signifie pas « aucun jour férié ». Les imports et calendriers nationaux seront développés dans les prochaines Stories.
+L'indication **« Calendrier national : Non configuré »** signifie qu'aucune source de jours fériés n'a encore été chargée : elle ne signifie pas « aucun jour férié ». Depuis [SMN-49](CALENDRIERS-NATIONAUX-SMN-49.md), le pays de référence FR/DE/GB peut être préchargé depuis les jeux locaux nationaux (N−2 à N+1) ; les importations CSV/ICS demeurent des Stories ultérieures.
 
 ## État technique et recette
 
