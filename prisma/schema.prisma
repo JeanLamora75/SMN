@@ -56,6 +56,8 @@ model SmnAccount {
   settingsAudit SmnGeneralSettingsAudit[]
   assignmentChanges SmnMemberAssignmentVersion[]
   archivedMembers SmnMember[]
+  changedCalendarWeeks SmnMemberCalendarWeek[]
+  changedCalendarExceptions SmnMemberCalendarException[]
   @@map("smn_account")
 }
 
@@ -130,6 +132,8 @@ model SmnMember {
   installation SmnInstallation @relation(fields:[installationId],references:[id])
   batch SmnMemberBatch @relation(fields:[batchId],references:[id])
   assignments SmnMemberAssignment[]
+  calendarWeeks SmnMemberCalendarWeek[]
+  calendarExceptions SmnMemberCalendarException[]
   @@unique([installationId,memberNumber])
   @@map("smn_member")
 }
@@ -178,4 +182,33 @@ model SmnMemberLifecycleEvent {
   occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
   details Json @default("{}")
   @@map("smn_member_lifecycle_event")
+}
+
+model SmnMemberCalendarWeek {
+  id String @id
+  memberId String @map("member_id")
+  revision Int
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  days Json
+  createdBy String? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  member SmnMember @relation(fields:[memberId],references:[id],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
+  @@unique([memberId,revision])
+  @@map("smn_member_calendar_week")
+}
+model SmnMemberCalendarException {
+  id String @id
+  memberId String @map("member_id")
+  onDate DateTime @map("on_date") @db.Date
+  revision Int
+  morning Boolean
+  afternoon Boolean
+  note String?
+  createdBy String? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  member SmnMember @relation(fields:[memberId],references:[id],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
+  @@unique([memberId,onDate,revision])
+  @@map("smn_member_calendar_exception")
 }
