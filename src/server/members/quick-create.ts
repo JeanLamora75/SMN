@@ -127,7 +127,9 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
    VALUES($1,'singleton',$2,$3,$4)`,
    [input.requestId,team.id,input.count,actorId]);
   const members:MemberListItem[]=[];
-  const startOn=new Date().toISOString().slice(0,10);
+  const dateResult=await client.query<{today:string}>("SELECT CURRENT_DATE::text AS today");
+  const startOn=dateResult.rows[0]?.today;
+  if(!startOn||!/^\\d{4}-\\d{2}-\\d{2}$/.test(startOn))throw new Error("members-date-unavailable");
   for(let index=0;index<input.count;index++){
    const id=randomUUID(),memberNumber=index+1,role=initialAgileRole(index);
    const displayName="Membre "+memberNumber;
