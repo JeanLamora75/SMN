@@ -3,6 +3,8 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {backupRootPath,backupState,createManualBackup} from "@/server/backup/runner";
 import {backupInventory} from "@/server/backup/verification";
+import {withAuthDb} from "@/server/auth/database";
+import {readBackupRetention,expiredManagedBackups} from "@/server/backup/retention";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
 const target={type:"backups",exists:true,inScope:true} as const;
@@ -11,7 +13,10 @@ export async function GET(request:NextRequest){
  if(!actor)return jsonResult({error:"forbidden"},403);
  try{
   const state=await backupState();
-  return jsonResult({...state,inventory:await backupInventory(backupRootPath())});
+  const policy=await withAuthDb(readBackupRetention);
+  const inventory=await backupInventory(backupRootPath());
+  const eligible=expiredManagedBackups(inventory,policy.days);
+  return jsonResult({...state,inventory,retention:{...policy,eligibleIds:eligible.map(x=>x.id)}});
  }
  catch{return jsonResult({error:"backup-unavailable"},503);}
 }
