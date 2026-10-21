@@ -1437,5 +1437,18 @@
     "savedDuplicate": "Name updated and audited. Another Sprint shares this name.",
     "loadError": "Unable to load Sprints.",
     "saveError": "Unable to save the new name."
+  },
+  "sprintDelete": {
+    "title": "Remove upcoming Sprints",
+    "intro": "Select Sprints that have never started. Started and closed Sprints are protected.",
+    "review": "Review removal",
+    "confirmTitle": "Confirm removal of these Sprints?",
+    "consequences": "Consequences:",
+    "explanation": "Sprints are removed from planning. Audits and historical references are retained; no associated event is deleted automatically.",
+    "confirm": "Confirm removal",
+    "cancel": "Cancel",
+    "done": "{count} Sprint(s) removed.",
+    "error": "Removal service unavailable.",
+    "refused": "Removal refused: a Sprint started, changed or is no longer eligible."
   }
 }
