@@ -23,6 +23,7 @@ export default function MemberCalendarEditor({memberId,onClose}:{
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [week,setWeek]=useState<WorkDay[]>([]);
  const [baseline,setBaseline]=useState("");
+ const [exceptionBaseline,setExceptionBaseline]=useState("");
  const [effective,setEffective]=useState("");
  const [dayDate,setDayDate]=useState("");
  const [am,setAm]=useState(false);
@@ -35,7 +36,7 @@ export default function MemberCalendarEditor({memberId,onClose}:{
   JSON.stringify(week)!==baseline||
   (effective!==(newest(data)?.effective_from&&newest(data)!.effective_from>data.today?
     newest(data)!.effective_from:data.today))||
-  note!==""||am||pm));
+  JSON.stringify({onDate:dayDate,morning:am,afternoon:pm,note})!==exceptionBaseline));
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  const load=async(date?:string)=>{
   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/calendar"+
@@ -54,6 +55,9 @@ export default function MemberCalendarEditor({memberId,onClose}:{
   setAm(selected?.morning??next.day.slots?.morning??false);
   setPm(selected?.afternoon??next.day.slots?.afternoon??false);
   setNote(selected?.note??"");
+  setExceptionBaseline(JSON.stringify({onDate:next.day.onDate,
+   morning:selected?.morning??next.day.slots?.morning??false,
+   afternoon:selected?.afternoon??next.day.slots?.afternoon??false,note:selected?.note??""}));
  };
  useEffect(()=>{
   let active=true;
@@ -67,6 +71,8 @@ export default function MemberCalendarEditor({memberId,onClose}:{
     setEffective(selected&&selected.effective_from>next.today?selected.effective_from:next.today);
     setDayDate(next.day.onDate);
     setAm(next.day.slots?.morning??false);setPm(next.day.slots?.afternoon??false);
+    setExceptionBaseline(JSON.stringify({onDate:next.day.onDate,
+     morning:next.day.slots?.morning??false,afternoon:next.day.slots?.afternoon??false,note:""}));
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
  },[memberId]);
