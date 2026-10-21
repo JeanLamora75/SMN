@@ -332,6 +332,44 @@ try {
       "SELECT count(*)::int AS count FROM public.smn_account WHERE installation_id='singleton'"
     )).rows[0].count);
     assert.equal(accountsAfter,1);
+    // Dated assignment: append without altering initial effective records.
+    const memberWithRoles=rosterAfter.members[0];
+    const versionUrl="/api/admin/members/"+encodeURIComponent(memberWithRoles.id)+"/assignment";
+    const getVersions=(cookie=replacement)=>get(versionUrl,{headers:{...(cookie?{Cookie:cookie}:{})}});
+    const postVersion=(body,cookie=replacement)=>postAuth(versionUrl,body,cookie);
+    assert.equal((await getVersions("")).status,403);
+    const firstVersions=await getVersions();
+    assert.equal(firstVersions.status,200);
+    const assignmentBefore=await firstVersions.json();
+    assert.equal(assignmentBefore.teamId,"team");
+    assert.equal(assignmentBefore.versions.length,1);
+    assert.equal(assignmentBefore.versions[0].shares.scrumMaster,100);
+    const effectiveFrom=assignmentBefore.today;
+    const updateRoles={memberId:memberWithRoles.id,teamId:"team",effectiveFrom,
+      revision:1,contractPercent:100,allocationPercent:80,contributionPercent:75,
+      shares:{scrumMaster:20,productOwner:0,developer:80}};
+    assert.equal((await postVersion({...updateRoles,teamId:"second-team"})).status,404);
+    assert.equal((await postVersion({...updateRoles,shares:{scrumMaster:20,productOwner:0,developer:70}})).status,400);
+    assert.equal((await postVersion({...updateRoles,contractPercent:70})).status,400);
+    const savedTerms=await postVersion(updateRoles);
+    assert.equal(savedTerms.status,200);
+    assert.equal((await savedTerms.json()).revision,2);
+    assert.equal((await postVersion(updateRoles)).status,409);
+    const historicalVersions=await (await getVersions()).json();
+    assert.equal(historicalVersions.versions.length,2);
+    assert.equal(historicalVersions.versions[0].shares.scrumMaster,100);
+    assert.equal(historicalVersions.versions[1].shares.developer,80);
+    assert.equal(historicalVersions.versions[1].contributionPercent,75);
+    assert.equal(historicalVersions.current.shares.developer,80);
+    assert.equal(historicalVersions.current.developerShare,0.8);
+    const rosterWithRoles=await (await get("/api/admin/members",{headers:{Cookie:replacement}})).json();
+    assert.equal(rosterWithRoles.members[0].allocationPercent,80);
+    assert.equal(rosterWithRoles.members[0].roleShares.scrumMaster,20);
+    assert.equal(rosterWithRoles.members[0].developmentCapacityJh,null);
+    assert.equal((await withDb(async client=>(await client.query(
+     "SELECT count(*)::int AS count FROM public.smn_member_assignment_version WHERE assignment_id=$1",
+     [assignmentBefore.assignmentId]
+    )).rows[0].count)),2);
     const initialBackupStatus=await get("/api/admin/backups",{headers:{Cookie:replacement}});
     assert.equal(initialBackupStatus.status,200);
     assert.equal((await initialBackupStatus.json()).needsRecoveryPhrase,true);
@@ -614,6 +652,8 @@ try {
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/members",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await getVersions(userReady)).status,403);
+    assert.equal((await postVersion(updateRoles,userReady)).status,403);
     assert.equal((await get(profileUrl,{headers:{Cookie:userReady}})).status,405);
     assert.equal((await patchProfile({
       displayName:"Indiscret",email:"private@example.org",revision:2
