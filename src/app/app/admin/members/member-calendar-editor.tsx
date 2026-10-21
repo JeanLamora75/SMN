@@ -70,15 +70,20 @@ export default function MemberCalendarEditor({memberId,onClose}:{
     setData(next);setStatus("ready");setWeek(days);setBaseline(JSON.stringify(days));
     setEffective(selected&&selected.effective_from>next.today?selected.effective_from:next.today);
     setDayDate(next.day.onDate);
-    setAm(next.day.slots?.morning??false);setPm(next.day.slots?.afternoon??false);
+    const except=next.exceptions.filter(e=>e.on_date===next.day.onDate).at(-1);
+    setAm(except?.morning??next.day.slots?.morning??false);
+    setPm(except?.afternoon??next.day.slots?.afternoon??false);
+    setNote(except?.note??"");
     setExceptionBaseline(JSON.stringify({onDate:next.day.onDate,
-     morning:next.day.slots?.morning??false,afternoon:next.day.slots?.afternoon??false,note:""}));
+     morning:except?.morning??next.day.slots?.morning??false,
+     afternoon:except?.afternoon??next.day.slots?.afternoon??false,note:except?.note??""}));
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
  },[memberId]);
  const changeDay=(index:number,field:"morning"|"afternoon",checked:boolean)=>
   setWeek(rows=>rows.map((row,i)=>i===index?{...row,[field]:checked}:row));
  const selectDate=(value:string)=>{
+  if(dirty&&!window.confirm(t("draft.discardWarning")))return;
   setDayDate(value);setError("");setMessage("");
   setStatus("loading");
   void load(value).catch(()=>setStatus("error"));
