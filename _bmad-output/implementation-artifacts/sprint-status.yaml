@@ -87,7 +87,7 @@ development_status:
   3-7-administrer-le-catalogue-des-sept-pays-initiaux: review
   3-8-précharger-les-calendriers-nationaux-disponibles-à-l-install: review
   3-9-importer-des-jours-fériés-nationaux-à-partir-d-un-csv: review
-  3-10-importer-et-sélectionner-des-jours-fériés-nationaux-depuis-u: backlog
+  3-10-importer-et-sélectionner-des-jours-fériés-nationaux-depuis-u: review
   3-11-administrer-les-catégories-et-couleurs-des-absences: backlog
   3-12-enregistrer-et-modifier-une-absence-individuelle-centralisée: backlog
   3-13-traiter-les-particularités-régionales-comme-absences-individ: backlog
