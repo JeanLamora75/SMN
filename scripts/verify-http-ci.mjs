@@ -370,6 +370,65 @@ try {
      "SELECT count(*)::int AS count FROM public.smn_member_assignment_version WHERE assignment_id=$1",
      [assignmentBefore.assignmentId]
     )).rows[0].count)),2);
+    const lifecyclePath=id=>"/api/admin/members/"+encodeURIComponent(id)+"/lifecycle";
+    const lifecycleRead=(id,cookie=replacement)=>get(lifecyclePath(id),{
+      headers:cookie?{Cookie:cookie}:{}});
+    const lifecycleWrite=(id,payload,cookie=replacement)=>
+      postAuth(lifecyclePath(id),payload,cookie);
+    assert.equal((await lifecycleRead(memberWithRoles.id,"")).status,403);
+    const inspection=(await (await lifecycleRead(memberWithRoles.id)).json());
+    assert.equal(inspection.assignments.length,1);
+    assert.equal(inspection.canDelete,false);
+    assert.ok(inspection.referenceCount>0);
+    const firstAssignment=inspection.assignments[0];
+    assert.equal((await lifecycleWrite(memberWithRoles.id,{
+     action:"close",assignmentId:firstAssignment.id,endOn:"2020-01-01",revision:0
+    })).status,400);
+    const ended=await lifecycleWrite(memberWithRoles.id,{
+     action:"close",assignmentId:firstAssignment.id,endOn:inspection.today,revision:0
+    });
+    assert.equal(ended.status,200);
+    assert.equal((await ended.json()).activeCount,4);
+    assert.equal((await lifecycleWrite(memberWithRoles.id,{
+     action:"delete",confirmation:"SUPPRIMER",revision:1
+    })).status,409);
+    const archived=await lifecycleWrite(memberWithRoles.id,{action:"archive",revision:1});
+    assert.equal(archived.status,200);
+    const rosterArchived=await (await get("/api/admin/members",{
+     headers:{Cookie:replacement}})).json();
+    assert.equal(rosterArchived.members[0].archived,true);
+    assert.equal(rosterArchived.members.length,5);
+    const restore=await lifecycleWrite(memberWithRoles.id,{action:"reactivate",revision:2});
+    assert.equal(restore.status,200);
+    const afterRestore=await (await lifecycleRead(memberWithRoles.id)).json();
+    assert.equal(afterRestore.archived,false);
+    assert.equal(afterRestore.assignments[0].endOn,inspection.today);
+    assert.equal(afterRestore.memberId,memberWithRoles.id);
+    // A closure with two remaining members must warn without blocking.
+    for(const index of [2,3]){
+      const person=rosterAfter.members[index];
+      const state=await (await lifecycleRead(person.id)).json();
+      const result=await lifecycleWrite(person.id,{
+       action:"close",assignmentId:state.assignments[0].id,
+       endOn:state.today,revision:0
+      });
+      assert.equal(result.status,200);
+      const saved=await result.json();
+      if(index===3){
+       assert.equal(saved.activeCount,2);
+       assert.equal(saved.warning,"team-below-three");
+      }
+    }
+    const preserved=await withDb(async c=>(await c.query(
+     "SELECT count(*)::int AS count FROM public.smn_member_assignment_version WHERE assignment_id=$1",
+     [firstAssignment.id]
+    )).rows[0].count);
+    assert.equal(preserved,2);
+    const history=await withDb(async c=>(await c.query(
+     "SELECT count(*)::int AS count FROM public.smn_member_lifecycle_event WHERE member_id=$1",
+     [memberWithRoles.id]
+    )).rows[0].count);
+    assert.equal(history,3);
     const initialBackupStatus=await get("/api/admin/backups",{headers:{Cookie:replacement}});
     assert.equal(initialBackupStatus.status,200);
     assert.equal((await initialBackupStatus.json()).needsRecoveryPhrase,true);
@@ -418,7 +477,7 @@ try {
       mode:"scrum",product:"Produit de recette CI"});
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
-    )).rows[0].schema_version)),11);
+    )).rows[0].schema_version)),12);
     // SMN-20 — registre de configuration strictement privé aux administrateurs.
     const readChecklist=async(cookie=replacement)=>{
       const response=await get("/api/admin/configuration-tasks",{headers:{Cookie:cookie}});
@@ -653,6 +712,8 @@ try {
     assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/members",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await getVersions(userReady)).status,403);
+    assert.equal((await lifecycleRead(memberWithRoles.id,userReady)).status,403);
+    assert.equal((await lifecycleWrite(memberWithRoles.id,{action:"archive",revision:3},userReady)).status,403);
     assert.equal((await postVersion(updateRoles,userReady)).status,403);
     assert.equal((await get(profileUrl,{headers:{Cookie:userReady}})).status,405);
     assert.equal((await patchProfile({

@@ -55,6 +55,7 @@ model SmnAccount {
   changedSettings SmnGeneralSettings[]
   settingsAudit SmnGeneralSettingsAudit[]
   assignmentChanges SmnMemberAssignmentVersion[]
+  archivedMembers SmnMember[]
   @@map("smn_account")
 }
 
@@ -119,6 +120,9 @@ model SmnMember {
   email String?
   revision Int @default(0)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
+  archivedBy String? @map("archived_by")
+  archivedActor SmnAccount? @relation(fields:[archivedBy],references:[id],onDelete:SetNull)
   isProvisional Boolean @default(true) @map("is_provisional")
   contractPercent Int @default(100) @map("contract_percent")
   contributionPercent Int @default(100) @map("contribution_percent")
@@ -162,4 +166,16 @@ model SmnMemberAssignmentVersion {
   actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
   @@unique([assignmentId,revision])
   @@map("smn_member_assignment_version")
+}
+
+model SmnMemberLifecycleEvent {
+  id String @id
+  memberId String @map("member_id")
+  assignmentId String? @map("assignment_id")
+  action String
+  effectiveOn DateTime @map("effective_on") @db.Date
+  performedBy String? @map("performed_by")
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  details Json @default("{}")
+  @@map("smn_member_lifecycle_event")
 }

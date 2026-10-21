@@ -16,7 +16,7 @@ export type AssignmentState=Readonly<{
 }>;
 export type AssignmentWriteResult={ok:true;created:boolean;revision:number}|
  {ok:false;error:"invalid-input"|"team-unavailable"|"not-found"|"already-assigned"|
- "conflict"|"date-in-past"|"date-before-assignment"|"date-before-latest"};
+ "conflict"|"date-in-past"|"date-before-assignment"|"date-before-latest"|"archived"};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TEAM_ID=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
 const percent=(v:unknown):v is number=>Number.isSafeInteger(v)&&typeof v==="number"&&v>=0&&v<=100;
@@ -59,22 +59,23 @@ const versionsSql=`SELECT revision,effective_from::text AS effective_from,contra
  FROM public.smn_member_assignment_version WHERE assignment_id=$1
  ORDER BY effective_from ASC,revision ASC LIMIT 501`;
 async function teamAndMember(client:Client,id:string,lock:boolean){
- const member=await client.query<{id:string;contract_percent:number}>(
-  `SELECT id,contract_percent FROM public.smn_member WHERE id=$1 AND installation_id='singleton'`+
+ const member=await client.query<{id:string;contract_percent:number;archived_at:string|null}>(
+  `SELECT id,contract_percent,archived_at::text AS archived_at FROM public.smn_member WHERE id=$1 AND installation_id='singleton'`+
    (lock?" FOR UPDATE":""),[id]);
  if(member.rows.length!==1)return null;
  const team=await client.query<{id:string}>(`SELECT t.id FROM public.smn_team t
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND i.mode IN ('scrum','kanban') LIMIT 2`);
  if(team.rows.length!==1)throw new Error("members-team-unavailable");
- return {teamId:team.rows[0].id};
+ return {teamId:team.rows[0].id,archived:member.rows[0].archived_at!=null};
 }
 async function assignmentFor(client:Client,id:string,lock:boolean){
  const rows=await client.query<AssignmentRow>(`SELECT id,team_id,start_on::text AS start_on,
- end_on::text AS end_on FROM public.smn_member_assignment WHERE member_id=$1`+
-  (lock?" FOR UPDATE":""),[id]);
- if(rows.rows.length>1)throw new Error("members-duplicate-assignment");
- return rows.rows[0]??null;
+ end_on::text AS end_on FROM public.smn_member_assignment WHERE member_id=$1
+ ORDER BY start_on DESC,id DESC`+(lock?" FOR UPDATE":""),[id]);
+ const open=rows.rows.filter(a=>a.end_on===null);
+ if(open.length>1)throw new Error("members-duplicate-assignment");
+ return {current:open[0]??null,all:rows.rows};
 }
 async function effectiveToday(client:Client):Promise<string>{
  const r=await client.query<{today:string}>("SELECT CURRENT_DATE::text AS today");
@@ -87,8 +88,9 @@ export async function readMemberAssignment(client:Client,memberId:string):Promis
  const member=await teamAndMember(client,memberId,false);
  if(!member)throw new Error("member-not-found");
  const today=await effectiveToday(client);
- const assignment=await assignmentFor(client,memberId,false);
- if(assignment&&assignment.team_id!==member.teamId)throw new Error("member-out-of-scope");
+ const found=await assignmentFor(client,memberId,false);
+ if(found.all.some(a=>a.team_id!==member.teamId))throw new Error("member-out-of-scope");
+ const assignment=found.current;
  const rows=assignment?await client.query<VersionRow>(versionsSql,[assignment.id]):{rows:[]};
  if(rows.rows.length>500)throw new Error("members-versions-limit");
  const versions=rows.rows.map(versionOf);
@@ -108,6 +110,7 @@ export async function saveMemberAssignment(client:Client,memberId:string,actorId
   // Locks the central identity so first assignment, history and profile edits cannot race.
   const member=await teamAndMember(client,memberId,true);
   if(!member){await client.query("ROLLBACK");return {ok:false,error:"not-found"};}
+  if(member.archived){await client.query("ROLLBACK");return {ok:false,error:"archived"};}
   if(member.teamId!==input.teamId){
    await client.query("ROLLBACK");return {ok:false,error:"team-unavailable"};
   }
@@ -115,9 +118,14 @@ export async function saveMemberAssignment(client:Client,memberId:string,actorId
   if(input.effectiveFrom<today){
    await client.query("ROLLBACK");return {ok:false,error:"date-in-past"};
   }
-  const current=await assignmentFor(client,memberId,true);
-  if(current&&(current.team_id!==member.teamId||current.end_on!==null)){
-   await client.query("ROLLBACK");return {ok:false,error:"already-assigned"};
+  const found=await assignmentFor(client,memberId,true);
+  if(found.all.some(a=>a.team_id!==member.teamId)){
+   await client.query("ROLLBACK");return {ok:false,error:"team-unavailable"};
+  }
+  const current=found.current;
+  const lastEnd=found.all.filter(a=>a.end_on!==null).map(a=>a.end_on!).sort().at(-1)??null;
+  if(!current&&lastEnd!==null&&input.effectiveFrom<=lastEnd){
+   await client.query("ROLLBACK");return {ok:false,error:"date-before-assignment"};
   }
   if(current&&input.effectiveFrom<current.start_on){
    await client.query("ROLLBACK");return {ok:false,error:"date-before-assignment"};
