@@ -22,11 +22,12 @@ export default function HolidayCsvImport({countries,onCompleted}:{
  const [filename,setFilename]=useState("");
  const [preview,setPreview]=useState<Preview|null>(null);
  const [notice,setNotice]=useState("");
+ const [success,setSuccess]=useState(false);
  const [busy,setBusy]=useState(false);
  const [page,setPage]=useState(0);
  async function selectFile(event:ChangeEvent<HTMLInputElement>){
   const file=event.currentTarget.files?.[0];
-  setPreview(null);setPage(0);setNotice("");setCsv("");setFilename("");
+  setPreview(null);setPage(0);setNotice("");setSuccess(false);setCsv("");setFilename("");
   if(!file)return;
   if(file.size>MAX_FILE_BYTES){setNotice("too-large");return;}
   try{
@@ -38,7 +39,7 @@ export default function HolidayCsvImport({countries,onCompleted}:{
  async function process(stage:"preview"|"commit"){
   if(!country||!csv||busy)return;
   if(stage==="commit"&&!preview)return;
-  setBusy(true);setNotice("");
+  setBusy(true);setNotice("");setSuccess(false);
   try{
    const response=await fetch("/api/admin/countries/import-csv",{
     method:"POST",headers:{"Content-Type":"application/json"},
@@ -61,7 +62,8 @@ export default function HolidayCsvImport({countries,onCompleted}:{
     setNotice(t("countries.csvSaved").replace("{created}",String(data.created??0))
      .replace("{replaced}",String(data.replaced??0))
      .replace("{rejected}",String(data.preview?.rejected??0)));
-    await onCompleted();
+    setSuccess(true);
+    await onCompleted().catch(()=>undefined);
    }
   }catch{setNotice("failed");}finally{setBusy(false);}
  }
@@ -90,7 +92,7 @@ export default function HolidayCsvImport({countries,onCompleted}:{
     onClick={()=>void process("preview")}>{t("countries.csvPreview")}</button>
   </div>
   {filename&&<p className="small mt-2">{filename}</p>}
-  {notice&&<p role="status" className={notice.includes("cré")?"alert alert-success":"alert alert-info"}>
+  {notice&&<p role={success?"status":"alert"} className={success?"alert alert-success":"alert alert-info"}>
    {notice=== "preview-expired"?t("countries.csvPreviewExpired"):
     notice==="preview-ready"?t("countries.csvPreviewReady"):
     notice==="invalid-csv"?t("countries.csvInvalid"):
