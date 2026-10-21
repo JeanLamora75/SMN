@@ -10,6 +10,7 @@ function fixture(options:{existing?:number;failAt?:number;batch?:boolean}={}){
  const sql:string[]=[],params:unknown[][]=[];let insertion=0;
  const db={query:async(query:string,values:unknown[]=[])=>{
   sql.push(query);params.push(values);
+  if(query.includes("CURRENT_DATE::text AS today"))return {rowCount:1,rows:[{today:"2026-10-21"}]};
   if(query.includes("FROM public.smn_team t"))return {rowCount:1,rows:[{team_id:"team",team_name:"Produit Scrum",mode:"scrum"}]};
   if(query.includes("FROM public.smn_member_batch WHERE id="))
    return options.batch?{rowCount:1,rows:[{id:values[0],team_id:"team",requested_count:5,created_by:"admin"}]}:{rowCount:0,rows:[]};
