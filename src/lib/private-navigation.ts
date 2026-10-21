@@ -24,6 +24,7 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
       {id:"security",label:"navigation.entries.security",href:"/app/security",icon:"♧"},
     ]},
     {id:"calendar",label:"navigation.groups.calendar",entries:[
+      {id:"centralCalendar",label:"centralCalendar.title",href:"/app/team-calendar",icon:"◫"},
       {id:"events",label:"navigation.entries.events",href:null,icon:"◫"},
     ]},
     {id:"cycles",label:"navigation.groups.cycles",entries:[
