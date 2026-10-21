@@ -61,7 +61,7 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
    year,status:"not-configured",count:0,diagnostic:"country-not-in-catalog"}));}
   const results:YearResult[]=[];
   for(const value of validated){
-   let status=value.status,diagnostic=value.diagnostic;
+   let status=value.status,diagnostic=value.diagnostic,count=value.count;
    if(status==="configured"){
     for(const holiday of value.holidays){
      await client.query(`INSERT INTO public.smn_national_holiday(country_code,holiday_date,name)
@@ -72,9 +72,10 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
       FROM public.smn_national_holiday WHERE country_code=$1
       AND holiday_date >= make_date($2,1,1) AND holiday_date < make_date($2+1,1,1)`,
      [country,value.year]);
-    if(Number(total.rows[0]?.total)!==value.count){
+    const actual=Number(total.rows[0]?.total);
+    if(actual<value.count){
      status="invalid";diagnostic="unexpected-year-count";
-    }
+    }else count=actual;
    }
    await client.query(`INSERT INTO public.smn_national_calendar_coverage
       (country_code,calendar_year,status,entries_count,diagnostic,source_file)
@@ -82,9 +83,9 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
       ON CONFLICT (country_code,calendar_year) DO UPDATE SET
       status=EXCLUDED.status,entries_count=EXCLUDED.entries_count,
       diagnostic=EXCLUDED.diagnostic,source_file=EXCLUDED.source_file,checked_at=now()`,
-     [country,value.year,status,status==="configured"?value.count:0,diagnostic,
+     [country,value.year,status,status==="configured"?count:0,diagnostic,
       bundle?`${country}.json`:null]);
-   results.push({year:value.year,status,count:status==="configured"?value.count:0,diagnostic});
+   results.push({year:value.year,status,count:status==="configured"?count:0,diagnostic});
   }
   await client.query("COMMIT");
   return results;
