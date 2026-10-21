@@ -1437,5 +1437,18 @@
     "savedDuplicate": "Nom modifié et audité. Attention : un autre Sprint porte le même nom.",
     "loadError": "Chargement des Sprints impossible.",
     "saveError": "Impossible d'enregistrer le nouveau nom."
+  },
+  "sprintDelete": {
+    "title": "Retirer des Sprints à venir",
+    "intro": "Sélectionnez uniquement des Sprints jamais commencés. Les Sprints démarrés ou clôturés sont protégés.",
+    "review": "Vérifier la suppression",
+    "confirmTitle": "Confirmer la suppression de ces Sprints ?",
+    "consequences": "Conséquences :",
+    "explanation": "Ces Sprints seront retirés de la planification. Les audits et les références historiques sont conservés ; aucun événement associé n’est effacé automatiquement.",
+    "confirm": "Confirmer le retrait",
+    "cancel": "Annuler",
+    "done": "{count} Sprint(s) retiré(s).",
+    "error": "Service de suppression indisponible.",
+    "refused": "Suppression refusée : un Sprint a commencé, a changé ou n’est plus supprimable."
   }
 }
