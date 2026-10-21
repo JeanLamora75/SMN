@@ -620,6 +620,9 @@ model SmnSprint {
  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
  deletedBy String? @map("deleted_by")
+ autoSuspended Boolean @default(false) @map("auto_suspended")
+ transitions SmnSprintTransition[]
+ capacityTrigger SmnSprintCapacityTrigger?
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
  audit SmnSprintAudit[]
  @@unique([teamId,number])
@@ -658,4 +661,24 @@ model SmnSprintBatchAudit {
  sprints Json @db.JsonB
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
  @@map("smn_sprint_batch_audit")
+}
+
+model SmnSprintTransition {
+ id String @id
+ sprintId String @map("sprint_id")
+ transition String
+ businessAt DateTime @map("business_at") @db.Timestamptz(6)
+ processedAt DateTime @default(now()) @map("processed_at") @db.Timestamptz(6)
+ actorId String? @map("actor_id")
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@unique([sprintId,transition])
+ @@map("smn_sprint_transition")
+}
+model SmnSprintCapacityTrigger {
+ sprintId String @id @map("sprint_id")
+ dueAt DateTime @map("due_at") @db.Timestamptz(6)
+ requestedAt DateTime @default(now()) @map("requested_at") @db.Timestamptz(6)
+ status String @default("pending")
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_capacity_trigger")
 }

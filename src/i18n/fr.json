@@ -1450,5 +1450,19 @@
     "done": "{count} Sprint(s) retiré(s).",
     "error": "Service de suppression indisponible.",
     "refused": "Suppression refusée : un Sprint a commencé, a changé ou n’est plus supprimable."
+  },
+  "sprintStates": {
+    "title": "États des Sprints",
+    "intro": "Les états À venir, En cours et Terminé sont recalculés à la consultation. La clôture reste volontaire.",
+    "refresh": "Actualiser",
+    "name": "Sprint",
+    "status": "État",
+    "range": "Bornes UTC",
+    "planned": "À venir",
+    "active": "En cours",
+    "finished": "Terminé",
+    "closed": "Clôturé",
+    "suspended": "À venir (suspendu)",
+    "error": "Impossible de réconcilier les états."
   }
 }
