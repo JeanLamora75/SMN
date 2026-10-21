@@ -181,3 +181,11 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Tests écrits : `tests/audit-journal.test.ts`, assertions d'intégration GitHub Actions, diagnostic schéma v7. Exécution réelle Node/Windows et recette toujours à faire avant clôture Jira. Les vues ordinaires ne sont pas journalisées et les rejets ne créent aucun événement de succès.
 
 - **SMN-29 intégrée** : [PR #24](https://github.com/JeanLamora75/SMN/pull/24) fusionnée le 21/10/2026 (commit `b8877883d014b15052fbb86cb6d21ca511df7040`). La migration v7 et les nouveaux tests sont publiés ; validation PostgreSQL Windows non attestée. Les 431 clés de traduction FR/EN sont alignées. Jira En cours : fermeture après recette.
+
+## SMN-30 — Sauvegarde manuelle complète (21 octobre 2026)
+
+- [Jira SMN-30](https://lmn24.atlassian.net/browse/SMN-30), Story 2.2 de l'Epic 2. Détails : [docs/SAUVEGARDE-MANUELLE-SMN-30.md](SAUVEGARDE-MANUELLE-SMN-30.md).
+- Administrateur uniquement : page `/app/admin/backups` et `GET/POST /api/admin/backups`. Paquet privé chiffré PostgreSQL 18 custom + documents existants du stockage SMN-26. Aucun fichier fictif ou téléchargement public.
+- Phrase de récupération distincte du mot de passe administrateur lors de la première sauvegarde ; clé locale conservée dans le profil privé, enveloppe scrypt+AES-GCM dans chaque paquet, aucun secret en clair dans le paquet exportable.
+- Verrou PostgreSQL `pg_try_advisory_lock(20261021,30)` à reprendre dans les futures opérations qui écrivent des fichiers archivés et leurs références DB. Comparaison des inventaires avant/après, publication atomique et suppression des staging échoués.
+- L'état « sauvegarde créée » ne signifie pas « restauration validée ». Exécuter les tests Node, PostgreSQL 18.6, Windows, les parcours de sauvegarde avec vraies pièces et une restauration isolée avant toute attestation complète de récupérabilité.
