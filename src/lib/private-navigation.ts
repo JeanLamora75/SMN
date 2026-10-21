@@ -42,6 +42,7 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
     id:"admin",label:"navigation.groups.admin",entries:[
       {id:"users",label:"navigation.entries.users",href:"/app/admin/users",icon:"⚙"},
       {id:"settings",label:"navigation.entries.settings",href:"/app/admin/settings",icon:"⚙"},
+      {id:"audit",label:"navigation.entries.audit",href:"/app/admin/audit",icon:"▤"},
     ],
   });
   return groups;

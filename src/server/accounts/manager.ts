@@ -38,10 +38,11 @@ export async function listAccounts(client: Client): Promise<ListedAccount[]> {
     FROM public.smn_account WHERE installation_id='singleton' ORDER BY created_at ASC,username ASC LIMIT 500`);
   return r.rows;
 }
-export async function createAccount(client:Client,body:unknown):Promise<AccountResult<ListedAccount>> {
+export async function createAccount(client:Client,body:unknown,actorId:string):Promise<AccountResult<ListedAccount>> {
   const input=parseNewAccount(body);
-  if (!input) return invalid();
+  if (!input || !actorId) return invalid();
   const hash=await passwordHash(input.password);
+  await client.query("BEGIN");
   try {
     const r=await client.query<ListedAccount>(`
       INSERT INTO public.smn_account
@@ -49,8 +50,15 @@ export async function createAccount(client:Client,body:unknown):Promise<AccountR
       VALUES($1,'singleton',$2,$3,$4,$5,true,true)
       RETURNING id,username,email,role,is_active,must_change_password,created_at
     `,[randomUUID(),input.username,input.email,input.role,hash]);
+    if(r.rowCount!==1 || !r.rows[0])throw new Error("account-create-unavailable");
+    await client.query(`INSERT INTO public.smn_account_audit
+      (id,installation_id,actor_id,object_id,action,old_values,new_values)
+      VALUES($1,'singleton',$2,$3,'account_created',$4::jsonb,$5::jsonb)`,
+      [randomUUID(),actorId,r.rows[0].id,"{}",JSON.stringify({role:input.role,isActive:true})]);
+    await client.query("COMMIT");
     return {ok:true,data:r.rows[0]};
   } catch(error) {
+    await client.query("ROLLBACK").catch(()=>undefined);
     if (error && typeof error==="object" && "code" in error && error.code==="23505")
       return {ok:false,error:"duplicate-account"};
     throw error;
@@ -85,10 +93,20 @@ export async function updateAccount(
         return {ok:false,error:"last-admin"};
       }
     }
+    if(current.role===input.role&&current.is_active===input.isActive){
+      await client.query("COMMIT");
+      return {ok:true,data:current};
+    }
     const result=await client.query<ListedAccount>(`
       UPDATE public.smn_account SET role=$2,is_active=$3 WHERE id=$1 AND installation_id='singleton'
       RETURNING id,username,email,role,is_active,must_change_password,created_at`,
       [id,input.role,input.isActive]);
+    if(result.rowCount!==1||!result.rows[0])throw new Error("account-update-unavailable");
+    await client.query(`INSERT INTO public.smn_account_audit
+      (id,installation_id,actor_id,object_id,action,old_values,new_values)
+      VALUES($1,'singleton',$2,$3,'account_updated',$4::jsonb,$5::jsonb)`,
+      [randomUUID(),actorId,id,JSON.stringify({role:current.role,isActive:current.is_active}),
+        JSON.stringify({role:input.role,isActive:input.isActive})]);
     await client.query("COMMIT");
     return {ok:true,data:result.rows[0]};
   } catch(error) {

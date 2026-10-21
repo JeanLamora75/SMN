@@ -3,7 +3,7 @@ export const INSTALLATION_RELATIONS = [
   "public._prisma_migrations:r", "public.smn_installation:r", "public.smn_product:r",
   "public.smn_team:r", "public.smn_account:r", "public.smn_recovery_phrase:r", "public.smn_auth_audit:r",
   "public.smn_general_settings:r", "public.smn_general_settings_audit:r",
-  "public.smn_configuration_task:r",
+  "public.smn_configuration_task:r", "public.smn_account_audit:r",
 ] as const;
 export type ExpressInput = Readonly<{ mode: "scrum" | "kanban"; product: string; team: string; password: string; adminUsername: string; adminEmail: string }>;
 export function validateExpressInput(body: unknown): ExpressInput | null {

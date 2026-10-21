@@ -13,11 +13,12 @@ export async function GET(request:NextRequest) {
   } catch { return jsonResult({error:"service-unavailable"},503); }
 }
 export async function POST(request:NextRequest) {
-  if (!await authorizeApi(request,"write",{type:"accounts",exists:true,inScope:true})) return jsonResult({error:"forbidden"},403);
+  const actor=await authorizeApi(request,"write",{type:"accounts",exists:true,inScope:true});
+  if (!actor) return jsonResult({error:"forbidden"},403);
   const body=await readJsonObject(request);
   if (!body) return jsonResult({error:"invalid-input"},400);
   try {
-    const result=await withAuthDb(client=>createAccount(client,body));
+    const result=await withAuthDb(client=>createAccount(client,body,actor.id));
     if (result.ok) return jsonResult({account:result.data},201);
     return jsonResult({error:result.error},result.error==="duplicate-account"?409:400);
   } catch { return jsonResult({error:"service-unavailable"},503); }

@@ -171,3 +171,11 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Les modules métier futurs sont responsables de la création, des permissions de partage et des contrôles de textes libres. Les tests, la CI et la recette Windows doivent être exécutés avant toute clôture Jira.
 
 - **Intégration SMN-26** : [PR #23](https://github.com/JeanLamora75/SMN/pull/23) fusionnée sur `main` (`8c81b1493cd26abb4803498aab080876381f6a9b`). CI Linux/Windows échouée avant les tests ; documents privés non préinstallés et recette Windows à effectuer. Statut Jira En cours.
+
+## SMN-29 — Journal des opérations sensibles (21/10/2026)
+
+- Epic 2, Story 2.1 : [Jira SMN-29](https://lmn24.atlassian.net/browse/SMN-29). Consulter la [documentation technique](AUDIT-OPERATIONS-SMN-29.md).
+- Source PostgreSQL : comptes audités dans la nouvelle table `smn_account_audit` (migration additive v7), avec événement atomique au sein de la création ou modification, auteur, objet, action, UTC, référence et état Réussie. Aucun audit de réussite pour les créations refusées ni pour les modifications de compte identiques.
+- Journaux existants `smn_general_settings_audit` et `smn_auth_audit` réutilisés dans une consultation unifiée bornée à 100 événements, via `src/server/audit/journal.ts`. Aucun secret, e-mail ni hash n'est projeté dans l'API ; seuls des champs de différence autorisés le sont.
+- Consultation Administrateur uniquement : `/app/admin/audit` et `GET /api/admin/audit`, contrôlées côté serveur ; navigation et textes FR/EN centralisés. Les refus anonymes et Utilisateur ne divulguent aucun événement.
+- Tests écrits : `tests/audit-journal.test.ts`, assertions d'intégration GitHub Actions, diagnostic schéma v7. Exécution réelle Node/Windows et recette toujours à faire avant clôture Jira. Les vues ordinaires ne sont pas journalisées et les rejets ne créent aucun événement de succès.

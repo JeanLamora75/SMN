@@ -10,6 +10,7 @@ import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import { prepareExisting } from "../src/server/bootstrap/existing";
 import { authenticate, changeInitialPassword } from "../src/server/auth/credentials";
 import { ensureAccountsSchema, ACCOUNTS_MIGRATION_SQL } from "../src/server/accounts/migration";
+import { ACCOUNT_AUDIT_MIGRATION_SQL } from "../src/server/audit/account-migration";
 import { listAccounts,createAccount,updateAccount } from "../src/server/accounts/manager";
 
 // Base créée et supprimée exclusivement par le runner éphémère GitHub Actions.
@@ -112,6 +113,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       assert.equal(data.rows[0].password_hash.includes(input.password), false);
       await withClient(target.toString(), client => ensureAccountsSchema(client));
       assert.equal((await readFile("prisma/migrations/20261020_smn15_accounts/migration.sql","utf8")), ACCOUNTS_MIGRATION_SQL);
+      assert.equal((await readFile("prisma/migrations/20261021_smn29_account_audit/migration.sql","utf8")),ACCOUNT_AUDIT_MIGRATION_SQL);
       assert.equal(classifySnapshot(await probePostgres(target.toString())).status, "initialized");
       // SMN-14 : authentification effective sur la base PostgreSQL installée,
       // renouvellement initial obligatoire, suppression du secret précédent.
@@ -138,7 +140,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
         const admin=(await authenticate(client,"admin","newPassword123"))!;
         const newUser=await createAccount(client,{
           username:"consultant",email:"consultant@example.test",password:"pilot1234",role:"user",
-        });
+        },admin.id);
         assert.equal(newUser.ok,true);
         if (!newUser.ok) return;
         const userId=newUser.data.id;
@@ -146,7 +148,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
         assert.equal((await authenticate(client,"consultant","pilot1234"))?.role,"user");
         const duplicate=await createAccount(client,{
           username:"CONSULTANT",email:"other@example.test",password:"pilot1234",role:"user",
-        });
+        },admin.id);
         assert.deepEqual(duplicate,{ok:false,error:"duplicate-account"});
         assert.equal((await listAccounts(client)).length,2,"Pas de ligne créée après collision");
         const lastAdmin=await updateAccount(client,admin.id,userId,{role:"user",isActive:false});

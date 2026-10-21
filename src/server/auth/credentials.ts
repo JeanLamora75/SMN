@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash,randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { verifyPassword, passwordHash } from "./password";
 
@@ -43,9 +43,19 @@ export async function changeInitialPassword(client: Client, account: Account, ol
   if (nextPassword.length < 4 || nextPassword.length > 256 || !account.must_change_password) return false;
   if (!await verifyPassword(oldPassword, account.password_hash) || await verifyPassword(nextPassword, account.password_hash)) return false;
   const newHash = await passwordHash(nextPassword);
-  const r = await client.query(`
-    UPDATE public.smn_account SET password_hash=$1, must_change_password=false
-    WHERE id=$2 AND installation_id='singleton' AND password_hash=$3 AND must_change_password=true
-  `, [newHash, account.id, account.password_hash]);
-  return r.rowCount === 1;
+  await client.query("BEGIN");
+  try {
+    const r=await client.query(`
+      UPDATE public.smn_account SET password_hash=$1, must_change_password=false
+      WHERE id=$2 AND installation_id='singleton' AND password_hash=$3 AND must_change_password=true
+    `,[newHash,account.id,account.password_hash]);
+    if(r.rowCount!==1){await client.query("ROLLBACK");return false;}
+    await client.query(`INSERT INTO public.smn_auth_audit(id,account_id,action)
+      VALUES($1,$2,'password_changed')`,[randomUUID(),account.id]);
+    await client.query("COMMIT");
+    return true;
+  }catch(error){
+    await client.query("ROLLBACK").catch(()=>undefined);
+    throw error;
+  }
 }
