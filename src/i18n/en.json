@@ -505,7 +505,8 @@
       "settings": "General settings",
       "cyclesUnknown": "Cycles (mode unavailable)",
       "audit": "Operations log",
-      "backups": "Backups"
+      "backups": "Backups",
+      "members": "Team members"
     }
   },
   "detail": {
@@ -523,7 +524,8 @@
     "historicalTitle": "Historical consultation context",
     "historicalNotice": "The return link retains the requested period or version selection. The details below are current data, not a historical snapshot or closure version.",
     "missingTitle": "Details unavailable",
-    "missingDescription": "This item does not exist, is no longer available, or you do not have permission to view it. No private information was disclosed."
+    "missingDescription": "This item does not exist, is no longer available, or you do not have permission to view it. No private information was disclosed.",
+    "manageMembers": "Manage this team's members"
   },
   "draft": {
     "pending": "Unsaved changes: your changes are still a draft.",
@@ -626,5 +628,46 @@
     "cleanupFailed": "Cleanup not confirmed. Check the inventory and audit trail before retrying.",
     "externalDisclaimer": "Business PDF/TXT files and Vn snapshots are excluded. SMN cannot monitor or delete backups exported outside managed storage.",
     "retentionUnsaved": "Save or revert the pending duration change before starting cleanup."
+  },
+  "members": {
+    "title": "Team members",
+    "intro": "Create the team's initial member records without creating sign-in accounts for these people.",
+    "back": "Back to dashboard",
+    "teamTitle": "Current team",
+    "teamInfo": "This installation contains exactly one Scrum or Kanban team.",
+    "team": "Team",
+    "mode": "Agile mode",
+    "loading": "Loading team…",
+    "loadFailed": "Could not load members. No creation was attempted.",
+    "createTitle": "Quickly create the first members",
+    "createInfo": "Choose the initial team size. All records are created together, once. Express setup does not require any members.",
+    "countLabel": "Number of members",
+    "rolesHint": "Suggested roles: Scrum Master, Product Owner, Developer, then Developer for additional members.",
+    "percentHint": "Applicable parameters start at 100%. No capacity or cycle KPI is calculated at this stage.",
+    "submit": "Create provisional member records",
+    "running": "Creating members…",
+    "invalidCount": "Enter an integer between 3 and 50 members.",
+    "listTitle": "Team roster",
+    "listInfo": "Identifiers remain stable. Names and roles can be refined in subsequent workflows.",
+    "name": "Provisional name",
+    "role": "Agile role",
+    "arrival": "Joining date",
+    "percent": "Allocation",
+    "capacity": "Development capacity",
+    "percentValue": "{value}%",
+    "notCalculated": "Not calculable",
+    "provisional": "To complete",
+    "provisionalName": "Member {number}",
+    "futureEdits": "Member details, calendars, role splits and capacities will be enriched in later features. Scrum Master and Product Owner roles add no Developer capacity.",
+    "created": "Created {count} member records and assignments.",
+    "recovered": "Existing batch recovered: {count} members, no duplicates.",
+    "alreadyInitialized": "An initial roster already exists. No additional record was created.",
+    "requestConflict": "The initial roster or request has changed. Reload before trying again.",
+    "failed": "Creation could not be confirmed. You can retry: the same request will not create duplicates.",
+    "roles": {
+      "scrumMaster": "Scrum Master",
+      "productOwner": "Product Owner",
+      "developer": "Developer"
+    }
   }
 }
