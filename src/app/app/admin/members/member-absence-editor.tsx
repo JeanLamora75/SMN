@@ -11,7 +11,7 @@ type Absence={id:string;revision:number;categoryId:string;categoryName:string;ca
  createdAt:string;updatedAt:string};
 type DayAvailability={
  onDate:string;countryIso2:string|null;assignmentApplicable:boolean;nationalHoliday:boolean|null;
- nationalHolidayName:string|null;nationalCalendarStatus:string;
+ nationalHolidayName:string|null;companyClosureName:string|null;nationalCalendarStatus:string;
  status:"known"|"unknown";workingSlots:{morning:boolean;afternoon:boolean}|null;
  absenceSlots:{morning:boolean;afternoon:boolean};
  unavailableSlots:{morning:boolean;afternoon:boolean};
@@ -140,6 +140,8 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange,o
     <p className="mb-1">{t("regionalAbsence.dayLabel",{date:selectedOn})}</p>
     {!data.dayAvailability.assignmentApplicable&&
      <p className="mb-1">{t("regionalAbsence.noApplicableAssignment")}</p>}
+    {data.dayAvailability.companyClosureName&&
+     <p className="mb-1">{t("companyClosures.shortLabel")} {data.dayAvailability.companyClosureName}</p>}
     {data.dayAvailability.nationalHoliday===true&&
      <p className="mb-1">{t("regionalAbsence.nationalHoliday",{name:data.dayAvailability.nationalHolidayName??""})}</p>}
     {data.dayAvailability.nationalOverlap&&
