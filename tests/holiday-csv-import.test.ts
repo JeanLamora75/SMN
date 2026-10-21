@@ -84,6 +84,7 @@ describe("Importer CSV national — prévisualisation et confirmation",()=>{
   assert.equal(r.ok,true);
   if(!r.ok)return;
   assert.equal(r.preview.rejected,1);
+  assert.equal(r.preview.rows[0].reason,"existing-date");
   assert.equal(r.preview.proposed,1);
   const done=await executeHolidayCsv(f.db,request(csv,"commit","skip",r.preview.fingerprint),"admin");
   assert.equal(done.ok,true);
