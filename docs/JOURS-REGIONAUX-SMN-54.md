@@ -8,7 +8,7 @@ Dans **Administration → Membres**, ouvrir **Calendrier individuel** du membre 
 
 La date et les créneaux sont initialisés à la journée complète. La catégorie **Autre** est proposée seulement si elle est active ; l'Administrateur peut choisir une autre catégorie. Saisir impérativement le **nom/motif local**, par exemple « Fête de la région », sans créer d'entrée dans le calendrier férié national. Les dates et les demi-journées sont ajustables. Enregistrer normalement l'absence.
 
-L'absence reste **unique sur la fiche du membre**, indépendamment de son affectation à l'équipe MVP. Elle reste traçable et corrigeable comme toute autre absence ; aucune absence n'est copiée dans une autre équipe.
+L'absence reste **unique sur la fiche du membre**, indépendamment de son affectation à l'équipe MVP. Elle reste traçable et corrigeable comme toute autre absence ; aucune absence n'est copiée dans une autre équipe. Le GET par date indique également si **une affectation Scrum/Kanban est applicable** : en son absence, la saisie demeure enregistrée sur le membre, sans déduction imputée à une équipe.
 
 ## Ne pas déduire deux fois
 
