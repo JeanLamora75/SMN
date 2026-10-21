@@ -95,6 +95,16 @@ describe("ICS national — fichier local, sélection et validation",()=>{
    if(r.ok){assert.equal(r.events[0].eligible,false);assert.equal(r.events[0].reason,reason);}
   }
  });
+ it("isole les sous-composants VEVENT interdits sans bloquer les autres événements",()=>{
+  const nested=event("DTSTART;VALUE=DATE:20260101\nSUMMARY:Alarme\nBEGIN:VALARM\nACTION:DISPLAY\nEND:VALARM");
+  const parsed=parseHolidayIcs(file(nested,one));
+  assert.equal(parsed.ok,true);
+  if(parsed.ok){
+   assert.equal(parsed.events[0].eligible,false);
+   assert.equal(parsed.events[0].reason,"nested-component");
+   assert.equal(parsed.events[1].eligible,true);
+  }
+ });
  it("détecte un document invalide, un calendrier vide, des composants mal imbriqués et les limites",()=>{
   for(const ics of ["https://example.org/calendar.ics","BEGIN:VCALENDAR\nEND:VCALENDAR",
    "BEGIN:VCALENDAR\nBEGIN:VEVENT\nSUMMARY:bad\nEND:VCALENDAR",
