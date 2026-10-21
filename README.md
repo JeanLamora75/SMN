@@ -10,9 +10,13 @@ Application destinée aux Scrum Masters, développée selon BMAD 6.12.4. MVP Scr
 
 **SMN-12 est désormais aussi intégré à `main`** via la [PR nº 11](https://github.com/JeanLamora75/SMN/pull/11). L'assistant Express peut créer, après confirmation explicite, sa base PostgreSQL locale dédiée, appliquer la migration initiale et enregistrer le produit, l'équipe et le compte Administrateur. **La recette sur le PC utilisateur reste à effectuer.** Le tableau de bord et les connexions restent bloqués avant SMN-14.
 
-**Mode de travail du pilote, selon demande utilisateur (20/10/2026) :** développer et publier directement sur `main` sans branche ni PR obligatoires, en gardant les commits Git, les contrôles CI et la documentation à jour. Aucune création de base ou opération destructive n'est implicite.
+**Mode de travail du pilote, selon demande utilisateur (20/10/2026) :** développer et publier directement sur `main` sans branche ni PR obligatoires, en gardant les commits Git, les vérifications locales disponibles et la documentation à jour. Aucune création de base ou opération destructive n'est implicite.
 
 Voir [Installation et essais](docs/INSTALLATION.md) pour GitHub Desktop et PowerShell.
+
+## Validation des développements — décision du 21 octobre 2026
+
+**GitHub Actions est indisponible : plus aucun test automatisé exécuté sur GitHub n'est requis pour SMN, jusqu'à décision contraire.** Les agents BMAD continuent de rédiger des tests ; leur exécution se fait localement quand elle est possible, avec collecte des preuves et recette sur Windows/PostgreSQL pilote. Une fusion dans `main` ne signifie pas « tests réussis ». **Référence transversale pour tous les agents :** [Politique de validation sans GitHub Actions](docs/POLITIQUE-VALIDATION-SANS-GITHUB-ACTIONS.md).
 
 ## Référentiels du projet
 
