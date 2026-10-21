@@ -3,9 +3,10 @@
 import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
+import MemberProfileEditor,{type EditableMember} from "./member-profile-editor";
 
 type AgileRole="scrum_master"|"product_owner"|"developer";
-type Member={id:string;memberNumber:number;displayName:string;isProvisional:boolean;
+type Member={id:string;memberNumber:number;displayName:string;email:string|null;revision:number;isProvisional:boolean;
  agileRole:AgileRole;startOn:string;contractPercent:number;allocationPercent:number;
  rolePercent:number;contributionPercent:number;developmentCapacityJh:null};
 type Roster={team:{id:string;name:string;mode:"scrum"|"kanban"};members:Member[]};
@@ -18,6 +19,7 @@ export default function QuickMembersAdmin(){
  const [status,setStatus]=useState<State>("loading");
  const [count,setCount]=useState("3");
  const [busy,setBusy]=useState(false);
+ const [editingId,setEditingId]=useState<string|null>(null);
  const [message,setMessage]=useState("");
  const [error,setError]=useState(false);
  const requestId=useRef<string|null>(null);
@@ -41,6 +43,12 @@ export default function QuickMembersAdmin(){
   return ()=>{live=false;};
  },[]);
  const dirty=count!=="3"&&roster?.members.length===0;
+ const selectedMember=roster?.members.find(m=>m.id===editingId)??null;
+ const savedProfile=(updated:EditableMember)=>{
+  setRoster(current=>current?{...current,members:current.members.map(member=>
+   member.id===updated.id?{...member,...updated}:member)}:current);
+  setEditingId(null);setError(false);setMessage(t("members.profile.saved"));
+ };
  useUnsavedChanges(Boolean(dirty||busy),t("draft.leaveWarning"));
  const membersCreated=Boolean(roster&&roster.members.length>0);
  function roleLabel(role:AgileRole){
@@ -134,20 +142,33 @@ export default function QuickMembersAdmin(){
       <th scope="col">{t("members.arrival")}</th>
       <th scope="col">{t("members.percent")}</th>
       <th scope="col">{t("members.capacity")}</th>
+      <th scope="col">{t("members.profile.emailLabel")}</th>
+      <th scope="col">{t("members.profile.actions")}</th>
      </tr></thead>
      <tbody>{roster?.members.map(member=><tr key={member.id}>
       <td><strong>{member.isProvisional?
        t("members.provisionalName",{number:member.memberNumber}):member.displayName}</strong>
-       {member.isProvisional&&<span className="small text-secondary d-block">
-        {t("members.provisional")}</span>}</td>
+       <span className="small text-secondary d-block">{t(member.isProvisional?
+        "members.provisional":"members.profile.confirmed")}</span></td>
       <td>{roleLabel(member.agileRole)}</td>
       <td><time dateTime={member.startOn}>{member.startOn}</time></td>
       <td>{t("members.percentValue",{value:member.allocationPercent})}</td>
       <td>{t("members.notCalculated")}</td>
+      <td>{member.email??t("members.profile.noEmail")}</td>
+      <td><button type="button" className="btn btn-outline-primary btn-sm"
+       disabled={busy||(editingId!==null&&editingId!==member.id)}
+       onClick={()=>{if(editingId===member.id){setEditingId(null);}else{
+        setMessage("");setEditingId(member.id);}}}>
+       {t(editingId===member.id?"members.profile.cancel":"members.profile.edit")}
+      </button></td>
      </tr>)}</tbody>
     </table>
    </div>
    <p className="small text-secondary mb-0">{t("members.futureEdits")}</p>
+   {selectedMember&&<div className="mt-4">
+    <MemberProfileEditor key={selectedMember.id} member={selectedMember}
+     onSaved={savedProfile} onCancel={()=>setEditingId(null)}/>
+   </div>}
   </section>}
   {message&&<p role={error?"alert":"status"}
    className={"alert "+(error?"alert-warning":"alert-success")}>{message}</p>}
