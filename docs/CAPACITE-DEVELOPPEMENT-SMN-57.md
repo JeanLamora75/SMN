@@ -18,6 +18,8 @@ En l'absence de trame, de version historique, de pays, de couverture nationale o
 
 Le moteur ne crée ni Sprint ni indicateur Kanban ; il ne convertit aucun Story Point et ne modifie ni ancien PDF ni capacité figée.
 
+**SMN-58** permet maintenant de [saisir une capacité manuelle prioritaire](CAPACITE-MANUELLE-SMN-58.md) pour la période : la référence calculée reste visible, la saisie 0 JH est distincte du champ vide et l'effacement volontaire rétablit le calcul en conservant l'historique. Le verrouillage effectif des périodes dépend des futurs mécanismes de figement/clôture.
+
 ## Recette Windows à réaliser
 
 Après synchronisation de `main` et sauvegarde d'une base PostgreSQL 18.6 pilote, appliquer la migration **v20 → v21**, puis :
