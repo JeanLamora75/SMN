@@ -1026,5 +1026,16 @@
     "notFound": "Category not found.",
     "catalogueFull": "The catalogue limit of 100 categories has been reached.",
     "failed": "The change could not be confirmed. Reload and try again."
+  },
+  "regionalAbsence": {
+    "intro": "A regional non-working day is not added to the national holiday calendar: record it as the member's own absence. The 'Other' category is suggested if active; a local name or reason is mandatory.",
+    "prepare": "Prepare a regional non-working day",
+    "dayReview": "Consolidated unavailability for selected date",
+    "dayLabel": "Date: {date}",
+    "nationalHoliday": "Recorded national holiday: {name}",
+    "notDoubleCounted": "An absence overlaps a national holiday: no work slot is deducted twice.",
+    "unavailableHalfDays": "Unavailable normally worked slots: {count} half-day(s), across all sources.",
+    "unknownAvailability": "Deduction cannot be determined: configure the member's work schedule and national coverage for this date. Recorded absences remain visible.",
+    "capacityPending": "This daily summary is indicative. Consolidated sprint capacity and the team calendar belong to their own later Stories."
   }
 }
