@@ -63,3 +63,19 @@ Architecture de référence : `_bmad-output/planning-artifacts/prds/prd-SMN-2026
 
 
 **Résultats de contrôle au 21/10/2026 :** 12 assertions de cohérence sur le contenu réel des fichiers GitHub réussies (structure, accès, états désactivés, CSS, i18n et sécurité) et 26 vérifications source complémentaires réussies. Catalogues FR/EN : 462 clés communes sans écart ni paramètre de substitution manquant. Les workflows GitHub Actions de la PR #26 ont été déclenchés mais ont échoué en 2 secondes **sans runner attribué et sans aucune étape exécutée** sur Linux/Windows : [Vérification I0](https://github.com/JeanLamora75/SMN/actions/runs/39580664197). Aucun résultat de `pnpm test`, lint, typecheck ou build n'est donc revendiqué ; revue d'exécution et recette navigateur restent à effectuer.
+
+
+## Refonte UX — Lot 2 : bandeau cycle et indicateurs (21/10/2026)
+
+**Périmètre livré :** `src/app/app/cycle-overview.tsx` (nouveau composant de présentation), `src/app/app/page.tsx`, `src/app/dashboard.css`, et catalogues FR/EN.
+
+- Le grand bandeau sombre et les anciennes cartes génériques Objectifs/Indicateurs sont remplacés par un **bandeau Sprint ou Période Kanban clair**, pleine largeur utile, avec véritable nom de produit et d'équipe, un lien autorisé vers leur fiche, et les emplacements de dates, statut et objectifs.
+- Sur l'installation pilote sans cycle, titre **« Aucun cycle créé »**, dates indisponibles, objectifs non renseignés et aucune action de création trompeuse. Aucun nom, date ou état de cycle n'est simulé.
+- **Quatre cartes KPI** : capacité prévue/réelle en J/H, Story Points **initialement engagés**/réalisés en SP, tickets **initialement engagés**/réalisés, puis jours **ouvrés restants**. Les trois premières cartes séparent leurs deux lignes par une bordure fine ; les données absentes affichent « Non renseigné » et « Aucun cycle précédent ». Le compteur affiche « Non calculable » jusqu'à disponibilité de dates fiables et arbitrage complet sur inclusion du jour courant/fuseau. Semaine lundi–vendredi rappelée ; **aucune formule de décompte n'est inventée**.
+- Aucune carte « Avancement global », aucune comparaison numérique fictive, aucun calcul de capacité ou de performance individuelle. Les futures lectures métier devront respecter leur propre provenance et le contrat historique.
+- Grille **4/2/1** selon la largeur du conteneur réel (`@container`), en conservant les variables des thèmes et palettes SMN-24.
+- Les anciennes sections Calendrier, Points d'attention, Reporting restent disponibles à titre d'états vides avant leur conversion en quatre colonnes au lot 3. Les tâches facultatives de configuration sont déplacées après les zones de pilotage, sans suppression ni mutation.
+
+**Tests ajoutés :** `tests/dashboard-cycle-overview.test.ts` (rendu serveur FR/EN, quatre cartes, absence de faux chiffres), `tests/dashboard-cycle-overview-source.test.ts` (insertion et structure CSS). Tests habituels et CI à vérifier séparément : `pnpm i18n:check`, `pnpm lint`, `pnpm test`, `pnpm typecheck`, `pnpm build`.
+
+**Statut fonctionnel :** présentation du cas sans cycle ; la lecture des véritables cycles, les métriques, la clôture et la comparaison historique restent dépendantes de leurs User Stories. Ne pas déduire une validation métier des seuls contrôles de présentation.
