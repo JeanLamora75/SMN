@@ -201,6 +201,10 @@ try {
       return "smn_session=" + match[1];
     }
     const original = tokenCookie(login);
+    // SMN-26 : les documents privés ne répondent jamais à une URL anonyme.
+    const noDoc=await get("/api/documents/unknown/download");
+    assert.equal(noDoc.status,404);
+    assert.match(noDoc.headers.get("cache-control")??"",/no-store/);
     assert.equal((await get("/api/dashboard")).status,403);
     assert.deepEqual(await (await get("/api/dashboard")).json(),{error:"forbidden"});
     assert.equal((await get("/api/dashboard",{headers:{Cookie:original}})).status,403);
@@ -364,6 +368,10 @@ try {
     assert.doesNotMatch(privateHtml, /admin@localhot.com/);
     assert.doesNotMatch(privateHtml, /Story Points.*>0</);
     await verifyDashboard(replacement);
+    const notShared=await get("/api/documents/unknown/download",{headers:{Cookie:replacement}});
+    assert.equal(notShared.status,404);
+    assert.deepEqual(await notShared.json(),{error:"not-found"});
+
     // SMN-23 : navigation HTML en lecture seule, liée à une vraie équipe I0.
     const detailPath="/app/team/team";
     assert.equal((await get(detailPath,{redirect:"manual"})).status,307);
