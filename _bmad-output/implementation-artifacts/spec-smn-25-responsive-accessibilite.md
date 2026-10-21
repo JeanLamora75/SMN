@@ -10,4 +10,4 @@
 
 **Détails et plan de recette** : [docs/RESPONSIVE-ACCESSIBILITE-SMN-25.md](../../docs/RESPONSIVE-ACCESSIBILITE-SMN-25.md).
 
-**Statut** : implémentation sur branche de développement, validation en attente.
+**Statut** : [PR #21](https://github.com/JeanLamora75/SMN/pull/21) fusionnée dans `main` le 21/10/2026 ; vérification CI/Windows et recette métier en attente.

@@ -150,3 +150,5 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Lien d'évitement partagé défini au layout racine (`#smn-main`) ; pages publiques possèdent désormais ce landmark, la page privée l'avait déjà.
 - Présentation mobile en fiches pour les comptes administrés, sans colonnes de contrôle cachées ; focus global visible, messages des formulaires liés et annonces erreur/statut explicites, préférence réduction des animations.
 - Les futurs écrans métier doivent respecter ce contrat responsive et clavier. Aucune recette appareil réel, navigation clavier de bout en bout, audit lecteur d'écran ou attestation de conformité WCAG à ce stade.
+
+- **Intégration SMN-25 :** [PR #21](https://github.com/JeanLamora75/SMN/pull/21) fusionnée sur `main` (commit `42745c491788a9fcf41f645affea285560e7d5b1`) après réconciliation avec les nouvelles palettes SMN-24. Source statique contrôlée : **400 clés FR/EN** et placeholders identiques. Les jobs Linux/Windows échouent sans exécuter d'étapes ; aucune déclaration de conformité WCAG ni validation mobile/clavier n'est produite. Jira reste En cours.

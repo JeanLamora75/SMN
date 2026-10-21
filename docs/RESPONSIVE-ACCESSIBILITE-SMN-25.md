@@ -2,6 +2,8 @@
 
 **Story :** https://lmn24.atlassian.net/browse/SMN-25 (1.16, I0)
 
+**Intégration :** [PR #21 fusionnée sur `main`](https://github.com/JeanLamora75/SMN/pull/21), merge commit `42745c491788a9fcf41f645affea285560e7d5b1`. Contrôles statiques réalisés, CI/recette non exécutées.
+
 ## Périmètre réellement implémenté
 
 1. **Navigation clavier** : lien d'évitement unique et traduit « Aller au contenu principal » sur les pages publiques et privées, cible `#smn-main`, navigation de la page dans l'ordre DOM ; contours de focus visibles sur liens, boutons et champs.
@@ -22,7 +24,7 @@
 
 ## Tests et limites
 - **Écrits** : `tests/responsive-accessibility.test.ts` vérifie les composants et tokens source ; `scripts/verify-http-ci.mjs` vérifie la présence réelle de la cible et du lien d'évitement dans les pages publiques/privées.
-- **Non exécutés ici** : interactions réelles sur appareils, test navigateur mobile, ordre de tabulation à l'écran, capture à zoom 200 %, lecteur d'écran (NVDA/VoiceOver), contraste visuel systématique et audit WCAG.
+- **Non exécutés ici** : jobs GitHub Actions [Linux/Windows](https://github.com/JeanLamora75/SMN/actions/runs/39548595514) et [Windows portable](https://github.com/JeanLamora75/SMN/actions/runs/39548595525) échoués sans étapes de test ; interactions réelles sur appareils, test navigateur mobile, ordre de tabulation à l'écran, capture à zoom 200 %, lecteur d'écran (NVDA/VoiceOver), contraste visuel systématique et audit WCAG.
 - Les styles adaptatifs et l'usage de contrôles natifs diminuent les risques, mais **ne prouvent pas une conformité WCAG 2.x**.
 
 À vérifier sur le PC après `Fetch origin` / `Pull origin` sur `main` :
