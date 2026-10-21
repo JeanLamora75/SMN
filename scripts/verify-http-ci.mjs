@@ -6,7 +6,10 @@ import net from "node:net";
 import { request as httpRequest } from "node:http";
 import { Client } from "pg";
 import { randomBytes, randomUUID, scryptSync, createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile,mkdtemp,rm,readdir } from "node:fs/promises";
+import {join} from "node:path";
+import {tmpdir} from "node:os";
+import {execFileSync} from "node:child_process";
 
 const uri = process.env.SMN_TEST_DATABASE_URL;
 if (process.env.CI !== "true" || process.env.GITHUB_ACTIONS !== "true" || !uri || !/^postgresql:\/\/smn_ci:[^@]+@127\.0\.0\.1:5432\/smn_ci$/.test(uri)) {
@@ -75,11 +78,12 @@ async function withDb(fn) {
   } finally { await client.end().catch(() => undefined); }
 }
 
+const backupRoot=await mkdtemp(join(tmpdir(),"smn-backup-ci-"));
 let app;
 let alt;
 try {
   assert.equal(await portBusy(3003), false, "Port 3003 déjà occupé avant lancement du serveur de test");
-  app = launch("start", 3003, { SMN_DATABASE_URL: uri });
+  app = launch("start", 3003, { SMN_DATABASE_URL: uri,SMN_BACKUP_DIR:backupRoot });
   await waitHttp(3003, app);
   let r = await get("/api/diagnostic");
   let data = await r.json();
@@ -235,6 +239,7 @@ try {
       body:JSON.stringify(settings),
     });
     assert.equal((await get("/api/admin/audit")).status,403);
+    assert.equal((await get("/api/admin/backups")).status,403);
     assert.equal((await get("/api/admin/settings")).status,403);
     assert.equal((await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:0},"")).status,403);
     assert.equal((await get("/app/admin/settings",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
@@ -243,6 +248,43 @@ try {
     assert.match(firstAudit.headers.get("cache-control")??"",/no-store/);
     assert.ok(Array.isArray((await firstAudit.json()).entries));
     assert.equal((await get("/app/admin/audit",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
+    const initialBackupStatus=await get("/api/admin/backups",{headers:{Cookie:replacement}});
+    assert.equal(initialBackupStatus.status,200);
+    assert.equal((await initialBackupStatus.json()).needsRecoveryPhrase,true);
+    assert.equal((await get("/app/admin/backups",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
+    const backupRequest=(input,cookie=replacement)=>postAuth("/api/admin/backups",input,cookie);
+    assert.equal((await backupRequest({}, "")).status,403);
+    const tooShort=await backupRequest({recoveryPhrase:"short"});
+    assert.equal(tooShort.status,503);
+    assert.equal((await tooShort.json()).status,"failed");
+    let backupToolReady=false;
+    try{
+      backupToolReady=/\b18\.\d+\b/.test(execFileSync("pg_dump",["--version"],
+        {encoding:"utf8",timeout:3000}));
+    }catch{ /* la qualification positive exige pg_dump 18 */ }
+    if(backupToolReady){
+      const recoveryPhrase="Une phrase de récupération longue pour la recette 2026 !";
+      const created=await backupRequest({recoveryPhrase});
+      assert.equal(created.status,201);
+      const payload=await created.json();
+      assert.equal(payload.status,"success");
+      assert.equal(payload.documentCount,0);
+      const folder=join(backupRoot,"packages",payload.id);
+      const index=JSON.parse(await readFile(join(folder,"index.json"),"utf8"));
+      assert.equal(index.version,1);
+      assert.equal(index.id,payload.id);
+      assert.equal(index.recovery.kdf,"scrypt");
+      assert.equal(JSON.stringify(index).includes(recoveryPhrase),false);
+      const database=await readFile(join(folder,"database.pgcustom.enc"));
+      assert.ok(database.length>0);
+      assert.doesNotMatch(database.toString("utf8"),/password_hash|admin@localhot.com/);
+      assert.equal((await get("/api/admin/backups",{headers:{Cookie:replacement}})).status,200);
+      const again=await backupRequest({});
+      assert.equal(again.status,201,"La phrase initiale n'est pas redemandée");
+      assert.notEqual((await again.json()).id,payload.id);
+    }else{
+      console.log("SMN-30 : vérification du chemin d'échec sans pg_dump 18 ; sauvegarde réelle non attestée dans ce runner.");
+    }
     const settingsInitialResponse=await get("/api/admin/settings",{headers:{Cookie:replacement}});
     assert.equal(settingsInitialResponse.status,200);
     const settingsInitial=(await settingsInitialResponse.json()).settings;
@@ -486,6 +528,9 @@ try {
     assert.equal(rejectedPage.status,307);
     assert.equal(new URL(rejectedPage.headers.get("location"),base).pathname,"/app");
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await backupRequest({},userReady)).status,403);
+    assert.notEqual((await get("/app/admin/backups",{headers:{Cookie:userReady},redirect:"manual"})).status,200);
     assert.equal((await get("/api/admin/audit",{headers:{Cookie:userReady}})).status,403);
     assert.notEqual((await get("/app/admin/audit",{headers:{Cookie:userReady},redirect:"manual"})).status,200);
     // Une fiche collective est lisible pour l'utilisateur, contrairement aux réglages administratifs.
@@ -632,4 +677,5 @@ try {
 } finally {
   await stop(app);
   await stop(alt);
+  await rm(backupRoot,{recursive:true,force:true}).catch(()=>undefined);
 }

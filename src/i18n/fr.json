@@ -442,7 +442,8 @@
       "users": "Comptes utilisateurs",
       "settings": "Paramètres généraux",
       "cyclesUnknown": "Cycles (mode indisponible)",
-      "audit": "Journal des opérations"
+      "audit": "Journal des opérations",
+      "backups": "Sauvegardes"
     }
   },
   "detail": {
@@ -501,5 +502,24 @@
       "palette": "Palette",
       "referenceCountry": "Pays de référence"
     }
+  },
+  "backups": {
+    "title": "Sauvegarde manuelle",
+    "intro": "Créer un paquet chiffré de la base PostgreSQL et des documents privés réellement présents.",
+    "back": "Retour au tableau de bord",
+    "encryptionInfo": "Les sauvegardes sont chiffrées et conservées dans un dossier privé local, sans téléchargement anonyme. Une réussite indique une capture complète, pas une restauration déjà testée.",
+    "phraseWarning": "Première sauvegarde : choisissez une phrase de récupération indépendante du mot de passe administrateur. Conservez-la dans un lieu sûr. Sans cette phrase et sans la clé locale, vos sauvegardes chiffrées pourraient être irrécupérables.",
+    "phraseLabel": "Phrase de récupération des sauvegardes",
+    "phraseHelp": "20 caractères minimum. Cette phrase protège une copie de récupération de la clé incluse dans chaque paquet. Elle ne sera pas redemandée pour les sauvegardes suivantes.",
+    "lastResult": "Dernière tentative",
+    "successStatus": "Réussie",
+    "failedStatus": "Échec",
+    "identifier": "Référence",
+    "start": "Créer une sauvegarde",
+    "running": "Sauvegarde en cours…",
+    "success": "La sauvegarde chiffrée a été créée avec succès.",
+    "failed": "Échec de sauvegarde : aucun paquet incomplet n'est considéré comme valide.",
+    "unavailable": "Le service de sauvegarde n'est pas disponible.",
+    "notRestored": "Une sauvegarde créée n'est pas une restauration éprouvée. Une restauration isolée devra être testée avant de conclure à la récupérabilité."
   }
 }
