@@ -136,7 +136,8 @@ async function compute(db:Client,dates:Dates,ctx:Context,
   actualManualJh:ctx.actualManualJh,manual,planRevision:ctx.plan?.revision??0,
   planTarget:ctx.plan?{
    start:ctx.plan.target_start_on,end:ctx.plan.target_end_on
-  }:null,occupied:ctx.targetOccupied,before,after};
+  }:null,occupied:ctx.targetOccupied,before,after,
+  currentReportDigest:digest(current),futureReportDigest:digest(future)};
  return {...dates,teamId:ctx.teamId,revision:ctx.plan?.revision??0,
   originRevision:ctx.origin?.revision??0,previewDigest:digest(facts),
   before,after,referenceDeltaJh:capacityDelta(before.jh,after.jh),
