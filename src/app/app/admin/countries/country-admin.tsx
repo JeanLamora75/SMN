@@ -1,9 +1,10 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
-type Coverage={year:number;status:"configured"|"not-configured"|"invalid";count:number;diagnostic:string|null};
+import HolidayCsvImport from "./holiday-csv-import";
+type Coverage={year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null};
 type Country={code:string;name:string;nationalCalendar:{
- status:"configured"|"not-configured"|"invalid";years:Coverage[];
+ status:"configured"|"partial"|"not-configured"|"invalid";years:Coverage[];
  holidays:{date:string;name:string}[]|null;
 }};
 
@@ -43,6 +44,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   const calendar=country.nationalCalendar;
   if(calendar.status==="invalid")return t("countries.invalidCalendar");
   if(calendar.status==="configured")return t("countries.configured");
+  if(calendar.status==="partial")return t("countries.partialCalendar");
   return t("countries.notConfigured");
  };
  return <section className="smn-panel p-4">
@@ -71,11 +73,13 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
         <ul className="small mb-0">{c.nationalCalendar.years.map(y=>
           <li key={y.year}>{y.year} — {y.status==="configured"?
             t("countries.yearCount").replace("{count}",String(y.count)):
+            y.status==="partial"?t("countries.partialCount").replace("{count}",String(y.count)):
             y.status==="invalid"?t("countries.invalidCalendar"):t("countries.notConfigured")}
             {y.diagnostic&&<span className="text-muted"> ({y.diagnostic})</span>}
           </li>)}</ul>}
     </td></tr>)}</tbody>
   </table>
   <p className="small">{t("countries.unknownNotZero")}</p>
+  {canManage&&<HolidayCsvImport countries={countries} onCompleted={refresh}/>}
  </section>;
 }
