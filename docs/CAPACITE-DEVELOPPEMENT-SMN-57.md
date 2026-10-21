@@ -31,6 +31,6 @@ pnpm build
 pnpm dev
 ```
 
-Vérifier : 8 heures initiales, modification à 7,5 et audit, PO sans développement, une demi-journée, un changement daté, chevauchement férié/fermeture/absence, un historique absent, période invalide, refus des Utilisateurs (403) et absence de modification des clichés/PDF existants.
+Vérifier : 8 heures initiales, modification à 7,5 et audit, PO **et Scrum Master** sans développement, une demi-journée, un changement daté, chevauchement férié/fermeture/absence, un historique absent, période invalide, refus des Utilisateurs (403) et absence de modification des clichés/PDF existants.
 
 **État :** tests écrits mais non exécutés. GitHub Actions ne sera pas utilisé. Jira En cours / BMAD review jusqu'à la recette.
