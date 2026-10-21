@@ -12,7 +12,7 @@ function fake(options:{closed?:boolean;archived?:boolean;hasReferences?:boolean;
   queries.push(sql);
   if(sql.includes("CURRENT_DATE::text AS today"))return {rows:[{today:"2026-10-21"}]};
   if(sql.includes("FROM public.smn_member m")&&sql.includes("WHERE m.id=$1"))
-   return {rows:[{id:memberId,revision:2,is_provisional:!!options.empty,
+   return {rows:[{id:memberId,revision:options.empty?0:2,is_provisional:!!options.empty,
     display_name:options.empty?"Membre 2":"Camille Martin",email:options.empty?null:"camille@example.org",
     contract_percent:100,contribution_percent:100,
     archived_at:options.archived?"2026-10-20T12:00:00Z":null}]};
@@ -63,6 +63,17 @@ describe("Clôture, archivage et conservation de l'historique",()=>{
   const historical=fake({closed:true,hasReferences:true});
   assert.deepEqual(await applyLifecycleAction(historical.db,memberId,"admin",
    {action:"delete",revision:2,confirmation:"SUPPRIMER"}),{ok:false,error:"historical-references"});
+ });
+ it("autorise seulement la suppression d'une fiche entièrement vide après confirmation",async()=>{
+  const f=fake({empty:true});
+  const result=await applyLifecycleAction(f.db,memberId,"admin",{
+   action:"delete",revision:0,confirmation:"SUPPRIMER"
+  });
+  assert.equal(result.ok,true);
+  assert.ok(f.queries.some(q=>q.includes("DELETE FROM public.smn_member WHERE")));
+  assert.ok(f.queries.some(q=>q.includes("confdeltype IN")));
+  assert.ok(f.queries.some(q=>q.includes("INSERT INTO public.smn_member_lifecycle_event")));
+  assert.equal(f.queries.at(-1),"COMMIT");
  });
  it("migration additive sans cascade",()=>{
   assert.match(LIFECYCLE_MIGRATION_SQL,/ADD COLUMN archived_at/);
