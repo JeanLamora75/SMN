@@ -477,3 +477,35 @@
 @container (max-width:650px) {
   .smn-operational-grid {grid-template-columns:minmax(0,1fr);}
 }
+
+
+/* Recette UX : en mode replié, le menu ne doit pas cacher les dernières entrées
+   lorsque son contenu dépasse la hauteur de l'écran. La page peut défiler. */
+@media (min-width:992px) {
+  .smn-private-layout.is-collapsed .smn-sidebar-region {
+    position:static;
+    height:auto;
+    min-height:calc(100dvh - 72px);
+    overflow:visible;
+  }
+}
+
+/* Quand la largeur CSS tombe à 480px (y compris avec le zoom navigateur),
+   présenter les champs de contexte sur une colonne pour éviter leur troncature. */
+@media (max-width:480px) {
+  .smn-header-controls {grid-template-columns:minmax(0,1fr);}
+  .smn-header-search {grid-column:auto;}
+}
+
+/* Un repli desktop conservé en mémoire ne doit jamais déformer les sections
+   du menu mobile ou supprimer sa zone de défilement. */
+@media (max-width:991.98px) {
+  .smn-private-layout.is-collapsed .smn-nav-workspace,
+  .smn-private-layout.is-collapsed .smn-nav-group h2.smn-nav-eyebrow {display:block;}
+  .smn-private-layout.is-collapsed .smn-nav-soon {display:inline-block;}
+  .smn-private-layout.mobile-open .smn-sidebar-region {
+    max-height:60dvh;
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+}

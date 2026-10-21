@@ -101,3 +101,20 @@ Architecture de référence : `_bmad-output/planning-artifacts/prds/prd-SMN-2026
 
 
 **Revue du lot 3 et limite CI — 21/10/2026 :** PR [#28](https://github.com/JeanLamora75/SMN/pull/28). **14 contrôles statiques** effectués sur les fichiers de la branche (quatre colonnes, ordre, libellés, absence de liens fictifs et de chiffres inventés, maintien des garde-fous serveur, grille responsive et thèmes). Parité des **505 clés FR/EN** et paramètres de substitution vérifiée sans divergence. Le test de rendu `tests/dashboard-operational-overview.test.ts` a été ajouté mais **pas exécuté**. GitHub Actions [I0 #322](https://github.com/JeanLamora75/SMN/actions/runs/39583828423) et [Windows #137](https://github.com/JeanLamora75/SMN/actions/runs/39583828539) échouent avant attribution d'un runner : `runner_id=0`, `steps=[]`. L'environnement d'exécution local ne permet pas non plus de récupérer la branche distante (résolution DNS indisponible). **Pas de résultat probant de `pnpm test`, lint, typecheck, build ni de recette navigateur.** SMN-21 ne peut pas être clôturée sur ces seuls contrôles.
+
+
+## Refonte UX — Lot 4 : consolidation responsive et accessibilité (21/10/2026)
+
+**Périmètre :** consolidation des lots 1–3 après lecture de `DESIGN.md`, `EXPERIENCE.md` et du code actuel. Sans modification des API, du modèle de données, des droits ni du contenu des métriques métier.
+
+- `src/app/app/private-shell.tsx` : les trois contrôles Équipe, Sprint/Période et Recherche désactivés ont chacun une explication associée via `aria-describedby`, indépendante du seul attribut `title`. Le menu mobile est refermé lors du retour à un viewport desktop.
+- `src/app/dashboard.css` : pour une largeur d'écran jusqu'à 480px (ou un zoom qui diminue la largeur CSS), les trois champs se présentent sur une colonne. Lorsque le menu desktop est replié, la sidebar n'enferme plus les derniers raccourcis dans une zone de hauteur fixe impossible à faire défiler : la page défile si nécessaire, les bulles de libellé restent visibles. Sur mobile, les titres du menu retrouvent un rendu en bloc et l'ouverture reste limitée à un panneau vertical défilable.
+- `tests/dashboard-ux-lot4-accessibility.test.ts` : tests de non-régression proposés sur l'accessibilité des états désactivés, la navigation clavier, les seuils CSS, les rôles et les six variantes de contraste.
+- [`docs/RECETTE-UX-TDB-SMN-21.md`](RECETTE-UX-TDB-SMN-21.md) : matrice **à exécuter** couvrant 320, 375, 768, 1024, 1440, 1920px, zoom 200 %, six thèmes/palettes, FR/EN, admin/user, clavier et absence de faux chiffres.
+
+**Vérifications effectivement réalisées sur les sources :** 12 assertions de structure/accessibilité/i18n et calcul de contraste sur 30 couples de couleurs CSS (5 couples sur chacun des six thèmes/palettes). Contraste minimal : **4,74:1** pour les associations mesurées, sans déduire de conformité WCAG 2.2 AA complète. Catalogue FR/EN : 505 clés sans écart. Compilation, tests Node/React et recette en navigateur demeurent non exécutés tant que les runners GitHub sont indisponibles et qu'aucun environnement local n'a produit leurs sorties.
+
+**Décisions inchangées :** aucun « Avancement global », aucun cycle/chiffre fictif, compteur jours ouvrés non calculé avant arbitrages, aucun `Voir tout` / `Ajouter` non fonctionnel. L'historique, les actions et le mode Organiser restent rattachés à leurs Stories métier futures.
+
+
+**Résultat CI observé sur la PR #29 — 21/10/2026 :** [Vérification I0 #326](https://github.com/JeanLamora75/SMN/actions/runs/39585419874) et [Paquet Windows #141](https://github.com/JeanLamora75/SMN/actions/runs/39585419871) ont tous deux échoué **avant démarrage des tests** : jobs `windows-smoke`, `linux-postgres` et `portable-windows` avec `runner_id=0` et `steps=[]`. Le statut GitHub « failure » ne constitue pas un résultat de `pnpm test`, `lint`, `typecheck` ou `build`. La cause exacte de non-attribution des runners n'est pas identifiée via les journaux disponibles. Les **16 contrôles statiques** indépendants et le calcul des 30 contrastes ont été exécutés sur les sources ; le reste de la matrice navigateur doit être effectué sur Windows.

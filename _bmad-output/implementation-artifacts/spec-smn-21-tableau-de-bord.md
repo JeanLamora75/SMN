@@ -98,3 +98,28 @@ Implémentation incrémentale via connecteur GitHub, publication directe sur mai
 
 
 **Revue du lot 3 et limite CI — 21/10/2026 :** PR [#28](https://github.com/JeanLamora75/SMN/pull/28). **14 contrôles statiques** effectués sur les fichiers de la branche (quatre colonnes, ordre, libellés, absence de liens fictifs et de chiffres inventés, maintien des garde-fous serveur, grille responsive et thèmes). Parité des **505 clés FR/EN** et paramètres de substitution vérifiée sans divergence. Le test de rendu `tests/dashboard-operational-overview.test.ts` a été ajouté mais **pas exécuté**. GitHub Actions [I0 #322](https://github.com/JeanLamora75/SMN/actions/runs/39583828423) et [Windows #137](https://github.com/JeanLamora75/SMN/actions/runs/39583828539) échouent avant attribution d'un runner : `runner_id=0`, `steps=[]`. L'environnement d'exécution local ne permet pas non plus de récupérer la branche distante (résolution DNS indisponible). **Pas de résultat probant de `pnpm test`, lint, typecheck, build ni de recette navigateur.** SMN-21 ne peut pas être clôturée sur ces seuls contrôles.
+
+
+## Extension UX — lot 4 : recette transverse et corrections (21/10/2026)
+
+**Contrats source :** `DESIGN.md` et `EXPERIENCE.md` approuvés. La Story SMN-21 reste `in-progress` jusqu'aux preuves d'exécution et aux livraisons métiers.
+
+**Défauts de structure identifiés et corrections :**
+- Header étroit : Équipe / Sprint-Période / Recherche empilés à largeur CSS ≤480 px au lieu de colonnes comprimées.
+- Sidebar desktop repliée : éviter de rendre des rubriques en bas du menu inatteignables à cause d'un conteneur sticky à hauteur fixe ; autoriser le défilement normal du document en mode réduit.
+- Retour desktop depuis mobile : réinitialiser l'ouverture mobile afin de ne pas réafficher plus tard un menu ouvert à l'insu de l'utilisateur.
+- Sélecteurs indisponibles : ajouter des descriptions programmatiquement associées pour que le motif de désactivation ne dépende pas du survol de la souris.
+- Transition mobile avec sidebar desktop repliée : restaurer le mode bloc des groupes, la lisibilité du statut « À venir » et le scroll vertical.
+
+**Tests / QA :**
+- [x] Nouveau fichier `tests/dashboard-ux-lot4-accessibility.test.ts`, incluant une vérification programmatique des couleurs CSS pour les six thèmes.
+- [x] Plan de recette `docs/RECETTE-UX-TDB-SMN-21.md` avec cases non cochées.
+- [x] Contrôle de sources indépendant (12 assertions), 505 clés FR/EN cohérentes ; contrastes mesurés de 4,74:1 au minimum pour les associations étudiées.
+- [ ] Suite `pnpm test`, lint, typecheck, build et navigation HTTP Windows/Linux : **pas encore exécutées avec succès**.
+- [ ] Recette manuelle de l'accessibilité et des breakpoints au navigateur, lecteur d'écran inclus.
+- [ ] Raccordement effectif des producteurs métier, historiques, droits sur les mutations et préférences persistées (Stories futures).
+
+**Limitation BMAD :** l'environnement par connecteurs ne permet pas d'affirmer l'exécution du rendu `uv run ...render_skill.py`. Les validations source sont réelles mais ne remplacent pas le workflow exécutable, ni une certification WCAG.
+
+
+**Résultat CI observé sur la PR #29 — 21/10/2026 :** [Vérification I0 #326](https://github.com/JeanLamora75/SMN/actions/runs/39585419874) et [Paquet Windows #141](https://github.com/JeanLamora75/SMN/actions/runs/39585419871) ont tous deux échoué **avant démarrage des tests** : jobs `windows-smoke`, `linux-postgres` et `portable-windows` avec `runner_id=0` et `steps=[]`. Le statut GitHub « failure » ne constitue pas un résultat de `pnpm test`, `lint`, `typecheck` ou `build`. La cause exacte de non-attribution des runners n'est pas identifiée via les journaux disponibles. Les **16 contrôles statiques** indépendants et le calcul des 30 contrastes ont été exécutés sur les sources ; le reste de la matrice navigateur doit être effectué sur Windows.
