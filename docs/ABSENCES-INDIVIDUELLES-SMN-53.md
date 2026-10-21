@@ -12,7 +12,7 @@ La liste des absences de cette personne montre période, catégorie écrite et p
 
 ## Catégories et dépendance SMN-52
 
-Le socle ajoute, à l'installation/migration : **Congés, Formation, Maladie et Autre**, avec leurs couleurs. **SMN-52 n'a pas été développée ici** : le renommage, les changements de couleur et la désactivation par un Administrateur seront proposés dans la gestion des catégories correspondante. Le schéma relationnel permet ces changements futurs sans modifier l'identité des catégories référencées. La saisie « Maladie » ne demande aucun diagnostic : un libellé générique suffit, mais ne peut pas être vide.
+Le socle ajoute, à l'installation/migration : **Congés, Formation, Maladie et Autre**, avec leurs couleurs. **SMN-52 est désormais livrée séparément : [gérer les catégories](CATEGORIES-ABSENCES-SMN-52.md)** : le renommage, les changements de couleur et la désactivation par un Administrateur sont disponibles dans la gestion des catégories correspondante. Le schéma relationnel permet ces changements sans modifier l'identité des catégories référencées. La saisie « Maladie » ne demande aucun diagnostic : un libellé générique suffit, mais ne peut pas être vide.
 
 ## Persistance, audit et absence d'effets de bord
 
