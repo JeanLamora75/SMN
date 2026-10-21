@@ -89,34 +89,34 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       <h2 className="h5">{t("accounts.existing")}</h2>
       {status==="loading"&&<p>{t("accounts.loading")}</p>}
       {status==="error"&&<button className="btn btn-outline-secondary" onClick={()=>void refresh()}>{t("accounts.retry")}</button>}
-      {status==="ready"&&<div className="table-responsive">
-        <table className="table align-middle">
+      {status==="ready"&&<div className="table-responsive smn-accounts-responsive">
+        <table className="table align-middle smn-accounts-table">
           <thead><tr><th>{t("accounts.userCol")}</th><th>{t("accounts.emailCol")}</th><th>{t("accounts.roleCol")}</th><th>{t("accounts.accessCol")}</th><th>{t("accounts.actionCol")}</th></tr></thead>
           <tbody>{accounts.map(account=>{
             const edit=edits[account.id]??{role:account.role,isActive:account.is_active};
             const self=account.id===selfId;
             const changed=edit.role!==account.role||edit.isActive!==account.is_active;
             return <tr key={account.id}>
-              <td><strong>{account.username}</strong>{self?t("accounts.you"):""}
+              <td data-label={t("accounts.userCol")}><strong>{account.username}</strong>{self?t("accounts.you"):""}
                 {account.must_change_password&&<div className="small text-secondary">{t("accounts.changeInitial")}</div>}</td>
-              <td>{account.email}</td>
-              <td><select aria-label={t("accounts.roleFor",{username:account.username})} className="form-select form-select-sm"
+              <td data-label={t("accounts.emailCol")}>{account.email}</td>
+              <td data-label={t("accounts.roleCol")}><select aria-label={t("accounts.roleFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.role} disabled={busy||self} onChange={e=>
                   setEdits(prev=>({...prev,[account.id]:{...edit,role:e.target.value as Role}}))}>
                 <option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
               </select></td>
-              <td><select aria-label={t("accounts.accessFor",{username:account.username})} className="form-select form-select-sm"
+              <td data-label={t("accounts.accessCol")}><select aria-label={t("accounts.accessFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.isActive?"active":"inactive"} disabled={busy||self} onChange={e=>
                   setEdits(prev=>({...prev,[account.id]:{...edit,isActive:e.target.value==="active"}}))}>
                 <option value="active">{t("accounts.active")}</option><option value="inactive">{t("accounts.inactive")}</option>
               </select></td>
-              <td><button className="btn btn-outline-primary btn-sm" disabled={busy||self||!changed}
+              <td data-label={t("accounts.actionCol")}><button className="btn btn-outline-primary btn-sm" disabled={busy||self||!changed}
                 onClick={()=>void save(account.id)}>{t("accounts.save")}</button></td>
             </tr>;
           })}</tbody>
         </table>
       </div>}
     </section>
-    {message&&<p role="status" className="alert alert-info">{message}</p>}
+    {message&&<p id="accounts-feedback" role="status" aria-live="polite" className="alert alert-info">{message}</p>}
   </div>;
 }

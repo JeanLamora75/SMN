@@ -10,7 +10,7 @@ export default async function ChangePasswordPage() {
   if (!account) redirect("/login");
   if (!account.must_change_password) redirect("/app");
   const locale=await requestLocale();
-  return <main className="smn-page container py-5">
+  return <main id="smn-main" className="smn-page container py-5">
     <section className="smn-panel p-4 p-md-5 mx-auto" style={{maxWidth:640}}>
       <h1 className="h3">{translate(locale,"password.initialTitle")}</h1>
       <p>{translate(locale,"password.welcome",{username:account.username})}</p>

@@ -9,7 +9,7 @@ export default async function WelcomePage() {
   const state = await currentInstallationDiagnostic();
   if (state.status === "initialized") notFound();
   const locale=await requestLocale();
-  return <main className="smn-page container py-5"><section className="smn-panel p-4 p-md-5">
+  return <main id="smn-main" className="smn-page container py-5"><section className="smn-panel p-4 p-md-5">
     <h1 className="h3">{translate(locale,"welcome.title")}</h1>
     <p className="smn-subtitle">{translate(locale,"welcome.intro")}</p>
     <SetupWelcome/>

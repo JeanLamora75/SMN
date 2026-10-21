@@ -14,5 +14,5 @@ export async function generateMetadata():Promise<Metadata>{
 }
 export default async function RootLayout({children}:Readonly<{children:ReactNode}>){
   const [locale,theme]=await Promise.all([requestLocale(),requestTheme()]);
-  return <html lang={locale} data-bs-theme={theme}><body><LocaleProvider locale={locale}>{children}</LocaleProvider></body></html>;
+  return <html lang={locale} data-bs-theme={theme}><body><a className="smn-skip-link visually-hidden-focusable" href="#smn-main">{translate(locale,"navigation.skip")}</a><LocaleProvider locale={locale}>{children}</LocaleProvider></body></html>;
 }
