@@ -8,7 +8,7 @@ export const DEFAULT_WEEK:readonly WorkDay[]=Object.freeze(
 export type CalendarWrite=
  |{action:"weekly";revision:number;effectiveFrom:string;days:WorkDay[]}
  |{action:"exception";revision:number;onDate:string;morning:boolean;afternoon:boolean;note:string|null};
-export type WeekRow={revision:number;effective_from:string;days:WorkDay[];created_at:string};
+export type WeekRow={revision:number;effective_from:string;days:readonly WorkDay[];created_at:string};
 export type ExceptionRow={revision:number;on_date:string;morning:boolean;afternoon:boolean;note:string|null;created_at:string};
 export type CalendarDay=Readonly<{onDate:string;status:"missing"|"configured";
  source:"missing"|"weekly"|"exception";slots:{morning:boolean;afternoon:boolean}|null;
