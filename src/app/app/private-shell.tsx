@@ -38,6 +38,16 @@ export default function PrivateShell({children,username,role,mode,product,team,t
     return ()=>document.removeEventListener("keydown",escape);
   },[mobileOpen]);
 
+  useEffect(()=>{
+    const desktop=window.matchMedia("(min-width: 992px)");
+    const onBreakpointChange=()=>{
+      if(desktop.matches)setMobileOpen(false);
+    };
+    onBreakpointChange();
+    desktop.addEventListener("change",onBreakpointChange);
+    return ()=>desktop.removeEventListener("change",onBreakpointChange);
+  },[]);
+
   const cycleLabel=mode==="kanban"?"dashboard.shell.period":"dashboard.shell.sprint";
   return <div className={`smn-dashboard smn-private-layout${collapsed?" is-collapsed":""}${mobileOpen?" mobile-open":""}`}>
     <header className="smn-dashboard-topbar">
