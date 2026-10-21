@@ -5,7 +5,7 @@ import {Client} from "pg";
 import {installedDatabaseUri} from "../auth/database";
 import {ensureAccountsSchema} from "../accounts/migration";
 import {verifyPassword} from "../auth/password";
-import {seal,wrapRecoveryKey,type RecoveryEnvelope} from "./crypto";
+import {seal,wrapRecoveryKey,recoverKey,type RecoveryEnvelope} from "./crypto";
 import {privateFolder,scanDocuments,encryptDocuments,sha,safeAtomicJson,
  type PublicBackupResult,type BackupIndex,type BackupComponent} from "./files";
 import {encryptedPgDump} from "./postgres";
@@ -38,6 +38,8 @@ async function loadKey(root:string):Promise<{key:Buffer;recovery:RecoveryEnvelop
  if(key.length!==32)throw new Error("backup-key-invalid");
  const recovery=JSON.parse((await readFile(recoveryFile)).toString("utf8")) as RecoveryEnvelope;
  if(!recovery||recovery.version!==1||recovery.kdf!=="scrypt"||
+ !/^[a-f0-9]{32}$/.test(recovery.salt)||!/^[a-f0-9]{24}$/.test(recovery.nonce)||
+ !/^[a-f0-9]{32}$/.test(recovery.tag)||
  typeof recovery.wrappedKey!=="string"||!/^[a-f0-9]{64}$/.test(recovery.wrappedKey))
   throw new Error("backup-recovery-invalid");
  return {key,recovery};
@@ -48,6 +50,9 @@ async function getOrCreateKey(root:string,phrase:string|undefined,passwordHash:s
  if(!phrase||phrase.length<20||phrase.length>256||phrase.trim()!==phrase||
  await verifyPassword(phrase,passwordHash))throw new Error("backup-recovery-required");
  const key=randomBytes(32),recovery=wrapRecoveryKey(key,phrase);
+ const verified=recoverKey(recovery,phrase);
+ if(!verified.equals(key))throw new Error("backup-recovery-invalid");
+ verified.fill(0);
  const keyPath=join(root,".backup-key"),recoveryPath=join(root,".recovery.json");
  let madeKey=false;
  try{
