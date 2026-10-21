@@ -40,6 +40,7 @@ export async function updateBackupRetention(client:Client,actorId:string,
  if(!input||!actorId)return {ok:false,error:"invalid-input"};
  await client.query("BEGIN");
  try{
+  await client.query("SELECT pg_advisory_xact_lock(20261021,30)");
   const existing=await client.query<Row>(select+" FOR UPDATE");
   if(existing.rowCount!==1){
    await client.query("ROLLBACK");
