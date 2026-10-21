@@ -1,16 +1,21 @@
 "use client";
+
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import {privateNavigation,activePrivateEntry,type PrivateMode,type PrivateRole} from "@/lib/private-navigation";
 
-export default function PrivateNavigation({mode,role,product,team}:{
-  mode:PrivateMode|null;role:PrivateRole;product:string|null;team:string|null;
+export default function PrivateNavigation({mode,role,product,team,onNavigate}:{
+  mode:PrivateMode|null;
+  role:PrivateRole;
+  product:string|null;
+  team:string|null;
+  onNavigate?:()=>void;
 }) {
   const pathname=usePathname();
   const t=useTranslation();
   const groups=privateNavigation(mode,role);
-  return <aside className="col-12 col-lg-3 col-xl-2" aria-label={t("navigation.ariaLabel")}>
+  return <aside className="smn-sidebar" aria-label={t("navigation.ariaLabel")}>
     <nav className="smn-private-navigation" aria-label={t("navigation.ariaLabel")}>
       <div className="smn-nav-workspace">
         <div className="smn-nav-eyebrow">{t("navigation.context")}</div>
@@ -23,13 +28,17 @@ export default function PrivateNavigation({mode,role,product,team}:{
         <ul className="smn-private-nav-list">
           {group.entries.map(entry=><li key={entry.id}>
             {entry.href?
-              <Link href={entry.href} className={"smn-nav-link"+(activePrivateEntry(pathname,entry)?" is-active":"")}
+              <Link href={entry.href} onClick={onNavigate} title={t(entry.label)}
+                aria-label={t(entry.label)}
+                className={"smn-nav-link"+(activePrivateEntry(pathname,entry)?" is-active":"")}
                 aria-current={activePrivateEntry(pathname,entry)?"page":undefined}>
-                <span aria-hidden="true">{entry.icon}</span><span>{t(entry.label)}</span>
+                <span className="smn-nav-icon" aria-hidden="true">{entry.icon}</span>
+                <span className="smn-nav-label">{t(entry.label)}</span>
               </Link>
             :<span className="smn-nav-link smn-nav-disabled" aria-disabled="true"
-                title={t("navigation.unavailable")}>
-                <span aria-hidden="true">{entry.icon}</span><span>{t(entry.label)}</span>
+                aria-label={t(entry.label)} title={t("navigation.unavailable")}>
+                <span className="smn-nav-icon" aria-hidden="true">{entry.icon}</span>
+                <span className="smn-nav-label">{t(entry.label)}</span>
                 <span className="smn-nav-soon">{t("navigation.soon")}</span>
               </span>}
           </li>)}
