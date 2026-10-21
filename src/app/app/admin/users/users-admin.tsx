@@ -91,27 +91,27 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       {status==="loading"&&<p>{t("accounts.loading")}</p>}
       {status==="error"&&<button className="btn btn-outline-secondary" onClick={()=>void refresh()}>{t("accounts.retry")}</button>}
       {status==="ready"&&<div className="table-responsive smn-accounts-responsive">
-        <table className="table align-middle smn-accounts-table">
-          <thead><tr><th>{t("accounts.userCol")}</th><th>{t("accounts.emailCol")}</th><th>{t("accounts.roleCol")}</th><th>{t("accounts.accessCol")}</th><th>{t("accounts.actionCol")}</th></tr></thead>
-          <tbody>{accounts.map(account=>{
+        <table role="table" aria-label={t("accounts.existing")} className="table align-middle smn-accounts-table">
+          <thead role="rowgroup"><tr role="row"><th scope="col">{t("accounts.userCol")}</th><th scope="col">{t("accounts.emailCol")}</th><th scope="col">{t("accounts.roleCol")}</th><th scope="col">{t("accounts.accessCol")}</th><th scope="col">{t("accounts.actionCol")}</th></tr></thead>
+          <tbody role="rowgroup">{accounts.map(account=>{
             const edit=edits[account.id]??{role:account.role,isActive:account.is_active};
             const self=account.id===selfId;
             const changed=edit.role!==account.role||edit.isActive!==account.is_active;
-            return <tr key={account.id}>
-              <td data-label={t("accounts.userCol")}><strong>{account.username}</strong>{self?t("accounts.you"):""}
+            return <tr role="row" key={account.id}>
+              <td role="cell" data-label={t("accounts.userCol")}><strong>{account.username}</strong>{self?t("accounts.you"):""}
                 {account.must_change_password&&<div className="small text-secondary">{t("accounts.changeInitial")}</div>}</td>
-              <td data-label={t("accounts.emailCol")}>{account.email}</td>
-              <td data-label={t("accounts.roleCol")}><select aria-label={t("accounts.roleFor",{username:account.username})} className="form-select form-select-sm"
+              <td role="cell" data-label={t("accounts.emailCol")}>{account.email}</td>
+              <td role="cell" data-label={t("accounts.roleCol")}><select aria-label={t("accounts.roleFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.role} disabled={busy||self} onChange={e=>
                   setEdits(prev=>({...prev,[account.id]:{...edit,role:e.target.value as Role}}))}>
                 <option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
               </select></td>
-              <td data-label={t("accounts.accessCol")}><select aria-label={t("accounts.accessFor",{username:account.username})} className="form-select form-select-sm"
+              <td role="cell" data-label={t("accounts.accessCol")}><select aria-label={t("accounts.accessFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.isActive?"active":"inactive"} disabled={busy||self} onChange={e=>
                   setEdits(prev=>({...prev,[account.id]:{...edit,isActive:e.target.value==="active"}}))}>
                 <option value="active">{t("accounts.active")}</option><option value="inactive">{t("accounts.inactive")}</option>
               </select></td>
-              <td data-label={t("accounts.actionCol")}><button className="btn btn-outline-primary btn-sm" disabled={busy||self||!changed}
+              <td role="cell" data-label={t("accounts.actionCol")}><button className="btn btn-outline-primary btn-sm" disabled={busy||self||!changed}
                 onClick={()=>void save(account.id)}>{t("accounts.save")}</button></td>
             </tr>;
           })}</tbody>
