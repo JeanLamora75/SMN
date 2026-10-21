@@ -2,6 +2,7 @@ import {randomBytes,randomUUID} from "node:crypto";
 import {lstat,mkdir,readFile,readdir,rename,rm,writeFile} from "node:fs/promises";
 import {join,isAbsolute,resolve,sep} from "node:path";
 import {Client} from "pg";
+import appPackage from "../../../package.json";
 import {installedDatabaseUri} from "../auth/database";
 import {ensureAccountsSchema} from "../accounts/migration";
 import {verifyPassword} from "../auth/password";
@@ -14,7 +15,7 @@ type Admin=Readonly<{id:string;role:string;password_hash:string}>;
 export type BackupState=Readonly<{
  needsRecoveryPhrase:boolean;last:Readonly<{status:"success"|"failed";id?:string;createdAt:string}>|null;
 }>;
-function rootPath():string{
+export function backupRootPath():string{
  const custom=process.env.SMN_BACKUP_DIR;
  if(custom){
   if(!isAbsolute(custom))throw new Error("backup-root-invalid");
@@ -80,7 +81,7 @@ async function readLast(root:string):Promise<BackupState["last"]>{
  }catch{return null;}
 }
 export async function backupState():Promise<BackupState>{
- const root=rootPath();
+ const root=backupRootPath();
  try{await privateFolder(root);}catch{return {needsRecoveryPhrase:true,last:null};}
  const key=await loadKey(root);
  return {needsRecoveryPhrase:key===null,last:await readLast(root)};
@@ -88,7 +89,7 @@ export async function backupState():Promise<BackupState>{
 /** Publication atomique : un répertoire .partial n'est jamais une sauvegarde réussie. */
 export async function createManualBackup(actor:Admin,phrase?:string):Promise<PublicBackupResult>{
  if(actor.role!=="admin")throw new Error("backup-forbidden");
- const root=rootPath();
+ const root=backupRootPath();
  await privateFolder(root,true);
  const source=process.env.SMN_PRIVATE_DOCUMENTS_DIR;
  if(source&&sameOrNested(root,source))throw new Error("backup-root-overlaps-documents");
@@ -110,8 +111,9 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    await privateFolder(packages,true);
    staging=join(packages,"."+id+".partial");
    await mkdir(staging,{mode:0o700});
-   const meta=await client.query<{schema_version:number;pg_version:string}>(`
-    SELECT i.schema_version,current_setting('server_version') AS pg_version
+   const meta=await client.query<{schema_version:number;pg_version:string;installation_created_at:Date}>(`
+    SELECT i.schema_version,i.created_at AS installation_created_at,
+           current_setting('server_version') AS pg_version
     FROM public.smn_installation i WHERE i.id='singleton' AND i.state='initialized'`);
    if(meta.rowCount!==1)throw new Error("backup-installation-invalid");
    const database=await encryptedPgDump(uri,key,join(staging,"database.pgcustom.enc"));
@@ -119,7 +121,9 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    const after=await scanDocuments(source);
    if(JSON.stringify(inventory)!==JSON.stringify(after))
     throw new Error("backup-documents-changed");
-   const manifest={version:1,id,createdAt,installation:"singleton",
+   const manifest={version:2,id,createdAt,installation:"singleton",
+    installationSource:"singleton:"+new Date(meta.rows[0].installation_created_at).toISOString(),
+    appVersion:appPackage.version,
     schemaVersion:meta.rows[0].schema_version,postgresVersion:meta.rows[0].pg_version,
     database,documents:inventory.map((document,index)=>({
      sourceName:document.name,...documents[index],
