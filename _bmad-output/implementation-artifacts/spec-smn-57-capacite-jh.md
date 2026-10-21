@@ -39,6 +39,6 @@ Le taux contractuel n'est pas multiplié une seconde fois : il borne déjà le t
 
 Le paramètre heures/JH transforme la durée des demi-journées en heures, puis en JH. Avec une trame exprimée uniquement en demi-journées, la valeur JH demeure mathématiquement indépendante de ce paramètre ; elle changerait si des heures de travail effectives étaient saisies ultérieurement.
 
-L'arbitrage d'une capacité manuelle prioritaire est prévu dans SMN-58, pas ici.
+L'arbitrage d'une capacité manuelle prioritaire est développé séparément dans [SMN-58](spec-smn-58-capacite-manuelle.md) : surcharge distincte avec provenance, priorité sur le calcul et audit de l'effacement. Les workflows de figement et clôture restent des dépendances à venir.
 
 Tests de contrat rédigés mais **non exécutés** dans cette session. Aucune compilation, exécution PostgreSQL ou recette navigateur attestée. GitHub Actions hors circuit selon la décision SMN. Statuts attendus après publication : Jira **En cours**, BMAD `review`. Le workflow natif BMAD `uv` n'a pas été exécuté : travail adapté aux connecteurs.
