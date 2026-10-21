@@ -2,6 +2,7 @@ import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {previewSprintBatch,validBatchRequest} from "./batch-preview";
 import {ensureSprintSchema} from "./creation";
+import {saveGeneratedCeremonies} from "./ceremonies";
 
 type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;endAt:string;timeZone:string;conflicts:unknown[]};
 type Preview={ok:true;valid:boolean;items:Item[];count:number};
@@ -71,6 +72,7 @@ export async function confirmBatch(db:Client,actorId:string,raw:unknown){
    await db.query(`INSERT INTO public.smn_sprint_audit(id,sprint_id,action,actor_id,details)
    VALUES($1,$2,'created',$3,$4::jsonb)`,
    [randomUUID(),id,actorId,JSON.stringify({batchToken:token,number:item.number,name:item.name,startAt:item.startAt,endAt:item.endAt,timeZone:item.timeZone})]);
+   await saveGeneratedCeremonies(db,{id,startAt:item.startAt,endAt:item.endAt,timeZone:item.timeZone},Number(cadence.rows[0].duration_weeks));
    created.push({id,number:item.number,name:item.name,startAt:item.startAt,endAt:item.endAt,timeZone:item.timeZone});
   }
   const auditId=randomUUID();
