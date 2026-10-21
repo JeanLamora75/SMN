@@ -352,3 +352,128 @@
   .smn-metric-grid {grid-template-columns:minmax(0,1fr);}
   .smn-cycle-fact-list {grid-template-columns:minmax(0,1fr);}
 }
+
+
+/* UX lot 3 : suivi opérationnel en quatre colonnes. Les panneaux sont des
+   emplacements de lecture : aucune valeur ni action métier n'est simulée. */
+.smn-operational-overview {
+  container-type:inline-size;
+  min-width:0;
+  width:100%;
+  margin-top:24px;
+}
+.smn-operational-overview-heading {margin-bottom:14px;}
+.smn-operational-overview-heading h2 {
+  margin:0 0 5px;
+  color:var(--smn-text);
+  font-size:1.08rem;
+  font-weight:750;
+}
+.smn-operational-overview-heading p {
+  margin:0;color:var(--smn-muted);font-size:.82rem;line-height:1.5;
+}
+.smn-operational-grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  align-items:stretch;
+  min-width:0;
+}
+.smn-operational-panel {
+  display:flex;flex-direction:column;min-width:0;
+  padding:16px 14px;
+  border:1px solid var(--smn-border);
+  border-radius:13px;
+  background:var(--smn-surface);
+  color:var(--smn-text);
+}
+.smn-operational-panel-header {
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:8px;min-width:0;margin-bottom:8px;
+}
+.smn-operational-title-wrap {display:flex;align-items:center;gap:9px;min-width:0;}
+.smn-operational-title-wrap h3 {
+  margin:0;min-width:0;
+  color:var(--smn-text);font-size:.96rem;
+  font-weight:750;line-height:1.3;overflow-wrap:anywhere;
+}
+.smn-operational-icon {
+  flex:none;display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:9px;
+  color:var(--smn-primary);
+  background:var(--smn-highlight);
+}
+.smn-operational-count {
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  min-width:27px;min-height:27px;padding:2px 7px;
+  border-radius:999px;border:1px solid var(--smn-border);
+  color:var(--smn-muted);background:var(--smn-unavailable);
+  font-size:.85rem;font-variant-numeric:tabular-nums;
+}
+.smn-operational-description {
+  margin:0 0 14px;
+  font-size:.76rem;color:var(--smn-muted);line-height:1.55;
+  overflow-wrap:anywhere;
+}
+.smn-operational-all-unavailable {
+  display:flex;align-items:center;justify-content:space-between;
+  gap:7px;flex:1 0 100%;flex-wrap:wrap;margin:4px 0 0;padding:10px 0;
+  border-top:1px solid var(--smn-border);
+  border-bottom:1px solid var(--smn-border);
+  color:var(--smn-muted);font-size:.78rem;font-weight:600;
+}
+.smn-operational-status {
+  font-size:.7rem;font-weight:500;
+  color:var(--smn-unavailable-text);
+  background:var(--smn-unavailable);
+  border-radius:9px;padding:3px 7px;
+}
+.smn-operational-content {flex:1;min-width:0;padding:14px 0;}
+.smn-operational-empty {
+  background:var(--smn-soft);
+  color:var(--smn-soft-text);
+  border:1px dashed var(--smn-border);border-radius:9px;
+  padding:16px 12px;
+}
+.smn-operational-empty-title {
+  margin:0 0 8px;font-size:.87rem;line-height:1.4;
+  color:var(--smn-soft-text);font-weight:700;
+}
+.smn-operational-empty-description {
+  margin:0;font-size:.76rem;line-height:1.55;
+  color:var(--smn-soft-text);overflow-wrap:anywhere;
+}
+.smn-operational-types {
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;
+}
+.smn-operational-type {
+  display:inline-flex;align-items:center;gap:5px;min-height:30px;
+  font-size:.77rem;font-weight:650;padding:4px 8px;
+  border:1px solid var(--smn-border);border-radius:8px;
+}
+.smn-operational-type svg {width:15px;height:15px;}
+.smn-operational-type-note {
+  color:var(--smn-primary);background:var(--smn-highlight);
+}
+.smn-operational-type-alert {
+  color:var(--bs-warning-text-emphasis);
+  background:var(--bs-warning-bg-subtle);
+  border-color:var(--bs-warning-border-subtle);
+}
+.smn-operational-panel-footer {
+  margin-top:auto;padding-top:12px;
+  border-top:1px solid var(--smn-border);
+}
+.smn-operational-add-unavailable {
+  display:block;width:100%;text-align:center;
+  padding:8px 10px;border:1px dashed var(--smn-border);
+  border-radius:9px;color:var(--smn-unavailable-text);
+  background:var(--smn-unavailable);
+  font-size:.79rem;font-weight:650;
+}
+@container (max-width:1100px) {
+  .smn-operational-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@container (max-width:650px) {
+  .smn-operational-grid {grid-template-columns:minmax(0,1fr);}
+}

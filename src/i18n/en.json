@@ -204,6 +204,27 @@
       "workingDays": "Working days remaining",
       "notCalculable": "Cannot be calculated",
       "workingDaysHelp": "Monday to Friday. The countdown requires reliable cycle dates and a fully defined reference rule."
+    },
+    "operational": {
+      "heading": "Operational overview",
+      "subtitle": "Selected cycle overview — verified collective data only.",
+      "obstacles": "Impediments",
+      "obstaclesHelp": "Unresolved cycle impediments, sorted by severity and age once the data is available.",
+      "risks": "Risks",
+      "risksHelp": "Open cycle risks, sorted by severity and due date.",
+      "events": "Events",
+      "eventsHelp": "Events from the selected cycle, in the appropriate chronological order.",
+      "notesAlerts": "Notes / Alerts",
+      "notesHelp": "Relevant alerts and unfinished notes; global alerts are not shown as facts from a previous cycle.",
+      "note": "Note",
+      "alert": "Alert",
+      "types": "Record types; no entries are presented here",
+      "countUnavailable": "Item count unavailable",
+      "seeAll": "View all",
+      "add": "Add",
+      "unavailable": "Unavailable",
+      "empty": "No entries to date",
+      "sourceUnavailable": "Records for this cycle are not yet accessible. No count or historical status can be confirmed."
     }
   },
   "session": {
