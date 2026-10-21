@@ -1026,5 +1026,16 @@
     "notFound": "Catégorie introuvable dans le catalogue.",
     "catalogueFull": "Le catalogue a atteint sa limite de 100 catégories.",
     "failed": "L’enregistrement n’a pas pu être confirmé. Réessayez après avoir rechargé les données."
+  },
+  "regionalAbsence": {
+    "intro": "Un jour régional non travaillé n'est pas ajouté au calendrier national : il est enregistré comme une absence du membre. La catégorie « Autre » est proposée si elle est active ; saisissez obligatoirement le nom ou motif local.",
+    "prepare": "Préparer un jour régional non travaillé",
+    "dayReview": "Indisponibilité consolidée de la date sélectionnée",
+    "dayLabel": "Date : {date}",
+    "nationalHoliday": "Jour férié national enregistré : {name}",
+    "notDoubleCounted": "Une absence chevauche un jour férié national : aucun créneau n'est déduit deux fois.",
+    "unavailableHalfDays": "Créneaux normalement travaillés indisponibles : {count} demi-journée(s), toutes sources confondues.",
+    "unknownAvailability": "Déduction non déterminée : renseignez le calendrier de travail du membre et sa couverture nationale pour cette date. Les absences enregistrées restent consultables.",
+    "capacityPending": "Cette synthèse journalière est indicative. Le calcul de capacité de sprint consolidée et le calendrier d'équipe seront livrés dans leurs Stories dédiées."
   }
 }
