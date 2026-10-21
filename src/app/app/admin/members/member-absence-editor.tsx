@@ -9,8 +9,17 @@ type Category={id:string;name:string;color:string;isActive:boolean};
 type Absence={id:string;revision:number;categoryId:string;categoryName:string;categoryColor:string;
  startOn:string;endOn:string;startSlot:Slot;endSlot:Slot;isPlanned:boolean;reason:string;
  createdAt:string;updatedAt:string};
+type DayAvailability={
+ onDate:string;countryIso2:string|null;assignmentApplicable:boolean;nationalHoliday:boolean|null;
+ nationalHolidayName:string|null;nationalCalendarStatus:string;
+ status:"known"|"unknown";workingSlots:{morning:boolean;afternoon:boolean}|null;
+ absenceSlots:{morning:boolean;afternoon:boolean};
+ unavailableSlots:{morning:boolean;afternoon:boolean};
+ availableSlots:{morning:boolean;afternoon:boolean}|null;
+ deductedHalfDays:number|null;nationalOverlap:boolean;
+};
 type State={memberId:string;archived:boolean;categories:Category[];absences:Absence[];
- selectedDate:string|null;onDate:Absence[]};
+ selectedDate:string|null;onDate:Absence[];dayAvailability?:DayAvailability|null};
 type Form={id:string|null;revision:number;categoryId:string;startOn:string;endOn:string;
  startSlot:Slot;endSlot:Slot;isPlanned:boolean;reason:string};
 const initial=(date:string):Form=>({id:null,revision:0,categoryId:"",startOn:date,
@@ -54,6 +63,14 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange}:
  },[memberId,selectedOn]);
  const reset=()=>{
   const v=initial(selectedOn);setForm(v);setBaseline(JSON.stringify(v));
+  setError("");setMessage("");
+ };
+ const prepareRegional=()=>{
+  if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+  const next=initial(selectedOn);
+  const category=data?.categories.find(c=>c.id==="other"&&c.isActive);
+  next.categoryId=category?.id??"";
+  setForm(next);setBaseline(JSON.stringify(initial(selectedOn)));
   setError("");setMessage("");
  };
  const edit=(record:Absence)=>{
@@ -100,6 +117,12 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange}:
  return <section className="border-top pt-4 mt-4 d-grid gap-3" aria-labelledby="member-absences-heading">
   <h4 id="member-absences-heading" className="h6">{t("members.absence.title")}</h4>
   <p className="small text-secondary">{t("members.absence.centralInfo")}</p>
+  <div className="d-grid gap-2">
+   <p className="small text-secondary mb-0">{t("regionalAbsence.intro")}</p>
+   <button type="button" className="btn btn-outline-primary btn-sm align-self-start"
+    disabled={busy||data?.archived||status!=="ready"}
+    onClick={prepareRegional}>{t("regionalAbsence.prepare")}</button>
+  </div>
   <div><Link href="/app/admin/absence-categories" className="btn btn-sm btn-outline-secondary">
    {t("absenceCategories.open")}</Link></div>
   {status==="loading"&&<p role="status">{t("members.absence.loading")}</p>}
@@ -111,6 +134,22 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange}:
   </p>}
   {data&&status==="ready"&&<>
    {data.archived&&<p className="alert alert-secondary">{t("members.calendar.archived")}</p>}
+   {data.dayAvailability&&<div className="small border rounded p-3" role="status">
+    <h5 className="h6">{t("regionalAbsence.dayReview")}</h5>
+    <p className="mb-1">{t("regionalAbsence.dayLabel",{date:selectedOn})}</p>
+    {!data.dayAvailability.assignmentApplicable&&
+     <p className="mb-1">{t("regionalAbsence.noApplicableAssignment")}</p>}
+    {data.dayAvailability.nationalHoliday===true&&
+     <p className="mb-1">{t("regionalAbsence.nationalHoliday",{name:data.dayAvailability.nationalHolidayName??""})}</p>}
+    {data.dayAvailability.nationalOverlap&&
+     <p className="mb-1">{t("regionalAbsence.notDoubleCounted")}</p>}
+    {data.dayAvailability.assignmentApplicable&&data.dayAvailability.status==="known"&&data.dayAvailability.deductedHalfDays!==null?
+     <p className="mb-1">{t("regionalAbsence.unavailableHalfDays",{
+      count:data.dayAvailability.deductedHalfDays})}</p>:
+     data.dayAvailability.assignmentApplicable?
+      <p className="mb-1">{t("regionalAbsence.unknownAvailability")}</p>:null}
+    <p className="text-secondary mb-0">{t("regionalAbsence.capacityPending")}</p>
+   </div>}
    <form onSubmit={save} className="d-grid gap-3">
     <h5 className="h6">{t(form.id?"members.absence.editTitle":"members.absence.newTitle")}</h5>
     <div className="row g-2">

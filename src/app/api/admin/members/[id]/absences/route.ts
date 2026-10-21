@@ -3,6 +3,7 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {readMemberAbsences,saveMemberAbsence} from "@/server/members/absence";
+import {readMemberDayAvailability} from "@/server/members/day-availability";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -11,7 +12,12 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  if(!await authorizeApi(request,"read",resource))return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  const onDate=new URL(request.url).searchParams.get("onDate")??undefined;
- try{return jsonResult(await withAuthDb(db=>readMemberAbsences(db,id,onDate)));}
+ try{return jsonResult(await withAuthDb(async db=>{
+   const data=await readMemberAbsences(db,id,onDate);
+   const dayAvailability=onDate?
+    await readMemberDayAvailability(db,id,onDate,data.absences):null;
+   return {...data,dayAvailability};
+  }));}
  catch(error){
   if(error instanceof Error&&error.message==="member-absence-invalid-input")
    return jsonResult({error:"invalid-input"},400);
