@@ -1336,5 +1336,32 @@
     "noInventedAbsence": "Viewing the selected date does not create an absence. No category or reason is inferred automatically. Only Save creates an absence.",
     "unknownPeriod": "No operational period is inferred from today's date. Select the dates of the period to consult.",
     "unsavedCapacity": "You have edited a manual capacity without saving it. Save or discard your changes before updating settings."
+  },
+  "centralCalendar": {
+    "title": "Shared central calendar",
+    "readOnly": "Read-only view: items come from their source records. Filtering and browsing never move events, and drag-and-drop is not enabled.",
+    "legend": "Item legend",
+    "teamFilter": "Team",
+    "noTeam": "Team not available",
+    "singleTeam": "Single-team MVP: only the authorized team can be viewed.",
+    "typeFilter": "Item type",
+    "allTypes": "All types",
+    "absence": "Unavailability",
+    "closure": "Collective closure",
+    "holiday": "Public holiday",
+    "cycle": "Scrum / Kanban cycle",
+    "meeting": "Agile meeting",
+    "noCycles": "No operational cycle is recorded in the current repository. No fabricated cycles are displayed.",
+    "noMeetings": "No Agile meetings are currently recorded. Past meetings are not assumed to have taken place.",
+    "noItems": "No items of the selected type in this period.",
+    "source": "Open source record",
+    "aggregate": "{count} member(s) with reported unavailability (no personal details)",
+    "utc": "UTC instant",
+    "status": {
+      "scheduled": "Scheduled (recorded status)",
+      "held": "Held (recorded status)",
+      "cancelled": "Cancelled (recorded status)",
+      "unknown": "Status not recorded"
+    }
   }
 }
