@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import ActualCapacityPanel from "./actual-capacity-panel";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
 type MissingCode="no-assignments"|"ambiguous-assignment"|"assignment-version"|
@@ -188,6 +189,7 @@ export default function DevelopmentCapacityView(){
   {busy&&<p role="status">{t("developmentCapacity.loading")}</p>}
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {report&&!busy&&<>
+   <ActualCapacityPanel key={report.start+"-"+report.end} start={report.start} end={report.end}/>
    <section className="smn-panel p-3 d-grid gap-3" aria-labelledby="capacity-result">
     <h2 id="capacity-result" className="h5">{t("developmentCapacity.result")}</h2>
     <p>{t("developmentCapacity.team",{team:report.team.name})}</p>
