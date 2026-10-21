@@ -79,7 +79,7 @@ export default function DevelopmentCapacityView(){
   }catch{setSettingsError(t("developmentCapacity.settingsError"));}
   finally{setSettingsBusy(false);}
  };
- const nameMap=new Map(report?.members.map(m=>[m.memberId,m.displayName])??[]);
+ const nameMap=new Map<string,string>((report?.members??[]).map(m=>[m.memberId,m.displayName] as const));
  const label=(code:MissingCode)=>t(("developmentCapacity."+missingKey[code]) as "developmentCapacity.noAssignments");
  return <section className="smn-page container py-4 d-grid gap-4">
   <header>
