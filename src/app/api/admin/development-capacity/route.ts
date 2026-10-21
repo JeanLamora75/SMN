@@ -4,6 +4,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {parseCapacityPeriod,readDevelopmentCapacity} from "@/server/capacity/engine";
 import {readCapacityOverride,saveCapacityOverride} from "@/server/capacity/override";
+import {readInitialSnapshot} from "@/server/capacity/opening";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -17,7 +18,8 @@ export async function GET(request:NextRequest){
   return jsonResult(await withAuthDb(async db=>{
    const report=await readDevelopmentCapacity(db,period.start,period.end);
    const selection=await readCapacityOverride(db,report);
-   return {...report,selection};
+   const initialSnapshot=await readInitialSnapshot(db,report.team.id,report.start,report.end);
+   return {...report,selection,initialSnapshot};
   }));
  }catch{
   console.error("capacity-computation-unavailable");

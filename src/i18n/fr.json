@@ -1191,5 +1191,19 @@
     "invalid": "Entrez un nombre de JH positif ou nul (4 décimales au maximum), sans laisser le champ vide.",
     "conflict": "Cette période a été modifiée depuis son ouverture. Recalculez pour récupérer sa dernière révision.",
     "failed": "L'enregistrement n'a pas pu être confirmé. Rechargez la période avant de recommencer."
+  },
+  "initialCapacity": {
+    "title": "Capacité initiale figée à l'ouverture réelle",
+    "notOpened": "Période non ouverte : aucun cliché initial enregistré.",
+    "openedAt": "Ouverture effective enregistrée le",
+    "provenance": "Provenance initiale",
+    "manual": "Saisie",
+    "calculated": "Calcul",
+    "unknown": "Non renseigné",
+    "immutable": "Ce cliché initial est immuable. Les absences et corrections ultérieures ne le réécrivent pas.",
+    "openAction": "Déclencher l'ouverture effective",
+    "openHint": "Cette action métier explicite enregistre la date réelle d'ouverture, fige la capacité retenue et interdit les corrections manuelles directes. La simple consultation de la date n'effectue aucune ouverture. Une période entièrement passée sans preuve initiale sera figée « Non renseigné ».",
+    "confirm": "Confirmez-vous l'ouverture effective de cette période ? Cette opération fige irréversiblement la référence initiale, sans reconstitution à partir d'événements ultérieurs.",
+    "failed": "L'ouverture n'a pas pu être confirmée. Actualisez la période avant de réessayer."
   }
 }

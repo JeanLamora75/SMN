@@ -12,7 +12,13 @@ type Day={date:string;status:"calculated"|"not-calculable";
 type Member={memberId:string;displayName:string;status:string;totalJh:number|null;days:Day[]};
 type Report={start:string;end:string;hoursPerJh:number;team:{id:string;name:string;mode:string};
  status:"calculated"|"not-calculable";totalJh:number|null;selection:Selection;
+ initialSnapshot:InitialSnapshot|null;
  missing:{date:string|null;memberId:string|null;source:MissingCode}[];members:Member[]};
+type InitialSnapshot={
+ id:string;eventId:string;initialJh:number|null;
+ provenance:"Saisie"|"Calcul"|"Non renseigné";
+ actualOpenedAt:string;recordedAt:string;manualRevision:number|null;
+};
 type Selection={
  start:string;end:string;manualJh:number|null;referenceJh:number|null;
  retainedJh:number|null;source:"Saisie"|"Calcul"|"Non calculable";
@@ -44,6 +50,8 @@ export default function DevelopmentCapacityView(){
  const [manualBusy,setManualBusy]=useState(false);
  const [manualError,setManualError]=useState("");
  const [manualSaved,setManualSaved]=useState("");
+ const [openingBusy,setOpeningBusy]=useState(false);
+ const [openingError,setOpeningError]=useState("");
  const dirty=settings!==null&&hours!==String(settings.hoursPerJh);
  const manualDirty=report!==null&&
   manualDraft!==(report.selection.manualJh===null?"":String(report.selection.manualJh));
@@ -104,6 +112,23 @@ export default function DevelopmentCapacityView(){
    setManualSaved(t(action==="set"?"manualCapacity.saved":"manualCapacity.cleared"));
   }catch{setManualError(t("manualCapacity.failed"));}
   finally{setManualBusy(false);}
+ };
+ const openEffective=async()=>{
+  if(!report||report.initialSnapshot||openingBusy||manualBusy)return;
+  if(!window.confirm(t("initialCapacity.confirm")))return;
+  setOpeningBusy(true);setOpeningError("");
+  try{
+   const response=await fetch("/api/admin/capacity-openings",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({start:report.start,end:report.end,
+     eventId:crypto.randomUUID()})
+   });
+   if(!response.ok){
+    setOpeningError(t("initialCapacity.failed"));return;
+   }
+   await load();
+  }catch{setOpeningError(t("initialCapacity.failed"));}
+  finally{setOpeningBusy(false);}
  };
  const saveSettings=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(!settings||settingsBusy)return;
@@ -197,6 +222,26 @@ export default function DevelopmentCapacityView(){
       </div>}
      {manualError&&<p className="alert alert-warning" role="alert">{manualError}</p>}
      {manualSaved&&<p className="alert alert-success" role="status">{manualSaved}</p>}
+    </div>
+    <div className="border-top pt-3 d-grid gap-2">
+     <h3 className="h6">{t("initialCapacity.title")}</h3>
+     {report.initialSnapshot?<>
+       <p>{t("initialCapacity.openedAt")} : {report.initialSnapshot.actualOpenedAt}</p>
+       <p>{t("initialCapacity.provenance")} : {t(report.initialSnapshot.provenance==="Saisie"?
+        "initialCapacity.manual":report.initialSnapshot.provenance==="Calcul"?
+        "initialCapacity.calculated":"initialCapacity.unknown")}</p>
+       <p className="fw-bold">{report.initialSnapshot.initialJh===null?
+        t("initialCapacity.unknown"):
+        fmt(report.initialSnapshot.initialJh)+" "+t("developmentCapacity.unitJh")}</p>
+       <p className="small text-secondary">{t("initialCapacity.immutable")}</p>
+      </>:<>
+       <p>{t("initialCapacity.notOpened")}</p>
+       <button className="btn btn-outline-primary align-self-start" type="button"
+        disabled={openingBusy||manualBusy||manualDirty}
+        onClick={()=>void openEffective()}>{t("initialCapacity.openAction")}</button>
+       <p className="small text-secondary">{t("initialCapacity.openHint")}</p>
+      </>}
+     {openingError&&<p role="alert" className="alert alert-warning">{openingError}</p>}
     </div>
     <p className="small text-secondary">
      {t("developmentCapacity.hoursUsed",{hours:report.hoursPerJh})}</p>
