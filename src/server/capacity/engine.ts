@@ -38,7 +38,7 @@ const round=(v:number)=>Math.round((v+Number.EPSILON)*10000)/10000;
 const validRate=(p:unknown)=>typeof p==="number"&&Number.isInteger(p)&&p>=0&&p<=100;
 export const validHoursPerJh=(v:unknown):v is number=>
  typeof v==="number"&&Number.isFinite(v)&&v>=1&&v<=24&&
- Math.round(v*100)===v*100;
+ Math.abs(Math.round(v*100)-v*100)<1e-8;
 
 /** Allocation is already bounded by contract percentage; never multiply contract twice. */
 export function computeDevelopmentDay(
