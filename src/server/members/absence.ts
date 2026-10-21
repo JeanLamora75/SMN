@@ -179,7 +179,7 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
   await db.query(`INSERT INTO public.smn_member_absence_history
    (id,absence_id,revision,operation,before_values,after_values,changed_by)
    VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7)`,
-   [randomUUID(),id,revision,input.action,JSON.stringify(before),
+   [randomUUID(),id,revision,input.action,before?JSON.stringify(before):null,
     JSON.stringify(snapshot(input)),actorId]);
   await db.query("COMMIT");
   return {ok:true,id,revision,created:input.action==="create"};
