@@ -1,5 +1,6 @@
 import type {Client} from "pg";
-import {validRecordId, type DashboardContext} from "./read";
+import {validRecordId,type DashboardContext} from "./read";
+import {projectCollectiveContext} from "@/lib/collective-projection";
 
 /** Fiche collective courante uniquement : ni données personnelles ni vue historique inventée. */
 export async function readTeamDetail(client: Client, id: string): Promise<DashboardContext|null> {
@@ -18,6 +19,6 @@ export async function readTeamDetail(client: Client, id: string): Promise<Dashbo
   if (!validRecordId(row.product_id) || row.team_id!==id ||
       (row.mode!=="scrum" && row.mode!=="kanban") ||
       typeof row.product!=="string" || typeof row.team!=="string") return null;
-  return {productId:row.product_id,product:row.product,teamId:id,team:row.team,mode:row.mode};
+  return projectCollectiveContext({productId:row.product_id,product:row.product,teamId:id,team:row.team,mode:row.mode});
 }
 

@@ -39,7 +39,7 @@ export async function readPrivateDocument(rootSetting:string|undefined,id:string
   const root=await realpath(rootSetting);
   const app=resolve(process.cwd());
   const insideApp=relative(app,root);
-  if(insideApp===""||(!insideApp.startsWith(".."+sep)&&insideApp!=="..")||!isAbsolute(root))return null;
+  if(insideApp===""||(!insideApp.startsWith(".."+sep)&&insideApp!==".."&&!isAbsolute(insideApp))||!isAbsolute(root))return null;
   const metadata=await readBounded(resolve(root,id+".meta.json"),2048);
   const manifest=parseManifest(JSON.parse(metadata.toString("utf8")),id);
   if(!manifest||manifest.teamId!==activeTeamId||!canAccess(actor,"download",{
