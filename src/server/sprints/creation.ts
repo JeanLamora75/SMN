@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureCadenceTable} from "./cadence";
+import {saveGeneratedCeremonies} from "./ceremonies";
 
 type Cadence={duration_weeks:number;start_day:number;start_time:string;end_day:number;end_time:string;time_zone:string};
 type SprintRow={id:string;name:string;start_at:string;end_at:string;number:number;status:string};
@@ -118,6 +119,7 @@ export async function createSprint(db:Client,actorId:string,input:unknown){
   VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,[id,teamId,nextNumber,name,dates.startAt,dates.endAt,dates.timeZone,actorId]);
   await db.query(`INSERT INTO public.smn_sprint_audit(id,sprint_id,action,actor_id,details)
   VALUES($1,$2,'created',$3,$4::jsonb)`,[randomUUID(),id,actorId,JSON.stringify({number:nextNumber,name,...dates})]);
+  await saveGeneratedCeremonies(db,{id,startAt:dates.startAt,endAt:dates.endAt,timeZone:dates.timeZone},cadence.duration_weeks);
   await db.query("COMMIT");
   return {ok:true as const,sprint:{id,number:nextNumber,name,...dates}};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
