@@ -506,7 +506,8 @@
       "cyclesUnknown": "Cycles (mode unavailable)",
       "audit": "Operations log",
       "backups": "Backups",
-      "members": "Team members"
+      "members": "Team members",
+      "countries": "Countries"
     }
   },
   "detail": {
@@ -850,5 +851,24 @@
       "invalidInstant": "Invalid UTC instant: use for example 2027-03-28T01:30:00Z.",
       "nationalOnly": "Future automatic holidays apply only at country level. Regional specifics will be individual absences; there is no automatic regional calendar."
     }
+  },
+  "countries": {
+    "title": "Country catalog",
+    "intro": "Browse the seven initial countries and add more without a required holiday file.",
+    "addTitle": "Add a country",
+    "code": "Two-letter ISO code",
+    "name": "Country name",
+    "add": "Add country",
+    "listTitle": "Available countries",
+    "calendarStatus": "National holiday calendar",
+    "notConfigured": "Not configured",
+    "unknownNotZero": "Not configured means no holiday data is available. It does not mean there are no public holidays.",
+    "duplicate": "This country code already exists.",
+    "invalid": "Invalid ISO code or country name.",
+    "failed": "The operation could not be confirmed.",
+    "saved": "Country added to the catalog.",
+    "noHolidayRequired": "Adding a country does not require a national holiday calendar or file.",
+    "loading": "Loading…",
+    "loadFailed": "Unable to load countries."
   }
 }
