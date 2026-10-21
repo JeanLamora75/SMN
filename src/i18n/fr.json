@@ -204,6 +204,27 @@
       "workingDays": "Jours ouvrés restants",
       "notCalculable": "Non calculable",
       "workingDaysHelp": "Du lundi au vendredi. Le compteur attend des dates de cycle fiables et une règle de référence complète."
+    },
+    "operational": {
+      "heading": "Suivi opérationnel",
+      "subtitle": "Synthèse du cycle sélectionné — données collectives disponibles uniquement.",
+      "obstacles": "Obstacles",
+      "obstaclesHelp": "Obstacles du cycle non résolus, classés par criticité puis ancienneté lorsque les données seront disponibles.",
+      "risks": "Risques",
+      "risksHelp": "Risques associés au cycle et non clos, classés par criticité puis échéance.",
+      "events": "Événements",
+      "eventsHelp": "Événements du cycle, dans l'ordre chronologique adapté à la période.",
+      "notesAlerts": "Notes / Alertes",
+      "notesHelp": "Alertes pertinentes et notes non terminées ; les alertes globales ne sont pas attribuées à un ancien cycle.",
+      "note": "Note",
+      "alert": "Alerte",
+      "types": "Types de fiches, aucun élément enregistré ici",
+      "countUnavailable": "Nombre d'éléments indisponible",
+      "seeAll": "Voir tout",
+      "add": "Ajouter",
+      "unavailable": "Indisponible",
+      "empty": "Aucun éléments à ce jour",
+      "sourceUnavailable": "Les fiches de ce cycle ne sont pas encore accessibles. Aucun total ni état historique ne peut être confirmé."
     }
   },
   "session": {
