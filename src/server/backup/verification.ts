@@ -197,7 +197,7 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
     v.size>MAX_DOCUMENT||v.encryptedSize>MAX_DOCUMENT)
     invalid("document-metadata-invalid");
    names.add(v.sourceName);
-   documents.push(v as {sourceName:string}&BackupComponent);
+   documents.push(v as unknown as {sourceName:string}&BackupComponent);
   }
   const expectedTop=new Set(["index.json","manifest.enc","database.pgcustom.enc"]);
   if(documents.length)expectedTop.add("documents");
@@ -209,7 +209,8 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    const dirInfo=await lstat(docsDir).catch(()=>incomplete("documents-directory-missing"));
    if(!dirInfo.isDirectory()||dirInfo.isSymbolicLink())invalid("documents-directory-invalid");
    const documentFiles=await readdir(docsDir);
-   if(documentFiles.length!==documents.length||
+   if(documentFiles.length<documents.length)incomplete("document-component-missing");
+   if(documentFiles.length>documents.length||
     documentFiles.some(name=>!/^\d{5}\.enc$/.test(name)))invalid("documents-directory-unexpected");
   }
   await verifyEncrypted(join(folder,database.path),database,key,MAX_DATABASE,false);
@@ -283,13 +284,11 @@ export async function backupInventory(root:string):Promise<BackupInventoryEntry[
    entries.push(item);
    // Recorded for audit of the last check, but never trusted on a subsequent GET.
    const folder=join(root,"verification");
-   try{
-    await privateFolder(folder,true);
-    await safeAtomicJson(join(folder,name+".json"),{
-     id:name,status:item.status,reason:item.reason,checkedAt:item.checkedAt,
-     integrityVerified:item.integrityVerified,restoreTested:false
-    });
-   }catch{/* Verification remains authoritative even when status persistence fails. */}
+   await privateFolder(folder,true);
+   await safeAtomicJson(join(folder,name+".json"),{
+    id:name,status:item.status,reason:item.reason,checkedAt:item.checkedAt,
+    integrityVerified:item.integrityVerified,restoreTested:false
+   });
   }
   return entries.sort((a,b)=>(b.createdAt??"").localeCompare(a.createdAt??""));
  }finally{key?.fill(0);}
