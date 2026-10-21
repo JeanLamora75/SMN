@@ -75,8 +75,9 @@ async function references(client:Client,id:string){
  const ee=await client.query<{refs:number}>(`SELECT count(*)::int AS refs FROM public.smn_member_lifecycle_event WHERE member_id=$1`,[id]);
  const ww=await client.query<{refs:number}>(`SELECT count(*)::int AS refs FROM public.smn_member_calendar_week WHERE member_id=$1`,[id]);
  const xx=await client.query<{refs:number}>(`SELECT count(*)::int AS refs FROM public.smn_member_calendar_exception WHERE member_id=$1`,[id]);
+ const ll=await client.query<{refs:number}>(`SELECT count(*)::int AS refs FROM public.smn_member_location WHERE member_id=$1`,[id]);
  return (aa.rows[0]?.refs??0)+(ee.rows[0]?.refs??0)+
-  (ww.rows[0]?.refs??0)+(xx.rows[0]?.refs??0);
+  (ww.rows[0]?.refs??0)+(xx.rows[0]?.refs??0)+(ll.rows[0]?.refs??0);
 }
 function isEmpty(member:MemberRow){
  return member.is_provisional&&member.email===null&&member.contract_percent===100&&
