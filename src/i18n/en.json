@@ -163,7 +163,22 @@
     "kanbanCycle": "Kanban period",
     "kanbanCycles": "Kanban periods",
     "sprintCycles": "Sprints",
-    "sprint": "Sprint"
+    "sprint": "Sprint",
+    "shell": {
+      "team": "Team",
+      "sprint": "Sprint",
+      "period": "Period",
+      "singleTeam": "Only team in this installation",
+      "noTeam": "Team unavailable",
+      "noCycle": "No cycle created",
+      "search": "Search",
+      "searchUnavailable": "Search unavailable",
+      "contextControls": "Dashboard context",
+      "openMenu": "Open navigation",
+      "closeMenu": "Close navigation",
+      "expandMenu": "Expand navigation",
+      "collapseMenu": "Collapse navigation"
+    }
   },
   "session": {
     "logout": "Sign out",
