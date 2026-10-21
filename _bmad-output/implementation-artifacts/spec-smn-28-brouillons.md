@@ -8,3 +8,7 @@
 - **Validation :** tests `tests/unsaved-changes.test.ts` écrits ; tests `pnpm` et vérifications de navigation navigateur/Windows à exécuter, sans prétendre aux avoir passés.
 
 [Documentation et recette](../../docs/BROUILLONS-SMN-28.md).
+
+## Intégration
+
+[PR #22](https://github.com/JeanLamora75/SMN/pull/22) fusionnée dans `main` le 21/10/2026. Statut Jira maintenu **En cours** : navigation historique Précédent/Suivant, recette Windows, lint, typecheck, test et build non attestés. Les formulaires de cycles/PI/bilans et la politique de lots seront traités dans leurs Stories métier.

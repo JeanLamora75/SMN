@@ -2,6 +2,8 @@
 
 **Jira :** https://lmn24.atlassian.net/browse/SMN-28 — Story 1.17, Epic 1.
 
+**Livraison :** [PR #22 fusionnée sur `main`](https://github.com/JeanLamora75/SMN/pull/22), commit `aa40ab5b5128f9ccdce351593b470d93d514211d`. **Recette et exécution des tests non attestées**.
+
 ## Implémentation
 
 - **Écrans du socle :** Paramètres généraux, administration des comptes et formulaire de sécurité sont protégés contre la perte accidentelle des modifications non enregistrées.
@@ -37,5 +39,7 @@ pnpm dev
 ```
 
 Scénarios manuels : modifier un thème, emprunter un lien vers une autre page puis rester ou quitter ; recharger sans enregistrer puis annuler ; modifier deux comptes, sauvegarder l'un et vérifier que l'autre reste en brouillon ; provoquer un rejet réseau / une révision obsolète ; contrôler l'avertissement au clavier, le bouton Précédent, la fermeture d'onglet et les messages dans les deux langues.
+
+**CI :** les jobs [Linux/Windows](https://github.com/JeanLamora75/SMN/actions/runs/39550974597) et [Windows portable](https://github.com/JeanLamora75/SMN/actions/runs/39550974571) ont échoué **avant toute étape** ; aucune réussite des tests n'est inférée.
 
 **Limitations :** aucune exécution de tests navigateur, aucune validation du comportement spécifique aux navigateurs ou de la navigation Précédent/Suivant à ce stade. Ne pas annoncer le ticket terminé avant recette.
