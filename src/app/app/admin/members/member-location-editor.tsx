@@ -28,6 +28,7 @@ export default function MemberLocationEditor({memberId,onClose}:{
 }){
  const t=useTranslation();
  const [data,setData]=useState<State|null>(null);
+ const [catalog,setCatalog]=useState<{code:string;name:string}[]>([]);
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [draft,setDraft]=useState<Draft|null>(null);
  const [baseline,setBaseline]=useState("");
@@ -53,6 +54,11 @@ export default function MemberLocationEditor({memberId,onClose}:{
   setOnDate(next.today);setHistory(next.current);setHistoryViewed(false);setPreview(null);
   return next;
  }
+ useEffect(()=>{
+  void fetch("/api/admin/countries",{cache:"no-store"}).then(async r=>r.ok?r.json():null)
+   .then((v:{countries?:{code:string;name:string}[]}|null)=>setCatalog(v?.countries??[]))
+   .catch(()=>undefined);
+ },[]);
  useEffect(()=>{
   let live=true;
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/location",{cache:"no-store"})
@@ -145,9 +151,11 @@ export default function MemberLocationEditor({memberId,onClose}:{
      <div className="col-md-3"><label htmlFor="location-country" className="form-label">
       {t("members.location.country")}</label>
       <input id="location-country" className="form-control" maxLength={2}
-       placeholder="FR" autoComplete="off" value={draft.countryIso2}
+       placeholder="FR" autoComplete="off" list="member-country-list" value={draft.countryIso2}
        disabled={busy||data.archived}
-       onChange={e=>change("countryIso2",e.target.value.toUpperCase())}/></div>
+       onChange={e=>change("countryIso2",e.target.value.toUpperCase())}/>
+      <datalist id="member-country-list">{catalog.map(c=><option key={c.code} value={c.code}>{c.name}</option>)}</datalist>
+     </div>
      <div className="col-md-4"><label htmlFor="location-region" className="form-label">
       {t("members.location.region")}</label>
       <input id="location-region" className="form-control" maxLength={120}
