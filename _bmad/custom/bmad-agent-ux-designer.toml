@@ -1,0 +1,3 @@
+# Référence UX approuvée du projet SMN, chargée avec le skill d'agent.
+[agent]
+persistent_facts = ["file:{project-root}/docs/UX-REFERENTIEL-BMAD.md"]
