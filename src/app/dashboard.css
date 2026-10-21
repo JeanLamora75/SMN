@@ -225,3 +225,130 @@
 @media (max-width:375px) {
   .smn-private-header .smn-brand-name {display:none;}
 }
+
+
+/* UX lot 2 : bandeau de cycle neutre et quatre cartes KPI, sans métriques simulées.
+   Conserver le contraste des six thèmes/palettes via les tokens SMN-24. */
+.smn-cycle-overview {
+  container-type:inline-size;
+  width:100%;
+  min-width:0;
+}
+.smn-cycle-overview-header {
+  display:grid;
+  grid-template-columns:minmax(0,1.55fr) minmax(220px,1fr);
+  gap:clamp(18px,2.5vw,36px);
+  align-items:start;
+  background:var(--smn-soft);
+  color:var(--smn-soft-text);
+  border:1px solid var(--smn-border);
+  border-radius:16px;
+  padding:clamp(18px,2vw,28px);
+}
+.smn-cycle-headline,.smn-cycle-facts {min-width:0;}
+.smn-cycle-eyebrow {
+  margin:0 0 8px;
+  color:var(--smn-soft-text);
+  font-size:.73rem;
+  font-weight:750;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.smn-cycle-overview-header h1 {
+  font-size:clamp(1.45rem,2.3vw,1.95rem);
+  font-weight:750;
+  line-height:1.2;
+  margin:0 0 12px;
+  color:var(--smn-soft-text);
+  overflow-wrap:anywhere;
+}
+.smn-cycle-context {
+  font-size:.92rem;
+  color:var(--smn-soft-text);
+  margin:0 0 12px;
+  overflow-wrap:anywhere;
+}
+.smn-cycle-description {
+  color:var(--smn-soft-text);
+  font-size:.88rem;
+  line-height:1.5;
+  max-width:66ch;
+  margin-bottom:14px;
+}
+.smn-cycle-team-link {min-height:40px;display:inline-flex;align-items:center;gap:6px;}
+.smn-cycle-facts {
+  border-left:1px solid var(--smn-border);
+  padding-left:clamp(18px,2vw,28px);
+}
+.smn-cycle-fact-list {display:grid;gap:12px;margin:0;}
+.smn-cycle-fact-list > div {min-width:0;}
+.smn-cycle-fact-list dt {
+  color:var(--smn-soft-text);opacity:.85;font-size:.78rem;
+  font-weight:500;margin-bottom:3px;
+}
+.smn-cycle-fact-list dd {
+  color:var(--smn-soft-text);font-size:.91rem;font-weight:650;
+  margin:0;overflow-wrap:anywhere;
+}
+.smn-metric-grid {
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;margin-top:16px;
+}
+.smn-metric-card {
+  display:flex;flex-direction:column;min-width:0;
+  border:1px solid var(--smn-border);border-radius:13px;
+  padding:clamp(14px,1.5vw,20px);
+  background:var(--smn-surface);color:var(--smn-text);
+  box-shadow:0 3px 12px rgba(0,0,0,.025);
+}
+.smn-metric-title {
+  margin:0 0 14px;font-size:1rem;font-weight:750;line-height:1.35;
+  color:var(--smn-text);overflow-wrap:anywhere;
+}
+.smn-metric-values {margin:0;display:grid;gap:0;}
+.smn-metric-row {min-width:0;padding:0 0 12px;}
+.smn-metric-row + .smn-metric-row {
+  padding-top:12px;border-top:1px solid var(--smn-border);
+}
+.smn-metric-label {
+  font-size:.79rem;line-height:1.4;font-weight:550;
+  color:var(--smn-muted);overflow-wrap:anywhere;
+}
+.smn-metric-unit {font-size:.74rem;font-weight:600;white-space:nowrap;}
+.smn-metric-empty {
+  margin:8px 0 0;font-size:1rem;font-weight:700;
+  color:var(--smn-text);overflow-wrap:anywhere;
+}
+.smn-metric-comparison {
+  margin:auto 0 0;border-top:1px solid var(--smn-border);padding-top:12px;
+  font-size:.76rem;color:var(--smn-muted);overflow-wrap:anywhere;
+}
+.smn-metric-deadline {
+  border-color:var(--smn-primary);
+  border-width:2px;
+  background:var(--smn-surface);
+}
+.smn-deadline-unavailable {
+  margin:8px 0 14px;font-weight:750;
+  font-size:clamp(1.25rem,2vw,1.65rem);
+  line-height:1.18;color:var(--smn-text);overflow-wrap:anywhere;
+}
+.smn-deadline-explanation {
+  margin:auto 0 0;padding-top:12px;border-top:1px solid var(--smn-border);
+  color:var(--smn-muted);font-size:.76rem;line-height:1.45;
+}
+@container (max-width:1000px) {
+  .smn-metric-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@container (max-width:650px) {
+  .smn-cycle-overview-header {grid-template-columns:minmax(0,1fr);}
+  .smn-cycle-facts {
+    border-left:0;border-top:1px solid var(--smn-border);
+    padding:14px 0 0;
+  }
+  .smn-cycle-fact-list {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@container (max-width:520px) {
+  .smn-metric-grid {grid-template-columns:minmax(0,1fr);}
+  .smn-cycle-fact-list {grid-template-columns:minmax(0,1fr);}
+}

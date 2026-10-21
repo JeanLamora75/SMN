@@ -43,3 +43,30 @@ Implémentation incrémentale via connecteur GitHub, publication directe sur mai
 **Adaptation BMAD :** lecture du skill Amelia et du workflow Build via GitHub ; ce contexte de développement via connecteurs ne permet pas de prétendre que la commande locale de rendu `uv run ...render_skill.py` a été exécutée. Travail jalonné par ce document, tests et PR vérifiables.
 
 **Contrôles constatés :** vérifications source exécutées sur les contenus de branche (12+26 assertions, JSON FR/EN parité 462 clés, aucune variable manquante). Workflow [I0 #315](https://github.com/JeanLamora75/SMN/actions/runs/39580664197) lancé, mais refus d'exécution avant allocation d'un runner Linux ou Windows (jobs sans étapes, durée 2 secondes). Tests `pnpm` et recette navigateur **non exécutés** ; ne pas marquer les AC d'intégration comme validés. Publication technique à tracer par PR #26, validation qualité restant ouverte.
+
+
+## Extension — UX cockpit lot 2 (21/10/2026)
+
+**Intention approuvée :** réaliser le bandeau Sprint/Période et les quatre KPI de `DESIGN.md` / `EXPERIENCE.md` sans modifier le référentiel UX ni créer de producteurs de données inexistants. La Story SMN-21 reste `in-progress`.
+
+**Code Map :**
+- `src/server/dashboard/read.ts` : projection serveur collective, `currentCycle: null`, objectifs et métriques absents.
+- `src/app/app/cycle-overview.tsx` : composant de rendu côté serveur du contexte réel et des états KPI indisponibles.
+- `src/app/app/page.tsx` : maintien de la connexion, permissions et route de retour ; bandeau prioritaire avant événements, registres, reporting, puis configuration facultative.
+- `src/app/dashboard.css` et `src/app/appearance.css` : layout par conteneur, couleurs sémantiques existantes ; `src/i18n/fr.json` / `en.json` : tous les libellés.
+- `tests/dashboard-cycle-overview.test.ts`, `tests/dashboard-cycle-overview-source.test.ts` : contrats de rendu, sécurité des états vides, responsive.
+
+**Critères testables immédiatement :**
+- [x] Bandeau UX, nom produit/équipe réels, objet Sprint vs Kanban et lien équipe autorisé.
+- [x] Trois cartes métriques doubles avec labels des engagements initiaux ; quatrième carte jours ouvrés.
+- [x] Aucune valeur zéro ou pourcentage fictif ; comparaison précédente indisponible ; aucune carte Avancement global.
+- [x] Grille préparée en quatre/deux/une carte(s) selon la largeur du conteneur.
+- [x] Préservation des thèmes, traduction FR/EN et fonctionnement des rôles par réutilisation du garde serveur.
+- [ ] Exécution effective des tests automatisés et des scénarios navigateur documentée.
+- [ ] Raccordement des véritables cycles / sources de capacité, SP, tickets et historiques (futures Stories).
+
+**Bloquants connus :** modèle cycle absent ; inclusion du jour courant/fuseau non arbitrée ; pas de référence historique fiable. Aucun champ SQL ajouté, aucune migration et aucun calcul nouveau. Le lot 3 constituera les quatre colonnes métier.
+
+**Workflow BMAD adapté :** plan précédemment approuvé, modifications via branche/PR et connecteur GitHub ; le `render_skill.py` local n'est pas présenté comme exécuté. Les résultats réels de vérification figurent dans l'historique GitHub/Jira et doivent être complétés avant toute qualification « terminé ».
+
+**Vérification du lot 2 — 21/10/2026 :** revue de code par lecture des 9 fichiers de la PR #27, 11 contrôles statiques exécutés sur les sources de branche et parité de **486 clés** FR/EN sans différence de clé, de paramètre de traduction ou de référence de traduction. Aucun test de rendu ou d'intégration n'a été exécuté : [Vérification I0 #318](https://github.com/JeanLamora75/SMN/actions/runs/39582392261) et [Paquet Windows #133](https://github.com/JeanLamora75/SMN/actions/runs/39582392283) ont échoué avant l'allocation des runners (`runner_id=0`, `steps=[]`). **Ne pas interpréter ce blocage d'infrastructure comme un succès de `pnpm test`, lint, typecheck, build ou recette graphique.**
