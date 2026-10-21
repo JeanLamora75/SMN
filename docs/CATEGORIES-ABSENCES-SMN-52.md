@@ -15,6 +15,8 @@ Les quatre catégories intégrées lors de SMN-53 sont déjà disponibles : **Co
 
 Les noms sont distincts sans tenir compte de la casse (une seconde catégorie « congés » est refusée si « Congés » existe). Une édition concurrente demande de recharger les valeurs avant d’enregistrer. L’interface signale le nombre d’absences référençant chaque catégorie.
 
+Voir également [SMN-54 — Jours régionaux non travaillés](JOURS-REGIONAUX-SMN-54.md) : la catégorie **Autre**, si active, est proposée pour saisir une absence régionale sans créer de catalogue de fériés régionaux.
+
 ## Conservation des absences anciennes
 
 Une absence référence l’identifiant durable de sa catégorie, **pas une copie du nom ou de la couleur**. Lorsque l’Administrateur modifie la catégorie, les calendriers dynamiques (y compris les absences passées) reflètent les nouvelles valeurs après rechargement. Le motif d’absence reste inchangé.
