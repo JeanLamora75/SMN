@@ -29,6 +29,9 @@ function dbFor(options:{country?:string|null;status?:string|null;holiday?:string
   if(sql.includes("smn_member_assignment"))return {
    rowCount:1,rows:[{team_count:options.assignment===false?0:1}]
   };
+  if(sql.includes("FROM public.smn_company_closure c")){
+   return {rowCount:0,rows:[]};
+  }
   if(sql.includes("smn_member_calendar_week"))return {
    rowCount:options.week===false?0:1,
    rows:options.week===false?[]:[{revision:1,effective_from:"2026-01-01",
