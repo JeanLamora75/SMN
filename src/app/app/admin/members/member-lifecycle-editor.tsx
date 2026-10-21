@@ -8,7 +8,6 @@ type Impact={memberId:string;teamId:string;displayName:string;revision:number;
  archived:boolean;archivedAt:string|null;today:string;activeCount:number;
  assignments:Assignment[];referenceCount:number;canDelete:boolean};
 type Action="close"|"archive"|"reactivate"|"delete";
-const toString=(v:unknown)=>typeof v==="string"?v:"";
 export default function MemberLifecycleEditor({memberId,onSaved,onCancel}:{
  memberId:string;onSaved:(action:Action,warning:boolean)=>void;onCancel:()=>void;
 }){
