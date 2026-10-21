@@ -63,13 +63,14 @@ describe("Importer CSV national — prévisualisation et confirmation",()=>{
    "2026-05-02;;FR",
    "2026-05-03;Autre pays;DE",
    "2026-05-04;Pays absent;",
-   ""
+   "",
+   "2026-05-05;Fête valable;FR"
   ].join("\n");
   const f=fakeDb();
   const r=await executeHolidayCsv(f.db,request(csv),"admin");
   assert.equal(r.ok,true);
   if(r.ok){
-   assert.equal(r.preview.proposed,1);
+   assert.equal(r.preview.proposed,2);
    assert.equal(r.preview.rejected,6);
    assert.deepEqual(r.preview.rows.slice(1).map(x=>x.reason),
     ["duplicate-in-file","invalid-date","invalid-name","country-mismatch","country-mismatch","column-count"]);
