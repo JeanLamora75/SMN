@@ -2,7 +2,6 @@ import type {Client} from "pg";
 import {isValidDate} from "../members/assignment";
 import {resolveCalendarDay,type WeekRow,type ExceptionRow} from "../members/calendar";
 import {resolveDayAvailability} from "../members/day-availability";
-import {calendarDates} from "../members/team-calendar";
 
 export type CapacityMissing="no-assignments"|"ambiguous-assignment"|
  "assignment-version"|"work-calendar"|"member-country"|"national-coverage";
@@ -81,15 +80,10 @@ const teamSql=[
  "LIMIT 2"
 ].join(" ");
 const listDates=(start:string,end:string)=>{
- const days=(Date.parse(end+"T00:00:00Z")-Date.parse(start+"T00:00:00Z"))/86400000+1;
- // Reuse UTC calendar helper in pieces: no DST off-by-one.
- const all:string[]=[];
- for(let offset=0;offset<days;offset+=28){
-  const date=new Date(Date.parse(start+"T00:00:00Z")+offset*86400000)
-   .toISOString().slice(0,10);
-  all.push(...calendarDates(date,Math.min(28,days-offset) as 7|14|28));
- }
- return all;
+ const count=(Date.parse(end+"T00:00:00Z")-Date.parse(start+"T00:00:00Z"))/86400000+1;
+ return Array.from({length:count},(_,offset)=>
+  new Date(Date.parse(start+"T00:00:00Z")+offset*86400000)
+   .toISOString().slice(0,10));
 };
 /** Queries share one repeatable-read snapshot; no mutation of historical snapshots. */
 export async function readDevelopmentCapacity(db:Client,start:string,end:string):
@@ -180,6 +174,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string)
    const memberLocations=rowsFor(locations.rows,memberId);
    const memberAbsences=rowsFor(absences.rows,memberId);
    const days:DayCapacity[]=[];
+   let memberExactJh=0;
    for(const date of dates){
     const active=memberAssignments.filter(a=>applicable(a,date));
     if(active.length===0)continue; // Not assigned on this date: no fictitious zero.
@@ -220,6 +215,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string)
     const computed=computeDevelopmentDay(availableHalfDays,hoursPerJh,
      version!.allocation_percent,version!.developer_percent,version!.contribution_percent);
     if(!computed)throw Error("capacity-rate-corrupt");
+    memberExactJh+=computed.jh;
     days.push({
      date,status:"calculated",developmentJh:round(computed.jh),
      developmentHours:round(computed.hours),availableHalfDays,
@@ -231,8 +227,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string)
    }
    members.push({memberId,displayName:memberAssignments[0].display_name,
     status:days.some(d=>d.status==="not-calculable")?"not-calculable":"calculated",
-    totalJh:days.some(d=>d.status==="not-calculable")?null:
-     round(days.reduce((total,d)=>total+(d.developmentJh??0),0)),days});
+    totalJh:days.some(d=>d.status==="not-calculable")?null:round(memberExactJh),days});
   }
   if(members.length===0)missing.push({date:null,memberId:null,source:"no-assignments"});
   const status=missing.length?"not-calculable":"calculated";
