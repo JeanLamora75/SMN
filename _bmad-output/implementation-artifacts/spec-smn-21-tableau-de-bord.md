@@ -70,3 +70,28 @@ Implémentation incrémentale via connecteur GitHub, publication directe sur mai
 **Workflow BMAD adapté :** plan précédemment approuvé, modifications via branche/PR et connecteur GitHub ; le `render_skill.py` local n'est pas présenté comme exécuté. Les résultats réels de vérification figurent dans l'historique GitHub/Jira et doivent être complétés avant toute qualification « terminé ».
 
 **Vérification du lot 2 — 21/10/2026 :** revue de code par lecture des 9 fichiers de la PR #27, 11 contrôles statiques exécutés sur les sources de branche et parité de **486 clés** FR/EN sans différence de clé, de paramètre de traduction ou de référence de traduction. Aucun test de rendu ou d'intégration n'a été exécuté : [Vérification I0 #318](https://github.com/JeanLamora75/SMN/actions/runs/39582392261) et [Paquet Windows #133](https://github.com/JeanLamora75/SMN/actions/runs/39582392283) ont échoué avant l'allocation des runners (`runner_id=0`, `steps=[]`). **Ne pas interpréter ce blocage d'infrastructure comme un succès de `pnpm test`, lint, typecheck, build ou recette graphique.**
+
+
+## Extension UX — lot 3, colonnes opérationnelles (21/10/2026)
+
+**Cadrage validé :** quatre colonnes fixes Obstacles, Risques, Événements et Notes/Alertes ; jusqu'à 5 fiches chacune à terme ; actions « Voir tout » et « Ajouter » conditionnées aux fonctionnalités existantes, aux permissions et à l'état du cycle. Aucun filtre, score, tri métier ou instantané historique n'est réinventé.
+
+**Code Map :**
+- `src/app/app/operational-overview.tsx` : présentation des quatre colonnes en état de source **indisponible**, pictogrammes sémantiques, libellés d'actions non cliquables. Aucune simulation d'occurrence.
+- `src/app/app/page.tsx` : ordre `CycleOverview`, `OperationalOverview`, configuration facultative et footer. Garde d'accès serveur, lecture collective et droits de configuration conservés.
+- `src/app/dashboard.css` : grille responsive liée au conteneur (4/2/1), variables de thème et couleur d'avertissement Bootstrap.
+- `src/i18n/fr.json`, `src/i18n/en.json` : libellés complets centralisés.
+- `tests/dashboard-operational-overview.test.ts` : preuve attendue de rendu statique et de structure des colonnes.
+
+**Réalisation technique :**
+- [x] Quatre panneaux et libellés cohérents ; ordre validé.
+- [x] Message historique exact « Aucun éléments à ce jour » et description honnête de source indisponible.
+- [x] Indisponibilité des compteurs, « Voir tout » et « Ajouter » sans action fictive.
+- [x] Différenciation visuelle/textuelle des types Note et Alerte ; pas d'alerte de configuration courante injectée au passé.
+- [x] Grille en 4/2/1 par largeur utile et réemploi des palettes et traductions.
+- [x] Test de rendu/source ajouté, exécution CI et recette navigateur **à vérifier**.
+- [ ] Producteurs métier, filtres et tris, limite de cinq fiches, statuts/permissions par fiche, actions et instantanés historiques (Stories ultérieures).
+
+**Sécurité / absence de régression visée :** API `readCollectiveDashboard` non modifiée ; aucun nouveau droit, table, migration, endpoint, action ni donnée individuelle. Les panneaux vides n'affirment jamais « 0 risque » à partir d'une absence de producteur.
+
+**Adaptation BMAD :** réalisation via GitHub/connecteurs ; script de rendu du workflow BMAD non exécuté. Ne pas confondre tests écrits, contrôles statiques, et tests effectivement lancés.
