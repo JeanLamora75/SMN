@@ -156,10 +156,9 @@ export default function QuickMembersAdmin(){
       <td>{t("members.notCalculated")}</td>
       <td>{member.email??t("members.profile.noEmail")}</td>
       <td><button type="button" className="btn btn-outline-primary btn-sm"
-       disabled={busy||(editingId!==null&&editingId!==member.id)}
-       onClick={()=>{if(editingId===member.id){setEditingId(null);}else{
-        setMessage("");setEditingId(member.id);}}}>
-       {t(editingId===member.id?"members.profile.cancel":"members.profile.edit")}
+       disabled={busy||editingId!==null}
+       onClick={()=>{setMessage("");setEditingId(member.id);}}>
+       {t("members.profile.edit")}
       </button></td>
      </tr>)}</tbody>
     </table>
