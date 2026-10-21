@@ -132,10 +132,9 @@ export default function HistoricalCapacityPanel({start,end}:{start:string;end:st
     {data.quality==="estimated"&&<p className="alert alert-warning">
      {t("historicalQuality.estimatedWarning")}</p>}
     {data.sourceRef&&<p>{t("historicalQuality.sourceReference")}: {data.sourceRef}</p>}
-    <p>{t("historicalQuality.actual")}: {actual?.retainedJh===null||
-      actual?.retainedJh===undefined?t("historicalQuality.actualUnknown"):
-      fmt(actual.retainedJh)+" JH"}</p>
-    {actual?.retainedJh!==null&&actual?.retainedJh!==undefined&&
+    <p>{t("historicalQuality.actual")}: {actual&&actual.retainedJh!==null?fmt(actual.retainedJh)+" JH":
+      t("historicalQuality.actualUnknown")}</p>
+    {actual&&actual.retainedJh!==null&&
      <p className="small text-secondary">{t("historicalQuality.actualSource")}:
       {" "}{t(actual.source==="Saisie"?"historicalQuality.manualMode":
        actual.source==="Calcul"?"historicalQuality.calculatedMode":
@@ -147,7 +146,8 @@ export default function HistoricalCapacityPanel({start,end}:{start:string;end:st
      <label htmlFor="history-quality" className="form-label">
       {t("historicalQuality.selectQuality")}</label>
      <select id="history-quality" className="form-select" value={draft.quality}
-      disabled={busy} onChange={e=>setDraft({...draft,quality:e.target.value as Quality})}>
+      disabled={busy} onChange={e=>{const next=e.target.value as Quality;setDraft({...draft,quality:next,
+       kind:next==="known"&&draft.kind==="reconstruction"?"document":draft.kind});}}>
       <option value="not-supplied">{t("historicalQuality.notSupplied")}</option>
       <option value="known">{t("historicalQuality.known")}</option>
       <option value="estimated">{t("historicalQuality.estimated")}</option>
