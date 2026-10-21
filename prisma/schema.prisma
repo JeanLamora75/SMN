@@ -54,6 +54,7 @@ model SmnAccount {
   authAudit SmnAuthAudit[]
   changedSettings SmnGeneralSettings[]
   settingsAudit SmnGeneralSettingsAudit[]
+  assignmentChanges SmnMemberAssignmentVersion[]
   @@map("smn_account")
 }
 
@@ -139,6 +140,26 @@ model SmnMemberAssignment {
   rolePercent Int @default(100) @map("role_percent")
   member SmnMember @relation(fields:[memberId],references:[id])
   team SmnTeam @relation(fields:[teamId],references:[id])
+  versions SmnMemberAssignmentVersion[]
   @@unique([memberId,teamId,startOn])
   @@map("smn_member_assignment")
+}
+
+model SmnMemberAssignmentVersion {
+  id String @id
+  assignmentId String @map("assignment_id")
+  revision Int
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  allocationPercent Int @map("allocation_percent")
+  contractPercent Int @map("contract_percent")
+  contributionPercent Int @map("contribution_percent")
+  scrumMasterPercent Int @map("scrum_master_percent")
+  productOwnerPercent Int @map("product_owner_percent")
+  developerPercent Int @map("developer_percent")
+  createdBy String? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  assignment SmnMemberAssignment @relation(fields:[assignmentId],references:[id])
+  actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
+  @@unique([assignmentId,revision])
+  @@map("smn_member_assignment_version")
 }
