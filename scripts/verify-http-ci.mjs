@@ -259,7 +259,7 @@ try {
     assert.equal((await tooShort.json()).status,"failed");
     let backupToolReady=false;
     try{
-      backupToolReady=/\\b18\\.\\d+\\b/.test(execFileSync("pg_dump",["--version"],
+      backupToolReady=/\b18\.\d+\b/.test(execFileSync("pg_dump",["--version"],
         {encoding:"utf8",timeout:3000}));
     }catch{ /* la qualification positive exige pg_dump 18 */ }
     if(backupToolReady){
