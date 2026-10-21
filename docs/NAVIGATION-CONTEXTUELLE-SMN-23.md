@@ -49,3 +49,14 @@ pnpm dev
 Recette métier : se connecter avec Admin et Utilisateur, ouvrir la fiche depuis la synthèse, revenir, tester des liens invalides et observer l'avertissement sur un lien comportant un contexte historique. Aucun cycle fictif, aucune écriture.
 
 **Les tests ne sont pas attestés comme exécutés à ce stade** : les précédents jobs GitHub Actions ont échoué avant l'exécution de leurs étapes. L'intégration GitHub ne vaut pas recette ni passage Jira à Terminé.
+
+
+## Contrats UX du tableau de bord — validés le 21 octobre 2026
+
+**Référence obligatoire pour les agents BMAD (PM, Analyst, UX, Architect, Dev, QA) et pour les futures User Stories :** [DESIGN.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/DESIGN.md) · [EXPERIENCE.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/EXPERIENCE.md) · [Synthèse UXD-01 à UXD-27](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/SYNTHESE-CADRAGE-UX-SMN.md) · [Sommaire et maquette décrite](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/README.md).
+
+**Décisions validées :** écran pleine largeur, sidebar rétractable, sélecteurs équipe/cycle dans le header, cartes J/H prévu/réel, SP et tickets **initialement engagés**/réalisés, compteur en jours ouvrés **du lundi au vendredi**, pas de carte « Avancement global » sans règle validée, quatre colonnes (obstacles, risques, événements, notes/alertes), 5 éléments actifs maximum par colonne, tri automatique, actions rapides contrôlées, historique fidèle ou message exact **« Aucun éléments à ce jour »**, personnalisation des métriques/colonnes, responsive 4/2/1.
+
+**Statut :** contrats UX approuvés et publiés, **pas** de nouvelle fonctionnalité ou de recette attestée. Les producteurs de données, règles d'historisation, droits et catalogues FR/EN restent à vérifier avant implémentation.
+
+**Implication spécifique :** Toute ouverture de fiche depuis une carte doit conserver équipe/cycle/retour ; une consultation historique ne doit pas présenter l'état courant comme un état passé. Les corrections d'un cycle clôturé sont contrôlées et tracées.
