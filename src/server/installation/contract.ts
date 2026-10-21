@@ -22,6 +22,8 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_capacity_actual_snapshot:r",
   "public.smn_capacity_historical_quality:r",
   "public.smn_capacity_historical_quality_history:r",
+  "public.smn_capacity_replanning:r",
+  "public.smn_capacity_replanning_history:r",
 ] as const;
 export type ExpressInput = Readonly<{ mode: "scrum" | "kanban"; product: string; team: string; password: string; adminUsername: string; adminEmail: string }>;
 export function validateExpressInput(body: unknown): ExpressInput | null {
