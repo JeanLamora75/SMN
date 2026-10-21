@@ -81,3 +81,20 @@ Architecture de référence : `_bmad-output/planning-artifacts/prds/prd-SMN-2026
 **Statut fonctionnel :** présentation du cas sans cycle ; la lecture des véritables cycles, les métriques, la clôture et la comparaison historique restent dépendantes de leurs User Stories. Ne pas déduire une validation métier des seuls contrôles de présentation.
 
 **Vérification du lot 2 — 21/10/2026 :** revue de code par lecture des 9 fichiers de la PR #27, 11 contrôles statiques exécutés sur les sources de branche et parité de **486 clés** FR/EN sans différence de clé, de paramètre de traduction ou de référence de traduction. Aucun test de rendu ou d'intégration n'a été exécuté : [Vérification I0 #318](https://github.com/JeanLamora75/SMN/actions/runs/39582392261) et [Paquet Windows #133](https://github.com/JeanLamora75/SMN/actions/runs/39582392283) ont échoué avant l'allocation des runners (`runner_id=0`, `steps=[]`). **Ne pas interpréter ce blocage d'infrastructure comme un succès de `pnpm test`, lint, typecheck, build ou recette graphique.**
+
+
+## Refonte UX — Lot 3 : quatre colonnes opérationnelles (21/10/2026)
+
+**Référence contractuelle :** `DESIGN.md` / `EXPERIENCE.md` validés par Sally. Le tableau de bord `/app` présente désormais, immédiatement sous le bandeau de cycle et les quatre KPI du lot 2, les colonnes **Obstacles**, **Risques**, **Événements** et **Notes / Alertes** dans cet ordre, en largeur utile 4/2/1 selon la taille du conteneur.
+
+**Implémentation :** `src/app/app/operational-overview.tsx`, `src/app/app/page.tsx`, `src/app/dashboard.css`, `src/i18n/fr.json`, `src/i18n/en.json`.
+- Panneaux distincts, en-têtes et icônes vectorielles décoratives accessibles, Notes et Alertes distinguées par **icône, texte et couleur** sans simuler une occurrence ; thèmes clair/sombre et palettes préservés.
+- État explicite demandé : **« Aucun éléments à ce jour »** ; clarification de la disponibilité : *« Les fiches de ce cycle ne sont pas encore accessibles. Aucun total ni état historique ne peut être confirmé. »* Les compteurs indiquent **—** (« nombre indisponible »), **jamais 0**, car les lectures métier ne sont pas développées.
+- Libellés « Voir tout » et « Ajouter » aux emplacements de la maquette, mais **sans faux bouton ni URL cliquable** jusqu'à livraison des écrans de lecture et création correspondants. Pas de mutation ni d'accès anticipé à un registre.
+- Les anciennes cartes autonomes Calendrier, Points d'attention et Reportings, uniquement fictives/indisponibles, ont été supprimées du tableau pour respecter les quatre colonnes validées. Les fonctions non livrées restent présentes comme « à venir » dans la navigation SMN-22. Configuration facultative conservée après la synthèse, limitée aux administrateurs autorisés.
+- Contrats **futurs non prétendus réalisés** : maximum cinq fiches éligibles par colonne, compteurs exacts, tris métier, états clos consultables par « Voir tout », création selon droits et cycle, expansion / menu d'actions, historique versionné des risques/dépendances. Aucun de ces comportements ne peut être validé à partir des tableaux vides existants.
+- Les alertes globales de configuration ne sont **pas** injectées dans les Notes/Alertes de période, pour éviter toute assimilation à une alerte historique.
+
+**Tests :** `tests/dashboard-operational-overview.test.ts` contrôle rendu FR/EN, ordre, distinction Note/Alerte, absence de fausses valeurs et actions, guards de la page et responsive. Les tests existants de droits, i18n, contexte, dashboard et apparence restent inchangés. La recette navigateur à 320px, zoom 200 %, clavier, et les six thèmes restent à effectuer.
+
+**User Stories futures principales :** SMN-89, SMN-90, SMN-92, SMN-93, SMN-94, SMN-97, SMN-104, SMN-72, SMN-79, SMN-106, SMN-111 et SMN-112. Ne pas qualifier `SMN-21` de terminé avant la recette et les véritables sources de données.
