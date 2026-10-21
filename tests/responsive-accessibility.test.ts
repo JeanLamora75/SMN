@@ -9,10 +9,12 @@ describe("SMN-25 — structure responsive et accessibilité de base",()=>{
   it("propose un seul lien d'évitement commun qui cible chaque main public et privé",()=>{
     const root=source("src/app/layout.tsx");
     const app=source("src/app/app/layout.tsx");
+    const shell=source("src/app/app/private-shell.tsx");
     assert.match(root,/href="#smn-main"/);
     assert.match(root,/navigation\.skip/);
     assert.doesNotMatch(app,/href="#smn-main"/);
-    assert.match(app,/id="smn-main"/);
+    assert.match(shell,/id="smn-main"/);
+    assert.match(app,/PrivateShell/);
     for(const path of ["src/app/page.tsx","src/app/login/page.tsx",
       "src/app/welcome/page.tsx","src/app/change-password/page.tsx","src/app/not-found.tsx"]){
       assert.match(source(path),/<main id="smn-main"/,path);

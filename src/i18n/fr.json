@@ -163,7 +163,22 @@
     "kanbanCycle": "Période Kanban",
     "kanbanCycles": "périodes Kanban",
     "sprintCycles": "Sprints",
-    "sprint": "Sprint"
+    "sprint": "Sprint",
+    "shell": {
+      "team": "Équipe",
+      "sprint": "Sprint",
+      "period": "Période",
+      "singleTeam": "Équipe unique de cette installation",
+      "noTeam": "Équipe indisponible",
+      "noCycle": "Aucun cycle créé",
+      "search": "Recherche",
+      "searchUnavailable": "Recherche indisponible",
+      "contextControls": "Contexte de pilotage",
+      "openMenu": "Ouvrir le menu",
+      "closeMenu": "Fermer le menu",
+      "expandMenu": "Déployer la navigation",
+      "collapseMenu": "Réduire la navigation"
+    }
   },
   "session": {
     "logout": "Se déconnecter",
