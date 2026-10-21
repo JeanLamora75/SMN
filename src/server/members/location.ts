@@ -76,7 +76,8 @@ export function formatMemberEvent(instant:string,zone:string):MemberEventDisplay
  if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(instant)||
   !isValidIanaZone(zone))throw new Error("member-event-invalid-input");
  const date=new Date(instant);
- if(!Number.isFinite(date.getTime()))throw new Error("member-event-invalid-input");
+ if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,19)!==instant.slice(0,19))
+  throw new Error("member-event-invalid-input");
  const fmt=new Intl.DateTimeFormat("fr-FR",{
   timeZone:zone,year:"numeric",month:"2-digit",day:"2-digit",
   hour:"2-digit",minute:"2-digit",hourCycle:"h23",timeZoneName:"shortOffset"});
@@ -133,9 +134,12 @@ export async function readMemberLocation(client:Client,id:string,onDate?:string,
   holidayCalendarScope:"national-only",regionalHolidayAuto:false,holidayDataAvailable:false};
 }
 function formatInstantDate(instant:string){
- if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(instant)||
-  !Number.isFinite(new Date(instant).getTime()))throw new Error("member-location-invalid-input");
- return new Date(instant).toISOString().slice(0,10);
+ if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(instant))
+  throw new Error("member-location-invalid-input");
+ const date=new Date(instant);
+ if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,19)!==instant.slice(0,19))
+  throw new Error("member-location-invalid-input");
+ return date.toISOString().slice(0,10);
 }
 export async function saveMemberLocation(client:Client,id:string,actorId:string,
  raw:unknown):Promise<LocationResult>{
