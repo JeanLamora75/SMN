@@ -5,7 +5,7 @@ import {canAccess} from "../src/server/access-policy";
 import {translate} from "../src/i18n/catalog";
 
 const actor=(role:"admin"|"user")=>({role,is_active:true,must_change_password:false});
-const authorized=(type:"accounts"|"settings",role:"admin"|"user")=>
+const authorized=(type:"accounts"|"settings"|"members",role:"admin"|"user")=>
   canAccess(actor(role),"read",{type,exists:true,inScope:true});
 
 describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
@@ -24,6 +24,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
       assert.equal(links.includes("/app/admin/users"),role==="admin");
       assert.equal(links.includes("/app/admin/settings"),role==="admin");
       assert.equal(links.includes("/app/admin/audit"),role==="admin");
+      assert.equal(links.includes("/app/admin/members"),role==="admin");
       for(const entry of entries.filter(entry=>entry.href===null))
         assert.equal(activePrivateEntry("/app",entry),false);
     }
@@ -36,7 +37,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
     for(const groups of [scrum,kanban]){
       const text=JSON.stringify(groups);
       assert.doesNotMatch(text,/safe|art|train/i);
-      for(const future of groups.flatMap(group=>group.entries).filter(entry=>entry.id!=="dashboard"&&entry.id!=="security"))
+      for(const future of groups.flatMap(group=>group.entries).filter(entry=>entry.id!=="dashboard"&&entry.id!=="security"&&entry.id!=="members"))
         assert.equal(future.href,null,"Aucun module futur ne peut être présenté comme actif");
     }
   });
@@ -48,7 +49,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
   });
   it("calcule l'entrée active sans donner un état actif aux écrans non livrés",()=>{
     const links=privateNavigation("kanban","admin").flatMap(group=>group.entries);
-    for(const pathname of ["/app","/app/security","/app/admin/users","/app/admin/settings","/app/admin/audit"]){
+    for(const pathname of ["/app","/app/security","/app/admin/users","/app/admin/settings","/app/admin/audit","/app/admin/members"]){
       assert.deepEqual(links.filter(entry=>activePrivateEntry(pathname,entry)).map(entry=>entry.href),[pathname]);
     }
     assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/calendrier",entry)),[]);
@@ -71,7 +72,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
     }
   });
   it("fait prévaloir les droits serveur même si une URL d'administration est connue",()=>{
-    for(const type of ["accounts","settings"] as const){
+    for(const type of ["accounts","settings","members"] as const){
       assert.equal(authorized(type,"admin"),true);
       assert.equal(authorized(type,"user"),false);
       assert.equal(canAccess(actor("user"),"write",{type,exists:true,inScope:true}),false);

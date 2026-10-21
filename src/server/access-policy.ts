@@ -17,7 +17,7 @@ export type AccessResource = Readonly<{
   userAuthorized?: unknown;
   collection?: unknown;
 }>;
-const resourceTypes = ["collective", "individual", "accounts", "settings", "audit", "documents", "backups"];
+const resourceTypes = ["collective", "individual", "accounts", "settings", "audit", "documents", "backups", "members"];
 const actionTypes = ["read", "write", "generate", "download"];
 
 export function canAccess(actor: AccessActor | null | undefined, action: string, resource: AccessResource): boolean {

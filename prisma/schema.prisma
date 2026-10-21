@@ -16,6 +16,8 @@ model SmnInstallation {
   accounts SmnAccount[]
   generalSettings SmnGeneralSettings?
   generalSettingsHistory SmnGeneralSettingsAudit[]
+  memberBatches SmnMemberBatch[]
+  members SmnMember[]
   @@map("smn_installation")
 }
 model SmnProduct {
@@ -33,6 +35,8 @@ model SmnTeam {
   name String
   installation SmnInstallation @relation(fields: [installationId], references: [id])
   product SmnProduct @relation(fields: [productId], references: [id])
+  memberBatches SmnMemberBatch[]
+  memberAssignments SmnMemberAssignment[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -91,4 +95,47 @@ model SmnGeneralSettingsAudit {
   installation SmnInstallation @relation(fields:[installationId],references:[id])
   actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
   @@map("smn_general_settings_audit")
+}
+
+model SmnMemberBatch {
+  id String @id
+  installationId String @map("installation_id")
+  teamId String @map("team_id")
+  requestedCount Int @map("requested_count")
+  createdBy String? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  installation SmnInstallation @relation(fields:[installationId],references:[id])
+  team SmnTeam @relation(fields:[teamId],references:[id])
+  members SmnMember[]
+  @@map("smn_member_batch")
+}
+model SmnMember {
+  id String @id
+  installationId String @map("installation_id")
+  batchId String @map("batch_id")
+  memberNumber Int @map("member_number")
+  displayName String @map("display_name")
+  isProvisional Boolean @default(true) @map("is_provisional")
+  contractPercent Int @default(100) @map("contract_percent")
+  contributionPercent Int @default(100) @map("contribution_percent")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  installation SmnInstallation @relation(fields:[installationId],references:[id])
+  batch SmnMemberBatch @relation(fields:[batchId],references:[id])
+  assignments SmnMemberAssignment[]
+  @@unique([installationId,memberNumber])
+  @@map("smn_member")
+}
+model SmnMemberAssignment {
+  id String @id
+  memberId String @map("member_id")
+  teamId String @map("team_id")
+  startOn DateTime @default(dbgenerated("CURRENT_DATE")) @map("start_on") @db.Date
+  endOn DateTime? @map("end_on") @db.Date
+  agileRole String @map("agile_role")
+  allocationPercent Int @default(100) @map("allocation_percent")
+  rolePercent Int @default(100) @map("role_percent")
+  member SmnMember @relation(fields:[memberId],references:[id])
+  team SmnTeam @relation(fields:[teamId],references:[id])
+  @@unique([memberId,teamId,startOn])
+  @@map("smn_member_assignment")
 }
