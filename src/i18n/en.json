@@ -1036,6 +1036,7 @@
     "notDoubleCounted": "An absence overlaps a national holiday: no work slot is deducted twice.",
     "unavailableHalfDays": "Unavailable normally worked slots: {count} half-day(s), across all sources.",
     "unknownAvailability": "Deduction cannot be determined: configure the member's work schedule and national coverage for this date. Recorded absences remain visible.",
-    "capacityPending": "This daily summary is indicative. Consolidated sprint capacity and the team calendar belong to their own later Stories."
+    "capacityPending": "This daily summary is indicative. Consolidated sprint capacity and the team calendar belong to their own later Stories.",
+    "noApplicableAssignment": "No applicable Scrum/Kanban assignment on this date. The absence remains on the member's record and is not attributed to a team."
   }
 }
