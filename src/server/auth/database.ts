@@ -3,6 +3,7 @@ import { parseConnectionSettings } from "../db/config";
 import { existingManagedUri, canOfferPortable } from "../bootstrap/portable";
 import { loadExistingUri } from "../bootstrap/settings";
 import { ensureAccountsSchema } from "../accounts/migration";
+import { ensureReferenceNationalCalendar } from "../holidays/preload";
 
 export async function installedDatabaseUri(): Promise<string> {
   const settings = parseConnectionSettings(process.env.SMN_DATABASE_URL);
@@ -25,6 +26,9 @@ export async function withAuthDb<T>(action: (client: Client) => Promise<T>): Pro
   try {
     await client.connect();
     await ensureAccountsSchema(client);
+    // Le manque d'un fichier férié n'empêche jamais l'accès à SMN.
+    try { await ensureReferenceNationalCalendar(client); }
+    catch { console.error("smn-national-calendar-preload-unavailable"); }
     return await action(client);
   } finally {
     await client.end().catch(() => undefined);
