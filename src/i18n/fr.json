@@ -505,7 +505,8 @@
       "settings": "Paramètres généraux",
       "cyclesUnknown": "Cycles (mode indisponible)",
       "audit": "Journal des opérations",
-      "backups": "Sauvegardes"
+      "backups": "Sauvegardes",
+      "members": "Membres de l'équipe"
     }
   },
   "detail": {
@@ -523,7 +524,8 @@
     "historicalTitle": "Contexte de consultation historique",
     "historicalNotice": "Le lien de retour conserve la sélection de période ou de version demandée. Les informations ci-dessous sont les données actuelles : elles ne constituent pas une reconstitution historique ni une version de clôture.",
     "missingTitle": "Fiche indisponible",
-    "missingDescription": "Cette fiche n'existe pas, n'est plus disponible ou vous n'êtes pas autorisé à la consulter. Aucune information privée n'a été communiquée."
+    "missingDescription": "Cette fiche n'existe pas, n'est plus disponible ou vous n'êtes pas autorisé à la consulter. Aucune information privée n'a été communiquée.",
+    "manageMembers": "Gérer les membres de cette équipe"
   },
   "draft": {
     "pending": "Modifications non enregistrées : vos changements sont encore un brouillon.",
@@ -626,5 +628,46 @@
     "cleanupFailed": "Nettoyage non confirmé. Vérifiez l'inventaire et les traces avant tout nouvel essai.",
     "externalDisclaimer": "Les fichiers PDF/TXT métier et snapshots Vn sont exclus de cette rétention. Les copies exportées hors du dossier géré ne sont ni surveillées ni supprimables par SMN.",
     "retentionUnsaved": "Enregistrez ou annulez la modification de durée avant de lancer le nettoyage."
+  },
+  "members": {
+    "title": "Membres de l'équipe",
+    "intro": "Créer les fiches initiales de l'équipe, sans ouvrir de comptes de connexion pour ces personnes.",
+    "back": "Retour au tableau de bord",
+    "teamTitle": "Équipe actuelle",
+    "teamInfo": "Une seule équipe Scrum ou Kanban est disponible dans cette installation.",
+    "team": "Équipe",
+    "mode": "Mode Agile",
+    "loading": "Chargement de l'équipe…",
+    "loadFailed": "Impossible de consulter les membres. Aucune création n'a été tentée.",
+    "createTitle": "Créer rapidement les premiers membres",
+    "createInfo": "Indiquez l'effectif initial. Ce parcours crée toutes les fiches ensemble, une seule fois. L'installation Express n'exige pas de membres.",
+    "countLabel": "Nombre de membres",
+    "rolesHint": "Rôles proposés : Scrum Master, Product Owner, Développeur, puis Développeur pour les suivants.",
+    "percentHint": "Les paramètres applicables démarrent à 100 %. Aucune capacité ni indicateur de cycle n'est calculé à ce stade.",
+    "submit": "Créer les fiches provisoires",
+    "running": "Création des membres…",
+    "invalidCount": "Saisissez un nombre entier de 3 à 50 membres.",
+    "listTitle": "Fiches de l'équipe",
+    "listInfo": "Les identifiants restent stables. Les noms et rôles pourront être affinés dans les parcours dédiés.",
+    "name": "Nom provisoire",
+    "role": "Rôle Agile",
+    "arrival": "Date d'arrivée",
+    "percent": "Affectation",
+    "capacity": "Capacité de développement",
+    "percentValue": "{value} %",
+    "notCalculated": "Non calculable",
+    "provisional": "À compléter",
+    "provisionalName": "Membre {number}",
+    "futureEdits": "Les informations centrales, les calendriers, la répartition des rôles et les capacités seront enrichis dans les prochaines fonctionnalités. Les rôles Scrum Master et Product Owner ne génèrent aucune capacité Développeur.",
+    "created": "{count} fiches membres et leurs affectations ont été créées.",
+    "recovered": "Le lot existait déjà : {count} membres retrouvés sans duplication.",
+    "alreadyInitialized": "Une composition initiale existe déjà. Aucune nouvelle fiche n'a été créée.",
+    "requestConflict": "La composition initiale ou les paramètres de la requête ont changé. Rechargez la page avant de recommencer.",
+    "failed": "La création ne peut pas être confirmée. Vous pouvez réessayer : la même demande ne créera pas de doublons.",
+    "roles": {
+      "scrumMaster": "Scrum Master",
+      "productOwner": "Product Owner",
+      "developer": "Développeur"
+    }
   }
 }
