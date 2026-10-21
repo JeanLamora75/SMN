@@ -1389,5 +1389,17 @@
       "6": "Samedi",
       "7": "Dimanche"
     }
+  },
+  "sprintCreate": {
+    "title": "Générer un Sprint",
+    "intro": "Créez un Sprint selon la cadence active. Le premier départ doit être choisi explicitement.",
+    "start": "Date de départ souhaitée",
+    "name": "Nom du Sprint",
+    "number": "Sprint numéro {number}",
+    "dates": "Du {start} au {end} ({zone})",
+    "generate": "Générer",
+    "created": "Sprint créé : {name}",
+    "invalid": "Impossible de calculer ou créer ce Sprint. Vérifiez les dates et la cadence.",
+    "overlap": "Les dates chevauchent un Sprint existant de cette équipe."
   }
 }

@@ -28,7 +28,7 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
       {id:"events",label:"navigation.entries.events",href:null,icon:"◫"},
     ]},
     {id:"cycles",label:"navigation.groups.cycles",entries:[
-      {id:"cycles",label:mode==="scrum"?"navigation.entries.sprints":mode==="kanban"?"navigation.entries.kanbanPeriods":"navigation.entries.cyclesUnknown",href:null,icon:"◷"},
+      {id:"cycles",label:mode==="scrum"?"navigation.entries.sprints":mode==="kanban"?"navigation.entries.kanbanPeriods":"navigation.entries.cyclesUnknown",href:mode==="scrum"&&role==="admin"?"/app/admin/sprints":null,icon:"◷"},
       {id:"reviews",label:"navigation.entries.reviews",href:null,icon:"▤"},
     ]},
     {id:"registers",label:"navigation.groups.registers",entries:[

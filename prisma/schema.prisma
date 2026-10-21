@@ -42,6 +42,7 @@ model SmnTeam {
   capacityOverrides SmnCapacityPeriodOverride[]
   historicalQualities SmnCapacityHistoricalQuality[]
   scrumCadence SmnScrumCadence?
+  sprints SmnSprint[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -602,4 +603,31 @@ model SmnScrumCadenceAudit {
  cadence SmnScrumCadence @relation(fields:[teamId],references:[teamId],onDelete:Restrict)
  @@unique([teamId,revision])
  @@map("smn_scrum_cadence_audit")
+}
+
+model SmnSprint {
+ id String @id
+ teamId String @map("team_id")
+ number Int
+ name String
+ startAt DateTime @map("start_at") @db.Timestamptz(6)
+ endAt DateTime @map("end_at") @db.Timestamptz(6)
+ timeZone String @map("time_zone")
+ status String @default("planned")
+ createdBy String? @map("created_by")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ audit SmnSprintAudit[]
+ @@unique([teamId,number])
+ @@map("smn_sprint")
+}
+model SmnSprintAudit {
+ id String @id
+ sprintId String @map("sprint_id")
+ action String
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ details Json @db.JsonB
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_audit")
 }
