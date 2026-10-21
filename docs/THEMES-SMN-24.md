@@ -2,7 +2,7 @@
 
 - Jira : https://lmn24.atlassian.net/browse/SMN-24
 - Périmètre : MVP I0 ; Bootstrap 5, deux thèmes autorisés, pas de migration SQL.
-- Statut : développement publié, vérification Windows/CI à faire.
+- Statut : **fusionné dans `main` via [PR #19](https://github.com/JeanLamora75/SMN/pull/19)** ; vérification Windows/CI à faire.
 
 ## Fonctionnement
 Le paramètre général `theme` (déjà existant en PostgreSQL) conserve **light** ou **dark**. Le serveur lit ce paramètre à chaque requête via `src/server/theme/current.ts` et émet `data-bs-theme` sur la balise HTML. En cas d'absence, d'erreur ou de valeur inconnue, le repli sûr est **light**.

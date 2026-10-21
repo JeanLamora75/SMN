@@ -125,3 +125,7 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Nouveaux textes FR/EN centralisés en JSON sous `detail`. Les tests ont été écrits mais l'exécution CI/Windows est à confirmer.
 
 - **Intégration SMN-23 confirmée :** [PR #18](https://github.com/JeanLamora75/SMN/pull/18) fusionnée dans `main` (commit `b65dd486b597732e8ff23991195ae478fcbec999`). Story Jira conservée En cours en l'absence d'exécution effective de la CI et de la recette Windows.
+
+## SMN-24 — Thèmes Bootstrap clair/sombre (21/10/2026)
+
+[PR #19](https://github.com/JeanLamora75/SMN/pull/19) fusionnée dans `main`. Le thème global `light`/`dark` est lu depuis les paramètres généraux existants, appliqué sur `<html data-bs-theme>` et répercuté aux variables Bootstrap/SMN et composants privés. Deux palettes fixes vérifiées pour les contrastes ; aucune couleur arbitraire, migration ou modification des données métier. Un changement du thème dans l'administration recharge l'interface. Voir [docs/THEMES-SMN-24.md](THEMES-SMN-24.md). Tests écrits, **CI et recette Windows non exécutées** ; Jira reste En cours.
