@@ -1,6 +1,6 @@
 import {createHash} from "node:crypto";
 import {constants} from "node:fs";
-import {open,realpath} from "node:fs/promises";
+import {lstat,open,realpath} from "node:fs/promises";
 import {isAbsolute,relative,resolve,sep} from "node:path";
 import {canAccess,type AccessActor} from "../access-policy";
 import {validRecordId} from "../dashboard/read";
@@ -10,6 +10,8 @@ type Manifest={id:string;teamId:string;format:"PDF"|"TXT";userAuthorized:boolean
 const maxBytes=12*1024*1024;
 const safeName=(id:string)=>validRecordId(id)&&id.length<=80;
 async function readBounded(path:string,limit:number):Promise<Buffer>{
+ const first=await lstat(path);
+ if(!first.isFile()||first.isSymbolicLink())throw new Error("invalid-private-file");
  const file=await open(path,constants.O_RDONLY|(constants.O_NOFOLLOW??0));
  try{
   const stat=await file.stat();
