@@ -67,7 +67,7 @@ async function teamAndMember(client:Client,id:string,lock:boolean){
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND i.mode IN ('scrum','kanban') LIMIT 2`);
  if(team.rows.length!==1)throw new Error("members-team-unavailable");
- return {teamId:team.rows[0].id,archived:member.rows[0].archived_at!==null};
+ return {teamId:team.rows[0].id,archived:member.rows[0].archived_at!=null};
 }
 async function assignmentFor(client:Client,id:string,lock:boolean){
  const rows=await client.query<AssignmentRow>(`SELECT id,team_id,start_on::text AS start_on,
