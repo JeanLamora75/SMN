@@ -22,7 +22,7 @@ const item=(values:typeof allDay,reason="Fête régionale"):AbsenceItem=>({
  isPlanned:true,reason,createdAt:"2026-04-01",updatedAt:"2026-04-01"
 });
 function dbFor(options:{country?:string|null;status?:string|null;holiday?:string|null;
- week?:boolean;exception?:boolean;assignment?:boolean}={}){
+ week?:boolean;exception?:boolean;assignment?:boolean;closure?:boolean}={}){
  const calls:string[]=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   calls.push(sql);
@@ -30,7 +30,8 @@ function dbFor(options:{country?:string|null;status?:string|null;holiday?:string
    rowCount:1,rows:[{team_count:options.assignment===false?0:1}]
   };
   if(sql.includes("FROM public.smn_company_closure c")){
-   return {rowCount:0,rows:[]};
+   const rows=options.closure?[{name:"Fermeture collective"}]:[];
+   return {rowCount:rows.length,rows};
   }
   if(sql.includes("smn_member_calendar_week"))return {
    rowCount:options.week===false?0:1,
@@ -134,6 +135,14 @@ describe("jour régional traité comme absence individuelle",()=>{
    memberId,national,[item(allDay)]);
   assert.equal(state.assignmentApplicable,false);
   assert.equal(state.nationalOverlap,true);
+ });
+ it("ajoute la fermeture collective à la disponibilité individuelle sans double compte",async()=>{
+  const state=await readMemberDayAvailability(dbFor({
+   closure:true,holiday:null,status:"partial"
+  }).db,memberId,national,[item(allDay)]);
+  assert.equal(state.companyClosureName,"Fermeture collective");
+  assert.equal(state.deductedHalfDays,2);
+  assert.equal(state.status,"known");
  });
  it("respecte les exceptions individuelles pour décompter seulement les créneaux travaillés",async()=>{
   const fixture=dbFor({exception:true});
