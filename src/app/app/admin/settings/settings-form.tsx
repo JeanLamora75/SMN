@@ -47,7 +47,7 @@ export default function SettingsForm() {
       }
       setSaved(data.settings);
       setSuccess(t(data.changed?"settings.saved":"settings.unchanged"));
-      if(saved.locale!==data.settings.locale)router.refresh();
+      if(saved.locale!==data.settings.locale||saved.theme!==data.settings.theme)router.refresh();
     }catch{setError(t("settings.network"));}
     finally{setBusy(false);}
   }
