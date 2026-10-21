@@ -86,11 +86,12 @@ const listDates=(start:string,end:string)=>{
    .toISOString().slice(0,10));
 };
 /** Queries share one repeatable-read snapshot; no mutation of historical snapshots. */
-export async function readDevelopmentCapacity(db:Client,start:string,end:string):
- Promise<CapacityReport>{
+export async function readDevelopmentCapacity(db:Client,start:string,end:string,
+ options:{externalTransaction?:boolean}={}):Promise<CapacityReport>{
  const parsed=parseCapacityPeriod(new URLSearchParams({start,end}));
  if(!parsed)throw Error("capacity-invalid-period");
- await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
+ if(!options.externalTransaction)
+  await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  try{
   const teams=await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(teamSql);
   if(teams.rows.length!==1)throw Error("capacity-team-unavailable");
@@ -233,10 +234,10 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string)
   const status=missing.length?"not-calculable":"calculated";
   const totalJh=status==="calculated"?
    round(members.reduce((sum,m)=>sum+(m.totalJh??0),0)):null;
-  await db.query("COMMIT");
+  if(!options.externalTransaction)await db.query("COMMIT");
   return {start,end,team,hoursPerJh,status,totalJh,missing,members};
  }catch(error){
-  await db.query("ROLLBACK").catch(()=>undefined);
+  if(!options.externalTransaction)await db.query("ROLLBACK").catch(()=>undefined);
   throw error;
  }
 }
