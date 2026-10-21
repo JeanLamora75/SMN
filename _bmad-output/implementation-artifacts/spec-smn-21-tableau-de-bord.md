@@ -120,3 +120,6 @@ Implémentation incrémentale via connecteur GitHub, publication directe sur mai
 - [ ] Raccordement effectif des producteurs métier, historiques, droits sur les mutations et préférences persistées (Stories futures).
 
 **Limitation BMAD :** l'environnement par connecteurs ne permet pas d'affirmer l'exécution du rendu `uv run ...render_skill.py`. Les validations source sont réelles mais ne remplacent pas le workflow exécutable, ni une certification WCAG.
+
+
+**Résultat CI observé sur la PR #29 — 21/10/2026 :** [Vérification I0 #326](https://github.com/JeanLamora75/SMN/actions/runs/39585419874) et [Paquet Windows #141](https://github.com/JeanLamora75/SMN/actions/runs/39585419871) ont tous deux échoué **avant démarrage des tests** : jobs `windows-smoke`, `linux-postgres` et `portable-windows` avec `runner_id=0` et `steps=[]`. Le statut GitHub « failure » ne constitue pas un résultat de `pnpm test`, `lint`, `typecheck` ou `build`. La cause exacte de non-attribution des runners n'est pas identifiée via les journaux disponibles. Les **16 contrôles statiques** indépendants et le calcul des 30 contrastes ont été exécutés sur les sources ; le reste de la matrice navigateur doit être effectué sur Windows.
