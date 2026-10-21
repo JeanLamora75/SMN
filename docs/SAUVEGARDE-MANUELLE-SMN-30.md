@@ -72,3 +72,7 @@ pnpm dev
 Vérifier : refus Utilisateur/anonyme ; première phrase (distincte du mot de passe admin) ; sauvegarde effective sur PG18.6 avec documents réels ; deuxième sauvegarde sans phrase ; empreintes des composants ; refus de pg_dump incompatible ; document modifié pendant capture ; paquet incomplet supprimé ; clés absentes ou corrompues refusées. Exécuter ultérieurement une **restauration isolée sur une autre machine** avant d'affirmer la récupérabilité.
 
 **Aucun test Node, Windows, PostgreSQL ni restauration réelle n'est réputé réussi par la seule publication du code.** Les limites doivent rester visibles dans Jira.
+
+## Intégration GitHub et état de qualification
+
+[PR #25](https://github.com/JeanLamora75/SMN/pull/25) fusionnée sur `main` le 21/10/2026, commit `b189ebe75ba60d40c291bd56876bc77026bd2a70`. [CI Windows portable](https://github.com/JeanLamora75/SMN/actions/runs/39558095579) et [CI Linux/Windows](https://github.com/JeanLamora75/SMN/actions/runs/39558095589) : **échec avant toute étape de test** (`steps=null`). Les six tests unitaires écrits, assertions HTTP, les contrôles TypeScript, le test réel du dump PostgreSQL 18.6 et toute restauration restent **non exécutés/non attestés**. Le code est intégré, mais **SMN-30 reste En cours** jusqu'à qualification.

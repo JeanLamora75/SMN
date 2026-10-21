@@ -26,3 +26,7 @@ Le schéma PostgreSQL v7 créé par SMN-29 est conservé ; aucune migration comp
 Tests sources et chiffrement dans `tests/manual-backup.test.ts` ; refus HTTP et capture positive si binaire `pg_dump` 18 disponible dans `scripts/verify-http-ci.mjs`. Les tests réels ne sont **pas exécutés ici** et la restauration sur une autre machine reste à tester dans la Story dédiée. Ne pas clôturer Jira avant cette qualification.
 
 [Documentation et plan de recette](../../docs/SAUVEGARDE-MANUELLE-SMN-30.md).
+
+## Publication du code
+
+La [PR #25](https://github.com/JeanLamora75/SMN/pull/25) est fusionnée sur `main` depuis le 21/10/2026 (`b189ebe75ba60d40c291bd56876bc77026bd2a70`). Les jobs GitHub Actions échouent avant leur démarrage : **aucune exécution de tests ni de restauration n'est confirmée**. Le comportement de sauvegarde réelle, de protection locale de la clé Windows et de récupération sur PC distinct reste soumis à recette. Jira En cours.

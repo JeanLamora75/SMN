@@ -42,3 +42,11 @@ Si la clé locale et la phrase de récupération sont toutes deux perdues, la r�
 **Traçabilité :** FR-67/68/71/72 ; AD-10/25/27/29 ; sauvegarde, restauration et configuration privée. La bibliothèque choisie pour l'identité ne remplace pas la gestion des clés de données.
 
 **Aucun mot de passe ou clé réelle manipulé, aucune sauvegarde ni restauration exécutée.** Les mécanismes et les preuves I0 restent ouverts ; CONCERNS maintenu. Cette approbation ne vaut ni développement ni fusion.
+
+## État d'implémentation au 21 octobre 2026 — SMN-30
+
+Le **principe ADR validé en 2026-10-19 est désormais traduit en code**, mais **aucune qualification cryptographique ou restauration sur PC distinct n'est encore validée**. [PR #25](https://github.com/JeanLamora75/SMN/pull/25), module `src/server/backup/`, documentation [SMN-30](../../../../docs/SAUVEGARDE-MANUELLE-SMN-30.md).
+
+Implémentation retenue à éprouver : dump natif `pg_dump` PostgreSQL 18, AES-256-GCM (base, fichiers privés et manifeste), enveloppe de récupération scrypt (N=32768, r=8, p=1) + AES-256-GCM, phrase initiale distincte du mot de passe Administrateur, clé locale sous profil privé, fichiers de paquets exportables sans clé en clair. Capture unique sous verrou PostgreSQL et inventaire de pièces pré/post avec publication atomique. Une restauration effective et un audit des permissions Windows/ACL restent indispensables pour qualifier le mécanisme. Les éventuelles futures clés de chiffrement des données métier doivent être explicitement inventoriées et incluses dans le parcours de récupération avant production de telles données.
+
+Les jobs CI sont encore en échec **sans exécuter d'étape** ; il serait incorrect d'affirmer que le chiffrement ou la récupérabilité sont déjà vérifiés. L'ancien paragraphe « aucun développement » ci-dessus reflète l'état documentaire au 19 octobre 2026, désormais remplacé par cet état du 21 octobre.

@@ -189,3 +189,5 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Phrase de récupération distincte du mot de passe administrateur lors de la première sauvegarde ; clé locale conservée dans le profil privé, enveloppe scrypt+AES-GCM dans chaque paquet, aucun secret en clair dans le paquet exportable.
 - Verrou PostgreSQL `pg_try_advisory_lock(20261021,30)` à reprendre dans les futures opérations qui écrivent des fichiers archivés et leurs références DB. Comparaison des inventaires avant/après, publication atomique et suppression des staging échoués.
 - L'état « sauvegarde créée » ne signifie pas « restauration validée ». Exécuter les tests Node, PostgreSQL 18.6, Windows, les parcours de sauvegarde avec vraies pièces et une restauration isolée avant toute attestation complète de récupérabilité.
+
+- **Intégration SMN-30** : [PR #25](https://github.com/JeanLamora75/SMN/pull/25) fusionnée sur `main` (`b189ebe75ba60d40c291bd56876bc77026bd2a70`). Six tests unitaires écrits, 449 clés JSON FR/EN alignées. CI Linux/Windows échouée avant les étapes. Les sauvegardes et la restauration **n'ont pas été testées sur le PC**. Jira En cours.
