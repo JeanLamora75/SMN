@@ -48,6 +48,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState(false);
  const [selection,setSelection]=useState<{memberId:string;date:string}|null>(null);
+ const [editorDirty,setEditorDirty]=useState(false);
  const [revision,setRevision]=useState(0);
  const title=t("teamCalendar.title");
  useEffect(()=>{
@@ -82,11 +83,14 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
  },[state]);
  const categories=state?.admin?.categories??[];
  const selectedMember=state?.admin?.members.find(m=>m.id===selection?.memberId);
+ const maySwitchEditor=()=>!editorDirty||window.confirm(t("draft.discardWarning"));
  const changeStart=(newStart:string)=>{
-  setStart(newStart);setSelection(null);
+  if(!maySwitchEditor())return;
+  setStart(newStart);setSelection(null);setEditorDirty(false);
  };
  const choose=(id:string,date:string)=>{
-  if(!isAdmin)return;
+  if(!isAdmin||!maySwitchEditor())return;
+  setEditorDirty(false);
   setSelection(s=>s?.memberId===id&&s.date===date?null:{memberId:id,date});
  };
  return <section className="smn-page container py-4 d-grid gap-3">
@@ -106,7 +110,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
     <div className="col-md-3">
      <label htmlFor="team-calendar-days" className="form-label">{t("teamCalendar.period")}</label>
      <select id="team-calendar-days" className="form-select" value={days}
-      onChange={e=>{setDays(Number(e.target.value) as 7|14|28);setSelection(null);}}>
+      onChange={e=>{if(!maySwitchEditor())return;setDays(Number(e.target.value) as 7|14|28);setSelection(null);setEditorDirty(false);}}>
       <option value={7}>{t("teamCalendar.sevenDays")}</option>
       <option value={14}>{t("teamCalendar.fourteenDays")}</option>
       <option value={28}>{t("teamCalendar.twentyEightDays")}</option>
@@ -127,7 +131,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
     <div className="col-md-4">
      <label htmlFor="team-calendar-member" className="form-label">{t("teamCalendar.memberFilter")}</label>
      <select id="team-calendar-member" className="form-select" value={memberId}
-      onChange={e=>{setMemberId(e.target.value);setSelection(null);}}>
+      onChange={e=>{if(!maySwitchEditor())return;setMemberId(e.target.value);setSelection(null);setEditorDirty(false);}}>
       <option value="">{t("teamCalendar.allMembers")}</option>
       {(state?.admin?.members??[]).map(m=><option key={m.id} value={m.id}>{m.displayName}</option>)}
       {memberId&&!displayed.has(memberId)&&
@@ -228,10 +232,10 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
      {t("teamCalendar.editHeading",{member:selectedMember.displayName,date:selection.date})}</h2>
     <p className="small text-secondary">{t("teamCalendar.centralHint")}</p>
     <button className="btn btn-outline-secondary btn-sm" type="button"
-     onClick={()=>setSelection(null)}>{t("teamCalendar.close")}</button>
+     onClick={()=>{if(!maySwitchEditor())return;setSelection(null);setEditorDirty(false);}}>{t("teamCalendar.close")}</button>
     <MemberAbsenceEditor key={selection.memberId+":"+selection.date}
      memberId={selection.memberId} selectedOn={selection.date}
-     onDirtyChange={()=>undefined}
+     onDirtyChange={setEditorDirty}
      onSaved={()=>setRevision(n=>n+1)}/>
    </section>}
  </section>;
