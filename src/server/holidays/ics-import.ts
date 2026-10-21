@@ -79,29 +79,29 @@ export function parseHolidayIcs(input:string):
   if(lines.length>12000)return {ok:false,error:"ics-too-large"};
  }
  while(lines.at(-1)==="")lines.pop();
- if(lines[0]!=="BEGIN:VCALENDAR"||lines.at(-1)!=="END:VCALENDAR")
+ if(lines[0]?.toUpperCase()!=="BEGIN:VCALENDAR"||lines.at(-1)?.toUpperCase()!=="END:VCALENDAR")
   return {ok:false,error:"invalid-ics"};
  const events:IcsEvent[]=[];
  let inEvent=false,begin=-1,current:string[]=[];
  let depth=0;
  for(let i=1;i<lines.length-1;i++){
   const line=lines[i];
-  if(line==="BEGIN:VEVENT"){
+  if(line.toUpperCase()==="BEGIN:VEVENT"){
    if(inEvent||depth!==0)return {ok:false,error:"invalid-ics"};
    inEvent=true;begin=i;current=[];continue;
   }
-  if(line==="END:VEVENT"){
+  if(line.toUpperCase()==="END:VEVENT"){
    if(!inEvent)return {ok:false,error:"invalid-ics"};
    events.push(eventFromLines(current,events.length+1));
    if(events.length>MAX_EVENTS)return {ok:false,error:"ics-too-large"};
    inEvent=false;begin=-1;continue;
   }
   if(inEvent){
-   if(line.startsWith("BEGIN:")||line.startsWith("END:"))return {ok:false,error:"invalid-ics"};
+   if(line.toUpperCase().startsWith("BEGIN:")||line.toUpperCase().startsWith("END:"))return {ok:false,error:"invalid-ics"};
    current.push(line);continue;
   }
-  if(line.startsWith("BEGIN:")){depth++;continue;}
-  if(line.startsWith("END:")){depth--;if(depth<0)return {ok:false,error:"invalid-ics"};}
+  if(line.toUpperCase().startsWith("BEGIN:")){depth++;continue;}
+  if(line.toUpperCase().startsWith("END:")){depth--;if(depth<0)return {ok:false,error:"invalid-ics"};}
  }
  if(inEvent||begin!==-1||depth!==0||events.length===0)
   return {ok:false,error:"invalid-ics"};
@@ -115,7 +115,7 @@ function readRequest(value:unknown):IcsRequest|null{
   (raw.stage!=="inspect"&&raw.stage!=="preview"&&raw.stage!=="commit")||
   (raw.policy!=="skip"&&raw.policy!=="replace")||typeof raw.ics!=="string"||
   !Array.isArray(raw.selected)||raw.selected.length>MAX_EVENTS||
-  raw.selected.some(id=>typeof id!=="string"||!/^\bevent-[1-9]\d*\b$/u.test(id))||
+  raw.selected.some(id=>typeof id!=="string"||!/^event-[1-9]\d*$/u.test(id))||
   (raw.stage==="commit"&&(typeof raw.fingerprint!=="string"||!/^[a-f0-9]{64}$/u.test(raw.fingerprint))))
   return null;
  return {
