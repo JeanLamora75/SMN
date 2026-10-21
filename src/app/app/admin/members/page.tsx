@@ -24,6 +24,11 @@ export default async function MembersAdminPage(){
     <Link href="/app/admin/absence-categories" className="btn btn-outline-primary">
      {translate(locale,"absenceCategories.open")}</Link>
    </div>}
+  <div className="mb-4">
+   <Link href="/app/team-calendar" className="btn btn-outline-primary">
+    {translate(locale,"teamCalendar.open")}
+   </Link>
+  </div>
   <QuickMembersAdmin/>
  </div>;
 }

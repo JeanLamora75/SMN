@@ -16,7 +16,7 @@ La synthèse de disponibilité d'une date affiche les demi-journées normalement
 
 La référence nationale suit le **pays effectivement enregistré sur la localisation du membre à cette date** ; le système ne devine ni pays ni calendrier régional. Si le pays est inconnu, si la couverture nationale est insuffisante ou si la trame de travail n'existe pas, le total est **non déterminé** (pas un « zéro » implicite). Un jour national connu par sa date est considéré confirmé même si l'année entière est seulement partielle.
 
-La synthèse est une **résolution journalière des créneaux**, pas encore le calcul de capacité de sprint en jours-homme (Story 3.16). Le calendrier d'équipe et les libellés textuels selon les droits seront intégrés par Story 3.14 ; les absences individuelles exposent déjà **nom, motif, catégorie et couleur** dans l'API Administrateur.
+La synthèse est une **résolution journalière des créneaux**, pas encore le calcul de capacité de sprint en jours-homme (Story 3.16). Le calendrier d'équipe et les libellés textuels selon les droits sont désormais développés séparément par [SMN-55](CALENDRIER-EQUIPE-SMN-55.md), avec une grille détaillée Administrateur et une vue uniquement collective pour l'Utilisateur. Leur recette locale reste nécessaire. Les absences individuelles exposent toujours **nom, motif, catégorie et couleur** dans l'API Administrateur.
 
 L'import régional ne déclenche **ni alerte collective ni suppression de Daily**. Les PDF précédents et capacités initiales figées demeurent inchangés.
 
