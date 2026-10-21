@@ -55,6 +55,9 @@ function fakeDb(opts:{
     country_iso2:"FR"}];
    return {rows,rowCount:rows.length};
   }
+  if(sql.includes("FROM public.smn_company_closure")){
+   return {rows:[],rowCount:0};
+  }
   if(sql.includes("FROM public.smn_national_holiday")){
    const rows=opts.holiday===false?[]:[{
     country_code:"FR",holiday_date:start,name:"Fête du Travail"
