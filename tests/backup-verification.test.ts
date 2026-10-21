@@ -89,7 +89,7 @@ describe("SMN-31 — inventaire et preuves d'intégrité",()=>{
   try{
    await rm(join(f.folder,"documents","00001.enc"));
    const result=await inspectBackup(f.root,f.id,f.key);
-   assert.equal(result.status,"invalid"); // Le répertoire ne correspond plus à son inventaire.
+   assert.equal(result.status,"incomplete");
    assert.equal(result.integrityVerified,false);
   }finally{await rm(f.root,{recursive:true,force:true});f.key.fill(0);}
  });
