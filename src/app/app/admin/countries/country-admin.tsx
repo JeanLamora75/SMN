@@ -21,7 +21,7 @@ export default function CountryAdmin(){
   try{
    const response=await fetch("/api/admin/countries",{method:"POST",
     headers:{"Content-Type":"application/json"},body:JSON.stringify({code,name})});
-   if(!response.ok){setNotice(response.status===409?"duplicate":"failed");return;}
+   if(!response.ok){setNotice(response.status===409?"duplicate":response.status===400?"invalid":"failed");return;}
    await refresh();setCode("");setName("");setNotice("saved");
   }catch{setNotice("failed");}finally{setBusy(false);}
  }
@@ -36,7 +36,7 @@ export default function CountryAdmin(){
     value={name} onChange={e=>setName(e.target.value)}/>
    <button type="submit" className="btn btn-primary" disabled={busy}>{t("countries.add")}</button>
   </form>
-  {notice&&<p role="status">{notice}</p>}
+  {notice&&<p role={notice==="saved"?"status":"alert"} className={"alert "+(notice==="saved"?"alert-success":"alert-warning")}>{t(notice==="saved"?"countries.saved":notice==="duplicate"?"countries.duplicate":notice==="invalid"?"countries.invalid":"countries.failed")}</p>}
   <h2 className="h5 mt-4">{t("countries.listTitle")}</h2>
   <table className="table"><thead><tr><th>{t("countries.code")}</th>
    <th>{t("countries.name")}</th><th>{t("countries.calendarStatus")}</th></tr></thead>
