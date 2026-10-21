@@ -112,3 +112,12 @@
 - Aucune fonctionnalité avancée ART/PI n'est introduite dans le MVP Scrum/Kanban.
 
 **Traçabilité :** D-PRD-001 à D-PRD-005, D-PRD-071 à D-PRD-074, D-PRD-079, D-PRD-093, D-PRD-101, D-PRD-103, D-PRD-118, D-PRD-123 à D-PRD-127 ; F-01/F-05/F-08/F-20/F-23/F-24/F-25/F-53/F-71/F-72/F-84/F-91 à F-97/F-112 à F-115/F-121 à F-124 ; FR-1/FR-2/FR-3/FR-8 à FR-24/FR-26 à FR-57.
+
+
+## Contrats UX du tableau de bord — validés le 21 octobre 2026
+
+Références obligatoires pour les agents BMAD : [DESIGN.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/DESIGN.md) · [EXPERIENCE.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/EXPERIENCE.md) · [synthèse UXD-01 à UXD-27](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/SYNTHESE-CADRAGE-UX-SMN.md). Ces contrats sont validés mais **pas encore implémentés ni testés**.
+
+**Règles clés :** pleine largeur, menu rétractable, header équipe/cycle, 4–6 métriques et 4 colonnes de suivi, 5 éléments maximum, tri automatique, comparaison entre cycles, historique fiable ou « Aucun éléments à ce jour », compteur **lundi–vendredi**, **engagement initial** SP et tickets, **aucune carte Avancement global** sans règle, responsive 4/2/1, personnalisation accessible.
+
+**Précision métier :** Addendum validé pour FR-58 à FR-65 : capacités J/H prévues/réelles ; engagement initial SP/tickets ; compteur lundi–vendredi ; carte Avancement global masquée ; état vide historique exact « Aucun éléments à ce jour ».
