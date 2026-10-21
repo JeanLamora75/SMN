@@ -1401,5 +1401,25 @@
     "created": "Sprint created: {name}",
     "invalid": "Unable to calculate or create this Sprint. Check dates and cadence.",
     "overlap": "These dates overlap an existing Sprint for this team."
+  },
+  "batchPreview": {
+    "title": "Preview a Sprint batch",
+    "intro": "Preview does not create Sprints. Change the batch start date to recalculate all proposed Sprints.",
+    "count": "Sprint count (1 to 6)",
+    "start": "Batch start date",
+    "preview": "Preview",
+    "results": "Proposed Sprints",
+    "close": "Close preview",
+    "name": "Name",
+    "dates": "Local dates",
+    "conflicts": "Conflicts",
+    "none": "None",
+    "conflictWith": "Conflict with {name} — {start} to {end}",
+    "valid": "No overlaps detected.",
+    "blocked": "Confirmation blocked: at least one conflict.",
+    "confirm": "Confirm batch",
+    "nextStory": "Atomic confirmation will be implemented in SMN-68.",
+    "invalid": "Enter an integer from 1 to 6 and a valid date.",
+    "error": "Unable to calculate the preview."
   }
 }
