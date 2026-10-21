@@ -4,6 +4,7 @@ import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import MemberAbsenceEditor from "./member-absence-editor";
+import {prefillValue} from "@/lib/form-prefill";
 
 type WorkDay={weekday:number;morning:boolean;afternoon:boolean};
 type Week={revision:number;effective_from:string;days:WorkDay[];created_at:string};
@@ -16,8 +17,8 @@ type CalendarState={memberId:string;teamId:string;contractPercent:number;archive
 const WEEKDAYS=["monday","tuesday","wednesday","thursday","friday","saturday","sunday"] as const;
 const newest=(s:CalendarState)=>s.weeks.at(-1)??null;
 
-export default function MemberCalendarEditor({memberId,onClose}:{
- memberId:string;onClose:()=>void;
+export default function MemberCalendarEditor({memberId,teamName,onClose}:{
+ memberId:string;teamName:string;onClose:()=>void;
 }){
  const t=useTranslation();
  const [data,setData]=useState<CalendarState|null>(null);
@@ -49,7 +50,8 @@ export default function MemberCalendarEditor({memberId,onClose}:{
    throw Error("calendar-invalid-response");
   setData(next);setStatus("ready");
   const latest=newest(next);
-  const days=(latest?.days??next.suggestedWeek).map(d=>({...d}));
+  const days=prefillValue(latest?.days,next.suggestedWeek,[],Boolean(latest))
+   .value.map(d=>({...d}));
   setWeek(days);setBaseline(JSON.stringify(days));
   setEffective(latest&&latest.effective_from>next.today?latest.effective_from:next.today);
   setDayDate(next.day.onDate);
@@ -68,8 +70,10 @@ export default function MemberCalendarEditor({memberId,onClose}:{
    .then(next=>{
     if(!active)return;
     if(next.memberId!==memberId||!Array.isArray(next.weeks))throw Error("invalid");
-    const selected=newest(next),days=(selected?.days??next.suggestedWeek).map(d=>({...d}));
-    setData(next);setStatus("ready");setWeek(days);setBaseline(JSON.stringify(days));
+    const selected=newest(next),days=prefillValue(selected?.days,next.suggestedWeek,[],Boolean(selected))
+     .value.map(d=>({...d}));
+    setData(next);setStatus("ready");
+    setWeek(previous=>previous.length>0?previous:days);setBaseline(JSON.stringify(days));
     setEffective(selected&&selected.effective_from>next.today?selected.effective_from:next.today);
     setDayDate(next.day.onDate);
     const except=next.exceptions.filter(e=>e.on_date===next.day.onDate).at(-1);
@@ -132,7 +136,10 @@ export default function MemberCalendarEditor({memberId,onClose}:{
   {status==="loading"&&<p role="status">{t("members.calendar.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.calendar.failedLoad")}</p>}
   {data&&status==="ready"&&<>
+   <p className="small text-secondary mb-0">{t("prefill.teamContext",{team:teamName})}</p>
    <p className="small text-secondary mb-0">{t("members.calendar.contractSeparate",{value:data.contractPercent})}</p>
+   <p className="small text-secondary mb-0">{t(data.configured?
+    "prefill.savedWeek":"prefill.suggestedWeek")}</p>
    <p className={data.configured?"small text-secondary mb-0":"alert alert-warning"} role="status">
     {t(data.configured?"members.calendar.configured":"members.calendar.suggestedOnly")}</p>
    {data.archived&&<p className="alert alert-secondary">{t("members.calendar.archived")}</p>}
