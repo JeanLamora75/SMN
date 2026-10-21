@@ -56,7 +56,7 @@ export default function CycleOverview({context,locale,teamHref}:Props){
           {t("detail.openTeam")} <span aria-hidden="true">→</span>
         </Link>
       </div>
-      <div className="smn-cycle-facts" aria-label={t("dashboard.cockpit.details")}>
+      <div className="smn-cycle-facts" role="group" aria-label={t("dashboard.cockpit.details")}>
         <dl className="smn-cycle-fact-list">
           <div><dt>{t("dashboard.cockpit.dates")}</dt>
             <dd>{t("dashboard.cockpit.notAvailable")}</dd></div>
@@ -67,7 +67,7 @@ export default function CycleOverview({context,locale,teamHref}:Props){
         </dl>
       </div>
     </header>
-    <div className="smn-metric-grid" aria-label={t("dashboard.cockpit.metrics")}>
+    <div className="smn-metric-grid" role="group" aria-label={t("dashboard.cockpit.metrics")}>
       <MetricPair title={t("dashboard.cockpit.capacity")}
         first={t("dashboard.cockpit.plannedCapacity")}
         second={t("dashboard.cockpit.actualCapacity")}
