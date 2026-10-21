@@ -6,6 +6,7 @@ import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import MemberProfileEditor,{type EditableMember} from "./member-profile-editor";
 import AssignmentEditor from "./assignment-editor";
 import MemberLifecycleEditor from "./member-lifecycle-editor";
+import MemberCalendarEditor from "./member-calendar-editor";
 
 type AgileRole="scrum_master"|"product_owner"|"developer";
 type Member={id:string;memberNumber:number;displayName:string;email:string|null;revision:number;isProvisional:boolean;
@@ -25,6 +26,7 @@ export default function QuickMembersAdmin(){
  const [editingId,setEditingId]=useState<string|null>(null);
  const [assigningId,setAssigningId]=useState<string|null>(null);
  const [lifecycleId,setLifecycleId]=useState<string|null>(null);
+ const [calendarId,setCalendarId]=useState<string|null>(null);
  const [message,setMessage]=useState("");
  const [error,setError]=useState(false);
  const requestId=useRef<string|null>(null);
@@ -51,6 +53,7 @@ export default function QuickMembersAdmin(){
  const selectedMember=roster?.members.find(m=>m.id===editingId)??null;
  const selectedAssignment=roster?.members.find(m=>m.id===assigningId)??null;
  const selectedLifecycle=roster?.members.find(m=>m.id===lifecycleId)??null;
+ const selectedCalendar=roster?.members.find(m=>m.id===calendarId)??null;
  const savedLifecycle=(action:"close"|"archive"|"reactivate"|"delete",smallTeam:boolean)=>{
   setLifecycleId(null);
   void refresh().then(()=>{
@@ -189,24 +192,33 @@ export default function QuickMembersAdmin(){
       <td>{t("members.notCalculated")}</td>
       <td>{member.email??t("members.profile.noEmail")}</td>
       <td><button type="button" className="btn btn-outline-primary btn-sm"
-       disabled={busy||member.archived||editingId!==null||assigningId!==null||lifecycleId!==null}
+       disabled={busy||member.archived||editingId!==null||assigningId!==null||lifecycleId!==null||calendarId!==null}
        onClick={()=>{setMessage("");setEditingId(member.id);}}>
        {t("members.profile.edit")}
       </button>
       <button type="button" className="btn btn-outline-primary btn-sm mt-1"
-       disabled={busy||member.archived||editingId!==null||assigningId!==null||lifecycleId!==null}
+       disabled={busy||member.archived||editingId!==null||assigningId!==null||lifecycleId!==null||calendarId!==null}
        onClick={()=>{setMessage("");setAssigningId(member.id);}}>
        {t("members.assignment.edit")}
       </button>
       <button type="button" className="btn btn-outline-secondary btn-sm mt-1"
-       disabled={busy||editingId!==null||assigningId!==null||lifecycleId!==null}
+       disabled={busy||editingId!==null||assigningId!==null||lifecycleId!==null||calendarId!==null}
        onClick={()=>{setMessage("");setLifecycleId(member.id);}}>
        {t("members.lifecycle.manage")}
+      </button>
+      <button type="button" className="btn btn-outline-primary btn-sm mt-1"
+       disabled={busy||editingId!==null||assigningId!==null||lifecycleId!==null||calendarId!==null}
+       onClick={()=>{setMessage("");setCalendarId(member.id);}}>
+       {t("members.calendar.manage")}
       </button></td>
      </tr>)}</tbody>
     </table>
    </div>
    <p className="small text-secondary mb-0">{t("members.futureEdits")}</p>
+   {selectedCalendar&&<div className="mt-4">
+    <MemberCalendarEditor key={selectedCalendar.id} memberId={selectedCalendar.id}
+     onClose={()=>setCalendarId(null)}/>
+   </div>}
    {selectedLifecycle&&<div className="mt-4">
     <MemberLifecycleEditor key={selectedLifecycle.id} memberId={selectedLifecycle.id}
      onSaved={savedLifecycle} onCancel={()=>setLifecycleId(null)}/>
