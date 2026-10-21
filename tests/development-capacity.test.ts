@@ -113,7 +113,7 @@ describe("SMN-57 — calcul fiable des JH",()=>{
  });
  it("un membre avec 100 % de rôle PO a zéro JH de développement",async()=>{
   const f=fixture({percentPO:true});
-  const report=await readDevelopmentCapacity(f.db,...Object.values(range) as [string,string]);
+  const report=await readDevelopmentCapacity(f.db,range.start,range.end);
   assert.equal(report.status,"calculated");
   assert.equal(report.totalJh,0);
   assert.equal(report.members[0].days[0].developerPercent,0);
@@ -186,6 +186,35 @@ describe("SMN-57 — calcul fiable des JH",()=>{
   assert.ok(f.sql.every(x=>x.startsWith("SELECT")||x.startsWith("BEGIN")||x==="COMMIT"));
   const user={role:"user",is_active:true,must_change_password:false};
   assert.equal(canAccess(user,"read",{type:"members",exists:true,inScope:true}),false);
+ });
+ it("paramètre heures/JH historisé avec concurrence optimiste",async()=>{
+  let revision=1,hours=8;
+  const audit:unknown[][]=[];
+  const db={query:async(sql:string,args:unknown[]=[])=>{
+   if(["BEGIN","ROLLBACK","COMMIT"].includes(sql))return {rows:[],rowCount:0};
+   if(sql.includes("FROM public.smn_capacity_settings"))return {rows:[{
+    hours_per_jh:hours,revision,updated_at:"2026-10-21"
+   }],rowCount:1};
+   if(sql.includes("UPDATE public.smn_capacity_settings")){
+    hours=Number(args[0]);revision++;
+    return {rows:[{hours_per_jh:hours,revision,updated_at:"2026-10-22"}],rowCount:1};
+   }
+   if(sql.includes("INSERT INTO public.smn_capacity_settings_audit")){
+    audit.push(args);return {rows:[],rowCount:1};
+   }
+   throw Error("unexpected SQL "+sql);
+  }} as unknown as Client;
+  assert.equal((await readCapacitySettings(db)).hoursPerJh,8);
+  const updated=await updateCapacitySettings(db,actorId,{hoursPerJh:7.5,revision:1});
+  assert.equal(updated.ok,true);
+  assert.equal(hours,7.5);
+  assert.equal(audit.length,1);
+  assert.equal(audit[0][2],8);
+  assert.equal(audit[0][3],7.5);
+  assert.deepEqual(await updateCapacitySettings(db,actorId,{hoursPerJh:9,revision:1}),
+   {ok:false,error:"conflict"});
+  assert.deepEqual(await updateCapacitySettings(db,actorId,{hoursPerJh:0,revision:2}),
+   {ok:false,error:"invalid-input"});
  });
  it("migre en v21 par ajout uniquement, paramètre 8 h/JH audité",()=>{
   assert.match(CAPACITY_MIGRATION_SQL,/schema_version=21/);
