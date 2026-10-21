@@ -1321,5 +1321,20 @@
     "errorClosed": "Période clôturée. Une réouverture autorisée est requise.",
     "errorStale": "Les données ou bornes ont changé : aucune replanification enregistrée. Actualisez la prévisualisation.",
     "errorConfirm": "La confirmation a échoué ; aucune réussite n'a été attestée."
+  },
+  "prefill": {
+    "teamContext": "Équipe issue de l'installation : {team}",
+    "savedContext": "Pays et localisation repris de la fiche enregistrée. Un pays volontairement vide reste vide.",
+    "suggestedCountry": "Pays proposé depuis les réglages de l'installation, à confirmer ou modifier. Non enregistré à cette étape.",
+    "unknownCountry": "Pays inconnu : aucune localisation ou pays n'est inventé.",
+    "optionalCountry": "Pays facultatif",
+    "savedWeek": "Semaine de travail reprise de la dernière version enregistrée.",
+    "suggestedWeek": "Semaine type proposée (lundi au vendredi). Elle n'est pas enregistrée tant que vous ne cliquez pas sur Enregistrer.",
+    "savedAssignment": "Affectation reprise de la version enregistrée. Vous pouvez corriger chaque valeur.",
+    "suggestedAssignment": "Répartition initiale proposée et modifiable, pas encore enregistrée.",
+    "optionalProfile": "Le nom provisoire est conservé tant que vous ne le confirmez pas. L'e-mail peut rester vide : il ne bloque pas les autres fonctions.",
+    "noInventedAbsence": "La date consultée ne crée aucune absence. Aucune catégorie ou motif n'est déduit automatiquement. Seul le bouton Enregistrer ajoute une absence.",
+    "unknownPeriod": "Aucune période opérationnelle n'est déduite de la date du jour. Indiquez les bornes de la période à consulter.",
+    "unsavedCapacity": "Une capacité manuelle modifiée mais non enregistrée est présente. Enregistrez-la ou annulez vos modifications avant de changer les réglages."
   }
 }
