@@ -35,7 +35,7 @@ export async function POST(request:NextRequest){
  const body=await readIcsRequest(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>executeHolidayCsv(db,body,actor.id));
+  const result=await withAuthDb(db=>executeHolidayIcs(db,body,actor.id));
   if(!result.ok)return jsonResult(result,
    result.error==="preview-expired"?409:
    result.error==="country-not-found"?404:
