@@ -60,7 +60,7 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: backlog
-  2-1-consulter-un-journal-fiable-des-opérations-métier-sensibles: backlog
+  2-1-consulter-un-journal-fiable-des-opérations-métier-sensibles: in-progress
   2-2-créer-une-sauvegarde-manuelle-complète-de-l-installation: backlog
   2-3-vérifier-l-intégrité-et-l-inventaire-d-une-sauvegarde: backlog
   2-4-configurer-les-30-jours-de-conservation-des-sauvegardes-géré: backlog
