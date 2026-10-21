@@ -82,7 +82,7 @@ type Context={teamId:string;origin:PeriodRow|null;plan:PlanningRow|null;
  initialJh:number|null;initialSource:string|null;actualManualJh:number|null;
  targetOccupied:boolean};
 async function load(db:Client,dates:Dates,lock:boolean):
- Promise<Context|null>{
+ Promise<Context>{
  const teams=await db.query<{id:string}>(teamSql+(lock?" FOR UPDATE OF t":""));
  if(teams.rows.length!==1)throw Error("replanning-team-unavailable");
  const teamId=teams.rows[0].id;
