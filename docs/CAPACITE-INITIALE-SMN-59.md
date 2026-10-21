@@ -2,6 +2,8 @@
 
 [Jira SMN-59](https://lmn24.atlassian.net/browse/SMN-59) · [Contrat BMAD](../_bmad-output/implementation-artifacts/spec-smn-59-capacite-initiale.md) · [Capacité manuelle SMN-58](CAPACITE-MANUELLE-SMN-58.md)
 
+La [qualification rétrospective SMN-61](FIABILITE-CAPACITES-HISTORIQUES-SMN-61.md) est une annotation séparée. Une prévision retrouvée ou estimée ne réécrit jamais le cliché initial, même si sa valeur chiffrée est désormais connue.
+
 La lecture d'une **date théorique** n'enregistre pas de capacité initiale. Pour créer le cliché, l'Administrateur doit déclencher un **événement explicite d'ouverture effective** depuis l'écran de capacité, avec confirmation.
 
 Le [réalisé collectif SMN-60](CAPACITE-REELLE-SMN-60.md) est calculé séparément après l'ouverture ; il ne remplace jamais cet engagement initial.
