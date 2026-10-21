@@ -34,7 +34,7 @@ export default function MemberLocationEditor({memberId,onClose}:{
  const [onDate,setOnDate]=useState("");
  const [history,setHistory]=useState<Location|null>(null);
  const [historyViewed,setHistoryViewed]=useState(false);
- const [eventUtc,setEventUtc]=useState("2026-03-29T01:30:00Z");
+ const [eventUtc,setEventUtc]=useState("2027-03-28T01:30:00Z");
  const [preview,setPreview]=useState<Preview|null>(null);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
