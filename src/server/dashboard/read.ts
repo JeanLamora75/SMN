@@ -1,12 +1,7 @@
 import type { Client } from "pg";
+import {projectCollectiveContext,type CollectiveContext} from "@/lib/collective-projection";
 
-export type DashboardContext = Readonly<{
-  productId: string;
-  product: string;
-  teamId: string;
-  team: string;
-  mode: "scrum" | "kanban";
-}>;
+export type DashboardContext = CollectiveContext;
 export type CollectiveDashboard = Readonly<{
   context: DashboardContext;
   currentCycle: null;
@@ -38,15 +33,11 @@ export async function readCollectiveDashboard(client: Client): Promise<Collectiv
   if (data.rows.length !== 1 || !["scrum", "kanban"].includes(data.rows[0].mode)) {
     throw new Error("dashboard-context-unavailable");
   }
-  const context: DashboardContext = {
-    productId: data.rows[0].product_id,
-    teamId: data.rows[0].team_id,
-    product: data.rows[0].product,
-    team: data.rows[0].team,
-    mode: data.rows[0].mode as DashboardContext["mode"],
-  };
-  if (!validRecordId(context.teamId) || !validRecordId(context.productId))
-    throw new Error("dashboard-context-unavailable");
+  const context=projectCollectiveContext({
+    productId:data.rows[0].product_id,teamId:data.rows[0].team_id,
+    product:data.rows[0].product,team:data.rows[0].team,mode:data.rows[0].mode,
+  });
+  if(!context)throw new Error("dashboard-context-unavailable");
   return {
     context,
     currentCycle: null,
