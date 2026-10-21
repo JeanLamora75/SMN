@@ -45,7 +45,7 @@ export function parseOpening(raw:unknown):{start:string;end:string;eventId:strin
 /** Read-only lookup. Merely consulting a theoretical date NEVER inserts a snapshot. */
 export async function readInitialSnapshot(db:Client,teamId:string,start:string,end:string):
  Promise<InitialSnapshot|null>{
- const result=await db.query<InitialRow>(rowFields+[
+ const result=await db.query<InitialRow>(rowFields+" "+[
   "JOIN public.smn_capacity_period_override p ON p.id=s.period_id",
   "WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date",
   "LIMIT 1"
