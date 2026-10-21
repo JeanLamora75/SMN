@@ -67,7 +67,7 @@ async function assignments(client:Client,id:string,lock:boolean){
 async function activeCount(client:Client,teamId:string){
  const r=await client.query<{active_count:number}>(`SELECT count(DISTINCT member_id)::int AS active_count
  FROM public.smn_member_assignment a JOIN public.smn_member m ON m.id=a.member_id
- WHERE a.team_id=$1 AND a.end_on IS NULL AND m.archived_at IS NULL`,[teamId]);
+ WHERE a.team_id=$1 AND a.start_on<=CURRENT_DATE AND a.end_on IS NULL AND m.archived_at IS NULL`,[teamId]);
  return r.rows[0]?.active_count??0;
 }
 async function references(client:Client,id:string){
