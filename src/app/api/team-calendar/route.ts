@@ -3,6 +3,7 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
 import {parseTeamCalendarQuery,readTeamCalendar} from "@/server/members/team-calendar";
+import {projectCentralCalendar} from "@/server/members/central-calendar";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -16,7 +17,7 @@ export async function GET(request:NextRequest){
  if(!parsed)return jsonResult({error:"invalid-input"},400);
  try{
   const data=await withAuthDb(db=>readTeamCalendar(db,parsed,admin));
-  return jsonResult(data);
+  return jsonResult({...data,central:projectCentralCalendar(data,admin)});
  }catch(error){
   if(error instanceof Error&&error.message==="team-calendar-not-found")
    return jsonResult({error:"not-found"},404);
