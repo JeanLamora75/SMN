@@ -12,7 +12,7 @@ function fixture(options:{existing?:number;failAt?:number;batch?:boolean}={}){
   sql.push(query);params.push(values);
   if(query.includes("FROM public.smn_team t"))return {rowCount:1,rows:[{team_id:"team",team_name:"Produit Scrum",mode:"scrum"}]};
   if(query.includes("FROM public.smn_member_batch WHERE id="))
-   return options.batch?{rowCount:1,rows:[{id:values[0],team_id:"team",requested_count:5}]}:{rowCount:0,rows:[]};
+   return options.batch?{rowCount:1,rows:[{id:values[0],team_id:"team",requested_count:5,created_by:"admin"}]}:{rowCount:0,rows:[]};
   if(query.includes("count(*)::int AS count FROM public.smn_member"))
    return {rowCount:1,rows:[{count:options.existing??0}]};
   if(query.includes("INSERT INTO public.smn_member\n")){
@@ -20,8 +20,17 @@ function fixture(options:{existing?:number;failAt?:number;batch?:boolean}={}){
    if(options.failAt===insertion)throw new Error("fixture-insertion-failed");
    return {rowCount:1,rows:[]};
   }
-  if(query.includes("FROM public.smn_member m")&&query.includes("JOIN public.smn_member_assignment a"))
+  if(query.includes("FROM public.smn_member m")&&query.includes("JOIN public.smn_member_assignment a")){
+   if(options.batch){
+    const rows=Array.from({length:5},(_,i)=>({
+     id:randomUUID(),member_number:i+1,display_name:"Membre "+(i+1),
+     is_provisional:true,agile_role:initialAgileRole(i),start_on:"2026-10-21",
+     contract_percent:100,allocation_percent:100,role_percent:100,contribution_percent:100
+    }));
+    return {rowCount:5,rows};
+   }
    return {rowCount:0,rows:[]};
+  }
   return {rowCount:1,rows:[]};
  }} as unknown as Client;
  return {db,sql,params};
