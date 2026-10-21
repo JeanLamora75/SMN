@@ -19,8 +19,17 @@ type MemberDay={
 type Member={id:string;displayName:string;memberNumber:number;days:MemberDay[]};
 type Summary={date:string;assigned:number;reportedUnavailable:number;
  known:number;unknown:number;availableMembers:number};
+type CentralType="absence"|"closure"|"holiday"|"cycle"|"meeting";
+type CentralItem={
+ id:string;date:string;type:CentralType;title:string;memberId?:string;memberName?:string;
+ sourceHref:string|null;categoryColor?:string;categoryName?:string;aggregateCount?:number;
+ planned?:boolean;startOn?:string;endOn?:string;
+ utcInstant?:string;ianaZone?:string;localTime?:string;
+ meetingStatus?:"scheduled"|"held"|"cancelled"|"unknown";
+};
 type Calendar={
  team:{id:string;name:string;mode:string};start:string;end:string;days:7|14|28;
+ central:{items:CentralItem[];types:CentralType[];cyclesAvailable:boolean;meetingsAvailable:boolean};
  collective:Summary[];
  closures:{id:string;name:string;startOn:string;endOn:string}[];admin?:{members:Member[];categories:{id:string;name:string}[]};
 };
@@ -45,6 +54,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
  const [start,setStart]=useState(()=>weekStart(todayLocal()));
  const [days,setDays]=useState<7|14|28>(7);
  const [kind,setKind]=useState<"all"|"planned"|"unplanned">("all");
+ const [centralType,setCentralType]=useState<CentralType|"all">("all");
  const [categoryId,setCategoryId]=useState("");
  const [memberId,setMemberId]=useState("");
  const [state,setState]=useState<Calendar|null>(null);
@@ -71,7 +81,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
   }).then(data=>{
    if(controller.signal.aborted)return;
    if(!Array.isArray(data.collective)||data.collective.length!==days||
-      Boolean(data.admin)!==isAdmin)throw Error("team-calendar-malformed-response");
+      !Array.isArray(data.central?.items)||Boolean(data.admin)!==isAdmin)throw Error("team-calendar-malformed-response");
    setState(data);setLoading(false);
   }).catch(()=>{
    if(controller.signal.aborted)return;
@@ -85,6 +95,11 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
   return names;
  },[state]);
  const categories=state?.admin?.categories??[];
+ const visibleEntries=(state?.central?.items??[]).filter(item=>
+  centralType==="all"||item.type===centralType);
+ const centralTypes=[
+  "absence","closure","holiday","cycle","meeting"
+ ] as const;
  const selectedMember=state?.admin?.members.find(m=>m.id===selection?.memberId);
  const maySwitchEditor=()=>!editorDirty||window.confirm(t("draft.discardWarning"));
  const changeStart=(newStart:string)=>{
@@ -134,6 +149,29 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
       onClick={()=>changeStart(shift(start,days))}>{t("teamCalendar.next")}</button>
     </div>
    </div>
+   <div className="row g-3">
+    <div className="col-md-6">
+     <label className="form-label" htmlFor="team-calendar-team">
+      {t("centralCalendar.teamFilter")}</label>
+     <select id="team-calendar-team" className="form-select" value={state?.team.id??""}
+      disabled aria-describedby="team-calendar-single-team">
+      {state?<option value={state.team.id}>{state.team.name}</option>:
+       <option value="">{t("centralCalendar.noTeam")}</option>}
+     </select>
+     <p id="team-calendar-single-team" className="small text-secondary mb-0">
+      {t("centralCalendar.singleTeam")}</p>
+    </div>
+    <div className="col-md-6">
+     <label className="form-label" htmlFor="central-calendar-type">
+      {t("centralCalendar.typeFilter")}</label>
+     <select id="central-calendar-type" className="form-select" value={centralType}
+      onChange={e=>setCentralType(e.target.value as CentralType|"all")}>
+      <option value="all">{t("centralCalendar.allTypes")}</option>
+      {centralTypes.map(type=><option key={type} value={type}>
+       {t(("centralCalendar."+type) as "centralCalendar.absence")}</option>)}
+     </select>
+    </div>
+   </div>
    {isAdmin&&<div className="row g-3">
     <div className="col-md-4">
      <label htmlFor="team-calendar-member" className="form-label">{t("teamCalendar.memberFilter")}</label>
@@ -176,7 +214,65 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
    <h2 className="h5">{t("teamCalendar.teamLabel",{team:state.team.name})}</h2>
    <p className="small text-secondary">{t("teamCalendar.datesLabel",{
     start:state.start,end:state.end})}</p>
-   <div className="smn-panel p-3">
+   <section className="smn-panel p-3 d-grid gap-3" aria-labelledby="central-calendar-heading">
+    <h3 className="h5" id="central-calendar-heading">{t("centralCalendar.title")}</h3>
+    <p className="small text-secondary mb-0">{t("centralCalendar.readOnly")}</p>
+    <div className="d-flex flex-wrap gap-3 small" aria-label={t("centralCalendar.legend")}>
+     {centralTypes.map(type=><span key={type}>
+      <span aria-hidden="true">● </span>
+      {t(("centralCalendar."+type) as "centralCalendar.absence")}</span>)}
+    </div>
+    {!state.central.cyclesAvailable&&
+     <p className="small text-secondary mb-0">{t("centralCalendar.noCycles")}</p>}
+    {!state.central.meetingsAvailable&&
+     <p className="small text-secondary mb-0">{t("centralCalendar.noMeetings")}</p>}
+    {visibleEntries.length===0?<p>{t("centralCalendar.noItems")}</p>:
+     <ol className="list-unstyled d-grid gap-3 mb-0">
+      {state.collective.map(day=>{
+       const entries=visibleEntries.filter(item=>item.date===day.date);
+       return entries.length===0?null:<li key={day.date} className="border rounded p-2">
+        <h4 className="h6">{day.date}</h4>
+        <ul className="list-unstyled d-grid gap-2 mb-0">
+         {entries.map(entry=><li key={entry.type+":"+entry.id+":"+entry.date}
+          className="d-flex flex-wrap align-items-start gap-2">
+          <span className="small fw-semibold">
+           {t(("centralCalendar."+entry.type) as "centralCalendar.absence")}</span>
+          {entry.categoryColor&&<span aria-hidden="true" className="rounded"
+           style={{width:"0.85rem",height:"0.85rem",
+            backgroundColor:entry.categoryColor,display:"inline-block"}}/>}
+          <span>
+           {entry.aggregateCount!==undefined?
+            t("centralCalendar.aggregate",{count:entry.aggregateCount}):
+            entry.memberName?
+             entry.memberName+" — "+entry.title:entry.title}
+           {entry.planned!==undefined&&
+            <span className="small text-secondary ms-2">
+             ({t(entry.planned?"teamCalendar.planned":"teamCalendar.unplanned")})</span>}
+           {entry.meetingStatus&&<span className="small text-secondary ms-2">
+            ({t(("centralCalendar.status."+
+             entry.meetingStatus) as "centralCalendar.status.unknown")})</span>}
+           {entry.utcInstant&&entry.ianaZone&&
+            <span className="small text-secondary d-block">
+             {t("centralCalendar.utc")}: {entry.utcInstant} ·
+             {" "}{entry.ianaZone} : {entry.localTime}</span>}
+          </span>
+          {entry.sourceHref&&
+           (entry.sourceHref.startsWith("#")?
+            <a className="small" href={entry.sourceHref}>
+             {t("centralCalendar.source")}</a>:
+            <Link className="small" href={entry.sourceHref}>
+             {t("centralCalendar.source")}</Link>)}
+          {isAdmin&&entry.memberId&&
+           <button type="button" className="btn btn-sm btn-outline-primary"
+            onClick={()=>choose(entry.memberId!,entry.date)}>
+            {t("teamCalendar.manageAbsence")}</button>}
+         </li>)}
+        </ul>
+       </li>;
+      })}
+     </ol>}
+   </section>
+   <div className="smn-panel p-3" id="team-calendar-collective">
     <h3 className="h6">{t("teamCalendar.collectiveHeading")}</h3>
     <div className="table-responsive">
      <table className="table table-bordered table-sm align-middle">
