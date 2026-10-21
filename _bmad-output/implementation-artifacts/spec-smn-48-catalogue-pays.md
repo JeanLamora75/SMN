@@ -20,10 +20,10 @@ Références : [Jira SMN-48](https://lmn24.atlassian.net/browse/SMN-48), FR-9/10
 - `prisma/schema.prisma` : modèle `SmnCountry`. Diagnostics et sonde doivent reconnaître la table supplémentaire et les cinq colonnes.
 - Les calendriers nationaux réels, l'import CSV/ICS et les exceptions régionales sont **hors périmètre**.
 
-## Qualification et blocage éventuel
+## Qualification et limites des vérifications
 
 Tests de contrat rédigés dans `tests/country-catalog.test.ts` ; recette HTTP/SQL et RBAC à qualifier sur environnement pilote Windows/PostgreSQL 18.6. Respecter `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`.
 
-**Ne pas fusionner sur `main`** tant que `src/server/installation/contract.ts` et `src/server/db/probe.ts` n'acceptent pas correctement le nouveau catalogue : sinon l'installation v15 serait diagnostiquée « incompatible » ou « incomplète ». Le connecteur GitHub a refusé ces deux modifications dans la présente session. La revue de code et la CI n'ont pas été exécutées avec succès.
+`src/server/installation/contract.ts` référence maintenant la nouvelle relation `public.smn_country:r` et `src/server/db/probe.ts` valide les cinq colonnes de `smn_country` et lit jusqu'à 15 migrations. Ces deux blocages de publication ont été levés et vérifiés dans la branche. Les tests automatisés et la recette sur PostgreSQL 18.6 ne sont **pas attestés** : les workflows GitHub n'ont exécuté aucune étape. Le suivi Jira doit rester **En cours** jusqu'aux vérifications réelles.
 
 L'agent Amelia a lu le skill BMAD, mais le lanceur natif `bmad-build` (`uv run --no-cache`) n'a pas été exécuté faute de checkout local et de l'environnement `uv` ; travail manuel avec connecteurs. Ne pas prétendre au statut « Terminé » dans Jira avant recette.
