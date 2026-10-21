@@ -6,6 +6,7 @@ import {computeDevelopmentDay,parseCapacityPeriod,readDevelopmentCapacity,validH
 import {readCapacitySettings,updateCapacitySettings} from "../src/server/capacity/settings";
 import {CAPACITY_MIGRATION_SQL} from "../src/server/capacity/migration";
 import {canAccess} from "../src/server/access-policy";
+import {parseAssignmentInput} from "../src/server/members/assignment";
 const memberId="11111111-1111-4111-8111-111111111111";
 const assignmentId="22222222-2222-4222-8222-222222222222";
 const actorId="33333333-3333-4333-8333-333333333333";
@@ -22,6 +23,8 @@ function fixture(opts:Options={}){
  const versions=[{
   assignment_id:assignmentId,revision:1,effective_from:"2026-01-01",
   contract_percent:100,allocation_percent:100,contribution_percent:100,
+  scrum_master_percent:opts.percentScrumMaster?100:0,
+  product_owner_percent:opts.percentPO?100:0,
   developer_percent:opts.percentPO||opts.percentScrumMaster?0:100
  },...(opts.assignmentChanges?[{
   assignment_id:assignmentId,revision:2,effective_from:"2026-05-03",
@@ -120,6 +123,13 @@ describe("SMN-57 — calcul fiable des JH",()=>{
   assert.equal(f.sql.some(q=>/story.?point|sprint|kanban_indicator|INSERT|UPDATE/i.test(q)),false);
  });
  it("AC2 modifié — Scrum Master 100 % sans activité Développeur produit 0 JH",async()=>{
+  const assignment=parseAssignmentInput({
+   memberId,teamId,effectiveFrom:"2026-05-01",contractPercent:100,
+   allocationPercent:100,contributionPercent:100,revision:0,
+   shares:{scrumMaster:100,productOwner:0,developer:0}
+  });
+  assert.ok(assignment);
+  assert.deepEqual(assignment.shares,{scrumMaster:100,productOwner:0,developer:0});
   const f=fixture({percentScrumMaster:true});
   const report=await readDevelopmentCapacity(f.db,range.start,range.end);
   assert.equal(report.status,"calculated");
