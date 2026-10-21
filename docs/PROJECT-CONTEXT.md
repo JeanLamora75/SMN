@@ -1,6 +1,10 @@
 # Scrum Master Notebook — Contexte de référence du projet
 
-**Dernière consolidation : 19 octobre 2026.** Ce document est le point d'entrée des nouvelles conversations. Les règles détaillées résident dans le PRD, ses décisions et l'architecture ; Jira reste la référence des tickets.
+**Dernière consolidation fonctionnelle : 19 octobre 2026 ; décision qualité ajoutée le 21 octobre 2026.** Ce document est le point d'entrée des nouvelles conversations. Les règles détaillées résident dans le PRD, ses décisions et l'architecture ; Jira reste la référence des tickets.
+
+## Décision transversale de validation — 21 octobre 2026
+
+**Pour tous les agents BMAD et toutes les User Stories, GitHub Actions est désormais hors du circuit de validation (indisponible).** Ne pas planifier de tests automatisés sur GitHub, ni conditionner la progression à leurs résultats. Les tests restent à écrire et, lorsque l'environnement le permet, à exécuter localement avec preuves ; distinguer systématiquement code publié et recette attestée. La politique [Validation sans GitHub Actions](POLITIQUE-VALIDATION-SANS-GITHUB-ACTIONS.md) prévaut sur les anciennes exigences de CI contenues dans la documentation.
 
 ## 1. Lecture de reprise et ordre de référence
 
