@@ -95,7 +95,8 @@ export default function AssignmentEditor({memberId,teamId,onSaved,onCancel}:{
      <div className="col-md-4">
       <label htmlFor="effective-from" className="form-label">{t("members.assignment.effectiveFrom")}</label>
       <input id="effective-from" type="date" className="form-control" required
-       min={state.versions.at(-1)?.effectiveFrom??state.today}
+       min={state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.today?
+        state.versions.at(-1)!.effectiveFrom:state.today}
        value={draft.effectiveFrom} disabled={busy}
        onChange={e=>change("effectiveFrom",e.target.value)}/>
      </div>
@@ -126,7 +127,7 @@ export default function AssignmentEditor({memberId,teamId,onSaved,onCancel}:{
     <p className="small text-secondary">{t("members.assignment.rules")}</p>
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
     <div className="d-flex gap-2 flex-wrap">
-     <button type="submit" disabled={busy} className="btn btn-primary">
+     <button type="submit" disabled={busy||(!dirty&&state.versions.length>0)} className="btn btn-primary">
       {t(busy?"members.assignment.saving":"members.assignment.save")}</button>
      <button type="button" disabled={busy} className="btn btn-outline-secondary" onClick={cancel}>
       {t("members.profile.cancel")}</button>
