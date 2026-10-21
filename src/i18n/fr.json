@@ -1171,5 +1171,25 @@
     "memberCountry": "Pays du membre non renseigné pour cette date.",
     "nationalCoverage": "Couverture nationale insuffisante ou inconnue.",
     "disclaimer": "Disponibilité × taux d'affectation × part Développeur × coefficient de contribution. Le taux contractuel n'est pas remultiplié : il borne déjà le taux d'affectation. Aucun Story Point n'est converti en JH et aucun Sprint/Kanban n'est créé automatiquement."
+  },
+  "manualCapacity": {
+    "retained": "Capacité retenue",
+    "reference": "Référence calculée",
+    "provenance": "Provenance",
+    "sourceManual": "Saisie",
+    "sourceCalculated": "Calcul",
+    "sourceUnknown": "Non calculable",
+    "editTitle": "Arbitrage manuel de la capacité",
+    "input": "Capacité manuelle (JH)",
+    "empty": "Vide = aucune saisie manuelle",
+    "zeroHint": "0 JH est une valeur explicite valide. Pour revenir au calcul, utilisez « Effacer la saisie » : supprimer le texte du champ ne suffit pas.",
+    "save": "Enregistrer la saisie",
+    "clear": "Effacer la saisie",
+    "saved": "Capacité manuelle enregistrée ; elle reste prioritaire sur les recalculs.",
+    "cleared": "Saisie effacée et historisée. La référence calculée redevient prioritaire lorsqu'elle est fiable.",
+    "protected": "Période clôturée ou capacité initiale figée : correction directe interdite. Utilisez ultérieurement le workflow autorisé de réouverture ou d'ajustement historique.",
+    "invalid": "Entrez un nombre de JH positif ou nul (4 décimales au maximum), sans laisser le champ vide.",
+    "conflict": "Cette période a été modifiée depuis son ouverture. Recalculez pour récupérer sa dernière révision.",
+    "failed": "L'enregistrement n'a pas pu être confirmé. Rechargez la période avant de recommencer."
   }
 }
