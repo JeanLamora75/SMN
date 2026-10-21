@@ -4,6 +4,8 @@
 
 Une [replanification capacitaire SMN-62](REPLANIFICATION-CAPACITE-SMN-62.md) peut être simulée et confirmée sans écraser ni déplacer la saisie manuelle de cette période, y compris le zéro explicite.
 
+La [politique de préremplissage SMN-63](PREFILL-FORMULAIRES-SMN-63.md) conserve les choix enregistrés et demande confirmation avant l'abandon d'une saisie manuelle non enregistrée.
+
 ## Parcours Administrateur
 
 Depuis **Calendrier d'équipe → Calculer la capacité en JH**, choisir la fenêtre de dates puis cliquer sur **Calculer la capacité**. La page affiche trois informations distinctes :
