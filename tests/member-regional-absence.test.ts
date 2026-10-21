@@ -26,7 +26,6 @@ function dbFor(options:{country?:string|null;status?:string|null;holiday?:string
  const calls:string[]=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   calls.push(sql);
-  assert.equal(params[0],memberId===params[0]?memberId:params[0]);
   if(sql.includes("smn_member_calendar_week"))return {
    rowCount:options.week===false?0:1,
    rows:options.week===false?[]:[{revision:1,effective_from:"2026-01-01",
