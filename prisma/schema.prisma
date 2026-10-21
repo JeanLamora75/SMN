@@ -39,6 +39,7 @@ model SmnTeam {
   memberBatches SmnMemberBatch[]
   memberAssignments SmnMemberAssignment[]
   companyClosures SmnCompanyClosure[]
+  capacityOverrides SmnCapacityPeriodOverride[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -70,6 +71,8 @@ model SmnAccount {
   closureEdits SmnCompanyClosureHistory[]
   capacitySettingsEdits SmnCapacitySettings[]
   capacitySettingsAudit SmnCapacitySettingsAudit[]
+  capacityOverridesEdited SmnCapacityPeriodOverride[]
+  capacityOverridesHistory SmnCapacityPeriodOverrideHistory[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
@@ -404,4 +407,38 @@ model SmnCapacitySettingsAudit {
  actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
  @@unique([installationId,revision])
  @@map("smn_capacity_settings_audit")
+}
+
+model SmnCapacityPeriodOverride {
+ id String @id
+ teamId String @map("team_id")
+ startOn DateTime @map("start_on") @db.Date
+ endOn DateTime @map("end_on") @db.Date
+ manualJh Decimal? @map("manual_jh") @db.Decimal(12,4)
+ revision Int @default(1)
+ frozenAt DateTime? @map("frozen_at") @db.Timestamptz(6)
+ closedAt DateTime? @map("closed_at") @db.Timestamptz(6)
+ updatedBy String? @map("updated_by")
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ updater SmnAccount? @relation(fields:[updatedBy],references:[id],onDelete:SetNull)
+ history SmnCapacityPeriodOverrideHistory[]
+ @@unique([teamId,startOn,endOn])
+ @@index([teamId,startOn,endOn])
+ @@map("smn_capacity_period_override")
+}
+model SmnCapacityPeriodOverrideHistory {
+ id String @id
+ periodId String @map("period_id")
+ revision Int
+ operation String
+ beforeJh Decimal? @map("before_jh") @db.Decimal(12,4)
+ afterJh Decimal? @map("after_jh") @db.Decimal(12,4)
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ period SmnCapacityPeriodOverride @relation(fields:[periodId],references:[id],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
+ @@unique([periodId,revision])
+ @@index([periodId,changedAt])
+ @@map("smn_capacity_period_override_history")
 }

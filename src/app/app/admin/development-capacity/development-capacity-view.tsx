@@ -11,8 +11,13 @@ type Day={date:string;status:"calculated"|"not-calculable";
  contributionPercent:number|null;contractPercent:number|null;missing:MissingCode[]};
 type Member={memberId:string;displayName:string;status:string;totalJh:number|null;days:Day[]};
 type Report={start:string;end:string;hoursPerJh:number;team:{id:string;name:string;mode:string};
- status:"calculated"|"not-calculable";totalJh:number|null;
+ status:"calculated"|"not-calculable";totalJh:number|null;selection:Selection;
  missing:{date:string|null;memberId:string|null;source:MissingCode}[];members:Member[]};
+type Selection={
+ start:string;end:string;manualJh:number|null;referenceJh:number|null;
+ retainedJh:number|null;source:"Saisie"|"Calcul"|"Non calculable";
+ revision:number;frozen:boolean;closed:boolean;updatedAt:string|null;
+};
 type Setting={hoursPerJh:number;revision:number;updatedAt:string};
 const todayLocal=()=>{const d=new Date();return d.getFullYear()+"-"+
  String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
@@ -35,8 +40,15 @@ export default function DevelopmentCapacityView(){
  const [error,setError]=useState("");
  const [settingsError,setSettingsError]=useState("");
  const [showDays,setShowDays]=useState(false);
+ const [manualDraft,setManualDraft]=useState("");
+ const [manualBusy,setManualBusy]=useState(false);
+ const [manualError,setManualError]=useState("");
+ const [manualSaved,setManualSaved]=useState("");
  const dirty=settings!==null&&hours!==String(settings.hoursPerJh);
- useUnsavedChanges(dirty||settingsBusy,t("draft.leaveWarning"));
+ const manualDirty=report!==null&&
+  manualDraft!==(report.selection.manualJh===null?"":String(report.selection.manualJh));
+ useUnsavedChanges(dirty||settingsBusy||manualDirty||manualBusy,
+  t("draft.leaveWarning"));
  useEffect(()=>{
   let live=true;
   void fetch("/api/admin/capacity-settings",{cache:"no-store"})
@@ -56,9 +68,42 @@ export default function DevelopmentCapacityView(){
    }
    const data=await res.json() as Report;
    if(!Array.isArray(data.members)||!Array.isArray(data.missing))throw Error("invalid");
+   if(!data.selection||typeof data.selection.revision!=="number")
+    throw Error("invalid-capacity-selection");
    setReport(data);
+   setManualDraft(data.selection.manualJh===null?"":String(data.selection.manualJh));
+   setManualError("");setManualSaved("");
   }catch{setError(t("developmentCapacity.loadError"));}
   finally{setBusy(false);}
+ };
+ const updateManual=async(action:"set"|"clear")=>{
+  if(!report||manualBusy)return;
+  if(report.selection.frozen||report.selection.closed)return;
+  setManualError("");setManualSaved("");
+  const parsed=Number(manualDraft);
+  if(action==="set"&&(manualDraft.trim()===""||!Number.isFinite(parsed)||
+    parsed<0||parsed>99999999.9999||
+    Math.abs(Math.round(parsed*10000)-parsed*10000)>1e-6)){
+   setManualError(t("manualCapacity.invalid"));return;
+  }
+  setManualBusy(true);
+  try{
+   const input={action,start:report.start,end:report.end,
+    revision:report.selection.revision,
+    ...(action==="set"?{manualJh:parsed}:{})};
+   const response=await fetch("/api/admin/development-capacity",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(input)
+   });
+   if(!response.ok){
+    setManualError(t(response.status===423?"manualCapacity.protected":
+     response.status===409?"manualCapacity.conflict":"manualCapacity.failed"));
+    return;
+   }
+   await load();
+   setManualSaved(t(action==="set"?"manualCapacity.saved":"manualCapacity.cleared"));
+  }catch{setManualError(t("manualCapacity.failed"));}
+  finally{setManualBusy(false);}
  };
  const saveSettings=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(!settings||settingsBusy)return;
@@ -121,9 +166,38 @@ export default function DevelopmentCapacityView(){
    <section className="smn-panel p-3 d-grid gap-3" aria-labelledby="capacity-result">
     <h2 id="capacity-result" className="h5">{t("developmentCapacity.result")}</h2>
     <p>{t("developmentCapacity.team",{team:report.team.name})}</p>
-    {report.status==="calculated"&&report.totalJh!==null?
-     <p className="h4">{fmt(report.totalJh)} {t("developmentCapacity.unitJh")}</p>:
+    <p className="h6">{t("manualCapacity.retained")}</p>
+    {report.selection.retainedJh!==null?
+     <p className="h4">{fmt(report.selection.retainedJh)} {t("developmentCapacity.unitJh")}</p>:
      <p className="alert alert-warning" role="status">{t("developmentCapacity.notCalculable")}</p>}
+    <p>{t("manualCapacity.provenance")} : <strong>{t(report.selection.source==="Saisie"?
+     "manualCapacity.sourceManual":report.selection.source==="Calcul"?
+     "manualCapacity.sourceCalculated":"manualCapacity.sourceUnknown")}</strong></p>
+    <p>{t("manualCapacity.reference")} : {report.totalJh===null?
+     t("developmentCapacity.notCalculable"):fmt(report.totalJh)+" "+t("developmentCapacity.unitJh")}</p>
+    <div className="border-top pt-3">
+     <h3 className="h6">{t("manualCapacity.editTitle")}</h3>
+     {report.selection.frozen||report.selection.closed?
+      <p className="alert alert-warning" role="status">{t("manualCapacity.protected")}</p>:
+      <div className="d-grid gap-2">
+       <label className="form-label" htmlFor="capacity-manual-jh">
+        {t("manualCapacity.input")}</label>
+       <input id="capacity-manual-jh" type="number" min="0" max="99999999.9999"
+        step="0.0001" className="form-control" value={manualDraft}
+        disabled={manualBusy} onChange={e=>setManualDraft(e.target.value)}
+        placeholder={t("manualCapacity.empty")}/>
+       <p className="small text-secondary">{t("manualCapacity.zeroHint")}</p>
+       <div className="d-flex flex-wrap gap-2">
+        <button className="btn btn-primary" type="button" disabled={manualBusy}
+         onClick={()=>void updateManual("set")}>{t("manualCapacity.save")}</button>
+        <button className="btn btn-outline-secondary" type="button"
+         disabled={manualBusy||report.selection.manualJh===null}
+         onClick={()=>void updateManual("clear")}>{t("manualCapacity.clear")}</button>
+       </div>
+      </div>}
+     {manualError&&<p className="alert alert-warning" role="alert">{manualError}</p>}
+     {manualSaved&&<p className="alert alert-success" role="status">{manualSaved}</p>}
+    </div>
     <p className="small text-secondary">
      {t("developmentCapacity.hoursUsed",{hours:report.hoursPerJh})}</p>
     {report.missing.length>0&&<div>
