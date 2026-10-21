@@ -658,7 +658,7 @@
     "notCalculated": "Non calculable",
     "provisional": "À compléter",
     "provisionalName": "Membre {number}",
-    "futureEdits": "Les calendriers, les rôles Agile, les affectations et les capacités seront enrichis dans les prochaines fonctionnalités.",
+    "futureEdits": "Les calendriers, absences et calculs de capacité seront enrichis dans les prochaines fonctionnalités.",
     "created": "{count} fiches membres et leurs affectations ont été créées.",
     "recovered": "Le lot existait déjà : {count} membres retrouvés sans duplication.",
     "alreadyInitialized": "Une composition initiale existe déjà. Aucune nouvelle fiche n'a été créée.",
@@ -691,6 +691,32 @@
       "conflict": "La fiche a été modifiée depuis votre dernière lecture. Rechargez la liste avant de recommencer.",
       "notFound": "Cette fiche n'est plus disponible.",
       "failed": "Enregistrement non confirmé. Vérifiez la fiche avant de retenter."
+    },
+    "assignment": {
+      "edit": "Gérer l'affectation",
+      "heading": "Affectation et rôles datés",
+      "intro": "L'affectation concerne l'équipe unique. Les changements sont enregistrés comme de nouvelles versions à date d'effet, sans réécrire les versions passées.",
+      "loading": "Chargement de l'affectation…",
+      "loadFailed": "Impossible de lire ou recharger l'affectation.",
+      "effectiveFrom": "Date d'effet",
+      "contract": "Temps contractuel (%)",
+      "allocation": "Affectation à l'équipe (%)",
+      "contribution": "Coefficient de contribution (%)",
+      "sharesTitle": "Répartition des rôles Agile (%)",
+      "rules": "Les parts des rôles doivent totaliser exactement 100 %. L'affectation ne peut pas dépasser le temps contractuel. Une part Développeur de 0 % ne crée aucune capacité de développement. Les modifications ne sont pas rétroactives.",
+      "save": "Enregistrer la version datée",
+      "saving": "Enregistrement…",
+      "saved": "La nouvelle version a été enregistrée et l'historique conservé.",
+      "invalidShares": "Vérifiez les pourcentages : nombres de 0 à 100, somme des rôles 100 %, affectation au plus égale au temps contractuel.",
+      "invalidDate": "La date d'effet ne peut pas être antérieure à aujourd'hui ou à la dernière version enregistrée.",
+      "conflict": "Modification impossible : conflit de version, date d'effet dépassée ou affectation déjà clôturée. Rechargez le formulaire avant une nouvelle tentative.",
+      "notFound": "Le membre ou l'équipe n'est plus disponible.",
+      "failed": "L'enregistrement n'a pas pu être confirmé. Vérifiez l'historique avant de réessayer.",
+      "history": "Historique des versions",
+      "empty": "Aucune version enregistrée.",
+      "version": "Révision",
+      "shareSummary": "SM {sm} % · PO {po} % · Dev {dev} %",
+      "historyNote": "Les corrections réalisées le même jour conservent toutes leurs révisions ; la plus récente s'applique pour cette date. Une version future n'est appliquée qu'à compter de sa date d'effet."
     }
   }
 }

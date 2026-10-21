@@ -10,6 +10,7 @@ import {ACCOUNT_AUDIT_MIGRATION,ACCOUNT_AUDIT_MIGRATION_SQL} from "../audit/acco
 import {BACKUP_RETENTION_MIGRATION,BACKUP_RETENTION_MIGRATION_SQL} from "../backup/retention-migration";
 import {MEMBERS_MIGRATION,MEMBERS_MIGRATION_SQL} from "../members/migration";
 import {MEMBER_PROFILE_MIGRATION,MEMBER_PROFILE_MIGRATION_SQL} from "../members/profile-migration";
+import {ASSIGNMENT_MIGRATION,ASSIGNMENT_MIGRATION_SQL} from "../members/assignment-migration";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -31,7 +32,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       "SELECT schema_version,state FROM public.smn_installation WHERE id='singleton' FOR UPDATE");
     if (records.rowCount !== 1 || records.rows[0].state !== "initialized") throw new Error("smn-schema-not-ready");
     let version=records.rows[0].schema_version;
-    if (![1,2,3,4,5,6,7,8,9,10].includes(version)) throw new Error("smn-schema-incompatible");
+    if (![1,2,3,4,5,6,7,8,9,10,11].includes(version)) throw new Error("smn-schema-incompatible");
     const migrations = await client.query<{migration_name:string;checksum:string;finished_at:Date|null;rolled_back_at:Date|null}>(
       "SELECT migration_name,checksum,finished_at,rolled_back_at FROM public._prisma_migrations ORDER BY migration_name");
     const applied=(name:string,sql:string)=>migrations.rows.some(x=>x.migration_name===name &&
@@ -184,6 +185,23 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       WHERE table_schema='public' AND table_name='smn_member' AND
       column_name IN ('email','revision','updated_at')`);
     if(profileColumns.rows[0]?.count!=="3")throw new Error("smn-schema-incompatible");
+    if(version===10){
+      await client.query(ASSIGNMENT_MIGRATION_SQL);
+      await client.query(`INSERT INTO public._prisma_migrations
+        (id,checksum,finished_at,migration_name,applied_steps_count)
+        VALUES($1,$2,now(),$3,1)`,
+        [randomUUID(),checksum(ASSIGNMENT_MIGRATION_SQL),ASSIGNMENT_MIGRATION]);
+      version=11;
+    }else if(!applied(ASSIGNMENT_MIGRATION,ASSIGNMENT_MIGRATION_SQL)){
+      throw new Error("smn-schema-incompatible");
+    }
+    const assignmentVersionColumns=await client.query<{count:string}>(`
+     SELECT count(*)::text AS count FROM information_schema.columns
+     WHERE table_schema='public' AND table_name='smn_member_assignment_version'
+      AND column_name IN ('id','assignment_id','revision','effective_from','allocation_percent',
+       'contract_percent','contribution_percent','scrum_master_percent','product_owner_percent',
+       'developer_percent','created_by','created_at')`);
+    if(assignmentVersionColumns.rows[0]?.count!=="12")throw new Error("smn-schema-incompatible");
     await client.query("COMMIT");
   } catch(error) {
     await client.query("ROLLBACK").catch(()=>undefined);

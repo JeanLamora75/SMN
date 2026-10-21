@@ -658,7 +658,7 @@
     "notCalculated": "Not calculable",
     "provisional": "To complete",
     "provisionalName": "Member {number}",
-    "futureEdits": "Calendars, Agile roles, assignments and capacities will be enriched in subsequent features.",
+    "futureEdits": "Calendars, absences and capacity calculations will be enriched in future features.",
     "created": "Created {count} member records and assignments.",
     "recovered": "Existing batch recovered: {count} members, no duplicates.",
     "alreadyInitialized": "An initial roster already exists. No additional record was created.",
@@ -691,6 +691,32 @@
       "conflict": "This profile was updated after your last read. Reload the roster before trying again.",
       "notFound": "This member is no longer available.",
       "failed": "Save could not be confirmed. Check the member profile before retrying."
+    },
+    "assignment": {
+      "edit": "Manage assignment",
+      "heading": "Dated assignment and roles",
+      "intro": "This assignment belongs to the single team. Changes are saved as new effective-dated versions, without rewriting past versions.",
+      "loading": "Loading assignment…",
+      "loadFailed": "Could not load or refresh the assignment.",
+      "effectiveFrom": "Effective date",
+      "contract": "Contracted time (%)",
+      "allocation": "Team allocation (%)",
+      "contribution": "Contribution coefficient (%)",
+      "sharesTitle": "Agile role allocation (%)",
+      "rules": "Role shares must total exactly 100%. Team allocation must not exceed contracted time. A 0% Developer share does not contribute any development capacity. Changes are not retroactive.",
+      "save": "Save dated version",
+      "saving": "Saving…",
+      "saved": "The new version was saved and the history preserved.",
+      "invalidShares": "Check percentages: whole numbers from 0 to 100, total role shares 100%, team allocation at most the contracted time.",
+      "invalidDate": "The effective date cannot precede today or the latest recorded version.",
+      "conflict": "Cannot save: revision conflict, invalid effective date or closed assignment. Reload before trying again.",
+      "notFound": "The member or team is unavailable.",
+      "failed": "Save could not be confirmed. Check history before retrying.",
+      "history": "Version history",
+      "empty": "No version recorded.",
+      "version": "Revision",
+      "shareSummary": "SM {sm}% · PO {po}% · Dev {dev}%",
+      "historyNote": "Corrections on the same day retain every revision; the latest applies to that date. A future version takes effect only on its chosen date."
     }
   }
 }

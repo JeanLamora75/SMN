@@ -4,11 +4,12 @@ import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import MemberProfileEditor,{type EditableMember} from "./member-profile-editor";
+import AssignmentEditor from "./assignment-editor";
 
 type AgileRole="scrum_master"|"product_owner"|"developer";
 type Member={id:string;memberNumber:number;displayName:string;email:string|null;revision:number;isProvisional:boolean;
  agileRole:AgileRole;startOn:string;contractPercent:number;allocationPercent:number;
- rolePercent:number;contributionPercent:number;developmentCapacityJh:null};
+ rolePercent:number;contributionPercent:number;roleShares:{scrumMaster:number;productOwner:number;developer:number};developmentCapacityJh:null};
 type Roster={team:{id:string;name:string;mode:"scrum"|"kanban"};members:Member[]};
 type State="loading"|"ready"|"error";
 const MAX_COUNT=50;
@@ -20,6 +21,7 @@ export default function QuickMembersAdmin(){
  const [count,setCount]=useState("3");
  const [busy,setBusy]=useState(false);
  const [editingId,setEditingId]=useState<string|null>(null);
+ const [assigningId,setAssigningId]=useState<string|null>(null);
  const [message,setMessage]=useState("");
  const [error,setError]=useState(false);
  const requestId=useRef<string|null>(null);
@@ -44,6 +46,25 @@ export default function QuickMembersAdmin(){
  },[]);
  const dirty=count!=="3"&&roster?.members.length===0;
  const selectedMember=roster?.members.find(m=>m.id===editingId)??null;
+ const selectedAssignment=roster?.members.find(m=>m.id===assigningId)??null;
+ const savedAssignment=()=>{
+  setAssigningId(null);
+  void refresh().then(()=>{setMessage(t("members.assignment.saved"));setError(false);})
+   .catch(()=>{setMessage(t("members.assignment.loadFailed"));setError(true);});
+ };
+ const rolesSummary=(member:Member)=>{
+  const shares=member.roleShares??{
+   scrumMaster:member.agileRole==="scrum_master"?100:0,
+   productOwner:member.agileRole==="product_owner"?100:0,
+   developer:member.agileRole==="developer"?100:0
+  };
+  return ([
+   ["scrumMaster","members.roles.scrumMaster"],
+   ["productOwner","members.roles.productOwner"],
+   ["developer","members.roles.developer"]
+  ] as const).filter(([key])=>shares[key]>0)
+   .map(([key,label])=>t(label)+" "+shares[key]+" %").join(" · ");
+ };
  const savedProfile=(updated:EditableMember)=>{
   setRoster(current=>current?{...current,members:current.members.map(member=>
    member.id===updated.id?{...member,...updated}:member)}:current);
@@ -51,10 +72,6 @@ export default function QuickMembersAdmin(){
  };
  useUnsavedChanges(Boolean(dirty||busy),t("draft.leaveWarning"));
  const membersCreated=Boolean(roster&&roster.members.length>0);
- function roleLabel(role:AgileRole){
-  return t(role==="scrum_master"?"members.roles.scrumMaster":
-    role==="product_owner"?"members.roles.productOwner":"members.roles.developer");
- }
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(!roster||membersCreated||busy)return;
@@ -150,20 +167,30 @@ export default function QuickMembersAdmin(){
        t("members.provisionalName",{number:member.memberNumber}):member.displayName}</strong>
        <span className="small text-secondary d-block">{t(member.isProvisional?
         "members.provisional":"members.profile.confirmed")}</span></td>
-      <td>{roleLabel(member.agileRole)}</td>
+      <td>{rolesSummary(member)}</td>
       <td><time dateTime={member.startOn}>{member.startOn}</time></td>
       <td>{t("members.percentValue",{value:member.allocationPercent})}</td>
       <td>{t("members.notCalculated")}</td>
       <td>{member.email??t("members.profile.noEmail")}</td>
       <td><button type="button" className="btn btn-outline-primary btn-sm"
-       disabled={busy||editingId!==null}
+       disabled={busy||editingId!==null||assigningId!==null}
        onClick={()=>{setMessage("");setEditingId(member.id);}}>
        {t("members.profile.edit")}
+      </button>
+      <button type="button" className="btn btn-outline-primary btn-sm mt-1"
+       disabled={busy||editingId!==null||assigningId!==null}
+       onClick={()=>{setMessage("");setAssigningId(member.id);}}>
+       {t("members.assignment.edit")}
       </button></td>
      </tr>)}</tbody>
     </table>
    </div>
    <p className="small text-secondary mb-0">{t("members.futureEdits")}</p>
+   {selectedAssignment&&roster&&<div className="mt-4">
+    <AssignmentEditor key={selectedAssignment.id} memberId={selectedAssignment.id}
+     teamId={roster.team.id} onSaved={savedAssignment}
+     onCancel={()=>setAssigningId(null)}/>
+   </div>}
    {selectedMember&&<div className="mt-4">
     <MemberProfileEditor key={selectedMember.id} member={selectedMember}
      onSaved={savedProfile} onCancel={()=>setEditingId(null)}/>

@@ -10,6 +10,7 @@ function fixture(options:{existing?:number;failAt?:number;batch?:boolean}={}){
  const sql:string[]=[],params:unknown[][]=[];let insertion=0;
  const db={query:async(query:string,values:unknown[]=[])=>{
   sql.push(query);params.push(values);
+  if(query.includes("CURRENT_DATE::text AS today"))return {rowCount:1,rows:[{today:"2026-10-21"}]};
   if(query.includes("FROM public.smn_team t"))return {rowCount:1,rows:[{team_id:"team",team_name:"Produit Scrum",mode:"scrum"}]};
   if(query.includes("FROM public.smn_member_batch WHERE id="))
    return options.batch?{rowCount:1,rows:[{id:values[0],team_id:"team",requested_count:5,created_by:"admin"}]}:{rowCount:0,rows:[]};
@@ -70,7 +71,8 @@ describe("Création rapide des membres initiaux",()=>{
    assert.ok(result.members.every(m=>m.developmentCapacityJh===null));
   }
   assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member\n")).length,5);
-  assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member_assignment")).length,5);
+  assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member_assignment\n")).length,5);
+  assert.equal(sql.filter(x=>x.includes("INSERT INTO public.smn_member_assignment_version")).length,5);
   assert.equal(sql.at(-1),"COMMIT");
   assert.ok(sql.every(q=>!q.includes("INSERT INTO public.smn_account")));
   assert.equal(params.find((v,i)=>sql[i].includes("INSERT INTO public.smn_member_batch"))?.[2],5);
