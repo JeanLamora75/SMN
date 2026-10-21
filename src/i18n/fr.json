@@ -506,7 +506,8 @@
       "cyclesUnknown": "Cycles (mode indisponible)",
       "audit": "Journal des opérations",
       "backups": "Sauvegardes",
-      "members": "Membres de l'équipe"
+      "members": "Membres de l'équipe",
+      "countries": "Pays"
     }
   },
   "detail": {
@@ -850,5 +851,24 @@
       "invalidInstant": "Instant UTC invalide : utilisez par exemple 2027-03-28T01:30:00Z.",
       "nationalOnly": "Les futurs jours fériés automatiques concernent uniquement le pays. Les particularités régionales seront traitées comme absences individuelles ; aucun calendrier régional automatique n'est créé."
     }
+  },
+  "countries": {
+    "title": "Catalogue des pays",
+    "intro": "Consulter les sept pays initiaux et ajouter de nouveaux pays sans fichier de jours fériés obligatoire.",
+    "addTitle": "Ajouter un pays",
+    "code": "Code ISO à deux lettres",
+    "name": "Nom du pays",
+    "add": "Ajouter au catalogue",
+    "listTitle": "Pays disponibles",
+    "calendarStatus": "Calendrier national",
+    "notConfigured": "Non configuré",
+    "unknownNotZero": "Non configuré signifie que les données de jours fériés sont absentes : cela ne signifie pas zéro jour férié.",
+    "duplicate": "Ce code pays existe déjà.",
+    "invalid": "Code ISO ou nom invalide.",
+    "failed": "L'opération n'a pas pu être confirmée.",
+    "saved": "Pays ajouté au catalogue.",
+    "noHolidayRequired": "L'ajout n'exige aucun calendrier national ni fichier de jours fériés.",
+    "loading": "Chargement…",
+    "loadFailed": "Impossible de charger les pays."
   }
 }
