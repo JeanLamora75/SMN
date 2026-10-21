@@ -22,10 +22,13 @@ const item=(values:typeof allDay,reason="Fête régionale"):AbsenceItem=>({
  isPlanned:true,reason,createdAt:"2026-04-01",updatedAt:"2026-04-01"
 });
 function dbFor(options:{country?:string|null;status?:string|null;holiday?:string|null;
- week?:boolean;exception?:boolean}={}){
+ week?:boolean;exception?:boolean;assignment?:boolean}={}){
  const calls:string[]=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   calls.push(sql);
+  if(sql.includes("smn_member_assignment"))return {
+   rowCount:1,rows:[{team_count:options.assignment===false?0:1}]
+  };
   if(sql.includes("smn_member_calendar_week"))return {
    rowCount:options.week===false?0:1,
    rows:options.week===false?[]:[{revision:1,effective_from:"2026-01-01",
@@ -100,6 +103,7 @@ describe("jour régional traité comme absence individuelle",()=>{
   const state=await readMemberDayAvailability(fixture.db,memberId,national,[item(allDay)]);
   assert.equal(state.countryIso2,"FR");
   assert.equal(state.nationalHoliday,true);
+  assert.equal(state.assignmentApplicable,true);
   assert.equal(state.nationalHolidayName,"Fête du Travail");
   assert.equal(state.deductedHalfDays,2);
   assert.equal(state.nationalOverlap,true);
@@ -121,6 +125,12 @@ describe("jour régional traité comme absence individuelle",()=>{
   const withoutWeek=await readMemberDayAvailability(dbFor({week:false}).db,
    memberId,national,[item(allDay)]);
   assert.equal(withoutWeek.deductedHalfDays,null);
+ });
+ it("identifie une absence sans affectation applicable sans inventer une deuxième équipe",async()=>{
+  const state=await readMemberDayAvailability(dbFor({assignment:false}).db,
+   memberId,national,[item(allDay)]);
+  assert.equal(state.assignmentApplicable,false);
+  assert.equal(state.nationalOverlap,true);
  });
  it("respecte les exceptions individuelles pour décompter seulement les créneaux travaillés",async()=>{
   const fixture=dbFor({exception:true});
