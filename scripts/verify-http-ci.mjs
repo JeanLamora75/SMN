@@ -477,7 +477,7 @@ try {
       mode:"scrum",product:"Produit de recette CI"});
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
-    )).rows[0].schema_version)),12);
+    )).rows[0].schema_version)),13);
     // SMN-20 — registre de configuration strictement privé aux administrateurs.
     const readChecklist=async(cookie=replacement)=>{
       const response=await get("/api/admin/configuration-tasks",{headers:{Cookie:cookie}});
