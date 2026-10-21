@@ -72,7 +72,7 @@ describe("Importer CSV national — prévisualisation et confirmation",()=>{
   if(r.ok){
    assert.equal(r.preview.proposed,2);
    assert.equal(r.preview.rejected,6);
-   assert.deepEqual(r.preview.rows.slice(1).map(x=>x.reason),
+   assert.deepEqual(r.preview.rows.filter(x=>x.reason).map(x=>x.reason),
     ["duplicate-in-file","invalid-date","invalid-name","country-mismatch","country-mismatch","column-count"]);
   }
   assert.equal(f.holidays.size,0);
