@@ -847,7 +847,7 @@
       "convert": "Show local time",
       "eventResult": "Instant: {utc} · Local display: {local} ({zone})",
       "missingZone": "No time zone recorded for this event; local time cannot be inferred.",
-      "invalidInstant": "Invalid UTC instant: use for example 2026-03-29T01:30:00Z.",
+      "invalidInstant": "Invalid UTC instant: use for example 2027-03-28T01:30:00Z.",
       "nationalOnly": "Future automatic holidays apply only at country level. Regional specifics will be individual absences; there is no automatic regional calendar."
     }
   }
