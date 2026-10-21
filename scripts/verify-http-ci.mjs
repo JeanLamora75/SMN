@@ -93,6 +93,8 @@ try {
   assert.equal(new URL(privateResponse.headers.get("location"), base).pathname, "/login");
   const french = await (await get("/", { headers: { "Accept-Language": "fr-FR" } })).text();
   assert.match(french, /<html lang="fr"/);
+  assert.match(french, /href="#smn-main"/);
+  assert.match(french, /id="smn-main"/);
   assert.match(french, /Base SMN vierge/);
   assert.match(french, /href="\/welcome"/);
   const english = await (await get("/", { headers: { "Accept-Language": "en-US" } })).text();
@@ -339,6 +341,8 @@ try {
     const privateHtml = await privatePage.text();
     assert.match(privateHtml, /(Vue d.{1,15}ensemble|Overview)/i);
     assert.match(privateHtml, /Produit de recette CI/);
+    assert.match(privateHtml, /href="#smn-main"/);
+    assert.match(privateHtml, /id="smn-main"/);
     assert.match(privateHtml, /Equipe CI/);
     assert.match(privateHtml.replace(/<!--.*?-->/g, ""), /(Aucun sprint enregistr|No sprint has been recorded)/i);
     assert.doesNotMatch(privateHtml, /admin@localhot.com/);

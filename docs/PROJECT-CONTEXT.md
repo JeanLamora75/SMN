@@ -129,3 +129,10 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 ## SMN-24 — Thèmes Bootstrap clair/sombre (21/10/2026)
 
 [PR #19](https://github.com/JeanLamora75/SMN/pull/19) fusionnée dans `main`. Le thème global `light`/`dark` est lu depuis les paramètres généraux existants, appliqué sur `<html data-bs-theme>` et répercuté aux variables Bootstrap/SMN et composants privés. Deux palettes fixes vérifiées pour les contrastes ; aucune couleur arbitraire, migration ou modification des données métier. Un changement du thème dans l'administration recharge l'interface. Voir [docs/THEMES-SMN-24.md](THEMES-SMN-24.md). Tests écrits, **CI et recette Windows non exécutées** ; Jira reste En cours.
+
+## SMN-25 — Responsive et accessibilité du socle (21/10/2026)
+
+- [Jira SMN-25](https://lmn24.atlassian.net/browse/SMN-25) ; détails [docs/RESPONSIVE-ACCESSIBILITE-SMN-25.md](RESPONSIVE-ACCESSIBILITE-SMN-25.md).
+- Lien d'évitement partagé défini au layout racine (`#smn-main`) ; pages publiques possèdent désormais ce landmark, la page privée l'avait déjà.
+- Présentation mobile en fiches pour les comptes administrés, sans colonnes de contrôle cachées ; focus global visible, messages des formulaires liés et annonces erreur/statut explicites, préférence réduction des animations.
+- Les futurs écrans métier doivent respecter ce contrat responsive et clavier. Aucune recette appareil réel, navigation clavier de bout en bout, audit lecteur d'écran ou attestation de conformité WCAG à ce stade.
