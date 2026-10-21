@@ -554,6 +554,30 @@ try {
      [memberWithRoles.id]
     )).rows[0].count);
     assert.equal(history,3);
+    // SMN-48: country catalog is independent from holiday files.
+    const countriesUrl="/api/admin/countries";
+    const countriesGet=(cookie=replacement)=>get(countriesUrl,{headers:cookie?{Cookie:cookie}:{}});
+    const countriesPost=(input,cookie=replacement)=>postAuth(countriesUrl,input,cookie);
+    assert.equal((await countriesGet("")).status,403);
+    const seeded=await countriesGet();
+    assert.equal(seeded.status,200);
+    const initialCountries=(await seeded.json()).countries;
+    assert.deepEqual(initialCountries.map(c=>c.code),["CA","DE","ES","FR","GB","IT","PT"]);
+    assert.ok(initialCountries.every(c=>c.nationalCalendar.status==="not-configured"&&
+      c.nationalCalendar.holidays===null));
+    assert.equal((await countriesPost({code:"XX",name:"Pays imaginaire"})).status,400);
+    const addedCountry=await countriesPost({code:"NL",name:"Pays-Bas"});
+    assert.equal(addedCountry.status,201);
+    const savedCountry=(await addedCountry.json()).country;
+    assert.equal(savedCountry.code,"NL");
+    assert.equal(savedCountry.nationalCalendar.status,"not-configured");
+    assert.equal((await countriesPost({code:"nl",name:"Doublon"})).status,409);
+    const expandedCountries=(await (await countriesGet()).json()).countries;
+    assert.equal(expandedCountries.length,8);
+    assert.equal(expandedCountries.find(c=>c.code==="NL").name,"Pays-Bas");
+    assert.equal((await withDb(async client=>(await client.query(
+      "SELECT count(*)::int AS count FROM public.smn_country WHERE code='NL'"
+    )).rows[0].count)),1);
     const initialBackupStatus=await get("/api/admin/backups",{headers:{Cookie:replacement}});
     assert.equal(initialBackupStatus.status,200);
     assert.equal((await initialBackupStatus.json()).needsRecoveryPhrase,true);
@@ -837,6 +861,8 @@ try {
     assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/members",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await getVersions(userReady)).status,403);
+    assert.equal((await countriesGet(userReady)).status,403);
+    assert.equal((await countriesPost({code:"BE",name:"Belgique"},userReady)).status,403);
     assert.equal((await locationRead(memberWithRoles.id,userReady)).status,403);
     assert.equal((await locationWrite(memberWithRoles.id,{
       ...initialLocation,revision:2,effectiveFrom:futureLocationDate
