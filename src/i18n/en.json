@@ -442,7 +442,8 @@
       "users": "User accounts",
       "settings": "General settings",
       "cyclesUnknown": "Cycles (mode unavailable)",
-      "audit": "Operations log"
+      "audit": "Operations log",
+      "backups": "Backups"
     }
   },
   "detail": {
@@ -501,5 +502,24 @@
       "palette": "Palette",
       "referenceCountry": "Reference country"
     }
+  },
+  "backups": {
+    "title": "Manual backup",
+    "intro": "Create an encrypted package of the PostgreSQL database and the private documents actually stored.",
+    "back": "Back to dashboard",
+    "encryptionInfo": "Backups are encrypted and kept in a private local folder, without anonymous downloads. Success means a completed capture, not a tested restore.",
+    "phraseWarning": "First backup: choose a recovery phrase different from your administrator password. Store it safely. If both this phrase and the local key are lost, encrypted backups may be unrecoverable.",
+    "phraseLabel": "Backup recovery phrase",
+    "phraseHelp": "At least 20 characters. This phrase protects a recovery copy of the key included in each backup package. Later backups will not request it again.",
+    "lastResult": "Last attempt",
+    "successStatus": "Successful",
+    "failedStatus": "Failed",
+    "identifier": "Reference",
+    "start": "Create backup",
+    "running": "Backup in progress…",
+    "success": "Encrypted backup created successfully.",
+    "failed": "Backup failed: no incomplete package is considered valid.",
+    "unavailable": "The backup service is unavailable.",
+    "notRestored": "A completed backup is not a verified restore. A restore in an isolated environment must be tested before claiming recoverability."
   }
 }
