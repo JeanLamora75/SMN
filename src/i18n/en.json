@@ -1450,5 +1450,19 @@
     "done": "{count} Sprint(s) removed.",
     "error": "Removal service unavailable.",
     "refused": "Removal refused: a Sprint started, changed or is no longer eligible."
+  },
+  "sprintStates": {
+    "title": "Sprint states",
+    "intro": "Upcoming, In progress and Finished are reconciled when viewed. Closure is always manual.",
+    "refresh": "Refresh",
+    "name": "Sprint",
+    "status": "State",
+    "range": "UTC boundaries",
+    "planned": "Upcoming",
+    "active": "In progress",
+    "finished": "Finished",
+    "closed": "Closed",
+    "suspended": "Upcoming (suspended)",
+    "error": "Unable to reconcile Sprint states."
   }
 }
