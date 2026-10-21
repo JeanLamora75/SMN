@@ -2,6 +2,8 @@
 
 **Story Jira :** https://lmn24.atlassian.net/browse/SMN-24 — Story 1.15 de l'Epic SMN-1
 
+**Code fusionné dans `main` :** [PR #19](https://github.com/JeanLamora75/SMN/pull/19) (socle des thèmes clair/sombre), [PR #20](https://github.com/JeanLamora75/SMN/pull/20) (palettes d'accent persistées, migration v6). **Tests CI/Windows non attestés.**
+
 ## Fonctionnement
 
 Dans **Administration → Paramètres généraux**, un Administrateur peut désormais sélectionner un **thème global** (Clair, Sombre) et une **palette prédéfinie** (Océan, Forêt ou Violet). La sauvegarde est une transaction PostgreSQL auditée et protégée par révision optimiste (HTTP 409 si configuration concurrente). Un choix invalide déclenche HTTP 400 avant toute écriture ; le serveur n'accepte aucun code hexadécimal ou CSS venant du navigateur. Les préférences sont visibles après rechargement et navigation. Les anciennes requêtes PATCH de SMN-18 sans palette sont supportées et préservent la palette enregistrée.

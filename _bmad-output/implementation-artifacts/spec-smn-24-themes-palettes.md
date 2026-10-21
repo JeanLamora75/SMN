@@ -10,4 +10,4 @@
 
 **Tests créés/élargis :** `tests/appearance.test.ts`, `tests/general-settings.test.ts`, `tests/installation-diagnostic.test.ts`, `scripts/verify-http-ci.mjs`.
 
-**Statut BMAD :** développement réalisé ; qualification CI, tests réels et recette Windows en attente.
+**Statut BMAD :** développement intégré à `main` par les [PR #19](https://github.com/JeanLamora75/SMN/pull/19) et [PR #20](https://github.com/JeanLamora75/SMN/pull/20) ; qualification CI, tests réels et recette Windows toujours en attente.

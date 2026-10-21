@@ -140,3 +140,5 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - L'écran `/app/admin/settings` permet à l'Administrateur de modifier le thème et la palette ; validation serveur, contrôle de révision concurrente et audit transactionnel. Le profil Utilisateur ne dispose pas de l'accès en écriture.
 - Les messages et états restent textuels, non basés uniquement sur la couleur. Nouveaux libellés FR/EN dans les JSON centralisés.
 - Référence : [Documentation SMN-24](APPARENCE-SMN-24.md) et [spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-24-themes-palettes.md). Tests de code et CI à confirmer par exécution, non inférés de la seule publication.
+
+- **SMN-24 — statut de livraison :** le socle thème clair/sombre est issu de [PR #19](https://github.com/JeanLamora75/SMN/pull/19) et l'extension des trois palettes persistées de [PR #20](https://github.com/JeanLamora75/SMN/pull/20), toutes deux fusionnées sur `main`. La migration v6 doit se produire uniquement via le mécanisme applicatif ; ne pas exécuter de SQL manuel sur une installation pilote. Jira reste En cours tant que les tests Linux/Windows et la recette ne sont pas prouvés.
