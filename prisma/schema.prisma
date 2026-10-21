@@ -58,6 +58,7 @@ model SmnAccount {
   archivedMembers SmnMember[]
   changedCalendarWeeks SmnMemberCalendarWeek[]
   changedCalendarExceptions SmnMemberCalendarException[]
+  changedLocations SmnMemberLocation[]
   @@map("smn_account")
 }
 
@@ -134,6 +135,7 @@ model SmnMember {
   assignments SmnMemberAssignment[]
   calendarWeeks SmnMemberCalendarWeek[]
   calendarExceptions SmnMemberCalendarException[]
+  locations SmnMemberLocation[]
   @@unique([installationId,memberNumber])
   @@map("smn_member")
 }
@@ -211,4 +213,22 @@ model SmnMemberCalendarException {
   actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
   @@unique([memberId,onDate,revision])
   @@map("smn_member_calendar_exception")
+}
+
+model SmnMemberLocation {
+  id String @id
+  memberId String @map("member_id")
+  revision Int
+  effectiveFrom DateTime @map("effective_from") @db.Date
+  countryIso2 String? @map("country_iso2")
+  region String?
+  city String?
+  timeZone String? @map("time_zone")
+  source String
+  createdBy String? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  member SmnMember @relation(fields:[memberId],references:[id],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
+  @@unique([memberId,revision])
+  @@map("smn_member_location")
 }

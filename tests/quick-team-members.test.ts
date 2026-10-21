@@ -6,11 +6,13 @@ import {parseQuickMembersRequest,initialAgileRole,createQuickMembers,listTeamMem
 import {MEMBERS_MIGRATION_SQL} from "../src/server/members/migration";
 
 const input=()=>({teamId:"team",count:5,requestId:randomUUID()});
-function fixture(options:{existing?:number;failAt?:number;batch?:boolean}={}){
+function fixture(options:{existing?:number;failAt?:number;batch?:boolean;referenceCountry?:string|null}={}){
  const sql:string[]=[],params:unknown[][]=[];let insertion=0;
  const db={query:async(query:string,values:unknown[]=[])=>{
   sql.push(query);params.push(values);
   if(query.includes("CURRENT_DATE::text AS today"))return {rowCount:1,rows:[{today:"2026-10-21"}]};
+  if(query.includes("SELECT reference_country FROM public.smn_general_settings"))
+   return {rowCount:1,rows:[{reference_country:options.referenceCountry??null}]};
   if(query.includes("FROM public.smn_team t"))return {rowCount:1,rows:[{team_id:"team",team_name:"Produit Scrum",mode:"scrum"}]};
   if(query.includes("FROM public.smn_member_batch WHERE id="))
    return options.batch?{rowCount:1,rows:[{id:values[0],team_id:"team",requested_count:5,created_by:"admin"}]}:{rowCount:0,rows:[]};
@@ -76,6 +78,21 @@ describe("Création rapide des membres initiaux",()=>{
   assert.equal(sql.at(-1),"COMMIT");
   assert.ok(sql.every(q=>!q.includes("INSERT INTO public.smn_account")));
   assert.equal(params.find((v,i)=>sql[i].includes("INSERT INTO public.smn_member_batch"))?.[2],5);
+ });
+ it("propose et enregistre le pays installé par membre sans créer de fuseau fictif",async()=>{
+  const {db,sql,params}=fixture({referenceCountry:"FR"});
+  const result=await createQuickMembers(db,"admin",input());
+  assert.equal(result.ok,true);
+  const locationSql=sql.filter(q=>q.includes("INSERT INTO public.smn_member_location"));
+  assert.equal(locationSql.length,5);
+  const inserts=params.filter((_,i)=>sql[i].includes("INSERT INTO public.smn_member_location"));
+  assert.ok(inserts.every(v=>v[3]==="FR"&&v.length===5));
+  assert.ok(sql.every(q=>!q.includes("UPDATE public.smn_general_settings")));
+ });
+ it("ne fabrique pas de pays ou fuseau lorsque l'installation n'en propose aucun",async()=>{
+  const {db,sql}=fixture();
+  assert.equal((await createQuickMembers(db,"admin",input())).ok,true);
+  assert.equal(sql.filter(q=>q.includes("INSERT INTO public.smn_member_location")).length,0);
  });
  it("refuse de réinitialiser une équipe possédant déjà des membres",async()=>{
   const {db,sql}=fixture({existing:3});

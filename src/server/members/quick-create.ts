@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {isValidCountry} from "./location";
 
 export type AgileRole="scrum_master"|"product_owner"|"developer";
 export type QuickMember=Readonly<{
@@ -138,6 +139,9 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
    VALUES($1,'singleton',$2,$3,$4)`,
    [input.requestId,team.id,input.count,actorId]);
   const members:MemberListItem[]=[];
+  const defaults=await client.query<{reference_country:string|null}>(
+   "SELECT reference_country FROM public.smn_general_settings WHERE installation_id='singleton'");
+  const defaultCountry=defaults.rows[0]?.reference_country??null;
   const dateResult=await client.query<{today:string}>("SELECT CURRENT_DATE::text AS today");
   const startOn=dateResult.rows[0]?.today;
   if(!startOn||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(startOn))throw new Error("members-date-unavailable");
@@ -160,6 +164,12 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
     VALUES ($1,$2,1,$3::date,100,100,100,$4,$5,$6)`,
     [randomUUID(),assignmentId,startOn,role==="scrum_master"?100:0,
      role==="product_owner"?100:0,role==="developer"?100:0]);
+   if(isValidCountry(defaultCountry)){
+    await client.query(`INSERT INTO public.smn_member_location
+     (id,member_id,revision,effective_from,country_iso2,region,city,time_zone,source,created_by)
+     VALUES($1,$2,1,$3::date,$4,NULL,NULL,NULL,'installation-default',$5)`,
+     [randomUUID(),id,startOn,defaultCountry,actorId]);
+   }
    members.push({id,memberNumber,displayName,email:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
     contractPercent:100,allocationPercent:100,rolePercent:100,contributionPercent:100,
     roleShares:{scrumMaster:role==="scrum_master"?100:0,productOwner:role==="product_owner"?100:0,developer:role==="developer"?100:0},
