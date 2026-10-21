@@ -21,6 +21,7 @@ export type MemberDay={
  availableSlots:{morning:boolean;afternoon:boolean}|null;
  deductedHalfDays:number|null;status:"known"|"unknown";
  nationalHolidayName:string|null;
+ companyClosureName:string|null;
  absences:ReadonlyArray<{
   id:string;revision:number;categoryId:string;categoryName:string;
   categoryColor:string;startOn:string;endOn:string;startSlot:"morning"|"afternoon";
@@ -31,6 +32,7 @@ export type TeamCalendarResponse={
  team:{id:string;name:string;mode:"scrum"|"kanban"};
  start:string;end:string;days:7|14|28;kind:TeamCalendarKind;
  collective:CollectiveDay[];
+ closures:{id:string;name:string;startOn:string;endOn:string}[];
  admin?:{categories:{id:string;name:string}[];
   members:{id:string;displayName:string;memberNumber:number;days:MemberDay[]}[]};
 };
@@ -46,6 +48,7 @@ type Exception=ExceptionRow&{member_id:string};
 type Location={member_id:string;effective_from:string;revision:number;country_iso2:string};
 type Holiday={country_code:string;holiday_date:string;name:string};
 type Coverage={country_code:string;calendar_year:number;status:string};
+type ClosureRow={id:string;name:string;start_on:string;end_on:string};
 
 export function parseTeamCalendarQuery(params:URLSearchParams,isAdmin:boolean):
  TeamCalendarQuery|null{
@@ -140,7 +143,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
   exceptions.rows.length>5000||locations.rows.length>10000)
   throw Error("team-calendar-data-limit");
  const countries=[...new Set(locations.rows.map(x=>x.country_iso2))];
- const [holidays,coverage,categories]=await Promise.all([
+ const [holidays,coverage,categories,closures]=await Promise.all([
   db.query<Holiday>([
    "SELECT country_code,holiday_date::text AS holiday_date,name",
    "FROM public.smn_national_holiday WHERE country_code=ANY($1::text[])",
@@ -152,8 +155,16 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
   ].join(" "),[countries,Number(query.start.slice(0,4)),Number(end.slice(0,4))]),
   isAdmin?db.query<{id:string;name:string}>(
    "SELECT id,name FROM public.smn_absence_category ORDER BY name,id LIMIT 101"):
-   Promise.resolve({rows:[] as {id:string;name:string}[]})
+   Promise.resolve({rows:[] as {id:string;name:string}[]}),
+  db.query<ClosureRow>([
+   "SELECT id,name,start_on::text AS start_on,end_on::text AS end_on",
+   "FROM public.smn_company_closure",
+   "WHERE team_id=$1 AND is_active=true",
+   "AND start_on<=$3::date AND end_on>=$2::date",
+   "ORDER BY start_on,id LIMIT 101"
+  ].join(" "),[team.id,query.start,end])
  ]);
+ if(closures.rows.length>100)throw Error("team-calendar-closures-limit");
  const countryHolidays=new Map(holidays.rows.map(h=>[h.country_code+":"+h.holiday_date,h.name]));
  const cover=new Map(coverage.rows.map(c=>[c.country_code+":"+c.calendar_year,c.status]));
  const collective:CollectiveDay[]=dates.map(date=>({
@@ -182,13 +193,15 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
    const records=active.map(a=>({
     startOn:a.start_on,endOn:a.end_on,startSlot:a.start_slot,endSlot:a.end_slot
    }));
-   const resolution=resolveDayAvailability(date,calendar.slots,isNational,records);
+   const activeClosure=closures.rows.find(c=>c.start_on<=date&&c.end_on>=date);
+   const resolution=resolveDayAvailability(date,calendar.slots,isNational,records,
+    Boolean(activeClosure));
    const count=collective[i];
    count.assigned++;
    if(resolution.status==="known")count.known++;
    else count.unknown++;
    if(resolution.absenceSlots.morning||resolution.absenceSlots.afternoon||
-      isNational===true)count.reportedUnavailable++;
+      isNational===true||Boolean(activeClosure))count.reportedUnavailable++;
    if(resolution.availableSlots&&(resolution.availableSlots.morning||
       resolution.availableSlots.afternoon))count.availableMembers++;
    if(isAdmin){
@@ -198,7 +211,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
     personalDays.push({date,assignmentApplicable:true,
      workingSlots:calendar.slots,availableSlots:resolution.availableSlots,
      deductedHalfDays:resolution.deductedHalfDays,status:resolution.status,
-     nationalHolidayName:nationalName,
+     nationalHolidayName:nationalName,companyClosureName:activeClosure?.name??null,
      absences:selected.map(a=>({
       id:a.id,revision:a.revision,categoryId:a.category_id,
       categoryName:a.category_name,categoryColor:a.category_color,
@@ -214,6 +227,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
  }
  return {
   team,start:query.start,end,days:query.days,kind:query.kind,collective,
+  closures:closures.rows.map(c=>({id:c.id,name:c.name,startOn:c.start_on,endOn:c.end_on})),
   ...(isAdmin?{admin:{categories:categories.rows,members:adminMembers}}:{})
  };
 }
