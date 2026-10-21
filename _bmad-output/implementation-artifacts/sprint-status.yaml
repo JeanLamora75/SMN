@@ -1,3 +1,5 @@
+# Politique qualité en vigueur depuis le 21/10/2026 : GitHub Actions indisponible ; aucun test automatisé sur GitHub requis.
+# Référence : docs/POLITIQUE-VALIDATION-SANS-GITHUB-ACTIONS.md. Écrire les tests, recette locale avec preuves ; ne pas déclarer done sans vérification.
 # Gate : CONCERNS — poursuite explicitement autorisée par Eric le 19/10/2026 à 22:41 Europe/Paris.
 # Les statuts backlog ne sont pas une attestation de préparation technique ou de réalisation.
 # Jira demeure la référence des tickets ; ce fichier ne synchronise pas automatiquement Jira.
