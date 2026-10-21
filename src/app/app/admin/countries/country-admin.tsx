@@ -2,6 +2,7 @@
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import HolidayCsvImport from "./holiday-csv-import";
+import HolidayIcsImport from "./holiday-ics-import";
 type Coverage={year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null};
 type Country={code:string;name:string;nationalCalendar:{
  status:"configured"|"partial"|"not-configured"|"invalid";years:Coverage[];
@@ -81,5 +82,6 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   </table>
   <p className="small">{t("countries.unknownNotZero")}</p>
   {canManage&&<HolidayCsvImport countries={countries} onCompleted={refresh}/>}
+  {canManage&&<HolidayIcsImport countries={countries} onCompleted={refresh}/>}
  </section>;
 }

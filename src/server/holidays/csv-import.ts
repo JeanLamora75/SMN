@@ -129,7 +129,8 @@ async function previewInDb(db:Client,input:Raw,rows:CsvRow[]):Promise<CsvPreview
  return buildPreview(input.country,input.policy,input.csv,rows,existing);
 }
 
-export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string):Promise<CsvImportResult>{
+export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string,
+ origin:"csv"|"ics"="csv"):Promise<CsvImportResult>{
  const input=parseCsvRequest(raw);
  if(!input||!actorId)return {ok:false,error:"invalid-input"};
  const parsed=scanCsv(input.csv);
@@ -172,8 +173,8 @@ export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string):Pr
    years.add(Number(row.date.slice(0,4)));
    await db.query(`INSERT INTO public.smn_national_holiday_audit
       (id,country_code,holiday_date,previous_name,new_name,action,origin,actor_id)
-      VALUES($1,$2,$3::date,$4,$5,$6,'csv',$7)`,
-      [randomUUID(),input.country,row.date,row.previousName,row.name,row.action,actorId]);
+      VALUES($1,$2,$3::date,$4,$5,$6,$7,$8)`,
+      [randomUUID(),input.country,row.date,row.previousName,row.name,row.action,origin,actorId]);
   }
   for(const year of years){
    const n=await db.query<{total:string}>(`SELECT count(*)::text AS total
@@ -182,13 +183,14 @@ export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string):Pr
      [input.country,year]);
    await db.query(`INSERT INTO public.smn_national_calendar_coverage
      (country_code,calendar_year,status,entries_count,diagnostic,source_file)
-     VALUES($1,$2,'partial',$3,'csv-partial','csv')
+     VALUES($1,$2,'partial',$3,$4,$5)
      ON CONFLICT (country_code,calendar_year) DO UPDATE SET
       status=CASE WHEN smn_national_calendar_coverage.status='configured'
        THEN 'configured' ELSE 'partial' END,
       entries_count=EXCLUDED.entries_count,
       diagnostic=CASE WHEN smn_national_calendar_coverage.status='configured'
-       THEN NULL ELSE 'csv-partial' END,checked_at=now()`,[input.country,year,Number(n.rows[0]?.total)]);
+       THEN NULL ELSE EXCLUDED.diagnostic END,checked_at=now()`,
+     [input.country,year,Number(n.rows[0]?.total),origin+'-partial',origin]);
   }
   await db.query("COMMIT");
   return {ok:true,preview,created,replaced};
