@@ -96,7 +96,7 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
   const {key,recovery}=await getOrCreateKey(root,phrase,actor.password_hash);
   try{
    const inventory=await scanDocuments(source);
-   await mkdir(packages,{recursive:true,mode:0o700});
+   await privateFolder(packages,true);
    staging=join(packages,"."+id+".partial");
    await mkdir(staging,{mode:0o700});
    const meta=await client.query<{schema_version:number;pg_version:string}>(`
@@ -124,7 +124,10 @@ export async function createManualBackup(actor:Admin,phrase?:string):Promise<Pub
    await writeFile(join(staging,"index.json"),JSON.stringify(index),{flag:"wx",mode:0o600});
    await rename(staging,join(packages,id));
    staging="";
-   await safeAtomicJson(join(root,"last-attempt.json"),{status:"success",id,createdAt});
+   // Après la publication atomique, une panne du fichier de statut ne doit pas
+   // faire passer un paquet complet pour un échec de capture.
+   await safeAtomicJson(join(root,"last-attempt.json"),{status:"success",id,createdAt})
+    .catch(()=>undefined);
    return {id,createdAt,status:"success",documentCount:inventory.length/2};
   }finally{key.fill(0);}
  }catch{
