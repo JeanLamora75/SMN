@@ -50,7 +50,7 @@ function eventFromLines(lines:string[],index:number):IcsEvent{
  let reason:string|null=null;
  if(malformed)reason="malformed-event";
  else if(get("X-SMN-UNSUPPORTED-NESTED").length>0)reason="nested-component";
- else if(props.some(p=>["RRULE","RDATE","EXDATE","RECURRENCE-ID"].includes(p.key)))
+ else if(props.some(p=>["RRULE","RDATE","EXDATE","EXRULE","RECURRENCE-ID"].includes(p.key)))
   reason="recurrence-unsupported";
  else if(get("DURATION").length>0)reason="duration-unsupported";
  else if(get("STATUS").some(p=>p.value.toUpperCase()==="CANCELLED"))reason="cancelled";
