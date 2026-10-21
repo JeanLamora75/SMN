@@ -38,7 +38,7 @@ export default function BatchPreviewForm(){
     <button type="button" className="btn btn-outline-secondary" onClick={invalidate}>{t("batchPreview.close")}</button>
    </div>
    <div className="table-responsive"><table className="table"><thead><tr><th>{t("batchPreview.name")}</th><th>{t("batchPreview.dates")}</th><th>{t("batchPreview.conflicts")}</th></tr></thead>
-   <tbody>{items.map(item=><tr key={item.number}><td>{item.name}</td><td>{item.startOn} {item.startAt.slice(11,16)} UTC → {item.endOn} {item.endAt.slice(11,16)} UTC ({item.timeZone})</td>
+   <tbody>{items.map(item=><tr key={item.number}><td>{item.name}</td><td>{new Intl.DateTimeFormat("fr-FR",{timeZone:item.timeZone,dateStyle:"short",timeStyle:"short"}).format(new Date(item.startAt))} → {new Intl.DateTimeFormat("fr-FR",{timeZone:item.timeZone,dateStyle:"short",timeStyle:"short"}).format(new Date(item.endAt))} ({item.timeZone})</td>
     <td>{item.conflicts.length?item.conflicts.map(c=><p className="text-danger mb-1" key={c.id}>{t("batchPreview.conflictWith",{name:c.name,start:c.startAt,end:c.endAt})}</p>):t("batchPreview.none")}</td></tr>)}</tbody></table></div>
    <p role="status">{valid?t("batchPreview.valid"):t("batchPreview.blocked")}</p>
    <button disabled type="button" className="btn btn-primary" title={t("batchPreview.nextStory")}>{t("batchPreview.confirm")}</button>
