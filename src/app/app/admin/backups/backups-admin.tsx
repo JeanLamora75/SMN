@@ -59,7 +59,7 @@ export default function BackupsAdmin(){
   event.preventDefault();
   if(!state||savingRetention||cleaning||busy||checking)return;
   const days=Number(retentionDays);
-  if(!/^\\d+$/.test(retentionDays)||!Number.isSafeInteger(days)||days<1||days>3650){
+  if(!/^[0-9]+$/.test(retentionDays)||!Number.isSafeInteger(days)||days<1||days>3650){
    setError(t("backups.retentionInvalid"));return;
   }
   setSavingRetention(true);setError("");setRetentionNotice("");
