@@ -178,6 +178,32 @@
       "closeMenu": "Fermer le menu",
       "expandMenu": "Déployer la navigation",
       "collapseMenu": "Réduire la navigation"
+    },
+    "cockpit": {
+      "noCycle": "Aucun cycle créé",
+      "noSprintHelp": "Aucun Sprint enregistré pour cette équipe. Aucun cycle n'est généré automatiquement.",
+      "noPeriodHelp": "Aucune période Kanban enregistrée pour cette équipe. Aucune période n'est générée automatiquement.",
+      "details": "Informations du cycle",
+      "dates": "Dates du cycle",
+      "status": "Statut",
+      "goals": "Objectifs",
+      "notAvailable": "Non disponibles",
+      "notSpecified": "Non renseigné",
+      "metrics": "Indicateurs du cycle",
+      "noPreviousCycle": "Aucun cycle précédent",
+      "capacity": "Capacité",
+      "plannedCapacity": "Capacité prévue",
+      "actualCapacity": "Capacité réelle",
+      "storyPoints": "Story Points",
+      "initialStoryPoints": "SP initialement engagés",
+      "completedStoryPoints": "SP réalisés",
+      "tickets": "Tickets",
+      "initialTickets": "Tickets initialement engagés",
+      "completedTickets": "Tickets réalisés",
+      "ticketsUnit": "tickets",
+      "workingDays": "Jours ouvrés restants",
+      "notCalculable": "Non calculable",
+      "workingDaysHelp": "Du lundi au vendredi. Le compteur attend des dates de cycle fiables et une règle de référence complète."
     }
   },
   "session": {
