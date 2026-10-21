@@ -234,9 +234,15 @@ try {
       headers:{"Content-Type":"application/json",Origin:origin,...(cookie?{Cookie:cookie}:{})},
       body:JSON.stringify(settings),
     });
+    assert.equal((await get("/api/admin/audit")).status,403);
     assert.equal((await get("/api/admin/settings")).status,403);
     assert.equal((await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:0},"")).status,403);
     assert.equal((await get("/app/admin/settings",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
+    const firstAudit=await get("/api/admin/audit",{headers:{Cookie:replacement}});
+    assert.equal(firstAudit.status,200);
+    assert.match(firstAudit.headers.get("cache-control")??"",/no-store/);
+    assert.ok(Array.isArray((await firstAudit.json()).entries));
+    assert.equal((await get("/app/admin/audit",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
     const settingsInitialResponse=await get("/api/admin/settings",{headers:{Cookie:replacement}});
     assert.equal(settingsInitialResponse.status,200);
     const settingsInitial=(await settingsInitialResponse.json()).settings;
@@ -248,7 +254,7 @@ try {
       mode:"scrum",product:"Produit de recette CI"});
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
-    )).rows[0].schema_version)),6);
+    )).rows[0].schema_version)),7);
     // SMN-20 — registre de configuration strictement privé aux administrateurs.
     const readChecklist=async(cookie=replacement)=>{
       const response=await get("/api/admin/configuration-tasks",{headers:{Cookie:cookie}});
@@ -437,11 +443,21 @@ try {
     const createdBody=await created.json();
     const userId=createdBody.account.id;
     assert.equal(createdBody.account.role,"user");
+    const accountAuditRow=await withDb(async c=>(await c.query(
+      "SELECT id,actor_id,object_id,action,old_values,new_values FROM public.smn_account_audit WHERE object_id=$1",
+      [userId])).rows[0]);
+    assert.equal(accountAuditRow.action,"account_created");
+    assert.equal(accountAuditRow.object_id,userId);
+    assert.deepEqual(accountAuditRow.new_values,{role:"user",isActive:true});
+    assert.doesNotMatch(JSON.stringify(accountAuditRow),/pilot1234|pilote@example.test/);
     assert.equal(JSON.stringify(createdBody).includes("password_hash"),false);
     assert.equal(JSON.stringify(createdBody).includes("pilot1234"),false);
     const dupe=await postAuth("/api/admin/accounts",
       {...newUser,username:"PILOTE",email:"different@example.test"},replacement);
     assert.equal(dupe.status,409);
+    assert.equal((await withDb(async c=>(await c.query(
+      "SELECT count(*)::int AS count FROM public.smn_account_audit WHERE action='account_created'"
+    )).rows[0].count)),1,"Un doublon rejeté ne produit aucun audit de réussite");
     const listed=await get("/api/admin/accounts",{headers:{Cookie:replacement}});
     assert.equal(listed.status,200);
     assert.equal((await listed.json()).accounts.length,2);
@@ -470,6 +486,8 @@ try {
     assert.equal(rejectedPage.status,307);
     assert.equal(new URL(rejectedPage.headers.get("location"),base).pathname,"/app");
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await get("/api/admin/audit",{headers:{Cookie:userReady}})).status,403);
+    assert.notEqual((await get("/app/admin/audit",{headers:{Cookie:userReady},redirect:"manual"})).status,200);
     // Une fiche collective est lisible pour l'utilisateur, contrairement aux réglages administratifs.
     const userTeam=await get("/app/team/team",{headers:{Cookie:userReady},redirect:"manual"});
     assert.equal(userTeam.status,200);
@@ -539,6 +557,13 @@ try {
     }
     const promoted=await patchAccount(userId,{role:"admin",isActive:true});
     assert.equal(promoted.status,200);
+    const auditAfterPromotion=await get("/api/admin/audit",{headers:{Cookie:replacement}});
+    assert.equal(auditAfterPromotion.status,200);
+    const auditEntries=(await auditAfterPromotion.json()).entries;
+    assert.ok(auditEntries.some(entry=>entry.objectId===userId&&entry.action==="account_updated"));
+    assert.ok(auditEntries.some(entry=>entry.action==="settings_updated"));
+    assert.ok(auditEntries.some(entry=>entry.action==="recovery_prepared"));
+    assert.doesNotMatch(JSON.stringify(auditEntries),/password_hash|phrase_hash|pilot1234|pilote@example.test/);
     assert.equal((await get("/api/dashboard",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/auth/me",{headers:{Cookie:userReady}})).status,401,
       "Ancienne session utilisateur révoquée après changement de rôle");
