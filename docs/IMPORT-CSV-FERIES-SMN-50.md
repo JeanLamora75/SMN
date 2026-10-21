@@ -1,5 +1,7 @@
 # SMN-50 — Import CSV de jours fériés nationaux
 
+L'import d'un fichier iCalendar ICS avec sélection humaine des événements est disponible séparément dans [SMN-51](IMPORT-ICS-FERIES-SMN-51.md). Les deux formats partagent la politique de conflits et la traçabilité des modifications.
+
 [Ticket Jira](https://lmn24.atlassian.net/browse/SMN-50) · [Contrat BMAD](../_bmad-output/implementation-artifacts/spec-smn-50-import-csv-feries.md)
 
 ## Utilisation
