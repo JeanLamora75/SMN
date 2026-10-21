@@ -93,12 +93,12 @@ export default function DevelopmentCapacityView(){
      {t("developmentCapacity.start")}</label>
      <input id="capacity-start" type="date" className="form-control" value={start}
       min="1900-01-01" max="2200-12-31" required
-      onChange={e=>setStart(e.target.value)}/></div>
+      onChange={e=>{setStart(e.target.value);setReport(null);}}/></div>
     <div className="col-md-5"><label htmlFor="capacity-end" className="form-label">
      {t("developmentCapacity.end")}</label>
      <input id="capacity-end" type="date" className="form-control" value={end}
       min="1900-01-01" max="2200-12-31" required
-      onChange={e=>setEnd(e.target.value)}/></div>
+      onChange={e=>{setEnd(e.target.value);setReport(null);}}/></div>
    </div>
    <p className="small text-secondary">{t("developmentCapacity.maxPeriod")}</p>
    <button className="btn btn-primary align-self-start" disabled={busy} type="submit">
