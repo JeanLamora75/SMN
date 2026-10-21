@@ -1,6 +1,7 @@
 "use client";
 import {useState,type ChangeEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import type {TranslationKey} from "@/i18n/catalog";
 
 type Country={code:string;name:string};
 type Policy="skip"|"replace";
@@ -157,7 +158,7 @@ export default function HolidayIcsImport({countries,onCompleted}:{
         disabled={!event.eligible||busy} checked={selected.includes(event.id)}
         onChange={e=>toggle(event.id,e.target.checked)}/></td>
        <td>{event.date??"—"}</td><td>{event.name||"—"}</td>
-       <td>{event.eligible?t("ics.valid"):t(EVENT_REASONS[event.reason??""]??"ics.unknown")}</td>
+       <td>{event.eligible?t("ics.valid"):t((EVENT_REASONS[event.reason??""]??"ics.unknown") as TranslationKey)}</td>
       </tr>)}
     </tbody></table>
    </div>
@@ -183,7 +184,7 @@ export default function HolidayIcsImport({countries,onCompleted}:{
        <td>{row.date}</td><td>{row.name}</td><td>
         {row.action==="create"?t("countries.csvWillCreate"):
          row.action==="replace"?t("countries.csvWillReplace"):t("countries.csvRejected")}
-        {row.reason&&" — "+t(CSV_REASONS[row.reason]??"countries.csvReasonUnknown")}
+        {row.reason&&" — "+t((CSV_REASONS[row.reason]??"countries.csvReasonUnknown") as TranslationKey)}
         {row.previousName&&" ("+t("countries.csvPrevious")+": "+row.previousName+")"}
        </td>
       </tr>)}
