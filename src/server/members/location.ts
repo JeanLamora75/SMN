@@ -127,11 +127,19 @@ export async function readMemberLocation(client:Client,id:string,onDate?:string,
  const requested=instant?formatInstantDate(instant):onDate??currentDay;
  const effective=resolveMemberLocation(rows,requested);
  const current=resolveMemberLocation(rows,currentDay);
+ let holidayDataAvailable=false;
+ if(effective?.countryIso2){
+  const checked=await client.query<{configured:boolean}>(`SELECT EXISTS(
+    SELECT 1 FROM public.smn_national_calendar_coverage
+    WHERE country_code=$1 AND calendar_year=$2 AND status='configured'
+   ) AS configured`,[effective.countryIso2,Number(requested.slice(0,4))]);
+  holidayDataAvailable=checked.rows[0]?.configured===true;
+ }
  return {memberId:id,teamId:m.team_id,archived:m.archived_at!==null,today:currentDay,
   suggestedCountryIso2:isValidCountry(proposed)?proposed:null,
   configured:current!==null,current,effective,versions:rows,requestedOn:requested,
   display:instant&&effective?.timeZone?formatMemberEvent(instant,effective.timeZone):null,
-  holidayCalendarScope:"national-only",regionalHolidayAuto:false,holidayDataAvailable:false};
+  holidayCalendarScope:"national-only",regionalHolidayAuto:false,holidayDataAvailable};
 }
 function formatInstantDate(instant:string){
  if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(instant))
