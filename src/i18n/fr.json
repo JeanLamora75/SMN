@@ -770,7 +770,7 @@
       "loading": "Chargement du calendrier…",
       "failedLoad": "Impossible de lire le calendrier du membre.",
       "failed": "Enregistrement non confirmé. Rechargez le calendrier avant de réessayer.",
-      "contractSeparate": "Temps contractuel : {value} %. Ce paramètre est distinct de la trame de travail.",
+      "contractSeparate": "Référence contractuelle de la fiche centrale : {value} %. Les taux d'affectation datés restent distincts et se gèrent dans « Gérer l'affectation ».",
       "configured": "Un calendrier enregistré est applicable à la date du jour. Les versions futures sont conservées séparément.",
       "suggestedOnly": "Calendrier non confirmé : la trame lundi–vendredi ci-dessous est seulement proposée. Aucune disponibilité n'est encore enregistrée.",
       "archived": "Membre archivé : historique consultable, calendrier non modifiable.",
