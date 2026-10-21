@@ -56,6 +56,7 @@ export default function MemberProfileEditor({member,onSaved,onCancel}:{
   aria-labelledby="member-profile-title">
   <div>
    <h3 className="h5" id="member-profile-title">{t("members.profile.editTitle")}</h3>
+   <p className="small text-secondary mb-0">{t("prefill.optionalProfile")}</p>
    <p className="small text-secondary mb-0">{t(member.isProvisional?
     "members.profile.provisionalHelp":"members.profile.confirmedHelp")}</p>
   </div>
