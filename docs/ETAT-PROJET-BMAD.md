@@ -1,6 +1,10 @@
 # SMN — État du projet et de BMAD
 
-**Situation vérifiée le 19 octobre 2026.** Synthèse documentaire ; Jira demeure la référence de l'avancement des tickets.
+**État documentaire historique vérifié le 19 octobre 2026 ; décision opérationnelle qualité du 21 octobre 2026 ajoutée.** Synthèse documentaire ; Jira demeure la référence de l'avancement des tickets.
+
+## Validation technique — nouvelle règle transversale (21/10/2026)
+
+**GitHub Actions est indisponible et n'est plus utilisé pour exécuter des tests automatisés sur GitHub.** Les prochaines implémentations continuent de produire les tests, puis sont qualifiées localement lorsque possible (Windows 11, pnpm, PostgreSQL 18.6 pilote) avec preuves explicites. Les User Stories restent **En cours / review** après fusion tant que les vérifications réellement exécutées manquent. [Politique qualité de référence](POLITIQUE-VALIDATION-SANS-GITHUB-ACTIONS.md). Cette règle remplace les anciennes conditions de passage CI dans les documents historiques.
 
 ## Jalons
 
