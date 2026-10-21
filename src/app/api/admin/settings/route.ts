@@ -3,6 +3,7 @@ import { authorizeApi } from "@/server/auth/authorization";
 import { jsonResult, readJsonObject } from "@/server/auth/request";
 import { withAuthDb } from "@/server/auth/database";
 import { readGeneralSettings, updateGeneralSettings } from "@/server/settings/manager";
+import {ensureReferenceNationalCalendar} from "@/server/holidays/preload";
 export const dynamic = "force-dynamic";
 const target={type:"settings",exists:true,inScope:true} as const;
 export async function GET(request:NextRequest) {
@@ -20,7 +21,14 @@ export async function PATCH(request:NextRequest) {
   const body=await readJsonObject(request);
   if(!body) {console.warn("smn-settings-validation-rejected");return jsonResult({error:"invalid-input"},400);}
   try {
-    const result=await withAuthDb(client=>updateGeneralSettings(client,actor.id,body));
+    const result=await withAuthDb(async client=>{
+      const changed=await updateGeneralSettings(client,actor.id,body);
+      if(changed.ok&&changed.changed){
+        try{await ensureReferenceNationalCalendar(client);}
+        catch{console.error("smn-national-calendar-preload-unavailable");}
+      }
+      return changed;
+    });
     if(!result.ok) {
       if(result.error==="invalid-input") console.warn("smn-settings-validation-rejected");
       return jsonResult({error:result.error},result.error==="conflict"?409:result.error==="invalid-input"?400:503);
