@@ -621,6 +621,7 @@ model SmnSprint {
  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
  deletedBy String? @map("deleted_by")
  autoSuspended Boolean @default(false) @map("auto_suspended")
+ ceremonies SmnSprintCeremony[]
  transitions SmnSprintTransition[]
  capacityTrigger SmnSprintCapacityTrigger?
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
@@ -681,4 +682,17 @@ model SmnSprintCapacityTrigger {
  status String @default("pending")
  sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
  @@map("smn_sprint_capacity_trigger")
+}
+
+model SmnSprintCeremony {
+ id String @id
+ sprintId String @map("sprint_id")
+ kind String
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ minutes Int
+ generatedAt DateTime @default(now()) @map("generated_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@unique([sprintId,kind,startsAt])
+ @@map("smn_sprint_ceremony")
 }
