@@ -52,6 +52,10 @@ export default async function TeamDetailPage({params,searchParams}:{
       </dl>
       <p className="small text-secondary mt-3 mb-0">{t("detail.identifierInfo")}</p>
     </section>
+    {canAccess(account,"read",{type:"members",exists:true,inScope:true})&&
+     <div className="mt-3"><Link href="/app/admin/members" className="btn btn-primary">
+      {t("detail.manageMembers")}
+     </Link></div>}
     <div className="mt-4">
       <Link href={returnTo} className="btn btn-outline-primary">{t("detail.back")}</Link>
     </div>
