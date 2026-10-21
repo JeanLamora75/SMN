@@ -460,5 +460,11 @@
     "historicalNotice": "Le lien de retour conserve la sélection de période ou de version demandée. Les informations ci-dessous sont les données actuelles : elles ne constituent pas une reconstitution historique ni une version de clôture.",
     "missingTitle": "Fiche indisponible",
     "missingDescription": "Cette fiche n'existe pas, n'est plus disponible ou vous n'êtes pas autorisé à la consulter. Aucune information privée n'a été communiquée."
+  },
+  "draft": {
+    "pending": "Modifications non enregistrées : vos changements sont encore un brouillon.",
+    "provisional": "Saisie provisoire : ces valeurs ne sont pas encore enregistrées.",
+    "leaveWarning": "Vous avez des modifications non enregistrées. Quitter cette page sans les sauvegarder ?",
+    "discardWarning": "Abandonner les modifications en cours et recharger les valeurs enregistrées ?"
   }
 }
