@@ -59,6 +59,7 @@ model SmnAccount {
   changedCalendarWeeks SmnMemberCalendarWeek[]
   changedCalendarExceptions SmnMemberCalendarException[]
   changedLocations SmnMemberLocation[]
+  createdCountries SmnCountry[]
   @@map("smn_account")
 }
 
@@ -231,4 +232,14 @@ model SmnMemberLocation {
   actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
   @@unique([memberId,revision])
   @@map("smn_member_location")
+}
+
+model SmnCountry {
+  code String @id
+  name String
+  origin String
+  createdBy String? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  actor SmnAccount? @relation(fields:[createdBy],references:[id],onDelete:SetNull)
+  @@map("smn_country")
 }
