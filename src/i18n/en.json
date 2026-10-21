@@ -1425,5 +1425,17 @@
     "stale": "Preview expired or changed. Generate a new preview before confirming.",
     "history": "Batch history",
     "emptyHistory": "No batches have been created."
+  },
+  "sprintRename": {
+    "title": "Rename a Sprint",
+    "select": "Existing Sprint",
+    "choose": "Choose a Sprint",
+    "name": "New name",
+    "duplicate": "Another Sprint in this team already has this name. Saving is still allowed.",
+    "save": "Save name",
+    "saved": "Name updated and audited.",
+    "savedDuplicate": "Name updated and audited. Another Sprint shares this name.",
+    "loadError": "Unable to load Sprints.",
+    "saveError": "Unable to save the new name."
   }
 }
