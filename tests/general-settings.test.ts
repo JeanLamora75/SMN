@@ -82,6 +82,23 @@ describe("SMN-18 — paramètres généraux",()=>{
     assert.deepEqual(update?.values,["en","dark","ocean","DE","admin",0]);
     assert.ok(db.calls.every(x=>!x.sql.includes("smn_product SET")&&!x.sql.includes("smn_team SET")));
   });
+  it("enregistre une palette prédéfinie dans la même transaction auditée",async()=>{
+    const db=fakeClient();
+    const result=await updateGeneralSettings(db.client,"admin",{...valid,palette:"violet"});
+    assert.equal(result.ok,true);
+    if(result.ok){
+      assert.equal(result.changed,true);
+      assert.equal(result.settings.palette,"violet");
+      assert.equal(result.settings.theme,"dark");
+    }
+    const write=db.calls.find(x=>x.sql.includes("UPDATE public.smn_general_settings"));
+    assert.deepEqual(write?.values,["en","dark","violet","DE","admin",0]);
+    const audit=db.calls.find(x=>x.sql.includes("INSERT INTO public.smn_general_settings_audit"));
+    assert.ok(audit);
+    assert.match(JSON.stringify(audit?.values),/"palette":"violet"/);
+    assert.ok(db.calls.findIndex(x=>x.sql.includes("INSERT INTO public.smn_general_settings_audit"))<
+      db.calls.findIndex(x=>x.sql==="COMMIT"));
+  });
   it("échec de l'audit : pas de succès, rollback de l'écriture",async()=>{
     const db=fakeClient({failAudit:true});
     await assert.rejects(()=>updateGeneralSettings(db.client,"admin",valid),/fixture database failure/);
