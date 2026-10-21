@@ -59,7 +59,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       if (!response.ok) {setMessage(errorMessage(data.error,"updateFailed"));return;}
       setMessage(t("accounts.updated"));
       await refresh();
-    } catch {setMessage("Le serveur SMN ne répond pas.");}
+    } catch {setMessage(t("accounts.server"));}
     finally {setBusy(false);}
   }
   return <div className="d-grid gap-4">
