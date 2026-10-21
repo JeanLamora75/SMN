@@ -68,6 +68,10 @@ describe("absence individuelle centralisée",()=>{
  it("refuse un motif ou une catégorie absents même pour une période passée",()=>{
   const a=parseAbsenceChange(input({reason:"   "}));
   assert.deepEqual(a,{ok:false,error:"reason-required"});
+  const absentReason=input();delete (absentReason as Partial<typeof absentReason>).reason;
+  assert.deepEqual(parseAbsenceChange(absentReason),{ok:false,error:"reason-required"});
+  const absentCategory=input();delete (absentCategory as Partial<typeof absentCategory>).categoryId;
+  assert.deepEqual(parseAbsenceChange(absentCategory),{ok:false,error:"category-required"});
   const b=parseAbsenceChange(input({categoryId:""}));
   assert.deepEqual(b,{ok:false,error:"category-required"});
   assert.equal(parseAbsenceChange(input({reason:"Un motif clair"})).ok,true);
