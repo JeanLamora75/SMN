@@ -1,6 +1,7 @@
 "use client";
 import {useState,type ChangeEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import type {TranslationKey} from "@/i18n/catalog";
 
 type Country={code:string;name:string};
 type Policy="skip"|"replace";
@@ -121,7 +122,7 @@ export default function HolidayCsvImport({countries,onCompleted}:{
        <td>{r.line}</td><td>{r.date}</td><td>{r.name}</td><td>{r.country}</td>
        <td>{r.action==="reject"?t("countries.csvRejected"):
         r.action==="replace"?t("countries.csvWillReplace"):t("countries.csvWillCreate")}
-        {r.reason&&<span> — {t(REASONS[r.reason]??"countries.csvReasonUnknown")}</span>}
+        {r.reason&&<span> — {t((REASONS[r.reason]??"countries.csvReasonUnknown") as TranslationKey)}</span>}
         {r.previousName&&<span> ({t("countries.csvPrevious")}: {r.previousName})</span>}
        </td>
       </tr>)}</tbody>
