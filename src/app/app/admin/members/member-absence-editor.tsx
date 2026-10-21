@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import Link from "next/link";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
 type Slot="morning"|"afternoon";
@@ -99,6 +100,8 @@ export default function MemberAbsenceEditor({memberId,selectedOn,onDirtyChange}:
  return <section className="border-top pt-4 mt-4 d-grid gap-3" aria-labelledby="member-absences-heading">
   <h4 id="member-absences-heading" className="h6">{t("members.absence.title")}</h4>
   <p className="small text-secondary">{t("members.absence.centralInfo")}</p>
+  <div><Link href="/app/admin/absence-categories" className="btn btn-sm btn-outline-secondary">
+   {t("absenceCategories.open")}</Link></div>
   {status==="loading"&&<p role="status">{t("members.absence.loading")}</p>}
   {status==="error"&&<p className="alert alert-warning" role="alert">
    {t("members.absence.loadFailed")}
