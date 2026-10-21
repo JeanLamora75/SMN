@@ -1401,5 +1401,25 @@
     "created": "Sprint créé : {name}",
     "invalid": "Impossible de calculer ou créer ce Sprint. Vérifiez les dates et la cadence.",
     "overlap": "Les dates chevauchent un Sprint existant de cette équipe."
+  },
+  "batchPreview": {
+    "title": "Prévisualiser un lot de Sprints",
+    "intro": "L’aperçu ne crée aucun Sprint. Modifiez uniquement la date de départ du lot pour recalculer tous les cycles.",
+    "count": "Nombre de Sprints (1 à 6)",
+    "start": "Date de départ du lot",
+    "preview": "Prévisualiser",
+    "results": "Sprints proposés",
+    "close": "Fermer l’aperçu",
+    "name": "Nom",
+    "dates": "Dates locales",
+    "conflicts": "Conflits",
+    "none": "Aucun",
+    "conflictWith": "Conflit avec {name} — {start} à {end}",
+    "valid": "Aucun chevauchement détecté.",
+    "blocked": "Confirmation bloquée : au moins un conflit.",
+    "confirm": "Confirmer le lot",
+    "nextStory": "La confirmation atomique sera implémentée avec SMN-68.",
+    "invalid": "Saisissez un entier entre 1 et 6 et une date valide.",
+    "error": "Impossible de calculer l’aperçu."
   }
 }
