@@ -31,3 +31,6 @@ pnpm build
 Tester manuellement la persistance après navigation/rechargement, les pages d'installation, login, tableau de bord, fiches, administration, contrastes des formulaires et impossibilité de mise à jour globale par le profil Utilisateur.
 
 **Attention :** écrire ces tests et fournir le code ne signifie pas que la CI ou la recette Windows les ont exécutés.
+
+## Extension de la Story SMN-24
+Le code livré dans [APPARENCE-SMN-24.md](APPARENCE-SMN-24.md) ajoute trois palettes d'accent distinctes et persistées (Océan, Forêt, Violet), avec migration additive de v5 à v6. La section historique ci-dessus décrit le premier état de la PR #19 ; la nouvelle intégration conserve les tests existants et nécessite une recette Windows/CI spécifique.

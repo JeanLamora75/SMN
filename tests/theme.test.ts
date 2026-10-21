@@ -46,11 +46,11 @@ describe("SMN-24 — thème et palettes accessibles",()=>{
     const css=readFileSync(new URL("../src/app/globals.css",import.meta.url),"utf8");
     const layout=readFileSync(new URL("../src/app/layout.tsx",import.meta.url),"utf8");
     const form=readFileSync(new URL("../src/app/app/admin/settings/settings-form.tsx",import.meta.url),"utf8");
-    assert.match(layout,/data-bs-theme=\{theme\}/);
+    assert.match(layout,/data-bs-theme=\{appearance\.theme\}/);
     assert.match(css,/\[data-bs-theme="dark"\]/);
     assert.match(css,/--bs-body-bg/);
     assert.match(css,/--bs-body-color/);
     assert.match(css,/--bs-primary/);
-    assert.match(form,/saved\.theme!==data\.settings\.theme\)router\.refresh/);
+    assert.match(form,/saved\.theme!==data\.settings\.theme/);
   });
 });

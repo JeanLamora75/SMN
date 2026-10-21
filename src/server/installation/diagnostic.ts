@@ -5,10 +5,11 @@ import { ACCOUNTS_MIGRATION, ACCOUNTS_MIGRATION_SQL } from "../accounts/migratio
 import { RECOVERY_MIGRATION, RECOVERY_MIGRATION_SQL } from "../accounts/recovery-migration";
 import { SETTINGS_MIGRATION, SETTINGS_MIGRATION_SQL } from "../settings/migration";
 import { CONFIGURATION_MIGRATION, CONFIGURATION_MIGRATION_SQL } from "../configuration/migration";
+import {APPEARANCE_MIGRATION,APPEARANCE_MIGRATION_SQL} from "../settings/appearance-migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "configuration-key-missing" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
-export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean }>;
+export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean }>;
 export type DiagnosticProbe = () => Promise<Snapshot>;
 function result(status: DiagnosticStatus): Diagnostic { return { status, canEnterSetup: status === "virgin" }; }
 export function classifyDatabaseError(error: unknown): DiagnosticStatus {
@@ -30,15 +31,16 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
   const isV2 = records[0].schema_version >= 2;
   const isV3 = records[0].schema_version >= 3;
   const isV4 = records[0].schema_version >= 4;
-  const isV5 = records[0].schema_version === 5;
-  if (migrations?.length !== (isV5 ? 5 : isV4 ? 4 : isV3 ? 3 : isV2 ? 2 : 1)) return result("installation-incomplete");
+  const isV5 = records[0].schema_version >= 5;
+  const isV6 = records[0].schema_version >= 6;
+  if (migrations?.length !== records[0].schema_version) return result("installation-incomplete");
   const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
   if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
       !base.finished_at || base.rolled_back_at) return result("installation-incomplete");
@@ -67,6 +69,12 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
     if (!fifth || fifth.checksum!==createHash("sha256").update(CONFIGURATION_MIGRATION_SQL).digest("hex") ||
         !fifth.finished_at || fifth.rolled_back_at || !snapshot.configurationTasksSchemaValid ||
         !names.has("public.smn_configuration_task:r")) return result("installation-incomplete");
+  }
+  if (isV6) {
+    const sixth=migrations.find(m=>m.migration_name===APPEARANCE_MIGRATION);
+    if(!sixth||sixth.checksum!==createHash("sha256").update(APPEARANCE_MIGRATION_SQL).digest("hex")||
+      !sixth.finished_at||sixth.rolled_back_at||!snapshot.paletteSchemaValid)
+      return result("installation-incomplete");
   }
   return result("initialized");
 }

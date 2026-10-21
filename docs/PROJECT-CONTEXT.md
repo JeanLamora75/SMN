@@ -129,3 +129,14 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 ## SMN-24 — Thèmes Bootstrap clair/sombre (21/10/2026)
 
 [PR #19](https://github.com/JeanLamora75/SMN/pull/19) fusionnée dans `main`. Le thème global `light`/`dark` est lu depuis les paramètres généraux existants, appliqué sur `<html data-bs-theme>` et répercuté aux variables Bootstrap/SMN et composants privés. Deux palettes fixes vérifiées pour les contrastes ; aucune couleur arbitraire, migration ou modification des données métier. Un changement du thème dans l'administration recharge l'interface. Voir [docs/THEMES-SMN-24.md](THEMES-SMN-24.md). Tests écrits, **CI et recette Windows non exécutées** ; Jira reste En cours.
+
+## SMN-24 — Extension palettes persistées (21 octobre 2026)
+
+
+- Jira : https://lmn24.atlassian.net/browse/SMN-24 ; Story 1.15 (Epic 1, incrément I0).
+- Thème global `light` / `dark` (déjà persisté par SMN-18), palettes `ocean`, `forest`, `violet` (nouvelle colonne `smn_general_settings.palette` avec CHECK PostgreSQL).
+- Migration additive **v5 → v6**, `20261021_smn24_appearance_palette` : même procédure sérialisée et auditée, sans modification des données métiers. Diagnostique v6 et historique Prisma mis à jour.
+- `src/server/settings/appearance.server.ts` projette les valeurs globales validées dans le layout HTML `data-bs-theme` et `data-smn-palette`, avec repli `light/ocean`. Styles centralisés en `src/app/appearance.css` et composés sur les écrans Bootstrap existants.
+- L'écran `/app/admin/settings` permet à l'Administrateur de modifier le thème et la palette ; validation serveur, contrôle de révision concurrente et audit transactionnel. Le profil Utilisateur ne dispose pas de l'accès en écriture.
+- Les messages et états restent textuels, non basés uniquement sur la couleur. Nouveaux libellés FR/EN dans les JSON centralisés.
+- Référence : [Documentation SMN-24](APPARENCE-SMN-24.md) et [spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-24-themes-palettes.md). Tests de code et CI à confirmer par exécution, non inférés de la seule publication.

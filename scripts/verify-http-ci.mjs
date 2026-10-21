@@ -235,14 +235,14 @@ try {
     assert.equal(settingsInitialResponse.status,200);
     const settingsInitial=(await settingsInitialResponse.json()).settings;
     assert.deepEqual({
-      locale:settingsInitial.locale,theme:settingsInitial.theme,
+      locale:settingsInitial.locale,theme:settingsInitial.theme,palette:settingsInitial.palette,
       referenceCountry:settingsInitial.referenceCountry,revision:settingsInitial.revision,
       mode:settingsInitial.mode,product:settingsInitial.product,
-    },{locale:"fr",theme:"light",referenceCountry:null,revision:0,
+    },{locale:"fr",theme:"light",palette:"ocean",referenceCountry:null,revision:0,
       mode:"scrum",product:"Produit de recette CI"});
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
-    )).rows[0].schema_version)),5);
+    )).rows[0].schema_version)),6);
     // SMN-20 — registre de configuration strictement privé aux administrateurs.
     const readChecklist=async(cookie=replacement)=>{
       const response=await get("/api/admin/configuration-tasks",{headers:{Cookie:cookie}});
@@ -274,6 +274,7 @@ try {
     const updated=await patchSettings({locale:"en",theme:"dark",referenceCountry:"DE",revision:0});
     assert.equal(updated.status,200);
     const payload=await updated.json();
+    assert.equal(payload.settings.palette,"ocean");
     assert.equal(payload.changed,true);
     assert.equal(payload.settings.revision,1);
     assert.equal(payload.settings.mode,"scrum");
@@ -290,6 +291,21 @@ try {
     assert.deepEqual((await withDb(async client=>(await client.query(
       "SELECT name FROM public.smn_product WHERE id='product'"
     )).rows[0])),{name:"Produit de recette CI"});
+    // SMN-24 : palette validée en serveur, migration additive et relecture SSR.
+    const badPalette=await patchSettings({locale:"en",theme:"dark",palette:"#000000",
+      referenceCountry:"DE",revision:1});
+    assert.equal(badPalette.status,400);
+    assert.deepEqual(await currentValues(),{
+      locale:"en",theme:"dark",reference_country:"DE",revision:1,
+    },"Palette interdite : aucune modification enregistrée");
+    const selected=await patchSettings({locale:"en",theme:"dark",palette:"forest",
+      referenceCountry:"DE",revision:1});
+    assert.equal(selected.status,200);
+    assert.equal((await selected.json()).settings.palette,"forest");
+    const persisted=await get("/api/admin/settings",{headers:{Cookie:replacement}});
+    assert.equal((await persisted.json()).settings.palette,"forest");
+    const darkPage=await get("/app",{headers:{Cookie:replacement},redirect:"manual"});
+    assert.match(await darkPage.text(),/data-bs-theme="dark"[^>]*data-smn-palette="forest"/);
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT mode FROM public.smn_installation WHERE id='singleton'"
     )).rows[0].mode)),"scrum");
@@ -302,7 +318,7 @@ try {
     });
     try {
       const beforeFailure=await currentValues();
-      const failed=await patchSettings({locale:"fr",theme:"light",referenceCountry:"FR",revision:1});
+      const failed=await patchSettings({locale:"fr",theme:"light",referenceCountry:"FR",revision:2});
       assert.equal(failed.status,503);
       assert.deepEqual(await currentValues(),beforeFailure,"Echec d'audit : mise à jour atomiquement annulée");
     }finally{

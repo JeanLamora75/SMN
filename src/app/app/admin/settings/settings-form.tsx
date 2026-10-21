@@ -2,8 +2,9 @@
 import { useCallback,useEffect,useState,type FormEvent } from "react";
 import {useRouter} from "next/navigation";
 import {useLocale,useTranslation} from "@/i18n/client";
+import {type Palette} from "@/lib/appearance";
 type Settings={
-  locale:"fr"|"en";theme:"light"|"dark";referenceCountry:string|null;
+  locale:"fr"|"en";theme:"light"|"dark";palette:Palette;referenceCountry:string|null;
   revision:number;updatedAt:string;mode:"scrum"|"kanban";product:string;
 };
 const countries=["FR","DE","GB","ES","PT","IT","CA"] as const;
@@ -14,6 +15,7 @@ export default function SettingsForm() {
   const [saved,setSaved]=useState<Settings|null>(null);
   const [locale,setLocale]=useState<"fr"|"en">("fr");
   const [theme,setTheme]=useState<"light"|"dark">("light");
+  const [palette,setPalette]=useState<Palette>("ocean");
   const [country,setCountry]=useState("");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
@@ -25,7 +27,7 @@ export default function SettingsForm() {
       const response=await fetch("/api/admin/settings",{cache:"no-store"});
       if(!response.ok) throw new Error("load");
       const data=await response.json() as {settings:Settings};
-      setSaved(data.settings);setLocale(data.settings.locale);setTheme(data.settings.theme);
+      setSaved(data.settings);setLocale(data.settings.locale);setTheme(data.settings.theme);setPalette(data.settings.palette);
       setCountry(data.settings.referenceCountry??"");setLoaded(true);
     }catch{setError(t("settings.loadError"));setLoaded(false);}
   },[t]);
@@ -36,7 +38,7 @@ export default function SettingsForm() {
     try {
       const response=await fetch("/api/admin/settings",{
         method:"PATCH",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({locale,theme,referenceCountry:country||null,revision:saved.revision}),
+        body:JSON.stringify({locale,theme,palette,referenceCountry:country||null,revision:saved.revision}),
         cache:"no-store",
       });
       const data=await response.json() as {settings?:Settings;changed?:boolean;error?:string};
@@ -46,12 +48,15 @@ export default function SettingsForm() {
         return;
       }
       setSaved(data.settings);
+      // Mise à jour instantanée du DOM ; le rendu SSR reprend le même état après rechargement.
+      document.documentElement.setAttribute("data-bs-theme",data.settings.theme);
+      document.documentElement.setAttribute("data-smn-palette",data.settings.palette);
       setSuccess(t(data.changed?"settings.saved":"settings.unchanged"));
-      if(saved.locale!==data.settings.locale||saved.theme!==data.settings.theme)router.refresh();
+      if(saved.locale!==data.settings.locale || saved.theme!==data.settings.theme || saved.palette!==data.settings.palette)router.refresh();
     }catch{setError(t("settings.network"));}
     finally{setBusy(false);}
   }
-  const dirty=!!saved&&(locale!==saved.locale||theme!==saved.theme||country!==(saved.referenceCountry??""));
+  const dirty=!!saved&&(locale!==saved.locale||theme!==saved.theme||palette!==saved.palette||country!==(saved.referenceCountry??""));
   return <div className="d-grid gap-4">
     {loaded&&saved&&<form onSubmit={submit} className="smn-panel p-4 d-grid gap-4">
       <section>
@@ -78,6 +83,15 @@ export default function SettingsForm() {
               <option value="light">{t("settings.light")}</option><option value="dark">{t("settings.dark")}</option>
             </select>
             <p className="small text-secondary mt-1">{t("settings.themeInfo")}</p>
+          </div>
+          <div className="col-md-6"><label className="form-label" htmlFor="palette">{t("settings.palette")}</label>
+            <select id="palette" className="form-select" value={palette} disabled={busy}
+              onChange={e=>setPalette(e.target.value as Palette)}>
+              <option value="ocean">{t("settings.paletteOcean")}</option>
+              <option value="forest">{t("settings.paletteForest")}</option>
+              <option value="violet">{t("settings.paletteViolet")}</option>
+            </select>
+            <p className="small text-secondary mt-1">{t("settings.paletteInfo")}</p>
           </div>
           <div className="col-md-6"><label className="form-label" htmlFor="country">{t("settings.country")}</label>
             <select id="country" className="form-select" value={country} disabled={busy} onChange={e=>setCountry(e.target.value)}>

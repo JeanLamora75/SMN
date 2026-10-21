@@ -36,6 +36,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     assert.equal(classifySnapshot({ ...valid, installations: [{ id: "singleton", state: "initialized", schema_version: 3 }] }).status, "installation-incomplete");
     assert.equal(classifySnapshot({ ...valid, installations: [{ id: "singleton", state: "initialized", schema_version: 4 }] }).status, "installation-incomplete");
     assert.equal(classifySnapshot({ ...valid, installations: [{ id: "singleton", state: "initialized", schema_version: 5 }] }).status, "installation-incomplete");
+    assert.equal(classifySnapshot({ ...valid, installations: [{ id: "singleton", state: "initialized", schema_version: 6 }] }).status, "installation-incomplete");
     assert.equal(classifySnapshot({ ...valid, tables: [...names, "public.users:r"] }).status, "schema-incompatible");
   });
   it("distingue permissions de lecture et capacité future de création", () => {
