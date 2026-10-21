@@ -2,6 +2,8 @@
 
 [Story Jira SMN-58](https://lmn24.atlassian.net/browse/SMN-58) · [Spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-58-capacite-manuelle.md) · [Calcul SMN-57](CAPACITE-DEVELOPPEMENT-SMN-57.md)
 
+Une [replanification capacitaire SMN-62](REPLANIFICATION-CAPACITE-SMN-62.md) peut être simulée et confirmée sans écraser ni déplacer la saisie manuelle de cette période, y compris le zéro explicite.
+
 ## Parcours Administrateur
 
 Depuis **Calendrier d'équipe → Calculer la capacité en JH**, choisir la fenêtre de dates puis cliquer sur **Calculer la capacité**. La page affiche trois informations distinctes :

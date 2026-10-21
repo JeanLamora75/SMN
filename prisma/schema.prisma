@@ -78,6 +78,8 @@ model SmnAccount {
   actualCapacityEditors SmnCapacityActualOverride[]
   actualCapacityAuditActors SmnCapacityActualOverrideHistory[]
   actualCapacityClosers SmnCapacityActualSnapshot[]
+  capacityReplanningEditors SmnCapacityReplanning[]
+  capacityReplanningAuditActors SmnCapacityReplanningHistory[]
   historicalQualitiesEdited SmnCapacityHistoricalQuality[]
   historicalQualityRevisions SmnCapacityHistoricalQualityHistory[]
   holidayCsvAudits SmnNationalHolidayAudit[]
@@ -433,6 +435,7 @@ model SmnCapacityPeriodOverride {
  initialSnapshot SmnCapacityInitialSnapshot?
  actualOverride SmnCapacityActualOverride?
  actualSnapshot SmnCapacityActualSnapshot?
+ replanning SmnCapacityReplanning?
  @@unique([teamId,startOn,endOn])
  @@index([teamId,startOn,endOn])
  @@map("smn_capacity_period_override")
@@ -541,4 +544,33 @@ model SmnCapacityHistoricalQualityHistory {
  actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
  @@unique([qualificationId,revision])
  @@map("smn_capacity_historical_quality_history")
+}
+
+model SmnCapacityReplanning {
+ id String @id
+ periodId String @unique @map("period_id")
+ targetStartOn DateTime @map("target_start_on") @db.Date
+ targetEndOn DateTime @map("target_end_on") @db.Date
+ revision Int @default(1)
+ confirmedBy String? @map("confirmed_by")
+ confirmedAt DateTime @default(now()) @map("confirmed_at") @db.Timestamptz(6)
+ period SmnCapacityPeriodOverride @relation(fields:[periodId],references:[id],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[confirmedBy],references:[id],onDelete:SetNull)
+ history SmnCapacityReplanningHistory[]
+ @@map("smn_capacity_replanning")
+}
+model SmnCapacityReplanningHistory {
+ id String @id
+ replanningId String @map("replanning_id")
+ revision Int
+ eventId String @unique @map("event_id")
+ previousValues Json? @map("previous_values") @db.JsonB
+ confirmedValues Json @map("confirmed_values") @db.JsonB
+ previewDigest String @map("preview_digest")
+ confirmedBy String? @map("confirmed_by")
+ confirmedAt DateTime @default(now()) @map("confirmed_at") @db.Timestamptz(6)
+ replanning SmnCapacityReplanning @relation(fields:[replanningId],references:[id],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[confirmedBy],references:[id],onDelete:SetNull)
+ @@unique([replanningId,revision])
+ @@map("smn_capacity_replanning_history")
 }

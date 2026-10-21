@@ -4,6 +4,8 @@
 
 Pour les périodes anciennes, consulter aussi la [qualification de fiabilité SMN-61](FIABILITE-CAPACITES-HISTORIQUES-SMN-61.md) : les estimations restent identifiées comme telles et les inconnues ne deviennent pas 0 JH.
 
+La [prévisualisation de replanification SMN-62](REPLANIFICATION-CAPACITE-SMN-62.md) compare deux fenêtres en lecture seule et permet de confirmer une **cible capacitaire** atomique, sans écraser les capacités manuelles ni les archives historiques. Le changement des cycles opérationnels appartient aux Epics 4/7.
+
 ## Utilisation
 
 Ouvrir **Calendrier d'équipe → Calculer la capacité en JH** comme Administrateur. Sélectionner une période de **1 à 93 jours** et cliquer sur **Calculer la capacité**. Le résultat affiche la contribution de chaque membre, le total et le détail journalier.
