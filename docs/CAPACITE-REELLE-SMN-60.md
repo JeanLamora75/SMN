@@ -4,6 +4,8 @@
 
 La [qualification historique SMN-61](FIABILITE-CAPACITES-HISTORIQUES-SMN-61.md) permet de distinguer une capacité prévue **Connue**, **Estimée** ou **Non renseignée**, sans la confondre avec le réalisé et sans modifier les clichés de clôture.
 
+La [prévisualisation SMN-62](REPLANIFICATION-CAPACITE-SMN-62.md) respecte la séparation entre références calculées, réalisé manuel et cliché clôturé. Elle bloque toute confirmation si la période est clôturée.
+
 ## Parcours Administrateur
 
 Depuis **Calendrier d'équipe → Calculer la capacité en JH**, choisir une période puis demander le calcul. Un bloc **Capacité réellement constatée** apparaît séparément des résultats prévisionnels et de l'engagement initial.
