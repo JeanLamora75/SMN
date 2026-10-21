@@ -1363,5 +1363,31 @@
       "cancelled": "Cancelled (recorded status)",
       "unknown": "Status not recorded"
     }
+  },
+  "scrumCadence": {
+    "title": "Scrum team cadence",
+    "intro": "Set defaults for newly created Sprints. Existing Sprints, including future ones, keep their dates.",
+    "weeks": "Sprint duration (weeks)",
+    "startDay": "Start day",
+    "startTime": "Start time",
+    "endDay": "End day",
+    "endTime": "End time",
+    "timeZone": "Team IANA time zone",
+    "futureOnly": "These settings only apply to Sprints created after this change.",
+    "save": "Save cadence",
+    "saved": "Cadence saved.",
+    "revision": "Revision {revision}",
+    "loadError": "Unable to load cadence settings.",
+    "saveError": "Unable to save cadence. Check days and hours.",
+    "conflict": "Settings changed elsewhere. Reload the page.",
+    "days": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    }
   }
 }
