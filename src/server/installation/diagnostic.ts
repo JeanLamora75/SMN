@@ -6,10 +6,11 @@ import { RECOVERY_MIGRATION, RECOVERY_MIGRATION_SQL } from "../accounts/recovery
 import { SETTINGS_MIGRATION, SETTINGS_MIGRATION_SQL } from "../settings/migration";
 import { CONFIGURATION_MIGRATION, CONFIGURATION_MIGRATION_SQL } from "../configuration/migration";
 import {APPEARANCE_MIGRATION,APPEARANCE_MIGRATION_SQL} from "../settings/appearance-migration";
+import {ACCOUNT_AUDIT_MIGRATION,ACCOUNT_AUDIT_MIGRATION_SQL} from "../audit/account-migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "configuration-key-missing" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
-export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean }>;
+export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean;accountAuditSchemaValid?:boolean }>;
 export type DiagnosticProbe = () => Promise<Snapshot>;
 function result(status: DiagnosticStatus): Diagnostic { return { status, canEnterSetup: status === "virgin" }; }
 export function classifyDatabaseError(error: unknown): DiagnosticStatus {
@@ -31,7 +32,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5,6].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6,7].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
@@ -40,6 +41,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const isV4 = records[0].schema_version >= 4;
   const isV5 = records[0].schema_version >= 5;
   const isV6 = records[0].schema_version >= 6;
+  const isV7 = records[0].schema_version >= 7;
   if (migrations?.length !== records[0].schema_version) return result("installation-incomplete");
   const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
   if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
@@ -75,6 +77,12 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
     if(!sixth||sixth.checksum!==createHash("sha256").update(APPEARANCE_MIGRATION_SQL).digest("hex")||
       !sixth.finished_at||sixth.rolled_back_at||!snapshot.paletteSchemaValid)
       return result("installation-incomplete");
+  }
+  if (isV7) {
+    const seventh=migrations.find(m=>m.migration_name===ACCOUNT_AUDIT_MIGRATION);
+    if(!seventh||seventh.checksum!==createHash("sha256").update(ACCOUNT_AUDIT_MIGRATION_SQL).digest("hex")||
+      !seventh.finished_at||seventh.rolled_back_at||!snapshot.accountAuditSchemaValid||
+      !names.has("public.smn_account_audit:r"))return result("installation-incomplete");
   }
   return result("initialized");
 }
