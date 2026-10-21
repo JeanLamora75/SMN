@@ -370,6 +370,72 @@ try {
      "SELECT count(*)::int AS count FROM public.smn_member_assignment_version WHERE assignment_id=$1",
      [assignmentBefore.assignmentId]
     )).rows[0].count)),2);
+    // Availability is absent until explicitly saved; suggested Mon-Fri is not actual absence/capacity data.
+    const calendarPath=id=>"/api/admin/members/"+encodeURIComponent(id)+"/calendar";
+    const calendarRead=(id,cookie=replacement,suffix="")=>get(calendarPath(id)+suffix,{
+      headers:cookie?{Cookie:cookie}:{}});
+    const calendarWrite=(id,payload,cookie=replacement)=>
+      postAuth(calendarPath(id),payload,cookie);
+    assert.equal((await calendarRead(memberWithRoles.id,"")).status,403);
+    const calendarBefore=await (await calendarRead(memberWithRoles.id)).json();
+    assert.equal(calendarBefore.configured,false);
+    assert.equal(calendarBefore.current,null);
+    assert.equal(calendarBefore.day.status,"missing");
+    assert.equal(calendarBefore.day.absenceDays,null);
+    assert.equal(calendarBefore.day.developmentCapacityJh,null);
+    assert.deepEqual(calendarBefore.suggestedWeek.map(d=>Number(d.morning)+Number(d.afternoon)),
+      [2,2,2,2,2,0,0]);
+    const dates=calendarBefore.suggestedWeek.map(d=>({...d}));
+    dates[2].afternoon=false;dates[4].morning=false;dates[4].afternoon=false;
+    const savedWeek=await calendarWrite(memberWithRoles.id,{
+      action:"weekly",revision:0,effectiveFrom:calendarBefore.today,days:dates
+    });
+    assert.equal(savedWeek.status,201);
+    assert.equal((await savedWeek.json()).revision,1);
+    assert.equal((await calendarWrite(memberWithRoles.id,{
+      action:"weekly",revision:0,effectiveFrom:calendarBefore.today,days:dates
+    })).status,409);
+    const firstCalendar=await (await calendarRead(memberWithRoles.id)).json();
+    assert.equal(firstCalendar.configured,true);
+    assert.equal(firstCalendar.weeks.length,1);
+    assert.equal(firstCalendar.contractPercent,100);
+    assert.equal(firstCalendar.day.developmentCapacityJh,null);
+    const saturday=new Date(calendarBefore.today+"T00:00:00Z");
+    const daysUntilSaturday=(6-saturday.getUTCDay()+7)%7;
+    saturday.setUTCDate(saturday.getUTCDate()+daysUntilSaturday);
+    const saturdayDate=saturday.toISOString().slice(0,10);
+    const savedException=await calendarWrite(memberWithRoles.id,{
+      action:"exception",revision:0,onDate:saturdayDate,
+      morning:true,afternoon:false,note:"Permanence"
+    });
+    assert.equal(savedException.status,201);
+    const exceptionDay=await (await calendarRead(memberWithRoles.id,replacement,
+      "?onDate="+saturdayDate)).json();
+    assert.equal(exceptionDay.day.status,"configured");
+    assert.equal(exceptionDay.day.source,"exception");
+    assert.deepEqual(exceptionDay.day.slots,{morning:true,afternoon:false});
+    assert.equal(exceptionDay.day.absenceDays,null);
+    assert.equal(exceptionDay.day.developmentCapacityJh,null);
+    const tomorrow=new Date(calendarBefore.today+"T00:00:00Z");
+    tomorrow.setUTCDate(tomorrow.getUTCDate()+7);
+    const futureFrom=tomorrow.toISOString().slice(0,10);
+    const futureDays=dates.map(d=>({...d,morning:false,afternoon:false}));
+    assert.equal((await calendarWrite(memberWithRoles.id,{
+      action:"weekly",revision:1,effectiveFrom:futureFrom,days:futureDays
+    })).status,201);
+    const afterFuture=await (await calendarRead(memberWithRoles.id)).json();
+    assert.equal(afterFuture.weeks.length,2);
+    assert.equal(afterFuture.current.revision,1);
+    assert.equal(afterFuture.day.source,"weekly");
+    assert.equal(afterFuture.exceptions.length,1);
+    assert.equal((await withDb(async client=>(await client.query(
+      "SELECT count(*)::int AS count FROM public.smn_member_calendar_week WHERE member_id=$1",
+      [memberWithRoles.id]
+    )).rows[0].count)),2);
+    assert.equal((await withDb(async client=>(await client.query(
+      "SELECT count(*)::int AS count FROM public.smn_member_calendar_exception WHERE member_id=$1",
+      [memberWithRoles.id]
+    )).rows[0].count)),1);
     const lifecyclePath=id=>"/api/admin/members/"+encodeURIComponent(id)+"/lifecycle";
     const lifecycleRead=(id,cookie=replacement)=>get(lifecyclePath(id),{
       headers:cookie?{Cookie:cookie}:{}});
@@ -477,7 +543,7 @@ try {
       mode:"scrum",product:"Produit de recette CI"});
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
-    )).rows[0].schema_version)),12);
+    )).rows[0].schema_version)),13);
     // SMN-20 — registre de configuration strictement privé aux administrateurs.
     const readChecklist=async(cookie=replacement)=>{
       const response=await get("/api/admin/configuration-tasks",{headers:{Cookie:cookie}});
@@ -712,6 +778,9 @@ try {
     assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/members",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await getVersions(userReady)).status,403);
+    assert.equal((await calendarRead(memberWithRoles.id,userReady)).status,403);
+    assert.equal((await calendarWrite(memberWithRoles.id,{action:"weekly",revision:2,
+      effectiveFrom:futureFrom,days:futureDays},userReady)).status,403);
     assert.equal((await lifecycleRead(memberWithRoles.id,userReady)).status,403);
     assert.equal((await lifecycleWrite(memberWithRoles.id,{action:"archive",revision:3},userReady)).status,403);
     assert.equal((await postVersion(updateRoles,userReady)).status,403);

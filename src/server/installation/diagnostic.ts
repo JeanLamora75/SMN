@@ -12,10 +12,11 @@ import {MEMBERS_MIGRATION,MEMBERS_MIGRATION_SQL} from "../members/migration";
 import {MEMBER_PROFILE_MIGRATION,MEMBER_PROFILE_MIGRATION_SQL} from "../members/profile-migration";
 import {ASSIGNMENT_MIGRATION,ASSIGNMENT_MIGRATION_SQL} from "../members/assignment-migration";
 import {LIFECYCLE_MIGRATION,LIFECYCLE_MIGRATION_SQL} from "../members/lifecycle-migration";
+import {MEMBER_CALENDAR_MIGRATION,MEMBER_CALENDAR_MIGRATION_SQL} from "../members/calendar-migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "configuration-key-missing" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
-export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean;accountAuditSchemaValid?:boolean;backupRetentionSchemaValid?:boolean;membersSchemaValid?:boolean;memberProfileSchemaValid?:boolean;assignmentVersionsSchemaValid?:boolean;lifecycleSchemaValid?:boolean }>;
+export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean;accountAuditSchemaValid?:boolean;backupRetentionSchemaValid?:boolean;membersSchemaValid?:boolean;memberProfileSchemaValid?:boolean;assignmentVersionsSchemaValid?:boolean;lifecycleSchemaValid?:boolean;memberCalendarSchemaValid?:boolean }>;
 export type DiagnosticProbe = () => Promise<Snapshot>;
 function result(status: DiagnosticStatus): Diagnostic { return { status, canEnterSetup: status === "virgin" }; }
 export function classifyDatabaseError(error: unknown): DiagnosticStatus {
@@ -37,7 +38,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5,6,7,8,9,10,11,12].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6,7,8,9,10,11,12,13].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
@@ -52,6 +53,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const isV10 = records[0].schema_version >= 10;
   const isV11 = records[0].schema_version >= 11;
   const isV12 = records[0].schema_version >= 12;
+  const isV13 = records[0].schema_version >= 13;
   if (migrations?.length !== records[0].schema_version) return result("installation-incomplete");
   const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
   if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
@@ -128,6 +130,14 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
     if(!twelfth||twelfth.checksum!==createHash("sha256").update(LIFECYCLE_MIGRATION_SQL).digest("hex")||
        !twelfth.finished_at||twelfth.rolled_back_at||!snapshot.lifecycleSchemaValid||
        !names.has("public.smn_member_lifecycle_event:r"))return result("installation-incomplete");
+  }
+  if(isV13){
+    const thirteenth=migrations.find(m=>m.migration_name===MEMBER_CALENDAR_MIGRATION);
+    if(!thirteenth||thirteenth.checksum!==createHash("sha256").update(MEMBER_CALENDAR_MIGRATION_SQL).digest("hex")||
+       !thirteenth.finished_at||thirteenth.rolled_back_at||!snapshot.memberCalendarSchemaValid||
+       !names.has("public.smn_member_calendar_week:r")||
+       !names.has("public.smn_member_calendar_exception:r"))
+      return result("installation-incomplete");
   }
   return result("initialized");
 }
