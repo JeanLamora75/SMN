@@ -14,6 +14,10 @@ La liste des absences de cette personne montre période, catégorie écrite et p
 
 Le socle ajoute, à l'installation/migration : **Congés, Formation, Maladie et Autre**, avec leurs couleurs. **SMN-52 est désormais livrée séparément : [gérer les catégories](CATEGORIES-ABSENCES-SMN-52.md)** : le renommage, les changements de couleur et la désactivation par un Administrateur sont disponibles dans la gestion des catégories correspondante. Le schéma relationnel permet ces changements sans modifier l'identité des catégories référencées. La saisie « Maladie » ne demande aucun diagnostic : un libellé générique suffit, mais ne peut pas être vide.
 
+## Particularités régionales (SMN-54)
+
+Un jour non travaillé propre à la région d'un membre se saisit via **Préparer un jour régional non travaillé** : c'est une absence centralisée ordinaire, avec catégorie et motif non vide. Le cumul national + individuel s'effectue par union de demi-journées et est présenté sous la date du calendrier individuel. Consulter le [guide SMN-54](JOURS-REGIONAUX-SMN-54.md). Le calendrier d'équipe demeure une Story distincte.
+
 ## Persistance, audit et absence d'effets de bord
 
 Les tables `smn_absence_category`, `smn_member_absence` et `smn_member_absence_history` sont ajoutées par la migration **v19**. Les modifications sont atomiques, verrouillées par membre, contrôlées par révision ; les créneaux qui se chevauchent sont refusés. Chaque correction conserve les valeurs **avant/après**, l'identité de l'acteur, la révision et l'horodatage. Les capacités initiales figées et les rapports PDF anciens ne sont pas recalculés. Aucune suppression de Daily ni notification collective automatique n'est déclenchée.
