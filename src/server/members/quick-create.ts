@@ -3,13 +3,13 @@ import type {Client} from "pg";
 
 export type AgileRole="scrum_master"|"product_owner"|"developer";
 export type QuickMember=Readonly<{
- id:string;memberNumber:number;displayName:string;isProvisional:true;
+ id:string;memberNumber:number;displayName:string;email:null;revision:0;isProvisional:true;
  agileRole:AgileRole;startOn:string;
  contractPercent:100;allocationPercent:100;rolePercent:100;contributionPercent:100;
  developmentCapacityJh:null;
 }>;
-export type MemberListItem=Readonly<Omit<QuickMember,"isProvisional"|"contractPercent"|"allocationPercent"|"rolePercent"|"contributionPercent"|"developmentCapacityJh"> & {
- isProvisional:boolean;contractPercent:number;allocationPercent:number;rolePercent:number;
+export type MemberListItem=Readonly<Omit<QuickMember,"email"|"revision"|"isProvisional"|"contractPercent"|"allocationPercent"|"rolePercent"|"contributionPercent"|"developmentCapacityJh"> & {
+ email:string|null;revision:number;isProvisional:boolean;contractPercent:number;allocationPercent:number;rolePercent:number;
  contributionPercent:number;developmentCapacityJh:null;
 }>;
 export type TeamMembers=Readonly<{
@@ -45,10 +45,10 @@ async function installedTeam(client:Client):Promise<TeamMembers["team"]>{
   throw new Error("members-team-unavailable");
  return {id:team.rows[0].team_id,name:team.rows[0].team_name,mode:team.rows[0].mode};
 }
-type MemberRow={id:string;member_number:number;display_name:string;is_provisional:boolean;
+type MemberRow={id:string;member_number:number;display_name:string;email:string|null;revision:number;is_provisional:boolean;
  agile_role:AgileRole;start_on:string;contract_percent:number;allocation_percent:number;
  role_percent:number;contribution_percent:number};
-const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.is_provisional,
+const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,m.revision,m.is_provisional,
  m.contract_percent,m.contribution_percent,a.agile_role,a.start_on::text AS start_on,
  a.allocation_percent,a.role_percent
  FROM public.smn_member m
@@ -60,7 +60,7 @@ function project(row:MemberRow):MemberListItem{
   !Number.isSafeInteger(row.member_number)||row.member_number<1||
   typeof row.display_name!=="string"||typeof row.start_on!=="string")
   throw new Error("member-record-invalid");
- return {id:row.id,memberNumber:row.member_number,displayName:row.display_name,
+ return {id:row.id,memberNumber:row.member_number,displayName:row.display_name,email:row.email??null,revision:row.revision??0,
   isProvisional:row.is_provisional,agileRole:row.agile_role,startOn:row.start_on,
   contractPercent:row.contract_percent,contributionPercent:row.contribution_percent,
   allocationPercent:row.allocation_percent,rolePercent:row.role_percent,
@@ -123,7 +123,7 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
     (id,member_id,team_id,start_on,agile_role,allocation_percent,role_percent)
     VALUES ($1,$2,$3,$4::date,$5,100,100)`,
     [randomUUID(),id,team.id,startOn,role]);
-   members.push({id,memberNumber,displayName,isProvisional:true,agileRole:role,startOn,
+   members.push({id,memberNumber,displayName,email:null,revision:0,isProvisional:true,agileRole:role,startOn,
     contractPercent:100,allocationPercent:100,rolePercent:100,contributionPercent:100,
     developmentCapacityJh:null});
   }
