@@ -658,7 +658,7 @@
     "notCalculated": "Non calculable",
     "provisional": "À compléter",
     "provisionalName": "Membre {number}",
-    "futureEdits": "Les informations centrales, les calendriers, la répartition des rôles et les capacités seront enrichis dans les prochaines fonctionnalités. Les rôles Scrum Master et Product Owner ne génèrent aucune capacité Développeur.",
+    "futureEdits": "Les calendriers, les rôles Agile, les affectations et les capacités seront enrichis dans les prochaines fonctionnalités.",
     "created": "{count} fiches membres et leurs affectations ont été créées.",
     "recovered": "Le lot existait déjà : {count} membres retrouvés sans duplication.",
     "alreadyInitialized": "Une composition initiale existe déjà. Aucune nouvelle fiche n'a été créée.",
@@ -668,6 +668,29 @@
       "scrumMaster": "Scrum Master",
       "productOwner": "Product Owner",
       "developer": "Développeur"
+    },
+    "profile": {
+      "editTitle": "Compléter la fiche du membre",
+      "nameLabel": "Nom du membre",
+      "emailLabel": "Adresse e-mail",
+      "emailHelp": "Facultative. Cette adresse est conservée sur la fiche du membre ; aucun compte ou message n'est créé.",
+      "identityNotice": "L'identifiant central et la date d'affectation ne seront pas modifiés. Aucune capacité de développement n'est déduite de cette fiche.",
+      "provisionalHelp": "Cette fiche est encore provisoire. Un changement de nom la fera passer à l'état confirmé ; ajouter uniquement un e-mail conservera son état provisoire.",
+      "confirmedHelp": "Cette fiche est confirmée. Toute correction conserve son identifiant et ses affectations.",
+      "confirmed": "Confirmée",
+      "actions": "Action",
+      "edit": "Modifier la fiche",
+      "cancel": "Annuler",
+      "save": "Enregistrer la fiche",
+      "saving": "Enregistrement…",
+      "saved": "Fiche mise à jour et enregistrée. Les affectations restent inchangées.",
+      "noEmail": "Non renseignée",
+      "invalidName": "Saisissez un nom valide de 1 à 120 caractères, sans caractères de contrôle.",
+      "invalidEmail": "Adresse e-mail trop longue (254 caractères maximum).",
+      "invalidInput": "Nom ou adresse e-mail invalide. Aucune modification enregistrée.",
+      "conflict": "La fiche a été modifiée depuis votre dernière lecture. Rechargez la liste avant de recommencer.",
+      "notFound": "Cette fiche n'est plus disponible.",
+      "failed": "Enregistrement non confirmé. Vérifiez la fiche avant de retenter."
     }
   }
 }

@@ -80,7 +80,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const shapeValid = required.every((name) => columnSet.has(name));
     if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 9",
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 10",
     )).rows;
     return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
@@ -94,6 +94,8 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
         "smn_backup_retention_audit:action","smn_backup_retention_audit:old_days","smn_backup_retention_audit:new_days",
         "smn_backup_retention_audit:package_id","smn_backup_retention_audit:occurred_at"]
         .every(col=>columnSet.has(col)),
+      memberProfileSchemaValid: ["smn_member:email","smn_member:revision","smn_member:updated_at"]
+        .every(name=>columnSet.has(name)),
       membersSchemaValid: [
        ...["id","installation_id","team_id","requested_count","created_by","created_at"]
          .map(name=>"smn_member_batch:"+name),

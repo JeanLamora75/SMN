@@ -284,6 +284,54 @@ try {
     assert.equal((await withDb(async c=>(await c.query(
      "SELECT count(*)::int AS count FROM public.smn_member_assignment"
     )).rows[0].count)),5);
+    // Profil central enrichi : mise à jour de la personne sans affectation ou compte supplémentaire.
+    const originalMember=rosterAfter.members[1];
+    const profileUrl="/api/admin/members/"+encodeURIComponent(originalMember.id);
+    const patchProfile=(body,cookie=replacement)=>get(profileUrl,{
+      method:"PATCH",redirect:"manual",
+      headers:{"Content-Type":"application/json",Origin:base,...(cookie?{Cookie:cookie}:{})},
+      body:JSON.stringify(body),
+    });
+    const assignmentsBefore=await withDb(async client=>(await client.query(
+      "SELECT id,start_on::text AS start_on,agile_role FROM public.smn_member_assignment WHERE member_id=$1",
+      [originalMember.id]
+    )).rows);
+    assert.equal((await patchProfile({
+      displayName:"Camille Martin",email:"invalid-email",revision:0
+    })).status,400);
+    const profileUpdated=await patchProfile({
+      displayName:"Camille Martin",email:"camille@example.org",revision:0
+    });
+    assert.equal(profileUpdated.status,200);
+    const savedProfile=(await profileUpdated.json()).member;
+    assert.equal(savedProfile.id,originalMember.id);
+    assert.equal(savedProfile.isProvisional,false);
+    assert.equal(savedProfile.email,"camille@example.org");
+    assert.equal(savedProfile.revision,1);
+    const staleProfile=await patchProfile({
+      displayName:"Ancienne version",email:"other@example.org",revision:0
+    });
+    assert.equal(staleProfile.status,409);
+    const removedEmail=await patchProfile({
+      displayName:"Camille Martin",email:null,revision:1
+    });
+    assert.equal(removedEmail.status,200);
+    assert.equal((await removedEmail.json()).member.email,null);
+    const membersAfterProfile=await (await get("/api/admin/members",{headers:{Cookie:replacement}})).json();
+    assert.equal(membersAfterProfile.members.length,5);
+    assert.equal(membersAfterProfile.members[1].displayName,"Camille Martin");
+    assert.equal(membersAfterProfile.members[1].isProvisional,false);
+    assert.equal(membersAfterProfile.members[1].email,null);
+    assert.equal(membersAfterProfile.members[1].developmentCapacityJh,null);
+    const assignmentsAfter=await withDb(async client=>(await client.query(
+      "SELECT id,start_on::text AS start_on,agile_role FROM public.smn_member_assignment WHERE member_id=$1",
+      [originalMember.id]
+    )).rows);
+    assert.deepEqual(assignmentsAfter,assignmentsBefore);
+    const accountsAfter=await withDb(async client=>(await client.query(
+      "SELECT count(*)::int AS count FROM public.smn_account WHERE installation_id='singleton'"
+    )).rows[0].count);
+    assert.equal(accountsAfter,1);
     const initialBackupStatus=await get("/api/admin/backups",{headers:{Cookie:replacement}});
     assert.equal(initialBackupStatus.status,200);
     assert.equal((await initialBackupStatus.json()).needsRecoveryPhrase,true);
@@ -332,7 +380,7 @@ try {
       mode:"scrum",product:"Produit de recette CI"});
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT schema_version FROM public.smn_installation WHERE id='singleton'"
-    )).rows[0].schema_version)),9);
+    )).rows[0].schema_version)),10);
     // SMN-20 — registre de configuration strictement privé aux administrateurs.
     const readChecklist=async(cookie=replacement)=>{
       const response=await get("/api/admin/configuration-tasks",{headers:{Cookie:cookie}});
@@ -566,6 +614,10 @@ try {
     assert.equal((await get("/api/admin/accounts",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/backups",{headers:{Cookie:userReady}})).status,403);
     assert.equal((await get("/api/admin/members",{headers:{Cookie:userReady}})).status,403);
+    assert.equal((await get(profileUrl,{headers:{Cookie:userReady}})).status,405);
+    assert.equal((await patchProfile({
+      displayName:"Indiscret",email:"private@example.org",revision:2
+    },userReady)).status,403);
     assert.equal((await quickCreate({teamId:"team",count:5,requestId:randomUUID()},userReady)).status,403);
     assert.notEqual((await get("/app/admin/members",{headers:{Cookie:userReady},redirect:"manual"})).status,200);
     assert.equal((await backupRequest({},userReady)).status,403);

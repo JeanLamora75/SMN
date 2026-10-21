@@ -658,7 +658,7 @@
     "notCalculated": "Not calculable",
     "provisional": "To complete",
     "provisionalName": "Member {number}",
-    "futureEdits": "Member details, calendars, role splits and capacities will be enriched in later features. Scrum Master and Product Owner roles add no Developer capacity.",
+    "futureEdits": "Calendars, Agile roles, assignments and capacities will be enriched in subsequent features.",
     "created": "Created {count} member records and assignments.",
     "recovered": "Existing batch recovered: {count} members, no duplicates.",
     "alreadyInitialized": "An initial roster already exists. No additional record was created.",
@@ -668,6 +668,29 @@
       "scrumMaster": "Scrum Master",
       "productOwner": "Product Owner",
       "developer": "Developer"
+    },
+    "profile": {
+      "editTitle": "Edit member profile",
+      "nameLabel": "Member name",
+      "emailLabel": "Email address",
+      "emailHelp": "Optional. Stored on the member record; no login account or email message is created.",
+      "identityNotice": "The central identifier and joining date remain unchanged. No development capacity is inferred from this profile.",
+      "provisionalHelp": "This record is provisional. Editing the name confirms it; adding only an email leaves it provisional.",
+      "confirmedHelp": "This record is confirmed. Edits retain its identity and assignments.",
+      "confirmed": "Confirmed",
+      "actions": "Action",
+      "edit": "Edit profile",
+      "cancel": "Cancel",
+      "save": "Save profile",
+      "saving": "Saving…",
+      "saved": "Member record updated and saved. Assignments remain unchanged.",
+      "noEmail": "Not provided",
+      "invalidName": "Enter a valid name of 1 to 120 characters without control characters.",
+      "invalidEmail": "Email address too long (maximum 254 characters).",
+      "invalidInput": "Invalid name or email address. No changes saved.",
+      "conflict": "This profile was updated after your last read. Reload the roster before trying again.",
+      "notFound": "This member is no longer available.",
+      "failed": "Save could not be confirmed. Check the member profile before retrying."
     }
   }
 }
