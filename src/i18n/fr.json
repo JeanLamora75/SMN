@@ -944,6 +944,7 @@
     "invalidFile": "Fichier ICS invalide ou format iCalendar non pris en charge.",
     "tooLarge": "Le fichier ICS dépasse la limite autorisée.",
     "invalidSelection": "Sélection invalide : un événement refusé ne peut pas être importé.",
-    "saved": "Import ICS confirmé : {created} dates ajoutées, {replaced} dates corrigées, {rejected} doublons ou conflits rejetés."
+    "saved": "Import ICS confirmé : {created} dates ajoutées, {replaced} dates corrigées, {rejected} doublons ou conflits rejetés.",
+    "nested": "Sous-composant iCalendar non pris en charge dans cet événement"
   }
 }
