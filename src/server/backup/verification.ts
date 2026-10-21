@@ -1,4 +1,4 @@
-import {createDecipheriv,createHash,constants} from "node:crypto";
+import {createDecipheriv,createHash} from "node:crypto";
 import {constants as fsConstants} from "node:fs";
 import {open,lstat,readdir} from "node:fs/promises";
 import {join} from "node:path";
@@ -56,6 +56,8 @@ const envelopeValid=(value:unknown):boolean=>{
 /** Only regular files are read. O_NOFOLLOW closes the symlink race on supported platforms. */
 async function safeOpen(path:string){
  try{
+  const link=await lstat(path);
+  if(!link.isFile()||link.isSymbolicLink())invalid("component-not-regular");
   const fd=await open(path,fsConstants.O_RDONLY|
    (process.platform==="win32"?0:fsConstants.O_NOFOLLOW));
   const stat=await fd.stat();
@@ -197,6 +199,19 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    names.add(v.sourceName);
    documents.push(v as {sourceName:string}&BackupComponent);
   }
+  const expectedTop=new Set(["index.json","manifest.enc","database.pgcustom.enc"]);
+  if(documents.length)expectedTop.add("documents");
+  const top=await readdir(folder);
+  if(top.length!==expectedTop.size||top.some(name=>!expectedTop.has(name)))
+   invalid("package-components-unexpected");
+  if(documents.length){
+   const docsDir=join(folder,"documents");
+   const dirInfo=await lstat(docsDir).catch(()=>incomplete("documents-directory-missing"));
+   if(!dirInfo.isDirectory()||dirInfo.isSymbolicLink())invalid("documents-directory-invalid");
+   const documentFiles=await readdir(docsDir);
+   if(documentFiles.length!==documents.length||
+    documentFiles.some(name=>!/^\d{5}\.enc$/.test(name)))invalid("documents-directory-unexpected");
+  }
   await verifyEncrypted(join(folder,database.path),database,key,MAX_DATABASE,false);
   const metadata=new Map<string,Record<string,unknown>>();
   const contentHash=new Map<string,string>();
@@ -216,6 +231,7 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
    const id=name.slice(0,-".meta.json".length);
    if(v.id!==id||(v.format!=="TXT"&&v.format!=="PDF")||
     typeof v.teamId!=="string"||typeof v.userAuthorized!=="boolean"||
+    typeof v.sha256!=="string"||!HASH.test(v.sha256)||
     v.sha256!==contentHash.get(id+(v.format==="TXT"?".txt":".pdf")))
     invalid("document-link-invalid");
   }
@@ -238,6 +254,11 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
 
 /** Persist only sanitized status evidence; these records are never used as proof. */
 export async function backupInventory(root:string):Promise<BackupInventoryEntry[]>{
+ const base=await lstat(root).catch(error=>{
+  if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return null;
+  throw error;
+ });
+ if(!base)return [];
  await privateFolder(root);
  const packages=join(root,"packages");
  const dir=await lstat(packages).catch(error=>{
