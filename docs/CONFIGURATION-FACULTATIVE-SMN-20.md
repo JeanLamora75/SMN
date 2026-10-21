@@ -32,3 +32,14 @@ Libellés UX intégralement dans `src/i18n/fr.json` et `en.json` sous `configura
 - Recette manuelle Windows : mise à jour depuis une installation v4 avec pays renseigné / absent ; changement FR/EN ; compte utilisateur simple ; rechargement ; signal enregistré et comportement `ignored`.
 
 **Limites documentées :** la configuration Scrum/Kanban avancée non encore livrée n'est pas présentée comme tâche. La prochaine modification du catalogue doit rester explicite et versionnée. L'approbation fonctionnelle de SMN-20 ne constitue pas une recette technique exécutée.
+
+
+## Contrats UX du tableau de bord — validés le 21 octobre 2026
+
+**Référence obligatoire pour les agents BMAD (PM, Analyst, UX, Architect, Dev, QA) et pour les futures User Stories :** [DESIGN.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/DESIGN.md) · [EXPERIENCE.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/EXPERIENCE.md) · [Synthèse UXD-01 à UXD-27](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/SYNTHESE-CADRAGE-UX-SMN.md) · [Sommaire et maquette décrite](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/README.md).
+
+**Décisions validées :** écran pleine largeur, sidebar rétractable, sélecteurs équipe/cycle dans le header, cartes J/H prévu/réel, SP et tickets **initialement engagés**/réalisés, compteur en jours ouvrés **du lundi au vendredi**, pas de carte « Avancement global » sans règle validée, quatre colonnes (obstacles, risques, événements, notes/alertes), 5 éléments actifs maximum par colonne, tri automatique, actions rapides contrôlées, historique fidèle ou message exact **« Aucun éléments à ce jour »**, personnalisation des métriques/colonnes, responsive 4/2/1.
+
+**Statut :** contrats UX approuvés et publiés, **pas** de nouvelle fonctionnalité ou de recette attestée. Les producteurs de données, règles d'historisation, droits et catalogues FR/EN restent à vérifier avant implémentation.
+
+**Implication spécifique :** Les tâches facultatives de configuration quittent le centre du tableau de bord cible et apparaissent parmi Notes/Alertes, avec un marquage explicite « Configuration actuelle ». Respecter les états persistés `todo/done/ignored`, ne pas inventer un rattachement historique.
