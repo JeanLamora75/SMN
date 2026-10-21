@@ -6,6 +6,8 @@ Pour les périodes anciennes, consulter aussi la [qualification de fiabilité SM
 
 La [prévisualisation de replanification SMN-62](REPLANIFICATION-CAPACITE-SMN-62.md) compare deux fenêtres en lecture seule et permet de confirmer une **cible capacitaire** atomique, sans écraser les capacités manuelles ni les archives historiques. Le changement des cycles opérationnels appartient aux Epics 4/7.
 
+Le [préremplissage prudent SMN-63](PREFILL-FORMULAIRES-SMN-63.md) laisse les périodes métier inconnues vides et empêche les réglages de faire perdre un brouillon de capacité manuelle.
+
 ## Utilisation
 
 Ouvrir **Calendrier d'équipe → Calculer la capacité en JH** comme Administrateur. Sélectionner une période de **1 à 93 jours** et cliquer sur **Calculer la capacité**. Le résultat affiche la contribution de chaque membre, le total et le détail journalier.
