@@ -103,6 +103,8 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
     "teamCalendar.adminIntro":"teamCalendar.userIntro")}</p>
    {isAdmin&&<Link href="/app/admin/company-closures" className="btn btn-outline-primary">
     {t("companyClosures.manage")}</Link>}
+   {isAdmin&&<Link href="/app/admin/development-capacity" className="btn btn-outline-primary ms-2">
+    {t("developmentCapacity.open")}</Link>}
   </header>
   <div className="smn-panel p-3 d-grid gap-3">
    <div className="row g-3 align-items-end">
