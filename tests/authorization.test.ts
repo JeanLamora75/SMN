@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { canAccess, protectedOperation, type AccessActor, type AccessResource } from "../src/server/access-policy";
 
 const actions = ["read", "write", "generate", "download"] as const;
-const resources = ["collective", "individual", "accounts", "settings", "documents", "backups"] as const;
+const resources = ["collective", "individual", "accounts", "settings", "audit", "documents", "backups"] as const;
 const actor = (role: string): AccessActor => ({ role, is_active: true, must_change_password: false });
 const resource = (type: string): AccessResource => ({ type, exists: true, inScope: true, format: "PDF", userAuthorized: true });
 
