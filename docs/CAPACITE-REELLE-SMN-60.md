@@ -2,6 +2,8 @@
 
 [Jira SMN-60](https://lmn24.atlassian.net/browse/SMN-60) · [Spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-60-capacite-reelle.md) · [Capacité initiale SMN-59](CAPACITE-INITIALE-SMN-59.md)
 
+La [qualification historique SMN-61](FIABILITE-CAPACITES-HISTORIQUES-SMN-61.md) permet de distinguer une capacité prévue **Connue**, **Estimée** ou **Non renseignée**, sans la confondre avec le réalisé et sans modifier les clichés de clôture.
+
 ## Parcours Administrateur
 
 Depuis **Calendrier d'équipe → Calculer la capacité en JH**, choisir une période puis demander le calcul. Un bloc **Capacité réellement constatée** apparaît séparément des résultats prévisionnels et de l'engagement initial.
