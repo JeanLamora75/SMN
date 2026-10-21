@@ -16,9 +16,9 @@ CREATE TABLE public.smn_capacity_historical_quality (
   (quality='not-supplied' AND qualified_jh IS NULL AND source_kind IS NULL AND source_ref IS NULL)
   OR (quality='known' AND qualified_jh IS NOT NULL
    AND source_kind IN ('document','import','other')
-   AND length(btrim(source_ref)) BETWEEN 3 AND 500)
+   AND source_ref IS NOT NULL AND length(btrim(source_ref)) BETWEEN 3 AND 500)
   OR (quality='estimated' AND qualified_jh IS NOT NULL
-   AND source_kind IS NOT NULL AND length(btrim(source_ref)) BETWEEN 3 AND 500)
+   AND source_kind IS NOT NULL AND source_ref IS NOT NULL AND length(btrim(source_ref)) BETWEEN 3 AND 500)
  ),
  CONSTRAINT smn_historical_quality_rationale CHECK(length(btrim(rationale)) BETWEEN 5 AND 1000),
  UNIQUE(team_id,start_on,end_on)
