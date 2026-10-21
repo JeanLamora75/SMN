@@ -618,6 +618,8 @@ model SmnSprint {
  status String @default("planned")
  createdBy String? @map("created_by")
  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+ deletedBy String? @map("deleted_by")
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
  audit SmnSprintAudit[]
  @@unique([teamId,number])

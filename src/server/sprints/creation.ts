@@ -56,6 +56,8 @@ export async function ensureSprintSchema(db:Client){
  status text NOT NULL DEFAULT 'planned',
  created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  created_at timestamptz NOT NULL DEFAULT now(),
+ deleted_at timestamptz,
+ deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  CHECK(end_at>start_at),
  UNIQUE(team_id,number)
  )`);
@@ -76,8 +78,8 @@ async function context(db:Client){
  return {teamId,cadence:cad.rows[0]};
 }
 async function latest(db:Client,teamId:string){
- const r=await db.query<SprintRow>("SELECT id,name,start_at::text,end_at::text,number,status FROM public.smn_sprint WHERE team_id=$1 ORDER BY end_at DESC,id DESC LIMIT 1",[teamId]);
- const count=await db.query<{next_number:number}>("SELECT COALESCE(MAX(number),0)+1 AS next_number FROM public.smn_sprint WHERE team_id=$1",[teamId]);
+ const r=await db.query<SprintRow>("SELECT id,name,start_at::text,end_at::text,number,status FROM public.smn_sprint WHERE team_id=$1 AND deleted_at IS NULL ORDER BY end_at DESC,id DESC LIMIT 1",[teamId]);
+ const count=await db.query<{next_number:number}>("SELECT COALESCE(MAX(number),0)+1 AS next_number FROM public.smn_sprint WHERE team_id=$1 AND deleted_at IS NULL",[teamId]);
  return {last:r.rows[0]??null,nextNumber:count.rows[0]?.next_number??1};
 }
 const formatSprintDate=(value:string)=>`${value.slice(8,10)}/${value.slice(5,7)}/${value.slice(0,4)}`;
@@ -108,7 +110,7 @@ export async function createSprint(db:Client,actorId:string,input:unknown){
   await db.query("SELECT pg_advisory_xact_lock(hashtext($1))",[teamId]);
   const {nextNumber}=await latest(db,teamId);
   const dates=calculateSprint(o.startOn,cadence);
-  const overlap=await db.query("SELECT 1 FROM public.smn_sprint WHERE team_id=$1 AND start_at<$3 AND end_at>$2 LIMIT 1",[teamId,dates.startAt,dates.endAt]);
+  const overlap=await db.query("SELECT 1 FROM public.smn_sprint WHERE team_id=$1 AND deleted_at IS NULL AND start_at<$3 AND end_at>$2 LIMIT 1",[teamId,dates.startAt,dates.endAt]);
   if(overlap.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap" as const};}
   const name=typeof o.name==="string"?o.name.trim():suggest(dates.startOn,dates.endOn);
   const id=randomUUID();
