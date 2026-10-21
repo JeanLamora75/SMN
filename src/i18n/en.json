@@ -770,7 +770,7 @@
       "loading": "Loading calendar…",
       "failedLoad": "Could not read this member's calendar.",
       "failed": "Save could not be confirmed. Reload the calendar before retrying.",
-      "contractSeparate": "Contracted time: {value}%. This is separate from the weekly work pattern.",
+      "contractSeparate": "Central member record's reference contract: {value}%. Effective-dated allocation percentages remain separate under Manage assignment.",
       "configured": "A saved calendar applies today. Future versions are kept separately.",
       "suggestedOnly": "Unconfirmed calendar: the Monday–Friday pattern below is only a suggestion. No working availability has been saved yet.",
       "archived": "Archived member: history is readable, but calendar cannot be edited.",
