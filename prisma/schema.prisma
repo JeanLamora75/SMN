@@ -115,6 +115,9 @@ model SmnMember {
   batchId String @map("batch_id")
   memberNumber Int @map("member_number")
   displayName String @map("display_name")
+  email String?
+  revision Int @default(0)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
   isProvisional Boolean @default(true) @map("is_provisional")
   contractPercent Int @default(100) @map("contract_percent")
   contributionPercent Int @default(100) @map("contribution_percent")
