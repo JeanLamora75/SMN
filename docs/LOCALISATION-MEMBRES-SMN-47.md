@@ -31,6 +31,6 @@ pnpm build
 pnpm dev
 ```
 
-Tester un membre localisé en France puis déplacé au Canada à une date future ; consulter une date antérieure et une date ultérieure ; vérifier que les deux pays/fuseaux sont distincts et que la langue du site ainsi que les autres personnes sont inchangées. Prévisualiser `2026-03-29T00:30:00Z` puis `2026-03-29T01:30:00Z` pour un membre dont la zone **Europe/Paris** est effectivement enregistrée à cette date : heures locales 01:30 et 03:30 (heure d'été). Une absence de localisation historique doit produire un résultat inconnu, pas une valeur supposée.
+Tester un membre localisé en France puis déplacé au Canada à une date future ; consulter une date antérieure et une date ultérieure ; vérifier que les deux pays/fuseaux sont distincts et que la langue du site ainsi que les autres personnes sont inchangées. Prévisualiser `2027-03-28T00:30:00Z` puis `2027-03-28T01:30:00Z` pour un membre dont la zone **Europe/Paris** est effectivement enregistrée à cette date : heures locales 01:30 et 03:30 (heure d'été). Une absence de localisation historique doit produire un résultat inconnu, pas une valeur supposée.
 
 Le schéma passe additivement de **v13 à v14**. Tester la migration avant de l'appliquer à une base importante ; les preuves d'exécution restent distinctes de cette documentation.
