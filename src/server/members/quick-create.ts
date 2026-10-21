@@ -136,10 +136,17 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
      contract_percent,contribution_percent)
     VALUES ($1,'singleton',$2,$3,$4,true,100,100)`,
     [id,input.requestId,memberNumber,displayName]);
+   const assignmentId=randomUUID();
    await client.query(`INSERT INTO public.smn_member_assignment
     (id,member_id,team_id,start_on,agile_role,allocation_percent,role_percent)
     VALUES ($1,$2,$3,$4::date,$5,100,100)`,
-    [randomUUID(),id,team.id,startOn,role]);
+    [assignmentId,id,team.id,startOn,role]);
+   await client.query(`INSERT INTO public.smn_member_assignment_version
+    (id,assignment_id,revision,effective_from,allocation_percent,contract_percent,
+     contribution_percent,scrum_master_percent,product_owner_percent,developer_percent)
+    VALUES ($1,$2,1,$3::date,100,100,100,$4,$5,$6)`,
+    [randomUUID(),assignmentId,startOn,role==="scrum_master"?100:0,
+     role==="product_owner"?100:0,role==="developer"?100:0]);
    members.push({id,memberNumber,displayName,email:null,revision:0,isProvisional:true,agileRole:role,startOn,
     contractPercent:100,allocationPercent:100,rolePercent:100,contributionPercent:100,
     roleShares:{scrumMaster:role==="scrum_master"?100:0,productOwner:role==="product_owner"?100:0,developer:role==="developer"?100:0},
