@@ -607,6 +607,23 @@
     "checkedAt": "Contrôlé le",
     "integrityOnly": "Restauration en environnement de test : non réalisée",
     "notVerified": "L'intégrité de ce paquet n'est pas établie. Ne pas l'utiliser comme sauvegarde vérifiée.",
-    "reason": "Code de contrôle"
+    "reason": "Code de contrôle",
+    "retentionTitle": "Conservation des sauvegardes gérées",
+    "retentionScope": "Valeur initiale : 30 jours. Seuls les paquets intègres stockés dans l'espace privé géré par SMN sont concernés. Changer la durée ne supprime rien automatiquement.",
+    "retentionDays": "Conserver les sauvegardes (jours)",
+    "retentionSave": "Enregistrer la durée",
+    "retentionSaving": "Enregistrement…",
+    "retentionRevision": "Révision de politique : {revision}. Toute modification est historisée.",
+    "retentionSaved": "Durée de conservation enregistrée et auditée. La nouvelle règle sera utilisée lors des futurs nettoyages.",
+    "retentionInvalid": "Durée incorrecte : saisir un nombre entier compris entre 1 et 3650 jours.",
+    "retentionConflict": "La politique ou les sauvegardes ont changé. Rechargez l'inventaire avant de réessayer.",
+    "retentionFailed": "Impossible d'enregistrer la durée. L'ancienne valeur est conservée.",
+    "cleanupPreview": "Sauvegardes éligibles après vérification d'intégrité : {count}. Aucune suppression sans confirmation.",
+    "cleanupStart": "Lancer le nettoyage contrôlé",
+    "cleanupRunning": "Suppression des paquets confirmés…",
+    "cleanupConfirm": "Supprimer définitivement {count} sauvegarde(s) gérée(s), vérifiée(s) et expirée(s) ? Les copies exportées et les archives métier ne seront pas touchées.",
+    "cleanupSuccess": "Nettoyage terminé : {count} sauvegarde(s) gérée(s) supprimée(s).",
+    "cleanupFailed": "Nettoyage non confirmé. Vérifiez l'inventaire et les traces avant tout nouvel essai.",
+    "externalDisclaimer": "Les fichiers PDF/TXT métier et snapshots Vn sont exclus de cette rétention. Les copies exportées hors du dossier géré ne sont ni surveillées ni supprimables par SMN."
   }
 }
