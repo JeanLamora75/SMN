@@ -27,7 +27,7 @@ function fakeDb(){
     !sql.includes("history")){
    const present=row&&(sql.includes("WHERE id=$1")?row.id===args[0]:
     row.team_id===args[0]&&row.start_on===args[1]&&row.end_on===args[2]);
-   return {rows:present?[{...row}]:[],rowCount:present?1:0};
+   return {rows:present&&row?[{...row}]:[],rowCount:present?1:0};
   }
   if(sql.startsWith("INSERT INTO public.smn_capacity_period_override")&&
    !sql.includes("history")){
