@@ -69,7 +69,7 @@ describe("ICS national — fichier local, sélection et validation",()=>{
   assert.equal(f.audit.length,0);
  });
  it("normalise CRLF, les lignes pliées, les noms échappés et la journée entière sans DTEND",()=>{
-  const ics=file(event("UID:a\nDTSTART;VALUE=DATE:19991231\nSUMMARY:Jour\, spécial")).replaceAll("\n","\r\n");
+  const ics=file(event("UID:a\nDTSTART;VALUE=DATE:19991231\nSUMMARY:Jour\\, spécial")).replaceAll("\n","\r\n");
   const r=parseHolidayIcs(ics);
   assert.equal(r.ok,true);
   if(r.ok){
