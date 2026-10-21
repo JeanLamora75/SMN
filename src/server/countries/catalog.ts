@@ -7,12 +7,12 @@ export const COUNTRY_SEEDS=[
  {code:"CA",name:"Canada"}
 ] as const;
 type Row={code:string;name:string;origin:"initial"|"manual";created_at:string};
-type CoverageRow={country_code:string;calendar_year:number;status:"configured"|"not-configured"|"invalid";
+type CoverageRow={country_code:string;calendar_year:number;status:"configured"|"partial"|"not-configured"|"invalid";
  entries_count:number;diagnostic:string|null};
 type HolidayRow={country_code:string;date:string;name:string};
-export type NationalCalendar={status:"configured"|"not-configured"|"invalid";
+export type NationalCalendar={status:"configured"|"partial"|"not-configured"|"invalid";
  holidays:{date:string;name:string}[]|null;
- years:{year:number;status:"configured"|"not-configured"|"invalid";count:number;diagnostic:string|null}[]};
+ years:{year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null}[]};
 export type Country={code:string;name:string;origin:"initial"|"manual";createdAt:string;
  nationalCalendar:NationalCalendar};
 const project=(r:Row):Country=>({code:r.code,name:r.name,origin:r.origin,
@@ -33,9 +33,6 @@ export async function listCountries(db:Client):Promise<Country[]>{
  const countries=r.rows.map(project).sort((a,b)=>a.code.localeCompare(b.code));
  const coverage=await db.query<CoverageRow>(`SELECT c.country_code,c.calendar_year,c.status,
    c.entries_count,c.diagnostic FROM public.smn_national_calendar_coverage c
-   JOIN public.smn_installation i ON i.id='singleton'
-   WHERE c.calendar_year BETWEEN EXTRACT(YEAR FROM i.created_at)::int-2
-     AND EXTRACT(YEAR FROM i.created_at)::int+1
    ORDER BY c.calendar_year ASC`);
  const holidays=await db.query<HolidayRow>(`SELECT h.country_code,
    to_char(h.holiday_date,'YYYY-MM-DD') AS date,h.name
@@ -48,7 +45,8 @@ export async function listCountries(db:Client):Promise<Country[]>{
   const years=coverage.rows.filter(c=>c.country_code===country.code).map(c=>({
    year:c.calendar_year,status:c.status,count:c.entries_count,diagnostic:c.diagnostic}));
   const status=years.some(y=>y.status==="invalid")?"invalid":
-   years.length===4&&years.every(y=>y.status==="configured")?"configured":"not-configured";
+   years.some(y=>y.status==="partial")?"partial":
+   years.length>=4&&years.every(y=>y.status==="configured")?"configured":"not-configured";
   const entries=holidays.rows.filter(h=>h.country_code===country.code).map(h=>({
    date:h.date,name:h.name}));
   country.nationalCalendar={status,years,holidays:status==="configured"?entries:null};
