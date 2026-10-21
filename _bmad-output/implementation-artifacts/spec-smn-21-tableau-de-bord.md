@@ -41,3 +41,5 @@ Implémentation incrémentale via connecteur GitHub, publication directe sur mai
 **Écarts et suites :** la mise en page de la page `/app` elle-même (bandeau Sprint et cartes) est programmée au lot 2. Les colonnes et la configuration non dominante relèvent du lot 3. Cycles, recherche globale et préférences persistées restent indisponibles.
 
 **Adaptation BMAD :** lecture du skill Amelia et du workflow Build via GitHub ; ce contexte de développement via connecteurs ne permet pas de prétendre que la commande locale de rendu `uv run ...render_skill.py` a été exécutée. Travail jalonné par ce document, tests et PR vérifiables.
+
+**Contrôles constatés :** vérifications source exécutées sur les contenus de branche (12+26 assertions, JSON FR/EN parité 462 clés, aucune variable manquante). Workflow [I0 #315](https://github.com/JeanLamora75/SMN/actions/runs/39580664197) lancé, mais refus d'exécution avant allocation d'un runner Linux ou Windows (jobs sans étapes, durée 2 secondes). Tests `pnpm` et recette navigateur **non exécutés** ; ne pas marquer les AC d'intégration comme validés. Publication technique à tracer par PR #26, validation qualité restant ouverte.
