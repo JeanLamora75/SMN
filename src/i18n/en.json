@@ -1420,6 +1420,10 @@
     "confirm": "Confirm batch",
     "nextStory": "Atomic confirmation will be implemented in SMN-68.",
     "invalid": "Enter an integer from 1 to 6 and a valid date.",
-    "error": "Unable to calculate the preview."
+    "error": "Unable to calculate the preview.",
+    "created": "{count} Sprints created successfully.",
+    "stale": "Preview expired or changed. Generate a new preview before confirming.",
+    "history": "Batch history",
+    "emptyHistory": "No batches have been created."
   }
 }

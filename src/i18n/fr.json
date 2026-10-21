@@ -1420,6 +1420,10 @@
     "confirm": "Confirmer le lot",
     "nextStory": "La confirmation atomique sera implémentée avec SMN-68.",
     "invalid": "Saisissez un entier entre 1 et 6 et une date valide.",
-    "error": "Impossible de calculer l’aperçu."
+    "error": "Impossible de calculer l’aperçu.",
+    "created": "{count} Sprints créés avec succès.",
+    "stale": "Aperçu expiré ou devenu obsolète. Recalculez-le avant confirmation.",
+    "history": "Historique des lots",
+    "emptyHistory": "Aucun lot généré."
   }
 }
