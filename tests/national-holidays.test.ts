@@ -76,7 +76,7 @@ describe("Calendriers nationaux intégrés",()=>{
   assert.equal(rows.length,4);
   assert.equal(rows.every(x=>x.status==="not-configured"),true);
   assert.equal(f.holidays.size,0);
-  const missing=await preloadNationalCalendar(f.client,"FR",2037);
+  const missing=await preloadNationalCalendar(f.client,"FR",2040);
   assert.equal(missing.every(x=>x.status==="not-configured"),true);
   assert.equal(f.holidays.size,0);
  });
