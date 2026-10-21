@@ -14,7 +14,7 @@ const query=(extra:Record<string,string>={},admin=true)=>{
 };
 function fakeDb(opts:{
  duplicateAssignment?:boolean;unknownCalendar?:boolean;unknownCoverage?:boolean;
- absent?:boolean;holiday?:boolean;otherMember?:boolean;
+ absent?:boolean;holiday?:boolean;otherMember?:boolean;closure?:boolean;
 }={}){
  const sqls:string[]=[];
  const assignment={
@@ -53,6 +53,11 @@ function fakeDb(opts:{
   if(sql.includes("FROM public.smn_member_location")){
    const rows=[{member_id:memberId,revision:1,effective_from:"2025-01-01",
     country_iso2:"FR"}];
+   return {rows,rowCount:rows.length};
+  }
+  if(sql.includes("FROM public.smn_company_closure")){
+   const rows=opts.closure?[{id:"closure-one",name:"Pont collectif",start_on:start,
+    end_on:start}]:[];
    return {rows,rowCount:rows.length};
   }
   if(sql.includes("FROM public.smn_national_holiday")){
@@ -139,6 +144,17 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
    query({kind:"planned",categoryId:"other"}),true);
   assert.equal(planned.admin!.members[0].days[0].absences.length,1);
   assert.equal(planned.collective[0].reportedUnavailable,1);
+ });
+ it("rend une fermeture collective visible sans fuite nominative ni double déduction",async()=>{
+  const admin=await readTeamCalendar(fakeDb({closure:true}).db,query(),true);
+  const user=await readTeamCalendar(fakeDb({closure:true}).db,query({},false),false);
+  assert.deepEqual(admin.closures,user.closures);
+  assert.equal(user.closures[0].name,"Pont collectif");
+  assert.equal(user.admin,undefined);
+  assert.equal(user.collective[0].reportedUnavailable,1);
+  assert.equal(admin.admin!.members[0].days[0].companyClosureName,"Pont collectif");
+  assert.equal(admin.admin!.members[0].days[0].deductedHalfDays,2);
+  assert.equal(JSON.stringify(user).includes("Fête régionale personnelle"),false);
  });
  it("rejette une équipe hors périmètre et ne permet pas au rôle user de modifier",async()=>{
   const f=fakeDb();

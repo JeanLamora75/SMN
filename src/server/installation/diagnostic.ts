@@ -19,10 +19,11 @@ import {HOLIDAYS_MIGRATION,HOLIDAYS_MIGRATION_SQL} from "../holidays/migration";
 import {HOLIDAY_CSV_MIGRATION,HOLIDAY_CSV_MIGRATION_SQL} from "../holidays/csv-migration";
 import {HOLIDAY_ICS_MIGRATION,HOLIDAY_ICS_MIGRATION_SQL} from "../holidays/ics-migration";
 import {ABSENCE_MIGRATION,ABSENCE_MIGRATION_SQL} from "../members/absence-migration";
+import {CLOSURES_MIGRATION,CLOSURES_MIGRATION_SQL} from "../closures/migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "configuration-key-missing" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
-export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean;accountAuditSchemaValid?:boolean;backupRetentionSchemaValid?:boolean;membersSchemaValid?:boolean;memberProfileSchemaValid?:boolean;assignmentVersionsSchemaValid?:boolean;lifecycleSchemaValid?:boolean;memberCalendarSchemaValid?:boolean;memberLocationSchemaValid?:boolean;countriesSchemaValid?:boolean;holidaysSchemaValid?:boolean;holidayCsvSchemaValid?:boolean;absencesSchemaValid?:boolean }>;
+export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean;accountAuditSchemaValid?:boolean;backupRetentionSchemaValid?:boolean;membersSchemaValid?:boolean;memberProfileSchemaValid?:boolean;assignmentVersionsSchemaValid?:boolean;lifecycleSchemaValid?:boolean;memberCalendarSchemaValid?:boolean;memberLocationSchemaValid?:boolean;countriesSchemaValid?:boolean;holidaysSchemaValid?:boolean;holidayCsvSchemaValid?:boolean;absencesSchemaValid?:boolean;closuresSchemaValid?:boolean }>;
 export type DiagnosticProbe = () => Promise<Snapshot>;
 function result(status: DiagnosticStatus): Diagnostic { return { status, canEnterSetup: status === "virgin" }; }
 export function classifyDatabaseError(error: unknown): DiagnosticStatus {
@@ -44,7 +45,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
@@ -66,6 +67,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const isV17 = records[0].schema_version >= 17;
   const isV18 = records[0].schema_version >= 18;
   const isV19 = records[0].schema_version >= 19;
+  const isV20 = records[0].schema_version >= 20;
   if (migrations?.length !== records[0].schema_version) return result("installation-incomplete");
   const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
   if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
@@ -189,6 +191,14 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
      !names.has("public.smn_absence_category:r")||
      !names.has("public.smn_member_absence:r")||
      !names.has("public.smn_member_absence_history:r"))
+      return result("installation-incomplete");
+  }
+  if(isV20){
+    const migration=migrations.find(m=>m.migration_name===CLOSURES_MIGRATION);
+    if(!migration||migration.checksum!==createHash("sha256").update(CLOSURES_MIGRATION_SQL).digest("hex")||
+     !migration.finished_at||migration.rolled_back_at||!snapshot.closuresSchemaValid||
+     !names.has("public.smn_company_closure:r")||
+     !names.has("public.smn_company_closure_history:r"))
       return result("installation-incomplete");
   }
   return result("initialized");

@@ -37,6 +37,7 @@ model SmnTeam {
   product SmnProduct @relation(fields: [productId], references: [id])
   memberBatches SmnMemberBatch[]
   memberAssignments SmnMemberAssignment[]
+  companyClosures SmnCompanyClosure[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -63,6 +64,9 @@ model SmnAccount {
   createdAbsences SmnMemberAbsence[] @relation("AbsenceCreatedBy")
   updatedAbsences SmnMemberAbsence[] @relation("AbsenceUpdatedBy")
   absenceEdits SmnMemberAbsenceHistory[]
+  createdClosures SmnCompanyClosure[] @relation("ClosureCreatedBy")
+  updatedClosures SmnCompanyClosure[] @relation("ClosureUpdatedBy")
+  closureEdits SmnCompanyClosureHistory[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
@@ -337,4 +341,39 @@ model SmnMemberAbsenceHistory {
   @@unique([absenceId,revision])
   @@index([absenceId,changedAt])
   @@map("smn_member_absence_history")
+}
+
+model SmnCompanyClosure {
+ id String @id
+ teamId String @map("team_id")
+ name String
+ startOn DateTime @map("start_on") @db.Date
+ endOn DateTime @map("end_on") @db.Date
+ isActive Boolean @default(true) @map("is_active")
+ revision Int @default(1)
+ createdBy String? @map("created_by")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedBy String? @map("updated_by")
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ creator SmnAccount? @relation("ClosureCreatedBy",fields:[createdBy],references:[id],onDelete:SetNull)
+ updater SmnAccount? @relation("ClosureUpdatedBy",fields:[updatedBy],references:[id],onDelete:SetNull)
+ history SmnCompanyClosureHistory[]
+ @@index([teamId,startOn,endOn])
+ @@map("smn_company_closure")
+}
+model SmnCompanyClosureHistory {
+ id String @id
+ closureId String @map("closure_id")
+ revision Int
+ operation String
+ previousValues Json? @map("previous_values")
+ nextValues Json @map("next_values")
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ closure SmnCompanyClosure @relation(fields:[closureId],references:[id],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
+ @@unique([closureId,revision])
+ @@index([closureId,changedAt])
+ @@map("smn_company_closure_history")
 }

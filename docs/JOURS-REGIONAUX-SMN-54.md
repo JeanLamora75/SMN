@@ -20,6 +20,8 @@ La synthèse est une **résolution journalière des créneaux**, pas encore le c
 
 L'import régional ne déclenche **ni alerte collective ni suppression de Daily**. Les PDF précédents et capacités initiales figées demeurent inchangés.
 
+La [gestion des fermetures d'entreprise SMN-56](FERMETURES-ENTREPRISE-SMN-56.md) s'ajoute à la même union de demi-journées, sans générer d'absences nominatives ni de catalogue régional.
+
 ## Recette locale
 
 Sur une **base pilote isolée PostgreSQL 18.6**, après synchronisation de `main`, exécuter si possible :
