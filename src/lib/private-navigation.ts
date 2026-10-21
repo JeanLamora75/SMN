@@ -43,6 +43,7 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
     id:"admin",label:"navigation.groups.admin",entries:[
       {id:"users",label:"navigation.entries.users",href:"/app/admin/users",icon:"⚙"},
       {id:"settings",label:"navigation.entries.settings",href:"/app/admin/settings",icon:"⚙"},
+      {id:"scrumCadence",label:"scrumCadence.title",href:mode==="scrum"?"/app/admin/scrum-cadence":null,icon:"◷"},
       {id:"audit",label:"navigation.entries.audit",href:"/app/admin/audit",icon:"▤"},
       {id:"backups",label:"navigation.entries.backups",href:"/app/admin/backups",icon:"▣"},
       {id:"members",label:"navigation.entries.members",href:"/app/admin/members",icon:"♙"},
