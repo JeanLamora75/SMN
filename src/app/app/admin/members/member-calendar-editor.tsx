@@ -3,6 +3,7 @@
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
+import MemberAbsenceEditor from "./member-absence-editor";
 
 type WorkDay={weekday:number;morning:boolean;afternoon:boolean};
 type Week={revision:number;effective_from:string;days:WorkDay[];created_at:string};
@@ -32,12 +33,13 @@ export default function MemberCalendarEditor({memberId,onClose}:{
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [message,setMessage]=useState("");
+ const [absenceDirty,setAbsenceDirty]=useState(false);
  const dirty=Boolean(data&&(
   JSON.stringify(week)!==baseline||
   (effective!==(newest(data)?.effective_from&&newest(data)!.effective_from>data.today?
     newest(data)!.effective_from:data.today))||
   JSON.stringify({onDate:dayDate,morning:am,afternoon:pm,note})!==exceptionBaseline));
- useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
+ useUnsavedChanges(dirty||absenceDirty||busy,t("draft.leaveWarning"));
  const load=async(date?:string)=>{
   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/calendar"+
    (date?"?onDate="+encodeURIComponent(date):""),{cache:"no-store"});
@@ -83,7 +85,7 @@ export default function MemberCalendarEditor({memberId,onClose}:{
  const changeDay=(index:number,field:"morning"|"afternoon",checked:boolean)=>
   setWeek(rows=>rows.map((row,i)=>i===index?{...row,[field]:checked}:row));
  const selectDate=(value:string)=>{
-  if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+  if((dirty||absenceDirty)&&!window.confirm(t("draft.discardWarning")))return;
   setDayDate(value);setError("");setMessage("");
   setStatus("loading");
   void load(value).catch(()=>setStatus("error"));
@@ -124,7 +126,7 @@ export default function MemberCalendarEditor({memberId,onClose}:{
   void submit({action:"exception",revision:current?.revision??0,onDate:dayDate,
    morning:am,afternoon:pm,note:note.trim()||null},"members.calendar.exceptionSaved");
  };
- const close=()=>{if(busy)return;if(dirty&&!window.confirm(t("draft.discardWarning")))return;onClose();};
+ const close=()=>{if(busy)return;if((dirty||absenceDirty)&&!window.confirm(t("draft.discardWarning")))return;onClose();};
  return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="member-calendar-heading">
   <h3 className="h5" id="member-calendar-heading">{t("members.calendar.title")}</h3>
   {status==="loading"&&<p role="status">{t("members.calendar.loading")}</p>}
@@ -209,6 +211,8 @@ export default function MemberCalendarEditor({memberId,onClose}:{
      </tr>)}</tbody>
     </table></div>
    </div>}
+   <MemberAbsenceEditor key={memberId+"-"+dayDate} memberId={memberId}
+    selectedOn={dayDate} onDirtyChange={setAbsenceDirty}/>
    <p className="small text-secondary">{t("members.calendar.unknownCapacity")}</p>
   </>}
   {error&&<p className="alert alert-warning" role="alert">{error}</p>}
