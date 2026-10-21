@@ -43,3 +43,14 @@ pnpm dev
 Avec GitHub Desktop, effectuer **Fetch origin**, puis **Pull origin** sur la branche `main`, avant les commandes ci-dessus.
 
 Sur PC : vérifier les profils Admin et Utilisateur, les modes Scrum et Kanban, la mise en évidence de chaque page, l'écran étroit, la navigation clavier et les accès directs aux routes API d'administration. La publication de la branche ne vaut pas preuve d'exécution de ces commandes.
+
+
+## Contrats UX du tableau de bord — validés le 21 octobre 2026
+
+**Référence obligatoire pour les agents BMAD (PM, Analyst, UX, Architect, Dev, QA) et pour les futures User Stories :** [DESIGN.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/DESIGN.md) · [EXPERIENCE.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/EXPERIENCE.md) · [Synthèse UXD-01 à UXD-27](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/SYNTHESE-CADRAGE-UX-SMN.md) · [Sommaire et maquette décrite](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/README.md).
+
+**Décisions validées :** écran pleine largeur, sidebar rétractable, sélecteurs équipe/cycle dans le header, cartes J/H prévu/réel, SP et tickets **initialement engagés**/réalisés, compteur en jours ouvrés **du lundi au vendredi**, pas de carte « Avancement global » sans règle validée, quatre colonnes (obstacles, risques, événements, notes/alertes), 5 éléments actifs maximum par colonne, tri automatique, actions rapides contrôlées, historique fidèle ou message exact **« Aucun éléments à ce jour »**, personnalisation des métriques/colonnes, responsive 4/2/1.
+
+**Statut :** contrats UX approuvés et publiés, **pas** de nouvelle fonctionnalité ou de recette attestée. Les producteurs de données, règles d'historisation, droits et catalogues FR/EN restent à vérifier avant implémentation.
+
+**Implication spécifique :** Cible visuelle : sidebar sous le header, occupant toute hauteur disponible, rétractable et accessible au clavier ; header pleine largeur avec sélecteurs équipe et cycle à gauche de Recherche. Le mode multiéquipe n'est pas livré au MVP.
