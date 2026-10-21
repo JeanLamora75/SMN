@@ -2,6 +2,7 @@
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
+import {prefillValue} from "@/lib/form-prefill";
 
 type Location={revision:number;effectiveFrom:string;countryIso2:string|null;
  region:string|null;city:string|null;timeZone:string|null;source:"manual"|"installation-default"};
@@ -17,14 +18,16 @@ type State={memberId:string;teamId:string;archived:boolean;today:string;
 type Draft={countryIso2:string;region:string;city:string;timeZone:string;effectiveFrom:string};
 const datePattern=/^\d{4}-\d{2}-\d{2}$/;
 const isoInstant=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
-function newDraft(data:State):Draft{
+export function newDraft(data:State):Draft{
  const latest=data.versions.at(-1);
- return {countryIso2:latest?.country_iso2??data.suggestedCountryIso2??"",
+ const country=prefillValue(latest?.country_iso2,
+  data.suggestedCountryIso2,"",Boolean(latest));
+ return {countryIso2:country.value,
   region:latest?.region??"",city:latest?.city??"",timeZone:latest?.time_zone??"",
   effectiveFrom:latest&&latest.effective_from>data.today?latest.effective_from:data.today};
 }
-export default function MemberLocationEditor({memberId,onClose}:{
- memberId:string;onClose:()=>void;
+export default function MemberLocationEditor({memberId,teamName,onClose}:{
+ memberId:string;teamName:string;onClose:()=>void;
 }){
  const t=useTranslation();
  const [data,setData]=useState<State|null>(null);
@@ -67,7 +70,9 @@ export default function MemberLocationEditor({memberId,onClose}:{
     if(!live)return;
     if(next.memberId!==memberId||!Array.isArray(next.versions))throw Error("invalid");
     setData(next);setStatus("ready");
-    const initial=newDraft(next);setDraft(initial);setBaseline(JSON.stringify(initial));
+    const initial=newDraft(next);
+    // Never replace a local change when an older context read finishes later.
+    setDraft(current=>current??initial);setBaseline(JSON.stringify(initial));
     setOnDate(next.today);setHistory(next.current);
    }).catch(()=>{if(live)setStatus("error");});
   return ()=>{live=false;};
@@ -143,6 +148,11 @@ export default function MemberLocationEditor({memberId,onClose}:{
    {t("members.location.failedLoad")}</p>}
   {data&&draft&&status==="ready"&&<>
    <p className="small text-secondary">{t("members.location.intro")}</p>
+   <p className="small text-secondary">{t("prefill.teamContext",{team:teamName})}</p>
+   <p className="small text-secondary" role="status">
+    {t(data.versions.length>0?"prefill.savedContext":
+      data.suggestedCountryIso2?"prefill.suggestedCountry":"prefill.unknownCountry")}
+   </p>
    {!data.configured&&<p className="alert alert-warning" role="status">
     {t("members.location.suggestedOnly")}</p>}
    {data.archived&&<p className="alert alert-secondary">{t("members.location.archived")}</p>}
@@ -151,7 +161,7 @@ export default function MemberLocationEditor({memberId,onClose}:{
      <div className="col-md-3"><label htmlFor="location-country" className="form-label">
       {t("members.location.country")}</label>
       <input id="location-country" className="form-control" maxLength={2}
-       placeholder="FR" autoComplete="off" list="member-country-list" value={draft.countryIso2}
+       placeholder={t("prefill.optionalCountry")} autoComplete="off" list="member-country-list" value={draft.countryIso2}
        disabled={busy||data.archived}
        onChange={e=>change("countryIso2",e.target.value.toUpperCase())}/>
       <datalist id="member-country-list">{catalog.map(c=><option key={c.code} value={c.code}>{c.name}</option>)}</datalist>

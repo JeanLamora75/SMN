@@ -225,11 +225,11 @@ export default function QuickMembersAdmin(){
    <p className="small text-secondary mb-0">{t("members.futureEdits")}</p>
    {selectedLocation&&<div className="mt-4">
     <MemberLocationEditor key={selectedLocation.id} memberId={selectedLocation.id}
-     onClose={()=>setLocationId(null)}/>
+     teamName={roster?.team.name??""} onClose={()=>setLocationId(null)}/>
    </div>}
    {selectedCalendar&&<div className="mt-4">
     <MemberCalendarEditor key={selectedCalendar.id} memberId={selectedCalendar.id}
-     onClose={()=>setCalendarId(null)}/>
+     teamName={roster!.team.name} onClose={()=>setCalendarId(null)}/>
    </div>}
    {selectedLifecycle&&<div className="mt-4">
     <MemberLifecycleEditor key={selectedLifecycle.id} memberId={selectedLifecycle.id}
@@ -237,7 +237,7 @@ export default function QuickMembersAdmin(){
    </div>}
    {selectedAssignment&&roster&&<div className="mt-4">
     <AssignmentEditor key={selectedAssignment.id} memberId={selectedAssignment.id}
-     teamId={roster.team.id} onSaved={savedAssignment}
+     teamId={roster.team.id} teamName={roster.team.name} onSaved={savedAssignment}
      onCancel={()=>setAssigningId(null)}/>
    </div>}
    {selectedMember&&<div className="mt-4">

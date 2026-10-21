@@ -1321,5 +1321,20 @@
     "errorClosed": "Period closed. Authorized reopening is required.",
     "errorStale": "Capacity data or dates changed: nothing saved. Refresh the preview.",
     "errorConfirm": "Confirmation failed; no successful save has been established."
+  },
+  "prefill": {
+    "teamContext": "Team from installation: {team}",
+    "savedContext": "Country and location loaded from the saved record. A deliberately empty country remains empty.",
+    "suggestedCountry": "Country suggested from installation settings; confirm or change it. Not saved at this stage.",
+    "unknownCountry": "Country unknown: no location or country has been fabricated.",
+    "optionalCountry": "Optional country",
+    "savedWeek": "Working week loaded from the latest saved version.",
+    "suggestedWeek": "Suggested working week (Monday to Friday). Not saved until you select Save.",
+    "savedAssignment": "Assignment values loaded from the saved version. Each field remains editable.",
+    "suggestedAssignment": "Suggested, editable initial role distribution; not saved yet.",
+    "optionalProfile": "The provisional name remains until you confirm it. Email is optional and does not block other features.",
+    "noInventedAbsence": "Viewing the selected date does not create an absence. No category or reason is inferred automatically. Only Save creates an absence.",
+    "unknownPeriod": "No operational period is inferred from today's date. Select the dates of the period to consult.",
+    "unsavedCapacity": "You have edited a manual capacity without saving it. Save or discard your changes before updating settings."
   }
 }
