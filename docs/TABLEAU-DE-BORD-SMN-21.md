@@ -47,3 +47,16 @@ Architecture de référence : `_bmad-output/planning-artifacts/prds/prd-SMN-2026
 **Statut :** contrats UX approuvés et publiés, **pas** de nouvelle fonctionnalité ou de recette attestée. Les producteurs de données, règles d'historisation, droits et catalogues FR/EN restent à vérifier avant implémentation.
 
 **Implication spécifique :** La maquette UX remplace la disposition du pilote SMN-21 **en tant que cible approuvée**, mais ne signifie pas que les données métier, les actions ou les indicateurs soient codés. Préserver l'état vide honnête et les tests avant livraison.
+
+
+## Refonte UX validée — Lot 1 : structure et navigation (21/10/2026)
+
+**Périmètre de code :** `src/app/app/private-shell.tsx`, `src/app/app/layout.tsx`, `src/app/app/private-navigation.tsx`, `src/app/dashboard.css`, `src/i18n/fr.json`, `src/i18n/en.json`.
+
+- Le header privé utilise la largeur totale : marque SMN, commandes de menu, équipe réellement enregistrée, Sprint/période, recherche et compte. Le sélecteur d'équipe est désactivé au MVP monoéquipe ; celui du cycle affiche explicitement « Aucun cycle créé » faute de producteur métier ; la recherche est également indisponible, sans contrôle trompeur.
+- Sidebar sous le header, déployée par défaut sur PC, repliée à 64 px via bouton ; les libellés restent disponibles via focus et survol des icônes. Sur mobile, le menu est déplié dans le flux de la page, refermable au bouton, à la navigation ou à Escape, avec restitution du focus.
+- Contenu privé sans `max-width:1510px`. Conserve les styles de couleurs de `src/app/appearance.css` et les palettes ocean, forest et violet, clair et sombre.
+- Les routes et les droits existants ne sont pas modifiés. Les liens des fonctionnalités futures restent non activés ; aucune création de cycle, migration SQL ou mutation métier.
+- Le contenu métier de la page d'accueil demeure provisoirement celui du pilote ; bandeau Sprint, métriques et colonnes appartiennent aux lots 2 et 3.
+
+**Vérifications prévues :** `tests/dashboard-shell-ux.test.ts`, `tests/responsive-accessibility.test.ts`, contrôle i18n FR/EN, lint, typecheck, build et CI `verify-i0.yml`. La recette utilisateur doit vérifier le comportement au clavier, à 320/375/768/1024/1440 px, au zoom 200 % et sur les six variantes de thème/palette ; aucun test statique ne prouve à lui seul une conformité WCAG.
