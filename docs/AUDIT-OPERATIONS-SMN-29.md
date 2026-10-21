@@ -60,3 +60,7 @@ pnpm dev
 Scénarios : ouvrir le journal en Administrateur, vérifier les créations et changements de rôle, les préférences et traces de sécurité ; tenter la même URL/API sans session et sous Utilisateur ; provoquer un doublon de compte et vérifier l'absence d'audit réussi ; effectuer un changement idempotent ; vérifier l'absence de secrets et la date UTC. Contrôler la migration v6→v7 sur une **copie de test**, jamais en forçant une base utilisateur.
 
 **Limites explicites** : les tests sont écrits mais non déclarés exécutés à cette étape ; les traces plus anciennes que l'introduction de `smn_account_audit` ne peuvent pas être reconstruites. La journalisation des futures opérations métier devra être intégrée dans leurs propres stories, avec le même principe transactionnel et une politique de rétention documentée. Aucune conformité juridique ou réglementaire n'est revendiquée.
+
+## Intégration et état de qualification
+
+[PR #24](https://github.com/JeanLamora75/SMN/pull/24) fusionnée dans `main` le **21 octobre 2026** (commit `b8877883d014b15052fbb86cb6d21ca511df7040`). Les [jobs Windows portable](https://github.com/JeanLamora75/SMN/actions/runs/39554807547) et [Linux/Windows](https://github.com/JeanLamora75/SMN/actions/runs/39554807600) ont échoué **avant toute étape**, sans exécuter les tests. Il faut toujours effectuer lint, typecheck, tests, build, migration v6→v7 et recette de journal sur PostgreSQL 18.6 Windows. Jira reste **En cours** ; la fusion ne constitue pas une validation des critères d'acceptation en environnement réel.

@@ -25,3 +25,7 @@ Voir [la documentation de recette](../../docs/AUDIT-OPERATIONS-SMN-29.md).
 
 ## Réserve de validation
 Aucun test Windows ou CI réellement exécuté n'est implicitement déclaré réussi. Les écritures SQL, le build et les parcours d'écran doivent être vérifiés dans un environnement éphémère/local. La fermeture Jira dépend de cette recette.
+
+## Publication
+
+La [PR #24](https://github.com/JeanLamora75/SMN/pull/24) a été fusionnée dans `main` le 21/10/2026 (`b8877883d014b15052fbb86cb6d21ca511df7040`). Qualification : contrôles statiques uniquement, 431 clés i18n FR/EN alignées ; CI Linux/Windows en échec avant les étapes ; recette Windows et validation de migration v7 non réalisées. Jira **En cours**.
