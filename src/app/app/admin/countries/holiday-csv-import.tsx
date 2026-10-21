@@ -11,6 +11,15 @@ type Preview={rows:Line[];proposed:number;rejected:number;fingerprint:string;
 type Result={ok:boolean;error?:string;preview?:Preview;created?:number;replaced?:number};
 const PAGE_SIZE=50;
 const MAX_FILE_BYTES=1024*1024;
+const REASONS:Record<string,string>={
+ "column-count":"countries.csvReasonColumns",
+ "invalid-date":"countries.csvReasonDate",
+ "invalid-name":"countries.csvReasonName",
+ "country-mismatch":"countries.csvReasonCountry",
+ "duplicate-in-file":"countries.csvReasonDuplicate",
+ "already-identical":"countries.csvReasonIdentical",
+ "existing-date":"countries.csvReasonExisting"
+};
 
 export default function HolidayCsvImport({countries,onCompleted}:{
  countries:Country[];onCompleted:()=>Promise<void>;
@@ -112,7 +121,7 @@ export default function HolidayCsvImport({countries,onCompleted}:{
        <td>{r.line}</td><td>{r.date}</td><td>{r.name}</td><td>{r.country}</td>
        <td>{r.action==="reject"?t("countries.csvRejected"):
         r.action==="replace"?t("countries.csvWillReplace"):t("countries.csvWillCreate")}
-        {r.reason&&<span> — {r.reason}</span>}
+        {r.reason&&<span> — {t(REASONS[r.reason]??"countries.csvReasonUnknown")}</span>}
         {r.previousName&&<span> ({t("countries.csvPrevious")}: {r.previousName})</span>}
        </td>
       </tr>)}</tbody>
