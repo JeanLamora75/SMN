@@ -73,6 +73,7 @@ model SmnAccount {
   capacitySettingsAudit SmnCapacitySettingsAudit[]
   capacityOverridesEdited SmnCapacityPeriodOverride[]
   capacityOverridesHistory SmnCapacityPeriodOverrideHistory[]
+  initialCapacityOpenings SmnCapacityInitialSnapshot[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
@@ -423,6 +424,7 @@ model SmnCapacityPeriodOverride {
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
  updater SmnAccount? @relation(fields:[updatedBy],references:[id],onDelete:SetNull)
  history SmnCapacityPeriodOverrideHistory[]
+ initialSnapshot SmnCapacityInitialSnapshot?
  @@unique([teamId,startOn,endOn])
  @@index([teamId,startOn,endOn])
  @@map("smn_capacity_period_override")
@@ -441,4 +443,20 @@ model SmnCapacityPeriodOverrideHistory {
  @@unique([periodId,revision])
  @@index([periodId,changedAt])
  @@map("smn_capacity_period_override_history")
+}
+
+model SmnCapacityInitialSnapshot {
+ id String @id
+ periodId String @unique @map("period_id")
+ eventId String @unique @map("event_id")
+ initialJh Decimal? @map("initial_jh") @db.Decimal(12,4)
+ provenance String
+ actualOpenedAt DateTime @map("actual_opened_at") @db.Timestamptz(6)
+ recordedAt DateTime @default(now()) @map("recorded_at") @db.Timestamptz(6)
+ openedBy String? @map("opened_by")
+ manualRevision Int? @map("manual_revision")
+ period SmnCapacityPeriodOverride @relation(fields:[periodId],references:[id],onDelete:Restrict)
+ actor SmnAccount? @relation(fields:[openedBy],references:[id],onDelete:SetNull)
+ @@index([actualOpenedAt])
+ @@map("smn_capacity_initial_snapshot")
 }
