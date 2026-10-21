@@ -142,3 +142,11 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 - Référence : [Documentation SMN-24](APPARENCE-SMN-24.md) et [spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-24-themes-palettes.md). Tests de code et CI à confirmer par exécution, non inférés de la seule publication.
 
 - **SMN-24 — statut de livraison :** le socle thème clair/sombre est issu de [PR #19](https://github.com/JeanLamora75/SMN/pull/19) et l'extension des trois palettes persistées de [PR #20](https://github.com/JeanLamora75/SMN/pull/20), toutes deux fusionnées sur `main`. La migration v6 doit se produire uniquement via le mécanisme applicatif ; ne pas exécuter de SQL manuel sur une installation pilote. Jira reste En cours tant que les tests Linux/Windows et la recette ne sont pas prouvés.
+
+
+## SMN-25 — Responsive et accessibilité du socle (21/10/2026)
+
+- [Jira SMN-25](https://lmn24.atlassian.net/browse/SMN-25) ; détails [docs/RESPONSIVE-ACCESSIBILITE-SMN-25.md](RESPONSIVE-ACCESSIBILITE-SMN-25.md).
+- Lien d'évitement partagé défini au layout racine (`#smn-main`) ; pages publiques possèdent désormais ce landmark, la page privée l'avait déjà.
+- Présentation mobile en fiches pour les comptes administrés, sans colonnes de contrôle cachées ; focus global visible, messages des formulaires liés et annonces erreur/statut explicites, préférence réduction des animations.
+- Les futurs écrans métier doivent respecter ce contrat responsive et clavier. Aucune recette appareil réel, navigation clavier de bout en bout, audit lecteur d'écran ou attestation de conformité WCAG à ce stade.
