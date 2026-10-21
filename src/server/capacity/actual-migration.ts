@@ -27,6 +27,7 @@ CREATE TABLE public.smn_capacity_actual_snapshot (
  period_id text NOT NULL UNIQUE REFERENCES public.smn_capacity_period_override(id) ON DELETE RESTRICT,
  event_id text NOT NULL UNIQUE,
  retained_jh numeric(12,4) CHECK(retained_jh>=0),
+ reference_jh numeric(12,4) CHECK(reference_jh>=0),
  provenance text NOT NULL CHECK(provenance IN ('Saisie','Calcul','Non renseigné')),
  closed_at timestamptz NOT NULL,
  recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
