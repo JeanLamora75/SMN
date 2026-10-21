@@ -137,3 +137,12 @@ Le contrôle automatisé **spécifique à cette session** a vérifié la continu
 ## Consolidation métier postérieure à la revue Winston
 
 La branche documentaire de consolidation du 19/10/2026 intègre les **D-PRD-132/133/134/135/136** : criticité A7, faits marquants A8, archives PDF A10, effacement A11 et **AD-31 à deux profils seulement**. La proposition intermédiaire Administrateur/Opérateur/Lecteur et les phrases historiques « A7/A8/A10/A11 ouverts » ne sont plus les règles applicables au MVP. [Registre des cinq validations](../../prds/prd-SMN-2026-10-18/arbitrages-metier-valides-2026-10-19.md). `main` et Jira non modifiés.
+
+
+## Contrats UX du tableau de bord — validés le 21 octobre 2026
+
+Références obligatoires pour les agents BMAD : [DESIGN.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/DESIGN.md) · [EXPERIENCE.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/EXPERIENCE.md) · [synthèse UXD-01 à UXD-27](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/SYNTHESE-CADRAGE-UX-SMN.md). Ces contrats sont validés mais **pas encore implémentés ni testés**.
+
+**Règles clés :** pleine largeur, menu rétractable, header équipe/cycle, 4–6 métriques et 4 colonnes de suivi, 5 éléments maximum, tri automatique, comparaison entre cycles, historique fiable ou « Aucun éléments à ce jour », compteur **lundi–vendredi**, **engagement initial** SP et tickets, **aucune carte Avancement global** sans règle, responsive 4/2/1, personnalisation accessible.
+
+**Précision métier :** À étudier : producteurs métier initiaux, snapshots D-PRD-122/130, préférences de disposition, sécurité, FR/EN et thèmes existants. Validation UX ≠ architecture/implémentation testée.
