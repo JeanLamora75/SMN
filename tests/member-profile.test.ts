@@ -57,6 +57,18 @@ describe("Fiche membre centrale et email facultatif",()=>{
   assert.deepEqual(params.find((_,i)=>queries[i].includes("UPDATE public.smn_member SET"))?.slice(0,3),
    ["Camille Martin","camille+agile@example.org",false]);
  });
+ it("ajout d'un email ne confirme pas un nom provisoire inchangé",async()=>{
+  const {db}=mock();
+  const result=await updateMemberProfile(db,id,{
+   displayName:"Membre 2",email:"prenom.nom@example.fr",revision:0
+  });
+  assert.equal(result.ok,true);
+  if(result.ok){
+   assert.equal(result.member.isProvisional,true);
+   assert.equal(result.member.email,"prenom.nom@example.fr");
+   assert.equal(result.member.displayName,"Membre 2");
+  }
+ });
  it("email seul conserve l'état provisoire ; email vide efface sans créer de compte",async()=>{
   const {db}=mock();
   const result=await updateMemberProfile(db,id,{displayName:"Membre 2",email:"  ",revision:0});
