@@ -1389,5 +1389,17 @@
       "6": "Saturday",
       "7": "Sunday"
     }
+  },
+  "sprintCreate": {
+    "title": "Generate a Sprint",
+    "intro": "Create one Sprint using the active cadence. You must choose the initial start date explicitly.",
+    "start": "Requested start date",
+    "name": "Sprint name",
+    "number": "Sprint number {number}",
+    "dates": "From {start} to {end} ({zone})",
+    "generate": "Generate",
+    "created": "Sprint created: {name}",
+    "invalid": "Unable to calculate or create this Sprint. Check dates and cadence.",
+    "overlap": "These dates overlap an existing Sprint for this team."
   }
 }
