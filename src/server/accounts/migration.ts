@@ -21,6 +21,7 @@ import {HOLIDAY_ICS_MIGRATION,HOLIDAY_ICS_MIGRATION_SQL} from "../holidays/ics-m
 import {ABSENCE_MIGRATION,ABSENCE_MIGRATION_SQL} from "../members/absence-migration";
 import {CLOSURES_MIGRATION,CLOSURES_MIGRATION_SQL} from "../closures/migration";
 import {CAPACITY_MIGRATION,CAPACITY_MIGRATION_SQL} from "../capacity/migration";
+import {CAPACITY_OVERRIDE_MIGRATION,CAPACITY_OVERRIDE_MIGRATION_SQL} from "../capacity/override-migration";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -42,7 +43,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       "SELECT schema_version,state FROM public.smn_installation WHERE id='singleton' FOR UPDATE");
     if (records.rowCount !== 1 || records.rows[0].state !== "initialized") throw new Error("smn-schema-not-ready");
     let version=records.rows[0].schema_version;
-    if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21].includes(version)) throw new Error("smn-schema-incompatible");
+    if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22].includes(version)) throw new Error("smn-schema-incompatible");
     const migrations = await client.query<{migration_name:string;checksum:string;finished_at:Date|null;rolled_back_at:Date|null}>(
       "SELECT migration_name,checksum,finished_at,rolled_back_at FROM public._prisma_migrations ORDER BY migration_name");
     const applied=(name:string,sql:string)=>migrations.rows.some(x=>x.migration_name===name &&
@@ -382,6 +383,28 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
         ('id','installation_id','revision','previous_hours','new_hours',
         'changed_by','changed_at'))) `);
     if(capacityColumns.rows[0]?.count!=="12")throw new Error("smn-schema-incompatible");
+    if(version===21){
+      await client.query(CAPACITY_OVERRIDE_MIGRATION_SQL);
+      await client.query(`INSERT INTO public._prisma_migrations
+        (id,checksum,finished_at,migration_name,applied_steps_count)
+        VALUES($1,$2,now(),$3,1)`,
+        [randomUUID(),checksum(CAPACITY_OVERRIDE_MIGRATION_SQL),CAPACITY_OVERRIDE_MIGRATION]);
+      version=22;
+    }else if(!applied(CAPACITY_OVERRIDE_MIGRATION,CAPACITY_OVERRIDE_MIGRATION_SQL)){
+      throw new Error("smn-schema-incompatible");
+    }
+    const overrideColumns=await client.query<{count:string}>(`
+      SELECT count(*)::text AS count FROM information_schema.columns
+      WHERE table_schema='public' AND (
+        (table_name='smn_capacity_period_override' AND column_name IN
+         ('id','team_id','start_on','end_on','manual_jh','revision',
+          'frozen_at','closed_at','updated_by','updated_at'))
+        OR
+        (table_name='smn_capacity_period_override_history' AND column_name IN
+         ('id','period_id','revision','operation','before_jh','after_jh',
+          'changed_by','changed_at'))
+      )`);
+    if(overrideColumns.rows[0]?.count!=="18")throw new Error("smn-schema-incompatible");
     await client.query("COMMIT");
   } catch(error) {
     await client.query("ROLLBACK").catch(()=>undefined);
