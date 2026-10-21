@@ -18,6 +18,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
   const [accounts,setAccounts]=useState<Account[]>([]);
   const [status,setStatus]=useState<Status>("loading");
   const [message,setMessage]=useState("");
+  const [messageError,setMessageError]=useState(false);
   const [busy,setBusy]=useState(false);
   const [username,setUsername]=useState("");
   const [email,setEmail]=useState("");
@@ -32,31 +33,31 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       setAccounts(data.accounts);
       setEdits(Object.fromEntries(data.accounts.map(a=>[a.id,{role:a.role,isActive:a.is_active}])));
       setStatus("ready");
-    } catch {setStatus("error");setMessage(t("accounts.loadFailed"));}
+    } catch {setStatus("error");setMessageError(true);setMessage(t("accounts.loadFailed"));}
   },[t]);
   useEffect(()=>{void Promise.resolve().then(refresh);},[refresh]);
   async function create(event:FormEvent<HTMLFormElement>) {
-    event.preventDefault();setBusy(true);setMessage("");
+    event.preventDefault();setBusy(true);setMessageError(false);setMessage("");
     try {
       const response=await fetch("/api/admin/accounts",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({username,email,password,role})});
       const data=await response.json() as {error?:string};
-      if (!response.ok) {setMessage(errorMessage(data.error,"createFailed"));return;}
+      if (!response.ok) {setMessageError(true);setMessage(errorMessage(data.error,"createFailed"));return;}
       setUsername("");setEmail("");setPassword("");setRole("user");
       setMessage(t("accounts.created"));
       await refresh();
-    } catch {setMessage(t("accounts.server"));}
+    } catch {setMessageError(true);setMessage(t("accounts.server"));}
     finally {setBusy(false);}
   }
   async function save(id:string) {
     const edit=edits[id];if (!edit) return;
-    setBusy(true);setMessage("");
+    setBusy(true);setMessageError(false);setMessage("");
     try {
       const response=await fetch("/api/admin/accounts/"+encodeURIComponent(id),{
         method:"PATCH",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({role:edit.role,isActive:edit.isActive})});
       const data=await response.json() as {error?:string};
-      if (!response.ok) {setMessage(errorMessage(data.error,"updateFailed"));return;}
+      if (!response.ok) {setMessageError(true);setMessage(errorMessage(data.error,"updateFailed"));return;}
       setMessage(t("accounts.updated"));
       await refresh();
     } catch {setMessage(t("accounts.server"));}
@@ -66,7 +67,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
     <section className="smn-panel p-4">
       <h2 className="h5">{t("accounts.createTitle")}</h2>
       <p className="small text-secondary">{t("accounts.createInfo")}</p>
-      <form onSubmit={create} className="row g-3">
+      <form onSubmit={create} className="row g-3" aria-describedby={message?"accounts-feedback":undefined}>
         <div className="col-md-6"><label className="form-label">{t("accounts.username")}<input className="form-control" required minLength={2} maxLength={50}
             value={username} onChange={e=>setUsername(e.target.value)} disabled={busy} autoComplete="off"/>
         </label></div>
@@ -117,6 +118,6 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
         </table>
       </div>}
     </section>
-    {message&&<p id="accounts-feedback" role="status" aria-live="polite" className="alert alert-info">{message}</p>}
+    {message&&<p id="accounts-feedback" role={messageError?"alert":"status"} className={"alert "+(messageError?"alert-warning":"alert-info")}>{message}</p>}
   </div>;
 }
