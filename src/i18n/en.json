@@ -607,6 +607,23 @@
     "checkedAt": "Checked",
     "integrityOnly": "Restore in a test environment: not performed",
     "notVerified": "This package has not passed integrity verification. Do not treat it as a verified backup.",
-    "reason": "Verification code"
+    "reason": "Verification code",
+    "retentionTitle": "Managed backup retention",
+    "retentionScope": "Initial value: 30 days. Only verified encrypted packages inside SMN's private managed storage are affected. Changing the duration never deletes anything automatically.",
+    "retentionDays": "Retain backups (days)",
+    "retentionSave": "Save duration",
+    "retentionSaving": "Saving…",
+    "retentionRevision": "Policy revision: {revision}. Every change is audited.",
+    "retentionSaved": "Retention duration saved and audited. The new rule will apply to future cleanups.",
+    "retentionInvalid": "Invalid duration: enter an integer between 1 and 3650 days.",
+    "retentionConflict": "The policy or backups have changed. Reload the inventory and try again.",
+    "retentionFailed": "Could not save the duration. Previous value retained.",
+    "cleanupPreview": "Integrity-verified backups eligible for cleanup: {count}. Nothing is deleted without confirmation.",
+    "cleanupStart": "Run controlled cleanup",
+    "cleanupRunning": "Deleting confirmed packages…",
+    "cleanupConfirm": "Permanently delete {count} verified, expired managed backup(s)? Exported copies and business archives will not be affected.",
+    "cleanupSuccess": "Cleanup completed: {count} managed backup(s) removed.",
+    "cleanupFailed": "Cleanup not confirmed. Check the inventory and audit trail before retrying.",
+    "externalDisclaimer": "Business PDF/TXT files and Vn snapshots are excluded. SMN cannot monitor or delete backups exported outside managed storage."
   }
 }
