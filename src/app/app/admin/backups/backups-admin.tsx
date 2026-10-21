@@ -78,6 +78,9 @@ export default function BackupsAdmin(){
  }
  async function cleanupRetention(){
   if(!state||savingRetention||cleaning||busy||checking||state.retention.eligibleIds.length===0)return;
+  if(retentionDays!==String(state.retention.days)){
+   setError(t("backups.retentionUnsaved"));return;
+  }
   const eligible=state.retention.eligibleIds;
   if(!window.confirm(t("backups.cleanupConfirm",{count:eligible.length})))return;
   setCleaning(true);setError("");setRetentionNotice("");
@@ -164,7 +167,8 @@ export default function BackupsAdmin(){
    <div>
     <p>{t("backups.cleanupPreview",{count:state?.retention.eligibleIds.length??0})}</p>
     <button type="button" className="btn btn-outline-danger" onClick={cleanupRetention}
-     disabled={!state||!state.retention.eligibleIds.length||cleaning||busy||checking||savingRetention}>
+     disabled={!state||!state.retention.eligibleIds.length||cleaning||busy||checking||savingRetention||
+      retentionDays!==String(state.retention.days)}>
      {cleaning?t("backups.cleanupRunning"):t("backups.cleanupStart")}
     </button>
    </div>
@@ -178,7 +182,7 @@ export default function BackupsAdmin(){
      <p className="small text-secondary mb-0">{t("backups.inventoryIntro")}</p>
     </div>
     <button type="button" className="btn btn-outline-primary" onClick={recheck}
-     disabled={checking||busy||!state}>{checking?t("backups.verifyRunning"):t("backups.verifyNow")}</button>
+     disabled={checking||busy||savingRetention||cleaning||!state}>{checking?t("backups.verifyRunning"):t("backups.verifyNow")}</button>
    </div>
    {state&&state.inventory.length===0&&<p role="status">{t("backups.noBackups")}</p>}
    <div className="d-grid gap-3">
