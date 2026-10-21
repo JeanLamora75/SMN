@@ -26,7 +26,6 @@ export default async function PrivateLayout({children}:{children:ReactNode}) {
   const context=dashboard?.context??null;
   const role=account.role as PrivateRole;
   return <div className="smn-dashboard">
-    <a className="visually-hidden-focusable smn-skip-link" href="#smn-main">{translate(locale,"navigation.skip")}</a>
     <header className="smn-dashboard-topbar">
       <div className="container-fluid smn-dashboard-width d-flex align-items-center justify-content-between gap-3">
         <Link href="/app" className="smn-brand" aria-label={translate(locale,"dashboard.back")}>

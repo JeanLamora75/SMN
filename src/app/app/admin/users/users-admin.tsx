@@ -18,6 +18,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
   const [accounts,setAccounts]=useState<Account[]>([]);
   const [status,setStatus]=useState<Status>("loading");
   const [message,setMessage]=useState("");
+  const [messageError,setMessageError]=useState(false);
   const [busy,setBusy]=useState(false);
   const [username,setUsername]=useState("");
   const [email,setEmail]=useState("");
@@ -32,41 +33,41 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       setAccounts(data.accounts);
       setEdits(Object.fromEntries(data.accounts.map(a=>[a.id,{role:a.role,isActive:a.is_active}])));
       setStatus("ready");
-    } catch {setStatus("error");setMessage(t("accounts.loadFailed"));}
+    } catch {setStatus("error");setMessageError(true);setMessage(t("accounts.loadFailed"));}
   },[t]);
   useEffect(()=>{void Promise.resolve().then(refresh);},[refresh]);
   async function create(event:FormEvent<HTMLFormElement>) {
-    event.preventDefault();setBusy(true);setMessage("");
+    event.preventDefault();setBusy(true);setMessageError(false);setMessage("");
     try {
       const response=await fetch("/api/admin/accounts",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({username,email,password,role})});
       const data=await response.json() as {error?:string};
-      if (!response.ok) {setMessage(errorMessage(data.error,"createFailed"));return;}
+      if (!response.ok) {setMessageError(true);setMessage(errorMessage(data.error,"createFailed"));return;}
       setUsername("");setEmail("");setPassword("");setRole("user");
       setMessage(t("accounts.created"));
       await refresh();
-    } catch {setMessage(t("accounts.server"));}
+    } catch {setMessageError(true);setMessage(t("accounts.server"));}
     finally {setBusy(false);}
   }
   async function save(id:string) {
     const edit=edits[id];if (!edit) return;
-    setBusy(true);setMessage("");
+    setBusy(true);setMessageError(false);setMessage("");
     try {
       const response=await fetch("/api/admin/accounts/"+encodeURIComponent(id),{
         method:"PATCH",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({role:edit.role,isActive:edit.isActive})});
       const data=await response.json() as {error?:string};
-      if (!response.ok) {setMessage(errorMessage(data.error,"updateFailed"));return;}
+      if (!response.ok) {setMessageError(true);setMessage(errorMessage(data.error,"updateFailed"));return;}
       setMessage(t("accounts.updated"));
       await refresh();
-    } catch {setMessage("Le serveur SMN ne répond pas.");}
+    } catch {setMessage(t("accounts.server"));}
     finally {setBusy(false);}
   }
   return <div className="d-grid gap-4">
     <section className="smn-panel p-4">
       <h2 className="h5">{t("accounts.createTitle")}</h2>
       <p className="small text-secondary">{t("accounts.createInfo")}</p>
-      <form onSubmit={create} className="row g-3">
+      <form onSubmit={create} className="row g-3" aria-describedby={message?"accounts-feedback":undefined}>
         <div className="col-md-6"><label className="form-label">{t("accounts.username")}<input className="form-control" required minLength={2} maxLength={50}
             value={username} onChange={e=>setUsername(e.target.value)} disabled={busy} autoComplete="off"/>
         </label></div>
@@ -89,34 +90,34 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       <h2 className="h5">{t("accounts.existing")}</h2>
       {status==="loading"&&<p>{t("accounts.loading")}</p>}
       {status==="error"&&<button className="btn btn-outline-secondary" onClick={()=>void refresh()}>{t("accounts.retry")}</button>}
-      {status==="ready"&&<div className="table-responsive">
-        <table className="table align-middle">
-          <thead><tr><th>{t("accounts.userCol")}</th><th>{t("accounts.emailCol")}</th><th>{t("accounts.roleCol")}</th><th>{t("accounts.accessCol")}</th><th>{t("accounts.actionCol")}</th></tr></thead>
-          <tbody>{accounts.map(account=>{
+      {status==="ready"&&<div className="table-responsive smn-accounts-responsive">
+        <table role="table" aria-label={t("accounts.existing")} className="table align-middle smn-accounts-table">
+          <thead role="rowgroup"><tr role="row"><th scope="col">{t("accounts.userCol")}</th><th scope="col">{t("accounts.emailCol")}</th><th scope="col">{t("accounts.roleCol")}</th><th scope="col">{t("accounts.accessCol")}</th><th scope="col">{t("accounts.actionCol")}</th></tr></thead>
+          <tbody role="rowgroup">{accounts.map(account=>{
             const edit=edits[account.id]??{role:account.role,isActive:account.is_active};
             const self=account.id===selfId;
             const changed=edit.role!==account.role||edit.isActive!==account.is_active;
-            return <tr key={account.id}>
-              <td><strong>{account.username}</strong>{self?t("accounts.you"):""}
+            return <tr role="row" key={account.id}>
+              <td role="cell" data-label={t("accounts.userCol")}><strong>{account.username}</strong>{self?t("accounts.you"):""}
                 {account.must_change_password&&<div className="small text-secondary">{t("accounts.changeInitial")}</div>}</td>
-              <td>{account.email}</td>
-              <td><select aria-label={t("accounts.roleFor",{username:account.username})} className="form-select form-select-sm"
+              <td role="cell" data-label={t("accounts.emailCol")}>{account.email}</td>
+              <td role="cell" data-label={t("accounts.roleCol")}><select aria-label={t("accounts.roleFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.role} disabled={busy||self} onChange={e=>
                   setEdits(prev=>({...prev,[account.id]:{...edit,role:e.target.value as Role}}))}>
                 <option value="user">{t("accounts.userCol")}</option><option value="admin">{t("accounts.admin")}</option>
               </select></td>
-              <td><select aria-label={t("accounts.accessFor",{username:account.username})} className="form-select form-select-sm"
+              <td role="cell" data-label={t("accounts.accessCol")}><select aria-label={t("accounts.accessFor",{username:account.username})} className="form-select form-select-sm"
                 value={edit.isActive?"active":"inactive"} disabled={busy||self} onChange={e=>
                   setEdits(prev=>({...prev,[account.id]:{...edit,isActive:e.target.value==="active"}}))}>
                 <option value="active">{t("accounts.active")}</option><option value="inactive">{t("accounts.inactive")}</option>
               </select></td>
-              <td><button className="btn btn-outline-primary btn-sm" disabled={busy||self||!changed}
+              <td role="cell" data-label={t("accounts.actionCol")}><button className="btn btn-outline-primary btn-sm" disabled={busy||self||!changed}
                 onClick={()=>void save(account.id)}>{t("accounts.save")}</button></td>
             </tr>;
           })}</tbody>
         </table>
       </div>}
     </section>
-    {message&&<p role="status" className="alert alert-info">{message}</p>}
+    {message&&<p id="accounts-feedback" role={messageError?"alert":"status"} className={"alert "+(messageError?"alert-warning":"alert-info")}>{message}</p>}
   </div>;
 }

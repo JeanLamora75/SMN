@@ -13,7 +13,7 @@ export default async function HomePage(){
   const firstRun=diagnostic.status==="configuration-missing"&&canInstall;
   const status=firstRun?t("home.firstRun"):t(
     `installation.diagnostic.${diagnostic.status}` as TranslationKey);
-  return <main className="smn-page container py-5">
+  return <main id="smn-main" className="smn-page container py-5">
     <header className="d-flex align-items-center gap-3 mb-5">
       <span className="smn-mark">SMN</span>
       <div>

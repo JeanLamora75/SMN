@@ -25,24 +25,27 @@ export default function PasswordChangeForm() {
     } catch { setError(t("password.network")); }
     finally { setBusy(false); }
   }
+  const confirmationError=error===t("password.mismatch");
   return <div className="d-grid gap-3">
-    <form onSubmit={submit} className="d-grid gap-3">
+    <form onSubmit={submit} className="d-grid gap-3" aria-describedby={error?"password-feedback":undefined}>
       <label className="form-label">{t("password.current")}
         <input className="form-control" type="password" required autoComplete="current-password"
           value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)} disabled={busy}/>
       </label>
       <label className="form-label">{t("password.new")}
         <input className="form-control" type="password" required autoComplete="new-password" minLength={4}
+          aria-invalid={confirmationError} aria-describedby={confirmationError?"password-feedback":undefined}
           value={newPassword} onChange={e=>setNewPassword(e.target.value)} disabled={busy}/>
       </label>
       <label className="form-label">{t("password.confirm")}
         <input className="form-control" type="password" required autoComplete="new-password" minLength={4}
+          aria-invalid={confirmationError} aria-describedby={confirmationError?"password-feedback":undefined}
           value={confirmation} onChange={e=>setConfirmation(e.target.value)} disabled={busy}/>
       </label>
       <button className="btn btn-primary" type="submit" disabled={busy}>
         {t(busy?"password.saving":"password.save")}
       </button>
-      {error && <p role="alert" className="alert alert-warning">{error}</p>}
+      {error && <p id="password-feedback" role="alert" className="alert alert-warning">{error}</p>}
     </form>
     <LogoutControl/>
   </div>;
