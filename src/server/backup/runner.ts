@@ -1,5 +1,5 @@
 import {randomBytes,randomUUID} from "node:crypto";
-import {lstat,mkdir,readFile,rename,rm,writeFile} from "node:fs/promises";
+import {lstat,mkdir,readFile,readdir,rename,rm,writeFile} from "node:fs/promises";
 import {join,isAbsolute,resolve,sep} from "node:path";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../auth/database";
@@ -47,6 +47,12 @@ async function loadKey(root:string):Promise<{key:Buffer;recovery:RecoveryEnvelop
 async function getOrCreateKey(root:string,phrase:string|undefined,passwordHash:string){
  const existing=await loadKey(root);
  if(existing)return existing;
+ const packages=await readdir(join(root,"packages")).catch((error:unknown)=>{
+  if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return [] as string[];
+  throw new Error("backup-packages-unavailable");
+ });
+ if(packages.some(name=>!name.startsWith(".")))
+  throw new Error("backup-key-missing-for-existing-archives");
  if(!phrase||phrase.length<20||phrase.length>256||phrase.trim()!==phrase||
  await verifyPassword(phrase,passwordHash))throw new Error("backup-recovery-required");
  const key=randomBytes(32),recovery=wrapRecoveryKey(key,phrase);
