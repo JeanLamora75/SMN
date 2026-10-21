@@ -11371,3 +11371,12 @@ Epic SMN-10 ; FR-76, FR-78 ; D-PRD-129/REC-03/05 ; condition de succès 5 du PRD
 
 
 **Validation :** validée fonctionnellement sans réserve le 19/10/2026 ; aucun essai exécuté.
+
+
+## Contrats UX du tableau de bord — validés le 21 octobre 2026
+
+Références obligatoires pour les agents BMAD : [DESIGN.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/DESIGN.md) · [EXPERIENCE.md](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/EXPERIENCE.md) · [synthèse UXD-01 à UXD-27](https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-SMN-2026-10-21/SYNTHESE-CADRAGE-UX-SMN.md). Ces contrats sont validés mais **pas encore implémentés ni testés**.
+
+**Règles clés :** pleine largeur, menu rétractable, header équipe/cycle, 4–6 métriques et 4 colonnes de suivi, 5 éléments maximum, tri automatique, comparaison entre cycles, historique fiable ou « Aucun éléments à ce jour », compteur **lundi–vendredi**, **engagement initial** SP et tickets, **aucune carte Avancement global** sans règle, responsive 4/2/1, personnalisation accessible.
+
+**Précision métier :** Traçabilité : Epic SMN-1 / SMN-21 pivot UX, SMN-20/22/23/24/25 et Epics 3/4/5/7/8 producteurs et vues ; ne pas changer les statuts métier sans preuve.
