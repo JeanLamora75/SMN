@@ -60,6 +60,9 @@ model SmnAccount {
   changedCalendarExceptions SmnMemberCalendarException[]
   changedLocations SmnMemberLocation[]
   createdCountries SmnCountry[]
+  createdAbsences SmnMemberAbsence[] @relation("AbsenceCreatedBy")
+  updatedAbsences SmnMemberAbsence[] @relation("AbsenceUpdatedBy")
+  absenceEdits SmnMemberAbsenceHistory[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
 }
@@ -138,6 +141,7 @@ model SmnMember {
   calendarWeeks SmnMemberCalendarWeek[]
   calendarExceptions SmnMemberCalendarException[]
   locations SmnMemberLocation[]
+  absences SmnMemberAbsence[]
   @@unique([installationId,memberNumber])
   @@map("smn_member")
 }
@@ -284,4 +288,53 @@ model SmnNationalHolidayAudit {
   actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
   @@index([countryCode,holidayDate,occurredAt])
   @@map("smn_national_holiday_audit")
+}
+
+model SmnAbsenceCategory {
+  id String @id
+  name String
+  color String
+  isActive Boolean @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  absences SmnMemberAbsence[]
+  @@map("smn_absence_category")
+}
+model SmnMemberAbsence {
+  id String @id
+  memberId String @map("member_id")
+  categoryId String @map("category_id")
+  startOn DateTime @map("start_on") @db.Date
+  endOn DateTime @map("end_on") @db.Date
+  startSlot String @map("start_slot")
+  endSlot String @map("end_slot")
+  isPlanned Boolean @map("is_planned")
+  reason String
+  revision Int @default(1)
+  createdBy String? @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedBy String? @map("updated_by")
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  member SmnMember @relation(fields:[memberId],references:[id],onDelete:Restrict)
+  category SmnAbsenceCategory @relation(fields:[categoryId],references:[id],onDelete:Restrict)
+  creator SmnAccount? @relation("AbsenceCreatedBy",fields:[createdBy],references:[id],onDelete:SetNull)
+  updater SmnAccount? @relation("AbsenceUpdatedBy",fields:[updatedBy],references:[id],onDelete:SetNull)
+  history SmnMemberAbsenceHistory[]
+  @@index([memberId,startOn,endOn])
+  @@map("smn_member_absence")
+}
+model SmnMemberAbsenceHistory {
+  id String @id
+  absenceId String @map("absence_id")
+  revision Int
+  operation String
+  beforeValues Json? @map("before_values")
+  afterValues Json @map("after_values")
+  changedBy String? @map("changed_by")
+  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+  absence SmnMemberAbsence @relation(fields:[absenceId],references:[id],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[changedBy],references:[id],onDelete:SetNull)
+  @@unique([absenceId,revision])
+  @@index([absenceId,changedAt])
+  @@map("smn_member_absence_history")
 }
