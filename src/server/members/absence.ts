@@ -29,6 +29,12 @@ const validText=(v:string)=>!/[\u0000-\u001f\u007f]/u.test(v);
 export function parseAbsenceChange(raw:unknown):{ok:true;value:AbsenceInput}|{ok:false;error:AbsenceError}{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false,error:"invalid-input"};
  const v=raw as Record<string,unknown>;
+ if(v.action==="create"||v.action==="update"){
+  if(v.categoryId===undefined||v.categoryId===null||v.categoryId==="")
+   return {ok:false,error:"category-required"};
+  if(v.reason===undefined||v.reason===null||v.reason==="")
+   return {ok:false,error:"reason-required"};
+ }
  const allowed=v.action==="create"?["action","revision","categoryId","startOn","endOn",
   "startSlot","endSlot","isPlanned","reason"]:
   ["action","id","revision","categoryId","startOn","endOn","startSlot","endSlot","isPlanned","reason"];
