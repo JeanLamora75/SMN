@@ -19,6 +19,11 @@ export default async function MembersAdminPage(){
    <p>{translate(locale,"members.intro")}</p>
    <Link href="/app" className="btn btn-outline-secondary">{translate(locale,"members.back")}</Link>
   </header>
+  {canAccess(actor,"write",{type:"members",exists:true,inScope:true})&&
+   <div className="mb-4">
+    <Link href="/app/admin/absence-categories" className="btn btn-outline-primary">
+     {translate(locale,"absenceCategories.open")}</Link>
+   </div>}
   <QuickMembersAdmin/>
  </div>;
 }
