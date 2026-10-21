@@ -1,12 +1,12 @@
 import {createCipheriv,createHash,randomBytes} from "node:crypto";
 import {spawn,execFile} from "node:child_process";
 import {promisify} from "node:util";
-import {createWriteStream,existsSync} from "node:fs";
+import {createReadStream,createWriteStream,existsSync} from "node:fs";
 import {Transform} from "node:stream";
 import {pipeline} from "node:stream/promises";
 import {join} from "node:path";
 import type {BackupComponent} from "./files";
-import {sha} from "./files";
+
 
 const exec=promisify(execFile);
 function dumpExecutable():string{
@@ -42,9 +42,9 @@ export async function encryptedPgDump(connectionString:string,key:Buffer,destina
   "--host",uri.hostname,"--port",uri.port||"5432",
   "--username",decodeURIComponent(uri.username),"--dbname",database];
  const child=spawn(executable,args,{windowsHide:true,stdio:["ignore","pipe","pipe"],
+  signal:AbortSignal.timeout(15*60_000),
   env:{...process.env,PGPASSWORD:decodeURIComponent(uri.password)}});
- let discarded=0;
- child.stderr.on("data",(chunk:Buffer)=>{discarded+=chunk.length;});
+ child.stderr?.resume();
  const nonce=randomBytes(12),cipher=createCipheriv("aes-256-gcm",key,nonce);
  const hash=createHash("sha256");let originalSize=0;
  const tally=new Transform({transform(chunk:Buffer,_encoding,done){
@@ -64,11 +64,12 @@ export async function encryptedPgDump(connectionString:string,key:Buffer,destina
  try{
   await Promise.all([stream,exited]);
   if(originalSize<=0)throw new Error("backup-database-empty");
-  const {stat,readFile}=await import("node:fs/promises");
+  const {stat}=await import("node:fs/promises");
   const size=(await stat(destination)).size;
-  const encrypted=await readFile(destination);
+  const encryptedHash=createHash("sha256");
+  for await(const block of createReadStream(destination))encryptedHash.update(block);
   return {path:"database.pgcustom.enc",sha256:hash.digest("hex"),size:originalSize,
-   encryptedSha256:sha(encrypted),encryptedSize:size,nonce:nonce.toString("hex"),
+   encryptedSha256:encryptedHash.digest("hex"),encryptedSize:size,nonce:nonce.toString("hex"),
    tag:cipher.getAuthTag().toString("hex")};
  }catch{
   child.kill();
