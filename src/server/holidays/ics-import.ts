@@ -49,6 +49,7 @@ function eventFromLines(lines:string[],index:number):IcsEvent{
   civil(starts[0].value):null;
  let reason:string|null=null;
  if(malformed)reason="malformed-event";
+ else if(get("X-SMN-UNSUPPORTED-NESTED").length>0)reason="nested-component";
  else if(props.some(p=>["RRULE","RDATE","EXDATE","RECURRENCE-ID"].includes(p.key)))
   reason="recurrence-unsupported";
  else if(get("DURATION").length>0)reason="duration-unsupported";
@@ -83,22 +84,32 @@ export function parseHolidayIcs(input:string):
   return {ok:false,error:"invalid-ics"};
  const events:IcsEvent[]=[];
  let inEvent=false,begin=-1,current:string[]=[];
+ let eventDepth=0,unsupportedNested=false;
  let depth=0;
  for(let i=1;i<lines.length-1;i++){
   const line=lines[i];
   if(line.toUpperCase()==="BEGIN:VEVENT"){
    if(inEvent||depth!==0)return {ok:false,error:"invalid-ics"};
-   inEvent=true;begin=i;current=[];continue;
+   inEvent=true;begin=i;current=[];eventDepth=0;unsupportedNested=false;continue;
   }
   if(line.toUpperCase()==="END:VEVENT"){
    if(!inEvent)return {ok:false,error:"invalid-ics"};
+   if(eventDepth!==0)return {ok:false,error:"invalid-ics"};
+   if(unsupportedNested)current.push("X-SMN-UNSUPPORTED-NESTED:1");
    events.push(eventFromLines(current,events.length+1));
    if(events.length>MAX_EVENTS)return {ok:false,error:"ics-too-large"};
    inEvent=false;begin=-1;continue;
   }
   if(inEvent){
-   if(line.toUpperCase().startsWith("BEGIN:")||line.toUpperCase().startsWith("END:"))return {ok:false,error:"invalid-ics"};
-   current.push(line);continue;
+   if(line.toUpperCase().startsWith("BEGIN:")){
+    unsupportedNested=true;eventDepth++;continue;
+   }
+   if(line.toUpperCase().startsWith("END:")){
+    if(eventDepth===0)return {ok:false,error:"invalid-ics"};
+    eventDepth--;continue;
+   }
+   if(eventDepth===0)current.push(line);
+   continue;
   }
   if(line.toUpperCase().startsWith("BEGIN:")){depth++;continue;}
   if(line.toUpperCase().startsWith("END:")){depth--;if(depth<0)return {ok:false,error:"invalid-ics"};}
