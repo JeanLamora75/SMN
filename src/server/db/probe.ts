@@ -80,13 +80,14 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const shapeValid = required.every((name) => columnSet.has(name));
     if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 5",
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 6",
     )).rows;
     return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
       configurationTasksSchemaValid: ["smn_configuration_task:installation_id","smn_configuration_task:task_key",
         "smn_configuration_task:status","smn_configuration_task:updated_at","smn_configuration_task:updated_by"]
         .every(col=>columnSet.has(col)),
+      paletteSchemaValid: columnSet.has("smn_general_settings:palette"),
       settingsSchemaValid: ["smn_general_settings:installation_id","smn_general_settings:locale","smn_general_settings:theme","smn_general_settings:reference_country","smn_general_settings:revision","smn_general_settings:updated_at","smn_general_settings:updated_by","smn_general_settings_audit:id","smn_general_settings_audit:installation_id","smn_general_settings_audit:actor_id","smn_general_settings_audit:old_values","smn_general_settings_audit:new_values","smn_general_settings_audit:changed_at"].every(col=>columnSet.has(col)) };
   } finally {
     if (transaction) await client.query("ROLLBACK").catch(() => undefined);

@@ -32,7 +32,7 @@ export default function SetupForm() {
     } catch { setResult(t("legacySetup.network")); }
     finally { setBusy(false); }
   }
-  return <form onSubmit={submit} className="d-grid gap-3" aria-describedby={result?"setup-feedback":undefined}>
+  return <form onSubmit={submit} className="d-grid gap-3">
     <label className="form-label">{t("legacySetup.mode")}<select className="form-select" value={state.mode} onChange={(e)=>setState({...state,mode:e.target.value})}>
         <option value="scrum">Scrum</option><option value="kanban">Kanban</option>
       </select>
@@ -44,7 +44,7 @@ export default function SetupForm() {
     <p className="small text-secondary">{t("legacySetup.pilotInfo")}</p>
     <label className="form-label">{t("legacySetup.password")}<input required minLength={14} maxLength={256} type="password" autoComplete="new-password" className="form-control" value={state.password} onChange={(e)=>setState({...state,password:e.target.value})}/>
     </label>
-    <label className="form-label">{t("legacySetup.confirmPassword")}<input required type="password" autoComplete="new-password" className="form-control" aria-invalid={!!result&&state.password!==passwordConfirmation} aria-describedby={result&&state.password!==passwordConfirmation?"setup-feedback":undefined} value={passwordConfirmation} onChange={(e)=>setPasswordConfirmation(e.target.value)}/>
+    <label className="form-label">{t("legacySetup.confirmPassword")}<input required type="password" autoComplete="new-password" className="form-control" value={passwordConfirmation} onChange={(e)=>setPasswordConfirmation(e.target.value)}/>
     </label>
     <label className="form-label">{t("legacySetup.token")}<input required type="password" autoComplete="off" className="form-control" value={state.setupToken} onChange={(e)=>setState({...state,setupToken:e.target.value})}/>
     </label>
@@ -53,6 +53,6 @@ export default function SetupForm() {
       <label className="form-check-label" htmlFor="confirm-init">{t("legacySetup.confirm")}</label>
     </div>
     <button className="btn btn-primary" disabled={busy || !state.confirmed}>{t(busy?"legacySetup.working":"legacySetup.initialize")}</button>
-    {result && <p id="setup-feedback" role="status" aria-live="polite">{result}</p>}
+    {result && <p role="status">{result}</p>}
   </form>;
 }

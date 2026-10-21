@@ -69,7 +69,7 @@ export default function SetupWelcome() {
     <p>{t("welcome.completeInfo")}</p>
     <Link href="/" className="btn btn-outline-primary">{t("welcome.back")}</Link>
   </div>;
-  return <form onSubmit={submit} className="d-grid gap-3" aria-describedby={message?"welcome-feedback":undefined}>
+  return <form onSubmit={submit} className="d-grid gap-3">
     <fieldset disabled={status.status === "working"} className="d-grid gap-3">
       <h2 className="h5">{t("welcome.dbConnection")}</h2>
       <label className="form-label">{t("welcome.installationType")}
@@ -111,9 +111,9 @@ export default function SetupWelcome() {
         <input required minLength={2} maxLength={50} className="form-control" value={adminUsername} onChange={e=>setAdminUsername(e.target.value)}/>
       </label>
       <label className="form-label">{t("welcome.password")}
-        <input required minLength={4} maxLength={256} type="password" autoComplete="new-password" className="form-control" aria-describedby={password==="admin"?"welcome-pilot-warning":undefined} value={password} onChange={e=>setPassword(e.target.value)}/>
+        <input required minLength={4} maxLength={256} type="password" autoComplete="new-password" className="form-control" value={password} onChange={e=>setPassword(e.target.value)}/>
       </label>
-      {password === "admin" && <p id="welcome-pilot-warning" role="note" className="small text-warning">{t("welcome.pilotWarning")}</p>}
+      {password === "admin" && <p className="small text-warning">{t("welcome.pilotWarning")}</p>}
       <label className="form-check">
         <input type="checkbox" className="form-check-input" checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/>
         <span className="form-check-label">{t("welcome.confirmation")}</span>
@@ -153,6 +153,6 @@ export default function SetupWelcome() {
         {t("welcome.logAfter")}
       </p>}
     </div>}
-    {message && <p id="welcome-feedback" role="alert">{message}</p>}
+    {message && <p role="alert">{message}</p>}
   </form>;
 }

@@ -24,19 +24,19 @@ export default function LoginForm(){
     }catch{setError("network");}
     finally{setBusy(false);}
   }
-  return <form onSubmit={submit} className="d-grid gap-3" aria-describedby={error?"login-feedback":undefined}>
+  return <form onSubmit={submit} className="d-grid gap-3">
     <label className="form-label">{t("login.identity")}
-      <input id="login-identity" className="form-control" required autoComplete="username" aria-invalid={!!error} aria-describedby={error?"login-feedback":undefined} maxLength={200}
+      <input className="form-control" required autoComplete="username" maxLength={200}
         value={identity} onChange={e=>setIdentity(e.target.value)} disabled={busy}/>
     </label>
     <label className="form-label">{t("login.password")}
-      <input id="login-password" className="form-control" required type="password" aria-invalid={!!error} aria-describedby={error?"login-feedback":undefined} autoComplete="current-password"
+      <input className="form-control" required type="password" autoComplete="current-password"
         value={password} onChange={e=>setPassword(e.target.value)} disabled={busy}/>
     </label>
     <button className="btn btn-primary" type="submit" disabled={busy}>
       {t(busy?"login.busy":"login.submit")}
     </button>
-    {error&&<p id="login-feedback" role="alert" className="alert alert-warning mb-0">{t(`login.${error}` as Parameters<typeof t>[0])}</p>}
+    {error&&<p role="alert" className="alert alert-warning mb-0">{t(`login.${error}` as Parameters<typeof t>[0])}</p>}
     <p className="small text-secondary mb-0">{t("login.pilotInfo")}</p>
   </form>;
 }

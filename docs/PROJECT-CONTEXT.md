@@ -130,9 +130,15 @@ Cette section **remplace, pour l'état présent, les mentions historiques plus h
 
 [PR #19](https://github.com/JeanLamora75/SMN/pull/19) fusionnée dans `main`. Le thème global `light`/`dark` est lu depuis les paramètres généraux existants, appliqué sur `<html data-bs-theme>` et répercuté aux variables Bootstrap/SMN et composants privés. Deux palettes fixes vérifiées pour les contrastes ; aucune couleur arbitraire, migration ou modification des données métier. Un changement du thème dans l'administration recharge l'interface. Voir [docs/THEMES-SMN-24.md](THEMES-SMN-24.md). Tests écrits, **CI et recette Windows non exécutées** ; Jira reste En cours.
 
-## SMN-25 — Responsive et accessibilité du socle (21/10/2026)
+## SMN-24 — Extension palettes persistées (21 octobre 2026)
 
-- [Jira SMN-25](https://lmn24.atlassian.net/browse/SMN-25) ; détails [docs/RESPONSIVE-ACCESSIBILITE-SMN-25.md](RESPONSIVE-ACCESSIBILITE-SMN-25.md).
-- Lien d'évitement partagé défini au layout racine (`#smn-main`) ; pages publiques possèdent désormais ce landmark, la page privée l'avait déjà.
-- Présentation mobile en fiches pour les comptes administrés, sans colonnes de contrôle cachées ; focus global visible, messages des formulaires liés et annonces erreur/statut explicites, préférence réduction des animations.
-- Les futurs écrans métier doivent respecter ce contrat responsive et clavier. Aucune recette appareil réel, navigation clavier de bout en bout, audit lecteur d'écran ou attestation de conformité WCAG à ce stade.
+
+- Jira : https://lmn24.atlassian.net/browse/SMN-24 ; Story 1.15 (Epic 1, incrément I0).
+- Thème global `light` / `dark` (déjà persisté par SMN-18), palettes `ocean`, `forest`, `violet` (nouvelle colonne `smn_general_settings.palette` avec CHECK PostgreSQL).
+- Migration additive **v5 → v6**, `20261021_smn24_appearance_palette` : même procédure sérialisée et auditée, sans modification des données métiers. Diagnostique v6 et historique Prisma mis à jour.
+- `src/server/settings/appearance.server.ts` projette les valeurs globales validées dans le layout HTML `data-bs-theme` et `data-smn-palette`, avec repli `light/ocean`. Styles centralisés en `src/app/appearance.css` et composés sur les écrans Bootstrap existants.
+- L'écran `/app/admin/settings` permet à l'Administrateur de modifier le thème et la palette ; validation serveur, contrôle de révision concurrente et audit transactionnel. Le profil Utilisateur ne dispose pas de l'accès en écriture.
+- Les messages et états restent textuels, non basés uniquement sur la couleur. Nouveaux libellés FR/EN dans les JSON centralisés.
+- Référence : [Documentation SMN-24](APPARENCE-SMN-24.md) et [spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-24-themes-palettes.md). Tests de code et CI à confirmer par exécution, non inférés de la seule publication.
+
+- **SMN-24 — statut de livraison :** le socle thème clair/sombre est issu de [PR #19](https://github.com/JeanLamora75/SMN/pull/19) et l'extension des trois palettes persistées de [PR #20](https://github.com/JeanLamora75/SMN/pull/20), toutes deux fusionnées sur `main`. La migration v6 doit se produire uniquement via le mécanisme applicatif ; ne pas exécuter de SQL manuel sur une installation pilote. Jira reste En cours tant que les tests Linux/Windows et la recette ne sont pas prouvés.

@@ -38,3 +38,9 @@ Vérifications exécutées en CI [Linux/PostgreSQL et Windows](https://github.co
 
 - [Jira SMN-18](https://lmn24.atlassian.net/browse/SMN-18)
 - [Spécification BMAD](../_bmad-output/implementation-artifacts/spec-smn-18-parametres-generaux.md)
+
+## Évolution SMN-24 — Apparence globale
+
+La Story [SMN-24](https://lmn24.atlassian.net/browse/SMN-24) met effectivement en œuvre le thème déjà stocké et ajoute trois palettes prédéfinies contrôlées (Océan / Forêt / Violet). Elle utilise la colonne `palette` (migration additive v6), les attributs HTML Bootstrap `data-bs-theme` et `data-smn-palette` ainsi que des variables CSS réutilisées sur les écrans. Les anciennes requêtes PATCH sans champ `palette` préservent la palette antérieure.
+
+La section initiale de ce document décrivait **SMN-18** avant la livraison de SMN-24 ; elle reste conservée comme historique. La spécification active est [APPARENCE-SMN-24.md](APPARENCE-SMN-24.md). Les exécutions CI et la recette Windows de SMN-24 devront être confirmées indépendamment.

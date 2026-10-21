@@ -63,12 +63,12 @@
     "locale": "Langue préférée",
     "localeInfo": "Langue utilisée par les écrans déjà migrés dans SMN-27. La migration des autres écrans se poursuit.",
     "theme": "Thème préféré",
-    "themeInfo": "Thème global appliqué immédiatement après enregistrement et conservé entre les pages. Les palettes claire et sombre sont prédéfinies pour préserver le contraste.",
+    "themeInfo": "Thème global appliqué à tous les écrans, menus et formulaires après enregistrement.",
     "country": "Pays de référence",
     "countryEmpty": "Non renseigné",
     "unknownCountry": "{code} — pays existant",
     "countryInfo": "Pays par défaut des futures fiches membres ; aucun calendrier, membre ou bilan passé n'est recalculé.",
-    "displayInfo": "Les préférences d'affichage sont disponibles pour les modules compatibles. Les paramètres influençant les créations s'appliquent uniquement aux nouvelles données, sans modifier les historiques et documents archivés.",
+    "displayInfo": "L'apparence est globale. Elle n'affecte ni les règles métier, ni les historiques, ni les autorisations.",
     "saving": "Enregistrement…",
     "save": "Enregistrer les paramètres",
     "reload": "Recharger",
@@ -93,7 +93,12 @@
       "PT": "Portugal",
       "IT": "Italie",
       "CA": "Canada"
-    }
+    },
+    "palette": "Palette de couleurs",
+    "paletteOcean": "Océan · bleu",
+    "paletteForest": "Forêt · vert",
+    "paletteViolet": "Violet · pourpre",
+    "paletteInfo": "Choisissez une palette prédéfinie à contraste contrôlé. Aucune couleur libre n'est autorisée."
   },
   "dashboard": {
     "nav": {

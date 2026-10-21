@@ -63,12 +63,12 @@
     "locale": "Preferred language",
     "localeInfo": "Language used by screens already migrated under SMN-27. Other screens are being migrated.",
     "theme": "Preferred theme",
-    "themeInfo": "Global theme applies after saving and stays consistent across pages. Light and dark palettes are predefined to preserve contrast.",
+    "themeInfo": "Global theme applied to every page, menu and form after saving.",
     "country": "Reference country",
     "countryEmpty": "Not specified",
     "unknownCountry": "{code} — existing country",
     "countryInfo": "Default country for future team members; past calendars, members and reports will not be recalculated.",
-    "displayInfo": "Display preferences are available for compatible modules. Settings affecting newly created data apply only to new data, without modifying history or archived documents.",
+    "displayInfo": "Appearance is global. It never changes business rules, history or permissions.",
     "saving": "Saving…",
     "save": "Save settings",
     "reload": "Reload",
@@ -93,7 +93,12 @@
       "PT": "Portugal",
       "IT": "Italy",
       "CA": "Canada"
-    }
+    },
+    "palette": "Colour palette",
+    "paletteOcean": "Ocean · blue",
+    "paletteForest": "Forest · green",
+    "paletteViolet": "Violet · purple",
+    "paletteInfo": "Choose a preset palette with controlled contrast. Custom colours are not supported."
   },
   "dashboard": {
     "nav": {
