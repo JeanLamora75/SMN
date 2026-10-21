@@ -162,8 +162,7 @@ export async function saveActualCapacity(db:Client,actorId:string,raw:unknown):
  if(!actorId||!value)return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
-  const fail=async(error:ActualWriteResult extends never?never:
-   "future-period"|"protected"|"conflict"|"nothing-to-clear"|"team-unavailable"):
+  const fail=async(error:"future-period"|"protected"|"conflict"|"nothing-to-clear"|"team-unavailable"):
    Promise<ActualWriteResult>=>{await db.query("ROLLBACK");return {ok:false,error};};
   const teams=await db.query<ActorTeam>(teamSql+" FOR UPDATE OF t");
   if(teams.rows.length!==1)return fail("team-unavailable");
