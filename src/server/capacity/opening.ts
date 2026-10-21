@@ -1,7 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
-import {parseCapacityPeriod,readDevelopmentCapacity} from "./engine";
-import {readCapacityOverride} from "./override";
+import {parseCapacityPeriod,readDevelopmentCapacity,type CapacityReport} from "./engine";
 
 const EVENT_ID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 type InitialRow={
@@ -58,8 +57,9 @@ export async function readInitialSnapshot(db:Client,teamId:string,start:string,e
  * One repeatable-read snapshot, guarded by a team row lock and a UNIQUE period.
  * No reconstruction using post-opening facts on retries or retroactive periods.
  */
-export async function openCapacityPeriod(db:Client,actorId:string,raw:unknown):
- Promise<OpeningResult>{
+export async function openCapacityPeriod(db:Client,actorId:string,raw:unknown,
+ calculate:(db:Client,start:string,end:string,options:{externalTransaction:true})=>
+  Promise<CapacityReport>=readDevelopmentCapacity):Promise<OpeningResult>{
  const parsed=parseOpening(raw);
  if(!actorId||!parsed)return {ok:false,error:"invalid-input"};
  const {start,end,eventId}=parsed;
@@ -104,7 +104,7 @@ export async function openCapacityPeriod(db:Client,actorId:string,raw:unknown):
    if(previous?.manual_jh!==null&&previous?.manual_jh!==undefined){
     initialJh=previous.manual_jh;provenance="Saisie";
    }else{
-    const reference=await readDevelopmentCapacity(db,start,end,{externalTransaction:true});
+    const reference=await calculate(db,start,end,{externalTransaction:true});
     if(reference.team.id!==teamId)throw Error("initial-opening-team-changed");
     if(reference.totalJh!==null){
      initialJh=reference.totalJh;provenance="Calcul";
