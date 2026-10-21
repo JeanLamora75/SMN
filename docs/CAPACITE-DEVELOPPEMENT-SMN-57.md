@@ -10,7 +10,7 @@ Le paramètre **heures/JH** vaut **8 par défaut** et peut être réglé entre 1
 
 **Calcul :** créneaux disponibles (en demi-journées) × heures/JH ÷ 2 × affectation × part Développeur × contribution ÷ heures/JH, avec des taux exprimés en fractions. Le taux contractuel est déjà pris en compte dans la borne d'affectation : ne pas le multiplier à nouveau. Le paramètre heures/JH change les heures calculées mais pas les JH si les seules sources sont des demi-journées.
 
-**Exemples :** journée complète à 100 % des trois facteurs = 1 JH ; journée complète à 50 % de chaque facteur = 0,125 JH ; demi-journée pleine = 0,5 JH ; Product Owner 100 % sans part Développeur = 0 JH si les autres données sont complètes.
+**Exemples :** journée complète à 100 % des trois facteurs = 1 JH ; journée complète à 50 % de chaque facteur = 0,125 JH ; demi-journée pleine = 0,5 JH ; Product Owner **ou Scrum Master** à 100 % sans part Développeur = **0 JH** si les autres données sont complètes. Si une source obligatoire manque, le résultat demeure **Non calculable** (AC4), et non zéro fictif.
 
 Les jours fériés, fermetures et absences ne sont déduits qu'une fois par créneau. Un changement de taux s'applique à partir de sa date d'effet.
 
@@ -31,6 +31,6 @@ pnpm build
 pnpm dev
 ```
 
-Vérifier : 8 heures initiales, modification à 7,5 et audit, PO sans développement, une demi-journée, un changement daté, chevauchement férié/fermeture/absence, un historique absent, période invalide, refus des Utilisateurs (403) et absence de modification des clichés/PDF existants.
+Vérifier : 8 heures initiales, modification à 7,5 et audit, PO **et Scrum Master** sans développement, une demi-journée, un changement daté, chevauchement férié/fermeture/absence, un historique absent, période invalide, refus des Utilisateurs (403) et absence de modification des clichés/PDF existants.
 
 **État :** tests écrits mais non exécutés. GitHub Actions ne sera pas utilisé. Jira En cours / BMAD review jusqu'à la recette.

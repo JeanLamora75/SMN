@@ -17,7 +17,7 @@ Le taux contractuel n'est pas multiplié une seconde fois : il borne déjà le t
 
 **AC1.** Le moteur `src/server/capacity/engine.ts` calcule une référence indépendante des Sprints sur une fenêtre de 1 à 93 jours. Le paramètre `hours_per_jh` est réglable (8 par défaut, entre 1 et 24, deux décimales), avec historique des corrections. L'Administrateur obtient détail par membre/date et total d'équipe.
 
-**AC2.** Une part Développeur 0 % (même avec 100 % Product Owner) produit **0 JH**, lorsque les données de disponibilité sont connues.
+**AC2 (mise à jour Jira).** Une part Développeur égale à 0 %, que les parts de rôle correspondent à **100 % Product Owner ou 100 % Scrum Master**, produit **0 JH de développement**, lorsque les données requises sont connues. La formule repose sur `developer_percent`, indépendamment du rôle principal. Aucune donnée de Sprint/Kanban n'est créée. Si un calendrier ou une affectation requise manque, **l'AC4 reste prioritaire : `not-calculable` et `totalJh=null`**, et non un zéro fictif.
 
 **AC3.** Le résolveur SMN-54/56 forme l'union des indisponibilités : national OU fermeture OU absence. Une demi-journée n'est jamais déduite plusieurs fois.
 

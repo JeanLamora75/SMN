@@ -6,12 +6,13 @@ import {computeDevelopmentDay,parseCapacityPeriod,readDevelopmentCapacity,validH
 import {readCapacitySettings,updateCapacitySettings} from "../src/server/capacity/settings";
 import {CAPACITY_MIGRATION_SQL} from "../src/server/capacity/migration";
 import {canAccess} from "../src/server/access-policy";
+import {parseAssignmentInput} from "../src/server/members/assignment";
 const memberId="11111111-1111-4111-8111-111111111111";
 const assignmentId="22222222-2222-4222-8222-222222222222";
 const actorId="33333333-3333-4333-8333-333333333333";
 const teamId="team-main";
 const range={start:"2026-05-01",end:"2026-05-04"};
-type Options={percentPO?:boolean;missingVersion?:boolean;missingCalendar?:boolean;
+type Options={percentPO?:boolean;percentScrumMaster?:boolean;missingVersion?:boolean;missingCalendar?:boolean;
  missingCountry?:boolean;partialNational?:boolean;holiday?:boolean;
  closure?:boolean;absence?:boolean;assignmentChanges?:boolean;multiAssignment?:boolean;
  noAssignments?:boolean;hours?:number};
@@ -22,7 +23,9 @@ function fixture(opts:Options={}){
  const versions=[{
   assignment_id:assignmentId,revision:1,effective_from:"2026-01-01",
   contract_percent:100,allocation_percent:100,contribution_percent:100,
-  developer_percent:opts.percentPO?0:100
+  scrum_master_percent:opts.percentScrumMaster?100:0,
+  product_owner_percent:opts.percentPO?100:0,
+  developer_percent:opts.percentPO||opts.percentScrumMaster?0:100
  },...(opts.assignmentChanges?[{
   assignment_id:assignmentId,revision:2,effective_from:"2026-05-03",
   contract_percent:100,allocation_percent:50,contribution_percent:50,
@@ -118,6 +121,34 @@ describe("SMN-57 — calcul fiable des JH",()=>{
   assert.equal(report.totalJh,0);
   assert.equal(report.members[0].days[0].developerPercent,0);
   assert.equal(f.sql.some(q=>/story.?point|sprint|kanban_indicator|INSERT|UPDATE/i.test(q)),false);
+ });
+ it("AC2 modifié — Scrum Master 100 % sans activité Développeur produit 0 JH",async()=>{
+  const assignment=parseAssignmentInput({
+   memberId,teamId,effectiveFrom:"2026-05-01",contractPercent:100,
+   allocationPercent:100,contributionPercent:100,revision:0,
+   shares:{scrumMaster:100,productOwner:0,developer:0}
+  });
+  assert.ok(assignment);
+  assert.deepEqual(assignment.shares,{scrumMaster:100,productOwner:0,developer:0});
+  const f=fixture({percentScrumMaster:true});
+  const report=await readDevelopmentCapacity(f.db,range.start,range.end);
+  assert.equal(report.status,"calculated");
+  assert.equal(report.totalJh,0);
+  assert.equal(report.members.length,1);
+  assert.equal(report.members[0].status,"calculated");
+  assert.equal(report.members[0].totalJh,0);
+  assert.ok(report.members[0].days.every(day=>day.developmentJh===0&&
+   day.developmentHours===0&&day.developerPercent===0));
+  assert.equal(f.sql.some(q=>/story.?point|sprint|kanban_indicator|INSERT|UPDATE/i.test(q)),false);
+  assert.equal(f.sql[0],"BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
+ });
+ it("AC2 et AC4 — rôle non Développeur sans calendrier reste non calculable",async()=>{
+  const report=await readDevelopmentCapacity(fixture({
+   percentScrumMaster:true,missingCalendar:true
+  }).db,range.start,range.end);
+  assert.equal(report.status,"not-calculable");
+  assert.equal(report.totalJh,null);
+  assert.ok(report.missing.some(m=>m.source==="work-calendar"));
  });
  it("ne déduit qu'une fois les jours fériés, fermetures et absences",async()=>{
   const report=await readDevelopmentCapacity(fixture({
