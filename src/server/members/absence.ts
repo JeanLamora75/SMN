@@ -138,7 +138,7 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
   if(!m)return fail("not-found");
   if(m.archived_at!==null)return fail("archived");
   const category=await db.query<CategoryRow>(
-   "SELECT id,name,color,is_active FROM public.smn_absence_category WHERE id=$1",
+   "SELECT id,name,color,is_active FROM public.smn_absence_category WHERE id=$1 FOR SHARE",
    [input.categoryId]);
   if(category.rows.length!==1)return fail("category-required");
   const previous=input.action==="update"?await db.query<AbsenceRow>(`

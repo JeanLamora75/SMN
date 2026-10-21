@@ -1,6 +1,6 @@
 # SMN-53 — Story 3.12 — Absences individuelles centralisées
 
-**Référence Jira :** https://lmn24.atlassian.net/browse/SMN-53 · Epic 3. **Dépendance fonctionnelle :** SMN-52 (catégories et couleurs) non développée au démarrage ; le minimum de données nécessaire est préchargé, sans réaliser l'interface de gestion des catégories de SMN-52.
+**Référence Jira :** https://lmn24.atlassian.net/browse/SMN-53 · Epic 3. **Dépendance fonctionnelle :** SMN-52 était indisponible au démarrage de SMN-53 ; ses quatre catégories de base étaient préchargées. L'interface complète est désormais livrée séparément dans [SMN-52](spec-smn-52-categories-absences.md).
 
 ## Contrat métier livré
 
@@ -24,7 +24,7 @@
 
 ## Limites explicites
 
-La logique de **calcul consolidé de capacité** et l'affichage du **calendrier d'équipe** sont livrés par leurs propres Stories ultérieures ; cet incrément fournit les données centrales et la résolution par date, **sans prétendre recalculer la capacité**. La personnalisation des catégories et leur désactivation dans l'interface doivent être livrées lors de SMN-52.
+La logique de **calcul consolidé de capacité** et l'affichage du **calendrier d'équipe** sont livrés par leurs propres Stories ultérieures ; cet incrément fournit les données centrales et la résolution par date, **sans prétendre recalculer la capacité**. La personnalisation des catégories et leur désactivation dans l'interface sont réalisées séparément par [SMN-52](spec-smn-52-categories-absences.md).
 
 ## État de vérification
 
