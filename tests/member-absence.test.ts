@@ -106,7 +106,7 @@ describe("absence individuelle centralisée",()=>{
   assert.equal(f.days[0].member_id,memberId);
   assert.equal(f.audit.length,1);
   assert.equal(f.audit[0][3],"create");
-  assert.equal(f.audit[0][4],"null");
+  assert.equal(f.audit[0][4],null);
   assert.equal(f.audit[0][6],actorId);
   assert.equal(f.sqls.some(s=>s.includes("smn_member_assignment")||s.includes("smn_team")),false);
   assert.equal(f.sqls.at(-1),"COMMIT");
