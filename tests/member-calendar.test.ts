@@ -99,6 +99,18 @@ describe("Calendrier individuel central, exceptions et dates d'effet",()=>{
   assert.ok(f.queries.some(q=>q.includes("INSERT INTO public.smn_member_calendar_exception")));
   assert.ok(f.queries.every(q=>!q.includes("absence")&&!q.includes("capacity")));
  });
+ it("une correction d'exception du même jour est une nouvelle révision, jamais un UPDATE",async()=>{
+  const first=fixture({weeks:[weekRow()],exceptions:[exceptRow()]});
+  const updated=await saveMemberCalendar(first.db,id,"admin",{
+   ...exception,revision:1,morning:false,afternoon:true
+  });
+  assert.deepEqual(updated,{ok:true,action:"exception",revision:2});
+  assert.ok(first.queries.some(q=>q.includes("INSERT INTO public.smn_member_calendar_exception")));
+  assert.ok(first.queries.every(q=>!q.includes("UPDATE public.smn_member_calendar")));
+  const stale=fixture({weeks:[weekRow()],exceptions:[exceptRow()]});
+  assert.deepEqual(await saveMemberCalendar(stale.db,id,"admin",exception),
+   {ok:false,error:"conflict"});
+ });
  it("archive : historique lisible mais édition interdite ; rollback si SQL échoue",async()=>{
   const archived=fixture({archived:true,weeks:[weekRow()]});
   assert.deepEqual(await saveMemberCalendar(archived.db,id,"admin",weekly),{ok:false,error:"archived"});
