@@ -11,6 +11,8 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_member_location:r", "public.smn_country:r",
   "public.smn_national_holiday:r", "public.smn_national_calendar_coverage:r",
   "public.smn_national_holiday_audit:r",
+  "public.smn_absence_category:r", "public.smn_member_absence:r",
+  "public.smn_member_absence_history:r",
 ] as const;
 export type ExpressInput = Readonly<{ mode: "scrum" | "kanban"; product: string; team: string; password: string; adminUsername: string; adminEmail: string }>;
 export function validateExpressInput(body: unknown): ExpressInput | null {
