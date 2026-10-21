@@ -8,8 +8,9 @@ export type QuickMember=Readonly<{
  contractPercent:100;allocationPercent:100;rolePercent:100;contributionPercent:100;
  developmentCapacityJh:null;
 }>;
-export type MemberListItem=Readonly<Omit<QuickMember,"email"|"revision"|"isProvisional"|"contractPercent"|"allocationPercent"|"rolePercent"|"contributionPercent"|"developmentCapacityJh"> & {
- email:string|null;revision:number;isProvisional:boolean;contractPercent:number;allocationPercent:number;rolePercent:number;
+export type MemberListItem=Readonly<Omit<QuickMember,"email"|"revision"|"isProvisional"|"agileRole"|"startOn"|"contractPercent"|"allocationPercent"|"rolePercent"|"contributionPercent"|"developmentCapacityJh"> & {
+ email:string|null;revision:number;isProvisional:boolean;agileRole:AgileRole|null;startOn:string|null;
+ endOn:string|null;archived:boolean;archivedAt:string|null;isAssigned:boolean;contractPercent:number;allocationPercent:number;rolePercent:number;
  contributionPercent:number;roleShares:Readonly<{scrumMaster:number;productOwner:number;developer:number}>;developmentCapacityJh:null;
 }>;
 export type TeamMembers=Readonly<{
@@ -45,48 +46,58 @@ async function installedTeam(client:Client):Promise<TeamMembers["team"]>{
   throw new Error("members-team-unavailable");
  return {id:team.rows[0].team_id,name:team.rows[0].team_name,mode:team.rows[0].mode};
 }
-type MemberRow={id:string;member_number:number;display_name:string;email:string|null;revision:number;is_provisional:boolean;
- agile_role:AgileRole;start_on:string;contract_percent:number;allocation_percent:number;
- role_percent:number;contribution_percent:number;
+type MemberRow={id:string;member_number:number;display_name:string;email:string|null;revision:number;
+ is_provisional:boolean;archived_at:string|null;agile_role:AgileRole|null;start_on:string|null;
+ end_on:string|null;contract_percent:number;contribution_percent:number;
+ allocation_percent:number|null;role_percent:number|null;
  v_contract:number|null;v_allocation:number|null;v_contribution:number|null;
  v_sm:number|null;v_po:number|null;v_dev:number|null};
 const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,m.revision,m.is_provisional,
- m.contract_percent,m.contribution_percent,a.agile_role,a.start_on::text AS start_on,
- a.allocation_percent,a.role_percent,
- v.contract_percent AS v_contract,v.allocation_percent AS v_allocation,
- v.contribution_percent AS v_contribution,v.scrum_master_percent AS v_sm,
- v.product_owner_percent AS v_po,v.developer_percent AS v_dev
+ m.archived_at::text AS archived_at,m.contract_percent,m.contribution_percent,
+ a.agile_role,a.start_on::text AS start_on,a.end_on::text AS end_on,
+ a.allocation_percent,a.role_percent,v.contract_percent AS v_contract,
+ v.allocation_percent AS v_allocation,v.contribution_percent AS v_contribution,
+ v.scrum_master_percent AS v_sm,v.product_owner_percent AS v_po,v.developer_percent AS v_dev
  FROM public.smn_member m
- JOIN public.smn_member_assignment a ON a.member_id=m.id
- JOIN public.smn_team t ON t.id=a.team_id AND t.installation_id=m.installation_id
+ LEFT JOIN LATERAL (
+  SELECT a.id,a.team_id,a.start_on,a.end_on,a.agile_role,a.allocation_percent,a.role_percent
+  FROM public.smn_member_assignment a
+  JOIN public.smn_team t ON t.id=a.team_id AND t.installation_id=m.installation_id
+  WHERE a.member_id=m.id
+  ORDER BY (a.end_on IS NULL) DESC,a.start_on DESC,a.id DESC LIMIT 1
+ ) a ON true
  LEFT JOIN LATERAL (
   SELECT contract_percent,allocation_percent,contribution_percent,
    scrum_master_percent,product_owner_percent,developer_percent
   FROM public.smn_member_assignment_version
   WHERE assignment_id=a.id AND effective_from<=CURRENT_DATE
   ORDER BY effective_from DESC,revision DESC LIMIT 1
- ) v ON true
- WHERE m.installation_id='singleton' AND t.installation_id='singleton'`;
+ ) v ON true WHERE m.installation_id='singleton'`;
 function project(row:MemberRow):MemberListItem{
- if(!["scrum_master","product_owner","developer"].includes(row.agile_role)||
-  !Number.isSafeInteger(row.member_number)||row.member_number<1||
-  typeof row.display_name!=="string"||typeof row.start_on!=="string")
-  throw new Error("member-record-invalid");
+ if(!Number.isSafeInteger(row.member_number)||row.member_number<1||
+    typeof row.display_name!=="string"||
+    (row.agile_role!==null&&!["scrum_master","product_owner","developer"].includes(row.agile_role)))
+   throw new Error("member-record-invalid");
  const shares={scrumMaster:row.v_sm??(row.agile_role==="scrum_master"?100:0),
   productOwner:row.v_po??(row.agile_role==="product_owner"?100:0),
   developer:row.v_dev??(row.agile_role==="developer"?100:0)};
- const agileRole:AgileRole=shares.developer>=shares.scrumMaster&&shares.developer>=shares.productOwner?
-  "developer":shares.scrumMaster>=shares.productOwner?"scrum_master":"product_owner";
- return {id:row.id,memberNumber:row.member_number,displayName:row.display_name,email:row.email??null,revision:row.revision??0,
-  isProvisional:row.is_provisional,agileRole,startOn:row.start_on,
-  contractPercent:row.v_contract??row.contract_percent,contributionPercent:row.v_contribution??row.contribution_percent,
-  allocationPercent:row.v_allocation??row.allocation_percent,rolePercent:row.role_percent,
+ const primary:AgileRole|null=row.agile_role===null?null:
+  shares.developer>=shares.scrumMaster&&shares.developer>=shares.productOwner?
+   "developer":shares.scrumMaster>=shares.productOwner?"scrum_master":"product_owner";
+ return {id:row.id,memberNumber:row.member_number,displayName:row.display_name,
+  email:row.email??null,revision:row.revision??0,isProvisional:row.is_provisional,
+  agileRole:primary,startOn:row.start_on,endOn:row.end_on,
+  archived:row.archived_at!==null,archivedAt:row.archived_at??null,
+  isAssigned:row.start_on!==null&&row.end_on===null,
+  contractPercent:row.v_contract??row.contract_percent,
+  contributionPercent:row.v_contribution??row.contribution_percent,
+  allocationPercent:row.v_allocation??row.allocation_percent??0,rolePercent:row.role_percent??0,
   roleShares:shares,developmentCapacityJh:null};
 }
 export async function listTeamMembers(client:Client):Promise<TeamMembers>{
  const team=await installedTeam(client);
  const members=await client.query<MemberRow>(memberSelect+
-  " AND t.id=$1 ORDER BY m.member_number ASC LIMIT 51",[team.id]);
+  " AND EXISTS(SELECT 1 FROM public.smn_team t WHERE t.id=$1 AND t.installation_id=m.installation_id) ORDER BY m.member_number ASC LIMIT 51",[team.id]);
  if(members.rows.length>50)throw new Error("members-list-limit");
  return {team,members:members.rows.map(project)};
 }
@@ -111,7 +122,7 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
     await client.query("ROLLBACK");return {ok:false,error:"request-conflict"};
    }
    const original=await client.query<MemberRow>(memberSelect+
-    " AND t.id=$1 AND m.batch_id=$2 ORDER BY m.member_number ASC",
+    " AND EXISTS(SELECT 1 FROM public.smn_team t WHERE t.id=$1 AND t.installation_id=m.installation_id) AND m.batch_id=$2 ORDER BY m.member_number ASC",
     [team.id,input.requestId]);
    if(original.rows.length!==input.count)throw new Error("members-batch-incomplete");
    await client.query("COMMIT");
@@ -149,7 +160,7 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
     VALUES ($1,$2,1,$3::date,100,100,100,$4,$5,$6)`,
     [randomUUID(),assignmentId,startOn,role==="scrum_master"?100:0,
      role==="product_owner"?100:0,role==="developer"?100:0]);
-   members.push({id,memberNumber,displayName,email:null,revision:0,isProvisional:true,agileRole:role,startOn,
+   members.push({id,memberNumber,displayName,email:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
     contractPercent:100,allocationPercent:100,rolePercent:100,contributionPercent:100,
     roleShares:{scrumMaster:role==="scrum_master"?100:0,productOwner:role==="product_owner"?100:0,developer:role==="developer"?100:0},
     developmentCapacityJh:null});
