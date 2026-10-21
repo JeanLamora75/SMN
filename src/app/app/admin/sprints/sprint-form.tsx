@@ -40,7 +40,7 @@ export default function SprintForm(){
  <p className="text-secondary">{t("sprintCreate.intro")}</p>
  <form className="d-grid gap-3" onSubmit={submit}>
   <label htmlFor="sprint-start">{t("sprintCreate.start")}</label>
-  <input id="sprint-start" type="date" className="form-control" required value={startOn} disabled={busy} onChange={e=>{setStartOn(e.target.value);setCreated("");setError("");}}/>
+  <input id="sprint-start" type="date" className="form-control" required value={startOn} disabled={busy} onChange={e=>{setStartOn(e.target.value);setProposal(null);setCreated("");setError("");}}/>
   <label htmlFor="sprint-name">{t("sprintCreate.name")}</label>
   <input id="sprint-name" className="form-control" required maxLength={160} value={name} disabled={busy} onChange={e=>{setName(e.target.value);setCustom(true);}}/>
   <p className="small text-secondary">{t("sprintCreate.number",{number})}</p>
