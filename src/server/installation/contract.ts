@@ -6,6 +6,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_configuration_task:r", "public.smn_account_audit:r",
   "public.smn_backup_retention:r", "public.smn_backup_retention_audit:r",
   "public.smn_member_batch:r", "public.smn_member:r", "public.smn_member_assignment:r",
+  "public.smn_member_identity_history:r",
   "public.smn_member_assignment_version:r", "public.smn_member_lifecycle_event:r",
   "public.smn_member_calendar_week:r", "public.smn_member_calendar_exception:r",
   "public.smn_member_location:r", "public.smn_country:r",
