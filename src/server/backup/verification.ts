@@ -196,8 +196,9 @@ export async function inspectBackup(root:string,id:string,key:Buffer|null):
     names.has(v.sourceName)||!component(v)||v.path!==expected||
     v.size>MAX_DOCUMENT||v.encryptedSize>MAX_DOCUMENT)
     invalid("document-metadata-invalid");
-   names.add(v.sourceName);
-   documents.push(v as unknown as {sourceName:string}&BackupComponent);
+   const documentMeta=v as {sourceName:string}&BackupComponent;
+   names.add(documentMeta.sourceName);
+   documents.push(documentMeta);
   }
   const expectedTop=new Set(["index.json","manifest.enc","database.pgcustom.enc"]);
   if(documents.length)expectedTop.add("documents");
