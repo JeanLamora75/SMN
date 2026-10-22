@@ -138,3 +138,11 @@ Cible WCAG 2.2 AA à **vérifier** lors de la recette : focus visible, contraste
 ## Inspiration & Anti-patterns
 
 S'inspirer du rendu **validé par l'utilisateur**, pas d'un répertoire d'administration CRUD. Ne pas juxtaposer les deux modes, donner cinq boutons par ligne, afficher les formulaires sous toute la liste, imposer une photo ni détourner les clics de la fiche vers une édition intempestive. Les données de la maquette ne valent pas preuve de présence de champs en base.
+
+## Avenant de correction de parcours — 22/10/2026
+
+Suite aux deux captures montrées par l'utilisateur, la conformité de l'implémentation en cours **n'est pas acquise**. Le [diagnostic correctif](AVENANT-UX-CORRECTIF-2026-10-22.md) et les [critères de recette visuelle](RECETTE-VISUELLE-2026-10-22.md) sont à consulter avant tout nouveau statut de livraison.
+
+La fiche doit présenter cinq **onglets actifs et navigables**, non cinq blocs d'édition successifs. **Profil** affiche des informations de synthèse concrètes, quand elles sont connues, dans une disposition à deux colonnes. Les crayons au niveau Nom, Fonction, E-mail ouvrent l'édition ciblée ; les données historisées (rôles, calendrier, localisation) conservent un formulaire de groupe daté. Le statut reste géré par cycle de vie protégé.
+
+Un contrôle visuel à largeur desktop comparable (~1 880 px) est obligatoire, et distinct d'une vérification des API, de la compilation ou du simple nombre de colonnes Bootstrap. Sans cette recette et la validation utilisateur, ne pas marquer les écrans **UX conformes**.

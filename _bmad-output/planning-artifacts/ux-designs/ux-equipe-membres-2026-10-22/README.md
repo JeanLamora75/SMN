@@ -23,3 +23,11 @@
 - Dashboard, style approuvé : ../ux-SMN-2026-10-21/DESIGN.md et ../ux-SMN-2026-10-21/EXPERIENCE.md
 
 Les **visuels originaux validés en conversation** ne sont pas enregistrés comme fichiers images dans GitHub : [MAQUETTES-REFERENCE.md](MAQUETTES-REFERENCE.md) documente leurs structures, proportions et règles sans prétendre être leur pixel-perfect. Les contrats DESIGN et EXPERIENCE prévalent sur les valeurs fictives du rendu.
+
+## Avenant correctif après confrontation aux captures (22/10/2026)
+
+**La réalisation visible dans les deux captures utilisateur n'est pas conforme à la présentation validée.** Lire obligatoirement [AVENANT-UX-CORRECTIF-2026-10-22.md](AVENANT-UX-CORRECTIF-2026-10-22.md) **avant de reprendre la refonte** et [RECETTE-VISUELLE-2026-10-22.md](RECETTE-VISUELLE-2026-10-22.md) pour le contrôle de réception.
+
+Références visuelles **SVG reconstituées** : [Cartes](references-visuelles/cible-equipe-cartes.svg), [Liste](references-visuelles/cible-equipe-liste.svg), [Fiche](references-visuelles/cible-fiche-membre.svg), [Écarts de largeur](references-visuelles/comparaison-structure.svg). Les PNG originaux de la conversation et les captures utilisateur ne sont pas versionnés dans GitHub ; ne pas revendiquer une concordance pixel-perfect aux originaux sans leur comparaison réelle.
+
+**Cause de largeur déjà identifiée** : règle globale .smn-page max-width 870 px appliquée à ces pages, plus un container maxWidth 1000 dans la fiche. Corriger de façon ciblée, préserver les autres pages. Aucune recette runtime exécutée par Sally.

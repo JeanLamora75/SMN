@@ -135,3 +135,15 @@ Cards et panneaux à rayon modéré, avatars et états arrondis ; badges légèr
 ## Références et réserves
 
 Le rendu illustratif validé en conversation n'est pas présent en tant que PNG dans le dépôt. La description des surfaces dans [MAQUETTES-REFERENCE.md](MAQUETTES-REFERENCE.md) et les interactions de [EXPERIENCE.md](EXPERIENCE.md) constituent les contrats transmissibles. L'interface réelle et sa conformité pixel-perfect ne sont pas vérifiées.
+
+## Avenant de fidélité visuelle — 22/10/2026
+
+**Le présent chapitre rend opposables les proportions et la hiérarchie précédemment illustratives pour la cible desktop.** Voir [avenant correctif](AVENANT-UX-CORRECTIF-2026-10-22.md) et [recette visuelle](RECETTE-VISUELLE-2026-10-22.md) ; illustrations [Cartes](references-visuelles/cible-equipe-cartes.svg), [Liste](references-visuelles/cible-equipe-liste.svg), [Fiche](references-visuelles/cible-fiche-membre.svg).
+
+- La zone Équipe / Fiche ne peut **pas rester limitée à 870 px** sur desktop large. Contrat pleine largeur du contenu après sidebar et marges. Six cartes doivent rester **réellement lisibles**, pas seulement six colonnes CSS écrasées dans un conteneur trop étroit.
+- Les badges actifs SM, PO et Dev **partagent la même couleur de sélection bleu primaire du thème**, tous les absents le gris neutre. L'ancien affichage jaune SM / bleu PO / vert Dev est visuellement **non conforme**.
+- Les trois badges figurent **sur une seule ligne** par carte sur desktop ; la fonction doit être lisible, non fragmentée en une suite de mots verticaux ; la tuile + doit afficher **« Ajouter un membre »**.
+- Dans la fiche : bandeau **nom + statut + trois rôles + fonction**, puis la **barre des cinq onglets**, puis **deux colonnes** de synthèse de Profil ; les crayons adjacents aux données simples sont impératifs. Empiler des panneaux sans onglets est **non conforme**.
+- Les visuels SVG versionnés sont des **reconstitutions**, non les originaux ; les valeurs sont fictives et les pixels non contractualisés. La recette doit comparer aux maquettes originelles validées lorsque accessibles.
+
+Les règles métier et la conformité des champs restent subordonnées à EXPERIENCE.md, SMN-42 à 47 et SMN-63.

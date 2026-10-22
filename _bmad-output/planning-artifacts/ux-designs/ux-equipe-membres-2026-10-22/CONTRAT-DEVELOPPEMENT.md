@@ -74,3 +74,9 @@ Comparer les vues et fiche à [MAQUETTES-REFERENCE.md](MAQUETTES-REFERENCE.md) e
 L'écran actif **ne doit jamais montrer Cartes et Liste ensemble**. Une carte et une ligne conduisent à la **même fiche**. Aucun clic de consultation ou préremplissage ne réalise une écriture.
 
 **Aucun développement, modification de données, test runtime ou opération Jira n'a été fait dans le cadre de cette validation UX.**
+
+## État post-développement — avenant du 22 octobre 2026
+
+**Ce document initial précédait la livraison visible dans les captures utilisateur.** Le constat actuel est une **implémentation partielle mais visuellement non conforme**. Voir [AVENANT-UX-CORRECTIF-2026-10-22.md](AVENANT-UX-CORRECTIF-2026-10-22.md) pour les écarts prouvés et **leurs localisations précises dans le code**, et [RECETTE-VISUELLE-2026-10-22.md](RECETTE-VISUELLE-2026-10-22.md) pour les preuves exigées.
+
+**Amelia doit prioritairement corriger les couches de présentation existantes**, sans réécrire le serveur ni Jira au seul motif d'un écart esthétique. La simple présence de row-cols-xl-6 ou container-fluid n'est pas une preuve : .smn-page reste plafonnée à 870 px en CSS. Le rendu attendu est une page Équipe **pleine largeur, six cartes réellement lisibles**, et une fiche **pleine largeur à cinq onglets et panneaux deux colonnes**. Fournir des captures d'écrans comparables et demander validation. Aucun test runtime n'a été exécuté par Sally.
