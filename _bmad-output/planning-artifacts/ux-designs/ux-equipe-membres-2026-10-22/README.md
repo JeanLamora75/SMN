@@ -1,5 +1,8 @@
 # UX approuvée — Équipe et membres SMN (22 octobre 2026)
 
+
+> **MISE À JOUR PRIORITAIRE — FICHE MEMBRE V2 (22/10/2026).** Avant toute modification de la fiche, lire [Fiche membre V2 — contrat UX définitif](FICHE-MEMBRE-V2-UX-CONTRAT.md) et [Recette fiche membre V2](FICHE-MEMBRE-V2-RECETTE.md). **La nouvelle fiche n'a plus d'onglets Profil ni Localisation.** Un en-tête en deux zones (identité/rôles à gauche ; e-mail/localisation à droite) et un seul crayon près du nom ouvrent le formulaire unifié. Quatre onglets : Affectation / Calendrier / Absences / Historique. Les anciennes maquettes de fiche à cinq onglets, schémas SVG et critères associés sont **historiques / remplacés**. Les décisions Équipe Cartes/Liste ne changent pas. **Aucune implémentation ni recette de V2 attestées.**
+
 **Statut : choix visuels et parcours principaux validés par le commanditaire le 22/10/2026.** Cette publication est une **spécification UX**, pas une livraison logicielle ni une recette. Agent : Sally, UX Designer BMAD v6.12.4.
 
 ## Contrats à lire par Amelia avant toute modification

@@ -43,6 +43,9 @@ components:
   member-detail: 'identity banner, tabs, two-column editable info panels'
 ---
 
+> **IMPORTANT — NOUVEAU CONTRAT FICHE MEMBRE V2 (22/10/2026) :** [Fiche membre V2 — contrat UX définitif](FICHE-MEMBRE-V2-UX-CONTRAT.md). La structure de fiche à **cinq onglets, les panneaux Profil / Localisation, les multiples crayons et les anciens visuels SVG décrits plus bas sont OBSOLÈTES** pour la fiche. Conserver les sections Page Équipe Cartes/Liste ; pour la fiche appliquer **en-tête horizontal 2 zones + crayon unique près du nom + 4 onglets Affectation / Calendrier / Absences / Historique**, avec chaque historique métier affiché dans son onglet et modales d'édition ciblées. Lire aussi [Recette fiche membre V2](FICHE-MEMBRE-V2-RECETTE.md).
+
+
 # SMN — DESIGN.md / Équipe & Membre
 
 > **Structure visuelle approuvée par l'utilisateur le 22/10/2026.** Les valeurs numériques de style ci-dessus sont des **repères d'implémentation**, pas des mesures garanties des captures. Réutiliser prioritairement les variables existantes de SMN-24 et le [DESIGN dashboard](../ux-SMN-2026-10-21/DESIGN.md). Aucune nouvelle bibliothèque graphique requise.

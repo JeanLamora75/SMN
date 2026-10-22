@@ -8,6 +8,9 @@ sources:
   - https://github.com/JeanLamora75/SMN/blob/main/docs/UX-REFERENTIEL-BMAD.md
 ---
 
+> **IMPORTANT — FICHE MEMBRE V2 validée le 22/10/2026 :** [Fiche membre V2 — contrat UX définitif](FICHE-MEMBRE-V2-UX-CONTRAT.md). Le parcours antérieur à cinq onglets Profil/Affectation/Calendrier/Localisation/Historique et les crayons de sections décrits ci-dessous sont **remplacés**. La fiche propose maintenant **un bandeau en 2 zones, un seul crayon pour Nom + e-mail + Fonction + localisation**, et **4 onglets Affectation / Calendrier / Absences / Historique**. Historiques lisibles directement dans leurs onglets, formulaires séparés en pop-up. Se reporter à [Recette fiche membre V2](FICHE-MEMBRE-V2-RECETTE.md). Les comportements Équipe Cartes/Liste et les protections métier restent valables.
+
+
 # SMN — EXPERIENCE.md / Équipe & Membre
 
 > **Contrat UX validé** sur les parcours principaux en conversation les 21 et 22/10/2026. Voir [DESIGN.md](DESIGN.md) pour la composition. **Aucune recette visuelle ou fonctionnelle exécutée** ; la fiche de « Fonction » et l'ajout d'un membre après initialisation nécessitent un examen fonctionnel/technique.
