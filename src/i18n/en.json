@@ -1547,5 +1547,21 @@
     "warning": "Warning: the meeting overlaps another one. It was saved nonetheless.",
     "list": "Created meetings",
     "history": "History"
+  },
+  "attendance": {
+    "title": "Meeting attendance",
+    "intro": "Past meetings are presumed held unless explicitly marked otherwise. You may cancel before the scheduled time.",
+    "refresh": "Refresh",
+    "reason": "Optional reason",
+    "event": "Event",
+    "status": "Status",
+    "actions": "Actions",
+    "held": "Held",
+    "not_held": "Not held",
+    "cancelled": "Cancelled",
+    "scheduled": "Scheduled",
+    "history": "History",
+    "saved": "Status recorded.",
+    "error": "Unable to update meeting status."
   }
 }

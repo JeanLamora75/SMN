@@ -1547,5 +1547,21 @@
     "warning": "Attention : chevauchement détecté avec une réunion existante. La nouvelle réunion a néanmoins été enregistrée.",
     "list": "Réunions créées",
     "history": "Historique"
+  },
+  "attendance": {
+    "title": "Tenue des réunions",
+    "intro": "Les événements passés sont présumés tenus sauf décision explicite. Une annulation peut être enregistrée avant le début.",
+    "refresh": "Actualiser",
+    "reason": "Motif facultatif",
+    "event": "Événement",
+    "status": "Statut",
+    "actions": "Actions",
+    "held": "Tenue",
+    "not_held": "Non tenue",
+    "cancelled": "Annulée",
+    "scheduled": "Planifiée",
+    "history": "Historique",
+    "saved": "Qualification enregistrée.",
+    "error": "Impossible de qualifier la réunion."
   }
 }
