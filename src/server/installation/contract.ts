@@ -54,6 +54,9 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_team_work_slots:r",
   "public.smn_initial_snapshot_immutable:function",
   "public.smn_reject_closure_snapshot_mutation:function",
+  "public.smn_actual_snapshot_immutable:function",
+  "public.smn_historical_quality_history_immutable:function",
+  "public.smn_replanning_history_immutable:function",
 ] as const;
 export type ExpressInput = Readonly<{ mode: "scrum" | "kanban"; product: string; team: string; password: string; adminUsername: string; adminEmail: string }>;
 export function validateExpressInput(body: unknown): ExpressInput | null {
