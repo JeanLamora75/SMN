@@ -61,7 +61,7 @@ export default function QuickMembersAdmin(){
   setLifecycleId(null);
   void refresh().then(()=>{
    setError(false);
-   setMessage(t("members.lifecycle."+action+"Saved")+
+   setMessage(t(({close:"members.lifecycle.closeSaved",archive:"members.lifecycle.archiveSaved",reactivate:"members.lifecycle.reactivateSaved",delete:"members.lifecycle.deleteSaved"} as const)[action])+
     (smallTeam?" "+t("members.lifecycle.smallTeam"):""));
   }).catch(()=>{setError(true);setMessage(t("members.lifecycle.failedLoad"));});
  };
