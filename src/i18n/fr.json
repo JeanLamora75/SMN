@@ -1575,5 +1575,11 @@
     "save": "Enregistrer",
     "saved": "Durée réelle enregistrée et auditée.",
     "error": "Impossible d’enregistrer la durée réelle."
+  },
+  "exceptionalCapacity": {
+    "title": "Incidence des réunions exceptionnelles sur la capacité",
+    "info": "L'option est désactivée par défaut. Le moteur de déduction de capacité réelle n'est pas encore raccordé : cette option ne modifie actuellement aucun total de capacité.",
+    "impact": "Impacte la capacité",
+    "error": "Impossible d’enregistrer ce paramètre."
   }
 }
