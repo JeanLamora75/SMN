@@ -1788,6 +1788,11 @@
     "duration": "Duration (minutes)",
     "create": "Create meeting",
     "saveFailed": "Unable to create meeting. Check the sprint, time and permissions.",
-    "requiresSprint": "A sprint is required to create a meeting. Select a period covered by a sprint."
+    "requiresSprint": "A sprint is required to create a meeting. Select a period covered by a sprint.",
+    "backCalendar": "Calendar",
+    "meetingStart": "Start",
+    "meetingEnd": "End",
+    "meetingStatus": "Status",
+    "statusUnknown": "Not specified"
   }
 }
