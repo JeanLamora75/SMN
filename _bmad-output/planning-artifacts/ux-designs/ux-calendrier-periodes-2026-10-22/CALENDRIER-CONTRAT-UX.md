@@ -11,14 +11,14 @@
 | CAL-01 | Sans sprint/période défini, afficher **le mois civil courant du 1er au dernier jour**, sans couper le mois à 28 jours | Tous les jours du mois sont visibles, du 1 à 28/29/30/31 |
 | CAL-02 | Avec au moins un sprint/période, **privilégier nettement celui en cours** ; sinon prendre le plus récent | Déterminer le contexte de l'équipe avant de construire la plage |
 | CAL-03 | **7 cartes par ligne, une par date, à partir de la première date de la période** ; l'entête des colonnes est une séquence de sept **noms de jours**, commençant par le nom du premier jour de la période | Sprint commençant mercredi = Mercredi, Jeudi, Vendredi, Samedi, Dimanche, Lundi, Mardi ; pas de cases lundi/mardi artificielles avant son début |
-| CAL-04 | Une carte = une date au sein de la période ; en tête de la carte **numéro du jour + abréviation du mois sur trois caractères** dans la langue active (ex. « 21 OCT » en français) | Respect des changements de mois et d'année |
+| CAL-04 | Une carte = une date au sein de la période ; en tête de carte : **numéro du jour + mois abrégé sur trois caractères**, puis **nom du jour férié immédiatement en dessous lorsque la date est fériée**, sans espacement marqué entre ces deux textes. La **première réunion** est systématiquement **visuellement décollée** du bloc date/jour férié, avec un espace distinct ; cette respiration existe aussi en l'absence de jour férié. | Conserver la hiérarchie visuelle « date → jour férié associé → espace → réunions », y compris au changement de mois |
 | CAL-05 | **Samedi/dimanche : carte grisée SANS bouton +. Jour férié en semaine : carte grisée AVEC bouton + Réunion** si l'utilisateur et la période l'autorisent. | Le gris signale une disponibilité particulière ; il ne suffit pas à interdire l'ajout d'une réunion pour une équipe internationale. |
 | CAL-06 | La carte de **la date d'aujourd'hui** est mise en évidence par une **bordure plus épaisse et/ou colorée** ; l'effet s'ajoute au fond grisé éventuel | Aujourd'hui, s'il est férié en semaine, reçoit à la fois le fond gris ET la bordure, et conserve le + s'il est autorisé ; si samedi/dimanche, pas de +. |
 | CAL-07 | Liste des **réunions du jour en ordre croissant d'heure de début**, à l'intérieur de sa carte | Tri stable en cas d'horaires identiques ; seuls vrais événements enregistrés sont affichés |
 | CAL-08 | **Survol du NOM d'une réunion** : afficher un petit tooltip avec **heure de début ET heure de fin** | Heures locales issues de la zone IANA effective, sans décalage déduit du navigateur |
 | CAL-09 | **Clic sur le NOM d'une réunion** : naviguer sur **la page dédiée à cette réunion** (et non ouvrir sa modification en place) | Lien réel vers la réunion par ID ; ne pas inventer de route existante |
 | CAL-10 | En bas de toute carte **du lundi au vendredi où la création est autorisée, jour férié compris** : une ligne « + » ouvrant une **fenêtre modale centrée** pour créer une réunion **ce jour-là** | Date préremplie ; voile gris ; aucun formulaire sous le calendrier ; samedi/dimanche sans + |
-| CAL-11 | Les réunions déjà enregistrées **restent visibles et consultables même sur un jour grisé** ; seule la nouvelle création via « + » est indisponible | Ne pas effacer/dissimuler des données historiques |
+| CAL-11 | Les réunions déjà enregistrées **restent visibles et consultables même sur un jour grisé** ; sur un **férié de semaine**, le + reste autorisé selon les droits ; sur un samedi/dimanche, il est absent | Ne pas effacer/dissimuler des données historiques |
 | CAL-12 | Le calendrier doit rester consultable pour tous les utilisateurs autorisés ; l'action « + » dépend des **droits d'écriture** et de l'état métier de la période | Pas de bouton trompeur si lecture seule, période clôturée ou action interdite |
 
 Ces décisions remplacent, pour **cette nouvelle vue principale**, la sélection imposée des seuls intervalles fixes 7/14/28 jours et le tableau central d'événements comme représentation première ; les tableaux de disponibilité/absences et les fonctions existantes devront être repositionnés sans perte de service ni fuite de données.
@@ -62,6 +62,38 @@ Légende : Aujourd'hui = contour renforcé • Jours non ouvrés/fériés = fond
 - État vide : carte avec date et « Aucune réunion » facultatif ; si ouvrée et autorisée, le « + » reste en bas, dans une bande distincte.
 - État férié : conserver le **fond grisé**, afficher si disponible le **nom du jour férié** et les pays concernés (sans affirmer que l'ensemble de l'équipe est indisponible), sans masquer les réunions existantes. Sur un **jour de semaine férié**, conserver **+ Réunion** si les droits et la période autorisent l'ajout.
 - La bordure « Aujourd'hui » doit être repérable **sans s'appuyer exclusivement sur la couleur** (épaisseur 2-3px ou indicateur textuel/sémantique). Ne pas confondre son état avec « sélectionné ».
+
+### Espacement vertical interne de chaque carte — décision UX complémentaire validée
+
+- Construire **un seul bloc d'en-tête compact** en haut de la carte : **JJ MMM**, puis juste en dessous **le nom du jour férié si et seulement si la date est identifiée comme fériée**.
+- **Jour férié accolé à la date** : aucune séparation par grand `margin`/`padding` entre la date et ce libellé ; utiliser un **interligne compact** (écart indicatif 0–2 px), une typographie secondaire discrète mais lisible, sans libellé « Férié » inutile si le nom est déjà explicite.
+- **La zone des réunions doit, elle, commencer plus bas** : ajouter un **espacement vertical visible** après le bloc d'en-tête complet (écart indicatif 12–16 px sur desktop). Si le jour **n'est pas férié**, appliquer ce même espacement après la date ; la première réunion ne doit jamais coller au numéro du jour.
+- Si plusieurs fêtes nationales sont reconnues le même jour dans une équipe internationale, afficher les **noms réellement disponibles**, de façon compacte dans ce même bloc (ou abréger visuellement avec accès au texte intégral), **sans inventer une fête commune** à toute l'équipe. Le groupe réunion demeure séparé en dessous.
+- Le **fond grisé d'un jour férié** et le **+ autorisé sur férié de semaine** ne changent pas. Le contour spécial de la date d'aujourd'hui ne modifie pas l'espacement intérieur.
+- Pour les lecteurs d'écran et le survol, le libellé du jour férié doit rester accessible en entier si un affichage compact coupe son texte.
+- La commande **« + Réunion » demeure en pied de carte**, séparée de la liste des réunions ; ne pas utiliser les marges du jour férié pour positionner ce bouton.
+
+Schéma local (valeurs et fêtes illustratives, non issues de SMN) :
+
+~~~text
+┌──────────────────────────────┐
+│  01 MAI                      │
+│  Fête du Travail             │  ← accolée à « 01 MAI »
+│                              │  ← espace visible avant la 1re réunion
+│  Réunion A                   │
+│  Réunion B                   │
+│                              │
+│  + Réunion                   │  ← férié en semaine : création autorisée
+└──────────────────────────────┘
+
+┌──────────────────────────────┐
+│  04 MAI                      │
+│                              │  ← même espace en absence de férié
+│  Daily Scrum                 │
+│                              │
+│  + Réunion                   │
+└──────────────────────────────┘
+~~~
 
 ## 4. Une réunion : consultation, survol, navigation
 
