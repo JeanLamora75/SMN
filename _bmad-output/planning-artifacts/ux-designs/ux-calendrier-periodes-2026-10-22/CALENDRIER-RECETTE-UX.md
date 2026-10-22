@@ -34,13 +34,21 @@
 | CAL-A28 | Jour ordinaire avec une réunion | **Première réunion visiblement décollée de JJ MMM**, avec un espace comparable au jour férié ; aucun libellé férié vide | Non testé |
 | CAL-A29 | Plusieurs jours fériés nationaux et nom long | Libellés connus près de la date, texte complet accessible ; aucune réunion collée ou masquée, carte lisible | Non testé |
 | CAL-A30 | Aujourd'hui est férié en semaine | **Bordure renforcée + fond gris + nom de la fête collé à la date + espace avant réunions + Réunion si autorisé** | Non testé |
+| CAL-A31 | Carte de semaine avec droits Réunion et Absence | **+ Réunion et + Absence côte à côte sur une même ligne en pied de carte**, labels explicites et zones cliquables distinctes | Non testé |
+| CAL-A32 | Clic + Absence le 12 novembre | **Modale centrée et voile gris** ; date début ET date fin préremplies au 12 novembre ; **membre non sélectionné par défaut** | Non testé |
+| CAL-A33 | Sélectionner un membre admissible et compléter l'absence | Liste des membres de l'équipe autorisés ; catégorie, dates, créneaux, planifiée, **motif requis** ; enregistrement vers le bon membre, sans écriture à l'ouverture | Non testé |
+| CAL-A34 | Enregistrer une absence et consulter la fiche membre | Modale refermée après succès, données du calendrier rafraîchies selon droits, absence retrouvée dans l'onglet **Absences** de la fiche du bon membre | Non testé |
+| CAL-A35 | + Absence sur un jour férié en semaine | Carte grisée, nom du férié accolé à la date ; **les deux + présents si autorisés**, avertissement de disponibilité non bloquant recommandé | Non testé |
+| CAL-A36 | Samedi/dimanche, membre archivé et utilisateur non autorisé | Pas de barre + sur week-end ; impossibilité de créer pour membre archivé ou sans droit d'écriture ; contrôle API effectif | Non testé |
+| CAL-A37 | Dates ajustées, chevauchement d'absence, annulation | Ajustement de période permis selon validation métier ; conflits affichés sans enregistrer ; brouillon conservé si erreur, confirmé avant abandon | Non testé |
+| CAL-A38 | Utilisateur sans accès aux motifs individuels | Aucune fuite de raison/catégorie/données nominatives dans la carte ou la projection collective ; autorisations inchangées | Non testé |
 
 ## Preuves à fournir
 
-- Captures desktop : mois sans sprint ; sprint commençant mercredi ; jour férié en semaine et aujourd'hui ; carte à plusieurs réunions ; popup nouvelle réunion ; page de détail de réunion. **Ajouter une comparaison côte à côte entre carte avec nom de férié et carte sans férié pour contrôler les écarts verticaux : date/fête collées, première réunion espacée.**
+- Captures desktop : mois sans sprint ; sprint commençant mercredi ; jour férié en semaine et aujourd'hui ; carte à plusieurs réunions ; **les deux boutons côte à côte** ; popup nouvelle réunion ; **popup nouvelle absence avec date préremplie, membre choisi** ; page de détail de réunion. **Ajouter une comparaison côte à côte entre carte avec nom de férié et carte sans férié pour contrôler les écarts verticaux : date/fête collées, première réunion espacée.**
 - Relevé des dates réelles de début/fin des périodes, source de l'heure locale IANA, calendrier férié appliqué et éligibilité des droits.
 - Preuve de l'absence de + le week-end ; **preuve de présence du + un jour férié en semaine autorisé**, y compris lorsqu'une réunion existe déjà ; cas de date actuelle fériée avec bordure et +.
-- Résultats des tests métier réellement exécutés (typecheck/lint/build et tests de date, tri, timezone, accès API) ; ne pas revendiquer GitHub Actions si indisponible.
+- Résultats des tests métier réellement exécutés (typecheck/lint/build et tests de date, tri, timezone, accès API) ; y inclure création d'absence via calendrier, droits d'écriture, membre archivé, périodes multi-jours et contrôles de confidentialité. Ne pas revendiquer GitHub Actions si indisponible.
 - Statut par critère « Validé / Échec / Non testé / À arbitrer », lien de preuve et validation utilisateur.
 
 **Cette grille n'est pas une preuve de tests exécutés.**
