@@ -16,6 +16,7 @@ export default async function CompanyClosuresPage(){
  const locale=await requestLocale();
  return <div className="smn-page container py-5">
   <header className="mb-4">
+   <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">← {translate(locale,"navigation.entries.settings")}</Link>
    <h1 className="h3">{translate(locale,"companyClosures.title")}</h1>
    <p>{translate(locale,"companyClosures.intro")}</p>
    <Link href="/app/team-calendar" className="btn btn-outline-secondary">
