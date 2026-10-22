@@ -48,6 +48,10 @@ Créer depuis la sidebar rétractable une **page d'accueil Paramètres** afficha
 
 **Lot P4 — Navigation unifiée et régressions :** raccorder les écrans disponibles et les retours au portail, retirer les doublons de liens administratifs, préserver les URLs existantes et les menus métier, vérifier confidentialité/permissions des routes et des API.
 
+## Mapping Jira
+
+**Epic : [SMN-223](https://lmn24.atlassian.net/browse/SMN-223).** [SMN-224](https://lmn24.atlassian.net/browse/SMN-224) = P1 ; [SMN-225](https://lmn24.atlassian.net/browse/SMN-225) = P2 ; [SMN-226](https://lmn24.atlassian.net/browse/SMN-226) = P3 ; [SMN-227](https://lmn24.atlassian.net/browse/SMN-227) = P4. Détails dans [DECOUPAGE-JIRA.md](DECOUPAGE-JIRA.md).
+
 ## Dépendances et exclusions
 
 - **SMN-18** paramètres généraux, **SMN-15** comptes, **SMN-65** cadence, **SMN-32** rétention sauvegardes, **SMN-20** tâches optionnelles de configuration : ne pas modifier leurs règles existantes en les indexant.
