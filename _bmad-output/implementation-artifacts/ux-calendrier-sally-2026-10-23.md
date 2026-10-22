@@ -44,3 +44,6 @@ Source : décisions de Sally reprises dans les échanges avec l'utilisateur, pui
 - Les traductions de la fiche réunion sont centralisées en FR/EN.
 - Les règles d'affichage ont fait l'objet d'un contrôle statique (sept colonnes, jour courant, férié sous date, réunions triées, heures au survol, modale, routes, catalogues FR/EN). Ceci n'est **pas** une compilation ou une recette navigateur.
 - **Création hors sprint** toujours non prise en charge par le modèle métier actuel ; ne pas simuler de création.
+
+## Précision création
+Lors de la navigation mensuelle, le formulaire résout le sprint couvrant la date et l'heure saisies : création autorisée pendant une période de sprint ouverte, y compris un jour férié. Sans sprint correspondant, l'interface n'envoie pas de requête d'écriture et affiche la limitation métier.
