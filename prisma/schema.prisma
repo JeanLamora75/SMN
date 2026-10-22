@@ -173,6 +173,17 @@ model SmnMember {
   @@unique([installationId,memberNumber])
   @@map("smn_member")
 }
+model SmnMemberIdentityHistory {
+  id String @id
+  memberId String @map("member_id")
+  previousValues Json @map("previous_values")
+  nextValues Json @map("next_values")
+  changedBy String? @map("changed_by")
+  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+  @@index([memberId,changedAt],map:"smn_member_identity_history_member_idx")
+  @@map("smn_member_identity_history")
+}
+
 model SmnMemberAssignment {
   id String @id
   memberId String @map("member_id")
