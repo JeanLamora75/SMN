@@ -18,7 +18,7 @@ export default function CeremonyEditor(){
  const item=rows.find(x=>x.id===selected);
  function pick(id:string){const x=rows.find(v=>v.id===id);setSelected(id);setStartAt(x?new Date(x.startAt).toISOString().slice(0,16):"");setMinutes(x?.minutes??15);setScope("single");setHistory([]);setMessage("");setError("");}
  async function save(e:FormEvent){e.preventDefault();if(!item)return;setBusy(true);setError("");setMessage("");
- try{const r=await fetch("/api/admin/sprints/ceremonies/"+encodeURIComponent(item.id),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({startAt:new Date(startAt).toISOString(),minutes,scope,revision:item.revision})});const d=await r.json();if(!r.ok)throw Error();
+ try{const r=await fetch("/api/admin/sprints/ceremonies/"+encodeURIComponent(item.id),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({startAt:new Date(startAt+":00Z").toISOString(),minutes,scope,revision:item.revision})});const d=await r.json();if(!r.ok)throw Error();
  setMessage(t(d.warningCount>0?"ceremonyEdit.warning":"ceremonyEdit.saved"));await reload();setSelected("");}
  catch{setError(t("ceremonyEdit.error"));}finally{setBusy(false);}}
  async function loadHistory(){if(!selected)return;try{const r=await fetch("/api/admin/sprints/ceremonies/"+encodeURIComponent(selected),{cache:"no-store"});if(!r.ok)throw Error();const d=await r.json();setHistory(d.history);}catch{setError(t("ceremonyEdit.error"));}}
