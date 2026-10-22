@@ -106,7 +106,7 @@ export default function MemberDetail({id}:{id:string}){
    </section>}
    {tab==="absences"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.tabs.absences")}</h2>
-    <MemberAbsenceEditor memberId={member.id} selectedOn={new Date().toISOString().slice(0,10)}/>
+    <MemberAbsenceEditor memberId={member.id} selectedOn={new Date().toISOString().slice(0,10)} onDirtyChange={()=>undefined}/>
    </section>}
    {tab==="history"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.tabs.history")}</h2>
