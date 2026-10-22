@@ -4,7 +4,8 @@ import {resolveCalendarDay,type WeekRow,type ExceptionRow} from "../members/cale
 import {resolveDayAvailability} from "../members/day-availability";
 
 export type CapacityMissing="no-assignments"|"ambiguous-assignment"|
- "assignment-version"|"work-calendar"|"member-country"|"national-coverage";
+ "assignment-version"|"work-calendar"|"member-country"|"national-coverage"|
+ "exceptional-meeting-participants";
 export type DayCapacity={
  date:string;status:"calculated"|"not-calculable";
  developmentJh:number|null;developmentHours:number|null;
@@ -87,7 +88,7 @@ const listDates=(start:string,end:string)=>{
 };
 /** Queries share one repeatable-read snapshot; no mutation of historical snapshots. */
 export async function readDevelopmentCapacity(db:Client,start:string,end:string,
- options:{externalTransaction?:boolean}={}):Promise<CapacityReport>{
+ options:{externalTransaction?:boolean;includeExceptionalImpact?:boolean}={}):Promise<CapacityReport>{
  const parsed=parseCapacityPeriod(new URLSearchParams({start,end}));
  if(!parsed)throw Error("capacity-invalid-period");
  if(!options.externalTransaction)
@@ -231,6 +232,17 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     totalJh:days.some(d=>d.status==="not-calculable")?null:round(memberExactJh),days});
   }
   if(members.length===0)missing.push({date:null,memberId:null,source:"no-assignments"});
+  // Never invent attendees for a capacity-impacting meeting. Until participant
+  // allocations are stored, the actual reference cannot be calculated safely.
+  if(options.includeExceptionalImpact&&team.mode==="scrum"){
+   const impacted=await db.query<{id:string}>(`SELECT m.id FROM public.smn_sprint_exceptional_meeting m
+    JOIN public.smn_sprint s ON s.id=m.sprint_id
+    WHERE s.team_id=$1 AND s.deleted_at IS NULL AND m.impacts_capacity=true
+    AND m.status NOT IN ('cancelled','not_held')
+    AND (m.starts_at AT TIME ZONE s.time_zone)::date<=$3::date
+    AND (m.ends_at AT TIME ZONE s.time_zone)::date>=$2::date LIMIT 1`,[team.id,start,end]);
+   if(impacted.rows.length)missing.push({date:null,memberId:null,source:"exceptional-meeting-participants"});
+  }
   const status=missing.length?"not-calculable":"calculated";
   const totalJh=status==="calculated"?
    round(members.reduce((sum,m)=>sum+(m.totalJh??0),0)):null;
