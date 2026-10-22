@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import NeutralAvatar from "../neutral-avatar";
 import {useTranslation} from "@/i18n/client";
 import {useCallback,useEffect,useState} from "react";
 import MemberProfileEditor,{type EditableMember} from "../member-profile-editor";
@@ -40,7 +41,7 @@ export default function MemberDetail({id}:{id:string}){
   {!loading&&!member&&<p role="alert">{t("memberUX.notFound")}</p>}
   {member&&<div className="d-grid gap-3">
    <header className="smn-panel p-4 d-flex flex-wrap gap-3 align-items-center">
-    <span aria-hidden="true" className="rounded-circle bg-body-tertiary border d-flex align-items-center justify-content-center" style={{width:76,height:76,fontSize:38}}>♙</span>
+    <NeutralAvatar size={76}/>
     <div className="flex-grow-1"><h1 className="h3 mb-1">{member.displayName}{button("profile",t("memberUX.profile"))}</h1>
      <p className="text-secondary mb-0">{member.email??t("memberUX.emailMissing")} · {member.archived?t("memberUX.archived"):member.isAssigned?t("memberUX.active"):t("memberUX.unassigned")}</p>
     </div>
@@ -49,7 +50,7 @@ export default function MemberDetail({id}:{id:string}){
     <h2 className="h5">{t("memberUX.rolesTitle")} {button("assignment",t("memberUX.assignment"))}</h2>
     <div className="d-flex gap-2 flex-wrap">
      {([["SM",member.roleShares.scrumMaster],["PO",member.roleShares.productOwner],["Dev",member.roleShares.developer]] as const)
-      .map(([label,value])=><span key={label} className={"badge "+(value>0?"text-bg-primary":"text-bg-secondary opacity-50")}>{label}{value>0?" · "+value+" %":""}</span>)}
+      .map(([label,value])=><span key={label} className={"badge "+(value>0?(label==="SM"?"text-bg-warning":label==="PO"?"text-bg-primary":"text-bg-success"):"text-bg-secondary opacity-50")}>{label}{value>0?" · "+value+" %":""}</span>)}
     </div>
     <p className="text-secondary mt-2 mb-0">{t("memberUX.assignmentStart",{date:member.startOn??"—"})}</p>
    </section>
