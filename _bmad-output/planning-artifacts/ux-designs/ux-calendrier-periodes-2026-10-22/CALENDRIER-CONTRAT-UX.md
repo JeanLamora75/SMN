@@ -2,7 +2,7 @@
 
 **SMN | Sally, designer UX BMAD | 22 octobre 2026**  
 **Statut : décisions fonctionnelles et UX validées en conversation, y compris rectification « férié en semaine = + autorisé » ; développement et recette NON exécutés.**  
-**Périmètre cible :** page Calendrier de l'équipe ; Scrum = sprint, Kanban = période ; présentation des réunions et création dans une fenêtre modale. Les droits, modèles, API et règles d'intégrité existants restent applicables.
+**Périmètre cible :** page Calendrier de l'équipe ; Scrum = sprint, Kanban = période ; présentation des réunions et ajout de réunions ou d'absences dans des fenêtres modales distinctes. Les droits, modèles, API et règles d'intégrité existants restent applicables.
 
 ## 1. Décisions fermes et priorités
 
@@ -19,7 +19,10 @@
 | CAL-09 | **Clic sur le NOM d'une réunion** : naviguer sur **la page dédiée à cette réunion** (et non ouvrir sa modification en place) | Lien réel vers la réunion par ID ; ne pas inventer de route existante |
 | CAL-10 | En bas de toute carte **du lundi au vendredi où la création est autorisée, jour férié compris** : une ligne « + » ouvrant une **fenêtre modale centrée** pour créer une réunion **ce jour-là** | Date préremplie ; voile gris ; aucun formulaire sous le calendrier ; samedi/dimanche sans + |
 | CAL-11 | Les réunions déjà enregistrées **restent visibles et consultables même sur un jour grisé** ; sur un **férié de semaine**, le + reste autorisé selon les droits ; sur un samedi/dimanche, il est absent | Ne pas effacer/dissimuler des données historiques |
-| CAL-12 | Le calendrier doit rester consultable pour tous les utilisateurs autorisés ; l'action « + » dépend des **droits d'écriture** et de l'état métier de la période | Pas de bouton trompeur si lecture seule, période clôturée ou action interdite |
+| CAL-12 | Le calendrier doit rester consultable pour tous les utilisateurs autorisés ; les actions de création dépendent des **droits d'écriture propres aux réunions ET aux absences** et de l'état métier de la période | Pas de bouton trompeur si lecture seule, période clôturée ou action interdite ; ne pas présumer que les deux droits sont identiques | 
+| CAL-13 | **« + Absence » est placé juste à côté de « + Réunion »**, en pied de carte, lorsque les deux actions sont disponibles | Deux actions distinctes, de même rang visuel et de taille comparable, jamais confondues avec « + X autres » |
+| CAL-14 | **Clic « + Absence »** : ouvrir une **modale centrée avec arrière-plan grisé** pour saisir l'absence d'**un membre de l'équipe**, **date de la carte préremplie** | Le membre est sélectionnable parmi les membres habilités/concernés ; dates début ET fin préremplies sur la date cliquée, ajustables selon le métier |
+| CAL-15 | Les règles des jours grisés restent valables : **férié de semaine = actions de création possibles selon droits** ; **week-end = aucune barre + dans cette vue** | Le grisé férié ne doit pas empêcher la saisie d'une absence ; les validations des absences restent appliquées |
 
 Ces décisions remplacent, pour **cette nouvelle vue principale**, la sélection imposée des seuls intervalles fixes 7/14/28 jours et le tableau central d'événements comme représentation première ; les tableaux de disponibilité/absences et les fonctions existantes devront être repositionnés sans perte de service ni fuite de données.
 
@@ -71,7 +74,7 @@ Légende : Aujourd'hui = contour renforcé • Jours non ouvrés/fériés = fond
 - Si plusieurs fêtes nationales sont reconnues le même jour dans une équipe internationale, afficher les **noms réellement disponibles**, de façon compacte dans ce même bloc (ou abréger visuellement avec accès au texte intégral), **sans inventer une fête commune** à toute l'équipe. Le groupe réunion demeure séparé en dessous.
 - Le **fond grisé d'un jour férié** et le **+ autorisé sur férié de semaine** ne changent pas. Le contour spécial de la date d'aujourd'hui ne modifie pas l'espacement intérieur.
 - Pour les lecteurs d'écran et le survol, le libellé du jour férié doit rester accessible en entier si un affichage compact coupe son texte.
-- La commande **« + Réunion » demeure en pied de carte**, séparée de la liste des réunions ; ne pas utiliser les marges du jour férié pour positionner ce bouton.
+- Les commandes **« + Réunion » et « + Absence » sont groupées sur une même ligne en pied de carte**, séparées de la liste des réunions, et alignées côte à côte lorsque toutes deux sont autorisées ; ne pas utiliser les marges du jour férié pour positionner ces boutons.
 
 Schéma local (valeurs et fêtes illustratives, non issues de SMN) :
 
@@ -83,7 +86,7 @@ Schéma local (valeurs et fêtes illustratives, non issues de SMN) :
 │  Réunion A                   │
 │  Réunion B                   │
 │                              │
-│  + Réunion                   │  ← férié en semaine : création autorisée
+│  + Réunion     + Absence     │  ← férié en semaine : actions autorisées selon droits
 └──────────────────────────────┘
 
 ┌──────────────────────────────┐
@@ -91,7 +94,7 @@ Schéma local (valeurs et fêtes illustratives, non issues de SMN) :
 │                              │  ← même espace en absence de férié
 │  Daily Scrum                 │
 │                              │
-│  + Réunion                   │
+│  + Réunion     + Absence     │
 └──────────────────────────────┘
 ~~~
 
@@ -111,6 +114,28 @@ Schéma local (valeurs et fêtes illustratives, non issues de SMN) :
 - Boutons « Annuler » / « Enregistrer », validation temporelle (fin > début, dates, fuseau, contraintes du sprint), avertissement de chevauchement s'il existe ; ne jamais perdre le brouillon en fermant sans confirmation.
 - Après réussite, fermer la modale, actualiser la carte et maintenir la période et le scroll ; en erreur, conserver les saisies, afficher l'erreur et ne pas afficher fausse réussite.
 - La distinction **absence du + pour jour non ouvré** ne signifie pas qu'une réunion préexistante sur cette date est supprimée.
+
+## 5 bis. Ajout d'une absence depuis la carte — nouvelle décision validée le 23/10/2026
+
+**Affordance** : une seule barre d'actions **en bas de chaque carte éligible**, contenant deux actions **côte à côte** : **« + Réunion »** et **« + Absence »**. Les deux labels sont toujours visibles (ne pas remplacer par deux icônes + identiques sans texte). Sur mobile, elles restent identifiables ; les disposer côte à côte tant que la largeur le permet, sinon les empiler proprement.
+
+**Règles d'affichage :**
+- Du **lundi au vendredi**, y compris jour férié en semaine (carte toujours grisée), proposer « + Réunion » et « + Absence » sous réserve des permissions et validations métiers **de chaque opération**. Si l'utilisateur n'a pas le droit de saisir une absence, masquer ou désactiver « + Absence » clairement, sans supprimer mécaniquement « + Réunion » si cette dernière reste permise.
+- **Samedi/dimanche :** dans cette grille, aucune action « + Réunion » ni « + Absence » ; ne pas en déduire une interdiction générale d'enregistrer une absence **couvrant** un week-end depuis le formulaire métier autorisé sur une autre date. Une absence multi-jours peut chevaucher des jours non ouvrés selon le moteur existant.
+- Les fiches de réunions déjà créées et les indisponibilités historiques restent consultables quelles que soient les possibilités d'écriture.
+
+**Clic « + Absence »** :
+1. Ouvrir la **modale centrée** SMN avec fond gris semi-transparent, focus dans le dialogue, accessibilité clavier et gestion des brouillons ; **ne jamais injecter le formulaire sous la grille ni naviguer vers la fiche membre pour saisir**.
+2. Préremplir **date de début ET date de fin = date exacte de la carte** sélectionnée. Il s'agit du point de départ par défaut ; les dates peuvent être ajustées afin de créer une absence sur une période conformément aux règles métier. **Ne pas générer une absence tant que l'utilisateur n'a pas confirmé**.
+3. Permettre la **sélection obligatoire d'un membre** de l'équipe pertinente (liste de noms réels, filtrée par droits et associations effectives ; **ne pas sélectionner arbitrairement le premier membre**). Un membre archivé/inéligible ne peut pas être modifié en contournant les garde-fous.
+4. Après sélection, afficher les champs pris en charge par le modèle d'absence : **catégorie**, **début/fin**, **créneau début/fin matin/après-midi**, **caractère planifié**, **motif obligatoire** ; préremplissages conformes au service courant. Ne pas masquer de champ requis par l'API.
+5. **« Annuler » / « Enregistrer »**, validations existantes (catégorie active, période, chevauchement, membre archivé, conflits de révision, droits) et erreurs lisibles sans perdre le brouillon ; après succès, fermer la modale et rafraîchir les données visibles du calendrier **sans changer de période ou de position**. L'absence doit ensuite être consultable dans l'onglet Absences du membre concerné et dans le calendrier collectif selon les règles de confidentialité existantes.
+6. **Jour férié en semaine** : autoriser l'ouverture du formulaire d'absence comme celle de réunion ; donner une information contextualisée sur le caractère férié pour certains membres si connue, **sans blocage automatique** et sans préjuger de la disponibilité d'un membre donné.
+7. Sur la carte, ne jamais exposer à tous les lecteurs une raison d'absence, un nom ou une catégorie sensible si les droits existants ne le permettent pas : l'actuelle vue agrégée protège déjà certaines données des utilisateurs non administrateurs.
+
+**Dépendance technique vérifiée :** l'API actuelle `POST /api/admin/members/[id]/absences` attend un ID de membre dans l'URL et vérifie l'autorisation `write` sur la ressource members. Le composant `MemberAbsenceEditor` accepte déjà un `selectedOn` et préremplit `startOn`/`endOn` à cette date, **mais est intégré à un écran de membre**. Amelia doit isoler et réutiliser son formulaire/validation dans la modale du calendrier, en plaçant la **sélection du membre avant le chargement et la saisie**, sans étendre les droits serveur pour le confort UX. L'API exige une catégorie et un motif ; elles ne sont pas optionnelles.
+
+**Important** : cet ajout n'est pas une demande de revoir le contenu de l'onglet Absences de la fiche membre, déjà spécifié par [Fiche membre V2](../ux-equipe-membres-2026-10-22/FICHE-MEMBRE-V2-UX-CONTRAT.md). Il s'agit d'un **deuxième point d'entrée** vers la même fonction métier, avec date préremplie.
 
 ## 6. Jours fériés et équipes internationales — décision RECTIFICATIVE validée le 22/10/2026
 
@@ -149,7 +174,7 @@ Les **fermetures collectives de l'entreprise** constituent un cas métier diffé
 - **C1 — Période/calendrier** : résolution par équipe, préférence période en cours, fallback mois complet, 7 colonnes cycliques à partir du premier jour, navigation.
 - **C2 — Jours non ouvrés et fériés** : week-ends gris sans + ; fériés de semaine gris AVEC + si autorisé, avec information non bloquante sur les membres potentiellement concernés ; aujourd'hui contour accentué ; vérifier la signalisation fériée multi-pays.
 - **C3 — Réunions et page de détail** : source des réunions, tri chronologique, tooltip des deux heures, vrai lien vers page dédiée avec autorisation.
-- **C4 — Création modale** : plus sur jours ouvrés autorisés, date préremplie, contrôles métier, persistance, erreurs, rafraîchissement.
+- **C4 — Création modale** : **deux actions côte à côte + Réunion / + Absence** sur les cartes éligibles du lundi au vendredi (jours fériés compris), modales distinctes avec date préremplie ; sélection obligatoire du membre dans la modale Absence ; réutilisation des droits/API et contrôles métier, persistance, erreurs, rafraîchissement.
 - **C5 — Recette et compatibilité** : responsive, clavier, i18n, fuseaux, sprints Kanban, droits, contenus existants de calendrier collectif conservés ou relocalisés selon un choix UX explicitement documenté.
 
 **Pour toute nouvelle User Story ou modification Jira : accord utilisateur requis avant publication.** Le présent document ne vaut pas instruction de modifier les tickets existants ou de démarrer le développement.
