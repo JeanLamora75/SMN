@@ -1482,5 +1482,19 @@
     "overlap": "Overlapping ceremonies",
     "closure": "Ceremony during a collective closure",
     "error": "Unable to check meeting conflicts."
+  },
+  "ceremonyEdit": {
+    "title": "Edit a ceremony",
+    "choose": "Occurrence",
+    "start": "Scheduled start (UTC)",
+    "minutes": "Scheduled duration in minutes",
+    "scope": "Scope",
+    "single": "This occurrence",
+    "following": "This occurrence and following Dailies",
+    "save": "Save",
+    "history": "View history",
+    "saved": "Change saved with audit.",
+    "warning": "Change saved. Warning: an overlap was detected.",
+    "error": "Unable to save or occurrence is protected."
   }
 }
