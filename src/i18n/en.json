@@ -1575,5 +1575,11 @@
     "save": "Save",
     "saved": "Actual duration saved and audited.",
     "error": "Unable to save actual duration."
+  },
+  "exceptionalCapacity": {
+    "title": "Exceptional meeting capacity impact",
+    "info": "Disabled by default. Actual capacity deduction is not connected yet: this option currently does not change capacity totals.",
+    "impact": "Impacts capacity",
+    "error": "Unable to save this setting."
   }
 }
