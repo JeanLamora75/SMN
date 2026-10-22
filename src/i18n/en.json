@@ -1647,5 +1647,16 @@
     "unreliable": "Difference unavailable: missing or unreliable data.",
     "readonly": "Read only. Actual capacity and its manual overrides remain managed separately.",
     "error": "Unable to read this Sprint's capacity."
+  },
+  "sprintTrends": {
+    "title": "Last five closed Sprint trends",
+    "info": "Read only: only saved values and closed Sprints no later than the selected Sprint are included.",
+    "choose": "Reference Sprint",
+    "completedSp": "Completed Story Points",
+    "completionRate": "Completion rate",
+    "actualCapacityJh": "Actual capacity (person-days)",
+    "missing": "Data unavailable",
+    "empty": "No eligible closed Sprint.",
+    "error": "Unable to load trends."
   }
 }
