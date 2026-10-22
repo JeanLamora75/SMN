@@ -21,6 +21,7 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
   const groups: NavigationGroup[] = [
     {id:"pilotage",label:"navigation.groups.pilotage",entries:[
       {id:"dashboard",label:"navigation.entries.dashboard",href:"/app",icon:"▦"},
+      {id:"members",label:"navigation.entries.members",href:role==="admin"?"/app/admin/members":null,icon:"♙"},
       {id:"security",label:"navigation.entries.security",href:"/app/security",icon:"♧"},
     ]},
     {id:"calendar",label:"navigation.groups.calendar",entries:[
@@ -46,7 +47,6 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
       {id:"scrumCadence",label:"scrumCadence.title",href:mode==="scrum"?"/app/admin/scrum-cadence":null,icon:"◷"},
       {id:"audit",label:"navigation.entries.audit",href:"/app/admin/audit",icon:"▤"},
       {id:"backups",label:"navigation.entries.backups",href:"/app/admin/backups",icon:"▣"},
-      {id:"members",label:"navigation.entries.members",href:"/app/admin/members",icon:"♙"},
       {id:"countries",label:"navigation.entries.countries",href:"/app/admin/countries",icon:"◎"},
     ],
   });
