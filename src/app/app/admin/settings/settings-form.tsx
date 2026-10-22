@@ -57,6 +57,12 @@ export default function SettingsForm() {
     }catch{setError(t("settings.network"));}
     finally{setBusy(false);}
   }
+  useEffect(()=>{if(!loaded)return;
+    const hash=window.location.hash;
+    if(hash==="#settings-language"||hash==="#settings-appearance"){
+      document.getElementById(hash.slice(1))?.scrollIntoView({block:"center"});
+    }
+  },[loaded]);
   const dirty=!!saved&&(locale!==saved.locale||theme!==saved.theme||palette!==saved.palette||country!==(saved.referenceCountry??""));
   useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
   const discardAndReload=()=>{
