@@ -17,7 +17,7 @@
 | CAL-07 | Liste des **réunions du jour en ordre croissant d'heure de début**, à l'intérieur de sa carte | Tri stable en cas d'horaires identiques ; seuls vrais événements enregistrés sont affichés |
 | CAL-08 | **Survol du NOM d'une réunion** : afficher un petit tooltip avec **heure de début ET heure de fin** | Heures locales issues de la zone IANA effective, sans décalage déduit du navigateur |
 | CAL-09 | **Clic sur le NOM d'une réunion** : naviguer sur **la page dédiée à cette réunion** (et non ouvrir sa modification en place) | Lien réel vers la réunion par ID ; ne pas inventer de route existante |
-| CAL-10 | En bas de toute carte **ouvrée** : une ligne/bandeau « + » ouvrant une **fenêtre modale centrée** pour créer une nouvelle réunion **ce jour-là** | Date préremplie ; voile gris ; aucun formulaire sous le calendrier |
+| CAL-10 | En bas de toute carte **du lundi au vendredi où la création est autorisée, jour férié compris** : une ligne « + » ouvrant une **fenêtre modale centrée** pour créer une réunion **ce jour-là** | Date préremplie ; voile gris ; aucun formulaire sous le calendrier ; samedi/dimanche sans + |
 | CAL-11 | Les réunions déjà enregistrées **restent visibles et consultables même sur un jour grisé** ; seule la nouvelle création via « + » est indisponible | Ne pas effacer/dissimuler des données historiques |
 | CAL-12 | Le calendrier doit rester consultable pour tous les utilisateurs autorisés ; l'action « + » dépend des **droits d'écriture** et de l'état métier de la période | Pas de bouton trompeur si lecture seule, période clôturée ou action interdite |
 
