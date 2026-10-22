@@ -37,7 +37,7 @@ function dbFor(options:{country?:string|null;status?:string|null;holiday?:string
    rowCount:options.week===false?0:1,
    rows:options.week===false?[]:[{revision:1,effective_from:"2026-01-01",
     days:Array.from({length:7},(_,i)=>({weekday:i+1,
-     morning:i<5,afternoon:i<5})),created_at:"2026-01-01"}]};
+     morning:i<5,afternoon:i<5})),created_at:"2026-01-01"}]
   };
   if(sql.includes("smn_member_calendar_exception"))return {
    rowCount:options.exception?1:0,
