@@ -47,7 +47,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
   const days=dates(period.start,period.count);
   const blocks:Array<Promise<Calendar>>=[];
   for(let i=0;i<period.count;i+=28){
-   const query=new URLSearchParams({start:days[i],days:String(Math.min(28,period.count-i))});
+   const query=new URLSearchParams({start:days[i],days:"28"});
    blocks.push(fetch("/api/team-calendar?"+query,{cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("calendar");return r.json() as Promise<Calendar>;}));
   }
   const end=days[days.length-1];
