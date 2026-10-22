@@ -1473,5 +1473,14 @@
     "save": "Enregistrer",
     "saved": "Pause enregistrée.",
     "error": "Impossible de charger ou enregistrer la pause."
+  },
+  "meetingConflicts": {
+    "title": "Alertes de réunions",
+    "info": "Ces conflits n’empêchent pas la planification. Aucun événement n’est déplacé ou supprimé automatiquement.",
+    "refresh": "Actualiser",
+    "none": "Aucun chevauchement détecté parmi les cérémonies enregistrées.",
+    "overlap": "Chevauchement de cérémonies",
+    "closure": "Cérémonie sur une fermeture collective",
+    "error": "Impossible de vérifier les conflits de réunions."
   }
 }
