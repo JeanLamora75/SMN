@@ -178,7 +178,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
      AND m.status NOT IN ('cancelled','not_held') AND m.starts_at<$3::timestamptz AND m.ends_at>$2::timestamptz
      ORDER BY m.id,p.member_id LIMIT 2001`,[team.id,start+"T00:00:00Z",new Date(Date.parse(end+"T00:00:00Z")+2*86400000).toISOString()])).rows:[];
   if(impactEvents.length>2000)throw Error("capacity-meeting-limit");
-  const unassignedImpact=impactEvents.some(x=>x.member_id===null);
+  const unassignedImpact=impactEvents.some(x=>x.member_id===null||!memberIds.includes(x.member_id));
   const dates=listDates(start,end);
   const members:MemberCapacity[]=[];
   const missing:CapacityReport["missing"]=[];
