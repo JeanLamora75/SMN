@@ -1496,5 +1496,29 @@
     "saved": "Modification enregistrée et auditée.",
     "warning": "Modification enregistrée. Attention : un chevauchement a été détecté.",
     "error": "Modification impossible ou occurrence protégée."
+  },
+  "ceremonyTemplates": {
+    "title": "Modèles personnalisés de cérémonies",
+    "intro": "Définissez les réunions récurrentes de l’équipe. Les modifications ne changent pas les occurrences déjà créées.",
+    "existing": "Modèle existant",
+    "new": "Nouveau modèle",
+    "enabled": "Actif",
+    "disabled": "Désactivé",
+    "name": "Nom",
+    "frequency": "Fréquence",
+    "daily": "Quotidienne",
+    "weekly": "Hebdomadaire",
+    "sprint": "Une fois par Sprint",
+    "weekday": "Jour de la semaine",
+    "day": "Jour {number} (lundi = 1)",
+    "position": "Position",
+    "start": "Début du Sprint",
+    "end": "Fin du Sprint",
+    "time": "Heure locale",
+    "duration": "Durée (minutes)",
+    "save": "Enregistrer",
+    "saved": "Modèle enregistré.",
+    "error": "Impossible d'enregistrer le modèle.",
+    "capacity": "Les cérémonies ne sont jamais déduites de la capacité Développeur."
   }
 }
