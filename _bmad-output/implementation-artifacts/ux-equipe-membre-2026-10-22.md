@@ -91,3 +91,18 @@ Non livré (bloquant pour conformité complète) :
 
 ### Important
 Code publié sur `main`, **migration non exécutée** ; pas de compilation ni de test navigateur dans l'environnement d'assistance. Après synchronisation Git, exécuter `pnpm typecheck` et les tests, puis la migration contrôlée avec une sauvegarde préalable. Le fonctionnement n'est pas encore certifié par recette.
+
+
+### Dernière vérification de l'historique et séquence de recette
+- L'API d'historique expose désormais également les **révisions d'absences**, les **événements de cycle de vie**, et les **versions d'affectation**. Les informations d'identité créées avant la mise en place de l'audit v27 ne sont pas reconstituées artificiellement.
+- Les clés de traduction FR/EN ajoutées ont été comparées statiquement ; les principaux raccordements (v27, diagnostic, interface et endpoint) ont été inspectés, mais aucune compilation n'a été exécutée.
+- Après sauvegarde existante de SMN et arrêt du serveur :
+  1. Synchroniser `main`.
+  2. Exécuter `pnpm typecheck` et `pnpm exec tsx --test tests/member-identity.test.ts`.
+  3. Prévalider avec `pnpm exec tsx scripts/migrate-member-identity-v27.ts` (lecture seule).
+  4. En présence de `Diagnostic: initialized` et `version 26`, appliquer `pnpm exec tsx scripts/migrate-member-identity-v27.ts --apply`.
+  5. Vérifier `pnpm exec tsx scripts/diagnose-schema.ts` → initialized, version 27, 0 objet inconnu.
+  6. Lancer `pnpm dev` et recetter Équipe, fonction professionnelle, transaction unique, quatre onglets, calendrier, absences et historique.
+- Si une étape échoue, **ne pas** réinitialiser ou supprimer la base. Partager le diagnostic et préserver la sauvegarde.
+
+**Aucun test effectif ni migration réelle n'a été réalisé depuis ChatGPT.**
