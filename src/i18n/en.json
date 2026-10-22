@@ -1680,5 +1680,20 @@
     "error": "Unable to close or reopen Sprint.",
     "versions": "Immutable snapshots",
     "empty": "No closure recorded."
+  },
+  "epic4Ui": {
+    "review": "Sprint review",
+    "administration": "Sprint administration",
+    "standard": "Standard ceremony",
+    "custom": "Custom ceremony",
+    "exceptional": "Exceptional meeting",
+    "scheduled": "Scheduled",
+    "held": "Held",
+    "notHeld": "Not held",
+    "cancelled": "Cancelled",
+    "planned": "Planned",
+    "active": "In progress",
+    "finished": "Finished",
+    "closed": "Closed"
   }
 }
