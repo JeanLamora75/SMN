@@ -2,7 +2,7 @@ import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
-import {createQuickMembers,listTeamMembers} from "@/server/members/quick-create";
+import {createQuickMembers,createIndividualMember,listTeamMembers} from "@/server/members/quick-create";
 
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
@@ -23,6 +23,14 @@ export async function POST(request:NextRequest){
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
+  const individual=Object.hasOwn(body,"displayName");
+  if(individual){
+   const single=await withAuthDb(db=>createIndividualMember(db,actor.id,body));
+   if(!single.ok)return jsonResult({error:single.error},
+    single.error==="request-conflict"||single.error==="roster-full"?409:
+    single.error==="team-unavailable"||single.error==="not-initialized"?404:400);
+   return jsonResult({member:single.member,created:single.created},single.created?201:200);
+  }
   const result=await withAuthDb(db=>createQuickMembers(db,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error},
    result.error==="already-initialized"||result.error==="request-conflict"?409:
