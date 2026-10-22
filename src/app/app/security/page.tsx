@@ -14,6 +14,7 @@ export default async function SecurityPage() {
   const t=(key:Parameters<typeof translate>[1])=>translate(locale,key);
   return <div className="container py-5" style={{maxWidth:740}}>
     <Link href="/app">{t("security.back")}</Link>
+    {account.role==="admin"&&<Link href="/app/admin/settings" className="ms-3">← {t("navigation.entries.settings")}</Link>}
     <h1 className="h3 mt-4">{t("security.title")}</h1>
     <section className="smn-panel p-4 my-4">
       <h2 className="h5">{t("security.changePassword")}</h2>
