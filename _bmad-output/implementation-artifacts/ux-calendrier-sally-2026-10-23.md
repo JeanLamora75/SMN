@@ -36,3 +36,11 @@ Source : décisions de Sally reprises dans les échanges avec l'utilisateur, pui
 6. Créer une réunion via + durant un sprint, y compris sur un jour férié ; vérifier validations horaire et rafraîchissement.
 7. Ouvrir sur écran étroit ; contrôler l'accès horizontal et l'absence de chevauchement.
 8. Ne pas considérer la fonctionnalité conforme avant tests effectifs et validation visuelle par l'utilisateur.
+
+
+## Compléments de réalisation
+- `GET /api/team-calendar/periods` lit les sprints en lecture seule avec l'autorisation du calendrier, sans dépendre de l'autorisation d'administration ni déclencher de réconciliation.
+- Les réunions disposent désormais d'une page de **consultation individuelle** : `/app/team-calendar/meeting/[kind]/[id]` ; lien accessible aux utilisateurs autorisés en lecture, séparé des actions d'administration. Son statut n'est pas inventé lorsqu'il est indisponible.
+- Les traductions de la fiche réunion sont centralisées en FR/EN.
+- Les règles d'affichage ont fait l'objet d'un contrôle statique (sept colonnes, jour courant, férié sous date, réunions triées, heures au survol, modale, routes, catalogues FR/EN). Ceci n'est **pas** une compilation ou une recette navigateur.
+- **Création hors sprint** toujours non prise en charge par le modèle métier actuel ; ne pas simuler de création.
