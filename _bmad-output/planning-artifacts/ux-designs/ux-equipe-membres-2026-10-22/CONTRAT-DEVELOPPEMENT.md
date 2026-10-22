@@ -1,0 +1,76 @@
+# Contrat de développement UX — Équipe et membres
+
+**22/10/2026 — Référence approuvée, implémentation non réalisée.** Destinataire : Amelia, développeuse BMAD. Lire impérativement [DESIGN.md](DESIGN.md), [EXPERIENCE.md](EXPERIENCE.md) et [MAQUETTES-REFERENCE.md](MAQUETTES-REFERENCE.md).
+
+## 1. Décisions et périmètre
+
+| Décision | Référence | Nature |
+|---|---|---|
+| Menu principal « Équipe », accessible aux administrateurs autorisés | Maquettes Équipe | Refonte navigation |
+| Choix exclusif Cartes/Liste par icônes en haut à droite, dernier choix mémorisé | Maquettes Équipe | Refonte UX |
+| Six colonnes × deux rangées initiales, arrondis, nom/silhouette neutre/badges/fonction | Maquette Cartes | Refonte UX |
+| Rôles SM / PO / Dev toujours visibles, actif coloré, absent grisé, plusieurs actifs possibles | SMN-44 | Réutilisation métier |
+| Carte « + » après les membres actifs, reste des cases grises pointillées | Maquette Cartes | Refonte UX |
+| Liste alternative : avatar neutre, nom, trois badges, fonction, statut, action de fiche | Maquette Liste | Refonte UX |
+| Carte ou ligne entièrement cliquable vers même fiche membre | Maquettes Équipe | Refonte navigation |
+| Fiche membre : bandeau identité, onglets, deux colonnes de panneaux, crayons adjacents | Maquette Fiche | Refonte UX |
+| Nouvelle création individuelle par pop-up, dans l'équipe existante | Maquettes Équipe | **Nouvelle capacité métier** |
+| Aucune image personnelle MVP ; galerie prédéfinie seulement envisagée v1 | Décision utilisateur | Hors MVP |
+| Fonction professionnelle distincte de rôle Agile | Maquettes | **Donnée à vérifier / enrichir** |
+
+## 2. État du code existant — branch main
+
+- [src/app/app/admin/members/page.tsx](https://github.com/JeanLamora75/SMN/blob/main/src/app/app/admin/members/page.tsx) : page avec Bootstrap container, à rendre pleine largeur utile pour six colonnes.
+- [quick-members-admin.tsx](https://github.com/JeanLamora75/SMN/blob/main/src/app/app/admin/members/quick-members-admin.tsx) : tableau avec cinq boutons par membre et formulaires affichés dessous ; pas de fiche dédiée ni switch Cartes/Liste.
+- [src/lib/private-navigation.ts](https://github.com/JeanLamora75/SMN/blob/main/src/lib/private-navigation.ts) : « Membres » rangé dans Administration, pas de menu principal Équipe.
+- [member-profile-editor.tsx](https://github.com/JeanLamora75/SMN/blob/main/src/app/app/admin/members/member-profile-editor.tsx) : nom + email révisables, pas de champ Fonction dans le type consulté.
+- [src/app/api/admin/members/route.ts](https://github.com/JeanLamora75/SMN/blob/main/src/app/api/admin/members/route.ts) et [createQuickMembers](https://github.com/JeanLamora75/SMN/blob/main/src/server/members/quick-create.ts) : **POST actuel réservé à la première initialisation de 3–50 membres** ; si un membre existe déjà, retourne « already-initialized ». Ne permet pas d'ajouter une personne ultérieurement.
+- Éditeurs métier à réutiliser/adapter : [assignment-editor.tsx](https://github.com/JeanLamora75/SMN/blob/main/src/app/app/admin/members/assignment-editor.tsx), [member-calendar-editor.tsx](https://github.com/JeanLamora75/SMN/blob/main/src/app/app/admin/members/member-calendar-editor.tsx), [member-location-editor.tsx](https://github.com/JeanLamora75/SMN/blob/main/src/app/app/admin/members/member-location-editor.tsx), [member-lifecycle-editor.tsx](https://github.com/JeanLamora75/SMN/blob/main/src/app/app/admin/members/member-lifecycle-editor.tsx).
+
+**Ne pas déclarer implémentées** les deux nouvelles vues, la fiche, le champ Fonction ou la création individuelle tant que ces éléments n'ont pas été développés et vérifiés.
+
+## 3. Invariants à respecter
+
+1. MVP monoéquipe Scrum/Kanban ; aucun choix réel de seconde équipe.
+2. Un membre métier n'est pas un compte utilisateur ; pas de connexion ni d'e-mail imposé ou envoyé.
+3. Seuls les administrateurs autorisés accèdent aux données personnelles et aux mutations, y compris par accès direct API/URL.
+4. Rôles Agile répartis par parts : somme des parts = 100 %, affectation bornée par temps contractuel ; fonction libre distincte ; rôle Dev seul contribue à la disponibilité développeur.
+5. Versions, dates d'effet, historique et prévention de la rétroactivité non contrôlée ; archivage sous workflow protégé, pas de bascule libre « actif ».
+6. États enregistrée/suggérée/inconnue, aucune heure, capacité, absence, ville ou zone IANA inventées.
+7. Tous textes standard dans src/i18n/fr.json et src/i18n/en.json ; préserver mode sombre et palettes SMN-24.
+8. Design accessible clavier/lecteur d'écran, focus/contraste et zoom ; aucune photo personnelle au MVP.
+
+## 4. Lots recommandés pour Amelia
+
+### Lot 1 — Navigation et vues
+Accès menu Équipe, layout pleine largeur, switch exclusif Cartes/Liste, grille desktop 6×2 initiale et responsive, badges SM/PO/Dev, pictogramme neutre, + et emplacements pointillés, liste avec ligne +. Données réellement actives et affichage honnête des champs inconnus.
+
+### Lot 2 — Fiche et modifications
+Page sécurisée par ID métier, retour à Équipe, bandeau identité, cinq onglets, panneaux Profil selon maquette, crayons sur champs éditables. Réemploi des éditeurs existants pour rôles/affectation/calendrier/localisation/historique ; cycle de vie contrôlé. Déterminer et faire valider la persistance éventuelle de Fonction distincte des rôles Agile.
+
+### Lot 3 — Ajout individuel (besoin fonctionnel complémentaire)
+Après validation de la composition exacte du formulaire : modal ouverte par + en cartes et en liste, création d'**un** membre rattaché à l'unique équipe, nouvelle opération serveur transactionnelle/idempotente, protections de conflit et de permissions. Ne pas détourner le POST d'initialisation existant. Une Story Jira nouvelle/amendée doit être préparée et soumise à autorisation avant modification Jira.
+
+### Lot 4 — Préférence et recette
+Portée de mémorisation du mode à valider, compatibilité FR/EN et thèmes, responsive, tests des scénarios R01–R14 dans [EXPERIENCE.md](EXPERIENCE.md), anti-régression métier/permissions/versions. Ne jamais revendiquer une commande ou GitHub Actions exécutée sans preuve.
+
+## 5. Arbitrages restant ouverts
+
+| Sujet | Statut |
+|---|---|
+| Dépassement de douze positions (12+ membres actifs) : ajout toujours accessible | **À confirmer** avant développement final |
+| Vue initiale si aucune préférence enregistrée | **À confirmer** |
+| Champs, validations et préremplissage de la pop-up Ajouter | **À confirmer** |
+| Stockage / validation du champ « Fonction » | **À confirmer** |
+| Préférence d'affichage par compte ou installation | **À confirmer** |
+| Recherche et filtres complets, au-delà de la composition illustrative | **À préciser** |
+
+Ces questions ne remettent pas en cause la validation des **trois maquettes structurantes** ; Amelia ne doit simplement pas déduire des règles métier inconnues à partir d'exemples.
+
+## 6. Critères de recette et DoD
+
+Comparer les vues et fiche à [MAQUETTES-REFERENCE.md](MAQUETTES-REFERENCE.md) et au rendu original de la conversation lorsque disponible ; vérifier au minimum **0, 8, 11, 12, 13 membres actifs** ; multi-rôle ; provisoire ; archivé ; rôle sans droits ; annulation et sauvegarde ; dates d'effet ; signalisation des inconnues ; deux langues ; thèmes ; responsive ; clavier et zoom.
+
+L'écran actif **ne doit jamais montrer Cartes et Liste ensemble**. Une carte et une ligne conduisent à la **même fiche**. Aucun clic de consultation ou préremplissage ne réalise une écriture.
+
+**Aucun développement, modification de données, test runtime ou opération Jira n'a été fait dans le cadre de cette validation UX.**
