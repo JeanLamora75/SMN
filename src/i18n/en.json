@@ -1763,6 +1763,13 @@
     "historyHelp": "Assignment and status changes are available in the respective management screens.",
     "functionMissing": "Job title not specified",
     "emptyHistory": "No entries yet",
-    "locationUnavailable": "Location not specified"
+    "locationUnavailable": "Location not specified",
+    "identitySaveFailed": "Save failed or partially completed. Refresh before retrying.",
+    "functionLabel": "Professional function",
+    "functionPending": "Coming soon: PostgreSQL migration required",
+    "countryLabel": "Country (ISO2)",
+    "regionLabel": "Region",
+    "cityLabel": "City",
+    "zoneLabel": "Time zone (IANA)"
   }
 }
