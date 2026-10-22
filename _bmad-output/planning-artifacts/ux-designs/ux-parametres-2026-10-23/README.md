@@ -7,7 +7,8 @@
 2. [EXPERIENCE.md](EXPERIENCE.md) — 14 rubriques, comportements, états, droits ;
 3. [CATALOGUE-ET-ROUTES.md](CATALOGUE-ET-ROUTES.md) — inventaire de l'existant et statut des 14 destinations ;
 4. [CONTRAT-DEVELOPPEMENT.md](CONTRAT-DEVELOPPEMENT.md) — lots indépendants et impacts techniques ;
-5. [RECETTE-UX.md](RECETTE-UX.md) — 22 critères de recette non exécutés.
+5. [RECETTE-UX.md](RECETTE-UX.md) — 22 critères de recette non exécutés ;
+6. [DECOUPAGE-JIRA.md](DECOUPAGE-JIRA.md) — Epic [SMN-223](https://lmn24.atlassian.net/browse/SMN-223) et quatre Stories [SMN-224](https://lmn24.atlassian.net/browse/SMN-224) à [SMN-227](https://lmn24.atlassian.net/browse/SMN-227).
 
 **Décisions centrales :** menu Paramètres dans sidebar rétractable gauche ; page d'accueil pleine largeur avec 14 rubriques regroupées en 4 familles ; deux vues mutuellement exclusives Cartes/Liste sélectionnées via deux icônes en haut à droite et préférence mémorisée ; quatre cartes par rangée sur desktop ; cartes/lignes ouvrant leur vrai écran ; rubriques incomplètes honnêtement signalées sans lien mort ; Intégrations/Notifications réservées à une version ultérieure et cachées.
 
