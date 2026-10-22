@@ -45,6 +45,7 @@ model SmnTeam {
   sprints SmnSprint[]
   sprintBatchPreviews SmnSprintBatchPreview[]
   sprintBatchAudits SmnSprintBatchAudit[]
+  scrumLunch SmnScrumLunch?
   @@map("smn_team")
 }
 model SmnAccount {
@@ -693,6 +694,27 @@ model SmnSprintCeremony {
  minutes Int
  generatedAt DateTime @default(now()) @map("generated_at") @db.Timestamptz(6)
  sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ segments SmnSprintCeremonySegment[]
  @@unique([sprintId,kind,startsAt])
  @@map("smn_sprint_ceremony")
+}
+
+model SmnScrumLunch {
+ teamId String @id @map("team_id")
+ startTime DateTime @default(dbgenerated("'12:00'")) @map("start_time") @db.Time(0)
+ endTime DateTime @default(dbgenerated("'13:00'")) @map("end_time") @db.Time(0)
+ revision Int @default(1)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_scrum_lunch")
+}
+model SmnSprintCeremonySegment {
+ ceremonyId String @map("ceremony_id")
+ position Int
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ minutes Int
+ ceremony SmnSprintCeremony @relation(fields:[ceremonyId],references:[id],onDelete:Cascade)
+ @@id([ceremonyId,position])
+ @@map("smn_sprint_ceremony_segment")
 }
