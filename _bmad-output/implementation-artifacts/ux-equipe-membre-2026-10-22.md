@@ -61,3 +61,19 @@ L'implémentation initiale ne respectait pas le contrat visuel. Correctifs publi
 - Crayons Profil, Affectation, Calendrier, Localisation, Cycle de vie : éditeurs rendus dans une fenêtre modale centrée (fond obscurci, zone scrollable, fermeture Escape, gestion partielle du focus) au lieu d'un formulaire inséré au bas de la page.
 - La fermeture par la croix demande confirmation pour éviter la perte de saisie. Les formulaires gardent leurs propres contrôles et confirmations.
 - **Limites** : l'historique ne consolide pas encore tous les événements du membre (notamment modifications de profil, calendrier, localisation) ; les vues Calendrier et Localisation proposent leur description en lecture, et non encore un résumé complet de leur contenu. Contrôle TypeScript et recette navigateur non exécutés, à confirmer sur Windows.
+
+
+## Dernières spécifications Sally — identité unifiée, quatre onglets (22 octobre)
+Source : dernières décisions UX de Sally communiquées par l'utilisateur.
+Contrat : un seul crayon près du nom pour Nom, e-mail, Fonction professionnelle, Pays, Région, Ville et fuseau IANA ; rôles Agile éditables uniquement depuis Affectation ; bandeau horizontal avatar/nom/fonction/rôles à gauche et e-mail/localisation à droite ; onglets strictement Affectation, Calendrier, Absences, Historique ; Historique en lecture sans action crayon.
+
+Livré sur main :
+- Entête et navigation quatre onglets ; suppression de l'onglet Profil et Localisation.
+- Fenêtre unique d'édition d'identité avec nom, e-mail, champs de localisation. Les deux anciennes API sont invoquées successivement : **non atomique**, un échec du second enregistrement peut laisser le premier appliqué. Un message l'indique ; recharge préalable requise avant un nouvel essai.
+- Création individuelle après initialisation déjà présente et conservée.
+- Onglet Absences relié à l'éditeur existant, historique d'affectations conservé en lecture directe.
+Non livré (bloquant pour conformité complète) :
+- Fonction professionnelle persistante : schéma v26 sans colonne ni migration, saisie désactivée et indiquée comme indisponible. Implémentation correcte requiert migration versionnée v27, intégration à la validation stricte de schéma et cohérence Prisma, contrats API, historique, puis recette.
+- Transaction unique et endpoint atomique pour profil et localisation ; sauvegarde actuelle en deux appels.
+- Historique consolidé de tous changements (profil, fonction, calendrier, absences, localisation) et affichage riche en lecture seule des onglets.
+- Aucun test TypeScript, navigateur ou migration PostgreSQL exécuté dans cette session. Ne pas considérer la refonte comme finalisée.
