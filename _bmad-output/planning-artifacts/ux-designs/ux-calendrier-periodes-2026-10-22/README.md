@@ -12,7 +12,7 @@
 - Grille de **7 cartes par rangée** en commençant à la **première date de la période** ; en-têtes = jours réordonnés à partir de ce jour.
 - **Samedi/dimanche** : cartes grisées **sans +**. **Jour férié en semaine** : carte **grisée AVEC + Réunion**, si l'ajout est autorisé ; réunions existantes toujours visibles.
 - **Aujourd'hui** : bordure plus forte/colorée, y compris si férié (gris + bordure et + en semaine si autorisé).
-- Jour + mois 3 caractères ; réunions triées par heure croissante ; **survol du nom = heures de début et fin** ; **clic du nom = page dédiée**.
+- Jour + mois sur 3 caractères, **nom du jour férié immédiatement en dessous, collé à la date** lorsqu'il y en a un ; **première réunion toujours espacée visuellement sous le bloc date/férié**, même sur une journée normale. Réunions triées par heure croissante ; **survol du nom = heures de début et fin** ; **clic du nom = page dédiée**.
 - Sur journée ouvrée autorisée : **ligne + Réunion** en bas de carte, création dans une **modale centrée** sur voile gris avec date préremplie.
 
 ## Dépendance métier avant implémentation
