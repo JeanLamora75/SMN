@@ -1780,5 +1780,14 @@
     "historyLocation": "Localisation enregistrée",
     "historyLifecycle": "Changement de statut du membre",
     "historyRoleVersion": "Révision de l’affectation Agile"
+  },
+  "calendarUX": {
+    "addMeeting": "Ajouter une réunion",
+    "meetingName": "Nom de la réunion",
+    "startTime": "Date et heure de début",
+    "duration": "Durée (minutes)",
+    "create": "Créer la réunion",
+    "saveFailed": "Création impossible. Vérifiez le sprint, les horaires et vos droits.",
+    "requiresSprint": "La création d’une réunion nécessite un sprint. Sélectionnez une période couverte par un sprint."
   }
 }
