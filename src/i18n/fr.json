@@ -1760,6 +1760,7 @@
       "history": "Historique"
     },
     "historyHelp": "Les changements d’affectation et de statut sont consultables depuis les écrans correspondants.",
-    "functionMissing": "Fonction non renseignée"
+    "functionMissing": "Fonction non renseignée",
+    "emptyHistory": "Aucun élément à ce jour"
   }
 }
