@@ -3,10 +3,11 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Item={key:string;time:string;description:string};
 type IdentityEvent={changedAt:string;previous:Record<string,unknown>;next:Record<string,unknown>};
+type Audit={events:IdentityEvent[];absenceChanges:{changedAt:string;operation:string}[];
+ lifecycleChanges:{changedAt:string;action:string}[];assignmentChanges:{changedAt:string;revision:number}[]};
 type Assignment={id:string;startOn:string;endOn:string|null};
 type CalendarWeek={revision:number;effective_from:string;created_at:string};
 type CalendarException={revision:number;on_date:string;created_at?:string};
-type Absence={id:string;reason:string;startOn:string;endOn:string;createdAt:string;updatedAt:string};
 type LocationVersion={revision:number;effective_from:string;created_at:string};
 async function read<T>(url:string):Promise<T>{
  const r=await fetch(url,{cache:"no-store"});
@@ -20,14 +21,12 @@ export default function MemberHistory({memberId}:{memberId:string}){
  useEffect(()=>{
   let live=true;
   const base="/api/admin/members/"+encodeURIComponent(memberId);
-  const today=new Date().toISOString().slice(0,10);
   void Promise.all([
-   read<{events:IdentityEvent[]}>(base+"/history"),
+   read<Audit>(base+"/history"),
    read<{assignments:Assignment[];archivedAt:string|null}>(base+"/lifecycle"),
    read<{weeks:CalendarWeek[];exceptions:CalendarException[]}>(base+"/calendar"),
-   read<{absences:Absence[]}>(base+"/absences?onDate="+today),
    read<{versions:LocationVersion[]}>(base+"/location")
-  ]).then(([identity,lifecycle,calendar,absences,location])=>{
+  ]).then(([identity,lifecycle,calendar,location])=>{
    if(!live)return;
    const all:Item[]=[];
    identity.events.forEach((event,i)=>{
@@ -48,8 +47,12 @@ export default function MemberHistory({memberId}:{memberId:string}){
     description:t("memberUX.historyCalendar")}));
    calendar.exceptions.forEach((v,i)=>all.push({key:"exception-"+i,time:v.created_at??v.on_date,
     description:t("memberUX.historyCalendarException")}));
-   absences.absences.forEach((a,i)=>all.push({key:"absence-"+i,time:a.updatedAt??a.createdAt??a.startOn,
-    description:t("memberUX.historyAbsence")+(a.reason?" — "+a.reason:"")}));
+   identity.absenceChanges.forEach((a,i)=>all.push({key:"absence-audit-"+i,time:a.changedAt,
+    description:t("memberUX.historyAbsence")+" · "+a.operation}));
+   identity.lifecycleChanges.forEach((a,i)=>all.push({key:"lifecycle-audit-"+i,time:a.changedAt,
+    description:t("memberUX.historyLifecycle")+" · "+a.action}));
+   identity.assignmentChanges.forEach((a,i)=>all.push({key:"assignment-version-"+i,time:a.changedAt,
+    description:t("memberUX.historyRoleVersion")+" · "+a.revision}));
    location.versions.forEach((v,i)=>all.push({key:"location-"+i,time:v.created_at??v.effective_from,
     description:t("memberUX.historyLocation")}));
    all.sort((a,b)=>b.time.localeCompare(a.time)||a.key.localeCompare(b.key));
