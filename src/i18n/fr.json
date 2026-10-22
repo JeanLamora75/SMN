@@ -1563,5 +1563,17 @@
     "history": "Historique",
     "saved": "Qualification enregistrée.",
     "error": "Impossible de qualifier la réunion."
+  },
+  "actualDuration": {
+    "title": "Durées réelles des réunions",
+    "info": "La durée réelle est proposée égale à la durée prévue, sans qualifier automatiquement la réunion comme Tenue. Seule la durée est modifiée.",
+    "meeting": "Réunion",
+    "planned": "Prévue",
+    "actual": "Réelle (minutes)",
+    "delta": "Écart",
+    "action": "Action",
+    "save": "Enregistrer",
+    "saved": "Durée réelle enregistrée et auditée.",
+    "error": "Impossible d’enregistrer la durée réelle."
   }
 }
