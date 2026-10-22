@@ -1777,6 +1777,8 @@
     "historyCalendar": "Weekly calendar updated",
     "historyCalendarException": "Calendar exception",
     "historyAbsence": "Absence added or updated",
-    "historyLocation": "Location updated"
+    "historyLocation": "Location updated",
+    "historyLifecycle": "Member lifecycle event",
+    "historyRoleVersion": "Agile assignment revision"
   }
 }
