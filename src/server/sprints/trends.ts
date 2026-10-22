@@ -1,5 +1,5 @@
 import type {Client} from "pg";
-import {ensureStoryPointsSchema} from "./story-points";
+import {ensureClosureSchema} from "./closure";
 
 export type SprintTrendPoint={
  sprintId:string;name:string;endAt:string;
@@ -8,7 +8,7 @@ export type SprintTrendPoint={
 
 /** Read only persisted, closed snapshots. Never read unsaved client data. */
 export async function readSprintTrends(db:Client,selectedSprintId:string):Promise<SprintTrendPoint[]|null>{
- await ensureStoryPointsSchema(db);
+ await ensureClosureSchema(db);
  const selected=await db.query<{id:string;team_id:string;start_at:string}>(`SELECT s.id,s.team_id,s.start_at::text FROM public.smn_sprint s
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,[selectedSprintId]);
