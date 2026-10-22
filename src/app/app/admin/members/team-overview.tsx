@@ -5,7 +5,7 @@ import {useRouter} from "next/navigation";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
-type Member={id:string;displayName:string;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
+type Member={id:string;displayName:string;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string;mode:string};members:Member[]};
 type View="cards"|"list";
 const CHOICE="smn-team-roster-view";
@@ -66,7 +66,7 @@ export default function TeamOverview(){
         <strong className="text-truncate w-100" title={m.displayName}>{m.displayName}</strong>
         <NeutralAvatar/>
         <div className="smn-team-roles d-flex gap-1 justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?("text-bg-primary"):"text-bg-secondary opacity-50")}>{name}</span>)}</div>
-        <small className="text-secondary">{t("teamUX.functionMissing")}</small>
+        <small className="text-secondary">{m.professionalFunction??t("teamUX.functionMissing")}</small>
        </div>
       </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} disabled={roster?.members.length===0} className="smn-team-add h-100 w-100 d-flex flex-column align-items-center justify-content-center gap-2 text-primary" style={{minHeight:180}} aria-label={t("teamUX.addMember")}>
         <span className="display-5" aria-hidden="true">+</span><strong>{t("teamUX.addMember")}</strong>
