@@ -2,7 +2,7 @@
 import Link from "next/link";
 import NeutralAvatar from "../neutral-avatar";
 import {useTranslation} from "@/i18n/client";
-import {useCallback,useEffect,useState} from "react";
+import {useCallback,useEffect,useState,useRef} from "react";
 import MemberProfileEditor,{type EditableMember} from "../member-profile-editor";
 import AssignmentEditor from "../assignment-editor";
 import MemberCalendarEditor from "../member-calendar-editor";
@@ -20,6 +20,9 @@ export default function MemberDetail({id}:{id:string}){
  const [section,setSection]=useState<Section>(null);
  const [tab,setTab]=useState<Tab>("profile");
  const [error,setError]=useState("");
+ const [history,setHistory]=useState<{assignments:{startOn:string;endOn:string|null}[];archived:boolean;archivedAt:string|null}|null>(null);
+ const [historyError,setHistoryError]=useState(false);
+ const dialogRef=useRef<HTMLDivElement>(null);
  const refresh=useCallback(async()=>{
   const r=await fetch("/api/admin/members",{cache:"no-store"});
   if(!r.ok)throw Error("read-unavailable");
@@ -30,6 +33,20 @@ export default function MemberDetail({id}:{id:string}){
   .then(data=>{if(alive){setRoster(data);setLoading(false);}})
   .catch(()=>{if(alive){setError(t("memberUX.loadFailed"));setLoading(false);}});
   return()=>{alive=false;};},[]);
+ useEffect(()=>{if(tab!=="history")return;let active=true;setHistory(null);setHistoryError(false);
+  fetch("/api/admin/members/"+encodeURIComponent(id)+"/lifecycle",{cache:"no-store"})
+   .then(async r=>{if(!r.ok)throw Error("history");return r.json() as Promise<{assignments:{startOn:string;endOn:string|null}[];archived:boolean;archivedAt:string|null}>;})
+   .then(v=>{if(active)setHistory(v);}).catch(()=>{if(active)setHistoryError(true);});
+  return()=>{active=false;};},[id,tab]);
+ useEffect(()=>{if(!section)return;const previous=document.activeElement as HTMLElement|null;
+  const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape"){event.preventDefault();dialogRef.current?.querySelector<HTMLButtonElement>("[data-close-dialog]")?.click();}
+   if(event.key==="Tab"){const items=Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')??[]);
+    if(!items.length)return;const first=items[0],last=items[items.length-1];
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}};
+  document.addEventListener("keydown",onKey);
+  const focus=window.setTimeout(()=>dialogRef.current?.querySelector<HTMLElement>('input,button')?.focus(),0);
+  return()=>{window.clearTimeout(focus);document.removeEventListener("keydown",onKey);previous?.focus();};},[section]);
  const member=roster?.members.find(x=>x.id===id);
  const saved=()=>{setSection(null);void refresh().catch(()=>setError(t("memberUX.refreshFailed")));};
  const button=(target:Exclude<Section,null>,label:string)=>
@@ -89,13 +106,33 @@ export default function MemberDetail({id}:{id:string}){
    {tab==="location"&&<section className="smn-panel p-4"><h2 className="h5">{t("memberUX.locationTitle")}</h2>
     <MemberLocationEditor key={member.id+"-location"} memberId={member.id} teamName={roster?.team.name??""} onClose={()=>setTab("profile")}/>
    </section>}
-   {tab==="history"&&<section className="smn-panel p-4"><h2 className="h5">{t("memberUX.tabs.history")}</h2>
-    <p>{t("memberUX.historyHelp")}</p>
-    {button("lifecycle",t("memberUX.lifecycleEdit"))}
+   {tab==="history"&&<section className="smn-panel p-4"><div className="d-flex align-items-center gap-3"><h2 className="h5 mb-0">{t("memberUX.tabs.history")}</h2>{button("lifecycle",t("memberUX.lifecycleEdit"))}</div>
+    {historyError&&<p role="alert" className="alert alert-warning">{t("memberUX.loadFailed")}</p>}
+    {!history&&!historyError&&<p role="status">{t("memberUX.loading")}</p>}
+    {history&&<div className="mt-3">
+     {history.assignments.length===0&&!history.archived&&<p>{t("memberUX.emptyHistory")}</p>}
+     <ol className="list-group list-group-numbered">
+      {history.assignments.map((a,i)=><li key={i} className="list-group-item">
+       {t("memberUX.assignmentStart",{date:a.startOn})}
+       {a.endOn&&<span className="ms-2 text-secondary">→ {a.endOn}</span>}
+      </li>)}
+      {history.archived&&<li className="list-group-item">{t("memberUX.archived")}{history.archivedAt?" · "+history.archivedAt.slice(0,10):""}</li>}
+     </ol>
+    </div>}
    </section>}
-   {section==="profile"&&<MemberProfileEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={()=>setSection(null)}/>}
-   {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
-   {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
+   {section&&<div className="smn-member-modal-backdrop" role="presentation">
+    <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={t("memberUX.edit",{name:section})} ref={dialogRef}>
+     <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+      <strong>{t("memberUX.edit",{name:section})}</strong>
+      <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={()=>setSection(null)}/>
+     </div>
+     <div className="p-3">
+      {section==="profile"&&<MemberProfileEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
+     </div>
+    </div>
+   </div>}
   </div>}
  </div>;
 }
