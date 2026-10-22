@@ -3,7 +3,7 @@ import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 type Member={id:string;displayName:string;email:string|null;professionalFunction?:string|null;revision:number};
 type Location={revision:number;countryIso2:string|null;region:string|null;city:string|null;timeZone:string|null};
-type LocationState={today:string;current:Location|null;versions:{revision:number}[];suggestedCountryIso2:string|null};
+type LocationState={today:string;current:Location|null;versions:{revision:number;effective_from:string;country_iso2:string|null;region:string|null;city:string|null;time_zone:string|null}[];suggestedCountryIso2:string|null};
 export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:Member;onSaved:()=>void;onCancel:()=>void}){
  const t=useTranslation();
  const [name,setName]=useState(member.displayName);
@@ -19,8 +19,9 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
 
  useEffect(()=>{let active=true;fetch("/api/admin/members/"+encodeURIComponent(member.id)+"/location",{cache:"no-store"})
   .then(async r=>{if(!r.ok)throw Error("load");return r.json() as Promise<LocationState>;})
-  .then(v=>{if(!active)return;setLocation(v);setCountry(v.current?.countryIso2??v.suggestedCountryIso2??"");
-   setRegion(v.current?.region??"");setCity(v.current?.city??"");setZone(v.current?.timeZone??"");
+  .then(v=>{if(!active)return;setLocation(v);const latest=v.versions.at(-1);
+   setCountry(latest?.country_iso2??v.current?.countryIso2??v.suggestedCountryIso2??"");
+   setRegion(latest?.region??v.current?.region??"");setCity(latest?.city??v.current?.city??"");setZone(latest?.time_zone??v.current?.timeZone??"");
 })
   .catch(()=>{if(active)setError(t("memberUX.loadFailed"));});
   return()=>{active=false;};},[member.id,t]);
@@ -33,7 +34,8 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
     body:JSON.stringify({displayName:name.trim(),email:email.trim()||null,professionalFunction:profession.trim()||null,
      revision:member.revision,location:{countryIso2:country.trim().toUpperCase()||null,
       region:region.trim()||null,city:city.trim()||null,timeZone:zone.trim()||null,
-      effectiveFrom:location.today,revision:latest?.revision??0}})});
+      effectiveFrom:latest&&latest.effective_from>location.today?latest.effective_from:location.today,
+      revision:latest?.revision??0}})});
    if(!r.ok)throw Error("identity-"+r.status);
    onSaved();
   }catch(err){setError(t("memberUX.identitySaveFailed")+(err instanceof Error?" ("+err.message+")":""));}
