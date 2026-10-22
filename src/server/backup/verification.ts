@@ -29,8 +29,8 @@ export type BackupInventoryEntry=Readonly<{
 class VerificationProblem extends Error {
  constructor(public status:VerificationStatus,public code:string){super(code);}
 }
-const invalid=(code:string):never=>{throw new VerificationProblem("invalid",code);};
-const incomplete=(code:string):never=>{throw new VerificationProblem("incomplete",code);};
+function invalid(code:string):never {throw new VerificationProblem("invalid",code);}
+function incomplete(code:string):never {throw new VerificationProblem("incomplete",code);}
 const record=(value:unknown):Record<string,unknown>|null=>
  value!==null&&typeof value==="object"&&!Array.isArray(value)?value as Record<string,unknown>:null;
 const utc=(value:unknown):value is string=>
