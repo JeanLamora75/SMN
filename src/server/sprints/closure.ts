@@ -2,9 +2,12 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintGoalsSchema} from "./goals";
 import {ensureStoryPointsSchema} from "./story-points";
+import {ensureActualDurationSchema} from "./actual-duration";
+import {ensureExceptionalImpactSchema} from "./exceptional-capacity-impact";
 
 export async function ensureClosureSchema(db:Client){
  await ensureSprintGoalsSchema(db);await ensureStoryPointsSchema(db);
+ await ensureActualDurationSchema(db);await ensureExceptionalImpactSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_closure_snapshot (
  id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
  version integer NOT NULL CHECK(version>=1),
