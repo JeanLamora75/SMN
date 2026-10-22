@@ -1,7 +1,7 @@
 # Contrat UX — Calendrier de sprint / période en cartes de sept jours
 
 **SMN | Sally, designer UX BMAD | 22 octobre 2026**  
-**Statut : décisions fonctionnelles et UX validées en conversation ; développement et recette NON exécutés.**  
+**Statut : décisions fonctionnelles et UX validées en conversation, y compris rectification « férié en semaine = + autorisé » ; développement et recette NON exécutés.**  
 **Périmètre cible :** page Calendrier de l'équipe ; Scrum = sprint, Kanban = période ; présentation des réunions et création dans une fenêtre modale. Les droits, modèles, API et règles d'intégrité existants restent applicables.
 
 ## 1. Décisions fermes et priorités
@@ -12,8 +12,8 @@
 | CAL-02 | Avec au moins un sprint/période, **privilégier nettement celui en cours** ; sinon prendre le plus récent | Déterminer le contexte de l'équipe avant de construire la plage |
 | CAL-03 | **7 cartes par ligne, une par date, à partir de la première date de la période** ; l'entête des colonnes est une séquence de sept **noms de jours**, commençant par le nom du premier jour de la période | Sprint commençant mercredi = Mercredi, Jeudi, Vendredi, Samedi, Dimanche, Lundi, Mardi ; pas de cases lundi/mardi artificielles avant son début |
 | CAL-04 | Une carte = une date au sein de la période ; en tête de la carte **numéro du jour + abréviation du mois sur trois caractères** dans la langue active (ex. « 21 OCT » en français) | Respect des changements de mois et d'année |
-| CAL-05 | **Samedis, dimanches et jours fériés applicables = journées non ouvrées** ; leur carte est **grisée**, et **n'affiche aucun « + »** pour créer une réunion | Pas de commande de création de réunion sur un jour non ouvré/férié |
-| CAL-06 | La carte de **la date d'aujourd'hui** est mise en évidence par une **bordure plus épaisse et/ou colorée** ; l'effet s'ajoute au fond grisé éventuel | Un jour férié actuel reste gris ET reçoit la bordure d'aujourd'hui ; aucun « + » |
+| CAL-05 | **Samedi/dimanche : carte grisée SANS bouton +. Jour férié en semaine : carte grisée AVEC bouton + Réunion** si l'utilisateur et la période l'autorisent. | Le gris signale une disponibilité particulière ; il ne suffit pas à interdire l'ajout d'une réunion pour une équipe internationale. |
+| CAL-06 | La carte de **la date d'aujourd'hui** est mise en évidence par une **bordure plus épaisse et/ou colorée** ; l'effet s'ajoute au fond grisé éventuel | Aujourd'hui, s'il est férié en semaine, reçoit à la fois le fond gris ET la bordure, et conserve le + s'il est autorisé ; si samedi/dimanche, pas de +. |
 | CAL-07 | Liste des **réunions du jour en ordre croissant d'heure de début**, à l'intérieur de sa carte | Tri stable en cas d'horaires identiques ; seuls vrais événements enregistrés sont affichés |
 | CAL-08 | **Survol du NOM d'une réunion** : afficher un petit tooltip avec **heure de début ET heure de fin** | Heures locales issues de la zone IANA effective, sans décalage déduit du navigateur |
 | CAL-09 | **Clic sur le NOM d'une réunion** : naviguer sur **la page dédiée à cette réunion** (et non ouvrir sa modification en place) | Lien réel vers la réunion par ID ; ne pas inventer de route existante |
@@ -54,13 +54,13 @@ Légende : Aujourd'hui = contour renforcé • Jours non ouvrés/fériés = fond
 | +           | +           | +           |             |             |            |            |
 ~~~
 
-**Nota** : jours/réunions ci-dessus **fictifs**. Une journée fériée en semaine (ex. si date applicable) se présente exactement comme le week-end, sans « + ». Si elle est aussi aujourd'hui, sa bordure d'aujourd'hui est visible.
+**Nota** : jours/réunions ci-dessus **fictifs**. Une journée fériée **en semaine** garde le fond grisé des jours non ouvrés **mais conserve « + Réunion »** (si création autorisée), car elle peut n'être fériée que pour certains membres. Le week-end reste grisé **sans +**. Si la date est aujourd'hui, sa bordure spécifique reste visible.
 
 - Utiliser la **largeur utile derrière la sidebar** : sept colonnes desktop lisibles avec cartes de hauteur cohérente. Pas de conteneur global max-width: 870px empêchant l'affichage.
 - Éviter les débordements des libellés réunion, tout en les gardant suffisamment lisibles. Cas très chargé : limiter visuellement la liste à N éléments puis « + X autres réunions » ouvrant une consultation des autres, **jamais confondre avec + de création**.
 - En-têtes de colonnes : vrais libellés de jours localisés. L'abréviation du mois en trois caractères dépend de la langue affichée, notamment gestion du séparateur et des accents.
 - État vide : carte avec date et « Aucune réunion » facultatif ; si ouvrée et autorisée, le « + » reste en bas, dans une bande distincte.
-- État férié : afficher éventuellement le **nom du jour férié** en petit, sans masquer les réunions existantes.
+- État férié : conserver le **fond grisé**, afficher si disponible le **nom du jour férié** et les pays concernés (sans affirmer que l'ensemble de l'équipe est indisponible), sans masquer les réunions existantes. Sur un **jour de semaine férié**, conserver **+ Réunion** si les droits et la période autorisent l'ajout.
 - La bordure « Aujourd'hui » doit être repérable **sans s'appuyer exclusivement sur la couleur** (épaisseur 2-3px ou indicateur textuel/sémantique). Ne pas confondre son état avec « sélectionné ».
 
 ## 4. Une réunion : consultation, survol, navigation
@@ -73,24 +73,30 @@ Légende : Aujourd'hui = contour renforcé • Jours non ouvrés/fériés = fond
 
 ## 5. Ajout d'une réunion : une modale uniquement sur jour ouvré
 
-- Chaque carte ouvrée ET autorisée possède au bas une **barre d'action « + Réunion »** (simple « + » visuel acceptable si l'icône possède un intitulé clair). **Aucun plus** sur samedi, dimanche ou **jour férié applicable**.
+- Chaque carte **du lundi au vendredi** dont la création est autorisée possède au bas une **barre « + Réunion »** (simple « + » possible avec intitulé accessible), **même si cette date est un jour férié pour certains membres**. **Aucun + sur samedi ou dimanche**, même si une réunion existe. Les permissions et contraintes de période continuent à s'appliquer. La teinte grise ne détermine pas seule les droits de création.
 - Clic : **modale centrée sur l'écran** avec fond grisé semi-transparent, focus dans le dialogue et date **préremplie à partir de la carte cliquée**.
 - Les champs doivent correspondre à l'API métier effective : à minima **nom/type, date, heure de début, heure de fin ou durée** ; champs additionnels seulement si reconnus. **Ne pas inventer un service générique** si les modèles de cérémonies Scrum et de réunions exceptionnelles sont distincts.
 - Boutons « Annuler » / « Enregistrer », validation temporelle (fin > début, dates, fuseau, contraintes du sprint), avertissement de chevauchement s'il existe ; ne jamais perdre le brouillon en fermant sans confirmation.
 - Après réussite, fermer la modale, actualiser la carte et maintenir la période et le scroll ; en erreur, conserver les saisies, afficher l'erreur et ne pas afficher fausse réussite.
 - La distinction **absence du + pour jour non ouvré** ne signifie pas qu'une réunion préexistante sur cette date est supprimée.
 
-## 6. Jours fériés : règle approuvée et dépendance métier à résoudre
+## 6. Jours fériés et équipes internationales — décision RECTIFICATIVE validée le 22/10/2026
 
-**Règle non négociable : un jour férié applicable vaut un jour non ouvré pour les cartes et ne possède PAS de bouton +.**
+**La présente section REMPLACE explicitement la règle précédente « jour férié sans + ».**
 
-**Fait technique vérifié sur main** : dans src/server/members/team-calendar.ts, la reconnaissance du férié national est fondée sur le **pays effectif de la localisation de chaque membre** et la couverture des calendriers nationaux ; src/server/members/central-calendar.ts agrège ensuite les entrées. Il n'existe pas, dans cette implémentation actuellement inspectée, de garantie qu'**un jour soit férié pour toute l'équipe** quand ses membres sont situés dans des pays différents.
+**Règle UX définitive :**
+1. **Samedi/dimanche** : carte grisée **sans +**, même si des réunions antérieures y existent (elles restent consultables).
+2. **Lundi–vendredi, jour férié connu** : carte **grisée comme un jour non ouvré**, mais **avec + Réunion** si l'utilisateur a le droit de créer une réunion et si l'état du sprint/de la période le permet. Le jour férié de certains membres **n'interdit pas** une réunion de l'ensemble de l'équipe.
+3. **Lundi–vendredi normal** : carte non grisée avec + lorsque création autorisée.
+4. **Aujourd'hui** : bordure épaisse/colorée **indépendante** du fond grisé et de la présence du +.
+5. **Avertissement non bloquant recommandé** au clic sur + d'un jour férié connu : « Ce jour est férié pour certains membres de l'équipe. Vérifiez leur disponibilité. » Ne jamais laisser entendre que toutes les personnes sont nécessairement indisponibles. Cet avertissement n'annule pas les autres contrôles métier (droits, période fermée, date invalide, chevauchements).
+6. Les réunions déjà enregistrées restent visibles quel que soit le type de jour.
 
-**Décision restant nécessaire avant le développement des droits de création** : identifier le **calendrier de référence de l'équipe** pour déterminer si le jour est férié (et donc désactiver +), notamment pour une équipe internationale. Ne pas appliquer par défaut « si un seul membre est férié, tout le monde l'est » ni « jour férié de l'utilisateur connecté » sans validation. Un calendrier collectif spécifique, un pays de référence explicite ou un choix équivalent devra être établi à partir des données disponibles et confirmé.
+**Fait technique vérifié sur main à la rédaction du contrat initial** : dans src/server/members/team-calendar.ts, les jours fériés nationaux sont résolus selon le **pays effectif de chaque membre**, et non un pays nécessairement commun à l'équipe. La règle rectificative **élimine l'obligation de déterminer un pays commun pour autoriser le +** : c'est le jour de la semaine et la permission métier qui gouvernent l'action. La nuance pays/membres demeure nécessaire **pour afficher honnêtement le grisé et un éventuel libellé férié**. Proposition d'implémentation à confirmer techniquement : griser si au moins un calendrier national applicable connu signale le jour comme férié pour un membre concerné, en affichant un indicateur « férié pour certains membres » plutôt que « férié pour toute l'équipe ».
 
-Si la couverture des données fériées est inconnue ou indisponible, l'application doit le **signaler explicitement** et appliquer une règle de création définie au préalable ; ne pas classer silencieusement « ouvré » un jour dont le statut férié est inconnu.
+**Calendriers partiels ou indisponibles** : ne pas inventer le caractère férié ni bloquer automatiquement la création du fait d'une couverture inconnue ; distinguer clairement « inconnu » de « non férié » quand c'est utile.
 
-Les **fermetures d'entreprise** existent par ailleurs ; leur assimilation exacte à un jour sans + mérite une décision fonctionnelle séparée, non implicite dans cette validation.
+Les **fermetures collectives de l'entreprise** constituent un cas métier différent et restent à arbitrer séparément ; leur gestion ne doit pas être implicitement assimilée à la règle des jours fériés individuels.
 
 ## 7. Inventaire technique vérifié sur main avant développement
 
@@ -109,7 +115,7 @@ Les **fermetures d'entreprise** existent par ailleurs ; leur assimilation exacte
 ## 8. Découpage recommandé pour Amelia (sans écriture Jira dans cet avenant)
 
 - **C1 — Période/calendrier** : résolution par équipe, préférence période en cours, fallback mois complet, 7 colonnes cycliques à partir du premier jour, navigation.
-- **C2 — Jours non ouvrés** : samedi/dimanche + jours fériés applicables, grisé sans bouton +, aujourd'hui contour accentué ; lever la dépendance du référentiel férié de l'équipe.
+- **C2 — Jours non ouvrés et fériés** : week-ends gris sans + ; fériés de semaine gris AVEC + si autorisé, avec information non bloquante sur les membres potentiellement concernés ; aujourd'hui contour accentué ; vérifier la signalisation fériée multi-pays.
 - **C3 — Réunions et page de détail** : source des réunions, tri chronologique, tooltip des deux heures, vrai lien vers page dédiée avec autorisation.
 - **C4 — Création modale** : plus sur jours ouvrés autorisés, date préremplie, contrôles métier, persistance, erreurs, rafraîchissement.
 - **C5 — Recette et compatibilité** : responsive, clavier, i18n, fuseaux, sprints Kanban, droits, contenus existants de calendrier collectif conservés ou relocalisés selon un choix UX explicitement documenté.
