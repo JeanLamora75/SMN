@@ -7,6 +7,8 @@ const evaluation=["not_evaluated","achieved","partially_achieved","not_achieved"
 export default function GoalsForm(){
  const t=useTranslation();const [sprints,setSprints]=useState<Sprint[]>([]),[sprintId,setSprintId]=useState(""),[sprint,setSprint]=useState<Sprint|null>(null),[goals,setGoals]=useState<Goal[]>([]);
  const [title,setTitle]=useState(""),[comment,setComment]=useState(""),[editing,setEditing]=useState(""),[status,setStatus]=useState<string>("not_evaluated");
+ const dirty=Boolean(title.trim()||comment.trim()||editing);
+ useEffect(()=>{const handler=(e:BeforeUnloadEvent)=>{if(dirty){e.preventDefault();e.returnValue="";}};window.addEventListener("beforeunload",handler);return ()=>window.removeEventListener("beforeunload",handler);},[dirty]);
  const [error,setError]=useState(""),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
  useEffect(()=>{fetch("/api/admin/sprints/states").then(r=>r.json()).then(j=>setSprints(j.sprints??[])).catch(()=>setError(t("sprintGoals.error")));},[t]);
  async function load(id:string){setSprintId(id);setEditing("");setTitle("");setComment("");setStatus("not_evaluated");setSprint(null);setGoals([]);if(!id)return;
@@ -18,8 +20,8 @@ export default function GoalsForm(){
  setMessage(t("sprintGoals.saved"));await load(sprintId);}
  catch{setError(t("sprintGoals.error"));}finally{setBusy(false);}}
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("sprintGoals.title")}</h2>
- <label className="form-label" htmlFor="goal-sprint">{t("sprintGoals.choose")}</label><select id="goal-sprint" className="form-select" value={sprintId} onChange={e=>load(e.target.value)}><option value="">—</option>{sprints.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select>
- {sprint&&<><h3 className="h5 mt-3">{sprint.name}</h3><p>{sprint.startAt.slice(0,10)} — {sprint.endAt.slice(0,10)}</p>
+ <label className="form-label" htmlFor="goal-sprint">{t("sprintGoals.choose")}</label><select id="goal-sprint" className="form-select" value={sprintId} onChange={e=>{if(!dirty||window.confirm(t("sprintReview.discard")))void load(e.target.value);}}><option value="">—</option>{sprints.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select>
+ {dirty&&<p role="status" className="text-warning">{t("sprintReview.unsaved")}</p>}{sprint&&<><h3 className="h5 mt-3">{sprint.name}</h3><p>{sprint.startAt.slice(0,10)} — {sprint.endAt.slice(0,10)}</p>
  <ul className="list-group mb-3">{goals.map(g=><li key={g.id} className="list-group-item d-flex justify-content-between"><span><strong>{g.title}</strong> — {t("sprintGoals."+g.evaluation)}{g.comment&&<span className="d-block small">{g.comment}</span>}</span><button type="button" className="btn btn-outline-secondary btn-sm" disabled={sprint.status==="closed"} onClick={()=>edit(g)}>{t("sprintGoals.edit")}</button></li>)}</ul>
  <label htmlFor="goal-title" className="form-label">{t("sprintGoals.goal")}</label><input id="goal-title" className="form-control mb-2" maxLength={240} required value={title} disabled={sprint.status==="closed"} onChange={e=>setTitle(e.target.value)}/>
  {editing&&<><label htmlFor="goal-status" className="form-label">{t("sprintGoals.evaluation")}</label><select id="goal-status" className="form-select mb-2" value={status} onChange={e=>setStatus(e.target.value)}>{evaluation.map(x=><option key={x} value={x}>{t("sprintGoals."+x)}</option>)}</select></>}
