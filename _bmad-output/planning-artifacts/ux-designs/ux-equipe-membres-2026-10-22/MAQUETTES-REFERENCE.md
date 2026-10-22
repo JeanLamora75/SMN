@@ -102,3 +102,9 @@ L'utilisateur a validé **l'ouverture de la pop-up** et l'effet métier attendu 
 - Pas d'image de personne demandée au MVP ; future sélection de portraits prédéfinis en v1 uniquement.
 - Les valeurs dans la fiche membre, y compris journées de 8h et les dates, ne doivent **pas** être prises pour des paramètres par défaut du système.
 - Les contrats [DESIGN.md](DESIGN.md) et [EXPERIENCE.md](EXPERIENCE.md) priment en cas de désaccord avec les exemples.
+
+## Illustration référencée et correction — 22/10/2026
+
+Les reconstructions vectorielles du dossier [references-visuelles](references-visuelles/cible-equipe-cartes.svg) permettent d'ouvrir séparément les trois vues approuvées : [Cartes](references-visuelles/cible-equipe-cartes.svg), [Liste](references-visuelles/cible-equipe-liste.svg) et [Fiche](references-visuelles/cible-fiche-membre.svg). La [comparaison de proportions](references-visuelles/comparaison-structure.svg) rend l'écart actuel explicite. Pour les faits observés et critères stricts, voir [AVENANT-UX-CORRECTIF-2026-10-22.md](AVENANT-UX-CORRECTIF-2026-10-22.md).
+
+**Ne pas prétendre que ces SVG sont les captures originales** : ils restituent les décisions graphiques déjà approuvées et leurs exemples sont fictifs.
