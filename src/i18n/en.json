@@ -1696,5 +1696,17 @@
     "active": "In progress",
     "finished": "Finished",
     "closed": "Closed"
+  },
+  "epic4WorkSlots": {
+    "title": "Working time slots",
+    "info": "Enter the team's half-day time ranges and time zone explicitly. Meetings are not deducted when this configuration is missing.",
+    "morningStart": "Morning start",
+    "morningEnd": "Morning end",
+    "afternoonStart": "Afternoon start",
+    "afternoonEnd": "Afternoon end",
+    "zone": "IANA time zone",
+    "save": "Save work slots",
+    "saved": "Work slots saved",
+    "error": "Configuration unavailable or conflicting"
   }
 }
