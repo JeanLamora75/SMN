@@ -146,3 +146,8 @@ body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground)
 .smn-calendar-meetings a:hover,.smn-calendar-meetings a:focus-visible{text-decoration:underline;}
 @media(max-width:1050px){.smn-calendar-grid{overflow-x:auto;display:grid;grid-template-columns:repeat(7,minmax(142px,1fr));}}
 @media(max-width:540px){.smn-calendar-grid{grid-template-columns:repeat(7,minmax(126px,1fr));}}
+
+
+/* SMN-226: settings catalogue links retain clear focus in both presentations. */
+.smn-settings-entry-link:hover{box-shadow:0 5px 18px rgba(0,0,0,.09);border-color:var(--smn-brand);}
+.smn-settings-entry-link:focus-visible{outline:3px solid var(--smn-brand);outline-offset:3px;}
