@@ -145,6 +145,7 @@ model SmnMemberBatch {
   @@map("smn_member_batch")
 }
 model SmnMember {
+ exceptionalMeetings SmnExceptionalMeetingParticipant[]
   id String @id
   installationId String @map("installation_id")
   batchId String @map("batch_id")
@@ -795,6 +796,8 @@ model SmnScrumTemplateOccurrence {
 }
 
 model SmnSprintExceptionalMeeting {
+ participants SmnExceptionalMeetingParticipant[]
+ participantAudits SmnExceptionalMeetingParticipantAudit[]
  impactsCapacity Boolean @default(false) @map("impacts_capacity")
  actualMinutes Int? @map("actual_minutes")
  id String @id
@@ -915,4 +918,24 @@ model SmnSprintClosureAudit {
  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
  sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
  @@map("smn_sprint_closure_audit")
+}
+
+model SmnExceptionalMeetingParticipant {
+ meetingId String @map("meeting_id")
+ memberId String @map("member_id")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
+ member SmnMember @relation(fields:[memberId],references:[id],onDelete:Restrict)
+ @@id([meetingId,memberId])
+ @@map("smn_exceptional_meeting_participant")
+}
+model SmnExceptionalMeetingParticipantAudit {
+ id String @id
+ meetingId String @map("meeting_id")
+ beforeMemberIds Json @map("before_member_ids") @db.JsonB
+ afterMemberIds Json @map("after_member_ids") @db.JsonB
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
+ @@map("smn_exceptional_meeting_participant_audit")
 }
