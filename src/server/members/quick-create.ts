@@ -10,7 +10,7 @@ export type QuickMember=Readonly<{
  developmentCapacityJh:null;
 }>;
 export type MemberListItem=Readonly<Omit<QuickMember,"email"|"revision"|"isProvisional"|"agileRole"|"startOn"|"contractPercent"|"allocationPercent"|"rolePercent"|"contributionPercent"|"developmentCapacityJh"> & {
- email:string|null;revision:number;isProvisional:boolean;agileRole:AgileRole|null;startOn:string|null;
+ email:string|null;professionalFunction:string|null;revision:number;isProvisional:boolean;agileRole:AgileRole|null;startOn:string|null;
  endOn:string|null;archived:boolean;archivedAt:string|null;isAssigned:boolean;contractPercent:number;allocationPercent:number;rolePercent:number;
  contributionPercent:number;roleShares:Readonly<{scrumMaster:number;productOwner:number;developer:number}>;developmentCapacityJh:null;
 }>;
@@ -47,13 +47,13 @@ async function installedTeam(client:Client):Promise<TeamMembers["team"]>{
   throw new Error("members-team-unavailable");
  return {id:team.rows[0].team_id,name:team.rows[0].team_name,mode:team.rows[0].mode};
 }
-type MemberRow={id:string;member_number:number;display_name:string;email:string|null;revision:number;
+type MemberRow={id:string;member_number:number;display_name:string;email:string|null;professional_function:string|null;revision:number;
  is_provisional:boolean;archived_at:string|null;agile_role:AgileRole|null;start_on:string|null;
  end_on:string|null;contract_percent:number;contribution_percent:number;
  allocation_percent:number|null;role_percent:number|null;
  v_contract:number|null;v_allocation:number|null;v_contribution:number|null;
  v_sm:number|null;v_po:number|null;v_dev:number|null};
-const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,m.revision,m.is_provisional,
+const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,m.professional_function,m.revision,m.is_provisional,
  m.archived_at::text AS archived_at,m.contract_percent,m.contribution_percent,
  a.agile_role,a.start_on::text AS start_on,a.end_on::text AS end_on,
  a.allocation_percent,a.role_percent,v.contract_percent AS v_contract,
@@ -86,7 +86,7 @@ function project(row:MemberRow):MemberListItem{
   shares.developer>=shares.scrumMaster&&shares.developer>=shares.productOwner?
    "developer":shares.scrumMaster>=shares.productOwner?"scrum_master":"product_owner";
  return {id:row.id,memberNumber:row.member_number,displayName:row.display_name,
-  email:row.email??null,revision:row.revision??0,isProvisional:row.is_provisional,
+  email:row.email??null,professionalFunction:row.professional_function??null,revision:row.revision??0,isProvisional:row.is_provisional,
   agileRole:primary,startOn:row.start_on,endOn:row.end_on,
   archived:row.archived_at!=null,archivedAt:row.archived_at??null,
   isAssigned:row.start_on!==null&&row.end_on===null,
@@ -170,7 +170,7 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
      VALUES($1,$2,1,$3::date,$4,NULL,NULL,NULL,'installation-default',$5)`,
      [randomUUID(),id,startOn,defaultCountry,actorId]);
    }
-   members.push({id,memberNumber,displayName,email:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
+   members.push({id,memberNumber,displayName,email:null,professionalFunction:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
     contractPercent:100,allocationPercent:100,rolePercent:100,contributionPercent:100,
     roleShares:{scrumMaster:role==="scrum_master"?100:0,productOwner:role==="product_owner"?100:0,developer:role==="developer"?100:0},
     developmentCapacityJh:null});
