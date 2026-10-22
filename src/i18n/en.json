@@ -1760,6 +1760,7 @@
       "history": "History"
     },
     "historyHelp": "Assignment and status changes are available in the respective management screens.",
-    "functionMissing": "Job title not specified"
+    "functionMissing": "Job title not specified",
+    "emptyHistory": "No entries yet"
   }
 }
