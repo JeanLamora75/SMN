@@ -1520,5 +1520,17 @@
     "saved": "Modèle enregistré.",
     "error": "Impossible d'enregistrer le modèle.",
     "capacity": "Les cérémonies ne sont jamais déduites de la capacité Développeur."
+  },
+  "templateOccurrences": {
+    "title": "Occurrences des modèles personnalisés",
+    "info": "Les occurrences restent liées à la version du modèle utilisée lors de leur création, même si le modèle est désactivé.",
+    "refresh": "Actualiser",
+    "empty": "Aucune occurrence personnalisée à afficher.",
+    "meeting": "Réunion",
+    "sprint": "Sprint",
+    "period": "Horaire local",
+    "version": "Version",
+    "inactive": "Modèle désactivé",
+    "error": "Impossible de charger les occurrences."
   }
 }
