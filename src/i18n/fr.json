@@ -1595,5 +1595,20 @@
     "cancel": "Annuler",
     "saved": "Dates du Sprint modifiées et auditées.",
     "error": "La replanification a échoué."
+  },
+  "sprintGoals": {
+    "title": "Objectifs du Sprint",
+    "choose": "Choisir un Sprint",
+    "goal": "Objectif",
+    "evaluation": "Évaluation",
+    "comment": "Commentaire facultatif",
+    "edit": "Modifier",
+    "save": "Enregistrer",
+    "saved": "Objectif enregistré.",
+    "error": "Impossible de charger ou enregistrer l'objectif.",
+    "not_evaluated": "Non évalué",
+    "achieved": "Atteint",
+    "partially_achieved": "Partiellement atteint",
+    "not_achieved": "Non atteint"
   }
 }
