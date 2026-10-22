@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
 type Member={id:string;displayName:string;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
@@ -13,12 +13,33 @@ export default function TeamOverview(){
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [view,setView]=useState<View>("cards");
  const [creationOpen,setCreationOpen]=useState(false);
+ const [newName,setNewName]=useState("");
+ const [creating,setCreating]=useState(false);
+ const [createError,setCreateError]=useState("");
+ const requestId=useRef<string|null>(null);
  useEffect(()=>{try{if(sessionStorage.getItem(CHOICE)==="list")setView("list");}catch{}},[]);
  useEffect(()=>{let alive=true;fetch("/api/admin/members",{cache:"no-store"})
   .then(async r=>{if(!r.ok)throw Error("members");return r.json() as Promise<Roster>;})
   .then(v=>{if(alive){setRoster(v);setStatus("ready");}})
   .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};},[]);
  function choose(next:View){setView(next);try{sessionStorage.setItem(CHOICE,next);}catch{}}
+ async function createOne(e:FormEvent<HTMLFormElement>){
+  e.preventDefault();if(!roster||creating||!newName.trim())return;
+  setCreating(true);setCreateError("");
+  requestId.current??=crypto.randomUUID();
+  try{
+   const r=await fetch("/api/admin/members",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({teamId:roster.team.id,displayName:newName.trim(),requestId:requestId.current})});
+   const body=await r.json() as {error?:string};
+   if(!r.ok)throw Error(body.error??"service");
+   const refreshed=await fetch("/api/admin/members",{cache:"no-store"});
+   if(!refreshed.ok)throw Error("refresh-failed");
+   setRoster(await refreshed.json() as Roster);
+   setCreationOpen(false);setNewName("");requestId.current=null;
+  }catch(err){setCreateError(err instanceof Error?err.message:"service");}
+  finally{setCreating(false);}
+ }
  const members=(roster?.members??[]).filter(m=>!m.archived);
  const capacity=Math.max(12,Math.ceil((members.length+1)/6)*6);
  const roles=(m:Member)=>([["SM",m.roleShares?.scrumMaster],["PO",m.roleShares?.productOwner],["Dev",m.roleShares?.developer]] as const);
@@ -56,8 +77,20 @@ export default function TeamOverview(){
    <div className="modal-dialog modal-dialog-centered"><div className="modal-content">
     <div className="modal-header"><h2 className="modal-title fs-5" id="team-create-title">Ajouter un membre</h2>
      <button className="btn-close" aria-label="Fermer" onClick={()=>setCreationOpen(false)}/></div>
-    <div className="modal-body"><p>La création individuelle après initialisation nécessite une évolution de l’API. Aucune fiche fictive ne sera créée.</p></div>
-    <div className="modal-footer"><button className="btn btn-secondary" onClick={()=>setCreationOpen(false)}>Fermer</button></div>
+    <form onSubmit={e=>void createOne(e)}>
+     <div className="modal-body">
+      <label className="form-label" htmlFor="new-team-member">Nom du membre</label>
+      <input id="new-team-member" className="form-control" maxLength={120} required autoFocus
+       value={newName} disabled={creating}
+       onChange={e=>{setNewName(e.target.value);setCreateError("");requestId.current=null;}}/>
+      <p className="small text-secondary mt-2">Rôle Agile initial : Développeur. Modifiable dans la fiche du membre.</p>
+      {createError&&<p role="alert" className="alert alert-warning">Création impossible : {createError}</p>}
+     </div>
+     <div className="modal-footer">
+      <button type="button" className="btn btn-secondary" disabled={creating} onClick={()=>setCreationOpen(false)}>Annuler</button>
+      <button type="submit" className="btn btn-primary" disabled={creating||!newName.trim()}>Créer le membre</button>
+     </div>
+    </form>
    </div></div></div>}
  </section>;
 }
