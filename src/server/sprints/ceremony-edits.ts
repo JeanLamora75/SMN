@@ -43,7 +43,7 @@ export async function editCeremony(db:Client,actorId:string,id:string,raw:unknow
   if(initial.occurrence_status!=="scheduled"){await db.query("ROLLBACK");return {ok:false as const,error:"protected" as const};}
   if(o.scope==="following"&&initial.kind!=="daily"){await db.query("ROLLBACK");return {ok:false as const,error:"invalid-input" as const};}
   const candidates=o.scope==="single"?[initial]: (await db.query<typeof initial>(`SELECT id,sprint_id,kind,starts_at::text,ends_at::text,minutes,revision,occurrence_status FROM public.smn_sprint_ceremony
-  WHERE sprint_id=$1 AND kind='daily' AND starts_at >= $2 AND occurrence_status='scheduled' ORDER BY starts_at FOR UPDATE`,[initial.sprint_id,initial.starts_at])).rows;
+  WHERE sprint_id=$1 AND kind='daily' AND starts_at >= $2 AND starts_at > now() AND occurrence_status='scheduled' ORDER BY starts_at FOR UPDATE`,[initial.sprint_id,initial.starts_at])).rows;
   const shift=Date.parse(String(o.startAt))-Date.parse(initial.starts_at);
   const changed=[];
   let warningCount=0;
