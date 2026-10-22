@@ -1,0 +1,84 @@
+import {randomUUID} from "node:crypto";
+import type {Client} from "pg";
+export type TemplateInput={name:string;frequency:"daily"|"weekly"|"sprint";weekday:number|null;position:"start"|"end"|null;time:string;duration:number};
+const validTime=(v:unknown):v is string=>typeof v==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
+export function parseTemplate(raw:unknown):TemplateInput|null{
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
+ const v=raw as Record<string,unknown>;
+ if(Object.keys(v).sort().join(",")!==["duration","frequency","name","position","time","weekday"].sort().join(","))return null;
+ if(typeof v.name!=="string"||!v.name.trim()||v.name.trim().length>120||!validTime(v.time)||
+ !Number.isInteger(v.duration)||Number(v.duration)<1||Number(v.duration)>480)return null;
+ if(v.frequency==="daily"&&v.weekday===null&&v.position===null||
+ v.frequency==="weekly"&&Number.isInteger(v.weekday)&&Number(v.weekday)>=1&&Number(v.weekday)<=7&&v.position===null||
+ v.frequency==="sprint"&&v.weekday===null&&(v.position==="start"||v.position==="end"))
+ return {name:v.name.trim(),frequency:v.frequency,weekday:v.weekday as number|null,position:v.position as "start"|"end"|null,time:v.time,duration:v.duration as number};
+ return null;
+}
+export async function ensureTemplateSchema(db:Client){
+ await db.query(`CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template(
+ id text PRIMARY KEY,
+ team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
+ name text NOT NULL CHECK(length(btrim(name)) BETWEEN 1 AND 120),
+ frequency text NOT NULL CHECK(frequency IN ('daily','weekly','sprint')),
+ weekday integer CHECK(weekday BETWEEN 1 AND 7),
+ position text CHECK(position IN ('start','end')),
+ local_time time NOT NULL,
+ duration_minutes integer NOT NULL CHECK(duration_minutes BETWEEN 1 AND 480),
+ active boolean NOT NULL DEFAULT true,
+ revision integer NOT NULL DEFAULT 1,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now(),
+ CHECK((frequency='daily' AND weekday IS NULL AND position IS NULL)
+ OR (frequency='weekly' AND weekday IS NOT NULL AND position IS NULL)
+ OR (frequency='sprint' AND weekday IS NULL AND position IS NOT NULL)))`);
+ await db.query(`CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template_history(
+ id text PRIMARY KEY,
+ template_id text NOT NULL REFERENCES public.smn_scrum_ceremony_template(id) ON DELETE RESTRICT,
+ revision integer NOT NULL,
+ before_values jsonb,
+ after_values jsonb NOT NULL,
+ actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
+ changed_at timestamptz NOT NULL DEFAULT now(),
+ UNIQUE(template_id,revision))`);
+}
+async function activeTeam(db:Client){
+ const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
+ WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
+ if(r.rows.length!==1)throw Error("scrum-team-unavailable");
+ return r.rows[0].id;
+}
+export async function listTemplates(db:Client){
+ await ensureTemplateSchema(db);const teamId=await activeTeam(db);
+ const r=await db.query(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,active,revision
+ FROM public.smn_scrum_ceremony_template WHERE team_id=$1 ORDER BY created_at,id`,[teamId]);
+ return r.rows;
+}
+export async function saveTemplate(db:Client,actorId:string,raw:unknown){
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input" as const};
+ const obj=raw as Record<string,unknown>;
+ const input=parseTemplate(obj.template);if(!input||Object.keys(obj).some(k=>!["id","revision","template","active"].includes(k)))return {ok:false as const,error:"invalid-input" as const};
+ if(obj.active!==undefined&&typeof obj.active!=="boolean")return {ok:false as const,error:"invalid-input" as const};
+ const isUpdate=typeof obj.id==="string"&&/^[0-9a-f-]{36}$/i.test(obj.id);
+ if(obj.id!==undefined&&!isUpdate||isUpdate&&(!Number.isSafeInteger(obj.revision)||Number(obj.revision)<1))return {ok:false as const,error:"invalid-input" as const};
+ await ensureTemplateSchema(db);const teamId=await activeTeam(db);
+ await db.query("BEGIN");
+ try{
+  const id=isUpdate?obj.id as string:randomUUID();
+  let before:Record<string,unknown>|null=null;
+  if(isUpdate){
+   const old=await db.query(`SELECT * FROM public.smn_scrum_ceremony_template WHERE id=$1 AND team_id=$2 FOR UPDATE`,[id,teamId]);
+   if(!old.rows[0]||old.rows[0].revision!==obj.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};}
+   before=old.rows[0];
+   await db.query(`UPDATE public.smn_scrum_ceremony_template SET name=$3,frequency=$4,weekday=$5,position=$6,local_time=$7,duration_minutes=$8,active=$9,
+   revision=revision+1,updated_at=now() WHERE id=$1 AND team_id=$2`,
+   [id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??before.active]);
+  }else{
+   await db.query(`INSERT INTO public.smn_scrum_ceremony_template(id,team_id,name,frequency,weekday,position,local_time,duration_minutes,active)
+   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??true]);
+  }
+  const revision=isUpdate?Number(obj.revision)+1:1;
+  await db.query(`INSERT INTO public.smn_scrum_ceremony_template_history(id,template_id,revision,before_values,after_values,actor_id)
+  VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,[randomUUID(),id,revision,before?JSON.stringify(before):null,JSON.stringify({...input,active:obj.active??before?.active??true}),actorId]);
+  await db.query("COMMIT");return {ok:true as const,id,revision};
+ }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
