@@ -10,7 +10,7 @@ const id=randomUUID();
 const base={countryIso2:"FR",region:"Île-de-France",city:"Paris",timeZone:"Europe/Paris",
  effectiveFrom:"2026-10-21",revision:0};
 const first={revision:1,effective_from:"2026-10-21",country_iso2:"FR",
- region:"Île-de-France",city:"Paris",time_zone:"Europe/Paris",source:"manual",
+ region:"Île-de-France",city:"Paris",time_zone:"Europe/Paris",source:"manual" as const,
  created_at:"2026-10-21T10:00:00Z"};
 function mock(options:{versions?:typeof first[];reference?:string|null;archived?:boolean;fail?:boolean}={}){
  const sql:string[]=[],parameters:unknown[][]=[];
