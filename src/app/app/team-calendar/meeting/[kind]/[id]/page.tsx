@@ -16,7 +16,7 @@ export default async function MeetingPage({params}:{params:Promise<{kind:string;
  const row=await withAuthDb(async db=>{
   const sql=kind==="ceremony"?
    `SELECT (s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,
-    c.ends_at::text AS end_at,COALESCE(c.status,'scheduled') AS status
+    c.ends_at::text AS end_at,'scheduled' AS status
     FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE i.id='singleton' AND s.deleted_at IS NULL AND c.id=$1`:
