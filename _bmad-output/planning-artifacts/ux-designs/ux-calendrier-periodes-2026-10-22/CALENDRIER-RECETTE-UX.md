@@ -30,10 +30,14 @@
 | CAL-A24 | Ancien calendrier collectif / absences | Données et accès existants toujours présents ou repositionnement documenté, sans fuite de données | Non testé |
 | CAL-A25 | Samedi/dimanche coïncidant avec un jour férié | Carte grise et **sans +**, même si férié ; la règle week-end prime sur l'exception fériée de semaine | Non testé |
 | CAL-A26 | Clic sur + d'un férié de semaine | Modale de création ouverte avec date préremplie ; information de disponibilité non bloquante, sans faux message « toute l'équipe est absente » | Non testé |
+| CAL-A27 | Jour férié en semaine avec nom et une réunion | **Nom du jour férié immédiatement sous JJ MMM**, aucun grand espace entre eux ; **première réunion séparée par un espace visible** ; + présent si droit | Non testé |
+| CAL-A28 | Jour ordinaire avec une réunion | **Première réunion visiblement décollée de JJ MMM**, avec un espace comparable au jour férié ; aucun libellé férié vide | Non testé |
+| CAL-A29 | Plusieurs jours fériés nationaux et nom long | Libellés connus près de la date, texte complet accessible ; aucune réunion collée ou masquée, carte lisible | Non testé |
+| CAL-A30 | Aujourd'hui est férié en semaine | **Bordure renforcée + fond gris + nom de la fête collé à la date + espace avant réunions + Réunion si autorisé** | Non testé |
 
 ## Preuves à fournir
 
-- Captures desktop : mois sans sprint ; sprint commençant mercredi ; jour férié ouvré et aujourd'hui ; carte à plusieurs réunions ; popup nouvelle réunion ; page de détail de réunion.
+- Captures desktop : mois sans sprint ; sprint commençant mercredi ; jour férié en semaine et aujourd'hui ; carte à plusieurs réunions ; popup nouvelle réunion ; page de détail de réunion. **Ajouter une comparaison côte à côte entre carte avec nom de férié et carte sans férié pour contrôler les écarts verticaux : date/fête collées, première réunion espacée.**
 - Relevé des dates réelles de début/fin des périodes, source de l'heure locale IANA, calendrier férié appliqué et éligibilité des droits.
 - Preuve de l'absence de + le week-end ; **preuve de présence du + un jour férié en semaine autorisé**, y compris lorsqu'une réunion existe déjà ; cas de date actuelle fériée avec bordure et +.
 - Résultats des tests métier réellement exécutés (typecheck/lint/build et tests de date, tri, timezone, accès API) ; ne pas revendiquer GitHub Actions si indisponible.
