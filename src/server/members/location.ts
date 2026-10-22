@@ -37,7 +37,7 @@ export type LocationState={memberId:string;teamId:string;archived:boolean;today:
  suggestedCountryIso2:string|null;configured:boolean;current:EffectiveLocation|null;
  effective:EffectiveLocation|null;versions:LocationRow[];
  requestedOn:string;display:MemberEventDisplay|null;
- holidayCalendarScope:"national-only";regionalHolidayAuto:false;holidayDataAvailable:false};
+ holidayCalendarScope:"national-only";regionalHolidayAuto:false;holidayDataAvailable:boolean};
 export type LocationResult={ok:true;revision:number}|
  {ok:false;error:"invalid-input"|"not-found"|"archived"|"conflict"|"date-in-past"|"date-before-latest"};
 export function parseLocationChange(raw:unknown):LocationChange|null{
