@@ -2,13 +2,13 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureExceptionalMeetingSchema} from "./exceptional-meetings";
 import {ensureCeremonyEditSchema} from "./ceremony-edits";
-import {saveTemplateOccurrences} from "./template-occurrences";
+import {ensureTemplateOccurrenceSchema} from "./template-occurrences";
 
 type Kind="standard"|"custom"|"exceptional";
 type State="scheduled"|"held"|"not_held"|"cancelled";
 const tables:Record<Kind,{table:string;history:string;key:string}>={standard:{table:"smn_sprint_ceremony",history:"smn_sprint_ceremony_status_history",key:"ceremony_id"},custom:{table:"smn_scrum_template_occurrence",history:"smn_scrum_template_occurrence_status_history",key:"occurrence_id"},exceptional:{table:"smn_sprint_exceptional_meeting",history:"smn_sprint_exceptional_meeting_status_history",key:"meeting_id"}};
 export async function ensureAttendanceSchema(db:Client){
- await ensureExceptionalMeetingSchema(db);await ensureCeremonyEditSchema(db);
+ await ensureExceptionalMeetingSchema(db);await ensureCeremonyEditSchema(db);await ensureTemplateOccurrenceSchema(db);
  await db.query(`ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'`);
  await db.query(`ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
  await db.query(`ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
@@ -31,7 +31,7 @@ export async function reconcileAttendance(db:Client){
   const t=tables[kind],status=column(kind);
   const r=await db.query(`UPDATE public.${t.table} m SET ${status}='held'
    FROM public.smn_sprint s WHERE s.id=m.sprint_id AND s.team_id=$1 AND s.deleted_at IS NULL
-   AND m.ends_at<=now() AND m.${status}='scheduled' AND m.status_explicit=false`,[teamId]);
+   AND s.status<>'closed' AND m.ends_at<=now() AND m.${status}='scheduled' AND m.status_explicit=false`,[teamId]);
   stats[kind]=r.rowCount??0;
  }
  return stats;
@@ -61,10 +61,11 @@ export async function qualifyAttendance(db:Client,actorId:string,raw:unknown){
  await ensureAttendanceSchema(db);const teamId=await team(db);
  await db.query("BEGIN");
  try{
-  const found=await db.query<{id:string;status:string;ends_at:string}>(`SELECT m.id,m.${status} AS status,m.ends_at::text FROM public.${t.table} m
-  JOIN public.smn_sprint s ON s.id=m.sprint_id WHERE m.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL FOR UPDATE OF m`,[o.id,teamId]);
+  const found=await db.query<{id:string;status:string;ends_at:string;sprint_status:string}>(`SELECT m.id,m.${status} AS status,m.ends_at::text,s.status AS sprint_status FROM public.${t.table} m
+  JOIN public.smn_sprint s ON s.id=m.sprint_id WHERE m.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL FOR UPDATE OF m,s`,[o.id,teamId]);
   const old=found.rows[0];
   if(!old){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  if(old.sprint_status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
   if(target==="not_held"&&new Date(old.ends_at)>new Date()){await db.query("ROLLBACK");return {ok:false as const,error:"not-yet-due" as const};}
   if(target==="held"&&new Date(old.ends_at)>new Date()){await db.query("ROLLBACK");return {ok:false as const,error:"not-yet-due" as const};}
   if(old.status!==target){
