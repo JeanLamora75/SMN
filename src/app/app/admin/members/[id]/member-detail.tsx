@@ -101,11 +101,11 @@ export default function MemberDetail({id}:{id:string}){
     <div className="d-flex gap-2">{([["SM",member.roleShares.scrumMaster],["PO",member.roleShares.productOwner],["Dev",member.roleShares.developer]] as const).map(([label,value])=>
      <span className={"badge "+(value>0?"text-bg-primary":"text-bg-secondary")} key={label}>{label} {value} %</span>)}</div>
    </section>}
-   {tab==="calendar"&&<section className="smn-panel p-4"><h2 className="h5">{t("memberUX.calendarTitle")}</h2>
-    <MemberCalendarEditor key={member.id+"-calendar"} memberId={member.id} teamName={roster?.team.name??""} onClose={()=>setTab("profile")}/>
+   {tab==="calendar"&&<section className="smn-panel p-4"><h2 className="h5">{t("memberUX.calendarTitle")} {button("calendar",t("memberUX.calendarEdit"))}</h2>
+    <p className="text-secondary">{t("memberUX.calendarHelp")}</p>
    </section>}
-   {tab==="location"&&<section className="smn-panel p-4"><h2 className="h5">{t("memberUX.locationTitle")}</h2>
-    <MemberLocationEditor key={member.id+"-location"} memberId={member.id} teamName={roster?.team.name??""} onClose={()=>setTab("profile")}/>
+   {tab==="location"&&<section className="smn-panel p-4"><h2 className="h5">{t("memberUX.locationTitle")} {button("location",t("memberUX.locationEdit"))}</h2>
+    <p className="text-secondary">{t("memberUX.locationHelp")}</p>
    </section>}
    {tab==="history"&&<section className="smn-panel p-4"><div className="d-flex align-items-center gap-3"><h2 className="h5 mb-0">{t("memberUX.tabs.history")}</h2>{button("lifecycle",t("memberUX.lifecycleEdit"))}</div>
     {historyError&&<p role="alert" className="alert alert-warning">{t("memberUX.loadFailed")}</p>}
@@ -130,6 +130,8 @@ export default function MemberDetail({id}:{id:string}){
      <div className="p-3">
       {section==="profile"&&<MemberProfileEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onClose={saved}/>}
+      {section==="location"&&<MemberLocationEditor key={member.id+"-location-edit"} memberId={member.id} teamName={roster?.team.name??""} onClose={saved}/>}
       {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
      </div>
     </div>
