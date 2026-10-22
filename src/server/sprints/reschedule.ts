@@ -1,6 +1,7 @@
 import {randomUUID,createHash} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
+import {readDevelopmentCapacity} from "@/server/capacity/engine";
 type Input={sprintId:string;startAt:string;endAt:string;mode:"keep"|"recalculate"};
 function parse(raw:unknown):Input|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
@@ -28,6 +29,30 @@ async function examine(db:Client,input:Input){
  FROM public.smn_sprint_exceptional_meeting WHERE sprint_id=$1 AND (starts_at<$2 OR ends_at>$3)`,[s.id,input.startAt,input.endAt]);
  return {ok:true as const,sprint:s,warnings:protectedEvents.rows,adjustments:[],mode:input.mode};
 }
+async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;start_at:string;end_at:string},input:Input){
+ const [goals,points,initial,manual]=await Promise.all([
+  db.query<{count:string}>(`SELECT count(*)::text AS count FROM public.smn_sprint_goal WHERE sprint_id=$1`,[s.id]),
+  db.query(`SELECT initial_sp::text AS initial,added_sp::text AS added,removed_sp::text AS removed,done_sp::text AS done FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[s.id]),
+  db.query(`SELECT initial_jh::float8 AS jh,provenance FROM public.smn_capacity_initial_snapshot i JOIN public.smn_capacity_period_override p ON p.id=i.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
+   [s.team_id,s.start_at.slice(0,10),s.end_at.slice(0,10)]),
+  db.query(`SELECT a.manual_jh::float8 AS jh FROM public.smn_capacity_actual_override a JOIN public.smn_capacity_period_override p ON p.id=a.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
+   [s.team_id,s.start_at.slice(0,10),s.end_at.slice(0,10)])
+ ]);
+ const newStart=input.startAt.slice(0,10),newEnd=input.endAt.slice(0,10);
+ let calculatedReferenceJh:number|null=null,missingSources:string[]=[];
+ if(s.status==="active"||s.status==="finished"){
+  try{
+   const result=await readDevelopmentCapacity(db,newStart,newEnd,{externalTransaction:true});
+   calculatedReferenceJh=result.totalJh;
+   missingSources=result.missing.map(m=>m.source);
+  }catch{missingSources=["calculation-unavailable"];}
+ }
+ return {goalCount:Number(goals.rows[0]?.count??0),storyPoints:points.rows[0]??null,
+  initialCapacityJh:initial.rows[0]?.jh??null,manualActualJh:manual.rows[0]?.jh??null,
+  recalculatedReferenceJh:calculatedReferenceJh,missingSources,
+  messages:["review-goals","review-story-points","review-capacity-reference"],
+  initialAndManualPreserved:true};
+}
 export async function ensureRescheduleSchema(db:Client){
  await ensureSprintSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_reschedule_audit(
@@ -40,10 +65,11 @@ export async function previewReschedule(db:Client,raw:unknown){
  await ensureRescheduleSchema(db);
  const result=await examine(db,input);
  if(!result.ok)return result;
+ const impact=await reviewImpact(db,result.sprint,input);
  // Recalculation is not offered until a protected-event-safe preview engine is implemented.
  if(input.mode==="recalculate")return {ok:false as const,error:"recalculation-not-supported",warnings:result.warnings};
  const token=createHash("sha256").update(JSON.stringify({input,oldStart:result.sprint.start_at,oldEnd:result.sprint.end_at})).digest("hex");
- return {...result,token};
+ return {...result,impact,token};
 }
 export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
@@ -58,9 +84,10 @@ export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
   if(!checked.ok){await db.query("ROLLBACK");return checked;}
   const token=createHash("sha256").update(JSON.stringify({input,oldStart:original.start_at,oldEnd:original.end_at})).digest("hex");
   if(token!==data.token){await db.query("ROLLBACK");return {ok:false as const,error:"stale-preview"};}
+  const impact=await reviewImpact(db,original,input);
   await db.query("UPDATE public.smn_sprint SET start_at=$2,end_at=$3 WHERE id=$1",[input.sprintId,input.startAt,input.endAt]);
   await db.query(`INSERT INTO public.smn_sprint_reschedule_audit(id,sprint_id,old_start,old_end,new_start,new_end,mode,actor_id)
   VALUES($1,$2,$3,$4,$5,$6,'keep',$7)`,[randomUUID(),input.sprintId,original.start_at,original.end_at,input.startAt,input.endAt,actorId]);
-  await db.query("COMMIT");return {ok:true as const,warnings:checked.warnings};
+  await db.query("COMMIT");return {ok:true as const,warnings:checked.warnings,impact};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
