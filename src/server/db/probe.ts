@@ -180,7 +180,9 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
        "allocation_percent","contract_percent","contribution_percent","scrum_master_percent",
        "product_owner_percent","developer_percent","created_by","created_at"]
         .every(name=>columnSet.has("smn_member_assignment_version:"+name)),
-      memberIdentitySchemaValid: columnSet.has("smn_member:professional_function"),
+      memberIdentitySchemaValid: columnSet.has("smn_member:professional_function")&&
+       ["id","member_id","previous_values","next_values","changed_by","changed_at"]
+        .every(n=>columnSet.has("smn_member_identity_history:"+n)),
       memberProfileSchemaValid: ["smn_member:email","smn_member:revision","smn_member:updated_at"]
         .every(name=>columnSet.has(name)),
       membersSchemaValid: [
