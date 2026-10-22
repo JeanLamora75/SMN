@@ -55,5 +55,6 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
 
 /** Seules les pages réellement implémentées sont actives. */
 export function activePrivateEntry(pathname: string, entry: NavigationEntry): boolean {
-  return entry.href !== null && entry.href === pathname;
+  return entry.href !== null && (entry.href === pathname ||
+    (entry.id === "settings" && pathname.startsWith("/app/admin/settings/")));
 }
