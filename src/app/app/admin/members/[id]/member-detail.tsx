@@ -10,6 +10,8 @@ import MemberCalendarEditor from "../member-calendar-editor";
 import MemberLocationEditor from "../member-location-editor";
 import MemberLifecycleEditor from "../member-lifecycle-editor";
 import MemberAbsenceEditor from "../member-absence-editor";
+import MemberHistory from "./member-history";
+import MemberCalendarSummary from "./member-calendar-summary";
 type Member=EditableMember&{memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;
  email:string|null;professionalFunction?:string|null;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string};members:Member[]};
@@ -54,7 +56,9 @@ export default function MemberDetail({id}:{id:string}){
  .then(async r=>{if(!r.ok)throw Error();return r.json();}).then(v=>{if(live)setLocation(v);}).catch(()=>{});
  return()=>{live=false;};},[id]);
  const member=roster?.members.find(x=>x.id===id);
- const saved=()=>{setSection(null);void refresh().catch(()=>setError(t("memberUX.refreshFailed")));};
+ const saved=()=>{setSection(null);void refresh().catch(()=>setError(t("memberUX.refreshFailed")));
+  void fetch("/api/admin/members/"+encodeURIComponent(id)+"/location",{cache:"no-store"})
+   .then(async r=>r.ok?r.json():null).then(v=>{if(v)setLocation(v);}).catch(()=>undefined);};
  const closeDialog=()=>{if(window.confirm(t("draft.discardWarning")))setSection(null);};
  const button=(target:Exclude<Section,null>,label:string)=>
   <button type="button" className="btn btn-outline-secondary btn-sm ms-2" title={t("memberUX.edit",{name:label})}
@@ -103,7 +107,7 @@ export default function MemberDetail({id}:{id:string}){
    </section>}
    {tab==="calendar"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.calendarTitle")} {button("calendar",t("memberUX.calendarEdit"))}</h2>
-    <p className="text-secondary">{t("memberUX.calendarHelp")}</p>
+    <MemberCalendarSummary memberId={member.id}/>
    </section>}
    {tab==="absences"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.tabs.absences")}</h2>
@@ -111,16 +115,7 @@ export default function MemberDetail({id}:{id:string}){
    </section>}
    {tab==="history"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.tabs.history")}</h2>
-    {historyError&&<p role="alert" className="alert alert-warning">{t("memberUX.loadFailed")}</p>}
-    {!history&&!historyError&&<p role="status">{t("memberUX.loading")}</p>}
-    {history&&<div className="mt-3">
-     {history.assignments.length===0&&!history.archived&&<p>{t("memberUX.emptyHistory")}</p>}
-     <ol className="list-group list-group-numbered">
-      {history.assignments.map((a,i)=><li key={i} className="list-group-item">{t("memberUX.assignmentStart",{date:a.startOn})}
-       {a.endOn&&<span className="ms-2 text-secondary">→ {a.endOn}</span>}</li>)}
-      {history.archived&&<li className="list-group-item">{t("memberUX.archived")}{history.archivedAt?" · "+history.archivedAt.slice(0,10):""}</li>}
-     </ol>
-    </div>}
+    <MemberHistory memberId={member.id}/>
    </section>}
    {section&&<div className="smn-member-modal-backdrop" role="presentation">
     <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={t("memberUX.edit",{name:section})} ref={dialogRef}>
