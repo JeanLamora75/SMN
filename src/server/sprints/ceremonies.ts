@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {lunchForTeam,type Lunch} from "./lunch";
+import {saveTemplateOccurrences} from "./template-occurrences";
 
 export type CeremonyKind="planning"|"daily"|"review"|"retrospective";
 export type Segment={startsAt:string;endsAt:string;minutes:number};
@@ -115,5 +116,6 @@ export async function saveGeneratedCeremonies(db:Client,sprint:Sprint,weeks:numb
  if(!ceremonyId)throw Error("ceremony-not-saved");
  for(const [position,s] of (c.segments??[{startsAt:c.startsAt,endsAt:c.endsAt,minutes:c.minutes}]).entries())await db.query(`INSERT INTO public.smn_sprint_ceremony_segment(ceremony_id,position,starts_at,ends_at,minutes) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,[ceremonyId,position+1,s.startsAt,s.endsAt,s.minutes]);
  }
+ await saveTemplateOccurrences(db,sprint);
  return ceremonies.length;
 }

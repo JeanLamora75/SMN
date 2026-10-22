@@ -1496,5 +1496,29 @@
     "saved": "Change saved with audit.",
     "warning": "Change saved. Warning: an overlap was detected.",
     "error": "Unable to save or occurrence is protected."
+  },
+  "ceremonyTemplates": {
+    "title": "Custom ceremony templates",
+    "intro": "Define recurring team meetings. Changes do not affect existing occurrences.",
+    "existing": "Existing template",
+    "new": "New template",
+    "enabled": "Active",
+    "disabled": "Disabled",
+    "name": "Name",
+    "frequency": "Frequency",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "sprint": "Once per Sprint",
+    "weekday": "Weekday",
+    "day": "Day {number} (Monday = 1)",
+    "position": "Position",
+    "start": "Start of Sprint",
+    "end": "End of Sprint",
+    "time": "Local time",
+    "duration": "Duration (minutes)",
+    "save": "Save",
+    "saved": "Template saved.",
+    "error": "Unable to save template.",
+    "capacity": "Ceremonies are never deducted from Developer capacity."
   }
 }
