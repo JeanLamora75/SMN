@@ -39,7 +39,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
     if(!active){setPeriod(fallback());return;}
     const begin=localDate(active.startAt),finish=localDate(active.endAt);
     const count=Math.max(1,Math.ceil((new Date(finish+"T12:00:00Z").getTime()-new Date(begin+"T12:00:00Z").getTime())/86400000));
-    setPeriod({start:begin,count:Math.min(84,count),label:active.name,sprintId:active.id});
+    setPeriod({start:begin,count,label:active.name,sprintId:active.id});
    }).catch(()=>{if(live)setPeriod(fallback());});
    return()=>{live=false;};
  },[]);
@@ -100,7 +100,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
      <div className="smn-calendar-holiday">{holiday?.title??"\u00a0"}</div>
      <ul className="list-unstyled smn-calendar-meetings mb-0">
       {meetingsToday.map(m=><li key={m.kind+":"+m.id} title={clock(m.startAt)+" — "+clock(m.endAt)}>
-       <Link href={m.href}>{m.name}</Link></li>)}
+       {isAdmin?<Link href={m.href}>{m.name}</Link>:<span>{m.name}</span>}</li>)}
       {matching.filter(e=>e.type!=="holiday"&&e.type!=="meeting").map(e=><li key={e.type+":"+e.id} className="small text-secondary">
        {e.sourceHref?.startsWith("/app/")?<Link href={e.sourceHref}>{e.title||e.type}</Link>:e.title||e.type}
       </li>)}
