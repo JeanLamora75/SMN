@@ -106,7 +106,7 @@ const state=(input:{
   gapJh:gap,missingSources:input.missingSources};
 };
 export async function readActualCapacity(db:Client,start:string,end:string,
- calculate:(db:Client,start:string,end:string,options:{externalTransaction:true})=>
+ calculate:(db:Client,start:string,end:string,options:{externalTransaction:true;includeExceptionalImpact?:boolean})=>
   Promise<CapacityReport>=readDevelopmentCapacity):Promise<ActualResult>{
  if(!parseCapacityPeriod(new URLSearchParams({start,end})))throw Error("actual-invalid-period");
  await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
@@ -142,7 +142,7 @@ export async function readActualCapacity(db:Client,start:string,end:string,
   if(status!=="upcoming"){
    const last=realThrough(end,today);
    if(last!==null&&last>=start){
-    const report=await calculate(db,start,last,{externalTransaction:true});
+    const report=await calculate(db,start,last,{externalTransaction:true,includeExceptionalImpact:true});
     if(report.team.id!==teamId)throw Error("actual-team-changed");
     referenceJh=report.totalJh;
     missingSources=[...new Set(report.missing.map(m=>m.source))];
@@ -212,7 +212,7 @@ export async function saveActualCapacity(db:Client,actorId:string,raw:unknown):
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
 export async function closeActualCapacity(db:Client,actorId:string,raw:unknown,
- calculate:(db:Client,start:string,end:string,options:{externalTransaction:true})=>
+ calculate:(db:Client,start:string,end:string,options:{externalTransaction:true;includeExceptionalImpact?:boolean})=>
   Promise<CapacityReport>=readDevelopmentCapacity):Promise<CloseResult>{
  const input=parseClosing(raw);
  if(!actorId||!input)return {ok:false,error:"invalid-input"};
