@@ -1594,7 +1594,17 @@
     "confirm": "Confirm new period",
     "cancel": "Cancel",
     "saved": "Sprint dates updated and audited.",
-    "error": "Rescheduling failed."
+    "error": "Rescheduling failed.",
+    "impactTitle": "Values to review",
+    "reviewGoals": "Goals to check",
+    "reviewSp": "Story Points to check",
+    "present": "Saved",
+    "missing": "Unavailable",
+    "initialRetained": "Initial capacity unchanged",
+    "manualRetained": "Manual capacity unchanged",
+    "newReference": "Provisional new reference",
+    "unchanged": "No source or manual capacity is changed.",
+    "missingSources": "Missing sources"
   },
   "sprintGoals": {
     "title": "Sprint goals",
