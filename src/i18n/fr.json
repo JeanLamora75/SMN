@@ -1751,6 +1751,15 @@
     "locationHelp": "Pays et fuseau horaire du membre.",
     "lifecycleTitle": "Cycle de vie",
     "lifecycleHelp": "Clôture d’affectation, archivage et réactivation.",
-    "refreshFailed": "Rafraîchissement impossible."
+    "refreshFailed": "Rafraîchissement impossible.",
+    "tabs": {
+      "profile": "Profil",
+      "assignment": "Affectation",
+      "calendar": "Calendrier",
+      "location": "Localisation",
+      "history": "Historique"
+    },
+    "historyHelp": "Les changements d’affectation et de statut sont consultables depuis les écrans correspondants.",
+    "functionMissing": "Fonction non renseignée"
   }
 }
