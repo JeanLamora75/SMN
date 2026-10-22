@@ -1871,6 +1871,11 @@
         "title": "Audit log",
         "description": "Review the operation audit trail."
       }
+    },
+    "view": {
+      "switchLabel": "Settings display mode",
+      "cards": "Card view",
+      "list": "List view"
     }
   }
 }
