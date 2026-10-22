@@ -65,6 +65,19 @@ export async function saveMemberIdentity(db:Client,id:string,actorId:string,raw:
     [randomUUID(),id,(latest?.revision??0)+1,input.location.countryIso2,
      input.location.region,input.location.city,input.location.timeZone,input.location.effectiveFrom,actorId]);
   }
+  if(changed||locationChanged){
+   await db.query(`INSERT INTO public.smn_member_identity_history
+    (id,member_id,previous_values,next_values,changed_by)
+    VALUES($1,$2,$3::jsonb,$4::jsonb,$5)`,[
+    randomUUID(),id,JSON.stringify({displayName:previous.display_name,
+     email:previous.email,professionalFunction:previous.professional_function,
+     location:latest?{countryIso2:latest.country_iso2,region:latest.region,
+      city:latest.city,timeZone:latest.time_zone}:null}),
+    JSON.stringify({displayName:input.displayName,email:input.email,
+     professionalFunction:input.professionalFunction,location:{
+      countryIso2:input.location.countryIso2,region:input.location.region,
+      city:input.location.city,timeZone:input.location.timeZone}}),actorId]);
+  }
   await db.query("COMMIT");
   return {ok:true,revision:input.revision+(changed?1:0),
    locationRevision:(latest?.revision??0)+(locationChanged?1:0)};
