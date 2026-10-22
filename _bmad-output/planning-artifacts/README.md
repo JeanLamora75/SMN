@@ -35,3 +35,12 @@ Le PRD et ses décisions ultérieures prévalent sur les hypothèses des documen
 **Décisions validées :** écran pleine largeur, sidebar rétractable, sélecteurs équipe/cycle dans le header, cartes J/H prévu/réel, SP et tickets **initialement engagés**/réalisés, compteur en jours ouvrés **du lundi au vendredi**, pas de carte « Avancement global » sans règle validée, quatre colonnes (obstacles, risques, événements, notes/alertes), 5 éléments actifs maximum par colonne, tri automatique, actions rapides contrôlées, historique fidèle ou message exact **« Aucun éléments à ce jour »**, personnalisation des métriques/colonnes, responsive 4/2/1.
 
 **Statut :** contrats UX approuvés et publiés, **pas** de nouvelle fonctionnalité ou de recette attestée. Les producteurs de données, règles d'historisation, droits et catalogues FR/EN restent à vérifier avant implémentation.
+
+
+## Avenant validé du 23/10/2026 — Centre Paramètres
+
+Nouvelle **Epic UX transversale [SMN-223](https://lmn24.atlassian.net/browse/SMN-223)** et **quatre Stories [SMN-224](https://lmn24.atlassian.net/browse/SMN-224), [SMN-225](https://lmn24.atlassian.net/browse/SMN-225), [SMN-226](https://lmn24.atlassian.net/browse/SMN-226), [SMN-227](https://lmn24.atlassian.net/browse/SMN-227)** : réunir les réglages généraux sous une page d'accueil Paramètres accessible via la sidebar, 14 cartes groupées en 4 familles, affichage Cartes/Liste mémorisé. Les écrans existants conservent leurs responsabilités et droits ; réglages nouveaux à traiter séparément.
+
+**Contrats BMAD** : [DESIGN.md](ux-designs/ux-parametres-2026-10-23/DESIGN.md) ; [EXPERIENCE.md](ux-designs/ux-parametres-2026-10-23/EXPERIENCE.md) ; [contrat de développement](ux-designs/ux-parametres-2026-10-23/CONTRAT-DEVELOPPEMENT.md) ; [recette](ux-designs/ux-parametres-2026-10-23/RECETTE-UX.md) ; [mapping Jira](ux-designs/ux-parametres-2026-10-23/DECOUPAGE-JIRA.md).
+
+**Cette nouvelle Epic ne change ni l'état de clôture documentaire des 10 Epics initiales ni les critères métier de SMN-18, 15, 32, 65. Aucune implémentation/recette n'est attestée par l'avenant.**
