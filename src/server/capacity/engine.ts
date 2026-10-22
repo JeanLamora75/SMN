@@ -179,6 +179,11 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
      ORDER BY m.id,p.member_id LIMIT 2001`,[team.id,start+"T00:00:00Z",new Date(Date.parse(end+"T00:00:00Z")+2*86400000).toISOString()])).rows:[];
   if(impactEvents.length>2000)throw Error("capacity-meeting-limit");
   const unassignedImpact=impactEvents.some(x=>x.member_id===null||!memberIds.includes(x.member_id));
+  const impactZones=impactEvents.length&&explicitSlots?
+   (await db.query<{time_zone:string}>(`SELECT DISTINCT s.time_zone FROM public.smn_sprint_exceptional_meeting m
+    JOIN public.smn_sprint s ON s.id=m.sprint_id WHERE m.id=ANY($1::text[])`,
+    [[...new Set(impactEvents.map(x=>x.id))]])).rows:[];
+  const divergentZones=impactZones.some(x=>x.time_zone!==explicitSlots?.zone);
   const dates=listDates(start,end);
   const members:MemberCapacity[]=[];
   const missing:CapacityReport["missing"]=[];
@@ -240,7 +245,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
       const consistent=explicitSlots&&
        Math.abs(duration(explicitSlots.slots.morningStart,explicitSlots.slots.morningEnd)-hoursPerJh*30)<0.01&&
        Math.abs(duration(explicitSlots.slots.afternoonStart,explicitSlots.slots.afternoonEnd)-hoursPerJh*30)<0.01;
-      if(!work||!actualKnown||!consistent||unassignedImpact){
+      if(!work||!actualKnown||!consistent||unassignedImpact||divergentZones){
        const source:CapacityMissing=!work||!consistent?"exceptional-meeting-work-slots":"exceptional-meeting-participants";
        missing.push({date,memberId,source});days.push(failDay(date,[source]));continue;
       }
