@@ -1610,5 +1610,23 @@
     "achieved": "Atteint",
     "partially_achieved": "Partiellement atteint",
     "not_achieved": "Non atteint"
+  },
+  "storyPoints": {
+    "title": "Story Points du Sprint",
+    "intro": "Quatre données facultatives. Les résultats ci-dessous sont provisoires tant que vous n'avez pas enregistré.",
+    "sprint": "Sprint",
+    "initial": "Engagement initial (SP)",
+    "added": "SP ajoutés",
+    "removed": "SP retirés",
+    "done": "SP terminés",
+    "final": "Engagement final",
+    "remaining": "SP non terminés",
+    "rate": "Taux de réalisation",
+    "notCalculable": "Non calculable",
+    "overrun": "Les SP terminés dépassent l'engagement final. Cette valeur est autorisée.",
+    "provisional": "Prévisualisation uniquement : aucune tendance ni report automatique des SP non terminés.",
+    "save": "Enregistrer",
+    "saved": "Story Points enregistrés.",
+    "error": "Impossible de charger ou enregistrer les Story Points."
   }
 }
