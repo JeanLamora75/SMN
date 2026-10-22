@@ -1473,5 +1473,14 @@
     "save": "Save",
     "saved": "Lunch break saved.",
     "error": "Unable to load or save lunch break."
+  },
+  "meetingConflicts": {
+    "title": "Meeting warnings",
+    "info": "Conflicts do not block scheduling. Events are never moved or deleted automatically.",
+    "refresh": "Refresh",
+    "none": "No overlap detected among stored ceremonies.",
+    "overlap": "Overlapping ceremonies",
+    "closure": "Ceremony during a collective closure",
+    "error": "Unable to check meeting conflicts."
   }
 }
