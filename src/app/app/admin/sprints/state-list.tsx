@@ -1,9 +1,10 @@
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {useEpic4Presentation} from "./i18n-presentation";
 type State={id:string;name:string;status:string;suspended:boolean;startAt:string;endAt:string};
 export default function SprintStateList(){
- const t=useTranslation();
+ const t=useTranslation();const presentation=useEpic4Presentation();
  const [rows,setRows]=useState<State[]>([]);
  const [error,setError]=useState("");
  const [loading,setLoading]=useState(false);
@@ -15,6 +16,6 @@ export default function SprintStateList(){
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("sprintStates.title")}</h2><p>{t("sprintStates.intro")}</p>
  <button type="button" className="btn btn-outline-primary mb-3" disabled={loading} onClick={reload}>{t("sprintStates.refresh")}</button>
  {error&&<p role="alert" className="alert alert-warning">{error}</p>}
- <div className="table-responsive"><table className="table"><thead><tr><th>{t("sprintStates.name")}</th><th>{t("sprintStates.status")}</th><th>{t("sprintStates.range")}</th></tr></thead><tbody>{rows.map(s=><tr key={s.id}><td>{s.name}</td><td>{label(s)}</td><td>{s.startAt.slice(0,16)} → {s.endAt.slice(0,16)} UTC</td></tr>)}</tbody></table></div>
+ <div className="table-responsive"><table className="table"><thead><tr><th>{t("sprintStates.name")}</th><th>{t("sprintStates.status")}</th><th>{t("sprintStates.range")}</th></tr></thead><tbody>{rows.map(s=><tr key={s.id}><td>{s.name}</td><td>{label(s)}</td><td>{presentation.date(s.startAt)} → {presentation.date(s.endAt)}</td></tr>)}</tbody></table></div>
  </section>;
 }
