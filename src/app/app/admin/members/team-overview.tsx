@@ -46,7 +46,7 @@ export default function TeamOverview(){
  const members=(roster?.members??[]).filter(m=>!m.archived);
  const capacity=Math.max(12,Math.ceil((members.length+1)/6)*6);
  const roles=(m:Member)=>([["SM",m.roleShares?.scrumMaster],["PO",m.roleShares?.productOwner],["Dev",m.roleShares?.developer]] as const);
- return <section className="smn-panel p-4">
+ return <section className="smn-panel smn-team-roster p-3 p-lg-4">
   <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
    <div><h1 className="h3 mb-1">{roster?.team.name??t("members.teamTitle")}</h1>
     <p className="text-secondary mb-0">{t("teamUX.activeCount",{count:members.length})}</p></div>
@@ -61,16 +61,16 @@ export default function TeamOverview(){
   {status==="ready"&&view==="cards"&&<div className="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-3">
    {Array.from({length:capacity},(_,i)=>{const m=members[i];
     return <div className="col" key={m?.id??"slot-"+i}>
-     {m?<Link href={"/app/admin/members/"+encodeURIComponent(m.id)} className="card text-decoration-none text-body h-100 rounded-4 shadow-sm" style={{minHeight:180}}>
+     {m?<Link href={"/app/admin/members/"+encodeURIComponent(m.id)} className="card smn-team-card text-decoration-none text-body h-100 rounded-4 shadow-sm" style={{minHeight:222}}>
        <div className="card-body d-flex flex-column align-items-center text-center gap-2">
         <strong className="text-truncate w-100" title={m.displayName}>{m.displayName}</strong>
         <NeutralAvatar/>
-        <div className="d-flex gap-1 flex-wrap justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?(name==="SM"?"text-bg-warning":name==="PO"?"text-bg-primary":"text-bg-success"):"text-bg-secondary opacity-50")}>{name}</span>)}</div>
+        <div className="smn-team-roles d-flex gap-1 justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?("text-bg-primary"):"text-bg-secondary opacity-50")}>{name}</span>)}</div>
         <small className="text-secondary">{t("teamUX.functionMissing")}</small>
        </div>
-      </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} disabled={roster?.members.length===0} className="card h-100 w-100 rounded-4 border-primary text-primary bg-transparent" style={{minHeight:180}} aria-label={t("teamUX.addMember")}>
-        <span className="m-auto display-5">+</span>
-       </button>:<div className="rounded-4 h-100" aria-hidden="true" style={{minHeight:180,border:"2px dashed var(--bs-border-color)",background:"var(--bs-tertiary-bg)"}}/>}
+      </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} disabled={roster?.members.length===0} className="smn-team-add h-100 w-100 d-flex flex-column align-items-center justify-content-center gap-2 text-primary" style={{minHeight:180}} aria-label={t("teamUX.addMember")}>
+        <span className="display-5" aria-hidden="true">+</span><strong>{t("teamUX.addMember")}</strong>
+       </button>:<div className="smn-team-placeholder h-100" aria-hidden="true"/>}
     </div>})}
   </div>}
   {status==="ready"&&view==="list"&&<div className="table-responsive"><table className="table table-hover align-middle">
