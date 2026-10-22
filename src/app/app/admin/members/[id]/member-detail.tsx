@@ -29,7 +29,7 @@ export default function MemberDetail({id}:{id:string}){
  const saved=()=>{setSection(null);void refresh().catch(()=>setError("Rafraîchissement impossible."));};
  const button=(target:Exclude<Section,null>,label:string)=>
   <button type="button" className="btn btn-outline-secondary btn-sm ms-2" title={"Modifier "+label}
-   aria-label={"Modifier "+label} disabled={section!==null||member?.archived}
+   aria-label={"Modifier "+label} disabled={section!==null||(member?.archived&&target!=="lifecycle")}
    onClick={()=>setSection(target)}>✎</button>;
  return <div className="container py-4" style={{maxWidth:1000}}>
   <Link href="/app/admin/members" className="btn btn-link px-0 mb-3">← Équipe</Link>
