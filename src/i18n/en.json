@@ -1520,5 +1520,17 @@
     "saved": "Template saved.",
     "error": "Unable to save template.",
     "capacity": "Ceremonies are never deducted from Developer capacity."
+  },
+  "templateOccurrences": {
+    "title": "Custom template occurrences",
+    "info": "Occurrences retain the template version used when created, even if the template is disabled.",
+    "refresh": "Refresh",
+    "empty": "No custom occurrences to display.",
+    "meeting": "Meeting",
+    "sprint": "Sprint",
+    "period": "Local time",
+    "version": "Version",
+    "inactive": "Template disabled",
+    "error": "Unable to load occurrences."
   }
 }
