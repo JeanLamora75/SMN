@@ -243,7 +243,7 @@ export async function closeActualCapacity(db:Client,actorId:string,raw:unknown,
   if(row?.closed_at)return fail("conflict");
   if(end>=today)return fail("not-finished");
   const manual=row?(await db.query<ManualRow>(manualSql,[row.id])).rows[0]:undefined;
-  const reference=await calculate(db,start,end,{externalTransaction:true});
+  const reference=await calculate(db,start,end,{externalTransaction:true,includeExceptionalImpact:true});
   if(reference.team.id!==teamId)throw Error("actual-team-changed");
   const manualJh=manual?.manual_jh??null;
   const referenceJh=reference.totalJh;
