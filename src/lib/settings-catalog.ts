@@ -11,8 +11,8 @@ type RecordEntry={id:string;icon:string;resource:"settings"|"accounts"|"backups"
 const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:readonly RecordEntry[]}>= [
  {id:"application",label:"settingsCatalog.groups.application",entries:[
   {id:"general",icon:"⚙",resource:"settings",href:"/app/admin/settings/general"},
-  {id:"languages",icon:"文",resource:"settings",status:"partial"},
-  {id:"appearance",icon:"◐",resource:"settings",status:"partial"}
+  {id:"languages",icon:"文",resource:"settings",href:"/app/admin/settings/general#settings-language"},
+  {id:"appearance",icon:"◐",resource:"settings",href:"/app/admin/settings/general#settings-appearance"}
  ]},
  {id:"agile",label:"settingsCatalog.groups.agile",entries:[
   {id:"cadence",icon:"◷",resource:"settings",href:"/app/admin/scrum-cadence",mode:"scrum"},
