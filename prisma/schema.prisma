@@ -30,6 +30,7 @@ model SmnProduct {
   @@map("smn_product")
 }
 model SmnTeam {
+ workSlots SmnTeamWorkSlots?
   id String @id
   installationId String @unique @map("installation_id")
   productId String @map("product_id")
@@ -938,4 +939,18 @@ model SmnExceptionalMeetingParticipantAudit {
  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
  meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
  @@map("smn_exceptional_meeting_participant_audit")
+}
+
+model SmnTeamWorkSlots {
+ teamId String @id @map("team_id")
+ timeZone String @map("time_zone")
+ morningStart DateTime @map("morning_start") @db.Time(6)
+ morningEnd DateTime @map("morning_end") @db.Time(6)
+ afternoonStart DateTime @map("afternoon_start") @db.Time(6)
+ afternoonEnd DateTime @map("afternoon_end") @db.Time(6)
+ configuredBy String? @map("configured_by")
+ configuredAt DateTime @default(now()) @map("configured_at") @db.Timestamptz(6)
+ revision Int @default(1)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_team_work_slots")
 }
