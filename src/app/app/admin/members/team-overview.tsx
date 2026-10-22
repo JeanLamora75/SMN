@@ -48,15 +48,15 @@ export default function TeamOverview(){
  return <section className="smn-panel p-4">
   <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
    <div><h1 className="h3 mb-1">{roster?.team.name??t("members.teamTitle")}</h1>
-    <p className="text-secondary mb-0">{members.length} membres actifs</p></div>
-   <div className="btn-group" role="group" aria-label="Mode d’affichage">
-    <button type="button" className={"btn "+(view==="cards"?"btn-primary":"btn-outline-secondary")} aria-label="Vue cartes" aria-pressed={view==="cards"} onClick={()=>choose("cards")}>▦</button>
-    <button type="button" className={"btn "+(view==="list"?"btn-primary":"btn-outline-secondary")} aria-label="Vue liste" aria-pressed={view==="list"} onClick={()=>choose("list")}>☷</button>
+    <p className="text-secondary mb-0">{t("teamUX.activeCount",{count:members.length})}</p></div>
+   <div className="btn-group" role="group" aria-label={t("teamUX.displayMode")}>
+    <button type="button" className={"btn "+(view==="cards"?"btn-primary":"btn-outline-secondary")} aria-label={t("teamUX.cardsView")} aria-pressed={view==="cards"} onClick={()=>choose("cards")}>▦</button>
+    <button type="button" className={"btn "+(view==="list"?"btn-primary":"btn-outline-secondary")} aria-label={t("teamUX.listView")} aria-pressed={view==="list"} onClick={()=>choose("list")}>☷</button>
    </div>
   </div>
   {status==="loading"&&<p role="status">{t("members.loading")}</p>}
   {status==="error"&&<p role="alert">{t("members.loadFailed")}</p>}
-  {status==="ready"&&members.length===0&&<div className="alert alert-info mb-3">L’équipe n’a pas encore été initialisée. <Link href="/app/admin/members/manage" className="alert-link">Initialiser les membres de l’équipe</Link></div>}
+  {status==="ready"&&members.length===0&&<div className="alert alert-info mb-3">{t("teamUX.notInitialized")} <Link href="/app/admin/members/manage" className="alert-link">{t("teamUX.initialize")}</Link></div>}
   {status==="ready"&&view==="cards"&&<div className="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-3">
    {Array.from({length:capacity},(_,i)=>{const m=members[i];
     return <div className="col" key={m?.id??"slot-"+i}>
@@ -65,33 +65,33 @@ export default function TeamOverview(){
         <strong className="text-truncate w-100" title={m.displayName}>{m.displayName}</strong>
         <span className="rounded-circle border bg-body-tertiary d-flex align-items-center justify-content-center" style={{width:62,height:62,fontSize:32}} aria-hidden="true">♙</span>
         <div className="d-flex gap-1 flex-wrap justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?"text-bg-primary":"text-bg-secondary opacity-50")}>{name}</span>)}</div>
-        <small className="text-secondary">Fonction non renseignée</small>
+        <small className="text-secondary">{t("teamUX.functionMissing")}</small>
        </div>
-      </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} disabled={members.length===0} className="card h-100 w-100 rounded-4 border-primary text-primary bg-transparent" style={{minHeight:180}} aria-label="Ajouter un membre">
+      </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} disabled={members.length===0} className="card h-100 w-100 rounded-4 border-primary text-primary bg-transparent" style={{minHeight:180}} aria-label={t("teamUX.addMember")}>
         <span className="m-auto display-5">+</span>
        </button>:<div className="rounded-4 h-100" aria-hidden="true" style={{minHeight:180,border:"2px dashed var(--bs-border-color)",background:"var(--bs-tertiary-bg)"}}/>}
     </div>})}
   </div>}
   {status==="ready"&&view==="list"&&<div className="table-responsive"><table className="table table-hover align-middle">
-   <thead><tr><th>Membre</th><th>SM</th><th>PO</th><th>Dev</th><th>Fiche</th></tr></thead>
-   <tbody>{members.map(m=><tr key={m.id} role="link" tabIndex={0} style={{cursor:"pointer"}} aria-label={"Ouvrir la fiche de "+m.displayName} onClick={()=>router.push("/app/admin/members/"+encodeURIComponent(m.id))} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();router.push("/app/admin/members/"+encodeURIComponent(m.id));}}}><th>{m.displayName}</th>{roles(m).map(([name,share])=><td key={name}>{(share??0)>0?"✓":"—"}</td>)}<td aria-hidden="true">→</td></tr>)}</tbody>
-  </table><button className="btn btn-primary" disabled={members.length===0} onClick={()=>setCreationOpen(true)}>+ Ajouter un membre</button></div>}
+   <thead><tr><th>{t("teamUX.member")}</th><th>SM</th><th>PO</th><th>Dev</th><th>{t("teamUX.details")}</th></tr></thead>
+   <tbody>{members.map(m=><tr key={m.id} role="link" tabIndex={0} style={{cursor:"pointer"}} aria-label={t("teamUX.openMember",{name:m.displayName})} onClick={()=>router.push("/app/admin/members/"+encodeURIComponent(m.id))} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();router.push("/app/admin/members/"+encodeURIComponent(m.id));}}}><th>{m.displayName}</th>{roles(m).map(([name,share])=><td key={name}>{(share??0)>0?"✓":"—"}</td>)}<td aria-hidden="true">→</td></tr>)}</tbody>
+  </table><button className="btn btn-primary" disabled={members.length===0} onClick={()=>setCreationOpen(true)}>+ {t("teamUX.addMember")}</button></div>}
   {creationOpen&&<div className="modal d-block" role="dialog" aria-modal="true" aria-labelledby="team-create-title" style={{background:"rgba(0,0,0,.5)"}}>
    <div className="modal-dialog modal-dialog-centered"><div className="modal-content">
-    <div className="modal-header"><h2 className="modal-title fs-5" id="team-create-title">Ajouter un membre</h2>
-     <button className="btn-close" aria-label="Fermer" onClick={()=>setCreationOpen(false)}/></div>
+    <div className="modal-header"><h2 className="modal-title fs-5" id="team-create-title">{t("teamUX.addMember")}</h2>
+     <button className="btn-close" aria-label={t("teamUX.cancel")} onClick={()=>setCreationOpen(false)}/></div>
     <form onSubmit={e=>void createOne(e)}>
      <div className="modal-body">
-      <label className="form-label" htmlFor="new-team-member">Nom du membre</label>
+      <label className="form-label" htmlFor="new-team-member">{t("teamUX.memberName")}</label>
       <input id="new-team-member" className="form-control" maxLength={120} required autoFocus
        value={newName} disabled={creating}
        onChange={e=>{setNewName(e.target.value);setCreateError("");requestId.current=null;}}/>
-      <p className="small text-secondary mt-2">Rôle Agile initial : Développeur. Modifiable dans la fiche du membre.</p>
-      {createError&&<p role="alert" className="alert alert-warning">Création impossible : {createError}</p>}
+      <p className="small text-secondary mt-2">{t("teamUX.defaultRole")}</p>
+      {createError&&<p role="alert" className="alert alert-warning">{t("teamUX.createError",{reason:createError})}</p>}
      </div>
      <div className="modal-footer">
-      <button type="button" className="btn btn-secondary" disabled={creating} onClick={()=>setCreationOpen(false)}>Annuler</button>
-      <button type="submit" className="btn btn-primary" disabled={creating||!newName.trim()}>Créer le membre</button>
+      <button type="button" className="btn btn-secondary" disabled={creating} onClick={()=>setCreationOpen(false)}>{t("teamUX.cancel")}</button>
+      <button type="submit" className="btn btn-primary" disabled={creating||!newName.trim()}>{t("teamUX.create")}</button>
      </div>
     </form>
    </div></div></div>}
