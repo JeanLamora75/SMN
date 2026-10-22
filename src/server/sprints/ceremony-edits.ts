@@ -34,11 +34,12 @@ export async function editCeremony(db:Client,actorId:string,id:string,raw:unknow
  await ensureCeremonyEditSchema(db);
  await db.query("BEGIN");
  try{
-  const row=await db.query<{id:string;sprint_id:string;kind:string;starts_at:string;ends_at:string;minutes:number;revision:number;occurrence_status:string}>(`SELECT c.id,c.sprint_id,c.kind,c.starts_at::text,c.ends_at::text,c.minutes,c.revision,c.occurrence_status
+  const row=await db.query<{id:string;sprint_id:string;kind:string;starts_at:string;ends_at:string;minutes:number;revision:number;occurrence_status:string;sprint_status:string}>(`SELECT s.status AS sprint_status,c.id,c.sprint_id,c.kind,c.starts_at::text,c.ends_at::text,c.minutes,c.revision,c.occurrence_status
   FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-  WHERE c.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND lower(i.mode)='scrum' FOR UPDATE OF c`,[id]);
+  WHERE c.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND lower(i.mode)='scrum' FOR UPDATE OF c,s`,[id]);
   const initial=row.rows[0];
   if(!initial){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  if(initial.sprint_status==='closed'){await db.query('ROLLBACK');return {ok:false as const,error:'protected' as const};}
   if(initial.revision!==o.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};}
   if(initial.occurrence_status!=="scheduled"){await db.query("ROLLBACK");return {ok:false as const,error:"protected" as const};}
   if(o.scope==="following"&&initial.kind!=="daily"){await db.query("ROLLBACK");return {ok:false as const,error:"invalid-input" as const};}
