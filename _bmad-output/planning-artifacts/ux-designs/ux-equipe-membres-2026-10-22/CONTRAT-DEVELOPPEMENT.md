@@ -1,5 +1,8 @@
 # Contrat de développement UX — Équipe et membres
 
+> **MISE À JOUR FICHE V2 :** les lots et composants de la fiche définis plus bas s'appliquent uniquement à l'ancienne conception. Le contrat en vigueur est [FICHE-MEMBRE-V2-UX-CONTRAT.md](FICHE-MEMBRE-V2-UX-CONTRAT.md) et sa [recette](FICHE-MEMBRE-V2-RECETTE.md). Nouveau bandeau avec un seul crayon d'identité/localisation, quatre onglets, séparation Calendrier/Absences et historiques visibles dans chaque onglet. Les exigences des vues Équipe Cartes/Liste restent valides.
+
+
 **22/10/2026 — Référence approuvée, implémentation non réalisée.** Destinataire : Amelia, développeuse BMAD. Lire impérativement [DESIGN.md](DESIGN.md), [EXPERIENCE.md](EXPERIENCE.md) et [MAQUETTES-REFERENCE.md](MAQUETTES-REFERENCE.md).
 
 ## 1. Décisions et périmètre
