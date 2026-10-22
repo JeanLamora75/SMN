@@ -1,7 +1,7 @@
 "use client";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
-type Preview={ok:boolean;token?:string;warnings?:Array<{id:string;kind:string;startAt:string;endAt:string}>;error?:string};
+type Preview={ok:boolean;token?:string;warnings?:Array<{id:string;kind:string;startAt:string;endAt:string}>;impact?:{goalCount:number;storyPoints:unknown;initialCapacityJh:number|null;manualActualJh:number|null;recalculatedReferenceJh:number|null;missingSources:string[];initialAndManualPreserved:boolean};error?:string};
 export default function RescheduleForm(){
  const t=useTranslation();const [sprintId,setSprintId]=useState(""),[startAt,setStartAt]=useState(""),[endAt,setEndAt]=useState("");
  const [preview,setPreview]=useState<Preview|null>(null),[error,setError]=useState(""),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
@@ -15,6 +15,13 @@ export default function RescheduleForm(){
  <label htmlFor="r-start">{t("sprintReschedule.start")}</label><input id="r-start" type="datetime-local" className="form-control" value={startAt} onChange={e=>{setStartAt(e.target.value);setPreview(null);}}/>
  <label htmlFor="r-end">{t("sprintReschedule.end")}</label><input id="r-end" type="datetime-local" className="form-control" value={endAt} onChange={e=>{setEndAt(e.target.value);setPreview(null);}}/>
  <p>{t("sprintReschedule.keep")}</p><button className="btn btn-outline-primary" type="button" disabled={busy||!sprintId||!startAt||!endAt} onClick={check}>{t("sprintReschedule.preview")}</button></div>
- {preview?.ok&&<div className="mt-3"><p>{t("sprintReschedule.warningCount")}: {preview.warnings?.length??0}</p>{preview.warnings?.map(x=><p key={x.id}>{x.kind} — {x.startAt} — {x.endAt}</p>)}<button className="btn btn-primary" type="button" disabled={busy} onClick={confirm}>{t("sprintReschedule.confirm")}</button><button className="btn btn-outline-secondary ms-2" type="button" onClick={()=>setPreview(null)}>{t("sprintReschedule.cancel")}</button></div>}
+ {preview?.ok&&<div className="mt-3">{preview.impact&&<div className="alert alert-info" role="status"><strong>{t("sprintReschedule.impactTitle")}</strong><ul>
+ <li>{t("sprintReschedule.reviewGoals")}: {preview.impact.goalCount}</li>
+ <li>{t("sprintReschedule.reviewSp")}: {preview.impact.storyPoints?t("sprintReschedule.present"):t("sprintReschedule.missing")}</li>
+ <li>{t("sprintReschedule.initialRetained")}: {preview.impact.initialCapacityJh??t("sprintReschedule.missing")} JH</li>
+ <li>{t("sprintReschedule.manualRetained")}: {preview.impact.manualActualJh??t("sprintReschedule.missing")} JH</li>
+ <li>{t("sprintReschedule.newReference")}: {preview.impact.recalculatedReferenceJh??t("sprintReschedule.missing")} JH</li>
+ </ul><p>{t("sprintReschedule.unchanged")}</p>
+ {preview.impact.missingSources.length>0&&<p>{t("sprintReschedule.missingSources")}: {preview.impact.missingSources.join(", ")}</p>}</div>}<p>{t("sprintReschedule.warningCount")}: {preview.warnings?.length??0}</p>{preview.warnings?.map(x=><p key={x.id}>{x.kind} — {x.startAt} — {x.endAt}</p>)}<button className="btn btn-primary" type="button" disabled={busy} onClick={confirm}>{t("sprintReschedule.confirm")}</button><button className="btn btn-outline-secondary ms-2" type="button" onClick={()=>setPreview(null)}>{t("sprintReschedule.cancel")}</button></div>}
  {error&&<p role="alert" className="alert alert-warning">{error}</p>}{message&&<p role="status" className="alert alert-success">{message}</p>}</section>;
 }
