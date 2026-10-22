@@ -689,6 +689,7 @@ model SmnSprintCapacityTrigger {
 }
 
 model SmnSprintCeremony {
+ actualMinutes Int? @map("actual_minutes")
  id String @id
  sprintId String @map("sprint_id")
  kind String
@@ -771,6 +772,7 @@ model SmnScrumCeremonyTemplateHistory {
  @@map("smn_scrum_ceremony_template_history")
 }
 model SmnScrumTemplateOccurrence {
+ actualMinutes Int? @map("actual_minutes")
  id String @id
  templateId String @map("template_id")
  templateRevision Int @map("template_revision")
@@ -788,6 +790,7 @@ model SmnScrumTemplateOccurrence {
 }
 
 model SmnSprintExceptionalMeeting {
+ actualMinutes Int? @map("actual_minutes")
  id String @id
  sprintId String @map("sprint_id")
  name String
@@ -812,4 +815,16 @@ model SmnSprintExceptionalMeetingHistory {
  details Json @db.JsonB
  meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
  @@map("smn_sprint_exceptional_meeting_history")
+}
+
+model SmnMeetingActualDurationAudit {
+ id String @id
+ kind String
+ eventId String @map("event_id")
+ previousMinutes Int? @map("previous_minutes")
+ newMinutes Int @map("new_minutes")
+ plannedMinutes Int @map("planned_minutes")
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ @@map("smn_meeting_actual_duration_audit")
 }
