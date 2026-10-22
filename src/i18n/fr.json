@@ -1482,5 +1482,19 @@
     "overlap": "Chevauchement de cérémonies",
     "closure": "Cérémonie sur une fermeture collective",
     "error": "Impossible de vérifier les conflits de réunions."
+  },
+  "ceremonyEdit": {
+    "title": "Modifier une cérémonie",
+    "choose": "Occurrence",
+    "start": "Début prévu (UTC)",
+    "minutes": "Durée prévue en minutes",
+    "scope": "Périmètre",
+    "single": "Cette occurrence",
+    "following": "Cette occurrence et les Daily suivants",
+    "save": "Enregistrer",
+    "history": "Consulter l'historique",
+    "saved": "Modification enregistrée et auditée.",
+    "warning": "Modification enregistrée. Attention : un chevauchement a été détecté.",
+    "error": "Modification impossible ou occurrence protégée."
   }
 }
