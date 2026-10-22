@@ -1563,5 +1563,17 @@
     "history": "History",
     "saved": "Status recorded.",
     "error": "Unable to update meeting status."
+  },
+  "actualDuration": {
+    "title": "Actual meeting durations",
+    "info": "Actual duration initially matches the planned duration, without marking the meeting as Held. Only the duration is changed.",
+    "meeting": "Meeting",
+    "planned": "Planned",
+    "actual": "Actual (minutes)",
+    "delta": "Difference",
+    "action": "Action",
+    "save": "Save",
+    "saved": "Actual duration saved and audited.",
+    "error": "Unable to save actual duration."
   }
 }
