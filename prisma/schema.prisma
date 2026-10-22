@@ -46,6 +46,7 @@ model SmnTeam {
   sprintBatchPreviews SmnSprintBatchPreview[]
   sprintBatchAudits SmnSprintBatchAudit[]
   scrumLunch SmnScrumLunch?
+  ceremonyTemplates SmnScrumCeremonyTemplate[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -623,6 +624,7 @@ model SmnSprint {
  deletedBy String? @map("deleted_by")
  autoSuspended Boolean @default(false) @map("auto_suspended")
  ceremonies SmnSprintCeremony[]
+ customCeremonies SmnScrumTemplateOccurrence[]
  transitions SmnSprintTransition[]
  capacityTrigger SmnSprintCapacityTrigger?
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
@@ -734,4 +736,49 @@ model SmnSprintCeremonyHistory {
  ceremony SmnSprintCeremony @relation(fields:[ceremonyId],references:[id],onDelete:Restrict)
  @@unique([ceremonyId,revision])
  @@map("smn_sprint_ceremony_history")
+}
+
+model SmnScrumCeremonyTemplate {
+ id String @id
+ teamId String @map("team_id")
+ name String
+ frequency String
+ weekday Int?
+ position String?
+ localTime DateTime @map("local_time") @db.Time(0)
+ durationMinutes Int @map("duration_minutes")
+ active Boolean @default(true)
+ revision Int @default(1)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ history SmnScrumCeremonyTemplateHistory[]
+ occurrences SmnScrumTemplateOccurrence[]
+ @@map("smn_scrum_ceremony_template")
+}
+model SmnScrumCeremonyTemplateHistory {
+ id String @id
+ templateId String @map("template_id")
+ revision Int
+ beforeValues Json? @map("before_values") @db.JsonB
+ afterValues Json @map("after_values") @db.JsonB
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ template SmnScrumCeremonyTemplate @relation(fields:[templateId],references:[id],onDelete:Restrict)
+ @@unique([templateId,revision])
+ @@map("smn_scrum_ceremony_template_history")
+}
+model SmnScrumTemplateOccurrence {
+ id String @id
+ templateId String @map("template_id")
+ templateRevision Int @map("template_revision")
+ sprintId String @map("sprint_id")
+ name String
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ template SmnScrumCeremonyTemplate @relation(fields:[templateId],references:[id],onDelete:Restrict)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@unique([templateId,sprintId,startsAt])
+ @@map("smn_scrum_template_occurrence")
 }
