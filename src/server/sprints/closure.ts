@@ -29,20 +29,36 @@ async function sprintScope(db:Client,id:string,lock=false){
  ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
 async function snapshot(db:Client,sprintId:string){
- const [goals,points,ceremonies,custom,exceptional,capacity]=await Promise.all([
+ const [goals,points,ceremonies,custom,exceptional,capacity,participants]=await Promise.all([
   db.query(`SELECT id,title,evaluation,comment,revision FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]),
   db.query(`SELECT initial_sp::text,added_sp::text,removed_sp::text,done_sp::text,revision FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT id,kind,starts_at::text,ends_at::text,occurrence_status AS status,actual_minutes FROM public.smn_sprint_ceremony WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT id,template_id,template_revision,name,starts_at::text,ends_at::text,status,actual_minutes FROM public.smn_scrum_template_occurrence WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT id,name,starts_at::text,ends_at::text,status,actual_minutes,impacts_capacity FROM public.smn_sprint_exceptional_meeting WHERE sprint_id=$1`,[sprintId]),
-  db.query(`SELECT p.start_on::text,p.end_on::text,i.initial_jh::text AS initial_jh,a.retained_jh::text AS actual_jh,a.provenance
- FROM public.smn_sprint s LEFT JOIN public.smn_capacity_period_override p ON p.team_id=s.team_id AND p.start_on=(s.start_at AT TIME ZONE s.time_zone)::date AND p.end_on=(s.end_at AT TIME ZONE s.time_zone)::date
- LEFT JOIN public.smn_capacity_initial_snapshot i ON i.period_id=p.id
- LEFT JOIN public.smn_capacity_actual_snapshot a ON a.period_id=p.id WHERE s.id=$1`,[sprintId])
+  db.query(`SELECT
+    (s.start_at AT TIME ZONE s.time_zone)::date::text AS start_on,
+    (s.end_at AT TIME ZONE s.time_zone)::date::text AS end_on,
+    (SELECT i.initial_jh::text FROM public.smn_capacity_initial_snapshot i
+      JOIN public.smn_capacity_period_override p ON p.id=i.period_id
+      WHERE p.team_id=s.team_id AND p.start_on=(s.start_at AT TIME ZONE s.time_zone)::date
+      AND p.end_on=(s.end_at AT TIME ZONE s.time_zone)::date
+      ORDER BY i.id DESC LIMIT 1) AS initial_jh,
+    (SELECT a.retained_jh::text FROM public.smn_capacity_actual_snapshot a
+      JOIN public.smn_capacity_period_override p ON p.id=a.period_id
+      WHERE p.team_id=s.team_id AND p.start_on=(s.start_at AT TIME ZONE s.time_zone)::date
+      AND p.end_on=(s.end_at AT TIME ZONE s.time_zone)::date
+      ORDER BY a.closed_at DESC,a.id DESC LIMIT 1) AS actual_jh,
+    (SELECT a.provenance FROM public.smn_capacity_actual_snapshot a
+      JOIN public.smn_capacity_period_override p ON p.id=a.period_id
+      WHERE p.team_id=s.team_id AND p.start_on=(s.start_at AT TIME ZONE s.time_zone)::date
+      AND p.end_on=(s.end_at AT TIME ZONE s.time_zone)::date
+      ORDER BY a.closed_at DESC,a.id DESC LIMIT 1) AS provenance
+    FROM public.smn_sprint s WHERE s.id=$1`,[sprintId]),
+  db.query(`SELECT p.meeting_id,p.member_id FROM public.smn_exceptional_meeting_participant p JOIN public.smn_sprint_exceptional_meeting m ON m.id=p.meeting_id WHERE m.sprint_id=$1 ORDER BY p.meeting_id,p.member_id`,[sprintId])
  ]);
  return {goals:goals.rows,storyPoints:points.rows[0]??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
-  capacity:capacity.rows[0]??null};
+  capacity:capacity.rows[0]??null,participants:participants.rows};
 }
 export async function listSprintClosures(db:Client,sprintId:string){
  await ensureClosureSchema(db);const sprint=await sprintScope(db,sprintId);if(!sprint)return null;
