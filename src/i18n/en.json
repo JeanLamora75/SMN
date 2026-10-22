@@ -1751,6 +1751,15 @@
     "locationHelp": "Member country and time zone.",
     "lifecycleTitle": "Lifecycle",
     "lifecycleHelp": "Assignment closure, archiving and reactivation.",
-    "refreshFailed": "Unable to refresh."
+    "refreshFailed": "Unable to refresh.",
+    "tabs": {
+      "profile": "Profile",
+      "assignment": "Assignment",
+      "calendar": "Calendar",
+      "location": "Location",
+      "history": "History"
+    },
+    "historyHelp": "Assignment and status changes are available in the respective management screens.",
+    "functionMissing": "Job title not specified"
   }
 }
