@@ -40,3 +40,16 @@ Après Pull de `main` et démarrage `pnpm dev` :
 8. Si aucune fiche n'existe, initialiser la liste depuis le lien vers la création par lot.
 
 La livraison est à **recetter**, et non déclarée validée fonctionnellement.
+
+
+## Correctif de conformité aux décisions Sally — 22/10 (seconde passe)
+L'implémentation initiale ne respectait pas le contrat visuel. Correctifs publiés directement sur main :
+- `.smn-page` plafonnait toutes les pages à 870 px. Surcharge dédiée `.smn-team-page,.smn-member-page` pour affichage pleine largeur.
+- Grille Équipe aérée six colonnes grand écran, cartes de hauteur minimale 222 px et emplacements vides en pointillés.
+- Badges SM/PO/Dev **bleus si actifs / gris sinon**, maintenus sur une ligne. Avatar MVP neutre et absence de photographie nominative.
+- Carte d'ajout explicitement intitulée « Ajouter un membre ».
+- Fiche Membre : bandeau identité complet et onglets Profil / Affectation / Calendrier / Localisation / Historique ; profil en deux colonnes et crayons à proximité des valeurs.
+- Onglets Calendrier et Localisation montrent les éditeurs existants directement au lieu de masquer leurs données dans des cartes descriptives.
+- L'archivage et la réactivation restent gérés via l'éditeur de cycle de vie existant ; les confirmations d'origine sont conservées.
+
+**Limites restant à traiter :** la fonction professionnelle n'est toujours pas enregistrée en base ; l'onglet Historique ne constitue pas encore un historique agrégé ; les champs du calendrier et de la localisation réutilisent les écrans d'administration existants. Une validation visuelle en navigateur face aux maquettes approuvées et une compilation TypeScript restent indispensables. Pas de validation fonctionnelle affirmée.
