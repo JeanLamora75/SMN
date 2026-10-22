@@ -610,6 +610,8 @@ model SmnScrumCadenceAudit {
 }
 
 model SmnSprint {
+ closureSnapshots SmnSprintClosureSnapshot[]
+ closureAudits SmnSprintClosureAudit[]
  storyPoints SmnSprintStoryPoints?
  storyPointsAudits SmnSprintStoryPointsAudit[]
  goals SmnSprintGoal[]
@@ -889,4 +891,28 @@ model SmnSprintStoryPointsAudit {
  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
  sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
  @@map("smn_sprint_story_points_audit")
+}
+
+model SmnSprintClosureSnapshot {
+ id String @id
+ sprintId String @map("sprint_id")
+ version Int
+ snapshot Json @db.JsonB
+ actorId String? @map("actor_id")
+ closedAt DateTime @default(now()) @map("closed_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@unique([sprintId,version])
+ @@map("smn_sprint_closure_snapshot")
+}
+model SmnSprintClosureAudit {
+ id String @id
+ sprintId String @map("sprint_id")
+ operation String
+ previousStatus String @map("previous_status")
+ nextStatus String @map("next_status")
+ snapshotVersion Int? @map("snapshot_version")
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_closure_audit")
 }
