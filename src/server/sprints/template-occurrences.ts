@@ -15,7 +15,7 @@ function resolveLocal(date:string,time:string,zone:string){
  for(let shift=-14*60;shift<=14*60;shift+=15){const at=new Date(base+shift*60000);const x=localParts(at,zone);if(x.date===date&&x.time===time)return at;}
  throw Error("template-local-time-unavailable");
 }
-export async function saveTemplateOccurrences(db:Client,sprint:Sprint){
+export async function ensureTemplateOccurrenceSchema(db:Client){
  await ensureTemplateSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_scrum_template_occurrence(
  id text PRIMARY KEY,
@@ -26,6 +26,12 @@ export async function saveTemplateOccurrences(db:Client,sprint:Sprint){
  starts_at timestamptz NOT NULL,ends_at timestamptz NOT NULL,
  created_at timestamptz NOT NULL DEFAULT now(),
  CHECK(ends_at>starts_at),UNIQUE(template_id,sprint_id,starts_at))`);
+ await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'");
+ await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false");
+ await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes BETWEEN 0 AND 1440)");
+}
+export async function saveTemplateOccurrences(db:Client,sprint:Sprint){
+ await ensureTemplateOccurrenceSchema(db);
  const team=await db.query<{team_id:string}>("SELECT team_id FROM public.smn_sprint WHERE id=$1",[sprint.id]);
  if(!team.rows[0])throw Error("sprint-not-found");
  const templates=await db.query<{id:string;name:string;frequency:Template["frequency"];weekday:number|null;position:Template["position"];time:string;duration:number;revision:number}>(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,revision
@@ -58,7 +64,7 @@ export async function saveTemplateOccurrences(db:Client,sprint:Sprint){
 }
 
 export async function listTemplateOccurrences(db:Client){
- await ensureTemplateSchema(db);
+ await ensureTemplateOccurrenceSchema(db);
  const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
  if(team.rows.length!==1)throw Error("scrum-team-unavailable");
