@@ -1,10 +1,11 @@
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {useEpic4Presentation} from "./i18n-presentation";
 type Kind="standard"|"custom"|"exceptional";
 type Meeting={id:string;kind:Kind;sprintName:string;sprintStatus:string;plannedMinutes:number;actualMinutes:number;deltaMinutes:number;startAt:string};
 export default function ActualDurationForm(){
- const t=useTranslation();
+ const t=useTranslation();const presentation=useEpic4Presentation();
  const [items,setItems]=useState<Meeting[]>([]);
  const [drafts,setDrafts]=useState<Record<string,number>>({});
  const [busy,setBusy]=useState(false);
@@ -20,7 +21,7 @@ export default function ActualDurationForm(){
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("actualDuration.title")}</h2><p>{t("actualDuration.info")}</p>
  <div className="table-responsive"><table className="table"><thead><tr><th>{t("actualDuration.meeting")}</th><th>{t("actualDuration.planned")}</th><th>{t("actualDuration.actual")}</th><th>{t("actualDuration.delta")}</th><th>{t("actualDuration.action")}</th></tr></thead>
  <tbody>{items.map(x=>{const key=x.kind+":"+x.id,actual=drafts[key]??x.actualMinutes;return <tr key={key}>
- <td>{x.sprintName} — {x.kind}<div className="small text-secondary">{x.startAt.slice(0,16)} UTC</div></td>
+ <td>{x.sprintName} — {presentation.kind(x.kind)}<div className="small text-secondary">{presentation.date(x.startAt)}</div></td>
  <td>{x.plannedMinutes} min</td>
  <td><input className="form-control" type="number" aria-label={t("actualDuration.actual")} min={0} max={1440} step={1} value={actual} disabled={busy||x.sprintStatus==="closed"} onChange={e=>setDrafts({...drafts,[key]:Number(e.target.value)})}/></td>
  <td>{actual-x.plannedMinutes} min</td>
