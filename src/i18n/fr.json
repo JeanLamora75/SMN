@@ -1464,5 +1464,14 @@
     "closed": "Clôturé",
     "suspended": "À venir (suspendu)",
     "error": "Impossible de réconcilier les états."
+  },
+  "sprintLunch": {
+    "title": "Pause déjeuner de l’équipe",
+    "note": "Pause 12 h–13 h par défaut. Les cérémonies des futurs Sprints excluent cette pause. La capacité des Développeurs et les cérémonies déjà créées ne sont pas modifiées.",
+    "start": "Début de la pause",
+    "end": "Fin de la pause",
+    "save": "Enregistrer",
+    "saved": "Pause enregistrée.",
+    "error": "Impossible de charger ou enregistrer la pause."
   }
 }
