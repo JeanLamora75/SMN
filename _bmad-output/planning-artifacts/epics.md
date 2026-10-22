@@ -11380,3 +11380,27 @@ Références obligatoires pour les agents BMAD : [DESIGN.md](https://github.com/
 **Règles clés :** pleine largeur, menu rétractable, header équipe/cycle, 4–6 métriques et 4 colonnes de suivi, 5 éléments maximum, tri automatique, comparaison entre cycles, historique fiable ou « Aucun éléments à ce jour », compteur **lundi–vendredi**, **engagement initial** SP et tickets, **aucune carte Avancement global** sans règle, responsive 4/2/1, personnalisation accessible.
 
 **Précision métier :** Traçabilité : Epic SMN-1 / SMN-21 pivot UX, SMN-20/22/23/24/25 et Epics 3/4/5/7/8 producteurs et vues ; ne pas changer les statuts métier sans preuve.
+
+
+## Avenant complémentaire — Epic 11 « Centre Paramètres » — 23/10/2026
+
+**Décision fonctionnelle explicitement validée le 23 octobre 2026.** Cet avenant est **postérieur** à la clôture officielle du workflow BMAD Create Epics and Stories d'origine. Les 10 Epics MVP et leurs 210 Stories initiales conservent leur statut historique ; cet ajout n'en modifie pas les critères, et **n'implique pas que le workflow originel à étapes ait été relancé/validé pour l'Epic 11**. Source de vérité des tickets créés : Jira.
+
+### Epic [SMN-223](https://lmn24.atlassian.net/browse/SMN-223) — Regrouper les paramètres généraux dans un centre de configuration
+
+**Valeur :** le Scrum Master Administrateur retrouve les réglages de SMN sous une entrée « Paramètres » de la navigation latérale rétractable et peut les explorer en vues Cartes ou Liste, sans ressaisie, sans exposer de rubriques non livrées comme fonctionnelles, ni redévelopper les règles métier.
+
+**Périmètre validé :** 14 rubriques réparties en 4 familles (Application et personnalisation, Organisation Agile, Calendriers et indisponibilités, Administration et maintenance). Navigation exclusive Cartes/Liste via 2 icônes haut-droite ; dernier choix mémorisé ; 4 cartes desktop par rangée et responsive ; accès aux vrais écrans/droits préservés. Intégrations et Notifications reportées/masquées.
+
+| Story | Résultat attendu |
+|---|---|
+| [SMN-224](https://lmn24.atlassian.net/browse/SMN-224) | Menu Paramètres dans sidebar et page portail, formulaire historique SMN-18 préservé |
+| [SMN-225](https://lmn24.atlassian.net/browse/SMN-225) | Catalogue ordonné 14 rubriques/4 familles, statuts et liens fiables |
+| [SMN-226](https://lmn24.atlassian.net/browse/SMN-226) | Bascule Cartes/Liste exclusive, préférence mémorisée, responsive 4/2/1, a11y |
+| [SMN-227](https://lmn24.atlassian.net/browse/SMN-227) | Liens d'écrans existants, retours, permissions, non-régression API et menus |
+
+**Dépendances :** SMN-18, 15, 20, 32, 65 et modules fériés/absences/sécurité. **Hors scope de refonte :** création de nouveaux paramètres Jours ouvrés, règles de capacité complètes, console sessions, connecteurs externes et notifications ; ces moteurs nécessitent un cadrage fonctionnel distinct.
+
+**Documents normatifs :** [DESIGN](ux-designs/ux-parametres-2026-10-23/DESIGN.md), [EXPERIENCE](ux-designs/ux-parametres-2026-10-23/EXPERIENCE.md), [contrat de développement](ux-designs/ux-parametres-2026-10-23/CONTRAT-DEVELOPPEMENT.md), [catalogue](ux-designs/ux-parametres-2026-10-23/CATALOGUE-ET-ROUTES.md), [recette](ux-designs/ux-parametres-2026-10-23/RECETTE-UX.md).
+
+**Statut :** approuvé UX/métier, tickets Jira créés, documentation sur branche GitHub ; aucun développement, test de compilation ni recette navigateur attesté.
