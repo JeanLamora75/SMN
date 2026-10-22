@@ -1658,5 +1658,17 @@
     "missing": "Data unavailable",
     "empty": "No eligible closed Sprint.",
     "error": "Unable to load trends."
+  },
+  "sprintClosure": {
+    "title": "Sprint closure and versions",
+    "choose": "Choose a Sprint",
+    "status": "Status",
+    "close": "Close Sprint",
+    "reopen": "Reopen Sprint",
+    "confirm": "Confirm this audited operation?",
+    "saved": "Operation saved.",
+    "error": "Unable to close or reopen Sprint.",
+    "versions": "Immutable snapshots",
+    "empty": "No closure recorded."
   }
 }

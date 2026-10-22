@@ -1658,5 +1658,17 @@
     "missing": "Donnée indisponible",
     "empty": "Aucun Sprint clôturé éligible.",
     "error": "Impossible de charger les tendances."
+  },
+  "sprintClosure": {
+    "title": "Clôture et versions du Sprint",
+    "choose": "Choisir un Sprint",
+    "status": "État",
+    "close": "Clôturer",
+    "reopen": "Rouvrir",
+    "confirm": "Confirmer cette opération ? Elle est historisée.",
+    "saved": "Opération enregistrée.",
+    "error": "Impossible de clôturer ou rouvrir ce Sprint.",
+    "versions": "Instantanés immuables",
+    "empty": "Aucune clôture enregistrée."
   }
 }

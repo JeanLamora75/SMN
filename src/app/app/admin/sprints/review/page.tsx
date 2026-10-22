@@ -6,6 +6,7 @@ import GoalsForm from "../goals-form";
 import StoryPointsForm from "../story-points-form";
 import ReviewCapacity from "../review-capacity";
 import SprintTrends from "./trends";
+import SprintClosure from "./closure";
 export const dynamic="force-dynamic";
 export default async function SprintReviewPage(){
  const actor=await currentAccount();if(!actor)redirect("/login");
@@ -16,5 +17,6 @@ export default async function SprintReviewPage(){
   <StoryPointsForm/>
   <ReviewCapacity/>
   <SprintTrends/>
+  <SprintClosure/>
  </main>;
 }
