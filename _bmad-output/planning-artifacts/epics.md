@@ -3831,7 +3831,7 @@ Les 24 Stories de l'Epic 4 ont été approuvées globalement et sans remarque pa
 
 **Given** Un Sprint est créé après sa date réelle de fin comme reprise historique,
 **When** sa création est confirmée,
-**Then** aucune cérémonie n'est fabriquée automatiquement ; seules les occurrences historiques connues pourront être saisies manuellement.
+**Then** aucune cérémonie n'est générée par défaut ; une génération rétrospective explicite peut être demandée conformément à SMN-160, avec une provenance « reconstituée » et sans statut de tenue inventé.
 
 #### Traçabilité
 
@@ -8259,56 +8259,56 @@ Créer des Sprints rétrospectifs documentés et importer des métriques consoli
 Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
 **Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
 
-### Story 8.2: Ne générer aucune cérémonie lors d'une reprise historique
+### Story 8.2: Choisir la génération des cérémonies lors d'une reprise historique
 **Jira :** https://lmn24.atlassian.net/browse/SMN-160
 
 **En tant que** Scrum Master Administrateur,
-**je veux** éviter de créer des cérémonies fictives pour les Sprints anciens,
-**afin de** ne pas faire croire que des réunions passées ont réellement eu lieu.
+**je veux** choisir, lors de la reprise d'un Sprint historique, de générer ou non les cérémonies de mon équipe selon la configuration enregistrée dans SMN,
+**afin de** reconstituer le calendrier historique lorsque cela est pertinent, sans laisser supposer que les réunions ont réellement eu lieu.
 
 **Critères d'acceptation :**
 
-#### AC1
+#### AC1 — Choix explicite
+**Given** un Sprint dont la date de fin est passée est créé dans le parcours historique,
+**When** je prépare sa création,
+**Then** l'option « Générer les cérémonies de l'équipe » est proposée, désactivée par défaut et accompagnée d'une explication.
 
-**Given** un Sprint est créé après sa date et heure réelles de fin par le parcours historique,
-**When** la création aboutit,
-**Then** aucun Planning, Daily, Review ni Rétrospective n'est généré, quel que soit le modèle normal de cérémonies.
-
-#### AC2
-
-**Given** des modèles de cérémonies personnalisées sont actifs,
+#### AC2 — Aucune cérémonie si désactivée
+**Given** l'option est désactivée,
 **When** le Sprint historique est créé,
-**Then** aucune occurrence personnalisée récurrente n'est générée rétrospectivement.
+**Then** aucune cérémonie Scrum standard ni occurrence de modèle personnalisé n'est générée.
 
-#### AC3
+#### AC3 — Génération selon la configuration
+**Given** l'option est activée et une configuration d'équipe est disponible,
+**When** le Sprint historique est créé,
+**Then** les cérémonies Scrum standards et occurrences des modèles actifs applicables sont calculées selon cadence, durées, horaires, fuseau, exceptions et modèles de l'équipe, rattachées au Sprint sans doublons.
 
-**Given** une cérémonie manque dans l'historique,
-**When** j'ouvre le calendrier du Sprint,
-**Then** elle n'est pas marquée automatiquement Tenue, Non tenue ou Annulée.
+#### AC4 — Provenance et statuts réels
+**Given** des cérémonies ont été reconstituées pour une période passée,
+**When** elles apparaissent dans le calendrier ou les reportings,
+**Then** leur provenance « reconstituée à partir de la configuration » est identifiable et aucun statut Tenue / Non tenue / Annulée n'est déduit automatiquement, y compris en leur absence.
 
-#### AC4
+#### AC5 — Paramètres traçables
+**Given** la génération historique est activée,
+**When** elle a lieu,
+**Then** le choix, les paramètres et modèles effectivement utilisés sont traçables ; la configuration actuelle n'est jamais présentée comme une preuve des pratiques historiques exactes.
 
-**Given** une création de Sprint ordinaire et future est demandée,
-**When** le moteur normal fonctionne,
-**Then** les règles de génération de cérémonies de l'Epic 4 restent applicables et inchangées.
+#### AC6 — Atomicité et idempotence
+**Given** une création historique échoue, est retentée ou soumise deux fois,
+**When** son résultat est contrôlé,
+**Then** aucun Sprint ou cérémonie partiellement créé ou dupliqué ne subsiste.
 
-#### AC5
-
-**Given** la création historique échoue puis est retentée,
-**When** le résultat est contrôlé,
-**Then** aucune occurrence fictive ni duplication du Sprint ne reste associée à un échec.
+#### AC7 — Création ordinaire inchangée
+**Given** un Sprint courant ou futur est créé selon le parcours normal,
+**When** les règles de l'Epic 4 s'appliquent,
+**Then** l'option réservée à la reprise historique ne modifie pas la génération habituelle.
 
 #### Traçabilité et dépendances
-
 * Epic SMN-8 ; FR-42, FR-47 ; D-PRD-130/A1 ; HIS-01 ; FR-17.
-* Dépendances : Story 8.1 ; gestion des cérémonies Epic 4.
-* Incrément I4 ; Scrum historique au MVP. Aucune reprise rétrospective Kanban complète ajoutée par cette Story. SAFe hors MVP.
-  **Statut : VALIDÉE FONCTIONNELLEMENT LE 19/10/2026, sans développement ni recette.**
-
-#### Validation fonctionnelle globale
-
-Les 20 Stories 8.1 à 8.20 de l'Epic 8 ont été approuvées globalement sans réserve par l'utilisateur le 19/10/2026. Cela ne constitue ni une livraison ni une recette.
-**Validation :** validée fonctionnellement sans réserve le 19/10/2026, sans développement ni recette attestés.
+* Dépendances : SMN-159 (Story 8.1), SMN-65, SMN-66, SMN-72, SMN-77.
+* Impacts : écran de reprise, service de création historique, moteur de cérémonies, provenance et audits, calendrier et rapports.
+* Incrément I4 ; Scrum historique au MVP. Pas de reprise Kanban complète ni d'extension SAFe dans cette Story.
+* **Évolution fonctionnelle demandée le 23/10/2026 et mise à jour dans Jira. Non développée ni recettée.** La validation globale du 19/10/2026 concerne la version antérieure.
 
 ### Story 8.3: Ajouter manuellement un événement historique réellement documenté
 **Jira :** https://lmn24.atlassian.net/browse/SMN-161
@@ -10925,7 +10925,7 @@ Epic SMN-10 ; FR-76, FR-78 ; D-PRD-129/REC-03/05 ; condition de succès 5 du PRD
 
 **Given** un Sprint historique terminé est repris,
 **When** je contrôle sa création,
-**Then** aucune cérémonie passée n'est fabriquée et la capacité initiale Connue/Estimée/Non renseignée reste distincte.
+**Then** aucune cérémonie n'est générée par défaut ; si l'option SMN-160 est activée, les cérémonies reconstituées sont identifiées sans fausse preuve de tenue, et la capacité initiale Connue/Estimée/Non renseignée reste distincte.
 
 #### AC2
 
