@@ -1581,5 +1581,19 @@
     "info": "L'option est désactivée par défaut. Le moteur de déduction de capacité réelle n'est pas encore raccordé : cette option ne modifie actuellement aucun total de capacité.",
     "impact": "Impacte la capacité",
     "error": "Impossible d’enregistrer ce paramètre."
+  },
+  "sprintReschedule": {
+    "title": "Replanifier un Sprint",
+    "intro": "Aperçu obligatoire. Les événements conservent leurs horaires ; le recalcul automatique n’est pas encore disponible.",
+    "id": "Identifiant du Sprint (UUID)",
+    "start": "Nouveau début (UTC)",
+    "end": "Nouvelle fin (UTC)",
+    "keep": "Option retenue : conserver les dates des événements.",
+    "preview": "Prévisualiser",
+    "warningCount": "Événements hors nouvelles bornes",
+    "confirm": "Confirmer la nouvelle période",
+    "cancel": "Annuler",
+    "saved": "Dates du Sprint modifiées et auditées.",
+    "error": "La replanification a échoué."
   }
 }

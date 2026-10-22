@@ -1581,5 +1581,19 @@
     "info": "Disabled by default. Actual capacity deduction is not connected yet: this option currently does not change capacity totals.",
     "impact": "Impacts capacity",
     "error": "Unable to save this setting."
+  },
+  "sprintReschedule": {
+    "title": "Reschedule a Sprint",
+    "intro": "Preview required. Event times are kept; automatic recalculation is not yet available.",
+    "id": "Sprint ID (UUID)",
+    "start": "New start (UTC)",
+    "end": "New end (UTC)",
+    "keep": "Selected option: keep event dates.",
+    "preview": "Preview",
+    "warningCount": "Events outside new boundaries",
+    "confirm": "Confirm new period",
+    "cancel": "Cancel",
+    "saved": "Sprint dates updated and audited.",
+    "error": "Rescheduling failed."
   }
 }

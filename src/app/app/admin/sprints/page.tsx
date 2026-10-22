@@ -15,10 +15,11 @@ import ExceptionalMeetingForm from "./exceptional-meeting-form";
 import AttendanceForm from "./attendance-form";
 import ActualDurationForm from "./actual-duration-form";
 import ExceptionalCapacityForm from "./exceptional-capacity-form";
+import RescheduleForm from "./reschedule-form";
 export const dynamic="force-dynamic";
 export default async function SprintsPage(){
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
- return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/><MeetingConflicts/><CeremonyEditor/><TemplateForm/><TemplateOccurrencesList/><ExceptionalMeetingForm/><AttendanceForm/><ActualDurationForm/><ExceptionalCapacityForm/></main>;
+ return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/><MeetingConflicts/><CeremonyEditor/><TemplateForm/><TemplateOccurrencesList/><ExceptionalMeetingForm/><AttendanceForm/><ActualDurationForm/><ExceptionalCapacityForm/><RescheduleForm/></main>;
 }
