@@ -1595,5 +1595,20 @@
     "cancel": "Cancel",
     "saved": "Sprint dates updated and audited.",
     "error": "Rescheduling failed."
+  },
+  "sprintGoals": {
+    "title": "Sprint goals",
+    "choose": "Choose a Sprint",
+    "goal": "Goal",
+    "evaluation": "Evaluation",
+    "comment": "Optional comment",
+    "edit": "Edit",
+    "save": "Save",
+    "saved": "Goal saved.",
+    "error": "Unable to load or save goal.",
+    "not_evaluated": "Not evaluated",
+    "achieved": "Achieved",
+    "partially_achieved": "Partially achieved",
+    "not_achieved": "Not achieved"
   }
 }
