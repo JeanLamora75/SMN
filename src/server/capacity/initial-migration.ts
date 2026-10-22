@@ -18,11 +18,11 @@ export const CAPACITY_INITIAL_MIGRATION_SQL=`CREATE TABLE public.smn_capacity_in
 CREATE INDEX smn_capacity_initial_opened_idx
  ON public.smn_capacity_initial_snapshot(actual_opened_at);
 CREATE FUNCTION public.smn_initial_snapshot_immutable()
- RETURNS trigger LANGUAGE plpgsql AS $
+ RETURNS trigger LANGUAGE plpgsql AS $$
  BEGIN
   RAISE EXCEPTION 'initial-capacity-snapshot-is-immutable';
  END;
- $;
+ $$;
 CREATE TRIGGER smn_initial_snapshot_immutable_write
  BEFORE UPDATE OR DELETE ON public.smn_capacity_initial_snapshot
  FOR EACH ROW EXECUTE FUNCTION public.smn_initial_snapshot_immutable();
