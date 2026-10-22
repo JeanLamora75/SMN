@@ -69,11 +69,13 @@ export default function ReplanningPreview({start,end}:{start:string;end:string})
  };
  const render=(value:number|null)=>value===null?
   t("replanning.notCalculable"):numberText(value);
- const blocker=(value:Preview["blockers"][number])=>t(
-  ("replanning."+
-   ({"closed":"blockClosed","target-in-use":"blockTarget",
-     "same-period":"blockSame","missing-reference":"blockMissing"}[value]))
-   as "replanning.blockClosed");
+ const blockerKeys={
+  "closed":"replanning.blockClosed",
+  "target-in-use":"replanning.blockTarget",
+  "same-period":"replanning.blockSame",
+  "missing-reference":"replanning.blockMissing",
+ } as const;
+ const blocker=(value:Preview["blockers"][number])=>t(blockerKeys[value]);
  return <section className="smn-panel p-3 d-grid gap-3" aria-labelledby="replanning-title">
   <h2 id="replanning-title" className="h5">{t("replanning.title")}</h2>
   <p className="small text-secondary">{t("replanning.intro")}</p>
