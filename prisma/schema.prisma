@@ -701,6 +701,7 @@ model SmnSprintCeremony {
  history SmnSprintCeremonyHistory[]
  provenance String @default("generated")
  occurrenceStatus String @default("scheduled") @map("occurrence_status")
+ statusExplicit Boolean @default(false) @map("status_explicit")
  revision Int @default(1)
  @@unique([sprintId,kind,startsAt])
  @@map("smn_sprint_ceremony")
@@ -773,6 +774,8 @@ model SmnScrumTemplateOccurrence {
  id String @id
  templateId String @map("template_id")
  templateRevision Int @map("template_revision")
+ status String @default("scheduled")
+ statusExplicit Boolean @default(false) @map("status_explicit")
  sprintId String @map("sprint_id")
  name String
  startsAt DateTime @map("starts_at") @db.Timestamptz(6)
@@ -792,6 +795,7 @@ model SmnSprintExceptionalMeeting {
  endsAt DateTime @map("ends_at") @db.Timestamptz(6)
  durationMinutes Int @map("duration_minutes")
  status String @default("scheduled")
+ statusExplicit Boolean @default(false) @map("status_explicit")
  createdBy String? @map("created_by")
  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
  revisedAt DateTime? @map("revised_at") @db.Timestamptz(6)
