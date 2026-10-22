@@ -1532,5 +1532,20 @@
     "version": "Version",
     "inactive": "Template disabled",
     "error": "Unable to load occurrences."
+  },
+  "exceptionalMeetings": {
+    "title": "Exceptional meetings",
+    "info": "A one-off meeting belongs only to its chosen Sprint; it will never be repeated in subsequent Sprints. Times are entered in UTC.",
+    "sprint": "Sprint",
+    "name": "Meeting name",
+    "start": "Start date and time (UTC)",
+    "duration": "Planned duration (minutes)",
+    "create": "Create meeting",
+    "saved": "Exceptional meeting created.",
+    "closed": "The Sprint is closed and must be reopened before editing.",
+    "error": "Unable to create or view meeting. Check its data and Sprint boundaries.",
+    "warning": "Warning: the meeting overlaps another one. It was saved nonetheless.",
+    "list": "Created meetings",
+    "history": "History"
   }
 }
