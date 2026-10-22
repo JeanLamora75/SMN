@@ -1800,5 +1800,77 @@
     "groupGeneral": "Application et personnalisation",
     "general": "Informations générales",
     "generalDescription": "Gérer la langue, le thème, la palette et le pays de référence."
+  },
+  "settingsCatalog": {
+    "groups": {
+      "application": "Application et personnalisation",
+      "agile": "Organisation Agile",
+      "calendar": "Calendriers et indisponibilités",
+      "administration": "Administration et maintenance"
+    },
+    "status": {
+      "available": "Disponible",
+      "partial": "À compléter",
+      "planned": "À venir",
+      "not-applicable": "Non applicable"
+    },
+    "items": {
+      "general": {
+        "title": "Informations générales",
+        "description": "Définir la langue, le thème, la palette et le pays de référence."
+      },
+      "languages": {
+        "title": "Langues",
+        "description": "Choisir la langue de l'interface française ou anglaise."
+      },
+      "appearance": {
+        "title": "Apparence",
+        "description": "Personnaliser le thème et les couleurs."
+      },
+      "cadence": {
+        "title": "Cadence des sprints",
+        "description": "Définir les durées et horaires des futurs sprints Scrum."
+      },
+      "ceremonies": {
+        "title": "Cérémonies et modèles",
+        "description": "Configurer les réunions et modèles d'équipe."
+      },
+      "capacity": {
+        "title": "Règles de capacité",
+        "description": "Définir les règles de calcul de capacité."
+      },
+      "workingDays": {
+        "title": "Jours ouvrés",
+        "description": "Personnaliser la semaine de référence de l'équipe."
+      },
+      "countries": {
+        "title": "Pays et jours fériés",
+        "description": "Gérer les pays et les calendriers nationaux."
+      },
+      "closures": {
+        "title": "Fermetures d'entreprise",
+        "description": "Gérer les périodes de fermeture collective."
+      },
+      "absences": {
+        "title": "Catégories d'absences",
+        "description": "Gérer les types et couleurs des absences."
+      },
+      "users": {
+        "title": "Utilisateurs et habilitations",
+        "description": "Administrer les comptes et les autorisations."
+      },
+      "security": {
+        "title": "Sécurité et sessions",
+        "description": "Consulter la sécurité et les accès personnels."
+      },
+      "backups": {
+        "title": "Sauvegardes",
+        "description": "Gérer les sauvegardes protégées."
+      },
+      "audit": {
+        "title": "Journal d'audit",
+        "description": "Consulter la traçabilité des opérations."
+      }
+    }
   }
 }
