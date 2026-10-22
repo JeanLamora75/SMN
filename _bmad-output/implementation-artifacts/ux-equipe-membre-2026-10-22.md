@@ -53,3 +53,11 @@ L'implémentation initiale ne respectait pas le contrat visuel. Correctifs publi
 - L'archivage et la réactivation restent gérés via l'éditeur de cycle de vie existant ; les confirmations d'origine sont conservées.
 
 **Limites restant à traiter :** la fonction professionnelle n'est toujours pas enregistrée en base ; l'onglet Historique ne constitue pas encore un historique agrégé ; les champs du calendrier et de la localisation réutilisent les écrans d'administration existants. Une validation visuelle en navigateur face aux maquettes approuvées et une compilation TypeScript restent indispensables. Pas de validation fonctionnelle affirmée.
+
+
+## Sally — Correction des interactions (dernier échange)
+- Onglet Profil sélectionné à l'ouverture, page Membre sans plafond de largeur.
+- Onglet Historique : consultation déclenchée au clic sur l'onglet, affichage des affectations et de l'état archivé depuis l'API existante `/api/admin/members/[id]/lifecycle`, message « Aucun élément à ce jour » lorsque aucune donnée pertinente n'est disponible ; aucun crayon préalable requis.
+- Crayons Profil, Affectation, Calendrier, Localisation, Cycle de vie : éditeurs rendus dans une fenêtre modale centrée (fond obscurci, zone scrollable, fermeture Escape, gestion partielle du focus) au lieu d'un formulaire inséré au bas de la page.
+- La fermeture par la croix demande confirmation pour éviter la perte de saisie. Les formulaires gardent leurs propres contrôles et confirmations.
+- **Limites** : l'historique ne consolide pas encore tous les événements du membre (notamment modifications de profil, calendrier, localisation) ; les vues Calendrier et Localisation proposent leur description en lecture, et non encore un résumé complet de leur contenu. Contrôle TypeScript et recette navigateur non exécutés, à confirmer sur Windows.
