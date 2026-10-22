@@ -66,7 +66,7 @@ export function computeCeremonies(sprint:Sprint,weeks:number,box:Timeboxes=defau
  const retro=splitAtLunch("retrospective",addMinutes(last,-box.finalMargin),box.retrospective,sprint.timeZone,lunch,true);
  const review=splitAtLunch("review",new Date(retro.startsAt),box.review,sprint.timeZone,lunch,true);
  const reviewStart=new Date(review.startsAt);
- if(reviewStart<planning.endsAt)throw Error("ceremony-overlap");
+ if(reviewStart<new Date(planning.endsAt))throw Error("ceremony-overlap");
  const items:Ceremony[]=[planning];
  const startLocal=localParts(first,sprint.timeZone);
  const endLocal=localParts(last,sprint.timeZone);
