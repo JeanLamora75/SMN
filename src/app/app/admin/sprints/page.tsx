@@ -10,10 +10,11 @@ import LunchForm from "./lunch-form";
 import MeetingConflicts from "./meeting-conflicts";
 import CeremonyEditor from "./ceremony-editor";
 import TemplateForm from "./template-form";
+import TemplateOccurrencesList from "./template-occurrences-list";
 export const dynamic="force-dynamic";
 export default async function SprintsPage(){
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
- return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/><MeetingConflicts/><CeremonyEditor/><TemplateForm/></main>;
+ return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/><MeetingConflicts/><CeremonyEditor/><TemplateForm/><TemplateOccurrencesList/></main>;
 }
