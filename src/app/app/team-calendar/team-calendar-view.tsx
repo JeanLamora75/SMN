@@ -100,7 +100,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
      <div className="smn-calendar-holiday">{holiday?.title??"\u00a0"}</div>
      <ul className="list-unstyled smn-calendar-meetings mb-0">
       {meetingsToday.map(m=><li key={m.kind+":"+m.id} title={clock(m.startAt)+" — "+clock(m.endAt)}>
-       {isAdmin?<Link href={m.href}>{m.name}</Link>:<span>{m.name}</span>}</li>)}
+       <Link href={m.href}>{m.name}</Link></li>)}
       {matching.filter(e=>e.type!=="holiday"&&e.type!=="meeting").map(e=><li key={e.type+":"+e.id} className="small text-secondary">
        {e.sourceHref?.startsWith("/app/")?<Link href={e.sourceHref}>{e.title||e.type}</Link>:e.title||e.type}
       </li>)}
