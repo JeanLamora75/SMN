@@ -1580,7 +1580,8 @@
     "title": "Exceptional meeting capacity impact",
     "info": "Disabled by default. Actual capacity deduction is not connected yet: this option currently does not change capacity totals.",
     "impact": "Impacts capacity",
-    "error": "Unable to save this setting."
+    "error": "Unable to save this setting.",
+    "participants": "Attending members"
   },
   "sprintReschedule": {
     "title": "Reschedule a Sprint",
