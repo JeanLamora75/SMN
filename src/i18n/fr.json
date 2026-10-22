@@ -1647,5 +1647,16 @@
     "unreliable": "Écart indisponible : données manquantes ou insuffisamment fiables.",
     "readonly": "Lecture seule. La capacité réelle et sa saisie manuelle restent gérées dans leurs fonctions dédiées.",
     "error": "Impossible de lire la capacité de ce Sprint."
+  },
+  "sprintTrends": {
+    "title": "Tendances des cinq derniers Sprints clôturés",
+    "info": "Lecture seule : seules les données enregistrées et les Sprints clôturés jusqu’au Sprint sélectionné sont pris en compte.",
+    "choose": "Sprint de référence",
+    "completedSp": "Story Points terminés",
+    "completionRate": "Taux de réalisation",
+    "actualCapacityJh": "Capacité réelle (JH)",
+    "missing": "Donnée indisponible",
+    "empty": "Aucun Sprint clôturé éligible.",
+    "error": "Impossible de charger les tendances."
   }
 }
