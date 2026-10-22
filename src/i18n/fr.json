@@ -1777,6 +1777,8 @@
     "historyCalendar": "Calendrier hebdomadaire modifié",
     "historyCalendarException": "Exception individuelle de calendrier",
     "historyAbsence": "Absence enregistrée ou modifiée",
-    "historyLocation": "Localisation enregistrée"
+    "historyLocation": "Localisation enregistrée",
+    "historyLifecycle": "Changement de statut du membre",
+    "historyRoleVersion": "Révision de l’affectation Agile"
   }
 }
