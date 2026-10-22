@@ -1464,5 +1464,14 @@
     "closed": "Closed",
     "suspended": "Upcoming (suspended)",
     "error": "Unable to reconcile Sprint states."
+  },
+  "sprintLunch": {
+    "title": "Team lunch break",
+    "note": "Default 12:00–13:00. Ceremonies for future Sprints exclude this break. Developer capacity and existing ceremonies remain unchanged.",
+    "start": "Break starts",
+    "end": "Break ends",
+    "save": "Save",
+    "saved": "Lunch break saved.",
+    "error": "Unable to load or save lunch break."
   }
 }
