@@ -22,9 +22,9 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
       assert.ok(links.includes("/app"));
       assert.ok(links.includes("/app/security"));
       assert.ok(links.includes("/app/team-calendar"));
-      assert.equal(links.includes("/app/admin/users"),role==="admin");
+      assert.equal(links.includes("/app/admin/users"),false);
       assert.equal(links.includes("/app/admin/settings"),role==="admin");
-      assert.equal(links.includes("/app/admin/audit"),role==="admin");
+      assert.equal(links.includes("/app/admin/audit"),false);
       assert.equal(links.includes("/app/admin/members"),role==="admin");
       for(const entry of entries.filter(entry=>entry.href===null))
         assert.equal(activePrivateEntry("/app",entry),false);
@@ -50,7 +50,7 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
   });
   it("calcule l'entrée active sans donner un état actif aux écrans non livrés",()=>{
     const links=privateNavigation("kanban","admin").flatMap(group=>group.entries);
-    for(const pathname of ["/app","/app/security","/app/admin/users","/app/admin/settings","/app/admin/audit","/app/admin/members"]){
+    for(const pathname of ["/app","/app/security","/app/admin/settings","/app/admin/members"]){
       assert.deepEqual(links.filter(entry=>activePrivateEntry(pathname,entry)).map(entry=>entry.href),[pathname]);
     }
     assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/team-calendar",entry)).map(entry=>entry.id),["centralCalendar"]);
