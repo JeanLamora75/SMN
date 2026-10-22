@@ -1680,5 +1680,20 @@
     "error": "Impossible de clôturer ou rouvrir ce Sprint.",
     "versions": "Instantanés immuables",
     "empty": "Aucune clôture enregistrée."
+  },
+  "epic4Ui": {
+    "review": "Bilan du Sprint",
+    "administration": "Administration des Sprints",
+    "standard": "Cérémonie standard",
+    "custom": "Cérémonie personnalisée",
+    "exceptional": "Réunion exceptionnelle",
+    "scheduled": "Planifiée",
+    "held": "Tenue",
+    "notHeld": "Non tenue",
+    "cancelled": "Annulée",
+    "planned": "Planifié",
+    "active": "En cours",
+    "finished": "Terminé",
+    "closed": "Clôturé"
   }
 }

@@ -1,10 +1,11 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import {useEpic4Presentation} from "./i18n-presentation";
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string};
 type Meeting={id:string;sprintId:string;name:string;status:string;startAt:string;endAt:string;duration:number};
 export default function ExceptionalMeetingForm(){
- const t=useTranslation();
+ const t=useTranslation();const presentation=useEpic4Presentation();
  const [sprints,setSprints]=useState<Sprint[]>([]);
  const [meetings,setMeetings]=useState<Meeting[]>([]);
  const [sprintId,setSprintId]=useState("");
@@ -38,7 +39,7 @@ export default function ExceptionalMeetingForm(){
  {warnings.length>0&&<div role="status" className="alert alert-warning mt-3">{t("exceptionalMeetings.warning")}<ul>{warnings.map((w,i)=><li key={i}>{w.name} — {w.start_at} / {w.end_at}</li>)}</ul></div>}
  {error&&<p role="alert" className="alert alert-danger mt-3">{error}</p>}
  <h3 className="h5 mt-4">{t("exceptionalMeetings.list")}</h3>
- {meetings.map(m=><div key={m.id} className="d-flex justify-content-between border-bottom py-2 gap-2"><span>{m.name} — {m.startAt.slice(0,16)} UTC — {m.status}</span><button className="btn btn-outline-secondary btn-sm" type="button" onClick={()=>showHistory(m.id)}>{t("exceptionalMeetings.history")}</button></div>)}
+ {meetings.map(m=><div key={m.id} className="d-flex justify-content-between border-bottom py-2 gap-2"><span>{m.name} — {presentation.date(m.startAt)} — {presentation.status(m.status)}</span><button className="btn btn-outline-secondary btn-sm" type="button" onClick={()=>showHistory(m.id)}>{t("exceptionalMeetings.history")}</button></div>)}
  {history.length>0&&<pre className="text-wrap mt-2">{JSON.stringify(history,null,2)}</pre>}
  </section>;
 }

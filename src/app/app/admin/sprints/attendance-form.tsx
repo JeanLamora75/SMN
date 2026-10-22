@@ -1,10 +1,11 @@
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {useEpic4Presentation} from "./i18n-presentation";
 type Kind="standard"|"custom"|"exceptional";
 type Event={id:string;kind:Kind;sprintName:string;startAt:string;endAt:string;status:string;explicit:boolean};
 export default function AttendanceForm(){
- const t=useTranslation();
+ const t=useTranslation();const presentation=useEpic4Presentation();
  const [events,setEvents]=useState<Event[]>([]);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
@@ -23,8 +24,8 @@ export default function AttendanceForm(){
  <button type="button" className="btn btn-outline-primary" onClick={load} disabled={busy}>{t("attendance.refresh")}</button>
  <label className="form-label d-block mt-3" htmlFor="attendance-reason">{t("attendance.reason")}</label><input id="attendance-reason" className="form-control mb-3" maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)}/>
  <div className="table-responsive"><table className="table"><thead><tr><th>{t("attendance.event")}</th><th>{t("attendance.status")}</th><th>{t("attendance.actions")}</th></tr></thead><tbody>
- {events.map(e=><tr key={e.kind+e.id}><td>{e.sprintName} — {e.kind}<div className="small text-secondary">{e.startAt.slice(0,16)} UTC</div></td>
- <td>{t("attendance."+e.status)}</td>
+ {events.map(e=><tr key={e.kind+e.id}><td>{e.sprintName} — {presentation.kind(e.kind)}<div className="small text-secondary">{presentation.date(e.startAt)}</div></td>
+ <td>{presentation.status(e.status)}</td>
  <td><div className="d-flex flex-wrap gap-1">
  <button type="button" className="btn btn-outline-success btn-sm" disabled={busy||Date.parse(e.endAt)>Date.now()} onClick={()=>change(e,"held")}>{t("attendance.held")}</button>
  <button type="button" className="btn btn-outline-warning btn-sm" disabled={busy||Date.parse(e.endAt)>Date.now()} onClick={()=>change(e,"not_held")}>{t("attendance.not_held")}</button>

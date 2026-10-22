@@ -18,11 +18,11 @@ import ExceptionalCapacityForm from "./exceptional-capacity-form";
 import RescheduleForm from "./reschedule-form";
 import GoalsForm from "./goals-form";
 import StoryPointsForm from "./story-points-form";
-import Link from "next/link";
+import {SprintReviewLink} from "./i18n-navigation";
 export const dynamic="force-dynamic";
 export default async function SprintsPage(){
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
- return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/><MeetingConflicts/><CeremonyEditor/><TemplateForm/><TemplateOccurrencesList/><ExceptionalMeetingForm/><AttendanceForm/><ActualDurationForm/><ExceptionalCapacityForm/><RescheduleForm/><div className="mt-4"><Link href="/app/admin/sprints/review" className="btn btn-primary">Bilan du Sprint</Link></div></main>;
+ return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/><MeetingConflicts/><CeremonyEditor/><TemplateForm/><TemplateOccurrencesList/><ExceptionalMeetingForm/><AttendanceForm/><ActualDurationForm/><ExceptionalCapacityForm/><RescheduleForm/><div className="mt-4"><SprintReviewLink/></div></main>;
 }
