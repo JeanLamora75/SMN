@@ -7,10 +7,11 @@ import RenameSprintForm from "./rename-form";
 import DeleteSprintForm from "./delete-form";
 import SprintStateList from "./state-list";
 import LunchForm from "./lunch-form";
+import MeetingConflicts from "./meeting-conflicts";
 export const dynamic="force-dynamic";
 export default async function SprintsPage(){
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
- return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/></main>;
+ return <main className="smn-page container py-4" style={{maxWidth:900}}><SprintForm/><BatchPreviewForm/><RenameSprintForm/><DeleteSprintForm/><SprintStateList/><LunchForm/><MeetingConflicts/></main>;
 }
