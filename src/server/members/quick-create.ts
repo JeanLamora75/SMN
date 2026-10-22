@@ -182,3 +182,69 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
   throw error;
  }
 }
+
+
+/**
+ * Create a single member after the initial team setup, without creating
+ * an additional artificial 3-person batch. The original batch serves as
+ * the required legacy FK container; requested_count remains the size of
+ * the initial roster. Member IDs double as retry/idempotency request IDs.
+ * A future schema migration should distinguish initial and individual origins.
+ */
+export async function createIndividualMember(client:Client,actorId:string,raw:unknown):Promise<
+ {ok:true;created:boolean;member:MemberListItem}|
+ {ok:false;error:"invalid-input"|"team-unavailable"|"not-initialized"|"roster-full"|"request-conflict"}
+>{
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false,error:"invalid-input"};
+ const v=raw as Record<string,unknown>;
+ if(Object.keys(v).sort().join(",")!=="displayName,requestId,teamId"||
+  typeof v.teamId!=="string"||!TEAM_ID.test(v.teamId)||
+  typeof v.requestId!=="string"||!UUID.test(v.requestId)||
+  typeof v.displayName!=="string")return {ok:false,error:"invalid-input"};
+ const name=v.displayName.trim().replace(/\s+/gu," ");
+ if(!name||name.length>120||/[\u0000-\u001f\u007f]/u.test(v.displayName))
+  return {ok:false,error:"invalid-input"};
+ await client.query("BEGIN");
+ try{
+  await client.query("SELECT pg_advisory_xact_lock(20261021,42)");
+  const team=await installedTeam(client);
+  if(team.id!==v.teamId){await client.query("ROLLBACK");return {ok:false,error:"team-unavailable"};}
+  const prev=await client.query<MemberRow>(memberSelect+" AND m.id=$1",[v.requestId]);
+  if(prev.rows.length){
+   const item=project(prev.rows[0]);
+   if(item.displayName!==name||!item.isAssigned){
+    await client.query("ROLLBACK");return {ok:false,error:"request-conflict"};
+   }
+   await client.query("COMMIT");return {ok:true,created:false,member:item};
+  }
+  const batch=await client.query<{id:string}>(`SELECT id FROM public.smn_member_batch
+   WHERE team_id=$1 AND installation_id='singleton' ORDER BY created_at,id LIMIT 1`,[team.id]);
+  if(batch.rows.length===0){
+   await client.query("ROLLBACK");return {ok:false,error:"not-initialized"};
+  }
+  const stats=await client.query<{next_number:number;total:number}>(`SELECT
+   COALESCE(MAX(member_number),0)::int+1 AS next_number,count(*)::int AS total
+   FROM public.smn_member WHERE installation_id='singleton'`);
+  const next=stats.rows[0]?.next_number??0;
+  if(next<1||next>50||stats.rows[0]?.total>=50){
+   await client.query("ROLLBACK");return {ok:false,error:"roster-full"};
+  }
+  const today=(await client.query<{today:string}>("SELECT CURRENT_DATE::text AS today")).rows[0]?.today;
+  if(!today)throw Error("member-date-unavailable");
+  await client.query(`INSERT INTO public.smn_member
+   (id,installation_id,batch_id,member_number,display_name,is_provisional,contract_percent,contribution_percent)
+   VALUES($1,'singleton',$2,$3,$4,false,100,100)`,[v.requestId,batch.rows[0].id,next,name]);
+  const assignmentId=randomUUID();
+  await client.query(`INSERT INTO public.smn_member_assignment
+   (id,member_id,team_id,start_on,agile_role,allocation_percent,role_percent)
+   VALUES($1,$2,$3,$4::date,'developer',100,100)`,[assignmentId,v.requestId,team.id,today]);
+  await client.query(`INSERT INTO public.smn_member_assignment_version
+   (id,assignment_id,revision,effective_from,allocation_percent,contract_percent,
+    contribution_percent,scrum_master_percent,product_owner_percent,developer_percent)
+   VALUES($1,$2,1,$3::date,100,100,100,0,0,100)`,[randomUUID(),assignmentId,today]);
+  const saved=await client.query<MemberRow>(memberSelect+" AND m.id=$1",[v.requestId]);
+  if(saved.rows.length!==1)throw Error("individual-member-insert-failed");
+  await client.query("COMMIT");
+  return {ok:true,created:true,member:project(saved.rows[0])};
+ }catch(error){await client.query("ROLLBACK").catch(()=>undefined);throw error;}
+}
