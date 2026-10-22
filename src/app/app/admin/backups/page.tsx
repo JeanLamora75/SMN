@@ -14,6 +14,7 @@ export default async function BackupsPage(){
  const locale=await requestLocale();
  return <div className="smn-page container py-5" style={{maxWidth:880}}>
   <header className="mb-4">
+   <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">← {translate(locale,"navigation.entries.settings")}</Link>
    <h1 className="h3">{translate(locale,"backups.title")}</h1>
    <p>{translate(locale,"backups.intro")}</p>
    <Link href="/app" className="btn btn-outline-secondary">{translate(locale,"backups.back")}</Link>
