@@ -232,16 +232,24 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     totalJh:days.some(d=>d.status==="not-calculable")?null:round(memberExactJh),days});
   }
   if(members.length===0)missing.push({date:null,memberId:null,source:"no-assignments"});
-  // Never invent attendees for a capacity-impacting meeting. Until participant
-  // allocations are stored, the actual reference cannot be calculated safely.
+  // Link unresolved real capacity to impacted members. A complete participant list
+  // still does not define the clock time of a working half-day.
   if(options.includeExceptionalImpact&&team.mode==="scrum"){
-   const impacted=await db.query<{id:string}>(`SELECT m.id FROM public.smn_sprint_exceptional_meeting m
+   const impacted=await db.query<{id:string;member_id:string|null}>(`SELECT m.id,p.member_id
+    FROM public.smn_sprint_exceptional_meeting m
     JOIN public.smn_sprint s ON s.id=m.sprint_id
+    LEFT JOIN public.smn_exceptional_meeting_participant p ON p.meeting_id=m.id
     WHERE s.team_id=$1 AND s.deleted_at IS NULL AND m.impacts_capacity=true
     AND m.status NOT IN ('cancelled','not_held')
     AND (m.starts_at AT TIME ZONE s.time_zone)::date<=$3::date
-    AND (m.ends_at AT TIME ZONE s.time_zone)::date>=$2::date LIMIT 1`,[team.id,start,end]);
-   if(impacted.rows.length)missing.push({date:null,memberId:null,source:"exceptional-meeting-participants"});
+    AND (m.ends_at AT TIME ZONE s.time_zone)::date>=$2::date
+    ORDER BY m.id,p.member_id LIMIT 2001`,[team.id,start,end]);
+   if(impacted.rows.length>2000)throw Error("capacity-meeting-limit");
+   const memberIds=[...new Set(impacted.rows.map(r=>r.member_id).filter((x):x is string=>x!==null))];
+   if(impacted.rows.length){
+    if(memberIds.length===0)missing.push({date:null,memberId:null,source:"exceptional-meeting-participants"});
+    else for(const memberId of memberIds)missing.push({date:null,memberId,source:"exceptional-meeting-participants"});
+   }
   }
   const status=missing.length?"not-calculable":"calculated";
   const totalJh=status==="calculated"?
