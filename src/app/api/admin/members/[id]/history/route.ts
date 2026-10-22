@@ -18,9 +18,26 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
     `SELECT changed_at::text AS changed_at,previous_values,next_values
     FROM public.smn_member_identity_history WHERE member_id=$1
     ORDER BY changed_at DESC,id DESC LIMIT 200`,[id]);
-   return {found:true,events:records.rows.map(r=>({
-    changedAt:r.changed_at,kind:"identity",previous:r.previous_values,next:r.next_values
-   }))};
+   const absences=await db.query<{changed_at:string;operation:string}>(
+    `SELECT h.changed_at::text AS changed_at,h.operation
+     FROM public.smn_member_absence_history h
+     JOIN public.smn_member_absence a ON a.id=h.absence_id
+     WHERE a.member_id=$1 ORDER BY h.changed_at DESC LIMIT 200`,[id]);
+   const lifecycle=await db.query<{occurred_at:string;action:string}>(
+    `SELECT occurred_at::text AS occurred_at,action
+     FROM public.smn_member_lifecycle_event WHERE member_id=$1
+     ORDER BY occurred_at DESC LIMIT 200`,[id]);
+   const assignmentVersions=await db.query<{created_at:string;revision:number}>(
+    `SELECT v.created_at::text AS created_at,v.revision
+     FROM public.smn_member_assignment_version v
+     JOIN public.smn_member_assignment a ON a.id=v.assignment_id
+     WHERE a.member_id=$1 ORDER BY v.created_at DESC LIMIT 200`,[id]);
+   return {found:true,
+    events:records.rows.map(r=>({changedAt:r.changed_at,kind:"identity",
+     previous:r.previous_values,next:r.next_values})),
+    absenceChanges:absences.rows.map(r=>({changedAt:r.changed_at,operation:r.operation})),
+    lifecycleChanges:lifecycle.rows.map(r=>({changedAt:r.occurred_at,action:r.action})),
+    assignmentChanges:assignmentVersions.rows.map(r=>({changedAt:r.created_at,revision:r.revision}))};
   }));
  }catch{
   console.error("member-identity-history-unavailable");
