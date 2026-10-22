@@ -30,7 +30,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
  const now=iso(new Date());
  useEffect(()=>{let live=true;const current=iso(new Date());
   const fallback=()=>({start:monthStart(current),count:monthLength(current),label:current.slice(0,7),sprintId:null});
-  void fetch("/api/admin/sprints/states",{cache:"no-store"}).then(async r=>{
+  void fetch("/api/team-calendar/periods",{cache:"no-store"}).then(async r=>{
    if(!r.ok)throw Error();return r.json() as Promise<{sprints:Sprint[]}>;})
    .then(result=>{if(!live)return;const list=result.sprints??[];setSprints(list);
     const active=list.find(s=>s.status==="active"&&localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
