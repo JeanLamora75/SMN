@@ -7,7 +7,7 @@ export default async function TeamPage(){
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"members",exists:true,inScope:true}))redirect("/app");
- return <main className="smn-page container-fluid py-4 px-3 px-lg-4">
+ return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
   <TeamOverview/>
  </main>;
 }
