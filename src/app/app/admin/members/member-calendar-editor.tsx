@@ -2,6 +2,7 @@
 
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import type {TranslationKey} from "@/i18n/catalog";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import MemberAbsenceEditor from "./member-absence-editor";
 import {prefillValue} from "@/lib/form-prefill";
@@ -14,7 +15,7 @@ type DayResult={onDate:string;status:"missing"|"configured";source:"missing"|"we
 type CalendarState={memberId:string;teamId:string;contractPercent:number;archived:boolean;
  today:string;configured:boolean;suggestedWeek:WorkDay[];current:Week|null;weeks:Week[];
  exceptions:Exception[];day:DayResult};
-const WEEKDAYS=["monday","tuesday","wednesday","thursday","friday","saturday","sunday"] as const;
+const WEEKDAYS=["members.calendar.monday","members.calendar.tuesday","members.calendar.wednesday","members.calendar.thursday","members.calendar.friday","members.calendar.saturday","members.calendar.sunday"] as const;
 const newest=(s:CalendarState)=>s.weeks.at(-1)??null;
 
 export default function MemberCalendarEditor({memberId,teamName,onClose}:{
@@ -94,7 +95,7 @@ export default function MemberCalendarEditor({memberId,teamName,onClose}:{
   setStatus("loading");
   void load(value).catch(()=>setStatus("error"));
  };
- const submit=async(payload:Record<string,unknown>,successKey:string)=>{
+ const submit=async(payload:Record<string,unknown>,successKey:TranslationKey)=>{
   if(busy||!data)return;
   setBusy(true);setError("");setMessage("");
   try{
@@ -152,10 +153,10 @@ export default function MemberCalendarEditor({memberId,teamName,onClose}:{
       <th scope="col">{t("members.calendar.afternoon")}</th>
      </tr></thead>
      <tbody>{week.map((d,i)=><tr key={d.weekday}>
-      <th scope="row">{t("members.calendar."+WEEKDAYS[i])}</th>
+      <th scope="row">{t(WEEKDAYS[i])}</th>
       {(["morning","afternoon"] as const).map(field=><td key={field}>
        <input type="checkbox" className="form-check-input"
-        aria-label={t("members.calendar."+WEEKDAYS[i])+" — "+t("members.calendar."+field)}
+        aria-label={t(WEEKDAYS[i])+" — "+t(field==="morning"?"members.calendar.morning":"members.calendar.afternoon")}
         checked={d[field]} disabled={data.archived||busy}
         onChange={e=>changeDay(i,field,e.target.checked)}/>
       </td>)}
