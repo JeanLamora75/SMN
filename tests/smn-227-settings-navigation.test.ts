@@ -1,0 +1,51 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {describe,it} from "node:test";
+import {privateNavigation} from "../src/lib/private-navigation";
+import {settingsCatalog} from "../src/lib/settings-catalog";
+import {canAccess} from "../src/server/access-policy";
+const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+const admin={role:"admin",is_active:true,must_change_password:false};
+const user={role:"user",is_active:true,must_change_password:false};
+describe("SMN-227 — centralisation des accès sans perte",()=>{
+ it("préserve menus opérationnels et espace de sécurité personnel",()=>{
+  for(const role of ["admin","user"] as const){
+   const entries=privateNavigation("scrum",role).flatMap(g=>g.entries);
+   assert.equal(entries.find(e=>e.id==="security")?.href,"/app/security");
+   assert.equal(entries.find(e=>e.id==="centralCalendar")?.href,"/app/team-calendar");
+   assert.equal(entries.find(e=>e.id==="members")?.href,role==="admin"?"/app/admin/members":null);
+   assert.equal(entries.find(e=>e.id==="cycles")?.href,role==="admin"?"/app/admin/sprints":null);
+  }
+ });
+ it("conserve un seul accès paramètres dans la sidebar admin",()=>{
+  const entries=privateNavigation("scrum","admin").flatMap(g=>g.entries);
+  assert.deepEqual(entries.filter(e=>e.id==="settings").map(e=>e.href),["/app/admin/settings"]);
+  for(const id of ["users","scrumCadence","backups","audit","countries"])
+   assert.equal(entries.some(e=>e.id===id),false);
+ });
+ it("raccorde Langues et Apparence aux vrais ancrages du formulaire général",()=>{
+  const items=settingsCatalog("scrum",admin).flatMap(g=>g.entries);
+  assert.equal(items.find(x=>x.id==="languages")?.href,"/app/admin/settings/general#settings-language");
+  assert.equal(items.find(x=>x.id==="appearance")?.href,"/app/admin/settings/general#settings-appearance");
+  const form=read("src/app/app/admin/settings/settings-form.tsx");
+  for(const anchor of ["settings-language","settings-appearance"])
+   assert.ok(form.includes('id="'+anchor+'"'));
+  for(const id of ["ceremonies","capacity","workingDays"])
+   assert.equal(items.find(x=>x.id===id)?.href,null);
+ });
+ it("fournit retour vers paramètres sans modifier les APIs ou formulaires",()=>{
+  for(const path of ["countries","company-closures","absence-categories","users","backups","audit","scrum-cadence"]){
+   const page=read("src/app/app/admin/"+path+"/page.tsx");
+   assert.ok(page.includes('href="/app/admin/settings"'),path);
+  }
+  assert.ok(read("src/app/app/security/page.tsx").includes('account.role==="admin"'));
+  assert.ok(read("src/app/app/admin/settings/general/page.tsx").includes("<SettingsForm/>"));
+ });
+ it("conserve les autorisations directes",()=>{
+  for(const kind of ["accounts","backups","audit","settings"]){
+   assert.equal(canAccess(user,"read",{type:kind,exists:true,inScope:true}),false);
+   assert.equal(canAccess(admin,"read",{type:kind,exists:true,inScope:true}),true);
+  }
+  assert.ok(read("src/app/app/security/page.tsx").includes("<PasswordChangeForm/>"));
+ });
+});
