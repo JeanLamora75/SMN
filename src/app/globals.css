@@ -116,3 +116,16 @@ body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground)
  border:2px dashed var(--smn-brand);border-radius:1rem; }
 .smn-member-tabs .nav-link[aria-selected="true"] {font-weight:700;}
 @media (max-width:1199px){.smn-team-roster .smn-team-roles .badge{min-width:28px;padding-inline:.35em;}}
+
+/* Sally: editors always appear as centered modal dialogs above a dimmed page. */
+.smn-member-modal-backdrop {
+ position:fixed;inset:0;z-index:1055;display:flex;align-items:center;justify-content:center;
+ padding:16px;background:rgba(10,20,36,.64);
+}
+.smn-member-modal {
+ width:min(94vw,900px);max-height:calc(100dvh - 32px);overflow:auto;
+ border-radius:18px;background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 18px 65px rgba(0,0,0,.36);
+}
+.smn-member-modal .smn-panel {border:0;box-shadow:none;}
+@media(max-width:575px){.smn-member-modal-backdrop{padding:8px}.smn-member-modal{width:100%;max-height:calc(100dvh - 16px)}}
