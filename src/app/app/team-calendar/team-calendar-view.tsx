@@ -60,11 +60,13 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
   setPeriod({start:monthStart(next),count:monthLength(next),label:next.slice(0,7),sprintId:null});
  }
  function openCreate(day:string){setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");}
- async function save(){if(!period?.sprintId||!editor||!name.trim()||busy)return;
+ const selectedDate=when.slice(0,10);
+ const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<localDate(x.endAt));
+ async function save(){if(!selectedSprint||!editor||!name.trim()||busy)return;
   setBusy(true);setSaveError("");
   try{const date=new Date(when);if(Number.isNaN(date.valueOf()))throw Error("date");
    const r=await fetch("/api/admin/sprints/exceptional-meetings",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({name:name.trim(),sprintId:period.sprintId,duration,startAt:date.toISOString()})});
+    body:JSON.stringify({name:name.trim(),sprintId:selectedSprint.id,duration,startAt:date.toISOString()})});
    if(!r.ok)throw Error("save");
    setEditor(null);
    const end=shift(period.start,period.count-1);
@@ -111,14 +113,14 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
   {editor&&<div className="smn-member-modal-backdrop" role="presentation">
    <div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-labelledby="new-meeting-heading">
     <h2 className="h5" id="new-meeting-heading">{t("calendarUX.addMeeting")}</h2>
-    {!period?.sprintId&&<p className="alert alert-info">{t("calendarUX.requiresSprint")}</p>}
+    {!selectedSprint&&<p className="alert alert-info">{t("calendarUX.requiresSprint")}</p>}
     <form onSubmit={e=>{e.preventDefault();void save();}} className="d-grid gap-3">
      <label className="form-label">{t("calendarUX.meetingName")}<input className="form-control" value={name} maxLength={160} required onChange={e=>setName(e.target.value)} disabled={busy}/></label>
      <label className="form-label">{t("calendarUX.startTime")}<input type="datetime-local" className="form-control" value={when} onChange={e=>setWhen(e.target.value)} required disabled={busy}/></label>
      <label className="form-label">{t("calendarUX.duration")}<input type="number" className="form-control" min={1} max={480} value={duration} onChange={e=>setDuration(Number(e.target.value))} required disabled={busy}/></label>
      {saveError&&<p role="alert" className="alert alert-warning">{saveError}</p>}
      <div className="d-flex gap-2 justify-content-end"><button type="button" className="btn btn-outline-secondary" onClick={()=>setEditor(null)}>{t("teamUX.cancel")}</button>
-      <button className="btn btn-primary" disabled={busy||!period?.sprintId}>{t("calendarUX.create")}</button></div>
+      <button className="btn btn-primary" disabled={busy||!selectedSprint}>{t("calendarUX.create")}</button></div>
     </form>
    </div>
   </div>}
