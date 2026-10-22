@@ -1763,6 +1763,13 @@
     "historyHelp": "Les changements d’affectation et de statut sont consultables depuis les écrans correspondants.",
     "functionMissing": "Fonction non renseignée",
     "emptyHistory": "Aucun élément à ce jour",
-    "locationUnavailable": "Localisation non renseignée"
+    "locationUnavailable": "Localisation non renseignée",
+    "identitySaveFailed": "Enregistrement incomplet ou impossible. Rechargez la fiche avant de réessayer.",
+    "functionLabel": "Fonction professionnelle",
+    "functionPending": "À venir : nécessite une migration PostgreSQL",
+    "countryLabel": "Pays (ISO2)",
+    "regionLabel": "Région",
+    "cityLabel": "Ville",
+    "zoneLabel": "Fuseau horaire (IANA)"
   }
 }
