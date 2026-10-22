@@ -72,7 +72,7 @@ export async function previewReschedule(db:Client,raw:unknown){
  if(result.warnings.length)return {ok:false as const,error:"events-outside-new-period",warnings:result.warnings,impact};
  // Recalculation is not offered until a protected-event-safe preview engine is implemented.
  if(input.mode==="recalculate")return {ok:false as const,error:"recalculation-not-supported",warnings:result.warnings};
- const token=createHash("sha256").update(JSON.stringify({input,oldStart:result.sprint.start_at,oldEnd:result.sprint.end_at})).digest("hex");
+ const token=createHash("sha256").update(JSON.stringify({input,oldStart:result.sprint.start_at,oldEnd:result.sprint.end_at,warnings:result.warnings})).digest("hex");
  return {...result,impact,token};
 }
 export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
@@ -87,7 +87,7 @@ export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
   const checked=await examine(db,input);
   if(!checked.ok){await db.query("ROLLBACK");return checked;}
   if(checked.warnings.length){await db.query("ROLLBACK");return {ok:false as const,error:"events-outside-new-period",warnings:checked.warnings};}
-  const token=createHash("sha256").update(JSON.stringify({input,oldStart:original.start_at,oldEnd:original.end_at})).digest("hex");
+  const token=createHash("sha256").update(JSON.stringify({input,oldStart:original.start_at,oldEnd:original.end_at,warnings:checked.warnings})).digest("hex");
   if(token!==data.token){await db.query("ROLLBACK");return {ok:false as const,error:"stale-preview"};}
   const impact=await reviewImpact(db,original,input);
   await db.query("UPDATE public.smn_sprint SET start_at=$2,end_at=$3 WHERE id=$1",[input.sprintId,input.startAt,input.endAt]);
