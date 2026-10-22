@@ -17,12 +17,12 @@ export default function TeamOverview(){
  const [creating,setCreating]=useState(false);
  const [createError,setCreateError]=useState("");
  const requestId=useRef<string|null>(null);
- useEffect(()=>{try{if(sessionStorage.getItem(CHOICE)==="list")setView("list");}catch{}},[]);
+ useEffect(()=>{try{if(localStorage.getItem(CHOICE)==="list")setView("list");}catch{}},[]);
  useEffect(()=>{let alive=true;fetch("/api/admin/members",{cache:"no-store"})
   .then(async r=>{if(!r.ok)throw Error("members");return r.json() as Promise<Roster>;})
   .then(v=>{if(alive){setRoster(v);setStatus("ready");}})
   .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};},[]);
- function choose(next:View){setView(next);try{sessionStorage.setItem(CHOICE,next);}catch{}}
+ function choose(next:View){setView(next);try{localStorage.setItem(CHOICE,next);}catch{}}
  async function createOne(e:FormEvent<HTMLFormElement>){
   e.preventDefault();if(!roster||creating||!newName.trim())return;
   setCreating(true);setCreateError("");
@@ -54,6 +54,7 @@ export default function TeamOverview(){
   </div>
   {status==="loading"&&<p role="status">{t("members.loading")}</p>}
   {status==="error"&&<p role="alert">{t("members.loadFailed")}</p>}
+  {status==="ready"&&members.length===0&&<div className="alert alert-info mb-3">L’équipe n’a pas encore été initialisée. <Link href="/app/admin/members/manage" className="alert-link">Initialiser les membres de l’équipe</Link></div>}
   {status==="ready"&&view==="cards"&&<div className="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-3">
    {Array.from({length:capacity},(_,i)=>{const m=members[i];
     return <div className="col" key={m?.id??"slot-"+i}>
@@ -64,7 +65,7 @@ export default function TeamOverview(){
         <div className="d-flex gap-1 flex-wrap justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?"text-bg-primary":"text-bg-secondary opacity-50")}>{name}</span>)}</div>
         <small className="text-secondary">{m.isAssigned?"Membre de l’équipe":"Non affecté"}</small>
        </div>
-      </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} className="card h-100 w-100 rounded-4 border-primary text-primary bg-transparent" style={{minHeight:180}} aria-label="Ajouter un membre">
+      </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} disabled={members.length===0} className="card h-100 w-100 rounded-4 border-primary text-primary bg-transparent" style={{minHeight:180}} aria-label="Ajouter un membre">
         <span className="m-auto display-5">+</span>
        </button>:<div className="rounded-4 h-100" aria-hidden="true" style={{minHeight:180,border:"2px dashed var(--bs-border-color)",background:"var(--bs-tertiary-bg)"}}/>}
     </div>})}
@@ -72,7 +73,7 @@ export default function TeamOverview(){
   {status==="ready"&&view==="list"&&<div className="table-responsive"><table className="table table-hover align-middle">
    <thead><tr><th>Membre</th><th>SM</th><th>PO</th><th>Dev</th><th>Fiche</th></tr></thead>
    <tbody>{members.map(m=><tr key={m.id}><th>{m.displayName}</th>{roles(m).map(([name,share])=><td key={name}>{(share??0)>0?"✓":"—"}</td>)}<td><Link href={"/app/admin/members/"+encodeURIComponent(m.id)} className="btn btn-outline-primary btn-sm">Consulter</Link></td></tr>)}</tbody>
-  </table><button className="btn btn-primary" onClick={()=>setCreationOpen(true)}>+ Ajouter un membre</button></div>}
+  </table><button className="btn btn-primary" disabled={members.length===0} onClick={()=>setCreationOpen(true)}>+ Ajouter un membre</button></div>}
   {creationOpen&&<div className="modal d-block" role="dialog" aria-modal="true" aria-labelledby="team-create-title" style={{background:"rgba(0,0,0,.5)"}}>
    <div className="modal-dialog modal-dialog-centered"><div className="modal-content">
     <div className="modal-header"><h2 className="modal-title fs-5" id="team-create-title">Ajouter un membre</h2>
