@@ -1,6 +1,7 @@
 import {randomUUID,createHash} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
+import {ensureExceptionalImpactSchema} from "./exceptional-capacity-impact";
 import {readDevelopmentCapacity} from "@/server/capacity/engine";
 type Input={sprintId:string;startAt:string;endAt:string;mode:"keep"|"recalculate"};
 function localDay(value:string,zone:string){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(value));const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`;}
@@ -37,13 +38,13 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
   db.query(`SELECT initial_jh::float8 AS jh,provenance FROM public.smn_capacity_initial_snapshot i JOIN public.smn_capacity_period_override p ON p.id=i.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
    [s.team_id,localDay(s.start_at,s.time_zone),localDay(s.end_at,s.time_zone)]),
   db.query(`SELECT a.manual_jh::float8 AS jh FROM public.smn_capacity_actual_override a JOIN public.smn_capacity_period_override p ON p.id=a.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
-   [s.team_id,s.start_at.slice(0,10),s.end_at.slice(0,10)])
+   [s.team_id,localDay(s.start_at,s.time_zone),localDay(s.end_at,s.time_zone)])
  ]);
  const newStart=localDay(input.startAt,s.time_zone),newEnd=localDay(input.endAt,s.time_zone);
  let calculatedReferenceJh:number|null=null,missingSources:string[]=[];
  if(s.status==="active"||s.status==="finished"){
   try{
-   const result=await readDevelopmentCapacity(db,newStart,newEnd,{externalTransaction:true});
+   const result=await readDevelopmentCapacity(db,newStart,newEnd,{externalTransaction:true,includeExceptionalImpact:true});
    calculatedReferenceJh=result.totalJh;
    missingSources=result.missing.map(m=>m.source);
   }catch{missingSources=["calculation-unavailable"];}
@@ -56,6 +57,7 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
 }
 export async function ensureRescheduleSchema(db:Client){
  await ensureSprintSchema(db);
+ await ensureExceptionalImpactSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_reschedule_audit(
  id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
  old_start timestamptz NOT NULL,old_end timestamptz NOT NULL,new_start timestamptz NOT NULL,new_end timestamptz NOT NULL,
@@ -67,9 +69,10 @@ export async function previewReschedule(db:Client,raw:unknown){
  const result=await examine(db,input);
  if(!result.ok)return result;
  const impact=await reviewImpact(db,result.sprint,input);
+ if(result.warnings.length)return {ok:false as const,error:"events-outside-new-period",warnings:result.warnings,impact};
  // Recalculation is not offered until a protected-event-safe preview engine is implemented.
  if(input.mode==="recalculate")return {ok:false as const,error:"recalculation-not-supported",warnings:result.warnings};
- const token=createHash("sha256").update(JSON.stringify({input,oldStart:result.sprint.start_at,oldEnd:result.sprint.end_at})).digest("hex");
+ const token=createHash("sha256").update(JSON.stringify({input,oldStart:result.sprint.start_at,oldEnd:result.sprint.end_at,warnings:result.warnings})).digest("hex");
  return {...result,impact,token};
 }
 export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
@@ -83,7 +86,8 @@ export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
   await db.query("SELECT pg_advisory_xact_lock(hashtext($1))",[original.team_id]);
   const checked=await examine(db,input);
   if(!checked.ok){await db.query("ROLLBACK");return checked;}
-  const token=createHash("sha256").update(JSON.stringify({input,oldStart:original.start_at,oldEnd:original.end_at})).digest("hex");
+  if(checked.warnings.length){await db.query("ROLLBACK");return {ok:false as const,error:"events-outside-new-period",warnings:checked.warnings};}
+  const token=createHash("sha256").update(JSON.stringify({input,oldStart:original.start_at,oldEnd:original.end_at,warnings:checked.warnings})).digest("hex");
   if(token!==data.token){await db.query("ROLLBACK");return {ok:false as const,error:"stale-preview"};}
   const impact=await reviewImpact(db,original,input);
   await db.query("UPDATE public.smn_sprint SET start_at=$2,end_at=$3 WHERE id=$1",[input.sprintId,input.startAt,input.endAt]);
