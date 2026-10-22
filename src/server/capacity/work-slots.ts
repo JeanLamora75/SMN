@@ -39,10 +39,10 @@ export function workingIntervals(date:string,zone:string,slots:WorkSlots,availab
 export function occupiedMinutes(meetings:readonly Interval[],work:readonly Interval[]):number{
  return work.reduce((n,slot)=>n+unionDurationMinutes(meetings,slot),0);
 }
-export async function readWorkSlots(db:Client,teamId:string):Promise<{slots:WorkSlots;zone:string}|null>{
- const r=await db.query<{morning_start:string;morning_end:string;afternoon_start:string;afternoon_end:string;time_zone:string}>(`SELECT morning_start::text,morning_end::text,afternoon_start::text,afternoon_end::text,time_zone
+export async function readWorkSlots(db:Client,teamId:string):Promise<{slots:WorkSlots;zone:string;revision:number}|null>{
+ const r=await db.query<{morning_start:string;morning_end:string;afternoon_start:string;afternoon_end:string;time_zone:string;revision:number}>(`SELECT morning_start::text,morning_end::text,afternoon_start::text,afternoon_end::text,time_zone,revision
  FROM public.smn_team_work_slots WHERE team_id=$1`,[teamId]);
  const x=r.rows[0];if(!x)return null;
  const slots={morningStart:x.morning_start.slice(0,5),morningEnd:x.morning_end.slice(0,5),afternoonStart:x.afternoon_start.slice(0,5),afternoonEnd:x.afternoon_end.slice(0,5)};
- return validWorkSlots(slots)?{slots,zone:x.time_zone}:null;
+ return validWorkSlots(slots)?{slots,zone:x.time_zone,revision:x.revision}:null;
 }
