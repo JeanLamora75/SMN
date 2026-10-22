@@ -129,3 +129,20 @@ body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground)
 }
 .smn-member-modal .smn-panel {border:0;box-shadow:none;}
 @media(max-width:575px){.smn-member-modal-backdrop{padding:8px}.smn-member-modal{width:100%;max-height:calc(100dvh - 16px)}}
+
+
+/* Sally — calendrier central : sept jours par rangée à partir du premier jour. */
+.smn-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.7rem;align-items:stretch}
+.smn-calendar-day{min-height:192px;padding:.8rem;border:1px solid var(--smn-border);
+ border-radius:14px;background:var(--smn-surface);overflow-wrap:anywhere;}
+.smn-calendar-day.is-nonwork{background:var(--smn-muted-soft);}
+.smn-calendar-day.is-today{border:3px solid var(--smn-brand);padding:calc(.8rem - 2px);
+ box-shadow:0 0 0 1px var(--smn-brand);}
+.smn-calendar-holiday{font-size:.78rem;color:var(--smn-muted);min-height:1.4rem;
+ margin-top:.3rem;line-height:1.3;font-weight:600;}
+.smn-calendar-meetings{margin-top:1rem;display:grid;gap:.65rem;}
+.smn-calendar-meetings li{line-height:1.3;min-width:0;}
+.smn-calendar-meetings a{color:var(--smn-brand);text-decoration:none;font-weight:600;}
+.smn-calendar-meetings a:hover,.smn-calendar-meetings a:focus-visible{text-decoration:underline;}
+@media(max-width:1050px){.smn-calendar-grid{overflow-x:auto;display:grid;grid-template-columns:repeat(7,minmax(142px,1fr));}}
+@media(max-width:540px){.smn-calendar-grid{grid-template-columns:repeat(7,minmax(126px,1fr));}}
