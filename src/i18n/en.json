@@ -1610,5 +1610,23 @@
     "achieved": "Achieved",
     "partially_achieved": "Partially achieved",
     "not_achieved": "Not achieved"
+  },
+  "storyPoints": {
+    "title": "Sprint Story Points",
+    "intro": "Four optional inputs. Results below are provisional until saved.",
+    "sprint": "Sprint",
+    "initial": "Initial commitment (SP)",
+    "added": "Added SP",
+    "removed": "Removed SP",
+    "done": "Completed SP",
+    "final": "Final commitment",
+    "remaining": "Unfinished SP",
+    "rate": "Completion rate",
+    "notCalculable": "Not calculable",
+    "overrun": "Completed SP exceeds final commitment. This is allowed.",
+    "provisional": "Preview only: no trend update or automatic carry-over of unfinished SP.",
+    "save": "Save",
+    "saved": "Story Points saved.",
+    "error": "Unable to load or save Story Points."
   }
 }
