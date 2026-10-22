@@ -1,5 +1,7 @@
 # Maquettes approuvées — Équipe / Membres (22 octobre 2026)
 
+> **FICHE MEMBRE : VERSION PRÉCÉDENTE OBSOLÈTE.** La partie ci-dessous consacrée à la fiche à cinq onglets n'est plus applicable. Pour les décisions actuelles : [Fiche membre V2](FICHE-MEMBRE-V2-UX-CONTRAT.md), et [recette V2](FICHE-MEMBRE-V2-RECETTE.md). Les deux vues de la page Équipe restent inchangées.
+
 **Statut : architecture d'écran, contenus et interactions approuvés.** Ces schémas reproduisent la **composition** validée en conversation ; ce sont des wireframes textuels et non une copie pixel-perfect des rendus illustratifs. Noms, e-mails, statuts, rôles de démonstration, horaires et dates sont fictifs.
 
 ## 1. Équipe — Vue Cartes (seule vue visible)
