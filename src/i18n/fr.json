@@ -1532,5 +1532,20 @@
     "version": "Version",
     "inactive": "Modèle désactivé",
     "error": "Impossible de charger les occurrences."
+  },
+  "exceptionalMeetings": {
+    "title": "Réunions exceptionnelles",
+    "info": "Une réunion ponctuelle est propre au Sprint sélectionné et ne sera jamais recopiée dans les suivants. Les horaires sont saisis en UTC.",
+    "sprint": "Sprint",
+    "name": "Nom de la réunion",
+    "start": "Date et heure de début (UTC)",
+    "duration": "Durée prévue (minutes)",
+    "create": "Créer la réunion",
+    "saved": "Réunion exceptionnelle enregistrée.",
+    "closed": "Le Sprint est clôturé : réouverture nécessaire avant modification.",
+    "error": "Impossible de créer ou de consulter la réunion. Vérifiez les données et les bornes du Sprint.",
+    "warning": "Attention : chevauchement détecté avec une réunion existante. La nouvelle réunion a néanmoins été enregistrée.",
+    "list": "Réunions créées",
+    "history": "Historique"
   }
 }

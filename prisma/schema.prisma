@@ -625,6 +625,7 @@ model SmnSprint {
  autoSuspended Boolean @default(false) @map("auto_suspended")
  ceremonies SmnSprintCeremony[]
  customCeremonies SmnScrumTemplateOccurrence[]
+ exceptionalMeetings SmnSprintExceptionalMeeting[]
  transitions SmnSprintTransition[]
  capacityTrigger SmnSprintCapacityTrigger?
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
@@ -781,4 +782,30 @@ model SmnScrumTemplateOccurrence {
  sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
  @@unique([templateId,sprintId,startsAt])
  @@map("smn_scrum_template_occurrence")
+}
+
+model SmnSprintExceptionalMeeting {
+ id String @id
+ sprintId String @map("sprint_id")
+ name String
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ durationMinutes Int @map("duration_minutes")
+ status String @default("scheduled")
+ createdBy String? @map("created_by")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ revisedAt DateTime? @map("revised_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ history SmnSprintExceptionalMeetingHistory[]
+ @@map("smn_sprint_exceptional_meeting")
+}
+model SmnSprintExceptionalMeetingHistory {
+ id String @id
+ meetingId String @map("meeting_id")
+ action String
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ details Json @db.JsonB
+ meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_exceptional_meeting_history")
 }
