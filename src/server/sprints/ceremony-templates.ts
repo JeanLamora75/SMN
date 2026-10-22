@@ -71,7 +71,7 @@ export async function saveTemplate(db:Client,actorId:string,raw:unknown){
    before=old.rows[0];
    await db.query(`UPDATE public.smn_scrum_ceremony_template SET name=$3,frequency=$4,weekday=$5,position=$6,local_time=$7,duration_minutes=$8,active=$9,
    revision=revision+1,updated_at=now() WHERE id=$1 AND team_id=$2`,
-   [id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??before.active]);
+   [id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??old.rows[0].active]);
   }else{
    await db.query(`INSERT INTO public.smn_scrum_ceremony_template(id,team_id,name,frequency,weekday,position,local_time,duration_minutes,active)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??true]);
