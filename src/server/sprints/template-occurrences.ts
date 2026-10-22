@@ -44,15 +44,31 @@ export async function saveTemplateOccurrences(db:Client,sprint:Sprint){
     const at=resolveLocal(cursor,x.time.slice(0,5),sprint.timeZone);
     const until=new Date(at.getTime()+x.duration*60000);
     if(at>=first&&until<=last){
-     await db.query(`INSERT INTO public.smn_scrum_template_occurrence
+     const inserted=await db.query(`INSERT INTO public.smn_scrum_template_occurrence
      (id,template_id,template_revision,sprint_id,name,starts_at,ends_at)
-     VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING`,
+     VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING RETURNING id`,
      [randomUUID(),x.id,x.revision,sprint.id,x.name,at.toISOString(),until.toISOString()]);
-     count++;
+     count+=inserted.rowCount??0;
     }
    }
    cursor=plusDay(cursor);
   }
  }
  return count;
+}
+
+export async function listTemplateOccurrences(db:Client){
+ await ensureTemplateSchema(db);
+ const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
+ WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
+ if(team.rows.length!==1)throw Error("scrum-team-unavailable");
+ const r=await db.query(`SELECT o.id,o.template_id AS "templateId",o.template_revision AS "templateRevision",
+ o.sprint_id AS "sprintId",s.name AS "sprintName",o.name,
+ o.starts_at::text AS "startAt",o.ends_at::text AS "endAt",s.time_zone AS "timeZone",
+ t.active AS "templateActive"
+ FROM public.smn_scrum_template_occurrence o
+ JOIN public.smn_scrum_ceremony_template t ON t.id=o.template_id
+ JOIN public.smn_sprint s ON s.id=o.sprint_id
+ WHERE s.team_id=$1 AND s.deleted_at IS NULL ORDER BY o.starts_at DESC LIMIT 500`,[team.rows[0].id]);
+ return r.rows;
 }
