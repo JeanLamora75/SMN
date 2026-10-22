@@ -49,6 +49,7 @@ export default function MemberDetail({id}:{id:string}){
   return()=>{window.clearTimeout(focus);document.removeEventListener("keydown",onKey);previous?.focus();};},[section]);
  const member=roster?.members.find(x=>x.id===id);
  const saved=()=>{setSection(null);void refresh().catch(()=>setError(t("memberUX.refreshFailed")));};
+ const closeDialog=()=>{if(window.confirm(t("draft.discardWarning")))setSection(null);};
  const button=(target:Exclude<Section,null>,label:string)=>
   <button type="button" className="btn btn-outline-secondary btn-sm ms-2" title={t("memberUX.edit",{name:label})}
    aria-label={t("memberUX.edit",{name:label})} disabled={section!==null||(member?.archived&&target!=="lifecycle")}
@@ -124,7 +125,7 @@ export default function MemberDetail({id}:{id:string}){
     <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={t("memberUX.edit",{name:section})} ref={dialogRef}>
      <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
       <strong>{t("memberUX.edit",{name:section})}</strong>
-      <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={()=>setSection(null)}/>
+      <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={closeDialog}/>
      </div>
      <div className="p-3">
       {section==="profile"&&<MemberProfileEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={()=>setSection(null)}/>}
