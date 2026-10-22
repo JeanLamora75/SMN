@@ -1871,6 +1871,11 @@
         "title": "Journal d'audit",
         "description": "Consulter la traçabilité des opérations."
       }
+    },
+    "view": {
+      "switchLabel": "Mode d’affichage des paramètres",
+      "cards": "Affichage en cartes",
+      "list": "Affichage en liste"
     }
   }
 }
