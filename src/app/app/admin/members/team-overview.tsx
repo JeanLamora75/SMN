@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import NeutralAvatar from "./neutral-avatar";
 import {useRouter} from "next/navigation";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
@@ -63,8 +64,8 @@ export default function TeamOverview(){
      {m?<Link href={"/app/admin/members/"+encodeURIComponent(m.id)} className="card text-decoration-none text-body h-100 rounded-4 shadow-sm" style={{minHeight:180}}>
        <div className="card-body d-flex flex-column align-items-center text-center gap-2">
         <strong className="text-truncate w-100" title={m.displayName}>{m.displayName}</strong>
-        <span className="rounded-circle border bg-body-tertiary d-flex align-items-center justify-content-center" style={{width:62,height:62,fontSize:32}} aria-hidden="true">♙</span>
-        <div className="d-flex gap-1 flex-wrap justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?"text-bg-primary":"text-bg-secondary opacity-50")}>{name}</span>)}</div>
+        <NeutralAvatar/>
+        <div className="d-flex gap-1 flex-wrap justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?(name==="SM"?"text-bg-warning":name==="PO"?"text-bg-primary":"text-bg-success"):"text-bg-secondary opacity-50")}>{name}</span>)}</div>
         <small className="text-secondary">{t("teamUX.functionMissing")}</small>
        </div>
       </Link>:i===members.length?<button type="button" onClick={()=>setCreationOpen(true)} disabled={roster?.members.length===0} className="card h-100 w-100 rounded-4 border-primary text-primary bg-transparent" style={{minHeight:180}} aria-label={t("teamUX.addMember")}>
