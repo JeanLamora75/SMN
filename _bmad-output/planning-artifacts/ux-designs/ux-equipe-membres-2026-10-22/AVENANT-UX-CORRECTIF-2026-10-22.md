@@ -1,5 +1,7 @@
 # Avenant UX correctif — Équipe et fiche membre
 
+> **Note de version (fiche uniquement) :** ce diagnostic historique décrivait l'ancienne fiche. Il ne faut plus reproduire les cinq onglets, ni le panneau Profil en deux colonnes : le contrat actuel est [FICHE-MEMBRE-V2-UX-CONTRAT.md](FICHE-MEMBRE-V2-UX-CONTRAT.md), avec quatre onglets, un bandeau horizontal et un seul crayon. La [recette V2](FICHE-MEMBRE-V2-RECETTE.md) remplace les anciens critères fiche. Les constats sur la page Équipe restent valables.
+
 **22 octobre 2026 | Sally — UX Designer BMAD | Décisions UX déjà actées | Pas de code ni de Jira.**
 
 Le commanditaire a montré deux captures de la réalisation d'Amelia (vue Cartes et fiche Membre 1) et constaté une **non-conformité visuelle et de structure** aux maquettes approuvées. Ceci est un diagnostic **sur captures et lecture du code actuel**, non une recette exécutée du fonctionnement des API.
