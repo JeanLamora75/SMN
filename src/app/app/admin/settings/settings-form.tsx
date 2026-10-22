@@ -79,13 +79,13 @@ export default function SettingsForm() {
       <section>
         <h2 className="h5">{t("settings.editable")}</h2>
         <div className="row g-3">
-          <div className="col-md-6"><label className="form-label" htmlFor="locale">{t("settings.locale")}</label>
+          <div className="col-md-6" id="settings-language"><label className="form-label" htmlFor="locale">{t("settings.locale")}</label>
             <select id="locale" aria-describedby="settings-locale-help" className="form-select" value={locale} disabled={busy} onChange={e=>{setLocale(e.target.value as "fr"|"en");setError("");setSuccess("");}}>
               <option value="fr">{t("settings.french")}</option><option value="en">{t("settings.english")}</option>
             </select>
             <p id="settings-locale-help" className="small text-secondary mt-1">{t("settings.localeInfo")}</p>
           </div>
-          <div className="col-md-6"><label className="form-label" htmlFor="theme">{t("settings.theme")}</label>
+          <div className="col-md-6" id="settings-appearance"><label className="form-label" htmlFor="theme">{t("settings.theme")}</label>
             <select id="theme" aria-describedby="settings-theme-help" className="form-select" value={theme} disabled={busy} onChange={e=>{setTheme(e.target.value as "light"|"dark");setError("");setSuccess("");}}>
               <option value="light">{t("settings.light")}</option><option value="dark">{t("settings.dark")}</option>
             </select>
