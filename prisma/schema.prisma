@@ -610,6 +610,8 @@ model SmnScrumCadenceAudit {
 }
 
 model SmnSprint {
+ storyPoints SmnSprintStoryPoints?
+ storyPointsAudits SmnSprintStoryPointsAudit[]
  goals SmnSprintGoal[]
  id String @id
  teamId String @map("team_id")
@@ -864,4 +866,27 @@ model SmnSprintGoalAudit {
  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
  goal SmnSprintGoal @relation(fields:[goalId],references:[id],onDelete:Restrict)
  @@map("smn_sprint_goal_audit")
+}
+
+model SmnSprintStoryPoints {
+ sprintId String @id @map("sprint_id")
+ initialSp BigInt? @map("initial_sp")
+ addedSp BigInt? @map("added_sp")
+ removedSp BigInt? @map("removed_sp")
+ doneSp BigInt? @map("done_sp")
+ revision Int @default(1)
+ updatedBy String? @map("updated_by")
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_story_points")
+}
+model SmnSprintStoryPointsAudit {
+ id String @id
+ sprintId String @map("sprint_id")
+ beforeValues Json? @map("before_values") @db.JsonB
+ afterValues Json @map("after_values") @db.JsonB
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_story_points_audit")
 }
