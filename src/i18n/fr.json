@@ -1788,6 +1788,11 @@
     "duration": "Durée (minutes)",
     "create": "Créer la réunion",
     "saveFailed": "Création impossible. Vérifiez le sprint, les horaires et vos droits.",
-    "requiresSprint": "La création d’une réunion nécessite un sprint. Sélectionnez une période couverte par un sprint."
+    "requiresSprint": "La création d’une réunion nécessite un sprint. Sélectionnez une période couverte par un sprint.",
+    "backCalendar": "Calendrier",
+    "meetingStart": "Début",
+    "meetingEnd": "Fin",
+    "meetingStatus": "Statut",
+    "statusUnknown": "Non renseigné"
   }
 }
