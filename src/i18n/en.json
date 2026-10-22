@@ -1628,5 +1628,24 @@
     "save": "Save",
     "saved": "Story Points saved.",
     "error": "Unable to load or save Story Points."
+  },
+  "sprintReview": {
+    "unsaved": "Unsaved changes",
+    "discard": "Leave without saving? Choose Cancel to stay."
+  },
+  "reviewCapacity": {
+    "title": "Sprint capacity",
+    "choose": "Choose a Sprint",
+    "metric": "Metric",
+    "initial": "Initial",
+    "actual": "Actual",
+    "retained": "Retained capacity",
+    "reference": "Calculated reference",
+    "source": "Source",
+    "difference": "Actual − initial difference",
+    "unavailable": "Not calculable",
+    "unreliable": "Difference unavailable: missing or unreliable data.",
+    "readonly": "Read only. Actual capacity and its manual overrides remain managed separately.",
+    "error": "Unable to read this Sprint's capacity."
   }
 }

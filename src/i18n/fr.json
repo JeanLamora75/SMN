@@ -1628,5 +1628,24 @@
     "save": "Enregistrer",
     "saved": "Story Points enregistrés.",
     "error": "Impossible de charger ou enregistrer les Story Points."
+  },
+  "sprintReview": {
+    "unsaved": "Modifications non enregistrées",
+    "discard": "Quitter sans enregistrer ? Choisissez Annuler pour rester."
+  },
+  "reviewCapacity": {
+    "title": "Capacité du Sprint",
+    "choose": "Choisir un Sprint",
+    "metric": "Donnée",
+    "initial": "Initiale",
+    "actual": "Réelle",
+    "retained": "Capacité retenue",
+    "reference": "Référence calculée",
+    "source": "Provenance",
+    "difference": "Écart réel − initial",
+    "unavailable": "Non calculable",
+    "unreliable": "Écart indisponible : données manquantes ou insuffisamment fiables.",
+    "readonly": "Lecture seule. La capacité réelle et sa saisie manuelle restent gérées dans leurs fonctions dédiées.",
+    "error": "Impossible de lire la capacité de ce Sprint."
   }
 }
