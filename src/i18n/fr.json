@@ -1594,7 +1594,17 @@
     "confirm": "Confirmer la nouvelle période",
     "cancel": "Annuler",
     "saved": "Dates du Sprint modifiées et auditées.",
-    "error": "La replanification a échoué."
+    "error": "La replanification a échoué.",
+    "impactTitle": "Données à réexaminer",
+    "reviewGoals": "Objectifs à vérifier",
+    "reviewSp": "Story Points à vérifier",
+    "present": "Enregistrés",
+    "missing": "Non calculable",
+    "initialRetained": "Capacité initiale inchangée",
+    "manualRetained": "Capacité manuelle inchangée",
+    "newReference": "Nouvelle référence provisoire",
+    "unchanged": "Aucune source ou capacité manuelle n'est modifiée.",
+    "missingSources": "Sources indisponibles"
   },
   "sprintGoals": {
     "title": "Objectifs du Sprint",
