@@ -17,6 +17,7 @@ export default async function AuditPage(){
  const entries=await withAuthDb(client=>readAuditJournal(client)).catch(()=>null);
  return <div className="smn-page container py-5">
   <header className="mb-4">
+   <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">← {translate(locale,"navigation.entries.settings")}</Link>
    <h1 className="h3">{t("audit.title")}</h1>
    <p>{t("audit.intro")}</p>
    <Link href="/app" className="btn btn-outline-secondary">{t("audit.back")}</Link>
