@@ -100,3 +100,19 @@ body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground)
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
 }
+
+/* Sally UX 2026-10-22: team and member pages override legacy 870px layout. */
+.smn-team-page,.smn-member-page { max-width:none; width:100%; }
+.smn-team-roster { width:100%; }
+.smn-team-roster .smn-team-card { min-height:222px; border:1px solid var(--smn-border);
+ background:var(--smn-surface); transition:box-shadow .15s ease,transform .15s ease; }
+.smn-team-roster .smn-team-card:hover,.smn-team-roster .smn-team-card:focus-visible {
+ box-shadow:0 8px 26px rgba(22,62,116,.15);transform:translateY(-2px); }
+.smn-team-roster .smn-team-roles { flex-wrap:nowrap;white-space:nowrap; }
+.smn-team-roster .smn-team-roles .badge {min-width:32px;font-weight:600;}
+.smn-team-roster .smn-team-placeholder {min-height:222px;border:2px dashed var(--smn-border);
+ background:var(--smn-muted-soft);border-radius:1rem;}
+.smn-team-roster .smn-team-add {min-height:222px;background:var(--smn-surface);
+ border:2px dashed var(--smn-brand);border-radius:1rem; }
+.smn-member-tabs .nav-link[aria-selected="true"] {font-weight:700;}
+@media (max-width:1199px){.smn-team-roster .smn-team-roles .badge{min-width:28px;padding-inline:.35em;}}
