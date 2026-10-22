@@ -43,7 +43,7 @@ export default function UsersAdmin({selfId}:{selfId:string}) {
       return true;
     } catch {setStatus(current=>current==="ready"?"ready":"error");setMessageError(true);setMessage(t("accounts.loadFailed"));return false;}
   },[t]);
-  useEffect(()=>{void Promise.resolve().then(refresh);},[refresh]);
+  useEffect(()=>{void Promise.resolve().then(()=>refresh());},[refresh]);
   async function create(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();setBusy(true);setMessageError(false);setMessage("");
     try {
