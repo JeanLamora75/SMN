@@ -1696,5 +1696,17 @@
     "active": "En cours",
     "finished": "Terminé",
     "closed": "Clôturé"
+  },
+  "epic4WorkSlots": {
+    "title": "Plages horaires de travail",
+    "info": "Configurez explicitement les horaires des demi-journées et le fuseau de l'équipe. Sans cette configuration, les réunions ne sont pas déduites arbitrairement.",
+    "morningStart": "Début matinée",
+    "morningEnd": "Fin matinée",
+    "afternoonStart": "Début après-midi",
+    "afternoonEnd": "Fin après-midi",
+    "zone": "Fuseau IANA",
+    "save": "Enregistrer les plages",
+    "saved": "Plages enregistrées",
+    "error": "Configuration indisponible ou conflictuelle"
   }
 }
