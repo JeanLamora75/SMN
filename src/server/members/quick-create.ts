@@ -123,8 +123,8 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
     await client.query("ROLLBACK");return {ok:false,error:"request-conflict"};
    }
    const original=await client.query<MemberRow>(memberSelect+
-    " AND EXISTS(SELECT 1 FROM public.smn_team t WHERE t.id=$1 AND t.installation_id=m.installation_id) AND m.batch_id=$2 ORDER BY m.member_number ASC",
-    [team.id,input.requestId]);
+    " AND EXISTS(SELECT 1 FROM public.smn_team t WHERE t.id=$1 AND t.installation_id=m.installation_id) AND m.batch_id=$2 AND m.member_number<=$3 ORDER BY m.member_number ASC",
+    [team.id,input.requestId,input.count]);
    if(original.rows.length!==input.count)throw new Error("members-batch-incomplete");
    await client.query("COMMIT");
    return {ok:true,created:false,members:original.rows.map(project)};
