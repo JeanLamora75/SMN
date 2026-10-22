@@ -77,3 +77,17 @@ Non livré (bloquant pour conformité complète) :
 - Transaction unique et endpoint atomique pour profil et localisation ; sauvegarde actuelle en deux appels.
 - Historique consolidé de tous changements (profil, fonction, calendrier, absences, localisation) et affichage riche en lecture seule des onglets.
 - Aucun test TypeScript, navigateur ou migration PostgreSQL exécuté dans cette session. Ne pas considérer la refonte comme finalisée.
+
+
+## Fin de réalisation : Fonction métier, sauvegarde atomique et v27 (22/10 au soir)
+- Fonction professionnelle nullable (max. 120 caractères) : `smn_member.professional_function`, présentée dans la liste Équipe et le bandeau Membre.
+- Formulaire commun (un seul crayon du bandeau) : nom, e-mail, fonction, pays, région, ville, fuseau horaire ; `PUT /api/admin/members/[id]/identity` assure une transaction PostgreSQL unique, un verrou sur la fiche, des révisions vérifiées, et un rollback complet en cas d'échec.
+- Migration **v27 additive** avec historique d'identité `smn_member_identity_history`. Les changements de profil et localisation sont audités dans la même transaction.
+- Le diagnostic strict (`diagnostic.ts`, `probe.ts`, `contract.ts`) reconnaît v27, 27 entrées de migration et la nouvelle table. Modèle Prisma synchronisé.
+- Script de migration : `pnpm exec tsx scripts/migrate-member-identity-v27.ts` pour prévalidation **sans écriture**, puis `pnpm exec tsx scripts/migrate-member-identity-v27.ts --apply` après sauvegarde du PostgreSQL SMN et arrêt du serveur. Ne jamais recréer/vider la base.
+- Onglet Calendrier : lecture du rythme hebdomadaire et exceptions avec édition via modale.
+- Onglet Historique : regroupement chronologique des sources de données existantes (identité, affectations, calendrier, absences, localisations). Les historiques des révisions d'absences antérieures ne sont pas encore reproduits intégralement.
+- Un test unitaire `tests/member-identity.test.ts` couvre les entrées, la transaction et le rollback.
+
+### Important
+Code publié sur `main`, **migration non exécutée** ; pas de compilation ni de test navigateur dans l'environnement d'assistance. Après synchronisation Git, exécuter `pnpm typecheck` et les tests, puis la migration contrôlée avec une sauvegarde préalable. Le fonctionnement n'est pas encore certifié par recette.
