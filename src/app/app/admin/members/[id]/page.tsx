@@ -8,5 +8,5 @@ export default async function MemberPage({params}:{params:Promise<{id:string}>})
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"members",exists:true,inScope:true}))redirect("/app");
  const {id}=await params;
- return <main className="smn-page"><MemberDetail id={id}/></main>;
+ return <main className="smn-page smn-member-page"><MemberDetail id={id}/></main>;
 }
