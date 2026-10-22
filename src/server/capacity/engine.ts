@@ -2,9 +2,12 @@ import type {Client} from "pg";
 import {isValidDate} from "../members/assignment";
 import {resolveCalendarDay,type WeekRow,type ExceptionRow} from "../members/calendar";
 import {resolveDayAvailability} from "../members/day-availability";
+import {readWorkSlots,workingIntervals,occupiedMinutes} from "./work-slots";
+import {capacityImpactJh,type Interval} from "./meeting-intervals";
 
 export type CapacityMissing="no-assignments"|"ambiguous-assignment"|
- "assignment-version"|"work-calendar"|"member-country"|"national-coverage";
+ "assignment-version"|"work-calendar"|"member-country"|"national-coverage"|
+ "exceptional-meeting-participants"|"exceptional-meeting-work-slots";
 export type DayCapacity={
  date:string;status:"calculated"|"not-calculable";
  developmentJh:number|null;developmentHours:number|null;
@@ -87,7 +90,7 @@ const listDates=(start:string,end:string)=>{
 };
 /** Queries share one repeatable-read snapshot; no mutation of historical snapshots. */
 export async function readDevelopmentCapacity(db:Client,start:string,end:string,
- options:{externalTransaction?:boolean}={}):Promise<CapacityReport>{
+ options:{externalTransaction?:boolean;includeExceptionalImpact?:boolean}={}):Promise<CapacityReport>{
  const parsed=parseCapacityPeriod(new URLSearchParams({start,end}));
  if(!parsed)throw Error("capacity-invalid-period");
  if(!options.externalTransaction)
@@ -165,6 +168,22 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   ]);
   const holidays=new Set(holiday.rows.map(h=>h.country_code+":"+h.holiday_date));
   const coverageByYear=new Map(coverage.rows.map(c=>[c.country_code+":"+c.calendar_year,c.status]));
+  const explicitSlots=options.includeExceptionalImpact&&team.mode==="scrum"?await readWorkSlots(db,team.id):null;
+  const impactEvents=options.includeExceptionalImpact&&team.mode==="scrum"?
+   (await db.query<{id:string;member_id:string|null;start_at:string;end_at:string;actual_minutes:number|null;planned_minutes:number}>(`SELECT m.id,p.member_id,m.starts_at::text AS start_at,m.ends_at::text AS end_at,
+      m.actual_minutes,m.duration_minutes AS planned_minutes
+     FROM public.smn_sprint_exceptional_meeting m JOIN public.smn_sprint s ON s.id=m.sprint_id
+     LEFT JOIN public.smn_exceptional_meeting_participant p ON p.meeting_id=m.id
+     WHERE s.team_id=$1 AND s.deleted_at IS NULL AND m.impacts_capacity=true
+     AND m.status NOT IN ('cancelled','not_held') AND m.starts_at<$3::timestamptz AND m.ends_at>$2::timestamptz
+     ORDER BY m.id,p.member_id LIMIT 2001`,[team.id,start+"T00:00:00Z",new Date(Date.parse(end+"T00:00:00Z")+2*86400000).toISOString()])).rows:[];
+  if(impactEvents.length>2000)throw Error("capacity-meeting-limit");
+  const unassignedImpact=impactEvents.some(x=>x.member_id===null||!memberIds.includes(x.member_id));
+  const impactZones=impactEvents.length&&explicitSlots?
+   (await db.query<{time_zone:string}>(`SELECT DISTINCT s.time_zone FROM public.smn_sprint_exceptional_meeting m
+    JOIN public.smn_sprint s ON s.id=m.sprint_id WHERE m.id=ANY($1::text[])`,
+    [[...new Set(impactEvents.map(x=>x.id))]])).rows:[];
+  const divergentZones=impactZones.some(x=>x.time_zone!==explicitSlots?.zone);
   const dates=listDates(start,end);
   const members:MemberCapacity[]=[];
   const missing:CapacityReport["missing"]=[];
@@ -216,10 +235,31 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     const computed=computeDevelopmentDay(availableHalfDays,hoursPerJh,
      version!.allocation_percent,version!.developer_percent,version!.contribution_percent);
     if(!computed)throw Error("capacity-rate-corrupt");
-    memberExactJh+=computed.jh;
+    let netJh=computed.jh,netHours=computed.hours;
+    if(options.includeExceptionalImpact&&team.mode==="scrum"){
+     const impacted=impactEvents.filter(e=>e.member_id===memberId);
+     if(impacted.length){
+      const actualKnown=impacted.every(e=>e.actual_minutes===null||e.actual_minutes===e.planned_minutes);
+      const work=explicitSlots?workingIntervals(date,explicitSlots.zone,explicitSlots.slots,availability.availableSlots!):null;
+      const duration=(a:string,b:string)=>{const x=Date.parse("2000-01-01T"+a+":00Z"),y=Date.parse("2000-01-01T"+b+":00Z");return (y-x)/60000;};
+      const consistent=explicitSlots&&
+       Math.abs(duration(explicitSlots.slots.morningStart,explicitSlots.slots.morningEnd)-hoursPerJh*30)<0.01&&
+       Math.abs(duration(explicitSlots.slots.afternoonStart,explicitSlots.slots.afternoonEnd)-hoursPerJh*30)<0.01;
+      if(!work||!actualKnown||!consistent||unassignedImpact||divergentZones){
+       const source:CapacityMissing=!work||!consistent?"exceptional-meeting-work-slots":"exceptional-meeting-participants";
+       missing.push({date,memberId,source});days.push(failDay(date,[source]));continue;
+      }
+      const intervals:Interval[]=impacted.map(e=>({start:Date.parse(e.start_at),end:Date.parse(e.end_at)}));
+      const minutes=occupiedMinutes(intervals,work);
+      const deducted=capacityImpactJh(minutes,hoursPerJh,{allocationPercent:version!.allocation_percent,
+       developerPercent:version!.developer_percent,contributionPercent:version!.contribution_percent});
+      netJh=Math.max(0,computed.jh-deducted);netHours=netJh*hoursPerJh;
+     }
+    }
+    memberExactJh+=netJh;
     days.push({
-     date,status:"calculated",developmentJh:round(computed.jh),
-     developmentHours:round(computed.hours),availableHalfDays,
+     date,status:"calculated",developmentJh:round(netJh),
+     developmentHours:round(netHours),availableHalfDays,
      allocationPercent:version!.allocation_percent,
      contractPercent:version!.contract_percent,
      developerPercent:version!.developer_percent,
@@ -231,6 +271,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     totalJh:days.some(d=>d.status==="not-calculable")?null:round(memberExactJh),days});
   }
   if(members.length===0)missing.push({date:null,memberId:null,source:"no-assignments"});
+  if(unassignedImpact)missing.push({date:null,memberId:null,source:"exceptional-meeting-participants"});
   const status=missing.length?"not-calculable":"calculated";
   const totalJh=status==="calculated"?
    round(members.reduce((sum,m)=>sum+(m.totalJh??0),0)):null;

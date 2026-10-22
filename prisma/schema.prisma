@@ -30,6 +30,7 @@ model SmnProduct {
   @@map("smn_product")
 }
 model SmnTeam {
+ workSlots SmnTeamWorkSlots?
   id String @id
   installationId String @unique @map("installation_id")
   productId String @map("product_id")
@@ -41,6 +42,12 @@ model SmnTeam {
   companyClosures SmnCompanyClosure[]
   capacityOverrides SmnCapacityPeriodOverride[]
   historicalQualities SmnCapacityHistoricalQuality[]
+  scrumCadence SmnScrumCadence?
+  sprints SmnSprint[]
+  sprintBatchPreviews SmnSprintBatchPreview[]
+  sprintBatchAudits SmnSprintBatchAudit[]
+  scrumLunch SmnScrumLunch?
+  ceremonyTemplates SmnScrumCeremonyTemplate[]
   @@map("smn_team")
 }
 model SmnAccount {
@@ -139,6 +146,7 @@ model SmnMemberBatch {
   @@map("smn_member_batch")
 }
 model SmnMember {
+ exceptionalMeetings SmnExceptionalMeetingParticipant[]
   id String @id
   installationId String @map("installation_id")
   batchId String @map("batch_id")
@@ -573,4 +581,376 @@ model SmnCapacityReplanningHistory {
  actor SmnAccount? @relation(fields:[confirmedBy],references:[id],onDelete:SetNull)
  @@unique([replanningId,revision])
  @@map("smn_capacity_replanning_history")
+}
+
+model SmnScrumCadence {
+ teamId String @id @map("team_id")
+ durationWeeks Int @default(2) @map("duration_weeks")
+ startDay Int @default(1) @map("start_day")
+ startTime DateTime @default(dbgenerated("'09:00'")) @map("start_time") @db.Time(0)
+ endDay Int @default(5) @map("end_day")
+ endTime DateTime @default(dbgenerated("'18:00'")) @map("end_time") @db.Time(0)
+ timeZone String @default("Europe/Paris") @map("time_zone")
+ revision Int @default(1)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ updatedBy String? @map("updated_by")
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ audit SmnScrumCadenceAudit[]
+ @@map("smn_scrum_cadence")
+}
+model SmnScrumCadenceAudit {
+ id String @id
+ teamId String @map("team_id")
+ revision Int
+ beforeValues Json @map("before_values") @db.JsonB
+ afterValues Json @map("after_values") @db.JsonB
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ cadence SmnScrumCadence @relation(fields:[teamId],references:[teamId],onDelete:Restrict)
+ @@unique([teamId,revision])
+ @@map("smn_scrum_cadence_audit")
+}
+
+model SmnSprint {
+ closureSnapshots SmnSprintClosureSnapshot[]
+ closureAudits SmnSprintClosureAudit[]
+ storyPoints SmnSprintStoryPoints?
+ storyPointsAudits SmnSprintStoryPointsAudit[]
+ goals SmnSprintGoal[]
+ id String @id
+ teamId String @map("team_id")
+ number Int
+ name String
+ startAt DateTime @map("start_at") @db.Timestamptz(6)
+ endAt DateTime @map("end_at") @db.Timestamptz(6)
+ timeZone String @map("time_zone")
+ status String @default("planned")
+ createdBy String? @map("created_by")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+ deletedBy String? @map("deleted_by")
+ autoSuspended Boolean @default(false) @map("auto_suspended")
+ ceremonies SmnSprintCeremony[]
+ customCeremonies SmnScrumTemplateOccurrence[]
+ exceptionalMeetings SmnSprintExceptionalMeeting[]
+ transitions SmnSprintTransition[]
+ capacityTrigger SmnSprintCapacityTrigger?
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ audit SmnSprintAudit[]
+ @@unique([teamId,number])
+ @@map("smn_sprint")
+}
+model SmnSprintAudit {
+ id String @id
+ sprintId String @map("sprint_id")
+ action String
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ details Json @db.JsonB
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_audit")
+}
+
+model SmnSprintBatchPreview {
+ token String @id
+ teamId String @map("team_id")
+ actorId String @map("actor_id")
+ startOn DateTime @map("start_on") @db.Date
+ count Int
+ digest String
+ expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+ consumedAt DateTime? @map("consumed_at") @db.Timestamptz(6)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_batch_preview")
+}
+model SmnSprintBatchAudit {
+ id String @id
+ teamId String @map("team_id")
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ cadence Json @db.JsonB
+ sprints Json @db.JsonB
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_batch_audit")
+}
+
+model SmnSprintTransition {
+ id String @id
+ sprintId String @map("sprint_id")
+ transition String
+ businessAt DateTime @map("business_at") @db.Timestamptz(6)
+ processedAt DateTime @default(now()) @map("processed_at") @db.Timestamptz(6)
+ actorId String? @map("actor_id")
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@unique([sprintId,transition])
+ @@map("smn_sprint_transition")
+}
+model SmnSprintCapacityTrigger {
+ sprintId String @id @map("sprint_id")
+ dueAt DateTime @map("due_at") @db.Timestamptz(6)
+ requestedAt DateTime @default(now()) @map("requested_at") @db.Timestamptz(6)
+ status String @default("pending")
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_capacity_trigger")
+}
+
+model SmnSprintCeremony {
+ actualMinutes Int? @map("actual_minutes")
+ id String @id
+ sprintId String @map("sprint_id")
+ kind String
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ minutes Int
+ generatedAt DateTime @default(now()) @map("generated_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ segments SmnSprintCeremonySegment[]
+ history SmnSprintCeremonyHistory[]
+ provenance String @default("generated")
+ occurrenceStatus String @default("scheduled") @map("occurrence_status")
+ statusExplicit Boolean @default(false) @map("status_explicit")
+ revision Int @default(1)
+ @@unique([sprintId,kind,startsAt])
+ @@map("smn_sprint_ceremony")
+}
+
+model SmnScrumLunch {
+ teamId String @id @map("team_id")
+ startTime DateTime @default(dbgenerated("'12:00'")) @map("start_time") @db.Time(0)
+ endTime DateTime @default(dbgenerated("'13:00'")) @map("end_time") @db.Time(0)
+ revision Int @default(1)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_scrum_lunch")
+}
+model SmnSprintCeremonySegment {
+ ceremonyId String @map("ceremony_id")
+ position Int
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ minutes Int
+ ceremony SmnSprintCeremony @relation(fields:[ceremonyId],references:[id],onDelete:Cascade)
+ @@id([ceremonyId,position])
+ @@map("smn_sprint_ceremony_segment")
+}
+
+model SmnSprintCeremonyHistory {
+ id String @id
+ ceremonyId String @map("ceremony_id")
+ revision Int
+ previousValues Json @map("previous_values") @db.JsonB
+ nextValues Json @map("next_values") @db.JsonB
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ ceremony SmnSprintCeremony @relation(fields:[ceremonyId],references:[id],onDelete:Restrict)
+ @@unique([ceremonyId,revision])
+ @@map("smn_sprint_ceremony_history")
+}
+
+model SmnScrumCeremonyTemplate {
+ id String @id
+ teamId String @map("team_id")
+ name String
+ frequency String
+ weekday Int?
+ position String?
+ localTime DateTime @map("local_time") @db.Time(0)
+ durationMinutes Int @map("duration_minutes")
+ active Boolean @default(true)
+ revision Int @default(1)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ history SmnScrumCeremonyTemplateHistory[]
+ occurrences SmnScrumTemplateOccurrence[]
+ @@map("smn_scrum_ceremony_template")
+}
+model SmnScrumCeremonyTemplateHistory {
+ id String @id
+ templateId String @map("template_id")
+ revision Int
+ beforeValues Json? @map("before_values") @db.JsonB
+ afterValues Json @map("after_values") @db.JsonB
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ template SmnScrumCeremonyTemplate @relation(fields:[templateId],references:[id],onDelete:Restrict)
+ @@unique([templateId,revision])
+ @@map("smn_scrum_ceremony_template_history")
+}
+model SmnScrumTemplateOccurrence {
+ actualMinutes Int? @map("actual_minutes")
+ id String @id
+ templateId String @map("template_id")
+ templateRevision Int @map("template_revision")
+ status String @default("scheduled")
+ statusExplicit Boolean @default(false) @map("status_explicit")
+ sprintId String @map("sprint_id")
+ name String
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ template SmnScrumCeremonyTemplate @relation(fields:[templateId],references:[id],onDelete:Restrict)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@unique([templateId,sprintId,startsAt])
+ @@map("smn_scrum_template_occurrence")
+}
+
+model SmnSprintExceptionalMeeting {
+ participants SmnExceptionalMeetingParticipant[]
+ participantAudits SmnExceptionalMeetingParticipantAudit[]
+ impactsCapacity Boolean @default(false) @map("impacts_capacity")
+ actualMinutes Int? @map("actual_minutes")
+ id String @id
+ sprintId String @map("sprint_id")
+ name String
+ startsAt DateTime @map("starts_at") @db.Timestamptz(6)
+ endsAt DateTime @map("ends_at") @db.Timestamptz(6)
+ durationMinutes Int @map("duration_minutes")
+ status String @default("scheduled")
+ statusExplicit Boolean @default(false) @map("status_explicit")
+ createdBy String? @map("created_by")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ revisedAt DateTime? @map("revised_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ history SmnSprintExceptionalMeetingHistory[]
+ @@map("smn_sprint_exceptional_meeting")
+}
+model SmnSprintExceptionalMeetingHistory {
+ id String @id
+ meetingId String @map("meeting_id")
+ action String
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ details Json @db.JsonB
+ meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_exceptional_meeting_history")
+}
+
+model SmnMeetingActualDurationAudit {
+ id String @id
+ kind String
+ eventId String @map("event_id")
+ previousMinutes Int? @map("previous_minutes")
+ newMinutes Int @map("new_minutes")
+ plannedMinutes Int @map("planned_minutes")
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ @@map("smn_meeting_actual_duration_audit")
+}
+
+model SmnExceptionalCapacityImpactHistory {
+ id String @id
+ meetingId String @map("meeting_id")
+ previousValue Boolean @map("previous_value")
+ newValue Boolean @map("new_value")
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ @@map("smn_exceptional_capacity_impact_history")
+}
+
+model SmnSprintGoal {
+ id String @id
+ sprintId String @map("sprint_id")
+ title String
+ evaluation String @default("not_evaluated")
+ comment String?
+ revision Int @default(1)
+ createdBy String? @map("created_by")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ audits SmnSprintGoalAudit[]
+ @@map("smn_sprint_goal")
+}
+model SmnSprintGoalAudit {
+ id String @id
+ goalId String @map("goal_id")
+ previousValues Json? @map("previous_values") @db.JsonB
+ nextValues Json @map("next_values") @db.JsonB
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ goal SmnSprintGoal @relation(fields:[goalId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_goal_audit")
+}
+
+model SmnSprintStoryPoints {
+ sprintId String @id @map("sprint_id")
+ initialSp BigInt? @map("initial_sp")
+ addedSp BigInt? @map("added_sp")
+ removedSp BigInt? @map("removed_sp")
+ doneSp BigInt? @map("done_sp")
+ revision Int @default(1)
+ updatedBy String? @map("updated_by")
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_story_points")
+}
+model SmnSprintStoryPointsAudit {
+ id String @id
+ sprintId String @map("sprint_id")
+ beforeValues Json? @map("before_values") @db.JsonB
+ afterValues Json @map("after_values") @db.JsonB
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_story_points_audit")
+}
+
+model SmnSprintClosureSnapshot {
+ id String @id
+ sprintId String @map("sprint_id")
+ version Int
+ snapshot Json @db.JsonB
+ actorId String? @map("actor_id")
+ closedAt DateTime @default(now()) @map("closed_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@unique([sprintId,version])
+ @@map("smn_sprint_closure_snapshot")
+}
+model SmnSprintClosureAudit {
+ id String @id
+ sprintId String @map("sprint_id")
+ operation String
+ previousStatus String @map("previous_status")
+ nextStatus String @map("next_status")
+ snapshotVersion Int? @map("snapshot_version")
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
+ @@map("smn_sprint_closure_audit")
+}
+
+model SmnExceptionalMeetingParticipant {
+ meetingId String @map("meeting_id")
+ memberId String @map("member_id")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
+ member SmnMember @relation(fields:[memberId],references:[id],onDelete:Restrict)
+ @@id([meetingId,memberId])
+ @@map("smn_exceptional_meeting_participant")
+}
+model SmnExceptionalMeetingParticipantAudit {
+ id String @id
+ meetingId String @map("meeting_id")
+ beforeMemberIds Json @map("before_member_ids") @db.JsonB
+ afterMemberIds Json @map("after_member_ids") @db.JsonB
+ actorId String? @map("actor_id")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ meeting SmnSprintExceptionalMeeting @relation(fields:[meetingId],references:[id],onDelete:Restrict)
+ @@map("smn_exceptional_meeting_participant_audit")
+}
+
+model SmnTeamWorkSlots {
+ teamId String @id @map("team_id")
+ timeZone String @map("time_zone")
+ morningStart DateTime @map("morning_start") @db.Time(6)
+ morningEnd DateTime @map("morning_end") @db.Time(6)
+ afternoonStart DateTime @map("afternoon_start") @db.Time(6)
+ afternoonEnd DateTime @map("afternoon_end") @db.Time(6)
+ configuredBy String? @map("configured_by")
+ configuredAt DateTime @default(now()) @map("configured_at") @db.Timestamptz(6)
+ revision Int @default(1)
+ team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
+ @@map("smn_team_work_slots")
 }
