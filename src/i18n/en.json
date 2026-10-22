@@ -1800,5 +1800,77 @@
     "groupGeneral": "Application and personalization",
     "general": "General settings",
     "generalDescription": "Manage language, theme, palette and reference country."
+  },
+  "settingsCatalog": {
+    "groups": {
+      "application": "Application and personalization",
+      "agile": "Agile organization",
+      "calendar": "Calendars and unavailability",
+      "administration": "Administration and maintenance"
+    },
+    "status": {
+      "available": "Available",
+      "partial": "Incomplete",
+      "planned": "Coming soon",
+      "not-applicable": "Not applicable"
+    },
+    "items": {
+      "general": {
+        "title": "General information",
+        "description": "Configure language, theme, palette and reference country."
+      },
+      "languages": {
+        "title": "Languages",
+        "description": "Choose the interface language."
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Customize the theme and colors."
+      },
+      "cadence": {
+        "title": "Sprint cadence",
+        "description": "Configure future Scrum sprint duration and timing."
+      },
+      "ceremonies": {
+        "title": "Ceremonies and templates",
+        "description": "Configure team meetings and templates."
+      },
+      "capacity": {
+        "title": "Capacity rules",
+        "description": "Configure capacity calculation rules."
+      },
+      "workingDays": {
+        "title": "Working days",
+        "description": "Customize the team's reference workweek."
+      },
+      "countries": {
+        "title": "Countries and public holidays",
+        "description": "Manage countries and national calendars."
+      },
+      "closures": {
+        "title": "Company closures",
+        "description": "Manage company-wide closure periods."
+      },
+      "absences": {
+        "title": "Absence categories",
+        "description": "Manage absence types and colors."
+      },
+      "users": {
+        "title": "Users and permissions",
+        "description": "Administer accounts and access rights."
+      },
+      "security": {
+        "title": "Security and sessions",
+        "description": "Review security and personal access."
+      },
+      "backups": {
+        "title": "Backups",
+        "description": "Manage protected backups."
+      },
+      "audit": {
+        "title": "Audit log",
+        "description": "Review the operation audit trail."
+      }
+    }
   }
 }
