@@ -695,6 +695,10 @@ model SmnSprintCeremony {
  generatedAt DateTime @default(now()) @map("generated_at") @db.Timestamptz(6)
  sprint SmnSprint @relation(fields:[sprintId],references:[id],onDelete:Restrict)
  segments SmnSprintCeremonySegment[]
+ history SmnSprintCeremonyHistory[]
+ provenance String @default("generated")
+ occurrenceStatus String @default("scheduled") @map("occurrence_status")
+ revision Int @default(1)
  @@unique([sprintId,kind,startsAt])
  @@map("smn_sprint_ceremony")
 }
@@ -717,4 +721,17 @@ model SmnSprintCeremonySegment {
  ceremony SmnSprintCeremony @relation(fields:[ceremonyId],references:[id],onDelete:Cascade)
  @@id([ceremonyId,position])
  @@map("smn_sprint_ceremony_segment")
+}
+
+model SmnSprintCeremonyHistory {
+ id String @id
+ ceremonyId String @map("ceremony_id")
+ revision Int
+ previousValues Json @map("previous_values") @db.JsonB
+ nextValues Json @map("next_values") @db.JsonB
+ changedBy String? @map("changed_by")
+ changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+ ceremony SmnSprintCeremony @relation(fields:[ceremonyId],references:[id],onDelete:Restrict)
+ @@unique([ceremonyId,revision])
+ @@map("smn_sprint_ceremony_history")
 }
