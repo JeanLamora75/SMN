@@ -7,7 +7,6 @@ import type {EditableMember} from "../member-profile-editor";
 import MemberIdentityEditor from "./member-identity-editor";
 import AssignmentEditor from "../assignment-editor";
 import MemberCalendarEditor from "../member-calendar-editor";
-import MemberLocationEditor from "../member-location-editor";
 import MemberLifecycleEditor from "../member-lifecycle-editor";
 import MemberAbsenceEditor from "../member-absence-editor";
 import MemberHistory from "./member-history";
@@ -15,7 +14,7 @@ import MemberCalendarSummary from "./member-calendar-summary";
 type Member=EditableMember&{memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;
  email:string|null;professionalFunction?:string|null;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string};members:Member[]};
-type Section="profile"|"assignment"|"calendar"|"location"|"lifecycle"|null;
+type Section="profile"|"assignment"|"calendar"|"lifecycle"|null;
 type Tab="assignment"|"calendar"|"absences"|"history";
 export default function MemberDetail({id}:{id:string}){
  const t=useTranslation();
@@ -24,8 +23,6 @@ export default function MemberDetail({id}:{id:string}){
  const [section,setSection]=useState<Section>(null);
  const [tab,setTab]=useState<Tab>("assignment");
  const [error,setError]=useState("");
- const [history,setHistory]=useState<{assignments:{startOn:string;endOn:string|null}[];archived:boolean;archivedAt:string|null}|null>(null);
- const [historyError,setHistoryError]=useState(false);
  const [location,setLocation]=useState<{current:{city:string|null;region:string|null;countryIso2:string|null}|null}|null>(null);
  const dialogRef=useRef<HTMLDivElement>(null);
  const refresh=useCallback(async()=>{
@@ -38,11 +35,6 @@ export default function MemberDetail({id}:{id:string}){
   .then(data=>{if(alive){setRoster(data);setLoading(false);}})
   .catch(()=>{if(alive){setError(t("memberUX.loadFailed"));setLoading(false);}});
   return()=>{alive=false;};},[]);
- useEffect(()=>{if(tab!=="history")return;let active=true;setHistory(null);setHistoryError(false);
-  fetch("/api/admin/members/"+encodeURIComponent(id)+"/lifecycle",{cache:"no-store"})
-   .then(async r=>{if(!r.ok)throw Error("history");return r.json() as Promise<{assignments:{startOn:string;endOn:string|null}[];archived:boolean;archivedAt:string|null}>;})
-   .then(v=>{if(active)setHistory(v);}).catch(()=>{if(active)setHistoryError(true);});
-  return()=>{active=false;};},[id,tab]);
  useEffect(()=>{if(!section)return;const previous=document.activeElement as HTMLElement|null;
   const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape"){event.preventDefault();dialogRef.current?.querySelector<HTMLButtonElement>("[data-close-dialog]")?.click();}
    if(event.key==="Tab"){const items=Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')??[]);
@@ -124,10 +116,9 @@ export default function MemberDetail({id}:{id:string}){
       <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={closeDialog}/>
      </div>
      <div className="p-3">
-      {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog}/>}
       {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onClose={saved}/>}
-      {section==="location"&&<MemberLocationEditor key={member.id+"-location-edit"} memberId={member.id} teamName={roster?.team.name??""} onClose={saved}/>}
       {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
      </div>
     </div>
