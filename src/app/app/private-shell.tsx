@@ -134,7 +134,8 @@ export default function PrivateShell({children,username,role,mode,product,team,t
               value={selectedCycleId} onChange={event=>changeSprint(event.target.value)}
               disabled={mode!=="scrum"||cycleState!=="ready"||sprints.length===0}
               aria-describedby="smn-cycle-help">
-              {sprints.length===0&&<option value="">{t("dashboard.shell.noCycle")}</option>}
+              {sprints.length===0&&<option value="">{t(cycleState==="error"?"dashboard.shell.cycleUnavailable":
+                cycleState==="loading"?"dashboard.shell.loadingCycles":"dashboard.shell.noCycle")}</option>}
               {sprints.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
             <span id="smn-cycle-help" className="visually-hidden">
