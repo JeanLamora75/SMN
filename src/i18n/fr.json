@@ -1888,6 +1888,7 @@
     "pastWarning": "Attention : cette absence concerne une date révolue. Sa correction peut modifier les capacités recalculées, mais les engagements initiaux figés et les bilans clôturés ne seront pas modifiés.",
     "deleted": "L'absence a été supprimée des disponibilités actives ; son historique reste consultable.",
     "deletedStatus": "Supprimée",
+    "refreshFailed": "La suppression a été enregistrée, mais la liste n'a pas pu être rechargée. Actualisez l'onglet pour voir le résultat.",
     "noneUpcoming": "Aucune absence à venir ou en cours.",
     "nonePast": "Aucune absence passée.",
     "capacityNotice": "Les disponibilités et capacités non figées sont recalculées lors de leur prochaine consultation. Les références initiales figées et les bilans clôturés restent inchangés."
