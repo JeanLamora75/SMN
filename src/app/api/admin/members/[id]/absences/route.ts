@@ -17,7 +17,8 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
    const data=await readMemberAbsences(db,id,onDate);
    const dayAvailability=onDate?
     await readMemberDayAvailability(db,id,onDate,data.absences.filter(absence=>!absence.deleted)):null;
-   return {...data,dayAvailability};
+   const today=new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+   return {...data,today,dayAvailability};
   }));}
  catch(error){
   if(error instanceof Error&&error.message==="member-absence-invalid-input")
