@@ -2407,5 +2407,14 @@
     "conflict": "Decision was changed, reload this record",
     "help": "Use the identifier of the previous decision. Both records remain available.",
     "inverse": "Decisions replacing this one"
+  },
+  "actionLinks": {
+    "heading": "Linked decisions and impediments",
+    "related": "Decision or impediment identifier",
+    "add": "Link",
+    "remove": "Unlink",
+    "empty": "No links",
+    "error": "Unable to update link.",
+    "intro": "Linked records keep their own independent status."
   }
 }
