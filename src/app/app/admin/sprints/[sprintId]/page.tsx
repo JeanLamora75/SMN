@@ -8,6 +8,7 @@ import {withDashboardRead} from "@/server/dashboard/read-only-db";
 import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
 import {readSprintDetailIndicators} from "@/server/sprints/indicators-read";
 import {readSprintDetailCeremonies} from "@/server/sprints/ceremonies-detail-read";
+import {readSprintMemberPresence} from "@/server/sprints/presence-detail-read";
 import {readSprintContext} from "@/server/sprints/context";
 import {effectiveSprintStatus} from "@/lib/sprint-context";
 import {requestLocale} from "@/i18n/locale.server";
@@ -18,6 +19,7 @@ import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
 import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
+import SprintCapacityPanel from "./sprint-capacity-panel";
 import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
 
 export const dynamic="force-dynamic";
@@ -47,6 +49,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
  const teamId=dashboard.context.teamId;
+ const canViewMembers=canAccess(account,"read",{type:"members",exists:true,inScope:true});
  const result=await withDashboardRead(async db=>{
   const context=await readSprintContext(db,teamId);
   const cycle=context.items.find(item=>item.id===sprintId);
@@ -54,7 +57,9 @@ export default async function SprintDetailPage({params,searchParams}:{
   const goals=active==="objectives"?await readSprintDetailGoals(db,teamId,cycle.id):null;
   const indicators=active==="indicators"?await readSprintDetailIndicators(db,teamId,cycle.id):null;
   const ceremonies=active==="ceremonies"?await readSprintDetailCeremonies(db,teamId,cycle.id,ceremonyPage):null;
-  return {cycle,goals,indicators,ceremonies};
+  const presence=active==="capacity"&&canViewMembers?
+   await readSprintMemberPresence(db,teamId,cycle):null;
+  return {cycle,goals,indicators,ceremonies,presence};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -63,7 +68,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals,indicators,ceremonies}=result;
+ const {cycle,goals,indicators,ceremonies,presence}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
  const statusKeys:Record<string,TranslationKey>={
@@ -147,6 +152,9 @@ export default async function SprintDetailPage({params,searchParams}:{
       sprintId={cycle.id} timeZone={cycle.timeZone} locale={locale}
       t={(key,params)=>translate(locale,key,params)}
       data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>:
+     active==="capacity"?<SprintCapacityPanel
+      canViewNames={canViewMembers} data={canViewMembers?presence:null}
+      t={(key,params)=>translate(locale,key,params)}/>:
       <div className="py-3" role="status">
      <p className="fw-semibold mb-1">{t("sprintDetail.availableLater")}</p>
      <p className="text-secondary mb-0">{t(waiting[active])}</p>
