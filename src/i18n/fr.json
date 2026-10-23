@@ -2592,5 +2592,31 @@
     "error": "Impossible de récupérer ou d’enregistrer les options.",
     "preview": "Aperçu des rubriques sélectionnées",
     "leaveWarning": "Certaines options du rapport ne sont pas enregistrées. Quitter sans sauvegarder ?"
+  },
+  "reportContent": {
+    "heading": "KPI et éléments qualitatifs",
+    "intro": "Choisissez les indicateurs et catégories autorisés. Les chiffres manquants ne sont jamais remplacés par zéro.",
+    "metrics": "Indicateurs",
+    "qualitative": "Types de faits",
+    "committedSp": "SP engagés",
+    "completedSp": "SP terminés",
+    "plannedJh": "Capacité prévue (JH)",
+    "actualJh": "Capacité réelle (JH)",
+    "completionPercent": "Réalisation (%)",
+    "risk": "Risques",
+    "obstacle": "Obstacles",
+    "dependency": "Dépendances",
+    "decision": "Décisions",
+    "action": "Actions",
+    "highlight": "Faits marquants",
+    "humanAnalysis": "Inclure une analyse humaine existante",
+    "analysisUnavailable": "Aucune analyse humaine vérifiée n’est encore reliée à cette préparation.",
+    "noQualitative": "Aucun fait qualifié et vérifié n’est actuellement relié à cette sélection.",
+    "unavailable": "Indisponible",
+    "preview": "Aperçu des mesures sélectionnées",
+    "save": "Enregistrer les choix",
+    "saved": "Choix enregistrés",
+    "error": "Impossible de charger ou sauvegarder les choix.",
+    "leaveWarning": "Des modifications de sélection ne sont pas enregistrées. Quitter sans enregistrer ?"
   }
 }
