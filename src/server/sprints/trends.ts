@@ -1,37 +1,73 @@
 import type {Client} from "pg";
-import {ensureClosureSchema} from "./closure";
 
-export type SprintTrendPoint={
- sprintId:string;name:string;endAt:string;
- completedSp:number|null;completionRate:number|null;actualCapacityJh:number|null
-};
+export type SprintTrendPoint=Readonly<{
+ sprintId:string;name:string;endAt:string;snapshotVersion:number|null;
+ completedSp:number|null;completionRate:number|null;actualCapacityJh:number|null;
+}>;
+type Selected={id:string;team_id:string;start_at:string};
+type Row={id:string;name:string;end_at:string;version:number;snapshot_data:unknown};
+const object=(v:unknown):Record<string,unknown>|null=>
+ v!==null&&typeof v==="object"&&!Array.isArray(v)?v as Record<string,unknown>:null;
 
-/** Read only persisted, closed snapshots. Never read unsaved client data. */
-export async function readSprintTrends(db:Client,selectedSprintId:string):Promise<SprintTrendPoint[]|null>{
- await ensureClosureSchema(db);
- const selected=await db.query<{id:string;team_id:string;start_at:string}>(`SELECT s.id,s.team_id,s.start_at::text FROM public.smn_sprint s
- JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,[selectedSprintId]);
+/** Null and invalid values are not a numerical zero. */
+function value(raw:unknown,integer:boolean):number|null{
+ if(raw===null||raw===undefined)return null;
+ if(typeof raw!=="string"&&typeof raw!=="number")return null;
+ if(typeof raw==="string"&&(raw.trim()===""||!/^\d+(?:\.\d+)?$/.test(raw)))return null;
+ const n=Number(raw);
+ return Number.isFinite(n)&&n>=0&&n<=Number.MAX_SAFE_INTEGER&&
+  (!integer||Number.isSafeInteger(n))?n:null;
+}
+export function projectSprintTrend(row:Row):SprintTrendPoint{
+ const snapshot=object(row.snapshot_data);
+ const points=object(snapshot?.storyPoints);
+ const capacity=object(snapshot?.capacity);
+ const initial=value(points?.initial_sp,true),added=value(points?.added_sp,true);
+ const removed=value(points?.removed_sp,true);
+ const completedSp=value(points?.done_sp,true);
+ const final=initial!==null&&added!==null&&removed!==null?
+  initial+added-removed:null;
+ const completionRate=final!==null&&Number.isSafeInteger(final)&&
+  final>0&&completedSp!==null?completedSp/final*100:null;
+ const capacityJh=value(capacity?.actual_jh,false);
+ return {sprintId:row.id,name:row.name,endAt:row.end_at,
+  snapshotVersion:Number.isSafeInteger(row.version)&&row.version>0?
+   row.version:null,
+  completedSp,completionRate:Number.isFinite(completionRate)?completionRate:null,
+  actualCapacityJh:capacityJh};
+}
+
+/** G04: <= 5 last closed Sprints of the selected team, up to its start.
+ * Reader is SELECT-only and safe inside a REPEATABLE READ READ ONLY transaction.
+ * teamId is mandatory for user-facing collective projections; the optional
+ * form preserves the older admin-only /api/admin/sprints/trends endpoint. */
+export async function readSprintTrends(
+ db:Client,selectedSprintId:string,teamId?:string
+):Promise<SprintTrendPoint[]|null>{
+ const selected=await db.query<Selected>(`
+  SELECT s.id,s.team_id,s.start_at::text AS start_at FROM public.smn_sprint s
+  JOIN public.smn_team t ON t.id=s.team_id
+  JOIN public.smn_installation i ON i.id=t.installation_id
+  WHERE s.id=$1 ${teamId?"AND s.team_id=$2":""}
+   AND s.deleted_at IS NULL AND i.id='singleton'
+   AND i.state='initialized' AND lower(i.mode)='scrum'
+ `,teamId?[selectedSprintId,teamId]:[selectedSprintId]);
  const target=selected.rows[0];
  if(!target)return null;
- // Bound by the selected Sprint's chronological beginning, even when the target is open.
- const r=await db.query<{id:string;name:string;end_at:string;snapshot_data:unknown}>(`SELECT s.id,s.name,s.end_at::text,latest.snapshot AS snapshot_data
- FROM public.smn_sprint s
- JOIN LATERAL (SELECT snapshot FROM public.smn_sprint_closure_snapshot v
- WHERE v.sprint_id=s.id ORDER BY version DESC LIMIT 1) latest ON true
- WHERE s.team_id=$1 AND s.deleted_at IS NULL AND s.status='closed'
- AND s.start_at<=$2::timestamptz
- ORDER BY s.start_at DESC,s.id DESC LIMIT 5`,[target.team_id,target.start_at]);
- return r.rows.reverse().map(x=>{
-  const snapshot=x.snapshot_data as {storyPoints?:{initial_sp?:string|null;added_sp?:string|null;removed_sp?:string|null;done_sp?:string|null}|null;capacity?:{actual_jh?:string|null}|null}|null;
-  const saved=snapshot?.storyPoints;
-  const initial=saved? (saved.initial_sp==null?null:Number(saved.initial_sp)):null;
-  const added=saved?(saved.added_sp==null?null:Number(saved.added_sp)):null;
-  const removed=saved?(saved.removed_sp==null?null:Number(saved.removed_sp)):null;
-  const completedSp=saved?(saved.done_sp==null?null:Number(saved.done_sp)):null;
-  const final=initial!==null&&added!==null&&removed!==null?initial+added-removed:null;
-  return {sprintId:x.id,name:x.name,endAt:x.end_at,completedSp,
-   completionRate:final!==null&&final>0&&completedSp!==null?completedSp/final*100:null,
-   actualCapacityJh:snapshot?.capacity?.actual_jh==null?null:Number(snapshot.capacity.actual_jh)};
- });
+ const installed=await db.query<{present:boolean}>(`
+  SELECT to_regclass('public.smn_sprint_closure_snapshot') IS NOT NULL AS present`);
+ if(!installed.rows[0]?.present)return [];
+ const r=await db.query<Row>(`
+  SELECT s.id,s.name,s.end_at::text AS end_at,
+   latest.version,latest.snapshot AS snapshot_data
+  FROM public.smn_sprint s
+  JOIN LATERAL (
+   SELECT v.version,v.snapshot FROM public.smn_sprint_closure_snapshot v
+   WHERE v.sprint_id=s.id ORDER BY v.version DESC LIMIT 1
+  ) latest ON true
+  WHERE s.team_id=$1 AND s.deleted_at IS NULL AND s.status='closed'
+   AND s.start_at<=$2::timestamptz
+  ORDER BY s.start_at DESC,s.id DESC LIMIT 5
+ `,[target.team_id,target.start_at]);
+ return r.rows.reverse().map(projectSprintTrend);
 }
