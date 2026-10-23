@@ -3,7 +3,7 @@ import {translate,type TranslationKey} from "@/i18n/catalog";
 import type {Language} from "@/lib/language";
 import type {DashboardContext} from "@/server/dashboard/read";
 import {effectiveSprintStatus,type SprintContextItem} from "@/lib/sprint-context";
-import type {CollectiveCycleProjection,DashboardMetric} from "@/lib/dashboard-data-contract";
+import type {CollectiveCycleProjection,DashboardMetric,DashboardDataSource} from "@/lib/dashboard-data-contract";
 
 type Props=Readonly<{
   context:DashboardContext;
@@ -22,7 +22,7 @@ function MetricLine({label,unit,empty,value,locale}:Readonly<{
   value?.state==="not-recorded"?t("dashboard.cockpit.notSpecified"):
   value?.state==="unavailable"&&value.reason!=="producer-not-ready"?
    t("dashboard.cockpit.notAvailable"):empty;
- const sourceLabels:Record<string,TranslationKey>={
+ const sourceLabels:Record<DashboardDataSource,TranslationKey>={
   manual:"dashboard.cockpit.metricManual",
   calculated:"dashboard.cockpit.metricCalculated",
   imported:"dashboard.cockpit.metricImported",
