@@ -2673,5 +2673,22 @@
     "conflict": "This template has changed. Reload it before saving.",
     "deleteInfo": "Deletion is temporarily blocked to protect archives and references.",
     "leaveWarning": "Template changes are not saved. Leave without saving?"
+  },
+  "reportPreview": {
+    "open": "Preview report",
+    "back": "Back to preparation",
+    "title": "Full HTML report preview",
+    "generatedAt": "As-of date",
+    "provisional": "Provisional report — Sprint not closed",
+    "readOnly": "Read-only HTML preview. No PDF or archive was created.",
+    "introduction": "Introduction",
+    "conclusion": "Conclusion",
+    "missing": "Not recorded",
+    "cycle": "Sprint",
+    "vision": "Vision",
+    "productGoal": "Product Goal",
+    "dod": "Definition of Done",
+    "dor": "Definition of Ready",
+    "unverified": "External link not verified"
   }
 }
