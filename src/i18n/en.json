@@ -2627,5 +2627,21 @@
     "initial": "Initial capacity",
     "actual": "Actual capacity",
     "unknown": "Unknown provenance"
+  },
+  "reportTeamContext": {
+    "heading": "Team context",
+    "intro": "Optional appendices: original texts, no automatic translation or source edits.",
+    "vision": "Vision",
+    "productGoal": "Product Goal",
+    "dod": "Definition of Done (DoD)",
+    "dor": "Definition of Ready (DoR)",
+    "unavailable": "Not available",
+    "unverified": "External link not verified or archived",
+    "language": "Language",
+    "preview": "Selected team context preview",
+    "save": "Save options",
+    "saved": "Options saved",
+    "error": "Unable to read or save choices.",
+    "leaveWarning": "Unsaved choices will be lost. Leave?"
   }
 }
