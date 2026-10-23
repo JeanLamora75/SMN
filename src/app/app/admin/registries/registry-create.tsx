@@ -9,6 +9,7 @@ import DependencyVigilance from "./dependency-vigilance";
 import RegistryCycles from "./registry-cycles";
 import DecisionDetail from "./decision-detail";
 import ActionLinks from "./action-links";
+import RegistryRelations from "./registry-relations";
 import {obstacleTransition,obstacleNeedsAttention} from "@/lib/obstacle-lifecycle";
 type Response={ok:boolean;id?:string;revision?:number;error?:string};
 const today=()=>{
@@ -111,6 +112,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
    </div>
    {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}{createdId&&<a className="ms-2" href={"/app/admin/registries/"+encodeURIComponent(createdId)}>{translate("edit")}</a>}</div>}
   </form>}
+  {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage}/>}
   {itemId&&loaded&&type==="action"&&<ActionLinks id={itemId} canManage={canManage}/>}
   {itemId&&loaded&&type==="decision"&&<DecisionDetail id={itemId} canManage={canManage}/>}
   {itemId&&loaded&&(type==="risk"||type==="dependency")&&<RegistryCycles id={itemId} canManage={canManage}/>}
