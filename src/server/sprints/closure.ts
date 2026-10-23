@@ -32,8 +32,8 @@ async function snapshot(db:Client,sprintId:string){
  const [goals,points,ceremonies,custom,exceptional,capacity,participants]=await Promise.all([
   db.query(`SELECT id,title,evaluation,comment,revision FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]),
   db.query(`SELECT initial_sp::text,added_sp::text,removed_sp::text,done_sp::text,revision FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]),
-  db.query(`SELECT id,kind,starts_at::text,ends_at::text,occurrence_status AS status,actual_minutes FROM public.smn_sprint_ceremony WHERE sprint_id=$1`,[sprintId]),
-  db.query(`SELECT id,template_id,template_revision,name,starts_at::text,ends_at::text,status,actual_minutes FROM public.smn_scrum_template_occurrence WHERE sprint_id=$1`,[sprintId]),
+  db.query(`SELECT id,kind,starts_at::text,ends_at::text,occurrence_status AS status,actual_minutes,generation_source FROM public.smn_sprint_ceremony WHERE sprint_id=$1`,[sprintId]),
+  db.query(`SELECT id,template_id,template_revision,name,starts_at::text,ends_at::text,status,actual_minutes,generation_source FROM public.smn_scrum_template_occurrence WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT id,name,starts_at::text,ends_at::text,status,actual_minutes,impacts_capacity FROM public.smn_sprint_exceptional_meeting WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT
     (s.start_at AT TIME ZONE s.time_zone)::date::text AS start_on,
