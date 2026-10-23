@@ -4,6 +4,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import GoalsForm from "../goals-form";
 import StoryPointsForm from "../story-points-form";
+import TicketCountsForm from "../ticket-counts-form";
 import ReviewCapacity from "../review-capacity";
 import SprintTrends from "./trends";
 import SprintClosure from "./closure";
@@ -15,6 +16,7 @@ export default async function SprintReviewPage(){
   <SprintReviewHeader/>
   <GoalsForm/>
   <StoryPointsForm/>
+  <TicketCountsForm canManage={actor.role==="admin"}/>
   <ReviewCapacity/>
   <SprintTrends/>
   <SprintClosure/>
