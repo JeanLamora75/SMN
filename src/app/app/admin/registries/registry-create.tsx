@@ -18,6 +18,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
  const [due,setDue]=useState("");
  const [comment,setComment]=useState("");
  const [revision,setRevision]=useState<number|null>(null);
+ const [createdId,setCreatedId]=useState<string|null>(null);
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState<{ok:boolean;message:string}|null>(null);
  useEffect(()=>{
@@ -39,7 +40,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
  const save=async(e:React.FormEvent)=>{
   e.preventDefault();
   if(!teamId||!canManage||busy)return;
-  setBusy(true);setNotice(null);
+  setBusy(true);setNotice(null);setCreatedId(null);
   try{
    if(itemId&&revision===null)throw Error("not-loaded");
    const response=await fetch(itemId?"/api/admin/registries/"+encodeURIComponent(itemId):"/api/admin/registries",{method:itemId?"PATCH":"POST",
@@ -49,6 +50,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
    const result=await response.json() as Response;
    if(!response.ok||!result.ok||!result.id)throw Error(result.error??"failed");
    setNotice({ok:true,message:translate("success").replace("{id}",result.id)});
+   if(!itemId)setCreatedId(result.id);
    if(itemId)setRevision(result.revision??(revision??0)+1);
    else {setTitle("");setDescription("");setOwner("");setDue("");setComment("");}
   }catch{setNotice({ok:false,message:translate("failed")});}
@@ -84,7 +86,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
    <div className="d-flex justify-content-end">
     <button type="submit" className="btn btn-primary" disabled={busy||!title.trim()||(!!itemId&&revision===null)}>{busy?translate("creating"):translate("create")}</button>
    </div>
-   {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}</div>}
+   {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}{createdId&&<a className="ms-2" href={"/app/admin/registries/"+encodeURIComponent(createdId)}>{translate("edit")}</a>}</div>}
   </form>}
  </div>;
 }
