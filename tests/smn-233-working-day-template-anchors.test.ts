@@ -113,3 +113,18 @@ test("absence de jour ouvré : refus explicite pour les modèles ancrés",()=>{
 test("désactivation de tous les modèles : aucune occurrence, même si le Sprint finit dimanche",()=>{
  assert.deepEqual(planTemplateOccurrences(sprint,[],new Set(),slots),[]);
 });
+
+test("bornes horaires partielles : début à 10h et fin à 17h sans déborder",()=>{
+ const partial:TemplateSprint={id:"partial",
+  startAt:"2026-11-09T09:00:00Z", // lundi 10h Paris
+  endAt:"2026-11-20T16:00:00Z", // vendredi 17h Paris
+  timeZone:zone};
+ const items=planTemplateOccurrences(partial,[
+  template("Planning","start","09:30",60),
+  template("Retro","end","16:30",60)
+ ],new Set(),slots);
+ assert.equal(items.length,2);
+ assert.match(local(items[0].startsAt),/09\\/11\\/2026.*10:00/);
+ assert.match(local(items[1].startsAt),/20\\/11\\/2026.*16:00/);
+ assert.equal(items[1].endsAt,partial.endAt);
+});
