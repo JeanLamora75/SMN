@@ -38,3 +38,30 @@ D'après [SMN-46](https://lmn24.atlassian.net/browse/SMN-46) (AC2-AC4) et le [co
 
 ## Suite hors périmètre
 Refonte de l'onglet **Absences** : déplacer l'édition/création inline existante vers un bouton « Nouvelle absence » ouvrant une modale dédiée ; laisser la liste/historique en consultation. Cette étape sera traitée lors de la reprise de l'onglet Absences, sans création de ticket Jira ou mutation Jira implicite.
+
+
+## Correctif d'intégration TypeScript — même journée, retour utilisateur
+
+**Symptôme remonté par le pilote Windows :**
+```text
+src/app/app/admin/members/quick-members-admin.tsx:232:35 - error TS2322:
+Property 'onClose' does not exist on type
+{ memberId:string; teamName:string; onSaved:()=>void; onCancel:()=>void; }
+```
+
+**Cause vérifiée :** la refonte du composant `MemberCalendarEditor` a remplacé `onClose` par `onSaved` et `onCancel`. La fiche membre V2 a été mise à jour, mais son second consommateur, l'ancien écran `QuickMembersAdmin`, appelait encore `onClose`. La compilation TypeScript s'arrête donc avant le build.
+
+**Correction sur main :**
+- `src/app/app/admin/members/quick-members-admin.tsx` : utilise `onSaved={savedCalendar}` et `onCancel={() => setCalendarId(null)}` ; la sauvegarde ferme l'éditeur, rafraîchit le roster et affiche un message de réussite ou d'échec de relecture ; l'annulation ferme sans recharger.
+- `tests/member-calendar-callers.test.ts` : quatre tests de non-régression couvrant le contrat `MemberCalendarEditor`, ses deux appels, la distinction entre sauvegarde et annulation.
+- Aucun changement du schéma PostgreSQL, des API ni des fonctionnalités d'exception/absence.
+
+**Contrôles de publication :** lecture des sources et vérification des deux contrats React ; tests `tsx`, `tsc` et build non exécutés par l'assistant. L'utilisateur peut vérifier dans PowerShell après Pull origin :
+
+```powershell
+pnpm exec tsx --test tests/member-calendar-callers.test.ts
+pnpm typecheck
+pnpm build
+```
+
+**Prévention :** lors d'un changement d'interface d'un composant réutilisable, inventorier ses consommateurs et ajouter un test pour tous les appels connus. La qualification finale nécessite un `pnpm typecheck` exécuté sur le poste Windows.
