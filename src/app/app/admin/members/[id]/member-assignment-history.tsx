@@ -12,7 +12,6 @@ export default function MemberAssignmentHistory({memberId}:{memberId:string}){
  const [error,setError]=useState(false);
  useEffect(()=>{
   let active=true;
-  setVersions(null);setError(false);
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/assignment",{cache:"no-store"})
    .then(async response=>{
     if(!response.ok)throw Error("assignment-history-unavailable");
