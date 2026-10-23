@@ -2170,6 +2170,15 @@
   "presenceForecast": "Calculated from current calendars and recorded absences; future dates are forecasts.",
   "presenceSnapshot": "Values frozen at closure — snapshot V{version}.",
   "presenceHistoryMissing": "This previously closed Sprint has no reliable individual presence snapshot. Current data is not substituted.",
-  "presenceUnavailable": "Presence unavailable: one or more required sources are missing or inaccessible."
+  "presenceUnavailable": "Presence unavailable: one or more required sources are missing or inaccessible.",
+    "trendCount": "G04 — {count} eligible closed Sprint(s) from the same team.",
+    "trendChartDescription": "{metric} chart across {count} closed Sprints.",
+    "trendChartAccessible": "The horizontal axis numbers Sprints from oldest to newest. The table below provides full names and exact values. Missing values interrupt the line.",
+    "trendAxisNote": "Horizontal axis: chronological Sprint number; see the accompanying table.",
+    "trendNoMetric": "No saved values for this metric in the selected Sprint closures.",
+    "trendTable": "Accessible table of historical Sprint trends",
+    "trendCycle": "Sprint (chronological order)",
+    "trendSnapshot": "Closure V{version}",
+    "trendMissingNotice": "Missing data never represents 0. Actual capacity comes from each Sprint's closure, not from estimated presence."
   }
 }
