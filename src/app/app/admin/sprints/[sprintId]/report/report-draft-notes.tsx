@@ -2,7 +2,11 @@
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
-import {noteKeys,emptyNotes,type Notes,type NoteKey} from "@/server/reports/draft-notes";
+const noteKeys=["introduction","conclusion","executive","objectives","indicators","events","attention","decisions"] as const;
+type NoteKey=typeof noteKeys[number];
+type Note={text:string;included:boolean;language:"fr"|"en"};
+type Notes=Record<NoteKey,Note>;
+const emptyNotes=():Notes=>Object.fromEntries(noteKeys.map(key=>[key,{text:"",included:true,language:"fr"}])) as Notes;
 export default function ReportDraftNotes({sprintId}:{sprintId:string}){
  const t=useTranslation(),tr=(key:string)=>t(("reportNotes."+key) as Parameters<typeof t>[0]);
  const [notes,setNotes]=useState<Notes>(emptyNotes),[base,setBase]=useState(""),[revision,setRevision]=useState<number|null>(null);
