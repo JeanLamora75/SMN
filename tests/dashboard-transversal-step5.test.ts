@@ -101,9 +101,11 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
   if(b.tickets.done.state==="available")assert.equal(b.tickets.done.value,2);
   assert.equal(a.events.state,"unavailable");
   assert.ok(fake.history.every(x=>!/\b(?:CREATE|ALTER|INSERT|UPDATE|DELETE)\b/i.test(x.sql)));
-  for(const q of fake.history.filter(x=>/FROM public.smn_sprint_(?:story_points|ticket_counts|goal)/.test(x.sql))){
-   assert.equal(q.args[0],"sprintA"===q.args[0]?"sprintA":"sprintB");
-  }
+  const scopedReads=fake.history.filter(x=>/FROM public.smn_sprint_(?:story_points|ticket_counts|goal)/.test(x.sql));
+  assert.equal(scopedReads.length,6);
+  assert.deepEqual(scopedReads.map(q=>q.args[0]),[
+   "sprintA","sprintA","sprintA","sprintB","sprintB","sprintB"
+  ]);
  });
  it("une usurpation de Sprint hors équipe échoue avant toute donnée métier",async()=>{
   const fake=mock(sql=>{
