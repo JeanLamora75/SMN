@@ -31,8 +31,8 @@ export default async function CeremonyTemplatesSettingsPage(){
     <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">
      ← {t("navigation.entries.settings")}
     </Link>
-    <h1 className="h3">${t("settingsSprint.ceremoniesTitle")}</h1>
-    <p className="text-secondary">${t("settingsSprint.ceremoniesScope")}</p>
+    <h1 className="h3">{t("settingsSprint.ceremoniesTitle")}</h1>
+    <p className="text-secondary">{t("settingsSprint.ceremoniesScope")}</p>
    </header>
   <TemplateForm/>
   </div>
