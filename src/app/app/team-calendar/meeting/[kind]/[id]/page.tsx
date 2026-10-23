@@ -7,9 +7,12 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-type RecordRow={name:string;start_at:string;end_at:string;status:string;generation_source:string};
+type RecordRow={name:string;start_at:string;end_at:string;status:string;generation_source:string;sprint_id:string;team_id:string};
 export const dynamic="force-dynamic";
-export default async function MeetingPage({params}:{params:Promise<{kind:string;id:string}>}){
+export default async function MeetingPage({params,searchParams}:{
+ params:Promise<{kind:string;id:string}>;
+ searchParams:Promise<{teamId?:string;cycleId?:string}>;
+}){
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(actor.must_change_password)redirect("/change-password");
@@ -22,20 +25,23 @@ export default async function MeetingPage({params}:{params:Promise<{kind:string;
  const row=await withAuthDb(async db=>{
   const sql=kind==="ceremony"?
    `SELECT (s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,
-    c.ends_at::text AS end_at,'unknown' AS status,c.generation_source AS generation_source
+    c.ends_at::text AS end_at,'unknown' AS status,c.generation_source AS generation_source,
+    s.id AS sprint_id,s.team_id AS team_id
     FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE i.id='singleton' AND s.deleted_at IS NULL AND c.id=$1`:
    kind==="template"?
    `SELECT o.name,o.starts_at::text AS start_at,o.ends_at::text AS end_at,
-    COALESCE(o.status,'scheduled') AS status,o.generation_source
+    COALESCE(o.status,'scheduled') AS status,o.generation_source,
+    s.id AS sprint_id,s.team_id AS team_id
     FROM public.smn_scrum_template_occurrence o
     JOIN public.smn_sprint s ON s.id=o.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id
     JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE i.id='singleton' AND s.deleted_at IS NULL AND o.id=$1`:
    `SELECT m.name,m.starts_at::text AS start_at,m.ends_at::text AS end_at,
-    COALESCE(m.status,'scheduled') AS status,'standard' AS generation_source
+    COALESCE(m.status,'scheduled') AS status,'standard' AS generation_source,
+    s.id AS sprint_id,s.team_id AS team_id
     FROM public.smn_sprint_exceptional_meeting m JOIN public.smn_sprint s ON s.id=m.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE i.id='singleton' AND s.deleted_at IS NULL AND m.id=$1`;
@@ -43,9 +49,17 @@ export default async function MeetingPage({params}:{params:Promise<{kind:string;
   return found.rows[0]??null;
  });
  if(!row)notFound();
+ const requested=await searchParams;
+ const dashboardHref=requested.teamId===row.team_id&&requested.cycleId===row.sprint_id?
+  "/app?"+new URLSearchParams({teamId:row.team_id,cycleId:row.sprint_id}).toString():null;
  const format=(value:string)=>new Date(value).toLocaleString("fr-FR",{dateStyle:"full",timeStyle:"short"});
  return <main className="smn-page container py-4 d-grid gap-3">
-  <Link href="/app/team-calendar" className="btn btn-link px-0 justify-self-start">← {labels.backCalendar}</Link>
+  <nav className="d-flex flex-wrap align-items-center gap-3">
+   <Link href="/app/team-calendar" className="btn btn-link px-0">← {labels.backCalendar}</Link>
+   {dashboardHref&&<Link href={dashboardHref} className="btn btn-outline-primary btn-sm">
+     {locale==="fr"?"Retour au Sprint":"Back to Sprint"}
+   </Link>}
+  </nav>
   <section className="smn-panel p-4">
    <h1 className="h3">{row.name}</h1>
    <dl className="row mb-0">
