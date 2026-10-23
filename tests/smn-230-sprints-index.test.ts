@@ -69,6 +69,7 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   const {db,queries}=fixture();
   const pages=await Promise.all(Array.from({length:5},(_,i)=>readSprintIndex(db,query({page:i+1}))));
   assert.equal(pages[0].total,123);
+  assert.equal(pages[0].pageSize,25);
   assert.equal(pages[0].totalPages,5);
   assert.deepEqual(pages.map(p=>p.items.length),[25,25,25,25,23]);
   assert.deepEqual(pages.map(p=>p.page),[1,2,3,4,5]);
@@ -121,6 +122,7 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   const result=await readSprintIndex(db,query());
   assert.equal(result.total,0);
   assert.equal(result.items.length,0);
+  assert.equal(result.pageSize,25);
   assert.equal(result.totalPages,1);
   assert.equal(result.teamName,"Equipe pilote");
   assert.equal(queries.filter(sql=>sql.includes("FROM public.smn_sprint s")).length,0);
