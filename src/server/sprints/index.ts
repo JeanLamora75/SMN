@@ -57,6 +57,9 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery){
  const statuses=await db.query<{status:string}>(`SELECT DISTINCT
   CASE WHEN s.auto_suspended THEN 'suspended' ELSE s.status END AS status
   FROM public.smn_sprint s WHERE s.team_id=$1 AND s.deleted_at IS NULL`,[teamId]);
+ const globalActive=await db.query<{active_count:number}>(`SELECT count(*)::integer AS active_count
+  FROM public.smn_sprint s WHERE s.team_id=$1 AND s.deleted_at IS NULL
+   AND s.status='active' AND NOT s.auto_suspended AND s.start_at<=now() AND s.end_at>now()`,[teamId]);
  const rows=await db.query<SprintRow>(`SELECT s.id,s.name,s.status,s.auto_suspended,s.start_at,s.end_at,s.time_zone
   FROM public.smn_sprint s WHERE ${filter}
   ORDER BY ${order[query.sort]} LIMIT $4 OFFSET $5`,
@@ -72,7 +75,7 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery){
     s.status==="planned"&&from<=now || s.status==="active"&&(from>now||until<=now))
   };
  });
- const activeCount=items.filter(s=>s.status==="active"&&!s.suspended).length;
+ const activeCount=globalActive.rows[0]?.active_count??0;
  return {teamName,items,total,page,pageSize,totalPages,
   statuses:statuses.rows.map(s=>s.status).sort(),activeCount};
 }
