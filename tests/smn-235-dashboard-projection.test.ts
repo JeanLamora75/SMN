@@ -4,6 +4,7 @@ import {createElement} from "react";
 import {renderToStaticMarkup} from "react-dom/server";
 import type {Client} from "pg";
 import {readCycleDashboard,sprintCapacityDates,closedSnapshotProjection} from "../src/server/dashboard/cycle-reader";
+import {readActualCapacity} from "../src/server/capacity/actual";
 import type {SprintContextItem} from "../src/lib/sprint-context";
 import CycleOverview from "../src/app/app/cycle-overview";
 import type {DashboardContext} from "../src/server/dashboard/read";
@@ -69,6 +70,7 @@ describe("SMN-235 — projection dashboard isolée du Sprint",()=>{
     {id:"g2",title:"Livraison",evaluation:"achieved"}
    ]};
    if(sql.includes("FROM public.smn_sprint_story_points"))return {rows:[{initial_sp:"0",done_sp:null}]};
+   if(sql.startsWith("SAVEPOINT ")||sql.startsWith("RELEASE SAVEPOINT "))return {rows:[]};
    throw Error("Unexpected SQL "+sql);
   });
   const result=await readCycleDashboard(fake.db,team,sprint("sprint-1"));
@@ -99,6 +101,23 @@ describe("SMN-235 — projection dashboard isolée du Sprint",()=>{
   assert.equal(missing.capacity.initialJh.state,"unavailable");
   assert.equal(missing.goals.state,"available");
  });
+  it("n'ouvre pas de transaction imbriquée lors d'une lecture de capacité externe",async()=>{
+   const sql:string[]=[];
+   const db={query:async(statement:string)=>{
+     sql.push(statement);
+     if(statement.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:team}]};
+     if(statement.includes("SELECT (now() AT TIME ZONE"))return {rows:[{today:"2026-10-23"}]};
+     if(statement.includes("FROM public.smn_capacity_period_override")&&
+        statement.includes("closed_at"))return {rows:[]};
+     if(statement.includes("FROM public.smn_capacity_initial_snapshot"))return {rows:[]};
+     throw Error("Unexpected capacity query: "+statement);
+   }} as unknown as Client;
+   const result=await readActualCapacity(db,"2026-11-09","2026-11-20",undefined,
+    {externalTransaction:true});
+   assert.equal(result.status,"upcoming");
+   assert.equal(result.retainedJh,null);
+   assert.ok(!sql.some(statement=>/\\b(?:BEGIN|COMMIT|ROLLBACK)\\b/i.test(statement)));
+  });
  it("traduit une fin de Sprint exclusive en date inclusive, même un lundi à minuit",()=>{
   const s={...sprint("sprint-1"),
    startAt:"2026-11-09T08:00:00Z",endAt:"2026-11-22T23:00:00Z"};
