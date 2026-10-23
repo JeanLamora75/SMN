@@ -1,0 +1,97 @@
+---
+name: "SMN — Contrat UX et fonctionnel de la fiche Sprint"
+version: "1.0 - cadrage du 23 octobre 2026"
+jira: "SMN-234"
+epic: "SMN-228"
+status: "cadrage fonctionnel convenu; détails signalés à arbitrer"
+language: fr
+references:
+  - "./DESIGN.md"
+  - "./EXPERIENCE.md"
+  - "./CONTRAT-DEVELOPPEMENT.md"
+  - "../ux-SMN-2026-10-21/DESIGN.md"
+---
+
+# Fiche Sprint SMN — Contrat UX/Fonctionnel (SMN-234)
+
+## Décision et périmètre
+
+Le commanditaire demande de remplacer la première fiche Sprint **partielle en lecture seule** par une fiche de pilotage contextuelle, administrable par icône d'édition associée à chaque champ. **Aucun développement n'est commandé par ce document.**
+
+La route `src/app/app/admin/sprints/[sprintId]/page.tsx` **existe déjà** : elle lit le nom, les dates, l'état et les objectifs du Sprint. C'est cette route qui sera enrichie ; ne pas recréer une fiche concurrente. Source de vérité de l'objet : `sprintId` + équipe autorisée, sans conflation avec le cycle sélectionné sur un autre écran.
+
+**Décision explicite : supprimer l'onglet Synthèse.** Un bandeau compact, permanent au-dessus des onglets, suffit à présenter nom, dates/heures, état, équipe et produit. Actions métier de renommer et replanifier par workflows existants. Le badge d'état ne constitue pas une édition directe de statut.
+
+**Sept onglets :** Objectifs | Cérémonies | Capacité | Indicateurs | Registres | Tendances | Bilan. La mise en page choisit plein écran utile et Bootstrap (icônes intégrées localement). « Admin » peut éditer si la règle serveur de la donnée et de l'état du Sprint le permet ; « Utilisateur » ne dispose que de lectures collectives autorisées. Crayon `pencil-square` visible à droite de **chaque donnée effectivement éditable** et libellé accessible « Modifier [champ] ». Valeurs purement calculées et historique immuable sans crayon.
+
+Les données indisponibles, non renseignées, nulles et égales à zéro sont des états distincts et lisibles. Les dates utilisent le fuseau IANA effectif et tiennent compte des changements été/hiver. Les modifications ne se propagent jamais implicitement à d'autres Sprints. Les réglages de cadence, jours ouvrés et modèles restent dans Paramètres.
+
+## Architecture de l'information par onglet
+
+### 1 — Objectifs
+
+Permettre l'ajout d'un objectif et la consultation/édition de la liste **complète** des objectifs du Sprint. Pour chacun : intitulé, évaluation (Non évalué, Atteint, Partiellement atteint, Non atteint), commentaire, action d'édition et historique enregistré. L'évaluation s'édite **dans la fiche de l'objectif**, pas sur un statut global inventé. Utiliser la persistance, les révisions et le droit serveur existants `smn_sprint_goal` (SMN-83). Absence d'objectif ≠ objectif atteignant zéro.
+
+### 2 — Cérémonies
+
+Liste **exhaustive** de toutes les cérémonies, occurrences de modèles et réunions exceptionnelles comprises **sur les dates de ce Sprint**, classées par date/heure ; pagination si le nombre est important, mais accès à toutes les occurrences, sans troncature silencieuse à cinq. Chaque ligne : date, créneau, nom, type/icône Bootstrap propre, durée prévue/réelle connue, statut **dominant et lisible par son texte**, lien vers la page réunion réelle pour modifier. Prévoir filtre de statut si utile, sans remplacer la liste exhaustive initiale.
+
+États persistés actuellement : `scheduled`, `held`, `not_held`, `cancelled`. Une fin dépassée avec statut automatique `held` peut avoir été déduite par `reconcileAttendance` ; afficher sa provenance / confirmation lorsqu'elle est distinguable. **« Ajournée » ou « reportée » reste une demande ouverte** : définir la différence entre un changement de date et une non-tenue avant d'étendre les états. Ne jamais inventer une réunion tenue lors d'une reprise historique. Les modifications d'une occurrence ne changent pas le modèle partagé par défaut.
+
+### 3 — Capacité
+
+Liste complète des membres réellement affectés pendant tout ou partie du Sprint et susceptibles de contribuer, avec nom public autorisé, rôle, période de participation et **nombre de J/H de présence sur le Sprint** en avant. Une colonne séparée peut présenter les **J/H consacrés au développement** afin de ne pas confondre disponibilité brute, allocation et capacité de développement ; privilégier en toutes circonstances le J/H de présence demandé comme donnée principale.
+
+Le moteur `src/server/capacity/engine.ts` fournit déjà un `MemberCapacity.totalJh` **de développement** avec ventilation `DayCapacity` ; il ne prouve PAS la présence brute en J/H. Un producteur collectif supplémentaire doit définir les plages de présence de l'équipe, absences planifiées/imprévues, fériés, fermetures, arrivée/départ, temps partiel et taux d'affectation. Il ne faut pas publier un calcul dérivé de J/H développement sous l'étiquette « présence ». Totaux, unitaires et source indisponible affichés honnêtement. Respecter les gardes de confidentialité déjà en place : le champ nominatif ne doit pas être envoyé au rôle non autorisé.
+
+### 4 — Indicateurs
+
+**Huit valeurs modifiables** : F01 SP initiaux, F02 SP ajoutés, F03 SP retirés, F04 SP terminés, F10 tickets initiaux, F11 tickets terminés, I01 confiance 1–5, I02 clarté des objectifs 1–5. Chaque champ possède sa propre affordance de modification ; possibilité de regrouper dans une même modal les champs d'un bloc fonctionnel pour préserver l'atomicité des quatre SP / deux tickets. La validation est serveur, nulle/absente distincte de zéro, conservation d'audit et révision optimiste.
+
+**Quatre dérivés affichés en direct** : F05 engagement final = F01 + F02 − F03 ; F06 SP restants = F05 − F04 ; F07 taux SP = F04/F05×100 quand F05 strictement positif ; F12 taux tickets = F11/F10×100 quand F10 strictement positif. Les brouillons recalculent immédiatement ces valeurs et portent la mention **« Provisoire — non enregistré »**, tandis que les widgets enregistrés réagissent à la sauvegarde effective. Ni plafonnement automatique des pourcentages >100 % ni zéro inventé pour dénominateur absent/égal à zéro. La persistance de I01 et I02, avec horodatage et auteur, **n'existe pas encore** : Story à implémenter dans le lot concerné.
+
+### 5 — Registres
+
+Une seule liste par date, regroupant les fiches de **six registres** : Risques, Obstacles, Dépendances, Décisions, Actions et Faits marquants. Afficher les objets qui sont **créés/ouverts durant le Sprint OU encore actifs à n'importe quel instant du Sprint**, y compris ceux clos/résolus au cours de cette période. Ne pas limiter la requête aux seules fiches créées entre les bornes. Les fiches ponctuelles (décisions, faits) suivent la date métier ; les états continus utilisent la période de validité d'association. Une fiche liée à plusieurs Sprints demeure unique. Afficher type, date métier, nom, statut, niveau de priorité fondé, lien réel de lecture/édition selon droit. Filtres facultatifs type/statut, liste exhaustive par pages. Sur Sprint clos : lecture de la version qualitative de clôture (SMN-111/112), jamais substitution de l'état courant. Sans producteur Epic 5, indiquer « Registres indisponibles », sans simulation.
+
+### 6 — Tendances
+
+Trois **graphiques** distincts portant sur **G04 = cinq derniers Sprints clôturés éligibles**, contextualisés à l'équipe et à la date du Sprint de référence : G05 SP terminés, G06 taux de réalisation, G07 capacité réelle J/H. Source existante `readSprintTrends`, à adapter depuis la présentation actuelle sous forme de tableaux vers une visualisation graphique. Axe chronologique, étiquettes unités, données manquantes non converties en 0, alternative tableau accessible. Clôtures Vn immuables ; ne pas inclure les Sprints postérieurs au cycle consulté.
+
+### 7 — Bilan
+
+Deux blocs autonomes **côte à côte sur desktop et empilés sur mobile** :
+- **Analyse** : zone textuelle éditable par le Scrum Master, avec sauvegarde, date/auteur, dernière version, révisions.
+- **Analyse IA** : zone textuelle également éditable et historisée, identifiant la provenance d'une génération IA et de chaque retouche humaine. La génération automatisée et les briefs/analyses IA (Epic 9) sont des **dépendances différées**, pas une fonctionnalité supposée exister. Un admin peut rédiger ou corriger le texte sans lancer d'IA.
+
+Éditions et sauvegardes indépendantes ; gérer le conflit de version ; empêcher tout écrasement des modifications humaines par une génération future ; rattacher aux versions V1/V2 de clôture en conservant les états attestés. Sur Sprint clôturé, lecture historique et workflows autorisés, pas de mutation ordinaire.
+
+## Navigations, droits et interactions transverses
+
+- Entrée par la liste /app/admin/sprints, par le bandeau du tableau de bord ou par le calendrier ; tout lien transmet le `sprintId`.
+- Un seul Sprint à la fois ; ne pas recréer de sélecteur de Sprint dans chaque bloc. Les états de brouillons sont protégés lors d'un changement d'onglet ou navigation, avec confirmation de l'abandon.
+- Des données éditables peuvent avoir un crayon ouvrant une modal préremplie ; une cérémonie ou une fiche de registre peut avoir un **lien vers sa page dédiée** si l'édition y est plus pertinente. Une valeur calculée n'a jamais d'icône d'édition.
+- Contrôles clavier, focus restitué après modal, contraste, libellés ARIA nommant la donnée, FR/EN centralisés JSON, dark/light + palettes, zoom 200 %, responsive avec table lisible.
+- Gestion des états vides, d'indisponibilité, d'erreur et de chargement sans inventer de faits.
+- Pas de modification de données ou de Jira du seul fait de consulter la fiche ; pas de duplication de la logique de calcul, de permission ou d'historisation.
+
+## Sources vérifiées et périmètre de futures US
+
+- Fiche partielle réelle : `src/app/app/admin/sprints/[sprintId]/page.tsx`.
+- Objectifs : `src/server/sprints/goals.ts` ; SP : `story-points.ts` ; tickets : `ticket-counts.ts`.
+- Réunions et statuts : `template-occurrences.ts`, `attendance.ts`, `actual-duration.ts`, `exceptional-meetings.ts`.
+- Développement J/H par personne : `src/server/capacity/engine.ts`.
+- Tendances : `src/server/sprints/trends.ts` ; clôtures : `src/server/sprints/closure.ts`.
+- Registres : **Epic 5 pas encore réalisée** ; rapports : Epic 6 ; analyses IA : Epic 9 ; reprise : Epic 8.
+
+Le plan d'implémentation et les étapes de vérification sont dans `_bmad-output/implementation-artifacts/plan-developpement-fiche-sprint-smn-234-2026-10-23.md`. L'inscription des exigences dans une Story unique SMN-234 **ne signifie pas** qu'elles devront être développées en un seul lot ; les incréments devront être découpés en unités indépendantes et testables.
+
+## Arbitrages ouverts (ne pas confondre avec des validations)
+
+1. **Ajournée / reportée** : statut autonome ou déplacement de créneau et historique de report, distinct de `not_held` et `cancelled`.
+2. **Définition du J/H de présence** : heures contractuelles, allocation équipe, temps partiel, absences et jours partiels, échelle d'arrondi ; affichage collectif versus nominatif selon profil.
+3. **Confiance / clarté (1–5)** : fréquence d'évaluation, conservation de plusieurs mesures et sens d'une correction historique.
+4. **Analyse IA** : provenance, date, versions, protection face à régénération, intégration future réelle de l'Epic 9.
+5. **Ordre d'ouverture de la fiche** : Indicateurs proposé par Amelia comme onglet initial, **non encore explicitement validé** ; ne pas figer dans le contrat d'acceptation.
+
+**Statut** : cadrage documenté et publié, code non modifié ; validation de fin de développement non acquise.
