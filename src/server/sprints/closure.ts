@@ -4,10 +4,12 @@ import {ensureSprintGoalsSchema} from "./goals";
 import {ensureStoryPointsSchema} from "./story-points";
 import {ensureActualDurationSchema} from "./actual-duration";
 import {ensureExceptionalImpactSchema} from "./exceptional-capacity-impact";
+import {ensureSprintScoresSchema} from "./sprint-scores";
 
 export async function ensureClosureSchema(db:Client){
  await ensureSprintGoalsSchema(db);await ensureStoryPointsSchema(db);
  await ensureActualDurationSchema(db);await ensureExceptionalImpactSchema(db);
+ await ensureSprintScoresSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_closure_snapshot (
  id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
  version integer NOT NULL CHECK(version>=1),
@@ -29,7 +31,7 @@ async function sprintScope(db:Client,id:string,lock=false){
  ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
 async function snapshot(db:Client,sprintId:string){
- const [goals,points,ceremonies,custom,exceptional,capacity,participants]=await Promise.all([
+ const [goals,points,ceremonies,custom,exceptional,capacity,participants,scores]=await Promise.all([
   db.query(`SELECT id,title,evaluation,comment,revision FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]),
   db.query(`SELECT initial_sp::text,added_sp::text,removed_sp::text,done_sp::text,revision FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT id,kind,starts_at::text,ends_at::text,occurrence_status AS status,actual_minutes,generation_source FROM public.smn_sprint_ceremony WHERE sprint_id=$1`,[sprintId]),
@@ -54,7 +56,8 @@ async function snapshot(db:Client,sprintId:string){
       AND p.end_on=(s.end_at AT TIME ZONE s.time_zone)::date
       ORDER BY a.closed_at DESC,a.id DESC LIMIT 1) AS provenance
     FROM public.smn_sprint s WHERE s.id=$1`,[sprintId]),
-  db.query(`SELECT p.meeting_id,p.member_id FROM public.smn_exceptional_meeting_participant p JOIN public.smn_sprint_exceptional_meeting m ON m.id=p.meeting_id WHERE m.sprint_id=$1 ORDER BY p.meeting_id,p.member_id`,[sprintId])
+  db.query(`SELECT p.meeting_id,p.member_id FROM public.smn_exceptional_meeting_participant p JOIN public.smn_sprint_exceptional_meeting m ON m.id=p.meeting_id WHERE m.sprint_id=$1 ORDER BY p.meeting_id,p.member_id`,[sprintId]),
+  db.query(`SELECT confidence,clarity,revision FROM public.smn_sprint_scores WHERE sprint_id=$1`,[sprintId])
  ]);
  // Le décompte Tickets agrégé peut ne pas être installé sur les anciennes bases.
  // Une ancienne clôture conserve une absence de source plutôt qu'un faux zéro.
@@ -64,6 +67,7 @@ async function snapshot(db:Client,sprintId:string){
   await db.query(`SELECT initial_tickets::text,done_tickets::text
     FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]):null;
  return {goals:goals.rows,storyPoints:points.rows[0]??null,
+  confidenceClarity:scores.rows[0]??null,
   ticketCounts:ticket?.rows[0]??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
   capacity:capacity.rows[0]??null,participants:participants.rows};
