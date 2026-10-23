@@ -1651,7 +1651,10 @@
     "manualRetained": "Capacité manuelle inchangée",
     "newReference": "Nouvelle référence provisoire",
     "unchanged": "Aucune source ou capacité manuelle n'est modifiée.",
-    "missingSources": "Sources indisponibles"
+    "missingSources": "Sources indisponibles",
+    "registryPreserved": "Risques et dépendances liés conservés sans modification de statut, responsable, échéance ni historique",
+    "registryOutside": "Échéance hors des nouvelles bornes : vérifier manuellement",
+    "registryNoDue": "Sans échéance"
   },
   "sprintGoals": {
     "title": "Objectifs du Sprint",
