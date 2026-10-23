@@ -1,0 +1,46 @@
+"use client";
+import Link from "next/link";
+import {useEffect,useRef,useState,type KeyboardEvent} from "react";
+import {useRouter} from "next/navigation";
+import {sprintDetailPath} from "@/lib/sprint-detail-path";
+
+export const sprintTabKeys=[
+ "objectives","ceremonies","capacity","indicators","registers","trends","review"
+] as const;
+export type SprintTab=(typeof sprintTabKeys)[number];
+export function parseSprintTab(value:string|undefined):SprintTab{
+ return sprintTabKeys.find(key=>key===value)??"objectives";
+}
+export default function SprintDetailTabs({sprintId,active,labels,navLabel}:{
+ sprintId:string;active:SprintTab;labels:Readonly<Record<SprintTab,string>>;navLabel:string;
+}){
+ const router=useRouter();
+ const tabs=useRef<Array<HTMLAnchorElement|null>>([]);
+ const [focused,setFocused]=useState<number|null>(null);
+ const tabHref=(key:SprintTab)=>sprintDetailPath(sprintId)+"?tab="+key;
+ useEffect(()=>{
+  if(focused!==null){tabs.current[focused]?.focus();setFocused(null);}
+ },[active,focused]);
+ function onKeyDown(event:KeyboardEvent<HTMLAnchorElement>,index:number){
+  let next=index;
+  if(event.key==="ArrowRight")next=(index+1)%sprintTabKeys.length;
+  else if(event.key==="ArrowLeft")next=(index+sprintTabKeys.length-1)%sprintTabKeys.length;
+  else if(event.key==="Home")next=0;
+  else if(event.key==="End")next=sprintTabKeys.length-1;
+  else return;
+  event.preventDefault();
+  setFocused(next);
+  router.push(tabHref(sprintTabKeys[next]));
+ }
+ return <nav className="smn-sprint-detail-tabs" aria-label={navLabel}>
+  <div role="tablist" aria-label={navLabel}
+   className="nav nav-tabs flex-nowrap overflow-auto" style={{scrollbarWidth:"thin"}}>
+   {sprintTabKeys.map((key,index)=><Link key={key}
+    ref={el=>{tabs.current[index]=el;}}
+    id={"smn-sprint-tab-"+key} className={"nav-link text-nowrap "+(active===key?"active":"")}
+    href={tabHref(key)} role="tab" tabIndex={active===key?0:-1}
+    aria-selected={active===key} aria-controls="smn-sprint-detail-panel"
+    onKeyDown={event=>onKeyDown(event,index)}>{labels[key]}</Link>)}
+  </div>
+ </nav>;
+}
