@@ -143,5 +143,5 @@ La Story Jira [SMN-229](https://lmn24.atlassian.net/browse/SMN-229) reste non cl
 - Reprise historique : générer les cérémonies **décoché par défaut** ; si sélectionné, marquage `generation_source='reconstructed'` visible dans Calendrier et les listes ; ne jamais interpréter comme événement réellement tenu. Les exports restant sans provenance seront qualifiés séparément.
 - `prisma/migrations/20261023_smn231_sprint_wizard/migration.sql` : schéma technique additif (jeton, provenance), routines `ensure*` idempotentes. Données et snapshots existants conservés.
 - Les anciens outils restent sur `/app/admin/sprints/tools` comme filet de sécurité transitoire ; les actions `⋯` par sprint relèvent de SMN-232.
-- **Recette à effectuer** : `tests/smn-231-sprint-wizard.test.ts` (16 scénarios), `pnpm i18n:check`, `pnpm typecheck`, `pnpm build`, validation navigateur et PostgreSQL, notamment SMN-160. La seule lecture GitHub et les assertions statiques ne constituent pas une validation fonctionnelle.
+- **Recette à effectuer** : `tests/smn-231-sprint-wizard.test.ts` (17 scénarios), `pnpm i18n:check`, `pnpm typecheck`, `pnpm build`, validation navigateur et PostgreSQL, notamment SMN-160. La seule lecture GitHub et les assertions statiques ne constituent pas une validation fonctionnelle.
 
