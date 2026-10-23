@@ -6,6 +6,7 @@ import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {composeStandardReport} from "@/server/reports/standard-composition";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
+import ReportDraftNotes from "./report-draft-notes";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
  const account=await currentAccount();
@@ -41,6 +42,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
      {entry.detail&&<span className="ms-2 text-secondary">{entry.detail}</span>}
     </li>)}</ul>:<p className="text-body-secondary">{translate(locale,section.state==="unavailable"?"standardReport.unavailable":"standardReport.empty")}</p>}
    </section>)}
+   <ReportDraftNotes sprintId={s.id}/>
    <p className="text-secondary">{t("sprintReportPrepare.exportLater")}</p>
   </section>
  </main>;
