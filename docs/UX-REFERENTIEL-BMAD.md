@@ -77,3 +77,12 @@ Les **deux icônes en haut à droite** activent **Cartes** (4/2/1 colonnes deskt
 **Livrables normatifs BMAD** : [DESIGN.md](../_bmad-output/planning-artifacts/ux-designs/ux-parametres-2026-10-23/DESIGN.md), [EXPERIENCE.md](../_bmad-output/planning-artifacts/ux-designs/ux-parametres-2026-10-23/EXPERIENCE.md), [catalogue/URLs](../_bmad-output/planning-artifacts/ux-designs/ux-parametres-2026-10-23/CATALOGUE-ET-ROUTES.md), [contrat de développement](../_bmad-output/planning-artifacts/ux-designs/ux-parametres-2026-10-23/CONTRAT-DEVELOPPEMENT.md), [recette](../_bmad-output/planning-artifacts/ux-designs/ux-parametres-2026-10-23/RECETTE-UX.md), [mapping Jira](../_bmad-output/planning-artifacts/ux-designs/ux-parametres-2026-10-23/DECOUPAGE-JIRA.md).
 
 **Jira** : [SMN-223 (Epic)](https://lmn24.atlassian.net/browse/SMN-223), [SMN-224 à SMN-227 (Stories)](https://lmn24.atlassian.net/browse/SMN-224). Le besoin validé est de **centraliser et présenter** les réglages, non de créer les moteurs métier manquants. Aucun code ni test effectué par cette publication documentaire.
+
+
+## Avenant — Fiche membre V2 / onglet Absences — 23/10/2026
+
+**Décision utilisateur :** l'onglet Absences affiche les absences du membre par dates décroissantes, réparties en « À venir et en cours » / « Passées » au regard du jour courant Europe/Paris. La première ligne est « + Ajouter une absence » ouvrant une modale de création **contenant uniquement les champs d'absence** ; chaque ligne non supprimée expose Corriger et Supprimer. Les modifications et suppressions d'une date révolue sont permises avec avertissement non bloquant.
+
+**Historisation :** une suppression est logique et auditée ; la ligne reste visible « Supprimée » dans l'historique individuel, mais cesse de compter pour les contrôles de chevauchement, les disponibilités et les capacités non figées. La suppression ne réécrit jamais les références initiales figées ni les bilans clôturés. Les capacités dynamiques sont recalculées **à leur prochaine consultation** ; ce n'est pas une réécriture automatique de l'ensemble des métriques historiques.
+
+**Sources de vérité :** [avenant d'implémentation et de recette](../_bmad-output/implementation-artifacts/ux-fiche-membre-v2-absences-2026-10-23.md), [contrat UX fiche V2](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/FICHE-MEMBRE-V2-UX-CONTRAT.md), [SMN-53](https://lmn24.atlassian.net/browse/SMN-53). La revue UX des autres onglets et la recette Windows restent distinctes. Aucune migration PostgreSQL n'est nécessaire pour cet avenant.
