@@ -1,8 +1,8 @@
 /**
  * SMN-21 / SMN-235 à SMN-238 — Contrat de projection collective.
  *
- * Étape 0 : types seulement, aucune lecture SQL et aucune mutation.
- * Les lecteurs seront ajoutés par Story et ne devront jamais convertir
+ * Types de contrat partagés, sans SQL ni mutation dans ce module.
+ * Les lecteurs SMN-235 utilisent ces types sans jamais convertir
  * une absence de source en 0, ni projeter des données individuelles.
  */
 export type DashboardDataSource =
