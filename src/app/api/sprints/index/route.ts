@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult} from "@/server/auth/request";
-import {withAuthDb} from "@/server/auth/database";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {parseSprintIndexQuery,readSprintIndex} from "@/server/sprints/index";
 
 export const dynamic="force-dynamic";
@@ -13,7 +13,7 @@ export async function GET(request:NextRequest){
   return jsonResult({error:"forbidden"},403);
  const options=parseSprintIndexQuery(request.nextUrl.searchParams);
  if(!options)return jsonResult({error:"invalid-input"},400);
- try{return jsonResult(await withAuthDb(db=>readSprintIndex(db,options)));}
+ try{return jsonResult(await withSprintIndexDb(db=>readSprintIndex(db,options)));}
  catch{
   console.error("sprint-index-read-failed");
   return jsonResult({error:"service-unavailable"},503);
