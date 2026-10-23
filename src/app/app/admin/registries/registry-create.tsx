@@ -18,6 +18,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
  const [due,setDue]=useState("");
  const [comment,setComment]=useState("");
  const [revision,setRevision]=useState<number|null>(null);
+ const [loaded,setLoaded]=useState(false);
  const [createdId,setCreatedId]=useState<string|null>(null);
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState<{ok:boolean;message:string}|null>(null);
@@ -27,11 +28,11 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
   void fetch("/api/admin/registries/"+encodeURIComponent(itemId),{cache:"no-store"})
    .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<{item:Record<string,unknown>}>;})
    .then(({item})=>{if(!active)return;
-    if(item.teamId!==teamId||typeof item.revision!=="number")throw Error("mismatch");
+    if(item.teamId!==teamId)throw Error("mismatch");
     setType(item.type as RegistryType);setTitle(item.title as string);setDate(item.occurredOn as string);
     setStatus(item.status as string);setDescription((item.description as string|null)??"");
     setOwner((item.owner as string|null)??"");setDue((item.dueOn as string|null)??"");
-    setComment((item.comment as string|null)??"");setRevision(item.revision);
+    setComment((item.comment as string|null)??"");setRevision(typeof item.revision==="number"?item.revision:null);setLoaded(true);
    }).catch(()=>{if(active)setNotice({ok:false,message:t("registryCreate.unavailableRecord")});});
   return()=>{active=false;};
  },[itemId,teamId]);
@@ -60,7 +61,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
  return <div className="d-grid gap-3">
   <header><h1>{translate("title")}</h1><p className="text-body-secondary">{translate("intro")}</p></header>
   {!teamId?<div role="alert" className="alert alert-warning">{translate("unavailable")}</div>:
-   !canManage?<div role="status" className="alert alert-info">{translate("readonly")}</div>:
+   !canManage?<div className="card p-3 d-grid gap-2"><div role="status" className="alert alert-info">{translate("readonly")}</div>{loaded&&<><h2>{title}</h2><p>{translate("date")}: {date}</p><p>{translate("status")}: {translate(status)}</p><p>{description}</p></>}</div>:
   <form className="card p-3 p-lg-4 d-grid gap-3" onSubmit={save}>
    <div className="row g-3">
     <div className="col-md-6"><label className="form-label" htmlFor="registry-type">{translate("type")}</label>
