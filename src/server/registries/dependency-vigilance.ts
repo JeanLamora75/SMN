@@ -1,5 +1,6 @@
 import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
+import {recordConfirmedHighlight} from "./confirmed-highlights";
 export const dependencyStates=["open","in_progress","satisfied","cancelled"] as const;
 export type DependencyState=typeof dependencyStates[number];
 export function dependencyActive(status:string){return status==="open"||status==="in_progress";}
@@ -49,6 +50,7 @@ export async function writeDependencyFlag(db:Client,actorId:string,id:string,raw
   else await db.query(`INSERT INTO public.smn_dependency_vigilance(item_id,at_risk,revision,updated_by) VALUES($1,$2,1,$3)`,[id,v.atRisk,actorId]);
   await db.query(`INSERT INTO public.smn_dependency_vigilance_audit(id,item_id,revision,before_values,after_values,actor_id)
    VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,[randomUUID(),id,revision,old?JSON.stringify(old):null,JSON.stringify({atRisk:v.atRisk}),actorId]);
+  if(v.atRisk&&old?.atRisk!==true){const title=await db.query<{title:string}>(`SELECT title FROM public.smn_registry_item WHERE id=$1`,[id]);await recordConfirmedHighlight(db,{category:"atRiskDependency",sourceKind:"registry",sourceId:id,sourceRevision:revision,title:title.rows[0]?.title??id,actorId});}
   await db.query("COMMIT");return {ok:true as const,atRisk:v.atRisk,revision};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
