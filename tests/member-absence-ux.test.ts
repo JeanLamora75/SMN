@@ -65,7 +65,7 @@ describe("Fiche membre V2 — onglet Absences et calculs affectés",()=>{
   assert.match(domain,/JSON\.stringify\(\{\.\.\.before,deleted:true\}\)/);
   assert.match(domain,/WHERE a\.member_id=\$1 ORDER BY a\.start_on DESC/);
   assert.match(domain,/if\(a\.deleted\)return false/);
-  assert.match(domain,/if\(old\.deleted\)return fail\("not-found"\)/);
+  assert.match(domain,/if\(old\?\.deleted\)return fail\("not-found"\)/);
   assert.match(domain,/after_values->>'deleted'='true'/);
   assert.match(capacity,/after_values->>'deleted'='true'/);
   assert.match(team,/after_values->>'deleted'='true'/);
