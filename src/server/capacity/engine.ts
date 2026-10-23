@@ -142,6 +142,9 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     "SELECT member_id,start_on::text AS start_on,end_on::text AS end_on,",
     "start_slot,end_slot FROM public.smn_member_absence",
     "WHERE member_id=ANY($1::text[]) AND start_on<=$3::date AND end_on>=$2::date",
+    "AND NOT EXISTS (SELECT 1 FROM public.smn_member_absence_history h",
+    "WHERE h.absence_id=public.smn_member_absence.id",
+    "AND h.revision=public.smn_member_absence.revision AND h.after_values->>'deleted'='true')",
     "ORDER BY member_id,start_on LIMIT 10001"
    ].join(" "),[memberIds,start,end]),
    db.query<Closure>([
