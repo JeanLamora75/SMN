@@ -194,3 +194,12 @@ Vérifications réelles : 18/18 statiques ; compilation TS isolée d'un fichier 
 **Autorisation :** seul l'administrateur possède `read members` et voit les noms et J/H individuels. Le rôle user n'engage pas de lecture nominative ; sa fiche Sprint reste accessible sans données privées. Les snapshots JSONB Vn de nouvelles clôtures enregistrent `memberPresence`. Les anciennes clôtures sans snapshot individuel ne sont pas recalculées.
 
 **Validation réelle :** 22/22 contrôles statiques, module de calcul pur compilé isolément (SHA Git vérifié), **9/9 assertions isolées exécutées avec succès**. La compilation complète, les tests `tsx --test` intégrés et la recette PostgreSQL/navigateur restent à faire. [Compte rendu D5](../_bmad-output/implementation-artifacts/realisation-d5-capacite-presence-fiche-sprint-smn-234-2026-10-23.md). Prochain lot **D6 — Tendances**.
+
+
+## Fiche Sprint — D6 Tendances graphiques (23/10/2026)
+
+**Code publié `main` :** dans l'onglet Tendances, **trois graphiques G05, G06 et G07** sur le socle **G04, au maximum cinq derniers Sprints clôturés de la même équipe, jusqu'au Sprint de référence**. G05 affiche les SP terminés, G06 le pourcentage de réalisation calculable si engagement final >0, G07 les J/H de capacité réelle **issus des instantanés de clôture, non des J/H de présence de D5**. SVG natifs adaptatifs, axe temporel et unités SP/%/JH, ruptures pour les points `null`, taux supérieurs à 100 %, et alternative tableau accessible avec noms/liens/version Vn. Aucun champ ni crayon d'édition ; accessible en lecture collective admin/user.
+
+**Technique :** `src/server/sprints/trends.ts` n'exécute plus de création de tables en consultation ; filtrage par `teamId` de la fiche. L'ancien lecteur `/api/admin/sprints/trends` reste disponible. Aucun ajout de bibliothèque.
+
+**Contrôles exécutés :** 16/16 statiques GitHub, compilations TypeScript isolées sur SHA Git des fichiers exacts, 14 assertions graphiques et 28 assertions lecteur/projection réussies. **Tests SMN globaux, compilation Next.js, PostgreSQL et navigateur non exécutés**. [Compte rendu D6](../_bmad-output/implementation-artifacts/realisation-d6-tendances-fiche-sprint-smn-234-2026-10-23.md). **D7 — Bilan** est le prochain lot ; D8 registres reste dépendant des producteurs Epic 5.
