@@ -12,13 +12,16 @@ export async function searchPdfArchives(db:Client,filters:ArchiveFilters){
  const f=normalizeArchiveFilters(filters);
  const exists=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present");
  if(!exists.rows[0]?.present)return {items:[],total:0,page:f.page};
+ const visibility=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_report_archive_visibility') IS NOT NULL AS present");
+ const hiddenFilter=visibility.rows[0]?.present?
+ "AND NOT EXISTS (SELECT 1 FROM public.smn_report_archive_visibility h WHERE h.archive_id=a.id)":"";
  const params=[f.cycleId,f.from,f.to,f.templateId,f.status,(f.page-1)*25] as const;
  const where=`WHERE ($1::text IS NULL OR a.cycle_id=$1)
  AND ($2::date IS NULL OR a.created_at >= $2::date)
  AND ($3::date IS NULL OR a.created_at < ($3::date + INTERVAL '1 day'))
  AND ($4::text IS NULL OR a.template_id=$4)
  AND ($5::text IS NULL OR a.cycle_status=$5)
- AND EXISTS (SELECT 1 FROM public.smn_sprint s
+ ${hiddenFilter} AND EXISTS (SELECT 1 FROM public.smn_sprint s
  JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE s.id=a.cycle_id AND s.team_id=a.team_id
