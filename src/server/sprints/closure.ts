@@ -56,7 +56,15 @@ async function snapshot(db:Client,sprintId:string){
     FROM public.smn_sprint s WHERE s.id=$1`,[sprintId]),
   db.query(`SELECT p.meeting_id,p.member_id FROM public.smn_exceptional_meeting_participant p JOIN public.smn_sprint_exceptional_meeting m ON m.id=p.meeting_id WHERE m.sprint_id=$1 ORDER BY p.meeting_id,p.member_id`,[sprintId])
  ]);
+ // Le décompte Tickets agrégé peut ne pas être installé sur les anciennes bases.
+ // Une ancienne clôture conserve une absence de source plutôt qu'un faux zéro.
+ const ticketsInstalled=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_sprint_ticket_counts') IS NOT NULL AS present");
+ const ticket= ticketsInstalled.rows[0]?.present?
+  await db.query(`SELECT initial_tickets::text,done_tickets::text
+    FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]):null;
  return {goals:goals.rows,storyPoints:points.rows[0]??null,
+  ticketCounts:ticket?.rows[0]??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
   capacity:capacity.rows[0]??null,participants:participants.rows};
 }
