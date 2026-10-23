@@ -64,32 +64,59 @@ async function generationSettings(db:Client,teamId:string){
  return {cadence:cadence.rows[0]??null,templates:templates.rows,lunch:lunch.rows[0]??null};
 }
 
+export type WizardPreviewStage="schema"|"periods"|"team"|"lunch"|"settings"|"names"|"token";
+export class WizardPreviewFailure extends Error{
+ readonly stage:WizardPreviewStage;
+ readonly sqlState:string|null;
+ constructor(stage:WizardPreviewStage,cause:unknown){
+  super("wizard-preview-unavailable");
+  this.name="WizardPreviewFailure";
+  this.stage=stage;
+  const code=typeof cause==="object"&&cause!==null&&"code" in cause?
+   (cause as {code?:unknown}).code:null;
+  this.sqlState=typeof code==="string"&&/^[A-Z0-9]{5}$/.test(code)?code:null;
+ }
+}
+
+/** Prévisualisation diagnostiquable par étape, sans divulgation SQL au navigateur. */
 export async function previewWizard(db:Client,actorId:string,raw:unknown){
  const input=parseWizardInput(raw);
  if(!input)return {ok:false as const,error:"invalid-input" as const};
- await schema(db);
- const draft=await previewSprintBatch(db,{startOn:input.startOn,count:input.count});
- if(!draft.ok)return draft;
- const preview=namesApplied(draft,input);
- const teamId=await activeTeam(db);
- await lunchForTeam(db,teamId);
- const settings=await generationSettings(db,teamId);
- const existingNames=await db.query<{name:string}>(`SELECT name FROM public.smn_sprint
-  WHERE team_id=$1 AND deleted_at IS NULL AND lower(btrim(name))=ANY($2::text[])`,
-  [teamId,preview.items.map(item=>item.name.toLowerCase())]);
- const nameWarnings=preview.items.filter((item,i)=>existingNames.rows.some(existing=>
-  existing.name.toLowerCase()===item.name.toLowerCase())||
-  preview.items.some((other,j)=>j!==i&&other.name.toLowerCase()===item.name.toLowerCase()))
-  .map(item=>item.number);
- const historical=preview.items.some(x=>new Date(x.startAt).getTime()<Date.now());
- const token=preview.valid?randomUUID():null;
- if(token)await db.query(`INSERT INTO public.smn_sprint_wizard_preview
-  (token,team_id,actor_id,request,digest,expires_at)
-  VALUES($1,$2,$3,$4::jsonb,$5,now()+interval '10 minutes')`,
-  [token,teamId,actorId,JSON.stringify(input),hash(preview,settings,input.generateHistoricalCeremonies)]);
- return {...preview,token,historical,nameWarnings,cadence:settings.cadence,
-  activeTemplates:settings.templates.map(t=>({id:t.id,name:t.name,revision:t.revision})),
-  historicalCeremonies:input.generateHistoricalCeremonies};
+ let stage:WizardPreviewStage="schema";
+ try{
+  await schema(db);
+  stage="periods";
+  const draft=await previewSprintBatch(db,{startOn:input.startOn,count:input.count});
+  if(!draft.ok)return draft;
+  const preview=namesApplied(draft,input);
+  stage="team";
+  const teamId=await activeTeam(db);
+  stage="lunch";
+  await lunchForTeam(db,teamId);
+  stage="settings";
+  const settings=await generationSettings(db,teamId);
+  if(!settings.cadence)throw Error("cadence-unavailable");
+  stage="names";
+  const existingNames=await db.query<{name:string}>(`SELECT name FROM public.smn_sprint
+   WHERE team_id=$1 AND deleted_at IS NULL AND lower(btrim(name))=ANY($2::text[])`,
+   [teamId,preview.items.map(item=>item.name.toLowerCase())]);
+  const nameWarnings=preview.items.filter((item,i)=>existingNames.rows.some(existing=>
+   existing.name.toLowerCase()===item.name.toLowerCase())||
+   preview.items.some((other,j)=>j!==i&&other.name.toLowerCase()===item.name.toLowerCase()))
+   .map(item=>item.number);
+  const historical=preview.items.some(x=>new Date(x.startAt).getTime()<Date.now());
+  const token=preview.valid?randomUUID():null;
+  stage="token";
+  if(token)await db.query(`INSERT INTO public.smn_sprint_wizard_preview
+   (token,team_id,actor_id,request,digest,expires_at)
+   VALUES($1,$2,$3,$4::jsonb,$5,now()+interval '10 minutes')`,
+   [token,teamId,actorId,JSON.stringify(input),hash(preview,settings,input.generateHistoricalCeremonies)]);
+  return {...preview,token,historical,nameWarnings,cadence:settings.cadence,
+   activeTemplates:settings.templates.map(t=>({id:t.id,name:t.name,revision:t.revision})),
+   historicalCeremonies:input.generateHistoricalCeremonies};
+ }catch(cause){
+  throw new WizardPreviewFailure(stage,cause);
+ }
 }
 
 export async function confirmWizard(db:Client,actorId:string,raw:unknown){
