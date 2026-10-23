@@ -2690,5 +2690,13 @@
     "dod": "Definition of Done",
     "dor": "Definition of Ready",
     "unverified": "External link not verified"
+  },
+  "reportLanguage": {
+    "heading": "Report language",
+    "label": "Standard labels language",
+    "explanation": "Report headings and standard labels use this language; free-text goals and comments retain their original wording and language.",
+    "save": "Save language",
+    "error": "Unable to load or save report language.",
+    "leaveWarning": "The report language is unsaved. Leave?"
   }
 }
