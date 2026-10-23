@@ -20,6 +20,7 @@ const read=(queries:(text:string,args?:readonly unknown[])=>{rows:unknown[]})=>{
  const db={query:async (sql:string,args?:readonly unknown[])=>{
   seen.push(sql);
   assert.doesNotMatch(sql,/\b(?:CREATE|ALTER|INSERT|UPDATE|DELETE|DROP)\b/i);
+  if(sql.includes("SELECT now() AS at"))return {rows:[{at:"2026-10-23T12:00:00Z"}]};
   return queries(sql,args);
  }} as unknown as Client;
  return {db,seen};
