@@ -319,6 +319,13 @@
   margin:8px 0 0;font-size:1rem;font-weight:700;
   color:var(--smn-text);overflow-wrap:anywhere;
 }
+.smn-metric-value {
+  margin:8px 0 0;font-size:1.25rem;font-weight:800;
+  color:var(--smn-text);overflow-wrap:anywhere;font-variant-numeric:tabular-nums;
+}
+.smn-metric-value small {
+  font-size:.72rem;font-weight:500;line-height:1.5;
+}
 .smn-metric-comparison {
   margin:auto 0 0;border-top:1px solid var(--smn-border);padding-top:12px;
   font-size:.76rem;color:var(--smn-muted);overflow-wrap:anywhere;
