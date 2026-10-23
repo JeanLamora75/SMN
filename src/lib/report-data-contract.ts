@@ -23,7 +23,7 @@ export function measured(value:unknown,unit:MeasuredValue["unit"],sourceId:strin
 export function measuredFromStorage(value:unknown,unit:MeasuredValue["unit"],sourceId:string|null=null):MeasuredValue{
  if(value===null||value===undefined||value==="")return measured(null,unit,sourceId);
  if(typeof value==="number")return measured(value,unit,sourceId);
- return typeof value==="string"&&/^\\d+(?:\\.\\d+)?$/.test(value)?measured(Number(value),unit,sourceId):measured(null,unit,sourceId);
+ return typeof value==="string"&&/^[0-9]+([.][0-9]+)?$/.test(value)?measured(Number(value),unit,sourceId):measured(null,unit,sourceId);
 }
 export function projectScrum(input:{
  cycle:ReportCycle;provenance:ReportProvenance;committedSp:unknown;completedSp:unknown;
