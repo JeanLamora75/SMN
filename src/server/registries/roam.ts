@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {riskCriticalEvent} from "./confirmed-highlights";
 import type {Client} from "pg";
 import {roamValues,type Roam} from "@/lib/roam-values";
 export function parseRoam(value:unknown):Roam|null{
@@ -54,6 +55,7 @@ export async function updateRiskRoam(db:Client,actorId:string,id:string,raw:unkn
    (id,item_id,revision,previous_classification,next_classification,actor_id)
    VALUES($1,$2,$3,$4,$5,$6)`,
    [randomUUID(),id,next,old?.classification??null,classification,actorId]);
+  if(classification!=="resolved"&&old?.classification==="resolved")await riskCriticalEvent(db,id,actorId,next);
   await db.query("COMMIT");
   return {ok:true as const,id,revision:next,classification};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
