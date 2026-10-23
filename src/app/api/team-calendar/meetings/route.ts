@@ -26,7 +26,7 @@ export async function GET(request:NextRequest){
      AND m.starts_at < ($2::date + INTERVAL '1 day') AND m.ends_at >= $1::date
     ORDER BY start_at,id LIMIT 500`,[start,end]);
    return {meetings:result.rows.map(m=>({id:m.id,name:m.name,startAt:m.start_at,
-    endAt:m.end_at,kind:m.kind,href:"/app/team-calendar/meeting/"+m.kind+"/"+encodeURIComponent(m.id)}))};
+    endAt:m.end_at,kind:m.kind,generationSource:m.generation_source,href:"/app/team-calendar/meeting/"+m.kind+"/"+encodeURIComponent(m.id)}))};
   }));
  }catch{
   console.error("team-calendar-meetings-read-failed");
