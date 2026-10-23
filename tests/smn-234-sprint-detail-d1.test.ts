@@ -49,7 +49,7 @@ describe("Fiche Sprint D1 — contrats d'écran et de droits",()=>{
  });
  it("conserve les objectifs dans leur onglet, sans synthèse factice",()=>{
   assert.match(page,/active==="objectives"/);
-  assert.match(page,/projection\.goals/);
+  assert.match(page,/readSprintDetailGoals\(/);
   assert.doesNotMatch(nav,/synthesis|summary/i);
   const keys=shared.match(/"objectives","ceremonies","capacity","indicators","registers","trends","review"/);
   assert.ok(keys);
