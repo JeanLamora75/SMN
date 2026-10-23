@@ -8,10 +8,15 @@ export const dynamic="force-dynamic";
 export const runtime="nodejs";
 const target={type:"collective",exists:true,inScope:true} as const;
 export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){
- if(!await authorizeApi(req,"read",target))return jsonResult({error:"forbidden"},403);
+ const actor=await authorizeApi(req,"read",target);
+ if(!actor)return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  try{
   const item=await withSprintIndexDb(db=>readRegistryItem(db,id));
+  if(item&&actor.role!=="admin"){
+   const {owner,comment,revision,createdAt,updatedAt,...collective}=item;
+   return jsonResult({item:collective});
+  }
   return jsonResult(item?{item}:{error:"not-found"},item?200:404);
  }catch{
   return jsonResult({error:"service-unavailable"},503);
