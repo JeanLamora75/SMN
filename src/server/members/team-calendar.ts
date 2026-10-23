@@ -119,6 +119,8 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
    "a.start_slot,a.end_slot,a.is_planned,a.reason FROM public.smn_member_absence a",
    "JOIN public.smn_absence_category c ON c.id=a.category_id",
    "WHERE a.member_id=ANY($1::text[]) AND a.start_on<=$3::date AND a.end_on>=$2::date",
+   "AND NOT EXISTS (SELECT 1 FROM public.smn_member_absence_history h",
+   "WHERE h.absence_id=a.id AND h.revision=a.revision AND h.after_values->>'deleted'='true')",
    "ORDER BY a.member_id,a.start_on,a.id LIMIT 2001"
   ].join(" "),[allIds,query.start,end]),
   db.query<Week>([
