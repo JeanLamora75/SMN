@@ -44,7 +44,7 @@ test("création Sprint : seules les occurrences des modèles actifs sont enregis
 
 test("installation, migration additive et calendrier couvrent les modèles",()=>{
  const installation=source("src/server/installation/install.ts");
- const migration=source("prisma/migrations/20261023_smn232_template_only_defaults/migration.sql");
+ const syncScript=source("scripts/sync-ceremony-templates.ts");
  const calendar=source("src/app/api/team-calendar/meetings/route.ts");
  const detail=source("src/app/app/team-calendar/meeting/[kind]/[id]/page.tsx");
  const conflicts=source("src/server/sprints/meeting-conflicts.ts");
