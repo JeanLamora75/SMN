@@ -3,7 +3,7 @@ import Link from "next/link";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
-type Item={id:string;type:RegistryType;title:string;status:string;occurredOn:string;dueOn:string|null;owner?:string|null};
+type Item={id:string;type:RegistryType;title:string;status:string;occurredOn:string;dueOn:string|null;recordedAt:string;owner?:string|null};
 type Page={state:"available";team:{id:string;name:string};items:Item[];total:number;page:number;totalPages:number}|
  {state:"unavailable";reason:string}|{state:"forbidden"};
 export default function RegistryList({canManage}:{canManage:boolean}){
@@ -60,7 +60,7 @@ export default function RegistryList({canManage}:{canManage:boolean}){
       <thead><tr><th scope="col">{translate("date")}</th><th scope="col">{translate("title")}</th><th scope="col">{translate("status")}</th>
        {canManage&&<th scope="col">{translate("owner")}</th>}<th scope="col">{translate("details")}</th></tr></thead>
       <tbody>{result.items.map(item=><tr key={item.id}>
-       <td>{item.occurredOn}</td><td>{item.title}</td><td><span className="badge text-bg-secondary">{label(item.status)}</span></td>
+       <td>{item.occurredOn}{type==="highlight"&&<div className="small text-body-secondary">{translate("manualType")} · {translate("recordedAt")}: {new Date(item.recordedAt).toLocaleString()}</div>}</td><td>{item.title}</td><td><span className="badge text-bg-secondary">{label(item.status)}</span></td>
        {canManage&&<td>{item.owner??"—"}</td>}
        <td><Link href={"/app/admin/registries/"+encodeURIComponent(item.id)}>{translate("details")}</Link></td>
       </tr>)}</tbody></table></div>}
