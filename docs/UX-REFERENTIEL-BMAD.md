@@ -223,3 +223,12 @@ Les nouvelles clôtures enregistrent les deux analyses dans le snapshot Vn ; la 
 **À réaliser dans Epic 5 puis raccorder** : création/consultation des registres SMN-89/90, statuts/audits/associations multi-cycles dont SMN-97, journal de faits SMN-106..110, instantanés V1/V2 SMN-111/112. Le port `RegistryReadProvider` est préparé mais **aucun adaptateur actif n'existe encore**. Le champ de snapshot proposé `qualitativeRegisters` est **provisoire** et doit être confirmé. **Tests D8 écrits, non exécutés en intégration**. La recette D9 ne peut pas conclure à la complétude des sept onglets à ce stade.
 
 Référence : [rapport BMAD D8](../_bmad-output/implementation-artifacts/realisation-d8-registres-fiche-sprint-smn-234-2026-10-23.md).
+
+
+## Fiche Sprint — D9 : revue transverse et non-régression (23/10/2026)
+
+**Revue technique publiée :** sept onglets réels, mêmes `sprintId` et `teamId` autorisés, compte `user` sans modification ni données nominatives de membres, valeurs inconnues non remplacées par zéro, derniers snapshots Vn conservés, aucune génération IA factice, Registres Epic 5 non installés signalés explicitement. **Correctif d'historisation** : dans les Sprints clôturés, les liens Cérémonies et Registres vers des fiches actuelles sont désormais remplacés par une mention « Fiche historique individuelle indisponible » (FR/EN), pour éviter une divergence entre état enregistré et état vivant.
+
+**Éléments de qualité réels :** 22 tests métier transverses isolés exécutés avec succès sur modules D3–D7 SHA Git identiques à `main` ; 31 contrôles statiques GitHub positifs sur sept onglets, RBAC, historique, pagination, traductions. Fichier de tests intégré `tests/smn-234-sprint-transverse-d9.test.ts` ajouté mais **non exécuté avec pnpm/tsx**, ainsi que `pnpm typecheck`, build, PostgreSQL et navigateur non réalisés. **Maintenir les anciens écrans/formulaires** en attendant validation de non-régression.
+
+**Décision : D9 contrôle technique achevé mais D9 recette fonctionnelle globale NON VALIDÉE ; SMN-234 demeure À faire, D8 bloqué par Epic 5 SMN-89..112.** [Rapport de recette D9 et matrice AC](../_bmad-output/implementation-artifacts/rapport-recette-d9-fiche-sprint-smn-234-2026-10-23.md).
