@@ -7,6 +7,7 @@ import {readCollectiveDashboard} from "@/server/dashboard/read";
 import {withDashboardRead} from "@/server/dashboard/read-only-db";
 import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
 import {readSprintDetailIndicators} from "@/server/sprints/indicators-read";
+import {readSprintDetailCeremonies} from "@/server/sprints/ceremonies-detail-read";
 import {readSprintContext} from "@/server/sprints/context";
 import {effectiveSprintStatus} from "@/lib/sprint-context";
 import {requestLocale} from "@/i18n/locale.server";
@@ -16,6 +17,7 @@ import SprintDetailEditor from "./sprint-detail-editor";
 import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
 import SprintIndicatorsPanel from "./sprint-indicators-panel";
+import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
 
 export const dynamic="force-dynamic";
@@ -23,7 +25,7 @@ export const dynamic="force-dynamic";
 /** A Sprint identity is always resolved server-side in the authorized team's scope. */
 export default async function SprintDetailPage({params,searchParams}:{
  params:Promise<{sprintId:string}>;
- searchParams:Promise<{tab?:string|string[]}>;
+ searchParams:Promise<{tab?:string|string[];page?:string|string[]}>;
 }){
  const account=await currentAccount();
  if(!account)redirect("/login");
@@ -35,6 +37,8 @@ export default async function SprintDetailPage({params,searchParams}:{
  const {sprintId}=await params;
  const requested=await searchParams;
  const active=parseSprintTab(typeof requested.tab==="string"?requested.tab:undefined);
+ const pageParam=typeof requested.page==="string"?requested.page:"1";
+ const ceremonyPage=/^[1-9]\\d{0,6}$/.test(pageParam)?Number(pageParam):1;
  const dashboard=await withAuthDb(readCollectiveDashboard).catch(()=>null);
  if(!dashboard)return <main className="container-fluid px-3 px-lg-4 py-4">
   <div role="alert" className="alert alert-warning">
@@ -49,7 +53,8 @@ export default async function SprintDetailPage({params,searchParams}:{
   if(!cycle)return null;
   const goals=active==="objectives"?await readSprintDetailGoals(db,teamId,cycle.id):null;
   const indicators=active==="indicators"?await readSprintDetailIndicators(db,teamId,cycle.id):null;
-  return {cycle,goals,indicators};
+  const ceremonies=active==="ceremonies"?await readSprintDetailCeremonies(db,teamId,cycle.id,ceremonyPage):null;
+  return {cycle,goals,indicators,ceremonies};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -58,7 +63,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals,indicators}=result;
+ const {cycle,goals,indicators,ceremonies}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
  const statusKeys:Record<string,TranslationKey>={
@@ -138,6 +143,10 @@ export default async function SprintDetailPage({params,searchParams}:{
      active==="indicators"?<SprintIndicatorsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}/>:
+     active==="ceremonies"?<SprintCeremoniesPanel
+      sprintId={cycle.id} timeZone={cycle.timeZone} locale={locale}
+      t={(key,params)=>translate(locale,key,params)}
+      data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>:
       <div className="py-3" role="status">
      <p className="fw-semibold mb-1">{t("sprintDetail.availableLater")}</p>
      <p className="text-secondary mb-0">{t(waiting[active])}</p>
