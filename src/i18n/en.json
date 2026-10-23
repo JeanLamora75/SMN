@@ -2444,5 +2444,19 @@
     "error": "Creation failed. No partial record was saved.",
     "suggestion": "Resolving an impediment never automatically updates source risk ROAM.",
     "loading": "Loading context…"
+  },
+  "decisionActions": {
+    "heading": "Actions arising from this decision",
+    "launch": "Create action",
+    "intro": "Each confirmation creates a separate action linked to this decision.",
+    "title": "Action title",
+    "description": "Context",
+    "owner": "Owner (optional)",
+    "due": "Due date (optional)",
+    "confirm": "Create and link",
+    "cancel": "Cancel",
+    "success": "Action created",
+    "error": "Creation failed.",
+    "again": "Create another action"
   }
 }
