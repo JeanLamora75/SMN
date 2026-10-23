@@ -38,7 +38,8 @@ type DbReviewRow={
 };
 const reviewSelect=`SELECT r.kind,r.body,r.revision,r.origin,
  r.human_edited AS "humanEdited",r.generation_id AS "generationId",
- r.updated_at::text AS "updatedAt",r.updated_by AS "updatedBy",
+ to_char(r.updated_at AT TIME ZONE 'UTC',
+ 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS "updatedAt",r.updated_by AS "updatedBy",
  account.username AS "updatedByName"
  FROM public.smn_sprint_review_analysis r
  LEFT JOIN public.smn_account account ON account.id=r.updated_by
