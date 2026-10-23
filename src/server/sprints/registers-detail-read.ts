@@ -1,0 +1,68 @@
+import type {Client} from "pg";
+import type {SprintContextItem} from "@/lib/sprint-context";
+import {
+ registerKinds,isRegisterKind,selectSprintRegisterPage,
+ type RegisterSource,type RegisterKind,type SprintRegisterResult
+} from "@/lib/sprint-registers";
+
+/** The registry subsystem will supply this port once its canonical schema,
+ * team visibility and cross-Sprint relation rules are implemented.
+ * The port MUST scope its result to authorized team members and records. */
+export type RegistryReadProvider=(
+ db:Client,teamId:string,sprint:SprintContextItem
+)=>Promise<RegisterSource>;
+const absent=(reason:Extract<SprintRegisterResult,{state:"unavailable"}>["reason"])=>
+ ({state:"unavailable" as const,reason});
+
+/** This reader never synthesizes qualitative items from unrelated tables.
+ * Closed Sprints only use their immutable closure snapshot. */
+export async function readSprintRegisters(
+ db:Client,teamId:string,sprint:SprintContextItem,page=1,
+ provider?:RegistryReadProvider
+):Promise<SprintRegisterResult|null>{
+ const scope=await db.query<{status:string}>(`
+  SELECT s.status FROM public.smn_sprint s
+  JOIN public.smn_team t ON t.id=s.team_id
+  JOIN public.smn_installation i ON i.id=t.installation_id
+  WHERE s.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL
+    AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+ `,[sprint.id,teamId]);
+ if(!scope.rows[0])return null;
+ if(scope.rows[0].status==="closed"){
+  const installed=await db.query<{present:boolean}>(`
+   SELECT to_regclass('public.smn_sprint_closure_snapshot') IS NOT NULL AS present`);
+  if(!installed.rows[0]?.present)return absent("history-missing");
+  const result=await db.query<{version:number;snapshot:unknown}>(`
+   SELECT version,snapshot FROM public.smn_sprint_closure_snapshot
+   WHERE sprint_id=$1 ORDER BY version DESC LIMIT 1`,[sprint.id]);
+  const latest=result.rows[0];
+  if(!latest||!Number.isSafeInteger(latest.version)||latest.version<1)
+   return absent("history-missing");
+  const snapshot=latest.snapshot;
+  if(!snapshot||typeof snapshot!=="object"||Array.isArray(snapshot))
+   return absent("invalid-data");
+  const raw=(snapshot as Record<string,unknown>).qualitativeRegisters;
+  if(raw===undefined)return absent("history-missing");
+  if(!raw||typeof raw!=="object"||Array.isArray(raw))
+   return absent("invalid-data");
+  const data=raw as Record<string,unknown>;
+  if(!Array.isArray(data.records)||!Array.isArray(data.availableKinds))
+   return absent("invalid-data");
+  if(data.availableKinds.some(k=>!isRegisterKind(k)))
+   return absent("invalid-data");
+  const selected=selectSprintRegisterPage({
+   records:data.records,
+   availableKinds:data.availableKinds as RegisterKind[]
+  },teamId,sprint,page);
+  if(!selected)return absent("invalid-data");
+  return {state:"available",source:"closure-snapshot",
+   snapshotVersion:latest.version,...selected};
+ }
+ if(!provider)return absent("producer-not-installed");
+ // No tables or APIs are guessed: the six Epic 5 registers must supply an
+ // authorized typed adapter. A partial adapter is signalled as incomplete.
+ const data=await provider(db,teamId,sprint);
+ const selected=selectSprintRegisterPage(data,teamId,sprint,page);
+ if(!selected)return absent("invalid-data");
+ return {state:"available",source:"current",snapshotVersion:null,...selected};
+}
