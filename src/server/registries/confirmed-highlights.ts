@@ -21,11 +21,14 @@ export async function recordConfirmedHighlight(db:Client,input:{
  return saved.rows.length===1;
 }
 export async function riskCriticalEvent(db:Client,id:string,actorId:string,sourceRevision:number){
+ const available=await db.query<{assess:boolean;roam:boolean}>(`SELECT to_regclass('public.smn_risk_assessment') IS NOT NULL AS assess,to_regclass('public.smn_risk_roam') IS NOT NULL AS roam`);
+ if(!available.rows[0]?.assess)return false;
+ const roamJoin=available.rows[0].roam?"LEFT JOIN public.smn_risk_roam m ON m.item_id=r.id":"LEFT JOIN LATERAL (SELECT NULL::text AS classification) m ON TRUE";
  const result=await db.query<{title:string;probability:number|null;impact:number|null;roam:string|null}>(`
  SELECT r.title,a.probability,a.impact,m.classification AS roam
  FROM public.smn_registry_item r
  LEFT JOIN public.smn_risk_assessment a ON a.item_id=r.id
- LEFT JOIN public.smn_risk_roam m ON m.item_id=r.id
+ ${roamJoin}
  WHERE r.id=$1 AND r.type='risk'`,[id]);
  const row=result.rows[0];
  if(!row||row.roam==="resolved"||row.probability===null||row.impact===null||row.probability*row.impact<6)return false;
