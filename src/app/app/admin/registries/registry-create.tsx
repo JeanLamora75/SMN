@@ -32,7 +32,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
     setStatus(item.status as string);setDescription((item.description as string|null)??"");
     setOwner((item.owner as string|null)??"");setDue((item.dueOn as string|null)??"");
     setComment((item.comment as string|null)??"");setRevision(item.revision);
-   }).catch(()=>{if(active)setNotice({ok:false,message:"Fiche indisponible / Record unavailable."});});
+   }).catch(()=>{if(active)setNotice({ok:false,message:t("registryCreate.unavailableRecord")});});
   return()=>{active=false;};
  },[itemId,teamId]);
  const translate=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
@@ -48,6 +48,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
     body:JSON.stringify({...(itemId?{revision}:{}),teamId,type,title,occurredOn:date,status,
       description:description||null,owner:owner||null,dueOn:due||null,comment:comment||null})});
    const result=await response.json() as Response;
+   if(response.status===409){setNotice({ok:false,message:translate("conflict")});return;}
    if(!response.ok||!result.ok||!result.id)throw Error(result.error??"failed");
    setNotice({ok:true,message:translate("success").replace("{id}",result.id)});
    if(!itemId)setCreatedId(result.id);
