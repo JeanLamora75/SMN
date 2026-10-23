@@ -2663,6 +2663,15 @@
     "sections": "sections",
     "copyName": "Copy name",
     "copy": "Duplicate Standard template",
-    "error": "Unable to read or copy templates."
+    "error": "Unable to read or copy templates.",
+    "edit": "Edit a custom template",
+    "depth": "Historical depth (cycles)",
+    "metrics": "Metrics",
+    "qualitative": "Qualitative content",
+    "save": "Save changes",
+    "saved": "Template saved",
+    "conflict": "This template has changed. Reload it before saving.",
+    "deleteInfo": "Deletion is temporarily blocked to protect archives and references.",
+    "leaveWarning": "Template changes are not saved. Leave without saving?"
   }
 }
