@@ -151,3 +151,24 @@ body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground)
 /* SMN-226: settings catalogue links retain clear focus in both presentations. */
 .smn-settings-entry-link:hover{box-shadow:0 5px 18px rgba(0,0,0,.09);border-color:var(--smn-brand);}
 .smn-settings-entry-link:focus-visible{outline:3px solid var(--smn-brand);outline-offset:3px;}
+
+/* Sprint editor uses the native dialog top layer and the existing Bootstrap panels. */
+dialog.smn-sprint-edit-dialog {
+ width:min(620px,calc(100vw - 24px));
+ max-width:calc(100vw - 24px);
+ max-height:calc(100dvh - 32px);
+ padding:0;
+ border:0;
+ border-radius:1rem;
+ overflow:auto;
+ background:transparent;
+ color:inherit;
+}
+dialog.smn-sprint-edit-dialog::backdrop {background:rgba(0,0,0,.52);}
+.smn-sprint-detail-tabs .nav-link {color:var(--bs-body-color);border-radius:.6rem .6rem 0 0;}
+.smn-sprint-detail-tabs .nav-link[aria-selected="true"] {font-weight:700;}
+.smn-sprint-detail-tabs .nav-link:focus-visible {outline:3px solid var(--bs-primary);outline-offset:-3px;}
+@media(max-width:575px){
+ dialog.smn-sprint-edit-dialog {max-height:calc(100dvh - 12px);width:calc(100vw - 12px);}
+ .smn-sprint-detail-tabs .nav-link{padding:.6rem .75rem;font-size:.92rem;}
+}
