@@ -70,7 +70,10 @@ describe("SMN-235 — projection dashboard isolée du Sprint",()=>{
     {id:"g2",title:"Livraison",evaluation:"achieved"}
    ]};
    if(sql.includes("FROM public.smn_sprint_story_points"))return {rows:[{initial_sp:"0",done_sp:null}]};
-   if(sql.startsWith("SAVEPOINT ")||sql.startsWith("RELEASE SAVEPOINT "))return {rows:[]};
+   if(sql.startsWith("SAVEPOINT ")||sql.startsWith("RELEASE SAVEPOINT ")||
+      sql.startsWith("ROLLBACK TO SAVEPOINT "))return {rows:[]};
+   if(sql.includes("SELECT now() AS now_at"))return {rows:[{now_at:"2026-10-23T12:00:00Z"}]};
+   if(sql.includes("information_schema.tables"))return {rows:[]};
    throw Error("Unexpected SQL "+sql);
   });
   const result=await readCycleDashboard(fake.db,team,sprint("sprint-1"));
