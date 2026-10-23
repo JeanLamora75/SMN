@@ -44,7 +44,7 @@ export default function SprintGenerationWizard(){
   if(search.length<=100)kept.set("search",search);
   if(status==="all"||/^[a-z][a-z0-9_-]{0,39}$/.test(status))kept.set("status",status);
   if(["priority","newest","oldest"].includes(sort))kept.set("sort",sort);
-  if(/^[1-9]\\d*$/.test(page)&&Number(page)<=100000)kept.set("page",page);
+  if(/^[1-9][0-9]*$/.test(page)&&Number(page)<=100000)kept.set("page",page);
   return "/app/admin/sprints?"+kept.toString();
  };
  useUnsavedChanges(!created&&(Boolean(startOn)||Boolean(preview)),t("draft.leaveWarning"));
