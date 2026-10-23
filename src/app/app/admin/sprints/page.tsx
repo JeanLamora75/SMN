@@ -3,10 +3,11 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import SprintIndexView from "./sprint-index-view";
+import {parseSprintIndexQuery} from "@/server/sprints/index";
 
 export const dynamic="force-dynamic";
 
-export default async function SprintsPage(){
+export default async function SprintsPage({searchParams}:{searchParams:Promise<Record<string,string|string[]|undefined>>}){
  const account=await currentAccount();
  if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
@@ -18,7 +19,14 @@ export default async function SprintsPage(){
   return result.rows.length===1;
  }).catch(()=>false);
  if(!isScrum)redirect("/app");
+ const requested=await searchParams;
+ const qs=new URLSearchParams();
+ for(const key of ["search","status","sort","page"]){
+  if(typeof requested[key]==="string")qs.set(key,requested[key]);
+ }
+ const parsed=parseSprintIndexQuery(qs);
+ const initialFilters=parsed?{search:parsed.search,status:parsed.status,sort:parsed.sort,page:parsed.page}:undefined;
  return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
-  <SprintIndexView canManage={account.role==="admin"}/>
+  <SprintIndexView canManage={account.role==="admin"} initialFilters={initialFilters}/>
  </main>;
 }
