@@ -1926,6 +1926,7 @@
     "calendarPending": "The calendar link for an exact sprint ID will be delivered in the Navigation step.",
     "rowActions": "Actions for sprint {name}",
     "actionsPending": "Actions for this specific sprint will be delivered in the Actions step.",
+    "concurrentActive": "Warning: {count} sprints are simultaneously recorded as in progress for the current period. Check their dates and states.",
     "legacyTools": "Existing management tools",
     "page": "Page {page} of {total}",
     "previous": "Previous",
