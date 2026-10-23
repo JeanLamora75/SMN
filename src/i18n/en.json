@@ -1833,7 +1833,7 @@
       },
       "ceremonies": {
         "title": "Ceremonies and templates",
-        "description": "Configure team meetings and templates."
+        "description": "Manage recurring templates for upcoming sprints without changing existing meetings."
       },
       "capacity": {
         "title": "Capacity rules",
@@ -1841,7 +1841,7 @@
       },
       "workingDays": {
         "title": "Working days",
-        "description": "Customize the team's reference workweek."
+        "description": "Set working hours, time zone and lunch break; Monday–Friday stays fixed."
       },
       "countries": {
         "title": "Countries and public holidays",
@@ -1892,5 +1892,11 @@
     "noneUpcoming": "No upcoming or ongoing absences.",
     "nonePast": "No past absences.",
     "capacityNotice": "Non-frozen availability and capacity are recalculated on the next read. Frozen initial references and closed period reports remain unchanged."
+  },
+  "settingsSprint": {
+    "workingDaysTitle": "Working days — team hours",
+    "workingDaysScope": "Monday–Friday remains the fixed reference in this version. You can set morning/afternoon work slots, the IANA time zone and lunch break, but cannot edit the weekdays themselves.",
+    "ceremoniesTitle": "Ceremonies and templates — recurring meetings",
+    "ceremoniesScope": "This page manages reusable templates for upcoming sprints. Standard ceremonies and previously saved meetings remain in Sprint and Calendar flows; no existing occurrence is edited here."
   }
 }
