@@ -122,9 +122,9 @@ export default function MemberDetail({id}:{id:string}){
     <MemberHistory memberId={member.id}/>
    </section>}
    {section&&<div className="smn-member-modal-backdrop" role="presentation">
-    <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={t("memberUX.edit",{name:section})} ref={dialogRef}>
+    <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})} ref={dialogRef}>
      <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
-      <strong>{t("memberUX.edit",{name:section})}</strong>
+      <strong>{section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})}</strong>
       <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={closeDialog}/>
      </div>
      <div className="p-3">
