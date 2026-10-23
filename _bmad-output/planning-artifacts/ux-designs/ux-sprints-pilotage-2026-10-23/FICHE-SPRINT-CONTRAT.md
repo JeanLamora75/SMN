@@ -95,3 +95,10 @@ Le plan d'implémentation et les étapes de vérification sont dans `_bmad-outpu
 5. **Ordre d'ouverture de la fiche** : Indicateurs proposé par Amelia comme onglet initial, **non encore explicitement validé** ; ne pas figer dans le contrat d'acceptation.
 
 **Statut** : cadrage documenté et publié, code non modifié ; validation de fin de développement non acquise.
+
+
+## État de développement D1 — 23 octobre 2026
+
+La structure D1 de la fiche Sprint est publiée sur `main` : bandeau compact, sept onglets avec Objectifs conservés, deux crayons admin (nom et dates) activant les **véritables** commandes métier, traduction FR/EN, navigation clavier, contrôles IANA/DST. Les six autres onglets sont pour l'instant des écrans d'attente explicitement identifiés ; les actions Objetifs (ajout et édition) restent du ressort de D2.
+
+Cette publication **ne vaut pas recette finale** : seuls huit essais unitaires isolés du module horaire ont été exécutés avec succès ; compilation complète, API/DB et contrôle navigateur restent à effectuer. Traçabilité : [réalisation D1](../../../implementation-artifacts/realisation-d1-fiche-sprint-smn-234-2026-10-23.md).
