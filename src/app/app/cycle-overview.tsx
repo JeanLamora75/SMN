@@ -144,12 +144,23 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection}
         first={t("dashboard.cockpit.initialTickets")}
         second={t("dashboard.cockpit.completedTickets")}
         unit={t("dashboard.cockpit.ticketsUnit")}
+        firstMetric={projection?.tickets.initial} secondMetric={projection?.tickets.done}
         empty={emptyMetric} locale={locale}
         comparison={comparison}/>
       <article className="smn-metric-card smn-metric-deadline">
         <h2 className="smn-metric-title">{t("dashboard.cockpit.workingDays")}</h2>
-        <p className="smn-deadline-unavailable">{t("dashboard.cockpit.notCalculable")}</p>
-        <p className="smn-deadline-explanation">{t(cycle?"dashboard.cockpit.workingDaysPending":"dashboard.cockpit.workingDaysHelp")}</p>
+        <p className={projection?.workingDaysRemaining.state==="available"?
+          "smn-metric-value":"smn-deadline-unavailable"}>
+          {projection?.workingDaysRemaining.state==="available"?
+           new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB").format(
+            projection.workingDaysRemaining.value):
+           cycle?t("dashboard.cockpit.notCalculable"):t("dashboard.cockpit.notSpecified")}
+        </p>
+        <p className="smn-deadline-explanation">
+          {projection?.workingDaysRemaining.state==="available"?
+            t("dashboard.cockpit.todayIncludedProvisional"):
+            t(cycle?"dashboard.cockpit.workingDaysPending":"dashboard.cockpit.workingDaysHelp")}
+        </p>
       </article>
     </div>
   </section>;
