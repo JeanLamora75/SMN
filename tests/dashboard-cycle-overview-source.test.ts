@@ -7,14 +7,15 @@ const page=src("src/app/app/page.tsx");
 const overview=src("src/app/app/cycle-overview.tsx");
 const css=src("src/app/dashboard.css");
 const dashboard=src("src/server/dashboard/read.ts");
+const operational=src("src/app/app/operational-overview.tsx");
 
 describe("SMN-21 — intégration du lot 2 au dashboard",()=>{
   it("remplace le bandeau hero et les anciens KPI génériques sans perdre les modules existants",()=>{
-    assert.match(page,/<CycleOverview context=\{context\} locale=\{locale\} teamHref=\{teamHref\}\/>/);
+    assert.match(page,/<CycleOverview context=\{context\} locale=\{locale\} teamHref=\{teamHref\} cycle=\{cycle\}\/>/);
     assert.doesNotMatch(page,/smn-context-card|smn-cycle-empty|dashboard\.metricsDesc/);
-    assert.match(page,/id="calendrier"/);
-    assert.match(page,/id="registres"/);
-    assert.match(page,/id="reportings"/);
+    assert.match(operational,/definition\.id==="events"\?"calendrier"/);
+    assert.match(operational,/definition\.id==="obstacles"\?"registres"/);
+    assert.match(page,/cycle=\{cycle\}/);
     assert.ok(page.indexOf("<CycleOverview")<page.indexOf("<ConfigurationChecklist"));
     assert.match(page,/readConfigurationChecklist/);
   });
@@ -25,7 +26,7 @@ describe("SMN-21 — intégration du lot 2 au dashboard",()=>{
     assert.match(overview,/noPreviousCycle/);
     assert.match(overview,/notSpecified/);
     assert.match(overview,/notCalculable/);
-    assert.doesNotMatch(overview,/Math\.round|Date\.now|new Date|\b0\s*(?:\*|\+|SP|J\/H)/);
+    assert.doesNotMatch(overview,/Math\.round|Date\.now|\b0\s*(?:\*|\+|SP|J\/H)/);
   });
   it("utilise la largeur utile du contenu et les tokens de thèmes existants",()=>{
     assert.match(css,/\.smn-cycle-overview\s*\{[\s\S]*?container-type:inline-size/);

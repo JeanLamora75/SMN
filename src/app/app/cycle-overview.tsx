@@ -2,11 +2,13 @@ import Link from "next/link";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import type {Language} from "@/lib/language";
 import type {DashboardContext} from "@/server/dashboard/read";
+import {effectiveSprintStatus,type SprintContextItem} from "@/lib/sprint-context";
 
 type Props=Readonly<{
   context:DashboardContext;
   locale:Language;
   teamHref:string;
+  cycle:SprintContextItem|null;
 }>;
 
 function MetricLine({label,unit,empty}:Readonly<{label:string;unit:string;empty:string}>){
@@ -29,13 +31,29 @@ function MetricPair({title,first,second,unit,empty,comparison}:Readonly<{
   </article>;
 }
 
-/**
- * L'installation actuelle ne dispose pas encore de producteur de cycles,
- * d'engagements initiaux ni de capacités : aucune valeur n'est déduite du contexte.
- */
-export default function CycleOverview({context,locale,teamHref}:Props){
+/** Les données de présence d'un Sprint sont réelles ; KPI et registres restent
+ * explicitement indisponibles tant que leurs lectures métier ne sont pas raccordées. */
+export default function CycleOverview({context,locale,teamHref,cycle}:Props){
   const t=(key:TranslationKey)=>translate(locale,key);
   const scrum=context.mode==="scrum";
+  const effectiveStatus=cycle?effectiveSprintStatus(cycle):null;
+  const statusKey:Record<string,TranslationKey>={
+    planned:"sprintStates.planned",active:"sprintStates.active",
+    finished:"sprintStates.finished",closed:"sprintStates.closed",
+    suspended:"sprintStates.suspended"
+  };
+  const status=effectiveStatus? t(statusKey[effectiveStatus]??"dashboard.cockpit.notAvailable"):t("dashboard.cockpit.noCycle");
+  const day=(iso:string)=>{
+    const date=new Date(iso);
+    if(!Number.isFinite(date.getTime())||!cycle)return t("dashboard.cockpit.notAvailable");
+    try{return new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
+      timeZone:cycle.timeZone,day:"numeric",month:"short",year:"numeric"
+    }).format(date);}catch{return t("dashboard.cockpit.notAvailable");}
+  };
+  const dates=cycle?day(cycle.startAt)+" — "+day(new Date(Date.parse(cycle.endAt)-1).toISOString()):
+    t("dashboard.cockpit.notAvailable");
+  const emptyMetric=cycle?t("dashboard.cockpit.dataPending"):t("dashboard.cockpit.notSpecified");
+  const comparison=cycle?t("dashboard.cockpit.comparisonUnavailable"):t("dashboard.cockpit.noPreviousCycle");
   return <section className="smn-cycle-overview" id="pilotage"
     aria-labelledby="smn-cycle-overview-heading">
     <header className="smn-cycle-overview-header" id="cycles">
@@ -43,14 +61,15 @@ export default function CycleOverview({context,locale,teamHref}:Props){
         <p className="smn-cycle-eyebrow">
           {t(scrum?"dashboard.sprint":"dashboard.kanbanCycle")}
         </p>
-        <h1 id="smn-cycle-overview-heading">{t("dashboard.cockpit.noCycle")}</h1>
+        <h1 id="smn-cycle-overview-heading">{cycle?.name??t("dashboard.cockpit.noCycle")}</h1>
         <p className="smn-cycle-context">
           <strong>{context.product}</strong>
           <span aria-hidden="true"> · </span>
           <span>{context.team}</span>
         </p>
         <p className="smn-cycle-description">
-          {t(scrum?"dashboard.cockpit.noSprintHelp":"dashboard.cockpit.noPeriodHelp")}
+          {cycle?t("dashboard.cockpit.selectedSprintHelp"):
+            t(scrum?"dashboard.cockpit.noSprintHelp":"dashboard.cockpit.noPeriodHelp")}
         </p>
         <Link className="btn btn-outline-primary btn-sm smn-cycle-team-link" href={teamHref}>
           {t("detail.openTeam")} <span aria-hidden="true">→</span>
@@ -59,9 +78,9 @@ export default function CycleOverview({context,locale,teamHref}:Props){
       <div className="smn-cycle-facts" role="group" aria-label={t("dashboard.cockpit.details")}>
         <dl className="smn-cycle-fact-list">
           <div><dt>{t("dashboard.cockpit.dates")}</dt>
-            <dd>{t("dashboard.cockpit.notAvailable")}</dd></div>
+            <dd>{dates}</dd></div>
           <div><dt>{t("dashboard.cockpit.status")}</dt>
-            <dd>{t("dashboard.cockpit.noCycle")}</dd></div>
+            <dd>{status}</dd></div>
           <div><dt>{t("dashboard.cockpit.goals")}</dt>
             <dd>{t("dashboard.cockpit.notSpecified")}</dd></div>
         </dl>
@@ -71,23 +90,23 @@ export default function CycleOverview({context,locale,teamHref}:Props){
       <MetricPair title={t("dashboard.cockpit.capacity")}
         first={t("dashboard.cockpit.plannedCapacity")}
         second={t("dashboard.cockpit.actualCapacity")}
-        unit="J/H" empty={t("dashboard.cockpit.notSpecified")}
-        comparison={t("dashboard.cockpit.noPreviousCycle")}/>
+        unit="J/H" empty={emptyMetric}
+        comparison={comparison}/>
       <MetricPair title={t("dashboard.cockpit.storyPoints")}
         first={t("dashboard.cockpit.initialStoryPoints")}
         second={t("dashboard.cockpit.completedStoryPoints")}
-        unit="SP" empty={t("dashboard.cockpit.notSpecified")}
-        comparison={t("dashboard.cockpit.noPreviousCycle")}/>
+        unit="SP" empty={emptyMetric}
+        comparison={comparison}/>
       <MetricPair title={t("dashboard.cockpit.tickets")}
         first={t("dashboard.cockpit.initialTickets")}
         second={t("dashboard.cockpit.completedTickets")}
         unit={t("dashboard.cockpit.ticketsUnit")}
-        empty={t("dashboard.cockpit.notSpecified")}
-        comparison={t("dashboard.cockpit.noPreviousCycle")}/>
+        empty={emptyMetric}
+        comparison={comparison}/>
       <article className="smn-metric-card smn-metric-deadline">
         <h2 className="smn-metric-title">{t("dashboard.cockpit.workingDays")}</h2>
         <p className="smn-deadline-unavailable">{t("dashboard.cockpit.notCalculable")}</p>
-        <p className="smn-deadline-explanation">{t("dashboard.cockpit.workingDaysHelp")}</p>
+        <p className="smn-deadline-explanation">{t(cycle?"dashboard.cockpit.workingDaysPending":"dashboard.cockpit.workingDaysHelp")}</p>
       </article>
     </div>
   </section>;

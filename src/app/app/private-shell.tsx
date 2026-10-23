@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import {usePathname,useRouter,useSearchParams} from "next/navigation";
+import type {SprintContextItem} from "@/lib/sprint-context";
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {useTranslation} from "@/i18n/client";
 import LogoutControl from "./logout-control";
@@ -20,6 +22,52 @@ type Props=Readonly<{
 /** Coquille privée partagée : un contexte réel, aucune sélection de cycle simulée. */
 export default function PrivateShell({children,username,role,mode,product,team,teamId}:Props){
   const t=useTranslation();
+  const pathname=usePathname(),router=useRouter(),searchParams=useSearchParams();
+  const requestedCycleId=pathname==="/app"?searchParams.get("cycleId"):null;
+  const [sprints,setSprints]=useState<SprintContextItem[]>([]);
+  const [selectedCycleId,setSelectedCycleId]=useState("");
+  const [cycleState,setCycleState]=useState<"loading"|"ready"|"error">("loading");
+  // Une navigation vers la liste puis une nouvelle génération recharge les options.
+  // La liste est fournie par le serveur, sans pagination ni écriture en base.
+  useEffect(()=>{
+    if(mode!=="scrum"||!teamId){
+      setSprints([]);setSelectedCycleId("");setCycleState("ready");return;
+    }
+    const ctrl=new AbortController();
+    setCycleState("loading");
+    void fetch("/api/sprints/context",{signal:ctrl.signal,cache:"no-store"})
+      .then(async response=>{
+        if(!response.ok)throw Error("sprint-context-unavailable");
+        return response.json() as Promise<{
+          items:SprintContextItem[];defaultCycleId:string|null
+        }>;
+      })
+      .then(result=>{
+        if(ctrl.signal.aborted)return;
+        if(!Array.isArray(result.items))throw Error("sprint-context-invalid");
+        setSprints(result.items);
+        setSelectedCycleId(previous=>{
+          if(requestedCycleId&&result.items.some(item=>item.id===requestedCycleId))
+            return requestedCycleId;
+          if(pathname==="/app")return result.defaultCycleId??"";
+          if(previous&&result.items.some(item=>item.id===previous))return previous;
+          return result.defaultCycleId??"";
+        });
+        setCycleState("ready");
+      })
+      .catch(()=>{if(!ctrl.signal.aborted){setSprints([]);setSelectedCycleId("");setCycleState("error");}});
+    return ()=>ctrl.abort();
+  },[mode,teamId,pathname,requestedCycleId]);
+
+  const changeSprint=(cycleId:string)=>{
+    if(!teamId||!sprints.some(item=>item.id===cycleId))return;
+    setSelectedCycleId(cycleId);
+    const params=pathname==="/app"?new URLSearchParams(searchParams.toString()):new URLSearchParams();
+    params.set("teamId",teamId);
+    params.set("cycleId",cycleId);
+    params.delete("version");params.delete("asOf");
+    router.push("/app?"+params.toString());
+  };
   const [collapsed,setCollapsed]=useState(false);
   const [mobileOpen,setMobileOpen]=useState(false);
   const mobileButton=useRef<HTMLButtonElement>(null);
@@ -83,11 +131,17 @@ export default function PrivateShell({children,username,role,mode,product,team,t
           <div className="smn-header-field smn-header-cycle">
             <label htmlFor="smn-current-cycle">{t(cycleLabel)}</label>
             <select id="smn-current-cycle" className="form-select form-select-sm"
-              value="" disabled title={t("dashboard.shell.noCycle")}
+              value={selectedCycleId} onChange={event=>changeSprint(event.target.value)}
+              disabled={mode!=="scrum"||cycleState!=="ready"||sprints.length===0}
               aria-describedby="smn-cycle-help">
-              <option value="">{t("dashboard.shell.noCycle")}</option>
+              {sprints.length===0&&<option value="">{t(cycleState==="error"?"dashboard.shell.cycleUnavailable":
+                cycleState==="loading"?"dashboard.shell.loadingCycles":"dashboard.shell.noCycle")}</option>}
+              {sprints.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
-            <span id="smn-cycle-help" className="visually-hidden">{t("dashboard.shell.noCycle")}</span>
+            <span id="smn-cycle-help" className="visually-hidden">
+              {cycleState==="error"?t("sprintsIndex.error"):
+                sprints.length===0?t("dashboard.shell.noCycle"):t("dashboard.shell.sprint")}
+            </span>
           </div>
           <div className="smn-header-field smn-header-search">
             <label htmlFor="smn-global-search">{t("dashboard.shell.search")}</label>

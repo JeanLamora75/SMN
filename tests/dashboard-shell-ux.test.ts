@@ -15,7 +15,8 @@ describe("SMN-21 — refonte UX, lot 1 : coque de navigation",()=>{
     assert.match(layout,/canAccess\(account,"read"/);
     assert.match(layout,/withAuthDb\(readCollectiveDashboard\)/);
     assert.match(layout,/teamId=\{context\?\.teamId\?\?null\}/);
-    assert.doesNotMatch(shell,/fetch\(|smn_account|password_hash/i);
+    assert.match(shell,/fetch\("\/api\/sprints\/context"/);
+    assert.doesNotMatch(shell,/smn_account|password_hash/i);
   });
   it("place les sélecteurs Équipe et Cycle avant une recherche explicitement indisponible",()=>{
     const team=shell.indexOf('id="smn-current-team"');
@@ -23,7 +24,9 @@ describe("SMN-21 — refonte UX, lot 1 : coque de navigation",()=>{
     const search=shell.indexOf('id="smn-global-search"');
     assert.ok(team>0&&cycle>team&&search>cycle);
     assert.match(shell,/value=\{teamId\?\?""\} disabled/);
-    assert.match(shell,/value="" disabled/);
+    assert.match(shell,/value=\{selectedCycleId\} onChange=/);
+    assert.match(shell,/sprints\.map\(item=><option/);
+    assert.match(shell,/disabled=\{mode!=="scrum"/);
     assert.match(shell,/disabled placeholder=\{t\("dashboard.shell.searchUnavailable"\)\}/);
     assert.match(shell,/noCycle/);
     assert.doesNotMatch(shell,/mock|fake|demo|sample|Math\.random/i);
@@ -51,7 +54,7 @@ describe("SMN-21 — refonte UX, lot 1 : coque de navigation",()=>{
   });
   it("traduit chaque commande nouvelle dans les deux langues",()=>{
     for(const locale of ["fr","en"] as const){
-      for(const key of ["team","sprint","period","singleTeam","noTeam","noCycle",
+      for(const key of ["team","sprint","period","singleTeam","noTeam","noCycle","loadingCycles","cycleUnavailable",
         "search","searchUnavailable","contextControls","openMenu","closeMenu",
         "expandMenu","collapseMenu"] as const){
         const text=translate(locale,`dashboard.shell.${key}`);

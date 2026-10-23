@@ -11,6 +11,9 @@ import {readConfigurationChecklist} from "@/server/configuration/tasks";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import {dashboardReturnPath,teamDetailPath,type DashboardQuery} from "@/lib/context-navigation";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {readSprintContext} from "@/server/sprints/context";
+import {selectedSprint} from "@/lib/sprint-context";
 
 export const dynamic = "force-dynamic";
 
@@ -39,11 +42,20 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   const configuration=canManageConfiguration
     ? await withAuthDb(readConfigurationChecklist).catch(()=>null) : null;
   const { context } = dashboard;
-  const returnTo=dashboardReturnPath(await searchParams,context.teamId);
+  const query=await searchParams;
+  const returnTo=dashboardReturnPath(query,context.teamId);
   const teamHref=teamDetailPath(context.teamId,returnTo);
+  const sprintData=context.mode==="scrum"
+    ? await withSprintIndexDb(db=>readSprintContext(db,context.teamId)).catch(()=>null)
+    : {items:[],defaultCycleId:null};
+  const requested=typeof query.cycleId==="string"?query.cycleId:null;
+  const cycle=selectedSprint(sprintData?.items??[],requested);
 
   return <>
-    <CycleOverview context={context} locale={locale} teamHref={teamHref}/>
+    {sprintData===null&&<p role="alert" className="alert alert-warning">
+      {t("sprintsIndex.error")}
+    </p>}
+    <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle}/>
 
     <OperationalOverview locale={locale}/>
 
