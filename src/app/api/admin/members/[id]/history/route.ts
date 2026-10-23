@@ -19,7 +19,9 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
     FROM public.smn_member_identity_history WHERE member_id=$1
     ORDER BY changed_at DESC,id DESC LIMIT 200`,[id]);
    const absences=await db.query<{changed_at:string;operation:string}>(
-    `SELECT h.changed_at::text AS changed_at,h.operation
+    `SELECT h.changed_at::text AS changed_at,
+     CASE WHEN h.after_values->>'deleted'='true' THEN 'delete'
+      ELSE h.operation END AS operation
      FROM public.smn_member_absence_history h
      JOIN public.smn_member_absence a ON a.id=h.absence_id
      WHERE a.member_id=$1 ORDER BY h.changed_at DESC LIMIT 200`,[id]);
