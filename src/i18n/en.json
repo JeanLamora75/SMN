@@ -2431,5 +2431,18 @@
     "from": "From",
     "to": "To",
     "readOnly": "Read-only view"
+  },
+  "riskMaterialize": {
+    "launch": "Create impediment",
+    "heading": "Create impediment from risk",
+    "intro": "Risk remains unchanged. This draft is saved only on confirmation.",
+    "title": "Impediment title",
+    "description": "Context / description",
+    "confirm": "Confirm creation",
+    "cancel": "Cancel",
+    "success": "Impediment created",
+    "error": "Creation failed. No partial record was saved.",
+    "suggestion": "Resolving an impediment never automatically updates source risk ROAM.",
+    "loading": "Loading context…"
   }
 }
