@@ -2287,7 +2287,16 @@
     "recorded": "Enregistré",
     "edit": "Ouvrir et enrichir la fiche",
     "unavailableRecord": "Fiche indisponible.",
-    "conflict": "La fiche a été modifiée ailleurs. Actualisez-la avant d’enregistrer."
+    "conflict": "La fiche a été modifiée ailleurs. Actualisez-la avant d’enregistrer.",
+    "unsaved": "Modifications non enregistrées : quitter cette page peut entraîner leur perte.",
+    "history": "Historique des révisions",
+    "historyEmpty": "Aucune révision disponible.",
+    "revision": "Révision",
+    "changedAt": "Date de modification",
+    "actor": "Auteur (identifiant)",
+    "before": "Anciennes valeurs",
+    "after": "Nouvelles valeurs",
+    "historyError": "Historique indisponible."
   },
   "registryList": {
     "heading": "Consulter les registres",
