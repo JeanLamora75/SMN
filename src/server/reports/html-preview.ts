@@ -10,6 +10,7 @@ import {readReportTrends} from "./history-trends";
 import {orderReportSections} from "@/lib/report-section-options";
 import {projectSelectedMetrics,eligibleReportFact} from "@/lib/report-content-options";
 import {selectedTeamContext} from "@/lib/report-team-context";
+import {safeCollectiveContext,safeCollectiveItems} from "@/lib/report-privacy";
 export async function composeHtmlReportPreview(db:Client,sprintId:string){
  const report=await composeStandardReport(db,sprintId);
  if(!report)return null;
@@ -34,9 +35,9 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string){
  const chosen=filtered.map(section=>section.key==="indicators"?{
  ...section,items:metrics.map(m=>({label:m.key,detail:m.available?String(m.value)+" "+m.unit:"",href:null})),
  state:metrics.some(m=>m.available)?"available" as const:"unavailable" as const
- }:section);
+ }:{...section,items:safeCollectiveItems(section.items)});
  const trends=await readReportTrends(db,sprintId,history.depth);
- return {sprint:report.sprint,provisional:report.provisional,generatedAt:new Date().toISOString(),
+ return {sprint:safeCollectiveContext(report.sprint),provisional:report.provisional,generatedAt:new Date().toISOString(),
  source:report.source,version:report.snapshotVersion,sections:chosen,metrics,
  notes:draft.notes,teamContext:selectedTeamContext(context,contextOptions.options),
  trends:contents.options.metrics.length?trends??[]:[],historyDepth:history.depth,
