@@ -2471,5 +2471,20 @@
     "date": "Échéance",
     "action": "Action",
     "dependency": "Dépendance"
+  },
+  "registryAttention": {
+    "heading": "Points d’attention collectifs",
+    "intro": "Signaux calculés à partir des fiches enregistrées, sans modification automatique.",
+    "empty": "Aucun point d’attention collectif.",
+    "unavailable": "Impossible de charger les points d’attention.",
+    "highRisk": "Risque de criticité élevée",
+    "obstacle": "Obstacle ouvert",
+    "atRisk": "Dépendance à risque",
+    "upcoming": "Échéance proche",
+    "overdue": "En retard",
+    "due": "Échéance",
+    "all": "Tous les cycles",
+    "cycle": "Cycle",
+    "status": "Statut"
   }
 }
