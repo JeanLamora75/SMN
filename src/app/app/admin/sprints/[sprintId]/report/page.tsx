@@ -8,6 +8,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import ReportDraftNotes from "./report-draft-notes";
 import ReportContentEditor from "./report-content-editor";
+import ReportTeamContext from "./report-team-context";
 import ReportSectionEditor from "./report-section-editor";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
@@ -51,6 +52,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
    <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
    <ReportDraftNotes sprintId={s.id}/>
+   <ReportTeamContext sprintId={s.id}/>
    <p className="text-secondary">{t("sprintReportPrepare.exportLater")}</p>
   </section>
  </main>;
