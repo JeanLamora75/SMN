@@ -4,6 +4,7 @@ import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import RiskRoam from "./risk-roam";
 import RiskAssessment from "./risk-assessment";
+import MaterializeRisk from "./materialize-risk";
 import DependencyParties from "./dependency-parties";
 import DependencyVigilance from "./dependency-vigilance";
 import RegistryCycles from "./registry-cycles";
@@ -117,6 +118,6 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
   {itemId&&loaded&&type==="decision"&&<DecisionDetail id={itemId} canManage={canManage}/>}
   {itemId&&loaded&&(type==="risk"||type==="dependency")&&<RegistryCycles id={itemId} canManage={canManage}/>}
   {itemId&&loaded&&type==="dependency"&&<><DependencyParties id={itemId} canManage={canManage}/><DependencyVigilance id={itemId} canManage={canManage}/></>}
-  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage}/><RiskAssessment id={itemId} canManage={canManage}/></>}
+  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage}/><RiskAssessment id={itemId} canManage={canManage}/><MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/></>}
  </div>;
 }
