@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useRouter} from "next/navigation";
 import {useLocale,useTranslation} from "@/i18n/client";
@@ -120,9 +119,8 @@ export default function SprintGenerationWizard(){
  return <div className="d-grid gap-3">
   <header className="d-flex justify-content-between align-items-start flex-wrap gap-2">
    <div>
-    <Link href="/app/admin/sprints" onClick={event=>{
-     if((startOn||preview)&&!window.confirm(t("draft.discardWarning")))event.preventDefault();
-    }} className="btn btn-link px-0">← {t("sprintsIndex.title")}</Link>
+    <button type="button" onClick={cancel} disabled={busy}
+     className="btn btn-link px-0">← {t("sprintsIndex.title")}</button>
     <h1 tabIndex={-1} ref={focus} className="h3 mb-1">{t("sprintWizard.title")}</h1>
     <p className="text-secondary">{t("sprintWizard.subtitle")}</p>
    </div>
