@@ -29,7 +29,7 @@ const scoreFields:readonly FieldDef[]=[
 ];
 const groupFields=(group:Group)=>group==="points"?pointFields:
  group==="tickets"?ticketFields:scoreFields;
-const serialize=(value:Record<string,number|null>):Draft=>
+const serialize=(value:object):Draft=>
  Object.fromEntries(Object.entries(value).map(([key,n])=>[key,n===null?"":String(n)]));
 const display=(n:number|null)=>n===null?"—":String(n);
 export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
@@ -164,8 +164,8 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
     ] as const).map(([code,label,val,pct])=><div className="col-12 col-sm-6 col-xl-3" key={code}>
       <div className="border rounded-3 p-3 h-100">
        <dt className="small text-secondary mb-2">{code} · {t(label)}</dt>
-       <dd className="fs-5 fw-semibold mb-0">{source?formatDerived(val,pct):
-        t("dashboard.cockpit.notAvailable")}</dd>
+       <dd className="fs-5 fw-semibold mb-0">{source&&(code==="F12"?source.tickets.state==="available":source.points.state==="available")?
+        formatDerived(val,pct):t("dashboard.cockpit.notAvailable")}</dd>
       </div>
      </div>)}
    </dl>
