@@ -2504,6 +2504,10 @@
     "save": "Enregistrer les catégories",
     "saved": "Configuration enregistrée",
     "error": "Impossible d'enregistrer les catégories",
-    "readonly": "Consultation uniquement"
+    "readonly": "Consultation uniquement",
+    "journalHeading": "Faits marquants automatiques",
+    "journalError": "Journal automatique indisponible",
+    "journalEmpty": "Aucun événement automatique confirmé",
+    "goalSource": "Objectif"
   }
 }
