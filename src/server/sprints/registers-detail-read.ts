@@ -1,7 +1,7 @@
 import type {Client} from "pg";
 import type {SprintContextItem} from "@/lib/sprint-context";
 import {
- registerKinds,isRegisterKind,selectSprintRegisterPage,
+ isRegisterKind,selectSprintRegisterPage,
  type RegisterSource,type RegisterKind,type SprintRegisterResult
 } from "@/lib/sprint-registers";
 
