@@ -34,11 +34,15 @@ export async function ensureSprintReviewSchema(db:Client):Promise<void>{
 type DbReviewRow={
  kind:string;body:string|null;revision:number;origin:string;
  humanEdited:boolean;generationId:string|null;updatedAt:string;updatedBy:string|null;
+ updatedByName:string|null;
 };
-const reviewSelect=`SELECT kind,body,revision,origin,
- human_edited AS "humanEdited",generation_id AS "generationId",
- updated_at::text AS "updatedAt",updated_by AS "updatedBy"
- FROM public.smn_sprint_review_analysis WHERE sprint_id=$1`;
+const reviewSelect=`SELECT r.kind,r.body,r.revision,r.origin,
+ r.human_edited AS "humanEdited",r.generation_id AS "generationId",
+ r.updated_at::text AS "updatedAt",r.updated_by AS "updatedBy",
+ account.username AS "updatedByName"
+ FROM public.smn_sprint_review_analysis r
+ LEFT JOIN public.smn_account account ON account.id=r.updated_by
+ WHERE r.sprint_id=$1`;
 function reviewFromRows(rows:readonly DbReviewRow[]):
  Pick<Extract<ReviewProjection,{state:"available"}>,"manual"|"ai">|null{
  const current=new Map<ReviewKind,ReviewEntry>();
@@ -143,7 +147,7 @@ export async function writeSprintReview(db:Client,actorId:string,raw:unknown){
    await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
   }
   await ensureSprintReviewSchema(db);
-  const existing=await db.query<DbReviewRow>(reviewSelect+" FOR UPDATE",
+  const existing=await db.query<DbReviewRow>(reviewSelect+" FOR UPDATE OF r",
    [data.sprintId]);
   const previous=existing.rows.find(r=>r.kind===data.kind);
   const revision=previous?.revision??0;
