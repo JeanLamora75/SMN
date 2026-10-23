@@ -112,6 +112,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
      {t("common.retry")}</button>
    </div>}
    {notice&&<p role="status" className="alert alert-info">{notice}</p>}
+   {data&&data.activeCount>1&&<p role="alert" className="alert alert-warning">{t("sprintsIndex.concurrentActive",{count:data.activeCount})}</p>}
    {!error&&!loading&&data?.total===0&&
     <div className="text-center py-5">
      <h2 className="h5">{search.trim()||filter!=="all"?
