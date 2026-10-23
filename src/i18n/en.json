@@ -2471,5 +2471,20 @@
     "date": "Due date",
     "action": "Action",
     "dependency": "Dependency"
+  },
+  "registryAttention": {
+    "heading": "Collective attention items",
+    "intro": "Signals based on saved records; no automatic changes.",
+    "empty": "No collective attention items.",
+    "unavailable": "Unable to load attention items.",
+    "highRisk": "High-criticality risk",
+    "obstacle": "Open impediment",
+    "atRisk": "At-risk dependency",
+    "upcoming": "Upcoming deadline",
+    "overdue": "Overdue",
+    "due": "Due",
+    "all": "All cycles",
+    "cycle": "Cycle",
+    "status": "Status"
   }
 }
