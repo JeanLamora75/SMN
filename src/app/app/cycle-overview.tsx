@@ -60,7 +60,7 @@ function MetricPair({title,first,second,unit,empty,comparison,firstMetric,second
 /** SMN-235 : objectifs, J/H et SP alimentés depuis les sources réelles du Sprint.
  * Les tickets, jours ouvrés et registres restent hors périmètre de cette Story. */
 export default function CycleOverview({context,locale,teamHref,cycle,projection}:Props){
-  const t=(key:TranslationKey)=>translate(locale,key);
+  const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
   const scrum=context.mode==="scrum";
   const effectiveStatus=cycle?effectiveSprintStatus(cycle):null;
   const statusKey:Record<string,TranslationKey>={
