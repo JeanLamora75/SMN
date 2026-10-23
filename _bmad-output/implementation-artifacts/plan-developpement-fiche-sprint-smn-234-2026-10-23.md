@@ -4,7 +4,7 @@ story: SMN-234
 epic: SMN-228
 date: 2026-10-23
 language: fr
-status: d0-documented-d1-d6-code-published-awaiting-local-recette
+status: d0-documented-d1-d7-code-published-awaiting-local-recette
 source: _bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md
 ---
 
@@ -27,7 +27,7 @@ La route `src/app/app/admin/sprints/[sprintId]/page.tsx` **existe**, mais ne con
 | **D4 — Cérémonies** — **code publié, recette complète en attente** | Liste exhaustive de toutes les occurrences, statuts visibles, provenance des statuts si possible, durées, actions contextuelles vers réunions/calendrier | SMN-72–81, SMN-64, travaux icônes Bootstrap par type | Tri temporel, pagination sans perte, statuts prévus/tenus/non tenus/annulés ; « ajourné » uniquement après règle validée ; DST, historique sans faux « tenue » |
 | **D5 — Capacité et équipe** — **code publié, recette locale en attente** | Liste des contributeurs avec J/H de présence **principaux**, disponibilité développement secondaire et totaux explicites ; absences et contextes sans données sensibles | SMN-42–64, `src/server/capacity/engine.ts` ; **nouveau contrat de J/H présence à valider** | Membre entrant/sortant, temps partiel, absences/jour férié, demi-journée, non-calculable ; cohérence J/H et autorisation nominative |
 | **D6 — Tendances graphiques** — **code publié, recette complète en attente** | Trois courbes/tableaux accessibles, cinq clôtures éligibles du même collectif (G04/G05/G06/G07) | SMN-86, `src/server/sprints/trends.ts` | 0–5 clôtures, Vn, non-comparables = null, ordre correct, i18n, unité SP/%/JH, pas de graphiques fictifs |
-| **D7 — Bilan manuel / IA éditable** | Deux éditeurs enregistrant séparément Analyse et Analyse IA, côte à côte desktop, empilés mobile, révisions/audits | modèle de texte de bilan à établir ; Epic 9 **pour génération IA ultérieure** | Édition admin, cohérence attribution/provenance, versionnement, concurrent edit, historique Sprint clos, aucune fausse IA |
+| **D7 — Bilan manuel / IA éditable** — **code publié, recette locale en attente** | Deux éditeurs enregistrant séparément Analyse et Analyse IA, côte à côte desktop, empilés mobile, révisions/audits | modèle de texte de bilan à établir ; Epic 9 **pour génération IA ultérieure** | Édition admin, cohérence attribution/provenance, versionnement, concurrent edit, historique Sprint clos, aucune fausse IA |
 | **D8 — Registres** | Liste commune chronologique des six registres avec plage d'activité/ouverture pendant Sprint, fiche centrale unique, historique Vn | **Epic 5 SMN-89–112 : condition bloquante pour ce lot**, pas pour D1–D7 | Fiches avant/durant le Sprint, résolues pendant, multi-cycles, registre partiel indisponible, filtrage serveur, 0/1/>5, liens sûrs |
 | **D9 — Finalisation et recette transverse** | Simplification des vieux formulaires redondants après vérification d'accès, documentation et recette navigateur Windows | D1–D8 livrés avec preuves ; rapport SMN-113 non requis pour les sept onglets | Navigation cohérente et aucun recul sur Paramètres/Calendrier/dashboard ; tests et captures réels ; tickets mis à jour sur résultats vérifiés |
 
@@ -112,3 +112,14 @@ L'onglet Cérémonies consulte les trois sources (standards, personnalisées, ex
 [Rapport de réalisation D6](realisation-d6-tendances-fiche-sprint-smn-234-2026-10-23.md). L'onglet Tendances utilise le socle G04, **au plus cinq Sprints clôturés** de la même équipe jusqu'au Sprint de référence. Trois graphiques SVG natifs (SP terminés, % réalisation, capacité réelle J/H) et leur **tableau accessible**. G07 lit le snapshot `capacity.actual_jh` et **ne réutilise pas les J/H de présence D5**. Zéro réel conservé, manque = `null`, courbes interrompues, taux >100% conservés et Vn la plus récente strictement respectée. `readSprintTrends` ne fait désormais **aucun DDL à la lecture**, même depuis l'ancien écran admin. Aucun nouveau paquet graphique.
 
 **Preuves :** 16/16 contrôles statiques GitHub ; deux modules recopiés dont SHA Git concordant (`sprint-trend-geometry.ts` et `trends.ts`), **compilation TypeScript stricte isolée réussie** ; **14 assertions graphiques + 28 assertions lecteur/projection réellement exécutées et réussies**, avec Client PG simulé. **Non exécutés :** `pnpm typecheck` du projet, `tsx --test` de la suite D6, build, PostgreSQL/Next.js et recette navigateur. **D1–D6 codés sur `main`, en attente de recette** ; SMN-234 ouverte. Suite **D7 — Bilan**.
+
+
+## Journal D7 — 23 octobre 2026 : Bilan (Analyse + Analyse IA)
+
+**Compte rendu :** [réalisation D7](realisation-d7-bilan-fiche-sprint-smn-234-2026-10-23.md).
+
+L'onglet Bilan propose deux blocs **autonomes** « Analyse du Scrum Master » et « Analyse IA », côte à côte sur desktop et empilés sur mobile. Chaque bloc possède son **crayon admin**, sa modal multiligne, sa **révision optimiste propre**, son historique d'audit avant/après, son auteur/date et une provenance explicite. Le texte saisi dans la zone IA est marqué **`human`** et non « généré » ; **aucun moteur IA n'a été appelé ni implémenté**. Les deux enregistrements sont séparés par `(sprint_id,kind)`, avec `human_edited=true` et `generation_id` pour préserver la provenance de futures générations. Une modification d'Analyse ne réécrit jamais Analyse IA, et inversement.
+
+**Clôture :** le nouveau producteur est préparé dans `ensureClosureSchema` puis les deux analyses sont figées sous `snapshot.reviewAnalysis` du dernier Vn. Le lecteur collectif D7 utilise **uniquement SELECT**, vérifie l'équipe et, sur un Sprint clos, n'effectue aucun recalcul d'après les données courantes. Les anciennes clôtures sans ce champ restent explicitement indisponibles.
+
+**Vérifications :** 20/20 contrôles statiques GitHub et **20/20 assertions isolées réellement exécutées** sur le module pur, compilation TypeScript stricte et identité du SHA Git `b935227...`. **Non exécutés** : `pnpm typecheck`, tests du dépôt `tsx --test`, build Next.js, PostgreSQL et recette navigateur. Les anciens états historiques sont **stockés en audit SQL**, mais une page de navigation de toutes les anciennes révisions n'est pas implémentée dans D7. **D1–D7 codés sur `main`, pas encore recettés**. Suite **D8 — Registres (Epic 5 préalable)**, puis **D9 — Validation transverse**.
