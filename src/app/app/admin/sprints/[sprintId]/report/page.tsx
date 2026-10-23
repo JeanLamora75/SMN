@@ -15,6 +15,7 @@ import ReportArchiveList from "./report-archive-list";
 import ReportLanguageChoice from "./report-language-choice";
 import ReportLogoEditor from "./report-logo-editor";
 import ReportSectionEditor from "./report-section-editor";
+import FreezeReportButton from "./freeze-report-button";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
  const account=await currentAccount();
@@ -30,7 +31,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <Link href={"/app/admin/sprints/"+encodeURIComponent(s.id)}>{t("sprintReportPrepare.back")}</Link>
   <section className="smn-panel rounded-4 p-4 mt-3 d-grid gap-3">
-   <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap"><h1 className="h4">{t("sprintReportPrepare.heading")}</h1><Link className="btn btn-primary" href={"/app/admin/sprints/"+encodeURIComponent(s.id)+"/report/preview"}>{translate(locale,"reportPreview.open")}</Link></div>
+   <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap"><h1 className="h4">{t("sprintReportPrepare.heading")}</h1><div className="d-flex flex-wrap gap-2"><Link className="btn btn-outline-secondary" href={"/app/admin/sprints/"+encodeURIComponent(s.id)+"/report/preview"}>{translate(locale,"reportPreview.open")}</Link><FreezeReportButton sprintId={s.id} label={translate(locale,"reportPreview.freeze")} errorLabel={translate(locale,"reportPreview.freezeError")}/></div></div>
    <div className={data.provisional?"alert alert-warning":"alert alert-info"} role="status">{data.provisional?t("sprintReportPrepare.provisional"):t("sprintReportPrepare.final")}</div>
    <dl className="row">
     <dt className="col-sm-3">Sprint</dt><dd className="col-sm-9">{s.name}</dd>
