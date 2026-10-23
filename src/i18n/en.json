@@ -189,6 +189,7 @@
     "metricManual": "Manual entry",
     "metricCalculated": "Calculated",
     "metricImported": "Imported",
+    "metricRecordedEvents": "Recorded events",
     "metricSnapshot": "Closure snapshot",
     "metricEstimated": "Estimated",
     "viewSprintGoals": "View Sprints",
