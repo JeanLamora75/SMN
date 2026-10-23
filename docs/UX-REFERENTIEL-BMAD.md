@@ -121,3 +121,15 @@ Les **deux icônes en haut à droite** activent **Cartes** (4/2/1 colonnes deskt
 - Tests ajoutés : `tests/smn-229-settings-relocation.test.ts` (9 scénarios statiques). Tests catalogue et navigation SMN-225/227 adaptés. `pnpm typecheck`, `pnpm build` et validation UI sur Windows restent **à exécuter**.
 
 La Story Jira [SMN-229](https://lmn24.atlassian.net/browse/SMN-229) reste non clôturée en attendant la recette utilisateur.
+
+
+## SMN-230 — Index des sprints (23/10/2026)
+
+**Livrable Amelia :** [spec-smn-230-liste-sprints.md](../_bmad-output/implementation-artifacts/spec-smn-230-liste-sprints.md). Cible Sally étape S2 implémentée sur `main` **sous réserve des tests locaux et de la recette UX**.
+
+- La route `/app/admin/sprints` est **une liste unique pleine largeur**, avec nom, période IANA, statut réel, recherche par nom (insensible à la casse), filtre, tri, état courant prioritaire, avertissements de données incohérentes et pagination SQL de 25 sprints (sans limite totale à 100).
+- Nouveau `GET /api/sprints/index`, consultation collective (admin ou user), recherches bornées, **SELECT** dans `BEGIN READ ONLY`, sans lancer de réconciliation métier ou de migration dans le lecteur. Les vérifications de session privées habituelles restent distinctes et peuvent effectuer leur maintenance existante.
+- Les outils d'édition hérités sont **conservés pour l'administrateur** à `/app/admin/sprints/tools`. Le CTA « Générer des sprints » y conduit transitoirement ; l'assistant unique 1–6 relève de SMN-231. Le menu `⋯` n'est pas encore contextualisé par ID (SMN-232), et le calendrier par ID reste explicitement indisponible (SMN-233). Ne pas annoncer ces fonctions comme opérationnelles.
+- Navigation « Sprints » ouverte au rôle `user` en mode Scrum, **lecture seule**, sans donner accès aux outils admin ; mode Kanban inchangé.
+- Le nom du sprint n'est pas cliquable avant la vraie fiche SMN-234. Aucun lien factice.
+- Tests : `tests/smn-230-sprints-index.test.ts` (**12 scénarios** avec simulation de 123 sprints et cinq pages), tests de navigation/SMN-229 actualisés. **Aucun test, build ou recette Windows exécuté par l'assistant ; résultats à confirmer sur le poste pilote.**
