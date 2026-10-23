@@ -95,3 +95,14 @@ Les **deux icônes en haut à droite** activent **Cartes** (4/2/1 colonnes deskt
 **Décisions validées :** régler **horaires d'équipe et pause déjeuner** sous **Paramètres > Jours ouvrés**, **modèles de cérémonie** sous **Paramètres > Cérémonies et modèles**, et cadence sous **Paramètres > Cadence des sprints**. Le menu Sprints affiche **la liste entière** de l'équipe en pleine largeur, uniquement **vue Liste**, état courant en tête, filtres/recherche/tri, un bouton « Générer des sprints » (assistant 1–6 avec prévisualisation), **actions ⋯ par ligne** (renommer/replanifier/supprimer sous contrôles), et lien vers le **Calendrier** contextuel. Opérations de réunion dans Calendrier/page Réunion ; bilans et capacités propres au sprint dans la page Bilan existante et **future fiche**. **[SMN-234](https://lmn24.atlassian.net/browse/SMN-234) est différée** ; pas de lien fictif sur le nom avant sa création. Les réglages généraux ne modifient pas les sprints historiques. Tout écran/URL legacy doit rester utilisable jusqu'à la bascule vérifiée.
 
 **Aucune réalisation/test revendiqués par cette publication UX.**
+
+
+## Étape 0 — Préparation technique de la refonte Sprints — 23/10/2026
+
+**Livrable Amelia :** [Préparation technique, cartographie des fonctions, risques R01–R12 et gates G0–G6](../_bmad-output/implementation-artifacts/preparation-sprints-etape-0-2026-10-23.md). Ce document prolonge le [contrat UX Sprints approuvé avec Sally](../_bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/CONTRAT-DEVELOPPEMENT.md), l'Epic [SMN-228](https://lmn24.atlassian.net/browse/SMN-228) et les Stories SMN-229 à SMN-234.
+
+**Constats de sécurité :** le lecteur d'états plafonne actuellement à 100 sprints ; la route GET réconcilie des statuts par écriture en base ; l'autorisation actuelle est celle de l'admin Paramètres, tandis que Sally prévoit la consultation par utilisateur habilité. Ces contraintes doivent être traitées explicitement en S2 avant de déclarer l'index livré.
+
+**Préservation :** ne pas retirer de l'ancienne page Sprints les paramètres, réunions, génération ni bilan avant qu'une nouvelle destination réelle soit validée. La reprise historique SMN-160 reste spécifiée mais non développée. La fiche Sprint SMN-234 est différée. La cadence / les dates IANA et les permissions métier restent des garde-fous.
+
+**Tests ajoutés :** `tests/sprints-refonte-etape0.test.ts` (8 contrats) et `tests/sprints-refonte-dates-etape0.test.ts` (3 comportements). **Exécution réelle, typecheck et build à effectuer localement** après synchronisation de `main` ; leur présence ne constitue pas une recette.
