@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
+import {recordConfirmedHighlight} from "@/server/registries/confirmed-highlights";
 type Evaluation="not_evaluated"|"achieved"|"partially_achieved"|"not_achieved";
 const statuses=new Set(["not_evaluated","achieved","partially_achieved","not_achieved"]);
 export async function ensureSprintGoalsSchema(db:Client){
@@ -63,6 +64,7 @@ export async function writeSprintGoal(db:Client,actorId:string,raw:unknown){
   }
   await db.query(`INSERT INTO public.smn_sprint_goal_audit(id,goal_id,previous_values,next_values,actor_id)
    VALUES($1,$2,$3::jsonb,$4::jsonb,$5)`,[randomUUID(),id,previous?JSON.stringify(previous):null,JSON.stringify({title:v.title.trim(),evaluation:v.evaluation,comment:v.comment||null}),actorId]);
+  if(updating&&previous?.evaluation!=="achieved"&&v.evaluation==="achieved")await recordConfirmedHighlight(db,{category:"achievedGoal",sourceKind:"goal",sourceId:id,sourceRevision:(previous?.revision as number)+1,title:v.title.trim(),actorId});
   await db.query("COMMIT");return {ok:true as const,id};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
