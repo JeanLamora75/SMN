@@ -1,7 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
-export const roamValues=["resolved","owned","accepted","mitigated"] as const;
-export type Roam=(typeof roamValues)[number];
+import {roamValues,type Roam} from "@/lib/roam-values";
 export function parseRoam(value:unknown):Roam|null{
  return typeof value==="string"&&roamValues.some(x=>x===value)?value as Roam:null;
 }
