@@ -1,5 +1,6 @@
 import type {Client} from "pg";
 import {prepareSprintReport} from "./sprint-preparation";
+import {readReportDataQuality} from "./data-quality";
 export const standardReportSections=["executive","objectives","indicators","events","attention","decisions"] as const;
 export type ReportSection={key:typeof standardReportSections[number];items:Array<{label:string;detail:string;href:string|null}>;state:"available"|"empty"|"unavailable"};
 const item=(label:string,detail:string,href:string|null=null)=>({label,detail,href});
@@ -62,5 +63,6 @@ export async function composeStandardReport(db:Client,sprintId:string){
   add("decisions",registry.rows.filter(r=>["decision","action"].includes(r.type))
    .map(r=>item(r.title,r.status,"/app/admin/registries/"+r.id)),!s?.links);
  }
- return {...prepared,sections};
+ const dataQuality=await readReportDataQuality(db,sprintId,sprint.status);
+ return {...prepared,sections,dataQuality};
 }
