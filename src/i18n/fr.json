@@ -2170,6 +2170,15 @@
   "presenceForecast": "Calcul courant à partir des calendriers et absences enregistrés ; les journées futures sont prévisionnelles.",
   "presenceSnapshot": "Valeurs figées à la clôture — instantané V{version}.",
   "presenceHistoryMissing": "Cet ancien Sprint clôturé ne possède pas de photographie fiable des présences individuelles. Aucune valeur actuelle n’est substituée.",
-  "presenceUnavailable": "Présences non calculables : une ou plusieurs sources requises sont absentes ou inaccessibles."
+  "presenceUnavailable": "Présences non calculables : une ou plusieurs sources requises sont absentes ou inaccessibles.",
+    "trendCount": "G04 — {count} Sprint(s) clôturé(s) éligible(s), de la même équipe.",
+    "trendChartDescription": "Courbe de {metric} sur {count} Sprints clôturés.",
+    "trendChartAccessible": "L'axe horizontal numérote les Sprints de l'ancien au récent. Le tableau suivant donne leur nom et leurs valeurs précises. Les absences de mesure interrompent la courbe.",
+    "trendAxisNote": "Axe horizontal : rang chronologique du Sprint, voir le tableau associé.",
+    "trendNoMetric": "Aucune valeur enregistrée pour cet indicateur dans les clôtures sélectionnées.",
+    "trendTable": "Tableau accessible des tendances historiques",
+    "trendCycle": "Sprint (ordre chronologique)",
+    "trendSnapshot": "Clôture V{version}",
+    "trendMissingNotice": "Une donnée absente n'est jamais assimilée à 0. La capacité réelle vient de la clôture du Sprint, et non des J/H de présence estimée."
   }
 }
