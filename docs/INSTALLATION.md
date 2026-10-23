@@ -146,3 +146,35 @@ Le jeton est défini **uniquement dans cette session PowerShell** ; le script le
 ### Workflow pilote simplifié
 
 Les prochains changements seront publiés directement sur **`main`**, sans branche ou PR obligatoire. Pour récupérer les nouveautés, utiliser **GitHub Desktop → Current branch : main → Fetch origin → Pull origin**. Garder PowerShell pour `pnpm` seulement ; l'historique Git et la CI sont conservés pour pouvoir diagnostiquer ou revenir à une version stable.
+
+
+## Build de production sur un poste Windows sans privilèges de création de symlinks (23/10/2026)
+
+Le build de développement/pilote lancé par `pnpm build` sous Windows **ne demande plus** l'option Next.js `output: "standalone"`. Cette option essaie de créer des liens symboliques dans `.next/standalone` et échoue avec `EPERM: operation not permitted, symlink` sur certains postes professionnels sans autorisation spécifique. Cette erreur survient **après** une compilation et une vérification TypeScript parfois toutes deux réussies.
+
+La configuration `next.config.ts` utilise désormais :
+- Windows / `pnpm build` ordinaire : sortie Next standard, sans production de `.next/standalone`.
+- Linux/macOS : comportement `standalone` inchangé.
+- Fabrication du paquet Windows autonome : `SMN_BUILD_STANDALONE=1` explicitement défini uniquement à l'étape de compilation de `.github/workflows/portable-package.yml`. Le packaging nécessite `.next/standalone/server.js` et utilise déjà `npm install` dans cet environnement distinct pour éviter les liens pnpm. Cela **ne réactive pas** les tests GitHub Actions, indisponibles par décision projet.
+
+Après récupération des commits sur `main`, arrêter tout serveur SMN et exécuter dans PowerShell :
+
+```powershell
+pnpm exec tsx --test tests/build-output-mode.test.ts
+pnpm typecheck
+pnpm build
+pnpm start
+```
+
+Si une tentative antérieure a laissé des artefacts corrompus sous `.next`, arrêter le serveur puis effacer **uniquement les fichiers générés** dans `.next` et refaire le build :
+
+```powershell
+Remove-Item -LiteralPath .next -Recurse -Force -ErrorAction SilentlyContinue
+pnpm build
+```
+
+**Ne pas supprimer** `node_modules`, `pnpm-lock.yaml`, les fichiers de configuration privés ou les répertoires PostgreSQL ; aucune élévation Windows ni activation du mode Développeur n'est nécessaire pour ce correctif. `pnpm start` continue de démarrer Next sur `127.0.0.1:3003`.
+
+Le message `[baseline-browser-mapping] ... over two months old` est **un avertissement sans rapport avec EPERM**. Il concerne les données de compatibilité navigateur, pas la compilation ou la base. Les versions des dépendances étant verrouillées dans `pnpm-lock.yaml`, leur mise à jour doit faire l'objet d'une modification séparée, vérifiée ; ne pas lancer aveuglément `npm i ...` dans ce projet pnpm.
+
+Statut du correctif : code et test publiés sur `main` ; exécution du build sur le poste Windows et qualification du paquet autonome **à confirmer par la recette locale**.
