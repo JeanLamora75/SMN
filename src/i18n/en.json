@@ -2559,5 +2559,15 @@
     "product": "Product",
     "team": "Team",
     "status": "Status"
+  },
+  "standardReport": {
+    "executive": "Executive summary",
+    "objectives": "Objectives",
+    "indicators": "Metrics and trends",
+    "events": "Agile events",
+    "attention": "Attention items",
+    "decisions": "Decisions and actions",
+    "empty": "No recorded data for this section.",
+    "unavailable": "Source data unavailable: no historical state has been reconstructed."
   }
 }
