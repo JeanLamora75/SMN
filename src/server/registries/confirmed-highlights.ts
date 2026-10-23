@@ -40,13 +40,16 @@ export async function readConfirmedHighlights(db:Client){
  to_regclass('public.smn_automatic_highlight') IS NOT NULL AS events,
  to_regclass('public.smn_sprint_goal') IS NOT NULL AS goals`);
  if(!tables.rows[0]?.events)return [];
+ const columns=await db.query<{present:boolean}>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_automatic_highlight' AND column_name='invalidated_at') AS present`);
+ const invalidationColumn=columns.rows[0]?.present===true;
  const goalScope=tables.rows[0].goals?`OR (h.source_kind='goal' AND EXISTS(
  SELECT 1 FROM public.smn_sprint_goal g JOIN public.smn_sprint s ON s.id=g.sprint_id
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE g.id=h.source_id AND i.id='singleton' AND i.state='initialized'))`:"";
  const rows=await db.query<{id:string;category:string;sourceKind:string;sourceId:string;title:string;recordedAt:string}>(`SELECT
  h.id,h.category,h.source_kind AS "sourceKind",h.source_id AS "sourceId",
- h.title,h.created_at::text AS "recordedAt" FROM public.smn_automatic_highlight h
+ h.title,h.created_at::text AS "recordedAt",h.source_revision AS "sourceRevision",
+ ${invalidationColumn?`h.invalidated_at::text AS "invalidatedAt",h.invalidation_reason AS "invalidationReason"`:`NULL::text AS "invalidatedAt",NULL::text AS "invalidationReason"`} FROM public.smn_automatic_highlight h
  WHERE (h.source_kind='registry' AND EXISTS(
  SELECT 1 FROM public.smn_registry_item r JOIN public.smn_team t ON t.id=r.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
