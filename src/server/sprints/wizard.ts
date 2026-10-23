@@ -4,7 +4,7 @@ import {previewSprintBatch} from "./batch-preview";
 import {ensureBatchSchema} from "./batch-confirm";
 import {saveGeneratedCeremonies} from "./ceremonies";
 import {ensureTemplateSchema} from "./ceremony-templates";
-import {ensureLunchSchema} from "./lunch";
+import {ensureLunchSchema,lunchForTeam} from "./lunch";
 
 type WizardInput={startOn:string;count:number;names?:string[];generateHistoricalCeremonies:boolean};
 type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;endAt:string;
@@ -72,6 +72,7 @@ export async function previewWizard(db:Client,actorId:string,raw:unknown){
  if(!draft.ok)return draft;
  const preview=namesApplied(draft,input);
  const teamId=await activeTeam(db);
+ await lunchForTeam(db,teamId);
  const settings=await generationSettings(db,teamId);
  const existingNames=await db.query<{name:string}>(`SELECT name FROM public.smn_sprint
   WHERE team_id=$1 AND deleted_at IS NULL AND lower(btrim(name))=ANY($2::text[])`,
