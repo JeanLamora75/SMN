@@ -7,6 +7,7 @@ import {composeStandardReport} from "@/server/reports/standard-composition";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import ReportDraftNotes from "./report-draft-notes";
+import ReportSectionEditor from "./report-section-editor";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
  const account=await currentAccount();
@@ -35,13 +36,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    </dl>
    <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
    {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
-   {data.sections.map(section=><section className="border-top pt-3" key={section.key}>
-    <h2 className="h5">{translate(locale,("standardReport."+section.key) as "standardReport.executive")}</h2>
-    {section.items.length?<ul className="list-group">{section.items.map((entry,index)=><li className="list-group-item" key={index}>
-     {entry.href?<Link href={entry.href}>{entry.label}</Link>:<strong>{entry.label}</strong>}
-     {entry.detail&&<span className="ms-2 text-secondary">{entry.detail}</span>}
-    </li>)}</ul>:<p className="text-body-secondary">{translate(locale,section.state==="unavailable"?"standardReport.unavailable":"standardReport.empty")}</p>}
-   </section>)}
+   <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
    <ReportDraftNotes sprintId={s.id}/>
    <p className="text-secondary">{t("sprintReportPrepare.exportLater")}</p>
   </section>
