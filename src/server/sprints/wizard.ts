@@ -73,7 +73,7 @@ export async function previewWizard(db:Client,actorId:string,raw:unknown){
  const preview=namesApplied(draft,input);
  const teamId=await activeTeam(db);
  const settings=await generationSettings(db,teamId);
- const historical=preview.items.some(x=>new Date(x.endAt).getTime()<=Date.now());
+ const historical=preview.items.some(x=>new Date(x.startAt).getTime()<Date.now());
  const token=preview.valid?randomUUID():null;
  if(token)await db.query(`INSERT INTO public.smn_sprint_wizard_preview
   (token,team_id,actor_id,request,digest,expires_at)
@@ -122,7 +122,7 @@ export async function confirmWizard(db:Client,actorId:string,raw:unknown){
   const created=[];
   for(const item of preview.items){
    const id=randomUUID();
-   const historical=new Date(item.endAt).getTime()<=Date.now();
+   const historical=new Date(item.startAt).getTime()<Date.now();
    const generate=!historical||input.generateHistoricalCeremonies;
    await db.query(`INSERT INTO public.smn_sprint
     (id,team_id,number,name,start_at,end_at,time_zone,created_by)
