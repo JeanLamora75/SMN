@@ -59,12 +59,14 @@ describe("SMN-234 D8 — contrat pur de sélection",()=>{
   assert.equal(relevantToSprint(one,"team-a",sprint),false);
  });
  it("déduplique une fiche liée à plusieurs cycles sans supprimer son identité",()=>{
-  const a=row("risk","risk-1",{sprintIds:[sprint.id,"autre-sprint"]});
+  const a=row("risk","risk-1",{sprintIds:[sprint.id]});
+  const b=row("risk","risk-1",{sprintIds:["autre-sprint"]});
   const selected=selectSprintRegisterPage({
-   availableKinds:[...registerKinds],records:[a,a]
+   availableKinds:[...registerKinds],records:[a,b]
   },"team-a",sprint);
   assert.equal(selected?.total,1);
   assert.equal(selected?.items[0].id,"risk-1");
+  assert.equal(selected?.items[0].sprintIds.length,2);
  });
  it("rejette des doublons divergents au lieu de masquer des modifications",()=>{
   const a=row("risk","risk-1");
