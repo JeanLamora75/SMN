@@ -123,7 +123,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
       <Link href="/app/admin/sprints/tools#create-sprints" className="btn btn-outline-primary">
        {t("sprintsIndex.generate")}</Link>}
     </div>}
-   {(!error&&items.length>0)&&<>
+   {(!error&&!loading&&items.length>0)&&<>
     <div className="table-responsive">
      <table className="table table-hover align-middle">
       <thead><tr>
