@@ -4,7 +4,7 @@ story: SMN-234
 epic: SMN-228
 date: 2026-10-23
 language: fr
-status: d0-documented-d1-d5-code-published-awaiting-local-recette
+status: d0-documented-d1-d6-code-published-awaiting-local-recette
 source: _bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md
 ---
 
@@ -26,7 +26,7 @@ La route `src/app/app/admin/sprints/[sprintId]/page.tsx` **existe**, mais ne con
 | **D3 — Indicateurs** — **code publié, recette complète en attente** | 8 champs F01/F02/F03/F04/F10/F11/I01/I02 éditables et sauvegardés ; 4 dérivés F05/F06/F07/F12 recalculés en brouillon et après save | SMN-84, tickets `ticket-counts.ts`, nouvelles persistances I01/I02 | Équations vérifiées, zéro/null/dénominateur absent/dépassement ; 1..5 ; révisions et audit ; UI temps réel sans writes automatiques |
 | **D4 — Cérémonies** — **code publié, recette complète en attente** | Liste exhaustive de toutes les occurrences, statuts visibles, provenance des statuts si possible, durées, actions contextuelles vers réunions/calendrier | SMN-72–81, SMN-64, travaux icônes Bootstrap par type | Tri temporel, pagination sans perte, statuts prévus/tenus/non tenus/annulés ; « ajourné » uniquement après règle validée ; DST, historique sans faux « tenue » |
 | **D5 — Capacité et équipe** — **code publié, recette locale en attente** | Liste des contributeurs avec J/H de présence **principaux**, disponibilité développement secondaire et totaux explicites ; absences et contextes sans données sensibles | SMN-42–64, `src/server/capacity/engine.ts` ; **nouveau contrat de J/H présence à valider** | Membre entrant/sortant, temps partiel, absences/jour férié, demi-journée, non-calculable ; cohérence J/H et autorisation nominative |
-| **D6 — Tendances graphiques** | Trois courbes/tableaux accessibles, cinq clôtures éligibles du même collectif (G04/G05/G06/G07) | SMN-86, `src/server/sprints/trends.ts` | 0–5 clôtures, Vn, non-comparables = null, ordre correct, i18n, unité SP/%/JH, pas de graphiques fictifs |
+| **D6 — Tendances graphiques** — **code publié, recette complète en attente** | Trois courbes/tableaux accessibles, cinq clôtures éligibles du même collectif (G04/G05/G06/G07) | SMN-86, `src/server/sprints/trends.ts` | 0–5 clôtures, Vn, non-comparables = null, ordre correct, i18n, unité SP/%/JH, pas de graphiques fictifs |
 | **D7 — Bilan manuel / IA éditable** | Deux éditeurs enregistrant séparément Analyse et Analyse IA, côte à côte desktop, empilés mobile, révisions/audits | modèle de texte de bilan à établir ; Epic 9 **pour génération IA ultérieure** | Édition admin, cohérence attribution/provenance, versionnement, concurrent edit, historique Sprint clos, aucune fausse IA |
 | **D8 — Registres** | Liste commune chronologique des six registres avec plage d'activité/ouverture pendant Sprint, fiche centrale unique, historique Vn | **Epic 5 SMN-89–112 : condition bloquante pour ce lot**, pas pour D1–D7 | Fiches avant/durant le Sprint, résolues pendant, multi-cycles, registre partiel indisponible, filtrage serveur, 0/1/>5, liens sûrs |
 | **D9 — Finalisation et recette transverse** | Simplification des vieux formulaires redondants après vérification d'accès, documentation et recette navigateur Windows | D1–D8 livrés avec preuves ; rapport SMN-113 non requis pour les sept onglets | Navigation cohérente et aucun recul sur Paramètres/Calendrier/dashboard ; tests et captures réels ; tickets mis à jour sur résultats vérifiés |
@@ -105,3 +105,10 @@ L'onglet Cérémonies consulte les trois sources (standards, personnalisées, ex
 **Droits :** le rôle utilisateur en lecture collective ne reçoit **aucune donnée nominative**, réservée à `read members`/admin ; `readSprintMemberPresence` n'est appelé que si autorisé. **Historique :** les nouveaux snapshots Vn incorporent `memberPresence` ; les anciens snapshots sans ce champ restent indisponibles au lieu d'être recalculés selon les calendriers actuels.
 
 **Preuves :** 22/22 vérifications statiques ; copie exacte du module pur (SHA Git `a8fbdd8be09f556d81befc8167b566f7868e37a3`) compilée en TypeScript strict, **9/9 assertions isolées effectivement exécutées/réussies**. **Non effectués :** tests intégrés `tsx --test`, `pnpm typecheck` du projet, `pnpm build`, DB/Next.js et navigateur. **D1–D5 codés, non recettés**. Suite **D6 — Tendances graphiques**.
+
+
+## Journal D6 — 23 octobre 2026 : trois tendances G05/G06/G07
+
+[Rapport de réalisation D6](realisation-d6-tendances-fiche-sprint-smn-234-2026-10-23.md). L'onglet Tendances utilise le socle G04, **au plus cinq Sprints clôturés** de la même équipe jusqu'au Sprint de référence. Trois graphiques SVG natifs (SP terminés, % réalisation, capacité réelle J/H) et leur **tableau accessible**. G07 lit le snapshot `capacity.actual_jh` et **ne réutilise pas les J/H de présence D5**. Zéro réel conservé, manque = `null`, courbes interrompues, taux >100% conservés et Vn la plus récente strictement respectée. `readSprintTrends` ne fait désormais **aucun DDL à la lecture**, même depuis l'ancien écran admin. Aucun nouveau paquet graphique.
+
+**Preuves :** 16/16 contrôles statiques GitHub ; deux modules recopiés dont SHA Git concordant (`sprint-trend-geometry.ts` et `trends.ts`), **compilation TypeScript stricte isolée réussie** ; **14 assertions graphiques + 28 assertions lecteur/projection réellement exécutées et réussies**, avec Client PG simulé. **Non exécutés :** `pnpm typecheck` du projet, `tsx --test` de la suite D6, build, PostgreSQL/Next.js et recette navigateur. **D1–D6 codés sur `main`, en attente de recette** ; SMN-234 ouverte. Suite **D7 — Bilan**.
