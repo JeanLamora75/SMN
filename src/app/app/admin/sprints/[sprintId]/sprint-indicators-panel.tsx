@@ -4,8 +4,8 @@ import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../../bootstrap-icon";
 import {
- deriveSprintIndicators,parseIndicatorDraft,emptyPoints,emptyTickets,emptyScores,
- type SprintPoints,type SprintTickets,type SprintScores
+ deriveSprintIndicators,parseIndicatorDraft,emptyPoints,emptyTickets,
+ type SprintPoints,type SprintTickets
 } from "@/lib/sprint-indicator-values";
 import type {SprintDetailIndicators} from "@/server/sprints/indicators-read";
 
@@ -44,7 +44,6 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
  const source=data.state==="available"?data:null;
  const points=source?.points.state==="available"?source.points.values:emptyPoints;
  const tickets=source?.tickets.state==="available"?source.tickets.values:emptyTickets;
- const scores=source?.scores.state==="available"?source.scores.values:emptyScores;
  const calculated=deriveSprintIndicators(points,tickets);
  const editable=canManage&&status!=="closed"&&source!==null;
  const current=group&&source?source[group]:null;
@@ -58,8 +57,14 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
   }
   return values;
  };
- const draftPoints: SprintPoints=group==="points"?previewValues("points") as SprintPoints:points;
- const draftTickets: SprintTickets=group==="tickets"?previewValues("tickets") as SprintTickets:tickets;
+ const drafted=group!==null?previewValues(group):{};
+ const draftPoints:SprintPoints=group==="points"?{
+  initial:drafted.initial??null,added:drafted.added??null,
+  removed:drafted.removed??null,done:drafted.done??null
+ }:points;
+ const draftTickets:SprintTickets=group==="tickets"?{
+  initial:drafted.initial??null,done:drafted.done??null
+ }:tickets;
  const draftCalculated=deriveSprintIndicators(draftPoints,draftTickets);
  const dirty=group!==null&&current?.state==="available"&&
   groupFields(group).some(field=>
