@@ -102,3 +102,10 @@ Le plan d'implémentation et les étapes de vérification sont dans `_bmad-outpu
 La structure D1 de la fiche Sprint est publiée sur `main` : bandeau compact, sept onglets avec Objectifs conservés, deux crayons admin (nom et dates) activant les **véritables** commandes métier, traduction FR/EN, navigation clavier, contrôles IANA/DST. Les six autres onglets sont pour l'instant des écrans d'attente explicitement identifiés ; les actions Objetifs (ajout et édition) restent du ressort de D2.
 
 Cette publication **ne vaut pas recette finale** : seuls huit essais unitaires isolés du module horaire ont été exécutés avec succès ; compilation complète, API/DB et contrôle navigateur restent à effectuer. Traçabilité : [réalisation D1](../../../implementation-artifacts/realisation-d1-fiche-sprint-smn-234-2026-10-23.md).
+
+
+## État D2 — 23 octobre 2026
+
+La partie Objectifs de SMN-234 est maintenant **implémentée dans le code sur main**, avec liste intégrale, création, édition et évaluation dans une modal Bootstrap, commentaires et contrôle de révision côté API. Le code crée toujours un objectif avec `not_evaluated`. Un utilisateur en lecture collective peut consulter les objectifs, mais aucun crayon ni bouton Ajouter n'est exposé. La page d'un Sprint clôturé lit uniquement sa liste d'objectifs depuis l'instantané Vn de clôture, sans conversion en source courante.
+
+Le lecteur spécifique `src/server/sprints/goals-detail-read.ts` reste compatible avec `REPEATABLE READ READ ONLY` : aucun DDL ni correction implicite des données. Le contrat UI demeure celui des **sept onglets**, sans Synthèse. La recette complète est **en attente** de tests locaux et visuels ; voir [livraison D2](../../../implementation-artifacts/realisation-d2-objectifs-fiche-sprint-smn-234-2026-10-23.md).
