@@ -2643,5 +2643,17 @@
     "saved": "Options saved",
     "error": "Unable to read or save choices.",
     "leaveWarning": "Unsaved choices will be lost. Leave?"
+  },
+  "reportHistory": {
+    "heading": "Historical depth",
+    "intro": "Trends use up to five eligible past closed Sprints, never future or reopened cycles.",
+    "depth": "Number of trend cycles",
+    "save": "Save history depth",
+    "error": "Unable to load or save historical depth.",
+    "preview": "Trend preview",
+    "empty": "No eligible closed Sprints.",
+    "cycle": "Sprint",
+    "missing": "Not recorded",
+    "leaveWarning": "Historical depth is not saved. Leave?"
   }
 }
