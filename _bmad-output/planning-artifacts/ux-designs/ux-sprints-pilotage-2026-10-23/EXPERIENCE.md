@@ -60,11 +60,11 @@ Les opérations sur **une cérémonie / une réunion** (heure, présence, durée
 
 ### D. Fiche Sprint — cible ultérieure séparée du lot courant
 
-**Future route possible** : /app/admin/sprints/[id] ; elle est **à créer**, non constatée comme existante.
+**Route existante partielle** : `/app/admin/sprints/[sprintId]` ; le squelette de lecture est réel sur `main`, mais les sept onglets et éditions restent à livrer.
 
-**Structure proposée/validée comme direction** : bandeau avec nom, dates, statut, objectif enregistré, retour à la liste ; onglets **Synthèse / Cérémonies / Capacité / Indicateurs / Bilan et historique**. Modifier seulement via commandes dédiées et modales/contextes adaptés, exactement comme les décisions de la fiche Membre V2. Les informations agrégées (capacité, SP, objectifs, résultats) proviennent du sprint identifié : **aucune donnée de sprint voisin ne doit se mélanger**. Historique fondé sur les événements effectivement persistés.
+**Structure maintenant décidée pour SMN-234** : bandeau compact nom/dates/statut/équipe/produit, retour à la liste ; **pas de Synthèse** ; onglets **Objectifs / Cérémonies / Capacité / Indicateurs / Registres / Tendances / Bilan**. Modifier seulement via commandes dédiées et modales/contextes adaptés, exactement comme les décisions de la fiche Membre V2. Les informations agrégées (capacité, SP, objectifs, résultats) proviennent du sprint identifié : **aucune donnée de sprint voisin ne doit se mélanger**. Historique fondé sur les événements effectivement persistés.
 
-**Différé** : développer cette fiche demande une Story dédiée et une analyse de ses données ; **elle ne doit pas bloquer la livraison de la liste ni rendre le nom artificiellement cliquable**.
+**Réalisation restante** : le squelette de la fiche est disponible ; l'enrichissement complet est porté par la Story [SMN-234](https://lmn24.atlassian.net/browse/SMN-234), sans bloquer les fonctions de liste. Les liens ne sont activés que lorsqu'une route et des droits réels sont vérifiés.
 
 ### E. Cohérence avec le Calendrier
 
@@ -112,3 +112,23 @@ Référence : page **Équipe** pour largeur et actions modales ; **Paramètres**
 
 ## Responsive & Platform
 Windows 11 desktop prioritaire, tablette/mobile exploitable ; une seule liste de sprints, adaptation du tableau avec informations essentielles conservées. Les modales peuvent être remplacées par une page d'assistant sur petit écran si nécessaire, sans modifier le parcours de confirmation.
+
+## Avenant contractuel du 23 octobre 2026 — Fiche Sprint SMN-234
+
+Le contrat détaillé [FICHE-SPRINT-CONTRAT.md](FICHE-SPRINT-CONTRAT.md) est **prioritaire pour le seul périmètre de la fiche Sprint** sur toutes les mentions antérieures « future fiche » ou « Synthèse / Cérémonies / Capacité / Indicateurs / Bilan et historique ». La route existe désormais sous la forme d'une **première fiche de lecture partielle**, non d'une fiche entièrement développée.
+
+**Cible :** bandeau Sprint compact sans onglet Synthèse ; **Objectifs / Cérémonies / Capacité / Indicateurs / Registres / Tendances / Bilan**. Icône de modification pour champs éditables via action sécurisée ; aucun crayon sur valeurs calculées. Les règles Paramètres/Calendrier/index Sprints ci-dessus restent inchangées. Le plan d'implémentation par lots D0–D9 est dans `_bmad-output/implementation-artifacts/plan-developpement-fiche-sprint-smn-234-2026-10-23.md`.
+
+**Aucune action logicielle n'est exécutée par ce cadrage.**
+
+### Parcours UX-FS-01 — Éditer un indicateur
+
+L'Administrateur ouvre la fiche d'un Sprint identifié, choisit Indicateurs, modifie l'un des huit champs autorisés ; F05/F06/F07/F12 évoluent immédiatement dans le brouillon sans enregistrer. Enregistrer confirme l'opération, ou Annuler retrouve les valeurs persistées ; un conflit de révision est explicitement signalé. L'Utilisateur ne peut pas activer d'édition.
+
+### Parcours UX-FS-02 — Consulter réunions, membre et historiques
+
+La liste Cérémonies donne accès à toutes les occurrences de la période et distingue les réunions prévues, tenues, non tenues, annulées (ajournement à définir), avec le statut dominant. La capacité affiche les contributeurs du Sprint et leurs J/H de présence indépendamment de la capacité de développement. Un Sprint clôturé lit exclusivement les valeurs qualifiées/snapshots disponibles.
+
+### Parcours UX-FS-03 — Construire le bilan
+
+L'Administrateur saisit séparément une Analyse et une Analyse IA éditable ; leurs versions ne se recouvrent pas. Le type de provenance est visible. Un générateur IA automatique reste hors de cette livraison jusqu'à l'Epic 9 ; les registres non livrés ne produisent aucune liste fictive.
