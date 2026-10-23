@@ -1,0 +1,40 @@
+import Link from "next/link";
+import {notFound,redirect} from "next/navigation";
+import {currentAccount} from "@/server/auth/session";
+import {canAccess} from "@/server/access-policy";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {prepareSprintReport} from "@/server/reports/sprint-preparation";
+import {requestLocale} from "@/i18n/locale.server";
+import {translate} from "@/i18n/catalog";
+export const dynamic="force-dynamic";
+export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
+ const account=await currentAccount();
+ if(!account)redirect("/login");
+ if(account.must_change_password)redirect("/change-password");
+ if(!canAccess(account,"write",{type:"settings",exists:true,inScope:true}))notFound();
+ const {sprintId}=await params;
+ if(!/^[a-f0-9-]{36}$/i.test(sprintId))notFound();
+ const data=await withSprintIndexDb(db=>prepareSprintReport(db,sprintId)).catch(()=>null);
+ if(!data)notFound();
+ const locale=await requestLocale(),t=(key:"sprintReportPrepare.heading"|"sprintReportPrepare.provisional"|"sprintReportPrepare.final"|"sprintReportPrepare.template"|"sprintReportPrepare.objectives"|"sprintReportPrepare.empty"|"sprintReportPrepare.source"|"sprintReportPrepare.back"|"sprintReportPrepare.exportLater"|"sprintReportPrepare.dates"|"sprintReportPrepare.product"|"sprintReportPrepare.team"|"sprintReportPrepare.status")=>translate(locale,key);
+ const s=data.sprint;
+ return <main className="container-fluid px-3 px-lg-4 py-4">
+  <Link href={"/app/admin/sprints/"+encodeURIComponent(s.id)}>{t("sprintReportPrepare.back")}</Link>
+  <section className="smn-panel rounded-4 p-4 mt-3 d-grid gap-3">
+   <h1 className="h4">{t("sprintReportPrepare.heading")}</h1>
+   <div className={data.provisional?"alert alert-warning":"alert alert-info"} role="status">{data.provisional?t("sprintReportPrepare.provisional"):t("sprintReportPrepare.final")}</div>
+   <dl className="row">
+    <dt className="col-sm-3">Sprint</dt><dd className="col-sm-9">{s.name}</dd>
+    <dt className="col-sm-3">{t("sprintReportPrepare.team")}</dt><dd className="col-sm-9">{s.team}</dd>
+    <dt className="col-sm-3">{t("sprintReportPrepare.product")}</dt><dd className="col-sm-9">{s.product??"—"}</dd>
+    <dt className="col-sm-3">{t("sprintReportPrepare.dates")}</dt><dd className="col-sm-9">{s.startAt} — {s.endAt} ({s.timeZone})</dd>
+    <dt className="col-sm-3">{t("sprintReportPrepare.status")}</dt><dd className="col-sm-9">{s.status}</dd>
+    <dt className="col-sm-3">{t("sprintReportPrepare.template")}</dt><dd className="col-sm-9">Standard</dd>
+    <dt className="col-sm-3">{t("sprintReportPrepare.source")}</dt><dd className="col-sm-9">{data.source}{data.snapshotVersion?" · V"+data.snapshotVersion:""}</dd>
+   </dl>
+   <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
+   {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
+   <p className="text-secondary">{t("sprintReportPrepare.exportLater")}</p>
+  </section>
+ </main>;
+}
