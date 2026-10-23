@@ -2690,5 +2690,13 @@
     "dod": "Definition of Done",
     "dor": "Definition of Ready",
     "unverified": "Lien externe non vérifié"
+  },
+  "reportLanguage": {
+    "heading": "Langue du rapport",
+    "label": "Langue des libellés standards",
+    "explanation": "Les rubriques et libellés du rapport utilisent cette langue ; les objectifs et commentaires libres conservent leur texte et langue d’origine.",
+    "save": "Enregistrer la langue",
+    "error": "Impossible de charger ou enregistrer la langue.",
+    "leaveWarning": "La langue du rapport n’est pas enregistrée. Quitter ?"
   }
 }
