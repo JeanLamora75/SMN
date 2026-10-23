@@ -1,12 +1,16 @@
 import {NextRequest} from "next/server";
-import {authorizeApi} from "@/server/auth/authorization";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {readVerifiedPdfArchive} from "@/server/reports/pdf-archive-store";
+import {archiveUserAuthorized} from "@/server/reports/archive-grants";
+import {canAccess} from "@/server/access-policy";
+import {sessionAccount} from "@/server/auth/session";
+import {SESSION_COOKIE,validLocalHost} from "@/server/auth/guards";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
 /** Exact archived bytes, never regenerated. Fail closed on hidden or corrupt PDFs. */
 export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){
- const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
+ if(!validLocalHost(req.headers.get("host")))return Response.json({error:"forbidden"},{status:403});
+ const actor=await sessionAccount(req.cookies.get(SESSION_COOKIE)?.value);
  if(!actor)return Response.json({error:"forbidden"},{status:403});
  const {id}=await params;
  if(!/^[a-f0-9-]{36}$/i.test(id))return Response.json({error:"invalid-input"},{status:400});
@@ -24,6 +28,8 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
    WHERE a.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
    AND lower(i.mode)='scrum' ${hidden}`,[id]);
   if(scope.rows.length!==1)return null;
+  const granted=actor.role==="admin"||await archiveUserAuthorized(db,id,actor.id);
+  if(!canAccess(actor,"download",{type:"documents",exists:true,inScope:true,format:"PDF",userAuthorized:granted}))return null;
   return readVerifiedPdfArchive(db,id);
  });
  if(!bytes)return Response.json({error:"archive-unavailable"},{status:404});
