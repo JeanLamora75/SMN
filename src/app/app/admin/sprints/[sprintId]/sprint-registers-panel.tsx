@@ -92,7 +92,11 @@ export default function SprintRegistersPanel({sprintId,timeZone,locale,data,t}:{
          </p>
         </div>
        </div>
-       {safeRegisterHref(item.href)?
+       {data.source==="closure-snapshot"?
+        <span className="small text-secondary" role="note">
+         {t("sprintDetail.registersHistoricalLinkUnavailable")}
+        </span>:
+        safeRegisterHref(item.href)?
         <Link href={item.href!} className="btn btn-outline-primary btn-sm">
          {t("sprintDetail.registersOpenRecord")}
         </Link>:
