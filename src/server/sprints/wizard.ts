@@ -73,13 +73,20 @@ export async function previewWizard(db:Client,actorId:string,raw:unknown){
  const preview=namesApplied(draft,input);
  const teamId=await activeTeam(db);
  const settings=await generationSettings(db,teamId);
+ const existingNames=await db.query<{name:string}>(`SELECT name FROM public.smn_sprint
+  WHERE team_id=$1 AND deleted_at IS NULL AND lower(btrim(name))=ANY($2::text[])`,
+  [teamId,preview.items.map(item=>item.name.toLowerCase())]);
+ const nameWarnings=preview.items.filter((item,i)=>existingNames.rows.some(existing=>
+  existing.name.toLowerCase()===item.name.toLowerCase())||
+  preview.items.some((other,j)=>j!==i&&other.name.toLowerCase()===item.name.toLowerCase()))
+  .map(item=>item.number);
  const historical=preview.items.some(x=>new Date(x.startAt).getTime()<Date.now());
  const token=preview.valid?randomUUID():null;
  if(token)await db.query(`INSERT INTO public.smn_sprint_wizard_preview
   (token,team_id,actor_id,request,digest,expires_at)
   VALUES($1,$2,$3,$4::jsonb,$5,now()+interval '10 minutes')`,
   [token,teamId,actorId,JSON.stringify(input),hash(preview,settings,input.generateHistoricalCeremonies)]);
- return {...preview,token,historical,cadence:settings.cadence,
+ return {...preview,token,historical,nameWarnings,cadence:settings.cadence,
   activeTemplates:settings.templates.map(t=>({id:t.id,name:t.name,revision:t.revision})),
   historicalCeremonies:input.generateHistoricalCeremonies};
 }
