@@ -9,6 +9,7 @@ import {
 } from "@/lib/dashboard-data-contract";
 import type {SprintContextItem} from "@/lib/sprint-context";
 import {eventsFromClosureSnapshot,readCurrentSprintEvents} from "@/server/dashboard/events-reader";
+import {sprintWorkingDaysRemaining} from "@/lib/sprint-working-days";
 
 const object=(v:unknown):Record<string,unknown>|null=>
  v!==null&&typeof v==="object"&&!Array.isArray(v)?v as Record<string,unknown>:null;
@@ -59,17 +60,40 @@ function pointsFrom(raw:unknown,version:number|null):CollectiveCycleProjection["
   done:metric(row.done_sp,version===null?"manual":"closure-snapshot",version)
  };
 }
+/** La source Tickets n'est jamais dérivée des Story Points. */
+function ticketsFrom(raw:unknown,source:"manual"|"closure-snapshot",
+ version:number|null=null):CollectiveCycleProjection["tickets"]{
+ if(raw===null||raw===undefined)
+  return {initial:metricNotRecorded(),done:metricNotRecorded()};
+ const row=object(raw);
+ if(!row)return {initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")};
+ return {
+  initial:metric(row.initial_tickets,source,version),
+  done:metric(row.done_tickets,source,version)
+ };
+}
+async function currentTickets(db:Client,sprintId:string):
+ Promise<CollectiveCycleProjection["tickets"]>{
+ if(!await tableExists(db,"smn_sprint_ticket_counts"))return {
+  initial:metricUnavailable("schema-missing"),done:metricUnavailable("schema-missing")
+ };
+ const rows=await db.query<{initial_tickets:string|null;done_tickets:string|null}>(`
+  SELECT initial_tickets::text,done_tickets::text
+  FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]);
+ return ticketsFrom(rows.rows[0]??null,"manual");
+}
 const capacityUnavailable=(reason:"producer-not-ready"|"schema-missing"|"history-missing"|"read-failed"):
  CollectiveCycleProjection["capacity"]=>({
   initialJh:metricUnavailable(reason),actualJh:metricUnavailable(reason)
  });
 export function closedSnapshotProjection(raw:unknown,version:number):
- Pick<CollectiveCycleProjection,"goals"|"storyPoints"|"capacity">{
+ Pick<CollectiveCycleProjection,"goals"|"storyPoints"|"capacity"|"tickets">{
  const snapshot=object(raw);
  if(!snapshot)return {
   goals:collectionUnavailable("read-failed"),
   storyPoints:{initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")},
-  capacity:capacityUnavailable("read-failed")
+  capacity:capacityUnavailable("read-failed"),
+  tickets:{initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")}
  };
  const cap=object(snapshot.capacity);
  return {
@@ -81,7 +105,10 @@ export function closedSnapshotProjection(raw:unknown,version:number):
   capacity:cap?{
    initialJh:metric(cap.initial_jh,"closure-snapshot",version),
    actualJh:metric(cap.actual_jh,"closure-snapshot",version)
-  }:capacityUnavailable("history-missing")
+  }:capacityUnavailable("history-missing"),
+  tickets:snapshot.ticketCounts===undefined?
+   {initial:metricUnavailable("history-missing"),done:metricUnavailable("history-missing")}:
+   ticketsFrom(snapshot.ticketCounts,"closure-snapshot",version)
  };
 }
 async function tableExists(db:Client,name:string):Promise<boolean>{
@@ -142,6 +169,10 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
   initial:metricUnavailable("producer-not-ready"),done:metricUnavailable("producer-not-ready")
  };
  let capacity:CollectiveCycleProjection["capacity"]=capacityUnavailable("producer-not-ready");
+ let tickets:CollectiveCycleProjection["tickets"]={
+  initial:metricUnavailable("producer-not-ready"),
+  done:metricUnavailable("producer-not-ready")
+ };
  let version:number|null=null;
  let events:CollectiveCycleProjection["events"]=collectionUnavailable("producer-not-ready");
  if(status==="closed"){
@@ -152,12 +183,14 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    const row=r.rows[0];
    if(row&&Number.isSafeInteger(row.version)&&row.version>=1){
     version=row.version;
-    ({goals,storyPoints,capacity}=closedSnapshotProjection(row.snapshot,version));
+    ({goals,storyPoints,capacity,tickets}=closedSnapshotProjection(row.snapshot,version));
     events=eventsFromClosureSnapshot(row.snapshot,version);
    }else{
     goals=collectionUnavailable("history-missing");
     storyPoints={initial:metricUnavailable("history-missing"),done:metricUnavailable("history-missing")};
     capacity=capacityUnavailable("history-missing");
+    tickets={initial:metricUnavailable("history-missing"),
+     done:metricUnavailable("history-missing")};
    }
   }else{
    goals=collectionUnavailable("history-missing");
@@ -178,6 +211,16 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    storyPoints=pointsFrom(r.rows[0]??null,null);
   }else storyPoints={initial:metricUnavailable("schema-missing"),
     done:metricUnavailable("schema-missing")};
+  await db.query("SAVEPOINT dashboard_current_tickets");
+  try{
+   tickets=await currentTickets(db,sprint.id);
+   await db.query("RELEASE SAVEPOINT dashboard_current_tickets");
+  }catch(error){
+   await db.query("ROLLBACK TO SAVEPOINT dashboard_current_tickets");
+   await db.query("RELEASE SAVEPOINT dashboard_current_tickets");
+   tickets={initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")};
+   void error;
+  }
   // Une lecture de capacité partiellement migrée ne doit pas rendre
   // indisponibles les objectifs ou les SP déjà récupérés.
   await db.query("SAVEPOINT dashboard_current_capacity");
@@ -207,9 +250,21 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
   }
  }
  const waiting=metricUnavailable("producer-not-ready");
+ // Même instant transactionnel pour Sprint/KPI et échéance.
+ const dbTime=await db.query<{at:Date|string}>("SELECT now() AS at");
+ const instant=new Date(dbTime.rows[0]?.at??Date.now());
+ // Le compteur de J ouvrés est une mesure temporelle actuelle et non une
+ // donnée censée être figée dans les instantanés de clôture.
+ let remaining:DashboardMetric=metricUnavailable("read-failed");
+ try{
+  remaining=sprint.suspended?metricUnavailable("producer-not-ready"):
+   metricAvailable(sprintWorkingDaysRemaining(sprint,instant,"include-today").days,{
+    source:"calculated",quality:"known"
+   });
+ }catch{remaining=metricUnavailable("read-failed");}
  return {teamId,cycleId:sprint.id,cycleStatus:status,snapshotVersion:version,
   goals,storyPoints,capacity,
-  tickets:{initial:waiting,done:waiting},workingDaysRemaining:waiting,
+  tickets,workingDaysRemaining:remaining,
   events,
   obstacles:collectionUnavailable("producer-not-ready"),
   risks:collectionUnavailable("producer-not-ready"),
