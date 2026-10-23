@@ -72,7 +72,7 @@ export async function listTemplateOccurrences(db:Client){
  const r=await db.query(`SELECT o.id,o.template_id AS "templateId",o.template_revision AS "templateRevision",
  o.sprint_id AS "sprintId",s.name AS "sprintName",o.name,
  o.starts_at::text AS "startAt",o.ends_at::text AS "endAt",s.time_zone AS "timeZone",
- t.active AS "templateActive"
+ t.active AS "templateActive",o.generation_source AS "generationSource"
  FROM public.smn_scrum_template_occurrence o
  JOIN public.smn_scrum_ceremony_template t ON t.id=o.template_id
  JOIN public.smn_sprint s ON s.id=o.sprint_id
