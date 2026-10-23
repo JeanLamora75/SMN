@@ -28,7 +28,7 @@ components:
   sprint-list: "responsive table with name, dates, state, per-row actions"
   sprint-context-menu: "ellipsis menu opens allowed contextual operations"
   sprint-creation: "single entry point to a multi-step creation assistant"
-  sprint-details-future: "separate per-sprint read-only/detail destination, not delivered by list"
+  sprint-details-future: "real read-only first sprint page; seven-tab target covered by SMN-234"
 ---
 
 # DESIGN.md — Sprints : index de pilotage
@@ -75,7 +75,7 @@ Sprint 11            05–16 oct.                      Terminé         [Calendr
 Sprint 10            21 sept.–02 oct.                Clôturé         [Calendrier] [⋯]
 ```
 
-Assistant de création : **1. Configuration → 2. Prévisualisation → 3. Confirmation** avec indicateur de progrès, champs et confirmations pertinents. Fiche future : bandeau de sprint, objectif et onglets proposés **Synthèse / Cérémonies / Capacité / Indicateurs / Bilan et historique**. Ces onglets sont une **orientation UX validée à développer ultérieurement**, pas des routes actuellement constatées.
+Assistant de création : **1. Configuration → 2. Prévisualisation → 3. Confirmation** avec indicateur de progrès, champs et confirmations pertinents. Fiche Sprint : une **première route de consultation existe**. La refonte SMN-234 prévoit le bandeau compact et sept onglets **Objectifs / Cérémonies / Capacité / Indicateurs / Registres / Tendances / Bilan**, sans Synthèse, selon [FICHE-SPRINT-CONTRAT.md](FICHE-SPRINT-CONTRAT.md). La refonte complète reste à développer et recetter.
 
 ## Do's and Don'ts
 **Oui** : un tableau unique, recherche, filtres, un CTA de génération, état en cours visible, actions contextuelles, navigation cohérente avec Calendrier, Équipe et Paramètres.
@@ -83,3 +83,22 @@ Assistant de création : **1. Configuration → 2. Prévisualisation → 3. Conf
 **Non** : quinze formulaires à la suite, sélecteur de sprint répété dans chaque éditeur, configuration par défaut mélangée aux opérations d'un sprint, faux liens vers la future fiche, suppression sans aperçu d'impact, obligation de voir Calendrier/Paramètres pour rechercher un sprint.
 
 Voir [EXPERIENCE.md](EXPERIENCE.md) et [RECETTE-UX.md](RECETTE-UX.md).
+
+## Avenant contractuel du 23 octobre 2026 — Fiche Sprint SMN-234
+
+Le contrat détaillé [FICHE-SPRINT-CONTRAT.md](FICHE-SPRINT-CONTRAT.md) est **prioritaire pour le seul périmètre de la fiche Sprint** sur toutes les mentions antérieures « future fiche » ou « Synthèse / Cérémonies / Capacité / Indicateurs / Bilan et historique ». La route existe désormais sous la forme d'une **première fiche de lecture partielle**, non d'une fiche entièrement développée.
+
+**Cible :** bandeau Sprint compact sans onglet Synthèse ; **Objectifs / Cérémonies / Capacité / Indicateurs / Registres / Tendances / Bilan**. Icône de modification pour champs éditables via action sécurisée ; aucun crayon sur valeurs calculées. Les règles Paramètres/Calendrier/index Sprints ci-dessus restent inchangées. Le plan d'implémentation par lots D0–D9 est dans `_bmad-output/implementation-artifacts/plan-developpement-fiche-sprint-smn-234-2026-10-23.md`.
+
+**Aucune action logicielle n'est exécutée par ce cadrage.**
+
+### Composants visuels propres à la fiche
+
+- Bandeau : nom/date/état/équipe/produit, pas de doublon des KPI du dashboard.
+- Icône Bootstrap `pencil-square` accolée à chaque champ modifiable, avec nom accessible ; absence de crayon sur dérivés F05/F06/F07/F12 et sur clichés figés.
+- Cérémonies : liste exhaustive chronologique et badges de statuts textuels contrastés ; pictogrammes par type.
+- Capacité : membre et J/H **de présence** typographiquement prioritaires, J/H de développement différenciés et non substitués ; accès nominatif filtré serveur.
+- Indicateurs : huit cellules de saisie, quatre cellules recalculées immédiatement avec mention « Provisoire » tant que non sauvegardées.
+- Registres : liste transversale des six familles, chaque ligne avec date, nature, état et action sécurisée.
+- Tendances : trois graphiques séparés avec tableau accessible, pas d'unité SP/%/JH sur un axe commun.
+- Bilan : deux champs rédactionnels « Analyse » et « Analyse IA » côte à côte desktop, empilés mobile ; provenance et versions visibles.
