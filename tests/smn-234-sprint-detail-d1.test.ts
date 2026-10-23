@@ -38,6 +38,7 @@ describe("Fiche Sprint D1 — fuseau et changements d'heure",()=>{
 describe("Fiche Sprint D1 — contrats d'écran et de droits",()=>{
  const page=read("src/app/app/admin/sprints/[sprintId]/page.tsx");
  const nav=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-tabs.tsx");
+ const shared=read("src/lib/sprint-detail-tabs.ts");
  const editor=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-editor.tsx");
  const icon=read("src/app/app/bootstrap-icon.tsx");
  it("réutilise le lecteur collectif, la route par identifiant et le 404 hors équipe",()=>{
@@ -50,7 +51,7 @@ describe("Fiche Sprint D1 — contrats d'écran et de droits",()=>{
   assert.match(page,/active==="objectives"/);
   assert.match(page,/projection\.goals/);
   assert.doesNotMatch(nav,/synthesis|summary/i);
-  const keys=nav.match(/"objectives","ceremonies","capacity","indicators","registers","trends","review"/);
+  const keys=shared.match(/"objectives","ceremonies","capacity","indicators","registers","trends","review"/);
   assert.ok(keys);
   assert.match(page,/role="tabpanel"/);
  });
