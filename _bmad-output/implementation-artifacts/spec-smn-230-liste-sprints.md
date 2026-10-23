@@ -14,6 +14,7 @@ La page principale `/app/admin/sprints` devient une page pleine largeur (hérite
 - Recherche par nom, **insensible à la casse** (recherche SQL littérale `strpos(lower(name),lower($search))`), filtre d'état (Tous, À venir, En cours, Terminé, Clôturé, Suspendu et éventuels statuts additionnels en base), tri « En cours d'abord » puis dates décroissantes ou croissantes. **Pas de recherche sans accents** implémentée ; le comportement exact est explicitement limité à la casse.
 - Tableau `Sprint / Période / État / Actions`, dates formatées en FR/EN avec le **fuseau IANA enregistré sur chaque sprint**, priorisation en cours réellement actif et couleur + libellé.
 - Si le statut enregistré est décalé des dates (p. ex. `planned` alors que le début est passé ou `active` après sa fin), l'index **conserve l'état persisté** et indique « État enregistré à vérifier », sans fabriquer une transition.
+- Si plusieurs sprints sont simultanément « En cours » dans leurs bornes actuelles, un avertissement global est affiché, y compris pour des cycles situés hors de la page affichée. Aucune donnée métier n'est modifiée.
 - Pagination **SQL côté serveur** de 25 éléments par page (max. 50 via API), `LIMIT / OFFSET`, tri stable (date + ID), `count` appliqué aux filtres avant pagination ; aucun plafond implicite à 100.
 - États chargement, erreur, liste vide et aucun résultat filtré distincts. Actualiser, pagination Précédente/Suivante, clavier et libellés accessibles, tableau `table-responsive`.
 - **Fiche Sprint différée :** le nom est du texte, pas un lien vers une URL inexistante.
@@ -58,7 +59,7 @@ Nouveaux :
 - `src/app/api/sprints/index/route.ts`
 - `src/app/app/admin/sprints/sprint-index-view.tsx`
 - `src/app/app/admin/sprints/tools/page.tsx`
-- `tests/smn-230-sprints-index.test.ts` (**11 tests** : validation paramètres, 123 sprints, filtres, tri, actif, absence de mutation, états incohérents, permissions, transition, transaction read-only et i18n).
+- `tests/smn-230-sprints-index.test.ts` (**12 tests** : validation paramètres, 123 sprints, filtres, tri, actif, absence de mutation, états incohérents, permissions, transition, transaction read-only et i18n).
 
 Modifiés :
 - `src/app/app/admin/sprints/page.tsx`, `src/lib/private-navigation.ts`
