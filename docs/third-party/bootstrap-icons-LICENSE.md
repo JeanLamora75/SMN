@@ -2,7 +2,7 @@
 
 Source officielle : https://github.com/twbs/icons
 
-Les tracés des icônes `bullseye`, `calendar3`, `arrow-right`, `arrow-left`, `people-fill`, `stack`, `ticket-perforated-fill` et `calendar-event` intégrés à `src/app/app/bootstrap-icon.tsx` proviennent de Bootstrap Icons. Leur usage reste soumis à la licence ci-dessous.
+Les tracés des icônes `bullseye`, `calendar3`, `arrow-right`, `arrow-left`, `people-fill`, `stack`, `ticket-perforated-fill`, `calendar-event`, `exclamation-octagon-fill`, `exclamation-triangle-fill`, `sticky-fill` et `bell-fill` intégrés à `src/app/app/bootstrap-icon.tsx` proviennent de Bootstrap Icons. Leur usage reste soumis à la licence ci-dessous.
 
 ```
 The MIT License (MIT)
