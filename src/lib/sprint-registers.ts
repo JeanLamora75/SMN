@@ -22,7 +22,9 @@ export type RegisterSource=Readonly<{
 const record=(x:unknown):Record<string,unknown>|null=>
  x!==null&&typeof x==="object"&&!Array.isArray(x)?x as Record<string,unknown>:null;
 const timestamp=(x:unknown):string|null=>
- typeof x==="string"&&x.length>0&&Number.isFinite(Date.parse(x))?
+ typeof x==="string"&&
+ /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,3})?)?(?:Z|[+-]\\d{2}:\\d{2})$/.test(x)&&
+ Number.isFinite(Date.parse(x))?
   new Date(x).toISOString():null;
 export const isRegisterKind=(v:unknown):v is RegisterKind=>
  typeof v==="string"&&registerKinds.some(k=>k===v);
@@ -32,6 +34,7 @@ export function safeRegisterHref(raw:unknown):string|null{
  if(typeof raw!=="string"||!raw.startsWith("/app/")||
   raw.includes("\\")||/[\u0000-\u001f]/.test(raw)||
   raw.includes("//")||raw.includes("?")||raw.includes("#")||
+  /%(?:2e|2f|5c)/i.test(raw)||
   raw.split("/").includes(".."))return null;
  return raw;
 }
