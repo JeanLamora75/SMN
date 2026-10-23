@@ -10,6 +10,8 @@ export async function grantArchiveUser(db:Client,archiveId:string,userId:string,
  if(!/^[a-f0-9-]{36}$/i.test(archiveId)||!userId||!actorId)return {ok:false as const,error:"invalid-input"};
  await db.query("BEGIN");
  try{
+  const visibility=await db.query<{yes:boolean}>("SELECT to_regclass('public.smn_report_archive_visibility') IS NOT NULL AS yes");
+  const hidden=visibility.rows[0]?.yes?"AND NOT EXISTS (SELECT 1 FROM public.smn_report_archive_visibility h WHERE h.archive_id=a.id)":"";
   const scope=await db.query(`SELECT 1 FROM public.smn_report_pdf_archive a
   JOIN public.smn_sprint s ON s.id=a.cycle_id AND s.team_id=a.team_id
   JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
