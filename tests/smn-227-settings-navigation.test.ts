@@ -14,7 +14,7 @@ describe("SMN-227 — centralisation des accès sans perte",()=>{
    assert.equal(entries.find(e=>e.id==="security")?.href,"/app/security");
    assert.equal(entries.find(e=>e.id==="centralCalendar")?.href,"/app/team-calendar");
    assert.equal(entries.find(e=>e.id==="members")?.href,role==="admin"?"/app/admin/members":null);
-   assert.equal(entries.find(e=>e.id==="cycles")?.href,role==="admin"?"/app/admin/sprints":null);
+   assert.equal(entries.find(e=>e.id==="cycles")?.href,"/app/admin/sprints");
   }
  });
  it("conserve un seul accès paramètres dans la sidebar admin",()=>{
