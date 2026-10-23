@@ -2288,5 +2288,28 @@
     "edit": "Ouvrir et enrichir la fiche",
     "unavailableRecord": "Fiche indisponible.",
     "conflict": "La fiche a été modifiée ailleurs. Actualisez-la avant d’enregistrer."
+  },
+  "registryList": {
+    "heading": "Consulter les registres",
+    "search": "Rechercher par titre ou description",
+    "status": "Statut",
+    "allStatuses": "Tous les statuts",
+    "owner": "Responsable",
+    "filter": "Filtrer",
+    "reset": "Effacer les filtres",
+    "create": "Créer une fiche",
+    "empty": "Aucune fiche ne correspond aux critères.",
+    "unavailable": "Les registres ne sont pas encore initialisés. Créez une première fiche avec un compte administrateur.",
+    "error": "Impossible de charger les fiches.",
+    "date": "Date",
+    "title": "Fiche",
+    "details": "Consulter",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "count": "{total} fiches — page {page} sur {pages}",
+    "cycleDeferred": "Les filtres par cycle seront activés avec les associations multi-cycles (SMN-97).",
+    "team": "Équipe",
+    "readonly": "Consultation en lecture seule",
+    "back": "Retour aux registres"
   }
 }
