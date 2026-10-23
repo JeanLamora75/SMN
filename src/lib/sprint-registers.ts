@@ -44,7 +44,8 @@ export function normalizeRegister(raw:unknown):SprintRegister|null{
   typeof r.title!=="string"||!r.title.trim()||r.title.length>240||
   (r.status!==null&&typeof r.status!=="string")||
   (r.priority!==null&&typeof r.priority!=="string")||
-  !Array.isArray(r.teamIds)||!r.teamIds.every(x=>typeof x==="string"&&x)||
+  !Array.isArray(r.teamIds)||r.teamIds.length===0||
+  !r.teamIds.every(x=>typeof x==="string"&&x)||
   !Array.isArray(r.sprintIds)||!r.sprintIds.every(x=>typeof x==="string"&&x)||
   (r.href!==null&&r.href!==undefined&&!safeRegisterHref(r.href)))
   return null;
@@ -102,11 +103,12 @@ export function selectSprintRegisterPage(
 ):Omit<Extract<SprintRegisterResult,{state:"available"}>,
  "state"|"source"|"snapshotVersion">|null{
  if(!Array.isArray(source.records)||!Array.isArray(source.availableKinds)||
-  source.availableKinds.some(k=>!isRegisterKind(k)))return null;
+  source.availableKinds.some(k=>!isRegisterKind(k))||
+  new Set(source.availableKinds).size!==source.availableKinds.length)return null;
  const seen=new Map<string,SprintRegister>();
  for(const raw of source.records){
   const item=normalizeRegister(raw);
-  if(!item)return null;
+  if(!item||!source.availableKinds.includes(item.kind))return null;
   const key=item.kind+":"+item.id;
   if(seen.has(key)){
    const before=seen.get(key)!;
