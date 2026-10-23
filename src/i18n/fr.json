@@ -2559,5 +2559,15 @@
     "product": "Produit",
     "team": "Équipe",
     "status": "Statut"
+  },
+  "standardReport": {
+    "executive": "Synthèse exécutive",
+    "objectives": "Objectifs",
+    "indicators": "Indicateurs et tendances",
+    "events": "Événements Agile",
+    "attention": "Points d'attention",
+    "decisions": "Décisions et actions",
+    "empty": "Aucune donnée enregistrée pour cette section.",
+    "unavailable": "Données sources indisponibles : aucun état historique n'a été reconstitué."
   }
 }
