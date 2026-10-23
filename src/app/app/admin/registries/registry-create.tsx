@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 type Response={ok:boolean;id?:string;revision?:number;error?:string};
@@ -20,6 +20,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
  const [revision,setRevision]=useState<number|null>(null);
  const [loaded,setLoaded]=useState(false);
  const [createdId,setCreatedId]=useState<string|null>(null);
+ const baseline=useRef<string|null>(null);
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState<{ok:boolean;message:string}|null>(null);
  useEffect(()=>{
@@ -33,9 +34,17 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
     setStatus(item.status as string);setDescription((item.description as string|null)??"");
     setOwner((item.owner as string|null)??"");setDue((item.dueOn as string|null)??"");
     setComment((item.comment as string|null)??"");setRevision(typeof item.revision==="number"?item.revision:null);setLoaded(true);
+    baseline.current=JSON.stringify([item.title,item.occurredOn,item.status,item.description??"",item.owner??"",item.dueOn??"",item.comment??""]);
    }).catch(()=>{if(active)setNotice({ok:false,message:t("registryCreate.unavailableRecord")});});
   return()=>{active=false;};
  },[itemId,teamId]);
+ const dirty=!!itemId&&loaded&&baseline.current!==JSON.stringify([title,date,status,description,owner,due,comment]);
+ useEffect(()=>{
+  if(!dirty)return;
+  const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue="";};
+  window.addEventListener("beforeunload",warn);
+  return()=>window.removeEventListener("beforeunload",warn);
+ },[dirty]);
  const translate=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const changeType=(next:RegistryType)=>{setType(next);setStatus(registryStatuses[next][0]);setNotice(null);};
  const save=async(e:React.FormEvent)=>{
@@ -53,7 +62,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
    if(!response.ok||!result.ok||!result.id)throw Error(result.error??"failed");
    setNotice({ok:true,message:translate("success").replace("{id}",result.id)});
    if(!itemId)setCreatedId(result.id);
-   if(itemId)setRevision(result.revision??(revision??0)+1);
+   if(itemId){setRevision(result.revision??(revision??0)+1);baseline.current=JSON.stringify([title,date,status,description,owner,due,comment]);}
    else {setTitle("");setDescription("");setOwner("");setDue("");setComment("");}
   }catch{setNotice({ok:false,message:translate("failed")});}
   finally{setBusy(false);}
@@ -63,6 +72,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
   {!teamId?<div role="alert" className="alert alert-warning">{translate("unavailable")}</div>:
    !canManage?<div className="card p-3 d-grid gap-2"><div role="status" className="alert alert-info">{translate("readonly")}</div>{loaded&&<><h2>{title}</h2><p>{translate("date")}: {date}</p><p>{translate("status")}: {translate(status)}</p><p>{description}</p></>}</div>:
   <form className="card p-3 p-lg-4 d-grid gap-3" onSubmit={save}>
+   {dirty&&<div className="alert alert-warning" role="status">{translate("unsaved")}</div>}
    <div className="row g-3">
     <div className="col-md-6"><label className="form-label" htmlFor="registry-type">{translate("type")}</label>
      <select id="registry-type" className="form-select" value={type} onChange={e=>changeType(e.target.value as RegistryType)}>
