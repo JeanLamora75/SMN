@@ -1,7 +1,7 @@
 "use client";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
-type Preview={ok:boolean;token?:string;warnings?:Array<{id:string;kind:string;startAt:string;endAt:string}>;impact?:{goalCount:number;storyPoints:unknown;initialCapacityJh:number|null;manualActualJh:number|null;recalculatedReferenceJh:number|null;missingSources:string[];initialAndManualPreserved:boolean};error?:string};
+type Preview={ok:boolean;token?:string;warnings?:Array<{id:string;kind:string;startAt:string;endAt:string}>;impact?:{goalCount:number;storyPoints:unknown;initialCapacityJh:number|null;manualActualJh:number|null;recalculatedReferenceJh:number|null;missingSources:string[];initialAndManualPreserved:boolean};registry?:{preserved:boolean;items:Array<{id:string;type:string;title:string;dueOn:string|null;outside:boolean}>};error?:string};
 export default function RescheduleForm(){
  const t=useTranslation();const [sprintId,setSprintId]=useState(""),[startAt,setStartAt]=useState(""),[endAt,setEndAt]=useState("");
  const [preview,setPreview]=useState<Preview|null>(null),[error,setError]=useState(""),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
@@ -22,6 +22,6 @@ export default function RescheduleForm(){
  <li>{t("sprintReschedule.manualRetained")}: {preview.impact.manualActualJh??t("sprintReschedule.missing")} JH</li>
  <li>{t("sprintReschedule.newReference")}: {preview.impact.recalculatedReferenceJh??t("sprintReschedule.missing")} JH</li>
  </ul><p>{t("sprintReschedule.unchanged")}</p>
- {preview.impact.missingSources.length>0&&<p>{t("sprintReschedule.missingSources")}: {preview.impact.missingSources.join(", ")}</p>}</div>}<p>{t("sprintReschedule.warningCount")}: {preview.warnings?.length??0}</p>{preview.warnings?.map(x=><p key={x.id}>{x.kind} — {x.startAt} — {x.endAt}</p>)}<button className="btn btn-primary" type="button" disabled={busy} onClick={confirm}>{t("sprintReschedule.confirm")}</button><button className="btn btn-outline-secondary ms-2" type="button" onClick={()=>setPreview(null)}>{t("sprintReschedule.cancel")}</button></div>}
+ {preview.impact.missingSources.length>0&&<p>{t("sprintReschedule.missingSources")}: {preview.impact.missingSources.join(", ")}</p>}</div>}{preview.registry&&<div className="alert alert-info" role="status"><strong>{t("sprintReschedule.registryPreserved")}</strong><ul>{preview.registry.items.map(item=><li key={item.id}><a href={"/app/admin/registries/"+encodeURIComponent(item.id)}>{item.title}</a> ({item.type}) — {item.dueOn??t("sprintReschedule.registryNoDue")} {item.outside&&<strong className="text-warning-emphasis"> — {t("sprintReschedule.registryOutside")}</strong>}</li>)}</ul></div>}<p>{t("sprintReschedule.warningCount")}: {preview.warnings?.length??0}</p>{preview.warnings?.map(x=><p key={x.id}>{x.kind} — {x.startAt} — {x.endAt}</p>)}<button className="btn btn-primary" type="button" disabled={busy} onClick={confirm}>{t("sprintReschedule.confirm")}</button><button className="btn btn-outline-secondary ms-2" type="button" onClick={()=>setPreview(null)}>{t("sprintReschedule.cancel")}</button></div>}
  {error&&<p role="alert" className="alert alert-warning">{error}</p>}{message&&<p role="status" className="alert alert-success">{message}</p>}</section>;
 }
