@@ -67,7 +67,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
     <p className="text-secondary mb-0">{data?.teamName??t("sprintsIndex.teamUnknown")} · Scrum</p>
    </div>
    {canManage&&<Link className="btn btn-primary"
-    href="/app/admin/sprints/tools#create-sprints">{t("sprintsIndex.generate")}</Link>}
+    href="/app/admin/sprints/generate">{t("sprintsIndex.generate")}</Link>}
   </header>
   <section className="smn-panel rounded-4 p-3 p-md-4 d-grid gap-3" aria-label={t("sprintsIndex.filters")}>
    <div className="row g-3 align-items-end">
@@ -120,7 +120,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
      <p className="text-secondary">{search.trim()||filter!=="all"?
       t("sprintsIndex.tryFilters"):t("sprintsIndex.emptyHint")}</p>
      {canManage&&!search.trim()&&filter==="all"&&
-      <Link href="/app/admin/sprints/tools#create-sprints" className="btn btn-outline-primary">
+      <Link href="/app/admin/sprints/generate" className="btn btn-outline-primary">
        {t("sprintsIndex.generate")}</Link>}
     </div>}
    {(!error&&!loading&&items.length>0)&&<>
