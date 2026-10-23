@@ -76,7 +76,7 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
 }
 export async function readRegistryItem(db:Client,id:string){
  if(!/^[0-9a-f-]{36}$/i.test(id))return null;
- const r=await db.query(`SELECT r.id,r.type,r.title,r.occurred_on::text AS "occurredOn",
+ const r=await db.query(`SELECT r.id,r.team_id AS "teamId",r.type,r.title,r.occurred_on::text AS "occurredOn",
  r.status,r.description,r.owner_name AS "owner",r.due_on::text AS "dueOn",
  r.comment,r.revision,r.created_at::text AS "createdAt",r.updated_at::text AS "updatedAt"
  FROM public.smn_registry_item r JOIN public.smn_team t ON t.id=r.team_id
