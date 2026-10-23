@@ -6,6 +6,7 @@ export default function FrozenPdfExport({sprintId,reference,label,errorLabel}:{s
  async function generate(){
  setBusy(true);setError(false);
  try{
+  if(!operation.current)operation.current=crypto.randomUUID();
   const r=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/pdf",{
    method:"POST",headers:{"Content-Type":"application/json","X-SMN-Export-Operation":operation.current},body:JSON.stringify({reference})});
   if(!r.ok)throw Error("pdf-failed");
