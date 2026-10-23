@@ -35,10 +35,12 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
     const kanban=privateNavigation("kanban","user");
     assert.equal(scrum.find(group=>group.id==="cycles")!.entries[0].label,"navigation.entries.sprints");
     assert.equal(kanban.find(group=>group.id==="cycles")!.entries[0].label,"navigation.entries.kanbanPeriods");
+    assert.equal(scrum.find(group=>group.id==="cycles")!.entries[0].href,"/app/admin/sprints");
+    assert.equal(kanban.find(group=>group.id==="cycles")!.entries[0].href,null);
     for(const groups of [scrum,kanban]){
       const text=JSON.stringify(groups);
       assert.doesNotMatch(text,/safe|art|train/i);
-      for(const future of groups.flatMap(group=>group.entries).filter(entry=>!["dashboard","security","members","centralCalendar"].includes(entry.id)))
+      for(const future of groups.flatMap(group=>group.entries).filter(entry=>!["dashboard","security","members","centralCalendar","cycles"].includes(entry.id)))
         assert.equal(future.href,null,"Aucun module futur ne peut être présenté comme actif");
     }
   });
