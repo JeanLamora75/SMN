@@ -6,6 +6,7 @@ import {useCallback,useEffect,useState,useRef} from "react";
 import type {EditableMember} from "../member-profile-editor";
 import MemberIdentityEditor from "./member-identity-editor";
 import AssignmentEditor from "../assignment-editor";
+import MemberAssignmentHistory from "./member-assignment-history";
 import MemberCalendarEditor from "../member-calendar-editor";
 import MemberLifecycleEditor from "../member-lifecycle-editor";
 import MemberAbsenceEditor from "../member-absence-editor";
@@ -22,6 +23,7 @@ export default function MemberDetail({id}:{id:string}){
  const [loading,setLoading]=useState(true);
  const [section,setSection]=useState<Section>(null);
  const [tab,setTab]=useState<Tab>("assignment");
+ const [assignmentRefreshKey,setAssignmentRefreshKey]=useState(0);
  const [error,setError]=useState("");
  const [location,setLocation]=useState<{current:{city:string|null;region:string|null;countryIso2:string|null}|null}|null>(null);
  const dialogRef=useRef<HTMLDivElement>(null);
@@ -48,7 +50,8 @@ export default function MemberDetail({id}:{id:string}){
  .then(async r=>{if(!r.ok)throw Error();return r.json();}).then(v=>{if(live)setLocation(v);}).catch(()=>{});
  return()=>{live=false;};},[id]);
  const member=roster?.members.find(x=>x.id===id);
- const saved=()=>{setSection(null);void refresh().catch(()=>setError(t("memberUX.refreshFailed")));
+ const saved=()=>{setSection(null);setAssignmentRefreshKey(current=>current+1);
+  void refresh().catch(()=>setError(t("memberUX.refreshFailed")));
   void fetch("/api/admin/members/"+encodeURIComponent(id)+"/location",{cache:"no-store"})
    .then(async r=>r.ok?r.json():null).then(v=>{if(v)setLocation(v);}).catch(()=>undefined);};
  const closeDialog=()=>{if(window.confirm(t("draft.discardWarning")))setSection(null);};
@@ -96,6 +99,7 @@ export default function MemberDetail({id}:{id:string}){
     <p>{t("memberUX.assignmentStart",{date:member.startOn??"—"})}</p>
     <div className="d-flex gap-2">{([["SM",member.roleShares.scrumMaster],["PO",member.roleShares.productOwner],["Dev",member.roleShares.developer]] as const).map(([label,value])=>
      <span className={"badge "+(value>0?"text-bg-primary":"text-bg-secondary")} key={label}>{label} {value} %</span>)}</div>
+    <MemberAssignmentHistory key={member.id+"-"+assignmentRefreshKey} memberId={member.id}/>
    </section>}
    {tab==="calendar"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.calendarTitle")} {button("calendar",t("memberUX.calendarEdit"))}</h2>
