@@ -125,3 +125,14 @@ L'onglet **Cérémonies** de la fiche Sprint est implémenté : trois types de s
 **Attention :** « Ajournée/Reportée » ne fait toujours pas partie des statuts persistés du producteur. Aucune fusion abusive avec « Non tenue » ou « Annulée » n'a été créée ; une décision métier est nécessaire avant de construire ce nouvel état. La fiche d'une réunion individuelle consulte actuellement la table opérationnelle, même si la liste du Sprint clôturé utilise le snapshot Vn.
 
 **État qualité :** revue statique 18/18 ; module pur `sprint-ceremony-detail.ts` compilé isolément, SHA Git vérifié et 14 assertions isolées exécutées avec succès. Compilation globale / tests du projet / recette navigateur et PostgreSQL **non exécutés**. [Rapport D4](../../../implementation-artifacts/realisation-d4-ceremonies-fiche-sprint-smn-234-2026-10-23.md).
+
+
+## État de réalisation D5 — 23 octobre 2026
+
+L'onglet **Capacité** présente désormais aux administrateurs les **membres affectés pendant le Sprint**, avec leurs **J/H de présence estimée** comme donnée principale, leurs **J/H de développement** distincts et une indication d'éventuelles journées non calculables. La source est le moteur existant (calendriers hebdomadaires et exceptions, absences, fériés, fermetures, périodes d'affectation). **Une demi-journée disponible représente 0,5 J/H de présence**, indépendamment du rôle Dev, de l'allocation et de la contribution : ceux-ci affectent les J/H de développement, pas l'estimation de présence. L'interface précise qu'il ne s'agit pas d'un pointage de présence effectivement constatée.
+
+**Droit :** les informations nominatives `members` sont réservées à l'admin conformément à `access-policy.ts` ; le rôle user conserve la fiche en lecture, sans chargement ni transmission de données individuelles. Aucun crayon inerte n'est affiché. Les J/H non calculables restent `null`, jamais un faux zéro ; le total disparaît si un membre manque de données. Les **nouvelles** clôtures enregistrent `memberPresence` dans le snapshot Vn. Les anciens snapshots non dotés de cet historique affichent **indisponible**, sans recalcul rétroactif.
+
+**Arbitrage restant** : contrôler/alerter lorsqu'un `contractPercent` à temps partiel ne correspond pas aux demi-journées prévues au calendrier individuel ; ne pas effectuer de deuxième multiplication par ce pourcentage sans définition métier validée.
+
+**Vérification :** revue statique 22/22, module TypeScript pur compilé isolément (SHA Git confirmé), 9/9 assertions isolées exécutées/réussies. Recette SMN, `pnpm typecheck`, tests complets du dépôt, PostgreSQL et navigateur non exécutés. Voir [réalisation D5](../../../implementation-artifacts/realisation-d5-capacite-presence-fiche-sprint-smn-234-2026-10-23.md).
