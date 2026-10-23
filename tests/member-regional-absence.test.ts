@@ -116,7 +116,7 @@ describe("jour régional traité comme absence individuelle",()=>{
   assert.equal(state.status,"known");
   // Member/day availability is read-only, but must query the applicable
   // assignment and team to avoid inventing availability or a second team.
-  assert.equal(fixture.calls.some(q=>/\\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER)\\b/i.test(q)),false);
+  assert.equal(fixture.calls.some(q=>/\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER)\b/i.test(q)),false);
   assert.equal(fixture.calls.filter(q=>q.includes("SELECT count(DISTINCT a.team_id)::integer AS team_count")).length,1);
   assert.equal(fixture.calls.filter(q=>q.includes("FROM public.smn_company_closure c")).length,1);
  });
