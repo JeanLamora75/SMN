@@ -2699,7 +2699,9 @@
     "trendsCaption": "Historical trends for closed cycles",
     "freeze": "Freeze and preview",
     "freezeError": "Could not freeze report.",
-    "frozenReference": "Frozen reference"
+    "frozenReference": "Frozen reference",
+    "pdfExport": "Generate server PDF",
+    "pdfError": "PDF generation failed. Check Chrome, Puppeteer and the local connection."
   },
   "reportLanguage": {
     "heading": "Report language",
