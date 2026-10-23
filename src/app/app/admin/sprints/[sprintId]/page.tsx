@@ -5,7 +5,7 @@ import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
 import {readCollectiveDashboard} from "@/server/dashboard/read";
 import {withDashboardRead} from "@/server/dashboard/read-only-db";
-import {readCycleDashboard} from "@/server/dashboard/cycle-reader";
+import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
 import {readSprintContext} from "@/server/sprints/context";
 import {effectiveSprintStatus} from "@/lib/sprint-context";
 import {requestLocale} from "@/i18n/locale.server";
@@ -13,6 +13,7 @@ import {translate,type TranslationKey} from "@/i18n/catalog";
 import BootstrapIcon from "../../../bootstrap-icon";
 import SprintDetailEditor from "./sprint-detail-editor";
 import SprintDetailTabs from "./sprint-detail-tabs";
+import SprintGoalsPanel from "./sprint-goals-panel";
 import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
 
 export const dynamic="force-dynamic";
@@ -44,8 +45,8 @@ export default async function SprintDetailPage({params,searchParams}:{
   const context=await readSprintContext(db,teamId);
   const cycle=context.items.find(item=>item.id===sprintId);
   if(!cycle)return null;
-  const projection=active==="objectives"?await readCycleDashboard(db,teamId,cycle):null;
-  return {cycle,projection};
+  const goals=active==="objectives"?await readSprintDetailGoals(db,teamId,cycle.id):null;
+  return {cycle,goals};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -54,7 +55,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,projection}=result;
+ const {cycle,goals}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
  const statusKeys:Record<string,TranslationKey>={
@@ -84,7 +85,6 @@ export default async function SprintDetailPage({params,searchParams}:{
   trends:"sprintDetail.pendingTrends",
   review:"sprintDetail.pendingReview"
  };
- const goals=projection.goals;
  const commonProps={
   sprintId:cycle.id,name:cycle.name,startAt:cycle.startAt,
   endAt:cycle.endAt,timeZone:cycle.timeZone
@@ -129,26 +129,10 @@ export default async function SprintDetailPage({params,searchParams}:{
     labels={labels} navLabel={t("dashboard.cockpit.sprintDetailsTitle")}/>
    <section role="tabpanel" tabIndex={0} id="smn-sprint-detail-panel"
     aria-labelledby={"smn-sprint-tab-"+active} className="pt-4">
-    {active==="objectives"?<>
-     <h2 className="h5 d-flex align-items-center gap-2 mb-3">
-      <BootstrapIcon name="bullseye"/>{t("dashboard.cockpit.allSprintGoals")}
-     </h2>
-     {goals?.state==="available"&&goals.items.length>0?
-      <ul className="list-group list-group-flush">
-       {goals.items.map(goal=><li key={goal.id}
-        className="list-group-item bg-transparent d-flex flex-wrap justify-content-between gap-2 px-0">
-        <span>{goal.title}</span>
-        <span className="text-secondary small">
-         {t(("sprintGoals."+goal.evaluation) as TranslationKey)}
-        </span>
-       </li>)}
-      </ul>:
-      <p className="text-secondary">
-       {goals?.state==="available"?t("dashboard.cockpit.goalNotSpecified"):
-        t("dashboard.cockpit.notAvailable")}
-      </p>}
-     <p className="small text-secondary mt-3 mb-0">{t("sprintDetail.pendingObjectives")}</p>
-    </>:<div className="py-3" role="status">
+    {active==="objectives"?<SprintGoalsPanel
+      sprintId={cycle.id} status={cycle.status} canManage={canManage}
+      data={goals??{state:"unavailable",reason:"read-failed"}}/>:
+      <div className="py-3" role="status">
      <p className="fw-semibold mb-1">{t("sprintDetail.availableLater")}</p>
      <p className="text-secondary mb-0">{t(waiting[active])}</p>
     </div>}
