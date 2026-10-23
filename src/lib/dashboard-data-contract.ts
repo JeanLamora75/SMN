@@ -120,7 +120,7 @@ export function metricAvailable(
   };
 }
 
-export function collectionUnavailable<T>(
+export function collectionUnavailable<T = never>(
   reason: DashboardUnavailableReason
 ): DashboardCollection<T> {
   return { state: "unavailable", reason };
