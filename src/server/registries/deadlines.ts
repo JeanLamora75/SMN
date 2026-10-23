@@ -28,13 +28,13 @@ export async function updateDeadlineSettings(db:Client,actorId:string,value:unkn
 export async function readDeadlineAlerts(db:Client,today:string){
  const settings=await readDeadlineSettings(db);
  const available=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_registry_item') IS NOT NULL AS present`);
- if(!available.rows[0]?.present)return {days:settings.days,alerts:[]};
+ if(!available.rows[0]?.present)return {days:settings.days,revision:settings.revision,alerts:[]};
  const r=await db.query<{id:string;title:string;type:string;status:string;dueOn:string|null}>(`
  SELECT r.id,r.title,r.type,r.status,r.due_on::text AS "dueOn" FROM public.smn_registry_item r
  JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND r.type IN ('action','dependency')
  AND r.due_on IS NOT NULL AND r.status IN ('todo','in_progress','open')
  ORDER BY r.due_on,r.id`);
- return {days:settings.days,alerts:r.rows.flatMap(x=>{const state=deadlineState(x.type,x.status,x.dueOn,today,settings.days);
+ return {days:settings.days,revision:settings.revision,alerts:r.rows.flatMap(x=>{const state=deadlineState(x.type,x.status,x.dueOn,today,settings.days);
  return state?[{...x,state}]:[];})};
 }
