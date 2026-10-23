@@ -53,6 +53,8 @@ export function planTemplateOccurrences(
   dates.push(date);
  }
  const workingDays=dates.filter(date=>isoDay(date)<=5&&!unavailableDays.has(date));
+ if(!workingDays.length&&templates.some(t=>t.frequency==="sprint"))
+  throw Error("template-no-working-day");
  const initialWorkday=workingDays[0],finalWorkday=workingDays.at(-1);
  const scheduled:PlannedOccurrence[]=[];
  for(const tpl of templates){
@@ -129,9 +131,9 @@ export async function saveTemplateOccurrences(db:Client,sprint:TemplateSprint,op
  ]);
  const unavailable=new Set(holidays.rows.map(row=>row.holiday_date));
  for(const row of closures.rows) {
-  for(let day=row.start_on;day<=row.end_on;day=plusDay(day)) {
-   if(day>=startDay&&day<=endDay)unavailable.add(day);
-  }
+  for(let day=row.start_on<startDay?startDay:row.start_on;
+      day<=(row.end_on>endDay?endDay:row.end_on);day=plusDay(day))
+   unavailable.add(day);
  }
  // Une zone de plages de travail différente de celle du Sprint rendrait
  // le placement indéterminé : ne pas effectuer de conversion arbitraire.
