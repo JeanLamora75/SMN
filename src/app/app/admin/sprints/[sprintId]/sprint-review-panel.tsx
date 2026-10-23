@@ -10,9 +10,9 @@ const kinds=["manual","ai"] as const;
 const titleKey={manual:"sprintDetail.reviewManualTitle",
  ai:"sprintDetail.reviewAiTitle"} as const;
 
-export default function SprintReviewPanel({data,sprintId,status,canManage,locale}:{
+export default function SprintReviewPanel({data,sprintId,status,canManage,locale,timeZone}:{
  data:ReviewProjection|null;sprintId:string;status:string;
- canManage:boolean;locale:"fr"|"en";
+ canManage:boolean;locale:"fr"|"en";timeZone:string;
 }){
  const t=useTranslation(),router=useRouter();
  const dialog=useRef<HTMLDialogElement>(null);
@@ -82,7 +82,7 @@ export default function SprintReviewPanel({data,sprintId,status,canManage,locale
   finally{setBusy(false);}
  }
  const formatDate=(raw:string)=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
-  dateStyle:"medium",timeStyle:"short"
+  dateStyle:"medium",timeStyle:"short",timeZone
  }).format(new Date(raw));
  return <section aria-label={t("sprintDetail.tabs.review")}>
   <h2 className="h5 mb-2">{t("sprintDetail.tabs.review")}</h2>
