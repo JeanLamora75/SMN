@@ -259,7 +259,8 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
  let remaining:DashboardMetric=metricUnavailable("read-failed");
  try{
   remaining=sprint.suspended?metricUnavailable("producer-not-ready"):
-   metricAvailable(sprintWorkingDaysRemaining(sprint,instant,"include-today").days,{
+   metricAvailable(status==="closed"||status==="finished"?0:
+    sprintWorkingDaysRemaining(sprint,instant,"include-today").days,{
     source:"calculated",quality:"known"
    });
  }catch{remaining=metricUnavailable("read-failed");}
