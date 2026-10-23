@@ -2458,5 +2458,18 @@
     "success": "Action créée",
     "error": "La création a échoué.",
     "again": "Créer une autre action"
+  },
+  "registryDeadlines": {
+    "heading": "Points d’attention — échéances",
+    "threshold": "Anticipation (jours calendaires)",
+    "save": "Enregistrer le seuil",
+    "saved": "Seuil enregistré",
+    "upcoming": "Échéance proche",
+    "overdue": "En retard",
+    "empty": "Aucune échéance nécessitant une attention",
+    "error": "Alertes d’échéance indisponibles",
+    "date": "Échéance",
+    "action": "Action",
+    "dependency": "Dépendance"
   }
 }
