@@ -281,3 +281,17 @@ Le Product Owner approuvera séparément l'ouverture de développements et toute
 - Les icônes de ce lot sont **Bootstrap Icons SVG locales**, décoratives et `aria-hidden` ; le texte accessible porte la signification.
 - Les KPI, calendriers et registres restent régis par leurs Stories (SMN-235/236/237, SMN-238 différée jusqu'à Epic 5). Aucun chiffre ni carte nouvellement inventé.
 - Dossier de réalisation : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md`. Tests et recette Windows encore à confirmer.
+
+
+## Extension comportementale du 23 octobre 2026 — Lot 2 : métriques
+
+- Les quatre cartes restent liées à **l'unique Sprint sélectionné** et utilisent exclusivement la projection métier collective existante, même lors d'une clôture Vn.
+- La moitié supérieure de Capacité/SP/Tickets affiche les mesures **initiales** ; la moitié inférieure les mesures **réelles/terminées**, sans transposition depuis l'engagement final.
+- Le ratio de carte est une comparaison mathématique neutre `valeur-secondaire / valeur-initiale * 100` ; **uniquement si** deux mesures de qualité connue, dénominateur positif et numérateur non négatif. Il ne décrit ni la productivité individuelle ni un avancement global.
+- Si valeur initiale = zéro ou valeur absente/inconnue/estimée, **ne présenter aucun anneau, aucun pourcentage**. Le zéro enregistré est toujours distingué de `null`/source indisponible.
+- Si le résultat dépasse 100 %, restituer le vrai nombre dans le texte et l'accessibilité, avec limite physique d'un cercle plein.
+- Les libellés ARIA distinguent le ratio de disponibilité réelle/prévue du rapport SP terminés/initialement engagés et du rapport tickets terminés/initialement engagés.
+- La comparaison inter-Sprints n'est pas remplacée par ces ratios ; « Comparaison indisponible » reste honnête jusqu'à SMN-86.
+- Les jours ouvrés ont leur propre carte, **sans ratio**, avec compteur et convention provisoire des jours ouvrés déjà existante.
+- Aucun nouveau producteur, calcul SQL, droit ou champ de base créé dans ce lot.
+- Dossier BMAD : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot2-cartes-kpi-2026-10-23.md`. Recette Windows/UX réelle à confirmer.
