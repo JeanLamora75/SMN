@@ -88,3 +88,24 @@ Sur `http://127.0.0.1:3003/app/admin/sprints`, valider :
 ## Adaptation BMAD
 
 Skill Amelia `.agents/skills/bmad-agent-dev/SKILL.md` et personnalisation équipe consultés. Exécution via le connecteur GitHub ; scripts `uv run` non exécutés dans un checkout local indisponible. Les artefacts et tests respectent autant que possible le flux de développement BMAD.
+
+## Retour de recette Windows — 23 octobre 2026
+
+L'utilisateur a exécuté :
+
+```powershell
+pnpm exec tsx --test tests/smn-231-sprint-wizard.test.ts tests/smn-230-sprints-index.test.ts tests/sprints-refonte-etape0.test.ts tests/sprints-refonte-dates-etape0.test.ts
+```
+
+**Résultat avant correction : 42 tests, 41 réussis, 1 échec** dans `SMN-231`, scénario « revalide conflits et empreinte avant d'écrire ». L'assertion de structure recherchait la chaîne SQL `INSERT INTO public.smn_sprint` immédiatement suivie d'un saut de ligne dans la source. Elle échouait localement même si le code de confirmation contenait l'aperçu de collision et la comparaison d'empreinte avant l'insertion.
+
+**Correction sur `main` :** `tests/smn-231-sprint-wizard.test.ts` vérifie maintenant séparément la présence et l'ordre des trois opérations : `previewSprintBatch(...)` → `hash(preview,settings,input.generateHistoricalCeremonies)!==saved.digest` → `INSERT INTO public.smn_sprint` (expression régulière tolérant les espaces et sauts de ligne). La vérification sur le texte du service courant donne les positions 1115, 1664 et 2069 ; l'ordre est conforme. **Aucun code de création, aucune API, aucune migration ni donnée n'a été modifié par ce correctif.**
+
+Le résultat attendu après synchronisation du dépôt est **42/42 tests réussis**, sous réserve de l'exécution effective sur le PC Windows ; le typecheck et le build restent à confirmer.
+
+```powershell
+pnpm exec tsx --test tests/smn-231-sprint-wizard.test.ts tests/smn-230-sprints-index.test.ts tests/sprints-refonte-etape0.test.ts tests/sprints-refonte-dates-etape0.test.ts
+pnpm i18n:check
+pnpm typecheck
+pnpm build
+```
