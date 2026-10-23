@@ -23,6 +23,7 @@ test("no AI TXT through report export authorization",()=>{
  assert.equal(reportExportAllowed("ai-brief"),false);
 });
 test("list entries explicitly remove extra private fields",()=>{
- const items=safeCollectiveItems([{label:"item",detail:"status",href:null,email:"secret@example.org"}]);
+ const source=[{label:"item",detail:"status",href:null,email:"secret@example.org"}];
+ const items=safeCollectiveItems(source);
  assert.equal("email" in items[0],false);
 });
