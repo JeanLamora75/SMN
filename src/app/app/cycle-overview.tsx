@@ -158,7 +158,9 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection}
         </p>
         <p className="smn-deadline-explanation">
           {projection?.workingDaysRemaining.state==="available"?
-            t("dashboard.cockpit.todayIncludedProvisional"):
+            (effectiveStatus==="closed"||effectiveStatus==="finished"?
+              t("dashboard.cockpit.workingDaysEnded"):
+              t("dashboard.cockpit.todayIncludedProvisional")):
             t(cycle?"dashboard.cockpit.workingDaysPending":"dashboard.cockpit.workingDaysHelp")}
         </p>
       </article>
