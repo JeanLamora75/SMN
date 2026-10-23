@@ -6,8 +6,8 @@ import type {TranslationKey} from "@/i18n/catalog";
 type Text=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>string;
 
 /** The parent must NEVER fetch or pass the nominal data for role=user. */
-export default function SprintCapacityPanel({data,canViewNames,t}:{
- data:SprintPresence|null;canViewNames:boolean;t:Text;
+export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
+ data:SprintPresence|null;canViewNames:boolean;locale:"fr"|"en";t:Text;
 }){
  if(!canViewNames)return <section aria-label={t("sprintDetail.tabs.capacity")}>
   <h2 className="h5 mb-3">{t("sprintDetail.tabs.capacity")}</h2>
@@ -17,7 +17,7 @@ export default function SprintCapacityPanel({data,canViewNames,t}:{
  </section>;
  const fmt=(value:number|null)=>{
   if(value===null)return t("sprintDetail.presenceUnknown");
-  return new Intl.NumberFormat(undefined,{maximumFractionDigits:4}).format(value)+" J/H";
+  return new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:4}).format(value)+" J/H";
  };
  return <section aria-label={t("sprintDetail.tabs.capacity")}>
   <div className="d-flex align-items-center flex-wrap justify-content-between gap-2 mb-3">
