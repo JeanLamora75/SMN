@@ -17,7 +17,9 @@
     "db:sync:ceremonies": "tsx scripts/sync-ceremony-templates.ts",
     "db:diagnose": "tsx scripts/diagnose-schema.ts",
     "recover:admin": "node scripts/recover-admin.mjs",
-    "i18n:check": "node scripts/verify-i18n.mjs"
+    "i18n:check": "node scripts/verify-i18n.mjs",
+    "pdf:doctor": "node scripts/report-pdf-doctor.mjs",
+    "pdf:smoke": "node scripts/report-pdf-doctor.mjs --smoke"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
