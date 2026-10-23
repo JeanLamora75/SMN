@@ -1877,5 +1877,19 @@
       "cards": "Card view",
       "list": "List view"
     }
+  },
+  "memberAbsences": {
+    "add": "Add an absence",
+    "upcoming": "Upcoming and ongoing",
+    "past": "Past",
+    "status": "Status",
+    "delete": "Delete",
+    "deleteConfirmation": "Delete the absence starting {date}? Its audit history will be retained and it will no longer count toward availability.",
+    "pastWarning": "Warning: this absence is in the past. Correcting it may change newly calculated capacity, but frozen initial commitments and closed period reports will not be rewritten.",
+    "deleted": "The absence no longer counts toward availability; its audit history remains visible.",
+    "deletedStatus": "Deleted",
+    "noneUpcoming": "No upcoming or ongoing absences.",
+    "nonePast": "No past absences.",
+    "capacityNotice": "Non-frozen availability and capacity are recalculated on the next read. Frozen initial references and closed period reports remain unchanged."
   }
 }
