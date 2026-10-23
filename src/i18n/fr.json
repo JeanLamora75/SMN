@@ -1926,6 +1926,7 @@
     "calendarPending": "Le calendrier par identifiant de sprint sera disponible lors de l'étape Navigation.",
     "rowActions": "Actions du sprint {name}",
     "actionsPending": "Les actions directement liées à cette ligne seront ajoutées lors de l'étape Actions.",
+    "concurrentActive": "Attention : {count} sprints sont simultanément déclarés en cours sur la période actuelle. Vérifiez leurs dates et leurs états.",
     "legacyTools": "Outils de gestion existants",
     "page": "Page {page} sur {total}",
     "previous": "Précédente",
