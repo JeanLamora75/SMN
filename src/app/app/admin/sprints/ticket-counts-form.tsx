@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Counts={initial:number|null;done:number|null};
 type Sprint={id:string;name:string;status:string};
@@ -13,6 +13,7 @@ export default function TicketCountsForm({canManage}:{canManage:boolean}){
  const [revision,setRevision]=useState(0),[busy,setBusy]=useState(false);
  const [error,setError]=useState(""),[notice,setNotice]=useState("");
  const dirty=JSON.stringify(counts)!==JSON.stringify(saved);
+ const requestId=useRef(0);
  useEffect(()=>{
   const controller=new AbortController();
   void fetch("/api/admin/sprints/states",{cache:"no-store",signal:controller.signal})
@@ -29,6 +30,7 @@ export default function TicketCountsForm({canManage}:{canManage:boolean}){
   return()=>window.removeEventListener("beforeunload",handler);
  },[dirty]);
  async function choose(id:string){
+  const token=++requestId.current;
   setSprintId(id);setCounts(empty);setSaved(empty);
   setRevision(0);setSprintStatus("");setError("");setNotice("");
   if(!id)return;
@@ -40,10 +42,11 @@ export default function TicketCountsForm({canManage}:{canManage:boolean}){
    const result=await response.json() as {
     sprint:{status:string};counts:Counts;revision:number
    };
+   if(token!==requestId.current)return;
    setCounts(result.counts);setSaved(result.counts);
    setRevision(result.revision);setSprintStatus(result.sprint.status);
-  }catch{setError(t("sprintTickets.error"));}
-  finally{setBusy(false);}
+  }catch{if(token===requestId.current)setError(t("sprintTickets.error"));}
+  finally{if(token===requestId.current)setBusy(false);}
  }
  async function save(){
   if(!sprintId||!canManage||busy||sprintStatus==="closed")return;
@@ -67,7 +70,7 @@ export default function TicketCountsForm({canManage}:{canManage:boolean}){
   <h2 className="h4" id="smn-sprint-tickets-title">{t("sprintTickets.title")}</h2>
   <p className="text-secondary">{t("sprintTickets.description")}</p>
   <label htmlFor="smn-tickets-sprint" className="form-label">{t("sprintTickets.sprint")}</label>
-  <select id="smn-tickets-sprint" className="form-select" value={sprintId}
+  <select id="smn-tickets-sprint" className="form-select" disabled={busy} value={sprintId}
    onChange={e=>{if(!dirty||window.confirm(t("sprintReview.discard")))void choose(e.target.value);}}>
    <option value="">—</option>
    {sprints.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
