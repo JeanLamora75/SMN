@@ -68,10 +68,12 @@ export type WizardPreviewStage="schema"|"periods"|"team"|"lunch"|"settings"|"nam
 export class WizardPreviewFailure extends Error{
  readonly stage:WizardPreviewStage;
  readonly sqlState:string|null;
+ readonly originalCause:unknown;
  constructor(stage:WizardPreviewStage,cause:unknown){
   super("wizard-preview-unavailable");
   this.name="WizardPreviewFailure";
   this.stage=stage;
+  this.originalCause=cause;
   const code=typeof cause==="object"&&cause!==null&&"code" in cause?
    (cause as {code?:unknown}).code:null;
   this.sqlState=typeof code==="string"&&/^[A-Z0-9]{5}$/.test(code)?code:null;
