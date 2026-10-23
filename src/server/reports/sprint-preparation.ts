@@ -4,9 +4,10 @@ export async function prepareSprintReport(db:Client,sprintId:string){
  const result=await db.query<{id:string;name:string;status:string;teamId:string;team:string;product:string|null;startAt:string;endAt:string;timeZone:string}>(`
  SELECT s.id,s.name,s.status,s.team_id AS "teamId",t.name AS team,
  s.start_at::text AS "startAt",s.end_at::text AS "endAt",s.time_zone AS "timeZone",
- i.product_name AS product
+ p.name AS product
  FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
+ JOIN public.smn_product p ON p.id=t.product_id AND p.installation_id=i.id
  WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton'
  AND i.state='initialized' AND lower(i.mode)='scrum'`,[sprintId]);
  const sprint=result.rows[0];if(!sprint)return null;
