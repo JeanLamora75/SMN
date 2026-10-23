@@ -2151,6 +2151,25 @@
   "ceremonyStatusHelp": "Le statut « Tenue » déduit automatiquement n'atteste pas de la participation réelle. Une réunion reconstituée n'est pas une preuve de tenue. Le statut « Ajournée » nécessite une future règle métier.",
   "ceremonySource": {"standard":"Cérémonie standard","custom":"Réunion personnalisée","exceptional":"Réunion exceptionnelle"},
   "ceremonyKind": {"planning":"Sprint Planning","daily":"Daily Scrum","review":"Sprint Review","retrospective":"Rétrospective"},
-  "ceremonyStatus": {"scheduled":"Prévue","held":"Tenue","notHeld":"Non tenue","cancelled":"Annulée","unknown":"Statut inconnu"}
+  "ceremonyStatus": {"scheduled":"Prévue","held":"Tenue","notHeld":"Non tenue","cancelled":"Annulée","unknown":"Statut inconnu"},
+  "presenceTitle": "Présence des membres pendant le Sprint",
+  "presenceManageMembers": "Gestion des membres",
+  "presenceRestricted": "Les présences individuelles sont réservées à l’administrateur. L’utilisateur conserve l’accès en lecture à la fiche Sprint sans données nominatives.",
+  "presenceMethod": "Estimation en J/H fondée sur les demi-journées programmées pour chaque membre, déduction faite des absences, jours fériés et fermetures. 2 demi-journées disponibles = 1 J/H de présence ; les contributions et pourcentages de développement ne réduisent pas ce chiffre.",
+  "presenceTotal": "Présence totale estimée",
+  "presenceMembers": "Membres affectés durant le Sprint",
+  "presenceMember": "Membre",
+  "presenceJh": "Présence (J/H)",
+  "presenceDevelopmentJh": "Développement (J/H)",
+  "presenceQuality": "Fiabilité",
+  "presenceUnknown": "Non calculable",
+  "presenceUnknownDays": "{count} jour(s) sans données fiables",
+  "presenceComplete": "Données renseignées",
+  "presenceDistinction": "La présence est une disponibilité théorique issue des calendriers et absences, pas une présence effectivement constatée. Les J/H de développement mesurent séparément la part consacrée au développement. Le calendrier individuel doit refléter les horaires à temps partiel.",
+  "presenceEmpty": "Aucun membre affecté à cette équipe sur la période du Sprint.",
+  "presenceForecast": "Calcul courant à partir des calendriers et absences enregistrés ; les journées futures sont prévisionnelles.",
+  "presenceSnapshot": "Valeurs figées à la clôture — instantané V{version}.",
+  "presenceHistoryMissing": "Cet ancien Sprint clôturé ne possède pas de photographie fiable des présences individuelles. Aucune valeur actuelle n’est substituée.",
+  "presenceUnavailable": "Présences non calculables : une ou plusieurs sources requises sont absentes ou inaccessibles."
   }
 }
