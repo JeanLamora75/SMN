@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {readScrumReportProjection} from "./report-projection";
 export async function prepareSprintReport(db:Client,sprintId:string){
  if(!/^[a-f0-9-]{36}$/i.test(sprintId))return null;
  const result=await db.query<{id:string;name:string;status:string;teamId:string;team:string;product:string|null;startAt:string;endAt:string;timeZone:string}>(`
@@ -28,6 +29,9 @@ export async function prepareSprintReport(db:Client,sprintId:string){
   const r=await db.query<{id:string;title:string;evaluation:string}>(`
    SELECT id,title,evaluation FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]);goals=r.rows;
  }
- return {sprint,goals,snapshotVersion,provisional:sprint.status!=="closed",template:"standard" as const,
+ const projection=await readScrumReportProjection(db,{cycle:{
+ id:sprint.id,teamId:sprint.teamId,name:sprint.name,status:sprint.status,startAt:sprint.startAt,endAt:sprint.endAt,timeZone:sprint.timeZone
+ },status:sprint.status,objectives:goals});
+ return {sprint,goals,projection,snapshotVersion,provisional:sprint.status!=="closed",template:"standard" as const,
  source:sprint.status==="closed"?(snapshotVersion?"closure-snapshot":"historical-data-unavailable"):"current"};
 }
