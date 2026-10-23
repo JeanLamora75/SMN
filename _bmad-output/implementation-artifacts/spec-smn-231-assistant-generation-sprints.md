@@ -12,7 +12,7 @@ Le bouton « Générer des sprints » de `/app/admin/sprints` ouvre désormais `
 
 1. **Configuration** : quantité 1 à 6, date de départ, initialisation par la proposition déjà existante. La cadence et les horaires sont lus, non modifiés.
 2. **Prévisualisation** : génération calculée selon le fuseau IANA et la cadence, dates de chaque sprint, noms par défaut éditables (160 caractères), collisions de dates **bloquantes**, noms déjà utilisés ou répétés **avec avertissement non bloquant**, liste des modèles récurrents actifs. Pour les sprints dont la date de début est passée, option « Générer les cérémonies de l'équipe » **désactivée par défaut**.
-3. **Confirmation** : récapitulatif, sauvegarde atomique de tous les sprints via jeton périssable, puis retour à la liste. Une erreur ou un aperçu périmé ne provoque aucun succès fictif et permet de recalculer l'aperçu.
+3. **Confirmation** : récapitulatif, sauvegarde atomique de tous les sprints via jeton périssable, puis retour à la liste en restaurant recherche, état filtré, tri et pagination. Une erreur ou un aperçu périmé ne provoque aucun succès fictif et permet de recalculer l'aperçu.
 
 Annuler, fermeture et Échap protègent les modifications. Un nom ou une option historique modifiée invalide le jeton et requiert de recalculer l'aperçu. Tous les textes sont dans `src/i18n/fr.json` et `en.json`.
 
@@ -59,7 +59,7 @@ Les routines `ensureBatchSchema`, `ensureCeremonySchema` et `ensureTemplateOccur
 - `src/app/api/team-calendar/meetings/route.ts`, `src/app/app/team-calendar/team-calendar-view.tsx`, `meeting/[kind]/[id]/page.tsx` — provenance dans Calendrier ;
 - `src/app/app/admin/sprints/ceremony-editor.tsx`, `template-occurrences-list.tsx` — libellés administrateur ;
 - `src/i18n/fr.json`, `en.json` — parité FR/EN ;
-- `tests/smn-231-sprint-wizard.test.ts` — 16 scénarios unitaires sur le parseur et contrôles statiques des contrats (pas un test PostgreSQL de bout en bout).
+- `tests/smn-231-sprint-wizard.test.ts` — 17 scénarios unitaires sur le parseur et contrôles statiques des contrats (pas un test PostgreSQL de bout en bout).
 
 ## Recette locale et scénarios prioritaires
 
