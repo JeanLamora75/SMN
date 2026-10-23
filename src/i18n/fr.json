@@ -262,7 +262,14 @@
       "add": "Ajouter",
       "unavailable": "Indisponible",
       "empty": "Aucun éléments à ce jour",
-      "sourceUnavailable": "Les fiches de ce cycle ne sont pas encore accessibles. Aucun total ni état historique ne peut être confirmé."
+      "obstacle": "Obstacle",
+    "risk": "Risque",
+    "itemCount": "{count} éléments",
+    "priorityLow": "Faible",
+    "priorityMedium": "Moyenne",
+    "priorityHigh": "Élevée",
+    "priorityUnknown": "Non évaluée",
+    "sourceUnavailable": "Les fiches de ce cycle ne sont pas encore accessibles. Aucun total ni état historique ne peut être confirmé."
     }
   },
   "session": {
