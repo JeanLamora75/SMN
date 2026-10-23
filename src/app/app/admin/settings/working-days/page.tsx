@@ -32,8 +32,8 @@ export default async function WorkingDaysSettingsPage(){
     <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">
      ← {t("navigation.entries.settings")}
     </Link>
-    <h1 className="h3">${t("settingsSprint.workingDaysTitle")}</h1>
-    <p className="text-secondary">${t("settingsSprint.workingDaysScope")}</p>
+    <h1 className="h3">{t("settingsSprint.workingDaysTitle")}</h1>
+    <p className="text-secondary">{t("settingsSprint.workingDaysScope")}</p>
    </header>
   <WorkSlotsForm/>
   <LunchForm/>
