@@ -86,3 +86,24 @@ Vérifier sur `http://127.0.0.1:3003/app/admin/sprints` : pleine largeur, priori
 **Exécutions réellement effectuées :** vérifications de structure des sources publiées via GitHub. **Non effectuées :** exécution de `tsx`, `tsc`, `pnpm build`, authentification HTTP / PostgreSQL réel, recette navigateur et capture écran. GitHub Actions indisponibles. Jira reste « À faire » en attente de validation.
 
 **Adaptation BMAD :** agent Amelia et contrats lus dans le dépôt, implémentation via connecteur GitHub. Le workflow officiel `uv run` n'est pas exécuté sur une copie locale, aucun résultat fictif de validation.
+
+
+## Correctif du retour de tests Windows — 23/10/2026
+
+L'utilisateur a exécuté :
+```powershell
+pnpm exec tsx --test tests/smn-230-sprints-index.test.ts tests/private-navigation.test.ts tests/smn-227-settings-navigation.test.ts tests/smn-229-settings-relocation.test.ts
+```
+**Résultat réel avant correctif : 35 tests, 27 réussis, 8 échecs**, tous dans `tests/smn-230-sprints-index.test.ts`. Les huit erreurs sont identiques : `ReferenceError: pageSize is not defined`, `src/server/sprints/index.ts:90:36`.
+
+**Cause :** la réponse de `readSprintIndex` faisait référence à une variable locale `pageSize` inexistante ; le chemin d'installation vierge utilisait déjà correctement `query.pageSize`. Tous les tests appelant la branche avec table de sprints échouaient au retour, après lecture simulée.
+
+**Correctif sur `main` :** `pageSize:query.pageSize` dans le retour de la branche normale. Deux assertions ciblées ont été ajoutées au test existant pour contrôler `pageSize=25` sur les parcours avec données et sans table. Aucune requête, API, migration, donnée ni règle métier modifiée.
+
+**Qualification :** modification contrôlée dans le code distant ; les **35 tests locaux après correctif restent à relancer**. La réussite des tests, le `typecheck` et le build ne sont pas attestés par l'assistant.
+
+```powershell
+pnpm exec tsx --test tests/smn-230-sprints-index.test.ts tests/private-navigation.test.ts tests/smn-227-settings-navigation.test.ts tests/smn-229-settings-relocation.test.ts
+pnpm typecheck
+pnpm build
+```
