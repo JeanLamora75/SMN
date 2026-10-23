@@ -18,7 +18,7 @@ export default async function MeetingPage({params}:{params:Promise<{kind:string;
  const labels=(locale==="en"?en:fr).calendarUX;
  const reconstructedLabel=(locale==="en"?en:fr).sprintWizard.reconstructedLabel;
  const {kind,id}=await params;
- if(!["ceremony","exceptional"].includes(kind)||!UUID.test(id))notFound();
+ if(!["ceremony","template","exceptional"].includes(kind)||!UUID.test(id))notFound();
  const row=await withAuthDb(async db=>{
   const sql=kind==="ceremony"?
    `SELECT (s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,
@@ -26,6 +26,14 @@ export default async function MeetingPage({params}:{params:Promise<{kind:string;
     FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE i.id='singleton' AND s.deleted_at IS NULL AND c.id=$1`:
+   kind==="template"?
+   `SELECT o.name,o.starts_at::text AS start_at,o.ends_at::text AS end_at,
+    COALESCE(o.status,'scheduled') AS status,o.generation_source
+    FROM public.smn_scrum_template_occurrence o
+    JOIN public.smn_sprint s ON s.id=o.sprint_id
+    JOIN public.smn_team t ON t.id=s.team_id
+    JOIN public.smn_installation i ON i.id=t.installation_id
+    WHERE i.id='singleton' AND s.deleted_at IS NULL AND o.id=$1`:
    `SELECT m.name,m.starts_at::text AS start_at,m.ends_at::text AS end_at,
     COALESCE(m.status,'scheduled') AS status,'standard' AS generation_source
     FROM public.smn_sprint_exceptional_meeting m JOIN public.smn_sprint s ON s.id=m.sprint_id
