@@ -2491,5 +2491,19 @@
     "all": "Tous les cycles",
     "cycle": "Cycle",
     "status": "Statut"
+  },
+  "automaticHighlights": {
+    "heading": "Catégories automatiques du journal",
+    "intro": "Ces réglages concernent uniquement les prochains événements métier confirmés. Aucun ancien fait n'est modifié.",
+    "criticalRisk": "Risque critique",
+    "atRiskDependency": "Dépendance à risque",
+    "resolvedObstacle": "Obstacle résolu",
+    "achievedGoal": "Objectif atteint",
+    "recordedDecision": "Décision enregistrée",
+    "satisfiedDependency": "Dépendance satisfaite",
+    "save": "Enregistrer les catégories",
+    "saved": "Configuration enregistrée",
+    "error": "Impossible d'enregistrer les catégories",
+    "readonly": "Consultation uniquement"
   }
 }
