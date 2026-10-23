@@ -145,3 +145,9 @@ La Story Jira [SMN-229](https://lmn24.atlassian.net/browse/SMN-229) reste non cl
 - Les anciens outils restent sur `/app/admin/sprints/tools` comme filet de sécurité transitoire ; les actions `⋯` par sprint relèvent de SMN-232.
 - **Recette à effectuer** : `tests/smn-231-sprint-wizard.test.ts` (17 scénarios), `pnpm i18n:check`, `pnpm typecheck`, `pnpm build`, validation navigateur et PostgreSQL, notamment SMN-160. La seule lecture GitHub et les assertions statiques ne constituent pas une validation fonctionnelle.
 
+
+## SMN-231 — Diagnostic des échecs de prévisualisation (23/10/2026)
+
+Retour recette utilisateur : l'assistant de génération restait en étape Configuration après « Prévisualiser », avec un message d'erreur générique, sans signalement du stade d'échec. L'API de prévisualisation classe désormais les incidents par phase technique (schéma, périodes, équipe, pause, paramètres, noms, jeton) et SQLSTATE non sensible ; seule la console serveur journalise le message de la cause. Les étapes de l'assistant ne présentent plus de double numérotation.
+
+**Traçabilité :** [avenant de recette SMN-231](../_bmad-output/implementation-artifacts/spec-smn-231-assistant-generation-sprints.md). **Prudence :** sans le nouveau diagnostic émis sur le poste Windows, aucune cause réelle du blocage n'est établie et la réussite fonctionnelle n'est pas attestée. L'utilisateur doit relancer la prévisualisation, relever l'étape et le code affichés si l'erreur se reproduit, puis confirmer les tests TypeScript et le build. Aucun changement Jira.
