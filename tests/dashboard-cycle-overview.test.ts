@@ -43,7 +43,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
     const html=view("scrum","fr");
     assert.match(html,/Objectif/);
     assert.match(html,/Non renseigné/);
-    assert.match(html,/Dates/);
+    assert.doesNotMatch(html,/smn-cycle-date-range/);
     assert.doesNotMatch(html,/20\d\d-\d\d-\d\d|\b\d+\s*jours ouvrés restants\b/);
     assert.doesNotMatch(html,/href="\/app\/cycles/);
   });
