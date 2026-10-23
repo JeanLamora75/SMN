@@ -2,6 +2,7 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 import {obstacleTransition} from "@/lib/obstacle-lifecycle";
+import {recordConfirmedHighlight} from "./confirmed-highlights";
 
 export type RegistryInput={type:RegistryType;title:string;occurredOn:string;status:string;description:string|null;owner:string|null;dueOn:string|null;comment:string|null;teamId:string};
 const dateRx=/^\d{4}-\d{2}-\d{2}$/;
@@ -72,6 +73,7 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
   await db.query(`INSERT INTO public.smn_registry_item_audit
    (id,item_id,revision,before_values,after_values,actor_id)
    VALUES($1,$2,1,NULL,$3::jsonb,$4)`,[randomUUID(),id,JSON.stringify(input),actorId]);
+  if(input.type==="decision"&&input.status==="active")await recordConfirmedHighlight(db,{category:"recordedDecision",sourceKind:"registry",sourceId:id,sourceRevision:1,title:input.title,actorId});
   await db.query("COMMIT");return {ok:true as const,id,revision:1};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
@@ -124,6 +126,8 @@ export async function updateRegistryItem(db:Client,actorId:string,id:string,revi
    (id,item_id,revision,before_values,after_values,actor_id)
    VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
    [randomUUID(),id,revision+1,JSON.stringify({title:old.title,occurredOn:old.occurred_on,status:old.status,description:old.description,owner:old.owner_name,dueOn:old.due_on,comment:old.comment,teamId:old.team_id,type:old.type}),JSON.stringify(input),actorId]);
+  if(input.type==="obstacle"&&old.status!=="resolved"&&input.status==="resolved")await recordConfirmedHighlight(db,{category:"resolvedObstacle",sourceKind:"registry",sourceId:id,sourceRevision:revision+1,title:input.title,actorId});
+  if(input.type==="dependency"&&old.status!=="satisfied"&&input.status==="satisfied")await recordConfirmedHighlight(db,{category:"satisfiedDependency",sourceKind:"registry",sourceId:id,sourceRevision:revision+1,title:input.title,actorId});
   await db.query("COMMIT");return {ok:true as const,id,revision:revision+1};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
