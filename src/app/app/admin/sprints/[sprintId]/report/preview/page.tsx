@@ -1,3 +1,4 @@
+import "./print.css";
 import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
