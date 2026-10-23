@@ -61,9 +61,11 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
     {sprintResult===null&&<p role="alert" className="alert alert-warning">
       {t("sprintsIndex.error")}
     </p>}
-    <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle} projection={projection}/>
+    {sprintResult!==null&&<>
+      <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle} projection={projection}/>
 
-    <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone}/>
+      <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone}/>
+    </>}
 
     <div className="container mb-4">
       <Link href="/app/team-calendar" className="btn btn-outline-primary">
