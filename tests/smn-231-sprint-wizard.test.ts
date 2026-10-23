@@ -50,6 +50,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   assert.match(server,/consumed_at IS NULL AND expires_at>now\(\) FOR UPDATE/);
   assert.match(server,/saved\.actor_id!==actorId/);
   assert.match(server,/pg_advisory_xact_lock/);
+  assert.match(server,/LOCK TABLE public.smn_scrum_cadence/);
   assert.match(server,/stale-preview/);
   assert.match(server,/hash\(preview,settings,input\.generateHistoricalCeremonies\)!==saved\.digest/);
  });
@@ -103,6 +104,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   assert.match(client,/const invalidate=\(\)=>\{setToken\(null\)/);
   assert.match(client,/updateName\(i,event\.target\.value\)/);
   assert.match(client,/updateHistorical\(event\.target\.checked\)/);
+  assert.match(client,/sprintWizard\.duplicateName/);
   assert.match(client,/!token\|\|!snapshotMatches/);
  });
  it("supprime les cérémonies d'une reprise historique par défaut, sans affecter le futur",()=>{
