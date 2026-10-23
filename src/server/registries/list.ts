@@ -28,9 +28,9 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
  const total=count.rows[0]?.total??0,pageSize=25,totalPages=Math.max(1,Math.ceil(total/pageSize));
  const page=Math.min(filters.page,totalPages);
  const rows=await db.query(`SELECT r.id,r.type,r.title,r.status,r.occurred_on::text AS "occurredOn",
-  r.due_on::text AS "dueOn" ${canSeeOwner?',r.owner_name AS "owner"':''}
+  r.due_on::text AS "dueOn",r.created_at::text AS "recordedAt" ${canSeeOwner?',r.owner_name AS "owner"':''}
   FROM public.smn_registry_item r WHERE ${where}
-  ORDER BY r.occurred_on DESC,r.id ASC LIMIT 25 OFFSET $6`,[...values,(page-1)*pageSize]);
+  ORDER BY r.occurred_on DESC,r.created_at DESC,r.id ASC LIMIT 25 OFFSET $6`,[...values,(page-1)*pageSize]);
  return {state:"available" as const,team:team.rows[0],items:rows.rows,
   total,page,pageSize,totalPages,
   filters:{...filters,owner:canSeeOwner?filters.owner:""}};
