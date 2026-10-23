@@ -162,3 +162,10 @@ Le cadrage UX de la fiche Sprint a été mis à jour après les anciennes mentio
 **Preuves :** huit contrôles unitaires isolés réussis sur le convertisseur horaire, équivalence du SHA GitHub, traduction FR/EN valide ; aucun `pnpm typecheck`, build Next.js ni recette navigateur exécutés sur le projet complet. **D1 est publié mais en attente de validation locale**, D2–D9 non réalisés. Voir [livraison D1](../_bmad-output/implementation-artifacts/realisation-d1-fiche-sprint-smn-234-2026-10-23.md), [contrat UX](../_bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md) et [audit D0](../_bmad-output/implementation-artifacts/audit-d0-fiche-sprint-smn-234-2026-10-23.md).
 
 Les anciennes mentions de fiche future ou de lien non cliquable sont **historiques** et ne décrivent plus l'état du code D1.
+
+
+## Réalisation fiche Sprint — D2 Objectifs (23/10/2026)
+
+Le code de l'onglet Objectifs de [SMN-234](https://lmn24.atlassian.net/browse/SMN-234) est publié sur `main`. Le Scrum Master admin peut **ajouter un objectif** créé avec état « Non évalué » et **éditer chaque objectif** (titre, commentaire et évaluation) via un crayon Bootstrap et une modal. La lecture collective du rôle utilisateur reste accessible sans boutons de modification. La persistance réutilise `writeSprintGoal`, les révisions et `smn_sprint_goal_audit`, avec refus de mutation des Sprints clôturés. La lecture du Sprint clôturé provient du snapshot Vn, pas des objectifs actuels.
+
+**Statut qualité :** contrôles statiques des fichiers et contrats 12/12 ; tests TypeScript ajoutés mais **non exécutés**, compilation `pnpm typecheck` / build et recette navigateur toujours requises. [Livraison détaillée D2](../_bmad-output/implementation-artifacts/realisation-d2-objectifs-fiche-sprint-smn-234-2026-10-23.md). Les onglets autres qu'Objectifs restent à implémenter selon D3–D8.
