@@ -2672,7 +2672,10 @@
     "saved": "Template saved",
     "conflict": "This template has changed. Reload it before saving.",
     "deleteInfo": "Deletion is temporarily blocked to protect archives and references.",
-    "leaveWarning": "Template changes are not saved. Leave without saving?"
+    "leaveWarning": "Template changes are not saved. Leave without saving?",
+    "apply": "Load into report",
+    "applyConfirm": "Replace this report's sections, content and history depth with the selected template? The saved template will not change.",
+    "unavailable": "This template is no longer available. Select another one."
   },
   "reportPreview": {
     "open": "Preview report",
