@@ -127,3 +127,13 @@ Pas de travaux SAFe/ART ni d'intégration Jira automatique dans ces Lots. Kanban
 - **Tests** : cas unitaires écrits mais **`pnpm typecheck` et `pnpm exec tsx --test tests/dashboard-data-contract.test.ts` non exécutés dans cette session** ; à lancer sur Windows avant validation technique.
 
 Les étapes 1 à 5 et l'ordre de Stories restent inchangés. Aucun ticket Jira n'a été réécrit et aucune PR n'est nécessaire au fonctionnement futur demandé : les modifications validées seront publiées directement sur `main`.
+
+## Avancement de l'étape 1 — SMN-235 — 23 octobre 2026
+
+- **Code publié dans `main` sans PR** à la demande de l'utilisateur : `src/server/dashboard/cycle-reader.ts`, `read-only-db.ts`, raccordement de `page.tsx` et `cycle-overview.tsx` et extension contrôlée de `readActualCapacity`.
+- Objectifs, J/H initiaux et réels, Story Points initiaux et réalisés sont désormais projetés par `cycleId` de Sprint, sans DDL en consultation ; snapshot PostgreSQL `REPEATABLE READ READ ONLY` et consultation des Vn pour les clôtures.
+- Le calcul individuel interne de capacité ne devient pas une donnée individuelle visible dans la projection.
+- Un zéro enregistré, une absence de saisie, une source absente et une version de clôture non disponible sont différents dans le contrat et l'affichage ; les tickets et jours ouvrés restent non raccordés.
+- **Dossier de réalisation :** [realisation-smn-235-dashboard-2026-10-23.md](realisation-smn-235-dashboard-2026-10-23.md), tests `tests/smn-235-dashboard-projection.test.ts`.
+- **À confirmer avant statut « Terminé » dans Jira :** `pnpm typecheck`, tests ciblés sur Windows, navigation et PostgreSQL réel, contrôle des bornes inclusives et de la capacité calculée, lecture historique V1/V2 et accès complet à la fiche d'objectifs.
+- **Statut :** implémentation sur `main`, validation locale attendue. Ne pas confondre publication du code et recette acquise.
