@@ -19,6 +19,15 @@ export async function GET(request:NextRequest){
     WHERE i.id='singleton' AND s.deleted_at IS NULL
      AND c.starts_at < ($2::date + INTERVAL '1 day') AND c.ends_at >= $1::date
     UNION ALL
+    SELECT o.id,o.name,o.starts_at::text,o.ends_at::text,
+           'template' AS kind,o.generation_source
+    FROM public.smn_scrum_template_occurrence o
+    JOIN public.smn_sprint s ON s.id=o.sprint_id
+    JOIN public.smn_team t ON t.id=s.team_id
+    JOIN public.smn_installation i ON i.id=t.installation_id
+    WHERE i.id='singleton' AND s.deleted_at IS NULL
+     AND o.starts_at < ($2::date + INTERVAL '1 day') AND o.ends_at >= $1::date
+    UNION ALL
     SELECT m.id,m.name,m.starts_at::text,m.ends_at::text,'exceptional','standard'
     FROM public.smn_sprint_exceptional_meeting m JOIN public.smn_sprint s ON s.id=m.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id

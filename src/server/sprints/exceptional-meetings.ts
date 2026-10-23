@@ -55,6 +55,10 @@ export async function createExceptionalMeeting(db:Client,actor:string,raw:unknow
  FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
  WHERE s.team_id=$1 AND s.deleted_at IS NULL AND c.starts_at<$3 AND c.ends_at>$2
  UNION ALL
+ SELECT 'template' AS kind,o.name,o.starts_at::text,o.ends_at::text
+ FROM public.smn_scrum_template_occurrence o JOIN public.smn_sprint s ON s.id=o.sprint_id
+ WHERE s.team_id=$1 AND s.deleted_at IS NULL AND o.starts_at<$3 AND o.ends_at>$2
+ UNION ALL
  SELECT 'exceptional' AS kind,m.name,m.starts_at::text,m.ends_at::text
  FROM public.smn_sprint_exceptional_meeting m JOIN public.smn_sprint s ON s.id=m.sprint_id
  WHERE s.team_id=$1 AND s.deleted_at IS NULL AND m.starts_at<$3 AND m.ends_at>$2

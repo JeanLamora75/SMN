@@ -28,7 +28,12 @@ export async function readMeetingConflicts(db:Client){
  JOIN public.smn_sprint s ON s.id=c.sprint_id
  JOIN public.smn_sprint_ceremony_segment seg ON seg.ceremony_id=c.id
  WHERE s.team_id=$1 AND s.deleted_at IS NULL
- ORDER BY seg.starts_at,c.id`,[teamId]);
+ UNION ALL
+ SELECT o.id,o.name AS title,o.starts_at::text AS start_at,o.ends_at::text AS end_at
+ FROM public.smn_scrum_template_occurrence o
+ JOIN public.smn_sprint s ON s.id=o.sprint_id
+ WHERE s.team_id=$1 AND s.deleted_at IS NULL
+ ORDER BY start_at,id`,[teamId]);
  const slots:MeetingSlot[]=query.rows.map(x=>({id:x.id,title:x.title,startAt:new Date(x.start_at).toISOString(),endAt:new Date(x.end_at).toISOString(),teamId,source:"ceremony"}));
  const warnings=detectMeetingConflicts(slots);
  const closure=await db.query<{id:string;name:string;start_on:string;end_on:string}>(`SELECT id,name,start_on::text,end_on::text FROM public.smn_company_closure
@@ -41,7 +46,10 @@ export async function readMeetingConflicts(db:Client){
   return `${o.year}-${o.month}-${o.day}`;
  };
  const zones=await db.query<{id:string;time_zone:string}>(`SELECT c.id,s.time_zone FROM public.smn_sprint_ceremony c
- JOIN public.smn_sprint s ON s.id=c.sprint_id WHERE s.team_id=$1 AND s.deleted_at IS NULL`,[teamId]);
+ JOIN public.smn_sprint s ON s.id=c.sprint_id WHERE s.team_id=$1 AND s.deleted_at IS NULL
+ UNION ALL
+ SELECT o.id,s.time_zone FROM public.smn_scrum_template_occurrence o
+ JOIN public.smn_sprint s ON s.id=o.sprint_id WHERE s.team_id=$1 AND s.deleted_at IS NULL`,[teamId]);
  const zoneMap=new Map(zones.rows.map(x=>[x.id,x.time_zone]));
  for(const slot of slots){
   const zone=zoneMap.get(slot.id)??"Europe/Paris";
