@@ -97,7 +97,7 @@ describe("SMN-234 D2 — écran et écritures",()=>{
   assert.match(page,/<SprintGoalsPanel /);
   assert.match(panel,/canManage&&status!=="closed"/);
   assert.match(panel,/method:"POST"/);
-  assert.match(panel,/revision:current\.revision/);
+  assert.match(panel,/revision:current!\.revision/);
   assert.match(panel,/router\.refresh\(\)/);
  });
 });
