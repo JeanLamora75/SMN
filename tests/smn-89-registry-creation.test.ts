@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {parseRegistryInput,registryTypes,registryStatuses,validDate} from "../src/server/registries/items";
+import {parseRegistryInput,validDate} from "../src/server/registries/items";
+import {registryTypes,registryStatuses} from "../src/lib/registry-types";
 const base={teamId:"team-1",title:"  Un sujet  ",occurredOn:"2026-10-23"};
 test("six categories et statuts propres",()=>{
  assert.equal(registryTypes.length,6);
