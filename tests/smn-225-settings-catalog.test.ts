@@ -18,17 +18,20 @@ describe("SMN-225 — Catalogue des Paramètres",()=>{
  });
  it("n'invente aucun lien pour les fonctions manquantes ou partiellement accessibles",()=>{
   const entries=flatten("scrum");
-  for(const id of ["languages","appearance","ceremonies","capacity","workingDays"]){
+  for(const id of ["capacity"]){
    assert.equal(entries.find(e=>e.id===id)?.href,null);
   }
-  assert.equal(entries.find(e=>e.id==="workingDays")?.status,"planned");
+  assert.equal(entries.find(e=>e.id==="workingDays")?.status,"partial");
+  assert.equal(entries.find(e=>e.id==="workingDays")?.href,"/app/admin/settings/working-days");
+  assert.equal(entries.find(e=>e.id==="ceremonies")?.status,"partial");
+  assert.equal(entries.find(e=>e.id==="ceremonies")?.href,"/app/admin/settings/ceremonies");
   assert.equal(entries.find(e=>e.id==="capacity")?.status,"partial");
   assert.equal(entries.find(e=>e.id==="general")?.href,"/app/admin/settings/general");
   assert.equal(entries.some(e=>["integrations","notifications"].includes(e.id)),false);
  });
  it("respecte le mode Kanban sans retirer les rubriques du catalogue",()=>{
   const entries=flatten("kanban");
-  for(const id of ["cadence","ceremonies"]){
+  for(const id of ["cadence","ceremonies","workingDays"]){
    assert.equal(entries.find(e=>e.id===id)?.status,"not-applicable");
    assert.equal(entries.find(e=>e.id===id)?.href,null);
   }
