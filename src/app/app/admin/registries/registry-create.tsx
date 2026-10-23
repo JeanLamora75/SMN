@@ -1,7 +1,7 @@
 "use client";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
-import {registryStatuses,registryTypes,type RegistryType} from "@/server/registries/items";
+import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 type Response={ok:boolean;id?:string;error?:string};
 const today=()=>{
  const d=new Date();
