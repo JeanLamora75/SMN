@@ -16,7 +16,7 @@ export async function ensureCeremonyEditSchema(db:Client){
 export async function listEditableCeremonies(db:Client){
  await ensureCeremonyEditSchema(db);
  const r=await db.query(`SELECT c.id,c.kind,c.starts_at::text AS "startAt",c.ends_at::text AS "endAt",
-  c.minutes,c.revision,c.occurrence_status AS status,c.provenance,s.name AS "sprintName"
+  c.minutes,c.revision,c.occurrence_status AS status,c.provenance,c.generation_source AS "generationSource",s.name AS "sprintName"
   FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
   JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE i.id='singleton' AND lower(i.mode)='scrum' AND s.deleted_at IS NULL
