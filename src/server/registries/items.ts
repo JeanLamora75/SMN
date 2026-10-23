@@ -123,3 +123,18 @@ export async function updateRegistryItem(db:Client,actorId:string,id:string,revi
   await db.query("COMMIT");return {ok:true as const,id,revision:revision+1};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+/** Historical revisions are read without writes, scoped to the installed team. */
+export async function readRegistryHistory(db:Client,id:string){
+ if(!/^[0-9a-f-]{36}$/i.test(id))return null;
+ const item=await db.query<{id:string}>(`SELECT r.id FROM public.smn_registry_item r
+ JOIN public.smn_team t ON t.id=r.team_id
+ JOIN public.smn_installation i ON i.id=t.installation_id
+ WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'`,[id]);
+ if(item.rows.length!==1)return null;
+ const history=await db.query<{revision:number;changedAt:string;actorId:string|null;beforeValues:unknown;afterValues:unknown}>(`
+ SELECT revision,changed_at::text AS "changedAt",actor_id AS "actorId",
+ before_values AS "beforeValues",after_values AS "afterValues"
+ FROM public.smn_registry_item_audit WHERE item_id=$1 ORDER BY revision DESC`,[id]);
+ return {id,revisions:history.rows};
+}
