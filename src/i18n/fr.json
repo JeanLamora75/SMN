@@ -2335,5 +2335,24 @@
     "conflict": "La classification a changé entre-temps. Actualisez la page.",
     "updatedAt": "Dernière modification",
     "unavailable": "Classification indisponible"
+  },
+  "registryAssessment": {
+    "heading": "Évaluation du risque",
+    "probability": "Probabilité",
+    "impact": "Impact",
+    "none": "Non renseigné",
+    "low": "Faible",
+    "medium": "Moyen",
+    "high": "Élevé",
+    "unassessed": "Non évaluée",
+    "score": "Score",
+    "provisional": "Aperçu provisoire — non enregistré",
+    "saved": "Criticité enregistrée",
+    "save": "Enregistrer l’évaluation",
+    "saving": "Enregistrement…",
+    "error": "Évaluation indisponible.",
+    "conflict": "La fiche a changé. Rechargez l’évaluation.",
+    "updated": "Évaluation enregistrée.",
+    "symbol": "Niveau de criticité"
   }
 }
