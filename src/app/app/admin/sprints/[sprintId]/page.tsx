@@ -38,7 +38,7 @@ export default async function SprintDetailPage({params,searchParams}:{
  const requested=await searchParams;
  const active=parseSprintTab(typeof requested.tab==="string"?requested.tab:undefined);
  const pageParam=typeof requested.page==="string"?requested.page:"1";
- const ceremonyPage=/^[1-9]\\d{0,6}$/.test(pageParam)?Number(pageParam):1;
+ const ceremonyPage=/^[1-9]\d{0,6}$/.test(pageParam)?Number(pageParam):1;
  const dashboard=await withAuthDb(readCollectiveDashboard).catch(()=>null);
  if(!dashboard)return <main className="container-fluid px-3 px-lg-4 py-4">
   <div role="alert" className="alert alert-warning">
