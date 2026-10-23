@@ -2663,6 +2663,15 @@
     "sections": "rubriques",
     "copyName": "Nom de la copie",
     "copy": "Dupliquer le modèle Standard",
-    "error": "Impossible de consulter ou de copier les modèles."
+    "error": "Impossible de consulter ou de copier les modèles.",
+    "edit": "Modifier un modèle personnalisé",
+    "depth": "Profondeur historique (cycles)",
+    "metrics": "Indicateurs",
+    "qualitative": "Informations qualitatives",
+    "save": "Enregistrer les modifications",
+    "saved": "Modèle enregistré",
+    "conflict": "Ce modèle a été modifié entre-temps. Rechargez-le avant d’enregistrer.",
+    "deleteInfo": "Suppression temporairement bloquée afin de préserver les archives et leurs références.",
+    "leaveWarning": "Des modifications de modèle ne sont pas enregistrées. Quitter sans sauvegarder ?"
   }
 }
