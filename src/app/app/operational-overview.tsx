@@ -93,7 +93,7 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
  locale:Language;events:CollectiveCycleProjection["events"];
  teamId:string;cycleId:string;timeZone:string;
 }>){
- const t=(key:TranslationKey)=>translate(locale,key);
+ const t=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>translate(locale,key,params);
  const definition=PANELS.find(p=>p.id==="events")!;
  const base=new URLSearchParams({teamId,cycleId});
  const calendarHref="/app/team-calendar?"+base.toString();
