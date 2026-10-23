@@ -1651,7 +1651,10 @@
     "manualRetained": "Manual capacity unchanged",
     "newReference": "Provisional new reference",
     "unchanged": "No source or manual capacity is changed.",
-    "missingSources": "Missing sources"
+    "missingSources": "Missing sources",
+    "registryPreserved": "Linked risks and dependencies preserved with unchanged status, owner, due date and history",
+    "registryOutside": "Due date outside new cycle bounds: review manually",
+    "registryNoDue": "No due date"
   },
   "sprintGoals": {
     "title": "Sprint goals",
