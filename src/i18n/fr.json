@@ -2100,6 +2100,14 @@
     "close": "Fermer",
     "draftNotice": "La prévisualisation est invalidée après toute modification des dates.",
     "availableLater": "Fonctionnalité en préparation",
-    "notProvided": "Non renseigné"
+    "notProvided": "Non renseigné",
+    "goalsAdd": "Ajouter un objectif",
+    "goalsEditNamed": "Modifier l’objectif : {name}",
+    "goalsCreateTitle": "Nouvel objectif du Sprint",
+    "goalsEditTitle": "Modifier et évaluer l’objectif",
+    "goalsNewUnevaluated": "Un nouvel objectif est créé avec l’état « Non évalué ». L’évaluation se renseigne ensuite via Modifier.",
+    "goalsConflict": "Cet objectif a été modifié depuis l’ouverture de la fiche. Recharge les données avant de réessayer.",
+    "goalsClosed": "Ce Sprint est clôturé. Les objectifs ne peuvent plus être modifiés sans réouverture.",
+    "goalsHistorical": "Objectifs issus de l’instantané de clôture V{version}."
   }
 }
