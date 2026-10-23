@@ -176,6 +176,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
  let version:number|null=null;
  let events:CollectiveCycleProjection["events"]=collectionUnavailable("producer-not-ready");
  if(status==="closed"){
+  events=collectionUnavailable("history-missing");
   if(await tableExists(db,"smn_sprint_closure_snapshot")){
    const r=await db.query<{version:number;snapshot:unknown}>(`
     SELECT version,snapshot FROM public.smn_sprint_closure_snapshot
