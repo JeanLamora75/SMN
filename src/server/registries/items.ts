@@ -1,16 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 
-export const registryTypes=["risk","obstacle","dependency","decision","action","highlight"] as const;
-export type RegistryType=(typeof registryTypes)[number];
-export const registryStatuses={
- risk:["open","owned","accepted","mitigated","resolved"],
- obstacle:["open","in_progress","resolved","abandoned"],
- dependency:["open","in_progress","satisfied","cancelled"],
- decision:["active","replaced","cancelled"],
- action:["todo","in_progress","completed","cancelled"],
- highlight:["recorded"]
-} as const satisfies Record<RegistryType,readonly string[]>;
 export type RegistryInput={type:RegistryType;title:string;occurredOn:string;status:string;description:string|null;owner:string|null;dueOn:string|null;comment:string|null;teamId:string};
 const dateRx=/^\d{4}-\d{2}-\d{2}$/;
 export function validDate(value:unknown):value is string{
