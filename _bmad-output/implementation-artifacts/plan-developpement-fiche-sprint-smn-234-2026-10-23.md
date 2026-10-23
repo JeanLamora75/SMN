@@ -4,7 +4,7 @@ story: SMN-234
 epic: SMN-228
 date: 2026-10-23
 language: fr
-status: d0-documented-d1-d2-code-published-awaiting-local-recette
+status: d0-documented-d1-d3-code-published-awaiting-local-recette
 source: _bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md
 ---
 
@@ -23,7 +23,7 @@ La route `src/app/app/admin/sprints/[sprintId]/page.tsx` **existe**, mais ne con
 | **D0 — Analyse des sources et contrats** — **audit documenté le 23/10/2026 (sans test exécuté)** | Contrat d'entrée par `sprintId`, composant fiche et modèle de droits ; matrice valeurs persistées/calculées/indisponibles ; arbitrages ouverts documentés | SMN-234, dashboards SMN-235–238, Epic 3/4 | Validation des schémas, route, RBAC, APIs et du contrat présence sans régression ; tests ciblés définis |
 | **D1 — Structure et bandeau** — **code publié, recette complète en attente** | Bandeau compact nom/dates/équipe/statut et 7 onglets. Crayon sur nom/dates seulement si commandes sûres ; navigation depuis liste/dashboard, design responsive | SMN-230, SMN-232, première route déjà présente | Même `sprintId` dans tous les onglets, FR/EN, user lecture, permissions serveur, no false edit; aucune rubrique synthèse |
 | **D2 — Objectifs** — **code publié, recette locale en attente** | Liste complète, ajout, édition nom/commentaire/évaluation par objectif, historique et erreurs | SMN-83 / `goals.ts` | Cas 0,1,n ; non évalué par défaut ; édition admin uniquement ; clôturé protégé ; corrections concurrentes couvertes |
-| **D3 — Indicateurs** | 8 champs F01/F02/F03/F04/F10/F11/I01/I02 éditables et sauvegardés ; 4 dérivés F05/F06/F07/F12 recalculés en brouillon et après save | SMN-84, tickets `ticket-counts.ts`, nouvelles persistances I01/I02 | Équations vérifiées, zéro/null/dénominateur absent/dépassement ; 1..5 ; révisions et audit ; UI temps réel sans writes automatiques |
+| **D3 — Indicateurs** — **code publié, recette complète en attente** | 8 champs F01/F02/F03/F04/F10/F11/I01/I02 éditables et sauvegardés ; 4 dérivés F05/F06/F07/F12 recalculés en brouillon et après save | SMN-84, tickets `ticket-counts.ts`, nouvelles persistances I01/I02 | Équations vérifiées, zéro/null/dénominateur absent/dépassement ; 1..5 ; révisions et audit ; UI temps réel sans writes automatiques |
 | **D4 — Cérémonies** | Liste exhaustive de toutes les occurrences, statuts visibles, provenance des statuts si possible, durées, actions contextuelles vers réunions/calendrier | SMN-72–81, SMN-64, travaux icônes Bootstrap par type | Tri temporel, pagination sans perte, statuts prévus/tenus/non tenus/annulés ; « ajourné » uniquement après règle validée ; DST, historique sans faux « tenue » |
 | **D5 — Capacité et équipe** | Liste des contributeurs avec J/H de présence **principaux**, disponibilité développement secondaire et totaux explicites ; absences et contextes sans données sensibles | SMN-42–64, `src/server/capacity/engine.ts` ; **nouveau contrat de J/H présence à valider** | Membre entrant/sortant, temps partiel, absences/jour férié, demi-journée, non-calculable ; cohérence J/H et autorisation nominative |
 | **D6 — Tendances graphiques** | Trois courbes/tableaux accessibles, cinq clôtures éligibles du même collectif (G04/G05/G06/G07) | SMN-86, `src/server/sprints/trends.ts` | 0–5 clôtures, Vn, non-comparables = null, ordre correct, i18n, unité SP/%/JH, pas de graphiques fictifs |
@@ -80,3 +80,10 @@ SMN-234 est la **Story mère UX** existante de l'Epic SMN-228. Ne pas la dupliqu
 La réalisation est documentée dans [realisation-d2-objectifs-fiche-sprint-smn-234-2026-10-23.md](realisation-d2-objectifs-fiche-sprint-smn-234-2026-10-23.md). L'onglet Objectifs dispose désormais d'une liste complète, d'un bouton Ajouter en mode administrateur, de crayons d'édition par objectif, de l'évaluation et des commentaires en modal, avec révision et audit par l'API existante. La lecture commune de l'équipe est `SELECT-only` et les Sprints clôturés lisent leur dernier snapshot Vn. Le rôle `user` ne voit aucune édition. FR/EN mis à jour.
 
 **Contrôle effectué :** revue statique 12/12 vérifications positives ; **aucune exécution** de `pnpm typecheck`, `tsx --test`, build, DB ou navigateur. **D1 et D2 codés, non recettés.** La prochaine étape de code prévue reste **D3 — Indicateurs**, après le contrôle de non-régression et la résolution des écarts rencontrés.
+
+
+## Journal D3 — 23 octobre 2026 : Indicateurs codés et noyau calculé vérifié
+
+La réalisation D3 est décrite dans [realisation-d3-indicateurs-fiche-sprint-smn-234-2026-10-23.md](realisation-d3-indicateurs-fiche-sprint-smn-234-2026-10-23.md). Huit valeurs éditables F01/F02/F03/F04/F10/F11/I01/I02, quatre dérivés F05/F06/F07/F12 mis à jour immédiatement dans les brouillons, stockage historisé des notes 1–5, snapshots Vn et lecture collective SELECT-only sont publiés sur `main`. La source SP dérivée est partagée avec le moteur d'origine. Les anciens formulaires de bilan ne sont pas supprimés.
+
+**Contrôles effectués :** revue statique 18/18 ; compilation TypeScript isolée d'une copie du module pur authentifiée par SHA Git `22e0f92...` ; **14/14 assertions isolées réussies sous Node.js 22**. **Non exécutés :** `pnpm typecheck` global, tests du dépôt `tsx --test`, `pnpm build`, base PostgreSQL et recette navigateur. D1–D3 sont **développés mais non recettés**, la Story globale reste ouverte. **Suite prévue : D4 — Cérémonies.**
