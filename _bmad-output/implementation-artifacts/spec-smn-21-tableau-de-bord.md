@@ -123,3 +123,22 @@ Implémentation incrémentale via connecteur GitHub, publication directe sur mai
 
 
 **Résultat CI observé sur la PR #29 — 21/10/2026 :** [Vérification I0 #326](https://github.com/JeanLamora75/SMN/actions/runs/39585419874) et [Paquet Windows #141](https://github.com/JeanLamora75/SMN/actions/runs/39585419871) ont tous deux échoué **avant démarrage des tests** : jobs `windows-smoke`, `linux-postgres` et `portable-windows` avec `runner_id=0` et `steps=[]`. Le statut GitHub « failure » ne constitue pas un résultat de `pnpm test`, `lint`, `typecheck` ou `build`. La cause exacte de non-attribution des runners n'est pas identifiée via les journaux disponibles. Les **16 contrôles statiques** indépendants et le calcul des 30 contrastes ont été exécutés sur les sources ; le reste de la matrice navigateur doit être effectué sur Windows.
+
+## Extension BMAD — raccordement des données du cockpit (23/10/2026)
+
+**Origine :** accord utilisateur de formaliser quatre Stories Jira et un plan par étapes, après la correction du sélecteur Sprint (PR #104). L'affichage du cycle existe maintenant, mais le service `readCollectiveDashboard` ne projette toujours aucune métrique, objectif, réunion ou attention du Sprint choisi ; les cartes/cadres restent statiques.
+
+**Document d'implémentation associé :** [Plan SMN-235 à SMN-238](plan-raccordement-dashboard-SMN-235-238-2026-10-23.md).
+
+| Story | Epic | Contrat ajouté | État |
+| --- | --- | --- | --- |
+| [SMN-235](https://lmn24.atlassian.net/browse/SMN-235) | SMN-1 | Objectifs, capacité initiale/réelle, SP engagement initial / terminés | À développer |
+| [SMN-236](https://lmn24.atlassian.net/browse/SMN-236) | SMN-1 | Tickets agrégés + jours ouvrés restants ; source des tickets et inclusion du jour courant à confirmer | À développer |
+| [SMN-237](https://lmn24.atlassian.net/browse/SMN-237) | SMN-1 | Occurrences des modèles actifs, réunions exceptionnelles, lien calendrier/fiche | À développer |
+| [SMN-238](https://lmn24.atlassian.net/browse/SMN-238) | SMN-5 | Obstacles, risques, notes et alertes selon producteurs vérifiés ; distinct de SMN-104 | À développer après Epic 5 |
+
+**Séquence recommandée pour Amelia :** audit du contrat de projection collective, puis SMN-235 → SMN-237 → SMN-236 → SMN-238, et recette finale transversale de SMN-21 (comparaisons SMN-86 à réévaluer lorsque disponibles).
+
+**Contraintes obligatoires :** aucun modèle fictif, aucun zéro substitué à une absence, sécurité serveur des données collectives, `cycleId` unique pour tous les blocs, libellés FR/EN dans JSON, instantanés historiques respectés, interfaces en lecture seule (attention : plusieurs services `read...` actuels déclenchent `ensure...Schema`, à découpler pour une vraie projection sans écriture).
+
+**Aucune preuve de livraison logicielle ou de recette n'est produite par cette documentation.** Les Stories existantes SMN-21, SMN-83/84/85 et SMN-104 restent inchangées dans Jira ; cette extension ne modifie pas rétroactivement leurs critères d'acceptation.
