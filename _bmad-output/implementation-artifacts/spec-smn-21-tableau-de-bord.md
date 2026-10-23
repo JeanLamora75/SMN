@@ -167,3 +167,14 @@ Sur `main`, la projection du tableau de bord couvre désormais les éléments du
 **Livrable BMAD :** [refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md](refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md). Les spines UX `DESIGN.md` et `EXPERIENCE.md` du 21 octobre portent un addendum approuvé pour ce lot. Les icônes sont les SVG officiels Bootstrap Icons embarqués localement sous licence MIT ; aucun CDN.
 
 **Publication directe `main`** selon la décision du projet ; recette Node, PostgreSQL et navigateur encore à valider. Les lots 2/3 (cartes KPI, icônes des événements) et lot 4 (registres Epic 5) restent à part. Jira non modifié.
+
+
+## Incrément visuel du dashboard — lot 2, 23 octobre 2026
+
+**Décision utilisateur :** enchaîner directement avec la refonte des cartes KPI après validation du lot 1 d'en-tête Sprint.
+
+**Implémentation `main` :** nouveau composant `KpiMetricPair`/`KpiDeadline`, Bootstrap Icons `people-fill`/`stack`/`ticket-perforated-fill`/`calendar-event`, gros chiffre principal, secondaire sous filet, provenance et ratio **informatif et facultatif** `réalisé/initial` lorsque les deux valeurs sont connues avec référence initiale positive. Dénominateur nul, donnée absente ou estimée → aucun pourcentage ; zéro réalisé et taux supérieur à 100 % correctement distingués. Jours ouvrés restent sans ratio, sans seuil d'alerte inventé. Les **quatre cartes** continuent de lire le Sprint sélectionné, aucun avancement global fictif.
+
+**Livrable :** [refonte-ux-dashboard-lot2-cartes-kpi-2026-10-23.md](refonte-ux-dashboard-lot2-cartes-kpi-2026-10-23.md). Addenda complémentaires dans les spines UX DESIGN/EXPERIENCE. Tests créés dans `tests/dashboard-ux-kpi-cards.test.ts`, `pnpm typecheck/test/build` et recette navigateur/DB réels encore à confirmer.
+
+Lot 3 : icônes événementielles à développer. Lot 4 / SMN-238 toujours différé jusqu'à Epic 5. Aucun statut Jira modifié ni Story déclarée terminée par cette publication.
