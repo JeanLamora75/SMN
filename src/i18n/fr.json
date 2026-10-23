@@ -2384,5 +2384,15 @@
     "conflict": "Conflit de modification : rechargez la fiche",
     "inactive": "Dépendance satisfaite ou annulée : aucune alerte active d’échéance",
     "active": "La dépendance reste active indépendamment du signal À risque"
+  },
+  "registryCycles": {
+    "heading": "Cycles associés",
+    "intro": "Une même fiche peut être associée à plusieurs Sprints sans duplication.",
+    "empty": "Aucun Sprint disponible.",
+    "linked": "Associé",
+    "unlinked": "Non associé",
+    "closed": "Sprint clôturé — modification interdite",
+    "error": "Impossible de modifier cette association.",
+    "loading": "Chargement des Sprints…"
   }
 }
