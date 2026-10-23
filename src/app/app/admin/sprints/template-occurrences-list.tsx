@@ -19,7 +19,7 @@ export default function TemplateOccurrencesList(){
  {!error&&rows.length===0&&<p>{t("templateOccurrences.empty")}</p>}
  {rows.length>0&&<div className="table-responsive"><table className="table">
  <thead><tr><th>{t("templateOccurrences.meeting")}</th><th>{t("templateOccurrences.sprint")}</th><th>{t("templateOccurrences.period")}</th><th>{t("templateOccurrences.version")}</th></tr></thead>
- <tbody>{rows.map(x=><tr key={x.id}><td>{x.name}</td><td>{x.sprintName}</td><td>{local(x.startAt,x.timeZone)} – {local(x.endAt,x.timeZone)}</td><td>{x.templateRevision}{!x.templateActive?" · "+t("templateOccurrences.inactive"):""}</td></tr>)}</tbody>
+ <tbody>{rows.map(x=><tr key={x.id}><td>{x.name}</td><td>{x.sprintName}</td><td>{local(x.startAt,x.timeZone)} – {local(x.endAt,x.timeZone)}</td><td>{x.templateRevision}{x.generationSource==="reconstructed"?" · "+t("sprintWizard.reconstructedLabel"):""}{!x.templateActive?" · "+t("templateOccurrences.inactive"):""}</td></tr>)}</tbody>
  </table></div>}
  </section>;
 }
