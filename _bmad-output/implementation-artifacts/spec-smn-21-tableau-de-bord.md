@@ -142,3 +142,17 @@ Implémentation incrémentale via connecteur GitHub, publication directe sur mai
 **Contraintes obligatoires :** aucun modèle fictif, aucun zéro substitué à une absence, sécurité serveur des données collectives, `cycleId` unique pour tous les blocs, libellés FR/EN dans JSON, instantanés historiques respectés, interfaces en lecture seule (attention : plusieurs services `read...` actuels déclenchent `ensure...Schema`, à découpler pour une vraie projection sans écriture).
 
 **Aucune preuve de livraison logicielle ou de recette n'est produite par cette documentation.** Les Stories existantes SMN-21, SMN-83/84/85 et SMN-104 restent inchangées dans Jira ; cette extension ne modifie pas rétroactivement leurs critères d'acceptation.
+
+## Revue transversale intermédiaire — étape 5 (23 octobre 2026)
+
+**Décision utilisateur :** réaliser l'étape 5 **avant** l'étape 4, SMN-238 restant dépendante de l'Epic 5. Cette séquence **ne clôture pas** SMN-21 ni les Stories dont la recette Windows/PostgreSQL reste à confirmer.
+
+**Livrable :** [recette-transversale-dashboard-etape5-2026-10-23.md](recette-transversale-dashboard-etape5-2026-10-23.md), et `tests/dashboard-transversal-step5.test.ts`.
+
+Sur `main`, la projection du tableau de bord couvre désormais les éléments du Sprint autorisé issus de SMN-235 (objectifs, J/H, SP), SMN-236 (tickets agrégés, jours ouvrés) et SMN-237 (événements/cérémonies). La revue a corrigé les statuts des cérémonies anciennes, les libellés ARIA sur source indisponible, la valeur de jours pour les Sprints terminés, l'explication des Sprints futurs, l'état d'erreur PostgreSQL et la qualification des données historiques manquantes.
+
+**Règles préservées :** un seul `teamId/cycleId`, contrôle RBAC admin/user côté serveur, absence de données nominatives dans la projection collective, états distincts 0/null/source absente, lecture cohérente PostgreSQL sans écriture et snapshots Vn immuables.
+
+**Portes de clôture ouvertes :** recette typecheck/tests/build et PostgreSQL/navigateur sur Windows, arbitrage SMN-236 « aujourd'hui inclus » et jours fériés éventuels, raccordement SMN-238 après Epic 5, et vérification des comparaisons historiques SMN-86. Les cas de test sont **rédigés mais non exécutés** dans l'environnement ChatGPT.
+
+**Aucune modification Jira ni transition de statut** n'a été effectuée pendant cette étape.
