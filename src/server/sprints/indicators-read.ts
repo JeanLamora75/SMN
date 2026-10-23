@@ -1,6 +1,5 @@
 import type {Client} from "pg";
 import {
- emptyPoints,emptyTickets,emptyScores,
  type SprintPoints,type SprintTickets,type SprintScores
 } from "@/lib/sprint-indicator-values";
 
@@ -27,7 +26,7 @@ function numberOrNull(v:unknown,max:number,min=0):number|null|undefined{
  return Number.isSafeInteger(value)&&value>=min&&value<=max?value:undefined;
 }
 function parseGroup<T>(
- raw:unknown,keys:readonly string[],value:(record:Record<string,unknown>)=>T|null
+ raw:unknown,value:(record:Record<string,unknown>)=>T|null
 ):DataGroup<T>{
  if(raw===null)return {state:"available",values:value({})!,revision:0};
  const item=record(raw);
@@ -40,7 +39,7 @@ function parseGroup<T>(
  return {state:"available",values:parsed,revision:revision as number};
 }
 function pointsFrom(raw:unknown):DataGroup<SprintPoints>{
- return parseGroup(raw,["initial","added","removed","done"],v=>{
+ return parseGroup(raw,v=>{
   const values=["initial","added","removed","done"].map(k=>
    numberOrNull(v[k],1000000000));
   if(values.some(x=>x===undefined))return null;
@@ -48,13 +47,13 @@ function pointsFrom(raw:unknown):DataGroup<SprintPoints>{
  });
 }
 function ticketsFrom(raw:unknown):DataGroup<SprintTickets>{
- return parseGroup(raw,["initial","done"],v=>{
+ return parseGroup(raw,v=>{
   const a=numberOrNull(v.initial,1000000000),b=numberOrNull(v.done,1000000000);
   return a===undefined||b===undefined?null:{initial:a,done:b};
  });
 }
 function scoresFrom(raw:unknown):DataGroup<SprintScores>{
- return parseGroup(raw,["confidence","clarity"],v=>{
+ return parseGroup(raw,v=>{
   const a=numberOrNull(v.confidence,5,1),b=numberOrNull(v.clarity,5,1);
   return a===undefined||b===undefined?null:{confidence:a,clarity:b};
  });
