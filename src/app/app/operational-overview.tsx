@@ -2,7 +2,8 @@ import {translate,type TranslationKey} from "@/i18n/catalog";
 import type {Language} from "@/lib/language";
 import Link from "next/link";
 import {classifyEventStatus} from "@/server/dashboard/events-reader";
-import type {CollectiveCycleProjection} from "@/lib/dashboard-data-contract";
+import type {CollectiveCycleProjection,DashboardAttention} from "@/lib/dashboard-data-contract";
+import BootstrapIcon from "./bootstrap-icon";
 
 type ColumnKind="obstacles"|"risks"|"events"|"notes";
 type PanelDefinition=Readonly<{
@@ -87,6 +88,98 @@ function UnavailableColumn({definition,locale}:Readonly<{definition:PanelDefinit
       </span>
     </footer>
   </section>;
+}
+
+
+/** Présentation uniquement : la priorité doit provenir d'un registre sauvegardé.
+ * Un producteur manquant reste producer-not-ready ; jamais de sévérité déduite du titre. */
+function PriorityMarker({priority,locale}:Readonly<{
+ priority?: "low"|"medium"|"high"|null;locale:Language;
+}>){
+ const t=(key:TranslationKey)=>translate(locale,key);
+ const value=priority??"unknown";
+ const label:Record<typeof value,TranslationKey>={
+  low:"dashboard.operational.priorityLow",
+  medium:"dashboard.operational.priorityMedium",
+  high:"dashboard.operational.priorityHigh",
+  unknown:"dashboard.operational.priorityUnknown"
+ };
+ return <span className="smn-attention-priority" data-priority={value}>
+  <span className="smn-attention-dot" aria-hidden="true"/>
+  <span>{t(label[value])}</span>
+ </span>;
+}
+
+function AttentionCard({item,locale}:Readonly<{
+ item:DashboardAttention;
+ locale:Language;
+}>){
+ const t=(key:TranslationKey)=>translate(locale,key);
+ const icons={
+  obstacle:"exclamation-octagon-fill",
+  risk:"exclamation-triangle-fill",
+  note:"sticky-fill",
+  alert:"bell-fill"
+ } as const;
+ const labels:Record<typeof item.kind,TranslationKey>={
+  obstacle:"dashboard.operational.obstacle",
+  risk:"dashboard.operational.risk",
+  note:"dashboard.operational.note",
+  alert:"dashboard.operational.alert"
+ };
+ return <article className={"smn-attention-card smn-attention-"+item.kind}>
+  <div className="smn-attention-card-type">
+   <BootstrapIcon name={icons[item.kind]}/>
+   <span>{t(labels[item.kind])}</span>
+  </div>
+  <h4 className="smn-attention-card-title">{item.title}</h4>
+  <div className="smn-attention-card-metadata">
+   <PriorityMarker priority={item.priority} locale={locale}/>
+   {item.status&&<span className="smn-attention-card-status">{item.status}</span>}
+  </div>
+ </article>;
+}
+
+/** Le registre dédié n'étant pas livré, « Voir tout » et « Ajouter »
+ * demeurent informatifs, même quand un producteur de test sait lire des fiches. */
+function AttentionColumn({definition,locale,collection}:Readonly<{
+ definition:PanelDefinition;locale:Language;
+ collection:CollectiveCycleProjection["risks"];
+}>){
+ if(collection.state==="unavailable")return <UnavailableColumn definition={definition} locale={locale}/>;
+ const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
+ const id="smn-operational-"+definition.id;
+ return <section className={"smn-operational-panel smn-operational-"+definition.id}
+   aria-labelledby={id} id={definition.id==="obstacles"?"registres":undefined}>
+  <header className="smn-operational-panel-header">
+   <div className="smn-operational-title-wrap">
+    <span className="smn-operational-icon" aria-hidden="true"><TopicIcon kind={definition.id}/></span>
+    <h3 id={id}>{t(definition.title)}</h3>
+   </div>
+   <span className="smn-operational-count"
+    aria-label={t("dashboard.operational.itemCount",{count:collection.total})}>{collection.total}</span>
+   <p className="smn-operational-all-unavailable">
+    <span>{t("dashboard.operational.seeAll")}</span>
+    <span className="smn-operational-status">{t("dashboard.operational.unavailable")}</span>
+   </p>
+  </header>
+  <p className="smn-operational-description">{t(definition.description)}</p>
+  <div className="smn-operational-content">
+   {collection.items.length>0?
+    <ol className="smn-attention-list">
+     {collection.items.slice(0,5).map(item=>
+      <li key={item.kind+":"+item.id}><AttentionCard item={item} locale={locale}/></li>)}
+    </ol>:
+    <div className="smn-operational-empty">
+     <p className="smn-operational-empty-title">{t("dashboard.operational.empty")}</p>
+    </div>}
+  </div>
+  <footer className="smn-operational-panel-footer">
+   <span className="smn-operational-add-unavailable">
+    {t("dashboard.operational.add")} · {t("dashboard.operational.unavailable")}
+   </span>
+  </footer>
+ </section>;
 }
 
 function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
@@ -178,10 +271,19 @@ export default function OperationalOverview({locale,projection,timeZone}:Readonl
       <p>{t("dashboard.operational.subtitle")}</p>
     </div>
     <div className="smn-operational-grid">
-      {PANELS.map(definition=>definition.id==="events"&&projection&&timeZone?
-        <EventsColumn key="events" locale={locale} events={projection.events}
-          teamId={projection.teamId} cycleId={projection.cycleId} timeZone={timeZone}/>:
-        <UnavailableColumn key={definition.id} definition={definition} locale={locale}/>)}
+      {PANELS.map(definition=>{
+        if(definition.id==="events"){
+          return projection&&timeZone?
+           <EventsColumn key="events" locale={locale} events={projection.events}
+             teamId={projection.teamId} cycleId={projection.cycleId} timeZone={timeZone}/>:
+           <UnavailableColumn key="events" definition={definition} locale={locale}/>;
+        }
+        if(!projection)return <UnavailableColumn key={definition.id} definition={definition} locale={locale}/>;
+        const collection=definition.id==="obstacles"?projection.obstacles:
+          definition.id==="risks"?projection.risks:projection.notesAndAlerts;
+        return <AttentionColumn key={definition.id} definition={definition}
+          locale={locale} collection={collection}/>;
+      })}
     </div>
   </section>;
 }
