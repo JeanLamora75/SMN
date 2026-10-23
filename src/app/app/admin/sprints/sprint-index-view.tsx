@@ -43,7 +43,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
  const label=(item:SprintIndexItem)=>{
   const status=item.suspended?"suspended":item.status;
   const map:Record<string,TranslationKey>={
-   planned:"planned",active:"active",finished:"finished",closed:"closed",suspended:"suspended"
+   planned:"sprintStates.planned",active:"sprintStates.active",finished:"sprintStates.finished",closed:"sprintStates.closed",suspended:"sprintStates.suspended"
   };
   return map[status]?t(map[status]):status;
  };
