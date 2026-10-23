@@ -4,6 +4,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {readMemberAbsences,saveMemberAbsence} from "@/server/members/absence";
 import {readMemberDayAvailability} from "@/server/members/day-availability";
+import {revalidatePath} from "next/cache";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -15,7 +16,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  try{return jsonResult(await withAuthDb(async db=>{
    const data=await readMemberAbsences(db,id,onDate);
    const dayAvailability=onDate?
-    await readMemberDayAvailability(db,id,onDate,data.absences):null;
+    await readMemberDayAvailability(db,id,onDate,data.absences.filter(absence=>!absence.deleted)):null;
    return {...data,dayAvailability};
   }));}
  catch(error){
@@ -38,7 +39,12 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
   if(!result.ok)return jsonResult({error:result.error},
    result.error==="not-found"?404:
    ["conflict","overlap","archived","category-inactive"].includes(result.error)?409:400);
-  return jsonResult(result,result.created?201:200);
+  // Ces écrans recalculent leur capacité à la lecture : ne pas modifier les
+  // snapshots initiaux/clos, seulement invalider leurs vues dynamiques.
+  revalidatePath("/app/admin/development-capacity");
+  revalidatePath("/app/team-calendar");
+  revalidatePath("/app");
+  return jsonResult({...result,capacityRefresh:"on-demand"},result.created?201:200);
  }catch{
   console.error("member-absence-write-unavailable");
   return jsonResult({error:"service-unavailable"},503);
