@@ -2322,7 +2322,9 @@
     "cycleDeferred": "Cycle filters will be available when multi-cycle links are implemented (SMN-97).",
     "team": "Team",
     "readonly": "Read-only access",
-    "back": "Back to registers"
+    "back": "Back to registers",
+    "manualType": "Manual",
+    "recordedAt": "Recorded on"
   },
   "registryRoam": {
     "heading": "ROAM classification",
