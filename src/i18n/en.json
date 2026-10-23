@@ -2285,6 +2285,8 @@
     "todo": "To do",
     "completed": "Completed",
     "recorded": "Recorded",
-    "edit": "Open and edit record"
+    "edit": "Open and edit record",
+    "unavailableRecord": "Record unavailable.",
+    "conflict": "This record was changed elsewhere. Reload it before saving."
   }
 }
