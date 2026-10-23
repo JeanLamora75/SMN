@@ -9,7 +9,7 @@ type Conflict={id:string;name:string;kind:"existing"|"batch"};
 type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;endAt:string;
  timeZone:string;conflicts:Conflict[]};
 type Preview={ok:boolean;valid:boolean;token:string|null;historical:boolean;
- items:Item[];activeTemplates:Array<{id:string;name:string;revision:number}>;
+ items:Item[];nameWarnings:number[];activeTemplates:Array<{id:string;name:string;revision:number}>;
  cadence:{duration_weeks:number;start_day:number;end_day:number;start_time:string;end_time:string;
  time_zone:string}|null;error?:string};
 type Proposal={recommended:string|null;proposal:{startOn:string;name:string}|null};
@@ -172,7 +172,8 @@ export default function SprintGenerationWizard(){
       <td><label htmlFor={"wizard-name-"+i} className="visually-hidden">{t("sprintWizard.nameNumber",{number:item.number})}</label>
        <input id={"wizard-name-"+i} className="form-control" maxLength={160}
         value={names[i]??item.name} disabled={busy}
-        onChange={event=>updateName(i,event.target.value)}/></td>
+        onChange={event=>updateName(i,event.target.value)}/>
+       {preview.nameWarnings?.includes(item.number)&&<small className="text-warning-emphasis">{t("sprintWizard.duplicateName")}</small>}</td>
       <td><span>{local(item.startAt,item.timeZone)}</span>
        <span className="d-block text-secondary">→ {local(item.endAt,item.timeZone)}</span></td>
       <td>{item.conflicts.length?item.conflicts.map(x=>
