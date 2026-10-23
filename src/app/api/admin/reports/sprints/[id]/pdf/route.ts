@@ -5,7 +5,8 @@ import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {readFrozenReportReference} from "@/server/reports/render-reference";
 import {generateFrozenPdf} from "@/server/reports/frozen-pdf";
 import {withAuthDb} from "@/server/auth/database";
-import {storeFinalPdfArchive} from "@/server/reports/pdf-archive-store";
+import {storeFinalPdfArchive,readVerifiedPdfArchive} from "@/server/reports/pdf-archive-store";
+import {validExportOperationId} from "@/server/reports/export-outcome";
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
 export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>}){
@@ -16,6 +17,8 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const body=await req.json().catch(()=>null) as {reference?:unknown}|null;
  if(!body||typeof body.reference!=="string"||!/^[a-f0-9-]{36}$/i.test(body.reference))return Response.json({error:"invalid-input"},{status:400});
  const referenceId=body.reference;
+ const operationId=req.headers.get("x-smn-export-operation");
+ if(!validExportOperationId(operationId))return Response.json({error:"operation-id-required"},{status:400});
  const cookie=req.cookies.get(SESSION_COOKIE)?.value;
  if(!cookie)return Response.json({error:"forbidden"},{status:403});
  const reference=await withSprintIndexDb(db=>readFrozenReportReference(db,referenceId,id)).catch(()=>null);
@@ -62,6 +65,53 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
   "Content-Disposition":'attachment; filename="SMN-report-'+id+'-'+reference.id+'.pdf"',
   "Cache-Control":"private, no-store",
   "X-SMN-Archive-Id":archived.id,
+  "X-Content-Type-Options":"nosniff"
+ }});
+ }catch(error){return Response.json({error:error instanceof Error&&error.message==="retry-conflict"?"retry-conflict":"pdf-export-or-archive-failed"},{status:error instanceof Error&&error.message==="retry-conflict"?409:503});}
+} try{
+ const result=await withAuthDb(async db=>{
+  // Session-level lock spans the browser render and DB commit.
+  await db.query("SELECT pg_advisory_lock(hashtextextended($1::text,0))",[operationId]);
+  try{
+   const exists=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present");
+   if(exists.rows[0]?.present){
+    const column=await db.query<{present:boolean}>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_report_pdf_archive' AND column_name='operation_id') AS present`);
+    if(column.rows[0]?.present){
+     const old=await db.query<{id:string;manifest:{renderReferenceId?:string;cycleId?:string;authorId?:string}}>(`SELECT id,manifest FROM public.smn_report_pdf_archive WHERE operation_id=$1`,[operationId]);
+     if(old.rows[0]){
+      const archived=old.rows[0];
+      if(archived.manifest.renderReferenceId!==reference.id||archived.manifest.cycleId!==id||archived.manifest.authorId!==actor.id)throw Error("retry-conflict");
+      const same=await readVerifiedPdfArchive(db,archived.id);
+      if(!same)throw Error("archive-integrity-failed");
+      return {bytes:same,archiveId:archived.id};
+     }
+    }
+   }
+   const bytes=await generateFrozenPdf(url.toString(),{name:SESSION_COOKIE,value:cookie});
+   const report=reference.payload.data;
+   const scope=await db.query<{teamId:string}>(`SELECT s.team_id AS "teamId" FROM public.smn_sprint s
+   JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
+   WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,[id]);
+   if(scope.rows.length!==1)throw Error("archive-scope-unavailable");
+   const archived=await storeFinalPdfArchive(db,bytes,{
+    authorId:actor.id,language:reference.payload.language.language,
+    templateId:"standard",templateName:"Standard",teamId:scope.rows[0].teamId,
+    cycleId:id,cycleStatus:report.sprint.status,snapshotVersion:report.version,
+    renderReferenceId:reference.id,renderReferenceSha256:reference.sha256,
+    optionsSnapshot:{sections:report.sections.map(section=>({key:section.key,state:section.state})),
+      historyDepth:report.historyDepth,generatedAt:report.generatedAt,source:report.source,
+      logoIncluded:reference.payload.logo!==null}
+   },operationId);
+   return {bytes,archiveId:archived.id};
+  }finally{
+   await db.query("SELECT pg_advisory_unlock(hashtextextended($1::text,0))",[operationId]).catch(()=>undefined);
+  }
+ });
+ return new Response(new Uint8Array(result.bytes),{status:200,headers:{
+  "Content-Type":"application/pdf",
+  "Content-Disposition":'attachment; filename="SMN-report-'+id+'-'+reference.id+'.pdf"',
+  "Cache-Control":"private, no-store",
+  "X-SMN-Archive-Id":result.archiveId,
   "X-Content-Type-Options":"nosniff"
  }});
  }catch{return Response.json({error:"pdf-export-or-archive-failed"},{status:503});}
