@@ -2374,5 +2374,15 @@
     "conflict": "Modification concurrente, rechargez la fiche",
     "missing": "Renseigner les deux équipes",
     "empty": "Non renseignée"
+  },
+  "dependencyVigilance": {
+    "heading": "Vigilance de la dépendance",
+    "flag": "À risque",
+    "save": "Enregistrer le signal",
+    "saved": "Signal enregistré",
+    "error": "Signal indisponible",
+    "conflict": "Conflit de modification : rechargez la fiche",
+    "inactive": "Dépendance satisfaite ou annulée : aucune alerte active d’échéance",
+    "active": "La dépendance reste active indépendamment du signal À risque"
   }
 }
