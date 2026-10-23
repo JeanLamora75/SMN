@@ -792,7 +792,7 @@
       "weekHistory": "Historique des trames",
       "noHistory": "Aucune version enregistrée.",
       "revision": "Révision",
-      "exceptionHeading": "Exception datée (jour ou demi-journée)",
+      "addException": "Ajouter une exception", "exceptionHeading": "Exception datée (jour ou demi-journée)",
       "onDate": "Date de l'exception",
       "availabilityMissing": "Disponibilité inconnue à cette date : enregistrer d'abord une trame applicable. Aucun zéro n'est supposé.",
       "exceptionApplicable": "Une exception enregistrée s'applique à cette date. Vous pouvez ajouter une correction historisée.",
