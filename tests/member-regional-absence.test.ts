@@ -19,7 +19,7 @@ const regional=(name:string)=>({
 const item=(values:typeof allDay,reason="Fête régionale"):AbsenceItem=>({
  ...values,id:"22222222-2222-4222-8222-222222222222",memberId,
  revision:1,categoryId:"other",categoryName:"Autre",categoryColor:"#6B7280",
- isPlanned:true,reason,createdAt:"2026-04-01",updatedAt:"2026-04-01"
+ isPlanned:true,reason,createdAt:"2026-04-01",updatedAt:"2026-04-01",deleted:false
 });
 function dbFor(options:{country?:string|null;status?:string|null;holiday?:string|null;
  week?:boolean;exception?:boolean;assignment?:boolean;closure?:boolean}={}){
