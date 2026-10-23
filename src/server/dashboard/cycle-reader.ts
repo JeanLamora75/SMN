@@ -175,7 +175,18 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    storyPoints=pointsFrom(r.rows[0]??null,null);
   }else storyPoints={initial:metricUnavailable("schema-missing"),
     done:metricUnavailable("schema-missing")};
-  capacity=await readCapacity(db,teamId,sprint);
+  // Une lecture de capacité partiellement migrée ne doit pas rendre
+  // indisponibles les objectifs ou les SP déjà récupérés.
+  await db.query("SAVEPOINT dashboard_current_capacity");
+  try{
+   capacity=await readCapacity(db,teamId,sprint);
+   await db.query("RELEASE SAVEPOINT dashboard_current_capacity");
+  }catch(error){
+   await db.query("ROLLBACK TO SAVEPOINT dashboard_current_capacity");
+   await db.query("RELEASE SAVEPOINT dashboard_current_capacity");
+   capacity=capacityUnavailable("read-failed");
+   void error;
+  }
  }
  const waiting=metricUnavailable("producer-not-ready");
  return {teamId,cycleId:sprint.id,cycleStatus:status,snapshotVersion:version,
