@@ -47,6 +47,19 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
     assert.doesNotMatch(html,/20\d\d-\d\d-\d\d|\b\d+\s*jours ouvrés restants\b/);
     assert.doesNotMatch(html,/href="\/app\/cycles/);
   });
+  it("affiche le Sprint sélectionné, son état temporel et ses dates, sans inventer de KPI",()=>{
+    const html=renderToStaticMarkup(createElement(CycleOverview,{
+      context:contexts.scrum,locale:"fr",teamHref:"/app/team/team-1",
+      cycle:{id:"sprint-1",name:"Sprint de novembre",status:"planned",
+        suspended:false,startAt:"2026-11-09T08:00:00Z",
+        endAt:"2026-11-22T22:59:00Z",timeZone:"Europe/Paris"}
+    }));
+    assert.match(html,/Sprint de novembre/);
+    assert.match(html,/9 nov\. 2026/);
+    assert.match(html,/22 nov\. 2026/);
+    assert.doesNotMatch(html,/Aucun cycle créé/);
+    assert.match(html,/Source non encore raccordée/);
+  });
   it("traduit tout le cockpit en anglais et conserve une vraie fiche d'équipe",()=>{
     const html=view("kanban","en");
     for(const s of ["No cycle created","Kanban period","Planned capacity",
