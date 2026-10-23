@@ -4,7 +4,7 @@ story: SMN-234
 epic: SMN-228
 date: 2026-10-23
 language: fr
-status: d0-documented-d1-d7-coded-d8-scaffold-blocked-epic5-awaiting-local-recette
+status: d0-documented-d1-d7-coded-d8-scaffold-d9-technical-review-done-global-recette-pending-epic5
 source: _bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md
 ---
 
@@ -29,7 +29,7 @@ La route `src/app/app/admin/sprints/[sprintId]/page.tsx` **existe**, mais ne con
 | **D6 — Tendances graphiques** — **code publié, recette complète en attente** | Trois courbes/tableaux accessibles, cinq clôtures éligibles du même collectif (G04/G05/G06/G07) | SMN-86, `src/server/sprints/trends.ts` | 0–5 clôtures, Vn, non-comparables = null, ordre correct, i18n, unité SP/%/JH, pas de graphiques fictifs |
 | **D7 — Bilan manuel / IA éditable** — **code publié, recette locale en attente** | Deux éditeurs enregistrant séparément Analyse et Analyse IA, côte à côte desktop, empilés mobile, révisions/audits | modèle de texte de bilan à établir ; Epic 9 **pour génération IA ultérieure** | Édition admin, cohérence attribution/provenance, versionnement, concurrent edit, historique Sprint clos, aucune fausse IA |
 | **D8 — Registres** — **socle publié, intégration réelle bloquée par Epic 5** | Liste commune chronologique des six registres avec plage d'activité/ouverture pendant Sprint, fiche centrale unique, historique Vn | **Epic 5 SMN-89–112 : condition bloquante pour ce lot**, pas pour D1–D7 | Fiches avant/durant le Sprint, résolues pendant, multi-cycles, registre partiel indisponible, filtrage serveur, 0/1/>5, liens sûrs |
-| **D9 — Finalisation et recette transverse** | Simplification des vieux formulaires redondants après vérification d'accès, documentation et recette navigateur Windows | D1–D8 livrés avec preuves ; rapport SMN-113 non requis pour les sept onglets | Navigation cohérente et aucun recul sur Paramètres/Calendrier/dashboard ; tests et captures réels ; tickets mis à jour sur résultats vérifiés |
+| **D9 — Finalisation et recette transverse** — **revue/correctifs publiés, recette fonctionnelle globale NON VALIDÉE** | Simplification des vieux formulaires redondants après vérification d'accès, documentation et recette navigateur Windows | D1–D8 livrés avec preuves ; rapport SMN-113 non requis pour les sept onglets | Navigation cohérente et aucun recul sur Paramètres/Calendrier/dashboard ; tests et captures réels ; tickets mis à jour sur résultats vérifiés |
 
 **Ordre conseillé : D0 → D1 → D2 → D3 → D4 → D5 → D6 → D7 ; D8 après arrivée des registres, puis D9.** D6 peut être réalisé avant D5 si la définition exacte des J/H de présence doit être validée ; D7 n'a pas besoin d'attendre la génération IA de l'Epic 9 pour la saisie manuelle des deux blocs. Le pipeline de tests ne doit pas bloquer les petits incréments indépendants.
 
@@ -134,3 +134,14 @@ Rapport : [realisation-d8-registres-fiche-sprint-smn-234-2026-10-23.md](realisat
 **Développement publié :** contrat pur `sprint-registers.ts` (six types, activité temporelle, déduplication, filtres équipe, 25/page, null et liens sûrs), port `RegistryReadProvider` et lecteur SELECT-only borné par Sprint+équipe, projection historique Vn uniquement si une **future** source qualitative conforme existe, panneau réel Registres avec les six catégories et message **« Registres indisponibles — Epic 5 »** au lieu de zéro inventé. Pas de modification de `closure.ts` ni fausse capture à la clôture. Tests D8 publiés, **non exécutés** dans le projet.
 
 **Statut : D8 socle préparé, **bloqué par Epic 5** pour données réelles et liens. D0 documenté, D1–D7 codés mais en attente de recette. La recette **technique** D9 des lots D1–D7 peut commencer ; la recette **fonctionnelle finale** des sept onglets attend la réalisation d'Epic 5 et les tests PostgreSQL/Next.js locaux. SMN-234 reste ouverte.
+
+
+## Journal D9 — 23 octobre 2026 : régression transverse et recette non finalisée
+
+[Rapport de recette D9, matrice AC et commandes](rapport-recette-d9-fiche-sprint-smn-234-2026-10-23.md).
+
+**Correctif réel effectué :** les listes historiques des Cérémonies (D4) et Registres (D8) n'affichent plus de lien vers des fiches opérationnelles actuelles, car celles-ci peuvent avoir changé depuis le snapshot de clôture Vn. Messages FR/EN « Fiche historique individuelle indisponible ». Les liens restent fonctionnels en mode courant quand leur route est réelle. Les anciens formulaires sont préservés tant que leur remplacement n'est pas validé.
+
+**Preuves** : 22/22 tests de régression **réellement exécutés sous Node.js 22** sur des modules D3–D7 dont les **six SHA Git des sources exactes** concordent avec `main` ; 31/31 contrôles statiques de GitHub sur sept onglets, transactions, RBAC, snapshots, liens et traductions ; ajout du fichier `tests/smn-234-sprint-transverse-d9.test.ts` au dépôt (**non exécuté sous tsx**).
+
+**Non réalisés** : `pnpm typecheck` global, `pnpm i18n:check`, `pnpm lint`, `pnpm build`, `tsx --test` de l'application, PostgreSQL et recette navigateur Windows (admin/user, écrans, clôture/réouverture). Aucune preuve de succès de bout en bout n'est revendiquée. **D9 revue technique faite, Definition of Done non atteinte, SMN-234 reste ouverte**, et D8 demeure bloqué par SMN-89–112. Voir le rapport pour matrice AC1–AC13 et scénarios de recette locaux.
