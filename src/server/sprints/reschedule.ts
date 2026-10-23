@@ -31,6 +31,15 @@ async function examine(db:Client,input:Input){
  FROM public.smn_sprint_exceptional_meeting WHERE sprint_id=$1 AND (starts_at<$2 OR ends_at>$3)`,[s.id,input.startAt,input.endAt]);
  return {ok:true as const,sprint:s,warnings:protectedEvents.rows,adjustments:[],mode:input.mode};
 }
+async function registryImpact(db:Client,sprintId:string,newStart:string,newEnd:string,zone:string){
+ const found=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS present`);
+ if(!found.rows[0]?.present)return {preserved:true,items:[] as Array<{id:string;type:string;title:string;dueOn:string|null;outside:boolean}>};
+ const rows=await db.query<{id:string;type:string;title:string;dueOn:string|null}>(`SELECT r.id,r.type,r.title,r.due_on::text AS "dueOn"
+ FROM public.smn_registry_cycle_link l JOIN public.smn_registry_item r ON r.id=l.item_id
+ WHERE l.sprint_id=$1 AND r.type IN ('risk','dependency') ORDER BY r.type,r.id`,[sprintId]);
+ const start=localDay(newStart,zone),end=localDay(newEnd,zone);
+ return {preserved:true,items:rows.rows.map(r=>({...r,outside:r.dueOn!==null&&(r.dueOn<start||r.dueOn>end)}))};
+}
 async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;start_at:string;end_at:string;time_zone:string},input:Input){
  const [goals,points,initial,manual]=await Promise.all([
   db.query<{count:string}>(`SELECT count(*)::text AS count FROM public.smn_sprint_goal WHERE sprint_id=$1`,[s.id]),
@@ -69,11 +78,12 @@ export async function previewReschedule(db:Client,raw:unknown){
  const result=await examine(db,input);
  if(!result.ok)return result;
  const impact=await reviewImpact(db,result.sprint,input);
- if(result.warnings.length)return {ok:false as const,error:"events-outside-new-period",warnings:result.warnings,impact};
+ const registry=await registryImpact(db,result.sprint.id,input.startAt,input.endAt,result.sprint.time_zone);
+ if(result.warnings.length)return {ok:false as const,error:"events-outside-new-period",warnings:result.warnings,impact,registry};
  // Recalculation is not offered until a protected-event-safe preview engine is implemented.
  if(input.mode==="recalculate")return {ok:false as const,error:"recalculation-not-supported",warnings:result.warnings};
  const token=createHash("sha256").update(JSON.stringify({input,oldStart:result.sprint.start_at,oldEnd:result.sprint.end_at,warnings:result.warnings})).digest("hex");
- return {...result,impact,token};
+ return {...result,impact,registry,token};
 }
 export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
@@ -90,9 +100,10 @@ export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
   const token=createHash("sha256").update(JSON.stringify({input,oldStart:original.start_at,oldEnd:original.end_at,warnings:checked.warnings})).digest("hex");
   if(token!==data.token){await db.query("ROLLBACK");return {ok:false as const,error:"stale-preview"};}
   const impact=await reviewImpact(db,original,input);
+  const registry=await registryImpact(db,original.id,input.startAt,input.endAt,original.time_zone);
   await db.query("UPDATE public.smn_sprint SET start_at=$2,end_at=$3 WHERE id=$1",[input.sprintId,input.startAt,input.endAt]);
   await db.query(`INSERT INTO public.smn_sprint_reschedule_audit(id,sprint_id,old_start,old_end,new_start,new_end,mode,actor_id)
   VALUES($1,$2,$3,$4,$5,$6,'keep',$7)`,[randomUUID(),input.sprintId,original.start_at,original.end_at,input.startAt,input.endAt,actorId]);
-  await db.query("COMMIT");return {ok:true as const,warnings:checked.warnings,impact};
+  await db.query("COMMIT");return {ok:true as const,warnings:checked.warnings,impact,registry};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
