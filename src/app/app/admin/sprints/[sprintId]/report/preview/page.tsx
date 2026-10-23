@@ -11,6 +11,7 @@ import {readReportLanguage} from "@/server/reports/language";
 import {readReportLogo} from "@/server/reports/logo-store";
 import {readFrozenReportReference} from "@/server/reports/render-reference";
 import PrintReportButton from "./print-report-button";
+import FrozenPdfExport from "./frozen-pdf-export";
 export const dynamic="force-dynamic";
 export default async function ReportPreviewPage({params,searchParams}:{params:Promise<{sprintId:string}>;searchParams:Promise<{reference?:string}>}){
  const account=await currentAccount();if(!account)redirect("/login");
@@ -37,7 +38,7 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
  return <main lang={locale} className="container-fluid px-3 px-lg-4 py-4 smn-report-printable">
  <span className="d-print-none"><Link href={"/app/admin/sprints/"+encodeURIComponent(sprintId)+"/report"}>{label("back")}</Link></span>
  {frozen&&<p className="alert alert-info" role="status">{label("frozenReference")}: <code>{requested}</code></p>}
- <PrintReportButton label={label("print")} warning={label("printWarning")}/>
+ {frozen?<FrozenPdfExport sprintId={sprintId} reference={requested} label={label("pdfExport")} errorLabel={label("pdfError")}/>:<PrintReportButton label={label("print")} warning={label("printWarning")}/> }
  <article className="smn-panel rounded-4 p-4 my-3">
  <header className="border-bottom pb-3 mb-4"><div className="d-flex gap-4 justify-content-between align-items-start"><div><h1 className="h3">{label("title")}</h1>
  <h2 className="h5">{data.sprint.name}</h2>
