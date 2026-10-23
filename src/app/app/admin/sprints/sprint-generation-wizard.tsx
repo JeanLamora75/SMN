@@ -34,6 +34,19 @@ export default function SprintGenerationWizard(){
  const [created,setCreated]=useState(false);
  const [init,setInit]=useState(true);
  const focus=useRef<HTMLHeadingElement>(null);
+ const listHref=()=>{
+  const source=new URLSearchParams(window.location.search);
+  const kept=new URLSearchParams();
+  const search=source.get("search")??"";
+  const status=source.get("status")??"all";
+  const sort=source.get("sort")??"priority";
+  const page=source.get("page")??"1";
+  if(search.length<=100)kept.set("search",search);
+  if(status==="all"||/^[a-z][a-z0-9_-]{0,39}$/.test(status))kept.set("status",status);
+  if(["priority","newest","oldest"].includes(sort))kept.set("sort",sort);
+  if(/^[1-9]\\d*$/.test(page)&&Number(page)<=100000)kept.set("page",page);
+  return "/app/admin/sprints?"+kept.toString();
+ };
  useUnsavedChanges(!created&&(Boolean(startOn)||Boolean(preview)),t("draft.leaveWarning"));
  useEffect(()=>{
   let active=true;
@@ -48,7 +61,7 @@ export default function SprintGenerationWizard(){
   const close=(event:KeyboardEvent)=>{
    if(event.key==="Escape"&&!busy){
     event.preventDefault();
-    if(window.confirm(t("draft.discardWarning"))){router.push("/app/admin/sprints");}
+    if(window.confirm(t("draft.discardWarning"))){router.push(listHref());}
    }
   };
   window.addEventListener("keydown",close);
@@ -65,7 +78,7 @@ export default function SprintGenerationWizard(){
  const cancel=()=>{
   if(busy)return;
   if((startOn||preview)&&!window.confirm(t("draft.discardWarning")))return;
-  router.push("/app/admin/sprints");
+  router.push(listHref());
  };
  const fetchPreview=async(event?:FormEvent)=>{
   event?.preventDefault();
@@ -107,7 +120,7 @@ export default function SprintGenerationWizard(){
     return;
    }
    setCreated(true);
-   router.push("/app/admin/sprints");
+   router.push(listHref());
    router.refresh();
   }catch{
    setToken(null);setStep(2);setError(t("sprintWizard.failed"));
