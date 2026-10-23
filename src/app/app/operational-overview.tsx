@@ -117,7 +117,9 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
        <h3 id="smn-operational-events">{t(definition.title)}</h3>
      </div>
      <span className="smn-operational-count"
-       aria-label={t("dashboard.operational.eventCount",{count:events.state==="available"?events.total:0})}>
+       aria-label={events.state==="available"?
+         t("dashboard.operational.eventCount",{count:events.total}):
+         t("dashboard.operational.countUnavailable")}>
        {events.state==="available"?events.total:"—"}
      </span>
      <p className="smn-operational-all-unavailable">
