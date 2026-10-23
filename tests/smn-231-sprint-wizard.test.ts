@@ -86,7 +86,8 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   assert.match(page,/canAccess\(account,"write",\{type:"settings"/);
   assert.match(page,/lower\(mode\)='scrum'/);
   assert.match(page,/<SprintGenerationWizard\/>/);
-  assert.equal(index.split('href="/app/admin/sprints/generate"').length-1,2);
+  assert.equal(index.split('href={generateHref}').length-1,2);
+  assert.match(index,/const generateHref="\\/app\\/admin\\/sprints\\/generate\\?"/);
   assert.doesNotMatch(index,/href="\/app\/admin\/sprints\/tools#create-sprints"/);
  });
  it("présente les trois étapes sans fabriquer de clic vers une fiche inexistante",()=>{
@@ -127,6 +128,15 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   assert.match(api,/generationSource:m\.generation_source/);
   assert.match(view,/generationSource==="reconstructed"/);
   assert.match(detail,/generation_source==="reconstructed"/);
+ });
+ it("préserve recherche, filtres, tri et page au retour de la génération",()=>{
+  const page=read("src/app/app/admin/sprints/page.tsx");
+  const index=read("src/app/app/admin/sprints/sprint-index-view.tsx");
+  assert.match(page,/parseSprintIndexQuery\(qs\)/);
+  assert.match(page,/initialFilters=\{initialFilters\}/);
+  assert.match(index,/new URLSearchParams\(\{search,status:filter,sort,page:String\(page\)\}\)/);
+  assert.match(index,/initialFilters\?\.page\?\?1/);
+  assert.match(client,/router\.push\(listHref\(\)\)/);
  });
  it("conserve les libellés exhaustifs FR/EN",()=>{
   const fr=JSON.parse(read("src/i18n/fr.json")).sprintWizard;
