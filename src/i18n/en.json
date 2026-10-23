@@ -1971,7 +1971,8 @@
     "continue": "Continue",
     "confirmQuestion": "Confirm creation of {count} sprint(s)?",
     "historicalReconstructed": "Historical ceremonies will be marked as reconstructed, not actually held.",
-    "historicalSkipped": "Fully historical sprints will be created without ceremonies.",
+    "reconstructedLabel": "Reconstructed (not verified)",
+    "historicalSkipped": "Sprints whose start date is in the past will be created without ceremonies.",
     "atomicNotice": "Confirmation is atomic: if a creation fails, none of the batch is kept.",
     "create": "Confirm and generate",
     "saving": "Generating…"
