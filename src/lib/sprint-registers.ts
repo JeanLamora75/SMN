@@ -23,7 +23,7 @@ const record=(x:unknown):Record<string,unknown>|null=>
  x!==null&&typeof x==="object"&&!Array.isArray(x)?x as Record<string,unknown>:null;
 const timestamp=(x:unknown):string|null=>
  typeof x==="string"&&
- /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,3})?)?(?:Z|[+-]\\d{2}:\\d{2})$/.test(x)&&
+ /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})$/.test(x)&&
  Number.isFinite(Date.parse(x))?
   new Date(x).toISOString():null;
 export const isRegisterKind=(v:unknown):v is RegisterKind=>
