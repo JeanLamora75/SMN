@@ -54,8 +54,8 @@ function MetricPair({title,first,second,unit,empty,comparison,firstMetric,second
   </article>;
 }
 
-/** Les données de présence d'un Sprint sont réelles ; KPI et registres restent
- * explicitement indisponibles tant que leurs lectures métier ne sont pas raccordées. */
+/** SMN-235 : objectifs, J/H et SP alimentés depuis les sources réelles du Sprint.
+ * Les tickets, jours ouvrés et registres restent hors périmètre de cette Story. */
 export default function CycleOverview({context,locale,teamHref,cycle,projection}:Props){
   const t=(key:TranslationKey)=>translate(locale,key);
   const scrum=context.mode==="scrum";
