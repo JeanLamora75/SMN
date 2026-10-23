@@ -80,7 +80,7 @@ export default function MemberAbsenceEditor({memberId,record,onSaved,onCancel}:{
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.absence.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
    {state.archived&&<p className="alert alert-secondary">{t("members.calendar.archived")}</p>}
-   {record&&record.endOn<today&&<p role="status" className="alert alert-warning">
+   {record&&record.startOn<today&&<p role="status" className="alert alert-warning">
     {t("memberAbsences.pastWarning")}</p>}
    <form onSubmit={submit} className="d-grid gap-3">
     <div className="row g-3">
