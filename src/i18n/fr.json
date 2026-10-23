@@ -2694,7 +2694,9 @@
     "dor": "Definition of Ready",
     "unverified": "Lien externe non vérifié",
     "print": "Imprimer / Enregistrer en PDF",
-    "printWarning": "Cette impression utilise les données de l’aperçu actuel, sans archive serveur ni garantie de version figée. Vérifiez le résultat avant diffusion."
+    "printWarning": "Cette impression utilise les données de l’aperçu actuel, sans archive serveur ni garantie de version figée. Vérifiez le résultat avant diffusion.",
+    "logoAlt": "Logo du rapport",
+    "trendsCaption": "Tendances historiques des cycles clôturés"
   },
   "reportLanguage": {
     "heading": "Langue du rapport",
@@ -2738,5 +2740,13 @@
     "confirm": "Confirmer le masquage ? Le PDF ne sera plus visible dans la bibliothèque ordinaire. Le fichier et les autres archives restent conservés.",
     "hideError": "Masquage impossible.",
     "download": "Télécharger"
+  },
+  "reportLogo": {
+    "heading": "Logo du rapport",
+    "description": "PNG ou JPEG, 256 Ko maximum. Facultatif, enregistré dans SMN sans appel à un site tiers.",
+    "choose": "Choisir un logo",
+    "remove": "Retirer le logo",
+    "saved": "Choix enregistré. Actualisez l’aperçu pour le voir.",
+    "error": "Logo invalide ou enregistrement impossible."
   }
 }
