@@ -2700,5 +2700,16 @@
     "save": "Save language",
     "error": "Unable to load or save report language.",
     "leaveWarning": "The report language is unsaved. Leave?"
+  },
+  "reportArchives": {
+    "heading": "Sprint PDF archives",
+    "empty": "No finalized PDF archives available.",
+    "error": "Unable to read PDF archives.",
+    "date": "Export date",
+    "template": "Template",
+    "integrity": "Integrity",
+    "verified": "Verified",
+    "degraded": "Degraded",
+    "unavailable": "Unavailable"
   }
 }
