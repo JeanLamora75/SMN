@@ -195,6 +195,7 @@
     "viewSprintGoals": "View Sprints",
       "comparisonUnavailable": "Comparison unavailable",
       "workingDaysPending": "Working-day calculations for this Sprint are not connected to the dashboard yet.",
+      "todayIncludedProvisional": "Monday–Friday, including today if it is a working day (provisional rule pending approval).",
       "noPeriodHelp": "No Kanban period has been recorded for this team. No period is created automatically.",
       "details": "Cycle information",
       "dates": "Cycle dates",
@@ -1642,6 +1643,17 @@
     "achieved": "Achieved",
     "partially_achieved": "Partially achieved",
     "not_achieved": "Not achieved"
+  },
+  "sprintTickets": {
+    "title": "Sprint tickets",
+    "description": "Two aggregate counts independent of story points. No individual tickets are created.",
+    "sprint": "Sprint",
+    "initial": "Initially committed tickets",
+    "done": "Completed tickets",
+    "noSource": "Leave a field empty when not recorded; zero means an actual zero.",
+    "save": "Save",
+    "saved": "Ticket counts saved.",
+    "error": "Unable to load or save ticket counts."
   },
   "storyPoints": {
     "title": "Sprint Story Points",
