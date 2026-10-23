@@ -13,6 +13,7 @@ import ReportHistoryOptions from "./report-history-options";
 import ReportTemplateChooser from "./report-template-chooser";
 import ReportArchiveList from "./report-archive-list";
 import ReportLanguageChoice from "./report-language-choice";
+import ReportLogoEditor from "./report-logo-editor";
 import ReportSectionEditor from "./report-section-editor";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
@@ -54,6 +55,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
    {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
    <ReportLanguageChoice sprintId={s.id}/>
+   <ReportLogoEditor sprintId={s.id}/>
    <div><Link className="btn btn-outline-secondary" href={"/app/admin/reports/archives?cycleId="+encodeURIComponent(s.id)}>{translate(locale,"archiveLibrary.openLibrary")}</Link></div>
    <ReportArchiveList sprintId={s.id}/>
    <ReportTemplateChooser sprintId={s.id}/>
