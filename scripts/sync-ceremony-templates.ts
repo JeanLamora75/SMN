@@ -1,11 +1,17 @@
 // Mise à niveau explicite et répétable des modèles Scrum sur un poste pilote.
 // Respecte la configuration SMN_DATABASE_URL ou PostgreSQL portable chiffré.
 // Ne modifie aucun Sprint/aucune occurrence existante et n'affiche aucun secret.
+import {existsSync} from "node:fs";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {DEFAULT_SCRUM_CEREMONY_TEMPLATES,seedDefaultScrumCeremonyTemplates} from "../src/server/sprints/ceremony-templates";
 
 async function main(){
+ // Next lit .env.local/.env au démarrage ; ce script doit respecter ces fichiers
+ // sans afficher le mot de passe et sans écraser une variable déjà fournie.
+ for(const filename of [".env.local",".env"]){
+  if(!process.env.SMN_DATABASE_URL && existsSync(filename))process.loadEnvFile(filename);
+ }
  const db=new Client({connectionString:await installedDatabaseUri(),
   connectionTimeoutMillis:3500,statement_timeout:15000,application_name:"smn-ceremony-bootstrap"});
  await db.connect();
