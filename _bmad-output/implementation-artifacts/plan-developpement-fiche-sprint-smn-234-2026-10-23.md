@@ -4,7 +4,7 @@ story: SMN-234
 epic: SMN-228
 date: 2026-10-23
 language: fr
-status: d0-documented-d1-d7-code-published-awaiting-local-recette
+status: d0-documented-d1-d7-coded-d8-scaffold-blocked-epic5-awaiting-local-recette
 source: _bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md
 ---
 
@@ -28,7 +28,7 @@ La route `src/app/app/admin/sprints/[sprintId]/page.tsx` **existe**, mais ne con
 | **D5 — Capacité et équipe** — **code publié, recette locale en attente** | Liste des contributeurs avec J/H de présence **principaux**, disponibilité développement secondaire et totaux explicites ; absences et contextes sans données sensibles | SMN-42–64, `src/server/capacity/engine.ts` ; **nouveau contrat de J/H présence à valider** | Membre entrant/sortant, temps partiel, absences/jour férié, demi-journée, non-calculable ; cohérence J/H et autorisation nominative |
 | **D6 — Tendances graphiques** — **code publié, recette complète en attente** | Trois courbes/tableaux accessibles, cinq clôtures éligibles du même collectif (G04/G05/G06/G07) | SMN-86, `src/server/sprints/trends.ts` | 0–5 clôtures, Vn, non-comparables = null, ordre correct, i18n, unité SP/%/JH, pas de graphiques fictifs |
 | **D7 — Bilan manuel / IA éditable** — **code publié, recette locale en attente** | Deux éditeurs enregistrant séparément Analyse et Analyse IA, côte à côte desktop, empilés mobile, révisions/audits | modèle de texte de bilan à établir ; Epic 9 **pour génération IA ultérieure** | Édition admin, cohérence attribution/provenance, versionnement, concurrent edit, historique Sprint clos, aucune fausse IA |
-| **D8 — Registres** | Liste commune chronologique des six registres avec plage d'activité/ouverture pendant Sprint, fiche centrale unique, historique Vn | **Epic 5 SMN-89–112 : condition bloquante pour ce lot**, pas pour D1–D7 | Fiches avant/durant le Sprint, résolues pendant, multi-cycles, registre partiel indisponible, filtrage serveur, 0/1/>5, liens sûrs |
+| **D8 — Registres** — **socle publié, intégration réelle bloquée par Epic 5** | Liste commune chronologique des six registres avec plage d'activité/ouverture pendant Sprint, fiche centrale unique, historique Vn | **Epic 5 SMN-89–112 : condition bloquante pour ce lot**, pas pour D1–D7 | Fiches avant/durant le Sprint, résolues pendant, multi-cycles, registre partiel indisponible, filtrage serveur, 0/1/>5, liens sûrs |
 | **D9 — Finalisation et recette transverse** | Simplification des vieux formulaires redondants après vérification d'accès, documentation et recette navigateur Windows | D1–D8 livrés avec preuves ; rapport SMN-113 non requis pour les sept onglets | Navigation cohérente et aucun recul sur Paramètres/Calendrier/dashboard ; tests et captures réels ; tickets mis à jour sur résultats vérifiés |
 
 **Ordre conseillé : D0 → D1 → D2 → D3 → D4 → D5 → D6 → D7 ; D8 après arrivée des registres, puis D9.** D6 peut être réalisé avant D5 si la définition exacte des J/H de présence doit être validée ; D7 n'a pas besoin d'attendre la génération IA de l'Epic 9 pour la saisie manuelle des deux blocs. Le pipeline de tests ne doit pas bloquer les petits incréments indépendants.
@@ -123,3 +123,14 @@ L'onglet Bilan propose deux blocs **autonomes** « Analyse du Scrum Master » et
 **Clôture :** le nouveau producteur est préparé dans `ensureClosureSchema` puis les deux analyses sont figées sous `snapshot.reviewAnalysis` du dernier Vn. Le lecteur collectif D7 utilise **uniquement SELECT**, vérifie l'équipe et, sur un Sprint clos, n'effectue aucun recalcul d'après les données courantes. Les anciennes clôtures sans ce champ restent explicitement indisponibles.
 
 **Vérifications :** 20/20 contrôles statiques GitHub et **20/20 assertions isolées réellement exécutées** sur le module pur, compilation TypeScript stricte et identité du SHA Git `b935227...`. **Non exécutés** : `pnpm typecheck`, tests du dépôt `tsx --test`, build Next.js, PostgreSQL et recette navigateur. Les anciens états historiques sont **stockés en audit SQL**, mais une page de navigation de toutes les anciennes révisions n'est pas implémentée dans D7. **D1–D7 codés sur `main`, pas encore recettés**. Suite **D8 — Registres (Epic 5 préalable)**, puis **D9 — Validation transverse**.
+
+
+## Journal D8 — 23 octobre 2026 : Registres, socle sans producteur (BLOQUÉ)
+
+Rapport : [realisation-d8-registres-fiche-sprint-smn-234-2026-10-23.md](realisation-d8-registres-fiche-sprint-smn-234-2026-10-23.md).
+
+**Vérification GitHub/Jira :** aucune implémentation du domaine des six registres dans `main` ; les **24 Stories Epic 5 SMN-89 à SMN-112** restent « À faire ». Par conséquent, **D8 ne peut pas être fonctionnellement achevé** sans produire au préalable ces données (SMN-89/90/91/97, faits SMN-106–110, snapshots SMN-111/112). Pas de migration ou de fiche fictive créée dans D8.
+
+**Développement publié :** contrat pur `sprint-registers.ts` (six types, activité temporelle, déduplication, filtres équipe, 25/page, null et liens sûrs), port `RegistryReadProvider` et lecteur SELECT-only borné par Sprint+équipe, projection historique Vn uniquement si une **future** source qualitative conforme existe, panneau réel Registres avec les six catégories et message **« Registres indisponibles — Epic 5 »** au lieu de zéro inventé. Pas de modification de `closure.ts` ni fausse capture à la clôture. Tests D8 publiés, **non exécutés** dans le projet.
+
+**Statut : D8 socle préparé, **bloqué par Epic 5** pour données réelles et liens. D0 documenté, D1–D7 codés mais en attente de recette. La recette **technique** D9 des lots D1–D7 peut commencer ; la recette **fonctionnelle finale** des sept onglets attend la réalisation d'Epic 5 et les tests PostgreSQL/Next.js locaux. SMN-234 reste ouverte.
