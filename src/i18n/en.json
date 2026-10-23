@@ -262,7 +262,14 @@
       "add": "Add",
       "unavailable": "Unavailable",
       "empty": "No entries to date",
-      "sourceUnavailable": "Records for this cycle are not yet accessible. No count or historical status can be confirmed."
+      "obstacle": "Impediment",
+    "risk": "Risk",
+    "itemCount": "{count} items",
+    "priorityLow": "Low",
+    "priorityMedium": "Medium",
+    "priorityHigh": "High",
+    "priorityUnknown": "Not assessed",
+    "sourceUnavailable": "Records for this cycle are not yet accessible. No count or historical status can be confirmed."
     }
   },
   "session": {
