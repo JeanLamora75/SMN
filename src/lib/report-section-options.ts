@@ -1,4 +1,4 @@
-import {standardReportSections} from "./standard-composition";
+const standardReportSections=["executive","objectives","indicators","events","attention","decisions"] as const;
 export type SectionKey=typeof standardReportSections[number];
 export type SectionOption={key:SectionKey;visible:boolean};
 export const defaultSectionOptions=():SectionOption[]=>standardReportSections.map(key=>({key,visible:true}));
