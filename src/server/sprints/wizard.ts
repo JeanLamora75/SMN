@@ -3,6 +3,8 @@ import type {Client} from "pg";
 import {previewSprintBatch} from "./batch-preview";
 import {ensureBatchSchema} from "./batch-confirm";
 import {saveGeneratedCeremonies} from "./ceremonies";
+import {ensureTemplateSchema} from "./ceremony-templates";
+import {ensureLunchSchema} from "./lunch";
 
 type WizardInput={startOn:string;count:number;names?:string[];generateHistoricalCeremonies:boolean};
 type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;endAt:string;
@@ -34,6 +36,8 @@ const hash=(p:Preview,settings:unknown,option:boolean)=>createHash("sha256")
 
 async function schema(db:Client){
  await ensureBatchSchema(db);
+ await ensureTemplateSchema(db);
+ await ensureLunchSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_wizard_preview(
   token text PRIMARY KEY,
   team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
