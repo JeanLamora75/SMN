@@ -10,6 +10,7 @@ import ReportDraftNotes from "./report-draft-notes";
 import ReportContentEditor from "./report-content-editor";
 import ReportTeamContext from "./report-team-context";
 import ReportHistoryOptions from "./report-history-options";
+import ReportTemplateChooser from "./report-template-chooser";
 import ReportSectionEditor from "./report-section-editor";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
@@ -50,6 +51,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    </aside>
    <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
    {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
+   <ReportTemplateChooser/>
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
    <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
    <ReportHistoryOptions sprintId={s.id}/>
