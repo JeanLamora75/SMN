@@ -9,12 +9,22 @@ type Conflict={id:string;name:string;kind:"existing"|"batch"};
 type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;endAt:string;
  timeZone:string;conflicts:Conflict[]};
 type Preview={ok:boolean;valid:boolean;token:string|null;historical:boolean;
+ stage?:string;diagnosticCode?:string;
  items:Item[];nameWarnings:number[];activeTemplates:Array<{id:string;name:string;revision:number}>;
  cadence:{duration_weeks:number;start_day:number;end_day:number;start_time:string;end_time:string;
  time_zone:string}|null;error?:string};
 type Proposal={recommended:string|null;proposal:{startOn:string;name:string}|null};
+const previewStageLabels:Record<string,TranslationKey>={
+ schema:"sprintWizard.stageSchema",periods:"sprintWizard.stagePeriods",
+ team:"sprintWizard.stageTeam",lunch:"sprintWizard.stageLunch",
+ settings:"sprintWizard.stageSettings",names:"sprintWizard.stageNames",
+ token:"sprintWizard.stageToken",unknown:"sprintWizard.stageUnknown"
+};
 const errorKeys:Record<string,TranslationKey>={
  "invalid-input":"sprintWizard.invalid",
+ "forbidden":"sprintWizard.forbidden",
+ "schema-unavailable":"sprintWizard.schemaUnavailable",
+ "preview-timeout":"sprintWizard.previewTimeout",
  "preview-expired":"sprintWizard.expired",
  "stale-preview":"sprintWizard.stale",
  "preview-unavailable":"sprintWizard.failed",
@@ -91,7 +101,14 @@ export default function SprintGenerationWizard(){
     headers:{"Content-Type":"application/json"},body:JSON.stringify(payload),cache:"no-store"});
    const d=await r.json() as Preview;
    if(!r.ok||!d.ok||!Array.isArray(d.items)){
-    setError(t(errorKeys[d.error??""]??"sprintWizard.failed"));return;
+    const message=t(errorKeys[d.error??""]??"sprintWizard.failed");
+    const details=d.stage?
+     " "+t("sprintWizard.previewFailureStage",{
+      stage:t(previewStageLabels[d.stage]??"sprintWizard.stageUnknown"),
+      code:d.diagnosticCode??"SERVER"
+     }):"";
+    setError(message+details);
+    return;
    }
    setPreview(d);
    if(names.length!==count)setNames(d.items.map(x=>x.name));
@@ -140,10 +157,15 @@ export default function SprintGenerationWizard(){
    <button type="button" className="btn btn-outline-secondary" onClick={cancel} disabled={busy}
     aria-label={t("sprintWizard.close")}>× {t("sprintWizard.close")}</button>
   </header>
-  <ol className="d-flex gap-3 flex-wrap ps-4" aria-label={t("sprintWizard.steps")}>
+  <ol className="list-unstyled d-flex gap-3 flex-wrap mb-2" aria-label={t("sprintWizard.steps")}>
    {(["configure","preview","confirm"] as const).map((key,i)=><li key={key}
-    className={step===i+1?"fw-bold":""}
-    aria-current={step===i+1?"step":undefined}>{t(("sprintWizard."+key) as TranslationKey)}</li>)}
+    className={"d-flex align-items-center gap-2 "+(step===i+1?"fw-semibold":"text-secondary")}
+    aria-current={step===i+1?"step":undefined}>
+    <span aria-hidden="true" className={"rounded-circle d-inline-flex align-items-center justify-content-center border "+
+     (step===i+1?"bg-primary text-white border-primary":"bg-body border-secondary-subtle")}
+     style={{width:28,height:28,flexShrink:0}}>{i+1}</span>
+    <span>{t(("sprintWizard."+key) as TranslationKey)}</span>
+   </li>)}
   </ol>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {step===1&&<section className="smn-panel p-4 rounded-4">
