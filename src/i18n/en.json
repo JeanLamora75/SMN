@@ -2335,5 +2335,24 @@
     "conflict": "The classification was changed elsewhere. Reload the page.",
     "updatedAt": "Last updated",
     "unavailable": "Classification unavailable"
+  },
+  "registryAssessment": {
+    "heading": "Risk assessment",
+    "probability": "Probability",
+    "impact": "Impact",
+    "none": "Not provided",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "unassessed": "Unassessed",
+    "score": "Score",
+    "provisional": "Provisional preview — not saved",
+    "saved": "Saved criticality",
+    "save": "Save assessment",
+    "saving": "Saving…",
+    "error": "Assessment unavailable.",
+    "conflict": "Assessment has changed. Reload before saving.",
+    "updated": "Assessment saved.",
+    "symbol": "Criticality level"
   }
 }
