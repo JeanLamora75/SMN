@@ -60,3 +60,22 @@ pnpm dev
 Le code a été publié via connecteur GitHub. Les contrôles statiques de structure et d'imports ont été réalisés sur les fichiers du dépôt ; **les tests TS, lint, build, exécution PostgreSQL et recette navigateur n'ont pas été exécutés par l'assistant**. Les changements de capacité et la suppression doivent être qualifiés sur la base pilote. Aucun changement Jira n'a été appliqué (nécessite validation de l'utilisateur pour modifier la Story).
 
 **Adaptation BMAD :** skill développeur/contrats lus ; lancement officiel `uv run --no-cache` non exécuté faute de checkout local et de `uv`. Implémentation via connecteurs, limites explicitement maintenues.
+
+
+## Recette locale du 23/10/2026 — correction du simulateur PostgreSQL
+
+**Résultat réellement fourni par l'utilisateur** : 
+`pnpm exec tsx --test tests/member-absence.test.ts tests/member-regional-absence.test.ts tests/member-absence-ux.test.ts`
+→ **33 tests, 31 réussis, 2 en échec**, tous les tests métier d'absence et UX étant réussis. Les deux échecs du fichier `tests/member-regional-absence.test.ts` sont :
+- « récupère calendrier, localisation effective et jour férié sans dédupliquer par équipe » : assertion attendait l'absence de référence aux tables `smn_team` / `smn_member_assignment` dans les **requêtes de lecture** ; or `readMemberDayAvailability` a légitimement besoin de vérifier l'affectation applicable à la date et une éventuelle fermeture collective. Ce n'est ni une écriture ni une duplication d'absence.
+- « ajoute la fermeture collective à la disponibilité individuelle sans double compte » : la base simulée `dbFor` testait d'abord `sql.includes("smn_member_assignment")`, et interceptait donc à tort la requête sur `smn_company_closure`, qui fait une jointure vers la table d'affectation. Elle retournait des `team_count` au lieu des `name` de fermeture.
+
+**Correctif publié sur main** : seul `tests/member-regional-absence.test.ts` a été modifié. Le simulateur traite les fermetures par `FROM public.smn_company_closure c`, puis les affectations par `SELECT count(DISTINCT a.team_id)::integer AS team_count` ; l'assertion refuse les écritures SQL (`INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `ALTER`) et contrôle qu'une seule lecture des affectations et une seule requête de fermeture ont été effectuées. Aucun code métier/SQL réel modifié par ce correctif.
+
+**Recette à refaire sur le poste pilote**, après `Fetch/Pull origin` :
+```powershell
+pnpm exec tsx --test tests/member-absence.test.ts tests/member-regional-absence.test.ts tests/member-absence-ux.test.ts
+pnpm typecheck
+pnpm build
+```
+**Statut : correction publiée et relue statiquement ; le résultat des 33 tests après correction n'est pas encore attesté.** Ne pas considérer les deux échecs initiaux comme résolus tant que la nouvelle exécution n'est pas disponible.
