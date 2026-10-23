@@ -4,6 +4,7 @@ import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import RegistryList from "./registry-list";
 import RegistryDeadlineAlerts from "./registry-deadlines";
+import AttentionCockpit from "./attention-cockpit";
 export const dynamic="force-dynamic";
 export default async function RegistriesPage(){
  const actor=await currentAccount();
@@ -16,6 +17,6 @@ export default async function RegistriesPage(){
   return r.rows.length===1?r.rows[0].id:null;
  }).catch(()=>null);
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-  {teamId?<><RegistryDeadlineAlerts canManage={actor.role==="admin"}/><RegistryList canManage={actor.role==="admin"}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
+  {teamId?<><AttentionCockpit/><RegistryDeadlineAlerts canManage={actor.role==="admin"}/><RegistryList canManage={actor.role==="admin"}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
 }
