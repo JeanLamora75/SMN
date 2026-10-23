@@ -114,3 +114,16 @@ Pas de travaux SAFe/ART ni d'intégration Jira automatique dans ces Lots. Kanban
 **Jira :** quatre Stories créées et rattachées aux Epics identifiées ; critères d'acceptation inscrits.  
 **BMAD :** contrat et séquencement publiés dans une branche documentaire dédiée en attente de fusion.  
 **Développement :** non commencé dans ce lot. **Tests :** non exécutés. **`main` :** inchangée.
+
+## Avancement de l'étape 0 — 23 octobre 2026
+
+**Cadrage technique réalisé, directement sur `main` à la demande de l'utilisateur.** Le document d'audit détaillé est [audit-dashboard-etape0-2026-10-23.md](audit-dashboard-etape0-2026-10-23.md).
+
+- Sources des objectifs, Story Points, capacités initiales/réelles, événements, snapshots Vn et contrôle d'accès rapprochées du code réel.
+- Contrat de projection collective posé dans `src/lib/dashboard-data-contract.ts`, sans lecteur PostgreSQL ni changement UX ; tests de valeurs 0/absentes/indisponibles et version Vn rédigés dans `tests/dashboard-data-contract.test.ts`.
+- **Trois alertes avant lecture métier SMN-235** : certains `read...` exécutent des `ensure...Schema` (DDL) ; `readActualCapacity` démarre sa propre transaction ; `readSprintCapacityReview` transmet des bornes locales inclusives au moteur alors que le Sprint est défini en intervalle semi-ouvert (cas minuit à contrôler).
+- Aucun rattachement de chiffres réels aux cartes, aucun nouveau tableau SQL, aucune migration, aucune correction de l'historique.
+- **À réaliser en ouverture de SMN-235 :** extraire des lecteurs strictement `SELECT`, sécuriser transaction unique de restitution, implémenter la lecture Vn du Sprint clôturé, vérifier les tests PostgreSQL sur le PC.
+- **Tests** : cas unitaires écrits mais **`pnpm typecheck` et `pnpm exec tsx --test tests/dashboard-data-contract.test.ts` non exécutés dans cette session** ; à lancer sur Windows avant validation technique.
+
+Les étapes 1 à 5 et l'ordre de Stories restent inchangés. Aucun ticket Jira n'a été réécrit et aucune PR n'est nécessaire au fonctionnement futur demandé : les modifications validées seront publiées directement sur `main`.
