@@ -196,6 +196,8 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    goals=collectionUnavailable("history-missing");
    storyPoints={initial:metricUnavailable("history-missing"),done:metricUnavailable("history-missing")};
    capacity=capacityUnavailable("history-missing");
+   tickets={initial:metricUnavailable("history-missing"),
+    done:metricUnavailable("history-missing")};
   }
  }else{
   if(await tableExists(db,"smn_sprint_goal")){
@@ -249,7 +251,6 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    void error;
   }
  }
- const waiting=metricUnavailable("producer-not-ready");
  // Même instant transactionnel pour Sprint/KPI et échéance.
  const dbTime=await db.query<{at:Date|string}>("SELECT now() AS at");
  const instant=new Date(dbTime.rows[0]?.at??Date.now());
