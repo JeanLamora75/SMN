@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { classifySnapshot, diagnoseInstallation, type Snapshot } from "../src/server/installation/diagnostic";
 import { parseConnectionSettings } from "../src/server/db/config";
+import { INSTALLATION_RELATIONS } from "../src/server/installation/contract";
+import { readFileSync } from "node:fs";
 
 const names = ["public.smn_installation:r", "public._prisma_migrations:r"];
 const virgin: Snapshot = { schemaUsage: true, schemaCreate: true, serverVersion: 180006, tables: [] };
@@ -25,6 +27,19 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     }
     assert.equal(classifySnapshot({ ...virgin, tables: ["public._prisma_migrations:r"] }).status, "installation-incomplete");
     assert.equal(classifySnapshot({ ...valid, tables: [...names, "public.unexpected_view:v"], tableRead: false }).status, "schema-incompatible");
+  });
+  it("reconnaît les tables internes de l'assistant et de replanification sans ouvrir le schéma aux objets étrangers", () => {
+    for (const [relation, sourcePath] of [
+      ["public.smn_sprint_wizard_preview:r", "src/server/sprints/wizard.ts"],
+      ["public.smn_sprint_reschedule_audit:r", "src/server/sprints/reschedule.ts"],
+    ]) {
+      assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
+      const source = readFileSync(new URL("../"+sourcePath, import.meta.url), "utf8");
+      assert.match(source, new RegExp("CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+" + relation.slice(0,-2).replace(".", "\\."), "i"));
+      const checked = classifySnapshot({ ...valid, tables: [...names, relation] });
+      assert.notEqual(checked.status, "schema-incompatible", relation);
+    }
+    assert.equal(classifySnapshot({...valid,tables:[...names,"public.smn_sprint_wizard_preview:r","public.smn_sprint_reschedule_audit:r","public.unknown:r"]}).status,"schema-incompatible");
   });
   it("refuse les installations partielles et versions futures inconnues", () => {
     assert.equal(classifySnapshot({ ...valid, migrations: [] }).status, "installation-incomplete");
