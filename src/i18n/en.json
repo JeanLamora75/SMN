@@ -182,6 +182,10 @@
     "cockpit": {
       "noCycle": "No cycle created",
       "noSprintHelp": "No Sprint has been recorded for this team. No cycle is created automatically.",
+      "selectedSprintHelp": "Sprint selected in the dashboard context.",
+      "dataPending": "Data source not connected yet",
+      "comparisonUnavailable": "Comparison unavailable",
+      "workingDaysPending": "Working-day calculations for this Sprint are not connected to the dashboard yet.",
       "noPeriodHelp": "No Kanban period has been recorded for this team. No period is created automatically.",
       "details": "Cycle information",
       "dates": "Cycle dates",
