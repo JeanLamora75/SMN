@@ -6,17 +6,22 @@ import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {composeHtmlReportPreview} from "@/server/reports/html-preview";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
+import {readReportLanguage} from "@/server/reports/language";
 export const dynamic="force-dynamic";
 export default async function ReportPreviewPage({params}:{params:Promise<{sprintId:string}>}){
  const account=await currentAccount();if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"write",{type:"settings",exists:true,inScope:true}))notFound();
  const {sprintId}=await params;if(!/^[a-f0-9-]{36}$/i.test(sprintId))notFound();
- const data=await withSprintIndexDb(db=>composeHtmlReportPreview(db,sprintId)).catch(()=>null);
- if(!data)notFound();
- const locale=await requestLocale(),label=(key:string)=>translate(locale,("reportPreview."+key) as "reportPreview.title");
+ const payload=await withSprintIndexDb(async db=>({
+  data:await composeHtmlReportPreview(db,sprintId),
+  language:await readReportLanguage(db,sprintId)
+ })).catch(()=>null);
+ if(!payload?.data)notFound();
+ const data=payload.data;
+ const locale=payload.language.language,label=(key:string)=>translate(locale,("reportPreview."+key) as "reportPreview.title");
  const note=(key:string)=>{const n=data.notes[key as keyof typeof data.notes];return n?.included&&n.text.trim()?n:null;};
- return <main className="container-fluid px-3 px-lg-4 py-4">
+ return <main lang={locale} className="container-fluid px-3 px-lg-4 py-4">
  <Link href={"/app/admin/sprints/"+encodeURIComponent(sprintId)+"/report"}>{label("back")}</Link>
  <article className="smn-panel rounded-4 p-4 my-3">
  <header className="border-bottom pb-3 mb-4"><h1 className="h3">{label("title")}</h1>
