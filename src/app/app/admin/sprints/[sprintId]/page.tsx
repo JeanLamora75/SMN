@@ -141,9 +141,10 @@ export default async function SprintDetailPage({params,searchParams}:{
       <span className="text-secondary">({cycle.timeZone})</span>
      </div>
     </div>
+    <div className="d-flex gap-2 align-items-center flex-wrap">{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/sprints/"+encodeURIComponent(cycle.id)+"/report"}>{t("sprintReportPrepare.launch")}</Link>}
     <span className="badge text-bg-secondary" title={t("sprintDetail.statusHelp")}>
      {t(statusKeys[status]??"dashboard.cockpit.notAvailable")}
-    </span>
+    </span></div>
    </header>
   </div>
   <div className="smn-panel rounded-4 p-3 p-md-4">
