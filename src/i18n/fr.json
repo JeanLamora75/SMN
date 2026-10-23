@@ -2711,5 +2711,23 @@
     "verified": "Vérifiée",
     "degraded": "Dégradée",
     "unavailable": "Indisponible"
+  },
+  "archiveLibrary": {
+    "heading": "Rapports archivés",
+    "intro": "Bibliothèque privée des PDF finalisés. Les aperçus temporaires n'y figurent pas.",
+    "cycle": "Sprint (identifiant)",
+    "from": "Depuis",
+    "to": "Jusqu'au",
+    "template": "Modèle",
+    "status": "Statut",
+    "all": "Tous",
+    "search": "Rechercher",
+    "empty": "Aucun rapport PDF archivé ne correspond à ces critères.",
+    "date": "Date",
+    "version": "Version",
+    "count": "Résultats",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "openLibrary": "Voir les rapports archivés"
   }
 }
