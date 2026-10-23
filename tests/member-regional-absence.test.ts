@@ -26,12 +26,14 @@ function dbFor(options:{country?:string|null;status?:string|null;holiday?:string
  const calls:string[]=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   calls.push(sql);
-  if(sql.includes("smn_member_assignment"))return {
-   rowCount:1,rows:[{team_count:options.assignment===false?0:1}]
-  };
+  // A closure query also joins smn_member_assignment. Match the specific
+  // statement first so the fake database mirrors the SQL result type.
   if(sql.includes("FROM public.smn_company_closure c")){
    const rows=options.closure?[{name:"Fermeture collective"}]:[];
    return {rowCount:rows.length,rows};
+  }
+  if(sql.includes("SELECT count(DISTINCT a.team_id)::integer AS team_count")){
+   return {rowCount:1,rows:[{team_count:options.assignment===false?0:1}]};
   }
   if(sql.includes("smn_member_calendar_week"))return {
    rowCount:options.week===false?0:1,
@@ -112,7 +114,11 @@ describe("jour régional traité comme absence individuelle",()=>{
   assert.equal(state.deductedHalfDays,2);
   assert.equal(state.nationalOverlap,true);
   assert.equal(state.status,"known");
-  assert.equal(fixture.calls.some(q=>/INSERT|UPDATE|DELETE|smn_team|smn_member_assignment/i.test(q)),false);
+  // Member/day availability is read-only, but must query the applicable
+  // assignment and team to avoid inventing availability or a second team.
+  assert.equal(fixture.calls.some(q=>/\\b(?:INSERT|UPDATE|DELETE|TRUNCATE|ALTER)\\b/i.test(q)),false);
+  assert.equal(fixture.calls.filter(q=>q.includes("SELECT count(DISTINCT a.team_id)::integer AS team_count")).length,1);
+  assert.equal(fixture.calls.filter(q=>q.includes("FROM public.smn_company_closure c")).length,1);
  });
  it("n'invente aucun férié lorsque le pays est inconnu ou le calendrier incomplet",async()=>{
   const noCountry=await readMemberDayAvailability(dbFor({country:null}).db,memberId,national,[item(allDay)]);
