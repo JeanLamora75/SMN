@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
-type Occurrence={id:string;templateId:string;templateRevision:number;sprintName:string;name:string;startAt:string;endAt:string;timeZone:string;templateActive:boolean};
+type Occurrence={id:string;templateId:string;templateRevision:number;sprintName:string;name:string;startAt:string;endAt:string;timeZone:string;templateActive:boolean;generationSource:string};
 export default function TemplateOccurrencesList(){
  const t=useTranslation();
  const [rows,setRows]=useState<Occurrence[]>([]);
