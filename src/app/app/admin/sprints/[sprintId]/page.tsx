@@ -153,7 +153,7 @@ export default async function SprintDetailPage({params,searchParams}:{
       t={(key,params)=>translate(locale,key,params)}
       data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>:
      active==="capacity"?<SprintCapacityPanel
-      canViewNames={canViewMembers} data={canViewMembers?presence:null}
+      canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
       <div className="py-3" role="status">
      <p className="fw-semibold mb-1">{t("sprintDetail.availableLater")}</p>
