@@ -2627,5 +2627,21 @@
     "initial": "Capacité initiale",
     "actual": "Capacité réelle",
     "unknown": "Provenance inconnue"
+  },
+  "reportTeamContext": {
+    "heading": "Contexte de l’équipe",
+    "intro": "Annexes facultatives : textes d’origine, sans traduction automatique ni modification des sources.",
+    "vision": "Vision",
+    "productGoal": "Product Goal",
+    "dod": "Definition of Done (DoD)",
+    "dor": "Definition of Ready (DoR)",
+    "unavailable": "Non renseigné",
+    "unverified": "Lien externe non vérifié ni archivé",
+    "language": "Langue",
+    "preview": "Aperçu du contexte retenu",
+    "save": "Enregistrer les options",
+    "saved": "Options enregistrées",
+    "error": "Impossible de charger ou d’enregistrer les options.",
+    "leaveWarning": "Des choix non enregistrés seront perdus. Quitter ?"
   }
 }
