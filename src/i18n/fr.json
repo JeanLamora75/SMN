@@ -2416,5 +2416,20 @@
     "empty": "Aucun lien",
     "error": "Impossible de modifier le lien.",
     "intro": "Les objets liés conservent leur statut indépendant."
+  },
+  "registryRelations": {
+    "heading": "Relations entre fiches et objectifs",
+    "intro": "Les liens sont consultables depuis les deux fiches. Aucun objet n'est dupliqué.",
+    "kind": "Type de cible",
+    "record": "Fiche qualitative",
+    "goal": "Objectif de Sprint (action uniquement)",
+    "target": "Identifiant de la cible",
+    "add": "Associer",
+    "remove": "Retirer",
+    "empty": "Aucune relation.",
+    "error": "Association impossible. Vérifiez l’identifiant, les droits et le cycle.",
+    "from": "Depuis",
+    "to": "Vers",
+    "readOnly": "Consultation en lecture seule"
   }
 }
