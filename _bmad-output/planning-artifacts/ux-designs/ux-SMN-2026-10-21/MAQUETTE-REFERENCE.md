@@ -15,3 +15,16 @@
 - Responsive : 4 colonnes sur grand écran, 2 sur tablette, 1 sur mobile.
 
 **Important :** la capture de maquette comporte des noms, chiffres, dates, avatars et métriques fictifs. Les deux contrats Markdown prévalent sur toute donnée fictive illustrée. Ne pas redessiner l'interface contre les choix de l'utilisateur.
+
+
+## Complément de référence visuelle — comparaison du 23 octobre 2026
+
+L'utilisateur a fourni deux captures : **PJ1**, état actuel du dashboard avec le raccordement des KPI/événements, et **PJ2**, cible visuelle. La capture PJ2 est une **référence d'ergonomie et de densité**, non une source de chiffres ou de données à injecter.
+
+**Découpage de l'évolution validé :**
+1. Bandeau Sprint **nettement moins haut** : titre, dates, statut, objectif réel, bouton de détail à droite. Utiliser les tracés de Bootstrap Icons. La première fiche Sprint est en lecture seule.
+2. Cartes KPI plus lisibles et pictogrammes Bootstrap Icons ; **ne pas afficher** un avancement global fictif.
+3. Dans Événements, pictogrammes cohérents par type de réunion ; **choix de l'icône par l'administrateur dans les modèles** envisagé pour un lot ultérieur, non développé dans le lot 1.
+4. Dans Obstacles / Risques / Notes / Alertes, point de couleur selon la priorité accompagné de libellés ; attendre les producteurs de l'Epic 5 pour les cartes réelles.
+
+**Contrat du lot 1 réalisé :** [document de livraison BMAD](../../../implementation-artifacts/refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md). Le contrat DESIGN/EXPERIENCE reste prioritaire sur les éléments fictifs du visuel PJ2.
