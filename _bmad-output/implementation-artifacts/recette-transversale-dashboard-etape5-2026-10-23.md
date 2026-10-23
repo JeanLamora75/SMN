@@ -86,3 +86,21 @@ pnpm dev
 5. **G5-H : historique réel** les anciennes clôtures peuvent ne pas conserver les nouveaux champs Tickets et provenance des réunions, sans reconstruction de valeurs.
 
 **Conclusion de l'étape 5 :** revue de code et renforcement des garde-fous publiés sur `main` ; recette réelle en attente. Ne pas clôturer Jira SMN-21, SMN-235/236/237 ou SMN-238 sur cette seule base.
+
+
+## Correctif de compilation après recette PowerShell (23 octobre 2026)
+
+L'utilisateur a exécuté `pnpm typecheck` sur Windows : **11 erreurs TS** dans trois fichiers, liées à deux causes.
+
+- **TS2554** — `src/app/app/operational-overview.tsx` : `EventsColumn` utilisait un `t(key)` local limité à un argument alors que `eventCount` fournit aussi `{count}`. Le wrapper reçoit désormais facultativement `Readonly<Record<string,string|number>>` et transmet ce paramètre à `translate(locale,key,params)`. Le compteur reste traduit et accessible.
+- **TS2322** — `tests/dashboard-data-contract.test.ts` et `tests/dashboard-transversal-step5.test.ts` : `collectionUnavailable("...")` inférait `DashboardCollection<unknown>`, incompatible avec les collections typées d'objectifs, événements et alertes. La signature est maintenant `collectionUnavailable<T=never>` : sans élément enregistré, la valeur `unavailable` est utilisable dans toutes les projections typées sans `any`, cast ni changement du contrat runtime. Un type explicite peut toujours être fourni.
+
+**Vérification effectuée :** présence des deux corrections vérifiée sur la branche `main` ; une reproduction minimale de ces deux règles de types a été compilée localement avec `tsc --noEmit --strict` (résultat : succès). Le projet SMN complet et ses dépendances ne sont pas installés dans cet environnement : **aucun nouveau `pnpm typecheck` complet ne peut être revendiqué**.
+
+**À exécuter sur Windows après synchronisation de `main` :**
+```powershell
+pnpm typecheck
+pnpm exec tsx --test tests/dashboard-data-contract.test.ts tests/dashboard-transversal-step5.test.ts
+```
+
+Aucun schéma ni donnée PostgreSQL modifié ; les autres étapes du plan ne changent pas.
