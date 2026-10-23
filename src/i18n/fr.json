@@ -2569,5 +2569,17 @@
     "decisions": "Décisions et actions",
     "empty": "Aucune donnée enregistrée pour cette section.",
     "unavailable": "Données sources indisponibles : aucun état historique n'a été reconstitué."
+  },
+  "reportNotes": {
+    "heading": "Rédaction du rapport",
+    "intro": "Ces textes appartiennent au brouillon du rapport et ne modifient aucune donnée du Sprint.",
+    "introduction": "Introduction",
+    "conclusion": "Conclusion",
+    "include": "Inclure au rapport",
+    "language": "Langue d’origine",
+    "save": "Enregistrer le brouillon",
+    "saved": "Brouillon enregistré",
+    "error": "Impossible de lire ou d’enregistrer le brouillon.",
+    "leaveWarning": "Des modifications du rapport ne sont pas enregistrées. Quitter sans sauvegarder ?"
   }
 }
