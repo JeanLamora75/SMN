@@ -11,7 +11,8 @@ import {readConfigurationChecklist} from "@/server/configuration/tasks";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import {dashboardReturnPath,teamDetailPath,type DashboardQuery} from "@/lib/context-navigation";
-import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {withDashboardRead} from "@/server/dashboard/read-only-db";
+import {readCycleDashboard} from "@/server/dashboard/cycle-reader";
 import {readSprintContext} from "@/server/sprints/context";
 import {selectedSprint} from "@/lib/sprint-context";
 
@@ -45,17 +46,22 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   const query=await searchParams;
   const returnTo=dashboardReturnPath(query,context.teamId);
   const teamHref=teamDetailPath(context.teamId,returnTo);
-  const sprintData=context.mode==="scrum"
-    ? await withSprintIndexDb(db=>readSprintContext(db,context.teamId)).catch(()=>null)
-    : {items:[],defaultCycleId:null};
   const requested=typeof query.cycleId==="string"?query.cycleId:null;
-  const cycle=selectedSprint(sprintData?.items??[],requested);
+  // Un seul snapshot PostgreSQL pour la sélection du Sprint ET ses KPI.
+  const sprintResult=context.mode==="scrum"?await withDashboardRead(async db=>{
+    const sprintData=await readSprintContext(db,context.teamId);
+    const cycle=selectedSprint(sprintData.items,requested);
+    const projection=cycle?await readCycleDashboard(db,context.teamId,cycle):null;
+    return {cycle,projection};
+  }).catch(()=>null):{cycle:null,projection:null};
+  const cycle=sprintResult?.cycle??null;
+  const projection=sprintResult?.projection??null;
 
   return <>
-    {sprintData===null&&<p role="alert" className="alert alert-warning">
+    {sprintResult===null&&<p role="alert" className="alert alert-warning">
       {t("sprintsIndex.error")}
     </p>}
-    <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle}/>
+    <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle} projection={projection}/>
 
     <OperationalOverview locale={locale}/>
 
