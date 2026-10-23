@@ -8,6 +8,7 @@ import MemberIdentityEditor from "./member-identity-editor";
 import AssignmentEditor from "../assignment-editor";
 import MemberAssignmentHistory from "./member-assignment-history";
 import MemberCalendarEditor from "../member-calendar-editor";
+import MemberCalendarExceptionEditor from "../member-calendar-exception-editor";
 import MemberLifecycleEditor from "../member-lifecycle-editor";
 import MemberAbsenceEditor from "../member-absence-editor";
 import MemberHistory from "./member-history";
@@ -15,7 +16,7 @@ import MemberCalendarSummary from "./member-calendar-summary";
 type Member=EditableMember&{memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;
  email:string|null;professionalFunction?:string|null;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string};members:Member[]};
-type Section="profile"|"assignment"|"calendar"|"lifecycle"|null;
+type Section="profile"|"assignment"|"calendar"|"calendarException"|"lifecycle"|null;
 type Tab="assignment"|"calendar"|"absences"|"history";
 export default function MemberDetail({id}:{id:string}){
  const t=useTranslation();
@@ -24,6 +25,7 @@ export default function MemberDetail({id}:{id:string}){
  const [section,setSection]=useState<Section>(null);
  const [tab,setTab]=useState<Tab>("assignment");
  const [assignmentRefreshKey,setAssignmentRefreshKey]=useState(0);
+ const [calendarRefreshKey,setCalendarRefreshKey]=useState(0);
  const [error,setError]=useState("");
  const [location,setLocation]=useState<{current:{city:string|null;region:string|null;countryIso2:string|null}|null}|null>(null);
  const dialogRef=useRef<HTMLDivElement>(null);
@@ -51,6 +53,7 @@ export default function MemberDetail({id}:{id:string}){
  return()=>{live=false;};},[id]);
  const member=roster?.members.find(x=>x.id===id);
  const saved=()=>{setSection(null);setAssignmentRefreshKey(current=>current+1);
+  setCalendarRefreshKey(current=>current+1);
   void refresh().catch(()=>setError(t("memberUX.refreshFailed")));
   void fetch("/api/admin/members/"+encodeURIComponent(id)+"/location",{cache:"no-store"})
    .then(async r=>r.ok?r.json():null).then(v=>{if(v)setLocation(v);}).catch(()=>undefined);};
@@ -102,8 +105,13 @@ export default function MemberDetail({id}:{id:string}){
     <MemberAssignmentHistory key={member.id+"-"+assignmentRefreshKey} memberId={member.id}/>
    </section>}
    {tab==="calendar"&&<section className="smn-panel p-4">
-    <h2 className="h5">{t("memberUX.calendarTitle")} {button("calendar",t("memberUX.calendarEdit"))}</h2>
-    <MemberCalendarSummary memberId={member.id}/>
+    <div className="d-flex align-items-center flex-wrap gap-2 mb-3">
+     <h2 className="h5 mb-0">{t("memberUX.calendarTitle")} {button("calendar",t("memberUX.calendarEdit"))}</h2>
+     <button type="button" className="btn btn-outline-primary btn-sm ms-2"
+      disabled={section!==null||member.archived}
+      onClick={()=>setSection("calendarException")}>+ {t("members.calendar.addException")}</button>
+    </div>
+    <MemberCalendarSummary key={member.id+"-"+calendarRefreshKey} memberId={member.id}/>
    </section>}
    {tab==="absences"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.tabs.absences")}</h2>
@@ -122,7 +130,8 @@ export default function MemberDetail({id}:{id:string}){
      <div className="p-3">
       {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog}/>}
       {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
-      {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onClose={saved}/>}
+      {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
      </div>
     </div>
