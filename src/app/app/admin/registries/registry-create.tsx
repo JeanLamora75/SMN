@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import RiskRoam from "./risk-roam";
+import RiskAssessment from "./risk-assessment";
 type Response={ok:boolean;id?:string;revision?:number;error?:string};
 const today=()=>{
  const d=new Date();
@@ -101,6 +102,6 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
    </div>
    {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}{createdId&&<a className="ms-2" href={"/app/admin/registries/"+encodeURIComponent(createdId)}>{translate("edit")}</a>}</div>}
   </form>}
-  {itemId&&loaded&&type==="risk"&&<RiskRoam id={itemId} canManage={canManage}/>}
+  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage}/><RiskAssessment id={itemId} canManage={canManage}/></>}
  </div>;
 }
