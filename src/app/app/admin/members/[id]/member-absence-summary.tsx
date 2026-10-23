@@ -51,9 +51,11 @@ export default function MemberAbsenceSummary({memberId,onCreate,onEdit}:{
      result.error==="not-found"?"members.absence.notFound":"members.absence.failed"));
     return;
    }
-   // Les vues de capacité calculent les valeurs actualisées à chaque nouvelle lecture.
-   setData(await fetchState());
+   // L'écriture est confirmée ; une relecture ratée ne doit pas être annoncée
+   // comme un échec de suppression (évite de provoquer une deuxième suppression).
    setMessage(t("memberAbsences.deleted"));
+   try{setData(await fetchState());}
+   catch{setError(t("memberAbsences.refreshFailed"));}
   }catch{setError(t("members.absence.failed"));}
   finally{setBusyId(null);}
  };
