@@ -2354,5 +2354,11 @@
     "conflict": "Assessment has changed. Reload before saving.",
     "updated": "Assessment saved.",
     "symbol": "Criticality level"
+  },
+  "obstacleLifecycle": {
+    "reopening": "Reopening: the previous resolution will remain in the history.",
+    "resolved": "Resolved impediment: no longer flagged as open.",
+    "active": "Open impediment: may appear in attention items.",
+    "abandoned": "Abandoned impediment: its record and history remain available."
   }
 }
