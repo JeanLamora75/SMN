@@ -2108,6 +2108,23 @@
     "goalsNewUnevaluated": "Un nouvel objectif est créé avec l’état « Non évalué ». L’évaluation se renseigne ensuite via Modifier.",
     "goalsConflict": "Cet objectif a été modifié depuis l’ouverture de la fiche. Recharge les données avant de réessayer.",
     "goalsClosed": "Ce Sprint est clôturé. Les objectifs ne peuvent plus être modifiés sans réouverture.",
-    "goalsHistorical": "Objectifs issus de l’instantané de clôture V{version}."
+    "goalsHistorical": "Objectifs issus de l’instantané de clôture V{version}.",
+  "indicatorConfidence": "Confiance de l’équipe (1 à 5)",
+  "indicatorClarity": "Clarté des objectifs (1 à 5)",
+  "indicatorScoresTitle": "Évaluation collective",
+  "indicatorDerivedTitle": "Indicateurs calculés",
+  "indicatorTicketRate": "Taux de réalisation des tickets",
+  "indicatorEdit": "Modifier : {name}",
+  "indicatorEditGroup": "Modifier les indicateurs",
+  "indicatorLive": "Calculs actualisés immédiatement",
+  "indicatorProvisional": "Valeurs provisoires — rien n’est enregistré avant confirmation.",
+  "indicatorInvalidScore": "Saisir un entier compris entre 1 et 5, ou laisser vide.",
+  "indicatorInvalidCount": "Saisir un entier entre 0 et 1 000 000 000, ou laisser vide.",
+  "indicatorConflict": "Les valeurs ont changé depuis l’ouverture de la fiche. Actualise-la avant de réessayer.",
+  "indicatorClosed": "Ce Sprint est clôturé : aucune modification directe n’est autorisée.",
+  "indicatorSaveError": "Enregistrement impossible. Vérifie les valeurs puis réessaie.",
+  "indicatorSaved": "Indicateurs enregistrés.",
+  "indicatorSnapshot": "Instantané de clôture V{version}.",
+  "indicatorNoSource": "Source non disponible pour ce Sprint."
   }
 }
