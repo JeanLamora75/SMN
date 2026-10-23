@@ -71,9 +71,14 @@ export function planTemplateOccurrences(
    if(isAnchored&&slots){
     const windows=workingIntervals(date,sprint.timeZone,slots,{morning:true,afternoon:true});
     if(!windows)throw Error("template-work-slots-unavailable");
-    if(!windows.some(w=>at>=w.start&&until<=w.end)){
-     const candidates=windows.filter(w=>w.end-w.start>=tpl.duration*60000);
-     if(!candidates.length)throw Error("template-duration-exceeds-work-slot");
+    // Un Sprint peut commencer à midi ou terminer avant la fermeture d'un jour
+    // ouvré. Ne jamais placer une réunion hors de ses bornes horaires.
+    const candidates=windows.map(w=>({
+     start:Math.max(w.start,first.getTime()),
+     end:Math.min(w.end,endExclusive.getTime())
+    })).filter(w=>w.end-w.start>=tpl.duration*60000);
+    if(!candidates.length)throw Error("template-duration-exceeds-work-slot");
+    if(!candidates.some(w=>at>=w.start&&until<=w.end)){
      at=tpl.position==="start"?candidates[0].start:candidates.at(-1)!.end-tpl.duration*60000;
      until=at+tpl.duration*60000;
     }
