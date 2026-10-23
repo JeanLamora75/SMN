@@ -2618,5 +2618,14 @@
     "saved": "Choix enregistrés",
     "error": "Impossible de charger ou sauvegarder les choix.",
     "leaveWarning": "Des modifications de sélection ne sont pas enregistrées. Quitter sans enregistrer ?"
+  },
+  "reportQuality": {
+    "heading": "Provenance et qualité des données",
+    "historical": "Cliché de clôture historique : les valeurs ne sont pas recalculées depuis le registre actuel.",
+    "provisional": "Préparation provisoire : informations courantes connues.",
+    "history-missing": "Historique indisponible : aucune donnée passée n'est reconstruite.",
+    "initial": "Capacité initiale",
+    "actual": "Capacité réelle",
+    "unknown": "Provenance inconnue"
   }
 }
