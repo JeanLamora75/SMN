@@ -12,7 +12,8 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import BootstrapIcon from "../../../bootstrap-icon";
 import SprintDetailEditor from "./sprint-detail-editor";
-import SprintDetailTabs,{parseSprintTab,type SprintTab} from "./sprint-detail-tabs";
+import SprintDetailTabs from "./sprint-detail-tabs";
+import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
 
 export const dynamic="force-dynamic";
 
