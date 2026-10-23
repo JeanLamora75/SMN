@@ -1,7 +1,7 @@
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
-import {withAuthDb} from "@/server/auth/database";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import SprintIndexView from "./sprint-index-view";
 
 export const dynamic="force-dynamic";
@@ -12,7 +12,7 @@ export default async function SprintsPage(){
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"read",{type:"collective",exists:true,inScope:true}))
   redirect("/app");
- const isScrum=await withAuthDb(async db=>{
+ const isScrum=await withSprintIndexDb(async db=>{
   const result=await db.query(`SELECT 1 FROM public.smn_installation
    WHERE id='singleton' AND state='initialized' AND lower(mode)='scrum' LIMIT 1`);
   return result.rows.length===1;
