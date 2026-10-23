@@ -2,7 +2,7 @@
 
 **23 octobre 2026 — Décision fonctionnelle exprimée par l'utilisateur ; implémentation proposée sur branche dédiée.**
 **Agents concernés :** Winston (architecture), Sally (UX) et Amelia (développement). 
-**Statut :** code publié en branche pilote, validation locale utilisateur et migration PostgreSQL non attestées.
+**Statut :** code publié en branche pilote, synchronisation PostgreSQL et validation locale non attestées.
 
 ## 1. Règle métier approuvée
 
@@ -20,7 +20,7 @@
 
 - `ceremony-templates.ts` : catalogue de 4 defaults et initialisation idempotente pour les installations nouvelles.
 - `install.ts` : création initiale des quatre modèles en mode Scrum seulement.
-- Migration PostgreSQL `20261023_smn232_template_only_defaults` : insertion des quatre modèles manquants pour les installations Scrum **déjà initialisées**. Elle ne modifie aucune table d'occurrences.
+- Commande dédiée `pnpm db:sync:ceremonies` : elle insère transactionnellement les modèles manquants dans une installation Scrum existante sans toucher aux Sprints, ni à `smn_installation.schema_version`, ni à `_prisma_migrations`.
 - `ceremonies.ts` : point d'entrée de génération redirigé uniquement vers `saveTemplateOccurrences`. L'ancien calcul standard est conservé sans appel dans la génération ordinaire/historique.
 - `wizard.ts`, `creation.ts`, `batch-confirm.ts` : points d'entrée inchangés ; ils appellent déjà le point d'entrée commun de génération et bénéficient de cette correction.
 - `/api/team-calendar/meetings` : ajoute la catégorie de réunion `template` ; `/app/team-calendar/meeting/template/[id]` affiche la fiche.
@@ -40,18 +40,18 @@
 ## 4. Plan de vérification sur le PC utilisateur
 
 1. Synchroniser la branche via GitHub Desktop ou après fusion approuvée.
-2. Sur installation existante : exécuter la migration PostgreSQL versionnée (`pnpm exec prisma migrate deploy` après configuration correcte de `DATABASE_URL` selon `prisma.config.ts`).
+2. Sur installation existante : exécuter **`pnpm db:sync:ceremonies`** après récupération du code. Le script récupère la connexion configurée de SMN (`SMN_DATABASE_URL`, `.env.local` ou connexion portable chiffrée), insère uniquement les modèles absents et vérifie leur présence. **Ne pas lancer `pnpm exec prisma migrate deploy` pour ce changement** : la version de schéma applicative est strictement contrôlée.
 3. Vérifier les quatre lignes dans **Paramètres → Cérémonies et modèles** ; contrôler leur activation, puis modifier horaires et durées si souhaité.
 4. Désactiver le Daily, créer un Sprint **futur** : aucune occurrence Daily ; les autres modèles actifs sont générés.
 5. Désactiver tous les modèles, générer un autre Sprint : zéro cérémonie automatique ; aucun ancien Sprint modifié.
 6. Réactiver les modèles ; vérifier création unitaire et par lot, calendrier et fiche réunion, chevauchements et provenance de reprise historique si utilisée.
-7. Vérifier la migration sans doublons au second passage ; vérifier aucune nouvelle occurrence dans les Sprints existants.
+7. Rejouer `pnpm db:sync:ceremonies` : elle doit annoncer zéro ajout ; vérifier qu'aucune occurrence d'ancien Sprint n'a été modifiée.
 
-**Limites :** les services PostgreSQL sur le PC, les tests locaux réels, la migration et les tests du calendrier n'ont pas été exécutés depuis ChatGPT. Ne pas déclarer la recette terminée avant exécution utilisateur.
+**Limites :** le PostgreSQL local de l'utilisateur, la commande de synchronisation et la recette n'ont pas été exécutés depuis ChatGPT. La présence effective des modèles sur le PC doit être vérifiée après exécution.
 
 ## 5. Règle d'installation et base existante
 
-La migration n'est **pas automatiquement exécutée par `pnpm dev`** dans l'état constaté du code. Le lancement `pnpm exec prisma migrate deploy` est requis pour mettre à niveau une installation existante lorsque les variables de connexion Prisma sont accessibles ; vérifier la présence de `DATABASE_URL` et ne publier aucun secret.
+La synchronisation de la base pilote n'est **pas automatique au simple lancement de `pnpm dev`** : exécuter `pnpm db:sync:ceremonies` une fois, puis rouvrir Paramètres → Cérémonies et modèles. La commande est rejouable sans doublons et n'écrit pas dans l'historique des migrations Prisma.
 
 Pour une installation vierge via l'assistant Express, l'amorçage des modèles Scrum est intégré dans la transaction d'installation. Si la base est en mode Kanban, aucun modèle Scrum n'est inséré.
 
