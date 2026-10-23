@@ -28,6 +28,7 @@ export async function ensureTemplateOccurrenceSchema(db:Client){
  CHECK(ends_at>starts_at),UNIQUE(template_id,sprint_id,starts_at))`);
  await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'");
  await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false");
+ await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'standard'");
  await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes BETWEEN 0 AND 1440)");
 }
 export async function saveTemplateOccurrences(db:Client,sprint:Sprint,options:{reconstructed?:boolean}={}){
@@ -37,7 +38,7 @@ export async function saveTemplateOccurrences(db:Client,sprint:Sprint,options:{r
  const templates=await db.query<{id:string;name:string;frequency:Template["frequency"];weekday:number|null;position:Template["position"];time:string;duration:number;revision:number}>(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,revision
  FROM public.smn_scrum_ceremony_template WHERE team_id=$1 AND active=true`,[team.rows[0].team_id]);
  const first=new Date(sprint.startAt),last=new Date(sprint.endAt);
- if(last.getTime()<=Date.now())return 0;
+ if(last.getTime()<=Date.now()&&!options.reconstructed)return 0;
  let count=0;
  for(const x of templates.rows){
   let cursor=localParts(first,sprint.timeZone).date;
@@ -51,9 +52,9 @@ export async function saveTemplateOccurrences(db:Client,sprint:Sprint,options:{r
     const until=new Date(at.getTime()+x.duration*60000);
     if(at>=first&&until<=last){
      const inserted=await db.query(`INSERT INTO public.smn_scrum_template_occurrence
-     (id,template_id,template_revision,sprint_id,name,starts_at,ends_at)
-     VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING RETURNING id`,
-     [randomUUID(),x.id,x.revision,sprint.id,x.name,at.toISOString(),until.toISOString()]);
+     (id,template_id,template_revision,sprint_id,name,starts_at,ends_at,generation_source)
+     VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT DO NOTHING RETURNING id`,
+     [randomUUID(),x.id,x.revision,sprint.id,x.name,at.toISOString(),until.toISOString(),options.reconstructed?"reconstructed":"standard"]);
      count+=inserted.rowCount??0;
     }
    }
