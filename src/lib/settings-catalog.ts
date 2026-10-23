@@ -16,11 +16,11 @@ const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:rea
  ]},
  {id:"agile",label:"settingsCatalog.groups.agile",entries:[
   {id:"cadence",icon:"◷",resource:"settings",href:"/app/admin/scrum-cadence",mode:"scrum"},
-  {id:"ceremonies",icon:"◫",resource:"settings",status:"partial",mode:"scrum"},
+  {id:"ceremonies",icon:"◫",resource:"settings",href:"/app/admin/settings/ceremonies",status:"partial",mode:"scrum"},
   {id:"capacity",icon:"▤",resource:"settings",status:"partial"}
  ]},
  {id:"calendar",label:"settingsCatalog.groups.calendar",entries:[
-  {id:"workingDays",icon:"▦",resource:"settings",status:"planned"},
+  {id:"workingDays",icon:"▦",resource:"settings",href:"/app/admin/settings/working-days",status:"partial",mode:"scrum"},
   {id:"countries",icon:"◎",resource:"settings",href:"/app/admin/countries"},
   {id:"closures",icon:"▣",resource:"settings",href:"/app/admin/company-closures"},
   {id:"absences",icon:"◈",resource:"settings",href:"/app/admin/absence-categories"}
