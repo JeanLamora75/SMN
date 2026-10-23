@@ -137,3 +137,15 @@ Les étapes 1 à 5 et l'ordre de Stories restent inchangés. Aucun ticket Jira n
 - **Dossier de réalisation :** [realisation-smn-235-dashboard-2026-10-23.md](realisation-smn-235-dashboard-2026-10-23.md), tests `tests/smn-235-dashboard-projection.test.ts`.
 - **À confirmer avant statut « Terminé » dans Jira :** `pnpm typecheck`, tests ciblés sur Windows, navigation et PostgreSQL réel, contrôle des bornes inclusives et de la capacité calculée, lecture historique V1/V2 et accès complet à la fiche d'objectifs.
 - **Statut :** implémentation sur `main`, validation locale attendue. Ne pas confondre publication du code et recette acquise.
+
+
+## Avancement de l'étape 2 — SMN-237 — 23 octobre 2026
+
+- **Code publié directement dans `main` :** `src/server/dashboard/events-reader.ts`, projection `readCycleDashboard`, composant `OperationalOverview`, navigation sur la fiche réunion et i18n/styles.
+- Trois sources consultables lorsque présentes : occurrences issues des modèles, cérémonies historiques, réunions exceptionnelles. Aucun mécanisme de génération n'est appelé pendant la lecture et aucune table n'est créée.
+- Pour un Sprint non clôturé : compteur exact et cinq réunions max, prochaines d'abord pour un cycle actuel/futur, dernières d'abord pour un cycle terminé.
+- Pour un Sprint clôturé : trois tableaux de réunions figés dans **la dernière version Vn** de `smn_sprint_closure_snapshot`. Les **futures** clôtures figent aussi la provenance `generation_source`; les Vn antérieures restent intactes, la provenance y reste inconnue si elle n'y figure pas.
+- La colonne Événements contient désormais vrais noms, horaires locaux, statuts, étiquette « Reconstituée (non attestée) », accès aux fiches et lien calendrier portant `teamId/cycleId`. Les autres colonnes qualitatives demeurent à SMN-238.
+- **Dossier BMAD :** [realisation-smn-237-dashboard-2026-10-23.md](realisation-smn-237-dashboard-2026-10-23.md).
+- **Tests écrits, non exécutés :** `tests/smn-237-dashboard-events.test.ts` et adaptation de la recette SMN-235. `pnpm typecheck`, `pnpm test` et tests PostgreSQL Windows restent nécessaires.
+- **Statut :** implémentation publiée sur `main`, recette locale utilisateur encore à valider ; ne pas déclarer SMN-237 terminée dans Jira.
