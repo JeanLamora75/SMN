@@ -145,3 +145,14 @@ L'onglet **Tendances** est développé dans la fiche Sprint : **G04** sélection
 La lecture `readSprintTrends` est devenue **SELECT-only**, compatible avec la transaction READ ONLY du dashboard et de la fiche. Les versions de clôture sont lues sans migration/DDL ni substitution de mesures courantes. Le formulaire historique admin conserve l'endpoint existant.
 
 **Validation partielle réelle :** 16/16 vérifications statiques, compilations TS isolées des modules sources SHA Git vérifiés, **14/14 assertions graphiques et 28/28 assertions du lecteur historique exécutées avec succès** (lecteur PostgreSQL simulé). Compilation totale du projet, tests du dépôt et recette navigateur/PG réel **restent nécessaires** ; voir [rapport D6](../../../implementation-artifacts/realisation-d6-tendances-fiche-sprint-smn-234-2026-10-23.md).
+
+
+## État de réalisation D7 — 23 octobre 2026
+
+Le **Bilan** est désormais composé de **deux éditeurs indépendants** : Analyse du Scrum Master et Analyse IA. Sur desktop, les blocs sont côte à côte ; sur mobile, empilés. Chaque bloc dispose d'un crayon uniquement en administrateur sur Sprint non clôturé ; un texte de 3000 caractères maximum peut être ajouté, corrigé ou volontairement vidé. Une sauvegarde comporte sa révision propre, son auteur, son horodatage et un enregistrement d'audit avant/après dans `smn_sprint_review_analysis_audit`. Les anciennes révisions sont persistées ; une interface de comparaison de l'historique intégral reste à envisager, non revendiquée comme réalisée.
+
+**IA :** le champ Analyse IA est **éditable manuellement** mais **aucune génération IA automatique** n'est prétendue disponible : `origin=human` quand une personne écrit ce texte. Les marqueurs `human_edited`, `generation_id` et la révision doivent empêcher tout écrasement silencieux par les futurs workflows Epic 9. Le même conflit optimiste protège les deux blocs sans mélanger leurs versions.
+
+**Historique clos :** chaque **nouvelle** clôture Vn capture les deux analyses, leurs textes, auteur/date/version/provenance. Un Sprint clos lit uniquement son propre snapshot Vn ; si un ancien snapshot ne comporte pas `reviewAnalysis`, la rubrique est **historique indisponible**, sans substitution. Aucun changement direct n'est autorisé sur un Sprint clos.
+
+**Vérification :** 20/20 contrôles statiques ; compilation TypeScript stricte du fichier exact SHA Git vérifié et **20/20 assertions isolées exécutées/réussies**. Recette intégrée PostgreSQL/Next.js, `pnpm typecheck`, build et navigateur **non effectués**. Voir [rapport D7](../../../implementation-artifacts/realisation-d7-bilan-fiche-sprint-smn-234-2026-10-23.md).
