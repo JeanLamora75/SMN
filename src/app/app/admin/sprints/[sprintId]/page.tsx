@@ -10,6 +10,7 @@ import {readSprintDetailIndicators} from "@/server/sprints/indicators-read";
 import {readSprintDetailCeremonies} from "@/server/sprints/ceremonies-detail-read";
 import {readSprintMemberPresence} from "@/server/sprints/presence-detail-read";
 import {readSprintTrends} from "@/server/sprints/trends";
+import {readSprintReview} from "@/server/sprints/review-analysis";
 import {readSprintContext} from "@/server/sprints/context";
 import {effectiveSprintStatus} from "@/lib/sprint-context";
 import {requestLocale} from "@/i18n/locale.server";
@@ -22,6 +23,7 @@ import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import SprintCapacityPanel from "./sprint-capacity-panel";
 import SprintTrendsPanel from "./sprint-trends-panel";
+import SprintReviewPanel from "./sprint-review-panel";
 import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
 
 export const dynamic="force-dynamic";
@@ -62,7 +64,8 @@ export default async function SprintDetailPage({params,searchParams}:{
   const presence=active==="capacity"&&canViewMembers?
    await readSprintMemberPresence(db,teamId,cycle):null;
   const trends=active==="trends"?await readSprintTrends(db,cycle.id,teamId):null;
-  return {cycle,goals,indicators,ceremonies,presence,trends};
+  const review=active==="review"?await readSprintReview(db,teamId,cycle.id):null;
+  return {cycle,goals,indicators,ceremonies,presence,trends,review};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -71,7 +74,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals,indicators,ceremonies,presence,trends}=result;
+ const {cycle,goals,indicators,ceremonies,presence,trends,review}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
  const statusKeys:Record<string,TranslationKey>={
@@ -161,6 +164,9 @@ export default async function SprintDetailPage({params,searchParams}:{
      active==="trends"?<SprintTrendsPanel
       data={trends} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
+     active==="review"?<SprintReviewPanel
+      data={review} sprintId={cycle.id} status={cycle.status}
+      canManage={canManage} locale={locale} timeZone={cycle.timeZone}/>:
       <div className="py-3" role="status">
      <p className="fw-semibold mb-1">{t("sprintDetail.availableLater")}</p>
      <p className="text-secondary mb-0">{t(waiting[active])}</p>
