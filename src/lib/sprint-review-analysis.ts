@@ -11,6 +11,7 @@ export type ReviewEntry=Readonly<{
  generationId:string|null;
  updatedAt:string|null;
  updatedBy:string|null;
+ updatedByName:string|null;
 }>;
 export type ReviewProjection=
  |Readonly<{state:"available";source:"current"|"closure-snapshot";snapshotVersion:number|null;
@@ -26,7 +27,7 @@ export function cleanReviewBody(raw:unknown):string|null|undefined{
 }
 export function emptyReview(kind:ReviewKind):ReviewEntry{
  return {kind,body:null,revision:0,origin:null,humanEdited:false,
-  generationId:null,updatedAt:null,updatedBy:null};
+  generationId:null,updatedAt:null,updatedBy:null,updatedByName:null};
 }
 function record(raw:unknown):Record<string,unknown>|null{
  return raw!==null&&typeof raw==="object"&&!Array.isArray(raw)?
@@ -44,12 +45,15 @@ export function parseReviewEntry(kind:ReviewKind,raw:unknown):ReviewEntry|null{
   typeof entry.humanEdited!=="boolean"||
   (entry.generationId!==null&&typeof entry.generationId!=="string")||
   typeof entry.updatedAt!=="string"||!Number.isFinite(Date.parse(entry.updatedAt))||
-  (entry.updatedBy!==null&&typeof entry.updatedBy!=="string"))
+  (entry.updatedBy!==null&&typeof entry.updatedBy!=="string")||
+  (entry.updatedByName!==null&&entry.updatedByName!==undefined&&
+   typeof entry.updatedByName!=="string"))
   return null;
  return {
   kind,body:entry.body as string|null,revision:entry.revision as number,
   origin:entry.origin as ReviewOrigin,humanEdited:entry.humanEdited as boolean,
   generationId:entry.generationId as string|null,
-  updatedAt:entry.updatedAt as string,updatedBy:entry.updatedBy as string|null
+  updatedAt:entry.updatedAt as string,updatedBy:entry.updatedBy as string|null,
+  updatedByName:typeof entry.updatedByName==="string"?entry.updatedByName:null
  };
 }
