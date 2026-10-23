@@ -160,7 +160,9 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection}
           {projection?.workingDaysRemaining.state==="available"?
             (effectiveStatus==="closed"||effectiveStatus==="finished"?
               t("dashboard.cockpit.workingDaysEnded"):
-              t("dashboard.cockpit.todayIncludedProvisional")):
+              effectiveStatus==="planned"?
+               t("dashboard.cockpit.workingDaysUpcoming"):
+               t("dashboard.cockpit.todayIncludedProvisional")):
             t(cycle?"dashboard.cockpit.workingDaysPending":"dashboard.cockpit.workingDaysHelp")}
         </p>
       </article>
