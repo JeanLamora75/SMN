@@ -11,7 +11,6 @@ import {effectiveSprintStatus} from "@/lib/sprint-context";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import BootstrapIcon from "../../../bootstrap-icon";
-import {sprintDetailPath} from "@/lib/sprint-detail-path";
 
 export const dynamic="force-dynamic";
 
