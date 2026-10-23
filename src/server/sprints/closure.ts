@@ -5,6 +5,7 @@ import {ensureStoryPointsSchema} from "./story-points";
 import {ensureActualDurationSchema} from "./actual-duration";
 import {ensureExceptionalImpactSchema} from "./exceptional-capacity-impact";
 import {ensureSprintScoresSchema} from "./sprint-scores";
+import {readSprintMemberPresence} from "./presence-detail-read";
 
 export async function ensureClosureSchema(db:Client){
  await ensureSprintGoalsSchema(db);await ensureStoryPointsSchema(db);
@@ -24,13 +25,13 @@ export async function ensureClosureSchema(db:Client){
  occurred_at timestamptz NOT NULL DEFAULT now())`);
 }
 async function sprintScope(db:Client,id:string,lock=false){
- const r=await db.query<{id:string;team_id:string;name:string;status:string;start_at:string;end_at:string}>(`SELECT s.id,s.team_id,s.name,s.status,s.start_at::text,s.end_at::text
+ const r=await db.query<{id:string;team_id:string;name:string;status:string;start_at:string;end_at:string;time_zone:string}>(`SELECT s.id,s.team_id,s.name,s.status,s.start_at::text,s.end_at::text,s.time_zone
  FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
  ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
-async function snapshot(db:Client,sprintId:string){
+async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:string;start_at:string;end_at:string;time_zone:string}){
  const [goals,points,ceremonies,custom,exceptional,capacity,participants,scores]=await Promise.all([
   db.query(`SELECT id,title,evaluation,comment,revision FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]),
   db.query(`SELECT initial_sp::text,added_sp::text,removed_sp::text,done_sp::text,revision FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]),
@@ -66,7 +67,14 @@ async function snapshot(db:Client,sprintId:string){
  const ticket= ticketsInstalled.rows[0]?.present?
   await db.query(`SELECT initial_tickets::text,done_tickets::text
     FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]):null;
+ // Capture member presence at closure. Never recompute this section from future
+ // calendar/absence edits. A missing producer remains visibly unavailable.
+ const memberPresence=await readSprintMemberPresence(db,context.team_id,{
+  id:sprintId,name:context.name,status:"finished",suspended:false,
+  startAt:context.start_at,endAt:context.end_at,timeZone:context.time_zone
+ });
  return {goals:goals.rows,storyPoints:points.rows[0]??null,
+  memberPresence:memberPresence??{state:"unavailable",reason:"read-failed"},
   confidenceClarity:scores.rows[0]??null,
   ticketCounts:ticket?.rows[0]??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
@@ -96,7 +104,7 @@ export async function changeSprintClosure(db:Client,actorId:string,raw:unknown){
   if(v.action==="close"){
    const num=await db.query<{next:number}>(`SELECT COALESCE(MAX(version),0)+1 AS next FROM public.smn_sprint_closure_snapshot WHERE sprint_id=$1`,[s.id]);
    version=Number(num.rows[0].next);
-   const data=await snapshot(db,s.id);
+   const data=await snapshot(db,s.id,s);
    await db.query(`INSERT INTO public.smn_sprint_closure_snapshot(id,sprint_id,version,snapshot,actor_id)
     VALUES($1,$2,$3,$4::jsonb,$5)`,[randomUUID(),s.id,version,JSON.stringify({sprint:{id:s.id,name:s.name,startAt:s.start_at,endAt:s.end_at},...data}),actorId]);
   }
