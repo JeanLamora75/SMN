@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
-type C={id:string;kind:string;startAt:string;endAt:string;minutes:number;revision:number;status:string;provenance:string;sprintName:string};
+type C={id:string;kind:string;startAt:string;endAt:string;minutes:number;revision:number;status:string;provenance:string;generationSource:string;sprintName:string};
 export default function CeremonyEditor(){
  const t=useTranslation();
  const [rows,setRows]=useState<C[]>([]);
