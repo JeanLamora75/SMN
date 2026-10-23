@@ -54,7 +54,7 @@ describe("SMN-21 — refonte UX, lot 1 : coque de navigation",()=>{
   });
   it("traduit chaque commande nouvelle dans les deux langues",()=>{
     for(const locale of ["fr","en"] as const){
-      for(const key of ["team","sprint","period","singleTeam","noTeam","noCycle",
+      for(const key of ["team","sprint","period","singleTeam","noTeam","noCycle","loadingCycles","cycleUnavailable",
         "search","searchUnavailable","contextControls","openMenu","closeMenu",
         "expandMenu","collapseMenu"] as const){
         const text=translate(locale,`dashboard.shell.${key}`);
