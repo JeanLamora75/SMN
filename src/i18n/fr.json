@@ -2733,6 +2733,7 @@
     "hide": "Masquer",
     "reason": "Motif obligatoire du masquage :",
     "confirm": "Confirmer le masquage ? Le PDF ne sera plus visible dans la bibliothèque ordinaire. Le fichier et les autres archives restent conservés.",
-    "hideError": "Masquage impossible."
+    "hideError": "Masquage impossible.",
+    "download": "Télécharger"
   }
 }
