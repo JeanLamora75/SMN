@@ -3,7 +3,7 @@
 **Référence Jira :** https://lmn24.atlassian.net/browse/SMN-160  
 **Epic :** SMN-8 — Reconstituer les Sprints passés  
 **Date de décision :** 23/10/2026  
-**État :** spécification mise à jour ; développement et recette non réalisés.
+**État :** spécification validée ; génération historique implémentée dans l'assistant SMN-231, recette locale et exhaustivité des exports restant à vérifier.
 
 ## Décision fonctionnelle
 Lors de la création d'un Sprint **historique**, le Scrum Master choisit explicitement s'il souhaite **générer les cérémonies de l'équipe telles que configurées dans SMN**. Le choix est **désactivé par défaut**. Il s'applique aux cérémonies Scrum standards et aux modèles de réunions personnalisées actifs, selon les règles et paramètres de l'équipe.
@@ -38,3 +38,14 @@ Si le choix est désactivé, aucune cérémonie n'est créée. Si le choix est a
 Le fichier `_bmad-output/planning-artifacts/epics.md` a été aligné sur cette décision : Story 8.2 (SMN-160), AC5 de Story 4.8 (SMN-72) et AC1 de Story 10.13 (SMN-211). Les validations globales antérieures du 19/10/2026 sont historiques et ne valent pas recette de cette évolution.
 
 **Ce document est uniquement une spécification. Aucune modification du code ou de la base n'est prétendue.**
+
+
+## Avancement d'implémentation — 23 octobre 2026
+
+Le nouvel assistant de génération `/app/admin/sprints/generate` intègre l'option explicite désactivée par défaut. Le backend `src/server/sprints/wizard.ts` enregistre le choix, les noms, les dates et un instantané des paramètres/modèles dans l'audit ; les fonctions `saveGeneratedCeremonies` et `saveTemplateOccurrences` permettent la reconstruction historique avec `generation_source='reconstructed'`.
+
+Les listes administratives, le calendrier d'équipe et la fiche détail d'une cérémonie rendent ce marqueur visible sans le convertir en preuve de présence ou en statut `held`. Le lot est transactionnel et son jeton d'aperçu est à usage unique.
+
+**Non vérifié :** tests PostgreSQL et navigation réels, qualité des événements reconstitués sur toutes les configurations, exports et reportings historiques. L'implémentation ne prétend pas rétablir des paramètres effectifs à une date ancienne. Le statut Jira reste inchangé en attente de recette.
+
+**Traçabilité :** [Implémentation SMN-231](spec-smn-231-assistant-generation-sprints.md).
