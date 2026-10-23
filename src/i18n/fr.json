@@ -2394,5 +2394,18 @@
     "closed": "Sprint clôturé — modification interdite",
     "error": "Impossible de modifier cette association.",
     "loading": "Chargement des Sprints…"
+  },
+  "decisionDetail": {
+    "heading": "Justification et remplacement",
+    "rationale": "Justification de la décision",
+    "replaces": "Remplace la décision (identifiant)",
+    "replacedBy": "Remplacée par",
+    "noReplacement": "Aucun remplacement",
+    "save": "Enregistrer la justification et les liens",
+    "saved": "Informations enregistrées",
+    "error": "Enregistrement impossible",
+    "conflict": "Cette décision a changé, rechargez la fiche",
+    "help": "Utilisez l'identifiant de la décision précédente. Les deux fiches sont conservées.",
+    "inverse": "Décisions qui remplacent cette décision"
   }
 }
