@@ -2322,7 +2322,9 @@
     "cycleDeferred": "Les filtres par cycle seront activés avec les associations multi-cycles (SMN-97).",
     "team": "Équipe",
     "readonly": "Consultation en lecture seule",
-    "back": "Retour aux registres"
+    "back": "Retour aux registres",
+    "manualType": "Manuel",
+    "recordedAt": "Enregistré le"
   },
   "registryRoam": {
     "heading": "Classification ROAM",
