@@ -2360,5 +2360,19 @@
     "resolved": "Obstacle résolu : il n'est plus signalé parmi les obstacles ouverts.",
     "active": "Obstacle ouvert : il peut figurer parmi les points d’attention.",
     "abandoned": "Obstacle abandonné : sa fiche et son historique sont conservés."
+  },
+  "dependencyParties": {
+    "heading": "Équipes de la dépendance",
+    "requester": "Équipe demandeuse",
+    "contributor": "Équipe contributrice",
+    "local": "Équipe locale SMN",
+    "external": "Équipe externe",
+    "name": "Nom de l’équipe externe",
+    "save": "Enregistrer les équipes",
+    "saved": "Équipes enregistrées",
+    "error": "Impossible de modifier les équipes",
+    "conflict": "Modification concurrente, rechargez la fiche",
+    "missing": "Renseigner les deux équipes",
+    "empty": "Non renseignée"
   }
 }
