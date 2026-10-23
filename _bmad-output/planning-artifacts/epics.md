@@ -11404,3 +11404,24 @@ Références obligatoires pour les agents BMAD : [DESIGN.md](https://github.com/
 **Documents normatifs :** [DESIGN](ux-designs/ux-parametres-2026-10-23/DESIGN.md), [EXPERIENCE](ux-designs/ux-parametres-2026-10-23/EXPERIENCE.md), [contrat de développement](ux-designs/ux-parametres-2026-10-23/CONTRAT-DEVELOPPEMENT.md), [catalogue](ux-designs/ux-parametres-2026-10-23/CATALOGUE-ET-ROUTES.md), [recette](ux-designs/ux-parametres-2026-10-23/RECETTE-UX.md).
 
 **Statut :** approuvé UX/métier, tickets Jira créés, documentation sur branche GitHub ; aucun développement, test de compilation ni recette navigateur attesté.
+
+## Avenant UX transversal — Epic SMN-228 « Piloter les sprints en liste » (23/10/2026)
+
+**Décision utilisateur explicitement validée le 23 octobre 2026.** Cet avenant est postérieur à la finalisation de l'Epic Breakdown BMAD initial (10 Epics). Il **n'implique aucune réexécution des étapes officielles**, ni aucune modification de la validation des Stories historiques. Jira reste l'autorité sur les nouveaux tickets.
+
+### [SMN-228 — Epic de refonte de l'écran Sprints](https://lmn24.atlassian.net/browse/SMN-228)
+
+**Valeur utilisateur :** retrouver et gérer tous les sprints de l'équipe dans un écran simple en liste plutôt que parcourir 16 éditeurs. Séparer les défauts de configuration (**Paramètres**), l'organisation des cycles (**Sprints**), les réunions (**Calendrier / Page Réunion**) et les résultats (**Bilan / fiche Sprint à terme**).
+
+| Story Jira | User Story / incrément |
+|---|---|
+| [SMN-229](https://lmn24.atlassian.net/browse/SMN-229) | Repositionner horaires de travail, pause et modèles dans Paramètres, sans toucher aux données de cycles existantes |
+| [SMN-230](https://lmn24.atlassian.net/browse/SMN-230) | Index Sprints pleine largeur en **vue Liste unique**, tous les sprints, état courant prioritaire, recherche/filtre/tri |
+| [SMN-231](https://lmn24.atlassian.net/browse/SMN-231) | Génération unitaire/lot 1 à 6 avec assistant et prévisualisation, reprise historique protégée |
+| [SMN-232](https://lmn24.atlassian.net/browse/SMN-232) | Actions ⋯ par sprint ID : renommer/replanifier/supprimer selon droits et étapes de confirmation |
+| [SMN-233](https://lmn24.atlassian.net/browse/SMN-233) | Navigation vers calendrier filtré, opérations de réunions et bilans, maintien des fonctionnalités existantes |
+| [SMN-234](https://lmn24.atlassian.net/browse/SMN-234) | **Différée** : fiche complète de Sprint avec bandeau et onglets et lien depuis le nom, nouvelle conception détaillée requise |
+
+**Référentiel BMAD** : [DESIGN.md](ux-designs/ux-sprints-pilotage-2026-10-23/DESIGN.md) · [EXPERIENCE.md](ux-designs/ux-sprints-pilotage-2026-10-23/EXPERIENCE.md) · [MATRICE-FONCTIONS.md](ux-designs/ux-sprints-pilotage-2026-10-23/MATRICE-FONCTIONS.md) · [CONTRAT-DEVELOPPEMENT.md](ux-designs/ux-sprints-pilotage-2026-10-23/CONTRAT-DEVELOPPEMENT.md) · [RECETTE-UX.md](ux-designs/ux-sprints-pilotage-2026-10-23/RECETTE-UX.md).
+
+**Dépendances :** SMN-223 à 227 (Paramètres), SMN-4 (processus Sprint), SMN-64 (calendrier), SMN-160 (historique), SMN-113 (rapports depuis fiche). **Aucune nouvelle configuration métier profonde, aucune migration ni réalisation/test n'est attestée par cet avenant documentaire.**
