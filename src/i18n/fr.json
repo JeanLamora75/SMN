@@ -2431,5 +2431,18 @@
     "from": "Depuis",
     "to": "Vers",
     "readOnly": "Consultation en lecture seule"
+  },
+  "riskMaterialize": {
+    "launch": "Créer un obstacle",
+    "heading": "Créer un obstacle à partir du risque",
+    "intro": "Le risque reste inchangé. Le brouillon ne sera créé qu'après confirmation.",
+    "title": "Titre de l’obstacle",
+    "description": "Contexte / description",
+    "confirm": "Confirmer la création",
+    "cancel": "Annuler",
+    "success": "Obstacle créé",
+    "error": "Création impossible. Aucune fiche partielle enregistrée.",
+    "suggestion": "Un obstacle résolu n’actualise jamais automatiquement le ROAM du risque source.",
+    "loading": "Chargement du contexte…"
   }
 }
