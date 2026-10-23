@@ -68,6 +68,8 @@ export type DashboardAttention = Readonly<{
   kind: "obstacle" | "risk" | "note" | "alert";
   title: string;
   status: string;
+  /** Niveau émis par un producteur enregistré ; absence = non évalué. */
+  priority?: "low" | "medium" | "high" | null;
 }>;
 
 /** Toutes les sections concernent le MÊME cycle de la MÊME équipe. */
