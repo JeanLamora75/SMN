@@ -95,3 +95,21 @@ test("sans plages horaires configurées, conserver les heures des modèles et co
  const events=planTemplateOccurrences(sprint,[template("Review","end","15:00")],new Set(),null);
  assert.match(local(events[0].startsAt),/20\/11\/2026.*15:00/);
 });
+
+test("le premier jour ouvré après une fermeture accueille le Planning",()=>{
+ const p=template("Sprint Planning","start","09:30",120);
+ const planned=planTemplateOccurrences(sprint,[p],new Set(["2026-11-09"]),slots);
+ assert.equal(planned.length,1);
+ assert.match(local(planned[0].startsAt),/10\\/11\\/2026.*09:30/);
+});
+
+test("absence de jour ouvré : refus explicite pour les modèles ancrés",()=>{
+ const one:TemplateSprint={id:"weekend-only",startAt:"2026-11-21T08:00:00Z",
+  endAt:"2026-11-22T21:59:00Z",timeZone:zone};
+ assert.throws(()=>planTemplateOccurrences(one,[template("Retro","end","16:30")],new Set(),slots),
+  /template-no-working-day/);
+});
+
+test("désactivation de tous les modèles : aucune occurrence, même si le Sprint finit dimanche",()=>{
+ assert.deepEqual(planTemplateOccurrences(sprint,[],new Set(),slots),[]);
+});
