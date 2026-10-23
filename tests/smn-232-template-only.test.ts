@@ -49,8 +49,9 @@ test("installation, migration additive et calendrier couvrent les modèles",()=>
  const detail=source("src/app/app/team-calendar/meeting/[kind]/[id]/page.tsx");
  const conflicts=source("src/server/sprints/meeting-conflicts.ts");
  assert.match(installation,/input\.mode === "scrum"\) await seedDefaultScrumCeremonyTemplates/);
- assert.match(migration,/NOT EXISTS/);
- assert.doesNotMatch(migration,/(?:UPDATE|DELETE)\s+(?:FROM\s+)?public\.smn_sprint\b/i);
+ assert.match(syncScript,/seedDefaultScrumCeremonyTemplates/);
+ assert.match(syncScript,/installedDatabaseUri/);
+ assert.doesNotMatch(syncScript,/(?:UPDATE|DELETE)\s+(?:FROM\s+)?public\.smn_sprint\b/i);
  assert.match(calendar,/smn_scrum_template_occurrence/);
  assert.match(calendar,/'template' AS kind/);
  assert.match(detail,/kind==="template"/);
