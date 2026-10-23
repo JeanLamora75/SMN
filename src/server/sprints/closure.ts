@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {qualitativeClosureSnapshot} from "@/server/registries/closure-snapshot";
 import type {Client} from "pg";
 import {ensureSprintGoalsSchema} from "./goals";
 import {ensureStoryPointsSchema} from "./story-points";
@@ -72,11 +73,12 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
  // Capture member presence at closure. Never recompute this section from future
  // calendar/absence edits. A missing producer remains visibly unavailable.
  const reviewAnalysis=await reviewClosureSnapshot(db,sprintId);
+ const qualitative=await qualitativeClosureSnapshot(db,sprintId,context.team_id);
  const memberPresence=await readSprintMemberPresence(db,context.team_id,{
   id:sprintId,name:context.name,status:"finished",suspended:false,
   startAt:context.start_at,endAt:context.end_at,timeZone:context.time_zone
  });
- return {goals:goals.rows,storyPoints:points.rows[0]??null,
+ return {goals:goals.rows,qualitative,storyPoints:points.rows[0]??null,
   memberPresence:memberPresence??{state:"unavailable",reason:"read-failed"},
   reviewAnalysis,
   confidenceClarity:scores.rows[0]??null,
