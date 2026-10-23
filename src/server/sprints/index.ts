@@ -30,10 +30,10 @@ type SprintRow={
  id:string;name:string;status:string;auto_suspended:boolean;
  start_at:Date;end_at:Date;time_zone:string;
 };
-const order:Record<SprintIndexSort,string>={
- priority:"CASE WHEN s.status='active' AND NOT s.auto_suspended AND s.start_at<=now() AND s.end_at>now() THEN 0 ELSE 1 END, s.start_at DESC, s.id DESC",
- newest:"s.start_at DESC, s.id DESC",
- oldest:"s.start_at ASC, s.id ASC"
+const order:Record<SprintIndexSort,(suspended:string)=>string>={
+ priority:(suspended)=>`CASE WHEN s.status='active' AND NOT ${suspended} AND s.start_at<=now() AND s.end_at>now() THEN 0 ELSE 1 END, s.start_at DESC, s.id DESC`,
+ newest:()=>"s.start_at DESC, s.id DESC",
+ oldest:()=>"s.start_at ASC, s.id ASC"
 };
 
 /** Consultation sans DDL, sans reconcileSprintStates, sans trigger d'ouverture.
@@ -45,9 +45,20 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery){
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
  if(team.rows.length!==1)throw Error("scrum-team-unavailable");
  const {id:teamId,name:teamName}=team.rows[0];
+ // Une nouvelle installation peut ne pas avoir encore créé le premier sprint.
+ // L'index n'exécute jamais de migration pour afficher une liste vide.
+ const schema=await db.query<{table_exists:boolean;suspension_exists:boolean}>(`
+  SELECT to_regclass('public.smn_sprint') IS NOT NULL AS table_exists,
+  EXISTS(SELECT 1 FROM information_schema.columns
+   WHERE table_schema='public' AND table_name='smn_sprint'
+   AND column_name='auto_suspended') AS suspension_exists`);
+ if(!schema.rows[0]?.table_exists)
+  return {teamName,items:[] as SprintIndexItem[],total:0,page:1,
+   pageSize:query.pageSize,totalPages:1,statuses:[] as string[],activeCount:0};
+ const suspended=schema.rows[0]?.suspension_exists?"s.auto_suspended":"false";
  const filter=`s.team_id=$1 AND s.deleted_at IS NULL
   AND ($2::text='' OR strpos(lower(s.name),lower($2::text))>0)
-  AND ($3::text='all' OR CASE WHEN s.auto_suspended THEN 'suspended' ELSE s.status END=$3::text)`;
+  AND ($3::text='all' OR CASE WHEN ${suspended} THEN 'suspended' ELSE s.status END=$3::text)`;
  const params=[teamId,query.search,query.status];
  const count=await db.query<{total:number}>(`SELECT count(*)::integer AS total
   FROM public.smn_sprint s WHERE ${filter}`,params);
@@ -55,14 +66,14 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery){
  const totalPages=Math.max(1,Math.ceil(total/query.pageSize));
  const page=Math.min(query.page,totalPages);
  const statuses=await db.query<{status:string}>(`SELECT DISTINCT
-  CASE WHEN s.auto_suspended THEN 'suspended' ELSE s.status END AS status
+  CASE WHEN ${suspended} THEN 'suspended' ELSE s.status END AS status
   FROM public.smn_sprint s WHERE s.team_id=$1 AND s.deleted_at IS NULL`,[teamId]);
  const globalActive=await db.query<{active_count:number}>(`SELECT count(*)::integer AS active_count
   FROM public.smn_sprint s WHERE s.team_id=$1 AND s.deleted_at IS NULL
-   AND s.status='active' AND NOT s.auto_suspended AND s.start_at<=now() AND s.end_at>now()`,[teamId]);
- const rows=await db.query<SprintRow>(`SELECT s.id,s.name,s.status,s.auto_suspended,s.start_at,s.end_at,s.time_zone
+   AND s.status='active' AND NOT ${suspended} AND s.start_at<=now() AND s.end_at>now()`,[teamId]);
+ const rows=await db.query<SprintRow>(`SELECT s.id,s.name,s.status,${suspended} AS auto_suspended,s.start_at,s.end_at,s.time_zone
   FROM public.smn_sprint s WHERE ${filter}
-  ORDER BY ${order[query.sort]} LIMIT $4 OFFSET $5`,
+  ORDER BY ${order[query.sort](suspended)} LIMIT $4 OFFSET $5`,
   [...params,query.pageSize,(page-1)*query.pageSize]);
  const now=Date.now();
  const items:SprintIndexItem[]=rows.rows.map(s=>{
