@@ -2458,5 +2458,18 @@
     "success": "Action created",
     "error": "Creation failed.",
     "again": "Create another action"
+  },
+  "registryDeadlines": {
+    "heading": "Attention items — deadlines",
+    "threshold": "Advance warning (calendar days)",
+    "save": "Save threshold",
+    "saved": "Threshold saved",
+    "upcoming": "Due soon",
+    "overdue": "Overdue",
+    "empty": "No deadlines requiring attention",
+    "error": "Deadline alerts unavailable",
+    "date": "Due date",
+    "action": "Action",
+    "dependency": "Dependency"
   }
 }
