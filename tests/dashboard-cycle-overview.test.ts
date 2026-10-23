@@ -11,7 +11,7 @@ const contexts:Record<"scrum"|"kanban",DashboardContext>={
 };
 const view=(mode:"scrum"|"kanban",locale:"fr"|"en")=>
   renderToStaticMarkup(createElement(CycleOverview,{
-    context:contexts[mode],locale,teamHref:"/app/team/team-1?returnTo=%2Fapp",
+    context:contexts[mode],locale,teamHref:"/app/team/team-1?returnTo=%2Fapp",cycle:null,
   }));
 
 describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
