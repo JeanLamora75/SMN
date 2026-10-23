@@ -89,13 +89,13 @@ export async function readSprintDetailIndicators(
   const scores=record(snap.confidenceClarity);
   return {state:"available",source:"closure-snapshot",snapshotVersion:latest.version,
    points:snap.storyPoints===undefined?absent("history-missing"):
-    pointsFrom(sp?{
+    snap.storyPoints!==null&&!sp?absent("read-failed"):pointsFrom(sp?{
      initial:sp.initial_sp,added:sp.added_sp,
      removed:sp.removed_sp,done:sp.done_sp}:null),
    tickets:snap.ticketCounts===undefined?absent("history-missing"):
-    ticketsFrom(ticket?{initial:ticket.initial_tickets,done:ticket.done_tickets}:null),
+    snap.ticketCounts!==null&&!ticket?absent("read-failed"):ticketsFrom(ticket?{initial:ticket.initial_tickets,done:ticket.done_tickets}:null),
    scores:snap.confidenceClarity===undefined?absent("history-missing"):
-    scoresFrom(scores?{
+    snap.confidenceClarity!==null&&!scores?absent("read-failed"):scoresFrom(scores?{
      confidence:scores.confidence,clarity:scores.clarity}:null)
   };
  }
