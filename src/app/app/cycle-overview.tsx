@@ -4,6 +4,8 @@ import type {Language} from "@/lib/language";
 import type {DashboardContext} from "@/server/dashboard/read";
 import {effectiveSprintStatus,type SprintContextItem} from "@/lib/sprint-context";
 import type {CollectiveCycleProjection,DashboardMetric,DashboardDataSource} from "@/lib/dashboard-data-contract";
+import BootstrapIcon from "./bootstrap-icon";
+import {sprintDetailPath} from "@/lib/sprint-detail-path";
 
 type Props=Readonly<{
   context:DashboardContext;
@@ -79,52 +81,56 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection}
   const emptyMetric=cycle?t("dashboard.cockpit.dataPending"):t("dashboard.cockpit.notSpecified");
   const comparison=cycle?t("dashboard.cockpit.comparisonUnavailable"):t("dashboard.cockpit.noPreviousCycle");
   const goals=projection?.goals;
-  const goalText=goals?.state==="unavailable"?
-    (goals.reason==="producer-not-ready"?t("dashboard.cockpit.dataPending"):t("dashboard.cockpit.notAvailable")):
-    goals?.state==="available"&&goals.items.length===0?t("dashboard.cockpit.notSpecified"):null;
   return <section className="smn-cycle-overview" id="pilotage"
     aria-labelledby="smn-cycle-overview-heading">
-    <header className="smn-cycle-overview-header" id="cycles">
-      <div className="smn-cycle-headline">
+    <header className="smn-cycle-overview-header smn-cycle-header-compact" id="cycles">
+      <div className="smn-cycle-identity">
         <p className="smn-cycle-eyebrow">
           {t(scrum?"dashboard.sprint":"dashboard.kanbanCycle")}
         </p>
         <h1 id="smn-cycle-overview-heading">{cycle?.name??t("dashboard.cockpit.noCycle")}</h1>
+        {cycle?<div className="smn-cycle-summary" role="group" aria-label={t("dashboard.cockpit.details")}>
+          <span className="smn-cycle-date-range">
+            <BootstrapIcon name="calendar3"/>
+            <span>{dates}</span>
+          </span>
+          <span className="smn-cycle-status" data-status={effectiveStatus??"unknown"}>
+            {status}
+          </span>
+        </div>:<p className="smn-cycle-description">
+          {t(scrum?"dashboard.cockpit.noSprintHelp":"dashboard.cockpit.noPeriodHelp")}
+        </p>}
         <p className="smn-cycle-context">
-          <strong>{context.product}</strong>
-          <span aria-hidden="true"> · </span>
-          <span>{context.team}</span>
+          <strong>{context.product}</strong><span aria-hidden="true"> · </span>{context.team}
         </p>
-        <p className="smn-cycle-description">
-          {cycle?t("dashboard.cockpit.selectedSprintHelp"):
-            t(scrum?"dashboard.cockpit.noSprintHelp":"dashboard.cockpit.noPeriodHelp")}
-        </p>
-        <Link className="btn btn-outline-primary btn-sm smn-cycle-team-link" href={teamHref}>
-          {t("detail.openTeam")} <span aria-hidden="true">→</span>
-        </Link>
       </div>
-      <div className="smn-cycle-facts" role="group" aria-label={t("dashboard.cockpit.details")}>
-        <dl className="smn-cycle-fact-list">
-          <div><dt>{t("dashboard.cockpit.dates")}</dt>
-            <dd>{dates}</dd></div>
-          <div><dt>{t("dashboard.cockpit.status")}</dt>
-            <dd>{status}</dd></div>
-          <div><dt>{t("dashboard.cockpit.goals")}</dt>
-            <dd>{goals?.state==="available"&&goals.items.length>0?
-              <ul className="list-unstyled mb-1">
-                {goals.items.map(g=><li key={g.id} className="mb-1">
-                  {g.title} <small className="text-secondary">
-                    ({t(("sprintGoals."+g.evaluation) as TranslationKey)})
-                  </small>
-                </li>)}
-              </ul>:
-              goalText??t("dashboard.cockpit.notSpecified")}
-            {goals?.state==="available"&&goals.items.length>0&&
-              <Link className="small d-block" href="/app/admin/sprints">
-                {t("dashboard.cockpit.viewSprintGoals")}
+      <div className="smn-cycle-goal-block" aria-label={t("dashboard.cockpit.sprintGoal")}>
+        <span className="smn-cycle-goal-icon"><BootstrapIcon name="bullseye"/></span>
+        <div className="smn-cycle-goal-copy">
+          <h2>{t("dashboard.cockpit.sprintGoal")}</h2>
+          {goals?.state==="available"&&goals.items.length>0?<>
+            <p className="smn-cycle-goal-text">{goals.items[0].title}</p>
+            {goals.items.length>1&&cycle&&
+              <Link className="smn-cycle-more-goals" href={sprintDetailPath(cycle.id)}>
+                {t("dashboard.cockpit.otherGoals",{count:goals.items.length-1})}
               </Link>}
-            </dd></div>
-        </dl>
+          </>:<p className="smn-cycle-goal-placeholder">
+            {goals?.state==="available"?t("dashboard.cockpit.goalNotSpecified"):
+              goals?.state==="unavailable"?t("dashboard.cockpit.notAvailable"):
+              t("dashboard.cockpit.goalNotSpecified")}
+          </p>}
+        </div>
+      </div>
+      <div className="smn-cycle-header-actions">
+        {cycle?
+          <Link className="btn btn-outline-primary btn-sm smn-cycle-detail-link"
+            href={sprintDetailPath(cycle.id)}>
+            {t("dashboard.cockpit.viewSprintDetail")}
+            <BootstrapIcon name="arrow-right"/>
+          </Link>:
+          <Link className="btn btn-outline-primary btn-sm smn-cycle-detail-link" href={teamHref}>
+            {t("detail.openTeam")} <BootstrapIcon name="arrow-right"/>
+          </Link>}
       </div>
     </header>
     <div className="smn-metric-grid" role="group" aria-label={t("dashboard.cockpit.metrics")}>
