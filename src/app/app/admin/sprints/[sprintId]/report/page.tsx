@@ -54,6 +54,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
    {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
    <ReportLanguageChoice sprintId={s.id}/>
+   <div><Link className="btn btn-outline-secondary" href={"/app/admin/reports/archives?cycleId="+encodeURIComponent(s.id)}>{translate(locale,"archiveLibrary.openLibrary")}</Link></div>
    <ReportArchiveList sprintId={s.id}/>
    <ReportTemplateChooser/>
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
