@@ -185,3 +185,12 @@ Qualité : **14 assertions isolées effectivement exécutées et réussies** sur
 **Non réalisé :** ajout du statut Ajournée/Reportée (pas de champ métier approuvé), éditeur direct de statut sur la liste, et fiche individuelle figée sur le snapshot d'un Sprint clôturé (la route Réunion demeure opérationnelle). Aucun crayon artificiel de mutation n'est affiché. D1–D4 sont **codés mais en attente de recette intégrée**.
 
 Vérifications réelles : 18/18 statiques ; compilation TS isolée d'un fichier SHA Git vérifié et 14/14 assertions isolées exécutées. `pnpm typecheck`, `tsx --test` du projet, build et navigateur non exécutés. [Rapport D4](../_bmad-output/implementation-artifacts/realisation-d4-ceremonies-fiche-sprint-smn-234-2026-10-23.md). Prochaine étape D5 : les **J/H de présence** par membre (distincts des J/H de développement).
+
+
+## Fiche Sprint — D5 Capacité / présence des membres (23/10/2026)
+
+**Publié sur GitHub `main` :** onglet Capacité présentant la liste des membres affectés au Sprint et leurs **J/H de présence planifiée/estimée**, principaux, distincts des **J/H de développement**, secondaires. Calcul depuis les `availableHalfDays` de `readDevelopmentCapacity` sans multiplier par la part de rôle Dev ou les allocations ; absences, jours fériés, fermetures et périodicité des affectations sont déjà gérés par le moteur. La présence n'est **pas une attestation de présence réelle**. Les calendriers individuels doivent représenter les temps partiels, et la cohérence `contractPercent`/calendrier fait l'objet d'un arbitrage ultérieur. Total non calculable si une source manque pour un membre ; aucune valeur manquante n'est remplacée par zéro.
+
+**Autorisation :** seul l'administrateur possède `read members` et voit les noms et J/H individuels. Le rôle user n'engage pas de lecture nominative ; sa fiche Sprint reste accessible sans données privées. Les snapshots JSONB Vn de nouvelles clôtures enregistrent `memberPresence`. Les anciennes clôtures sans snapshot individuel ne sont pas recalculées.
+
+**Validation réelle :** 22/22 contrôles statiques, module de calcul pur compilé isolément (SHA Git vérifié), **9/9 assertions isolées exécutées avec succès**. La compilation complète, les tests `tsx --test` intégrés et la recette PostgreSQL/navigateur restent à faire. [Compte rendu D5](../_bmad-output/implementation-artifacts/realisation-d5-capacite-presence-fiche-sprint-smn-234-2026-10-23.md). Prochain lot **D6 — Tendances**.
