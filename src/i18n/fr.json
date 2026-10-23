@@ -182,6 +182,10 @@
     "cockpit": {
       "noCycle": "Aucun cycle créé",
       "noSprintHelp": "Aucun Sprint enregistré pour cette équipe. Aucun cycle n'est généré automatiquement.",
+      "selectedSprintHelp": "Sprint sélectionné dans le contexte de pilotage.",
+      "dataPending": "Source non encore raccordée",
+      "comparisonUnavailable": "Comparaison indisponible",
+      "workingDaysPending": "Le calcul des jours ouvrés de ce Sprint n'est pas encore raccordé au tableau de bord.",
       "noPeriodHelp": "Aucune période Kanban enregistrée pour cette équipe. Aucune période n'est générée automatiquement.",
       "details": "Informations du cycle",
       "dates": "Dates du cycle",
