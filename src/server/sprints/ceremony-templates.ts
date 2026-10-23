@@ -9,8 +9,8 @@ export const DEFAULT_SCRUM_CEREMONY_TEMPLATES: ReadonlyArray<TemplateInput> = [
  {name:"Sprint Retrospective",frequency:"sprint",weekday:null,position:"end",time:"16:30",duration:60},
 ];
 
-// Appel uniquement à la première installation Scrum ; la migration SQL assure
-// le rattrapage idempotent des bases pilotes déjà installées.
+// Appel à la première installation Scrum ; pour une base pilote déjà installée,
+// la commande dédiée db:sync:ceremonies assure le rattrapage idempotent.
 export async function seedDefaultScrumCeremonyTemplates(db:Client,teamId:string){
  await ensureTemplateSchema(db);
  let inserted=0;
