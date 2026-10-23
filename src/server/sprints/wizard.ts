@@ -120,6 +120,8 @@ export async function confirmWizard(db:Client,actorId:string,raw:unknown){
    return {ok:false as const,error:"stale-preview" as const};
   }
   const preview=namesApplied(draft,input);
+  // Freeze the configuration used by the confirmed lot. Other writers resume after COMMIT.
+  await db.query("LOCK TABLE public.smn_scrum_cadence, public.smn_scrum_lunch, public.smn_scrum_ceremony_template IN SHARE MODE");
   const settings=await generationSettings(db,saved.team_id);
   if(!settings.cadence||
    hash(preview,settings,input.generateHistoricalCeremonies)!==saved.digest){
