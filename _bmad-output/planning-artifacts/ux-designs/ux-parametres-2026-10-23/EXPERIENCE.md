@@ -119,3 +119,15 @@ Desktop Windows 11, tablettes et navigateurs mobiles : cartes 4/2/1 selon largeu
 La création effective des **nouveaux moteurs de paramétrage** (jours ouvrés, nouvelles règles de capacité, administration complète des sessions), ainsi que les intégrations externes/notifications, **n'est pas incluse dans la simple refonte de la page d'accueil** et nécessite les décisions métier et Stories propriétaires appropriées.
 
 [CONTRAT-DEVELOPPEMENT.md](CONTRAT-DEVELOPPEMENT.md) et [RECETTE-UX.md](RECETTE-UX.md) servent de transfert à Amelia.
+
+## Avenant validé le 23/10/2026 — Cohérence avec la refonte de Sprints
+
+**Nouvelle Epic [SMN-228](https://lmn24.atlassian.net/browse/SMN-228)**, [Story SMN-229](https://lmn24.atlassian.net/browse/SMN-229). Cette décision ne change **ni les 14 rubriques, ni les quatre groupes, ni la bascule Cartes/Liste** validés pour Paramètres.
+
+- **Jours ouvrés** : devenir le point d'édition des **plages horaires habituelles et de la pause déjeuner de l'équipe**, aujourd'hui disponibles dans la page Sprints via `WorkSlotsForm` et `LunchForm`. **Cela ne rend pas automatiquement la semaine lundi–vendredi configurable** ; si seules les plages sont éditables, l'état de la carte doit refléter une fonction partielle.
+- **Cérémonies et modèles** : réhéberger les **modèles réutilisables** (`TemplateForm`) avec fréquence/horaires/durée ; les **occurrences générées** demeurent dans le Calendrier/sprint.
+- **Cadence des sprints** : conserver sa page existante et sa temporalité, sans réécriture des cycles déjà créés.
+- **Règles de capacité** : ne pas confondre règles générales (éventuelles) et métriques/capacités d'un sprint ; ne pas déclarer modifiable une règle qui n'existe pas.
+- Déplacer les composants et les liens sans changer leur source métier ni leurs contrôles d'accès ; ne retirer les éditeurs de Sprints qu'après vérification des nouvelles routes.
+
+Contrat normatif : [refonte Sprints EXPERIENCE.md](../ux-sprints-pilotage-2026-10-23/EXPERIENCE.md) et [matrice composants](../ux-sprints-pilotage-2026-10-23/MATRICE-FONCTIONS.md). Les indications initiales ci-dessus (« Jours ouvrés à créer ») s'entendent désormais comme **absence d'un écran complet de configuration des jours**, pas comme absence totale de réglages d'horaires d'équipe.
