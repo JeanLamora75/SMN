@@ -197,6 +197,7 @@
       "workingDaysPending": "Working-day calculations for this Sprint are not connected to the dashboard yet.",
       "todayIncludedProvisional": "Monday–Friday, including today if it is a working day (provisional rule pending approval).",
       "workingDaysEnded": "Sprint finished: no working days remaining.",
+      "workingDaysUpcoming": "Upcoming Sprint: total planned working days, Monday through Friday.",
       "noPeriodHelp": "No Kanban period has been recorded for this team. No period is created automatically.",
       "details": "Cycle information",
       "dates": "Cycle dates",
