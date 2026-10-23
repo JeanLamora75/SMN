@@ -106,3 +106,18 @@ Les **deux icônes en haut à droite** activent **Cartes** (4/2/1 colonnes deskt
 **Préservation :** ne pas retirer de l'ancienne page Sprints les paramètres, réunions, génération ni bilan avant qu'une nouvelle destination réelle soit validée. La reprise historique SMN-160 reste spécifiée mais non développée. La fiche Sprint SMN-234 est différée. La cadence / les dates IANA et les permissions métier restent des garde-fous.
 
 **Tests ajoutés :** `tests/sprints-refonte-etape0.test.ts` (8 contrats) et `tests/sprints-refonte-dates-etape0.test.ts` (3 comportements). **Exécution réelle, typecheck et build à effectuer localement** après synchronisation de `main` ; leur présence ne constitue pas une recette.
+
+
+## SMN-229 — Déplacement des réglages communs vers Paramètres (23/10/2026)
+
+**Livrable de développement et recette Amelia :** [spécification/traçabilité SMN-229](../_bmad-output/implementation-artifacts/spec-smn-229-deplacement-parametres-sprints.md). Le contrat UX Sally Sprints `S1` est implémenté sur `main` **sous réserve de validation locale**.
+
+- `/app/admin/settings/working-days` : plages horaires matin/après-midi, fuseau IANA, pause déjeuner ; la référence **lundi–vendredi** n'est pas éditable. Statut de rubrique **partiel**.
+- `/app/admin/settings/ceremonies` : modèles de réunions récurrentes, fréquence, durée, horaire, actif ; aucune modification des occurrences historiques. Statut **partiel**.
+- Portail Paramètres : deux cartes maintenant cliquables en mode Scrum, non applicables en mode Kanban. Cadence inchangée ; règles de capacité toujours non cliquables faute d'éditeur global.
+- Page Sprints : trois formulaires de configuration partagée retirés du rendu, remplacés par des liens de transition ; toutes les autres fonctions conservées jusqu'aux prochains lots.
+- Les trois API de configuration existantes, leurs restrictions admin et révisions n'ont pas été modifiées ; aucune migration ou mutation de sprint/événement déjà enregistré.
+- **Attention aux capacités dynamiques :** les calculs à la demande peuvent utiliser les créneaux actuellement configurés ; les références de capacité/événements **persistés** ne sont pas réécrits. Ne pas prétendre à un versionnement historique des défauts qui n'existe pas.
+- Tests ajoutés : `tests/smn-229-settings-relocation.test.ts` (9 scénarios statiques). Tests catalogue et navigation SMN-225/227 adaptés. `pnpm typecheck`, `pnpm build` et validation UI sur Windows restent **à exécuter**.
+
+La Story Jira [SMN-229](https://lmn24.atlassian.net/browse/SMN-229) reste non clôturée en attendant la recette utilisateur.
