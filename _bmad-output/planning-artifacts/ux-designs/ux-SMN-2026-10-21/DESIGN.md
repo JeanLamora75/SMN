@@ -262,3 +262,13 @@ La comparaison utilisateur des captures PJ1 (état après raccordements) et PJ2 
 - Préserver les unités, la provenance, les 3 palettes et les thèmes sombre/clair ; garder les couleurs sémantiques de SMN au lieu d'imposer PJ2 pixel pour pixel.
 - Aucune carte « Avancement global » fictive, aucune régression dans le bandeau Sprint compact du lot 1.
 - Dossier de réalisation : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot2-cartes-kpi-2026-10-23.md`.
+
+
+## Extension visuelle du 23 octobre 2026 — Lot 4 : cartes qualitatives et priorités
+
+- Les trois panneaux **Obstacles**, **Risques**, **Notes / Alertes** utilisent des cartes compactes sans longueur minimale factice, avec type de fiche, titre et statut quand une source persistée est disponible.
+- Chaque fiche réellement affichée comporte un **point de priorité** rouge (élevée), ambre (moyenne), vert (faible) ou neutre (non évaluée). Le texte du niveau doit toujours rester visible : la couleur seule n'est pas une information accessible.
+- Pictogrammes Bootstrap Icons locaux : `exclamation-octagon-fill` pour obstacle, `exclamation-triangle-fill` pour risque, `sticky-fill` pour note, `bell-fill` pour alerte ; le type apparaît également en texte.
+- Maximum cinq fiches par colonne, grille 4/2/1, palettes SMN, thèmes clair/sombre ; compteur exact uniquement si une source fiable le fournit.
+- Les cartes ne sont **pas** simulées tant que les producteurs Epic 5 ne sont pas livrés. L'indisponibilité conserve ses textes et ses actions désactivées. Les liens et actions réels relèvent de SMN-238, sans raccourci vers une route fictive.
+- Cette réalisation ne crée ni norme métier de priorité pour les notes et obstacles, ni SQL, ni cliché historique Vn. Voir `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot4-priorites-2026-10-23.md`.
