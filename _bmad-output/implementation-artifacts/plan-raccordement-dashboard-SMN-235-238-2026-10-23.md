@@ -159,3 +159,13 @@ Les étapes 1 à 5 et l'ordre de Stories restent inchangés. Aucun ticket Jira n
 - **Décision encore à approuver par John :** le compteur applique **provisoirement « aujourd'hui inclus »** sur un Sprint en cours, indiqué visiblement dans les deux langues. L'alternative « uniquement les jours complets futurs » est déjà paramétrable dans la fonction pure ; ne pas déclarer l'arbitrage validé. L'exclusion éventuelle des jours fériés/fermetures doit elle aussi être clarifiée.
 - **Livrable :** [realisation-smn-236-dashboard-2026-10-23.md](realisation-smn-236-dashboard-2026-10-23.md), tests rédigés dans `tests/smn-236-sprint-tickets-working-days.test.ts`.
 - **Statut :** implémentation publiée directement sur `main`, mais **typecheck, tests et recette Windows/PostgreSQL non attestés**. SMN-236 reste en attente de validation fonctionnelle et technique.
+
+## Avancement de l'étape 5 — Revue transversale avec Epic 5 reportée — 23 octobre 2026
+
+- **Décision utilisateur** : l'étape 4 **SMN-238 / Epic 5** attend les Stories des registres. Passer directement à l'étape 5 **ne signifie pas** que SMN-238 soit réalisée, ni que SMN-21 puisse être clôturée.
+- **Revue de code et correctifs publiés directement sur `main`** : statut réel des anciennes cérémonies, compteur d'événements accessible lorsque la source manque, jours restants nuls pour Sprint terminé/clôturé et libellé prévisionnel pour Sprint futur, différenciation panne PostgreSQL/base vide, et absence de données historiques d'événements.
+- **Nouveau test transversal rédigé** : `tests/dashboard-transversal-step5.test.ts` — rôles admin/user, isolation des Sprints A/B, respect de `cycleId`, V2 de clôture, 0/null/indisponibilité, accessibilité, parité FR/EN, responsive et absence de faux registres.
+- **Compte rendu BMAD complet** : [recette-transversale-dashboard-etape5-2026-10-23.md](recette-transversale-dashboard-etape5-2026-10-23.md).
+- **Non attesté** : `pnpm typecheck`, `pnpm test`, `pnpm build`, connexion réelle PostgreSQL, parcours navigateur/équipe et sous-ensemble de tests unitaires. Les tests sont à exécuter sur Windows 11 avant toute déclaration de réussite.
+- **À réouvrir après Epic 5** : SMN-238 et validation complète de SMN-21 ; les tendances/comparaisons SMN-86 demeurent un chantier distinct.
+- **Arbitrage métier maintenu ouvert** : SMN-236 — convention provisoire « aujourd'hui inclus », jours fériés et fermetures éventuels. Aucun ticket Jira modifié dans cette intervention.
