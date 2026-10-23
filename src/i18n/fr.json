@@ -2407,5 +2407,14 @@
     "conflict": "Cette décision a changé, rechargez la fiche",
     "help": "Utilisez l'identifiant de la décision précédente. Les deux fiches sont conservées.",
     "inverse": "Décisions qui remplacent cette décision"
+  },
+  "actionLinks": {
+    "heading": "Décisions et obstacles liés",
+    "related": "Identifiant de la décision ou de l’obstacle",
+    "add": "Associer",
+    "remove": "Dissocier",
+    "empty": "Aucun lien",
+    "error": "Impossible de modifier le lien.",
+    "intro": "Les objets liés conservent leur statut indépendant."
   }
 }
