@@ -2519,5 +2519,21 @@
     "invalidate": "Invalidate this fact",
     "confirmInvalidation": "Confirm invalidation",
     "cancelInvalidation": "Cancel"
+  },
+  "factSelection": {
+    "heading": "Choose facts for reports",
+    "intro": "Hiding, promoting and selecting never alters source records. Invalidated facts remain in history but are excluded from output.",
+    "error": "Unable to save selection.",
+    "empty": "No report-eligible facts.",
+    "fact": "Fact",
+    "origin": "Origin",
+    "date": "Business date",
+    "hide": "Hide",
+    "promote": "Promote",
+    "select": "Select",
+    "manual": "Manual",
+    "automatic": "Automatic",
+    "invalidated": "Invalidated",
+    "preview": "Facts preselected for preview"
   }
 }
