@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
+import {obstacleTransition} from "@/lib/obstacle-lifecycle";
 
 export type RegistryInput={type:RegistryType;title:string;occurredOn:string;status:string;description:string|null;owner:string|null;dueOn:string|null;comment:string|null;teamId:string};
 const dateRx=/^\d{4}-\d{2}-\d{2}$/;
@@ -108,6 +109,9 @@ export async function updateRegistryItem(db:Client,actorId:string,id:string,revi
   }
   if(old.type!==input.type){
    await db.query("ROLLBACK");return {ok:false as const,error:"immutable-type" as const};
+  }
+  if(old.type==="obstacle"&&!obstacleTransition(old.status,input.status).valid){
+   await db.query("ROLLBACK");return {ok:false as const,error:"invalid-transition" as const};
   }
   if(old.revision!==revision){
    await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
