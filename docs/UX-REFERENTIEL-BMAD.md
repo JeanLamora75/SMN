@@ -151,3 +151,14 @@ La Story Jira [SMN-229](https://lmn24.atlassian.net/browse/SMN-229) reste non cl
 Retour recette utilisateur : l'assistant de génération restait en étape Configuration après « Prévisualiser », avec un message d'erreur générique, sans signalement du stade d'échec. L'API de prévisualisation classe désormais les incidents par phase technique (schéma, périodes, équipe, pause, paramètres, noms, jeton) et SQLSTATE non sensible ; seule la console serveur journalise le message de la cause. Les étapes de l'assistant ne présentent plus de double numérotation.
 
 **Traçabilité :** [avenant de recette SMN-231](../_bmad-output/implementation-artifacts/spec-smn-231-assistant-generation-sprints.md). **Prudence :** sans le nouveau diagnostic émis sur le poste Windows, aucune cause réelle du blocage n'est établie et la réussite fonctionnelle n'est pas attestée. L'utilisateur doit relancer la prévisualisation, relever l'étape et le code affichés si l'erreur se reproduit, puis confirmer les tests TypeScript et le build. Aucun changement Jira.
+
+
+## Avenant de réalisation D1 de la fiche Sprint — 23/10/2026
+
+Le cadrage UX de la fiche Sprint a été mis à jour après les anciennes mentions « future fiche », et prime pour cet écran : **sept onglets Objectifs, Cérémonies, Capacité, Indicateurs, Registres, Tendances, Bilan**, bandeau compact sans Synthèse, crayons Bootstrap à proximité des champs réellement modifiables. La Story de référence reste [SMN-234](https://lmn24.atlassian.net/browse/SMN-234) dans Epic SMN-228.
+
+**Code D1 publié sur `main`** : route `src/app/app/admin/sprints/[sprintId]/page.tsx` conservée et enrichie ; le nom de la ligne de liste était déjà cliquable vers la fiche. Sept onglets de navigation, Objectifs existants préservés ; deux actions administrateur effectives sur le bandeau : renommer (PATCH protégé) et replanifier les dates (aperçu obligatoire puis PATCH à jeton). Les autres onglets sont explicitement non raccordés, sans données fictives. La conversion horaire est basée sur le fuseau IANA du Sprint et traite les heures ambiguës/inexistantes du DST. Le rôle utilisateur est en lecture collective, sans crayons.
+
+**Preuves :** huit contrôles unitaires isolés réussis sur le convertisseur horaire, équivalence du SHA GitHub, traduction FR/EN valide ; aucun `pnpm typecheck`, build Next.js ni recette navigateur exécutés sur le projet complet. **D1 est publié mais en attente de validation locale**, D2–D9 non réalisés. Voir [livraison D1](../_bmad-output/implementation-artifacts/realisation-d1-fiche-sprint-smn-234-2026-10-23.md), [contrat UX](../_bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md) et [audit D0](../_bmad-output/implementation-artifacts/audit-d0-fiche-sprint-smn-234-2026-10-23.md).
+
+Les anciennes mentions de fiche future ou de lien non cliquable sont **historiques** et ne décrivent plus l'état du code D1.
