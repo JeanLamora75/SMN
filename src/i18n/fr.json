@@ -195,6 +195,7 @@
     "viewSprintGoals": "Consulter les Sprints",
       "comparisonUnavailable": "Comparaison indisponible",
       "workingDaysPending": "Le calcul des jours ouvrés de ce Sprint n'est pas encore raccordé au tableau de bord.",
+      "todayIncludedProvisional": "Lundi–vendredi, aujourd'hui inclus s'il est ouvré (convention provisoire à valider).",
       "noPeriodHelp": "Aucune période Kanban enregistrée pour cette équipe. Aucune période n'est générée automatiquement.",
       "details": "Informations du cycle",
       "dates": "Dates du cycle",
@@ -1642,6 +1643,17 @@
     "achieved": "Atteint",
     "partially_achieved": "Partiellement atteint",
     "not_achieved": "Non atteint"
+  },
+  "sprintTickets": {
+    "title": "Tickets du Sprint",
+    "description": "Deux comptes agrégés indépendants des Story Points. Aucun ticket individuel n'est créé.",
+    "sprint": "Sprint",
+    "initial": "Tickets initialement engagés",
+    "done": "Tickets terminés",
+    "noSource": "Laisser le champ vide lorsqu'aucune valeur n'est renseignée ; zéro signifie réellement zéro.",
+    "save": "Enregistrer",
+    "saved": "Comptes de tickets enregistrés.",
+    "error": "Impossible de charger ou d'enregistrer les comptes de tickets."
   },
   "storyPoints": {
     "title": "Story Points du Sprint",
