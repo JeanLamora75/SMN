@@ -1972,6 +1972,7 @@
     "confirmQuestion": "Confirmer la création de {count} sprint(s) ?",
     "historicalReconstructed": "Les cérémonies historiques sélectionnées seront enregistrées comme reconstituées, jamais comme réellement tenues.",
     "reconstructedLabel": "Reconstituée (non attestée)",
+    "duplicateName": "Attention : ce nom est déjà utilisé ou répété dans le lot. Les doublons sont autorisés.",
     "historicalSkipped": "Les sprints dont la date de début est passée seront créés sans cérémonie.",
     "atomicNotice": "La confirmation est atomique : si une création échoue, aucun sprint du lot n'est conservé.",
     "create": "Confirmer et générer",
