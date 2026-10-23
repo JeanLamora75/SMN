@@ -2504,6 +2504,10 @@
     "save": "Save categories",
     "saved": "Settings saved",
     "error": "Unable to save categories",
-    "readonly": "Read-only"
+    "readonly": "Read-only",
+    "journalHeading": "Automatic highlights",
+    "journalError": "Automatic journal unavailable",
+    "journalEmpty": "No confirmed automatic events",
+    "goalSource": "Goal"
   }
 }
