@@ -27,11 +27,13 @@ export async function readRelations(db:Client,recordId:string){
  if(!scope.rows.length)return null;
  const exists=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_registry_relation') IS NOT NULL AS present`);
  if(!exists.rows[0]?.present)return {relations:[]};
+ const goals=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_goal') IS NOT NULL AS present`);
+ const goalJoin=goals.rows[0]?.present?`LEFT JOIN public.smn_sprint_goal g ON l.target_kind='goal' AND g.id=l.target_id`:`LEFT JOIN LATERAL (SELECT NULL::text AS title) g ON TRUE`;
  const rows=await db.query(`SELECT l.id,l.source_id AS "sourceId",l.target_kind AS "targetKind",l.target_id AS "targetId",
  s.title AS "sourceTitle",COALESCE(r.title,g.title) AS "targetTitle"
  FROM public.smn_registry_relation l JOIN public.smn_registry_item s ON s.id=l.source_id
  LEFT JOIN public.smn_registry_item r ON l.target_kind='record' AND r.id=l.target_id
- LEFT JOIN public.smn_sprint_goal g ON l.target_kind='goal' AND g.id=l.target_id
+ ${goalJoin}
  WHERE l.source_id=$1 OR (l.target_kind='record' AND l.target_id=$1) ORDER BY l.created_at,l.id`,[recordId]);
  return {relations:rows.rows};
 }
@@ -52,6 +54,11 @@ export async function changeRelation(db:Client,actorId:string,sourceId:string,ta
   const other=await db.query(targetSql,[target.id,s.team_id]);
   if(other.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   await ensureRelations(db);
+  if(target.kind==="record"&&action==="linked"){
+   const inverse=await db.query(`SELECT 1 FROM public.smn_registry_relation
+    WHERE source_id=$1 AND target_kind='record' AND target_id=$2`,[target.id,sourceId]);
+   if(inverse.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"cycle" as const};}
+  }
   const existing=await db.query(`SELECT id FROM public.smn_registry_relation WHERE source_id=$1 AND target_kind=$2 AND target_id=$3`,[sourceId,target.kind,target.id]);
   if((action==="linked")===(existing.rows.length>0)){await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};}
   if(action==="linked")await db.query(`INSERT INTO public.smn_registry_relation(id,source_id,target_kind,target_id) VALUES($1,$2,$3,$4)`,
