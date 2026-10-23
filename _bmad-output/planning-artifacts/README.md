@@ -44,3 +44,8 @@ Nouvelle **Epic UX transversale [SMN-223](https://lmn24.atlassian.net/browse/SMN
 **Contrats BMAD** : [DESIGN.md](ux-designs/ux-parametres-2026-10-23/DESIGN.md) ; [EXPERIENCE.md](ux-designs/ux-parametres-2026-10-23/EXPERIENCE.md) ; [contrat de développement](ux-designs/ux-parametres-2026-10-23/CONTRAT-DEVELOPPEMENT.md) ; [recette](ux-designs/ux-parametres-2026-10-23/RECETTE-UX.md) ; [mapping Jira](ux-designs/ux-parametres-2026-10-23/DECOUPAGE-JIRA.md).
 
 **Cette nouvelle Epic ne change ni l'état de clôture documentaire des 10 Epics initiales ni les critères métier de SMN-18, 15, 32, 65. Aucune implémentation/recette n'est attestée par l'avenant.**
+
+
+## Avenant du 23/10/2026 — Refonte de l'écran Sprints
+
+**[SMN-228](https://lmn24.atlassian.net/browse/SMN-228)** et Stories **SMN-229–234** : séparation Paramètres (plages de travail, pause, modèles et cadence), **index de tous les sprints en liste** (actions, filtres, création contextualisée), Calendrier/événements et **fiche Sprint ultérieure**. Docs : [DESIGN.md](ux-designs/ux-sprints-pilotage-2026-10-23/DESIGN.md), [EXPERIENCE.md](ux-designs/ux-sprints-pilotage-2026-10-23/EXPERIENCE.md), [Matrice](ux-designs/ux-sprints-pilotage-2026-10-23/MATRICE-FONCTIONS.md), [Contrat](ux-designs/ux-sprints-pilotage-2026-10-23/CONTRAT-DEVELOPPEMENT.md), [Recette](ux-designs/ux-sprints-pilotage-2026-10-23/RECETTE-UX.md), [Jira](ux-designs/ux-sprints-pilotage-2026-10-23/DECOUPAGE-JIRA.md). **SMN-234 est différée et ne bloque pas les autres Stories.** Aucun code ni test attesté.
