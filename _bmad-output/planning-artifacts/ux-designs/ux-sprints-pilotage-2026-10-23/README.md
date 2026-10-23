@@ -17,7 +17,7 @@
 ## Avenant fiche Sprint du 23/10/2026
 
 - **[FICHE-SPRINT-CONTRAT.md](FICHE-SPRINT-CONTRAT.md)** — nouvelle référence normative : bandeau et sept onglets, fonctions d'édition, statuts et conditions de fiabilité des données.
-- **[Plan BMAD SMN-234](../../implementation-artifacts/plan-developpement-fiche-sprint-smn-234-2026-10-23.md)** — lots D0–D9 et dépendances Epic 3/4/5/9.
+- **[Plan BMAD SMN-234](../../../implementation-artifacts/plan-developpement-fiche-sprint-smn-234-2026-10-23.md)** — lots D0–D9 et dépendances Epic 3/4/5/9.
 - **[SMN-234](https://lmn24.atlassian.net/browse/SMN-234)** — Story existante et enrichie ; aucune nouvelle Story créée dans Epic 3.
 
 Aucun développement de la fiche complète n'a été exécuté dans cette mise à jour documentaire.
