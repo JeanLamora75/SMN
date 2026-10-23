@@ -36,7 +36,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
       assert.ok(html.includes(label),label);
     }
     assert.doesNotMatch(html,/Avancement global|Productivité|\b0\s*(?:SP|J\/H|tickets)\b/i);
-    assert.match(html,/Non calculable/);
+    assert.match(html,/Non renseigné/);
     assert.match(html,/Aucun cycle précédent/);
   });
   it("n'invente ni dates, ni objectifs, ni comparaison en l'absence de producteurs",()=>{
@@ -64,7 +64,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
     const html=view("kanban","en");
     for(const s of ["No cycle created","Kanban period","Planned capacity",
       "Actual capacity","Initially committed story points","Working days remaining",
-      "No previous cycle","Cannot be calculated"]){
+      "No previous cycle","Not specified"]){
       assert.ok(html.includes(s),s);
     }
     assert.match(html,/href="\/app\/team\/team-1\?returnTo=%2Fapp"/);
