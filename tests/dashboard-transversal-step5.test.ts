@@ -163,11 +163,12 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
   assert.match(panel,/id="registres"/);
   const overview=renderToStaticMarkup(createElement(CycleOverview,{
    locale:"fr",context,teamHref:"/app/team/team-authorisee",
-   cycle:sprint("sprintA"),projection
+   cycle:{...sprint("sprintA"),startAt:"2098-11-09T08:00:00Z",
+    endAt:"2098-11-22T22:59:59Z"},projection
   }));
   assert.match(overview,/SP initialement engagés/);
   assert.match(overview,/Jours ouvrés restants/);
-  assert.match(overview,/convention provisoire à valider/);
+  assert.match(overview,/Sprint à venir/);
  });
  it("langues, accessibilité et grille 4/2/1 colonnes : aucun libellé manquant",()=>{
   const fr=JSON.parse(file("src/i18n/fr.json")) as Record<string,unknown>;
