@@ -467,6 +467,25 @@
   background:var(--bs-warning-bg-subtle);
   border-color:var(--bs-warning-border-subtle);
 }
+.smn-dashboard-events-list {
+  list-style:none;margin:0;padding:0;display:grid;gap:10px;
+}
+.smn-dashboard-event {
+  display:grid;gap:3px;min-width:0;
+  padding:10px 11px;border:1px solid var(--smn-border);
+  border-radius:9px;background:var(--smn-soft);
+}
+.smn-dashboard-event-title {
+  font-size:.84rem;font-weight:700;overflow-wrap:anywhere;
+}
+.smn-dashboard-event-when,.smn-dashboard-event-state {
+  font-size:.74rem;line-height:1.5;color:var(--smn-muted);
+}
+.smn-operational-calendar-link {
+  display:block;text-align:center;font-size:.8rem;font-weight:650;
+  padding:8px 10px;border:1px solid var(--smn-border);border-radius:9px;
+  background:var(--smn-highlight);overflow-wrap:anywhere;
+}
 .smn-operational-panel-footer {
   margin-top:auto;padding-top:12px;
   border-top:1px solid var(--smn-border);
