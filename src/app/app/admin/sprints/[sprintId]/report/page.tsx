@@ -35,6 +35,17 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
     <dt className="col-sm-3">{t("sprintReportPrepare.template")}</dt><dd className="col-sm-9">Standard</dd>
     <dt className="col-sm-3">{t("sprintReportPrepare.source")}</dt><dd className="col-sm-9">{data.source}{data.snapshotVersion?" · V"+data.snapshotVersion:""}</dd>
    </dl>
+   <aside className="border rounded p-3" aria-label={translate(locale,"reportQuality.heading")}>
+    <h2 className="h6">{translate(locale,"reportQuality.heading")}</h2>
+    <p>{translate(locale,("reportQuality."+data.dataQuality.state) as "reportQuality.provisional")}</p>
+    {data.dataQuality.snapshotVersion!==null&&<p>V{data.dataQuality.snapshotVersion} · {data.dataQuality.capturedAt}</p>}
+    <dl className="row mb-0">
+     <dt className="col-sm-4">{translate(locale,"reportQuality.initial")}</dt>
+     <dd className="col-sm-8">{data.dataQuality.capacity.initial.quality} — {data.dataQuality.capacity.initial.source??translate(locale,"reportQuality.unknown")}</dd>
+     <dt className="col-sm-4">{translate(locale,"reportQuality.actual")}</dt>
+     <dd className="col-sm-8">{data.dataQuality.capacity.actual.quality} — {data.dataQuality.capacity.actual.source??translate(locale,"reportQuality.unknown")}</dd>
+    </dl>
+   </aside>
    <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
    {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
