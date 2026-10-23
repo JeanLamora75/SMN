@@ -137,7 +137,7 @@ export async function readSprintDetailCeremonies(
  const page=Math.min(requested,pageCount);
  if(total===0)return {state:"available",source:"recorded-events",
   snapshotVersion:null,items:[],total,page,pageCount,pageSize,missingSources};
- const rows=await db.query<unknown>(`
+ const rows=await db.query<Record<string,unknown>>(`
   SELECT * FROM (${union}) AS events
   ORDER BY starts_at ASC,source_kind ASC,id ASC
   LIMIT $2 OFFSET $3`,[sprintId,pageSize,(page-1)*pageSize]);
