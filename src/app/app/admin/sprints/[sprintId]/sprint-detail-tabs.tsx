@@ -3,14 +3,7 @@ import Link from "next/link";
 import {useEffect,useRef,useState,type KeyboardEvent} from "react";
 import {useRouter} from "next/navigation";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
-
-export const sprintTabKeys=[
- "objectives","ceremonies","capacity","indicators","registers","trends","review"
-] as const;
-export type SprintTab=(typeof sprintTabKeys)[number];
-export function parseSprintTab(value:string|undefined):SprintTab{
- return sprintTabKeys.find(key=>key===value)??"objectives";
-}
+import {sprintTabKeys,type SprintTab} from "@/lib/sprint-detail-tabs";
 export default function SprintDetailTabs({sprintId,active,labels,navLabel}:{
  sprintId:string;active:SprintTab;labels:Readonly<Record<SprintTab,string>>;navLabel:string;
 }){
