@@ -2535,5 +2535,13 @@
     "automatic": "Automatic",
     "invalidated": "Invalidated",
     "preview": "Facts preselected for preview"
+  },
+  "sprintQualitativeVersions": {
+    "heading": "Versioned qualitative states",
+    "closed": "Closed Sprint: latest Vn snapshot is the reporting reference.",
+    "current": "Open or reopened Sprint: current business data; historical versions retained.",
+    "latest": "Show reference state",
+    "source": "Source",
+    "unavailable": "No reliable qualitative snapshot available for this version."
   }
 }
