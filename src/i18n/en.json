@@ -1972,6 +1972,7 @@
     "confirmQuestion": "Confirm creation of {count} sprint(s)?",
     "historicalReconstructed": "Historical ceremonies will be marked as reconstructed, not actually held.",
     "reconstructedLabel": "Reconstructed (not verified)",
+    "duplicateName": "Warning: this name already exists or is repeated in the batch. Duplicate names are allowed.",
     "historicalSkipped": "Sprints whose start date is in the past will be created without ceremonies.",
     "atomicNotice": "Confirmation is atomic: if a creation fails, none of the batch is kept.",
     "create": "Confirm and generate",
