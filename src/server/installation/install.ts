@@ -6,6 +6,7 @@ import { classifySnapshot, diagnoseInstallation } from "./diagnostic";
 import { INITIAL_MIGRATION, validateExpressInput } from "./contract";
 import { INITIAL_SCHEMA_SQL, PRISMA_HISTORY_SQL } from "./migration";
 import { passwordHash } from "../auth/password";
+import { seedDefaultScrumCeremonyTemplates } from "../sprints/ceremony-templates";
 export { passwordHash } from "../auth/password";
 
 export type InstallResult = { ok: true } | { ok: false; status: string };
@@ -79,6 +80,9 @@ export async function installExpress(rawBody: unknown, rawUri: string | undefine
     await dbClient.query("INSERT INTO public.smn_installation(id,state,schema_version,mode) VALUES('singleton','initialized',1,$1)", [input.mode]);
     await dbClient.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES('product','singleton',$1)", [input.product]);
     await dbClient.query("INSERT INTO public.smn_team(id,installation_id,product_id,name) VALUES('team','singleton','product',$1)", [input.team]);
+    // Les quatre cérémonies Scrum sont de simples modèles actifs par défaut.
+    // Aucun modèle n'est ajouté en mode Kanban.
+    if (input.mode === "scrum") await seedDefaultScrumCeremonyTemplates(dbClient, "team");
     await dbClient.query(
       "INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($1,'singleton',$2,$3,'admin',$4,true)",
       [randomUUID(), input.adminUsername, input.adminEmail, adminHash],
