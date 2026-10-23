@@ -110,7 +110,11 @@ export function selectSprintRegisterPage(
   const key=item.kind+":"+item.id;
   if(seen.has(key)){
    const before=seen.get(key)!;
-   if(JSON.stringify(before)!==JSON.stringify(item))return null;
+   if(JSON.stringify({...before,sprintIds:[]})!==
+    JSON.stringify({...item,sprintIds:[]}))return null;
+   seen.set(key,{...before,sprintIds:[
+    ...new Set([...before.sprintIds,...item.sprintIds])
+   ].sort()});
    continue;
   }
   seen.set(key,item);
