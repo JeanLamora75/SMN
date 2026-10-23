@@ -792,7 +792,7 @@
       "weekHistory": "Weekly version history",
       "noHistory": "No saved version.",
       "revision": "Revision",
-      "exceptionHeading": "Dated exception (day or half-day)",
+      "addException": "Add an exception", "exceptionHeading": "Dated exception (day or half-day)",
       "onDate": "Exception date",
       "availabilityMissing": "Availability unknown for this date: save an applicable weekly pattern first. No zero is assumed.",
       "exceptionApplicable": "A saved exception applies on this date. You can add an audited correction.",
