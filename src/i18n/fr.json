@@ -2696,7 +2696,10 @@
     "print": "Imprimer / Enregistrer en PDF",
     "printWarning": "Cette impression utilise les données de l’aperçu actuel, sans archive serveur ni garantie de version figée. Vérifiez le résultat avant diffusion.",
     "logoAlt": "Logo du rapport",
-    "trendsCaption": "Tendances historiques des cycles clôturés"
+    "trendsCaption": "Tendances historiques des cycles clôturés",
+    "freeze": "Figer et prévisualiser",
+    "freezeError": "Impossible de figer le rapport.",
+    "frozenReference": "Référence figée"
   },
   "reportLanguage": {
     "heading": "Langue du rapport",
