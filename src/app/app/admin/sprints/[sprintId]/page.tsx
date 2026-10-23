@@ -44,7 +44,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   const context=await readSprintContext(db,teamId);
   const cycle=context.items.find(item=>item.id===sprintId);
   if(!cycle)return null;
-  const projection=await readCycleDashboard(db,teamId,cycle);
+  const projection=active==="objectives"?await readCycleDashboard(db,teamId,cycle):null;
   return {cycle,projection};
  }).catch(()=>undefined);
  if(result===null)notFound();
@@ -133,7 +133,7 @@ export default async function SprintDetailPage({params,searchParams}:{
      <h2 className="h5 d-flex align-items-center gap-2 mb-3">
       <BootstrapIcon name="bullseye"/>{t("dashboard.cockpit.allSprintGoals")}
      </h2>
-     {goals.state==="available"&&goals.items.length>0?
+     {goals?.state==="available"&&goals.items.length>0?
       <ul className="list-group list-group-flush">
        {goals.items.map(goal=><li key={goal.id}
         className="list-group-item bg-transparent d-flex flex-wrap justify-content-between gap-2 px-0">
@@ -144,7 +144,7 @@ export default async function SprintDetailPage({params,searchParams}:{
        </li>)}
       </ul>:
       <p className="text-secondary">
-       {goals.state==="available"?t("dashboard.cockpit.goalNotSpecified"):
+       {goals?.state==="available"?t("dashboard.cockpit.goalNotSpecified"):
         t("dashboard.cockpit.notAvailable")}
       </p>}
      <p className="small text-secondary mt-3 mb-0">{t("sprintDetail.pendingObjectives")}</p>
