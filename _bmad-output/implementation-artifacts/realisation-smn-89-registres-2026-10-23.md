@@ -7,8 +7,8 @@ Référence : https://lmn24.atlassian.net/browse/SMN-89
 - Six types de registres, liste contrôlée de statuts initiaux par type, titre requis, date civile modifiable, champs facultatifs réellement NULL.
 - API `POST /api/admin/registries` protégée par authentification admin, contrôle d'origine et validation stricte des entrées ; création et audit dans une même transaction PostgreSQL.
 - Route `/app/admin/registries` : formulaire commun Bootstrap, i18n FR/EN, retour d'erreur/succès explicite, date préremplie, création sans cycle obligatoire.
-- API `GET /api/admin/registries/[id]` pour lecture individuelle et socle de développement de la fiche.
-- Tests de contrat ciblés : `tests/smn-89-registry-creation.test.ts`.
+- API `GET /api/admin/registries/[id]` pour lecture individuelle et `PATCH` avec révision optimiste, transaction et audit de chaque modification (AC4).
+- Tests de contrat ciblés (non exécutés) : `tests/smn-89-registry-creation.test.ts`.
 
 ## Limitations / recette requise
 - **Non exécutés** dans le dépôt : `pnpm typecheck`, `pnpm exec tsx --test tests/smn-89-registry-creation.test.ts`, `pnpm build`, PostgreSQL et recette navigateur.
