@@ -9,6 +9,7 @@ export type DashboardDataSource =
   | "manual"
   | "calculated"
   | "imported"
+  | "recorded-events"
   | "closure-snapshot";
 
 export type DashboardUnavailableReason =
