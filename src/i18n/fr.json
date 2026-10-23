@@ -2689,7 +2689,9 @@
     "productGoal": "Product Goal",
     "dod": "Definition of Done",
     "dor": "Definition of Ready",
-    "unverified": "Lien externe non vérifié"
+    "unverified": "Lien externe non vérifié",
+    "print": "Imprimer / Enregistrer en PDF",
+    "printWarning": "Cette impression utilise les données de l’aperçu actuel, sans archive serveur ni garantie de version figée. Vérifiez le résultat avant diffusion."
   },
   "reportLanguage": {
     "heading": "Langue du rapport",
