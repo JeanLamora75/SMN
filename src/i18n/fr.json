@@ -2581,5 +2581,16 @@
     "saved": "Brouillon enregistré",
     "error": "Impossible de lire ou d’enregistrer le brouillon.",
     "leaveWarning": "Des modifications du rapport ne sont pas enregistrées. Quitter sans sauvegarder ?"
+  },
+  "reportSectionOptions": {
+    "heading": "Rubriques du rapport",
+    "intro": "Choisissez l’ordre et la visibilité des sections. Le contexte du Sprint reste toujours affiché et les données sources restent intactes.",
+    "up": "Monter la rubrique",
+    "down": "Descendre la rubrique",
+    "save": "Enregistrer les options",
+    "saved": "Options enregistrées",
+    "error": "Impossible de récupérer ou d’enregistrer les options.",
+    "preview": "Aperçu des rubriques sélectionnées",
+    "leaveWarning": "Certaines options du rapport ne sont pas enregistrées. Quitter sans sauvegarder ?"
   }
 }
