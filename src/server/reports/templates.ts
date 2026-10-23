@@ -14,8 +14,12 @@ async function schema(db:Client){
 export async function listReportTemplates(db:Client):Promise<ReportTemplate[]>{
  const present=await db.query<{exists:boolean}>(`SELECT to_regclass('public.smn_report_template') IS NOT NULL AS exists`);
  if(!present.rows[0]?.exists)return [standardReportTemplate()];
+ const columns=await db.query<{column_name:string}>("SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_report_template'");
+ const names=new Set(columns.rows.map(x=>x.column_name));
+ const depth=names.has("history_depth")?"history_depth":"5";
+ const revision=names.has("revision")?"revision":"1";
  const rows=await db.query<{id:string;name:string;sections:ReportTemplate["sections"];content:ReportTemplate["content"];historyDepth:number;revision:number}>(`
- SELECT id,name,sections,content,history_depth AS "historyDepth",revision FROM public.smn_report_template ORDER BY name,id`);
+ SELECT id,name,sections,content,${depth} AS "historyDepth",${revision} AS revision FROM public.smn_report_template ORDER BY name,id`);
  return [standardReportTemplate(),...rows.rows.map(v=>({...v,protected:false}))];
 }
 export async function manageReportTemplate(db:Client,actorId:string,raw:unknown){
