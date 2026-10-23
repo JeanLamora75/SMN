@@ -212,3 +212,14 @@ Vérifications réelles : 18/18 statiques ; compilation TS isolée d'un fichier 
 Les nouvelles clôtures enregistrent les deux analyses dans le snapshot Vn ; la lecture d'un Sprint fermé n'utilise jamais le texte courant. Une ancienne clôture sans champ de Bilan reste **indisponible**, jamais reconstruite. L'historique avant/après est conservé dans une table d'audit ; le navigateur affiche uniquement la dernière révision, pas un comparateur de toutes les anciennes versions. RBAC `admin` pour les écritures, `user` en lecture collective.
 
 **Tests réels :** 20/20 contrôles statiques, compilation TS isolée d'un fichier au SHA Git identique et **20/20 assertions isolées** exécutées/réussies. **Tests intégrés du projet, PostgreSQL, `pnpm typecheck` et navigateur non exécutés.** [Rapport BMAD D7](../_bmad-output/implementation-artifacts/realisation-d7-bilan-fiche-sprint-smn-234-2026-10-23.md). Prochain incrément **D8 — Registres**, dépendant des producteurs Epic 5, puis D9 — Recette globale.
+
+
+## Fiche Sprint — D8 Registres, socle d'intégration (23/10/2026)
+
+**Fait vérifié :** les 24 Stories Epic 5 `SMN-89..112` sont au statut **À faire** et aucun code producteur des six registres n'est présent dans `main`. **D8 n'est pas complet** : aucun risque, obstacle, dépendance, décision, action ou fait marquant ne doit être simulé.
+
+**Socle publié dans SMN-234 :** six catégories identifiables dans l'onglet Registres, listes chronologiques paginables dès qu'un producteur sera branché, contrats purs de temporalité (activité recouvrant le Sprint ou date métier des faits ponctuels), déduplication par identité de fiche, exclusion d'une autre équipe, contrôle SELECT-only Sprint+équipe, historique strict du dernier snapshot Vn **seulement s'il existe réellement**, sources partielles signalées. Sans producteur l'interface affiche **« Registres indisponibles (Epic 5) »**, pas une liste vide. Liens uniquement issus de routes internes vérifiées, aucun bouton d'édition factice.
+
+**À réaliser dans Epic 5 puis raccorder** : création/consultation des registres SMN-89/90, statuts/audits/associations multi-cycles dont SMN-97, journal de faits SMN-106..110, instantanés V1/V2 SMN-111/112. Le port `RegistryReadProvider` est préparé mais **aucun adaptateur actif n'existe encore**. Le champ de snapshot proposé `qualitativeRegisters` est **provisoire** et doit être confirmé. **Tests D8 écrits, non exécutés en intégration**. La recette D9 ne peut pas conclure à la complétude des sept onglets à ce stade.
+
+Référence : [rapport BMAD D8](../_bmad-output/implementation-artifacts/realisation-d8-registres-fiche-sprint-smn-234-2026-10-23.md).
