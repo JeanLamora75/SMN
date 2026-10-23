@@ -33,7 +33,7 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
       {id:"reviews",label:"navigation.entries.reviews",href:null,icon:"▤"},
     ]},
     {id:"registers",label:"navigation.groups.registers",entries:[
-      {id:"risks",label:"navigation.entries.risks",href:null,icon:"◇"},
+      {id:"risks",label:"navigation.entries.risks",href:"/app/admin/registries",icon:"◇"},
     ]},
     {id:"reports",label:"navigation.groups.reports",entries:[
       {id:"reporting",label:"navigation.entries.reporting",href:null,icon:"▤"},
@@ -52,6 +52,7 @@ export function privateNavigation(mode: PrivateMode | null, role: PrivateRole): 
 export function activePrivateEntry(pathname: string, entry: NavigationEntry): boolean {
   return entry.href !== null && (entry.href === pathname ||
     (entry.id === "settings" && pathname.startsWith("/app/admin/settings/")) ||
+    (entry.id === "risks" && pathname.startsWith("/app/admin/registries/")) ||
     (entry.id === "cycles" && entry.href === "/app/admin/sprints" &&
       pathname.startsWith("/app/admin/sprints/")));
 }
