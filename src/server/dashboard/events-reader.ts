@@ -116,7 +116,7 @@ export async function readCurrentSprintEvents(db:Client,sprintId:string,
  }
  if(existing.has("smn_sprint_ceremony")){
   parts.push(`SELECT id,'ceremony'::text AS kind,kind AS title,starts_at,ends_at,
-    'unknown'::text AS status,generation_source
+    COALESCE(occurrence_status,'unknown') AS status,generation_source
     FROM public.smn_sprint_ceremony WHERE sprint_id=$1`);
  }
  if(existing.has("smn_sprint_exceptional_meeting")){
