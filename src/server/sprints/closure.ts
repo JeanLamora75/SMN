@@ -6,11 +6,13 @@ import {ensureActualDurationSchema} from "./actual-duration";
 import {ensureExceptionalImpactSchema} from "./exceptional-capacity-impact";
 import {ensureSprintScoresSchema} from "./sprint-scores";
 import {readSprintMemberPresence} from "./presence-detail-read";
+import {ensureSprintReviewSchema,reviewClosureSnapshot} from "./review-analysis";
 
 export async function ensureClosureSchema(db:Client){
  await ensureSprintGoalsSchema(db);await ensureStoryPointsSchema(db);
  await ensureActualDurationSchema(db);await ensureExceptionalImpactSchema(db);
  await ensureSprintScoresSchema(db);
+ await ensureSprintReviewSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_closure_snapshot (
  id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
  version integer NOT NULL CHECK(version>=1),
@@ -69,12 +71,14 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
     FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]):null;
  // Capture member presence at closure. Never recompute this section from future
  // calendar/absence edits. A missing producer remains visibly unavailable.
+ const reviewAnalysis=await reviewClosureSnapshot(db,sprintId);
  const memberPresence=await readSprintMemberPresence(db,context.team_id,{
   id:sprintId,name:context.name,status:"finished",suspended:false,
   startAt:context.start_at,endAt:context.end_at,timeZone:context.time_zone
  });
  return {goals:goals.rows,storyPoints:points.rows[0]??null,
   memberPresence:memberPresence??{state:"unavailable",reason:"read-failed"},
+  reviewAnalysis,
   confidenceClarity:scores.rows[0]??null,
   ticketCounts:ticket?.rows[0]??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
