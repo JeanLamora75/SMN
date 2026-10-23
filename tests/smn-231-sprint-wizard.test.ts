@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {describe,it} from "node:test";
-import {parseWizardInput} from "../src/server/sprints/wizard";
+import {parseWizardInput,previewWizard,WizardPreviewFailure} from "../src/server/sprints/wizard";
+import type {Client} from "pg";
 
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const request=(count:number,extra:Record<string,unknown>={})=>({
@@ -69,6 +70,47 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   assert.match(confirm,/await db\.query\("ROLLBACK"\)/);
   assert.match(confirm,/smn_sprint_batch_audit/);
   assert.match(confirm,/SET consumed_at=now\(\)/);
+ });
+ it("identifie une erreur PostgreSQL de schéma avec son code sans fuite de paramètres",async()=>{
+  const fake={query:async()=>{throw Object.assign(new Error("table absente"),{code:"42P01"});}} as unknown as Client;
+  await assert.rejects(()=>previewWizard(fake,"actor-1",request(2)),error=>{
+   assert.ok(error instanceof WizardPreviewFailure);
+   assert.equal(error.stage,"schema");
+   assert.equal(error.sqlState,"42P01");
+   assert.equal(error.message,"wizard-preview-unavailable");
+   return true;
+  });
+ });
+ it("distingue une erreur du calcul des périodes d'un défaut de schéma",async()=>{
+  const fake={query:async(sql:string)=>{
+   if(sql.includes("SELECT t.id FROM public.smn_team t"))throw Error("équipe inaccessible");
+   return {rows:[],rowCount:0};
+  }} as unknown as Client;
+  await assert.rejects(()=>previewWizard(fake,"actor-1",request(2)),error=>{
+   assert.ok(error instanceof WizardPreviewFailure);
+   assert.equal(error.stage,"periods");
+   assert.equal(error.sqlState,null);
+   return true;
+  });
+ });
+ it("transmet une phase et un code sûrs au client sans renvoyer l'erreur SQL brute",()=>{
+  assert.match(previewRoute,/error instanceof WizardPreviewFailure/);
+  assert.match(previewRoute,/stage,diagnosticCode:sqlState\?\?"SERVER"/);
+  assert.match(previewRoute,/console\.error\("sprint-wizard-preview-failed"/);
+  assert.doesNotMatch(previewRoute,/message:root\.message.*jsonResult/);
+  assert.match(client,/sprintWizard\.previewFailureStage/);
+  assert.match(client,/previewStageLabels/);
+ });
+ it("affiche les étapes une seule fois sans double numérotation",()=>{
+  assert.match(client,/list-unstyled d-flex gap-3/);
+  assert.match(client,/\{i\+1\}<\/span>/);
+  for(const locale of ["fr","en"]){
+   const j=JSON.parse(read("src/i18n/"+locale+".json")).sprintWizard;
+   for(const label of ["configure","preview","confirm"])
+    assert.doesNotMatch(j[label],/^\d+[.)]\s/);
+   for(const key of ["previewFailureStage","stageSchema","stagePeriods","stageSettings","schemaUnavailable","previewTimeout"])
+    assert.ok(j[key],locale+"."+key);
+  }
  });
  it("sécurise les deux endpoints en écriture administrateur",()=>{
   for(const route of [previewRoute,confirmRoute]){
