@@ -1877,5 +1877,19 @@
       "cards": "Affichage en cartes",
       "list": "Affichage en liste"
     }
+  },
+  "memberAbsences": {
+    "add": "Ajouter une absence",
+    "upcoming": "À venir et en cours",
+    "past": "Passées",
+    "status": "Situation",
+    "delete": "Supprimer",
+    "deleteConfirmation": "Supprimer l'absence du {date} ? Elle restera tracée dans l'historique et sera exclue des calculs de disponibilité.",
+    "pastWarning": "Attention : cette absence concerne une date révolue. Sa correction peut modifier les capacités recalculées, mais les engagements initiaux figés et les bilans clôturés ne seront pas modifiés.",
+    "deleted": "L'absence a été supprimée des disponibilités actives ; son historique reste consultable.",
+    "deletedStatus": "Supprimée",
+    "noneUpcoming": "Aucune absence à venir ou en cours.",
+    "nonePast": "Aucune absence passée.",
+    "capacityNotice": "Les disponibilités et capacités non figées sont recalculées lors de leur prochaine consultation. Les références initiales figées et les bilans clôturés restent inchangés."
   }
 }
