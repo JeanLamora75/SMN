@@ -1,5 +1,8 @@
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import type {Language} from "@/lib/language";
+import Link from "next/link";
+import {classifyEventStatus} from "@/server/dashboard/events-reader";
+import type {CollectiveCycleProjection} from "@/lib/dashboard-data-contract";
 
 type ColumnKind="obstacles"|"risks"|"events"|"notes";
 type PanelDefinition=Readonly<{
@@ -86,12 +89,86 @@ function UnavailableColumn({definition,locale}:Readonly<{definition:PanelDefinit
   </section>;
 }
 
+function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
+ locale:Language;events:CollectiveCycleProjection["events"];
+ teamId:string;cycleId:string;timeZone:string;
+}>){
+ const t=(key:TranslationKey)=>translate(locale,key);
+ const definition=PANELS.find(p=>p.id==="events")!;
+ const base=new URLSearchParams({teamId,cycleId});
+ const calendarHref="/app/team-calendar?"+base.toString();
+ const labels:Record<ReturnType<typeof classifyEventStatus>,TranslationKey>={
+  scheduled:"dashboard.operational.eventScheduled",
+  held:"dashboard.operational.eventHeld",
+  cancelled:"dashboard.operational.eventCancelled",
+  unknown:"dashboard.operational.eventUnknown"
+ };
+ const time=(date:string)=>{
+  try{return new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
+   timeZone,day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"
+  }).format(new Date(date));}
+  catch{return t("dashboard.operational.unavailable");}
+ };
+ return <section className="smn-operational-panel smn-operational-events"
+   aria-labelledby="smn-operational-events" id="calendrier">
+   <header className="smn-operational-panel-header">
+     <div className="smn-operational-title-wrap">
+       <span className="smn-operational-icon" aria-hidden="true"><TopicIcon kind="events"/></span>
+       <h3 id="smn-operational-events">{t(definition.title)}</h3>
+     </div>
+     <span className="smn-operational-count"
+       aria-label={t("dashboard.operational.eventCount",{count:events.state==="available"?events.total:0})}>
+       {events.state==="available"?events.total:"—"}
+     </span>
+     <p className="smn-operational-all-unavailable">
+       <Link href={calendarHref}>{t("dashboard.operational.seeAll")}</Link>
+       <span className="smn-operational-status">
+         {events.state==="available"?t("dashboard.operational.eventAvailable"):t("dashboard.operational.unavailable")}
+       </span>
+     </p>
+   </header>
+   <p className="smn-operational-description">{t(definition.description)}</p>
+   <div className="smn-operational-content">
+     {events.state==="available"&&events.items.length>0?
+      <ol className="smn-dashboard-events-list">
+       {events.items.map(event=><li key={event.kind+":"+event.id} className="smn-dashboard-event">
+        <Link className="smn-dashboard-event-title"
+          href={"/app/team-calendar/meeting/"+encodeURIComponent(event.kind)+"/"+
+           encodeURIComponent(event.id)+"?"+base.toString()}>
+          {event.title}
+        </Link>
+        <span className="smn-dashboard-event-when">{time(event.startsAt)} — {time(event.endsAt)}</span>
+        <span className="smn-dashboard-event-state">
+          {t(labels[classifyEventStatus(event.status)])}
+          {event.generationSource==="reconstructed"&&
+           <> · {t("dashboard.operational.eventReconstructed")}</>}
+        </span>
+       </li>)}
+      </ol>:
+      <div className="smn-operational-empty">
+       <p className="smn-operational-empty-title">
+         {events.state==="available"?t("dashboard.operational.empty"):t("dashboard.operational.unavailable")}
+       </p>
+       {events.state==="unavailable"&&<p className="smn-operational-empty-description">
+         {t("dashboard.operational.sourceUnavailable")}
+       </p>}
+      </div>}
+   </div>
+   <footer className="smn-operational-panel-footer">
+     <Link className="smn-operational-calendar-link" href={calendarHref}>
+       {t("dashboard.operational.openCalendar")}
+     </Link>
+   </footer>
+ </section>;
+}
+
 /**
- * Panneaux UX de pilotage collectif. Les registres et cycles ne possèdent pas encore
- * d'interfaces de lecture : ni le total ni des fiches ne peuvent être déduits
- * des tableaux vides de l'API pilote. Aucun lien ou bouton fictif n'est créé.
+ * La colonne Événements utilise SMN-237. Les autres registres restent
+ * indisponibles jusqu'à l'implémentation de leurs producteurs (SMN-238).
  */
-export default function OperationalOverview({locale}:Readonly<{locale:Language}>){
+export default function OperationalOverview({locale,projection,timeZone}:Readonly<{
+ locale:Language;projection?:CollectiveCycleProjection|null;timeZone?:string;
+}>){
   const t=(key:TranslationKey)=>translate(locale,key);
   return <section className="smn-operational-overview" aria-labelledby="smn-operational-heading">
     <div className="smn-operational-overview-heading">
@@ -99,7 +176,9 @@ export default function OperationalOverview({locale}:Readonly<{locale:Language}>
       <p>{t("dashboard.operational.subtitle")}</p>
     </div>
     <div className="smn-operational-grid">
-      {PANELS.map(definition=>
+      {PANELS.map(definition=>definition.id==="events"&&projection&&timeZone?
+        <EventsColumn key="events" locale={locale} events={projection.events}
+          teamId={projection.teamId} cycleId={projection.cycleId} timeZone={timeZone}/>:
         <UnavailableColumn key={definition.id} definition={definition} locale={locale}/>)}
     </div>
   </section>;
