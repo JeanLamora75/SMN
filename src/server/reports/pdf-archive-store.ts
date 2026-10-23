@@ -4,7 +4,7 @@ import type {Client} from "pg";
 import {newPdfManifest,validateFinalPdf,type PdfArchiveManifest} from "./pdf-archive-contract";
 /** Private, non-web-facing store; never put archives in public/. */
 const storageRoot=()=>resolve(process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR||join(process.cwd(),".smn-private","report-archives"));
-export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfArchiveManifest,"id"|"sha256"|"byteLength"|"createdAt">){
+export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfArchiveManifest,"id"|"sha256"|"byteLength"|"createdAt">,operationId?:string){
  const manifest=newPdfManifest(bytes,meta),root=storageRoot();
  await mkdir(root,{recursive:true,mode:0o700});
  const location=join(root,manifest.id+".pdf");
@@ -23,12 +23,14 @@ export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfA
     author_id text NOT NULL,language text NOT NULL CHECK(language IN ('fr','en')),
     template_id text NOT NULL,team_id text NOT NULL,cycle_id text NOT NULL,cycle_status text NOT NULL,
     snapshot_version integer,manifest jsonb NOT NULL)`);
+   await db.query(`ALTER TABLE public.smn_report_pdf_archive ADD COLUMN IF NOT EXISTS operation_id text`);
+   await db.query(`CREATE UNIQUE INDEX IF NOT EXISTS smn_pdf_archive_operation_uq ON public.smn_report_pdf_archive(operation_id) WHERE operation_id IS NOT NULL`);
    await db.query(`INSERT INTO public.smn_report_pdf_archive(
     id,sha256,byte_length,stored_name,created_at,author_id,language,template_id,team_id,cycle_id,
-    cycle_status,snapshot_version,manifest) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb)`,[
+    cycle_status,snapshot_version,manifest,operation_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14)`,[
     manifest.id,manifest.sha256,manifest.byteLength,manifest.id+".pdf",manifest.createdAt,manifest.authorId,
     manifest.language,manifest.templateId,manifest.teamId,manifest.cycleId,manifest.cycleStatus,
-    manifest.snapshotVersion,JSON.stringify(manifest)
+    manifest.snapshotVersion,JSON.stringify(manifest),operationId??null
    ]);
    await db.query("COMMIT");
    committed=true;
