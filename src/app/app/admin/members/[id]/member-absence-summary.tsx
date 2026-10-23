@@ -35,7 +35,7 @@ export default function MemberAbsenceSummary({memberId,onCreate,onEdit}:{
  },[fetchState,t]);
  const remove=async(record:AbsenceItem)=>{
   if(!data||data.archived||record.deleted||busyId)return;
-  const past=record.endOn<data.today;
+  const past=record.startOn<data.today;
   const confirmText=(past?t("memberAbsences.pastWarning")+"\n\n":"")+
    t("memberAbsences.deleteConfirmation",{date:record.startOn});
   if(!window.confirm(confirmText))return;
