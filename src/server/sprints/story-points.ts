@@ -1,14 +1,11 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
+import {deriveStoryPoints} from "@/lib/sprint-indicator-values";
+export {deriveStoryPoints} from "@/lib/sprint-indicator-values";
 export type Points={initial:number|null;added:number|null;removed:number|null;done:number|null};
 const valid=(x:unknown)=>x===null||(typeof x==="number"&&Number.isSafeInteger(x)&&x>=0&&x<=1000000000);
-export function deriveStoryPoints(v:Points){
- const final=v.initial!==null&&v.added!==null&&v.removed!==null?v.initial+v.added-v.removed:null;
- const remaining=final!==null&&v.done!==null?final-v.done:null;
- const rate=final!==null&&final>0&&v.done!==null?v.done/final*100:null;
- return {final,remaining,rate,overrun:final!==null&&final>0&&v.done!==null&&v.done>final};
-}
+
 export async function ensureStoryPointsSchema(db:Client){
  await ensureSprintSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_story_points(
