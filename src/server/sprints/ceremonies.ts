@@ -1,6 +1,5 @@
-import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
-import {lunchForTeam,type Lunch} from "./lunch";
+import type {Lunch} from "./lunch";
 import {saveTemplateOccurrences} from "./template-occurrences";
 
 export type CeremonyKind="planning"|"daily"|"review"|"retrospective";
@@ -57,6 +56,7 @@ function splitAtLunch(kind:CeremonyKind, anchor:Date,minutes:number,zone:string,
  return {kind,startsAt:segments[0].startsAt,endsAt:segments[segments.length-1].endsAt,minutes,segments};
 }
 
+// Calcul historique conservé pour les anciennes données/tests : jamais utilisé par la nouvelle génération.
 export function computeCeremonies(sprint:Sprint,weeks:number,box:Timeboxes=defaultTimeboxes(weeks),nonWorking:string[]=[],lunch:Lunch={start:"12:00",end:"13:00",revision:1},allowHistorical=false):Ceremony[]{
  if(!Number.isInteger(weeks)||weeks<1||weeks>4||Object.values(box).some(v=>!Number.isInteger(v)||v<0||v>600))throw Error("invalid-timeboxes");
  const first=new Date(sprint.startAt),last=new Date(sprint.endAt);
@@ -102,21 +102,8 @@ export async function ensureCeremonySchema(db:Client){
  PRIMARY KEY(ceremony_id,position),
  CHECK(ends_at>starts_at))`);
 }
-export async function saveGeneratedCeremonies(db:Client,sprint:Sprint,weeks:number,options:{reconstructed?:boolean}={}){
- await ensureCeremonySchema(db);
- const team=await db.query<{team_id:string}>("SELECT team_id FROM public.smn_sprint WHERE id=$1",[sprint.id]);
- if(!team.rows[0])throw Error("sprint-not-found");
- const lunch=await lunchForTeam(db,team.rows[0].team_id);
- const ceremonies=computeCeremonies(sprint,weeks,defaultTimeboxes(weeks),[],lunch,options.reconstructed===true);
- for(const c of ceremonies){const id=randomUUID();await db.query(`INSERT INTO public.smn_sprint_ceremony
- (id,sprint_id,kind,starts_at,ends_at,minutes,generation_source) VALUES($1,$2,$3,$4,$5,$6,$7)
- ON CONFLICT(sprint_id,kind,starts_at) DO NOTHING`,
- [id,sprint.id,c.kind,c.startsAt,c.endsAt,c.minutes,options.reconstructed?"reconstructed":"standard"]);
- const key=await db.query<{id:string}>("SELECT id FROM public.smn_sprint_ceremony WHERE sprint_id=$1 AND kind=$2 AND starts_at=$3",[sprint.id,c.kind,c.startsAt]);
- const ceremonyId=key.rows[0]?.id;
- if(!ceremonyId)throw Error("ceremony-not-saved");
- for(const [position,s] of (c.segments??[{startsAt:c.startsAt,endsAt:c.endsAt,minutes:c.minutes}]).entries())await db.query(`INSERT INTO public.smn_sprint_ceremony_segment(ceremony_id,position,starts_at,ends_at,minutes) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,[ceremonyId,position+1,s.startsAt,s.endsAt,s.minutes]);
- }
- await saveTemplateOccurrences(db,sprint,{reconstructed:options.reconstructed===true});
- return ceremonies.length;
+// Point d'entrée conservé pour les appels existants (simple, lot, assistant).
+// Depuis le MVP unifié, seules les occurrences des modèles ACTIFS sont générées.
+export async function saveGeneratedCeremonies(db:Client,sprint:Sprint,_weeks:number,options:{reconstructed?:boolean}={}){
+ return saveTemplateOccurrences(db,sprint,{reconstructed:options.reconstructed===true});
 }
