@@ -178,3 +178,35 @@ pnpm build
 Le message `[baseline-browser-mapping] ... over two months old` est **un avertissement sans rapport avec EPERM**. Il concerne les données de compatibilité navigateur, pas la compilation ou la base. Les versions des dépendances étant verrouillées dans `pnpm-lock.yaml`, leur mise à jour doit faire l'objet d'une modification séparée, vérifiée ; ne pas lancer aveuglément `npm i ...` dans ce projet pnpm.
 
 Statut du correctif : code et test publiés sur `main` ; exécution du build sur le poste Windows et qualification du paquet autonome **à confirmer par la recette locale**.
+
+
+## Connexion refusée avec schéma v27 (23/10/2026)
+
+**Symptôme** : la page de connexion est disponible mais l'authentification affiche « La base SMN n’est pas disponible. Réessayez après avoir vérifié son démarrage. » (`POST /api/auth/login` retourne `service-unavailable`, HTTP 503).
+
+**Cause logicielle identifiée** : avant le correctif, `ensureAccountsSchema` (`src/server/accounts/migration.ts`) n'acceptait que les versions 1 à 26. La migration manuelle et additive de la fiche membre a introduit la **version 27**. Le diagnostic de l'installation savait la reconnaître, mais le chemin d'authentification la refusait en `smn-schema-incompatible`, puis masquait ce motif derrière l'erreur générale de disponibilité.
+
+**Correctif** : l'authentification accepte maintenant 27 **après vérification** de la migration officielle (nom, empreinte SHA-256, succès enregistré) et des sept colonnes supplémentaires attendues. Elle continue de refuser les futures versions inconnues et les migrations incomplètes. La correction **ne lance pas** la migration v27 ; elle ne réinitialise ni ne recrée la base.
+
+Depuis GitHub Desktop, récupérer `main`, arrêter SMN puis lancer dans PowerShell :
+
+```powershell
+pnpm exec tsx --test tests/auth-schema-v27.test.ts
+pnpm typecheck
+pnpm build
+pnpm start
+```
+
+Réessayer la connexion à `http://127.0.0.1:3003/login`. Si le message persiste, contrôler **sans écrire de données** l'état du diagnostic :
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:3003/api/diagnostic | ConvertTo-Json
+```
+
+- `status: initialized` : la base est joignable et reconnue ; le problème peut être spécifique à l'authentification, aux migrations ou à une autre opération de la connexion. Comparer le code synchronisé et les erreurs HTTP côté serveur.
+- `status: connection-error` : vérifier le serveur PostgreSQL géré et ses journaux **privés**, sans transmettre les secrets.
+- `status: installation-incomplete` ou `schema-incompatible` : ne pas forcer la base à la version attendue, ni lancer de migrations non validées.
+
+Pour vérifier la version de schéma sur une installation SMN existante, le script `pnpm exec tsx scripts/migrate-member-identity-v27.ts` **sans `--apply`** effectue une prévalidation ; ne jamais ajouter `--apply` pour résoudre ce message sans sauvegarde et décision distincte.
+
+**Important** : le message HTTP 503 reste générique et peut également être causé par une véritable indisponibilité PostgreSQL ou par une autre étape d'authentification. Le défaut de compatibilité v27 est confirmé dans le code, mais il faut vérifier la version et l'état réels de la base de l'utilisateur pour attribuer définitivement l'incident. Aucune recette Windows n'a été exécutée par l'assistant.
