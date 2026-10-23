@@ -2643,5 +2643,17 @@
     "saved": "Options enregistrées",
     "error": "Impossible de charger ou d’enregistrer les options.",
     "leaveWarning": "Des choix non enregistrés seront perdus. Quitter ?"
+  },
+  "reportHistory": {
+    "heading": "Profondeur historique",
+    "intro": "La tendance utilise au plus cinq Sprints clôturés antérieurs, sans inclure un cycle futur ou rouvert.",
+    "depth": "Nombre de cycles pour la tendance",
+    "save": "Enregistrer la profondeur",
+    "error": "Impossible de charger ou enregistrer la profondeur historique.",
+    "preview": "Aperçu des tendances",
+    "empty": "Aucun Sprint clôturé éligible.",
+    "cycle": "Sprint",
+    "missing": "Non renseigné",
+    "leaveWarning": "La profondeur historique n'est pas enregistrée. Quitter ?"
   }
 }
