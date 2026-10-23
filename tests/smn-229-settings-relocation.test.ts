@@ -27,6 +27,25 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
   assert.equal(settingsCatalog("scrum",user).flatMap(g=>g.entries).length,0);
   assert.equal(canAccess(user,"write",{type:"settings",exists:true,inScope:true}),false);
  });
+ it("retire seulement les réglages partagés de Sprints et garde les autres parcours",()=>{
+  const code=read("src/app/app/admin/sprints/page.tsx");
+  for(const removed of ["WorkSlotsForm","LunchForm","TemplateForm"]){
+   assert.ok(!code.includes("<"+removed),removed);
+   assert.ok(!code.includes('import '+removed+' '),removed);
+  }
+  for(const required of [
+   "<SprintForm/>","<BatchPreviewForm/>","<SprintStateList/>",
+   "<RenameSprintForm/>","<DeleteSprintForm/>","<RescheduleForm/>",
+   "<CeremonyEditor/>","<TemplateOccurrencesList/>","<ExceptionalMeetingForm/>",
+   "<AttendanceForm/>","<ActualDurationForm/>","<ExceptionalCapacityForm/>",
+   "<SprintReviewLink/>"
+  ])assert.ok(code.includes(required),required);
+  for(const dest of [
+   "/app/admin/settings/working-days",
+   "/app/admin/settings/ceremonies",
+   "/app/admin/scrum-cadence"
+  ])assert.ok(code.includes('href="'+dest+'"'),dest);
+ });
  it("la page Jours ouvrés réutilise les créneaux, fuseau et pause sans éditer la semaine",()=>{
   const file=read("src/app/app/admin/settings/working-days/page.tsx");
   assert.match(file,/<WorkSlotsForm\/>/);
