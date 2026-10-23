@@ -2491,5 +2491,19 @@
     "all": "All cycles",
     "cycle": "Cycle",
     "status": "Status"
+  },
+  "automaticHighlights": {
+    "heading": "Automatic journal categories",
+    "intro": "Settings apply only to future confirmed business events. Existing journal entries are unchanged.",
+    "criticalRisk": "Critical risk",
+    "atRiskDependency": "At-risk dependency",
+    "resolvedObstacle": "Resolved impediment",
+    "achievedGoal": "Achieved goal",
+    "recordedDecision": "Recorded decision",
+    "satisfiedDependency": "Satisfied dependency",
+    "save": "Save categories",
+    "saved": "Settings saved",
+    "error": "Unable to save categories",
+    "readonly": "Read-only"
   }
 }
