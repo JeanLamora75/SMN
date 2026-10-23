@@ -24,7 +24,7 @@ export default function CeremonyEditor(){
  async function loadHistory(){if(!selected)return;try{const r=await fetch("/api/admin/sprints/ceremonies/"+encodeURIComponent(selected),{cache:"no-store"});if(!r.ok)throw Error();const d=await r.json();setHistory(d.history);}catch{setError(t("ceremonyEdit.error"));}}
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("ceremonyEdit.title")}</h2>
  <label htmlFor="ceremony-id" className="form-label">{t("ceremonyEdit.choose")}</label>
- <select id="ceremony-id" className="form-select" value={selected} onChange={e=>pick(e.target.value)}><option value="">—</option>{rows.map(c=><option key={c.id} value={c.id}>{c.sprintName} — {c.kind} — {c.startAt.slice(0,16)} — {c.status}</option>)}</select>
+ <select id="ceremony-id" className="form-select" value={selected} onChange={e=>pick(e.target.value)}><option value="">—</option>{rows.map(c=><option key={c.id} value={c.id}>{c.sprintName} — {c.kind} — {c.startAt.slice(0,16)} — {c.status}{c.generationSource==="reconstructed"?" · "+t("sprintWizard.reconstructedLabel"):""}</option>)}</select>
  {item&&<form onSubmit={save} className="d-grid gap-3 mt-3">
   <label htmlFor="ceremony-date">{t("ceremonyEdit.start")}</label><input id="ceremony-date" type="datetime-local" className="form-control" required disabled={item.status!=="scheduled"||busy} value={startAt} onChange={e=>setStartAt(e.target.value)}/>
   <label htmlFor="ceremony-minutes">{t("ceremonyEdit.minutes")}</label><input id="ceremony-minutes" type="number" className="form-control" min={1} max={600} required value={minutes} onChange={e=>setMinutes(Number(e.target.value))} disabled={item.status!=="scheduled"||busy}/>
