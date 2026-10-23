@@ -9,6 +9,7 @@ export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfA
  await mkdir(root,{recursive:true,mode:0o700});
  const location=join(root,manifest.id+".pdf");
  let fileCreated=false;
+ let committed=false;
  try{
   const handle=await open(location,"wx",0o600);fileCreated=true;
   try{await handle.writeFile(bytes);await handle.sync();}finally{await handle.close();}
@@ -30,9 +31,10 @@ export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfA
     manifest.snapshotVersion,JSON.stringify(manifest)
    ]);
    await db.query("COMMIT");
+   committed=true;
   }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
   return manifest;
- }catch(error){if(fileCreated)await unlink(location).catch(()=>undefined);throw error;}
+ }catch(error){if(fileCreated&&!committed)await unlink(location).catch(()=>undefined);throw error;}
 }
 export async function readVerifiedPdfArchive(db:Client,id:string):Promise<Buffer|null>{
  if(!/^[a-f0-9-]{36}$/i.test(id))return null;
