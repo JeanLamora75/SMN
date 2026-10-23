@@ -2444,5 +2444,19 @@
     "error": "Création impossible. Aucune fiche partielle enregistrée.",
     "suggestion": "Un obstacle résolu n’actualise jamais automatiquement le ROAM du risque source.",
     "loading": "Chargement du contexte…"
+  },
+  "decisionActions": {
+    "heading": "Actions issues de cette décision",
+    "launch": "Créer une action",
+    "intro": "Chaque confirmation crée une nouvelle action indépendante et liée à cette décision.",
+    "title": "Titre de l’action",
+    "description": "Contexte",
+    "owner": "Responsable (facultatif)",
+    "due": "Échéance (facultative)",
+    "confirm": "Créer et associer",
+    "cancel": "Annuler",
+    "success": "Action créée",
+    "error": "La création a échoué.",
+    "again": "Créer une autre action"
   }
 }
