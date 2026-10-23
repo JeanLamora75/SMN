@@ -7,6 +7,7 @@ import {composeHtmlReportPreview} from "@/server/reports/html-preview";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import {readReportLanguage} from "@/server/reports/language";
+import PrintReportButton from "./print-report-button";
 export const dynamic="force-dynamic";
 export default async function ReportPreviewPage({params}:{params:Promise<{sprintId:string}>}){
  const account=await currentAccount();if(!account)redirect("/login");
@@ -21,8 +22,9 @@ export default async function ReportPreviewPage({params}:{params:Promise<{sprint
  const data=payload.data;
  const locale=payload.language.language,label=(key:string)=>translate(locale,("reportPreview."+key) as "reportPreview.title");
  const note=(key:string)=>{const n=data.notes[key as keyof typeof data.notes];return n?.included&&n.text.trim()?n:null;};
- return <main lang={locale} className="container-fluid px-3 px-lg-4 py-4">
- <Link href={"/app/admin/sprints/"+encodeURIComponent(sprintId)+"/report"}>{label("back")}</Link>
+ return <main lang={locale} className="container-fluid px-3 px-lg-4 py-4 smn-report-printable">
+ <span className="d-print-none"><Link href={"/app/admin/sprints/"+encodeURIComponent(sprintId)+"/report"}>{label("back")}</Link></span>
+ <PrintReportButton label={label("print")} warning={label("printWarning")}/>
  <article className="smn-panel rounded-4 p-4 my-3">
  <header className="border-bottom pb-3 mb-4"><h1 className="h3">{label("title")}</h1>
  <h2 className="h5">{data.sprint.name}</h2>
