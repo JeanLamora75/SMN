@@ -196,6 +196,7 @@
       "comparisonUnavailable": "Comparaison indisponible",
       "workingDaysPending": "Le calcul des jours ouvrés de ce Sprint n'est pas encore raccordé au tableau de bord.",
       "todayIncludedProvisional": "Lundi–vendredi, aujourd'hui inclus s'il est ouvré (convention provisoire à valider).",
+      "workingDaysEnded": "Sprint terminé : aucun jour ouvré restant.",
       "noPeriodHelp": "Aucune période Kanban enregistrée pour cette équipe. Aucune période n'est générée automatiquement.",
       "details": "Informations du cycle",
       "dates": "Dates du cycle",
