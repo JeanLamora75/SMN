@@ -59,16 +59,18 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
  });
  it("pagine 123 sprints sans limite implicite à 100",async()=>{
   const {db,queries}=fixture();
-  const first=await readSprintIndex(db,query());
-  const last=await readSprintIndex(db,query({page:5}));
-  assert.equal(first.total,123);
-  assert.equal(first.totalPages,5);
-  assert.equal(first.items.length,25);
-  assert.equal(last.items.length,23);
-  assert.equal(last.page,5);
-  assert.equal(new Set([...first.items,...last.items].map(x=>x.id)).size,48);
+  const pages=await Promise.all(Array.from({length:5},(_,i)=>readSprintIndex(db,query({page:i+1}))));
+  assert.equal(pages[0].total,123);
+  assert.equal(pages[0].totalPages,5);
+  assert.deepEqual(pages.map(p=>p.items.length),[25,25,25,25,23]);
+  assert.deepEqual(pages.map(p=>p.page),[1,2,3,4,5]);
+  const ids=pages.flatMap(p=>p.items.map(x=>x.id));
+  assert.equal(new Set(ids).size,123);
+  assert.ok(ids.includes(uuid(0)));
+  assert.ok(ids.includes(uuid(122)));
   assert.ok(queries.some(sql=>sql.includes("LIMIT $4 OFFSET $5")));
  });
+
  it("trouve les anciens sprints et applique les filtres avant la pagination",async()=>{
   const {db}=fixture();
   const selected=await readSprintIndex(db,query({search:"Sprint 1",status:"closed"}));
@@ -150,6 +152,18 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   assert.match(ui,/sprintsIndex\.calendarPending/);
   assert.doesNotMatch(ui,/href="#"/);
   assert.doesNotMatch(ui,/href=\{.*?item\.id.*?\}/);
+ });
+ it("isole le SQL de l'index dans une transaction PostgreSQL READ ONLY",()=>{
+  const helper=read("src/server/sprints/read-only-db.ts");
+  const route=read("src/app/api/sprints/index/route.ts");
+  const page=read("src/app/app/admin/sprints/page.tsx");
+  assert.match(helper,/await client\.query\("BEGIN READ ONLY"\)/);
+  assert.match(helper,/await client\.query\("COMMIT"\)/);
+  assert.match(helper,/await client\.query\("ROLLBACK"\)/);
+  assert.match(route,/withSprintIndexDb\(db=>readSprintIndex\(db,options\)\)/);
+  assert.match(page,/withSprintIndexDb\(async db=>/);
+  assert.doesNotMatch(route,/withAuthDb|reconcileSprintStates/);
+  assert.doesNotMatch(page,/withAuthDb|reconcileSprintStates/);
  });
  it("dispose des libellés localisés identiques pour les deux langues",()=>{
   const fr=JSON.parse(read("src/i18n/fr.json")).sprintsIndex;
