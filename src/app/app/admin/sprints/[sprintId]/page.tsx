@@ -6,6 +6,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {readCollectiveDashboard} from "@/server/dashboard/read";
 import {withDashboardRead} from "@/server/dashboard/read-only-db";
 import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
+import {readSprintDetailIndicators} from "@/server/sprints/indicators-read";
 import {readSprintContext} from "@/server/sprints/context";
 import {effectiveSprintStatus} from "@/lib/sprint-context";
 import {requestLocale} from "@/i18n/locale.server";
@@ -14,6 +15,7 @@ import BootstrapIcon from "../../../bootstrap-icon";
 import SprintDetailEditor from "./sprint-detail-editor";
 import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
+import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
 
 export const dynamic="force-dynamic";
@@ -46,7 +48,8 @@ export default async function SprintDetailPage({params,searchParams}:{
   const cycle=context.items.find(item=>item.id===sprintId);
   if(!cycle)return null;
   const goals=active==="objectives"?await readSprintDetailGoals(db,teamId,cycle.id):null;
-  return {cycle,goals};
+  const indicators=active==="indicators"?await readSprintDetailIndicators(db,teamId,cycle.id):null;
+  return {cycle,goals,indicators};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -55,7 +58,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals}=result;
+ const {cycle,goals,indicators}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
  const statusKeys:Record<string,TranslationKey>={
@@ -132,6 +135,9 @@ export default async function SprintDetailPage({params,searchParams}:{
     {active==="objectives"?<SprintGoalsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>:
+     active==="indicators"?<SprintIndicatorsPanel
+      sprintId={cycle.id} status={cycle.status} canManage={canManage}
+      data={indicators??{state:"unavailable",reason:"read-failed"}}/>:
       <div className="py-3" role="status">
      <p className="fw-semibold mb-1">{t("sprintDetail.availableLater")}</p>
      <p className="text-secondary mb-0">{t(waiting[active])}</p>
