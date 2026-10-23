@@ -2508,6 +2508,16 @@
     "journalHeading": "Faits marquants automatiques",
     "journalError": "Journal automatique indisponible",
     "journalEmpty": "Aucun événement automatique confirmé",
-    "goalSource": "Objectif"
+    "goalSource": "Objectif",
+    "invalidated": "Invalidé (historique conservé)",
+    "activeFact": "Actif",
+    "automatic": "Automatique",
+    "sourceId": "Source",
+    "sourceRevision": "Révision source",
+    "recordedAt": "Enregistré le",
+    "invalidationReason": "Motif de correction",
+    "invalidate": "Invalider ce fait",
+    "confirmInvalidation": "Confirmer l’invalidation",
+    "cancelInvalidation": "Annuler"
   }
 }
