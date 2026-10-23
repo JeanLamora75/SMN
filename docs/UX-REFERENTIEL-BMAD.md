@@ -203,3 +203,12 @@ Vérifications réelles : 18/18 statiques ; compilation TS isolée d'un fichier 
 **Technique :** `src/server/sprints/trends.ts` n'exécute plus de création de tables en consultation ; filtrage par `teamId` de la fiche. L'ancien lecteur `/api/admin/sprints/trends` reste disponible. Aucun ajout de bibliothèque.
 
 **Contrôles exécutés :** 16/16 statiques GitHub, compilations TypeScript isolées sur SHA Git des fichiers exacts, 14 assertions graphiques et 28 assertions lecteur/projection réussies. **Tests SMN globaux, compilation Next.js, PostgreSQL et navigateur non exécutés**. [Compte rendu D6](../_bmad-output/implementation-artifacts/realisation-d6-tendances-fiche-sprint-smn-234-2026-10-23.md). **D7 — Bilan** est le prochain lot ; D8 registres reste dépendant des producteurs Epic 5.
+
+
+## Fiche Sprint — D7 Bilan humain et IA (23/10/2026)
+
+**Publié sur `main` :** deux blocs de Bilan indépendants, **Analyse du Scrum Master** et **Analyse IA**, disposés en deux colonnes desktop ou une colonne mobile. Chacun possède un crayon seulement si l'administrateur peut modifier le Sprint. Les deux contenus ont une clé de sauvegarde propre `(sprint_id,kind)`, leurs **révisions optimistes et audits indépendants**, des champs auteur/date, ainsi qu'une provenance. La saisie humaine dans « Analyse IA » **n'invoque aucun modèle** et reste marquée comme texte humain ; une future génération IA (Epic 9) ne pourra pas écraser une retouche humaine sans arbitrage explicite sur le marqueur `human_edited` et sa révision.
+
+Les nouvelles clôtures enregistrent les deux analyses dans le snapshot Vn ; la lecture d'un Sprint fermé n'utilise jamais le texte courant. Une ancienne clôture sans champ de Bilan reste **indisponible**, jamais reconstruite. L'historique avant/après est conservé dans une table d'audit ; le navigateur affiche uniquement la dernière révision, pas un comparateur de toutes les anciennes versions. RBAC `admin` pour les écritures, `user` en lecture collective.
+
+**Tests réels :** 20/20 contrôles statiques, compilation TS isolée d'un fichier au SHA Git identique et **20/20 assertions isolées** exécutées/réussies. **Tests intégrés du projet, PostgreSQL, `pnpm typecheck` et navigateur non exécutés.** [Rapport BMAD D7](../_bmad-output/implementation-artifacts/realisation-d7-bilan-fiche-sprint-smn-234-2026-10-23.md). Prochain incrément **D8 — Registres**, dépendant des producteurs Epic 5, puis D9 — Recette globale.
