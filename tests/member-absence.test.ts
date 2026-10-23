@@ -12,7 +12,7 @@ const input=(changes:Record<string,unknown>={})=>({
 });
 function fakeDb(options:{archived?:boolean;categories?:string[];days?:Array<{
  id:string;member_id:string;category_id:string;revision:number;start_on:string;end_on:string;
- start_slot:string;end_slot:string;is_planned:boolean;reason:string;
+ start_slot:string;end_slot:string;is_planned:boolean;reason:string;deleted?:boolean;
  }>;missing?:boolean}={}){
  const days=options.days??[],audit:Array<unknown[]>=[],sqls:string[]=[];
  const categories=["leave","training","sick","other"].map(id=>({id,name:id,color:"#6B7280",
@@ -32,8 +32,8 @@ function fakeDb(options:{archived?:boolean;categories?:string[];days?:Array<{
    return {rows:found.map(d=>({...d,category_name:"Absence",category_color:"#6B7280",
     created_at:"2024-01-01",updated_at:"2024-01-01"})),rowCount:found.length};
   }
-  if(sql.includes("FROM public.smn_member_absence WHERE member_id=$1")){
-   const conflicts=days.filter(d=>d.member_id===params[0]&&d.id!==params[1]&&
+  if(sql.includes("FROM public.smn_member_absence a WHERE a.member_id=$1")){
+   const conflicts=days.filter(d=>!d.deleted&&d.member_id===params[0]&&d.id!==params[1]&&
     d.start_on<=String(params[2])&&d.end_on>=String(params[3]));
    return {rows:conflicts,rowCount:conflicts.length};
   }
@@ -48,6 +48,11 @@ function fakeDb(options:{archived?:boolean;categories?:string[];days?:Array<{
     end_slot:String(params[6]),is_planned:params[7]===true,reason:String(params[8]),revision:1});
    return {rows:[],rowCount:1};
   }
+  if(sql.includes("UPDATE public.smn_member_absence\n    SET revision=revision+1")){
+   const day=days.find(d=>d.id===params[0]&&d.member_id===params[1]&&d.revision===params[3]);
+   if(!day)return {rows:[],rowCount:0};
+   day.revision++;return {rows:[],rowCount:1};
+  }
   if(sql.includes("UPDATE public.smn_member_absence SET")){
    const day=days.find(d=>d.id===params[0]&&d.member_id===params[1]&&d.revision===params[10]);
    if(!day)return {rows:[],rowCount:0};
@@ -56,7 +61,12 @@ function fakeDb(options:{archived?:boolean;categories?:string[];days?:Array<{
    return {rows:[],rowCount:1};
   }
   if(sql.includes("INSERT INTO public.smn_member_absence_history")){
-   audit.push(params);return {rows:[],rowCount:1};
+   audit.push(params);
+   if(sql.includes("'update'")&&params.length===6){
+    const day=days.find(d=>d.id===params[1]);
+    if(day)day.deleted=JSON.parse(String(params[4])).deleted===true;
+   }
+   return {rows:[],rowCount:1};
   }
   throw new Error("Unexpected SQL: "+sql);
  }} as unknown as Client;
@@ -167,6 +177,53 @@ describe("absence individuelle centralisée",()=>{
   assert.equal(state.categories.length,4);
   assert.equal(state.categories.find(c=>c.id==="sick")?.isActive,false);
   assert.equal(state.absences.length,0);
+ });
+ it("valide strictement le contrat de suppression et les révisions",()=>{
+  const id="33333333-3333-4333-8333-333333333333";
+  assert.deepEqual(parseAbsenceChange({action:"delete",id,revision:2}),{
+   ok:true,value:{action:"delete",id,revision:2}});
+  for(const bad of [
+   {action:"delete",id,revision:0},{action:"delete",id:"bad",revision:1},
+   {action:"delete",id,revision:1,reason:"ignored"},
+   {action:"delete",id,revision:"1"}
+  ])assert.deepEqual(parseAbsenceChange(bad),{ok:false,error:"invalid-input"});
+ });
+ it("supprime logiquement une absence historique avec audit avant/après sans effacer sa ligne",async()=>{
+  const f=fakeDb();
+  const created=await saveMemberAbsence(f.db,memberId,actorId,input());
+  assert.equal(created.ok,true);if(!created.ok)return;
+  const removed=await saveMemberAbsence(f.db,memberId,actorId,{
+   action:"delete",id:created.id,revision:1});
+  assert.deepEqual(removed,{ok:true,id:created.id,revision:2,created:false,deleted:true});
+  assert.equal(f.days.length,1);
+  assert.equal(f.days[0].deleted,true);
+  assert.equal(f.days[0].revision,2);
+  assert.equal(f.sqls.at(-1),"COMMIT");
+  assert.ok(f.sqls.every(query=>!query.includes("DELETE FROM public.smn_member_absence")));
+  assert.equal(f.audit.length,2);
+  assert.equal(f.audit[1][2],2);
+  assert.match(String(f.audit[1][4]),/deleted/);
+  const records=await readMemberAbsences(f.db,memberId,"2024-05-01");
+  assert.equal(records.absences.length,1);
+  assert.equal(records.absences[0].deleted,true);
+  assert.equal(records.onDate.length,0);
+  const again=await saveMemberAbsence(f.db,memberId,actorId,{
+   action:"delete",id:created.id,revision:2});
+  assert.deepEqual(again,{ok:false,error:"not-found"});
+  const update=await saveMemberAbsence(f.db,memberId,actorId,input({
+   action:"update",id:created.id,revision:2,reason:"Modification impossible"}));
+  assert.deepEqual(update,{ok:false,error:"not-found"});
+  const replacement=await saveMemberAbsence(f.db,memberId,actorId,input({reason:"Recréation"}));
+  assert.equal(replacement.ok,true);
+ });
+ it("refuse de supprimer sans privilèges métier (membre archivé), ou avec une ancienne révision",async()=>{
+  const f=fakeDb();
+  const created=await saveMemberAbsence(f.db,memberId,actorId,input());
+  assert.equal(created.ok,true);if(!created.ok)return;
+  assert.deepEqual(await saveMemberAbsence(f.db,memberId,actorId,{
+   action:"delete",id:created.id,revision:7}),{ok:false,error:"conflict"});
+  assert.deepEqual(await saveMemberAbsence(fakeDb({archived:true}).db,memberId,actorId,{
+   action:"delete",id:created.id,revision:1}),{ok:false,error:"archived"});
  });
  it("prépare une migration additive, sans altérer les capacités figées ni les anciens PDF",()=>{
   assert.match(ABSENCE_MIGRATION_SQL,/schema_version=19/);
