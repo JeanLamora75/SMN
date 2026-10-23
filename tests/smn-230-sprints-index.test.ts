@@ -15,21 +15,25 @@ const sample=Array.from({length:123},(_,i)=>({
  auto_suspended:i===3,start_at:new Date(Date.UTC(2026,0,1+i*14,8)),
  end_at:new Date(Date.UTC(2026,0,12+i*14,17)),time_zone:"Europe/Paris"
 }));
-const fixture=(records=sample)=>{
+const fixture=(records=sample,settings:{tableExists?:boolean;suspensionExists?:boolean}={})=>{
  const queries:string[]=[];
  const db={query:async (sql:string,params:unknown[]=[])=>{
   queries.push(sql);
   if(sql.includes("SELECT t.id,t.name"))return {rows:[{id:"team-1",name:"Equipe pilote"}]};
+  if(sql.includes("to_regclass('public.smn_sprint')"))return {rows:[{
+   table_exists:settings.tableExists!==false,
+   suspension_exists:settings.suspensionExists!==false
+  }]};
   if(sql.includes("AS active_count"))return {rows:[{
-   active_count:records.filter(r=>r.status==="active"&&!r.auto_suspended&&
+   active_count:records.filter(r=>r.status==="active"&&(settings.suspensionExists===false||!r.auto_suspended)&&
     r.start_at<=new Date()&&r.end_at>new Date()).length
   }]};
   if(sql.includes("SELECT DISTINCT"))return {
-   rows:[...new Set(records.map(r=>r.auto_suspended?"suspended":r.status))].map(status=>({status}))
+   rows:[...new Set(records.map(r=>settings.suspensionExists===false?r.status:r.auto_suspended?"suspended":r.status))].map(status=>({status}))
   };
   const match=(record:(typeof sample)[number])=>
    (String(params[1])===""||record.name.toLowerCase().includes(String(params[1]).toLowerCase()))&&
-   (params[2]==="all"||(record.auto_suspended?"suspended":record.status)===params[2]);
+   (params[2]==="all"||(settings.suspensionExists===false?record.status:record.auto_suspended?"suspended":record.status)===params[2]);
   const selected=records.filter(match);
   if(sql.includes("count(*)::integer"))return {rows:[{total:selected.length}]};
   if(sql.includes("ORDER BY")){
@@ -41,7 +45,7 @@ const fixture=(records=sample)=>{
     const diff=a.start_at.getTime()-b.start_at.getTime();
     return sql.includes("s.start_at ASC")?diff||a.id.localeCompare(b.id):-diff||b.id.localeCompare(a.id);
    });
-   return {rows:sorted.slice(Number(params[4]),Number(params[4])+Number(params[3]))};
+   return {rows:sorted.slice(Number(params[4]),Number(params[4])+Number(params[3])).map(row=>settings.suspensionExists===false?{...row,auto_suspended:false}:row)};
   }
   throw Error("unexpected SQL");
  }} as unknown as Client;
@@ -111,6 +115,23 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   assert.equal(data.items[0].stateMayBeStale,false);
   assert.equal(data.activeCount,1);
   assert.ok(queries.every(sql=>sql.trim().startsWith("SELECT")));
+ });
+ it("affiche un état vide sur une nouvelle installation sans table de sprint",async()=>{
+  const {db,queries}=fixture(sample,{tableExists:false});
+  const result=await readSprintIndex(db,query());
+  assert.equal(result.total,0);
+  assert.equal(result.items.length,0);
+  assert.equal(result.totalPages,1);
+  assert.equal(result.teamName,"Equipe pilote");
+  assert.equal(queries.filter(sql=>sql.includes("FROM public.smn_sprint s")).length,0);
+ });
+ it("lit l'ancien schéma sans colonne de suspension, sans déclencher de DDL",async()=>{
+  const {db,queries}=fixture(sample,{suspensionExists:false});
+  const result=await readSprintIndex(db,query({status:"planned"}));
+  assert.ok(result.total>0);
+  assert.ok(result.items.every(item=>item.suspended===false));
+  assert.ok(queries.some(sql=>sql.includes("false AS auto_suspended")));
+  assert.ok(queries.every(sql=>!/\\bALTER\\b|\\bCREATE\\b/i.test(sql)));
  });
  it("signale plusieurs sprints réellement actifs, même hors de la page courante",async()=>{
   const now=Date.now();
