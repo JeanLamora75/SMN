@@ -2711,5 +2711,23 @@
     "verified": "Verified",
     "degraded": "Degraded",
     "unavailable": "Unavailable"
+  },
+  "archiveLibrary": {
+    "heading": "Archived reports",
+    "intro": "Private library of finalized PDFs. Temporary previews are not included.",
+    "cycle": "Sprint (identifier)",
+    "from": "From",
+    "to": "To",
+    "template": "Template",
+    "status": "Status",
+    "all": "All",
+    "search": "Search",
+    "empty": "No archived PDF report matches these filters.",
+    "date": "Date",
+    "version": "Version",
+    "count": "Results",
+    "previous": "Previous",
+    "next": "Next",
+    "openLibrary": "View archived reports"
   }
 }
