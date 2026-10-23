@@ -16,7 +16,7 @@ export async function grantArchiveUser(db:Client,archiveId:string,userId:string,
   JOIN public.smn_sprint s ON s.id=a.cycle_id AND s.team_id=a.team_id
   JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE a.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
-  AND NOT EXISTS (SELECT 1 FROM public.smn_report_archive_visibility h WHERE h.archive_id=a.id)`,[archiveId]);
+  AND lower(i.mode)='scrum' ${hidden}`,[archiveId]);
   if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_archive_grant(
    archive_id text NOT NULL REFERENCES public.smn_report_pdf_archive(id) ON DELETE RESTRICT,
@@ -29,4 +29,13 @@ export async function grantArchiveUser(db:Client,archiveId:string,userId:string,
    VALUES($1,$2,$3) ON CONFLICT(archive_id,user_id) DO UPDATE SET revoked_at=NULL,granted_by=EXCLUDED.granted_by,granted_at=now()`,[archiveId,userId,actorId]);
   await db.query("COMMIT");return {ok:true as const};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
+
+export async function revokeArchiveUser(db:Client,archiveId:string,userId:string){
+ if(!/^[a-f0-9-]{36}$/i.test(archiveId)||!userId)return {ok:false as const,error:"invalid-input"};
+ const has=await db.query<{yes:boolean}>("SELECT to_regclass('public.smn_report_archive_grant') IS NOT NULL AS yes");
+ if(!has.rows[0]?.yes)return {ok:false as const,error:"not-found"};
+ const result=await db.query(`UPDATE public.smn_report_archive_grant SET revoked_at=now()
+ WHERE archive_id=$1 AND user_id=$2 AND revoked_at IS NULL RETURNING archive_id`,[archiveId,userId]);
+ return result.rows.length?{ok:true as const}:{ok:false as const,error:"not-found"};
 }
