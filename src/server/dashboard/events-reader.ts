@@ -143,6 +143,6 @@ export async function readCurrentSprintEvents(db:Client,sprintId:string,
  const items=rows.rows.map(normalize);
  if(items.some(item=>item===null))return collectionUnavailable("read-failed");
  return collectionAvailable(items as DashboardEvent[],count,{
-  source:"manual",snapshotVersion:null
+  source:"recorded-events",snapshotVersion:null
  });
 }
