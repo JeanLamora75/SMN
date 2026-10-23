@@ -3,7 +3,7 @@ import {validReportLogo,type ReportLogo} from "./logo-contract";
 export async function readReportLogo(db:Client,sprintId:string):Promise<ReportLogo|null>{
  const present=await db.query<{yes:boolean}>(`SELECT to_regclass('public.smn_report_logo') IS NOT NULL AS yes`);
  if(!present.rows[0]?.yes)return null;
- const r=await db.query<{mime:string;base64:string}>(`SELECT mime,encode(data,'base64') AS base64 FROM public.smn_report_logo WHERE sprint_id=$1`,[sprintId]);
+ const r=await db.query<{mime:string;base64:string}>(`SELECT mime,replace(encode(data,'base64'), E'\\n', '', 'g') AS base64 FROM public.smn_report_logo WHERE sprint_id=$1`,[sprintId]);
  return validReportLogo(r.rows[0])?r.rows[0]:null;
 }
 export async function saveReportLogo(db:Client,sprintId:string,actorId:string,logo:unknown){
