@@ -156,3 +156,14 @@ Sur `main`, la projection du tableau de bord couvre désormais les éléments du
 **Portes de clôture ouvertes :** recette typecheck/tests/build et PostgreSQL/navigateur sur Windows, arbitrage SMN-236 « aujourd'hui inclus » et jours fériés éventuels, raccordement SMN-238 après Epic 5, et vérification des comparaisons historiques SMN-86. Les cas de test sont **rédigés mais non exécutés** dans l'environnement ChatGPT.
 
 **Aucune modification Jira ni transition de statut** n'a été effectuée pendant cette étape.
+
+
+## Incrément visuel du dashboard — 23 octobre 2026, lot 1
+
+À partir de deux captures comparatives fournies par l'utilisateur, le bandeau Sprint a été rendu **compact** et organisé en 3 zones : identité / dates / statut, objectif(s) enregistrés, bouton vers la fiche Sprint. Le nom du Sprint est également cliquable dans la liste.
+
+**Contrat conservé :** plusieurs objectifs possibles (premier montré, nombre additionnel signalé, liste complète dans la première fiche de Sprint), aucun chiffre fictif ni « objectif principal » imposé ; lien autorisé côté serveur aux deux rôles de lecture de l'équipe, 404 pour Sprint hors périmètre.
+
+**Livrable BMAD :** [refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md](refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md). Les spines UX `DESIGN.md` et `EXPERIENCE.md` du 21 octobre portent un addendum approuvé pour ce lot. Les icônes sont les SVG officiels Bootstrap Icons embarqués localement sous licence MIT ; aucun CDN.
+
+**Publication directe `main`** selon la décision du projet ; recette Node, PostgreSQL et navigateur encore à valider. Les lots 2/3 (cartes KPI, icônes des événements) et lot 4 (registres Epic 5) restent à part. Jira non modifié.
