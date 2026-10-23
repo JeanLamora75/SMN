@@ -84,3 +84,42 @@ export async function readRegistryItem(db:Client,id:string){
  WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'`,[id]);
  return r.rows[0]??null;
 }
+
+/** AC4: optimistic edit, immutable creation timestamp and append-only revisions. */
+export async function updateRegistryItem(db:Client,actorId:string,id:string,revision:number,raw:unknown){
+ const input=parseRegistryInput(raw);
+ if(!input||!actorId||!Number.isSafeInteger(revision)||revision<1||
+  !/^[0-9a-f-]{36}$/i.test(id))return {ok:false as const,error:"invalid-input" as const};
+ await db.query("BEGIN");
+ try{
+  const prior=await db.query<{
+   id:string;team_id:string;type:RegistryType;title:string;occurred_on:string;
+   status:string;description:string|null;owner_name:string|null;due_on:string|null;
+   comment:string|null;revision:number
+  }>(`SELECT r.id,r.team_id,r.type,r.title,r.occurred_on::text,r.status,
+   r.description,r.owner_name,r.due_on::text,r.comment,r.revision
+   FROM public.smn_registry_item r JOIN public.smn_team t ON t.id=r.team_id
+   JOIN public.smn_installation i ON i.id=t.installation_id
+   WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'
+   FOR UPDATE OF r`,[id]);
+  const old=prior.rows[0];
+  if(!old||old.team_id!==input.teamId){
+   await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};
+  }
+  if(old.type!==input.type){
+   await db.query("ROLLBACK");return {ok:false as const,error:"immutable-type" as const};
+  }
+  if(old.revision!==revision){
+   await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
+  }
+  await db.query(`UPDATE public.smn_registry_item SET title=$2,occurred_on=$3::date,
+   status=$4,description=$5,owner_name=$6,due_on=$7::date,comment=$8,
+   revision=revision+1,updated_at=now() WHERE id=$1`,
+   [id,input.title,input.occurredOn,input.status,input.description,input.owner,input.dueOn,input.comment]);
+  await db.query(`INSERT INTO public.smn_registry_item_audit
+   (id,item_id,revision,before_values,after_values,actor_id)
+   VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
+   [randomUUID(),id,revision+1,JSON.stringify(old),JSON.stringify(input),actorId]);
+  await db.query("COMMIT");return {ok:true as const,id,revision:revision+1};
+ }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
