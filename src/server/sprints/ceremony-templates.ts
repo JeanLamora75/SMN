@@ -1,6 +1,40 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 export type TemplateInput={name:string;frequency:"daily"|"weekly"|"sprint";weekday:number|null;position:"start"|"end"|null;time:string;duration:number};
+// Valeurs initiales du MVP, sans règles additionnelles : l'administrateur peut tout modifier/désactiver.
+export const DEFAULT_SCRUM_CEREMONY_TEMPLATES: ReadonlyArray<TemplateInput> = [
+ {name:"Sprint Planning",frequency:"sprint",weekday:null,position:"start",time:"09:30",duration:120},
+ {name:"Daily Scrum",frequency:"daily",weekday:null,position:null,time:"09:00",duration:15},
+ {name:"Sprint Review",frequency:"sprint",weekday:null,position:"end",time:"15:00",duration:60},
+ {name:"Sprint Retrospective",frequency:"sprint",weekday:null,position:"end",time:"16:30",duration:60},
+];
+
+// Appel uniquement à la première installation Scrum ; la migration SQL assure
+// le rattrapage idempotent des bases pilotes déjà installées.
+export async function seedDefaultScrumCeremonyTemplates(db:Client,teamId:string){
+ await ensureTemplateSchema(db);
+ let inserted=0;
+ for(const template of DEFAULT_SCRUM_CEREMONY_TEMPLATES){
+  const row=await db.query<{id:string}>(`INSERT INTO public.smn_scrum_ceremony_template
+   (id,team_id,name,frequency,weekday,position,local_time,duration_minutes,active)
+   SELECT $1,$2,$3,$4,$5,$6,$7,$8,true
+   WHERE NOT EXISTS (
+    SELECT 1 FROM public.smn_scrum_ceremony_template
+    WHERE team_id=$2 AND lower(btrim(name))=lower(btrim($3))
+   ) RETURNING id`,
+   [randomUUID(),teamId,template.name,template.frequency,template.weekday,
+    template.position,template.time,template.duration]);
+  const id=row.rows[0]?.id;
+  if(!id)continue;
+  await db.query(`INSERT INTO public.smn_scrum_ceremony_template_history
+   (id,template_id,revision,before_values,after_values,actor_id)
+   VALUES($1,$2,1,NULL,$3::jsonb,NULL)`,
+   [randomUUID(),id,JSON.stringify({...template,active:true})]);
+  inserted++;
+ }
+ return inserted;
+}
+
 const validTime=(v:unknown):v is string=>typeof v==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
 export function parseTemplate(raw:unknown):TemplateInput|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
