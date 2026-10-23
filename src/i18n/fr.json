@@ -1833,7 +1833,7 @@
       },
       "ceremonies": {
         "title": "Cérémonies et modèles",
-        "description": "Configurer les réunions et modèles d'équipe."
+        "description": "Gérer les modèles récurrents des futurs sprints, sans modifier les réunions déjà créées."
       },
       "capacity": {
         "title": "Règles de capacité",
@@ -1841,7 +1841,7 @@
       },
       "workingDays": {
         "title": "Jours ouvrés",
-        "description": "Personnaliser la semaine de référence de l'équipe."
+        "description": "Configurer les plages horaires, le fuseau et la pause déjeuner ; semaine lundi–vendredi fixe."
       },
       "countries": {
         "title": "Pays et jours fériés",
@@ -1892,5 +1892,11 @@
     "noneUpcoming": "Aucune absence à venir ou en cours.",
     "nonePast": "Aucune absence passée.",
     "capacityNotice": "Les disponibilités et capacités non figées sont recalculées lors de leur prochaine consultation. Les références initiales figées et les bilans clôturés restent inchangés."
+  },
+  "settingsSprint": {
+    "workingDaysTitle": "Jours ouvrés — horaires d'équipe",
+    "workingDaysScope": "La référence lundi–vendredi reste fixe dans cette version. Vous pouvez configurer les plages matin/après-midi, le fuseau IANA et la pause déjeuner, mais pas modifier les jours de la semaine.",
+    "ceremoniesTitle": "Cérémonies et modèles — réunions récurrentes",
+    "ceremoniesScope": "Cette page configure les modèles réutilisables pour les prochains sprints. Les cérémonies standards et les réunions déjà enregistrées se gèrent dans les parcours Sprint et Calendrier ; aucune occurrence existante n'est modifiée ici."
   }
 }
