@@ -30,11 +30,12 @@ describe("SMN-227 — centralisation des accès sans perte",()=>{
   const form=read("src/app/app/admin/settings/settings-form.tsx");
   for(const anchor of ["settings-language","settings-appearance"])
    assert.ok(form.includes('id="'+anchor+'"'));
-  for(const id of ["ceremonies","capacity","workingDays"])
-   assert.equal(items.find(x=>x.id===id)?.href,null);
+  assert.equal(items.find(x=>x.id==="capacity")?.href,null);
+  assert.equal(items.find(x=>x.id==="workingDays")?.href,"/app/admin/settings/working-days");
+  assert.equal(items.find(x=>x.id==="ceremonies")?.href,"/app/admin/settings/ceremonies");
  });
  it("fournit retour vers paramètres sans modifier les APIs ou formulaires",()=>{
-  for(const path of ["countries","company-closures","absence-categories","users","backups","audit","scrum-cadence"]){
+  for(const path of ["countries","company-closures","absence-categories","users","backups","audit","scrum-cadence","settings/working-days","settings/ceremonies"]){
    const page=read("src/app/app/admin/"+path+"/page.tsx");
    assert.ok(page.includes('href="/app/admin/settings"'),path);
   }
