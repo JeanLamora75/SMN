@@ -2699,7 +2699,9 @@
     "trendsCaption": "Tendances historiques des cycles clôturés",
     "freeze": "Figer et prévisualiser",
     "freezeError": "Impossible de figer le rapport.",
-    "frozenReference": "Référence figée"
+    "frozenReference": "Référence figée",
+    "pdfExport": "Générer le PDF serveur",
+    "pdfError": "La génération PDF a échoué. Vérifiez Chrome, Puppeteer et la connexion locale."
   },
   "reportLanguage": {
     "heading": "Langue du rapport",
