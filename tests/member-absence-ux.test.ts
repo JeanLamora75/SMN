@@ -46,9 +46,9 @@ describe("Fiche membre V2 — onglet Absences et calculs affectés",()=>{
   assert.match(list,/data!\.archived\|\|record\.deleted/);
  });
  it("avertit sans interdire l'édition rétroactive et confirme la suppression",()=>{
-  assert.match(editor,/record&&record\.endOn<today/);
+  assert.match(editor,/record&&record\.startOn<today/);
   assert.match(editor,/memberAbsences\.pastWarning/);
-  assert.match(list,/const past=record\.endOn<data\.today/);
+  assert.match(list,/const past=record\.startOn<data\.today/);
   assert.match(list,/window\.confirm\(confirmText\)/);
   assert.match(editor,/onSubmit=\{submit\}/);
   assert.match(list,/action:"delete",id:record\.id,revision:record\.revision/);
