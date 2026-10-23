@@ -1,0 +1,95 @@
+import {randomUUID} from "node:crypto";
+import type {Client} from "pg";
+
+export const registryTypes=["risk","obstacle","dependency","decision","action","highlight"] as const;
+export type RegistryType=(typeof registryTypes)[number];
+export const registryStatuses={
+ risk:["open","owned","accepted","mitigated","resolved"],
+ obstacle:["open","in_progress","resolved","abandoned"],
+ dependency:["open","in_progress","satisfied","cancelled"],
+ decision:["active","replaced","cancelled"],
+ action:["todo","in_progress","completed","cancelled"],
+ highlight:["recorded"]
+} as const satisfies Record<RegistryType,readonly string[]>;
+export type RegistryInput={type:RegistryType;title:string;occurredOn:string;status:string;description:string|null;owner:string|null;dueOn:string|null;comment:string|null;teamId:string};
+const dateRx=/^\d{4}-\d{2}-\d{2}$/;
+export function validDate(value:unknown):value is string{
+ if(typeof value!=="string"||!dateRx.test(value))return false;
+ const date=new Date(value+"T00:00:00.000Z");
+ return !Number.isNaN(date.getTime())&&date.toISOString().slice(0,10)===value;
+}
+const optional=(v:unknown,max:number)=>v===undefined||v===null||(typeof v==="string"&&v.length<=max);
+export function parseRegistryInput(value:unknown):RegistryInput|null{
+ if(!value||typeof value!=="object"||Array.isArray(value))return null;
+ const v=value as Record<string,unknown>;
+ if(Object.keys(v).some(k=>!["type","title","occurredOn","status","description","owner","dueOn","comment","teamId"].includes(k)))return null;
+ if(typeof v.type!=="string"||!registryTypes.some(x=>x===v.type))return null;
+ const type=v.type as RegistryType;
+ if(typeof v.title!=="string"||!v.title.trim()||v.title.trim().length>240||
+  typeof v.teamId!=="string"||!v.teamId||v.teamId.length>80||
+  !validDate(v.occurredOn)||
+  (v.status!==undefined&& (typeof v.status!=="string"||!registryStatuses[type].some(x=>x===v.status)))||
+  !optional(v.description,4000)||!optional(v.owner,200)||!optional(v.comment,2000)||
+  (v.dueOn!==undefined&&v.dueOn!==null&&!validDate(v.dueOn)))return null;
+ return {type,title:v.title.trim(),teamId:v.teamId,occurredOn:v.occurredOn,
+  status:typeof v.status==="string"?v.status:registryStatuses[type][0],
+  description:typeof v.description==="string"?v.description:null,
+  owner:typeof v.owner==="string"?v.owner:null,
+  dueOn:typeof v.dueOn==="string"?v.dueOn:null,
+  comment:typeof v.comment==="string"?v.comment:null};
+}
+/** Migration additive explicite, jamais appelée par un lecteur SELECT-only. */
+export async function ensureRegistrySchema(db:Client):Promise<void>{
+ await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_item(
+ id text PRIMARY KEY,installation_id text NOT NULL REFERENCES public.smn_installation(id),
+ team_id text NOT NULL REFERENCES public.smn_team(id),
+ type text NOT NULL CHECK(type IN ('risk','obstacle','dependency','decision','action','highlight')),
+ title text NOT NULL CHECK(length(btrim(title)) BETWEEN 1 AND 240),
+ occurred_on date NOT NULL,status text NOT NULL,
+ description text,owner_name text,due_on date,comment text,
+ revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
+ created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
+ created_at timestamptz NOT NULL DEFAULT now(),
+ updated_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query(`CREATE INDEX IF NOT EXISTS smn_registry_item_team_type_date
+ ON public.smn_registry_item(team_id,type,occurred_on DESC,id)`);
+ await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_item_audit(
+ id text PRIMARY KEY,item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
+ revision integer NOT NULL CHECK(revision>0),
+ before_values jsonb,after_values jsonb NOT NULL,
+ actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
+ changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(item_id,revision))`);
+}
+/** Creation et revision initiale sont atomiques et propres à l'équipe installée. */
+export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
+ const input=parseRegistryInput(raw);
+ if(!input||!actorId)return {ok:false as const,error:"invalid-input" as const};
+ await db.query("BEGIN");
+ try{
+  const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
+   JOIN public.smn_installation i ON i.id=t.installation_id
+   WHERE t.id=$1 AND i.id='singleton' AND i.state='initialized'
+    AND lower(i.mode) IN ('scrum','kanban') FOR UPDATE OF t`,[input.teamId]);
+  if(team.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  await ensureRegistrySchema(db);
+  const id=randomUUID();
+  await db.query(`INSERT INTO public.smn_registry_item
+   (id,installation_id,team_id,type,title,occurred_on,status,description,owner_name,due_on,comment,created_by)
+   VALUES($1,'singleton',$2,$3,$4,$5::date,$6,$7,$8,$9::date,$10,$11)`,
+   [id,input.teamId,input.type,input.title,input.occurredOn,input.status,input.description,input.owner,input.dueOn,input.comment,actorId]);
+  await db.query(`INSERT INTO public.smn_registry_item_audit
+   (id,item_id,revision,before_values,after_values,actor_id)
+   VALUES($1,$2,1,NULL,$3::jsonb,$4)`,[randomUUID(),id,JSON.stringify(input),actorId]);
+  await db.query("COMMIT");return {ok:true as const,id,revision:1};
+ }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
+}
+export async function readRegistryItem(db:Client,id:string){
+ if(!/^[0-9a-f-]{36}$/i.test(id))return null;
+ const r=await db.query(`SELECT r.id,r.type,r.title,r.occurred_on::text AS "occurredOn",
+ r.status,r.description,r.owner_name AS "owner",r.due_on::text AS "dueOn",
+ r.comment,r.revision,r.created_at::text AS "createdAt",r.updated_at::text AS "updatedAt"
+ FROM public.smn_registry_item r JOIN public.smn_team t ON t.id=r.team_id
+ JOIN public.smn_installation i ON i.id=t.installation_id
+ WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'`,[id]);
+ return r.rows[0]??null;
+}
