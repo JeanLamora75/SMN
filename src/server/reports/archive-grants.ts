@@ -1,0 +1,30 @@
+import type {Client} from "pg";
+export async function archiveUserAuthorized(db:Client,archiveId:string,userId:string):Promise<boolean>{
+ const has=await db.query<{yes:boolean}>("SELECT to_regclass('public.smn_report_archive_grant') IS NOT NULL AS yes");
+ if(!has.rows[0]?.yes)return false;
+ const r=await db.query(`SELECT 1 FROM public.smn_report_archive_grant
+ WHERE archive_id=$1 AND user_id=$2 AND revoked_at IS NULL`,[archiveId,userId]);
+ return r.rows.length===1;
+}
+export async function grantArchiveUser(db:Client,archiveId:string,userId:string,actorId:string){
+ if(!/^[a-f0-9-]{36}$/i.test(archiveId)||!userId||!actorId)return {ok:false as const,error:"invalid-input"};
+ await db.query("BEGIN");
+ try{
+  const scope=await db.query(`SELECT 1 FROM public.smn_report_pdf_archive a
+  JOIN public.smn_sprint s ON s.id=a.cycle_id AND s.team_id=a.team_id
+  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
+  WHERE a.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
+  AND NOT EXISTS (SELECT 1 FROM public.smn_report_archive_visibility h WHERE h.archive_id=a.id)`,[archiveId]);
+  if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_archive_grant(
+   archive_id text NOT NULL REFERENCES public.smn_report_pdf_archive(id) ON DELETE RESTRICT,
+   user_id text NOT NULL REFERENCES public.smn_account(id) ON DELETE RESTRICT,
+   granted_by text NOT NULL,granted_at timestamptz NOT NULL DEFAULT now(),
+   revoked_at timestamptz,PRIMARY KEY(archive_id,user_id))`);
+  const user=await db.query(`SELECT 1 FROM public.smn_account WHERE id=$1 AND role='user' AND is_active=true`,[userId]);
+  if(user.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  await db.query(`INSERT INTO public.smn_report_archive_grant(archive_id,user_id,granted_by)
+   VALUES($1,$2,$3) ON CONFLICT(archive_id,user_id) DO UPDATE SET revoked_at=NULL,granted_by=EXCLUDED.granted_by,granted_at=now()`,[archiveId,userId,actorId]);
+  await db.query("COMMIT");return {ok:true as const};
+ }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
