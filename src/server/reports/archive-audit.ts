@@ -1,4 +1,4 @@
-import {readdir,stat} from "node:fs/promises";
+import {readdir} from "node:fs/promises";
 import {join,resolve} from "node:path";
 import type {Client} from "pg";
 export type ArchiveAudit={orphanFiles:string[];missingFiles:string[];unexpectedFiles:string[]};
