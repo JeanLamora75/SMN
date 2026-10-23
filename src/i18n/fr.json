@@ -2320,5 +2320,20 @@
     "team": "Équipe",
     "readonly": "Consultation en lecture seule",
     "back": "Retour aux registres"
+  },
+  "registryRoam": {
+    "heading": "Classification ROAM",
+    "none": "Non classé",
+    "resolved": "Resolved — Résolu",
+    "owned": "Owned — Pris en charge",
+    "accepted": "Accepted — Accepté",
+    "mitigated": "Mitigated — Atténué",
+    "save": "Enregistrer ROAM",
+    "saving": "Enregistrement…",
+    "updated": "Classification ROAM enregistrée.",
+    "error": "Échec de la sauvegarde ROAM.",
+    "conflict": "La classification a changé entre-temps. Actualisez la page.",
+    "updatedAt": "Dernière modification",
+    "unavailable": "Classification indisponible"
   }
 }
