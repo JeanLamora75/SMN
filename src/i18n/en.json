@@ -2543,5 +2543,21 @@
     "latest": "Show reference state",
     "source": "Source",
     "unavailable": "No reliable qualitative snapshot available for this version."
+  },
+  "sprintReportPrepare": {
+    "launch": "Generate report",
+    "heading": "Sprint report preparation",
+    "provisional": "Provisional report: this Sprint is not closed.",
+    "final": "Closed Sprint: historical closure data.",
+    "template": "Template",
+    "objectives": "Available goals",
+    "empty": "No reliable goals available.",
+    "source": "Data source",
+    "back": "Back to Sprint detail",
+    "exportLater": "PDF export will be added in later Epic 6 Stories. No file has been created.",
+    "dates": "Dates",
+    "product": "Product",
+    "team": "Team",
+    "status": "Status"
   }
 }
