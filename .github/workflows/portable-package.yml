@@ -41,6 +41,10 @@ jobs:
       - name: Parité des catalogues FR/EN
         run: npm run i18n:check
       - name: Compiler SMN
+        # Le packaging reste autonome ; seul le build local Windows évite
+        # les symlinks refusés par les politiques de poste d'entreprise.
+        env:
+          SMN_BUILD_STANDALONE: "1"
         run: npm run build
       - name: Construire le paquet Node et PostgreSQL Windows vérifiés
         run: node scripts/windows/package-portable.mjs
