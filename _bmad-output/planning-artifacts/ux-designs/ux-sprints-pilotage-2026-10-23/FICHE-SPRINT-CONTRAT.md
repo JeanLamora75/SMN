@@ -136,3 +136,12 @@ L'onglet **Capacité** présente désormais aux administrateurs les **membres af
 **Arbitrage restant** : contrôler/alerter lorsqu'un `contractPercent` à temps partiel ne correspond pas aux demi-journées prévues au calendrier individuel ; ne pas effectuer de deuxième multiplication par ce pourcentage sans définition métier validée.
 
 **Vérification :** revue statique 22/22, module TypeScript pur compilé isolément (SHA Git confirmé), 9/9 assertions isolées exécutées/réussies. Recette SMN, `pnpm typecheck`, tests complets du dépôt, PostgreSQL et navigateur non exécutés. Voir [réalisation D5](../../../implementation-artifacts/realisation-d5-capacite-presence-fiche-sprint-smn-234-2026-10-23.md).
+
+
+## État de réalisation D6 — 23 octobre 2026
+
+L'onglet **Tendances** est développé dans la fiche Sprint : **G04** sélectionne au plus les **cinq dernières clôtures éligibles** de la même équipe jusqu'au Sprint consulté. **G05** = SP terminés ; **G06** = taux de réalisation (réalisé/engagement final si strictement positif), sans plafond artificiel ; **G07** = capacité réelle **J/H enregistrée dans le snapshot de clôture**. Ces trois valeurs ont leurs **graphiques SVG distincts**, un axe chronologique, des unités, une échelle adaptée et un **tableau accessible** comportant les valeurs exactes et la version Vn. Absence de valeur = `null` et interruption de courbe, pas de zéro fictif ; zéro réel affiché. Les liens de tableau renvoient aux fiches Sprint, sans édition artificielle.
+
+La lecture `readSprintTrends` est devenue **SELECT-only**, compatible avec la transaction READ ONLY du dashboard et de la fiche. Les versions de clôture sont lues sans migration/DDL ni substitution de mesures courantes. Le formulaire historique admin conserve l'endpoint existant.
+
+**Validation partielle réelle :** 16/16 vérifications statiques, compilations TS isolées des modules sources SHA Git vérifiés, **14/14 assertions graphiques et 28/28 assertions du lecteur historique exécutées avec succès** (lecteur PostgreSQL simulé). Compilation totale du projet, tests du dépôt et recette navigateur/PG réel **restent nécessaires** ; voir [rapport D6](../../../implementation-artifacts/realisation-d6-tendances-fiche-sprint-smn-234-2026-10-23.md).
