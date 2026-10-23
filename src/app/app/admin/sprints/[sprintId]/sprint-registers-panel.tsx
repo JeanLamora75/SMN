@@ -17,11 +17,11 @@ const categoryKeys:Record<RegisterKind,TranslationKey>={
  highlight:"sprintDetail.registerHighlight"
 };
 const icons:Record<RegisterKind,
- "shield-exclamation"|"signpost-split"|"exclamation-triangle"|
- "check2-square"|"list-task"|"star">={
- risk:"shield-exclamation",obstacle:"exclamation-triangle",
- dependency:"signpost-split",decision:"check2-square",
- action:"list-task",highlight:"star"
+ "exclamation-octagon-fill"|"exclamation-triangle-fill"|"stack"|
+ "bullseye"|"ticket-perforated-fill"|"bell-fill">={
+ risk:"exclamation-octagon-fill",obstacle:"exclamation-triangle-fill",
+ dependency:"stack",decision:"bullseye",
+ action:"ticket-perforated-fill",highlight:"bell-fill"
 };
 
 /** No figures, links or fabricated records are rendered without a provider.
