@@ -57,12 +57,12 @@ function splitAtLunch(kind:CeremonyKind, anchor:Date,minutes:number,zone:string,
  return {kind,startsAt:segments[0].startsAt,endsAt:segments[segments.length-1].endsAt,minutes,segments};
 }
 
-export function computeCeremonies(sprint:Sprint,weeks:number,box:Timeboxes=defaultTimeboxes(weeks),nonWorking:string[]=[],lunch:Lunch={start:"12:00",end:"13:00",revision:1}):Ceremony[]{
+export function computeCeremonies(sprint:Sprint,weeks:number,box:Timeboxes=defaultTimeboxes(weeks),nonWorking:string[]=[],lunch:Lunch={start:"12:00",end:"13:00",revision:1},allowHistorical=false):Ceremony[]{
  if(!Number.isInteger(weeks)||weeks<1||weeks>4||Object.values(box).some(v=>!Number.isInteger(v)||v<0||v>600))throw Error("invalid-timeboxes");
  const first=new Date(sprint.startAt),last=new Date(sprint.endAt);
  if(!Number.isFinite(first.valueOf())||!Number.isFinite(last.valueOf())||last<=first)throw Error("invalid-sprint");
  // Do not invent historical ceremonies when a Sprint is entered after its real end.
- if(last.getTime()<=Date.now())return [];
+ if(last.getTime()<=Date.now()&&!allowHistorical)return [];
  const planning=splitAtLunch("planning",first,box.planning,sprint.timeZone,lunch);
  const retro=splitAtLunch("retrospective",addMinutes(last,-box.finalMargin),box.retrospective,sprint.timeZone,lunch,true);
  const review=splitAtLunch("review",new Date(retro.startsAt),box.review,sprint.timeZone,lunch,true);
@@ -92,6 +92,7 @@ export async function ensureCeremonySchema(db:Client){
  minutes integer NOT NULL CHECK(minutes>0),generated_at timestamptz NOT NULL DEFAULT now(),
  CHECK(ends_at>starts_at),UNIQUE(sprint_id,kind,starts_at)
  )`);
+ await db.query("ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'standard'");
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_ceremony_segment(
  ceremony_id text NOT NULL REFERENCES public.smn_sprint_ceremony(id) ON DELETE CASCADE,
  position integer NOT NULL CHECK(position>0),
@@ -101,21 +102,21 @@ export async function ensureCeremonySchema(db:Client){
  PRIMARY KEY(ceremony_id,position),
  CHECK(ends_at>starts_at))`);
 }
-export async function saveGeneratedCeremonies(db:Client,sprint:Sprint,weeks:number){
+export async function saveGeneratedCeremonies(db:Client,sprint:Sprint,weeks:number,options:{reconstructed?:boolean}={}){
  await ensureCeremonySchema(db);
  const team=await db.query<{team_id:string}>("SELECT team_id FROM public.smn_sprint WHERE id=$1",[sprint.id]);
  if(!team.rows[0])throw Error("sprint-not-found");
  const lunch=await lunchForTeam(db,team.rows[0].team_id);
- const ceremonies=computeCeremonies(sprint,weeks,defaultTimeboxes(weeks),[],lunch);
+ const ceremonies=computeCeremonies(sprint,weeks,defaultTimeboxes(weeks),[],lunch,options.reconstructed===true);
  for(const c of ceremonies){const id=randomUUID();await db.query(`INSERT INTO public.smn_sprint_ceremony
- (id,sprint_id,kind,starts_at,ends_at,minutes) VALUES($1,$2,$3,$4,$5,$6)
+ (id,sprint_id,kind,starts_at,ends_at,minutes,generation_source) VALUES($1,$2,$3,$4,$5,$6,$7)
  ON CONFLICT(sprint_id,kind,starts_at) DO NOTHING`,
- [id,sprint.id,c.kind,c.startsAt,c.endsAt,c.minutes]);
+ [id,sprint.id,c.kind,c.startsAt,c.endsAt,c.minutes,options.reconstructed?"reconstructed":"standard"]);
  const key=await db.query<{id:string}>("SELECT id FROM public.smn_sprint_ceremony WHERE sprint_id=$1 AND kind=$2 AND starts_at=$3",[sprint.id,c.kind,c.startsAt]);
  const ceremonyId=key.rows[0]?.id;
  if(!ceremonyId)throw Error("ceremony-not-saved");
  for(const [position,s] of (c.segments??[{startsAt:c.startsAt,endsAt:c.endsAt,minutes:c.minutes}]).entries())await db.query(`INSERT INTO public.smn_sprint_ceremony_segment(ceremony_id,position,starts_at,ends_at,minutes) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING`,[ceremonyId,position+1,s.startsAt,s.endsAt,s.minutes]);
  }
- await saveTemplateOccurrences(db,sprint);
+ await saveTemplateOccurrences(db,sprint,{reconstructed:options.reconstructed===true});
  return ceremonies.length;
 }
