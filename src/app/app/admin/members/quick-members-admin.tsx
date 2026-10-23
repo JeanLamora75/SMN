@@ -70,6 +70,11 @@ export default function QuickMembersAdmin(){
   void refresh().then(()=>{setMessage(t("members.assignment.saved"));setError(false);})
    .catch(()=>{setMessage(t("members.assignment.loadFailed"));setError(true);});
  };
+ const savedCalendar=()=>{
+  setCalendarId(null);
+  void refresh().then(()=>{setMessage(t("members.calendar.weekSaved"));setError(false);})
+   .catch(()=>{setMessage(t("members.calendar.failedLoad"));setError(true);});
+ };
  const rolesSummary=(member:Member)=>{
   const shares=member.roleShares??{
    scrumMaster:member.agileRole==="scrum_master"?100:0,
@@ -229,7 +234,8 @@ export default function QuickMembersAdmin(){
    </div>}
    {selectedCalendar&&<div className="mt-4">
     <MemberCalendarEditor key={selectedCalendar.id} memberId={selectedCalendar.id}
-     teamName={roster!.team.name} onClose={()=>setCalendarId(null)}/>
+     teamName={roster!.team.name} onSaved={savedCalendar}
+     onCancel={()=>setCalendarId(null)}/>
    </div>}
    {selectedLifecycle&&<div className="mt-4">
     <MemberLifecycleEditor key={selectedLifecycle.id} memberId={selectedLifecycle.id}
