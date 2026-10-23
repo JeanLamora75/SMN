@@ -48,7 +48,9 @@ export default function MemberHistory({memberId}:{memberId:string}){
    calendar.exceptions.forEach((v,i)=>all.push({key:"exception-"+i,time:v.created_at??v.on_date,
     description:t("memberUX.historyCalendarException")}));
    identity.absenceChanges.forEach((a,i)=>all.push({key:"absence-audit-"+i,time:a.changedAt,
-    description:t("memberUX.historyAbsence")+" · "+a.operation}));
+    description:t("memberUX.historyAbsence")+" · "+
+     t(a.operation==="delete"?"memberAbsences.deletedStatus":
+      a.operation==="create"?"members.absence.created":"members.absence.updated")}));
    identity.lifecycleChanges.forEach((a,i)=>all.push({key:"lifecycle-audit-"+i,time:a.changedAt,
     description:t("memberUX.historyLifecycle")+" · "+a.action}));
    identity.assignmentChanges.forEach((a,i)=>all.push({key:"assignment-version-"+i,time:a.changedAt,
