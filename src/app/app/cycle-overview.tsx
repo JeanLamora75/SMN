@@ -26,6 +26,7 @@ function MetricLine({label,unit,empty,value,locale}:Readonly<{
   manual:"dashboard.cockpit.metricManual",
   calculated:"dashboard.cockpit.metricCalculated",
   imported:"dashboard.cockpit.metricImported",
+  "recorded-events":"dashboard.cockpit.metricRecordedEvents",
   "closure-snapshot":"dashboard.cockpit.metricSnapshot"
  };
  return <div className="smn-metric-row">
