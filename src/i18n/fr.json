@@ -2535,5 +2535,13 @@
     "automatic": "Automatique",
     "invalidated": "Invalidé",
     "preview": "Faits présélectionnés pour l’aperçu"
+  },
+  "sprintQualitativeVersions": {
+    "heading": "États qualitatifs versionnés",
+    "closed": "Sprint clôturé : le dernier cliché Vn est la référence du bilan.",
+    "current": "Sprint ouvert ou rouvert : données métier courantes, anciennes versions conservées.",
+    "latest": "Afficher l’état de référence",
+    "source": "Provenance",
+    "unavailable": "Aucun cliché qualitatif fiable disponible pour cette version."
   }
 }
