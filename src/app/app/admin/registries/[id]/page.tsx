@@ -3,6 +3,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import RegistryCreate from "../registry-create";
+import RegistryHistory from "../registry-history";
 export const dynamic="force-dynamic";
 export default async function RegistryDetail({params}:{params:Promise<{id:string}>}){
  const actor=await currentAccount();
@@ -16,5 +17,6 @@ export default async function RegistryDetail({params}:{params:Promise<{id:string
  }).catch(()=>null);
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
   <RegistryCreate teamId={teamId} canManage={actor.role==="admin"} itemId={id}/>
+  {actor.role==="admin"&&<RegistryHistory id={id}/>}
  </main>;
 }
