@@ -98,6 +98,15 @@ describe("SMN-234 D8 — contrat pur de sélection",()=>{
   },"team-a",sprint);
   assert.equal(partial?.missingKinds.length,5);
  });
+ it("une source ne peut pas se déclarer absente et exposer des fiches",()=>{
+  assert.equal(selectSprintRegisterPage({
+   availableKinds:["risk"],records:[row("action","a1")]
+  },"team-a",sprint),null);
+  assert.equal(selectSprintRegisterPage({
+   availableKinds:["risk","risk"],records:[]
+  } as never,"team-a",sprint),null);
+  assert.equal(normalizeRegister(row("risk","r1",{teamIds:[]})),null);
+ });
  it("valide les liens sans inventer de fiche ni autoriser une URL externe",()=>{
   assert.equal(safeRegisterHref("https://example.org"),null);
   assert.equal(safeRegisterHref("//evil.example"),null);
