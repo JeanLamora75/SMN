@@ -1,13 +1,13 @@
 "use client";
-import {useState} from "react";
+import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
-type Response={ok:boolean;id?:string;error?:string};
+type Response={ok:boolean;id?:string;revision?:number;error?:string};
 const today=()=>{
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 };
-export default function RegistryCreate({teamId,canManage}:{teamId:string|null;canManage:boolean}){
+export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|null;canManage:boolean;itemId?:string}){
  const t=useTranslation();
  const [type,setType]=useState<RegistryType>("risk");
  const [title,setTitle]=useState("");
@@ -17,8 +17,23 @@ export default function RegistryCreate({teamId,canManage}:{teamId:string|null;ca
  const [owner,setOwner]=useState("");
  const [due,setDue]=useState("");
  const [comment,setComment]=useState("");
+ const [revision,setRevision]=useState<number|null>(null);
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState<{ok:boolean;message:string}|null>(null);
+ useEffect(()=>{
+  if(!itemId)return;
+  let active=true;
+  void fetch("/api/admin/registries/"+encodeURIComponent(itemId),{cache:"no-store"})
+   .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<{item:Record<string,unknown>}>;})
+   .then(({item})=>{if(!active)return;
+    if(item.teamId!==teamId||typeof item.revision!=="number")throw Error("mismatch");
+    setType(item.type as RegistryType);setTitle(item.title as string);setDate(item.occurredOn as string);
+    setStatus(item.status as string);setDescription((item.description as string|null)??"");
+    setOwner((item.owner as string|null)??"");setDue((item.dueOn as string|null)??"");
+    setComment((item.comment as string|null)??"");setRevision(item.revision);
+   }).catch(()=>{if(active)setNotice({ok:false,message:"Fiche indisponible / Record unavailable."});});
+  return()=>{active=false;};
+ },[itemId,teamId]);
  const translate=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const changeType=(next:RegistryType)=>{setType(next);setStatus(registryStatuses[next][0]);setNotice(null);};
  const save=async(e:React.FormEvent)=>{
@@ -26,14 +41,16 @@ export default function RegistryCreate({teamId,canManage}:{teamId:string|null;ca
   if(!teamId||!canManage||busy)return;
   setBusy(true);setNotice(null);
   try{
-   const response=await fetch("/api/admin/registries",{method:"POST",
+   if(itemId&&revision===null)throw Error("not-loaded");
+   const response=await fetch(itemId?"/api/admin/registries/"+encodeURIComponent(itemId):"/api/admin/registries",{method:itemId?"PATCH":"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({teamId,type,title,occurredOn:date,status,
+    body:JSON.stringify({...(itemId?{revision}:{}),teamId,type,title,occurredOn:date,status,
       description:description||null,owner:owner||null,dueOn:due||null,comment:comment||null})});
    const result=await response.json() as Response;
    if(!response.ok||!result.ok||!result.id)throw Error(result.error??"failed");
    setNotice({ok:true,message:translate("success").replace("{id}",result.id)});
-   setTitle("");setDescription("");setOwner("");setDue("");setComment("");
+   if(itemId)setRevision(result.revision??(revision??0)+1);
+   else {setTitle("");setDescription("");setOwner("");setDue("");setComment("");}
   }catch{setNotice({ok:false,message:translate("failed")});}
   finally{setBusy(false);}
  };
@@ -65,7 +82,7 @@ export default function RegistryCreate({teamId,canManage}:{teamId:string|null;ca
      <textarea id="registry-comment" className="form-control" rows={2} maxLength={2000} value={comment} onChange={e=>setComment(e.target.value)}/></div>
    </div>
    <div className="d-flex justify-content-end">
-    <button type="submit" className="btn btn-primary" disabled={busy||!title.trim()}>{busy?translate("creating"):translate("create")}</button>
+    <button type="submit" className="btn btn-primary" disabled={busy||!title.trim()||(!!itemId&&revision===null)}>{busy?translate("creating"):translate("create")}</button>
    </div>
    {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}</div>}
   </form>}
