@@ -93,6 +93,18 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   assert.ok(oldest.items[0].startAt.endsWith("Z"));
   assert.equal((await readSprintIndex(db,query({page:1000}))).page,5);
  });
+ it("place le sprint réellement actif en tête, sans le réécrire en base",async()=>{
+  const now=Date.now();
+  const current={...sample[0],id:"current-cycle",name:"Cycle en cours",status:"active",
+   start_at:new Date(now-86400000),end_at:new Date(now+86400000),auto_suspended:false};
+  const future={...sample[1],id:"future-cycle",status:"planned",
+   start_at:new Date(now+10*86400000),end_at:new Date(now+20*86400000)};
+  const {db,queries}=fixture([future,current]);
+  const data=await readSprintIndex(db,query({sort:"priority"}));
+  assert.deepEqual(data.items.map(x=>x.id),["current-cycle","future-cycle"]);
+  assert.equal(data.items[0].stateMayBeStale,false);
+  assert.ok(queries.every(sql=>sql.trim().startsWith("SELECT")));
+ });
  it("ne lance jamais de mutation en consultant l'historique",async()=>{
   const {db,queries}=fixture();
   await readSprintIndex(db,query({page:2,sort:"priority"}));
