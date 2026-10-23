@@ -2569,5 +2569,17 @@
     "decisions": "Decisions and actions",
     "empty": "No recorded data for this section.",
     "unavailable": "Source data unavailable: no historical state has been reconstructed."
+  },
+  "reportNotes": {
+    "heading": "Report narrative",
+    "intro": "These texts belong to the report draft and do not change Sprint data.",
+    "introduction": "Introduction",
+    "conclusion": "Conclusion",
+    "include": "Include in report",
+    "language": "Original language",
+    "save": "Save draft",
+    "saved": "Draft saved",
+    "error": "Unable to load or save draft.",
+    "leaveWarning": "Your report changes are not saved. Leave without saving?"
   }
 }
