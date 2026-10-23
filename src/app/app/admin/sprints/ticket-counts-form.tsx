@@ -54,7 +54,11 @@ export default function TicketCountsForm({canManage}:{canManage:boolean}){
     body:JSON.stringify({sprintId,revision,counts})
    });
    if(!response.ok)throw Error();
-   await choose(sprintId);setNotice(t("sprintTickets.saved"));
+   const result=await response.json() as {revision:number};
+   if(!Number.isSafeInteger(result.revision))throw Error();
+   setRevision(result.revision);
+   setSaved({...counts});
+   setNotice(t("sprintTickets.saved"));
   }catch{setError(t("sprintTickets.error"));}
   finally{setBusy(false);}
  }
