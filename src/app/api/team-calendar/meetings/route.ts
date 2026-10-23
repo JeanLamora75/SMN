@@ -13,7 +13,7 @@ export async function GET(request:NextRequest){
  try{
   return jsonResult(await withAuthDb(async db=>{
    const result=await db.query<{id:string;name:string;start_at:string;end_at:string;kind:string}>(`
-    SELECT c.id,(s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,c.ends_at::text AS end_at,'ceremony' AS kind
+    SELECT c.id,(s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,c.ends_at::text AS end_at,'ceremony' AS kind,c.generation_source AS generation_source
     FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE i.id='singleton' AND s.deleted_at IS NULL
