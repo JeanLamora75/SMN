@@ -1,6 +1,6 @@
 import {createHash,randomUUID} from "node:crypto";
 export const PDF_MAX_BYTES=20*1024*1024;
-export type PdfArchiveManifest={id:string;sha256:string;byteLength:number;createdAt:string;authorId:string;language:"fr"|"en";templateId:string;teamId:string;cycleId:string;cycleStatus:string;snapshotVersion:number|null};
+export type PdfArchiveManifest={id:string;sha256:string;byteLength:number;createdAt:string;authorId:string;language:"fr"|"en";templateId:string;teamId:string;cycleId:string;cycleStatus:string;snapshotVersion:number|null;templateName?:string;optionsSnapshot?:Record<string,unknown>};
 export function validateFinalPdf(bytes:Buffer):{sha256:string;byteLength:number}|null{
  if(bytes.length<32||bytes.length>PDF_MAX_BYTES||bytes.subarray(0,5).toString("ascii")!=="%PDF-")return null;
  const tail=bytes.subarray(Math.max(0,bytes.length-2048)).toString("latin1");
