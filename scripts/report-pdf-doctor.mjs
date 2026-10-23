@@ -1,11 +1,16 @@
 import {detectChrome} from "./report-chrome.mjs";
+let installed=false;
+try{const pkg=await import("puppeteer-core");installed=typeof pkg.default?.launch==="function";}
+catch{}
+console.log(installed?"PDF_PUPPETEER_INSTALLED":"PDF_PUPPETEER_MISSING");
+if(!installed)process.exitCode=1;
 const chrome=await detectChrome();
 if(!chrome.ok){
  console.error("PDF_CHROME_NOT_FOUND: configure SMN_CHROME_PATH with the full Chrome executable path.");
  process.exitCode=1;
 }else{
  console.log("PDF_CHROME_FOUND: "+chrome.path);
- if(process.argv.includes("--smoke")){
+ if(process.argv.includes("--smoke")&&installed){
   try{
    const {default:puppeteer}=await import("puppeteer-core");
    const browser=await puppeteer.launch({executablePath:chrome.path,headless:true,args:["--no-first-run","--no-default-browser-check"]});
