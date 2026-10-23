@@ -2285,6 +2285,8 @@
     "todo": "À faire",
     "completed": "Terminée",
     "recorded": "Enregistré",
-    "edit": "Ouvrir et enrichir la fiche"
+    "edit": "Ouvrir et enrichir la fiche",
+    "unavailableRecord": "Fiche indisponible.",
+    "conflict": "La fiche a été modifiée ailleurs. Actualisez-la avant d’enregistrer."
   }
 }
