@@ -87,6 +87,6 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery){
   };
  });
  const activeCount=globalActive.rows[0]?.active_count??0;
- return {teamName,items,total,page,pageSize,totalPages,
+ return {teamName,items,total,page,pageSize:query.pageSize,totalPages,
   statuses:statuses.rows.map(s=>s.status).sort(),activeCount};
 }
