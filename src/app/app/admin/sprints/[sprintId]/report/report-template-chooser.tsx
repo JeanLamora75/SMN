@@ -5,7 +5,7 @@ import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import {reportMetricKeys,reportQualitativeKinds} from "@/lib/report-content-options";
 type Template={id:string;name:string;protected:boolean;revision:number;historyDepth:number;
  sections:Array<{key:string;visible:boolean}>;content:{metrics:string[];qualitativeKinds:string[];includeHumanAnalysis:boolean}};
-export default function ReportTemplateChooser(){
+export default function ReportTemplateChooser({sprintId}:{sprintId:string}){
  const t=useTranslation(),tr=(key:string)=>t(("reportTemplates."+key) as Parameters<typeof t>[0]);
  const [items,setItems]=useState<Template[]>([]),[source,setSource]=useState("standard"),[name,setName]=useState("");
  const [selected,setSelected]=useState(""),[draft,setDraft]=useState<Template|null>(null),[base,setBase]=useState("");
@@ -27,13 +27,25 @@ export default function ReportTemplateChooser(){
  }else{setSource(response.id);setName("");}setNotice(tr("saved"));
  }catch(e){setError(e instanceof Error&&e.message==="conflict"?tr("conflict"):tr("error"));}
  finally{setBusy(false);}};
+ const apply=async()=>{if(busy)return;
+ if(dirty&&!window.confirm(tr("leaveWarning")))return;
+ if(!window.confirm(tr("applyConfirm")))return;
+ setBusy(true);setError("");setNotice("");
+ try{const r=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/apply-template",{
+ method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({templateId:source})});
+ if(!r.ok){const data=await r.json() as {error?:string};
+ throw Error(data.error==="template-unavailable"?"template-unavailable":"failed");}
+ window.location.reload();
+ }catch(e){setError(e instanceof Error&&e.message==="template-unavailable"?tr("unavailable"):tr("error"));}
+ finally{setBusy(false);}
+ };
  const edit=(update:(old:Template)=>Template)=>setDraft(v=>v?update(v):v);
  return <section className="border-top pt-3 d-grid gap-3"><h2 className="h5">{tr("heading")}</h2>
  <p className="text-secondary">{tr("intro")}</p>
  <div className="d-flex flex-wrap gap-2"><select className="form-select w-auto" value={source} onChange={e=>setSource(e.target.value)}>
  {items.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
  <input className="form-control w-auto" aria-label={tr("copyName")} maxLength={120} value={name} onChange={e=>setName(e.target.value)} placeholder={tr("copyName")}/>
- <button type="button" className="btn btn-outline-primary" disabled={busy||!name.trim()} onClick={()=>void submit({action:"copy",id:source,name})}>{tr("copy")}</button></div>
+ <button type="button" className="btn btn-outline-primary" disabled={busy||!name.trim()} onClick={()=>void submit({action:"copy",id:source,name})}>{tr("copy")}</button><button type="button" className="btn btn-primary" disabled={busy||items.length===0} onClick={()=>void apply()}>{tr("apply")}</button></div>
  <label>{tr("edit")} <select className="form-select" value={selected} onChange={e=>choose(e.target.value)}>
  <option value="">—</option>{items.filter(x=>!x.protected).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
  {draft&&!draft.protected&&<div className="border rounded p-3 d-grid gap-3">
