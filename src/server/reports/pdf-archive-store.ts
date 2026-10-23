@@ -1,8 +1,6 @@
 import {mkdir,open,readFile,unlink} from "node:fs/promises";
 import {join,resolve} from "node:path";
-import {tmpdir} from "node:os";
 import type {Client} from "pg";
-import {createHash} from "node:crypto";
 import {newPdfManifest,validateFinalPdf,type PdfArchiveManifest} from "./pdf-archive-contract";
 /** Private, non-web-facing store; never put archives in public/. */
 const storageRoot=()=>resolve(process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR||join(process.cwd(),".smn-private","report-archives"));
