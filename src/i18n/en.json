@@ -2384,5 +2384,15 @@
     "conflict": "Update conflict: reload record",
     "inactive": "Satisfied or cancelled: no active due-date alert",
     "active": "Dependency status stays independent of the at-risk flag"
+  },
+  "registryCycles": {
+    "heading": "Linked cycles",
+    "intro": "One record can be linked to several Sprints without duplication.",
+    "empty": "No Sprints available.",
+    "linked": "Linked",
+    "unlinked": "Not linked",
+    "closed": "Closed Sprint — changes disabled",
+    "error": "Could not update this link.",
+    "loading": "Loading Sprints…"
   }
 }
