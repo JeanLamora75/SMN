@@ -119,7 +119,7 @@ export async function updateRegistryItem(db:Client,actorId:string,id:string,revi
   await db.query(`INSERT INTO public.smn_registry_item_audit
    (id,item_id,revision,before_values,after_values,actor_id)
    VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
-   [randomUUID(),id,revision+1,JSON.stringify(old),JSON.stringify(input),actorId]);
+   [randomUUID(),id,revision+1,JSON.stringify({title:old.title,occurredOn:old.occurred_on,status:old.status,description:old.description,owner:old.owner_name,dueOn:old.due_on,comment:old.comment,teamId:old.team_id,type:old.type}),JSON.stringify(input),actorId]);
   await db.query("COMMIT");return {ok:true as const,id,revision:revision+1};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
