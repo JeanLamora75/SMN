@@ -8,13 +8,13 @@ import {defaultSprintId} from "@/lib/sprint-context";
  */
 export async function readSprintContext(db:Client,teamId:string,now=Date.now()):
  Promise<{items:SprintContextItem[];defaultCycleId:string|null}>{
- const schema=await db.query<{exists:boolean;suspension:boolean}>(`
- SELECT to_regclass('public.smn_sprint') IS NOT NULL AS exists,
+ const schema=await db.query<{table_exists:boolean;suspension_exists:boolean}>(`
+ SELECT to_regclass('public.smn_sprint') IS NOT NULL AS table_exists,
  EXISTS(SELECT 1 FROM information_schema.columns
   WHERE table_schema='public' AND table_name='smn_sprint'
-  AND column_name='auto_suspended') AS suspension`);
- if(!schema.rows[0]?.exists)return {items:[],defaultCycleId:null};
- const suspended=schema.rows[0]?.suspension?"s.auto_suspended":"false";
+  AND column_name='auto_suspended') AS suspension_exists`);
+ if(!schema.rows[0]?.table_exists)return {items:[],defaultCycleId:null};
+ const suspended=schema.rows[0]?.suspension_exists?"s.auto_suspended":"false";
  const rows=await db.query<{
   id:string;name:string;status:string;start_at:Date|string;end_at:Date|string;
   time_zone:string;suspended:boolean
