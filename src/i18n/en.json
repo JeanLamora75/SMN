@@ -2151,6 +2151,25 @@
   "ceremonyStatusHelp": "An automatically inferred held status does not prove attendance. A reconstructed meeting does not prove it happened. Postponed status needs a separate approved business rule.",
   "ceremonySource": {"standard":"Standard ceremony","custom":"Custom meeting","exceptional":"Exceptional meeting"},
   "ceremonyKind": {"planning":"Sprint Planning","daily":"Daily Scrum","review":"Sprint Review","retrospective":"Retrospective"},
-  "ceremonyStatus": {"scheduled":"Scheduled","held":"Held","notHeld":"Not held","cancelled":"Cancelled","unknown":"Unknown status"}
+  "ceremonyStatus": {"scheduled":"Scheduled","held":"Held","notHeld":"Not held","cancelled":"Cancelled","unknown":"Unknown status"},
+  "presenceTitle": "Member attendance during the Sprint",
+  "presenceManageMembers": "Manage members",
+  "presenceRestricted": "Individual attendance estimates are restricted to administrators. Read-only users can view the Sprint page without receiving named member data.",
+  "presenceMethod": "Estimated person-days based on scheduled member half-days, excluding recorded absences, public holidays and company closures. Two available half-days = one presence person-day; development shares and allocations do not reduce presence.",
+  "presenceTotal": "Estimated total presence",
+  "presenceMembers": "Members assigned during the Sprint",
+  "presenceMember": "Member",
+  "presenceJh": "Presence (person-days)",
+  "presenceDevelopmentJh": "Development (person-days)",
+  "presenceQuality": "Data quality",
+  "presenceUnknown": "Not calculable",
+  "presenceUnknownDays": "{count} day(s) missing reliable data",
+  "presenceComplete": "Data available",
+  "presenceDistinction": "Presence is estimated availability from work calendars and absences, not confirmed attendance. Development days measure effort available for development separately. Part-time schedules must be reflected in the individual calendar.",
+  "presenceEmpty": "No team members assigned during this Sprint.",
+  "presenceForecast": "Calculated from current calendars and recorded absences; future dates are forecasts.",
+  "presenceSnapshot": "Values frozen at closure — snapshot V{version}.",
+  "presenceHistoryMissing": "This previously closed Sprint has no reliable individual presence snapshot. Current data is not substituted.",
+  "presenceUnavailable": "Presence unavailable: one or more required sources are missing or inaccessible."
   }
 }
