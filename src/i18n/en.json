@@ -1888,6 +1888,7 @@
     "pastWarning": "Warning: this absence is in the past. Correcting it may change newly calculated capacity, but frozen initial commitments and closed period reports will not be rewritten.",
     "deleted": "The absence no longer counts toward availability; its audit history remains visible.",
     "deletedStatus": "Deleted",
+    "refreshFailed": "The deletion was saved, but the list could not be refreshed. Reload the tab to see the updated history.",
     "noneUpcoming": "No upcoming or ongoing absences.",
     "nonePast": "No past absences.",
     "capacityNotice": "Non-frozen availability and capacity are recalculated on the next read. Frozen initial references and closed period reports remain unchanged."
