@@ -2519,5 +2519,21 @@
     "invalidate": "Invalider ce fait",
     "confirmInvalidation": "Confirmer l’invalidation",
     "cancelInvalidation": "Annuler"
+  },
+  "factSelection": {
+    "heading": "Sélection des faits pour les reportings",
+    "intro": "Le masquage, la promotion et la sélection n’altèrent jamais les fiches sources. Les faits invalidés restent visibles pour l’historique mais sont exclus du rendu.",
+    "error": "Impossible d’enregistrer la sélection.",
+    "empty": "Aucun fait éligible pour le reporting.",
+    "fact": "Fait",
+    "origin": "Origine",
+    "date": "Date métier",
+    "hide": "Masquer",
+    "promote": "Promouvoir",
+    "select": "Sélectionner",
+    "manual": "Manuel",
+    "automatic": "Automatique",
+    "invalidated": "Invalidé",
+    "preview": "Faits présélectionnés pour l’aperçu"
   }
 }
