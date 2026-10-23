@@ -2287,7 +2287,16 @@
     "recorded": "Recorded",
     "edit": "Open and edit record",
     "unavailableRecord": "Record unavailable.",
-    "conflict": "This record was changed elsewhere. Reload it before saving."
+    "conflict": "This record was changed elsewhere. Reload it before saving.",
+    "unsaved": "Unsaved changes: leaving this page may discard them.",
+    "history": "Revision history",
+    "historyEmpty": "No revisions available.",
+    "revision": "Revision",
+    "changedAt": "Changed at",
+    "actor": "Author (identifier)",
+    "before": "Previous values",
+    "after": "New values",
+    "historyError": "History unavailable."
   },
   "registryList": {
     "heading": "Browse registers",
