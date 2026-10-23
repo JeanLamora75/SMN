@@ -20,6 +20,10 @@ const fixture=(records=sample)=>{
  const db={query:async (sql:string,params:unknown[]=[])=>{
   queries.push(sql);
   if(sql.includes("SELECT t.id,t.name"))return {rows:[{id:"team-1",name:"Equipe pilote"}]};
+  if(sql.includes("AS active_count"))return {rows:[{
+   active_count:records.filter(r=>r.status==="active"&&!r.auto_suspended&&
+    r.start_at<=new Date()&&r.end_at>new Date()).length
+  }]};
   if(sql.includes("SELECT DISTINCT"))return {
    rows:[...new Set(records.map(r=>r.auto_suspended?"suspended":r.status))].map(status=>({status}))
   };
@@ -105,7 +109,19 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   const data=await readSprintIndex(db,query({sort:"priority"}));
   assert.deepEqual(data.items.map(x=>x.id),["current-cycle","future-cycle"]);
   assert.equal(data.items[0].stateMayBeStale,false);
+  assert.equal(data.activeCount,1);
   assert.ok(queries.every(sql=>sql.trim().startsWith("SELECT")));
+ });
+ it("signale plusieurs sprints réellement actifs, même hors de la page courante",async()=>{
+  const now=Date.now();
+  const newer={...sample[0],id:"active-a",status:"active",auto_suspended:false,
+   start_at:new Date(now-86400000),end_at:new Date(now+86400000)};
+  const older={...sample[1],id:"active-b",status:"active",auto_suspended:false,
+   start_at:new Date(now-2*86400000),end_at:new Date(now+86400000)};
+  const {db}=fixture([newer,older,...sample]);
+  const result=await readSprintIndex(db,query({pageSize:1}));
+  assert.equal(result.activeCount,2);
+  assert.equal(result.items.length,1);
  });
  it("ne lance jamais de mutation en consultant l'historique",async()=>{
   const {db,queries}=fixture();
