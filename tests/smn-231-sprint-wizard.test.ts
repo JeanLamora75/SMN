@@ -56,7 +56,11 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
  });
  it("revalide conflits et empreinte avant d'écrire, et ne valide qu'une transaction entière",()=>{
   const confirm=server.slice(server.indexOf("export async function confirmWizard("));
-  assert.ok(confirm.indexOf("previewSprintBatch(")<confirm.indexOf("INSERT INTO public.smn_sprint\n"));
+  const previewPosition=confirm.indexOf("previewSprintBatch(");
+  const insertPosition=confirm.search(/INSERT INTO public\\.smn_sprint\\s*\\(/);
+  assert.ok(previewPosition>=0,"La revalidation des périodes doit être présente");
+  assert.ok(insertPosition>=0,"L'insertion SQL du sprint doit être présente");
+  assert.ok(previewPosition<insertPosition,"Les conflits doivent être revérifiés avant toute insertion");
   assert.match(confirm,/await db\.query\("BEGIN"\)/);
   assert.match(confirm,/await db\.query\("COMMIT"\)/);
   assert.match(confirm,/await db\.query\("ROLLBACK"\)/);
