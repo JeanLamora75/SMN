@@ -3,7 +3,7 @@ import Link from "next/link";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
-import {standardReportSections,type ReportSection} from "@/server/reports/standard-composition";
+type ReportSection={key:"executive"|"objectives"|"indicators"|"events"|"attention"|"decisions";items:Array<{label:string;detail:string;href:string|null}>;state:"available"|"empty"|"unavailable"};
 import {defaultSectionOptions,orderReportSections,type SectionOption} from "@/lib/report-section-options";
 export default function ReportSectionEditor({sprintId,sections}:{sprintId:string;sections:ReportSection[]}){
  const t=useTranslation();const tr=(key:string)=>t(("reportSectionOptions."+key) as Parameters<typeof t>[0]);
