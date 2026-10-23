@@ -2673,5 +2673,22 @@
     "conflict": "Ce modèle a été modifié entre-temps. Rechargez-le avant d’enregistrer.",
     "deleteInfo": "Suppression temporairement bloquée afin de préserver les archives et leurs références.",
     "leaveWarning": "Des modifications de modèle ne sont pas enregistrées. Quitter sans sauvegarder ?"
+  },
+  "reportPreview": {
+    "open": "Prévisualiser le rapport",
+    "back": "Retour à la préparation",
+    "title": "Prévisualisation complète du rapport",
+    "generatedAt": "Date de situation",
+    "provisional": "Rapport provisoire — Sprint non clôturé",
+    "readOnly": "Prévisualisation HTML en lecture seule. Aucun PDF ni archive n’a été créé.",
+    "introduction": "Introduction",
+    "conclusion": "Conclusion",
+    "missing": "Non renseigné",
+    "cycle": "Sprint",
+    "vision": "Vision",
+    "productGoal": "Product Goal",
+    "dod": "Definition of Done",
+    "dor": "Definition of Ready",
+    "unverified": "Lien externe non vérifié"
   }
 }
