@@ -107,9 +107,13 @@ const state=(input:{
 };
 export async function readActualCapacity(db:Client,start:string,end:string,
  calculate:(db:Client,start:string,end:string,options:{externalTransaction:true;includeExceptionalImpact?:boolean})=>
-  Promise<CapacityReport>=readDevelopmentCapacity):Promise<ActualResult>{
+  Promise<CapacityReport>=readDevelopmentCapacity,
+ options:{externalTransaction?:boolean}={}):Promise<ActualResult>{
  if(!parseCapacityPeriod(new URLSearchParams({start,end})))throw Error("actual-invalid-period");
- await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
+ // Le dashboard possède déjà sa transaction cohérente et strictement READ ONLY.
+ // Les appels historiques gardent leur transaction autonome par défaut.
+ if(!options.externalTransaction)
+  await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  try{
   const teams=await db.query<ActorTeam>(teamSql);
   if(teams.rows.length!==1)throw Error("actual-team-unavailable");
@@ -132,7 +136,7 @@ export async function readActualCapacity(db:Client,start:string,end:string,
     closureEventId:snapshot?.event_id??null,initialJh:initial?.initialJh??null,
     missingSources:[]});
    // A closed snapshot marked "Non renseigné" must not be converted to a current calculation.
-   await db.query("COMMIT");
+   if(!options.externalTransaction)await db.query("COMMIT");
    return result;
   }
   const manual=row?(await db.query<ManualRow>(manualSql,[row.id])).rows[0]:undefined;
@@ -152,9 +156,9 @@ export async function readActualCapacity(db:Client,start:string,end:string,
    manualJh:manual?.manual_jh??null,revision:manual?.revision??0,
    closedAt:null,closureEventId:null,
    initialJh:initial?.initialJh??null,missingSources});
-  await db.query("COMMIT");
+  if(!options.externalTransaction)await db.query("COMMIT");
   return result;
- }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
+ }catch(error){if(!options.externalTransaction)await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
 export async function saveActualCapacity(db:Client,actorId:string,raw:unknown):
  Promise<ActualWriteResult>{
