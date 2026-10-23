@@ -56,7 +56,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <ReportLanguageChoice sprintId={s.id}/>
    <div><Link className="btn btn-outline-secondary" href={"/app/admin/reports/archives?cycleId="+encodeURIComponent(s.id)}>{translate(locale,"archiveLibrary.openLibrary")}</Link></div>
    <ReportArchiveList sprintId={s.id}/>
-   <ReportTemplateChooser/>
+   <ReportTemplateChooser sprintId={s.id}/>
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
    <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
    <ReportHistoryOptions sprintId={s.id}/>
