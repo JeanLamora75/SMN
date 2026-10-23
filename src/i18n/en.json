@@ -2320,5 +2320,20 @@
     "team": "Team",
     "readonly": "Read-only access",
     "back": "Back to registers"
+  },
+  "registryRoam": {
+    "heading": "ROAM classification",
+    "none": "Unclassified",
+    "resolved": "Resolved",
+    "owned": "Owned",
+    "accepted": "Accepted",
+    "mitigated": "Mitigated",
+    "save": "Save ROAM",
+    "saving": "Saving…",
+    "updated": "ROAM classification saved.",
+    "error": "ROAM update failed.",
+    "conflict": "The classification was changed elsewhere. Reload the page.",
+    "updatedAt": "Last updated",
+    "unavailable": "Classification unavailable"
   }
 }
