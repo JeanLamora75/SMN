@@ -4,6 +4,7 @@ import {useDeferredValue,useEffect,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {SprintIndexItem,SprintIndexSort} from "@/server/sprints/index";
 import type {TranslationKey} from "@/i18n/catalog";
+import {sprintDetailPath} from "@/lib/sprint-detail-path";
 
 type Result={
  teamName:string;items:SprintIndexItem[];total:number;page:number;pageSize:number;
@@ -137,7 +138,7 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
        const current=item.status==="active"&&!item.suspended&&!item.stateMayBeStale;
        return <tr key={item.id} className={current?"table-active":""}>
         <th scope="row" className={current?"border-start border-primary border-4":""}>
-         <span className="fw-semibold">{item.name}</span>
+         <Link href={sprintDetailPath(item.id)} className="fw-semibold">{item.name}</Link>
          {item.stateMayBeStale&&<small className="d-block text-warning-emphasis">
           {t("sprintsIndex.stateUnverified")}</small>}
         </th>
