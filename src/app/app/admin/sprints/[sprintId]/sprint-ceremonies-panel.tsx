@@ -113,9 +113,13 @@ export default function SprintCeremoniesPanel({sprintId,timeZone,locale,data,t}:
          </dl>
         </div>
        </div>
-       <Link className="btn btn-outline-primary btn-sm" href={meetingPath(item)}>
-        {t("sprintDetail.ceremonyViewMeeting")}
-       </Link>
+       {data.source==="recorded-events"?
+        <Link className="btn btn-outline-primary btn-sm" href={meetingPath(item)}>
+         {t("sprintDetail.ceremonyViewMeeting")}
+        </Link>:
+        <span className="small text-secondary" role="note">
+         {t("sprintDetail.ceremonyHistoricalLinkUnavailable")}
+        </span>}
       </div>
      </li>)}
     </ol>}
