@@ -3,29 +3,52 @@ import {translate,type TranslationKey} from "@/i18n/catalog";
 import type {Language} from "@/lib/language";
 import type {DashboardContext} from "@/server/dashboard/read";
 import {effectiveSprintStatus,type SprintContextItem} from "@/lib/sprint-context";
+import type {CollectiveCycleProjection,DashboardMetric} from "@/lib/dashboard-data-contract";
 
 type Props=Readonly<{
   context:DashboardContext;
   locale:Language;
   teamHref:string;
   cycle:SprintContextItem|null;
+  projection?:CollectiveCycleProjection|null;
 }>;
 
-function MetricLine({label,unit,empty}:Readonly<{label:string;unit:string;empty:string}>){
-  return <div className="smn-metric-row">
+function MetricLine({label,unit,empty,value,locale}:Readonly<{
+ label:string;unit:string;empty:string;value?:DashboardMetric;locale:Language
+}>){
+ const t=(key:TranslationKey)=>translate(locale,key);
+ const shown=value?.state==="available"?
+  new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:4}).format(value.value):
+  value?.state==="not-recorded"?t("dashboard.cockpit.notSpecified"):
+  value?.state==="unavailable"&&value.reason!=="producer-not-ready"?
+   t("dashboard.cockpit.notAvailable"):empty;
+ const sourceLabels:Record<string,TranslationKey>={
+  manual:"dashboard.cockpit.metricManual",
+  calculated:"dashboard.cockpit.metricCalculated",
+  imported:"dashboard.cockpit.metricImported",
+  "closure-snapshot":"dashboard.cockpit.metricSnapshot"
+ };
+ return <div className="smn-metric-row">
     <dt className="smn-metric-label">{label} <span className="smn-metric-unit">({unit})</span></dt>
-    <dd className="smn-metric-empty">{empty}</dd>
+    <dd className={value?.state==="available"?"smn-metric-value":"smn-metric-empty"}>
+      {shown}
+      {value?.state==="available"&&<small className="text-secondary d-block">
+        {t(sourceLabels[value.source])}
+        {value.quality==="estimated"?" · "+t("dashboard.cockpit.metricEstimated"):""}
+      </small>}
+    </dd>
   </div>;
 }
 
-function MetricPair({title,first,second,unit,empty,comparison}:Readonly<{
+function MetricPair({title,first,second,unit,empty,comparison,firstMetric,secondMetric,locale}:Readonly<{
   title:string;first:string;second:string;unit:string;empty:string;comparison:string;
+  firstMetric?:DashboardMetric;secondMetric?:DashboardMetric;locale:Language;
 }>){
   return <article className="smn-metric-card">
     <h2 className="smn-metric-title">{title}</h2>
     <dl className="smn-metric-values">
-      <MetricLine label={first} unit={unit} empty={empty}/>
-      <MetricLine label={second} unit={unit} empty={empty}/>
+      <MetricLine label={first} unit={unit} empty={empty} value={firstMetric} locale={locale}/>
+      <MetricLine label={second} unit={unit} empty={empty} value={secondMetric} locale={locale}/>
     </dl>
     <p className="smn-metric-comparison">{comparison}</p>
   </article>;
@@ -33,7 +56,7 @@ function MetricPair({title,first,second,unit,empty,comparison}:Readonly<{
 
 /** Les données de présence d'un Sprint sont réelles ; KPI et registres restent
  * explicitement indisponibles tant que leurs lectures métier ne sont pas raccordées. */
-export default function CycleOverview({context,locale,teamHref,cycle}:Props){
+export default function CycleOverview({context,locale,teamHref,cycle,projection}:Props){
   const t=(key:TranslationKey)=>translate(locale,key);
   const scrum=context.mode==="scrum";
   const effectiveStatus=cycle?effectiveSprintStatus(cycle):null;
@@ -54,6 +77,10 @@ export default function CycleOverview({context,locale,teamHref,cycle}:Props){
     t("dashboard.cockpit.notAvailable");
   const emptyMetric=cycle?t("dashboard.cockpit.dataPending"):t("dashboard.cockpit.notSpecified");
   const comparison=cycle?t("dashboard.cockpit.comparisonUnavailable"):t("dashboard.cockpit.noPreviousCycle");
+  const goals=projection?.goals;
+  const goalText=goals?.state==="unavailable"?
+    (goals.reason==="producer-not-ready"?t("dashboard.cockpit.dataPending"):t("dashboard.cockpit.notAvailable")):
+    goals?.state==="available"&&goals.items.length===0?t("dashboard.cockpit.notSpecified"):null;
   return <section className="smn-cycle-overview" id="pilotage"
     aria-labelledby="smn-cycle-overview-heading">
     <header className="smn-cycle-overview-header" id="cycles">
@@ -82,7 +109,20 @@ export default function CycleOverview({context,locale,teamHref,cycle}:Props){
           <div><dt>{t("dashboard.cockpit.status")}</dt>
             <dd>{status}</dd></div>
           <div><dt>{t("dashboard.cockpit.goals")}</dt>
-            <dd>{t("dashboard.cockpit.notSpecified")}</dd></div>
+            <dd>{goals?.state==="available"&&goals.items.length>0?
+              <ul className="list-unstyled mb-1">
+                {goals.items.map(g=><li key={g.id} className="mb-1">
+                  {g.title} <small className="text-secondary">
+                    ({t(("sprintGoals."+g.evaluation) as TranslationKey)})
+                  </small>
+                </li>)}
+              </ul>:
+              goalText??t("dashboard.cockpit.notSpecified")}
+            {goals?.state==="available"&&goals.items.length>0&&
+              <Link className="small d-block" href="/app/admin/sprints">
+                {t("dashboard.cockpit.viewSprintGoals")}
+              </Link>}
+            </dd></div>
         </dl>
       </div>
     </header>
@@ -91,17 +131,19 @@ export default function CycleOverview({context,locale,teamHref,cycle}:Props){
         first={t("dashboard.cockpit.plannedCapacity")}
         second={t("dashboard.cockpit.actualCapacity")}
         unit="J/H" empty={emptyMetric}
-        comparison={comparison}/>
+        firstMetric={projection?.capacity.initialJh} secondMetric={projection?.capacity.actualJh}
+        locale={locale} comparison={comparison}/>
       <MetricPair title={t("dashboard.cockpit.storyPoints")}
         first={t("dashboard.cockpit.initialStoryPoints")}
         second={t("dashboard.cockpit.completedStoryPoints")}
         unit="SP" empty={emptyMetric}
-        comparison={comparison}/>
+        firstMetric={projection?.storyPoints.initial} secondMetric={projection?.storyPoints.done}
+        locale={locale} comparison={comparison}/>
       <MetricPair title={t("dashboard.cockpit.tickets")}
         first={t("dashboard.cockpit.initialTickets")}
         second={t("dashboard.cockpit.completedTickets")}
         unit={t("dashboard.cockpit.ticketsUnit")}
-        empty={emptyMetric}
+        empty={emptyMetric} locale={locale}
         comparison={comparison}/>
       <article className="smn-metric-card smn-metric-deadline">
         <h2 className="smn-metric-title">{t("dashboard.cockpit.workingDays")}</h2>
