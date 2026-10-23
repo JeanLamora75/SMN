@@ -13,9 +13,10 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(!/^[a-f0-9-]{36}$/i.test(id))return Response.json({error:"invalid-input"},{status:400});
  const body=await req.json().catch(()=>null) as {reference?:unknown}|null;
  if(!body||typeof body.reference!=="string"||!/^[a-f0-9-]{36}$/i.test(body.reference))return Response.json({error:"invalid-input"},{status:400});
+ const referenceId=body.reference;
  const cookie=req.cookies.get(SESSION_COOKIE)?.value;
  if(!cookie)return Response.json({error:"forbidden"},{status:403});
- const reference=await withSprintIndexDb(db=>readFrozenReportReference(db,body.reference!,id)).catch(()=>null);
+ const reference=await withSprintIndexDb(db=>readFrozenReportReference(db,referenceId,id)).catch(()=>null);
  if(!reference)return Response.json({error:"reference-unavailable"},{status:409});
  const configured=process.env.SMN_PDF_INTERNAL_ORIGIN??"http://127.0.0.1:3003";
  let origin:URL;
