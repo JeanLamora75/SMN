@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {riskCriticalEvent} from "./confirmed-highlights";
 import type {Client} from "pg";
 import {criticality,validLevel,type Level} from "@/lib/risk-criticality";
 export async function ensureRiskAssessment(db:Client){
@@ -45,6 +46,7 @@ export async function saveRiskAssessment(db:Client,actorId:string,id:string,raw:
    VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
    [randomUUID(),id,revision,old?JSON.stringify({probability:old.probability,impact:old.impact}):null,
     JSON.stringify({probability:v.probability,impact:v.impact}),actorId]);
+  if(criticality(v.probability as Level|null,v.impact as Level|null).level==="high"&&(old===undefined||criticality(old.probability,old.impact).level!=="high"))await riskCriticalEvent(db,id,actorId,revision);
   await db.query("COMMIT");
   return {ok:true as const,id,revision,...criticality(v.probability as Level|null,v.impact as Level|null)};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
