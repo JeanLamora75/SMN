@@ -2694,7 +2694,9 @@
     "dor": "Definition of Ready",
     "unverified": "External link not verified",
     "print": "Print / Save as PDF",
-    "printWarning": "Printing uses the current preview, without a server archive or immutable version guarantee. Check the result before sharing."
+    "printWarning": "Printing uses the current preview, without a server archive or immutable version guarantee. Check the result before sharing.",
+    "logoAlt": "Report logo",
+    "trendsCaption": "Historical trends for closed cycles"
   },
   "reportLanguage": {
     "heading": "Report language",
@@ -2738,5 +2740,13 @@
     "confirm": "Confirm hiding? This PDF will no longer appear in the ordinary library. The file and other archives are retained.",
     "hideError": "Unable to hide archive.",
     "download": "Download"
+  },
+  "reportLogo": {
+    "heading": "Report logo",
+    "description": "PNG or JPEG, up to 256 KB. Optional, stored in SMN without calling third-party services.",
+    "choose": "Choose a logo",
+    "remove": "Remove logo",
+    "saved": "Logo updated. Refresh the preview to see it.",
+    "error": "Invalid logo or could not save."
   }
 }
