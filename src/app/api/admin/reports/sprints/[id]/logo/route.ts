@@ -1,0 +1,28 @@
+import {NextRequest} from "next/server";
+import {authorizeApi} from "@/server/auth/authorization";
+import {withAuthDb} from "@/server/auth/database";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {jsonResult,readJsonObject} from "@/server/auth/request";
+import {readReportLogo,saveReportLogo} from "@/server/reports/logo-store";
+export const dynamic="force-dynamic";
+const target={type:"settings",exists:true,inScope:true} as const;
+export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){
+ if(!await authorizeApi(req,"write",target))return jsonResult({error:"forbidden"},403);
+ const {id}=await params;if(!/^[a-f0-9-]{36}$/i.test(id))return jsonResult({error:"invalid-input"},400);
+ try{const result=await withSprintIndexDb(async db=>{
+ const scope=await db.query(`SELECT s.id FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
+ JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.id=$1 AND s.deleted_at IS NULL
+ AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,[id]);
+ if(scope.rows.length!==1)return undefined;
+ return readReportLogo(db,id);
+ });return result===undefined?jsonResult({error:"not-found"},404):jsonResult({logo:result});}
+ catch{return jsonResult({error:"unavailable"},503);}
+}
+export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}>}){
+ const actor=await authorizeApi(req,"write",target);if(!actor)return jsonResult({error:"forbidden"},403);
+ const {id}=await params,body=await readJsonObject(req);
+ if(!body||!Object.prototype.hasOwnProperty.call(body,"logo"))return jsonResult({error:"invalid-input"},400);
+ try{const result=await withAuthDb(db=>saveReportLogo(db,id,actor.id,body.logo));
+ return jsonResult(result,result.ok?200:result.error==="not-found"?404:400);
+ }catch{return jsonResult({error:"unavailable"},503);}
+}
