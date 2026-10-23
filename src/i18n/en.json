@@ -2416,5 +2416,20 @@
     "empty": "No links",
     "error": "Unable to update link.",
     "intro": "Linked records keep their own independent status."
+  },
+  "registryRelations": {
+    "heading": "Records and goals relationships",
+    "intro": "Linked records can be consulted from both sides. No record is duplicated.",
+    "kind": "Target type",
+    "record": "Qualitative record",
+    "goal": "Sprint goal (actions only)",
+    "target": "Target identifier",
+    "add": "Link",
+    "remove": "Remove",
+    "empty": "No relationships.",
+    "error": "Could not update the relation. Check the identifier and access rights.",
+    "from": "From",
+    "to": "To",
+    "readOnly": "Read-only view"
   }
 }
