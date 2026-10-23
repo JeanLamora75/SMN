@@ -53,7 +53,7 @@ describe("SMN — sélecteur Sprint contextuel",()=>{
    query:async(sql:string,params?:unknown[])=>{
     calls.push(sql);
     assert.doesNotMatch(sql,/\b(?:CREATE|ALTER|INSERT|UPDATE|DELETE|LIMIT)\b/i);
-    if(sql.includes("to_regclass"))return {rows:[{exists:true,suspension:true}]};
+    if(sql.includes("to_regclass"))return {rows:[{table_exists:true,suspension_exists:true}]};
     assert.deepEqual(params,["team"]);
     assert.match(sql,/s\.team_id=\$1/);
     assert.match(sql,/s\.deleted_at IS NULL/);
@@ -68,7 +68,7 @@ describe("SMN — sélecteur Sprint contextuel",()=>{
   assert.equal(calls.length,2);
  });
  it("ne suppose pas qu'une nouvelle installation contient déjà smn_sprint",async()=>{
-  const fake={query:async()=>({rows:[{exists:false,suspension:false}]})} as unknown as Client;
+  const fake={query:async()=>({rows:[{table_exists:false,suspension_exists:false}]})} as unknown as Client;
   assert.deepEqual(await readSprintContext(fake,"team",at),{items:[],defaultCycleId:null});
  });
  it("connecte le header, l'API protégée et le tableau de bord à la même source",()=>{
