@@ -26,30 +26,36 @@ export default async function MeetingPage({params,searchParams}:{
  const {kind,id}=await params;
  if(!["ceremony","template","exceptional"].includes(kind)||!UUID.test(id))notFound();
  const row=await withAuthDb(async db=>{
-  const sql=kind==="ceremony"?
-   `SELECT (s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,
-    c.ends_at::text AS end_at,c.occurrence_status AS status,
-    c.status_explicit,c.generation_source AS generation_source,
+  // Legacy installations may lack the optional attendance/status columns.
+  const table=kind==="ceremony"?"smn_sprint_ceremony":
+   kind==="template"?"smn_scrum_template_occurrence":"smn_sprint_exceptional_meeting";
+  const alias=kind==="ceremony"?"c":kind==="template"?"o":"m";
+  const columns=await db.query<{column_name:string}>(`
+   SELECT column_name FROM information_schema.columns
+   WHERE table_schema='public' AND table_name=$1`,[table]);
+  const present=new Set(columns.rows.map(x=>x.column_name));
+  const nameColumn=kind==="ceremony"?"kind":"name";
+  if(!["id","sprint_id","starts_at","ends_at",nameColumn].every(x=>present.has(x)))
+   return null;
+  const statusColumn=kind==="ceremony"?"occurrence_status":"status";
+  const status=present.has(statusColumn)?
+   `COALESCE(${alias}.${statusColumn},'unknown')`:"'unknown'::text";
+  const explicit=present.has("status_explicit")?
+   alias+".status_explicit":"NULL::boolean";
+  const generation=present.has("generation_source")?
+   alias+".generation_source":"NULL::text";
+  const title=kind==="ceremony"?
+   `(s.name||' — '||c.kind)`:alias+".name";
+  const sql=`SELECT ${title} AS name,${alias}.starts_at::text AS start_at,
+    ${alias}.ends_at::text AS end_at,${status} AS status,
+    ${explicit} AS status_explicit,${generation} AS generation_source,
     s.id AS sprint_id,s.team_id AS team_id,s.time_zone
-    FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
-    JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-    WHERE i.id='singleton' AND s.deleted_at IS NULL AND c.id=$1`:
-   kind==="template"?
-   `SELECT o.name,o.starts_at::text AS start_at,o.ends_at::text AS end_at,
-    COALESCE(o.status,'unknown') AS status,o.status_explicit,o.generation_source,
-    s.id AS sprint_id,s.team_id AS team_id,s.time_zone
-    FROM public.smn_scrum_template_occurrence o
-    JOIN public.smn_sprint s ON s.id=o.sprint_id
+    FROM public.${table} ${alias}
+    JOIN public.smn_sprint s ON s.id=${alias}.sprint_id
     JOIN public.smn_team t ON t.id=s.team_id
     JOIN public.smn_installation i ON i.id=t.installation_id
-    WHERE i.id='singleton' AND s.deleted_at IS NULL AND o.id=$1`:
-   `SELECT m.name,m.starts_at::text AS start_at,m.ends_at::text AS end_at,
-    COALESCE(m.status,'unknown') AS status,m.status_explicit,
-    NULL::text AS generation_source,
-    s.id AS sprint_id,s.team_id AS team_id,s.time_zone
-    FROM public.smn_sprint_exceptional_meeting m JOIN public.smn_sprint s ON s.id=m.sprint_id
-    JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-    WHERE i.id='singleton' AND s.deleted_at IS NULL AND m.id=$1`;
+    WHERE i.id='singleton' AND i.state='initialized'
+     AND lower(i.mode)='scrum' AND s.deleted_at IS NULL AND ${alias}.id=$1`;
   const found=await db.query<RecordRow>(sql,[id]);
   return found.rows[0]??null;
  });
