@@ -268,3 +268,16 @@ Le Product Owner approuvera séparément l'ouverture de développements et toute
 - **UXD-26 — Carte Avancement global** : **ne pas afficher** la carte du prototype en l'absence de formule approuvée. La cinquième ou sixième position peut rester absente ; des raccourcis feront l'objet d'un arbitrage futur.
 - **UXD-27 — Historique incomplet** : interroger les données réellement disponibles en base ; si aucun élément historique fiable n'est disponible pour le contexte, afficher exactement **« Aucun éléments à ce jour »** (formulation utilisateur, à soumettre ultérieurement à validation linguistique), sans zéro fictif, sans état courant réétiqueté « historique » et sans création d'instantané artificiel. Appliquer les snapshots de dernière clôture existants aux risques/dépendances lorsqu'ils sont disponibles.
 - **Dépendances métier** : production des Sprints/périodes, calendrier, métriques d'engagement initial, données historiques fiables, autorisations et écrans de détail. Aucun de ces modules n'est présumé déjà livré.
+
+
+## Extension comportementale approuvée — 23 octobre 2026 : navigation Sprint (lot 1)
+
+- Un Sprint réel sélectionné affiche son **nom, dates locales, statut effectif** et l'objectif issu du modèle métier déjà raccordé à SMN-235. L'état non renseigné est distinct de l'indisponibilité de la source.
+- La Story SMN-83 autorise **plusieurs objectifs par Sprint** : afficher un objectif et le nombre supplémentaire dans le bandeau ; la fiche `/app/admin/sprints/[sprintId]` expose la liste intégrale, sans désignation artificielle d'un « objectif principal ».
+- Le bouton **« Voir le détail du sprint »** et le nom cliquable dans la liste de Sprints accèdent à une **première fiche en lecture seule** ; future fiche complète enrichissable sans inventer ses sections, ni des actions d'écriture.
+- Résolution et autorisation de la fiche côté serveur : seuls les Sprints non supprimés de l'équipe autorisée sont consultables, quel que soit le rôle `admin`/`user`. Les autres IDs donnent 404, pas d'existence ou de données dévoilées.
+- Retour au dashboard avec les identifiants `teamId` et `cycleId` du Sprint consulté.
+- Sans Sprint, n'afficher aucun faux bouton de fiche et conserver le lien existant vers l'équipe.
+- Les icônes de ce lot sont **Bootstrap Icons SVG locales**, décoratives et `aria-hidden` ; le texte accessible porte la signification.
+- Les KPI, calendriers et registres restent régis par leurs Stories (SMN-235/236/237, SMN-238 différée jusqu'à Epic 5). Aucun chiffre ni carte nouvellement inventé.
+- Dossier de réalisation : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md`. Tests et recette Windows encore à confirmer.
