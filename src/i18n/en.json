@@ -2592,5 +2592,31 @@
     "error": "Unable to load or save options.",
     "preview": "Preview selected sections",
     "leaveWarning": "Some report options are unsaved. Leave without saving?"
+  },
+  "reportContent": {
+    "heading": "Metrics and qualitative content",
+    "intro": "Choose allowed metrics and fact types. Missing numbers are never replaced with zero.",
+    "metrics": "Metrics",
+    "qualitative": "Fact types",
+    "committedSp": "Committed SP",
+    "completedSp": "Completed SP",
+    "plannedJh": "Planned capacity (JH)",
+    "actualJh": "Actual capacity (JH)",
+    "completionPercent": "Completion (%)",
+    "risk": "Risks",
+    "obstacle": "Impediments",
+    "dependency": "Dependencies",
+    "decision": "Decisions",
+    "action": "Actions",
+    "highlight": "Highlights",
+    "humanAnalysis": "Include existing human analysis",
+    "analysisUnavailable": "No verified human analysis is linked to this preparation yet.",
+    "noQualitative": "No verified qualified fact is currently linked to this selection.",
+    "unavailable": "Unavailable",
+    "preview": "Selected metrics preview",
+    "save": "Save choices",
+    "saved": "Choices saved",
+    "error": "Unable to load or save choices.",
+    "leaveWarning": "There are unsaved selection changes. Leave without saving?"
   }
 }
