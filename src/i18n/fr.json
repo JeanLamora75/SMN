@@ -2354,5 +2354,11 @@
     "conflict": "La fiche a changé. Rechargez l’évaluation.",
     "updated": "Évaluation enregistrée.",
     "symbol": "Niveau de criticité"
+  },
+  "obstacleLifecycle": {
+    "reopening": "Réouverture : la résolution précédente sera conservée dans l’historique.",
+    "resolved": "Obstacle résolu : il n'est plus signalé parmi les obstacles ouverts.",
+    "active": "Obstacle ouvert : il peut figurer parmi les points d’attention.",
+    "abandoned": "Obstacle abandonné : sa fiche et son historique sont conservés."
   }
 }
