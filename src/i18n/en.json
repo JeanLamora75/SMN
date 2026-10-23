@@ -2288,5 +2288,28 @@
     "edit": "Open and edit record",
     "unavailableRecord": "Record unavailable.",
     "conflict": "This record was changed elsewhere. Reload it before saving."
+  },
+  "registryList": {
+    "heading": "Browse registers",
+    "search": "Search titles or descriptions",
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "owner": "Owner",
+    "filter": "Filter",
+    "reset": "Clear filters",
+    "create": "Create record",
+    "empty": "No records match the filters.",
+    "unavailable": "Registers have not been initialized. An administrator can create the first record.",
+    "error": "Could not load records.",
+    "date": "Date",
+    "title": "Record",
+    "details": "View",
+    "previous": "Previous",
+    "next": "Next",
+    "count": "{total} records — page {page} of {pages}",
+    "cycleDeferred": "Cycle filters will be available when multi-cycle links are implemented (SMN-97).",
+    "team": "Team",
+    "readonly": "Read-only access",
+    "back": "Back to registers"
   }
 }
