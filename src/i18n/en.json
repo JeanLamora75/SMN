@@ -2394,5 +2394,18 @@
     "closed": "Closed Sprint — changes disabled",
     "error": "Could not update this link.",
     "loading": "Loading Sprints…"
+  },
+  "decisionDetail": {
+    "heading": "Rationale and replacement",
+    "rationale": "Decision rationale",
+    "replaces": "Replaces decision (identifier)",
+    "replacedBy": "Replaced by",
+    "noReplacement": "No replacement",
+    "save": "Save rationale and links",
+    "saved": "Details saved",
+    "error": "Unable to save",
+    "conflict": "Decision was changed, reload this record",
+    "help": "Use the identifier of the previous decision. Both records remain available.",
+    "inverse": "Decisions replacing this one"
   }
 }
