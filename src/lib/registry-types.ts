@@ -1,7 +1,7 @@
 export const registryTypes=["risk","obstacle","dependency","decision","action","highlight"] as const;
 export type RegistryType=(typeof registryTypes)[number];
 export const registryStatuses={
- risk:["open","owned","accepted","mitigated","resolved"],
+ risk:["open","resolved"],
  obstacle:["open","in_progress","resolved","abandoned"],
  dependency:["open","in_progress","satisfied","cancelled"],
  decision:["active","replaced","cancelled"],
