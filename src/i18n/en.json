@@ -2733,6 +2733,7 @@
     "hide": "Hide",
     "reason": "Required reason for hiding:",
     "confirm": "Confirm hiding? This PDF will no longer appear in the ordinary library. The file and other archives are retained.",
-    "hideError": "Unable to hide archive."
+    "hideError": "Unable to hide archive.",
+    "download": "Download"
   }
 }
