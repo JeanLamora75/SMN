@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import type {AbsenceItem,AbsenceState} from "@/server/members/absence";
 
@@ -18,7 +18,7 @@ export default function MemberAbsenceSummary({memberId,onCreate,onEdit}:{
  const [loading,setLoading]=useState(true);
  const [busyId,setBusyId]=useState<string|null>(null);
  const [message,setMessage]=useState("");
- const fetchState=async()=>{
+ const fetchState=useCallback(async()=>{
   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/absences",
    {cache:"no-store"});
   if(!response.ok)throw Error("absence-read");
@@ -26,13 +26,13 @@ export default function MemberAbsenceSummary({memberId,onCreate,onEdit}:{
   if(state.memberId!==memberId||!Array.isArray(state.absences)||typeof state.today!=="string")
    throw Error("absence-invalid");
   return state;
- };
+ },[memberId]);
  useEffect(()=>{
   let alive=true;
   void fetchState().then(state=>{if(alive){setData(state);setLoading(false);}})
    .catch(()=>{if(alive){setLoading(false);setError(t("members.absence.loadFailed"));}});
   return()=>{alive=false;};
- },[memberId,t]);
+ },[fetchState,t]);
  const remove=async(record:AbsenceItem)=>{
   if(!data||data.archived||record.deleted||busyId)return;
   const past=record.endOn<data.today;
