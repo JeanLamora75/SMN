@@ -7,6 +7,7 @@ import {composeStandardReport} from "@/server/reports/standard-composition";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import ReportDraftNotes from "./report-draft-notes";
+import ReportContentEditor from "./report-content-editor";
 import ReportSectionEditor from "./report-section-editor";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
@@ -37,6 +38,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
    {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
+   <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
    <ReportDraftNotes sprintId={s.id}/>
    <p className="text-secondary">{t("sprintReportPrepare.exportLater")}</p>
   </section>
