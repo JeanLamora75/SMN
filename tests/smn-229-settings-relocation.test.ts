@@ -28,7 +28,7 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
   assert.equal(canAccess(user,"write",{type:"settings",exists:true,inScope:true}),false);
  });
  it("retire seulement les réglages partagés de Sprints et garde les autres parcours",()=>{
-  const code=read("src/app/app/admin/sprints/page.tsx");
+  const code=read("src/app/app/admin/sprints/tools/page.tsx");
   for(const removed of ["WorkSlotsForm","LunchForm","TemplateForm"]){
    assert.ok(!code.includes("<"+removed),removed);
    assert.ok(!code.includes('import '+removed+' '),removed);
