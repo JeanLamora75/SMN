@@ -24,3 +24,9 @@
 **Non affichés avant livraison :** Intégrations externes (Jira/GitHub, etc.) et Notifications. Ne pas ouvrir de fonction sans véritable implémentation.
 
 **Navigation :** un seul menu Paramètres dans la sidebar, regroupement des raccourcis administratifs sans rupture des URLs et sans déplacer Équipe/Calendrier/Sprints en exploitation.
+
+## Avenant — raccordement Sprint / Paramètres (23/10/2026)
+
+**SMN-228 / SMN-229 :** récupérer **plages de travail** et **pause déjeuner** de l'écran Sprints existant pour la rubrique **Jours ouvrés** (pas un moteur pour changer automatiquement lundi–vendredi). Réutiliser les API `work-slots` et `lunch`, et réévaluer l'état de la carte selon les fonctions réellement accessibles. Sous **Cérémonies et modèles**, installer le formulaire des **modèles réutilisables** `TemplateForm`, pas les occurrences de réunion. **Cadence des sprints** demeure inchangée ; Règles de capacité n'obtient pas une nouvelle fonction fictive.
+
+Référence : [Matrice Sprints](../ux-sprints-pilotage-2026-10-23/MATRICE-FONCTIONS.md) et [EXPERIENCE](../ux-sprints-pilotage-2026-10-23/EXPERIENCE.md). Les routes futures ci-dessus sont des cibles : Amelia doit vérifier leur existence avant d'activer une carte.
