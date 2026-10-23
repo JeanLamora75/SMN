@@ -11,12 +11,14 @@ import MemberCalendarEditor from "../member-calendar-editor";
 import MemberCalendarExceptionEditor from "../member-calendar-exception-editor";
 import MemberLifecycleEditor from "../member-lifecycle-editor";
 import MemberAbsenceEditor from "../member-absence-editor";
+import MemberAbsenceSummary from "./member-absence-summary";
+import type {AbsenceItem} from "@/server/members/absence";
 import MemberHistory from "./member-history";
 import MemberCalendarSummary from "./member-calendar-summary";
 type Member=EditableMember&{memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;
  email:string|null;professionalFunction?:string|null;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string};members:Member[]};
-type Section="profile"|"assignment"|"calendar"|"calendarException"|"lifecycle"|null;
+type Section="profile"|"assignment"|"calendar"|"calendarException"|"absence"|"lifecycle"|null;
 type Tab="assignment"|"calendar"|"absences"|"history";
 export default function MemberDetail({id}:{id:string}){
  const t=useTranslation();
@@ -26,6 +28,8 @@ export default function MemberDetail({id}:{id:string}){
  const [tab,setTab]=useState<Tab>("assignment");
  const [assignmentRefreshKey,setAssignmentRefreshKey]=useState(0);
  const [calendarRefreshKey,setCalendarRefreshKey]=useState(0);
+ const [absenceRefreshKey,setAbsenceRefreshKey]=useState(0);
+ const [absenceToEdit,setAbsenceToEdit]=useState<AbsenceItem|null>(null);
  const [error,setError]=useState("");
  const [location,setLocation]=useState<{current:{city:string|null;region:string|null;countryIso2:string|null}|null}|null>(null);
  const dialogRef=useRef<HTMLDivElement>(null);
@@ -54,6 +58,7 @@ export default function MemberDetail({id}:{id:string}){
  const member=roster?.members.find(x=>x.id===id);
  const saved=()=>{setSection(null);setAssignmentRefreshKey(current=>current+1);
   setCalendarRefreshKey(current=>current+1);
+  setAbsenceRefreshKey(current=>current+1);
   void refresh().catch(()=>setError(t("memberUX.refreshFailed")));
   void fetch("/api/admin/members/"+encodeURIComponent(id)+"/location",{cache:"no-store"})
    .then(async r=>r.ok?r.json():null).then(v=>{if(v)setLocation(v);}).catch(()=>undefined);};
@@ -115,16 +120,20 @@ export default function MemberDetail({id}:{id:string}){
    </section>}
    {tab==="absences"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.tabs.absences")}</h2>
-    <MemberAbsenceEditor memberId={member.id} selectedOn={new Date().toISOString().slice(0,10)} onDirtyChange={()=>undefined}/>
+    <MemberAbsenceSummary key={member.id+"-"+absenceRefreshKey} memberId={member.id}
+     onCreate={()=>{setAbsenceToEdit(null);setSection("absence");}}
+     onEdit={absence=>{setAbsenceToEdit(absence);setSection("absence");}}/>
    </section>}
    {tab==="history"&&<section className="smn-panel p-4">
     <h2 className="h5">{t("memberUX.tabs.history")}</h2>
     <MemberHistory memberId={member.id}/>
    </section>}
    {section&&<div className="smn-member-modal-backdrop" role="presentation">
-    <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})} ref={dialogRef}>
+    <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={section==="absence"?t(absenceToEdit?"members.absence.editTitle":"members.absence.newTitle"):
+      section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})} ref={dialogRef}>
      <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
-      <strong>{section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})}</strong>
+      <strong>{section==="absence"?t(absenceToEdit?"members.absence.editTitle":"members.absence.newTitle"):
+       section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})}</strong>
       <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={closeDialog}/>
      </div>
      <div className="p-3">
@@ -132,6 +141,8 @@ export default function MemberDetail({id}:{id:string}){
       {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="absence"&&<MemberAbsenceEditor key={member.id+"-absence-"+(absenceToEdit?.id??"new")} memberId={member.id}
+       record={absenceToEdit} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
      </div>
     </div>
