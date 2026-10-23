@@ -2508,6 +2508,16 @@
     "journalHeading": "Automatic highlights",
     "journalError": "Automatic journal unavailable",
     "journalEmpty": "No confirmed automatic events",
-    "goalSource": "Goal"
+    "goalSource": "Goal",
+    "invalidated": "Invalidated (history preserved)",
+    "activeFact": "Active",
+    "automatic": "Automatic",
+    "sourceId": "Source",
+    "sourceRevision": "Source revision",
+    "recordedAt": "Recorded on",
+    "invalidationReason": "Correction reason",
+    "invalidate": "Invalidate this fact",
+    "confirmInvalidation": "Confirm invalidation",
+    "cancelInvalidation": "Cancel"
   }
 }
