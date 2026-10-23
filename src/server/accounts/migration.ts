@@ -26,6 +26,7 @@ import {CAPACITY_INITIAL_MIGRATION,CAPACITY_INITIAL_MIGRATION_SQL} from "../capa
 import {CAPACITY_ACTUAL_MIGRATION,CAPACITY_ACTUAL_MIGRATION_SQL} from "../capacity/actual-migration";
 import {CAPACITY_HISTORICAL_MIGRATION,CAPACITY_HISTORICAL_MIGRATION_SQL} from "../capacity/historical-migration";
 import {CAPACITY_REPLANNING_MIGRATION,CAPACITY_REPLANNING_MIGRATION_SQL} from "../capacity/replanning-migration";
+import {MEMBER_IDENTITY_MIGRATION,MEMBER_IDENTITY_MIGRATION_SQL} from "../members/identity-migration";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -38,6 +39,21 @@ UPDATE public.smn_installation SET schema_version=2 WHERE id='singleton' AND sch
 `;
 const checksum = (s: string) => createHash("sha256").update(s).digest("hex");
 
+/** Même version maximale que le diagnostic, sans autoriser les futures versions non connues. */
+export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
+  return Number.isInteger(version) && version>=1 && version<=27;
+}
+
+/** La migration v27 est explicite : l'authentification la vérifie, sans la déclencher. */
+export function assertIdentityMigrationValid(
+  version:number,
+  migrationApplied:boolean,
+  identityColumnCount:string|undefined,
+):void {
+  if(version===27 && (!migrationApplied || identityColumnCount!=="7"))
+    throw new Error("smn-schema-incompatible");
+}
+
 /** Migrations I0 addititives dans une transaction sérialisée ; jamais de réinstallation. */
 export async function ensureAccountsSchema(client: Client): Promise<void> {
   await client.query("BEGIN");
@@ -47,7 +63,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       "SELECT schema_version,state FROM public.smn_installation WHERE id='singleton' FOR UPDATE");
     if (records.rowCount !== 1 || records.rows[0].state !== "initialized") throw new Error("smn-schema-not-ready");
     let version=records.rows[0].schema_version;
-    if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26].includes(version)) throw new Error("smn-schema-incompatible");
+    if (!isSupportedAuthenticationSchemaVersion(version)) throw new Error("smn-schema-incompatible");
     const migrations = await client.query<{migration_name:string;checksum:string;finished_at:Date|null;rolled_back_at:Date|null}>(
       "SELECT migration_name,checksum,finished_at,rolled_back_at FROM public._prisma_migrations ORDER BY migration_name");
     const applied=(name:string,sql:string)=>migrations.rows.some(x=>x.migration_name===name &&
@@ -488,6 +504,20 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
          'confirmed_values','preview_digest','confirmed_by','confirmed_at'))
       )`);
     if(replanningColumns.rows[0]?.count!=="16")throw new Error("smn-schema-incompatible");
+    if(version===27){
+      const identityColumns=await client.query<{count:string}>(`
+        SELECT count(*)::text AS count FROM information_schema.columns
+        WHERE table_schema='public' AND (
+          (table_name='smn_member' AND column_name='professional_function')
+          OR (table_name='smn_member_identity_history' AND column_name IN
+            ('id','member_id','previous_values','next_values','changed_by','changed_at'))
+        )`);
+      assertIdentityMigrationValid(
+        version,
+        applied(MEMBER_IDENTITY_MIGRATION,MEMBER_IDENTITY_MIGRATION_SQL),
+        identityColumns.rows[0]?.count,
+      );
+    }
     await client.query("COMMIT");
   } catch(error) {
     await client.query("ROLLBACK").catch(()=>undefined);
