@@ -40,7 +40,9 @@ export function defaultSprintId(items:readonly SprintContextItem[],now=Date.now(
  if(upcoming.length)return upcoming[0].id;
  const past=available.filter(s=>instant(s.endAt)<=now)
   .sort((a,b)=>instant(b.endAt)-instant(a.endAt)||a.id.localeCompare(b.id));
- return past[0]?.id??null;
+ // Si seuls des Sprints clôturés/suspendus subsistent, le sélecteur conserve
+ // une valeur valide plutôt que d'afficher à tort « aucun cycle créé ».
+ return past[0]?.id??items[0]?.id??null;
 }
 
 /** Un identifiant explicitement demandé n'est retenu que s'il appartient à l'équipe. */
