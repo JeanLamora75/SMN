@@ -2655,5 +2655,14 @@
     "cycle": "Sprint",
     "missing": "Not recorded",
     "leaveWarning": "Historical depth is not saved. Leave?"
+  },
+  "reportTemplates": {
+    "heading": "Report templates",
+    "intro": "The Standard template is protected. A copy has its own identity and retains the six initial sections.",
+    "protected": "Protected",
+    "sections": "sections",
+    "copyName": "Copy name",
+    "copy": "Duplicate Standard template",
+    "error": "Unable to read or copy templates."
   }
 }
