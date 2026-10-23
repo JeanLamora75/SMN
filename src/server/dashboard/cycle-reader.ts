@@ -8,6 +8,7 @@ import {
  type CollectiveCycleProjection
 } from "@/lib/dashboard-data-contract";
 import type {SprintContextItem} from "@/lib/sprint-context";
+import {eventsFromClosureSnapshot,readCurrentSprintEvents} from "@/server/dashboard/events-reader";
 
 const object=(v:unknown):Record<string,unknown>|null=>
  v!==null&&typeof v==="object"&&!Array.isArray(v)?v as Record<string,unknown>:null;
@@ -142,6 +143,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
  };
  let capacity:CollectiveCycleProjection["capacity"]=capacityUnavailable("producer-not-ready");
  let version:number|null=null;
+ let events:CollectiveCycleProjection["events"]=collectionUnavailable("producer-not-ready");
  if(status==="closed"){
   if(await tableExists(db,"smn_sprint_closure_snapshot")){
    const r=await db.query<{version:number;snapshot:unknown}>(`
@@ -151,6 +153,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    if(row&&Number.isSafeInteger(row.version)&&row.version>=1){
     version=row.version;
     ({goals,storyPoints,capacity}=closedSnapshotProjection(row.snapshot,version));
+    events=eventsFromClosureSnapshot(row.snapshot,version);
    }else{
     goals=collectionUnavailable("history-missing");
     storyPoints={initial:metricUnavailable("history-missing"),done:metricUnavailable("history-missing")};
@@ -187,12 +190,27 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    capacity=capacityUnavailable("read-failed");
    void error;
   }
+  // Le calendrier ne doit pas rendre les autres cartes indisponibles si
+  // une table historique possède un schéma inattendu.
+  await db.query("SAVEPOINT dashboard_current_events");
+  try{
+   const now=await db.query<{now_at:Date|string}>("SELECT now() AS now_at");
+   const instant=new Date(now.rows[0]?.now_at??Date.now());
+   const historical=Date.parse(sprint.endAt)<=instant.getTime();
+   events=await readCurrentSprintEvents(db,sprint.id,instant,historical);
+   await db.query("RELEASE SAVEPOINT dashboard_current_events");
+  }catch(error){
+   await db.query("ROLLBACK TO SAVEPOINT dashboard_current_events");
+   await db.query("RELEASE SAVEPOINT dashboard_current_events");
+   events=collectionUnavailable("read-failed");
+   void error;
+  }
  }
  const waiting=metricUnavailable("producer-not-ready");
  return {teamId,cycleId:sprint.id,cycleStatus:status,snapshotVersion:version,
   goals,storyPoints,capacity,
   tickets:{initial:waiting,done:waiting},workingDaysRemaining:waiting,
-  events:collectionUnavailable("producer-not-ready"),
+  events,
   obstacles:collectionUnavailable("producer-not-ready"),
   risks:collectionUnavailable("producer-not-ready"),
   notesAndAlerts:collectionUnavailable("producer-not-ready")};
