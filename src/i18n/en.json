@@ -171,6 +171,8 @@
       "singleTeam": "Only team in this installation",
       "noTeam": "Team unavailable",
       "noCycle": "No cycle created",
+      "loadingCycles": "Loading Sprints…",
+      "cycleUnavailable": "Sprints unavailable",
       "search": "Search",
       "searchUnavailable": "Search unavailable",
       "contextControls": "Dashboard context",
