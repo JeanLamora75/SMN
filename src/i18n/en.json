@@ -2100,6 +2100,14 @@
     "close": "Close",
     "draftNotice": "Preview becomes invalid whenever dates are changed.",
     "availableLater": "Coming in a later step",
-    "notProvided": "Not recorded"
+    "notProvided": "Not recorded",
+    "goalsAdd": "Add objective",
+    "goalsEditNamed": "Edit objective: {name}",
+    "goalsCreateTitle": "New Sprint objective",
+    "goalsEditTitle": "Edit and evaluate objective",
+    "goalsNewUnevaluated": "New objectives start as Not evaluated. Use Edit later to record an evaluation.",
+    "goalsConflict": "This objective has changed since the page loaded. Refresh before trying again.",
+    "goalsClosed": "This Sprint is closed. Objectives cannot be edited unless the Sprint is reopened.",
+    "goalsHistorical": "Objectives from closure snapshot V{version}."
   }
 }
