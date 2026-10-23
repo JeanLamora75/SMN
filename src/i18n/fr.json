@@ -2655,5 +2655,14 @@
     "cycle": "Sprint",
     "missing": "Non renseigné",
     "leaveWarning": "La profondeur historique n'est pas enregistrée. Quitter ?"
+  },
+  "reportTemplates": {
+    "heading": "Modèles de rapport",
+    "intro": "Le modèle Standard est protégé. Une copie possède sa propre identité et conserve les six rubriques initiales.",
+    "protected": "Protégé",
+    "sections": "rubriques",
+    "copyName": "Nom de la copie",
+    "copy": "Dupliquer le modèle Standard",
+    "error": "Impossible de consulter ou de copier les modèles."
   }
 }
