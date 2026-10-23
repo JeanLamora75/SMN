@@ -123,7 +123,7 @@ describe("SMN-234 D4 — cérémonie, statut et historique",()=>{
  });
  it("la page Réunion standard reprend le statut réel au lieu de unknown",()=>{
   const code=readFileSync(new URL("../src/app/app/team-calendar/meeting/[kind]/[id]/page.tsx",import.meta.url),"utf8");
-  assert.match(code,/c\.occurrence_status AS status/);
+  assert.match(code,/kind==="ceremony"\?"occurrence_status":"status"/);
   assert.doesNotMatch(code,/'unknown' AS status/);
  });
 });
