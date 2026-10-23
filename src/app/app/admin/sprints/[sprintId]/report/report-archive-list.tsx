@@ -10,7 +10,7 @@ export default function ReportArchiveList({sprintId}:{sprintId:string}){
  {error&&<p role="alert">{t("reportArchives.error")}</p>}
  {!error&&items.length===0&&<p className="text-secondary">{t("reportArchives.empty")}</p>}
  {items.length>0&&<div className="table-responsive"><table className="table table-sm">
- <thead><tr><th>{t("reportArchives.date")}</th><th>Vn</th><th>{t("reportArchives.template")}</th><th>{t("reportArchives.integrity")}</th><th>ID</th></tr></thead>
- <tbody>{items.map(item=><tr key={item.id}><td>{item.createdAt}</td><td>{item.snapshotVersion===null?"—":"V"+item.snapshotVersion}</td><td>{item.manifest.templateName??item.templateId} ({item.language})</td><td>{t(("reportArchives."+item.integrity) as "reportArchives.verified")}</td><td><code>{item.id}</code></td></tr>)}</tbody></table></div>}
+ <thead><tr><th>{t("reportArchives.date")}</th><th>Vn</th><th>{t("reportArchives.template")}</th><th>{t("reportArchives.integrity")}</th><th>ID</th><th>{t("archiveLibrary.actions")}</th></tr></thead>
+ <tbody>{items.map(item=><tr key={item.id}><td>{item.createdAt}</td><td>{item.snapshotVersion===null?"—":"V"+item.snapshotVersion}</td><td>{item.manifest.templateName??item.templateId} ({item.language})</td><td>{t(("reportArchives."+item.integrity) as "reportArchives.verified")}</td><td><code>{item.id}</code></td><td>{item.integrity==="verified"&&<a className="btn btn-sm btn-outline-primary" href={"/api/admin/reports/archives/"+encodeURIComponent(item.id)+"/download"}>{t("archiveLibrary.download")}</a>}</td></tr>)}</tbody></table></div>}
  </section>;
 }
