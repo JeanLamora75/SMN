@@ -171,6 +171,8 @@
       "singleTeam": "Équipe unique de cette installation",
       "noTeam": "Équipe indisponible",
       "noCycle": "Aucun cycle créé",
+      "loadingCycles": "Chargement des Sprints…",
+      "cycleUnavailable": "Sprints indisponibles",
       "search": "Recherche",
       "searchUnavailable": "Recherche indisponible",
       "contextControls": "Contexte de pilotage",
