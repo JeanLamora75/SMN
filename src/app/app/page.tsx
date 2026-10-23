@@ -63,7 +63,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
     </p>}
     <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle} projection={projection}/>
 
-    <OperationalOverview locale={locale}/>
+    <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone}/>
 
     <div className="container mb-4">
       <Link href="/app/team-calendar" className="btn btn-outline-primary">
