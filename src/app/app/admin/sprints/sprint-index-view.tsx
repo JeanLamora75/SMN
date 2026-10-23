@@ -3,6 +3,7 @@ import Link from "next/link";
 import {useDeferredValue,useEffect,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {SprintIndexItem,SprintIndexSort} from "@/server/sprints/index";
+import type {TranslationKey} from "@/i18n/catalog";
 
 type Result={
  teamName:string;items:SprintIndexItem[];total:number;page:number;pageSize:number;
@@ -41,10 +42,10 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
  },[deferredSearch,filter,sort,page,refresh]);
  const label=(item:SprintIndexItem)=>{
   const status=item.suspended?"suspended":item.status;
-  const map:Record<string,"planned"|"active"|"finished"|"closed"|"suspended">={
+  const map:Record<string,TranslationKey>={
    planned:"planned",active:"active",finished:"finished",closed:"closed",suspended:"suspended"
   };
-  return map[status]?t("sprintStates."+map[status]):status;
+  return map[status]?t(map[status]):status;
  };
  const day=(stamp:string,zone:string)=>{
   const at=new Date(stamp);
