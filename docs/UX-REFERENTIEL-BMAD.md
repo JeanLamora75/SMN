@@ -133,3 +133,15 @@ La Story Jira [SMN-229](https://lmn24.atlassian.net/browse/SMN-229) reste non cl
 - Navigation « Sprints » ouverte au rôle `user` en mode Scrum, **lecture seule**, sans donner accès aux outils admin ; mode Kanban inchangé.
 - Le nom du sprint n'est pas cliquable avant la vraie fiche SMN-234. Aucun lien factice.
 - Tests : `tests/smn-230-sprints-index.test.ts` (**14 scénarios** (dont installation sans table de sprint et schéma ancien sans suspension) avec simulation de 123 sprints et cinq pages), tests de navigation/SMN-229 actualisés. **Aucun test, build ou recette Windows exécuté par l'assistant ; résultats à confirmer sur le poste pilote.**
+
+## SMN-231 — Assistant unique de génération des sprints (23/10/2026)
+
+**Implémentation pilote Amelia :** [spec-smn-231-assistant-generation-sprints.md](../_bmad-output/implementation-artifacts/spec-smn-231-assistant-generation-sprints.md). Contrat UX Sally **S3** : une page dédiée `/app/admin/sprints/generate` ouverte par le bouton principal de la liste, avec **1. Configuration → 2. Prévisualisation → 3. Confirmation**, quantité 1–6, noms éditables et avertissements de doublons.
+
+- Réutilisation de la cadence IANA, de `previewSprintBatch` et des schémas de cérémonies ; un nouveau service de jeton autorise **également 1 sprint** sans casser l'ancien contrat de lots 2–6.
+- Contrôle des périodes conflictuelles, noms, options, empreinte de configuration, jeton périssable et à usage unique, verrou PostgreSQL par équipe, rollback atomique et audit. Seuls les administrateurs peuvent écrire.
+- Reprise historique : générer les cérémonies **décoché par défaut** ; si sélectionné, marquage `generation_source='reconstructed'` visible dans Calendrier et les listes ; ne jamais interpréter comme événement réellement tenu. Les exports restant sans provenance seront qualifiés séparément.
+- `prisma/migrations/20261023_smn231_sprint_wizard/migration.sql` : schéma technique additif (jeton, provenance), routines `ensure*` idempotentes. Données et snapshots existants conservés.
+- Les anciens outils restent sur `/app/admin/sprints/tools` comme filet de sécurité transitoire ; les actions `⋯` par sprint relèvent de SMN-232.
+- **Recette à effectuer** : `tests/smn-231-sprint-wizard.test.ts` (16 scénarios), `pnpm i18n:check`, `pnpm typecheck`, `pnpm build`, validation navigateur et PostgreSQL, notamment SMN-160. La seule lecture GitHub et les assertions statiques ne constituent pas une validation fonctionnelle.
+
