@@ -2728,6 +2728,11 @@
     "count": "Results",
     "previous": "Previous",
     "next": "Next",
-    "openLibrary": "View archived reports"
+    "openLibrary": "View archived reports",
+    "actions": "Actions",
+    "hide": "Hide",
+    "reason": "Required reason for hiding:",
+    "confirm": "Confirm hiding? This PDF will no longer appear in the ordinary library. The file and other archives are retained.",
+    "hideError": "Unable to hide archive."
   }
 }
