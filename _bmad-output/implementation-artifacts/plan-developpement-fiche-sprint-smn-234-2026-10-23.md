@@ -4,7 +4,7 @@ story: SMN-234
 epic: SMN-228
 date: 2026-10-23
 language: fr
-status: d0-documented-d1-d3-code-published-awaiting-local-recette
+status: d0-documented-d1-d4-code-published-awaiting-local-recette
 source: _bmad-output/planning-artifacts/ux-designs/ux-sprints-pilotage-2026-10-23/FICHE-SPRINT-CONTRAT.md
 ---
 
@@ -24,7 +24,7 @@ La route `src/app/app/admin/sprints/[sprintId]/page.tsx` **existe**, mais ne con
 | **D1 — Structure et bandeau** — **code publié, recette complète en attente** | Bandeau compact nom/dates/équipe/statut et 7 onglets. Crayon sur nom/dates seulement si commandes sûres ; navigation depuis liste/dashboard, design responsive | SMN-230, SMN-232, première route déjà présente | Même `sprintId` dans tous les onglets, FR/EN, user lecture, permissions serveur, no false edit; aucune rubrique synthèse |
 | **D2 — Objectifs** — **code publié, recette locale en attente** | Liste complète, ajout, édition nom/commentaire/évaluation par objectif, historique et erreurs | SMN-83 / `goals.ts` | Cas 0,1,n ; non évalué par défaut ; édition admin uniquement ; clôturé protégé ; corrections concurrentes couvertes |
 | **D3 — Indicateurs** — **code publié, recette complète en attente** | 8 champs F01/F02/F03/F04/F10/F11/I01/I02 éditables et sauvegardés ; 4 dérivés F05/F06/F07/F12 recalculés en brouillon et après save | SMN-84, tickets `ticket-counts.ts`, nouvelles persistances I01/I02 | Équations vérifiées, zéro/null/dénominateur absent/dépassement ; 1..5 ; révisions et audit ; UI temps réel sans writes automatiques |
-| **D4 — Cérémonies** | Liste exhaustive de toutes les occurrences, statuts visibles, provenance des statuts si possible, durées, actions contextuelles vers réunions/calendrier | SMN-72–81, SMN-64, travaux icônes Bootstrap par type | Tri temporel, pagination sans perte, statuts prévus/tenus/non tenus/annulés ; « ajourné » uniquement après règle validée ; DST, historique sans faux « tenue » |
+| **D4 — Cérémonies** — **code publié, recette complète en attente** | Liste exhaustive de toutes les occurrences, statuts visibles, provenance des statuts si possible, durées, actions contextuelles vers réunions/calendrier | SMN-72–81, SMN-64, travaux icônes Bootstrap par type | Tri temporel, pagination sans perte, statuts prévus/tenus/non tenus/annulés ; « ajourné » uniquement après règle validée ; DST, historique sans faux « tenue » |
 | **D5 — Capacité et équipe** | Liste des contributeurs avec J/H de présence **principaux**, disponibilité développement secondaire et totaux explicites ; absences et contextes sans données sensibles | SMN-42–64, `src/server/capacity/engine.ts` ; **nouveau contrat de J/H présence à valider** | Membre entrant/sortant, temps partiel, absences/jour férié, demi-journée, non-calculable ; cohérence J/H et autorisation nominative |
 | **D6 — Tendances graphiques** | Trois courbes/tableaux accessibles, cinq clôtures éligibles du même collectif (G04/G05/G06/G07) | SMN-86, `src/server/sprints/trends.ts` | 0–5 clôtures, Vn, non-comparables = null, ordre correct, i18n, unité SP/%/JH, pas de graphiques fictifs |
 | **D7 — Bilan manuel / IA éditable** | Deux éditeurs enregistrant séparément Analyse et Analyse IA, côte à côte desktop, empilés mobile, révisions/audits | modèle de texte de bilan à établir ; Epic 9 **pour génération IA ultérieure** | Édition admin, cohérence attribution/provenance, versionnement, concurrent edit, historique Sprint clos, aucune fausse IA |
@@ -87,3 +87,12 @@ La réalisation est documentée dans [realisation-d2-objectifs-fiche-sprint-smn-
 La réalisation D3 est décrite dans [realisation-d3-indicateurs-fiche-sprint-smn-234-2026-10-23.md](realisation-d3-indicateurs-fiche-sprint-smn-234-2026-10-23.md). Huit valeurs éditables F01/F02/F03/F04/F10/F11/I01/I02, quatre dérivés F05/F06/F07/F12 mis à jour immédiatement dans les brouillons, stockage historisé des notes 1–5, snapshots Vn et lecture collective SELECT-only sont publiés sur `main`. La source SP dérivée est partagée avec le moteur d'origine. Les anciens formulaires de bilan ne sont pas supprimés.
 
 **Contrôles effectués :** revue statique 18/18 ; compilation TypeScript isolée d'une copie du module pur authentifiée par SHA Git `22e0f92...` ; **14/14 assertions isolées réussies sous Node.js 22**. **Non exécutés :** `pnpm typecheck` global, tests du dépôt `tsx --test`, `pnpm build`, base PostgreSQL et recette navigateur. D1–D3 sont **développés mais non recettés**, la Story globale reste ouverte. **Suite prévue : D4 — Cérémonies.**
+
+
+## Journal D4 — 23 octobre 2026 : cérémonies, statuts et pagination
+
+**Rapport de livraison :** [realisation-d4-ceremonies-fiche-sprint-smn-234-2026-10-23.md](realisation-d4-ceremonies-fiche-sprint-smn-234-2026-10-23.md).
+
+L'onglet Cérémonies consulte les trois sources (standards, personnalisées, exceptionnelles) en **tri chronologique et pages de 25**, sans réutiliser le plafonnement à cinq du tableau de bord. Le statut réel est mis en évidence (prévue/tenue/non tenue/annulée/inconnu) ; une tenue automatique ou une réunion reconstituée n'est **jamais** présentée comme attestation de participation. Durées prévues et réelles distinctes, liens vers les fiches Réunion, dates IANA/FR-EN ; sur clôture, dernier snapshot Vn strict. Schéma historique partiel signalé. La page Réunion standard n'affiche plus arbitrairement « unknown » quand la colonne métier est installée. **Ajournée/Reportée n'est pas encore un statut métier : arbitrage toujours ouvert.**
+
+**Qualité :** 18/18 contrôles statiques réussis ; **compilation TypeScript isolée du module pur** et **14/14 assertions réellement exécutées sous Node.js 22**, SHA Git identique au blob publié. **Non effectués :** tests `tsx --test` du projet, `pnpm typecheck`, build, DB/Next.js, navigateur. **D1–D4 codés sur main, en attente de recette locale** ; SMN-234 reste ouverte. Suite **D5 — Capacité des membres et présence J/H**.
