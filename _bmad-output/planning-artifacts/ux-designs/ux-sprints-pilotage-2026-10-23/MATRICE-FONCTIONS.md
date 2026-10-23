@@ -44,3 +44,22 @@
 Les paramètres de l'équipe ont un **seul point d'édition**, et les mutations sur un sprint utilisent son **identifiant réel** transmis depuis la ligne. Les réglages nouveaux ne doivent pas être inventés pour atteindre 14 cartes : travailler avec la Story [SMN-225](https://lmn24.atlassian.net/browse/SMN-225) du centre Paramètres. La fiche future est un **lot à part**, sans blocage des lots liste/actions.
 
 **Toute conservation/migration des formulaires hérités nécessite une vérification des routes et permissions ; supprimer les imports d'affichage uniquement après que leurs fonctionnalités sont accessibles depuis une destination réelle.**
+
+## Avenant contractuel du 23 octobre 2026 — Fiche Sprint SMN-234
+
+Le contrat détaillé [FICHE-SPRINT-CONTRAT.md](FICHE-SPRINT-CONTRAT.md) est **prioritaire pour le seul périmètre de la fiche Sprint** sur toutes les mentions antérieures « future fiche » ou « Synthèse / Cérémonies / Capacité / Indicateurs / Bilan et historique ». La route existe désormais sous la forme d'une **première fiche de lecture partielle**, non d'une fiche entièrement développée.
+
+**Cible :** bandeau Sprint compact sans onglet Synthèse ; **Objectifs / Cérémonies / Capacité / Indicateurs / Registres / Tendances / Bilan**. Icône de modification pour champs éditables via action sécurisée ; aucun crayon sur valeurs calculées. Les règles Paramètres/Calendrier/index Sprints ci-dessus restent inchangées. Le plan d'implémentation par lots D0–D9 est dans `_bmad-output/implementation-artifacts/plan-developpement-fiche-sprint-smn-234-2026-10-23.md`.
+
+**Aucune action logicielle n'est exécutée par ce cadrage.**
+
+### Réaffectation effective des données de la fiche SMN-234
+
+- `GoalsForm` → **Objectifs** : liste, ajout, édition/évaluation.
+- `StoryPointsForm`, `TicketCountsForm` → **Indicateurs**, en conservant leurs audits ; confiance et clarté 1–5 nécessitent une source dédiée.
+- `ReviewCapacity` et moteur `capacity/engine.ts` → **Capacité**, en distinguant la présence (nouveau calcul à spécifier) et le développement (déjà calculé).
+- `TemplateOccurrencesList`, `AttendanceForm`, `ActualDurationForm` → **Cérémonies**, avec édition de réunion par vraie fiche/Calendrier ; aucune liste limitée silencieusement.
+- `SprintTrends` → **Tendances**, trois graphiques et tableau accessible.
+- `SprintClosure` → état/action sécurisée du bandeau et **Bilan**, sans transformer un statut en champ libre.
+- Epic 5 → **Registres** seulement lorsque les producteurs sont livrés ; Epic 9 → génération IA différée, Analyse IA éditable à persister distinctement.
+- Les anciens composants sont conservés sur leurs routes tant que les nouveaux parcours ne sont pas validés de bout en bout.
