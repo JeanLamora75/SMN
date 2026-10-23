@@ -9,24 +9,34 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import {readReportLanguage} from "@/server/reports/language";
 import {readReportLogo} from "@/server/reports/logo-store";
+import {readFrozenReportReference} from "@/server/reports/render-reference";
 import PrintReportButton from "./print-report-button";
 export const dynamic="force-dynamic";
-export default async function ReportPreviewPage({params}:{params:Promise<{sprintId:string}>}){
+export default async function ReportPreviewPage({params,searchParams}:{params:Promise<{sprintId:string}>;searchParams:Promise<{reference?:string}>}){
  const account=await currentAccount();if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"write",{type:"settings",exists:true,inScope:true}))notFound();
  const {sprintId}=await params;if(!/^[a-f0-9-]{36}$/i.test(sprintId))notFound();
- const payload=await withSprintIndexDb(async db=>({
-  data:await composeHtmlReportPreview(db,sprintId),
+ const requested=(await searchParams).reference;
+ const frozen=typeof requested==="string"&&/^[a-f0-9-]{36}$/i.test(requested);
+ if(requested&&!frozen)notFound();
+ const payload=await withSprintIndexDb(async db=>{
+  if(frozen){
+   const ref=await readFrozenReportReference(db,requested,sprintId);
+   if(!ref)return null;
+   return ref.payload;
+  }
+  return {data:await composeHtmlReportPreview(db,sprintId),
   language:await readReportLanguage(db,sprintId),
-  logo:await readReportLogo(db,sprintId)
- })).catch(()=>null);
+  logo:await readReportLogo(db,sprintId)};
+ }).catch(()=>null);
  if(!payload?.data)notFound();
  const data=payload.data;
  const locale=payload.language.language,label=(key:string)=>translate(locale,("reportPreview."+key) as "reportPreview.title");
  const note=(key:string)=>{const n=data.notes[key as keyof typeof data.notes];return n?.included&&n.text.trim()?n:null;};
  return <main lang={locale} className="container-fluid px-3 px-lg-4 py-4 smn-report-printable">
  <span className="d-print-none"><Link href={"/app/admin/sprints/"+encodeURIComponent(sprintId)+"/report"}>{label("back")}</Link></span>
+ {frozen&&<p className="alert alert-info" role="status">{label("frozenReference")}: <code>{requested}</code></p>}
  <PrintReportButton label={label("print")} warning={label("printWarning")}/>
  <article className="smn-panel rounded-4 p-4 my-3">
  <header className="border-bottom pb-3 mb-4"><div className="d-flex gap-4 justify-content-between align-items-start"><div><h1 className="h3">{label("title")}</h1>
