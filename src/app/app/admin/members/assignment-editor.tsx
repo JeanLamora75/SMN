@@ -103,6 +103,8 @@ export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCan
        value={draft.effectiveFrom} disabled={busy}
        onChange={e=>change("effectiveFrom",e.target.value)}/>
      </div>
+    </div>
+    <div className="row g-3">
      {([
       ["contractPercent","members.assignment.contract"],
       ["allocationPercent","members.assignment.allocation"],
@@ -136,30 +138,6 @@ export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCan
       {t("members.profile.cancel")}</button>
     </div>
    </form>
-   <div>
-    <h4 className="h6">{t("members.assignment.history")}</h4>
-    {state.versions.length===0?<p>{t("members.assignment.empty")}</p>:
-     <div className="table-responsive">
-      <table className="table table-sm">
-       <thead><tr>
-        <th scope="col">{t("members.assignment.version")}</th>
-        <th scope="col">{t("members.assignment.effectiveFrom")}</th>
-        <th scope="col">{t("members.assignment.contract")}</th>
-        <th scope="col">{t("members.assignment.allocation")}</th>
-        <th scope="col">{t("members.assignment.contribution")}</th>
-        <th scope="col">{t("members.assignment.sharesTitle")}</th>
-       </tr></thead>
-       <tbody>{state.versions.map(v=><tr key={v.revision}>
-        <td>{v.revision}</td><td>{v.effectiveFrom}</td>
-        <td>{v.contractPercent}%</td><td>{v.allocationPercent}%</td>
-        <td>{v.contributionPercent}%</td>
-        <td>{t("members.assignment.shareSummary",{sm:v.shares.scrumMaster,
-         po:v.shares.productOwner,dev:v.shares.developer})}</td>
-       </tr>)}</tbody>
-      </table>
-     </div>}
-    <p className="small text-secondary">{t("members.assignment.historyNote")}</p>
-   </div>
   </>}
   {status==="error"&&<button type="button" className="btn btn-outline-secondary align-self-start" onClick={onCancel}>{t("members.profile.cancel")}</button>}
  </section>;
