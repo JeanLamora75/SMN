@@ -2108,6 +2108,23 @@
     "goalsNewUnevaluated": "New objectives start as Not evaluated. Use Edit later to record an evaluation.",
     "goalsConflict": "This objective has changed since the page loaded. Refresh before trying again.",
     "goalsClosed": "This Sprint is closed. Objectives cannot be edited unless the Sprint is reopened.",
-    "goalsHistorical": "Objectives from closure snapshot V{version}."
+    "goalsHistorical": "Objectives from closure snapshot V{version}.",
+  "indicatorConfidence": "Team confidence (1–5)",
+  "indicatorClarity": "Objective clarity (1–5)",
+  "indicatorScoresTitle": "Collective assessment",
+  "indicatorDerivedTitle": "Calculated indicators",
+  "indicatorTicketRate": "Ticket completion rate",
+  "indicatorEdit": "Edit: {name}",
+  "indicatorEditGroup": "Edit indicators",
+  "indicatorLive": "Calculations update instantly",
+  "indicatorProvisional": "Provisional values — nothing is saved until confirmation.",
+  "indicatorInvalidScore": "Enter an integer from 1 to 5, or leave blank.",
+  "indicatorInvalidCount": "Enter an integer between 0 and 1,000,000,000, or leave blank.",
+  "indicatorConflict": "Values have changed since you opened this screen. Refresh before trying again.",
+  "indicatorClosed": "This Sprint is closed: direct changes are not allowed.",
+  "indicatorSaveError": "Unable to save. Check values and try again.",
+  "indicatorSaved": "Indicators saved.",
+  "indicatorSnapshot": "Closure snapshot V{version}.",
+  "indicatorNoSource": "Data source unavailable for this Sprint."
   }
 }
