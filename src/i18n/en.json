@@ -2374,5 +2374,15 @@
     "conflict": "Concurrent update: reload this record",
     "missing": "Specify both teams",
     "empty": "Not provided"
+  },
+  "dependencyVigilance": {
+    "heading": "Dependency vigilance",
+    "flag": "At risk",
+    "save": "Save risk flag",
+    "saved": "Flag saved",
+    "error": "Flag unavailable",
+    "conflict": "Update conflict: reload record",
+    "inactive": "Satisfied or cancelled: no active due-date alert",
+    "active": "Dependency status stays independent of the at-risk flag"
   }
 }
