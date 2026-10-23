@@ -34,7 +34,7 @@ export default async function ArchivedReportsPage({searchParams}:{searchParams:P
  <thead><tr><th>{tr("date")}</th><th>{tr("cycle")}</th><th>{tr("template")}</th><th>{tr("status")}</th><th>{tr("version")}</th><th>ID</th><th>{tr("actions")}</th></tr></thead>
  <tbody>{result.items.map((a:any)=><tr key={a.id}>
  <td>{a.createdAt}</td><td><Link href={"/app/admin/sprints/"+encodeURIComponent(a.cycleId)+"/report"}>{a.cycleName}</Link></td>
- <td>{a.manifest?.templateName??a.templateId}</td><td>{a.status}</td><td>{a.snapshotVersion===null?"—":"V"+a.snapshotVersion}</td><td><code>{a.id}</code></td><td><HideArchiveAction id={a.id} labels={{hide:tr("hide"),reason:tr("reason"),confirm:tr("confirm"),error:tr("hideError")}}/></td>
+ <td>{a.manifest?.templateName??a.templateId}</td><td>{a.status}</td><td>{a.snapshotVersion===null?"—":"V"+a.snapshotVersion}</td><td><code>{a.id}</code></td><td><a className="btn btn-sm btn-outline-primary me-2" href={"/api/admin/reports/archives/"+encodeURIComponent(a.id)+"/download"}>{tr("download")}</a><HideArchiveAction id={a.id} labels={{hide:tr("hide"),reason:tr("reason"),confirm:tr("confirm"),error:tr("hideError")}}/></td>
  </tr>)}</tbody></table></div>}
  <p>{tr("count")}: {result.total}</p>
  <nav className="d-flex gap-3">{result.page>1&&<Link href={query(result.page-1)}>{tr("previous")}</Link>}
