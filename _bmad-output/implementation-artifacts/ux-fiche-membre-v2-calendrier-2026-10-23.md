@@ -34,7 +34,7 @@ D'après [SMN-46](https://lmn24.atlassian.net/browse/SMN-46) (AC2-AC4) et le [co
 7. Cliquer « Ajouter une exception » : fenêtre indépendante, date et demi-journées, note ; enregistrer et vérifier la ligne d'historique dans l'onglet.
 8. Vérifier date passée, version concurrente, membre archivé et responsive ; aucune perte de données antérieures.
 
-**Statut : code publié sur main, contrôles structurels des sources GitHub à effectuer et tests Windows/PostgreSQL à exécuter par l'utilisateur.** Aucun résultat `pnpm`, navigateur ou CI ne doit être présenté comme acquis.
+**Statut : code publié sur main ; 10 contrôles statiques effectués sur les sources distantes et conformes (position des historiques, séparation des modales, préservation de l'API, rechargement, clé FR/EN et fichier de tests). Les sept tests ajoutés n'ont pas été exécutés, pas plus que TypeScript, le build, la recette navigateur ou PostgreSQL Windows.** Aucun résultat `pnpm`, navigateur ou CI ne doit être présenté comme acquis.
 
 ## Suite hors périmètre
 Refonte de l'onglet **Absences** : déplacer l'édition/création inline existante vers un bouton « Nouvelle absence » ouvrant une modale dédiée ; laisser la liste/historique en consultation. Cette étape sera traitée lors de la reprise de l'onglet Absences, sans création de ticket Jira ou mutation Jira implicite.
