@@ -2696,7 +2696,10 @@
     "print": "Print / Save as PDF",
     "printWarning": "Printing uses the current preview, without a server archive or immutable version guarantee. Check the result before sharing.",
     "logoAlt": "Report logo",
-    "trendsCaption": "Historical trends for closed cycles"
+    "trendsCaption": "Historical trends for closed cycles",
+    "freeze": "Freeze and preview",
+    "freezeError": "Could not freeze report.",
+    "frozenReference": "Frozen reference"
   },
   "reportLanguage": {
     "heading": "Report language",
