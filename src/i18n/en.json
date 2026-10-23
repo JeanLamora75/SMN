@@ -2581,5 +2581,16 @@
     "saved": "Draft saved",
     "error": "Unable to load or save draft.",
     "leaveWarning": "Your report changes are not saved. Leave without saving?"
+  },
+  "reportSectionOptions": {
+    "heading": "Report sections",
+    "intro": "Choose section order and visibility. Sprint context always remains visible and source data stays unchanged.",
+    "up": "Move section up",
+    "down": "Move section down",
+    "save": "Save options",
+    "saved": "Options saved",
+    "error": "Unable to load or save options.",
+    "preview": "Preview selected sections",
+    "leaveWarning": "Some report options are unsaved. Leave without saving?"
   }
 }
