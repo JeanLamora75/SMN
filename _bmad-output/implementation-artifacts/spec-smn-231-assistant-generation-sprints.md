@@ -109,3 +109,42 @@ pnpm i18n:check
 pnpm typecheck
 pnpm build
 ```
+
+
+## Recette écran — Blocage prévisualisation et diagnostic (23/10/2026)
+
+**Signalement utilisateur :** depuis la page `/app/admin/sprints/generate`, choisir 2 sprints avec date souhaitée 07/11/2026 puis cliquer « Prévisualiser » reste à l'étape Configuration, avec l'erreur générique « Impossible de préparer ou d'enregistrer les sprints ». La capture montre également une double numérotation des étapes (marqueur `ol` + nombres inscrits dans les traductions).
+
+**Constat vérifié :**
+- La chaîne d'UI d'origine ne permet pas de distinguer une réponse refusée, une table ou colonne manquante, un dépassement de délai, ou une autre exception de service.
+- Le backend `POST /api/admin/sprints/wizard/preview` interceptait toutes les exceptions et se limitait à `console.error("sprint-wizard-preview-failed")`, sans code SQLSTATE ni phase.
+- Les paramètres de la capture ne constituent pas une cause identifiée : la date souhaitée peut être ajustée par la cadence de l'équipe. Aucune affirmation sur la cause PostgreSQL réelle n'est possible depuis la capture seule.
+
+**Correctifs publiés sur `main` :**
+- `src/server/sprints/wizard.ts` : exception `WizardPreviewFailure` indiquant précisément la phase (`schema`, `periods`, `team`, `lunch`, `settings`, `names` ou `token`) et le SQLSTATE à cinq caractères lorsqu'il existe ; la cause d'origine est retenue uniquement côté serveur.
+- `src/app/api/admin/sprints/wizard/preview/route.ts` : journalisation serveur structurée de `stage`, `sqlState` et message de cause. En réponse JSON, renvoi d'une **phase diagnostique et d'un code non sensible**, sans SQL, jeton ni paramètres de requête. Erreurs spécifiques de schéma (`42P01`, `42703`) et de dépassement de délai (`57014`).
+- `sprint-generation-wizard.tsx` : affichage d'une erreur compréhensible, de sa phase et du code diagnostique ; gestion d'un refus de droits ; liste des étapes sans double numérotation.
+- `src/i18n/fr.json` et `en.json` : traductions des diagnostics et intitulés d'étapes corrigés.
+- `tests/smn-231-sprint-wizard.test.ts` : **21 tests** au total, dont simulations d'échec de schéma et de calcul sans accès PostgreSQL réel, et contrat d'affichage sans double numérotation.
+
+**IMPORTANT :** ce correctif rend l'incident **diagnostiquable**, mais **ne prouve pas encore que le blocage initial est résolu**. Ni l'API PostgreSQL locale, ni le serveur Windows, ni une prévisualisation réussie ne sont accessibles depuis les connecteurs GitHub. En particulier, il serait incorrect de déclarer la résolution définitive sans nouvelle réponse du poste pilote.
+
+### Recette demandée à l'utilisateur
+
+Après GitHub Desktop `Fetch origin → Pull origin`, depuis PowerShell :
+
+```powershell
+pnpm exec tsx --test tests/smn-231-sprint-wizard.test.ts
+pnpm i18n:check
+pnpm typecheck
+pnpm build
+pnpm dev
+```
+
+Ouvrir `http://127.0.0.1:3003/app/admin/sprints/generate`, saisir **2 sprints** et **07/11/2026**, puis cliquer « Prévisualiser ».
+
+- **Succès :** poursuivre la recette des périodes et collisions ; ne pas conclure sur l'atomicité tant que la confirmation réelle n'est pas testée.
+- **Échec :** relever mot pour mot le texte affiché avec la phase et le code ; depuis le terminal `pnpm dev`, relever l'enregistrement `sprint-wizard-preview-failed` contenant `stage`, `sqlState`, `message`. Ne pas partager d'URL de connexion, mot de passe ou valeur de jeton.
+- Le diagnostic permettra une correction ciblée du schéma, de la configuration ou du comportement de l'API, plutôt qu'une migration arbitraire.
+
+**Vérifications attestées par Amelia :** 12 contrôles statiques de cohérence des fichiers GitHub validés. **Non exécutés :** tests Node, `typecheck`, build et reproduction PostgreSQL. La Story reste en recette et Jira n'est pas modifié.
