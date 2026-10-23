@@ -9,11 +9,13 @@ export async function listCyclePdfArchives(db:Client,cycleId:string,teamId:strin
  if(!/^[a-f0-9-]{36}$/i.test(cycleId)||!teamId)return [];
  const table=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present`);
  if(!table.rows[0]?.present)return [];
+ const visibility=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_report_archive_visibility') IS NOT NULL AS present");
+ const filter=visibility.rows[0]?.present?"AND NOT EXISTS (SELECT 1 FROM public.smn_report_archive_visibility h WHERE h.archive_id=a.id)":"";
  const r=await db.query<{id:string;createdAt:string;cycleId:string;teamId:string;templateId:string;language:string;snapshotVersion:number|null;manifest:PdfArchiveManifest}>(`
  SELECT id,created_at::text AS "createdAt",cycle_id AS "cycleId",team_id AS "teamId",
  template_id AS "templateId",language,snapshot_version AS "snapshotVersion",manifest
- FROM public.smn_report_pdf_archive WHERE cycle_id=$1 AND team_id=$2
- ORDER BY created_at DESC,id DESC`,[cycleId,teamId]);
+ FROM public.smn_report_pdf_archive a WHERE a.cycle_id=$1 AND a.team_id=$2 ${filter}
+ ORDER BY a.created_at DESC,a.id DESC`,[cycleId,teamId]);
  return r.rows;
 }
 export async function verifyArchiveIntegrity(db:Client,id:string):Promise<ArchiveIntegrity>{
