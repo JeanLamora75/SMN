@@ -3,7 +3,7 @@ import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
-import {prepareSprintReport} from "@/server/reports/sprint-preparation";
+import {composeStandardReport} from "@/server/reports/standard-composition";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 export const dynamic="force-dynamic";
@@ -14,7 +14,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
  if(!canAccess(account,"write",{type:"settings",exists:true,inScope:true}))notFound();
  const {sprintId}=await params;
  if(!/^[a-f0-9-]{36}$/i.test(sprintId))notFound();
- const data=await withSprintIndexDb(db=>prepareSprintReport(db,sprintId)).catch(()=>null);
+ const data=await withSprintIndexDb(db=>composeStandardReport(db,sprintId)).catch(()=>null);
  if(!data)notFound();
  const locale=await requestLocale(),t=(key:"sprintReportPrepare.heading"|"sprintReportPrepare.provisional"|"sprintReportPrepare.final"|"sprintReportPrepare.template"|"sprintReportPrepare.objectives"|"sprintReportPrepare.empty"|"sprintReportPrepare.source"|"sprintReportPrepare.back"|"sprintReportPrepare.exportLater"|"sprintReportPrepare.dates"|"sprintReportPrepare.product"|"sprintReportPrepare.team"|"sprintReportPrepare.status")=>translate(locale,key);
  const s=data.sprint;
@@ -34,6 +34,13 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    </dl>
    <h2 className="h5">{t("sprintReportPrepare.objectives")}</h2>
    {data.goals.length?<ul>{data.goals.map(g=><li key={g.id}>{g.title} — {g.evaluation}</li>)}</ul>:<p>{t("sprintReportPrepare.empty")}</p>}
+   {data.sections.map(section=><section className="border-top pt-3" key={section.key}>
+    <h2 className="h5">{translate(locale,("standardReport."+section.key) as "standardReport.executive")}</h2>
+    {section.items.length?<ul className="list-group">{section.items.map((entry,index)=><li className="list-group-item" key={index}>
+     {entry.href?<Link href={entry.href}>{entry.label}</Link>:<strong>{entry.label}</strong>}
+     {entry.detail&&<span className="ms-2 text-secondary">{entry.detail}</span>}
+    </li>)}</ul>:<p className="text-body-secondary">{translate(locale,section.state==="unavailable"?"standardReport.unavailable":"standardReport.empty")}</p>}
+   </section>)}
    <p className="text-secondary">{t("sprintReportPrepare.exportLater")}</p>
   </section>
  </main>;
