@@ -2618,5 +2618,14 @@
     "saved": "Choices saved",
     "error": "Unable to load or save choices.",
     "leaveWarning": "There are unsaved selection changes. Leave without saving?"
+  },
+  "reportQuality": {
+    "heading": "Data provenance and quality",
+    "historical": "Historical closure snapshot: figures are not recalculated from current registries.",
+    "provisional": "Provisional preparation: known current values.",
+    "history-missing": "Historical data unavailable: no past values are reconstructed.",
+    "initial": "Initial capacity",
+    "actual": "Actual capacity",
+    "unknown": "Unknown provenance"
   }
 }
