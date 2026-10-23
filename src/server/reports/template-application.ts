@@ -1,5 +1,4 @@
 import type {Client} from "pg";
-import {randomUUID} from "node:crypto";
 import {standardReportTemplate,validReportTemplate,type ReportTemplate} from "@/lib/report-templates";
 /** Atomic template application; never updates the source template. */
 export async function applyReportTemplate(db:Client,actorId:string,sprintId:string,templateId:string){
