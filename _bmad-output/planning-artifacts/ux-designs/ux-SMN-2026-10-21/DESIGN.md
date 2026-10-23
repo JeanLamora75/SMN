@@ -250,3 +250,15 @@ La comparaison utilisateur des captures PJ1 (état après raccordements) et PJ2 
 - Repli CSS à **950 puis 650 px de largeur du conteneur**, pas de défilement horizontal ; bouton actif accessible au clavier et utilisable sur mobile.
 - **Lot 1 seulement** : ne pas modifier les cartes KPI et les colonnes Obstacles/Risques/Événements/Notes dans cette livraison.
 - Spécification et critères : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md`.
+
+
+## Extension visuelle du 23 octobre 2026 — Lot 2 : cartes KPI
+
+- Conserver la grille de **quatre** cartes (4 desktop / 2 tablette / 1 mobile), mais hiérarchiser : pictogramme Bootstrap Icons + titre, valeur initiale typographiquement dominante, séparateur discret, puis valeur réalisée et source.
+- Icônes officielles embarquées : `people-fill` pour capacité, `stack` pour Story Points, `ticket-perforated-fill` pour tickets, `calendar-event` pour jours ouvrés. Tracés locaux sous licence MIT, pas de police ni CDN supplémentaires.
+- Anneaux de comparaison **neutres** dans les trois cartes de paires uniquement si ratio fiable ; ne pas utiliser rouge/vert comme verdict de performance. Ne pas fabriquer de pourcentage sur source absente ou valeur initiale nulle.
+- Le texte du ratio peut dépasser 100 % sans tronquer la vérité ; seule la surface de l'anneau est bornée visuellement. Il faut toujours un libellé accessible précisant la division effective.
+- Compteur jours ouvrés fortement lisible, mais sans alerte d'urgence basée sur un seuil non validé ; le statut temporel et la convention métier existante restent visibles.
+- Préserver les unités, la provenance, les 3 palettes et les thèmes sombre/clair ; garder les couleurs sémantiques de SMN au lieu d'imposer PJ2 pixel pour pixel.
+- Aucune carte « Avancement global » fictive, aucune régression dans le bandeau Sprint compact du lot 1.
+- Dossier de réalisation : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot2-cartes-kpi-2026-10-23.md`.
