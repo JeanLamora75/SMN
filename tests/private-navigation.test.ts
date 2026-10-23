@@ -56,6 +56,9 @@ describe("SMN-22 — navigation adaptée au rôle et au mode",()=>{
       assert.deepEqual(links.filter(entry=>activePrivateEntry(pathname,entry)).map(entry=>entry.href),[pathname]);
     }
     assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/team-calendar",entry)).map(entry=>entry.id),["centralCalendar"]);
+    const adminCycles=privateNavigation("scrum","admin").flatMap(g=>g.entries).find(e=>e.id==="cycles");
+    assert.ok(adminCycles);
+    assert.equal(activePrivateEntry("/app/admin/sprints/tools",adminCycles),true);
     assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/calendrier",entry)),[]);
     assert.deepEqual(links.filter(entry=>activePrivateEntry("/app/unknown",entry)),[]);
   });
