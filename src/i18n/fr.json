@@ -2672,7 +2672,10 @@
     "saved": "Modèle enregistré",
     "conflict": "Ce modèle a été modifié entre-temps. Rechargez-le avant d’enregistrer.",
     "deleteInfo": "Suppression temporairement bloquée afin de préserver les archives et leurs références.",
-    "leaveWarning": "Des modifications de modèle ne sont pas enregistrées. Quitter sans sauvegarder ?"
+    "leaveWarning": "Des modifications de modèle ne sont pas enregistrées. Quitter sans sauvegarder ?",
+    "apply": "Charger dans le rapport",
+    "applyConfirm": "Remplacer les sections, contenus et profondeur du rapport en préparation par ceux du modèle choisi ? Le modèle enregistré ne sera pas modifié.",
+    "unavailable": "Ce modèle n'est plus disponible. Choisissez un autre modèle."
   },
   "reportPreview": {
     "open": "Prévisualiser le rapport",
