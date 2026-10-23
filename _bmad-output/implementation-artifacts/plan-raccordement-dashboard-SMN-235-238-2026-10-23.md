@@ -149,3 +149,13 @@ Les étapes 1 à 5 et l'ordre de Stories restent inchangés. Aucun ticket Jira n
 - **Dossier BMAD :** [realisation-smn-237-dashboard-2026-10-23.md](realisation-smn-237-dashboard-2026-10-23.md).
 - **Tests écrits, non exécutés :** `tests/smn-237-dashboard-events.test.ts` et adaptation de la recette SMN-235. `pnpm typecheck`, `pnpm test` et tests PostgreSQL Windows restent nécessaires.
 - **Statut :** implémentation publiée sur `main`, recette locale utilisateur encore à valider ; ne pas déclarer SMN-237 terminée dans Jira.
+
+## Avancement de l'étape 3 — SMN-236 — 23 octobre 2026
+
+- **Source absente avant intervention :** aucun producteur Scrum des deux agrégats Tickets n'existait. Création d'un stockage **par Sprint** `smn_sprint_ticket_counts` avec deux valeurs facultatives, audit, contrôle de version, autorisations serveur, formulaire dans le bilan du Sprint et aucune synchronisation Jira.
+- **Compatibilité installation :** `INSTALLATION_RELATIONS` accepte les deux nouvelles tables (comptes et audit). Les tables ne sont créées que lors de la **première sauvegarde explicite**, pas pendant une simple consultation du dashboard. Aucune migration Prisma ni modification de `schema_version`.
+- **Dashboard :** `cycle-reader.ts` lit les comptes du `cycleId` sélectionné ; la future clôture Vn fige `ticketCounts`, les anciennes Vn sans champ restent historiquement indisponibles ; zéro, null et erreur sont différents.
+- **Compteur :** `src/lib/sprint-working-days.ts`, calcul sur jours civils IANA, lundi à vendredi, bornes `[début,fin)`, aucun jour négatif ; ni capacité J/H ni Story Points réutilisés.
+- **Décision encore à approuver par John :** le compteur applique **provisoirement « aujourd'hui inclus »** sur un Sprint en cours, indiqué visiblement dans les deux langues. L'alternative « uniquement les jours complets futurs » est déjà paramétrable dans la fonction pure ; ne pas déclarer l'arbitrage validé. L'exclusion éventuelle des jours fériés/fermetures doit elle aussi être clarifiée.
+- **Livrable :** [realisation-smn-236-dashboard-2026-10-23.md](realisation-smn-236-dashboard-2026-10-23.md), tests rédigés dans `tests/smn-236-sprint-tickets-working-days.test.ts`.
+- **Statut :** implémentation publiée directement sur `main`, mais **typecheck, tests et recette Windows/PostgreSQL non attestés**. SMN-236 reste en attente de validation fonctionnelle et technique.
