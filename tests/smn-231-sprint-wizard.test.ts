@@ -87,7 +87,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   assert.match(page,/lower\(mode\)='scrum'/);
   assert.match(page,/<SprintGenerationWizard\/>/);
   assert.equal(index.split('href={generateHref}').length-1,2);
-  assert.match(index,/const generateHref="\\/app\\/admin\\/sprints\\/generate\\?"/);
+  assert.ok(index.includes('const generateHref="/app/admin/sprints/generate?"'));
   assert.doesNotMatch(index,/href="\/app\/admin\/sprints\/tools#create-sprints"/);
  });
  it("présente les trois étapes sans fabriquer de clic vers une fiche inexistante",()=>{
