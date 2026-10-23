@@ -2543,5 +2543,21 @@
     "latest": "Afficher l’état de référence",
     "source": "Provenance",
     "unavailable": "Aucun cliché qualitatif fiable disponible pour cette version."
+  },
+  "sprintReportPrepare": {
+    "launch": "Générer un rapport",
+    "heading": "Préparation du rapport de Sprint",
+    "provisional": "Rapport provisoire : ce Sprint n'est pas clôturé.",
+    "final": "Sprint clôturé : données historiques de clôture.",
+    "template": "Modèle",
+    "objectives": "Objectifs disponibles",
+    "empty": "Aucun objectif fiable disponible.",
+    "source": "Source des données",
+    "back": "Retour à la fiche Sprint",
+    "exportLater": "L'export PDF sera ajouté lors des prochaines Stories de l'Epic 6. Aucun fichier n'a été produit.",
+    "dates": "Dates",
+    "product": "Produit",
+    "team": "Équipe",
+    "status": "Statut"
   }
 }
