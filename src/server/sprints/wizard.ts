@@ -18,12 +18,12 @@ export function parseWizardInput(raw:unknown):WizardInput|null{
  const value=raw as Record<string,unknown>;
  if(Object.keys(value).some(k=>!["startOn","count","names","generateHistoricalCeremonies"].includes(k))||
   typeof value.startOn!=="string"||!validDate(value.startOn)||
-  !Number.isInteger(value.count)||Number(value.count)<1||Number(value.count)>6||
+  typeof value.count!=="number"||!Number.isInteger(value.count)||value.count<1||value.count>6||
   typeof value.generateHistoricalCeremonies!=="boolean")return null;
  if(value.names!==undefined&&(!Array.isArray(value.names)||value.names.length!==value.count||
   value.names.some(n=>typeof n!=="string"||!n.trim()||n.trim().length>160)))return null;
- return {startOn:value.startOn,count:value.count as number,
-  names:value.names===undefined?undefined:(value.names as string[]).map(s=>s.trim()),
+ return {startOn:value.startOn,count:value.count,
+  ...(value.names===undefined?{}:{names:(value.names as string[]).map(s=>s.trim())}),
   generateHistoricalCeremonies:value.generateHistoricalCeremonies};
 }
 const namesApplied=(p:Preview,input:WizardInput):Preview=>({
