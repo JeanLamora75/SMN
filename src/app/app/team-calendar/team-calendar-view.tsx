@@ -4,7 +4,7 @@ import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 type Item={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;memberName?:string;aggregateCount?:number};
 type Calendar={team:{name:string};central:{items:Item[]};collective:{date:string}[]};
-type Meeting={id:string;name:string;startAt:string;endAt:string;kind:string;href:string};
+type Meeting={id:string;name:string;startAt:string;endAt:string;kind:string;href:string;generationSource?:string};
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string};
 const iso=(d:Date)=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 function shift(day:string,amount:number){const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+amount);return d.toISOString().slice(0,10);}
