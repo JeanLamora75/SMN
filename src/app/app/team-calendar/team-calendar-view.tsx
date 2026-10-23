@@ -62,7 +62,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
  function openCreate(day:string){setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");}
  const selectedDate=when.slice(0,10);
  const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<localDate(x.endAt));
- async function save(){if(!selectedSprint||!editor||!name.trim()||busy)return;
+ async function save(){if(!period||!selectedSprint||!editor||!name.trim()||busy)return;
   setBusy(true);setSaveError("");
   try{const date=new Date(when);if(Number.isNaN(date.valueOf()))throw Error("date");
    const r=await fetch("/api/admin/sprints/exceptional-meetings",{method:"POST",headers:{"Content-Type":"application/json"},
