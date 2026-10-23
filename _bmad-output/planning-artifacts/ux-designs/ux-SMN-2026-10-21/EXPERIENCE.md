@@ -295,3 +295,13 @@ Le Product Owner approuvera séparément l'ouverture de développements et toute
 - Les jours ouvrés ont leur propre carte, **sans ratio**, avec compteur et convention provisoire des jours ouvrés déjà existante.
 - Aucun nouveau producteur, calcul SQL, droit ou champ de base créé dans ce lot.
 - Dossier BMAD : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot2-cartes-kpi-2026-10-23.md`. Recette Windows/UX réelle à confirmer.
+
+
+## Extension comportementale du 23 octobre 2026 — Lot 4 : priorités des registres
+
+- Si la projection d'une colonne est `unavailable`, garder « Indisponible » sans total, faux zéro ou fausse fiche. Seul un producteur effectivement disponible peut afficher un compteur et des cartes ; une liste disponible vide est une situation distincte.
+- La priorité est un champ **facultatif** de la projection : `low`, `medium`, `high` ou inconnue. Le composant d'affichage ne calcule aucune criticité ; SMN-93 est responsable de la matrice 3×3 des risques. Ne jamais abaisser silencieusement une priorité inconnue.
+- Afficher systématiquement un libellé visible à côté de la pastille ; les SVG de type sont décoratifs et accompagnés de mots. Notes et alertes ont des types et icônes distincts.
+- La liste est limitée à cinq cartes dans le tableau de bord, en conservant **l'ordre fiable produit en amont** ; tri métier, filtrage de résolus/clos, contexte `cycleId` et instantanés Vn sont les responsabilités futures de SMN-238/Epic 5. Aucun tri par le nom affiché.
+- Les actions « Voir tout » et « Ajouter » restent non interactives tant que les routes métier et vérifications serveur n'existent pas. En phase de production, elles seront reliées et sécurisées par une Story de raccordement : une carte ne donne jamais un droit d'écriture.
+- L'implémentation UX livrée n'est pas une recette métier réussie : cas 0/1/>5 et priorité inconnue couverts par tests de composant, intégration PostgreSQL/Windows et historiques Vn encore à qualifier.
