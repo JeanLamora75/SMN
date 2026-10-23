@@ -237,3 +237,16 @@ Les dimensions et couleurs chiffrées des composants sont **proposées pour vali
 - **Engagements initiaux** : les demi-cartes supérieures « Story Points engagés » et « Tickets engagés » montrent les valeurs **initialement engagées**, jamais un périmètre révisé à leur place. Afficher séparément les valeurs réalisées du cycle.
 - **Pas de carte « Avancement global »** : la maquette originale contient une carte illustrative qui est **explicitement exclue** tant qu'aucune règle métier n'a été validée. Un remplacement éventuel par des raccourcis fera l'objet d'une décision ultérieure.
 - **Historique incomplet** : si aucune donnée du cycle choisi n'est disponible, afficher « Aucun éléments à ce jour » (libellé demandé), sans faux zéro ni copie de l'état courant. L'équipe produit pourra ultérieurement vérifier la forme orthographique du libellé dans les catalogues FR/EN.
+
+
+## Extension visuelle approuvée — 23 octobre 2026 : bandeau Sprint compact (lot 1)
+
+La comparaison utilisateur des captures PJ1 (état après raccordements) et PJ2 (cible) valide le choix d'un **bandeau Sprint beaucoup moins haut**. Conserver les tokens de palette Bootstrap/SMN sans copier les couleurs figées de la maquette.
+
+- Trois zones sur grand écran : identité / dates / statut ; objectif du Sprint avec cible Bootstrap Icons ; lien d'action « Voir le détail du sprint » avec flèche Bootstrap Icons.
+- Supprimer les espaces et paragraphes explicatifs redondants dans le bloc Sprint. Valeurs réelles uniquement, sans « J+N », progression ou badge chiffré fictif.
+- Les icônes utilisées proviennent des SVG **Bootstrap Icons officiels**, embarqués localement via `src/app/app/bootstrap-icon.tsx` ; notice MIT dans `docs/third-party/bootstrap-icons-LICENSE.md`.
+- Dans la liste d'objectifs, conserver la source réelle et montrer une synthèse courte ; si plusieurs objectifs, indiquer le nombre additionnel et ouvrir la fiche complète. Ne pas prétendre qu'un objectif est « principal » sans propriété métier.
+- Repli CSS à **950 puis 650 px de largeur du conteneur**, pas de défilement horizontal ; bouton actif accessible au clavier et utilisable sur mobile.
+- **Lot 1 seulement** : ne pas modifier les cartes KPI et les colonnes Obstacles/Risques/Événements/Notes dans cette livraison.
+- Spécification et critères : `_bmad-output/implementation-artifacts/refonte-ux-dashboard-lot1-entete-sprint-2026-10-23.md`.
