@@ -11,13 +11,13 @@ type Result={
 };
 const known=["planned","active","finished","closed","suspended"] as const;
 
-export default function SprintIndexView({canManage}:{canManage:boolean}){
+export default function SprintIndexView({canManage,initialFilters}:{canManage:boolean;initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number}}){
  const t=useTranslation(),locale=useLocale();
- const [search,setSearch]=useState("");
+ const [search,setSearch]=useState(initialFilters?.search??"");
  const deferredSearch=useDeferredValue(search);
- const [filter,setFilter]=useState("all");
- const [sort,setSort]=useState<SprintIndexSort>("priority");
- const [page,setPage]=useState(1);
+ const [filter,setFilter]=useState(initialFilters?.status??"all");
+ const [sort,setSort]=useState<SprintIndexSort>(initialFilters?.sort??"priority");
+ const [page,setPage]=useState(initialFilters?.page??1);
  const [refresh,setRefresh]=useState(0);
  const [data,setData]=useState<Result|null>(null);
  const [loading,setLoading]=useState(true);
@@ -60,6 +60,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
  const change=(fn:()=>void)=>{setLoading(true);setNotice("");fn();setPage(1);};
  const reload=()=>{setLoading(true);setNotice("");setRefresh(n=>n+1);};
  const items=data?.items??[];
+ const generateHref="/app/admin/sprints/generate?"+new URLSearchParams({search,status:filter,sort,page:String(page)}).toString();
  return <div className="d-grid gap-4">
   <header className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
    <div>
@@ -67,7 +68,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
     <p className="text-secondary mb-0">{data?.teamName??t("sprintsIndex.teamUnknown")} · Scrum</p>
    </div>
    {canManage&&<Link className="btn btn-primary"
-    href="/app/admin/sprints/generate">{t("sprintsIndex.generate")}</Link>}
+    href={generateHref}>{t("sprintsIndex.generate")}</Link>}
   </header>
   <section className="smn-panel rounded-4 p-3 p-md-4 d-grid gap-3" aria-label={t("sprintsIndex.filters")}>
    <div className="row g-3 align-items-end">
@@ -120,7 +121,7 @@ export default function SprintIndexView({canManage}:{canManage:boolean}){
      <p className="text-secondary">{search.trim()||filter!=="all"?
       t("sprintsIndex.tryFilters"):t("sprintsIndex.emptyHint")}</p>
      {canManage&&!search.trim()&&filter==="all"&&
-      <Link href="/app/admin/sprints/generate" className="btn btn-outline-primary">
+      <Link href={generateHref} className="btn btn-outline-primary">
        {t("sprintsIndex.generate")}</Link>}
     </div>}
    {(!error&&!loading&&items.length>0)&&<>
