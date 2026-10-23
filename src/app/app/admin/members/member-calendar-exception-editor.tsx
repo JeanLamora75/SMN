@@ -31,8 +31,8 @@ export default function MemberCalendarExceptionEditor({memberId,onSaved,onCancel
  const [baseline,setBaseline]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
- const dirty=Boolean(data&&(
-  date!==data.today||JSON.stringify(selection)!==baseline));
+ // Changer de date sans éditer les créneaux n’est pas une modification à sauvegarder.
+ const dirty=Boolean(data&&JSON.stringify(selection)!==baseline);
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  useEffect(()=>{
   let live=true;
