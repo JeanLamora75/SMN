@@ -9,6 +9,7 @@ import DependencyParties from "./dependency-parties";
 import DependencyVigilance from "./dependency-vigilance";
 import RegistryCycles from "./registry-cycles";
 import DecisionDetail from "./decision-detail";
+import DecisionActions from "./decision-actions";
 import ActionLinks from "./action-links";
 import RegistryRelations from "./registry-relations";
 import {obstacleTransition,obstacleNeedsAttention} from "@/lib/obstacle-lifecycle";
@@ -115,7 +116,7 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
   </form>}
   {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage}/>}
   {itemId&&loaded&&type==="action"&&<ActionLinks id={itemId} canManage={canManage}/>}
-  {itemId&&loaded&&type==="decision"&&<DecisionDetail id={itemId} canManage={canManage}/>}
+  {itemId&&loaded&&type==="decision"&&<><DecisionDetail id={itemId} canManage={canManage}/><DecisionActions id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/></>}
   {itemId&&loaded&&(type==="risk"||type==="dependency")&&<RegistryCycles id={itemId} canManage={canManage}/>}
   {itemId&&loaded&&type==="dependency"&&<><DependencyParties id={itemId} canManage={canManage}/><DependencyVigilance id={itemId} canManage={canManage}/></>}
   {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage}/><RiskAssessment id={itemId} canManage={canManage}/><MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/></>}
