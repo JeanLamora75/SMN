@@ -61,7 +61,7 @@ export async function createKanbanPeriod(db:Client,actorId:string,raw:unknown){
     WHERE team_id=$1 AND deleted_at IS NULL AND start_on<=$3::date AND end_on>=$2::date LIMIT 1`,
     [teamId,period.startOn,period.endOn]);
   if(clash.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap"};}
-  const duplicate=await db.query(`SELECT id FROM public.smn_kanban_period WHERE team_id=$1 AND lower(name)=lower($2) LIMIT 1`,[teamId,name]);
+  const duplicate=await db.query(`SELECT id FROM public.smn_kanban_period WHERE team_id=$1 AND deleted_at IS NULL AND lower(name)=lower($2) LIMIT 1`,[teamId,name]);
   const duplicateName=duplicate.rows.length>0;
   const id=randomUUID();
   await db.query(`INSERT INTO public.smn_kanban_period
