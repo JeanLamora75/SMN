@@ -119,3 +119,23 @@ Tests source/contrat ajoutés à `tests/smn-221-team-context-editor.test.ts`.
 `pnpm exec tsx --test tests/smn-221-team-context-editor.test.ts`,
 `pnpm build`, puis inspection visuelle des deux modes, du zoom et des
 contenus absents/longs. Ne pas fermer Jira avant recette.
+
+## Correctif d'alignement horizontal du bandeau (24/10/2026)
+
+L'affichage précédent présentait Vision Produit au-dessus du But du
+produit. Le CSS de `src/app/globals.css` utilise désormais une
+grille d'en-tête **identité 1fr + contexte 2fr + sélecteur auto**,
+où le contexte est subdivisé en **deux colonnes égales**. Le
+bord gauche de chaque colonne produit les deux séparateurs
+verticaux entre les trois blocs. Les contrôles de vue sont maintenus
+à droite.
+
+La disposition reste à deux colonnes Vision/But sur tablette et
+n'empile ces sections qu'en mobile étroit. Les textes et icônes
+restent inchangés, de même que les producteurs GET/PATCH et
+les permissions. Contrôles CSS ajoutés à
+`tests/smn-221-team-context-editor.test.ts`.
+
+**À vérifier localement :** `pnpm typecheck`,
+`pnpm exec tsx --test tests/smn-221-team-context-editor.test.ts`,
+`pnpm build` et recette responsive réelle.

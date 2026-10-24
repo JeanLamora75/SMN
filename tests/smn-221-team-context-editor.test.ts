@@ -218,9 +218,16 @@ test("la synthèse reste compacte, responsive et utilise les mêmes icônes que 
  const overview=read("src/app/app/admin/members/team-overview.tsx");
  assert.match(css,/\.smn-team-page-header\s*\{\s*display:grid/);
  assert.match(css,/grid-template-areas:"identity context controls"/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) minmax\(0,2fr\) auto/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/border-inline-start:1px solid var\(--smn-border\)/);
+ assert.match(css,/@media\(max-width:650px\)/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\)/);
  assert.match(css,/grid-template-areas:"identity controls" "context context"/);
  assert.match(css,/\.smn-team-context-section \+ \.smn-team-context-section\s*\{/);
  assert.match(css,/border-top:1px solid var\(--smn-border\)/);
+ assert.match(css,/\.smn-team-context-section \+ \.smn-team-context-section \{/);
+ assert.match(css,/border-inline-start:0;/);
  assert.match(css,/-webkit-line-clamp:3/);
  assert.match(dashboard,/\.smn-kpi-icon\s*\{/);
  assert.match(overview,/smn-kpi-icon smn-team-context-icon/g);

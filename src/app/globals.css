@@ -105,32 +105,35 @@ body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground)
 .smn-team-page,.smn-member-page { max-width:none; width:100%; }
 .smn-team-roster { width:100%; }
 
-/* Team heading: identity, vision and goal occupy distinct responsive areas. */
+/* Three balanced blocks in the Team heading: identity | vision | product goal. */
 .smn-team-page-header {
  display:grid;
- grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) auto;
+ grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;
  grid-template-areas:"identity context controls";
  align-items:start;
- gap:clamp(14px,2vw,30px);
+ column-gap:0;
+ row-gap:0;
 }
-.smn-team-summary {grid-area:identity;min-width:0;}
+.smn-team-summary {grid-area:identity;min-width:0;padding-inline-end:clamp(14px,2vw,28px);}
 .smn-team-summary h1 {overflow-wrap:anywhere;}
 .smn-team-summary-meta {display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
 .smn-team-summary-meta strong {color:var(--bs-body-color);font-weight:600;}
 .smn-team-summary-divider {color:var(--smn-muted);font-weight:700;}
-.smn-team-view-switch {grid-area:controls;justify-self:end;align-self:start;}
+.smn-team-view-switch {
+ grid-area:controls;justify-self:end;align-self:start;
+ margin-inline-start:clamp(12px,1.5vw,24px);
+}
 .smn-team-context-preview {
- grid-area:context;min-width:0;
+ grid-area:context;
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ min-width:0;
  --smn-kpi-accent:var(--smn-primary);
 }
 .smn-team-context-section {
  display:grid;grid-template-columns:39px minmax(0,1fr);
- align-items:start;gap:12px;
- min-width:0;
-}
-.smn-team-context-section + .smn-team-context-section {
- margin-top:12px;padding-top:12px;
- border-top:1px solid var(--smn-border);
+ align-items:start;gap:12px;min-width:0;
+ padding-inline:clamp(14px,1.75vw,26px);
+ border-inline-start:1px solid var(--smn-border);
 }
 .smn-team-context-icon {width:39px;height:39px;}
 .smn-team-context-copy {min-width:0;}
@@ -148,12 +151,29 @@ body,.smn-dashboard{background:var(--smn-background);color:var(--smn-foreground)
  .smn-team-page-header {
   grid-template-columns:minmax(0,1fr) auto;
   grid-template-areas:"identity controls" "context context";
-  row-gap:18px;
+  row-gap:16px;
+ }
+ .smn-team-context-preview {
+  border-top:1px solid var(--smn-border);
+  padding-top:16px;
+ }
+ .smn-team-context-section:first-child {border-inline-start:0;padding-inline-start:0;}
+ .smn-team-context-section + .smn-team-context-section {
+  border-inline-start:1px solid var(--smn-border);
  }
 }
-@media(max-width:575px){
- .smn-team-page-header {column-gap:10px;}
- .smn-team-context-section {gap:10px;}
+@media(max-width:650px){
+ .smn-team-context-preview {grid-template-columns:minmax(0,1fr);}
+ .smn-team-context-section {
+  border-inline-start:0;
+  padding-inline:0;
+ }
+ .smn-team-context-section + .smn-team-context-section {
+  border-inline-start:0;
+  border-top:1px solid var(--smn-border);
+  margin-top:14px;
+  padding-top:14px;
+ }
 }
 
 .smn-team-roster .smn-team-card { min-height:222px; border:1px solid var(--smn-border);

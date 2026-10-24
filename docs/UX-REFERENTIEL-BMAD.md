@@ -581,3 +581,31 @@ même taille que le dashboard, séparation fine, valeurs absentes et valeurs
 renseignées, statut de l'API, enregistrement puis rafraîchissement
 immédiat, bascule Cartes/Liste et traductions. Contrat détaillé :
 `_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/CONTRAT-DEVELOPPEMENT.md`.
+
+## Ajustement du bandeau Équipe — trois colonnes côte à côte (24/10/2026)
+
+**Décision utilisateur la plus récente : ce paragraphe remplace les dispositions
+verticales Vision/But spécifiées dans les avenants précédents.**
+
+- En bureau : **trois blocs horizontaux équilibrés** dans l'en-tête :
+  **1. Équipe / Produit / nombre de membres**,
+  **2. Vision Produit**, **3. But du produit**.
+- La Vision et le But s'affichent **côte à côte**, jamais l'un sous l'autre
+  tant que la largeur permet trois blocs. Deux **lignes verticales fines**
+  délimitent les trois blocs, en utilisant `--smn-border`.
+- Les deux rubriques gardent chacune le pictogramme Bootstrap encadré
+  **39 × 39 px**, les contenus textuels réels et le plafonnement visuel
+  à trois lignes. Le sélecteur Cartes/Liste reste à l'extrémité droite.
+- Pour les écrans intermédiaires (≤ 1150 px), l'identité et les contrôles
+  sont sur une première rangée ; Vision et But restent **côte à côte**
+  sur une deuxième rangée, séparés verticalement. Une fine ligne
+  horizontale sépare cette rangée de l'identité.
+- Sur les petits mobiles (≤ 650 px), l'empilement vertical redevient
+  nécessaire : trois zones distinctes, avec séparateurs **horizontaux**
+  fins. Aucun défilement horizontal.
+- Les API, droits, nom du produit, Vision/But, la fenêtre d'édition,
+  la grille des membres et le mode Cartes/Liste ne changent pas.
+
+**Recette :** grand écran, tablette, mobile, thèmes et zoom ; vérifier
+3 zones d'égale largeur utile sur grand écran, les deux séparateurs
+verticaux, et le maintien du contenu des trois blocs.

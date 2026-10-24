@@ -160,3 +160,24 @@ Recette : vérifier desktop et mobile, même hauteur de cartouche que les
 KPI, séquence Produit/effectif, fine bordure Vision/But, contenus
 absents ou longs, rafraîchissement après sauvegarde et changement
 Cartes/Liste. Les tests en dépôt ne remplacent pas la recette navigateur.
+
+## Dernière décision — répartition du bandeau en 3 blocs égaux (24/10/2026)
+
+Sur grand écran, la zone d'en-tête Équipe est répartie en trois blocs
+horizontalement alignés, avec deux traits verticaux discrets :
+- Équipe / crayon, Produit et effectif actif ;
+- Vision Produit + icône de 39 × 39 px ;
+- But du produit + icône de 39 × 39 px.
+
+Le sélecteur Cartes/Liste demeure dans son coin droit, hors des
+trois zones métier. Le CSS réalise la répartition 1fr + (2fr divisé
+en 2 × 1fr), permettant trois blocs équilibrés et des marges internes.
+Ne pas réintroduire la superposition de Vision et But sur desktop.
+
+Responsive : à 1150 px et moins, identité / sélecteur en première
+ligne puis Vision/But juxtaposés ; à 650 px et moins, Vision/But
+s'empilent. Traits verticaux entre colonnes tant qu'elles sont
+juxtaposées, traits horizontaux lorsque les rangées changent.
+
+La Story de référence reste SMN-221 ; il s'agit d'une évolution
+visuelle exclusivement, sans effet métier ni mutation de la base.
