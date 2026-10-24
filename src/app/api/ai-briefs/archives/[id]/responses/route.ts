@@ -32,6 +32,6 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
    const team=await teamId(db);if(!team)return {ok:false as const,error:"not-found"};
    return saveManualAiResponse(db,id,team,actor.id,input);
   });
-  return jsonResult(result,result.ok?201:result.error==="not-found"?404:result.error==="integrity-error"?409:400);
+  return jsonResult(result,result.ok?201:result.error==="not-found"?404:result.error==="integrity-error"||result.error==="already-active"?409:400);
  }catch{return jsonResult({error:"unavailable"},503);}
 }
