@@ -10,6 +10,22 @@ function value(x:unknown,unit=""){return x===null||x===undefined||x===""?"Non re
 function metric(x:unknown,k:string){const v=record(x)[k];return value(v);}
 export default function KanbanReportPreview({data}:{data:Data}){
  const [selected,setSelected]=useState<Key[]>([...keys]),[show,setShow]=useState(false);
+ const [language,setLanguage]=useState<"fr"|"en">("fr");
+ const [busy,setBusy]=useState(false),[exportError,setExportError]=useState("");
+ async function freeze(){
+  if(!selected.length||busy)return;
+  setBusy(true);setExportError("");
+  try{
+   const path=window.location.pathname.replace(/\\/report\\/prepare\\/?$/,"");
+   const url=path.replace("/app/admin/kanban-periods/","/api/admin/kanban-periods/")+"/report-reference";
+   const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({language,sections:selected})});
+   if(!response.ok)throw Error();
+   const result=await response.json() as {id:string};
+   window.location.assign(path+"/report/frozen?reference="+encodeURIComponent(result.id));
+  }catch{setExportError("Impossible de figer le rapport. Vérifiez vos droits et les données enregistrées.");}
+  finally{setBusy(false);}
+ }
  const flow=record(data.flow),timing=record(data.timing),capacity=record(data.capacity);
  const objectives=list(data.goals),periods=list(data.trends);
  const field=(label:string,raw:unknown,unit="")=><div className="col-sm-6 col-xl-4"><dt className="small text-secondary">{label}</dt><dd className="fw-semibold">{value(raw,unit)}</dd></div>;
@@ -24,6 +40,12 @@ export default function KanbanReportPreview({data}:{data:Data}){
   <h2 className="h5">Composition du rapport Kanban</h2>
   <p className="text-secondary small">Choisissez les rubriques à présenter. L'aperçu HTML n'archive aucun PDF.</p>
   <div className="row g-2">{keys.map(key=><label className="col-12 col-lg-6 form-check ms-3" key={key}><input className="form-check-input" type="checkbox" checked={selected.includes(key)} onChange={e=>setSelected(old=>e.target.checked?[...old,key]:old.filter(x=>x!==key))}/><span className="form-check-label">{labels[key]}</span></label>)}</div>
+  <div className="d-flex align-items-center gap-2 flex-wrap mt-3">
+   <label htmlFor="kanban-report-language">Langue</label>
+   <select id="kanban-report-language" className="form-select form-select-sm w-auto" value={language} onChange={e=>setLanguage(e.target.value as "fr"|"en")}><option value="fr">Français</option><option value="en">English</option></select>
+   <button type="button" className="btn btn-primary btn-sm" disabled={busy||!selected.length} onClick={freeze}>{busy?"Enregistrement…":"Figer la préparation"}</button>
+  </div>
+  {exportError&&<p className="alert alert-warning mt-2" role="alert">{exportError}</p>}
   <button type="button" className="btn btn-outline-primary my-3" onClick={()=>setShow(v=>!v)} aria-expanded={show}>{show?"Masquer l'aperçu":"Afficher l'aperçu HTML"}</button>
   {show&&<div className="smn-report-printable"><article className="border rounded-3 p-4" aria-label="Aperçu HTML Kanban">
    <h2 className="h4">{data.period.name}</h2><p className="mb-1">{data.period.team} · {data.period.startOn} — {data.period.endOn}</p>
