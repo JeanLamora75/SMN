@@ -71,6 +71,8 @@ export type DashboardAttention = Readonly<{
   /** Niveau émis par un producteur enregistré ; absence = non évalué. */
   priority?: "low" | "medium" | "high" | null;
   href?: string;
+  /** Fiche d’équipe non liée : ne pas lui inventer une association à un Sprint. */
+  scope?: "cycle" | "team";
   /** Une tâche de configuration est globale et ne devient pas une note de Sprint. */
   configurationKey?: "reference-country" | "recovery-phrase" | "display-preferences";
 }>;
