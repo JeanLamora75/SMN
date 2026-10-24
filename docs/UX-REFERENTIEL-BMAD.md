@@ -341,7 +341,7 @@ Tests associés : `tests/smn-234-sprint-ceremonies-compact-modal.test.ts`, à la
 **Référence visuelle :** capture fournie d’une sidebar compacte, fond clair, icônes visibles et une ligne par menu. Cette décision concerne la navigation privée commune et complète SMN-22, SMN-23 et la centralisation des Paramètres de SMN-227.
 
 **Demandes retenues pour ce premier lot :**
-- Retirer entièrement de la sidebar le bloc « ESPACE DE TRAVAIL / [produit] / [équipe] / Mode Scrum/Kanban ». Le contexte réel produit/équipe et le Sprint restent visibles dans l’en-tête, sans doublon latéral.
+- Retirer entièrement de la sidebar le bloc « ESPACE DE TRAVAIL / [produit] / [équipe] / Mode Scrum/Kanban ». La sélection d’équipe et de Sprint reste visible dans l’en-tête, sans doublon latéral. Le produit reste disponible dans les pages métier qui le présentent.
 - Faire apparaître les trois premières lignes dans cet ordre : **Tableau de Bord**, **Équipe**, **Calendrier**. L’élément « Calendrier » pointe toujours vers `/app/team-calendar` ; l’équipe admin vers `/app/admin/members`, sans ouvrir de droit supplémentaire aux utilisateurs en lecture seule.
 - Retirer **Sécurité du compte** de la sidebar car le catalogue des Paramètres conserve son accès à `/app/security`. Ne pas supprimer cette page, ses formulaires ou ses contrôles d’authentification.
 - Retirer **Événements Agile**, ancienne entrée « À venir » sans destination active. Ne pas supprimer les événements réels du calendrier et de l’application.
