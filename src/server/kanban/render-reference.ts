@@ -17,10 +17,10 @@ export async function createKanbanRenderReference(db:Client,periodId:string,acto
  const chosen=selectKanbanReportSections(sections);
  if(!chosen.length)return null;
  await ensureKanbanRenderReference(db);
- await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
+ const data=await composeKanbanReport(db,periodId);
+ if(!data)return null;
+ await db.query("BEGIN");
  try{
-  const data=await composeKanbanReport(db,periodId);
-  if(!data){await db.query("ROLLBACK");return null;}
   const payload:FrozenKanbanPayload={data,sections:chosen,language};
   const id=randomUUID(),sha256=hashKanbanPayload(payload);
   await db.query(`INSERT INTO public.smn_kanban_render_reference
