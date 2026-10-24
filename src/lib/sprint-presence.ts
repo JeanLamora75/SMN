@@ -1,9 +1,14 @@
 /** D5 — Presence is scheduled availability, NOT development capacity.
  * One available calendar half-day = 0.5 J/H; never multiply by developer,
  * contribution or allocation percentages. No claim of physical attendance. */
+import type {AgileRole} from "@/server/sprints/presence-metadata-read";
 export type PresenceMember=Readonly<{
  memberId:string;displayName:string;presenceJh:number|null;
  developmentJh:number|null;daysCount:number;unknownDays:number;
+ /** Optional for closure snapshots created before the UX enhancement. */
+ professionalFunction?:string|null;
+ agileRoles?:readonly AgileRole[]|null;
+ contributionPercents?:readonly number[]|null;
 }>;
 export type PresenceData=Readonly<{
  state:"available";source:"calendar-estimate"|"closure-snapshot";
@@ -74,11 +79,30 @@ export function presenceFromSnapshot(value:unknown,version:number):SprintPresenc
   if(!validJh(m.presenceJh)||!validJh(m.developmentJh)||
    (Number(m.unknownDays)>0&&m.presenceJh!==null))
    return {state:"unavailable",reason:"read-failed"};
+  const allowedRoles=["scrumMaster","productOwner","developer"];
+  if(m.professionalFunction!==undefined&&m.professionalFunction!==null&&
+   (typeof m.professionalFunction!=="string"||m.professionalFunction.length>120))
+   return {state:"unavailable",reason:"read-failed"};
+  if(m.agileRoles!==undefined&&m.agileRoles!==null&&
+   (!Array.isArray(m.agileRoles)||m.agileRoles.some(role=>!allowedRoles.includes(role))||
+    new Set(m.agileRoles).size!==m.agileRoles.length))
+   return {state:"unavailable",reason:"read-failed"};
+  if(m.contributionPercents!==undefined&&m.contributionPercents!==null&&
+   (!Array.isArray(m.contributionPercents)||m.contributionPercents.some(p=>
+    !Number.isInteger(p)||p<0||p>100)))
+   return {state:"unavailable",reason:"read-failed"};
   seen.add(m.memberId);
   members.push({memberId:m.memberId,displayName:m.displayName,
    presenceJh:m.presenceJh as number|null,
    developmentJh:m.developmentJh as number|null,
-   daysCount:m.daysCount as number,unknownDays:m.unknownDays as number});
+   daysCount:m.daysCount as number,unknownDays:m.unknownDays as number,
+   ...(m.professionalFunction===undefined?{}:{
+    professionalFunction:m.professionalFunction as string|null}),
+   ...(m.agileRoles===undefined?{}:{
+    agileRoles:m.agileRoles as readonly AgileRole[]|null}),
+   ...(m.contributionPercents===undefined?{}:{
+    contributionPercents:m.contributionPercents as readonly number[]|null})
+  });
  }
  const sum=members.every(x=>x.presenceJh!==null)?
   round(members.reduce((v,x)=>v+(x.presenceJh??0),0)):null;
