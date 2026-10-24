@@ -1,13 +1,13 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useEpic4Presentation} from "./i18n-presentation";
 type Meeting={id:string;name:string;sprintId:string;impactsCapacity:boolean;status:string;sprintStatus:string;plannedMinutes:number;actualMinutes:number;participantIds:string[]};
 type Member={id:string;displayName:string};
 export default function ExceptionalCapacityForm(){
  const t=useTranslation();const presentation=useEpic4Presentation();const [items,setItems]=useState<Meeting[]>([]),[members,setMembers]=useState<Member[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState("");
- async function load(){setBusy(true);setError("");try{const r=await fetch("/api/admin/sprints/exceptional-capacity-impact",{cache:"no-store"});if(!r.ok)throw Error();const data=await r.json();setItems(data.meetings);setMembers(data.members);}catch{setError(t("exceptionalCapacity.error"));}finally{setBusy(false);}}
- useEffect(()=>{void Promise.resolve().then(load);},[]);
+ const load=useCallback(async()=>{setBusy(true);setError("");try{const r=await fetch("/api/admin/sprints/exceptional-capacity-impact",{cache:"no-store"});if(!r.ok)throw Error();const data=await r.json();setItems(data.meetings);setMembers(data.members);}catch{setError(t("exceptionalCapacity.error"));}finally{setBusy(false);}},[t]);
+ useEffect(()=>{void Promise.resolve().then(load);},[load]);
  async function save(m:Meeting,value:boolean){setBusy(true);setError("");try{const r=await fetch("/api/admin/sprints/exceptional-capacity-impact",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:m.id,impactsCapacity:value})});if(!r.ok)throw Error();await load();}catch{setError(t("exceptionalCapacity.error"));}finally{setBusy(false);}}
  async function saveMembers(m:Meeting,memberIds:string[]){setBusy(true);setError("");try{const r=await fetch("/api/admin/sprints/exceptional-capacity-impact",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:m.id,memberIds})});if(!r.ok)throw Error();await load();}catch{setError(t("exceptionalCapacity.error"));}finally{setBusy(false);}}
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("exceptionalCapacity.title")}</h2><p>{t("exceptionalCapacity.info")}</p>
