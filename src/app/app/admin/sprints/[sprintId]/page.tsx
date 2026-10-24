@@ -26,6 +26,7 @@ import SprintGoalsPanel from "./sprint-goals-panel";
 import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import HistoricalEventForm from "./historical-event-form";
+import HistoricalPartialForm from "./historical-partial-form";
 import SprintCapacityPanel from "./sprint-capacity-panel";
 import SprintTrendsPanel from "./sprint-trends-panel";
 import SprintReviewPanel from "./sprint-review-panel";
@@ -159,9 +160,9 @@ export default async function SprintDetailPage({params,searchParams}:{
     labels={labels} navLabel={t("dashboard.cockpit.sprintDetailsTitle")}/>
    <section role="tabpanel" tabIndex={0} id="smn-sprint-detail-panel"
     aria-labelledby={"smn-sprint-tab-"+active} className="pt-4">
-    {active==="objectives"?<SprintGoalsPanel
+    {active==="objectives"?<><SprintGoalsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
-      data={goals??{state:"unavailable",reason:"read-failed"}}/>:
+      data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
      active==="indicators"?<SprintIndicatorsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
