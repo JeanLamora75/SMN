@@ -16,6 +16,10 @@ const statusKeys:Readonly<Record<string,TranslationKey>>={
  todo:"registryCreate.todo",completed:"registryCreate.completed",
  recorded:"registryCreate.recorded"
 };
+const priorityKeys:Readonly<Record<string,TranslationKey>>={
+ low:"dashboard.operational.priorityLow",medium:"dashboard.operational.priorityMedium",
+ high:"dashboard.operational.priorityHigh"
+};
 const categoryKeys:Record<RegisterKind,TranslationKey>={
  risk:"sprintDetail.registerRisk",
  obstacle:"sprintDetail.registerObstacle",
@@ -100,7 +104,8 @@ export default function SprintRegistersPanel({sprintId,timeZone,locale,data,t,se
            {statusKeys[item.status]?t(statusKeys[item.status]):item.status}
           </span>}
           {item.priority!==null&&<span className="badge text-bg-light border">
-           {t("sprintDetail.registersPriority",{value:item.priority})}
+           {t("sprintDetail.registersPriority",{value:priorityKeys[item.priority]?
+            t(priorityKeys[item.priority]):item.priority})}
           </span>}
          </div>
          <p className="small text-secondary mb-0">
