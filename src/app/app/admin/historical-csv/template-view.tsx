@@ -11,7 +11,7 @@ export default function HistoricalCsvTemplateView(){
  const [check,setCheck]=useState<{valid:boolean;rowCount:number;errors:{line:number;column:string;message:string}[];preview?:Preview[];confirmable?:boolean}|null>(null);
  async function confirmImport(){
   if(!check?.valid||!check.preview||confirming)return;
-  const choices=check.preview.map(r=>({line:r.line,decision:r.decision==="insert"?"insert":replacement[r.line]?"replace":"keep"}));
+  const choices=check.preview.map(r=>({line:r.line,expectedValue:r.existingValue,decision:r.decision==="insert"?"insert":replacement[r.line]?"replace":"keep"}));
   const details=check.preview.filter(r=>r.decision==="insert"||replacement[r.line]).map(r=>r.cycleId+" · "+r.metricCode+" : "+(r.existingValue??"Non renseigné")+" → "+r.value+" ("+r.quality+")").join("\n");
   if(!window.confirm("Confirmer les changements de ce lot ?\n"+details+"\nLes autres valeurs seront conservées."))return;
   setConfirming(true);setConfirmation("");
