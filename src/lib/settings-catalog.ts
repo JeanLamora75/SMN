@@ -7,7 +7,7 @@ export type SettingsEntry=Readonly<{id:string;label:TranslationKey;description:T
  href:string|null;status:SettingsAvailability;section:SettingsSection}>;
 export type SettingsGroup=Readonly<{id:SettingsSection;label:TranslationKey;entries:SettingsEntry[]}>;
 type RecordEntry={id:string;icon:string;resource:"settings"|"accounts"|"backups"|"audit";
- mode?:"scrum";href?:string;status?:SettingsAvailability};
+ mode?:"scrum"|"kanban";href?:string;status?:SettingsAvailability};
 const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:readonly RecordEntry[]}>= [
  {id:"application",label:"settingsCatalog.groups.application",entries:[
   {id:"general",icon:"⚙",resource:"settings",href:"/app/admin/settings/general"},
@@ -16,6 +16,7 @@ const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:rea
  ]},
  {id:"agile",label:"settingsCatalog.groups.agile",entries:[
   {id:"cadence",icon:"◷",resource:"settings",href:"/app/admin/scrum-cadence",mode:"scrum"},
+  {id:"kanbanCadence",icon:"◷",resource:"settings",href:"/app/admin/kanban-cadence",mode:"kanban"},
   {id:"ceremonies",icon:"◫",resource:"settings",href:"/app/admin/settings/ceremonies",status:"partial",mode:"scrum"},
   {id:"capacity",icon:"▤",resource:"settings",status:"partial"}
  ]},
