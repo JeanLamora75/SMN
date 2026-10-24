@@ -2,10 +2,11 @@ import Link from "next/link";
 import type {TranslationKey} from "@/i18n/catalog";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 import {
- registerKinds,safeRegisterHref,
+ registerKinds,
  type RegisterKind,type SprintRegisterResult
 } from "@/lib/sprint-registers";
 import BootstrapIcon from "../../../bootstrap-icon";
+import SprintRegisterRow from "./sprint-register-row";
 
 type Text=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>string;
 const statusKeys:Readonly<Record<string,TranslationKey>>={
@@ -38,23 +39,25 @@ const icons:Record<RegisterKind,
 
 /** No figures, links or fabricated records are rendered without a provider.
  * The component can render future verified Epic 5 data through its contract. */
-export default function SprintRegistersPanel({sprintId,timeZone,locale,data,t,selectedKind=null}:{
- sprintId:string;timeZone:string;locale:"fr"|"en";selectedKind?:RegisterKind|null;
+export default function SprintRegistersPanel({sprintId,teamId,timeZone,locale,data,t,
+ selectedKind=null,canManage=false}:{
+ sprintId:string;teamId:string;timeZone:string;locale:"fr"|"en";
+ selectedKind?:RegisterKind|null;canManage?:boolean;
  data:SprintRegisterResult|null;t:Text;
 }){
  const dates=new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
-  timeZone,dateStyle:"medium",timeStyle:"short"
+  timeZone,dateStyle:"medium"
  });
  const stamp=(iso:string)=>dates.format(new Date(iso));
  const url=(page:number,kind=selectedKind)=>sprintDetailPath(sprintId)+"?"+
   new URLSearchParams({tab:"registers",page:String(page),...(kind?{kind}:{})}).toString();
  const missing=data?.state==="available"?data.missingKinds:[...registerKinds];
- return <section aria-label={t("sprintDetail.tabs.registers")}>
+ return <section className="smn-sprint-registers" aria-label={t("sprintDetail.tabs.registers")}>
   <h2 className="h5 mb-2">{t("sprintDetail.tabs.registers")}</h2>
   <p className="small text-secondary mb-3">
    {t("sprintDetail.registersIntroduction")}
   </p>
-  <nav className="d-flex flex-wrap gap-2 mb-3" aria-label={t("sprintDetail.registersCategories")}>
+  <nav className="d-flex flex-wrap gap-2 mb-3 smn-sprint-register-filters" aria-label={t("sprintDetail.registersCategories")}>
    <Link href={url(1,null)} aria-current={selectedKind===null?"page":undefined}
     className={"badge border text-decoration-none "+(selectedKind===null?"text-bg-primary":"text-bg-light")}>
     {t("sprintDetail.registersAll")}
@@ -88,45 +91,19 @@ export default function SprintRegistersPanel({sprintId,timeZone,locale,data,t,se
     <p role="status" className="text-secondary">{missing.length===0?
      t("sprintDetail.registersNoRecords"):
      t("sprintDetail.registersNoRecordsPartial")}</p>:
-    <ol className="list-group list-group-flush mb-3"
+    <ol className="list-group list-group-flush mb-3 smn-sprint-register-list"
      start={(data.page-1)*data.pageSize+1}>
-     {data.items.map(item=><li key={item.kind+":"+item.id}
-      className="list-group-item bg-transparent px-0 py-3">
-      <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap">
-       <div className="d-flex gap-3 align-items-start flex-grow-1" style={{minWidth:0}}>
-        <span className="text-secondary"><BootstrapIcon name={icons[item.kind]}/></span>
-        <div className="flex-grow-1" style={{minWidth:0}}>
-         <p className="small text-secondary mb-1">{t(categoryKeys[item.kind])}</p>
-         <p className="fw-semibold mb-1 text-break">{data.source==="current"&&safeRegisterHref(item.href)?
-          <Link href={item.href!}>{item.title}</Link>:item.title}</p>
-         <div className="d-flex flex-wrap align-items-center gap-2 small mb-2">
-          {item.status!==null&&<span className="badge text-bg-secondary">
-           {statusKeys[item.status]?t(statusKeys[item.status]):item.status}
-          </span>}
-          {item.priority!==null&&<span className="badge text-bg-light border">
-           {t("sprintDetail.registersPriority",{value:priorityKeys[item.priority]?
-            t(priorityKeys[item.priority]):item.priority})}
-          </span>}
-         </div>
-         <p className="small text-secondary mb-0">
-          {t("sprintDetail.registersDate")}:{" "}
-          <time dateTime={item.date}>{stamp(item.date)}</time>
-         </p>
-        </div>
-       </div>
-       {data.source==="closure-snapshot"?
-        <span className="small text-secondary" role="note">
-         {t("sprintDetail.registersHistoricalLinkUnavailable")}
-        </span>:
-        safeRegisterHref(item.href)?
-        <Link href={item.href!} className="btn btn-outline-primary btn-sm">
-         {t("sprintDetail.registersOpenRecord")}
-        </Link>:
-        <span className="small text-secondary">
-         {t("sprintDetail.registersNoLink")}
-        </span>}
-      </div>
-     </li>)}
+     {data.items.map(item=><SprintRegisterRow key={item.kind+":"+item.id}
+      item={item} teamId={teamId} canManage={canManage}
+      historical={data.source==="closure-snapshot"}
+      typeLabel={t(categoryKeys[item.kind])}
+      statusLabel={item.status===null?null:
+       statusKeys[item.status]?t(statusKeys[item.status]):item.status}
+      priorityLabel={item.priority===null?null:
+       t("sprintDetail.registersPriority",{value:priorityKeys[item.priority]?
+        t(priorityKeys[item.priority]):item.priority})}
+      dateLabel={t("sprintDetail.registersDate")}
+      formattedDate={stamp(item.date)}/>)}
     </ol>}
    {data.pageCount>1&&<nav aria-label={t("sprintDetail.registersPagination")}
     className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
