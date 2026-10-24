@@ -2864,8 +2864,12 @@
     "notYetDue": "Une réunion future ne peut pas encore être qualifiée comme tenue ou non tenue.",
     "conflict": "Cette cérémonie a été modifiée depuis son ouverture. Recharge sa fiche.",
     "invalidLocalTime": "Cette heure locale n'existe pas ou est ambiguë à cause du changement d'heure. Choisis un autre horaire.",
-    "scheduleReadonly": "Les horaires de cet événement sont consultables ici. Leur modification n'est pas disponible pour ce type ou cet état.",
+    "scheduleReadonly": "Les dates et horaires ne sont pas modifiables pour un événement annulé, un sprint clôturé ou un compte en lecture seule.",
     "readonly": "Ce sprint est clôturé ou ton compte dispose uniquement d'un accès en lecture.",
-    "discard": "Fermer sans enregistrer les modifications ?"
+    "discard": "Fermer sans enregistrer les modifications ?",
+    "durationCalculated": "Calculée automatiquement à partir des dates et heures de début et de fin.",
+    "invalidSchedule": "Vérifiez les dates et horaires : la fin doit être après le début, l'heure doit être valide et la durée conforme au type de réunion.",
+    "outsideSprint": "Les nouveaux horaires doivent rester à l'intérieur des dates du sprint.",
+    "closedPeriod": "Le sprint est clôturé : cette réunion ne peut plus être déplacée."
   }
 }
