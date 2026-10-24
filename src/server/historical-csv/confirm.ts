@@ -50,6 +50,8 @@ export async function confirmHistoricalCsv(db:Client,actorId:string,csv:string,c
    next_value numeric(14,4) NOT NULL,quality text NOT NULL CHECK(quality IN ('known','estimated')),
    action text NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
    changed_at timestamptz NOT NULL DEFAULT clock_timestamp())`);
+  await db.query("ALTER TABLE public.smn_historical_csv_change ADD COLUMN IF NOT EXISTS source_line integer");
+  await db.query("ALTER TABLE public.smn_historical_csv_change ADD COLUMN IF NOT EXISTS previous_quality text");
   await db.query("INSERT INTO public.smn_historical_csv_batch(id,mode,actor_id) VALUES($1,$2,$3)",[batchId,mode,actorId]);
   let inserted=0,replaced=0,preserved=0;
   for(const row of preview){
@@ -60,10 +62,13 @@ export async function confirmHistoricalCsv(db:Client,actorId:string,csv:string,c
    // Preserve all other columns. No closure snapshot or PDF is ever written.
    await db.query(`INSERT INTO public.${table}(${fk},${column}) VALUES($1,$2)
     ON CONFLICT(${fk}) DO UPDATE SET ${column}=EXCLUDED.${column}`,[row.cycleId,row.value]);
+   const previousRevision=await db.query<{quality:string}>(`SELECT quality FROM public.smn_historical_csv_change
+    WHERE cycle_id=$1 AND metric_code=$2 ORDER BY changed_at DESC,id DESC LIMIT 1`,[row.cycleId,row.metricCode]);
    await db.query(`INSERT INTO public.smn_historical_csv_change
-    (id,batch_id,cycle_id,metric_code,previous_value,next_value,quality,action,actor_id)
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[
-    randomUUID(),batchId,row.cycleId,row.metricCode,row.existingValue,row.value,row.quality,choice.decision,actorId]);
+    (id,batch_id,cycle_id,metric_code,previous_value,next_value,quality,action,actor_id,source_line,previous_quality)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,[
+    randomUUID(),batchId,row.cycleId,row.metricCode,row.existingValue,row.value,row.quality,
+    choice.decision,actorId,row.line,previousRevision.rows[0]?.quality??null]);
    if(choice.decision==="replace")replaced++;else inserted++;
   }
   const attemptId=await recordCsvAttempt(db,{actorId,status:"import-confirmed",mode,scope:"historical-csv",batchId,readCount:preview.length,recognizedCount:preview.length,appliedCount:inserted+replaced,preservedCount:preserved,rejectedCount:0,cycleIds:preview.filter(r=>choices.find(x=>x.line===r.line)?.decision!=="keep").map(r=>r.cycleId)});
