@@ -184,13 +184,32 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
  </form>;
 }
 
+function EditBody({props,close}:{props:Props;close:()=>void}){
+ const router=useRouter();
+ const saved=()=>{close();router.refresh();};
+ return <>
+    {props.kind==="registry"?
+      <RegistryCreate teamId={props.teamId} canManage={props.canManage} itemId={props.id}
+        modalMode onSaved={saved}/>:
+     props.kind==="note"?
+      <NoteForm id={props.id} teamId={props.teamId} cycleId={props.cycleId}
+       canManage={props.canManage} saved={saved}/>:
+     props.kind==="event"&&props.eventKind?
+      <EventForm id={props.id} kind={props.eventKind} teamId={props.teamId}
+       cycleId={props.cycleId} timeZone={props.timeZone??"Europe/Paris"}
+       canManage={props.canManage} saved={saved}/>:
+     props.configurationKey?
+      <ConfigurationForm configurationKey={props.configurationKey} status={props.status??"todo"}
+       canManage={props.canManage} saved={saved}/>:null}
+ </>;
+}
+
 /** Le titre déclenche une modale native ; la navigation vers la fiche reste accessible séparément. */
 export default function OperationalEdit(props:Props){
- const t=useTranslation(),router=useRouter(),dialogId=useId();
+ const t=useTranslation(),dialogId=useId();
  const ref=useRef<HTMLDialogElement>(null),[opened,setOpened]=useState(false);
  useEffect(()=>{if(opened&&ref.current&&!ref.current.open)ref.current.showModal();},[opened]);
  const close=()=>ref.current?.close();
- const saved=()=>{close();router.refresh();};
  return <>
   <span className="smn-operational-edit-wrap">
   <button type="button" className={props.className+" smn-operational-edit-trigger"}
@@ -208,19 +227,7 @@ export default function OperationalEdit(props:Props){
      <button type="button" className="btn-close" aria-label={t("dashboard.operational.quickAdd.close")}
       onClick={close}/>
     </header>
-    {props.kind==="registry"?
-      <RegistryCreate teamId={props.teamId} canManage={props.canManage} itemId={props.id}
-        modalMode onSaved={saved}/>:
-     props.kind==="note"?
-      <NoteForm id={props.id} teamId={props.teamId} cycleId={props.cycleId}
-       canManage={props.canManage} saved={saved}/>:
-     props.kind==="event"&&props.eventKind?
-      <EventForm id={props.id} kind={props.eventKind} teamId={props.teamId}
-       cycleId={props.cycleId} timeZone={props.timeZone??"Europe/Paris"}
-       canManage={props.canManage} saved={saved}/>:
-     props.configurationKey?
-      <ConfigurationForm configurationKey={props.configurationKey} status={props.status??"todo"}
-       canManage={props.canManage} saved={saved}/>:null}
+    <EditBody props={props} close={close}/>
     <div className="d-flex justify-content-end mt-3">
      <button type="button" className="btn btn-outline-secondary" onClick={close}>
       {t("dashboard.operational.quickAdd.cancel")}</button>
