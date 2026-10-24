@@ -41,6 +41,22 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     }
     assert.equal(classifySnapshot({...valid,tables:[...names,"public.smn_sprint_wizard_preview:r","public.smn_sprint_reschedule_audit:r","public.unknown:r"]}).status,"schema-incompatible");
   });
+  it("reconnaît les deux tables de scores de Sprint créées par SMN-234 D3 sans accepter de tables étrangères", () => {
+    const source = readFileSync(
+      new URL("../src/server/sprints/sprint-scores.ts", import.meta.url), "utf8"
+    );
+    const relations = [
+      "public.smn_sprint_scores:r",
+      "public.smn_sprint_scores_audit:r",
+    ];
+    for (const relation of relations) {
+      assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
+      assert.ok(source.includes("CREATE TABLE IF NOT EXISTS " + relation.slice(0, -2) + "("));
+      assert.notEqual(classifySnapshot({ ...valid, tables: [...names, relation] }).status, "schema-incompatible");
+    }
+    assert.notEqual(classifySnapshot({ ...valid, tables: [...names, ...relations] }).status, "schema-incompatible");
+    assert.equal(classifySnapshot({ ...valid, tables: [...names, ...relations, "public.foreign_table:r"] }).status, "schema-incompatible");
+  });
   it("refuse les installations partielles et versions futures inconnues", () => {
     assert.equal(classifySnapshot({ ...valid, migrations: [] }).status, "installation-incomplete");
     assert.equal(classifySnapshot({ ...valid, migrations: [{ migration_name: "x", finished_at: null, rolled_back_at: null }] }).status, "installation-incomplete");
