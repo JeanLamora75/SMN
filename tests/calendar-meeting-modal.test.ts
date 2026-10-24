@@ -50,6 +50,17 @@ describe("SMN calendrier — fiche événement en modale",()=>{
   assert.equal(resolveCalendarLocalTime("2026-10-25T02:30","Europe/Paris"),null);
   assert.equal(resolveCalendarLocalTime("bad","Europe/Paris"),null);
  });
+ it("applique les autorisations API et laisse les données personnelles hors de la fiche",()=>{
+  const route=read("src/app/api/team-calendar/meetings/[kind]/[id]/route.ts");
+  const modal=read("src/app/app/team-calendar/calendar-meeting-modal.tsx");
+  assert.match(route,/authorizeApi\(request,"read",target\)/);
+  assert.match(route,/validCalendarMeetingRef\(kind,id\)/);
+  assert.match(modal,/isAdmin&&detail!==null/);
+  assert.match(modal,/onSaved\(\)/);
+  assert.match(modal,/attendanceKind\[detail.kind\]/);
+  assert.match(modal,/role="dialog" aria-modal="true"/);
+  assert.match(modal,/event.key==="Escape"/);
+ });
  it("utilise le même comportement dans Cartes et Agenda, sans navigation forcée",()=>{
   const day=read("src/app/app/team-calendar/calendar-option-b.tsx");
   const parent=read("src/app/app/team-calendar/team-calendar-view.tsx");
