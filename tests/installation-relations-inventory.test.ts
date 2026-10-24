@@ -52,3 +52,24 @@ test("automatic highlights are recognized while foreign relations remain rejecte
  assert.equal(classifySnapshot({...baseline,tables:[...baseline.tables,"public.third_party:r"]}).status,
   "schema-incompatible");
 });
+
+test("report language and frozen render references are recognized as native SMN tables",()=>{
+ const base:Snapshot={
+  schemaUsage:true,schemaCreate:true,serverVersion:180006,tableRead:true,
+  migrationsRead:true,
+  installations:[{id:"singleton",state:"initialized",schema_version:1}],
+  migrations:[{migration_name:"fixture",finished_at:new Date(),rolled_back_at:null}],
+  tables:["public.smn_installation:r","public._prisma_migrations:r"]
+ };
+ for(const [name,file] of [
+  ["smn_report_language","language.ts"],
+  ["smn_report_render_reference","render-reference.ts"]
+ ] as const){
+  const source=readFileSync(new URL("../src/server/reports/"+file,import.meta.url),"utf8");
+  assert.ok(source.includes("CREATE TABLE IF NOT EXISTS public."+name+"("));
+  const relation="public."+name+":r";
+  assert.ok((INSTALLATION_RELATIONS as readonly string[]).includes(relation));
+  assert.notEqual(classifySnapshot({...base,tables:[...base.tables,relation]}).status,"schema-incompatible");
+ }
+ assert.equal(classifySnapshot({...base,tables:[...base.tables,"public.not_smn:r"]}).status,"schema-incompatible");
+});
