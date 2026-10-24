@@ -1,4 +1,5 @@
 import Link from "next/link";
+import KanbanPdfExport from "./kanban-pdf-export";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -19,6 +20,7 @@ export default async function FrozenKanbanReportPage({params,searchParams}:{para
  const values:Record<string,unknown>={objectives:data.goals,flow:data.flow,timing:data.timing,capacity:data.capacity,trends:data.trends};
  return <main lang={language} className="container-fluid px-3 px-lg-4 py-4 smn-report-printable">
   <div className="d-print-none mb-3"><Link href={"/app/admin/kanban-periods/"+id+"/report/prepare"}>← Préparation du rapport</Link></div>
+  {actor.role==="admin"&&<KanbanPdfExport periodId={id} referenceId={stored.id}/>}
   <article className="smn-panel rounded-4 p-4 my-3">
    <h1 className="h3">Rapport Kanban — {data.period.name}</h1>
    <p>{data.period.team} · {data.period.startOn} — {data.period.endOn} · {data.period.status}</p>
