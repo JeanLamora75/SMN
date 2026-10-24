@@ -15,6 +15,7 @@ function projection():CollectiveCycleProjection {
   teamId:"team-A",cycleId:"sprint-A",cycleStatus:"active",snapshotVersion:null,
   goals:missing,capacity:{initialJh:metric,actualJh:metric},
   storyPoints:{initial:metric,done:metric},tickets:{initial:metric,done:metric},
+  scores:{confidence:metric,clarity:metric},
   workingDaysRemaining:metric,events:{state:"available",items:[],total:0,source:"manual",snapshotVersion:null},
   obstacles:missing,risks:missing,notesAndAlerts:missing
  };

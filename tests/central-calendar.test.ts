@@ -22,7 +22,7 @@ function sample(admin=true,start="2026-10-19"):TeamCalendarResponse{
   ...(admin?{admin:{
    categories:[{id:"other",name:"Autre"}],
    members:[{id:memberId,displayName:"Membre privé",memberNumber:1,days:[{
-    date:dates[0],assignmentApplicable:true,
+    date:dates[0],assignmentApplicable:true,hasDeclaredAbsence:true,
     workingSlots:{morning:true,afternoon:true},
     availableSlots:{morning:false,afternoon:false},
     deductedHalfDays:2,status:"known",nationalHolidayName:"Fête locale",

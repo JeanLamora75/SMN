@@ -34,6 +34,7 @@ function projection():CollectiveCycleProjection{
  return {teamId:"team-1",cycleId:u(5),cycleStatus:"active",snapshotVersion:null,
   goals:absent,capacity:{initialJh:metric,actualJh:metric},
   storyPoints:{initial:metric,done:metric},tickets:{initial:metric,done:metric},
+  scores:{confidence:metric,clarity:metric},
   workingDaysRemaining:metric,events:list(events),obstacles:list([attention[0]]),
   risks:list([attention[1]]),notesAndAlerts:list(notes)};
 }

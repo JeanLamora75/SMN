@@ -19,6 +19,7 @@ function projection(overrides:Partial<CollectiveCycleProjection>):CollectiveCycl
  return {teamId:"team-1",cycleId:"sprint-1",cycleStatus:"active",snapshotVersion:null,
   goals:empty,capacity:{initialJh:metric,actualJh:metric},
   storyPoints:{initial:metric,done:metric},tickets:{initial:metric,done:metric},
+  scores:{confidence:metric,clarity:metric},
   workingDaysRemaining:metric,events:empty,obstacles:empty,risks:empty,
   notesAndAlerts:empty,...overrides};
 }

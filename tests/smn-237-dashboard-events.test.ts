@@ -31,6 +31,7 @@ const projection=(events:CollectiveCycleProjection["events"]):CollectiveCyclePro
   teamId:"team-1",cycleId:sprintId,cycleStatus:"active",snapshotVersion:null,
   goals:missing,capacity:{initialJh:missing,actualJh:missing},
   storyPoints:{initial:missing,done:missing},tickets:{initial:missing,done:missing},
+  scores:{confidence:missing,clarity:missing},
   workingDaysRemaining:missing,events,
   obstacles:missing,risks:missing,notesAndAlerts:missing
  };
