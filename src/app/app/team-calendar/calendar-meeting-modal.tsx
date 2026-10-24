@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
-import {useLocale,useTranslation} from "@/i18n/client";
+import {useTranslation} from "@/i18n/client";
 import {formatCalendarLocalTime,resolveCalendarLocalTime,durationBetweenLocal} from "@/lib/calendar-local-time";
 import type {CalendarMeetingDetail} from "@/server/sprints/calendar-meeting-detail";
 import type {CalendarMeeting} from "./calendar-option-b";
