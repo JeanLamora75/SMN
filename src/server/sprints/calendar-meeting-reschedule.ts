@@ -14,7 +14,8 @@ type ScheduleInput={kind:CalendarMeetingKind;id:string;startAt:string;endAt:stri
 type ScheduleError="invalid-input"|"not-found"|"conflict"|"closed-period"|
  "outside-sprint"|"protected";
 type Row={id:string;sprint_id:string;starts_at:string;ends_at:string;revision:number;
- sprint_start:string;sprint_end:string;sprint_status:string;status:string};
+ sprint_start:string;sprint_end:string;sprint_status:string;status:string;
+ planned_minutes:number|null;};
 const iso=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 function parse(raw:unknown):ScheduleInput|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
@@ -58,8 +59,9 @@ export async function updateCalendarMeetingSchedule(db:Client,actorId:string,raw
  const spec=tables[input.kind],duration=(Date.parse(input.endAt)-Date.parse(input.startAt))/60000;
  await db.query("BEGIN");
  try{
+  const planned=input.kind==="ceremony"?"m.minutes AS planned_minutes":"NULL::integer AS planned_minutes";
   const rows=await db.query<Row>(`SELECT m.id,m.sprint_id,m.starts_at::text AS starts_at,
-   m.ends_at::text AS ends_at,m.revision,m.${spec.status} AS status,
+   m.ends_at::text AS ends_at,m.revision,m.${spec.status} AS status,${planned},
    s.start_at::text AS sprint_start,s.end_at::text AS sprint_end,s.status AS sprint_status
    FROM public.${spec.table} m
    JOIN public.smn_sprint s ON s.id=m.sprint_id
@@ -113,8 +115,7 @@ export async function updateCalendarMeetingSchedule(db:Client,actorId:string,raw
    await db.query(`INSERT INTO public.smn_sprint_ceremony_history
     (id,ceremony_id,revision,previous_values,next_values,changed_by)
     VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
-    [randomUUID(),input.id,input.revision+1,JSON.stringify({...before,minutes:
-     (Date.parse(before.endAt)-Date.parse(before.startAt))/60000}),
+    [randomUUID(),input.id,input.revision+1,JSON.stringify({...before,minutes:prior.planned_minutes}),
      JSON.stringify({startAt:input.startAt,endAt:input.endAt,minutes:duration}),actorId]);
   }
   if(input.kind==="exceptional"){
