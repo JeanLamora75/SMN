@@ -174,3 +174,42 @@ Les **six catégories** de l'onglet Registres sont maintenant présentes dans la
 **Correction D9 :** désactivation des liens de détail dans les **listes de snapshot de clôture** Cérémonies/Registres. Un lien vers la réunion/fiche courante pourrait afficher une situation contraire au bilan historique. Message de non-disponibilité historique, localisé FR/EN. Ne pas prétendre disposer d'une fiche historisée individuelle sans route adaptée.
 
 **État de validation :** le fichier de tests `tests/smn-234-sprint-transverse-d9.test.ts` est livré, mais **aucun `pnpm typecheck`, `tsx --test` complet, build Next.js, PostgreSQL ni recette navigateur n'a été exécuté dans le dépôt SMN**. Les anciens formulaires restent installés et accessibles jusqu'à leur recette de remplacement. D8 nécessite toujours les producteurs de l'Epic 5. SMN-234 demeure ouverte, DoD non satisfaite. [Rapport BMAD D9 détaillé](../../../implementation-artifacts/rapport-recette-d9-fiche-sprint-smn-234-2026-10-23.md).
+
+
+## Avenant normatif — C01 et C02 dans Indicateurs (24/10/2026)
+
+**Règle postérieure à D3 :** la phrase ancienne « Huit valeurs modifiables »
+décrit le périmètre D3 historique. Le périmètre cible comprend désormais les huit
+indicateurs existants **et deux champs J/H supplémentaires** :
+**C01 Capacité prévue (J/H)** et **C02 Capacité réelle (J/H)**.
+
+Sur la fiche Sprint, les deux champs sont présentés dans une section dédiée
+avant Story Points. Chaque carte comporte la valeur saisie retenue et, juste à
+côté, **le résultat du calcul automatique SMN**, ou « Non calculable » en
+cas d'absence de référence fiable.
+
+Lorsque l'administrateur ouvre la modale :
+- si le champ J/H est vide (null), le projet préremplit le brouillon avec la
+  référence calculée disponible et attend un clic sur Enregistrer ;
+- si le champ contient déjà une valeur enregistrée, y compris **0 J/H**,
+  la valeur est conservée et le recalcul ne l'écrase jamais ;
+- le calcul ne génère aucune écriture sur une simple lecture ;
+- validation 0 à 99 999 999,9999, jusqu'à quatre décimales ; confirmation,
+  révision optimiste et audit. L'utilisateur est en lecture seule.
+
+La référence C01 est une capacité actuelle recalculée sur toute la période,
+**différente de la photographie immuable prise à l'ouverture** ; C02 est
+le constat connu, sans projection future. Une saisie KPI ne modifie pas
+les tables d'ouverture/constat du moteur Epic 3.
+
+La carte Capacité du dashboard utilise les valeurs KPI enregistrées en priorité,
+par Sprint, avant ses valeurs retenues historiques du moteur. La clôture
+fige les valeurs KPI dans le snapshot versionné ; aucune réécriture de clôture.
+Sprint Terminé mais non Clôturé éditable ; Sprint Clôturé protégé.
+
+**Contrat vérifiable :** AC-CAP01 à AC-CAP03 de
+[UX-REFERENTIEL-BMAD](../../../../docs/UX-REFERENTIEL-BMAD.md) et
+[SMN-234](https://lmn24.atlassian.net/browse/SMN-234) /
+[SMN-21](https://lmn24.atlassian.net/browse/SMN-21).
+**Publication initiale :** [commit 0fcadd1](https://github.com/JeanLamora75/SMN/commit/0fcadd1e41119f9be5037a2894e08d169730d3f0).
+**Statut :** recette TypeScript, tests métier et vérification visuelle Windows encore à confirmer.
