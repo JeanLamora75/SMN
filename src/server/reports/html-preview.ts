@@ -1,5 +1,6 @@
 import type {Client} from "pg";
 import {composeStandardReport} from "./standard-composition";
+import {selectedReportAnalyses} from "./analysis-choices";
 import {readReportSectionOptions} from "./section-options";
 import {readReportContentOptions} from "./content-options";
 import {readReportDraft} from "./draft-notes";
@@ -51,9 +52,10 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string){
   registryState:"historical-unavailable" as const
  }:null;
  const trends=await readReportTrends(db,sprintId,history.depth);
+ const chosenAnalyses=await selectedReportAnalyses(db,sprintId);
  return {sprint:safeCollectiveContext(report.sprint),provisional:report.provisional,generatedAt:new Date().toISOString(),
  source:report.source,version:report.snapshotVersion,historicalEvidence,sections:chosen,metrics,
  notes:draft.notes,teamContext:selectedTeamContext(context,contextOptions.options),
  trends:contents.options.metrics.length?trends??[]:[],historyDepth:history.depth,
- qualitativePolicy:"not-verified" as const};
+ qualitativePolicy:"not-verified" as const,chosenAnalyses};
 }
