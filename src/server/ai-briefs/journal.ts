@@ -17,6 +17,8 @@ export async function readAnalysisJournal(db:Client,teamId:string,filter:Analysi
   to_regclass('public.smn_ai_brief_response') IS NOT NULL AS ai`);
  const kinds=present.rows[0];
  const sources:string[]=[];
+ const edited=await db.query<{present:boolean}>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_ai_brief_response' AND column_name='human_edited') AS present`);
+ const aiOrigin=edited.rows[0]?.present?`CASE WHEN r.human_edited THEN 'Origine IA, retouchée par un humain' ELSE 'IA (réponse brute collée)' END`:`'IA (réponse brute collée)'`;
  if(kinds?.human&&filter.type!=="ai")sources.push(`
  SELECT h.id::text AS id,'human'::text AS type,h.cycle_id AS "cycleId",
  h.scope AS scope,h.content AS content,h.author_id AS "authorId",
@@ -27,7 +29,7 @@ export async function readAnalysisJournal(db:Client,teamId:string,filter:Analysi
  SELECT r.id::text AS id,'ai'::text AS type,a.cycle_id AS "cycleId",
  COALESCE(r.model,r.provider,'Réponse IA manuelle') AS scope,r.response_text AS content,
  r.author_id AS "authorId",r.created_at AS "createdAt",
- r.updated_at AS "updatedAt",r.archive_id::text AS "archiveId",'IA (réponse collée)'::text AS origin
+ r.updated_at AS "updatedAt",r.archive_id::text AS "archiveId",${aiOrigin}::text AS origin
  FROM public.smn_ai_brief_response r JOIN public.smn_ai_brief_archive a ON a.id=r.archive_id
  WHERE r.team_id=$1 AND a.team_id=$1 AND r.deleted_at IS NULL`);
  if(!sources.length)return [];
