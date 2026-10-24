@@ -64,7 +64,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
     {sprintResult!==null&&<>
       <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle} projection={projection}/>
 
-      <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone}/>
+      <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone} canManage={account.role==="admin"}/>
     </>}
 
     <div className="container mb-4">
