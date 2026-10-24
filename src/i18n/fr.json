@@ -2947,5 +2947,17 @@
       "6": "Samedi",
       "7": "Dimanche"
     }
+  },
+  "kanbanPeriod": {
+    "title": "Créer une période Kanban",
+    "intro": "Une période à la fois. La création est immédiate et n'entraîne aucune création de période suivante.",
+    "quantity": "Nombre de périodes",
+    "startOn": "Date de départ",
+    "invalidStart": "Date de départ invalide : une période mensuelle commence le 1er du mois.",
+    "generate": "Générer",
+    "created": "Période créée",
+    "loadError": "Impossible de préparer la création.",
+    "overlap": "Cette période chevauche une période Kanban existante.",
+    "saveError": "Création impossible. Vérifiez les dates et réessayez."
   }
 }
