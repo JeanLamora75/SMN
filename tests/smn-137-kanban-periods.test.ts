@@ -7,7 +7,7 @@ describe("SMN-137 — période Kanban unitaire",()=>{
   assert.equal(nextDay("2028-02-29"),"2028-03-01");
  });
  it("AC3 — calcule 7 et 14 jours depuis la date demandée",()=>{
-  assert.deepEqual(periodFromStart("2026-10-28","weekly"),{startOn:"2026-10-28",endOn:"2026-11-03",name:"Kanban 2026-10-28 — 2026-11-03"});
+  assert.deepEqual(periodFromStart("2026-10-28","weekly"),{startOn:"2026-10-28",endOn:"2026-11-03",name:"Période Kanban — 2026-10-28 au 2026-11-03"});
   assert.equal(periodFromStart("2026-10-28","biweekly").endOn,"2026-11-10");
  });
  it("AC3 — calcule le dernier jour réel du mois",()=>{
