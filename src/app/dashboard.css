@@ -1106,3 +1106,26 @@ dialog.smn-operational-create-dialog::backdrop {background:rgba(10,20,36,.65);}
     overflow:hidden;text-overflow:ellipsis;
   }
 }
+
+/* Sidebar second pass — main navigation at the top, Settings at the bottom. */
+.smn-private-layout .smn-sidebar {height:100%;min-height:0;}
+.smn-private-layout .smn-private-navigation {
+  display:flex;flex-direction:column;min-height:100%;
+}
+.smn-private-layout .smn-private-navigation .smn-nav-group--footer {
+  margin-top:auto;
+  margin-bottom:0;
+  padding-top:12px;
+  border-top:1px solid var(--smn-border);
+}
+@media (max-width:991.98px) {
+  .smn-private-layout.mobile-open .smn-sidebar {
+    height:auto;
+  }
+  .smn-private-layout.mobile-open .smn-private-navigation {
+    min-height:0;
+  }
+  .smn-private-layout.mobile-open .smn-private-navigation .smn-nav-group--footer {
+    margin-top:12px;
+  }
+}
