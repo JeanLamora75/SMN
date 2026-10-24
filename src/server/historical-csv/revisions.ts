@@ -18,7 +18,17 @@ export async function listHistoricalMetricRevisions(db:Client,cycleId?:string):P
  JOIN public.smn_historical_csv_batch b ON b.id=c.batch_id
  JOIN public.smn_installation i ON i.id='singleton' AND i.state='initialized' AND lower(i.mode)=b.mode
  WHERE ($1::text IS NULL OR c.cycle_id=$1)
- AND EXISTS(SELECT 1 FROM public.${"smn_team"} t WHERE t.installation_id=i.id)
+ AND (
+   (b.mode='scrum' AND EXISTS(
+    SELECT 1 FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
+    WHERE s.id=c.cycle_id AND s.deleted_at IS NULL AND t.installation_id=i.id
+   ))
+   OR
+   (b.mode='kanban' AND EXISTS(
+    SELECT 1 FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id
+    WHERE p.id=c.cycle_id AND p.deleted_at IS NULL AND t.installation_id=i.id
+   ))
+ )
  ORDER BY c.changed_at DESC,c.id DESC LIMIT 200`,[cycleId??null]);
  return rows.rows.map(r=>({...r,origin:"csv-retrospective" as const}));
 }
