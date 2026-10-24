@@ -47,6 +47,11 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
  <p>{data.sprint.startAt} — {data.sprint.endAt} · {data.sprint.status}</p>
  <p>{label("generatedAt")}: <time dateTime={data.generatedAt}>{data.generatedAt}</time>
  {data.version!==null&&<> · V{data.version}</>}</p>
+ {data.historicalEvidence&&<div className="alert alert-warning" role="note">
+  <strong>{locale==="fr"?"Sprint historique — bilan reconstitué rétrospectivement":"Historical Sprint — retrospectively reconstructed report"}</strong>
+  <p className="mb-1">{locale==="fr"?"Les dates affichées sont celles du Sprint. La saisie et la préparation du rapport ont lieu ultérieurement ; ce document n'est pas une archive produite à l'époque.":"The dates shown belong to the Sprint. Data entry and report preparation happened later; this is not an original period archive."}</p>
+  <p className="mb-0">{locale==="fr"?"Registres qualitatifs anciens : historique indisponible sauf preuve explicitement documentée. Les informations absentes ne valent pas zéro.":"Historical qualitative registers: unavailable unless explicitly evidenced. Missing information does not mean zero."}</p>
+ </div>}
  {data.provisional&&<div className="alert alert-warning">{label("provisional")}</div>}
  <p className="text-secondary d-print-none">{label("readOnly")}</p></div>
  {payload.logo&&<Image unoptimized src={"data:"+payload.logo.mime+";base64,"+payload.logo.base64} alt={label("logoAlt")} width={130} height={90} style={{objectFit:"contain",maxWidth:"28%"}}/>}</div>
@@ -55,7 +60,7 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
  {data.sections.map(section=><section className="mb-4" key={section.key}>
  <h2 className="h5">{translate(locale,("standardReport."+section.key) as "standardReport.executive")}</h2>
  {section.key==="indicators"?<>
- <ul>{data.metrics.map(m=><li key={m.key}>{translate(locale,("reportContent."+m.key) as "reportContent.committedSp")}: {m.available?m.value+" "+m.unit:label("missing")}</li>)}</ul>
+ <ul>{data.metrics.map(m=><li key={m.key}>{translate(locale,("reportContent."+m.key) as "reportContent.committedSp")}: {m.available?m.value+" "+m.unit:label("missing")}{data.historicalEvidence&&<small className="ms-2 text-secondary">({(()=>{const q=m.key==="completedSp"?data.historicalEvidence.completedSpQuality:m.key==="plannedCapacityJh"?data.historicalEvidence.capacityPlannedQuality:m.key==="actualCapacityJh"?data.historicalEvidence.capacityActualQuality:"not-supplied";return q==="known"?(locale==="fr"?"Connue":"Known"):q==="estimated"?(locale==="fr"?"Estimée":"Estimated"):(locale==="fr"?"Qualité non attestée":"Unverified quality");})()})</small>}</li>)}</ul>
  {data.trends.length>0&&<div className="table-responsive"><table className="table table-sm"><caption className="caption-top">{label("trendsCaption")}</caption><thead><tr><th scope="col">{label("cycle")}</th><th scope="col">SP</th><th scope="col">%</th><th scope="col">JH</th></tr></thead><tbody>
  {data.trends.map(p=><tr key={p.sprintId}><td>{p.name}</td><td>{p.completedSp??label("missing")}</td>
  <td>{p.completionRate??label("missing")}</td><td>{p.actualCapacityJh??label("missing")}</td></tr>)}
