@@ -8,6 +8,7 @@ import DuplicateButton from "../duplicate-button";
 import AddManualResponse from "./manual-response-form";
 import ManualResponseActions from "./manual-response-actions";
 import HumanAnalysisForm from "../../human-analysis-form";
+import EditHumanAnalysis from "../../edit-human-analysis";
 import {listManualAiResponses} from "@/server/ai-briefs/responses";
 import {listHumanAnalyses} from "@/server/ai-briefs/human-analyses";
 export const dynamic="force-dynamic";
@@ -53,6 +54,7 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
      {analyses.length===0?<p className="text-secondary">Aucune analyse humaine.</p>:analyses.map(item=><section className="border rounded-3 p-3 mb-3" key={item.id}>
       <p className="small text-secondary">Origine : Humaine · {item.scope} · auteur : {item.author_id} · créé le {item.created_at} · modifié le {item.updated_at}</p>
       <textarea className="form-control" rows={6} readOnly value={item.content} aria-label={"Analyse humaine "+item.id}/>
+      {account.role==="admin"&&<EditHumanAnalysis analysis={item}/>}
      </section>)}
      {account.role==="admin"&&<HumanAnalysisForm mode={archive.metadata.mode} cycleId={archive.metadata.cycle_id} archiveId={id}/>}
     </>}
