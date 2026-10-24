@@ -55,6 +55,7 @@ export async function readSprintRegisters(
   const source=derived??(data&&Array.isArray(data.records)&&Array.isArray(data.availableKinds)?
    {records:data.records,availableKinds:data.availableKinds as RegisterKind[]}:null);
   if(!source)return absent("invalid-data");
+  if(source.availableKinds.length===0)return absent("history-missing");
   if(source.availableKinds.some(k=>!isRegisterKind(k)))return absent("invalid-data");
   const selected=selectSprintRegisterPage(source,teamId,sprint,page,kind);
   if(!selected)return absent("invalid-data");
