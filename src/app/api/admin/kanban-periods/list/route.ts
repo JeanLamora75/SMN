@@ -3,11 +3,13 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
 import {ensureKanbanPeriodTables} from "@/server/kanban/periods";
+import {reconcileKanbanStates} from "@/server/kanban/states";
 export const dynamic="force-dynamic";
 export async function GET(req:NextRequest){
  if(!await authorizeApi(req,"read",{type:"collective",exists:true,inScope:true}))return jsonResult({error:"forbidden"},403);
  try{return jsonResult(await withAuthDb(async db=>{
   await ensureKanbanPeriodTables(db);
+  await reconcileKanbanStates(db);
   const result=await db.query<{id:string;name:string;start_on:string;end_on:string;status:string}>(`SELECT p.id,p.name,p.start_on::text,p.end_on::text,p.status
    FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
