@@ -102,6 +102,7 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
   assert.equal(collective.collective[0].assigned,1);
   assert.equal(collective.collective[0].reportedUnavailable,1);
   assert.equal(collective.collective[0].declaredAbsentMemberCount,1);
+  assert.equal(JSON.stringify(collective).includes("hasDeclaredAbsence"),false);
   const serialized=JSON.stringify(collective);
   assert.equal(serialized.includes("Mme Exemple"),false);
   assert.equal(serialized.includes(f.reason),false);
@@ -115,6 +116,7 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
   assert.equal(output.admin?.members.length,1);
   const day=output.admin!.members[0].days[0];
   assert.equal(day.date,start);
+  assert.equal(day.hasDeclaredAbsence,true);
   assert.equal(day.absences[0].reason,f.reason);
   assert.equal(day.absences[0].categoryName,"Autre");
   assert.equal(day.absences[0].categoryColor,"#6B7280");
@@ -133,6 +135,7 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
   const a=await readTeamCalendar(fakeDb({duplicateAbsence:true,duplicateAssignment:true,otherMember:true}).db,query(),true);
   assert.equal(a.collective[0].declaredAbsentMemberCount,2);
   assert.equal(a.collective[0].assigned,2);
+  assert.equal(a.admin?.members.filter(m=>m.days[0].hasDeclaredAbsence).length,2);
   const safe=await readTeamCalendar(fakeDb({duplicateAbsence:true,otherMember:true}).db,query({},false),false);
   assert.equal(safe.collective[0].declaredAbsentMemberCount,2);
   for(const secret of [memberId,memberIdB,"Mme Exemple","Membre B","Fête régionale personnelle"])
