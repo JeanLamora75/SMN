@@ -36,7 +36,7 @@ export async function finalizeAiBrief(db:Client,actorId:string,raw:unknown){
  if(!validateFinalizeInput(raw))return {ok:false as const,error:"invalid-or-unreviewed"};
  const x=raw as FinalizeInput;
  const table=x.mode==="scrum"?"smn_sprint":"smn_kanban_period";
- const current=x.mode==="scrum"?"sprint":"kanban";
+ const current=x.mode;
  await db.query("BEGIN");
  try{
   const scope=await db.query<{team_id:string}>(`SELECT c.team_id FROM public.${table} c
