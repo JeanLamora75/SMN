@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useRef,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 type Item={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;memberName?:string;aggregateCount?:number};
@@ -63,7 +63,9 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   const next=shift(period.start,direction*period.count);
   setPeriod({start:monthStart(next),count:monthLength(next),label:next.slice(0,7),sprintId:null});
  }
- function openCreate(day:string){setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");}
+ const openCreate=useCallback((day:string)=>{
+  setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");
+ },[]);
  // Le raccourci du tableau de bord ouvre une seule fois le formulaire existant.
  // Le Sprint demandé doit provenir de la liste autorisée par l’API calendrier.
  useEffect(()=>{
@@ -75,7 +77,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   const day=today>=start&&today<end?today:start;
   openedFromLink.current=true;
   openCreate(day);
- },[isAdmin,initialCreate,initialCycleId,period,status,sprints]);
+ },[isAdmin,initialCreate,initialCycleId,period,status,sprints,openCreate]);
  const selectedDate=when.slice(0,10);
  const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<localDate(x.endAt));
  async function save(){if(!period||!selectedSprint||!editor||!name.trim()||busy)return;
