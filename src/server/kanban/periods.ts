@@ -1,7 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {readKanbanCadence} from "./cadence";
-import {nextDay,periodFromStart} from "./dates";
+import {nextDay,periodFromStart,normalizePeriodName} from "./dates";
 
 export {nextDay,periodFromStart} from "./dates";
 export async function ensureKanbanPeriodTables(db:Client){
@@ -40,12 +40,14 @@ export async function prepareKanbanPeriod(db:Client){
 export async function createKanbanPeriod(db:Client,actorId:string,raw:unknown){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
  const data=raw as Record<string,unknown>;
- if(Object.keys(data).sort().join(",")!=="startOn"||typeof data.startOn!=="string")
+ if(Object.keys(data).some(k=>!["startOn","name"].includes(k))||typeof data.startOn!=="string")
   return {ok:false as const,error:"invalid-input"};
  const cadence=await readKanbanCadence(db);
  let period:ReturnType<typeof periodFromStart>;
  try{period=periodFromStart(data.startOn,cadence.frequency);}
  catch{return {ok:false as const,error:"invalid-start"};}
+ const name=data.name===undefined?period.name:normalizePeriodName(data.name);
+ if(!name)return {ok:false as const,error:"invalid-name"};
  await ensureKanbanPeriodTables(db);
  const teamId=await kanbanTeam(db);
  await db.query("BEGIN");
@@ -55,15 +57,17 @@ export async function createKanbanPeriod(db:Client,actorId:string,raw:unknown){
     WHERE team_id=$1 AND start_on<=$3::date AND end_on>=$2::date LIMIT 1`,
     [teamId,period.startOn,period.endOn]);
   if(clash.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap"};}
+  const duplicate=await db.query(`SELECT id FROM public.smn_kanban_period WHERE team_id=$1 AND lower(name)=lower($2) LIMIT 1`,[teamId,name]);
+  const duplicateName=duplicate.rows.length>0;
   const id=randomUUID();
   await db.query(`INSERT INTO public.smn_kanban_period
    (id,team_id,name,start_on,end_on,time_zone,created_by)
    VALUES($1,$2,$3,$4,$5,$6,$7)`,
-   [id,teamId,period.name,period.startOn,period.endOn,cadence.timeZone,actorId]);
+   [id,teamId,name,period.startOn,period.endOn,cadence.timeZone,actorId]);
   await db.query(`INSERT INTO public.smn_kanban_period_audit
    (id,period_id,action,details,actor_id) VALUES($1,$2,'created',$3::jsonb,$4)`,
-   [randomUUID(),id,JSON.stringify({...period,cadenceRevision:cadence.revision}),actorId]);
+   [randomUUID(),id,JSON.stringify({...period,name,cadenceRevision:cadence.revision}),actorId]);
   await db.query("COMMIT");
-  return {ok:true as const,period:{id,...period,status:"planned" as const}};
+  return {ok:true as const,period:{id,...period,name,status:"planned" as const},duplicateName};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
