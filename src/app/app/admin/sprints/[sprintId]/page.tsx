@@ -163,7 +163,8 @@ export default async function SprintDetailPage({params,searchParams}:{
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}/>:
      active==="ceremonies"?<SprintCeremoniesPanel
-      sprintId={cycle.id} timeZone={cycle.timeZone} locale={locale}
+      sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
+      canManage={canManage&&cycle.status!=="closed"}
       t={(key,params)=>translate(locale,key,params)}
       data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>:
      active==="capacity"?<SprintCapacityPanel
