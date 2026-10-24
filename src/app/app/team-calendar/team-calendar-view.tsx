@@ -8,14 +8,12 @@ type Calendar={team:{name:string};central:{items:CalendarEntry[]};collective:{da
 type Meeting=CalendarMeeting;
 type MemberOption={id:string;displayName:string;archived:boolean;startOn:string|null;endOn:string|null};
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string};
-const iso=(d:Date)=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const iso=(d:Date)=>new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(d);
 function shift(day:string,amount:number){const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+amount);return d.toISOString().slice(0,10);}
 function dates(start:string,n:number){return Array.from({length:n},(_,i)=>shift(start,i));}
 function monthStart(d:string){return d.slice(0,7)+"-01";}
 function monthLength(d:string){const [y,m]=d.split("-").map(Number);return new Date(Date.UTC(y,m,0)).getUTCDate();}
 function localDate(raw:string){return iso(new Date(raw));}
-function calendarDate(instant:string){const d=new Date(instant);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
-function clock(raw:string){return new Date(raw).toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});}
 export default function TeamCalendarView({isAdmin,initialCreate=false,initialCycleId=null}:{
  isAdmin:boolean;initialCreate?:boolean;initialCycleId?:string|null;
 }){
