@@ -25,6 +25,10 @@ export async function saveHistoricalPartial(db:Client,actor:string,raw:unknown){
  const x=parseHistoricalPartial(raw);
  if(!actor||!x)return {ok:false as const,error:"invalid-input"};
  await ensureSprintGoalsSchema(db);
+ await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_historical_goal_detail(
+ goal_id text PRIMARY KEY REFERENCES public.smn_sprint_goal(id) ON DELETE RESTRICT,
+ description text,source text,recorded_at timestamptz NOT NULL DEFAULT now(),
+ recorded_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
  await db.query("BEGIN");
  try{
   const res=await db.query<{status:string}>(`SELECT s.status FROM public.smn_sprint s
@@ -37,7 +41,9 @@ export async function saveHistoricalPartial(db:Client,actor:string,raw:unknown){
   if(x.goalTitle){
    goalId=randomUUID();
    await db.query(`INSERT INTO public.smn_sprint_goal(id,sprint_id,title,evaluation,comment,created_by)
-   VALUES($1,$2,$3,'not_evaluated',$4,$5)`,[goalId,x.sprintId,x.goalTitle,x.goalDescription??null,actor]);
+   VALUES($1,$2,$3,'not_evaluated',NULL,$4)`,[goalId,x.sprintId,x.goalTitle,actor]);
+   await db.query(`INSERT INTO public.smn_sprint_historical_goal_detail(goal_id,description,source,recorded_by)
+   VALUES($1,$2,$3,$4)`,[goalId,x.goalDescription??null,x.source??null,actor]);
    await db.query(`INSERT INTO public.smn_sprint_goal_audit(id,goal_id,previous_values,next_values,actor_id)
    VALUES($1,$2,NULL,$3::jsonb,$4)`,[randomUUID(),goalId,JSON.stringify({title:x.goalTitle,evaluation:"not_evaluated",description:x.goalDescription??null,provenance:"historical-documented",source:x.source??null}),actor]);
   }
