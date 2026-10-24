@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useEpic4Presentation} from "./i18n-presentation";
 type Kind="standard"|"custom"|"exceptional";
@@ -11,10 +11,10 @@ export default function ActualDurationForm(){
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
- async function reload(){setBusy(true);setError("");
+ const reload=useCallback(async()=>{setBusy(true);setError("");
  try{const r=await fetch("/api/admin/sprints/actual-duration",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setItems(j.events);setDrafts(Object.fromEntries((j.events as Meeting[]).map(x=>[x.kind+":"+x.id,x.actualMinutes])));}
- catch{setError(t("actualDuration.error"));}finally{setBusy(false);}}
- useEffect(()=>{void Promise.resolve().then(reload);},[]);
+ catch{setError(t("actualDuration.error"));}finally{setBusy(false);}},[t]);
+ useEffect(()=>{void Promise.resolve().then(reload);},[reload]);
  async function save(e:Meeting){setBusy(true);setError("");setNotice("");const key=e.kind+":"+e.id;
  try{const r=await fetch("/api/admin/sprints/actual-duration",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:e.id,kind:e.kind,minutes:drafts[key]})});if(!r.ok)throw Error();setNotice(t("actualDuration.saved"));await reload();}
  catch{setError(t("actualDuration.error"));}finally{setBusy(false);}}
