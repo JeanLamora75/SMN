@@ -185,6 +185,13 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
    <p className="small text-secondary">{t("sprintDetail.indicatorSnapshot",{version:source.snapshotVersion})}</p>}
   {capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined&&<p className="small text-secondary">Capacité historique : {capacityKpis.historicalQuality==="known"?"Connue":capacityKpis.historicalQuality==="estimated"?"Estimée":"Absente / inconnue"}. {capacityKpis.historicalSource&&`Source : ${capacityKpis.historicalSource}.`} Aucun recalcul depuis les affectations actuelles.</p>}
   {capacityKpis.state==="available"&&capacityKpis.historicalActualQuality!==undefined&&<p className="small text-secondary">Capacité réelle historique : {capacityKpis.historicalActualQuality==="known"?"Connue":capacityKpis.historicalActualQuality==="estimated"?"Estimée":"Absente / inconnue"}. {capacityKpis.historicalActualSource&&`Source : ${capacityKpis.historicalActualSource}.`} Sans déduction depuis la capacité prévue.</p>}
+  {capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined&&<div className="small text-secondary mb-3">
+   <strong>Traçabilité des capacités historiques</strong>
+   <div>Cycle : {sprintId} · Provenance : saisie manuelle rétrospective · Création de la fiche : {capacityKpis.historicalCreatedAt??"Non renseignée"}</div>
+   <div>Capacité initiale — qualité : {capacityKpis.historicalQuality==="known"?"Connue":capacityKpis.historicalQuality==="estimated"?"Estimée":"Non renseignée"} · Enregistrement : {capacityKpis.historicalRecordedAt??"Non renseigné"}</div>
+   <div>Capacité réelle — qualité : {capacityKpis.historicalActualQuality==="known"?"Connue":capacityKpis.historicalActualQuality==="estimated"?"Estimée":"Non renseignée"} · Enregistrement : {capacityKpis.historicalActualRecordedAt??"Non renseigné"}</div>
+   <div>Les références calculées sont des valeurs dérivées de sources disponibles ; elles ne constituent pas des observations historiques indépendantes.</div>
+  </div>}
   {section(t("sprintDetail.indicatorCapacityTitle"),"capacity",capacityFields)}
   {section(t("storyPoints.title"),"points",pointFields)}
   {section(t("sprintTickets.title"),"tickets",ticketFields)}
