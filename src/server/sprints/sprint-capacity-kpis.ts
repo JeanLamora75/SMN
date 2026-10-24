@@ -12,7 +12,7 @@ export type SprintCapacityKpiValues=Readonly<{
 }>;
 export type SprintCapacityKpiView=
  |Readonly<{state:"available";values:SprintCapacityKpiValues;revision:number;
-  source:"current"|"closure-snapshot";historicalQuality?:"known"|"estimated"|"not-supplied";historicalSource?:string|null}>
+  source:"current"|"closure-snapshot";historicalQuality?:"known"|"estimated"|"not-supplied";historicalSource?:string|null;historicalActualQuality?:"known"|"estimated"|"not-supplied";historicalActualSource?:string|null;historicalActualRevision?:number}>
  |Readonly<{state:"unavailable";reason:"history-missing"|"read-failed"}>;
 type Stored={planned_jh:number|null;actual_jh:number|null;revision:number};
 const valid=(v:unknown):v is number|null=>v===null||
@@ -91,9 +91,17 @@ export async function readSprintCapacityKpiView(
    SELECT qualified_jh::text,quality,source_ref,revision FROM public.smn_sprint_historical_capacity WHERE sprint_id=$1`,[sprint.id]):null;
   const entry=value?.rows[0];
   const planned=entry?.qualified_jh===null||!entry?null:Number(entry.qualified_jh);
+  const actualTable=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_historical_actual_capacity') IS NOT NULL AS present`);
+  const actualRows=actualTable.rows[0]?.present?await db.query<{qualified_jh:string|null;quality:"known"|"estimated"|"not-supplied";source_ref:string|null;revision:number}>(`
+   SELECT qualified_jh::text,quality,source_ref,revision FROM public.smn_sprint_historical_actual_capacity WHERE sprint_id=$1`,[sprint.id]):null;
+  const actualEntry=actualRows?.rows[0];
+  const actual=actualEntry?.qualified_jh===null||!actualEntry?null:Number(actualEntry.qualified_jh);
   return {state:"available",source:"current",revision:entry?.revision??0,
    historicalQuality:entry?.quality??"not-supplied",historicalSource:entry?.source_ref??null,
-   values:selectCapacityKpis(planned,null,null,null)};
+   historicalActualQuality:actualEntry?.quality??"not-supplied",
+   historicalActualSource:actualEntry?.source_ref??null,
+   historicalActualRevision:actualEntry?.revision??0,
+   values:selectCapacityKpis(planned,actual,null,null)};
  }
  const stored=await readSavedCapacityKpis(db,sprint.id);
  const date=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{
