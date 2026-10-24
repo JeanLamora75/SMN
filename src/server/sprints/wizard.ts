@@ -5,6 +5,7 @@ import {ensureBatchSchema} from "./batch-confirm";
 import {saveGeneratedCeremonies} from "./ceremonies";
 import {ensureTemplateSchema} from "./ceremony-templates";
 import {ensureLunchSchema,lunchForTeam} from "./lunch";
+import {readWorkSlots} from "../capacity/work-slots";
 
 type WizardInput={startOn:string;count:number;names?:string[];generateHistoricalCeremonies:boolean};
 type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;endAt:string;
@@ -53,7 +54,7 @@ async function activeTeam(db:Client){
  if(r.rows.length!==1)throw Error("scrum-team-unavailable");
  return r.rows[0].id;
 }
-async function generationSettings(db:Client,teamId:string){
+async function generationSettings(db:Client,teamId:string,items:readonly Item[]){
  const cadence=await db.query(`SELECT duration_weeks,start_day,start_time::text,end_day,
   end_time::text,time_zone,revision FROM public.smn_scrum_cadence WHERE team_id=$1`,[teamId]);
  const templates=await db.query(`SELECT id,name,frequency,weekday,position,local_time::text,
@@ -61,7 +62,21 @@ async function generationSettings(db:Client,teamId:string){
   WHERE team_id=$1 AND active=true ORDER BY id`,[teamId]);
  const lunch=await db.query(`SELECT start_time::text,end_time::text,revision
   FROM public.smn_scrum_lunch WHERE team_id=$1`,[teamId]);
- return {cadence:cadence.rows[0]??null,templates:templates.rows,lunch:lunch.rows[0]??null};
+ // Les jours ouvrés déterminent désormais les dates de début/fin des réunions.
+ // Leur configuration et les jours chômés font partie de l'empreinte d'aperçu.
+ const workSlots=await readWorkSlots(db,teamId);
+ const start=items[0]?.startOn,end=items.at(-1)?.endOn;
+ const closures=await db.query(`SELECT id,start_on::text AS start_on,end_on::text AS end_on,revision
+  FROM public.smn_company_closure
+  WHERE team_id=$1 AND is_active=true AND start_on<=$3::date
+   AND end_on>=$2::date ORDER BY start_on,id`,[teamId,start,end]);
+ const holidays=await db.query(`SELECT h.country_code,h.holiday_date::text AS holiday_date,h.name
+  FROM public.smn_national_holiday h
+  JOIN public.smn_general_settings g ON g.reference_country=h.country_code
+  WHERE g.installation_id='singleton'
+   AND h.holiday_date BETWEEN $1::date AND $2::date ORDER BY h.holiday_date`,[start,end]);
+ return {cadence:cadence.rows[0]??null,templates:templates.rows,
+  lunch:lunch.rows[0]??null,workSlots,closures:closures.rows,holidays:holidays.rows};
 }
 
 export type WizardPreviewStage="schema"|"periods"|"team"|"lunch"|"settings"|"names"|"token";
@@ -96,7 +111,7 @@ export async function previewWizard(db:Client,actorId:string,raw:unknown){
   stage="lunch";
   await lunchForTeam(db,teamId);
   stage="settings";
-  const settings=await generationSettings(db,teamId);
+  const settings=await generationSettings(db,teamId,preview.items);
   if(!settings.cadence)throw Error("cadence-unavailable");
   stage="names";
   const existingNames=await db.query<{name:string}>(`SELECT name FROM public.smn_sprint
@@ -151,8 +166,8 @@ export async function confirmWizard(db:Client,actorId:string,raw:unknown){
   }
   const preview=namesApplied(draft,input);
   // Freeze the configuration used by the confirmed lot. Other writers resume after COMMIT.
-  await db.query("LOCK TABLE public.smn_scrum_cadence, public.smn_scrum_lunch, public.smn_scrum_ceremony_template IN SHARE MODE");
-  const settings=await generationSettings(db,saved.team_id);
+  await db.query("LOCK TABLE public.smn_scrum_cadence, public.smn_scrum_lunch, public.smn_scrum_ceremony_template, public.smn_team_work_slots, public.smn_company_closure, public.smn_national_holiday, public.smn_general_settings IN SHARE MODE");
+  const settings=await generationSettings(db,saved.team_id,preview.items);
   if(!settings.cadence||
    hash(preview,settings,input.generateHistoricalCeremonies)!==saved.digest){
    await db.query("ROLLBACK");
