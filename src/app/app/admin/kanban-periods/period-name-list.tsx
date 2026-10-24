@@ -2,6 +2,7 @@
 import {useEffect,useState} from "react";
 type Period={id:string;name:string;startOn:string;endOn:string;status:string};
 type Correction={period:Period;before:{startOn:string;endOn:string};after:{startOn:string;endOn:string};conflicts:string[];canConfirm:boolean;previewToken:string;warnings:string[]};
+type HistoryRow={id:string;action:string;actorId:string|null;createdAt:string;details:{before?:{startOn:string;endOn:string};after?:{startOn:string;endOn:string};reason?:string|null;events?:string;capacity?:string;warnings?:string[]}};
 type RemovalSummary={period:{id:string;name:string;start_on:string;end_on:string;status:string;created_by:string|null};eligible:boolean;wasStarted:boolean;relations:{type:string;count:number;action:string}[];action:"soft-delete"};
 export default function PeriodNameList({canManage}:{canManage:boolean}){
  const [periods,setPeriods]=useState<Period[]>([]);
@@ -10,6 +11,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
  const [error,setError]=useState("");
  const [busy,setBusy]=useState<string|null>(null);
  const [removal,setRemoval]=useState<RemovalSummary|null>(null);
+ const [history,setHistory]=useState<{period:Period;rows:HistoryRow[]}|null>(null);
  const [dateEdit,setDateEdit]=useState<{period:Period;startOn:string;endOn:string}|null>(null);
  const [correction,setCorrection]=useState<Correction|null>(null);
  const [reason,setReason]=useState("");
@@ -26,6 +28,14 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
   .then((d:{periods:Period[]})=>{if(active){setPeriods(d.periods);setDrafts(Object.fromEntries(d.periods.map(p=>[p.id,p.name])));}})
   .catch(()=>{if(active)setError("Impossible de charger les périodes.");});
   return()=>{active=false;};},[]);
+ async function showHistory(period:Period){
+  setError("");setBusy(period.id);
+  try{const r=await fetch("/api/admin/kanban-periods/"+encodeURIComponent(period.id)+"/history",{cache:"no-store"});
+   if(!r.ok)throw Error();
+   const data=await r.json() as {history:HistoryRow[]};
+   setHistory({period,rows:data.history});
+  }catch{setError("Historique indisponible.");}finally{setBusy(null);}
+ }
  async function previewCorrection(){
   if(!dateEdit)return;
   setBusy(dateEdit.period.id);setError("");setCorrection(null);
@@ -94,8 +104,20 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
      value={drafts[p.id]??p.name} disabled={busy!==null}
      onChange={e=>setDrafts(old=>({...old,[p.id]:e.target.value}))}/>:p.name}
     </td><td>{p.startOn} → {p.endOn}</td><td>{p.status}</td>
-    {canManage&&<td><button type="button" className="btn btn-outline-primary btn-sm" disabled={busy!==null||!(drafts[p.id]??"").trim()||(drafts[p.id]??"").trim()===p.name} onClick={()=>rename(p)}>Enregistrer</button><button type="button" className="btn btn-outline-danger btn-sm ms-2" disabled={busy!==null} onClick={()=>requestRemoval(p)}>Supprimer</button><button type="button" className="btn btn-outline-secondary btn-sm ms-2" disabled={busy!==null} onClick={()=>{setDateEdit({period:p,startOn:p.startOn,endOn:p.endOn});setCorrection(null);setEventChoice("preserve");}}>Corriger les dates</button></td>}</tr>)}</tbody>
+    {canManage&&<td><button type="button" className="btn btn-outline-primary btn-sm" disabled={busy!==null||!(drafts[p.id]??"").trim()||(drafts[p.id]??"").trim()===p.name} onClick={()=>rename(p)}>Enregistrer</button><button type="button" className="btn btn-outline-danger btn-sm ms-2" disabled={busy!==null} onClick={()=>requestRemoval(p)}>Supprimer</button><button type="button" className="btn btn-outline-secondary btn-sm ms-2" disabled={busy!==null} onClick={()=>{setDateEdit({period:p,startOn:p.startOn,endOn:p.endOn});setCorrection(null);setEventChoice("preserve");}}>Corriger les dates</button><button type="button" className="btn btn-outline-secondary btn-sm ms-2" onClick={()=>showHistory(p)}>Historique</button></td>}</tr>)}</tbody>
   </table></div>
+  {history&&<div className="border rounded p-3 mt-3">
+   <h3 className="h6">Historique des replanifications — {history.period.name}</h3>
+   {history.rows.length===0&&<p className="text-secondary">Aucune replanification réussie enregistrée.</p>}
+   {history.rows.map(entry=><div key={entry.id} className="border-bottom py-2 small">
+    <strong>{entry.action==="dates-corrected"?"Correction des dates":"Adaptation de cadence"}</strong> — {entry.createdAt} — auteur : {entry.actorId??"non renseigné"}
+    <div>{entry.details.before?.startOn} → {entry.details.before?.endOn} / {entry.details.after?.startOn} → {entry.details.after?.endOn}</div>
+    {entry.details.reason&&<div>Motif : {entry.details.reason}</div>}
+    <div>Événements : {entry.details.events??"non renseigné"} ; capacité : {entry.details.capacity??"non renseignée"}</div>
+    {!!entry.details.warnings?.length&&<div>Alertes : {entry.details.warnings.join(", ")}</div>}
+   </div>)}
+   <button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>setHistory(null)}>Fermer</button>
+  </div>}
   {dateEdit&&<div className="border rounded p-3 mt-3">
    <h3 className="h6">Corriger les dates — {dateEdit.period.name}</h3>
    <p>Avant : {dateEdit.period.startOn} → {dateEdit.period.endOn}</p>
