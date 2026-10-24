@@ -19,7 +19,7 @@ export async function previewSprintBatch(db:Client,raw:unknown){
  if(team.rows.length!==1)throw Error("scrum-team-unavailable");
  const id=team.rows[0].id;
  await db.query("INSERT INTO public.smn_scrum_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING",[id]);
- const c=await db.query<Cadence>("SELECT duration_weeks,start_day,start_time::text,end_day,end_time::text,time_zone FROM public.smn_scrum_cadence WHERE team_id=$1 AND deleted_at IS NULL",[id]);
+ const c=await db.query<Cadence>("SELECT duration_weeks,start_day,start_time::text,end_day,end_time::text,time_zone FROM public.smn_scrum_cadence WHERE team_id=$1",[id]);
  if(c.rows.length!==1)throw Error("cadence-unavailable");
  const existing=await db.query<Existing>("SELECT id,name,start_at::text,end_at::text FROM public.smn_sprint WHERE team_id=$1 AND deleted_at IS NULL ORDER BY start_at",[id]);
  const count=await db.query<{next_number:number}>("SELECT COALESCE(MAX(number),0)+1 AS next_number FROM public.smn_sprint WHERE team_id=$1",[id]);
