@@ -18,9 +18,9 @@ const today=()=>{
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 };
-export default function RegistryCreate({teamId,canManage,itemId,initialType="risk",modalMode=false,onCreated,cycleId}:{
+export default function RegistryCreate({teamId,canManage,itemId,initialType="risk",modalMode=false,onCreated,onSaved,cycleId}:{
  teamId:string|null;canManage:boolean;itemId?:string;
- initialType?:"risk"|"obstacle";modalMode?:boolean;onCreated?:()=>void;cycleId?:string;
+ initialType?:"risk"|"obstacle";modalMode?:boolean;onCreated?:()=>void;onSaved?:()=>void;cycleId?:string;
 }){
  const t=useTranslation();
  const [type,setType]=useState<RegistryType>(initialType);
@@ -78,7 +78,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
    if(!response.ok||!result.ok||!result.id)throw Error(result.error??"failed");
    setNotice({ok:true,message:translate("success").replace("{id}",result.id)});
    if(!itemId)setCreatedId(result.id);
-   if(itemId){setRevision(result.revision??(revision??0)+1);originalStatus.current=status;baseline.current=JSON.stringify([title,date,status,description,owner,due,comment]);}
+   if(itemId){setRevision(result.revision??(revision??0)+1);originalStatus.current=status;baseline.current=JSON.stringify([title,date,status,description,owner,due,comment]);onSaved?.();}
    else {setTitle("");setDescription("");setOwner("");setDue("");setComment("");onCreated?.();}
   }catch{setNotice({ok:false,message:translate("failed")});}
   finally{setBusy(false);}
@@ -113,15 +113,15 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
      <textarea id="registry-comment" className="form-control" rows={2} maxLength={2000} value={comment} onChange={e=>setComment(e.target.value)}/></div>
    </div>
    <div className="d-flex justify-content-end">
-    <button type="submit" className="btn btn-primary" disabled={busy||!title.trim()||(!!itemId&&revision===null)}>{busy?translate("creating"):translate("create")}</button>
+    <button type="submit" className="btn btn-primary" disabled={busy||!title.trim()||(!!itemId&&revision===null)}>{busy?translate("creating"):itemId?t("common.save"):translate("create")}</button>
    </div>
    {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}{createdId&&<a className="ms-2" href={"/app/admin/registries/"+encodeURIComponent(createdId)}>{translate("edit")}</a>}</div>}
   </form>}
-  {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage}/>}
+  {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="action"&&<ActionLinks id={itemId} canManage={canManage}/>}
   {itemId&&loaded&&type==="decision"&&<><DecisionDetail id={itemId} canManage={canManage}/>{teamId&&<DecisionActions id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/>}</>}
-  {itemId&&loaded&&(type==="risk"||type==="dependency"||type==="obstacle")&&<RegistryCycles id={itemId} canManage={canManage}/>}
+  {itemId&&loaded&&(type==="risk"||type==="dependency"||type==="obstacle")&&<RegistryCycles id={itemId} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="dependency"&&<><DependencyParties id={itemId} canManage={canManage}/><DependencyVigilance id={itemId} canManage={canManage}/></>}
-  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage}/><RiskAssessment id={itemId} canManage={canManage}/>{teamId&&<MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/>}</>}
+  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage} onSaved={onSaved}/><RiskAssessment id={itemId} canManage={canManage} onSaved={onSaved}/>{teamId&&<MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/>}</>}
  </div>;
 }

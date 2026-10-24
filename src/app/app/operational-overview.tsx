@@ -6,6 +6,7 @@ import type {CollectiveCycleProjection,DashboardAttention,DashboardEvent} from "
 import BootstrapIcon from "./bootstrap-icon";
 import {dashboardEventIcon,formatDashboardEventPeriod,formatDashboardRegistryDate} from "@/lib/dashboard-card-format";
 import OperationalQuickAdd from "./operational-quick-add";
+import OperationalEdit from "./operational-edit";
 
 type ColumnKind="obstacles"|"risks"|"events"|"notes";
 type PanelDefinition=Readonly<{
@@ -121,9 +122,9 @@ function PriorityMarker({priority,locale}:Readonly<{
  </span>;
 }
 
-function AttentionCard({item,locale}:Readonly<{
+function AttentionCard({item,locale,teamId,cycleId,canManage}:Readonly<{
  item:DashboardAttention;
- locale:Language;
+ locale:Language;teamId:string;cycleId:string;canManage:boolean;
 }>){
  const t=(key:TranslationKey)=>translate(locale,key);
  const icons={obstacle:"exclamation-octagon-fill",risk:"exclamation-triangle-fill",
@@ -159,7 +160,11 @@ function AttentionCard({item,locale}:Readonly<{
    <span className="smn-attention-indicator" data-priority={severity} aria-hidden="true"/>
    <span className="smn-attention-kind-icon" aria-hidden="true"><BootstrapIcon name={icons[item.kind]}/></span>
    <span className="visually-hidden">{t(labels[item.kind])}</span>
-   <h4 className="smn-attention-card-title">{href?<Link href={href}>{title}</Link>:title}</h4>
+   <h4 className="smn-attention-card-title"><OperationalEdit
+    kind={item.configurationKey?"configuration":item.kind==="note"?"note":"registry"}
+    id={item.id} title={title} teamId={teamId} cycleId={cycleId} canManage={canManage}
+    status={item.status} configurationKey={item.configurationKey} href={href}
+    className="smn-attention-card-title-button"/></h4>
   </div>
   {description&&<p className="smn-attention-card-description">{description}</p>}
   <div className="smn-attention-card-metadata">
@@ -207,7 +212,7 @@ function AttentionColumn({definition,locale,collection,teamId,cycleId,canManage}
    {collection.items.length>0?
     <ol className="smn-attention-list">
      {collection.items.slice(0,5).map(item=>
-      <li key={item.kind+":"+item.id}><AttentionCard item={item} locale={locale}/></li>)}
+      <li key={item.kind+":"+item.id}><AttentionCard item={item} locale={locale} teamId={teamId} cycleId={cycleId} canManage={canManage}/></li>)}
     </ol>:
     <div className="smn-operational-empty">
      <p className="smn-operational-empty-title">{t("dashboard.operational.empty")}</p>
@@ -241,6 +246,7 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
  const labels:Record<ReturnType<typeof classifyEventStatus>,TranslationKey>={
   scheduled:"dashboard.operational.eventScheduled",
   held:"dashboard.operational.eventHeld",
+  not_held:"dashboard.operational.eventNotHeld",
   cancelled:"dashboard.operational.eventCancelled",
   unknown:"dashboard.operational.eventUnknown"
  };
@@ -269,9 +275,11 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
         <span className={"smn-dashboard-event-icon smn-dashboard-event-icon-"+dashboardEventIcon(event)}
            aria-hidden="true"><BootstrapIcon name={dashboardEventIcon(event)}/></span>
         <div className="smn-dashboard-event-body">
-         <Link className="smn-dashboard-event-title"
+         <OperationalEdit kind="event" id={event.id} eventKind={event.kind}
+           title={eventTitle(event)} teamId={teamId} cycleId={cycleId} timeZone={timeZone}
+           canManage={canManage} className="smn-dashboard-event-title"
            href={"/app/team-calendar/meeting/"+encodeURIComponent(event.kind)+"/"+
-            encodeURIComponent(event.id)+"?"+base.toString()}>{eventTitle(event)}</Link>
+            encodeURIComponent(event.id)+"?"+base.toString()}/>
          <span className="smn-dashboard-event-when">{formatDashboardEventPeriod(event.startsAt,event.endsAt,locale,timeZone)}</span>
          <span className="smn-dashboard-event-state">
            {t(labels[classifyEventStatus(event.status)])}

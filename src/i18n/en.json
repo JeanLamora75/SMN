@@ -286,7 +286,23 @@
       "priorityMedium": "Medium",
       "priorityHigh": "High",
       "priorityUnknown": "Not assessed",
-      "sourceUnavailable": "Records for this cycle are not yet accessible. No count or historical status can be confirmed."
+      "sourceUnavailable": "Records for this cycle are not yet accessible. No count or historical status can be confirmed.",
+      "edit": {
+        "heading": "Edit",
+        "title": "Title",
+        "content": "Note content",
+        "status": "Status",
+        "start": "Event start",
+        "duration": "Duration (minutes)",
+        "notHeld": "Not held",
+        "openPage": "Open full record",
+        "closed": "Closed sprint: read-only view.",
+        "loadError": "Unable to load the record.",
+        "saveError": "Unable to save changes.",
+        "conflict": "The record changed or the sprint is protected. Refresh the dashboard.",
+        "invalidDate": "Invalid or ambiguous local time at daylight-saving transition."
+      },
+      "eventNotHeld": "Not held"
     }
   },
   "session": {

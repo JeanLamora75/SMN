@@ -4,10 +4,8 @@ import { currentAccount } from "@/server/auth/session";
 import { withAuthDb } from "@/server/auth/database";
 import { canAccess } from "@/server/access-policy";
 import { readCollectiveDashboard } from "@/server/dashboard/read";
-import ConfigurationChecklist from "./configuration-checklist";
 import CycleOverview from "./cycle-overview";
 import OperationalOverview from "./operational-overview";
-import {readConfigurationChecklist} from "@/server/configuration/tasks";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import {dashboardReturnPath,teamDetailPath,type DashboardQuery} from "@/lib/context-navigation";
@@ -39,9 +37,6 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
     </div>;
   }
 
-  const canManageConfiguration=canAccess(account,"read",{type:"settings",exists:true,inScope:true});
-  const configuration=canManageConfiguration
-    ? await withAuthDb(readConfigurationChecklist).catch(()=>null) : null;
   const { context } = dashboard;
   const query=await searchParams;
   const returnTo=dashboardReturnPath(query,context.teamId);
@@ -67,7 +62,6 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
       <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone} canManage={account.role==="admin"}/>
     </>}
 
-    {configuration&&<ConfigurationChecklist initial={configuration}/>}
 
     <footer className="smn-dashboard-footer">
       <span>{t("dashboard.footer")}</span>

@@ -259,3 +259,18 @@ Référence : [rapport BMAD D8](../_bmad-output/implementation-artifacts/realisa
 - **Recette :** vérifier visuellement sur navigateur 4/2/1 colonnes et thèmes, profils admin/user, 0/1/5/>5 entrées, descriptions longue/courte/absente, FR/EN, fuseaux et changement de jour, hiérarchie de statuts, Sprint historique, modales et absence de données personnelles non autorisées.
 
 **État de livraison :** l'implémentation proposée dans `ux/dashboard-compact-cards-20261024` ne vaut pas recette locale. GitHub Actions reste désactivé ; exécuter typecheck, tests et build sur le poste Windows avant validation finale des US. Lié à SMN-21, SMN-237, SMN-238.
+
+
+## Avenant UX — Édition en modales des cartes du tableau de bord (24/10/2026)
+
+**Décision de retouche :** un clic sur le titre d'un obstacle, risque, événement, note ou alerte doit ouvrir un dialogue natif centré affichant les champs éditables réellement disponibles ; la sauvegarde réussie ferme la modale et rafraîchit la projection du Sprint sans navigation. Un petit lien distinct vers la fiche d'origine reste disponible. Le rôle `user` voit les informations autorisées sans commande d'écriture ; un Sprint clôturé n'est jamais modifié.
+
+- **Registres :** réutiliser `RegistryCreate` en édition avec la fiche centrale complète. Les sauvegardes dans le formulaire principal, l'évaluation de risque, ROAM, les liens de cycles et les relations rafraîchissent également le cockpit. Ne pas contourner les contrôles SQL/audit existants.
+- **Événements :** traiter séparément les occurrences des modèles (`template`), cérémonies héritées (`ceremony`) et réunions exceptionnelles (`exceptional`), sans modifier les modèles ni régénérer les cérémonies. Proposer titre modifiable sauf type de cérémonie historique immuable, date/heure locale du Sprint, durée et statut ; conversion sûre entre fuseau local et instant enregistré, avec rejet d'une heure ambiguë/non existante lors des changements d'heure. Contrôler sur le serveur l'installation, l'équipe, le Sprint, les bornes calendaires, les conflits de versions et les permissions. Toute modification est auditée.
+- **Notes :** le champ `body` reste l'unique contenu modifiable ; statut ouvert/terminé ; ne pas introduire un faux champ de description. Préserver la lecture du seul Sprint/équipe autorisé, un audit distinct pour les révisions et la protection des cycles clos.
+- **Alertes de configuration :** titres/descriptions du catalogue FR/EN en lecture seule, statut `todo` / `done` / `ignored` modifiable selon les droits via l'API existante. Une alerte ignorée cesse d'apparaître ; une tâche terminée conserve la sémantique d'information terminée.
+- **Bas de page :** retirer **uniquement du tableau de bord** le bloc « Configuration — Paramétrage à compléter », redondant avec les cartes Notes / Alertes. Conserver la page Paramètres et les mécanismes d'administration des tâches.
+- **Responsive, accessibility, retour :** préserver l'organisation 4/2/1, les quatre boutons d'ajout, la tabulation/fermeture Escape des dialogues et la navigation vers la fiche source. Rafraîchir seulement après succès serveur. Conserver la modale et les modifications saisies en cas d'erreur 409/503.
+- **Recette à valider :** risques/obstacles avec champs et sous-formulaires, trois origines d'événements, notes ouvertes/terminées, alertes globales, admin/user, Sprint actif/historique/clôturé, changement d'heure Europe/Paris, édition concurrente, boutons « Ajouter », absence du bloc inférieur, FR/EN et 4/2/1.
+
+**Livraison :** branche `ux/dashboard-edit-modals-20261024` ; les tests et le build locaux restent obligatoires avant recette finale. GitHub Actions est désactivé.

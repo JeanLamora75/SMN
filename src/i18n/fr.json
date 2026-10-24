@@ -286,7 +286,23 @@
       "priorityMedium": "Moyenne",
       "priorityHigh": "Élevée",
       "priorityUnknown": "Non évaluée",
-      "sourceUnavailable": "Les fiches de ce cycle ne sont pas encore accessibles. Aucun total ni état historique ne peut être confirmé."
+      "sourceUnavailable": "Les fiches de ce cycle ne sont pas encore accessibles. Aucun total ni état historique ne peut être confirmé.",
+      "edit": {
+        "heading": "Modifier",
+        "title": "Intitulé",
+        "content": "Contenu de la note",
+        "status": "Statut",
+        "start": "Début de l'événement",
+        "duration": "Durée (minutes)",
+        "notHeld": "Non tenue",
+        "openPage": "Ouvrir la fiche complète",
+        "closed": "Sprint clôturé : consultation uniquement.",
+        "loadError": "Impossible de charger la fiche.",
+        "saveError": "Enregistrement impossible.",
+        "conflict": "La fiche a été modifiée ou la période est protégée. Rechargez le tableau de bord.",
+        "invalidDate": "Heure locale invalide ou ambiguë lors du changement d'heure."
+      },
+      "eventNotHeld": "Non tenue"
     }
   },
   "session": {

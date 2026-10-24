@@ -44,10 +44,11 @@ function normalize(raw:unknown):DashboardEvent|null{
 /** Pas de confusion entre une occurrence prévue, une occurrence tenue et une
  * occurrence reconstituée (qui n'atteste jamais de la tenue d'une réunion). */
 export function classifyEventStatus(status:string):
- "scheduled"|"held"|"cancelled"|"unknown"{
+ "scheduled"|"held"|"not_held"|"cancelled"|"unknown"{
  const s=status.toLowerCase();
  if(["done","held","completed","occurred","effective","realized"].includes(s))return "held";
  if(["cancelled","canceled"].includes(s))return "cancelled";
+ if(s==="not_held")return "not_held";
  if(["scheduled","planned"].includes(s))return "scheduled";
  return "unknown";
 }

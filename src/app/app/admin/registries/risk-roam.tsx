@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {roamValues,type Roam} from "@/lib/roam-values";
 type RoamState={classification:Roam|null;revision:number;updatedAt:string|null};
-export default function RiskRoam({id,canManage}:{id:string;canManage:boolean}){
+export default function RiskRoam({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation();
  const [state,setState]=useState<RoamState|null>(null);
  const [value,setValue]=useState<Roam|null>(null);
@@ -30,7 +30,7 @@ export default function RiskRoam({id,canManage}:{id:string;canManage:boolean}){
    if(!response.ok)throw Error("unavailable");
    const data=await response.json() as RoamState&{ok:boolean};
    if(!data.ok)throw Error("unavailable");
-   setState({...state,...data,updatedAt:new Date().toISOString()});
+   setState({...state,...data,updatedAt:new Date().toISOString()});onSaved?.();
   }catch{setError("error");}
   finally{setSaving(false);}
  };

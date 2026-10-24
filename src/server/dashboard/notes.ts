@@ -41,3 +41,63 @@ export async function createDashboardNote(db:Client,actorId:string,raw:unknown){
   await db.query("COMMIT");return {ok:true as const,id};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+/** Les notes appartiennent strictement au Sprint/équipe sélectionné. Aucun DDL en lecture. */
+export async function readDashboardNote(db:Client,id:string,teamId:string,sprintId:string){
+ if(!uuid.test(id)||!uuid.test(sprintId)||!teamId)return null;
+ const r=await db.query<{id:string;body:string;status:string}>(`
+  SELECT n.id,n.body,n.status FROM public.smn_dashboard_note n
+  JOIN public.smn_sprint s ON s.id=n.sprint_id AND s.team_id=n.team_id
+  JOIN public.smn_team t ON t.id=s.team_id
+  JOIN public.smn_installation i ON i.id=t.installation_id
+  WHERE n.id=$1 AND n.team_id=$2 AND n.sprint_id=$3
+    AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
+    AND lower(i.mode)='scrum'`,[id,teamId,sprintId]);
+ return r.rows[0]??null;
+}
+
+/** Correction et terminaison auditées ; aucune modification d'un Sprint clôturé. */
+export async function updateDashboardNote(db:Client,actorId:string,id:string,raw:unknown){
+ if(!actorId||!uuid.test(id)||!raw||typeof raw!=="object"||Array.isArray(raw))
+  return {ok:false as const,error:"invalid-input" as const};
+ const o=raw as Record<string,unknown>;
+ if(Object.keys(o).sort().join(",")!=="expectedBody,expectedStatus,sprintId,status,teamId,text"||
+  typeof o.teamId!=="string"||typeof o.sprintId!=="string"||!uuid.test(o.sprintId)||
+  typeof o.text!=="string"||!o.text.trim()||o.text.trim().length>2000||
+  typeof o.expectedBody!=="string"||typeof o.expectedStatus!=="string"||
+  !["open","done"].includes(String(o.status)))
+  return {ok:false as const,error:"invalid-input" as const};
+ await db.query("BEGIN");
+ try{
+  const found=await db.query<{id:string;body:string;status:string;sprint_status:string}>(`
+   SELECT n.id,n.body,n.status,s.status AS sprint_status
+   FROM public.smn_dashboard_note n JOIN public.smn_sprint s
+     ON s.id=n.sprint_id AND s.team_id=n.team_id
+   JOIN public.smn_team t ON t.id=s.team_id
+   JOIN public.smn_installation i ON i.id=t.installation_id
+   WHERE n.id=$1 AND n.sprint_id=$2 AND n.team_id=$3
+   AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+   AND s.deleted_at IS NULL FOR UPDATE OF n,s`,[id,o.sprintId,o.teamId]);
+  const prev=found.rows[0];
+  if(!prev){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  if(prev.sprint_status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
+  if(prev.body!==o.expectedBody||prev.status!==o.expectedStatus){
+   await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
+  }
+  const next={body:o.text.trim(),status:o.status as "open"|"done"};
+  if(next.body!==prev.body||next.status!==prev.status){
+   await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dashboard_note_edit_audit(
+    id text PRIMARY KEY,note_id text NOT NULL REFERENCES public.smn_dashboard_note(id),
+    before_values jsonb NOT NULL,after_values jsonb NOT NULL,
+    actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
+    changed_at timestamptz NOT NULL DEFAULT now())`);
+   await db.query("UPDATE public.smn_dashboard_note SET body=$2,status=$3 WHERE id=$1",
+    [id,next.body,next.status]);
+   await db.query(`INSERT INTO public.smn_dashboard_note_edit_audit
+    (id,note_id,before_values,after_values,actor_id) VALUES($1,$2,$3::jsonb,$4::jsonb,$5)`,
+    [randomUUID(),id,JSON.stringify({body:prev.body,status:prev.status}),JSON.stringify(next),actorId]);
+  }
+  await db.query("COMMIT");
+  return {ok:true as const,id};
+ }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
