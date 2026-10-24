@@ -18,6 +18,8 @@ export type SprintRegisterResult=
   "history-missing"|"invalid-data"|"read-failed"}>;
 export type RegisterSource=Readonly<{
  records:readonly unknown[];availableKinds:readonly RegisterKind[];
+ /** Explicit link to the selected cycle qualifies even if the event date is outside. */
+ linkedMembership?:boolean;
 }>;
 const record=(x:unknown):Record<string,unknown>|null=>
  x!==null&&typeof x==="object"&&!Array.isArray(x)?x as Record<string,unknown>:null;
@@ -121,7 +123,9 @@ export function selectSprintRegisterPage(
   }
   seen.set(key,item);
  }
- const relevant=[...seen.values()].filter(x=>relevantToSprint(x,teamId,sprint));
+ const relevant=[...seen.values()].filter(x=>
+  relevantToSprint(x,teamId,sprint)||
+  (source.linkedMembership===true&&x.teamIds.includes(teamId)&&x.sprintIds.includes(sprint.id)));
  const missingKinds=registerKinds.filter(k=>!source.availableKinds.includes(k));
  return {...registerPage(relevant,requestedPage),missingKinds};
 }
