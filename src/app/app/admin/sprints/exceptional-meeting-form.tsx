@@ -18,7 +18,7 @@ export default function ExceptionalMeetingForm(){
  const [notice,setNotice]=useState("");
  const [busy,setBusy]=useState(false);
  async function reload(){const r=await fetch("/api/admin/sprints/exceptional-meetings",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setSprints(j.sprints);setMeetings(j.meetings);}
- useEffect(()=>{void reload().catch(()=>setError(t("exceptionalMeetings.error")));},[]);
+ useEffect(()=>{void Promise.resolve().then(reload).catch(()=>setError(t("exceptionalMeetings.error")));},[]);
  async function submit(e:FormEvent){e.preventDefault();setError("");setNotice("");setBusy(true);setWarnings([]);
  try{const date=new Date(startAt+":00Z");
  if(!Number.isFinite(date.valueOf()))throw Error();
