@@ -381,3 +381,10 @@ Tests associés : `tests/smn-234-sprint-ceremonies-compact-modal.test.ts`, à la
 - Les règles du contrat du 22/10 restent applicables, sauf modification explicite de cet avenant.
 - **Statut livraison :** code engagé sur `main` le 24/10, en attente de recette intégrée et validation visuelle utilisateur. Ne pas déclarer conforme sur la seule base des commits.
 
+
+
+## Calendrier — Décalage manuel des réunions (24 octobre 2026)
+
+**Avenant UX :** depuis les vues Cartes et Agenda, le titre ouvre une fenêtre modale. En rôle administrateur, le formulaire d'un événement non annulé et d'un sprint non clôturé permet de modifier indépendamment **date/heure de début** et **date/heure de fin**, pour une cérémonie, une occurrence de réunion récurrente ou une réunion exceptionnelle. La durée prévue est **recalculée** ; les modifications d'occurrence ne changent pas le modèle de récurrence. Les utilisateurs en lecture seule conservent une fiche non éditable. Ne pas confondre le décalage manuel avec le repositionnement automatique des cérémonies « début / fin de sprint ».
+
+Implémentation et recette : [calendrier-modification-horaires-reunions-2026-10-24.md](../_bmad-output/implementation-artifacts/calendrier-modification-horaires-reunions-2026-10-24.md). **Statut : publié sur main, validation d'exécution à effectuer.**
