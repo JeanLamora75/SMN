@@ -232,3 +232,16 @@ Référence : [rapport BMAD D8](../_bmad-output/implementation-artifacts/realisa
 **Éléments de qualité réels :** 22 tests métier transverses isolés exécutés avec succès sur modules D3–D7 SHA Git identiques à `main` ; 31 contrôles statiques GitHub positifs sur sept onglets, RBAC, historique, pagination, traductions. Fichier de tests intégré `tests/smn-234-sprint-transverse-d9.test.ts` ajouté mais **non exécuté avec pnpm/tsx**, ainsi que `pnpm typecheck`, build, PostgreSQL et navigateur non réalisés. **Maintenir les anciens écrans/formulaires** en attendant validation de non-régression.
 
 **Décision : D9 contrôle technique achevé mais D9 recette fonctionnelle globale NON VALIDÉE ; SMN-234 demeure À faire, D8 bloqué par Epic 5 SMN-89..112.** [Rapport de recette D9 et matrice AC](../_bmad-output/implementation-artifacts/rapport-recette-d9-fiche-sprint-smn-234-2026-10-23.md).
+
+## Avenant correctif — Tableau de bord, registres et Notes/Alertes — 24/10/2026
+
+**Référence de réalisation :** [_bmad-output/implementation-artifacts/smn-238-dashboard-qualitatif-correctifs-2026-10-24.md](../_bmad-output/implementation-artifacts/smn-238-dashboard-qualitatif-correctifs-2026-10-24.md), Jira SMN-238.
+
+- Les trois colonnes Obstacles, Risques et Notes/Alertes doivent refléter exclusivement des données persistées et vérifiables. Le producteur `producer-not-ready` ne peut pas rester une constante lorsque les tables de registre sont installées.
+- La création d'un obstacle ou d'un risque depuis le tableau de bord associe explicitement la fiche au Sprint sélectionné, avec validation serveur et écriture atomique. La reprise des données existantes sans lien utilise la date réelle du registre dans la période, sans prétendre à une association explicite.
+- Une note du tableau de bord est un objet autonome lié au Sprint, distinct des notes de préparation du rapport. Les quatre actions « + Ajouter » restent des modales. L'utilisateur non administrateur ne peut rien créer.
+- Les tâches globales de configuration sont reprises dans Notes/Alertes : `todo` en alerte, `done` en information terminée, `ignored` exclue. La provenance globale reste explicite, et le bloc de gestion existant demeure disponible.
+- Au plus cinq éléments sont montrés par colonne ; la disponibilité réelle ne doit jamais être confondue avec une collection vide. Sources partielles et historique clos sont traités sans données fictives.
+- La criticité/ROAM, les snapshots qualitatifs clôturés, le « Voir tout » complet et le remplacement éventuel du bloc de configuration constituent les points de recette/compléments à ne pas présumer terminés.
+
+**Statut :** implémentation sur la branche corrective ; recette TypeScript, tests et validation visuelle Windows à confirmer. Cette note ne modifie pas les contrats UX déjà approuvés pour les autres écrans.
