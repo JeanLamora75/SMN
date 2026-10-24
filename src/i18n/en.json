@@ -2947,5 +2947,17 @@
       "6": "Saturday",
       "7": "Sunday"
     }
+  },
+  "kanbanPeriod": {
+    "title": "Create a Kanban period",
+    "intro": "One period at a time. Creation is immediate and does not generate subsequent periods.",
+    "quantity": "Number of periods",
+    "startOn": "Start date",
+    "invalidStart": "Invalid start date: a monthly period must start on the first day of the month.",
+    "generate": "Generate",
+    "created": "Period created",
+    "loadError": "Unable to prepare creation.",
+    "overlap": "This period overlaps an existing Kanban period.",
+    "saveError": "Unable to create period. Check the dates and retry."
   }
 }
