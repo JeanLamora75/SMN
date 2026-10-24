@@ -10,7 +10,7 @@ export default function TemplateOccurrencesList(){
  async function load(){setBusy(true);setError("");
  try{const r=await fetch("/api/admin/sprints/template-occurrences",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.occurrences);}
  catch{setError(t("templateOccurrences.error"));}finally{setBusy(false);}}
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{void Promise.resolve().then(load);},[]);
  const local=(instant:string,zone:string)=>new Intl.DateTimeFormat("fr-FR",{dateStyle:"short",timeStyle:"short",timeZone:zone}).format(new Date(instant));
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("templateOccurrences.title")}</h2>
  <p className="text-secondary">{t("templateOccurrences.info")}</p>
