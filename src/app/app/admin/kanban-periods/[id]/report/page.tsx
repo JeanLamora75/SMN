@@ -36,7 +36,15 @@ export default async function KanbanPeriodReport({params}:{params:Promise<{id:st
     <KanbanMetricsPanel periodId={period.id} canManage={account.role==="admin"} closed={period.status==="closed"}/></div></section>
    <section className="col-12" aria-labelledby="kanban-capacity"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-capacity">3. Capacité de la période</h2>
     <p className="mb-1">Capacité initiale (J/H) : {blocks.capacity.initialJh===null?"Non disponible":blocks.capacity.initialJh}</p>
-    <p className="small text-secondary mb-0">Provenance : {blocks.capacity.provenance}. Capacité réalisée : non collectée.</p></div></section>
+    <p className="small text-secondary">Provenance initiale : {blocks.capacity.provenance} ; ouverture réelle : {blocks.capacity.actualOpenedAt??"Non renseignée"}.</p>
+    <dl className="row mb-0">
+     <dt className="col-sm-6">Référence réelle (J/H)</dt><dd className="col-sm-6">{blocks.capacity.actualReferenceJh??"Non calculable"}</dd>
+     <dt className="col-sm-6">Valeur manuelle prioritaire (J/H)</dt><dd className="col-sm-6">{blocks.capacity.actualManualJh??"Non renseignée"}</dd>
+     <dt className="col-sm-6">Capacité réelle retenue (J/H)</dt><dd className="col-sm-6">{blocks.capacity.realizedJh??"Non renseignée"}</dd>
+     <dt className="col-sm-6">Écart fiable (J/H)</dt><dd className="col-sm-6">{blocks.capacity.gapJh??"Non calculable"}</dd>
+    </dl>
+    <p className="small text-secondary mt-2 mb-0">Source du réalisé : {blocks.capacity.actualSource} ; observation jusqu'au {blocks.capacity.observedThrough??"Non renseigné"}.</p>
+    {!!blocks.capacity.missingSources.length&&<p className="small text-warning-emphasis mt-2">Sources indisponibles : {blocks.capacity.missingSources.join(", ")}</p>}</div></section>
    <section className="col-12" aria-labelledby="kanban-trends"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-trends">4. Tendances</h2>
     <p className="text-secondary mb-0">Données de tendance non encore collectées.</p></div></section>
   </div>
