@@ -9,9 +9,27 @@ export default function BatchPreviewForm(){
  const [preview,setPreview]=useState<Result|null>(null);
  const [error,setError]=useState("");
  const [busy,setBusy]=useState(false);
+ const [confirmed,setConfirmed]=useState("");
  useEffect(()=>{let live=true;fetch("/api/admin/kanban-periods").then(r=>r.json()).then(data=>{if(live)setStartOn(data.startOn??"");}).catch(()=>{});return()=>{live=false;};},[]);
  function changeDate(value:string){setStartOn(value);setPreview(null);setError("");}
  function changeQuantity(value:number){setQuantity(value);setPreview(null);setError("");}
+ async function confirmBatch(){
+  if(!preview||!preview.canConfirm||quantity<2||quantity>6)return;
+  setBusy(true);setError("");setConfirmed("");
+  try{
+   const r=await fetch("/api/admin/kanban-periods/batch",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({startOn,quantity,cadenceRevision:preview.cadenceRevision})});
+   const data=await r.json();
+   if(!r.ok){
+    setPreview(null);
+    setError(r.status===409?"Le lot a changé ou présente un conflit. Actualisez l'aperçu avant de confirmer.":"Impossible de créer le lot.");
+    return;
+   }
+   setConfirmed(`Lot créé : ${data.periods.length} périodes (identifiant : ${data.batchId}).`);
+   setPreview(null);
+  }catch{setError("Impossible de créer le lot.");}finally{setBusy(false);}
+ }
  async function show(){
   setError("");setPreview(null);setBusy(true);
   try{
@@ -33,6 +51,7 @@ export default function BatchPreviewForm(){
    <div className="col-sm-3"><button className="btn btn-primary w-100" disabled={busy||!startOn||!Number.isInteger(quantity)||quantity<1||quantity>6} onClick={show}>Prévisualiser</button></div>
   </div>
   {error&&<div className="alert alert-warning mt-3" role="alert">{error}</div>}
+  {confirmed&&<div className="alert alert-success mt-3" role="status">{confirmed}</div>}
   {preview&&<div className="mt-4">
    <h2 className="h5">Aperçu de {preview.items.length} période(s)</h2>
    <div className="table-responsive"><table className="table table-striped"><thead><tr><th>Nom</th><th>Début</th><th>Fin</th><th>Conflits</th></tr></thead>
@@ -42,7 +61,8 @@ export default function BatchPreviewForm(){
     </tr>)}</tbody></table></div>
    {!preview.canConfirm&&<p className="alert alert-warning" role="alert">Chevauchement détecté : la confirmation du lot est bloquée. Modifiez la date de départ.</p>}
    {preview.canConfirm&&<p className="text-secondary">Aucun chevauchement. L’aperçu est consultatif : aucun enregistrement n’a été effectué.</p>}
-   <button type="button" className="btn btn-outline-secondary" onClick={()=>setPreview(null)}>Fermer l’aperçu</button>
+   {preview.canConfirm&&quantity>=2&&quantity<=6&&<button type="button" className="btn btn-primary me-2" disabled={busy} onClick={confirmBatch}>Confirmer et créer les {preview.items.length} périodes</button>}
+   <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setPreview(null)}>Fermer l’aperçu</button>
   </div>}
  </section>;
 }
