@@ -49,7 +49,7 @@ describe("Réunion décalée : dates début et fin",()=>{
   assert.deepEqual(await updateCalendarMeetingSchedule(closed.db,"actor",schedule),{ok:false,error:"closed-period"});
   const outside=fake();
   assert.deepEqual(await updateCalendarMeetingSchedule(outside.db,"actor",{
-   ...schedule,endAt:"2026-11-23T17:00:00.000Z"
+   ...schedule,startAt:"2026-11-22T21:30:00.000Z",endAt:"2026-11-22T22:30:00.000Z"
   }),{ok:false,error:"outside-sprint"});
  });
  it("refuse un événement annulé et une durée invalide",async()=>{
@@ -66,6 +66,16 @@ describe("Réunion décalée : dates début et fin",()=>{
   assert.deepEqual(await updateCalendarMeetingSchedule(fake().db,"actor",{
    ...schedule,id:"not-an-id"
   }),{ok:false,error:"invalid-input"});
+ });
+ it("valide la route en écriture et le formulaire indépendant Début / Fin",()=>{
+  const fs=require("node:fs") as typeof import("node:fs");
+  const url=require("node:url") as typeof import("node:url");
+  const modal=fs.readFileSync(url.fileURLToPath(new URL("../src/app/app/team-calendar/calendar-meeting-modal.tsx",import.meta.url)),"utf8");
+  const route=fs.readFileSync(url.fileURLToPath(new URL("../src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",import.meta.url)),"utf8");
+  assert.match(modal,/setEnd\\(e\\.target\\.value\\)/);
+  assert.match(modal,/durationBetweenLocal\\(start,end,detail\\.timeZone\\)/);
+  assert.match(modal,/void patch\\(api,\\{startAt:iso,endAt:isoEnd,revision:detail\\.revision\\}\\)/);
+  assert.match(route,/authorizeApi\\(request,"write"/);
  });
  it("préserve le calcul autonome pour cérémonie et réunion exceptionnelle",async()=>{
   for(const kind of ["ceremony","exceptional"] as const){
