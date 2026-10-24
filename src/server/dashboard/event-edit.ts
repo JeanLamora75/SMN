@@ -117,16 +117,21 @@ export async function updateDashboardEvent(db:Client,actorId:string,
    prev.title!==o.title.trim()||prev.status!==o.status;
   if(changed){
    const config=tables[kind];
-   const nameSql=kind==="ceremony"?"":",name=$5";
-   const statusSql=config.status;
-   const durationSql=kind==="ceremony"?"minutes":kind==="exceptional"?"duration_minutes":null;
-   const durationSet=durationSql?`,${durationSql}=$4`:"";
-   // Paramètres à positions stables ; jamais d'identifiant SQL issu du client.
-   await db.query(`UPDATE public.${config.table} SET starts_at=$2,ends_at=$3
-    ${durationSet}${nameSql},${statusSql}=$6,
-    status_explicit=CASE WHEN ${statusSql} IS DISTINCT FROM $6 THEN true ELSE status_explicit END
-    ${kind==="ceremony"?",revision=revision+1,provenance='customized'":""}
-    WHERE id=$1`,[id,start.toISOString(),end.toISOString(),o.duration,o.title.trim(),o.status]);
+   const fields=["starts_at=$2","ends_at=$3"];
+   const values:(string|number)[]=[id,start.toISOString(),end.toISOString()];
+   if(kind==="ceremony"||kind==="exceptional"){
+    values.push(o.duration);
+    fields.push((kind==="ceremony"?"minutes":"duration_minutes")+"=$"+values.length);
+   }
+   if(kind!=="ceremony"){values.push(o.title.trim());fields.push("name=$"+values.length);}
+   values.push(o.status);
+   const statusParam="$"+values.length;
+   fields.push(`${config.status}=${statusParam}`);
+   fields.push(`status_explicit=CASE WHEN ${config.status} IS DISTINCT FROM ${statusParam}
+    THEN true ELSE status_explicit END`);
+   if(kind==="ceremony")fields.push("revision=revision+1","provenance='customized'");
+   await db.query(`UPDATE public.${config.table} SET ${fields.join(",")}
+    WHERE id=$1`,values);
    if(kind==="ceremony"){
     await db.query("DELETE FROM public.smn_sprint_ceremony_segment WHERE ceremony_id=$1",[id]);
     await db.query(`INSERT INTO public.smn_sprint_ceremony_segment
