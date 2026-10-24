@@ -8,6 +8,14 @@ import {
 import BootstrapIcon from "../../../bootstrap-icon";
 
 type Text=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>string;
+const statusKeys:Readonly<Record<string,TranslationKey>>={
+ open:"registryCreate.open",in_progress:"registryCreate.in_progress",
+ resolved:"registryCreate.resolved",abandoned:"registryCreate.abandoned",
+ satisfied:"registryCreate.satisfied",cancelled:"registryCreate.cancelled",
+ active:"registryCreate.active",replaced:"registryCreate.replaced",
+ todo:"registryCreate.todo",completed:"registryCreate.completed",
+ recorded:"registryCreate.recorded"
+};
 const categoryKeys:Record<RegisterKind,TranslationKey>={
  risk:"sprintDetail.registerRisk",
  obstacle:"sprintDetail.registerObstacle",
@@ -79,9 +87,12 @@ export default function SprintRegistersPanel({sprintId,timeZone,locale,data,t}:{
         <span className="text-secondary"><BootstrapIcon name={icons[item.kind]}/></span>
         <div className="flex-grow-1" style={{minWidth:0}}>
          <p className="small text-secondary mb-1">{t(categoryKeys[item.kind])}</p>
-         <p className="fw-semibold mb-1 text-break">{item.title}</p>
+         <p className="fw-semibold mb-1 text-break">{data.source==="current"&&safeRegisterHref(item.href)?
+          <Link href={item.href!}>{item.title}</Link>:item.title}</p>
          <div className="d-flex flex-wrap align-items-center gap-2 small mb-2">
-          {item.status!==null&&<span className="badge text-bg-secondary">{item.status}</span>}
+          {item.status!==null&&<span className="badge text-bg-secondary">
+           {statusKeys[item.status]?t(statusKeys[item.status]):item.status}
+          </span>}
           {item.priority!==null&&<span className="badge text-bg-light border">
            {t("sprintDetail.registersPriority",{value:item.priority})}
           </span>}
