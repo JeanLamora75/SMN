@@ -84,8 +84,12 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
   "SELECT planned_jh::text,actual_jh::text FROM public.smn_sprint_capacity_kpi WHERE sprint_id=$1",
   [sprintId]);
  const saved=capacityKpi.rows[0]??null;
- const historicalCapacity=historical?await db.query<{quality:string;qualified_jh:string|null}>(`SELECT quality,qualified_jh::text FROM public.smn_sprint_historical_capacity WHERE sprint_id=$1`,[sprintId]).catch(()=>({rows:[]} as {rows:{quality:string;qualified_jh:string|null}[]})):null;
- const historicalActual=historical?await db.query<{quality:string;qualified_jh:string|null}>(`SELECT quality,qualified_jh::text FROM public.smn_sprint_historical_actual_capacity WHERE sprint_id=$1`,[sprintId]).catch(()=>({rows:[]} as {rows:{quality:string;qualified_jh:string|null}[]})):null;
+ const historicalTables=historical?await db.query<{planned:boolean;actual:boolean}>(`SELECT to_regclass('public.smn_sprint_historical_capacity') IS NOT NULL AS planned,
+  to_regclass('public.smn_sprint_historical_actual_capacity') IS NOT NULL AS actual`):null;
+ const historicalCapacity=historicalTables?.rows[0]?.planned?
+  await db.query<{quality:string;qualified_jh:string|null}>(`SELECT quality,qualified_jh::text FROM public.smn_sprint_historical_capacity WHERE sprint_id=$1`,[sprintId]):null;
+ const historicalActual=historicalTables?.rows[0]?.actual?
+  await db.query<{quality:string;qualified_jh:string|null}>(`SELECT quality,qualified_jh::text FROM public.smn_sprint_historical_actual_capacity WHERE sprint_id=$1`,[sprintId]):null;
  const captured=capacity.rows[0]??null;
  const snapshotCapacity=historical?{initial_jh:historicalCapacity?.rows[0]?.qualified_jh??null,actual_jh:historicalActual?.rows[0]?.qualified_jh??null,initialQuality:historicalCapacity?.rows[0]?.quality??"not-supplied",actualQuality:historicalActual?.rows[0]?.quality??"not-supplied",provenance:"retrospective-manual"}:captured?{
   ...captured,
