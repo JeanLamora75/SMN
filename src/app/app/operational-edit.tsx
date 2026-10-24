@@ -165,7 +165,7 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
     disabled={readonly||busy} onChange={e=>setWhen(e.target.value)}/>
   </label>
   <label className="form-label">{t("dashboard.operational.edit.duration")}
-   <input className="form-control" type="number" min={1} max={480} required value={duration}
+   <input className="form-control" type="number" min={1} max={kind==="ceremony"?600:480} required value={duration}
     disabled={readonly||busy} onChange={e=>setDuration(Number(e.target.value))}/>
   </label>
   <label className="form-label">{t("dashboard.operational.edit.status")}
