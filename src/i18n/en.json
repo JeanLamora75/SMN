@@ -585,7 +585,8 @@
       "audit": "Operations log",
       "backups": "Backups",
       "members": "Team",
-      "countries": "Countries"
+      "countries": "Countries",
+      "calendar": "Calendar"
     }
   },
   "detail": {
