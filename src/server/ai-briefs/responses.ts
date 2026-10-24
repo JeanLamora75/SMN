@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {briefArchiveIdValid,readPrivateBriefArchive} from "./library";
 
-export type ManualAiResponse={id:string;archive_id:string;team_id:string;response_text:string;provider:string|null;model:string|null;created_at:string;updated_at:string;author_id:string};
+export type ManualAiResponse={id:string;archive_id:string;team_id:string;response_text:string;provider:string|null;model:string|null;created_at:string;updated_at:string;author_id:string;human_edited:boolean;
 export function validManualAiResponse(raw:unknown):raw is {text:string;provider?:string|null;model?:string|null}{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return false;
  const x=raw as Record<string,unknown>;
@@ -19,6 +19,7 @@ async function ensureResponseSchema(db:Client){
  CHECK(length(btrim(response_text))>0))`);
  await db.query("ALTER TABLE public.smn_ai_brief_response ADD COLUMN IF NOT EXISTS deleted_at timestamptz");
  await db.query("ALTER TABLE public.smn_ai_brief_response ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now()");
+ await db.query("ALTER TABLE public.smn_ai_brief_response ADD COLUMN IF NOT EXISTS human_edited boolean NOT NULL DEFAULT false");
  // Existing duplicates are preserved in history, but only the most recent remains active.
  await db.query(`WITH ranked AS (SELECT id,row_number() OVER(PARTITION BY archive_id ORDER BY created_at DESC,id DESC) AS rn
  FROM public.smn_ai_brief_response WHERE deleted_at IS NULL)
@@ -32,7 +33,7 @@ export async function listManualAiResponses(db:Client,archiveId:string,teamId:st
  if(!table.rows[0]?.present)return [];
  await ensureResponseSchema(db);
  const r=await db.query<ManualAiResponse>(`SELECT r.id::text,r.archive_id::text,r.team_id,r.response_text,r.provider,r.model,
-  r.created_at::text,r.updated_at::text,r.author_id FROM public.smn_ai_brief_response r
+  r.created_at::text,r.updated_at::text,r.author_id,r.human_edited FROM public.smn_ai_brief_response r
   INNER JOIN public.smn_ai_brief_archive a ON a.id=r.archive_id
   WHERE r.archive_id=$1 AND r.team_id=$2 AND a.team_id=$2 AND r.deleted_at IS NULL
   ORDER BY r.created_at DESC,r.id DESC`,[archiveId,teamId]);
@@ -66,7 +67,7 @@ export async function changeManualAiResponse(db:Client,archiveId:string,teamId:s
   const result=action==="delete"?
    await db.query(`UPDATE public.smn_ai_brief_response SET deleted_at=now(),updated_at=now()
     WHERE id=$1 AND archive_id=$2 AND team_id=$3 AND deleted_at IS NULL RETURNING id`,[responseId,archiveId,teamId]):
-   await db.query(`UPDATE public.smn_ai_brief_response SET response_text=$4,provider=$5,model=$6,updated_at=now()
+   await db.query(`UPDATE public.smn_ai_brief_response SET response_text=$4,provider=$5,model=$6,updated_at=now(),human_edited=true
     WHERE id=$1 AND archive_id=$2 AND team_id=$3 AND deleted_at IS NULL RETURNING id`,
     [responseId,archiveId,teamId,x.text,optional(x.provider),optional(x.model)]);
   if(!result.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
