@@ -31,7 +31,7 @@ describe("SMN-21 — lot 3 : quatre colonnes opérationnelles",()=>{
   it("ne crée aucun contrôle de navigation ou mutation inopérant",()=>{
     const html=render("fr");
     assert.equal((html.match(/Voir tout/g)||[]).length,4);
-    assert.equal((html.match(/Ajouter/g)||[]).length,4);
+    assert.equal((html.match(/class="smn-operational-add-unavailable"/g)||[]).length,4);
     assert.doesNotMatch(html,/<a\b|<button\b|<form\b|<input\b/);
     assert.doesNotMatch(html,/href=|onClick|action=/);
   });
@@ -51,7 +51,7 @@ describe("SMN-21 — lot 3 : quatre colonnes opérationnelles",()=>{
     }
     assert.equal((html.match(/No entries to date/g)||[]).length,4);
     assert.equal((html.match(/View all/g)||[]).length,4);
-    assert.equal((html.match(/Add · Unavailable/g)||[]).length,4);
+    assert.equal((html.match(/class="smn-operational-add-unavailable"/g)||[]).length,4);
     assert.doesNotMatch(html,/Aucun éléments à ce jour/);
   });
   it("conserve l'autorisation de la page, le bandeau et le bloc de configuration sous les colonnes",()=>{
