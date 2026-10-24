@@ -73,3 +73,19 @@ test("report language and frozen render references are recognized as native SMN 
  }
  assert.equal(classifySnapshot({...base,tables:[...base.tables,"public.not_smn:r"]}).status,"schema-incompatible");
 });
+
+
+test("calendar meeting schedule history created by SMN is recognized, foreign objects remain blocked",()=>{
+ const source=readFileSync(new URL("../src/server/sprints/calendar-meeting-reschedule.ts",import.meta.url),"utf8");
+ const relation="public.smn_calendar_meeting_schedule_history:r";
+ assert.match(source,/CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+public\\.smn_calendar_meeting_schedule_history\\(/);
+ assert.ok(INSTALLATION_RELATIONS.includes(relation));
+ const base:Snapshot={
+  schemaUsage:true,schemaCreate:true,serverVersion:180006,tableRead:true,
+  migrationsRead:true,installations:[{id:"singleton",state:"initialized",schema_version:1}],
+  migrations:[{migration_name:"fixture",finished_at:new Date(),rolled_back_at:null}],
+  tables:["public.smn_installation:r","public._prisma_migrations:r"]
+ };
+ assert.notEqual(classifySnapshot({...base,tables:[...base.tables,relation]}).status,"schema-incompatible");
+ assert.equal(classifySnapshot({...base,tables:[...base.tables,relation,"public.third_party:r"]}).status,"schema-incompatible");
+});
