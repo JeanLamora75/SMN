@@ -55,7 +55,7 @@ export function mapSprintMemberMetadata(
   }
   result.set(member.memberId,{
    professionalFunction,
-   agileRoles:complete?[...active]:null,
+   agileRoles:complete?roles.map(([role])=>role).filter(role=>active.has(role)):null,
    contributionPercents:complete?percentages:null
   });
  }
