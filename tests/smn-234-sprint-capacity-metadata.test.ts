@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {describe,it} from "node:test";
 import {createElement} from "react";
 import {renderToStaticMarkup} from "react-dom/server";
@@ -121,4 +122,16 @@ describe("Fiche Sprint — métadonnées des capacités",()=>{
   assert.match(queries[0].sql,/a\.member_id=ANY\(\$2::text\[\]\)/);
   assert.ok(!/\b(?:INSERT|UPDATE|DELETE|ALTER|CREATE)\b/i.test(queries[0].sql));
  });
+ it("conserve la protection serveur des données nominatives et des anciens schémas",()=>{
+  const get=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8") as string;
+  const page=get("src/app/app/admin/sprints/[sprintId]/page.tsx");
+  const reader=get("src/server/sprints/presence-detail-read.ts");
+  assert.match(page,/active==="capacity"&&canViewMembers\?/);
+  assert.match(page,/data=\{canViewMembers\?presence:null\}/);
+  assert.match(reader,/SAVEPOINT smn_presence_metadata/);
+  assert.match(reader,/ROLLBACK TO SAVEPOINT smn_presence_metadata/);
+  assert.match(reader,/return enriched/);
+  assert.doesNotMatch(reader,/CREATE TABLE|ALTER TABLE|INSERT INTO public/);
+ });
+
 });
