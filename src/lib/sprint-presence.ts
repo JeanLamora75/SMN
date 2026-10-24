@@ -1,7 +1,7 @@
 /** D5 — Presence is scheduled availability, NOT development capacity.
  * One available calendar half-day = 0.5 J/H; never multiply by developer,
  * contribution or allocation percentages. No claim of physical attendance. */
-import type {AgileRole} from "@/server/sprints/presence-metadata-read";
+export type AgileRole="scrumMaster"|"productOwner"|"developer";
 export type PresenceMember=Readonly<{
  memberId:string;displayName:string;presenceJh:number|null;
  developmentJh:number|null;daysCount:number;unknownDays:number;
