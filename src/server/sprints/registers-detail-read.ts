@@ -20,7 +20,7 @@ const absent=(reason:Extract<SprintRegisterResult,{state:"unavailable"}>["reason
  * Closed Sprints only use their immutable closure snapshot. */
 export async function readSprintRegisters(
  db:Client,teamId:string,sprint:SprintRegisterPeriod,page=1,
- provider?:RegistryReadProvider
+ provider?:RegistryReadProvider,kind?:RegisterKind|null
 ):Promise<SprintRegisterResult|null>{
  const scope=await db.query<{status:string}>(`
   SELECT s.status FROM public.smn_sprint s
@@ -56,7 +56,7 @@ export async function readSprintRegisters(
    {records:data.records,availableKinds:data.availableKinds as RegisterKind[]}:null);
   if(!source)return absent("invalid-data");
   if(source.availableKinds.some(k=>!isRegisterKind(k)))return absent("invalid-data");
-  const selected=selectSprintRegisterPage(source,teamId,sprint,page);
+  const selected=selectSprintRegisterPage(source,teamId,sprint,page,kind);
   if(!selected)return absent("invalid-data");
   return {state:"available",source:"closure-snapshot",
    snapshotVersion:latest.version,...selected};
@@ -66,7 +66,7 @@ export async function readSprintRegisters(
  // authorized typed adapter. A partial adapter is signalled as incomplete.
  const data=await provider(db,teamId,sprint);
  if(data.availableKinds.length===0)return absent("producer-not-installed");
- const selected=selectSprintRegisterPage(data,teamId,sprint,page);
+ const selected=selectSprintRegisterPage(data,teamId,sprint,page,kind);
  if(!selected)return absent("invalid-data");
  return {state:"available",source:"current",snapshotVersion:null,...selected};
 }
