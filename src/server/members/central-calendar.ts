@@ -48,9 +48,9 @@ export function projectCentralCalendar(
  for(const day of calendar.collective){
   if(!within(day.date,calendar.start,calendar.end))continue;
   // An ordinary user only sees aggregate counts, never a name, category or motive.
-  if(!isAdmin&&day.reportedUnavailable>0)add({
+  if(!isAdmin&&day.declaredAbsentMemberCount>0)add({
    id:"collective-"+day.date,date:day.date,type:"absence",
-   title:"",aggregateCount:day.reportedUnavailable,
+   title:"",aggregateCount:day.declaredAbsentMemberCount,
    sourceHref:"#team-calendar-collective"
   });
  }
