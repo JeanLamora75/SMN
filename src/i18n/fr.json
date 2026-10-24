@@ -2831,6 +2831,10 @@
     "daily": "Daily Scrum",
     "review": "Sprint Review",
     "retro": "Rétrospective",
-    "refinement": "Affinage"
+    "refinement": "Affinage",
+    "statusActive": "En cours",
+    "statusPlanned": "Planifié",
+    "statusClosed": "Clôturé",
+    "statusSuspended": "Suspendu"
   }
 }
