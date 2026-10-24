@@ -14,7 +14,7 @@ export default function ReportTemplateChooser({sprintId}:{sprintId:string}){
  useUnsavedChanges(dirty||busy,tr("leaveWarning"));
  const load=async()=>{const r=await fetch("/api/admin/reports/templates",{cache:"no-store"});if(!r.ok)throw Error();
  const data=await r.json() as {templates:Template[]};setItems(data.templates);return data.templates;};
- useEffect(()=>{void load().catch(()=>setError(tr("error")));},[]);
+ useEffect(()=>{void Promise.resolve().then(load).catch(()=>setError(tr("error")));},[]);
  const choose=(id:string)=>{if(dirty&&!window.confirm(tr("leaveWarning")))return;
  const v=items.find(x=>x.id===id);setSelected(id);setDraft(v?structuredClone(v):null);
  setBase(v?JSON.stringify(v):"");setError("");setNotice("");};
