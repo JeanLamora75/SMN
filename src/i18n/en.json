@@ -2864,8 +2864,12 @@
     "notYetDue": "A future meeting cannot be marked as held or not held yet.",
     "conflict": "This ceremony has changed since it was opened. Reload its details.",
     "invalidLocalTime": "This local time does not exist or is ambiguous due to daylight saving time. Choose another time.",
-    "scheduleReadonly": "This event's schedule is available for review. Editing it is not supported for this type or state.",
+    "scheduleReadonly": "Dates and times cannot be changed for cancelled events, closed sprints, or read-only accounts.",
     "readonly": "This sprint is closed or your account has read-only access.",
-    "discard": "Close without saving your changes?"
+    "discard": "Close without saving your changes?",
+    "durationCalculated": "Calculated automatically from the start and end date and time.",
+    "invalidSchedule": "Check start and end: end must follow start, local times must exist, and duration must be valid for this meeting type.",
+    "outsideSprint": "The updated meeting must remain within the sprint dates.",
+    "closedPeriod": "This sprint is closed: the meeting cannot be rescheduled."
   }
 }
