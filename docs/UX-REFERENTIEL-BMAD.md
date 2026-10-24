@@ -466,3 +466,39 @@ de **ce Sprint** ; les quatre autres cartes et I01/I02 sont conservés.
 
 **Statut :** implémentation préparée, contrôles locaux et recette utilisateur en attente.
 Cet avenant ne modifie pas les règles de gel du moteur de capacité SMN-58/60.
+
+
+## Avenant UX — Modification du contexte de l’équipe (24 octobre 2026)
+
+**Décision validée de l’utilisateur — SMN-221 (Epic 3), intégration au rapport SMN-120.**
+Dans l’en-tête de la page « Équipe » (vues Cartes et Liste), afficher une petite
+icône Bootstrap **pencil-square immédiatement à droite du nom de l’équipe** ;
+ne pas confondre avec le bouton d’ajout d’un membre.
+
+**UX-TEAM-CTX01 — Modale unique.** L’administrateur active le crayon et ouvre
+une **modale centrée**, préremplie depuis les données réelles, avec trois champs :
+1. Nom de l’équipe (requis, 1–120 caractères).
+2. Vision Produit (texte libre facultatif, jusqu’à 5 000 caractères).
+3. But du produit / Product Goal (texte libre facultatif, jusqu’à 5 000 caractères).
+
+**UX-TEAM-CTX02 — Écriture transactionnelle et historique.** Enregistrer
+commet les trois données ensemble avec contrôle de révision concurrente,
+auteur/horodatage et audit par version. Annuler ne modifie rien. La modale
+propose un historique des versions consultable. Une lecture GET n’exécute
+aucune DDL et ne fabrique aucune valeur manquante.
+
+**UX-TEAM-CTX03 — Portée et sécurité.** L’ID de l’équipe demeure identique,
+le produit de référence et le mode Scrum/Kanban sont **immuables**.
+Les contenus Vision et Product Goal sont attachés à l’équipe, indépendamment
+des objectifs de Sprint, et alimentent le lecteur existant des rapports
+`readTeamReportContext` et sa configuration d’inclusion. Aucun PDF déjà
+archivé n’est recalculé. Écriture administrateur uniquement, GET protégé
+pour lecteurs collectifs, aucune donnée membre nominative dans le retour.
+Les deux vues Cartes/Liste, la grille 6×2, les cartes et l’ajout de membre restent inchangés.
+
+**UX-TEAM-CTX04 — Recette.** Tester nom vide/trop long, contenus facultatifs,
+écriture atomique, révision concurrente, annulation, historique, refus du
+rôle utilisateur, réutilisation dans le reporting, FR/EN, clavier, thème
+clair/sombre, desktop/mobile. Aucun succès de recette non exécutée ne doit
+être revendiqué. Voir la documentation du lot dans
+`_bmad-output/implementation-artifacts/smn-221-team-context-2026-10-24.md`.

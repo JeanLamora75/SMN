@@ -83,3 +83,28 @@ L'écran actif **ne doit jamais montrer Cartes et Liste ensemble**. Une carte et
 **Ce document initial précédait la livraison visible dans les captures utilisateur.** Le constat actuel est une **implémentation partielle mais visuellement non conforme**. Voir [AVENANT-UX-CORRECTIF-2026-10-22.md](AVENANT-UX-CORRECTIF-2026-10-22.md) pour les écarts prouvés et **leurs localisations précises dans le code**, et [RECETTE-VISUELLE-2026-10-22.md](RECETTE-VISUELLE-2026-10-22.md) pour les preuves exigées.
 
 **Amelia doit prioritairement corriger les couches de présentation existantes**, sans réécrire le serveur ni Jira au seul motif d'un écart esthétique. La simple présence de row-cols-xl-6 ou container-fluid n'est pas une preuve : .smn-page reste plafonnée à 870 px en CSS. Le rendu attendu est une page Équipe **pleine largeur, six cartes réellement lisibles**, et une fiche **pleine largeur à cinq onglets et panneaux deux colonnes**. Fournir des captures d'écrans comparables et demander validation. Aucun test runtime n'a été exécuté par Sally.
+
+## Avenant normatif — En-tête Équipe / Vision Produit / Product Goal (24/10/2026)
+
+Cette décision **complète les vues Équipe Cartes et Liste** sans modifier leur
+présentation, les badges, l’ajout individuel ni la fiche des membres.
+
+- Une icône Bootstrap `pencil-square` est placée juste après le **nom de l’équipe**
+  dans l’en-tête. Visible à l’administrateur, elle ouvre une modale unique.
+- Champs : **Nom de l’équipe** obligatoire ; **Vision Produit** et **But du
+  produit (Product Goal)** facultatifs. Texte non traduit automatiquement.
+- Un seul clic Enregistrer réalise une **transaction atomique** avec
+  contrôle de révision et audit. Une modale permet de consulter les versions
+  antérieures. Aucune valeur initiale inventée.
+- Les textes sont rattachés à l’équipe unique Scrum/Kanban, pas au produit fixe
+  ni à un Sprint : l’ID, le produit initial et le mode restent invariants.
+- Lecture collective authentifiée, modification admin uniquement ; sécurité
+  côté API, pas seulement une icône cachée.
+- Les rapports utilisent le producteur existant `smn_team_context` via
+  `readTeamReportContext` ; aucune altération rétroactive des archives.
+- Traductions FR/EN centralisées, modale accessible, responsive.
+
+**Story propriétaire :** [SMN-221](https://lmn24.atlassian.net/browse/SMN-221).
+**Story consommatrice :** [SMN-120](https://lmn24.atlassian.net/browse/SMN-120).
+**Recette requise :** changement de nom, Vision, Goal, null, 0 changement,
+conflit, annulation, erreurs, droits, historique, reporting, clavier et mobile.

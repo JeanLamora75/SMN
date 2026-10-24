@@ -1,7 +1,7 @@
 export const INITIAL_MIGRATION = "20261020_smn12_initial";
 export const INSTALLATION_RELATIONS = [
   "public._prisma_migrations:r", "public.smn_installation:r", "public.smn_product:r",
-  "public.smn_team:r", "public.smn_account:r", "public.smn_recovery_phrase:r", "public.smn_auth_audit:r",
+  "public.smn_team:r", "public.smn_team_context:r", "public.smn_team_context_audit:r", "public.smn_account:r", "public.smn_recovery_phrase:r", "public.smn_auth_audit:r",
   "public.smn_general_settings:r", "public.smn_general_settings_audit:r",
   "public.smn_configuration_task:r", "public.smn_account_audit:r",
   "public.smn_backup_retention:r", "public.smn_backup_retention_audit:r",

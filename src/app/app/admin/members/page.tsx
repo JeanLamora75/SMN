@@ -8,6 +8,6 @@ export default async function TeamPage(){
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"members",exists:true,inScope:true}))redirect("/app");
  return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
-  <TeamOverview/>
+  <TeamOverview canManage={canAccess(actor,"write",{type:"settings",exists:true,inScope:true})}/>
  </main>;
 }

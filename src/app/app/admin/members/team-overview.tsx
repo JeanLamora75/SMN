@@ -4,12 +4,13 @@ import NeutralAvatar from "./neutral-avatar";
 import {useRouter} from "next/navigation";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import TeamContextEditor from "./team-context-editor";
 
 type Member={id:string;displayName:string;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string;mode:string};members:Member[]};
 type View="cards"|"list";
 const CHOICE="smn-team-roster-view";
-export default function TeamOverview(){
+export default function TeamOverview({canManage}:{canManage:boolean}){
  const t=useTranslation();
  const router=useRouter();
  const [roster,setRoster]=useState<Roster|null>(null);
@@ -48,8 +49,12 @@ export default function TeamOverview(){
  const roles=(m:Member)=>([["SM",m.roleShares?.scrumMaster],["PO",m.roleShares?.productOwner],["Dev",m.roleShares?.developer]] as const);
  return <section className="smn-panel smn-team-roster p-3 p-lg-4">
   <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-   <div><h1 className="h3 mb-1">{roster?.team.name??t("members.teamTitle")}</h1>
-    <p className="text-secondary mb-0">{t("teamUX.activeCount",{count:members.length})}</p></div>
+   <div><div className="d-flex align-items-center gap-2 flex-wrap">
+    <h1 className="h3 mb-0">{roster?.team.name??t("members.teamTitle")}</h1>
+    {canManage&&roster&&<TeamContextEditor teamId={roster.team.id}
+     teamName={roster.team.name} onSaved={name=>setRoster(current=>current?{
+      ...current,team:{...current.team,name}}:current)}/>}
+   </div><p className="text-secondary mb-0 mt-1">{t("teamUX.activeCount",{count:members.length})}</p></div>
    <div className="btn-group" role="group" aria-label={t("teamUX.displayMode")}>
     <button type="button" className={"btn "+(view==="cards"?"btn-primary":"btn-outline-secondary")} aria-label={t("teamUX.cardsView")} aria-pressed={view==="cards"} onClick={()=>choose("cards")}>▦</button>
     <button type="button" className={"btn "+(view==="list"?"btn-primary":"btn-outline-secondary")} aria-label={t("teamUX.listView")} aria-pressed={view==="list"} onClick={()=>choose("list")}>☷</button>
