@@ -50,8 +50,11 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
  const canEdit=!busy&&isAdmin&&detail!==null&&detail.sprintStatus!=="closed";
  const canSchedule=canEdit&&detail?.kind==="ceremony"&&detail.revision!==null&&detail.status==="scheduled";
  const initialStart=detail?formatCalendarLocalTime(detail.startAt,detail.timeZone):"";
- const scheduleDirty=!!canSchedule&&(start!==initialStart||minutes!==detail?.plannedMinutes||scope!=="single");
+ const scheduleDirty=!!canSchedule&&(start!==initialStart||minutes!==detail?.plannedMinutes);
  const actualDirty=!!canEdit&&actual!==(detail?.actualMinutes??detail?.plannedMinutes);
+ const draftStart=detail&&canSchedule?resolveCalendarLocalTime(start,detail.timeZone):null;
+ const draftEnd=detail&&draftStart&&Number.isSafeInteger(minutes)&&minutes>0?
+  new Date(Date.parse(draftStart)+minutes*60000).toISOString():detail?.endAt??"";
  const hasChanges=scheduleDirty||actualDirty||newStatus!==""||reason.trim()!=="";
  function close(){
   if(busy)return;
@@ -170,7 +173,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
        <input type="datetime-local" className="form-control mt-1" value={start}
         onChange={e=>setStart(e.target.value)} readOnly={!canSchedule}/></label>
       <label className="col-md-6 form-label">{t("calendarUX.meetingEnd")}
-       <input className="form-control mt-1" value={fullDate(detail.endAt)} readOnly/></label>
+       <input className="form-control mt-1" value={fullDate(draftEnd)} readOnly/></label>
       <label className="col-md-6 form-label">{t("calendarMeeting.plannedMinutes")}
        <input type="number" className="form-control mt-1" min={1} max={600}
         value={minutes} onChange={e=>setMinutes(Number(e.target.value))} readOnly={!canSchedule}/></label>
