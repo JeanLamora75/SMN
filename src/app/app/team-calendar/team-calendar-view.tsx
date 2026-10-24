@@ -135,8 +135,8 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  async function save(){if(!period||!selectedSprint||!editor||!name.trim()||busy)return;
   setBusy(true);setSaveError("");
   try{const date=new Date(when);if(Number.isNaN(date.valueOf()))throw Error("date");
-   const r=await fetch("/api/admin/sprints/exceptional-meetings",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({name:name.trim(),sprintId:selectedSprint.id,duration,startAt:date.toISOString()})});
+   const r=await fetch(calendarMode==="kanban"?"/api/admin/kanban-meetings":"/api/admin/sprints/exceptional-meetings",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(calendarMode==="kanban"?{name:name.trim(),periodId:period.sprintId,duration,startAt:date.toISOString()}:{name:name.trim(),sprintId:selectedSprint!.id,duration,startAt:date.toISOString()})});
    if(!r.ok)throw Error("save");
    setEditor(null);
    const end=shift(period.start,period.count-1);
@@ -156,7 +156,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   return status??"";
  };
  const isEditable=useCallback((day:string)=>{
-  if(calendarMode==="kanban"||!isAdmin||[0,6].includes(new Date(day+"T12:00:00Z").getUTCDay()))return false;
+  if(!isAdmin||[0,6].includes(new Date(day+"T12:00:00Z").getUTCDay()))return false;
   return sprints.some(s=>s.status!=="closed"&&localDate(s.startAt)<=day&&localDate(s.endAt)>=day);
  },[calendarMode,isAdmin,sprints]);
  useEffect(()=>{
@@ -229,7 +229,8 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
    showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
    onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
    onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
-  {selectedMeeting&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
+  {selectedMeeting&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
+  {selectedMeeting&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
    meeting={selectedMeeting} isAdmin={isAdmin} onClose={()=>setSelectedMeeting(null)}
    onSaved={()=>{setStatus("loading");setRefreshToken(n=>n+1);}}/>}
   {absenceEditor&&<div className="smn-member-modal-backdrop" role="presentation">
@@ -258,7 +259,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   {editor&&<div className="smn-member-modal-backdrop" role="presentation">
    <div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-labelledby="new-meeting-heading">
     <h2 className="h5" id="new-meeting-heading">{t("calendarUX.addMeeting")}</h2>
-    {!selectedSprint&&<p className="alert alert-info">{t("calendarUX.requiresSprint")}</p>}
+    {calendarMode==="scrum"&&!selectedSprint&&<p className="alert alert-info">{t("calendarUX.requiresSprint")}</p>}
     <form onSubmit={e=>{e.preventDefault();void save();}} className="d-grid gap-3">
      <label className="form-label">{t("calendarUX.meetingName")}<input className="form-control" value={name} maxLength={160} required onChange={e=>setName(e.target.value)} disabled={busy}/></label>
      <label className="form-label">{t("calendarUX.startTime")}<input type="datetime-local" className="form-control" value={when} onChange={e=>setWhen(e.target.value)} required disabled={busy}/></label>
