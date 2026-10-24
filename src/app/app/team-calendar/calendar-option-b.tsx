@@ -31,6 +31,16 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,tod
  const dateLabel=(day:string,options:Intl.DateTimeFormatOptions)=>
   new Intl.DateTimeFormat(locale,{timeZone:"UTC",...options}).format(dateAtNoon(day));
  const clock=(raw:string)=>new Intl.DateTimeFormat(locale,{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"}).format(new Date(raw));
+ const meetingTitle=(m:CalendarMeeting)=>{
+  if(m.kind!=="ceremony")return m.name;
+  const kind=m.name.split(" — ").at(-1)?.toLocaleLowerCase()??"";
+  if(kind.includes("planning"))return t("calendarOptionB.planning");
+  if(kind.includes("daily"))return t("calendarOptionB.daily");
+  if(kind.includes("review"))return t("calendarOptionB.review");
+  if(kind.includes("retro")||kind.includes("rétro"))return t("calendarOptionB.retro");
+  if(kind.includes("refinement")||kind.includes("affinage"))return t("calendarOptionB.refinement");
+  return m.name;
+ };
  const renderEvents=(date:string)=>{
   const count=absenceCounts[date];
   const dayMeetings=showMeetings?meetings.filter(m=>calendarDay(m.startAt)===date)
@@ -46,7 +56,7 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,tod
      <span className="smn-cal-icon"><BootstrapIcon name={meetingIcon(m)}/></span>
      <div className="smn-cal-event-copy">
       <Link href={m.href} className="smn-cal-event-title" title={clock(m.startAt)+" – "+clock(m.endAt)}>
-       {m.name}</Link>
+       {meetingTitle(m)}</Link>
       <span className="smn-cal-event-time">{clock(m.startAt)} – {clock(m.endAt)}</span>
       {m.generationSource==="reconstructed"&&<span className="smn-cal-event-time">{t("sprintWizard.reconstructedLabel")}</span>}
      </div>
