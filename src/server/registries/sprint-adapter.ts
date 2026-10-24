@@ -81,12 +81,13 @@ export async function readEpic5SprintRegisterSource(
  db:Client,teamId:string,sprint:Period
 ):Promise<RegisterSource>{
  const installed=await db.query<{items:boolean;links:boolean;audit:boolean;
-  assess:boolean;automatic:boolean;selection:boolean;invalidated:boolean}>(`
+  assess:boolean;automatic:boolean;selection:boolean;invalidated:boolean;goals:boolean}>(`
  SELECT to_regclass('public.smn_registry_item') IS NOT NULL AS items,
  to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS links,
  to_regclass('public.smn_registry_item_audit') IS NOT NULL AS audit,
  to_regclass('public.smn_risk_assessment') IS NOT NULL AS assess,
  to_regclass('public.smn_automatic_highlight') IS NOT NULL AS automatic,
+ to_regclass('public.smn_sprint_goal') IS NOT NULL AS goals,
  to_regclass('public.smn_fact_selection') IS NOT NULL AS selection,
  EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public'
  AND table_name='smn_automatic_highlight' AND column_name='invalidated_at') AS invalidated`);
@@ -161,6 +162,30 @@ export async function readEpic5SprintRegisterSource(
    date:instant(row.date),openedAt:null,closedAt:null,teamIds:[teamId],
    sprintIds:row.sprintIds??[],href:null
   })));
+  if(s.goals){
+   // Goal-based highlights belong to their explicit Sprint, not to every
+   // current or past cycle of the same team.
+   const goalRows=await db.query<AutomaticRow>(`
+    SELECT h.id,h.title,h.created_at AS date,
+     ARRAY[g.sprint_id]::text[] AS "sprintIds"
+    FROM public.smn_automatic_highlight h
+    JOIN public.smn_sprint_goal g ON g.id=h.source_id
+    JOIN public.smn_sprint sp ON sp.id=g.sprint_id
+    JOIN public.smn_team t ON t.id=sp.team_id
+    JOIN public.smn_installation i ON i.id=t.installation_id
+    ${selected}
+    WHERE h.source_kind='goal' AND sp.team_id=$1
+     AND sp.id=$2 AND sp.deleted_at IS NULL
+     AND i.id='singleton' AND i.state='initialized'
+     ${invalidated} ${selectClause}
+    ORDER BY h.created_at,h.id LIMIT 10001`,[teamId,sprint.id]);
+   if(goalRows.rows.length>10000)throw Error("sprint-goal-highlights-source-limit");
+   records.push(...goalRows.rows.map(row=>({
+    id:row.id,kind:"highlight",title:row.title,status:null,priority:null,
+    date:instant(row.date),openedAt:null,closedAt:null,teamIds:[teamId],
+    sprintIds:row.sprintIds??[],href:null
+   })));
+  }
  }
  return {availableKinds:[...registerKinds],records,linkedMembership:true};
 }
