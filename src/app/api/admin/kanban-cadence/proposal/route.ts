@@ -14,9 +14,9 @@ export async function POST(request:NextRequest){
  const actor=await authorizeApi(request,"write",resource);
  if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
  const input=await readJsonObject(request);
- if(!input||Object.keys(input).join(",")!=="cadenceRevision")return jsonResult({error:"invalid-input"},400);
+ if(!input||Object.keys(input).sort().join(",")!=="cadenceRevision,proposalToken")return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>confirmKanbanCadenceProposal(db,actor.id,input.cadenceRevision));
+  const result=await withAuthDb(db=>confirmKanbanCadenceProposal(db,actor.id,input.cadenceRevision,input.proposalToken));
   return result.ok?jsonResult(result):jsonResult(result,result.error==="invalid-input"?400:409);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
