@@ -1,10 +1,10 @@
 "use client";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-export default function HistoricalCapacityForm({sprintId,revision=0}:{sprintId:string;revision?:number}){
+export default function HistoricalCapacityForm({sprintId,revision=0,initialQuality="not-supplied",initialJh=null,initialSource=null}:{sprintId:string;revision?:number;initialQuality?:"known"|"estimated"|"not-supplied";initialJh?:number|null;initialSource?:string|null}){
  const router=useRouter();
- const [quality,setQuality]=useState<"known"|"estimated"|"not-supplied">("not-supplied");
- const [jh,setJh]=useState(""),[source,setSource]=useState(""),[reason,setReason]=useState("");
+ const [quality,setQuality]=useState<"known"|"estimated"|"not-supplied">(initialQuality);
+ const [jh,setJh]=useState(initialJh===null?"":String(initialJh)),[source,setSource]=useState(initialSource??""),[reason,setReason]=useState("");
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(""),[currentRevision,setCurrentRevision]=useState(revision);
  async function save(e:React.FormEvent){
   e.preventDefault();setMessage("");
