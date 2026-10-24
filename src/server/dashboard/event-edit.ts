@@ -1,6 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
-import {ensureAttendanceSchema} from "@/server/sprints/attendance";
+import {ensureActualDurationSchema} from "@/server/sprints/actual-duration";
 
 export type EditableEventKind="template"|"ceremony"|"exceptional";
 const ids=/^[0-9a-f-]{36}$/i;
@@ -14,7 +14,7 @@ export function validDashboardEventKind(value:string):value is EditableEventKind
 }
 type Row={id:string;title:string;startAt:string;endAt:string;status:string;
  duration:number;teamId:string;sprintId:string;sprintStatus:string;
- sprintStart:string;sprintEnd:string;revision:number|null;};
+ sprintStart:string;sprintEnd:string;revision:number|null;actualMinutes:number|null;};
 async function findEvent(db:Client,kind:EditableEventKind,id:string,lock=false):Promise<Row|null>{
  if(!ids.test(id))return null;
  const config=tables[kind];
@@ -27,13 +27,16 @@ async function findEvent(db:Client,kind:EditableEventKind,id:string,lock=false):
  const minutes=columns.has("minutes")?"e.minutes":columns.has("duration_minutes")?
   "e.duration_minutes":"round(EXTRACT(EPOCH FROM (e.ends_at-e.starts_at))/60)::int";
  const revision=columns.has("revision")?"e.revision":"NULL::int";
+ const actual=columns.has("actual_minutes")?"e.actual_minutes":"NULL::integer";
  const result=await db.query<{id:string;title:string;start_at:string;end_at:string;
   status:string;duration:number;team_id:string;sprint_id:string;
-  sprint_status:string;sprint_start:string;sprint_end:string;revision:number|null}>(`
+  sprint_status:string;sprint_start:string;sprint_end:string;revision:number|null;
+  actual_minutes:number|null}>(`
  SELECT e.id,e.${config.title} AS title,e.starts_at::text AS start_at,
  e.ends_at::text AS end_at,${status} AS status,${minutes} AS duration,
  s.team_id,s.id AS sprint_id,s.status AS sprint_status,
- s.start_at::text AS sprint_start,s.end_at::text AS sprint_end,${revision} AS revision
+ s.start_at::text AS sprint_start,s.end_at::text AS sprint_end,${revision} AS revision,
+ ${actual} AS actual_minutes
  FROM public.${config.table} e JOIN public.smn_sprint s ON s.id=e.sprint_id
  JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
@@ -45,7 +48,7 @@ async function findEvent(db:Client,kind:EditableEventKind,id:string,lock=false):
   endAt:new Date(r.end_at).toISOString(),status:r.status,
   duration:r.duration,teamId:r.team_id,sprintId:r.sprint_id,
   sprintStatus:r.sprint_status,sprintStart:r.sprint_start,
-  sprintEnd:r.sprint_end,revision:r.revision};
+  sprintEnd:r.sprint_end,revision:r.revision,actualMinutes:r.actual_minutes??null};
 }
 export async function readDashboardEvent(db:Client,kind:EditableEventKind,id:string,
  teamId:string,sprintId:string){
@@ -53,18 +56,27 @@ export async function readDashboardEvent(db:Client,kind:EditableEventKind,id:str
  const row=await findEvent(db,kind,id);
  if(!row||row.teamId!==teamId||row.sprintId!==sprintId)return null;
  return {id:row.id,kind,title:row.title,startsAt:row.startAt,endsAt:row.endAt,
-  duration:row.duration,status:row.status,editable:row.sprintStatus!=="closed"};
+  duration:row.duration,actualMinutes:row.actualMinutes,
+  status:row.status,editable:row.sprintStatus!=="closed"};
 }
 type Input={teamId:string;sprintId:string;title:string;startAt:string;duration:number;
  status:"scheduled"|"held"|"not_held"|"cancelled";
- expectedTitle:string;expectedStartAt:string;expectedEndAt:string;expectedStatus:string};
+ expectedTitle:string;expectedStartAt:string;expectedEndAt:string;expectedStatus:string;
+ actualMinutes?:number|null;expectedActualMinutes?:number|null};
 function parseInput(raw:unknown):Input|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const o=raw as Record<string,unknown>;
- if(Object.keys(o).sort().join(",")!==[
+ const allowed=[
   "teamId","sprintId","title","startAt","duration","status",
-  "expectedTitle","expectedStartAt","expectedEndAt","expectedStatus"
- ].sort().join(","))return null;
+  "expectedTitle","expectedStartAt","expectedEndAt","expectedStatus",
+  "actualMinutes","expectedActualMinutes"
+ ];
+ if(Object.keys(o).some(k=>!allowed.includes(k))||
+  o.actualMinutes===undefined!== (o.expectedActualMinutes===undefined))return null;
+ const minutesValid=(v:unknown)=>v===null||(Number.isSafeInteger(v)&&
+  Number(v)>=0&&Number(v)<=1440);
+ if(o.actualMinutes!==undefined&&
+  (!minutesValid(o.actualMinutes)||!minutesValid(o.expectedActualMinutes)))return null;
  if(typeof o.teamId!=="string"||!o.teamId||
   typeof o.sprintId!=="string"||!ids.test(o.sprintId)||
   typeof o.title!=="string"||!o.title.trim()||o.title.trim().length>160||
@@ -77,7 +89,11 @@ function parseInput(raw:unknown):Input|null{
   title:o.title as string,startAt:o.startAt as string,duration:o.duration as number,
   status:o.status as Input["status"],expectedTitle:o.expectedTitle as string,
   expectedStartAt:o.expectedStartAt as string,expectedEndAt:o.expectedEndAt as string,
-  expectedStatus:o.expectedStatus as string};
+  expectedStatus:o.expectedStatus as string,
+  ...(o.actualMinutes!==undefined?{
+   actualMinutes:o.actualMinutes as number|null,
+   expectedActualMinutes:o.expectedActualMinutes as number|null
+  }: {})};
 }
 /** Edition de l'occurrence UNIQUEMENT, jamais des modèles/snapshots/équipes étrangères. */
 export async function updateDashboardEvent(db:Client,actorId:string,
@@ -85,7 +101,7 @@ export async function updateDashboardEvent(db:Client,actorId:string,
  const o=parseInput(raw);
  if(!actorId||!ids.test(id)||!o)return {ok:false as const,error:"invalid-input" as const};
  // Migration additive documentée : aucune modification de la lecture du dashboard.
- await ensureAttendanceSchema(db);
+ await ensureActualDurationSchema(db);
  await db.query("BEGIN");
  try{
   const prev=await findEvent(db,kind,id,true);
@@ -96,7 +112,8 @@ export async function updateDashboardEvent(db:Client,actorId:string,
    await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
   }
   if(prev.startAt!==o.expectedStartAt||prev.endAt!==o.expectedEndAt||
-     prev.title!==o.expectedTitle||prev.status!==o.expectedStatus){
+     prev.title!==o.expectedTitle||prev.status!==o.expectedStatus||
+     (o.actualMinutes!==undefined&&prev.actualMinutes!==o.expectedActualMinutes)){
    await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
   }
   if(kind!=="ceremony"&&o.duration>480){
@@ -114,7 +131,8 @@ export async function updateDashboardEvent(db:Client,actorId:string,
    await db.query("ROLLBACK");return {ok:false as const,error:"not-yet-due" as const};
   }
   const changed=prev.startAt!==start.toISOString()||prev.endAt!==end.toISOString()||
-   prev.title!==o.title.trim()||prev.status!==o.status;
+   prev.title!==o.title.trim()||prev.status!==o.status||
+   (o.actualMinutes!==undefined&&prev.actualMinutes!==o.actualMinutes);
   if(changed){
    const config=tables[kind];
    const fields=["starts_at=$2","ends_at=$3"];
@@ -124,6 +142,10 @@ export async function updateDashboardEvent(db:Client,actorId:string,
     fields.push((kind==="ceremony"?"minutes":"duration_minutes")+"=$"+values.length);
    }
    if(kind!=="ceremony"){values.push(o.title.trim());fields.push("name=$"+values.length);}
+   if(o.actualMinutes!==undefined){
+    values.push(o.actualMinutes as number|null);
+    fields.push("actual_minutes=$"+values.length);
+   }
    values.push(o.status);
    const statusParam="$"+values.length;
    fields.push(`${config.status}=${statusParam}`);
@@ -132,6 +154,14 @@ export async function updateDashboardEvent(db:Client,actorId:string,
    if(kind==="ceremony")fields.push("revision=revision+1","provenance='customized'");
    await db.query(`UPDATE public.${config.table} SET ${fields.join(",")}
     WHERE id=$1`,values);
+   if(o.actualMinutes!==undefined&&prev.actualMinutes!==o.actualMinutes){
+    await db.query(`INSERT INTO public.smn_meeting_actual_duration_audit
+     (id,kind,event_id,previous_minutes,new_minutes,planned_minutes,actor_id)
+     VALUES($1,$2,$3,$4,$5,$6,$7)`,[
+     randomUUID(),kind==="ceremony"?"standard":kind==="template"?"custom":"exceptional",
+     id,prev.actualMinutes,o.actualMinutes,prev.duration,actorId
+    ]);
+   }
    if(kind==="ceremony"){
     await db.query("DELETE FROM public.smn_sprint_ceremony_segment WHERE ceremony_id=$1",[id]);
     await db.query(`INSERT INTO public.smn_sprint_ceremony_segment
@@ -171,8 +201,9 @@ export async function updateDashboardEvent(db:Client,actorId:string,
     (id,event_kind,event_id,before_values,after_values,actor_id)
     VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
     [randomUUID(),kind,id,JSON.stringify({title:prev.title,startAt:prev.startAt,endAt:prev.endAt,
-      duration:prev.duration,status:prev.status}),JSON.stringify({title:o.title.trim(),
-      startAt:start.toISOString(),endAt:end.toISOString(),duration:o.duration,status:o.status}),actorId]);
+      duration:prev.duration,actualMinutes:prev.actualMinutes,status:prev.status}),JSON.stringify({title:o.title.trim(),
+      startAt:start.toISOString(),endAt:end.toISOString(),duration:o.duration,
+      actualMinutes:o.actualMinutes??prev.actualMinutes,status:o.status}),actorId]);
   }
   await db.query("COMMIT");return {ok:true as const,id,changed};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
