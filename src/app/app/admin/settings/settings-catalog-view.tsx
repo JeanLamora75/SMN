@@ -14,8 +14,10 @@ export default function SettingsCatalogView({groups}:{groups:SettingsGroup[]}){
  const t=useTranslation();
  const [view,setView]=useState<View>("cards");
  useEffect(()=>{
-  try{setView(normalizeSettingsView(window.localStorage.getItem(SETTINGS_VIEW_STORAGE_KEY)));}
-  catch{setView("cards");}
+  void Promise.resolve().then(()=>{
+   try{setView(normalizeSettingsView(window.localStorage.getItem(SETTINGS_VIEW_STORAGE_KEY)));}
+   catch{setView("cards");}
+  });
  },[]);
  function choose(next:View){
   setView(next);
