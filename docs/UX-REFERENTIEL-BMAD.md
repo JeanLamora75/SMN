@@ -368,3 +368,16 @@ Tests associés : `tests/smn-234-sprint-ceremonies-compact-modal.test.ts`, à la
 **Présentation :** les icônes Bootstrap existantes de 22 px et les libellés sur une seule ligne sont conservés, ainsi que le menu rétractable, les info-bulles au focus et la navigation clavier. Les anciennes lignes « Bilans de cycles » et « Briefs IA » ne figurent plus dans la sidebar ; les fonctions et pages métier indépendantes ne sont pas supprimées. L'intitulé « Paramètres généraux » devient « Paramètres » dans la sidebar et ses traductions FR/EN, sans changer les sous-écrans existants.
 
 **Validation à effectuer :** vérifier l'ordre exact, la position basse à différentes hauteurs de fenêtre, le séparateur, les profils admin/user, les modes Scrum/Kanban, la cohérence active des sous-routes, le menu réduit et les petits écrans. Tests de navigation : `tests/private-navigation.test.ts`, `tests/smn-sidebar-first-pass-20261024.test.ts`, `tests/smn-sidebar-second-pass-20261024.test.ts` et `tests/smn-227-settings-navigation.test.ts`.
+
+
+## Calendrier d'équipe — Option B validée le 24/10/2026 (avenant normatif)
+
+**Référence obligatoire pour Amelia :** [README du dossier UX Option B](../_bmad-output/planning-artifacts/ux-designs/ux-calendrier-option-b-2026-10-24/README.md), [DESIGN.md](../_bmad-output/planning-artifacts/ux-designs/ux-calendrier-option-b-2026-10-24/DESIGN.md), [EXPERIENCE.md](../_bmad-output/planning-artifacts/ux-designs/ux-calendrier-option-b-2026-10-24/EXPERIENCE.md), [maquette HTML](../_bmad-output/planning-artifacts/ux-designs/ux-calendrier-option-b-2026-10-24/MAQUETTE-CALENDRIER-OPTION-B.html) et [recette UXB-01 à UXB-30](../_bmad-output/planning-artifacts/ux-designs/ux-calendrier-option-b-2026-10-24/RECETTE-UX.md).
+
+- **Deux présentations d'un même calendrier :** Cartes par défaut et Agenda complémentaire ; mêmes dates, équipe, Sprint et filtres.
+- **Une seule ligne « Absences (N) » en premier par jour** lorsqu'au moins une absence personnelle enregistrée couvre ce jour. N = nombre de membres distincts concernés, indépendamment du nombre d'enregistrements, et **non pas** le nombre général de membres indisponibles. A/A/B = 2.
+- Le compteur exclut les jours fériés, fermetures et temps non travaillés sans absence personnelle enregistrée ; aucun nom, motif ou catégorie individuelle sur cette ligne ni dans la projection `user`.
+- Cartes compactes avec pictogrammes Bootstrap Icons ; actions « + Réunion » et « + Absence » en pied des jours de semaine autorisés ; aucune création proposée le week-end.
+- Les règles du contrat du 22/10 restent applicables, sauf modification explicite de cet avenant.
+- **Statut livraison :** code engagé sur `main` le 24/10, en attente de recette intégrée et validation visuelle utilisateur. Ne pas déclarer conforme sur la seule base des commits.
+
