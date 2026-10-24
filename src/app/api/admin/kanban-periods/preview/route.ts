@@ -20,7 +20,7 @@ export async function GET(request:NextRequest){
    const r=await db.query<{id:string;start_on:string;end_on:string}>(`SELECT p.id,p.start_on::text,p.end_on::text
     FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id
     JOIN public.smn_installation i ON i.id=t.installation_id
-    WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'`);
+    WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban' AND p.deleted_at IS NULL`);
    return {cadenceRevision:cadence.revision,...batchPreview(startOn,quantity,cadence.frequency,
     r.rows.map(x=>({id:x.id,startOn:x.start_on,endOn:x.end_on})))};
   });
