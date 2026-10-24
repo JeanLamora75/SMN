@@ -1,6 +1,6 @@
 import {HISTORICAL_CSV_COLUMNS,historicalCsvCodeAllowed,type HistoricalCsvMode} from "./historical-csv-contract";
 export type CsvDiagnostic={line:number;column:string;code:string;message:string};
-export type CsvRow={cycle_id:string;metric_code:string;value:number;quality:"known"|"estimated"};
+export type CsvRow={line:number;cycle_id:string;metric_code:string;value:number;quality:"known"|"estimated"};
 export type CsvValidation={valid:boolean;rows:CsvRow[];errors:CsvDiagnostic[]};
 const MAX_BYTES=1024*1024,MAX_ROWS=5000;
 function tokenize(text:string):{records:{values:string[];line:number}[];errors:CsvDiagnostic[]}{
@@ -55,7 +55,7 @@ export function validateHistoricalCsv(raw:string,mode:HistoricalCsvMode):CsvVali
    errors.push({line:item.line,column:"value",code:"value",message:"Nombre positif ou nul obligatoire, point décimal et 4 décimales maximum."});
   if(quality!=="known"&&quality!=="estimated")
    errors.push({line:item.line,column:"quality",code:"quality",message:"Valeur obligatoire : known ou estimated."});
-  if(errors.every(e=>e.line!==item.line))rows.push({cycle_id,metric_code,value,quality:quality as CsvRow["quality"]});
+  if(errors.every(e=>e.line!==item.line))rows.push({line:item.line,cycle_id,metric_code,value,quality:quality as CsvRow["quality"]});
  }
  if(records.length<=1)errors.push({line:1,column:"fichier",code:"empty",message:"Aucune ligne de données."});
  return {valid:errors.length===0,rows:errors.length===0?rows:[],errors};
