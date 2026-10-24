@@ -42,7 +42,7 @@ export default function MemberDetail({id}:{id:string}){
   .then(async r=>{if(!r.ok)throw Error();return r.json() as Promise<Roster>;})
   .then(data=>{if(alive){setRoster(data);setLoading(false);}})
   .catch(()=>{if(alive){setError(t("memberUX.loadFailed"));setLoading(false);}});
-  return()=>{alive=false;};},[]);
+  return()=>{alive=false;};},[t]);
  useEffect(()=>{if(!section)return;const previous=document.activeElement as HTMLElement|null;
   const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape"){event.preventDefault();dialogRef.current?.querySelector<HTMLButtonElement>("[data-close-dialog]")?.click();}
    if(event.key==="Tab"){const items=Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')??[]);
