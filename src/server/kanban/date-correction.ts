@@ -38,7 +38,7 @@ export async function previewDateChange(db:Client,id:string,startOn:string,endOn
   await db.query("COMMIT");return result;
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
-export async function applyDateChange(db:Client,id:string,actorId:string,input:{startOn:string;endOn:string;previewToken:string}){
+export async function applyDateChange(db:Client,id:string,actorId:string,input:{startOn:string;endOn:string;previewToken:string;reason?:string}){
  await ensureKanbanPeriodTables(db);
  await db.query("BEGIN");
  try{
@@ -53,7 +53,7 @@ export async function applyDateChange(db:Client,id:string,actorId:string,input:{
    await db.query("UPDATE public.smn_kanban_period SET start_on=$2,end_on=$3 WHERE id=$1",[id,input.startOn,input.endOn]);
    await db.query(`INSERT INTO public.smn_kanban_period_audit(id,period_id,action,details,actor_id)
    VALUES($1,$2,'dates-corrected',$3::jsonb,$4)`,
-   [randomUUID(),id,JSON.stringify({before:preview.before,after:preview.after,events:"preserved",capacity:"unchanged"}),actorId]);
+   [randomUUID(),id,JSON.stringify({before:preview.before,after:preview.after,events:"preserved",capacity:"unchanged",capacityDelta:"not-calculated",warnings:preview.warnings,reason:input.reason?.trim()||null}),actorId]);
   }
   await db.query("COMMIT");return {ok:true as const,periodId:id};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
