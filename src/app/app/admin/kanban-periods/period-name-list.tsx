@@ -12,6 +12,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
  const [removal,setRemoval]=useState<RemovalSummary|null>(null);
  const [dateEdit,setDateEdit]=useState<{period:Period;startOn:string;endOn:string}|null>(null);
  const [correction,setCorrection]=useState<Correction|null>(null);
+ const [eventChoice,setEventChoice]=useState<"preserve"|"recalculate">("preserve");
  async function load(){
   const response=await fetch("/api/admin/kanban-periods/list",{cache:"no-store"});
   if(!response.ok)throw Error("load-failed");
@@ -92,7 +93,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
      value={drafts[p.id]??p.name} disabled={busy!==null}
      onChange={e=>setDrafts(old=>({...old,[p.id]:e.target.value}))}/>:p.name}
     </td><td>{p.startOn} → {p.endOn}</td><td>{p.status}</td>
-    {canManage&&<td><button type="button" className="btn btn-outline-primary btn-sm" disabled={busy!==null||!(drafts[p.id]??"").trim()||(drafts[p.id]??"").trim()===p.name} onClick={()=>rename(p)}>Enregistrer</button><button type="button" className="btn btn-outline-danger btn-sm ms-2" disabled={busy!==null} onClick={()=>requestRemoval(p)}>Supprimer</button><button type="button" className="btn btn-outline-secondary btn-sm ms-2" disabled={busy!==null} onClick={()=>{setDateEdit({period:p,startOn:p.startOn,endOn:p.endOn});setCorrection(null);}}>Corriger les dates</button></td>}</tr>)}</tbody>
+    {canManage&&<td><button type="button" className="btn btn-outline-primary btn-sm" disabled={busy!==null||!(drafts[p.id]??"").trim()||(drafts[p.id]??"").trim()===p.name} onClick={()=>rename(p)}>Enregistrer</button><button type="button" className="btn btn-outline-danger btn-sm ms-2" disabled={busy!==null} onClick={()=>requestRemoval(p)}>Supprimer</button><button type="button" className="btn btn-outline-secondary btn-sm ms-2" disabled={busy!==null} onClick={()=>{setDateEdit({period:p,startOn:p.startOn,endOn:p.endOn});setCorrection(null);setEventChoice("preserve");}}>Corriger les dates</button></td>}</tr>)}</tbody>
   </table></div>
   {dateEdit&&<div className="border rounded p-3 mt-3">
    <h3 className="h6">Corriger les dates — {dateEdit.period.name}</h3>
@@ -101,14 +102,19 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
     <div className="col"><label className="form-label">Début<input className="form-control" type="date" value={dateEdit.startOn} onChange={e=>{setDateEdit({...dateEdit,startOn:e.target.value});setCorrection(null);}}/></label></div>
     <div className="col"><label className="form-label">Fin<input className="form-control" type="date" value={dateEdit.endOn} onChange={e=>{setDateEdit({...dateEdit,endOn:e.target.value});setCorrection(null);}}/></label></div>
    </div>
-   <p className="small text-secondary">Événements : conserver leurs dates (option par défaut). Valeurs manuelles, capacité figée et rapports : inchangés.</p>
-   <button className="btn btn-outline-primary me-2" type="button" disabled={busy!==null} onClick={previewCorrection}>Voir l’impact</button>
+   <fieldset className="mb-3"><legend className="fs-6">Événements associés</legend>
+    <label className="d-block mb-2"><input type="radio" className="form-check-input me-2" checked={eventChoice==="preserve"} onChange={()=>{setEventChoice("preserve");setCorrection(null);}}/>Conserver les dates des événements (par défaut)</label>
+    <label className="d-block"><input type="radio" className="form-check-input me-2" checked={eventChoice==="recalculate"} onChange={()=>{setEventChoice("recalculate");setCorrection(null);}}/>Étudier le recalcul des occurrences futures éligibles</label>
+    {eventChoice==="recalculate"&&<p className="alert alert-warning mt-2">Déplacement indisponible : le rattachement et la provenance des occurrences Kanban ne sont pas encore vérifiables. Aucune occurrence ne sera modifiée. Sélectionnez « Conserver les dates » pour poursuivre.</p>}
+   </fieldset>
+   <p className="small text-secondary">Valeurs manuelles, capacité figée et rapports : inchangés.</p>
+   <button className="btn btn-outline-primary me-2" type="button" disabled={busy!==null||eventChoice==="recalculate"} onClick={previewCorrection}>Voir l’impact</button>
    <button className="btn btn-outline-secondary" type="button" disabled={busy!==null} onClick={()=>{setDateEdit(null);setCorrection(null);}}>Annuler</button>
    {correction&&<div className="mt-3">
     <p>Après : {correction.after.startOn} → {correction.after.endOn}</p>
     {correction.conflicts.length>0&&<p className="alert alert-warning">Conflits : {correction.conflicts.join(", ")}</p>}
     {!correction.canConfirm&&<p className="text-danger">Confirmation bloquée : bornes invalides ou chevauchement.</p>}
-    {correction.canConfirm&&<button className="btn btn-primary" disabled={busy!==null} onClick={confirmCorrection}>Confirmer la correction</button>}
+    {correction.canConfirm&&<button className="btn btn-primary" disabled={busy!==null||eventChoice==="recalculate"} onClick={confirmCorrection}>Confirmer la correction</button>}
    </div>}
   </div>}
   {removal&&<div className="border rounded p-3 mt-3" role="region" aria-label="Confirmation suppression Kanban">
