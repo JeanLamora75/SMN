@@ -70,6 +70,9 @@ export type DashboardAttention = Readonly<{
   status: string;
   /** Niveau émis par un producteur enregistré ; absence = non évalué. */
   priority?: "low" | "medium" | "high" | null;
+  href?: string;
+  /** Une tâche de configuration est globale et ne devient pas une note de Sprint. */
+  configurationKey?: "reference-country" | "recovery-phrase" | "display-preferences";
 }>;
 
 /** Toutes les sections concernent le MÊME cycle de la MÊME équipe. */
