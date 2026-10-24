@@ -40,3 +40,13 @@ Le schéma SMN est aujourd'hui hybride : 27 migrations validées et plusieurs ta
 ## État et limites
 
 Les chemins de DDL, les entrées de liste blanche et les assertions statiques ont été vérifiés à distance via GitHub. `pnpm typecheck`, `pnpm build`, tests TSX et diagnostic sur la base réelle **ne sont pas exécutés** dans l'environnement connecté à GitHub ; GitHub Actions est désactivé.
+
+## Complément de non-régression — 24/10/2026
+
+Lors de l'exécution effective sous Windows, le nouveau test d'inventaire a bien détecté **deux oublis persistants** :
+- `public.smn_report_language:r` — créé par `saveReportLanguage` dans `src/server/reports/language.ts` ;
+- `public.smn_report_render_reference:r` — créé par `createFrozenReportReference` dans `src/server/reports/render-reference.ts`.
+
+Résultat de recette transmis : **15 tests, 14 réussis, 1 échec** (inventaire DDL), aucun autre objet manquant signalé par ce test. Les deux relations ont été intégrées à la liste explicite des objets connus et un cas de test dédié valide les déclarations DDL, leur classification et le maintien du refus des objets étrangers.
+
+**Recette corrective Windows :** `git pull`, `pnpm exec tsx --test tests/installation-relations-inventory.test.ts tests/installation-diagnostic.test.ts`, puis `pnpm db:diagnose` et `pnpm typecheck`. Le test n'est **pas** exécuté par Amelia dans l'environnement GitHub. Le diagnostic sur la base existante reste à confirmer.
