@@ -15,7 +15,9 @@ export function projectBriefSelection(mode:BriefMode,fields:readonly string[],da
 export async function readBriefFacts(db:Client,mode:BriefMode,cycleId:string):Promise<Record<string,BriefFact>>{
  const result:Record<string,BriefFact>={};
  const put=(key:string,label:string,value:unknown,unit:string|null,source:string,version:number|null,provisional:boolean)=>{
-  result[key]=fact(key,label,value,unit,source,version,provisional);
+  // SMN-185: qualitative free text may contain personal names; never project it automatically.
+  const protectedValue=unit===null&&["objectives","risks","dependencies","decisions"].includes(key)?null:value;
+  result[key]=fact(key,label,protectedValue,unit,source,version,provisional);
  };
  if(mode==="scrum"){
   const report=await composeStandardReport(db,cycleId);
