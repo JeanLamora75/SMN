@@ -177,7 +177,8 @@ export default async function SprintDetailPage({params,searchParams}:{
       data={review} sprintId={cycle.id} status={cycle.status}
       canManage={canManage} locale={locale} timeZone={cycle.timeZone}/>:
      active==="registers"?<SprintRegistersPanel
-      sprintId={cycle.id} timeZone={cycle.timeZone} locale={locale} selectedKind={registerKind}
+      sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
+      canManage={canManage&&cycle.status!=="closed"} selectedKind={registerKind}
       data={registers??{state:"unavailable",reason:"read-failed"}}
       t={(key,params)=>translate(locale,key,params)}/>:
       <div className="py-3" role="status">
