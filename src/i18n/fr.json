@@ -2835,6 +2835,7 @@
     "statusActive": "En cours",
     "statusPlanned": "Planifié",
     "statusClosed": "Clôturé",
-    "statusSuspended": "Suspendu"
+    "statusSuspended": "Suspendu",
+    "holiday": "Jour férié pour certains membres"
   }
 }
