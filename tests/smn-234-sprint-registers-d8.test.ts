@@ -162,6 +162,9 @@ describe("SMN-234 D8 — sécurité et absence de producteur",()=>{
   assert.match(ui,/missingKinds/);
   assert.match(ui,/registersProducerPending/);
   assert.match(ui,/registersNoRecords/);
-  assert.doesNotMatch(ui,/pencil-square/);
+  assert.match(ui,/<SprintRegisterRow/);
+  const row=file("src/app/app/admin/sprints/[sprintId]/sprint-register-row.tsx");
+  assert.match(row,/pencil-square/);
+  assert.match(row,/RegistryCreate/);
  });
 });
