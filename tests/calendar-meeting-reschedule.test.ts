@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import {describe,it} from "node:test";
+import {readFileSync} from "node:fs";
+import {fileURLToPath} from "node:url";
 import type {Client} from "pg";
 import {updateCalendarMeetingSchedule} from "../src/server/sprints/calendar-meeting-reschedule";
 import {durationBetweenLocal} from "../src/lib/calendar-local-time";
@@ -68,10 +70,8 @@ describe("Réunion décalée : dates début et fin",()=>{
   }),{ok:false,error:"invalid-input"});
  });
  it("valide la route en écriture et le formulaire indépendant Début / Fin",()=>{
-  const fs=require("node:fs") as typeof import("node:fs");
-  const url=require("node:url") as typeof import("node:url");
-  const modal=fs.readFileSync(url.fileURLToPath(new URL("../src/app/app/team-calendar/calendar-meeting-modal.tsx",import.meta.url)),"utf8");
-  const route=fs.readFileSync(url.fileURLToPath(new URL("../src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",import.meta.url)),"utf8");
+  const modal=readFileSync(fileURLToPath(new URL("../src/app/app/team-calendar/calendar-meeting-modal.tsx",import.meta.url)),"utf8");
+  const route=readFileSync(fileURLToPath(new URL("../src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",import.meta.url)),"utf8");
   assert.match(modal,/setEnd\\(e\\.target\\.value\\)/);
   assert.match(modal,/durationBetweenLocal\\(start,end,detail\\.timeZone\\)/);
   assert.match(modal,/void patch\\(api,\\{startAt:iso,endAt:isoEnd,revision:detail\\.revision\\}\\)/);
