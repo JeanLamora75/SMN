@@ -30,7 +30,8 @@ function parse(raw:unknown):ScheduleInput|null{
   new Date(start).toISOString()!==x.startAt||new Date(end).toISOString()!==x.endAt)return null;
  const duration=(end-start)/60000;
  if(!Number.isSafeInteger(duration)||duration<1||duration>tables[x.kind].max)return null;
- return x as ScheduleInput;
+ return {kind:x.kind as CalendarMeetingKind,id:x.id as string,
+  startAt:x.startAt as string,endAt:x.endAt as string,revision:x.revision as number};
 }
 async function ensureScheduleSchema(db:Client){
  await ensureCeremonyEditSchema(db);
@@ -133,6 +134,9 @@ export async function updateCalendarMeetingSchedule(db:Client,actorId:string,raw
   return {ok:true,changed:true,revision:input.revision+1,
    warningCount:Number(overlap.rows[0]?.count??0)};
  }catch(error){
-  await db.query("ROLLBACK").catch(()=>undefined);throw error;
+  await db.query("ROLLBACK").catch(()=>undefined);
+  if(error&&typeof error==="object"&&"code" in error&&error.code==="23505")
+   return {ok:false,error:"conflict"};
+  throw error;
  }
 }
