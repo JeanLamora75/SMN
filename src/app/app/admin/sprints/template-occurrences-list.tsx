@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Occurrence={id:string;templateId:string;templateRevision:number;sprintName:string;name:string;startAt:string;endAt:string;timeZone:string;templateActive:boolean;generationSource:string};
 export default function TemplateOccurrencesList(){
@@ -7,10 +7,10 @@ export default function TemplateOccurrencesList(){
  const [rows,setRows]=useState<Occurrence[]>([]);
  const [error,setError]=useState("");
  const [busy,setBusy]=useState(false);
- async function load(){setBusy(true);setError("");
+ const load=useCallback(async()=>{setBusy(true);setError("");
  try{const r=await fetch("/api/admin/sprints/template-occurrences",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.occurrences);}
- catch{setError(t("templateOccurrences.error"));}finally{setBusy(false);}}
- useEffect(()=>{void Promise.resolve().then(load);},[]);
+ catch{setError(t("templateOccurrences.error"));}finally{setBusy(false);}},[t]);
+ useEffect(()=>{void Promise.resolve().then(load);},[load]);
  const local=(instant:string,zone:string)=>new Intl.DateTimeFormat("fr-FR",{dateStyle:"short",timeStyle:"short",timeZone:zone}).format(new Date(instant));
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("templateOccurrences.title")}</h2>
  <p className="text-secondary">{t("templateOccurrences.info")}</p>
