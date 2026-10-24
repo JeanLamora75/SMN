@@ -242,12 +242,11 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
   }
   // Les registres et les notes sont lus dans le même snapshot, sans DDL.
   // Chaque famille est isolée pour préserver les autres métriques en cas d’échec.
-  const dates=sprintCapacityDates(sprint);
   for(const kind of ["obstacle","risk"] as const){
    const savepoint="dashboard_registry_"+kind;
    await db.query("SAVEPOINT "+savepoint);
    try{
-    const data=await readCycleRegistry(db,teamId,sprint.id,dates.start,dates.end,kind);
+    const data=await readCycleRegistry(db,teamId,sprint.id,kind);
     if(kind==="obstacle")obstacles=data;else risks=data;
     await db.query("RELEASE SAVEPOINT "+savepoint);
    }catch{
