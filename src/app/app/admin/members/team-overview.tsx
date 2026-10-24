@@ -20,7 +20,7 @@ export default function TeamOverview(){
  const [creating,setCreating]=useState(false);
  const [createError,setCreateError]=useState("");
  const requestId=useRef<string|null>(null);
- useEffect(()=>{try{if(localStorage.getItem(CHOICE)==="list")setView("list");}catch{}},[]);
+ useEffect(()=>{void Promise.resolve().then(()=>{try{if(localStorage.getItem(CHOICE)==="list")setView("list");}catch{}});},[]);
  useEffect(()=>{let alive=true;fetch("/api/admin/members",{cache:"no-store"})
   .then(async r=>{if(!r.ok)throw Error("members");return r.json() as Promise<Roster>;})
   .then(v=>{if(alive){setRoster(v);setStatus("ready");}})
