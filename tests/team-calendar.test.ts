@@ -13,7 +13,7 @@ const query=(extra:Record<string,string>={},admin=true)=>{
  assert.ok(result);return result;
 };
 function fakeDb(opts:{
- duplicateAssignment?:boolean;unknownCalendar?:boolean;unknownCoverage?:boolean;
+ duplicateAssignment?:boolean;duplicateAbsence?:boolean;unknownCalendar?:boolean;unknownCoverage?:boolean;
  absent?:boolean;holiday?:boolean;otherMember?:boolean;closure?:boolean;
 }={}){
  const sqls:string[]=[];
@@ -37,7 +37,7 @@ function fakeDb(opts:{
    return {rows,rowCount:rows.length};
   }
   if(sql.includes("FROM public.smn_member_absence a")){
-   const rows=opts.absent===false?[]:[absence];return {rows,rowCount:rows.length};
+   const rows=opts.absent===false?[]:[absence,...(opts.duplicateAbsence?[{...absence,id:"44444444-4444-4444-8444-444444444444",start_slot:"afternoon"}]:[])];return {rows,rowCount:rows.length};
   }
   if(sql.includes("FROM public.smn_member_calendar_week")){
    const rows=opts.unknownCalendar?[]:[{
@@ -98,6 +98,7 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
   assert.equal(collective.collective.length,7);
   assert.equal(collective.collective[0].assigned,1);
   assert.equal(collective.collective[0].reportedUnavailable,1);
+  assert.equal(collective.collective[0].declaredAbsentMemberCount,1);
   const serialized=JSON.stringify(collective);
   assert.equal(serialized.includes("Mme Exemple"),false);
   assert.equal(serialized.includes(f.reason),false);
@@ -124,6 +125,14 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
   assert.equal(output.admin?.members.length,1);
   assert.equal(output.collective[0].assigned,1);
   assert.equal(output.collective[0].reportedUnavailable,1);
+ });
+ it("compte une fois le membre avec plusieurs absences, et exclut les fériés/fermetures",async()=>{
+  const a=await readTeamCalendar(fakeDb({duplicateAbsence:true,duplicateAssignment:true}).db,query(),true);
+  assert.equal(a.collective[0].declaredAbsentMemberCount,1);
+  const b=await readTeamCalendar(fakeDb({absent:false,holiday:true,closure:true}).db,query({},false),false);
+  assert.equal(b.collective[0].declaredAbsentMemberCount,0);
+  assert.equal(b.collective[0].reportedUnavailable,1);
+  assert.equal(JSON.stringify(b).includes("Mme Exemple"),false);
  });
  it("n'invente pas de disponibilité si la trame ou la couverture nationale est inconnue",async()=>{
   const schedule=await readTeamCalendar(fakeDb({unknownCalendar:true}).db,query(),true);
