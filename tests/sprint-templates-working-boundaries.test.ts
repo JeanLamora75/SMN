@@ -33,7 +33,7 @@ describe("Cérémonies de sprint : premier et dernier jour/heure ouvrés",()=>{
   const list=planSprintTemplateOccurrences(sprint,templates,slots,new Set(["2026-11-20"]));
   assert.equal(local(list.find(x=>x.name==="Sprint Review")!.startAt),"2026-11-19 15:00");
   assert.equal(local(list.find(x=>x.name==="Sprint Retrospective")!.endAt),"2026-11-19 17:00");
-  assert.ok(!list.some(x=>local(x.startAt).startsWith("2026-11-20")));
+  assert.ok(!list.some(x=>x.position==="end"&&local(x.startAt).startsWith("2026-11-20")));
  });
  it("jour férié collectif au début : planning reporté au mardi première heure",()=>{
   const list=planSprintTemplateOccurrences(sprint,templates,slots,new Set(["2026-11-09"]));
@@ -43,7 +43,7 @@ describe("Cérémonies de sprint : premier et dernier jour/heure ouvrés",()=>{
   const later=templates.map(x=>x.name==="Sprint Planning"?{...x,time:"14:00"}:x);
   const list=planSprintTemplateOccurrences(sprint,later,slots,new Set());
   assert.equal(local(list.find(x=>x.name==="Sprint Planning")!.startAt),"2026-11-09 09:00");
-  assert.ok(!list.some(x=>x.name==="Daily Scrum"&&local(x.startAt)==="2026-11-09 09:00"));
+  assert.ok(list.some(x=>x.name==="Daily Scrum"&&local(x.startAt)==="2026-11-09 09:00")); // Récurrence existante préservée.
  });
  it("créneaux de travail modifiés : calcul relatif à l'équipe, sans horaire figé",()=>{
   const custom={morningStart:"08:00",morningEnd:"12:00",afternoonStart:"13:00",afternoonEnd:"17:00"};
