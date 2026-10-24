@@ -21,7 +21,7 @@ export async function composeKanbanReport(db:Client,periodId:string){
  // Closed periods must use the immutable version. Never reconstruct old values from mutable tables.
  const snapshot=report.period.status==="closed"?versions[0]??null:null;
  if(report.period.status==="closed"&&!snapshot)throw Error("kanban-closure-snapshot-missing");
- const frozen=snapshot?.snapshot as null|{goals?:unknown[];flow?:unknown;timing?:unknown;capacity?:unknown};
+ const frozen=snapshot?.snapshot as null|{goals?:unknown[];flow?:unknown;timing?:unknown;capacity?:unknown;events?:{state:string;items?:unknown[]};qualitativeLinks?:{state:string}};
  return {
   period:report.period,
   source:snapshot?"closure" as const:"live" as const,
@@ -32,7 +32,8 @@ export async function composeKanbanReport(db:Client,periodId:string){
   flow:snapshot?frozen?.flow??null:flow?.counts??null,
   timing:snapshot?frozen?.timing??null:timing?{cycle:timing.cycle,lead:timing.lead,comparable:timing.comparable}:null,
   capacity:snapshot?frozen?.capacity??null:report.blocks.capacity,
+  events:snapshot?frozen?.events?.items??[]:[],
   trends:trends?.periods??[],
-  quality:{qualitativeLinks:snapshot?"not-integrated":"not-verified",events:snapshot?"not-integrated":"not-verified"}
+  quality:{qualitativeLinks:snapshot?frozen?.qualitativeLinks?.state??"not-integrated":"not-verified",events:snapshot?frozen?.events?.state??"not-integrated":"not-verified"}
  };
 }
