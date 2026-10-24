@@ -2287,7 +2287,10 @@
     "presenceFunction": "Fonction",
     "presenceContribution": "Contribution",
     "registersAll": "Tous",
-    "ceremonyEdit": "Modifier la réunion"
+    "ceremonyEdit": "Modifier la réunion",
+    "registersEditRecord": "Modifier la fiche",
+    "registersReadRecord": "Consulter la fiche",
+    "registersPriorityLabel": "Priorité"
   },
   "registryCreate": {
     "title": "Registres",

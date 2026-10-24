@@ -2287,7 +2287,10 @@
     "presenceFunction": "Professional function",
     "presenceContribution": "Contribution",
     "registersAll": "All",
-    "ceremonyEdit": "Edit meeting"
+    "ceremonyEdit": "Edit meeting",
+    "registersEditRecord": "Edit record",
+    "registersReadRecord": "View record",
+    "registersPriorityLabel": "Priority"
   },
   "registryCreate": {
     "title": "Registers",

@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Party={kind:"local";teamId:string}|{kind:"external";name:string};
 type Data={teamId:string;teamName:string;requester:Party|null;contributor:Party|null;revision:number};
-export default function DependencyParties({id,canManage}:{id:string;canManage:boolean}){
+export default function DependencyParties({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation();const tr=(k:string)=>t(("dependencyParties."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null);
  const [requester,setRequester]=useState<Party|null>(null),[contributor,setContributor]=useState<Party|null>(null);
@@ -44,7 +44,7 @@ export default function DependencyParties({id,canManage}:{id:string;canManage:bo
    if(!response.ok)throw Error("invalid");
    const result=await response.json() as {ok:boolean;revision:number};
    if(!result.ok)throw Error("invalid");
-   setData({...data,requester,contributor,revision:result.revision});setSuccess(true);
+   setData({...data,requester,contributor,revision:result.revision});setSuccess(true);onSaved?.();
   }catch{setError("error");}finally{setBusy(false);}
  };
  return <section className="card p-3 mt-3"><h2 className="h5">{tr("heading")}</h2>

@@ -3,7 +3,7 @@ import Link from "next/link";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Info={rationale:string|null;replacesId:string|null;revision:number;replacedBy:{id:string;title:string}[]};
-export default function DecisionDetail({id,canManage}:{id:string;canManage:boolean}){
+export default function DecisionDetail({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(key:string)=>t(("decisionDetail."+key) as Parameters<typeof t>[0]);
  const [info,setInfo]=useState<Info|null>(null),[rationale,setRationale]=useState("");
  const [replaces,setReplaces]=useState(""),[error,setError]=useState(""),[success,setSuccess]=useState(false),[busy,setBusy]=useState(false);
@@ -26,7 +26,7 @@ export default function DecisionDetail({id,canManage}:{id:string;canManage:boole
    const result=await r.json() as {ok:boolean;revision:number};
    if(!result.ok)throw Error("failed");
    setInfo({...info,rationale:rationale||null,replacesId:replaces.trim()||null,revision:result.revision});
-   setSuccess(true);
+   setSuccess(true);onSaved?.();
   }catch{setError("error");}finally{setBusy(false);}
  };
  return <section className="card p-3 mt-3">

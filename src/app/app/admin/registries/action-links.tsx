@@ -3,14 +3,14 @@ import Link from "next/link";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Item={id:string;title:string;type:string};
-export default function ActionLinks({id,canManage}:{id:string;canManage:boolean}){
+export default function ActionLinks({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(x:string)=>t(("actionLinks."+x) as Parameters<typeof t>[0]);
  const [items,setItems]=useState<Item[]|null>(null),[related,setRelated]=useState(""),[error,setError]=useState(false),[busy,setBusy]=useState(false);
  const reload=async()=>{const r=await fetch("/api/admin/registries/"+encodeURIComponent(id)+"/action-links",{cache:"no-store"});if(!r.ok)throw Error("unavailable");const x=await r.json() as {links:Item[]};setItems(x.links);};
  useEffect(()=>{let active=true;void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/action-links",{cache:"no-store"}).then(async r=>{if(!r.ok)throw Error();return r.json() as Promise<{links:Item[]}>;}).then(x=>{if(active)setItems(x.links);}).catch(()=>{if(active)setError(true);});return()=>{active=false;};},[id]);
  const change=async(relatedId:string,action:"linked"|"unlinked")=>{setBusy(true);setError(false);try{
   const r=await fetch("/api/admin/registries/"+encodeURIComponent(id)+"/action-links",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({relatedId,action})});
-  if(!r.ok)throw Error("failed");await reload();setRelated("");
+  if(!r.ok)throw Error("failed");await reload();setRelated("");onSaved?.();
  }catch{setError(true);}finally{setBusy(false);}};
  return <section className="card p-3 mt-3"><h2 className="h5">{tr("heading")}</h2><p>{tr("intro")}</p>
   {items?.length===0&&<p>{tr("empty")}</p>}
