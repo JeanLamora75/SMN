@@ -29,8 +29,8 @@ test("les quatre pieds de cartes proposent une création centrée et traduite en
   "+ Ajouter un obstacle","+ Ajouter un risque",
   "+ Ajouter un évènement","+ Ajouter une note"
  ])assert.ok(html.includes(label),label);
- assert.match(html,/\/app\/team-calendar\?[^"]*create=1/);
- assert.match(html,/cycleId=sprint-A/);
+ assert.equal((html.match(/<button class="smn-operational-create-link" type="button"/g)??[]).length,4);
+ assert.doesNotMatch(html,/team-calendar\?[^"]*create=1/);
  assert.doesNotMatch(html,/Suivi opérationnel<\/h2>|Synthèse du cycle sélectionné/);
  assert.match(html,/aria-label="Suivi opérationnel"/);
 });
