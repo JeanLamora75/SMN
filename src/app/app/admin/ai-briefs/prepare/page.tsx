@@ -107,7 +107,7 @@ export default async function PrepareAiBrief({searchParams}:{
       <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??"Non renseigné"}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
-    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"}/>
+    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt}/>
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
    </section>
    <p className="small text-secondary">Ouverture sans sauvegarde : aucun brouillon, TXT ou analyse n’est créé. La sélection des données et la finalisation seront disponibles dans les étapes suivantes de l’Epic 9.</p>
