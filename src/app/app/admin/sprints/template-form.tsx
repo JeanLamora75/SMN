@@ -16,7 +16,7 @@ export default function TemplateForm(){
  const [error,setError]=useState("");
  const [message,setMessage]=useState("");
  async function load(){const r=await fetch("/api/admin/sprints/templates",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.templates);}
- useEffect(()=>{load().catch(()=>setError(t("ceremonyTemplates.error")));},[t]);
+ useEffect(()=>{void Promise.resolve().then(load).catch(()=>setError(t("ceremonyTemplates.error")));},[t]);
  function choose(key:string){const x=rows.find(v=>v.id===key);setId(key);setForm(x?{name:x.name,frequency:x.frequency,weekday:x.weekday,position:x.position,time:x.time.slice(0,5),duration:x.duration}:empty);setActive(x?.active??true);setRevision(x?.revision??1);setError("");setMessage("");}
  async function save(e:FormEvent){e.preventDefault();setBusy(true);setError("");setMessage("");
  try{const r=await fetch("/api/admin/sprints/templates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...(id?{id,revision}:{}),active,template:form})});
