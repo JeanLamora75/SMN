@@ -1,3 +1,4 @@
+import HistoricalRevisionsPanel from "./historical-revisions-panel";
 "use client";
 import {useEffect,useRef,useState} from "react";
 type Preview={line:number;cycleId:string;cycleName:string|null;metricCode:string;value:number;quality:string;existingValue:number|null;impact:string;decision:"keep"|"insert";validation:string};
@@ -66,6 +67,7 @@ export default function HistoricalCsvTemplateView(){
    <div className="table-responsive"><table className="table table-sm"><thead><tr><th>Date</th><th>État</th><th>Lues</th><th>Reconnues</th><th>Appliquées</th><th>Conservées</th><th>Rejetées</th><th>Lot et cycles</th><th>Erreurs</th></tr></thead>
    <tbody>{attempts.map(a=><tr key={a.id}><td>{a.createdAt}</td><td>{a.status}</td><td>{a.readCount}</td><td>{a.recognizedCount}</td><td>{a.appliedCount}</td><td>{a.preservedCount}</td><td>{a.rejectedCount}</td><td>{a.batchId??a.id}<div className="small">{(a.cycleIds??[]).join(", ")}</div></td><td>{(a.errors??[]).map((e,i)=><div key={i}>Ligne {e.line} : {e.message}</div>)}</td></tr>)}</tbody>
    </table></div></section>
+  <HistoricalRevisionsPanel/>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {data&&<>
    <h2 className="h6">Codes sources autorisés — {data.mode==="scrum"?"Scrum":"Kanban"}</h2>
