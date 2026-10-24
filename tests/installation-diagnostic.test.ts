@@ -78,6 +78,44 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     assert.notEqual(classifySnapshot({...valid,tables:[...names,...relations]}).status,"schema-incompatible");
     assert.equal(classifySnapshot({...valid,tables:[...names,...relations,"public.untrusted_table:r"]}).status,"schema-incompatible");
   });
+  it("reconnaît les tables de notes Sprint et de liaisons de registres sans autoriser d'objets étrangers",()=>{
+    const origins=[
+      ["src/server/dashboard/notes.ts",[
+        "public.smn_dashboard_note:r","public.smn_dashboard_note_audit:r"
+      ]],
+      ["src/server/registries/cycle-links.ts",[
+        "public.smn_registry_cycle_link:r","public.smn_registry_cycle_link_audit:r"
+      ]]
+    ] as const;
+    const relations:string[]=[];
+    for(const [path,expected] of origins){
+      const source=readFileSync(new URL("../"+path,import.meta.url),"utf8");
+      for(const relation of expected){
+        assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
+        assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
+        relations.push(relation);
+      }
+    }
+    assert.notEqual(classifySnapshot({...valid,tables:[...names,...relations]}).status,"schema-incompatible");
+    assert.equal(classifySnapshot({...valid,tables:[...names,...relations,"public.third_party:r"]}).status,"schema-incompatible");
+  });
+  it("reconnaît les vrais agrégats de criticité et ROAM des risques",()=>{
+    const origins=[
+      ["src/server/registries/assessment.ts",[
+        "public.smn_risk_assessment:r","public.smn_risk_assessment_audit:r"
+      ]],
+      ["src/server/registries/roam.ts",[
+        "public.smn_risk_roam:r","public.smn_risk_roam_audit:r"
+      ]]
+    ] as const;
+    for(const [path,expected] of origins){
+      const source=readFileSync(new URL("../"+path,import.meta.url),"utf8");
+      for(const relation of expected){
+        assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
+        assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
+      }
+    }
+  });
   it("refuse les installations partielles et versions futures inconnues", () => {
     assert.equal(classifySnapshot({ ...valid, migrations: [] }).status, "installation-incomplete");
     assert.equal(classifySnapshot({ ...valid, migrations: [{ migration_name: "x", finished_at: null, rolled_back_at: null }] }).status, "installation-incomplete");

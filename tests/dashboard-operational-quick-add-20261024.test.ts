@@ -68,7 +68,8 @@ test("les quatre raccourcis ouvrent les formulaires en modale sans navigation",(
  assert.match(modal,/<MeetingQuickForm/);
  assert.match(modal,/<NoteQuickForm/);
  assert.match(modal,/\/api\/admin\/sprints\/exceptional-meetings/);
- assert.match(modal,/\/api\/admin\/reports\/sprints\//);
- assert.match(modal,/text:next,included:true/);
+ assert.match(modal,/\/api\/admin\/dashboard\/notes/);
+ assert.match(modal,/body:JSON.stringify\(\{sprintId,teamId,text:content.trim\(\)\}\)/);
+ assert.match(modal,/cycleId=\{cycleId\}/);
  assert.match(modal,/router\.refresh\(\)/);
 });

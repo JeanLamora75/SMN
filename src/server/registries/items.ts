@@ -2,9 +2,10 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 import {obstacleTransition} from "@/lib/obstacle-lifecycle";
+import {ensureCycleLinks} from "./cycle-links";
 import {recordConfirmedHighlight} from "./confirmed-highlights";
 
-export type RegistryInput={type:RegistryType;title:string;occurredOn:string;status:string;description:string|null;owner:string|null;dueOn:string|null;comment:string|null;teamId:string};
+export type RegistryInput={type:RegistryType;title:string;occurredOn:string;status:string;description:string|null;owner:string|null;dueOn:string|null;comment:string|null;teamId:string;cycleId?:string};
 const dateRx=/^\d{4}-\d{2}-\d{2}$/;
 export function validDate(value:unknown):value is string{
  if(typeof value!=="string"||!dateRx.test(value))return false;
@@ -15,16 +16,17 @@ const optional=(v:unknown,max:number)=>v===undefined||v===null||(typeof v==="str
 export function parseRegistryInput(value:unknown):RegistryInput|null{
  if(!value||typeof value!=="object"||Array.isArray(value))return null;
  const v=value as Record<string,unknown>;
- if(Object.keys(v).some(k=>!["type","title","occurredOn","status","description","owner","dueOn","comment","teamId"].includes(k)))return null;
+ if(Object.keys(v).some(k=>!["type","title","occurredOn","status","description","owner","dueOn","comment","teamId","cycleId"].includes(k)))return null;
  if(typeof v.type!=="string"||!registryTypes.some(x=>x===v.type))return null;
  const type=v.type as RegistryType;
  if(typeof v.title!=="string"||!v.title.trim()||v.title.trim().length>240||
   typeof v.teamId!=="string"||!v.teamId||v.teamId.length>80||
+  (v.cycleId!==undefined&&(typeof v.cycleId!=="string"||!/^[a-f0-9-]{36}$/i.test(v.cycleId)||!["risk","obstacle"].includes(type)))||
   !validDate(v.occurredOn)||
   (v.status!==undefined&& (typeof v.status!=="string"||!registryStatuses[type].some(x=>x===v.status)))||
   !optional(v.description,4000)||!optional(v.owner,200)||!optional(v.comment,2000)||
   (v.dueOn!==undefined&&v.dueOn!==null&&!validDate(v.dueOn)))return null;
- return {type,title:v.title.trim(),teamId:v.teamId,occurredOn:v.occurredOn,
+ return {type,title:v.title.trim(),teamId:v.teamId,cycleId:typeof v.cycleId==="string"?v.cycleId:undefined,occurredOn:v.occurredOn,
   status:typeof v.status==="string"?v.status:registryStatuses[type][0],
   description:typeof v.description==="string"?v.description:null,
   owner:typeof v.owner==="string"?v.owner:null,
@@ -64,6 +66,11 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
    WHERE t.id=$1 AND i.id='singleton' AND i.state='initialized'
     AND lower(i.mode) IN ('scrum','kanban') FOR UPDATE OF t`,[input.teamId]);
   if(team.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  if(input.cycleId){
+   const cycle=await db.query<{id:string}>(`SELECT id FROM public.smn_sprint
+     WHERE id=$1 AND team_id=$2 AND deleted_at IS NULL AND status<>'closed' FOR UPDATE`,[input.cycleId,input.teamId]);
+   if(cycle.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  }
   await ensureRegistrySchema(db);
   const id=randomUUID();
   await db.query(`INSERT INTO public.smn_registry_item
@@ -73,6 +80,12 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
   await db.query(`INSERT INTO public.smn_registry_item_audit
    (id,item_id,revision,before_values,after_values,actor_id)
    VALUES($1,$2,1,NULL,$3::jsonb,$4)`,[randomUUID(),id,JSON.stringify(input),actorId]);
+  if(input.cycleId){
+   await ensureCycleLinks(db);
+   await db.query(`INSERT INTO public.smn_registry_cycle_link(item_id,sprint_id) VALUES($1,$2)`,[id,input.cycleId]);
+   await db.query(`INSERT INTO public.smn_registry_cycle_link_audit(id,item_id,sprint_id,action,actor_id)
+     VALUES($1,$2,$3,'linked',$4)`,[randomUUID(),id,input.cycleId,actorId]);
+  }
   if(input.type==="decision"&&input.status==="active")await recordConfirmedHighlight(db,{category:"recordedDecision",sourceKind:"registry",sourceId:id,sourceRevision:1,title:input.title,actorId});
   await db.query("COMMIT");return {ok:true as const,id,revision:1};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}

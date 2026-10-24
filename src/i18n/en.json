@@ -264,6 +264,7 @@
       "addRisk": "+ Add a risk",
       "addEvent": "+ Add an event",
       "addNote": "+ Add a note",
+      "unlinkedTeam": "Team · not linked to a sprint",
       "quickAdd": {
         "close": "Close dialog",
         "cancel": "Cancel",

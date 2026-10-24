@@ -210,9 +210,9 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
   assert.match(operational,/projection&&timeZone\?/);
   assert.match(operational,/UnavailableColumn/);
   const projectionSource=file("src/server/dashboard/cycle-reader.ts");
-  assert.match(projectionSource,/obstacles:collectionUnavailable\("producer-not-ready"\)/);
-  assert.match(projectionSource,/risks:collectionUnavailable\("producer-not-ready"\)/);
-  assert.match(projectionSource,/notesAndAlerts:collectionUnavailable\("producer-not-ready"\)/);
+  assert.match(projectionSource,/readCycleRegistry\(db,teamId,sprint.id/);
+  assert.match(projectionSource,/readCycleNotesAndAlerts\(db,teamId,sprint.id\)/);
+  assert.match(projectionSource,/obstacles,risks,notesAndAlerts/);
   assert.match(file("src/server/dashboard/events-reader.ts"),
    /COALESCE\(occurrence_status,'unknown'\) AS status/);
  });
