@@ -65,6 +65,7 @@ export async function readSprintRegisters(
  // No tables or APIs are guessed: the six Epic 5 registers must supply an
  // authorized typed adapter. A partial adapter is signalled as incomplete.
  const data=await provider(db,teamId,sprint);
+ if(data.availableKinds.length===0)return absent("producer-not-installed");
  const selected=selectSprintRegisterPage(data,teamId,sprint,page);
  if(!selected)return absent("invalid-data");
  return {state:"available",source:"current",snapshotVersion:null,...selected};
