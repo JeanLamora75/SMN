@@ -20,7 +20,7 @@ export async function readKanbanPeriodReport(db:Client,id:string){
  `,[id]);
  if(result.rows.length!==1)return null;
  const p=result.rows[0];
- const capacity=await readKanbanCapacityView(db,p.team_id,p.start_on,p.end_on,p.status).catch(()=>null);
+ const capacity=await readKanbanCapacityView(db,p.team_id,p.start_on,p.end_on,p.status,p.id).catch(()=>null);
  return {
   period:{id:p.id,name:p.name,startOn:p.start_on,endOn:p.end_on,status:p.status,timeZone:p.time_zone,team:p.team_name},
   provisional:reportProvisional(p.status),
