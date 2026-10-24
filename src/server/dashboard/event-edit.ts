@@ -1,0 +1,143 @@
+import {randomUUID} from "node:crypto";
+import type {Client} from "pg";
+import {ensureAttendanceSchema} from "@/server/sprints/attendance";
+
+export type EditableEventKind="template"|"ceremony"|"exceptional";
+const ids=/^[0-9a-f-]{36}$/i;
+const tables={
+ template:{table:"smn_scrum_template_occurrence",title:"name",status:"status"},
+ ceremony:{table:"smn_sprint_ceremony",title:"kind",status:"occurrence_status"},
+ exceptional:{table:"smn_sprint_exceptional_meeting",title:"name",status:"status"}
+} as const;
+export function validDashboardEventKind(value:string):value is EditableEventKind {
+ return Object.hasOwn(tables,value);
+}
+type Row={id:string;title:string;startAt:string;endAt:string;status:string;
+ duration:number;teamId:string;sprintId:string;sprintStatus:string;
+ sprintStart:string;sprintEnd:string;revision:number|null;};
+async function findEvent(db:Client,kind:EditableEventKind,id:string,lock=false):Promise<Row|null>{
+ if(!ids.test(id))return null;
+ const config=tables[kind];
+ const metadata=await db.query<{column_name:string}>(`SELECT column_name FROM information_schema.columns
+ WHERE table_schema='public' AND table_name=$1`,[config.table]);
+ const columns=new Set(metadata.rows.map(r=>r.column_name));
+ const essential=["id","sprint_id","starts_at","ends_at",config.title];
+ if(!essential.every(x=>columns.has(x)))return null;
+ const status=columns.has(config.status)?`COALESCE(e.${config.status},'unknown')`:"'unknown'::text";
+ const minutes=columns.has("minutes")?"e.minutes":columns.has("duration_minutes")?
+  "e.duration_minutes":"round(EXTRACT(EPOCH FROM (e.ends_at-e.starts_at))/60)::int";
+ const revision=columns.has("revision")?"e.revision":"NULL::int";
+ const result=await db.query<{id:string;title:string;start_at:string;end_at:string;
+  status:string;duration:number;team_id:string;sprint_id:string;
+  sprint_status:string;sprint_start:string;sprint_end:string;revision:number|null}>(`
+ SELECT e.id,e.${config.title} AS title,e.starts_at::text AS start_at,
+ e.ends_at::text AS end_at,${status} AS status,${minutes} AS duration,
+ s.team_id,s.id AS sprint_id,s.status AS sprint_status,
+ s.start_at::text AS sprint_start,s.end_at::text AS sprint_end,${revision} AS revision
+ FROM public.${config.table} e JOIN public.smn_sprint s ON s.id=e.sprint_id
+ JOIN public.smn_team t ON t.id=s.team_id
+ JOIN public.smn_installation i ON i.id=t.installation_id
+ WHERE e.id=$1 AND i.id='singleton' AND i.state='initialized'
+ AND lower(i.mode)='scrum' AND s.deleted_at IS NULL
+ ${lock?"FOR UPDATE OF e,s":""}`,[id]);
+ const r=result.rows[0];if(!r)return null;
+ return {id:r.id,title:r.title,startAt:new Date(r.start_at).toISOString(),
+  endAt:new Date(r.end_at).toISOString(),status:r.status,
+  duration:r.duration,teamId:r.team_id,sprintId:r.sprint_id,
+  sprintStatus:r.sprint_status,sprintStart:r.sprint_start,
+  sprintEnd:r.sprint_end,revision:r.revision};
+}
+export async function readDashboardEvent(db:Client,kind:EditableEventKind,id:string,
+ teamId:string,sprintId:string){
+ if(!teamId||!ids.test(sprintId))return null;
+ const row=await findEvent(db,kind,id);
+ if(!row||row.teamId!==teamId||row.sprintId!==sprintId)return null;
+ return {id:row.id,kind,title:row.title,startsAt:row.startAt,endsAt:row.endAt,
+  duration:row.duration,status:row.status,editable:row.sprintStatus!=="closed"};
+}
+type Input={teamId:string;sprintId:string;title:string;startAt:string;duration:number;
+ status:"scheduled"|"held"|"not_held"|"cancelled";
+ expectedTitle:string;expectedStartAt:string;expectedEndAt:string;expectedStatus:string};
+function parseInput(raw:unknown):Input|null{
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
+ const o=raw as Record<string,unknown>;
+ if(Object.keys(o).sort().join(",")!==[
+  "teamId","sprintId","title","startAt","duration","status",
+  "expectedTitle","expectedStartAt","expectedEndAt","expectedStatus"
+ ].sort().join(","))return null;
+ if(typeof o.teamId!=="string"||!o.teamId||
+  typeof o.sprintId!=="string"||!ids.test(o.sprintId)||
+  typeof o.title!=="string"||!o.title.trim()||o.title.trim().length>160||
+  typeof o.startAt!=="string"||!Number.isFinite(Date.parse(o.startAt))||
+  !Number.isSafeInteger(o.duration)||Number(o.duration)<1||Number(o.duration)>480||
+  !["scheduled","held","not_held","cancelled"].includes(String(o.status))||
+  ["expectedTitle","expectedStartAt","expectedEndAt","expectedStatus"].some(k=>typeof o[k]!=="string"))
+  return null;
+ return o as Input;
+}
+/** Edition de l'occurrence UNIQUEMENT, jamais des modèles/snapshots/équipes étrangères. */
+export async function updateDashboardEvent(db:Client,actorId:string,
+ kind:EditableEventKind,id:string,raw:unknown){
+ const o=parseInput(raw);
+ if(!actorId||!ids.test(id)||!o)return {ok:false as const,error:"invalid-input" as const};
+ // Migration additive documentée : aucune modification de la lecture du dashboard.
+ await ensureAttendanceSchema(db);
+ await db.query("BEGIN");
+ try{
+  const prev=await findEvent(db,kind,id,true);
+  if(!prev||prev.teamId!==o.teamId||prev.sprintId!==o.sprintId){
+   await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};
+  }
+  if(prev.sprintStatus==="closed"){
+   await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
+  }
+  if(prev.startAt!==o.expectedStartAt||prev.endAt!==o.expectedEndAt||
+     prev.title!==o.expectedTitle||prev.status!==o.expectedStatus){
+   await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
+  }
+  if(kind==="ceremony"&&o.title!==prev.title){
+   await db.query("ROLLBACK");return {ok:false as const,error:"immutable-type" as const};
+  }
+  const start=new Date(o.startAt),end=new Date(start.getTime()+o.duration*60000);
+  if(!Number.isFinite(end.getTime())||start<new Date(prev.sprintStart)||
+    end>new Date(prev.sprintEnd)){
+   await db.query("ROLLBACK");return {ok:false as const,error:"outside-sprint" as const};
+  }
+  if((o.status==="held"||o.status==="not_held")&&end.getTime()>Date.now()){
+   await db.query("ROLLBACK");return {ok:false as const,error:"not-yet-due" as const};
+  }
+  const changed=prev.startAt!==start.toISOString()||prev.endAt!==end.toISOString()||
+   prev.title!==o.title.trim()||prev.status!==o.status;
+  if(changed){
+   const config=tables[kind];
+   const nameSql=kind==="ceremony"?"":",name=$5";
+   const statusSql=config.status;
+   const durationSql=kind==="ceremony"?"minutes":kind==="exceptional"?"duration_minutes":null;
+   const durationSet=durationSql?`,${durationSql}=$4`:"";
+   // Paramètres à positions stables ; jamais d'identifiant SQL issu du client.
+   await db.query(`UPDATE public.${config.table} SET starts_at=$2,ends_at=$3
+    ${durationSet}${nameSql},${statusSql}=$6,
+    status_explicit=CASE WHEN ${statusSql} IS DISTINCT FROM $6 THEN true ELSE status_explicit END
+    ${kind==="ceremony"?",revision=revision+1,provenance='customized'":""}
+    WHERE id=$1`,[id,start.toISOString(),end.toISOString(),o.duration,o.title.trim(),o.status]);
+   if(kind==="ceremony"){
+    await db.query("DELETE FROM public.smn_sprint_ceremony_segment WHERE ceremony_id=$1",[id]);
+    await db.query(`INSERT INTO public.smn_sprint_ceremony_segment
+     (ceremony_id,position,starts_at,ends_at,minutes) VALUES($1,1,$2,$3,$4)`,
+     [id,start.toISOString(),end.toISOString(),o.duration]);
+   }
+   await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dashboard_event_edit_audit(
+    id text PRIMARY KEY,event_kind text NOT NULL,event_id text NOT NULL,
+    before_values jsonb NOT NULL,after_values jsonb NOT NULL,
+    actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
+    changed_at timestamptz NOT NULL DEFAULT now())`);
+   await db.query(`INSERT INTO public.smn_dashboard_event_edit_audit
+    (id,event_kind,event_id,before_values,after_values,actor_id)
+    VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
+    [randomUUID(),kind,id,JSON.stringify({title:prev.title,startAt:prev.startAt,endAt:prev.endAt,
+      duration:prev.duration,status:prev.status}),JSON.stringify({title:o.title.trim(),
+      startAt:start.toISOString(),endAt:end.toISOString(),duration:o.duration,status:o.status}),actorId]);
+  }
+  await db.query("COMMIT");return {ok:true as const,id,changed};
+ }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
