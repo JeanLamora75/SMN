@@ -3,6 +3,7 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {validateHistoricalCsv} from "@/lib/historical-csv-validator";
 import {validateHistoricalCsvBusiness} from "@/server/historical-csv/business-validation";
+import {previewHistoricalCsv} from "@/server/historical-csv/preview";
 export const dynamic="force-dynamic";
 export async function POST(req:NextRequest){
  const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
@@ -19,8 +20,9 @@ export async function POST(req:NextRequest){
   const result=validateHistoricalCsv(body.csv,mode);
   const businessErrors=result.valid?await withAuthDb(db=>validateHistoricalCsvBusiness(db,result.rows,mode)):[];
   const errors=[...result.errors,...businessErrors],valid=errors.length===0;
-  return Response.json({valid,rowCount:valid?result.rows.length:0,errors,
-   message:valid?"Syntaxe et règles métier valides. Aucune écriture en base.":"Fichier refusé. Aucune écriture en base."},
+  const preview=valid?await withAuthDb(db=>previewHistoricalCsv(db,result.rows,mode)):[];
+  return Response.json({valid,rowCount:valid?result.rows.length:0,errors,preview,confirmable:false,
+   message:valid?"Prévisualisation uniquement : les valeurs existantes sont conservées. Aucune écriture en base.":"Fichier refusé. Aucune écriture en base."},
    {status:valid?200:422,headers:{"Cache-Control":"no-store"}});
  }catch{return Response.json({error:"invalid-request"},{status:400});}
 }
