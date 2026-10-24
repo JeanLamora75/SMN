@@ -1,6 +1,7 @@
+import {qualitativeSnapshotSource} from "@/server/registries/sprint-adapter";
 import type {Client} from "pg";
 import type {SprintContextItem} from "@/lib/sprint-context";
-type SprintRegisterPeriod=Pick<SprintContextItem,"id"|"startAt"|"endAt">;
+type SprintRegisterPeriod=Pick<SprintContextItem,"id"|"startAt"|"endAt"> & {timeZone?:string};
 import {
  isRegisterKind,selectSprintRegisterPage,
  type RegisterSource,type RegisterKind,type SprintRegisterResult
@@ -42,19 +43,20 @@ export async function readSprintRegisters(
   const snapshot=latest.snapshot;
   if(!snapshot||typeof snapshot!=="object"||Array.isArray(snapshot))
    return absent("invalid-data");
-  const raw=(snapshot as Record<string,unknown>).qualitativeRegisters;
+  const body=snapshot as Record<string,unknown>;
+  const raw=body.qualitative??body.qualitativeRegisters;
   if(raw===undefined)return absent("history-missing");
-  if(!raw||typeof raw!=="object"||Array.isArray(raw))
-   return absent("invalid-data");
-  const data=raw as Record<string,unknown>;
-  if(!Array.isArray(data.records)||!Array.isArray(data.availableKinds))
-   return absent("invalid-data");
-  if(data.availableKinds.some(k=>!isRegisterKind(k)))
-   return absent("invalid-data");
-  const selected=selectSprintRegisterPage({
-   records:data.records,
-   availableKinds:data.availableKinds as RegisterKind[]
-  },teamId,sprint,page);
+  // New Epic 5 closures store qualitative.{items,facts}; older D8 snapshots
+  // may already contain the provisional {records,availableKinds} contract.
+  const derived=body.qualitative!==undefined?
+   qualitativeSnapshotSource(raw,teamId,sprint):null;
+  const data=raw&&typeof raw==="object"&&!Array.isArray(raw)?
+   raw as Record<string,unknown>:null;
+  const source=derived??(data&&Array.isArray(data.records)&&Array.isArray(data.availableKinds)?
+   {records:data.records,availableKinds:data.availableKinds as RegisterKind[]}:null);
+  if(!source)return absent("invalid-data");
+  if(source.availableKinds.some(k=>!isRegisterKind(k)))return absent("invalid-data");
+  const selected=selectSprintRegisterPage(source,teamId,sprint,page);
   if(!selected)return absent("invalid-data");
   return {state:"available",source:"closure-snapshot",
    snapshotVersion:latest.version,...selected};
