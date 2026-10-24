@@ -67,12 +67,6 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
       <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone} canManage={account.role==="admin"}/>
     </>}
 
-    <div className="container mb-4">
-      <Link href="/app/team-calendar" className="btn btn-outline-primary">
-        {t("teamCalendar.open")}
-      </Link>
-    </div>
-
     {configuration&&<ConfigurationChecklist initial={configuration}/>}
 
     <footer className="smn-dashboard-footer">
