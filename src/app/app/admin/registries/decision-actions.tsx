@@ -3,7 +3,7 @@ import Link from "next/link";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
-export default function DecisionActions({id,teamId,title,description,canManage}:{id:string;teamId:string;title:string;description:string;canManage:boolean}){
+export default function DecisionActions({id,teamId,title,description,canManage,onSaved}:{id:string;teamId:string;title:string;description:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("decisionActions."+k) as Parameters<typeof t>[0]);
  const [open,setOpen]=useState(false),[name,setName]=useState(""),[context,setContext]=useState("");
  const [owner,setOwner]=useState(""),[due,setDue]=useState(""),[error,setError]=useState(false),[busy,setBusy]=useState(false);
@@ -19,7 +19,7 @@ export default function DecisionActions({id,teamId,title,description,canManage}:
    if(!response.ok)throw Error("failed");
    const data=await response.json() as {ok:boolean;id:string};
    if(!data.ok||!data.id)throw Error("failed");
-   setCreated(list=>[...list,data.id]);setOpen(false);
+   setCreated(list=>[...list,data.id]);setOpen(false);onSaved?.();
   }catch{setError(true);}finally{setBusy(false);}
  };
  if(!canManage)return null;
