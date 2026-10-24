@@ -18,7 +18,8 @@ export type CollectiveDay={
  known:number;unknown:number;availableMembers:number;
 };
 export type MemberDay={
- date:string;assignmentApplicable:true;workingSlots:{morning:boolean;afternoon:boolean}|null;
+ date:string;assignmentApplicable:true;hasDeclaredAbsence:boolean;
+ workingSlots:{morning:boolean;afternoon:boolean}|null;
  availableSlots:{morning:boolean;afternoon:boolean}|null;
  deductedHalfDays:number|null;status:"known"|"unknown";
  nationalHolidayName:string|null;
@@ -203,10 +204,11 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
    count.assigned++;
    if(isNational===true)count.hasNationalHoliday=true;
    // Count recorded absences once per assigned member and date, independent of holidays or closures.
-   if(active.some(a=>{
+   const hasDeclaredAbsence=active.some(a=>{
     const slots=absenceOnDate({startOn:a.start_on,endOn:a.end_on,startSlot:a.start_slot,endSlot:a.end_slot},date);
     return slots.morning||slots.afternoon;
-   }))count.declaredAbsentMemberCount++;
+   });
+   if(hasDeclaredAbsence)count.declaredAbsentMemberCount++;
    if(resolution.status==="known")count.known++;
    else count.unknown++;
    if(resolution.absenceSlots.morning||resolution.absenceSlots.afternoon||
@@ -217,7 +219,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
     const selected=active.filter(a=>
      (query.kind==="all"||(query.kind==="planned"?a.is_planned:!a.is_planned))&&
      (query.categoryId===null||a.category_id===query.categoryId));
-    personalDays.push({date,assignmentApplicable:true,
+    personalDays.push({date,assignmentApplicable:true,hasDeclaredAbsence,
      workingSlots:calendar.slots,availableSlots:resolution.availableSlots,
      deductedHalfDays:resolution.deductedHalfDays,status:resolution.status,
      nationalHolidayName:nationalName,companyClosureName:activeClosure?.name??null,
