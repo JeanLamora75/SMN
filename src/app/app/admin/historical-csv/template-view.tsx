@@ -6,8 +6,23 @@ export default function HistoricalCsvTemplateView(){
  const [data,setData]=useState<Catalog|null>(null),[error,setError]=useState("");
  const [csv,setCsv]=useState(""),[checking,setChecking]=useState(false);
  const [replacement,setReplacement]=useState<Record<number,boolean>>({});
+ const [confirming,setConfirming]=useState(false),[confirmation,setConfirmation]=useState("");
  const version=useRef(0);
  const [check,setCheck]=useState<{valid:boolean;rowCount:number;errors:{line:number;column:string;message:string}[];preview?:Preview[];confirmable?:boolean}|null>(null);
+ async function confirmImport(){
+  if(!check?.valid||!check.preview||confirming)return;
+  const choices=check.preview.map(r=>({line:r.line,decision:r.decision==="insert"?"insert":replacement[r.line]?"replace":"keep"}));
+  const details=check.preview.filter(r=>r.decision==="insert"||replacement[r.line]).map(r=>r.cycleId+" · "+r.metricCode+" : "+(r.existingValue??"Non renseigné")+" → "+r.value+" ("+r.quality+")").join("\n");
+  if(!window.confirm("Confirmer les changements de ce lot ?\n"+details+"\nLes autres valeurs seront conservées."))return;
+  setConfirming(true);setConfirmation("");
+  try{
+   const response=await fetch("/api/admin/historical-csv/confirm",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv,choices})});
+   const result=await response.json();
+   if(!response.ok||!result.ok){setConfirmation("Import refusé : "+(result.error??"Erreur inconnue"));return;}
+   setConfirmation("Lot "+result.batchId+" enregistré : "+result.inserted+" ajout(s), "+result.replaced+" remplacement(s), "+result.preserved+" conservation(s).");
+   setCheck(null);setReplacement({});
+  }catch{setConfirmation("Import indisponible.");}finally{setConfirming(false);}
+ }
  async function validate(){const snapshot=version.current;setChecking(true);setCheck(null);setReplacement({});try{const r=await fetch("/api/admin/historical-csv/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv})});const value=await r.json();if(Array.isArray(value.errors)&&version.current===snapshot)setCheck(value);else setError("Vérification impossible.");}catch{setError("Vérification indisponible.");}finally{setChecking(false);}}
  useEffect(()=>{void fetch("/api/admin/historical-csv/template",{cache:"no-store"})
   .then(r=>{if(!r.ok)throw Error();return r.json() as Promise<Catalog>;})
@@ -38,9 +53,11 @@ export default function HistoricalCsvTemplateView(){
       <td>{item.decision==="keep"?<select className="form-select form-select-sm" aria-label={`Décision ligne ${item.line}`} value={replacement[item.line]?"replace":"keep"} onChange={e=>setReplacement(prev=>({...prev,[item.line]:e.target.value==="replace"}))}><option value="keep">Conserver la valeur existante (défaut)</option><option value="replace">Remplacer — choix volontaire</option></select>:<span>Nouvelle valeur proposée</span>}</td>
      </tr>)}</tbody>
     </table></div>
-    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>setCheck(null)}>Fermer l'aperçu</button>
+    <button type="button" className="btn btn-primary btn-sm me-2" disabled={confirming} onClick={confirmImport}>{confirming?"Import en cours…":"Confirmer le lot"}</button>
+    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>setCheck(null)}>Annuler sans importer</button>
    </div>}
   </div>
+  {confirmation&&<p role="status" className="alert alert-info">{confirmation}</p>}
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {data&&<>
    <h2 className="h6">Codes sources autorisés — {data.mode==="scrum"?"Scrum":"Kanban"}</h2>
