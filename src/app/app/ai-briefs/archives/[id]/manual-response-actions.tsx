@@ -11,7 +11,7 @@ export default function ManualResponseActions({archiveId,response}:{archiveId:st
  const router=useRouter();
  const url="/api/ai-briefs/archives/"+encodeURIComponent(archiveId)+"/responses/"+encodeURIComponent(response.id);
  async function act(action:"update"|"delete"){
-  if(action==="delete"&&!window.confirm("Supprimer volontairement cette réponse IA active ? Le TXT archivé restera intact."))return;
+  if(action==="delete"&&!window.confirm("Supprimer la réponse IA "+response.id+" du brief "+archiveId+" ? Le lien actif disparaîtra, mais le TXT finalisé et ses métadonnées resteront intacts. Les PDF déjà archivés ne seront pas modifiés."))return;
   setBusy(true);setMessage("");
   try{
    const res=await fetch(url,{method:action==="update"?"PUT":"DELETE",
