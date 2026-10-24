@@ -8,7 +8,7 @@ Le panneau latéral réaffichait le contexte produit/équipe/mode Scrum déjà f
 ## Modification livrée sur la branche
 - `src/lib/private-navigation.ts` : les trois premiers menus sont **Tableau de Bord / Équipe / Calendrier** ; groupe Pilotage consolidé, suppressions des entrées `security` et `events`, maintien des routes et modes réellement disponibles, icônes Bootstrap typées. Sécurité reste accessible à travers `settingsCatalog`.
 - `src/app/app/private-navigation.tsx` : retrait complet de `smn-nav-workspace` ; titres des groupes visuellement cachés mais accessibles ; utilisation de `BootstrapIcon` pour chaque ligne.
-- `src/app/app/private-shell.tsx` : plus aucun passage du produit ou de l'équipe à la sidebar ; ces informations restent à leur place dans le header. Comportement collapse et fermeture menu mobile inchangé.
+- `src/app/app/private-shell.tsx` : plus aucun passage du produit ou de l'équipe à la sidebar ; la sélection d’équipe et le Sprint demeurent dans le header ; le produit reste présent dans les pages métier où il est pertinent. Comportement collapse et fermeture menu mobile inchangé.
 - `src/app/app/bootstrap-icon.tsx` : pictogramme maison `house-fill` embarqué dans le jeu d'icônes SVG du projet, sans CDN.
 - `src/app/dashboard.css` : menu visuellement continu avec icônes 22 × 22 px, conteneur de 26 px, hauteur de ligne minimale 46 px, labels sans retour à la ligne, largeur de menu 242 px, ombre et fond actif discrets, maintien des tooltips en mode replié et de la navigation mobile.
 - `src/i18n/fr.json` et `src/i18n/en.json` : nouveau libellé bref « Calendrier » / « Calendar » ; libellé « Tableau de Bord » demandé.
