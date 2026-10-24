@@ -45,7 +45,7 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
      <textarea id="archived-brief-text" className="form-control font-monospace" rows={25} readOnly value={archive.text}/>
      <h2 className="h5 mt-4">Réponses IA ajoutées manuellement</h2>
      {responses.length===0?<p className="text-secondary">Aucune réponse enregistrée pour ce brief.</p>:responses.map(response=><section className="border rounded-3 p-3 mb-3" key={response.id}>
-      <p className="small text-secondary">Réponse {response.id} · enregistrée le {response.created_at} · fournisseur : {response.provider??"Non renseigné"} · modèle : {response.model??"Non renseigné"} · cycle : {archive.metadata.cycle_id}</p>
+      <p className="small text-secondary">Réponse {response.id} · {response.human_edited?"Origine IA, retouchée par un humain":"Réponse IA brute (collée manuellement)"} · enregistrée le {response.created_at} · dernière modification {response.updated_at} · fournisseur : {response.provider??"Non renseigné"} · modèle : {response.model??"Non renseigné"} · cycle : {archive.metadata.cycle_id}</p>
       <textarea className="form-control font-monospace" rows={12} readOnly value={response.response_text} aria-label={"Réponse IA "+response.id}/>
       {account.role==="admin"&&<ManualResponseActions archiveId={id} response={response}/>}
      </section>)}
