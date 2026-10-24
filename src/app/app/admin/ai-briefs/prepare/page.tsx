@@ -6,6 +6,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {allowedBriefFields} from "@/lib/ai-brief-templates";
 import {listBriefTemplates} from "@/server/ai-briefs/templates";
 import BriefOverrides from "./brief-overrides";
+import {readBriefFacts,projectBriefSelection} from "@/server/ai-briefs/facts";
 
 export const dynamic="force-dynamic";
 
@@ -58,6 +59,8 @@ export default async function PrepareAiBrief({searchParams}:{
  const available=templates.filter(t=>t.active);
  const selected=available.find(t=>t.id===template)??available[0];
  const fields=allowedBriefFields(scrum?"scrum":"kanban",selected.data);
+ const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
+ const projected=projectBriefSelection(scrum?"scrum":"kanban",fields,facts);
  const preparedAt=new Date().toISOString();
  const provisional=context.status!=="closed";
  return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -95,6 +98,14 @@ export default async function PrepareAiBrief({searchParams}:{
      <div className="col-12 col-lg-6"><h4 className="h6">Données collectives proposées</h4><ul>{fields.map(field=><li key={field}><code>{field}</code></li>)}</ul></div>
      <div className="col-12 col-lg-6"><h4 className="h6">Questions proposées</h4><ul>{selected.questions.map(q=><li key={q}>{q}</li>)}</ul></div>
      <div className="col-12 col-lg-6"><h4 className="h6">Consignes</h4><ul>{selected.instructions.map(s=><li key={s}>{s}</li>)}</ul></div>
+    </div>
+    <div className="border rounded-3 p-3 mt-3">
+     <h3 className="h6">Valeurs collectives disponibles et provenance</h3>
+     <p className="small text-secondary">Les cases vides restent non renseignées. Les données individuelles ne sont pas chargées.</p>
+     <div className="table-responsive"><table className="table table-sm">
+      <thead><tr><th>Indicateur</th><th>Valeur</th><th>Unité</th><th>Qualité</th><th>Source</th></tr></thead>
+      <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??"Non renseigné"}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
+     </table></div>
     </div>
     <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"}/>
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
