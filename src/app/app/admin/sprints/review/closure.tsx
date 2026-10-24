@@ -4,8 +4,10 @@ import {useTranslation} from "@/i18n/client";
 import {useEpic4Presentation} from "./../i18n-presentation";
 type Sprint={id:string;name:string;status:string};
 type Version={id:string;version:number;closedAt:string;snapshot:unknown};
+type QualitativeResult={state:string;version:number|null;qualitative:unknown};
 export default function SprintClosure(){
- const t=useTranslation();const presentation=useEpic4Presentation();const [sprints,setSprints]=useState<Sprint[]>([]),[selected,setSelected]=useState(""),[status,setStatus]=useState(""),[versions,setVersions]=useState<Version[]>([]),[visible,setVisible]=useState<number|null>(null),[error,setError]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false);
+ const t=useTranslation();const presentation=useEpic4Presentation();
+ const [qualitative,setQualitative]=useState<QualitativeResult|null>(null);const [sprints,setSprints]=useState<Sprint[]>([]),[selected,setSelected]=useState(""),[status,setStatus]=useState(""),[versions,setVersions]=useState<Version[]>([]),[visible,setVisible]=useState<number|null>(null),[error,setError]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false);
  useEffect(()=>{fetch("/api/admin/sprints/states",{cache:"no-store"}).then(r=>r.json()).then(j=>setSprints(j.sprints??[])).catch(()=>setError(t("sprintClosure.error")));},[t]);
  async function load(id:string){setQualitative(null);setSelected(id);setVersions([]);setVisible(null);setError("");if(!id)return;
  try{const r=await fetch("/api/admin/sprints/closure?sprintId="+encodeURIComponent(id),{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setVersions(j.versions);setStatus(j.sprint.status);await loadQualitative(id,null);}catch{setError(t("sprintClosure.error"));}}
@@ -13,7 +15,7 @@ export default function SprintClosure(){
   const url="/api/admin/sprints/qualitative-versions?sprintId="+encodeURIComponent(id)+(version===null?"":"&version="+version);
   const response=await fetch(url,{cache:"no-store"});
   if(!response.ok)throw Error("qualitative-unavailable");
-  setQualitative(await response.json());
+  setQualitative(await response.json() as QualitativeResult);
  }
  async function change(action:"close"|"reopen"){if(!selected||!window.confirm(t("sprintClosure.confirm")))return;setBusy(true);setNotice("");setError("");
  try{const r=await fetch("/api/admin/sprints/closure",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sprintId:selected,action})});if(!r.ok)throw Error();setNotice(t("sprintClosure.saved"));await load(selected);}

@@ -1,5 +1,6 @@
 import type {Client} from "pg";
 import type {SprintContextItem} from "@/lib/sprint-context";
+type SprintRegisterPeriod=Pick<SprintContextItem,"id"|"startAt"|"endAt">;
 import {
  isRegisterKind,selectSprintRegisterPage,
  type RegisterSource,type RegisterKind,type SprintRegisterResult
@@ -9,7 +10,7 @@ import {
  * team visibility and cross-Sprint relation rules are implemented.
  * The port MUST scope its result to authorized team members and records. */
 export type RegistryReadProvider=(
- db:Client,teamId:string,sprint:SprintContextItem
+ db:Client,teamId:string,sprint:SprintRegisterPeriod
 )=>Promise<RegisterSource>;
 const absent=(reason:Extract<SprintRegisterResult,{state:"unavailable"}>["reason"])=>
  ({state:"unavailable" as const,reason});
@@ -17,7 +18,7 @@ const absent=(reason:Extract<SprintRegisterResult,{state:"unavailable"}>["reason
 /** This reader never synthesizes qualitative items from unrelated tables.
  * Closed Sprints only use their immutable closure snapshot. */
 export async function readSprintRegisters(
- db:Client,teamId:string,sprint:SprintContextItem,page=1,
+ db:Client,teamId:string,sprint:SprintRegisterPeriod,page=1,
  provider?:RegistryReadProvider
 ):Promise<SprintRegisterResult|null>{
  const scope=await db.query<{status:string}>(`

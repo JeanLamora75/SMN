@@ -63,6 +63,8 @@ describe("SMN-234 D3 — lecteurs historiques et autorisations",()=>{
   const v=await readSprintDetailIndicators(f.db,"team-1",id);
   assert.equal(v?.state,"available");
   if(v?.state==="available"){
+   if(v.points.state!=="available"||v.tickets.state!=="available"||v.scores.state!=="available")
+    assert.fail("Current indicator groups must be available");
    assert.deepEqual(v.points.values,{initial:10,added:0,removed:null,done:5});
    assert.deepEqual(v.tickets.values,{initial:0,done:null});
    assert.deepEqual(v.scores.values,{confidence:null,clarity:null});
@@ -80,6 +82,8 @@ describe("SMN-234 D3 — lecteurs historiques et autorisations",()=>{
   const v=await readSprintDetailIndicators(f.db,"team-1",id);
   assert.equal(v?.state,"available");
   if(v?.state==="available"){
+   if(v.points.state!=="available"||v.tickets.state!=="available"||v.scores.state!=="available")
+    assert.fail("Closed snapshot indicator groups must be available");
    assert.equal(v.snapshotVersion,2);assert.equal(v.points.values.added,2);
    assert.equal(v.scores.values.clarity,5);assert.equal(v.tickets.values.done,3);
   }
@@ -93,7 +97,7 @@ describe("SMN-234 D3 — lecteurs historiques et autorisations",()=>{
   assert.equal(v?.state,"available");
   if(v?.state==="available"){
    assert.equal(v.scores.state,"unavailable");
-   assert.equal(v.scores.reason,"history-missing");
+   if(v.scores.state==="unavailable")assert.equal(v.scores.reason,"history-missing");
   }
  });
  it("sauvegarde les notes via une transaction contrôlée et versionnée",async()=>{

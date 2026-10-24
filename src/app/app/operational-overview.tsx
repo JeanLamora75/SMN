@@ -279,7 +279,7 @@ export default function OperationalOverview({locale,projection,timeZone,canManag
              teamId={projection.teamId} cycleId={projection.cycleId} timeZone={timeZone}/>:
            <UnavailableColumn key="events" definition={definition} locale={locale}/>;
         }
-        if(!projection)return <UnavailableColumn key={definition.id} definition={definition} locale={locale} teamId={projection?.teamId} cycleId={projection?.cycleId} canManage={canManage}/>;
+        if(!projection)return <UnavailableColumn key={definition.id} definition={definition} locale={locale} canManage={canManage}/>;
         const collection=definition.id==="obstacles"?projection.obstacles:
           definition.id==="risks"?projection.risks:projection.notesAndAlerts;
         return <AttentionColumn key={definition.id} definition={definition}
