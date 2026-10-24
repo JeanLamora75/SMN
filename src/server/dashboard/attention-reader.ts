@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {criticality,type Level} from "@/lib/risk-criticality";
 import {
  collectionAvailable,collectionUnavailable,
  type DashboardAttention,type DashboardCollection
@@ -14,22 +15,31 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
  from:string,to:string,kind:"risk"|"obstacle"):Promise<Collection>{
  if(!await exists(db,"smn_registry_item"))return collectionUnavailable("schema-missing");
  const hasLinks=await exists(db,"smn_registry_cycle_link");
+ const hasRoam=kind==="risk"&&await exists(db,"smn_risk_roam");
+ const hasAssessment=kind==="risk"&&await exists(db,"smn_risk_assessment");
  const associated=hasLinks?
   "(EXISTS(SELECT 1 FROM public.smn_registry_cycle_link l WHERE l.item_id=r.id AND l.sprint_id=$3) OR r.occurred_on BETWEEN $4::date AND $5::date)":
   "r.occurred_on BETWEEN $4::date AND $5::date";
  const closed=kind==="risk"?["resolved"]:["resolved","abandoned"];
- const where=`r.team_id=$1 AND r.type=$2 AND r.status<>ALL($6::text[]) AND ${associated}`;
+ const roamClause=hasRoam?
+  " AND NOT EXISTS(SELECT 1 FROM public.smn_risk_roam roam WHERE roam.item_id=r.id AND roam.classification=\'resolved\')":"";
+ const where=`r.team_id=$1 AND r.type=$2 AND r.status<>ALL($6::text[]) AND ${associated}${roamClause}`;
  const params=[teamId,kind,cycleId,from,to,closed];
  const count=await db.query<{total:number}>(`SELECT COUNT(*)::int AS total FROM public.smn_registry_item r WHERE ${where}`,params);
+ const joins=hasAssessment?" LEFT JOIN public.smn_risk_assessment a ON a.item_id=r.id":"";
+ const score=hasAssessment?"a.probability*a.impact DESC NULLS LAST,":"";
  const order=kind==="risk"?
-  "r.due_on ASC NULLS LAST,r.occurred_on ASC,r.id ASC":
+  score+"r.due_on ASC NULLS LAST,r.occurred_on ASC,r.id ASC":
   "r.occurred_on ASC,r.id ASC";
- const rows=await db.query<{id:string;title:string;status:string}>(`
-  SELECT r.id,r.title,r.status FROM public.smn_registry_item r WHERE ${where}
+ const rows=await db.query<{id:string;title:string;status:string;probability:Level|null;impact:Level|null}>(`
+  SELECT r.id,r.title,r.status${hasAssessment?",a.probability,a.impact":",NULL::smallint AS probability,NULL::smallint AS impact"}
+  FROM public.smn_registry_item r${joins} WHERE ${where}
   ORDER BY ${order} LIMIT 5`,params);
  return collectionAvailable(rows.rows.map(row=>({
   id:row.id,kind,title:row.title,status:row.status,
-  priority:null,href:"/app/admin/registries/"+encodeURIComponent(row.id)
+  priority:kind==="risk"?(criticality(row.probability,row.impact).level==="unassessed"?null:
+   criticality(row.probability,row.impact).level as "low"|"medium"|"high"):null,
+  href:"/app/admin/registries/"+encodeURIComponent(row.id)
  })),count.rows[0]?.total??rows.rows.length,{source:"manual"});
 }
 /** Tâches globales : titre traduit côté UI, jamais attribuées artificiellement au Sprint. */
