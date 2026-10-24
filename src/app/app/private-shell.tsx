@@ -164,7 +164,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
     </header>
     <div className="smn-shell-content">
       <div ref={sidebar} className="smn-sidebar-region" id="smn-private-sidebar">
-        <PrivateNavigation mode={mode} role={role} product={product} team={team}
+        <PrivateNavigation mode={mode} role={role}
           onNavigate={()=>setMobileOpen(false)}/>
       </div>
       <main id="smn-main" className="smn-private-main pb-5">{children}</main>
