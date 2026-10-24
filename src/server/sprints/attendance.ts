@@ -32,7 +32,7 @@ export async function reconcileAttendance(db:Client){
   const r=await db.query(`UPDATE public.${t.table} m SET ${status}='held'
    FROM public.smn_sprint s WHERE s.id=m.sprint_id AND s.team_id=$1 AND s.deleted_at IS NULL
    AND s.status<>'closed' AND m.ends_at<=now() AND m.${status}='scheduled' AND m.status_explicit=false
-   AND COALESCE(m.generation_source,'standard')<>'reconstructed'`,[teamId]);
+   ${kind==="exceptional"?"":"AND COALESCE(m.generation_source,'standard')<>'reconstructed'"}`,[teamId]);
   stats[kind]=r.rowCount??0;
  }
  return stats;
