@@ -116,6 +116,7 @@ export default function SprintGoalsPanel({sprintId,status,canManage,data}:{
      <div className="flex-grow-1" style={{minWidth:0}}>
       <p className="fw-semibold mb-1 text-break">{goal.title}</p>
       <span className="badge text-bg-secondary">{t(labels[goal.evaluation])}</span>
+      {goal.description&&<p className="small mt-2 mb-0" style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}><strong>Description historique :</strong> {goal.description}</p>}
       {goal.comment&&<p className="small text-secondary mt-2 mb-0"
        style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{goal.comment}</p>}
      </div>
