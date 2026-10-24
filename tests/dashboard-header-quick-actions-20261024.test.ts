@@ -13,10 +13,12 @@ test("dashboard renders up to three goals without additional-goal link",()=>{
  assert.match(s,/goals\.items\.slice\(0,3\)/);
  assert.doesNotMatch(s,/dashboard\.cockpit\.otherGoals/);
 });
-test("operational cards provide real creation navigation and no redundant calendar footer",()=>{
- const s=read("src/app/app/operational-overview.tsx");
- assert.match(s,/\/app\/admin\/registries\/create\?/);
- assert.match(s,/\/report#smn-report-notes/);
- assert.doesNotMatch(s,/smn-operational-calendar-link/);
- assert.match(read("src/app/app/admin/sprints/[sprintId]/report/report-draft-notes.tsx"),/id="smn-report-notes"/);
+test("operational cards open authorized modal forms without redundant calendar footer",()=>{
+ const overview=read("src/app/app/operational-overview.tsx");
+ const quick=read("src/app/app/operational-quick-add.tsx");
+ assert.match(overview,/OperationalQuickAdd/);
+ assert.doesNotMatch(overview,/smn-operational-calendar-link|createHref=/);
+ assert.match(quick,/showModal\(\)/);
+ assert.match(quick,/RegistryCreate/);
+ assert.match(read("src/app/app/admin/registries/registry-create.tsx"),/\/api\/admin\/registries/);
 });
