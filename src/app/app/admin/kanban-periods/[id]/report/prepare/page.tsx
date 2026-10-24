@@ -16,6 +16,7 @@ export default async function KanbanReportPreparation({params}:{params:Promise<{
  if(!data)notFound();
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <Link href={"/app/admin/kanban-periods/"+encodeURIComponent(id)+"/report"}>← Retour au bilan Kanban</Link>
+  <div className="my-3">{account.role==="admin"&&<Link className="btn btn-outline-primary" href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:"kanban",id:data.period.id}).toString()}>Générer un brief IA</Link>}</div>
   <header className="smn-panel rounded-4 p-4 my-3">
    <h1 className="h4 mb-2">Préparer un rapport Kanban</h1>
    <p className="mb-1"><strong>{data.period.name}</strong> · {data.period.team}</p>
