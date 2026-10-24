@@ -4,7 +4,9 @@ import {useLocale,useTranslation} from "@/i18n/client";
 import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMode} from "./calendar-option-b";
 import CalendarMeetingModal from "./calendar-meeting-modal";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
-type Calendar={team:{name:string};central:{items:CalendarEntry[]};collective:{date:string;declaredAbsentMemberCount:number}[]};
+import {absenceNamesByDate,type CalendarAbsentMember} from "@/lib/calendar-absence-names";
+type Calendar={team:{name:string};central:{items:CalendarEntry[]};collective:{date:string;declaredAbsentMemberCount:number}[];
+ admin?:{members:CalendarAbsentMember[]}};
 type Meeting=CalendarMeeting;
 type MemberOption={id:string;displayName:string;archived:boolean;startOn:string|null;endOn:string|null};
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string};
@@ -26,6 +28,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const [events,setEvents]=useState<CalendarEntry[]>([]);
  const [teamName,setTeamName]=useState("");
  const [absenceCounts,setAbsenceCounts]=useState<Record<string,number>>({});
+ const [absentNames,setAbsentNames]=useState<Record<string,string[]>>({});
  const [view,setView]=useState<CalendarMode>("cards");
  const [showMeetings,setShowMeetings]=useState(true);
  const [showAbsences,setShowAbsences]=useState(true);
@@ -78,10 +81,15 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     counts[day.date]=day.declaredAbsentMemberCount;
    }}
    if(days.some(day=>counts[day]===undefined))throw Error("absence-count-incomplete");
-   setAbsenceCounts(counts);setTeamName(parts[0]?.team.name??"");
+   const named:Record<string,string[]>={};
+   for(const p of parts){
+    const names=isAdmin?absenceNamesByDate(p.admin?.members):{};
+    for(const [day,people] of Object.entries(names))named[day]=people;
+   }
+   setAbsenceCounts(counts);setAbsentNames(named);setTeamName(parts[0]?.team.name??"");
    setEvents(parts.flatMap(x=>x.central.items));setMeetings(meet.meetings);setStatus("ready");})
   .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};
- },[period,refreshToken]);
+ },[period,refreshToken,isAdmin]);
  function sprintPeriod(s:Sprint){
   const start=localDate(s.startAt),finish=localDate(s.endAt);
   return {start,count:Math.max(1,Math.round((new Date(finish+"T12:00:00Z").getTime()-new Date(start+"T12:00:00Z").getTime())/86400000)+1),label:s.name,sprintId:s.id};
@@ -215,7 +223,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   {status==="loading"&&<p role="status">{t("teamCalendar.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("teamCalendar.loadFailed")} — {t("calendarOptionB.errorCounts")}</p>}
   {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
-   absenceCounts={absenceCounts} today={now} mode={view}
+   absenceCounts={absenceCounts} absentNames={absentNames} today={now} mode={view}
    showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
    onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
    onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
