@@ -264,6 +264,18 @@
       "addRisk": "+ Add a risk",
       "addEvent": "+ Add an event",
       "addNote": "+ Add a note",
+      "quickAdd": {
+        "close": "Close dialog",
+        "cancel": "Cancel",
+        "save": "Save note",
+        "loading": "Loading form…",
+        "unavailable": "The form is temporarily unavailable.",
+        "invalidDate": "The meeting must start and end within the selected sprint.",
+        "noteContent": "Note content",
+        "noteDestination": "This note will be appended to the Attention section of the selected sprint report.",
+        "noteTooLong": "This section cannot exceed 5,000 characters in total.",
+        "saveFailed": "Unable to save. Refresh the dashboard and try again."
+      },
       "unavailable": "Unavailable",
       "empty": "No entries to date",
       "obstacle": "Impediment",

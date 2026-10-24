@@ -4,6 +4,7 @@ import Link from "next/link";
 import {classifyEventStatus} from "@/server/dashboard/events-reader";
 import type {CollectiveCycleProjection,DashboardAttention} from "@/lib/dashboard-data-contract";
 import BootstrapIcon from "./bootstrap-icon";
+import OperationalQuickAdd from "./operational-quick-add";
 
 type ColumnKind="obstacles"|"risks"|"events"|"notes";
 type PanelDefinition=Readonly<{
@@ -91,11 +92,10 @@ function UnavailableColumn({definition,locale,teamId,cycleId,canManage}:Readonly
         </div>}
     </div>
     <footer className="smn-operational-panel-footer">
-      {canManage&&cycleId&&teamId&&definition.id!=="events"?<Link className="smn-operational-create-link" href={definition.id==="notes"
-       ?"/app/admin/sprints/"+encodeURIComponent(cycleId)+"/report#smn-report-notes"
-       :"/app/admin/registries/create?"+new URLSearchParams({type:definition.id==="risks"?"risk":"obstacle",teamId,cycleId}).toString()}>
-       {createLabel(locale,definition.id)}
-      </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
+      {canManage&&cycleId&&teamId&&definition.id!=="events"?
+       <OperationalQuickAdd kind={definition.id} teamId={teamId} cycleId={cycleId}
+        label={createLabel(locale,definition.id)}/>:
+       <span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
     </footer>
   </section>;
 }
@@ -186,11 +186,9 @@ function AttentionColumn({definition,locale,collection,teamId,cycleId,canManage}
     </div>}
   </div>
   <footer className="smn-operational-panel-footer">
-   {canManage?<Link className="smn-operational-create-link" href={definition.id==="notes"
-    ?"/app/admin/sprints/"+encodeURIComponent(cycleId)+"/report#smn-report-notes"
-    :"/app/admin/registries/create?"+new URLSearchParams({type:definition.id==="risks"?"risk":"obstacle",teamId,cycleId}).toString()}>
-    {createLabel(locale,definition.id)}
-   </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
+   {canManage?<OperationalQuickAdd kind={definition.id} teamId={teamId} cycleId={cycleId}
+    label={createLabel(locale,definition.id)}/>:
+    <span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
   </footer>
  </section>;
 }
@@ -203,7 +201,6 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
  const definition=PANELS.find(p=>p.id==="events")!;
  const base=new URLSearchParams({teamId,cycleId});
  const calendarHref="/app/team-calendar?"+base.toString();
- const createHref="/app/team-calendar?"+new URLSearchParams({teamId,cycleId,create:"1"}).toString();
  const labels:Record<ReturnType<typeof classifyEventStatus>,TranslationKey>={
   scheduled:"dashboard.operational.eventScheduled",
   held:"dashboard.operational.eventHeld",
@@ -264,9 +261,10 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
       </div>}
    </div>
    <footer className="smn-operational-panel-footer">
-     {canManage&&cycleStatus!=="closed"?<Link className="smn-operational-create-link" href={createHref}>
-       {createLabel(locale,"events")}
-     </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
+     {canManage&&cycleStatus!=="closed"?
+       <OperationalQuickAdd kind="events" teamId={teamId} cycleId={cycleId}
+        label={createLabel(locale,"events")}/>:
+       <span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
    </footer>
  </section>;
 }

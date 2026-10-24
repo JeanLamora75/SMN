@@ -637,6 +637,7 @@
   border-top:1px solid var(--smn-border);
 }
 .smn-operational-create-link {
+  border:0;background:transparent;cursor:pointer;font-family:inherit;
   display:block;width:100%;padding:8px 6px;
   color:var(--smn-primary);text-align:center;
   font-size:.84rem;font-weight:700;text-decoration:none;
@@ -729,3 +730,17 @@
     overflow-x:hidden;
   }
 }
+
+
+/* Modales de création depuis les quatre cartes du dashboard : top layer natif. */
+dialog.smn-operational-create-dialog {
+  width:min(760px,calc(100vw - 24px));max-width:calc(100vw - 24px);
+  max-height:calc(100dvh - 32px);overflow:auto;
+  border:1px solid var(--smn-border);border-radius:16px;padding:0;
+  background:var(--smn-surface);color:var(--smn-text);
+  box-shadow:0 20px 64px rgba(0,0,0,.28);
+}
+dialog.smn-operational-create-dialog::backdrop {background:rgba(10,20,36,.65);}
+.smn-operational-create-dialog-inner {padding:clamp(16px,3vw,28px);}
+.smn-operational-create-dialog .form-label {display:block;font-weight:600;}
+.smn-operational-create-link:focus-visible {outline:3px solid var(--smn-primary);outline-offset:2px;}

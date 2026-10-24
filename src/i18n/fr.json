@@ -264,6 +264,18 @@
       "addRisk": "+ Ajouter un risque",
       "addEvent": "+ Ajouter un évènement",
       "addNote": "+ Ajouter une note",
+      "quickAdd": {
+        "close": "Fermer la fenêtre",
+        "cancel": "Annuler",
+        "save": "Enregistrer la note",
+        "loading": "Chargement du formulaire…",
+        "unavailable": "Le formulaire est temporairement indisponible.",
+        "invalidDate": "La réunion doit commencer et se terminer pendant le sprint sélectionné.",
+        "noteContent": "Contenu de la note",
+        "noteDestination": "Cette note sera ajoutée à la rubrique Points d’attention du rapport du sprint sélectionné.",
+        "noteTooLong": "Cette rubrique ne peut pas dépasser 5 000 caractères au total.",
+        "saveFailed": "Enregistrement impossible. Rechargez le tableau de bord et réessayez."
+      },
       "unavailable": "Indisponible",
       "empty": "Aucun éléments à ce jour",
       "obstacle": "Obstacle",
