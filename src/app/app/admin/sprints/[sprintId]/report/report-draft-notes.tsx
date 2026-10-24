@@ -26,7 +26,7 @@ export default function ReportDraftNotes({sprintId}:{sprintId:string}){
  if(!r.ok)throw Error();const result=await r.json() as {revision:number};
  setRevision(result.revision);setBase(JSON.stringify(notes));setSaved(true);
  }catch{setError(true);}finally{setBusy(false);}}
- return <section className="border-top pt-4 d-grid gap-3"><h2 className="h5">{tr("heading")}</h2>
+ return <section id="smn-report-notes" className="border-top pt-4 d-grid gap-3"><h2 className="h5">{tr("heading")}</h2>
  <p className="text-body-secondary">{tr("intro")}</p>
  {noteKeys.map(key=><div className="border rounded p-3" key={key}>
  <label className="form-label fw-semibold" htmlFor={"note-"+key}>{key==="introduction"||key==="conclusion"?tr(key):t(("standardReport."+key) as "standardReport.executive")}</label>
