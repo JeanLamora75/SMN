@@ -2835,6 +2835,7 @@
     "statusActive": "Active",
     "statusPlanned": "Planned",
     "statusClosed": "Closed",
-    "statusSuspended": "Suspended"
+    "statusSuspended": "Suspended",
+    "holiday": "Holiday affecting some members"
   }
 }
