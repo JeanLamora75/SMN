@@ -4,7 +4,7 @@ export type SprintGoalEvaluation=
  "not_evaluated"|"achieved"|"partially_achieved"|"not_achieved";
 export type SprintDetailGoal=Readonly<{
  id:string;title:string;evaluation:SprintGoalEvaluation;
- comment:string|null;revision:number;
+ comment:string|null;description?:string|null;revision:number;
 }>;
 export type SprintDetailGoals=
  |Readonly<{state:"available";items:readonly SprintDetailGoal[];
@@ -35,6 +35,7 @@ function parseGoals(raw:unknown):readonly SprintDetailGoal[]|null{
   goals.push({
    id:v.id,title:v.title,evaluation:v.evaluation as SprintGoalEvaluation,
    comment:typeof v.comment==="string"?v.comment:null,
+   description:typeof v.description==="string"?v.description:null,
    revision:v.revision as number
   });
  }
@@ -77,11 +78,16 @@ export async function readSprintDetailGoals(
   return {state:"available",items,source:"closure-snapshot",
    snapshotVersion:latest.version};
  }
+ const descriptionTable=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_sprint_historical_goal_detail') IS NOT NULL AS present");
+ const descriptionColumn=descriptionTable.rows[0]?.present?
+  "(SELECT h.description FROM public.smn_sprint_historical_goal_detail h WHERE h.goal_id=g.id) AS description":
+  "NULL::text AS description";
  const rows=await db.query<{
-  id:string;title:string;evaluation:string;comment:string|null;revision:number
+  id:string;title:string;evaluation:string;comment:string|null;description:string|null;revision:number
  }>(`
-  SELECT id,title,evaluation,comment,revision
-  FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id
+  SELECT g.id,g.title,g.evaluation,g.comment,g.revision,${descriptionColumn}
+  FROM public.smn_sprint_goal g WHERE g.sprint_id=$1 ORDER BY g.created_at,g.id
  `,[sprintId]);
  const items=parseGoals(rows.rows);
  return items?
