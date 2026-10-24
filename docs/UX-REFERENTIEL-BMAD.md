@@ -245,3 +245,17 @@ Référence : [rapport BMAD D8](../_bmad-output/implementation-artifacts/realisa
 - La criticité/ROAM, les snapshots qualitatifs clôturés, le « Voir tout » complet et le remplacement éventuel du bloc de configuration constituent les points de recette/compléments à ne pas présumer terminés.
 
 **Statut :** implémentation sur la branche corrective ; recette TypeScript, tests et validation visuelle Windows à confirmer. Cette note ne modifie pas les contrats UX déjà approuvés pour les autres écrans.
+
+
+## Avenant UX — Quatre colonnes opérationnelles compactes (24/10/2026)
+
+**Référence visuelle :** capture PJ2 fournie dans la conversation du 24/10/2026 ; PJ1 représente l'écart à corriger. La capture est illustrative pour le style et la densité, jamais pour des valeurs d'exemple : seules les données SMN réellement persistées doivent être affichées.
+
+- **Disposition :** quatre colonnes Obstacles / Risques / Événements / Notes-Alertes, responsive 4/2/1 ; maximum cinq éléments par colonne, compteur réel. En-têtes compacts ; pas de textes explicatifs qui repoussent les cartes ; cartes à contenu naturel sans hauteur minimale exagérée, description limitée visuellement à deux lignes.
+- **Risques et obstacles :** titre vers fiche réelle ; description persistée si présente ; statut traduit ; criticité explicite seulement si évaluée (sinon « Non évaluée ») ; responsable et dates uniquement s'ils existent ; couleur de sévérité cohérente. Les fiches héritées sans association explicite restent signalées discrètement « Équipe · sans Sprint ». La responsabilité nominative n'est visible qu'aux administrateurs conformément à la projection serveur.
+- **Événements :** icônes Bootstrap Icons people-fill (Daily), calendar-check (Planning), bar-chart-line (Review), chat-dots (Rétrospective), sliders (Affinage), calendar-event (inconnu/exceptionnel). Mapper les noms des modèles réellement enregistrés, sans interpréter arbitrairement un type inconnu. Date dans le fuseau du Sprint et dans la langue de l'interface ; « Ven. 23 oct. : 09:00 — 09:15 » quand les deux instants tombent le même jour, deux dates distinctes sinon. Ne pas assimiler une occurrence reconstituée à une réunion tenue. Lieu/participants uniquement avec source effectivement persistée et autorisée.
+- **Notes / alertes :** distinction entre note et tâche de configuration ; les titres et descriptions des tâches sont ceux des traductions de configuration existantes. Tâche todo = alerte active ; done = information terminée ; ignored = masquée. Les notes existantes du Sprint utilisent leur texte enregistré, sans description fictive.
+- **Navigation et saisie :** conserver « Voir tout » vers un écran réel, le titre des fiches et réunions vers leur route effective, les autorisations existantes et quatre boutons « + Ajouter » centrés, gras, sans soulignement, ouvrant les formulaires dans des dialogues modaux sans navigation. Ne pas inventer de route de liste quand aucun module n'existe.
+- **Recette :** vérifier visuellement sur navigateur 4/2/1 colonnes et thèmes, profils admin/user, 0/1/5/>5 entrées, descriptions longue/courte/absente, FR/EN, fuseaux et changement de jour, hiérarchie de statuts, Sprint historique, modales et absence de données personnelles non autorisées.
+
+**État de livraison :** l'implémentation proposée dans `ux/dashboard-compact-cards-20261024` ne vaut pas recette locale. GitHub Actions reste désactivé ; exécuter typecheck, tests et build sur le poste Windows avant validation finale des US. Lié à SMN-21, SMN-237, SMN-238.

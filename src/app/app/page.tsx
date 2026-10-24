@@ -51,7 +51,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   const sprintResult=context.mode==="scrum"?await withDashboardRead(async db=>{
     const sprintData=await readSprintContext(db,context.teamId);
     const cycle=selectedSprint(sprintData.items,requested);
-    const projection=cycle?await readCycleDashboard(db,context.teamId,cycle):null;
+    const projection=cycle?await readCycleDashboard(db,context.teamId,cycle,account.role==="admin"):null;
     return {cycle,projection};
   }).catch(()=>null):{cycle:null,projection:null};
   const cycle=sprintResult?.cycle??null;

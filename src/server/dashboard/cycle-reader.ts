@@ -155,7 +155,7 @@ async function readCapacity(db:Client,teamId:string,sprint:SprintContextItem):
  * À appeler uniquement sous REPEATABLE READ READ ONLY. Le contrôle d'équipe
  * s'effectue côté serveur, et les producteurs ne créent aucune table.
  */
-export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintContextItem):
+export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintContextItem,allowOwner=false):
  Promise<CollectiveCycleProjection>{
  const check=await db.query<{status:string}>(`SELECT s.status FROM public.smn_sprint s
   JOIN public.smn_team t ON t.id=s.team_id
@@ -246,7 +246,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    const savepoint="dashboard_registry_"+kind;
    await db.query("SAVEPOINT "+savepoint);
    try{
-    const data=await readCycleRegistry(db,teamId,sprint.id,kind);
+    const data=await readCycleRegistry(db,teamId,sprint.id,kind,allowOwner);
     if(kind==="obstacle")obstacles=data;else risks=data;
     await db.query("RELEASE SAVEPOINT "+savepoint);
    }catch{
