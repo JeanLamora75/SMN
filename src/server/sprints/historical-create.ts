@@ -2,6 +2,7 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
 import {saveGeneratedCeremonies} from "./ceremonies";
+import {ensureTemplateOccurrenceSchema} from "./template-occurrences";
 const UUID=/^[a-f0-9-]{36}$/i;
 export type HistoricalSprintInput={name:string;startAt:string;endAt:string;generateCeremonies:boolean;operationId:string};
 export function parseHistoricalSprint(raw:unknown):HistoricalSprintInput|null{
@@ -63,6 +64,7 @@ export async function createHistoricalSprint(db:Client,actorId:string,raw:unknow
   let generated=0;
   let templateConfiguration:unknown[]=[];
   if(value.generateCeremonies){
+   await ensureTemplateOccurrenceSchema(db);
    const templates=await db.query(`SELECT id,name,revision,frequency,weekday,position,local_time::text AS local_time,
     duration_minutes FROM public.smn_scrum_ceremony_template
     WHERE team_id=$1 AND active=true ORDER BY id`,[t.id]);
