@@ -11,10 +11,10 @@ import BootstrapIcon from "./bootstrap-icon";
 type Kind="registry"|"event"|"note"|"configuration";
 type Props={kind:Kind;id:string;title:string;teamId:string;cycleId:string;canManage:boolean;
  status?:string;eventKind?:DashboardEvent["kind"];configurationKey?:DashboardAttention["configurationKey"];
- timeZone?:string;href?:string;className?:string};
+ timeZone?:string;href?:string;className?:string;actionIcon?:boolean};
 type Note={id:string;body:string;status:string};
 type Event={id:string;kind:DashboardEvent["kind"];title:string;startsAt:string;endsAt:string;
- duration:number;status:string;editable:boolean};
+ duration:number;actualMinutes:number|null;status:string;editable:boolean};
 
 function NoteForm({id,teamId,cycleId,canManage,saved}:{
  id:string;teamId:string;cycleId:string;canManage:boolean;saved:()=>void;
@@ -118,6 +118,7 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
  const [initial,setInitial]=useState<Event|null>(null);
  const [title,setTitle]=useState(""),[when,setWhen]=useState("");
  const [duration,setDuration]=useState(15),[status,setStatus]=useState("");
+ const [actualMinutes,setActualMinutes]=useState<number|null>(null);
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
  useEffect(()=>{
   const ctrl=new AbortController();
@@ -127,7 +128,7 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
   }).then(async r=>{if(!r.ok)throw Error();return r.json() as Promise<{event:Event}>;})
    .then(({event})=>{if(!ctrl.signal.aborted){
     setInitial(event);setTitle(event.title);setWhen(dashboardLocalValue(event.startsAt,timeZone));
-    setDuration(event.duration);setStatus(["scheduled","held","not_held","cancelled"].includes(event.status)?
+    setDuration(event.duration);setActualMinutes(event.actualMinutes);setStatus(["scheduled","held","not_held","cancelled"].includes(event.status)?
      event.status:"");
    }}).catch(()=>{if(!ctrl.signal.aborted)setError(t("dashboard.operational.edit.loadError"));})
    .finally(()=>{if(!ctrl.signal.aborted)setLoading(false);});
@@ -142,6 +143,7 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
    const res=await fetch("/api/admin/dashboard/events/"+kind+"/"+encodeURIComponent(id),{
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({teamId,sprintId:cycleId,title:title.trim(),startAt,duration,status,
+     actualMinutes,expectedActualMinutes:initial.actualMinutes,
      expectedTitle:initial.title,expectedStartAt:initial.startsAt,
      expectedEndAt:initial.endsAt,expectedStatus:initial.status})
    });
@@ -167,6 +169,12 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
   <label className="form-label">{t("dashboard.operational.edit.duration")}
    <input className="form-control" type="number" min={1} max={kind==="ceremony"?600:480} required value={duration}
     disabled={readonly||busy} onChange={e=>setDuration(Number(e.target.value))}/>
+  </label>
+  <label className="form-label">{t("sprintDetail.ceremonyActualDuration")}
+   <input className="form-control" type="number" min={0} max={1440} step={1}
+    value={actualMinutes??""} disabled={readonly||busy}
+    placeholder={t("sprintDetail.ceremonyNotRecorded")}
+    onChange={e=>setActualMinutes(e.target.value===""?null:Number(e.target.value))}/>
   </label>
   <label className="form-label">{t("dashboard.operational.edit.status")}
    <select className="form-select" value={status} disabled={readonly||busy}
@@ -212,8 +220,13 @@ export default function OperationalEdit(props:Props){
  const close=()=>ref.current?.close();
  return <>
   <span className="smn-operational-edit-wrap">
-  <button type="button" className={props.className+" smn-operational-edit-trigger"}
-   onClick={()=>setOpened(true)} aria-haspopup="dialog">{props.title}</button>
+  <button type="button" className={props.actionIcon?
+   props.className??"smn-sprint-ceremony-edit":(props.className??"")+" smn-operational-edit-trigger"}
+   onClick={()=>setOpened(true)} aria-haspopup="dialog"
+   aria-label={props.actionIcon?t("sprintDetail.ceremonyEdit")+" : "+props.title:undefined}
+   title={props.actionIcon?t("sprintDetail.ceremonyEdit")+" : "+props.title:undefined}>
+   {props.actionIcon?<BootstrapIcon name="pencil-square"/>:props.title}
+  </button>
   {props.href&&<Link href={props.href} className="smn-operational-source-link"
     aria-label={t("dashboard.operational.edit.openPage")} title={t("dashboard.operational.edit.openPage")}>
     <BootstrapIcon name="arrow-right"/>
