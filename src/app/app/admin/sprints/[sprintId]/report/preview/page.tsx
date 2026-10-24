@@ -1,5 +1,6 @@
 import "./print.css";
 import Link from "next/link";
+import Image from "next/image";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -48,7 +49,7 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
  {data.version!==null&&<> · V{data.version}</>}</p>
  {data.provisional&&<div className="alert alert-warning">{label("provisional")}</div>}
  <p className="text-secondary d-print-none">{label("readOnly")}</p></div>
- {payload.logo&&<img src={"data:"+payload.logo.mime+";base64,"+payload.logo.base64} alt={label("logoAlt")} width={130} height={90} style={{objectFit:"contain",maxWidth:"28%"}}/>}</div>
+ {payload.logo&&<Image unoptimized src={"data:"+payload.logo.mime+";base64,"+payload.logo.base64} alt={label("logoAlt")} width={130} height={90} style={{objectFit:"contain",maxWidth:"28%"}}/>}</div>
  </header>
  {note("introduction")&&<section><h2 className="h5">{label("introduction")}</h2><p style={{whiteSpace:"pre-wrap"}} lang={note("introduction")?.language}>{note("introduction")?.text}</p></section>}
  {data.sections.map(section=><section className="mb-4" key={section.key}>
