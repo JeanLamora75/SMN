@@ -31,3 +31,14 @@ pnpm build
 ```
 
 **Statut : corrections de lint publiées sur main ; succès de la commande à confirmer.** En cas de nouvel échec, traiter les diagnostics résiduels sans désactiver globalement les règles React et sans masquer les fichiers source.
+
+
+## Résultat de contrôle du 24 octobre — 0 erreur, 12 avertissements
+
+Nouvelle sortie utilisateur de `pnpm lint` : **0 erreur, 12 avertissements**. Le lint a donc réussi ; les avertissements non bloquants concernent 11 effets React (`react-hooks/exhaustive-deps`) et l'utilisation d'une balise `img` dans le rapport (`@next/next/no-img-element`).
+
+**Correctif publié sur `main` :** les dépendances manquantes de `t` ont été ajoutées dans la fiche membre et les registres ; les fonctions de chargement des écrans d'administration ont été mémorisées avec `useCallback` et utilisées dans les tableaux de dépendances `useEffect`. Pour le logo base64 du rapport PDF/HTML, `next/image` est utilisé avec `unoptimized` afin de préserver l'impression sans recharger une image déjà encodée. Aucune règle ESLint n'a été désactivée.
+
+**Vérification réalisée :** lecture statique des 12 fichiers modifiés sur GitHub. **À confirmer sur Windows après synchronisation** : `pnpm lint`, `pnpm typecheck`, `pnpm build`, ainsi que l'affichage du logo sur l'aperçu imprimable. L'avertissement séparé `baseline-browser-mapping` concerne la fraîcheur d'une dépendance ; il reste informatif.
+
+Statut : avertissements traités dans les sources, **nouveau résultat de lint non encore attesté**.
