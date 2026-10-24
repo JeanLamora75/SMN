@@ -6,6 +6,7 @@ import {parseTeamCalendarQuery,calendarDates,readTeamCalendar} from
  "../src/server/members/team-calendar";
 const memberId="11111111-1111-4111-8111-111111111111";
 const teamId="team-main";
+const memberIdB="22222222-2222-4222-8222-222222222222";
 const start="2026-05-01";
 const params=(fields:Record<string,string>={})=>new URLSearchParams({start,...fields});
 const query=(extra:Record<string,string>={},admin=true)=>{
@@ -33,11 +34,13 @@ function fakeDb(opts:{
    return {rows:[{id:teamId,name:"Équipe Produit",mode:"scrum"}],rowCount:1};
   if(sql.includes("FROM public.smn_member_assignment a")){
    const rows=[assignment,...(opts.duplicateAssignment?
-    [{...assignment,id:"assigned-2",start_on:"2026-01-01"}]:[])];
+    [{...assignment,id:"assigned-2",start_on:"2026-01-01"}]:[]),
+    ...(opts.otherMember?[{...assignment,id:"assigned-3",member_id:memberIdB,display_name:"Membre B",member_number:2}]:[])];
    return {rows,rowCount:rows.length};
   }
   if(sql.includes("FROM public.smn_member_absence a")){
-   const rows=opts.absent===false?[]:[absence,...(opts.duplicateAbsence?[{...absence,id:"44444444-4444-4444-8444-444444444444",start_slot:"afternoon"}]:[])];return {rows,rowCount:rows.length};
+   const rows=opts.absent===false?[]:[absence,...(opts.duplicateAbsence?[{...absence,id:"44444444-4444-4444-8444-444444444444",start_slot:"afternoon"}]:[]),
+    ...(opts.otherMember?[{...absence,id:"55555555-5555-4555-8555-555555555555",member_id:memberIdB}]:[])];return {rows,rowCount:rows.length};
   }
   if(sql.includes("FROM public.smn_member_calendar_week")){
    const rows=opts.unknownCalendar?[]:[{
@@ -45,14 +48,14 @@ function fakeDb(opts:{
     created_at:"2025-01-01",days:Array.from({length:7},(_,i)=>({
      weekday:i+1,morning:i<5,afternoon:i<5
     }))
-   }];
+   },...(opts.otherMember?[{member_id:memberIdB,revision:1,effective_from:"2025-01-01",created_at:"2025-01-01",days:Array.from({length:7},(_,i)=>({weekday:i+1,morning:i<5,afternoon:i<5}))}]:[])];
    return {rows,rowCount:rows.length};
   }
   if(sql.includes("FROM public.smn_member_calendar_exception"))
    return {rows:[],rowCount:0};
   if(sql.includes("FROM public.smn_member_location")){
    const rows=[{member_id:memberId,revision:1,effective_from:"2025-01-01",
-    country_iso2:"FR"}];
+    country_iso2:"FR"},...(opts.otherMember?[{member_id:memberIdB,revision:1,effective_from:"2025-01-01",country_iso2:"FR"}]:[])];
    return {rows,rowCount:rows.length};
   }
   if(sql.includes("FROM public.smn_company_closure")){
@@ -127,8 +130,13 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
   assert.equal(output.collective[0].reportedUnavailable,1);
  });
  it("compte une fois le membre avec plusieurs absences, et exclut les fériés/fermetures",async()=>{
-  const a=await readTeamCalendar(fakeDb({duplicateAbsence:true,duplicateAssignment:true}).db,query(),true);
-  assert.equal(a.collective[0].declaredAbsentMemberCount,1);
+  const a=await readTeamCalendar(fakeDb({duplicateAbsence:true,duplicateAssignment:true,otherMember:true}).db,query(),true);
+  assert.equal(a.collective[0].declaredAbsentMemberCount,2);
+  assert.equal(a.collective[0].assigned,2);
+  const safe=await readTeamCalendar(fakeDb({duplicateAbsence:true,otherMember:true}).db,query({},false),false);
+  assert.equal(safe.collective[0].declaredAbsentMemberCount,2);
+  for(const secret of [memberId,memberIdB,"Mme Exemple","Membre B","Fête régionale personnelle"])
+   assert.equal(JSON.stringify(safe).includes(secret),false);
   const b=await readTeamCalendar(fakeDb({absent:false,holiday:true,closure:true}).db,query({},false),false);
   assert.equal(b.collective[0].declaredAbsentMemberCount,0);
   assert.equal(b.collective[0].reportedUnavailable,1);
