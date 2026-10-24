@@ -100,7 +100,7 @@ test("le lecteur des registres transmet uniquement les attributs réellement per
    description:"Description conservée",owner_name:"Sophie",due_on:"2026-10-28",
    occurred_on:"2026-10-20",probability:null,impact:null}]};
  }} as unknown as Client;
- const projected=await readCycleRegistry(db,"team-1","sprint-1","obstacle");
+ const projected=await readCycleRegistry(db,"team-1","sprint-1","obstacle",true);
  assert.equal(projected.state,"available");
  if(projected.state==="available"){
   assert.equal(projected.items[0].description,"Description conservée");
