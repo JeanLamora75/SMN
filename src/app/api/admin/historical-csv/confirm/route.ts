@@ -10,7 +10,7 @@ export async function POST(req:NextRequest){
   const body=await req.json() as {csv?:unknown;choices?:unknown};
   if(typeof body?.csv!=="string"||!Array.isArray(body.choices))
    return Response.json({error:"invalid-input"},{status:400});
-  const result=await withAuthDb(db=>confirmHistoricalCsv(db,actor.id,body.csv as string,body.choices as {line:number;decision:"keep"|"insert"|"replace"}[]));
+  const result=await withAuthDb(db=>confirmHistoricalCsv(db,actor.id,body.csv as string,body.choices as {line:number;decision:"keep"|"insert"|"replace";expectedValue:number|null}[]));
   return Response.json(result,{status:result.ok?200:409,headers:{"Cache-Control":"no-store"}});
  }catch{return Response.json({error:"service-unavailable"},{status:503});}
 }
