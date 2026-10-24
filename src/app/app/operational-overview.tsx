@@ -153,6 +153,7 @@ function AttentionCard({item,locale}:Readonly<{
   <div className="smn-attention-card-metadata">
    {!item.configurationKey&&item.kind!=="note"&&<PriorityMarker priority={item.priority} locale={locale}/>}
    {status&&<span className="smn-attention-card-status">{status}</span>}
+   {item.scope==="team"&&<span className="smn-attention-card-status">{t("dashboard.operational.unlinkedTeam")}</span>}
   </div>
  </article>;
 }
