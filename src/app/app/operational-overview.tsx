@@ -58,7 +58,7 @@ function TopicIcon({kind}:Readonly<{kind:ColumnKind|"note"|"alert"}>){
 function UnavailableColumn({definition,locale,teamId,cycleId,canManage}:Readonly<{definition:PanelDefinition;locale:Language;teamId?:string;cycleId?:string;canManage?:boolean}>){
   const t=(key:TranslationKey)=>translate(locale,key);
   const id="smn-operational-"+definition.id;
-  return <section className={"smn-operational-panel smn-operational-"+definition.id}
+  return <section className={"smn-operational-panel smn-operational-"+definition.id+" smn-operational-compact"}
     aria-labelledby={id} id={definition.id==="events"?"calendrier":definition.id==="obstacles"?"registres":undefined}>
     <header className="smn-operational-panel-header">
       <div className="smn-operational-title-wrap">
