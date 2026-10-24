@@ -10,6 +10,7 @@ import {
 import type {SprintContextItem} from "@/lib/sprint-context";
 import {eventsFromClosureSnapshot,readCurrentSprintEvents} from "@/server/dashboard/events-reader";
 import {sprintWorkingDaysRemaining} from "@/lib/sprint-working-days";
+import {readCycleRegistry,readCycleNotesAndAlerts} from "./attention-reader";
 
 const object=(v:unknown):Record<string,unknown>|null=>
  v!==null&&typeof v==="object"&&!Array.isArray(v)?v as Record<string,unknown>:null;
@@ -175,6 +176,9 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
  };
  let version:number|null=null;
  let events:CollectiveCycleProjection["events"]=collectionUnavailable("producer-not-ready");
+ let obstacles:CollectiveCycleProjection["obstacles"]=collectionUnavailable("producer-not-ready");
+ let risks:CollectiveCycleProjection["risks"]=collectionUnavailable("producer-not-ready");
+ let notesAndAlerts:CollectiveCycleProjection["notesAndAlerts"]=collectionUnavailable("producer-not-ready");
  if(status==="closed"){
   events=collectionUnavailable("history-missing");
   if(await tableExists(db,"smn_sprint_closure_snapshot")){
@@ -236,6 +240,32 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    capacity=capacityUnavailable("read-failed");
    void error;
   }
+  // Les registres et les notes sont lus dans le même snapshot, sans DDL.
+  // Chaque famille est isolée pour préserver les autres métriques en cas d’échec.
+  const dates=sprintCapacityDates(sprint);
+  for(const kind of ["obstacle","risk"] as const){
+   const savepoint="dashboard_registry_"+kind;
+   await db.query("SAVEPOINT "+savepoint);
+   try{
+    const data=await readCycleRegistry(db,teamId,sprint.id,dates.start,dates.end,kind);
+    if(kind==="obstacle")obstacles=data;else risks=data;
+    await db.query("RELEASE SAVEPOINT "+savepoint);
+   }catch{
+    await db.query("ROLLBACK TO SAVEPOINT "+savepoint);
+    await db.query("RELEASE SAVEPOINT "+savepoint);
+    if(kind==="obstacle")obstacles=collectionUnavailable("read-failed");
+    else risks=collectionUnavailable("read-failed");
+   }
+  }
+  await db.query("SAVEPOINT dashboard_notes");
+  try{
+   notesAndAlerts=await readCycleNotesAndAlerts(db,teamId,sprint.id);
+   await db.query("RELEASE SAVEPOINT dashboard_notes");
+  }catch{
+   await db.query("ROLLBACK TO SAVEPOINT dashboard_notes");
+   await db.query("RELEASE SAVEPOINT dashboard_notes");
+   notesAndAlerts=collectionUnavailable("read-failed");
+  }
   // Le calendrier ne doit pas rendre les autres cartes indisponibles si
   // une table historique possède un schéma inattendu.
   await db.query("SAVEPOINT dashboard_current_events");
@@ -269,7 +299,5 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
   goals,storyPoints,capacity,
   tickets,workingDaysRemaining:remaining,
   events,
-  obstacles:collectionUnavailable("producer-not-ready"),
-  risks:collectionUnavailable("producer-not-ready"),
-  notesAndAlerts:collectionUnavailable("producer-not-ready")};
+  obstacles,risks,notesAndAlerts};
 }
