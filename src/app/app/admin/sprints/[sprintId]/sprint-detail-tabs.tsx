@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {useEffect,useRef,useState,type KeyboardEvent} from "react";
+import {useEffect,useRef,type KeyboardEvent} from "react";
 import {useRouter} from "next/navigation";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 import {sprintTabKeys,type SprintTab} from "@/lib/sprint-detail-tabs";
@@ -9,11 +9,11 @@ export default function SprintDetailTabs({sprintId,active,labels,navLabel}:{
 }){
  const router=useRouter();
  const tabs=useRef<Array<HTMLAnchorElement|null>>([]);
- const [focused,setFocused]=useState<number|null>(null);
+ const focused=useRef<number|null>(null);
  const tabHref=(key:SprintTab)=>sprintDetailPath(sprintId)+"?tab="+key;
  useEffect(()=>{
-  if(focused!==null){tabs.current[focused]?.focus();setFocused(null);}
- },[active,focused]);
+  if(focused.current!==null){tabs.current[focused.current]?.focus();focused.current=null;}
+ },[active]);
  function onKeyDown(event:KeyboardEvent<HTMLAnchorElement>,index:number){
   let next=index;
   if(event.key==="ArrowRight")next=(index+1)%sprintTabKeys.length;
@@ -22,7 +22,7 @@ export default function SprintDetailTabs({sprintId,active,labels,navLabel}:{
   else if(event.key==="End")next=sprintTabKeys.length-1;
   else return;
   event.preventDefault();
-  setFocused(next);
+  focused.current=next;
   router.push(tabHref(sprintTabKeys[next]));
  }
  return <nav className="smn-sprint-detail-tabs" aria-label={navLabel}>
