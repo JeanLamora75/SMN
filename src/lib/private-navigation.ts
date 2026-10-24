@@ -27,26 +27,24 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole):readon
  const groups:NavigationGroup[]=[
   {id:"pilotage",label:"navigation.groups.pilotage",entries:[
    {id:"dashboard",label:"navigation.entries.dashboard",href:"/app",icon:"house-fill"},
-   {id:"members",label:"navigation.entries.members",href:role==="admin"?"/app/admin/members":null,icon:"people-fill"},
-   {id:"centralCalendar",label:"navigation.entries.calendar",href:"/app/team-calendar",icon:"calendar3"}
-  ]},
-  {id:"cycles",label:"navigation.groups.cycles",entries:[
-   {id:"cycles",label:mode==="scrum"?"navigation.entries.sprints":mode==="kanban"?
-    "navigation.entries.kanbanPeriods":"navigation.entries.cyclesUnknown",
+   {id:"members",label:"navigation.entries.members",
+    href:role==="admin"?"/app/admin/members":null,icon:"people-fill"},
+   {id:"cycles",label:mode==="scrum"?"navigation.entries.sprint":
+    mode==="kanban"?"navigation.entries.kanbanPeriods":"navigation.entries.cyclesUnknown",
     href:mode==="scrum"?"/app/admin/sprints":null,icon:"calendar-check"},
-   {id:"reviews",label:"navigation.entries.reviews",href:null,icon:"sticky-fill"}
-  ]},
-  {id:"registers",label:"navigation.groups.registers",entries:[
-   {id:"risks",label:"navigation.entries.risks",href:"/app/admin/registries",icon:"exclamation-octagon-fill"}
-  ]},
-  {id:"reports",label:"navigation.groups.reports",entries:[
-   {id:"reporting",label:"navigation.entries.reporting",href:null,icon:"bar-chart-line"},
-   {id:"briefs",label:"navigation.entries.briefs",href:null,icon:"ticket-perforated-fill"}
+   {id:"centralCalendar",label:"navigation.entries.calendar",
+    href:"/app/team-calendar",icon:"calendar3"},
+   {id:"risks",label:"navigation.entries.register",
+    href:"/app/admin/registries",icon:"stack"},
+   {id:"reporting",label:"navigation.entries.reporting",href:null,icon:"bar-chart-line"}
   ]}
  ];
- if(role==="admin")groups.push({id:"admin",label:"navigation.groups.admin",entries:[
-  {id:"settings",label:"navigation.entries.settings",href:"/app/admin/settings",icon:"sliders"}
- ]});
+ if(role==="admin")groups.push({
+  id:"admin",label:"navigation.groups.admin",entries:[
+   {id:"settings",label:"navigation.entries.settings",
+    href:"/app/admin/settings",icon:"sliders"}
+  ]
+ });
  return groups;
 }
 
