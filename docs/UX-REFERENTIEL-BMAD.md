@@ -609,3 +609,68 @@ verticales Vision/But spécifiées dans les avenants précédents.**
 **Recette :** grand écran, tablette, mobile, thèmes et zoom ; vérifier
 3 zones d'égale largeur utile sur grand écran, les deux séparateurs
 verticaux, et le maintien du contenu des trois blocs.
+
+## Avenant UX — Fiche événement compactée et comptes rendus typés (24 octobre 2026)
+
+**Demande utilisateur validée :** sur le calendrier central, l'ouverture d'une
+cérémonie Scrum, d'une occurrence personnalisée ou d'une réunion exceptionnelle
+affiche une modale d'événement plus compacte, sans retirer les contrôles
+fonctionnels existants.
+
+### AC-MEET01 — Champs regroupés et sauvegardes sur la même ligne
+
+- Identité : **Nom de la réunion**, **Type**, **Sprint** et **Fuseau horaire**
+  regroupés dans la même rangée lorsqu'il y a assez de largeur.
+- Planification : **Début**, **Fin** et **Durée prévue calculée** dans une
+  même ligne ; **Portée** éventuelle pour le Daily ; sauvegarde par icône
+  **Bootstrap floppy**, alignée avec les champs. Conserver validation
+  temporelle, heure locale DST, limite de durée et contrôle de révision.
+- Réalisation/statut : état et durée réelle dans une même ligne avec sauvegarde
+  de la durée ; changement de statut et motif dans une ligne dédiée avec
+  icône. Trois opérations **distinctes** avec leurs règles métier inchangées,
+  pas de sauvegarde globale implicite.
+- Chaque bouton d'icône comporte `aria-label` et `title` correspondant
+  à « Enregistrer les horaires / la durée / le statut », et reste
+  désactivé si la valeur n'a pas changé, est invalide ou non autorisée.
+- Responsive : les lignes se replient proprement quand leur largeur
+  ne permet plus un affichage côte à côte ; les valeurs restent lisibles
+  sans défilement horizontal de l'écran.
+
+### AC-MEET02 — Commentaires typés issus de la réunion
+
+- Une section **Commentaires de la réunion**, accessible dans la même modale,
+  propose **Décision**, **Action** ou **Fait marquant**, un champ libre requis
+  (1 à 2000 caractères) et son icône de sauvegarde.
+- Une confirmation crée une **véritable fiche du registre** existant
+  `smn_registry_item` du type choisi, avec statut initial du registre,
+  titre déduit de la première ligne (maximum 240 caractères) et
+  description reprenant le texte complet. Une liaison explicite en
+  `smn_calendar_meeting_outcome_link` associe le registre à **la source
+  exacte** (kind+ID) ainsi qu'au Sprint/équipe. Le titre et le commentaire
+  ne sont pas réinterprétés comme des décisions automatiques par l'UI.
+- La création de la fiche, l'audit initial et la liaison à la réunion sont
+  **atomiques**. Une décision active conserve le traitement transversal
+  de fait marquant confirmé propre au registre. Pas de document orphelin
+  en cas de panne.
+- L'enregistrement reste **réservé à l'administrateur**, et interdit si
+  le Sprint est clôturé. Le GET des commentaires liés est **sans DDL**,
+  accessible à l'utilisateur autorisé, y compris après clôture.
+- La date métier est celle de la réunion dans son fuseau IANA, non la
+  date de saisie ni celle du navigateur. Les résultats enregistrés sont
+  listés immédiatement dans la modale et ouvrables dans **Registres**.
+- Aucune mutation indirecte de la planification, du statut ou des
+  durées lors d'une création de commentaire.
+
+### AC-MEET03 — Non-régression / recette
+
+Tester les trois familles d'événements, statut prévu/tenu/annulé,
+Daily portée occurrence/suivantes, horaires DST, durée réelle, trois
+statuts métier, admin/user, clôturé, commentaires 1/2000/2001
+caractères, création et lecture des trois catégories, lien source,
+date métier, historique registre, rollback et perte de connexion,
+FR/EN, thèmes et largeur mobile. Exécuter localement typecheck,
+lint, tests spécifiques et build avant de clôturer la Story.
+
+**Rattachement :** SMN-64 (calendrier), SMN-89 (création registre depuis
+une réunion), SMN-79 (statut événement). Implémentation suivie dans
+`_bmad-output/implementation-artifacts/smn-calendar-meeting-compact-outcomes-2026-10-24.md`.

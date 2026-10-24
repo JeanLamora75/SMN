@@ -1,6 +1,6 @@
 /** Bootstrap Icons (MIT) — SVG officiels, intégrés sans CDN ni police externe.
  * Source: https://github.com/twbs/icons/tree/main/icons */
-type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders";
+type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders"|"floppy";
 
 export default function BootstrapIcon({name,className=""}:Readonly<{
  name:Name;className?:string;
@@ -26,6 +26,10 @@ export default function BootstrapIcon({name,className=""}:Readonly<{
    case "chat-dots":return <>
     <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2v2l3-2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6.7L5 14.3V13H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1"/>
     <circle cx="4.5" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="11.5" cy="8" r="1"/>
+   </>;
+   case "floppy":return <>
+    <path d="M11 2H9v3h2z"/>
+    <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v13A1.5 1.5 0 0 0 1.5 16h13a1.5 1.5 0 0 0 1.5-1.5V4.414a1.5 1.5 0 0 0-.44-1.06L12.646.44A1.5 1.5 0 0 0 11.586 0zm0 1H3v4.5A1.5 1.5 0 0 0 4.5 7h7A1.5 1.5 0 0 0 13 5.5V2.414l1.854 1.854a.5.5 0 0 1 .146.353V14.5a.5.5 0 0 1-.5.5H13v-5.5A1.5 1.5 0 0 0 11.5 8h-7A1.5 1.5 0 0 0 3 9.5V15H1.5a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 .5-.5M4 1h8v4.5a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm0 14V9.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V15z"/>
    </>;
    case "sliders":return <>
     <path d="M4 1a.5.5 0 0 1 .5.5V3h11a.5.5 0 0 1 0 1h-11v1.5a.5.5 0 0 1-1 0V4h-3a.5.5 0 0 1 0-1h3V1.5A.5.5 0 0 1 4 1m7 5a.5.5 0 0 1 .5.5V8h4a.5.5 0 0 1 0 1h-4v1.5a.5.5 0 0 1-1 0V9H.5a.5.5 0 0 1 0-1h10V6.5A.5.5 0 0 1 11 6m-4 5a.5.5 0 0 1 .5.5V13h8a.5.5 0 0 1 0 1h-8v1.5a.5.5 0 0 1-1 0V14h-6a.5.5 0 0 1 0-1h6v-1.5A.5.5 0 0 1 7 11"/>

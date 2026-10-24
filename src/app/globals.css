@@ -365,6 +365,42 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
 .smn-cal-detail-modal input[readonly]{background:var(--smn-muted-soft);color:var(--smn-foreground);opacity:1;}
 .smn-cal-detail-modal .form-label{font-size:.82rem;font-weight:600;color:var(--smn-foreground);}
 .smn-cal-detail-modal .form-control,.smn-cal-detail-modal .form-select{font-size:.87rem;}
+
+/* Compact meeting editor: editable values and their save icon share each row. */
+.smn-cal-detail-compact .smn-cal-detail-section{padding-top:10px;}
+.smn-cal-detail-compact .form-label{margin:0;min-width:0;}
+.smn-cal-detail-compact .form-control,
+.smn-cal-detail-compact .form-select{min-width:0;width:100%;margin-top:4px;padding-block:.35rem;}
+.smn-cal-identity-grid{
+ display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));
+ gap:8px 12px;min-width:0;
+}
+.smn-cal-inline-fields,.smn-cal-outcome-form{
+ display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px;
+ min-width:0;
+}
+.smn-cal-inline-fields > .form-label{flex:1 1 145px;}
+.smn-cal-inline-fields input[type="datetime-local"]{min-width:0;}
+.smn-cal-save-icon{flex:0 0 38px;width:38px;height:38px;display:inline-flex;
+ align-items:center;justify-content:center;align-self:flex-end;}
+.smn-cal-save-icon svg{width:19px;height:19px;}
+.smn-cal-outcome-form > .form-label:first-child{flex:0 1 170px;}
+.smn-cal-outcome-form > .form-label:nth-child(2){flex:1 1 260px;}
+.smn-cal-outcome-form textarea{resize:vertical;}
+.smn-cal-outcome-item{display:flex;align-items:baseline;gap:8px;padding-block:5px;
+ border-top:1px solid var(--smn-border);}
+.smn-cal-outcome-item .badge{flex-shrink:0;}
+@media(max-width:720px){
+ .smn-cal-identity-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+ .smn-cal-identity-grid > .form-label:first-child{grid-column:1 / -1;}
+ .smn-cal-identity-grid > .form-label:nth-child(4){grid-column:1 / -1;}
+}
+@media(max-width:450px){
+ .smn-cal-identity-grid{grid-template-columns:minmax(0,1fr);}
+ .smn-cal-identity-grid > .form-label{grid-column:auto!important;}
+ .smn-cal-outcome-form > .form-label:first-child{flex:1 1 100%;}
+}
+
 @media(max-width:575px){.smn-cal-detail-modal{width:100%;padding:16px!important;}}
 
 /* Tooltip nominative des absences : réservée aux données déjà autorisées. */

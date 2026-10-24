@@ -52,6 +52,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_sprint_exceptional_meeting_history:r",
   // Historique natif créé au premier déplacement manuel d’une occurrence dans le calendrier.
   "public.smn_calendar_meeting_schedule_history:r",
+  "public.smn_calendar_meeting_outcome_link:r",
   "public.smn_meeting_actual_duration_audit:r",
   "public.smn_exceptional_capacity_impact_history:r",
   "public.smn_sprint_goal:r",
