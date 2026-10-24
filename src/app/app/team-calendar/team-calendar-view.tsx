@@ -1,6 +1,5 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
-import Link from "next/link";
 import {useLocale,useTranslation} from "@/i18n/client";
 import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMode} from "./calendar-option-b";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
@@ -19,6 +18,9 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
 }){
  const t=useTranslation(),locale=useLocale();
  const openedFromLink=useRef(false);
+ function selectPeriod(next:{start:string;count:number;label:string;sprintId:string|null}){
+  setStatus("loading");setPeriod(next);
+ }
  const [period,setPeriod]=useState<{start:string;count:number;label:string;sprintId:string|null}|null>(null);
  const [events,setEvents]=useState<CalendarEntry[]>([]);
  const [teamName,setTeamName]=useState("");
@@ -51,14 +53,14 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
       ??list.find(s=>localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
       ??list.filter(s=>localDate(s.startAt)<=current).sort((a,b)=>localDate(b.startAt).localeCompare(localDate(a.startAt)))[0]
       ??list[list.length-1];
-    if(!active){setPeriod(fallback());return;}
+    if(!active){selectPeriod(fallback());return;}
     const begin=localDate(active.startAt),finish=localDate(active.endAt);
     const count=Math.max(1,Math.round((new Date(finish+"T12:00:00Z").getTime()-new Date(begin+"T12:00:00Z").getTime())/86400000)+1);
-    setPeriod({start:begin,count,label:active.name,sprintId:active.id});
-   }).catch(()=>{if(live)setPeriod(fallback());});
+    selectPeriod({start:begin,count,label:active.name,sprintId:active.id});
+   }).catch(()=>{if(live)selectPeriod(fallback());});
    return()=>{live=false;};
  },[initialCycleId]);
- useEffect(()=>{if(!period)return;let alive=true;setStatus("loading");
+ useEffect(()=>{if(!period)return;let alive=true;
   const days=dates(period.start,period.count);
   const blocks:Array<Promise<Calendar>>=[];
   for(let i=0;i<period.count;i+=28){
@@ -87,15 +89,15 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   if(period.sprintId){
    const index=sprints.findIndex(s=>s.id===period.sprintId);
    const other=sprints[index-direction];
-   if(other){setPeriod(sprintPeriod(other));return;}
+   if(other){selectPeriod(sprintPeriod(other));return;}
   }
   const next=shift(period.start,direction*period.count);
-  setPeriod({start:monthStart(next),count:monthLength(next),label:next.slice(0,7),sprintId:null});
+  selectPeriod({start:monthStart(next),count:monthLength(next),label:next.slice(0,7),sprintId:null});
  }
  function resetPeriod(){
   const active=sprints.find(s=>localDate(s.startAt)<=now&&localDate(s.endAt)>=now);
-  if(active){setPeriod(sprintPeriod(active));return;}
-  setPeriod({start:monthStart(now),count:monthLength(now),label:now.slice(0,7),sprintId:null});
+  if(active){selectPeriod(sprintPeriod(active));return;}
+  selectPeriod({start:monthStart(now),count:monthLength(now),label:now.slice(0,7),sprintId:null});
  }
  const openCreate=useCallback((day:string)=>{
   setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");
@@ -109,8 +111,13 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   const start=localDate(sprint.startAt),end=localDate(sprint.endAt);
   const today=iso(new Date());
   const day=today>=start&&today<=end?today:start;
-  openedFromLink.current=true;
-  openCreate(day);
+  let alive=true;
+  queueMicrotask(()=>{
+   if(!alive||openedFromLink.current)return;
+   openedFromLink.current=true;
+   openCreate(day);
+  });
+  return()=>{alive=false;};
  },[isAdmin,initialCreate,initialCycleId,period,status,sprints,openCreate]);
  const selectedDate=when.slice(0,10);
  const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<=localDate(x.endAt));
@@ -143,7 +150,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  },[isAdmin,sprints]);
  useEffect(()=>{
   if(!absenceEditor||!isAdmin)return;
-  let alive=true;setMembersStatus("loading");setAvailableMembers([]);
+  let alive=true;
   void fetch("/api/admin/members",{cache:"no-store"}).then(async r=>{
    if(!r.ok)throw Error("members");
    return r.json() as Promise<{members:MemberOption[]}>;
@@ -171,7 +178,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
    <div className="smn-cal-nav">
     {sprints.length>0&&<select className="form-select form-select-sm smn-cal-select"
       aria-label={t("calendarOptionB.selectSprint")} value={period?.sprintId??""}
-      onChange={e=>{const selected=sprints.find(s=>s.id===e.target.value);if(selected)setPeriod(sprintPeriod(selected));}}>
+      onChange={e=>{const selected=sprints.find(s=>s.id===e.target.value);if(selected)selectPeriod(sprintPeriod(selected));}}>
       <option value="" disabled>{t("calendarOptionB.selectSprint")}</option>
       {sprints.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
      </select>}
@@ -208,7 +215,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
    absenceCounts={absenceCounts} today={now} mode={view}
    showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
-   onMeeting={openCreate} onAbsence={day=>{setChosenMember("");setAbsenceEditor(day);}}/>}
+   onMeeting={openCreate} onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
   {absenceEditor&&<div className="smn-member-modal-backdrop" role="presentation">
    <div className="smn-member-modal p-4" role="dialog" aria-modal="true"
     aria-labelledby="calendar-absence-title">
@@ -224,7 +231,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     {chosenMember&&<p className="fw-semibold mb-2">{availableMembers.find(m=>m.id===chosenMember)?.displayName}</p>}
     {chosenMember&&<MemberAbsenceEditor key={chosenMember+absenceEditor} memberId={chosenMember}
      initialDate={absenceEditor} record={null}
-     onSaved={()=>{setAbsenceEditor(null);setRefreshToken(n=>n+1);}}
+     onSaved={()=>{setAbsenceEditor(null);setStatus("loading");setRefreshToken(n=>n+1);}}
      onCancel={()=>setAbsenceEditor(null)}/>}
     {!chosenMember&&<div className="d-flex justify-content-end mt-3">
      <button type="button" className="btn btn-outline-secondary"
