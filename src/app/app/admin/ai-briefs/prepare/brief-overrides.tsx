@@ -47,7 +47,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
   try{
    const current=await latest();
    if(!current||!current.active){setConflict(true);setMessage("Ce modèle n'est plus disponible.");return;}
-   setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setReviewedText(null);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
+   setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
   }catch{setMessage("Rechargement impossible.");}
  }
  async function saveModel(){
@@ -104,6 +104,16 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
    <button className="btn btn-outline-secondary btn-sm" onClick={()=>void reload()} disabled={saving}>Recharger le modèle (abandonner les ajustements)</button>
    {!base.builtin&&<button className="btn btn-primary btn-sm" disabled={!changed||conflict||saving} onClick={()=>void saveModel()}>Enregistrer le modèle</button>}
   </div>
+  <aside className="alert alert-info mt-3" aria-label="Transmission manuelle à une IA">
+   <strong>Transmission manuelle uniquement.</strong> SMN ne contacte aucun service IA et ne crée aucune analyse automatiquement.
+   Après validation de la confidentialité, vous choisissez librement si vous souhaitez copier le texte puis le coller vous-même dans un service extérieur.
+   Les politiques de confidentialité, de conservation et de traitement de ce prestataire ne sont pas contrôlées par SMN.
+   Les URL et instructions présentes dans un modèle sont du texte : elles ne déclenchent aucun appel réseau vers une IA.
+  </aside>
+  {approved&&<button type="button" className="btn btn-outline-primary btn-sm mt-2" onClick={async()=>{
+   try{await navigator.clipboard.writeText(preview!);setMessage("TXT copié. Tout transfert à une IA reste une action manuelle hors de SMN.");}
+   catch{setMessage("Copie impossible : sélectionnez le texte dans l’aperçu et copiez-le manuellement.");}
+  }}>Copier le TXT validé</button>}
   {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
   {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/><p className="small mt-2">{approved?"Version affichée vérifiée pour confidentialité (non archivée).":"Version non validée : aucun export ni finalisation possible."}</p></div>}
   {changed&&!conflict&&<p className="text-secondary small mt-2">Configuration ponctuelle modifiée : aucune écriture métier. La composition et l'archivage du TXT seront ajoutés dans les prochaines stories.</p>}
