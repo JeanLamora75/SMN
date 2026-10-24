@@ -20,9 +20,9 @@ export async function PATCH(request:NextRequest,{params}:{params:Promise<{id:str
  if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
  const input=await readJsonObject(request);
  if(!input||typeof input.startOn!=="string"||typeof input.endOn!=="string"||typeof input.previewToken!=="string"||
- Object.keys(input).sort().join(",")!=="endOn,previewToken,startOn")return jsonResult({error:"invalid-input"},400);
+ Object.keys(input).some(k=>!["endOn","previewToken","startOn","reason"].includes(k))||(input.reason!==undefined&&(typeof input.reason!=="string"||input.reason.length>1000)))return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
- try{const result=await withAuthDb(db=>applyDateChange(db,id,actor.id,{startOn:input.startOn,endOn:input.endOn,previewToken:input.previewToken}));
+ try{const result=await withAuthDb(db=>applyDateChange(db,id,actor.id,{startOn:input.startOn,endOn:input.endOn,previewToken:input.previewToken,reason:typeof input.reason==="string"?input.reason:undefined}));
   return result.ok?jsonResult(result):jsonResult(result,result.error==="not-found"?404:409);}
  catch{return jsonResult({error:"service-unavailable"},503);}
 }
