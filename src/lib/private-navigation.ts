@@ -4,7 +4,7 @@ export type PrivateMode = "scrum" | "kanban";
 export type PrivateRole = "admin" | "user";
 export type NavigationIcon =
  "house-fill"|"people-fill"|"calendar3"|"calendar-check"|"sticky-fill"|
- "exclamation-octagon-fill"|"bar-chart-line"|"sliders"|"ticket-perforated-fill";
+ "exclamation-octagon-fill"|"bar-chart-line"|"sliders"|"stack"|"ticket-perforated-fill";
 export type NavigationEntry = Readonly<{
  id:string;
  label:TranslationKey;
