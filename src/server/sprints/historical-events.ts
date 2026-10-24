@@ -80,3 +80,20 @@ export async function correctHistoricalEvent(db:Client,actorId:string,meetingId:
   await db.query("COMMIT");return {ok:true as const};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+export async function listHistoricalEvents(db:Client,sprintId:string){
+ if(!uuid.test(sprintId))return null;
+ const sprint=await db.query<{id:string}>(`SELECT s.id FROM public.smn_sprint s
+ JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
+ WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
+ AND lower(i.mode)='scrum'`,[sprintId]);
+ if(!sprint.rows[0])return null;
+ const exists=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_historical_event') IS NOT NULL AS present`);
+ if(!exists.rows[0]?.present)return [];
+ const events=await db.query<{id:string;name:string;kind:string;status:string;startAt:string;endAt:string;createdAt:string}>(`
+ SELECT m.id,m.name,h.kind,m.status,m.starts_at::text AS "startAt",m.ends_at::text AS "endAt",
+ m.created_at::text AS "createdAt"
+ FROM public.smn_sprint_historical_event h JOIN public.smn_sprint_exceptional_meeting m ON m.id=h.meeting_id
+ WHERE m.sprint_id=$1 ORDER BY m.starts_at,m.id`,[sprintId]);
+ return events.rows;
+}
