@@ -25,7 +25,6 @@ function requestedMinute(date:string,time:string,zone:string){
 }
 type Interval={start:number;end:number};
 type WorkDay={date:string;windows:Interval[]};
-const overlaps=(a:Interval,b:Interval)=>a.start<b.end&&a.end>b.start;
 
 /** Shared by simple creation, batch confirmation and the Sprint generation wizard. */
 export function planSprintTemplateOccurrences(sprint:SprintBounds,
@@ -85,22 +84,23 @@ export function planSprintTemplateOccurrences(sprint:SprintBounds,
    const requested=requestedMinute(last.date,t.time,sprint.timeZone);
    let slot:Interval|null=null;
    for(const window of [...last.windows].reverse()){
-    const at=Math.min(requested,deadline-t.duration*MINUTE,window.end-t.duration*MINUTE);
+    const at=Math.min(Math.max(requested,window.start),deadline-t.duration*MINUTE,window.end-t.duration*MINUTE);
     if(at>=window.start){slot={start:at,end:at+t.duration*MINUTE};break;}
    }
    if(!slot)throw Error("sprint-end-ceremonies-overflow");
    add(t,slot.start,slot.end);deadline=slot.start;
   }
  }
- for(const date of workDays){
+ // Recurring Daily/weekly templates keep their established recurrence and
+ // configured times; the working-day correction applies only to Sprint anchors.
+ for(let day=from,i=0;day<=to&&i<35;day=nextDay(day),i++){
   for(const template of templates){
    if(template.frequency==="sprint"||
-    template.frequency==="weekly"&&template.weekday!==weekday(date.date))continue;
-   const start=requestedMinute(date.date,template.time,sprint.timeZone);
-   const window={start,end:start+template.duration*MINUTE};
-   if(!date.windows.some(w=>window.start>=w.start&&window.end<=w.end))continue;
-   if(result.some(p=>overlaps(window,p)))continue;
-   add(template,window.start,window.end);
+    template.frequency==="daily"&&weekday(day)>5||
+    template.frequency==="weekly"&&template.weekday!==weekday(day))continue;
+   const begin=requestedMinute(day,template.time,sprint.timeZone);
+   const finish=begin+template.duration*MINUTE;
+   if(begin>=sprintStart&&finish<=sprintEnd)add(template,begin,finish);
   }
  }
  return result.sort((a,b)=>a.start-b.start||a.templateId.localeCompare(b.templateId))
