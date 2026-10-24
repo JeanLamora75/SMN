@@ -12,6 +12,7 @@ import {readSprintMemberPresence} from "@/server/sprints/presence-detail-read";
 import {readSprintTrends} from "@/server/sprints/trends";
 import {readSprintReview} from "@/server/sprints/review-analysis";
 import {readSprintRegisters} from "@/server/sprints/registers-detail-read";
+import {readEpic5SprintRegisterSource} from "@/server/registries/sprint-adapter";
 import {readSprintContext} from "@/server/sprints/context";
 import {effectiveSprintStatus} from "@/lib/sprint-context";
 import {requestLocale} from "@/i18n/locale.server";
@@ -67,7 +68,7 @@ export default async function SprintDetailPage({params,searchParams}:{
    await readSprintMemberPresence(db,teamId,cycle):null;
   const trends=active==="trends"?await readSprintTrends(db,cycle.id,teamId):null;
   const review=active==="review"?await readSprintReview(db,teamId,cycle.id):null;
-  const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage):null;
+  const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage,readEpic5SprintRegisterSource):null;
   return {cycle,goals,indicators,ceremonies,presence,trends,review,registers};
  }).catch(()=>undefined);
  if(result===null)notFound();
