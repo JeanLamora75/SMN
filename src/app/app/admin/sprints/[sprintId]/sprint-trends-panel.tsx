@@ -111,7 +111,7 @@ export default function SprintTrendsPanel({data,locale,t}:{
         {t("sprintDetail.trendSnapshot",{version:p.snapshotVersion??"?"})}
        </span>
       </th>
-      <td>{display(p.completedSp,"SP")}</td>
+      <td>{display(p.completedSp,"SP")}{p.completedSp!==null&&p.completedSpQuality!=="unqualified"&&<span className="d-block small text-secondary">{p.completedSpQuality==="estimated"?(locale==="fr"?"Estimée":"Estimated"):(locale==="fr"?"Connue":"Known")}</span>}{p.completedSp!==null&&p.completedSpQuality==="unqualified"&&<span className="d-block small text-secondary">{locale==="fr"?"Qualité non attestée":"Quality unverified"}</span>}</td>
       <td>{display(p.completionRate,"%")}</td>
       <td>{display(p.actualCapacityJh,"J/H")}</td>
      </tr>)}</tbody>
