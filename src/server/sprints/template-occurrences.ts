@@ -1,20 +1,69 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureTemplateSchema} from "./ceremony-templates";
+import {readWorkSlots,type WorkSlots} from "@/server/capacity/work-slots";
+import {planSprintTemplateOccurrences,DEFAULT_TEAM_SLOTS,type SprintTemplate}
+ from "./template-working-boundaries";
+export {planSprintTemplateOccurrences} from "./template-working-boundaries";
+
 type Sprint={id:string;startAt:string;endAt:string;timeZone:string};
-type Template={id:string;name:string;frequency:"daily"|"weekly"|"sprint";weekday:number|null;position:"start"|"end"|null;time:string;duration:number;revision:number};
-const isoDay=(date:string)=>new Date(date+"T00:00:00Z").getUTCDay()||7;
-const plusDay=(date:string)=>new Date(Date.parse(date+"T00:00:00Z")+86400000).toISOString().slice(0,10);
-function localParts(at:Date,zone:string){
- const p=new Intl.DateTimeFormat("en-GB",{timeZone:zone,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(at);
- const m=Object.fromEntries(p.map(x=>[x.type,x.value]));
- return {date:`${m.year}-${m.month}-${m.day}`,time:`${m.hour}:${m.minute}`};
+function localDay(instant:Date,zone:string){
+ const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{
+  timeZone:zone,year:"numeric",month:"2-digit",day:"2-digit"
+ }).formatToParts(instant).map(x=>[x.type,x.value]));
+ return p.year+"-"+p.month+"-"+p.day;
 }
-function resolveLocal(date:string,time:string,zone:string){
- const base=Date.parse(date+"T"+time+":00Z");
- for(let shift=-14*60;shift<=14*60;shift+=15){const at=new Date(base+shift*60000);const x=localParts(at,zone);if(x.date===date&&x.time===time)return at;}
- throw Error("template-local-time-unavailable");
+const nextDay=(d:string)=>new Date(Date.parse(d+"T00:00:00Z")+86400000).toISOString().slice(0,10);
+async function teamWorkSlots(db:Client,teamId:string):Promise<WorkSlots>{
+ const exists=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_team_work_slots') IS NOT NULL AS present");
+ if(exists.rows[0]?.present){
+  const configured=await readWorkSlots(db,teamId);
+  if(configured)return configured.slots;
+ }
+ return DEFAULT_TEAM_SLOTS;
 }
+async function blockedTeamDates(db:Client,teamId:string,start:string,end:string){
+ const closed=await db.query<{start_on:string;end_on:string}>([
+  "SELECT start_on::text AS start_on,end_on::text AS end_on",
+  "FROM public.smn_company_closure WHERE team_id=$1 AND is_active=true",
+  "AND start_on<=$3::date AND end_on>=$2::date"
+ ].join(" "),[teamId,start,end]);
+ const blocked=new Set<string>();
+ for(const row of closed.rows){
+  for(let d=row.start_on;d<=row.end_on;d=nextDay(d))
+   if(d>=start&&d<=end)blocked.add(d);
+ }
+ // Holiday only when all people assigned on that date observe it;
+ // holidays affecting only part of an international team are not team closures.
+ const holidays=await db.query<{date:string}>([
+  "WITH calendar_days AS (",
+  "SELECT d::date AS working_date",
+  "FROM generate_series($2::date,$3::date,interval '1 day') d",
+  "), assigned AS (",
+  "SELECT DISTINCT d.working_date,a.member_id",
+  "FROM calendar_days d JOIN public.smn_member_assignment a",
+  "ON a.team_id=$1 AND a.start_on<=d.working_date",
+  "AND (a.end_on IS NULL OR a.end_on>=d.working_date)",
+  "), locations AS (",
+  "SELECT a.working_date,a.member_id,",
+  "(SELECT l.country_iso2 FROM public.smn_member_location l",
+  "WHERE l.member_id=a.member_id AND l.effective_from<=a.working_date",
+  "ORDER BY l.effective_from DESC,l.revision DESC LIMIT 1) AS country",
+  "FROM assigned a",
+  "), daily AS (",
+  "SELECT l.working_date,l.member_id,",
+  "(l.country IS NOT NULL AND EXISTS(",
+  "SELECT 1 FROM public.smn_national_holiday h",
+  "WHERE h.country_code=l.country AND h.holiday_date=l.working_date",
+  ")) AS on_holiday FROM locations l",
+  ") SELECT working_date::text AS date FROM daily",
+  "GROUP BY working_date HAVING count(*)>0 AND bool_and(on_holiday)"
+ ].join(" "),[teamId,start,end]);
+ for(const day of holidays.rows)blocked.add(day.date);
+ return blocked;
+}
+
 export async function ensureTemplateOccurrenceSchema(db:Client){
  await ensureTemplateSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_scrum_template_occurrence(
@@ -31,35 +80,36 @@ export async function ensureTemplateOccurrenceSchema(db:Client){
  await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'standard'");
  await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes BETWEEN 0 AND 1440)");
 }
+
 export async function saveTemplateOccurrences(db:Client,sprint:Sprint,options:{reconstructed?:boolean}={}){
  await ensureTemplateOccurrenceSchema(db);
  const team=await db.query<{team_id:string}>("SELECT team_id FROM public.smn_sprint WHERE id=$1",[sprint.id]);
  if(!team.rows[0])throw Error("sprint-not-found");
- const templates=await db.query<{id:string;name:string;frequency:Template["frequency"];weekday:number|null;position:Template["position"];time:string;duration:number;revision:number}>(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,revision
- FROM public.smn_scrum_ceremony_template WHERE team_id=$1 AND active=true`,[team.rows[0].team_id]);
+ const teamId=team.rows[0].team_id;
+ const templates=await db.query<SprintTemplate>([
+  "SELECT id,name,frequency,weekday,position,local_time::text AS time,",
+  "duration_minutes AS duration,revision",
+  "FROM public.smn_scrum_ceremony_template WHERE team_id=$1 AND active=true",
+  "ORDER BY local_time,id"
+ ].join(" "),[teamId]);
  const first=new Date(sprint.startAt),last=new Date(sprint.endAt);
  if(last.getTime()<=Date.now()&&!options.reconstructed)return 0;
+ const startDay=localDay(first,sprint.timeZone),endDay=localDay(last,sprint.timeZone);
+ const [slots,blocked]=await Promise.all([
+  teamWorkSlots(db,teamId),blockedTeamDates(db,teamId,startDay,endDay)
+ ]);
+ const scheduled=planSprintTemplateOccurrences(sprint,templates.rows,slots,blocked);
+ const versions=new Map(templates.rows.map(x=>[x.id,x.revision]));
  let count=0;
- for(const x of templates.rows){
-  let cursor=localParts(first,sprint.timeZone).date;
-  const end=localParts(last,sprint.timeZone).date;
-  while(cursor<=end){
-   const match=x.frequency==="daily"&&isoDay(cursor)<6||
-     x.frequency==="weekly"&&isoDay(cursor)===x.weekday||
-     x.frequency==="sprint"&&cursor===(x.position==="start"?localParts(first,sprint.timeZone).date:end);
-   if(match){
-    const at=resolveLocal(cursor,x.time.slice(0,5),sprint.timeZone);
-    const until=new Date(at.getTime()+x.duration*60000);
-    if(at>=first&&until<=last){
-     const inserted=await db.query(`INSERT INTO public.smn_scrum_template_occurrence
-     (id,template_id,template_revision,sprint_id,name,starts_at,ends_at,generation_source)
-     VALUES($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT DO NOTHING RETURNING id`,
-     [randomUUID(),x.id,x.revision,sprint.id,x.name,at.toISOString(),until.toISOString(),options.reconstructed?"reconstructed":"standard"]);
-     count+=inserted.rowCount??0;
-    }
-   }
-   cursor=plusDay(cursor);
-  }
+ for(const item of scheduled){
+  const inserted=await db.query([
+   "INSERT INTO public.smn_scrum_template_occurrence",
+   "(id,template_id,template_revision,sprint_id,name,starts_at,ends_at,generation_source)",
+   "VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
+   "ON CONFLICT DO NOTHING RETURNING id"
+  ].join(" "),[randomUUID(),item.templateId,versions.get(item.templateId),sprint.id,
+   item.name,item.startAt,item.endAt,options.reconstructed?"reconstructed":"standard"]);
+  count+=inserted.rowCount??0;
  }
  return count;
 }
