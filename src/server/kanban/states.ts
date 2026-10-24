@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureKanbanPeriodTables} from "./periods";
+import {readDevelopmentCapacity} from "@/server/capacity/engine";
 
 export type KanbanPeriodState="planned"|"active"|"finished"|"closed";
 export function calendarState(status:KanbanPeriodState,startOn:string,endOn:string,today:string):KanbanPeriodState{
@@ -47,11 +48,17 @@ export async function reconcileKanbanStates(db:Client){
      (id,period_id,transition,business_on,provenance) VALUES($1,$2,'started',$3,$4)
      ON CONFLICT(period_id,transition) DO NOTHING`,
      [randomUUID(),p.id,p.start_on,openingWasMissed?"recovered":"on-time"]);
-    // The historical opening value is deliberately unknown. Never reconstruct it from current data.
+    // Recovery never invents historical JH. Genuine opening captures the shared engine exactly once.
+    let initialJh:number|null=null;
+    if(!openingWasMissed){
+     const actual=await readDevelopmentCapacity(db,p.start_on,p.end_on,{externalTransaction:true});
+     if(actual.team.id!==teamId)throw Error("kanban-opening-team-mismatch");
+     initialJh=actual.totalJh;
+    }
     await db.query(`INSERT INTO public.smn_kanban_capacity_opening
      (period_id,opened_on,provenance,initial_jh)
-     VALUES($1,$2,$3,NULL) ON CONFLICT(period_id) DO NOTHING`,
-     [p.id,p.start_on,openingWasMissed?"historical-unavailable":"pending-capture"]);
+     VALUES($1,$2,$3,$4) ON CONFLICT(period_id) DO NOTHING`,
+     [p.id,p.start_on,openingWasMissed?"historical-unavailable":"pending-capture",initialJh]);
     started++;
     if(openingWasMissed)recovered++;
    }
