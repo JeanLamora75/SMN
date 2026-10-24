@@ -2285,7 +2285,8 @@
     "registersPage": "Page {page} sur {total}",
     "presenceAgileRoles": "Rôles Agile",
     "presenceFunction": "Fonction",
-    "presenceContribution": "Contribution"
+    "presenceContribution": "Contribution",
+    "registersAll": "Tous"
   },
   "registryCreate": {
     "title": "Registres",
