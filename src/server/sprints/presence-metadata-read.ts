@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import type {AgileRole} from "@/lib/sprint-presence";
 
 export type AgileRole="scrumMaster"|"productOwner"|"developer";
 export type SprintMemberMetadata=Readonly<{
