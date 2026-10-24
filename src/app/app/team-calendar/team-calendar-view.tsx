@@ -2,6 +2,7 @@
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMode} from "./calendar-option-b";
+import CalendarMeetingModal from "./calendar-meeting-modal";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
 type Calendar={team:{name:string};central:{items:CalendarEntry[]};collective:{date:string;declaredAbsentMemberCount:number}[]};
 type Meeting=CalendarMeeting;
@@ -34,6 +35,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const [availableMembers,setAvailableMembers]=useState<MemberOption[]>([]);
  const [membersStatus,setMembersStatus]=useState<"loading"|"ready"|"error">("loading");
  const [meetings,setMeetings]=useState<Meeting[]>([]);
+ const [selectedMeeting,setSelectedMeeting]=useState<Meeting|null>(null);
  const [sprints,setSprints]=useState<Sprint[]>([]);
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [editor,setEditor]=useState<string|null>(null);
@@ -215,7 +217,11 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
    absenceCounts={absenceCounts} today={now} mode={view}
    showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
-   onMeeting={openCreate} onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
+   onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
+   onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
+  {selectedMeeting&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
+   meeting={selectedMeeting} isAdmin={isAdmin} onClose={()=>setSelectedMeeting(null)}
+   onSaved={()=>{setStatus("loading");setRefreshToken(n=>n+1);}}/>}
   {absenceEditor&&<div className="smn-member-modal-backdrop" role="presentation">
    <div className="smn-member-modal p-4" role="dialog" aria-modal="true"
     aria-labelledby="calendar-absence-title">
