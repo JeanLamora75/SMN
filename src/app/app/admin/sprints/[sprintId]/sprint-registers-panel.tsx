@@ -34,28 +34,34 @@ const icons:Record<RegisterKind,
 
 /** No figures, links or fabricated records are rendered without a provider.
  * The component can render future verified Epic 5 data through its contract. */
-export default function SprintRegistersPanel({sprintId,timeZone,locale,data,t}:{
- sprintId:string;timeZone:string;locale:"fr"|"en";
+export default function SprintRegistersPanel({sprintId,timeZone,locale,data,t,selectedKind=null}:{
+ sprintId:string;timeZone:string;locale:"fr"|"en";selectedKind?:RegisterKind|null;
  data:SprintRegisterResult|null;t:Text;
 }){
  const dates=new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
   timeZone,dateStyle:"medium",timeStyle:"short"
  });
  const stamp=(iso:string)=>dates.format(new Date(iso));
- const url=(page:number)=>sprintDetailPath(sprintId)+"?"+
-  new URLSearchParams({tab:"registers",page:String(page)}).toString();
+ const url=(page:number,kind=selectedKind)=>sprintDetailPath(sprintId)+"?"+
+  new URLSearchParams({tab:"registers",page:String(page),...(kind?{kind}:{})}).toString();
  const missing=data?.state==="available"?data.missingKinds:[...registerKinds];
  return <section aria-label={t("sprintDetail.tabs.registers")}>
   <h2 className="h5 mb-2">{t("sprintDetail.tabs.registers")}</h2>
   <p className="small text-secondary mb-3">
    {t("sprintDetail.registersIntroduction")}
   </p>
-  <div className="d-flex flex-wrap gap-2 mb-3" aria-label={t("sprintDetail.registersCategories")}>
-   {registerKinds.map(kind=><span key={kind}
-    className="badge text-bg-light border d-inline-flex align-items-center gap-1">
+  <nav className="d-flex flex-wrap gap-2 mb-3" aria-label={t("sprintDetail.registersCategories")}>
+   <Link href={url(1,null)} aria-current={selectedKind===null?"page":undefined}
+    className={"badge border text-decoration-none "+(selectedKind===null?"text-bg-primary":"text-bg-light")}>
+    {t("sprintDetail.registersAll")}
+   </Link>
+   {registerKinds.map(kind=><Link key={kind} href={url(1,kind)}
+    aria-current={selectedKind===kind?"page":undefined}
+    className={"badge border d-inline-flex align-items-center gap-1 text-decoration-none "+
+     (selectedKind===kind?"text-bg-primary":"text-bg-light")}>
     <BootstrapIcon name={icons[kind]}/> {t(categoryKeys[kind])}
-   </span>)}
-  </div>
+   </Link>)}
+  </nav>
   {data===null||data.state==="unavailable"?
    <div role="status" className="alert alert-warning mb-0">
     {t(data?.state==="unavailable"&&data.reason==="history-missing"?
