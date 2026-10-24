@@ -12,6 +12,7 @@ import {readSprintMemberPresence} from "@/server/sprints/presence-detail-read";
 import {readSprintTrends} from "@/server/sprints/trends";
 import {readSprintReview} from "@/server/sprints/review-analysis";
 import {readSprintRegisters} from "@/server/sprints/registers-detail-read";
+import {isRegisterKind} from "@/lib/sprint-registers";
 import {readEpic5SprintRegisterSource} from "@/server/registries/sprint-adapter";
 import {readSprintContext} from "@/server/sprints/context";
 import {effectiveSprintStatus} from "@/lib/sprint-context";
@@ -34,7 +35,7 @@ export const dynamic="force-dynamic";
 /** A Sprint identity is always resolved server-side in the authorized team's scope. */
 export default async function SprintDetailPage({params,searchParams}:{
  params:Promise<{sprintId:string}>;
- searchParams:Promise<{tab?:string|string[];page?:string|string[]}>;
+ searchParams:Promise<{tab?:string|string[];page?:string|string[];kind?:string|string[]}>;
 }){
  const account=await currentAccount();
  if(!account)redirect("/login");
@@ -48,6 +49,8 @@ export default async function SprintDetailPage({params,searchParams}:{
  const active=parseSprintTab(typeof requested.tab==="string"?requested.tab:undefined);
  const pageParam=typeof requested.page==="string"?requested.page:"1";
  const ceremonyPage=/^[1-9]\d{0,6}$/.test(pageParam)?Number(pageParam):1;
+ const registerKind=typeof requested.kind==="string"&&isRegisterKind(requested.kind)?
+  requested.kind:null;
  const dashboard=await withAuthDb(readCollectiveDashboard).catch(()=>null);
  if(!dashboard)return <main className="container-fluid px-3 px-lg-4 py-4">
   <div role="alert" className="alert alert-warning">
@@ -68,7 +71,7 @@ export default async function SprintDetailPage({params,searchParams}:{
    await readSprintMemberPresence(db,teamId,cycle):null;
   const trends=active==="trends"?await readSprintTrends(db,cycle.id,teamId):null;
   const review=active==="review"?await readSprintReview(db,teamId,cycle.id):null;
-  const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage,readEpic5SprintRegisterSource):null;
+  const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage,readEpic5SprintRegisterSource,registerKind):null;
   return {cycle,goals,indicators,ceremonies,presence,trends,review,registers};
  }).catch(()=>undefined);
  if(result===null)notFound();
@@ -173,7 +176,7 @@ export default async function SprintDetailPage({params,searchParams}:{
       data={review} sprintId={cycle.id} status={cycle.status}
       canManage={canManage} locale={locale} timeZone={cycle.timeZone}/>:
      active==="registers"?<SprintRegistersPanel
-      sprintId={cycle.id} timeZone={cycle.timeZone} locale={locale}
+      sprintId={cycle.id} timeZone={cycle.timeZone} locale={locale} selectedKind={registerKind}
       data={registers??{state:"unavailable",reason:"read-failed"}}
       t={(key,params)=>translate(locale,key,params)}/>:
       <div className="py-3" role="status">
