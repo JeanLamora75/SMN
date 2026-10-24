@@ -52,10 +52,12 @@ export default function HistoricalCapacityPanel({start,end}:{start:string;end:st
   setData(value);setDraft(fresh(value));
  };
  useEffect(()=>{
-  let active=true;setLoading(true);setData(null);setActual(null);
-  setError("");setSuccess("");
+  let active=true;
   const params=new URLSearchParams({start,end});
-  void (async()=>{
+  void Promise.resolve().then(async()=>{
+   if(!active)return;
+   setLoading(true);setData(null);setActual(null);
+   setError("");setSuccess("");
    try{
     const response=await fetch("/api/admin/capacity-history?"+params.toString(),{
      cache:"no-store"
@@ -78,7 +80,7 @@ export default function HistoricalCapacityPanel({start,end}:{start:string;end:st
     }
    }catch{if(active)setError(t("historicalQuality.loadError"));}
    finally{if(active)setLoading(false);}
-  })();
+  });
   return ()=>{active=false;};
  },[start,end,t]);
  const save=async()=>{
