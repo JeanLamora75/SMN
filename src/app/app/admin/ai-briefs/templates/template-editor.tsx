@@ -5,7 +5,7 @@ import {allowedBriefFields} from "@/lib/ai-brief-templates";
 
 const fields=[...new Set([
  "cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions",
- "scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"
+ "scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"
 ])];
 const initial={title:"",description:"",sections:["Contexte"],questions:[],instructions:[],data:["cycle.name","team.name"],depth:2};
 type Draft=typeof initial;
