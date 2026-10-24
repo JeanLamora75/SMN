@@ -68,8 +68,7 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
     <h1 className="h3 mb-1">{t("sprintsIndex.title")}</h1>
     <p className="text-secondary mb-0">{data?.teamName??t("sprintsIndex.teamUnknown")} · Scrum</p>
    </div>
-   {canManage&&<Link className="btn btn-primary"
-    href={generateHref}>{t("sprintsIndex.generate")}</Link>}
+   {canManage&&<div className="d-flex gap-2 flex-wrap"><Link className="btn btn-outline-primary" href="/app/admin/sprints/historical">Reprise historique</Link><Link className="btn btn-primary" href={generateHref}>{t("sprintsIndex.generate")}</Link></div>}
   </header>
   <section className="smn-panel rounded-4 p-3 p-md-4 d-grid gap-3" aria-label={t("sprintsIndex.filters")}>
    <div className="row g-3 align-items-end">
