@@ -6,6 +6,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {readKanbanPeriodReport} from "@/server/kanban/report";
 import KanbanGoalsPanel from "./goals-panel";
 import KanbanFlowPanel from "./flow-panel";
+import KanbanTimingPanel from "./timing-panel";
 export const dynamic="force-dynamic";
 const labels:Record<string,string>={planned:"À venir",active:"En cours",finished:"Terminée",closed:"Clôturée"};
 export default async function KanbanPeriodReport({params}:{params:Promise<{id:string}>}){
@@ -32,7 +33,8 @@ export default async function KanbanPeriodReport({params}:{params:Promise<{id:st
    <section className="col-12" aria-labelledby="kanban-objectives"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-objectives">1. Objectifs</h2>
     <KanbanGoalsPanel periodId={period.id} canManage={account.role==="admin"} closed={period.status==="closed"}/></div></section>
    <section className="col-12" aria-labelledby="kanban-metrics"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-metrics">2. Métriques de la période</h2>
-    <KanbanFlowPanel periodId={period.id} canManage={account.role==="admin"} closed={period.status==="closed"}/></div></section>
+    <KanbanFlowPanel periodId={period.id} canManage={account.role==="admin"} closed={period.status==="closed"}/>
+    <KanbanTimingPanel periodId={period.id} canManage={account.role==="admin"} closed={period.status==="closed"}/></div></section>
    <section className="col-12" aria-labelledby="kanban-capacity"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-capacity">3. Capacité de la période</h2>
     <p className="mb-1">Capacité initiale (J/H) : {blocks.capacity.initialJh===null?"Non disponible":blocks.capacity.initialJh}</p>
     <p className="small text-secondary mb-0">Provenance : {blocks.capacity.provenance}. Capacité réalisée : non collectée.</p></div></section>
