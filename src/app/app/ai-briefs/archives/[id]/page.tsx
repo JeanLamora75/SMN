@@ -6,6 +6,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {readPrivateBriefArchive} from "@/server/ai-briefs/library";
 import DuplicateButton from "../duplicate-button";
 import AddManualResponse from "./manual-response-form";
+import ManualResponseActions from "./manual-response-actions";
 import {listManualAiResponses} from "@/server/ai-briefs/responses";
 export const dynamic="force-dynamic";
 export default async function ArchivedBriefPage({params}:{params:Promise<{id:string}>}){
@@ -42,8 +43,9 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
      {responses.length===0?<p className="text-secondary">Aucune réponse enregistrée pour ce brief.</p>:responses.map(response=><section className="border rounded-3 p-3 mb-3" key={response.id}>
       <p className="small text-secondary">Réponse {response.id} · enregistrée le {response.created_at} · fournisseur : {response.provider??"Non renseigné"} · modèle : {response.model??"Non renseigné"} · cycle : {archive.metadata.cycle_id}</p>
       <textarea className="form-control font-monospace" rows={12} readOnly value={response.response_text} aria-label={"Réponse IA "+response.id}/>
+      {account.role==="admin"&&<ManualResponseActions archiveId={id} response={response}/>}
      </section>)}
-     {account.role==="admin"&&<AddManualResponse archiveId={id}/> }
+     {account.role==="admin"&&responses.length===0&&<AddManualResponse archiveId={id}/> }
     </>}
   </section>
  </main>;
