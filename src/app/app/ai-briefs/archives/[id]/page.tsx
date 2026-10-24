@@ -7,6 +7,7 @@ import {readPrivateBriefArchive} from "@/server/ai-briefs/library";
 import DuplicateButton from "../duplicate-button";
 import AddManualResponse from "./manual-response-form";
 import ManualResponseActions from "./manual-response-actions";
+import HumanAnalysisForm from "../../human-analysis-form";
 import {listManualAiResponses} from "@/server/ai-briefs/responses";
 export const dynamic="force-dynamic";
 export default async function ArchivedBriefPage({params}:{params:Promise<{id:string}>}){
@@ -46,6 +47,7 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
       {account.role==="admin"&&<ManualResponseActions archiveId={id} response={response}/>}
      </section>)}
      {account.role==="admin"&&responses.length===0&&<AddManualResponse archiveId={id}/> }
+     {account.role==="admin"&&<HumanAnalysisForm mode={archive.metadata.mode} cycleId={archive.metadata.cycle_id} archiveId={id}/>}
     </>}
   </section>
  </main>;
