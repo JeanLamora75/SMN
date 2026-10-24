@@ -12,7 +12,7 @@ const exists=async(db:Client,table:string)=>{
 };
 /** Une liaison explicite prime ; les fiches sans liaison restent des éléments d’équipe. */
 export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
- kind:"risk"|"obstacle"):Promise<Collection>{
+ kind:"risk"|"obstacle",allowOwner=false):Promise<Collection>{
  if(!await exists(db,"smn_registry_item"))return collectionUnavailable("schema-missing");
  const hasLinks=await exists(db,"smn_registry_cycle_link");
  const hasRoam=kind==="risk"&&await exists(db,"smn_risk_roam");
@@ -37,8 +37,9 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
   "r.occurred_on ASC,r.id ASC";
  const scopeSelect=hasLinks?`CASE WHEN ${linked} THEN \'cycle\' ELSE \'team\' END`:"\'team\'";
  const linkedOrder=hasLinks?`CASE WHEN ${linked} THEN 0 ELSE 1 END,`:"";
+ const ownerColumn=allowOwner?"r.owner_name":"NULL::text AS owner_name";
  const rows=await db.query<{id:string;title:string;status:string;description:string|null;owner_name:string|null;due_on:string|null;occurred_on:string;scope:"cycle"|"team";probability:Level|null;impact:Level|null}>(`
-  SELECT r.id,r.title,r.status,r.description,r.owner_name,r.due_on::text,r.occurred_on::text,${scopeSelect} AS scope${hasAssessment?",a.probability,a.impact":",NULL::smallint AS probability,NULL::smallint AS impact"}
+  SELECT r.id,r.title,r.status,r.description,${ownerColumn},r.due_on::text,r.occurred_on::text,${scopeSelect} AS scope${hasAssessment?",a.probability,a.impact":",NULL::smallint AS probability,NULL::smallint AS impact"}
   FROM public.smn_registry_item r${joins} WHERE ${where}
   ORDER BY ${linkedOrder}${order} LIMIT 5`,params);
  return collectionAvailable(rows.rows.map(row=>({
