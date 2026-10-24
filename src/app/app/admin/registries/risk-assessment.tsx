@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {criticality,levels,type Level} from "@/lib/risk-criticality";
 type Assessment={probability:Level|null;impact:Level|null;revision:number};
-export default function RiskAssessment({id,canManage}:{id:string;canManage:boolean}){
+export default function RiskAssessment({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation();const tr=(x:string)=>t(("registryAssessment."+x) as Parameters<typeof t>[0]);
  const [stored,setStored]=useState<Assessment|null>(null);
  const [p,setP]=useState<Level|null>(null);const [i,setI]=useState<Level|null>(null);
@@ -28,7 +28,7 @@ export default function RiskAssessment({id,canManage}:{id:string;canManage:boole
    if(!response.ok)throw Error("save-failed");
    const data=await response.json() as {ok:boolean;revision:number};
    if(!data.ok)throw Error("save-failed");
-   setStored({probability:p,impact:i,revision:data.revision});setNotice(true);
+   setStored({probability:p,impact:i,revision:data.revision});setNotice(true);onSaved?.();
   }catch{setError("error");}finally{setSaving(false);}
  };
  const pick=(value:string)=>value===""?null:Number(value) as Level;
