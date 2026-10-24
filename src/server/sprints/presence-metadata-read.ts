@@ -29,8 +29,14 @@ export function mapSprintMemberMetadata(
  members:readonly MemberDateScope[],rows:readonly MemberVersionRow[]
 ):Map<string,SprintMemberMetadata>{
  const result=new Map<string,SprintMemberMetadata>();
+ const byMember=new Map<string,MemberVersionRow[]>();
+ for(const row of rows){
+  const items=byMember.get(row.member_id)??[];
+  items.push(row);
+  byMember.set(row.member_id,items);
+ }
  for(const member of members){
-  const found=rows.filter(r=>r.member_id===member.memberId);
+  const found=byMember.get(member.memberId)??[];
   const professionalFunction=found.find(r=>typeof r.professional_function==="string"&&
    r.professional_function.trim())?.professional_function?.trim()??null;
   const active=new Set<AgileRole>();
