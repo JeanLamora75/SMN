@@ -23,13 +23,22 @@ type Props={
  dateLabel:string;formattedDate:string;
 };
 
+function RecordEditor({itemId,teamId,canManage,close}:{
+ itemId:string;teamId:string;canManage:boolean;close:()=>void
+}){
+ const router=useRouter();
+ const onSaved=()=>{close();router.refresh();};
+ return <RegistryCreate itemId={itemId} teamId={teamId} canManage={canManage}
+  modalMode onSaved={onSaved}/>;
+}
+
 /** Same full registry editor as the dedicated record page. Automatic highlights
  * and frozen snapshots are never passed to RegistryCreate as fictitious items. */
 export default function SprintRegisterRow({
  item,teamId,canManage,historical,typeLabel,statusLabel,priorityLabel,
  dateLabel,formattedDate
 }:Props){
- const t=useTranslation(),router=useRouter(),dialogId=useId();
+ const t=useTranslation(),dialogId=useId();
  const dialog=useRef<HTMLDialogElement>(null);
  const [opened,setOpened]=useState(false);
  const href=safeRegisterHref(item.href);
@@ -40,7 +49,7 @@ export default function SprintRegisterRow({
   if(opened&&dialog.current&&!dialog.current.open)dialog.current.showModal();
  },[opened]);
  const close=()=>dialog.current?.close();
- const saved=()=>{close();router.refresh();};
+
  return <li className={"list-group-item bg-transparent smn-sprint-register-row smn-sprint-register-"+item.kind}>
   <span className={"smn-sprint-register-icon smn-sprint-register-icon-"+item.kind}
    aria-hidden="true"><BootstrapIcon name={icons[item.kind]}/></span>
@@ -78,8 +87,8 @@ export default function SprintRegisterRow({
        aria-label={t("dashboard.operational.quickAdd.close")} onClick={close}/>
      </header>
      {hasPersistedRecord?
-      <RegistryCreate itemId={item.id} teamId={teamId}
-       canManage={canManage} modalMode onSaved={saved}/>:
+      <RecordEditor itemId={item.id} teamId={teamId}
+       canManage={canManage} close={close}/>:
       <div className="d-grid gap-2">
        <p className="small text-secondary mb-1">
         {t(historical?"sprintDetail.registersHistoricalLinkUnavailable":
@@ -90,7 +99,7 @@ export default function SprintRegisterRow({
         <dd className="col-sm-8">{typeLabel}</dd>
         {statusLabel&&<><dt className="col-sm-4">{t("registryCreate.status")}</dt>
          <dd className="col-sm-8">{statusLabel}</dd></>}
-        {priorityLabel&&<><dt className="col-sm-4">{t("dashboard.operational.priority")}</dt>
+        {priorityLabel&&<><dt className="col-sm-4">{t("sprintDetail.registersPriorityLabel")}</dt>
          <dd className="col-sm-8">{priorityLabel}</dd></>}
         <dt className="col-sm-4">{dateLabel}</dt>
         <dd className="col-sm-8"><time dateTime={item.date}>{formattedDate}</time></dd>
