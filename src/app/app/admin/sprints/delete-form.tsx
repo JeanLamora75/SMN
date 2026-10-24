@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useCurrentTime} from "./use-current-time";
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string;timeZone:string};
@@ -12,11 +12,11 @@ export default function DeleteSprintForm(){
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
- async function load(){
+ const load=useCallback(async()=>{
   try{const r=await fetch("/api/admin/sprints/names",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.sprints);}
   catch{setError(t("sprintDelete.error"));}
- }
- useEffect(()=>{void Promise.resolve().then(load);},[]);
+ },[t]);
+ useEffect(()=>{void Promise.resolve().then(load);},[load]);
  function toggle(id:string){setIds(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);setPreview(null);setNotice("");setError("");}
  async function requestPreview(){setBusy(true);setError("");setPreview(null);
   try{const r=await fetch("/api/admin/sprints/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids})});
