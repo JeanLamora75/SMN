@@ -15,6 +15,17 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
    {t("sprintDetail.presenceRestricted")}
   </div>
  </section>;
+ const roleLabels={
+  scrumMaster:t("members.roles.scrumMaster"),
+  productOwner:t("members.roles.productOwner"),
+  developer:t("members.roles.developer")
+ } as const;
+ const roleNames=(values:readonly (keyof typeof roleLabels)[]|null|undefined)=>
+  values?.length?values.map(value=>roleLabels[value]).join(", "):"—";
+ const contribution=(values:readonly number[]|null|undefined)=>
+  values?.length?values.map(value=>
+   new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB").format(value)+" %"
+  ).join(" → "):"—";
  const fmt=(value:number|null)=>{
   if(value===null)return t("sprintDetail.presenceUnknown");
   return new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:4}).format(value)+" J/H";
@@ -59,6 +70,9 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
      <table className="table align-middle">
       <thead><tr>
        <th scope="col">{t("sprintDetail.presenceMember")}</th>
+       <th scope="col">{t("sprintDetail.presenceAgileRoles")}</th>
+       <th scope="col">{t("sprintDetail.presenceFunction")}</th>
+       <th scope="col">{t("sprintDetail.presenceContribution")}</th>
        <th scope="col">{t("sprintDetail.presenceJh")}</th>
        <th scope="col">{t("sprintDetail.presenceDevelopmentJh")}</th>
        <th scope="col">{t("sprintDetail.presenceQuality")}</th>
@@ -66,6 +80,9 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
       <tbody>
        {data.members.map(member=><tr key={member.memberId}>
         <th scope="row" className="fw-medium">{member.displayName}</th>
+        <td>{roleNames(member.agileRoles)}</td>
+        <td>{member.professionalFunction?.trim()||"—"}</td>
+        <td>{contribution(member.contributionPercents)}</td>
         <td><strong>{fmt(member.presenceJh)}</strong></td>
         <td className="text-secondary">{fmt(member.developmentJh)}</td>
         <td>{member.unknownDays>0?
