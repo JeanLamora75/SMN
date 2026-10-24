@@ -331,7 +331,7 @@
 .smn-cycle-detail-link svg {flex:none;}
 
 .smn-metric-grid {
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   gap:12px;margin-top:16px;
 }
 .smn-metric-card {
@@ -478,10 +478,27 @@
 .smn-kpi-days .smn-deadline-explanation {
   font-size:.72rem;line-height:1.4;
 }
+/* Deux jauges compactes, gris neutre pour l'absence de note. */
+.smn-kpi-scores {justify-content:space-between;gap:12px;}
+.smn-score-section {min-width:0;flex:1;display:flex;flex-direction:column;justify-content:center;}
+.smn-score-section + .smn-score-section {border-top:1px solid var(--smn-border);padding-top:12px;}
+.smn-score-label {margin:0 0 6px;color:var(--smn-text);font-size:.81rem;font-weight:700;line-height:1.3;overflow-wrap:anywhere;}
+.smn-score-readout {display:flex;align-items:center;gap:6px;min-width:0;border-radius:6px;}
+.smn-score-readout:focus-visible {outline:2px solid var(--smn-primary);outline-offset:2px;}
+.smn-score-gauge {display:block;width:clamp(65px,7.4vw,96px);height:auto;flex:none;}
+.smn-score-track {stroke:var(--smn-muted);opacity:.7;stroke-linecap:round;}
+.smn-score-progress {stroke:var(--smn-primary);stroke-linecap:round;}
+.smn-score-text {min-width:0;display:flex;flex-direction:column;gap:3px;line-height:1.15;}
+.smn-score-text strong {font-size:1.14rem;font-weight:800;font-variant-numeric:tabular-nums;}
+.smn-score-text small {font-size:.72rem;color:var(--smn-muted);font-weight:600;}
+.smn-score-empty {color:var(--smn-muted);font-size:.77rem;font-weight:650;overflow-wrap:anywhere;}
 @container (max-width:520px) {
   .smn-kpi-card .smn-kpi-secondary {gap:8px;}
 }
 
+@container (max-width:1180px) {
+  .smn-metric-grid {grid-template-columns:repeat(3,minmax(0,1fr));}
+}
 @container (max-width:1000px) {
   .smn-metric-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
 }

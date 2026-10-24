@@ -92,6 +92,7 @@ export type CollectiveCycleProjection = Readonly<{
   capacity: Readonly<{ initialJh: DashboardMetric; actualJh: DashboardMetric }>;
   storyPoints: Readonly<{ initial: DashboardMetric; done: DashboardMetric }>;
   tickets: Readonly<{ initial: DashboardMetric; done: DashboardMetric }>;
+  scores: Readonly<{ confidence: DashboardMetric; clarity: DashboardMetric }>;
   workingDaysRemaining: DashboardMetric;
   events: DashboardCollection<DashboardEvent>;
   obstacles: DashboardCollection<DashboardAttention>;

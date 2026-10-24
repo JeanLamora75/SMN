@@ -31,6 +31,7 @@ function projection(goals:CollectiveCycleProjection["goals"]):CollectiveCyclePro
   capacity:{initialJh:emptyMetric,actualJh:emptyMetric},
   storyPoints:{initial:emptyMetric,done:emptyMetric},
   tickets:{initial:emptyMetric,done:emptyMetric},
+  scores:{confidence:emptyMetric,clarity:emptyMetric},
   workingDaysRemaining:emptyMetric,
   events:unavailable,obstacles:unavailable,risks:unavailable,notesAndAlerts:unavailable
  };

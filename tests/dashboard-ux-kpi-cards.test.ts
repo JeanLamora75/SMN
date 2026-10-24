@@ -32,11 +32,11 @@ const pair=(locale:"fr"|"en",initial?:DashboardMetric,done?:DashboardMetric)=>
  }));
 
 describe("UX lot 2 — cartes KPI fiables",()=>{
- it("propose quatre cartes distinctes et quatre pictogrammes Bootstrap officiels",()=>{
+ it("conserve quatre KPI initiaux et ajoute la carte des deux notes",()=>{
   const html=renderToStaticMarkup(createElement(CycleOverview,{
    locale:"fr",context,teamHref:"/app/team/team",cycle:sprint
   }));
-  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,4);
+  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,5);
   for(const icon of ["people-fill","stack","ticket-perforated-fill","calendar-event"]){
    assert.match(html,new RegExp('class="bi bi-'+icon));
   }
@@ -115,7 +115,7 @@ describe("UX lot 2 — cartes KPI fiables",()=>{
  it("garde 4 / 2 / 1 colonnes et n'introduit ni scores globaux ni CDN",()=>{
   const css=read("src/app/dashboard.css");
   const component=read("src/app/app/kpi-cards.tsx");
-  assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
   assert.match(css,/@container \(max-width:1000px\)/);
   assert.match(css,/@container \(max-width:520px\)/);
   assert.match(css,/\.smn-kpi-ring::before/);

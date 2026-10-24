@@ -152,6 +152,7 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
    goals:unavailable,capacity:{initialJh:none,actualJh:none},
    storyPoints:{initial:metricAvailable(0,{source:"manual",quality:"known"}),done:none},
    tickets:{initial:none,done:none},
+   scores:{confidence:none,clarity:none},
    workingDaysRemaining:metricAvailable(5,{source:"calculated",quality:"known"}),
    events:unavailable,obstacles:unavailable,risks:unavailable,notesAndAlerts:unavailable
   };
@@ -189,7 +190,7 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
    }
   }
   const css=file("src/app/dashboard.css");
-  assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
   assert.match(css,/@container \(max-width:1000px\)/);
   assert.match(css,/@container \(max-width:650px\)/);
   assert.match(css,/\.smn-operational-grid\s*\{grid-template-columns:minmax\(0,1fr\);\}/);

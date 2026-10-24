@@ -231,6 +231,10 @@
       "initialTickets": "Tickets initialement engagés",
       "completedTickets": "Tickets réalisés",
       "ticketsUnit": "tickets",
+      "scoreConfidence": "Confiance de l’équipe",
+      "scoreClarity": "Clarté des objectifs",
+      "scoreGaugeValue": "{name} : {percent} % ({score}/5)",
+      "scoreGaugeMissing": "{name} : Non renseigné",
       "workingDays": "Jours ouvrés restants",
       "notCalculable": "Non calculable",
       "workingDaysHelp": "Du lundi au vendredi. Le compteur attend des dates de cycle fiables et une règle de référence complète."

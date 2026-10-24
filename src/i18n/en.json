@@ -231,6 +231,10 @@
       "initialTickets": "Initially committed tickets",
       "completedTickets": "Completed tickets",
       "ticketsUnit": "tickets",
+      "scoreConfidence": "Team confidence",
+      "scoreClarity": "Goal clarity",
+      "scoreGaugeValue": "{name}: {percent}% ({score}/5)",
+      "scoreGaugeMissing": "{name}: Not specified",
       "workingDays": "Working days remaining",
       "notCalculable": "Cannot be calculated",
       "workingDaysHelp": "Monday to Friday. The countdown requires reliable cycle dates and a fully defined reference rule."

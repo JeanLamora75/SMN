@@ -27,12 +27,12 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
     assert.equal((scrum.match(/<h1\b/g)||[]).length,1);
     assert.match(scrum,/href="\/app\/team\/team-1\?returnTo=%2Fapp"/);
   });
-  it("présente exactement quatre cartes, les six sous-mesures et leurs unités",()=>{
+  it("présente cinq cartes, dont les deux notes de Sprint, et les unités existantes",()=>{
     const html=view("scrum","fr");
-    assert.equal((html.match(/class="smn-metric-card/g)||[]).length,4);
+    assert.equal((html.match(/class="smn-metric-card/g)||[]).length,5);
     for(const label of ["Capacité prévue","Capacité réelle","SP initialement engagés",
       "SP réalisés","Tickets initialement engagés","Tickets réalisés",
-      "Jours ouvrés restants","J/H","SP"]){
+      "Jours ouvrés restants","Confiance de l’équipe","Clarté des objectifs","J/H","SP"]){
       assert.ok(html.includes(label),label);
     }
     assert.doesNotMatch(html,/Avancement global|Productivité|\b0\s*(?:SP|J\/H|tickets)\b/i);

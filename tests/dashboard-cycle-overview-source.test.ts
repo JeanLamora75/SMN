@@ -33,7 +33,7 @@ describe("SMN-21 — intégration du lot 2 au dashboard",()=>{
     assert.match(css,/@container \(max-width:1000px\)/);
     assert.match(css,/@container \(max-width:650px\)/);
     assert.match(css,/@container \(max-width:520px\)/);
-    assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+    assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
     assert.match(css,/\.smn-cycle-overview-header\s*\{[\s\S]*?var\(--smn-soft\)/);
     assert.match(css,/\.smn-metric-deadline\s*\{[\s\S]*?var\(--smn-primary\)/);
   });

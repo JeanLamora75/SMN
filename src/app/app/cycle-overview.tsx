@@ -6,7 +6,7 @@ import {effectiveSprintStatus,type SprintContextItem} from "@/lib/sprint-context
 import type {CollectiveCycleProjection} from "@/lib/dashboard-data-contract";
 import BootstrapIcon from "./bootstrap-icon";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
-import {KpiMetricPair,KpiDeadline} from "./kpi-cards";
+import {KpiMetricPair,KpiDeadline,KpiSprintScores} from "./kpi-cards";
 
 type Props=Readonly<{
   context:DashboardContext;
@@ -105,6 +105,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection}
         comparison={comparison}/>
       <KpiDeadline locale={locale} metric={projection?.workingDaysRemaining}
         cycleExists={!!cycle} status={effectiveStatus}/>
+      <KpiSprintScores locale={locale} scores={projection?.scores}/>
     </div>
   </section>;
 }

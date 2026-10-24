@@ -16,6 +16,7 @@ function projection(obstacles:Collection=missing,risks:Collection=missing,
   teamId:"team-A",cycleId:"sprint-A",cycleStatus:"active",snapshotVersion:null,
   goals:missing,capacity:{initialJh:empty,actualJh:empty},
   storyPoints:{initial:empty,done:empty},tickets:{initial:empty,done:empty},
+  scores:{confidence:empty,clarity:empty},
   workingDaysRemaining:empty,events:missing,obstacles,risks,notesAndAlerts
  };
 }

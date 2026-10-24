@@ -61,6 +61,36 @@ function pointsFrom(raw:unknown,version:number|null):CollectiveCycleProjection["
   done:metric(row.done_sp,version===null?"manual":"closure-snapshot",version)
  };
 }
+/** Les notes 1–5 ne sont jamais déduites des autres métriques. */
+export function scoreMetric(value:unknown,source:"manual"|"closure-snapshot",
+ version:number|null=null):DashboardMetric{
+ if(value===null||value===undefined)return metricNotRecorded();
+ if(typeof value!=="number"||!Number.isInteger(value)||value<1||value>5)
+  return metricUnavailable("read-failed");
+ return metricAvailable(value,{source,quality:"known",snapshotVersion:version});
+}
+const scoresUnavailable=(reason:"schema-missing"|"history-missing"|"read-failed"):
+ CollectiveCycleProjection["scores"]=>({
+  confidence:metricUnavailable(reason),clarity:metricUnavailable(reason)
+ });
+function scoresFrom(raw:unknown,source:"manual"|"closure-snapshot",
+ version:number|null=null):CollectiveCycleProjection["scores"]{
+ if(raw===null||raw===undefined)return {
+  confidence:metricNotRecorded(),clarity:metricNotRecorded()
+ };
+ const row=object(raw);
+ if(!row)return scoresUnavailable("read-failed");
+ return {confidence:scoreMetric(row.confidence,source,version),
+  clarity:scoreMetric(row.clarity,source,version)};
+}
+async function currentScores(db:Client,sprintId:string):
+ Promise<CollectiveCycleProjection["scores"]>{
+ if(!await tableExists(db,"smn_sprint_scores"))return scoresUnavailable("schema-missing");
+ const rows=await db.query<{confidence:number|null;clarity:number|null}>(`
+  SELECT confidence,clarity FROM public.smn_sprint_scores
+  WHERE sprint_id=$1`,[sprintId]);
+ return scoresFrom(rows.rows[0]??null,"manual");
+}
 /** La source Tickets n'est jamais dérivée des Story Points. */
 function ticketsFrom(raw:unknown,source:"manual"|"closure-snapshot",
  version:number|null=null):CollectiveCycleProjection["tickets"]{
@@ -88,13 +118,14 @@ const capacityUnavailable=(reason:"producer-not-ready"|"schema-missing"|"history
   initialJh:metricUnavailable(reason),actualJh:metricUnavailable(reason)
  });
 export function closedSnapshotProjection(raw:unknown,version:number):
- Pick<CollectiveCycleProjection,"goals"|"storyPoints"|"capacity"|"tickets">{
+ Pick<CollectiveCycleProjection,"goals"|"storyPoints"|"capacity"|"tickets"|"scores">{
  const snapshot=object(raw);
  if(!snapshot)return {
   goals:collectionUnavailable("read-failed"),
   storyPoints:{initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")},
   capacity:capacityUnavailable("read-failed"),
-  tickets:{initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")}
+  tickets:{initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")},
+  scores:scoresUnavailable("read-failed")
  };
  const cap=object(snapshot.capacity);
  return {
@@ -109,7 +140,9 @@ export function closedSnapshotProjection(raw:unknown,version:number):
   }:capacityUnavailable("history-missing"),
   tickets:snapshot.ticketCounts===undefined?
    {initial:metricUnavailable("history-missing"),done:metricUnavailable("history-missing")}:
-   ticketsFrom(snapshot.ticketCounts,"closure-snapshot",version)
+   ticketsFrom(snapshot.ticketCounts,"closure-snapshot",version),
+  scores:snapshot.confidenceClarity===undefined?scoresUnavailable("history-missing"):
+   scoresFrom(snapshot.confidenceClarity,"closure-snapshot",version)
  };
 }
 async function tableExists(db:Client,name:string):Promise<boolean>{
@@ -174,6 +207,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
   initial:metricUnavailable("producer-not-ready"),
   done:metricUnavailable("producer-not-ready")
  };
+ let scores:CollectiveCycleProjection["scores"]=scoresUnavailable("schema-missing");
  let version:number|null=null;
  let events:CollectiveCycleProjection["events"]=collectionUnavailable("producer-not-ready");
  let obstacles:CollectiveCycleProjection["obstacles"]=collectionUnavailable("producer-not-ready");
@@ -188,7 +222,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    const row=r.rows[0];
    if(row&&Number.isSafeInteger(row.version)&&row.version>=1){
     version=row.version;
-    ({goals,storyPoints,capacity,tickets}=closedSnapshotProjection(row.snapshot,version));
+    ({goals,storyPoints,capacity,tickets,scores}=closedSnapshotProjection(row.snapshot,version));
     events=eventsFromClosureSnapshot(row.snapshot,version);
    }else{
     goals=collectionUnavailable("history-missing");
@@ -196,6 +230,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     capacity=capacityUnavailable("history-missing");
     tickets={initial:metricUnavailable("history-missing"),
      done:metricUnavailable("history-missing")};
+    scores=scoresUnavailable("history-missing");
    }
   }else{
    goals=collectionUnavailable("history-missing");
@@ -203,6 +238,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    capacity=capacityUnavailable("history-missing");
    tickets={initial:metricUnavailable("history-missing"),
     done:metricUnavailable("history-missing")};
+    scores=scoresUnavailable("history-missing");
   }
  }else{
   if(await tableExists(db,"smn_sprint_goal")){
@@ -228,7 +264,17 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
    tickets={initial:metricUnavailable("read-failed"),done:metricUnavailable("read-failed")};
    void error;
   }
-  // Une lecture de capacité partiellement migrée ne doit pas rendre
+  // La lecture facultative des notes reste isolée des autres KPI.
+   await db.query("SAVEPOINT dashboard_current_scores");
+   try{
+    scores=await currentScores(db,sprint.id);
+    await db.query("RELEASE SAVEPOINT dashboard_current_scores");
+   }catch{
+    await db.query("ROLLBACK TO SAVEPOINT dashboard_current_scores");
+    await db.query("RELEASE SAVEPOINT dashboard_current_scores");
+    scores=scoresUnavailable("read-failed");
+   }
+   // Une lecture de capacité partiellement migrée ne doit pas rendre
   // indisponibles les objectifs ou les SP déjà récupérés.
   await db.query("SAVEPOINT dashboard_current_capacity");
   try{
@@ -296,7 +342,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
  }catch{remaining=metricUnavailable("read-failed");}
  return {teamId,cycleId:sprint.id,cycleStatus:status,snapshotVersion:version,
   goals,storyPoints,capacity,
-  tickets,workingDaysRemaining:remaining,
+  tickets,scores,workingDaysRemaining:remaining,
   events,
   obstacles,risks,notesAndAlerts};
 }

@@ -59,6 +59,7 @@ describe("SMN-21 — contrat de projection collective (étape 0)",()=>{
       capacity:{initialJh:noData,actualJh:noData},
       storyPoints:{initial:noData,done:noData},
       tickets:{initial:noData,done:noData},
+      scores:{confidence:noData,clarity:noData},
       workingDaysRemaining:noData,
       events:missing,obstacles:missing,risks:missing,notesAndAlerts:missing
     };

@@ -96,3 +96,38 @@ export function KpiDeadline({locale,metric,cycleExists,status}:Readonly<{
   <p className="smn-deadline-explanation">{explanation}</p>
  </article>;
 }
+
+/** Deux notes indépendantes, sans portion colorée pour une note absente ou invalide. */
+export function KpiSprintScores({locale,scores}:Readonly<{
+ locale:Language;scores?:Readonly<{confidence:DashboardMetric;clarity:DashboardMetric}>;
+}>){
+ const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
+ const indicators=[
+  {code:"I01",label:t("dashboard.cockpit.scoreConfidence"),metric:scores?.confidence},
+  {code:"I02",label:t("dashboard.cockpit.scoreClarity"),metric:scores?.clarity}
+ ];
+ const arc="M 10 60 A 50 50 0 0 1 110 60";
+ return <article className="smn-metric-card smn-kpi-card smn-kpi-scores">
+  {indicators.map(({code,label,metric})=>{
+   const score=metric?.state==="available"?metric.value:null;
+   const valid=typeof score==="number"&&Number.isInteger(score)&&score>=1&&score<=5;
+   const percent=valid?score*20:null;
+   return <section key={code} className="smn-score-section">
+    <h2 className="smn-score-label">{code} · {label}</h2>
+    <div className="smn-score-readout" role="img" tabIndex={0}
+     aria-label={percent===null?t("dashboard.cockpit.scoreGaugeMissing",{name:label}):
+      t("dashboard.cockpit.scoreGaugeValue",{name:label,percent,score:score!})}>
+     <svg className="smn-score-gauge" viewBox="0 0 120 70" aria-hidden="true" focusable="false">
+      <path className="smn-score-track" d={arc} fill="none" strokeWidth="11"/>
+      {percent!==null&&<path className="smn-score-progress" d={arc}
+       fill="none" strokeWidth="11" pathLength={100} strokeDasharray={`${percent} 100`}/>}
+     </svg>
+     <span className="smn-score-text">
+      {percent===null?<span className="smn-score-empty">{t("dashboard.cockpit.notSpecified")}</span>:
+       <><strong>{percent}{locale==="fr"?" %":"%"}</strong><small>{score}/5</small></>}
+     </span>
+    </div>
+   </section>;
+  })}
+ </article>;
+}
