@@ -37,12 +37,14 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
   "r.occurred_on ASC,r.id ASC";
  const scopeSelect=hasLinks?`CASE WHEN ${linked} THEN \'cycle\' ELSE \'team\' END`:"\'team\'";
  const linkedOrder=hasLinks?`CASE WHEN ${linked} THEN 0 ELSE 1 END,`:"";
- const rows=await db.query<{id:string;title:string;status:string;scope:"cycle"|"team";probability:Level|null;impact:Level|null}>(`
-  SELECT r.id,r.title,r.status,${scopeSelect} AS scope${hasAssessment?",a.probability,a.impact":",NULL::smallint AS probability,NULL::smallint AS impact"}
+ const rows=await db.query<{id:string;title:string;status:string;description:string|null;owner_name:string|null;due_on:string|null;occurred_on:string;scope:"cycle"|"team";probability:Level|null;impact:Level|null}>(`
+  SELECT r.id,r.title,r.status,r.description,r.owner_name,r.due_on::text,r.occurred_on::text,${scopeSelect} AS scope${hasAssessment?",a.probability,a.impact":",NULL::smallint AS probability,NULL::smallint AS impact"}
   FROM public.smn_registry_item r${joins} WHERE ${where}
   ORDER BY ${linkedOrder}${order} LIMIT 5`,params);
  return collectionAvailable(rows.rows.map(row=>({
   id:row.id,kind,title:row.title,status:row.status,scope:row.scope,
+  description:row.description??null,owner:row.owner_name??null,
+  dueOn:row.due_on??null,occurredOn:row.occurred_on??null,
   priority:kind==="risk"?(criticality(row.probability,row.impact).level==="unassessed"?null:
    criticality(row.probability,row.impact).level as "low"|"medium"|"high"):null,
   href:"/app/admin/registries/"+encodeURIComponent(row.id)
