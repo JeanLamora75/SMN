@@ -5,6 +5,8 @@ const toUtc=(raw:string)=>{const date=new Date(raw);return Number.isFinite(date.
 type Conflict={id:string;name:string;start_at:string;end_at:string};
 export default function HistoricalSprintForm(){
  const [name,setName]=useState(""),[start,setStart]=useState(""),[end,setEnd]=useState("");
+ const [generateCeremonies,setGenerateCeremonies]=useState(false);
+ const [operationId,setOperationId]=useState(()=>crypto.randomUUID());
  const [busy,setBusy]=useState(false),[error,setError]=useState(""),[conflicts,setConflicts]=useState<Conflict[]>([]);
  const [created,setCreated]=useState<{id:string;name:string;recordedAt:string}|null>(null);
  async function submit(e:React.FormEvent){
@@ -15,10 +17,10 @@ export default function HistoricalSprintForm(){
   }
   setBusy(true);
   try{
-   const res=await fetch("/api/admin/sprints/historical",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),startAt,endAt})});
+   const res=await fetch("/api/admin/sprints/historical",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),startAt,endAt,generateCeremonies,operationId})});
    const json=await res.json() as {ok?:boolean;error?:string;conflicts?:Conflict[];sprint?:{id:string;name:string;recordedAt:string}};
    if(!res.ok||!json.ok){setConflicts(json.conflicts??[]);setError(json.error==="overlap"?"Chevauchement avec un Sprint existant.":json.error==="not-finished"?"Ce Sprint n'est pas réellement terminé.":"Création impossible : vérifiez les dates et votre accès.");return;}
-   setCreated(json.sprint??null);
+   setCreated(json.sprint?{...json.sprint,name:name.trim(),recordedAt:json.sprint.recordedAt??new Date().toISOString()}:null);
   }catch{setError("Service momentanément indisponible.");}
   finally{setBusy(false);}
  }
@@ -27,9 +29,10 @@ export default function HistoricalSprintForm(){
   <p className="text-secondary">Enregistrez les bornes réelles d'un Sprint déjà terminé. La date de création dans SMN restera distincte. Aucune cérémonie, mesure ou clôture n'est inventée.</p>
   {created?<div role="status" className="alert alert-success">Sprint historique créé : <strong>{created.name}</strong>. Enregistré le {created.recordedAt}. <Link href={"/app/admin/sprints/"+encodeURIComponent(created.id)}>Consulter sa fiche</Link></div>:
   <form onSubmit={submit} className="row g-3">
-   <label className="col-12">Nom du Sprint<input className="form-control mt-1" required maxLength={160} value={name} onChange={e=>setName(e.target.value)}/></label>
-   <label className="col-md-6">Début réel<input type="datetime-local" className="form-control mt-1" required value={start} onChange={e=>setStart(e.target.value)}/></label>
-   <label className="col-md-6">Fin réelle<input type="datetime-local" className="form-control mt-1" required value={end} onChange={e=>setEnd(e.target.value)}/></label>
+   <label className="col-12">Nom du Sprint<input className="form-control mt-1" required maxLength={160} value={name} onChange={e=>{setName(e.target.value);setOperationId(crypto.randomUUID());}}/></label>
+   <label className="col-md-6">Début réel<input type="datetime-local" className="form-control mt-1" required value={start} onChange={e=>{setStart(e.target.value);setOperationId(crypto.randomUUID());}}/></label>
+   <label className="col-md-6">Fin réelle<input type="datetime-local" className="form-control mt-1" required value={end} onChange={e=>{setEnd(e.target.value);setOperationId(crypto.randomUUID());}}/></label>
+   <label className="col-12 form-check"><input className="form-check-input" type="checkbox" checked={generateCeremonies} onChange={e=>{setGenerateCeremonies(e.target.checked);setOperationId(crypto.randomUUID());}}/><span className="form-check-label"> Générer les cérémonies de l’équipe</span><small className="d-block text-secondary">Désactivé par défaut. Reconstitution théorique depuis la configuration actuellement enregistrée, sans preuve que les réunions ont eu lieu. Aucun statut réel n’est déduit.</small></label>
    <p className="small text-secondary mb-0">Les heures saisies sont interprétées dans le fuseau de votre navigateur. Vérifiez les heures historiques avant confirmation.</p>
    {error&&<div className="col-12"><p className="alert alert-warning" role="alert">{error}</p>{conflicts.map(x=><p key={x.id}><Link href={"/app/admin/sprints/"+encodeURIComponent(x.id)}>{x.name}</Link> : {x.start_at} — {x.end_at}</p>)}</div>}
    <div className="col-12 d-flex gap-2"><button className="btn btn-primary" type="submit" disabled={busy}>{busy?"Enregistrement…":"Créer le Sprint historique"}</button><Link className="btn btn-outline-secondary" href="/app/admin/sprints">Annuler</Link></div>
