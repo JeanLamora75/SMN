@@ -206,7 +206,8 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
  });
  it("la Story des risques/notes n'est pas simulée et SMN-86 demeure indépendante",()=>{
   const operational=file("src/app/app/operational-overview.tsx");
-  assert.match(operational,/definition.id==="events"&&projection&&timeZone/);
+  assert.match(operational,/if\(definition.id==="events"\)/);
+  assert.match(operational,/projection&&timeZone\?/);
   assert.match(operational,/UnavailableColumn/);
   const projectionSource=file("src/server/dashboard/cycle-reader.ts");
   assert.match(projectionSource,/obstacles:collectionUnavailable\("producer-not-ready"\)/);
