@@ -142,7 +142,7 @@ describe("SMN-237 — colonne événements du Sprint",()=>{
    locale:"en",projection:projection(collection),timeZone:"Europe/Paris"
   }));
   assert.match(en,/Reconstructed \(not verified\)/);
-  assert.match(en,/Open calendar/);
+  assert.match(en,/>View all<\/a>/);
   assert.match(en,/Cancelled/);
  });
  it("un producteur indisponible n'annonce ni zéro ni liste fiable vide",()=>{
@@ -161,7 +161,7 @@ describe("SMN-237 — colonne événements du Sprint",()=>{
   const meeting=file("src/app/app/team-calendar/meeting/[kind]/[id]/page.tsx");
   assert.match(cycle,/readCurrentSprintEvents\(db,sprint\.id/);
   assert.match(cycle,/eventsFromClosureSnapshot\(row\.snapshot,version\)/);
-  assert.match(page,/<OperationalOverview locale=\{locale\} projection=\{projection\} timeZone=\{cycle\?\.timeZone\}\/>/);
+  assert.match(page,/<OperationalOverview locale=\{locale\} projection=\{projection\} timeZone=\{cycle\?\.timeZone\} canManage=\{account\.role==="admin"\}\/>/);
   assert.match(meeting,/dashboardHref=requested\.teamId===row\.team_id/);
  });
 });
