@@ -81,7 +81,7 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,tod
    return <section className={"smn-cal-agenda-day"+(date===today?" is-today":"")} key={date}>
     <div className="smn-cal-agenda-date">
       <strong>{dateLabel(date,{weekday:"long",day:"numeric",month:"short"})}</strong>
-      {holiday&&<span className="smn-calendar-holiday">{holiday.title}</span>}
+      {holiday&&<span className="smn-calendar-holiday">{holiday.title||t("calendarOptionB.holiday")}</span>}
       {weekend&&<span className="smn-cal-muted">{t("calendarOptionB.nonworking")}</span>}
     </div>
     <div className="smn-cal-agenda-content">
@@ -106,7 +106,7 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,tod
        <span>{dateLabel(date,{month:"short"})}</span>
       </div>
       {date===today&&<span className="smn-cal-today">{t("calendarOptionB.today")}</span>}
-      {holiday&&<div className="smn-calendar-holiday">{holiday.title}</div>}
+      {holiday&&<div className="smn-calendar-holiday">{holiday.title||t("calendarOptionB.holiday")}</div>}
      </header>
      <div className="smn-cal-events">{renderEvents(date)}</div>
      {renderActions(date)}
