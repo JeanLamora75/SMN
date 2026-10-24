@@ -4,6 +4,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
 import {readPrivateBriefArchive} from "@/server/ai-briefs/library";
+import DuplicateButton from "../duplicate-button";
 export const dynamic="force-dynamic";
 export default async function ArchivedBriefPage({params}:{params:Promise<{id:string}>}){
  const account=await currentAccount();
@@ -28,6 +29,7 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
     <>
      <p className="small text-secondary">Archive {archive.metadata.id} · {archive.metadata.mode} · {archive.metadata.created_at} · modèle {archive.metadata.template_id} (révision {archive.metadata.template_revision})</p>
      <a className="btn btn-outline-primary mb-3" href={"/api/ai-briefs/archives/"+encodeURIComponent(id)+"/download"}>Télécharger le TXT original</a>
+     {account.role==="admin"&&<DuplicateButton parentId={id}/>}
      <label htmlFor="archived-brief-text" className="form-label">Contenu original, en lecture seule</label>
      <textarea id="archived-brief-text" className="form-control font-monospace" rows={25} readOnly value={archive.text}/>
     </>}
