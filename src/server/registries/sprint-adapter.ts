@@ -41,7 +41,7 @@ const asRecord=(raw:unknown):Record<string,unknown>|null=>
 export function qualitativeSnapshotSource(raw:unknown,teamId:string,sprint:Period):RegisterSource|null{
  const doc=asRecord(raw);
  if(!doc||typeof doc.state!=="string"||!["captured","no-cycle-links","not-installed"].includes(doc.state))return null;
- if(doc.state==="not-installed")return {availableKinds:[],records:[],linkedMembership:true};
+ if(doc.state!=="captured")return {availableKinds:[],records:[],linkedMembership:true};
  const items=safeItems(doc.items),facts=safeItems(doc.facts);
  if(!items||!facts)return null;
  const zone=sprint.timeZone??"UTC";
@@ -116,8 +116,8 @@ export async function readEpic5SprintRegisterSource(
  // The period is scoped by the caller; source rows stay team-only.
  const rows=await db.query<RegistryRow>(`
  SELECT r.id,r.type,r.title,r.status,
- (r.occurred_on::timestamp AT TIME ZONE $2) AS date,
- (r.occurred_on::timestamp AT TIME ZONE $2) AS "openedAt",
+ (r.occurred_on::timestamp AT TIME ZONE $2::text) AS date,
+ (r.occurred_on::timestamp AT TIME ZONE $2::text) AS "openedAt",
  ${closed} AS "closedAt",${linked} AS "sprintIds",
  ${assessment} AS priority
  FROM public.smn_registry_item r
