@@ -29,3 +29,9 @@
 - [Lecture d'équipe](https://github.com/JeanLamora75/SMN/blob/main/src/server/members/team-calendar.ts)
 
 **Publication :** ces fichiers constituent un paquet documentaire local, **non publié sur GitHub ni sur Jira**. Emplacement cible suggéré une fois autorisé : `_bmad-output/planning-artifacts/ux-designs/ux-calendrier-option-b-2026-10-24/`.
+
+## Suivi d'implémentation (Amelia — 24 octobre 2026)
+
+Les contrats ci-dessus restent la référence approuvée et décrivent l'état du transfert UX au moment de leur création. **Le code de l'option B a ensuite été publié sur `main`**, mais l'exécution des tests d'intégration, les captures d'écran de l'application et la validation visuelle utilisateur restent à réaliser.
+
+État réel, vérifications et matrice UXB-01 à UXB-30 : [Rapport d'implémentation Amelia](../../../implementation-artifacts/uxb-calendrier-option-b-avancement-2026-10-24.md).
