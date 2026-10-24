@@ -6,6 +6,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {allowedBriefFields} from "@/lib/ai-brief-templates";
 import {listBriefTemplates} from "@/server/ai-briefs/templates";
 import BriefOverrides from "./brief-overrides";
+import HumanAnalysisForm from "@/app/app/ai-briefs/human-analysis-form";
 import {readBriefFacts,projectBriefSelection} from "@/server/ai-briefs/facts";
 
 export const dynamic="force-dynamic";
@@ -110,6 +111,7 @@ export default async function PrepareAiBrief({searchParams}:{
     <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt}/>
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
    </section>
+   <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
    <p className="small text-secondary">Ouverture sans sauvegarde : aucun brouillon, TXT ou analyse n’est créé. La sélection des données et la finalisation seront disponibles dans les étapes suivantes de l’Epic 9.</p>
    <Link className="btn btn-outline-secondary" href={back}>Fermer sans enregistrer</Link>
   </section>
