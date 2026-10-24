@@ -1,15 +1,16 @@
 "use client";
 import {useEffect,useState} from "react";
 type Entry={id:string;type:"human"|"ai";origin:string;createdAt:string;cycleId:string;scope:string;content:string;archiveId:string|null};
-export default function ReportAnalysisChoices({sprintId}:{sprintId:string}){
+export default function ReportAnalysisChoices({sprintId,mode="scrum"}:{sprintId:string;mode?:"scrum"|"kanban"}){
+ const endpoint=mode==="kanban"?"/api/admin/kanban-periods/"+sprintId+"/analysis-choices":"/api/admin/reports/sprints/"+sprintId+"/analysis-choices";
  const [items,setItems]=useState<Entry[]>([]);
  const [selected,setSelected]=useState<string[]>([]);
  const [message,setMessage]=useState("");
  const [busy,setBusy]=useState(false);
- useEffect(()=>{let active=true;fetch("/api/admin/reports/sprints/"+sprintId+"/analysis-choices",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then((body:{candidates:Entry[];selected:string[]})=>{if(active){setItems(body.candidates);setSelected(body.selected);}}).catch(()=>{if(active)setMessage("Analyses indisponibles.");});return ()=>{active=false;};},[sprintId]);
+ useEffect(()=>{let active=true;fetch(endpoint,{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then((body:{candidates:Entry[];selected:string[]})=>{if(active){setItems(body.candidates);setSelected(body.selected);}}).catch(()=>{if(active)setMessage("Analyses indisponibles.");});return ()=>{active=false;};},[endpoint]);
  async function save(){
   setBusy(true);setMessage("");
-  try{const r=await fetch("/api/admin/reports/sprints/"+sprintId+"/analysis-choices",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({selected})});
+  try{const r=await fetch(endpoint,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({selected})});
    if(!r.ok)throw Error("Sélection refusée");setMessage("Sélection enregistrée. Elle sera figée lors de la prochaine préparation du PDF.");
   }catch{setMessage("Enregistrement impossible.");}finally{setBusy(false);}
  }
