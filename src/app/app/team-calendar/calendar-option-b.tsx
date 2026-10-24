@@ -1,4 +1,5 @@
 "use client";
+import {useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../bootstrap-icon";
 
@@ -19,15 +20,16 @@ function meetingIcon(meeting:CalendarMeeting):IconName{
  return "calendar3";
 }
 
-export default function CalendarOptionB({days,entries,meetings,absenceCounts,today,
+export default function CalendarOptionB({days,entries,meetings,absenceCounts,absentNames,today,
  mode,showMeetings,showAbsences,isEditable,onMeeting,onAbsence,onOpenEvent}:{
  days:string[];entries:CalendarEntry[];meetings:CalendarMeeting[];
- absenceCounts:Record<string,number>;today:string;mode:CalendarMode;
+ absenceCounts:Record<string,number>;absentNames:Record<string,string[]>;today:string;mode:CalendarMode;
  showMeetings:boolean;showAbsences:boolean;isEditable:(date:string)=>boolean;
  onMeeting:(date:string)=>void;onAbsence:(date:string)=>void;
  onOpenEvent:(event:CalendarMeeting)=>void;
 }){
  const t=useTranslation(),locale=useLocale();
+ const [openedAbsenceDate,setOpenedAbsenceDate]=useState<string|null>(null);
  const dateLabel=(day:string,options:Intl.DateTimeFormatOptions)=>
   new Intl.DateTimeFormat(locale,{timeZone:"UTC",...options}).format(dateAtNoon(day));
  const clock=(raw:string)=>new Intl.DateTimeFormat(locale,{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"}).format(new Date(raw));
@@ -47,11 +49,30 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,tod
    .sort((a,b)=>new Date(a.startAt).getTime()-new Date(b.startAt).getTime()||a.id.localeCompare(b.id)):[];
   const closures=entries.filter(item=>item.date===date&&item.type==="closure");
   return <>
-   {showAbsences&&count>0&&<div className="smn-cal-event smn-cal-absence" role="note"
-       aria-label={t("calendarOptionB.absences",{count})}>
+   {showAbsences&&count>0&&(()=>{
+    const names=absentNames[date]??[];
+    const label=t("calendarOptionB.absences",{count});
+    const contents=<>
      <span className="smn-cal-icon"><BootstrapIcon name="people-fill"/></span>
-     <span className="smn-cal-event-title smn-cal-absence-title">{t("calendarOptionB.absences",{count})}</span>
-    </div>}
+     <span className="smn-cal-event-title smn-cal-absence-title">{label}</span>
+    </>;
+    if(!names.length)return <div className="smn-cal-event smn-cal-absence" role="note" aria-label={label}>
+     {contents}
+    </div>;
+    const expanded=openedAbsenceDate===date;
+    const tooltipId="smn-cal-absence-tooltip-"+date;
+    return <div className={"smn-cal-absence-wrap"+(expanded?" is-expanded":"")}>
+     <button type="button" className="smn-cal-event smn-cal-absence smn-cal-absence-trigger"
+      aria-label={label} aria-describedby={tooltipId} aria-expanded={expanded}
+      onClick={()=>setOpenedAbsenceDate(expanded?null:date)}>
+      {contents}
+     </button>
+     <div className="smn-cal-absence-tooltip" id={tooltipId} role="tooltip">
+      <strong>{t("calendarOptionB.absentMembers")}</strong>
+      <ul>{names.map((person,i)=><li key={i}>{person}</li>)}</ul>
+     </div>
+    </div>;
+   })()}
    {dayMeetings.map(m=><div key={m.kind+":"+m.id} className="smn-cal-event">
      <span className="smn-cal-icon"><BootstrapIcon name={meetingIcon(m)}/></span>
      <div className="smn-cal-event-copy">
