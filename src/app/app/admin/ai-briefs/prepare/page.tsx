@@ -64,7 +64,7 @@ export default async function PrepareAiBrief({searchParams}:{
  const preparedAt=new Date().toISOString();
  const provisional=context.status!=="closed";
  return <main className="container-fluid px-3 px-lg-4 py-4">
-  <Link href={back}>← Retour au cycle</Link>
+  <div className="d-flex flex-wrap justify-content-between gap-2"><Link href={back}>← Retour au cycle</Link><Link href="/app/ai-briefs/archives">Bibliothèque des briefs archivés</Link></div>
   <section className="smn-panel rounded-4 p-4 my-3">
    <h1 className="h4">Préparer un brief IA</h1>
    <p className="text-secondary">Contexte repris automatiquement du cycle sélectionné. Aucun nouveau cycle n’est créé.</p>
