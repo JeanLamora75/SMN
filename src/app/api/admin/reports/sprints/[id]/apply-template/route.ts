@@ -8,8 +8,9 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
  if(!actor)return jsonResult({error:"forbidden"},403);
  const {id}=await params,body=await readJsonObject(req);
- if(!body||typeof body.templateId!=="string")return jsonResult({error:"invalid-input"},400);
- try{const result=await withAuthDb(db=>applyReportTemplate(db,actor.id,id,body.templateId));
+ const templateId=body?.templateId;
+ if(typeof templateId!=="string")return jsonResult({error:"invalid-input"},400);
+ try{const result=await withAuthDb(db=>applyReportTemplate(db,actor.id,id,templateId));
  return jsonResult(result,result.ok?200:result.error==="template-unavailable"?409:result.error==="not-found"?404:400);}
  catch{return jsonResult({error:"unavailable"},503);}
 }
