@@ -69,7 +69,7 @@ function parseInput(raw:unknown):Input|null{
   typeof o.sprintId!=="string"||!ids.test(o.sprintId)||
   typeof o.title!=="string"||!o.title.trim()||o.title.trim().length>160||
   typeof o.startAt!=="string"||!Number.isFinite(Date.parse(o.startAt))||
-  !Number.isSafeInteger(o.duration)||Number(o.duration)<1||Number(o.duration)>480||
+  !Number.isSafeInteger(o.duration)||Number(o.duration)<1||Number(o.duration)>600||
   !["scheduled","held","not_held","cancelled"].includes(String(o.status))||
   ["expectedTitle","expectedStartAt","expectedEndAt","expectedStatus"].some(k=>typeof o[k]!=="string"))
   return null;
@@ -94,6 +94,9 @@ export async function updateDashboardEvent(db:Client,actorId:string,
   if(prev.startAt!==o.expectedStartAt||prev.endAt!==o.expectedEndAt||
      prev.title!==o.expectedTitle||prev.status!==o.expectedStatus){
    await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
+  }
+  if(kind!=="ceremony"&&o.duration>480){
+   await db.query("ROLLBACK");return {ok:false as const,error:"invalid-input" as const};
   }
   if(kind==="ceremony"&&o.title!==prev.title){
    await db.query("ROLLBACK");return {ok:false as const,error:"immutable-type" as const};
@@ -125,6 +128,30 @@ export async function updateDashboardEvent(db:Client,actorId:string,
     await db.query(`INSERT INTO public.smn_sprint_ceremony_segment
      (ceremony_id,position,starts_at,ends_at,minutes) VALUES($1,1,$2,$3,$4)`,
      [id,start.toISOString(),end.toISOString(),o.duration]);
+   }
+   if(kind==="ceremony"&&prev.revision!==null){
+    await db.query(`INSERT INTO public.smn_sprint_ceremony_history
+     (id,ceremony_id,revision,previous_values,next_values,changed_by)
+     VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
+     [randomUUID(),id,prev.revision+1,JSON.stringify({startAt:prev.startAt,endAt:prev.endAt,
+      minutes:prev.duration,status:prev.status}),JSON.stringify({startAt:start.toISOString(),
+      endAt:end.toISOString(),minutes:o.duration,status:o.status}),actorId]);
+   }
+   if(prev.status!==o.status){
+    const history=kind==="ceremony"?["smn_sprint_ceremony_status_history","ceremony_id"]:
+     kind==="template"?["smn_scrum_template_occurrence_status_history","occurrence_id"]:
+     ["smn_sprint_exceptional_meeting_status_history","meeting_id"];
+    await db.query(`INSERT INTO public.${history[0]}
+     (id,${history[1]},previous_status,next_status,actor_id)
+     VALUES($1,$2,$3,$4,$5)`,[randomUUID(),id,prev.status,o.status,actorId]);
+   }
+   if(kind==="exceptional"){
+    await db.query(`INSERT INTO public.smn_sprint_exceptional_meeting_history
+     (id,meeting_id,action,actor_id,details)
+     VALUES($1,$2,'edited',$3,$4::jsonb)`,
+     [randomUUID(),id,actorId,JSON.stringify({before:{title:prev.title,startAt:prev.startAt,
+      endAt:prev.endAt,status:prev.status},after:{title:o.title.trim(),startAt:start.toISOString(),
+      endAt:end.toISOString(),status:o.status}})]);
    }
    await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dashboard_event_edit_audit(
     id text PRIMARY KEY,event_kind text NOT NULL,event_id text NOT NULL,
