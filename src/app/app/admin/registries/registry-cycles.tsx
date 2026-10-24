@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Cycle={id:string;name:string;status:string};
 type Data={cycles:Cycle[];linkedIds:string[]};
-export default function RegistryCycles({id,canManage}:{id:string;canManage:boolean}){
+export default function RegistryCycles({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("registryCycles."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(false),[busy,setBusy]=useState<string|null>(null);
  useEffect(()=>{
@@ -21,7 +21,7 @@ export default function RegistryCycles({id,canManage}:{id:string;canManage:boole
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({cycleId:cycle.id,action:linked?"unlinked":"linked"})});
    if(!r.ok)throw Error("failed");
-   setData(d=>d?{...d,linkedIds:linked?d.linkedIds.filter(x=>x!==cycle.id):[...d.linkedIds,cycle.id]}:d);
+   setData(d=>d?{...d,linkedIds:linked?d.linkedIds.filter(x=>x!==cycle.id):[...d.linkedIds,cycle.id]}:d);onSaved?.();
   }catch{setError(true);}finally{setBusy(null);}
  };
  return <section className="card p-3 mt-3">
