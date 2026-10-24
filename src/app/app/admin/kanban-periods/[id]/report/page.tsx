@@ -31,6 +31,7 @@ export default async function KanbanPeriodReport({params}:{params:Promise<{id:st
    </div>
    {provisional&&<p className="alert alert-info mt-3 mb-0">Bilan provisoire : les données peuvent encore évoluer. Les modifications sont soumises aux droits de votre compte.</p>}
   </header>
+  {account.role==="admin"&&<Link className="btn btn-outline-primary mb-3" href={"/app/admin/kanban-periods/"+encodeURIComponent(period.id)+"/report/prepare"}>Générer un rapport</Link>}
   <KanbanClosurePanel periodId={period.id} status={period.status} canManage={account.role==="admin"}/>
   <div className="row g-3">
    <section className="col-12" aria-labelledby="kanban-objectives"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-objectives">1. Objectifs</h2>
