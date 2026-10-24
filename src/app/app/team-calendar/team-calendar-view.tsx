@@ -266,7 +266,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
      <label className="form-label">{t("calendarUX.duration")}<input type="number" className="form-control" min={1} max={480} value={duration} onChange={e=>setDuration(Number(e.target.value))} required disabled={busy}/></label>
      {saveError&&<p role="alert" className="alert alert-warning">{saveError}</p>}
      <div className="d-flex gap-2 justify-content-end"><button type="button" className="btn btn-outline-secondary" onClick={()=>setEditor(null)}>{t("teamUX.cancel")}</button>
-      <button className="btn btn-primary" disabled={busy||!selectedSprint}>{t("calendarUX.create")}</button></div>
+      <button className="btn btn-primary" disabled={busy||(calendarMode==="scrum"&&!selectedSprint)||!period?.sprintId}>{t("calendarUX.create")}</button></div>
     </form>
    </div>
   </div>}
