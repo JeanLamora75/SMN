@@ -40,3 +40,24 @@ pnpm dev
 Sur `http://localhost:3003/app`, vérifier à hauteur d'écran standard et réduite les six entrées, la ligne fine et Paramètres au bas de la sidebar, l'état actif, la navigation par clavier, la vue repliée, l'ouverture mobile et les labels FR/EN, puis les profils admin et utilisateur.
 
 **Statut :** correctif préparé pour publication ; recette utilisateur nécessaire avant validation définitive.
+
+
+## Correctif post-recette : icône Registre et TypeScript (24/10/2026)
+
+Lors de l'exécution locale de `pnpm build`, Next.js 16 a terminé la compilation des ressources puis échoué pendant la vérification TypeScript :
+`src/lib/private-navigation.ts:38:34 — Type '"stack"' is not assignable to type 'NavigationIcon'`.
+La navigation du deuxième lot affectait `icon:"stack"` à Registre, alors que l'union `NavigationIcon` ne comprenait pas cette valeur. Le composant `BootstrapIcon` possédait déjà son dessin SVG officiel : aucune dépendance ni remplacement d'icône requis.
+
+**Correction :** ajout de `"stack"` au type `NavigationIcon` uniquement. Test de non-régression ajouté dans `tests/smn-sidebar-second-pass-20261024.test.ts` pour assurer l'égalité avec l'icône des registres et la présence du dessin Bootstrap.
+
+L'avertissement `baseline-browser-mapping` de plus de deux mois est indépendant de l'échec TS et ne nécessite pas d'installation pour ce correctif ciblé.
+
+**Validation :** erreur originale observée sur le poste utilisateur ; code et test modifiés sur GitHub. Il reste à exécuter localement :
+```powershell
+git switch main
+git pull origin main
+pnpm typecheck
+pnpm exec tsx --test tests/smn-sidebar-second-pass-20261024.test.ts
+pnpm build
+```
+Ne pas déclarer le build validé avant réception du résultat local.
