@@ -17,7 +17,7 @@ export async function readLinks(db:Client,id:string){
  const scope=await db.query<{teamId:string;type:string}>(`SELECT r.team_id AS "teamId",r.type FROM public.smn_registry_item r
  JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'`,[id]);
- const r=scope.rows[0];if(!r||!["risk","dependency"].includes(r.type))return null;
+ const r=scope.rows[0];if(!r||!["risk","dependency","obstacle"].includes(r.type))return null;
  const cycles=await db.query<{id:string;name:string;status:string}>(`
  SELECT s.id,s.name,s.status FROM public.smn_sprint s
  WHERE s.team_id=$1 AND s.deleted_at IS NULL ORDER BY s.start_at DESC,s.id DESC`,[r.teamId]);
@@ -34,7 +34,7 @@ export async function changeCycleLink(db:Client,actorId:string,id:string,cycleId
   const scope=await db.query<{id:string}>(`SELECT r.id FROM public.smn_registry_item r
  JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  JOIN public.smn_sprint s ON s.team_id=r.team_id AND s.id=$2 AND s.deleted_at IS NULL
- WHERE r.id=$1 AND r.type IN ('risk','dependency') AND i.id='singleton' AND i.state='initialized'
+ WHERE r.id=$1 AND r.type IN ('risk','dependency','obstacle') AND i.id='singleton' AND i.state='initialized'
  AND lower(i.mode)='scrum' AND s.status<>'closed' FOR UPDATE OF r,s`,[id,cycleId]);
  if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
  await ensureCycleLinks(db);
