@@ -158,11 +158,12 @@ function AttentionCard({item,locale}:Readonly<{
   <div className="smn-attention-card-heading">
    <span className="smn-attention-indicator" data-priority={severity} aria-hidden="true"/>
    <span className="smn-attention-kind-icon" aria-hidden="true"><BootstrapIcon name={icons[item.kind]}/></span>
+   <span className="visually-hidden">{t(labels[item.kind])}</span>
    <h4 className="smn-attention-card-title">{href?<Link href={href}>{title}</Link>:title}</h4>
   </div>
   {description&&<p className="smn-attention-card-description">{description}</p>}
   <div className="smn-attention-card-metadata">
-   {item.kind!=="note"&&item.kind!=="alert"&&item.priority&&
+   {item.kind!=="note"&&item.kind!=="alert"&&
     <PriorityMarker priority={item.priority} locale={locale}/>}
    {item.owner&&<span className="smn-attention-card-detail"><BootstrapIcon name="people-fill"/> {item.owner}</span>}
    {item.dueOn&&<span className="smn-attention-card-detail">
