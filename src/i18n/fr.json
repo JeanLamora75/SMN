@@ -2286,7 +2286,8 @@
     "presenceAgileRoles": "Rôles Agile",
     "presenceFunction": "Fonction",
     "presenceContribution": "Contribution",
-    "registersAll": "Tous"
+    "registersAll": "Tous",
+    "ceremonyEdit": "Modifier la réunion"
   },
   "registryCreate": {
     "title": "Registres",
