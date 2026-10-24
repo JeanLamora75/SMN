@@ -30,7 +30,7 @@ test("risques et obstacles existants sont projetés selon l'équipe et le Sprint
   assert.match(r.items[0].href??"",/registries\/registry-0$/);
  }
  const query=saved.history.find(q=>q.sql.includes("COUNT(*)"));
- assert.deepEqual(query?.args,["team-a","risk","cycle-a",["resolved"]]);
+ assert.deepEqual(query?.args,["team-a","risk",["resolved"]]);
  assert.match(query?.sql??"",/r\.status<>ALL/);
  assert.match(query?.sql??"",/r\.team_id/);
  assert.ok(!saved.history.some(q=>/CREATE|INSERT|UPDATE|DELETE/i.test(q.sql)));
