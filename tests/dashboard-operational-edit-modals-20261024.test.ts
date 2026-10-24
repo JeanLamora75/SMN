@@ -130,3 +130,33 @@ test("contrat d'installation : nouveaux audits autorisés",()=>{
   assert.ok(file.includes("public."+table+":r"));
  }
 });
+
+
+test("les sous-formulaires risques propagent un succès sans modifier les autres écrans",()=>{
+ const registry=read("src/app/app/admin/registries/registry-create.tsx");
+ for(const name of ["RiskRoam","RiskAssessment","RegistryCycles","RegistryRelations"]){
+  assert.ok(registry.includes("<"+name));
+  const dash=read("src/app/app/admin/registries/"+
+   (name==="RiskRoam"?"risk-roam":name==="RiskAssessment"?"risk-assessment":
+    name==="RegistryCycles"?"registry-cycles":"registry-relations")+".tsx");
+  assert.match(dash,/onSaved\?\.\(\)/);
+ }
+});
+test("une modification de note valide est enregistrée et auditée en transaction",async()=>{
+ const statements:string[]=[];
+ const db={query:async(sql:string)=>{
+  statements.push(sql);
+  if(sql.includes("SELECT n.id,n.body,n.status,s.status"))return {rows:[{
+   id:u(3),body:"Avant",status:"open",sprint_status:"active"}]};
+  return {rows:[],rowCount:1};
+ }} as unknown as Client;
+ const result=await updateDashboardNote(db,"admin",u(3),{
+  teamId:"team-1",sprintId:u(5),text:"Après",status:"done",
+  expectedBody:"Avant",expectedStatus:"open"
+ });
+ assert.equal(result.ok,true);
+ assert.equal(statements[0],"BEGIN");
+ assert.equal(statements.at(-1),"COMMIT");
+ assert.ok(statements.some(x=>x.includes("smn_dashboard_note_edit_audit")));
+ assert.ok(statements.some(x=>x.includes("UPDATE public.smn_dashboard_note")));
+});
