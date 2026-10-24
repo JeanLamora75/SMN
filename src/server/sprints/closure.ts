@@ -36,7 +36,7 @@ async function sprintScope(db:Client,id:string,lock=false){
  WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
  ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
-async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:string;start_at:string;end_at:string;time_zone:string}){
+async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:string;start_at:string;end_at:string;time_zone:string},historical=false){
  const [goals,points,ceremonies,custom,exceptional,capacity,participants,scores]=await Promise.all([
   db.query(`SELECT id,title,evaluation,comment,revision FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]),
   db.query(`SELECT initial_sp::text,added_sp::text,removed_sp::text,done_sp::text,revision FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]),
@@ -75,8 +75,8 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
  // Capture member presence at closure. Never recompute this section from future
  // calendar/absence edits. A missing producer remains visibly unavailable.
  const reviewAnalysis=await reviewClosureSnapshot(db,sprintId);
- const qualitative=await qualitativeClosureSnapshot(db,sprintId,context.team_id);
- const memberPresence=await readSprintMemberPresence(db,context.team_id,{
+ const qualitative=historical?{state:"historical-unavailable",capturedAt:new Date().toISOString(),items:[],relations:[],facts:[],explanation:"Aucune photographie qualitative passée attestée. Les registres actuels ne sont pas reproduits."}:await qualitativeClosureSnapshot(db,sprintId,context.team_id);
+ const memberPresence=historical?null:await readSprintMemberPresence(db,context.team_id,{
   id:sprintId,name:context.name,status:"finished",suspended:false,
   startAt:context.start_at,endAt:context.end_at,timeZone:context.time_zone
  });
@@ -84,19 +84,21 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
   "SELECT planned_jh::text,actual_jh::text FROM public.smn_sprint_capacity_kpi WHERE sprint_id=$1",
   [sprintId]);
  const saved=capacityKpi.rows[0]??null;
+ const historicalCapacity=historical?await db.query<{quality:string;qualified_jh:string|null}>(`SELECT quality,qualified_jh::text FROM public.smn_sprint_historical_capacity WHERE sprint_id=$1`,[sprintId]).catch(()=>({rows:[]} as {rows:{quality:string;qualified_jh:string|null}[]})):null;
+ const historicalActual=historical?await db.query<{quality:string;qualified_jh:string|null}>(`SELECT quality,qualified_jh::text FROM public.smn_sprint_historical_actual_capacity WHERE sprint_id=$1`,[sprintId]).catch(()=>({rows:[]} as {rows:{quality:string;qualified_jh:string|null}[]})):null;
  const captured=capacity.rows[0]??null;
- const snapshotCapacity=captured?{
+ const snapshotCapacity=historical?{initial_jh:historicalCapacity?.rows[0]?.qualified_jh??null,actual_jh:historicalActual?.rows[0]?.qualified_jh??null,initialQuality:historicalCapacity?.rows[0]?.quality??"not-supplied",actualQuality:historicalActual?.rows[0]?.quality??"not-supplied",provenance:"retrospective-manual"}:captured?{
   ...captured,
   initial_jh:saved?.planned_jh??captured.initial_jh,
   actual_jh:saved?.actual_jh??captured.actual_jh
  }:saved?{initial_jh:saved.planned_jh,actual_jh:saved.actual_jh}:null;
  return {goals:goals.rows,qualitative,storyPoints:points.rows[0]??null,
-  memberPresence:memberPresence??{state:"unavailable",reason:"read-failed"},
+  memberPresence:historical?{state:"historical-unavailable",reason:"no-contemporaneous-evidence"}:memberPresence??{state:"unavailable",reason:"read-failed"},
   reviewAnalysis,
   confidenceClarity:scores.rows[0]??null,
   ticketCounts:ticket?.rows[0]??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
-  capacity:snapshotCapacity,capacityKpis:saved?{
+  capacity:snapshotCapacity,capacityKpis:historical?{planned:historicalCapacity?.rows[0]?.qualified_jh??null,actual:historicalActual?.rows[0]?.qualified_jh??null}:saved?{
    planned:saved.planned_jh,actual:saved.actual_jh
   }:null,participants:participants.rows};
 }
@@ -124,7 +126,10 @@ export async function changeSprintClosure(db:Client,actorId:string,raw:unknown){
   if(v.action==="close"){
    const num=await db.query<{next:number}>(`SELECT COALESCE(MAX(version),0)+1 AS next FROM public.smn_sprint_closure_snapshot WHERE sprint_id=$1`,[s.id]);
    version=Number(num.rows[0].next);
-   const data=await snapshot(db,s.id,s);
+   const historicalMarker=await db.query<{historical:boolean}>(`SELECT EXISTS(SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created') AS historical`,[s.id]);
+   const historical=historicalMarker.rows[0]?.historical===true;
+   const data=await snapshot(db,s.id,s,historical);
+   if(historical)Object.assign(data,{historicalClosure:{state:"partial-retrospective",recordedAt:new Date().toISOString(),historicRegistryState:"historical-unavailable",limitations:"Informations reprises rétrospectivement; absence de données non assimilée à zéro ou non atteint."}});
    await db.query(`INSERT INTO public.smn_sprint_closure_snapshot(id,sprint_id,version,snapshot,actor_id)
     VALUES($1,$2,$3,$4::jsonb,$5)`,[randomUUID(),s.id,version,JSON.stringify({sprint:{id:s.id,name:s.name,startAt:s.start_at,endAt:s.end_at},...data}),actorId]);
   }
