@@ -6,6 +6,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {readKanbanPeriodReport} from "@/server/kanban/report";
 import KanbanGoalsPanel from "./goals-panel";
 import KanbanMetricsPanel from "./metrics-panel";
+import KanbanTrendsPanel from "./trends-panel";
 
 export const dynamic="force-dynamic";
 const labels:Record<string,string>={planned:"À venir",active:"En cours",finished:"Terminée",closed:"Clôturée"};
@@ -46,7 +47,7 @@ export default async function KanbanPeriodReport({params}:{params:Promise<{id:st
     <p className="small text-secondary mt-2 mb-0">Source du réalisé : {blocks.capacity.actualSource} ; observation jusqu'au {blocks.capacity.observedThrough??"Non renseigné"}.</p>
     {!!blocks.capacity.missingSources.length&&<p className="small text-warning-emphasis mt-2">Sources indisponibles : {blocks.capacity.missingSources.join(", ")}</p>}</div></section>
    <section className="col-12" aria-labelledby="kanban-trends"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-trends">4. Tendances</h2>
-    <p className="text-secondary mb-0">Données de tendance non encore collectées.</p></div></section>
+    <KanbanTrendsPanel periodId={period.id}/></div></section>
   </div>
  </main>;
 }
