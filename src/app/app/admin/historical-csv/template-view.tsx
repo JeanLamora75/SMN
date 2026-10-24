@@ -1,11 +1,13 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
+type Preview={line:number;cycleId:string;cycleName:string|null;metricCode:string;value:number;quality:string;existingValue:number|null;impact:string;validation:string};
 type Catalog={mode:"scrum"|"kanban";cycles:{id:string;name:string}[];catalog:{code:string;description:string}[]};
 export default function HistoricalCsvTemplateView(){
  const [data,setData]=useState<Catalog|null>(null),[error,setError]=useState("");
  const [csv,setCsv]=useState(""),[checking,setChecking]=useState(false);
- const [check,setCheck]=useState<{valid:boolean;rowCount:number;errors:{line:number;column:string;message:string}[]}|null>(null);
- async function validate(){setChecking(true);setCheck(null);try{const r=await fetch("/api/admin/historical-csv/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv})});const value=await r.json();if(Array.isArray(value.errors))setCheck(value);else setError("Vérification impossible.");}catch{setError("Vérification indisponible.");}finally{setChecking(false);}}
+ const version=useRef(0);
+ const [check,setCheck]=useState<{valid:boolean;rowCount:number;errors:{line:number;column:string;message:string}[];preview?:Preview[];confirmable?:boolean}|null>(null);
+ async function validate(){const snapshot=version.current;setChecking(true);setCheck(null);try{const r=await fetch("/api/admin/historical-csv/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv})});const value=await r.json();if(Array.isArray(value.errors)&&version.current===snapshot)setCheck(value);else setError("Vérification impossible.");}catch{setError("Vérification indisponible.");}finally{setChecking(false);}}
  useEffect(()=>{void fetch("/api/admin/historical-csv/template",{cache:"no-store"})
   .then(r=>{if(!r.ok)throw Error();return r.json() as Promise<Catalog>;})
   .then(setData).catch(()=>setError("Catalogue momentanément indisponible."));},[]);
@@ -16,11 +18,25 @@ export default function HistoricalCsvTemplateView(){
   <div className="border rounded p-3 mb-4">
    <h2 className="h6">Vérifier un CSV avant import</h2>
    <p className="small text-secondary">Contrôle uniquement la syntaxe et le contrat de colonnes. Aucun enregistrement n'est créé ou modifié.</p>
-   <label className="form-label">Fichier CSV<input type="file" accept=".csv,text/csv" className="form-control" onChange={async e=>{const file=e.target.files?.[0];if(file){if(file.size>1048576){setError("CSV limité à 1 Mo.");return;}setCsv(await file.text());setCheck(null);}}}/></label>
-   <textarea className="form-control mt-2" rows={4} aria-label="Contenu CSV à vérifier" value={csv} onChange={e=>{setCsv(e.target.value);setCheck(null);}}/>
+   <label className="form-label">Fichier CSV<input type="file" accept=".csv,text/csv" className="form-control" onChange={async e=>{const file=e.target.files?.[0];if(file){if(file.size>1048576){setError("CSV limité à 1 Mo.");return;}const raw=await file.text();version.current++;setCsv(raw);setCheck(null);}}}/></label>
+   <textarea className="form-control mt-2" rows={4} aria-label="Contenu CSV à vérifier" value={csv} onChange={e=>{version.current++;setCsv(e.target.value);setCheck(null);}}/>
    <button type="button" className="btn btn-outline-primary mt-2" disabled={checking||!csv.trim()} onClick={validate}>{checking?"Vérification…":"Vérifier le fichier"}</button>
    {check&&<div className={"alert mt-3 "+(check.valid?"alert-success":"alert-warning")} role="status">{check.valid?`Syntaxe valide : ${check.rowCount} ligne(s). Aucune écriture effectuée.`:"Fichier invalide : aucune écriture effectuée."}
     {check.errors.length>0&&<ul className="mb-0 mt-2">{check.errors.map((issue,i)=><li key={i}>Ligne {issue.line} · {issue.column} : {issue.message}</li>)}</ul>}
+   </div>}
+   {check?.valid&&<div className="mt-3">
+    <h3 className="h6">Aperçu des impacts — lecture seule</h3>
+    <p className="small text-secondary">Les valeurs déjà enregistrées sont conservées par défaut. Fermer cet aperçu ou changer de fichier n'effectue aucun import.</p>
+    <div className="table-responsive"><table className="table table-sm align-middle">
+     <thead><tr><th>Ligne</th><th>Cycle existant</th><th>Métrique</th><th>Valeur actuelle</th><th>Valeur proposée</th><th>Qualité</th><th>Résultat</th></tr></thead>
+     <tbody>{(check.preview??[]).map(item=><tr key={item.line}>
+      <td>{item.line}</td><td>{item.cycleName??item.cycleId}<div className="small text-secondary">{item.cycleId}</div></td>
+      <td><code>{item.metricCode}</code></td><td>{item.existingValue===null?"Non renseignée":item.existingValue}</td>
+      <td>{item.value}</td><td>{item.quality==="known"?"Connue":"Estimée"}</td>
+      <td>{item.impact==="preserved"?"Valide — conservation de la valeur actuelle":"Valide — champ vide"}</td>
+     </tr>)}</tbody>
+    </table></div>
+    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>setCheck(null)}>Fermer l'aperçu</button>
    </div>}
   </div>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
