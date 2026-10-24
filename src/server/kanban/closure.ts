@@ -4,9 +4,12 @@ import {ensureKanbanGoals} from "./goals";
 import {ensureKanbanFlowSchema} from "./flow-counts";
 import {ensureKanbanTimingSchema} from "./timing";
 import {reconcileKanbanStates} from "./states";
+import {ensureKanbanMeetingSchema} from "./meetings";
+import {readKanbanCapacityView} from "./capacity-view";
 export function nextClosureVersion(versions:number[]){return versions.length?Math.max(...versions)+1:1;}
 export async function ensureKanbanClosures(db:Client){
  await ensureKanbanGoals(db);await ensureKanbanFlowSchema(db);await ensureKanbanTimingSchema(db);
+ await ensureKanbanMeetingSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_closure(
  id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
  version integer NOT NULL CHECK(version>0),snapshot jsonb NOT NULL,
@@ -27,7 +30,7 @@ export async function readKanbanClosures(db:Client,id:string){
 export async function changeKanbanClosure(db:Client,id:string,actorId:string,action:"close"|"reopen"){
  await ensureKanbanClosures(db);
  await reconcileKanbanStates(db);
- await db.query("BEGIN");
+ await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
  try{
   const row=await db.query<{id:string;team_id:string;status:string;name:string;start_on:string;end_on:string;time_zone:string}>(`
   SELECT p.id,p.team_id,p.status,p.name,p.start_on::text,p.end_on::text,p.time_zone
@@ -53,9 +56,11 @@ export async function changeKanbanClosure(db:Client,id:string,actorId:string,act
   const goals=(await db.query(`SELECT id,title,description,evaluation,comment,revision FROM public.smn_kanban_goal WHERE period_id=$1 ORDER BY created_at,id`,[id])).rows;
   const flow=(await db.query(`SELECT started::text,throughput::text,wip_final::text FROM public.smn_kanban_flow_counts WHERE period_id=$1`,[id])).rows[0]??null;
   const timing=(await db.query(`SELECT cycle_days::text,cycle_convention,cycle_source,lead_days::text,lead_convention,lead_source FROM public.smn_kanban_timing WHERE period_id=$1`,[id])).rows[0]??null;
-  const capacity=(await db.query(`SELECT initial_jh::text,provenance,opened_on::text,captured_at::text FROM public.smn_kanban_capacity_opening WHERE period_id=$1`,[id])).rows[0]??null;
+  const capacity=await readKanbanCapacityView(db,period.team_id,period.start_on,period.end_on,"finished");
+  const events=(await db.query(`SELECT id,name,starts_at::text AS "startAt",ends_at::text AS "endAt",status,provenance,created_at::text AS "createdAt"
+   FROM public.smn_kanban_meeting WHERE period_id=$1 ORDER BY starts_at,id`,[id])).rows;
   const snapshot={period:{id,name:period.name,startOn:period.start_on,endOn:period.end_on,status:"closed",timeZone:period.time_zone},
-   goals,flow,timing,capacity,qualitativeLinks:{state:"not-integrated"},events:{state:"not-integrated"}};
+   goals,flow,timing,capacity,qualitativeLinks:{state:"not-integrated"},events:{state:"captured",items:events}};
   await db.query(`INSERT INTO public.smn_kanban_closure(id,period_id,version,snapshot,created_by)
    VALUES($1,$2,$3,$4::jsonb,$5)`,[randomUUID(),id,version,JSON.stringify(snapshot),actorId]);
   await db.query("UPDATE public.smn_kanban_period SET status='closed' WHERE id=$1",[id]);
