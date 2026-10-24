@@ -5,6 +5,7 @@ import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
 import {composeKanbanReport} from "@/server/kanban/report-preparation";
 import KanbanReportPreview from "./report-preview";
+import ReportAnalysisChoices from "@/app/app/admin/sprints/[sprintId]/report/report-analysis-choices";
 export const dynamic="force-dynamic";
 export default async function KanbanReportPreparation({params}:{params:Promise<{id:string}>}){
  const account=await currentAccount();
@@ -23,6 +24,7 @@ export default async function KanbanReportPreparation({params}:{params:Promise<{
    <p className="mb-1">{data.period.startOn} — {data.period.endOn} · {data.period.status}</p>
    <p className="small text-secondary mb-0">{data.provisional?"Rapport provisoire — données enregistrées actuelles": "Rapport issu du cliché de clôture V"+data.snapshotVersion}</p>
   </header>
+  {account.role==="admin"&&<ReportAnalysisChoices sprintId={id} mode="kanban"/>}
   <KanbanReportPreview data={data}/>
  </main>;
 }
