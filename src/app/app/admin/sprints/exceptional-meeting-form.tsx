@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState,type FormEvent} from "react";
+import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useEpic4Presentation} from "./i18n-presentation";
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string};
@@ -17,8 +17,8 @@ export default function ExceptionalMeetingForm(){
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
  const [busy,setBusy]=useState(false);
- async function reload(){const r=await fetch("/api/admin/sprints/exceptional-meetings",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setSprints(j.sprints);setMeetings(j.meetings);}
- useEffect(()=>{void Promise.resolve().then(reload).catch(()=>setError(t("exceptionalMeetings.error")));},[]);
+ const reload=useCallback(async()=>{const r=await fetch("/api/admin/sprints/exceptional-meetings",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setSprints(j.sprints);setMeetings(j.meetings);},[]);
+ useEffect(()=>{void Promise.resolve().then(reload).catch(()=>setError(t("exceptionalMeetings.error")));},[reload,t]);
  async function submit(e:FormEvent){e.preventDefault();setError("");setNotice("");setBusy(true);setWarnings([]);
  try{const date=new Date(startAt+":00Z");
  if(!Number.isFinite(date.valueOf()))throw Error();
