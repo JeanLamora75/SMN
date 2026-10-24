@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
+import {useSearchParams} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import RiskRoam from "./risk-roam";
@@ -20,10 +21,12 @@ const today=()=>{
 };
 export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|null;canManage:boolean;itemId?:string}){
  const t=useTranslation();
- const [type,setType]=useState<RegistryType>("risk");
+ const params=useSearchParams();
+ const initialType=params.get("type");
+ const [type,setType]=useState<RegistryType>(initialType==="obstacle"?"obstacle":"risk");
  const [title,setTitle]=useState("");
  const [date,setDate]=useState(today);
- const [status,setStatus]=useState<string>(registryStatuses.risk[0]);
+ const [status,setStatus]=useState<string>(registryStatuses[initialType==="obstacle"?"obstacle":"risk"][0]);
  const [description,setDescription]=useState("");
  const [owner,setOwner]=useState("");
  const [due,setDue]=useState("");
