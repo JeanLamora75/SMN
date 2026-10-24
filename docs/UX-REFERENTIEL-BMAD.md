@@ -274,3 +274,17 @@ Référence : [rapport BMAD D8](../_bmad-output/implementation-artifacts/realisa
 - **Recette à valider :** risques/obstacles avec champs et sous-formulaires, trois origines d'événements, notes ouvertes/terminées, alertes globales, admin/user, Sprint actif/historique/clôturé, changement d'heure Europe/Paris, édition concurrente, boutons « Ajouter », absence du bloc inférieur, FR/EN et 4/2/1.
 
 **Livraison :** branche `ux/dashboard-edit-modals-20261024` ; les tests et le build locaux restent obligatoires avant recette finale. GitHub Actions est désactivé.
+
+
+## Fiche Sprint — colonnes du tableau Capacités (24/10/2026)
+
+La fiche Sprint, onglet **Capacités**, conserve le tableau de présences individuelles et ajoute après **Membre** les colonnes **Rôles Agile**, **Fonction** et **Contribution**, avant les colonnes J/H et fiabilité déjà existantes.
+
+- **Rôles Agile :** utiliser exclusivement les parts réellement affectées au membre dans `smn_member_assignment_version` pendant la période du Sprint ; conserver les rôles dont la part est strictement positive, présenter les libellés localisés dans l'ordre Scrum Master, Product Owner, Développeur et les séparer par `, `. En cas de changement d'affectation/rôle durant le Sprint, afficher les rôles présents pendant cette période, sans inventer de rôle.
+- **Fonction :** afficher la valeur `smn_member.professional_function` de la fiche membre ; en cas de valeur absente, indiquer `—`. La fonction courante peut évoluer tant que le Sprint n'est pas clôturé ; les nouveaux snapshots de clôture figent sa valeur.
+- **Contribution :** utiliser exclusivement `contribution_percent` des versions applicables aux jours où le membre est affecté. Un seul taux enregistré est présenté `75 %` ; plusieurs taux successifs distincts s'affichent dans l'ordre de la période, par exemple `50 % → 80 %` ; `—` quand la valeur n'est pas fiable.
+- **Qualité et historique :** ces trois données descriptives ne modifient aucun calcul de présence ou développement en J/H. Les snapshots de Sprints clôturés récents conservent ces attributs ; les anciens snapshots sans ces champs restent lisibles et affichent `—` sans consultation du profil actuel en substitution.
+- **Sécurité et UX :** comme les données nominatives déjà présentes, ces champs restent visibles uniquement aux rôles autorisés à lire les membres (admin MVP). Les intitulés suivent le catalogue FR/EN ; sur une largeur réduite, le tableau utilise son conteneur responsive horizontal.
+- **Pas de migration :** les colonnes proviennent des tables existantes. Si les attributs additionnels ne sont pas lisibles sur un schéma ancien, ne pas dégrader les chiffres J/H calculés à partir de calendriers valides.
+
+Livraison technique associée : `src/server/sprints/presence-metadata-read.ts`, `src/lib/sprint-presence.ts`, `src/app/app/admin/sprints/[sprintId]/sprint-capacity-panel.tsx` et `tests/smn-234-sprint-capacity-metadata.test.ts`. Tests et recette locale nécessaires avant clôture de la validation.

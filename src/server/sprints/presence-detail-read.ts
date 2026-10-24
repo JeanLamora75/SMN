@@ -1,6 +1,7 @@
 import type {Client} from "pg";
 import type {SprintContextItem} from "@/lib/sprint-context";
 import {readDevelopmentCapacity} from "@/server/capacity/engine";
+import {readSprintMemberMetadata} from "./presence-metadata-read";
 import {
  presenceFromCapacity,presenceFromSnapshot,sprintPresenceDates,
  type SprintPresence
@@ -59,8 +60,25 @@ export async function readSprintMemberPresence(
   if(capacity.team.id!==teamId||capacity.team.mode!=="scrum")
    throw Error("presence-team-mismatch");
   const projection=presenceFromCapacity(capacity);
+  // Optional display attributes must never make the J/H calculation fail.
+  // This nested savepoint also clears SQLSTATE 42703 on older installations.
+  await db.query("SAVEPOINT smn_presence_metadata");
+  let enriched=projection;
+  try{
+   const metadata=await readSprintMemberMetadata(db,teamId,period.start,period.end,
+    capacity.members.map(member=>({
+     memberId:member.memberId,dates:member.days.map(day=>day.date)
+    })));
+   enriched={...projection,members:projection.members.map(member=>({
+    ...member,...(metadata.get(member.memberId)??{})
+   }))};
+   await db.query("RELEASE SAVEPOINT smn_presence_metadata");
+  }catch{
+   await db.query("ROLLBACK TO SAVEPOINT smn_presence_metadata");
+   await db.query("RELEASE SAVEPOINT smn_presence_metadata");
+  }
   await db.query("RELEASE SAVEPOINT smn_presence_detail");
-  return projection;
+  return enriched;
  }catch{
   await db.query("ROLLBACK TO SAVEPOINT smn_presence_detail");
   await db.query("RELEASE SAVEPOINT smn_presence_detail");
