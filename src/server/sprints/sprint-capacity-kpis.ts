@@ -156,6 +156,12 @@ export async function writeSprintCapacityKpis(db:Client,actorId:string,raw:unkno
   if(sprint.rows[0].status==="closed"){
    await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
   }
+  const historical=await db.query<{historical:boolean}>(`SELECT EXISTS(
+   SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created'
+  ) AS historical`,[input.sprintId]);
+  if(historical.rows[0]?.historical){
+   await db.query("ROLLBACK");return {ok:false as const,error:"historical-capacity-protected" as const};
+  }
   await ensureSprintCapacityKpiSchema(db);
   const before=await db.query<{planned_jh:string|null;actual_jh:string|null;revision:number}>(
    "SELECT planned_jh::text,actual_jh::text,revision FROM public.smn_sprint_capacity_kpi WHERE sprint_id=$1 FOR UPDATE",
