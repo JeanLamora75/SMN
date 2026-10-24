@@ -58,3 +58,31 @@ comportement sur un compte User, en mobile et en EN.
 **Statut :** sources préparées pour livraison, les commandes de compilation,
 tests complets, PostgreSQL et recette manuelle ne sont pas exécutés via
 les connecteurs GitHub/Jira.
+
+## Rectification UX et produit — 24/10/2026
+
+La première livraison utilisait par erreur `dialog.smn-sprint-edit-dialog`
+(620 px) avec un contenu `min(90vw,680px)`, provoquant un débordement
+et des boutons partiellement masqués. Le correctif introduit
+`dialog.smn-team-context-dialog` (largeur commune responsive jusqu'à 760 px,
+formulaire et contrôles bornés à 100 %, scroll vertical).
+
+Le contrat de saisie est étendu à `productName` (nom actuel
+de `smn_product.name`) dans la modale, le GET/PATCH et les versions audit.
+La validation exige un nom de produit non vide ; un changement de nom ne
+modifie ni `smn_product.id` ni l'appartenance à l'installation, ni le mode.
+Verrouillage de l'équipe **et du produit** pendant la transaction ;
+contrôle de révision et rollback commun aux quatre champs.
+
+Les anciennes entrées d'audit ne contenant pas `productName` restent
+consultables avec un libellé historique absent : aucune rétro-inférence.
+
+`src/server/auth/request.ts` garde une limite JSON de 4096 octets par
+défaut ; la seule route d'édition du contexte demande 48000 octets pour
+accepter deux textes Unicode facultatifs jusqu'à 5000 caractères chacun.
+
+Tests renforcés : ajout du seul renommage produit, vérification des clés,
+rollback sur échec, préservation de l'historique, protection API, i18n,
+largeur responsive et absence de dimensionnement interne dépassant.
+Recette avec navigateur réel sur Windows et lancement local des tests
+restent nécessaires.

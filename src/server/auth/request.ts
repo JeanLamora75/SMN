@@ -22,12 +22,12 @@ export function clearSessionCookie(response: NextResponse, request: NextRequest)
   });
   return response;
 }
-export async function readJsonObject(request: NextRequest): Promise<Record<string, unknown> | null> {
+export async function readJsonObject(request: NextRequest, maxBytes = 4096): Promise<Record<string, unknown> | null> {
   const size = Number(request.headers.get("content-length") || "0");
-  if (size > 4096 || request.headers.get("content-type")?.split(";")[0]?.trim() !== "application/json") return null;
+  if (size > maxBytes || request.headers.get("content-type")?.split(";")[0]?.trim() !== "application/json") return null;
   try {
     const body = await request.text();
-    if (!body || body.length > 4096) return null;
+    if (!body || Buffer.byteLength(body,"utf8") > maxBytes) return null;
     const result: unknown = JSON.parse(body);
     return result && typeof result === "object" && !Array.isArray(result) ? result as Record<string, unknown> : null;
   } catch { return null; }

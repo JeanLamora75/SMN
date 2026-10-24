@@ -108,3 +108,30 @@ présentation, les badges, l’ajout individuel ni la fiche des membres.
 **Story consommatrice :** [SMN-120](https://lmn24.atlassian.net/browse/SMN-120).
 **Recette requise :** changement de nom, Vision, Goal, null, 0 changement,
 conflit, annulation, erreurs, droits, historique, reporting, clavier et mobile.
+
+## Correctif de conformité — modale Équipe et nom du produit (24/10/2026)
+
+Le contenu de la modale **doit tenir entièrement dans sa fenêtre**, même
+sur petit écran : supprimer l'ancienne contradiction entre le conteneur
+620 px et le contenu 680 px. Utiliser un conteneur dédié plafonné par la
+largeur du viewport, champs à 100 %, `min-width: 0`, défilement vertical
+uniquement en cas de manque de hauteur. Boutons Annuler et Enregistrer
+toujours à l'intérieur de la modale.
+
+L'administrateur dispose de quatre champs :
+1. Nom de l'équipe (1–120 caractères, requis).
+2. Nom du produit (1–120 caractères, requis).
+3. Vision Produit (0–5 000 caractères, facultatif).
+4. But du produit / Product Goal (0–5 000 caractères, facultatif).
+
+Précision fonctionnelle postérieure au contrat initial : le **nom d'affichage
+du produit est modifiable**, **pas son identifiant**. Le mode et les clés de
+liaison restent immuables. La modification du nom produit est enregistrée
+dans la **même transaction et révision** que les valeurs du contexte équipe ;
+l'audit versionné inclut le nom du produit avant/après, sans altérer les
+archives des sprints ni les PDF existants.
+
+Le formulaire affiche les valeurs existantes, l'enregistrement respecte les
+droits administrateur, et les libellés sont traduits en FR/EN.
+
+Voir l'avenant correspondant du référentiel UX et la Story SMN-221.

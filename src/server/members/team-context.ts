@@ -3,14 +3,14 @@ import type {Client} from "pg";
 
 const TEAM_ID=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/u;
 const NAME_MAX=120,CONTENT_MAX=5000;
-export type TeamContext=Readonly<{teamId:string;name:string;vision:string|null;
+export type TeamContext=Readonly<{teamId:string;name:string;productName:string;vision:string|null;
  productGoal:string|null;revision:number}>;
-export type TeamContextVersion=Readonly<{revision:number;name:string;
+export type TeamContextVersion=Readonly<{revision:number;name:string;productName:string|null;
  vision:string|null;productGoal:string|null;changedAt:string}>;
-type Scope={id:string;name:string};
+type Scope={id:string;name:string;product_id:string;product_name:string};
 type CurrentRow={vision:string|null;product_goal:string|null;revision:number};
 type HistoryRow={revision:number;after_values:unknown;changed_at:string;actor_id:string|null};
-const scopeSql="SELECT t.id,t.name FROM public.smn_team t "+
+const scopeSql="SELECT t.id,t.name,p.id AS product_id,p.name AS product_name FROM public.smn_team t "+
  "JOIN public.smn_product p ON p.id=t.product_id AND p.installation_id=t.installation_id "+
  "JOIN public.smn_installation i ON i.id=t.installation_id "+
  "WHERE t.id=$1 AND i.id='singleton' AND i.state='initialized' "+
@@ -31,16 +31,16 @@ const cleanContent=(raw:unknown):string|null|undefined=>{
  return value.length>CONTENT_MAX?undefined:value||null;
 };
 export function parseTeamContextChange(raw:unknown):{
- teamId:string;revision:number;name:string;vision:string|null;productGoal:string|null
+ teamId:string;revision:number;name:string;productName:string;vision:string|null;productGoal:string|null
 }|null{
  const v=record(raw);
- if(!v||Object.keys(v).sort().join(",")!=="name,productGoal,revision,teamId,vision"||
+ if(!v||Object.keys(v).sort().join(",")!=="name,productGoal,productName,revision,teamId,vision"||
   typeof v.teamId!=="string"||!TEAM_ID.test(v.teamId)||
   !Number.isSafeInteger(v.revision)||typeof v.revision!=="number"||v.revision<0)return null;
- const name=cleanName(v.name),vision=cleanContent(v.vision);
+ const name=cleanName(v.name),productName=cleanName(v.productName),vision=cleanContent(v.vision);
  const productGoal=cleanContent(v.productGoal);
- if(name===null||vision===undefined||productGoal===undefined)return null;
- return {teamId:v.teamId,revision:v.revision,name,vision,productGoal};
+ if(name===null||productName===null||vision===undefined||productGoal===undefined)return null;
+ return {teamId:v.teamId,revision:v.revision,name,productName,vision,productGoal};
 }
 export async function ensureTeamContextSchema(db:Client){
  await db.query("CREATE TABLE IF NOT EXISTS public.smn_team_context ("+
@@ -89,6 +89,7 @@ export async function readTeamContext(db:Client,teamId:string):Promise<{
     if(!value||typeof value.name!=="string"||
        !Number.isSafeInteger(row.revision))return [];
     return [{revision:row.revision,name:value.name,
+     productName:typeof value.productName==="string"?value.productName:null,
      vision:typeof value.vision==="string"?value.vision:null,
      productGoal:typeof value.productGoal==="string"?value.productGoal:null,
      changedAt:row.changed_at}];
@@ -97,7 +98,10 @@ export async function readTeamContext(db:Client,teamId:string):Promise<{
  }
  const revision=current?.revision??0;
  if(!Number.isSafeInteger(revision)||revision<0)throw Error("team-context-revision-invalid");
- return {context:{teamId,name:scope.rows[0].name,vision:current?.vision??null,
+ if(typeof scope.rows[0].product_name!=="string"||!scope.rows[0].product_name.trim())
+  throw Error("team-context-product-invalid");
+ return {context:{teamId,name:scope.rows[0].name,productName:scope.rows[0].product_name,
+  vision:current?.vision??null,
   productGoal:current?.product_goal??null,revision},history};
 }
 /** One transaction changes team identity and context with a shared revision and append-only audit. */
@@ -106,11 +110,13 @@ export async function saveTeamContext(db:Client,actorId:string,raw:unknown){
  if(!actorId||!input)return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
-  const scope=await db.query<Scope>(scopeSql+" FOR UPDATE OF t",[input.teamId]);
+  const scope=await db.query<Scope>(scopeSql+" FOR UPDATE OF t,p",[input.teamId]);
   if(scope.rows.length!==1){
    await db.query("ROLLBACK");
    return {ok:false as const,error:"not-found" as const};
   }
+  if(typeof scope.rows[0].product_name!=="string"||
+     typeof scope.rows[0].product_id!=="string")throw Error("team-context-product-invalid");
   await ensureTeamContextSchema(db);
   const old=await db.query<CurrentRow>(
    "SELECT vision,product_goal,revision FROM public.smn_team_context "+
@@ -119,17 +125,28 @@ export async function saveTeamContext(db:Client,actorId:string,raw:unknown){
   if(revision!==input.revision){
    await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
   }
-  const before={name:scope.rows[0].name,vision:prior?.vision??null,
-   productGoal:prior?.product_goal??null};
-  const after={name:input.name,vision:input.vision,productGoal:input.productGoal};
-  if(before.name===after.name&&before.vision===after.vision&&
+  const before={name:scope.rows[0].name,productName:scope.rows[0].product_name,
+   vision:prior?.vision??null,productGoal:prior?.product_goal??null};
+  const after={name:input.name,productName:input.productName,
+   vision:input.vision,productGoal:input.productGoal};
+  if(before.name===after.name&&before.productName===after.productName&&
+     before.vision===after.vision&&
      before.productGoal===after.productGoal){
    await db.query("COMMIT");
    return {ok:true as const,changed:false,context:{teamId:input.teamId,...after,revision}};
   }
-  const updated=await db.query("UPDATE public.smn_team SET name=$2 "+
-   "WHERE id=$1 AND installation_id='singleton'",[input.teamId,input.name]);
-  if(updated.rowCount!==1)throw Error("team-context-team-update-inconsistent");
+  if(before.name!==after.name){
+   const updated=await db.query("UPDATE public.smn_team SET name=$2 "+
+    "WHERE id=$1 AND installation_id='singleton'",[input.teamId,input.name]);
+   if(updated.rowCount!==1)throw Error("team-context-team-update-inconsistent");
+  }
+  // Rename the product label only; its ID and the installation binding remain immutable.
+  if(before.productName!==after.productName){
+   const changed=await db.query("UPDATE public.smn_product SET name=$2 "+
+    "WHERE id=$1 AND installation_id='singleton'",
+    [scope.rows[0].product_id,input.productName]);
+   if(changed.rowCount!==1)throw Error("team-context-product-update-inconsistent");
+  }
   if(prior){
    const u=await db.query("UPDATE public.smn_team_context SET "+
     "vision=$2,product_goal=$3,revision=revision+1,updated_by=$4,updated_at=now() "+

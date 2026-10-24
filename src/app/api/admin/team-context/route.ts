@@ -26,7 +26,7 @@ export async function GET(request:NextRequest){
 export async function PATCH(request:NextRequest){
  const actor=await authorizeApi(request,"write",settings);
  if(!actor)return jsonResult({error:"forbidden"},403);
- const body=await readJsonObject(request);
+ const body=await readJsonObject(request,48000);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
   const result=await withAuthDb(db=>saveTeamContext(db,actor.id,body));

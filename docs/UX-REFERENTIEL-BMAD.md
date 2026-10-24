@@ -502,3 +502,42 @@ rôle utilisateur, réutilisation dans le reporting, FR/EN, clavier, thème
 clair/sombre, desktop/mobile. Aucun succès de recette non exécutée ne doit
 être revendiqué. Voir la documentation du lot dans
 `_bmad-output/implementation-artifacts/smn-221-team-context-2026-10-24.md`.
+
+## Correctif UX — modale Équipe responsive et renommage du produit (24 octobre 2026)
+
+**Décision utilisateur ultérieure, prévalant sur UX-TEAM-CTX01/03 et l'avenant initial de SMN-221.**
+
+- La modale d'édition dispose de son **propre conteneur** (largeur maximale
+  760 px, borne par la largeur réelle du viewport et le zoom). Le corps,
+  le formulaire et les champs ont **width/max-width 100 %**, sans largeur
+  intérieure indépendante, sans débordement horizontal. En cas de faible
+  hauteur, le défilement est **vertical** ; les boutons restent utilisables.
+  Clavier, thèmes Bootstrap et mobile pris en compte.
+- Dans cette même modale, le contrat comporte désormais **quatre champs** :
+  **Nom de l'équipe**, **Nom du produit**, **Vision Produit**, **But du produit
+  (Product Goal)**. Les deux premiers sont obligatoires, les deux derniers
+  facultatifs, tous préchargés depuis PostgreSQL.
+- **Le libellé du produit peut être renommé**, mais **son identifiant, son
+  association à l'installation, le mode Scrum/Kanban et l'équipe unique
+  ne peuvent jamais être remplacés**. Cette distinction complète la règle
+  « produit de référence immuable » des Stories SMN-12/18 : l'identité
+  métier reste inchangée tandis que son nom d'affichage évolue.
+- Enregistrer modifie dans **une seule transaction** le nom de l'équipe,
+  le nom du produit et les deux textes, avec **révision commune et audit**
+  avant/après. Un nom vide, une révision périmée ou une erreur SQL n'altère
+  aucune donnée. Les versions anciennes (avant l'ajout du nom du produit)
+  conservent une valeur historique absente plutôt que d'inventer le libellé.
+- Les mêmes contrôles d'accès s'appliquent : admin en écriture uniquement ;
+  aucun changement de produit par ID côté API. Le nom courant sera reflété
+  par les producteurs existants qui lisent `smn_product.name`. Aucune
+  archive historique n'est mutée.
+- La limite de taille de l'API d'édition tient compte de la longueur UTF-8
+  des deux textes métier ; les autres routes conservent leur limite standard.
+
+**Recette :** desktop/mobile 320–1920 px, 200 % de zoom, pas de scrollbar
+horizontale, champs visibles, nom produit seul, nom équipe seul, quatre
+champs simultanément, annulation, audit, conflit, erreurs SQL, session user,
+FR/EN, reporting courant, historique figé, typecheck/lint/tests/build locaux.
+
+**Traçabilité :** SMN-221 (modale et audit), SMN-18 (libellé produit
+renommable, identité produit immuable), `tests/smn-221-team-context-editor.test.ts`.

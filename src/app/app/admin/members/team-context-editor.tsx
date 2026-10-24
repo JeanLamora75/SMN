@@ -4,9 +4,9 @@ import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
 
-type Context={teamId:string;name:string;vision:string|null;
+type Context={teamId:string;name:string;productName:string;vision:string|null;
  productGoal:string|null;revision:number};
-type Version={revision:number;name:string;vision:string|null;
+type Version={revision:number;name:string;productName:string|null;vision:string|null;
  productGoal:string|null;changedAt:string};
 type Response={context:Context;history:Version[]};
 type Saved={ok:true;changed:boolean;context:Context}|
@@ -20,9 +20,11 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
  const [open,setOpen]=useState(false),[loading,setLoading]=useState(false);
  const [saving,setSaving]=useState(false),[error,setError]=useState("");
  const [data,setData]=useState<Response|null>(null);
- const [name,setName]=useState(teamName),[vision,setVision]=useState("");
+ const [name,setName]=useState(teamName),[productName,setProductName]=useState("");
+ const [vision,setVision]=useState("");
  const [goal,setGoal]=useState("");
  const dirty=!!data&&(name!==data.context.name||
+  productName!==data.context.productName||
   vision!==(data.context.vision??"")||goal!==(data.context.productGoal??""));
  useEffect(()=>{
   const element=dialog.current;
@@ -46,7 +48,7 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
    if(!res.ok)throw Error("load");
    const json=await res.json() as Response;
    if(!json.context||json.context.teamId!==teamId)throw Error("scope");
-   setData(json);setName(json.context.name);
+   setData(json);setName(json.context.name);setProductName(json.context.productName);
    setVision(json.context.vision??"");setGoal(json.context.productGoal??"");
    setOpen(true);
   }catch{setError(t("teamUX.contextLoadFailed"));}
@@ -59,13 +61,13 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
  }
  async function save(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
-  if(!data||saving||!name.trim()||!dirty)return;
+  if(!data||saving||!name.trim()||!productName.trim()||!dirty)return;
   setSaving(true);setError("");
   try{
    const res=await fetch("/api/admin/team-context",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({teamId,revision:data.context.revision,
-     name,vision:vision.trim()||null,productGoal:goal.trim()||null})
+     name,productName,vision:vision.trim()||null,productGoal:goal.trim()||null})
    });
    const result=await res.json() as Saved;
    if(!res.ok||!result.ok){
@@ -88,11 +90,10 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
    <BootstrapIcon name="pencil-square"/>
   </button>
   {error&&!open&&<span role="alert" className="small text-danger">{error}</span>}
-  {open&&data&&<dialog ref={dialog} className="smn-sprint-edit-dialog"
+  {open&&data&&<dialog ref={dialog} className="smn-team-context-dialog"
    aria-labelledby="smn-team-context-title"
    onCancel={e=>{e.preventDefault();dismiss();}}>
-   <div className="modal-content bg-body border rounded-4 shadow p-3 p-md-4"
-    style={{width:"min(90vw,680px)",maxHeight:"85vh",overflowY:"auto"}}>
+   <div className="modal-content bg-body border rounded-4 shadow p-3 p-md-4">
     <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
      <h2 className="h5 mb-0" id="smn-team-context-title">
       {t("teamUX.contextHeading")}
@@ -108,6 +109,15 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
       <input id="smn-team-edit-name" type="text" className="form-control"
        autoFocus required minLength={1} maxLength={120}
        value={name} disabled={saving} onChange={e=>setName(e.target.value)}/>
+     </div>
+     <div>
+      <label htmlFor="smn-team-edit-product-name" className="form-label">
+       {t("teamUX.contextProductName")}
+      </label>
+      <input id="smn-team-edit-product-name" type="text" className="form-control"
+       required minLength={1} maxLength={120}
+       value={productName} disabled={saving}
+       onChange={e=>setProductName(e.target.value)}/>
      </div>
      <div>
       <label htmlFor="smn-team-edit-vision" className="form-label">
@@ -135,6 +145,8 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
         <div className="small text-secondary">
          <time dateTime={version.changedAt}>{version.changedAt}</time>
         </div>
+        {version.productName&&<p className="small mt-2 mb-1">
+         {t("teamUX.contextProductName")}: {version.productName}</p>}
         {version.vision&&<p className="small mt-2 mb-1" style={{whiteSpace:"pre-wrap"}}>
          {t("teamUX.contextVision")}: {version.vision}</p>}
         {version.productGoal&&<p className="small mb-0" style={{whiteSpace:"pre-wrap"}}>
@@ -147,7 +159,7 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
       <button type="button" className="btn btn-outline-secondary"
        disabled={saving} onClick={dismiss}>{t("teamUX.cancel")}</button>
       <button type="submit" className="btn btn-primary"
-       disabled={saving||!dirty||!name.trim()}>
+       disabled={saving||!dirty||!name.trim()||!productName.trim()}>
        {t("teamUX.contextSave")}
       </button>
      </div>
