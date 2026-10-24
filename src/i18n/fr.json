@@ -2282,7 +2282,10 @@
     "registersPagination": "Pagination des registres",
     "registersPrevious": "Précédent",
     "registersNext": "Suivant",
-    "registersPage": "Page {page} sur {total}"
+    "registersPage": "Page {page} sur {total}",
+    "presenceAgileRoles": "Rôles Agile",
+    "presenceFunction": "Fonction",
+    "presenceContribution": "Contribution"
   },
   "registryCreate": {
     "title": "Registres",
