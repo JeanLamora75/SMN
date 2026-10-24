@@ -72,7 +72,7 @@ function parseInput(raw:unknown):Input|null{
   "actualMinutes","expectedActualMinutes"
  ];
  if(Object.keys(o).some(k=>!allowed.includes(k))||
-  o.actualMinutes===undefined!== (o.expectedActualMinutes===undefined))return null;
+  (o.actualMinutes===undefined)!==(o.expectedActualMinutes===undefined))return null;
  const minutesValid=(v:unknown)=>v===null||(Number.isSafeInteger(v)&&
   Number(v)>=0&&Number(v)<=1440);
  if(o.actualMinutes!==undefined&&
@@ -136,7 +136,7 @@ export async function updateDashboardEvent(db:Client,actorId:string,
   if(changed){
    const config=tables[kind];
    const fields=["starts_at=$2","ends_at=$3"];
-   const values:(string|number)[]=[id,start.toISOString(),end.toISOString()];
+   const values:(string|number|null)[]=[id,start.toISOString(),end.toISOString()];
    if(kind==="ceremony"||kind==="exceptional"){
     values.push(o.duration);
     fields.push((kind==="ceremony"?"minutes":"duration_minutes")+"=$"+values.length);
@@ -154,7 +154,8 @@ export async function updateDashboardEvent(db:Client,actorId:string,
    if(kind==="ceremony")fields.push("revision=revision+1","provenance='customized'");
    await db.query(`UPDATE public.${config.table} SET ${fields.join(",")}
     WHERE id=$1`,values);
-   if(o.actualMinutes!==undefined&&prev.actualMinutes!==o.actualMinutes){
+   if(o.actualMinutes!==undefined&&o.actualMinutes!==null&&
+      prev.actualMinutes!==o.actualMinutes){
     await db.query(`INSERT INTO public.smn_meeting_actual_duration_audit
      (id,kind,event_id,previous_minutes,new_minutes,planned_minutes,actor_id)
      VALUES($1,$2,$3,$4,$5,$6,$7)`,[
@@ -203,7 +204,7 @@ export async function updateDashboardEvent(db:Client,actorId:string,
     [randomUUID(),kind,id,JSON.stringify({title:prev.title,startAt:prev.startAt,endAt:prev.endAt,
       duration:prev.duration,actualMinutes:prev.actualMinutes,status:prev.status}),JSON.stringify({title:o.title.trim(),
       startAt:start.toISOString(),endAt:end.toISOString(),duration:o.duration,
-      actualMinutes:o.actualMinutes??prev.actualMinutes,status:o.status}),actorId]);
+      actualMinutes:o.actualMinutes===undefined?prev.actualMinutes:o.actualMinutes,status:o.status}),actorId]);
   }
   await db.query("COMMIT");return {ok:true as const,id,changed};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
