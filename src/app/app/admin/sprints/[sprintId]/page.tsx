@@ -27,6 +27,7 @@ import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import HistoricalEventForm from "./historical-event-form";
 import HistoricalPartialForm from "./historical-partial-form";
+import HistoricalCapacityForm from "./historical-capacity-form";
 import SprintCapacityPanel from "./sprint-capacity-panel";
 import SprintTrendsPanel from "./sprint-trends-panel";
 import SprintReviewPanel from "./sprint-review-panel";
@@ -76,7 +77,8 @@ export default async function SprintDetailPage({params,searchParams}:{
   const trends=active==="trends"?await readSprintTrends(db,cycle.id,teamId):null;
   const review=active==="review"?await readSprintReview(db,teamId,cycle.id):null;
   const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage,readEpic5SprintRegisterSource,registerKind):null;
-  return {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers};
+  const historic=await db.query<{historical:boolean}>(`SELECT EXISTS(SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created') AS historical`,[cycle.id]);
+  return {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers,isHistorical:historic.rows[0]?.historical??false};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -85,7 +87,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers}=result;
+ const {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers,isHistorical}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
  const statusKeys:Record<string,TranslationKey>={
@@ -163,10 +165,10 @@ export default async function SprintDetailPage({params,searchParams}:{
     {active==="objectives"?<><SprintGoalsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
-     active==="indicators"?<SprintIndicatorsPanel
+     active==="indicators"?<><SprintIndicatorsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
-      capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/>:
+      capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/>{canManage&&isHistorical&&cycle.status!=="closed"&&<HistoricalCapacityForm sprintId={cycle.id} revision={capacityKpis?.state==="available"?capacityKpis.revision:0}/>}</>:
      active==="ceremonies"?<><SprintCeremoniesPanel
       sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
       canManage={canManage&&cycle.status!=="closed"}
