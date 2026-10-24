@@ -130,6 +130,13 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const currentDate=(day:string)=>new Intl.DateTimeFormat(locale,{
   timeZone:"UTC",day:"numeric",month:"long",year:"numeric"
  }).format(new Date(day+"T12:00:00Z"));
+ const localizedStatus=(status:string|undefined)=>{
+  if(status==="active")return t("calendarOptionB.statusActive");
+  if(status==="planned")return t("calendarOptionB.statusPlanned");
+  if(status==="closed")return t("calendarOptionB.statusClosed");
+  if(status==="suspended")return t("calendarOptionB.statusSuspended");
+  return status??"";
+ };
  const isEditable=useCallback((day:string)=>{
   if(!isAdmin||[0,6].includes(new Date(day+"T12:00:00Z").getUTCDay()))return false;
   return sprints.some(s=>s.status!=="closed"&&localDate(s.startAt)<=day&&localDate(s.endAt)>=day);
@@ -157,7 +164,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
      {teamName&&<strong>{teamName}</strong>}
      <strong>{period?.sprintId?period.label:t("calendarOptionB.fallback")}</strong>
      {period&&<span>{currentDate(period.start)} – {currentDate(shift(period.start,period.count-1))}</span>}
-     {period?.sprintId&&<span className="smn-cal-state">{sprints.find(s=>s.id===period.sprintId)?.status}</span>}
+     {period?.sprintId&&<span className="smn-cal-state">{localizedStatus(sprints.find(s=>s.id===period.sprintId)?.status)}</span>}
      <span>{t("calendarOptionB.timezone")}</span>
     </div>
    </div>
