@@ -130,6 +130,6 @@ describe("SMN-234 D3 — lecteurs historiques et autorisations",()=>{
   assert.match(page,/active==="indicators"/);
   assert.match(page,/readSprintDetailIndicators\(/);
   assert.match(panel,/sprintId/);
-  assert.doesNotMatch(panel,//api/admin/sprints/states/);
+  assert.doesNotMatch(panel,/\/api\/admin\/sprints\/states/);
  });
 });
