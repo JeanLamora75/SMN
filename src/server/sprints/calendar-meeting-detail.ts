@@ -35,7 +35,7 @@ export async function readCalendarMeeting(db:Client,kind:string,id:string):Promi
  const explicit=present.has("status_explicit")?`${alias}.status_explicit`:"NULL::boolean";
  const generation=present.has("generation_source")?`${alias}.generation_source`:"NULL::text";
  const actual=present.has("actual_minutes")?`${alias}.actual_minutes`:"NULL::integer";
- const revision=kind==="ceremony"&&present.has("revision")?"c.revision":"NULL::integer";
+ const revision=present.has("revision")?`${alias}.revision`:"1::integer";
  const title=kind==="ceremony"?"(s.name||' — '||c.kind)":`${alias}.name`;
  const planned=kind==="ceremony"&&present.has("minutes")?"c.minutes":
   kind==="exceptional"&&present.has("duration_minutes")?"m.duration_minutes":
