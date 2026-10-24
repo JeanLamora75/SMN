@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {describe,it} from "node:test";
 import {readFileSync} from "node:fs";
-import {privateNavigation,activePrivateEntry} from "../src/lib/private-navigation";
+import {privateNavigation,activePrivateEntry,type NavigationIcon} from "../src/lib/private-navigation";
 import {translate} from "../src/i18n/catalog";
 
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
@@ -29,6 +29,13 @@ describe("SMN — navigation latérale, second lot (six menus et Paramètres)",(
   assert.equal(entries.filter(e=>e.id==="settings").length,1);
   assert.equal(activePrivateEntry("/app/admin/registries/example",entries[4]),true);
   assert.equal(activePrivateEntry("/app",entries[5]),false);
+ });
+ it("l'icône Registre est autorisée par NavigationIcon et réellement dessinée",()=>{
+  const icon:NavigationIcon="stack";
+  const register=privateNavigation("scrum","admin")[0].entries.find(e=>e.id==="risks");
+  assert.equal(register?.icon,icon);
+  const icons=read("src/app/app/bootstrap-icon.tsx");
+  assert.ok(icons.includes('case "stack":'));
  });
  it("Paramètres figure dans le groupe final admin, et respecte les permissions",()=>{
   assert.deepEqual(privateNavigation("scrum","admin").at(-1)?.entries.map(e=>e.id),
