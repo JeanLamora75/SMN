@@ -26,6 +26,11 @@ export async function reconcileKanbanStates(db:Client){
  initial_jh numeric(12,4),
  CHECK(provenance<>'historical-unavailable' OR initial_jh IS NULL)
  )`);
+ await db.query(`ALTER TABLE public.smn_kanban_capacity_opening
+ DROP CONSTRAINT IF EXISTS smn_kanban_capacity_opening_provenance_check`);
+ await db.query(`ALTER TABLE public.smn_kanban_capacity_opening
+ ADD CONSTRAINT smn_kanban_capacity_opening_provenance_check
+ CHECK (provenance IN ('pending-capture','historical-unavailable','calculated','manual','unavailable-at-opening'))`);
  await db.query("BEGIN");
  try{
   const teams=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
@@ -50,15 +55,19 @@ export async function reconcileKanbanStates(db:Client){
      [randomUUID(),p.id,p.start_on,openingWasMissed?"recovered":"on-time"]);
     // Recovery never invents historical JH. Genuine opening captures the shared engine exactly once.
     let initialJh:number|null=null;
+    let openingProvenance="historical-unavailable";
     if(!openingWasMissed){
      const actual=await readDevelopmentCapacity(db,p.start_on,p.end_on,{externalTransaction:true});
      if(actual.team.id!==teamId)throw Error("kanban-opening-team-mismatch");
-     initialJh=actual.totalJh;
+     const manual=await db.query<{manual_jh:string|null}>(`SELECT manual_jh::text FROM public.smn_capacity_period_override WHERE team_id=$1 AND start_on=$2::date AND end_on=$3::date LIMIT 1`,[teamId,p.start_on,p.end_on]);
+     const manuallySet=manual.rows[0]?.manual_jh;
+     initialJh=manuallySet!=null?Number(manuallySet):actual.totalJh;
+     openingProvenance=manuallySet!=null?"manual":initialJh===null?"unavailable-at-opening":"calculated";
     }
     await db.query(`INSERT INTO public.smn_kanban_capacity_opening
      (period_id,opened_on,provenance,initial_jh)
      VALUES($1,$2,$3,$4) ON CONFLICT(period_id) DO NOTHING`,
-     [p.id,p.start_on,openingWasMissed?"historical-unavailable":"pending-capture",initialJh]);
+     [p.id,p.start_on,openingProvenance,initialJh]);
     started++;
     if(openingWasMissed)recovered++;
    }
