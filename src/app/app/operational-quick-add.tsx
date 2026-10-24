@@ -6,9 +6,6 @@ import {useTranslation} from "@/i18n/client";
 import RegistryCreate from "./admin/registries/registry-create";
 
 type Kind="obstacles"|"risks"|"events"|"notes";
-type Note={text:string;included:boolean;language:"fr"|"en"};
-type ReportNotes=Record<string,Note>;
-type Draft={notes:ReportNotes;revision:number};
 type Sprint={id:string;status:string;startAt:string;endAt:string};
 
 function MeetingQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
@@ -70,41 +67,19 @@ function MeetingQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void})
  </form>;
 }
 
-function NoteQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
+function NoteQuickForm({sprintId,teamId,onSaved}:{sprintId:string;teamId:string;onSaved:()=>void}){
  const t=useTranslation();
- const [draft,setDraft]=useState<Draft|null>(null);
  const [content,setContent]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
- useEffect(()=>{
-  const ctrl=new AbortController();
-  void fetch("/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/notes",{
-   cache:"no-store",signal:ctrl.signal
-  }).then(async res=>{if(!res.ok)throw Error();return res.json() as Promise<Draft>;})
-   .then(value=>{
-    if(!ctrl.signal.aborted&&value.notes?.attention&&Number.isSafeInteger(value.revision))
-     setDraft(value);
-    else if(!ctrl.signal.aborted)throw Error();
-   })
-   .catch(()=>{if(!ctrl.signal.aborted)setError(t("dashboard.operational.quickAdd.unavailable"));});
-  return()=>ctrl.abort();
- },[sprintId,t]);
  const submit=async(e:FormEvent)=>{
   e.preventDefault();
-  if(!draft||busy||!content.trim())return;
+  if(busy||!content.trim())return;
   setError("");setBusy(true);
-  const existing=draft.notes.attention.text;
-  // Le contrat existant sauvegarde les notes de rapport par section.
-  // Ajouter sans effacer les notes précédentes ni les autres sections.
-  const next=existing?existing+"\n\n"+content.trim():content.trim();
-  if(next.length>5000){
-   setError(t("dashboard.operational.quickAdd.noteTooLong"));setBusy(false);return;
-  }
   try{
-   const notes={...draft.notes,attention:{...draft.notes.attention,text:next,included:true}};
-   const response=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/notes",{
-    method:"PATCH",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({notes,revision:draft.revision})
+   const response=await fetch("/api/admin/dashboard/notes",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({sprintId,teamId,text:content.trim()})
    });
    if(!response.ok)throw Error();
    onSaved();
@@ -112,18 +87,15 @@ function NoteQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
   finally{setBusy(false);}
  };
  return <form className="d-grid gap-3" onSubmit={e=>void submit(e)}>
-  <p className="small text-body-secondary">{t("dashboard.operational.quickAdd.noteDestination")}</p>
   <label className="form-label">{t("dashboard.operational.quickAdd.noteContent")}
-   <textarea className="form-control" rows={5} maxLength={5000} required
-    value={content} onChange={e=>setContent(e.target.value)} disabled={!draft||busy}/>
+   <textarea className="form-control" rows={5} maxLength={2000} required
+    value={content} onChange={e=>setContent(e.target.value)} disabled={busy}/>
   </label>
   {error&&<p role="alert" className="alert alert-danger">{error}</p>}
-  {!draft&&!error&&<p role="status">{t("dashboard.operational.quickAdd.loading")}</p>}
   <button type="submit" className="btn btn-primary justify-self-end"
-   disabled={!draft||busy||!content.trim()}>{t("dashboard.operational.quickAdd.save")}</button>
+   disabled={busy||!content.trim()}>{t("dashboard.operational.quickAdd.save")}</button>
  </form>;
 }
-
 
 function QuickAddContent({kind,teamId,cycleId,close}:{
  kind:Kind;teamId:string;cycleId:string;close:()=>void;
@@ -131,10 +103,10 @@ function QuickAddContent({kind,teamId,cycleId,close}:{
  const router=useRouter();
  const saved=()=>{close();router.refresh();};
  return kind==="obstacles"||kind==="risks"?
-  <RegistryCreate teamId={teamId} canManage
+  <RegistryCreate teamId={teamId} cycleId={cycleId} canManage
    initialType={kind==="risks"?"risk":"obstacle"} modalMode onCreated={saved}/>:
   kind==="events"?<MeetingQuickForm sprintId={cycleId} onSaved={saved}/>:
-   <NoteQuickForm sprintId={cycleId} onSaved={saved}/>;
+   <NoteQuickForm sprintId={cycleId} teamId={teamId} onSaved={saved}/>;
 }
 
 /** Modale native : focus piégé dans la fenêtre, Escape et retour du focus gérés par showModal. */
