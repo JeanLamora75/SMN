@@ -137,15 +137,22 @@ function AttentionCard({item,locale}:Readonly<{
   note:"dashboard.operational.note",
   alert:"dashboard.operational.alert"
  };
+ const configurationLabels:Record<NonNullable<DashboardAttention["configurationKey"]>,TranslationKey>={
+  "reference-country":"configuration.tasks.referenceCountry.title",
+  "recovery-phrase":"configuration.tasks.recoveryPhrase.title",
+  "display-preferences":"configuration.tasks.displayPreferences.title"
+ };
+ const title=item.configurationKey?t(configurationLabels[item.configurationKey]):item.title;
+ const status=item.configurationKey?t(item.status==="done"?"configuration.status.done":"configuration.status.todo"):item.status;
  return <article className={"smn-attention-card smn-attention-"+item.kind}>
   <div className="smn-attention-card-type">
    <BootstrapIcon name={icons[item.kind]}/>
    <span>{t(labels[item.kind])}</span>
   </div>
-  <h4 className="smn-attention-card-title">{item.title}</h4>
+  <h4 className="smn-attention-card-title">{item.href?<Link href={item.href}>{title}</Link>:title}</h4>
   <div className="smn-attention-card-metadata">
-   <PriorityMarker priority={item.priority} locale={locale}/>
-   {item.status&&<span className="smn-attention-card-status">{item.status}</span>}
+   {!item.configurationKey&&item.kind!=="note"&&<PriorityMarker priority={item.priority} locale={locale}/>}
+   {status&&<span className="smn-attention-card-status">{status}</span>}
   </div>
  </article>;
 }
