@@ -2,6 +2,7 @@ import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {validateHistoricalCsv} from "@/lib/historical-csv-validator";
+import {validateHistoricalCsvBusiness} from "@/server/historical-csv/business-validation";
 export const dynamic="force-dynamic";
 export async function POST(req:NextRequest){
  const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
@@ -16,8 +17,10 @@ export async function POST(req:NextRequest){
   });
   if(mode!=="scrum"&&mode!=="kanban")return Response.json({error:"unsupported-mode"},{status:409});
   const result=validateHistoricalCsv(body.csv,mode);
-  return Response.json({valid:result.valid,rowCount:result.rows.length,errors:result.errors,
-   message:result.valid?"Syntaxe valide. Aucune écriture en base.":"Fichier refusé. Aucune écriture en base."},
-   {status:result.valid?200:422,headers:{"Cache-Control":"no-store"}});
+  const businessErrors=result.valid?await withAuthDb(db=>validateHistoricalCsvBusiness(db,result.rows,mode)):[];
+  const errors=[...result.errors,...businessErrors],valid=errors.length===0;
+  return Response.json({valid,rowCount:valid?result.rows.length:0,errors,
+   message:valid?"Syntaxe et règles métier valides. Aucune écriture en base.":"Fichier refusé. Aucune écriture en base."},
+   {status:valid?200:422,headers:{"Cache-Control":"no-store"}});
  }catch{return Response.json({error:"invalid-request"},{status:400});}
 }
