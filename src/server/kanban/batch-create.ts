@@ -33,7 +33,7 @@ export async function createKanbanBatch(db:Client,actorId:string,raw:unknown){
   if(cadence.revision!==request.cadenceRevision){
    await db.query("ROLLBACK");return {ok:false as const,error:"stale-preview" as const};
   }
-  const existing=await db.query<{id:string;start_on:string;end_on:string}>(`SELECT id,start_on::text,end_on::text FROM public.smn_kanban_period WHERE team_id=$1`,[teamId]);
+  const existing=await db.query<{id:string;start_on:string;end_on:string}>(`SELECT id,start_on::text,end_on::text FROM public.smn_kanban_period WHERE team_id=$1 AND deleted_at IS NULL`,[teamId]);
   let preview:ReturnType<typeof batchPreview>;
   try{preview=batchPreview(request.startOn,request.quantity,cadence.frequency,
    existing.rows.map(x=>({id:x.id,startOn:x.start_on,endOn:x.end_on}))); }
