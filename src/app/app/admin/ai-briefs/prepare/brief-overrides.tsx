@@ -20,8 +20,11 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
  const [humanQuestions,setHumanQuestions]=useState("");
  const [humanInstructions,setHumanInstructions]=useState("");
  const [privacyReviewed,setPrivacyReviewed]=useState(false);
+ const [reviewedText,setReviewedText]=useState<string|null>(null);
  const fields=allowedBriefFields(mode,["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions","scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"]);
  const changed=JSON.stringify(draft)!==JSON.stringify(editable(base));
+ const currentTxt=composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations)});
+ const approved=preview!==null&&reviewedText===preview&&preview===currentTxt&&privacyReviewed&&!conflict;
 
  async function latest(){
   const res=await fetch("/api/admin/ai-briefs/templates",{cache:"no-store"});
@@ -44,7 +47,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
   try{
    const current=await latest();
    if(!current||!current.active){setConflict(true);setMessage("Ce modèle n'est plus disponible.");return;}
-   setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
+   setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);setReviewedText(null);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
   }catch{setMessage("Rechargement impossible.");}
  }
  async function saveModel(){
@@ -57,7 +60,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
    if(res.status===409){setConflict(true);setMessage("Conflit de révision : rechargez le modèle avant de réessayer.");return;}
    if(!res.ok)throw Error("Enregistrement refusé");
    const result=await res.json() as {revision:number};
-   setBase({...base,...draft,revision:result.revision});
+   setBase({...base,...draft,revision:result.revision});setPreview(null);setPrivacyReviewed(false);setReviewedText(null);
    setConflict(false);setMessage("Nouvelle révision du modèle enregistrée explicitement.");
   }catch{setMessage("Enregistrement impossible.");}
   finally{setSaving(false);}
@@ -70,13 +73,13 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
    <div className="row g-3">
     {(["sections","questions","instructions"] as const).map(key=><div className="col-12 col-lg-4" key={key}>
      <label className="form-label" htmlFor={"override-"+key}>{({sections:"Rubriques (ordre des lignes)",questions:"Questions",instructions:"Consignes"})[key]}</label>
-     <textarea className="form-control" id={"override-"+key} rows={6} value={draft[key].join("\n")} onChange={e=>setDraft({...draft,[key]:lines(e.target.value)})}/>
+     <textarea className="form-control" id={"override-"+key} rows={6} value={draft[key].join("\n")} onChange={e=>{setDraft({...draft,[key]:lines(e.target.value)});setPrivacyReviewed(false);setReviewedText(null);setPreview(null);}}/>
     </div>)}
     <div className="col-12 col-lg-4"><label className="form-label" htmlFor="override-depth">Profondeur historique (1–5)</label>
-     <input className="form-control" type="number" min={1} max={5} id="override-depth" value={draft.depth} onChange={e=>setDraft({...draft,depth:Number(e.target.value)})}/></div>
+     <input className="form-control" type="number" min={1} max={5} id="override-depth" value={draft.depth} onChange={e=>{setDraft({...draft,depth:Number(e.target.value)});setPrivacyReviewed(false);setReviewedText(null);setPreview(null);}}/></div>
     <div className="col-12"><p className="mb-2">Sélection des données collectives ({mode})</p>
      <div className="row g-2">{fields.map(field=><label className="col-12 col-md-6 col-xl-4 form-check" key={field}>
-      <input type="checkbox" className="form-check-input" checked={draft.data.includes(field)} onChange={e=>setDraft({...draft,data:e.target.checked?[...draft.data,field]:draft.data.filter(x=>x!==field)})}/> {field}
+      <input type="checkbox" className="form-check-input" checked={draft.data.includes(field)} onChange={e=>{setDraft({...draft,data:e.target.checked?[...draft.data,field]:draft.data.filter(x=>x!==field)});setPrivacyReviewed(false);setReviewedText(null);setPreview(null);}}/> {field}
      </label>)}</div>
     </div>
    </div>
@@ -92,17 +95,17 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
     <div className="col-12 col-lg-6"><label htmlFor="human-instructions" className="form-label">Consignes supplémentaires à l’IA (une par ligne)</label>
      <textarea id="human-instructions" className="form-control" rows={4} maxLength={6000} value={humanInstructions} onChange={e=>{setHumanInstructions(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
    </div>
-   <div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" checked={privacyReviewed} onChange={e=>setPrivacyReviewed(e.target.checked)}/>
-    <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai relu les textes libres afin de détecter toute identité ou information confidentielle. Une vérification finale sera encore nécessaire avant archivage ou transmission.</label></div>
+   <div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" disabled={preview===null||preview!==currentTxt||conflict} checked={approved} onChange={e=>{setPrivacyReviewed(e.target.checked);setReviewedText(e.target.checked?preview:null);}}/>
+    <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai examiné le TXT intégral affiché et vérifié les noms, données privées et secrets éventuellement présents dans les textes libres. Je confirme cette version exacte uniquement.</label></div>
   </div>
   <div className="d-flex flex-wrap gap-2 mt-3">
-   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations)}));}}>Générer l’aperçu TXT</button>
+   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(currentTxt);setPrivacyReviewed(false);setReviewedText(null);}}>Générer l’aperçu TXT</button>
    <button className="btn btn-outline-primary btn-sm" onClick={()=>void checkRevision()} disabled={saving}>Actualiser le contenu / vérifier la révision</button>
    <button className="btn btn-outline-secondary btn-sm" onClick={()=>void reload()} disabled={saving}>Recharger le modèle (abandonner les ajustements)</button>
    {!base.builtin&&<button className="btn btn-primary btn-sm" disabled={!changed||conflict||saving} onClick={()=>void saveModel()}>Enregistrer le modèle</button>}
   </div>
-  {preview!==null&&!privacyReviewed&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : cet aperçu ne doit pas être diffusé ni finalisé sans relecture explicite.</p>}
-  {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/></div>}
+  {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
+  {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/><p className="small mt-2">{approved?"Version affichée vérifiée pour confidentialité (non archivée).":"Version non validée : aucun export ni finalisation possible."}</p></div>}
   {changed&&!conflict&&<p className="text-secondary small mt-2">Configuration ponctuelle modifiée : aucune écriture métier. La composition et l'archivage du TXT seront ajoutés dans les prochaines stories.</p>}
   {message&&<p role="status" className="mt-2 mb-0">{message}</p>}
  </section>;
