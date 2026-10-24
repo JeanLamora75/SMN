@@ -151,7 +151,9 @@ describe("SMN-234 — raccordement Epic 5 des six registres",()=>{
   const fr=JSON.parse(readFileSync(new URL("../src/i18n/fr.json",import.meta.url),"utf8"));
   assert.match(content,/registersAll/);
   assert.match(content,/aria-current=\{selectedKind===kind/);
-  assert.match(content,/safeRegisterHref\(item.href\)/);
+  assert.match(content,/<SprintRegisterRow/);
+  const row=readFileSync(new URL("../src/app/app/admin/sprints/[sprintId]/sprint-register-row.tsx",import.meta.url),"utf8");
+  assert.match(row,/safeRegisterHref\(item.href\)/);
   assert.match(page,/readEpic5SprintRegisterSource,registerKind/);
   assert.doesNotMatch(fr.sprintDetail.registersProducerPending,/pas encore développés/);
  });
