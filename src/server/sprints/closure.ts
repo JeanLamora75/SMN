@@ -133,6 +133,13 @@ export async function changeSprintClosure(db:Client,actorId:string,raw:unknown){
    const historicalMarker=await db.query<{historical:boolean}>(`SELECT EXISTS(SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created') AS historical`,[s.id]);
    const historical=historicalMarker.rows[0]?.historical===true;
    const data=await snapshot(db,s.id,s,historical);
+   if(historical){
+    const auditTable=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_historical_csv_change') IS NOT NULL AS present");
+    const qualities=auditTable.rows[0]?.present?await db.query<{metric_code:string;quality:string}>(`SELECT DISTINCT ON(metric_code) metric_code,quality
+     FROM public.smn_historical_csv_change WHERE cycle_id=$1
+     ORDER BY metric_code,changed_at DESC,id DESC`,[s.id]):{rows:[]};
+    Object.assign(data,{historicalMetricQualities:Object.fromEntries(qualities.rows.map(x=>[x.metric_code,x.quality]))});
+   }
 
    // A new closure always appends a version; prior snapshots remain immutable.
    const timestamp=await db.query<{recorded_at:string}>(`SELECT clock_timestamp()::text AS recorded_at`);
