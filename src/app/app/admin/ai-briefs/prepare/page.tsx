@@ -5,6 +5,7 @@ import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
 import {allowedBriefFields} from "@/lib/ai-brief-templates";
 import {listBriefTemplates} from "@/server/ai-briefs/templates";
+import BriefOverrides from "./brief-overrides";
 
 export const dynamic="force-dynamic";
 
@@ -95,6 +96,7 @@ export default async function PrepareAiBrief({searchParams}:{
      <div className="col-12 col-lg-6"><h4 className="h6">Questions proposées</h4><ul>{selected.questions.map(q=><li key={q}>{q}</li>)}</ul></div>
      <div className="col-12 col-lg-6"><h4 className="h6">Consignes</h4><ul>{selected.instructions.map(s=><li key={s}>{s}</li>)}</ul></div>
     </div>
+    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"}/>
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
    </section>
    <p className="small text-secondary">Ouverture sans sauvegarde : aucun brouillon, TXT ou analyse n’est créé. La sélection des données et la finalisation seront disponibles dans les étapes suivantes de l’Epic 9.</p>
