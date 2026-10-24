@@ -142,9 +142,10 @@ function AttentionCard({item,locale}:Readonly<{
 
 /** Le registre dédié n'étant pas livré, « Voir tout » et « Ajouter »
  * demeurent informatifs, même quand un producteur de test sait lire des fiches. */
-function AttentionColumn({definition,locale,collection}:Readonly<{
+function AttentionColumn({definition,locale,collection,teamId,cycleId,canManage}:Readonly<{
  definition:PanelDefinition;locale:Language;
  collection:CollectiveCycleProjection["risks"];
+ teamId:string;cycleId:string;canManage:boolean;
 }>){
  if(collection.state==="unavailable")return <UnavailableColumn definition={definition} locale={locale}/>;
  const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
@@ -175,9 +176,11 @@ function AttentionColumn({definition,locale,collection}:Readonly<{
     </div>}
   </div>
   <footer className="smn-operational-panel-footer">
-   <span className="smn-operational-add-unavailable">
-    {t("dashboard.operational.add")} · {t("dashboard.operational.unavailable")}
-   </span>
+   {canManage?<Link className="smn-operational-create-link" href={definition.id==="notes"
+    ?"/app/admin/sprints/"+encodeURIComponent(cycleId)+"/report#smn-report-notes"
+    :"/app/admin/registries/create?"+new URLSearchParams({type:definition.id==="risks"?"risk":"obstacle",teamId,cycleId}).toString()}>
+    {t("dashboard.operational.add")} {t(definition.id==="risks"?"dashboard.operational.risk":definition.id==="obstacles"?"dashboard.operational.obstacle":"dashboard.operational.note")}
+   </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
   </footer>
  </section>;
 }
@@ -249,11 +252,7 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
        </p>}
       </div>}
    </div>
-   <footer className="smn-operational-panel-footer">
-     <Link className="smn-operational-calendar-link" href={calendarHref}>
-       {t("dashboard.operational.openCalendar")}
-     </Link>
-   </footer>
+
  </section>;
 }
 
@@ -261,8 +260,8 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
  * La colonne Événements utilise SMN-237. Les autres registres restent
  * indisponibles jusqu'à l'implémentation de leurs producteurs (SMN-238).
  */
-export default function OperationalOverview({locale,projection,timeZone}:Readonly<{
- locale:Language;projection?:CollectiveCycleProjection|null;timeZone?:string;
+export default function OperationalOverview({locale,projection,timeZone,canManage=false}:Readonly<{
+ locale:Language;projection?:CollectiveCycleProjection|null;timeZone?:string;canManage?:boolean;
 }>){
   const t=(key:TranslationKey)=>translate(locale,key);
   return <section className="smn-operational-overview" aria-labelledby="smn-operational-heading">
@@ -282,7 +281,7 @@ export default function OperationalOverview({locale,projection,timeZone}:Readonl
         const collection=definition.id==="obstacles"?projection.obstacles:
           definition.id==="risks"?projection.risks:projection.notesAndAlerts;
         return <AttentionColumn key={definition.id} definition={definition}
-          locale={locale} collection={collection}/>;
+          locale={locale} collection={collection} teamId={projection.teamId} cycleId={projection.cycleId} canManage={canManage}/>;
       })}
     </div>
   </section>;
