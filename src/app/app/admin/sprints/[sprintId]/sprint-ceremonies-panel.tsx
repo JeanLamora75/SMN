@@ -1,5 +1,7 @@
 import Link from "next/link";
 import BootstrapIcon from "../../../bootstrap-icon";
+import OperationalEdit from "../../../operational-edit";
+import {dashboardEventIcon,formatDashboardEventPeriod} from "@/lib/dashboard-card-format";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 import type {TranslationKey} from "@/i18n/catalog";
 import type {SprintCeremoniesResult} from "@/server/sprints/ceremonies-detail-read";
@@ -24,41 +26,34 @@ const typeKey:Record<string,TranslationKey>={
  review:"sprintDetail.ceremonyKind.review",
  retrospective:"sprintDetail.ceremonyKind.retrospective"
 };
-const meetingPath=(item:SprintCeremony)=>"/app/team-calendar/meeting/"+
- (item.source==="standard"?"ceremony":item.source==="custom"?"template":"exceptional")+
- "/"+encodeURIComponent(item.id);
 const badge=(status:CeremonyStatus)=>status==="held"?"text-bg-success":
  status==="not_held"?"text-bg-warning":status==="cancelled"?"text-bg-secondary":
  status==="scheduled"?"text-bg-primary":"text-bg-light";
-function kindIcon(item:SprintCeremony):"calendar-event"|"people-fill"|"bell-fill"|
- "calendar3"|"bullseye"|"sticky-fill"{
- if(item.source==="custom")return "people-fill";
- if(item.source==="exceptional")return "bell-fill";
- if(item.kind==="daily")return "calendar3";
- if(item.kind==="review")return "bullseye";
- if(item.kind==="retrospective")return "sticky-fill";
- return "calendar-event";
-}
-export default function SprintCeremoniesPanel({sprintId,timeZone,locale,data,t}:{
- sprintId:string;timeZone:string;locale:"fr"|"en";data:SprintCeremoniesResult;t:Text;
+const eventKind=(source:CeremonySource)=>source==="standard"?"ceremony":
+ source==="custom"?"template":"exceptional";
+const iconFor=(item:SprintCeremony)=>dashboardEventIcon({
+ kind:eventKind(item.source),
+ title:item.kind??item.title
+});
+const minutes=(value:number|null,t:Text)=>value===null?t("sprintDetail.ceremonyNotRecorded"):
+ t("sprintDetail.ceremonyMinutes",{minutes:value});
+
+/** One semantic row per recorded ceremony; its snapshot is never edited. */
+export default function SprintCeremoniesPanel({sprintId,teamId,timeZone,locale,canManage,data,t}:{
+ sprintId:string;teamId:string;timeZone:string;locale:"fr"|"en";
+ canManage:boolean;data:SprintCeremoniesResult;t:Text;
 }){
- const dateFormat=new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
-  timeZone,dateStyle:"medium",timeStyle:"short"
- });
- const date=(iso:string)=>dateFormat.format(new Date(iso));
- const minutes=(value:number|null)=>value===null?t("sprintDetail.ceremonyNotRecorded"):
-  t("sprintDetail.ceremonyMinutes",{minutes:value});
  const href=(page:number)=>sprintDetailPath(sprintId)+"?"+
   new URLSearchParams({tab:"ceremonies",page:String(page)}).toString();
- return <div>
+ return <div className="smn-sprint-ceremonies">
   <h2 className="h5 mb-2">{t("sprintDetail.tabs.ceremonies")}</h2>
-  <p className="small text-secondary">{t("sprintDetail.ceremonyIntro")}</p>
+  <p className="small text-secondary mb-2">{t("sprintDetail.ceremonyIntro")}</p>
   {data.state==="unavailable"?<div className="alert alert-warning" role="status">
    {t(data.reason==="history-missing"?
     "sprintDetail.ceremonyHistoryMissing":"sprintDetail.ceremonyUnavailable")}
   </div>:<>
-   <div className="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-3">
-    <p className="mb-0 fw-semibold">
+   <div className="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-2">
+    <p className="mb-0 fw-semibold small">
      {t("sprintDetail.ceremonyCount",{count:data.total})}
     </p>
     <span className="small text-secondary">
@@ -72,19 +67,20 @@ export default function SprintCeremoniesPanel({sprintId,timeZone,locale,data,t}:
     })}
    </div>}
    {data.total===0?<p className="text-secondary">{t("sprintDetail.ceremonyEmpty")}</p>:
-    <ol className="list-group list-group-flush mb-3" start={(data.page-1)*data.pageSize+1}>
-     {data.items.map(item=><li key={item.source+":"+item.id}
-      className="list-group-item bg-transparent px-0 py-3">
-      <div className="d-flex align-items-start justify-content-between flex-wrap gap-3">
-       <div className="d-flex align-items-start gap-3 flex-grow-1" style={{minWidth:0}}>
-        <span className="text-secondary mt-1"><BootstrapIcon name={kindIcon(item)}/></span>
-        <div className="flex-grow-1" style={{minWidth:0}}>
-         <p className="mb-1 fw-semibold text-break">
-          {item.source==="standard"&&item.kind&&typeKey[item.kind]?
-           t(typeKey[item.kind]):item.title}
-         </p>
-         <p className="small text-secondary mb-2">{t(sourceKey[item.source])}</p>
-         <div className="d-flex flex-wrap gap-2 mb-2 align-items-center">
+    <ol className="list-group list-group-flush mb-3 smn-sprint-ceremony-list"
+     start={(data.page-1)*data.pageSize+1}>
+     {data.items.map(item=>{
+      const icon=iconFor(item);
+      const label=item.source==="standard"&&item.kind&&typeKey[item.kind]?
+       t(typeKey[item.kind]):item.title;
+      return <li key={item.source+":"+item.id}
+       className={"list-group-item bg-transparent smn-sprint-ceremony-row smn-sprint-ceremony-"+icon}>
+       <span className={"smn-sprint-ceremony-icon smn-sprint-ceremony-icon-"+icon}
+        aria-hidden="true"><BootstrapIcon name={icon}/></span>
+       <div className="smn-sprint-ceremony-fields">
+        <div className="smn-sprint-ceremony-name">
+         <p className="mb-0 fw-semibold text-break">{label}</p>
+         <div className="smn-sprint-ceremony-flags">
           <span className={"badge "+badge(item.status)}>{t(statusKey[item.status])}</span>
           {item.status==="held"&&item.statusEvidence==="inferred"&&
            <span className="badge text-bg-info">{t("sprintDetail.ceremonyInferred")}</span>}
@@ -93,51 +89,48 @@ export default function SprintCeremoniesPanel({sprintId,timeZone,locale,data,t}:
           {item.reconstructed&&<span className="badge text-bg-light">
            {t("sprintDetail.ceremonyReconstructed")}
           </span>}
+          <span className="text-secondary smn-sprint-ceremony-source">{t(sourceKey[item.source])}</span>
          </div>
-         <dl className="row g-2 small mb-0">
-          <div className="col-12 col-md-6">
-           <dt>{t("sprintDetail.ceremonyWhen")}</dt>
-           <dd className="mb-0">
-            <time dateTime={item.startsAt}>{date(item.startsAt)}</time> —{" "}
-            <time dateTime={item.endsAt}>{date(item.endsAt)}</time>
-           </dd>
-          </div>
-          <div className="col-6 col-md-3">
-           <dt>{t("sprintDetail.ceremonyPlannedDuration")}</dt>
-           <dd className="mb-0">{minutes(item.plannedMinutes)}</dd>
-          </div>
-          <div className="col-6 col-md-3">
-           <dt>{t("sprintDetail.ceremonyActualDuration")}</dt>
-           <dd className="mb-0">{minutes(item.actualMinutes)}</dd>
-          </div>
-         </dl>
+        </div>
+        <div className="smn-sprint-ceremony-datum smn-sprint-ceremony-period">
+         <span className="smn-sprint-ceremony-label">{t("sprintDetail.ceremonyWhen")}</span>
+         <time dateTime={item.startsAt}>{formatDashboardEventPeriod(
+          item.startsAt,item.endsAt,locale,timeZone)}</time>
+        </div>
+        <div className="smn-sprint-ceremony-datum smn-sprint-ceremony-planned">
+         <span className="smn-sprint-ceremony-label">{t("sprintDetail.ceremonyPlannedDuration")}</span>
+         <span>{minutes(item.plannedMinutes,t)}</span>
+        </div>
+        <div className="smn-sprint-ceremony-datum smn-sprint-ceremony-actual">
+         <span className="smn-sprint-ceremony-label">{t("sprintDetail.ceremonyActualDuration")}</span>
+         <span>{minutes(item.actualMinutes,t)}</span>
+        </div>
+        <div className="smn-sprint-ceremony-action">
+         {data.source==="recorded-events"&&canManage?
+          <OperationalEdit kind="event" eventKind={eventKind(item.source)}
+           id={item.id} title={label} teamId={teamId} cycleId={sprintId}
+           timeZone={timeZone} canManage={canManage} actionIcon
+           className="smn-sprint-ceremony-edit"/>:
+          data.source==="closure-snapshot"?
+           <span className="visually-hidden">{t("sprintDetail.ceremonyHistoricalLinkUnavailable")}</span>:
+           null}
         </div>
        </div>
-       {data.source==="recorded-events"?
-        <Link className="btn btn-outline-primary btn-sm" href={meetingPath(item)}>
-         {t("sprintDetail.ceremonyViewMeeting")}
-        </Link>:
-        <span className="small text-secondary" role="note">
-         {t("sprintDetail.ceremonyHistoricalLinkUnavailable")}
-        </span>}
-      </div>
-     </li>)}
+      </li>;
+     })}
     </ol>}
    {data.pageCount>1&&<nav aria-label={t("sprintDetail.ceremonyPages")}>
     <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
      {data.page>1?<Link className="btn btn-outline-secondary btn-sm"
       href={href(data.page-1)}>{t("sprintDetail.ceremonyPrevious")}</Link>:
       <span/>}
-     <span className="small">
-      {t("sprintDetail.ceremonyPageCount",{page:data.page,total:data.pageCount})}
-     </span>
+     <span className="small">{t("sprintDetail.ceremonyPageCount",{
+      page:data.page,total:data.pageCount})}</span>
      {data.page<data.pageCount?<Link className="btn btn-outline-secondary btn-sm"
       href={href(data.page+1)}>{t("sprintDetail.ceremonyNext")}</Link>:<span/>}
     </div>
    </nav>}
-   <p className="small text-secondary mt-3 mb-0">
-    {t("sprintDetail.ceremonyStatusHelp")}
-   </p>
+   <p className="small text-secondary mt-3 mb-0">{t("sprintDetail.ceremonyStatusHelp")}</p>
   </>}
  </div>;
 }
