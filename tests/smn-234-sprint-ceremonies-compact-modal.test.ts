@@ -5,7 +5,7 @@ import {renderToStaticMarkup} from "react-dom/server";
 import {createElement} from "react";
 import type {Client} from "pg";
 import SprintCeremoniesPanel from "../src/app/app/admin/sprints/[sprintId]/sprint-ceremonies-panel";
-import {readDashboardEvent} from "../src/server/dashboard/event-edit";
+import {readDashboardEvent,updateDashboardEvent} from "../src/server/dashboard/event-edit";
 import {formatDashboardEventPeriod} from "../src/lib/dashboard-card-format";
 import type {SprintCeremony} from "../src/lib/sprint-ceremony-detail";
 import {translate,type TranslationKey} from "../src/i18n/catalog";
@@ -76,6 +76,67 @@ describe("SMN-234 — densification de l'onglet Cérémonies",()=>{
   assert.equal(result?.actualMinutes,125);
   assert.ok(queries.some(q=>q.includes("actual_minutes")));
   assert.ok(queries.every(q=>!/\b(?:INSERT|CREATE|ALTER|DELETE|UPDATE)\b/i.test(q)));
+ });
+
+ it("une durée réelle modifiée est enregistrée avec audit dans la même transaction",async()=>{
+  const statements:string[]=[];
+  const db={query:async(sql:string)=>{
+   statements.push(sql);
+   if(sql.includes("information_schema.columns"))return {rows:[
+    "id","sprint_id","name","starts_at","ends_at","status","actual_minutes"
+   ].map(column_name=>({column_name}))};
+   if(sql.includes("SELECT e.id"))return {rows:[{
+    id:uuid,title:"Sprint Planning",
+    start_at:"2026-10-26T08:30:00.000Z",end_at:"2026-10-26T10:30:00.000Z",
+    status:"scheduled",duration:120,actual_minutes:110,team_id:"team-1",
+    sprint_id:sprintId,sprint_status:"active",
+    sprint_start:"2026-10-26T08:00:00.000Z",
+    sprint_end:"2026-11-08T23:00:00.000Z",revision:null
+   }]};
+   return {rows:[]};
+  }} as unknown as Client;
+  const payload={
+   teamId:"team-1",sprintId,title:"Sprint Planning",
+   startAt:"2026-10-26T08:30:00.000Z",duration:120,status:"scheduled",
+   actualMinutes:125,expectedActualMinutes:110,
+   expectedTitle:"Sprint Planning",expectedStartAt:"2026-10-26T08:30:00.000Z",
+   expectedEndAt:"2026-10-26T10:30:00.000Z",expectedStatus:"scheduled"
+  };
+  const result=await updateDashboardEvent(db,"admin","template",uuid,payload);
+  assert.equal(result.ok,true);
+  assert.equal(statements.at(-1),"COMMIT");
+  assert.equal(statements.filter(q=>q==="BEGIN").length,1);
+  assert.match(statements.join("\n"),/UPDATE public\.smn_scrum_template_occurrence SET/);
+  assert.match(statements.join("\n"),/INSERT INTO public\.smn_meeting_actual_duration_audit/);
+  assert.match(statements.join("\n"),/INSERT INTO public\.smn_dashboard_event_edit_audit/);
+ });
+ it("une durée réelle modifiée ailleurs déclenche un conflit et ne modifie pas l'événement",async()=>{
+  const statements:string[]=[];
+  const db={query:async(sql:string)=>{
+   statements.push(sql);
+   if(sql.includes("information_schema.columns"))return {rows:[
+    "id","sprint_id","name","starts_at","ends_at","status","actual_minutes"
+   ].map(column_name=>({column_name}))};
+   if(sql.includes("SELECT e.id"))return {rows:[{
+    id:uuid,title:"Sprint Planning",
+    start_at:"2026-10-26T08:30:00.000Z",end_at:"2026-10-26T10:30:00.000Z",
+    status:"scheduled",duration:120,actual_minutes:130,team_id:"team-1",
+    sprint_id:sprintId,sprint_status:"active",
+    sprint_start:"2026-10-26T08:00:00.000Z",
+    sprint_end:"2026-11-08T23:00:00.000Z",revision:null
+   }]};
+   return {rows:[]};
+  }} as unknown as Client;
+  const result=await updateDashboardEvent(db,"admin","template",uuid,{
+   teamId:"team-1",sprintId,title:"Sprint Planning",
+   startAt:"2026-10-26T08:30:00.000Z",duration:120,status:"scheduled",
+   actualMinutes:125,expectedActualMinutes:110,
+   expectedTitle:"Sprint Planning",expectedStartAt:"2026-10-26T08:30:00.000Z",
+   expectedEndAt:"2026-10-26T10:30:00.000Z",expectedStatus:"scheduled"
+  });
+  assert.deepEqual(result,{ok:false,error:"conflict"});
+  assert.ok(statements.includes("ROLLBACK"));
+  assert.doesNotMatch(statements.join("\n"),/UPDATE public\.smn_scrum_template_occurrence SET/);
  });
  it("le formulaire de la modale conserve la sauvegarde unique et son rafraîchissement",()=>{
   const src=readFileSync(new URL("../src/app/app/operational-edit.tsx",import.meta.url),"utf8");
