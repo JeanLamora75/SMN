@@ -12,6 +12,11 @@ export async function GET(request:NextRequest){
   return jsonResult({error:"invalid-input"},400);
  try{
   return jsonResult(await withAuthDb(async db=>{
+   const installation=await db.query<{mode:string}>(`SELECT mode FROM public.smn_installation WHERE id='singleton' AND state='initialized'`);
+   if(installation.rows[0]?.mode==="kanban"){
+    // Kanban does not inherit the Scrum sprint occurrence tables. No synthetic events.
+    return {meetings:[]};
+   }
    const result=await db.query<{id:string;name:string;start_at:string;end_at:string;kind:string;generation_source:string}>(`
     SELECT c.id,(s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,c.ends_at::text AS end_at,'ceremony' AS kind,c.generation_source AS generation_source
     FROM public.smn_sprint_ceremony c JOIN public.smn_sprint s ON s.id=c.sprint_id
