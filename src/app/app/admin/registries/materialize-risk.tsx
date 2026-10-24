@@ -3,7 +3,7 @@ import Link from "next/link";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
-export default function MaterializeRisk({id,teamId,title,description,canManage}:{id:string;teamId:string;title:string;description:string;canManage:boolean}){
+export default function MaterializeRisk({id,teamId,title,description,canManage,onSaved}:{id:string;teamId:string;title:string;description:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("riskMaterialize."+k) as Parameters<typeof t>[0]);
  const [open,setOpen]=useState(false),[draftTitle,setDraftTitle]=useState(""),[draftDescription,setDraftDescription]=useState("");
  const [error,setError]=useState(false),[busy,setBusy]=useState(false),[created,setCreated]=useState<string|null>(null);
@@ -19,7 +19,7 @@ export default function MaterializeRisk({id,teamId,title,description,canManage}:
    if(!response.ok)throw Error("create-failed");
    const result=await response.json() as {ok:boolean;id:string};
    if(!result.ok||!result.id)throw Error("create-failed");
-   setCreated(result.id);setOpen(false);
+   setCreated(result.id);setOpen(false);onSaved?.();
   }catch{setError(true);}finally{setBusy(false);}
  };
  return <section className="card p-3 mt-3">
