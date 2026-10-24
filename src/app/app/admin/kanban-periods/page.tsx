@@ -12,5 +12,6 @@ export default async function KanbanPeriodsPage(){
  return <main className="smn-page container py-4" style={{maxWidth:900}}>
   <Link href="/app/admin/kanban-cadence" className="btn btn-link px-0 mb-2">← Paramètres Kanban</Link>
   <KanbanPeriodForm canManage={account.role==="admin"}/>
+  <Link href="/app/admin/kanban-periods/preview" className="btn btn-outline-primary mt-3">Prévisualiser un lot de périodes →</Link>
  </main>;
 }
