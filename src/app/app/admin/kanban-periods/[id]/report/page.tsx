@@ -32,6 +32,7 @@ export default async function KanbanPeriodReport({params}:{params:Promise<{id:st
    </div>
    {provisional&&<p className="alert alert-info mt-3 mb-0">Bilan provisoire : les données peuvent encore évoluer. Les modifications sont soumises aux droits de votre compte.</p>}
   </header>
+  {account.role==="admin"&&<Link className="btn btn-outline-primary mb-3 me-2" href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:"kanban",id:period.id}).toString()}>Générer un brief IA</Link>}
   {account.role==="admin"&&<Link className="btn btn-outline-primary mb-3" href={"/app/admin/kanban-periods/"+encodeURIComponent(period.id)+"/report/prepare"}>Générer un rapport</Link>}
   {account.role==="admin"&&<KanbanQualitativeLinks periodId={period.id} closed={period.status==="closed"}/>}
   <KanbanClosurePanel periodId={period.id} status={period.status} canManage={account.role==="admin"}/>
