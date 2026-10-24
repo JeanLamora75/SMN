@@ -38,8 +38,9 @@ export default function ActualCapacityPanel({start,end}:{start:string;end:string
  };
  useEffect(()=>{
   let alive=true;
-  setIsLoading(true);
-  void (async()=>{
+  void Promise.resolve().then(async()=>{
+   if(!alive)return;
+   setIsLoading(true);
    try{
     const params=new URLSearchParams({start,end});
     const res=await fetch("/api/admin/capacity-actual?"+params.toString(),{cache:"no-store"});
@@ -49,7 +50,7 @@ export default function ActualCapacityPanel({start,end}:{start:string;end:string
     if(alive){setData(v);setDraft(v.manualJh===null?"":String(v.manualJh));}
    }catch{if(alive)setError(t("actualCapacity.loadError"));}
    finally{if(alive)setIsLoading(false);}
-  })();
+  });
   return ()=>{alive=false;};
  },[start,end,t]);
  const modify=async(action:"set"|"clear")=>{
