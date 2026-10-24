@@ -399,3 +399,17 @@ Le rôle `user` conserve la ligne `Absences (N)` **sans info-bulle nominative** 
 Implémentation : `src/lib/calendar-absence-names.ts`, `src/server/members/team-calendar.ts`, `src/app/app/team-calendar/{team-calendar-view,calendar-option-b}.tsx`, `src/app/globals.css`, traductions FR/EN.
 
 Recette : vérifier A/A/B = 2 noms et `Absences (2)`, le survol/focus en Cartes et Agenda, un compte `user` et les deux thèmes. Les tests doivent être exécutés localement avant clôture. Jira inchangé.
+
+
+## Tableau de bord — I01/I02, cinquième carte de tachomètres (24 octobre 2026)
+
+**Décision utilisateur validée, normative pour les agents Sally/Amelia/BMAD. Référence Jira : [SMN-21, AC-UX08 à AC-UX13](https://lmn24.atlassian.net/browse/SMN-21).** Cette règle complète les contrats du 21/10 et n'altère pas les cartes ou colonnes existantes.
+
+- **Disposition :** cinquième carte sur la rangée des KPI, immédiatement à droite de « Jours ouvrés restants » lorsque la largeur desktop le permet. Les quatre cartes initiales demeurent : Capacité, Story Points, Tickets, Jours ouvrés restants. La cinquième contient **I01 Confiance de l’équipe**, puis une **ligne fine**, puis **I02 Clarté des objectifs**. Les deux indicateurs sont empilés verticalement et rendus de manière compacte, avec le style et les tokens des cartes existantes.
+- **Données :** notes entières réelles de 1 à 5, propres au Sprint sélectionné. Convertir chacune en pourcentage par `note / 5 × 100` : **1→20 %, 2→40 %, 3→60 %, 4→80 %, 5→100 %**. Deux **tachomètres distincts**, valeur % lisible et éventuellement `n/5` en complément. Aucun indicateur composite.
+- **Absence de donnée (règle impérative) :** si la valeur est absente/non saisie, rendre un **tachomètre complètement vide, neutre, gris**, accompagné de **« Non renseigné »**. **Ne jamais afficher 0 %, 0/5, une portion active ni une note par défaut** ; ne jamais transformer `null` en zéro. Si une seule note est absente, l'autre s'affiche normalement. Valeur hors de 1–5 : invalide, ne pas la présenter comme une mesure.
+- **Contexte et sécurité :** lire les valeurs réellement persistées du Sprint/équipe choisi, appliquer le contexte sélectionné et les règles d'historique des cycles clôturés. Pas de mélange entre Sprints, d'invention de notes ou de saisie depuis la carte. Vérifier l'existence d'un producteur I01/I02, son modèle et ses permissions avant d'implémenter ; s'il manque, le traiter explicitement sans fausse donnée.
+- **Responsive :** cinq cartes sur une même ligne si la largeur rend le contenu lisible ; repli gracieux en plusieurs rangées sur écrans étroits. Ne pas confondre avec la disposition **4/2/1 des quatre colonnes opérationnelles**, qui reste inchangée. Accès clavier, texte alternatif à la jauge, FR/EN, thèmes clair/sombre et palettes.
+- **Recette obligatoire :** cas null, 1, 2, 3, 4, 5, valeur invalide, un seul indicateur renseigné, changement de Sprint, cycle clôturé, droits admin/user, traductions et responsive. Non-régression des quatre cartes existantes. `pnpm lint`, `pnpm typecheck`, tests ciblés et `pnpm build` sur le poste local ; ne pas prétendre les avoir exécutés avant vérification.
+
+**État documentaire :** Jira et UX validés ; implémentation **non réalisée par cet avenant**. Priorité à la définition de [SMN-21](https://lmn24.atlassian.net/browse/SMN-21) en cas de doute. Ne pas fermer SMN-21 avant recette utilisateur.
