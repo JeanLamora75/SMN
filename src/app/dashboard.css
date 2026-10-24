@@ -851,3 +851,24 @@ dialog.smn-operational-create-dialog::backdrop {background:rgba(10,20,36,.65);}
 .smn-operational-compact .smn-dashboard-event-title:focus-visible {text-decoration:underline;color:var(--smn-primary);}
 .smn-operational-compact .smn-dashboard-event-when,
 .smn-operational-compact .smn-dashboard-event-state {font-size:.7rem;line-height:1.3;}
+
+/* Édition directe des fiches depuis le tableau de bord : le titre ouvre la modale. */
+.smn-operational-edit-wrap {display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:100%;}
+.smn-operational-edit-trigger {
+ border:0;padding:0;margin:0;background:transparent;color:inherit;text-align:left;
+ cursor:pointer;font:inherit;font-weight:inherit;line-height:inherit;
+ min-width:0;overflow-wrap:anywhere;
+}
+.smn-operational-edit-trigger:hover,
+.smn-operational-edit-trigger:focus-visible {color:var(--smn-primary);text-decoration:underline;}
+.smn-operational-edit-trigger:focus-visible {outline:2px solid var(--smn-primary);outline-offset:3px;border-radius:2px;}
+.smn-operational-source-link {display:inline-flex;align-items:center;flex:none;padding:2px;
+ color:var(--smn-muted);opacity:.65;}
+.smn-operational-source-link:hover,.smn-operational-source-link:focus-visible {
+ color:var(--smn-primary);opacity:1;
+}
+.smn-operational-source-link svg {width:12px;height:12px;}
+.smn-dashboard-event-body .smn-operational-edit-wrap {width:100%;}
+.smn-dashboard-event-body .smn-dashboard-event-title {flex:1;min-width:0;font-weight:750;}
+.smn-attention-card-heading .smn-attention-card-title .smn-operational-edit-trigger {font-weight:750;}
+.smn-operational-create-dialog .smn-operational-edit-trigger {white-space:normal;}
