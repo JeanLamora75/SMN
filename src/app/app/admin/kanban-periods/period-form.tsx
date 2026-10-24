@@ -11,7 +11,7 @@ export default function KanbanPeriodForm({canManage}:{canManage:boolean}){
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [created,setCreated]=useState("");
- const [customName,setCustomName]=useState("");
+ const [customName,setCustomName]=useState<string|null>(null);
  const [duplicate,setDuplicate]=useState(false);
  useEffect(()=>{
   let active=true;
@@ -24,14 +24,14 @@ export default function KanbanPeriodForm({canManage}:{canManage:boolean}){
  let computed:ReturnType<typeof periodFromStart>|null=null;
  try{if(startOn&&cadence)computed=periodFromStart(startOn,cadence.frequency);}catch{/* show validation feedback */}
  async function generate(event:FormEvent){
-  event.preventDefault();if(!computed||!canManage||!normalizePeriodName(customName||computed.name))return;
+  event.preventDefault();if(!computed||!canManage||!normalizePeriodName(customName??computed.name))return;
   setBusy(true);setError("");setCreated("");setDuplicate(false);
   try{
    const response=await fetch("/api/admin/kanban-periods",{method:"POST",
-    headers:{"Content-Type":"application/json"},body:JSON.stringify({startOn,name:customName||computed.name})});
+    headers:{"Content-Type":"application/json"},body:JSON.stringify({startOn,name:customName??computed.name})});
    const data=await response.json();
    if(!response.ok){setError(t(data.error==="overlap"?"kanbanPeriod.overlap":"kanbanPeriod.saveError"));return;}
-   setCreated(data.period.name);setDuplicate(!!data.duplicateName);setCustomName("");
+   setCreated(data.period.name);setDuplicate(!!data.duplicateName);setCustomName(null);
    setStartOn("");
   }catch{setError(t("kanbanPeriod.saveError"));}finally{setBusy(false);}
  }
@@ -48,8 +48,8 @@ export default function KanbanPeriodForm({canManage}:{canManage:boolean}){
     <div className="fw-semibold">{computed.name}</div>
     <div className="small text-secondary">{computed.startOn} → {computed.endOn} · {cadence.timeZone}</div>
    </div>:startOn&&<p role="alert" className="text-danger">{t("kanbanPeriod.invalidStart")}</p>}
-   {computed&&<div><label htmlFor="kanban-period-name" className="form-label">Nom de la période</label><input id="kanban-period-name" className="form-control" maxLength={200} disabled={!canManage||busy} value={customName||computed.name} onChange={e=>setCustomName(e.target.value)}/></div>}
-   {canManage&&<button className="btn btn-primary" type="submit" disabled={!computed||busy||(customName!==""&&!normalizePeriodName(customName))}>{t("kanbanPeriod.generate")}</button>}
+   {computed&&<div><label htmlFor="kanban-period-name" className="form-label">Nom de la période</label><input id="kanban-period-name" className="form-control" maxLength={200} disabled={!canManage||busy} value={customName??computed.name} onChange={e=>setCustomName(e.target.value)}/></div>}
+   {canManage&&<button className="btn btn-primary" type="submit" disabled={!computed||busy||(customName!==null&&!normalizePeriodName(customName))}>{t("kanbanPeriod.generate")}</button>}
   </form>}
   {error&&<p className="alert alert-warning" role="alert">{error}</p>}
   {duplicate&&<p role="status" className="alert alert-warning">Une autre période porte déjà ce nom. La création a été autorisée.</p>}
