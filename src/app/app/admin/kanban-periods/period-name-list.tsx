@@ -12,6 +12,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
  const [removal,setRemoval]=useState<RemovalSummary|null>(null);
  const [dateEdit,setDateEdit]=useState<{period:Period;startOn:string;endOn:string}|null>(null);
  const [correction,setCorrection]=useState<Correction|null>(null);
+ const [reason,setReason]=useState("");
  const [eventChoice,setEventChoice]=useState<"preserve"|"recalculate">("preserve");
  async function load(){
   const response=await fetch("/api/admin/kanban-periods/list",{cache:"no-store"});
@@ -42,7 +43,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
   try{
    const r=await fetch("/api/admin/kanban-periods/"+encodeURIComponent(correction.period.id)+"/dates",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({...correction.after,previewToken:correction.previewToken})});
+    body:JSON.stringify({...correction.after,previewToken:correction.previewToken,reason})});
    if(!r.ok){setCorrection(null);setError("La période a changé ou présente un conflit. Relancez l'aperçu.");return;}
    setDateEdit(null);setCorrection(null);await load();setNotice("Dates corrigées et modification auditée.");
   }catch{setError("Échec de la correction.");}finally{setBusy(null);}
@@ -108,6 +109,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
     {eventChoice==="recalculate"&&<p className="alert alert-warning mt-2">Déplacement indisponible : le rattachement et la provenance des occurrences Kanban ne sont pas encore vérifiables. Aucune occurrence ne sera modifiée. Sélectionnez « Conserver les dates » pour poursuivre.</p>}
    </fieldset>
    <p className="small text-secondary">Valeurs manuelles, capacité figée et rapports : inchangés.</p>
+   <label className="form-label d-block">Motif (facultatif)<textarea className="form-control" maxLength={1000} value={reason} onChange={e=>setReason(e.target.value)} /></label>
    <button className="btn btn-outline-primary me-2" type="button" disabled={busy!==null||eventChoice==="recalculate"} onClick={previewCorrection}>Voir l’impact</button>
    <button className="btn btn-outline-secondary" type="button" disabled={busy!==null} onClick={()=>{setDateEdit(null);setCorrection(null);}}>Annuler</button>
    {correction&&<div className="mt-3">
