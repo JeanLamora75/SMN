@@ -49,3 +49,34 @@ export async function createHistoricalEvent(db:Client,actorId:string,raw:unknown
   return {ok:true as const,id};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+export async function correctHistoricalEvent(db:Client,actorId:string,meetingId:string,raw:unknown){
+ if(!actorId||!uuid.test(meetingId)||!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
+ const v=raw as Record<string,unknown>;
+ if(Object.keys(v).sort().join(",")!=="name,status"||typeof v.name!=="string"||
+ !v.name.trim()||v.name.trim().length>160||
+ !["unknown","held","not_held","cancelled"].includes(String(v.status)))return {ok:false as const,error:"invalid-input"};
+ await ensureHistoricalEventSchema(db);
+ await db.query("BEGIN");
+ try{
+  const old=await db.query<{id:string;name:string;status:string;sprint_status:string}>(`
+  SELECT m.id,m.name,m.status,s.status AS sprint_status FROM public.smn_sprint_exceptional_meeting m
+  JOIN public.smn_sprint_historical_event h ON h.meeting_id=m.id
+  JOIN public.smn_sprint s ON s.id=m.sprint_id JOIN public.smn_team t ON t.id=s.team_id
+  JOIN public.smn_installation i ON i.id=t.installation_id
+  WHERE m.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
+  AND lower(i.mode)='scrum' FOR UPDATE OF m,s`,[meetingId]);
+  const item=old.rows[0];
+  if(!item){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  if(item.sprint_status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period"};}
+  if(item.name!==v.name.trim()||item.status!==v.status){
+   await db.query(`UPDATE public.smn_sprint_exceptional_meeting
+    SET name=$2,status=$3,status_explicit=$4,revised_at=now() WHERE id=$1`,
+    [meetingId,v.name.trim(),v.status,v.status!=="unknown"]);
+   await db.query(`INSERT INTO public.smn_sprint_exceptional_meeting_history
+    (id,meeting_id,action,actor_id,details) VALUES($1,$2,'historical-corrected',$3,$4::jsonb)`,
+    [randomUUID(),meetingId,actorId,JSON.stringify({before:{name:item.name,status:item.status},after:{name:v.name.trim(),status:v.status}})]);
+  }
+  await db.query("COMMIT");return {ok:true as const};
+ }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
