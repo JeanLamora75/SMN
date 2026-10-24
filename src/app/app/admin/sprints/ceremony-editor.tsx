@@ -14,7 +14,7 @@ export default function CeremonyEditor(){
  const [message,setMessage]=useState("");
  const [busy,setBusy]=useState(false);
  async function reload(){const r=await fetch("/api/admin/sprints/ceremonies",{cache:"no-store"});if(!r.ok)throw Error();const d=await r.json();setRows(d.ceremonies);}
- useEffect(()=>{reload().catch(()=>setError(t("ceremonyEdit.error")));},[t]);
+ useEffect(()=>{void Promise.resolve().then(reload).catch(()=>setError(t("ceremonyEdit.error")));},[t]);
  const item=rows.find(x=>x.id===selected);
  function pick(id:string){const x=rows.find(v=>v.id===id);setSelected(id);setStartAt(x?new Date(x.startAt).toISOString().slice(0,16):"");setMinutes(x?.minutes??15);setScope("single");setHistory([]);setMessage("");setError("");}
  async function save(e:FormEvent){e.preventDefault();if(!item)return;setBusy(true);setError("");setMessage("");
