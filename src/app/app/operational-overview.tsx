@@ -246,6 +246,7 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
  const labels:Record<ReturnType<typeof classifyEventStatus>,TranslationKey>={
   scheduled:"dashboard.operational.eventScheduled",
   held:"dashboard.operational.eventHeld",
+  not_held:"dashboard.operational.eventNotHeld",
   cancelled:"dashboard.operational.eventCancelled",
   unknown:"dashboard.operational.eventUnknown"
  };
