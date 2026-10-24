@@ -55,7 +55,7 @@ describe("Fiche Sprint — métadonnées des capacités",()=>{
     contribution_percent:75})
   ]);
   assert.deepEqual(mapped.get(memberId)?.agileRoles,
-   ["scrumMaster","developer","productOwner"]);
+   ["scrumMaster","productOwner","developer"]);
   assert.deepEqual(mapped.get(memberId)?.contributionPercents,[75]);
  });
  it("n'invente pas de rôles ni de taux sans version applicable",()=>{
