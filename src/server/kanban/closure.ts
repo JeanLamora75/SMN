@@ -6,6 +6,7 @@ import {ensureKanbanTimingSchema} from "./timing";
 import {reconcileKanbanStates} from "./states";
 import {ensureKanbanMeetingSchema} from "./meetings";
 import {readKanbanCapacityView} from "./capacity-view";
+import {captureKanbanQualitative} from "./qualitative";
 export function nextClosureVersion(versions:number[]){return versions.length?Math.max(...versions)+1:1;}
 export async function ensureKanbanClosures(db:Client){
  await ensureKanbanGoals(db);await ensureKanbanFlowSchema(db);await ensureKanbanTimingSchema(db);
@@ -59,8 +60,9 @@ export async function changeKanbanClosure(db:Client,id:string,actorId:string,act
   const capacity=await readKanbanCapacityView(db,period.team_id,period.start_on,period.end_on,"finished");
   const events=(await db.query(`SELECT id,name,starts_at::text AS "startAt",ends_at::text AS "endAt",status,provenance,created_at::text AS "createdAt"
    FROM public.smn_kanban_meeting WHERE period_id=$1 ORDER BY starts_at,id`,[id])).rows;
+  const qualitativeLinks=await captureKanbanQualitative(db,id,period.team_id);
   const snapshot={period:{id,name:period.name,startOn:period.start_on,endOn:period.end_on,status:"closed",timeZone:period.time_zone},
-   goals,flow,timing,capacity,qualitativeLinks:{state:"not-integrated"},events:{state:"captured",items:events}};
+   goals,flow,timing,capacity,qualitativeLinks,events:{state:"captured",items:events}};
   await db.query(`INSERT INTO public.smn_kanban_closure(id,period_id,version,snapshot,created_by)
    VALUES($1,$2,$3,$4::jsonb,$5)`,[randomUUID(),id,version,JSON.stringify(snapshot),actorId]);
   await db.query("UPDATE public.smn_kanban_period SET status='closed' WHERE id=$1",[id]);
