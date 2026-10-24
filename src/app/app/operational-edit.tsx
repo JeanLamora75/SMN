@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useId,useRef,useState,type FormEvent} from "react";
 import Link from "next/link";
+import {createPortal} from "react-dom";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import {dashboardLocalValue,dashboardLocalToIso} from "@/lib/dashboard-local-datetime";
@@ -190,14 +191,16 @@ export default function OperationalEdit(props:Props){
  useEffect(()=>{if(opened&&ref.current&&!ref.current.open)ref.current.showModal();},[opened]);
  const close=()=>ref.current?.close();
  const saved=()=>{close();router.refresh();};
- return <span className="smn-operational-edit-wrap">
+ return <>
+  <span className="smn-operational-edit-wrap">
   <button type="button" className={props.className+" smn-operational-edit-trigger"}
    onClick={()=>setOpened(true)} aria-haspopup="dialog">{props.title}</button>
   {props.href&&<Link href={props.href} className="smn-operational-source-link"
     aria-label={t("dashboard.operational.edit.openPage")} title={t("dashboard.operational.edit.openPage")}>
     <BootstrapIcon name="arrow-right"/>
    </Link>}
-  {opened&&<dialog ref={ref} className="smn-operational-create-dialog"
+  </span>
+  {opened&&typeof document!=="undefined"&&createPortal(<dialog ref={ref} className="smn-operational-create-dialog"
     aria-labelledby={dialogId} onClose={()=>setOpened(false)}>
    <div className="smn-operational-create-dialog-inner">
     <header className="d-flex align-items-center justify-content-between gap-3 mb-3">
@@ -223,6 +226,6 @@ export default function OperationalEdit(props:Props){
       {t("dashboard.operational.quickAdd.cancel")}</button>
     </div>
    </div>
-  </dialog>}
- </span>;
+  </dialog>,document.body)}
+ </>;
 }
