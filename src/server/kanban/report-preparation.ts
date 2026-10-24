@@ -20,6 +20,7 @@ export async function composeKanbanReport(db:Client,periodId:string){
  ]);
  // Closed periods must use the immutable version. Never reconstruct old values from mutable tables.
  const snapshot=report.period.status==="closed"?versions[0]??null:null;
+ if(report.period.status==="closed"&&!snapshot)throw Error("kanban-closure-snapshot-missing");
  const frozen=snapshot?.snapshot as null|{goals?:unknown[];flow?:unknown;timing?:unknown;capacity?:unknown};
  return {
   period:report.period,
