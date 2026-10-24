@@ -13,8 +13,8 @@ const initial=(today:string,record:AbsenceItem|null):Draft=>record?{
  endSlot:"afternoon",isPlanned:true,reason:""};
 
 /** Une fenêtre = création OU correction d'une seule absence, jamais son historique. */
-export default function MemberAbsenceEditor({memberId,record,onSaved,onCancel}:{
- memberId:string;record:AbsenceItem|null;onSaved:()=>void;onCancel:()=>void;
+export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved,onCancel}:{
+ memberId:string;record:AbsenceItem|null;initialDate?:string;onSaved:()=>void;onCancel:()=>void;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AbsenceState|null>(null);
@@ -39,11 +39,11 @@ export default function MemberAbsenceEditor({memberId,record,onSaved,onCancel}:{
      if(!latest||latest.deleted||latest.revision!==record.revision)
       throw Error("absence-stale");
     }
-    const values=initial(data.today,record);
+    const values=initial(initialDate??data.today,record);
     setState(data);setToday(data.today);setDraft(values);setBaseline(values);setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return()=>{active=false;};
- },[memberId,record]);
+ },[memberId,record,initialDate]);
  const change=<K extends keyof Draft>(name:K,value:Draft[K])=>
   setDraft(current=>current?{...current,[name]:value}:current);
  const cancel=()=>{
