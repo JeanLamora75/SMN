@@ -2286,7 +2286,8 @@
     "presenceAgileRoles": "Agile roles",
     "presenceFunction": "Professional function",
     "presenceContribution": "Contribution",
-    "registersAll": "All"
+    "registersAll": "All",
+    "ceremonyEdit": "Edit meeting"
   },
   "registryCreate": {
     "title": "Registers",
