@@ -78,6 +78,27 @@ describe("SMN-234 — Registres compacts et modales de l'onglet Sprint",()=>{
   assert.match(row,/safeRegisterHref\(item.href\)/);
   assert.match(row,/href===recordHref/);
  });
+ it("tous les sous-formulaires signalent leur sauvegarde avant fermeture",()=>{
+  const registry=read("src/app/app/admin/registries/registry-create.tsx");
+  const components={
+   "decision-detail":"DecisionDetail",
+   "decision-actions":"DecisionActions",
+   "action-links":"ActionLinks",
+   "dependency-parties":"DependencyParties",
+   "dependency-vigilance":"DependencyVigilance",
+   "materialize-risk":"MaterializeRisk",
+   "risk-assessment":"RiskAssessment",
+   "risk-roam":"RiskRoam",
+   "registry-cycles":"RegistryCycles",
+   "registry-relations":"RegistryRelations"
+  };
+  for(const [file,name] of Object.entries(components)){
+   const code=read("src/app/app/admin/registries/"+file+".tsx");
+   assert.ok(registry.includes("<"+name),name+" doit rester accessible");
+   assert.match(code,/onSaved\\?\\.\\(\\)/);
+   assert.match(registry,new RegExp("<"+name+"[^>]+onSaved=\\{onSaved\\}"));
+  }
+ });
  it("le responsive garde une ligne desktop et des retours adaptés sur tablette/mobile",()=>{
   const css=read("src/app/dashboard.css");
   assert.match(css,/grid-template-areas:"kind status title priority date action"/);
