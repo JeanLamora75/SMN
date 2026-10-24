@@ -351,3 +351,20 @@ Tests associés : `tests/smn-234-sprint-ceremonies-compact-modal.test.ts`, à la
 - Lignes regroupées dans un seul flux visuel vertical ; les titres de groupes restent accessibles aux lecteurs d’écran mais ne sont plus visibles visuellement. État actif bleu clair, marquage latéral, focus clavier ; menu réduit et menu mobile conservés.
 
 **Non-régression attendue :** rôle admin/user, Scrum/Kanban, accès direct Paramètres/Sécurité, redirections d’autorisation côté serveur, sous-routes Calendrier/Sprints/Registres, focus menu mobile et fermeture Escape. Les vérifications s’effectuent via `tests/private-navigation.test.ts`, `tests/smn-227-settings-navigation.test.ts` et `tests/smn-sidebar-first-pass-20261024.test.ts` ; la recette visuelle est à effectuer sur Windows 11.
+
+
+## Avenant — Panneau latéral, deuxième lot (24 octobre 2026)
+
+**Décision fonctionnelle validée :** poursuivre la simplification après le retrait du bloc « Espace de travail ». Le panneau latéral présente désormais **exactement six entrées principales**, de haut en bas :
+1. **Tableau de Bord** → `/app` ;
+2. **Équipe** → `/app/admin/members` pour l'administrateur (entrée non cliquable si rôle insuffisant) ;
+3. **Sprint** → `/app/admin/sprints` en mode Scrum ; préserver l'appellation « Périodes Kanban » et l'indisponibilité de route tant que la liste Kanban n'est pas livrée ;
+4. **Calendrier** → `/app/team-calendar` ;
+5. **Registre** → `/app/admin/registries`, correspondant à l'ensemble des six catégories de l'Epic 5, sans limiter le menu aux risques/obstacles ;
+6. **Rapports** → entrée visible mais indisponible tant qu'une page de rapports autonome n'a pas été livrée : ne pas créer de destination fictive.
+
+**Pied de panneau :** l'entrée **Paramètres** apparaît dans une zone distincte située tout en bas du panneau sur desktop, séparée des six entrées par une fine bordure horizontale. Son adresse est `/app/admin/settings`. Elle demeure réservée au rôle administrateur selon les autorisations MVP déjà en vigueur ; aucune exposition de données à un utilisateur non autorisé. Sur mobile, la séparation est conservée et Paramètres suit les six entrées, sans imposer un pied fixe gênant le défilement.
+
+**Présentation :** les icônes Bootstrap existantes de 22 px et les libellés sur une seule ligne sont conservés, ainsi que le menu rétractable, les info-bulles au focus et la navigation clavier. Les anciennes lignes « Bilans de cycles » et « Briefs IA » ne figurent plus dans la sidebar ; les fonctions et pages métier indépendantes ne sont pas supprimées. L'intitulé « Paramètres généraux » devient « Paramètres » dans la sidebar et ses traductions FR/EN, sans changer les sous-écrans existants.
+
+**Validation à effectuer :** vérifier l'ordre exact, la position basse à différentes hauteurs de fenêtre, le séparateur, les profils admin/user, les modes Scrum/Kanban, la cohérence active des sous-routes, le menu réduit et les petits écrans. Tests de navigation : `tests/private-navigation.test.ts`, `tests/smn-sidebar-first-pass-20261024.test.ts`, `tests/smn-sidebar-second-pass-20261024.test.ts` et `tests/smn-227-settings-navigation.test.ts`.

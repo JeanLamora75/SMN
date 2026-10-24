@@ -54,3 +54,14 @@ Sur PC : vérifier les profils Admin et Utilisateur, les modes Scrum et Kanban, 
 **Statut :** contrats UX approuvés et publiés, **pas** de nouvelle fonctionnalité ou de recette attestée. Les producteurs de données, règles d'historisation, droits et catalogues FR/EN restent à vérifier avant implémentation.
 
 **Implication spécifique :** Cible visuelle : sidebar sous le header, occupant toute hauteur disponible, rétractable et accessible au clavier ; header pleine largeur avec sélecteurs équipe et cycle à gauche de Recherche. Le mode multiéquipe n'est pas livré au MVP.
+
+
+## Avenant de navigation — 24 octobre 2026 (refonte en deux lots)
+
+La description initiale SMN-22 des **six groupes de navigation** correspond à l'état historique de sa PR #17. Elle est remplacée dans le panneau latéral du MVP par un **groupe principal de six entrées métier**, ordonné comme suit : Tableau de Bord, Équipe, Sprint, Calendrier, Registre, Rapports. Pour un administrateur, un **groupe Paramètres** distinct est repoussé en bas et séparé par un trait horizontal fin. Les titres de groupes restent dans l'arbre d'accessibilité mais sont cachés visuellement.
+
+Les règles de sécurité de SMN-22 ne changent pas : Équipe et Paramètres ne sont cliquables que si le rôle courant dispose de l'autorisation ; Rapports demeure visible, sans lien tant que sa page autonome n'existe pas. En mode Kanban, l'entrée liée aux cycles conserve l'intitulé « Périodes Kanban » et sa restriction existante. Le lien Sécurité est conservé dans les Paramètres et les pages/routes de cycles, de calendrier et des registres ne sont pas supprimées.
+
+Référentiel fonctionnel à jour : `docs/UX-REFERENTIEL-BMAD.md`. Couverture attendue : `tests/private-navigation.test.ts`, `tests/smn-sidebar-first-pass-20261024.test.ts`, `tests/smn-sidebar-second-pass-20261024.test.ts`, `tests/smn-227-settings-navigation.test.ts`.
+
+Cette évolution est une refonte UX, pas une affirmation de recette réussie. GitHub Actions étant désactivé, typecheck, tests et build doivent être exécutés localement.

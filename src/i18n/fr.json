@@ -580,13 +580,15 @@
       "reporting": "Rapports",
       "briefs": "Briefs IA",
       "users": "Comptes utilisateurs",
-      "settings": "Paramètres généraux",
+      "settings": "Paramètres",
       "cyclesUnknown": "Cycles (mode indisponible)",
       "audit": "Journal des opérations",
       "backups": "Sauvegardes",
       "members": "Équipe",
       "countries": "Pays",
-      "calendar": "Calendrier"
+      "calendar": "Calendrier",
+      "sprint": "Sprint",
+      "register": "Registre"
     }
   },
   "detail": {
