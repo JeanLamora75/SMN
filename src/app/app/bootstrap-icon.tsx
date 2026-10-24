@@ -1,6 +1,6 @@
 /** Bootstrap Icons (MIT) — SVG officiels, intégrés sans CDN ni police externe.
  * Source: https://github.com/twbs/icons/tree/main/icons */
-type Name="bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square";
+type Name="bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders";
 
 export default function BootstrapIcon({name,className=""}:Readonly<{
  name:Name;className?:string;
@@ -15,6 +15,20 @@ export default function BootstrapIcon({name,className=""}:Readonly<{
    case "exclamation-triangle-fill":return <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>;
    case "sticky-fill":return <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1zm6 8.5a1 1 0 0 1 1-1h4.396a.25.25 0 0 1 .177.427l-5.146 5.146a.25.25 0 0 1-.427-.177z"/>;
    case "bell-fill":return <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/>;
+   case "calendar-check":return <>
+    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+    <path d="M11.354 6.646a.5.5 0 0 1 0 .708L7.5 11.207l-1.854-1.853a.5.5 0 1 1 .708-.708L7.5 9.793l3.146-3.147a.5.5 0 0 1 .708 0"/>
+   </>;
+   case "bar-chart-line":return <>
+    <path d="M0 0h1v15h15v1H0zM3 8h2v5H3zm4-4h2v9H7zm4-2h2v11h-2z"/>
+   </>;
+   case "chat-dots":return <>
+    <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2v2l3-2h7a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6.7L5 14.3V13H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1"/>
+    <circle cx="4.5" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="11.5" cy="8" r="1"/>
+   </>;
+   case "sliders":return <>
+    <path d="M4 1a.5.5 0 0 1 .5.5V3h11a.5.5 0 0 1 0 1h-11v1.5a.5.5 0 0 1-1 0V4h-3a.5.5 0 0 1 0-1h3V1.5A.5.5 0 0 1 4 1m7 5a.5.5 0 0 1 .5.5V8h4a.5.5 0 0 1 0 1h-4v1.5a.5.5 0 0 1-1 0V9H.5a.5.5 0 0 1 0-1h10V6.5A.5.5 0 0 1 11 6m-4 5a.5.5 0 0 1 .5.5V13h8a.5.5 0 0 1 0 1h-8v1.5a.5.5 0 0 1-1 0V14h-6a.5.5 0 0 1 0-1h6v-1.5A.5.5 0 0 1 7 11"/>
+   </>;
    case "people-fill":return <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>;
    case "stack":return <>
     <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.6.6 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.6.6 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.6.6 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535z"/>
