@@ -54,6 +54,15 @@ export function projectCentralCalendar(
    sourceHref:"#team-calendar-collective"
   });
  }
+ // Collective views may flag a holiday without disclosing any member location.
+ if(!isAdmin){
+  for(const day of calendar.collective){
+   if(day.hasNationalHoliday)add({
+    id:"national-holiday-"+day.date,date:day.date,type:"holiday",
+    title:"",sourceHref:null
+   });
+  }
+ }
  for(const closure of calendar.closures){
   for(const date of dates){
    if(within(date,closure.startOn,closure.endOn))add({
