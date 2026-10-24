@@ -25,6 +25,7 @@ import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
 import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
+import HistoricalEventForm from "./historical-event-form";
 import SprintCapacityPanel from "./sprint-capacity-panel";
 import SprintTrendsPanel from "./sprint-trends-panel";
 import SprintReviewPanel from "./sprint-review-panel";
@@ -165,11 +166,11 @@ export default async function SprintDetailPage({params,searchParams}:{
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
       capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/>:
-     active==="ceremonies"?<SprintCeremoniesPanel
+     active==="ceremonies"?<><SprintCeremoniesPanel
       sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
       canManage={canManage&&cycle.status!=="closed"}
       t={(key,params)=>translate(locale,key,params)}
-      data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>:
+      data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalEventForm sprintId={cycle.id}/>}</>:
      active==="capacity"?<SprintCapacityPanel
       canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
