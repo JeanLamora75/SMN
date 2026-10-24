@@ -15,7 +15,7 @@ export default function DeleteSprintForm(){
   try{const r=await fetch("/api/admin/sprints/names",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.sprints);}
   catch{setError(t("sprintDelete.error"));}
  }
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{void Promise.resolve().then(load);},[]);
  function toggle(id:string){setIds(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);setPreview(null);setNotice("");setError("");}
  async function requestPreview(){setBusy(true);setError("");setPreview(null);
   try{const r=await fetch("/api/admin/sprints/delete",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids})});
