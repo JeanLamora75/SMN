@@ -15,7 +15,7 @@ function sample(admin=true,start="2026-10-19"):TeamCalendarResponse{
   start,end:dates[6],days:7,kind:"all",
   collective:dates.map((date,i)=>({
    date,assigned:3,reportedUnavailable:i===0?1:0,
-   declaredAbsentMemberCount:i===0?1:0,
+   declaredAbsentMemberCount:i===0?1:0,hasNationalHoliday:false,
    known:i===0?2:3,unknown:i===0?1:0,availableMembers:2
   })),
   closures:[{id:"closed-1",name:"Journée entreprise",startOn:dates[1],endOn:dates[1]}],
@@ -72,6 +72,14 @@ describe("SMN-64 — agenda collectif en lecture seule",()=>{
   assert.equal(collective.sourceHref,"#team-calendar-collective");
   assert.equal(collective.memberId,undefined);
   assert.equal(ordinary.items.some(x=>x.type==="holiday"),false);
+ });
+ it("propage l'information fériée agrégée sans exposer la localisation d'un membre",()=>{
+  const base=sample(false);
+  base.collective[0].hasNationalHoliday=true;
+  const items=projectCentralCalendar(base,false).items;
+  assert.equal(items.filter(x=>x.type==="holiday").length,1);
+  assert.equal(items.find(x=>x.type==="holiday")?.title,"");
+  assert.equal(JSON.stringify(items).includes("Membre privé"),false);
  });
  it("AC2 : statut de réunion passé inconnu reste inconnu, pas tenu automatiquement",()=>{
   const base=sample(true);
