@@ -21,6 +21,7 @@ export default async function BriefArchiveLibrary(){
   <Link href="/app">← Tableau de bord</Link>
   <section className="smn-panel rounded-4 p-4 my-3">
    <h1 className="h4">Bibliothèque privée des briefs IA</h1>
+   <Link className="btn btn-outline-primary btn-sm mb-3" href="/app/ai-briefs/journal">Journal des analyses humaines et IA</Link>
    <p className="text-secondary">Fichiers TXT finalisés et conservés sans recalcul. Seules les archives autorisées sont visibles.</p>
    {rows===null?<p className="alert alert-warning">Bibliothèque indisponible.</p>:
     rows.length===0?<p>Aucun brief archivé.</p>:
