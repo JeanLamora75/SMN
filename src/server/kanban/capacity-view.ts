@@ -35,3 +35,12 @@ export async function readKanbanCapacityView(db:Client,teamId:string,startOn:str
   realStatus:status,missingSources:actual.missingSources
  };
 }
+// Resolve by stable period identity when available: replanification must not lose the opening snapshot.
+export async function readKanbanOpeningByPeriodId(db:Client,periodId:string){
+ const r=await db.query<{initial_jh:string|null;provenance:string;captured_at:string}>(`
+ SELECT initial_jh::text,provenance,captured_at::text FROM public.smn_kanban_capacity_opening
+ WHERE period_id=$1`,[periodId]);
+ const row=r.rows[0];
+ return row?{initialJh:row.initial_jh===null?null:Number(row.initial_jh),
+  provenance:row.provenance,capturedAt:row.captured_at}:null;
+}
