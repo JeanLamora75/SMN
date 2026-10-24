@@ -6,6 +6,7 @@ import {ensureStoryPointsSchema} from "./story-points";
 import {ensureActualDurationSchema} from "./actual-duration";
 import {ensureExceptionalImpactSchema} from "./exceptional-capacity-impact";
 import {ensureSprintScoresSchema} from "./sprint-scores";
+import {ensureSprintCapacityKpiSchema} from "./sprint-capacity-kpis";
 import {readSprintMemberPresence} from "./presence-detail-read";
 import {ensureSprintReviewSchema,reviewClosureSnapshot} from "./review-analysis";
 
@@ -13,6 +14,7 @@ export async function ensureClosureSchema(db:Client){
  await ensureSprintGoalsSchema(db);await ensureStoryPointsSchema(db);
  await ensureActualDurationSchema(db);await ensureExceptionalImpactSchema(db);
  await ensureSprintScoresSchema(db);
+ await ensureSprintCapacityKpiSchema(db);
  await ensureSprintReviewSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_closure_snapshot (
  id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
@@ -78,13 +80,25 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
   id:sprintId,name:context.name,status:"finished",suspended:false,
   startAt:context.start_at,endAt:context.end_at,timeZone:context.time_zone
  });
+ const capacityKpi=await db.query<{planned_jh:string|null;actual_jh:string|null}>(
+  "SELECT planned_jh::text,actual_jh::text FROM public.smn_sprint_capacity_kpi WHERE sprint_id=$1",
+  [sprintId]);
+ const saved=capacityKpi.rows[0]??null;
+ const captured=capacity.rows[0]??null;
+ const snapshotCapacity=captured?{
+  ...captured,
+  initial_jh:saved?.planned_jh??captured.initial_jh,
+  actual_jh:saved?.actual_jh??captured.actual_jh
+ }:saved?{initial_jh:saved.planned_jh,actual_jh:saved.actual_jh}:null;
  return {goals:goals.rows,qualitative,storyPoints:points.rows[0]??null,
   memberPresence:memberPresence??{state:"unavailable",reason:"read-failed"},
   reviewAnalysis,
   confidenceClarity:scores.rows[0]??null,
   ticketCounts:ticket?.rows[0]??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
-  capacity:capacity.rows[0]??null,participants:participants.rows};
+  capacity:snapshotCapacity,capacityKpis:saved?{
+   planned:saved.planned_jh,actual:saved.actual_jh
+  }:null,participants:participants.rows};
 }
 export async function listSprintClosures(db:Client,sprintId:string){
  await ensureClosureSchema(db);const sprint=await sprintScope(db,sprintId);if(!sprint)return null;

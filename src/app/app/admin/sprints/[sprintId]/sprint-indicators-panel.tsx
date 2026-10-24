@@ -8,11 +8,12 @@ import {
  type SprintPoints,type SprintTickets
 } from "@/lib/sprint-indicator-values";
 import type {SprintDetailIndicators} from "@/server/sprints/indicators-read";
+import type {SprintCapacityKpiView,SprintCapacityKpiValues} from "@/server/sprints/sprint-capacity-kpis";
 
-type Group="points"|"tickets"|"scores";
-type Field="initial"|"added"|"removed"|"done"|"confidence"|"clarity";
+type Group="points"|"tickets"|"scores"|"capacity";
+type Field="initial"|"added"|"removed"|"done"|"confidence"|"clarity"|"planned"|"actual";
 type Draft=Record<string,string>;
-type FieldDef={key:Field;label:string;code:string;kind:"count"|"score"};
+type FieldDef={key:Field;label:string;code:string;kind:"count"|"score"|"jh"};
 const pointFields:readonly FieldDef[]=[
  {key:"initial",label:"storyPoints.initial",code:"F01",kind:"count"},
  {key:"added",label:"storyPoints.added",code:"F02",kind:"count"},
@@ -27,13 +28,18 @@ const scoreFields:readonly FieldDef[]=[
  {key:"confidence",label:"sprintDetail.indicatorConfidence",code:"I01",kind:"score"},
  {key:"clarity",label:"sprintDetail.indicatorClarity",code:"I02",kind:"score"}
 ];
+const capacityFields:readonly FieldDef[]=[
+ {key:"planned",label:"sprintDetail.indicatorCapacityPlanned",code:"C01",kind:"jh"},
+ {key:"actual",label:"sprintDetail.indicatorCapacityActual",code:"C02",kind:"jh"}
+];
 const groupFields=(group:Group)=>group==="points"?pointFields:
- group==="tickets"?ticketFields:scoreFields;
+ group==="tickets"?ticketFields:group==="capacity"?capacityFields:scoreFields;
 const serialize=(value:object):Draft=>
  Object.fromEntries(Object.entries(value).map(([key,n])=>[key,n===null?"":String(n)]));
 const display=(n:number|null)=>n===null?"—":String(n);
-export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
+export default function SprintIndicatorsPanel({sprintId,status,canManage,data,capacityKpis}:{
  sprintId:string;status:string;canManage:boolean;data:SprintDetailIndicators;
+ capacityKpis:SprintCapacityKpiView;
 }){
  const t=useTranslation(),router=useRouter(),modal=useRef<HTMLDialogElement>(null);
  const action=useRef<HTMLButtonElement|null>(null),first=useRef<HTMLInputElement>(null);
@@ -46,7 +52,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
  const tickets=source?.tickets.state==="available"?source.tickets.values:emptyTickets;
  const calculated=deriveSprintIndicators(points,tickets);
  const editable=canManage&&status!=="closed"&&source!==null;
- const current=group&&source?source[group]:null;
+ const current=group==="capacity"?capacityKpis:group&&source?source[group]:null;
  const validDraft=group!==null&&groupFields(group).every(field=>
   parseIndicatorDraft(draft[field.key]??"",field.kind).ok);
  const previewValues=(g:Group):Record<string,number|null>=>{
@@ -85,11 +91,18 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
   return()=>window.removeEventListener("beforeunload",prevent);
  },[dirty]);
  function begin(g:Group,field:Field,button:HTMLButtonElement){
-  if(!editable||source?.[g].state!=="available")return;
-  const item=source[g];
-  if(item.state!=="available")return;
+  if(!editable)return;
+  const item=g==="capacity"?capacityKpis:source?.[g];
+  if(item?.state!=="available")return;
   action.current=button;setFocusField(field);
-  setDraft(serialize(item.values));setGroup(g);setError("");setNotice("");
+  if(g==="capacity"){
+   const values=item.values as SprintCapacityKpiValues;
+   setDraft({planned:values.planned===null?
+    values.calculatedPlanned===null?"":String(values.calculatedPlanned):String(values.planned),
+    actual:values.actual===null?
+    values.calculatedActual===null?"":String(values.calculatedActual):String(values.actual)});
+  }else setDraft(serialize(item.values));
+  setGroup(g);setError("");setNotice("");
  }
  function dismiss(){
   if(busy)return;
@@ -100,10 +113,12 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
   e.preventDefault();
   if(busy||!editable||!group||current?.state!=="available"||!validDraft||!dirty)return;
   const values=previewValues(group);
-  const path=group==="points"?"story-points":group==="tickets"?"tickets":"scores";
+  const path=group==="points"?"story-points":group==="tickets"?"tickets":
+   group==="capacity"?"capacity-kpis":"scores";
   const payload=group==="points"?
    {sprintId,revision:current.revision,points:values}:
    group==="tickets"?{sprintId,revision:current.revision,counts:values}:
+   group==="capacity"?{sprintId,revision:current.revision,capacity:values}:
    {sprintId,revision:current.revision,scores:values};
   setBusy(true);setError("");
   try{
@@ -121,7 +136,12 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
   }catch{setError(t("sprintDetail.indicatorSaveError"));}
   finally{setBusy(false);}
  }
- const shown=(kind:Group)=>source?.[kind].state==="available"?source[kind].values:null;
+ const shown=(kind:Group):Record<string,number|null>|null=>{
+  const item=kind==="capacity"?capacityKpis:source?.[kind];
+  return item?.state==="available"?item.values as unknown as Record<string,number|null>:null;
+ };
+ const formatJh=(v:number|null)=>v===null?t("sprintDetail.indicatorNotCalculable"):
+  new Intl.NumberFormat(undefined,{maximumFractionDigits:4}).format(v)+" J/H";
  function section(title:string,groupName:Group,fields:readonly FieldDef[]){
   const item=shown(groupName);
   return <section className="mb-4" aria-label={title}>
@@ -129,11 +149,16 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
    <div className="row g-3">
     {fields.map(field=>{
      const val=item?(item as unknown as Record<string,number|null>)[field.key]:null;
-     return <div key={field.code} className="col-12 col-sm-6 col-xl-3">
+     const calculated=groupName==="capacity"?
+      item?.[field.key==="planned"?"calculatedPlanned":"calculatedActual"]??null:null;
+     return <div key={field.code} className={groupName==="capacity"?
+      "col-12 col-md-6":"col-12 col-sm-6 col-xl-3"}>
       <div className="border rounded-3 p-3 h-100">
        <p className="small text-secondary mb-2">{field.code} · {t(field.label as "storyPoints.initial")}</p>
        <div className="d-flex align-items-center justify-content-between gap-2">
-        <strong className="fs-5">{item?display(val):t("dashboard.cockpit.notAvailable")}</strong>
+        <strong className="fs-5">{item?
+         groupName==="capacity"?(val===null?t("sprintDetail.indicatorNotEntered"):formatJh(val)):
+          display(val):t("dashboard.cockpit.notAvailable")}</strong>
         {editable&&item&&<button className="btn btn-link btn-sm p-1" type="button"
          aria-label={t("sprintDetail.indicatorEdit",{name:t(field.label as "storyPoints.initial")})}
          title={t("sprintDetail.indicatorEdit",{name:t(field.label as "storyPoints.initial")})}
@@ -141,6 +166,9 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
          <BootstrapIcon name="pencil-square"/>
         </button>}
        </div>
+       {groupName==="capacity"&&<p className="small text-secondary mt-2 mb-0">
+        {t("sprintDetail.indicatorCalculatedReference")}: {formatJh(calculated)}
+       </p>}
       </div>
      </div>;
     })}
@@ -155,6 +183,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
   {data.state==="unavailable"&&<p role="alert">{t("dashboard.cockpit.notAvailable")}</p>}
   {source?.snapshotVersion!==null&&source?.snapshotVersion!==undefined&&
    <p className="small text-secondary">{t("sprintDetail.indicatorSnapshot",{version:source.snapshotVersion})}</p>}
+  {section(t("sprintDetail.indicatorCapacityTitle"),"capacity",capacityFields)}
   {section(t("storyPoints.title"),"points",pointFields)}
   {section(t("sprintTickets.title"),"tickets",ticketFields)}
   {section(t("sprintDetail.indicatorScoresTitle"),"scores",scoreFields)}
@@ -201,11 +230,18 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data}:{
        <input ref={field.key===focusField?first:null}
         id={"smn-d3-"+field.code} type="number"
         className={"form-control"+(!good?" is-invalid":"")}
-        min={field.kind==="score"?1:0} max={field.kind==="score"?5:1000000000}
-        step={1} value={entered} disabled={busy}
+        min={field.kind==="score"?1:0}
+        max={field.kind==="score"?5:field.kind==="jh"?99999999.9999:1000000000}
+        step={field.kind==="jh"?"0.0001":1} value={entered} disabled={busy}
         onChange={e=>setDraft(prev=>({...prev,[field.key]:e.target.value}))}/>
+       {group==="capacity"&&capacityKpis.state==="available"&&<p className="small text-secondary mt-1 mb-0">
+        {t("sprintDetail.indicatorCalculatedReference")}: {formatJh(
+         field.key==="planned"?capacityKpis.values.calculatedPlanned:
+          capacityKpis.values.calculatedActual)}
+       </p>}
        {!good&&<p role="alert" className="small text-danger mt-1 mb-0">
         {t(field.kind==="score"?"sprintDetail.indicatorInvalidScore":
+         field.kind==="jh"?"sprintDetail.indicatorInvalidJh":
          "sprintDetail.indicatorInvalidCount")}
        </p>}
       </div>;

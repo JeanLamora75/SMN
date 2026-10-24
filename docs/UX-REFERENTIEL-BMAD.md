@@ -413,3 +413,56 @@ Recette : vérifier A/A/B = 2 noms et `Absences (2)`, le survol/focus en Cartes 
 - **Recette obligatoire :** cas null, 1, 2, 3, 4, 5, valeur invalide, un seul indicateur renseigné, changement de Sprint, cycle clôturé, droits admin/user, traductions et responsive. Non-régression des quatre cartes existantes. `pnpm lint`, `pnpm typecheck`, tests ciblés et `pnpm build` sur le poste local ; ne pas prétendre les avoir exécutés avant vérification.
 
 **État documentaire :** Jira et UX validés ; implémentation **non réalisée par cet avenant**. Priorité à la définition de [SMN-21](https://lmn24.atlassian.net/browse/SMN-21) en cas de doute. Ne pas fermer SMN-21 avant recette utilisateur.
+
+
+## Avenant UX — C01/C02, capacités J/H dans la fiche Sprint (24/10/2026)
+
+**Décision utilisateur du 24/10/2026, applicable à SMN-234 et à SMN-21.**
+Dans la fiche Sprint, onglet Indicateurs, ajouter un bloc **Capacité du Sprint**
+avec **C01 — Capacité prévue (J/H)** et **C02 — Capacité réelle (J/H)**.
+Chaque champ possède une édition ciblée et présente **à côté une référence calculée par SMN**
+lorsqu'elle est fiable. Le bloc Capacité du tableau de bord lit les valeurs enregistrées
+de **ce Sprint** ; les quatre autres cartes et I01/I02 sont conservés.
+
+### AC-CAP01 — Référence et préremplissage non destructif
+
+- À l'ouverture du formulaire, un champ sans saisie enregistrée (null) est **prérempli côté formulaire**
+  avec la référence calculée disponible ; si aucun calcul fiable n'existe, rester vide.
+  La consultation seule n'écrit rien en PostgreSQL : confirmation nécessaire pour enregistrer.
+- Une valeur enregistrée, y compris **0 J/H**, n'est **jamais remplacée** par une référence recalculée.
+  Les deux références restent affichées à côté, même si elles diffèrent de la saisie.
+- L'administrateur peut corriger une saisie (jusqu'à quatre décimales, valeur non négative) ou vider
+  un champ ; le champ vide revient au mode calcul/proposition lorsque la source le permet.
+  Distinguer **« Non renseigné »** et **« Non calculable »**.
+
+### AC-CAP02 — Provenance, cycle et source
+
+- C01 utilise le moteur readDevelopmentCapacity pour la **période entière** lorsque les
+  sources sont complètes. Ce recalcul est une **référence actuelle**, non une
+  reconstitution de l'engagement initial gelé par smn_capacity_initial_snapshot.
+- C02 utilise la **référence constatée** de readActualCapacity : pour un cycle en cours,
+  seules les journées écoulées sont couvertes ; aucun réalisé futur.
+- La nouvelle table smn_sprint_capacity_kpi contient des **saisies de KPI du Sprint**
+  distinctes des instantanés immuables du moteur de capacité. Priorité du cockpit :
+  KPI Sprint enregistré, puis valeur retenue du moteur existant ; aucune réécriture
+  des sources du calcul. Changements audités avec contrôle de révision.
+- ID du Sprint et droits validés côté serveur. Administrateur en écriture,
+  utilisateur en lecture seule. Sprint **terminé non clôturé** éditable ;
+  Sprint **clôturé** protégé et lu depuis son snapshot, sans recalcul rétroactif.
+
+### AC-CAP03 — Restitution, audit et recette
+
+- Deux champs C01/C02 en cartes compactes avant Story Points, avec libellés FR/EN
+  et référence calculée séparée ; formulaire en modal.
+- Après enregistrement, le tableau de bord affiche le KPI saisi et sa provenance
+  « Saisie » ; le changement de Sprint ne réutilise aucune autre équipe ou période.
+- À la clôture, les valeurs retenues sont capturées dans snapshot.capacity ; les
+  saisies du KPI dans snapshot.capacityKpis. Un ancien snapshot sans source reste
+  historique/indisponible ; aucune donnée actuelle ne recompose le passé.
+- Recette : null/0/décimales/invalides, calcul disponible/indisponible, révision
+  concurrente, terminé vs clôturé, admin vs user, changement de Sprint, FR/EN,
+  responsive et synchronisation avec tableau de bord ; contrôles locaux
+  pnpm typecheck, pnpm lint, tests ciblés, pnpm build et vérification visuelle.
+
+**Statut :** implémentation préparée, contrôles locaux et recette utilisateur en attente.
+Cet avenant ne modifie pas les règles de gel du moteur de capacité SMN-58/60.

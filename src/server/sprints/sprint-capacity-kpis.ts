@@ -1,0 +1,173 @@
+import {randomUUID} from "node:crypto";
+import type {Client} from "pg";
+import type {SprintContextItem} from "@/lib/sprint-context";
+
+import {readDevelopmentCapacity} from "@/server/capacity/engine";
+import {readActualCapacity} from "@/server/capacity/actual";
+
+const MAX=99999999.9999;
+export type SprintCapacityKpiValues=Readonly<{
+ planned:number|null;actual:number|null;
+ calculatedPlanned:number|null;calculatedActual:number|null;
+}>;
+export type SprintCapacityKpiView=
+ |Readonly<{state:"available";values:SprintCapacityKpiValues;revision:number;
+  source:"current"|"closure-snapshot"}>
+ |Readonly<{state:"unavailable";reason:"history-missing"|"read-failed"}>;
+type Stored={planned_jh:number|null;actual_jh:number|null;revision:number};
+const valid=(v:unknown):v is number|null=>v===null||
+ (typeof v==="number"&&Number.isFinite(v)&&v>=0&&v<=MAX&&
+ Math.abs(Math.round(v*10000)-v*10000)<1e-6);
+const record=(v:unknown):Record<string,unknown>|null=>
+ v!==null&&typeof v==="object"&&!Array.isArray(v)?v as Record<string,unknown>:null;
+const storedNumber=(v:unknown):number|null|undefined=>{
+ if(v===null||v===undefined)return null;
+ const n=typeof v==="string"&&v.trim()!==""?Number(v):v;
+ return valid(n)?n:undefined;
+};
+export function selectCapacityKpis(
+ planned:number|null,actual:number|null,calculatedPlanned:number|null,
+ calculatedActual:number|null
+):SprintCapacityKpiValues{
+ return {planned,actual,calculatedPlanned,calculatedActual};
+}
+export async function ensureSprintCapacityKpiSchema(db:Client){
+ await db.query("CREATE TABLE IF NOT EXISTS public.smn_sprint_capacity_kpi ("+
+  "sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,"+
+  "planned_jh numeric(13,4) CHECK(planned_jh BETWEEN 0 AND 99999999.9999),"+
+  "actual_jh numeric(13,4) CHECK(actual_jh BETWEEN 0 AND 99999999.9999),"+
+  "revision integer NOT NULL DEFAULT 1 CHECK(revision>0),"+
+  "updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,"+
+  "updated_at timestamptz NOT NULL DEFAULT now())");
+ await db.query("CREATE TABLE IF NOT EXISTS public.smn_sprint_capacity_kpi_audit ("+
+  "id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,"+
+  "before_values jsonb,after_values jsonb NOT NULL,"+
+  "actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,"+
+  "changed_at timestamptz NOT NULL DEFAULT now())");
+}
+export async function readSavedCapacityKpis(db:Client,sprintId:string):Promise<Stored|null>{
+ const exists=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_sprint_capacity_kpi') IS NOT NULL AS present");
+ if(!exists.rows[0]?.present)return null;
+ const found=await db.query<{planned_jh:string|null;actual_jh:string|null;revision:number}>(
+  "SELECT planned_jh::text,actual_jh::text,revision FROM public.smn_sprint_capacity_kpi WHERE sprint_id=$1",
+  [sprintId]);
+ if(!found.rows[0])return null;
+ const planned=storedNumber(found.rows[0].planned_jh);
+ const actual=storedNumber(found.rows[0].actual_jh);
+ if(planned===undefined||actual===undefined||!Number.isSafeInteger(found.rows[0].revision))
+  throw Error("capacity-kpi-corrupted");
+ return {planned_jh:planned,actual_jh:actual,revision:found.rows[0].revision};
+}
+/** Called under the dashboard's REPEATABLE READ READ ONLY transaction. */
+export async function readSprintCapacityKpiView(
+ db:Client,teamId:string,sprint:SprintContextItem
+):Promise<SprintCapacityKpiView>{
+ if(sprint.status==="closed"){
+  const present=await db.query<{present:boolean}>(
+   "SELECT to_regclass('public.smn_sprint_closure_snapshot') IS NOT NULL AS present");
+  if(!present.rows[0]?.present)return {state:"unavailable",reason:"history-missing"};
+  const row=await db.query<{snapshot:unknown}>(
+   "SELECT snapshot FROM public.smn_sprint_closure_snapshot WHERE sprint_id=$1 ORDER BY version DESC LIMIT 1",
+   [sprint.id]);
+  if(!row.rows[0])return {state:"unavailable",reason:"history-missing"};
+  const snapshot=record(row.rows[0].snapshot);
+  if(!snapshot)return {state:"unavailable",reason:"read-failed"};
+  const kpi=record(snapshot.capacityKpis),legacy=record(snapshot.capacity);
+  if(!kpi&&!legacy)return {state:"unavailable",reason:"history-missing"};
+  const planned=storedNumber(kpi?.planned??legacy?.initial_jh);
+  const actual=storedNumber(kpi?.actual??legacy?.actual_jh);
+  if(planned===undefined||actual===undefined)return {state:"unavailable",reason:"read-failed"};
+  return {state:"available",source:"closure-snapshot",revision:0,
+   values:selectCapacityKpis(planned,actual,null,null)};
+ }
+ const stored=await readSavedCapacityKpis(db,sprint.id);
+ const date=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{
+  timeZone:sprint.timeZone,year:"numeric",month:"2-digit",day:"2-digit"
+ }).formatToParts(new Date(value));
+  const v=(key:string)=>parts.find(p=>p.type===key)?.value??"";
+  return v("year")+"-"+v("month")+"-"+v("day");
+ };
+ const start=date(sprint.startAt);
+ const end=date(new Date(Date.parse(sprint.endAt)-1).toISOString());
+ /** Optional calculators are isolated: missing migrations cannot abort the page. */
+ const optional=async(name:string,fn:()=>Promise<number|null>)=>{
+  await db.query("SAVEPOINT "+name);
+  try{
+   const value=await fn();
+   await db.query("RELEASE SAVEPOINT "+name);
+   return value;
+  }catch{
+   await db.query("ROLLBACK TO SAVEPOINT "+name);
+   await db.query("RELEASE SAVEPOINT "+name);
+   return null;
+  }
+ };
+ const calculatedPlanned=await optional("smn_capacity_kpi_planned",async()=>{
+  const report=await readDevelopmentCapacity(db,start,end,{externalTransaction:true});
+  if(report.team.id!==teamId||report.missing.length||report.status!=="calculated")return null;
+  return valid(report.totalJh)?report.totalJh:null;
+ });
+ const calculatedActual=await optional("smn_capacity_kpi_actual",async()=>{
+  const report=await readActualCapacity(db,start,end,readDevelopmentCapacity,
+   {externalTransaction:true});
+  if(report.status==="upcoming"||report.missingSources.length)return null;
+  return valid(report.referenceJh)?report.referenceJh:null;
+ });
+ return {state:"available",source:"current",revision:stored?.revision??0,
+  values:selectCapacityKpis(stored?.planned_jh??null,stored?.actual_jh??null,
+   calculatedPlanned,calculatedActual)};
+}
+export async function writeSprintCapacityKpis(db:Client,actorId:string,raw:unknown){
+ const input=record(raw);
+ if(!input||Object.keys(input).sort().join(",")!=="capacity,revision,sprintId"||
+  typeof input.sprintId!=="string"||!/^[a-f\d-]{36}$/i.test(input.sprintId)||
+  !Number.isSafeInteger(input.revision)||Number(input.revision)<0)
+  return {ok:false as const,error:"invalid-input" as const};
+ const values=record(input.capacity);
+ if(!values||Object.keys(values).sort().join(",")!=="actual,planned"||
+  !valid(values.planned)||!valid(values.actual)||!actorId)
+  return {ok:false as const,error:"invalid-input" as const};
+ await db.query("BEGIN");
+ try{
+  const sprint=await db.query<{id:string;status:string}>(
+   "SELECT s.id,s.status FROM public.smn_sprint s "+
+   "JOIN public.smn_team t ON t.id=s.team_id "+
+   "JOIN public.smn_installation i ON i.id=t.installation_id "+
+   "WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' "+
+   "AND i.state='initialized' AND lower(i.mode)='scrum' FOR UPDATE OF s",[input.sprintId]);
+  if(!sprint.rows[0]){
+   await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};
+  }
+  if(sprint.rows[0].status==="closed"){
+   await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
+  }
+  await ensureSprintCapacityKpiSchema(db);
+  const before=await db.query<{planned_jh:string|null;actual_jh:string|null;revision:number}>(
+   "SELECT planned_jh::text,actual_jh::text,revision FROM public.smn_sprint_capacity_kpi WHERE sprint_id=$1 FOR UPDATE",
+   [input.sprintId]);
+  const prior=before.rows[0],revision=prior?.revision??0;
+  if(revision!==input.revision){
+   await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};
+  }
+  if(prior){
+   await db.query("UPDATE public.smn_sprint_capacity_kpi SET "+
+    "planned_jh=$2,actual_jh=$3,revision=revision+1,updated_by=$4,updated_at=now() "+
+    "WHERE sprint_id=$1",[input.sprintId,values.planned,values.actual,actorId]);
+  }else{
+   await db.query("INSERT INTO public.smn_sprint_capacity_kpi "+
+    "(sprint_id,planned_jh,actual_jh,updated_by) VALUES($1,$2,$3,$4)",
+    [input.sprintId,values.planned,values.actual,actorId]);
+  }
+  await db.query("INSERT INTO public.smn_sprint_capacity_kpi_audit "+
+   "(id,sprint_id,before_values,after_values,actor_id) "+
+   "VALUES($1,$2,$3::jsonb,$4::jsonb,$5)",[
+    randomUUID(),input.sprintId,
+    prior?JSON.stringify({planned:prior.planned_jh===null?null:Number(prior.planned_jh),
+     actual:prior.actual_jh===null?null:Number(prior.actual_jh)}):null,
+    JSON.stringify(values),actorId
+   ]);
+  await db.query("COMMIT");
+  return {ok:true as const,revision:revision+1};
+ }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
+}

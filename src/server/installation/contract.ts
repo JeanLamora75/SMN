@@ -53,6 +53,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_sprint_story_points:r",
   "public.smn_sprint_story_points_audit:r",
   "public.smn_sprint_scores:r", "public.smn_sprint_scores_audit:r",
+  "public.smn_sprint_capacity_kpi:r", "public.smn_sprint_capacity_kpi_audit:r",
   "public.smn_registry_item:r", "public.smn_registry_item_audit:r",
   "public.smn_registry_cycle_link:r", "public.smn_registry_cycle_link_audit:r",
   "public.smn_risk_roam:r", "public.smn_risk_roam_audit:r",

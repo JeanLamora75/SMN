@@ -2,6 +2,7 @@ import type {Client} from "pg";
 import {readActualCapacity} from "@/server/capacity/actual";
 import {readInitialSnapshot} from "@/server/capacity/opening";
 import {readDevelopmentCapacity} from "@/server/capacity/engine";
+import {readSavedCapacityKpis} from "@/server/sprints/sprint-capacity-kpis";
 import {
  collectionAvailable,collectionUnavailable,metricAvailable,metricNotRecorded,
  metricUnavailable,type DashboardMetric,type DashboardGoal,
@@ -152,8 +153,14 @@ async function tableExists(db:Client,name:string):Promise<boolean>{
 async function readCapacity(db:Client,teamId:string,sprint:SprintContextItem):
  Promise<CollectiveCycleProjection["capacity"]>{
  const {start,end}=sprintCapacityDates(sprint);
+ const saved=await readSavedCapacityKpis(db,sprint.id);
  if(!await tableExists(db,"smn_capacity_period_override")||
-    !await tableExists(db,"smn_capacity_initial_snapshot"))return capacityUnavailable("schema-missing");
+    !await tableExists(db,"smn_capacity_initial_snapshot"))return saved?{
+     initialJh:saved.planned_jh===null?metricUnavailable("schema-missing"):
+      metric(saved.planned_jh,"manual"),
+     actualJh:saved.actual_jh===null?metricUnavailable("schema-missing"):
+      metric(saved.actual_jh,"manual")
+    }:capacityUnavailable("schema-missing");
  // L'état initial est immuable. Ne pas calculer rétroactivement en son absence.
  const initial=await readInitialSnapshot(db,teamId,start,end);
  const initialMetric=initial?.initialJh===null||!initial?metricNotRecorded():
@@ -182,7 +189,10 @@ async function readCapacity(db:Client,teamId:string,sprint:SprintContextItem):
    void error;
   }
  }
- return {initialJh:initialMetric,actualJh:actualMetric};
+ return {initialJh:saved&&saved.planned_jh!==null?
+  metric(saved.planned_jh,"manual"):initialMetric,
+  actualJh:saved&&saved.actual_jh!==null?
+  metric(saved.actual_jh,"manual"):actualMetric};
 }
 /**
  * À appeler uniquement sous REPEATABLE READ READ ONLY. Le contrôle d'équipe

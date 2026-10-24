@@ -21,8 +21,14 @@ export function deriveSprintIndicators(points:SprintPoints,tickets:SprintTickets
  return {...derived,ticketRate};
 }
 export type IndicatorDraftResult={ok:true;value:number|null}|{ok:false;error:"invalid"};
-export function parseIndicatorDraft(input:string,kind:"count"|"score"):IndicatorDraftResult{
+export function parseIndicatorDraft(input:string,kind:"count"|"score"|"jh"):IndicatorDraftResult{
  if(input==="")return {ok:true,value:null};
+ if(kind==="jh"){
+  if(!/^(?:0|[1-9]\d*)(?:\.\d{1,4})?$/.test(input))return {ok:false,error:"invalid"};
+  const n=Number(input);
+  return Number.isFinite(n)&&n<=99999999.9999?{ok:true,value:n}:
+   {ok:false,error:"invalid"};
+ }
  // Reject scientific notation, decimals, negatives, whitespace and invalid numbers.
  if(!/^\d+$/.test(input))return {ok:false,error:"invalid"};
  const value=Number(input);
