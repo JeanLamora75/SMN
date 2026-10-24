@@ -15,6 +15,7 @@ function sample(admin=true,start="2026-10-19"):TeamCalendarResponse{
   start,end:dates[6],days:7,kind:"all",
   collective:dates.map((date,i)=>({
    date,assigned:3,reportedUnavailable:i===0?1:0,
+   declaredAbsentMemberCount:i===0?1:0,
    known:i===0?2:3,unknown:i===0?1:0,availableMembers:2
   })),
   closures:[{id:"closed-1",name:"Journée entreprise",startOn:dates[1],endOn:dates[1]}],
