@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 type Item={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;memberName?:string;aggregateCount?:number};
@@ -14,8 +14,11 @@ function monthLength(d:string){const [y,m]=d.split("-").map(Number);return new D
 function localDate(raw:string){return iso(new Date(raw));}
 function calendarDate(instant:string){const d=new Date(instant);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function clock(raw:string){return new Date(raw).toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});}
-export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
+export default function TeamCalendarView({isAdmin,initialCreate=false,initialCycleId=null}:{
+ isAdmin:boolean;initialCreate?:boolean;initialCycleId?:string|null;
+}){
  const t=useTranslation();
+ const openedFromLink=useRef(false);
  const [period,setPeriod]=useState<{start:string;count:number;label:string;sprintId:string|null}|null>(null);
  const [events,setEvents]=useState<Item[]>([]);
  const [meetings,setMeetings]=useState<Meeting[]>([]);
@@ -33,7 +36,8 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
   void fetch("/api/team-calendar/periods",{cache:"no-store"}).then(async r=>{
    if(!r.ok)throw Error();return r.json() as Promise<{sprints:Sprint[]}>;})
    .then(result=>{if(!live)return;const list=result.sprints??[];setSprints(list);
-    const active=list.find(s=>s.status==="active"&&localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
+    const active=(initialCycleId?list.find(s=>s.id===initialCycleId):null)
+      ??list.find(s=>s.status==="active"&&localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
       ??list.find(s=>localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
       ??list[0];
     if(!active){setPeriod(fallback());return;}
@@ -42,7 +46,7 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
     setPeriod({start:begin,count,label:active.name,sprintId:active.id});
    }).catch(()=>{if(live)setPeriod(fallback());});
    return()=>{live=false;};
- },[]);
+ },[initialCycleId]);
  useEffect(()=>{if(!period)return;let alive=true;setStatus("loading");
   const days=dates(period.start,period.count);
   const blocks:Array<Promise<Calendar>>=[];
@@ -59,7 +63,21 @@ export default function TeamCalendarView({isAdmin}:{isAdmin:boolean}){
   const next=shift(period.start,direction*period.count);
   setPeriod({start:monthStart(next),count:monthLength(next),label:next.slice(0,7),sprintId:null});
  }
- function openCreate(day:string){setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");}
+ const openCreate=useCallback((day:string)=>{
+  setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");
+ },[]);
+ // Le raccourci du tableau de bord ouvre une seule fois le formulaire existant.
+ // Le Sprint demandé doit provenir de la liste autorisée par l’API calendrier.
+ useEffect(()=>{
+  if(!isAdmin||!initialCreate||openedFromLink.current||status!=="ready"||!period)return;
+  const sprint=sprints.find(s=>s.id===period.sprintId);
+  if(!sprint||sprint.status==="closed"||(initialCycleId&&sprint.id!==initialCycleId))return;
+  const start=localDate(sprint.startAt),end=localDate(sprint.endAt);
+  const today=iso(new Date());
+  const day=today>=start&&today<end?today:start;
+  openedFromLink.current=true;
+  openCreate(day);
+ },[isAdmin,initialCreate,initialCycleId,period,status,sprints,openCreate]);
  const selectedDate=when.slice(0,10);
  const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<localDate(x.endAt));
  async function save(){if(!period||!selectedSprint||!editor||!name.trim()||busy)return;
