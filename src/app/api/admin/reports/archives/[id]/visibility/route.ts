@@ -8,8 +8,9 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
  if(!actor)return jsonResult({error:"forbidden"},403);
  const {id}=await params;const input=await readJsonObject(req);
- if(!input||input.action!=="hide"||typeof input.reason!=="string")return jsonResult({error:"invalid-input"},400);
- try{const result=await withAuthDb(db=>hidePdfArchive(db,id,actor.id,input.reason));
+ const reason=input?.reason;
+ if(!input||input.action!=="hide"||typeof reason!=="string")return jsonResult({error:"invalid-input"},400);
+ try{const result=await withAuthDb(db=>hidePdfArchive(db,id,actor.id,reason));
  return jsonResult(result,result.ok?200:result.error==="not-found"?404:400);}
  catch{return jsonResult({error:"unavailable"},503);}
 }
