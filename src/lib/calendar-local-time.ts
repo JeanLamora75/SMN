@@ -23,3 +23,12 @@ export function formatCalendarLocalTime(instant:string,zone:string):string{
  }).formatToParts(new Date(instant)).map(x=>[x.type,x.value]));
  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
 }
+
+/** Duration is calculated from actual instants (including a DST transition). */
+export function durationBetweenLocal(start:string,end:string,zone:string):number|null{
+ const first=resolveCalendarLocalTime(start,zone);
+ const last=resolveCalendarLocalTime(end,zone);
+ if(!first||!last)return null;
+ const minutes=(Date.parse(last)-Date.parse(first))/60000;
+ return Number.isSafeInteger(minutes)&&minutes>0?minutes:null;
+}
