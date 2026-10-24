@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
-import {formatCalendarLocalTime,resolveCalendarLocalTime} from "@/lib/calendar-local-time";
+import {formatCalendarLocalTime,resolveCalendarLocalTime,durationBetweenLocal} from "@/lib/calendar-local-time";
 import type {CalendarMeetingDetail} from "@/server/sprints/calendar-meeting-detail";
 import type {CalendarMeeting} from "./calendar-option-b";
 import {useCurrentTime} from "../admin/sprints/use-current-time";
@@ -12,14 +12,14 @@ const attendanceKind={ceremony:"standard",template:"custom",exceptional:"excepti
 export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
  meeting:CalendarMeeting;isAdmin:boolean;onClose:()=>void;onSaved:()=>void;
 }){
- const t=useTranslation(),locale=useLocale(),now=useCurrentTime();
+ const t=useTranslation(),now=useCurrentTime();
  const [detail,setDetail]=useState<CalendarMeetingDetail|null>(null);
  const [loadState,setLoadState]=useState<"loading"|"ready"|"error">("loading");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
  const [start,setStart]=useState("");
- const [minutes,setMinutes]=useState(15);
+ const [end,setEnd]=useState("");
  const [scope,setScope]=useState<"single"|"following">("single");
  const [actual,setActual]=useState(0);
  const [newStatus,setNewStatus]=useState<Attendance|"">("");
@@ -30,7 +30,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
  function apply(item:CalendarMeetingDetail){
   setDetail(item);
   setStart(formatCalendarLocalTime(item.startAt,item.timeZone));
-  setMinutes(item.plannedMinutes);
+  setEnd(formatCalendarLocalTime(item.endAt,item.timeZone));
   setActual(item.actualMinutes??item.plannedMinutes);
   setScope("single");setNewStatus("");setReason("");
  }
@@ -48,13 +48,14 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
   return()=>{active=false;controller.abort();};
  },[api,meeting.id,meeting.kind]);
  const canEdit=!busy&&isAdmin&&detail!==null&&detail.sprintStatus!=="closed";
- const canSchedule=canEdit&&detail?.kind==="ceremony"&&detail.revision!==null&&detail.status==="scheduled";
+ const canSchedule=canEdit&&detail?.revision!==null&&detail?.status!=="cancelled";
  const initialStart=detail?formatCalendarLocalTime(detail.startAt,detail.timeZone):"";
- const scheduleDirty=!!canSchedule&&(start!==initialStart||minutes!==detail?.plannedMinutes);
+ const initialEnd=detail?formatCalendarLocalTime(detail.endAt,detail.timeZone):"";
+ const scheduleDirty=!!canSchedule&&(start!==initialStart||end!==initialEnd);
  const actualDirty=!!canEdit&&actual!==(detail?.actualMinutes??detail?.plannedMinutes);
- const draftStart=detail&&canSchedule?resolveCalendarLocalTime(start,detail.timeZone):null;
- const draftEnd=detail&&draftStart&&Number.isSafeInteger(minutes)&&minutes>0?
-  new Date(Date.parse(draftStart)+minutes*60000).toISOString():detail?.endAt??"";
+ const draftMinutes=detail?durationBetweenLocal(start,end,detail.timeZone):null;
+ const maxDuration=detail?.kind==="ceremony"?600:480;
+ const validSchedule=draftMinutes!==null&&draftMinutes<=maxDuration;
  const hasChanges=scheduleDirty||actualDirty||newStatus!==""||reason.trim()!=="";
  function close(){
   if(busy)return;
@@ -81,10 +82,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
   document.addEventListener("keydown",handle);
   return()=>document.removeEventListener("keydown",handle);
  });
- const localeTag=locale==="fr"?"fr-FR":"en-GB";
- const fullDate=(value:string)=>detail?new Intl.DateTimeFormat(localeTag,{
-  timeZone:detail.timeZone,dateStyle:"full",timeStyle:"short"
- }).format(new Date(value)):"";
+
  const statusLabel=(status:string)=>{
   if(status==="scheduled"||status==="planned")return t("sprintDetail.ceremonyStatus.scheduled");
   if(status==="held")return t("sprintDetail.ceremonyStatus.held");
@@ -116,16 +114,20 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
    setNotice(t("calendarMeeting.saved")+(data.warningCount?" "+t("calendarMeeting.warning"):""));
   }catch(err){
    const code=err instanceof Error?err.message:"save";
-   setError(t(code==="conflict"?"calendarMeeting.conflict":code==="not-yet-due"?"calendarMeeting.notYetDue":"calendarMeeting.saveError"));
+   setError(t(code==="conflict"?"calendarMeeting.conflict":code==="outside-sprint"?"calendarMeeting.outsideSprint":code==="closed-period"?"calendarMeeting.closedPeriod":code==="not-yet-due"?"calendarMeeting.notYetDue":"calendarMeeting.saveError"));
   }finally{setBusy(false);}
  }
  const saveSchedule=()=>{
-  if(!canSchedule||!detail||!scheduleDirty||!Number.isSafeInteger(minutes)||minutes<1||minutes>600)return;
+  if(!canSchedule||!detail||!scheduleDirty)return;
   const iso=resolveCalendarLocalTime(start,detail.timeZone);
-  if(!iso){setError(t("calendarMeeting.invalidLocalTime"));return;}
-  void patch("/api/admin/sprints/ceremonies/"+encodeURIComponent(detail.id),{
-   startAt:iso,minutes,scope,revision:detail.revision
-  });
+  const isoEnd=resolveCalendarLocalTime(end,detail.timeZone);
+  if(!iso||!isoEnd||!validSchedule){setError(t("calendarMeeting.invalidSchedule"));return;}
+  if(detail.kind==="ceremony"&&detail.ceremonyKind==="daily"&&scope==="following"){
+   void patch("/api/admin/sprints/ceremonies/"+encodeURIComponent(detail.id),{
+    startAt:iso,minutes:draftMinutes,scope,revision:detail.revision
+   });return;
+  }
+  void patch(api,{startAt:iso,endAt:isoEnd,revision:detail.revision});
  };
  const saveActual=()=>{
   if(!canEdit||!detail||!Number.isSafeInteger(actual)||actual<0||actual>1440)return;
@@ -173,11 +175,13 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
        <input type="datetime-local" className="form-control mt-1" value={start}
         onChange={e=>setStart(e.target.value)} readOnly={!canSchedule}/></label>
       <label className="col-md-6 form-label">{t("calendarUX.meetingEnd")}
-       <input className="form-control mt-1" value={fullDate(draftEnd)} readOnly/></label>
+       <input type="datetime-local" className="form-control mt-1" value={end}
+        onChange={e=>setEnd(e.target.value)} readOnly={!canSchedule}/></label>
       <label className="col-md-6 form-label">{t("calendarMeeting.plannedMinutes")}
-       <input type="number" className="form-control mt-1" min={1} max={600}
-        value={minutes} onChange={e=>setMinutes(Number(e.target.value))} readOnly={!canSchedule}/></label>
-      {canSchedule&&detail.ceremonyKind==="daily"&&<label className="col-md-6 form-label">
+       <input type="number" className="form-control mt-1" min={1} max={maxDuration}
+        value={draftMinutes??""} readOnly aria-describedby="calendar-meeting-duration-hint"/>
+       <span id="calendar-meeting-duration-hint" className="small text-secondary">{t("calendarMeeting.durationCalculated")}</span></label>
+      {canSchedule&&detail.kind==="ceremony"&&detail.status==="scheduled"&&detail.ceremonyKind==="daily"&&<label className="col-md-6 form-label">
        {t("calendarMeeting.scope")}
        <select className="form-select mt-1" value={scope} onChange={e=>setScope(e.target.value as "single"|"following")}>
         <option value="single">{t("ceremonyEdit.single")}</option>
@@ -186,9 +190,9 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
       </label>}
      </div>
      {!canSchedule&&<p className="small text-secondary mt-2 mb-0">{t("calendarMeeting.scheduleReadonly")}</p>}
+     {canSchedule&&!validSchedule&&<p role="alert" className="small text-danger mt-2">{t("calendarMeeting.invalidSchedule")}</p>}
      {canSchedule&&<div className="d-flex justify-content-end mt-2">
-      <button type="button" className="btn btn-outline-primary btn-sm" disabled={!scheduleDirty||busy||!start||
-       !Number.isSafeInteger(minutes)||minutes<1||minutes>600} onClick={saveSchedule}>
+      <button type="button" className="btn btn-outline-primary btn-sm" disabled={!scheduleDirty||busy||!validSchedule} onClick={saveSchedule}>
        {t("calendarMeeting.saveSchedule")}</button></div>}
     </section>
     <section className="smn-cal-detail-section mt-3" aria-labelledby="calendar-meeting-attendance">
