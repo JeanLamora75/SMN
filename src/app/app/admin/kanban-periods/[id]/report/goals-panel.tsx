@@ -1,15 +1,19 @@
 "use client";
 import {useEffect,useState} from "react";
+import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 type Goal={id:string;title:string;description:string;evaluation:"not_evaluated"|"achieved"|"partially_achieved"|"not_achieved";comment:string|null;revision:number;updatedAt:string};
 const choices=[["not_evaluated","Non évalué"],["achieved","Atteint"],["partially_achieved","Partiellement atteint"],["not_achieved","Non atteint"]] as const;
 export default function KanbanGoalsPanel({periodId,canManage,closed}:{periodId:string;canManage:boolean;closed:boolean}){
  const [goals,setGoals]=useState<Goal[]>([]);
  const [draft,setDraft]=useState<{id?:string;revision?:number;title:string;description:string;evaluation:Goal["evaluation"];comment:string}>({title:"",description:"",evaluation:"not_evaluated",comment:""});
+ const [baseline,setBaseline]=useState("");
  const [error,setError]=useState("");const [notice,setNotice]=useState("");const [busy,setBusy]=useState(false);
+ const draftChanged=JSON.stringify(draft)!==baseline && (draft.id!==undefined||draft.title!==""||draft.description!==""||draft.comment!==""||draft.evaluation!=="not_evaluated");
+ useUnsavedChanges(draftChanged||busy,"Des objectifs Kanban ne sont pas enregistrés. Quitter sans sauvegarder ?");
  const url="/api/admin/kanban-periods/"+encodeURIComponent(periodId)+"/goals";
  async function refresh(){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw Error();const data=await r.json();setGoals(data.goals);}
  useEffect(()=>{let live=true;fetch(url,{cache:"no-store"}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(d=>{if(live)setGoals(d.goals);}).catch(()=>{if(live)setError("Objectifs indisponibles.");});return()=>{live=false;};},[url]);
- function edit(g:Goal){setDraft({id:g.id,revision:g.revision,title:g.title,description:g.description,evaluation:g.evaluation,comment:g.comment??""});setNotice("");}
+ function edit(g:Goal){const next={id:g.id,revision:g.revision,title:g.title,description:g.description,evaluation:g.evaluation,comment:g.comment??""};setDraft(next);setBaseline(JSON.stringify(next));setNotice("");}
  async function save(){
   if(!draft.title.trim()||closed||!canManage)return;
   setBusy(true);setError("");setNotice("");
@@ -35,6 +39,7 @@ export default function KanbanGoalsPanel({periodId,canManage,closed}:{periodId:s
    <label className="form-label d-block">Description<textarea className="form-control" maxLength={4000} value={draft.description} onChange={e=>setDraft({...draft,description:e.target.value})}/></label>
    {draft.id&&<label className="form-label d-block">Évaluation<select className="form-select" value={draft.evaluation} onChange={e=>setDraft({...draft,evaluation:e.target.value as Goal["evaluation"]})}>{choices.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>}
    <label className="form-label d-block">Commentaire facultatif<textarea className="form-control" maxLength={2000} value={draft.comment} onChange={e=>setDraft({...draft,comment:e.target.value})}/></label>
+   {draftChanged&&<p role="status" className="small text-warning-emphasis">Objectif modifié — non enregistré.</p>}
    <button className="btn btn-primary" type="button" disabled={busy||!draft.title.trim()} onClick={save}>Enregistrer l’objectif</button>
    {draft.id&&<button className="btn btn-outline-secondary ms-2" onClick={()=>setDraft({title:"",description:"",evaluation:"not_evaluated",comment:""})}>Annuler</button>}
   </div>}
