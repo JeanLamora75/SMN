@@ -46,6 +46,8 @@ export async function readBriefFacts(db:Client,mode:BriefMode,cycleId:string):Pr
   put("cycle.status","Statut",s.status,null,source,version,provisional);
   put("team.name","Équipe",s.team,null,source,version,provisional);
   const flow=object(report.flow),timing=object(report.timing);
+  put("kanban.started","Commencés",flow.started,"items",source,version,provisional);
+  put("kanban.wip","WIP final",flow.wipFinal??flow.wip_final,"items",source,version,provisional);
   put("kanban.throughput","Throughput",flow.throughput,"items",source,version,provisional);
   put("kanban.cycleTime","Cycle Time",object(timing.cycle).days,"jours",String(object(timing.cycle).source||source)+" · "+String(object(timing.cycle).convention||"unknown"),version,provisional);
   put("kanban.leadTime","Lead Time",object(timing.lead).days,"jours",String(object(timing.lead).source||source)+" · "+String(object(timing.lead).convention||"unknown"),version,provisional);
