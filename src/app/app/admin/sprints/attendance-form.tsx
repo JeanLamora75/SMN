@@ -1,11 +1,12 @@
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {useCurrentTime} from "./use-current-time";
 import {useEpic4Presentation} from "./i18n-presentation";
 type Kind="standard"|"custom"|"exceptional";
 type Event={id:string;kind:Kind;sprintName:string;startAt:string;endAt:string;status:string;explicit:boolean};
 export default function AttendanceForm(){
- const t=useTranslation();const presentation=useEpic4Presentation();
+ const t=useTranslation();const presentation=useEpic4Presentation();const now=useCurrentTime();
  const [events,setEvents]=useState<Event[]>([]);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
@@ -27,8 +28,8 @@ export default function AttendanceForm(){
  {events.map(e=><tr key={e.kind+e.id}><td>{e.sprintName} — {presentation.kind(e.kind)}<div className="small text-secondary">{presentation.date(e.startAt)}</div></td>
  <td>{presentation.status(e.status)}</td>
  <td><div className="d-flex flex-wrap gap-1">
- <button type="button" className="btn btn-outline-success btn-sm" disabled={busy||Date.parse(e.endAt)>Date.now()} onClick={()=>change(e,"held")}>{t("attendance.held")}</button>
- <button type="button" className="btn btn-outline-warning btn-sm" disabled={busy||Date.parse(e.endAt)>Date.now()} onClick={()=>change(e,"not_held")}>{t("attendance.not_held")}</button>
+ <button type="button" className="btn btn-outline-success btn-sm" disabled={busy||now===null||Date.parse(e.endAt)>now} onClick={()=>change(e,"held")}>{t("attendance.held")}</button>
+ <button type="button" className="btn btn-outline-warning btn-sm" disabled={busy||now===null||Date.parse(e.endAt)>now} onClick={()=>change(e,"not_held")}>{t("attendance.not_held")}</button>
  <button type="button" className="btn btn-outline-danger btn-sm" disabled={busy} onClick={()=>change(e,"cancelled")}>{t("attendance.cancelled")}</button>
  <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>showHistory(e)}>{t("attendance.history")}</button></div></td></tr>)}
  </tbody></table></div>
