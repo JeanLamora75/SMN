@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Warning={kind:"overlap"|"closure";eventId:string;eventTitle:string;otherId?:string;otherTitle?:string;startAt:string;endAt:string;detail?:string};
 export default function MeetingConflicts(){
@@ -7,11 +7,11 @@ export default function MeetingConflicts(){
  const [warnings,setWarnings]=useState<Warning[]>([]);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
- async function reload(){setBusy(true);setError("");
+ const reload=useCallback(async()=>{setBusy(true);setError("");
   try{const r=await fetch("/api/admin/sprints/meeting-conflicts",{cache:"no-store"});if(!r.ok)throw Error();const d=await r.json();setWarnings(d.warnings);}
   catch{setError(t("meetingConflicts.error"));}finally{setBusy(false);}
- }
- useEffect(()=>{void Promise.resolve().then(reload);},[]);
+ },[t]);
+ useEffect(()=>{void Promise.resolve().then(reload);},[reload]);
  return <section className="smn-panel p-4 mt-4">
   <h2 className="h4">{t("meetingConflicts.title")}</h2><p className="text-secondary">{t("meetingConflicts.info")}</p>
   <button className="btn btn-outline-primary mb-3" type="button" onClick={reload} disabled={busy}>{t("meetingConflicts.refresh")}</button>
