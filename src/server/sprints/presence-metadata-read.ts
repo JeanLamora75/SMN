@@ -49,7 +49,7 @@ export function mapSprintMemberMetadata(
     !valid(selected.contribution_percent)||
     selected.scrum_master_percent+selected.product_owner_percent+
     selected.developer_percent!==100){complete=false;break;}
-   for(const [label,field] of roles)if(selected[field]!>0)active.add(label);
+   for(const [label,field] of roles)if((selected[field]??0)>0)active.add(label);
    if(percentages.at(-1)!==selected.contribution_percent)
     percentages.push(selected.contribution_percent);
   }
