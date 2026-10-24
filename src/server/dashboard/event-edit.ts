@@ -73,7 +73,11 @@ function parseInput(raw:unknown):Input|null{
   !["scheduled","held","not_held","cancelled"].includes(String(o.status))||
   ["expectedTitle","expectedStartAt","expectedEndAt","expectedStatus"].some(k=>typeof o[k]!=="string"))
   return null;
- return o as Input;
+ return {teamId:o.teamId as string,sprintId:o.sprintId as string,
+  title:o.title as string,startAt:o.startAt as string,duration:o.duration as number,
+  status:o.status as Input["status"],expectedTitle:o.expectedTitle as string,
+  expectedStartAt:o.expectedStartAt as string,expectedEndAt:o.expectedEndAt as string,
+  expectedStatus:o.expectedStatus as string};
 }
 /** Edition de l'occurrence UNIQUEMENT, jamais des modèles/snapshots/équipes étrangères. */
 export async function updateDashboardEvent(db:Client,actorId:string,
