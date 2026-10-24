@@ -124,18 +124,30 @@ function NoteQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
  </form>;
 }
 
+
+function QuickAddContent({kind,teamId,cycleId,close}:{
+ kind:Kind;teamId:string;cycleId:string;close:()=>void;
+}){
+ const router=useRouter();
+ const saved=()=>{close();router.refresh();};
+ return kind==="obstacles"||kind==="risks"?
+  <RegistryCreate teamId={teamId} canManage
+   initialType={kind==="risks"?"risk":"obstacle"} modalMode onCreated={saved}/>:
+  kind==="events"?<MeetingQuickForm sprintId={cycleId} onSaved={saved}/>:
+   <NoteQuickForm sprintId={cycleId} onSaved={saved}/>;
+}
+
 /** Modale native : focus piégé dans la fenêtre, Escape et retour du focus gérés par showModal. */
 export default function OperationalQuickAdd({kind,teamId,cycleId,label}:{kind:Kind;
  teamId:string;cycleId:string;label:string;
 }){
- const t=useTranslation(),router=useRouter(),modalId=useId();
+ const t=useTranslation(),modalId=useId();
  const dialog=useRef<HTMLDialogElement>(null);
  const [opened,setOpened]=useState(false);
  useEffect(()=>{
   if(opened&&dialog.current&&!dialog.current.open)dialog.current.showModal();
  },[opened]);
  const close=()=>dialog.current?.close();
- const saved=()=>{close();router.refresh();};
  return <>
   <button className="smn-operational-create-link" type="button" onClick={()=>setOpened(true)}>
    {label}
@@ -148,11 +160,7 @@ export default function OperationalQuickAdd({kind,teamId,cycleId,label}:{kind:Ki
      <button type="button" className="btn-close" aria-label={t("dashboard.quickAdd.close")}
       onClick={close}/>
     </header>
-    {(kind==="obstacles"||kind==="risks")?
-     <RegistryCreate teamId={teamId} canManage initialType={kind==="risks"?"risk":"obstacle"}
-      modalMode onCreated={saved}/>:
-     kind==="events"?<MeetingQuickForm sprintId={cycleId} onSaved={saved}/>:
-      <NoteQuickForm sprintId={cycleId} onSaved={saved}/>}
+    <QuickAddContent kind={kind} teamId={teamId} cycleId={cycleId} close={close}/>
     <div className="d-flex justify-content-end mt-3">
      <button type="button" className="btn btn-outline-secondary" onClick={close}>
       {t("dashboard.quickAdd.cancel")}
