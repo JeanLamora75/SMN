@@ -14,6 +14,7 @@ export type TeamCalendarQuery={
 };
 export type CollectiveDay={
  date:string;assigned:number;reportedUnavailable:number;
+ declaredAbsentMemberCount:number;
  known:number;unknown:number;availableMembers:number;
 };
 export type MemberDay={
@@ -170,7 +171,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
  const countryHolidays=new Map(holidays.rows.map(h=>[h.country_code+":"+h.holiday_date,h.name]));
  const cover=new Map(coverage.rows.map(c=>[c.country_code+":"+c.calendar_year,c.status]));
  const collective:CollectiveDay[]=dates.map(date=>({
-  date,assigned:0,reportedUnavailable:0,known:0,unknown:0,availableMembers:0
+  date,assigned:0,reportedUnavailable:0,declaredAbsentMemberCount:0,known:0,unknown:0,availableMembers:0
  }));
  const adminMembers:NonNullable<TeamCalendarResponse["admin"]>["members"]=[];
  const memberIds=query.memberId?[query.memberId]:allIds;
@@ -200,6 +201,11 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
     Boolean(activeClosure));
    const count=collective[i];
    count.assigned++;
+   // Count recorded absences once per assigned member and date, independent of holidays or closures.
+   if(active.some(a=>{
+    const slots=absenceOnDate({startOn:a.start_on,endOn:a.end_on,startSlot:a.start_slot,endSlot:a.end_slot},date);
+    return slots.morning||slots.afternoon;
+   }))count.declaredAbsentMemberCount++;
    if(resolution.status==="known")count.known++;
    else count.unknown++;
    if(resolution.absenceSlots.morning||resolution.absenceSlots.afternoon||
