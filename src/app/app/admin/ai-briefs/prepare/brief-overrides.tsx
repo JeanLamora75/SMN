@@ -9,7 +9,8 @@ type Editable={sections:string[];questions:string[];instructions:string[];data:s
 const editable=(t:ManagedBriefTemplate):Editable=>({sections:[...t.sections],questions:[...t.questions],instructions:[...t.instructions],data:[...t.data],depth:t.depth});
 const lines=(s:string)=>s.split("\n").map(x=>x.trim()).filter(Boolean);
 
-export default function BriefOverrides({template,mode,context,facts,preparedAt}:{template:ManagedBriefTemplate;mode:BriefMode;context:{id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};facts:Record<string,BriefFact>;preparedAt:string}){
+type Historic={id:string;type:"human"|"ai";origin:string;createdAt:string;content:string;cycleId:string};
+export default function BriefOverrides({template,mode,context,facts,preparedAt,historical}:{template:ManagedBriefTemplate;mode:BriefMode;context:{id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};facts:Record<string,BriefFact>;preparedAt:string;historical:Historic[]}){
  const [base,setBase]=useState(template);
  const [draft,setDraft]=useState<Editable>(()=>editable(template));
  const [message,setMessage]=useState("");
@@ -21,10 +22,11 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
  const [humanQuestions,setHumanQuestions]=useState("");
  const [humanInstructions,setHumanInstructions]=useState("");
  const [privacyReviewed,setPrivacyReviewed]=useState(false);
+ const [selectedHistory,setSelectedHistory]=useState<string[]>([]);
  const [reviewedText,setReviewedText]=useState<string|null>(null);
  const fields=allowedBriefFields(mode,["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions","scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"]);
  const changed=JSON.stringify(draft)!==JSON.stringify(editable(base));
- const currentTxt=composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations)});
+ const currentTxt=composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations),historicalAnalyses:historical.filter(a=>selectedHistory.includes(a.type+":"+a.id))});
  const approved=preview!==null&&reviewedText===preview&&preview===currentTxt&&privacyReviewed&&!conflict;
  async function finalize(){
   if(!approved||preview===null||finalizedId!==null)return;
@@ -101,6 +103,14 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
     </div>
    </div>
   </fieldset>
+  <div className="border-top mt-3 pt-3"><h4 className="h6">Analyses historiques (inclusion volontaire)</h4>
+   <p className="small text-secondary">Aucune analyse IA ou humaine n’est sélectionnée par défaut. Toute inclusion exige une nouvelle revue de confidentialité.</p>
+   {historical.length===0?<p className="text-secondary small">Aucune analyse antérieure disponible.</p>:<div className="d-grid gap-2">{historical.map(a=><label key={a.type+":"+a.id} className="border rounded p-2">
+    <input type="checkbox" className="form-check-input me-2" checked={selectedHistory.includes(a.type+":"+a.id)} onChange={e=>{const key=a.type+":"+a.id;setSelectedHistory(old=>e.target.checked?[...old,key]:old.filter(v=>v!==key));setPreview(null);setPrivacyReviewed(false);setReviewedText(null);}}/>
+    <strong>{a.type==="ai"?"Interprétation IA historique":"Avis humain historique"}</strong> · {a.createdAt} · {a.origin} · cycle {a.cycleId}
+    <span className="d-block small text-secondary text-break">{a.content.slice(0,400)}</span>
+   </label>)}</div>}
+  </div>
   <div className="border-top mt-3 pt-3">
    <h4 className="h6">Observations humaines et demandes à l’IA</h4>
    <p className="small text-secondary">Ces commentaires concernent uniquement le brief en cours. Ils ne modifient aucune métrique ni fiche métier.</p>
