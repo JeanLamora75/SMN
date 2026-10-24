@@ -23,7 +23,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   const data=await response.json() as {countries:Country[]};
   setCountries(data.countries);
  }
- useEffect(()=>{void refresh().catch(()=>setNotice("failed"));},[]);
+ useEffect(()=>{void Promise.resolve().then(refresh).catch(()=>setNotice("failed"));},[]);
  async function submit(event:FormEvent){
   event.preventDefault();if(busy)return;setBusy(true);setNotice("");
   try{
