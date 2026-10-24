@@ -53,7 +53,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
     setBaseline(JSON.stringify([item.title,item.occurredOn,item.status,item.description??"",item.owner??"",item.dueOn??"",item.comment??""]));
    }).catch(()=>{if(active)setNotice({ok:false,message:t("registryCreate.unavailableRecord")});});
   return()=>{active=false;};
- },[itemId,teamId]);
+ },[itemId,teamId,t]);
  const dirty=!!itemId&&loaded&&baseline!==JSON.stringify([title,date,status,description,owner,due,comment]);
  useEffect(()=>{
   if(!dirty)return;
