@@ -4,6 +4,7 @@ import Link from "next/link";
 import {classifyEventStatus} from "@/server/dashboard/events-reader";
 import type {CollectiveCycleProjection,DashboardAttention} from "@/lib/dashboard-data-contract";
 import BootstrapIcon from "./bootstrap-icon";
+import {dashboardEventIcon,formatDashboardEventPeriod,formatDashboardRegistryDate} from "@/lib/dashboard-card-format";
 import OperationalQuickAdd from "./operational-quick-add";
 
 type ColumnKind="obstacles"|"risks"|"events"|"notes";
@@ -125,35 +126,53 @@ function AttentionCard({item,locale}:Readonly<{
  locale:Language;
 }>){
  const t=(key:TranslationKey)=>translate(locale,key);
- const icons={
-  obstacle:"exclamation-octagon-fill",
-  risk:"exclamation-triangle-fill",
-  note:"sticky-fill",
-  alert:"bell-fill"
- } as const;
- const labels:Record<typeof item.kind,TranslationKey>={
-  obstacle:"dashboard.operational.obstacle",
-  risk:"dashboard.operational.risk",
-  note:"dashboard.operational.note",
-  alert:"dashboard.operational.alert"
+ const icons={obstacle:"exclamation-octagon-fill",risk:"exclamation-triangle-fill",
+  note:"sticky-fill",alert:"bell-fill"} as const;
+ const labels:Record<DashboardAttention["kind"],TranslationKey>={
+  obstacle:"dashboard.operational.obstacle",risk:"dashboard.operational.risk",
+  note:"dashboard.operational.note",alert:"dashboard.operational.alert"
  };
- const configurationLabels:Record<NonNullable<DashboardAttention["configurationKey"]>,TranslationKey>={
-  "reference-country":"configuration.tasks.referenceCountry.title",
-  "recovery-phrase":"configuration.tasks.recoveryPhrase.title",
-  "display-preferences":"configuration.tasks.displayPreferences.title"
+ const tasks:Record<NonNullable<DashboardAttention["configurationKey"]>,{
+  title:TranslationKey;description:TranslationKey;href:string;
+ }>={
+  "reference-country":{title:"configuration.tasks.referenceCountry.title",
+   description:"configuration.tasks.referenceCountry.description",href:"/app/admin/settings"},
+  "recovery-phrase":{title:"configuration.tasks.recoveryPhrase.title",
+   description:"configuration.tasks.recoveryPhrase.description",href:"/app/security"},
+  "display-preferences":{title:"configuration.tasks.displayPreferences.title",
+   description:"configuration.tasks.displayPreferences.description",href:"/app/admin/settings"}
  };
- const title=item.configurationKey?t(configurationLabels[item.configurationKey]):item.title;
- const status=item.configurationKey?t(item.status==="done"?"configuration.status.done":"configuration.status.todo"):item.status;
- return <article className={"smn-attention-card smn-attention-"+item.kind}>
-  <div className="smn-attention-card-type">
-   <BootstrapIcon name={icons[item.kind]}/>
-   <span>{t(labels[item.kind])}</span>
+ const statuses:Record<string,TranslationKey>={
+  open:"registryCreate.open",in_progress:"registryCreate.in_progress",
+  resolved:"registryCreate.resolved",abandoned:"registryCreate.abandoned",
+  todo:"configuration.status.todo",done:"configuration.status.done"
+ };
+ const task=item.configurationKey?tasks[item.configurationKey]:null;
+ const title=task?t(task.title):item.title;
+ const description=task?t(task.description):item.description;
+ const status=statuses[item.status]?t(statuses[item.status]):item.status;
+ const href=task?.href??item.href;
+ const severity=item.priority??"unknown";
+ return <article className={"smn-attention-card smn-attention-"+item.kind}
+    data-priority={severity} data-status={item.status}>
+  <div className="smn-attention-card-heading">
+   <span className="smn-attention-indicator" data-priority={severity} aria-hidden="true"/>
+   <span className="smn-attention-kind-icon" aria-hidden="true"><BootstrapIcon name={icons[item.kind]}/></span>
+   <h4 className="smn-attention-card-title">{href?<Link href={href}>{title}</Link>:title}</h4>
   </div>
-  <h4 className="smn-attention-card-title">{item.href?<Link href={item.href}>{title}</Link>:title}</h4>
+  {description&&<p className="smn-attention-card-description">{description}</p>}
   <div className="smn-attention-card-metadata">
-   {!item.configurationKey&&item.kind!=="note"&&<PriorityMarker priority={item.priority} locale={locale}/>}
-   {status&&<span className="smn-attention-card-status">{status}</span>}
-   {item.scope==="team"&&<span className="smn-attention-card-status">{t("dashboard.operational.unlinkedTeam")}</span>}
+   {item.kind!=="note"&&item.kind!=="alert"&&item.priority&&
+    <PriorityMarker priority={item.priority} locale={locale}/>}
+   {item.owner&&<span className="smn-attention-card-detail"><BootstrapIcon name="people-fill"/> {item.owner}</span>}
+   {item.dueOn&&<span className="smn-attention-card-detail">
+    <BootstrapIcon name="calendar-event"/> {formatDashboardRegistryDate(item.dueOn,locale)}
+   </span>}
+   {!item.dueOn&&item.occurredOn&&<span className="smn-attention-card-detail">
+    {formatDashboardRegistryDate(item.occurredOn,locale)}
+   </span>}
+   <span className="smn-attention-card-status" data-status={item.status}>{status}</span>
+   {item.scope==="team"&&<span className="smn-attention-card-detail">{t("dashboard.operational.unlinkedTeam")}</span>}
   </div>
  </article>;
 }
@@ -168,7 +187,7 @@ function AttentionColumn({definition,locale,collection,teamId,cycleId,canManage}
  if(collection.state==="unavailable")return <UnavailableColumn definition={definition} locale={locale} teamId={teamId} cycleId={cycleId} canManage={canManage}/>;
  const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
  const id="smn-operational-"+definition.id;
- return <section className={"smn-operational-panel smn-operational-"+definition.id}
+ return <section className={"smn-operational-panel smn-operational-"+definition.id+" smn-operational-compact"}
    aria-labelledby={id} id={definition.id==="obstacles"?"registres":undefined}>
   <header className="smn-operational-panel-header">
    <div className="smn-operational-title-wrap">
@@ -178,11 +197,11 @@ function AttentionColumn({definition,locale,collection,teamId,cycleId,canManage}
    <span className="smn-operational-count"
     aria-label={t("dashboard.operational.itemCount",{count:collection.total})}>{collection.total}</span>
    <p className="smn-operational-all-unavailable">
-    <span>{t("dashboard.operational.seeAll")}</span>
-    <span className="smn-operational-status">{t("dashboard.operational.unavailable")}</span>
+    {definition.id==="obstacles"||definition.id==="risks"?
+     <Link href={"/app/admin/registries?type="+(definition.id==="obstacles"?"obstacle":"risk")}>{t("dashboard.operational.seeAll")}</Link>:
+     <span>{t("dashboard.operational.seeAll")}</span>}
    </p>
   </header>
-  <p className="smn-operational-description">{t(definition.description)}</p>
   <div className="smn-operational-content">
    {collection.items.length>0?
     <ol className="smn-attention-list">
@@ -215,13 +234,7 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
   cancelled:"dashboard.operational.eventCancelled",
   unknown:"dashboard.operational.eventUnknown"
  };
- const time=(date:string)=>{
-  try{return new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
-   timeZone,day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"
-  }).format(new Date(date));}
-  catch{return t("dashboard.operational.unavailable");}
- };
- return <section className="smn-operational-panel smn-operational-events"
+ return <section className="smn-operational-panel smn-operational-events smn-operational-compact"
    aria-labelledby="smn-operational-events" id="calendrier">
    <header className="smn-operational-panel-header">
      <div className="smn-operational-title-wrap">
@@ -236,27 +249,25 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
      </span>
      <p className="smn-operational-all-unavailable">
        <Link href={calendarHref}>{t("dashboard.operational.seeAll")}</Link>
-       <span className="smn-operational-status">
-         {events.state==="available"?t("dashboard.operational.eventAvailable"):t("dashboard.operational.unavailable")}
-       </span>
+
      </p>
    </header>
-   <p className="smn-operational-description">{t(definition.description)}</p>
    <div className="smn-operational-content">
      {events.state==="available"&&events.items.length>0?
       <ol className="smn-dashboard-events-list">
-       {events.items.map(event=><li key={event.kind+":"+event.id} className="smn-dashboard-event">
-        <Link className="smn-dashboard-event-title"
-          href={"/app/team-calendar/meeting/"+encodeURIComponent(event.kind)+"/"+
-           encodeURIComponent(event.id)+"?"+base.toString()}>
-          {event.title}
-        </Link>
-        <span className="smn-dashboard-event-when">{time(event.startsAt)} — {time(event.endsAt)}</span>
-        <span className="smn-dashboard-event-state">
-          {t(labels[classifyEventStatus(event.status)])}
-          {event.generationSource==="reconstructed"&&
-           <> · {t("dashboard.operational.eventReconstructed")}</>}
-        </span>
+       {events.items.slice(0,5).map(event=><li key={event.kind+":"+event.id} className="smn-dashboard-event">
+        <span className={"smn-dashboard-event-icon smn-dashboard-event-icon-"+dashboardEventIcon(event)}
+           aria-hidden="true"><BootstrapIcon name={dashboardEventIcon(event)}/></span>
+        <div className="smn-dashboard-event-body">
+         <Link className="smn-dashboard-event-title"
+           href={"/app/team-calendar/meeting/"+encodeURIComponent(event.kind)+"/"+
+            encodeURIComponent(event.id)+"?"+base.toString()}>{event.title}</Link>
+         <span className="smn-dashboard-event-when">{formatDashboardEventPeriod(event.startsAt,event.endsAt,locale,timeZone)}</span>
+         <span className="smn-dashboard-event-state">
+           {t(labels[classifyEventStatus(event.status)])}
+           {event.generationSource==="reconstructed"&&<> · {t("dashboard.operational.eventReconstructed")}</>}
+         </span>
+        </div>
        </li>)}
       </ol>:
       <div className="smn-operational-empty">
