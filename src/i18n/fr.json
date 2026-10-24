@@ -2826,6 +2826,11 @@
     "selectSprint": "Choisir un sprint / une période",
     "timezone": "Fuseau : Europe/Paris",
     "close": "Fermer",
-    "errorCounts": "Comptage des absences indisponible."
+    "errorCounts": "Comptage des absences indisponible.",
+    "planning": "Sprint Planning",
+    "daily": "Daily Scrum",
+    "review": "Sprint Review",
+    "retro": "Rétrospective",
+    "refinement": "Affinage"
   }
 }
