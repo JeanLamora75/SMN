@@ -18,7 +18,7 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
  const hasRoam=kind==="risk"&&await exists(db,"smn_risk_roam");
  const hasAssessment=kind==="risk"&&await exists(db,"smn_risk_assessment");
  const associated=hasLinks?
-  "(EXISTS(SELECT 1 FROM public.smn_registry_cycle_link l WHERE l.item_id=r.id AND l.sprint_id=$3) OR r.occurred_on BETWEEN $4::date AND $5::date)":
+  "(EXISTS(SELECT 1 FROM public.smn_registry_cycle_link l WHERE l.item_id=r.id AND l.sprint_id=$3) OR (NOT EXISTS(SELECT 1 FROM public.smn_registry_cycle_link any_link WHERE any_link.item_id=r.id) AND r.occurred_on BETWEEN $4::date AND $5::date))":
   "r.occurred_on BETWEEN $4::date AND $5::date";
  const closed=kind==="risk"?["resolved"]:["resolved","abandoned"];
  const roamClause=hasRoam?
