@@ -16,6 +16,7 @@ import ReportLanguageChoice from "./report-language-choice";
 import ReportLogoEditor from "./report-logo-editor";
 import ReportSectionEditor from "./report-section-editor";
 import FreezeReportButton from "./freeze-report-button";
+import ReportAnalysisChoices from "./report-analysis-choices";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
  const account=await currentAccount();
@@ -63,6 +64,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
    <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
    <ReportHistoryOptions sprintId={s.id}/>
+   <ReportAnalysisChoices sprintId={s.id}/>
    <ReportDraftNotes sprintId={s.id}/>
    <ReportTeamContext sprintId={s.id}/>
    <p className="text-secondary">{t("sprintReportPrepare.exportLater")}</p>
