@@ -168,7 +168,7 @@ export default async function SprintDetailPage({params,searchParams}:{
      active==="indicators"?<><SprintIndicatorsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
-      capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/>{canManage&&isHistorical&&cycle.status!=="closed"&&<HistoricalCapacityForm sprintId={cycle.id} revision={capacityKpis?.state==="available"?capacityKpis.revision:0}/>}</>:
+      capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/>{canManage&&isHistorical&&cycle.status!=="closed"&&<HistoricalCapacityForm sprintId={cycle.id} revision={capacityKpis?.state==="available"?capacityKpis.revision:0} initialQuality={capacityKpis?.state==="available"?capacityKpis.historicalQuality:"not-supplied"} initialJh={capacityKpis?.state==="available"?capacityKpis.values.planned:null} initialSource={capacityKpis?.state==="available"?capacityKpis.historicalSource:null}/>}</>:
      active==="ceremonies"?<><SprintCeremoniesPanel
       sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
       canManage={canManage&&cycle.status!=="closed"}
