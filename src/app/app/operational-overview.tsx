@@ -12,6 +12,14 @@ type PanelDefinition=Readonly<{
   description:TranslationKey;
 }>;
 
+const createLabels:Readonly<Record<ColumnKind,TranslationKey>>={
+  obstacles:"dashboard.operational.addObstacle",
+  risks:"dashboard.operational.addRisk",
+  events:"dashboard.operational.addEvent",
+  notes:"dashboard.operational.addNote"
+};
+const createLabel=(locale:Language,kind:ColumnKind)=>translate(locale,createLabels[kind]);
+
 const PANELS:readonly PanelDefinition[]=[
   {id:"obstacles",title:"dashboard.operational.obstacles",description:"dashboard.operational.obstaclesHelp"},
   {id:"risks",title:"dashboard.operational.risks",description:"dashboard.operational.risksHelp"},
@@ -86,7 +94,7 @@ function UnavailableColumn({definition,locale,teamId,cycleId,canManage}:Readonly
       {canManage&&cycleId&&teamId&&definition.id!=="events"?<Link className="smn-operational-create-link" href={definition.id==="notes"
        ?"/app/admin/sprints/"+encodeURIComponent(cycleId)+"/report#smn-report-notes"
        :"/app/admin/registries/create?"+new URLSearchParams({type:definition.id==="risks"?"risk":"obstacle",teamId,cycleId}).toString()}>
-       {t("dashboard.operational.add")} {t(definition.id==="risks"?"dashboard.operational.risk":definition.id==="obstacles"?"dashboard.operational.obstacle":"dashboard.operational.note")}
+       {createLabel(locale,definition.id)}
       </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
     </footer>
   </section>;
@@ -181,20 +189,21 @@ function AttentionColumn({definition,locale,collection,teamId,cycleId,canManage}
    {canManage?<Link className="smn-operational-create-link" href={definition.id==="notes"
     ?"/app/admin/sprints/"+encodeURIComponent(cycleId)+"/report#smn-report-notes"
     :"/app/admin/registries/create?"+new URLSearchParams({type:definition.id==="risks"?"risk":"obstacle",teamId,cycleId}).toString()}>
-    {t("dashboard.operational.add")} {t(definition.id==="risks"?"dashboard.operational.risk":definition.id==="obstacles"?"dashboard.operational.obstacle":"dashboard.operational.note")}
+    {createLabel(locale,definition.id)}
    </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
   </footer>
  </section>;
 }
 
-function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
+function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStatus}:Readonly<{
  locale:Language;events:CollectiveCycleProjection["events"];
- teamId:string;cycleId:string;timeZone:string;
+ teamId:string;cycleId:string;timeZone:string;canManage:boolean;cycleStatus:string;
 }>){
  const t=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>translate(locale,key,params);
  const definition=PANELS.find(p=>p.id==="events")!;
  const base=new URLSearchParams({teamId,cycleId});
  const calendarHref="/app/team-calendar?"+base.toString();
+ const createHref="/app/team-calendar?"+new URLSearchParams({teamId,cycleId,create:"1"}).toString();
  const labels:Record<ReturnType<typeof classifyEventStatus>,TranslationKey>={
   scheduled:"dashboard.operational.eventScheduled",
   held:"dashboard.operational.eventHeld",
@@ -254,7 +263,11 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone}:Readonly<{
        </p>}
       </div>}
    </div>
-
+   <footer className="smn-operational-panel-footer">
+     {canManage&&cycleStatus!=="closed"?<Link className="smn-operational-create-link" href={createHref}>
+       {createLabel(locale,"events")}
+     </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
+   </footer>
  </section>;
 }
 
@@ -266,17 +279,14 @@ export default function OperationalOverview({locale,projection,timeZone,canManag
  locale:Language;projection?:CollectiveCycleProjection|null;timeZone?:string;canManage?:boolean;
 }>){
   const t=(key:TranslationKey)=>translate(locale,key);
-  return <section className="smn-operational-overview" aria-labelledby="smn-operational-heading">
-    <div className="smn-operational-overview-heading">
-      <h2 id="smn-operational-heading">{t("dashboard.operational.heading")}</h2>
-      <p>{t("dashboard.operational.subtitle")}</p>
-    </div>
+  return <section className="smn-operational-overview" aria-label={t("dashboard.operational.heading")}>
     <div className="smn-operational-grid">
       {PANELS.map(definition=>{
         if(definition.id==="events"){
           return projection&&timeZone?
            <EventsColumn key="events" locale={locale} events={projection.events}
-             teamId={projection.teamId} cycleId={projection.cycleId} timeZone={timeZone}/>:
+             teamId={projection.teamId} cycleId={projection.cycleId} timeZone={timeZone}
+             cycleStatus={projection.cycleStatus} canManage={canManage}/>:
            <UnavailableColumn key="events" definition={definition} locale={locale}/>;
         }
         if(!projection)return <UnavailableColumn key={definition.id} definition={definition} locale={locale} canManage={canManage}/>;
