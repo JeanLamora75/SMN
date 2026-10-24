@@ -132,7 +132,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  },[calendarMode,isAdmin,initialCreate,initialCycleId,period,status,sprints,openCreate]);
  const selectedDate=when.slice(0,10);
  const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<=localDate(x.endAt));
- async function save(){if(!period||!selectedSprint||!editor||!name.trim()||busy)return;
+ async function save(){if(!period||!editor||!name.trim()||busy||(calendarMode==="scrum"&&!selectedSprint))return;
   setBusy(true);setSaveError("");
   try{const date=new Date(when);if(Number.isNaN(date.valueOf()))throw Error("date");
    const r=await fetch(calendarMode==="kanban"?"/api/admin/kanban-meetings":"/api/admin/sprints/exceptional-meetings",{method:"POST",headers:{"Content-Type":"application/json"},
