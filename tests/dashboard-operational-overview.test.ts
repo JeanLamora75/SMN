@@ -54,12 +54,12 @@ describe("SMN-21 — lot 3 : quatre colonnes opérationnelles",()=>{
     assert.equal((html.match(/class="smn-operational-add-unavailable"/g)||[]).length,4);
     assert.doesNotMatch(html,/Aucun éléments à ce jour/);
   });
-  it("conserve l'autorisation de la page, le bandeau et le bloc de configuration sous les colonnes",()=>{
+  it("conserve l'autorisation et le bandeau, sans bloc de configuration doublon",()=>{
     const page=source("src/app/app/page.tsx");
     assert.match(page,/canAccess\(account, "read"/);
     assert.match(page,/readCollectiveDashboard/);
     assert.ok(page.indexOf("<CycleOverview")<page.indexOf("<OperationalOverview"));
-    assert.ok(page.indexOf("<OperationalOverview")<page.indexOf("<ConfigurationChecklist"));
+    assert.doesNotMatch(page,/ConfigurationChecklist|readConfigurationChecklist/);
     assert.doesNotMatch(page,/EmptyBlock|smn-attention-card|id="reportings"/);
   });
   it("adapte la grille à la largeur utile avec les tokens des thèmes",()=>{
