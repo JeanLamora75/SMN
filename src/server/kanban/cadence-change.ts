@@ -5,6 +5,10 @@ export function cadenceChangeProposal(periods:FuturePeriod[],frequency:KanbanFre
  const future=periods.filter(p=>p.status==="planned"&&p.startOn>today).sort((a,b)=>a.startOn.localeCompare(b.startOn)||a.id.localeCompare(b.id));
  const protectedPeriods=periods.filter(p=>!future.some(f=>f.id===p.id));
  let cursor=future[0]?.startOn??"";
+ if(cursor&&frequency==="monthly"&&cursor.slice(8)!=="01"){
+  const y=Number(cursor.slice(0,4)),m=Number(cursor.slice(5,7));
+  cursor=new Date(Date.UTC(y,m,1)).toISOString().slice(0,10);
+ }
  const changes=future.map(period=>{
   const next=periodFromStart(cursor,frequency);
   cursor=nextDay(next.endOn);
