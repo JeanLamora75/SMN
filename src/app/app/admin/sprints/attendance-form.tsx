@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useCurrentTime} from "./use-current-time";
 import {useEpic4Presentation} from "./i18n-presentation";
@@ -14,8 +14,8 @@ export default function AttendanceForm(){
  const [reason,setReason]=useState("");
  const [selected,setSelected]=useState("");
  const [history,setHistory]=useState<unknown[]>([]);
- async function load(){setBusy(true);try{const r=await fetch("/api/admin/sprints/attendance",{cache:"no-store"});if(!r.ok)throw Error();const data=await r.json();setEvents(data.events);}catch{setError(t("attendance.error"));}finally{setBusy(false);}}
- useEffect(()=>{void Promise.resolve().then(load);},[]);
+ const load=useCallback(async()=>{setBusy(true);try{const r=await fetch("/api/admin/sprints/attendance",{cache:"no-store"});if(!r.ok)throw Error();const data=await r.json();setEvents(data.events);}catch{setError(t("attendance.error"));}finally{setBusy(false);}},[t]);
+ useEffect(()=>{void Promise.resolve().then(load);},[load]);
  async function change(e:Event,status:"held"|"not_held"|"cancelled"){setBusy(true);setError("");setNotice("");
  try{const r=await fetch("/api/admin/sprints/attendance",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:e.kind,id:e.id,status,reason})});
  if(!r.ok)throw Error();setNotice(t("attendance.saved"));setReason("");await load();
