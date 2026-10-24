@@ -6,9 +6,11 @@ import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-t
 type Item={id:string;type:RegistryType;title:string;status:string;occurredOn:string;dueOn:string|null;recordedAt:string;owner?:string|null};
 type Page={state:"available";team:{id:string;name:string};items:Item[];total:number;page:number;totalPages:number}|
  {state:"unavailable";reason:string}|{state:"forbidden"};
-export default function RegistryList({canManage}:{canManage:boolean}){
+export default function RegistryList({canManage,initialType="risk"}:{
+ canManage:boolean;initialType?:"risk"|"obstacle";
+}){
  const t=useTranslation();
- const [type,setType]=useState<RegistryType>("risk");
+ const [type,setType]=useState<RegistryType>(initialType);
  const [search,setSearch]=useState("");const [status,setStatus]=useState("");
  const [owner,setOwner]=useState("");const [query,setQuery]=useState({search:"",status:"",owner:""});
  const [page,setPage]=useState(1);const [result,setResult]=useState<Page|null>(null);
