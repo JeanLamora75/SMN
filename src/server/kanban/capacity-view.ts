@@ -13,12 +13,12 @@ export function safeKanbanGap(initial:number|null,real:number|null,status:string
  if(initial===null||real===null)return null;
  return Math.round((real-initial)*10000)/10000;
 }
-export async function readKanbanCapacityView(db:Client,teamId:string,startOn:string,endOn:string,status:string):Promise<KanbanCapacityView>{
+export async function readKanbanCapacityView(db:Client,teamId:string,startOn:string,endOn:string,status:string,periodId?:string):Promise<KanbanCapacityView>{
  // These are shared capacity-engine data only. Never synthesize JH from Kanban item counts.
- const initial=await readInitialSnapshot(db,teamId,startOn,endOn);
+ const initial=periodId?null:await readInitialSnapshot(db,teamId,startOn,endOn);
  const kanbanOpening=await db.query<{initial_jh:string|null;provenance:string;captured_at:string}>(`SELECT k.initial_jh::text,k.provenance,k.captured_at::text FROM public.smn_kanban_capacity_opening k JOIN public.smn_kanban_period p ON p.id=k.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date AND p.deleted_at IS NULL LIMIT 1`,[teamId,startOn,endOn]);
- const capture=kanbanOpening.rows[0];
- const initialValue=initial?.initialJh??(capture?.initial_jh===null||!capture?null:Number(capture.initial_jh));
+ const capture=periodId?await readKanbanOpeningByPeriodId(db,periodId):kanbanOpening.rows[0];
+ const initialValue=initial?.initialJh??(capture===null||capture===undefined?null:"initialJh" in capture?capture.initialJh:capture.initial_jh===null?null:Number(capture.initial_jh));
  const actual=await readActualCapacity(db,startOn,endOn,undefined,{externalTransaction:true});
  // Do not present a calculated future value as observed capacity.
  const future=status==="planned"||actual.status==="upcoming";
@@ -27,7 +27,7 @@ export async function readKanbanCapacityView(db:Client,teamId:string,startOn:str
  const manual=future?null:actual.manualJh;
  return {
   initialJh:initialValue,initialProvenance:initial?.provenance??capture?.provenance??"Non renseigné",
-  actualOpenedAt:initial?.actualOpenedAt??capture?.captured_at??null,
+  actualOpenedAt:initial?.actualOpenedAt??("capturedAt" in (capture??{})?(capture as {capturedAt:string}).capturedAt:(capture as {captured_at?:string}|null)?.captured_at)??null,
   actualReferenceJh:reference,actualManualJh:manual,actualRetainedJh:retained,
   actualSource:future?"Non renseigné":actual.source,
   gapJh:safeKanbanGap(initialValue,retained,status),
