@@ -12,6 +12,7 @@ export async function ensureAttendanceSchema(db:Client){
  await db.query(`ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'`);
  await db.query(`ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
  await db.query(`ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
+ await db.query(`ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'manual'`);
  await db.query(`ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
  for(const kind of ["standard","custom","exceptional"] as Kind[]){
   const t=tables[kind];
@@ -32,7 +33,7 @@ export async function reconcileAttendance(db:Client){
   const r=await db.query(`UPDATE public.${t.table} m SET ${status}='held'
    FROM public.smn_sprint s WHERE s.id=m.sprint_id AND s.team_id=$1 AND s.deleted_at IS NULL
    AND s.status<>'closed' AND m.ends_at<=now() AND m.${status}='scheduled' AND m.status_explicit=false
-   ${kind==="exceptional"?"":"AND COALESCE(m.generation_source,'standard')<>'reconstructed'"}`,[teamId]);
+   AND COALESCE(m.generation_source,'standard') NOT IN ('reconstructed','historical-documented')`,[teamId]);
   stats[kind]=r.rowCount??0;
  }
  return stats;
