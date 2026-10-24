@@ -9,7 +9,11 @@ import AutomaticHighlightsSettings from "./automatic-highlights-settings";
 import ConfirmedHighlights from "./confirmed-highlights";
 import FactSelection from "./fact-selection";
 export const dynamic="force-dynamic";
-export default async function RegistriesPage(){
+export default async function RegistriesPage({searchParams}:{
+ searchParams:Promise<{type?:string}>;
+}){
+ const params=await searchParams;
+ const initialType=params.type==="obstacle"?"obstacle":"risk";
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"collective",exists:true,inScope:true}))redirect("/app");
@@ -20,6 +24,6 @@ export default async function RegistriesPage(){
   return r.rows.length===1?r.rows[0].id:null;
  }).catch(()=>null);
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-  {teamId?<><FactSelection canManage={actor.role==="admin"}/><ConfirmedHighlights canManage={actor.role==="admin"}/><AutomaticHighlightsSettings canManage={actor.role==="admin"}/><AttentionCockpit/><RegistryDeadlineAlerts canManage={actor.role==="admin"}/><RegistryList canManage={actor.role==="admin"}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
+  {teamId?<><FactSelection canManage={actor.role==="admin"}/><ConfirmedHighlights canManage={actor.role==="admin"}/><AutomaticHighlightsSettings canManage={actor.role==="admin"}/><AttentionCockpit/><RegistryDeadlineAlerts canManage={actor.role==="admin"}/><RegistryList canManage={actor.role==="admin"} initialType={initialType}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
 }
