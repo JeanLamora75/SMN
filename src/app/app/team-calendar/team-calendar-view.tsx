@@ -209,11 +209,12 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     <label className="form-label" htmlFor="calendar-absence-member">{t("calendarOptionB.chooseMember")}</label>
     {membersStatus==="loading"&&<p role="status">{t("calendarOptionB.loadingMembers")}</p>}
     {membersStatus==="error"&&<p role="alert">{t("calendarOptionB.membersFailed")}</p>}
-    {membersStatus==="ready"&&<select autoFocus id="calendar-absence-member" className="form-select mb-3"
+    {membersStatus==="ready"&&!chosenMember&&<select autoFocus id="calendar-absence-member" className="form-select mb-3"
      value={chosenMember} onChange={e=>setChosenMember(e.target.value)}>
       <option value="">{t("calendarOptionB.chooseMemberPlaceholder")}</option>
       {availableMembers.map(m=><option key={m.id} value={m.id}>{m.displayName}</option>)}
     </select>}
+    {chosenMember&&<p className="fw-semibold mb-2">{availableMembers.find(m=>m.id===chosenMember)?.displayName}</p>}
     {chosenMember&&<MemberAbsenceEditor key={chosenMember+absenceEditor} memberId={chosenMember}
      initialDate={absenceEditor} record={null}
      onSaved={()=>{setAbsenceEditor(null);setRefreshToken(n=>n+1);}}
