@@ -16,6 +16,10 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
  const [conflict,setConflict]=useState(false);
  const [saving,setSaving]=useState(false);
  const [preview,setPreview]=useState<string|null>(null);
+ const [observations,setObservations]=useState("");
+ const [humanQuestions,setHumanQuestions]=useState("");
+ const [humanInstructions,setHumanInstructions]=useState("");
+ const [privacyReviewed,setPrivacyReviewed]=useState(false);
  const fields=allowedBriefFields(mode,["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions","scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"]);
  const changed=JSON.stringify(draft)!==JSON.stringify(editable(base));
 
@@ -40,7 +44,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
   try{
    const current=await latest();
    if(!current||!current.active){setConflict(true);setMessage("Ce modèle n'est plus disponible.");return;}
-   setBase(current);setDraft(editable(current));setPreview(null);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
+   setBase(current);setDraft(editable(current));setPreview(null);setPrivacyReviewed(false);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
   }catch{setMessage("Rechargement impossible.");}
  }
  async function saveModel(){
@@ -77,12 +81,27 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
     </div>
    </div>
   </fieldset>
+  <div className="border-top mt-3 pt-3">
+   <h4 className="h6">Observations humaines et demandes à l’IA</h4>
+   <p className="small text-secondary">Ces commentaires concernent uniquement le brief en cours. Ils ne modifient aucune métrique ni fiche métier.</p>
+   <div className="row g-3">
+    <div className="col-12"><label htmlFor="human-observations" className="form-label">Observations collectives (une par ligne)</label>
+     <textarea id="human-observations" className="form-control" rows={4} maxLength={12000} value={observations} onChange={e=>{setObservations(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
+    <div className="col-12 col-lg-6"><label htmlFor="human-questions" className="form-label">Questions supplémentaires à l’IA (une par ligne)</label>
+     <textarea id="human-questions" className="form-control" rows={4} maxLength={6000} value={humanQuestions} onChange={e=>{setHumanQuestions(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
+    <div className="col-12 col-lg-6"><label htmlFor="human-instructions" className="form-label">Consignes supplémentaires à l’IA (une par ligne)</label>
+     <textarea id="human-instructions" className="form-control" rows={4} maxLength={6000} value={humanInstructions} onChange={e=>{setHumanInstructions(e.target.value);setPreview(null);setPrivacyReviewed(false);}}/></div>
+   </div>
+   <div className="form-check mt-3"><input type="checkbox" className="form-check-input" id="brief-privacy-reviewed" checked={privacyReviewed} onChange={e=>setPrivacyReviewed(e.target.checked)}/>
+    <label htmlFor="brief-privacy-reviewed" className="form-check-label">J’ai relu les textes libres afin de détecter toute identité ou information confidentielle. Une vérification finale sera encore nécessaire avant archivage ou transmission.</label></div>
+  </div>
   <div className="d-flex flex-wrap gap-2 mt-3">
-   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(composeBriefTxt({context,mode,preparedAt,template:{...base,...draft},facts}));}}>Générer l’aperçu TXT</button>
+   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations)}));}}>Générer l’aperçu TXT</button>
    <button className="btn btn-outline-primary btn-sm" onClick={()=>void checkRevision()} disabled={saving}>Actualiser le contenu / vérifier la révision</button>
    <button className="btn btn-outline-secondary btn-sm" onClick={()=>void reload()} disabled={saving}>Recharger le modèle (abandonner les ajustements)</button>
    {!base.builtin&&<button className="btn btn-primary btn-sm" disabled={!changed||conflict||saving} onClick={()=>void saveModel()}>Enregistrer le modèle</button>}
   </div>
+  {preview!==null&&!privacyReviewed&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : cet aperçu ne doit pas être diffusé ni finalisé sans relecture explicite.</p>}
   {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/></div>}
   {changed&&!conflict&&<p className="text-secondary small mt-2">Configuration ponctuelle modifiée : aucune écriture métier. La composition et l'archivage du TXT seront ajoutés dans les prochaines stories.</p>}
   {message&&<p role="status" className="mt-2 mb-0">{message}</p>}
