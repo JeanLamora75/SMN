@@ -12,8 +12,12 @@ export async function ensureKanbanPeriodTables(db:Client){
  time_zone text NOT NULL,
  created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  created_at timestamptz NOT NULL DEFAULT now(),
+ deleted_at timestamptz,
+ deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  CHECK(end_on>=start_on)
  )`);
+ await db.query(`ALTER TABLE public.smn_kanban_period ADD COLUMN IF NOT EXISTS deleted_at timestamptz`);
+ await db.query(`ALTER TABLE public.smn_kanban_period ADD COLUMN IF NOT EXISTS deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL`);
  await db.query(`CREATE INDEX IF NOT EXISTS smn_kanban_period_team_dates_idx
  ON public.smn_kanban_period(team_id,start_on,end_on)`);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_period_audit (
@@ -34,7 +38,7 @@ export async function prepareKanbanPeriod(db:Client){
  await ensureKanbanPeriodTables(db);
  const id=await kanbanTeam(db);
  const latest=await db.query<{end_on:string}>(`SELECT end_on::text FROM public.smn_kanban_period
- WHERE team_id=$1 ORDER BY end_on DESC LIMIT 1`,[id]);
+ WHERE team_id=$1 AND deleted_at IS NULL ORDER BY end_on DESC LIMIT 1`,[id]);
  return {cadence,quantity:1 as const,startOn:latest.rows.length?nextDay(latest.rows[0].end_on):null};
 }
 export async function createKanbanPeriod(db:Client,actorId:string,raw:unknown){
@@ -54,7 +58,7 @@ export async function createKanbanPeriod(db:Client,actorId:string,raw:unknown){
  try{
   await db.query("SELECT pg_advisory_xact_lock(hashtext($1))",[teamId+":kanban-period"]);
   const clash=await db.query(`SELECT id FROM public.smn_kanban_period
-    WHERE team_id=$1 AND start_on<=$3::date AND end_on>=$2::date LIMIT 1`,
+    WHERE team_id=$1 AND deleted_at IS NULL AND start_on<=$3::date AND end_on>=$2::date LIMIT 1`,
     [teamId,period.startOn,period.endOn]);
   if(clash.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap"};}
   const duplicate=await db.query(`SELECT id FROM public.smn_kanban_period WHERE team_id=$1 AND lower(name)=lower($2) LIMIT 1`,[teamId,name]);
