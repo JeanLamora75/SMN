@@ -38,7 +38,7 @@ describe("SMN-234 — densification de l'onglet Cérémonies",()=>{
  it("une ligne compacte groupe titre, date, durées, badge et pictogramme associé",()=>{
   const html=render([item("custom",null,"Sprint Planning"),item("standard","daily","daily"),
    item("standard","review","review"),item("standard","retrospective","retrospective")]);
-  assert.equal((html.match(/class="smn-sprint-ceremony-row/g)??[]).length,4);
+  assert.equal((html.match(/smn-sprint-ceremony-row smn-sprint-ceremony-/g)??[]).length,4);
   assert.match(html,/Lun\. 26 oct\. : 09:30 — 11:30/);
   for(const icon of ["calendar-check","people-fill","bar-chart-line","chat-dots"])
    assert.match(html,new RegExp("bi-"+icon));
