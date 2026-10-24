@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import RiskRoam from "./risk-roam";
@@ -34,8 +34,8 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
  const [revision,setRevision]=useState<number|null>(null);
  const [loaded,setLoaded]=useState(false);
  const [createdId,setCreatedId]=useState<string|null>(null);
- const baseline=useRef<string|null>(null);
- const originalStatus=useRef<string|null>(null);
+ const [baseline,setBaseline]=useState<string|null>(null);
+ const [originalStatus,setOriginalStatus]=useState<string|null>(null);
  const [busy,setBusy]=useState(false);
  const [notice,setNotice]=useState<{ok:boolean;message:string}|null>(null);
  useEffect(()=>{
@@ -49,12 +49,12 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
     setStatus(item.status as string);setDescription((item.description as string|null)??"");
     setOwner((item.owner as string|null)??"");setDue((item.dueOn as string|null)??"");
     setComment((item.comment as string|null)??"");setRevision(typeof item.revision==="number"?item.revision:null);setLoaded(true);
-    originalStatus.current=item.status as string;
-    baseline.current=JSON.stringify([item.title,item.occurredOn,item.status,item.description??"",item.owner??"",item.dueOn??"",item.comment??""]);
+    setOriginalStatus(item.status as string);
+    setBaseline(JSON.stringify([item.title,item.occurredOn,item.status,item.description??"",item.owner??"",item.dueOn??"",item.comment??""]));
    }).catch(()=>{if(active)setNotice({ok:false,message:t("registryCreate.unavailableRecord")});});
   return()=>{active=false;};
  },[itemId,teamId]);
- const dirty=!!itemId&&loaded&&baseline.current!==JSON.stringify([title,date,status,description,owner,due,comment]);
+ const dirty=!!itemId&&loaded&&baseline!==JSON.stringify([title,date,status,description,owner,due,comment]);
  useEffect(()=>{
   if(!dirty)return;
   const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue="";};
@@ -78,7 +78,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
    if(!response.ok||!result.ok||!result.id)throw Error(result.error??"failed");
    setNotice({ok:true,message:translate("success").replace("{id}",result.id)});
    if(!itemId)setCreatedId(result.id);
-   if(itemId){setRevision(result.revision??(revision??0)+1);originalStatus.current=status;baseline.current=JSON.stringify([title,date,status,description,owner,due,comment]);onSaved?.();}
+   if(itemId){setRevision(result.revision??(revision??0)+1);setOriginalStatus(status);setBaseline(JSON.stringify([title,date,status,description,owner,due,comment]));onSaved?.();}
    else {setTitle("");setDescription("");setOwner("");setDue("");setComment("");onCreated?.();}
   }catch{setNotice({ok:false,message:translate("failed")});}
   finally{setBusy(false);}
@@ -89,7 +89,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
    !canManage?<div className="card p-3 d-grid gap-2"><div role="status" className="alert alert-info">{translate("readonly")}</div>{loaded&&<><h2>{title}</h2><p>{translate("date")}: {date}</p><p>{translate("status")}: {translate(status)}</p><p>{description}</p></>}</div>:
   <form className={modalMode?"d-grid gap-3":"card p-3 p-lg-4 d-grid gap-3"} onSubmit={save}>
    {dirty&&<div className="alert alert-warning" role="status">{translate("unsaved")}</div>}
-   {type==="obstacle"&&<p className="small text-body-secondary" role="status">{itemId&&obstacleTransition(originalStatus.current,status).valid&&obstacleTransition(originalStatus.current,status).reopened?t("obstacleLifecycle.reopening"):status==="resolved"?t("obstacleLifecycle.resolved"):status==="abandoned"?t("obstacleLifecycle.abandoned"):obstacleNeedsAttention(status)?t("obstacleLifecycle.active"):""}</p>}
+   {type==="obstacle"&&<p className="small text-body-secondary" role="status">{itemId&&obstacleTransition(originalStatus,status).valid&&obstacleTransition(originalStatus,status).reopened?t("obstacleLifecycle.reopening"):status==="resolved"?t("obstacleLifecycle.resolved"):status==="abandoned"?t("obstacleLifecycle.abandoned"):obstacleNeedsAttention(status)?t("obstacleLifecycle.active"):""}</p>}
    <div className="row g-3">
     {!modalMode&&<div className="col-md-6"><label className="form-label" htmlFor="registry-type">{translate("type")}</label>
      <select id="registry-type" className="form-select" value={type} onChange={e=>changeType(e.target.value as RegistryType)}>
