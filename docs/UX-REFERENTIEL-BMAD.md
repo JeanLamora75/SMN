@@ -305,3 +305,17 @@ La capture du 24/10/2026 montrait à tort « Les six registres ne sont pas encor
 - **Recette :** tester les six registres vides/peuplés, faits automatiques, changements de statut, liens vers les fiches, multi-Sprints, date frontière, pagination et changement de type, langues FR/EN, Sprint actif/clôturé, profil utilisateur, ancienne installation partielle.
 
 La conformité de ce contrat est **conditionnée à la recette locale** (`pnpm typecheck`, tests `tsx`, `pnpm build`, PostgreSQL et navigateur) car GitHub Actions est désactivé.
+
+
+## Fiche Sprint — Onglet Cérémonies compact, édition en modale (24 octobre 2026)
+
+La fiche Sprint (SMN-234, D4) conserve sa liste paginée de toutes les occurrences de réunions/cérémonies. La retouche UX inspirée de la capture du 24/10/2026 introduit :
+
+- **Lignes denses :** sur grand écran, une seule grille horizontale par occurrence avec **titre + statut**, **date et horaire**, **durée prévue**, **durée réelle enregistrée** et **icône de modification** à droite. Suppression des grands espacements verticaux. Sur tablette et mobile, les informations se répartissent sur deux ou trois petites lignes sans débordement.
+- **Pictogramme pleine hauteur :** à gauche, une bande colorée occupe la hauteur effective de la ligne ; elle reprend l'icône Bootstrap Icons correspondant à la nature de la réunion : Daily `people-fill`, Planning `calendar-check`, Review `bar-chart-line`, Rétrospective `chat-dots`, Affinage `sliders`, réunion exceptionnelle ou type inconnu `calendar-event`. Les modèles de cérémonie sont reconnus par leur nom réel.
+- **Date locale :** utilisation du fuseau IANA du Sprint et du catalogue FR/EN. Même jour : « Lun. 26 oct. : 09:30 — 11:30 » ; jours distincts : une date pour chaque extrémité, sans répétition inutile de l'année.
+- **Édition :** le bouton « Voir la réunion » de chaque ligne courante est remplacé par un crayon accessible au clavier et au lecteur d'écran, déclenchant la modale existante (`OperationalEdit`). Elle édite, sous réserve des droits et règles backend, le titre lorsqu'il n'est pas une cérémonie standard immuable, la date et heure, la durée prévue, la durée réelle enregistrée (si disponible) et le statut. Après sauvegarde confirmée, elle se ferme et provoque un `router.refresh()`.
+- **Garanties :** réemploi de l'API d'édition contrôlant installation, équipe, Sprint et conflit optimiste. Les modifications de durée réelle partagent **la même transaction** et conservent les traces d'audit. Aucun lien factice vers un événement historique : les snapshots de Sprint clôturé restent en lecture seule ; un utilisateur non administrateur ne voit pas de bouton de modification.
+- **Non-régression :** ne pas modifier la recherche des trois sources (`standard`, `custom`, `exceptional`), le statut attesté/inféré, les avertissements de reconstitution, le total ni la pagination sur 25 occurrences.
+
+Tests associés : `tests/smn-234-sprint-ceremonies-compact-modal.test.ts`, à lancer avec `tests/smn-234-sprint-ceremonies-d4.test.ts` et les tests de la modale du dashboard. La recette visuelle FR/EN et responsive nécessite un navigateur local.
