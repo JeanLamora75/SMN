@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useState} from "react";
+import Link from "next/link";
 type Period={id:string;name:string;startOn:string;endOn:string;status:string};
 type Correction={period:Period;before:{startOn:string;endOn:string};after:{startOn:string;endOn:string};conflicts:string[];canConfirm:boolean;previewToken:string;warnings:string[]};
 type HistoryRow={id:string;action:string;actorId:string|null;createdAt:string;details:{before?:{startOn:string;endOn:string};after?:{startOn:string;endOn:string};reason?:string|null;events?:string;capacity?:string;warnings?:string[]}};
@@ -103,7 +104,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
     {canManage?<input className="form-control" aria-label={"Nom de "+p.startOn} maxLength={200}
      value={drafts[p.id]??p.name} disabled={busy!==null}
      onChange={e=>setDrafts(old=>({...old,[p.id]:e.target.value}))}/>:p.name}
-    </td><td>{p.startOn} → {p.endOn}</td><td>{p.status}</td>
+    <Link className="d-block small mt-1" href={"/app/admin/kanban-periods/"+encodeURIComponent(p.id)+"/report"}>Voir le bilan</Link></td><td>{p.startOn} → {p.endOn}</td><td>{p.status}</td>
     {canManage&&<td><button type="button" className="btn btn-outline-primary btn-sm" disabled={busy!==null||!(drafts[p.id]??"").trim()||(drafts[p.id]??"").trim()===p.name} onClick={()=>rename(p)}>Enregistrer</button><button type="button" className="btn btn-outline-danger btn-sm ms-2" disabled={busy!==null} onClick={()=>requestRemoval(p)}>Supprimer</button><button type="button" className="btn btn-outline-secondary btn-sm ms-2" disabled={busy!==null} onClick={()=>{setDateEdit({period:p,startOn:p.startOn,endOn:p.endOn});setCorrection(null);setEventChoice("preserve");}}>Corriger les dates</button><button type="button" className="btn btn-outline-secondary btn-sm ms-2" onClick={()=>showHistory(p)}>Historique</button></td>}</tr>)}</tbody>
   </table></div>
   {history&&<div className="border rounded p-3 mt-3">
