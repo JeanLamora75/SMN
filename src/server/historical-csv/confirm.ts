@@ -3,6 +3,7 @@ import type {Client} from "pg";
 import {validateHistoricalCsv} from "@/lib/historical-csv-validator";
 import {validateHistoricalCsvBusiness} from "./business-validation";
 import {previewHistoricalCsv} from "./preview";
+import {recordCsvAttempt} from "./attempts";
 import type {HistoricalCsvMode} from "@/lib/historical-csv-contract";
 const mappings={
  scrum:{SP_INITIAL:["smn_sprint_story_points","initial_sp"],SP_ADDED:["smn_sprint_story_points","added_sp"],SP_REMOVED:["smn_sprint_story_points","removed_sp"],SP_DONE:["smn_sprint_story_points","done_sp"]},
@@ -65,7 +66,8 @@ export async function confirmHistoricalCsv(db:Client,actorId:string,csv:string,c
     randomUUID(),batchId,row.cycleId,row.metricCode,row.existingValue,row.value,row.quality,choice.decision,actorId]);
    if(choice.decision==="replace")replaced++;else inserted++;
   }
+  const attemptId=await recordCsvAttempt(db,{actorId,status:"import-confirmed",mode,scope:"historical-csv",batchId,readCount:preview.length,recognizedCount:preview.length,appliedCount:inserted+replaced,preservedCount:preserved,rejectedCount:0,cycleIds:preview.filter(r=>choices.find(x=>x.line===r.line)?.decision!=="keep").map(r=>r.cycleId)});
   await db.query("COMMIT");
-  return {ok:true as const,batchId,inserted,replaced,preserved};
+  return {ok:true as const,batchId,attemptId,inserted,replaced,preserved};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
