@@ -264,6 +264,7 @@
       "addRisk": "+ Ajouter un risque",
       "addEvent": "+ Ajouter un évènement",
       "addNote": "+ Ajouter une note",
+      "unlinkedTeam": "Équipe · sans Sprint",
       "quickAdd": {
         "close": "Fermer la fenêtre",
         "cancel": "Annuler",
