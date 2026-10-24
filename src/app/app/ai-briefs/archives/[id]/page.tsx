@@ -28,6 +28,7 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
     archive.state==="unavailable"?<div className="alert alert-warning" role="alert">Archive indisponible.</div>:
     <>
      <p className="small text-secondary">Archive {archive.metadata.id} · {archive.metadata.mode} · {archive.metadata.created_at} · modèle {archive.metadata.template_id} (révision {archive.metadata.template_revision})</p>
+     {archive.metadata.parent_archive_id&&<p>Copie de : <Link href={"/app/ai-briefs/archives/"+archive.metadata.parent_archive_id}>{archive.metadata.parent_archive_id}</Link></p>}
      <a className="btn btn-outline-primary mb-3" href={"/api/ai-briefs/archives/"+encodeURIComponent(id)+"/download"}>Télécharger le TXT original</a>
      {account.role==="admin"&&<DuplicateButton parentId={id}/>}
      <label htmlFor="archived-brief-text" className="form-label">Contenu original, en lecture seule</label>
