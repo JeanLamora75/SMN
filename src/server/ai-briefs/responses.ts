@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {briefArchiveIdValid,readPrivateBriefArchive} from "./library";
 
-export type ManualAiResponse={id:string;archive_id:string;team_id:string;response_text:string;provider:string|null;model:string|null;created_at:string;updated_at:string;author_id:string;human_edited:boolean;
+export type ManualAiResponse={id:string;archive_id:string;team_id:string;response_text:string;provider:string|null;model:string|null;created_at:string;updated_at:string;author_id:string;human_edited:boolean};
 export function validManualAiResponse(raw:unknown):raw is {text:string;provider?:string|null;model?:string|null}{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return false;
  const x=raw as Record<string,unknown>;
