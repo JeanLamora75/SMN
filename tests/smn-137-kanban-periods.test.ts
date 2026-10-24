@@ -1,6 +1,6 @@
 import {describe,it} from "node:test";
 import assert from "node:assert/strict";
-import {nextDay,periodFromStart} from "../src/server/kanban/periods";
+import {nextDay,periodFromStart} from "../src/server/kanban/dates";
 describe("SMN-137 — période Kanban unitaire",()=>{
  it("AC2 — suggère le lendemain de la dernière borne",()=>{
   assert.equal(nextDay("2026-10-31"),"2026-11-01");
