@@ -1,12 +1,13 @@
 /** Bootstrap Icons (MIT) — SVG officiels, intégrés sans CDN ni police externe.
  * Source: https://github.com/twbs/icons/tree/main/icons */
-type Name="bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders";
+type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders";
 
 export default function BootstrapIcon({name,className=""}:Readonly<{
  name:Name;className?:string;
 }>){
  const icon=(()=>{
   switch(name){
+   case "house-fill":return <path d="M8 .5a.5.5 0 0 1 .354.146l7.5 7.5a.5.5 0 0 1-.708.708L14 7.707V14a2 2 0 0 1-2 2h-2.5v-5h-3V16H4a2 2 0 0 1-2-2V7.707L.854 8.854a.5.5 0 0 1-.708-.708l7.5-7.5A.5.5 0 0 1 8 .5"/>;
    case "pencil-square":return <>
     <path d="M15.502 1.94a.5.5 0 0 1 0 .706l-1 1a.5.5 0 0 1-.707 0l-1.5-1.5a.5.5 0 0 1 0-.707l1-1a.5.5 0 0 1 .707 0zM13.752 4.396l-1.5-1.5L4.939 10.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12z"/>
     <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5V6a.5.5 0 0 0-1 0v7.5a.5.5 0 0 1-.5.5v-11a.5.5 0 0 0-.5-.5H10a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>

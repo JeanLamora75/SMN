@@ -334,3 +334,20 @@ Tests associés : `tests/smn-234-sprint-ceremonies-compact-modal.test.ts`, à la
 - **Non-régression** : aucun changement aux producteurs SQL des six catégories, filtres serveur, états des sources, droits d'accès, comptage, pagination par 25, snapshots historiques, traductions FR/EN ou navigation de la fiche.
 
 **Recette attendue :** au moins une fiche de chaque type, statut actif/terminé, risque évalué/non évalué, titre très long, date métier, six filtres + Tous, pagination, admin/user, modification depuis titre puis crayon, sous-formulaires, fait automatique, snapshot de clôture, 4 largeurs (desktop/tablette/mobile), FR/EN et erreur de concurrence. Les tests et le build sont à réaliser localement ; GitHub Actions est désactivé.
+
+
+## Panneau latéral gauche — premier lot de refonte (24/10/2026)
+
+**Référence visuelle :** capture fournie d’une sidebar compacte, fond clair, icônes visibles et une ligne par menu. Cette décision concerne la navigation privée commune et complète SMN-22, SMN-23 et la centralisation des Paramètres de SMN-227.
+
+**Demandes retenues pour ce premier lot :**
+- Retirer entièrement de la sidebar le bloc « ESPACE DE TRAVAIL / [produit] / [équipe] / Mode Scrum/Kanban ». La sélection d’équipe et de Sprint reste visible dans l’en-tête, sans doublon latéral. Le produit reste disponible dans les pages métier qui le présentent.
+- Faire apparaître les trois premières lignes dans cet ordre : **Tableau de Bord**, **Équipe**, **Calendrier**. L’élément « Calendrier » pointe toujours vers `/app/team-calendar` ; l’équipe admin vers `/app/admin/members`, sans ouvrir de droit supplémentaire aux utilisateurs en lecture seule.
+- Retirer **Sécurité du compte** de la sidebar car le catalogue des Paramètres conserve son accès à `/app/security`. Ne pas supprimer cette page, ses formulaires ou ses contrôles d’authentification.
+- Retirer **Événements Agile**, ancienne entrée « À venir » sans destination active. Ne pas supprimer les événements réels du calendrier et de l’application.
+- Ne pas reconfigurer le reste des entrées métier lors de ce lot ; les prochains changements de libellés ou de périmètre seront proposés/validés séparément.
+- Libellés latéraux toujours sur **une seule ligne**, sans césure : largeur de sidebar ajustée, `white-space: nowrap`, `text-overflow: ellipsis` en ultime protection pour les petits écrans ; texte complet conservé dans l’attribut `title` et `aria-label`.
+- Icônes Bootstrap Icons au lieu de caractères Unicode : maison `house-fill`, équipe `people-fill`, calendrier `calendar3`, autres catégories via les icônes déjà disponibles. Taille de pictogramme portée à **22 × 22 px**, dans une case de 26 px centrée sur une ligne d’environ 46 px.
+- Lignes regroupées dans un seul flux visuel vertical ; les titres de groupes restent accessibles aux lecteurs d’écran mais ne sont plus visibles visuellement. État actif bleu clair, marquage latéral, focus clavier ; menu réduit et menu mobile conservés.
+
+**Non-régression attendue :** rôle admin/user, Scrum/Kanban, accès direct Paramètres/Sécurité, redirections d’autorisation côté serveur, sous-routes Calendrier/Sprints/Registres, focus menu mobile et fermeture Escape. Les vérifications s’effectuent via `tests/private-navigation.test.ts`, `tests/smn-227-settings-navigation.test.ts` et `tests/smn-sidebar-first-pass-20261024.test.ts` ; la recette visuelle est à effectuer sur Windows 11.

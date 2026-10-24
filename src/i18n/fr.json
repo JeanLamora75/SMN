@@ -570,7 +570,7 @@
       "admin": "ADMINISTRATION"
     },
     "entries": {
-      "dashboard": "Tableau de bord",
+      "dashboard": "Tableau de Bord",
       "security": "Sécurité du compte",
       "events": "Événements Agile",
       "sprints": "Sprints",
@@ -585,7 +585,8 @@
       "audit": "Journal des opérations",
       "backups": "Sauvegardes",
       "members": "Équipe",
-      "countries": "Pays"
+      "countries": "Pays",
+      "calendar": "Calendrier"
     }
   },
   "detail": {

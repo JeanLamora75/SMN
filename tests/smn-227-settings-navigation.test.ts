@@ -8,10 +8,11 @@ const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const admin={role:"admin",is_active:true,must_change_password:false};
 const user={role:"user",is_active:true,must_change_password:false};
 describe("SMN-227 — centralisation des accès sans perte",()=>{
- it("préserve menus opérationnels et espace de sécurité personnel",()=>{
+ it("préserve les menus opérationnels sans doubler la sécurité des Paramètres",()=>{
   for(const role of ["admin","user"] as const){
    const entries=privateNavigation("scrum",role).flatMap(g=>g.entries);
-   assert.equal(entries.find(e=>e.id==="security")?.href,"/app/security");
+   assert.equal(entries.some(e=>e.id==="security"),false);
+   assert.equal(entries.some(e=>e.id==="events"),false);
    assert.equal(entries.find(e=>e.id==="centralCalendar")?.href,"/app/team-calendar");
    assert.equal(entries.find(e=>e.id==="members")?.href,role==="admin"?"/app/admin/members":null);
    assert.equal(entries.find(e=>e.id==="cycles")?.href,"/app/admin/sprints");
@@ -20,6 +21,8 @@ describe("SMN-227 — centralisation des accès sans perte",()=>{
  it("conserve un seul accès paramètres dans la sidebar admin",()=>{
   const entries=privateNavigation("scrum","admin").flatMap(g=>g.entries);
   assert.deepEqual(entries.filter(e=>e.id==="settings").map(e=>e.href),["/app/admin/settings"]);
+  assert.equal(settingsCatalog("scrum",admin).flatMap(g=>g.entries)
+   .find(e=>e.id==="security")?.href,"/app/security");
   for(const id of ["users","scrumCadence","backups","audit","countries"])
    assert.equal(entries.some(e=>e.id===id),false);
  });
