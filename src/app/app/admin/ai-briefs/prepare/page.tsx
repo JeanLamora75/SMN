@@ -8,6 +8,7 @@ import {listBriefTemplates} from "@/server/ai-briefs/templates";
 import BriefOverrides from "./brief-overrides";
 import HumanAnalysisForm from "@/app/app/ai-briefs/human-analysis-form";
 import {readBriefFacts,projectBriefSelection} from "@/server/ai-briefs/facts";
+import {readAnalysisJournal} from "@/server/ai-briefs/journal";
 
 export const dynamic="force-dynamic";
 
@@ -62,6 +63,10 @@ export default async function PrepareAiBrief({searchParams}:{
  const fields=allowedBriefFields(scrum?"scrum":"kanban",selected.data);
  const facts=await withAuthDb(db=>readBriefFacts(db,scrum?"scrum":"kanban",context.id)).catch(()=>({}));
  const projected=projectBriefSelection(scrum?"scrum":"kanban",fields,facts);
+ const historical=await withAuthDb(async db=>{
+  const teams=await db.query<{id:string}>("SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban')");
+  return teams.rows.length===1?readAnalysisJournal(db,teams.rows[0].id,{}):[];
+ }).catch(()=>[]);
  const preparedAt=new Date().toISOString();
  const provisional=context.status!=="closed";
  return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -108,7 +113,7 @@ export default async function PrepareAiBrief({searchParams}:{
       <tbody>{projected.map(item=><tr key={item.key}><th scope="row">{item.label}</th><td>{item.value??"Non renseigné"}</td><td>{item.unit??"—"}</td><td>{item.quality}</td><td>{item.source}{item.snapshotVersion!==null?" · V"+item.snapshotVersion:""}</td></tr>)}</tbody>
      </table></div>
     </div>
-    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt}/>
+    <BriefOverrides key={selected.id+":"+selected.revision} template={selected} mode={scrum?"scrum":"kanban"} context={context} facts={facts} preparedAt={preparedAt} historical={historical}/>
     <p className="small text-secondary">Les champs individuels sont toujours exclus. Les données absentes resteront absentes ; aucune mesure ni conclusion ne sera inventée.</p>
    </section>
    <HumanAnalysisForm mode={scrum?"scrum":"kanban"} cycleId={context.id}/>
