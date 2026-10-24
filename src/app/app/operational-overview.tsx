@@ -2,7 +2,7 @@ import {translate,type TranslationKey} from "@/i18n/catalog";
 import type {Language} from "@/lib/language";
 import Link from "next/link";
 import {classifyEventStatus} from "@/server/dashboard/events-reader";
-import type {CollectiveCycleProjection,DashboardAttention} from "@/lib/dashboard-data-contract";
+import type {CollectiveCycleProjection,DashboardAttention,DashboardEvent} from "@/lib/dashboard-data-contract";
 import BootstrapIcon from "./bootstrap-icon";
 import {dashboardEventIcon,formatDashboardEventPeriod,formatDashboardRegistryDate} from "@/lib/dashboard-card-format";
 import OperationalQuickAdd from "./operational-quick-add";
@@ -234,7 +234,7 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
   review:"sprintDetail.ceremonyKind.review",
   retrospective:"sprintDetail.ceremonyKind.retrospective"
  };
- const eventTitle=(event:CollectiveCycleProjection["events"] extends {items:readonly (infer E)[]} ? E : never):string=>
+ const eventTitle=(event:DashboardEvent):string=>
   event.kind==="ceremony"&&ceremonyLabels[event.title]?
    t(ceremonyLabels[event.title]):event.title;
  const labels:Record<ReturnType<typeof classifyEventStatus>,TranslationKey>={
