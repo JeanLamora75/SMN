@@ -2,6 +2,7 @@ import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
+import {listKanbanCalendarMeetings} from "@/server/kanban/meetings";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
 const resource={type:"collective",exists:true,inScope:true} as const;
@@ -14,8 +15,7 @@ export async function GET(request:NextRequest){
   return jsonResult(await withAuthDb(async db=>{
    const installation=await db.query<{mode:string}>(`SELECT mode FROM public.smn_installation WHERE id='singleton' AND state='initialized'`);
    if(installation.rows[0]?.mode==="kanban"){
-    // Kanban does not inherit the Scrum sprint occurrence tables. No synthetic events.
-    return {meetings:[]};
+    return {meetings:await listKanbanCalendarMeetings(db,start,end)};
    }
    const result=await db.query<{id:string;name:string;start_at:string;end_at:string;kind:string;generation_source:string}>(`
     SELECT c.id,(s.name||' — '||c.kind) AS name,c.starts_at::text AS start_at,c.ends_at::text AS end_at,'ceremony' AS kind,c.generation_source AS generation_source
