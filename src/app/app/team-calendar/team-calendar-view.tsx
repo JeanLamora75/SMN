@@ -1,10 +1,12 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";
-import {useTranslation} from "@/i18n/client";
-type Item={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;memberName?:string;aggregateCount?:number};
-type Calendar={team:{name:string};central:{items:Item[]};collective:{date:string}[]};
-type Meeting={id:string;name:string;startAt:string;endAt:string;kind:string;href:string;generationSource?:string};
+import {useLocale,useTranslation} from "@/i18n/client";
+import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMode} from "./calendar-option-b";
+import MemberAbsenceEditor from "../admin/members/member-absence-editor";
+type Calendar={team:{name:string};central:{items:CalendarEntry[]};collective:{date:string;declaredAbsentMemberCount:number}[]};
+type Meeting=CalendarMeeting;
+type MemberOption={id:string;displayName:string;archived:boolean;startOn:string|null;endOn:string|null};
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string};
 const iso=(d:Date)=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 function shift(day:string,amount:number){const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+amount);return d.toISOString().slice(0,10);}
@@ -17,10 +19,20 @@ function clock(raw:string){return new Date(raw).toLocaleTimeString(undefined,{ho
 export default function TeamCalendarView({isAdmin,initialCreate=false,initialCycleId=null}:{
  isAdmin:boolean;initialCreate?:boolean;initialCycleId?:string|null;
 }){
- const t=useTranslation();
+ const t=useTranslation(),locale=useLocale();
  const openedFromLink=useRef(false);
  const [period,setPeriod]=useState<{start:string;count:number;label:string;sprintId:string|null}|null>(null);
- const [events,setEvents]=useState<Item[]>([]);
+ const [events,setEvents]=useState<CalendarEntry[]>([]);
+ const [teamName,setTeamName]=useState("");
+ const [absenceCounts,setAbsenceCounts]=useState<Record<string,number>>({});
+ const [view,setView]=useState<CalendarMode>("cards");
+ const [showMeetings,setShowMeetings]=useState(true);
+ const [showAbsences,setShowAbsences]=useState(true);
+ const [refreshToken,setRefreshToken]=useState(0);
+ const [absenceEditor,setAbsenceEditor]=useState<string|null>(null);
+ const [chosenMember,setChosenMember]=useState("");
+ const [availableMembers,setAvailableMembers]=useState<MemberOption[]>([]);
+ const [membersStatus,setMembersStatus]=useState<"loading"|"ready"|"error">("loading");
  const [meetings,setMeetings]=useState<Meeting[]>([]);
  const [sprints,setSprints]=useState<Sprint[]>([]);
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
@@ -39,10 +51,11 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     const active=(initialCycleId?list.find(s=>s.id===initialCycleId):null)
       ??list.find(s=>s.status==="active"&&localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
       ??list.find(s=>localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
-      ??list[0];
+      ??list.filter(s=>localDate(s.startAt)<=current).sort((a,b)=>localDate(b.startAt).localeCompare(localDate(a.startAt)))[0]
+      ??list[list.length-1];
     if(!active){setPeriod(fallback());return;}
     const begin=localDate(active.startAt),finish=localDate(active.endAt);
-    const count=Math.max(1,Math.ceil((new Date(finish+"T12:00:00Z").getTime()-new Date(begin+"T12:00:00Z").getTime())/86400000));
+    const count=Math.max(1,Math.round((new Date(finish+"T12:00:00Z").getTime()-new Date(begin+"T12:00:00Z").getTime())/86400000)+1);
     setPeriod({start:begin,count,label:active.name,sprintId:active.id});
    }).catch(()=>{if(live)setPeriod(fallback());});
    return()=>{live=false;};
@@ -56,12 +69,35 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   }
   const end=days[days.length-1];
   void Promise.all([Promise.all(blocks),fetch("/api/team-calendar/meetings?"+new URLSearchParams({start:period.start,end}),{cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("meetings");return r.json() as Promise<{meetings:Meeting[]}>;})])
-  .then(([parts,meet])=>{if(!alive)return;setEvents(parts.flatMap(x=>x.central.items));setMeetings(meet.meetings);setStatus("ready");})
+  .then(([parts,meet])=>{if(!alive)return;
+   const counts:Record<string,number>={};
+   for(const p of parts){for(const day of p.collective){
+    if(!Number.isSafeInteger(day.declaredAbsentMemberCount)||day.declaredAbsentMemberCount<0)throw Error("absence-count-unavailable");
+    counts[day.date]=day.declaredAbsentMemberCount;
+   }}
+   if(days.some(day=>counts[day]===undefined))throw Error("absence-count-incomplete");
+   setAbsenceCounts(counts);setTeamName(parts[0]?.team.name??"");
+   setEvents(parts.flatMap(x=>x.central.items));setMeetings(meet.meetings);setStatus("ready");})
   .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};
- },[period]);
- function change(direction:number){if(!period)return;
+ },[period,refreshToken]);
+ function sprintPeriod(s:Sprint){
+  const start=localDate(s.startAt),finish=localDate(s.endAt);
+  return {start,count:Math.max(1,Math.round((new Date(finish+"T12:00:00Z").getTime()-new Date(start+"T12:00:00Z").getTime())/86400000)+1),label:s.name,sprintId:s.id};
+ }
+ function change(direction:number){
+  if(!period)return;
+  if(period.sprintId){
+   const index=sprints.findIndex(s=>s.id===period.sprintId);
+   const other=sprints[index-direction];
+   if(other){setPeriod(sprintPeriod(other));return;}
+  }
   const next=shift(period.start,direction*period.count);
   setPeriod({start:monthStart(next),count:monthLength(next),label:next.slice(0,7),sprintId:null});
+ }
+ function resetPeriod(){
+  const active=sprints.find(s=>localDate(s.startAt)<=now&&localDate(s.endAt)>=now);
+  if(active){setPeriod(sprintPeriod(active));return;}
+  setPeriod({start:monthStart(now),count:monthLength(now),label:now.slice(0,7),sprintId:null});
  }
  const openCreate=useCallback((day:string)=>{
   setEditor(day);setWhen(day+"T09:00");setName("");setDuration(60);setSaveError("");
@@ -74,12 +110,12 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   if(!sprint||sprint.status==="closed"||(initialCycleId&&sprint.id!==initialCycleId))return;
   const start=localDate(sprint.startAt),end=localDate(sprint.endAt);
   const today=iso(new Date());
-  const day=today>=start&&today<end?today:start;
+  const day=today>=start&&today<=end?today:start;
   openedFromLink.current=true;
   openCreate(day);
  },[isAdmin,initialCreate,initialCycleId,period,status,sprints,openCreate]);
  const selectedDate=when.slice(0,10);
- const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<localDate(x.endAt));
+ const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<=localDate(x.endAt));
  async function save(){if(!period||!selectedSprint||!editor||!name.trim()||busy)return;
   setBusy(true);setSaveError("");
   try{const date=new Date(when);if(Number.isNaN(date.valueOf()))throw Error("date");
@@ -93,40 +129,102 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   }catch{setSaveError(t("calendarUX.saveFailed"));}finally{setBusy(false);}
  }
  const all=period?dates(period.start,period.count):[];
- const dayFormat=new Intl.DateTimeFormat(undefined,{day:"numeric",month:"short"});
- const weekdayFormat=new Intl.DateTimeFormat(undefined,{weekday:"short"});
- return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4 d-grid gap-3">
-  <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-   <div><h1 className="h3 mb-1">{t("teamCalendar.title")}</h1><p className="text-secondary mb-0">{period?.label??""}</p></div>
-   <div className="d-flex gap-2"><button className="btn btn-outline-secondary" onClick={()=>change(-1)} disabled={!period}>←</button>
-    <button className="btn btn-outline-secondary" onClick={()=>setPeriod({start:monthStart(now),count:monthLength(now),label:now.slice(0,7),sprintId:null})}>{t("teamCalendar.today")}</button>
-    <button className="btn btn-outline-secondary" onClick={()=>change(1)} disabled={!period}>→</button></div>
+ const currentDate=(day:string)=>new Intl.DateTimeFormat(locale,{
+  timeZone:"UTC",day:"numeric",month:"long",year:"numeric"
+ }).format(new Date(day+"T12:00:00Z"));
+ const isEditable=useCallback((day:string)=>{
+  if(!isAdmin||[0,6].includes(new Date(day+"T12:00:00Z").getUTCDay()))return false;
+  return sprints.some(s=>s.status!=="closed"&&localDate(s.startAt)<=day&&localDate(s.endAt)>=day);
+ },[isAdmin,sprints]);
+ useEffect(()=>{
+  if(!absenceEditor||!isAdmin)return;
+  let alive=true;setMembersStatus("loading");setAvailableMembers([]);
+  void fetch("/api/admin/members",{cache:"no-store"}).then(async r=>{
+   if(!r.ok)throw Error("members");
+   return r.json() as Promise<{members:MemberOption[]}>;
+  }).then(data=>{
+   if(!alive)return;
+   setAvailableMembers(data.members.filter(m=>!m.archived&&m.startOn!==null&&m.startOn<=absenceEditor&&
+    (m.endOn===null||m.endOn>=absenceEditor)));
+   setMembersStatus("ready");
+  }).catch(()=>{if(alive)setMembersStatus("error");});
+  return()=>{alive=false;};
+ },[absenceEditor,isAdmin]);
+ return <main className="smn-page smn-team-page smn-calendar-option-b container-fluid py-4 px-3 px-lg-4 d-grid gap-3">
+  <div className="smn-cal-page-heading">
+   <div>
+    <div className="smn-cal-eyebrow">{t("calendarOptionB.eyebrow")}</div>
+    <h1 className="h3 mb-2">{t("teamCalendar.title")}</h1>
+    <div className="smn-cal-context">
+     {teamName&&<strong>{teamName}</strong>}
+     <strong>{period?.sprintId?period.label:t("calendarOptionB.fallback")}</strong>
+     {period&&<span>{currentDate(period.start)} – {currentDate(shift(period.start,period.count-1))}</span>}
+     {period?.sprintId&&<span className="smn-cal-state">{sprints.find(s=>s.id===period.sprintId)?.status}</span>}
+     <span>{t("calendarOptionB.timezone")}</span>
+    </div>
+   </div>
+   <div className="smn-cal-nav">
+    {sprints.length>0&&<select className="form-select form-select-sm smn-cal-select"
+      aria-label={t("calendarOptionB.selectSprint")} value={period?.sprintId??""}
+      onChange={e=>{const selected=sprints.find(s=>s.id===e.target.value);if(selected)setPeriod(sprintPeriod(selected));}}>
+      <option value="" disabled>{t("calendarOptionB.selectSprint")}</option>
+      {sprints.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+     </select>}
+    <button className="btn btn-outline-secondary btn-sm" aria-label={t("calendarOptionB.previous")}
+      disabled={!period} onClick={()=>change(-1)}>‹</button>
+    <button className="btn btn-outline-primary btn-sm" onClick={resetPeriod}>{t("calendarOptionB.today")}</button>
+    <button className="btn btn-outline-secondary btn-sm" aria-label={t("calendarOptionB.next")}
+      disabled={!period} onClick={()=>change(1)}>›</button>
+   </div>
   </div>
+  <div className="smn-cal-toolbar">
+   <div className="smn-cal-control-group"><strong>{t("calendarOptionB.display")}</strong>
+    <button type="button" className={"smn-cal-chip"+(showMeetings?" is-selected":"")} aria-pressed={showMeetings}
+      onClick={()=>setShowMeetings(v=>!v)}>{t("calendarOptionB.meetings")}</button>
+    <button type="button" className={"smn-cal-chip"+(showAbsences?" is-selected":"")} aria-pressed={showAbsences}
+      onClick={()=>setShowAbsences(v=>!v)}>{t("calendarOptionB.absenceFilter")}</button>
+   </div>
+   <div className="smn-cal-control-group"><strong>{t("calendarOptionB.presentation")}</strong>
+    <div className="smn-cal-switch" role="group" aria-label={t("calendarOptionB.presentation")}>
+     <button type="button" className={view==="cards"?"is-active":""} aria-pressed={view==="cards"}
+       onClick={()=>setView("cards")}>{t("calendarOptionB.cards")}</button>
+     <button type="button" className={view==="agenda"?"is-active":""} aria-pressed={view==="agenda"}
+       onClick={()=>setView("agenda")}>{t("calendarOptionB.agenda")}</button>
+    </div>
+   </div>
+  </div>
+  <p className="smn-cal-legend">
+   <span>{t("calendarOptionB.legendToday")}</span>
+   <span>{t("calendarOptionB.legendNonwork")}</span>
+   <span>{t("calendarOptionB.legendActions")}</span>
+  </p>
   {status==="loading"&&<p role="status">{t("teamCalendar.loading")}</p>}
-  {status==="error"&&<p role="alert" className="alert alert-warning">{t("teamCalendar.loadFailed")}</p>}
-  {status==="ready"&&<div className="smn-calendar-grid">
-   {all.map(date=>{const d=new Date(date+"T12:00:00Z");const weekend=d.getUTCDay()===0||d.getUTCDay()===6;
-    const matching=events.filter(e=>e.date===date);
-    const holiday=matching.find(e=>e.type==="holiday");
-    const meetingsToday=meetings.filter(m=>calendarDate(m.startAt)===date)
-     .sort((a,b)=>new Date(a.startAt).getTime()-new Date(b.startAt).getTime());
-    return <article key={date} className={"smn-calendar-day"+(weekend||holiday?" is-nonwork":"")+(date===now?" is-today":"")}>
-     <header className="d-flex justify-content-between align-items-start gap-2">
-      <div><div className="small text-secondary">{weekdayFormat.format(d)}</div>
-       <div className="fw-bold">{dayFormat.format(d)}</div></div>
-      {isAdmin&&<button type="button" className="btn btn-sm btn-outline-primary" aria-label={t("calendarUX.addMeeting")}
-        onClick={()=>openCreate(date)}>+</button>}
-     </header>
-     <div className="smn-calendar-holiday">{holiday?.title??"\u00a0"}</div>
-     <ul className="list-unstyled smn-calendar-meetings mb-0">
-      {meetingsToday.map(m=><li key={m.kind+":"+m.id} title={clock(m.startAt)+" — "+clock(m.endAt)}>
-       <Link href={m.href}>{m.name}</Link>{m.generationSource==="reconstructed"&&<span className="small d-block text-secondary">{t("sprintWizard.reconstructedLabel")}</span>}</li>)}
-      {matching.filter(e=>e.type!=="holiday"&&e.type!=="meeting").map(e=><li key={e.type+":"+e.id} className="small text-secondary">
-       {e.sourceHref?.startsWith("/app/")?<Link href={e.sourceHref}>{e.title||e.type}</Link>:e.title||e.type}
-      </li>)}
-     </ul>
-    </article>;
-   })}
+  {status==="error"&&<p role="alert" className="alert alert-warning">{t("teamCalendar.loadFailed")} — {t("calendarOptionB.errorCounts")}</p>}
+  {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
+   absenceCounts={absenceCounts} today={now} mode={view}
+   showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
+   onMeeting={openCreate} onAbsence={day=>{setChosenMember("");setAbsenceEditor(day);}}/>}
+  {absenceEditor&&<div className="smn-member-modal-backdrop" role="presentation">
+   <div className="smn-member-modal p-4" role="dialog" aria-modal="true"
+    aria-labelledby="calendar-absence-title">
+    <h2 className="h5" id="calendar-absence-title">{t("calendarOptionB.absenceCreate")}</h2>
+    <label className="form-label" htmlFor="calendar-absence-member">{t("calendarOptionB.chooseMember")}</label>
+    {membersStatus==="loading"&&<p role="status">{t("calendarOptionB.loadingMembers")}</p>}
+    {membersStatus==="error"&&<p role="alert">{t("calendarOptionB.membersFailed")}</p>}
+    {membersStatus==="ready"&&<select autoFocus id="calendar-absence-member" className="form-select mb-3"
+     value={chosenMember} onChange={e=>setChosenMember(e.target.value)}>
+      <option value="">{t("calendarOptionB.chooseMemberPlaceholder")}</option>
+      {availableMembers.map(m=><option key={m.id} value={m.id}>{m.displayName}</option>)}
+    </select>}
+    {chosenMember&&<MemberAbsenceEditor key={chosenMember+absenceEditor} memberId={chosenMember}
+     initialDate={absenceEditor} record={null}
+     onSaved={()=>{setAbsenceEditor(null);setRefreshToken(n=>n+1);}}
+     onCancel={()=>setAbsenceEditor(null)}/>}
+    {!chosenMember&&<div className="d-flex justify-content-end mt-3">
+     <button type="button" className="btn btn-outline-secondary"
+      onClick={()=>setAbsenceEditor(null)}>{t("calendarOptionB.close")}</button>
+    </div>}
+   </div>
   </div>}
   {editor&&<div className="smn-member-modal-backdrop" role="presentation">
    <div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-labelledby="new-meeting-heading">
