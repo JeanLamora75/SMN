@@ -26,8 +26,8 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
  const closed=kind==="risk"?["resolved"]:["resolved","abandoned"];
  const roamClause=hasRoam?
   " AND NOT EXISTS(SELECT 1 FROM public.smn_risk_roam roam WHERE roam.item_id=r.id AND roam.classification=\'resolved\')":"";
- const statusParam=hasLinks?4:3;
- const where=`r.team_id=$1 AND r.type=$2 AND r.status<>ALL(${statusParam}::text[]) AND ${associated}${roamClause}`;
+ const statusSql=hasLinks?"$4::text[]":"$3::text[]";
+ const where=`r.team_id=$1 AND r.type=$2 AND r.status<>ALL(${statusSql}) AND ${associated}${roamClause}`;
  const params=hasLinks?[teamId,kind,cycleId,closed]:[teamId,kind,closed];
  const count=await db.query<{total:number}>(`SELECT COUNT(*)::int AS total FROM public.smn_registry_item r WHERE ${where}`,params);
  const joins=hasAssessment?" LEFT JOIN public.smn_risk_assessment a ON a.item_id=r.id":"";
