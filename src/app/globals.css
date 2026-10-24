@@ -172,3 +172,72 @@ dialog.smn-sprint-edit-dialog::backdrop {background:rgba(0,0,0,.52);}
  dialog.smn-sprint-edit-dialog {max-height:calc(100dvh - 12px);width:calc(100vw - 12px);}
  .smn-sprint-detail-tabs .nav-link{padding:.6rem .75rem;font-size:.92rem;}
 }
+
+
+/* Calendrier : densité, hiérarchie et deux vues héritant des thèmes SMN. */
+.smn-calendar-option-b{max-width:none;width:100%;min-width:0}
+.smn-cal-eyebrow{font-size:.72rem;font-weight:750;letter-spacing:.09em;text-transform:uppercase;color:var(--smn-muted);margin-bottom:6px}
+.smn-cal-page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.smn-cal-context{display:flex;align-items:center;flex-wrap:wrap;gap:8px;color:var(--smn-muted);font-size:.82rem}
+.smn-cal-context strong{color:var(--smn-foreground)}
+.smn-cal-state{border:1px solid var(--smn-border);border-radius:1rem;padding:2px 8px;color:var(--smn-primary);background:var(--smn-highlight);font-size:.72rem}
+.smn-cal-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.smn-cal-nav .btn{min-height:38px;min-width:38px}
+.smn-cal-select{width:auto;max-width:245px;min-height:38px}
+.smn-cal-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:10px 14px;border:1px solid var(--smn-border);background:var(--smn-surface);border-radius:13px}
+.smn-cal-control-group{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:.77rem}
+.smn-cal-control-group>strong{color:var(--smn-muted)}
+.smn-cal-chip{border:1px solid var(--smn-border);background:var(--smn-surface);border-radius:18px;padding:7px 12px;font-weight:650;color:var(--smn-muted)}
+.smn-cal-chip.is-selected{background:var(--smn-highlight);border-color:var(--smn-primary);color:var(--smn-primary)}
+.smn-cal-switch{display:flex;gap:2px;background:var(--smn-muted-soft);padding:3px;border-radius:9px}
+.smn-cal-switch button{border:0;background:transparent;border-radius:7px;padding:7px 12px;font-size:.78rem;font-weight:700;color:var(--smn-muted)}
+.smn-cal-switch button.is-active{background:var(--smn-surface);color:var(--smn-primary);box-shadow:0 1px 5px rgba(0,0,0,.12)}
+.smn-cal-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.73rem;color:var(--smn-muted);margin:0}
+.smn-cal-legend span::before{content:"";display:inline-block;width:10px;height:10px;border:1px solid var(--smn-border);border-radius:3px;background:var(--smn-muted-soft);margin-right:5px}
+.smn-cal-legend span:first-child::before{border:2px solid var(--smn-primary);background:var(--smn-surface)}
+.smn-calendar-option-b .smn-calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:stretch}
+.smn-calendar-option-b .smn-cal-card{display:flex;flex-direction:column;min-height:172px;padding:11px 10px 9px;border-radius:13px;overflow-wrap:normal;min-width:0;box-shadow:0 2px 6px rgba(20,50,90,.04)}
+.smn-calendar-option-b .smn-cal-card.is-today{border:2px solid var(--smn-primary);padding:10px 9px 8px;box-shadow:inset 0 0 0 1px var(--smn-primary)}
+.smn-cal-card-header{position:relative}
+.smn-cal-weekday{display:block;font-weight:750;text-transform:uppercase;letter-spacing:.03em;font-size:.69rem;color:var(--smn-muted)}
+.smn-cal-date{display:flex;align-items:baseline;gap:5px}
+.smn-cal-date strong{font-size:1.32rem;line-height:1.35}
+.smn-cal-date>span{font-size:.75rem;font-weight:700;color:var(--smn-muted)}
+.smn-cal-today{position:absolute;right:0;top:0;font-size:.63rem;color:var(--smn-primary);background:var(--smn-highlight);padding:2px 5px;border-radius:10px;font-weight:700}
+.smn-calendar-option-b .smn-calendar-holiday{min-height:0;margin-top:0;color:var(--smn-muted);font-size:.71rem;line-height:1.25}
+.smn-cal-events{display:flex;flex-direction:column;gap:5px;margin-top:12px;min-width:0}
+.smn-cal-event{display:flex;align-items:flex-start;gap:7px;min-width:0;background:var(--smn-highlight);border-left:3px solid var(--smn-primary);border-radius:6px;padding:6px 7px}
+.smn-cal-event-copy{display:flex;flex-direction:column;min-width:0;gap:2px}
+.smn-cal-icon{flex:none;line-height:1.25;color:var(--smn-primary)}
+.smn-cal-event-title{font-size:.72rem;line-height:1.26;font-weight:750;color:var(--smn-primary);overflow-wrap:anywhere;text-decoration:none}
+.smn-cal-event-title:hover,.smn-cal-event-title:focus-visible{text-decoration:underline}
+.smn-cal-event-time{font-size:.67rem;color:var(--smn-muted)}
+.smn-cal-absence{background:var(--smn-soft);border-color:var(--smn-muted);align-items:center}
+.smn-cal-absence .smn-cal-icon,.smn-cal-absence .smn-cal-event-title{color:var(--smn-foreground)}
+.smn-cal-absence-title{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;overflow-wrap:normal}
+.smn-cal-closure{background:var(--smn-muted-soft);border-color:var(--smn-border)}
+.smn-cal-day-actions{display:flex;gap:4px;margin-top:auto;padding-top:12px}
+.smn-cal-day-actions button{flex:1;min-width:0;white-space:nowrap;padding:7px 2px;border:1px dashed var(--smn-border);border-radius:7px;background:var(--smn-surface);color:var(--smn-primary);font-weight:750;font-size:.66rem}
+.smn-cal-day-actions button:hover{background:var(--smn-highlight)}
+.smn-cal-agenda{display:flex;flex-direction:column;gap:9px;min-width:0}
+.smn-cal-agenda-day{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;padding:12px 16px;border:1px solid var(--smn-border);background:var(--smn-surface);border-radius:10px}
+.smn-cal-agenda-day.is-today{border:2px solid var(--smn-primary)}
+.smn-cal-agenda-date{display:flex;flex-direction:column;gap:4px;font-size:.81rem;text-transform:capitalize}
+.smn-cal-agenda-content{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;min-width:0}
+.smn-cal-agenda-events{display:flex;flex-wrap:wrap;align-items:flex-start;gap:7px;min-width:0}
+.smn-cal-agenda-events .smn-cal-event{min-width:145px}
+.smn-cal-agenda-events .smn-cal-absence{min-width:0}
+.smn-cal-agenda-content .smn-cal-day-actions{margin-top:0;padding-top:0;flex:none}
+.smn-cal-muted{font-size:.74rem;color:var(--smn-muted)}
+@media(max-width:1180px){
+ .smn-calendar-option-b .smn-calendar-grid{overflow-x:auto;grid-template-columns:repeat(7,minmax(145px,1fr));padding-bottom:8px}
+}
+@media(max-width:680px){
+ .smn-cal-nav{width:100%}
+ .smn-cal-select{flex:1;max-width:100%}
+ .smn-cal-toolbar{align-items:flex-start}
+ .smn-cal-agenda-day{grid-template-columns:minmax(0,1fr)}
+ .smn-cal-agenda-content{display:block}
+ .smn-cal-agenda-content .smn-cal-day-actions{margin-top:10px}
+ .smn-cal-agenda-events{flex-direction:column;align-items:stretch}
+}
