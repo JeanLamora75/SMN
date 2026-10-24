@@ -2,7 +2,7 @@
 import {useEffect,useState} from "react";
 import Link from "next/link";
 type Period={id:string;name:string;startOn:string;endOn:string;status:string};
-type Correction={period:Period;before:{startOn:string;endOn:string};after:{startOn:string;endOn:string};conflicts:string[];canConfirm:boolean;previewToken:string;warnings:string[]};
+type Correction={period:Period;before:{startOn:string;endOn:string};after:{startOn:string;endOn:string};conflicts:string[];canConfirm:boolean;previewToken:string;warnings:string[];impact?:{counts:{started:string|null;throughput:string|null;wip_final:string|null}|null;timing:{cycle_days:string|null;cycle_convention:string;lead_days:string|null;lead_convention:string}|null;goals:{id:string;title:string;evaluation:string}[];reviewSuggested:boolean}};
 type HistoryRow={id:string;action:string;actorId:string|null;createdAt:string;details:{before?:{startOn:string;endOn:string};after?:{startOn:string;endOn:string};reason?:string|null;events?:string;capacity?:string;warnings?:string[]}};
 type RemovalSummary={period:{id:string;name:string;start_on:string;end_on:string;status:string;created_by:string|null};eligible:boolean;wasStarted:boolean;relations:{type:string;count:number;action:string}[];action:"soft-delete"};
 export default function PeriodNameList({canManage}:{canManage:boolean}){
@@ -137,6 +137,18 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
    <button className="btn btn-outline-secondary" type="button" disabled={busy!==null} onClick={()=>{setDateEdit(null);setCorrection(null);}}>Annuler</button>
    {correction&&<div className="mt-3">
     <p>Après : {correction.after.startOn} → {correction.after.endOn}</p>
+    {correction.impact?.reviewSuggested&&<div className="alert alert-warning">
+     <strong>Vérifier les données du bilan après replanification (non bloquant)</strong>
+     <p className="small mb-1">Les cinq métriques et les objectifs restent inchangés. Les nouvelles bornes peuvent modifier les populations mesurées.</p>
+     <ul className="mb-1 small">
+      <li>Commencés : {correction.impact.counts?.started??"Non renseigné"}</li>
+      <li>Terminés : {correction.impact.counts?.throughput??"Non renseigné"}</li>
+      <li>WIP final : {correction.impact.counts?.wip_final??"Non renseigné"}</li>
+      <li>Cycle Time : {correction.impact.timing?.cycle_days??"Non renseigné"} ({correction.impact.timing?.cycle_convention??"convention inconnue"})</li>
+      <li>Lead Time : {correction.impact.timing?.lead_days??"Non renseigné"} ({correction.impact.timing?.lead_convention??"convention inconnue"})</li>
+     </ul>
+     {correction.impact.goals.map(g=><p className="small mb-1" key={g.id}>Objectif à vérifier : {g.title} — {g.evaluation}</p>)}
+    </div>}
     {correction.conflicts.length>0&&<p className="alert alert-warning">Conflits : {correction.conflicts.join(", ")}</p>}
     {!correction.canConfirm&&<p className="text-danger">Confirmation bloquée : bornes invalides ou chevauchement.</p>}
     {correction.canConfirm&&<button className="btn btn-primary" disabled={busy!==null||eventChoice==="recalculate"} onClick={confirmCorrection}>Confirmer la correction</button>}
