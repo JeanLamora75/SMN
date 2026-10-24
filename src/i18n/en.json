@@ -2836,7 +2836,8 @@
     "statusPlanned": "Planned",
     "statusClosed": "Closed",
     "statusSuspended": "Suspended",
-    "holiday": "Holiday affecting some members"
+    "holiday": "Holiday affecting some members",
+    "absentMembers": "Absent team members"
   },
   "calendarMeeting": {
     "heading": "Event details",
