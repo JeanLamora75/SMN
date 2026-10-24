@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {describe,it} from "node:test";
 import type {Client} from "pg";
 import {readSprintRegisters} from "../src/server/sprints/registers-detail-read";
@@ -99,4 +100,60 @@ describe("SMN-234 — raccordement Epic 5 des six registres",()=>{
    {state:"unavailable",reason:"history-missing"});
   assert.equal(f.queries.length,3);
  });
+ it("les six catégories réelles disposent de liens et le filtre agit avant la pagination",async()=>{
+  const types=["risk","obstacle","dependency","decision","action","highlight"];
+  const f=fake(sql=>sql.includes("to_regclass")?
+   {rows:[{items:true,links:false,audit:true,assess:false,automatic:false}]}:
+   {rows:types.map((type,i)=>item("id"+i,type,"2026-10-29T09:00:00Z"))});
+  const all=await readSprintRegisters(f.db,team,sprint,1,readEpic5SprintRegisterSource);
+  assert.equal(all?.state,"available");
+  if(all?.state==="available"){
+   assert.equal(all.total,6);
+   assert.deepEqual(new Set(all.items.map(x=>x.kind)),new Set(types));
+  }
+  const action=await readSprintRegisters(f.db,team,sprint,1,readEpic5SprintRegisterSource,"action");
+  assert.equal(action?.state,"available");
+  if(action?.state==="available"){
+   assert.equal(action.total,1);
+   assert.equal(action.items[0].kind,"action");
+  }
+  const sql=f.queries.find(x=>x.sql.includes("FROM public.smn_registry_item r"))!;
+  assert.deepEqual(sql.params,[team,"Europe/Paris"]);
+  assert.match(sql.sql,/AT TIME ZONE \$2/);
+  assert.doesNotMatch(sql.sql,/AT TIME ZONE \$3/);
+ });
+ it("les faits automatiques sont issus des fiches ou d'objectifs du Sprint",async()=>{
+  const f=fake(sql=>
+   sql.includes("to_regclass")?{rows:[{items:true,links:true,audit:false,assess:false,
+    automatic:true,selection:true,invalidated:true,goals:true}]}:
+   sql.includes("FROM public.smn_registry_item r")?
+    {rows:[]}:
+   sql.includes("h.source_kind='registry'")?
+    {rows:[{id:"highlight1",title:"Risque élevé",
+     date:"2026-10-29T09:00:00Z",sprintIds:[sprint.id]}]}:
+   sql.includes("h.source_kind='goal'")?
+    {rows:[{id:"highlight2",title:"Objectif atteint",
+     date:"2026-10-30T09:00:00Z",sprintIds:[sprint.id]}]}:{rows:[]});
+  const r=await readSprintRegisters(f.db,team,sprint,1,readEpic5SprintRegisterSource,"highlight");
+  assert.equal(r?.state,"available");
+  if(r?.state==="available"){
+   assert.equal(r.total,2);
+   assert.ok(r.items.every(x=>x.kind==="highlight"&&x.href===null));
+  }
+  assert.ok(f.queries.some(x=>x.sql.includes("h.invalidated_at IS NULL")));
+  assert.ok(f.queries.some(x=>x.sql.includes("COALESCE(fs.hidden,false)=false")));
+  assert.ok(f.queries.some(x=>x.sql.includes("AND sp.id=$2")));
+ });
+ it("la nouvelle interface conserve une liste navigable et ne mentionne plus un Epic 5 non développé",()=>{
+  const {readFileSync}=require("node:fs");
+  const content=readFileSync(new URL("../src/app/app/admin/sprints/[sprintId]/sprint-registers-panel.tsx",import.meta.url),"utf8");
+  const page=readFileSync(new URL("../src/app/app/admin/sprints/[sprintId]/page.tsx",import.meta.url),"utf8");
+  const fr=JSON.parse(readFileSync(new URL("../src/i18n/fr.json",import.meta.url),"utf8"));
+  assert.match(content,/registersAll/);
+  assert.match(content,/aria-current=\{selectedKind===kind/);
+  assert.match(content,/safeRegisterHref\(item.href\)/);
+  assert.match(page,/readEpic5SprintRegisterSource,registerKind/);
+  assert.doesNotMatch(fr.sprintDetail.registersProducerPending,/pas encore développés/);
+ });
+
 });
