@@ -57,6 +57,27 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     assert.notEqual(classifySnapshot({ ...valid, tables: [...names, ...relations] }).status, "schema-incompatible");
     assert.equal(classifySnapshot({ ...valid, tables: [...names, ...relations, "public.foreign_table:r"] }).status, "schema-incompatible");
   });
+  it("autorise uniquement les tables SMN créées par les modales de registre et de notes",()=>{
+    const origins=[
+      ["src/server/registries/items.ts",[
+        "public.smn_registry_item:r","public.smn_registry_item_audit:r"
+      ]],
+      ["src/server/reports/draft-notes.ts",[
+        "public.smn_report_draft:r","public.smn_report_draft_audit:r"
+      ]]
+    ] as const;
+    const relations:string[]=[];
+    for(const [path,expected] of origins){
+      const source=readFileSync(new URL("../"+path,import.meta.url),"utf8");
+      for(const relation of expected){
+        assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
+        assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
+        relations.push(relation);
+      }
+    }
+    assert.notEqual(classifySnapshot({...valid,tables:[...names,...relations]}).status,"schema-incompatible");
+    assert.equal(classifySnapshot({...valid,tables:[...names,...relations,"public.untrusted_table:r"]}).status,"schema-incompatible");
+  });
   it("refuse les installations partielles et versions futures inconnues", () => {
     assert.equal(classifySnapshot({ ...valid, migrations: [] }).status, "installation-incomplete");
     assert.equal(classifySnapshot({ ...valid, migrations: [{ migration_name: "x", finished_at: null, rolled_back_at: null }] }).status, "installation-incomplete");
