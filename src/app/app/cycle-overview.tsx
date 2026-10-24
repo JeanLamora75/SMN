@@ -42,10 +42,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection}
     aria-labelledby="smn-cycle-overview-heading">
     <header className="smn-cycle-overview-header smn-cycle-header-compact" id="cycles">
       <div className="smn-cycle-identity">
-        <p className="smn-cycle-eyebrow">
-          {t(scrum?"dashboard.sprint":"dashboard.kanbanCycle")}
-        </p>
-        <h1 id="smn-cycle-overview-heading">{cycle?.name??t("dashboard.cockpit.noCycle")}</h1>
+        <h1 id="smn-cycle-overview-heading">{cycle?cycle.name+" - "+context.team:t("dashboard.cockpit.noCycle")}</h1>
         {cycle?<div className="smn-cycle-summary" role="group" aria-label={t("dashboard.cockpit.details")}>
           <span className="smn-cycle-date-range">
             <BootstrapIcon name="calendar3"/>
@@ -57,21 +54,14 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection}
         </div>:<p className="smn-cycle-description">
           {t(scrum?"dashboard.cockpit.noSprintHelp":"dashboard.cockpit.noPeriodHelp")}
         </p>}
-        <p className="smn-cycle-context">
-          <strong>{context.product}</strong><span aria-hidden="true"> · </span>{context.team}
-        </p>
       </div>
       <div className="smn-cycle-goal-block" aria-label={t("dashboard.cockpit.sprintGoal")}>
         <span className="smn-cycle-goal-icon"><BootstrapIcon name="bullseye"/></span>
         <div className="smn-cycle-goal-copy">
           <h2>{t("dashboard.cockpit.sprintGoal")}</h2>
-          {goals?.state==="available"&&goals.items.length>0?<>
-            <p className="smn-cycle-goal-text">{goals.items[0].title}</p>
-            {goals.items.length>1&&cycle&&
-              <Link className="smn-cycle-more-goals" href={sprintDetailPath(cycle.id)}>
-                {t("dashboard.cockpit.otherGoals",{count:goals.items.length-1})}
-              </Link>}
-          </>:<p className="smn-cycle-goal-placeholder">
+          {goals?.state==="available"&&goals.items.length>0?<ul className="list-unstyled mb-0 smn-cycle-goal-list">
+            {goals.items.slice(0,3).map(goal=><li key={goal.id} className="smn-cycle-goal-text">{goal.title}</li>)}
+          </ul>:<p className="smn-cycle-goal-placeholder">
             {goals?.state==="available"?t("dashboard.cockpit.goalNotSpecified"):
               goals?.state==="unavailable"?t("dashboard.cockpit.notAvailable"):
               t("dashboard.cockpit.goalNotSpecified")}
