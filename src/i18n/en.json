@@ -1991,6 +1991,10 @@
       "audit": {
         "title": "Audit log",
         "description": "Review the operation audit trail."
+      },
+      "kanbanCadence": {
+        "title": "Kanban cadence",
+        "description": "Monthly, weekly and biweekly reference periods"
       }
     },
     "view": {
@@ -2918,5 +2922,30 @@
     "invalidSchedule": "Check start and end: end must follow start, local times must exist, and duration must be valid for this meeting type.",
     "outsideSprint": "The updated meeting must remain within the sprint dates.",
     "closedPeriod": "This sprint is closed: the meeting cannot be rescheduled."
+  },
+  "kanbanCadence": {
+    "title": "Kanban cadence",
+    "intro": "Configure the team’s Kanban reference boundaries. Saving does not create periods.",
+    "frequency": "Cadence",
+    "monthly": "Monthly (calendar month)",
+    "weekly": "Weekly (7 days)",
+    "biweekly": "Biweekly (14 days)",
+    "startDay": "First day of the period",
+    "timeZone": "IANA time zone",
+    "save": "Save",
+    "saved": "Settings saved",
+    "loadError": "Unable to load cadence.",
+    "saveError": "Unable to save cadence.",
+    "conflict": "Settings changed. Reload the page.",
+    "revision": "Revision: {revision}",
+    "days": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    }
   }
 }
