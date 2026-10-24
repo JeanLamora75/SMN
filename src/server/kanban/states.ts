@@ -21,7 +21,7 @@ export async function reconcileKanbanStates(db:Client){
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_capacity_opening (
  period_id text PRIMARY KEY REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
  opened_on date NOT NULL, captured_at timestamptz NOT NULL DEFAULT now(),
- provenance text NOT NULL CHECK(provenance IN ('current','historical-unavailable')),
+ provenance text NOT NULL CHECK(provenance IN ('pending-capture','historical-unavailable')),
  initial_jh numeric(12,4),
  CHECK(provenance<>'historical-unavailable' OR initial_jh IS NULL)
  )`);
@@ -51,7 +51,7 @@ export async function reconcileKanbanStates(db:Client){
     await db.query(`INSERT INTO public.smn_kanban_capacity_opening
      (period_id,opened_on,provenance,initial_jh)
      VALUES($1,$2,$3,NULL) ON CONFLICT(period_id) DO NOTHING`,
-     [p.id,p.start_on,openingWasMissed?"historical-unavailable":"current"]);
+     [p.id,p.start_on,openingWasMissed?"historical-unavailable":"pending-capture"]);
     started++;
     if(openingWasMissed)recovered++;
    }
