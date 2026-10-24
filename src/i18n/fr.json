@@ -1991,6 +1991,10 @@
       "audit": {
         "title": "Journal d'audit",
         "description": "Consulter la traçabilité des opérations."
+      },
+      "kanbanCadence": {
+        "title": "Cadence Kanban",
+        "description": "Périodes mensuelles, hebdomadaires et bihebdomadaires"
       }
     },
     "view": {
@@ -2918,5 +2922,30 @@
     "invalidSchedule": "Vérifiez les dates et horaires : la fin doit être après le début, l'heure doit être valide et la durée conforme au type de réunion.",
     "outsideSprint": "Les nouveaux horaires doivent rester à l'intérieur des dates du sprint.",
     "closedPeriod": "Le sprint est clôturé : cette réunion ne peut plus être déplacée."
+  },
+  "kanbanCadence": {
+    "title": "Cadence Kanban",
+    "intro": "Configurer les bornes de référence de l’équipe Kanban. L’enregistrement ne crée aucune période.",
+    "frequency": "Cadence",
+    "monthly": "Mensuelle (mois civil)",
+    "weekly": "Hebdomadaire (7 jours)",
+    "biweekly": "Bihebdomadaire (14 jours)",
+    "startDay": "Premier jour de la période",
+    "timeZone": "Fuseau horaire IANA",
+    "save": "Enregistrer",
+    "saved": "Configuration enregistrée",
+    "loadError": "Impossible de charger la cadence.",
+    "saveError": "Impossible d’enregistrer la cadence.",
+    "conflict": "La configuration a changé. Rechargez cette page.",
+    "revision": "Révision : {revision}",
+    "days": {
+      "1": "Lundi",
+      "2": "Mardi",
+      "3": "Mercredi",
+      "4": "Jeudi",
+      "5": "Vendredi",
+      "6": "Samedi",
+      "7": "Dimanche"
+    }
   }
 }
