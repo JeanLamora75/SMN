@@ -17,9 +17,12 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
  const hasLinks=await exists(db,"smn_registry_cycle_link");
  const hasRoam=kind==="risk"&&await exists(db,"smn_risk_roam");
  const hasAssessment=kind==="risk"&&await exists(db,"smn_risk_assessment");
+ const linked="EXISTS(SELECT 1 FROM public.smn_registry_cycle_link l WHERE l.item_id=r.id AND l.sprint_id=$3)";
+ // Les fiches héritées sans Sprint restent visibles comme points d’équipe,
+ // jamais présentées comme si elles appartenaient au Sprint sélectionné.
  const associated=hasLinks?
-  "(EXISTS(SELECT 1 FROM public.smn_registry_cycle_link l WHERE l.item_id=r.id AND l.sprint_id=$3) OR (NOT EXISTS(SELECT 1 FROM public.smn_registry_cycle_link any_link WHERE any_link.item_id=r.id) AND r.occurred_on BETWEEN $4::date AND $5::date))":
-  "r.occurred_on BETWEEN $4::date AND $5::date";
+  `(${linked} OR NOT EXISTS(SELECT 1 FROM public.smn_registry_cycle_link any_link WHERE any_link.item_id=r.id))`:
+  "TRUE";
  const closed=kind==="risk"?["resolved"]:["resolved","abandoned"];
  const roamClause=hasRoam?
   " AND NOT EXISTS(SELECT 1 FROM public.smn_risk_roam roam WHERE roam.item_id=r.id AND roam.classification=\'resolved\')":"";
@@ -31,12 +34,14 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
  const order=kind==="risk"?
   score+"r.due_on ASC NULLS LAST,r.occurred_on ASC,r.id ASC":
   "r.occurred_on ASC,r.id ASC";
- const rows=await db.query<{id:string;title:string;status:string;probability:Level|null;impact:Level|null}>(`
-  SELECT r.id,r.title,r.status${hasAssessment?",a.probability,a.impact":",NULL::smallint AS probability,NULL::smallint AS impact"}
+ const scopeSelect=hasLinks?`CASE WHEN ${linked} THEN \'cycle\' ELSE \'team\' END`:"\'team\'";
+ const linkedOrder=hasLinks?`CASE WHEN ${linked} THEN 0 ELSE 1 END,`:"";
+ const rows=await db.query<{id:string;title:string;status:string;scope:"cycle"|"team";probability:Level|null;impact:Level|null}>(`
+  SELECT r.id,r.title,r.status,${scopeSelect} AS scope${hasAssessment?",a.probability,a.impact":",NULL::smallint AS probability,NULL::smallint AS impact"}
   FROM public.smn_registry_item r${joins} WHERE ${where}
-  ORDER BY ${order} LIMIT 5`,params);
+  ORDER BY ${linkedOrder}${order} LIMIT 5`,params);
  return collectionAvailable(rows.rows.map(row=>({
-  id:row.id,kind,title:row.title,status:row.status,
+  id:row.id,kind,title:row.title,status:row.status,scope:row.scope,
   priority:kind==="risk"?(criticality(row.probability,row.impact).level==="unassessed"?null:
    criticality(row.probability,row.impact).level as "low"|"medium"|"high"):null,
   href:"/app/admin/registries/"+encodeURIComponent(row.id)
