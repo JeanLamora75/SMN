@@ -117,11 +117,11 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
    </div>
    {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}{createdId&&<a className="ms-2" href={"/app/admin/registries/"+encodeURIComponent(createdId)}>{translate("edit")}</a>}</div>}
   </form>}
-  {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage}/>}
+  {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="action"&&<ActionLinks id={itemId} canManage={canManage}/>}
   {itemId&&loaded&&type==="decision"&&<><DecisionDetail id={itemId} canManage={canManage}/>{teamId&&<DecisionActions id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/>}</>}
-  {itemId&&loaded&&(type==="risk"||type==="dependency"||type==="obstacle")&&<RegistryCycles id={itemId} canManage={canManage}/>}
+  {itemId&&loaded&&(type==="risk"||type==="dependency"||type==="obstacle")&&<RegistryCycles id={itemId} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="dependency"&&<><DependencyParties id={itemId} canManage={canManage}/><DependencyVigilance id={itemId} canManage={canManage}/></>}
-  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage}/><RiskAssessment id={itemId} canManage={canManage}/>{teamId&&<MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/>}</>}
+  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage} onSaved={onSaved}/><RiskAssessment id={itemId} canManage={canManage} onSaved={onSaved}/>{teamId&&<MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage}/>}</>}
  </div>;
 }
