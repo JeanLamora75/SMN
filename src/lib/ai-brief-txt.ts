@@ -6,6 +6,7 @@ export type BriefTxtInput={
  context:{id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};
  mode:BriefMode;preparedAt:string;template:{title:string;revision:number;sections:readonly string[];questions:readonly string[];instructions:readonly string[];data:readonly string[];depth:number};
  facts:Readonly<Record<string,BriefFact>>;observations?:readonly string[];
+ historicalAnalyses?:readonly {id:string;type:"human"|"ai";origin:string;createdAt:string;content:string}[];
 };
 const safe=(s:unknown)=>String(s??"Non renseigné").replace(/\r\n?/g,"\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"").trim();
 const quality=(f:BriefFact)=>f.quality==="unavailable"?"Non renseigné":f.quality==="provisional"?"Provisoire":f.quality==="calculated"?"Calculée":"Enregistrée";
@@ -58,6 +59,8 @@ export function composeBriefTxt(input:BriefTxtInput):string{
  ];
  const headings:Record<string,string>={facts:"FAITS CHIFFRÉS",context:"CONTEXTE QUALITATIF",observations:"OBSERVATIONS HUMAINES",questions:"QUESTIONS À L'IA",instructions:"CONSIGNES À L'IA"};
  for(const [kind,lines] of extra)if(!used.has(kind))sections.push(block(headings[kind],lines));
+ const chosen=input.historicalAnalyses??[];
+ if(chosen.length)sections.push(block("ANALYSES HISTORIQUES CHOISIES EXPLICITEMENT",chosen.map(a=>"- "+(a.type==="ai"?"Interprétation IA historique":"Observation / avis humain historique")+" · "+safe(a.createdAt)+" · "+safe(a.origin)+" · référence "+safe(a.id)+" : "+safe(a.content))));
  sections.push("Transmission à une IA : manuelle uniquement.");
  return sections.join("\n").replace(/\n{3,}/g,"\n\n").trimEnd()+"\n";
 }
