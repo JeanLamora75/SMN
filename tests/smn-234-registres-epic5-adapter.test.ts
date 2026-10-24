@@ -46,8 +46,8 @@ describe("SMN-234 — raccordement Epic 5 des six registres",()=>{
   assert.ok(f.queries.some(x=>x.sql.includes("r.team_id=$1")));
  });
  it("un risque antérieur toujours actif est affiché; un risque clôturé avant est exclu",async()=>{
-  const f=fake(sql=>sql.includes("to_regclass")?
-   {rows:[{items:true,links:false,audit:true,assess:false,automatic:false}]}:
+  const f=fake(sql=>sql.includes("SELECT s.status")?{rows:[{status:"active"}]}:
+   sql.includes("to_regclass")?{rows:[{items:true,links:false,audit:true,assess:false,automatic:false}]}:
    {rows:[item("old","risk","2026-10-05T09:00:00Z"),
     item("closed","risk","2026-10-01T09:00:00Z",{closedAt:"2026-10-08T09:00:00.000Z"})]});
   const source=await readEpic5SprintRegisterSource(f.db,team,sprint);
@@ -124,6 +124,7 @@ describe("SMN-234 — raccordement Epic 5 des six registres",()=>{
  });
  it("les faits automatiques sont issus des fiches ou d'objectifs du Sprint",async()=>{
   const f=fake(sql=>
+   sql.includes("SELECT s.status")?{rows:[{status:"active"}]}:
    sql.includes("to_regclass")?{rows:[{items:true,links:true,audit:false,assess:false,
     automatic:true,selection:true,invalidated:true,goals:true}]}:
    sql.includes("FROM public.smn_registry_item r")?
@@ -145,7 +146,6 @@ describe("SMN-234 — raccordement Epic 5 des six registres",()=>{
   assert.ok(f.queries.some(x=>x.sql.includes("AND sp.id=$2")));
  });
  it("la nouvelle interface conserve une liste navigable et ne mentionne plus un Epic 5 non développé",()=>{
-  const {readFileSync}=require("node:fs");
   const content=readFileSync(new URL("../src/app/app/admin/sprints/[sprintId]/sprint-registers-panel.tsx",import.meta.url),"utf8");
   const page=readFileSync(new URL("../src/app/app/admin/sprints/[sprintId]/page.tsx",import.meta.url),"utf8");
   const fr=JSON.parse(readFileSync(new URL("../src/i18n/fr.json",import.meta.url),"utf8"));
