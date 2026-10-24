@@ -68,6 +68,11 @@ export type DashboardAttention = Readonly<{
   kind: "obstacle" | "risk" | "note" | "alert";
   title: string;
   status: string;
+  /** Champs facultatifs uniquement issus des données persistées. */
+  description?: string | null;
+  owner?: string | null;
+  dueOn?: string | null;
+  occurredOn?: string | null;
   /** Niveau émis par un producteur enregistré ; absence = non évalué. */
   priority?: "low" | "medium" | "high" | null;
   href?: string;
