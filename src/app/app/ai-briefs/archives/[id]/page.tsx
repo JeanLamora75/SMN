@@ -9,6 +9,7 @@ import AddManualResponse from "./manual-response-form";
 import ManualResponseActions from "./manual-response-actions";
 import HumanAnalysisForm from "../../human-analysis-form";
 import {listManualAiResponses} from "@/server/ai-briefs/responses";
+import {listHumanAnalyses} from "@/server/ai-briefs/human-analyses";
 export const dynamic="force-dynamic";
 export default async function ArchivedBriefPage({params}:{params:Promise<{id:string}>}){
  const account=await currentAccount();
@@ -20,12 +21,13 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
   const teams=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban')`);
-  if(teams.rows.length!==1)return {archive:{state:"not-found" as const},responses:[]};
+  if(teams.rows.length!==1)return {archive:{state:"not-found" as const},responses:[],analyses:[]};
   const archive=await readPrivateBriefArchive(db,id,teams.rows[0].id);
   const responses=archive.state==="ok"?await listManualAiResponses(db,id,teams.rows[0].id):[];
-  return {archive,responses};
- }).catch(()=>({archive:{state:"unavailable" as const},responses:[]}));
- const {archive,responses}=view;
+  const analyses=archive.state==="ok"?await listHumanAnalyses(db,archive.metadata.cycle_id,teams.rows[0].id):[];
+  return {archive,responses,analyses};
+ }).catch(()=>({archive:{state:"unavailable" as const},responses:[],analyses:[]}));
+ const {archive,responses,analyses}=view;
  if(archive.state==="not-found")notFound();
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <Link href="/app/ai-briefs/archives">← Bibliothèque privée des briefs</Link>
@@ -47,6 +49,11 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
       {account.role==="admin"&&<ManualResponseActions archiveId={id} response={response}/>}
      </section>)}
      {account.role==="admin"&&responses.length===0&&<AddManualResponse archiveId={id}/> }
+     <h2 className="h5 mt-4">Analyses humaines du cycle</h2>
+     {analyses.length===0?<p className="text-secondary">Aucune analyse humaine.</p>:analyses.map(item=><section className="border rounded-3 p-3 mb-3" key={item.id}>
+      <p className="small text-secondary">Origine : Humaine · {item.scope} · auteur : {item.author_id} · créé le {item.created_at} · modifié le {item.updated_at}</p>
+      <textarea className="form-control" rows={6} readOnly value={item.content} aria-label={"Analyse humaine "+item.id}/>
+     </section>)}
      {account.role==="admin"&&<HumanAnalysisForm mode={archive.metadata.mode} cycleId={archive.metadata.cycle_id} archiveId={id}/>}
     </>}
   </section>
