@@ -25,7 +25,7 @@ function MeetingQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void})
   void fetch("/api/team-calendar/periods",{cache:"no-store",signal:ctrl.signal})
    .then(async res=>{if(!res.ok)throw Error();return res.json() as Promise<{sprints:Sprint[]}>;})
    .then(data=>{if(!ctrl.signal.aborted)setSprint(data.sprints.find(s=>s.id===sprintId&&s.status!=="closed")??null);})
-   .catch(()=>{if(!ctrl.signal.aborted)setError(t("dashboard.quickAdd.unavailable"));})
+   .catch(()=>{if(!ctrl.signal.aborted)setError(t("dashboard.operational.quickAdd.unavailable"));})
    .finally(()=>{if(!ctrl.signal.aborted)setLoading(false);});
   return()=>ctrl.abort();
  },[sprintId,t]);
@@ -38,7 +38,7 @@ function MeetingQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void})
    if(!when||!Number.isFinite(instant.getTime())||
       instant.getTime()<Date.parse(sprint.startAt)||
       instant.getTime()+duration*60000>Date.parse(sprint.endAt)){
-    setError(t("dashboard.quickAdd.invalidDate"));return;
+    setError(t("dashboard.operational.quickAdd.invalidDate"));return;
    }
    const response=await fetch("/api/admin/sprints/exceptional-meetings",{
     method:"POST",headers:{"Content-Type":"application/json"},
@@ -50,7 +50,7 @@ function MeetingQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void})
   finally{setBusy(false);}
  };
  return <form className="d-grid gap-3" onSubmit={e=>void submit(e)}>
-  {loading&&<p role="status">{t("dashboard.quickAdd.loading")}</p>}
+  {loading&&<p role="status">{t("dashboard.operational.quickAdd.loading")}</p>}
   {!loading&&!sprint&&<p role="alert" className="alert alert-warning">{t("calendarUX.requiresSprint")}</p>}
   <label className="form-label">{t("calendarUX.meetingName")}
    <input className="form-control" value={name} onChange={e=>setName(e.target.value)}
@@ -86,7 +86,7 @@ function NoteQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
      setDraft(value);
     else if(!ctrl.signal.aborted)throw Error();
    })
-   .catch(()=>{if(!ctrl.signal.aborted)setError(t("dashboard.quickAdd.unavailable"));});
+   .catch(()=>{if(!ctrl.signal.aborted)setError(t("dashboard.operational.quickAdd.unavailable"));});
   return()=>ctrl.abort();
  },[sprintId,t]);
  const submit=async(e:FormEvent)=>{
@@ -98,7 +98,7 @@ function NoteQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
   // Ajouter sans effacer les notes précédentes ni les autres sections.
   const next=existing?existing+"\n\n"+content.trim():content.trim();
   if(next.length>5000){
-   setError(t("dashboard.quickAdd.noteTooLong"));setBusy(false);return;
+   setError(t("dashboard.operational.quickAdd.noteTooLong"));setBusy(false);return;
   }
   try{
    const notes={...draft.notes,attention:{...draft.notes.attention,text:next,included:true}};
@@ -108,19 +108,19 @@ function NoteQuickForm({sprintId,onSaved}:{sprintId:string;onSaved:()=>void}){
    });
    if(!response.ok)throw Error();
    onSaved();
-  }catch{setError(t("dashboard.quickAdd.saveFailed"));}
+  }catch{setError(t("dashboard.operational.quickAdd.saveFailed"));}
   finally{setBusy(false);}
  };
  return <form className="d-grid gap-3" onSubmit={e=>void submit(e)}>
-  <p className="small text-body-secondary">{t("dashboard.quickAdd.noteDestination")}</p>
-  <label className="form-label">{t("dashboard.quickAdd.noteContent")}
+  <p className="small text-body-secondary">{t("dashboard.operational.quickAdd.noteDestination")}</p>
+  <label className="form-label">{t("dashboard.operational.quickAdd.noteContent")}
    <textarea className="form-control" rows={5} maxLength={5000} required
     value={content} onChange={e=>setContent(e.target.value)} disabled={!draft||busy}/>
   </label>
   {error&&<p role="alert" className="alert alert-danger">{error}</p>}
-  {!draft&&!error&&<p role="status">{t("dashboard.quickAdd.loading")}</p>}
+  {!draft&&!error&&<p role="status">{t("dashboard.operational.quickAdd.loading")}</p>}
   <button type="submit" className="btn btn-primary justify-self-end"
-   disabled={!draft||busy||!content.trim()}>{t("dashboard.quickAdd.save")}</button>
+   disabled={!draft||busy||!content.trim()}>{t("dashboard.operational.quickAdd.save")}</button>
  </form>;
 }
 
@@ -157,13 +157,13 @@ export default function OperationalQuickAdd({kind,teamId,cycleId,label}:{kind:Ki
    <div className="smn-operational-create-dialog-inner">
     <header className="d-flex justify-content-between align-items-center gap-3 mb-3">
      <h2 className="h5 m-0" id={modalId}>{label}</h2>
-     <button type="button" className="btn-close" aria-label={t("dashboard.quickAdd.close")}
+     <button type="button" className="btn-close" aria-label={t("dashboard.operational.quickAdd.close")}
       onClick={close}/>
     </header>
     <QuickAddContent kind={kind} teamId={teamId} cycleId={cycleId} close={close}/>
     <div className="d-flex justify-content-end mt-3">
      <button type="button" className="btn btn-outline-secondary" onClick={close}>
-      {t("dashboard.quickAdd.cancel")}
+      {t("dashboard.operational.quickAdd.cancel")}
      </button>
     </div>
    </div>
