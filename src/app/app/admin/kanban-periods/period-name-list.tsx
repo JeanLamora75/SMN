@@ -2,8 +2,8 @@
 import {useEffect,useState} from "react";
 import Link from "next/link";
 type Period={id:string;name:string;startOn:string;endOn:string;status:string};
-type Correction={period:Period;before:{startOn:string;endOn:string};after:{startOn:string;endOn:string};conflicts:string[];canConfirm:boolean;previewToken:string;warnings:string[];impact?:{counts:{started:string|null;throughput:string|null;wip_final:string|null}|null;timing:{cycle_days:string|null;cycle_convention:string;lead_days:string|null;lead_convention:string}|null;goals:{id:string;title:string;evaluation:string}[];reviewSuggested:boolean}};
-type HistoryRow={id:string;action:string;actorId:string|null;createdAt:string;details:{before?:{startOn:string;endOn:string};after?:{startOn:string;endOn:string};reason?:string|null;events?:string;capacity?:string;warnings?:string[]}};
+type Correction={period:Period;before:{startOn:string;endOn:string};after:{startOn:string;endOn:string};conflicts:string[];canConfirm:boolean;previewToken:string;warnings:string[];impact?:{counts:{started:string|null;throughput:string|null;wip_final:string|null}|null;timing:{cycle_days:string|null;cycle_convention:string;lead_days:string|null;lead_convention:string}|null;goals:{id:string;title:string;evaluation:string}[];reviewSuggested:boolean};events?:{outside:{id:string;status:string;provenance:string}[];protectedCount:number;policy:string}};
+type HistoryRow={id:string;action:string;actorId:string|null;createdAt:string;details:{before?:{startOn:string;endOn:string};after?:{startOn:string;endOn:string};reason?:string|null;events?:string|{outside:{id:string;status:string;provenance:string}[];protectedCount:number};capacity?:string;warnings?:string[]}};
 type RemovalSummary={period:{id:string;name:string;start_on:string;end_on:string;status:string;created_by:string|null};eligible:boolean;wasStarted:boolean;relations:{type:string;count:number;action:string}[];action:"soft-delete"};
 export default function PeriodNameList({canManage}:{canManage:boolean}){
  const [periods,setPeriods]=useState<Period[]>([]);
@@ -114,7 +114,7 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
     <strong>{entry.action==="dates-corrected"?"Correction des dates":"Adaptation de cadence"}</strong> — {entry.createdAt} — auteur : {entry.actorId??"non renseigné"}
     <div>{entry.details.before?.startOn} → {entry.details.before?.endOn} / {entry.details.after?.startOn} → {entry.details.after?.endOn}</div>
     {entry.details.reason&&<div>Motif : {entry.details.reason}</div>}
-    <div>Événements : {entry.details.events??"non renseigné"} ; capacité : {entry.details.capacity??"non renseignée"}</div>
+    <div>Événements : {typeof entry.details.events==="string"?entry.details.events:entry.details.events?`${entry.details.events.protectedCount} réunions conservées (${entry.details.events.outside.length} hors période)`:"non renseigné"} ; capacité : {entry.details.capacity??"non renseignée"}</div>
     {!!entry.details.warnings?.length&&<div>Alertes : {entry.details.warnings.join(", ")}</div>}
    </div>)}
    <button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>setHistory(null)}>Fermer</button>
@@ -148,6 +148,10 @@ export default function PeriodNameList({canManage}:{canManage:boolean}){
       <li>Lead Time : {correction.impact.timing?.lead_days??"Non renseigné"} ({correction.impact.timing?.lead_convention??"convention inconnue"})</li>
      </ul>
      {correction.impact.goals.map(g=><p className="small mb-1" key={g.id}>Objectif à vérifier : {g.title} — {g.evaluation}</p>)}
+    </div>}
+    {correction.events&&<div className="alert alert-info small">
+     <strong>{correction.events.protectedCount} réunion(s) enregistrée(s) conservée(s)</strong>
+     {correction.events.outside.length>0&&<p className="mb-0">{correction.events.outside.length} réunion(s) resteront hors des nouvelles dates. Leurs horaires et statuts ne seront pas modifiés.</p>}
     </div>}
     {correction.conflicts.length>0&&<p className="alert alert-warning">Conflits : {correction.conflicts.join(", ")}</p>}
     {!correction.canConfirm&&<p className="text-danger">Confirmation bloquée : bornes invalides ou chevauchement.</p>}
