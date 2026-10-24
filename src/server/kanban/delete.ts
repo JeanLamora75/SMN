@@ -24,7 +24,9 @@ export async function kanbanDeletionSummary(db:Client,id:string){
  return {period,eligible,wasStarted,relations:[{type:"period-audit",count:Number(history.rows[0].count),action:"preserved"}],
   action:"soft-delete" as const};
 }
-export async function deleteKanbanPeriod(db:Client,actorId:string,id:string){
+export async function deleteKanbanPeriod(db:Client,actorId:string,id:string,expected:{name:string;startOn:string;endOn:string}){
+ if(!expected||typeof expected.name!=="string"||typeof expected.startOn!=="string"||typeof expected.endOn!=="string")
+  return {ok:false as const,error:"invalid-input" as const};
  await ensureKanbanPeriodTables(db);
  await db.query("BEGIN");
  try{
@@ -35,6 +37,9 @@ export async function deleteKanbanPeriod(db:Client,actorId:string,id:string){
   if(!r.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   const summary=await kanbanDeletionSummary(db,id);
   if(!summary?.eligible){await db.query("ROLLBACK");return {ok:false as const,error:"protected-period" as const};}
+  if(summary.period.name!==expected.name||summary.period.start_on!==expected.startOn||summary.period.end_on!==expected.endOn){
+   await db.query("ROLLBACK");return {ok:false as const,error:"stale-summary" as const};
+  }
   await db.query(`UPDATE public.smn_kanban_period SET deleted_at=now(),deleted_by=$2 WHERE id=$1`,[id,actorId]);
   await db.query(`INSERT INTO public.smn_kanban_period_audit(id,period_id,action,details,actor_id)
    VALUES($1,$2,'deleted',$3::jsonb,$4)`,
