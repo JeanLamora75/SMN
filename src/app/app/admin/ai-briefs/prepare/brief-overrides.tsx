@@ -15,6 +15,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
  const [message,setMessage]=useState("");
  const [conflict,setConflict]=useState(false);
  const [saving,setSaving]=useState(false);
+ const [finalizedId,setFinalizedId]=useState<string|null>(null);
  const [preview,setPreview]=useState<string|null>(null);
  const [observations,setObservations]=useState("");
  const [humanQuestions,setHumanQuestions]=useState("");
@@ -25,6 +26,22 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
  const changed=JSON.stringify(draft)!==JSON.stringify(editable(base));
  const currentTxt=composeBriefTxt({context,mode,preparedAt,template:{...base,...draft,questions:[...draft.questions,...lines(humanQuestions)],instructions:[...draft.instructions,...lines(humanInstructions)]},facts,observations:lines(observations)});
  const approved=preview!==null&&reviewedText===preview&&preview===currentTxt&&privacyReviewed&&!conflict;
+ async function finalize(){
+  if(!approved||preview===null||finalizedId!==null)return;
+  setSaving(true);
+  try{
+   if(!await checkRevision())return;
+   const bytes=new TextEncoder().encode(preview);
+   const digest=await crypto.subtle.digest("SHA-256",bytes);
+   const approvedSha256=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
+   const response=await fetch("/api/admin/ai-briefs/finalize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode,cycleId:context.id,templateId:base.id,templateRevision:base.revision,txt:preview,approvedSha256,reviewConfirmed:true})});
+   if(!response.ok)throw Error("Archivage impossible : aucune finalisation confirmée.");
+   const archive=await response.json() as {id:string};
+   setFinalizedId(archive.id);setMessage("TXT archivé de manière immuable : "+archive.id);
+  }catch(e){setMessage(e instanceof Error?e.message:"Archivage impossible.");}
+  finally{setSaving(false);}
+ }
+
 
  async function latest(){
   const res=await fetch("/api/admin/ai-briefs/templates",{cache:"no-store"});
@@ -110,6 +127,8 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt}:
    Les politiques de confidentialité, de conservation et de traitement de ce prestataire ne sont pas contrôlées par SMN.
    Les URL et instructions présentes dans un modèle sont du texte : elles ne déclenchent aucun appel réseau vers une IA.
   </aside>
+  {approved&&!finalizedId&&<button className="btn btn-primary btn-sm mt-2 ms-2" disabled={saving} type="button" onClick={()=>void finalize()}>Finaliser et archiver le TXT validé</button>}
+  {finalizedId&&<p className="alert alert-success mt-3" role="status">Brief finalisé et archivé sous l’identifiant {finalizedId}. Le texte ne peut pas être modifié.</p>}
   {approved&&<button type="button" className="btn btn-outline-primary btn-sm mt-2" onClick={async()=>{
    try{await navigator.clipboard.writeText(preview!);setMessage("TXT copié. Tout transfert à une IA reste une action manuelle hors de SMN.");}
    catch{setMessage("Copie impossible : sélectionnez le texte dans l’aperçu et copiez-le manuellement.");}
