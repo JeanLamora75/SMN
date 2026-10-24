@@ -16,7 +16,7 @@ export async function GET(req:NextRequest){
    const cycles=await db.query<{id:string;name:string}>(`SELECT c.id,c.name FROM public.${table} c
     JOIN public.smn_team t ON t.id=c.team_id JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE i.id='singleton' AND i.state='initialized' AND c.deleted_at IS NULL
-    ORDER BY c.start_at DESC,c.id LIMIT 200`);
+    ORDER BY c.${mode==="scrum"?"start_at":"start_on"} DESC,c.id LIMIT 200`);
    return {mode,cycles:cycles.rows,catalog:historicalCsvCodes(mode)};
   });
   if(!data)return Response.json({error:"unsupported-mode"},{status:409});
