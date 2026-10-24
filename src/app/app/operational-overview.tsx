@@ -45,7 +45,7 @@ function TopicIcon({kind}:Readonly<{kind:ColumnKind|"note"|"alert"}>){
   </svg>;
 }
 
-function UnavailableColumn({definition,locale}:Readonly<{definition:PanelDefinition;locale:Language}>){
+function UnavailableColumn({definition,locale,teamId,cycleId,canManage}:Readonly<{definition:PanelDefinition;locale:Language;teamId?:string;cycleId?:string;canManage?:boolean}>){
   const t=(key:TranslationKey)=>translate(locale,key);
   const id="smn-operational-"+definition.id;
   return <section className={"smn-operational-panel smn-operational-"+definition.id}
@@ -83,9 +83,11 @@ function UnavailableColumn({definition,locale}:Readonly<{definition:PanelDefinit
         </div>}
     </div>
     <footer className="smn-operational-panel-footer">
-      <span className="smn-operational-add-unavailable">
-        {t("dashboard.operational.add")} · {t("dashboard.operational.unavailable")}
-      </span>
+      {canManage&&cycleId&&teamId&&definition.id!=="events"?<Link className="smn-operational-create-link" href={definition.id==="notes"
+       ?"/app/admin/sprints/"+encodeURIComponent(cycleId)+"/report#smn-report-notes"
+       :"/app/admin/registries/create?"+new URLSearchParams({type:definition.id==="risks"?"risk":"obstacle",teamId,cycleId}).toString()}>
+       {t("dashboard.operational.add")} {t(definition.id==="risks"?"dashboard.operational.risk":definition.id==="obstacles"?"dashboard.operational.obstacle":"dashboard.operational.note")}
+      </Link>:<span className="smn-operational-add-unavailable">{t("dashboard.operational.unavailable")}</span>}
     </footer>
   </section>;
 }
@@ -147,7 +149,7 @@ function AttentionColumn({definition,locale,collection,teamId,cycleId,canManage}
  collection:CollectiveCycleProjection["risks"];
  teamId:string;cycleId:string;canManage:boolean;
 }>){
- if(collection.state==="unavailable")return <UnavailableColumn definition={definition} locale={locale}/>;
+ if(collection.state==="unavailable")return <UnavailableColumn definition={definition} locale={locale} teamId={teamId} cycleId={cycleId} canManage={canManage}/>;
  const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
  const id="smn-operational-"+definition.id;
  return <section className={"smn-operational-panel smn-operational-"+definition.id}
@@ -277,7 +279,7 @@ export default function OperationalOverview({locale,projection,timeZone,canManag
              teamId={projection.teamId} cycleId={projection.cycleId} timeZone={timeZone}/>:
            <UnavailableColumn key="events" definition={definition} locale={locale}/>;
         }
-        if(!projection)return <UnavailableColumn key={definition.id} definition={definition} locale={locale}/>;
+        if(!projection)return <UnavailableColumn key={definition.id} definition={definition} locale={locale} teamId={projection?.teamId} cycleId={projection?.cycleId} canManage={canManage}/>;
         const collection=definition.id==="obstacles"?projection.obstacles:
           definition.id==="risks"?projection.risks:projection.notesAndAlerts;
         return <AttentionColumn key={definition.id} definition={definition}
