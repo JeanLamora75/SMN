@@ -3,6 +3,7 @@ import type {Client} from "pg";
 export type SprintTrendPoint=Readonly<{
  sprintId:string;name:string;endAt:string;snapshotVersion:number|null;
  completedSp:number|null;completionRate:number|null;actualCapacityJh:number|null;
+ completedSpQuality:"known"|"estimated"|"unqualified";
 }>;
 type Selected={id:string;team_id:string;start_at:string};
 type Row={id:string;name:string;end_at:string;version:number;snapshot_data:unknown};
@@ -30,10 +31,13 @@ export function projectSprintTrend(row:Row):SprintTrendPoint{
  const completionRate=final!==null&&Number.isSafeInteger(final)&&
   final>0&&completedSp!==null?completedSp/final*100:null;
  const capacityJh=value(capacity?.actual_jh,false);
+ const evidence=object(snapshot?.historicalMetricQualities);
+ const declaredQuality=evidence?.SP_DONE;
+ const completedSpQuality=declaredQuality==="known"||declaredQuality==="estimated"?declaredQuality:"unqualified";
  return {sprintId:row.id,name:row.name,endAt:row.end_at,
   snapshotVersion:Number.isSafeInteger(row.version)&&row.version>0?
    row.version:null,
-  completedSp,completionRate:Number.isFinite(completionRate)?completionRate:null,
+  completedSp,completedSpQuality,completionRate:Number.isFinite(completionRate)?completionRate:null,
   actualCapacityJh:capacityJh};
 }
 
