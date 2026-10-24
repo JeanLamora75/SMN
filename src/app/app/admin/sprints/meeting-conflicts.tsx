@@ -11,7 +11,7 @@ export default function MeetingConflicts(){
   try{const r=await fetch("/api/admin/sprints/meeting-conflicts",{cache:"no-store"});if(!r.ok)throw Error();const d=await r.json();setWarnings(d.warnings);}
   catch{setError(t("meetingConflicts.error"));}finally{setBusy(false);}
  }
- useEffect(()=>{void reload();},[]);
+ useEffect(()=>{void Promise.resolve().then(reload);},[]);
  return <section className="smn-panel p-4 mt-4">
   <h2 className="h4">{t("meetingConflicts.title")}</h2><p className="text-secondary">{t("meetingConflicts.info")}</p>
   <button className="btn btn-outline-primary mb-3" type="button" onClick={reload} disabled={busy}>{t("meetingConflicts.refresh")}</button>
