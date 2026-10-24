@@ -18,6 +18,8 @@ export type SprintRegisterResult=
   "history-missing"|"invalid-data"|"read-failed"}>;
 export type RegisterSource=Readonly<{
  records:readonly unknown[];availableKinds:readonly RegisterKind[];
+ /** Explicit link to the selected cycle qualifies even if the event date is outside. */
+ linkedMembership?:boolean;
 }>;
 const record=(x:unknown):Record<string,unknown>|null=>
  x!==null&&typeof x==="object"&&!Array.isArray(x)?x as Record<string,unknown>:null;
@@ -99,7 +101,7 @@ export function registerPage(
  * Conflicting duplicates are invalid rather than silently overwriting data. */
 export function selectSprintRegisterPage(
  source:RegisterSource,teamId:string,sprint:{id:string;startAt:string;endAt:string},
- requestedPage=1
+ requestedPage=1,kind?:RegisterKind|null
 ):Omit<Extract<SprintRegisterResult,{state:"available"}>,
  "state"|"source"|"snapshotVersion">|null{
  if(!Array.isArray(source.records)||!Array.isArray(source.availableKinds)||
@@ -121,7 +123,10 @@ export function selectSprintRegisterPage(
   }
   seen.set(key,item);
  }
- const relevant=[...seen.values()].filter(x=>relevantToSprint(x,teamId,sprint));
+ const relevant=[...seen.values()].filter(x=>
+  relevantToSprint(x,teamId,sprint)||
+  (source.linkedMembership===true&&x.teamIds.includes(teamId)&&x.sprintIds.includes(sprint.id)));
  const missingKinds=registerKinds.filter(k=>!source.availableKinds.includes(k));
- return {...registerPage(relevant,requestedPage),missingKinds};
+ const filtered=kind?relevant.filter(item=>item.kind===kind):relevant;
+ return {...registerPage(filtered,requestedPage),missingKinds};
 }

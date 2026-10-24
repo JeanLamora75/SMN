@@ -288,3 +288,20 @@ La fiche Sprint, onglet **Capacités**, conserve le tableau de présences indivi
 - **Pas de migration :** les colonnes proviennent des tables existantes. Si les attributs additionnels ne sont pas lisibles sur un schéma ancien, ne pas dégrader les chiffres J/H calculés à partir de calendriers valides.
 
 Livraison technique associée : `src/server/sprints/presence-metadata-read.ts`, `src/lib/sprint-presence.ts`, `src/app/app/admin/sprints/[sprintId]/sprint-capacity-panel.tsx` et `tests/smn-234-sprint-capacity-metadata.test.ts`. Tests et recette locale nécessaires avant clôture de la validation.
+
+
+## Fiche Sprint — Registres réels après Epic 5 (24/10/2026)
+
+La capture du 24/10/2026 montrait à tort « Les six registres ne sont pas encore développés (Epic 5) » sur la fiche du Sprint. Cet état était dû à un branchement manquant entre le lecteur D8 de SMN-234 et les services réellement persistés de l'Epic 5.
+
+**Contrat UX correctif :**
+- **Sources des six catégories :** `smn_registry_item` pour risque, obstacle, dépendance, décision, action et fait marquant manuel ; `smn_automatic_highlight` pour les faits marquants automatiques rattachés aux registres ou aux objectifs du Sprint. Pas d'élément synthétique.
+- **Filtrage :** par défaut « Tous », avec onglets liens pour chacune des six catégories ; filtre applicable **avant** pagination et conservé dans les liens Précédent/Suivant. La sélection du Sprint et l'équipe sont résolues côté serveur et ne peuvent être remplacées par une valeur libre de querystring.
+- **Métadonnées :** date métier convertie avec le fuseau IANA du Sprint, statut FR/EN, criticité uniquement si effectivement évaluée ; titres/liens vers les fiches existantes, sans construire de liens externes arbitraires.
+- **Périmètre temporel :** décisions/faits dans la période `[début,fin[` ; risques, obstacles, dépendances et actions actifs au moins un instant du Sprint. Les associations explicites au Sprint restent visibles même si l'élément a commencé en amont. Les fins sont fondées sur les changements de statut effectivement audités.
+- **Dédoublonnage :** identité stable `(type,id)`, y compris liens multi-Sprints ; pagination de 25 et contrôle de volume sans masquer arbitrairement les données.
+- **Snapshots :** pour un Sprint clôturé, relire exclusivement le JSON `snapshot.qualitative` produit par SMN-111, en conservant l'ancien format `qualitativeRegisters` si présent. Ne jamais remplacer un snapshot absent/incomplet par les données courantes. Les fiches historiques figées n'ouvrent pas une fiche actuelle non équivalente.
+- **Sécurité :** accès collectif existant, requêtes SELECT uniquement, équipe et installation courantes, pas de données nominatives nouvelles ni de modification de l'architecture PostgreSQL. Un registre absent n'est jamais affiché comme une liste vide attestée.
+- **Recette :** tester les six registres vides/peuplés, faits automatiques, changements de statut, liens vers les fiches, multi-Sprints, date frontière, pagination et changement de type, langues FR/EN, Sprint actif/clôturé, profil utilisateur, ancienne installation partielle.
+
+La conformité de ce contrat est **conditionnée à la recette locale** (`pnpm typecheck`, tests `tsx`, `pnpm build`, PostgreSQL et navigateur) car GitHub Actions est désactivé.
