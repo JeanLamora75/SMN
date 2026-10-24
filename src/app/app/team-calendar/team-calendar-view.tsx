@@ -40,6 +40,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const [meetings,setMeetings]=useState<Meeting[]>([]);
  const [selectedMeeting,setSelectedMeeting]=useState<Meeting|null>(null);
  const [sprints,setSprints]=useState<Sprint[]>([]);
+ const [calendarMode,setCalendarMode]=useState<"scrum"|"kanban">("scrum");
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [editor,setEditor]=useState<string|null>(null);
  const [name,setName]=useState("");
@@ -51,8 +52,8 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  useEffect(()=>{let live=true;const current=iso(new Date());
   const fallback=()=>({start:monthStart(current),count:monthLength(current),label:current.slice(0,7),sprintId:null});
   void fetch("/api/team-calendar/periods",{cache:"no-store"}).then(async r=>{
-   if(!r.ok)throw Error();return r.json() as Promise<{sprints:Sprint[]}>;})
-   .then(result=>{if(!live)return;const list=result.sprints??[];setSprints(list);
+   if(!r.ok)throw Error();return r.json() as Promise<{sprints:Sprint[];mode?:"scrum"|"kanban"}>;})
+   .then(result=>{if(!live)return;const list=result.sprints??[];setSprints(list);setCalendarMode(result.mode??"scrum");
     const active=(initialCycleId?list.find(s=>s.id===initialCycleId):null)
       ??list.find(s=>s.status==="active"&&localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
       ??list.find(s=>localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
@@ -115,7 +116,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  // Le raccourci du tableau de bord ouvre une seule fois le formulaire existant.
  // Le Sprint demandé doit provenir de la liste autorisée par l’API calendrier.
  useEffect(()=>{
-  if(!isAdmin||!initialCreate||openedFromLink.current||status!=="ready"||!period)return;
+  if(calendarMode==="kanban"||!isAdmin||!initialCreate||openedFromLink.current||status!=="ready"||!period)return;
   const sprint=sprints.find(s=>s.id===period.sprintId);
   if(!sprint||sprint.status==="closed"||(initialCycleId&&sprint.id!==initialCycleId))return;
   const start=localDate(sprint.startAt),end=localDate(sprint.endAt);
@@ -128,7 +129,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
    openCreate(day);
   });
   return()=>{alive=false;};
- },[isAdmin,initialCreate,initialCycleId,period,status,sprints,openCreate]);
+ },[calendarMode,isAdmin,initialCreate,initialCycleId,period,status,sprints,openCreate]);
  const selectedDate=when.slice(0,10);
  const selectedSprint=sprints.find(x=>x.status!=="closed"&&localDate(x.startAt)<=selectedDate&&selectedDate<=localDate(x.endAt));
  async function save(){if(!period||!selectedSprint||!editor||!name.trim()||busy)return;
@@ -155,9 +156,9 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   return status??"";
  };
  const isEditable=useCallback((day:string)=>{
-  if(!isAdmin||[0,6].includes(new Date(day+"T12:00:00Z").getUTCDay()))return false;
+  if(calendarMode==="kanban"||!isAdmin||[0,6].includes(new Date(day+"T12:00:00Z").getUTCDay()))return false;
   return sprints.some(s=>s.status!=="closed"&&localDate(s.startAt)<=day&&localDate(s.endAt)>=day);
- },[isAdmin,sprints]);
+ },[calendarMode,isAdmin,sprints]);
  useEffect(()=>{
   if(!absenceEditor||!isAdmin)return;
   let alive=true;
@@ -180,6 +181,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     <div className="smn-cal-context">
      {teamName&&<strong>{teamName}</strong>}
      <strong>{period?.sprintId?period.label:t("calendarOptionB.fallback")}</strong>
+     {calendarMode==="kanban"&&<span>Période Kanban</span>}
      {period&&<span>{currentDate(period.start)} – {currentDate(shift(period.start,period.count-1))}</span>}
      {period?.sprintId&&<span className="smn-cal-state">{localizedStatus(sprints.find(s=>s.id===period.sprintId)?.status)}</span>}
      <span>{t("calendarOptionB.timezone")}</span>
