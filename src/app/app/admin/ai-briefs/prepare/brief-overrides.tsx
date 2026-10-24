@@ -2,17 +2,20 @@
 import {useState} from "react";
 import type {ManagedBriefTemplate} from "@/server/ai-briefs/templates";
 import {allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
+import {composeBriefTxt} from "@/lib/ai-brief-txt";
+import type {BriefFact} from "@/server/ai-briefs/facts";
 
 type Editable={sections:string[];questions:string[];instructions:string[];data:string[];depth:number};
 const editable=(t:ManagedBriefTemplate):Editable=>({sections:[...t.sections],questions:[...t.questions],instructions:[...t.instructions],data:[...t.data],depth:t.depth});
 const lines=(s:string)=>s.split("\n").map(x=>x.trim()).filter(Boolean);
 
-export default function BriefOverrides({template,mode}:{template:ManagedBriefTemplate;mode:BriefMode}){
+export default function BriefOverrides({template,mode,context,facts,preparedAt}:{template:ManagedBriefTemplate;mode:BriefMode;context:{id:string;name:string;team:string;product:string|null;status:string;startAt:string;endAt:string;timeZone:string};facts:Record<string,BriefFact>;preparedAt:string}){
  const [base,setBase]=useState(template);
  const [draft,setDraft]=useState<Editable>(()=>editable(template));
  const [message,setMessage]=useState("");
  const [conflict,setConflict]=useState(false);
  const [saving,setSaving]=useState(false);
+ const [preview,setPreview]=useState<string|null>(null);
  const fields=allowedBriefFields(mode,["cycle.name","cycle.dates","cycle.status","team.name","product.name","objectives","risks","dependencies","decisions","scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"]);
  const changed=JSON.stringify(draft)!==JSON.stringify(editable(base));
 
@@ -37,7 +40,7 @@ export default function BriefOverrides({template,mode}:{template:ManagedBriefTem
   try{
    const current=await latest();
    if(!current||!current.active){setConflict(true);setMessage("Ce modèle n'est plus disponible.");return;}
-   setBase(current);setDraft(editable(current));setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
+   setBase(current);setDraft(editable(current));setPreview(null);setConflict(false);setMessage("Configuration enregistrée du modèle rechargée. Aucun brouillon sauvegardé.");
   }catch{setMessage("Rechargement impossible.");}
  }
  async function saveModel(){
@@ -75,10 +78,12 @@ export default function BriefOverrides({template,mode}:{template:ManagedBriefTem
    </div>
   </fieldset>
   <div className="d-flex flex-wrap gap-2 mt-3">
+   <button className="btn btn-primary btn-sm" disabled={conflict||saving} onClick={async()=>{if(!await checkRevision())return;setPreview(composeBriefTxt({context,mode,preparedAt,template:{...base,...draft},facts}));}}>Générer l’aperçu TXT</button>
    <button className="btn btn-outline-primary btn-sm" onClick={()=>void checkRevision()} disabled={saving}>Actualiser le contenu / vérifier la révision</button>
    <button className="btn btn-outline-secondary btn-sm" onClick={()=>void reload()} disabled={saving}>Recharger le modèle (abandonner les ajustements)</button>
    {!base.builtin&&<button className="btn btn-primary btn-sm" disabled={!changed||conflict||saving} onClick={()=>void saveModel()}>Enregistrer le modèle</button>}
   </div>
+  {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/></div>}
   {changed&&!conflict&&<p className="text-secondary small mt-2">Configuration ponctuelle modifiée : aucune écriture métier. La composition et l'archivage du TXT seront ajoutés dans les prochaines stories.</p>}
   {message&&<p role="status" className="mt-2 mb-0">{message}</p>}
  </section>;
