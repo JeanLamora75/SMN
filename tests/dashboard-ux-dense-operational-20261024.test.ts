@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {createElement} from "react";
+import {readFileSync} from "node:fs";
 import {renderToStaticMarkup} from "react-dom/server";
 import type {Client} from "pg";
 import OperationalOverview from "../src/app/app/operational-overview";
@@ -128,4 +129,35 @@ test("configuration: ignorée exclue, terminée informative, todo alerte",async(
   assert.equal(read.total,2);
   assert.deepEqual(read.items.map(x=>x.kind),["alert","note"]);
  }
+});
+
+
+test("le lecteur masque les responsables avant même le rendu pour un utilisateur",async()=>{
+ const queries:string[]=[];
+ const db={query:async(sql:string,params:unknown[]=[])=>{
+  queries.push(sql);
+  if(sql.includes("to_regclass"))return {rows:[{present:params[0]==="public.smn_registry_item"}]};
+  if(sql.includes("COUNT(*)"))return {rows:[{total:1}]};
+  return {rows:[{id:"r1",title:"Risque",status:"open",scope:"team",
+    description:"Description",owner_name:null,due_on:null,occurred_on:"2026-10-20",
+    probability:null,impact:null}]};
+ }} as unknown as Client;
+ const projected=await readCycleRegistry(db,"team-1","sprint-1","risk");
+ assert.equal(projected.state,"available");
+ if(projected.state==="available")assert.equal(projected.items[0].owner,null);
+ assert.ok(queries.some(sql=>sql.includes("NULL::text AS owner_name")));
+ assert.equal(queries.some(sql=>sql.includes("SELECT r.id")&&sql.includes(",r.owner_name,")),false);
+});
+
+test("le contrat responsive 4/2/1 et les quatre modales restent présents",()=>{
+ const css=readFileSync(new URL("../src/app/dashboard.css",import.meta.url),"utf8");
+ const modal=readFileSync(new URL("../src/app/app/operational-quick-add.tsx",import.meta.url),"utf8");
+ assert.match(css,/grid-template-columns:repeat\\(4,minmax\\(0,1fr\\)\\)/);
+ assert.match(css,/@container \\(max-width:1100px\\)/);
+ assert.match(css,/@container \\(max-width:650px\\)/);
+ assert.match(css,/smn-attention-card-description[\\s\\S]*?-webkit-line-clamp:2/);
+ assert.match(modal,/showModal\\(\\)/);
+ assert.match(modal,/<RegistryCreate/);
+ assert.match(modal,/<MeetingQuickForm/);
+ assert.match(modal,/<NoteQuickForm/);
 });
