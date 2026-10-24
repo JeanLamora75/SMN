@@ -70,6 +70,7 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
  <p className="text-secondary">{translate(locale,section.state==="unavailable"?"standardReport.unavailable":"standardReport.empty")}</p>}
  {note(section.key)&&<p className="border-start ps-3" lang={note(section.key)?.language} style={{whiteSpace:"pre-wrap"}}>{note(section.key)?.text}</p>}
  </section>)}
+ {data.chosenAnalyses?.length>0&&<section className="border-top pt-3 mt-4" aria-label="Interprétations sélectionnées"><h2 className="h5">Analyses choisies — interprétations, non indicateurs</h2><p className="small text-secondary">Ces textes ne sont ni des KPI ni des données observées. Ils ont été sélectionnés volontairement.</p>{data.chosenAnalyses.map(a=><article className="border-start ps-3 mb-3" key={a.type+":"+a.id}><h3 className="h6">{a.origin} · {a.scope}</h3><p className="small text-secondary">Origine : {a.type==="human"?"Humaine":"IA"} · créé le {a.createdAt} · cycle {a.cycleId}{a.archiveId?" · brief source "+a.archiveId:""}</p><p style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{a.content}</p></article>)}</section>}
  {note("conclusion")&&<section><h2 className="h5">{label("conclusion")}</h2><p style={{whiteSpace:"pre-wrap"}} lang={note("conclusion")?.language}>{note("conclusion")?.text}</p></section>}
  {data.teamContext.length>0&&<footer className="border-top pt-3">{data.teamContext.map(entry=><section key={entry.key}>
  <h2 className="h6">{label(entry.key)}</h2>
