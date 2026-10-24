@@ -636,6 +636,15 @@
   margin-top:auto;padding-top:12px;
   border-top:1px solid var(--smn-border);
 }
+.smn-operational-create-link {
+  display:block;width:100%;padding:8px 6px;
+  color:var(--smn-primary);text-align:center;
+  font-size:.84rem;font-weight:700;text-decoration:none;
+}
+.smn-operational-create-link:hover,
+.smn-operational-create-link:focus-visible {
+  color:var(--smn-primary);text-decoration:none;
+}
 .smn-operational-add-unavailable {
   display:block;width:100%;text-align:center;
   padding:8px 10px;border:1px dashed var(--smn-border);
