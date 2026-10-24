@@ -388,3 +388,14 @@ Tests associés : `tests/smn-234-sprint-ceremonies-compact-modal.test.ts`, à la
 **Avenant UX :** depuis les vues Cartes et Agenda, le titre ouvre une fenêtre modale. En rôle administrateur, le formulaire d'un événement non annulé et d'un sprint non clôturé permet de modifier indépendamment **date/heure de début** et **date/heure de fin**, pour une cérémonie, une occurrence de réunion récurrente ou une réunion exceptionnelle. La durée prévue est **recalculée** ; les modifications d'occurrence ne changent pas le modèle de récurrence. Les utilisateurs en lecture seule conservent une fiche non éditable. Ne pas confondre le décalage manuel avec le repositionnement automatique des cérémonies « début / fin de sprint ».
 
 Implémentation et recette : [calendrier-modification-horaires-reunions-2026-10-24.md](../_bmad-output/implementation-artifacts/calendrier-modification-horaires-reunions-2026-10-24.md). **Statut : publié sur main, validation d'exécution à effectuer.**
+
+
+## Calendrier — Info-bulle nominative des absences (24 octobre 2026)
+
+Dans les vues **Cartes** et **Agenda**, la ligne compacte `Absences (N)` reste inchangée. **Pour les administrateurs uniquement**, le survol de cette ligne (ou le focus clavier, ou l'activation tactile) révèle une info-bulle contenant **un nom de membre absent par ligne**, trié alphabétiquement, sans doublon d'identité. Un membre absent le matin et l'après-midi figure une seule fois. La liste est calculée depuis les données détaillées déjà autorisées du calendrier, selon **exactement la même condition** que le compteur `N`. Aucun motif, aucune catégorie, aucun détail individuel supplémentaire n'est ajouté à l'info-bulle.
+
+Le rôle `user` conserve la ligne `Absences (N)` **sans info-bulle nominative** : les noms ne sont pas transmis dans la réponse de l'API collective.
+
+Implémentation : `src/lib/calendar-absence-names.ts`, `src/server/members/team-calendar.ts`, `src/app/app/team-calendar/{team-calendar-view,calendar-option-b}.tsx`, `src/app/globals.css`, traductions FR/EN.
+
+Recette : vérifier A/A/B = 2 noms et `Absences (2)`, le survol/focus en Cartes et Agenda, un compte `user` et les deux thèmes. Les tests doivent être exécutés localement avant clôture. Jira inchangé.
