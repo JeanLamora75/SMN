@@ -10,9 +10,9 @@ const exists=async(db:Client,table:string)=>{
  const result=await db.query<{present:boolean}>("SELECT to_regclass($1) IS NOT NULL AS present",["public."+table]);
  return result.rows[0]?.present===true;
 };
-/** Appartenance explicite au cycle, ou date du registre historique créé avant la liaison. */
+/** Une liaison explicite prime ; les fiches sans liaison restent des éléments d’équipe. */
 export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
- from:string,to:string,kind:"risk"|"obstacle"):Promise<Collection>{
+ kind:"risk"|"obstacle"):Promise<Collection>{
  if(!await exists(db,"smn_registry_item"))return collectionUnavailable("schema-missing");
  const hasLinks=await exists(db,"smn_registry_cycle_link");
  const hasRoam=kind==="risk"&&await exists(db,"smn_risk_roam");
@@ -26,8 +26,8 @@ export async function readCycleRegistry(db:Client,teamId:string,cycleId:string,
  const closed=kind==="risk"?["resolved"]:["resolved","abandoned"];
  const roamClause=hasRoam?
   " AND NOT EXISTS(SELECT 1 FROM public.smn_risk_roam roam WHERE roam.item_id=r.id AND roam.classification=\'resolved\')":"";
- const where=`r.team_id=$1 AND r.type=$2 AND r.status<>ALL($6::text[]) AND ${associated}${roamClause}`;
- const params=[teamId,kind,cycleId,from,to,closed];
+ const where=`r.team_id=$1 AND r.type=$2 AND r.status<>ALL($4::text[]) AND ${associated}${roamClause}`;
+ const params=[teamId,kind,cycleId,closed];
  const count=await db.query<{total:number}>(`SELECT COUNT(*)::int AS total FROM public.smn_registry_item r WHERE ${where}`,params);
  const joins=hasAssessment?" LEFT JOIN public.smn_risk_assessment a ON a.item_id=r.id":"";
  const score=hasAssessment?"a.probability*a.impact DESC NULLS LAST,":"";
