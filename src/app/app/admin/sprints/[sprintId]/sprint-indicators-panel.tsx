@@ -91,7 +91,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
   return()=>window.removeEventListener("beforeunload",prevent);
  },[dirty]);
  function begin(g:Group,field:Field,button:HTMLButtonElement){
-  if(!editable)return;
+  if(!editable||(g==="capacity"&&capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined))return;
   const item=g==="capacity"?capacityKpis:source?.[g];
   if(item?.state!=="available")return;
   action.current=button;setFocusField(field);
@@ -159,7 +159,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
         <strong className="fs-5">{item?
          groupName==="capacity"?(val===null?t("sprintDetail.indicatorNotEntered"):formatJh(val)):
           display(val):t("dashboard.cockpit.notAvailable")}</strong>
-        {editable&&item&&<button className="btn btn-link btn-sm p-1" type="button"
+        {editable&&item&&!(groupName==="capacity"&&capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined)&&<button className="btn btn-link btn-sm p-1" type="button"
          aria-label={t("sprintDetail.indicatorEdit",{name:t(field.label as "storyPoints.initial")})}
          title={t("sprintDetail.indicatorEdit",{name:t(field.label as "storyPoints.initial")})}
          onClick={e=>begin(groupName,field.key,e.currentTarget)}>
@@ -183,6 +183,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
   {data.state==="unavailable"&&<p role="alert">{t("dashboard.cockpit.notAvailable")}</p>}
   {source?.snapshotVersion!==null&&source?.snapshotVersion!==undefined&&
    <p className="small text-secondary">{t("sprintDetail.indicatorSnapshot",{version:source.snapshotVersion})}</p>}
+  {capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined&&<p className="small text-secondary">Capacité historique : {capacityKpis.historicalQuality==="known"?"Connue":capacityKpis.historicalQuality==="estimated"?"Estimée":"Absente / inconnue"}. {capacityKpis.historicalSource&&`Source : ${capacityKpis.historicalSource}.`} Aucun recalcul depuis les affectations actuelles.</p>}
   {section(t("sprintDetail.indicatorCapacityTitle"),"capacity",capacityFields)}
   {section(t("storyPoints.title"),"points",pointFields)}
   {section(t("sprintTickets.title"),"tickets",ticketFields)}
