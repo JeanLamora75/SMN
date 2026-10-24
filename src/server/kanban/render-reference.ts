@@ -1,8 +1,9 @@
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {canonicalJson} from "@/server/reports/render-reference";
+import {selectedKanbanAnalyses} from "./report-analysis-choices";
 import {composeKanbanReport,selectKanbanReportSections} from "./report-preparation";
-export type FrozenKanbanPayload={data:NonNullable<Awaited<ReturnType<typeof composeKanbanReport>>>;sections:string[];language:"fr"|"en"};
+export type FrozenKanbanPayload={data:NonNullable<Awaited<ReturnType<typeof composeKanbanReport>>>;sections:string[];language:"fr"|"en";chosenAnalyses?:Awaited<ReturnType<typeof selectedKanbanAnalyses>>};
 export function hashKanbanPayload(payload:FrozenKanbanPayload){
  return createHash("sha256").update(canonicalJson(payload),"utf8").digest("hex");
 }
@@ -21,7 +22,8 @@ export async function createKanbanRenderReference(db:Client,periodId:string,acto
  if(!data)return null;
  await db.query("BEGIN");
  try{
-  const payload:FrozenKanbanPayload={data,sections:chosen,language};
+  const chosenAnalyses=await selectedKanbanAnalyses(db,periodId);
+  const payload:FrozenKanbanPayload={data,sections:chosen,language,chosenAnalyses};
   const id=randomUUID(),sha256=hashKanbanPayload(payload);
   await db.query(`INSERT INTO public.smn_kanban_render_reference
    (id,period_id,created_by,sha256,payload) VALUES($1,$2,$3,$4,$5::jsonb)`,
