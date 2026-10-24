@@ -228,6 +228,15 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
  const definition=PANELS.find(p=>p.id==="events")!;
  const base=new URLSearchParams({teamId,cycleId});
  const calendarHref="/app/team-calendar?"+base.toString();
+ const ceremonyLabels:Readonly<Record<string,TranslationKey>>={
+  planning:"sprintDetail.ceremonyKind.planning",
+  daily:"sprintDetail.ceremonyKind.daily",
+  review:"sprintDetail.ceremonyKind.review",
+  retrospective:"sprintDetail.ceremonyKind.retrospective"
+ };
+ const eventTitle=(event:CollectiveCycleProjection["events"] extends {items:readonly (infer E)[]} ? E : never):string=>
+  event.kind==="ceremony"&&ceremonyLabels[event.title]?
+   t(ceremonyLabels[event.title]):event.title;
  const labels:Record<ReturnType<typeof classifyEventStatus>,TranslationKey>={
   scheduled:"dashboard.operational.eventScheduled",
   held:"dashboard.operational.eventHeld",
@@ -261,7 +270,7 @@ function EventsColumn({locale,events,teamId,cycleId,timeZone,canManage,cycleStat
         <div className="smn-dashboard-event-body">
          <Link className="smn-dashboard-event-title"
            href={"/app/team-calendar/meeting/"+encodeURIComponent(event.kind)+"/"+
-            encodeURIComponent(event.id)+"?"+base.toString()}>{event.title}</Link>
+            encodeURIComponent(event.id)+"?"+base.toString()}>{eventTitle(event)}</Link>
          <span className="smn-dashboard-event-when">{formatDashboardEventPeriod(event.startsAt,event.endsAt,locale,timeZone)}</span>
          <span className="smn-dashboard-event-state">
            {t(labels[classifyEventStatus(event.status)])}
