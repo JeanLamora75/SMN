@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
 type Change={id:string;previous:{startOn:string;endOn:string;name:string};proposed:{startOn:string;endOn:string;name:string};conflicts:string[]};
-type Proposal={cadenceRevision:number;changes:Change[];canConfirm:boolean};
+type Proposal={cadenceRevision:number;proposalToken:string;changes:Change[];canConfirm:boolean};
 export default function KanbanCadenceProposal(){
  const [proposal,setProposal]=useState<Proposal|null>(null);
  const [error,setError]=useState("");
@@ -21,7 +21,7 @@ export default function KanbanCadenceProposal(){
   setBusy(true);setError("");setMessage("");
   try{
    const response=await fetch("/api/admin/kanban-cadence/proposal",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({cadenceRevision:proposal.cadenceRevision})});
+    body:JSON.stringify({cadenceRevision:proposal.cadenceRevision,proposalToken:proposal.proposalToken})});
    if(!response.ok){setProposal(null);setError("La proposition n'est plus valide ou présente un conflit. Actualisez avant de confirmer.");return;}
    const data=await response.json();
    setProposal(null);setMessage(data.count+" période(s) future(s) replanifiée(s) et auditées.");
