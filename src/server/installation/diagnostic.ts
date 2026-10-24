@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { INITIAL_MIGRATION, INSTALLATION_RELATIONS } from "./contract";
+import { INITIAL_MIGRATION, INITIAL_REQUIRED_RELATIONS, INSTALLATION_RELATIONS } from "./contract";
 import { INITIAL_SCHEMA_SQL } from "./migration";
 import { ACCOUNTS_MIGRATION, ACCOUNTS_MIGRATION_SQL } from "../accounts/migration";
 import { RECOVERY_MIGRATION, RECOVERY_MIGRATION_SQL } from "../accounts/recovery-migration";
@@ -54,7 +54,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
   if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
-  if (!INSTALLATION_RELATIONS.slice(0,5).every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
+  if (!INITIAL_REQUIRED_RELATIONS.every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
   const isV2 = records[0].schema_version >= 2;
   const isV3 = records[0].schema_version >= 3;

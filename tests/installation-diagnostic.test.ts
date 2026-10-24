@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { classifySnapshot, diagnoseInstallation, type Snapshot } from "../src/server/installation/diagnostic";
 import { parseConnectionSettings } from "../src/server/db/config";
-import { INSTALLATION_RELATIONS } from "../src/server/installation/contract";
+import { INITIAL_REQUIRED_RELATIONS, INITIAL_MIGRATION, INSTALLATION_RELATIONS } from "../src/server/installation/contract";
+import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const names = ["public.smn_installation:r", "public._prisma_migrations:r"];
@@ -12,6 +14,41 @@ const valid: Snapshot = {
   installations: [{ id: "singleton", state: "initialized", schema_version: 1 }],
   migrations: [{ migration_name: "fixture_migration", finished_at: new Date(), rolled_back_at: null }],
 };
+
+describe("SMN-11 — régression des tables optionnelles de contexte Équipe", () => {
+  const base: Snapshot = {
+    schemaUsage:true,schemaCreate:true,serverVersion:180006,
+    tables:[...INITIAL_REQUIRED_RELATIONS],tableRead:true,migrationsRead:true,
+    shapeValid:true,
+    installations:[{id:"singleton",state:"initialized",schema_version:1}],
+    migrations:[{
+      migration_name:INITIAL_MIGRATION,
+      checksum:createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex"),
+      finished_at:new Date(),rolled_back_at:null
+    }]
+  };
+  it("préserve les cinq tables fondatrices même si des tables optionnelles sont ajoutées", () => {
+    assert.deepEqual([...INITIAL_REQUIRED_RELATIONS],[
+      "public._prisma_migrations:r","public.smn_installation:r",
+      "public.smn_product:r","public.smn_team:r","public.smn_account:r"
+    ]);
+    assert.deepEqual(INSTALLATION_RELATIONS.slice(0,5),[...INITIAL_REQUIRED_RELATIONS]);
+    assert.equal(classifySnapshot(base).status,"initialized");
+  });
+  it("ne demande pas de créer une table Vision/Goal pour accéder à une installation existante", () => {
+    assert.equal(classifySnapshot({...base,tables:[...base.tables]}).status,"initialized");
+    assert.equal(classifySnapshot({...base,tables:[
+      ...base.tables,"public.smn_team_context:r","public.smn_team_context_audit:r"
+    ]}).status,"initialized");
+  });
+  it("continue à refuser une vraie table fondatrice absente ou un objet étranger", () => {
+    assert.equal(classifySnapshot({...base,
+      tables:base.tables.filter(name=>name!=="public.smn_account:r")}).status,
+      "installation-incomplete");
+    assert.equal(classifySnapshot({...base,tables:[...base.tables,"public.unrelated:r"]}).status,
+      "schema-incompatible");
+  });
+});
 
 describe("SMN-11 — diagnostic sans mutation", () => {
   it("reconnaît une base vierge sous PostgreSQL 18", async () => {
