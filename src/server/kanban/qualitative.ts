@@ -1,10 +1,12 @@
 import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
+import {ensureRegistrySchema} from "@/server/registries/items";
 /**
  * Kanban qualitative links are explicit: never infer period membership from dates,
  * titles, Scrum sprint links or mere team membership.
  */
 export async function ensureKanbanQualitativeLinks(db:Client){
+ await ensureRegistrySchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_registry_link(
  period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
  item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
