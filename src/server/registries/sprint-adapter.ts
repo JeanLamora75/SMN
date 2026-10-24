@@ -114,8 +114,8 @@ export async function readEpic5SprintRegisterSource(
  // The period is scoped by the caller; source rows stay team-only.
  const rows=await db.query<RegistryRow>(`
  SELECT r.id,r.type,r.title,r.status,
- (r.occurred_on::timestamp AT TIME ZONE $3) AS date,
- (r.occurred_on::timestamp AT TIME ZONE $3) AS "openedAt",
+ (r.occurred_on::timestamp AT TIME ZONE $2) AS date,
+ (r.occurred_on::timestamp AT TIME ZONE $2) AS "openedAt",
  ${closed} AS "closedAt",${linked} AS "sprintIds",
  ${assessment} AS priority
  FROM public.smn_registry_item r
@@ -125,7 +125,7 @@ export async function readEpic5SprintRegisterSource(
  WHERE r.team_id=$1 AND i.id='singleton' AND i.state='initialized'
  AND lower(i.mode)='scrum'
  ORDER BY r.occurred_on,r.id LIMIT 10001`,
- [teamId,sprint.id,sprint.timeZone??"UTC"]);
+ [teamId,sprint.timeZone??"UTC"]);
  if(rows.rows.length>10000)throw Error("sprint-registers-source-limit");
  const records:unknown[]=rows.rows.map(row=>({
   id:row.id,kind:row.type,title:row.title,status:row.type==="highlight"?null:row.status,
@@ -155,7 +155,7 @@ export async function readEpic5SprintRegisterSource(
    WHERE h.source_kind='registry' AND r.team_id=$1
     AND i.id='singleton' AND i.state='initialized'
     ${invalidated} ${selectClause}
-   ORDER BY h.created_at,h.id LIMIT 10001`,[teamId,sprint.id]);
+   ORDER BY h.created_at,h.id LIMIT 10001`,s.links?[teamId,sprint.id]:[teamId]);
   if(automatic.rows.length>10000)throw Error("sprint-highlights-source-limit");
   records.push(...automatic.rows.map(row=>({
    id:row.id,kind:"highlight",title:row.title,status:null,priority:null,
