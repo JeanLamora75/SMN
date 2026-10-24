@@ -184,6 +184,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
   {source?.snapshotVersion!==null&&source?.snapshotVersion!==undefined&&
    <p className="small text-secondary">{t("sprintDetail.indicatorSnapshot",{version:source.snapshotVersion})}</p>}
   {capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined&&<p className="small text-secondary">Capacité historique : {capacityKpis.historicalQuality==="known"?"Connue":capacityKpis.historicalQuality==="estimated"?"Estimée":"Absente / inconnue"}. {capacityKpis.historicalSource&&`Source : ${capacityKpis.historicalSource}.`} Aucun recalcul depuis les affectations actuelles.</p>}
+  {capacityKpis.state==="available"&&capacityKpis.historicalActualQuality!==undefined&&<p className="small text-secondary">Capacité réelle historique : {capacityKpis.historicalActualQuality==="known"?"Connue":capacityKpis.historicalActualQuality==="estimated"?"Estimée":"Absente / inconnue"}. {capacityKpis.historicalActualSource&&`Source : ${capacityKpis.historicalActualSource}.`} Sans déduction depuis la capacité prévue.</p>}
   {section(t("sprintDetail.indicatorCapacityTitle"),"capacity",capacityFields)}
   {section(t("storyPoints.title"),"points",pointFields)}
   {section(t("sprintTickets.title"),"tickets",ticketFields)}
