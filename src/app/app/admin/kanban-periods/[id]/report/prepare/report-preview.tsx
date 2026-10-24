@@ -1,6 +1,7 @@
 "use client";
 import {useState} from "react";
-import {kanbanReportSections,type KanbanReportSection} from "@/server/kanban/report-preparation";
+const kanbanReportSections=["objectives","flow","timing","capacity","trends"] as const;
+type KanbanReportSection=typeof kanbanReportSections[number];
 type Data={period:{name:string;team:string;status:string;startOn:string;endOn:string};provisional:boolean;source:string;snapshotVersion:number|null;goals:unknown;flow:unknown;timing:unknown;capacity:unknown;trends:unknown;quality:{qualitativeLinks:string;events:string}};
 const labels:Record<KanbanReportSection,string>={objectives:"Objectifs",flow:"Comptages : commencés, terminés et WIP final",timing:"Cycle Time et Lead Time (jours calendaires)",capacity:"Capacité (J/H)",trends:"Tendances des périodes clôturées"};
 const safeValue=(value:unknown)=>value===null||value===undefined?"Non renseigné":typeof value==="object"?JSON.stringify(value,null,2):String(value);
