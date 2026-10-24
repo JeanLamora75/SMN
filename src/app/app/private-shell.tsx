@@ -30,11 +30,15 @@ export default function PrivateShell({children,username,role,mode,product,team,t
   // Une navigation vers la liste puis une nouvelle génération recharge les options.
   // La liste est fournie par le serveur, sans pagination ni écriture en base.
   useEffect(()=>{
-    if(mode!=="scrum"||!teamId){
-      setSprints([]);setSelectedCycleId("");setCycleState("ready");return;
-    }
     const ctrl=new AbortController();
-    setCycleState("loading");
+    if(mode!=="scrum"||!teamId){
+      queueMicrotask(()=>{
+        if(ctrl.signal.aborted)return;
+        setSprints([]);setSelectedCycleId("");setCycleState("ready");
+      });
+      return ()=>ctrl.abort();
+    }
+    queueMicrotask(()=>{if(!ctrl.signal.aborted)setCycleState("loading");});
     void fetch("/api/sprints/context",{signal:ctrl.signal,cache:"no-store"})
       .then(async response=>{
         if(!response.ok)throw Error("sprint-context-unavailable");
