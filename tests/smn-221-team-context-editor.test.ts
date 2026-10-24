@@ -178,3 +178,57 @@ test("intégration : crayon, modal 4 champs, API sécurisée, largeur adaptative
    assert.equal(typeof json.teamUX[key],"string",lang+" "+key);
  }
 });
+
+test("la synthèse Équipe affiche Produit puis effectif, et Vision et But du produit à droite",()=>{
+ const overview=read("src/app/app/admin/members/team-overview.tsx");
+ const modal=read("src/app/app/admin/members/team-context-editor.tsx");
+ assert.match(overview,/className="smn-team-page-header mb-4"/);
+ assert.match(overview,/className="smn-team-summary"/);
+ assert.match(overview,/t\("teamUX\.productLabel"\)/);
+ assert.match(overview,/currentContext\?\.productName/);
+ assert.match(overview,/t\("teamUX\.activeCount",\{count:members\.length\}\)/);
+ assert.match(overview,/className="smn-team-context-preview"/);
+ assert.equal((overview.match(/className="smn-team-context-section"/g)??[]).length,2);
+ assert.match(overview,/t\("teamUX\.contextVision"\)/);
+ assert.match(overview,/t\("teamUX\.contextGoalHeading"\)/);
+ assert.match(overview,/currentContext\?\.vision/);
+ assert.match(overview,/currentContext\?\.productGoal/);
+ assert.match(overview,/BootstrapIcon name="bullseye"/);
+ assert.match(overview,/BootstrapIcon name="stack"/);
+ assert.match(overview,/onSaved=\{updated=>/);
+ assert.match(modal,/onSaved\(result\.context\)/);
+});
+test("la synthèse utilise l'API contextuelle, respecte les vides et les états non fiables",()=>{
+ const overview=read("src/app/app/admin/members/team-overview.tsx");
+ const api=read("src/app/api/admin/team-context/route.ts");
+ const server=read("src/server/members/team-context.ts");
+ assert.match(overview,/fetch\("\/api\/admin\/team-context\?"/);
+ assert.match(overview,/signal:controller\.signal/);
+ assert.match(overview,/result\.context\?\.teamId!==teamId/);
+ assert.match(overview,/previous\.value\.revision>result\.context\.revision/);
+ assert.match(overview,/contextPreviewEmpty/);
+ assert.match(overview,/contextPreviewUnavailable/);
+ assert.match(overview,/contextPreviewLoading/);
+ assert.match(api,/authorizeApi\(request,"read",collective\)/);
+ assert.match(server,/productName:scope\.rows\[0\]\.product_name/);
+});
+test("la synthèse reste compacte, responsive et utilise les mêmes icônes que le dashboard",()=>{
+ const css=read("src/app/globals.css");
+ const dashboard=read("src/app/dashboard.css");
+ const overview=read("src/app/app/admin/members/team-overview.tsx");
+ assert.match(css,/\.smn-team-page-header\s*\{\s*display:grid/);
+ assert.match(css,/grid-template-areas:"identity context controls"/);
+ assert.match(css,/grid-template-areas:"identity controls" "context context"/);
+ assert.match(css,/\.smn-team-context-section \+ \.smn-team-context-section\s*\{/);
+ assert.match(css,/border-top:1px solid var\(--smn-border\)/);
+ assert.match(css,/-webkit-line-clamp:3/);
+ assert.match(dashboard,/\.smn-kpi-icon\s*\{/);
+ assert.match(overview,/smn-kpi-icon smn-team-context-icon/g);
+ for(const lang of ["fr","en"]){
+  const json=JSON.parse(read("src/i18n/"+lang+".json"));
+  for(const k of ["productLabel","contextGoalHeading","contextOverview",
+   "contextPreviewLoading","contextPreviewUnavailable","contextPreviewEmpty"]){
+   assert.equal(typeof json.teamUX[k],"string",lang+" "+k);
+  }
+ }
+});

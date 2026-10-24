@@ -541,3 +541,43 @@ FR/EN, reporting courant, historique figé, typecheck/lint/tests/build locaux.
 
 **Traçabilité :** SMN-221 (modale et audit), SMN-18 (libellé produit
 renommable, identité produit immuable), `tests/smn-221-team-context-editor.test.ts`.
+
+## Avenant UX — bandeau de synthèse Équipe : Produit, Vision et But (24/10/2026)
+
+Décision utilisateur : page **Équipe**, vues **Cartes** et **Liste** ; aucun
+changement à la grille et aux fiches individuelles.
+
+- **Zone gauche** de l'en-tête : **nom de l'équipe**, toujours accompagné du
+  crayon d'édition administrateur existant. Immédiatement en dessous :
+  **Produit : [nom du produit] · [N membres actifs]**, sans confusion entre
+  nom du produit et but du produit, et sans inventer d'effectif.
+- **Zone droite** : deux rubriques superposées **Vision Produit** puis
+  **But du produit**, distinctes et séparées par une **ligne horizontale fine**
+  (token `--smn-border`). Chacune a son icône Bootstrap dans le même
+  cartouche **`smn-kpi-icon` de 39 × 39 px** que les cartes KPI du tableau
+  de bord ; icônes bullseye (vision) et stack (but).
+- Les deux textes sont lus depuis le producteur persistant de contexte
+  d'équipe `GET /api/admin/team-context?teamId=…` (enregistrement SMN-221)
+  sans réutilisation du texte d'un autre contexte ; le produit est le champ
+  `smn_product.name` projeté par le même endpoint. Pas de nouvelle source
+  de vérité ni stockage local des données métier.
+- **États honnêtes** : chargement, lecture indisponible, valeur absente
+  (« Non renseigné »), y compris après renommage/sauvegarde. Après validation
+  dans la modale, la synthèse se rafraîchit immédiatement avec les quatre
+  champs enregistrés (nom, produit, vision, but), sans rechargement manuel.
+- **Densité** : limiter les descriptions longues à trois lignes dans le
+  bandeau, tout en gardant le contenu complet dans la modale et la valeur
+  complète à l'accessibilité (attribut `title`). Aucun effet sur les textes
+  stockés ou les rapports.
+- **Responsive** : zone gauche et zone droite sur une ligne sur écran large ;
+  sous 1150 px, zone identité et sélecteur Cartes/Liste au-dessus, puis
+  rubriques sur toute la largeur. Aucun débordement horizontal ; respect
+  thème clair/sombre et traductions FR/EN.
+- **Droits** : lecture de l'en-tête sous les règles de la page Équipe,
+  crayon d'édition visible uniquement aux administrateurs autorisés.
+
+**Recette UX :** vérification visuelle desktop/mobile et zoom, icônes de
+même taille que le dashboard, séparation fine, valeurs absentes et valeurs
+renseignées, statut de l'API, enregistrement puis rafraîchissement
+immédiat, bascule Cartes/Liste et traductions. Contrat détaillé :
+`_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/CONTRAT-DEVELOPPEMENT.md`.

@@ -86,3 +86,36 @@ rollback sur échec, préservation de l'historique, protection API, i18n,
 largeur responsive et absence de dimensionnement interne dépassant.
 Recette avec navigateur réel sur Windows et lancement local des tests
 restent nécessaires.
+
+## Bandeau de synthèse sur la page Équipe — 24/10/2026
+
+Source : demande utilisateur après livraison de la modale SMN-221.
+
+L'en-tête `src/app/app/admin/members/team-overview.tsx` rend désormais :
+- l'identité de l'équipe et le crayon ;
+- « Produit : [valeur courante] · [N membres actifs] » ;
+- un bloc double « Vision Produit » / « But du produit » à droite
+  avec une fine séparation horizontale et deux cartouches
+  `smn-kpi-icon` (39 × 39 px, SVG Bootstrap) ;
+- le choix Cartes/Liste inchangé.
+
+Lecture : le producteur `GET /api/admin/team-context` déjà sécurisé,
+chargé au niveau de l'équipe courante seulement avec `AbortController`.
+États distincts : chargement, erreur, contenu absent. Aucun POST/PATCH à
+l'affichage. Après PATCH réussi via `team-context-editor.tsx`, callback
+`onSaved(context)` met à jour immédiatement le nom, le produit, la Vision
+et le But, sans appliquer une réponse GET plus ancienne (garde révision).
+
+CSS : `src/app/globals.css`, grille desktop identité/synthèse/choix,
+passage en deux rangées sous 1150 px, texte long visuellement plafonné
+à trois lignes. Icônes de `src/app/app/bootstrap-icon.tsx`, classe
+globale des cartes KPI du dashboard réutilisée.
+
+Traductions ajoutées dans `src/i18n/fr.json` et `src/i18n/en.json`.
+Tests source/contrat ajoutés à `tests/smn-221-team-context-editor.test.ts`.
+
+**À confirmer par utilisateur** sur Windows :
+`pnpm typecheck`, `pnpm lint`,
+`pnpm exec tsx --test tests/smn-221-team-context-editor.test.ts`,
+`pnpm build`, puis inspection visuelle des deux modes, du zoom et des
+contenus absents/longs. Ne pas fermer Jira avant recette.

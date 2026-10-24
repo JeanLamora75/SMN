@@ -1810,6 +1810,12 @@
     "error": "Configuration indisponible ou conflictuelle"
   },
   "teamUX": {
+    "productLabel": "Produit",
+    "contextGoalHeading": "But du produit",
+    "contextOverview": "Vision et but du produit de l’équipe",
+    "contextPreviewLoading": "Chargement…",
+    "contextPreviewUnavailable": "Indisponible",
+    "contextPreviewEmpty": "Non renseigné",
     "contextEdit": "Modifier le nom et la vision de l’équipe {name}",
     "contextHeading": "Modifier l’équipe et le produit",
     "contextName": "Nom de l’équipe",

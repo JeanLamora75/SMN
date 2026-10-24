@@ -12,7 +12,7 @@ type Response={context:Context;history:Version[]};
 type Saved={ok:true;changed:boolean;context:Context}|
  {ok:false;error:string};
 export default function TeamContextEditor({teamId,teamName,onSaved}:{
- teamId:string;teamName:string;onSaved:(name:string)=>void;
+ teamId:string;teamName:string;onSaved:(context:Context)=>void;
 }){
  const t=useTranslation(),router=useRouter();
  const dialog=useRef<HTMLDialogElement>(null);
@@ -76,7 +76,7 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
      code==="invalid-input"?"teamUX.contextInvalid":
      "teamUX.contextSaveFailed"));return;
    }
-   onSaved(result.context.name);
+   onSaved(result.context);
    setOpen(false);trigger.current?.focus();
    router.refresh();
   }catch{setError(t("teamUX.contextSaveFailed"));}

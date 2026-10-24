@@ -135,3 +135,28 @@ Le formulaire affiche les valeurs existantes, l'enregistrement respecte les
 droits administrateur, et les libellés sont traduits en FR/EN.
 
 Voir l'avenant correspondant du référentiel UX et la Story SMN-221.
+
+## Addendum UI — Bandeau Équipe enrichi (24/10/2026)
+
+La modification de l'en-tête de la **page Équipe** couvre les deux
+présentations Cartes et Liste :
+1. **En haut à gauche** : nom de l'équipe et crayon d'édition ; en dessous
+   « Produit : [nom enregistré] · [nombre de membres actifs] ».
+2. **À droite** : « Vision Produit », puis « But du produit », chacun précédé
+   d'une icône dans le même cartouche de 39 px que les KPI du tableau de bord.
+   Une ligne fine `--smn-border` sépare les deux sections.
+3. **En haut à droite** : contrôle Cartes/Liste inchangé. En dessous de
+   1150 px, les sections Vision/But passent sous l'identité sur toute
+   la largeur. Les cartes des membres et leur grille ne sont pas modifiées.
+4. Valeurs réelles issues de SMN-221 ; texte manquant « Non renseigné »,
+   chargement et indisponibilité explicités. Limite visuelle de trois lignes
+   par rubrique sans tronquer les valeurs enregistrées. Après la sauvegarde
+   des quatre champs dans la modale, les quatre champs de synthèse sont
+   rafraîchis en mémoire et les autres vues via le refresh existant.
+5. Lecture GET authentifiée, écriture admin uniquement, FR/EN et palettes.
+   Aucune écriture en base sur le simple affichage.
+
+Recette : vérifier desktop et mobile, même hauteur de cartouche que les
+KPI, séquence Produit/effectif, fine bordure Vision/But, contenus
+absents ou longs, rafraîchissement après sauvegarde et changement
+Cartes/Liste. Les tests en dépôt ne remplacent pas la recette navigateur.

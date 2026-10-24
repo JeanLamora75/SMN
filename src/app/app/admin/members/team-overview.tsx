@@ -5,15 +5,21 @@ import {useRouter} from "next/navigation";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import TeamContextEditor from "./team-context-editor";
+import BootstrapIcon from "../../bootstrap-icon";
 
 type Member={id:string;displayName:string;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string;mode:string};members:Member[]};
+type TeamContextOverview={teamId:string;name:string;productName:string;
+ vision:string|null;productGoal:string|null;revision:number};
+type TeamContextState=
+ |{status:"loading"}|{status:"error"}|{status:"ready";value:TeamContextOverview};
 type View="cards"|"list";
 const CHOICE="smn-team-roster-view";
 export default function TeamOverview({canManage}:{canManage:boolean}){
  const t=useTranslation();
  const router=useRouter();
  const [roster,setRoster]=useState<Roster|null>(null);
+ const [teamContext,setTeamContext]=useState<TeamContextState>({status:"loading"});
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [view,setView]=useState<View>("cards");
  const [creationOpen,setCreationOpen]=useState(false);
@@ -26,6 +32,27 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
   .then(async r=>{if(!r.ok)throw Error("members");return r.json() as Promise<Roster>;})
   .then(v=>{if(alive){setRoster(v);setStatus("ready");}})
   .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};},[]);
+ useEffect(()=>{
+  const teamId=roster?.team.id;
+  if(!teamId)return;
+  const controller=new AbortController();
+  void fetch("/api/admin/team-context?"+new URLSearchParams({teamId}),{
+   cache:"no-store",signal:controller.signal
+  }).then(async response=>{
+   if(!response.ok)throw Error("team-context");
+   return response.json() as Promise<{context:TeamContextOverview}>;
+  }).then(result=>{
+   if(!controller.signal.aborted){
+    if(result.context?.teamId!==teamId)throw Error("team-context-scope");
+    setTeamContext(previous=>previous.status==="ready"&&
+     previous.value.teamId===teamId&&previous.value.revision>result.context.revision?
+      previous:{status:"ready",value:result.context});
+   }
+  }).catch(()=>{
+   if(!controller.signal.aborted)setTeamContext({status:"error"});
+  });
+  return()=>controller.abort();
+ },[roster?.team.id]);
  function choose(next:View){setView(next);try{localStorage.setItem(CHOICE,next);}catch{}}
  async function createOne(e:FormEvent<HTMLFormElement>){
   e.preventDefault();if(!roster||creating||!newName.trim())return;
@@ -47,19 +74,59 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
  const members=(roster?.members??[]).filter(m=>!m.archived);
  const capacity=Math.max(12,Math.ceil((members.length+1)/6)*6);
  const roles=(m:Member)=>([["SM",m.roleShares?.scrumMaster],["PO",m.roleShares?.productOwner],["Dev",m.roleShares?.developer]] as const);
+ const currentContext=teamContext.status==="ready"&&
+  teamContext.value.teamId===roster?.team.id?teamContext.value:null;
+ const contextText=(value:string|null|undefined)=>teamContext.status==="loading"?
+  t("teamUX.contextPreviewLoading"):teamContext.status==="error"?
+  t("teamUX.contextPreviewUnavailable"):value?.trim()||
+  t("teamUX.contextPreviewEmpty");
  return <section className="smn-panel smn-team-roster p-3 p-lg-4">
-  <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-   <div><div className="d-flex align-items-center gap-2 flex-wrap">
-    <h1 className="h3 mb-0">{roster?.team.name??t("members.teamTitle")}</h1>
-    {canManage&&roster&&<TeamContextEditor teamId={roster.team.id}
-     teamName={roster.team.name} onSaved={name=>setRoster(current=>current?{
-      ...current,team:{...current.team,name}}:current)}/>}
-   </div><p className="text-secondary mb-0 mt-1">{t("teamUX.activeCount",{count:members.length})}</p></div>
-   <div className="btn-group" role="group" aria-label={t("teamUX.displayMode")}>
+  <header className="smn-team-page-header mb-4">
+   <div className="smn-team-summary">
+    <div className="d-flex align-items-center gap-2 flex-wrap">
+     <h1 className="h3 mb-0">{roster?.team.name??t("members.teamTitle")}</h1>
+     {canManage&&roster&&<TeamContextEditor teamId={roster.team.id}
+      teamName={roster.team.name} onSaved={updated=>{
+       setRoster(current=>current?{...current,team:{...current.team,name:updated.name}}:current);
+       setTeamContext({status:"ready",value:updated});
+      }}/>}
+    </div>
+    <p className="smn-team-summary-meta text-secondary mb-0 mt-2">
+     <span><strong>{t("teamUX.productLabel")} :</strong>{" "}
+      {contextText(currentContext?.productName)}</span>
+     <span className="smn-team-summary-divider" aria-hidden="true">·</span>
+     <span>{t("teamUX.activeCount",{count:members.length})}</span>
+    </p>
+   </div>
+   <div className="smn-team-context-preview" aria-label={t("teamUX.contextOverview")}>
+    <section className="smn-team-context-section">
+     <span className="smn-kpi-icon smn-team-context-icon" aria-hidden="true">
+      <BootstrapIcon name="bullseye"/>
+     </span>
+     <div className="smn-team-context-copy">
+      <h2 className="smn-team-context-heading">{t("teamUX.contextVision")}</h2>
+      <p className="smn-team-context-description" title={currentContext?.vision??undefined}>
+       {contextText(currentContext?.vision)}
+      </p>
+     </div>
+    </section>
+    <section className="smn-team-context-section">
+     <span className="smn-kpi-icon smn-team-context-icon" aria-hidden="true">
+      <BootstrapIcon name="stack"/>
+     </span>
+     <div className="smn-team-context-copy">
+      <h2 className="smn-team-context-heading">{t("teamUX.contextGoalHeading")}</h2>
+      <p className="smn-team-context-description" title={currentContext?.productGoal??undefined}>
+       {contextText(currentContext?.productGoal)}
+      </p>
+     </div>
+    </section>
+   </div>
+   <div className="btn-group smn-team-view-switch" role="group" aria-label={t("teamUX.displayMode")}>
     <button type="button" className={"btn "+(view==="cards"?"btn-primary":"btn-outline-secondary")} aria-label={t("teamUX.cardsView")} aria-pressed={view==="cards"} onClick={()=>choose("cards")}>▦</button>
     <button type="button" className={"btn "+(view==="list"?"btn-primary":"btn-outline-secondary")} aria-label={t("teamUX.listView")} aria-pressed={view==="list"} onClick={()=>choose("list")}>☷</button>
    </div>
-  </div>
+  </header>
   {status==="loading"&&<p role="status">{t("members.loading")}</p>}
   {status==="error"&&<p role="alert">{t("members.loadFailed")}</p>}
   {status==="ready"&&roster?.members.length===0&&<div className="alert alert-info mb-3">{t("teamUX.notInitialized")} <Link href="/app/admin/members/manage" className="alert-link">{t("teamUX.initialize")}</Link></div>}

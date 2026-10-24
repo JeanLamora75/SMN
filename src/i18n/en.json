@@ -1810,6 +1810,12 @@
     "error": "Configuration unavailable or conflicting"
   },
   "teamUX": {
+    "productLabel": "Product",
+    "contextGoalHeading": "Product Goal",
+    "contextOverview": "Team Product Vision and Product Goal",
+    "contextPreviewLoading": "Loading…",
+    "contextPreviewUnavailable": "Unavailable",
+    "contextPreviewEmpty": "Not specified",
     "contextEdit": "Edit the name and vision of team {name}",
     "contextHeading": "Edit team and product",
     "contextName": "Team name",
