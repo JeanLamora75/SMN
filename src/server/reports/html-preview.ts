@@ -36,9 +36,23 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string){
  ...section,items:metrics.map(m=>({label:m.key,detail:m.available?String(m.value)+" "+m.unit:"",href:null})),
  state:metrics.some(m=>m.available)?"available" as const:"unavailable" as const
  }:{...section,items:safeCollectiveItems(section.items)});
+ const marker=await db.query<{historical:boolean}>(`SELECT EXISTS(SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created') AS historical`,[sprintId]);
+ const historical=marker.rows[0]?.historical===true;
+ const historicalClosure=historical&&report.sprint.status==="closed"?await db.query<{snapshot:unknown}>(`SELECT snapshot FROM public.smn_sprint_closure_snapshot WHERE sprint_id=$1 ORDER BY version DESC LIMIT 1`,[sprintId]):null;
+ const frozen=historicalClosure?.rows[0]?.snapshot;
+ const snapshotData=frozen&&typeof frozen==="object"&&!Array.isArray(frozen)?frozen as Record<string,unknown>:null;
+ const capacity=snapshotData?.capacity&&typeof snapshotData.capacity==="object"?snapshotData.capacity as Record<string,unknown>:null;
+ const qualities=snapshotData?.historicalMetricQualities&&typeof snapshotData.historicalMetricQualities==="object"?snapshotData.historicalMetricQualities as Record<string,unknown>:null;
+ const historicalEvidence=historical?{
+  retrospective:true as const,qualitySource:report.sprint.status==="closed"?"closure-snapshot" as const:"current-unclosed" as const,
+  capacityPlannedQuality:typeof capacity?.initialQuality==="string"?capacity.initialQuality:"not-supplied",
+  capacityActualQuality:typeof capacity?.actualQuality==="string"?capacity.actualQuality:"not-supplied",
+  completedSpQuality:qualities?.SP_DONE==="estimated"?"estimated":qualities?.SP_DONE==="known"?"known":"not-supplied",
+  registryState:"historical-unavailable" as const
+ }:null;
  const trends=await readReportTrends(db,sprintId,history.depth);
  return {sprint:safeCollectiveContext(report.sprint),provisional:report.provisional,generatedAt:new Date().toISOString(),
- source:report.source,version:report.snapshotVersion,sections:chosen,metrics,
+ source:report.source,version:report.snapshotVersion,historicalEvidence,sections:chosen,metrics,
  notes:draft.notes,teamContext:selectedTeamContext(context,contextOptions.options),
  trends:contents.options.metrics.length?trends??[]:[],historyDepth:history.depth,
  qualitativePolicy:"not-verified" as const};
