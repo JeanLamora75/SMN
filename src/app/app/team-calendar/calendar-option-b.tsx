@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import {useLocale,useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../bootstrap-icon";
 
@@ -21,11 +20,12 @@ function meetingIcon(meeting:CalendarMeeting):IconName{
 }
 
 export default function CalendarOptionB({days,entries,meetings,absenceCounts,today,
- mode,showMeetings,showAbsences,isEditable,onMeeting,onAbsence}:{
+ mode,showMeetings,showAbsences,isEditable,onMeeting,onAbsence,onOpenEvent}:{
  days:string[];entries:CalendarEntry[];meetings:CalendarMeeting[];
  absenceCounts:Record<string,number>;today:string;mode:CalendarMode;
  showMeetings:boolean;showAbsences:boolean;isEditable:(date:string)=>boolean;
  onMeeting:(date:string)=>void;onAbsence:(date:string)=>void;
+ onOpenEvent:(event:CalendarMeeting)=>void;
 }){
  const t=useTranslation(),locale=useLocale();
  const dateLabel=(day:string,options:Intl.DateTimeFormatOptions)=>
@@ -55,8 +55,9 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,tod
    {dayMeetings.map(m=><div key={m.kind+":"+m.id} className="smn-cal-event">
      <span className="smn-cal-icon"><BootstrapIcon name={meetingIcon(m)}/></span>
      <div className="smn-cal-event-copy">
-      <Link href={m.href} className="smn-cal-event-title" title={clock(m.startAt)+" – "+clock(m.endAt)}>
-       {meetingTitle(m)}</Link>
+      <button type="button" className="smn-cal-event-title smn-cal-event-open"
+       aria-haspopup="dialog" onClick={()=>onOpenEvent(m)} title={clock(m.startAt)+" – "+clock(m.endAt)}>
+       {meetingTitle(m)}</button>
       <span className="smn-cal-event-time">{clock(m.startAt)} – {clock(m.endAt)}</span>
       {m.generationSource==="reconstructed"&&<span className="smn-cal-event-time">{t("sprintWizard.reconstructedLabel")}</span>}
      </div>
