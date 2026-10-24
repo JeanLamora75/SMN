@@ -1,10 +1,11 @@
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {useCurrentTime} from "./use-current-time";
 type Sprint={id:string;name:string;status:string;startAt:string;endAt:string;timeZone:string};
 type Preview={sprints:Array<{id:string;name:string;startAt:string;endAt:string;status:string}>;consequences:string[]};
 export default function DeleteSprintForm(){
- const t=useTranslation();
+ const t=useTranslation();const now=useCurrentTime();
  const [rows,setRows]=useState<Sprint[]>([]);
  const [ids,setIds]=useState<string[]>([]);
  const [preview,setPreview]=useState<Preview|null>(null);
@@ -30,7 +31,7 @@ export default function DeleteSprintForm(){
  }
  return <section className="smn-panel p-4 mt-4">
   <h2 className="h4">{t("sprintDelete.title")}</h2><p>{t("sprintDelete.intro")}</p>
-  <div className="d-grid gap-2">{rows.filter(s=>s.status==="planned"&&Date.parse(s.startAt)>Date.now()).map(s=><label key={s.id} className="form-check">
+  <div className="d-grid gap-2">{rows.filter(s=>s.status==="planned"&&now!==null&&Date.parse(s.startAt)>now).map(s=><label key={s.id} className="form-check">
    <input className="form-check-input" type="checkbox" checked={ids.includes(s.id)} onChange={()=>toggle(s.id)} disabled={busy}/>
    <span className="form-check-label">{s.name} — {s.startAt.slice(0,10)}</span>
   </label>)}</div>
