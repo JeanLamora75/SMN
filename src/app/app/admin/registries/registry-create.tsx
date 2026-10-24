@@ -18,9 +18,9 @@ const today=()=>{
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 };
-export default function RegistryCreate({teamId,canManage,itemId,initialType="risk",modalMode=false,onCreated}:{
+export default function RegistryCreate({teamId,canManage,itemId,initialType="risk",modalMode=false,onCreated,cycleId}:{
  teamId:string|null;canManage:boolean;itemId?:string;
- initialType?:"risk"|"obstacle";modalMode?:boolean;onCreated?:()=>void;
+ initialType?:"risk"|"obstacle";modalMode?:boolean;onCreated?:()=>void;cycleId?:string;
 }){
  const t=useTranslation();
  const [type,setType]=useState<RegistryType>(initialType);
@@ -71,7 +71,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
    if(itemId&&revision===null)throw Error("not-loaded");
    const response=await fetch(itemId?"/api/admin/registries/"+encodeURIComponent(itemId):"/api/admin/registries",{method:itemId?"PATCH":"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({...(itemId?{revision}:{}),teamId,type,title,occurredOn:date,status,
+    body:JSON.stringify({...(itemId?{revision}:cycleId?{cycleId}:{}),teamId,type,title,occurredOn:date,status,
       description:description||null,owner:owner||null,dueOn:due||null,comment:comment||null})});
    const result=await response.json() as Response;
    if(response.status===409){setNotice({ok:false,message:translate("conflict")});return;}
