@@ -133,7 +133,13 @@ export async function changeSprintClosure(db:Client,actorId:string,raw:unknown){
    const historicalMarker=await db.query<{historical:boolean}>(`SELECT EXISTS(SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created') AS historical`,[s.id]);
    const historical=historicalMarker.rows[0]?.historical===true;
    const data=await snapshot(db,s.id,s,historical);
-   if(historical)Object.assign(data,{historicalClosure:{state:"partial-retrospective",recordedAt:new Date().toISOString(),historicRegistryState:"historical-unavailable",limitations:"Informations reprises rétrospectivement; absence de données non assimilée à zéro ou non atteint."}});
+
+   // A new closure always appends a version; prior snapshots remain immutable.
+   const timestamp=await db.query<{recorded_at:string}>(`SELECT clock_timestamp()::text AS recorded_at`);
+   if(historical)Object.assign(data,{historicalClosure:{state:"partial-retrospective",
+    recordedAt:timestamp.rows[0].recorded_at,version,priorVersions:version-1,
+    historicRegistryState:"historical-unavailable",
+    limitations:"Informations reprises rétrospectivement ; absence de données non assimilée à zéro ou non atteint."}});
    await db.query(`INSERT INTO public.smn_sprint_closure_snapshot(id,sprint_id,version,snapshot,actor_id)
     VALUES($1,$2,$3,$4::jsonb,$5)`,[randomUUID(),s.id,version,JSON.stringify({sprint:{id:s.id,name:s.name,startAt:s.start_at,endAt:s.end_at},...data}),actorId]);
   }
