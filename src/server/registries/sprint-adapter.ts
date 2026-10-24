@@ -103,7 +103,9 @@ export async function readEpic5SprintRegisterSource(
  (r.type='action' AND r.status IN ('completed','cancelled'))`;
  const closed=s.audit?`CASE WHEN (${terminal}) THEN
   (SELECT MAX(a.changed_at) FROM public.smn_registry_item_audit a
-    WHERE a.item_id=r.id AND a.after_values->>'status'=r.status)
+    WHERE a.item_id=r.id AND a.after_values->>'status'=r.status
+    AND (a.before_values IS NULL OR
+     a.before_values->>'status' IS DISTINCT FROM a.after_values->>'status'))
   ELSE NULL::timestamptz END`:"NULL::timestamptz";
  const assessment=s.assess?`CASE WHEN r.type='risk' AND ra.probability IS NOT NULL
   AND ra.impact IS NOT NULL THEN CASE
