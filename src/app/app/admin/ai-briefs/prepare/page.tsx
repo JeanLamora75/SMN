@@ -3,7 +3,8 @@ import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
-import {initialBriefTemplates,initialBriefTemplate,allowedBriefFields} from "@/lib/ai-brief-templates";
+import {allowedBriefFields} from "@/lib/ai-brief-templates";
+import {listBriefTemplates} from "@/server/ai-briefs/templates";
 
 export const dynamic="force-dynamic";
 
@@ -52,7 +53,9 @@ export default async function PrepareAiBrief({searchParams}:{
  const back=scrum?
   "/app/admin/sprints/"+encodeURIComponent(context.id):
   "/app/admin/kanban-periods/"+encodeURIComponent(context.id)+"/report";
- const selected=initialBriefTemplate(template??"cycle-review")??initialBriefTemplates[0];
+ const templates=await withAuthDb(listBriefTemplates);
+ const available=templates.filter(t=>t.active);
+ const selected=available.find(t=>t.id===template)??available[0];
  const fields=allowedBriefFields(scrum?"scrum":"kanban",selected.data);
  const preparedAt=new Date().toISOString();
  const provisional=context.status!=="closed";
@@ -75,16 +78,17 @@ export default async function PrepareAiBrief({searchParams}:{
     <dt className="col-sm-3">Préparé le</dt><dd className="col-sm-9"><time dateTime={preparedAt}>{new Intl.DateTimeFormat("fr-FR",{dateStyle:"long",timeStyle:"medium",timeZone:"Europe/Paris"}).format(new Date(preparedAt))} (Europe/Paris)</time></dd>
    </dl>
    <section aria-labelledby="brief-templates" className="border-top pt-3 mt-3">
-    <h2 id="brief-templates" className="h5">Modèles initiaux de briefs</h2>
+    <h2 id="brief-templates" className="h5">Modèles de briefs</h2>
+    <Link className="btn btn-outline-secondary btn-sm mb-3" href="/app/admin/ai-briefs/templates">Administrer les modèles</Link>
     <p className="text-secondary small">Choisissez un modèle pour consulter sa configuration. Les paramètres sont réutilisables et cette consultation n’enregistre rien.</p>
     <div className="d-flex flex-wrap gap-2 mb-3">
-     {initialBriefTemplates.map(item=><Link key={item.id}
+     {available.map(item=><Link key={item.id}
       className={item.id===selected.id?"btn btn-primary btn-sm":"btn btn-outline-primary btn-sm"}
       aria-current={item.id===selected.id?"page":undefined}
       href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:mode!,id:context.id,template:item.id}).toString()}>
       {item.title}</Link>)}
     </div>
-    <h3 className="h6">{selected.title}</h3><p>{selected.description}</p>
+    <h3 className="h6">{selected.title}</h3><p>{selected.description}</p><p className="small text-secondary">Profondeur : {selected.depth}/5</p>
     <div className="row g-3">
      <div className="col-12 col-lg-6"><h4 className="h6">Rubriques</h4><ol>{selected.sections.map(s=><li key={s}>{s}</li>)}</ol></div>
      <div className="col-12 col-lg-6"><h4 className="h6">Données collectives proposées</h4><ul>{fields.map(field=><li key={field}><code>{field}</code></li>)}</ul></div>
