@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
-export default function DependencyVigilance({id,canManage}:{id:string;canManage:boolean}){
+export default function DependencyVigilance({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("dependencyVigilance."+k) as Parameters<typeof t>[0]);
  const [revision,setRevision]=useState<number|null>(null),[saved,setSaved]=useState(false);
  const [value,setValue]=useState(false),[initial,setInitial]=useState(false);
@@ -24,7 +24,7 @@ export default function DependencyVigilance({id,canManage}:{id:string;canManage:
    if(!r.ok)throw Error("failed");
    const result=await r.json() as {ok:boolean;revision:number};
    if(!result.ok)throw Error("failed");
-   setRevision(result.revision);setInitial(value);setSaved(true);
+   setRevision(result.revision);setInitial(value);setSaved(true);onSaved?.();
   }catch{setError("error");}finally{setBusy(false);}
  };
  return <section className="card p-3 mt-3">
