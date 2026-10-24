@@ -3,7 +3,7 @@ import Link from "next/link";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Relation={id:string;sourceId:string;targetId:string;targetKind:"record"|"goal";sourceTitle:string;targetTitle:string};
-export default function RegistryRelations({id,type,canManage}:{id:string;type:string;canManage:boolean}){
+export default function RegistryRelations({id,type,canManage,onSaved}:{id:string;type:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("registryRelations."+k) as Parameters<typeof t>[0]);
  const [items,setItems]=useState<Relation[]|null>(null),[kind,setKind]=useState<"record"|"goal">("record");
  const [target,setTarget]=useState(""),[error,setError]=useState(false),[busy,setBusy]=useState(false);
@@ -17,7 +17,7 @@ export default function RegistryRelations({id,type,canManage}:{id:string;type:st
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({target:relationTarget,action})});
    if(!response.ok)throw Error("failed");
-   await load();setTarget("");
+   await load();setTarget("");onSaved?.();
   }catch{setError(true);}finally{setBusy(false);}
  };
  return <section className="card p-3 mt-3"><h2 className="h5">{tr("heading")}</h2><p className="text-body-secondary">{tr("intro")}</p>
