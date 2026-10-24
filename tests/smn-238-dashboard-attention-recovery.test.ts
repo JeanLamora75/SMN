@@ -17,21 +17,22 @@ test("risques et obstacles existants sont projetés selon l'équipe et le Sprint
   if(sql.includes("to_regclass"))return [{present:args[0]==="public.smn_registry_item"}];
   if(sql.includes("COUNT(*)"))return [{total:7}];
   if(sql.includes("SELECT r.id,r.title"))return Array.from({length:5},(_,i)=>({
-   id:"registry-"+i,title:"Risque "+i,status:"open"
+   id:"registry-"+i,title:"Risque "+i,status:"open",scope:"team"
   }));
   throw Error("SQL inattendu");
  });
- const r=await readCycleRegistry(saved.db,"team-a","cycle-a","2026-10-19","2026-10-30","risk");
+ const r=await readCycleRegistry(saved.db,"team-a","cycle-a","risk");
  assert.equal(r.state,"available");
  if(r.state==="available"){
   assert.equal(r.total,7);assert.equal(r.items.length,5);
   assert.equal(r.items[0].title,"Risque 0");
+  assert.equal(r.items[0].scope,"team");
   assert.match(r.items[0].href??"",/registries\/registry-0$/);
  }
  const query=saved.history.find(q=>q.sql.includes("COUNT(*)"));
- assert.deepEqual(query?.args.slice(0,5),["team-a","risk","cycle-a","2026-10-19","2026-10-30"]);
+ assert.deepEqual(query?.args,["team-a","risk","cycle-a",["resolved"]]);
  assert.match(query?.sql??"",/r\.status<>ALL/);
- assert.match(query?.sql??"",/r\.occurred_on BETWEEN/);
+ assert.match(query?.sql??"",/r\.team_id/);
  assert.ok(!saved.history.some(q=>/CREATE|INSERT|UPDATE|DELETE/i.test(q.sql)));
 });
 
