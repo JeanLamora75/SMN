@@ -1,6 +1,5 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
-import {useSearchParams} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import RiskRoam from "./risk-roam";
@@ -19,14 +18,15 @@ const today=()=>{
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 };
-export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|null;canManage:boolean;itemId?:string}){
+export default function RegistryCreate({teamId,canManage,itemId,initialType="risk",modalMode=false,onCreated}:{
+ teamId:string|null;canManage:boolean;itemId?:string;
+ initialType?:"risk"|"obstacle";modalMode?:boolean;onCreated?:()=>void;
+}){
  const t=useTranslation();
- const params=useSearchParams();
- const initialType=params.get("type");
- const [type,setType]=useState<RegistryType>(initialType==="obstacle"?"obstacle":"risk");
+ const [type,setType]=useState<RegistryType>(initialType);
  const [title,setTitle]=useState("");
  const [date,setDate]=useState(today);
- const [status,setStatus]=useState<string>(registryStatuses[initialType==="obstacle"?"obstacle":"risk"][0]);
+ const [status,setStatus]=useState<string>(registryStatuses[initialType][0]);
  const [description,setDescription]=useState("");
  const [owner,setOwner]=useState("");
  const [due,setDue]=useState("");
@@ -79,22 +79,22 @@ export default function RegistryCreate({teamId,canManage,itemId}:{teamId:string|
    setNotice({ok:true,message:translate("success").replace("{id}",result.id)});
    if(!itemId)setCreatedId(result.id);
    if(itemId){setRevision(result.revision??(revision??0)+1);originalStatus.current=status;baseline.current=JSON.stringify([title,date,status,description,owner,due,comment]);}
-   else {setTitle("");setDescription("");setOwner("");setDue("");setComment("");}
+   else {setTitle("");setDescription("");setOwner("");setDue("");setComment("");onCreated?.();}
   }catch{setNotice({ok:false,message:translate("failed")});}
   finally{setBusy(false);}
  };
  return <div className="d-grid gap-3">
-  <header><h1>{translate("title")}</h1><p className="text-body-secondary">{translate("intro")}</p></header>
+  {!modalMode&&<header><h1>{translate("title")}</h1><p className="text-body-secondary">{translate("intro")}</p></header>}
   {!teamId?<div role="alert" className="alert alert-warning">{translate("unavailable")}</div>:
    !canManage?<div className="card p-3 d-grid gap-2"><div role="status" className="alert alert-info">{translate("readonly")}</div>{loaded&&<><h2>{title}</h2><p>{translate("date")}: {date}</p><p>{translate("status")}: {translate(status)}</p><p>{description}</p></>}</div>:
-  <form className="card p-3 p-lg-4 d-grid gap-3" onSubmit={save}>
+  <form className={modalMode?"d-grid gap-3":"card p-3 p-lg-4 d-grid gap-3"} onSubmit={save}>
    {dirty&&<div className="alert alert-warning" role="status">{translate("unsaved")}</div>}
    {type==="obstacle"&&<p className="small text-body-secondary" role="status">{itemId&&obstacleTransition(originalStatus.current,status).valid&&obstacleTransition(originalStatus.current,status).reopened?t("obstacleLifecycle.reopening"):status==="resolved"?t("obstacleLifecycle.resolved"):status==="abandoned"?t("obstacleLifecycle.abandoned"):obstacleNeedsAttention(status)?t("obstacleLifecycle.active"):""}</p>}
    <div className="row g-3">
-    <div className="col-md-6"><label className="form-label" htmlFor="registry-type">{translate("type")}</label>
+    {!modalMode&&<div className="col-md-6"><label className="form-label" htmlFor="registry-type">{translate("type")}</label>
      <select id="registry-type" className="form-select" value={type} onChange={e=>changeType(e.target.value as RegistryType)}>
       {registryTypes.map(item=><option key={item} value={item}>{translate(item)}</option>)}
-     </select></div>
+     </select></div>}
     <div className="col-md-6"><label className="form-label" htmlFor="registry-date">{translate("date")}</label>
      <input id="registry-date" type="date" className="form-control" value={date} required onChange={e=>setDate(e.target.value)}/></div>
     <div className="col-md-8"><label className="form-label" htmlFor="registry-title">{translate("titleField")}</label>
