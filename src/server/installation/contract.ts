@@ -56,6 +56,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_risk_roam:r", "public.smn_risk_roam_audit:r",
   "public.smn_risk_assessment:r", "public.smn_risk_assessment_audit:r",
   "public.smn_dashboard_note:r", "public.smn_dashboard_note_audit:r",
+  "public.smn_dashboard_note_edit_audit:r", "public.smn_dashboard_event_edit_audit:r",
   // Tables SMN différées : créées seulement au premier usage d'une fonctionnalité autorisée.
   // Leur présence n'indique ni une base tierce ni une migration incomplète.
   "public.smn_automatic_highlight:r", "public.smn_automatic_highlight_settings:r",
