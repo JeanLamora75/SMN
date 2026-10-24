@@ -8,7 +8,10 @@ export default function HistoricalCsvTemplateView(){
  const [replacement,setReplacement]=useState<Record<number,boolean>>({});
  const [confirming,setConfirming]=useState(false),[confirmation,setConfirmation]=useState("");
  const version=useRef(0);
- const [check,setCheck]=useState<{valid:boolean;rowCount:number;errors:{line:number;column:string;message:string}[];preview?:Preview[];confirmable?:boolean}|null>(null);
+ const [attempts,setAttempts]=useState<{id:string;createdAt:string;status:string;mode:string;batchId:string|null;readCount:number;recognizedCount:number;appliedCount:number;preservedCount:number;rejectedCount:number;cycleIds:string[];errors:{line:number;column:string;message:string}[]}[]>([]);
+ async function loadAttempts(){try{const r=await fetch("/api/admin/historical-csv/attempts",{cache:"no-store"});if(r.ok)setAttempts((await r.json()).attempts??[]);}catch{}}
+ async function cancelPreview(){if(check?.attemptId)await fetch("/api/admin/historical-csv/attempts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({attemptId:check.attemptId})}).catch(()=>undefined);setCheck(null);void loadAttempts();}
+ const [check,setCheck]=useState<{valid:boolean;rowCount:number;errors:{line:number;column:string;message:string}[];preview?:Preview[];confirmable?:boolean;attemptId?:string}|null>(null);
  async function confirmImport(){
   if(!check?.valid||!check.preview||confirming)return;
   const choices=check.preview.map(r=>({line:r.line,expectedValue:r.existingValue,decision:r.decision==="insert"?"insert":replacement[r.line]?"replace":"keep"}));
@@ -20,11 +23,11 @@ export default function HistoricalCsvTemplateView(){
    const result=await response.json();
    if(!response.ok||!result.ok){setConfirmation("Import refusé : "+(result.error??"Erreur inconnue"));return;}
    setConfirmation("Lot "+result.batchId+" enregistré : "+result.inserted+" ajout(s), "+result.replaced+" remplacement(s), "+result.preserved+" conservation(s).");
-   setCheck(null);setReplacement({});
+   setCheck(null);setReplacement({});void loadAttempts();
   }catch{setConfirmation("Import indisponible.");}finally{setConfirming(false);}
  }
  async function validate(){const snapshot=version.current;setChecking(true);setCheck(null);setReplacement({});try{const r=await fetch("/api/admin/historical-csv/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv})});const value=await r.json();if(Array.isArray(value.errors)&&version.current===snapshot)setCheck(value);else setError("Vérification impossible.");}catch{setError("Vérification indisponible.");}finally{setChecking(false);}}
- useEffect(()=>{void fetch("/api/admin/historical-csv/template",{cache:"no-store"})
+ useEffect(()=>{void loadAttempts();void fetch("/api/admin/historical-csv/template",{cache:"no-store"})
   .then(r=>{if(!r.ok)throw Error();return r.json() as Promise<Catalog>;})
   .then(setData).catch(()=>setError("Catalogue momentanément indisponible."));},[]);
  return <section className="smn-panel rounded-4 p-4">
@@ -54,10 +57,15 @@ export default function HistoricalCsvTemplateView(){
      </tr>)}</tbody>
     </table></div>
     <button type="button" className="btn btn-primary btn-sm me-2" disabled={confirming} onClick={confirmImport}>{confirming?"Import en cours…":"Confirmer le lot"}</button>
-    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>setCheck(null)}>Annuler sans importer</button>
+    <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{void cancelPreview();}}>Annuler sans importer</button>
    </div>}
   </div>
   {confirmation&&<p role="status" className="alert alert-info">{confirmation}</p>}
+  <section className="mt-4"><h2 className="h6">Journal des tentatives CSV</h2>
+   <button type="button" className="btn btn-outline-secondary btn-sm mb-2" onClick={()=>{void loadAttempts();}}>Actualiser le journal</button>
+   <div className="table-responsive"><table className="table table-sm"><thead><tr><th>Date</th><th>État</th><th>Lues</th><th>Reconnues</th><th>Appliquées</th><th>Conservées</th><th>Rejetées</th><th>Lot et cycles</th><th>Erreurs</th></tr></thead>
+   <tbody>{attempts.map(a=><tr key={a.id}><td>{a.createdAt}</td><td>{a.status}</td><td>{a.readCount}</td><td>{a.recognizedCount}</td><td>{a.appliedCount}</td><td>{a.preservedCount}</td><td>{a.rejectedCount}</td><td>{a.batchId??a.id}<div className="small">{(a.cycleIds??[]).join(", ")}</div></td><td>{(a.errors??[]).map((e,i)=><div key={i}>Ligne {e.line} : {e.message}</div>)}</td></tr>)}</tbody>
+   </table></div></section>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {data&&<>
    <h2 className="h6">Codes sources autorisés — {data.mode==="scrum"?"Scrum":"Kanban"}</h2>
