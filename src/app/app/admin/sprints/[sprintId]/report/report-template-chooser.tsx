@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 import {reportMetricKeys,reportQualitativeKinds} from "@/lib/report-content-options";
@@ -12,9 +12,9 @@ export default function ReportTemplateChooser({sprintId}:{sprintId:string}){
  const [busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState("");
  const dirty=!!draft&&JSON.stringify(draft)!==base;
  useUnsavedChanges(dirty||busy,tr("leaveWarning"));
- const load=async()=>{const r=await fetch("/api/admin/reports/templates",{cache:"no-store"});if(!r.ok)throw Error();
- const data=await r.json() as {templates:Template[]};setItems(data.templates);return data.templates;};
- useEffect(()=>{void Promise.resolve().then(load).catch(()=>setError(tr("error")));},[]);
+ const load=useCallback(async()=>{const r=await fetch("/api/admin/reports/templates",{cache:"no-store"});if(!r.ok)throw Error();
+ const data=await r.json() as {templates:Template[]};setItems(data.templates);return data.templates;},[]);
+ useEffect(()=>{void Promise.resolve().then(load).catch(()=>setError(t("reportTemplates.error")));},[load,t]);
  const choose=(id:string)=>{if(dirty&&!window.confirm(tr("leaveWarning")))return;
  const v=items.find(x=>x.id===id);setSelected(id);setDraft(v?structuredClone(v):null);
  setBase(v?JSON.stringify(v):"");setError("");setNotice("");};
