@@ -580,13 +580,15 @@
       "reporting": "Reports",
       "briefs": "AI briefs",
       "users": "User accounts",
-      "settings": "General settings",
+      "settings": "Settings",
       "cyclesUnknown": "Cycles (mode unavailable)",
       "audit": "Operations log",
       "backups": "Backups",
       "members": "Team",
       "countries": "Countries",
-      "calendar": "Calendar"
+      "calendar": "Calendar",
+      "sprint": "Sprint",
+      "register": "Register"
     }
   },
   "detail": {
