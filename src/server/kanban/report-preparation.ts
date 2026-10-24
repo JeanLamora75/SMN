@@ -31,7 +31,7 @@ export async function composeKanbanReport(db:Client,periodId:string){
   goals:snapshot?frozen?.goals??[]:goals?.goals??[],
   flow:snapshot?frozen?.flow??null:flow?.counts??null,
   timing:snapshot?frozen?.timing??null:timing?{cycle:timing.cycle,lead:timing.lead,comparable:timing.comparable}:null,
-  capacity:snapshot?frozen?.capacity??null:report.blocks.capacity,
+  capacity:snapshot?frozen?.capacity??null:{...report.blocks.capacity,actualRetainedJh:report.blocks.capacity.realizedJh},
   events:snapshot?frozen?.events?.items??[]:[],
   qualitative:snapshot?frozen?.qualitativeLinks?.items??[]:[],
   trends:trends?.periods??[],
