@@ -3445,5 +3445,13 @@
     "analysis-origin": "AI-derived analysis: check provenance",
     "wide-table": "Check table readability",
     "invalid-block": "Invalid block structure"
+  },
+  "reportsPdf": {
+    "export": "Export PDF",
+    "archive": "Freeze and archive",
+    "confirmArchive": "Create an immutable PDF version of this draft?",
+    "warnings": "Non-blocking warnings were detected. Continue anyway?",
+    "failed": "PDF could not be generated. The draft is unchanged.",
+    "downloadArchive": "Download created archive"
   }
 }
