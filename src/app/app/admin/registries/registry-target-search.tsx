@@ -47,7 +47,7 @@ export default function RegistryTargetSearch({sourceId,kind,types=[],disabled,on
   setState("loading");
   const timer=setTimeout(()=>{
    const params=new URLSearchParams({kind,search:search.trim(),types:
-    kind==="goal"?"":types.length>0?types.join(","):filterType==="all"?"":filterType});
+    kind==="goal"?"":typesKey|| (filterType==="all"?"":filterType)});
    void fetch("/api/admin/registries/"+encodeURIComponent(sourceId)+
     "/relation-candidates?"+params.toString(),{cache:"no-store",signal:controller.signal})
     .then(async response=>{
