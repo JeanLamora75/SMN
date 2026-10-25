@@ -29,7 +29,7 @@ export default function KanbanCadenceProposal(){
  }
  return <section className="smn-panel p-4 mt-3">
   <h2 className="h5">Adapter les périodes Kanban futures</h2>
-  <p className="text-secondary">La nouvelle cadence n'altère pas les périodes déjà enregistrées. Vous pouvez les conserver telles quelles ou examiner une adaptation des seules périodes futures jamais démarrées.</p>
+  <p className="text-secondary">La nouvelle cadence n&apos;altère pas les périodes déjà enregistrées. Vous pouvez les conserver telles quelles ou examiner une adaptation des seules périodes futures jamais démarrées.</p>
   <button className="btn btn-outline-primary mb-3" disabled={busy} type="button" onClick={refresh}>Actualiser la proposition</button>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {message&&<p role="status" className="alert alert-success">{message}</p>}
