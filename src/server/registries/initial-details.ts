@@ -14,13 +14,13 @@ import {riskCriticalEvent,recordConfirmedHighlight} from "./confirmed-highlights
 export type InitialDetails={
  probability?:Level|null;impact?:Level|null;roam?:Roam|null;
  requester?:Party;contributor?:Party;atRisk?:boolean;
- rationale?:string|null;
+ rationale?:string|null;replacesId?:string|null;
 };
 type Parsed={ok:true;value:InitialDetails}|{ok:false};
 const allowed:Record<RegistryType,readonly string[]>={
  risk:["probability","impact","roam"],
  obstacle:[],dependency:["requester","contributor","atRisk"],
- decision:["rationale"],action:[],highlight:[]
+ decision:["rationale","replacesId"],action:[],highlight:[]
 };
 
 /** An omitted optional business field is not silently transformed into required data. */
@@ -54,8 +54,15 @@ export function parseInitialDetails(type:RegistryType,raw:unknown,teamId:string)
  }
  if(type==="decision"){
   if(record.rationale!==undefined&&record.rationale!==null&&
-   (typeof record.rationale!=="string"||record.rationale.length>4000))return {ok:false};
-  return {ok:true,value:record.rationale===undefined?{}:{rationale:record.rationale as string|null}};
+   (typeof record.rationale!=="string"||record.rationale.length>4000)||
+   record.replacesId!==undefined&&record.replacesId!==null&&
+   (typeof record.replacesId!=="string"||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(record.replacesId)))
+   return {ok:false};
+  return {ok:true,value:{
+   ...(record.rationale!==undefined?{rationale:record.rationale as string|null}:{}),
+   ...(record.replacesId!==undefined?{replacesId:record.replacesId as string|null}:{})
+  }};
  }
  return {ok:true,value:{}};
 }
@@ -110,14 +117,14 @@ export async function writeInitialDetails(db:Client,actorId:string,id:string,
     title,actorId
    });
   }
- }else if(type==="decision"&&value.rationale!==undefined){
+ }else if(type==="decision"&&(value.rationale!==undefined||value.replacesId!==undefined)){
   await ensureDecisionDetail(db);
   await db.query(`INSERT INTO public.smn_decision_detail
-   (item_id,rationale,replaces_id,revision,updated_by) VALUES($1,$2,NULL,1,$3)`,
-   [id,value.rationale,actorId]);
+   (item_id,rationale,replaces_id,revision,updated_by) VALUES($1,$2,$3,1,$4)`,
+   [id,value.rationale??null,value.replacesId??null,actorId]);
   await db.query(`INSERT INTO public.smn_decision_detail_audit
    (id,item_id,revision,before_values,after_values,actor_id)
    VALUES($1,$2,1,NULL,$3::jsonb,$4)`,
-   [randomUUID(),id,JSON.stringify({rationale:value.rationale,replacesId:null}),actorId]);
+   [randomUUID(),id,JSON.stringify({rationale:value.rationale??null,replacesId:value.replacesId??null}),actorId]);
  }
 }
