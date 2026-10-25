@@ -4,11 +4,12 @@ import {insertSelectedAnalysis,replaceEmbeddedAnalysis,type EmbeddedAnalysis} fr
 import ReportBlocksEditor from "./report-blocks-editor";
 import {isReportBlock,moveItem,type ReportBlock} from "@/lib/report-studio-blocks";
 import {useTranslation} from "@/i18n/client";
+import {reportDocumentStyle} from "@/lib/report-document-style";
 import type {ReportDocument} from "@/server/reports/report-documents";
 
 type Section={key:string;visible:boolean};
 type JournalChoice={id:string;type:"human"|"ai";scope:string;content:string;archiveId:string|null};
-type StudioContent={analyses?:EmbeddedAnalysis[];sections?:Section[];blocks?:unknown[];userNotes?:Record<string,string>;metrics?:Record<string,{value:number|null;unit:string}>;[key:string]:unknown};
+type StudioContent={documentStyle?:unknown;analyses?:EmbeddedAnalysis[];sections?:Section[];blocks?:unknown[];userNotes?:Record<string,string>;metrics?:Record<string,{value:number|null;unit:string}>;[key:string]:unknown};
 type Mode="composition"|"writing"|"preview";
 
 export default function ReportStudio({document,readOnly,journal}:{document:ReportDocument;readOnly:boolean;journal:JournalChoice[]}){
@@ -26,6 +27,8 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const change=(next:StudioContent)=>{setUndo(x=>[...x.slice(-49),content]);setRedo([]);changeVersion.current++;setContent(next);setSaved(false);setError("");};
  const back=()=>{if(!undo.length)return;setRedo(x=>[...x,content]);changeVersion.current++;setContent(undo[undo.length-1]);setUndo(x=>x.slice(0,-1));setSaved(false);};
  const forward=()=>{if(!redo.length)return;setUndo(x=>[...x,content]);changeVersion.current++;setContent(redo[redo.length-1]);setRedo(x=>x.slice(0,-1));setSaved(false);};
+ const style=reportDocumentStyle(content.documentStyle);
+ const updateStyle=(next:Partial<typeof style>)=>change({...content,documentStyle:{...style,...next}});
  const notes=content.userNotes??{};
  const analyses=content.analyses??[];
  const [candidate,setCandidate]=useState("");
@@ -68,6 +71,16 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
    {mode==="composition"&&<button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>setPropertiesOpen(v=>!v)} aria-expanded={propertiesOpen}>{tr("properties")}</button>}
    <label className="d-flex align-items-center gap-2">{tr("zoom")}<select className="form-select form-select-sm" value={zoom} onChange={e=>setZoom(Number(e.target.value))}>{[75,90,100,110,125].map(v=><option key={v} value={v}>{v}%</option>)}</select></label>
   </div>
+  {mode==="composition"&&<fieldset className="border rounded p-3"><legend className="h6">{tr("appearance")}</legend>
+    <div className="row g-2">
+     <label className="col-md-3">{tr("orientation")}<select className="form-select" disabled={readOnly} value={style.orientation} onChange={e=>updateStyle({orientation:e.target.value as "portrait"|"landscape"})}><option value="portrait">{tr("portrait")}</option><option value="landscape">{tr("landscape")}</option></select></label>
+     <label className="col-md-3 form-check align-self-center"><input type="checkbox" className="form-check-input" disabled={readOnly} checked={style.cover} onChange={e=>updateStyle({cover:e.target.checked})}/>{tr("cover")}</label>
+     <label className="col-md-3 form-check align-self-center"><input type="checkbox" className="form-check-input" disabled={readOnly} checked={style.toc} onChange={e=>updateStyle({toc:e.target.checked})}/>{tr("toc")}</label>
+     <label className="col-md-6">{tr("coverTitle")}<input className="form-control" disabled={readOnly} maxLength={120} value={style.coverTitle} onChange={e=>updateStyle({coverTitle:e.target.value})}/></label>
+     <label className="col-md-6">{tr("subtitle")}<input className="form-control" disabled={readOnly} maxLength={200} value={style.subtitle} onChange={e=>updateStyle({subtitle:e.target.value})}/></label>
+     <label className="col-md-12">{tr("footerText")}<input className="form-control" disabled={readOnly} maxLength={200} value={style.footerText} onChange={e=>updateStyle({footerText:e.target.value})}/></label>
+    </div>
+   </fieldset>}
   <div className="d-flex flex-column flex-xl-row gap-3 align-items-start">
    {mode!=="preview"&&planOpen&&<aside className="border rounded p-3 w-100 flex-shrink-0" style={{maxWidth:244}} aria-label={tr("plan")}>
     <h2 className="h6">{tr("plan")}</h2><div className="d-grid gap-1">
@@ -75,8 +88,10 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
     </div>
    </aside>}
    <main className="flex-grow-1 w-100 border rounded p-3" style={{minWidth:0,background:"var(--bs-secondary-bg)"}}>
-    <article aria-label={tr("document")} className="mx-auto bg-white text-dark shadow-sm p-4" style={{maxWidth:Math.round(794*zoom/100),minHeight:Math.round(1123*zoom/100),overflowWrap:"anywhere"}}>
+    <article aria-label={tr("document")} className="mx-auto bg-white text-dark shadow-sm p-4" style={{maxWidth:Math.round((style.orientation==="portrait"?794:1123)*zoom/100),minHeight:Math.round((style.orientation==="portrait"?1123:794)*zoom/100),overflowWrap:"anywhere"}}>
+     {style.cover&&<header className="border-bottom pb-4 mb-4"><h2 className="h3 text-dark">{style.coverTitle||document.title}</h2><p>{style.subtitle}</p></header>}
      <h2 className="h4 text-dark">{document.title}</h2>
+     {style.toc&&<nav aria-label={tr("toc")}><h3 className="h6">{tr("toc")}</h3><ol>{sections.filter(s=>s.visible).map(s=><li key={s.key}>{s.key}</li>)}</ol><p className="small">{tr("tocPending")}</p></nav>}
      {sections.filter(s=>s.visible).map(s=><section key={s.key} className="my-4" id={"section-"+s.key}>
       <h3 className="h5 border-bottom pb-2">{s.key}</h3>
       {s.key==="indicators"&&Object.entries(content.metrics??{}).map(([key,v])=><p key={key}><strong>{key} :</strong> {v?.value===null||v?.value===undefined?tr("unknown"):v.value+" "+v.unit}</p>)}
@@ -84,6 +99,7 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
        <textarea className="form-control" rows={5} maxLength={12000} value={notes[s.key]??""} onChange={e=>editNote(s.key,e.target.value)}/></label>:
        <p className="text-dark" style={{whiteSpace:"pre-wrap"}}>{notes[s.key]||tr("noComment")}</p>}
      </section>)}
+     {style.footerText&&<footer className="border-top pt-2 small">{style.footerText}</footer>}
     </article>
     <ReportBlocksEditor sections={sections} blocks={blocks} metrics={content.metrics??{}} selectedSection={selected} readOnly={readOnly} mode={mode} onChange={next=>change({...content,blocks:next})}/>
    </main>
