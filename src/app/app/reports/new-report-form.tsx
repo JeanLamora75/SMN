@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useState,type FormEvent} from "react";
 import {useRouter} from "next/navigation";
 import type {ReportTemplate} from "@/lib/report-templates";
 import {useTranslation} from "@/i18n/client";
@@ -13,7 +13,7 @@ export default function NewReportForm({cycles,templates,preferredCycle}:{cycles:
  const [language,setLanguage]=useState<"fr"|"en">("fr");
  const [requestId,setRequestId]=useState<string|null>(null);
  const [busy,setBusy]=useState(false),[error,setError]=useState("");
- const submit=async(e:React.FormEvent<HTMLFormElement>)=>{
+ const submit=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();if(busy||!sprint||!title.trim())return;
   const id=requestId??crypto.randomUUID();
   setRequestId(id);setBusy(true);setError("");
