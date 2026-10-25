@@ -9,10 +9,10 @@ export function parseHistoricalPartial(raw:unknown):HistoricalPartialInput|null{
  if(Object.keys(x).some(k=>!["sprintId","goalTitle","goalDescription","reviewComment","source"].includes(k))||
  typeof x.sprintId!=="string"||!/^[a-f0-9-]{36}$/i.test(x.sprintId)||
  ["goalTitle","goalDescription","reviewComment","source"].some(k=>x[k]!==undefined&&typeof x[k]!=="string")||
- (x.goalTitle!==undefined&&x.goalTitle.trim().length>240)||
- (x.goalDescription!==undefined&&x.goalDescription.length>2000)||
- (x.reviewComment!==undefined&&x.reviewComment.length>3000)||
- (x.source!==undefined&&x.source.length>500))return null;
+ (typeof x.goalTitle==="string"&&x.goalTitle.trim().length>240)||
+ (typeof x.goalDescription==="string"&&x.goalDescription.length>2000)||
+ (typeof x.reviewComment==="string"&&x.reviewComment.length>3000)||
+ (typeof x.source==="string"&&x.source.length>500))return null;
  const goalTitle=typeof x.goalTitle==="string"?x.goalTitle.trim():"";
  const reviewComment=typeof x.reviewComment==="string"?x.reviewComment.trim():"";
  if(!goalTitle&&!reviewComment)return null;
