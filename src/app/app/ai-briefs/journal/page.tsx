@@ -36,7 +36,7 @@ export default async function AnalysisJournalPage({searchParams}:{searchParams:P
      <input id="journal-to" className="form-control" type="date" name="to" defaultValue={params.to??""}/></div>
     <div className="col-md-2 d-flex align-items-end"><button className="btn btn-primary w-100" type="submit">Filtrer</button></div>
    </form>
-   {!filters?<div className="alert alert-warning">Filtres invalides. Corrigez les dates ou l'identifiant du cycle.</div>:
+   {!filters?<div className="alert alert-warning">Filtres invalides. Corrigez les dates ou l&apos;identifiant du cycle.</div>:
     entries===null?<div className="alert alert-warning">Journal momentanément indisponible.</div>:
     entries.length===0?<div className="text-secondary">Aucune analyse trouvée pour ce périmètre et ces filtres.</div>:
     <div className="d-grid gap-3">{entries.map(item=><article className="border rounded-3 p-3" key={item.type+item.id}>
