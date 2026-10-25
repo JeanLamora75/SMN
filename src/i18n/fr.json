@@ -2387,6 +2387,16 @@
     "historyError": "Historique indisponible."
   },
   "registryList": {
+    "due": "Échéance",
+    "actions": "Actions",
+    "actionsFor": "Actions pour « {title} »",
+    "openRecord": "Consulter la fiche",
+    "editRecord": "Modifier la fiche",
+    "notProvided": "Non renseigné",
+    "attentionUnavailable": "Les points d’attention sont indisponibles ; aucun signal n’est supposé.",
+    "attentionLoading": "Chargement des points d’attention…",
+    "attentionLabel": "Point d’attention",
+    "emptyInitial": "Aucune fiche n’a encore été créée.",
     "linksUnavailable": "Associations aux cycles indisponibles : la table de liens de ce mode n’est pas installée.",
     "allTypes": "Tous les registres",
     "category": "Catégorie",
