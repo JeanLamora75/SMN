@@ -23,6 +23,12 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
    origin.current?.focus();
   };
  },[]);
+ useEffect(()=>{
+  if(!dirty)return;
+  const guard=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
+  window.addEventListener("beforeunload",guard);
+  return()=>window.removeEventListener("beforeunload",guard);
+ },[dirty]);
  const close=()=>{
   if(dirty&&!window.confirm(tr("discard")))return;
   ref.current?.close();
