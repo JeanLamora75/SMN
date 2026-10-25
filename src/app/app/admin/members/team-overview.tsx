@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import NeutralAvatar from "./neutral-avatar";
+import CountryFlag from "./country-flag";
 import {useRouter} from "next/navigation";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import TeamContextEditor from "./team-context-editor";
 import BootstrapIcon from "../../bootstrap-icon";
 
-type Member={id:string;displayName:string;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
+type Member={id:string;displayName:string;countryIso2:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type Roster={team:{id:string;name:string;mode:string};members:Member[]};
 type TeamContextOverview={teamId:string;name:string;productName:string;
  vision:string|null;productGoal:string|null;revision:number};
@@ -135,7 +136,7 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
     return <div className="col" key={m?.id??"slot-"+i}>
      {m?<Link href={"/app/admin/members/"+encodeURIComponent(m.id)} className="card smn-team-card text-decoration-none text-body h-100 rounded-4 shadow-sm" style={{minHeight:222}}>
        <div className="card-body d-flex flex-column align-items-center text-center gap-2">
-        <strong className="text-truncate w-100" title={m.displayName}>{m.displayName}</strong>
+        <div className="d-flex w-100 align-items-center justify-content-center gap-2" style={{minWidth:0}}><CountryFlag key={m.countryIso2??"none"} countryIso2={m.countryIso2}/><strong className="text-truncate" title={m.displayName}>{m.displayName}</strong></div>
         <NeutralAvatar/>
         <div className="smn-team-roles d-flex gap-1 justify-content-center">{roles(m).map(([name,share])=><span key={name} className={"badge "+((share??0)>0?("text-bg-primary"):"text-bg-secondary opacity-50")}>{name}</span>)}</div>
         <small className="text-secondary">{m.professionalFunction??t("teamUX.functionMissing")}</small>
@@ -147,7 +148,7 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
   </div>}
   {status==="ready"&&view==="list"&&<div className="table-responsive"><table className="table table-hover align-middle">
    <thead><tr><th>{t("teamUX.member")}</th><th>SM</th><th>PO</th><th>Dev</th><th>{t("teamUX.details")}</th></tr></thead>
-   <tbody>{members.map(m=><tr key={m.id} role="link" tabIndex={0} style={{cursor:"pointer"}} aria-label={t("teamUX.openMember",{name:m.displayName})} onClick={()=>router.push("/app/admin/members/"+encodeURIComponent(m.id))} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();router.push("/app/admin/members/"+encodeURIComponent(m.id));}}}><th>{m.displayName}</th>{roles(m).map(([name,share])=><td key={name}>{(share??0)>0?"✓":"—"}</td>)}<td aria-hidden="true">→</td></tr>)}</tbody>
+   <tbody>{members.map(m=><tr key={m.id} role="link" tabIndex={0} style={{cursor:"pointer"}} aria-label={t("teamUX.openMember",{name:m.displayName})} onClick={()=>router.push("/app/admin/members/"+encodeURIComponent(m.id))} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();router.push("/app/admin/members/"+encodeURIComponent(m.id));}}}><th><span className="d-inline-flex align-items-center gap-2"><CountryFlag key={m.countryIso2??"none"} countryIso2={m.countryIso2}/>{m.displayName}</span></th>{roles(m).map(([name,share])=><td key={name}>{(share??0)>0?"✓":"—"}</td>)}<td aria-hidden="true">→</td></tr>)}</tbody>
   </table><button className="btn btn-primary" disabled={roster?.members.length===0} onClick={()=>setCreationOpen(true)}>+ {t("teamUX.addMember")}</button></div>}
   {creationOpen&&<div className="modal d-block" role="dialog" aria-modal="true" aria-labelledby="team-create-title" style={{background:"rgba(0,0,0,.5)"}}>
    <div className="modal-dialog modal-dialog-centered"><div className="modal-content">
