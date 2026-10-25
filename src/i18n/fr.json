@@ -2368,6 +2368,28 @@
     "saving": "Enregistrement…",
     "discardChanges": "Abandonner les modifications de description non enregistrées ?"
   },
+  "registryJournal": {
+    "heading": "Journal de suivi",
+    "writeComment": "Nouveau commentaire",
+    "placeholder": "Ajouter un commentaire de suivi…",
+    "submit": "Ajouter",
+    "filters": "Filtrer le journal",
+    "all": "Tout",
+    "comments": "Commentaires",
+    "action": "Actions",
+    "decision": "Décisions",
+    "highlight": "Faits marquants",
+    "comment": "Commentaire",
+    "link": "Association",
+    "empty": "Aucun commentaire ou événement associé enregistré.",
+    "emptyFiltered": "Aucune entrée ne correspond à ce filtre.",
+    "reset": "Réinitialiser",
+    "loading": "Chargement du journal…",
+    "unavailable": "Le journal est indisponible.",
+    "retry": "Réessayer",
+    "before": "Avant",
+    "after": "Après"
+  },
   "registryComments": {
     "add": "Ajouter un commentaire",
     "edit": "Corriger le commentaire",
