@@ -6,7 +6,7 @@ import type {ReportDocument} from "./report-documents";
 
 const esc=(x:unknown)=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]??c));
 export function studioDocumentHtml(doc:ReportDocument){
- const c=doc.content as Record<string,unknown>,style=reportDocumentStyle(c.documentStyle);
+ const c=(doc.content&&typeof doc.content==="object"&&!Array.isArray(doc.content)?doc.content:{}) as Record<string,unknown>,style=reportDocumentStyle(c.documentStyle);
  const sections=Array.isArray(c.sections)?c.sections as Array<{key:string;visible:boolean}>:[];
  const notes=(c.userNotes??{}) as Record<string,string>;
  const metrics=(c.metrics??{}) as Record<string,{value:number|null;unit:string}>;
@@ -39,7 +39,7 @@ export async function renderStudioPdf(doc:ReportDocument):Promise<Buffer>{
  const moduleName="puppeteer-core";const puppeteer=(await import(moduleName)).default;
  const browser=await puppeteer.launch({executablePath,headless:true,args:["--no-first-run","--no-default-browser-check"]});
  try{const page=await browser.newPage();
-  try{await page.setRequestInterception(true);page.on("request",r=>r.abort());
+  try{await page.setRequestInterception(true);page.on("request",(request:{abort:()=>void})=>request.abort());
    await page.setContent(studioDocumentHtml(doc),{waitUntil:"load"});
    const bytes=Buffer.from(await page.pdf({format:"A4",preferCSSPageSize:true,printBackground:true,timeout:20000}));
    if(!validateFinalPdf(bytes))throw Error("pdf-invalid");
