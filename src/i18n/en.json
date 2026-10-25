@@ -2388,6 +2388,7 @@
     "unavailable": "The journal is unavailable.",
     "retry": "Retry",
     "saved": "Change saved.",
+    "discardEdit": "Discard the unsaved correction?",
     "before": "Before",
     "after": "After"
   },
