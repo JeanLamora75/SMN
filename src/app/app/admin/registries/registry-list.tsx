@@ -21,9 +21,9 @@ type Filters={search:string;status:string;owner:string;lifecycle:RegistryLifecyc
 const defaults:Filters={search:"",status:"",owner:"",lifecycle:"all",sort:"default",cycleId:""};
 const sortValues:RegistrySort[]=["default","dateDesc","dateAsc","titleAsc","titleDesc"];
 
-export default function RegistryList({canManage,initialType="all",initialCreate=false,sourceId,initialCycleId}:{
+export default function RegistryList({canManage,initialType="all",initialCreate=false,sourceId,initialCycleId,returnTo}:{
  canManage:boolean;initialType?:RegistryScope;initialCreate?:boolean;
- sourceId?:string;initialCycleId?:string;
+ sourceId?:string;initialCycleId?:string;returnTo?:string;
 }){
  const t=useTranslation();
  const [type,setType]=useState<RegistryScope>(initialType);
@@ -119,7 +119,15 @@ export default function RegistryList({canManage,initialType="all",initialCreate=
   return()=>ctrl.abort();
  },[type,query,page,canManage,refresh]);
 
+ const clearCreationQuery=()=>{
+  const next=new URL(window.location.href);
+  if(next.searchParams.get("create")==="1"){
+   next.searchParams.delete("create");
+   window.history.replaceState(window.history.state,"",next.pathname+next.search+next.hash);
+  }
+ };
  const created=(id:string)=>{
+  clearCreationQuery();
   setCreateOpen(false);
   setCreatedId(id);
   setLoading(true);
@@ -167,6 +175,9 @@ export default function RegistryList({canManage,initialType="all",initialCreate=
    {sourceId&&<Link className="btn btn-link btn-sm"
     href={"/app/admin/registries/"+encodeURIComponent(sourceId)}>
     {t("registryCreateModal.backToSource")}
+   </Link>}
+   {returnTo&&<Link className="btn btn-link btn-sm" href={returnTo}>
+    {t("registryCreateModal.backToContext")}
    </Link>}
   </div>}
   <div className="nav nav-tabs flex-wrap d-none d-md-flex" role="tablist" aria-label={translate("heading")}>
@@ -279,6 +290,6 @@ export default function RegistryList({canManage,initialType="all",initialCreate=
   {canManage&&createOpen&&result?.state==="available"&&<RegistryCreateModal
    teamId={result.team.id} initialType={type==="all"?"risk":type}
    sourceId={sourceId} cycleId={query.cycleId||initialCycleId}
-   onCreated={created} onDismiss={()=>setCreateOpen(false)}/>}
+   onCreated={created} onDismiss={()=>{clearCreationQuery();setCreateOpen(false);}}/>}
  </section>;
 }
