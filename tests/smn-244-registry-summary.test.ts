@@ -42,6 +42,8 @@ test("activité horodatée : date persistée seulement, aucune date fictive",()=
  assert.equal(validRegistryActivityTime("2026-10-25"),null);
  assert.equal(validRegistryActivityTime("test"),null);
  assert.equal(validRegistryActivityTime("2026-10-25T10:42:00.000Z"),"2026-10-25T10:42:00.000Z");
+ assert.equal(validRegistryActivityTime("2026-10-25 10:42:00.000+00"),"2026-10-25 10:42:00.000+00");
+ assert.equal(validRegistryActivityTime("2026-10-25 10:42:00"),null);
 });
 
 test("le panneau principal et latéral suivent exactement le contrat de structure",()=>{
