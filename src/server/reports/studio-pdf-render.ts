@@ -36,7 +36,7 @@ export function studioDocumentHtml(doc:ReportDocument){
 }
 export async function renderStudioPdf(doc:ReportDocument):Promise<Buffer>{
  const executablePath=await findPdfChrome();if(!executablePath)throw Error("pdf-browser-unavailable");
- const puppeteer=(await import("puppeteer-core")).default;
+ const moduleName="puppeteer-core";const puppeteer=(await import(moduleName)).default;
  const browser=await puppeteer.launch({executablePath,headless:true,args:["--no-first-run","--no-default-browser-check"]});
  try{const page=await browser.newPage();
   try{await page.setRequestInterception(true);page.on("request",r=>r.abort());
