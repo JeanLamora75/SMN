@@ -2404,7 +2404,13 @@
     "atRisk": "Dépendance à risque",
     "partiesPair": "Précisez les deux parties ou laissez les deux vides.",
     "decision": "Justification de la décision",
-    "rationale": "Motif de la décision"
+    "rationale": "Motif de la décision",
+    "replacesSearch": "Rechercher une décision existante",
+    "replacesSearchHint": "Titre de la décision…",
+    "replaces": "Remplace la décision",
+    "noReplacement": "Aucune décision remplacée",
+    "selectedReplacement": "Décision sélectionnée",
+    "decisionsUnavailable": "Recherche des décisions indisponible."
   },
   "registryEdit": {
     "general": "Informations générales",
