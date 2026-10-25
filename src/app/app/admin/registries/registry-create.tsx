@@ -83,6 +83,9 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
   }catch{setNotice({ok:false,message:translate("failed")});}
   finally{setBusy(false);}
  };
+ if(itemId&&!loaded)return <div role={notice?"alert":"status"} className={notice?"alert alert-warning":"p-3 text-body-secondary"}>
+  {notice?.message??t("registryList.loading")}
+ </div>;
  return <div className="d-grid gap-3">
   {!modalMode&&<header><h1>{translate("title")}</h1><p className="text-body-secondary">{translate("intro")}</p></header>}
   {!teamId?<div role="alert" className="alert alert-warning">{translate("unavailable")}</div>:
