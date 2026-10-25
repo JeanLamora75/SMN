@@ -59,7 +59,7 @@ export default function RegistryDescriptionEditor({item,onSaved,onDismiss}:{
  const cancelEvent=(e:SyntheticEvent<HTMLDialogElement>)=>{
   e.preventDefault();close();
  };
- return <dialog ref={dialog} className="smn-registry-description-dialog"
+ return <dialog ref={dialog} className="smn-registry-description-dialog" data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancelEvent} onClose={onDismiss}>
   <form onSubmit={submit} className="d-grid gap-3">
    <div className="d-flex justify-content-between align-items-center gap-3">
