@@ -22,19 +22,31 @@ export async function ensureRelations(db:Client){
 }
 export async function readRelations(db:Client,recordId:string){
  if(!idRx.test(recordId))return null;
- const scope=await db.query(`SELECT r.id FROM public.smn_registry_item r JOIN public.smn_team t ON t.id=r.team_id
- JOIN public.smn_installation i ON i.id=t.installation_id WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'`,[recordId]);
- if(!scope.rows.length)return null;
+ const scope=await db.query<{teamId:string}>(`SELECT r.team_id AS "teamId" FROM public.smn_registry_item r
+ JOIN public.smn_team t ON t.id=r.team_id
+ JOIN public.smn_installation i ON i.id=t.installation_id
+ WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'`,[recordId]);
+ if(scope.rows.length!==1)return null;
+ const teamId=scope.rows[0].teamId;
  const exists=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_registry_relation') IS NOT NULL AS present`);
  if(!exists.rows[0]?.present)return {relations:[]};
  const goals=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_goal') IS NOT NULL AS present`);
- const goalJoin=goals.rows[0]?.present?`LEFT JOIN public.smn_sprint_goal g ON l.target_kind='goal' AND g.id=l.target_id`:`LEFT JOIN LATERAL (SELECT NULL::text AS title) g ON TRUE`;
+ const goalJoin=goals.rows[0]?.present?
+  `LEFT JOIN public.smn_sprint_goal g ON l.target_kind='goal' AND g.id=l.target_id
+   AND EXISTS(SELECT 1 FROM public.smn_sprint x WHERE x.id=g.sprint_id
+     AND x.team_id=$2 AND x.deleted_at IS NULL)`:
+  `LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS title) g ON TRUE`;
  const rows=await db.query(`SELECT l.id,l.source_id AS "sourceId",l.target_kind AS "targetKind",l.target_id AS "targetId",
  s.title AS "sourceTitle",COALESCE(r.title,g.title) AS "targetTitle"
- FROM public.smn_registry_relation l JOIN public.smn_registry_item s ON s.id=l.source_id
- LEFT JOIN public.smn_registry_item r ON l.target_kind='record' AND r.id=l.target_id
+ FROM public.smn_registry_relation l
+ JOIN public.smn_registry_item s ON s.id=l.source_id AND s.team_id=$2
+ LEFT JOIN public.smn_registry_item r ON l.target_kind='record'
+  AND r.id=l.target_id AND r.team_id=$2
  ${goalJoin}
- WHERE l.source_id=$1 OR (l.target_kind='record' AND l.target_id=$1) ORDER BY l.created_at,l.id`,[recordId]);
+ WHERE (l.source_id=$1 OR (l.target_kind='record' AND l.target_id=$1))
+ AND ((l.target_kind='record' AND r.id IS NOT NULL)
+   OR (l.target_kind='goal' AND g.id IS NOT NULL))
+ ORDER BY l.created_at,l.id`,[recordId,teamId]);
  return {relations:rows.rows};
 }
 export async function changeRelation(db:Client,actorId:string,sourceId:string,target:RelationTarget,action:"linked"|"unlinked"){
