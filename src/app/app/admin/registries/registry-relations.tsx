@@ -90,7 +90,9 @@ export default function RegistryRelations({id,type,canManage,onSaved}:{
         </span>
        </div>
        {canManage&&<button type="button" className="btn btn-outline-danger btn-sm"
-        disabled={busy} onClick={()=>void change({
+        disabled={busy||row.linkedType==="goal"&&row.relation.targetCycleStatus==="closed"}
+        title={row.linkedType==="goal"&&row.relation.targetCycleStatus==="closed"?tr("closedCycle"):undefined}
+        onClick={()=>void change({
          kind:row.relation.targetKind,id:row.relation.targetId
         },"unlinked",row.relation.sourceId)}>{tr("remove")}</button>}
       </li>)}
