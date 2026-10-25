@@ -1,9 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import type {Client} from "pg";
+import {createHash} from "node:crypto";
 import {readFileSync} from "node:fs";
 import {parseLinkedJournalCreation,linkedJournalTypes} from "../src/lib/registry-linked-creation";
-import {createRegistryItem} from "../src/server/registries/items";
+import {createRegistryItem,parseRegistryInput} from "../src/server/registries/items";
+import {parseInitialDetails} from "../src/server/registries/initial-details";
 
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const sourceId="11111111-1111-4111-8111-111111111111";
@@ -73,6 +75,7 @@ test("AC2 : un deuxième envoi de la même requête confirme la fiche existante 
  // The actual fingerprint is verified separately; mismatching retries must not be replayed.
  const r=await createRegistryItem(db,"actor-1",{...base,sourceId},requestId);
  assert.equal(r.ok,false);
+ if(r.ok)assert.fail("Expected conflict for a differing request");
  assert.equal(r.error,"conflict");
  assert.equal(sql.at(-1),"ROLLBACK");
  assert.ok(!sql.some(q=>q.includes("INSERT INTO public.smn_registry_item\n")));
@@ -152,4 +155,44 @@ test("Accessibilité, i18n FR\/EN, cinq filtres conservés",()=>{
  const css=read("src/app/globals.css");
  assert.match(css,/\.smn-registry-linked-chooser/);
  assert.match(css,/@media\(max-width:575px\)/);
+});
+
+test("AC2 : nouvelle émission identique reconnue sans nouvelle fiche ni doublon d'audit",async()=>{
+ const {details,...fields}=base;
+ const input=parseRegistryInput(fields);assert.ok(input);
+ const parsed=parseInitialDetails(input.type,details,input.teamId);
+ assert.equal(parsed.ok,true);
+ if(!parsed.ok)assert.fail("Business details expected");
+ const fingerprint=createHash("sha256").update(JSON.stringify({
+  input,details:parsed.value,sourceId
+ })).digest("hex");
+ const calls:string[]=[];
+ const db={query:async(sql:string)=>{
+  calls.push(sql);
+  if(sql.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-1"}]};
+  if(sql.includes("SELECT r.id FROM public.smn_registry_item r")&&sql.includes("FOR UPDATE OF r"))
+   return {rows:[{id:sourceId}]};
+  if(sql.includes("ON CONFLICT DO NOTHING"))return {rows:[]};
+  if(sql.includes("FROM public.smn_registry_linked_request WHERE request_id="))
+   return {rows:[{source_id:sourceId,actor_id:"actor-1",request_fingerprint:fingerprint,new_item_id:sourceId}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const result=await createRegistryItem(db,"actor-1",{...base,sourceId},requestId);
+ assert.equal(result.ok,true);
+ if(!result.ok)assert.fail("Original creation should be replayed");
+ assert.equal(result.id,sourceId);
+ assert.equal(result.replayed,true);
+ assert.equal(calls.at(-1),"ROLLBACK");
+ assert.ok(!calls.some(sql=>sql.includes("INSERT INTO public.smn_registry_item\n")));
+ assert.ok(!calls.some(sql=>sql.includes("INSERT INTO public.smn_registry_relation\n")));
+});
+test("AC4 : un journal lié prouve la création via la table de requêtes atomiques",()=>{
+ const sql=read("src/server/registries/journal-links.ts");
+ const model=read("src/lib/registry-journal.ts");
+ const view=read("src/app/app/admin/registries/registry-journal.tsx");
+ assert.ok(sql.includes("smn_registry_linked_request"));
+ assert.ok(sql.includes("journal_origin.new_item_id=r.id"));
+ assert.ok(sql.includes('AS "eventKind"'));
+ assert.ok(model.includes('eventKind:"created"|"linked"'));
+ assert.ok(view.includes('tr(entry.eventKind==="created"?"linkedCreatedEvent":"link")'));
 });
