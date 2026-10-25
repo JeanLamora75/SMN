@@ -21,8 +21,8 @@ type Filters={search:string;status:string;owner:string;lifecycle:RegistryLifecyc
 const defaults:Filters={search:"",status:"",owner:"",lifecycle:"all",sort:"default",cycleId:""};
 const sortValues:RegistrySort[]=["default","dateDesc","dateAsc","titleAsc","titleDesc"];
 
-export default function RegistryList({canManage,initialType="all",initialCreate=false,sourceId,initialCycleId,returnTo}:{
- canManage:boolean;initialType?:RegistryScope;initialCreate?:boolean;
+export default function RegistryList({canManage,teamId,initialType="all",initialCreate=false,sourceId,initialCycleId,returnTo}:{
+ canManage:boolean;teamId:string;initialType?:RegistryScope;initialCreate?:boolean;
  sourceId?:string;initialCycleId?:string;returnTo?:string;
 }){
  const t=useTranslation();
