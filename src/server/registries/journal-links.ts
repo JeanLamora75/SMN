@@ -13,8 +13,7 @@ export async function readRegistryJournalLinks(
  db:Client,itemId:string,canReadNames:boolean
 ):Promise<RegistryJournalLink[]>{
  if(!idRx.test(itemId))return [];
- const ready=await db.query<{ready:boolean}>(`SELECT
-  to_regclass('public.smn_registry_relation') IS NOT NULL AND
+ const ready=await db.query<{ready:boolean}>(`SELECT to_regclass('public.smn_registry_relation') IS NOT NULL AND
   to_regclass('public.smn_registry_relation_audit') IS NOT NULL AS ready`);
  if(!ready.rows[0]?.ready)return [];
  const result=await db.query<RegistryJournalLink>(`SELECT
