@@ -1,7 +1,7 @@
 import {readdir,lstat,readFile} from "node:fs/promises";
 import {join,resolve} from "node:path";
 import type {Client} from "pg";
-import {validateFinalPdf} from "./pdf-archive-contract";
+import {PDF_MAX_BYTES,validateFinalPdf} from "./pdf-archive-contract";
 
 const root=()=>resolve(process.env.SMN_PRIVATE_REPORT_ARCHIVE_DIR||join(process.cwd(),".smn-private","report-archives"));
 const pdfName=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.pdf$/i;
@@ -25,15 +25,19 @@ export async function inspectArchiveRecovery(db:Client):Promise<ArchiveRecoveryF
  const found=new Set<string>();
  const findings:ArchiveRecoveryFinding[]=[];
  for(const entry of entries){
-  if(!pdfName.test(entry.name)||!entry.isFile())continue;
+  if(!pdfName.test(entry.name))continue;
   const filename=entry.name,record=byName.get(filename);
   if(!record){findings.push({filename,status:"orphan-candidate"});continue;}
   found.add(filename);
-  const filepath=join(location,filename),stat=await lstat(filepath);
-  if(!stat.isFile()||stat.isSymbolicLink()){findings.push({filename,status:"integrity-mismatch"});continue;}
-  const bytes=await readFile(filepath);
-  const signature=validateFinalPdf(bytes);
-  findings.push({filename,status:signature?.sha256===record.sha256&&signature.byteLength===record.byte_length?"registered":"integrity-mismatch"});
+  if(!entry.isFile()){findings.push({filename,status:"integrity-mismatch"});continue;}
+  const filepath=join(location,filename);
+  const stat=await lstat(filepath).catch(()=>null);
+  if(!stat?.isFile()||stat.isSymbolicLink()||stat.size>PDF_MAX_BYTES){
+   findings.push({filename,status:"integrity-mismatch"});continue;
+  }
+  const bytes=await readFile(filepath).catch(()=>null);
+  const signature=bytes&&validateFinalPdf(bytes);
+  findings.push({filename,status:signature&&signature.sha256===record.sha256&&signature.byteLength===record.byte_length?"registered":"integrity-mismatch"});
  }
  for(const record of registered.rows){
   if(!found.has(record.stored_name))findings.push({filename:record.stored_name,status:"missing"});
