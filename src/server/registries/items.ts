@@ -87,6 +87,12 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
     FOR UPDATE OF r`,[sourceId,input.teamId]);
    if(source.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   }
+  if(input.type==="decision"&&parsed.value.replacesId){
+   const replaced=await db.query<{id:string}>(`SELECT r.id FROM public.smn_registry_item r
+    WHERE r.id=$1 AND r.team_id=$2 AND r.type='decision'
+    FOR UPDATE OF r`,[parsed.value.replacesId,input.teamId]);
+   if(replaced.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  }
   await ensureRegistrySchema(db);
   const id=randomUUID();
   await db.query(`INSERT INTO public.smn_registry_item
