@@ -98,15 +98,21 @@ export async function updateReportDocument(db:Client,actorId:string,sprintId:str
  try{
   if(!await scopedSprint(db,sprintId,true)){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   await ensureReportDocumentsSchema(db);
-  const document=await db.query<{id:string}>(`SELECT id FROM public.smn_report_document WHERE id=$1 AND sprint_id=$2 AND status='draft' FOR UPDATE`,[id,sprintId]);
+  const document=await db.query<{id:string;content:Record<string,unknown>}>(`SELECT id,content FROM public.smn_report_document WHERE id=$1 AND sprint_id=$2 AND status='draft' FOR UPDATE`,[id,sprintId]);
   if(!document.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   const prior=await db.query<{last_sequence:number}>(`SELECT last_sequence FROM public.smn_report_document_session_write WHERE document_id=$1 AND session_id=$2`,[id,v.sessionId]);
   if(prior.rows[0]&&Number(prior.rows[0].last_sequence)>=Number(v.sequence)){
    await db.query("ROLLBACK");return {ok:false as const,error:"stale"};
   }
+  const safeContent=preserveAuthoritativeMetrics(document.rows[0].content,v.content as Record<string,unknown>);
   const updated=await db.query<{revision:number}>(`UPDATE public.smn_report_document SET content=$3::jsonb,revision=revision+1,updated_by=$4,updated_at=now() WHERE id=$1 AND sprint_id=$2 RETURNING revision`,
-   [id,sprintId,JSON.stringify(v.content),actorId]);
+   [id,sprintId,JSON.stringify(safeContent),actorId]);
   await db.query(`INSERT INTO public.smn_report_document_session_write(document_id,session_id,last_sequence) VALUES($1,$2,$3) ON CONFLICT(document_id,session_id) DO UPDATE SET last_sequence=EXCLUDED.last_sequence`,[id,v.sessionId,v.sequence]);
   await db.query("COMMIT");return {ok:true as const,revision:updated.rows[0].revision};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
+
+/** Metric snapshots are refreshed only by the explicit data-refresh endpoint. */
+export function preserveAuthoritativeMetrics(stored:Record<string,unknown>,incoming:Record<string,unknown>){
+ return {...incoming,metrics:stored.metrics,dataSource:stored.dataSource};
 }
