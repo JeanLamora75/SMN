@@ -3391,6 +3391,11 @@
     "unknown": "Not provided",
     "emptyText": "Text not provided",
     "imageLink": "Image link",
-    "imageMissing": "No image provided"
+    "imageMissing": "No image provided",
+    "metricTable": "Metric data",
+    "value": "Value",
+    "source": "Source",
+    "sourceUnknown": "Not specified",
+    "noChartScale": "Chart scale unavailable without a comparable reference"
   }
 }

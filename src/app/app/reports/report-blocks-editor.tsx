@@ -1,5 +1,6 @@
 "use client";
 import {useState} from "react";
+import ReportMetricDisplay from "./report-metric-display";
 import {moveItem,reportBlockKinds,visibleBlocks,type ReportBlock,type ReportBlockKind} from "@/lib/report-studio-blocks";
 import {useTranslation} from "@/i18n/client";
 type Metric={value:number|null;unit:string};
@@ -28,7 +29,7 @@ export default function ReportBlocksEditor({sections,blocks,metrics,selectedSect
    </div>
    {b.kind==="text"?<p className="mb-1" style={{whiteSpace:"pre-wrap"}}>{b.text||tr("emptyText")}</p>:
     b.kind==="image"?(b.imageUrl?<a href={b.imageUrl} rel="noopener noreferrer" target="_blank">{tr("imageLink")}</a>:<p>{tr("imageMissing")}</p>):
-    <p className="mb-1">{b.metricKey||tr("unbound")}: {b.metricKey&&metrics[b.metricKey]?.value!==null&&metrics[b.metricKey]?.value!==undefined?metrics[b.metricKey].value+" "+metrics[b.metricKey].unit:tr("unknown")}</p>}
+    <ReportMetricDisplay metricKey={b.metricKey} metrics={metrics} presentation={b.kind==="table"?"table":b.kind==="chart"?"chart":"both"}/>}
   </article>)}
  </section>)}
  {selected&&mode!=="preview"&&<aside className="border rounded p-3" aria-label={tr("properties")}>
