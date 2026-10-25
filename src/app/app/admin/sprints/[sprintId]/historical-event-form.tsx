@@ -60,7 +60,7 @@ export default function HistoricalEventForm({sprintId}:{sprintId:string}){
    </div>)}
   </div>}
   {open&&<form className="border rounded p-3 mt-2 row g-2" onSubmit={submit}>
-   <p className="small text-secondary">Saisir uniquement les informations réellement connues. La date de saisie est enregistrée séparément et aucune autre cérémonie n'est créée.</p>
+   <p className="small text-secondary">Saisir uniquement les informations réellement connues. La date de saisie est enregistrée séparément et aucune autre cérémonie n&apos;est créée.</p>
    <label className="col-md-6">Nom<input className="form-control" required maxLength={160} value={name} onChange={e=>setName(e.target.value)}/></label>
    <label className="col-md-6">Nature<select className="form-select" value={kind} onChange={e=>setKind(e.target.value)}><option value="planning">Planning</option><option value="daily">Daily</option><option value="review">Review</option><option value="retrospective">Rétrospective</option><option value="other">Autre réunion</option></select></label>
    <label className="col-md-6">Date et heure réelles<input type="datetime-local" className="form-control" required value={at} onChange={e=>setAt(e.target.value)}/></label>
