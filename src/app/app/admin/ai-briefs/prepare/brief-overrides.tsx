@@ -145,7 +145,7 @@ export default function BriefOverrides({template,mode,context,facts,preparedAt,h
   }}>Copier le TXT validé</button>}
   {preview!==null&&!approved&&<p className="alert alert-warning mt-3" role="alert">Confidentialité non vérifiée : le TXT peut contenir des noms, informations privées ou secrets issus des textes libres. Relisez le texte intégral et confirmez cette version exacte avant tout partage.</p>}
   {preview!==null&&<div className="mt-3"><label htmlFor="brief-txt-preview" className="form-label fw-semibold">Aperçu TXT plat (non archivé)</label><textarea id="brief-txt-preview" className="form-control font-monospace" rows={20} readOnly value={preview}/><p className="small mt-2">{approved?"Version affichée vérifiée pour confidentialité (non archivée).":"Version non validée : aucun export ni finalisation possible."}</p></div>}
-  {changed&&!conflict&&<p className="text-secondary small mt-2">Configuration ponctuelle modifiée : aucune écriture métier. La composition et l'archivage du TXT seront ajoutés dans les prochaines stories.</p>}
+  {changed&&!conflict&&<p className="text-secondary small mt-2">Configuration ponctuelle modifiée : aucune écriture métier. La composition et l&apos;archivage du TXT seront ajoutés dans les prochaines stories.</p>}
   {message&&<p role="status" className="mt-2 mb-0">{message}</p>}
  </section>;
 }
