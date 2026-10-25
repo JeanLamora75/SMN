@@ -1256,7 +1256,9 @@
     "workCalendar": "Trame de travail individuelle non renseignée.",
     "memberCountry": "Pays du membre non renseigné pour cette date.",
     "nationalCoverage": "Couverture nationale insuffisante ou inconnue.",
-    "disclaimer": "Disponibilité × taux d'affectation × part Développeur × coefficient de contribution. Le taux contractuel n'est pas remultiplié : il borne déjà le taux d'affectation. Aucun Story Point n'est converti en JH et aucun Sprint/Kanban n'est créé automatiquement."
+    "disclaimer": "Disponibilité × taux d'affectation × part Développeur × coefficient de contribution. Le taux contractuel n'est pas remultiplié : il borne déjà le taux d'affectation. Aucun Story Point n'est converti en JH et aucun Sprint/Kanban n'est créé automatiquement.",
+    "meetingParticipants": "Participants des réunions exceptionnelles incomplets ou non attribués.",
+    "meetingWorkSlots": "Créneaux horaires manquants ou incompatibles avec les réunions exceptionnelles."
   },
   "manualCapacity": {
     "retained": "Capacité retenue",
@@ -2334,7 +2336,9 @@
     "ceremonyEdit": "Modifier la réunion",
     "registersEditRecord": "Modifier la fiche",
     "registersReadRecord": "Consulter la fiche",
-    "registersPriorityLabel": "Priorité"
+    "registersPriorityLabel": "Priorité",
+    "presenceMissingIntro": "Les données suivantes empêchent de calculer certaines journées. Vérifie les affectations, le pays, la couverture des jours fériés et les calendriers effectifs aux dates du Sprint.",
+    "presenceSeeDiagnosis": "Ouvrir le diagnostic de capacité de développement"
   },
   "registrySummary": {
     "heading": "Synthèse de la fiche",
