@@ -2595,6 +2595,12 @@
     "dependency": "Dependency"
   },
   "registryAttention": {
+    "count": "{count} attention item(s)",
+    "countLoading": "Count loading",
+    "countUnavailable": "Count unavailable",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "retry": "Retry",
     "heading": "Collective attention items",
     "intro": "Signals based on saved records; no automatic changes.",
     "empty": "No collective attention items.",
