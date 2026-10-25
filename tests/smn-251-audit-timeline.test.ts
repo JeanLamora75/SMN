@@ -134,3 +134,42 @@ test("AC6 : traductions français/anglais strictement symétriques",()=>{
   "linked","unlinked","unknownAuthor","before","after","empty","loadMore",
   "unavailable","retry","noChanges","yes","no"])assert.ok(fr[key]&&en[key],key);
 });
+
+test("AC6 : aucune révision = historique vide vérifié, non un succès fabriqué",async()=>{
+ const db={query:async(sql:string)=>{
+  if(sql.includes("SELECT r.id FROM public.smn_registry_item"))return {rows:[{id}]};
+  if(sql.includes("to_regclass"))return {rows:[{
+   record:true,assessment:false,roam:false,parties:false,vigilance:false,
+   decision:false,comments:false,relations:false,cycles:false,actions:false
+  }]};
+  return {rows:[]};
+ }} as unknown as Client;
+ assert.deepEqual(await readRegistryAuditTimeline(db,id,1),{events:[],page:1,hasMore:false});
+});
+test("AC6 : installation sans source centrale signale une indisponibilité",async()=>{
+ const db={query:async(sql:string)=>{
+  if(sql.includes("SELECT r.id FROM public.smn_registry_item"))return {rows:[{id}]};
+  return {rows:[{record:false}]};
+ }} as unknown as Client;
+ await assert.rejects(()=>readRegistryAuditTimeline(db,id,1),/record-audit-not-installed/);
+});
+test("AC6 : hors équipe ou fiche inexistante, le lecteur ne consulte aucun audit",async()=>{
+ const queried:string[]=[];
+ const db={query:async(sql:string)=>{queried.push(sql);return {rows:[]};}} as unknown as Client;
+ assert.equal(await readRegistryAuditTimeline(db,id,1),null);
+ assert.equal(queried.length,1);
+ assert.ok(queried[0].includes("i.id='singleton'"));
+});
+test("AC6 : numéros de pages invalides bloqués avant toute requête SQL",async()=>{
+ const db={query:async()=>{throw Error("unexpected SQL");}} as unknown as Client;
+ for(const page of [0,-1,1.5,10001,Number.NaN])
+  assert.equal(await readRegistryAuditTimeline(db,id,page),null);
+});
+test("AC3 : les noms d'auteurs absents restent neutres même si les audits contiennent une action",()=>{
+ const event={...row,actorName:null,kind:"relation",action:"unlinked",
+  before:{target:"Action liée"},after:null};
+ const parsed=parseAuditPage({events:[event],page:1,hasMore:false});
+ assert.ok(parsed);
+ assert.equal(parsed.events[0].actorName,null);
+ assert.deepEqual(changedFields(parsed.events[0]),[{key:"target",before:"Action liée",after:null}]);
+});
