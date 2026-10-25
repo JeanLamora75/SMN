@@ -73,7 +73,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   void fetch("/api/admin/registries/"+encodeURIComponent(id),{
    cache:"no-store",signal:controller.signal
   }).then(async response=>{
-   if(response.status===404)return {state:"missing" as const};
+   if(response.status===404||response.status===403)return {state:"missing" as const};
    if(!response.ok)throw Error("source-unavailable");
    return {state:"available" as const,
     payload:await response.json() as {item:unknown}};
