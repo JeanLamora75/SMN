@@ -33,14 +33,16 @@ export async function readRelations(db:Client,recordId:string){
  const goals=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_goal') IS NOT NULL AS present`);
  const goalJoin=goals.rows[0]?.present?
   `LEFT JOIN public.smn_sprint_goal g ON l.target_kind='goal' AND g.id=l.target_id
-   AND EXISTS(SELECT 1 FROM public.smn_sprint x WHERE x.id=g.sprint_id
-     AND x.team_id=$2 AND x.deleted_at IS NULL)`:
-  `LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS title) g ON TRUE`;
+   LEFT JOIN public.smn_sprint goal_sprint ON goal_sprint.id=g.sprint_id
+    AND goal_sprint.team_id=$2 AND goal_sprint.deleted_at IS NULL`:
+  `LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS title) g ON TRUE
+   LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS status) goal_sprint ON TRUE`;
  const rows=await db.query(`SELECT l.id,l.source_id AS "sourceId",l.target_kind AS "targetKind",l.target_id AS "targetId",
  s.title AS "sourceTitle",s.type AS "sourceType",s.status AS "sourceStatus",
  COALESCE(r.title,g.title) AS "targetTitle",
  CASE WHEN l.target_kind='record' THEN r.type ELSE 'goal' END AS "targetType",
- CASE WHEN l.target_kind='record' THEN r.status ELSE NULL END AS "targetStatus"
+ CASE WHEN l.target_kind='record' THEN r.status ELSE NULL END AS "targetStatus",
+ goal_sprint.status AS "targetCycleStatus"
  FROM public.smn_registry_relation l
  JOIN public.smn_registry_item s ON s.id=l.source_id AND s.team_id=$2
  LEFT JOIN public.smn_registry_item r ON l.target_kind='record'
@@ -48,7 +50,7 @@ export async function readRelations(db:Client,recordId:string){
  ${goalJoin}
  WHERE (l.source_id=$1 OR (l.target_kind='record' AND l.target_id=$1))
  AND ((l.target_kind='record' AND r.id IS NOT NULL)
-   OR (l.target_kind='goal' AND g.id IS NOT NULL))
+   OR (l.target_kind='goal' AND g.id IS NOT NULL AND goal_sprint.id IS NOT NULL))
  ORDER BY l.created_at,l.id`,[recordId,teamId]);
  return {relations:rows.rows};
 }
