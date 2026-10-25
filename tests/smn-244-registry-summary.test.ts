@@ -96,7 +96,7 @@ test("activité : rôle user sans dates privées ; admin avec dates de la vraie 
 
 test("édition description : crayon admin, modale, version, 409, draft non perdu",()=>{
  const s=source("src/app/app/admin/registries/registry-description-editor.tsx");
- const form=source("src/app/app/admin/registries/registry-create.tsx");
+ const scoped=source("src/app/app/admin/registries/registry-core-editor.tsx");
  const detail=source("src/app/app/admin/registries/registry-detail.tsx");
  assert.match(s,/<dialog/);
  assert.match(s,/element\.showModal\(\)/);
@@ -105,7 +105,8 @@ test("édition description : crayon admin, modale, version, 409, draft non perdu
  assert.match(s,/response\.status===409/);
  assert.match(s,/!response\.ok/);
  assert.match(s,/if\(dirty&&!window\.confirm/);
- assert.match(form,/disabled=\{lockDescription\}/);
+ assert.ok(!detail.includes("<RegistryCreate "));
+ assert.ok(scoped.includes("description:item.description"));
  assert.match(detail,/canManage&&descriptionEditing/);
  assert.match(detail,/onEditDescription=\{canManage/);
 });
