@@ -37,7 +37,10 @@ export async function readRelations(db:Client,recordId:string){
      AND x.team_id=$2 AND x.deleted_at IS NULL)`:
   `LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS title) g ON TRUE`;
  const rows=await db.query(`SELECT l.id,l.source_id AS "sourceId",l.target_kind AS "targetKind",l.target_id AS "targetId",
- s.title AS "sourceTitle",COALESCE(r.title,g.title) AS "targetTitle"
+ s.title AS "sourceTitle",s.type AS "sourceType",s.status AS "sourceStatus",
+ COALESCE(r.title,g.title) AS "targetTitle",
+ CASE WHEN l.target_kind='record' THEN r.type ELSE 'goal' END AS "targetType",
+ CASE WHEN l.target_kind='record' THEN r.status ELSE NULL END AS "targetStatus"
  FROM public.smn_registry_relation l
  JOIN public.smn_registry_item s ON s.id=l.source_id AND s.team_id=$2
  LEFT JOIN public.smn_registry_item r ON l.target_kind='record'
