@@ -17,9 +17,10 @@ export async function listCenterDocuments(db:Client){
 }
 export async function readCenter(db:Client,role:"admin"|"user",userId:string){
  const documents=await listCenterDocuments(db);
+ const cycles=await db.query<{id:string;name:string}>(`SELECT s.id,s.name FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum' ORDER BY s.start_at DESC LIMIT 500`);
  const templates=await listReportTemplates(db);
  const archives=role==="admin"?
  (await searchPdfArchives(db,{page:1})).items.map(a=>({id:String(a.id),cycleId:String(a.cycleId),cycleName:String(a.cycleName),createdAt:String(a.createdAt),language:String(a.language),snapshotVersion:a.snapshotVersion as number|null})):
  await listUserPdfArchives(db,userId).then(rows=>rows.map(a=>({...a,cycleId:""})));
- return {documents,templates,archives};
+ return {documents,templates,archives,cycles:cycles.rows};
 }
