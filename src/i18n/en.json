@@ -3377,7 +3377,17 @@
     "copiedSnapshot": "Copy preserved in this report",
     "undo": "Undo",
     "redo": "Redo",
-    "stale": "Older save rejected"
+    "stale": "Older save rejected",
+    "appearance": "Document appearance",
+    "orientation": "A4 orientation",
+    "portrait": "Portrait",
+    "landscape": "Landscape",
+    "cover": "Cover page",
+    "toc": "Table of contents",
+    "coverTitle": "Cover title",
+    "subtitle": "Subtitle",
+    "footerText": "Footer text",
+    "tocPending": "Exact page numbers will be available in final rendering."
   },
   "reportsBlocks": {
     "kind": "Block type",
