@@ -50,13 +50,14 @@ test("composants métier existants réemployés, éditions ciblées réservées 
  assert.match(ui,/RegistryCoreEditor/);
  assert.match(ui,/canManage=\{false\}/);
 });
-test("la synthèse ne présente pas un faux journal et ne duplique pas le bandeau",()=>{
+test("la synthèse utilise le journal réel sans dupliquer le bandeau ou le legacy",()=>{
  const ui=read("src/app/app/admin/registries/registry-summary.tsx");
+ const journal=read("src/app/app/admin/registries/registry-journal.tsx");
  assert.match(ui,/item\.description/);
- assert.ok(!ui.includes("fakeEntry"));
+ assert.match(ui,/<RegistryJournal/);
  assert.ok(!ui.includes("history.map"));
- assert.match(ui,/tr\("legacyComment"\)/);
- assert.match(ui,/tr\("journalPending"\)/);
+ assert.ok(!ui.includes("canManage&&item.comment"));
+ assert.match(journal,/commentsText\("legacy"\)/);
 });
 test("FR/EN: les onglets et états ont les mêmes clés",()=>{
  const fr=JSON.parse(read("src/i18n/fr.json")).registryDetail;
