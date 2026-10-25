@@ -28,6 +28,7 @@ export async function ensureReportDocumentsSchema(db:Client){
  await db.query(ddl);
  await db.query(`CREATE INDEX IF NOT EXISTS smn_report_document_sprint_idx ON public.smn_report_document(sprint_id,updated_at DESC)`);
  await db.query(`ALTER TABLE public.smn_report_document ADD COLUMN IF NOT EXISTS creation_request_id text`);
+ await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_document_session_write(document_id text NOT NULL REFERENCES public.smn_report_document(id) ON DELETE CASCADE, session_id text NOT NULL, last_sequence integer NOT NULL CHECK(last_sequence>=1), PRIMARY KEY(document_id,session_id))`);
  await db.query(`CREATE UNIQUE INDEX IF NOT EXISTS smn_report_document_create_request_idx ON public.smn_report_document(creation_request_id) WHERE creation_request_id IS NOT NULL`);
 }
 async function scopedSprint(db:Client,sprintId:string,lock=false){
@@ -87,20 +88,25 @@ export async function updateReportDocument(db:Client,actorId:string,sprintId:str
  if(!actorId||!uuid.test(sprintId)||!uuid.test(id)||!input||typeof input!=="object"||Array.isArray(input))
  return {ok:false as const,error:"invalid-input"};
  const v=input as Record<string,unknown>;
- if(Object.keys(v).sort().join(",")!=="content,revision"||
- !Number.isSafeInteger(v.revision)||Number(v.revision)<1||
+ if(Object.keys(v).sort().join(",")!=="content,sequence,sessionId"||
+ typeof v.sessionId!=="string"||!uuid.test(v.sessionId)||
+ !Number.isSafeInteger(v.sequence)||Number(v.sequence)<1||
  !v.content||typeof v.content!=="object"||Array.isArray(v.content)||
  JSON.stringify(v.content).length>500000)
  return {ok:false as const,error:"invalid-input"};
  await db.query("BEGIN");
  try{
   if(!await scopedSprint(db,sprintId,true)){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
-  const updated=await db.query<{revision:number}>(`UPDATE public.smn_report_document
-  SET content=$4::jsonb,revision=revision+1,updated_by=$5,updated_at=now()
-  WHERE id=$1 AND sprint_id=$2 AND revision=$3 AND status='draft' RETURNING revision`,
-  [id,sprintId,v.revision,JSON.stringify(v.content),actorId]);
-  if(updated.rows.length){await db.query("COMMIT");return {ok:true as const,revision:updated.rows[0].revision};}
-  const exists=await db.query(`SELECT id FROM public.smn_report_document WHERE id=$1 AND sprint_id=$2`,[id,sprintId]);
-  await db.query("ROLLBACK");return {ok:false as const,error:exists.rows.length?"conflict":"not-found"};
+  await ensureReportDocumentsSchema(db);
+  const document=await db.query<{id:string}>(`SELECT id FROM public.smn_report_document WHERE id=$1 AND sprint_id=$2 AND status='draft' FOR UPDATE`,[id,sprintId]);
+  if(!document.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  const prior=await db.query<{last_sequence:number}>(`SELECT last_sequence FROM public.smn_report_document_session_write WHERE document_id=$1 AND session_id=$2`,[id,v.sessionId]);
+  if(prior.rows[0]&&Number(prior.rows[0].last_sequence)>=Number(v.sequence)){
+   await db.query("ROLLBACK");return {ok:false as const,error:"stale"};
+  }
+  const updated=await db.query<{revision:number}>(`UPDATE public.smn_report_document SET content=$3::jsonb,revision=revision+1,updated_by=$4,updated_at=now() WHERE id=$1 AND sprint_id=$2 RETURNING revision`,
+   [id,sprintId,JSON.stringify(v.content),actorId]);
+  await db.query(`INSERT INTO public.smn_report_document_session_write(document_id,session_id,last_sequence) VALUES($1,$2,$3) ON CONFLICT(document_id,session_id) DO UPDATE SET last_sequence=EXCLUDED.last_sequence`,[id,v.sessionId,v.sequence]);
+  await db.query("COMMIT");return {ok:true as const,revision:updated.rows[0].revision};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
