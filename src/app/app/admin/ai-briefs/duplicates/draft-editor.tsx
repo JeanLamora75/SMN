@@ -66,7 +66,7 @@ export default function DraftEditor({initial}:{initial:Draft}){
      <textarea className="form-control font-monospace" rows={18} readOnly value={preview} aria-label="Texte intégral de la copie"/>
      <div className="alert alert-warning mt-3">Vérifiez les noms, informations privées et secrets dans tous les textes libres. SMN ne garantit pas leur anonymisation.</div>
      <label className="form-check"><input className="form-check-input" type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/>
-      <span className="form-check-label">J'ai vérifié la confidentialité du texte exact affiché.</span></label>
+      <span className="form-check-label">J&apos;ai vérifié la confidentialité du texte exact affiché.</span></label>
     </div>}
     <button type="button" className="btn btn-primary mt-3" disabled={!approved||busy} onClick={()=>void finalize()}>Finaliser la nouvelle archive</button>
    </>}
