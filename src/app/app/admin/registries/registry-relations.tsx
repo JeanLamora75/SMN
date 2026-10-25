@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {useCallback,useEffect,useId,useMemo,useState} from "react";
+import {useEffect,useId,useMemo,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {groupRegistryRelations,parseRelationPayload,type RegistryRelation} from "@/lib/registry-relations-view";
 import type {RegistryType} from "@/lib/registry-types";
