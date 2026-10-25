@@ -3320,6 +3320,14 @@
     "retry": "Réessayer",
     "modelLater": "L'utilisation et la prévisualisation des modèles seront proposées prochainement.",
     "creationLater": "Création de nouveaux rapports : à venir. Les anciens outils restent accessibles depuis le Sprint.",
-    "studioLater": "Édition du Studio à venir. Ce brouillon est conservé indépendamment des autres rapports."
+    "studioLater": "Édition du Studio à venir. Ce brouillon est conservé indépendamment des autres rapports.",
+    "previewModel": "Prévisualiser",
+    "duplicateModel": "Dupliquer",
+    "copyName": "Nom du nouveau modèle",
+    "cancel": "Annuler",
+    "closePreview": "Fermer",
+    "copyError": "Impossible de dupliquer ce modèle.",
+    "structuralPreview": "Aperçu de la structure enregistrée (sans simulation PDF).",
+    "modelMetrics": "Indicateurs sélectionnés"
   }
 }
