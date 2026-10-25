@@ -16,6 +16,8 @@ export default async function ReportDetail({params,searchParams}:{params:Promise
  const doc=await withSprintIndexDb(db=>getReportDocument(db,cycleId,documentId)).catch(()=>null);
  if(!doc)notFound();
  const updateOffer=await withSprintIndexDb(db=>readTemplateUpdateOffer(db,cycleId,documentId)).catch(()=>null);
+ const stored=doc.content as {metrics?:Record<string,{value:number|null;unit:string}>;dataSource?:{source:string;snapshotVersion:number|null}}|null;
+ const metrics=stored?.metrics??{};
  const locale=await requestLocale(),t=(k:string)=>translate(locale,("reportsCenter."+k) as "reportsCenter.heading");
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <Link href={"/app/reports?cycleId="+encodeURIComponent(cycleId)}>{t("back")}</Link>
@@ -29,6 +31,12 @@ export default async function ReportDetail({params,searchParams}:{params:Promise
    <p className="mb-2">{t("updateAvailable")} · V{updateOffer.comparison.fromVersion} → V{updateOffer.comparison.toVersion}</p>
    <p className="small mb-0">{updateOffer.comparison.sectionsChanged?t("sectionsChanged"):""} {updateOffer.comparison.contentChanged?t("contentChanged"):""} {t("noAutoUpdate")}</p>
   </section>}
+  <section className="border rounded p-3 mb-3"><h2 className="h5">{t("prefillSummary")}</h2>
+   <p className="small text-secondary">{stored?.dataSource?.source??t("unknown")} {stored?.dataSource?.snapshotVersion!==null&&stored?.dataSource?.snapshotVersion!==undefined?" · V"+stored.dataSource.snapshotVersion:""}</p>
+   <dl className="row mb-0">{(["committedSp","completedSp","plannedJh","actualJh"] as const).map(key=><div key={key} className="col-12 col-md-6">
+    <dt>{t(key)}</dt><dd>{metrics[key]?.value===null||metrics[key]?.value===undefined?t("unknown"):metrics[key].value+" "+metrics[key].unit}</dd>
+   </div>)}</dl>
+  </section>
   <p className="alert alert-info">{t("studioLater")}</p>
  </main>;
 }

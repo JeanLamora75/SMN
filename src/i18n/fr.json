@@ -3332,6 +3332,17 @@
     "updateAvailable": "Une nouvelle version du modèle est disponible",
     "sectionsChanged": "Rubriques modifiées.",
     "contentChanged": "Paramètres de contenu modifiés.",
-    "noAutoUpdate": "Aucun changement n'est appliqué automatiquement."
+    "noAutoUpdate": "Aucun changement n'est appliqué automatiquement.",
+    "newReport": "Nouveau rapport",
+    "language": "Langue",
+    "create": "Créer le rapport",
+    "creating": "Création…",
+    "createError": "Impossible de créer le rapport. Réessayez sans modifier les champs.",
+    "prefillSummary": "Indicateurs préremplis",
+    "unknown": "Non renseigné",
+    "committedSp": "SP initialement engagés",
+    "completedSp": "SP terminés",
+    "plannedJh": "Capacité prévue",
+    "actualJh": "Capacité réelle disponible"
   }
 }

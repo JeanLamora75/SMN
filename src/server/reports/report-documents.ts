@@ -3,6 +3,7 @@ import type {Client} from "pg";
 import {standardReportTemplate} from "@/lib/report-templates";
 import {listReportTemplates} from "./templates";
 import {emptyNotes} from "./draft-notes";
+import {prepareSprintReport} from "./sprint-preparation";
 
 const uuid=/^[a-f0-9-]{36}$/i;
 export type ReportDocument={id:string;sprintId:string;teamId:string;title:string;language:"fr"|"en";status:"draft";templateId:string;templateVersion:number;content:unknown;revision:number;updatedAt:string};
@@ -26,6 +27,8 @@ const ddl=`CREATE TABLE IF NOT EXISTS public.smn_report_document(
 export async function ensureReportDocumentsSchema(db:Client){
  await db.query(ddl);
  await db.query(`CREATE INDEX IF NOT EXISTS smn_report_document_sprint_idx ON public.smn_report_document(sprint_id,updated_at DESC)`);
+ await db.query(`ALTER TABLE public.smn_report_document ADD COLUMN IF NOT EXISTS creation_request_id text`);
+ await db.query(`CREATE UNIQUE INDEX IF NOT EXISTS smn_report_document_create_request_idx ON public.smn_report_document(creation_request_id) WHERE creation_request_id IS NOT NULL`);
 }
 async function scopedSprint(db:Client,sprintId:string,lock=false){
  const r=await db.query<{team_id:string}>(`SELECT s.team_id FROM public.smn_sprint s
@@ -49,7 +52,8 @@ export async function getReportDocument(db:Client,sprintId:string,id:string){
 export async function createReportDocument(db:Client,actorId:string,sprintId:string,input:unknown){
  if(!actorId||!uuid.test(sprintId)||!input||typeof input!=="object"||Array.isArray(input))return {ok:false as const,error:"invalid-input"};
  const v=input as Record<string,unknown>;
- if(Object.keys(v).sort().join(",")!=="language,templateId,title"||
+ if(Object.keys(v).filter(k=>k!=="requestId").sort().join(",")!=="language,templateId,title"||
+ (v.requestId!==undefined&&(typeof v.requestId!=="string"||!uuid.test(v.requestId)))||
  typeof v.title!=="string"||!v.title.trim()||v.title.length>120||
  !["fr","en"].includes(String(v.language))||typeof v.templateId!=="string"||!v.templateId)
  return {ok:false as const,error:"invalid-input"};
@@ -57,18 +61,25 @@ export async function createReportDocument(db:Client,actorId:string,sprintId:str
  try{
   const sprint=await scopedSprint(db,sprintId,true);
   if(!sprint){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  await ensureReportDocumentsSchema(db);
+  if(v.requestId){const old=await db.query<{id:string;sprint_id:string}>(`SELECT id,sprint_id FROM public.smn_report_document WHERE creation_request_id=$1`,[v.requestId]);
+   if(old.rows.length){await db.query("ROLLBACK");return old.rows[0].sprint_id===sprintId?{ok:true as const,id:old.rows[0].id,revision:1,reused:true}:{ok:false as const,error:"conflict"};}}
   const template=(await listReportTemplates(db)).find(t=>t.id===v.templateId);
   if(!template){await db.query("ROLLBACK");return {ok:false as const,error:"template-not-found"};}
-  await ensureReportDocumentsSchema(db);
+  const prepared=await prepareSprintReport(db,sprintId);
+  if(!prepared){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   const id=randomUUID(),initial={
    sections:structuredClone(template.sections),options:structuredClone(template.content),
-   notes:emptyNotes(),blocks:[],templateSnapshot:{id:template.id,revision:template.revision,
+   notes:emptyNotes(),blocks:[],dataSource:{source:prepared.source,snapshotVersion:prepared.snapshotVersion},
+   metrics:{committedSp:prepared.projection.scrum.storyPoints.committed,completedSp:prepared.projection.scrum.storyPoints.completed,
+    plannedJh:prepared.projection.scrum.capacity.planned,actualJh:prepared.projection.scrum.capacity.actual},
+   templateSnapshot:{id:template.id,revision:template.revision,
     sections:structuredClone(template.sections),content:structuredClone(template.content)}
   };
   await db.query(`INSERT INTO public.smn_report_document
-  (id,sprint_id,team_id,title,language,template_id,template_version,content,created_by,updated_by)
-  VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$9)`,
-  [id,sprintId,sprint.team_id,v.title.trim(),v.language,template.id,template.revision,JSON.stringify(initial),actorId]);
+  (id,sprint_id,team_id,title,language,template_id,template_version,content,created_by,updated_by,creation_request_id)
+  VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$9,$10)`,
+  [id,sprintId,sprint.team_id,v.title.trim(),v.language,template.id,template.revision,JSON.stringify(initial),actorId,v.requestId??null]);
   await db.query("COMMIT");return {ok:true as const,id,revision:1};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
