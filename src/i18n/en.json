@@ -2387,6 +2387,9 @@
     "historyError": "History unavailable."
   },
   "registryList": {
+    "viewGroup": "Register display mode",
+    "listView": "List",
+    "cardsView": "Cards",
     "due": "Due date",
     "actions": "Actions",
     "actionsFor": "Actions for “{title}”",
