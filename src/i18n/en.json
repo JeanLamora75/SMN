@@ -3387,7 +3387,8 @@
     "coverTitle": "Cover title",
     "subtitle": "Subtitle",
     "footerText": "Footer text",
-    "tocPending": "Exact page numbers will be available in final rendering."
+    "tocPending": "Exact page numbers will be available in final rendering.",
+    "pageBreak": "Page break before section"
   },
   "reportsBlocks": {
     "kind": "Block type",
@@ -3416,7 +3417,8 @@
     "value": "Value",
     "source": "Source",
     "sourceUnknown": "Not specified",
-    "noChartScale": "Chart scale unavailable without a comparable reference"
+    "noChartScale": "Chart scale unavailable without a comparable reference",
+    "wideTableNotice": "Check table width before export. No columns are hidden automatically."
   },
   "reportsRefresh": {
     "heading": "Data freshness",
