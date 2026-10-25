@@ -3,19 +3,35 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Cycle={id:string;name:string;status:string};
 type Data={cycles:Cycle[];linkedIds:string[]};
+const validId=(id:unknown)=>typeof id==="string"&&/^[0-9a-f-]{36}$/i.test(id);
+function parseData(value:unknown):Data|null{
+ if(!value||typeof value!=="object"||Array.isArray(value))return null;
+ const data=value as Partial<Data>;
+ if(!Array.isArray(data.cycles)||!Array.isArray(data.linkedIds)||
+  !data.cycles.every(c=>c&&validId(c.id)&&typeof c.name==="string"&&
+   c.name.trim()&&typeof c.status==="string")||
+  !data.linkedIds.every(validId)||
+  !data.linkedIds.every(x=>data.cycles!.some(c=>c.id===x)))return null;
+ return {cycles:data.cycles,linkedIds:data.linkedIds};
+}
 export default function RegistryCycles({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("registryCycles."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(false),[busy,setBusy]=useState<string|null>(null);
+ const [reload,setReload]=useState(0);
  useEffect(()=>{
   const controller=new AbortController();
+  setData(null);setError(false);
   void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/cycles",{cache:"no-store",signal:controller.signal})
-   .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<Data>;})
+   .then(async r=>{if(!r.ok)throw Error("unavailable");
+    const parsed=parseData(await r.json());if(!parsed)throw Error("invalid");return parsed;})
    .then(v=>{if(!controller.signal.aborted)setData(v);})
    .catch(()=>{if(!controller.signal.aborted)setError(true);});
   return()=>controller.abort();
- },[id]);
+ },[id,reload]);
  const toggle=async(cycle:Cycle,linked:boolean)=>{
-  if(busy||!canManage)return;setBusy(cycle.id);setError(false);
+  if(busy||!canManage||cycle.status==="closed")return;
+  if(linked&&!window.confirm(tr("confirmUnlink")))return;
+  setBusy(cycle.id);setError(false);
   try{
    const r=await fetch("/api/admin/registries/"+encodeURIComponent(id)+"/cycles",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
@@ -27,7 +43,11 @@ export default function RegistryCycles({id,canManage,onSaved}:{id:string;canMana
  return <section className="card p-3 mt-3">
   <h2 className="h5">{tr("heading")}</h2><p className="text-body-secondary">{tr("intro")}</p>
   {!data&&!error?<p role="status">{tr("loading")}</p>:null}
-  {error&&<p role="alert" className="text-danger">{tr("error")}</p>}
+  {error&&<div role="alert" className="d-flex gap-2 align-items-center">
+   <span className="text-danger">{tr("error")}</span>
+   <button type="button" className="btn btn-outline-secondary btn-sm"
+    onClick={()=>setReload(n=>n+1)}>{tr("retry")}</button>
+  </div>}
   {data?.cycles.length===0&&<p>{tr("empty")}</p>}
   <ul className="list-group">{data?.cycles.map(cycle=>{
    const linked=data.linkedIds.includes(cycle.id),closed=cycle.status==="closed";

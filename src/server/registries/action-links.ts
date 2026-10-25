@@ -6,7 +6,12 @@ export async function readActionLinks(db:Client,id:string){
  if(!scope.rows.length)return null;
  const installed=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_action_link') IS NOT NULL AS present`);
  if(!installed.rows[0]?.present)return {links:[]};
- const links=await db.query<{id:string;title:string;type:string}>(`SELECT r.id,r.title,r.type FROM public.smn_action_link l JOIN public.smn_registry_item r ON r.id=l.related_id WHERE l.action_id=$1 ORDER BY r.type,r.title,r.id`,[id]);
+ const links=await db.query<{id:string;title:string;type:string}>(`SELECT r.id,r.title,r.type
+  FROM public.smn_action_link l
+  JOIN public.smn_registry_item a ON a.id=l.action_id
+  JOIN public.smn_registry_item r ON r.id=l.related_id AND r.team_id=a.team_id
+  WHERE l.action_id=$1 AND r.type IN ('decision','obstacle')
+  ORDER BY r.type,r.title,r.id`,[id]);
  return {links:links.rows};
 }
 export async function changeActionLink(db:Client,actorId:string,id:string,relatedId:string,action:"linked"|"unlinked"){
