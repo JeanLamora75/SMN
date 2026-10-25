@@ -104,7 +104,7 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
   titleAsc:"r.title ASC,r.occurred_on DESC,r.id ASC",
   titleDesc:"r.title DESC,r.occurred_on DESC,r.id ASC"
  };
- const rows=await db.query("SELECT r.id,r.type,r.title,r.status,r.occurred_on::text AS \"occurredOn\",r.due_on::text AS \"dueOn\",r.created_at::text AS \"recordedAt\""+
+ const rows=await db.query("SELECT r.id,r.type,r.title,r.description,r.status,r.occurred_on::text AS \"occurredOn\",r.due_on::text AS \"dueOn\",r.created_at::text AS \"recordedAt\""+
   (canSeeOwner?',r.owner_name AS "owner"':"")+
   " FROM public.smn_registry_item r WHERE "+where+" ORDER BY "+orders[filters.sort]+" LIMIT 25 OFFSET $"+(values.length+1),
   [...values,(page-1)*pageSize]);
