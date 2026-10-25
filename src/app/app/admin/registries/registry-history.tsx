@@ -47,7 +47,6 @@ export default function RegistryHistory({id}:{id:string}){
   return human;
  };
  const title=(kind:AuditKind,action:AuditAction)=>tr(kind)+" · "+tr(action);
- const reset=()=>{setPage(1);setRetry(n=>n+1);};
  return <section className="smn-registry-audit" aria-labelledby={localId+"-title"}>
   <h2 className="h5 mb-1" id={localId+"-title"}>{tr("history")}</h2>
   <p className="small text-body-secondary">{tr("intro")}</p>
