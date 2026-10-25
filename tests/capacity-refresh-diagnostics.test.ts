@@ -49,6 +49,8 @@ test("le calcul de développement est lancé pour les dates persistées du Sprin
  assert.match(page,/readSprintContext/);
  assert.match(page,/sprintPresenceDates\(cycle\)/);
  assert.match(page,/cycle\.status!=="closed"/);
+ assert.match(page,/requested\.cycleId/);
+ assert.match(page,/context\.items\.find\(x=>x\.id===requestedId\)/);
  assert.match(view,/initialPeriod\?\.start\?\?""/);
  assert.match(view,/fetch\("\/api\/admin\/development-capacity\?"/);
  assert.match(view,/cache:"no-store",signal:controller\.signal/);
@@ -64,4 +66,26 @@ test("le moteur et les lecteurs consultent les données courantes sans altérer 
  assert.match(dashboard,/readActualCapacity\(db,start,end,readDevelopmentCapacity/);
  assert.match(dashboard,/readInitialSnapshot\(db,teamId,start,end\)/);
  assert.match(dashboard,/closedSnapshotProjection\(row\.snapshot,version\)/);
+});
+
+test("lien diagnostic conserve le Sprint et les permissions de lecture des membres",()=>{
+ const overview=source("src/app/app/cycle-overview.tsx");
+ const dashboard=source("src/app/app/page.tsx");
+ assert.match(overview,/canViewCapacity&&cycle&&cycle\.status!=="closed"/);
+ assert.match(overview,/development-capacity\?cycleId=/);
+ assert.match(dashboard,/canViewCapacity=\{canAccess\(account,"read",\{type:"members"/);
+});
+
+test("les dictionnaires FR et EN proposent tous les messages explicatifs",()=>{
+ const fr=JSON.parse(source("src/i18n/fr.json"));
+ const en=JSON.parse(source("src/i18n/en.json"));
+ const keys=["meetingParticipants","meetingWorkSlots"];
+ for(const key of keys){
+  assert.ok(fr.developmentCapacity[key]&&en.developmentCapacity[key],key);
+ }
+ for(const key of ["presenceMissingIntro","presenceSeeDiagnosis"]){
+  assert.ok(fr.sprintDetail[key]&&en.sprintDetail[key],key);
+ }
+ assert.ok(fr.dashboard.cockpit.capacityDiagnosis);
+ assert.ok(en.dashboard.cockpit.capacityDiagnosis);
 });
