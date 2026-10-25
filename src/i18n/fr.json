@@ -2701,7 +2701,8 @@
     "closed": "Sprint clôturé — modification interdite",
     "error": "Impossible de modifier cette association.",
     "loading": "Chargement des Sprints…",
-    "confirmUnlink": "Dissocier ce cycle ? La fiche et le cycle seront conservés."
+    "confirmUnlink": "Dissocier ce cycle ? La fiche et le cycle seront conservés.",
+    "retry": "Réessayer"
   },
   "decisionDetail": {
     "heading": "Justification et remplacement",
