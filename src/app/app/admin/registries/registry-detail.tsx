@@ -94,7 +94,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const tabs=item?registryDetailTabs(item.type):[];
  const onward=enterRegistryRelation(navigation,id);
  const hasUnsaved=()=>Boolean(document.querySelector(
-  '.smn-registry-detail [data-registry-dirty="true"]'
+  '[data-registry-dirty="true"]'
  ));
  const mayLeave=()=>!hasUnsaved()||window.confirm(t("registryNavigation.discard"));
  useEffect(()=>{
@@ -102,7 +102,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   let reverting=false;
   const onPop=(event:PopStateEvent)=>{
    if(reverting){reverting=false;event.stopImmediatePropagation();return;}
-   if(!document.querySelector('.smn-registry-detail [data-registry-dirty="true"]')||
+   if(!document.querySelector('[data-registry-dirty="true"]')||
     window.confirm(t("registryNavigation.discard")))return;
    reverting=true;
    event.stopImmediatePropagation();
