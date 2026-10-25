@@ -14,10 +14,11 @@ export default function RegistryBreadcrumbs({id,title,teamId,navigation}:{
  const t=useTranslation();
  const tr=(key:string)=>t(("registryNavigation."+key) as Parameters<typeof t>[0]);
  const [ancestors,setAncestors]=useState<Ancestor[]>([]);
+ const trailKey=navigation.trail.join(",");
  useEffect(()=>{
-  if(!title||navigation.trail.length===0){return;}
+  if(!title||!id||!trailKey){return;}
   const ctrl=new AbortController();
-  void Promise.all(navigation.trail.map(async id=>{
+  void Promise.all(trailKey.split(",").map(async id=>{
    try{
     const response=await fetch(registryIndexPath+"/"+encodeURIComponent(id),{
      cache:"no-store",signal:ctrl.signal
@@ -31,7 +32,7 @@ export default function RegistryBreadcrumbs({id,title,teamId,navigation}:{
    }catch{return {id,title:null};}
   })).then(items=>{if(!ctrl.signal.aborted)setAncestors(items);});
   return()=>ctrl.abort();
- },[title,teamId,navigation.trail.join(",")]);
+ },[title,teamId,id,trailKey]);
  const previous=navigation.trail.at(-1);
  const last=ancestors.at(-1);
  return <nav className="smn-registry-breadcrumbs mb-3" aria-label={tr("aria")}>
