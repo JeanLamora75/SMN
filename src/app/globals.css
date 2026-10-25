@@ -524,3 +524,37 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-card-grid{grid-template-columns:minmax(0,1fr)}
  .smn-registry-card{padding:11px 12px}
 }
+
+/* SMN-242 — Bandeau compact des points d'attention collectifs. */
+.smn-registry-attention-band{border:1px solid var(--smn-border);border-radius:10px;
+ background:var(--smn-surface);color:var(--smn-foreground);min-width:0}
+.smn-registry-attention-head{display:flex;align-items:center;gap:11px;padding:10px 14px;
+ min-width:0}
+.smn-registry-attention-icon{display:inline-flex;align-items:center;justify-content:center;
+ flex:0 0 32px;width:32px;height:32px;border:1px solid var(--smn-border);
+ border-radius:8px;background:var(--smn-soft);color:var(--smn-primary)}
+.smn-registry-attention-identity{display:flex;align-items:baseline;flex:1 1 auto;
+ gap:6px 12px;min-width:0;flex-wrap:wrap}
+.smn-registry-attention-title{font-size:.9rem;font-weight:750;line-height:1.25;margin:0}
+.smn-registry-attention-count{display:inline-block;font-size:.81rem;font-weight:650;
+ line-height:1.4;color:var(--smn-foreground);overflow-wrap:anywhere}
+.smn-registry-attention-controls{display:flex;gap:6px;align-items:center;flex:none}
+.smn-registry-attention-controls .btn{min-height:34px;font-size:.78rem}
+.smn-registry-attention-error{margin:0;padding:0 14px 10px;color:var(--bs-danger-text-emphasis);
+ font-size:.81rem}
+.smn-registry-attention-body{padding:10px 14px 12px;border-top:1px solid var(--smn-border)}
+.smn-registry-attention-items{display:grid;grid-template-columns:minmax(0,1fr);
+ gap:0;list-style:none;padding:0;margin:0}
+.smn-registry-attention-item{display:flex;align-items:baseline;flex-wrap:wrap;
+ gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--smn-border);
+ min-width:0;font-size:.81rem}
+.smn-registry-attention-item:last-child{border-bottom:0}
+.smn-registry-attention-reason{font-weight:700}
+.smn-registry-attention-item a{min-width:0;overflow-wrap:anywhere}
+.smn-registry-attention-context{font-size:.76rem;color:var(--smn-muted);overflow-wrap:anywhere}
+@media(max-width:575px){
+ .smn-registry-attention-head{gap:8px;padding:9px 10px;flex-wrap:wrap}
+ .smn-registry-attention-identity{flex-basis:calc(100% - 45px)}
+ .smn-registry-attention-controls{margin-left:40px;flex-wrap:wrap}
+ .smn-registry-attention-body{padding:10px}
+}
