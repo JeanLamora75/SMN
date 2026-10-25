@@ -37,7 +37,7 @@ export default function HistoricalCsvTemplateView(){
   <a className="btn btn-primary mb-3" href="/api/admin/historical-csv/template?download=1">Télécharger le modèle CSV</a>
   <div className="border rounded p-3 mb-4">
    <h2 className="h6">Vérifier un CSV avant import</h2>
-   <p className="small text-secondary">Contrôle uniquement la syntaxe et le contrat de colonnes. Aucun enregistrement n'est créé ou modifié.</p>
+   <p className="small text-secondary">Contrôle uniquement la syntaxe et le contrat de colonnes. Aucun enregistrement n&apos;est créé ou modifié.</p>
    <label className="form-label">Fichier CSV<input type="file" accept=".csv,text/csv" className="form-control" onChange={async e=>{const file=e.target.files?.[0];if(file){if(file.size>1048576){setError("CSV limité à 1 Mo.");return;}const raw=await file.text();version.current++;setCsv(raw);setCheck(null);setReplacement({});}}}/></label>
    <textarea className="form-control mt-2" rows={4} aria-label="Contenu CSV à vérifier" value={csv} onChange={e=>{version.current++;setCsv(e.target.value);setCheck(null);setReplacement({});}}/>
    <button type="button" className="btn btn-outline-primary mt-2" disabled={checking||!csv.trim()} onClick={validate}>{checking?"Vérification…":"Vérifier le fichier"}</button>
@@ -46,7 +46,7 @@ export default function HistoricalCsvTemplateView(){
    </div>}
    {check?.valid&&<div className="mt-3">
     <h3 className="h6">Aperçu des impacts — lecture seule</h3>
-    <p className="small text-secondary">Les valeurs déjà enregistrées sont conservées par défaut. Fermer cet aperçu ou changer de fichier n'effectue aucun import.</p>
+    <p className="small text-secondary">Les valeurs déjà enregistrées sont conservées par défaut. Fermer cet aperçu ou changer de fichier n&apos;effectue aucun import.</p>
     <div className="table-responsive"><table className="table table-sm align-middle">
      <thead><tr><th>Ligne</th><th>Cycle existant</th><th>Métrique</th><th>Valeur actuelle</th><th>Valeur proposée</th><th>Qualité</th><th>Résultat</th><th>Décision de préparation</th></tr></thead>
      <tbody>{(check.preview??[]).map(item=><tr key={item.line}>
