@@ -2492,6 +2492,14 @@
     "unavailable": "Save unavailable. Your draft remains open.",
     "invalidTransition": "This status transition is not allowed. No change was saved."
   },
+  "registryNavigation": {
+    "aria": "Register record navigation",
+    "registers": "Registers",
+    "inaccessible": "Record unavailable or access denied",
+    "previous": "Previous record",
+    "backToResults": "Back to list and filters",
+    "discard": "Leave this record? Unsaved changes will be lost."
+  },
   "registryDetail": {
     "tabs": "Record navigation",
     "summary": "Overview",
