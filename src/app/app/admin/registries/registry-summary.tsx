@@ -6,6 +6,7 @@ import {useTranslation,useLocale} from "@/i18n/client";
 import {parseSummaryCycles,parseSummaryRelations,validRegistryActivityTime,
  type SummaryRelation,type SummaryCycle,type SummaryContext} from "@/lib/registry-summary-context";
 import BootstrapIcon from "../../bootstrap-icon";
+import RegistryJournal from "./registry-journal";
 
 export type RegistrySummaryItem={
  id:string;type:string;title:string;description:string|null;
@@ -79,12 +80,7 @@ export default function RegistrySummary({item,canManage,onEditDescription}:Props
    </section>
    <section className="smn-registry-summary-panel" aria-labelledby="registry-summary-journal-title">
     <h2 className="h5" id="registry-summary-journal-title">{tr("journal")}</h2>
-    <p className="small text-body-secondary">{tr("journalPending")}</p>
-    {canManage&&item.comment&&<div className="smn-registry-summary-legacy">
-     <h3 className="h6">{tr("legacyComment")}</h3>
-     <p className="smn-registry-detail-description">{item.comment}</p>
-     <p className="small text-body-secondary mb-0">{tr("legacyNotDated")}</p>
-    </div>}
+    <RegistryJournal key={item.id} itemId={item.id} canManage={canManage}/>
    </section>
   </div>
   <aside className="smn-registry-summary-side" aria-label={tr("context")}>

@@ -65,13 +65,15 @@ test("description entière, sans le clamp 2 lignes de la vue Liste",()=>{
  assert.ok(!s.includes("smn-registry-row-description"));
 });
 
-test("journal non disponible : ne reconstitue jamais de faux commentaires",()=>{
+test("journal réel : le commentaire legacy est affiché séparément, jamais comme entrée datée",()=>{
  const s=source("src/app/app/admin/registries/registry-summary.tsx");
- assert.match(s,/tr\("journalPending"\)/);
- assert.match(s,/canManage&&item\.comment/);
- assert.match(s,/tr\("legacyNotDated"\)/);
- assert.ok(!s.includes("sampleComment"));
- assert.ok(!s.includes("commentHistory.map"));
+ const journal=source("src/app/app/admin/registries/registry-journal.tsx");
+ assert.match(s,/<RegistryJournal/);
+ assert.ok(!s.includes("canManage&&item.comment"));
+ assert.match(journal,/data\?\.legacy/);
+ assert.match(journal,/commentsText\("legacyUndated"\)/);
+ assert.ok(!journal.includes("sampleComment"));
+ assert.ok(!journal.includes("commentHistory.map"));
 });
 
 test("contextes : aucun cycle proposé n'est confondu avec un cycle lié",()=>{
