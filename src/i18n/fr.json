@@ -2763,7 +2763,8 @@
     "conflict": "Cette relation a changé. Actualisez avant de recommencer.",
     "unavailable": "Relations temporairement indisponibles.",
     "invalid": "Cette association est refusée : vérifier les données ou le cycle.",
-    "closedCycle": "Cycle clôturé : dissociation interdite."
+    "closedCycle": "Cycle clôturé : dissociation interdite.",
+    "confirmUnlinkGoal": "Dissocier cet objectif ? La fiche et l’objectif seront conservés."
   },
   "riskMaterialize": {
     "launch": "Créer un obstacle",
