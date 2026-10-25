@@ -2387,6 +2387,7 @@
     "historyError": "Historique indisponible."
   },
   "registryList": {
+    "kanbanCycleUnsupported": "Les périodes Kanban ne disposent pas encore de relations fiche-cycle dans le modèle existant.",
     "allTypes": "Tous les registres",
     "category": "Catégorie",
     "lifecycle": "Suivi",
