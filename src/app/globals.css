@@ -675,3 +675,34 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-section-dialog-header,.smn-registry-section-dialog-footer{padding:12px}
  .smn-registry-section-dialog-content{padding:12px}
 }
+
+/* A single scrollable, centered create dialog; footer remains accessible on small screens. */
+.smn-registry-create-dialog{width:min(94vw,800px);max-width:100%;
+ max-height:min(92dvh,900px);padding:0;overflow:hidden;border:1px solid var(--smn-border);
+ border-radius:12px;background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 18px 60px rgba(0,0,0,.2)}
+.smn-registry-create-dialog::backdrop{background:rgba(15,25,40,.65)}
+.smn-registry-create-form{display:flex;flex-direction:column;min-width:0;
+ max-height:min(92dvh,900px)}
+.smn-registry-create-header{display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:15px 18px;border-bottom:1px solid var(--smn-border);flex:none}
+.smn-registry-create-body{padding:14px 18px;overflow:auto;min-height:0;flex:1 1 auto;
+ overscroll-behavior:contain}
+.smn-registry-create-footer{display:flex;align-items:center;justify-content:flex-end;
+ gap:8px;padding:12px 18px;border-top:1px solid var(--smn-border);flex:none;
+ background:var(--smn-surface)}
+.smn-registry-create-footer .btn{min-height:38px}
+.smn-registry-create-group{border:1px solid var(--smn-border);border-radius:8px;
+ margin:14px 0 0;padding:12px 14px;min-width:0}
+.smn-registry-create-group legend{float:none;width:auto;margin:0 0 6px;
+ padding:0 5px;font-size:.95rem;font-weight:700;color:var(--smn-foreground)}
+.smn-registry-just-created{outline:2px solid var(--smn-primary);
+ outline-offset:-2px;transition:outline-color .2s ease}
+.smn-registry-just-created .smn-registry-row-title{font-weight:750}
+@media(max-width:575px){
+ .smn-registry-create-dialog{width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
+ .smn-registry-create-form{max-height:calc(100dvh - 12px)}
+ .smn-registry-create-header,.smn-registry-create-footer{padding:12px}
+ .smn-registry-create-body{padding:12px}
+ .smn-registry-create-group{padding:10px}
+}
