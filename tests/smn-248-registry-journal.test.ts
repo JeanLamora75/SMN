@@ -70,7 +70,7 @@ test("AC1 / RBAC : audit d'association réelle seulement, cible bornée à l'éq
  assert.match(statement,/smn_registry_relation_audit/);
  assert.match(statement,/audit\.action='linked'/);
  assert.match(statement,/r\.team_id=base\.team_id/);
- assert.match(statement,/l\.created_at<=a\.changed_at/);
+ assert.match(statement,/l\.created_at<=audit\.changed_at/);
  assert.match(statement,/r\.type IN \('action','decision','highlight'\)/);
 });
 test("AC5 : aucun lien fictif si tables d'associations absentes",async()=>{
