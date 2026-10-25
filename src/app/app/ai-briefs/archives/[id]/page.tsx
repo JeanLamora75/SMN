@@ -34,7 +34,7 @@ export default async function ArchivedBriefPage({params}:{params:Promise<{id:str
   <Link href="/app/ai-briefs/archives">← Bibliothèque privée des briefs</Link>
   <section className="smn-panel rounded-4 p-4 my-3">
    <h1 className="h4">Brief TXT archivé</h1>
-   {archive.state==="integrity-error"?<div className="alert alert-danger" role="alert">Échec du contrôle d'intégrité : fichier altéré. Aucun texte recomposé n'est proposé.</div>:
+   {archive.state==="integrity-error"?<div className="alert alert-danger" role="alert">Échec du contrôle d&apos;intégrité : fichier altéré. Aucun texte recomposé n&apos;est proposé.</div>:
     archive.state==="unavailable"?<div className="alert alert-warning" role="alert">Archive indisponible.</div>:
     <>
      <p className="small text-secondary">Archive {archive.metadata.id} · {archive.metadata.mode} · {archive.metadata.created_at} · modèle {archive.metadata.template_id} (révision {archive.metadata.template_revision})</p>
