@@ -7,7 +7,7 @@
 1. Sources métier réelles et contrats déjà validés de l'Epic 6 : SMN-113 à SMN-135, snapshots Vn, protections admin/user et règles des indicateurs.
 2. Ce lot UX : [DESIGN.md](DESIGN.md) — aspect, [EXPERIENCE.md](EXPERIENCE.md) — comportements, synthèse des 21 décisions ; ces contrats prévalent sur le prototype illustratif.
 3. Stories [SMN-254 à SMN-269](DECOUPAGE-JIRA.md), leurs critères d'acceptation et [RECETTE-UX.md](RECETTE-UX.md) ; divergences documentées et soumises au commanditaire.
-4. Référentiel transversal [docs/UX-REFERENTIEL-BMAD.md](../../../../../docs/UX-REFERENTIEL-BMAD.md), PRD, architecture et règles actuelles. Une maquette ne justifie jamais d'altérer le métier.
+4. Référentiel transversal [docs/UX-REFERENTIEL-BMAD.md](../../../../docs/UX-REFERENTIEL-BMAD.md), PRD, architecture et règles actuelles. Une maquette ne justifie jamais d'altérer le métier.
 
 ## 2. Étape initiale obligatoire — SMN-254
 
