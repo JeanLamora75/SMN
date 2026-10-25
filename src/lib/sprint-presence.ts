@@ -3,7 +3,7 @@
  * contribution or allocation percentages. No claim of physical attendance. */
 export type AgileRole="scrumMaster"|"productOwner"|"developer";
 export type PresenceMissingSource="no-assignments"|"ambiguous-assignment"|
- "assignment-version"|"work-calendar"|"member-country"|"national-coverage"|
+ "assignment-version"|"work-calendar"|
  "exceptional-meeting-participants"|"exceptional-meeting-work-slots";
 export type PresenceMember=Readonly<{
  memberId:string;displayName:string;presenceJh:number|null;
