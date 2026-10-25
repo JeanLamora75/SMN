@@ -18,7 +18,7 @@ export default function ReportBlocksEditor({sections,blocks,metrics,selectedSect
  </div>}
  {sections.filter(s=>s.visible).map(section=><section key={section.key} className="border rounded p-2">
   <h3 className="h6">{section.key}</h3>
-  {visibleBlocks(blocks,section.key).map(b=><article key={b.id} className={"border rounded p-2 mb-2"+(selectedId===b.id?" border-primary":"")} style={{maxWidth:b.width==="half"?"50%":"100%"}}>
+  {visibleBlocks(blocks,section.key).map(b=><article key={b.id} className={"smn-keep-together border rounded p-2 mb-2"+(selectedId===b.id?" border-primary":"")} style={{maxWidth:b.width==="half"?"50%":"100%"}}>
    <div className="d-flex justify-content-between gap-2 align-items-center">
     <button className="btn btn-sm btn-link text-start" type="button" onClick={()=>setSelectedId(b.id)}>{b.title||tr(b.kind)}</button>
     {mode==="composition"&&!readOnly&&<div className="d-flex gap-1">
@@ -27,6 +27,7 @@ export default function ReportBlocksEditor({sections,blocks,metrics,selectedSect
      <button type="button" className="btn btn-sm btn-outline-danger" onClick={()=>onChange(blocks.filter(item=>item.id!==b.id))}>{tr("remove")}</button>
     </div>}
    </div>
+   {b.kind==="table"&&<p className="small text-warning" role="note">{tr("wideTableNotice")}</p>}
    {b.kind==="text"?<p className="mb-1" style={{whiteSpace:"pre-wrap"}}>{b.text||tr("emptyText")}</p>:
     b.kind==="image"?(b.imageUrl?<a href={b.imageUrl} rel="noopener noreferrer" target="_blank">{tr("imageLink")}</a>:<p>{tr("imageMissing")}</p>):
     <ReportMetricDisplay metricKey={b.metricKey} metrics={metrics} presentation={b.kind==="table"?"table":b.kind==="chart"?"chart":"both"}/>}
