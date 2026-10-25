@@ -50,8 +50,10 @@ function auditStatements(f:Flags):string[]{
   JOIN public.smn_registry_comment c ON c.id=v.comment_id
   WHERE c.item_id=$1`);
  if(f.relations){
-  const goalJoin=f.goals?
-   `LEFT JOIN public.smn_sprint_goal g ON a.target_kind='goal' AND g.id=a.target_id`:
+  const goalJoin=f.goals&&f.sprints?
+   `LEFT JOIN public.smn_sprint_goal g ON a.target_kind='goal' AND g.id=a.target_id
+    AND EXISTS(SELECT 1 FROM public.smn_sprint sp
+     WHERE sp.id=g.sprint_id AND sp.team_id=src.team_id)`:
    `LEFT JOIN LATERAL (SELECT NULL::text AS title) g ON true`;
   const target=`CASE WHEN a.target_kind='record' THEN
    CASE WHEN a.source_id=$1 THEN linked.title ELSE src.title END ELSE g.title END`;
@@ -107,7 +109,7 @@ function auditStatements(f:Flags):string[]{
 export async function readRegistryAuditTimeline(
  db:Client,id:string,page:number
 ):Promise<AuditPage|null>{
- if(!validId.test(id)||!Number.isSafeInteger(page)||page<1||page>200)return null;
+ if(!validId.test(id)||!Number.isSafeInteger(page)||page<1||page>10000)return null;
  const item=await db.query<{id:string}>(`SELECT r.id FROM public.smn_registry_item r
   JOIN public.smn_team t ON t.id=r.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
