@@ -3453,6 +3453,7 @@
     "confirmArchive": "Create an immutable PDF version of this draft?",
     "warnings": "Non-blocking warnings were detected. Continue anyway?",
     "failed": "PDF could not be generated. The draft is unchanged.",
-    "downloadArchive": "Download created archive"
+    "downloadArchive": "Download created archive",
+    "saveFirst": "Save your changes before exporting or archiving."
   }
 }
