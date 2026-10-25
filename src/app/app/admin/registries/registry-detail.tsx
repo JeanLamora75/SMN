@@ -208,7 +208,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        {sectionView("riskRoam",t("registryRoam.heading"),
         <RiskRoam id={id} canManage={false}/>)}
        {canManage&&<MaterializeRisk id={id} teamId={teamId} title={item.title}
-        description={item.description??""} canManage={canManage}/>}
+        description={item.description??""} canManage={canManage} navigation={onward}/>}
       </>}
       {item.type==="obstacle"&&<section className="card p-3">
        <h2 className="h5">{tr("obstacle")}</h2>
@@ -224,7 +224,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        {sectionView("decisionDetail",t("decisionDetail.heading"),
         <DecisionDetail id={id} canManage={false}/>)}
        {canManage&&<DecisionActions id={id} teamId={teamId} title={item.title}
-        description={item.description??""} canManage={canManage}/>}
+        description={item.description??""} canManage={canManage} navigation={onward}/>}
       </>}
       {item.type==="action"&&<>
        <section className="card p-3">
