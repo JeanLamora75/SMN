@@ -11,7 +11,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
  const input=await readJsonObject(request);
  if(!input||typeof input.startOn!=="string"||typeof input.endOn!=="string"||Object.keys(input).sort().join(",")!=="endOn,startOn")return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
- try{const result=await withAuthDb(db=>previewDateChange(db,id,input.startOn,input.endOn));
+ try{const result=await withAuthDb(db=>previewDateChange(db,id,input.startOn as string,input.endOn as string));
   return result?jsonResult(result):jsonResult({error:"not-found"},404);}
  catch{return jsonResult({error:"service-unavailable"},503);}
 }
@@ -22,7 +22,7 @@ export async function PATCH(request:NextRequest,{params}:{params:Promise<{id:str
  if(!input||typeof input.startOn!=="string"||typeof input.endOn!=="string"||typeof input.previewToken!=="string"||
  Object.keys(input).some(k=>!["endOn","previewToken","startOn","reason"].includes(k))||(input.reason!==undefined&&(typeof input.reason!=="string"||input.reason.length>1000)))return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
- try{const result=await withAuthDb(db=>applyDateChange(db,id,actor.id,{startOn:input.startOn,endOn:input.endOn,previewToken:input.previewToken,reason:typeof input.reason==="string"?input.reason:undefined}));
+ try{const result=await withAuthDb(db=>applyDateChange(db,id,actor.id,{startOn:input.startOn as string,endOn:input.endOn as string,previewToken:input.previewToken as string,reason:typeof input.reason==="string"?input.reason:undefined}));
   return result.ok?jsonResult(result):jsonResult(result,result.error==="not-found"?404:409);}
  catch{return jsonResult({error:"service-unavailable"},503);}
 }
