@@ -107,7 +107,7 @@ test("AC5 : route historiquement réservée au droit audit",()=>{
  assert.match(route,/authorizeApi\(req,"read",\{type:"audit"/);
  assert.match(route,/withSprintIndexDb/);
  assert.match(page,/historyRestricted/);
- assert.match(page,/<RegistryHistory id=\{id\}/);
+ assert.match(page,/<RegistryHistory key=\{id\} id=\{id\}/);
 });
 test("AC6 : UI chrono avec details natifs, bouton plus et nom neutre",()=>{
  const ui=file("src/app/app/admin/registries/registry-history.tsx");
