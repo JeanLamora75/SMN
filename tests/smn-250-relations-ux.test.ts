@@ -77,7 +77,7 @@ test("AC3 : confirmation explique que les fiches restent intactes",()=>{
  const ui=file("src/app/app/admin/registries/registry-relations.tsx");
  assert.ok(ui.includes("window.confirm(tr(\"confirmUnlink\"))"));
  assert.ok(ui.includes("method:\"PATCH\""));
- assert.ok(ui.includes("action:\"unlinked\""));
+ assert.ok(ui.includes('"unlinked",row.relation.sourceId'));
 });
 test("AC1/2 : titres cliquables, type, statut, sens, aucune catégorie vide",()=>{
  const ui=file("src/app/app/admin/registries/registry-relations.tsx");
@@ -96,7 +96,7 @@ test("AC4 : le serveur retire seulement le lien et garde l'audit",()=>{
  assert.match(server,/DELETE FROM public.smn_registry_relation WHERE source_id=/);
  assert.match(server,/INSERT INTO public.smn_registry_relation_audit/);
  assert.ok(!server.includes("DELETE FROM public.smn_registry_item"));
- assert.match(server,/s.status<>'closed'/);
+ assert.match(server,/x.status<>'closed'/);
 });
 test("AC3/4 : cycles clos et associations existantes confirmées séparément",()=>{
  const cycles=file("src/app/app/admin/registries/registry-cycles.tsx");
