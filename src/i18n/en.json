@@ -3461,5 +3461,11 @@
     "failed": "PDF could not be generated. The draft is unchanged.",
     "downloadArchive": "Download created archive",
     "saveFirst": "Save your changes before exporting or archiving."
+  },
+  "memberConfigurationAlerts": {
+    "heading": "Member configuration to complete",
+    "calendar": "Calendar not configured",
+    "roles": "Role allocation not provided",
+    "unavailable": "Member configuration cannot currently be checked."
   }
 }
