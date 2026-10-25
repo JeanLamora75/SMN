@@ -39,7 +39,16 @@ export function parseRelationPayload(raw:unknown,id:string):RegistryRelation[]|n
     !isType(entry.targetType)||!isStatus(entry.targetType,entry.targetStatus):
     entry.targetType!=="goal"||entry.targetStatus!==null||entry.sourceId!==id)
   )return null;
-  results.push(entry as RegistryRelation);
+  results.push({
+   id:entry.id as string,sourceId:entry.sourceId as string,
+   sourceTitle:entry.sourceTitle as string,sourceType:entry.sourceType as RegistryType,
+   sourceStatus:entry.sourceStatus as string,targetKind:entry.targetKind as "record"|"goal",
+   targetId:entry.targetId as string,targetTitle:entry.targetTitle as string,
+   targetType:entry.targetType as RegistryType|"goal",
+   targetStatus:entry.targetStatus as string|null,
+   targetCycleStatus:entry.targetCycleStatus as string|null|undefined,
+   targetGoalSprintId:entry.targetGoalSprintId as string|null|undefined
+  });
  }
  return results;
 }
