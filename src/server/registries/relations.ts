@@ -35,7 +35,7 @@ export async function readRelations(db:Client,recordId:string){
   `LEFT JOIN public.smn_sprint_goal g ON l.target_kind='goal' AND g.id=l.target_id
    LEFT JOIN public.smn_sprint goal_sprint ON goal_sprint.id=g.sprint_id
     AND goal_sprint.team_id=$2 AND goal_sprint.deleted_at IS NULL`:
-  `LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS title) g ON TRUE
+  `LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS title,NULL::text AS sprint_id) g ON TRUE
    LEFT JOIN LATERAL (SELECT NULL::text AS id,NULL::text AS status) goal_sprint ON TRUE`;
  const rows=await db.query(`SELECT l.id,l.source_id AS "sourceId",l.target_kind AS "targetKind",l.target_id AS "targetId",
  s.title AS "sourceTitle",s.type AS "sourceType",s.status AS "sourceStatus",
