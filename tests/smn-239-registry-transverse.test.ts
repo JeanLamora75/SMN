@@ -85,16 +85,50 @@ test("les cycles proposés sont uniquement ceux de l'équipe résolue côté ser
  assert.deepEqual(values.at(-1),["team-1"]);
 });
 
-test("une période Kanban n'est jamais interprétée comme un lien Sprint",async()=>{
- const sql:string[]=[];
- const db={query:async(s:string)=>{
-  sql.push(s);
-  if(s.includes("to_regclass"))return {rows:[{present:true}]};
-  if(s.includes("FROM public.smn_team t"))return {rows:[{id:"kanban-team",name:"Team Kanban",mode:"kanban"}]};
+test("Kanban utilise ses périodes et liens qualitatifs existants, sans les confondre avec les Sprints",async()=>{
+ const sql:string[]=[],values:unknown[][]=[];
+ const db={query:async(statement:string,params?:unknown[])=>{
+  sql.push(statement);values.push(params??[]);
+  if(statement.includes("to_regclass"))return {rows:[{present:true}]};
+  if(statement.includes("FROM public.smn_team t"))return {rows:[{id:"kanban-team",name:"Team Kanban",mode:"kanban"}]};
+  if(statement.includes("FROM public.smn_kanban_period p"))return {rows:[{id:cycleId,name:"Octobre",status:"active"}]};
+  if(statement.includes("COUNT(*)"))return {rows:[{total:1}]};
   return {rows:[]};
  }} as unknown as Client;
- assert.deepEqual(await readRegistryCycles(db),{state:"unsupported",reason:"kanban-links-not-defined"});
+ const cycles=await readRegistryCycles(db);
+ assert.equal(cycles.state,"available");
+ if(cycles.state!=="available")return;
+ assert.equal(cycles.cycles.length,1);
+ assert.deepEqual(values.at(-1),["kanban-team"]);
  const filters=parseRegistryFilters(new URLSearchParams("cycleId="+cycleId))!;
- assert.deepEqual(await readRegistryPage(db,filters,false),{state:"unavailable",reason:"kanban-links-not-defined"});
- assert.ok(!sql.some(s=>s.includes("FROM public.smn_registry_cycle_link")));
+ const page=await readRegistryPage(db,filters,false);
+ assert.equal(page.state,"available");
+ const count=sql.find(x=>x.includes("COUNT(*)"))!;
+ const pageSql=sql.find(x=>x.includes("LIMIT 25"))!;
+ assert.match(count,/EXISTS \(SELECT 1 FROM public\.smn_kanban_registry_link/);
+ assert.match(count,/p\.team_id=r\.team_id/);
+ assert.match(pageSql,/EXISTS \(SELECT 1 FROM public\.smn_kanban_registry_link/);
+ assert.ok(!count.includes("smn_registry_cycle_link"));
+ assert.ok(!sql.some(x=>/UPDATE public\.smn_|DELETE FROM public\.smn_|INSERT INTO public\.smn_/.test(x)));
 });
+test("l'absence des liens Kanban est un état indisponible, non un registre vide",async()=>{
+ const sql:string[]=[];
+ const db={query:async(statement:string)=>{
+  sql.push(statement);
+  if(statement.includes("to_regclass"))return {rows:[{present:!statement.includes("smn_kanban_registry_link")}]};
+  if(statement.includes("FROM public.smn_team t"))return {rows:[{id:"team-kanban",name:"Kanban",mode:"kanban"}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const filters=parseRegistryFilters(new URLSearchParams("cycleId="+cycleId))!;
+ assert.deepEqual(await readRegistryPage(db,filters,false),{state:"unavailable",reason:"links-not-installed"});
+ assert.ok(!sql.some(x=>x.includes("COUNT(*)")));
+});
+test("une période hors équipe n'est jamais remontée dans la liste ou le registre",async()=>{
+ const sql:string[]=[],values:unknown[][]=[];
+ const db=fakeDb(sql,values,0);
+ await readRegistryPage(db,parseRegistryFilters(new URLSearchParams("cycleId="+cycleId))!,false);
+ const sqlCount=sql.find(x=>x.includes("COUNT(*)"))!;
+ assert.match(sqlCount,/s\.team_id=r\.team_id/);
+ assert.ok(values.some(v=>v.includes("team-1")&&v.includes(cycleId)));
+});
+
