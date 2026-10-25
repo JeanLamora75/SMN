@@ -29,6 +29,7 @@ export default function RegistryJournal({itemId,canManage}:{
  const [draft,setDraft]=useState("");
  const [saving,setSaving]=useState(false);
  const [error,setError]=useState<"conflict"|"unavailable"|"invalid"|null>(null);
+ const [success,setSuccess]=useState(false);
  const [editingId,setEditingId]=useState<string|null>(null);
  const [editingText,setEditingText]=useState("");
  const [editSaving,setEditSaving]=useState(false);
@@ -55,6 +56,13 @@ export default function RegistryJournal({itemId,canManage}:{
   return()=>ctrl.abort();
  },[itemId,reload]);
  const refresh=()=>{setState("loading");setReload(n=>n+1);};
+ useEffect(()=>{
+  const original=editingId?data?.comments.find(c=>c.id===editingId)?.text??"":null;
+  if(!draft.trim()&&(original===null||editingText===original))return;
+  const guard=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
+  window.addEventListener("beforeunload",guard);
+  return()=>window.removeEventListener("beforeunload",guard);
+ },[draft,editingId,editingText,data]);
  const entries=useMemo(()=>data?buildJournalEntries(data):[],[data]);
  const visible=useMemo(()=>filterJournalEntries(entries,filter),[entries,filter]);
  const formatter=useMemo(()=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
@@ -65,7 +73,7 @@ export default function RegistryJournal({itemId,canManage}:{
  const save=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
   if(!canManage||saving||!draft.trim()||draft.length>4000)return;
-  setSaving(true);setError(null);
+  setSaving(true);setError(null);setSuccess(false);
   try{
    const response=await fetch(url,{
     method:"POST",headers:{"Content-Type":"application/json"},
@@ -77,7 +85,7 @@ export default function RegistryJournal({itemId,canManage}:{
    const result=await response.json() as {ok?:boolean;id?:string;revision?:number};
    if(response.status!==201||!result.ok||typeof result.id!=="string"||
     !recordIdRx.test(result.id)||result.revision!==1)throw Error("unconfirmed");
-   setDraft("");
+   setDraft("");setSuccess(true);
    refresh();
   }catch{setError("unavailable");}
   finally{setSaving(false);}
@@ -85,7 +93,7 @@ export default function RegistryJournal({itemId,canManage}:{
  const edit=async(comment:JournalComment)=>{
   if(!canManage||editSaving||editingId!==comment.id||!editingText.trim()||
    editingText.length>4000||editingText.trim()===comment.text)return;
-  setEditSaving(true);setError(null);setActionError(null);
+  setEditSaving(true);setError(null);setActionError(null);setSuccess(false);
   try{
    const response=await fetch(url+"/"+encodeURIComponent(comment.id),{
     method:"PATCH",headers:{"Content-Type":"application/json"},
@@ -96,7 +104,7 @@ export default function RegistryJournal({itemId,canManage}:{
    if(!response.ok)throw Error("unavailable");
    const result=await response.json() as {ok?:boolean;revision?:number};
    if(!result.ok||result.revision!==comment.revision+1)throw Error("unconfirmed");
-   setEditingId(null);setEditingText("");setVersions({});
+   setEditingId(null);setEditingText("");setVersions({});setSuccess(true);
    refresh();
   }catch{setActionError("unavailable");}
   finally{setEditSaving(false);}
@@ -104,7 +112,7 @@ export default function RegistryJournal({itemId,canManage}:{
  const withdraw=async(comment:JournalComment)=>{
   if(!canManage||editSaving||comment.withdrawn||
    !window.confirm(commentsText("confirmWithdraw")))return;
-  setEditSaving(true);setActionError(null);
+  setEditSaving(true);setActionError(null);setSuccess(false);
   try{
    const response=await fetch(url+"/"+encodeURIComponent(comment.id),{
     method:"DELETE",headers:{"Content-Type":"application/json"},
@@ -115,7 +123,7 @@ export default function RegistryJournal({itemId,canManage}:{
    if(!response.ok)throw Error("unavailable");
    const result=await response.json() as {ok?:boolean;revision?:number};
    if(!result.ok||result.revision!==comment.revision+1)throw Error("unconfirmed");
-   setVersions({});refresh();
+   setVersions({});setSuccess(true);refresh();
   }catch{setActionError("unavailable");}
   finally{setEditSaving(false);}
  };
@@ -142,7 +150,7 @@ export default function RegistryJournal({itemId,canManage}:{
   {canManage&&<form className="smn-registry-journal-compose" onSubmit={save}>
    <label className="form-label" htmlFor={editorId}>{tr("writeComment")}</label>
    <textarea className="form-control" id={editorId} rows={3} maxLength={4000}
-    value={draft} disabled={saving} onChange={e=>setDraft(e.target.value)}
+    value={draft} disabled={saving} onChange={e=>{setDraft(e.target.value);setSuccess(false);}}
     placeholder={tr("placeholder")}/>
    <div className="smn-registry-journal-compose-bottom">
     <span className="small text-body-secondary" aria-live="polite">{draft.length}/4000</span>
@@ -151,6 +159,7 @@ export default function RegistryJournal({itemId,canManage}:{
    </div>
    {error&&<p role="alert" className="small text-danger mb-0">{commentsText(error)}</p>}
   </form>}
+  {success&&<p role="status" className="small text-success mb-0">{tr("saved")}</p>}
   <div className="smn-registry-journal-filters" role="group" aria-label={tr("filters")}>
    {journalFilters.map(kind=><button type="button" key={kind}
     className={"btn btn-sm "+(filter===kind?"btn-primary":"btn-outline-secondary")}
@@ -206,6 +215,7 @@ export default function RegistryJournal({itemId,canManage}:{
          </>}
          <button type="button" className="btn btn-outline-secondary btn-sm"
           aria-expanded={versionsOpen===entry.comment.id}
+          aria-controls={editorId+"-versions-"+entry.comment.id}
           onClick={()=>void readVersions(entry.comment.id)}>{commentsText("versions")}</button>
         </div>}
         {canManage&&editingId===entry.comment.id&&!entry.comment.withdrawn&&
@@ -227,7 +237,7 @@ export default function RegistryJournal({itemId,canManage}:{
           </div>
          </div>}
         {canManage&&versionsOpen===entry.comment.id&&
-         <div className="smn-registry-journal-versions" aria-label={commentsText("versions")}>
+         <div className="smn-registry-journal-versions" id={editorId+"-versions-"+entry.comment.id} aria-label={commentsText("versions")}>
           {versions[entry.comment.id]?.state==="loading"?<p role="status">{tr("loading")}</p>:
            versions[entry.comment.id]?.state==="unavailable"?
             <div role="alert">{tr("unavailable")}
