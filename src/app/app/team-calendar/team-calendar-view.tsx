@@ -192,7 +192,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
      {calendarMode==="kanban"&&<span>Période Kanban</span>}
      {period&&<span>{currentDate(period.start)} – {currentDate(shift(period.start,period.count-1))}</span>}
      {period?.sprintId&&<span className="smn-cal-state">{localizedStatus(sprints.find(s=>s.id===period.sprintId)?.status)}</span>}
-     {teamTimeZones.length<=1?<span>{t("calendarOptionB.timezone")}</span>:<label className="d-inline-flex align-items-center gap-2">Fuseau horaire
+     {teamTimeZones.length<=1?<span>Fuseau : {teamTimeZones[0]??"Europe/Paris"}</span>:<label className="d-inline-flex align-items-center gap-2">Fuseau horaire
       <select className="form-select form-select-sm" aria-label="Fuseau horaire du calendrier" value={selectedTimeZone} onChange={e=>setSelectedTimeZone(e.target.value)}>
        {teamTimeZones.map(z=><option key={z} value={z}>{z}</option>)}
       </select></label>}
