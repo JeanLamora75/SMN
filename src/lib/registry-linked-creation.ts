@@ -17,5 +17,13 @@ export function parseLinkedJournalCreation(raw:unknown):
   typeof value.type!=="string"||
   !linkedJournalTypes.some(type=>type===value.type)||
   typeof value.requestId!=="string"||!uuidRx.test(value.requestId))return null;
+ if(value.details!==undefined){
+  if(!value.details||typeof value.details!=="object"||
+   Array.isArray(value.details))return null;
+  const keys=Object.keys(value.details);
+  if(value.type==="decision"?
+   keys.some(key=>key!=="rationale"&&key!=="replacesId"):
+   keys.length>0)return null;
+ }
  return value as Record<string,unknown>&{type:LinkedJournalType;requestId:string};
 }
