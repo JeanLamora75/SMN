@@ -12,7 +12,6 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
  const ref=useRef<HTMLDialogElement>(null);
  const origin=useRef<HTMLElement|null>(null);
  const [dirty,setDirty]=useState(false);
- const [pending,setPending]=useState(false);
  const titleId=useId();
  useEffect(()=>{
   const element=ref.current;
@@ -25,7 +24,6 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
   };
  },[]);
  const close=()=>{
-  if(pending)return;
   if(dirty&&!window.confirm(tr("discard")))return;
   ref.current?.close();
  };
@@ -39,14 +37,14 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
    <header className="smn-registry-section-dialog-header">
     <h2 id={titleId} className="h5 mb-0">{title}</h2>
     <button type="button" className="btn-close" onClick={close}
-     disabled={pending} aria-label={tr("cancel")}/>
+     aria-label={tr("cancel")}/>
    </header>
    <div className="smn-registry-section-dialog-content">
     {children}
    </div>
    <footer className="smn-registry-section-dialog-footer">
     <button type="button" className="btn btn-outline-secondary" onClick={close}
-     disabled={pending}>{tr("cancel")}</button>
+     >{tr("cancel")}</button>
    </footer>
   </div>
  </dialog>;
