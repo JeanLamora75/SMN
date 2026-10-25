@@ -37,7 +37,8 @@ export function parseRelationPayload(raw:unknown,id:string):RegistryRelation[]|n
    !isType(entry.sourceType)||!isStatus(entry.sourceType,entry.sourceStatus)||
    (entry.targetKind==="record"?
     !isType(entry.targetType)||!isStatus(entry.targetType,entry.targetStatus):
-    entry.targetType!=="goal"||entry.targetStatus!==null||entry.sourceId!==id)
+    entry.targetType!=="goal"||entry.targetStatus!==null||
+    entry.sourceId!==id||entry.sourceType!=="action")
   )return null;
   results.push({
    id:entry.id as string,sourceId:entry.sourceId as string,
