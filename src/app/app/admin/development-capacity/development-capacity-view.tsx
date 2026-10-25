@@ -7,7 +7,7 @@ import ReplanningPreview from "./replanning-preview";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
 type MissingCode="no-assignments"|"ambiguous-assignment"|"assignment-version"|
- "work-calendar"|"member-country"|"national-coverage";
+ "work-calendar"|"exceptional-meeting-participants"|"exceptional-meeting-work-slots";
 type Day={date:string;status:"calculated"|"not-calculable";
  developmentJh:number|null;developmentHours:number|null;availableHalfDays:number|null;
  allocationPercent:number|null;developerPercent:number|null;
@@ -32,7 +32,8 @@ const fmt=(v:number)=>v.toLocaleString("fr-FR",{maximumFractionDigits:4});
 const missingKey:Record<MissingCode,string>={
  "no-assignments":"noAssignments","ambiguous-assignment":"ambiguousAssignment",
  "assignment-version":"assignmentVersion","work-calendar":"workCalendar",
- "member-country":"memberCountry","national-coverage":"nationalCoverage"
+ "exceptional-meeting-participants":"meetingParticipants",
+ "exceptional-meeting-work-slots":"meetingWorkSlots"
 };
 
 export default function DevelopmentCapacityView({initialPeriod=null}:{
