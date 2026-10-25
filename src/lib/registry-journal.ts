@@ -50,9 +50,16 @@ export function parseJournalPayload(raw:unknown):JournalPayload|null{
    !time(c.createdAt)||!dateOrNull(c.editedAt)||!dateOrNull(c.withdrawnAt)||
    typeof c.edited!=="boolean"||typeof c.withdrawn!=="boolean"||
    c.withdrawn!==(c.withdrawnAt!==null)||
+   c.edited!==(c.editedAt!==null)||
    (c.withdrawn?c.text!==null:typeof c.text!=="string"||!c.text.trim())||
    !nullable(c.authorName)||!nullable(c.editorName)||!nullable(c.withdrawnByName))return null;
-  comments.push(c as JournalComment);
+  comments.push({
+   id:c.id as string,text:c.text as string|null,revision:c.revision as number,
+   createdAt:c.createdAt as string,editedAt:c.editedAt as string|null,
+   withdrawnAt:c.withdrawnAt as string|null,edited:c.edited as boolean,
+   withdrawn:c.withdrawn as boolean,authorName:c.authorName as string|null,
+   editorName:c.editorName as string|null,withdrawnByName:c.withdrawnByName as string|null
+  });
  }
  const events:JournalLink[]=[];
  for(const e of raw.events as unknown[]){
@@ -61,7 +68,11 @@ export function parseJournalPayload(raw:unknown):JournalPayload|null{
    typeof e.title!=="string"||!e.title.trim()||
    !recordTypes.some(type=>type===e.type)||!time(e.recordedAt)||
    !nullable(e.authorName))return null;
-  events.push(e as JournalLink);
+  events.push({
+   id:e.id as string,recordId:e.recordId as string,title:e.title as string,
+   type:e.type as JournalLink["type"],recordedAt:e.recordedAt as string,
+   authorName:e.authorName as string|null
+  });
  }
  return {comments,events,legacy};
 }
