@@ -11,12 +11,19 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
  const [profession,setProfession]=useState(member.professionalFunction??"");
  const [location,setLocation]=useState<LocationState|null>(null);
  const [country,setCountry]=useState("");
+ const [countries,setCountries]=useState<{code:string;name:string}[]>([]);
+ const [countriesFailed,setCountriesFailed]=useState(false);
+ const [timeZones]=useState<string[]>(()=>["UTC",...Intl.supportedValuesOf("timeZone")]);
  const [region,setRegion]=useState("");
  const [city,setCity]=useState("");
  const [zone,setZone]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
 
+ useEffect(()=>{const controller=new AbortController();void fetch("/api/admin/countries",{cache:"no-store",signal:controller.signal})
+  .then(async r=>{if(!r.ok)throw Error("countries");return r.json() as Promise<{countries:{code:string;name:string}[]}>;})
+  .then(data=>{if(!controller.signal.aborted)setCountries(data.countries);})
+  .catch(()=>{if(!controller.signal.aborted)setCountriesFailed(true);});return()=>controller.abort();},[]);
  useEffect(()=>{let active=true;fetch("/api/admin/members/"+encodeURIComponent(member.id)+"/location",{cache:"no-store"})
   .then(async r=>{if(!r.ok)throw Error("load");return r.json() as Promise<LocationState>;})
   .then(v=>{if(!active)return;setLocation(v);const latest=v.versions.at(-1);
@@ -46,10 +53,18 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
    <div className="col-md-6"><label className="form-label">{t("members.name")}<input className="form-control" value={name} onChange={e=>setName(e.target.value)} maxLength={120} required disabled={busy}/></label></div>
    <div className="col-md-6"><label className="form-label">{t("members.profile.emailLabel")}<input className="form-control" type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} disabled={busy}/></label></div>
    <div className="col-12"><label className="form-label">{t("memberUX.functionLabel")}<input className="form-control" value={profession} onChange={e=>setProfession(e.target.value)} maxLength={120} disabled={busy}/></label></div>
-   <div className="col-md-3"><label className="form-label">{t("memberUX.countryLabel")}<input className="form-control" value={country} onChange={e=>setCountry(e.target.value)} maxLength={2} disabled={busy||!location}/></label></div>
+   <div className="col-md-3"><label className="form-label">{t("memberUX.countryLabel")}<select className="form-select" value={country} onChange={e=>setCountry(e.target.value)} disabled={busy||!location||countriesFailed}>
+    <option value="">— Aucun pays —</option>
+    {country&&!countries.some(c=>c.code===country)&&<option value={country}>{country} (hors catalogue)</option>}
+    {countries.map(c=><option key={c.code} value={c.code}>{c.name} ({c.code})</option>)}
+   </select>{countriesFailed&&<small className="text-danger d-block">Catalogue des pays indisponible.</small>}</label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.regionLabel")}<input className="form-control" value={region} onChange={e=>setRegion(e.target.value)} maxLength={120} disabled={busy||!location}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.cityLabel")}<input className="form-control" value={city} onChange={e=>setCity(e.target.value)} maxLength={120} disabled={busy||!location}/></label></div>
-   <div className="col-md-3"><label className="form-label">{t("memberUX.zoneLabel")}<input className="form-control" value={zone} onChange={e=>setZone(e.target.value)} maxLength={128} disabled={busy||!location}/></label></div>
+   <div className="col-md-3"><label className="form-label">{t("memberUX.zoneLabel")}<select className="form-select" value={zone} onChange={e=>setZone(e.target.value)} disabled={busy||!location}>
+    <option value="">— Aucun fuseau horaire —</option>
+    {zone&&!timeZones.includes(zone)&&<option value={zone}>{zone} (existant)</option>}
+    {timeZones.map(z=><option key={z} value={z}>{z}</option>)}
+   </select></label></div>
   </div>
   {error&&<p className="alert alert-warning" role="alert">{error}</p>}
   <div className="d-flex gap-2 justify-content-end"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={onCancel}>{t("teamUX.cancel")}</button>
