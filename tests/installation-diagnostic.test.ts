@@ -50,6 +50,17 @@ describe("SMN-11 — régression des tables optionnelles de contexte Équipe", (
   });
 });
 
+describe("SMN — historique de correction de date d'arrivée d'un membre", () => {
+  it("accepte la table d'audit créée par la correction rétroactive sans ouvrir le schéma aux objets étrangers", () => {
+    const relation="public.smn_member_assignment_start_audit:r";
+    const source=readFileSync(new URL("../src/server/members/assignment-start-correction.ts",import.meta.url),"utf8");
+    assert.ok(source.includes("CREATE TABLE IF NOT EXISTS public.smn_member_assignment_start_audit("));
+    assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
+    assert.notEqual(classifySnapshot({...valid,tables:[...names,relation]}).status,"schema-incompatible");
+    assert.equal(classifySnapshot({...valid,tables:[...names,relation,"public.unexpected_member_table:r"]}).status,"schema-incompatible");
+  });
+});
+
 describe("SMN-11 — diagnostic sans mutation", () => {
   it("reconnaît une base vierge sous PostgreSQL 18", async () => {
     assert.deepEqual(await diagnoseInstallation(async () => virgin), { status: "virgin", canEnterSetup: true });
