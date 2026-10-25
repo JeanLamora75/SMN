@@ -23,7 +23,7 @@ export default function HistoricalCapacityForm({sprintId,revision=0,initialQuali
  }
  return <section className="border rounded p-3 mt-3">
  <h3 className="h6">Capacité initiale historique</h3>
- <p className="small text-secondary">Aucun calcul à partir de l'équipe actuelle. « Absente » ne signifie pas zéro J/H. Une estimation n'est pas une mesure attestée.</p>
+ <p className="small text-secondary">Aucun calcul à partir de l&apos;équipe actuelle. « Absente » ne signifie pas zéro J/H. Une estimation n&apos;est pas une mesure attestée.</p>
  <form className="row g-2" onSubmit={save}>
   <label className="col-md-4">Qualité<select className="form-select" value={quality} onChange={e=>setQuality(e.target.value as typeof quality)}>
    <option value="not-supplied">Absente / inconnue</option><option value="known">Connue</option><option value="estimated">Estimée</option>
