@@ -44,6 +44,10 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const [contributorName,setContributorName]=useState("");
  const [atRisk,setAtRisk]=useState(false);
  const [rationale,setRationale]=useState("");
+ const [replacesId,setReplacesId]=useState("");
+ const [decisionSearch,setDecisionSearch]=useState("");
+ const [decisionChoices,setDecisionChoices]=useState<{id:string;title:string;occurredOn:string}[]>([]);
+ const [decisionUnavailable,setDecisionUnavailable]=useState(false);
  const [dirty,setDirty]=useState(false);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState<"error"|"invalid"|"conflict"|"unavailable"|null>(null);
@@ -76,6 +80,30 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const cancel=(event:SyntheticEvent<HTMLDialogElement>)=>{
   event.preventDefault();close();
  };
+ useEffect(()=>{
+  if(type!=="decision")return;
+  const ctrl=new AbortController();
+  const params=new URLSearchParams({
+   type:"decision",search:decisionSearch.trim(),status:"",lifecycle:"all",
+   sort:"dateDesc",page:"1"
+  });
+  void fetch("/api/admin/registries?"+params.toString(),{
+   cache:"no-store",signal:ctrl.signal
+  }).then(async response=>{
+   if(!response.ok)throw Error("unavailable");
+   return response.json() as Promise<{
+    state:string;items?:{id:string;type:string;title:string;occurredOn:string}[]
+   }>;
+  }).then(data=>{
+   if(ctrl.signal.aborted)return;
+   if(data.state!=="available"||!Array.isArray(data.items))throw Error("invalid");
+   const choices=data.items.filter(item=>uuidRx.test(item.id)&&item.type==="decision"&&
+    typeof item.title==="string"&&typeof item.occurredOn==="string");
+   if(choices.length!==data.items.length)throw Error("invalid");
+   setDecisionChoices(choices);setDecisionUnavailable(false);
+  }).catch(()=>{if(!ctrl.signal.aborted){setDecisionChoices([]);setDecisionUnavailable(true);}});
+  return()=>ctrl.abort();
+ },[type,decisionSearch]);
  const party=(kind:Kind,name:string):Party|null=>
   kind==="local"?{kind:"local",teamId}:
   kind==="external"&&name.trim()?{kind:"external",name:name.trim()}:null;
@@ -90,7 +118,10 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
    const contributor=party(contributorKind,contributorName);
    return {...(requester&&contributor?{requester,contributor}:{}),atRisk};
   }
-  if(type==="decision")return rationale?{rationale}:{}; 
+  if(type==="decision")return {
+   ...(rationale?{rationale}:{}),
+   ...(replacesId?{replacesId}:{})
+  }; 
   return {};
  };
  const partyIncomplete=type==="dependency"&&(
@@ -241,6 +272,21 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
      <label className="form-label" htmlFor={titleId+"-rationale"}>{tr("rationale")}</label>
      <textarea className="form-control" id={titleId+"-rationale"} rows={3}
       value={rationale} maxLength={4000} disabled={busy} onChange={e=>setRationale(e.target.value)}/>
+     <label className="form-label mt-2" htmlFor={titleId+"-decision-search"}>{tr("replacesSearch")}</label>
+     <input id={titleId+"-decision-search"} className="form-control" maxLength={120}
+      value={decisionSearch} disabled={busy} placeholder={tr("replacesSearchHint")}
+      onChange={e=>setDecisionSearch(e.target.value)}/>
+     <label className="form-label mt-2" htmlFor={titleId+"-replaces"}>{tr("replaces")}</label>
+     <select id={titleId+"-replaces"} className="form-select" value={replacesId}
+      disabled={busy||decisionUnavailable} onChange={e=>setReplacesId(e.target.value)}>
+      <option value="">{tr("noReplacement")}</option>
+      {decisionChoices.map(candidate=><option key={candidate.id} value={candidate.id}>
+       {candidate.title} ({candidate.occurredOn})
+      </option>)}
+      {replacesId&&!decisionChoices.some(candidate=>candidate.id===replacesId)&&
+       <option value={replacesId}>{tr("selectedReplacement")}</option>}
+     </select>
+     {decisionUnavailable&&<p role="alert" className="small text-danger">{tr("decisionsUnavailable")}</p>}
     </fieldset>}
     {cycleId&&(type==="risk"||type==="obstacle")&&
      <p className="small text-body-secondary">{tr("linkedCycle")}</p>}
