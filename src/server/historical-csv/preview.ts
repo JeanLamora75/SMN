@@ -6,7 +6,7 @@ const sources={
  scrum:{SP_INITIAL:["smn_sprint_story_points","initial_sp"],SP_ADDED:["smn_sprint_story_points","added_sp"],SP_REMOVED:["smn_sprint_story_points","removed_sp"],SP_DONE:["smn_sprint_story_points","done_sp"]},
  kanban:{STARTED:["smn_kanban_flow_counts","started"],THROUGHPUT:["smn_kanban_flow_counts","throughput"],WIP_FINAL:["smn_kanban_flow_counts","wip_final"],CYCLE_TIME_AVG:["smn_kanban_timing","cycle_days"],LEAD_TIME_AVG:["smn_kanban_timing","lead_days"]}
 } as const;
-export type PreviewRow={line:number;cycleId:string;cycleName:string|null;metricCode:string;value:number;quality:"known"|"estimated";existingValue:number|null;impact:"preserved"|"new";decision:"keep"|"insert";validation:"valid"};
+export type PreviewRow={line:number;cycleId:string;cycleName:string|null;metricCode:string;value:number;quality:"known"|"estimated";existingValue:number|null;impact:"preserved"|"new";decision:"keep"|"insert"|"replace";validation:"valid"};
 /** Only SELECT statements; neither migrations nor target values are changed by a preview. */
 export async function previewHistoricalCsv(db:Client,rows:readonly CsvRow[],mode:HistoricalCsvMode):Promise<PreviewRow[]>{
  const cycleTable=mode==="scrum"?"smn_sprint":"smn_kanban_period";
