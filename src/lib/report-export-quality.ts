@@ -1,5 +1,5 @@
 import {isReportBlock} from "@/lib/report-studio-blocks";
-type Issue={code:"unavailable-data"|"provisional"|"analysis-origin"|"wide-table"|"invalid-block";severity:"warning"|"error";target:string};
+type Issue={code:"unavailable-data"|"provisional"|"analysis-origin"|"wide-table"|"invalid-block"|"unsupported-pdf-block";severity:"warning"|"error";target:string};
 type ReportContent={sections?:Array<{key:string;visible:boolean}>;blocks?:unknown[];metrics?:Record<string,{value:number|null;unit:string}>;analyses?:Array<{origin:string}>;dataSource?:{source:string}};
 export function inspectDocumentQuality(raw:unknown):Issue[]{
  const v=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw as ReportContent:{};
