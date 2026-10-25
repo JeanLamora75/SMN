@@ -25,8 +25,8 @@ export default function HistoricalSprintForm(){
   finally{setBusy(false);}
  }
  return <section className="smn-panel rounded-4 p-4">
-  <h1 className="h4">Reprise historique d'un Sprint</h1>
-  <p className="text-secondary">Enregistrez les bornes réelles d'un Sprint déjà terminé. La date de création dans SMN restera distincte. Aucune cérémonie, mesure ou clôture n'est inventée.</p>
+  <h1 className="h4">Reprise historique d&apos;un Sprint</h1>
+  <p className="text-secondary">Enregistrez les bornes réelles d&apos;un Sprint déjà terminé. La date de création dans SMN restera distincte. Aucune cérémonie, mesure ou clôture n&apos;est inventée.</p>
   {created?<div role="status" className="alert alert-success">Sprint historique créé : <strong>{created.name}</strong>. Enregistré le {created.recordedAt}. <Link href={"/app/admin/sprints/"+encodeURIComponent(created.id)}>Consulter sa fiche</Link></div>:
   <form onSubmit={submit} className="row g-3">
    <label className="col-12">Nom du Sprint<input className="form-control mt-1" required maxLength={160} value={name} onChange={e=>{setName(e.target.value);setOperationId(crypto.randomUUID());}}/></label>
