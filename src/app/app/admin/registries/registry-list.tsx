@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 import type {RegistryScope,RegistryLifecycle,RegistrySort} from "@/server/registries/list";
@@ -10,7 +10,9 @@ import {parseRegistryAttentionPayload,type RegistryAttentionEntry} from "@/lib/r
 import RegistryCard from "./registry-card";
 import RegistryCreateModal from "./registry-create-modal";
 import BootstrapIcon from "../../bootstrap-icon";
+import {registryDetailHref} from "@/lib/registry-navigation";
 import {parseRegistryDisplayView,registryDisplayPreferenceKey,type RegistryDisplayView} from "@/lib/registry-display-view";
+import {parseRegistryIndexState,registryIndexUrl,registryScrollKey,type RegistryIndexState} from "@/lib/registry-navigation";
 
 type Item=RegistryListItem;
 type Page={state:"available";team:{id:string;name:string};items:Item[];total:number;page:number;totalPages:number}|
@@ -36,6 +38,8 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const [result,setResult]=useState<Page|null>(null);
  const [error,setError]=useState(false),[loading,setLoading]=useState(true);
  const [refresh,setRefresh]=useState(0);
+ const [restored,setRestored]=useState(false);
+ const scrollRestored=useRef(false);
  const [cycles,setCycles]=useState<Cycle[]>([]);
  const [attention,setAttention]=useState<RegistryAttentionEntry[]|null>(null);
  const [attentionRefresh,setAttentionRefresh]=useState(0);
@@ -46,16 +50,54 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const label=(value:string)=>t(("registryCreate."+value) as Parameters<typeof t>[0]);
  const translate=(value:string)=>t(("registryList."+value) as Parameters<typeof t>[0]);
  const patch=(next:Partial<Filters>)=>setDraft(old=>({...old,...next}));
- // Read only after hydration; an absent/invalid preference keeps the List default.
+ // URL is the source of truth for filters and pagination; local storage only chooses the default view.
  useEffect(()=>{
-  let active=true;
-  void Promise.resolve().then(()=>{
-   if(!active)return;
-   try{setView(parseRegistryDisplayView(window.localStorage.getItem(registryDisplayPreferenceKey)));}
-   catch{setView("list");}
-  });
-  return()=>{active=false;};
- },[]);
+  const read=()=>{
+   const state=parseRegistryIndexState(window.location.pathname+window.location.search);
+   let preferred:RegistryDisplayView="list";
+   try{preferred=parseRegistryDisplayView(window.localStorage.getItem(registryDisplayPreferenceKey));}
+   catch{/* Browser storage may be unavailable. */}
+   const explicitView=new URLSearchParams(window.location.search).has("view");
+   const nextView=explicitView?state.view:preferred;
+   setType(state.type);setDraft({
+    search:state.search,status:state.status,owner:canManage?state.owner:"",
+    lifecycle:state.lifecycle,sort:state.sort,cycleId:state.cycleId
+   });
+   setQuery({
+    search:state.search,status:state.status,owner:canManage?state.owner:"",
+    lifecycle:state.lifecycle,sort:state.sort,cycleId:state.cycleId
+   });
+   setPage(state.page);setView(nextView);setLoading(true);
+  };
+  read();setRestored(true);
+  const onPop=()=>{scrollRestored.current=false;read();};
+  window.addEventListener("popstate",onPop);
+  return()=>window.removeEventListener("popstate",onPop);
+ },[canManage]);
+ const origin=registryIndexUrl({
+  type,...query,page,view
+ } satisfies RegistryIndexState);
+ useEffect(()=>{
+  if(!restored||createOpen)return;
+  const current=new URL(window.location.href);
+  if(current.pathname!=="/app/admin/registries")return;
+  if(current.pathname+current.search!==origin)
+   window.history.replaceState(window.history.state,"",origin);
+ },[origin,restored,createOpen]);
+ const savePosition=()=>{
+  try{window.sessionStorage.setItem(registryScrollKey(origin),String(window.scrollY));}
+  catch{/* Restore position only when storage is available. */}
+ };
+ useEffect(()=>{
+  if(!restored||loading||result?.state!=="available"||scrollRestored.current)return;
+  scrollRestored.current=true;
+  let y=0;
+  try{y=Number(window.sessionStorage.getItem(registryScrollKey(origin))??"0");}
+  catch{/* No stored position. */}
+  if(!Number.isFinite(y)||y<0||y>10000000)return;
+  const frame=window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>window.scrollTo(0,y)));
+  return()=>window.cancelAnimationFrame(frame);
+ },[restored,loading,result,origin]);
  const chooseView=(next:RegistryDisplayView)=>{
   setView(next);
   try{window.localStorage.setItem(registryDisplayPreferenceKey,next);}catch{/* Storage can be disabled. */}
@@ -105,6 +147,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  },[cycleRefresh]);
 
  useEffect(()=>{
+  if(!restored)return;
   const ctrl=new AbortController();
   const params=new URLSearchParams({
    type,search:query.search,status:query.status,lifecycle:query.lifecycle,
@@ -114,10 +157,12 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   if(canManage&&query.owner)params.set("owner",query.owner);
   void fetch("/api/admin/registries?"+params.toString(),{signal:ctrl.signal,cache:"no-store"})
    .then(async response=>{if(!response.ok)throw Error("unavailable");return response.json() as Promise<Page>;})
-   .then(data=>{if(!ctrl.signal.aborted){setResult(data);setError(false);setLoading(false);}})
+   .then(data=>{if(!ctrl.signal.aborted){setResult(data);setError(false);setLoading(false);
+    if(data.state==="available"&&data.page!==page)setPage(data.page);
+   }})
    .catch(()=>{if(!ctrl.signal.aborted){setError(true);setLoading(false);}});
   return()=>ctrl.abort();
- },[type,query,page,canManage,refresh]);
+ },[type,query,page,canManage,refresh,restored]);
 
  const clearCreationQuery=()=>{
   const next=new URL(window.location.href);
@@ -167,7 +212,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    role="status">
    <span>{t("registryCreateModal.success")}</span>
    <Link className="btn btn-outline-success btn-sm"
-    href={"/app/admin/registries/"+encodeURIComponent(createdId)}>
+    href={registryDetailHref(createdId,{origin,trail:[]})}>
     {t("registryCreateModal.viewRecord")}
    </Link>
    <button type="button" className="btn btn-outline-success btn-sm"
@@ -271,11 +316,13 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
        <th scope="col">{translate("actions")}</th>
       </tr></thead>
       <tbody>{result.items.map(item=><RegistryListRow key={item.id} item={item}
+       navigation={{origin,trail:[]}} onNavigate={savePosition}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
       </tbody>
      </table>:<div className="smn-registry-card-grid" aria-label={translate("cardsView")}>
       {result.items.map(item=><RegistryCard key={item.id} item={item}
+       navigation={{origin,trail:[]}} onNavigate={savePosition}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
      </div>}
