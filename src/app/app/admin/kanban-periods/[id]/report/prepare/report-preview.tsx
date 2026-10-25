@@ -16,7 +16,7 @@ export default function KanbanReportPreview({data}:{data:Data}){
   if(!selected.length||busy)return;
   setBusy(true);setExportError("");
   try{
-   const path=window.location.pathname.replace(/\\/report\\/prepare\\/?$/,"");
+   const path=window.location.pathname.replace(/\/report\/prepare\/?$/,"");
    const url=path.replace("/app/admin/kanban-periods/","/api/admin/kanban-periods/")+"/report-reference";
    const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({language,sections:selected})});
