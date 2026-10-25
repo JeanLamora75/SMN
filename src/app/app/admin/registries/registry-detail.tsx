@@ -195,7 +195,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
      </>}
      {tab==="history"&&(!canManage?
       <p role="status" className="alert alert-secondary">{tr("historyRestricted")}</p>:
-      canManage&&<RegistryHistory id={id}/>)}
+      canManage&&<RegistryHistory key={id} id={id}/>)}
      {tab==="business"&&<>
       {item.type==="risk"&&<>
        {sectionView("riskAssessment",t("registryAssessment.heading"),
