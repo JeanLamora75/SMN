@@ -3328,6 +3328,10 @@
     "closePreview": "Fermer",
     "copyError": "Impossible de dupliquer ce modèle.",
     "structuralPreview": "Aperçu de la structure enregistrée (sans simulation PDF).",
-    "modelMetrics": "Indicateurs sélectionnés"
+    "modelMetrics": "Indicateurs sélectionnés",
+    "updateAvailable": "Une nouvelle version du modèle est disponible",
+    "sectionsChanged": "Rubriques modifiées.",
+    "contentChanged": "Paramètres de contenu modifiés.",
+    "noAutoUpdate": "Aucun changement n'est appliqué automatiquement."
   }
 }
