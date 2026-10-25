@@ -2336,7 +2336,7 @@
     "registersReadRecord": "View record",
     "registersPriorityLabel": "Priority"
   },
-    "registrySummary": {
+  "registrySummary": {
     "heading": "Record overview",
     "description": "Description",
     "noDescription": "No description provided.",
@@ -2700,7 +2700,8 @@
     "unlinked": "Not linked",
     "closed": "Closed Sprint — changes disabled",
     "error": "Could not update this link.",
-    "loading": "Loading Sprints…"
+    "loading": "Loading Sprints…",
+    "confirmUnlink": "Unlink this cycle? Both the record and cycle will be preserved."
   },
   "decisionDetail": {
     "heading": "Rationale and replacement",
@@ -2722,7 +2723,13 @@
     "remove": "Unlink",
     "empty": "No links",
     "error": "Unable to update link.",
-    "intro": "Linked records keep their own independent status."
+    "intro": "Linked records keep their own independent status.",
+    "confirmUnlink": "Unlink this action from its related record? Both records will be preserved.",
+    "selected": "Selected record",
+    "loading": "Loading links…",
+    "unavailable": "Links unavailable.",
+    "retry": "Retry",
+    "conflict": "This link has changed. Reload the data."
   },
   "registryRelations": {
     "heading": "Records and goals relationships",
@@ -2737,7 +2744,25 @@
     "error": "Could not update the relation. Check the identifier and access rights.",
     "from": "From",
     "to": "To",
-    "readOnly": "Read-only view"
+    "readOnly": "Read-only view",
+    "associateRecord": "Link an existing record",
+    "selectType": "Record category",
+    "allTypes": "All categories",
+    "searchLabel": "Search by title",
+    "searchPlaceholder": "Record or goal title…",
+    "searchLoading": "Searching…",
+    "searchUnavailable": "Search unavailable.",
+    "noMatches": "No matching records.",
+    "chooseCandidate": "Select this record",
+    "selectedCandidate": "Selected target",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "confirmUnlink": "Unlink this relationship? Both records will be preserved.",
+    "directionIncoming": "Incoming link · from",
+    "directionOutgoing": "Outgoing link · to",
+    "conflict": "This relationship has changed. Refresh before retrying.",
+    "unavailable": "Relationships temporarily unavailable.",
+    "invalid": "This association was rejected. Check the data or cycle."
   },
   "riskMaterialize": {
     "launch": "Create impediment",
