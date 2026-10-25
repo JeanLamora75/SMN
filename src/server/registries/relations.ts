@@ -42,7 +42,8 @@ export async function readRelations(db:Client,recordId:string){
  COALESCE(r.title,g.title) AS "targetTitle",
  CASE WHEN l.target_kind='record' THEN r.type ELSE 'goal' END AS "targetType",
  CASE WHEN l.target_kind='record' THEN r.status ELSE NULL END AS "targetStatus",
- goal_sprint.status AS "targetCycleStatus"
+ goal_sprint.status AS "targetCycleStatus",
+ CASE WHEN l.target_kind='goal' THEN g.sprint_id ELSE NULL END AS "targetGoalSprintId"
  FROM public.smn_registry_relation l
  JOIN public.smn_registry_item s ON s.id=l.source_id AND s.team_id=$2
  LEFT JOIN public.smn_registry_item r ON l.target_kind='record'
