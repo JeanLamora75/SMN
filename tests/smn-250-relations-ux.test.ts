@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import type {Client} from "pg";
 import {parseRelationSearch,readRelationCandidates} from "../src/server/registries/relation-candidates";
+import {changeRelation} from "../src/server/registries/relations";
 import {groupRegistryRelations,parseRelationPayload} from "../src/lib/registry-relations-view";
 const file=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const id="11111111-1111-4111-8111-111111111111";
@@ -84,8 +85,10 @@ test("AC1/2 : titres cliquables, type, statut, sens, aucune catégorie vide",()=
  assert.ok(ui.includes("parseRelationPayload"));
  assert.ok(ui.includes("registryCreate."));
  assert.ok(ui.includes("encodeURIComponent(row.linkedId)"));
- assert.ok(ui.includes("searchCandidate"));
- assert.ok(ui.includes("candidates.map"));
+ assert.ok(ui.includes("RegistryTargetSearch"));
+ const picker=file("src/app/app/admin/registries/registry-target-search.tsx");
+ assert.ok(picker.includes("relation-candidates"));
+ assert.ok(picker.includes("items.map(candidate"));
  assert.ok(!ui.includes("maxLength={36}"));
 });
 test("AC4 : le serveur retire seulement le lien et garde l'audit",()=>{
@@ -105,8 +108,8 @@ test("AC3/4 : cycles clos et associations existantes confirmées séparément",(
 });
 test("AC2/3 : liens d'action sans UUID et dissociation confirmée",()=>{
  const ui=file("src/app/app/admin/registries/action-links.tsx");
- assert.ok(ui.includes("relation-candidates"));
- assert.ok(ui.includes("decision,obstacle"));
+ assert.ok(ui.includes("RegistryTargetSearch"));
+ assert.ok(ui.includes('const allowed=["decision","obstacle"]'));
  assert.ok(ui.includes("window.confirm(tr(\"confirmUnlink\"))"));
  assert.ok(!ui.includes("maxLength={36}"));
 });
@@ -127,4 +130,57 @@ test("FR/EN et présentation responsive en accord avec la fiche",()=>{
  const css=file("src/app/globals.css");
  assert.ok(css.includes(".smn-registry-relation-category"));
  assert.ok(css.includes("@media(max-width:575px)"));
+});
+
+test("AC3/4 : dissociation d'une relation sortante n'efface ni fiche, ni autre lien",async()=>{
+ const sql:{text:string;params?:unknown[]}[]=[];
+ const db={query:async(text:string,params?:unknown[])=>{
+  sql.push({text,params});
+  if(text.includes("SELECT r.team_id,r.type FROM public.smn_registry_item"))
+   return {rows:[{team_id:"team-one",type:"risk"}]};
+  if(text.includes("SELECT r.id,r.type FROM public.smn_registry_item"))
+   return {rows:[{id:other,type:"action"}]};
+  if(text.includes("SELECT id FROM public.smn_registry_relation"))
+   return {rows:[{id:relation.id}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const result=await changeRelation(db,"actor-one",id,{kind:"record",id:other},"unlinked");
+ assert.deepEqual(result,{ok:true});
+ assert.equal(sql[0].text,"BEGIN");
+ assert.equal(sql.at(-1)?.text,"COMMIT");
+ const deletion=sql.find(x=>x.text.includes("DELETE FROM public.smn_registry_relation"));
+ assert.deepEqual(deletion?.params,[id,"record",other]);
+ assert.ok(sql.some(x=>x.text.includes("INSERT INTO public.smn_registry_relation_audit")));
+ assert.ok(!sql.some(x=>/DELETE FROM public.smn_registry_item|DELETE FROM public.smn_sprint/.test(x.text)));
+});
+test("AC4 : un objectif appartenant à un Sprint clos reste impossible à dissocier",async()=>{
+ const sql:string[]=[];
+ const db={query:async(text:string)=>{
+  sql.push(text);
+  if(text.includes("SELECT r.team_id,r.type FROM public.smn_registry_item"))
+   return {rows:[{team_id:"team-one",type:"action"}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const result=await changeRelation(db,"actor-one",id,{kind:"goal",id:other},"unlinked");
+ assert.deepEqual(result,{ok:false,error:"not-found"});
+ assert.equal(sql.at(-1),"ROLLBACK");
+ assert.ok(!sql.some(x=>x.includes("DELETE FROM public.smn_registry_relation")));
+});
+test("AC5 : la recherche n'accepte ni origine absente ni objectif pour une fiche non Action",async()=>{
+ const queries:string[]=[];
+ const db={query:async(sql:string)=>{
+  queries.push(sql);
+  if(sql.includes("SELECT r.team_id,r.type"))return {rows:[{team_id:"team-one",type:"risk"}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const result=await readRelationCandidates(db,id,{kind:"goal",types:[],search:""});
+ assert.equal(result,null);
+ assert.equal(queries.some(q=>q.includes("smn_sprint_goal")),false);
+});
+test("AC4 : le cycle d'un objectif lié est fondé, sans statut fictif",()=>{
+ assert.equal(parseRelationPayload({relations:[{
+  ...relation,targetKind:"goal",targetType:"goal",targetStatus:null,targetCycleStatus:"closed"
+ }]},id)?.[0].targetCycleStatus,"closed");
+ const view=file("src/app/app/admin/registries/registry-relations.tsx");
+ assert.ok(view.includes('row.relation.targetCycleStatus==="closed"'));
 });
