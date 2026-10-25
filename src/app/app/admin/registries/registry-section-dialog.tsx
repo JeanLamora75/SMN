@@ -2,13 +2,15 @@
 
 import {useEffect,useId,useRef,useState,type ReactNode,type SyntheticEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import RegistryDialogPortal,{useRegistryPortalReady} from "./registry-dialog-portal";
 
 /** Native modal: only ask to discard after a user actually changes a field.
  * The child editor owns the server transaction and calls onSaved after success. */
-export default function RegistrySectionDialog({title,onDismiss,children}:{
- title:string;onDismiss:()=>void;children:ReactNode;
+export default function RegistrySectionDialog({title,onDismiss,children,wide=false}:{
+ title:string;onDismiss:()=>void;children:ReactNode;wide?:boolean;
 }){
  const t=useTranslation(),tr=(key:string)=>t(("registryEdit."+key) as Parameters<typeof t>[0]);
+ const portalReady=useRegistryPortalReady();
  const ref=useRef<HTMLDialogElement>(null);
  const origin=useRef<HTMLElement|null>(null);
  const [dirty,setDirty]=useState(false);
@@ -22,7 +24,7 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
    if(element.open)element.close();
    origin.current?.focus();
   };
- },[]);
+ },[portalReady]);
  useEffect(()=>{
   if(!dirty)return;
   const guard=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
@@ -36,7 +38,7 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
  const cancel=(event:SyntheticEvent<HTMLDialogElement>)=>{
   event.preventDefault();close();
  };
- return <dialog ref={ref} className="smn-registry-section-dialog" data-registry-dirty={dirty}
+ return <RegistryDialogPortal><dialog ref={ref} className={"smn-registry-section-dialog"+(wide?" smn-registry-section-dialog-wide":"")} data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancel} onClose={onDismiss}>
   <div className="smn-registry-section-dialog-layout"
    onChangeCapture={()=>setDirty(true)} onInputCapture={()=>setDirty(true)}>
@@ -53,5 +55,5 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
      >{tr("cancel")}</button>
    </footer>
   </div>
- </dialog>;
+ </dialog></RegistryDialogPortal>;
 }
