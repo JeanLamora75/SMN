@@ -237,7 +237,8 @@
       "scoreGaugeMissing": "{name}: Not specified",
       "workingDays": "Working days remaining",
       "notCalculable": "Cannot be calculated",
-      "workingDaysHelp": "Monday to Friday. The countdown requires reliable cycle dates and a fully defined reference rule."
+      "workingDaysHelp": "Monday to Friday. The countdown requires reliable cycle dates and a fully defined reference rule.",
+      "capacityDiagnosis": "Check capacity"
     },
     "operational": {
       "heading": "Operational overview",
