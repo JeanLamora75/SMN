@@ -44,10 +44,13 @@ export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfA
     await db.query(`CREATE OR REPLACE FUNCTION public.smn_reject_studio_archive_snapshot_mutation()
       RETURNS trigger LANGUAGE plpgsql AS $
       BEGIN RAISE EXCEPTION 'studio archive snapshots are immutable'; END $`);
-    await db.query(`DROP TRIGGER IF EXISTS smn_studio_archive_immutable ON public.smn_report_studio_archive_snapshot`);
-    await db.query(`CREATE TRIGGER smn_studio_archive_immutable BEFORE UPDATE OR DELETE
+    await db.query(`DO $
+    BEGIN IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid='public.smn_report_studio_archive_snapshot'::regclass
+      AND tgname='smn_studio_archive_immutable') THEN
+      CREATE TRIGGER smn_studio_archive_immutable BEFORE UPDATE OR DELETE
       ON public.smn_report_studio_archive_snapshot FOR EACH ROW
-      EXECUTE FUNCTION public.smn_reject_studio_archive_snapshot_mutation()`);
+      EXECUTE FUNCTION public.smn_reject_studio_archive_snapshot_mutation();
+    END IF; END $`);
     // Serialize version assignment for this document for all concurrent archive requests.
     await db.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",[studioSource.id]);
     const last=await db.query<{version:number}>(`SELECT COALESCE(MAX(version),0) AS version FROM public.smn_report_studio_archive_snapshot WHERE document_id=$1`,[studioSource.id]);
