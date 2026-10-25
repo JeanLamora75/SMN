@@ -2396,7 +2396,8 @@
     "createdLinked": "Fiche liée créée et enregistrée.",
     "viewLinked": "Voir la fiche",
     "createAnotherLinked": "Créer une autre",
-    "backToSource": "Retour à la fiche source"
+    "backToSource": "Retour à la fiche source",
+    "linkedCreatedEvent": "Création d’une fiche liée"
   },
   "registryComments": {
     "add": "Ajouter un commentaire",
