@@ -3337,6 +3337,12 @@
     "language": "Langue",
     "create": "Créer le rapport",
     "creating": "Création…",
-    "createError": "Impossible de créer le rapport. Réessayez sans modifier les champs."
+    "createError": "Impossible de créer le rapport. Réessayez sans modifier les champs.",
+    "prefillSummary": "Indicateurs préremplis",
+    "unknown": "Non renseigné",
+    "committedSp": "SP initialement engagés",
+    "completedSp": "SP terminés",
+    "plannedJh": "Capacité prévue",
+    "actualJh": "Capacité réelle disponible"
   }
 }
