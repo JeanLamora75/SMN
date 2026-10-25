@@ -64,8 +64,10 @@ export default function RegistryListRow({item,canManage,signals}:{
    {item.owner??tr("notProvided")}
   </td>}
   <td className="smn-registry-cell-due">
-   <span className="smn-registry-mobile-label">{tr("due")}: </span>
-   {item.dueOn&&<time dateTime={item.dueOn}>{item.dueOn}</time>}
+   {item.dueOn&&<>
+    <span className="smn-registry-mobile-label">{tr("due")}: </span>
+    <time dateTime={item.dueOn}>{item.dueOn}</time>
+   </>}
   </td>
   <td className="smn-registry-cell-actions">
    <details className="smn-registry-row-actions">
