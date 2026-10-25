@@ -34,8 +34,8 @@ export default function AttentionCockpit({items,loading,error,onRetry}:{
    </div>
   </div>
   {error&&<p role="alert" className="smn-registry-attention-error">{tr("unavailable")}</p>}
-  {expanded&&available&&<div id={detailsId} className="smn-registry-attention-body">
-   <p className="small text-body-secondary mb-2">{tr("intro")}</p>
+  <div id={detailsId} className="smn-registry-attention-body" hidden={!expanded||!available}>
+   {available&&<><p className="small text-body-secondary mb-2">{tr("intro")}</p>
    {items.length===0?<p className="small mb-0">{tr("empty")}</p>:
     <ul className="smn-registry-attention-items">
      {items.map((item,index)=><li className="smn-registry-attention-item"
@@ -47,7 +47,7 @@ export default function AttentionCockpit({items,loading,error,onRetry}:{
        {item.dueOn&&<> · {tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></>}
       </span>
      </li>)}
-    </ul>}
-  </div>}
+    </ul>}</>}
+  </div>
  </section>;
 }
