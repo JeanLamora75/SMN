@@ -11,6 +11,8 @@
 |---|---|
 | [DESIGN.md](DESIGN.md) | Contrat visuel, tokens BMAD, composants, styles documentaires, responsive |
 | [EXPERIENCE.md](EXPERIENCE.md) | Contrat de comportement, IA, flux, états, droits, données et export |
+| [CONTRAT-DEVELOPPEMENT.md](CONTRAT-DEVELOPPEMENT.md) | Ordre de réalisation et contrôles Amelia |
+| [DECOUPAGE-JIRA.md](DECOUPAGE-JIRA.md) | Matrice des 16 Stories SMN-254 à 269 |
 | [MAQUETTES-REFERENCE.md](MAQUETTES-REFERENCE.md) | Catalogue des captures et des interactions de démonstration |
 | [RECETTE-UX.md](RECETTE-UX.md) | 33 scénarios de recette proposés, **non exécutés** |
 | [Synthèse UX approuvée](SMN-SYNTHESE-UX-STUDIO-RAPPORTS-2026-10-25.md) | Registre des 21 arbitrages retenus, source de vérité fonctionnelle |
