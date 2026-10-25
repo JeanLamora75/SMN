@@ -2762,7 +2762,8 @@
     "directionOutgoing": "Lien sortant · vers",
     "conflict": "Cette relation a changé. Actualisez avant de recommencer.",
     "unavailable": "Relations temporairement indisponibles.",
-    "invalid": "Cette association est refusée : vérifier les données ou le cycle."
+    "invalid": "Cette association est refusée : vérifier les données ou le cycle.",
+    "closedCycle": "Cycle clôturé : dissociation interdite."
   },
   "riskMaterialize": {
     "launch": "Créer un obstacle",
