@@ -18,9 +18,9 @@ const today=()=>{
  const d=new Date();
  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 };
-export default function RegistryCreate({teamId,canManage,itemId,initialType="risk",modalMode=false,onCreated,onSaved,cycleId}:{
+export default function RegistryCreate({teamId,canManage,itemId,initialType="risk",modalMode=false,onCreated,onSaved,cycleId,lockDescription=false}:{
  teamId:string|null;canManage:boolean;itemId?:string;
- initialType?:"risk"|"obstacle";modalMode?:boolean;onCreated?:()=>void;onSaved?:()=>void;cycleId?:string;
+ initialType?:"risk"|"obstacle";modalMode?:boolean;onCreated?:()=>void;onSaved?:()=>void;cycleId?:string;lockDescription?:boolean;
 }){
  const t=useTranslation();
  const [type,setType]=useState<RegistryType>(initialType);
@@ -104,7 +104,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
       {registryStatuses[type].map(s=><option key={s} value={s}>{translate(s)}</option>)}
      </select></div>
     <div className="col-12"><label className="form-label" htmlFor="registry-description">{translate("description")}</label>
-     <textarea id="registry-description" className="form-control" rows={3} maxLength={4000} value={description} onChange={e=>setDescription(e.target.value)}/></div>
+     <textarea id="registry-description" className="form-control" rows={3} maxLength={4000} value={description} disabled={lockDescription} onChange={e=>setDescription(e.target.value)}/></div>
     <div className="col-md-6"><label className="form-label" htmlFor="registry-owner">{translate("owner")}</label>
      <input id="registry-owner" className="form-control" maxLength={200} value={owner} onChange={e=>setOwner(e.target.value)}/></div>
     <div className="col-md-6"><label className="form-label" htmlFor="registry-due">{translate("due")}</label>

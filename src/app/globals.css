@@ -434,3 +434,394 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
   position:relative;left:auto;right:auto;bottom:auto;margin-top:7px;
  }
 }
+
+/* Registres globaux : lignes compactes, signaux métier distincts du statut. */
+.smn-registry-list-table{table-layout:fixed;width:100%;--bs-table-bg:transparent}
+.smn-registry-list-table th{font-size:.76rem;font-weight:700;vertical-align:bottom;color:var(--smn-muted)}
+.smn-registry-list-table th:nth-child(1){width:105px}
+.smn-registry-list-table th:nth-child(2){width:125px}
+.smn-registry-list-table th:nth-child(4){width:150px}
+.smn-registry-list-table th:nth-last-child(3){width:125px}
+.smn-registry-list-table th:nth-last-child(2){width:100px}
+.smn-registry-list-table th:last-child{width:68px}
+.smn-registry-list-table tbody td{vertical-align:top;padding:10px 8px;font-size:.83rem;
+ overflow-wrap:anywhere;min-width:0;color:var(--smn-foreground)}
+.smn-registry-row-type{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.smn-registry-row-type-icon{display:inline-flex;align-items:center;justify-content:center;
+ width:25px;height:25px;flex:none;color:var(--smn-primary);
+ border:1px solid var(--smn-border);background:var(--smn-soft);border-radius:6px}
+.smn-registry-row-title{font-size:.9rem;line-height:1.3;font-weight:700;
+ color:var(--smn-primary);text-decoration:none;overflow-wrap:anywhere}
+.smn-registry-row-title:hover{text-decoration:underline}
+.smn-registry-row-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ overflow:hidden;overflow-wrap:anywhere;white-space:pre-line;
+ line-height:1.34;margin:4px 0 0;font-size:.78rem;color:var(--smn-muted)}
+.smn-registry-row-status{font-size:.74rem;font-weight:600;white-space:normal;text-align:left}
+.smn-registry-row-attentions{display:flex;flex-direction:column;align-items:flex-start;
+ gap:3px;margin-top:5px}
+.smn-registry-row-attention{display:inline-block;padding:2px 6px;
+ background:var(--smn-soft);color:var(--smn-foreground);border:1px solid var(--smn-border);
+ border-inline-start:3px solid var(--smn-primary);border-radius:4px;
+ font-size:.71rem;line-height:1.3}
+.smn-registry-row-actions{position:relative;display:inline-block}
+.smn-registry-row-actions summary{list-style:none;display:inline-flex;align-items:center;
+ justify-content:center;min-width:34px;min-height:34px;font-weight:700}
+.smn-registry-row-actions summary::-webkit-details-marker{display:none}
+.smn-registry-row-actions[open]{z-index:10}
+.smn-registry-row-menu{position:absolute;right:0;top:calc(100% + 3px);
+ z-index:11;width:max-content;min-width:155px;max-width:240px;padding:4px;
+ border:1px solid var(--smn-border);border-radius:8px;
+ background:var(--smn-surface);box-shadow:var(--smn-shadow)}
+.smn-registry-row-menu-link{display:block;padding:8px 10px;border-radius:5px;
+ text-decoration:none;color:var(--smn-foreground)}
+.smn-registry-row-menu-link:hover,.smn-registry-row-menu-link:focus-visible{
+ background:var(--smn-soft);color:var(--smn-primary)}
+.smn-registry-mobile-label{display:none}
+@media(max-width:991px){
+ .smn-registry-list-table,.smn-registry-list-table tbody{display:block;width:100%}
+ .smn-registry-list-table thead{display:none}
+ .smn-registry-list-table tbody{display:grid;gap:9px}
+ .smn-registry-list-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:5px 10px;padding:10px 12px;background:var(--smn-surface);
+  border:1px solid var(--smn-border);border-radius:9px;min-width:0}
+ .smn-registry-list-table tbody td{display:block;padding:0;border:0;min-width:0}
+ .smn-registry-cell-type{grid-column:1;grid-row:1;align-self:center}
+ .smn-registry-cell-actions{grid-column:2;grid-row:1;justify-self:end}
+ .smn-registry-cell-title{grid-column:1/-1;grid-row:2}
+ .smn-registry-cell-status{grid-column:1/-1;grid-row:3}
+ .smn-registry-cell-date{grid-column:1/-1;grid-row:4}
+ .smn-registry-cell-due{grid-column:1/-1;grid-row:5}
+ .smn-registry-cell-owner{grid-column:1/-1;grid-row:6}
+ .smn-registry-mobile-label{display:inline;font-size:.77rem;font-weight:650;color:var(--smn-muted)}
+ .smn-registry-row-description{max-width:none}
+ .smn-registry-row-menu{right:0}
+}
+
+/* SMN-241 : Cartes compactes ; exclusivité pilotée par la vue du registre. */
+.smn-registry-view-switch .btn{display:inline-flex;align-items:center;justify-content:center;
+ gap:7px;min-height:36px;font-size:.82rem;font-weight:600}
+.smn-registry-view-switch .btn[aria-pressed="true"]{background:var(--smn-soft);
+ color:var(--smn-foreground);border-color:var(--smn-primary);box-shadow:inset 0 -2px 0 var(--smn-primary)}
+.smn-registry-card-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:12px;align-items:start;min-width:0}
+.smn-registry-card{position:relative;display:flex;flex-direction:column;gap:9px;
+ min-width:0;padding:12px 14px;border:1px solid var(--smn-border);
+ border-radius:10px;background:var(--smn-surface);color:var(--smn-foreground)}
+.smn-registry-card-head{display:flex;align-items:flex-start;justify-content:space-between;
+ gap:8px;min-width:0}
+.smn-registry-card .smn-registry-row-title{display:block;font-size:.9rem}
+.smn-registry-card .smn-registry-row-description{margin:-4px 0 0}
+.smn-registry-card-status{min-width:0}
+.smn-registry-card-meta{display:flex;flex-wrap:wrap;gap:3px 10px;
+ padding-top:8px;border-top:1px solid var(--smn-border);
+ font-size:.76rem;color:var(--smn-muted)}
+.smn-registry-card-meta>span{overflow-wrap:anywhere}
+.smn-registry-card-meta-label{font-weight:650;color:var(--smn-foreground)}
+@media(max-width:1199px){
+ .smn-registry-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:639px){
+ .smn-registry-card-grid{grid-template-columns:minmax(0,1fr)}
+ .smn-registry-card{padding:11px 12px}
+}
+
+/* SMN-242 — Bandeau compact des points d'attention collectifs. */
+.smn-registry-attention-band{border:1px solid var(--smn-border);border-radius:10px;
+ background:var(--smn-surface);color:var(--smn-foreground);min-width:0}
+.smn-registry-attention-head{display:flex;align-items:center;gap:11px;padding:10px 14px;
+ min-width:0}
+.smn-registry-attention-icon{display:inline-flex;align-items:center;justify-content:center;
+ flex:0 0 32px;width:32px;height:32px;border:1px solid var(--smn-border);
+ border-radius:8px;background:var(--smn-soft);color:var(--smn-primary)}
+.smn-registry-attention-identity{display:flex;align-items:baseline;flex:1 1 auto;
+ gap:6px 12px;min-width:0;flex-wrap:wrap}
+.smn-registry-attention-title{font-size:.9rem;font-weight:750;line-height:1.25;margin:0}
+.smn-registry-attention-count{display:inline-block;font-size:.81rem;font-weight:650;
+ line-height:1.4;color:var(--smn-foreground);overflow-wrap:anywhere}
+.smn-registry-attention-controls{display:flex;gap:6px;align-items:center;flex:none}
+.smn-registry-attention-controls .btn{min-height:34px;font-size:.78rem}
+.smn-registry-attention-error{margin:0;padding:0 14px 10px;color:var(--bs-danger-text-emphasis);
+ font-size:.81rem}
+.smn-registry-attention-body{padding:10px 14px 12px;border-top:1px solid var(--smn-border)}
+.smn-registry-attention-items{display:grid;grid-template-columns:minmax(0,1fr);
+ gap:0;list-style:none;padding:0;margin:0}
+.smn-registry-attention-item{display:flex;align-items:baseline;flex-wrap:wrap;
+ gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--smn-border);
+ min-width:0;font-size:.81rem}
+.smn-registry-attention-item:last-child{border-bottom:0}
+.smn-registry-attention-reason{font-weight:700}
+.smn-registry-attention-item a{min-width:0;overflow-wrap:anywhere}
+.smn-registry-attention-context{font-size:.76rem;color:var(--smn-muted);overflow-wrap:anywhere}
+@media(max-width:575px){
+ .smn-registry-attention-head{gap:8px;padding:9px 10px;flex-wrap:wrap}
+ .smn-registry-attention-identity{flex-basis:calc(100% - 45px)}
+ .smn-registry-attention-controls{margin-left:40px;flex-wrap:wrap}
+ .smn-registry-attention-body{padding:10px}
+}
+
+/* SMN-243 — bandeau de fiche global et navigation accessible par onglets. */
+.smn-registry-detail{display:grid;gap:14px;min-width:0}
+.smn-registry-detail-header{display:flex;align-items:flex-start;gap:14px;
+ padding:18px 20px;background:var(--smn-surface);border:1px solid var(--smn-border);
+ border-radius:12px;min-width:0}
+.smn-registry-detail-icon{display:flex;align-items:center;justify-content:center;
+ flex:0 0 44px;width:44px;height:44px;border:1px solid var(--smn-border);
+ border-radius:10px;background:var(--smn-soft);color:var(--smn-primary)}
+.smn-registry-detail-icon svg{width:24px;height:24px}
+.smn-registry-detail-identity{min-width:0;flex:1 1 auto}
+.smn-registry-detail-identity h1{font-size:clamp(1.2rem,2vw,1.6rem);line-height:1.25;
+ overflow-wrap:anywhere;margin:3px 0 10px;font-weight:750}
+.smn-registry-detail-kind{font-size:.84rem;font-weight:700;color:var(--smn-muted)}
+.smn-registry-detail-meta{display:flex;flex-wrap:wrap;align-items:center;
+ gap:6px 13px;font-size:.82rem;color:var(--smn-muted)}
+.smn-registry-detail-edit{flex:none}
+.smn-registry-detail-tabs{display:flex;gap:4px;overflow-x:auto;
+ border-bottom:1px solid var(--smn-border);scrollbar-width:thin}
+.smn-registry-detail-tab{flex:0 0 auto;min-height:42px;max-width:100%;
+ padding:9px 13px;border:0;border-bottom:3px solid transparent;background:transparent;
+ color:var(--smn-foreground);font-size:.86rem;font-weight:650;white-space:normal}
+.smn-registry-detail-tab:hover{background:var(--smn-soft)}
+.smn-registry-detail-tab.active{color:var(--smn-primary);
+ border-bottom-color:var(--smn-primary)}
+.smn-registry-detail-body{min-width:0;padding:18px;background:var(--smn-surface);
+ border:1px solid var(--smn-border);border-radius:10px}
+.smn-registry-detail-body>section>.h5{font-size:1.05rem}
+.smn-registry-detail-description{white-space:pre-wrap;overflow-wrap:anywhere;
+ line-height:1.6;margin:0}
+.smn-registry-detail-legacy-comment{margin-top:18px;padding-top:14px;
+ border-top:1px solid var(--smn-border)}
+.smn-registry-detail-body>.card,.smn-registry-detail-body>section.card{margin-top:0!important}
+.smn-registry-legacy-editor{padding:15px;background:var(--smn-surface);
+ border:1px solid var(--smn-border);border-radius:10px}
+@media(max-width:575px){
+ .smn-registry-detail-header{padding:12px;gap:9px;flex-wrap:wrap}
+ .smn-registry-detail-icon{flex-basis:36px;width:36px;height:36px}
+ .smn-registry-detail-identity{flex-basis:calc(100% - 46px)}
+ .smn-registry-detail-edit{margin-left:auto}
+ .smn-registry-detail-tabs{gap:0}
+ .smn-registry-detail-tab{padding:9px 10px;font-size:.81rem}
+ .smn-registry-detail-body{padding:12px}
+}
+
+/* SMN-244 — Synthèse 2/3 + 1/3 ; journal réel explicitement différé. */
+.smn-registry-summary-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+ gap:14px;align-items:start;min-width:0}
+.smn-registry-summary-main,.smn-registry-summary-side{display:grid;gap:12px;min-width:0}
+.smn-registry-summary-panel{min-width:0;padding:15px 16px;border:1px solid var(--smn-border);
+ border-radius:9px;background:var(--smn-surface);color:var(--smn-foreground)}
+.smn-registry-summary-panel-head{display:flex;align-items:center;
+ justify-content:space-between;gap:12px;margin-bottom:12px}
+.smn-registry-summary-panel-head .btn{display:inline-flex;align-items:center;
+ justify-content:center;gap:5px;min-height:36px;flex-shrink:0}
+.smn-registry-summary-panel h2{font-size:1rem;font-weight:750}
+.smn-registry-summary-panel p{overflow-wrap:anywhere}
+.smn-registry-summary-legacy{padding:12px 0 0;margin-top:12px;
+ border-top:1px solid var(--smn-border)}
+.smn-registry-summary-links{list-style:none;display:grid;gap:7px;padding:0;margin:0;
+ font-size:.82rem}
+.smn-registry-summary-links li{overflow-wrap:anywhere}
+.smn-registry-summary-activity{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.smn-registry-summary-activity li{display:flex;flex-direction:column;gap:2px;
+ padding-bottom:7px;border-bottom:1px solid var(--smn-border);
+ font-size:.82rem;min-width:0;overflow-wrap:anywhere}
+.smn-registry-summary-activity li:last-child{border-bottom:0;padding-bottom:0}
+.smn-registry-summary-activity li>span{font-weight:600;color:var(--smn-foreground)}
+.smn-registry-summary-activity li time{color:var(--smn-muted)}
+.smn-registry-description-dialog{width:min(94vw,790px);max-width:100%;
+ max-height:min(90vh,850px);overflow:auto;padding:20px;border:1px solid var(--smn-border);
+ border-radius:12px;background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:var(--smn-shadow)}
+.smn-registry-description-dialog::backdrop{background:rgba(15,25,40,.65)}
+.smn-registry-description-dialog textarea{resize:vertical;min-height:160px}
+@media(max-width:991px){
+ .smn-registry-summary-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:575px){
+ .smn-registry-summary-grid{gap:10px}
+ .smn-registry-summary-panel{padding:12px}
+ .smn-registry-description-dialog{width:calc(100vw - 20px);padding:12px}
+}
+
+/* Editing surfaces keep the same spacing, theme and responsive rhythm as the record. */
+.smn-registry-detail-heading-row{display:flex;align-items:flex-start;gap:9px;min-width:0}
+.smn-registry-detail-heading-row h1{min-width:0;flex:1 1 auto}
+.smn-registry-detail-heading-row .btn{flex:none;margin-top:2px}
+.smn-registry-detail-meta>.btn{min-height:30px;padding:3px 7px;display:inline-flex;align-items:center}
+.smn-registry-business-section{position:relative;min-width:0}
+.smn-registry-business-section+.smn-registry-business-section{margin-top:12px}
+.smn-registry-business-edit-bar{display:flex;justify-content:flex-end;margin-bottom:-11px;
+ padding-right:8px;position:relative;z-index:1}
+.smn-registry-business-edit-bar .btn{display:inline-flex;align-items:center;gap:5px}
+.smn-registry-section-dialog{width:min(94vw,760px);max-width:100%;max-height:min(90vh,850px);
+ padding:0;overflow:auto;border:1px solid var(--smn-border);border-radius:12px;
+ background:var(--smn-surface);color:var(--smn-foreground);box-shadow:0 18px 60px rgba(0,0,0,.2)}
+.smn-registry-section-dialog::backdrop{background:rgba(15,25,40,.65)}
+.smn-registry-section-dialog-layout{display:flex;flex-direction:column;min-width:0;
+ max-height:min(90vh,850px)}
+.smn-registry-section-dialog-header{display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:14px 16px;border-bottom:1px solid var(--smn-border)}
+.smn-registry-section-dialog-content{padding:14px 16px;overflow:auto;min-height:0;
+ flex:1 1 auto}
+.smn-registry-section-dialog-footer{display:flex;justify-content:flex-end;gap:8px;
+ padding:12px 16px;border-top:1px solid var(--smn-border)}
+.smn-registry-section-form{display:grid;gap:15px;min-width:0}
+.smn-registry-section-save{display:flex;justify-content:flex-end;padding-top:10px;
+ border-top:1px solid var(--smn-border)}
+.smn-registry-section-dialog-content>.card{margin-top:0!important;padding:0!important;
+ border:0!important;background:transparent!important}
+@media(max-width:575px){
+ .smn-registry-detail-heading-row{flex-wrap:wrap}
+ .smn-registry-section-dialog{width:calc(100vw - 16px)}
+ .smn-registry-section-dialog-header,.smn-registry-section-dialog-footer{padding:12px}
+ .smn-registry-section-dialog-content{padding:12px}
+}
+
+/* A single scrollable, centered create dialog; footer remains accessible on small screens. */
+.smn-registry-create-dialog{width:min(94vw,800px);max-width:100%;
+ max-height:min(92dvh,900px);padding:0;overflow:hidden;border:1px solid var(--smn-border);
+ border-radius:12px;background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 18px 60px rgba(0,0,0,.2)}
+.smn-registry-create-dialog::backdrop{background:rgba(15,25,40,.65)}
+.smn-registry-create-form{display:flex;flex-direction:column;min-width:0;
+ max-height:min(92dvh,900px)}
+.smn-registry-create-header{display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:15px 18px;border-bottom:1px solid var(--smn-border);flex:none}
+.smn-registry-create-body{padding:14px 18px;overflow:auto;min-height:0;flex:1 1 auto;
+ overscroll-behavior:contain}
+.smn-registry-create-footer{display:flex;align-items:center;justify-content:flex-end;
+ gap:8px;padding:12px 18px;border-top:1px solid var(--smn-border);flex:none;
+ background:var(--smn-surface)}
+.smn-registry-create-footer .btn{min-height:38px}
+.smn-registry-create-group{border:1px solid var(--smn-border);border-radius:8px;
+ margin:14px 0 0;padding:12px 14px;min-width:0}
+.smn-registry-create-group legend{float:none;width:auto;margin:0 0 6px;
+ padding:0 5px;font-size:.95rem;font-weight:700;color:var(--smn-foreground)}
+.smn-registry-just-created{outline:2px solid var(--smn-primary);
+ outline-offset:-2px;animation:smn-registry-created-focus 6s ease-out forwards}
+@keyframes smn-registry-created-focus{0%,65%{outline-color:var(--smn-primary)}
+ 100%{outline-color:transparent}}
+@media(prefers-reduced-motion:reduce){.smn-registry-just-created{animation:none}}
+.smn-registry-just-created .smn-registry-row-title{font-weight:750}
+@media(max-width:575px){
+ .smn-registry-create-dialog{width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
+ .smn-registry-create-form{max-height:calc(100dvh - 12px)}
+ .smn-registry-create-header,.smn-registry-create-footer{padding:12px}
+ .smn-registry-create-body{padding:12px}
+ .smn-registry-create-group{padding:10px}
+}
+
+/* Le journal est une chronologie métier, distincte des versions techniques. */
+.smn-registry-journal{display:grid;gap:12px;min-width:0}
+.smn-registry-journal-compose{display:grid;gap:7px;padding:12px;
+ border:1px solid var(--smn-border);border-radius:8px;background:var(--smn-soft);min-width:0}
+.smn-registry-journal-compose .form-label{font-size:.86rem;font-weight:700;margin:0}
+.smn-registry-journal-compose textarea,.smn-registry-journal-editor textarea{
+ min-width:0;max-width:100%;resize:vertical;white-space:pre-wrap}
+.smn-registry-journal-compose-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.smn-registry-journal-filters{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+.smn-registry-journal-filters .btn{min-height:36px;font-size:.78rem}
+.smn-registry-journal-list{list-style:none;padding:0;margin:0;display:grid;gap:0;min-width:0}
+.smn-registry-journal-entry{display:grid;gap:5px;border-bottom:1px solid var(--smn-border);
+ padding:12px 0;min-width:0}
+.smn-registry-journal-entry:last-child{border-bottom:0}
+.smn-registry-journal-entry-top{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;
+ justify-content:space-between;font-size:.86rem}
+.smn-registry-journal-entry-top time{font-size:.76rem;color:var(--smn-muted)}
+.smn-registry-journal-meta{color:var(--smn-muted);font-weight:600}
+.smn-registry-journal-content{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;
+ margin:4px 0 2px}
+.smn-registry-journal-withdrawn{color:var(--smn-muted);font-style:italic;font-size:.83rem}
+.smn-registry-journal-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.smn-registry-journal-actions .btn{font-size:.77rem;min-height:34px}
+.smn-registry-journal-editor,.smn-registry-journal-versions,.smn-registry-journal-legacy{
+ min-width:0;padding:11px 12px;border-radius:8px;border:1px solid var(--smn-border);
+ background:var(--smn-soft)}
+.smn-registry-journal-legacy h3{font-size:.88rem}
+.smn-registry-journal-version{overflow-wrap:anywhere;padding:9px 0;
+ border-bottom:1px solid var(--smn-border);white-space:pre-wrap;font-size:.83rem}
+.smn-registry-journal-version:last-child{border-bottom:0}
+.smn-registry-journal-empty{padding:12px;border:1px dashed var(--smn-border);
+ border-radius:8px;color:var(--smn-muted);font-size:.85rem}
+@media(max-width:575px){
+ .smn-registry-journal-compose{padding:10px}
+ .smn-registry-journal-entry-top{align-items:flex-start;flex-direction:column;gap:2px}
+ .smn-registry-journal-filters .btn{flex:1 1 auto;min-height:44px}
+ .smn-registry-journal-actions .btn{min-height:44px}
+ .smn-registry-journal-editor,.smn-registry-journal-versions{padding:10px}
+}
+
+/* Contextual actions stay within the journal; full record editing remains in the shared modal. */
+.smn-registry-linked-create{display:grid;gap:9px;min-width:0;justify-items:start}
+.smn-registry-linked-chooser{display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+ padding:10px 12px;background:var(--smn-soft);border:1px solid var(--smn-border);
+ border-radius:8px;max-width:100%;min-width:0}
+.smn-registry-linked-chooser .btn{min-height:38px;white-space:normal}
+.smn-registry-linked-success{display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+ padding:9px 12px;border:1px solid var(--smn-border);border-radius:8px;
+ background:var(--smn-soft);font-size:.85rem;max-width:100%}
+.smn-registry-linked-success .btn{white-space:normal}
+@media(max-width:575px){
+ .smn-registry-linked-chooser{align-items:stretch;width:100%;flex-direction:column}
+ .smn-registry-linked-chooser .btn{width:100%;min-height:44px}
+ .smn-registry-linked-success .btn{min-height:44px}
+}
+
+/* Related records remain separate business objects; grouping is only a view. */
+.smn-registry-relation-panel{display:grid;gap:9px;min-width:0}
+.smn-registry-relation-groups{display:grid;gap:12px;min-width:0}
+.smn-registry-relation-category{border:1px solid var(--smn-border);border-radius:9px;
+ background:var(--smn-surface);padding:12px;min-width:0}
+.smn-registry-relation-category h3{margin-bottom:9px}
+.smn-registry-relation-items{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.smn-registry-relation-item{display:flex;justify-content:space-between;align-items:center;
+ gap:12px;padding:8px 0;min-width:0;border-bottom:1px solid var(--smn-border)}
+.smn-registry-relation-item:last-child{border-bottom:0}
+.smn-registry-relation-identity{display:flex;flex-direction:column;gap:2px;
+ min-width:0;overflow-wrap:anywhere}
+.smn-registry-relation-item>.btn{flex:none;min-height:36px}
+.smn-registry-relation-manage{display:grid;gap:9px;justify-items:start;min-width:0}
+.smn-registry-relation-associate{display:grid;gap:11px;min-width:0;width:100%;
+ border:1px solid var(--smn-border);border-radius:8px;padding:12px;
+ background:var(--smn-soft)}
+.smn-registry-relation-search{width:100%;display:grid;gap:9px;min-width:0}
+.smn-registry-relation-selection{padding:9px;border:1px solid var(--smn-border);
+ border-radius:7px;width:100%;overflow-wrap:anywhere}
+.smn-registry-candidates{list-style:none;padding:0;margin:0;display:grid;gap:5px;
+ max-height:240px;overflow-y:auto;width:100%}
+.smn-registry-candidates li{min-width:0}
+.smn-registry-candidates .btn{width:100%;text-align:left;display:flex;flex-direction:column;
+ align-items:flex-start;gap:3px;white-space:normal;overflow-wrap:anywhere}
+.smn-registry-candidates .btn span:not(.visually-hidden){font-size:.8rem}
+@media(max-width:575px){
+ .smn-registry-relation-category,.smn-registry-relation-associate{padding:10px}
+ .smn-registry-relation-item{align-items:flex-start;flex-wrap:wrap}
+ .smn-registry-relation-item>.btn{min-height:44px}
+ .smn-registry-candidates .btn{min-height:44px}
+ .smn-registry-relation-manage>.btn{min-height:44px}
+}
+
+/* Audit trail intentionally distinct from the business follow-up journal. */
+.smn-registry-audit{display:grid;gap:10px;min-width:0}
+.smn-registry-audit-timeline{list-style:none;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+.smn-registry-audit-event{border:1px solid var(--smn-border);border-radius:9px;
+ padding:12px;background:var(--smn-surface);min-width:0}
+.smn-registry-audit-heading{display:flex;align-items:baseline;justify-content:space-between;
+ gap:8px 14px;flex-wrap:wrap}
+.smn-registry-audit-heading strong{font-size:.92rem;overflow-wrap:anywhere}
+.smn-registry-audit-heading time{font-size:.8rem;color:var(--smn-muted)}
+.smn-registry-audit-diff{margin-top:9px;min-width:0}
+.smn-registry-audit-diff summary{cursor:pointer;font-weight:600;font-size:.84rem;
+ min-height:34px;display:list-item}
+.smn-registry-audit-diff summary:focus-visible{outline:2px solid var(--smn-primary);outline-offset:2px}
+.smn-registry-audit-diff .table-responsive{max-width:100%;margin-top:9px}
+.smn-registry-audit-diff table{table-layout:fixed;width:100%;font-size:.82rem}
+.smn-registry-audit-diff th,.smn-registry-audit-diff td{overflow-wrap:anywhere;white-space:pre-wrap;vertical-align:top}
+.smn-registry-audit-value{width:36%}
+.smn-registry-audit-empty{padding:12px;border:1px dashed var(--smn-border);
+ border-radius:8px;color:var(--smn-muted)}
+@media(max-width:575px){
+ .smn-registry-audit-event{padding:10px}
+ .smn-registry-audit-heading{flex-direction:column;align-items:flex-start;gap:2px}
+ .smn-registry-audit-diff summary{min-height:44px}
+ .smn-registry-audit-diff table{font-size:.76rem}
+}

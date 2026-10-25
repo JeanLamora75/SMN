@@ -1,32 +1,99 @@
 "use client";
-import {useEffect,useState} from "react";
-import {useTranslation} from "@/i18n/client";
-type Revision={revision:number;changedAt:string;actorId:string|null;beforeValues:Record<string,unknown>|null;afterValues:Record<string,unknown>};
-const fields=["title","occurredOn","status","description","owner","dueOn","comment"] as const;
+import {useEffect,useId,useMemo,useState} from "react";
+import {useLocale,useTranslation} from "@/i18n/client";
+import {changedFields,formatAuditValue,parseAuditPage,
+ type AuditEvent,type AuditKind,type AuditAction} from "@/lib/registry-audit-timeline";
+
+const translationKeys=new Set(["open","resolved","in_progress","abandoned","satisfied",
+ "cancelled","active","replaced","todo","completed","recorded","owned","accepted","mitigated"]);
 export default function RegistryHistory({id}:{id:string}){
- const t=useTranslation();const [data,setData]=useState<Revision[]|null>(null);
- const [error,setError]=useState(false);
+ const t=useTranslation(),locale=useLocale();
+ const tr=(key:string)=>t(("registryAudit."+key) as Parameters<typeof t>[0]);
+ const localId=useId();
+ const [events,setEvents]=useState<AuditEvent[]>([]);
+ const [page,setPage]=useState(1);
+ const [hasMore,setHasMore]=useState(false);
+ const [state,setState]=useState<"loading"|"ready"|"unavailable">("loading");
+ const [retry,setRetry]=useState(0);
  useEffect(()=>{
-  const ctrl=new AbortController();
-  void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/history",{cache:"no-store",signal:ctrl.signal})
-   .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<{revisions:Revision[]}>;})
-   .then(r=>{if(!ctrl.signal.aborted)setData(r.revisions);})
-   .catch(()=>{if(!ctrl.signal.aborted)setError(true);});
-  return()=>ctrl.abort();
- },[id]);
- const tr=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
- return <section className="card p-3 mt-3" aria-label={tr("history")}>
-  <h2 className="h5">{tr("history")}</h2>
-  {error?<p role="alert">{tr("historyError")}</p>:data===null?<p role="status">…</p>:
-   data.length===0?<p>{tr("historyEmpty")}</p>:<div className="accordion" id="registry-revisions">
-   {data.map(row=><details className="border rounded p-3 mb-2" key={row.revision}>
-    <summary>{tr("revision")} {row.revision} — {row.changedAt} — {tr("actor")}: {row.actorId??"—"}</summary>
-    <div className="table-responsive mt-2"><table className="table table-sm">
-     <thead><tr><th scope="col">{tr("titleField")}</th><th scope="col">{tr("before")}</th><th scope="col">{tr("after")}</th></tr></thead>
-     <tbody>{fields.map(field=><tr key={field}><th scope="row">{tr(field==="occurredOn"?"date":field==="dueOn"?"due":field==="title"?"titleField":field)}</th>
-      <td>{String(row.beforeValues?.[field]??"—")}</td><td>{String(row.afterValues?.[field]??"—")}</td></tr>)}</tbody>
-    </table></div>
-   </details>)}
-   </div>}
+  const controller=new AbortController();
+  if(page===1)setState("loading");
+  void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/history?page="+page,{
+   cache:"no-store",signal:controller.signal
+  }).then(async response=>{
+   if(!response.ok)throw Error("unavailable");
+   const parsed=parseAuditPage(await response.json() as unknown);
+   if(!parsed||parsed.page!==page)throw Error("invalid");
+   return parsed;
+  }).then(payload=>{
+   if(controller.signal.aborted)return;
+   setEvents(previous=>page===1?payload.events:[
+    ...previous,...payload.events.filter(event=>!previous.some(old=>old.id===event.id))
+   ]);
+   setHasMore(payload.hasMore);
+   setState("ready");
+  }).catch(()=>{if(!controller.signal.aborted)setState("unavailable");});
+  return()=>controller.abort();
+ },[id,page,retry]);
+ const dates=useMemo(()=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
+  dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Paris"
+ }),[locale]);
+ const fieldLabel=(key:string)=>tr(key);
+ const value=(input:unknown,field:string)=>{
+  if(typeof input==="boolean")return tr(input?"yes":"no");
+  if(input&&typeof input==="object"&&!Array.isArray(input)&&
+   (input as {kind?:unknown}).kind==="local")return tr("local");
+  const human=formatAuditValue(input);
+  if(human===null)return tr("notAvailable");
+  if((field==="status"||field==="classification")&&translationKeys.has(human))
+   return t(("registryCreate."+human) as Parameters<typeof t>[0]);
+  return human;
+ };
+ const title=(kind:AuditKind,action:AuditAction)=>tr(kind)+" · "+tr(action);
+ return <section className="smn-registry-audit" aria-labelledby={localId+"-title"}>
+  <h2 className="h5 mb-1" id={localId+"-title"}>{tr("history")}</h2>
+  <p className="small text-body-secondary">{tr("intro")}</p>
+  {state==="loading"&&events.length===0?<p role="status">{tr("loading")}</p>:null}
+  {state==="unavailable"&&<div role="alert" className="d-flex flex-wrap gap-2 align-items-center">
+   <span>{tr("unavailable")}</span>
+   <button type="button" className="btn btn-sm btn-outline-secondary"
+    onClick={()=>setRetry(n=>n+1)}>{tr("retry")}</button>
+  </div>}
+  {state==="ready"&&events.length===0?<p className="smn-registry-audit-empty">{tr("empty")}</p>:null}
+  {events.length>0&&<ol className="smn-registry-audit-timeline">
+   {events.map(event=>{
+    const diff=changedFields(event);
+    return <li key={event.id} className="smn-registry-audit-event">
+     <div className="smn-registry-audit-heading">
+      <strong>{title(event.kind,event.action)}</strong>
+      <time dateTime={event.at}>{dates.format(new Date(event.at))}</time>
+     </div>
+     <div className="small text-body-secondary">
+      {tr("actor")}: {event.actorName??tr("unknownAuthor")}
+      {event.revision!==null&&<> · {tr("revision")} {event.revision}</>}
+     </div>
+     <details className="smn-registry-audit-diff">
+      <summary>{tr("showChanges")} ({diff.length})</summary>
+      {diff.length===0?<p className="small text-body-secondary mb-0">{tr("noChanges")}</p>:
+       <div className="table-responsive">
+        <table className="table table-sm mb-0">
+         <thead><tr><th scope="col">{tr("field")}</th>
+          <th scope="col">{tr("before")}</th><th scope="col">{tr("after")}</th></tr></thead>
+         <tbody>{diff.map(change=><tr key={change.key}>
+          <th scope="row">{fieldLabel(change.key)}</th>
+          <td className="smn-registry-audit-value">{value(change.before,change.key)}</td>
+          <td className="smn-registry-audit-value">{value(change.after,change.key)}</td>
+         </tr>)}</tbody>
+        </table>
+       </div>}
+     </details>
+    </li>;
+   })}
+  </ol>}
+  {hasMore&&state==="ready"&&<button className="btn btn-outline-secondary btn-sm"
+   type="button" onClick={()=>{setState("loading");setPage(x=>x+1);}}>
+   {tr("loadMore")}
+  </button>}
+  {state==="loading"&&events.length>0&&<p role="status">{tr("loading")}</p>}
  </section>;
 }

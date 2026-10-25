@@ -15,7 +15,7 @@ export async function readAttention(db:Client,teamId:string,cycleId:string|null,
  "to_regclass('public.smn_dependency_vigilance') IS NOT NULL AS vigilance,",
  "to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS links"].join(" "));
  const t=tables.rows[0];
- if(!t?.item)return {alerts:[] as Attention[],days:threshold.days};
+ if(!t?.item)return {state:"unavailable" as const,reason:"registry-not-installed" as const};
  const assessment=t.assess?"LEFT JOIN public.smn_risk_assessment a ON a.item_id=r.id":"LEFT JOIN LATERAL (SELECT NULL::smallint AS probability,NULL::smallint AS impact) a ON TRUE";
  const roam=t.roam?"LEFT JOIN public.smn_risk_roam m ON m.item_id=r.id":"LEFT JOIN LATERAL (SELECT NULL::text AS classification) m ON TRUE";
  const vigilance=t.vigilance?"LEFT JOIN public.smn_dependency_vigilance v ON v.item_id=r.id":"LEFT JOIN LATERAL (SELECT false AS at_risk) v ON TRUE";
@@ -28,7 +28,7 @@ export async function readAttention(db:Client,teamId:string,cycleId:string|null,
  const rows=await db.query<{id:string;type:string;title:string;status:string;dueOn:string|null;probability:Level|null;impact:Level|null;roam:string|null;atRisk:boolean}>(sql,cycleId&&t.links?[teamId,cycleId]:[teamId]);
  const alerts:Attention[]=[];
  for(const r of rows.rows){
-  if(r.type==="risk"&&riskAttention(r.probability,r.impact,r.roam))
+  if(r.type==="risk"&&r.status==="open"&&riskAttention(r.probability,r.impact,r.roam))
    alerts.push({id:r.id,type:r.type,title:r.title,status:r.status,reason:"highRisk",dueOn:null});
   if(r.type==="obstacle"&&(r.status==="open"||r.status==="in_progress"))
    alerts.push({id:r.id,type:r.type,title:r.title,status:r.status,reason:"obstacle",dueOn:null});
@@ -37,5 +37,5 @@ export async function readAttention(db:Client,teamId:string,cycleId:string|null,
   const deadline=deadlineState(r.type,r.status,r.dueOn,today,threshold.days);
   if(deadline)alerts.push({id:r.id,type:r.type,title:r.title,status:r.status,reason:deadline,dueOn:r.dueOn});
  }
- return {alerts,days:threshold.days};
+ return {state:"available" as const,alerts,days:threshold.days};
 }
