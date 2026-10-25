@@ -3,13 +3,14 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import RegistryList from "./registry-list";
+import {registryTypes,type RegistryType} from "@/lib/registry-types";
 import AttentionCockpit from "./attention-cockpit";
 export const dynamic="force-dynamic";
 export default async function RegistriesPage({searchParams}:{
  searchParams:Promise<{type?:string}>;
 }){
  const params=await searchParams;
- const initialType=params.type==="obstacle"?"obstacle":"risk";
+ const initialType=registryTypes.includes(params.type as RegistryType)?params.type as RegistryType:"all";
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"collective",exists:true,inScope:true}))redirect("/app");
