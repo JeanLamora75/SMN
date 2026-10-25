@@ -287,8 +287,8 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
       onClick={()=>{setPage(p=>p+1);setLoading(true);}}>{translate("next")}</button>
     </div>
    </div>}
-  {canManage&&createOpen&&result?.state==="available"&&<RegistryCreateModal
-   teamId={result.team.id} initialType={type==="all"?"risk":type}
+  {canManage&&createOpen&&<RegistryCreateModal
+   teamId={teamId} initialType={type==="all"?"risk":type}
    sourceId={sourceId} cycleId={query.cycleId||initialCycleId}
    onCreated={created} onDismiss={()=>{clearCreationQuery();setCreateOpen(false);}}/>}
  </section>;
