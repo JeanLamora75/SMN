@@ -33,7 +33,7 @@ test("la bascule préserve les requêtes, filtres, pagination et nombre de fiche
  assert.match(ui,/setView\(next\)/);
  assert.match(ui,/localStorage\.setItem\(registryDisplayPreferenceKey,next\)/);
  assert.match(ui,/localStorage\.getItem\(registryDisplayPreferenceKey\)/);
- const selector=ui.slice(ui.indexOf("const chooseView="),ui.indexOf("return <section"));
+ const selector=ui.split("const chooseView=")[1]!.split("\n };")[0];
  assert.ok(!selector.includes("setQuery(")&&!selector.includes("setPage(")&&!selector.includes("fetch("));
 });
 
