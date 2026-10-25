@@ -3432,5 +3432,18 @@
     "confirm": "Refresh only sourced values? Comments and analyses will be preserved. Save current edits before confirming.",
     "refresh": "Refresh values",
     "failed": "Comparison or refresh is unavailable."
+  },
+  "reportsQuality": {
+    "check": "Quality check",
+    "exportUnavailable": "PDF export from the new Studio is unavailable until faithful rendering is integrated.",
+    "noWarnings": "No warnings detected by the available rules.",
+    "noEditorialGuarantee": "This check does not guarantee editorial accuracy of comments or analyses.",
+    "warning": "Warning",
+    "error": "Error",
+    "unavailable-data": "Missing value",
+    "provisional": "Current data may be provisional",
+    "analysis-origin": "AI-derived analysis: check provenance",
+    "wide-table": "Check table readability",
+    "invalid-block": "Invalid block structure"
   }
 }
