@@ -39,11 +39,14 @@ export default function RegistryHistory({id}:{id:string}){
   dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Paris"
  }),[locale]);
  const fieldLabel=(key:string)=>tr(key);
- const value=(input:unknown)=>{
+ const value=(input:unknown,field:string)=>{
+  if(typeof input==="boolean")return tr(input?"yes":"no");
+  if(input&&typeof input==="object"&&!Array.isArray(input)&&
+   (input as {kind?:unknown}).kind==="local")return tr("local");
   const human=formatAuditValue(input);
   if(human===null)return tr("notAvailable");
-  if(human==="yes"||human==="no"||human==="local")return tr(human);
-  if(translationKeys.has(human))return t(("registryCreate."+human) as Parameters<typeof t>[0]);
+  if((field==="status"||field==="classification")&&translationKeys.has(human))
+   return t(("registryCreate."+human) as Parameters<typeof t>[0]);
   return human;
  };
  const title=(kind:AuditKind,action:AuditAction)=>tr(kind)+" · "+tr(action);
@@ -78,8 +81,8 @@ export default function RegistryHistory({id}:{id:string}){
           <th scope="col">{tr("before")}</th><th scope="col">{tr("after")}</th></tr></thead>
          <tbody>{diff.map(change=><tr key={change.key}>
           <th scope="row">{fieldLabel(change.key)}</th>
-          <td className="smn-registry-audit-value">{value(change.before)}</td>
-          <td className="smn-registry-audit-value">{value(change.after)}</td>
+          <td className="smn-registry-audit-value">{value(change.before,change.key)}</td>
+          <td className="smn-registry-audit-value">{value(change.after,change.key)}</td>
          </tr>)}</tbody>
         </table>
        </div>}
