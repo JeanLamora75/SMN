@@ -9,8 +9,6 @@ const missingTranslation:Record<PresenceMissingSource,TranslationKey>={
  "ambiguous-assignment":"developmentCapacity.ambiguousAssignment",
  "assignment-version":"developmentCapacity.assignmentVersion",
  "work-calendar":"developmentCapacity.workCalendar",
- "member-country":"developmentCapacity.memberCountry",
- "national-coverage":"developmentCapacity.nationalCoverage",
  "exceptional-meeting-participants":"developmentCapacity.meetingParticipants",
  "exceptional-meeting-work-slots":"developmentCapacity.meetingWorkSlots"
 };
