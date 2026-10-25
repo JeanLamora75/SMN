@@ -50,7 +50,7 @@ export default async function KanbanPeriodReport({params}:{params:Promise<{id:st
      <dt className="col-sm-6">Capacité réelle retenue (J/H)</dt><dd className="col-sm-6">{blocks.capacity.realizedJh??"Non renseignée"}</dd>
      <dt className="col-sm-6">Écart fiable (J/H)</dt><dd className="col-sm-6">{blocks.capacity.gapJh??"Non calculable"}</dd>
     </dl>
-    <p className="small text-secondary mt-2 mb-0">Source du réalisé : {blocks.capacity.actualSource} ; observation jusqu'au {blocks.capacity.observedThrough??"Non renseigné"}.</p>
+    <p className="small text-secondary mt-2 mb-0">Source du réalisé : {blocks.capacity.actualSource} ; observation jusqu&apos;au {blocks.capacity.observedThrough??"Non renseigné"}.</p>
     {!!blocks.capacity.missingSources.length&&<p className="small text-warning-emphasis mt-2">Sources indisponibles : {blocks.capacity.missingSources.join(", ")}</p>}</div></section>
    <section className="col-12" aria-labelledby="kanban-trends"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-trends">4. Tendances</h2>
     <KanbanTrendsPanel periodId={period.id}/></div></section>
