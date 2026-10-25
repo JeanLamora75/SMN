@@ -98,7 +98,7 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,abs
    const d=dateAtNoon(date),weekend=[0,6].includes(d.getUTCDay());
    const holiday=entries.find(e=>e.date===date&&e.type==="holiday");
    const count=absenceCounts[date]??0;
-   const hasMeetings=showMeetings&&meetings.some(m=>calendarDay(m.startAt)===date);
+   const hasMeetings=showMeetings&&meetings.some(m=>calendarDay(m.startAt,timeZone)===date);
    const hasClosure=entries.some(e=>e.date===date&&e.type==="closure");
    return <section className={"smn-cal-agenda-day"+(date===today?" is-today":"")} key={date}>
     <div className="smn-cal-agenda-date">
