@@ -2378,6 +2378,7 @@
     "viewRecord": "Voir la fiche",
     "createAnother": "Créer une autre",
     "backToSource": "Retour à la fiche source",
+    "backToContext": "Retour au contexte d’origine",
     "error": "Erreur de connexion ou réponse non confirmée. Votre saisie est conservée.",
     "invalid": "Création refusée : vérifiez les données, les droits et le contexte. Votre saisie est conservée.",
     "conflict": "Conflit de données. Votre saisie est conservée.",
