@@ -42,6 +42,7 @@ export default async function KanbanPeriodReport({params}:{params:Promise<{id:st
    <section className="col-12" aria-labelledby="kanban-metrics"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-metrics">2. Métriques de la période</h2>
     <KanbanMetricsPanel periodId={period.id} canManage={account.role==="admin"} closed={period.status==="closed"}/></div></section>
    <section className="col-12" aria-labelledby="kanban-capacity"><div className="smn-panel rounded-4 p-4"><h2 className="h5" id="kanban-capacity">3. Capacité de la période</h2>
+    {period.status==="closed"&&blocks.capacity.state==="unavailable"&&<p role="alert" className="alert alert-warning">La photographie de capacité de clôture est indisponible ; les valeurs actuelles ne sont pas utilisées à sa place.</p>}
     <p className="mb-1">Capacité initiale (J/H) : {blocks.capacity.initialJh===null?"Non disponible":blocks.capacity.initialJh}</p>
     <p className="small text-secondary">Provenance initiale : {blocks.capacity.provenance} ; ouverture réelle : {blocks.capacity.actualOpenedAt??"Non renseignée"}.</p>
     <dl className="row mb-0">
