@@ -109,7 +109,9 @@ export async function createRegistryComment(db:Client,actorId:string,itemId:stri
 type Current={id:string;body:string;revision:number;withdrawnAt:string|null};
 export async function reviseRegistryComment(db:Client,actorId:string,itemId:string,
  commentId:string,action:"edit"|"withdraw",raw:unknown):Promise<Reply>{
- const parsed=action==="edit"?parseCommentRevision(raw):parseCommentWithdrawal(raw);
+ const parsedEdit=action==="edit"?parseCommentRevision(raw):null;
+ const parsedWithdrawal=action==="withdraw"?parseCommentWithdrawal(raw):null;
+ const parsed=parsedEdit??parsedWithdrawal;
  if(!parsed||!idRx.test(itemId)||!idRx.test(commentId)||!actorId)return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
@@ -134,11 +136,11 @@ export async function reviseRegistryComment(db:Client,actorId:string,itemId:stri
   }
   const name=await actorIdentity(db,actorId);
   if(!name){await db.query("ROLLBACK");return {ok:false,error:"not-found"};}
-  if(action==="edit"&&old.body===(parsed as {text:string}).text){
+  if(parsedEdit!==null&&old.body===parsedEdit.text){
    await db.query("ROLLBACK");return {ok:false,error:"invalid-input"};
   }
   const revision=old.revision+1;
-  const text=action==="edit"?(parsed as {text:string}).text:null;
+  const text=parsedEdit?.text??null;
   if(action==="edit")await db.query(`UPDATE public.smn_registry_comment SET body=$2,
    revision=$3,edited_at=now(),editor_id=$4,editor_name=$5 WHERE id=$1`,
    [commentId,text,revision,actorId,name]);
