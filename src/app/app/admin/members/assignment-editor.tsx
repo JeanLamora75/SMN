@@ -25,8 +25,8 @@ function draftFrom(state:AssignmentState):Draft{
  };
 }
 const num=(s:string)=>/^(0|[1-9][0-9]{0,2})$/.test(s)?Number(s):NaN;
-export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCancel}:{
- memberId:string;teamId:string;teamName:string;onSaved:()=>void;onCancel:()=>void;
+export default function AssignmentEditor({memberId,teamId,teamName,memberRevision,onSaved,onCancel}:{
+ memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AssignmentState|null>(null);
@@ -34,6 +34,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCan
  const [baseline,setBaseline]=useState<Draft|null>(null);
  const [status,setStatus]=useState<Kind>("loading");
  const [busy,setBusy]=useState(false);
+ const [historicalStart,setHistoricalStart]=useState("");
  const [error,setError]=useState("");
  const dirty=draft!==null&&baseline!==null&&JSON.stringify(draft)!==JSON.stringify(baseline);
  useUnsavedChanges(Boolean(dirty||busy),t("draft.leaveWarning"));
@@ -43,7 +44,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCan
    .then(async r=>{if(!r.ok)throw new Error("load-failed");return r.json() as Promise<AssignmentState>;})
    .then(data=>{if(!active)return;
     if(data.memberId!==memberId||data.teamId!==teamId||!Array.isArray(data.versions))throw new Error("wrong-team");
-    const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setStatus("ready");
+    const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
  },[memberId,teamId]);
@@ -84,6 +85,21 @@ export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCan
   }catch{setError(t("members.assignment.failed"));}
   finally{setBusy(false);}
  }
+ async function correctHistoricalStart(){
+  if(!state?.assignmentId||!state.startOn||!historicalStart||historicalStart>=state.startOn||busy)return;
+  if(!window.confirm("Antidater l'arrivée du membre du "+state.startOn+" au "+historicalStart+" ? Les capacités historiques non figées pourront être recalculées. Les clichés déjà clôturés resteront inchangés."))return;
+  setBusy(true);setError("");
+  try{
+   const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/assignment/start-date",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({assignmentId:state.assignmentId,newStartOn:historicalStart,revision:memberRevision})
+   });
+   const body=await r.json() as {error?:string};
+   if(!r.ok)throw Error(body.error??"Correction impossible");
+   onSaved();
+  }catch(e){setError(e instanceof Error?e.message:"Correction impossible");}
+  finally{setBusy(false);}
+ }
  return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="assignment-heading">
   <h3 className="h5" id="assignment-heading">{t("members.assignment.heading")}</h3>
   <p className="small text-secondary mb-0">{t("members.assignment.intro")}</p>
@@ -93,6 +109,17 @@ export default function AssignmentEditor({memberId,teamId,teamName,onSaved,onCan
   {state&&draft&&status==="ready"&&<>
    <p className="small text-secondary">{t(state.versions.length>0?
     "prefill.savedAssignment":"prefill.suggestedAssignment")}</p>
+   {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
+    <h4 className="h6">Corriger la date de prise en compte historique</h4>
+    <p className="small text-secondary">Date actuelle : {state.startOn}. Vous pouvez avancer l'arrivée à une date antérieure à l'installation de SMN, sans changer les pourcentages ni les versions ultérieures. Les rapports clôturés restent figés.</p>
+    <div className="d-flex flex-wrap align-items-end gap-2">
+     <label className="form-label mb-0">Date d'arrivée réelle
+      <input type="date" className="form-control" max={state.startOn} value={historicalStart} disabled={busy}
+       onChange={e=>setHistoricalStart(e.target.value)}/></label>
+     <button type="button" className="btn btn-outline-primary" disabled={busy||!historicalStart||historicalStart>=state.startOn}
+      onClick={()=>void correctHistoricalStart()}>Corriger la date historique</button>
+    </div>
+   </div>}
    <form onSubmit={submit} className="d-grid gap-3">
     <div className="row g-3">
      <div className="col-md-4">
