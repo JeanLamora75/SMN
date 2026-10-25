@@ -1,5 +1,5 @@
-import HistoricalRevisionsPanel from "./historical-revisions-panel";
 "use client";
+import HistoricalRevisionsPanel from "./historical-revisions-panel";
 import {useEffect,useRef,useState} from "react";
 type Preview={line:number;cycleId:string;cycleName:string|null;metricCode:string;value:number;quality:string;existingValue:number|null;impact:string;decision:"keep"|"insert";validation:string};
 type Catalog={mode:"scrum"|"kanban";cycles:{id:string;name:string}[];catalog:{code:string;description:string}[]};
