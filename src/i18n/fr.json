@@ -3344,5 +3344,27 @@
     "completedSp": "SP terminés",
     "plannedJh": "Capacité prévue",
     "actualJh": "Capacité réelle disponible"
+  },
+  "reportsStudio": {
+    "modes": "Modes du Studio",
+    "composition": "Composition",
+    "writing": "Rédaction",
+    "preview": "Aperçu",
+    "plan": "Plan",
+    "properties": "Propriétés",
+    "zoom": "Zoom",
+    "document": "Document du rapport",
+    "hidden": "Masqué",
+    "visible": "Afficher cette rubrique",
+    "comment": "Commentaire humain",
+    "noComment": "Aucun commentaire",
+    "unknown": "Non renseigné",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Enregistré",
+    "unsaved": "Modifications non enregistrées",
+    "unsavedWarning": "Enregistrez les modifications avant de quitter ce rapport.",
+    "conflict": "Ce rapport a été modifié depuis son dernier chargement. Rechargez-le avant de poursuivre.",
+    "saveError": "Enregistrement impossible. Réessayez."
   }
 }
