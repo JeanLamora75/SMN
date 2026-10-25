@@ -1256,7 +1256,9 @@
     "workCalendar": "Individual work calendar not configured.",
     "memberCountry": "Member country not known for this date.",
     "nationalCoverage": "National holiday coverage insufficient or unknown.",
-    "disclaimer": "Availability × allocation rate × Developer role share × contribution coefficient. Contract rate is not multiplied again because it already bounds allocation. Story Points are never converted to person-days, nor are Sprints or Kanban indicators created automatically."
+    "disclaimer": "Availability × allocation rate × Developer role share × contribution coefficient. Contract rate is not multiplied again because it already bounds allocation. Story Points are never converted to person-days, nor are Sprints or Kanban indicators created automatically.",
+    "meetingParticipants": "Exceptional meeting participants are missing or cannot be attributed.",
+    "meetingWorkSlots": "Working time slots are missing or inconsistent with exceptional meetings."
   },
   "manualCapacity": {
     "retained": "Retained capacity",
@@ -2334,7 +2336,9 @@
     "ceremonyEdit": "Edit meeting",
     "registersEditRecord": "Edit record",
     "registersReadRecord": "View record",
-    "registersPriorityLabel": "Priority"
+    "registersPriorityLabel": "Priority",
+    "presenceMissingIntro": "These missing inputs prevent calculation on some days. Check assignments, country, national holiday coverage and effective work calendars for the Sprint dates.",
+    "presenceSeeDiagnosis": "Open the development capacity diagnosis"
   },
   "registrySummary": {
     "heading": "Record overview",
