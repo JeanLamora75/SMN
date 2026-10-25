@@ -5,10 +5,11 @@ import {useTranslation} from "@/i18n/client";
 import {groupRegistryRelations,parseRelationPayload,type RegistryRelation} from "@/lib/registry-relations-view";
 import type {RegistryType} from "@/lib/registry-types";
 import RegistryTargetSearch from "./registry-target-search";
+import {registryDetailHref,registryIndexPath,type RegistryNavigation} from "@/lib/registry-navigation";
 
 type Target={id:string;title:string;type:RegistryType|"goal";status?:string};
-export default function RegistryRelations({id,type,canManage,onSaved}:{
- id:string;type:string;canManage:boolean;onSaved?:()=>void;
+export default function RegistryRelations({id,type,canManage,navigation,onSaved}:{
+ id:string;type:string;canManage:boolean;navigation?:RegistryNavigation;onSaved?:()=>void;
 }){
  const t=useTranslation();
  const tr=(key:string)=>t(("registryRelations."+key) as Parameters<typeof t>[0]);
@@ -85,7 +86,7 @@ export default function RegistryRelations({id,type,canManage,onSaved}:{
          row.relation.targetGoalSprintId?
           <Link href={"/app/admin/sprints/"+encodeURIComponent(row.relation.targetGoalSprintId)}>
            {row.linkedTitle}</Link>:<strong>{row.linkedTitle}</strong>:
-         <Link href={"/app/admin/registries/"+encodeURIComponent(row.linkedId)}>
+         <Link href={registryDetailHref(row.linkedId,navigation??{origin:registryIndexPath,trail:[]})}>
           {row.linkedTitle}</Link>}
         <span className="small text-body-secondary">
          {row.linkedType==="goal"?tr("goal"):label(row.linkedType)}
