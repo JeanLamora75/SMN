@@ -179,7 +179,8 @@ test("AC5 : la recherche n'accepte ni origine absente ni objectif pour une fiche
 });
 test("AC4 : le cycle d'un objectif lié est fondé, sans statut fictif",()=>{
  assert.equal(parseRelationPayload({relations:[{
-  ...relation,targetKind:"goal",targetType:"goal",targetStatus:null,targetCycleStatus:"closed"
+  ...relation,sourceType:"action",sourceStatus:"todo",
+  targetKind:"goal",targetType:"goal",targetStatus:null,targetCycleStatus:"closed"
  }]},id)?.[0].targetCycleStatus,"closed");
  const view=file("src/app/app/admin/registries/registry-relations.tsx");
  assert.ok(view.includes('row.relation.targetCycleStatus==="closed"'));
