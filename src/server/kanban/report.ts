@@ -1,7 +1,7 @@
 import type {Client} from "pg";
 import {ensureKanbanPeriodTables} from "./periods";
 import {reconcileKanbanStates} from "./states";
-import {readKanbanCapacityView} from "./capacity-view";
+import {readKanbanCapacityView,parseFrozenKanbanCapacity} from "./capacity-view";
 
 export const kanbanReportBlocks=["objectives","metrics","capacity","trends"] as const;
 export function reportProvisional(status:string){return status==="active"||status==="finished";}
@@ -20,14 +20,21 @@ export async function readKanbanPeriodReport(db:Client,id:string){
  `,[id]);
  if(result.rows.length!==1)return null;
  const p=result.rows[0];
- const capacity=await readKanbanCapacityView(db,p.team_id,p.start_on,p.end_on,p.status,p.id).catch(()=>null);
+ // Closed reports are immutable: use their latest stored Vn, never live availability.
+ const archived=p.status==="closed"?
+  await db.query<{snapshot:unknown}>(`
+   SELECT snapshot FROM public.smn_kanban_closure
+   WHERE period_id=$1 ORDER BY version DESC LIMIT 1`,[p.id]).catch(()=>null):null;
+ const capacity=p.status==="closed"?
+  parseFrozenKanbanCapacity(archived?.rows[0]?.snapshot):
+  await readKanbanCapacityView(db,p.team_id,p.start_on,p.end_on,p.status,p.id).catch(()=>null);
  return {
   period:{id:p.id,name:p.name,startOn:p.start_on,endOn:p.end_on,status:p.status,timeZone:p.time_zone,team:p.team_name},
   provisional:reportProvisional(p.status),
   blocks:{
    objectives:{state:"not-collected" as const,items:[]},
    metrics:{state:"not-collected" as const,items:[]},
-   capacity:{state:p.initial_jh===null?"unavailable" as const:"available" as const,
+   capacity:{state:!capacity?"unavailable" as const:"available" as const,
     initialJh:capacity?.initialJh??(p.initial_jh===null?null:Number(p.initial_jh)),
     provenance:capacity?.initialProvenance??p.capacity_provenance??"not-captured",
     actualOpenedAt:capacity?.actualOpenedAt??null,
