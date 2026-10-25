@@ -3453,6 +3453,7 @@
     "confirmArchive": "Créer une version PDF immuable de ce brouillon ?",
     "warnings": "Le contrôle détecte des avertissements non bloquants. Continuer quand même ?",
     "failed": "Le PDF n'a pas pu être produit. Le brouillon est conservé.",
-    "downloadArchive": "Télécharger l'archive créée"
+    "downloadArchive": "Télécharger l'archive créée",
+    "saveFirst": "Enregistrez les modifications avant l'export ou l'archivage."
   }
 }

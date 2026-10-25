@@ -2,6 +2,7 @@ import Link from "next/link";
 import ReportStudio from "../report-studio";
 import ReportQualityControl from "../report-quality-control";
 import ReportPdfActions from "../report-pdf-actions";
+import {ReportEditingProvider} from "../report-editing-context";
 import ReportDataRefresh from "../report-data-refresh";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
@@ -27,10 +28,12 @@ export default async function ReportDetail({params,searchParams}:{params:Promise
  const locale=await requestLocale(),t=(k:string)=>translate(locale,("reportsCenter."+k) as "reportsCenter.heading");
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <Link href={"/app/reports?cycleId="+encodeURIComponent(cycleId)}>{t("back")}</Link>
+  <ReportEditingProvider initialRevision={doc.revision}>
   <ReportPdfActions sprintId={cycleId} documentId={documentId} readOnly={account.role!=="admin"}/>
   <ReportQualityControl content={doc.content}/>
   <ReportDataRefresh sprintId={cycleId} documentId={documentId} readOnly={account.role!=="admin"}/>
   <ReportStudio document={doc} readOnly={account.role!=="admin"} journal={journal.map(a=>({id:a.id,type:a.type,scope:a.scope,content:a.content,archiveId:a.archiveId}))}/>
+  </ReportEditingProvider>
   {updateOffer?.available&&<section className="alert alert-info" aria-label={t("updateAvailable")}>
    <p className="mb-2">{t("updateAvailable")} · V{updateOffer.comparison.fromVersion} → V{updateOffer.comparison.toVersion}</p>
    <p className="small mb-0">{updateOffer.comparison.sectionsChanged?t("sectionsChanged"):""} {updateOffer.comparison.contentChanged?t("contentChanged"):""} {t("noAutoUpdate")}</p>

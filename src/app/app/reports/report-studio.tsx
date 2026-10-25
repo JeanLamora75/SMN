@@ -6,6 +6,7 @@ import {insertSelectedAnalysis,replaceEmbeddedAnalysis,type EmbeddedAnalysis} fr
 import ReportBlocksEditor from "./report-blocks-editor";
 import {isReportBlock,moveItem,type ReportBlock} from "@/lib/report-studio-blocks";
 import {useTranslation} from "@/i18n/client";
+import {useReportEditing} from "./report-editing-context";
 import {reportDocumentStyle} from "@/lib/report-document-style";
 import type {ReportDocument} from "@/server/reports/report-documents";
 
@@ -16,6 +17,7 @@ type Mode="composition"|"writing"|"preview";
 
 export default function ReportStudio({document,readOnly,journal}:{document:ReportDocument;readOnly:boolean;journal:JournalChoice[]}){
  const t=useTranslation(),tr=(k:string)=>t(("reportsStudio."+k) as Parameters<typeof t>[0]);
+ const editing=useReportEditing();
  const initial=document.content as StudioContent;
  const [content,setContent]=useState<StudioContent>(initial);
  const sessionId=useRef(crypto.randomUUID()); const sequence=useRef(0); const changeVersion=useRef(0);
@@ -26,9 +28,9 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const [zoom,setZoom]=useState(100),[saving,setSaving]=useState(false);
  const [saved,setSaved]=useState(true),[error,setError]=useState("");
  const [undo,setUndo]=useState<StudioContent[]>([]),[redo,setRedo]=useState<StudioContent[]>([]);
- const change=(next:StudioContent)=>{setUndo(x=>[...x.slice(-49),content]);setRedo([]);changeVersion.current++;setContent(next);setSaved(false);setError("");};
- const back=()=>{if(!undo.length)return;setRedo(x=>[...x,content]);changeVersion.current++;setContent(undo[undo.length-1]);setUndo(x=>x.slice(0,-1));setSaved(false);};
- const forward=()=>{if(!redo.length)return;setUndo(x=>[...x,content]);changeVersion.current++;setContent(redo[redo.length-1]);setRedo(x=>x.slice(0,-1));setSaved(false);};
+ const change=(next:StudioContent)=>{setUndo(x=>[...x.slice(-49),content]);setRedo([]);changeVersion.current++;setContent(next);setSaved(false);editing.setDirty(true);setError("");};
+ const back=()=>{if(!undo.length)return;setRedo(x=>[...x,content]);changeVersion.current++;setContent(undo[undo.length-1]);setUndo(x=>x.slice(0,-1));setSaved(false);editing.setDirty(true);};
+ const forward=()=>{if(!redo.length)return;setUndo(x=>[...x,content]);changeVersion.current++;setContent(redo[redo.length-1]);setRedo(x=>x.slice(0,-1));setSaved(false);editing.setDirty(true);};
  const style=reportDocumentStyle(content.documentStyle);
  const updateStyle=(next:Partial<typeof style>)=>change({...content,documentStyle:{...style,...next}});
  const pageBreaks=content.pageBreaks??{};
@@ -48,15 +50,15 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const toggleSection=(key:string)=>change({...content,sections:sections.map(s=>s.key===key?{...s,visible:!s.visible}:s)});
  const save=async()=>{
   if(readOnly||saving||saved)return;
-  const sendingVersion=changeVersion.current;setSaving(true);setError("");
+  const sendingVersion=changeVersion.current;setSaving(true);editing.setBusy(true);setError("");
   try{
    const response=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(document.sprintId)+"/documents/"+encodeURIComponent(document.id),{
     method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:sessionId.current,sequence:++sequence.current,content})});
    if(!response.ok)throw Error(response.status===409?"conflict":"failed");
    const data=await response.json() as {revision:number};
-   if(data.revision)setSaved(changeVersion.current===sendingVersion);
+   if(data.revision){const stillDirty=changeVersion.current!==sendingVersion;setSaved(!stillDirty);editing.acknowledge(data.revision,stillDirty);}
   }catch(e){setError(e instanceof Error&&e.message==="conflict"?tr("conflict"):tr("saveError"));}
-  finally{setSaving(false);}
+  finally{setSaving(false);editing.setBusy(false);}
  };
  useEffect(()=>{if(readOnly||saved||saving||error)return;const timer=setTimeout(()=>{void save();},650);return ()=>clearTimeout(timer);},[content,saved,saving,error,readOnly]);
  return <section className="smn-studio-shell d-grid gap-3">

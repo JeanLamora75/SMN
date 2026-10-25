@@ -11,11 +11,14 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
  const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
  if(!actor)return jsonResult({error:"forbidden"},403);
  const {id,documentId}=await params;
+ const expected=Number(req.headers.get("x-smn-expected-revision"));
+ if(!Number.isSafeInteger(expected)||expected<1)return jsonResult({error:"expected-revision-required"},400);
  if(!/^[a-f0-9-]{36}$/i.test(id)||!/^[a-f0-9-]{36}$/i.test(documentId))return jsonResult({error:"invalid-input"},400);
  try{
  const result=await withAuthDb(async db=>{
   const eligible=await inspectPdfEligibility(db,id,documentId);
   if(!eligible)return {error:"not-found"} as const;
+  if(eligible.document.revision!==expected)return {error:"revision-changed"} as const;
   if(!eligible.exportable)return {error:"quality-blocked",issues:eligible.errors} as const;
   if(eligible.warnings.length>0&&req.headers.get("x-smn-ack-warnings")!=="true")
    return {error:"warnings-require-confirmation",issues:eligible.warnings} as const;
