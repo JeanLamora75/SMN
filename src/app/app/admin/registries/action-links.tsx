@@ -12,17 +12,20 @@ export default function ActionLinks({id,canManage,navigation,onSaved}:{
 }){
  const t=useTranslation(),tr=(key:string)=>t(("actionLinks."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
- const [items,setItems]=useState<Item[]>([]);
- const [state,setState]=useState<"loading"|"ready"|"unavailable">("loading");
+ const [loaded,setLoaded]=useState<{
+  key:string;state:"ready"|"unavailable";items:Item[];
+ }|null>(null);
  const [error,setError]=useState<"conflict"|"unavailable"|null>(null);
  const [busy,setBusy]=useState(false);
  const [selected,setSelected]=useState<{id:string;title:string}|null>(null);
  const [showSearch,setShowSearch]=useState(false);
  const [reload,setReload]=useState(0);
  const endpoint="/api/admin/registries/"+encodeURIComponent(id)+"/action-links";
+ const requestKey=endpoint+":"+reload;
+ const state=loaded?.key===requestKey?loaded.state:"loading";
+ const items=loaded?.key===requestKey?loaded.items:[];
  useEffect(()=>{
   const ctrl=new AbortController();
-  setState("loading");
   void fetch(endpoint,{cache:"no-store",signal:ctrl.signal}).then(async res=>{
    if(!res.ok)throw Error("unavailable");
    const body=await res.json() as {links?:Item[]};
@@ -30,10 +33,14 @@ export default function ActionLinks({id,canManage,navigation,onSaved}:{
     typeof row.id==="string"&&typeof row.title==="string"&&
     allowed.some(type=>type===row.type)))throw Error("invalid");
    return body.links;
-  }).then(values=>{if(!ctrl.signal.aborted){setItems(values);setState("ready");}})
-   .catch(()=>{if(!ctrl.signal.aborted)setState("unavailable");});
+  }).then(values=>{if(!ctrl.signal.aborted)setLoaded({
+   key:requestKey,state:"ready",items:values
+  });})
+   .catch(()=>{if(!ctrl.signal.aborted)setLoaded({
+    key:requestKey,state:"unavailable",items:[]
+   });});
   return()=>ctrl.abort();
- },[endpoint,reload]);
+ },[endpoint,requestKey]);
  const change=async(relatedId:string,action:"linked"|"unlinked")=>{
   if(!canManage||busy)return;
   if(action==="unlinked"&&!window.confirm(tr("confirmUnlink")))return;
