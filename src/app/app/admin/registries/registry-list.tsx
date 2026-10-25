@@ -56,6 +56,8 @@ export default function RegistryList({canManage,initialType="all"}:{
    .finally(()=>{if(!ctrl.signal.aborted)setAttentionLoading(false);});
   return()=>ctrl.abort();
  },[]);
+ const filtered=type!=="all"||query.search!==""||query.status!==""||
+  query.owner!==""||query.cycleId!==""||query.lifecycle!=="all";
  const statuses=type==="all"
   ?Array.from(new Set(registryTypes.flatMap(kind=>[...registryStatuses[kind]])))
   :[...registryStatuses[type]];
@@ -178,7 +180,11 @@ export default function RegistryList({canManage,initialType="all"}:{
     <p className="small text-body-secondary">{translate("team")}: {result.team.name}</p>
     {attentionLoading&&<p role="status" className="small text-body-secondary mb-0">{translate("attentionLoading")}</p>}
     {attentionError&&<p role="alert" className="small text-danger mb-0">{translate("attentionUnavailable")}</p>}
-    {result.items.length===0?<div role="status" className="alert alert-light border">{translate("empty")}</div>:
+    {result.items.length===0?<div role="status" className="alert alert-light border">
+     {translate(filtered?"empty":"emptyInitial")}
+     {filtered&&<button type="button" className="btn btn-outline-secondary btn-sm ms-2"
+      onClick={reset}>{translate("reset")}</button>}
+    </div>:
      <table className="table table-hover align-middle smn-registry-list-table">
       <thead><tr>
        <th scope="col">{translate("date")}</th>
