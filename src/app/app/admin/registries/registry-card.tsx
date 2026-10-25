@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {useTranslation} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
+import {formatRegistryDate} from "@/lib/registry-date";
 import type {RegistryType} from "@/lib/registry-types";
 import BootstrapIcon from "../../bootstrap-icon";
 import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
@@ -14,11 +15,11 @@ const icons={
 } as const satisfies Record<RegistryType,string>;
 
 /** Same persisted item and verified SMN-104 signals as the List rendering. */
-export default function RegistryCard({item,canManage,signals,highlight=false,navigation,onNavigate}:{
+export default function RegistryCard({item,canManage,signals,highlight=false,navigation,onNavigate,onEdit}:{
  item:RegistryListItem;canManage:boolean;signals:readonly RegistrySignal[];highlight?:boolean;
- navigation:RegistryNavigation;onNavigate:()=>void;
+ navigation:RegistryNavigation;onNavigate:()=>void;onEdit:()=>void;
 }){
- const t=useTranslation();
+ const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const href=registryDetailHref(item.id,navigation);
@@ -36,9 +37,10 @@ export default function RegistryCard({item,canManage,signals,highlight=false,nav
      title={tr("actions")}>⋯</summary>
     <div className="smn-registry-row-menu">
      <Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>{tr("openRecord")}</Link>
-     {canManage&&<Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>
+     {canManage&&<button type="button" className="smn-registry-row-menu-link w-100 text-start border-0 bg-transparent"
+      onClick={event=>{event.currentTarget.closest("details")?.removeAttribute("open");onEdit();}}>
       {tr("editRecord")}
-     </Link>}
+     </button>}
     </div>
    </details>
   </header>
@@ -59,10 +61,10 @@ export default function RegistryCard({item,canManage,signals,highlight=false,nav
   </div>
   <div className="smn-registry-card-meta">
    <span><span className="smn-registry-card-meta-label">{tr("date")}: </span>
-    <time dateTime={item.occurredOn}>{item.occurredOn}</time>
+    <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time>
    </span>
    {item.dueOn&&<span><span className="smn-registry-card-meta-label">{tr("due")}: </span>
-    <time dateTime={item.dueOn}>{item.dueOn}</time>
+    <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time>
    </span>}
    {canManage&&<span><span className="smn-registry-card-meta-label">{tr("owner")}: </span>
     {item.owner??tr("notProvided")}
