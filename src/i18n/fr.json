@@ -3388,7 +3388,8 @@
     "subtitle": "Sous-titre",
     "footerText": "Texte du pied de page",
     "tocPending": "Pagination exacte disponible lors du rendu final.",
-    "pageBreak": "Saut de page avant la rubrique"
+    "pageBreak": "Saut de page avant la rubrique",
+    "mobileHint": "Sur téléphone, consultez le document et modifiez les commentaires simples. La configuration des blocs nécessite un écran plus grand."
   },
   "reportsBlocks": {
     "kind": "Type de bloc",
