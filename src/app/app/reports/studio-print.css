@@ -1,0 +1,20 @@
+/* Studio preview/print rules. Browser paginates naturally; page numbers need PDF renderer. */
+.smn-report-paper { overflow-wrap:anywhere; word-break:normal; hyphens:auto; }
+.smn-report-paper p,.smn-report-paper li { orphans:3; widows:3; }
+.smn-report-paper table {border-collapse:collapse;width:100%;table-layout:auto;}
+.smn-report-paper thead {display:table-header-group;}
+.smn-report-paper tfoot {display:table-footer-group;}
+.smn-report-paper tr {break-inside:avoid-page;}
+.smn-report-paper .smn-keep-together {break-inside:avoid-page;}
+.smn-report-paper img,.smn-report-paper svg {max-width:100%;height:auto;}
+@media print {
+ @page {size:A4; margin:14mm 12mm;}
+ body[data-smn-report-orientation="landscape"] { /* Orientation applied by print-class selector below */ }
+ .smn-report-print-portrait {page:smnPortrait;}
+ .smn-report-print-landscape {page:smnLandscape;}
+ @page smnPortrait {size:A4 portrait;margin:14mm 12mm;}
+ @page smnLandscape {size:A4 landscape;margin:14mm 12mm;}
+ .smn-report-paper {max-width:none!important;min-height:0!important;box-shadow:none!important;padding:0!important;}
+ .smn-report-paper .smn-section-page-break {break-before:page;}
+ .smn-report-studio-controls {display:none!important;}
+}
