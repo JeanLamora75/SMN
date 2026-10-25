@@ -31,7 +31,7 @@ export function parseRelationPayload(raw:unknown,id:string):RegistryRelation[]|n
    typeof entry.targetTitle!=="string"||!entry.targetTitle.trim()||
    !isType(entry.sourceType)||!isStatus(entry.sourceType,entry.sourceStatus)||
    (entry.targetKind==="record"?
-    !isType(entry.targetType)||!isType(entry.targetType)||!isStatus(entry.targetType as RegistryType,entry.targetStatus):
+    !isType(entry.targetType)||!isStatus(entry.targetType,entry.targetStatus):
     entry.targetType!=="goal"||entry.targetStatus!==null||entry.sourceId!==id)
   )return null;
   results.push(entry as RegistryRelation);
