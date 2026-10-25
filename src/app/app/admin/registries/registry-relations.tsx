@@ -8,6 +8,7 @@ import RegistryTargetSearch from "./registry-target-search";
 import {registryDetailHref,registryIndexPath,type RegistryNavigation} from "@/lib/registry-navigation";
 
 type Target={id:string;title:string;type:RegistryType|"goal";status?:string};
+const emptyRelations:RegistryRelation[]=[];
 export default function RegistryRelations({id,type,canManage,navigation,onSaved}:{
  id:string;type:string;canManage:boolean;navigation?:RegistryNavigation;onSaved?:()=>void;
 }){
@@ -27,7 +28,7 @@ export default function RegistryRelations({id,type,canManage,navigation,onSaved}
  const endpoint="/api/admin/registries/"+encodeURIComponent(id)+"/relations";
  const requestKey=endpoint+":"+reload;
  const state=loaded?.key===requestKey?loaded.state:"loading";
- const items=loaded?.key===requestKey?loaded.items:[];
+ const items=loaded?.key===requestKey?loaded.items:emptyRelations;
  useEffect(()=>{
   const ctrl=new AbortController();
   void fetch(endpoint,{cache:"no-store",signal:ctrl.signal})
