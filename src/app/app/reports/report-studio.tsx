@@ -1,15 +1,17 @@
 "use client";
 import {useMemo,useState} from "react";
+import {insertSelectedAnalysis,replaceEmbeddedAnalysis,type EmbeddedAnalysis} from "@/lib/report-embedded-analyses";
 import ReportBlocksEditor from "./report-blocks-editor";
 import {isReportBlock,moveItem,type ReportBlock} from "@/lib/report-studio-blocks";
 import {useTranslation} from "@/i18n/client";
 import type {ReportDocument} from "@/server/reports/report-documents";
 
 type Section={key:string;visible:boolean};
-type StudioContent={sections?:Section[];blocks?:unknown[];userNotes?:Record<string,string>;metrics?:Record<string,{value:number|null;unit:string}>;[key:string]:unknown};
+type JournalChoice={id:string;type:"human"|"ai";scope:string;content:string;archiveId:string|null};
+type StudioContent={analyses?:EmbeddedAnalysis[];sections?:Section[];blocks?:unknown[];userNotes?:Record<string,string>;metrics?:Record<string,{value:number|null;unit:string}>;[key:string]:unknown};
 type Mode="composition"|"writing"|"preview";
 
-export default function ReportStudio({document,readOnly}:{document:ReportDocument;readOnly:boolean}){
+export default function ReportStudio({document,readOnly,journal}:{document:ReportDocument;readOnly:boolean;journal:JournalChoice[]}){
  const t=useTranslation(),tr=(k:string)=>t(("reportsStudio."+k) as Parameters<typeof t>[0]);
  const initial=document.content as StudioContent;
  const [content,setContent]=useState<StudioContent>(initial);
@@ -22,6 +24,15 @@ export default function ReportStudio({document,readOnly}:{document:ReportDocumen
  const [saved,setSaved]=useState(true),[error,setError]=useState("");
  const change=(next:StudioContent)=>{setContent(next);setSaved(false);setError("");};
  const notes=content.userNotes??{};
+ const analyses=content.analyses??[];
+ const [candidate,setCandidate]=useState("");
+ const addAnalysis=()=>{
+  if(readOnly)return;
+  const found=journal.find(a=>a.type+":"+a.id===candidate);
+  if(!found)return;
+  const next:EmbeddedAnalysis={sourceId:found.id,archiveId:found.archiveId,origin:found.type,scope:found.scope,content:found.content,selectedAt:new Date().toISOString()};
+  change({...content,analyses:insertSelectedAnalysis(analyses,next)});setCandidate("");
+ };
  const blocks:ReportBlock[]=Array.isArray(content.blocks)?content.blocks.filter(isReportBlock):[];
  const moveSection=(index:number,direction:-1|1)=>change({...content,sections:moveItem(sections,index,direction)});
  const editNote=(key:string,value:string)=>change({...content,userNotes:{...notes,[key]:value}});
@@ -78,6 +89,19 @@ export default function ReportStudio({document,readOnly}:{document:ReportDocumen
     </div>)}
    </aside>}
   </div>
+  <section className="border rounded p-3 d-grid gap-2">
+   <h2 className="h6">{tr("analyses")}</h2>
+   {!readOnly&&mode!=="preview"&&<div className="d-flex flex-wrap gap-2">
+    <select className="form-select flex-grow-1" aria-label={tr("selectAnalysis")} value={candidate} onChange={e=>setCandidate(e.target.value)}>
+     <option value="">{tr("selectAnalysis")}</option>{journal.map(a=><option key={a.type+":"+a.id} value={a.type+":"+a.id}>{a.type==="ai"?tr("aiOrigin"):tr("humanOrigin")} · {a.scope}</option>)}
+    </select><button className="btn btn-outline-primary" type="button" disabled={!candidate} onClick={addAnalysis}>{tr("insertAnalysis")}</button>
+   </div>}
+   {analyses.length===0&&<p className="text-secondary">{tr("noAnalysis")}</p>}
+   {analyses.map(a=><article key={a.origin+":"+a.sourceId} className="border rounded p-2">
+    <p className="small text-secondary">{a.origin==="ai"?tr("aiOrigin"):tr("humanOrigin")} · {a.scope} · {tr("copiedSnapshot")}</p>
+    {readOnly||mode==="preview"?<p style={{whiteSpace:"pre-wrap"}}>{a.content}</p>:<textarea className="form-control" maxLength={12000} rows={4} value={a.content} onChange={e=>change({...content,analyses:replaceEmbeddedAnalysis(analyses,a.sourceId,a.origin,e.target.value)})}/>}
+   </article>)}
+  </section>
   {!saved&&!readOnly&&<p className="text-warning" role="status">{tr("unsavedWarning")}</p>}
  </section>;
 }
