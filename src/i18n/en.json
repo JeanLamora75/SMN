@@ -2,6 +2,7 @@
   "common": {
     "translationUnavailable": "Translation unavailable.",
     "retry": "Retry",
+    "saved": "Change saved.",
     "signIn": "Sign in",
     "home": "Home",
     "save": "Save"
