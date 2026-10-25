@@ -3367,7 +3367,14 @@
     "conflict": "Ce rapport a été modifié depuis son dernier chargement. Rechargez-le avant de poursuivre.",
     "saveError": "Enregistrement impossible. Réessayez.",
     "up": "Monter",
-    "down": "Descendre"
+    "down": "Descendre",
+    "analyses": "Analyses sélectionnées",
+    "selectAnalysis": "Sélectionner une analyse existante",
+    "aiOrigin": "Origine IA",
+    "humanOrigin": "Origine humaine",
+    "insertAnalysis": "Insérer l'analyse",
+    "noAnalysis": "Aucune analyse sélectionnée.",
+    "copiedSnapshot": "Copie conservée dans ce rapport"
   },
   "reportsBlocks": {
     "kind": "Type de bloc",
