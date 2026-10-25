@@ -23,7 +23,7 @@ export async function DELETE(request:NextRequest,{params}:{params:Promise<{id:st
  const {id}=await params;
  try{
   const result=await withAuthDb(db=>deleteKanbanPeriod(db,actor.id,id,{
-   name:data.name,startOn:data.startOn,endOn:data.endOn
+   name:data.name as string,startOn:data.startOn as string,endOn:data.endOn as string
   }));
   if(!result.ok)return jsonResult(result,result.error==="not-found"?404:result.error==="invalid-input"?400:409);
   return jsonResult(result);
