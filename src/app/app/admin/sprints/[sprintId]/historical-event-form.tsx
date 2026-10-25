@@ -12,7 +12,7 @@ export default function HistoricalEventForm({sprintId}:{sprintId:string}){
   const response=await fetch("/api/admin/sprints/"+encodeURIComponent(sprintId)+"/historical-events",{cache:"no-store"});
   if(response.ok)setEvents((await response.json() as {events:HistoricalRow[]}).events);
  }
- useEffect(()=>{void reload();},[sprintId]);
+ useEffect(()=>{const task=window.setTimeout(()=>{void reload();},0);return ()=>window.clearTimeout(task);},[sprintId]);
  async function saveCorrection(){
   if(!editing||busy)return;
   setBusy(true);setError("");setSuccess("");
