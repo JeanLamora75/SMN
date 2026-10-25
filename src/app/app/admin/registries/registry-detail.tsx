@@ -147,8 +147,10 @@ export default function RegistryDetail({id,teamId,canManage}:{
        onClick={()=>setTab(name)} onKeyDown={e=>onTabKeyDown(e,name)}>{text}</button>;
      })}
     </div>
-    <div className="smn-registry-detail-body" role="tabpanel"
-     id={prefix+"-panel-"+tab} aria-labelledby={prefix+"-tab-"+tab} tabIndex={0}>
+    {tabs.map(panel=><div key={panel} className="smn-registry-detail-body" role="tabpanel"
+     id={prefix+"-panel-"+panel} aria-labelledby={prefix+"-tab-"+panel}
+     tabIndex={tab===panel?0:-1} hidden={tab!==panel}>
+     {tab===panel&&<>
      {tab==="summary"&&<section aria-label={tr("summary")}>
       <h2 className="h5">{tr("description")}</h2>
       {item.description?<p className="smn-registry-detail-description">{item.description}</p>:
@@ -195,7 +197,8 @@ export default function RegistryDetail({id,teamId,canManage}:{
        <ActionLinks id={id} canManage={false}/>
       </>}
      </>}
-    </div>
+     </>}
+    </div>)}
    </>}
   </>}
  </section>;
