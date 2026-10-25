@@ -126,3 +126,30 @@ test("AC6 : FR/EN, thème, zoom et filtres accessibles",()=>{
  assert.ok(css.includes(".smn-registry-journal"));
  assert.ok(css.includes("@media(max-width:575px)"));
 });
+
+test("AC3 : une correction sans editedAt vérifié est refusée par le lecteur",()=>{
+ assert.equal(parseJournalPayload({comments:[{...comment,edited:true}],events:[],legacy:null}),null);
+ assert.equal(parseJournalPayload({comments:[{...comment,editedAt:"2026-10-25 09:00:00+00"}],events:[],legacy:null}),null);
+});
+test("AC5 : auteur d'association non communiqué au lecteur collectif",async()=>{
+ const queries:string[]=[];
+ const db={query:async(sql:string)=>{
+  queries.push(sql);
+  if(sql.includes("SELECT to_regclass"))return {rows:[{ready:true}]};
+  return {rows:[{...link,authorName:null}]};
+ }} as unknown as Client;
+ const result=await readRegistryJournalLinks(db,recordId,false);
+ assert.equal(result[0].authorName,null);
+ assert.ok(queries.at(-1)?.includes('NULL::text AS "authorName"'));
+ assert.ok(!queries.some(s=>/INSERT INTO|DELETE FROM|UPDATE public|CREATE TABLE/.test(s)));
+});
+test("AC2/AC3 : le brouillon de correction est protégé et seuls les administrateurs voient les actions",()=>{
+ const ui=file("src/app/app/admin/registries/registry-journal.tsx");
+ assert.match(ui,/window\.confirm\(tr\("discardEdit"\)\)/);
+ assert.match(ui,/beforeunload/);
+ assert.match(ui,/canManage&&<form/);
+ assert.match(ui,/canManage&&<div className="smn-registry-journal-actions"/);
+ assert.match(ui,/readVersions\(entry\.comment\.id,true\)/);
+ assert.match(ui,/aria-controls=\{editorId\+"-versions-"/);
+ assert.match(ui,/setSuccess\(true\)/);
+});
