@@ -3432,5 +3432,18 @@
     "confirm": "Actualiser uniquement les indicateurs sourcés ? Les commentaires et analyses seront conservés. Enregistrez vos modifications en cours avant de confirmer.",
     "refresh": "Actualiser les valeurs",
     "failed": "Comparaison ou actualisation indisponible."
+  },
+  "reportsQuality": {
+    "check": "Contrôle qualité",
+    "exportUnavailable": "Export PDF du nouveau Studio indisponible tant que le rendu fidèle n'est pas intégré.",
+    "noWarnings": "Aucun avertissement détecté parmi les règles disponibles.",
+    "noEditorialGuarantee": "Ce contrôle ne garantit pas l'exactitude éditoriale des commentaires ou analyses.",
+    "warning": "Avertissement",
+    "error": "Erreur",
+    "unavailable-data": "Valeur non renseignée",
+    "provisional": "Données courantes potentiellement provisoires",
+    "analysis-origin": "Analyse d'origine IA : vérifier la provenance",
+    "wide-table": "Vérifier la lisibilité du tableau",
+    "invalid-block": "Structure de bloc invalide"
   }
 }
