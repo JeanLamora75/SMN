@@ -81,7 +81,7 @@ export async function applyDateChange(db:Client,id:string,actorId:string,input:{
    await db.query("UPDATE public.smn_kanban_period SET start_on=$2,end_on=$3 WHERE id=$1",[id,input.startOn,input.endOn]);
    await db.query(`INSERT INTO public.smn_kanban_period_audit(id,period_id,action,details,actor_id)
    VALUES($1,$2,'dates-corrected',$3::jsonb,$4)`,
-   [randomUUID(),id,JSON.stringify({before:preview.before,after:preview.after,events:"preserved",capacity:"unchanged",capacityDelta:"reference-recomputed-on-read",warnings:preview.warnings,impact,events,reason:input.reason?.trim()||null}),actorId]);
+   [randomUUID(),id,JSON.stringify({before:preview.before,after:preview.after,eventPolicy:"preserved",capacity:"unchanged",capacityDelta:"reference-recomputed-on-read",warnings:preview.warnings,impact,events,reason:input.reason?.trim()||null}),actorId]);
   }
   await db.query("COMMIT");return {ok:true as const,periodId:id};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
