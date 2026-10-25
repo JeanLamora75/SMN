@@ -180,22 +180,40 @@ describe("SMN-57 — calcul fiable des JH",()=>{
   assert.equal(report.members[0].totalJh,null);
   assert.ok(report.missing.some(m=>m.source==="assignment-version"));
  });
- it("un calendrier absent ou une couverture partielle rend le total non calculable",async()=>{
-  for(const options of [{missingCalendar:true},{partialNational:true},{missingCountry:true}]){
-   const report=await readDevelopmentCapacity(fixture(options).db,range.start,range.end);
-   assert.equal(report.totalJh,null);
-   assert.equal(report.status,"not-calculable");
-   assert.ok(report.missing.length>0);
+ it("le calendrier individuel est requis, mais le pays et les jours fériés ne le sont pas",async()=>{
+  const absent=await readDevelopmentCapacity(fixture({missingCalendar:true}).db,
+   range.start,range.end);
+  assert.equal(absent.totalJh,null);
+  assert.ok(absent.missing.some(m=>m.source==="work-calendar"));
+  for(const options of [{partialNational:true},{missingCountry:true},
+   {partialNational:true,missingCountry:true}]){
+   const report=await readDevelopmentCapacity(fixture(options).db,
+    range.start,range.end);
+   assert.equal(report.totalJh,2);
+   assert.equal(report.status,"calculated");
+   assert.deepEqual(report.missing,[]);
   }
  });
- it("une fermeture explicite supplée le calendrier national inconnu uniquement sur sa date",async()=>{
-  const report=await readDevelopmentCapacity(fixture({
-   partialNational:true,closure:true
+ it("sans jours fériés enregistrés, la capacité est calculable ; un férié connu reste déduit",async()=>{
+  const withoutHoliday=await readDevelopmentCapacity(fixture({
+   partialNational:true,holiday:false
   }).db,range.start,range.end);
-  assert.equal(report.totalJh,null);
+  assert.equal(withoutHoliday.totalJh,2);
+  const withHoliday=await readDevelopmentCapacity(fixture({
+   partialNational:true,holiday:true
+  }).db,range.start,range.end);
+  assert.equal(withHoliday.totalJh,1);
+  assert.equal(withHoliday.members[0].days[0].availableHalfDays,0);
+ });
+ it("une fermeture collective reste déduite sans couverture nationale configurée",async()=>{
+  const report=await readDevelopmentCapacity(fixture({
+   partialNational:true,closure:true,holiday:false
+  }).db,range.start,range.end);
+  assert.equal(report.status,"calculated");
+  assert.equal(report.totalJh,1);
   assert.equal(report.members[0].days[0].status,"calculated");
   assert.equal(report.members[0].days[0].availableHalfDays,0);
-  assert.ok(report.missing.some(m=>m.date==="2026-05-04"));
+  assert.deepEqual(report.missing,[]);
  });
  it("des affectations simultanées ambiguës restent non calculables",async()=>{
   const report=await readDevelopmentCapacity(fixture({multiAssignment:true}).db,
