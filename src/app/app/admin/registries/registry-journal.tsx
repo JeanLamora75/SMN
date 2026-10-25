@@ -217,7 +217,8 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage}:{
     <ol className="smn-registry-journal-list">
      {visible.map(entry=><li key={entry.id} className="smn-registry-journal-entry">
       <div className="smn-registry-journal-entry-top">
-       <strong>{entry.kind==="comment"?tr("comment"):tr("link")+
+       <strong>{entry.kind==="comment"?tr("comment"):
+        tr(entry.eventKind==="created"?"linkedCreatedEvent":"link")+
         " · "+recordType(entry.type)}</strong>
        <time dateTime={entry.at}>{when(entry.at)}</time>
       </div>
