@@ -92,6 +92,24 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const retry=()=>{setLoading(true);setProblem(null);setReload(n=>n+1);};
  const tabs=item?registryDetailTabs(item.type):[];
  const onward=enterRegistryRelation(navigation,id);
+ const hasUnsaved=()=>Boolean(document.querySelector(
+  '.smn-registry-detail [data-registry-dirty="true"]'
+ ));
+ const mayLeave=()=>!hasUnsaved()||window.confirm(t("registryNavigation.discard"));
+ useEffect(()=>{
+  // Capture before the router's bubble listener, so a rejected browser Back keeps this record.
+  let reverting=false;
+  const onPop=(event:PopStateEvent)=>{
+   if(reverting){reverting=false;event.stopImmediatePropagation();return;}
+   if(!document.querySelector('.smn-registry-detail [data-registry-dirty="true"]')||
+    window.confirm(t("registryNavigation.discard")))return;
+   reverting=true;
+   event.stopImmediatePropagation();
+   window.history.forward();
+  };
+  window.addEventListener("popstate",onPop,true);
+  return()=>window.removeEventListener("popstate",onPop,true);
+ },[t]);
  const onTabKeyDown=(event:KeyboardEvent<HTMLButtonElement>,current:RegistryDetailTab)=>{
   const index=tabs.indexOf(current);
   let next=index;
@@ -101,6 +119,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   else if(event.key==="End")next=tabs.length-1;
   else return;
   event.preventDefault();
+  if(!mayLeave())return;
   const target=tabs[next];
   setTab(target);
   buttons.current[target]?.focus();
@@ -137,7 +156,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   const target=event.target;
   if(!(target instanceof Element)||!target.closest("a[href]")||
    !event.currentTarget.querySelector('[data-registry-dirty="true"]'))return;
-  if(!window.confirm(t("registryNavigation.discard"))){event.preventDefault();event.stopPropagation();}
+  if(!mayLeave()){event.preventDefault();event.stopPropagation();}
  }}>
   <RegistryBreadcrumbs id={id} title={item?.title} teamId={teamId} navigation={navigation}/>
   {loading?<p role="status">{tr("loading")}</p>:
@@ -181,7 +200,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        type="button" role="tab" id={prefix+"-tab-"+name}
        aria-controls={prefix+"-panel-"+name} aria-selected={tab===name}
        tabIndex={tab===name?0:-1} className={"smn-registry-detail-tab"+(tab===name?" active":"")}
-       onClick={()=>setTab(name)} onKeyDown={e=>onTabKeyDown(e,name)}>{text}</button>;
+       onClick={()=>{if(mayLeave())setTab(name);}} onKeyDown={e=>onTabKeyDown(e,name)}>{text}</button>;
      })}
     </div>
     {tabs.map(panel=><div key={panel} className="smn-registry-detail-body" role="tabpanel"
