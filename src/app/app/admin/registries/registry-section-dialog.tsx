@@ -36,7 +36,7 @@ export default function RegistrySectionDialog({title,onDismiss,children}:{
  const cancel=(event:SyntheticEvent<HTMLDialogElement>)=>{
   event.preventDefault();close();
  };
- return <dialog ref={ref} className="smn-registry-section-dialog"
+ return <dialog ref={ref} className="smn-registry-section-dialog" data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancel} onClose={onDismiss}>
   <div className="smn-registry-section-dialog-layout"
    onChangeCapture={()=>setDirty(true)} onInputCapture={()=>setDirty(true)}>
