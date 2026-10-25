@@ -3445,7 +3445,8 @@
     "provisional": "Données courantes potentiellement provisoires",
     "analysis-origin": "Analyse d'origine IA : vérifier la provenance",
     "wide-table": "Vérifier la lisibilité du tableau",
-    "invalid-block": "Structure de bloc invalide"
+    "invalid-block": "Structure de bloc invalide",
+    "unsupported-pdf-block": "Export bloqué : graphique, tableau ou image non restitué fidèlement en PDF."
   },
   "reportsPdf": {
     "export": "Exporter le PDF",
