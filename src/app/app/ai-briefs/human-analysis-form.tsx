@@ -25,7 +25,7 @@ export default function HumanAnalysisForm({mode,cycleId,archiveId}:{mode:"scrum"
   <input id="human-scope" className="form-control" maxLength={160} value={scope} onChange={e=>setScope(e.target.value)}/>
   <label className="form-label mt-2" htmlFor="human-analysis-content">Analyse humaine</label>
   <textarea id="human-analysis-content" className="form-control" rows={7} value={content} maxLength={200000} onChange={e=>setContent(e.target.value)}/>
-  <button className="btn btn-primary mt-3" type="button" disabled={busy||!scope.trim()||!content.trim()} onClick={()=>void save()}>Enregistrer l'analyse humaine</button>
+  <button className="btn btn-primary mt-3" type="button" disabled={busy||!scope.trim()||!content.trim()} onClick={()=>void save()}>Enregistrer l&apos;analyse humaine</button>
   {message&&<p role="status" className="mt-2">{message}</p>}
  </section>;
 }
