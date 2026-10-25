@@ -53,7 +53,7 @@ test("la synthèse ne présente pas un faux journal et ne duplique pas le bandea
  assert.match(ui,/item\.description/);
  assert.ok(!ui.includes("fakeEntry"));
  assert.ok(!ui.includes("history.map"));
- assert.match(ui,/registryDetail\.legacyComment/);
+ assert.match(ui,/tr\("legacyComment"\)/);
 });
 test("FR/EN: les onglets et états ont les mêmes clés",()=>{
  const fr=JSON.parse(read("src/i18n/fr.json")).registryDetail;
