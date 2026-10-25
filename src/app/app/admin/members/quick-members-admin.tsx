@@ -242,7 +242,7 @@ export default function QuickMembersAdmin(){
      onSaved={savedLifecycle} onCancel={()=>setLifecycleId(null)}/>
    </div>}
    {selectedAssignment&&roster&&<div className="mt-4">
-    <AssignmentEditor key={selectedAssignment.id} memberId={selectedAssignment.id}
+    <AssignmentEditor key={selectedAssignment.id} memberId={selectedAssignment.id} memberRevision={selectedAssignment.revision}
      teamId={roster.team.id} teamName={roster.team.name} onSaved={savedAssignment}
      onCancel={()=>setAssigningId(null)}/>
    </div>}
