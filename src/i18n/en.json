@@ -3367,7 +3367,14 @@
     "conflict": "This report has changed since loading. Reload it before proceeding.",
     "saveError": "Could not save. Try again.",
     "up": "Move up",
-    "down": "Move down"
+    "down": "Move down",
+    "analyses": "Selected analyses",
+    "selectAnalysis": "Select an existing analysis",
+    "aiOrigin": "AI origin",
+    "humanOrigin": "Human origin",
+    "insertAnalysis": "Insert analysis",
+    "noAnalysis": "No selected analysis.",
+    "copiedSnapshot": "Copy preserved in this report"
   },
   "reportsBlocks": {
     "kind": "Block type",
