@@ -6,6 +6,7 @@ import {linkedJournalTypes,type LinkedJournalType} from "@/lib/registry-linked-c
 import {useEffect,useId,useMemo,useState,type FormEvent} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {validRegistryActivityTime} from "@/lib/registry-summary-context";
+import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
 import {
  buildJournalEntries,filterJournalEntries,journalFilters,parseJournalPayload,
  type JournalComment,type JournalFilter,type JournalPayload
@@ -16,8 +17,9 @@ type Version={revision:number;action:string;beforeText:string|null;afterText:str
 type VersionState={state:"loading"|"unavailable"|"ready";items:Version[]};
 const recordIdRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryJournal({itemId,itemTitle,teamId,canManage}:{
+export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation}:{
  itemId:string;itemTitle:string;teamId:string;canManage:boolean;
+ navigation:RegistryNavigation;
 }){
  const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryJournal."+key) as Parameters<typeof t>[0]);
@@ -156,7 +158,8 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage}:{
    setVersions(old=>({...old,[commentId]:{state:"ready",items:payload.versions!}}));
   }catch{setVersions(old=>({...old,[commentId]:{state:"unavailable",items:[]}}));}
  };
- return <section className="smn-registry-journal" aria-label={tr("heading")}>
+ return <section className="smn-registry-journal" aria-label={tr("heading")}
+  data-registry-dirty={Boolean(draft.trim()||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
   {canManage&&<form className="smn-registry-journal-compose" onSubmit={save}>
    <label className="form-label" htmlFor={editorId}>{tr("writeComment")}</label>
    <textarea className="form-control" id={editorId} rows={3} maxLength={4000}
@@ -187,13 +190,14 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage}:{
    </div>}
    {linkedCreated&&<div role="status" className="smn-registry-linked-success">
     <span>{tr("createdLinked")}</span>
-    <Link href={"/app/admin/registries/"+encodeURIComponent(linkedCreated.id)}
+    <Link href={registryDetailHref(linkedCreated.id,navigation)}
      className="btn btn-sm btn-outline-success">{tr("viewLinked")}</Link>
     <button type="button" className="btn btn-sm btn-outline-success"
      onClick={()=>{setLinkedCreated(null);setChooseLinked(true);}}>
      {tr("createAnotherLinked")}
     </button>
-    <Link href={"/app/admin/registries/"+encodeURIComponent(itemId)} className="btn btn-sm btn-link">{tr("backToSource")}</Link>
+    <Link href={registryDetailHref(itemId,{origin:navigation.origin,trail:navigation.trail.slice(0,-1)})}
+     className="btn btn-sm btn-link">{tr("backToSource")}</Link>
    </div>}
   </div>}
   <div className="smn-registry-journal-filters" role="group" aria-label={tr("filters")}>
@@ -230,7 +234,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage}:{
         <span className="smn-registry-journal-meta"> · {commentsText("edited")}</span>}
       </div>
       {entry.kind==="link"?
-       <Link href={"/app/admin/registries/"+encodeURIComponent(entry.recordId)}>
+       <Link href={registryDetailHref(entry.recordId,navigation)}>
         {entry.title}
        </Link>:
        <>
