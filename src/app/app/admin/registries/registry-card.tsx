@@ -4,6 +4,7 @@ import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 import type {RegistryType} from "@/lib/registry-types";
 import BootstrapIcon from "../../bootstrap-icon";
+import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
 import type {RegistryListItem,RegistrySignal} from "./registry-list-row";
 
 const icons={
@@ -13,13 +14,14 @@ const icons={
 } as const satisfies Record<RegistryType,string>;
 
 /** Same persisted item and verified SMN-104 signals as the List rendering. */
-export default function RegistryCard({item,canManage,signals,highlight=false}:{
+export default function RegistryCard({item,canManage,signals,highlight=false,navigation,onNavigate}:{
  item:RegistryListItem;canManage:boolean;signals:readonly RegistrySignal[];highlight?:boolean;
+ navigation:RegistryNavigation;onNavigate:()=>void;
 }){
  const t=useTranslation();
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
- const href="/app/admin/registries/"+encodeURIComponent(item.id);
+ const href=registryDetailHref(item.id,navigation);
  return <article className={"smn-registry-card"+(highlight?" smn-registry-just-created":"")}>
   <header className="smn-registry-card-head">
    <span className="smn-registry-row-type">
@@ -33,14 +35,14 @@ export default function RegistryCard({item,canManage,signals,highlight=false}:{
      aria-label={t("registryList.actionsFor",{title:item.title})}
      title={tr("actions")}>⋯</summary>
     <div className="smn-registry-row-menu">
-     <Link className="smn-registry-row-menu-link" href={href}>{tr("openRecord")}</Link>
-     {canManage&&<Link className="smn-registry-row-menu-link" href={href}>
+     <Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>{tr("openRecord")}</Link>
+     {canManage&&<Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>
       {tr("editRecord")}
      </Link>}
     </div>
    </details>
   </header>
-  <Link href={href} className="smn-registry-row-title">{item.title}</Link>
+  <Link href={href} onClick={onNavigate} className="smn-registry-row-title">{item.title}</Link>
   {item.description&&<p className="smn-registry-row-description" title={item.description}>
    {item.description}
   </p>}
