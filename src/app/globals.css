@@ -749,3 +749,19 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-journal-actions .btn{min-height:44px}
  .smn-registry-journal-editor,.smn-registry-journal-versions{padding:10px}
 }
+
+/* Contextual actions stay within the journal; full record editing remains in the shared modal. */
+.smn-registry-linked-create{display:grid;gap:9px;min-width:0;justify-items:start}
+.smn-registry-linked-chooser{display:flex;align-items:center;flex-wrap:wrap;gap:7px;
+ padding:10px 12px;background:var(--smn-soft);border:1px solid var(--smn-border);
+ border-radius:8px;max-width:100%;min-width:0}
+.smn-registry-linked-chooser .btn{min-height:38px;white-space:normal}
+.smn-registry-linked-success{display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+ padding:9px 12px;border:1px solid var(--smn-border);border-radius:8px;
+ background:var(--smn-soft);font-size:.85rem;max-width:100%}
+.smn-registry-linked-success .btn{white-space:normal}
+@media(max-width:575px){
+ .smn-registry-linked-chooser{align-items:stretch;width:100%;flex-direction:column}
+ .smn-registry-linked-chooser .btn{width:100%;min-height:44px}
+ .smn-registry-linked-success .btn{min-height:44px}
+}
