@@ -27,6 +27,8 @@ const makeDB=(opts:{item?:boolean;comment?:boolean;currentRevision?:number;withd
     body:"Premier texte",withdrawnAt:opts.withdrawn?"2026-10-25 10:00+00":null}]};
   if(sql.includes("AS installed"))
    return {rows:[{installed:opts.table!==false}]};
+  if(sql.includes("SELECT id FROM public.smn_registry_comment"))
+   return {rows:opts.comment===false?[]:[{id:COMMENT}]};
   if(sql.includes("FROM public.smn_registry_comment c")&&sql.includes("ORDER BY"))
    return {rows:[]};
   if(sql.includes("FROM public.smn_registry_comment_revision v"))
@@ -94,7 +96,7 @@ test("retrait : retrait logique avec trace, aucune suppression physique",async()
  const result=await reviseRegistryComment(db,"actor-2",ID,COMMENT,"withdraw",{revision:1});
  assert.deepEqual(result,{ok:true,id:COMMENT,revision:2});
  assert.ok(calls.some(c=>c.sql.includes("SET withdrawn_at=now()")));
- assert.ok(calls.some(c=>c.sql.includes("'withdrawn'")));
+ assert.ok(calls.some(c=>c.params?.includes("withdrawn")));
  assert.ok(!calls.some(c=>/DELETE FROM public.smn_registry_comment/.test(c.sql)));
  assert.equal(calls.at(-1)?.sql,"COMMIT");
 });
