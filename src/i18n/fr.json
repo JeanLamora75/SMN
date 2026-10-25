@@ -2368,6 +2368,27 @@
     "saving": "Enregistrement…",
     "discardChanges": "Abandonner les modifications de description non enregistrées ?"
   },
+  "registryEdit": {
+    "general": "Informations générales",
+    "status": "Statut et suivi",
+    "edit": "Modifier",
+    "editNamed": "Modifier : {name}",
+    "riskAssessment": "Évaluation du risque",
+    "riskRoam": "Classification ROAM",
+    "dependencyParties": "Parties de la dépendance",
+    "dependencyVigilance": "Vigilance de la dépendance",
+    "decisionDetail": "Détails de la décision",
+    "registryRelations": "Relations de la fiche",
+    "registryCycles": "Cycles associés",
+    "actionLinks": "Liens de l’action",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "discard": "Abandonner les modifications non enregistrées ?",
+    "conflict": "Cette fiche a été modifiée ailleurs. Votre brouillon est conservé : actualisez les données avant de recommencer.",
+    "unavailable": "Enregistrement indisponible. Le brouillon reste ouvert.",
+    "invalidTransition": "Cette transition de statut n’est pas autorisée. Aucun changement n’a été enregistré."
+  },
   "registryDetail": {
     "tabs": "Navigation dans la fiche",
     "summary": "Synthèse",

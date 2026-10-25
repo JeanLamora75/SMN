@@ -36,7 +36,7 @@ export default function RegistryDescriptionEditor({item,onSaved,onDismiss}:{
  };
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();
-  if(busy||!Number.isSafeInteger(item.revision)||!item.revision||item.revision<1)return;
+  if(busy||typeof item.revision!=="number"||!Number.isSafeInteger(item.revision)||item.revision<1)return;
   setBusy(true);setFailure(null);
   try{
    const response=await fetch("/api/admin/registries/"+encodeURIComponent(item.id),{
@@ -51,7 +51,7 @@ export default function RegistryDescriptionEditor({item,onSaved,onDismiss}:{
    if(response.status===409){setFailure("conflict");return;}
    if(!response.ok)throw Error("save-unavailable");
    const result=await response.json() as {ok?:boolean;revision?:number};
-   if(!result.ok||!Number.isSafeInteger(result.revision))throw Error("save-unconfirmed");
+   if(!result.ok||typeof result.revision!=="number"||!Number.isSafeInteger(result.revision))throw Error("save-unconfirmed");
    onSaved();
   }catch{setFailure("error");}
   finally{setBusy(false);}
@@ -78,7 +78,7 @@ export default function RegistryDescriptionEditor({item,onSaved,onDismiss}:{
     <button type="button" className="btn btn-outline-secondary" disabled={busy}
      onClick={close}>{tr("cancel")}</button>
     <button type="submit" className="btn btn-primary"
-     disabled={busy||!dirty||!Number.isSafeInteger(item.revision)}>
+     disabled={busy||!dirty||typeof item.revision!=="number"||!Number.isSafeInteger(item.revision)}>
      {busy?tr("saving"):tr("save")}
     </button>
    </footer>

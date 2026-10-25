@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import {useEffect,useId,useRef,useState,type KeyboardEvent} from "react";
+import {useEffect,useId,useRef,useState,type KeyboardEvent,type ReactNode} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import {registryDetailTabs,registryBusinessTabKeys,type RegistryDetailTab} from "@/lib/registry-detail-tabs";
 import BootstrapIcon from "../../bootstrap-icon";
-import RegistryCreate from "./registry-create";
+import RegistrySectionDialog from "./registry-section-dialog";
+import RegistryCoreEditor,{type RegistryCoreSection} from "./registry-core-editor";
 import RegistrySummary from "./registry-summary";
 import RegistryDescriptionEditor from "./registry-description-editor";
 import RegistryHistory from "./registry-history";
@@ -21,6 +22,8 @@ import DecisionDetail from "./decision-detail";
 import DecisionActions from "./decision-actions";
 import ActionLinks from "./action-links";
 
+type BusinessSection="riskAssessment"|"riskRoam"|"dependencyParties"|"dependencyVigilance"|
+ "decisionDetail"|"registryRelations"|"registryCycles"|"actionLinks";
 type DetailItem={
  id:string;teamId:string;type:RegistryType;title:string;status:string;
  occurredOn:string;description:string|null;dueOn:string|null;
@@ -59,7 +62,8 @@ export default function RegistryDetail({id,teamId,canManage}:{
  const [problem,setProblem]=useState<"missing"|"unavailable"|null>(null);
  const [reload,setReload]=useState(0);
  const [tab,setTab]=useState<RegistryDetailTab>("summary");
- const [editing,setEditing]=useState(false);
+ const [coreEditing,setCoreEditing]=useState<RegistryCoreSection|null>(null);
+ const [businessEditing,setBusinessEditing]=useState<BusinessSection|null>(null);
  const [descriptionEditing,setDescriptionEditing]=useState(false);
  const prefix=useId();
  const buttons=useRef<Partial<Record<RegistryDetailTab,HTMLButtonElement|null>>>({});
@@ -99,10 +103,33 @@ export default function RegistryDetail({id,teamId,canManage}:{
   setTab(target);
   buttons.current[target]?.focus();
  };
- const updated=()=>{setEditing(false);retry();};
+ const coreUpdated=()=>{setCoreEditing(null);retry();};
+ const businessUpdated=()=>{setBusinessEditing(null);retry();};
  const descriptionUpdated=()=>{setDescriptionEditing(false);retry();};
- const cancelEdit=()=>{
-  if(window.confirm(tr("leaveEditWarning"))){setEditing(false);retry();}
+ const sectionView=(section:BusinessSection,name:string,content:ReactNode)=><div
+  className="smn-registry-business-section" key={section}>
+  {canManage&&<div className="smn-registry-business-edit-bar">
+   <button type="button" className="btn btn-sm btn-outline-secondary"
+    aria-label={t("registryEdit.editNamed",{name})}
+    onClick={()=>setBusinessEditing(section)}>
+    <BootstrapIcon name="pencil-square"/><span>{t("registryEdit.edit")}</span>
+   </button>
+  </div>}
+  {content}
+ </div>;
+ const businessEditor=()=>{
+  switch(businessEditing){
+   case "riskAssessment":return <RiskAssessment id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "riskRoam":return <RiskRoam id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "dependencyParties":return <DependencyParties id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "dependencyVigilance":return <DependencyVigilance id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "decisionDetail":return <DecisionDetail id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "registryRelations":return <RegistryRelations id={id} type={item?.type??"risk"}
+    canManage={true} onSaved={businessUpdated}/>;
+   case "registryCycles":return <RegistryCycles id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "actionLinks":return <ActionLinks id={id} canManage={true} onSaved={businessUpdated}/>;
+   default:return null;
+  }
  };
  return <section className="smn-registry-detail">
   <nav aria-label={tr("back")} className="mb-3">
@@ -120,28 +147,28 @@ export default function RegistryDetail({id,teamId,canManage}:{
     </div>
     <div className="smn-registry-detail-identity">
      <span className="smn-registry-detail-kind">{label(item.type)}</span>
-     <h1>{item.title}</h1>
+     <div className="smn-registry-detail-heading-row">
+      <h1>{item.title}</h1>
+      {canManage&&<button type="button" className="btn btn-sm btn-outline-secondary"
+       aria-label={t("registryEdit.editNamed",{name:t("registryEdit.general")})}
+       onClick={()=>setCoreEditing("general")}>
+       <BootstrapIcon name="pencil-square"/>
+      </button>}
+     </div>
      <div className="smn-registry-detail-meta">
       <span className="badge bg-body-secondary text-body-emphasis border">{label(item.status)}</span>
+      {canManage&&<button type="button" className="btn btn-sm btn-outline-secondary"
+       aria-label={t("registryEdit.editNamed",{name:t("registryEdit.status")})}
+       onClick={()=>setCoreEditing("status")}>
+       <BootstrapIcon name="pencil-square"/>
+      </button>}
       <span>{tr("businessDate")}: <time dateTime={item.occurredOn}>{item.occurredOn}</time></span>
       {item.dueOn&&<span>{tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></span>}
       {canManage&&item.owner&&<span>{tr("owner")}: {item.owner}</span>}
      </div>
     </div>
-    {canManage&&<button type="button" className="btn btn-outline-primary btn-sm smn-registry-detail-edit"
-     onClick={()=>setEditing(true)} disabled={editing}>{tr("edit")}</button>}
     {!canManage&&<span className="small text-body-secondary">{tr("readOnly")}</span>}
    </header>
-   {editing&&canManage?<div className="smn-registry-legacy-editor">
-    <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
-     <h2 className="h5 mb-0">{tr("edit")}</h2>
-     <button type="button" className="btn btn-outline-secondary btn-sm" onClick={cancelEdit}>
-      {tr("cancelEdit")}
-     </button>
-    </div>
-    <RegistryCreate itemId={id} teamId={teamId} canManage={canManage}
-     modalMode lockDescription onSaved={updated}/>
-   </div>:<>
     <div className="smn-registry-detail-tabs" role="tablist" aria-label={tr("tabs")}>
      {tabs.map((name)=>{
       const text=name==="business"?tr(registryBusinessTabKeys[item.type]!):tr(name);
@@ -157,20 +184,24 @@ export default function RegistryDetail({id,teamId,canManage}:{
      tabIndex={tab===panel?0:-1} hidden={tab!==panel}>
      {tab===panel&&<>
      {tab==="summary"&&<RegistrySummary key={item.id} item={item} canManage={canManage}
-      onEditDescription={canManage&&Number.isSafeInteger(item.revision)?
+      onEditDescription={canManage&&typeof item.revision==="number"&&Number.isSafeInteger(item.revision)?
        ()=>setDescriptionEditing(true):undefined}/>}
      {tab==="relations"&&<>
-      <RegistryRelations id={id} type={item.type} canManage={false}/>
+      {sectionView("registryRelations",t("registryRelations.heading"),
+       <RegistryRelations id={id} type={item.type} canManage={false}/>)}
       {(item.type==="risk"||item.type==="obstacle"||item.type==="dependency")&&
-       <RegistryCycles id={id} canManage={false}/>}
+       sectionView("registryCycles",t("registryCycles.heading"),
+        <RegistryCycles id={id} canManage={false}/>)}
      </>}
      {tab==="history"&&(!canManage?
       <p role="status" className="alert alert-secondary">{tr("historyRestricted")}</p>:
       canManage&&<RegistryHistory id={id}/>)}
      {tab==="business"&&<>
       {item.type==="risk"&&<>
-       <RiskAssessment id={id} canManage={false}/>
-       <RiskRoam id={id} canManage={false}/>
+       {sectionView("riskAssessment",t("registryAssessment.heading"),
+        <RiskAssessment id={id} canManage={false}/>)}
+       {sectionView("riskRoam",t("registryRoam.heading"),
+        <RiskRoam id={id} canManage={false}/>)}
        {canManage&&<MaterializeRisk id={id} teamId={teamId} title={item.title}
         description={item.description??""} canManage={canManage}/>}
       </>}
@@ -179,11 +210,14 @@ export default function RegistryDetail({id,teamId,canManage}:{
        <p className="mb-0">{tr("currentState")}: <strong>{label(item.status)}</strong></p>
       </section>}
       {item.type==="dependency"&&<>
-       <DependencyParties id={id} canManage={false}/>
-       <DependencyVigilance id={id} canManage={false}/>
+       {sectionView("dependencyParties",t("dependencyParties.heading"),
+        <DependencyParties id={id} canManage={false}/>)}
+       {sectionView("dependencyVigilance",t("dependencyVigilance.heading"),
+        <DependencyVigilance id={id} canManage={false}/>)}
       </>}
       {item.type==="decision"&&<>
-       <DecisionDetail id={id} canManage={false}/>
+       {sectionView("decisionDetail",t("decisionDetail.heading"),
+        <DecisionDetail id={id} canManage={false}/>)}
        {canManage&&<DecisionActions id={id} teamId={teamId} title={item.title}
         description={item.description??""} canManage={canManage}/>}
       </>}
@@ -193,15 +227,27 @@ export default function RegistryDetail({id,teamId,canManage}:{
         <p className="mb-0">{tr("currentState")}: <strong>{label(item.status)}</strong></p>
         {item.dueOn&&<p className="mb-0">{tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></p>}
        </section>
-       <ActionLinks id={id} canManage={false}/>
+       {sectionView("actionLinks",t("actionLinks.heading"),
+        <ActionLinks id={id} canManage={false}/>)}
       </>}
      </>}
      </>}
     </div>)}
-    {canManage&&descriptionEditing&&Number.isSafeInteger(item.revision)&&
+    {canManage&&descriptionEditing&&typeof item.revision==="number"&&
+     Number.isSafeInteger(item.revision)&&
      <RegistryDescriptionEditor item={item} onSaved={descriptionUpdated}
       onDismiss={()=>setDescriptionEditing(false)}/>}
-   </>}
+    {canManage&&coreEditing&&typeof item.revision==="number"&&
+     Number.isSafeInteger(item.revision)&&
+     <RegistrySectionDialog title={t(("registryEdit."+coreEditing) as Parameters<typeof t>[0])}
+      onDismiss={()=>setCoreEditing(null)}>
+      <RegistryCoreEditor item={item} section={coreEditing} onSaved={coreUpdated}/>
+     </RegistrySectionDialog>}
+    {canManage&&businessEditing&&<RegistrySectionDialog
+     title={t(("registryEdit."+businessEditing) as Parameters<typeof t>[0])}
+     onDismiss={()=>setBusinessEditing(null)}>
+      {businessEditor()}
+     </RegistrySectionDialog>}
   </>}
  </section>;
 }

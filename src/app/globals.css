@@ -641,3 +641,37 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-summary-panel{padding:12px}
  .smn-registry-description-dialog{width:calc(100vw - 20px);padding:12px}
 }
+
+/* Editing surfaces keep the same spacing, theme and responsive rhythm as the record. */
+.smn-registry-detail-heading-row{display:flex;align-items:flex-start;gap:9px;min-width:0}
+.smn-registry-detail-heading-row h1{min-width:0;flex:1 1 auto}
+.smn-registry-detail-heading-row .btn{flex:none;margin-top:2px}
+.smn-registry-detail-meta>.btn{min-height:30px;padding:3px 7px;display:inline-flex;align-items:center}
+.smn-registry-business-section{position:relative;min-width:0}
+.smn-registry-business-section+.smn-registry-business-section{margin-top:12px}
+.smn-registry-business-edit-bar{display:flex;justify-content:flex-end;margin-bottom:-11px;
+ padding-right:8px;position:relative;z-index:1}
+.smn-registry-business-edit-bar .btn{display:inline-flex;align-items:center;gap:5px}
+.smn-registry-section-dialog{width:min(94vw,760px);max-width:100%;max-height:min(90vh,850px);
+ padding:0;overflow:auto;border:1px solid var(--smn-border);border-radius:12px;
+ background:var(--smn-surface);color:var(--smn-foreground);box-shadow:0 18px 60px rgba(0,0,0,.2)}
+.smn-registry-section-dialog::backdrop{background:rgba(15,25,40,.65)}
+.smn-registry-section-dialog-layout{display:flex;flex-direction:column;min-width:0;
+ max-height:min(90vh,850px)}
+.smn-registry-section-dialog-header{display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:14px 16px;border-bottom:1px solid var(--smn-border)}
+.smn-registry-section-dialog-content{padding:14px 16px;overflow:auto;min-height:0;
+ flex:1 1 auto}
+.smn-registry-section-dialog-footer{display:flex;justify-content:flex-end;gap:8px;
+ padding:12px 16px;border-top:1px solid var(--smn-border)}
+.smn-registry-section-form{display:grid;gap:15px;min-width:0}
+.smn-registry-section-save{display:flex;justify-content:flex-end;padding-top:10px;
+ border-top:1px solid var(--smn-border)}
+.smn-registry-section-dialog-content>.card{margin-top:0!important;padding:0!important;
+ border:0!important;background:transparent!important}
+@media(max-width:575px){
+ .smn-registry-detail-heading-row{flex-wrap:wrap}
+ .smn-registry-section-dialog{width:calc(100vw - 16px)}
+ .smn-registry-section-dialog-header,.smn-registry-section-dialog-footer{padding:12px}
+ .smn-registry-section-dialog-content{padding:12px}
+}

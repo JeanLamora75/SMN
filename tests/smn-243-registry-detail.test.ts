@@ -40,12 +40,14 @@ test("onglets accessibles au clavier avec ids reliés et activation par flèches
  assert.match(ui,/ArrowRight/);assert.match(ui,/ArrowLeft/);
  assert.match(ui,/Home/);assert.match(ui,/End/);
 });
-test("composants métier existants réemployés, édition legacy conservée aux seuls administrateurs",()=>{
+test("composants métier existants réemployés, éditions ciblées réservées aux administrateurs",()=>{
  const ui=read("src/app/app/admin/registries/registry-detail.tsx");
  for(const c of ["RiskAssessment","RiskRoam","MaterializeRisk","DependencyParties","DependencyVigilance",
-  "DecisionDetail","DecisionActions","ActionLinks","RegistryCycles","RegistryRelations","RegistryCreate"])
+  "DecisionDetail","DecisionActions","ActionLinks","RegistryCycles","RegistryRelations"])
   assert.ok(ui.includes("<"+c),c);
  assert.match(ui,/canManage&&<button/);
+ assert.match(ui,/RegistrySectionDialog/);
+ assert.match(ui,/RegistryCoreEditor/);
  assert.match(ui,/canManage=\{false\}/);
 });
 test("la synthèse ne présente pas un faux journal et ne duplique pas le bandeau",()=>{

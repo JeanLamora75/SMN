@@ -2368,6 +2368,27 @@
     "saving": "Saving…",
     "discardChanges": "Discard unsaved description changes?"
   },
+  "registryEdit": {
+    "general": "General information",
+    "status": "Status and follow-up",
+    "edit": "Edit",
+    "editNamed": "Edit: {name}",
+    "riskAssessment": "Risk assessment",
+    "riskRoam": "ROAM classification",
+    "dependencyParties": "Dependency parties",
+    "dependencyVigilance": "Dependency vigilance",
+    "decisionDetail": "Decision details",
+    "registryRelations": "Record relations",
+    "registryCycles": "Linked cycles",
+    "actionLinks": "Action links",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "discard": "Discard unsaved changes?",
+    "conflict": "This record was changed elsewhere. Your draft is preserved; refresh the record before trying again.",
+    "unavailable": "Save unavailable. Your draft remains open.",
+    "invalidTransition": "This status transition is not allowed. No change was saved."
+  },
   "registryDetail": {
     "tabs": "Record navigation",
     "summary": "Overview",
