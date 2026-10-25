@@ -196,3 +196,13 @@ test("AC4 : un journal lié prouve la création via la table de requêtes atomiq
  assert.ok(model.includes('eventKind:"created"|"linked"'));
  assert.ok(view.includes('tr(entry.eventKind==="created"?"linkedCreatedEvent":"link")'));
 });
+
+test("AC4 : le journal ne confond pas une création initiale avec une relation recréée plus tard",()=>{
+ const query=read("src/server/registries/journal-links.ts");
+ assert.ok(query.includes("journal_origin.created_at=a.changed_at"));
+ assert.ok(query.includes("audit.action='linked'"));
+ assert.ok(query.includes("LEFT JOIN LATERAL (SELECT NULL::text AS new_item_id)"));
+ const marker=query.indexOf("${createdJoin}",query.indexOf("const result=await db.query"));
+ const audit=query.indexOf(") a ON true",query.indexOf("const result=await db.query"));
+ assert.ok(marker>audit);
+});
