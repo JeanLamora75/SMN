@@ -92,7 +92,7 @@ export async function readSprintCapacityKpiView(
   const entry=value?.rows[0];
   const planned=entry?.qualified_jh===null||!entry?null:Number(entry.qualified_jh);
   const actualTable=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_historical_actual_capacity') IS NOT NULL AS present`);
-  const actualRows=actualTable.rows[0]?.present?await db.query<{qualified_jh:string|null;quality:"known"|"estimated"|"not-supplied";source_ref:string|null;revision:number}>(`
+  const actualRows=actualTable.rows[0]?.present?await db.query<{qualified_jh:string|null;quality:"known"|"estimated"|"not-supplied";source_ref:string|null;revision:number;updated_at:string}>(`
    SELECT qualified_jh::text,quality,source_ref,revision,updated_at::text FROM public.smn_sprint_historical_actual_capacity WHERE sprint_id=$1`,[sprint.id]):null;
   const actualEntry=actualRows?.rows[0];
   const actual=actualEntry?.qualified_jh===null||!actualEntry?null:Number(actualEntry.qualified_jh);
