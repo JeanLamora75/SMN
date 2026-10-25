@@ -51,7 +51,7 @@ export default function RegistryDescriptionEditor({item,onSaved,onDismiss}:{
    if(response.status===409){setFailure("conflict");return;}
    if(!response.ok)throw Error("save-unavailable");
    const result=await response.json() as {ok?:boolean;revision?:number};
-   if(!result.ok||!Number.isSafeInteger(result.revision))throw Error("save-unconfirmed");
+   if(!result.ok||typeof result.revision!=="number"||!Number.isSafeInteger(result.revision))throw Error("save-unconfirmed");
    onSaved();
   }catch{setFailure("error");}
   finally{setBusy(false);}
