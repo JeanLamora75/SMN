@@ -8,7 +8,7 @@ const fields=[...new Set([
  "scrum.storyPoints.committed","scrum.storyPoints.completed","scrum.capacity.planned","kanban.started","kanban.wip","kanban.throughput","kanban.cycleTime","kanban.leadTime","kanban.capacity.planned"
 ])];
 const initial={title:"",description:"",sections:["Contexte"],questions:[],instructions:[],data:["cycle.name","team.name"],depth:2};
-type Draft=typeof initial;
+type Draft={title:string;description:string;sections:string[];questions:string[];instructions:string[];data:string[];depth:number};
 const lines=(v:string)=>v.split("\n").map(x=>x.trim()).filter(Boolean);
 export default function TemplateEditor({original}:{original:ManagedBriefTemplate[]}){
  const [templates,setTemplates]=useState(original);
