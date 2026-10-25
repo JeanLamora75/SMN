@@ -69,10 +69,11 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    });
    setPage(state.page);setView(nextView);setLoading(true);
   };
-  read();setRestored(true);
+  let active=true;
+  void Promise.resolve().then(()=>{if(active){read();setRestored(true);}});
   const onPop=()=>{scrollRestored.current=false;read();};
   window.addEventListener("popstate",onPop);
-  return()=>window.removeEventListener("popstate",onPop);
+  return()=>{active=false;window.removeEventListener("popstate",onPop);};
  },[canManage]);
  const origin=registryIndexUrl({
   type,...query,page,view
