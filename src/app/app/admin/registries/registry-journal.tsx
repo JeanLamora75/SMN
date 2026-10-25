@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {useEffect,useId,useMemo,useState,type FormEvent} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
+import {validRegistryActivityTime} from "@/lib/registry-summary-context";
 import {
  buildJournalEntries,filterJournalEntries,journalFilters,parseJournalPayload,
  type JournalComment,type JournalFilter,type JournalPayload
@@ -118,11 +119,11 @@ export default function RegistryJournal({itemId,canManage}:{
   }catch{setActionError("unavailable");}
   finally{setEditSaving(false);}
  };
- const readVersions=async(commentId:string)=>{
+ const readVersions=async(commentId:string,force=false)=>{
   if(!canManage)return;
-  if(versionsOpen===commentId){setVersionsOpen(null);return;}
+  if(versionsOpen===commentId&&!force){setVersionsOpen(null);return;}
   setVersionsOpen(commentId);
-  if(versions[commentId]?.state==="ready")return;
+  if(versions[commentId]?.state==="ready"&&!force)return;
   setVersions(old=>({...old,[commentId]:{state:"loading",items:[]}}));
   try{
    const response=await fetch(url+"/"+encodeURIComponent(commentId)+"/revisions",{cache:"no-store"});
@@ -130,8 +131,8 @@ export default function RegistryJournal({itemId,canManage}:{
    const payload=await response.json() as {versions?:Version[]};
    if(!Array.isArray(payload.versions)||!payload.versions.every(v=>
     Number.isSafeInteger(v.revision)&&v.revision>=1&&
-    typeof v.action==="string"&&typeof v.actorName==="string"&&
-    typeof v.changedAt==="string"&&
+    ["created","edited","withdrawn"].includes(v.action)&&typeof v.actorName==="string"&&
+    validRegistryActivityTime(v.changedAt)!==null&&
     (v.beforeText===null||typeof v.beforeText==="string")&&
     (v.afterText===null||typeof v.afterText==="string")))throw Error("invalid");
    setVersions(old=>({...old,[commentId]:{state:"ready",items:payload.versions!}}));
@@ -231,15 +232,12 @@ export default function RegistryJournal({itemId,canManage}:{
            versions[entry.comment.id]?.state==="unavailable"?
             <div role="alert">{tr("unavailable")}
              <button type="button" className="btn btn-sm btn-outline-secondary ms-2"
-              onClick={()=>{
-               setVersions(old=>({...old,[entry.comment.id]:{state:"loading",items:[]}}));
-               setVersionsOpen(null);
-              }}>{tr("retry")}</button>
+              onClick={()=>void readVersions(entry.comment.id,true)}>{tr("retry")}</button>
             </div>:
            <ul className="list-unstyled mb-0">
             {(versions[entry.comment.id]?.items??[]).map(v=><li key={v.revision}
              className="smn-registry-journal-version">
-             <strong>{commentsText("versions")} {v.revision} · {v.action}</strong>
+             <strong>{commentsText("versions")} {v.revision} · {commentsText(v.action)}</strong>
              <div className="small text-body-secondary">
               {v.actorName} · <time dateTime={v.changedAt}>{when(v.changedAt)}</time>
              </div>
