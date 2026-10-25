@@ -15,7 +15,7 @@ export default function KanbanCadenceProposal(){
    setProposal(await response.json());
   }catch{setError("Impossible de préparer la proposition de recalcul.");}finally{setBusy(false);}
  }
- useEffect(()=>{void refresh();},[]);
+ useEffect(()=>{const task=window.setTimeout(()=>{void refresh();},0);return ()=>window.clearTimeout(task);},[]);
  async function confirm(){
   if(!proposal?.canConfirm)return;
   setBusy(true);setError("");setMessage("");
