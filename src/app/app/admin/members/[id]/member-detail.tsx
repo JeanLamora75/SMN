@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import NeutralAvatar from "../neutral-avatar";
+import CountryFlag from "../country-flag";
 import {useTranslation} from "@/i18n/client";
 import {useCallback,useEffect,useState,useRef} from "react";
 import type {EditableMember} from "../member-profile-editor";
@@ -78,7 +79,7 @@ export default function MemberDetail({id}:{id:string}){
      <NeutralAvatar size={92}/>
      <div className="flex-grow-1">
       <div className="d-flex align-items-center flex-wrap gap-2">
-       <h1 className="h3 mb-0">{member.displayName}</h1>{button("profile",t("memberUX.profile"))}
+       <h1 className="h3 mb-0 d-inline-flex align-items-center gap-2"><CountryFlag key={location?.current?.countryIso2??"none"} countryIso2={location?.current?.countryIso2}/>{member.displayName}</h1>{button("profile",t("memberUX.profile"))}
        <span className={"badge "+(member.archived?"text-bg-secondary":"text-bg-success")}>{member.archived?t("memberUX.archived"):member.isAssigned?t("memberUX.active"):t("memberUX.unassigned")}</span>
       </div>
       <p className="text-secondary mt-2 mb-1">{member.professionalFunction??t("memberUX.functionMissing")}</p>
