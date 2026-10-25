@@ -1956,6 +1956,10 @@
         "title": "Cérémonies et modèles",
         "description": "Gérer les modèles récurrents des futurs sprints, sans modifier les réunions déjà créées."
       },
+      "registries": {
+        "title": "Paramètres des registres",
+        "description": "Configurer les catégories automatiques du journal et l’anticipation des échéances."
+      },
       "capacity": {
         "title": "Règles de capacité",
         "description": "Définir les règles de calcul de capacité."
