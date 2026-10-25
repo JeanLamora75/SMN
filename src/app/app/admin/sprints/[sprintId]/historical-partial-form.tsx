@@ -24,7 +24,7 @@ export default function HistoricalPartialForm({sprintId}:{sprintId:string}){
   {notice&&<p className="alert alert-success mt-2" role="status">{notice}</p>}
   {error&&<p className="alert alert-warning mt-2" role="alert">{error}</p>}
   {open&&<form onSubmit={save} className="border rounded p-3 mt-2 d-grid gap-3">
-   <p className="text-secondary small mb-0">Seuls les éléments retrouvés sont enregistrés. L'objectif reste non évalué et aucun événement rétrospectif n'est généré.</p>
+   <p className="text-secondary small mb-0">Seuls les éléments retrouvés sont enregistrés. L&apos;objectif reste non évalué et aucun événement rétrospectif n&apos;est généré.</p>
    <label>Objectif retrouvé (facultatif)<input className="form-control" maxLength={240} value={goalTitle} onChange={e=>setGoalTitle(e.target.value)}/></label>
    {goalTitle.trim()&&<label>Description retrouvée (facultative)<textarea className="form-control" maxLength={2000} value={goalDescription} onChange={e=>setGoalDescription(e.target.value)}/></label>}
    <label>Commentaires rétrospectifs retrouvés (facultatifs)<textarea className="form-control" maxLength={3000} value={reviewComment} onChange={e=>setReviewComment(e.target.value)}/></label>
