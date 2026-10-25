@@ -204,10 +204,10 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   setAttentionLoading(true);setAttentionRefresh(n=>n+1);};
  const choose=(next:RegistryScope)=>{
   setType(next);setDraft(old=>({...old,status:""}));
-  setQuery(old=>({...old,status:""}));setPage(1);setLoading(true);
+  setQuery(old=>({...old,status:""}));setPage(1);setLoading(true);setRefresh(n=>n+1);
  };
  const reset=()=>{
-  setDraft(defaults);setQuery(defaults);setPage(1);setLoading(true);
+  setDraft(defaults);setQuery(defaults);setPage(1);setLoading(true);setRefresh(n=>n+1);
  };
  return <section className="d-grid gap-3">
   <AttentionCockpit items={attention} error={attentionError}
@@ -260,7 +260,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    </select>
   </div>
   <form className="row g-2 align-items-end" onSubmit={event=>{
-   event.preventDefault();setPage(1);setLoading(true);
+   event.preventDefault();setPage(1);setLoading(true);setRefresh(n=>n+1);
    setQuery({...draft,search:draft.search.trim(),owner:canManage?draft.owner.trim():""});
   }}>
    <div className="col-md-5">
