@@ -250,7 +250,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        <section className="card p-3">
         <h2 className="h5">{tr("action")}</h2>
         <p className="mb-0">{tr("currentState")}: <strong>{label(item.status)}</strong></p>
-        {item.dueOn&&<p className="mb-0">{tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></p>}
+        {item.dueOn&&<p className="mb-0">{tr("due")}: <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time></p>}
        </section>
        {sectionView("actionLinks",t("actionLinks.heading"),
         <ActionLinks id={id} canManage={false} navigation={onward}/>)}
