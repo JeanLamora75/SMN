@@ -29,7 +29,7 @@ export default function RegistryCoreEditor({item,section,onSaved}:{
  const dirty=general?(title!==item.title||date!==item.occurredOn||
   owner!==(item.owner??"")||due!==(item.dueOn??"")):status!==item.status;
  const transition=item.type==="obstacle"?obstacleTransition(item.status,status):null;
- const valid=Number.isSafeInteger(item.revision)&&item.revision!>=1&&
+ const valid=typeof item.revision==="number"&&Number.isSafeInteger(item.revision)&&item.revision>=1&&
   (!general||!!title.trim())&&(!transition||transition.valid);
  const save=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
