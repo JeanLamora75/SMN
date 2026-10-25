@@ -15,7 +15,7 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const t=useTranslation(),tr=(k:string)=>t(("reportsStudio."+k) as Parameters<typeof t>[0]);
  const initial=document.content as StudioContent;
  const [content,setContent]=useState<StudioContent>(initial);
- const sessionId=useRef(crypto.randomUUID()); const sequence=useRef(0);
+ const sessionId=useRef(crypto.randomUUID()); const sequence=useRef(0); const changeVersion=useRef(0);
  const [mode,setMode]=useState<Mode>("composition");
  const sections=useMemo(()=>Array.isArray(content.sections)?content.sections:[],[content.sections]);
  const [selected,setSelected]=useState(sections[0]?.key??"");
@@ -23,9 +23,9 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const [zoom,setZoom]=useState(100),[saving,setSaving]=useState(false);
  const [saved,setSaved]=useState(true),[error,setError]=useState("");
  const [undo,setUndo]=useState<StudioContent[]>([]),[redo,setRedo]=useState<StudioContent[]>([]);
- const change=(next:StudioContent)=>{setUndo(x=>[...x.slice(-49),content]);setRedo([]);setContent(next);setSaved(false);setError("");};
- const back=()=>{if(!undo.length)return;setRedo(x=>[...x,content]);setContent(undo[undo.length-1]);setUndo(x=>x.slice(0,-1));setSaved(false);};
- const forward=()=>{if(!redo.length)return;setUndo(x=>[...x,content]);setContent(redo[redo.length-1]);setRedo(x=>x.slice(0,-1));setSaved(false);};
+ const change=(next:StudioContent)=>{setUndo(x=>[...x.slice(-49),content]);setRedo([]);changeVersion.current++;setContent(next);setSaved(false);setError("");};
+ const back=()=>{if(!undo.length)return;setRedo(x=>[...x,content]);changeVersion.current++;setContent(undo[undo.length-1]);setUndo(x=>x.slice(0,-1));setSaved(false);};
+ const forward=()=>{if(!redo.length)return;setUndo(x=>[...x,content]);changeVersion.current++;setContent(redo[redo.length-1]);setRedo(x=>x.slice(0,-1));setSaved(false);};
  const notes=content.userNotes??{};
  const analyses=content.analyses??[];
  const [candidate,setCandidate]=useState("");
@@ -42,13 +42,13 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const toggleSection=(key:string)=>change({...content,sections:sections.map(s=>s.key===key?{...s,visible:!s.visible}:s)});
  const save=async()=>{
   if(readOnly||saving||saved)return;
-  setSaving(true);setError("");
+  const sendingVersion=changeVersion.current;setSaving(true);setError("");
   try{
    const response=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(document.sprintId)+"/documents/"+encodeURIComponent(document.id),{
     method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:sessionId.current,sequence:++sequence.current,content})});
    if(!response.ok)throw Error(response.status===409?"conflict":"failed");
    const data=await response.json() as {revision:number};
-   if(data.revision)setSaved(true);
+   if(data.revision)setSaved(changeVersion.current===sendingVersion);
   }catch(e){setError(e instanceof Error&&e.message==="conflict"?tr("conflict"):tr("saveError"));}
   finally{setSaving(false);}
  };
