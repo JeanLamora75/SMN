@@ -92,12 +92,12 @@ export default function RegistryRelations({id,type,canManage,onSaved}:{
          {row.linkedStatus&&<> · {label(row.linkedStatus)}</>}
         </span>
        </div>
-       {canManage&&<button type="button" className="btn btn-outline-danger btn-sm"
-        disabled={busy||row.linkedType==="goal"&&row.relation.targetCycleStatus==="closed"}
-        title={row.linkedType==="goal"&&row.relation.targetCycleStatus==="closed"?tr("closedCycle"):undefined}
-        onClick={()=>void change({
-         kind:row.relation.targetKind,id:row.relation.targetId
-        },"unlinked",row.relation.sourceId)}>{tr("remove")}</button>}
+       {canManage&&(row.linkedType==="goal"&&row.relation.targetCycleStatus==="closed"?
+        <span className="small text-body-secondary">{tr("closedCycle")}</span>:
+        <button type="button" className="btn btn-outline-danger btn-sm"
+         disabled={busy} onClick={()=>void change({
+          kind:row.relation.targetKind,id:row.relation.targetId
+         },"unlinked",row.relation.sourceId)}>{tr("remove")}</button>)}
       </li>)}
      </ul>
     </section>)}
