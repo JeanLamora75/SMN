@@ -56,6 +56,11 @@ export default function RegistryJournal({itemId,canManage}:{
   return()=>ctrl.abort();
  },[itemId,reload]);
  const refresh=()=>{setState("loading");setReload(n=>n+1);};
+ const discardEdit=()=>{
+  const initial=data?.comments.find(c=>c.id===editingId)?.text??"";
+  return editingId===null||editingText===initial||
+   window.confirm(tr("discardEdit"));
+ };
  useEffect(()=>{
   const original=editingId?data?.comments.find(c=>c.id===editingId)?.text??"":null;
   if(!draft.trim()&&(original===null||editingText===original))return;
@@ -104,7 +109,7 @@ export default function RegistryJournal({itemId,canManage}:{
    if(!response.ok)throw Error("unavailable");
    const result=await response.json() as {ok?:boolean;revision?:number};
    if(!result.ok||result.revision!==comment.revision+1)throw Error("unconfirmed");
-   setEditingId(null);setEditingText("");setVersions({});setSuccess(true);
+   setEditingId(null);setEditingText("");setVersions({});setVersionsOpen(null);setSuccess(true);
    refresh();
   }catch{setActionError("unavailable");}
   finally{setEditSaving(false);}
@@ -123,7 +128,7 @@ export default function RegistryJournal({itemId,canManage}:{
    if(!response.ok)throw Error("unavailable");
    const result=await response.json() as {ok?:boolean;revision?:number};
    if(!result.ok||result.revision!==comment.revision+1)throw Error("unconfirmed");
-   setVersions({});setSuccess(true);refresh();
+   setVersions({});setVersionsOpen(null);setSuccess(true);refresh();
   }catch{setActionError("unavailable");}
   finally{setEditSaving(false);}
  };
@@ -204,6 +209,7 @@ export default function RegistryJournal({itemId,canManage}:{
          {!entry.comment.withdrawn&&<>
           <button type="button" className="btn btn-outline-secondary btn-sm"
            disabled={editSaving} onClick={()=>{
+            if(!discardEdit())return;
             if(editingId===entry.comment.id){setEditingId(null);setEditingText("");}
             else{setEditingId(entry.comment.id);setEditingText(entry.comment.text??"");}
             setActionError(null);
@@ -228,7 +234,10 @@ export default function RegistryJournal({itemId,canManage}:{
            onChange={e=>setEditingText(e.target.value)}/>
           <div className="d-flex flex-wrap justify-content-end gap-2 mt-2">
            <button type="button" className="btn btn-outline-secondary btn-sm"
-            disabled={editSaving} onClick={()=>{setEditingId(null);setActionError(null);}}>
+            disabled={editSaving} onClick={()=>{
+             if(!discardEdit())return;
+             setEditingId(null);setActionError(null);
+            }}>
             {commentsText("cancel")}
            </button>
            <button type="button" className="btn btn-primary btn-sm"
