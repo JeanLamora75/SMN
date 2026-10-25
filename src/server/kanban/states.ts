@@ -26,7 +26,7 @@ export async function reconcileKanbanStates(db:Client){
  initial_jh numeric(12,4),
  CHECK(provenance<>'historical-unavailable' OR initial_jh IS NULL)
  )`);
- await db.query(`DO $ BEGIN
+ await db.query(`DO $$ BEGIN
  IF NOT EXISTS (SELECT 1 FROM pg_constraint
  WHERE conname='smn_kanban_capacity_opening_provenance_v2_check'
  AND conrelid='public.smn_kanban_capacity_opening'::regclass) THEN
@@ -36,7 +36,7 @@ export async function reconcileKanbanStates(db:Client){
  ADD CONSTRAINT smn_kanban_capacity_opening_provenance_v2_check
  CHECK (provenance IN ('pending-capture','historical-unavailable','calculated','manual','unavailable-at-opening'));
  END IF;
- END $`);
+ END; $$`);
  await db.query("BEGIN");
  try{
   const teams=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t

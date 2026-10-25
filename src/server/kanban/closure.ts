@@ -57,7 +57,7 @@ export async function changeKanbanClosure(db:Client,id:string,actorId:string,act
   const goals=(await db.query(`SELECT id,title,description,evaluation,comment,revision FROM public.smn_kanban_goal WHERE period_id=$1 ORDER BY created_at,id`,[id])).rows;
   const flow=(await db.query(`SELECT started::text,throughput::text,wip_final::text FROM public.smn_kanban_flow_counts WHERE period_id=$1`,[id])).rows[0]??null;
   const timing=(await db.query(`SELECT cycle_days::text,cycle_convention,cycle_source,lead_days::text,lead_convention,lead_source FROM public.smn_kanban_timing WHERE period_id=$1`,[id])).rows[0]??null;
-  const capacity=await readKanbanCapacityView(db,period.team_id,period.start_on,period.end_on,"finished");
+  const capacity=await readKanbanCapacityView(db,period.team_id,period.start_on,period.end_on,"finished",period.id);
   const events=(await db.query(`SELECT id,name,starts_at::text AS "startAt",ends_at::text AS "endAt",status,provenance,created_at::text AS "createdAt"
    FROM public.smn_kanban_meeting WHERE period_id=$1 ORDER BY starts_at,id`,[id])).rows;
   const qualitativeLinks=await captureKanbanQualitative(db,id,period.team_id);
