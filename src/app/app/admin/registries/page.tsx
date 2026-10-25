@@ -4,9 +4,10 @@ import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import RegistryList from "./registry-list";
 import {registryTypes,type RegistryType} from "@/lib/registry-types";
+import {safeRegistryReturnPath} from "@/lib/registry-return-context";
 export const dynamic="force-dynamic";
 export default async function RegistriesPage({searchParams}:{
- searchParams:Promise<{type?:string;create?:string;sourceId?:string;cycleId?:string}>;
+ searchParams:Promise<{type?:string;create?:string;sourceId?:string;cycleId?:string;returnTo?:string}>;
 }){
  const params=await searchParams;
  const initialType=registryTypes.includes(params.type as RegistryType)?params.type as RegistryType:"all";
@@ -24,6 +25,7 @@ export default async function RegistriesPage({searchParams}:{
  }).catch(()=>null);
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
   {teamId?<><RegistryList canManage={actor.role==="admin"} initialType={initialType}
-   initialCreate={params.create==="1"} sourceId={sourceId} initialCycleId={cycleId}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
+   initialCreate={params.create==="1"} sourceId={sourceId} initialCycleId={cycleId}
+   returnTo={safeRegistryReturnPath(params.returnTo)}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
 }
