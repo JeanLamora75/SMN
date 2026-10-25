@@ -47,13 +47,15 @@ export function parseRegistryFilters(params:URLSearchParams):RegistryFilters|nul
 }
 
 async function installedTeam(db:Client){
- const team=await db.query<{id:string;name:string}>(
-  "SELECT t.id,t.name FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban') LIMIT 2");
+ const team=await db.query<{id:string;name:string;mode:string}>(
+  "SELECT t.id,t.name,lower(i.mode) AS mode FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban') LIMIT 2");
  return team.rows.length===1?team.rows[0]:null;
 }
 export async function readRegistryCycles(db:Client){
  const team=await installedTeam(db);
  if(!team)return {state:"unavailable" as const,reason:"team-unavailable" as const};
+ // Existing registry cycle links reference Scrum sprints, not Kanban periods.
+ if(team.mode==="kanban")return {state:"unsupported" as const,reason:"kanban-links-not-defined" as const};
  const cycles=await db.query<{id:string;name:string;status:string}>(
   "SELECT s.id,s.name,s.status FROM public.smn_sprint s WHERE s.team_id=$1 AND s.deleted_at IS NULL ORDER BY s.start_at DESC,s.id DESC",[team.id]);
  return {state:"available" as const,cycles:cycles.rows};
@@ -66,6 +68,7 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
  const team=await installedTeam(db);
  if(!team)return {state:"unavailable" as const,reason:"team-unavailable" as const};
  if(filters.owner&&!canSeeOwner)return {state:"forbidden" as const};
+ if(filters.cycleId&&team.mode==="kanban")return {state:"unavailable" as const,reason:"kanban-links-not-defined" as const};
  if(filters.cycleId){
   const links=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS present");
   if(!links.rows[0]?.present)return {state:"unavailable" as const,reason:"links-not-installed" as const};
