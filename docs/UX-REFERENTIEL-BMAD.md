@@ -674,3 +674,33 @@ lint, tests spécifiques et build avant de clôturer la Story.
 **Rattachement :** SMN-64 (calendrier), SMN-89 (création registre depuis
 une réunion), SMN-79 (statut événement). Implémentation suivie dans
 `_bmad-output/implementation-artifacts/smn-calendar-meeting-compact-outcomes-2026-10-24.md`.
+
+
+## Refonte du registre global — Contrats UX-REG-01 à UX-REG-21 (25/10/2026)
+
+**Décisions explicitement validées le 25/10/2026** dans la démarche BMAD conduite par Sally. **Epic UX :** [SMN-228](https://lmn24.atlassian.net/browse/SMN-228) ; **15 Stories UX :** [SMN-239](https://lmn24.atlassian.net/browse/SMN-239) à [SMN-253](https://lmn24.atlassian.net/browse/SMN-253).
+
+### Documents normatifs à lire obligatoirement avant développement
+
+- [README — Refonte Registres](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/README.md) ;
+- [Synthèse des 21 décisions](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/SYNTHESE-UX-REGISTRES.md) ;
+- [DESIGN.md — contrat visuel](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/DESIGN.md) ;
+- [EXPERIENCE.md — contrat interaction](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/EXPERIENCE.md) ;
+- [CONTRAT-DEVELOPPEMENT.md — lots R1 à R15](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/CONTRAT-DEVELOPPEMENT.md) ;
+- [RECETTE-UX.md — REG-T01 à REG-T34](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/RECETTE-UX.md).
+
+### Invariants contractuels
+
+1. **Page globale Registres**, équipe entière par défaut et « Tous les registres » par défaut ; sept filtres de catégorie, filtrage cycle optionnel, vue Liste enrichie par défaut, Cartes facultatives avec préférence isolée ; bandeau compact repliable des points d'attention.
+2. **Fiche détaillée** : bandeau permanent, onglets Synthèse / métier pertinent / Relations / Historique. Synthèse 2 colonnes environ 2/3 et 1/3 sur desktop, une seule sur mobile ; corrections de sections par crayon en modale.
+3. **Création : formulaire complet en modale** (option A validée par le commanditaire), retour au registre avec mise en évidence et commandes « Voir la fiche » / « Créer une autre ». Ne pas remplacer ce choix par une création rapide suivie d'enrichissement.
+4. **Journal** : commentaires autonomes datés et historisés, commentaire rapide dans Synthèse, création de vraies Actions/Décisions/Faits marquants associés ; versions de correction, retrait logique visible, journal métier distinct de l'historique technique.
+5. **Relations** : classement par catégorie, cycles à part, recherche par titre/type sans UUID manuel, confirmation avant toute dissociation autorisée, aucune suppression de la fiche associée.
+6. **Historique** : chronologie des révisions effectivement persistées, détails Avant/Après dépliables ; statuts/attention/type distincts ; états finaux conservés après actifs ; fil d'Ariane et retour contextualisé.
+7. **MVP** monoéquipe Scrum/Kanban, droits admin/write et user/read, FR/EN JSON, Bootstrap Icons, responsive sans défilement horizontal obligatoire en liste mobile, clavier/contraste/états d'erreur ; dates réellement enregistrées et protection Vn.
+
+**Frontière de périmètre impérative :** la refonte concerne `/app/admin/registries` et sa fiche globale ; elle **ne remplace pas** l'avenant « SMN-234 D8 — Registres compacts » ci-dessus pour l'onglet Registres d'un Sprint, ses faits automatiques, ses liens et ses snapshots historiques figés. Aucun état historique manquant ne doit être reconstruit depuis les fiches vivantes.
+
+**Arbitrages non clos (ne pas inventer) :** rôle de `highlight.recorded` dans À suivre/États finaux, éventuels nouveaux seuils d'attention, extension du droit `user` aux historiques détaillés, et politique de suppression physique/logique des fiches métier. Préserver l'existant dans l'intervalle.
+
+**Traçabilité :** documentation de conception approuvée ; **développement et recette non attestés**. Les scripts BMAD locaux, tests, TypeScript et build n'ont pas été exécutés lors de cette rédaction via connecteurs.
