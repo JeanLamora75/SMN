@@ -11,7 +11,7 @@ export default function HistoricalRevisionsPanel(){
    const data=await r.json() as {revisions:Revision[]};setRows(data.revisions);
   }catch{setError("Historique momentanément indisponible.");}finally{setBusy(false);}
  }
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{const task=window.setTimeout(()=>{void load();},0);return ()=>window.clearTimeout(task);},[]);
  const quality=(v:string|null)=>v==="known"?"Connue":v==="estimated"?"Estimée":"Non renseignée / non attestée";
  return <section className="mt-4">
   <h2 className="h6">Historique des révisions CSV</h2>
