@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {parseInitialDetails} from "../src/server/registries/initial-details";
-import {parseRegistryInput} from "../src/server/registries/items";
+import {createRegistryItem} from "../src/server/registries/items";
+import type {Client} from "pg";
 
 const file=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const uuid="11111111-1111-4111-8111-111111111111";
@@ -73,7 +74,7 @@ test("liste : modal exclusive, confirmation, rafraîchissement et mise en évide
 test("ancien lien direct de création redirigé vers la modale de la liste",()=>{
  const code=file("src/app/app/admin/registries/create/page.tsx");
  assert.ok(code.includes('redirect("/app/admin/registries?"'));
- assert.ok(code.includes('create=1'));
+ assert.ok(code.includes('create:"1"'));
 });
 test("traductions FR/EN cohérentes et modal centrée sur mobile",()=>{
  const fr=JSON.parse(file("src/i18n/fr.json")).registryCreateModal;
