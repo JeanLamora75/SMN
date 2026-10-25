@@ -164,3 +164,57 @@ test("échec cible remplacée : validation en transaction avant première insert
  assert.equal(sql.at(-1),"ROLLBACK");
  assert.equal(sql.some(q=>q.includes("INSERT INTO public.smn_registry_item")),false);
 });
+
+test("risque initial : évaluation et ROAM audités dans le même commit",async()=>{
+ const sql:string[]=[];
+ const db={query:async(q:string)=>{
+  sql.push(q);
+  if(q.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const r=await createRegistryItem(db,"admin",{
+  ...basic,type:"risk",status:"open",
+  details:{probability:2,impact:3,roam:"resolved"}
+ });
+ assert.equal(r.ok,true);
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_risk_assessment(")));
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_risk_assessment_audit")));
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_risk_roam(")));
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_risk_roam_audit")));
+ assert.equal(sql.at(-1),"COMMIT");
+});
+test("dépendance : parties réelles et vigilance auditées atomiquement",async()=>{
+ const sql:string[]=[];
+ const db={query:async(q:string)=>{
+  sql.push(q);
+  return {rows:q.includes("SELECT t.id FROM public.smn_team")?[{id:"team-one"}]:[]};
+ }} as unknown as Client;
+ const r=await createRegistryItem(db,"admin",{
+  ...basic,type:"dependency",status:"open",details:{
+   requester:{kind:"local",teamId:"team-one"},
+   contributor:{kind:"external",name:"Équipe externe"},atRisk:false
+  }
+ });
+ assert.equal(r.ok,true);
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_parties(")));
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_parties_audit")));
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_vigilance")));
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_vigilance_audit")));
+ assert.equal(sql.at(-1),"COMMIT");
+});
+test("décision : remplacement explicite vérifié et audité atomiquement",async()=>{
+ const sql:string[]=[];
+ const db={query:async(q:string)=>{
+  sql.push(q);
+  if(q.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
+  if(q.includes("WHERE r.id=$1 AND r.team_id=$2 AND r.type='decision'"))return {rows:[{id:uuid}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const r=await createRegistryItem(db,"admin",{
+  ...basic,type:"decision",status:"cancelled",details:{rationale:"Motif",replacesId:uuid}
+ });
+ assert.equal(r.ok,true);
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_decision_detail")));
+ assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_decision_detail_audit")));
+ assert.equal(sql.at(-1),"COMMIT");
+});
