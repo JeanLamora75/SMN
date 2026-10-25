@@ -3387,7 +3387,8 @@
     "coverTitle": "Titre de couverture",
     "subtitle": "Sous-titre",
     "footerText": "Texte du pied de page",
-    "tocPending": "Pagination exacte disponible lors du rendu final."
+    "tocPending": "Pagination exacte disponible lors du rendu final.",
+    "pageBreak": "Saut de page avant la rubrique"
   },
   "reportsBlocks": {
     "kind": "Type de bloc",
@@ -3416,7 +3417,8 @@
     "value": "Valeur",
     "source": "Provenance",
     "sourceUnknown": "Non précisée",
-    "noChartScale": "Échelle graphique indisponible sans référence comparable"
+    "noChartScale": "Échelle graphique indisponible sans référence comparable",
+    "wideTableNotice": "Vérifiez la largeur du tableau avant export. Aucune colonne n'est masquée automatiquement."
   },
   "reportsRefresh": {
     "heading": "Fraîcheur des données",
