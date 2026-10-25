@@ -2,8 +2,9 @@
 import Link from "next/link";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {registryDetailHref,registryIndexPath,type RegistryNavigation} from "@/lib/registry-navigation";
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
-export default function DecisionActions({id,teamId,title,description,canManage,onSaved}:{id:string;teamId:string;title:string;description:string;canManage:boolean;onSaved?:()=>void}){
+export default function DecisionActions({id,teamId,title,description,canManage,navigation,onSaved}:{id:string;teamId:string;title:string;description:string;canManage:boolean;navigation?:RegistryNavigation;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("decisionActions."+k) as Parameters<typeof t>[0]);
  const [open,setOpen]=useState(false),[name,setName]=useState(""),[context,setContext]=useState("");
  const [owner,setOwner]=useState(""),[due,setDue]=useState(""),[error,setError]=useState(false),[busy,setBusy]=useState(false);
@@ -33,7 +34,7 @@ export default function DecisionActions({id,teamId,title,description,canManage,o
    <div className="d-flex gap-2"><button type="button" className="btn btn-primary" disabled={busy||!name.trim()} onClick={()=>void confirm()}>{tr("confirm")}</button>
     <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setOpen(false)}>{tr("cancel")}</button></div>
   </div>}
-  <ul>{created.map(actionId=><li key={actionId}><Link href={"/app/admin/registries/"+encodeURIComponent(actionId)}>{tr("success")}: {actionId}</Link></li>)}</ul>
+  <ul>{created.map(actionId=><li key={actionId}><Link href={registryDetailHref(actionId,navigation??{origin:registryIndexPath,trail:[]})}>{tr("success")}</Link></li>)}</ul>
   {error&&<p role="alert" className="text-danger">{tr("error")}</p>}
  </section>;
 }
