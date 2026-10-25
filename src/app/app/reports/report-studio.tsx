@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
+import "./studio-print.css";
 import {insertSelectedAnalysis,replaceEmbeddedAnalysis,type EmbeddedAnalysis} from "@/lib/report-embedded-analyses";
 import ReportBlocksEditor from "./report-blocks-editor";
 import {isReportBlock,moveItem,type ReportBlock} from "@/lib/report-studio-blocks";
@@ -9,7 +10,7 @@ import type {ReportDocument} from "@/server/reports/report-documents";
 
 type Section={key:string;visible:boolean};
 type JournalChoice={id:string;type:"human"|"ai";scope:string;content:string;archiveId:string|null};
-type StudioContent={documentStyle?:unknown;analyses?:EmbeddedAnalysis[];sections?:Section[];blocks?:unknown[];userNotes?:Record<string,string>;metrics?:Record<string,{value:number|null;unit:string}>;[key:string]:unknown};
+type StudioContent={pageBreaks?:Record<string,boolean>;documentStyle?:unknown;analyses?:EmbeddedAnalysis[];sections?:Section[];blocks?:unknown[];userNotes?:Record<string,string>;metrics?:Record<string,{value:number|null;unit:string}>;[key:string]:unknown};
 type Mode="composition"|"writing"|"preview";
 
 export default function ReportStudio({document,readOnly,journal}:{document:ReportDocument;readOnly:boolean;journal:JournalChoice[]}){
@@ -29,6 +30,7 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const forward=()=>{if(!redo.length)return;setUndo(x=>[...x,content]);changeVersion.current++;setContent(redo[redo.length-1]);setRedo(x=>x.slice(0,-1));setSaved(false);};
  const style=reportDocumentStyle(content.documentStyle);
  const updateStyle=(next:Partial<typeof style>)=>change({...content,documentStyle:{...style,...next}});
+ const pageBreaks=content.pageBreaks??{};
  const notes=content.userNotes??{};
  const analyses=content.analyses??[];
  const [candidate,setCandidate]=useState("");
@@ -88,11 +90,11 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
     </div>
    </aside>}
    <main className="flex-grow-1 w-100 border rounded p-3" style={{minWidth:0,background:"var(--bs-secondary-bg)"}}>
-    <article aria-label={tr("document")} className="mx-auto bg-white text-dark shadow-sm p-4" style={{maxWidth:Math.round((style.orientation==="portrait"?794:1123)*zoom/100),minHeight:Math.round((style.orientation==="portrait"?1123:794)*zoom/100),overflowWrap:"anywhere"}}>
+    <article aria-label={tr("document")} className={"smn-report-paper mx-auto bg-white text-dark shadow-sm p-4 "+(style.orientation==="portrait"?"smn-report-print-portrait":"smn-report-print-landscape")} style={{maxWidth:Math.round((style.orientation==="portrait"?794:1123)*zoom/100),minHeight:Math.round((style.orientation==="portrait"?1123:794)*zoom/100),overflowWrap:"anywhere"}}>
      {style.cover&&<header className="border-bottom pb-4 mb-4"><h2 className="h3 text-dark">{style.coverTitle||document.title}</h2><p>{style.subtitle}</p></header>}
      <h2 className="h4 text-dark">{document.title}</h2>
      {style.toc&&<nav aria-label={tr("toc")}><h3 className="h6">{tr("toc")}</h3><ol>{sections.filter(s=>s.visible).map(s=><li key={s.key}>{s.key}</li>)}</ol><p className="small">{tr("tocPending")}</p></nav>}
-     {sections.filter(s=>s.visible).map(s=><section key={s.key} className="my-4" id={"section-"+s.key}>
+     {sections.filter(s=>s.visible).map(s=><section key={s.key} className={"my-4 "+(pageBreaks[s.key]?"smn-section-page-break":"")} id={"section-"+s.key}>
       <h3 className="h5 border-bottom pb-2">{s.key}</h3>
       {s.key==="indicators"&&Object.entries(content.metrics??{}).map(([key,v])=><p key={key}><strong>{key} :</strong> {v?.value===null||v?.value===undefined?tr("unknown"):v.value+" "+v.unit}</p>)}
       {mode==="writing"&&!readOnly?<label className="d-block">{tr("comment")}
@@ -106,7 +108,7 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
    {mode==="composition"&&propertiesOpen&&<aside className="border rounded p-3 w-100 flex-shrink-0" style={{maxWidth:276}} aria-label={tr("properties")}>
     <h2 className="h6">{tr("properties")}</h2>
     {sections.filter(s=>s.key===selected).map(s=><div key={s.key}><p>{s.key}</p>
-     <label className="form-check"><input className="form-check-input" type="checkbox" disabled={readOnly} checked={s.visible} onChange={()=>toggleSection(s.key)}/>{tr("visible")}</label>
+     <label className="form-check"><input className="form-check-input" type="checkbox" disabled={readOnly} checked={s.visible} onChange={()=>toggleSection(s.key)}/>{tr("visible")}</label><label className="form-check mt-2"><input className="form-check-input" type="checkbox" disabled={readOnly} checked={!!pageBreaks[s.key]} onChange={e=>change({...content,pageBreaks:{...pageBreaks,[s.key]:e.target.checked}})}/>{tr("pageBreak")}</label>
     </div>)}
    </aside>}
   </div>
