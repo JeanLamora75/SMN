@@ -2336,7 +2336,7 @@
     "registersReadRecord": "Consulter la fiche",
     "registersPriorityLabel": "Priorité"
   },
-    "registrySummary": {
+  "registrySummary": {
     "heading": "Synthèse de la fiche",
     "description": "Description",
     "noDescription": "Aucune description renseignée.",
@@ -2700,7 +2700,8 @@
     "unlinked": "Non associé",
     "closed": "Sprint clôturé — modification interdite",
     "error": "Impossible de modifier cette association.",
-    "loading": "Chargement des Sprints…"
+    "loading": "Chargement des Sprints…",
+    "confirmUnlink": "Dissocier ce cycle ? La fiche et le cycle seront conservés."
   },
   "decisionDetail": {
     "heading": "Justification et remplacement",
@@ -2722,7 +2723,13 @@
     "remove": "Dissocier",
     "empty": "Aucun lien",
     "error": "Impossible de modifier le lien.",
-    "intro": "Les objets liés conservent leur statut indépendant."
+    "intro": "Les objets liés conservent leur statut indépendant.",
+    "confirmUnlink": "Dissocier cette action de la fiche liée ? Les deux fiches seront conservées.",
+    "selected": "Fiche sélectionnée",
+    "loading": "Chargement des liens…",
+    "unavailable": "Liens indisponibles.",
+    "retry": "Réessayer",
+    "conflict": "Le lien a été modifié. Rechargez les données."
   },
   "registryRelations": {
     "heading": "Relations entre fiches et objectifs",
@@ -2737,7 +2744,25 @@
     "error": "Association impossible. Vérifiez l’identifiant, les droits et le cycle.",
     "from": "Depuis",
     "to": "Vers",
-    "readOnly": "Consultation en lecture seule"
+    "readOnly": "Consultation en lecture seule",
+    "associateRecord": "Associer une fiche existante",
+    "selectType": "Catégorie recherchée",
+    "allTypes": "Toutes les catégories",
+    "searchLabel": "Rechercher par titre",
+    "searchPlaceholder": "Titre de la fiche ou de l’objectif…",
+    "searchLoading": "Recherche en cours…",
+    "searchUnavailable": "Recherche indisponible.",
+    "noMatches": "Aucune fiche correspondante.",
+    "chooseCandidate": "Sélectionner cette fiche",
+    "selectedCandidate": "Cible sélectionnée",
+    "cancel": "Annuler",
+    "retry": "Réessayer",
+    "confirmUnlink": "Dissocier ce lien ? Les deux fiches seront conservées.",
+    "directionIncoming": "Lien entrant · depuis",
+    "directionOutgoing": "Lien sortant · vers",
+    "conflict": "Cette relation a changé. Actualisez avant de recommencer.",
+    "unavailable": "Relations temporairement indisponibles.",
+    "invalid": "Cette association est refusée : vérifier les données ou le cycle."
   },
   "riskMaterialize": {
     "launch": "Créer un obstacle",
