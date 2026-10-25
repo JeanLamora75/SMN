@@ -7,7 +7,7 @@ import ReplanningPreview from "./replanning-preview";
 import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
 type MissingCode="no-assignments"|"ambiguous-assignment"|"assignment-version"|
- "work-calendar"|"member-country"|"national-coverage";
+ "work-calendar"|"exceptional-meeting-participants"|"exceptional-meeting-work-slots";
 type Day={date:string;status:"calculated"|"not-calculable";
  developmentJh:number|null;developmentHours:number|null;availableHalfDays:number|null;
  allocationPercent:number|null;developerPercent:number|null;
@@ -32,18 +32,21 @@ const fmt=(v:number)=>v.toLocaleString("fr-FR",{maximumFractionDigits:4});
 const missingKey:Record<MissingCode,string>={
  "no-assignments":"noAssignments","ambiguous-assignment":"ambiguousAssignment",
  "assignment-version":"assignmentVersion","work-calendar":"workCalendar",
- "member-country":"memberCountry","national-coverage":"nationalCoverage"
+ "exceptional-meeting-participants":"meetingParticipants",
+ "exceptional-meeting-work-slots":"meetingWorkSlots"
 };
 
-export default function DevelopmentCapacityView(){
+export default function DevelopmentCapacityView({initialPeriod=null}:{
+ initialPeriod?:{start:string;end:string}|null;
+}){
  const t=useTranslation();
- // No operational period date can be inferred merely from today's browser clock.
- const [start,setStart]=useState("");
- const [end,setEnd]=useState("");
+ // The server supplies only recorded Sprint dates, never guesses from the browser clock.
+ const [start,setStart]=useState(initialPeriod?.start??"");
+ const [end,setEnd]=useState(initialPeriod?.end??"");
  const [report,setReport]=useState<Report|null>(null);
  const [settings,setSettings]=useState<Setting|null>(null);
  const [hours,setHours]=useState("8");
- const [busy,setBusy]=useState(false);
+ const [busy,setBusy]=useState(Boolean(initialPeriod));
  const [settingsBusy,setSettingsBusy]=useState(false);
  const [error,setError]=useState("");
  const [settingsError,setSettingsError]=useState("");
@@ -67,6 +70,29 @@ export default function DevelopmentCapacityView(){
    .catch(()=>{if(live)setSettingsError(t("developmentCapacity.settingsError"));});
   return ()=>{live=false;};
  },[t]);
+ // On first entry, recalculate for the selected persisted Sprint. Each later
+ // manual date change aborts this request rather than restoring obsolete data.
+ useEffect(()=>{
+  if(!initialPeriod||start!==initialPeriod.start||end!==initialPeriod.end)return;
+  const controller=new AbortController();
+  const params=new URLSearchParams({start,end});
+  void fetch("/api/admin/development-capacity?"+params.toString(),{
+   cache:"no-store",signal:controller.signal
+  }).then(async response=>{
+   if(!response.ok)throw Error("capacity-unavailable");
+   return response.json() as Promise<Report>;
+  }).then(data=>{
+   if(controller.signal.aborted)return;
+   if(!Array.isArray(data.members)||!Array.isArray(data.missing)||
+    !data.selection||typeof data.selection.revision!=="number")
+    throw Error("invalid-capacity");
+   setReport(data);
+   setManualDraft(data.selection.manualJh===null?"":String(data.selection.manualJh));
+  }).catch(()=>{
+   if(!controller.signal.aborted)setError(t("developmentCapacity.loadError"));
+  }).finally(()=>{if(!controller.signal.aborted)setBusy(false);});
+  return()=>controller.abort();
+ },[start,end,initialPeriod?.start,initialPeriod?.end,t]);
  const setPeriodBoundary=(which:"start"|"end",date:string)=>{
   if(manualDirty&&!window.confirm(t("draft.discardWarning")))return;
   if(which==="start")setStart(date);else setEnd(date);
@@ -153,7 +179,8 @@ export default function DevelopmentCapacityView(){
    const data=await res.json() as {ok:boolean;settings:Setting};
    if(!data.ok)throw Error("save");
    setSettings(data.settings);setHours(String(data.settings.hoursPerJh));
-   setReport(null);
+   if(start&&end)await load();
+   else setReport(null);
   }catch{setSettingsError(t("developmentCapacity.settingsError"));}
   finally{setSettingsBusy(false);}
  };

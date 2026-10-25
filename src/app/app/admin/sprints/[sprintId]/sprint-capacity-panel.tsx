@@ -1,9 +1,17 @@
 import Link from "next/link";
 import BootstrapIcon from "../../../bootstrap-icon";
-import type {SprintPresence} from "@/lib/sprint-presence";
+import type {SprintPresence,PresenceMissingSource} from "@/lib/sprint-presence";
 import type {TranslationKey} from "@/i18n/catalog";
 
 type Text=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>string;
+const missingTranslation:Record<PresenceMissingSource,TranslationKey>={
+ "no-assignments":"developmentCapacity.noAssignments",
+ "ambiguous-assignment":"developmentCapacity.ambiguousAssignment",
+ "assignment-version":"developmentCapacity.assignmentVersion",
+ "work-calendar":"developmentCapacity.workCalendar",
+ "exceptional-meeting-participants":"developmentCapacity.meetingParticipants",
+ "exceptional-meeting-work-slots":"developmentCapacity.meetingWorkSlots"
+};
 
 /** The parent must NEVER fetch or pass the nominal data for role=user. */
 export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
@@ -95,7 +103,16 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
       </tbody>
      </table>
     </div>}
-   <p className="small text-secondary mb-0">{t("sprintDetail.presenceDistinction")}</p>
+   {data.members.some(m=>m.missingSources?.length)&&
+   <div className="alert alert-warning" role="status">
+    <p className="mb-2">{t("sprintDetail.presenceMissingIntro")}</p>
+    <ul className="mb-2">{data.members.filter(m=>m.missingSources?.length).map(m=>
+     <li key={m.memberId}><strong>{m.displayName}</strong> :{" "}
+      {m.missingSources!.map(code=>t(missingTranslation[code])).join("; ")}</li>)}
+    </ul>
+    <Link href="/app/admin/development-capacity">{t("sprintDetail.presenceSeeDiagnosis")}</Link>
+   </div>}
+  <p className="small text-secondary mb-0">{t("sprintDetail.presenceDistinction")}</p>
   </>}
  </section>;
 }

@@ -38,8 +38,9 @@ export function resolveDayAvailability(
   afternoon:nationalHoliday===true||companyClosure||absenceSlots.afternoon
  };
  const nationalOverlap=nationalHoliday===true&&(companyClosure||absenceSlots.morning||absenceSlots.afternoon);
- // Missing work calendar or incomplete national calendar is unknown, not zero availability.
- if(workingSlots===null||(nationalHoliday===null&&!companyClosure))return {
+ // A missing work schedule is unknown. An absent national holiday record is
+ // not a blocker; only a recorded holiday (true) deducts time.
+ if(workingSlots===null)return {
   absenceSlots,unavailableSlots,availableSlots:null,deductedHalfDays:null,
   nationalOverlap,status:"unknown"
  };

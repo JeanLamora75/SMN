@@ -6,7 +6,7 @@ Pour les périodes anciennes, consulter aussi la [qualification de fiabilité SM
 
 La [prévisualisation de replanification SMN-62](REPLANIFICATION-CAPACITE-SMN-62.md) compare deux fenêtres en lecture seule et permet de confirmer une **cible capacitaire** atomique, sans écraser les capacités manuelles ni les archives historiques. Le changement des cycles opérationnels appartient aux Epics 4/7.
 
-Le [préremplissage prudent SMN-63](PREFILL-FORMULAIRES-SMN-63.md) laisse les périodes métier inconnues vides et empêche les réglages de faire perdre un brouillon de capacité manuelle.
+Le [préremplissage prudent SMN-63](PREFILL-FORMULAIRES-SMN-63.md) laisse les périodes métier inconnues vides et empêche les réglages de faire perdre un brouillon de capacité manuelle. Lorsqu'un Sprint Scrum non clôturé est effectivement enregistré et sélectionné, sa période peut être préremplie et recalculée sans inventer de cycle.
 
 L'[agenda central SMN-64](CALENDRIER-CENTRAL-SMN-64.md) affiche les indisponibilités et fermetures réellement connues sans transformer les périodes de capacité en cycles Scrum/Kanban fictifs.
 
@@ -22,7 +22,9 @@ Le paramètre **heures/JH** vaut **8 par défaut** et peut être réglé entre 1
 
 Les jours fériés, fermetures et absences ne sont déduits qu'une fois par créneau. Un changement de taux s'applique à partir de sa date d'effet.
 
-En l'absence de trame, de version historique, de pays, de couverture nationale ou d'affectation non ambiguë, le total affiche **Non calculable / Non renseigné**, accompagné de la date, du membre et de la source manquante : jamais zéro par défaut.
+En l'absence de **calendrier individuel applicable**, de **version d'affectation / répartition des rôles** ou en cas d'**affectation ambiguë**, le total affiche **Non calculable / Non renseigné**, accompagné de la date, du membre et de la source manquante : jamais zéro par défaut.
+
+**Règle validée le 25 octobre 2026 :** le **pays du membre** et une couverture nationale des jours fériés `configured` **ne sont pas obligatoires**. Les jours fériés réellement enregistrés pour le pays du membre sont déduits ; si aucun jour férié n'est enregistré ou si le pays est inconnu, aucune déduction fériée nationale n'est appliquée, mais la capacité demeure calculable. Les absences et fermetures effectivement déclarées sont déduites sans double comptage. Ce choix est une règle de calcul, pas une garantie qu'un calendrier national vide est exhaustif.
 
 La [capacité réellement constatée SMN-60](CAPACITE-REELLE-SMN-60.md) est distincte de la capacité prévisionnelle et de l'engagement initial : elle ne prend pas de jours futurs pour du réalisé, permet une saisie réelle prioritaire et se fige à la clôture.
 
@@ -43,6 +45,6 @@ pnpm build
 pnpm dev
 ```
 
-Vérifier : 8 heures initiales, modification à 7,5 et audit, PO **et Scrum Master** sans développement, une demi-journée, un changement daté, chevauchement férié/fermeture/absence, un historique absent, période invalide, refus des Utilisateurs (403) et absence de modification des clichés/PDF existants.
+Vérifier : 8 heures initiales, modification à 7,5 et audit, PO **et Scrum Master** sans développement, une demi-journée, un changement daté, chevauchement férié/fermeture/absence, un historique absent, période invalide, refus des Utilisateurs (403) et absence de modification des clichés/PDF existants. Vérifier également la **capacité calculable sans pays**, sans jour férié, avec couverture nationale partielle, et la déduction d'un jour férié explicitement connu.
 
 **État :** tests écrits mais non exécutés. GitHub Actions ne sera pas utilisé. Jira En cours / BMAD review jusqu'à la recette.
