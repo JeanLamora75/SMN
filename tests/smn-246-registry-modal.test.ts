@@ -86,3 +86,48 @@ test("traductions FR/EN cohérentes et modal centrée sur mobile",()=>{
  assert.ok(css.includes(".smn-registry-create-dialog"));
  assert.ok(css.includes("@media(max-width:575px)"));
 });
+
+const basic={teamId:"team-one",type:"action",title:"Action réelle",
+ occurredOn:"2026-10-25",status:"todo",description:null,owner:null,
+ dueOn:null,comment:null};
+test("création liée : source bornée équipe, fiches et association validées par le même COMMIT",async()=>{
+ const calls:string[]=[];
+ const db={query:async(sql:string)=>{
+  calls.push(sql);
+  if(sql.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
+  if(sql.includes("SELECT r.id FROM public.smn_registry_item r")&&sql.includes("FOR UPDATE OF r"))
+   return {rows:[{id:uuid}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const result=await createRegistryItem(db,"admin",{...basic,sourceId:uuid});
+ assert.equal(result.ok,true);
+ assert.ok(calls.some(q=>q.includes("INSERT INTO public.smn_registry_relation")));
+ assert.ok(calls.some(q=>q.includes("INSERT INTO public.smn_registry_relation_audit")));
+ assert.equal(calls.at(-1),"COMMIT");
+ assert.equal(calls.filter(x=>x==="BEGIN").length,1);
+});
+test("source inexistante : aucune création, transaction annulée",async()=>{
+ const calls:string[]=[];
+ const db={query:async(sql:string)=>{
+  calls.push(sql);
+  return {rows:sql.includes("SELECT t.id FROM public.smn_team")?[{id:"team-one"}]:[]};
+ }} as unknown as Client;
+ const result=await createRegistryItem(db,"admin",{...basic,sourceId:uuid});
+ assert.deepEqual(result,{ok:false,error:"not-found"});
+ assert.equal(calls.at(-1),"ROLLBACK");
+ assert.equal(calls.some(x=>x.includes("INSERT INTO public.smn_registry_item")),false);
+});
+test("erreur du détail métier : la création et l'audit ne sont jamais commités partiellement",async()=>{
+ const calls:string[]=[];
+ const db={query:async(sql:string)=>{
+  calls.push(sql);
+  if(sql.includes("INSERT INTO public.smn_decision_detail("))throw Error("db-failure");
+  return {rows:sql.includes("SELECT t.id FROM public.smn_team")?[{id:"team-one"}]:[]};
+ }} as unknown as Client;
+ await assert.rejects(()=>createRegistryItem(db,"admin",{
+  ...basic,type:"decision",status:"cancelled",details:{rationale:"Motif réel"}
+ }));
+ assert.ok(calls.some(x=>x.includes("INSERT INTO public.smn_registry_item")));
+ assert.equal(calls.at(-1),"ROLLBACK");
+ assert.equal(calls.includes("COMMIT"),false);
+});
