@@ -67,7 +67,7 @@ export default function KanbanTrendsPanel({periodId}:{periodId:string}){
      <h3 className="h6">{label}</h3>
      <p className="small text-secondary">{tr("units")}</p>
      {!known.length?<p className="text-secondary">{tr("none")}</p>:
-      <div role="img" aria-label={label+" par période : "+periods.map(p=>p.name+" "+(p[key]===null?tr("unknown"):p[key])).join("; ")}>
+      <div role="img" aria-label={tr("aria").replace("{name}",label)+": "+periods.map(p=>p.name+" "+(p[key]===null?tr("unknown"):p[key])).join("; ")}>
        {periods.map(p=><div className="d-flex align-items-center gap-2 mb-2" key={p.id}>
         <span className="small text-truncate" style={{width:"38%"}} title={p.name}>{p.name}</span>
         <div style={{flex:1,minWidth:0}} className="bg-body-tertiary rounded">
