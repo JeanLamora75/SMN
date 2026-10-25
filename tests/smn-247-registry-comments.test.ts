@@ -153,3 +153,62 @@ test("FR/EN : libellés équivalents pour auteurs, versions et retrait",()=>{
   assert.ok(fr[k]&&en[k],k);
  }
 });
+
+test("lecture collective : texte retiré masqué, trace visible, identité auteur admin uniquement",async()=>{
+ const row={id:COMMENT,body:"Texte conservé en base",revision:2,
+  authorName:"admin.real",createdAt:"2026-10-25 12:00:00+00",
+  editedAt:null,editorName:null,withdrawnAt:"2026-10-25 13:00:00+00",
+  withdrawnByName:"admin.real"};
+ const db={query:async(sql:string)=>{
+  if(sql.includes("SELECT r.id,r.comment"))return {rows:[{id:ID,comment:null}]};
+  if(sql.includes("AS installed"))return {rows:[{installed:true}]};
+  if(sql.includes("FROM public.smn_registry_comment c")&&sql.includes("ORDER BY"))
+   return {rows:[row]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const admin=await readRegistryComments(db,ID,true);
+ assert.equal(admin?.comments[0].text,null);
+ assert.equal(admin?.comments[0].withdrawn,true);
+ assert.equal(admin?.comments[0].authorName,"admin.real");
+ const user=await readRegistryComments(db,ID,false);
+ assert.equal(user?.comments[0].text,null);
+ assert.equal(user?.comments[0].authorName,null);
+ assert.equal(user?.comments[0].withdrawnAt,row.withdrawnAt);
+});
+test("correction affichable sans effacer la date de création",async()=>{
+ const row={id:COMMENT,body:"Après",revision:2,
+  authorName:"admin.real",createdAt:"2026-10-25 12:00:00+00",
+  editedAt:"2026-10-25 13:00:00+00",editorName:"admin.editor",
+  withdrawnAt:null,withdrawnByName:null};
+ const db={query:async(sql:string)=>{
+  if(sql.includes("SELECT r.id,r.comment"))return {rows:[{id:ID,comment:null}]};
+  if(sql.includes("AS installed"))return {rows:[{installed:true}]};
+  if(sql.includes("FROM public.smn_registry_comment c")&&sql.includes("ORDER BY"))
+   return {rows:[row]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const read=await readRegistryComments(db,ID,true);
+ assert.equal(read?.comments[0].text,"Après");
+ assert.equal(read?.comments[0].edited,true);
+ assert.equal(read?.comments[0].createdAt,row.createdAt);
+ assert.equal(read?.comments[0].editorName,"admin.editor");
+});
+test("versions : ancienne/nouvelle valeur, auteur réel et chronologie de révision",async()=>{
+ const versions=[{revision:2,action:"edited",beforeText:"Avant",afterText:"Après",
+  actorName:"admin.editor",changedAt:"2026-10-25 13:00:00+00"}];
+ const db={query:async(sql:string)=>{
+  if(sql.includes("SELECT r.id,r.comment"))return {rows:[{id:ID,comment:null}]};
+  if(sql.includes("AS installed"))return {rows:[{installed:true}]};
+  if(sql.includes("SELECT id FROM public.smn_registry_comment"))
+   return {rows:[{id:COMMENT}]};
+  if(sql.includes("FROM public.smn_registry_comment_revision v"))
+   return {rows:versions};
+  return {rows:[]};
+ }} as unknown as Client;
+ assert.deepEqual(await readCommentRevisions(db,ID,COMMENT),{versions});
+});
+test("lecture d'un commentaire avec fiche manquante ne crée aucune table",async()=>{
+ const {db,calls}=makeDB({item:false});
+ assert.equal(await readRegistryComments(db,ID,false),null);
+ assert.equal(calls.some(c=>/CREATE TABLE|INSERT INTO/.test(c.sql)),false);
+});
