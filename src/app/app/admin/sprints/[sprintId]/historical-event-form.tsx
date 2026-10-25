@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 type HistoricalRow={id:string;name:string;kind:string;status:string;startAt:string;createdAt:string};
 export default function HistoricalEventForm({sprintId}:{sprintId:string}){
  const [open,setOpen]=useState(false),[name,setName]=useState(""),[kind,setKind]=useState("review");
@@ -8,11 +8,11 @@ export default function HistoricalEventForm({sprintId}:{sprintId:string}){
  const [events,setEvents]=useState<HistoricalRow[]>([]);
  const [editing,setEditing]=useState<string|null>(null);
  const [editName,setEditName]=useState(""),[editStatus,setEditStatus]=useState("unknown");
- async function reload(){
+ const reload=useCallback(async ()=>{
   const response=await fetch("/api/admin/sprints/"+encodeURIComponent(sprintId)+"/historical-events",{cache:"no-store"});
   if(response.ok)setEvents((await response.json() as {events:HistoricalRow[]}).events);
- }
- useEffect(()=>{const task=window.setTimeout(()=>{void reload();},0);return ()=>window.clearTimeout(task);},[sprintId]);
+ },[sprintId]);
+ useEffect(()=>{const task=window.setTimeout(()=>{void reload();},0);return ()=>window.clearTimeout(task);},[reload]);
  async function saveCorrection(){
   if(!editing||busy)return;
   setBusy(true);setError("");setSuccess("");
