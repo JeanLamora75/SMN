@@ -3332,6 +3332,11 @@
     "updateAvailable": "A newer template version is available",
     "sectionsChanged": "Sections have changed.",
     "contentChanged": "Content settings have changed.",
-    "noAutoUpdate": "No changes are applied automatically."
+    "noAutoUpdate": "No changes are applied automatically.",
+    "newReport": "New report",
+    "language": "Language",
+    "create": "Create report",
+    "creating": "Creating…",
+    "createError": "Could not create the report. Retry without changing the fields."
   }
 }
