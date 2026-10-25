@@ -138,7 +138,7 @@ export default function MemberDetail({id}:{id:string}){
      </div>
      <div className="p-3">
       {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog}/>}
-      {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} memberRevision={member.revision} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="absence"&&<MemberAbsenceEditor key={member.id+"-absence-"+(absenceToEdit?.id??"new")} memberId={member.id}
