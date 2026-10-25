@@ -75,7 +75,7 @@ test("AC2 : objectifs seulement pour Action, cycles clos non proposés",async()=
 });
 test("AC3 : confirmation explique que les fiches restent intactes",()=>{
  const ui=file("src/app/app/admin/registries/registry-relations.tsx");
- assert.ok(ui.includes("window.confirm(tr(\"confirmUnlink\"))"));
+ assert.ok(ui.includes('window.confirm(tr(target.kind==="goal"?"confirmUnlinkGoal":"confirmUnlink"))'));
  assert.ok(ui.includes("method:\"PATCH\""));
  assert.ok(ui.includes('"unlinked",row.relation.sourceId'));
 });
