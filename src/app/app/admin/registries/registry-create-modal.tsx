@@ -67,11 +67,10 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
   const element=dialog.current;
   if(!element)return;
   previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-  element.showModal();
+  if(!element.open)element.showModal();
   firstInput.current?.focus();
   return()=>{
-   if(element.open)element.close();
-   previousFocus.current?.focus();
+   // StrictMode réexécute les effets : ne jamais déclencher onClose lors du cleanup.
   };
  },[portalReady]);
  useEffect(()=>{
@@ -174,7 +173,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
   setter(value);setError(null);
  };
  return <RegistryDialogPortal><dialog ref={dialog} className="smn-registry-create-dialog" data-registry-dirty={dirty}
-  aria-labelledby={titleId} onCancel={cancel} onClose={onDismiss}>
+  aria-labelledby={titleId} onCancel={cancel} onClose={()=>{previousFocus.current?.focus();onDismiss();}}>
   <form className="smn-registry-create-form" onSubmit={save}
    onChangeCapture={()=>{setDirty(true);requestId.current=null;}}
    onInputCapture={()=>{setDirty(true);requestId.current=null;}}>
