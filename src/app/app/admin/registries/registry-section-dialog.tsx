@@ -19,10 +19,9 @@ export default function RegistrySectionDialog({title,onDismiss,children,wide=fal
   const element=ref.current;
   if(!element)return;
   origin.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-  element.showModal();
+  if(!element.open)element.showModal();
   return()=>{
-   if(element.open)element.close();
-   origin.current?.focus();
+   // L’événement onClose est réservé à une fermeture explicite, pas au cleanup StrictMode.
   };
  },[portalReady]);
  useEffect(()=>{
@@ -39,7 +38,7 @@ export default function RegistrySectionDialog({title,onDismiss,children,wide=fal
   event.preventDefault();close();
  };
  return <RegistryDialogPortal><dialog ref={ref} className={"smn-registry-section-dialog"+(wide?" smn-registry-section-dialog-wide":"")} data-registry-dirty={dirty}
-  aria-labelledby={titleId} onCancel={cancel} onClose={onDismiss}>
+  aria-labelledby={titleId} onCancel={cancel} onClose={()=>{origin.current?.focus();onDismiss();}}>
   <div className="smn-registry-section-dialog-layout"
    onChangeCapture={()=>setDirty(true)} onInputCapture={()=>setDirty(true)}>
    <header className="smn-registry-section-dialog-header">
