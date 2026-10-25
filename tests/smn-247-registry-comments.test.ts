@@ -50,7 +50,7 @@ test("validation : texte obligatoire, 1..4000 caractères, clés exactes",()=>{
 test("création : acteur authentifié, fiche autorisée, commentaire et audit dans une transaction",async()=>{
  const {db,calls}=makeDB();
  const result=await createRegistryComment(db,"actor-1",ID,{text:"Suivi réel"});
- assert.equal(result.ok,true);
+ if(!result.ok)assert.fail("La création doit être confirmée");
  assert.equal(result.revision,1);
  assert.equal(calls[0].sql,"BEGIN");
  assert.equal(calls.at(-1)?.sql,"COMMIT");
