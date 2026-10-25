@@ -8,7 +8,7 @@ export type CalendarMeeting={id:string;name:string;startAt:string;endAt:string;k
 export type CalendarMode="cards"|"agenda";
 
 const dateAtNoon=(day:string)=>new Date(day+"T12:00:00Z");
-const calendarDay=(instant:string)=>new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(instant));
+const calendarDay=(instant:string,timeZone:string)=>new Intl.DateTimeFormat("sv-SE",{timeZone,year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(instant));
 type IconName="calendar3"|"calendar-event"|"calendar-check"|"bullseye"|"chat-dots"|"sliders";
 function meetingIcon(meeting:CalendarMeeting):IconName{
  const label=meeting.name.toLocaleLowerCase();
@@ -21,10 +21,10 @@ function meetingIcon(meeting:CalendarMeeting):IconName{
 }
 
 export default function CalendarOptionB({days,entries,meetings,absenceCounts,absentNames,today,
- mode,showMeetings,showAbsences,isEditable,onMeeting,onAbsence,onOpenEvent}:{
+ mode,showMeetings,showAbsences,timeZone="Europe/Paris",isEditable,onMeeting,onAbsence,onOpenEvent}:{
  days:string[];entries:CalendarEntry[];meetings:CalendarMeeting[];
  absenceCounts:Record<string,number>;absentNames:Record<string,string[]>;today:string;mode:CalendarMode;
- showMeetings:boolean;showAbsences:boolean;isEditable:(date:string)=>boolean;
+ showMeetings:boolean;showAbsences:boolean;timeZone?:string;isEditable:(date:string)=>boolean;
  onMeeting:(date:string)=>void;onAbsence:(date:string)=>void;
  onOpenEvent:(event:CalendarMeeting)=>void;
 }){
@@ -32,7 +32,7 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,abs
  const [openedAbsenceDate,setOpenedAbsenceDate]=useState<string|null>(null);
  const dateLabel=(day:string,options:Intl.DateTimeFormatOptions)=>
   new Intl.DateTimeFormat(locale,{timeZone:"UTC",...options}).format(dateAtNoon(day));
- const clock=(raw:string)=>new Intl.DateTimeFormat(locale,{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"}).format(new Date(raw));
+ const clock=(raw:string)=>new Intl.DateTimeFormat(locale,{timeZone,hour:"2-digit",minute:"2-digit"}).format(new Date(raw));
  const meetingTitle=(m:CalendarMeeting)=>{
   if(m.kind!=="ceremony")return m.name;
   const kind=m.name.split(" — ").at(-1)?.toLocaleLowerCase()??"";
@@ -45,7 +45,7 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,abs
  };
  const renderEvents=(date:string)=>{
   const count=absenceCounts[date];
-  const dayMeetings=showMeetings?meetings.filter(m=>calendarDay(m.startAt)===date)
+  const dayMeetings=showMeetings?meetings.filter(m=>calendarDay(m.startAt,timeZone)===date)
    .sort((a,b)=>new Date(a.startAt).getTime()-new Date(b.startAt).getTime()||a.id.localeCompare(b.id)):[];
   const closures=entries.filter(item=>item.date===date&&item.type==="closure");
   return <>
