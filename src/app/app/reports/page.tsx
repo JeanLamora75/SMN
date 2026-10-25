@@ -24,7 +24,7 @@ export default async function ReportsCenter({searchParams}:Params){
  const docs=data.documents.filter(d=>(!sprint||d.sprintId===sprint)&&(!status||d.status===status)&&(!search||[d.title,d.sprintName,d.templateId].some(v=>v.toLocaleLowerCase().includes(search))));
  const archiveItems=data.archives.filter(a=>(!sprint||a.cycleId===sprint)&&(!search||a.cycleName.toLocaleLowerCase().includes(search)));
  const href=(next:string)=>{const qs=new URLSearchParams();qs.set("tab",next);if(sprint)qs.set("cycleId",sprint);if(search)qs.set("q",search);if(status)qs.set("status",status);return "/app/reports?"+qs.toString();};
- const sprintOptions=[...new Map(data.documents.map(d=>[d.sprintId,d.sprintName])).entries()];
+ const sprintOptions=data.cycles.map(c=>[c.id,c.name] as [string,string]);
  return <main className="container-fluid px-3 px-lg-4 py-4">
   <h1 className="h4">{t("heading")}</h1><p className="text-secondary">{t("intro")}</p>
   <nav className="nav nav-tabs mb-3" aria-label={t("heading")}>
