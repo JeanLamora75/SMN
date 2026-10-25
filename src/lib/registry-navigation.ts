@@ -53,7 +53,7 @@ export function registryIndexUrl(state:RegistryIndexState):string{
  if(state.sort!=="default")params.set("sort",state.sort);
  if(state.cycleId&&uuid.test(state.cycleId))params.set("cycleId",state.cycleId);
  if(state.page>1&&Number.isSafeInteger(state.page))params.set("page",String(state.page));
- if(state.view==="cards")params.set("view","cards");
+ params.set("view",state.view);
  const query=params.toString();
  return registryIndexPath+(query?"?"+query:"");
 }
