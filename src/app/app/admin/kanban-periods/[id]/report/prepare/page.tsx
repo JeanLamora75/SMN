@@ -6,6 +6,8 @@ import {withAuthDb} from "@/server/auth/database";
 import {composeKanbanReport} from "@/server/kanban/report-preparation";
 import KanbanReportPreview from "./report-preview";
 import ReportAnalysisChoices from "@/app/app/admin/sprints/[sprintId]/report/report-analysis-choices";
+import FactSelection from "@/app/app/admin/registries/fact-selection";
+import ConfirmedHighlights from "@/app/app/admin/registries/confirmed-highlights";
 export const dynamic="force-dynamic";
 export default async function KanbanReportPreparation({params}:{params:Promise<{id:string}>}){
  const account=await currentAccount();
@@ -25,6 +27,7 @@ export default async function KanbanReportPreparation({params}:{params:Promise<{
    <p className="small text-secondary mb-0">{data.provisional?"Rapport provisoire — données enregistrées actuelles": "Rapport issu du cliché de clôture V"+data.snapshotVersion}</p>
   </header>
   {account.role==="admin"&&<ReportAnalysisChoices sprintId={id} mode="kanban"/>}
+  {account.role==="admin"&&<><FactSelection canManage={true}/><ConfirmedHighlights canManage={true}/></>}
   <KanbanReportPreview data={data}/>
  </main>;
 }
