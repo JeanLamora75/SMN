@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
 import "./studio-print.css";
+import "./studio-responsive.css";
 import {insertSelectedAnalysis,replaceEmbeddedAnalysis,type EmbeddedAnalysis} from "@/lib/report-embedded-analyses";
 import ReportBlocksEditor from "./report-blocks-editor";
 import {isReportBlock,moveItem,type ReportBlock} from "@/lib/report-studio-blocks";
@@ -58,13 +59,13 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
   finally{setSaving(false);}
  };
  useEffect(()=>{if(readOnly||saved||saving||error)return;const timer=setTimeout(()=>{void save();},650);return ()=>clearTimeout(timer);},[content,saved,saving,error,readOnly]);
- return <section className="d-grid gap-3">
+ return <section className="smn-studio-shell d-grid gap-3">
   <header className="d-flex flex-wrap justify-content-between gap-2 align-items-center">
    <div><h1 className="h4 mb-1">{document.title}</h1><span className="small text-secondary">{document.templateId} · V{document.templateVersion} · {saved?tr("saved"):tr("unsaved")}</span></div>
    {!readOnly&&<button type="button" className="btn btn-primary" disabled={saved||saving} onClick={()=>void save()}>{saving?tr("saving"):tr("save")}</button>}
   </header>
   {!readOnly&&<div className="d-flex gap-2"><button type="button" disabled={!undo.length} onClick={back}>{tr("undo")}</button><button type="button" disabled={!redo.length} onClick={forward}>{tr("redo")}</button></div>}
-  <nav className="nav nav-pills gap-2" aria-label={tr("modes")}>
+  <nav className="nav nav-pills gap-2 smn-studio-controls" aria-label={tr("modes")}>
    {(["composition","writing","preview"] as const).map(k=><button key={k} type="button" className={"nav-link"+(mode===k?" active":"")} aria-pressed={mode===k} onClick={()=>setMode(k)}>{tr(k)}</button>)}
   </nav>
   {error&&<p className="alert alert-danger" role="alert">{error}</p>}
@@ -73,7 +74,8 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
    {mode==="composition"&&<button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>setPropertiesOpen(v=>!v)} aria-expanded={propertiesOpen}>{tr("properties")}</button>}
    <label className="d-flex align-items-center gap-2">{tr("zoom")}<select className="form-select form-select-sm" value={zoom} onChange={e=>setZoom(Number(e.target.value))}>{[75,90,100,110,125].map(v=><option key={v} value={v}>{v}%</option>)}</select></label>
   </div>
-  {mode==="composition"&&<fieldset className="border rounded p-3"><legend className="h6">{tr("appearance")}</legend>
+  <p className="smn-studio-mobile-hint alert alert-info">{tr("mobileHint")}</p>
+  {mode==="composition"&&<fieldset className="smn-studio-complex border rounded p-3"><legend className="h6">{tr("appearance")}</legend>
     <div className="row g-2">
      <label className="col-md-3">{tr("orientation")}<select className="form-select" disabled={readOnly} value={style.orientation} onChange={e=>updateStyle({orientation:e.target.value as "portrait"|"landscape"})}><option value="portrait">{tr("portrait")}</option><option value="landscape">{tr("landscape")}</option></select></label>
      <label className="col-md-3 form-check align-self-center"><input type="checkbox" className="form-check-input" disabled={readOnly} checked={style.cover} onChange={e=>updateStyle({cover:e.target.checked})}/>{tr("cover")}</label>
@@ -83,14 +85,14 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
      <label className="col-md-12">{tr("footerText")}<input className="form-control" disabled={readOnly} maxLength={200} value={style.footerText} onChange={e=>updateStyle({footerText:e.target.value})}/></label>
     </div>
    </fieldset>}
-  <div className="d-flex flex-column flex-xl-row gap-3 align-items-start">
-   {mode!=="preview"&&planOpen&&<aside className="border rounded p-3 w-100 flex-shrink-0" style={{maxWidth:244}} aria-label={tr("plan")}>
+  <div className="smn-studio-layout d-flex flex-column flex-xl-row gap-3 align-items-start">
+   {mode!=="preview"&&planOpen&&<aside className="smn-studio-side border rounded p-3 w-100 flex-shrink-0" style={{maxWidth:244}} aria-label={tr("plan")}>
     <h2 className="h6">{tr("plan")}</h2><div className="d-grid gap-1">
      {sections.map((s,i)=><div key={s.key} className="d-flex gap-1 align-items-center"><button type="button" className={"btn btn-sm text-start flex-grow-1 "+(selected===s.key?"btn-primary":"btn-outline-secondary")} onClick={()=>setSelected(s.key)}>{s.key}{!s.visible?" · "+tr("hidden"):""}</button>{!readOnly&&mode==="composition"&&<><button className="btn btn-sm btn-outline-secondary" type="button" disabled={i===0} aria-label={tr("up")} onClick={()=>moveSection(i,-1)}>↑</button><button type="button" className="btn btn-sm btn-outline-secondary" disabled={i===sections.length-1} aria-label={tr("down")} onClick={()=>moveSection(i,1)}>↓</button></>}</div>)}
     </div>
    </aside>}
-   <main className="flex-grow-1 w-100 border rounded p-3" style={{minWidth:0,background:"var(--bs-secondary-bg)"}}>
-    <article aria-label={tr("document")} className={"smn-report-paper mx-auto bg-white text-dark shadow-sm p-4 "+(style.orientation==="portrait"?"smn-report-print-portrait":"smn-report-print-landscape")} style={{maxWidth:Math.round((style.orientation==="portrait"?794:1123)*zoom/100),minHeight:Math.round((style.orientation==="portrait"?1123:794)*zoom/100),overflowWrap:"anywhere"}}>
+   <main className="smn-studio-canvas flex-grow-1 w-100 border rounded p-3" style={{minWidth:0,background:"var(--bs-secondary-bg)"}}>
+    <article aria-label={tr("document")} className={"smn-studio-paper smn-report-paper mx-auto bg-white text-dark shadow-sm p-4 "+(style.orientation==="portrait"?"smn-report-print-portrait":"smn-report-print-landscape")} style={{maxWidth:Math.round((style.orientation==="portrait"?794:1123)*zoom/100),minHeight:Math.round((style.orientation==="portrait"?1123:794)*zoom/100),overflowWrap:"anywhere"}}>
      {style.cover&&<header className="border-bottom pb-4 mb-4"><h2 className="h3 text-dark">{style.coverTitle||document.title}</h2><p>{style.subtitle}</p></header>}
      <h2 className="h4 text-dark">{document.title}</h2>
      {style.toc&&<nav aria-label={tr("toc")}><h3 className="h6">{tr("toc")}</h3><ol>{sections.filter(s=>s.visible).map(s=><li key={s.key}>{s.key}</li>)}</ol><p className="small">{tr("tocPending")}</p></nav>}
@@ -103,7 +105,7 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
      </section>)}
      {style.footerText&&<footer className="border-top pt-2 small">{style.footerText}</footer>}
     </article>
-    <ReportBlocksEditor sections={sections} blocks={blocks} metrics={content.metrics??{}} selectedSection={selected} readOnly={readOnly} mode={mode} onChange={next=>change({...content,blocks:next})}/>
+    <div className="smn-studio-complex"><ReportBlocksEditor sections={sections} blocks={blocks} metrics={content.metrics??{}} selectedSection={selected} readOnly={readOnly} mode={mode} onChange={next=>change({...content,blocks:next})}/></div>
    </main>
    {mode==="composition"&&propertiesOpen&&<aside className="border rounded p-3 w-100 flex-shrink-0" style={{maxWidth:276}} aria-label={tr("properties")}>
     <h2 className="h6">{tr("properties")}</h2>

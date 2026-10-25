@@ -3388,7 +3388,8 @@
     "subtitle": "Subtitle",
     "footerText": "Footer text",
     "tocPending": "Exact page numbers will be available in final rendering.",
-    "pageBreak": "Page break before section"
+    "pageBreak": "Page break before section",
+    "mobileHint": "On phones, read the document and edit simple comments. Advanced block configuration requires a larger screen."
   },
   "reportsBlocks": {
     "kind": "Block type",
