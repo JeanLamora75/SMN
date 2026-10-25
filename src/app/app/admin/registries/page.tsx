@@ -3,11 +3,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import RegistryList from "./registry-list";
-import RegistryDeadlineAlerts from "./registry-deadlines";
 import AttentionCockpit from "./attention-cockpit";
-import AutomaticHighlightsSettings from "./automatic-highlights-settings";
-import ConfirmedHighlights from "./confirmed-highlights";
-import FactSelection from "./fact-selection";
 export const dynamic="force-dynamic";
 export default async function RegistriesPage({searchParams}:{
  searchParams:Promise<{type?:string}>;
@@ -24,6 +20,6 @@ export default async function RegistriesPage({searchParams}:{
   return r.rows.length===1?r.rows[0].id:null;
  }).catch(()=>null);
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-  {teamId?<><FactSelection canManage={actor.role==="admin"}/><ConfirmedHighlights canManage={actor.role==="admin"}/><AutomaticHighlightsSettings canManage={actor.role==="admin"}/><AttentionCockpit/><RegistryDeadlineAlerts canManage={actor.role==="admin"}/><RegistryList canManage={actor.role==="admin"} initialType={initialType}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
+  {teamId?<><AttentionCockpit/><RegistryList canManage={actor.role==="admin"} initialType={initialType}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
 }
