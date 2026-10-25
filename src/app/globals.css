@@ -434,3 +434,65 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
   position:relative;left:auto;right:auto;bottom:auto;margin-top:7px;
  }
 }
+
+/* Registres globaux : lignes compactes, signaux métier distincts du statut. */
+.smn-registry-list-table{table-layout:fixed;width:100%;--bs-table-bg:transparent}
+.smn-registry-list-table th{font-size:.76rem;font-weight:700;vertical-align:bottom;color:var(--smn-muted)}
+.smn-registry-list-table th:nth-child(1){width:105px}
+.smn-registry-list-table th:nth-child(2){width:125px}
+.smn-registry-list-table th:nth-child(4){width:150px}
+.smn-registry-list-table th:nth-last-child(3){width:125px}
+.smn-registry-list-table th:nth-last-child(2){width:100px}
+.smn-registry-list-table th:last-child{width:68px}
+.smn-registry-list-table tbody td{vertical-align:top;padding:10px 8px;font-size:.83rem;
+ overflow-wrap:anywhere;min-width:0;color:var(--smn-foreground)}
+.smn-registry-row-type{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.smn-registry-row-type-icon{display:inline-flex;align-items:center;justify-content:center;
+ width:25px;height:25px;flex:none;color:var(--smn-primary);
+ border:1px solid var(--smn-border);background:var(--smn-soft);border-radius:6px}
+.smn-registry-row-title{font-size:.9rem;line-height:1.3;font-weight:700;
+ color:var(--smn-primary);text-decoration:none;overflow-wrap:anywhere}
+.smn-registry-row-title:hover{text-decoration:underline}
+.smn-registry-row-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ overflow:hidden;overflow-wrap:anywhere;white-space:pre-line;
+ line-height:1.34;margin:4px 0 0;font-size:.78rem;color:var(--smn-muted)}
+.smn-registry-row-status{font-size:.74rem;font-weight:600;white-space:normal;text-align:left}
+.smn-registry-row-attentions{display:flex;flex-direction:column;align-items:flex-start;
+ gap:3px;margin-top:5px}
+.smn-registry-row-attention{display:inline-block;padding:2px 6px;
+ background:var(--smn-soft);color:var(--smn-foreground);border:1px solid var(--smn-border);
+ border-inline-start:3px solid var(--smn-primary);border-radius:4px;
+ font-size:.71rem;line-height:1.3}
+.smn-registry-row-actions{position:relative;display:inline-block}
+.smn-registry-row-actions summary{list-style:none;display:inline-flex;align-items:center;
+ justify-content:center;min-width:34px;min-height:34px;font-weight:700}
+.smn-registry-row-actions summary::-webkit-details-marker{display:none}
+.smn-registry-row-actions[open]{z-index:10}
+.smn-registry-row-menu{position:absolute;right:0;top:calc(100% + 3px);
+ z-index:11;width:max-content;min-width:155px;max-width:240px;padding:4px;
+ border:1px solid var(--smn-border);border-radius:8px;
+ background:var(--smn-surface);box-shadow:var(--smn-shadow)}
+.smn-registry-row-menu-link{display:block;padding:8px 10px;border-radius:5px;
+ text-decoration:none;color:var(--smn-foreground)}
+.smn-registry-row-menu-link:hover,.smn-registry-row-menu-link:focus-visible{
+ background:var(--smn-soft);color:var(--smn-primary)}
+.smn-registry-mobile-label{display:none}
+@media(max-width:991px){
+ .smn-registry-list-table,.smn-registry-list-table tbody{display:block;width:100%}
+ .smn-registry-list-table thead{display:none}
+ .smn-registry-list-table tbody{display:grid;gap:9px}
+ .smn-registry-list-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:5px 10px;padding:10px 12px;background:var(--smn-surface);
+  border:1px solid var(--smn-border);border-radius:9px;min-width:0}
+ .smn-registry-list-table tbody td{display:block;padding:0;border:0;min-width:0}
+ .smn-registry-cell-type{grid-column:1;grid-row:1;align-self:center}
+ .smn-registry-cell-actions{grid-column:2;grid-row:1;justify-self:end}
+ .smn-registry-cell-title{grid-column:1/-1;grid-row:2}
+ .smn-registry-cell-status{grid-column:1/-1;grid-row:3}
+ .smn-registry-cell-date{grid-column:1/-1;grid-row:4}
+ .smn-registry-cell-due{grid-column:1/-1;grid-row:5}
+ .smn-registry-cell-owner{grid-column:1/-1;grid-row:6}
+ .smn-registry-mobile-label{display:inline;font-size:.77rem;font-weight:650;color:var(--smn-muted)}
+ .smn-registry-row-description{max-width:none}
+ .smn-registry-row-menu{right:0}
+}

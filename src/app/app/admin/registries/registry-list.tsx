@@ -4,8 +4,9 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 import type {RegistryScope,RegistryLifecycle,RegistrySort} from "@/server/registries/list";
+import RegistryListRow,{type RegistryListItem,type RegistrySignal} from "./registry-list-row";
 
-type Item={id:string;type:RegistryType;title:string;status:string;occurredOn:string;dueOn:string|null;recordedAt:string;owner?:string|null};
+type Item=RegistryListItem;
 type Page={state:"available";team:{id:string;name:string};items:Item[];total:number;page:number;totalPages:number}|
  {state:"unavailable";reason:string}|{state:"forbidden"};
 type Cycle={id:string;name:string;status:string};
@@ -26,11 +27,37 @@ export default function RegistryList({canManage,initialType="all"}:{
  const [error,setError]=useState(false),[loading,setLoading]=useState(true);
  const [refresh,setRefresh]=useState(0);
  const [cycles,setCycles]=useState<Cycle[]>([]);
+ const [attention,setAttention]=useState<RegistrySignal[]|null>(null);
+ const [attentionError,setAttentionError]=useState(false);
+ const [attentionLoading,setAttentionLoading]=useState(true);
  const [cycleRefresh,setCycleRefresh]=useState(0);
  const [cycleError,setCycleError]=useState(false),[cyclesLoading,setCyclesLoading]=useState(true);
  const label=(value:string)=>t(("registryCreate."+value) as Parameters<typeof t>[0]);
  const translate=(value:string)=>t(("registryList."+value) as Parameters<typeof t>[0]);
  const patch=(next:Partial<Filters>)=>setDraft(old=>({...old,...next}));
+ useEffect(()=>{
+  const ctrl=new AbortController();
+  const reasons=new Set(["highRisk","obstacle","atRisk","upcoming","overdue"]);
+  void fetch("/api/admin/registries/attention",{cache:"no-store",signal:ctrl.signal})
+   .then(async response=>{
+    if(!response.ok)throw Error("attention-unavailable");
+    return response.json() as Promise<{alerts:unknown}>;
+   })
+   .then(data=>{
+    if(ctrl.signal.aborted)return;
+    if(!Array.isArray(data.alerts)||data.alerts.some(signal=>
+     !signal||typeof signal!=="object"||
+     typeof signal.id!=="string"||typeof signal.reason!=="string"||
+     !reasons.has(signal.reason)))throw Error("invalid-attention-data");
+    setAttention(data.alerts as RegistrySignal[]);
+    setAttentionError(false);
+   })
+   .catch(()=>{if(!ctrl.signal.aborted){setAttention(null);setAttentionError(true);}})
+   .finally(()=>{if(!ctrl.signal.aborted)setAttentionLoading(false);});
+  return()=>ctrl.abort();
+ },[]);
+ const filtered=type!=="all"||query.search!==""||query.status!==""||
+  query.owner!==""||query.cycleId!==""||query.lifecycle!=="all";
  const statuses=type==="all"
   ?Array.from(new Set(registryTypes.flatMap(kind=>[...registryStatuses[kind]])))
   :[...registryStatuses[type]];
@@ -151,18 +178,27 @@ export default function RegistryList({canManage,initialType="all"}:{
    result?.state!=="available"?<div role="alert" className="alert alert-warning">{translate("error")}</div>:
    <div className="d-grid gap-2">
     <p className="small text-body-secondary">{translate("team")}: {result.team.name}</p>
-    {result.items.length===0?<div role="status" className="alert alert-light border">{translate("empty")}</div>:
-     <div className="table-responsive"><table className="table table-hover align-middle">
-      <thead><tr><th scope="col">{translate("date")}</th><th scope="col">{translate("category")}</th>
-       <th scope="col">{translate("title")}</th><th scope="col">{translate("status")}</th>
-       {canManage&&<th scope="col">{translate("owner")}</th>}<th scope="col">{translate("details")}</th></tr></thead>
-      <tbody>{result.items.map(item=><tr key={item.id}>
-       <td>{item.occurredOn}{item.type==="highlight"&&<div className="small text-body-secondary">{translate("manualType")} · {translate("recordedAt")}: {new Date(item.recordedAt).toLocaleString()}</div>}</td>
-       <td>{label(item.type)}</td><td>{item.title}</td>
-       <td><span className="badge text-bg-secondary">{label(item.status)}</span></td>
-       {canManage&&<td>{item.owner??"—"}</td>}
-       <td><Link href={"/app/admin/registries/"+encodeURIComponent(item.id)}>{translate("details")}</Link></td>
-      </tr>)}</tbody></table></div>}
+    {attentionLoading&&<p role="status" className="small text-body-secondary mb-0">{translate("attentionLoading")}</p>}
+    {attentionError&&<p role="alert" className="small text-danger mb-0">{translate("attentionUnavailable")}</p>}
+    {result.items.length===0?<div role="status" className="alert alert-light border">
+     {translate(filtered?"empty":"emptyInitial")}
+     {filtered&&<button type="button" className="btn btn-outline-secondary btn-sm ms-2"
+      onClick={reset}>{translate("reset")}</button>}
+    </div>:
+     <table className="table table-hover align-middle smn-registry-list-table">
+      <thead><tr>
+       <th scope="col">{translate("date")}</th>
+       <th scope="col">{translate("category")}</th>
+       <th scope="col">{translate("title")}</th>
+       <th scope="col">{translate("status")}</th>
+       {canManage&&<th scope="col">{translate("owner")}</th>}
+       <th scope="col">{translate("due")}</th>
+       <th scope="col">{translate("actions")}</th>
+      </tr></thead>
+      <tbody>{result.items.map(item=><RegistryListRow key={item.id} item={item}
+       canManage={canManage} signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
+      </tbody>
+     </table>}
     <div className="d-flex align-items-center gap-3 flex-wrap">
      <button type="button" className="btn btn-outline-secondary btn-sm" disabled={result.page<=1}
       onClick={()=>{setPage(p=>p-1);setLoading(true);}}>{translate("previous")}</button>

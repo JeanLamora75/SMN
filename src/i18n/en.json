@@ -2387,6 +2387,16 @@
     "historyError": "History unavailable."
   },
   "registryList": {
+    "due": "Due date",
+    "actions": "Actions",
+    "actionsFor": "Actions for “{title}”",
+    "openRecord": "View record",
+    "editRecord": "Edit record",
+    "notProvided": "Not provided",
+    "attentionUnavailable": "Attention signals are unavailable; no signal is assumed.",
+    "attentionLoading": "Loading attention signals…",
+    "attentionLabel": "Attention item",
+    "emptyInitial": "No records have been created yet.",
     "linksUnavailable": "Cycle associations are unavailable: the link table for this mode is not installed.",
     "allTypes": "All registers",
     "category": "Category",
