@@ -3,7 +3,8 @@
 import RegistryBreadcrumbs from "./registry-breadcrumbs";
 import {enterRegistryRelation,type RegistryNavigation} from "@/lib/registry-navigation";
 import {useEffect,useId,useRef,useState,type KeyboardEvent,type ReactNode} from "react";
-import {useTranslation} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
+import {formatRegistryDate} from "@/lib/registry-date";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import {registryDetailTabs,registryBusinessTabKeys,type RegistryDetailTab} from "@/lib/registry-detail-tabs";
 import BootstrapIcon from "../../bootstrap-icon";
@@ -55,7 +56,7 @@ function parseDetailItem(raw:unknown,teamId:string,requestedId:string):DetailIte
 export default function RegistryDetail({id,teamId,canManage,navigation}:{
  id:string;teamId:string;canManage:boolean;navigation:RegistryNavigation;
 }){
- const t=useTranslation();
+ const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryDetail."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const [item,setItem]=useState<DetailItem|null>(null);
@@ -186,8 +187,8 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        onClick={()=>setFullEditing(true)}>
        <BootstrapIcon name="pencil-square"/>
       </button>}
-      <span>{tr("businessDate")}: <time dateTime={item.occurredOn}>{item.occurredOn}</time></span>
-      {item.dueOn&&<span>{tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></span>}
+      <span>{tr("businessDate")}: <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time></span>
+      {item.dueOn&&<span>{tr("due")}: <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time></span>}
       {canManage&&item.owner&&<span>{tr("owner")}: {item.owner}</span>}
      </div>
     </div>
