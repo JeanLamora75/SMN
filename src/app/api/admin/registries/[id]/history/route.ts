@@ -15,7 +15,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  if([...value.keys()].some(key=>key!=="page")||value.getAll("page").length>1)
   return jsonResult({error:"invalid-input"},400);
  const raw=value.get("page")??"1",page=Number(raw);
- if(!/^\d+$/.test(raw)||!Number.isSafeInteger(page)||page<1||page>200)
+ if(!/^\d+$/.test(raw)||!Number.isSafeInteger(page)||page<1||page>10000)
   return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
