@@ -81,7 +81,10 @@ export default function RegistryRelations({id,type,canManage,onSaved}:{
         <span className="small text-body-secondary">
          {row.direction==="incoming"?tr("directionIncoming"):tr("directionOutgoing")}
         </span>
-        {row.linkedType==="goal"?<strong>{row.linkedTitle}</strong>:
+        {row.linkedType==="goal"?
+         row.relation.targetGoalSprintId?
+          <Link href={"/app/admin/sprints/"+encodeURIComponent(row.relation.targetGoalSprintId)}>
+           {row.linkedTitle}</Link>:<strong>{row.linkedTitle}</strong>:
          <Link href={"/app/admin/registries/"+encodeURIComponent(row.linkedId)}>
           {row.linkedTitle}</Link>}
         <span className="small text-body-secondary">
