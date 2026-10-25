@@ -8,6 +8,7 @@ import RegistryListRow,{type RegistryListItem} from "./registry-list-row";
 import AttentionCockpit from "./attention-cockpit";
 import {parseRegistryAttentionPayload,type RegistryAttentionEntry} from "@/lib/registry-attention-view";
 import RegistryCard from "./registry-card";
+import RegistryCreateModal from "./registry-create-modal";
 import BootstrapIcon from "../../bootstrap-icon";
 import {parseRegistryDisplayView,registryDisplayPreferenceKey,type RegistryDisplayView} from "@/lib/registry-display-view";
 
@@ -20,11 +21,14 @@ type Filters={search:string;status:string;owner:string;lifecycle:RegistryLifecyc
 const defaults:Filters={search:"",status:"",owner:"",lifecycle:"all",sort:"default",cycleId:""};
 const sortValues:RegistrySort[]=["default","dateDesc","dateAsc","titleAsc","titleDesc"];
 
-export default function RegistryList({canManage,initialType="all"}:{
- canManage:boolean;initialType?:RegistryScope;
+export default function RegistryList({canManage,teamId,initialType="all",initialCreate=false,sourceId,initialCycleId,returnTo}:{
+ canManage:boolean;teamId:string;initialType?:RegistryScope;initialCreate?:boolean;
+ sourceId?:string;initialCycleId?:string;returnTo?:string;
 }){
  const t=useTranslation();
  const [type,setType]=useState<RegistryScope>(initialType);
+ const [createOpen,setCreateOpen]=useState(initialCreate&&canManage);
+ const [createdId,setCreatedId]=useState<string|null>(null);
  const [view,setView]=useState<RegistryDisplayView>("list");
  const [draft,setDraft]=useState<Filters>(defaults);
  const [query,setQuery]=useState<Filters>(defaults);
@@ -115,6 +119,23 @@ export default function RegistryList({canManage,initialType="all"}:{
   return()=>ctrl.abort();
  },[type,query,page,canManage,refresh]);
 
+ const clearCreationQuery=()=>{
+  const next=new URL(window.location.href);
+  if(next.searchParams.get("create")==="1"){
+   next.searchParams.delete("create");
+   window.history.replaceState(window.history.state,"",next.pathname+next.search+next.hash);
+  }
+ };
+ const created=(id:string)=>{
+  clearCreationQuery();
+  setCreateOpen(false);
+  setCreatedId(id);
+  setLoading(true);
+  setRefresh(n=>n+1);
+  setAttentionLoading(true);
+  setAttentionRefresh(n=>n+1);
+ };
+ const createAnother=()=>{setCreatedId(null);setCreateOpen(true);};
  const choose=(next:RegistryScope)=>{
   setType(next);setDraft(old=>({...old,status:""}));
   setQuery(old=>({...old,status:""}));setPage(1);setLoading(true);
@@ -138,9 +159,27 @@ export default function RegistryList({canManage,initialType="all"}:{
       <BootstrapIcon name="grid-3x3-gap"/><span>{translate("cardsView")}</span>
      </button>
     </div>
-    {canManage&&<Link className="btn btn-primary" href="/app/admin/registries/create">{translate("create")}</Link>}
+    {canManage&&<button type="button" className="btn btn-primary"
+     onClick={()=>setCreateOpen(true)}>{translate("create")}</button>}
    </div>
   </header>
+  {createdId&&<div className="alert alert-success d-flex flex-wrap gap-2 align-items-center"
+   role="status">
+   <span>{t("registryCreateModal.success")}</span>
+   <Link className="btn btn-outline-success btn-sm"
+    href={"/app/admin/registries/"+encodeURIComponent(createdId)}>
+    {t("registryCreateModal.viewRecord")}
+   </Link>
+   <button type="button" className="btn btn-outline-success btn-sm"
+    onClick={createAnother}>{t("registryCreateModal.createAnother")}</button>
+   {sourceId&&<Link className="btn btn-link btn-sm"
+    href={"/app/admin/registries/"+encodeURIComponent(sourceId)}>
+    {t("registryCreateModal.backToSource")}
+   </Link>}
+   {returnTo&&<Link className="btn btn-link btn-sm" href={returnTo}>
+    {t("registryCreateModal.backToContext")}
+   </Link>}
+  </div>}
   <div className="nav nav-tabs flex-wrap d-none d-md-flex" role="tablist" aria-label={translate("heading")}>
    {(["all",...registryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
     className={"nav-link"+(type===kind?" active":"")} onClick={()=>choose(kind)}>
@@ -232,11 +271,13 @@ export default function RegistryList({canManage,initialType="all"}:{
        <th scope="col">{translate("actions")}</th>
       </tr></thead>
       <tbody>{result.items.map(item=><RegistryListRow key={item.id} item={item}
-       canManage={canManage} signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
+       canManage={canManage} highlight={createdId===item.id}
+       signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
       </tbody>
      </table>:<div className="smn-registry-card-grid" aria-label={translate("cardsView")}>
       {result.items.map(item=><RegistryCard key={item.id} item={item}
-       canManage={canManage} signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
+       canManage={canManage} highlight={createdId===item.id}
+       signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
      </div>}
     <div className="d-flex align-items-center gap-3 flex-wrap">
      <button type="button" className="btn btn-outline-secondary btn-sm" disabled={result.page<=1}
@@ -246,5 +287,9 @@ export default function RegistryList({canManage,initialType="all"}:{
       onClick={()=>{setPage(p=>p+1);setLoading(true);}}>{translate("next")}</button>
     </div>
    </div>}
+  {canManage&&createOpen&&<RegistryCreateModal
+   teamId={teamId} initialType={type==="all"?"risk":type}
+   sourceId={sourceId} cycleId={query.cycleId||initialCycleId}
+   onCreated={created} onDismiss={()=>{clearCreationQuery();setCreateOpen(false);}}/>}
  </section>;
 }

@@ -21,14 +21,14 @@ const icons={
  highlight:"bell-fill"
 } as const satisfies Record<RegistryType,string>;
 
-export default function RegistryListRow({item,canManage,signals}:{
- item:RegistryListItem;canManage:boolean;signals:readonly RegistrySignal[];
+export default function RegistryListRow({item,canManage,signals,highlight=false}:{
+ item:RegistryListItem;canManage:boolean;signals:readonly RegistrySignal[];highlight?:boolean;
 }){
  const t=useTranslation();
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const href="/app/admin/registries/"+encodeURIComponent(item.id);
- return <tr className="smn-registry-list-row">
+ return <tr className={"smn-registry-list-row"+(highlight?" smn-registry-just-created":"")}>
   <td className="smn-registry-cell-date">
    <span className="smn-registry-mobile-label">{tr("date")}: </span>
    <time dateTime={item.occurredOn}>{item.occurredOn}</time>

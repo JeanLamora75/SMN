@@ -4,6 +4,8 @@ import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-t
 import {obstacleTransition} from "@/lib/obstacle-lifecycle";
 import {ensureCycleLinks} from "./cycle-links";
 import {recordConfirmedHighlight} from "./confirmed-highlights";
+import {parseInitialDetails,writeInitialDetails} from "./initial-details";
+import {ensureRelations} from "./relations";
 
 export type RegistryInput={type:RegistryType;title:string;occurredOn:string;status:string;description:string|null;owner:string|null;dueOn:string|null;comment:string|null;teamId:string;cycleId?:string};
 const dateRx=/^\d{4}-\d{2}-\d{2}$/;
@@ -57,8 +59,14 @@ export async function ensureRegistrySchema(db:Client):Promise<void>{
 }
 /** Creation et revision initiale sont atomiques et propres à l'équipe installée. */
 export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
- const input=parseRegistryInput(raw);
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input" as const};
+ const {details,sourceId,...fields}=raw as Record<string,unknown>;
+ const input=parseRegistryInput(fields);
  if(!input||!actorId)return {ok:false as const,error:"invalid-input" as const};
+ const parsed=parseInitialDetails(input.type,details,input.teamId);
+ if(!parsed.ok||sourceId!==undefined&&
+  (typeof sourceId!=="string"||!/^[0-9a-f-]{36}$/i.test(sourceId)))
+  return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
   const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
@@ -70,6 +78,20 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
    const cycle=await db.query<{id:string}>(`SELECT id FROM public.smn_sprint
      WHERE id=$1 AND team_id=$2 AND deleted_at IS NULL AND status<>'closed' FOR UPDATE`,[input.cycleId,input.teamId]);
    if(cycle.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  }
+  if(sourceId!==undefined){
+   const source=await db.query<{id:string}>(`SELECT r.id FROM public.smn_registry_item r
+    JOIN public.smn_team t ON t.id=r.team_id
+    JOIN public.smn_installation i ON i.id=t.installation_id
+    WHERE r.id=$1 AND r.team_id=$2 AND i.id='singleton' AND i.state='initialized'
+    FOR UPDATE OF r`,[sourceId,input.teamId]);
+   if(source.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+  }
+  if(input.type==="decision"&&parsed.value.replacesId){
+   const replaced=await db.query<{id:string}>(`SELECT r.id FROM public.smn_registry_item r
+    WHERE r.id=$1 AND r.team_id=$2 AND r.type='decision'
+    FOR UPDATE OF r`,[parsed.value.replacesId,input.teamId]);
+   if(replaced.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   }
   await ensureRegistrySchema(db);
   const id=randomUUID();
@@ -85,6 +107,17 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown){
    await db.query(`INSERT INTO public.smn_registry_cycle_link(item_id,sprint_id) VALUES($1,$2)`,[id,input.cycleId]);
    await db.query(`INSERT INTO public.smn_registry_cycle_link_audit(id,item_id,sprint_id,action,actor_id)
      VALUES($1,$2,$3,'linked',$4)`,[randomUUID(),id,input.cycleId,actorId]);
+  }
+  await writeInitialDetails(db,actorId,id,input.type,parsed.value,input.title);
+  if(sourceId!==undefined){
+   await ensureRelations(db);
+   await db.query(`INSERT INTO public.smn_registry_relation
+    (id,source_id,target_kind,target_id) VALUES($1,$2,'record',$3)`,
+    [randomUUID(),sourceId,id]);
+   await db.query(`INSERT INTO public.smn_registry_relation_audit
+    (id,source_id,target_kind,target_id,action,actor_id)
+    VALUES($1,$2,'record',$3,'linked',$4)`,
+    [randomUUID(),sourceId,id,actorId]);
   }
   if(input.type==="decision"&&input.status==="active")await recordConfirmedHighlight(db,{category:"recordedDecision",sourceKind:"registry",sourceId:id,sourceRevision:1,title:input.title,actorId});
   await db.query("COMMIT");return {ok:true as const,id,revision:1};
