@@ -9,6 +9,7 @@ import AttentionCockpit from "./attention-cockpit";
 import {parseRegistryAttentionPayload,type RegistryAttentionEntry} from "@/lib/registry-attention-view";
 import RegistryCard from "./registry-card";
 import RegistryCreateModal from "./registry-create-modal";
+import RegistryFullEditModal from "./registry-full-edit-modal";
 import BootstrapIcon from "../../bootstrap-icon";
 import {registryDetailHref} from "@/lib/registry-navigation";
 import {parseRegistryDisplayView,registryDisplayPreferenceKey,type RegistryDisplayView} from "@/lib/registry-display-view";
@@ -31,6 +32,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const [type,setType]=useState<RegistryScope>(initialType);
  const [createOpen,setCreateOpen]=useState(initialCreate&&canManage);
  const [createdId,setCreatedId]=useState<string|null>(null);
+ const [editingId,setEditingId]=useState<string|null>(null);
  const [view,setView]=useState<RegistryDisplayView>("list");
  const [draft,setDraft]=useState<Filters>(defaults);
  const [query,setQuery]=useState<Filters>(defaults);
@@ -317,13 +319,13 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
        <th scope="col">{translate("actions")}</th>
       </tr></thead>
       <tbody>{result.items.map(item=><RegistryListRow key={item.id} item={item}
-       navigation={{origin,trail:[]}} onNavigate={savePosition}
+       navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={setEditingId}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
       </tbody>
      </table>:<div className="smn-registry-card-grid" aria-label={translate("cardsView")}>
       {result.items.map(item=><RegistryCard key={item.id} item={item}
-       navigation={{origin,trail:[]}} onNavigate={savePosition}
+       navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={setEditingId}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
      </div>}
@@ -335,6 +337,10 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
       onClick={()=>{setPage(p=>p+1);setLoading(true);}}>{translate("next")}</button>
     </div>
    </div>}
+  {canManage&&editingId&&<RegistryFullEditModal key={editingId} id={editingId}
+   teamId={teamId} onDismiss={()=>setEditingId(null)} onSaved={()=>{
+    setLoading(true);setRefresh(n=>n+1);setAttentionRefresh(n=>n+1);
+   }}/>} 
   {canManage&&createOpen&&<RegistryCreateModal
    teamId={teamId} initialType={type==="all"?"risk":type}
    sourceId={sourceId} cycleId={query.cycleId||initialCycleId}
