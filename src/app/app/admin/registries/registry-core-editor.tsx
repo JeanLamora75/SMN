@@ -49,7 +49,7 @@ export default function RegistryCoreEditor({item,section,onSaved}:{
    if(response.status===400){setError("invalidTransition");return;}
    if(!response.ok)throw Error("save-failed");
    const result=await response.json() as {ok?:boolean;revision?:number};
-   if(!result.ok||!Number.isSafeInteger(result.revision))throw Error("unconfirmed");
+   if(!result.ok||typeof result.revision!=="number"||!Number.isSafeInteger(result.revision))throw Error("unconfirmed");
    onSaved();
   }catch{setError("unavailable");}
   finally{setBusy(false);}
