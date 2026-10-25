@@ -12,7 +12,7 @@ export async function GET(req:NextRequest){
   return jsonResult({error:"forbidden"},403);
  try{
   const result=await withSprintIndexDb(db=>readRegistryCycles(db));
-  return jsonResult(result,result.state==="available"||result.state==="unsupported"?200:503);
+  return jsonResult(result,result.state==="available"?200:503);
  }catch{
   return jsonResult({error:"service-unavailable"},503);
  }
