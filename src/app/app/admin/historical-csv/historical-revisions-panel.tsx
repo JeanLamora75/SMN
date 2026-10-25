@@ -1,17 +1,17 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 type Revision={id:string;batchId:string;cycleId:string;metricCode:string;before:number|null;after:number;beforeQuality:string|null;quality:string;sourceLine:number|null;action:string;changedAt:string;actorId:string|null;origin:string};
 export default function HistoricalRevisionsPanel(){
  const [rows,setRows]=useState<Revision[]>([]),[error,setError]=useState("");
  const [cycle,setCycle]=useState(""),[busy,setBusy]=useState(false);
- async function load(){setBusy(true);setError("");
+ const load=useCallback(async ()=>{setBusy(true);setError("");
   try{const query=cycle.trim()?"?cycleId="+encodeURIComponent(cycle.trim()):"";
    const r=await fetch("/api/admin/historical-csv/revisions"+query,{cache:"no-store"});
    if(!r.ok)throw Error("Impossible de consulter les révisions.");
    const data=await r.json() as {revisions:Revision[]};setRows(data.revisions);
   }catch{setError("Historique momentanément indisponible.");}finally{setBusy(false);}
- }
- useEffect(()=>{const task=window.setTimeout(()=>{void load();},0);return ()=>window.clearTimeout(task);},[]);
+ },[cycle]);
+ useEffect(()=>{const task=window.setTimeout(()=>{void load();},0);return ()=>window.clearTimeout(task);},[load]);
  const quality=(v:string|null)=>v==="known"?"Connue":v==="estimated"?"Estimée":"Non renseignée / non attestée";
  return <section className="mt-4">
   <h2 className="h6">Historique des révisions CSV</h2>
