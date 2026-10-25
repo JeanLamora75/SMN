@@ -38,7 +38,7 @@ export default function KanbanReportPreview({data}:{data:Data}){
  };
  return <section className="smn-panel rounded-4 p-4">
   <h2 className="h5">Composition du rapport Kanban</h2>
-  <p className="text-secondary small">Choisissez les rubriques à présenter. L'aperçu HTML n'archive aucun PDF.</p>
+  <p className="text-secondary small">Choisissez les rubriques à présenter. L&apos;aperçu HTML n&apos;archive aucun PDF.</p>
   <div className="row g-2">{keys.map(key=><label className="col-12 col-lg-6 form-check ms-3" key={key}><input className="form-check-input" type="checkbox" checked={selected.includes(key)} onChange={e=>setSelected(old=>e.target.checked?[...old,key]:old.filter(x=>x!==key))}/><span className="form-check-label">{labels[key]}</span></label>)}</div>
   <div className="d-flex align-items-center gap-2 flex-wrap mt-3">
    <label htmlFor="kanban-report-language">Langue</label>
