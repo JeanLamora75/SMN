@@ -3344,5 +3344,27 @@
     "completedSp": "Completed SP",
     "plannedJh": "Planned capacity",
     "actualJh": "Actual available capacity"
+  },
+  "reportsStudio": {
+    "modes": "Studio modes",
+    "composition": "Compose",
+    "writing": "Write",
+    "preview": "Preview",
+    "plan": "Outline",
+    "properties": "Properties",
+    "zoom": "Zoom",
+    "document": "Report document",
+    "hidden": "Hidden",
+    "visible": "Show this section",
+    "comment": "Human comment",
+    "noComment": "No comment",
+    "unknown": "Not available",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "unsaved": "Unsaved changes",
+    "unsavedWarning": "Save changes before leaving this report.",
+    "conflict": "This report has changed since loading. Reload it before proceeding.",
+    "saveError": "Could not save. Try again."
   }
 }
