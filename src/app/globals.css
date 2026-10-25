@@ -799,3 +799,29 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-candidates .btn{min-height:44px}
  .smn-registry-relation-manage>.btn{min-height:44px}
 }
+
+/* Audit trail intentionally distinct from the business follow-up journal. */
+.smn-registry-audit{display:grid;gap:10px;min-width:0}
+.smn-registry-audit-timeline{list-style:none;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+.smn-registry-audit-event{border:1px solid var(--smn-border);border-radius:9px;
+ padding:12px;background:var(--smn-surface);min-width:0}
+.smn-registry-audit-heading{display:flex;align-items:baseline;justify-content:space-between;
+ gap:8px 14px;flex-wrap:wrap}
+.smn-registry-audit-heading strong{font-size:.92rem;overflow-wrap:anywhere}
+.smn-registry-audit-heading time{font-size:.8rem;color:var(--smn-muted)}
+.smn-registry-audit-diff{margin-top:9px;min-width:0}
+.smn-registry-audit-diff summary{cursor:pointer;font-weight:600;font-size:.84rem;
+ min-height:34px;display:list-item}
+.smn-registry-audit-diff summary:focus-visible{outline:2px solid var(--smn-primary);outline-offset:2px}
+.smn-registry-audit-diff .table-responsive{max-width:100%;margin-top:9px}
+.smn-registry-audit-diff table{table-layout:fixed;width:100%;font-size:.82rem}
+.smn-registry-audit-diff th,.smn-registry-audit-diff td{overflow-wrap:anywhere;white-space:pre-wrap;vertical-align:top}
+.smn-registry-audit-value{width:36%}
+.smn-registry-audit-empty{padding:12px;border:1px dashed var(--smn-border);
+ border-radius:8px;color:var(--smn-muted)}
+@media(max-width:575px){
+ .smn-registry-audit-event{padding:10px}
+ .smn-registry-audit-heading{flex-direction:column;align-items:flex-start;gap:2px}
+ .smn-registry-audit-diff summary{min-height:44px}
+ .smn-registry-audit-diff table{font-size:.76rem}
+}
