@@ -25,7 +25,7 @@ export default function AddManualResponse({archiveId}:{archiveId:string}){
  }
  return <section className="border rounded-3 p-3 mt-4">
   <h2 className="h5">Ajouter une réponse IA reçue manuellement</h2>
-  <p className="small text-secondary">Collez uniquement une réponse déjà obtenue hors de SMN. Le texte original du brief ne sera pas modifié. SMN ne vérifie pas les affirmations de l'IA.</p>
+  <p className="small text-secondary">Collez uniquement une réponse déjà obtenue hors de SMN. Le texte original du brief ne sera pas modifié. SMN ne vérifie pas les affirmations de l&apos;IA.</p>
   <label htmlFor="manual-ai-answer" className="form-label">Réponse IA</label>
   <textarea id="manual-ai-answer" className="form-control" rows={9} maxLength={250000} value={text} onChange={e=>setText(e.target.value)}/>
   <div className="row g-3 mt-1">
