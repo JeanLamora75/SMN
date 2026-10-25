@@ -15,7 +15,7 @@ export default function HistoricalRevisionsPanel(){
  const quality=(v:string|null)=>v==="known"?"Connue":v==="estimated"?"Estimée":"Non renseignée / non attestée";
  return <section className="mt-4">
   <h2 className="h6">Historique des révisions CSV</h2>
-  <p className="small text-secondary">Saisies rétrospectives : les dates indiquent l'enregistrement dans SMN, pas la date d'observation historique. Les qualités anciennes restent préservées.</p>
+  <p className="small text-secondary">Saisies rétrospectives : les dates indiquent l&apos;enregistrement dans SMN, pas la date d&apos;observation historique. Les qualités anciennes restent préservées.</p>
   <div className="d-flex gap-2 mb-2 flex-wrap">
    <input className="form-control form-control-sm" style={{maxWidth:380}} aria-label="Filtrer par identifiant de cycle" placeholder="Identifiant de cycle (facultatif)" value={cycle} onChange={e=>setCycle(e.target.value)}/>
    <button type="button" className="btn btn-outline-secondary btn-sm" disabled={busy} onClick={()=>void load()}>Consulter</button>
