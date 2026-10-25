@@ -26,6 +26,7 @@ export default function RegistryList({canManage,initialType="all"}:{
  const [error,setError]=useState(false),[loading,setLoading]=useState(true);
  const [refresh,setRefresh]=useState(0);
  const [cycles,setCycles]=useState<Cycle[]>([]);
+ const [cycleRefresh,setCycleRefresh]=useState(0);
  const [cycleError,setCycleError]=useState(false),[cyclesLoading,setCyclesLoading]=useState(true);
  const label=(value:string)=>t(("registryCreate."+value) as Parameters<typeof t>[0]);
  const translate=(value:string)=>t(("registryList."+value) as Parameters<typeof t>[0]);
@@ -46,7 +47,7 @@ export default function RegistryList({canManage,initialType="all"}:{
    .catch(()=>{if(!ctrl.signal.aborted)setCycleError(true);})
    .finally(()=>{if(!ctrl.signal.aborted)setCyclesLoading(false);});
   return()=>ctrl.abort();
- },[]);
+ },[cycleRefresh]);
 
  useEffect(()=>{
   const ctrl=new AbortController();
@@ -113,7 +114,8 @@ export default function RegistryList({canManage,initialType="all"}:{
      <option value="">{translate("allCycles")}</option>
      {cycles.map(cycle=><option key={cycle.id} value={cycle.id}>{cycle.name}</option>)}
     </select>
-    {cycleError&&<small role="alert" className="text-danger">{translate("cycleUnavailable")}</small>}
+    {cycleError&&<div role="alert" className="small text-danger">{translate("cycleUnavailable")}{" "}
+     <button type="button" className="btn btn-sm btn-outline-danger" onClick={()=>{setCyclesLoading(true);setCycleError(false);setCycleRefresh(n=>n+1);}}>{translate("retry")}</button></div>}
    </div>
    <div className="col-md-3">
     <label className="form-label" htmlFor="reg-status">{translate("status")}</label>
@@ -144,7 +146,7 @@ export default function RegistryList({canManage,initialType="all"}:{
   {loading?<div role="status" className="spinner-border spinner-border-sm" aria-label={translate("loading")}/>:
    error?<div role="alert" className="alert alert-danger">{translate("error")}{" "}
     <button type="button" className="btn btn-sm btn-outline-danger" onClick={()=>{setLoading(true);setRefresh(n=>n+1);}}>{translate("retry")}</button></div>:
-   result?.state==="unavailable"?<div role="alert" className="alert alert-warning">{translate("unavailable")}{" "}
+   result?.state==="unavailable"?<div role="alert" className="alert alert-warning">{translate(result.reason==="links-not-installed"?"linksUnavailable":"unavailable")}{" "}
     <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>{setLoading(true);setRefresh(n=>n+1);}}>{translate("retry")}</button></div>:
    result?.state!=="available"?<div role="alert" className="alert alert-warning">{translate("error")}</div>:
    <div className="d-grid gap-2">
