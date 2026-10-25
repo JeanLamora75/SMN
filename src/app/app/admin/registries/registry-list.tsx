@@ -5,6 +5,9 @@ import {useTranslation} from "@/i18n/client";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 import type {RegistryScope,RegistryLifecycle,RegistrySort} from "@/server/registries/list";
 import RegistryListRow,{type RegistryListItem,type RegistrySignal} from "./registry-list-row";
+import RegistryCard from "./registry-card";
+import BootstrapIcon from "../../bootstrap-icon";
+import {parseRegistryDisplayView,registryDisplayPreferenceKey,type RegistryDisplayView} from "@/lib/registry-display-view";
 
 type Item=RegistryListItem;
 type Page={state:"available";team:{id:string;name:string};items:Item[];total:number;page:number;totalPages:number}|
@@ -20,6 +23,7 @@ export default function RegistryList({canManage,initialType="all"}:{
 }){
  const t=useTranslation();
  const [type,setType]=useState<RegistryScope>(initialType);
+ const [view,setView]=useState<RegistryDisplayView>("list");
  const [draft,setDraft]=useState<Filters>(defaults);
  const [query,setQuery]=useState<Filters>(defaults);
  const [page,setPage]=useState(1);
@@ -35,6 +39,20 @@ export default function RegistryList({canManage,initialType="all"}:{
  const label=(value:string)=>t(("registryCreate."+value) as Parameters<typeof t>[0]);
  const translate=(value:string)=>t(("registryList."+value) as Parameters<typeof t>[0]);
  const patch=(next:Partial<Filters>)=>setDraft(old=>({...old,...next}));
+ // Read only after hydration; an absent/invalid preference keeps the List default.
+ useEffect(()=>{
+  let active=true;
+  void Promise.resolve().then(()=>{
+   if(!active)return;
+   try{setView(parseRegistryDisplayView(window.localStorage.getItem(registryDisplayPreferenceKey)));}
+   catch{setView("list");}
+  });
+  return()=>{active=false;};
+ },[]);
+ const chooseView=(next:RegistryDisplayView)=>{
+  setView(next);
+  try{window.localStorage.setItem(registryDisplayPreferenceKey,next);}catch{/* Storage can be disabled. */}
+ };
  useEffect(()=>{
   const ctrl=new AbortController();
   const reasons=new Set(["highRisk","obstacle","atRisk","upcoming","overdue"]);
@@ -101,7 +119,19 @@ export default function RegistryList({canManage,initialType="all"}:{
  return <section className="d-grid gap-3">
   <header className="d-flex gap-3 align-items-center justify-content-between flex-wrap">
    <div><h1>{translate("heading")}</h1>{!canManage&&<span className="text-body-secondary">{translate("readonly")}</span>}</div>
-   {canManage&&<Link className="btn btn-primary" href="/app/admin/registries/create">{translate("create")}</Link>}
+   <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
+    <div className="btn-group smn-registry-view-switch" role="group" aria-label={translate("viewGroup")}>
+     <button type="button" className={"btn btn-outline-secondary"+(view==="list"?" active":"")}
+      aria-pressed={view==="list"} onClick={()=>chooseView("list")}>
+      <BootstrapIcon name="list-ul"/><span>{translate("listView")}</span>
+     </button>
+     <button type="button" className={"btn btn-outline-secondary"+(view==="cards"?" active":"")}
+      aria-pressed={view==="cards"} onClick={()=>chooseView("cards")}>
+      <BootstrapIcon name="grid-3x3-gap"/><span>{translate("cardsView")}</span>
+     </button>
+    </div>
+    {canManage&&<Link className="btn btn-primary" href="/app/admin/registries/create">{translate("create")}</Link>}
+   </div>}
   </header>
   <div className="nav nav-tabs flex-wrap d-none d-md-flex" role="tablist" aria-label={translate("heading")}>
    {(["all",...registryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
@@ -185,7 +215,7 @@ export default function RegistryList({canManage,initialType="all"}:{
      {filtered&&<button type="button" className="btn btn-outline-secondary btn-sm ms-2"
       onClick={reset}>{translate("reset")}</button>}
     </div>:
-     <table className="table table-hover align-middle smn-registry-list-table">
+     view==="list"?<table className="table table-hover align-middle smn-registry-list-table">
       <thead><tr>
        <th scope="col">{translate("date")}</th>
        <th scope="col">{translate("category")}</th>
@@ -198,7 +228,10 @@ export default function RegistryList({canManage,initialType="all"}:{
       <tbody>{result.items.map(item=><RegistryListRow key={item.id} item={item}
        canManage={canManage} signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
       </tbody>
-     </table>}
+     </table>:<div className="smn-registry-card-grid" aria-label={translate("cardsView")}>
+      {result.items.map(item=><RegistryCard key={item.id} item={item}
+       canManage={canManage} signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
+     </div>}
     <div className="d-flex align-items-center gap-3 flex-wrap">
      <button type="button" className="btn btn-outline-secondary btn-sm" disabled={result.page<=1}
       onClick={()=>{setPage(p=>p-1);setLoading(true);}}>{translate("previous")}</button>
