@@ -496,3 +496,31 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-row-description{max-width:none}
  .smn-registry-row-menu{right:0}
 }
+
+/* SMN-241 : Cartes compactes ; exclusivité pilotée par la vue du registre. */
+.smn-registry-view-switch .btn{display:inline-flex;align-items:center;justify-content:center;
+ gap:7px;min-height:36px;font-size:.82rem;font-weight:600}
+.smn-registry-view-switch .btn[aria-pressed="true"]{background:var(--smn-soft);
+ color:var(--smn-foreground);border-color:var(--smn-primary);box-shadow:inset 0 -2px 0 var(--smn-primary)}
+.smn-registry-card-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:12px;align-items:start;min-width:0}
+.smn-registry-card{position:relative;display:flex;flex-direction:column;gap:9px;
+ min-width:0;padding:12px 14px;border:1px solid var(--smn-border);
+ border-radius:10px;background:var(--smn-surface);color:var(--smn-foreground)}
+.smn-registry-card-head{display:flex;align-items:flex-start;justify-content:space-between;
+ gap:8px;min-width:0}
+.smn-registry-card .smn-registry-row-title{display:block;font-size:.9rem}
+.smn-registry-card .smn-registry-row-description{margin:-4px 0 0}
+.smn-registry-card-status{min-width:0}
+.smn-registry-card-meta{display:flex;flex-wrap:wrap;gap:3px 10px;
+ padding-top:8px;border-top:1px solid var(--smn-border);
+ font-size:.76rem;color:var(--smn-muted)}
+.smn-registry-card-meta>span{overflow-wrap:anywhere}
+.smn-registry-card-meta-label{font-weight:650;color:var(--smn-foreground)}
+@media(max-width:1199px){
+ .smn-registry-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:639px){
+ .smn-registry-card-grid{grid-template-columns:minmax(0,1fr)}
+ .smn-registry-card{padding:11px 12px}
+}
