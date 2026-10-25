@@ -156,7 +156,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
      id={prefix+"-panel-"+panel} aria-labelledby={prefix+"-tab-"+panel}
      tabIndex={tab===panel?0:-1} hidden={tab!==panel}>
      {tab===panel&&<>
-     {tab==="summary"&&<RegistrySummary item={item} canManage={canManage}
+     {tab==="summary"&&<RegistrySummary key={item.id} item={item} canManage={canManage}
       onEditDescription={canManage&&Number.isSafeInteger(item.revision)?
        ()=>setDescriptionEditing(true):undefined}/>}
      {tab==="relations"&&<>
