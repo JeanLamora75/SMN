@@ -2952,6 +2952,20 @@
       "7": "Sunday"
     }
   },
+  "kanbanTrends": {
+    "started": "Items started",
+    "throughput": "Items completed (Throughput)",
+    "wipFinal": "Final WIP",
+    "units": "Number of items · closed periods",
+    "unknown": "Not recorded",
+    "none": "No saved value.",
+    "noPeriods": "No eligible closed periods for comparison.",
+    "loading": "Loading trends…",
+    "unavailable": "Trends unavailable.",
+    "retry": "Retry",
+    "unit": "items",
+    "aria": "Trend of {name}"
+  },
   "kanbanPeriod": {
     "title": "Create a Kanban period",
     "intro": "One period at a time. Creation is immediate and does not generate subsequent periods.",

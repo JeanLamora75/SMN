@@ -1,5 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
+import {useTranslation} from "@/i18n/client";
+import {parseKanbanTrendPayload} from "@/lib/kanban-trend-payload";
 type Period={id:string;name:string;startOn:string;endOn:string;started:number|null;throughput:number|null;wipFinal:number|null;cycleDays:number|null;leadDays:number|null};
 function TimingChart({periods}:{periods:Period[]}){
  const lang=typeof document!=="undefined"&&document.documentElement.lang.startsWith("en")?"en":"fr";
@@ -27,33 +29,51 @@ function TimingChart({periods}:{periods:Period[]}){
   </div>
  </section>;
 }
-const series=[["started","Éléments commencés"],["throughput","Éléments terminés (Throughput)"],["wipFinal","WIP final"]] as const;
+const series=["started","throughput","wipFinal"] as const;
 export default function KanbanTrendsPanel({periodId}:{periodId:string}){
+ const t=useTranslation();
+ const tr=(key:string)=>t(("kanbanTrends."+key) as Parameters<typeof t>[0]);
  const [periods,setPeriods]=useState<Period[]>([]);
- const [loading,setLoading]=useState(true),[error,setError]=useState("");
- useEffect(()=>{let live=true;fetch("/api/admin/kanban-periods/"+encodeURIComponent(periodId)+"/trends",{cache:"no-store"})
- .then(r=>{if(!r.ok)throw Error();return r.json();}).then(d=>{if(live)setPeriods(d.periods);})
- .catch(()=>{if(live)setError("Tendances indisponibles.");}).finally(()=>{if(live)setLoading(false);});
- return()=>{live=false;};},[periodId]);
- if(loading)return <p role="status">Chargement des tendances…</p>;
- if(error)return <p role="alert" className="alert alert-warning">{error}</p>;
- if(!periods.length)return <p className="text-secondary">Aucune période clôturée éligible pour cette comparaison.</p>;
+ const [loading,setLoading]=useState(true),[error,setError]=useState(false);
+ const [retry,setRetry]=useState(0);
+ useEffect(()=>{
+  const controller=new AbortController();
+  void fetch("/api/admin/kanban-periods/"+encodeURIComponent(periodId)+"/trends",{
+   cache:"no-store",signal:controller.signal
+  }).then(async response=>{
+   if(!response.ok)throw Error("unavailable");
+   const parsed=parseKanbanTrendPayload(await response.json() as unknown);
+   if(!parsed)throw Error("invalid");
+   return parsed;
+  }).then(result=>{
+   if(!controller.signal.aborted){setPeriods(result);setError(false);setLoading(false);}
+  }).catch(()=>{
+   if(!controller.signal.aborted){setError(true);setLoading(false);}
+  });
+  return()=>controller.abort();
+ },[periodId,retry]);
+ if(loading)return <p role="status">{tr("loading")}</p>;
+ if(error)return <p role="alert" className="alert alert-warning">{tr("unavailable")}{" "}
+  <button type="button" className="btn btn-outline-secondary btn-sm"
+   onClick={()=>{setLoading(true);setError(false);setRetry(n=>n+1);}}>{tr("retry")}</button></p>;
+ if(!periods.length)return <p className="text-secondary">{tr("noPeriods")}</p>;
  return <div className="row g-3">
-  {series.map(([key,label])=>{
+  {series.map(key=>{
+   const label=tr(key);
    const known=periods.filter(p=>p[key]!==null);
    const max=Math.max(1,...known.map(p=>p[key]??0));
    return <section className="col-12 col-xl-4" key={key} aria-label={label}>
     <div className="border rounded p-3 h-100">
      <h3 className="h6">{label}</h3>
-     <p className="small text-secondary">Nombre d’éléments · périodes clôturées</p>
-     {!known.length?<p className="text-secondary">Aucune valeur enregistrée.</p>:
-      <div role="img" aria-label={label+" par période : "+periods.map(p=>p.name+" "+(p[key]===null?"non renseigné":p[key])).join("; ")}>
+     <p className="small text-secondary">{tr("units")}</p>
+     {!known.length?<p className="text-secondary">{tr("none")}</p>:
+      <div role="img" aria-label={tr("aria").replace("{name}",label)+": "+periods.map(p=>p.name+" "+(p[key]===null?tr("unknown"):p[key])).join("; ")}>
        {periods.map(p=><div className="d-flex align-items-center gap-2 mb-2" key={p.id}>
         <span className="small text-truncate" style={{width:"38%"}} title={p.name}>{p.name}</span>
         <div style={{flex:1,minWidth:0}} className="bg-body-tertiary rounded">
          {p[key]!==null&&<div className="bg-primary rounded" style={{height:16,width:(p[key]===0?0:Math.max(2,(p[key]/max)*100))+"%"}}/>}
         </div>
-        <span className="small text-end" style={{width:45}}>{p[key]===null?"—":p[key]}</span>
+        <span className="small text-end" style={{width:45}}>{p[key]===null?tr("unknown"):p[key]}</span>
        </div>)}
       </div>}
     </div>
