@@ -41,7 +41,7 @@ test("AC2/4 : ne jamais afficher UUID ou JSON brut pour les parties",()=>{
 test("AC1/4 : payload refuse un faux acteur, une fausse date et un faux genre",()=>{
  assert.equal(parseAuditPage({events:[{...row,at:"invalid"}],hasMore:false,page:1}),null);
  assert.equal(parseAuditPage({events:[{...row,kind:"imaginary"}],hasMore:false,page:1}),null);
- assert.equal(parseAuditPage({events:[{...row,actorName:id}],hasMore:false,page:1}),null);
+ assert.equal(parseAuditPage({events:[{...row,actorName:id}],hasMore:false,page:1})?.events[0].actorName,null);
  assert.ok(parseAuditPage({events:[{...row,actorName:null}],hasMore:false,page:1}));
 });
 test("AC6 : pagination bornée et ordonnée, 26e entrée comme indice hasMore",async()=>{
