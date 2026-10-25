@@ -10,7 +10,7 @@ export type QuickMember=Readonly<{
  developmentCapacityJh:null;
 }>;
 export type MemberListItem=Readonly<Omit<QuickMember,"email"|"revision"|"isProvisional"|"agileRole"|"startOn"|"contractPercent"|"allocationPercent"|"rolePercent"|"contributionPercent"|"developmentCapacityJh"> & {
- email:string|null;professionalFunction:string|null;revision:number;isProvisional:boolean;agileRole:AgileRole|null;startOn:string|null;
+ email:string|null;professionalFunction:string|null;countryIso2:string|null;revision:number;isProvisional:boolean;agileRole:AgileRole|null;startOn:string|null;
  endOn:string|null;archived:boolean;archivedAt:string|null;isAssigned:boolean;contractPercent:number;allocationPercent:number;rolePercent:number;
  contributionPercent:number;roleShares:Readonly<{scrumMaster:number;productOwner:number;developer:number}>;developmentCapacityJh:null;
 }>;
@@ -52,11 +52,11 @@ type MemberRow={id:string;member_number:number;display_name:string;email:string|
  end_on:string|null;contract_percent:number;contribution_percent:number;
  allocation_percent:number|null;role_percent:number|null;
  v_contract:number|null;v_allocation:number|null;v_contribution:number|null;
- v_sm:number|null;v_po:number|null;v_dev:number|null};
+ v_sm:number|null;v_po:number|null;v_dev:number|null;country_iso2:string|null};
 const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,m.professional_function,m.revision,m.is_provisional,
  m.archived_at::text AS archived_at,m.contract_percent,m.contribution_percent,
  a.agile_role,a.start_on::text AS start_on,a.end_on::text AS end_on,
- a.allocation_percent,a.role_percent,v.contract_percent AS v_contract,
+ a.allocation_percent,a.role_percent,loc.country_iso2,v.contract_percent AS v_contract,
  v.allocation_percent AS v_allocation,v.contribution_percent AS v_contribution,
  v.scrum_master_percent AS v_sm,v.product_owner_percent AS v_po,v.developer_percent AS v_dev
  FROM public.smn_member m
@@ -73,7 +73,12 @@ const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,m.profess
   FROM public.smn_member_assignment_version
   WHERE assignment_id=a.id AND effective_from<=CURRENT_DATE
   ORDER BY effective_from DESC,revision DESC LIMIT 1
- ) v ON true WHERE m.installation_id='singleton'`;
+ ) v ON true
+ LEFT JOIN LATERAL (
+  SELECT ml.country_iso2 FROM public.smn_member_location ml
+  WHERE ml.member_id=m.id AND ml.effective_from<=CURRENT_DATE
+  ORDER BY ml.effective_from DESC,ml.revision DESC LIMIT 1
+ ) loc ON true WHERE m.installation_id='singleton'`;
 function project(row:MemberRow):MemberListItem{
  if(!Number.isSafeInteger(row.member_number)||row.member_number<1||
     typeof row.display_name!=="string"||
@@ -86,7 +91,7 @@ function project(row:MemberRow):MemberListItem{
   shares.developer>=shares.scrumMaster&&shares.developer>=shares.productOwner?
    "developer":shares.scrumMaster>=shares.productOwner?"scrum_master":"product_owner";
  return {id:row.id,memberNumber:row.member_number,displayName:row.display_name,
-  email:row.email??null,professionalFunction:row.professional_function??null,revision:row.revision??0,isProvisional:row.is_provisional,
+  email:row.email??null,countryIso2:row.country_iso2??null,professionalFunction:row.professional_function??null,revision:row.revision??0,isProvisional:row.is_provisional,
   agileRole:primary,startOn:row.start_on,endOn:row.end_on,
   archived:row.archived_at!=null,archivedAt:row.archived_at??null,
   isAssigned:row.start_on!==null&&row.end_on===null,
@@ -170,7 +175,7 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
      VALUES($1,$2,1,$3::date,$4,NULL,NULL,NULL,'installation-default',$5)`,
      [randomUUID(),id,startOn,defaultCountry,actorId]);
    }
-   members.push({id,memberNumber,displayName,email:null,professionalFunction:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
+   members.push({id,memberNumber,displayName,email:null,professionalFunction:null,countryIso2:null,revision:0,isProvisional:true,agileRole:role,startOn,endOn:null,archived:false,archivedAt:null,isAssigned:true,
     contractPercent:100,allocationPercent:100,rolePercent:100,contributionPercent:100,
     roleShares:{scrumMaster:role==="scrum_master"?100:0,productOwner:role==="product_owner"?100:0,developer:role==="developer"?100:0},
     developmentCapacityJh:null});
