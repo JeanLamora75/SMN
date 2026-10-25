@@ -2368,6 +2368,28 @@
     "saving": "Saving…",
     "discardChanges": "Discard unsaved description changes?"
   },
+  "registryJournal": {
+    "heading": "Follow-up journal",
+    "writeComment": "New comment",
+    "placeholder": "Add a follow-up comment…",
+    "submit": "Add comment",
+    "filters": "Filter journal",
+    "all": "All",
+    "comments": "Comments",
+    "action": "Actions",
+    "decision": "Decisions",
+    "highlight": "Highlights",
+    "comment": "Comment",
+    "link": "Linked record",
+    "empty": "No recorded comments or linked events.",
+    "emptyFiltered": "No entries match this filter.",
+    "reset": "Reset filters",
+    "loading": "Loading journal…",
+    "unavailable": "The journal is unavailable.",
+    "retry": "Retry",
+    "before": "Before",
+    "after": "After"
+  },
   "registryComments": {
     "add": "Add comment",
     "edit": "Edit comment",
