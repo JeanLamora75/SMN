@@ -21,8 +21,9 @@ test("AC1 : construit une chronologie du plus récent au plus ancien, sans inven
  assert.deepEqual(entries.map(x=>x.kind),["link","comment"]);
  assert.equal(entries[0].at,link.recordedAt);
  assert.equal(entries[1].at,comment.createdAt);
- if(entries[0].kind!=="link")assert.fail("La première entrée doit être une fiche liée");
- assert.equal(entries[0].recordId,actionId);
+ const first=entries[0];
+ if(first.kind!=="link")assert.fail("La première entrée doit être une fiche liée");
+ assert.equal(first.recordId,actionId);
 });
 test("AC1 : les vraies corrections et retraits sont ordonnés selon la date d'activité",()=>{
  const comments=[
