@@ -2492,6 +2492,14 @@
     "unavailable": "Enregistrement indisponible. Le brouillon reste ouvert.",
     "invalidTransition": "Cette transition de statut n’est pas autorisée. Aucun changement n’a été enregistré."
   },
+  "registryNavigation": {
+    "aria": "Parcours entre les fiches du registre",
+    "registers": "Registres",
+    "inaccessible": "Fiche indisponible ou accès refusé",
+    "previous": "Fiche précédente",
+    "backToResults": "Revenir à la liste et aux filtres",
+    "discard": "Quitter cette fiche ? Les modifications non enregistrées seront perdues."
+  },
   "registryDetail": {
     "tabs": "Navigation dans la fiche",
     "summary": "Synthèse",
