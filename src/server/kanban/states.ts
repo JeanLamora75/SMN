@@ -36,7 +36,7 @@ export async function reconcileKanbanStates(db:Client){
  ADD CONSTRAINT smn_kanban_capacity_opening_provenance_v2_check
  CHECK (provenance IN ('pending-capture','historical-unavailable','calculated','manual','unavailable-at-opening'));
  END IF;
- END $$`);
+ END; $$`);
  await db.query("BEGIN");
  try{
   const teams=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
