@@ -602,3 +602,42 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-detail-tab{padding:9px 10px;font-size:.81rem}
  .smn-registry-detail-body{padding:12px}
 }
+
+/* SMN-244 — Synthèse 2/3 + 1/3 ; journal réel explicitement différé. */
+.smn-registry-summary-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+ gap:14px;align-items:start;min-width:0}
+.smn-registry-summary-main,.smn-registry-summary-side{display:grid;gap:12px;min-width:0}
+.smn-registry-summary-panel{min-width:0;padding:15px 16px;border:1px solid var(--smn-border);
+ border-radius:9px;background:var(--smn-surface);color:var(--smn-foreground)}
+.smn-registry-summary-panel-head{display:flex;align-items:center;
+ justify-content:space-between;gap:12px;margin-bottom:12px}
+.smn-registry-summary-panel-head .btn{display:inline-flex;align-items:center;
+ justify-content:center;gap:5px;min-height:36px;flex-shrink:0}
+.smn-registry-summary-panel h2{font-size:1rem;font-weight:750}
+.smn-registry-summary-panel p{overflow-wrap:anywhere}
+.smn-registry-summary-legacy{padding:12px 0 0;margin-top:12px;
+ border-top:1px solid var(--smn-border)}
+.smn-registry-summary-links{list-style:none;display:grid;gap:7px;padding:0;margin:0;
+ font-size:.82rem}
+.smn-registry-summary-links li{overflow-wrap:anywhere}
+.smn-registry-summary-activity{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.smn-registry-summary-activity li{display:flex;flex-direction:column;gap:2px;
+ padding-bottom:7px;border-bottom:1px solid var(--smn-border);
+ font-size:.82rem;min-width:0;overflow-wrap:anywhere}
+.smn-registry-summary-activity li:last-child{border-bottom:0;padding-bottom:0}
+.smn-registry-summary-activity li>span{font-weight:600;color:var(--smn-foreground)}
+.smn-registry-summary-activity li time{color:var(--smn-muted)}
+.smn-registry-description-dialog{width:min(94vw,790px);max-width:100%;
+ max-height:min(90vh,850px);overflow:auto;padding:20px;border:1px solid var(--smn-border);
+ border-radius:12px;background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:var(--smn-shadow)}
+.smn-registry-description-dialog::backdrop{background:rgba(15,25,40,.65)}
+.smn-registry-description-dialog textarea{resize:vertical;min-height:160px}
+@media(max-width:991px){
+ .smn-registry-summary-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:575px){
+ .smn-registry-summary-grid{gap:10px}
+ .smn-registry-summary-panel{padding:12px}
+ .smn-registry-description-dialog{width:calc(100vw - 20px);padding:12px}
+}
