@@ -3337,6 +3337,12 @@
     "language": "Language",
     "create": "Create report",
     "creating": "Creating…",
-    "createError": "Could not create the report. Retry without changing the fields."
+    "createError": "Could not create the report. Retry without changing the fields.",
+    "prefillSummary": "Prefilled indicators",
+    "unknown": "Not available",
+    "committedSp": "Initially committed SP",
+    "completedSp": "Completed SP",
+    "plannedJh": "Planned capacity",
+    "actualJh": "Actual available capacity"
   }
 }
