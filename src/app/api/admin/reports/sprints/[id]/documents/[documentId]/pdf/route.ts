@@ -5,6 +5,7 @@ import {inspectPdfEligibility} from "@/server/reports/studio-export";
 import {renderStudioPdf} from "@/server/reports/studio-pdf-render";
 import {storeFinalPdfArchive} from "@/server/reports/pdf-archive-store";
 import {jsonResult} from "@/server/auth/request";
+import {getReportDocument} from "@/server/reports/report-documents";
 export const dynamic="force-dynamic";export const runtime="nodejs";
 type P={params:Promise<{id:string;documentId:string}>};
 async function execute(req:NextRequest,{params}:P,archive:boolean){
@@ -23,6 +24,9 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   if(eligible.warnings.length>0&&req.headers.get("x-smn-ack-warnings")!=="true")
    return {error:"warnings-require-confirmation",issues:eligible.warnings} as const;
   const bytes=await renderStudioPdf(eligible.document);
+  // Reject a render that became stale while Chromium was producing the PDF.
+  const latest=await getReportDocument(db,id,documentId);
+  if(!latest||latest.revision!==expected)return {error:"revision-changed"} as const;
   if(!archive)return {bytes} as const;
   const doc=eligible.document;
   const manifest=await storeFinalPdfArchive(db,bytes,{authorId:actor.id,language:doc.language,templateId:doc.templateId,teamId:doc.teamId,cycleId:doc.sprintId,cycleStatus:"draft",snapshotVersion:null,templateName:doc.title});

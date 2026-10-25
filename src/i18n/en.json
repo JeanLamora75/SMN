@@ -3445,7 +3445,8 @@
     "provisional": "Current data may be provisional",
     "analysis-origin": "AI-derived analysis: check provenance",
     "wide-table": "Check table readability",
-    "invalid-block": "Invalid block structure"
+    "invalid-block": "Invalid block structure",
+    "unsupported-pdf-block": "Export blocked: chart, table or image cannot yet be faithfully rendered in PDF."
   },
   "reportsPdf": {
     "export": "Export PDF",
