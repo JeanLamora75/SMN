@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {useEffect,useState} from "react";
-import {useTranslation} from "@/i18n/client";
+import {useTranslation,useLocale} from "@/i18n/client";
 import {parseSummaryCycles,parseSummaryRelations,validRegistryActivityTime,
  type SummaryRelation,type SummaryCycle,type SummaryContext} from "@/lib/registry-summary-context";
 import BootstrapIcon from "../../bootstrap-icon";
@@ -17,7 +17,7 @@ const initialRelations:SummaryContext<SummaryRelation>={state:"loading"};
 const initialCycles:SummaryContext<SummaryCycle>={state:"loading"};
 
 export default function RegistrySummary({item,canManage,onEditDescription}:Props){
- const t=useTranslation(),tr=(key:string)=>t(("registrySummary."+key) as Parameters<typeof t>[0]);
+ const t=useTranslation(),locale=useLocale(),tr=(key:string)=>t(("registrySummary."+key) as Parameters<typeof t>[0]);
  const [relations,setRelations]=useState<SummaryContext<SummaryRelation>>(initialRelations);
  const [cycles,setCycles]=useState<SummaryContext<SummaryCycle>>(initialCycles);
  const [reload,setReload]=useState(0);
@@ -53,7 +53,7 @@ export default function RegistrySummary({item,canManage,onEditDescription}:Props
   setRelations(initialRelations);setCycles(initialCycles);
   setReload(n=>n+1);
  };
- const dateTime=new Intl.DateTimeFormat(t("common.save")==="Enregistrer"?"fr-FR":"en-GB",{
+ const dateTime=new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
   dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Paris"
  });
  const created=canManage?validRegistryActivityTime(item.createdAt):null;
