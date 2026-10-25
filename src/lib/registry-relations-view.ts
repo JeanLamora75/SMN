@@ -29,6 +29,8 @@ export function parseRelationPayload(raw:unknown,id:string):RegistryRelation[]|n
    entry.targetKind!=="record"&&entry.targetKind!=="goal"||
    typeof entry.sourceTitle!=="string"||!entry.sourceTitle.trim()||
    typeof entry.targetTitle!=="string"||!entry.targetTitle.trim()||
+   (entry.targetCycleStatus!==undefined&&entry.targetCycleStatus!==null&&
+    typeof entry.targetCycleStatus!=="string")||
    !isType(entry.sourceType)||!isStatus(entry.sourceType,entry.sourceStatus)||
    (entry.targetKind==="record"?
     !isType(entry.targetType)||!isStatus(entry.targetType,entry.targetStatus):
