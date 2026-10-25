@@ -54,10 +54,15 @@ async function installedTeam(db:Client){
 export async function readRegistryCycles(db:Client){
  const team=await installedTeam(db);
  if(!team)return {state:"unavailable" as const,reason:"team-unavailable" as const};
- // Existing registry cycle links reference Scrum sprints, not Kanban periods.
- if(team.mode==="kanban")return {state:"unsupported" as const,reason:"kanban-links-not-defined" as const};
+ const kanban=team.mode==="kanban";
+ const source=kanban?"smn_kanban_period":"smn_sprint";
+ const exists=await db.query<{present:boolean}>("SELECT to_regclass('public."+source+"') IS NOT NULL AS present");
+ if(!exists.rows[0]?.present)return {state:"unavailable" as const,reason:"cycles-not-installed" as const};
  const cycles=await db.query<{id:string;name:string;status:string}>(
-  "SELECT s.id,s.name,s.status FROM public.smn_sprint s WHERE s.team_id=$1 AND s.deleted_at IS NULL ORDER BY s.start_at DESC,s.id DESC",[team.id]);
+  kanban
+   ?"SELECT p.id,p.name,p.status FROM public.smn_kanban_period p WHERE p.team_id=$1 AND p.deleted_at IS NULL ORDER BY p.start_on DESC,p.id DESC"
+   :"SELECT s.id,s.name,s.status FROM public.smn_sprint s WHERE s.team_id=$1 AND s.deleted_at IS NULL ORDER BY s.start_at DESC,s.id DESC",
+  [team.id]);
  return {state:"available" as const,cycles:cycles.rows};
 }
 
@@ -68,9 +73,9 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
  const team=await installedTeam(db);
  if(!team)return {state:"unavailable" as const,reason:"team-unavailable" as const};
  if(filters.owner&&!canSeeOwner)return {state:"forbidden" as const};
- if(filters.cycleId&&team.mode==="kanban")return {state:"unavailable" as const,reason:"kanban-links-not-defined" as const};
  if(filters.cycleId){
-  const links=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS present");
+  const table=team.mode==="kanban"?"smn_kanban_registry_link":"smn_registry_cycle_link";
+  const links=await db.query<{present:boolean}>("SELECT to_regclass('public."+table+"') IS NOT NULL AS present");
   if(!links.rows[0]?.present)return {state:"unavailable" as const,reason:"links-not-installed" as const};
  }
  const values=[team.id,filters.type,"%"+filters.search+"%",filters.status,"%"+filters.owner+"%",filters.lifecycle];
@@ -84,7 +89,9 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
  ];
  if(filters.cycleId){
   values.push(filters.cycleId);
-  clauses.push("EXISTS (SELECT 1 FROM public.smn_registry_cycle_link l JOIN public.smn_sprint s ON s.id=l.sprint_id WHERE l.item_id=r.id AND s.id=$7 AND s.team_id=r.team_id AND s.deleted_at IS NULL)");
+  clauses.push(team.mode==="kanban"
+   ?"EXISTS (SELECT 1 FROM public.smn_kanban_registry_link l JOIN public.smn_kanban_period p ON p.id=l.period_id WHERE l.item_id=r.id AND p.id=$7 AND p.team_id=r.team_id AND p.deleted_at IS NULL)"
+   :"EXISTS (SELECT 1 FROM public.smn_registry_cycle_link l JOIN public.smn_sprint s ON s.id=l.sprint_id WHERE l.item_id=r.id AND s.id=$7 AND s.team_id=r.team_id AND s.deleted_at IS NULL)");
  }
  const where=clauses.join(" AND ");
  const count=await db.query<{total:number}>("SELECT COUNT(*)::int AS total FROM public.smn_registry_item r WHERE "+where,values);
