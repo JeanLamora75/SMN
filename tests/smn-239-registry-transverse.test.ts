@@ -84,3 +84,17 @@ test("les cycles proposés sont uniquement ceux de l'équipe résolue côté ser
  assert.match(sql.at(-1)!,/s\.team_id=\$1/);
  assert.deepEqual(values.at(-1),["team-1"]);
 });
+
+test("une période Kanban n'est jamais interprétée comme un lien Sprint",async()=>{
+ const sql:string[]=[];
+ const db={query:async(s:string)=>{
+  sql.push(s);
+  if(s.includes("to_regclass"))return {rows:[{present:true}]};
+  if(s.includes("FROM public.smn_team t"))return {rows:[{id:"kanban-team",name:"Team Kanban",mode:"kanban"}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ assert.deepEqual(await readRegistryCycles(db),{state:"unsupported",reason:"kanban-links-not-defined"});
+ const filters=parseRegistryFilters(new URLSearchParams("cycleId="+cycleId))!;
+ assert.deepEqual(await readRegistryPage(db,filters,false),{state:"unavailable",reason:"kanban-links-not-defined"});
+ assert.ok(!sql.some(s=>s.includes("FROM public.smn_registry_cycle_link")));
+});
