@@ -184,7 +184,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
      tabIndex={tab===panel?0:-1} hidden={tab!==panel}>
      {tab===panel&&<>
      {tab==="summary"&&<RegistrySummary key={item.id} item={item} canManage={canManage}
-      onEditDescription={canManage&&Number.isSafeInteger(item.revision)?
+      onEditDescription={canManage&&typeof item.revision==="number"&&Number.isSafeInteger(item.revision)?
        ()=>setDescriptionEditing(true):undefined}/>}
      {tab==="relations"&&<>
       {sectionView("registryRelations",t("registryRelations.heading"),
