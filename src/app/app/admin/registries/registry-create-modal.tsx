@@ -171,7 +171,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const pickParty=(value:Kind,setter:(value:Kind)=>void)=>{
   setter(value);setError(null);
  };
- return <dialog ref={dialog} className="smn-registry-create-dialog"
+ return <dialog ref={dialog} className="smn-registry-create-dialog" data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancel} onClose={onDismiss}>
   <form className="smn-registry-create-form" onSubmit={save}
    onChangeCapture={()=>{setDirty(true);requestId.current=null;}}
