@@ -19,7 +19,7 @@ function auditStatements(f:Flags):string[]{
   FROM public.smn_registry_item_audit a
   LEFT JOIN public.smn_account u ON u.id=a.actor_id
   WHERE a.item_id=$1`);
- const business:[
+ const business=[
   {installed:f.assessment,table:"smn_risk_assessment_audit",kind:"assessment",
    old:"a.old_values",next:"a.new_values"},
   {installed:f.roam,table:"smn_risk_roam_audit",kind:"roam",
