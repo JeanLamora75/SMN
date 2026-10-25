@@ -42,7 +42,7 @@ test("deux commandes clavier exclusives, avec nom accessible et état pressed",(
  assert.match(ui,/aria-pressed=\{view==="list"\}/);
  assert.match(ui,/aria-pressed=\{view==="cards"\}/);
  assert.match(ui,/role="group"/);
- assert.match(ui,/registryList\.viewGroup/);
+ assert.match(ui,/translate\("viewGroup"\)/);
 });
 
 test("chaque carte utilise les six icônes, vrai titre, statut textuel, description et échéance facultative",()=>{
