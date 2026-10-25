@@ -35,7 +35,8 @@ export async function readKanbanPeriodReport(db:Client,id:string){
    objectives:{state:"not-collected" as const,items:[]},
    metrics:{state:"not-collected" as const,items:[]},
    capacity:{state:!capacity?"unavailable" as const:"available" as const,
-    initialJh:capacity?.initialJh??(p.initial_jh===null?null:Number(p.initial_jh)),
+    initialJh:p.status==="closed"?capacity?.initialJh??null:
+     capacity?.initialJh??(p.initial_jh===null?null:Number(p.initial_jh)),
     provenance:capacity?.initialProvenance??p.capacity_provenance??"not-captured",
     actualOpenedAt:capacity?.actualOpenedAt??null,
     actualReferenceJh:capacity?.actualReferenceJh??null,
