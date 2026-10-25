@@ -73,7 +73,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         {canViewCapacity&&cycle&&cycle.status!=="closed"&&
          <Link className="btn btn-outline-secondary btn-sm"
           href={"/app/admin/development-capacity?cycleId="+encodeURIComponent(cycle.id)}>
-          <BootstrapIcon name="calculator"/> {t("dashboard.cockpit.capacityDiagnosis")}
+          <BootstrapIcon name="people-fill"/> {t("dashboard.cockpit.capacityDiagnosis")}
          </Link>}
         {cycle?
           <Link className="btn btn-outline-primary btn-sm smn-cycle-detail-link"
