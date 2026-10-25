@@ -30,10 +30,10 @@ const icons={
  highlight:"bell-fill"
 } as const satisfies Record<RegistryType,string>;
 const dateRx=/^\d{4}-\d{2}-\d{2}$/;
-function parseDetailItem(raw:unknown,teamId:string):DetailItem|null{
+function parseDetailItem(raw:unknown,teamId:string,requestedId:string):DetailItem|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const item=raw as Record<string,unknown>;
- if(typeof item.id!=="string"||item.teamId!==teamId||
+ if(typeof item.id!=="string"||item.id!==requestedId||item.teamId!==teamId||
   typeof item.type!=="string"||!registryTypes.some(type=>type===item.type)||
   typeof item.title!=="string"||!item.title.trim()||
   typeof item.status!=="string"||
@@ -71,7 +71,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
   }).then(result=>{
    if(controller.signal.aborted)return;
    if(result.state==="missing"){setItem(null);setProblem("missing");return;}
-   const next=parseDetailItem(result.payload.item,teamId);
+   const next=parseDetailItem(result.payload.item,teamId,id);
    if(!next){setItem(null);setProblem("unavailable");return;}
    setItem(next);setProblem(null);
   }).catch(()=>{
@@ -104,7 +104,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
    <Link href="/app/admin/registries">{tr("back")}</Link>
   </nav>
   {loading?<p role="status">{tr("loading")}</p>:
-   problem||!item?<div className="alert alert-warning" role="alert">
+   problem||!item||item.id!==id?<div className="alert alert-warning" role="alert">
     {tr(problem==="missing"?"notFound":"unavailable")}
     {problem!=="missing"&&<button className="btn btn-sm btn-outline-secondary ms-2"
      type="button" onClick={retry}>{tr("retry")}</button>}
