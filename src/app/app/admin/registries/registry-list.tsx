@@ -9,7 +9,7 @@ type Item={id:string;type:RegistryType;title:string;status:string;occurredOn:str
 type Page={state:"available";team:{id:string;name:string};items:Item[];total:number;page:number;totalPages:number}|
  {state:"unavailable";reason:string}|{state:"forbidden"};
 type Cycle={id:string;name:string;status:string};
-type CyclePage={state:"available";cycles:Cycle[]}|{state:"unavailable"|"unsupported";reason:string};
+type CyclePage={state:"available";cycles:Cycle[]}|{state:"unavailable";reason:string};
 type Filters={search:string;status:string;owner:string;lifecycle:RegistryLifecycle;sort:RegistrySort;cycleId:string};
 const defaults:Filters={search:"",status:"",owner:"",lifecycle:"all",sort:"default",cycleId:""};
 const sortValues:RegistrySort[]=["default","dateDesc","dateAsc","titleAsc","titleDesc"];
@@ -26,7 +26,7 @@ export default function RegistryList({canManage,initialType="all"}:{
  const [error,setError]=useState(false),[loading,setLoading]=useState(true);
  const [refresh,setRefresh]=useState(0);
  const [cycles,setCycles]=useState<Cycle[]>([]);
- const [cycleError,setCycleError]=useState(false),[cycleUnsupported,setCycleUnsupported]=useState(false),[cyclesLoading,setCyclesLoading]=useState(true);
+ const [cycleError,setCycleError]=useState(false),[cyclesLoading,setCyclesLoading]=useState(true);
  const label=(value:string)=>t(("registryCreate."+value) as Parameters<typeof t>[0]);
  const translate=(value:string)=>t(("registryList."+value) as Parameters<typeof t>[0]);
  const patch=(next:Partial<Filters>)=>setDraft(old=>({...old,...next}));
@@ -40,7 +40,6 @@ export default function RegistryList({canManage,initialType="all"}:{
    .then(async response=>{if(!response.ok)throw Error("unavailable");return response.json() as Promise<CyclePage>;})
    .then(data=>{
     if(ctrl.signal.aborted)return;
-    if(data.state==="unsupported"){setCycleUnsupported(true);return;}
     if(data.state!=="available"){setCycleError(true);return;}
     setCycles(data.cycles);setCycleError(false);
    })
@@ -110,12 +109,11 @@ export default function RegistryList({canManage,initialType="all"}:{
    <div className="col-md-4">
     <label className="form-label" htmlFor="reg-cycle">{translate("cycle")}</label>
     <select id="reg-cycle" className="form-select" value={draft.cycleId}
-     disabled={cycleError||cycleUnsupported||cyclesLoading} onChange={e=>patch({cycleId:e.target.value})}>
+     disabled={cycleError||cyclesLoading} onChange={e=>patch({cycleId:e.target.value})}>
      <option value="">{translate("allCycles")}</option>
      {cycles.map(cycle=><option key={cycle.id} value={cycle.id}>{cycle.name}</option>)}
     </select>
     {cycleError&&<small role="alert" className="text-danger">{translate("cycleUnavailable")}</small>}
-    {cycleUnsupported&&<small className="text-body-secondary">{translate("kanbanCycleUnsupported")}</small>}
    </div>
    <div className="col-md-3">
     <label className="form-label" htmlFor="reg-status">{translate("status")}</label>
