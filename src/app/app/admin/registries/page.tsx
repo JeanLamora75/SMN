@@ -24,7 +24,7 @@ export default async function RegistriesPage({searchParams}:{
   return r.rows.length===1?r.rows[0].id:null;
  }).catch(()=>null);
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-  {teamId?<><RegistryList canManage={actor.role==="admin"} initialType={initialType}
+  {teamId?<><RegistryList canManage={actor.role==="admin"} teamId={teamId} initialType={initialType}
    initialCreate={params.create==="1"} sourceId={sourceId} initialCycleId={cycleId}
    returnTo={safeRegistryReturnPath(params.returnTo)}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
