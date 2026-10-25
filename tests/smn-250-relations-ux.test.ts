@@ -4,11 +4,11 @@ import {readFileSync} from "node:fs";
 import type {Client} from "pg";
 import {parseRelationSearch,readRelationCandidates} from "../src/server/registries/relation-candidates";
 import {changeRelation} from "../src/server/registries/relations";
-import {groupRegistryRelations,parseRelationPayload} from "../src/lib/registry-relations-view";
+import {groupRegistryRelations,parseRelationPayload,type RegistryRelation} from "../src/lib/registry-relations-view";
 const file=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const id="11111111-1111-4111-8111-111111111111";
 const other="22222222-2222-4222-8222-222222222222";
-const relation={id:"33333333-3333-4333-8333-333333333333",sourceId:id,targetId:other,
+const relation:RegistryRelation={id:"33333333-3333-4333-8333-333333333333",sourceId:id,targetId:other,
  targetKind:"record",sourceTitle:"Risque source",sourceType:"risk",sourceStatus:"open",
  targetTitle:"Action réelle",targetType:"action",targetStatus:"todo"};
 test("AC2 : recherche bornée, types autorisés, sans UUID de saisie",()=>{
@@ -22,7 +22,7 @@ test("AC2 : recherche bornée, types autorisés, sans UUID de saisie",()=>{
  });
 });
 test("AC1 : groupement par catégorie cible et direction intelligible",()=>{
- const incoming={...relation,id:"44444444-4444-4444-8444-444444444444",
+ const incoming:RegistryRelation={...relation,id:"44444444-4444-4444-8444-444444444444",
   sourceId:other,targetId:id,sourceTitle:"Obstacle lié",sourceType:"obstacle",
   sourceStatus:"resolved",targetTitle:"Risque source",targetType:"risk",targetStatus:"open"};
  const groups=groupRegistryRelations([relation,incoming],id);
@@ -69,6 +69,7 @@ test("AC2 : objectifs seulement pour Action, cycles clos non proposés",async()=
   return {rows:[{id:other,title:"Objectif réel",type:"goal"}]};
  }} as unknown as Client;
  const x=await readRelationCandidates(db,id,{kind:"goal",types:[],search:"Sprint"});
+ assert.ok(x);
  assert.equal(x.state,"available");
  assert.ok(q.at(-1)?.includes("s.status<>'closed'"));
  assert.ok(q.at(-1)?.includes("s.team_id=$1"));
@@ -84,7 +85,7 @@ test("AC1/2 : titres cliquables, type, statut, sens, aucune catégorie vide",()=
  assert.ok(ui.includes("groupRegistryRelations"));
  assert.ok(ui.includes("parseRelationPayload"));
  assert.ok(ui.includes("registryCreate."));
- assert.ok(ui.includes("encodeURIComponent(row.linkedId)"));
+ assert.ok(ui.includes("registryDetailHref(row.linkedId,navigation"));
  assert.ok(ui.includes("RegistryTargetSearch"));
  const picker=file("src/app/app/admin/registries/registry-target-search.tsx");
  assert.ok(picker.includes("relation-candidates"));
