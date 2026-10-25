@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import RegistryCreateModal from "./registry-create-modal";
+import {linkedJournalTypes,type LinkedJournalType} from "@/lib/registry-linked-creation";
 import {useEffect,useId,useMemo,useState,type FormEvent} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {validRegistryActivityTime} from "@/lib/registry-summary-context";
@@ -14,8 +16,8 @@ type Version={revision:number;action:string;beforeText:string|null;afterText:str
 type VersionState={state:"loading"|"unavailable"|"ready";items:Version[]};
 const recordIdRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryJournal({itemId,canManage}:{
- itemId:string;canManage:boolean;
+export default function RegistryJournal({itemId,itemTitle,teamId,canManage}:{
+ itemId:string;itemTitle:string;teamId:string;canManage:boolean;
 }){
  const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryJournal."+key) as Parameters<typeof t>[0]);
@@ -36,6 +38,9 @@ export default function RegistryJournal({itemId,canManage}:{
  const [actionError,setActionError]=useState<string|null>(null);
  const [versions,setVersions]=useState<Record<string,VersionState>>({});
  const [versionsOpen,setVersionsOpen]=useState<string|null>(null);
+ const [chooseLinked,setChooseLinked]=useState(false);
+ const [linkedType,setLinkedType]=useState<LinkedJournalType|null>(null);
+ const [linkedCreated,setLinkedCreated]=useState<{id:string;type:LinkedJournalType}|null>(null);
 
  useEffect(()=>{
   const ctrl=new AbortController();
@@ -165,6 +170,32 @@ export default function RegistryJournal({itemId,canManage}:{
    {error&&<p role="alert" className="small text-danger mb-0">{commentsText(error)}</p>}
   </form>}
   {success&&<p role="status" className="small text-success mb-0">{tr("saved")}</p>}
+  {canManage&&<div className="smn-registry-linked-create">
+   <button type="button" className="btn btn-outline-primary btn-sm"
+    aria-expanded={chooseLinked} aria-controls={editorId+"-linked-chooser"}
+    onClick={()=>setChooseLinked(value=>!value)}>
+    {tr("createLinked")}
+   </button>
+   {chooseLinked&&<div className="smn-registry-linked-chooser"
+    id={editorId+"-linked-chooser"} role="group" aria-label={tr("chooseLinked")}>
+    <span className="small fw-semibold">{tr("chooseLinked")}</span>
+    {linkedJournalTypes.map(type=><button key={type} type="button"
+     className="btn btn-outline-secondary btn-sm"
+     onClick={()=>{setLinkedType(type);setChooseLinked(false);}}>
+     {tr(type)}
+    </button>)}
+   </div>}
+   {linkedCreated&&<div role="status" className="smn-registry-linked-success">
+    <span>{tr("createdLinked")}</span>
+    <Link href={"/app/admin/registries/"+encodeURIComponent(linkedCreated.id)}
+     className="btn btn-sm btn-outline-success">{tr("viewLinked")}</Link>
+    <button type="button" className="btn btn-sm btn-outline-success"
+     onClick={()=>{setLinkedCreated(null);setChooseLinked(true);}}>
+     {tr("createAnotherLinked")}
+    </button>
+    <span className="small">{tr("backToSource")}</span>
+   </div>}
+  </div>}
   <div className="smn-registry-journal-filters" role="group" aria-label={tr("filters")}>
    {journalFilters.map(kind=><button type="button" key={kind}
     className={"btn btn-sm "+(filter===kind?"btn-primary":"btn-outline-secondary")}
@@ -274,5 +305,17 @@ export default function RegistryJournal({itemId,canManage}:{
      <p className="small text-body-secondary mb-0">{commentsText("legacyUndated")}</p>
     </aside>}
    </>}
+  {canManage&&linkedType&&<RegistryCreateModal key={linkedType} teamId={teamId}
+   initialType={linkedType} sourceId={itemId} sourceTitle={itemTitle}
+   linkedFromJournal
+   onCreated={id=>{
+    const type=linkedType;
+    setLinkedCreated({id,type});
+    setLinkedType(null);
+    setChooseLinked(false);
+    setFilter(type);
+    refresh();
+   }}
+   onDismiss={()=>setLinkedType(null)}/>}
  </section>;
 }
