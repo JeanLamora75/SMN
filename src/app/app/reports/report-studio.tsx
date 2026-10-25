@@ -1,5 +1,5 @@
 "use client";
-import {useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {insertSelectedAnalysis,replaceEmbeddedAnalysis,type EmbeddedAnalysis} from "@/lib/report-embedded-analyses";
 import ReportBlocksEditor from "./report-blocks-editor";
 import {isReportBlock,moveItem,type ReportBlock} from "@/lib/report-studio-blocks";
@@ -15,14 +15,17 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const t=useTranslation(),tr=(k:string)=>t(("reportsStudio."+k) as Parameters<typeof t>[0]);
  const initial=document.content as StudioContent;
  const [content,setContent]=useState<StudioContent>(initial);
- const [revision,setRevision]=useState(document.revision);
+ const sessionId=useRef(crypto.randomUUID()); const sequence=useRef(0); const changeVersion=useRef(0);
  const [mode,setMode]=useState<Mode>("composition");
  const sections=useMemo(()=>Array.isArray(content.sections)?content.sections:[],[content.sections]);
  const [selected,setSelected]=useState(sections[0]?.key??"");
  const [planOpen,setPlanOpen]=useState(true),[propertiesOpen,setPropertiesOpen]=useState(true);
  const [zoom,setZoom]=useState(100),[saving,setSaving]=useState(false);
  const [saved,setSaved]=useState(true),[error,setError]=useState("");
- const change=(next:StudioContent)=>{setContent(next);setSaved(false);setError("");};
+ const [undo,setUndo]=useState<StudioContent[]>([]),[redo,setRedo]=useState<StudioContent[]>([]);
+ const change=(next:StudioContent)=>{setUndo(x=>[...x.slice(-49),content]);setRedo([]);changeVersion.current++;setContent(next);setSaved(false);setError("");};
+ const back=()=>{if(!undo.length)return;setRedo(x=>[...x,content]);changeVersion.current++;setContent(undo[undo.length-1]);setUndo(x=>x.slice(0,-1));setSaved(false);};
+ const forward=()=>{if(!redo.length)return;setUndo(x=>[...x,content]);changeVersion.current++;setContent(redo[redo.length-1]);setRedo(x=>x.slice(0,-1));setSaved(false);};
  const notes=content.userNotes??{};
  const analyses=content.analyses??[];
  const [candidate,setCandidate]=useState("");
@@ -39,21 +42,23 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
  const toggleSection=(key:string)=>change({...content,sections:sections.map(s=>s.key===key?{...s,visible:!s.visible}:s)});
  const save=async()=>{
   if(readOnly||saving||saved)return;
-  setSaving(true);setError("");
+  const sendingVersion=changeVersion.current;setSaving(true);setError("");
   try{
    const response=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(document.sprintId)+"/documents/"+encodeURIComponent(document.id),{
-    method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({revision,content})});
+    method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:sessionId.current,sequence:++sequence.current,content})});
    if(!response.ok)throw Error(response.status===409?"conflict":"failed");
    const data=await response.json() as {revision:number};
-   setRevision(data.revision);setSaved(true);
+   if(data.revision)setSaved(changeVersion.current===sendingVersion);
   }catch(e){setError(e instanceof Error&&e.message==="conflict"?tr("conflict"):tr("saveError"));}
   finally{setSaving(false);}
  };
+ useEffect(()=>{if(readOnly||saved||saving||error)return;const timer=setTimeout(()=>{void save();},650);return ()=>clearTimeout(timer);},[content,saved,saving,error,readOnly]);
  return <section className="d-grid gap-3">
   <header className="d-flex flex-wrap justify-content-between gap-2 align-items-center">
    <div><h1 className="h4 mb-1">{document.title}</h1><span className="small text-secondary">{document.templateId} · V{document.templateVersion} · {saved?tr("saved"):tr("unsaved")}</span></div>
    {!readOnly&&<button type="button" className="btn btn-primary" disabled={saved||saving} onClick={()=>void save()}>{saving?tr("saving"):tr("save")}</button>}
   </header>
+  {!readOnly&&<div className="d-flex gap-2"><button type="button" disabled={!undo.length} onClick={back}>{tr("undo")}</button><button type="button" disabled={!redo.length} onClick={forward}>{tr("redo")}</button></div>}
   <nav className="nav nav-pills gap-2" aria-label={tr("modes")}>
    {(["composition","writing","preview"] as const).map(k=><button key={k} type="button" className={"nav-link"+(mode===k?" active":"")} aria-pressed={mode===k} onClick={()=>setMode(k)}>{tr(k)}</button>)}
   </nav>

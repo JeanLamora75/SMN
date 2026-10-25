@@ -20,6 +20,6 @@ export async function PATCH(req:NextRequest,{params}:Params){
  const {id,documentId}=await params,body=await readJsonObject(req);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{const result=await withAuthDb(db=>updateReportDocument(db,actor.id,id,documentId,body));
- return jsonResult(result,result.ok?200:result.error==="conflict"?409:result.error==="not-found"?404:400);}
+ return jsonResult(result,result.ok?200:result.error==="stale"?409:result.error==="not-found"?404:400);}
  catch{return jsonResult({error:"unavailable"},503);}
 }
