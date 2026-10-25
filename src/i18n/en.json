@@ -2701,7 +2701,8 @@
     "closed": "Closed Sprint — changes disabled",
     "error": "Could not update this link.",
     "loading": "Loading Sprints…",
-    "confirmUnlink": "Unlink this cycle? Both the record and cycle will be preserved."
+    "confirmUnlink": "Unlink this cycle? Both the record and cycle will be preserved.",
+    "retry": "Retry"
   },
   "decisionDetail": {
     "heading": "Rationale and replacement",
