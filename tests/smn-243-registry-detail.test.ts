@@ -49,11 +49,12 @@ test("composants métier existants réemployés, édition legacy conservée aux 
  assert.match(ui,/canManage=\{false\}/);
 });
 test("la synthèse ne présente pas un faux journal et ne duplique pas le bandeau",()=>{
- const ui=read("src/app/app/admin/registries/registry-detail.tsx");
+ const ui=read("src/app/app/admin/registries/registry-summary.tsx");
  assert.match(ui,/item\.description/);
  assert.ok(!ui.includes("fakeEntry"));
  assert.ok(!ui.includes("history.map"));
  assert.match(ui,/tr\("legacyComment"\)/);
+ assert.match(ui,/tr\("journalPending"\)/);
 });
 test("FR/EN: les onglets et états ont les mêmes clés",()=>{
  const fr=JSON.parse(read("src/i18n/fr.json")).registryDetail;
