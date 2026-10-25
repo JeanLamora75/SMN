@@ -2,12 +2,13 @@ import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {registryTypes,type RegistryType} from "@/lib/registry-types";
+import {safeRegistryReturnPath} from "@/lib/registry-return-context";
 
 export const dynamic="force-dynamic";
 
 /** Preserve entry points from meetings and Sprint context without duplicating creation. */
 export default async function NewRegistryPage({searchParams}:{
- searchParams:Promise<{type?:string;sourceId?:string;cycleId?:string}>;
+ searchParams:Promise<{type?:string;sourceId?:string;cycleId?:string;returnTo?:string}>;
 }){
  const actor=await currentAccount();
  if(!actor)redirect("/login");
@@ -22,5 +23,7 @@ export default async function NewRegistryPage({searchParams}:{
   params.set("sourceId",query.sourceId);
  if(typeof query.cycleId==="string"&&uuidRx.test(query.cycleId))
   params.set("cycleId",query.cycleId);
+ const returnTo=safeRegistryReturnPath(query.returnTo);
+ if(returnTo)params.set("returnTo",returnTo);
  redirect("/app/admin/registries?"+params.toString());
 }
