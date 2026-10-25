@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {parseInitialDetails} from "../src/server/registries/initial-details";
 import {createRegistryItem} from "../src/server/registries/items";
+import {safeRegistryReturnPath} from "../src/lib/registry-return-context";
 import type {Client} from "pg";
 
 const file=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
@@ -27,6 +28,8 @@ test("décision : justification optionnelle et longueur bornée",()=>{
  assert.equal(parseInitialDetails("decision",{rationale:""},"t").ok,true);
  assert.equal(parseInitialDetails("decision",{rationale:"a".repeat(4001)},"t").ok,false);
  assert.equal(parseInitialDetails("decision",{probability:1},"t").ok,false);
+ assert.equal(parseInitialDetails("decision",{replacesId:uuid},"t").ok,true);
+ assert.equal(parseInitialDetails("decision",{replacesId:"invalid"},"t").ok,false);
 });
 test("POST : les détails, les associations et les audits précèdent le commit unique",()=>{
  const code=file("src/server/registries/items.ts");
@@ -50,6 +53,8 @@ test("modale : champs généraux et métier avant une seule confirmation serveur
   assert.ok(code.includes(term),term);
  assert.ok(code.includes('method:"POST"'));
  assert.ok(code.includes("response.status===201"));
+ assert.ok(code.includes("decisionChoices.map"));
+ assert.ok(code.includes("replacesId"));
  assert.ok(code.includes("onCreated("));
  assert.ok(!code.includes("setCreatedId("));
 });
@@ -130,4 +135,32 @@ test("erreur du détail métier : la création et l'audit ne sont jamais commit�
  assert.ok(calls.some(x=>x.includes("INSERT INTO public.smn_registry_item")));
  assert.equal(calls.at(-1),"ROLLBACK");
  assert.equal(calls.includes("COMMIT"),false);
+});
+
+test("création de la première fiche possible sans lecteur de liste initialisé",()=>{
+ const list=file("src/app/app/admin/registries/registry-list.tsx");
+ const page=file("src/app/app/admin/registries/page.tsx");
+ assert.ok(list.includes("canManage&&createOpen&&<RegistryCreateModal"));
+ assert.ok(list.includes("teamId={teamId}"));
+ assert.ok(page.includes("teamId={teamId}"));
+});
+test("retour sûr au contexte initial, sans URL externe ni redirection récursive",()=>{
+ assert.equal(safeRegistryReturnPath("/app/team-calendar"),"/app/team-calendar");
+ assert.equal(safeRegistryReturnPath("/app/admin/sprints/123?tab=events"),"/app/admin/sprints/123?tab=events");
+ for(const value of ["https://example.com","//example.com","/app/admin/registries/create",
+  "/login","/app\\evil",null])assert.equal(safeRegistryReturnPath(value),undefined);
+});
+test("échec cible remplacée : validation en transaction avant première insertion",async()=>{
+ const sql:string[]=[];
+ const db={query:async(q:string)=>{
+  sql.push(q);
+  if(q.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
+  return {rows:[]};
+ }} as unknown as Client;
+ const result=await createRegistryItem(db,"admin",{
+  ...basic,type:"decision",status:"active",details:{replacesId:uuid}
+ });
+ assert.deepEqual(result,{ok:false,error:"not-found"});
+ assert.equal(sql.at(-1),"ROLLBACK");
+ assert.equal(sql.some(q=>q.includes("INSERT INTO public.smn_registry_item")),false);
 });
