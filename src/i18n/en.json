@@ -1956,6 +1956,10 @@
         "title": "Ceremonies and templates",
         "description": "Manage recurring templates for upcoming sprints without changing existing meetings."
       },
+      "registries": {
+        "title": "Registry settings",
+        "description": "Configure automatic journal categories and deadline alert thresholds."
+      },
       "capacity": {
         "title": "Capacity rules",
         "description": "Configure capacity calculation rules."
