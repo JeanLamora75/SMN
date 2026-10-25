@@ -3320,6 +3320,14 @@
     "retry": "Retry",
     "modelLater": "Template use and previews will be available later.",
     "creationLater": "Creating new reports is coming later. Existing tools remain available from the Sprint.",
-    "studioLater": "Studio editing is coming later. This draft is stored independently of other reports."
+    "studioLater": "Studio editing is coming later. This draft is stored independently of other reports.",
+    "previewModel": "Preview",
+    "duplicateModel": "Duplicate",
+    "copyName": "New template name",
+    "cancel": "Cancel",
+    "closePreview": "Close",
+    "copyError": "Could not duplicate this template.",
+    "structuralPreview": "Preview of the saved structure (not a PDF simulation).",
+    "modelMetrics": "Selected metrics"
   }
 }

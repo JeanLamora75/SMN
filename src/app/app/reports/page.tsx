@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TemplateLibrary from "./template-library";
 import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canVisitPrivate} from "@/server/access-policy";
@@ -36,7 +37,7 @@ export default async function ReportsCenter({searchParams}:Params){
    <div className="col-auto"><button className="btn btn-primary" type="submit">{t("filter")}</button></div>
   </form>}
   {tab==="reports"&&(docs.length===0?<p className="alert alert-info">{t("emptyReports")}</p>:<div className="table-responsive"><table className="table table-hover align-middle"><thead><tr><th>{t("title")}</th><th>{t("sprint")}</th><th>{t("model")}</th><th>{t("status")}</th><th>{t("updated")}</th><th>{t("actions")}</th></tr></thead><tbody>{docs.map(d=><tr key={d.id}><td>{d.title}</td><td>{d.sprintName}</td><td>{d.templateId} · V{d.templateVersion}</td><td>{t("draft")}</td><td>{d.updatedAt}</td><td><Link href={"/app/reports/"+encodeURIComponent(d.id)+"?cycleId="+encodeURIComponent(d.sprintId)}>{t("read")}</Link></td></tr>)}</tbody></table></div>)}
-  {tab==="templates"&&(data.templates.length===0?<p className="alert alert-info">{t("emptyModels")}</p>:<div className="row g-3">{data.templates.map(m=><div className="col-12 col-md-6 col-xl-4" key={m.id}><article className="card h-100"><div className="card-body"><h2 className="h6">{m.name}</h2><p>{m.protected?t("system"):t("custom")} · V{m.revision}</p><p className="text-secondary">{t("modelLater")}</p></div></article></div>)}</div>)}
+  {tab==="templates"&&(data.templates.length===0?<p className="alert alert-info">{t("emptyModels")}</p>:<TemplateLibrary templates={data.templates} canManage={account.role==="admin"}/>)}
   {tab==="archives"&&(archiveItems.length===0?<p className="alert alert-info">{t("emptyArchives")}</p>:<div className="table-responsive"><table className="table"><thead><tr><th>{t("sprint")}</th><th>{t("updated")}</th><th>{t("actions")}</th></tr></thead><tbody>{archiveItems.map(a=><tr key={a.id}><td>{a.cycleName}</td><td>{a.createdAt}</td><td><a href={"/api/admin/reports/archives/"+encodeURIComponent(a.id)+"/download"}>{t("download")}</a></td></tr>)}</tbody></table></div>)}
   {account.role==="admin"&&<p className="mt-4 text-secondary">{t("creationLater")}</p>}
  </main>;
