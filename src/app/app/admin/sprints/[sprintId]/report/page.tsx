@@ -17,6 +17,8 @@ import ReportLogoEditor from "./report-logo-editor";
 import ReportSectionEditor from "./report-section-editor";
 import FreezeReportButton from "./freeze-report-button";
 import ReportAnalysisChoices from "./report-analysis-choices";
+import FactSelection from "@/app/app/admin/registries/fact-selection";
+import ConfirmedHighlights from "@/app/app/admin/registries/confirmed-highlights";
 export const dynamic="force-dynamic";
 export default async function PrepareReportPage({params}:{params:Promise<{sprintId:string}>}){
  const account=await currentAccount();
@@ -63,6 +65,8 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <ReportTemplateChooser sprintId={s.id}/>
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
    <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
+   <FactSelection canManage={true}/>
+   <ConfirmedHighlights canManage={true}/>
    <ReportHistoryOptions sprintId={s.id}/>
    <ReportAnalysisChoices sprintId={s.id}/>
    <ReportDraftNotes sprintId={s.id}/>
