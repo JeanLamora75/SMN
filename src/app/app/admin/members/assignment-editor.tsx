@@ -111,7 +111,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
     "prefill.savedAssignment":"prefill.suggestedAssignment")}</p>
    {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
     <h4 className="h6">Corriger la date de prise en compte historique</h4>
-    <p className="small text-secondary">Date actuelle : {state.startOn}. Vous pouvez avancer l'arrivée à une date antérieure à l'installation de SMN, sans changer les pourcentages ni les versions ultérieures. Les rapports clôturés restent figés.</p>
+    <p className="small text-secondary">Date actuelle : {state.startOn}. Vous pouvez avancer l&apos;arrivée à une date antérieure à l&apos;installation de SMN, sans changer les pourcentages ni les versions ultérieures. Les rapports clôturés restent figés.</p>
     <div className="d-flex flex-wrap align-items-end gap-2">
      <label className="form-label mb-0">Date d&apos;arrivée réelle
       <input type="date" className="form-control" max={state.startOn} value={historicalStart} disabled={busy}
