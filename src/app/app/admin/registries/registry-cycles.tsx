@@ -15,7 +15,9 @@ export default function RegistryCycles({id,canManage,onSaved}:{id:string;canMana
   return()=>controller.abort();
  },[id]);
  const toggle=async(cycle:Cycle,linked:boolean)=>{
-  if(busy||!canManage)return;setBusy(cycle.id);setError(false);
+  if(busy||!canManage||cycle.status==="closed")return;
+  if(linked&&!window.confirm(tr("confirmUnlink")))return;
+  setBusy(cycle.id);setError(false);
   try{
    const r=await fetch("/api/admin/registries/"+encodeURIComponent(id)+"/cycles",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
