@@ -21,7 +21,7 @@ export type JournalComment={
 };
 export type JournalLink={
  id:string;recordId:string;title:string;type:"action"|"decision"|"highlight";
- recordedAt:string;authorName:string|null;
+ recordedAt:string;authorName:string|null;eventKind:"created"|"linked";
 };
 export type JournalLegacy={
  text:string;author:null;recordedAt:null;origin:"legacy";
@@ -32,7 +32,7 @@ export type JournalPayload={
 export type JournalEntry=
  |{id:string;kind:"comment";at:string;comment:JournalComment}
  |{id:string;kind:"link";at:string;recordId:string;title:string;
-  type:JournalLink["type"];authorName:string|null};
+  type:JournalLink["type"];authorName:string|null;eventKind:JournalLink["eventKind"]};
 
 export function parseJournalPayload(raw:unknown):JournalPayload|null{
  if(!object(raw)||!Array.isArray(raw.comments)||!Array.isArray(raw.events))return null;
@@ -67,10 +67,12 @@ export function parseJournalPayload(raw:unknown):JournalPayload|null{
    typeof e.recordId!=="string"||!idRx.test(e.recordId)||
    typeof e.title!=="string"||!e.title.trim()||
    !recordTypes.some(type=>type===e.type)||!time(e.recordedAt)||
+   (e.eventKind!=="created"&&e.eventKind!=="linked")||
    !nullable(e.authorName))return null;
   events.push({
    id:e.id as string,recordId:e.recordId as string,title:e.title as string,
    type:e.type as JournalLink["type"],recordedAt:e.recordedAt as string,
+   eventKind:e.eventKind as JournalLink["eventKind"],
    authorName:e.authorName as string|null
   });
  }
@@ -85,7 +87,8 @@ export function buildJournalEntries(p:JournalPayload):JournalEntry[]{
   })),
   ...p.events.map((event):JournalEntry=>({
    id:"link:"+event.id,kind:"link",at:event.recordedAt,
-   recordId:event.recordId,title:event.title,type:event.type,authorName:event.authorName
+   recordId:event.recordId,title:event.title,type:event.type,
+   authorName:event.authorName,eventKind:event.eventKind
   }))
  ];
  return entries.sort((a,b)=>{
