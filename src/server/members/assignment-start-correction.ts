@@ -21,8 +21,8 @@ export async function correctAssignmentStart(db:Client,memberId:string,actorId:s
   // Retroactive correction only: a later date could discard days of proven contribution.
   if((v.newStartOn as string)>a.start_on){await db.query("ROLLBACK");return {ok:false as const,error:"later-date-not-supported"};}
   const earlier=await db.query(`SELECT id FROM public.smn_member_assignment WHERE member_id=$1 AND id<>$2
-    AND start_on<=$3::date AND (end_on IS NULL OR end_on>=$3::date) LIMIT 1`,
-    [memberId,v.assignmentId,v.newStartOn]);
+    AND start_on<$4::date AND (end_on IS NULL OR end_on>=$3::date) LIMIT 1`,
+    [memberId,v.assignmentId,v.newStartOn,a.start_on]);
   if(earlier.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap"};}
   const first=await db.query<{id:string;effective_from:string}>(`SELECT id,effective_from::text FROM public.smn_member_assignment_version
     WHERE assignment_id=$1 ORDER BY effective_from ASC,revision ASC LIMIT 1 FOR UPDATE`,[v.assignmentId]);
