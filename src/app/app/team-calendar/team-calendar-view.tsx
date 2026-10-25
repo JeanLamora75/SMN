@@ -41,6 +41,14 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const [selectedMeeting,setSelectedMeeting]=useState<Meeting|null>(null);
  const [sprints,setSprints]=useState<Sprint[]>([]);
  const [calendarMode,setCalendarMode]=useState<"scrum"|"kanban">("scrum");
+ const [teamTimeZones,setTeamTimeZones]=useState<string[]>([]);
+ const [selectedTimeZone,setSelectedTimeZone]=useState("Europe/Paris");
+ const [zonesFailed,setZonesFailed]=useState(false);
+ useEffect(()=>{const controller=new AbortController();void fetch("/api/team-calendar/time-zones",{cache:"no-store",signal:controller.signal})
+  .then(async r=>{if(!r.ok)throw Error("time-zones");return r.json() as Promise<{timeZones:string[]}>;})
+  .then(v=>{if(controller.signal.aborted)return;const zones=v.timeZones.filter(z=>{try{new Intl.DateTimeFormat("en",{timeZone:z});return true;}catch{return false;}});
+   setTeamTimeZones([...new Set(zones)]);setSelectedTimeZone(current=>zones.includes(current)?current:zones[0]??"Europe/Paris");})
+  .catch(()=>{if(!controller.signal.aborted)setZonesFailed(true);});return()=>controller.abort();},[]);
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [editor,setEditor]=useState<string|null>(null);
  const [name,setName]=useState("");
@@ -184,7 +192,11 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
      {calendarMode==="kanban"&&<span>Période Kanban</span>}
      {period&&<span>{currentDate(period.start)} – {currentDate(shift(period.start,period.count-1))}</span>}
      {period?.sprintId&&<span className="smn-cal-state">{localizedStatus(sprints.find(s=>s.id===period.sprintId)?.status)}</span>}
-     <span>{t("calendarOptionB.timezone")}</span>
+     {teamTimeZones.length<=1?<span>{t("calendarOptionB.timezone")}</span>:<label className="d-inline-flex align-items-center gap-2">Fuseau horaire
+      <select className="form-select form-select-sm" aria-label="Fuseau horaire du calendrier" value={selectedTimeZone} onChange={e=>setSelectedTimeZone(e.target.value)}>
+       {teamTimeZones.map(z=><option key={z} value={z}>{z}</option>)}
+      </select></label>}
+     {zonesFailed&&<span className="text-warning">Fuseaux membres indisponibles — Europe/Paris</span>}
     </div>
    </div>
    <div className="smn-cal-nav">
@@ -225,7 +237,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   {status==="loading"&&<p role="status">{t("teamCalendar.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("teamCalendar.loadFailed")} — {t("calendarOptionB.errorCounts")}</p>}
   {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
-   absenceCounts={absenceCounts} absentNames={absentNames} today={now} mode={view}
+   absenceCounts={absenceCounts} absentNames={absentNames} today={now} mode={view} timeZone={selectedTimeZone}
    showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
    onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
    onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
