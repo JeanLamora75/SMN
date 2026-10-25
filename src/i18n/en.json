@@ -3328,6 +3328,10 @@
     "closePreview": "Close",
     "copyError": "Could not duplicate this template.",
     "structuralPreview": "Preview of the saved structure (not a PDF simulation).",
-    "modelMetrics": "Selected metrics"
+    "modelMetrics": "Selected metrics",
+    "updateAvailable": "A newer template version is available",
+    "sectionsChanged": "Sections have changed.",
+    "contentChanged": "Content settings have changed.",
+    "noAutoUpdate": "No changes are applied automatically."
   }
 }
