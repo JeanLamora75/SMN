@@ -12,6 +12,7 @@ export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfA
  const location=join(root,manifest.id+".pdf");
  let fileCreated=false;
  let committed=false;
+ let storedManifest=manifest;
  try{
   const handle=await open(location,"wx",0o600);fileCreated=true;
   try{await handle.writeFile(bytes);await handle.sync();}finally{await handle.close();}
@@ -60,9 +61,10 @@ export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfA
       [manifest.id,studioSource.id,snapshot.studioArchiveVersion,studioSource.revision,snapshot.studioSourceSha256,JSON.stringify(studioSource)]);
    }
    await db.query("COMMIT");
+   storedManifest=finalManifest;
    committed=true;
   }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
-  return studioSource?{...manifest,optionsSnapshot:{...manifest.optionsSnapshot,studioDocumentId:studioSource.id}}:manifest;
+  return storedManifest;
  }catch(error){if(fileCreated&&!committed)await unlink(location).catch(()=>undefined);throw error;}
 }
 export async function readVerifiedPdfArchive(db:Client,id:string):Promise<Buffer|null>{
