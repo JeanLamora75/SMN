@@ -84,7 +84,7 @@ export async function readVerifiedPdfArchive(db:Client,id:string):Promise<Buffer
  const r=await db.query<{sha256:string;byte_length:number;stored_name:string;manifest:PdfArchiveManifest}>(`SELECT sha256,byte_length,stored_name,manifest FROM public.smn_report_pdf_archive WHERE id=$1`,[id]);
  const record=r.rows[0];if(!record||record.stored_name!==id+".pdf")return null;
  const opts=record.manifest?.optionsSnapshot;
- if(opts?.studioDocumentId){
+ if(opts?.studioArchiveVersion){
   const snapshot=await db.query<{snapshot:ReportDocument;document_id:string;version:number;document_revision:number;source_sha256:string}>(
    `SELECT snapshot,document_id,version,document_revision,source_sha256 FROM public.smn_report_studio_archive_snapshot WHERE archive_id=$1`,[id]);
   const row=snapshot.rows[0];
