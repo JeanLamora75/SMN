@@ -17,7 +17,6 @@ export default function RegistryHistory({id}:{id:string}){
  const [retry,setRetry]=useState(0);
  useEffect(()=>{
   const controller=new AbortController();
-  if(page===1)setState("loading");
   void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/history?page="+page,{
    cache:"no-store",signal:controller.signal
   }).then(async response=>{
@@ -57,7 +56,7 @@ export default function RegistryHistory({id}:{id:string}){
   {state==="unavailable"&&<div role="alert" className="d-flex flex-wrap gap-2 align-items-center">
    <span>{tr("unavailable")}</span>
    <button type="button" className="btn btn-sm btn-outline-secondary"
-    onClick={()=>setRetry(n=>n+1)}>{tr("retry")}</button>
+    onClick={()=>{setState("loading");setRetry(n=>n+1);}}>{tr("retry")}</button>
   </div>}
   {state==="ready"&&events.length===0?<p className="smn-registry-audit-empty">{tr("empty")}</p>:null}
   {events.length>0&&<ol className="smn-registry-audit-timeline">
