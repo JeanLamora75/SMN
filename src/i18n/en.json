@@ -2,7 +2,6 @@
   "common": {
     "translationUnavailable": "Translation unavailable.",
     "retry": "Retry",
-    "saved": "Change saved.",
     "signIn": "Sign in",
     "home": "Home",
     "save": "Save"
@@ -2388,6 +2387,7 @@
     "loading": "Loading journal…",
     "unavailable": "The journal is unavailable.",
     "retry": "Retry",
+    "saved": "Change saved.",
     "before": "Before",
     "after": "After"
   },
