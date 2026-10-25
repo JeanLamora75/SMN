@@ -2762,7 +2762,8 @@
     "directionOutgoing": "Outgoing link · to",
     "conflict": "This relationship has changed. Refresh before retrying.",
     "unavailable": "Relationships temporarily unavailable.",
-    "invalid": "This association was rejected. Check the data or cycle."
+    "invalid": "This association was rejected. Check the data or cycle.",
+    "closedCycle": "Closed cycle: unlink is forbidden."
   },
   "riskMaterialize": {
     "launch": "Create impediment",
