@@ -2396,7 +2396,8 @@
     "createdLinked": "Linked record created and saved.",
     "viewLinked": "View record",
     "createAnotherLinked": "Create another",
-    "backToSource": "Back to source record"
+    "backToSource": "Back to source record",
+    "linkedCreatedEvent": "Linked record created"
   },
   "registryComments": {
     "add": "Add comment",
