@@ -59,7 +59,7 @@ export function parseAuditPage(value:unknown):AuditPage|null{
    !(raw.revision===null||Number.isSafeInteger(raw.revision)&&Number(raw.revision)>0)||
    validRegistryActivityTime(raw.at)===null||
    !(raw.actorName===null||typeof raw.actorName==="string"&&
-    !uuid.test(raw.actorName)&&raw.actorName.length<=200)||
+    raw.actorName.length<=200)||
    !(raw.before===null||obj(raw.before))||
    !(raw.after===null||obj(raw.after)))return null;
   events.push({
