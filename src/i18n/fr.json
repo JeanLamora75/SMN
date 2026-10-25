@@ -3391,6 +3391,11 @@
     "unknown": "Non renseigné",
     "emptyText": "Texte à renseigner",
     "imageLink": "Lien de l'image",
-    "imageMissing": "Image non renseignée"
+    "imageMissing": "Image non renseignée",
+    "metricTable": "Données de l'indicateur",
+    "value": "Valeur",
+    "source": "Provenance",
+    "sourceUnknown": "Non précisée",
+    "noChartScale": "Échelle graphique indisponible sans référence comparable"
   }
 }
