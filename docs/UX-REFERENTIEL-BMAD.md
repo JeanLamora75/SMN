@@ -704,3 +704,33 @@ une réunion), SMN-79 (statut événement). Implémentation suivie dans
 **Arbitrages non clos (ne pas inventer) :** rôle de `highlight.recorded` dans À suivre/États finaux, éventuels nouveaux seuils d'attention, extension du droit `user` aux historiques détaillés, et politique de suppression physique/logique des fiches métier. Préserver l'existant dans l'intervalle.
 
 **Traçabilité :** documentation de conception approuvée ; **développement et recette non attestés**. Les scripts BMAD locaux, tests, TypeScript et build n'ont pas été exécutés lors de cette rédaction via connecteurs.
+
+
+## Refonte du Studio de rapports — 21 décisions UX, 16 Stories (25/10/2026)
+
+**Décisions validées explicitement avec Sally le 25 octobre 2026** ; synthèse UX approuvée. L'Epic transverse [SMN-228](https://lmn24.atlassian.net/browse/SMN-228) est étendue au **Studio de rapports**, sans remplacer l'Epic métier [SMN-6](https://lmn24.atlassian.net/browse/SMN-6) ni ses Stories SMN-113 à SMN-135. **Stories créées : [SMN-254](https://lmn24.atlassian.net/browse/SMN-254) à [SMN-269](https://lmn24.atlassian.net/browse/SMN-269).**
+
+### Sources BMAD obligatoires avant toute évolution de la page Rapports
+
+- [README — statut et livrables](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/README.md) ;
+- [DESIGN.md — contrat visuel](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/DESIGN.md) ;
+- [EXPERIENCE.md — contrat comportemental](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/EXPERIENCE.md) ;
+- [Synthèse des 21 décisions](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/SMN-SYNTHESE-UX-STUDIO-RAPPORTS-2026-10-25.md) ;
+- [Contrat de développement / plan par vagues S0–S6](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/CONTRAT-DEVELOPPEMENT.md) ;
+- [Matrice des 16 Stories et dépendances](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/DECOUPAGE-JIRA.md) ;
+- [Grille de recette — 33 scénarios](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/RECETTE-UX.md) ;
+- [Références visuelles et prototype HTML](../_bmad-output/planning-artifacts/ux-designs/ux-rapports-2026-10-25/MAQUETTES-REFERENCE.md).
+
+### Invariants UX à préserver
+
+1. **Centre Rapports transversal + accès depuis Sprint** ; plusieurs brouillons indépendants par Sprint ; bibliothèque de modèles système protégés et personnalisés par admin ; version de modèle épinglée et mise à niveau volontaire.
+2. **Génération préremplie** sans valeur métier fictive ; studio en trois modes Composition / Rédaction / Aperçu, panneau Plan / document A4 / propriétés, blocs modulables ; graphiques, tableaux et représentation mixte ; commentaires prédéfinis + texte libre.
+3. **IA hors du studio** : préparation de briefs sur page dédiée, insertion explicite d'analyses sélectionnées avec provenance ; aucune génération automatique contextuelle ou globale dans l'éditeur.
+4. **Brouillon autosauvegardé** : dernière valeur enregistrée, Annuler/Rétablir pendant la session, pas d'historique durable. **Dernière sauvegarde acceptée côté serveur gagnante entre sessions**, pas de verrouillage/fusion ; séquencer les requêtes d'une même session.
+5. **Actualisation contrôlée des données** : notification, comparaison, décision explicite ; jamais d'écrasement automatique des commentaires ni des autres rapports et archives.
+6. **A4 unique portrait OU paysage par document**, couverture et sommaire hérités du modèle et adaptables par rapport, pagination automatique avec sauts ajustables, adaptation intelligente des tableaux longs, graphiques et textes, sans troncature/suppression silencieuse.
+7. **Qualité non intrusive et PDF direct** : en absence d'erreur bloquante, export sans circuit de publication ni gel obligatoire ; avertissements contournables ; archivage volontaire en snapshots Vn immuables.
+8. **Responsive** : desktop complet, tablette avec édition complète et panneaux escamotables ; smartphone pour consultation, commentaires/corrections légères et export. Droits admin/user **côté serveur**, i18n FR/EN JSON, thèmes et accessibilité du socle préservés.
+9. **Source de vérité** : engagement initial SP/tickets distinct du révisé et du terminé, capacité J/H disponible distincte du travail consommé ; qualité/provenance des valeurs historiques et confidentialité par projection serveur. Jamais de données courantes présentées comme un snapshot ancien.
+
+**Développement :** le contrat UX est une cible et non une preuve de réalisation ; aucune migration, build, test TypeScript ou recette PDF n'a été exécuté lors de cette publication documentaire. Les maquettes sont démonstratives, les détails de style restent à confronter au CSS SMN et à valider visuellement. Ne pas supprimer les anciens parcours avant vérification de parité fonctionnelle et validation utilisateur.
