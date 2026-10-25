@@ -3374,7 +3374,10 @@
     "humanOrigin": "Human origin",
     "insertAnalysis": "Insert analysis",
     "noAnalysis": "No selected analysis.",
-    "copiedSnapshot": "Copy preserved in this report"
+    "copiedSnapshot": "Copy preserved in this report",
+    "undo": "Undo",
+    "redo": "Redo",
+    "stale": "Older save rejected"
   },
   "reportsBlocks": {
     "kind": "Block type",
