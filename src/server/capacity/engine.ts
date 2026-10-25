@@ -35,7 +35,6 @@ type Location={member_id:string;revision:number;effective_from:string;country_is
 type Absence={member_id:string;start_on:string;end_on:string;
  start_slot:"morning"|"afternoon";end_slot:"morning"|"afternoon"};
 type Holiday={country_code:string;holiday_date:string;name:string};
-type Coverage={country_code:string;calendar_year:number;status:string};
 type Closure={start_on:string;end_on:string};
 const round=(v:number)=>Math.round((v+Number.EPSILON)*10000)/10000;
 const validRate=(p:unknown)=>typeof p==="number"&&Number.isInteger(p)&&p>=0&&p<=100;
@@ -157,20 +156,14 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
    exceptions.rows.length>10000||locations.rows.length>10000||
    absences.rows.length>10000||closures.rows.length>500)throw Error("capacity-data-limit");
   const countries=[...new Set(locations.rows.map(l=>l.country_iso2))];
-  const [holiday,coverage]=await Promise.all([
-   db.query<Holiday>([
-    "SELECT country_code,holiday_date::text AS holiday_date,name",
-    "FROM public.smn_national_holiday",
-    "WHERE country_code=ANY($1::text[]) AND holiday_date BETWEEN $2::date AND $3::date"
-   ].join(" "),[countries,start,end]),
-   db.query<Coverage>([
-    "SELECT country_code,calendar_year,status",
-    "FROM public.smn_national_calendar_coverage",
-    "WHERE country_code=ANY($1::text[]) AND calendar_year BETWEEN $2 AND $3"
-   ].join(" "),[countries,Number(start.slice(0,4)),Number(end.slice(0,4))])
-  ]);
+  // National holidays are deductions, not a prerequisite for calculating capacity.
+  // No member country or matching holiday record means no national deduction.
+  const holiday=await db.query<Holiday>([
+   "SELECT country_code,holiday_date::text AS holiday_date,name",
+   "FROM public.smn_national_holiday",
+   "WHERE country_code=ANY($1::text[]) AND holiday_date BETWEEN $2::date AND $3::date"
+  ].join(" "),[countries,start,end]);
   const holidays=new Set(holiday.rows.map(h=>h.country_code+":"+h.holiday_date));
-  const coverageByYear=new Map(coverage.rows.map(c=>[c.country_code+":"+c.calendar_year,c.status]));
   const explicitSlots=options.includeExceptionalImpact&&team.mode==="scrum"?await readWorkSlots(db,team.id):null;
   const impactEvents=options.includeExceptionalImpact&&team.mode==="scrum"?
    (await db.query<{id:string;member_id:string|null;start_at:string;end_at:string;actual_minutes:number|null;planned_minutes:number}>(`SELECT m.id,p.member_id,m.starts_at::text AS start_at,m.ends_at::text AS end_at,
@@ -211,19 +204,12 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     const location=latest(memberLocations,date);
     const country=location?.country_iso2??null;
     const closure=closures.rows.some(c=>c.start_on<=date&&c.end_on>=date);
-    let national:boolean|null=null;
-    if(country===null&&!closure)problems.push("member-country");
-    if(country!==null){
-     const key=country+":"+date;
-     if(holidays.has(key))national=true;
-     else if(coverageByYear.get(country+":"+date.slice(0,4))==="configured")national=false;
-     else if(!closure)problems.push("national-coverage");
-    }
+    const national=country!==null&&holidays.has(country+":"+date);
     const availability=resolveDayAvailability(date,calendar.slots,national,
      memberAbsences.map(a=>({startOn:a.start_on,endOn:a.end_on,
       startSlot:a.start_slot,endSlot:a.end_slot})),closure);
     if(availability.status==="unknown"&&problems.length===0)
-     problems.push("national-coverage");
+     problems.push("work-calendar");
     if(version&&(!validRate(version.allocation_percent)||!validRate(version.contract_percent)||
        !validRate(version.developer_percent)||!validRate(version.contribution_percent)||
        version.allocation_percent>version.contract_percent))
