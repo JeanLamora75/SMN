@@ -9,7 +9,7 @@ const isStatus=(type:RegistryType,status:unknown):status is string=>
 export type RegistryRelation={
  id:string;sourceId:string;sourceTitle:string;sourceType:RegistryType;sourceStatus:string;
  targetKind:"record"|"goal";targetId:string;targetTitle:string;
- targetType:RegistryType|"goal";targetStatus:string|null
+ targetType:RegistryType|"goal";targetStatus:string|null;targetCycleStatus?:string|null
 };
 export type RelationView={
  relation:RegistryRelation;linkedId:string;linkedTitle:string;
