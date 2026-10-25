@@ -8,7 +8,8 @@
 3. [EXPERIENCE.md](EXPERIENCE.md) — parcours, interactions, états et exceptions.
 4. [CONTRAT-DEVELOPPEMENT.md](CONTRAT-DEVELOPPEMENT.md) — lots R1 à R15 et impacts techniques.
 5. [RECETTE-UX.md](RECETTE-UX.md) — scénarios REG-T01..REG-T34 non testés.
-6. [Référentiel transversal](../../../../docs/UX-REFERENTIEL-BMAD.md) — invariants SMN, fiche Sprint et Dashboard.
+6. [PROMPT-AMELIA.md](PROMPT-AMELIA.md) — consigne prête à copier pour commencer SMN-239.
+7. [Référentiel transversal](../../../../docs/UX-REFERENTIEL-BMAD.md) — invariants SMN, fiche Sprint et Dashboard.
 
 **Important :** cette refonte concerne le **registre global** ; les routes/modales et snapshots historiques de l'onglet Registres de la fiche Sprint (SMN-234) restent propriétaires de leur contrat dédié. Les règles métier des six types et les autorisations Epic 5 ne sont pas redéfinies.
 
