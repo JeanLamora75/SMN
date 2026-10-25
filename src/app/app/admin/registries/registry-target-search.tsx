@@ -41,6 +41,7 @@ export default function RegistryTargetSearch({sourceId,kind,types=[],disabled,on
  const [items,setItems]=useState<Target[]>([]);
  const [state,setState]=useState<"loading"|"ready"|"unavailable">("loading");
  const [reload,setReload]=useState(0);
+ const typesKey=types.join(",");
  useEffect(()=>{
   const controller=new AbortController();
   setState("loading");
