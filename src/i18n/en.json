@@ -2404,7 +2404,13 @@
     "atRisk": "Dependency at risk",
     "partiesPair": "Specify both parties or leave both blank.",
     "decision": "Decision rationale",
-    "rationale": "Reason for the decision"
+    "rationale": "Reason for the decision",
+    "replacesSearch": "Search existing decisions",
+    "replacesSearchHint": "Decision title…",
+    "replaces": "Replaces decision",
+    "noReplacement": "No decision replaced",
+    "selectedReplacement": "Selected decision",
+    "decisionsUnavailable": "Decision lookup unavailable."
   },
   "registryEdit": {
     "general": "General information",
