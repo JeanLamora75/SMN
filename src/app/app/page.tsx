@@ -6,6 +6,7 @@ import { canAccess } from "@/server/access-policy";
 import { readCollectiveDashboard } from "@/server/dashboard/read";
 import CycleOverview from "./cycle-overview";
 import OperationalOverview from "./operational-overview";
+import MemberConfigurationAlerts from "./member-configuration-alerts";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import {dashboardReturnPath,teamDetailPath,type DashboardQuery} from "@/lib/context-navigation";
@@ -53,6 +54,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   const projection=sprintResult?.projection??null;
 
   return <>
+    {account.role==="admin"&&<MemberConfigurationAlerts/>}
     {sprintResult===null&&<p role="alert" className="alert alert-warning">
       {t("sprintsIndex.error")}
     </p>}

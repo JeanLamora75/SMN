@@ -3461,5 +3461,11 @@
     "failed": "Le PDF n'a pas pu être produit. Le brouillon est conservé.",
     "downloadArchive": "Télécharger l'archive créée",
     "saveFirst": "Enregistrez les modifications avant l'export ou l'archivage."
+  },
+  "memberConfigurationAlerts": {
+    "heading": "Configuration des membres à compléter",
+    "calendar": "Calendrier non configuré",
+    "roles": "Répartition des rôles non renseignée",
+    "unavailable": "Impossible de vérifier actuellement la configuration des membres."
   }
 }
