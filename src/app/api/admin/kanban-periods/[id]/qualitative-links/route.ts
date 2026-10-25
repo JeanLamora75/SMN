@@ -10,7 +10,8 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  if(!actor)return jsonResult({error:"forbidden"},403);
  // Candidate registry lists are restricted to admins to avoid leaking sensitive notes.
  if(actor.role!=="admin")return jsonResult({error:"forbidden"},403);
- try{const result=await withAuthDb(db=>readKanbanLinkChoices(db,(await params).id));
+ const {id}=await params;
+ try{const result=await withAuthDb(db=>readKanbanLinkChoices(db,id));
  return result?jsonResult(result):jsonResult({error:"not-found"},404);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
@@ -19,7 +20,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
  const raw=await readJsonObject(req);
  if(!raw)return jsonResult({error:"invalid-input"},400);
- try{const result=await withAuthDb(db=>changeKanbanQualitativeLink(db,actor.id,(await params).id,raw));
+ try{const result=await withAuthDb(db=>changeKanbanQualitativeLink(db,actor.id,id,raw));
  return result.ok?jsonResult(result):jsonResult(result,result.error==="not-found"?404:result.error==="invalid-input"?400:409);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
