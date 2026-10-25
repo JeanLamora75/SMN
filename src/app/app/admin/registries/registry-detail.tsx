@@ -3,12 +3,13 @@
 import RegistryBreadcrumbs from "./registry-breadcrumbs";
 import {enterRegistryRelation,type RegistryNavigation} from "@/lib/registry-navigation";
 import {useEffect,useId,useRef,useState,type KeyboardEvent,type ReactNode} from "react";
-import {useTranslation} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
+import {formatRegistryDate} from "@/lib/registry-date";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
 import {registryDetailTabs,registryBusinessTabKeys,type RegistryDetailTab} from "@/lib/registry-detail-tabs";
 import BootstrapIcon from "../../bootstrap-icon";
 import RegistrySectionDialog from "./registry-section-dialog";
-import RegistryCoreEditor,{type RegistryCoreSection} from "./registry-core-editor";
+import RegistryEditModal from "./registry-edit-modal";
 import RegistrySummary from "./registry-summary";
 import RegistryDescriptionEditor from "./registry-description-editor";
 import RegistryHistory from "./registry-history";
@@ -55,7 +56,7 @@ function parseDetailItem(raw:unknown,teamId:string,requestedId:string):DetailIte
 export default function RegistryDetail({id,teamId,canManage,navigation}:{
  id:string;teamId:string;canManage:boolean;navigation:RegistryNavigation;
 }){
- const t=useTranslation();
+ const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryDetail."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const [item,setItem]=useState<DetailItem|null>(null);
@@ -63,7 +64,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const [problem,setProblem]=useState<"missing"|"unavailable"|null>(null);
  const [reload,setReload]=useState(0);
  const [tab,setTab]=useState<RegistryDetailTab>("summary");
- const [coreEditing,setCoreEditing]=useState<RegistryCoreSection|null>(null);
+ const [fullEditing,setFullEditing]=useState(false);
  const [businessEditing,setBusinessEditing]=useState<BusinessSection|null>(null);
  const [descriptionEditing,setDescriptionEditing]=useState(false);
  const prefix=useId();
@@ -93,7 +94,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const tabs=item?registryDetailTabs(item.type):[];
  const onward=enterRegistryRelation(navigation,id);
  const hasUnsaved=()=>Boolean(document.querySelector(
-  '.smn-registry-detail [data-registry-dirty="true"]'
+  '[data-registry-dirty="true"]'
  ));
  const mayLeave=()=>!hasUnsaved()||window.confirm(t("registryNavigation.discard"));
  useEffect(()=>{
@@ -101,7 +102,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   let reverting=false;
   const onPop=(event:PopStateEvent)=>{
    if(reverting){reverting=false;event.stopImmediatePropagation();return;}
-   if(!document.querySelector('.smn-registry-detail [data-registry-dirty="true"]')||
+   if(!document.querySelector('[data-registry-dirty="true"]')||
     window.confirm(t("registryNavigation.discard")))return;
    reverting=true;
    event.stopImmediatePropagation();
@@ -124,7 +125,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   setTab(target);
   buttons.current[target]?.focus();
  };
- const coreUpdated=()=>{setCoreEditing(null);retry();};
+ const fullUpdated=()=>{setFullEditing(false);retry();};
  const businessUpdated=()=>{setBusinessEditing(null);retry();};
  const descriptionUpdated=()=>{setDescriptionEditing(false);retry();};
  const sectionView=(section:BusinessSection,name:string,content:ReactNode)=><div
@@ -132,7 +133,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   {canManage&&<div className="smn-registry-business-edit-bar">
    <button type="button" className="btn btn-sm btn-outline-secondary"
     aria-label={t("registryEdit.editNamed",{name})}
-    onClick={()=>setBusinessEditing(section)}>
+    onClick={()=>section==="riskAssessment"||section==="riskRoam"||section==="registryRelations"?setFullEditing(true):setBusinessEditing(section)}>
     <BootstrapIcon name="pencil-square"/><span>{t("registryEdit.edit")}</span>
    </button>
   </div>}
@@ -175,7 +176,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
       <h1>{item.title}</h1>
       {canManage&&<button type="button" className="btn btn-sm btn-outline-secondary"
        aria-label={t("registryEdit.editNamed",{name:t("registryEdit.general")})}
-       onClick={()=>setCoreEditing("general")}>
+       onClick={()=>setFullEditing(true)}>
        <BootstrapIcon name="pencil-square"/>
       </button>}
      </div>
@@ -183,11 +184,11 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
       <span className="badge bg-body-secondary text-body-emphasis border">{label(item.status)}</span>
       {canManage&&<button type="button" className="btn btn-sm btn-outline-secondary"
        aria-label={t("registryEdit.editNamed",{name:t("registryEdit.status")})}
-       onClick={()=>setCoreEditing("status")}>
+       onClick={()=>setFullEditing(true)}>
        <BootstrapIcon name="pencil-square"/>
       </button>}
-      <span>{tr("businessDate")}: <time dateTime={item.occurredOn}>{item.occurredOn}</time></span>
-      {item.dueOn&&<span>{tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></span>}
+      <span>{tr("businessDate")}: <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time></span>
+      {item.dueOn&&<span>{tr("due")}: <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time></span>}
       {canManage&&item.owner&&<span>{tr("owner")}: {item.owner}</span>}
      </div>
     </div>
@@ -249,7 +250,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        <section className="card p-3">
         <h2 className="h5">{tr("action")}</h2>
         <p className="mb-0">{tr("currentState")}: <strong>{label(item.status)}</strong></p>
-        {item.dueOn&&<p className="mb-0">{tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></p>}
+        {item.dueOn&&<p className="mb-0">{tr("due")}: <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time></p>}
        </section>
        {sectionView("actionLinks",t("actionLinks.heading"),
         <ActionLinks id={id} canManage={false} navigation={onward}/>)}
@@ -261,12 +262,8 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      Number.isSafeInteger(item.revision)&&
      <RegistryDescriptionEditor item={item} onSaved={descriptionUpdated}
       onDismiss={()=>setDescriptionEditing(false)}/>}
-    {canManage&&coreEditing&&typeof item.revision==="number"&&
-     Number.isSafeInteger(item.revision)&&
-     <RegistrySectionDialog title={t(("registryEdit."+coreEditing) as Parameters<typeof t>[0])}
-      onDismiss={()=>setCoreEditing(null)}>
-      <RegistryCoreEditor item={item} section={coreEditing} onSaved={coreUpdated}/>
-     </RegistrySectionDialog>}
+    {canManage&&fullEditing&&<RegistryEditModal id={id} teamId={teamId}
+     onDismiss={()=>setFullEditing(false)} onSaved={fullUpdated}/>}
     {canManage&&businessEditing&&<RegistrySectionDialog
      title={t(("registryEdit."+businessEditing) as Parameters<typeof t>[0])}
      onDismiss={()=>setBusinessEditing(null)}>

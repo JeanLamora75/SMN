@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {useTranslation} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
+import {formatRegistryDate} from "@/lib/registry-date";
 import type {RegistryType} from "@/lib/registry-types";
 import BootstrapIcon from "../../bootstrap-icon";
 import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
@@ -22,18 +23,18 @@ const icons={
  highlight:"bell-fill"
 } as const satisfies Record<RegistryType,string>;
 
-export default function RegistryListRow({item,canManage,signals,highlight=false,navigation,onNavigate}:{
+export default function RegistryListRow({item,canManage,signals,highlight=false,navigation,onNavigate,onEdit}:{
  item:RegistryListItem;canManage:boolean;signals:readonly RegistrySignal[];highlight?:boolean;
- navigation:RegistryNavigation;onNavigate:()=>void;
+ navigation:RegistryNavigation;onNavigate:()=>void;onEdit:()=>void;
 }){
- const t=useTranslation();
+ const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const href=registryDetailHref(item.id,navigation);
  return <tr className={"smn-registry-list-row"+(highlight?" smn-registry-just-created":"")}>
   <td className="smn-registry-cell-date">
    <span className="smn-registry-mobile-label">{tr("date")}: </span>
-   <time dateTime={item.occurredOn}>{item.occurredOn}</time>
+   <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time>
   </td>
   <td className="smn-registry-cell-type">
    <span className="smn-registry-row-type">
@@ -68,7 +69,7 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
   <td className="smn-registry-cell-due">
    {item.dueOn&&<>
     <span className="smn-registry-mobile-label">{tr("due")}: </span>
-    <time dateTime={item.dueOn}>{item.dueOn}</time>
+    <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time>
    </>}
   </td>
   <td className="smn-registry-cell-actions">
@@ -78,9 +79,10 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
      title={tr("actions")}>⋯</summary>
     <div className="smn-registry-row-menu">
      <Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>{tr("openRecord")}</Link>
-     {canManage&&<Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>
+     {canManage&&<button type="button" className="smn-registry-row-menu-link w-100 text-start border-0 bg-transparent"
+      onClick={event=>{event.currentTarget.closest("details")?.removeAttribute("open");onEdit();}}>
       {tr("editRecord")}
-     </Link>}
+     </button>}
     </div>
    </details>
   </td>

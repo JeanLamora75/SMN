@@ -7,6 +7,7 @@ import {roamValues} from "@/lib/roam-values";
 import {levels} from "@/lib/risk-criticality";
 import type {Party} from "@/server/registries/dependency-parties";
 import {linkedJournalTypes} from "@/lib/registry-linked-creation";
+import RegistryDialogPortal,{useRegistryPortalReady} from "./registry-dialog-portal";
 
 type Kind=""|"local"|"external";
 const nowInParis=()=>{
@@ -25,6 +26,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
 }){
  const t=useTranslation(),tr=(key:string)=>t(("registryCreateModal."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
+ const portalReady=useRegistryPortalReady();
  const dialog=useRef<HTMLDialogElement>(null);
  const requestId=useRef<string|null>(null);
  const allowedTypes:readonly RegistryType[]=linkedFromJournal?linkedJournalTypes:registryTypes;
@@ -64,14 +66,14 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  useEffect(()=>{
   const element=dialog.current;
   if(!element)return;
-  previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-  element.showModal();
+  if(!previousFocus.current||!element.contains(document.activeElement))
+   previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  if(!element.open)element.showModal();
   firstInput.current?.focus();
   return()=>{
-   if(element.open)element.close();
-   previousFocus.current?.focus();
+   // StrictMode réexécute les effets : ne jamais déclencher onClose lors du cleanup.
   };
- },[]);
+ },[portalReady]);
  useEffect(()=>{
   if(!dirty)return;
   const guard=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
@@ -171,8 +173,8 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const pickParty=(value:Kind,setter:(value:Kind)=>void)=>{
   setter(value);setError(null);
  };
- return <dialog ref={dialog} className="smn-registry-create-dialog" data-registry-dirty={dirty}
-  aria-labelledby={titleId} onCancel={cancel} onClose={onDismiss}>
+ return <RegistryDialogPortal><dialog ref={dialog} className="smn-registry-create-dialog" data-registry-dirty={dirty}
+  aria-labelledby={titleId} onCancel={cancel} onClose={()=>{previousFocus.current?.focus();onDismiss();}}>
   <form className="smn-registry-create-form" onSubmit={save}
    onChangeCapture={()=>{setDirty(true);requestId.current=null;}}
    onInputCapture={()=>{setDirty(true);requestId.current=null;}}>
@@ -315,5 +317,5 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
     </button>
    </footer>
   </form>
- </dialog>;
+ </dialog></RegistryDialogPortal>;
 }

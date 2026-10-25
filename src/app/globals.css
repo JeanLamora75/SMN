@@ -825,3 +825,12 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-audit-diff summary{min-height:44px}
  .smn-registry-audit-diff table{font-size:.76rem}
 }
+
+/* Édition intégrale des fiches, sans tronquer les sections métier. */
+.smn-registry-section-dialog-wide{width:min(96vw,1080px);max-height:92dvh}
+.smn-registry-section-dialog-wide .smn-registry-section-dialog-layout{max-height:92dvh}
+.smn-registry-section-dialog-wide .smn-registry-section-dialog-content{min-height:0;overflow-y:auto}
+.smn-registry-row-menu button.smn-registry-row-menu-link{cursor:pointer;font:inherit;color:var(--smn-foreground)}
+.smn-registry-row-menu button.smn-registry-row-menu-link:hover,
+.smn-registry-row-menu button.smn-registry-row-menu-link:focus-visible{background:var(--smn-soft)!important;color:var(--smn-primary)}
+@media(max-width:575px){.smn-registry-section-dialog-wide{width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}}

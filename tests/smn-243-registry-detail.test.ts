@@ -47,7 +47,7 @@ test("composants métier existants réemployés, éditions ciblées réservées 
   assert.ok(ui.includes("<"+c),c);
  assert.match(ui,/canManage&&<button/);
  assert.match(ui,/RegistrySectionDialog/);
- assert.match(ui,/RegistryCoreEditor/);
+ assert.match(ui,/RegistryEditModal/);
  assert.match(ui,/canManage=\{false\}/);
 });
 test("la synthèse utilise le journal réel sans dupliquer le bandeau ou le legacy",()=>{

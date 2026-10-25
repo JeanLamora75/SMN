@@ -2,12 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
-test("pas de formulaire global dans la fiche ; deux crayons ciblés dans le bandeau",()=>{
+test("la fiche reste en lecture mais les crayons ouvrent le formulaire complet dans une modale",()=>{
  const ui=read("src/app/app/admin/registries/registry-detail.tsx");
  assert.ok(!ui.includes("<RegistryCreate "));
- assert.ok(ui.includes('setCoreEditing("general")'));
- assert.ok(ui.includes('setCoreEditing("status")'));
- assert.ok(ui.includes("RegistryCoreEditor"));
+ assert.ok(ui.includes("setFullEditing(true)"));
+ assert.ok(ui.includes("RegistryEditModal"));
+ assert.ok(read("src/app/app/admin/registries/registry-edit-modal.tsx").includes("<RegistryCreate"));
  assert.ok(ui.includes("RegistryDescriptionEditor"));
  assert.ok(ui.includes("canManage&&"));
 });
@@ -48,7 +48,7 @@ test("les composants métier réutilisent leurs lecteurs et mutations auditées 
 test("aucune commande d'écriture au lecteur collectif, même depuis une URL directe",()=>{
  const ui=read("src/app/app/admin/registries/registry-detail.tsx");
  const api=read("src/app/api/admin/registries/[id]/route.ts");
- assert.ok(ui.includes("canManage&&coreEditing"));
+ assert.ok(ui.includes("canManage&&fullEditing"));
  assert.ok(ui.includes("canManage&&businessEditing"));
  assert.ok(api.includes('authorizeApi(req,"write"'));
 });
