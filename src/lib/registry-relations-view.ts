@@ -32,6 +32,8 @@ export function parseRelationPayload(raw:unknown,id:string):RegistryRelation[]|n
    typeof entry.targetTitle!=="string"||!entry.targetTitle.trim()||
    (entry.targetCycleStatus!==undefined&&entry.targetCycleStatus!==null&&
     typeof entry.targetCycleStatus!=="string")||
+   (entry.targetGoalSprintId!==undefined&&entry.targetGoalSprintId!==null&&
+    (typeof entry.targetGoalSprintId!=="string"||!idRx.test(entry.targetGoalSprintId)))||
    !isType(entry.sourceType)||!isStatus(entry.sourceType,entry.sourceStatus)||
    (entry.targetKind==="record"?
     !isType(entry.targetType)||!isStatus(entry.targetType,entry.targetStatus):
