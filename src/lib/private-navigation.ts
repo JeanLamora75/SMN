@@ -36,7 +36,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole):readon
     href:"/app/team-calendar",icon:"calendar3"},
    {id:"risks",label:"navigation.entries.register",
     href:"/app/admin/registries",icon:"stack"},
-   {id:"reporting",label:"navigation.entries.reporting",href:null,icon:"bar-chart-line"}
+   {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"}
   ]}
  ];
  if(role==="admin")groups.push({
@@ -51,6 +51,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole):readon
 /** Active state derives from real implemented routes, never placeholders. */
 export function activePrivateEntry(pathname:string,entry:NavigationEntry):boolean{
  return entry.href!==null&&(entry.href===pathname||
+  (entry.id==="reporting"&&pathname.startsWith("/app/reports/"))||
   (entry.id==="members"&&pathname.startsWith("/app/admin/members/"))||
   (entry.id==="centralCalendar"&&pathname.startsWith("/app/team-calendar/"))||
   (entry.id==="settings"&&pathname.startsWith("/app/admin/settings/"))||

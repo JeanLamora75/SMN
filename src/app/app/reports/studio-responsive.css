@@ -1,0 +1,20 @@
+/* Responsive studio: preserve the document canvas and accessible controls. */
+.smn-studio-shell{min-width:0}
+.smn-studio-shell :is(button,input,select,textarea,a):focus-visible{outline:3px solid var(--bs-primary);outline-offset:2px}
+.smn-studio-shell .smn-studio-paper{max-width:100%;overflow-wrap:anywhere}
+.smn-studio-shell .smn-studio-side{min-width:0}
+.smn-studio-shell .smn-studio-layout{min-width:0}
+.smn-studio-shell .smn-studio-controls{flex-wrap:wrap}
+@media(max-width:1199.98px){
+ .smn-studio-shell .smn-studio-side{max-width:none!important;width:100%!important}
+ .smn-studio-shell .smn-studio-paper{min-height:0!important}
+}
+@media(max-width:767.98px){
+ .smn-studio-shell .smn-studio-complex{display:none!important}
+ .smn-studio-shell .smn-studio-paper{box-shadow:none!important;padding:1rem!important}
+ .smn-studio-shell .smn-studio-layout{display:block!important}
+ .smn-studio-shell .smn-studio-mobile-hint{display:block!important}
+ .smn-studio-shell .smn-studio-canvas{padding:.5rem!important;overflow-x:auto}
+}
+@media(min-width:768px){.smn-studio-shell .smn-studio-mobile-hint{display:none!important}}
+@media print{.smn-studio-shell .smn-studio-mobile-hint{display:none!important}}
