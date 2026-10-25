@@ -158,7 +158,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const isEditable=useCallback((day:string)=>{
   if(!isAdmin||[0,6].includes(new Date(day+"T12:00:00Z").getUTCDay()))return false;
   return sprints.some(s=>s.status!=="closed"&&localDate(s.startAt)<=day&&localDate(s.endAt)>=day);
- },[calendarMode,isAdmin,sprints]);
+ },[isAdmin,sprints]);
  useEffect(()=>{
   if(!absenceEditor||!isAdmin)return;
   let alive=true;
