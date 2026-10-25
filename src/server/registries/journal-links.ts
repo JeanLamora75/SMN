@@ -20,7 +20,8 @@ export async function readRegistryJournalLinks(
   to_regclass('public.smn_registry_linked_request') IS NOT NULL AS ready`);
  const createdJoin=marker.rows[0]?.ready?
   `LEFT JOIN public.smn_registry_linked_request journal_origin
-   ON journal_origin.source_id=base.id AND journal_origin.new_item_id=r.id`:
+   ON journal_origin.source_id=base.id AND journal_origin.new_item_id=r.id
+    AND journal_origin.created_at=a.changed_at`:
   `LEFT JOIN LATERAL (SELECT NULL::text AS new_item_id) journal_origin ON true`;
  const result=await db.query<RegistryJournalLink>(`SELECT
    a.id,r.id AS "recordId",r.title,r.type,
@@ -37,7 +38,6 @@ export async function readRegistryJournalLinks(
   JOIN public.smn_registry_item r
    ON r.id=CASE WHEN l.source_id=base.id THEN l.target_id ELSE l.source_id END
    AND r.team_id=base.team_id
-  ${createdJoin}
   JOIN LATERAL (
    SELECT audit.id,audit.changed_at,audit.actor_id
    FROM public.smn_registry_relation_audit audit
@@ -46,6 +46,7 @@ export async function readRegistryJournalLinks(
     AND l.created_at<=audit.changed_at
    ORDER BY audit.changed_at DESC,audit.id DESC LIMIT 1
   ) a ON true
+  ${createdJoin}
   LEFT JOIN public.smn_account author ON author.id=a.actor_id
   WHERE base.id=$1 AND i.id='singleton' AND i.state='initialized'
    AND lower(i.mode) IN ('scrum','kanban')
