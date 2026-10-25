@@ -38,13 +38,16 @@ export default function RegistryTargetSearch({sourceId,kind,types=[],disabled,on
  const fieldId=useId();
  const [search,setSearch]=useState("");
  const [filterType,setFilterType]=useState<RegistryType|"all">("all");
- const [items,setItems]=useState<Target[]>([]);
- const [state,setState]=useState<"loading"|"ready"|"unavailable">("loading");
+ const [loaded,setLoaded]=useState<{
+  key:string;state:"ready"|"unavailable";items:Target[];
+ }|null>(null);
  const [reload,setReload]=useState(0);
  const typesKey=types.join(",");
+ const requestKey=JSON.stringify([sourceId,kind,search,filterType,reload,typesKey]);
+ const state=loaded?.key===requestKey?loaded.state:"loading";
+ const items=loaded?.key===requestKey?loaded.items:[];
  useEffect(()=>{
   const controller=new AbortController();
-  setState("loading");
   const timer=setTimeout(()=>{
    const params=new URLSearchParams({kind,search:search.trim(),types:
     kind==="goal"?"":typesKey|| (filterType==="all"?"":filterType)});
@@ -57,11 +60,13 @@ export default function RegistryTargetSearch({sourceId,kind,types=[],disabled,on
      return parsed;
     }).then(values=>{
      if(controller.signal.aborted)return;
-     setItems(values);setState("ready");
-    }).catch(()=>{if(!controller.signal.aborted){setItems([]);setState("unavailable");}});
+     setLoaded({key:requestKey,state:"ready",items:values});
+    }).catch(()=>{if(!controller.signal.aborted)setLoaded({
+     key:requestKey,state:"unavailable",items:[]
+    });});
   },250);
   return()=>{clearTimeout(timer);controller.abort();};
- },[sourceId,kind,search,filterType,reload,typesKey]);
+ },[sourceId,kind,search,filterType,reload,typesKey,requestKey]);
  return <div className="smn-registry-relation-search">
   <div className="row g-2">
    {kind==="record"&&types.length===0&&<div className="col-sm-4">

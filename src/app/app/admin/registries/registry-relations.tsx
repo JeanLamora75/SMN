@@ -8,6 +8,7 @@ import RegistryTargetSearch from "./registry-target-search";
 import {registryDetailHref,registryIndexPath,type RegistryNavigation} from "@/lib/registry-navigation";
 
 type Target={id:string;title:string;type:RegistryType|"goal";status?:string};
+const emptyRelations:RegistryRelation[]=[];
 export default function RegistryRelations({id,type,canManage,navigation,onSaved}:{
  id:string;type:string;canManage:boolean;navigation?:RegistryNavigation;onSaved?:()=>void;
 }){
@@ -15,8 +16,9 @@ export default function RegistryRelations({id,type,canManage,navigation,onSaved}
  const tr=(key:string)=>t(("registryRelations."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const headingId=useId();
- const [state,setState]=useState<"loading"|"ready"|"unavailable">("loading");
- const [items,setItems]=useState<RegistryRelation[]>([]);
+ const [loaded,setLoaded]=useState<{
+  key:string;state:"ready"|"unavailable";items:RegistryRelation[];
+ }|null>(null);
  const [kind,setKind]=useState<"record"|"goal">("record");
  const [selected,setSelected]=useState<Target|null>(null);
  const [showSearch,setShowSearch]=useState(false);
@@ -24,9 +26,11 @@ export default function RegistryRelations({id,type,canManage,navigation,onSaved}
  const [error,setError]=useState<"unavailable"|"conflict"|"invalid"|null>(null);
  const [reload,setReload]=useState(0);
  const endpoint="/api/admin/registries/"+encodeURIComponent(id)+"/relations";
+ const requestKey=endpoint+":"+reload;
+ const state=loaded?.key===requestKey?loaded.state:"loading";
+ const items=loaded?.key===requestKey?loaded.items:emptyRelations;
  useEffect(()=>{
   const ctrl=new AbortController();
-  setState("loading");
   void fetch(endpoint,{cache:"no-store",signal:ctrl.signal})
    .then(async response=>{
     if(!response.ok)throw Error("unavailable");
@@ -35,10 +39,12 @@ export default function RegistryRelations({id,type,canManage,navigation,onSaved}
     return parsed;
    }).then(result=>{
     if(ctrl.signal.aborted)return;
-    setItems(result);setState("ready");
-   }).catch(()=>{if(!ctrl.signal.aborted)setState("unavailable");});
+    setLoaded({key:requestKey,state:"ready",items:result});
+   }).catch(()=>{if(!ctrl.signal.aborted)setLoaded({
+    key:requestKey,state:"unavailable",items:[]
+   });});
   return()=>ctrl.abort();
- },[endpoint,id,reload]);
+ },[endpoint,id,requestKey]);
  const groups=useMemo(()=>groupRegistryRelations(items,id),[items,id]);
  const change=async(target:{kind:"record"|"goal";id:string},
   action:"linked"|"unlinked",sourceId=id)=>{

@@ -18,16 +18,23 @@ export default function RegistryCycles({id,canManage,onSaved}:{id:string;canMana
  const t=useTranslation(),tr=(k:string)=>t(("registryCycles."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(false),[busy,setBusy]=useState<string|null>(null);
  const [reload,setReload]=useState(0);
+ const [loadedKey,setLoadedKey]=useState<string|null>(null);
+ const requestKey=id+":"+reload;
+ const currentData=loadedKey===requestKey?data:null;
+ const currentError=loadedKey===requestKey?error:false;
  useEffect(()=>{
   const controller=new AbortController();
-  setData(null);setError(false);
   void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/cycles",{cache:"no-store",signal:controller.signal})
    .then(async r=>{if(!r.ok)throw Error("unavailable");
     const parsed=parseData(await r.json());if(!parsed)throw Error("invalid");return parsed;})
-   .then(v=>{if(!controller.signal.aborted)setData(v);})
-   .catch(()=>{if(!controller.signal.aborted)setError(true);});
+   .then(v=>{if(!controller.signal.aborted){
+    setData(v);setError(false);setLoadedKey(requestKey);
+   }})
+   .catch(()=>{if(!controller.signal.aborted){
+    setData(null);setError(true);setLoadedKey(requestKey);
+   }});
   return()=>controller.abort();
- },[id,reload]);
+ },[id,requestKey]);
  const toggle=async(cycle:Cycle,linked:boolean)=>{
   if(busy||!canManage||cycle.status==="closed")return;
   if(linked&&!window.confirm(tr("confirmUnlink")))return;
@@ -42,15 +49,15 @@ export default function RegistryCycles({id,canManage,onSaved}:{id:string;canMana
  };
  return <section className="card p-3 mt-3">
   <h2 className="h5">{tr("heading")}</h2><p className="text-body-secondary">{tr("intro")}</p>
-  {!data&&!error?<p role="status">{tr("loading")}</p>:null}
-  {error&&<div role="alert" className="d-flex gap-2 align-items-center">
+  {!currentData&&!currentError?<p role="status">{tr("loading")}</p>:null}
+  {currentError&&<div role="alert" className="d-flex gap-2 align-items-center">
    <span className="text-danger">{tr("error")}</span>
    <button type="button" className="btn btn-outline-secondary btn-sm"
     onClick={()=>setReload(n=>n+1)}>{tr("retry")}</button>
   </div>}
-  {data?.cycles.length===0&&<p>{tr("empty")}</p>}
-  <ul className="list-group">{data?.cycles.map(cycle=>{
-   const linked=data.linkedIds.includes(cycle.id),closed=cycle.status==="closed";
+  {currentData?.cycles.length===0&&<p>{tr("empty")}</p>}
+  <ul className="list-group">{currentData?.cycles.map(cycle=>{
+   const linked=currentData.linkedIds.includes(cycle.id),closed=cycle.status==="closed";
    return <li className="list-group-item d-flex align-items-center justify-content-between gap-3" key={cycle.id}>
     <span>{cycle.name} {closed&&<small className="text-body-secondary">({tr("closed")})</small>}</span>
     {canManage?<button type="button" className={"btn btn-sm "+(linked?"btn-outline-danger":"btn-outline-primary")}
