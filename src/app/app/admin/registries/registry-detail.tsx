@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import RegistryBreadcrumbs from "./registry-breadcrumbs";
+import {enterRegistryRelation,type RegistryNavigation} from "@/lib/registry-navigation";
 import {useEffect,useId,useRef,useState,type KeyboardEvent,type ReactNode} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-types";
@@ -51,8 +52,8 @@ function parseDetailItem(raw:unknown,teamId:string,requestedId:string):DetailIte
 }
 
 /** Global live-record page only; never used for a frozen Sprint Vn snapshot. */
-export default function RegistryDetail({id,teamId,canManage}:{
- id:string;teamId:string;canManage:boolean;
+export default function RegistryDetail({id,teamId,canManage,navigation}:{
+ id:string;teamId:string;canManage:boolean;navigation:RegistryNavigation;
 }){
  const t=useTranslation();
  const tr=(key:string)=>t(("registryDetail."+key) as Parameters<typeof t>[0]);
@@ -90,6 +91,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
  },[id,teamId,reload]);
  const retry=()=>{setLoading(true);setProblem(null);setReload(n=>n+1);};
  const tabs=item?registryDetailTabs(item.type):[];
+ const onward=enterRegistryRelation(navigation,id);
  const onTabKeyDown=(event:KeyboardEvent<HTMLButtonElement>,current:RegistryDetailTab)=>{
   const index=tabs.indexOf(current);
   let next=index;
@@ -124,17 +126,20 @@ export default function RegistryDetail({id,teamId,canManage}:{
    case "dependencyParties":return <DependencyParties id={id} canManage={true} onSaved={businessUpdated}/>;
    case "dependencyVigilance":return <DependencyVigilance id={id} canManage={true} onSaved={businessUpdated}/>;
    case "decisionDetail":return <DecisionDetail id={id} canManage={true} onSaved={businessUpdated}/>;
-   case "registryRelations":return <RegistryRelations id={id} type={item?.type??"risk"}
+   case "registryRelations":return <RegistryRelations id={id} type={item?.type??"risk"} navigation={onward}
     canManage={true} onSaved={businessUpdated}/>;
    case "registryCycles":return <RegistryCycles id={id} canManage={true} onSaved={businessUpdated}/>;
-   case "actionLinks":return <ActionLinks id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "actionLinks":return <ActionLinks id={id} canManage={true} navigation={onward} onSaved={businessUpdated}/>;
    default:return null;
   }
  };
- return <section className="smn-registry-detail">
-  <nav aria-label={tr("back")} className="mb-3">
-   <Link href="/app/admin/registries">{tr("back")}</Link>
-  </nav>
+ return <section className="smn-registry-detail" onClickCapture={event=>{
+  const target=event.target;
+  if(!(target instanceof Element)||!target.closest("a[href]")||
+   !event.currentTarget.querySelector('[data-registry-dirty="true"]'))return;
+  if(!window.confirm(t("registryNavigation.discard"))){event.preventDefault();event.stopPropagation();}
+ }}>
+  <RegistryBreadcrumbs id={id} title={item?.title} teamId={teamId} navigation={navigation}/>
   {loading?<p role="status">{tr("loading")}</p>:
    problem||!item||item.id!==id?<div className="alert alert-warning" role="alert">
     {tr(problem==="missing"?"notFound":"unavailable")}
@@ -183,12 +188,12 @@ export default function RegistryDetail({id,teamId,canManage}:{
      id={prefix+"-panel-"+panel} aria-labelledby={prefix+"-tab-"+panel}
      tabIndex={tab===panel?0:-1} hidden={tab!==panel}>
      {tab===panel&&<>
-     {tab==="summary"&&<RegistrySummary key={item.id} item={item} teamId={teamId} canManage={canManage}
+     {tab==="summary"&&<RegistrySummary key={item.id} item={item} teamId={teamId} canManage={canManage} navigation={onward}
       onEditDescription={canManage&&typeof item.revision==="number"&&Number.isSafeInteger(item.revision)?
        ()=>setDescriptionEditing(true):undefined}/>}
      {tab==="relations"&&<>
       {sectionView("registryRelations",t("registryRelations.heading"),
-       <RegistryRelations id={id} type={item.type} canManage={false}/>)}
+       <RegistryRelations id={id} type={item.type} canManage={false} navigation={onward}/>)}
       {(item.type==="risk"||item.type==="obstacle"||item.type==="dependency")&&
        sectionView("registryCycles",t("registryCycles.heading"),
         <RegistryCycles id={id} canManage={false}/>)}
@@ -228,7 +233,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
         {item.dueOn&&<p className="mb-0">{tr("due")}: <time dateTime={item.dueOn}>{item.dueOn}</time></p>}
        </section>
        {sectionView("actionLinks",t("actionLinks.heading"),
-        <ActionLinks id={id} canManage={false}/>)}
+        <ActionLinks id={id} canManage={false} navigation={onward}/>)}
       </>}
      </>}
      </>}
