@@ -49,7 +49,6 @@ type Week=WeekRow&{member_id:string};
 type Exception=ExceptionRow&{member_id:string};
 type Location={member_id:string;effective_from:string;revision:number;country_iso2:string};
 type Holiday={country_code:string;holiday_date:string;name:string};
-type Coverage={country_code:string;calendar_year:number;status:string};
 type ClosureRow={id:string;name:string;start_on:string;end_on:string};
 
 export function parseTeamCalendarQuery(params:URLSearchParams,isAdmin:boolean):
@@ -147,16 +146,12 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
   exceptions.rows.length>5000||locations.rows.length>10000)
   throw Error("team-calendar-data-limit");
  const countries=[...new Set(locations.rows.map(x=>x.country_iso2))];
- const [holidays,coverage,categories,closures]=await Promise.all([
+ const [holidays,categories,closures]=await Promise.all([
   db.query<Holiday>([
    "SELECT country_code,holiday_date::text AS holiday_date,name",
    "FROM public.smn_national_holiday WHERE country_code=ANY($1::text[])",
    "AND holiday_date BETWEEN $2::date AND $3::date"
   ].join(" "),[countries,query.start,end]),
-  db.query<Coverage>([
-   "SELECT country_code,calendar_year,status FROM public.smn_national_calendar_coverage",
-   "WHERE country_code=ANY($1::text[]) AND calendar_year BETWEEN $2 AND $3"
-  ].join(" "),[countries,Number(query.start.slice(0,4)),Number(end.slice(0,4))]),
   isAdmin?db.query<{id:string;name:string}>(
    "SELECT id,name FROM public.smn_absence_category ORDER BY name,id LIMIT 101"):
    Promise.resolve({rows:[] as {id:string;name:string}[]}),
@@ -170,7 +165,6 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
  ]);
  if(closures.rows.length>100)throw Error("team-calendar-closures-limit");
  const countryHolidays=new Map(holidays.rows.map(h=>[h.country_code+":"+h.holiday_date,h.name]));
- const cover=new Map(coverage.rows.map(c=>[c.country_code+":"+c.calendar_year,c.status]));
  const collective:CollectiveDay[]=dates.map(date=>({
   date,assigned:0,reportedUnavailable:0,declaredAbsentMemberCount:0,hasNationalHoliday:false,known:0,unknown:0,availableMembers:0
  }));
@@ -190,8 +184,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
    const location=latestAt(personalLocations,date);
    const country=location?.country_iso2??null;
    const nationalName=country?countryHolidays.get(country+":"+date)??null:null;
-   const isNational=nationalName!==null?true:
-    country&&cover.get(country+":"+date.slice(0,4))==="configured"?false:null;
+   const isNational=nationalName!==null;
    const calendar=resolveCalendarDay(personalWeeks,personalExceptions,date);
    const active=personalAbsences.filter(a=>a.start_on<=date&&a.end_on>=date);
    const records=active.map(a=>({
