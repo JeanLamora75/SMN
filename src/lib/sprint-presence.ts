@@ -2,8 +2,13 @@
  * One available calendar half-day = 0.5 J/H; never multiply by developer,
  * contribution or allocation percentages. No claim of physical attendance. */
 export type AgileRole="scrumMaster"|"productOwner"|"developer";
+export type PresenceMissingSource="no-assignments"|"ambiguous-assignment"|
+ "assignment-version"|"work-calendar"|"member-country"|"national-coverage"|
+ "exceptional-meeting-participants"|"exceptional-meeting-work-slots";
 export type PresenceMember=Readonly<{
  memberId:string;displayName:string;presenceJh:number|null;
+ /** Diagnostic for live estimates only; no individual details in collective views. */
+ missingSources?:readonly PresenceMissingSource[];
  developmentJh:number|null;daysCount:number;unknownDays:number;
  /** Optional for closure snapshots created before the UX enhancement. */
  professionalFunction?:string|null;
@@ -21,6 +26,7 @@ export type PresenceUnavailable=Readonly<{
 export type SprintPresence=PresenceData|PresenceUnavailable;
 type CapacityDay=Readonly<{
  status:"calculated"|"not-calculable";availableHalfDays:number|null;
+ missing?:readonly PresenceMissingSource[];
 }>;
 type CapacityMember=Readonly<{
  memberId:string;displayName:string;totalJh:number|null;
@@ -39,7 +45,9 @@ export function presenceFromCapacity(report:CapacityPresenceInput):PresenceData{
    typeof member.displayName!=="string")throw Error("invalid-member");
   ids.add(member.memberId);
   let presence=0,unknownDays=0;
+  const missingSources=new Set<PresenceMissingSource>();
   for(const day of member.days){
+   if(day.status==="not-calculable")for(const missing of day.missing??[])missingSources.add(missing);
    if(day.status!=="calculated"||!Number.isInteger(day.availableHalfDays)||
     day.availableHalfDays===null||day.availableHalfDays<0||day.availableHalfDays>2){
     unknownDays++;continue;
@@ -50,7 +58,7 @@ export function presenceFromCapacity(report:CapacityPresenceInput):PresenceData{
   return {memberId:member.memberId,displayName:member.displayName,
    presenceJh:unknownDays===0?round(presence):null,
    developmentJh:knownDevelopment?member.totalJh:null,
-   daysCount:member.days.length,unknownDays};
+   daysCount:member.days.length,unknownDays,missingSources:[...missingSources].sort()};
  });
  const allKnown=members.every(m=>m.presenceJh!==null);
  const totalPresenceJh=allKnown?round(members.reduce((sum,m)=>sum+(m.presenceJh??0),0)):null;
