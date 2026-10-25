@@ -8,6 +8,7 @@ import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-t
 import {registryDetailTabs,registryBusinessTabKeys,type RegistryDetailTab} from "@/lib/registry-detail-tabs";
 import BootstrapIcon from "../../bootstrap-icon";
 import RegistrySectionDialog from "./registry-section-dialog";
+import RegistryFullEditModal from "./registry-full-edit-modal";
 import RegistryCoreEditor,{type RegistryCoreSection} from "./registry-core-editor";
 import RegistrySummary from "./registry-summary";
 import RegistryDescriptionEditor from "./registry-description-editor";
@@ -64,6 +65,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const [reload,setReload]=useState(0);
  const [tab,setTab]=useState<RegistryDetailTab>("summary");
  const [coreEditing,setCoreEditing]=useState<RegistryCoreSection|null>(null);
+ const [fullEditing,setFullEditing]=useState(false);
  const [businessEditing,setBusinessEditing]=useState<BusinessSection|null>(null);
  const [descriptionEditing,setDescriptionEditing]=useState(false);
  const prefix=useId();
@@ -175,7 +177,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
       <h1>{item.title}</h1>
       {canManage&&<button type="button" className="btn btn-sm btn-outline-secondary"
        aria-label={t("registryEdit.editNamed",{name:t("registryEdit.general")})}
-       onClick={()=>setCoreEditing("general")}>
+       onClick={()=>setFullEditing(true)}>
        <BootstrapIcon name="pencil-square"/>
       </button>}
      </div>
@@ -261,6 +263,8 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      Number.isSafeInteger(item.revision)&&
      <RegistryDescriptionEditor item={item} onSaved={descriptionUpdated}
       onDismiss={()=>setDescriptionEditing(false)}/>}
+    {canManage&&fullEditing&&<RegistryFullEditModal id={id} teamId={teamId}
+     onDismiss={()=>setFullEditing(false)} onSaved={retry}/>}
     {canManage&&coreEditing&&typeof item.revision==="number"&&
      Number.isSafeInteger(item.revision)&&
      <RegistrySectionDialog title={t(("registryEdit."+coreEditing) as Parameters<typeof t>[0])}
