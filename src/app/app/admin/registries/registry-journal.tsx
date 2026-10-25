@@ -193,7 +193,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage}:{
      onClick={()=>{setLinkedCreated(null);setChooseLinked(true);}}>
      {tr("createAnotherLinked")}
     </button>
-    <span className="small">{tr("backToSource")}</span>
+    <Link href={"/app/admin/registries/"+encodeURIComponent(itemId)} className="btn btn-sm btn-link">{tr("backToSource")}</Link>
    </div>}
   </div>}
   <div className="smn-registry-journal-filters" role="group" aria-label={tr("filters")}>
