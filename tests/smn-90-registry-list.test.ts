@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {parseRegistryFilters,readRegistryPage} from "../src/server/registries/list";
 import type {Client} from "pg";
 test("type, statut, pagination et longueurs contrôlés",()=>{
- assert.deepEqual(parseRegistryFilters(new URLSearchParams()),{type:"risk",search:"",status:"",owner:"",page:1});
+ assert.deepEqual(parseRegistryFilters(new URLSearchParams()),{type:"all",search:"",status:"",owner:"",page:1,lifecycle:"all",sort:"default",cycleId:""});
  assert.equal(parseRegistryFilters(new URLSearchParams("type=risk&status=cancelled")),null);
  assert.equal(parseRegistryFilters(new URLSearchParams("type=dependency&status=satisfied"))?.status,"satisfied");
  assert.equal(parseRegistryFilters(new URLSearchParams("page=-1")),null);
@@ -26,7 +26,7 @@ test("lecture user : aucune colonne nominative, aucun filtre responsable",async(
  const filters=parseRegistryFilters(new URLSearchParams("search=risk"))!;
  const result=await readRegistryPage(db,filters,false);
  assert.equal(result.state,"available");
- assert.ok(sql.some(s=>s.includes("ORDER BY r.occurred_on DESC")));
+ assert.ok(sql.some(s=>s.includes("ORDER BY CASE WHEN")&&s.includes("r.occurred_on DESC")));
  assert.ok(!sql.some(s=>s.includes('AS "owner"')));
  const blocked=await readRegistryPage(db,{...filters,owner:"Alice"},false);
  assert.deepEqual(blocked,{state:"forbidden"});
