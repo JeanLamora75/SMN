@@ -8,6 +8,33 @@ export type KanbanCapacityView={
  actualSource:string;gapJh:number|null;observedThrough:string|null;
  realStatus:string;missingSources:string[];
 };
+/** A closed Kanban report reads the exact Vn capacity, never the recalculated live engine. */
+export function parseFrozenKanbanCapacity(raw:unknown):KanbanCapacityView|null{
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
+ const payload=(raw as {capacity?:unknown}).capacity;
+ if(!payload||typeof payload!=="object"||Array.isArray(payload))return null;
+ const c=payload as Record<string,unknown>;
+ const numberOrNull=(v:unknown)=>v===null||typeof v==="number"&&Number.isFinite(v);
+ const stringOrNull=(v:unknown)=>v===null||typeof v==="string";
+ if(!numberOrNull(c.initialJh)||!numberOrNull(c.actualReferenceJh)||
+  !numberOrNull(c.actualManualJh)||!numberOrNull(c.actualRetainedJh)||
+  !numberOrNull(c.gapJh)||typeof c.initialProvenance!=="string"||
+  !stringOrNull(c.actualOpenedAt)||typeof c.actualSource!=="string"||
+  !stringOrNull(c.observedThrough)||
+  (c.realStatus!=="finished"&&c.realStatus!=="closed")||
+  !Array.isArray(c.missingSources)||!c.missingSources.every(value=>typeof value==="string"))
+  return null;
+ return {
+  initialJh:c.initialJh as number|null,initialProvenance:c.initialProvenance,
+  actualOpenedAt:c.actualOpenedAt as string|null,
+  actualReferenceJh:c.actualReferenceJh as number|null,
+  actualManualJh:c.actualManualJh as number|null,
+  actualRetainedJh:c.actualRetainedJh as number|null,
+  actualSource:c.actualSource,gapJh:c.gapJh as number|null,
+  observedThrough:c.observedThrough as string|null,
+  realStatus:c.realStatus,missingSources:[...c.missingSources]
+ };
+}
 export function safeKanbanGap(initial:number|null,real:number|null,status:string):number|null{
  if(status!=="finished"&&status!=="closed")return null;
  if(initial===null||real===null)return null;
