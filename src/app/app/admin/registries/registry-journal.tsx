@@ -70,7 +70,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
  };
  useEffect(()=>{
   const original=editingId?data?.comments.find(c=>c.id===editingId)?.text??"":null;
-  if(!draft.trim()&&(original===null||editingText===original))return;
+  if(draft.length===0&&(original===null||editingText===original))return;
   const guard=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};
   window.addEventListener("beforeunload",guard);
   return()=>window.removeEventListener("beforeunload",guard);
@@ -159,7 +159,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
   }catch{setVersions(old=>({...old,[commentId]:{state:"unavailable",items:[]}}));}
  };
  return <section className="smn-registry-journal" aria-label={tr("heading")}
-  data-registry-dirty={Boolean(draft.trim()||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
+  data-registry-dirty={Boolean(draft.length>0||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
   {canManage&&<form className="smn-registry-journal-compose" onSubmit={save}>
    <label className="form-label" htmlFor={editorId}>{tr("writeComment")}</label>
    <textarea className="form-control" id={editorId} rows={3} maxLength={4000}
