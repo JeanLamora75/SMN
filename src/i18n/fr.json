@@ -3377,7 +3377,17 @@
     "copiedSnapshot": "Copie conservée dans ce rapport",
     "undo": "Annuler",
     "redo": "Rétablir",
-    "stale": "Une requête ancienne a été rejetée."
+    "stale": "Une requête ancienne a été rejetée.",
+    "appearance": "Habillage du document",
+    "orientation": "Orientation A4",
+    "portrait": "Portrait",
+    "landscape": "Paysage",
+    "cover": "Couverture",
+    "toc": "Sommaire",
+    "coverTitle": "Titre de couverture",
+    "subtitle": "Sous-titre",
+    "footerText": "Texte du pied de page",
+    "tocPending": "Pagination exacte disponible lors du rendu final."
   },
   "reportsBlocks": {
     "kind": "Type de bloc",
