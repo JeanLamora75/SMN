@@ -2,8 +2,9 @@
 import Link from "next/link";
 import {useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {registryDetailHref,registryIndexPath,type RegistryNavigation} from "@/lib/registry-navigation";
 const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");};
-export default function MaterializeRisk({id,teamId,title,description,canManage,onSaved}:{id:string;teamId:string;title:string;description:string;canManage:boolean;onSaved?:()=>void}){
+export default function MaterializeRisk({id,teamId,title,description,canManage,navigation,onSaved}:{id:string;teamId:string;title:string;description:string;canManage:boolean;navigation?:RegistryNavigation;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("riskMaterialize."+k) as Parameters<typeof t>[0]);
  const [open,setOpen]=useState(false),[draftTitle,setDraftTitle]=useState(""),[draftDescription,setDraftDescription]=useState("");
  const [error,setError]=useState(false),[busy,setBusy]=useState(false),[created,setCreated]=useState<string|null>(null);
@@ -37,7 +38,7 @@ export default function MaterializeRisk({id,teamId,title,description,canManage,o
     <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={cancel}>{tr("cancel")}</button>
    </div>
   </div>}
-  {created&&<p role="status" className="mt-2"><Link href={"/app/admin/registries/"+encodeURIComponent(created)}>{tr("success")}</Link></p>}
+  {created&&<p role="status" className="mt-2"><Link href={registryDetailHref(created,navigation??{origin:registryIndexPath,trail:[]})}>{tr("success")}</Link></p>}
   {error&&<p role="alert" className="text-danger">{tr("error")}</p>}
  </section>;
 }
