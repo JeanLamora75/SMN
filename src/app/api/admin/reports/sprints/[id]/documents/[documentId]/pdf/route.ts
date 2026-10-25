@@ -6,6 +6,7 @@ import {renderStudioPdf} from "@/server/reports/studio-pdf-render";
 import {storeFinalPdfArchive} from "@/server/reports/pdf-archive-store";
 import {jsonResult} from "@/server/auth/request";
 import {getReportDocument} from "@/server/reports/report-documents";
+import {studioArchiveReference} from "@/server/reports/studio-archive-reference";
 export const dynamic="force-dynamic";export const runtime="nodejs";
 type P={params:Promise<{id:string;documentId:string}>};
 async function execute(req:NextRequest,{params}:P,archive:boolean){
@@ -29,7 +30,8 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   if(!latest||latest.revision!==expected)return {error:"revision-changed"} as const;
   if(!archive)return {bytes} as const;
   const doc=eligible.document;
-  const manifest=await storeFinalPdfArchive(db,bytes,{authorId:actor.id,language:doc.language,templateId:doc.templateId,teamId:doc.teamId,cycleId:doc.sprintId,cycleStatus:"draft",snapshotVersion:null,templateName:doc.title});
+  const inputReference=studioArchiveReference(doc);
+  const manifest=await storeFinalPdfArchive(db,bytes,{authorId:actor.id,language:doc.language,templateId:doc.templateId,teamId:doc.teamId,cycleId:doc.sprintId,cycleStatus:"draft",snapshotVersion:null,templateName:doc.title,optionsSnapshot:{studioDocumentId:inputReference.documentId,studioDocumentRevision:inputReference.documentRevision,studioSourceSha256:inputReference.sourceSha256}});
   return {manifest} as const;
  });
  if("error" in result)return jsonResult(result,result.error==="not-found"?404:result.error==="quality-blocked"?422:409);
