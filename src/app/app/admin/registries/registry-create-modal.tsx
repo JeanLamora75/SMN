@@ -66,7 +66,8 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  useEffect(()=>{
   const element=dialog.current;
   if(!element)return;
-  previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  if(!previousFocus.current||!element.contains(document.activeElement))
+   previousFocus.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
   if(!element.open)element.showModal();
   firstInput.current?.focus();
   return()=>{
