@@ -2763,7 +2763,8 @@
     "conflict": "This relationship has changed. Refresh before retrying.",
     "unavailable": "Relationships temporarily unavailable.",
     "invalid": "This association was rejected. Check the data or cycle.",
-    "closedCycle": "Closed cycle: unlink is forbidden."
+    "closedCycle": "Closed cycle: unlink is forbidden.",
+    "confirmUnlinkGoal": "Unlink this goal? Both the record and goal will be preserved."
   },
   "riskMaterialize": {
     "launch": "Create impediment",
