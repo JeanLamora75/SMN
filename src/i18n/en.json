@@ -3407,5 +3407,18 @@
     "source": "Source",
     "sourceUnknown": "Not specified",
     "noChartScale": "Chart scale unavailable without a comparable reference"
+  },
+  "reportsRefresh": {
+    "heading": "Data freshness",
+    "outdated": "Some Sprint values have changed since this report was saved.",
+    "current": "Compared metrics match their current sources.",
+    "metric": "Metric",
+    "before": "In report",
+    "after": "Current Sprint source",
+    "notComparable": "Not reliably comparable",
+    "unknown": "Not provided",
+    "confirm": "Refresh only sourced values? Comments and analyses will be preserved. Save current edits before confirming.",
+    "refresh": "Refresh values",
+    "failed": "Comparison or refresh is unavailable."
   }
 }
