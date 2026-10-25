@@ -3365,6 +3365,32 @@
     "unsaved": "Modifications non enregistrées",
     "unsavedWarning": "Enregistrez les modifications avant de quitter ce rapport.",
     "conflict": "Ce rapport a été modifié depuis son dernier chargement. Rechargez-le avant de poursuivre.",
-    "saveError": "Enregistrement impossible. Réessayez."
+    "saveError": "Enregistrement impossible. Réessayez.",
+    "up": "Monter",
+    "down": "Descendre"
+  },
+  "reportsBlocks": {
+    "kind": "Type de bloc",
+    "text": "Texte",
+    "table": "Tableau",
+    "chart": "Graphique",
+    "kpi": "Indicateur",
+    "image": "Image",
+    "add": "Ajouter un bloc",
+    "remove": "Supprimer",
+    "up": "Monter",
+    "down": "Descendre",
+    "properties": "Propriétés du bloc",
+    "title": "Titre",
+    "width": "Largeur",
+    "full": "Complète",
+    "half": "Demi-largeur",
+    "visible": "Afficher le bloc",
+    "metric": "Indicateur lié",
+    "unbound": "Aucune liaison",
+    "unknown": "Non renseigné",
+    "emptyText": "Texte à renseigner",
+    "imageLink": "Lien de l'image",
+    "imageMissing": "Image non renseignée"
   }
 }

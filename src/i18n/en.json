@@ -3365,6 +3365,32 @@
     "unsaved": "Unsaved changes",
     "unsavedWarning": "Save changes before leaving this report.",
     "conflict": "This report has changed since loading. Reload it before proceeding.",
-    "saveError": "Could not save. Try again."
+    "saveError": "Could not save. Try again.",
+    "up": "Move up",
+    "down": "Move down"
+  },
+  "reportsBlocks": {
+    "kind": "Block type",
+    "text": "Text",
+    "table": "Table",
+    "chart": "Chart",
+    "kpi": "KPI",
+    "image": "Image",
+    "add": "Add block",
+    "remove": "Remove",
+    "up": "Move up",
+    "down": "Move down",
+    "properties": "Block properties",
+    "title": "Title",
+    "width": "Width",
+    "full": "Full",
+    "half": "Half width",
+    "visible": "Show block",
+    "metric": "Linked metric",
+    "unbound": "No data link",
+    "unknown": "Not provided",
+    "emptyText": "Text not provided",
+    "imageLink": "Image link",
+    "imageMissing": "No image provided"
   }
 }

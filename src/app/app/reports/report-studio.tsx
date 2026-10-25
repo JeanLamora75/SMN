@@ -1,5 +1,7 @@
 "use client";
 import {useMemo,useState} from "react";
+import ReportBlocksEditor from "./report-blocks-editor";
+import {isReportBlock,moveItem,type ReportBlock} from "@/lib/report-studio-blocks";
 import {useTranslation} from "@/i18n/client";
 import type {ReportDocument} from "@/server/reports/report-documents";
 
@@ -20,6 +22,8 @@ export default function ReportStudio({document,readOnly}:{document:ReportDocumen
  const [saved,setSaved]=useState(true),[error,setError]=useState("");
  const change=(next:StudioContent)=>{setContent(next);setSaved(false);setError("");};
  const notes=content.userNotes??{};
+ const blocks:ReportBlock[]=Array.isArray(content.blocks)?content.blocks.filter(isReportBlock):[];
+ const moveSection=(index:number,direction:-1|1)=>change({...content,sections:moveItem(sections,index,direction)});
  const editNote=(key:string,value:string)=>change({...content,userNotes:{...notes,[key]:value}});
  const toggleSection=(key:string)=>change({...content,sections:sections.map(s=>s.key===key?{...s,visible:!s.visible}:s)});
  const save=async()=>{
@@ -51,7 +55,7 @@ export default function ReportStudio({document,readOnly}:{document:ReportDocumen
   <div className="d-flex flex-column flex-xl-row gap-3 align-items-start">
    {mode!=="preview"&&planOpen&&<aside className="border rounded p-3 w-100 flex-shrink-0" style={{maxWidth:244}} aria-label={tr("plan")}>
     <h2 className="h6">{tr("plan")}</h2><div className="d-grid gap-1">
-     {sections.map(s=><button key={s.key} type="button" className={"btn btn-sm text-start "+(selected===s.key?"btn-primary":"btn-outline-secondary")} onClick={()=>setSelected(s.key)}>{s.key}{!s.visible?" · "+tr("hidden"):""}</button>)}
+     {sections.map((s,i)=><div key={s.key} className="d-flex gap-1 align-items-center"><button type="button" className={"btn btn-sm text-start flex-grow-1 "+(selected===s.key?"btn-primary":"btn-outline-secondary")} onClick={()=>setSelected(s.key)}>{s.key}{!s.visible?" · "+tr("hidden"):""}</button>{!readOnly&&mode==="composition"&&<><button className="btn btn-sm btn-outline-secondary" type="button" disabled={i===0} aria-label={tr("up")} onClick={()=>moveSection(i,-1)}>↑</button><button type="button" className="btn btn-sm btn-outline-secondary" disabled={i===sections.length-1} aria-label={tr("down")} onClick={()=>moveSection(i,1)}>↓</button></>}</div>)}
     </div>
    </aside>}
    <main className="flex-grow-1 w-100 border rounded p-3" style={{minWidth:0,background:"var(--bs-secondary-bg)"}}>
@@ -65,6 +69,7 @@ export default function ReportStudio({document,readOnly}:{document:ReportDocumen
        <p className="text-dark" style={{whiteSpace:"pre-wrap"}}>{notes[s.key]||tr("noComment")}</p>}
      </section>)}
     </article>
+    <ReportBlocksEditor sections={sections} blocks={blocks} metrics={content.metrics??{}} selectedSection={selected} readOnly={readOnly} mode={mode} onChange={next=>change({...content,blocks:next})}/>
    </main>
    {mode==="composition"&&propertiesOpen&&<aside className="border rounded p-3 w-100 flex-shrink-0" style={{maxWidth:276}} aria-label={tr("properties")}>
     <h2 className="h6">{tr("properties")}</h2>
