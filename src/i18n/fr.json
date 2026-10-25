@@ -2387,6 +2387,9 @@
     "historyError": "Historique indisponible."
   },
   "registryList": {
+    "viewGroup": "Mode d’affichage du registre",
+    "listView": "Liste",
+    "cardsView": "Cartes",
     "due": "Échéance",
     "actions": "Actions",
     "actionsFor": "Actions pour « {title} »",
