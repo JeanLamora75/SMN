@@ -64,7 +64,9 @@ export function parseAuditPage(value:unknown):AuditPage|null{
    !(raw.after===null||obj(raw.after)))return null;
   events.push({
    id:raw.id,kind:raw.kind as AuditKind,revision:raw.revision as number|null,
-   at:raw.at as string,actorName:raw.actorName as string|null,
+   at:raw.at as string,
+   actorName:typeof raw.actorName==="string"&&
+    (!raw.actorName.trim()||uuid.test(raw.actorName))?null:raw.actorName as string|null,
    action:raw.action as AuditAction,
    before:raw.before as Record<string,unknown>|null,
    after:raw.after as Record<string,unknown>|null
