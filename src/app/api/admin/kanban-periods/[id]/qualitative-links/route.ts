@@ -20,6 +20,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
  const raw=await readJsonObject(req);
  if(!raw)return jsonResult({error:"invalid-input"},400);
+ const {id}=await params;
  try{const result=await withAuthDb(db=>changeKanbanQualitativeLink(db,actor.id,id,raw));
  return result.ok?jsonResult(result):jsonResult(result,result.error==="not-found"?404:result.error==="invalid-input"?400:409);
  }catch{return jsonResult({error:"service-unavailable"},503);}
