@@ -2390,7 +2390,14 @@
     "saved": "Modification enregistrée.",
     "discardEdit": "Abandonner la correction non enregistrée ?",
     "before": "Avant",
-    "after": "Après"
+    "after": "Après",
+    "createLinked": "Créer une fiche liée",
+    "chooseLinked": "Quel type de fiche créer ?",
+    "createdLinked": "Fiche liée créée et enregistrée.",
+    "viewLinked": "Voir la fiche",
+    "createAnotherLinked": "Créer une autre",
+    "backToSource": "Retour à la fiche source",
+    "linkedCreatedEvent": "Création d’une fiche liée"
   },
   "registryComments": {
     "add": "Ajouter un commentaire",

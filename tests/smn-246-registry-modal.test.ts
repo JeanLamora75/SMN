@@ -47,7 +47,8 @@ test("POST : les détails, les associations et les audits précèdent le commit 
 test("modale : champs généraux et métier avant une seule confirmation serveur",()=>{
  const code=file("src/app/app/admin/registries/registry-create-modal.tsx");
  assert.ok(code.includes("<dialog"));
- assert.ok(code.includes("registryTypes.map"));
+ assert.ok(code.includes("allowedTypes.map"));
+ assert.ok(code.includes("linkedFromJournal?linkedJournalTypes:registryTypes"));
  assert.ok(code.includes("registryStatuses[type].map"));
  for(const term of ["probability","impact","roam","requester","contributor","atRisk","rationale"])
   assert.ok(code.includes(term),term);

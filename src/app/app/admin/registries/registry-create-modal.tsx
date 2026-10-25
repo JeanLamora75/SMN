@@ -6,6 +6,7 @@ import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-t
 import {roamValues} from "@/lib/roam-values";
 import {levels} from "@/lib/risk-criticality";
 import type {Party} from "@/server/registries/dependency-parties";
+import {linkedJournalTypes} from "@/lib/registry-linked-creation";
 
 type Kind=""|"local"|"external";
 const nowInParis=()=>{
@@ -17,13 +18,16 @@ const nowInParis=()=>{
 };
 const uuidRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryCreateModal({teamId,initialType="risk",sourceId,cycleId,onDismiss,onCreated}:{
+export default function RegistryCreateModal({teamId,initialType="risk",sourceId,cycleId,linkedFromJournal=false,sourceTitle,onDismiss,onCreated}:{
  teamId:string;initialType?:RegistryType;sourceId?:string;cycleId?:string;
+ linkedFromJournal?:boolean;sourceTitle?:string;
  onDismiss:()=>void;onCreated:(id:string)=>void;
 }){
  const t=useTranslation(),tr=(key:string)=>t(("registryCreateModal."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const dialog=useRef<HTMLDialogElement>(null);
+ const requestId=useRef<string|null>(null);
+ const allowedTypes:readonly RegistryType[]=linkedFromJournal?linkedJournalTypes:registryTypes;
  const previousFocus=useRef<HTMLElement|null>(null);
  const firstInput=useRef<HTMLInputElement>(null);
  const titleId=useId();
@@ -52,6 +56,8 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState<"error"|"invalid"|"conflict"|"unavailable"|null>(null);
  const currentType=(next:RegistryType)=>{
+  if(!allowedTypes.includes(next))return;
+  requestId.current=null;
   setType(next);setStatus(registryStatuses[next][0]);
   setError(null);
  };
@@ -131,17 +137,23 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  );
  const save=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
-  if(busy||!title.trim()||partyIncomplete)return;
+  if(busy||!title.trim()||partyIncomplete||!allowedTypes.includes(type)||
+   linkedFromJournal&&!sourceId)return;
   setBusy(true);setError(null);
   try{
+   if(linkedFromJournal&&!requestId.current)requestId.current=window.crypto.randomUUID();
    const payload={
     teamId,type,title:title.trim(),occurredOn,status,description:description||null,
     owner:owner||null,dueOn:dueOn||null,comment:comment||null,
     details:details(),
+    ...(linkedFromJournal?{requestId:requestId.current}:{}),
     ...((type==="risk"||type==="obstacle")&&cycleId?{cycleId}:{}),
-    ...(sourceId?{sourceId}:{})
+    ...(!linkedFromJournal&&sourceId?{sourceId}:{})
    };
-   const response=await fetch("/api/admin/registries",{
+   const endpoint=linkedFromJournal?
+    "/api/admin/registries/"+encodeURIComponent(sourceId!)+"/linked":
+    "/api/admin/registries";
+   const response=await fetch(endpoint,{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(payload)
    });
@@ -162,21 +174,23 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  return <dialog ref={dialog} className="smn-registry-create-dialog"
   aria-labelledby={titleId} onCancel={cancel} onClose={onDismiss}>
   <form className="smn-registry-create-form" onSubmit={save}
-   onChangeCapture={()=>setDirty(true)} onInputCapture={()=>setDirty(true)}>
+   onChangeCapture={()=>{setDirty(true);requestId.current=null;}}
+   onInputCapture={()=>{setDirty(true);requestId.current=null;}}>
    <header className="smn-registry-create-header">
     <h2 className="h5 mb-0" id={titleId}>{tr("heading")}</h2>
     <button className="btn-close" type="button" disabled={busy}
      aria-label={tr("cancel")} onClick={close}/>
    </header>
    <div className="smn-registry-create-body">
-    {sourceId&&<p className="small text-body-secondary">{tr("source")}</p>}
+    {sourceId&&<p className="small text-body-secondary">{tr("source")}
+     {sourceTitle&&<strong className="ms-1">{sourceTitle}</strong>}</p>}
     <div className="row g-2">
      <div className="col-sm-6">
       <label className="form-label" htmlFor={titleId+"-type"}>{label("type")}</label>
       <select id={titleId+"-type"}
        className="form-select" value={type} disabled={busy}
        onChange={e=>currentType(e.target.value as RegistryType)}>
-       {registryTypes.map(x=><option key={x} value={x}>{label(x)}</option>)}
+       {allowedTypes.map(x=><option key={x} value={x}>{label(x)}</option>)}
       </select>
      </div>
      <div className="col-sm-6">

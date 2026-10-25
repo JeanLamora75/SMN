@@ -2390,7 +2390,14 @@
     "saved": "Change saved.",
     "discardEdit": "Discard the unsaved correction?",
     "before": "Before",
-    "after": "After"
+    "after": "After",
+    "createLinked": "Create linked record",
+    "chooseLinked": "Which type of record?",
+    "createdLinked": "Linked record created and saved.",
+    "viewLinked": "View record",
+    "createAnotherLinked": "Create another",
+    "backToSource": "Back to source record",
+    "linkedCreatedEvent": "Linked record created"
   },
   "registryComments": {
     "add": "Add comment",

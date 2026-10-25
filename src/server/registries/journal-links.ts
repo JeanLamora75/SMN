@@ -3,7 +3,7 @@ import type {Client} from "pg";
 const idRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type RegistryJournalLink={
  id:string;recordId:string;title:string;type:"action"|"decision"|"highlight";
- recordedAt:string;authorName:string|null;
+ recordedAt:string;authorName:string|null;eventKind:"created"|"linked";
 };
 
 /** A journal event is sourced from an audited, currently linked relation.
@@ -16,10 +16,19 @@ export async function readRegistryJournalLinks(
  const ready=await db.query<{ready:boolean}>(`SELECT to_regclass('public.smn_registry_relation') IS NOT NULL AND
   to_regclass('public.smn_registry_relation_audit') IS NOT NULL AS ready`);
  if(!ready.rows[0]?.ready)return [];
+ const marker=await db.query<{ready:boolean}>(`SELECT
+  to_regclass('public.smn_registry_linked_request') IS NOT NULL AS ready`);
+ const createdJoin=marker.rows[0]?.ready?
+  `LEFT JOIN public.smn_registry_linked_request journal_origin
+   ON journal_origin.source_id=base.id AND journal_origin.new_item_id=r.id
+    AND journal_origin.created_at=a.changed_at`:
+  `LEFT JOIN LATERAL (SELECT NULL::text AS new_item_id) journal_origin ON true`;
  const result=await db.query<RegistryJournalLink>(`SELECT
    a.id,r.id AS "recordId",r.title,r.type,
    a.changed_at::text AS "recordedAt",
-   ${canReadNames?"author.username":"NULL::text"} AS "authorName"
+   ${canReadNames?"author.username":"NULL::text"} AS "authorName",
+   CASE WHEN journal_origin.new_item_id IS NOT NULL THEN 'created'
+    ELSE 'linked' END AS "eventKind"
   FROM public.smn_registry_item base
   JOIN public.smn_team t ON t.id=base.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
@@ -37,6 +46,7 @@ export async function readRegistryJournalLinks(
     AND l.created_at<=audit.changed_at
    ORDER BY audit.changed_at DESC,audit.id DESC LIMIT 1
   ) a ON true
+  ${createdJoin}
   LEFT JOIN public.smn_account author ON author.id=a.actor_id
   WHERE base.id=$1 AND i.id='singleton' AND i.state='initialized'
    AND lower(i.mode) IN ('scrum','kanban')
