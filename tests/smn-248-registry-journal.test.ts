@@ -68,10 +68,10 @@ test("AC1 / RBAC : audit d'association réelle seulement, cible bornée à l'éq
  assert.deepEqual(result,[link]);
  const statement=queries.at(-1)!;
  assert.match(statement,/smn_registry_relation_audit/);
- assert.match(statement,/a\.action='linked'/);
+ assert.match(statement,/audit\.action='linked'/);
  assert.match(statement,/r\.team_id=base\.team_id/);
  assert.match(statement,/l\.created_at<=a\.changed_at/);
- assert.match(statement,/target\.type IN \('action','decision','highlight'\)/);
+ assert.match(statement,/r\.type IN \('action','decision','highlight'\)/);
 });
 test("AC5 : aucun lien fictif si tables d'associations absentes",async()=>{
  const db={query:async(sql:string)=>({
@@ -84,7 +84,7 @@ test("AC2 : saisie inline, POST confirmé avant nettoyage, brouillon conservé s
  assert.match(ui,/role="status"/);
  assert.match(ui,/method:"POST"/);
  assert.match(ui,/response\.status!==201/);
- assert.match(ui,/setDraft\(" "\.trim\(\)\)/);
+ assert.match(ui,/setDraft\(""\)/);
  assert.match(ui,/setError\("unavailable"\)/);
  assert.ok(!ui.includes("<dialog"));
 });
