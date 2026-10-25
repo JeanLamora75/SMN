@@ -18,6 +18,6 @@ export async function GET(req:NextRequest){
   }
   const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
   return readAttention(db,team.rows[0].id,cycleId,today);
- });return jsonResult(result,"error" in result?404:200);}
+ });return jsonResult(result,"error" in result?(result.error==="not-found"?404:503):result.state==="unavailable"?503:200);}
  catch{return jsonResult({error:"service-unavailable"},503);}
 }
