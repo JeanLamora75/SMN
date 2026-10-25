@@ -110,7 +110,7 @@ test("AC3/AC5 : la route liée refuse l'écriture user, et dérive l'origine de 
  const api=read("src/app/api/admin/registries/[id]/linked/route.ts");
  assert.match(api,/authorizeApi\(req,"write",\{type:"settings"/);
  assert.match(api,/parseLinkedJournalCreation/);
- assert.match(api,/createRegistryItem\(db,actor\.id,\{\.\.\.parsed,sourceId:id\},requestId\)/);
+ assert.match(api,/createRegistryItem\(db,actor\.id,\{\.\.\.fields,sourceId:id\},requestId\)/);
  assert.match(api,/403/);
  assert.match(api,/409/);
  assert.match(api,/503/);
