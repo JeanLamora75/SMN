@@ -18,7 +18,8 @@ export default function RegistrySectionDialog({title,onDismiss,children,wide=fal
  useEffect(()=>{
   const element=ref.current;
   if(!element)return;
-  origin.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  if(!origin.current||!element.contains(document.activeElement))
+   origin.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
   if(!element.open)element.showModal();
   return()=>{
    // L’événement onClose est réservé à une fermeture explicite, pas au cleanup StrictMode.
