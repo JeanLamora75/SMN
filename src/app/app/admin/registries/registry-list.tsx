@@ -131,7 +131,7 @@ export default function RegistryList({canManage,initialType="all"}:{
      </button>
     </div>
     {canManage&&<Link className="btn btn-primary" href="/app/admin/registries/create">{translate("create")}</Link>}
-   </div>}
+   </div>
   </header>
   <div className="nav nav-tabs flex-wrap d-none d-md-flex" role="tablist" aria-label={translate("heading")}>
    {(["all",...registryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
