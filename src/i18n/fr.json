@@ -3407,5 +3407,18 @@
     "source": "Provenance",
     "sourceUnknown": "Non précisée",
     "noChartScale": "Échelle graphique indisponible sans référence comparable"
+  },
+  "reportsRefresh": {
+    "heading": "Fraîcheur des données",
+    "outdated": "Des valeurs du Sprint ont changé depuis l'enregistrement du rapport.",
+    "current": "Les indicateurs comparés correspondent aux sources actuelles.",
+    "metric": "Indicateur",
+    "before": "Dans le rapport",
+    "after": "Source du Sprint",
+    "notComparable": "Comparaison incertaine",
+    "unknown": "Non renseigné",
+    "confirm": "Actualiser uniquement les indicateurs sourcés ? Les commentaires et analyses seront conservés. Enregistrez vos modifications en cours avant de confirmer.",
+    "refresh": "Actualiser les valeurs",
+    "failed": "Comparaison ou actualisation indisponible."
   }
 }
