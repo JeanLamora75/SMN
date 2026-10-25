@@ -142,7 +142,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
     <div className="row g-2">
      <div className="col-sm-6">
       <label className="form-label" htmlFor={titleId+"-type"}>{label("type")}</label>
-      <select ref={node=>{if(node)firstInput.current=null;}} id={titleId+"-type"}
+      <select id={titleId+"-type"}
        className="form-select" value={type} disabled={busy}
        onChange={e=>currentType(e.target.value as RegistryType)}>
        {registryTypes.map(x=><option key={x} value={x}>{label(x)}</option>)}
