@@ -2952,6 +2952,20 @@
       "7": "Dimanche"
     }
   },
+  "kanbanTrends": {
+    "started": "Éléments commencés",
+    "throughput": "Éléments terminés (Throughput)",
+    "wipFinal": "WIP final",
+    "units": "Nombre d’éléments · périodes clôturées",
+    "unknown": "Non renseigné",
+    "none": "Aucune valeur enregistrée.",
+    "noPeriods": "Aucune période clôturée éligible pour cette comparaison.",
+    "loading": "Chargement des tendances…",
+    "unavailable": "Tendances indisponibles.",
+    "retry": "Réessayer",
+    "unit": "éléments",
+    "aria": "Tendance des {name}"
+  },
   "kanbanPeriod": {
     "title": "Créer une période Kanban",
     "intro": "Une période à la fois. La création est immédiate et n'entraîne aucune création de période suivante.",
