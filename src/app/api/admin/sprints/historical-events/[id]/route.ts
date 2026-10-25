@@ -9,7 +9,8 @@ export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}
  if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
  const body=await readJsonObject(req);
  if(!body)return jsonResult({error:"invalid-input"},400);
- try{const result=await withAuthDb(db=>correctHistoricalEvent(db,actor.id,(await params).id,body));
+ const {id}=await params;
+ try{const result=await withAuthDb(db=>correctHistoricalEvent(db,actor.id,id,body));
  return jsonResult(result,result.ok?200:result.error==="invalid-input"?400:result.error==="not-found"?404:409);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
