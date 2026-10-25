@@ -2595,6 +2595,12 @@
     "dependency": "Dépendance"
   },
   "registryAttention": {
+    "count": "{count} point(s) d’attention",
+    "countLoading": "Nombre en cours de chargement",
+    "countUnavailable": "Nombre indisponible",
+    "expand": "Déployer",
+    "collapse": "Replier",
+    "retry": "Réessayer",
     "heading": "Points d’attention collectifs",
     "intro": "Signaux calculés à partir des fiches enregistrées, sans modification automatique.",
     "empty": "Aucun point d’attention collectif.",

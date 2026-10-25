@@ -4,7 +4,9 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 import type {RegistryScope,RegistryLifecycle,RegistrySort} from "@/server/registries/list";
-import RegistryListRow,{type RegistryListItem,type RegistrySignal} from "./registry-list-row";
+import RegistryListRow,{type RegistryListItem} from "./registry-list-row";
+import AttentionCockpit from "./attention-cockpit";
+import {parseRegistryAttentionPayload,type RegistryAttentionEntry} from "@/lib/registry-attention-view";
 import RegistryCard from "./registry-card";
 import BootstrapIcon from "../../bootstrap-icon";
 import {parseRegistryDisplayView,registryDisplayPreferenceKey,type RegistryDisplayView} from "@/lib/registry-display-view";
@@ -31,7 +33,8 @@ export default function RegistryList({canManage,initialType="all"}:{
  const [error,setError]=useState(false),[loading,setLoading]=useState(true);
  const [refresh,setRefresh]=useState(0);
  const [cycles,setCycles]=useState<Cycle[]>([]);
- const [attention,setAttention]=useState<RegistrySignal[]|null>(null);
+ const [attention,setAttention]=useState<RegistryAttentionEntry[]|null>(null);
+ const [attentionRefresh,setAttentionRefresh]=useState(0);
  const [attentionError,setAttentionError]=useState(false);
  const [attentionLoading,setAttentionLoading]=useState(true);
  const [cycleRefresh,setCycleRefresh]=useState(0);
@@ -55,25 +58,28 @@ export default function RegistryList({canManage,initialType="all"}:{
  };
  useEffect(()=>{
   const ctrl=new AbortController();
-  const reasons=new Set(["highRisk","obstacle","atRisk","upcoming","overdue"]);
   void fetch("/api/admin/registries/attention",{cache:"no-store",signal:ctrl.signal})
    .then(async response=>{
     if(!response.ok)throw Error("attention-unavailable");
-    return response.json() as Promise<{alerts:unknown}>;
+    const result=parseRegistryAttentionPayload(await response.json() as unknown);
+    if(!result)throw Error("invalid-attention-payload");
+    return result;
    })
-   .then(data=>{
+   .then(result=>{
     if(ctrl.signal.aborted)return;
-    if(!Array.isArray(data.alerts)||data.alerts.some(signal=>
-     !signal||typeof signal!=="object"||
-     typeof signal.id!=="string"||typeof signal.reason!=="string"||
-     !reasons.has(signal.reason)))throw Error("invalid-attention-data");
-    setAttention(data.alerts as RegistrySignal[]);
-    setAttentionError(false);
+    setAttention(result.alerts);setAttentionError(false);
    })
-   .catch(()=>{if(!ctrl.signal.aborted){setAttention(null);setAttentionError(true);}})
+   .catch(()=>{
+    if(ctrl.signal.aborted)return;
+    setAttention(null);setAttentionError(true);
+   })
    .finally(()=>{if(!ctrl.signal.aborted)setAttentionLoading(false);});
   return()=>ctrl.abort();
- },[]);
+ },[attentionRefresh]);
+ const retryAttention=()=>{
+  setAttention(null);setAttentionError(false);setAttentionLoading(true);
+  setAttentionRefresh(n=>n+1);
+ };
  const filtered=type!=="all"||query.search!==""||query.status!==""||
   query.owner!==""||query.cycleId!==""||query.lifecycle!=="all";
  const statuses=type==="all"
@@ -117,6 +123,8 @@ export default function RegistryList({canManage,initialType="all"}:{
   setDraft(defaults);setQuery(defaults);setPage(1);setLoading(true);
  };
  return <section className="d-grid gap-3">
+  <AttentionCockpit items={attention} error={attentionError}
+   loading={attentionLoading} onRetry={retryAttention}/>
   <header className="d-flex gap-3 align-items-center justify-content-between flex-wrap">
    <div><h1>{translate("heading")}</h1>{!canManage&&<span className="text-body-secondary">{translate("readonly")}</span>}</div>
    <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
@@ -208,8 +216,6 @@ export default function RegistryList({canManage,initialType="all"}:{
    result?.state!=="available"?<div role="alert" className="alert alert-warning">{translate("error")}</div>:
    <div className="d-grid gap-2">
     <p className="small text-body-secondary">{translate("team")}: {result.team.name}</p>
-    {attentionLoading&&<p role="status" className="small text-body-secondary mb-0">{translate("attentionLoading")}</p>}
-    {attentionError&&<p role="alert" className="small text-danger mb-0">{translate("attentionUnavailable")}</p>}
     {result.items.length===0?<div role="status" className="alert alert-light border">
      {translate(filtered?"empty":"emptyInitial")}
      {filtered&&<button type="button" className="btn btn-outline-secondary btn-sm ms-2"

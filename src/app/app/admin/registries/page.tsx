@@ -4,7 +4,6 @@ import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import RegistryList from "./registry-list";
 import {registryTypes,type RegistryType} from "@/lib/registry-types";
-import AttentionCockpit from "./attention-cockpit";
 export const dynamic="force-dynamic";
 export default async function RegistriesPage({searchParams}:{
  searchParams:Promise<{type?:string}>;
@@ -21,6 +20,6 @@ export default async function RegistriesPage({searchParams}:{
   return r.rows.length===1?r.rows[0].id:null;
  }).catch(()=>null);
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-  {teamId?<><AttentionCockpit/><RegistryList canManage={actor.role==="admin"} initialType={initialType}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
+  {teamId?<><RegistryList canManage={actor.role==="admin"} initialType={initialType}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
 }
