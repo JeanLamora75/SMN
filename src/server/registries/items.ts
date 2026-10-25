@@ -105,7 +105,7 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown,re
     source_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
     actor_id text NOT NULL REFERENCES public.smn_account(id) ON DELETE RESTRICT,
     request_fingerprint text NOT NULL,
-    new_item_id text NOT NULL REFERENCES public.smn_registry_item(id)
+    new_item_id text NOT NULL UNIQUE REFERENCES public.smn_registry_item(id)
      DEFERRABLE INITIALLY DEFERRED,
     created_at timestamptz NOT NULL DEFAULT now())`);
    const fingerprint=createHash("sha256").update(JSON.stringify({
