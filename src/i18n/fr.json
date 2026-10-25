@@ -2,7 +2,6 @@
   "common": {
     "translationUnavailable": "Traduction indisponible.",
     "retry": "Réessayer",
-    "saved": "Modification enregistrée.",
     "signIn": "Se connecter",
     "home": "Accueil",
     "save": "Enregistrer"
@@ -2388,6 +2387,7 @@
     "loading": "Chargement du journal…",
     "unavailable": "Le journal est indisponible.",
     "retry": "Réessayer",
+    "saved": "Modification enregistrée.",
     "before": "Avant",
     "after": "Après"
   },
