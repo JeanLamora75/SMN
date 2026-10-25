@@ -145,15 +145,18 @@ describe("SMN-55 : calendrier d'équipe selon le rôle",()=>{
   assert.equal(b.collective[0].reportedUnavailable,1);
   assert.equal(JSON.stringify(b).includes("Mme Exemple"),false);
  });
- it("n'invente pas de disponibilité si la trame ou la couverture nationale est inconnue",async()=>{
+ it("seul un calendrier individuel manquant bloque la disponibilité",async()=>{
   const schedule=await readTeamCalendar(fakeDb({unknownCalendar:true}).db,query(),true);
   assert.equal(schedule.collective[0].unknown,1);
   assert.equal(schedule.admin!.members[0].days[0].deductedHalfDays,null);
   const coverage=await readTeamCalendar(fakeDb({
    holiday:false,unknownCoverage:true
   }).db,query(),true);
-  assert.equal(coverage.collective[0].unknown,1);
-  assert.equal(coverage.collective[0].availableMembers,0);
+  assert.equal(coverage.collective[0].unknown,0);
+  assert.equal(coverage.collective[0].known,1);
+  assert.equal(coverage.admin!.members[0].days[0].status,"known");
+  assert.equal(coverage.admin!.members[0].days[3].availableSlots?.morning,true);
+  assert.equal(coverage.collective[3].availableMembers,1);
  });
  it("applique les filtres type et catégorie sur les détails, jamais sur les données stockées",async()=>{
   const unplanned=await readTeamCalendar(fakeDb().db,
