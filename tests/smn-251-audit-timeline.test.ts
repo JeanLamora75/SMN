@@ -2,13 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import type {Client} from "pg";
 import {readFileSync} from "node:fs";
-import {parseAuditPage,changedFields,formatAuditValue} from "../src/lib/registry-audit-timeline";
+import {parseAuditPage,changedFields,formatAuditValue,type AuditEvent} from "../src/lib/registry-audit-timeline";
 import {readRegistryAuditTimeline} from "../src/server/registries/audit-timeline";
 const file=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const id="11111111-1111-4111-8111-111111111111";
 const auditId="22222222-2222-4222-8222-222222222222";
 const at="2026-10-25 16:30:00+01";
-const row={id:auditId,kind:"record",revision:2,at,actorName:"admin",
+const row:AuditEvent={id:auditId,kind:"record",revision:2,at,actorName:"admin",
  action:"updated",before:{title:"Avant",status:"open",description:null,revision:1},
  after:{title:"Après",status:"open",description:null,revision:2}};
 
