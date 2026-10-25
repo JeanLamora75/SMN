@@ -7,17 +7,19 @@ import {parseSummaryCycles,parseSummaryRelations,validRegistryActivityTime,
  type SummaryRelation,type SummaryCycle,type SummaryContext} from "@/lib/registry-summary-context";
 import BootstrapIcon from "../../bootstrap-icon";
 import RegistryJournal from "./registry-journal";
+import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
 
 export type RegistrySummaryItem={
  id:string;type:string;title:string;description:string|null;
  comment?:string|null;revision?:number;
  createdAt?:string;updatedAt?:string;
 };
-type Props={item:RegistrySummaryItem;teamId:string;canManage:boolean;onEditDescription?:()=>void};
+type Props={item:RegistrySummaryItem;teamId:string;canManage:boolean;
+ navigation:RegistryNavigation;onEditDescription?:()=>void};
 const initialRelations:SummaryContext<SummaryRelation>={state:"loading"};
 const initialCycles:SummaryContext<SummaryCycle>={state:"loading"};
 
-export default function RegistrySummary({item,teamId,canManage,onEditDescription}:Props){
+export default function RegistrySummary({item,teamId,canManage,navigation,onEditDescription}:Props){
  const t=useTranslation(),locale=useLocale(),tr=(key:string)=>t(("registrySummary."+key) as Parameters<typeof t>[0]);
  const [relations,setRelations]=useState<SummaryContext<SummaryRelation>>(initialRelations);
  const [cycles,setCycles]=useState<SummaryContext<SummaryCycle>>(initialCycles);
@@ -81,7 +83,7 @@ export default function RegistrySummary({item,teamId,canManage,onEditDescription
    <section className="smn-registry-summary-panel" aria-labelledby="registry-summary-journal-title">
     <h2 className="h5" id="registry-summary-journal-title">{tr("journal")}</h2>
     <RegistryJournal key={item.id} itemId={item.id} itemTitle={item.title}
-     teamId={teamId} canManage={canManage}/>
+     teamId={teamId} canManage={canManage} navigation={navigation}/>
    </section>
   </div>
   <aside className="smn-registry-summary-side" aria-label={tr("context")}>
@@ -107,7 +109,7 @@ export default function RegistrySummary({item,teamId,canManage,onEditDescription
      <ul className="smn-registry-summary-links">{relations.items.map(r=>{
       const record=linkedRecord(r);
       return <li key={r.id}>{record?
-       <Link href={"/app/admin/registries/"+encodeURIComponent(record.id)}>{record.title}</Link>:
+       <Link href={registryDetailHref(record.id,navigation)}>{record.title}</Link>:
        <span>{tr("goal")}: {r.targetTitle}</span>}</li>;
      })}</ul>}
    </section>
