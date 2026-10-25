@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import {utcOffsetLabel} from "@/lib/iana-utc-offset";
 type Member={id:string;displayName:string;email:string|null;professionalFunction?:string|null;revision:number};
 type Location={revision:number;countryIso2:string|null;region:string|null;city:string|null;timeZone:string|null};
 type LocationState={today:string;current:Location|null;versions:{revision:number;effective_from:string;country_iso2:string|null;region:string|null;city:string|null;time_zone:string|null}[];suggestedCountryIso2:string|null};
@@ -62,8 +63,8 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
    <div className="col-md-3"><label className="form-label">{t("memberUX.cityLabel")}<input className="form-control" value={city} onChange={e=>setCity(e.target.value)} maxLength={120} disabled={busy||!location}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.zoneLabel")}<select className="form-select" value={zone} onChange={e=>setZone(e.target.value)} disabled={busy||!location}>
     <option value="">— Aucun fuseau horaire —</option>
-    {zone&&!timeZones.includes(zone)&&<option value={zone}>{zone} (existant)</option>}
-    {timeZones.map(z=><option key={z} value={z}>{z}</option>)}
+    {zone&&!timeZones.includes(zone)&&<option value={zone}>{zone} ({utcOffsetLabel(zone)}) — existant</option>}
+    {timeZones.map(z=><option key={z} value={z}>{z} ({utcOffsetLabel(z)})</option>)}
    </select></label></div>
   </div>
   {error&&<p className="alert alert-warning" role="alert">{error}</p>}
