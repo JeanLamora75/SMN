@@ -12,7 +12,7 @@ const comment={id:"33333333-3333-4333-8333-333333333333",text:"Suivi vérifié",
  edited:false,withdrawn:false,authorName:"admin",editorName:null,withdrawnByName:null};
 const link={id:"44444444-4444-4444-8444-444444444444",recordId:actionId,
  title:"Action réelle",type:"action",recordedAt:"2026-10-25 10:00:00+00",
- authorName:"admin"};
+ authorName:"admin",eventKind:"linked"};
 const payload={comments:[comment],events:[link],legacy:null};
 
 test("AC1 : construit une chronologie du plus récent au plus ancien, sans inventer de création",()=>{
@@ -152,4 +152,13 @@ test("AC2/AC3 : le brouillon de correction est protégé et seuls les administra
  assert.match(ui,/readVersions\(entry\.comment\.id,true\)/);
  assert.match(ui,/aria-controls=\{editorId\+"-versions-"/);
  assert.match(ui,/setSuccess\(true\)/);
+});
+
+test("création liée explicitement prouvée : événement de création distinct de l'association",()=>{
+ const p=parseJournalPayload({comments:[],events:[{...link,eventKind:"created"}],legacy:null});
+ assert.ok(p);
+ const entries=buildJournalEntries(p);
+ assert.equal(entries[0].kind,"link");
+ if(entries[0].kind==="link")assert.equal(entries[0].eventKind,"created");
+ assert.equal(parseJournalPayload({comments:[],events:[{...link,eventKind:"invented"}],legacy:null}),null);
 });
