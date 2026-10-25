@@ -9,6 +9,7 @@ import AttentionCockpit from "./attention-cockpit";
 import {parseRegistryAttentionPayload,type RegistryAttentionEntry} from "@/lib/registry-attention-view";
 import RegistryCard from "./registry-card";
 import RegistryCreateModal from "./registry-create-modal";
+import RegistryEditModal from "./registry-edit-modal";
 import BootstrapIcon from "../../bootstrap-icon";
 import {registryDetailHref} from "@/lib/registry-navigation";
 import {parseRegistryDisplayView,registryDisplayPreferenceKey,type RegistryDisplayView} from "@/lib/registry-display-view";
@@ -31,6 +32,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const [type,setType]=useState<RegistryScope>(initialType);
  const [createOpen,setCreateOpen]=useState(initialCreate&&canManage);
  const [createdId,setCreatedId]=useState<string|null>(null);
+ const [editingId,setEditingId]=useState<string|null>(null);
  const [view,setView]=useState<RegistryDisplayView>("list");
  const [draft,setDraft]=useState<Filters>(defaults);
  const [query,setQuery]=useState<Filters>(defaults);
@@ -50,6 +52,22 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const label=(value:string)=>t(("registryCreate."+value) as Parameters<typeof t>[0]);
  const translate=(value:string)=>t(("registryList."+value) as Parameters<typeof t>[0]);
  const patch=(next:Partial<Filters>)=>setDraft(old=>({...old,...next}));
+ const apply=(next:Partial<Filters>)=>{
+  if(Object.entries(next).every(([key,value])=>query[key as keyof Filters]===value)&&page===1)return;
+  setDraft(old=>({...old,...next}));setQuery(old=>({...old,...next}));
+  setPage(1);setLoading(true);scrollRestored.current=true;
+ };
+ useEffect(()=>{
+  if(!restored)return;
+  const timer=window.setTimeout(()=>{
+   const search=draft.search.trim(),owner=canManage?draft.owner.trim():"";
+   if(search!==query.search||owner!==query.owner){
+    setQuery(old=>({...old,search,owner}));
+    setPage(1);setLoading(true);scrollRestored.current=true;
+   }
+  },350);
+  return()=>window.clearTimeout(timer);
+ },[draft.search,draft.owner,query.search,query.owner,canManage,restored]);
  // URL is the source of truth for filters and pagination; local storage only chooses the default view.
  useEffect(()=>{
   const read=()=>{
@@ -71,7 +89,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   };
   let active=true;
   void Promise.resolve().then(()=>{if(active){read();setRestored(true);}});
-  const onPop=()=>{scrollRestored.current=false;read();};
+  const onPop=()=>{scrollRestored.current=false;read();setRefresh(n=>n+1);};
   window.addEventListener("popstate",onPop);
   return()=>{active=false;window.removeEventListener("popstate",onPop);};
  },[canManage]);
@@ -182,6 +200,8 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   setAttentionRefresh(n=>n+1);
  };
  const createAnother=()=>{setCreatedId(null);setCreateOpen(true);};
+ const edited=()=>{setEditingId(null);setLoading(true);setRefresh(n=>n+1);
+  setAttentionLoading(true);setAttentionRefresh(n=>n+1);};
  const choose=(next:RegistryScope)=>{
   setType(next);setDraft(old=>({...old,status:""}));
   setQuery(old=>({...old,status:""}));setPage(1);setLoading(true);
@@ -251,7 +271,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    <div className="col-md-3">
     <label className="form-label" htmlFor="reg-lifecycle">{translate("lifecycle")}</label>
     <select id="reg-lifecycle" className="form-select" value={draft.lifecycle}
-     onChange={e=>patch({lifecycle:e.target.value as RegistryLifecycle})}>
+     onChange={e=>apply({lifecycle:e.target.value as RegistryLifecycle})}>
      <option value="all">{translate("allItems")}</option>
      <option value="followup">{translate("followup")}</option>
      <option value="final">{translate("final")}</option>
@@ -260,7 +280,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    <div className="col-md-4">
     <label className="form-label" htmlFor="reg-cycle">{translate("cycle")}</label>
     <select id="reg-cycle" className="form-select" value={draft.cycleId}
-     disabled={cycleError||cyclesLoading} onChange={e=>patch({cycleId:e.target.value})}>
+     disabled={cycleError||cyclesLoading} onChange={e=>apply({cycleId:e.target.value})}>
      <option value="">{translate("allCycles")}</option>
      {cycles.map(cycle=><option key={cycle.id} value={cycle.id}>{cycle.name}</option>)}
     </select>
@@ -270,7 +290,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    <div className="col-md-3">
     <label className="form-label" htmlFor="reg-status">{translate("status")}</label>
     <select id="reg-status" className="form-select" value={draft.status}
-     onChange={e=>patch({status:e.target.value})}>
+     onChange={e=>apply({status:e.target.value})}>
      <option value="">{translate("allStatuses")}</option>
      {statuses.map(value=><option key={value} value={value}>{label(value)}</option>)}
     </select>
@@ -278,7 +298,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    <div className="col-md-3">
     <label className="form-label" htmlFor="reg-sort">{translate("sort")}</label>
     <select id="reg-sort" className="form-select" value={draft.sort}
-     onChange={e=>patch({sort:e.target.value as RegistrySort})}>
+     onChange={e=>apply({sort:e.target.value as RegistrySort})}>
      {sortValues.map(value=><option key={value} value={value}>{translate("sort"+value[0].toUpperCase()+value.slice(1))}</option>)}
     </select>
    </div>
@@ -317,13 +337,13 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
        <th scope="col">{translate("actions")}</th>
       </tr></thead>
       <tbody>{result.items.map(item=><RegistryListRow key={item.id} item={item}
-       navigation={{origin,trail:[]}} onNavigate={savePosition}
+       navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={()=>setEditingId(item.id)}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
       </tbody>
      </table>:<div className="smn-registry-card-grid" aria-label={translate("cardsView")}>
       {result.items.map(item=><RegistryCard key={item.id} item={item}
-       navigation={{origin,trail:[]}} onNavigate={savePosition}
+       navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={()=>setEditingId(item.id)}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
      </div>}
@@ -339,5 +359,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    teamId={teamId} initialType={type==="all"?"risk":type}
    sourceId={sourceId} cycleId={query.cycleId||initialCycleId}
    onCreated={created} onDismiss={()=>{clearCreationQuery();setCreateOpen(false);}}/>}
+  {canManage&&editingId&&<RegistryEditModal id={editingId} teamId={teamId}
+   onSaved={edited} onDismiss={()=>setEditingId(null)}/>} 
  </section>;
 }
