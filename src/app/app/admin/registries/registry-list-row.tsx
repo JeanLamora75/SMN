@@ -4,6 +4,7 @@ import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 import type {RegistryType} from "@/lib/registry-types";
 import BootstrapIcon from "../../bootstrap-icon";
+import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
 
 export type RegistryListItem={
  id:string;type:RegistryType;title:string;description:string|null;
@@ -21,13 +22,14 @@ const icons={
  highlight:"bell-fill"
 } as const satisfies Record<RegistryType,string>;
 
-export default function RegistryListRow({item,canManage,signals,highlight=false}:{
+export default function RegistryListRow({item,canManage,signals,highlight=false,navigation,onNavigate}:{
  item:RegistryListItem;canManage:boolean;signals:readonly RegistrySignal[];highlight?:boolean;
+ navigation:RegistryNavigation;onNavigate:()=>void;
 }){
  const t=useTranslation();
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
- const href="/app/admin/registries/"+encodeURIComponent(item.id);
+ const href=registryDetailHref(item.id,navigation);
  return <tr className={"smn-registry-list-row"+(highlight?" smn-registry-just-created":"")}>
   <td className="smn-registry-cell-date">
    <span className="smn-registry-mobile-label">{tr("date")}: </span>
@@ -42,7 +44,7 @@ export default function RegistryListRow({item,canManage,signals,highlight=false}
    </span>
   </td>
   <td className="smn-registry-cell-title">
-   <Link href={href} className="smn-registry-row-title">{item.title}</Link>
+   <Link href={href} onClick={onNavigate} className="smn-registry-row-title">{item.title}</Link>
    {item.description&&<p className="smn-registry-row-description" title={item.description}>
     {item.description}
    </p>}
@@ -75,8 +77,8 @@ export default function RegistryListRow({item,canManage,signals,highlight=false}
      aria-label={t("registryList.actionsFor",{title:item.title})}
      title={tr("actions")}>⋯</summary>
     <div className="smn-registry-row-menu">
-     <Link className="smn-registry-row-menu-link" href={href}>{tr("openRecord")}</Link>
-     {canManage&&<Link className="smn-registry-row-menu-link" href={href}>
+     <Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>{tr("openRecord")}</Link>
+     {canManage&&<Link className="smn-registry-row-menu-link" href={href} onClick={onNavigate}>
       {tr("editRecord")}
      </Link>}
     </div>
