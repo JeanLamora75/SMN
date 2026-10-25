@@ -44,7 +44,7 @@ export function parseSummaryCycles(payload:unknown):SummaryCycle[]|null{
 }
 
 export function validRegistryActivityTime(raw:unknown):string|null{
- if(typeof raw!=="string"||!/^\d{4}-\d{2}-\d{2}T/.test(raw)||
+ if(typeof raw!=="string"||!/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(raw)||
   !Number.isFinite(Date.parse(raw)))return null;
  return raw;
 }
