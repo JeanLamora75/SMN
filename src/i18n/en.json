@@ -2387,6 +2387,7 @@
     "historyError": "History unavailable."
   },
   "registryList": {
+    "linksUnavailable": "Cycle associations are unavailable: the link table for this mode is not installed.",
     "allTypes": "All registers",
     "category": "Category",
     "lifecycle": "Follow-up",
