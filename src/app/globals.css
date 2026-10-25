@@ -558,3 +558,47 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
  .smn-registry-attention-controls{margin-left:40px;flex-wrap:wrap}
  .smn-registry-attention-body{padding:10px}
 }
+
+/* SMN-243 — bandeau de fiche global et navigation accessible par onglets. */
+.smn-registry-detail{display:grid;gap:14px;min-width:0}
+.smn-registry-detail-header{display:flex;align-items:flex-start;gap:14px;
+ padding:18px 20px;background:var(--smn-surface);border:1px solid var(--smn-border);
+ border-radius:12px;min-width:0}
+.smn-registry-detail-icon{display:flex;align-items:center;justify-content:center;
+ flex:0 0 44px;width:44px;height:44px;border:1px solid var(--smn-border);
+ border-radius:10px;background:var(--smn-soft);color:var(--smn-primary)}
+.smn-registry-detail-icon svg{width:24px;height:24px}
+.smn-registry-detail-identity{min-width:0;flex:1 1 auto}
+.smn-registry-detail-identity h1{font-size:clamp(1.2rem,2vw,1.6rem);line-height:1.25;
+ overflow-wrap:anywhere;margin:3px 0 10px;font-weight:750}
+.smn-registry-detail-kind{font-size:.84rem;font-weight:700;color:var(--smn-muted)}
+.smn-registry-detail-meta{display:flex;flex-wrap:wrap;align-items:center;
+ gap:6px 13px;font-size:.82rem;color:var(--smn-muted)}
+.smn-registry-detail-edit{flex:none}
+.smn-registry-detail-tabs{display:flex;gap:4px;overflow-x:auto;
+ border-bottom:1px solid var(--smn-border);scrollbar-width:thin}
+.smn-registry-detail-tab{flex:0 0 auto;min-height:42px;max-width:100%;
+ padding:9px 13px;border:0;border-bottom:3px solid transparent;background:transparent;
+ color:var(--smn-foreground);font-size:.86rem;font-weight:650;white-space:normal}
+.smn-registry-detail-tab:hover{background:var(--smn-soft)}
+.smn-registry-detail-tab.active{color:var(--smn-primary);
+ border-bottom-color:var(--smn-primary)}
+.smn-registry-detail-body{min-width:0;padding:18px;background:var(--smn-surface);
+ border:1px solid var(--smn-border);border-radius:10px}
+.smn-registry-detail-body>section>.h5{font-size:1.05rem}
+.smn-registry-detail-description{white-space:pre-wrap;overflow-wrap:anywhere;
+ line-height:1.6;margin:0}
+.smn-registry-detail-legacy-comment{margin-top:18px;padding-top:14px;
+ border-top:1px solid var(--smn-border)}
+.smn-registry-detail-body>.card,.smn-registry-detail-body>section.card{margin-top:0!important}
+.smn-registry-legacy-editor{padding:15px;background:var(--smn-surface);
+ border:1px solid var(--smn-border);border-radius:10px}
+@media(max-width:575px){
+ .smn-registry-detail-header{padding:12px;gap:9px;flex-wrap:wrap}
+ .smn-registry-detail-icon{flex-basis:36px;width:36px;height:36px}
+ .smn-registry-detail-identity{flex-basis:calc(100% - 46px)}
+ .smn-registry-detail-edit{margin-left:auto}
+ .smn-registry-detail-tabs{gap:0}
+ .smn-registry-detail-tab{padding:9px 10px;font-size:.81rem}
+ .smn-registry-detail-body{padding:12px}
+}
