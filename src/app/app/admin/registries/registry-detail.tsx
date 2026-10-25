@@ -7,6 +7,8 @@ import {registryStatuses,registryTypes,type RegistryType} from "@/lib/registry-t
 import {registryDetailTabs,registryBusinessTabKeys,type RegistryDetailTab} from "@/lib/registry-detail-tabs";
 import BootstrapIcon from "../../bootstrap-icon";
 import RegistryCreate from "./registry-create";
+import RegistrySummary from "./registry-summary";
+import RegistryDescriptionEditor from "./registry-description-editor";
 import RegistryHistory from "./registry-history";
 import RegistryRelations from "./registry-relations";
 import RegistryCycles from "./registry-cycles";
@@ -22,7 +24,8 @@ import ActionLinks from "./action-links";
 type DetailItem={
  id:string;teamId:string;type:RegistryType;title:string;status:string;
  occurredOn:string;description:string|null;dueOn:string|null;
- owner?:string|null;comment?:string|null;
+ owner?:string|null;comment?:string|null;revision?:number;
+ createdAt?:string;updatedAt?:string;
 };
 const icons={
  risk:"exclamation-octagon-fill",obstacle:"exclamation-triangle-fill",
@@ -57,6 +60,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
  const [reload,setReload]=useState(0);
  const [tab,setTab]=useState<RegistryDetailTab>("summary");
  const [editing,setEditing]=useState(false);
+ const [descriptionEditing,setDescriptionEditing]=useState(false);
  const prefix=useId();
  const buttons=useRef<Partial<Record<RegistryDetailTab,HTMLButtonElement|null>>>({});
  useEffect(()=>{
@@ -96,6 +100,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
   buttons.current[target]?.focus();
  };
  const updated=()=>{setEditing(false);retry();};
+ const descriptionUpdated=()=>{setDescriptionEditing(false);retry();};
  const cancelEdit=()=>{
   if(window.confirm(tr("leaveEditWarning"))){setEditing(false);retry();}
  };
@@ -135,7 +140,7 @@ export default function RegistryDetail({id,teamId,canManage}:{
      </button>
     </div>
     <RegistryCreate itemId={id} teamId={teamId} canManage={canManage}
-     modalMode onSaved={updated}/>
+     modalMode lockDescription onSaved={updated}/>
    </div>:<>
     <div className="smn-registry-detail-tabs" role="tablist" aria-label={tr("tabs")}>
      {tabs.map((name)=>{
@@ -151,15 +156,9 @@ export default function RegistryDetail({id,teamId,canManage}:{
      id={prefix+"-panel-"+panel} aria-labelledby={prefix+"-tab-"+panel}
      tabIndex={tab===panel?0:-1} hidden={tab!==panel}>
      {tab===panel&&<>
-     {tab==="summary"&&<section aria-label={tr("summary")}>
-      <h2 className="h5">{tr("description")}</h2>
-      {item.description?<p className="smn-registry-detail-description">{item.description}</p>:
-       <p className="text-body-secondary">{tr("noDescription")}</p>}
-      {canManage&&item.comment&&<div className="smn-registry-detail-legacy-comment">
-       <h3 className="h6">{tr("legacyComment")}</h3>
-       <p className="mb-0 smn-registry-detail-description">{item.comment}</p>
-      </div>}
-     </section>}
+     {tab==="summary"&&<RegistrySummary item={item} canManage={canManage}
+      onEditDescription={canManage&&Number.isSafeInteger(item.revision)?
+       ()=>setDescriptionEditing(true):undefined}/>}
      {tab==="relations"&&<>
       <RegistryRelations id={id} type={item.type} canManage={false}/>
       {(item.type==="risk"||item.type==="obstacle"||item.type==="dependency")&&
@@ -199,6 +198,9 @@ export default function RegistryDetail({id,teamId,canManage}:{
      </>}
      </>}
     </div>)}
+    {canManage&&descriptionEditing&&Number.isSafeInteger(item.revision)&&
+     <RegistryDescriptionEditor item={item} onSaved={descriptionUpdated}
+      onDismiss={()=>setDescriptionEditing(false)}/>}
    </>}
   </>}
  </section>;
