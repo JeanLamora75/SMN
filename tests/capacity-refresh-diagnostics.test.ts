@@ -18,13 +18,13 @@ test("3 développeurs : calendrier complet donne des J/H et aucun défaut invent
  assert.ok(result.members.every(m=>m.missingSources?.length===0));
 });
 
-test("un pays et la couverture nationale manquants restent expliqués, jamais transformés en zéro",()=>{
+test("une affectation ou un calendrier absent restent signalés sans faux zéro",()=>{
  const result=presenceFromCapacity({hoursPerJh:8,members:[{
   memberId:"dev-1",displayName:"Développeur",totalJh:null,
   days:[
-   {status:"not-calculable",availableHalfDays:null,missing:["member-country"]},
+   {status:"not-calculable",availableHalfDays:null,missing:["work-calendar"]},
    {status:"not-calculable",availableHalfDays:null,
-    missing:["national-coverage","member-country"]},
+    missing:["assignment-version","work-calendar"]},
    {status:"calculated",availableHalfDays:2,missing:[]}
   ]
  }]});
@@ -32,7 +32,7 @@ test("un pays et la couverture nationale manquants restent expliqués, jamais tr
  assert.equal(result.members[0].presenceJh,null);
  assert.equal(result.members[0].developmentJh,null);
  assert.equal(result.members[0].unknownDays,2);
- assert.deepEqual(result.members[0].missingSources,["member-country","national-coverage"]);
+ assert.deepEqual(result.members[0].missingSources,["assignment-version","work-calendar"]);
 });
 
 test("les diagnostics sont visibles uniquement sur la page Sprint administrateur",()=>{
