@@ -61,7 +61,7 @@ export default function RegistryTargetSearch({sourceId,kind,types=[],disabled,on
     }).catch(()=>{if(!controller.signal.aborted){setItems([]);setState("unavailable");}});
   },250);
   return()=>{clearTimeout(timer);controller.abort();};
- },[sourceId,kind,search,filterType,reload,types.join(",")]);
+ },[sourceId,kind,search,filterType,reload,typesKey]);
  return <div className="smn-registry-relation-search">
   <div className="row g-2">
    {kind==="record"&&types.length===0&&<div className="col-sm-4">
