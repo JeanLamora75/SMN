@@ -42,7 +42,7 @@ export default function RegistryRelations({id,type,canManage,onSaved}:{
  const change=async(target:{kind:"record"|"goal";id:string},
   action:"linked"|"unlinked",sourceId=id)=>{
   if(!canManage||busy)return;
-  if(action==="unlinked"&&!window.confirm(tr("confirmUnlink")))return;
+  if(action==="unlinked"&&!window.confirm(tr(target.kind==="goal"?"confirmUnlinkGoal":"confirmUnlink")))return;
   setBusy(true);setError(null);
   try{
    const response=await fetch("/api/admin/registries/"+encodeURIComponent(sourceId)+"/relations",{
