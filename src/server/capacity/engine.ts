@@ -6,7 +6,7 @@ import {readWorkSlots,workingIntervals,occupiedMinutes} from "./work-slots";
 import {capacityImpactJh,type Interval} from "./meeting-intervals";
 
 export type CapacityMissing="no-assignments"|"ambiguous-assignment"|
- "assignment-version"|"work-calendar"|"member-country"|"national-coverage"|
+ "assignment-version"|"work-calendar"|
  "exceptional-meeting-participants"|"exceptional-meeting-work-slots";
 export type DayCapacity={
  date:string;status:"calculated"|"not-calculable";
