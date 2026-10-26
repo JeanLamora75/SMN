@@ -5,7 +5,7 @@ import GB from "./data/GB.json";
 
 type Holiday = {date:string;name:string};
 type LocalBundle = {country:string;years:Record<string,unknown>};
-type YearResult = {year:number;status:"configured"|"not-configured"|"invalid";count:number;diagnostic:string|null};
+type YearResult = {year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null};
 const BUNDLES:Record<string,unknown>={FR,DE,GB};
 const ISO_DATE=/^\d{4}-\d{2}-\d{2}$/;
 
@@ -61,6 +61,17 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
    year,status:"not-configured",count:0,diagnostic:"country-not-in-catalog"}));}
   const results:YearResult[]=[];
   for(const value of validated){
+   // A manually touched year owns its dates, including deliberate withdrawals.
+   // Never recreate a withdrawn holiday from the bundled reference calendar.
+   const managed=await client.query<{status:YearResult["status"];entries_count:number;
+    diagnostic:string|null;source_file:string|null}>(`SELECT status,entries_count,diagnostic,source_file
+     FROM public.smn_national_calendar_coverage
+     WHERE country_code=$1 AND calendar_year=$2`,[country,value.year]);
+   if(managed.rows[0]?.source_file==="manual"){
+    results.push({year:value.year,status:managed.rows[0].status,
+     count:Number(managed.rows[0].entries_count),diagnostic:managed.rows[0].diagnostic});
+    continue;
+   }
    let status=value.status,diagnostic=value.diagnostic,count=value.count;
    if(status==="configured"){
     for(const holiday of value.holidays){

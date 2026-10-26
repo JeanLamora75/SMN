@@ -91,6 +91,7 @@ model SmnAccount {
   historicalQualityRevisions SmnCapacityHistoricalQualityHistory[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   countryNameAudits SmnCountryNameAudit[]
+  manualHolidayAudits SmnNationalHolidayManualAudit[]
   @@map("smn_account")
 }
 
@@ -283,6 +284,7 @@ model SmnCountry {
   code String @id
   name String
   revision Int @default(0)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
   origin String
   createdBy String? @map("created_by")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -290,6 +292,7 @@ model SmnCountry {
   nationalHolidays SmnNationalHoliday[]
   calendarCoverage SmnNationalCalendarCoverage[]
   holidayAudits SmnNationalHolidayAudit[]
+  manualHolidayAudits SmnNationalHolidayManualAudit[]
   nameAudits SmnCountryNameAudit[]
   @@map("smn_country")
 }
@@ -322,6 +325,9 @@ model SmnNationalCalendarCoverage {
   calendarYear Int @map("calendar_year")
   status String
   entriesCount Int @default(0) @map("entries_count")
+  revision Int @default(0)
+  administrativeValidatedAt DateTime? @map("administrative_validated_at") @db.Timestamptz(6)
+  validatedRevision Int? @map("validated_revision")
   diagnostic String?
   sourceFile String? @map("source_file")
   checkedAt DateTime @default(now()) @map("checked_at") @db.Timestamptz(6)
@@ -344,6 +350,23 @@ model SmnNationalHolidayAudit {
   actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
   @@index([countryCode,holidayDate,occurredAt])
   @@map("smn_national_holiday_audit")
+}
+
+model SmnNationalHolidayManualAudit {
+  id String @id
+  countryCode String @map("country_code")
+  action String
+  previousDate DateTime? @map("previous_date") @db.Date
+  newDate DateTime? @map("new_date") @db.Date
+  previousName String? @map("previous_name")
+  newName String? @map("new_name")
+  reason String
+  actorId String? @map("actor_id")
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([countryCode,occurredAt])
+  @@map("smn_national_holiday_manual_audit")
 }
 
 model SmnAbsenceCategory {
