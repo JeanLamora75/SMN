@@ -179,16 +179,13 @@ test("intégration : crayon, modal 4 champs, API sécurisée, largeur adaptative
  }
 });
 
-test("la synthèse Équipe affiche Produit puis effectif, et Vision et But du produit à droite",()=>{
+test("la page Équipe affiche Vision et But côte à côte dans le nouveau bandeau",()=>{
  const overview=read("src/app/app/admin/members/team-overview.tsx");
  const modal=read("src/app/app/admin/members/team-context-editor.tsx");
- assert.match(overview,/className="smn-team-page-header mb-4"/);
- assert.match(overview,/className="smn-team-summary"/);
- assert.match(overview,/t\("teamUX\.productLabel"\)/);
- assert.match(overview,/currentContext\?\.productName/);
- assert.match(overview,/t\("teamUX\.activeCount",\{count:members\.length\}\)/);
- assert.match(overview,/className="smn-team-context-preview"/);
- assert.equal((overview.match(/className="smn-team-context-section"/g)??[]).length,2);
+ assert.match(overview,/className="smn-team-hero"/);
+ assert.match(overview,/className="smn-team-hero-context"/);
+ assert.equal((overview.match(/className="smn-team-hero-info"/g)??[]).length,2);
+ assert.match(overview,/t\("teamCockpit\.title"\)/);
  assert.match(overview,/t\("teamUX\.contextVision"\)/);
  assert.match(overview,/t\("teamUX\.contextGoalHeading"\)/);
  assert.match(overview,/currentContext\?\.vision/);
@@ -197,6 +194,7 @@ test("la synthèse Équipe affiche Produit puis effectif, et Vision et But du pr
  assert.match(overview,/BootstrapIcon name="stack"/);
  assert.match(overview,/onSaved=\{updated=>/);
  assert.match(modal,/onSaved\(result\.context\)/);
+ assert.doesNotMatch(overview,/smn-team-context-preview/);
 });
 test("la synthèse utilise l'API contextuelle, respecte les vides et les états non fiables",()=>{
  const overview=read("src/app/app/admin/members/team-overview.tsx");
@@ -212,28 +210,20 @@ test("la synthèse utilise l'API contextuelle, respecte les vides et les états 
  assert.match(api,/authorizeApi\(request,"read",collective\)/);
  assert.match(server,/productName:scope\.rows\[0\]\.product_name/);
 });
-test("la synthèse reste compacte, responsive et utilise les mêmes icônes que le dashboard",()=>{
- const css=read("src/app/globals.css");
- const dashboard=read("src/app/dashboard.css");
+test("le bandeau Équipe reste responsive et les contenus ne sont pas tronqués",()=>{
+ const css=read("src/app/app/admin/members/team-cockpit.css");
  const overview=read("src/app/app/admin/members/team-overview.tsx");
- assert.match(css,/\.smn-team-page-header\s*\{\s*display:grid/);
- assert.match(css,/grid-template-areas:"identity context controls"/);
- assert.match(css,/grid-template-columns:minmax\(0,1fr\) minmax\(0,2fr\) auto/);
+ assert.match(css,/\.smn-team-cockpit \.smn-team-hero/);
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
- assert.match(css,/border-inline-start:1px solid var\(--smn-border\)/);
- assert.match(css,/@media\(max-width:650px\)/);
- assert.match(css,/grid-template-columns:minmax\(0,1fr\)/);
- assert.match(css,/grid-template-areas:"identity controls" "context context"/);
- assert.match(css,/\.smn-team-context-section \+ \.smn-team-context-section\s*\{/);
- assert.match(css,/border-top:1px solid var\(--smn-border\)/);
- assert.match(css,/\.smn-team-context-section \+ \.smn-team-context-section \{/);
- assert.match(css,/border-inline-start:0;/);
- assert.match(css,/-webkit-line-clamp:3/);
- assert.match(dashboard,/\.smn-kpi-icon\s*\{/);
- assert.match(overview,/smn-kpi-icon smn-team-context-icon/g);
+ assert.match(css,/grid-template-areas:"identity actions" "context context"/);
+ assert.match(css,/@media \(max-width:650px\)/);
+ assert.match(css,/grid-template-areas:"identity" "context" "actions"/);
+ assert.match(css,/white-space:pre-wrap/);
+ assert.doesNotMatch(css,/-webkit-line-clamp/);
+ assert.match(overview,/smn-team-hero-icon/);
  for(const lang of ["fr","en"]){
   const json=JSON.parse(read("src/i18n/"+lang+".json"));
-  for(const k of ["productLabel","contextGoalHeading","contextOverview",
+  for(const k of ["contextGoalHeading","contextOverview",
    "contextPreviewLoading","contextPreviewUnavailable","contextPreviewEmpty"]){
    assert.equal(typeof json.teamUX[k],"string",lang+" "+k);
   }
