@@ -81,7 +81,9 @@ test("routes capacités et détails de réunion : garde v28",()=>{
   "src/app/api/admin/capacity-replanning/route.ts",
   "src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",
   "src/app/api/team-calendar/meetings/[kind]/[id]/outcomes/route.ts",
-  "src/app/api/admin/kanban-meetings/route.ts"
+  "src/app/api/admin/kanban-meetings/route.ts",
+  "src/app/api/admin/team-context/route.ts",
+  "src/app/api/admin/company-closures/route.ts"
  ];
  for(const file of files){
   const content=readFileSync(new URL("../"+file,import.meta.url),"utf8");
