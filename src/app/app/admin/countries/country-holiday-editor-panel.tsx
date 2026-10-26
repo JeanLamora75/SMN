@@ -55,7 +55,7 @@ export default function CountryHolidayEditorPanel({
    .then(result=>{if(!controller.signal.aborted)setTarget({kind:"ready",snapshot:result});})
    .catch(()=>{if(!controller.signal.aborted)setTarget({kind:"error"});});
   return ()=>controller.abort();
- },[country,crossYear,targetYear]);
+ },[country,crossYear,targetYear,targetAttempt]);
 
  const remoteTarget=crossYear&&target.kind==="ready"&&target.snapshot.year===targetYear?
   target.snapshot:null;
