@@ -276,9 +276,9 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    <div className="smn-registry-filters-heading">
     <h2><BootstrapIcon name="sliders"/>{translate("filtersHeading")}</h2>
     <div className="smn-registry-context">
-     {result?.state==="available"&&<span><BootstrapIcon name="people-fill"/>{translate("team")}: <strong>{result.team.name}</strong></span>}
+     {!loading&&result?.state==="available"&&<span><BootstrapIcon name="people-fill"/>{translate("team")}: <strong>{result.team.name}</strong></span>}
      <span><BootstrapIcon name="grid-3x3-gap"/>{translate("viewLabel")}: <strong>{translate(view==="list"?"listView":"cardsView")}</strong></span>
-     {result?.state==="available"&&<span><BootstrapIcon name="list-ul"/>{t("registryList.summaryCount",{total:result.total})}</span>}
+     {!loading&&result?.state==="available"&&<span><BootstrapIcon name="list-ul"/>{t("registryList.summaryCount",{total:result.total})}</span>}
      {!attentionLoading&&!attentionError&&attention!==null&&<span><BootstrapIcon name="bell-fill"/>{t("registryAttention.count",{count:attention.length})}</span>}
     </div>
    </div>
