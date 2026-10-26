@@ -204,6 +204,8 @@
       "daysUnit": "days",
       "capacityRatio": "{percent}%: actual available capacity / planned capacity",
       "storyPointsRatio": "{percent}%: completed story points / initially committed story points",
+    "committedPerPlannedJh": "Committed SP per planned person-day",
+    "completedPerActualJh": "Completed SP per actual person-day",
       "ticketsRatio": "{percent}%: completed tickets / initially committed tickets",
       "metricEstimated": "Estimated",
       "viewSprintGoals": "View Sprints",
