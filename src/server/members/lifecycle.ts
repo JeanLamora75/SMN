@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {COUNTRY_LIFECYCLE_LOCK,ensureCountryArchiveSchema} from "../countries/archive-migration";
 import {isValidDate} from "./assignment";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -106,8 +107,10 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
 export async function applyLifecycleAction(client:Client,id:string,actorId:string,raw:unknown):Promise<LifecycleResult>{
  const input=parseLifecycleAction(raw);
  if(!input||!UUID.test(id)||!actorId)return {ok:false,error:"invalid-input"};
+ await ensureCountryArchiveSchema(client);
  await client.query("BEGIN");
  try{
+  await client.query(COUNTRY_LIFECYCLE_LOCK);
   const stop=async(error:LifecycleError):Promise<LifecycleResult>=>{
    await client.query("ROLLBACK");return {ok:false,error};
   };
