@@ -15,6 +15,7 @@ const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:rea
   {id:"appearance",icon:"◐",resource:"settings",href:"/app/admin/settings/general#settings-appearance"}
  ]},
  {id:"agile",label:"settingsCatalog.groups.agile",entries:[
+  {id:"teams",icon:"♧",resource:"settings",href:"/app/admin/settings/teams",status:"partial"},
   {id:"cadence",icon:"◷",resource:"settings",href:"/app/admin/scrum-cadence",mode:"scrum"},
   {id:"kanbanCadence",icon:"◷",resource:"settings",href:"/app/admin/kanban-cadence",mode:"kanban"},
   {id:"ceremonies",icon:"◫",resource:"settings",href:"/app/admin/settings/ceremonies",status:"partial",mode:"scrum"},
