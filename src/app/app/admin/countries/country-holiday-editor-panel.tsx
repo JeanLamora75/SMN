@@ -67,6 +67,7 @@ export default function CountryHolidayEditorPanel({
  const sourceValidated=snapshot.administrativeValidated;
  const targetValidated=remoteTarget?.administrativeValidated===true;
  const emptied=edit.action==="delete"&&snapshot.holidays.length===1;
+ const movingLast=edit.action==="update"&&crossYear&&snapshot.holidays.length===1;
  const changeName=(v:string)=>{setName(v);setFailure("");};
  const changeDate=(v:string)=>{setDate(v);setFailure("");
   setTarget({kind:"none"});};
@@ -153,6 +154,9 @@ export default function CountryHolidayEditorPanel({
     onClick={()=>{setTarget({kind:"loading"});setTargetAttempt(n=>n+1);}}>
     {t("countries.editRetryTarget")}
    </button>}
+   {movingLast&&<p className="alert alert-warning" role="status">
+    {t("countries.editYearEmptyWarning")}
+   </p>}
    {(sourceValidated||targetValidated)&&<div className="alert alert-warning" role="status">
     {t("countries.editValidatedWarning")}
    </div>}
