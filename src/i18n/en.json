@@ -1050,6 +1050,8 @@
     "searchPlaceholder": "Country name or ISO code",
     "filterLabel": "Annual status",
     "yearLabel": "Shared year",
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
     "statusAll": "All statuses",
     "statusReview": "Review required",
     "statusUnknown": "Unknown",
