@@ -72,6 +72,8 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
   }catch(err){setCreateError(err instanceof Error?err.message:"service");}
   finally{setCreating(false);}
  }
+ const detailUrl=(id:string)=>"/app/admin/members/"+encodeURIComponent(id)+
+  (roster?.team.id?"?"+new URLSearchParams({teamId:roster.team.id}):"");
  const members=(roster?.members??[]).filter(m=>!m.archived);
  const capacity=Math.max(12,Math.ceil((members.length+1)/6)*6);
  const roles=(m:Member)=>([["SM",m.roleShares?.scrumMaster],["PO",m.roleShares?.productOwner],["Dev",m.roleShares?.developer]] as const);
@@ -134,7 +136,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
   {status==="ready"&&view==="cards"&&<div className="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-3">
    {Array.from({length:capacity},(_,i)=>{const m=members[i];
     return <div className="col" key={m?.id??"slot-"+i}>
-     {m?<Link href={"/app/admin/members/"+encodeURIComponent(m.id)} className="card smn-team-card text-decoration-none text-body h-100 rounded-4 shadow-sm" style={{minHeight:222}}>
+     {m?<Link href={detailUrl(m.id)} className="card smn-team-card text-decoration-none text-body h-100 rounded-4 shadow-sm" style={{minHeight:222}}>
        <div className="card-body d-flex flex-column align-items-center text-center gap-2">
         <div className="d-flex w-100 align-items-center justify-content-center gap-2" style={{minWidth:0}}><CountryFlag key={m.countryIso2??"none"} countryIso2={m.countryIso2}/><strong className="text-truncate" title={m.displayName}>{m.displayName}</strong></div>
         <NeutralAvatar/>
@@ -148,7 +150,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
   </div>}
   {status==="ready"&&view==="list"&&<div className="table-responsive"><table className="table table-hover align-middle">
    <thead><tr><th>{t("teamUX.member")}</th><th>SM</th><th>PO</th><th>Dev</th><th>{t("teamUX.details")}</th></tr></thead>
-   <tbody>{members.map(m=><tr key={m.id} role="link" tabIndex={0} style={{cursor:"pointer"}} aria-label={t("teamUX.openMember",{name:m.displayName})} onClick={()=>router.push("/app/admin/members/"+encodeURIComponent(m.id))} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();router.push("/app/admin/members/"+encodeURIComponent(m.id));}}}><th><span className="d-inline-flex align-items-center gap-2"><CountryFlag key={m.countryIso2??"none"} countryIso2={m.countryIso2}/>{m.displayName}</span></th>{roles(m).map(([name,share])=><td key={name}>{(share??0)>0?"✓":"—"}</td>)}<td aria-hidden="true">→</td></tr>)}</tbody>
+   <tbody>{members.map(m=><tr key={m.id} role="link" tabIndex={0} style={{cursor:"pointer"}} aria-label={t("teamUX.openMember",{name:m.displayName})} onClick={()=>router.push(detailUrl(m.id))} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();router.push(detailUrl(m.id));}}}><th><span className="d-inline-flex align-items-center gap-2"><CountryFlag key={m.countryIso2??"none"} countryIso2={m.countryIso2}/>{m.displayName}</span></th>{roles(m).map(([name,share])=><td key={name}>{(share??0)>0?"✓":"—"}</td>)}<td aria-hidden="true">→</td></tr>)}</tbody>
   </table><button className="btn btn-primary" disabled={roster?.members.length===0} onClick={()=>setCreationOpen(true)}>+ {t("teamUX.addMember")}</button></div>}
   {creationOpen&&<div className="modal d-block" role="dialog" aria-modal="true" aria-labelledby="team-create-title" style={{background:"rgba(0,0,0,.5)"}}>
    <div className="modal-dialog modal-dialog-centered"><div className="modal-content">
