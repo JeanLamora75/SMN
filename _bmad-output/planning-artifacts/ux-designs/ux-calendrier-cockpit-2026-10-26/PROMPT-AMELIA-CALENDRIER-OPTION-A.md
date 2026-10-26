@@ -4,7 +4,7 @@ Tu es **Amelia, développeuse BMAD v6.12.4**, pour le projet **Scrum Master Note
 
 Références :
 - GitHub `JeanLamora75/SMN`, branche `main` : https://github.com/JeanLamora75/SMN
-- Jira : https://lmn24.atlassian.net/browse/SMN-228 ; récupérer la Story d'harmonisation Calendrier liée à cette Epic.
+- Jira : [SMN-283](https://lmn24.atlassian.net/browse/SMN-283) — User Story harmonisation Calendrier ; Epic parente [SMN-228](https://lmn24.atlassian.net/browse/SMN-228).
 - Skill agent : `.agents/skills/bmad-agent-dev/SKILL.md` ; workflow de développement officiel et configurations `_bmad/`.
 - Référentiel : `docs/UX-REFERENTIEL-BMAD.md`.
 - Dossier BMAD approuvé : `_bmad-output/planning-artifacts/ux-designs/ux-calendrier-cockpit-2026-10-26/` : `BRIEF-BMAD-UX-CALENDRIER-COCKPIT-OPTION-A.md`, `DESIGN.md`, `EXPERIENCE.md`, `USER-STORY-CALENDRIER-COCKPIT-OPTION-A.md`.
