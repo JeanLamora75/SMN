@@ -7,13 +7,13 @@ import HolidayCsvImport from "./holiday-csv-import";
 import HolidayIcsImport from "./holiday-ics-import";
 import CountryFlag from "./country-flag";
 import CountryFormModal from "./country-form-modal";
+import CountryCalendarModal from "./country-calendar-modal";
 
 type Country={code:string;name:string;revision:number;nationalCalendar:{
  status:"configured"|"partial"|"not-configured"|"invalid";
  years:TechnicalCoverage[];
  holidays:{date:string;name:string}[]|null;
 }};
-type Holiday={date:string;name:string};
 type Filter="all"|AnnualDisplayStatus;
 const FILTERS:Filter[]=["all","configured","review","not-configured","invalid","unknown"];
 
@@ -31,10 +31,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const [refreshing,setRefreshing]=useState(false);
  const [showTools,setShowTools]=useState(false);
  const [activeCode,setActiveCode]=useState<string|null>(null);
- const [holidays,setHolidays]=useState<Holiday[]|null>(null);
- const [holidayError,setHolidayError]=useState(false);
- const [version,setVersion]=useState(0);
- const dialogRef=useRef<HTMLDialogElement>(null);
+ const openerRef=useRef<HTMLButtonElement|null>(null);
 
  const refresh=useCallback(async()=>{
   const response=await fetch("/api/admin/countries",{cache:"no-store"});
@@ -42,7 +39,6 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   const data=await response.json() as {countries:Country[]};
   setCountries(data.countries);
   setLoadFailed(false);
-  setVersion(v=>v+1);
  },[]);
  useEffect(()=>{
   void refresh().catch(()=>{setNotice("failed");setLoadFailed(true);}).finally(()=>setLoaded(true));
@@ -76,24 +72,14 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   return ()=>cancelAnimationFrame(frame);
  },[countries,focusCode,form]);
 
- useEffect(()=>{
-  const dialog=dialogRef.current;
-  if(activeCode&&!dialog?.open)dialog?.showModal();
-  if(!activeCode&&dialog?.open)dialog.close();
- },[activeCode]);
- useEffect(()=>{
-  if(!activeCode)return;
-  const controller=new AbortController();
-  void fetch("/api/admin/countries/calendar?country="+encodeURIComponent(activeCode)+
-    "&year="+selectedYear,{cache:"no-store",signal:controller.signal})
-   .then(async response=>{
-    if(!response.ok)throw Error("read-error");
-    return response.json() as Promise<{holidays:Holiday[]}>;
-   })
-   .then(data=>{if(!controller.signal.aborted)setHolidays(data.holidays);})
-   .catch(()=>{if(!controller.signal.aborted)setHolidayError(true);});
-  return ()=>controller.abort();
- },[activeCode,selectedYear,version]);
+ function openCalendar(code:string,opener:HTMLButtonElement){
+  openerRef.current=opener;
+  setActiveCode(code);
+ }
+ function closeCalendar(){
+  setActiveCode(null);
+  requestAnimationFrame(()=>openerRef.current?.focus());
+ }
 
  async function onFormSaved(result:{mode:"create"|"rename";code:string}){
   // Do not re-submit a successful mutation if the catalog refresh fails.
@@ -196,7 +182,8 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
       return <tr key={country.code}>
        <td><span className="d-inline-flex align-items-center gap-2">
         <CountryFlag key={country.code} code={country.code} name={country.name}/>
-        <strong>{country.name}</strong>
+        <button type="button" className="btn btn-link p-0 text-start text-body fw-semibold text-decoration-none"
+         onClick={event=>openCalendar(country.code,event.currentTarget)}>{country.name}</button>
        </span></td>
        <td><code>{country.code}</code></td>
        <td><span className={"badge "+statusClass(status)}>{statusText(status)}</span>
@@ -206,7 +193,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
        <td className="text-end"><div className="d-inline-flex align-items-center gap-2">
         <button type="button" className="btn btn-sm btn-outline-primary"
          data-country-focus={country.code}
-         onClick={()=>{setHolidays(null);setHolidayError(false);setActiveCode(country.code);}}>
+         onClick={event=>openCalendar(country.code,event.currentTarget)}>
          {t("countries.manage")}
         </button>
         {canManage&&<details className="dropdown d-inline-block">
@@ -265,45 +252,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
    mode={form.mode} country={form.country} onClose={()=>setForm(null)}
    onSaved={onFormSaved}/>}
 
-  <dialog ref={dialogRef} onClose={()=>setActiveCode(null)}
-   className="bg-body text-body border-0 rounded-3 shadow-lg p-0 w-100"
-   aria-labelledby="country-calendar-dialog-title" style={{maxWidth:"960px"}}>
-   {activeCountry&&<div className="p-3 p-md-4">
-    <div className="d-flex justify-content-between align-items-start gap-3">
-     <div>
-      <h2 className="h4 mb-1" id="country-calendar-dialog-title">
-       {activeCountry.name} ({activeCountry.code})
-      </h2>
-      <p className="text-muted mb-3">{t("countries.calendarStatus")} · {selectedYear}</p>
-     </div>
-     <button type="button" className="btn-close" aria-label={t("countries.close")}
-      onClick={()=>setActiveCode(null)}/>
-    </div>
-    <p><span className={"badge "+statusClass(statusOf(activeCountry))}>
-     {statusText(statusOf(activeCountry))}
-    </span></p>
-    {holidayError?<p role="alert">{t("countries.loadFailed")}</p>:
-     holidays===null?<p role="status">{t("countries.loading")}</p>:
-     holidays.length===0?<p>{t("countries.noDates")}</p>:
-     <div className="table-responsive" style={{maxHeight:"50vh",overflowY:"auto"}}>
-      <table className="table table-sm">
-       <thead><tr><th scope="col">{t("countries.csvDate")}</th>
-        <th scope="col">{t("countries.csvName")}</th></tr></thead>
-       <tbody>{holidays.map(holiday=><tr key={holiday.date}>
-        <td>{holiday.date}</td><td>{holiday.name}</td>
-       </tr>)}</tbody>
-      </table>
-     </div>}
-    <p className="small text-muted">{t("countries.reviewOnlyInfo")}</p>
-    <div className="d-flex flex-wrap justify-content-end gap-2 mt-3">
-     {canManage&&<button type="button" className="btn btn-outline-primary"
-      onClick={()=>{setActiveCode(null);setShowTools(true);}}>
-      {t("countries.openTools")}
-     </button>}
-     <button type="button" className="btn btn-secondary"
-      onClick={()=>setActiveCode(null)}>{t("countries.close")}</button>
-    </div>
-   </div>}
-  </dialog>
+  {activeCountry&&<CountryCalendarModal key={activeCountry.code+":"+selectedYear}
+   country={activeCountry} initialYear={selectedYear} onClose={closeCalendar}/>}
  </section>;
 }
