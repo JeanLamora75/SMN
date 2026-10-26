@@ -78,7 +78,8 @@ const failDay=(date:string,missing:CapacityMissing[]):DayCapacity=>({
 const teamSql=[
  "SELECT t.id,t.name,i.mode FROM public.smn_team t",
  "JOIN public.smn_installation i ON i.id=t.installation_id",
- "WHERE i.id='singleton' AND i.state='initialized' AND i.mode IN ('scrum','kanban')",
+ "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27",
+ "AND i.mode IN ('scrum','kanban')",
  "LIMIT 2"
 ].join(" ");
 const listDates=(start:string,end:string)=>{
@@ -89,13 +90,18 @@ const listDates=(start:string,end:string)=>{
 };
 /** Queries share one repeatable-read snapshot; no mutation of historical snapshots. */
 export async function readDevelopmentCapacity(db:Client,start:string,end:string,
- options:{externalTransaction?:boolean;includeExceptionalImpact?:boolean}={}):Promise<CapacityReport>{
+ options:{externalTransaction?:boolean;includeExceptionalImpact?:boolean;teamId?:string}={}):Promise<CapacityReport>{
  const parsed=parseCapacityPeriod(new URLSearchParams({start,end}));
  if(!parsed)throw Error("capacity-invalid-period");
  if(!options.externalTransaction)
   await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  try{
-  const teams=await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(teamSql);
+  const teams=options.teamId?await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(
+   "SELECT t.id,t.name,i.mode FROM public.smn_team t "+
+   "JOIN public.smn_installation i ON i.id=t.installation_id "+
+   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version=28 "+
+   "AND i.mode IN ('scrum','kanban') AND t.id=$1 LIMIT 2",[options.teamId]):
+   await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(teamSql);
   if(teams.rows.length!==1)throw Error("capacity-team-unavailable");
   const team=teams.rows[0];
   const settings=await db.query<{hours_per_jh:number}>(
