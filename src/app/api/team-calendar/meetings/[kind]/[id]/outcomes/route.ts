@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {validCalendarMeetingRef} from "@/server/sprints/calendar-meeting-detail";
 import {createMeetingOutcome,readMeetingOutcomes} from "@/server/sprints/calendar-meeting-outcomes";
 
@@ -14,7 +14,7 @@ export async function GET(request:NextRequest,{params}:Context){
  const {kind,id}=await params;
  if(!validCalendarMeetingRef(kind,id))return jsonResult({error:"invalid-input"},400);
  try{
-  const outcomes=await withAuthDb(db=>readMeetingOutcomes(db,kind,id));
+  const outcomes=await withLegacyTeamApi(db=>readMeetingOutcomes(db,kind,id));
   return outcomes===null?jsonResult({error:"not-found"},404):jsonResult({outcomes});
  }catch{
   console.error("calendar-meeting-outcomes-read-failed");
@@ -29,7 +29,7 @@ export async function POST(request:NextRequest,{params}:Context){
  const raw=await readJsonObject(request,12000);
  if(!raw)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>createMeetingOutcome(db,actor.id,kind,id,raw));
+  const result=await withLegacyTeamApi(db=>createMeetingOutcome(db,actor.id,kind,id,raw));
   return jsonResult(result,result.ok?201:
    result.error==="not-found"?404:result.error==="closed-period"?409:400);
  }catch{
