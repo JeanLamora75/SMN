@@ -24,3 +24,20 @@ export function moveCalendarMonth(position:MonthPosition,step:-1|1):MonthPositio
  if(year<1900||year>2200)return position;
  return {year,month};
 }
+
+
+export type CalendarHoliday={date:string;name:string};
+/** Reject stale or cross-year API content before rendering a different year. */
+export function scopedYearHolidays(value:unknown,country:string,year:number):CalendarHoliday[]|null{
+ if(!value||typeof value!=="object"||Array.isArray(value))return null;
+ const payload=value as Record<string,unknown>;
+ if(payload.country!==country||payload.year!==year||!Array.isArray(payload.holidays))return null;
+ const result=payload.holidays as unknown[];
+ const prefix=String(year)+"-";
+ if(!result.every(item=>item!==null&&typeof item==="object"&&!Array.isArray(item)&&
+  typeof (item as Record<string,unknown>).date==="string"&&
+  /^\d{4}-\d{2}-\d{2}$/.test((item as Record<string,string>).date)&&
+  (item as Record<string,string>).date.startsWith(prefix)&&
+  typeof (item as Record<string,unknown>).name==="string"))return null;
+ return result as CalendarHoliday[];
+}
