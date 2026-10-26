@@ -50,7 +50,8 @@ foreach ($step in $steps) {
     $started = Get-Date
     $exitCode = 900
     try {
-        & $pnpm.Source @($step.Args) 2>&1 | Out-File -LiteralPath $log -Encoding UTF8
+        $arguments = [string[]]$step.Args
+        & $pnpm.Source @arguments 2>&1 | Out-File -LiteralPath $log -Encoding UTF8
         $exitCode = $LASTEXITCODE
         if ($null -eq $exitCode) { $exitCode = 901 }
     }
