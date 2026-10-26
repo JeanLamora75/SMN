@@ -738,3 +738,9 @@ une réunion), SMN-79 (statut événement). Implémentation suivie dans
 ## Avenant graphique du registre global — 26 octobre 2026
 
 La conception esthétique [Option C « Cockpit Agile »](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/AVENANT-GRAPHIQUE-OPTION-C-2026-10-26.md) a été approuvée : en-tête contrasté, onglets en pastilles, panneau de filtres séparé, deux vues Liste/Cartes, catégories en sélecteur mobile, filtres secondaires repliables et bouton + de création en tête sur mobile. Ce complément **ne modifie ni règles métier ni parcours**, et n'écrase pas les contrats de la fiche Sprint. Le développement est en branche dédiée jusqu'aux vérifications.
+
+## Extension demandée — Gestion des équipes depuis Paramètres (26/10/2026)
+
+**Story de cadrage [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), Epic 3 :** l'administrateur souhaite « Paramètres > Équipes », une page dédiée pour créer ou modifier une équipe avec **Nom de l'équipe seul obligatoire** ; Nom du produit, Vision Produit et Product Goal facultatifs. Voir [avenant BMAD SMN-282](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
+
+**Conflit normatif ouvert :** D-PRD-137 limite l'installation MVP Scrum/Kanban à une équipe/produit, y compris côté API ; le schéma Prisma possède des contraintes `installationId @unique` sur équipe/produit et l'éditeur SMN-221 exige actuellement un nom produit. La demande est enregistrée comme **évolution à arbitrer**, pas comme une modification implicite des décisions existantes ni une fonctionnalité prête à développer. Aucun ajout de route active avant mise en conformité du modèle/contrats, des autorisations et des producteurs de données.
