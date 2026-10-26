@@ -97,10 +97,14 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
             WHERE schemaname='public' AND indexname IN
               ('smn_team_product_id_key','smn_team_installation_name_ci_key')
               AND indexdef ILIKE '%UNIQUE%') AS indexes_valid,
-          (SELECT count(*)=2 FROM pg_constraint
+          (SELECT count(*)=6 FROM pg_constraint
             WHERE connamespace='public'::regnamespace AND conname IN
               ('smn_product_id_installation_pair_key',
-               'smn_team_product_same_installation_fk')) AS constraints_valid,
+               'smn_team_product_same_installation_fk',
+               'smn_account_installation_pair_key',
+               'smn_team_installation_pair_key',
+               'smn_team_pref_account_same_installation_fk',
+               'smn_team_pref_team_same_installation_fk')) AS constraints_valid,
           NOT EXISTS(SELECT 1 FROM pg_constraint
             WHERE connamespace='public'::regnamespace AND conname IN
               ('smn_product_installation_id_key','smn_team_installation_id_key')) AS old_unique_gone
@@ -111,7 +115,9 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
         ["id","team_id","revision","after_values","before_values"]
           .every(n=>columnSet.has("smn_team_context_audit:"+n))&&
         ["team_id","vision","product_goal","revision"]
-          .every(n=>columnSet.has("smn_team_context:"+n));
+          .every(n=>columnSet.has("smn_team_context:"+n))&&
+        ["account_id","installation_id","team_id","updated_at"]
+          .every(n=>columnSet.has("smn_account_team_preference:"+n));
     }
     return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
