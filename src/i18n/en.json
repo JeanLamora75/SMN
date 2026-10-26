@@ -3515,5 +3515,11 @@
     "inactive": "Saving is temporarily unavailable",
     "description": "Only the team name is required. Each team can have its own optional product."
   }
-
+,
+  "teamSwitch": {
+    "pending": "Team switching is being prepared and will only be enabled after isolation checks.",
+    "unavailable": "Team switcher is temporarily unavailable.",
+    "choose": "Choose a team",
+    "discard": "You have unsaved changes. Discard them to switch teams?"
+  }
 }
