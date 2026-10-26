@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {previewReplanning,confirmReplanning,parseReplanning} from "@/server/capacity/replanning";
 
@@ -15,7 +15,7 @@ export async function GET(request:NextRequest){
  if(query.size!==4||!parseReplanning(params))
   return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>previewReplanning(db,params));
+  const result=await withLegacyTeamApi(db=>previewReplanning(db,params));
   if(!result.ok)return jsonResult({error:result.error,
    references:"not-calculable",saved:false},
    result.error==="period-not-found"?404:
@@ -32,7 +32,7 @@ export async function POST(request:NextRequest){
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input",saved:false},400);
  try{
-  const result=await withAuthDb(db=>confirmReplanning(db,actor.id,body));
+  const result=await withLegacyTeamApi(db=>confirmReplanning(db,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error,saved:false},
    result.error==="closed"?423:
    result.error==="conflict"||result.error==="target-in-use"?409:
