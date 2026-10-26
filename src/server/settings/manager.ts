@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import { completeConfigurationTask } from "../configuration/tasks";
+import {ensureCountryArchiveSchema,COUNTRY_LIFECYCLE_LOCK} from "../countries/archive-migration";
 import {validPalette,type Palette} from "@/lib/appearance";
 
 export type SettingsValues = Readonly<{
@@ -16,7 +17,7 @@ export type GeneralSettings = SettingsValues & Readonly<{
   product: string;
 }>;
 export type SettingsResult = {ok:true;settings:GeneralSettings;changed:boolean} |
-  {ok:false;error:"invalid-input"|"conflict"|"configuration-unavailable"};
+  {ok:false;error:"invalid-input"|"conflict"|"configuration-unavailable"|"country-archived"};
 
 const keys = ["locale","theme","palette","referenceCountry","revision"];
 export function parseGeneralSettings(input: unknown): (Omit<SettingsValues,"palette"> & {palette?:Palette;revision:number}) | null {
@@ -63,8 +64,10 @@ export async function readGeneralSettings(client:Client):Promise<GeneralSettings
 export async function updateGeneralSettings(client:Client,actorId:string,raw:unknown):Promise<SettingsResult> {
   const input=parseGeneralSettings(raw);
   if (!input || typeof actorId!=="string" || !actorId) return {ok:false,error:"invalid-input"};
+  await ensureCountryArchiveSchema(client);
   await client.query("BEGIN");
   try {
+    await client.query(COUNTRY_LIFECYCLE_LOCK);
     // Row lock + optimistic revision prevents lost updates from concurrent tabs.
     const rows=await client.query<Row>(select+" FOR UPDATE OF s");
     if (rows.rowCount!==1) {await client.query("ROLLBACK");return {ok:false,error:"configuration-unavailable"};}
@@ -77,6 +80,13 @@ export async function updateGeneralSettings(client:Client,actorId:string,raw:unk
     if (JSON.stringify(before)===JSON.stringify(after)) {
       await client.query("COMMIT");
       return {ok:true,settings:previous,changed:false};
+    }
+    if(input.referenceCountry!==null){
+      const country=await client.query<{archived_at:string|null}>(`SELECT archived_at
+       FROM public.smn_country WHERE code=$1 FOR SHARE`,[input.referenceCountry]);
+      if(country.rowCount!==1||country.rows[0].archived_at!==null){
+       await client.query("ROLLBACK");return {ok:false,error:"country-archived"};
+      }
     }
     const changed=await client.query<{
       locale:string;theme:string;reference_country:string|null;revision:number;updated_at:Date
