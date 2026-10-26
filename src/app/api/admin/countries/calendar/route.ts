@@ -4,7 +4,8 @@ import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
 import {preloadNationalCalendar} from "@/server/holidays/preload";
 import {isValidCountry} from "@/server/members/location";
-import {listNationalHolidays} from "@/server/countries/catalog";
+import {readAnnualHolidaySnapshot} from "@/server/holidays/manual";
+import {ensureManualHolidaySchema} from "@/server/holidays/manual-migration";
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
 const target={type:"settings",exists:true,inScope:true} as const;
@@ -40,8 +41,11 @@ export async function GET(req:NextRequest){
  const year=Number(yearText);
  if(year<1900||year>2200)return jsonResult({error:"invalid-input"},400);
  try{
-  const dates=await withAuthDb(db=>listNationalHolidays(db,code,year));
-  if(dates===null)return jsonResult({error:"country-not-found"},404);
-  return jsonResult({country:code,year,holidays:dates});
+  const snapshot=await withAuthDb(async db=>{
+   await ensureManualHolidaySchema(db);
+   return readAnnualHolidaySnapshot(db,code,year);
+  });
+  if(!snapshot)return jsonResult({error:"country-not-found"},404);
+  return jsonResult(snapshot);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
