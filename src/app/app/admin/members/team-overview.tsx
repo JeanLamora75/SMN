@@ -16,7 +16,7 @@ type TeamContextState=
  |{status:"loading"}|{status:"error"}|{status:"ready";value:TeamContextOverview};
 type View="cards"|"list";
 const CHOICE="smn-team-roster-view";
-export default function TeamOverview({canManage}:{canManage:boolean}){
+export default function TeamOverview({canManage,initialTeamId=null}:{canManage:boolean;initialTeamId?:string|null}){
  const t=useTranslation();
  const router=useRouter();
  const [roster,setRoster]=useState<Roster|null>(null);
@@ -29,10 +29,10 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
  const [createError,setCreateError]=useState("");
  const requestId=useRef<string|null>(null);
  useEffect(()=>{void Promise.resolve().then(()=>{try{if(localStorage.getItem(CHOICE)==="list")setView("list");}catch{}});},[]);
- useEffect(()=>{let alive=true;fetch("/api/admin/members",{cache:"no-store"})
+ useEffect(()=>{let alive=true;fetch("/api/admin/members"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store"})
   .then(async r=>{if(!r.ok)throw Error("members");return r.json() as Promise<Roster>;})
   .then(v=>{if(alive){setRoster(v);setStatus("ready");}})
-  .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};},[]);
+  .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};},[initialTeamId]);
  useEffect(()=>{
   const teamId=roster?.team.id;
   if(!teamId)return;
@@ -65,7 +65,7 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
     body:JSON.stringify({teamId:roster.team.id,displayName:newName.trim(),requestId:requestId.current})});
    const body=await r.json() as {error?:string};
    if(!r.ok)throw Error(body.error??"service");
-   const refreshed=await fetch("/api/admin/members",{cache:"no-store"});
+   const refreshed=await fetch("/api/admin/members"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store"});
    if(!refreshed.ok)throw Error("refresh-failed");
    setRoster(await refreshed.json() as Roster);
    setCreationOpen(false);setNewName("");requestId.current=null;
