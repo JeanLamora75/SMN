@@ -1,14 +1,18 @@
 import fr from "./fr.json";
 import en from "./en.json";
+import memberFr from "./member-team-scope.fr.json";
+import memberEn from "./member-team-scope.en.json";
 import type {Language} from "@/lib/language";
 
 type Paths<T> = { [K in keyof T & string]: T[K] extends string ? K :
   T[K] extends Record<string, unknown> ? `${K}.${Paths<T[K]>}` : never }[keyof T & string];
-export type TranslationKey = Paths<typeof fr>;
+export type TranslationKey = Paths<typeof fr> | Paths<typeof memberFr>;
 export type TranslationParams = Readonly<Record<string, string | number>>;
 export const DEFAULT_LOCALE: Language = "fr";
 
-const catalogs: Record<Language, Record<string, unknown>> = {fr,en};
+const catalogs: Record<Language, Record<string, unknown>> = {
+ fr:{...fr,...memberFr},en:{...en,...memberEn}
+};
 function find(locale: Language,key:string):string | undefined {
   let node:unknown = catalogs[locale];
   for(const part of key.split(".")) {
