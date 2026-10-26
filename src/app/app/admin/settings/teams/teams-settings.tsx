@@ -143,7 +143,8 @@ export default function TeamsSettings(){
     </p>}
     {notice&&<p className="alert alert-success" role="status">{notice}</p>}
     {error&&<p className="alert alert-warning" role="alert">{error}</p>}
-    <form className="d-grid gap-3" onSubmit={event=>void submit(event)}>
+    <form className="d-grid gap-3" data-smn-unsaved-changes={dirty?"true":"false"}
+     onSubmit={event=>void submit(event)}>
      <div>
       <label htmlFor="smn-team-settings-name" className="form-label">
        {t("teamSettings.teamName")} <span className="text-danger" aria-hidden="true">*</span>
