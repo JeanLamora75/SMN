@@ -110,9 +110,9 @@ function ConfigurationForm({configurationKey,status:original,canManage,saved}:{
    {t("common.save")}</button>}
  </form>;
 }
-function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
+function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved,onCancel}:{
  id:string;kind:DashboardEvent["kind"];teamId:string;cycleId:string;timeZone:string;
- canManage:boolean;saved:()=>void;
+ canManage:boolean;saved:()=>void;onCancel:()=>void;
 }){
  const t=useTranslation();
  const [initial,setInitial]=useState<Event|null>(null);
@@ -147,8 +147,17 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
      expectedTitle:initial.title,expectedStartAt:initial.startsAt,
      expectedEndAt:initial.endsAt,expectedStatus:initial.status})
    });
-   if(!res.ok){setError(t(res.status===409?
-    "dashboard.operational.edit.conflict":"dashboard.operational.edit.saveError"));return;}
+   if(!res.ok){
+    const reply=await res.json().catch(()=>null) as {error?:string}|null;
+    const code=reply?.error;
+    setError(t(code==="not-yet-due"?"dashboard.operational.edit.notYetDue":
+     code==="closed-period"?"dashboard.operational.edit.closed":
+     code==="outside-sprint"?"dashboard.operational.edit.outsideSprint":
+     code==="conflict"?"dashboard.operational.edit.eventConflict":
+     res.status===409?"dashboard.operational.edit.eventConflict":
+     "dashboard.operational.edit.saveError"));
+    return;
+   }
    saved();
   }catch{setError(t("dashboard.operational.edit.saveError"));}
   finally{setBusy(false);}
@@ -187,8 +196,12 @@ function EventForm({id,kind,teamId,cycleId,timeZone,canManage,saved}:{
    </select>
   </label>
   {error&&<p role="alert" className="alert alert-danger">{error}</p>}
-  {!readonly&&<button type="submit" className="btn btn-primary"
+  <div className="d-flex justify-content-end align-items-center flex-wrap gap-2">
+   {!readonly&&<button type="submit" className="btn btn-primary"
     disabled={busy||!title.trim()||!status}>{t("common.save")}</button>}
+   <button type="button" className="btn btn-outline-secondary" onClick={onCancel}
+    disabled={busy}>{t("dashboard.operational.quickAdd.cancel")}</button>
+  </div>
  </form>;
 }
 
@@ -205,7 +218,7 @@ function EditBody({props,close}:{props:Props;close:()=>void}){
      props.kind==="event"&&props.eventKind?
       <EventForm id={props.id} kind={props.eventKind} teamId={props.teamId}
        cycleId={props.cycleId} timeZone={props.timeZone??"Europe/Paris"}
-       canManage={props.canManage} saved={saved}/>:
+       canManage={props.canManage} saved={saved} onCancel={close}/>:
      props.configurationKey?
       <ConfigurationForm configurationKey={props.configurationKey} status={props.status??"todo"}
        canManage={props.canManage} saved={saved}/>:null}
@@ -241,10 +254,11 @@ export default function OperationalEdit(props:Props){
       onClick={close}/>
     </header>
     <EditBody props={props} close={close}/>
-    <div className="d-flex justify-content-end mt-3">
-     <button type="button" className="btn btn-outline-secondary" onClick={close}>
-      {t("dashboard.operational.quickAdd.cancel")}</button>
-    </div>
+    {!(props.kind==="event"&&props.eventKind)&&
+     <div className="d-flex justify-content-end mt-3">
+      <button type="button" className="btn btn-outline-secondary" onClick={close}>
+       {t("dashboard.operational.quickAdd.cancel")}</button>
+     </div>}
    </div>
   </dialog>,document.body)}
  </>;

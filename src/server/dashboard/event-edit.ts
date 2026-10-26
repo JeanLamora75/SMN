@@ -95,6 +95,17 @@ function parseInput(raw:unknown):Input|null{
    expectedActualMinutes:o.expectedActualMinutes as number|null
   }: {})};
 }
+/** Prevent declaring an upcoming meeting held (or moving a past held one into
+ * the future), without blocking edits to an already recorded future status. */
+export function futureAttendanceTransitionForbidden(
+ previousStatus:string,previousEndAt:string,nextStatus:string,nextEndAt:string,
+ now=Date.now()
+):boolean{
+ return (nextStatus==="held"||nextStatus==="not_held")&&
+  Date.parse(nextEndAt)>now&&
+  (previousStatus!==nextStatus||Date.parse(previousEndAt)<=now);
+}
+
 /** Edition de l'occurrence UNIQUEMENT, jamais des modèles/snapshots/équipes étrangères. */
 export async function updateDashboardEvent(db:Client,actorId:string,
  kind:EditableEventKind,id:string,raw:unknown){
@@ -127,7 +138,8 @@ export async function updateDashboardEvent(db:Client,actorId:string,
     end>new Date(prev.sprintEnd)){
    await db.query("ROLLBACK");return {ok:false as const,error:"outside-sprint" as const};
   }
-  if((o.status==="held"||o.status==="not_held")&&end.getTime()>Date.now()){
+  if(futureAttendanceTransitionForbidden(
+    prev.status,prev.endAt,o.status,end.toISOString())){
    await db.query("ROLLBACK");return {ok:false as const,error:"not-yet-due" as const};
   }
   const changed=prev.startAt!==start.toISOString()||prev.endAt!==end.toISOString()||

@@ -306,6 +306,9 @@
         "closed": "Closed sprint: read-only view.",
         "loadError": "Unable to load the record.",
         "saveError": "Unable to save changes.",
+        "notYetDue": "A future meeting cannot be marked held or not held. Choose an appropriate status or wait until the meeting date.",
+        "outsideSprint": "The meeting's date and time must remain within the Sprint.",
+        "eventConflict": "This meeting has changed since you opened it. Close and reopen this dialog to load its latest version.",
         "conflict": "The record changed or the sprint is protected. Refresh the dashboard.",
         "invalidDate": "Invalid or ambiguous local time at daylight-saving transition."
       },

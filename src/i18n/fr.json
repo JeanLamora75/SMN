@@ -306,6 +306,9 @@
         "closed": "Sprint clôturé : consultation uniquement.",
         "loadError": "Impossible de charger la fiche.",
         "saveError": "Enregistrement impossible.",
+        "notYetDue": "Une réunion future ne peut pas être déclarée tenue ou non tenue. Choisissez un statut approprié ou attendez sa date.",
+        "outsideSprint": "La date ou l'heure de la réunion doit rester dans les limites du Sprint.",
+        "eventConflict": "La réunion a été modifiée depuis son ouverture. Fermez cette fenêtre puis rouvrez-la pour récupérer la dernière version.",
         "conflict": "La fiche a été modifiée ou la période est protégée. Rechargez le tableau de bord.",
         "invalidDate": "Heure locale invalide ou ambiguë lors du changement d'heure."
       },
