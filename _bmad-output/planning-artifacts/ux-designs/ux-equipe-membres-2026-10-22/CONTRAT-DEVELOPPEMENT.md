@@ -181,3 +181,9 @@ juxtaposées, traits horizontaux lorsque les rangées changent.
 
 La Story de référence reste SMN-221 ; il s'agit d'une évolution
 visuelle exclusivement, sans effet métier ni mutation de la base.
+
+## Addendum de préparation — SMN-282 (26/10/2026)
+
+La demande d'une page **« Paramètres > Équipes »** permettant de créer ou modifier une équipe est tracée dans [SMN-282](https://lmn24.atlassian.net/browse/SMN-282) et son [avenant de spécification](AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md). Seul le **nom d'équipe** est obligatoire ; nom du produit, vision et Product Goal sont facultatifs. L'entrée Paramètres est une **destination cible**, pas une route déclarée fonctionnelle.
+
+**Attention : ce besoin constitue une évolution structurante contraire à l'invariant monoéquipe de ce contrat et à D-PRD-137.** Tant que la décision d'étendre le périmètre Scrum/Kanban, la persistance du produit facultatif et l'isolation interéquipes ne sont pas arbitrées, conserver les protections de la version actuelle. Ne pas amorcer la migration ni proclamer la nouvelle Story « Ready for Development ». Toute adaptation de SMN-221 doit préserver les versions et les données existantes.

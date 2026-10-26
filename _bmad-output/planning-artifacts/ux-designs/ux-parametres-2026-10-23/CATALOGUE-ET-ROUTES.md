@@ -30,3 +30,15 @@
 **SMN-228 / SMN-229 :** récupérer **plages de travail** et **pause déjeuner** de l'écran Sprints existant pour la rubrique **Jours ouvrés** (pas un moteur pour changer automatiquement lundi–vendredi). Réutiliser les API `work-slots` et `lunch`, et réévaluer l'état de la carte selon les fonctions réellement accessibles. Sous **Cérémonies et modèles**, installer le formulaire des **modèles réutilisables** `TemplateForm`, pas les occurrences de réunion. **Cadence des sprints** demeure inchangée ; Règles de capacité n'obtient pas une nouvelle fonction fictive.
 
 Référence : [Matrice Sprints](../ux-sprints-pilotage-2026-10-23/MATRICE-FONCTIONS.md) et [EXPERIENCE](../ux-sprints-pilotage-2026-10-23/EXPERIENCE.md). Les routes futures ci-dessus sont des cibles : Amelia doit vérifier leur existence avant d'activer une carte.
+
+## Proposition supplémentaire — Paramètres > Équipes (SMN-282)
+
+**26/10/2026 — ajout demandé, non développé et soumis à arbitrage :** la [Story SMN-282](https://lmn24.atlassian.net/browse/SMN-282) propose une entrée **« Équipes »** dans **Organisation Agile** du portail Paramètres, ouvrant une nouvelle page de création/modification.
+
+| Groupe | Carte/entrée proposée | Route cible | Disponibilité |
+| --- | --- | --- | --- |
+| Organisation Agile | Équipes | `/app/admin/settings/teams` | **Proposition non active — arbitrage D-PRD-137 requis** |
+
+Formulaire demandé : Nom de l'équipe **requis**, Nom du produit, Vision Produit, Product Goal **facultatifs** ; accès administrateur, préremplissage en édition, historique et protections de sauvegarde. Les **14 rubriques validées initialement** et leur état de livraison ne sont pas rétroactivement réécrits par cette proposition. La nouvelle entrée pourra être activée une fois la gestion multiéquipes réellement livrée ; ne pas créer de faux lien avant.
+
+Références : [avenant équipes](../ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md) ; [D-PRD-137](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). **À décider :** possibilité de plusieurs équipes dans le MVP Scrum/Kanban, modèle produit facultatif et portée de l'équipe active.

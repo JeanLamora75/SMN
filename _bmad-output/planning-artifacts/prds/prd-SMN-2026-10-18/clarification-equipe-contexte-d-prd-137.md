@@ -18,3 +18,8 @@ Vision et Product Goal restent distincts et facultatifs, saisissables/modifiable
 
 Cet amendement complète les FR existantes (notamment FR-1/5/7/27/28/61/66/70/71) et les décisions F-26–34/F-58–63/F-116–124, sans renumérotation ni annulation de l'historique. Il prévaut sur les passages antérieurs incompatibles et clôt les ambiguïtés métier C1/C2 du contrôle de préparation, une fois la correspondance Jira vérifiée. Les réserves techniques C3/C4 et le séquencement I0–I6 demeurent. Aucun développement ni test applicatif effectué.
 
+## Évolution demandée le 26/10/2026 — non arbitrée
+
+La [Story 3.26 / SMN-282](https://lmn24.atlassian.net/browse/SMN-282), demandée le 26 octobre 2026, vise la **création d'une nouvelle équipe et l'édition d'équipes depuis « Paramètres > Équipes »** avec quatre champs dont seul le nom de l'équipe est obligatoire. Voir l'[avenant de cadrage](../../ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
+
+Cette nouvelle demande **entre en conflit** avec D-PRD-137 et avec les contraintes actuelles d'unicité sur équipe/produit par installation. **Jusqu'à décision produit explicite de changement de périmètre et mise à jour des contrats d'architecture, D-PRD-137 continue de s'appliquer.** La création de la Story et la documentation associée n'autorisent ni un contournement API ni une migration implicite. À arbitrer : mono/multiéquipes Scrum/Kanban, produit partagé ou par équipe et facultatif, sélection d'équipe active, autorisations et non-régression.
