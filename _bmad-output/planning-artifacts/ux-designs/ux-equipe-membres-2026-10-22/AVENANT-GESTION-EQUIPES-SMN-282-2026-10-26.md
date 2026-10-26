@@ -97,3 +97,17 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 **Supersession :** les mentions antérieures de « politique produit en attente » dans cet avenant sont **résolues par l'Option A**. Restent ouverts l'équipe active, l'isolation des données et les homonymies, sans réintroduire le partage de produit. Voir [D-PRD-137 amendée](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
 
 **Statut :** contrats mis à jour, développement non commencé.
+
+## 9. Arbitrage validé — Sélecteur global d'équipe (Option A, 26/10/2026)
+
+**Option A validée :** l'équipe active se choisit dans **l'en-tête global de SMN**, juste à côté du sélecteur Sprint / période. Le contrôle existant `smn-current-team` dans `src/app/app/private-shell.tsx` est aujourd'hui **désactivé** ; l'implémentation ultérieure le rendra interactif et alimenté exclusivement par les équipes réellement accessibles à l'utilisateur.
+
+- Le choix de l'équipe est **mémorisé indépendamment pour chaque utilisateur** et conservé entre navigations et sessions. L'implémentation exacte de cette préférence devra être déterminée en respectant les protections serveur.
+- La sélection utilise `teamId` et non le nom affiché ; la liste exclut les équipes hors du périmètre autorisé. Les administrateurs peuvent gérer les équipes selon les droits déjà prévus ; les utilisateurs standard ne gagnent aucun droit d'écriture en utilisant le sélecteur.
+- L'emplacement, le libellé et l'état actif sont lisibles et accessibles au clavier, au zoom et sur mobile ; traductions centralisées FR/EN. L'absence d'équipes accessibles et l'indisponibilité doivent avoir des états honnêtes.
+- Une équipe nouvellement créée dans « Paramètres > Équipes » ne remplace **pas implicitement** l'équipe active : la sélection reste un acte utilisateur.
+- Le sélecteur de Sprint/période doit **rester cohérent** avec l'équipe affichée : jamais un identifiant de cycle d'une équipe différente. Le détail des transitions de sélection n'est **pas encore validé**.
+
+**Arbitrages suivants ouverts :** lors du changement d'équipe, faut-il conserver la page (avec rafraîchissement contextuel) ou revenir au tableau de bord ? Comment traiter une édition non sauvegardée, une fiche détaillée, une URL avec `teamId` explicite, un Sprint/période non disponible, l'historique et l'isolation multiéquipes ? Aucune de ces alternatives n'est présumée acceptée. Les mentions précédentes de « sélection d'équipe à arbitrer » sont dépassées **pour le placement et la mémorisation seulement**, mais pas pour le comportement de transition.
+
+**Aucun développement ni migration** au titre de cette validation. Liens : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [PRD D-PRD-137](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
