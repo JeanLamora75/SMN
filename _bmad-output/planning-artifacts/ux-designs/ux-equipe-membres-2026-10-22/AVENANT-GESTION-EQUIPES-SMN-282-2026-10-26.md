@@ -74,3 +74,26 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 **Règle prioritaire et nouvelle :** le Product Owner a explicitement validé **la création de plusieurs équipes dans une installation SMN Scrum/Kanban dès le MVP**. Cela remplace la contrainte monoéquipe inscrite dans la version initiale de D-PRD-137, mais uniquement sur le nombre d'équipes. Les paragraphes historiques « multiéquipes réservé à SAFe » et « en attendant D-PRD-137 demeure la règle normative » rédigés avant cette validation ne doivent plus être appliqués comme cible produit sur ce point.
 
 **En attente d'arbitrage, donc développement toujours bloqué :** politique de rattachement produit et de champ produit vide ; sélection et persistance de l'équipe active ; isolation de toutes les lectures/mutations et historiques ; gestion d'homonymies. Les éléments hors monoéquipe de D-PRD-137 restent applicables jusqu'à décision contraire. Aucun code ou test produit par cet amendement.
+
+## 8. Arbitrage validé — Option A : produit propre et facultatif (26/10/2026)
+
+**Décision finale sur ce point :** dans le MVP Scrum/Kanban, chaque équipe possède **son produit indépendant facultatif** (0..1). Il n'existe pas d'identité de produit partagée entre équipes dans ce périmètre. Un nom identique sur deux équipes ne fusionne pas leurs produits.
+
+| Champ | Obligatoire ? | Portée |
+| --- | --- | --- |
+| Nom de l'équipe | **Oui** | Identité stable de l'équipe |
+| Nom du produit | **Non** | Produit propre à l'équipe, absent si non renseigné |
+| Vision du produit | **Non** | Contexte de l'équipe, même sans produit |
+| But du produit / Product Goal | **Non** | Contexte de l'équipe, même sans produit |
+
+**Règles métier complémentaires :**
+- En création, avec le seul nom d'équipe, enregistrer l'équipe sans créer de produit vide, factice ou partagé.
+- En édition, préremplir uniquement les données de l'équipe sélectionnée ; ne pas exiger `productName`. Les deux textes restent modifiables en l'absence de produit.
+- Si un produit courant existe, son identité reste stable lors du renommage. Un éventuel retrait du nom produit doit préserver les snapshots et références historiques ; la politique d'audit et de détachement est à concevoir.
+- Interdire toute mutation qui renomme, rattache ou supprime implicitement le produit d'une autre équipe ; garantir atomicité et contrôle de révision.
+
+**Écarts techniques avant développement :** `SmnTeam.productId` doit devenir facultatif ou son équivalent relationnel ; retirer les contraintes d'unicité d'installation pertinentes ; conserver le caractère non vide d'un **produit effectivement créé** ; adapter les validations `parseTeamContextChange`, `readTeamContext` et les projections pour gérer un produit absent ; préserver les anciennes données, IDs, audits et rapports. Aucune migration n'a été effectuée.
+
+**Supersession :** les mentions antérieures de « politique produit en attente » dans cet avenant sont **résolues par l'Option A**. Restent ouverts l'équipe active, l'isolation des données et les homonymies, sans réintroduire le partage de produit. Voir [D-PRD-137 amendée](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
+
+**Statut :** contrats mis à jour, développement non commencé.

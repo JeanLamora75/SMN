@@ -751,3 +751,11 @@ La conception esthétique [Option C « Cockpit Agile »](../_bmad-output/plannin
 Le Product Owner a **explicitement autorisé plusieurs équipes internes dans une installation Scrum/Kanban dès le MVP**. Cette décision remplace la restriction monoéquipe de D-PRD-137. Les paragraphes historiques antérieurs imposant une seule équipe ne constituent plus la cible produit. Voir [l'amendement PRD](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md) et [l'avenant SMN-282](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
 
 **Encore à valider avant développement** : produit par équipe ou partagé et champ facultatif ; équipe active et isolation des membres, cycles, rapports et autres périmètres. Aucune modification de code ni migration n'est effectuée par cette publication documentaire.
+
+## Arbitrage SMN-282 — Produit propre et facultatif par équipe (26 octobre 2026)
+
+**Option A explicitement validée : chaque équipe Scrum/Kanban possède zéro ou un produit indépendant.** Le nom de l'équipe est le **seul champ obligatoire** du formulaire « Paramètres > Équipes » ; nom du produit, Vision du produit et Product Goal sont facultatifs. Vision et Goal demeurent des contenus rattachés à l'équipe, même sans produit. Deux équipes ne partagent jamais l'identifiant du même produit dans le MVP. Aucune création de produit fictif.
+
+Cette décision **supplante** les mentions antérieures de « produit unique par installation » et « produit partagé ou par équipe à décider » dans les parties historiques du référentiel. Elle est documentée dans l'[avenant D-PRD-137](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md), l'[avenant UX SMN-282](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md) et la [Story Jira SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+**Non arbitrés** : sélection et mémorisation de l'équipe active, périmètre de navigation et isolation technique, homonymies. La règle de non-rétroactivité des historiques et des rapports demeure. **Aucun développement ou migration n'a été réalisé au titre de cet arbitrage.**
