@@ -200,3 +200,33 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 ### Décisions encore ouvertes
 
 **À valider avant développement :** interface et parcours par lesquels l'Administrateur accorde et retire les équipes à un compte (page des utilisateurs existante ou écran dédié) ; migration des comptes `user` préexistants avec historique d'accès, politique pour un nouveau compte sans attribution, règle de conservation/réinitialisation des filtres à la bascule ; homonymies d'équipes ; erreurs de navigation/chargement et stratégie de rollback. **L'option B n'autorise aucune affectation automatique présumée.** Aucun code applicatif, migration ou test réalisé. Référence : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+## 15. Séquencement validé — Habilitations dans les fiches utilisateurs en V1 (26/10/2026)
+
+**Décision validée par le Product Owner :** les droits de consultation par équipe pour les comptes `user` seront **configurés dans la fiche des utilisateurs en V1**. Le MVP de [SMN-282](https://lmn24.atlassian.net/browse/SMN-282) doit avancer rapidement **sans développer maintenant cette interface d'habilitation**. Les décisions précédentes (droits `user` limités aux équipes explicitement autorisées) demeurent la cible V1, sans être présentées comme réalisées au MVP.
+
+**État vérifié du code :** `src/app/app/admin/users/page.tsx` et `users-admin.tsx` existent déjà pour gérer les comptes et les rôles. Le report en V1 concerne **l'administration fine des équipes autorisées**, pas l'existence ou la suppression des comptes actuels.
+
+### Portée proposée pour la première livraison MVP
+
+- **Administrateur :** créer, éditer et sélectionner les équipes de son installation, produit facultatif par équipe, contextes/cycles et navigation conformes aux options déjà validées.
+- **Comptes `user` existants :** ne pas les rendre automatiquement lecteurs des nouvelles équipes. **Proposition à confirmer** : migrer leur habilitation historique vers l'équipe **déjà existante uniquement** pour préserver leur consultation actuelle, sans octroyer de droits sur les équipes créées ensuite ; aucune interface d'extension de ces droits dans le MVP.
+- **Garanties de sécurité MVP, non reportables :** contrôle serveur de l'installation, du rôle, de l'équipe et de la propriété de la ressource sur chaque requête ; refus de toute écriture par `user`, absence de fuite par URL/exports/API, intégrité des historiques et des anciennes données.
+- **V1 :** section « Équipes autorisées » dans la fiche utilisateur ; attribution/révocation multiéquipes par l'Admin, journal d'audit, actualisation du sélecteur `user` et contrôle des droits sur toutes les projections. Critères AC24–AC27 à tracer distinctement selon la portée effective ; ne pas fermer le besoin V1 lorsque le MVP est livré.
+
+### Choix techniques recommandés pour éviter d'autres cycles de questions (non validés)
+
+- Réinitialiser les filtres et identifiants liés à l'ancienne équipe lors du changement ; conserver seulement des préférences visuelles neutres (Liste/Cartes), sans transférer les critères sur un autre périmètre.
+- Refuser deux noms d'équipes identiques **après normalisation insensible à la casse et aux espaces** dans une même installation (erreur localisée) ; permettre le même nom dans des installations différentes.
+- En cas d'échec de changement d'équipe ou d'accès refusé, maintenir la dernière sélection valide, le cycle, l'URL et les données cohérentes ; ne jamais afficher les données de l'ancienne équipe sous le nouveau nom.
+- Une équipe nouvellement créée est vide, aucun cycle ou membre fictif, aucun basculement d'équipe forcé. Migration monoéquipe réversible, transactions, audits et contrôle de concurrence.
+- Pas de nouvelle question fonctionnelle hormis la **validation du droit historique des comptes `user`** ; ces conventions ne sont pas déclarées approuvées avant accord.
+
+### Préparation des lots de développement (après validation)
+
+1. Modèle Prisma/migration sûre, nouvelle équipe et produit facultatif, identité historique conservée.
+2. Page Paramètres > Équipes (créer/modifier), contrôles API, droits administrateur et tests de validation.
+3. Contexte serveur résolu explicitement par équipe, préférence personnelle, sélecteur global, navigation et auto-cycle Scrum/Kanban.
+4. Isolation des écrans/API/exports/rapports, URLs historiques, protection brouillons, i18n, tests interéquipes et build.
+
+**Aucune implémentation n'est commencée par cet avenant.**
