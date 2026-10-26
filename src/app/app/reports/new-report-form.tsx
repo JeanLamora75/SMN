@@ -44,7 +44,7 @@ export default function NewReportForm({cycles,templates,preferredCycle}:{cycles:
   finally{setBusy(false);}
  };
  return <>
-  <button ref={triggerRef} className="smn-report-create" type="button" onClick={()=>setOpen(true)} disabled={cycles.length===0||templates.length===0} aria-haspopup="dialog">
+  <button ref={triggerRef} className="smn-report-create" type="button" onClick={()=>setOpen(true)} disabled={cycles.length===0||templates.length===0} aria-haspopup="dialog" aria-label={tr("newReport")}> 
    <span aria-hidden="true" className="smn-report-create-plus">+</span><span className="smn-report-create-label">{tr("newReport")}</span>
   </button>
   <dialog ref={dialogRef} className="smn-report-dialog" aria-labelledby="smn-report-create-title"
