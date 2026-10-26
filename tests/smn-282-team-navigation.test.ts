@@ -11,6 +11,8 @@ test("même rubrique conservée et fiche repliée sur la liste cible",()=>{
   "/app/reports?teamId=team_b");
  assert.equal(teamSwitchDestination("/app/admin/members/member_3","team_b","scrum"),
   "/app/admin/members?teamId=team_b");
+ assert.equal(teamSwitchDestination("/app/admin/settings/teams","team_b","scrum"),
+  "/app/admin/settings/teams?teamId=team_b");
 });
 test("cycle Scrum dans son mode uniquement ; Kanban vers tableau de bord",()=>{
  assert.equal(teamSwitchDestination("/app/admin/sprints/sprint_4","team_b","scrum"),
