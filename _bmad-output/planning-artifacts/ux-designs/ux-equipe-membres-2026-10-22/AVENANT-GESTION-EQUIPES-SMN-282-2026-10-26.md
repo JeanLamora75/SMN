@@ -177,3 +177,26 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 **Conception technique à venir :** conserver les protections déjà identifiées dans `src/lib/context-navigation.ts` (`dashboardReturnPath`, `safeDashboardReturn`, `teamDetailPath`) tout en élargissant proprement le traitement des contextes directs. Éviter la confiance dans le seul sélecteur et prévoir une opération de bascule cohérente qui ne conserve jamais des caches ou résultats de l'équipe précédente sous le nom de Panda.
 
 **Points encore non arbitrés :** modèle exact des droits par équipe, niveaux de visibilité des données collectives, portée des filtres, réponse aux échecs de bascule (dont préférence mémorisée), politique d'homonymie et migration technique. **Aucun développement, migration ni test exécuté.**
+
+## 14. Arbitrage validé — Autorisations explicites par équipe (Option B, 26/10/2026)
+
+**Décision validée :** dans chaque installation SMN du MVP Scrum/Kanban, l'Administrateur peut gérer toutes les équipes de **son installation** ; le rôle `user` ne peut **consulter en lecture seule que les informations collectives des équipes pour lesquelles son compte possède une autorisation explicite**. Une affectation comme membre d'une équipe ne vaut **pas** habilitation de compte applicatif. Les autorisations de données individuelles, administratives et de documents continuent de s'appliquer indépendamment.
+
+### Critères contractuels ajoutés à SMN-282 : AC23–AC27
+
+- **AC23 — Administrateur :** accès aux équipes de sa propre installation uniquement ; lecture, création et modification, conformément aux permissions existantes et vérifications serveur.
+- **AC24 — Utilisateur :** une personne autorisée sur Koala/Tigre ne voit dans le sélecteur que Koala/Tigre et leurs données collectives lisibles ; Panda n'apparaît pas et n'est pas consultable directement.
+- **AC25 — Refus sans fuite :** aucune URL, préférence mémorisée, `teamId`, `cycleId`, API ou export ne permet de lire, modifier ou découvrir un objet d'une équipe hors autorisation. L'utilisateur n'obtient aucun droit d'écriture.
+- **AC26 — Révocation :** un droit retiré devient inopérant pour les nouvelles requêtes, y compris en cours de session ; ne pas réutiliser la sélection préférée ou des données en cache comme preuve d'autorisation.
+- **AC27 — Périmètre :** autorisation serveur basée sur le compte authentifié, l'installation, les habilitations explicites par équipe et la propriété des cycles, membres, registres, documents et rapports. Audit des attributions/révocations ; pas de mutation interéquipes implicite.
+
+### Impacts techniques identifiés, non réalisés
+
+- `src/server/access-policy.ts` contrôle aujourd'hui essentiellement rôle et `resource.inScope`, sans relation d'habilitations individuelles à une liste d'équipes ; tout `inScope` devra provenir d'une résolution serveur réelle et vérifiable.
+- `prisma/schema.prisma` expose `SmnAccount`, `SmnTeam` et `SmnInstallation`, mais aucune relation explicite compte–équipe autorisée. Prévoir une association par identifiants stables, une contrainte anti-doublons, des attributions/révocations auditables et une migration préservant l'installation existante.
+- `src/app/app/private-shell.tsx` ne devra proposer que les équipes autorisées ; les APIs, lectures, recherches, filtres, exports, historiques et mutations doivent réévaluer l'accès côté serveur. Les protections des documents et données individuelles existantes ne sont jamais assouplies.
+- Ne jamais inférer une habilitation de la simple présence d'un `teamId` dans l'URL ou d'une affectation d'un membre physique. Un compte `user` sans équipe doit avoir un état neutre sans divulgation.
+
+### Décisions encore ouvertes
+
+**À valider avant développement :** interface et parcours par lesquels l'Administrateur accorde et retire les équipes à un compte (page des utilisateurs existante ou écran dédié) ; migration des comptes `user` préexistants avec historique d'accès, politique pour un nouveau compte sans attribution, règle de conservation/réinitialisation des filtres à la bascule ; homonymies d'équipes ; erreurs de navigation/chargement et stratégie de rollback. **L'option B n'autorise aucune affectation automatique présumée.** Aucun code applicatif, migration ou test réalisé. Référence : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
