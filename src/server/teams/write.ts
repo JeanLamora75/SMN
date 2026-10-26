@@ -87,6 +87,8 @@ export async function updateInstallationTeam(db:Client,installationId:string,
    [input.teamId,installationId]);
   const team=t.rows[0];
   if(!team)return failed("not-found");
+  if(team.product_id!==null&&team.product_name===null)
+   throw Error("team-product-outside-installation");
   const stored=await db.query<Stored>("SELECT revision,vision,product_goal "+
    "FROM public.smn_team_context WHERE team_id=$1 FOR UPDATE",[input.teamId]);
   const previous=stored.rows[0]??null,revision=previous?.revision??0;
@@ -105,15 +107,17 @@ export async function updateInstallationTeam(db:Client,installationId:string,
   let productId=team.product_id;
   if(!after.productName)productId=null; // Préserver l'ancien produit dans l'historique.
   else if(productId){
-   await db.query("UPDATE public.smn_product SET name=$3 WHERE id=$1 AND installation_id=$2",
+   const renamed=await db.query("UPDATE public.smn_product SET name=$3 WHERE id=$1 AND installation_id=$2",
     [productId,installationId,after.productName]);
+   if(renamed.rowCount!==1)throw Error("team-product-update-inconsistent");
   }else{
    productId=randomUUID();
    await db.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES($1,$2,$3)",
     [productId,installationId,after.productName]);
   }
-  await db.query("UPDATE public.smn_team SET name=$3,product_id=$4 "+
+  const saved=await db.query("UPDATE public.smn_team SET name=$3,product_id=$4 "+
    "WHERE id=$1 AND installation_id=$2",[input.teamId,installationId,after.name,productId]);
+  if(saved.rowCount!==1)throw Error("team-update-inconsistent");
   if(previous){
    const changed=await db.query("UPDATE public.smn_team_context "+
     "SET vision=$3,product_goal=$4,revision=revision+1,updated_by=$5,updated_at=now() "+
