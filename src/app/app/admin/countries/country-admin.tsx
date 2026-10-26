@@ -7,6 +7,7 @@ import CountryFlag from "./country-flag";
 import CountryFormModal from "./country-form-modal";
 import CountryCalendarModal from "./country-calendar-modal";
 import CountryLifecycleModal from "./country-lifecycle-modal";
+import {visibilityAfterLifecycle} from "@/lib/countries/lifecycle-ux";
 
 type Country={code:string;name:string;revision:number;archived:boolean;archivedAt:string|null;nationalCalendar:{
  status:"configured"|"partial"|"not-configured"|"invalid";
@@ -34,6 +35,10 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const [showTools,setShowTools]=useState(false);
  const [activeCode,setActiveCode]=useState<string|null>(null);
  const openerRef=useRef<HTMLButtonElement|null>(null);
+ const lifecycleOpenerCode=useRef<string|null>(null);
+ const renameOpenerCode=useRef<string|null>(null);
+ const archiveFilterRef=useRef<HTMLSelectElement>(null);
+ const addCountryRef=useRef<HTMLButtonElement>(null);
 
  const refresh=useCallback(async()=>{
   const response=await fetch("/api/admin/countries",{cache:"no-store"});
@@ -65,6 +70,18 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   ).sort((a,b)=>a.name.localeCompare(b.name));
  },[countries,query,filter,selectedYear,archiveFilter]);
  const activeCountry=countries.find(c=>c.code===activeCode)??null;
+ useEffect(()=>{
+  if(lifecycle||!lifecycleOpenerCode.current)return;
+  const code=lifecycleOpenerCode.current;
+  const frame=requestAnimationFrame(()=>{
+   const trigger=Array.from(document.querySelectorAll<HTMLElement>("[data-country-actions]"))
+    .find(el=>el.dataset.countryActions===code)
+    ?.querySelector<HTMLElement>("summary");
+   (trigger??archiveFilterRef.current)?.focus();
+   lifecycleOpenerCode.current=null;
+  });
+  return ()=>cancelAnimationFrame(frame);
+ },[lifecycle,countries,archiveFilter,filter,query,selectedYear]);
  useEffect(()=>{
   if(!focusCode||form)return;
   const frame=requestAnimationFrame(()=>{
@@ -120,7 +137,8 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     <p className="text-muted small mb-0">{t("countries.nationalOnly")}</p>
    </div>
    {canManage&&<div className="d-flex flex-wrap gap-2">
-    <button type="button" className="btn btn-primary" onClick={()=>setForm({mode:"create"})}>
+    <button ref={addCountryRef} type="button" className="btn btn-primary"
+     onClick={()=>{renameOpenerCode.current=null;setForm({mode:"create"});}}>
      {t("countries.addTitle")}
     </button>
     <button type="button" className="btn btn-outline-secondary"
@@ -135,14 +153,14 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     <label htmlFor="country-archive-filter" className="form-label">
      {t("countries.lifecycleFilterLabel")}
     </label>
-    <select id="country-archive-filter" className="form-select"
+    <select ref={archiveFilterRef} id="country-archive-filter" className="form-select"
      value={archiveFilter} onChange={event=>setArchiveFilter(event.target.value as ArchiveFilter)}>
      <option value="active">{t("countries.lifecycleActive")}</option>
      <option value="archived">{t("countries.lifecycleArchived")}</option>
      <option value="all">{t("countries.statusAll")}</option>
     </select>
    </div>
-   <div className="col-12 col-md-4">
+   <div className="col-12 col-md-3">
     <label className="form-label" htmlFor="country-search">{t("countries.searchLabel")}</label>
     <input className="form-control" id="country-search" type="search"
      placeholder={t("countries.searchPlaceholder")} value={query}
@@ -171,11 +189,13 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     </div>
    </div>
   </div>
-  {notice&&<p role={["saved","renameSaved","calendarRefreshed","lifecycleSaved"].includes(notice)?"status":"alert"}
-   className={"alert "+(["saved","renameSaved","calendarRefreshed","lifecycleSaved"].includes(notice)?"alert-success":"alert-warning")}>
+  {notice&&<p role={["saved","renameSaved","calendarRefreshed","lifecycleSaved","lifecycleArchived","lifecycleReactivated"].includes(notice)?"status":"alert"}
+   className={"alert "+(["saved","renameSaved","calendarRefreshed","lifecycleSaved","lifecycleArchived","lifecycleReactivated"].includes(notice)?"alert-success":"alert-warning")}>
    {t(notice==="saved"?"countries.saved":notice==="calendarRefreshed"?
     "countries.calendarRefreshed":notice==="duplicate"?"countries.duplicate":
     notice==="invalid"?"countries.invalid":notice==="renameSaved"?"countries.renameSaved":
+    notice==="lifecycleArchived"?"countries.lifecycleArchivedSuccess":
+    notice==="lifecycleReactivated"?"countries.lifecycleReactivatedSuccess":
     notice==="lifecycleSaved"?"countries.lifecycleSaved":
     notice==="savedRefreshFailed"?"countries.savedRefreshFailed":"countries.failed")}
   </p>}
@@ -212,18 +232,32 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
          onClick={event=>openCalendar(country.code,event.currentTarget)}>
          {t("countries.manage")}
         </button>
-        {canManage&&<details className="dropdown d-inline-block">
+        {canManage&&<details className="d-inline-block align-middle text-start"
+         data-country-actions={country.code}
+         onKeyDown={event=>{
+          if(event.key==="Escape"){
+           event.preventDefault();event.stopPropagation();
+           event.currentTarget.open=false;
+           event.currentTarget.querySelector<HTMLElement>("summary")?.focus();
+          }
+         }}
+         onBlur={event=>{
+          if(!event.currentTarget.contains(event.relatedTarget as Node|null))
+           event.currentTarget.open=false;
+         }}>
          <summary className="btn btn-sm btn-outline-secondary"
-          aria-label={t("countries.moreActions")}>⋯</summary>
-         <div className="dropdown-menu show dropdown-menu-end">
-          <button type="button" className="dropdown-item"
+          aria-label={t("countries.lifecycleMenuForCountry",{country:country.name})}>⋯</summary>
+         <div className="d-flex flex-column gap-1 border rounded-2 bg-body p-2 mt-2 shadow-sm">
+          {!country.archived&&<button type="button" className="dropdown-item"
            onClick={event=>{
             event.currentTarget.closest("details")?.removeAttribute("open");
+            renameOpenerCode.current=country.code;
             setForm({mode:"rename",country});
-           }} disabled={country.archived}>{t("countries.renameAction")}</button>
+           }}>{t("countries.renameAction")}</button>}
           <button type="button" className="dropdown-item"
            onClick={event=>{
             event.currentTarget.closest("details")?.removeAttribute("open");
+            lifecycleOpenerCode.current=country.code;
             setLifecycle(country);
            }}>{t(country.archived?"countries.lifecycleReactivateAction":
              "countries.lifecycleArchiveAction")}</button>
@@ -265,12 +299,24 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
 
   {canManage&&lifecycle&&<CountryLifecycleModal
    key={lifecycle.code+":"+lifecycle.revision} country={lifecycle}
-   onClose={()=>setLifecycle(null)} onSaved={async()=>{
-    setLifecycle(null);setNotice("lifecycleSaved");
+   onClose={()=>setLifecycle(null)} onSaved={async(action)=>{
+    setLifecycle(null);
+    setArchiveFilter(value=>visibilityAfterLifecycle(value,action));
+    setNotice(action==="archive"?"lifecycleArchived":"lifecycleReactivated");
     try{await refresh();}catch{setLoadFailed(true);setNotice("savedRefreshFailed");}
    }}/>}
   {canManage&&form&&<CountryFormModal key={form.mode+":"+(form.country?.code??"new")}
-   mode={form.mode} country={form.country} onClose={()=>setForm(null)}
+   mode={form.mode} country={form.country} onClose={()=>{
+    setForm(null);
+    const code=renameOpenerCode.current;
+    renameOpenerCode.current=null;
+    requestAnimationFrame(()=>{
+     const trigger=code?Array.from(document.querySelectorAll<HTMLElement>(
+      "[data-country-actions]")).find(el=>el.dataset.countryActions===code)
+       ?.querySelector<HTMLElement>("summary"):null;
+     (trigger??addCountryRef.current??archiveFilterRef.current)?.focus();
+    });
+   }}
    onSaved={onFormSaved}/>}
 
   {activeCountry&&<CountryCalendarModal key={activeCountry.code+":"+selectedYear}

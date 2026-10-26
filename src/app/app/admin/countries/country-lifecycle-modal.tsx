@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import CountryFlag from "./country-flag";
+import {lifecycleActionForCountry,lifecycleBlocked} from "@/lib/countries/lifecycle-ux";
 
 type Country={code:string;name:string;revision:number;archived:boolean};
 type Impact={country:{code:string;name:string;revision:number;archived:boolean};
@@ -9,7 +10,7 @@ type Impact={country:{code:string;name:string;revision:number;archived:boolean};
  linkedMembers:{id:string;name:string}[];membersTruncated:boolean;
  canArchive:boolean;canReactivate:boolean};
 export default function CountryLifecycleModal({country,onClose,onSaved}:{
- country:Country;onClose:()=>void;onSaved:()=>Promise<void>;
+ country:Country;onClose:()=>void;onSaved:(action:"archive"|"reactivate")=>Promise<void>;
 }){
  const t=useTranslation();
  const [impact,setImpact]=useState<Impact|null>(null);
@@ -41,9 +42,10 @@ export default function CountryLifecycleModal({country,onClose,onSaved}:{
   return ()=>{controller.abort();if(el?.open)el.close();};
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[]);
- const action=country.archived?"reactivate":"archive";
- const possible=impact?(action==="archive"?impact.canArchive:impact.canReactivate):false;
- const changed=!!impact&&impact.country.revision!==country.revision;
+ const action=lifecycleActionForCountry(country.archived);
+ const possible=impact?!lifecycleBlocked(impact):false;
+ const changed=!!impact&&(impact.country.revision!==country.revision||
+  impact.country.archived!==country.archived);
  const submit=async()=>{
   if(busy||loading||!confirmed||!possible||changed||!impact)return;
   setBusy(true);setError("");
@@ -62,7 +64,7 @@ export default function CountryLifecycleModal({country,onClose,onSaved}:{
     setError(t(reason));
     return;
    }
-   await onSaved(); // The server has already committed. No second POST on read failure.
+   await onSaved(action); // Never retry a successful POST when the catalog refresh fails.
   }catch{
    setError(t("countries.lifecycleSavedRefreshFailed"));
   }finally{setBusy(false);}
@@ -90,6 +92,7 @@ export default function CountryLifecycleModal({country,onClose,onSaved}:{
     </p>}
     {!country.archived&&impact.referenceCountry&&<p className="alert alert-warning" role="alert">
      {t("countries.lifecycleReferenceBlock")}
+     <span className="d-block small mt-2">{t("countries.lifecycleReferenceHelp")}</span>
     </p>}
     {!country.archived&&impact.activeMemberCount>0&&<div className="alert alert-warning" role="alert">
      <p>{t("countries.lifecycleMembersCount",{count:impact.activeMemberCount})}</p>
@@ -97,9 +100,20 @@ export default function CountryLifecycleModal({country,onClose,onSaved}:{
       <a href={"/app/admin/members/"+encodeURIComponent(m.id)}>{m.name}</a>
      </li>)}</ul>
      {impact.membersTruncated&&<p className="small mb-0">{t("countries.lifecycleMembersTruncated")}</p>}
+     <p className="small mb-0 mt-2">{t("countries.lifecycleMemberHelp")}</p>
     </div>}
+    {!country.archived&&!possible&&<div className="d-flex flex-wrap gap-2 mb-3">
+     <button type="button" className="btn btn-outline-primary btn-sm"
+      disabled={busy} onClick={()=>void load()}>
+      {t("countries.lifecycleRecheck")}
+     </button>
+    </div>}
+    {!possible&&<p id="smn-lifecycle-blocked-description" className="small text-muted">
+     {t("countries.lifecycleResolveFirst")}
+    </p>}
     <label className="d-flex align-items-start gap-2">
      <input type="checkbox" className="form-check-input mt-1" checked={confirmed}
+      aria-describedby={!possible?"smn-lifecycle-blocked-description":undefined}
       disabled={busy||!possible||changed} onChange={e=>setConfirmed(e.target.checked)}/>
      <span>{t(country.archived?"countries.lifecycleReactivateConfirm":
       "countries.lifecycleArchiveConfirm")}</span>
@@ -107,7 +121,8 @@ export default function CountryLifecycleModal({country,onClose,onSaved}:{
    </>}
    {error&&<div className="alert alert-danger mt-3" role="alert">
     {error}
-    <button type="button" className="btn btn-link btn-sm" onClick={()=>void load()}>
+    <button type="button" className="btn btn-link btn-sm" disabled={loading||busy}
+     onClick={()=>void load()}>
      {t("common.retry")}
     </button>
    </div>}

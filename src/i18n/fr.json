@@ -1201,7 +1201,14 @@
     "lifecycleConflict": "Ce pays a été modifié dans un autre onglet. Actualisez sa fiche avant toute confirmation.",
     "lifecycleLoadFailed": "Impossible de charger les dépendances du pays. Aucune action n’a été effectuée.",
     "lifecycleSavedRefreshFailed": "L’opération peut avoir été enregistrée, mais le catalogue n’a pas pu être actualisé. Réessayez la lecture sans répéter l’opération.",
-    "lifecycleSaved": "État du pays modifié. Le catalogue a été actualisé."
+    "lifecycleSaved": "État du pays modifié. Le catalogue a été actualisé.",
+    "lifecycleMenuForCountry": "Actions pour {country}",
+    "lifecycleRecheck": "Revérifier les dépendances",
+    "lifecycleReferenceHelp": "Modifiez le pays de référence dans les informations générales, puis revenez ici pour revérifier. Aucun pays ne sera remplacé automatiquement.",
+    "lifecycleMemberHelp": "Les fiches de ces membres s’ouvrent dans l’application. Modifiez leur localisation, puis utilisez « Revérifier les dépendances ».",
+    "lifecycleResolveFirst": "Résolvez les dépendances ou actualisez la liste avant de pouvoir confirmer cette action.",
+    "lifecycleArchivedSuccess": "Pays archivé. Les calendriers et les historiques restent consultables.",
+    "lifecycleReactivatedSuccess": "Pays réactivé avec ses calendriers et ses données historiques."
   },
   "ics": {
     "title": "Importer des jours fériés nationaux depuis un fichier ICS",
