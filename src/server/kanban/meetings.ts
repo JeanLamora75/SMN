@@ -52,3 +52,27 @@ export async function createKanbanMeeting(db:Client,actorId:string,raw:unknown){
   await db.query("COMMIT");return {ok:true as const,id};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+/** Lecture Kanban multiéquipes : ne crée aucune table à la consultation.
+ * teamId est préalablement résolu côté serveur pour le compte autorisé.
+ */
+export async function listScopedKanbanCalendarMeetings(db:Client,
+ start:string,end:string,teamId:string){
+ const exists=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_kanban_meeting') IS NOT NULL AS present");
+ if(!exists.rows[0]?.present)return [];
+ const result=await db.query<{id:string;name:string;start_at:string;end_at:string;status:string;provenance:string}>(`
+ SELECT m.id,m.name,m.starts_at::text AS start_at,m.ends_at::text AS end_at,
+ m.status,m.provenance
+ FROM public.smn_kanban_meeting m
+ JOIN public.smn_kanban_period p ON p.id=m.period_id
+ JOIN public.smn_team t ON t.id=p.team_id
+ WHERE p.team_id=$3 AND t.installation_id='singleton'
+   AND p.deleted_at IS NULL
+   AND m.starts_at<($2::date+interval '1 day') AND m.ends_at>=$1::date
+ ORDER BY m.starts_at,m.id LIMIT 500`,[start,end,teamId]);
+ return result.rows.map(m=>({
+  id:m.id,name:m.name,startAt:m.start_at,endAt:m.end_at,status:m.status,
+  kind:"kanban",generationSource:m.provenance,href:"/app/team-calendar"
+ }));
+}
