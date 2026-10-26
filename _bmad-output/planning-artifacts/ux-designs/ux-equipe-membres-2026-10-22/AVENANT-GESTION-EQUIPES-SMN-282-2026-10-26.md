@@ -128,3 +128,52 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 **Impact technique préparatoire :** `src/app/app/private-shell.tsx` (sélecteur global), `src/app/app/layout.tsx` (contexte serveur), `src/lib/context-navigation.ts` (URLs de retour), pages et API métier contextuelles. Toute redirection/fallback nécessite validation du `teamId` réel et des permissions du compte ; ne pas fabriquer d'identifiants.
 
 **Statut :** décision UX contractuelle validée ; aucun code, migration, test ou recette exécutés. [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+## 11. Arbitrage validé — Cycle pertinent automatique de l'équipe cible (Option A, 26/10/2026)
+
+**Décision validée :** lorsque l'utilisateur change l'équipe active (sélecteur d'en-tête), **SMN sélectionne automatiquement un cycle de l'équipe cible** (Sprint Scrum ou période Kanban), d'après la règle de pertinence existante à adapter au mode : **en cours, sinon prochain, sinon dernier disponible**. La sélection est calculée **après détermination et autorisation de l'équipe cible** ; le cycle de l'équipe précédente ne peut jamais être conservé ou réemployé, même si son nom ou ses dates coïncident.
+
+**Cas de recette fonctionnelle :**
+- **C01** : depuis Équipe Koala / Sprint 12, sélectionner Panda possédant Sprint 6 en cours → afficher Panda / Sprint 6 et données de Panda exclusivement, dans la rubrique conservée selon l'option B de navigation.
+- **C02** : aucun cycle en cours → proposer le prochain cycle pertinent de Panda ; sinon le dernier disponible, sans fabriquer un nouveau cycle.
+- **C03** : Panda possède **zéro cycle** → sélecteur vide et état d'absence explicite ; pas de fausses métriques ni retour implicite au cycle de Koala. Les rubriques indépendantes d'un cycle restent navigables.
+- **C04** : cycle explicitement mentionné dans l'URL mais appartenant à Koala → ne pas l'interpréter comme appartenant à Panda. La gestion fine des URL historiques reste à arbitrer.
+- **C05** : panne de lecture → état d'erreur distinct de « aucun cycle » ; aucune ancienne donnée ne doit être réattribuée à Panda.
+- **C06** : cycle clôturé/suspendu → respecter les statuts et l'accessibilité historique, sans l'activer métier par effet de bord et sans déplacer des données.
+
+**Technique constatée, non développée :** `src/lib/sprint-context.ts` contient `defaultSprintId` et `selectedSprint` pour Scrum (activité temporelle puis futur et passé, avec fallback de liste si seulement clôturé/suspendu) ; `src/app/app/private-shell.tsx` présente le sélecteur de cycles. **Le filtrage strict par `teamId` et la sélection équivalente en mode Kanban restent à développer et tester.** L'algorithme actuel ne constitue pas une preuve d'une sélection multiéquipes Kanban. Toute sélection doit être validée côté serveur ; le simple changement de contexte ne crée ni ne modifie un cycle.
+
+**Non arbitrés par cette décision :** sortie ou conservation des brouillons non sauvegardés ; priorité des URL directes/historiques vs préférences ; conservation des filtres ; comportement des échecs de bascule ; isolation multiéquipes détaillée. Aucun code applicatif, migration ou test n'a été réalisé. Traçabilité [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+## 12. Arbitrage validé — Protection des brouillons non enregistrés (Option A, 26/10/2026)
+
+**Décision validée par le Product Owner :** si un formulaire contextuel de l'équipe active contient des modifications non sauvegardées, **le changement d'équipe doit être précédé d'un avertissement et d'une confirmation explicite**. L'utilisateur ne perd jamais un brouillon sur simple sélection d'une équipe différente dans l'en-tête.
+
+**Parcours :**
+1. L'utilisateur modifie une fiche de l'équipe Koala (sans sauvegarde) et choisit Panda dans le sélecteur global. Tant que la décision n'est pas confirmée, **Koala reste l'équipe active**, son cycle et son URL ne changent pas, le formulaire conserve son contenu.
+2. Un dialogue accessible présente le risque de perte avec deux actions explicites : **« Rester sur Koala »** (annuler) et **« Abandonner et changer d'équipe »**.
+3. « Rester », Échap ou fermeture du dialogue conservent intégralement le brouillon et restaurent le focus ; aucune préférence personnelle d'équipe n'est modifiée.
+4. « Abandonner et changer » écarte seulement les modifications locales non enregistrées, puis applique la transition vers Panda **après validation de l'accès**, conformément aux options déjà validées (même rubrique si disponible, cycle pertinent de Panda).
+5. Aucun transfert ou autosauvegarde de brouillons vers Panda ; les anciennes valeurs validées en base restent intactes. Si une **écriture est en cours**, empêcher une bascule concurrente tant que son résultat n'est pas connu.
+6. Ne pas afficher d'avertissement si aucun formulaire modifié n'existe. Cibler les écrans à contenu modifiable, y compris fiche et modale. Contrôler clavier, focus, responsive et textes FR/EN centralisés.
+
+**Critères Jira :** AC16 à AC18 de [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+**À arbitrer ensuite :** effet d'une URL directe vers une équipe différente sur la sélection mémorisée ; accès à un historique non lié à l'équipe active ; protocole d'isolation multiéquipes des lectures, mutations, filtres et rapports ; comportement détaillé en cas d'échec réseau. L'option A ne constitue **pas** un système de brouillons persistants.
+
+**Statut :** cadrage/documentation seulement. Aucun changement applicatif, migration, test ni recette engagé.
+
+## 13. Arbitrage validé — Liens contextuels explicites prioritaires (Option A, 26/10/2026)
+
+**Décision validée par le Product Owner :** un lien interne ou direct qui désigne explicitement une équipe et éventuellement une ressource métier, un cycle ou un historique **prime sur la dernière équipe active mémorisée**, sous réserve de validations serveur préalables. Cette priorité est une règle de navigation, **jamais une autorisation implicite**.
+
+**Parcours et critères de recette (Jira SMN-282, AC19–AC22) :**
+- **U01 — Lien autorisé :** l'utilisateur a Koala comme équipe mémorisée et ouvre un rapport de Panda. Vérifier que le compte peut consulter Panda **et** le rapport, puis afficher précisément le rapport demandé ; synchroniser le sélecteur global et la préférence personnelle sur Panda **après navigation autorisée réussie**, sans modifier les préférences des autres comptes.
+- **U02 — Lien historique explicite :** si une URL désigne un Sprint, une période, une version ou un snapshot consultable appartenant à Panda, respecter ce contexte demandé, même si un autre cycle est en cours. Les données archivées restent immuables. **La sélection automatique du cycle pertinent validée en section 11 s'applique aux changements initiés par le sélecteur global et aux liens sans cycle explicite**, pas aux liens historiques explicites autorisés.
+- **U03 — URL incohérente/invalide :** identifiants `teamId` et `cycleId` ne correspondant pas à la même équipe, objet inexistant, refus serveur, lien falsifié ou trop ancien → état d'erreur/refus neutre, sans fuite d'existence ni de contenu et sans modification de la préférence d'équipe mémorisée. Ne jamais interpréter un objet d'une autre équipe dans le contexte courant.
+- **U04 — Brouillon non sauvegardé :** en navigation interne, une tentative d'ouvrir l'URL d'une autre équipe doit respecter d'abord la confirmation d'abandon définie en section 12 ; « Rester » conserve équipe, brouillon, cycle et URL ; « Abandonner et changer » autorise la nouvelle navigation seulement après revalidation. Un lien ouvert dans un nouvel onglet reçoit sa propre autorisation serveur et ne transporte pas le brouillon local d'une autre page.
+- **U05 — Périmètre sûr des URL :** accepter uniquement les chemins internes attendus, valider les paramètres, refuser les URL externes et les destinations non allowlistées comme retour contextuel ; vérifier `teamId`, `cycleId`, propriétaire de la fiche et droits sur l'historique pour toute lecture ou mutation.
+
+**Conception technique à venir :** conserver les protections déjà identifiées dans `src/lib/context-navigation.ts` (`dashboardReturnPath`, `safeDashboardReturn`, `teamDetailPath`) tout en élargissant proprement le traitement des contextes directs. Éviter la confiance dans le seul sélecteur et prévoir une opération de bascule cohérente qui ne conserve jamais des caches ou résultats de l'équipe précédente sous le nom de Panda.
+
+**Points encore non arbitrés :** modèle exact des droits par équipe, niveaux de visibilité des données collectives, portée des filtres, réponse aux échecs de bascule (dont préférence mémorisée), politique d'homonymie et migration technique. **Aucun développement, migration ni test exécuté.**

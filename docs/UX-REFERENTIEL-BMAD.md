@@ -777,3 +777,31 @@ Les droits et les appartenances sont revérifiés **côté serveur**, même avec
 **À décider ensuite :** sélection du cycle dans l'équipe cible, traitement des formulaires non sauvegardés, URL/historique explicites, filtres, gestion des échecs et détails du protocole d'isolation. Les passages précédents qui décrivent le comportement de navigation comme non arbitré sont remplacés par **Option B uniquement sur la rubrique et les replis**. Aucune implémentation n'a été engagée.
 
 Références : [Jira SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137 amendée](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
+
+## Arbitrage SMN-282 — Sélection automatique du cycle à chaque changement d'équipe (Option A, 26 octobre 2026)
+
+**Option A validée :** après bascule du sélecteur d'équipe global, choisir automatiquement **le Sprint Scrum ou la période Kanban pertinente appartenant exclusivement à l'équipe cible** : en cours, sinon prochain, sinon dernier disponible. Si aucune période ni Sprint ne sont disponibles, afficher un sélecteur vide avec un état honnête ; ne jamais conserver le cycle de l'équipe précédente ou fabriquer des indicateurs. Actualiser la rubrique conservée (décision de navigation Option B) avec les seules données de l'équipe active.
+
+Les statuts clôturés/suspendus, cycles historiques et droits restent respectés ; autosélection ne signifie pas transition de statut ou modification de données. Vérifier la propriété de chaque cycle côté serveur et traiter les erreurs de chargement distinctement de l'absence de cycles.
+
+**Règle technique existante partielle :** `src/lib/sprint-context.ts` offre `defaultSprintId` pour Scrum ; l'adaptation multiéquipes et l'équivalent Kanban seront à développer, **non implémentés à ce stade**. Priorité des URL, brouillons non sauvegardés, filtres, échecs de transition et isolement détaillé restent à arbitrer.
+
+Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). Aucun développement ni test exécuté.
+
+## Arbitrage SMN-282 — Brouillons non sauvegardés : confirmation préalable (Option A, 26 octobre 2026)
+
+**Option A validée :** si des modifications non sauvegardées sont présentes dans un formulaire ou une modale contextuelle au moment où l'utilisateur demande de changer d'équipe dans l'en-tête, afficher **un dialogue de confirmation** avec « Rester sur [équipe actuelle] » / « Abandonner et changer d'équipe ». Annulation : aucune modification de brouillon, équipe, cycle, URL ou préférence mémorisée. Confirmation : abandon explicite du brouillon **local seulement**, puis changement vers l'équipe autorisée selon les règles validées de conservation de rubrique et de cycle pertinent. Aucune autosauvegarde, aucun transfert de brouillon.
+
+Prévoir l'état d'enregistrement en cours : ne pas changer d'équipe tandis qu'une écriture n'est pas définitivement résolue. Dialogue accessible (focus, Échap, clavier, mobile) et libellés FR/EN centralisés. Les autres parcours de sortie ne sont pas modifiés implicitement.
+
+**Encore ouverts :** priorité URL explicite / équipe mémorisée, consultations historiques, isolation des API et filtres, erreurs de transition. Références [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). **Documentation seulement, aucun développement.**
+
+## Arbitrage SMN-282 — URL explicite autorisée prioritaire (Option A, 26 octobre 2026)
+
+**Option A validée :** un lien contextuel direct/interne explicitant une équipe, un cycle, une fiche ou un historique **prime sur la préférence d'équipe active mémorisée**, après contrôle d'appartenance **et d'autorisation côté serveur**. Une URL vers une ressource historique autorisée de Panda, même lorsque Koala était mémorisée, ouvre cette ressource dans Panda et synchronise l'équipe active/préférence de l'utilisateur **uniquement après succès**.
+
+Un `cycleId`, un snapshot, une version ou une date historique expressément désignés et autorisés sont **conservés pour la consultation**, sans autosélection d'un cycle plus récent. L'autosélection du cycle pertinent reste applicable aux changements via le sélecteur global et aux liens sans cycle explicite. Une URL incohérente, inconnue ou non autorisée ne divulgue pas l'existence ou le contenu des données et ne modifie pas la préférence de l'utilisateur.
+
+En navigation interne, un brouillon non sauvegardé exige le consentement d'abandon avant bascule, conformément à l'option A. Tout paramètre d'URL et retour contextuel doit rester allowlisté et validé côté serveur, y compris les identifiants d'équipe et d'objet. Voir `src/lib/context-navigation.ts` pour les protections déjà en place, **sans supposer que le routage multiéquipes est opérationnel**.
+
+**Arbitrages suivants :** périmètre des permissions des comptes sur les équipes, filtrage/isolation des producteurs, erreurs de transition et homonymies. Références : [Jira SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). **Aucun code ni migration.**

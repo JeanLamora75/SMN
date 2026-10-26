@@ -66,3 +66,29 @@ Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant U
 **Sécurité minimale non négociable :** aucune mutation métier lors d'un simple changement d'équipe ; ne jamais reporter les identifiants d'objets de la première équipe dans la seconde ; recontrôler côté serveur les droits et l'appartenance des données, des cycles, des URL explicites, des ressources historiques et des rapports. Une préférence d'équipe n'étend pas les permissions.
 
 **Restent à arbitrer** : cycle cible (choix automatique ou vide), brouillons non enregistrés, URLs historiques et priorité entre URL et choix utilisateur, filtres et échecs de transition, protocole d'isolation détaillé. Aucun développement ou test effectué dans cet arbitrage. Référence : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+## Arbitrage de cycle — Autosélection dans l'équipe cible (Option A, 26/10/2026)
+
+**Décision produit validée :** après sélection d'une autre équipe depuis l'en-tête, le Sprint Scrum ou la période Kanban pertinente de **cette nouvelle équipe** est sélectionné(e) automatiquement : cycle en cours, sinon prochain, sinon dernier disponible. Si cette équipe ne possède **aucun cycle**, le sélecteur reste vide et la page affiche un état honnête sans inventer de métriques. Les rubriques indépendantes d'un cycle restent disponibles.
+
+**Invariants :** la décision de sélection porte sur les données autorisées de l'équipe cible, identifiées par `teamId`. Le cycle de l'équipe précédente, les ID provenant d'URL étrangères et les données historiques non pertinentes ne sont jamais transférés au nouveau contexte. Aucune création, mutation de statut ou révision d'archive n'est induite par la sélection. Un échec de chargement n'est pas confondu avec une équipe sans cycle.
+
+**Impact technique à traiter après autres arbitrages :** réutiliser la règle de `defaultSprintId` de `src/lib/sprint-context.ts` (en cours > prochain > passé, fallback pour cycles seulement clôturés/suspendus), après limitation aux cycles de l'équipe cible ; concevoir la règle temporelle équivalente et sa recette pour les périodes Kanban. Respecter statuts, autorisations, cycles historiques et non-rétroactivité. Encore ouverts : brouillons non sauvegardés, URL explicites, filtres, gestion des échecs et isolation détaillée. Référence [SMN-282](https://lmn24.atlassian.net/browse/SMN-282). **Documentation uniquement.**
+
+## Arbitrage UX — Confirmation avant perte des brouillons (Option A, 26/10/2026)
+
+**Décision utilisateur validée :** une demande de changement d'équipe depuis le sélecteur global, lorsqu'un formulaire de l'équipe courante contient des modifications non enregistrées, déclenche une **confirmation explicite d'abandon**. Les choix sont « Rester sur [équipe actuelle] » et « Abandonner et changer d'équipe ». Annulation ou fermeture : maintien intégral de l'équipe, du cycle, de l'URL et du brouillon ; aucune modification de préférence d'équipe. Confirmation : abandon du seul brouillon local, puis transition autorisée selon la navigation Option B et la sélection du cycle Option A.
+
+Une écriture serveur en cours doit être sécurisée contre une bascule concurrente ; aucun succès ne doit être annoncé sans confirmation serveur. Le dialogue est accessible et traduit FR/EN. Ce contrat ne demande ni sauvegarde implicite ni persistance des brouillons entre équipes.
+
+**Restent à arbitrer** : URL explicite / équipe mémorisée, historiques, portée des filtres, échecs de bascule et architecture d'isolation serveur ; règles de changement hors sélecteur global non modifiées tacitement. Aucun code ni migration, test ou recette exécutés. [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), AC16–AC18.
+
+## Arbitrage URL — Lien contextuel explicitement autorisé prioritaire (Option A, 26/10/2026)
+
+**Décision produit validée :** une URL explicite vers une équipe et une ressource/cycle/historique **prend le pas sur l'équipe mémorisée par l'utilisateur uniquement lorsque le serveur confirme l'accès et l'appartenance de chaque ressource**. Exemple : Koala mémorisée, lien autorisé vers un rapport de Panda → afficher Panda/ce rapport puis mémoriser Panda pour l'utilisateur après succès. Aucune modification de préférence pour un lien refusé, invalide ou incohérent. Aucun changement de la préférence des autres utilisateurs.
+
+**Contexte historique :** conserver tout `cycleId`, version ou snapshot explicite valide appartenant à l'équipe cible ; ne pas substituer automatiquement son cycle en cours. L'autosélection du cycle pertinent continue de s'appliquer aux changements initiés depuis le sélecteur global et aux liens sans cycle explicite. Préserver l'immutabilité des archives.
+
+**Sécurité :** valider l'équipe, la ressource, la période et les droits **côté serveur** ; ne pas croire un paramètre `teamId`, une préférence personnelle ni un `returnTo` fourni par le client. Les chemins de retour restent limités à des destinations internes contrôlées. La navigation interne respecte le dialogue de confirmation des brouillons (option A, AC16–18) avant changement d'équipe. Ne jamais réassocier un historique de Koala à Panda.
+
+**Encore ouverts :** granularité des droits par équipe, règles d'isolation des lectures/écritures et des filtrages, gestion d'échecs du contexte, homonymies. Source : [Story SMN-282](https://lmn24.atlassian.net/browse/SMN-282), AC19–22. **Documentation uniquement, aucun code ni test.**
