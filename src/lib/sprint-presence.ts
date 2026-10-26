@@ -36,6 +36,20 @@ export type CapacityPresenceInput=Readonly<{
  hoursPerJh:number;members:readonly CapacityMember[];
 }>;
 const round=(n:number)=>Math.round((n+Number.EPSILON)*10000)/10000;
+/** Reuse each member's computed development J/H; an unknown member makes the
+ * whole aggregate unknown rather than silently understating capacity. */
+export function totalSprintDevelopmentJh(
+ members:readonly Pick<PresenceMember,"developmentJh">[]
+):number|null{
+ if(members.length===0)return null;
+ let total=0;
+ for(const member of members){
+  if(member.developmentJh===null||!Number.isFinite(member.developmentJh)||
+   member.developmentJh<0)return null;
+  total+=member.developmentJh;
+ }
+ return round(total);
+}
 export function presenceFromCapacity(report:CapacityPresenceInput):PresenceData{
  if(!Number.isFinite(report.hoursPerJh)||report.hoursPerJh<=0)
   throw Error("invalid-hours-per-jh");

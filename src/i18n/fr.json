@@ -2257,6 +2257,7 @@
     "presenceRestricted": "Les présences individuelles sont réservées à l’administrateur. L’utilisateur conserve l’accès en lecture à la fiche Sprint sans données nominatives.",
     "presenceMethod": "Estimation en J/H fondée sur les demi-journées programmées pour chaque membre, déduction faite des absences, jours fériés et fermetures. 2 demi-journées disponibles = 1 J/H de présence ; les contributions et pourcentages de développement ne réduisent pas ce chiffre.",
     "presenceTotal": "Présence totale estimée",
+    "presenceDevelopmentTotal": "Capacité totale de développement estimée",
     "presenceMembers": "Membres affectés durant le Sprint",
     "presenceMember": "Membre",
     "presenceJh": "Présence (J/H)",
