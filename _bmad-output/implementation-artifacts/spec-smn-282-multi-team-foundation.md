@@ -166,3 +166,32 @@
 4. **Contrôles d'exécution** : tests avec deux équipes dont les membres/dates diffèrent, accès interéquipes, rétrocompatibilité v27, intégrité SQL et validation React/TypeScript sur le projet complet.
 
 **Aucune activation** : garde globale toujours à `false`, écritures d'équipes désactivées, migration v28 non appliquée, PR #189 en brouillon sur sa branche. Les droits des comptes `user` existants restent une décision explicitement reportée par le Product Owner. Ne pas créer d'habilitation implicite.
+
+## Étape 6A — Fiches individuelles et mutations historiques protégées (26/10/2026)
+
+**Objectif de cette tranche : sécuriser immédiatement les anciens endpoints non contextualisés avant toute activation v28**, tout en conservant leur fonctionnement en version 27.
+
+### Services ajoutés
+- `src/server/members/team-scope.ts` : `assertLegacyMemberApi` et `withLegacyMemberApi` — refus explicite d'un schéma absent/inconnu/v28+, AVANT toute lecture ou mutation des anciennes routes individuelles. `requireTeamMemberScope` prépare le nouveau contrôle de propriété par **Admin + installation + affectation active** ; un ID membre isolé n'est jamais une autorisation.
+- `src/server/teams/legacy.ts` : `assertLegacyTeamApi` / `withLegacyTeamApi` ; même mécanisme « fail-closed » pour les anciens lecteurs/mutations d'équipe encore implicitement monoéquipe.
+
+### Endpoints branchés
+**9 endpoints fichiers individuels** (GET/POST/PUT/PATCH selon la route) : `/api/admin/members/[id]`, `/[id]/absences`, `/[id]/calendar`, `/[id]/assignment`, `/[id]/assignment/start-date`, `/[id]/history`, `/[id]/identity`, `/[id]/location`, `/[id]/lifecycle`.
+
+**8 endpoints fichiers collectifs / capacités** : `/api/admin/capacity-openings`, `/api/admin/capacity-history`, `/api/admin/capacity-replanning`, `/api/admin/team-context`, `/api/admin/company-closures`, `/api/admin/kanban-meetings`, `/api/team-calendar/meetings/[kind]/[id]` et `/outcomes`.
+
+Ces routes refusent désormais toute consultation/écriture en v28, tant que leurs données ne peuvent pas être correctement filtrées et historisées par équipe. Les anciennes routes GET membres, capacité prévue, calendrier collectif et réunions agrégées **déjà contextualisées** lors de la première tranche 6A conservent leurs traitements distincts.
+
+### Vérifications réelles
+- **24 contrôles statiques**, tous réussis (présence des wrappers dans les 17 fichiers, absence d'appel direct `withAuthDb` dans ces fichiers, guards v27/v28, vérification d'installation/affectation, sélecteur toujours bloqué).
+- Nouveau fichier `tests/smn-282-lot-6a-individual-guards.test.ts` avec scénarios pour compatibilité v27, refus v28 et structures absentes, ID forgé, rôle `user`, affectation manquante et vérification des routes. **Tests écrits mais pas exécutés**.
+- `pnpm test`, `pnpm typecheck`, `pnpm build`, `prisma validate`, essais PostgreSQL v28 et recette navigateur **non exécutés**.
+
+### Limites à lever pour terminer le lot 6A
+1. **Données personnelles par équipe** : une affectation actuelle ne suffit pas à filtrer correctement les absences et événements historiques d'un membre ; les endpoints individuels doivent être redéveloppés avec filtrage temporel et propriété équipe avant d'être ouverts en v28.
+2. Capacités réelles, ouvertures, corrections, replanifications et mutations des absences/calendriers/affectations : services métiers à contextualiser transactionnellement et à vérifier avec deux équipes distinctes.
+3. Réunions et fermetures d'entreprise : détail, actions et historiques à filtrer par équipe, avec liens directs sécurisés.
+4. Les tests du dépôt, le build, la migration v28 sur **copie sauvegardée** et la recette doivent être réellement exécutés avant l'activation.
+5. Les droits des comptes `user` préexistants restent **volontairement non arbitrés**, aucun accès aux nouvelles équipes n'est accordé implicitement.
+
+**Verrous :** `MULTI_TEAM_CONTEXT_READY=false` et écritures d'équipes désactivées par défaut. La PR #189 reste en brouillon, aucune migration ni fusion ni mise en production à cette étape. Cette tranche relève de la **sécurisation**, pas de la livraison complète des fiches individuelles multiéquipes.
