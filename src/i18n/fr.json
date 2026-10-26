@@ -3515,5 +3515,11 @@
     "inactive": "Enregistrements temporairement indisponibles",
     "description": "Le nom d'équipe est le seul champ obligatoire. Chaque équipe peut avoir son propre produit facultatif."
   }
-
+,
+  "teamSwitch": {
+    "pending": "Changement d'équipe en préparation ; non activé tant que l'isolation n'est pas validée.",
+    "unavailable": "Sélecteur d'équipe temporairement indisponible.",
+    "choose": "Choisir une équipe",
+    "discard": "Des modifications non enregistrées sont présentes. Les abandonner pour changer d'équipe ?"
+  }
 }
