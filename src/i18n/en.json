@@ -1175,7 +1175,15 @@
     "importNoAutoValidation": "Importing never validates a year automatically. A previously validated year returns to 'Review required' after a change.",
     "importConfirm": "Confirm import",
     "importMovedHint": "CSV/ICS import is now available through 'Manage' → 'Import' for the selected country.",
-    "importSuccess": "Import completed: {created} dates added, {replaced} names corrected, {rejected} rows rejected."
+    "importSuccess": "Import completed: {created} dates added, {replaced} names corrected, {rejected} rows rejected.",
+    "importNoChanges": "No dates changed. No validated calendar was invalidated.",
+    "importBrowseWithoutChanges": "Browse years in the file",
+    "importYearsUnverified": "The import was accepted, but the actually modified years could not be verified from its response. Review the refreshed calendar data; do not resubmit the import.",
+    "importCatalogRefreshFailed": "The import is saved, but the country list could not be refreshed. Retry reading the calendar without importing again.",
+    "importTouchedYears": "Years actually changed — choose one to review:",
+    "importConsultYears": "Years mentioned in the file — you can review them without importing:",
+    "importRetryOpening": "Retry opening the calendar",
+    "importDismissSummary": "Dismiss summary"
   },
   "ics": {
     "title": "Import national holidays from an ICS file",
