@@ -19,7 +19,7 @@ export type NationalCalendar={status:"configured"|"partial"|"not-configured"|"in
 export type Country={code:string;name:string;revision:number;archived:boolean;archivedAt:string|null;origin:"initial"|"manual";createdAt:string;
  nationalCalendar:NationalCalendar};
 const project=(r:Row):Country=>({code:r.code,name:r.name,revision:r.revision??0,origin:r.origin,
- createdAt:r.created_at,archived:r.archived_at!==null,archivedAt:r.archived_at??null,
+ createdAt:r.created_at,archived:r.archived_at!=null,archivedAt:r.archived_at??null,
  nationalCalendar:{status:"not-configured",holidays:null,years:[]}});
 export function parseCountryInput(input:unknown):{code:string;name:string}|null{
  if(!input||Array.isArray(input)||typeof input!=="object")return null;
