@@ -1,5 +1,6 @@
 import type {Client} from "pg";
-import {validRecordId} from "@/server/dashboard/read";
+const validRecordId=(id:unknown):id is string=>
+ typeof id==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(id);
 
 /** Un teamId d'URL ou une préférence n'est jamais un droit.
  * Jusqu'à la V1, seuls les comptes Admin peuvent résoudre le contexte v28.
