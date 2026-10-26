@@ -1,0 +1,25 @@
+{
+  "memberTeamScope": {
+    "back": "Retour aux membres",
+    "teamLabel": "Équipe",
+    "readOnly": "Consultation seule — les modifications individuelles seront activées après sécurisation multiéquipes.",
+    "notFound": "Ce membre n'appartient pas à cette équipe ou ce lien n'est plus accessible.",
+    "unavailable": "Fiche membre indisponible pour le moment.",
+    "assignmentTitle": "Historique des affectations dans cette équipe",
+    "start": "Début",
+    "end": "Fin",
+    "effective": "Applicable depuis",
+    "allocation": "Allocation",
+    "developer": "Part développeur",
+    "revision": "Révision",
+    "absenceTitle": "Indisponibilités de l'équipe",
+    "privacy": "Seules les demi-journées d'absence pendant les affectations à cette équipe sont visibles. Les motifs personnels ne sont pas affichés.",
+    "month": "Mois à consulter",
+    "loading": "Chargement des indisponibilités…",
+    "noDays": "Aucun jour d'affectation à cette équipe pour ce mois.",
+    "day": "Jour",
+    "morning": "Matin",
+    "afternoon": "Après-midi",
+    "absent": "Absent"
+  }
+}
