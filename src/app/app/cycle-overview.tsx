@@ -99,6 +99,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         second={t("dashboard.cockpit.completedStoryPoints")}
         unit="SP" empty={emptyMetric}
         firstMetric={projection?.storyPoints.initial} secondMetric={projection?.storyPoints.done}
+        spPerJh={{planned:projection?.capacity.initialJh,actual:projection?.capacity.actualJh}}
         icon="stack" tone="points" ratioKey="dashboard.cockpit.storyPointsRatio"
         locale={locale} comparison={comparison}/>
       <KpiMetricPair title={t("dashboard.cockpit.tickets")}
