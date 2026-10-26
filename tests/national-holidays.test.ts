@@ -13,7 +13,8 @@ function fakeDb(countryExists=true,manualYears=new Set<number>()){
  const client={query:async(sql:string,args:unknown[]=[])=>{
   statements.push(sql);
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||
-    sql.includes("pg_advisory_xact_lock"))return {rows:[],rowCount:0};
+    sql.includes("pg_advisory_xact_lock")||sql.includes("ALTER TABLE")||
+    sql.includes("CREATE TABLE")||sql.includes("CREATE INDEX"))return {rows:[],rowCount:0};
   if(sql.includes("SELECT status,entries_count,diagnostic,source_file"))
    return {rows:manualYears.has(Number(args[1]))?
     [{status:"not-configured",entries_count:0,diagnostic:"manual-year-empty",source_file:"manual"}]:[],
