@@ -1081,7 +1081,17 @@
     "toolsTitle": "Management tools (temporary)",
     "close": "Close",
     "noDates": "No dates are recorded for this year. Missing data does not mean there are zero public holidays.",
-    "reviewOnlyInfo": "Yearly read-only view. Editing and validation will arrive in subsequent stories."
+    "reviewOnlyInfo": "Yearly read-only view. Editing and validation will arrive in subsequent stories.",
+    "calendarViewMode": "Holiday display mode",
+    "calendarListView": "List",
+    "calendarMonthView": "Calendar",
+    "calendarReadOnly": "National calendar read-only view · no changes have been saved.",
+    "calendarClickHint": "Select a public holiday date to view its name. Keyboard navigation is supported.",
+    "calendarPreviousMonth": "Previous month",
+    "calendarNextMonth": "Next month",
+    "calendarLoadFailed": "Unable to load holidays for the requested year. Please try again.",
+    "calendarUnknownWarning": "The coverage of this year is unknown. Any displayed dates are not administratively validated.",
+    "calendarInvalidWarning": "This year has detected anomalies. Review its data before using it."
   },
   "ics": {
     "title": "Import national holidays from an ICS file",
