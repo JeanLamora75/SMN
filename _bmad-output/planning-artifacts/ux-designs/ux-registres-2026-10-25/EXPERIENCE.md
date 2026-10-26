@@ -93,3 +93,7 @@ Ces réserves ne bloquent pas les écrans de lecture, mais les fonctionnalités 
 
 ## Non-régression normative
 Le référentiel SMN impose déjà une représentation spécifique de l'onglet Registres de la fiche Sprint, dont la lecture de snapshots Vn figés, les faits automatiques et les modales contextuelles. **La présente refonte du registre global n'écrase pas ce contrat**. Lire `docs/UX-REFERENTIEL-BMAD.md`, notamment l'avenant SMN-234 D8.
+
+## Complément de présentation — 26/10/2026
+
+Les interactions purement visuelles validées pour l'Option C (filtres secondaires repliables sur smartphone, création « + » accessible dans l'en-tête, catégories en sélecteur mobile) figurent dans l'[avenant graphique Option C](AVENANT-GRAPHIQUE-OPTION-C-2026-10-26.md). Toutes les règles d'accès, de filtrage, de navigation, de pagination, de mémorisation et de transitions métier définies ici sont inchangées.
