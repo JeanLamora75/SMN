@@ -3,15 +3,37 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {createQuickMembers,createIndividualMember,listTeamMembers} from "@/server/members/quick-create";
+import {resolveAdminTeam} from "@/server/teams/resolve";
 
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
 const target={type:"members",exists:true,inScope:true} as const;
 export async function GET(request:NextRequest){
- if(!await authorizeApi(request,"read",target))
-  return jsonResult({error:"forbidden"},403);
+ const actor=await authorizeApi(request,"read",target);
+ if(!actor)return jsonResult({error:"forbidden"},403);
+ const params=request.nextUrl.searchParams;
+ if([...params.keys()].some(k=>k!=="teamId")||params.getAll("teamId").length>1)
+  return jsonResult({error:"invalid-input"},400);
  try{
-  return jsonResult(await withAuthDb(listTeamMembers));
+  return jsonResult(await withAuthDb(async db=>{
+   const r=await db.query<{schema_version:number}>(
+    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+   const version=r.rows[0]?.schema_version;
+   if(version===28){
+    if(actor.role!=="admin")throw Error("members-team-forbidden");
+    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},
+      params.get("teamId"));
+    return listTeamMembers(db,{
+     id:team.team_id,name:team.team,mode:team.mode as "scrum"|"kanban"
+    });
+   }
+   if(typeof version!=="number"||version<1||version>27)
+    throw Error("members-schema-unavailable");
+   const data=await listTeamMembers(db);
+   if(params.has("teamId")&&params.get("teamId")!==data.team.id)
+    throw Error("members-team-not-found");
+   return data;
+  }));
  }catch{
   console.error("smn-members-read-unavailable");
   return jsonResult({error:"service-unavailable"},503);
