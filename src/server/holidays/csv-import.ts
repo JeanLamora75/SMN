@@ -1,7 +1,7 @@
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureAnnualValidationSchema} from "./validation-migration";
-import {COUNTRY_LIFECYCLE_LOCK} from "../countries/archive-migration";
+import {COUNTRY_LIFECYCLE_LOCK,ensureCountryArchiveSchema} from "../countries/archive-migration";
 import {appendAnnualInvalidationAudit} from "./validation-audit";
 
 export type ConflictPolicy="skip"|"replace";
@@ -140,6 +140,7 @@ export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string,
  if(!parsed.ok)return {ok:false,error:parsed.error};
  const rows=parseRows(parsed.lines,input.country);
  if(input.stage==="preview"){
+  await ensureCountryArchiveSchema(db);
   const country=await db.query("SELECT code FROM public.smn_country WHERE code=$1 AND archived_at IS NULL",[input.country]);
   if(country.rowCount!==1)return {ok:false,error:"country-not-found"};
   return {ok:true,preview:await previewInDb(db,input,rows)};
