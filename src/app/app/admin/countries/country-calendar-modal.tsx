@@ -8,6 +8,7 @@ import {isoCivilDate,mondayFirstMonthCells,moveCalendarMonth}
 import CountryFlag from "./country-flag";
 import CountryHolidayEditorPanel,{type HolidayEdit} from "./country-holiday-editor-panel";
 import CountryYearValidationPanel from "./country-year-validation-panel";
+import CountryHolidayImportPanel from "./country-holiday-import-panel";
 import {parseYearSnapshot,type YearSnapshot} from "@/lib/countries/holiday-editor";
 
 type Country={code:string;name:string;nationalCalendar:{years:TechnicalCoverage[]}};
@@ -31,10 +32,12 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
  const [selectedDate,setSelectedDate]=useState<string|null>(null);
  const [editor,setEditor]=useState<HolidayEdit|null>(null);
  const [validationOpen,setValidationOpen]=useState(false);
+ const [importOpen,setImportOpen]=useState(false);
  const [savedNotice,setSavedNotice]=useState("");
  const [refreshNotice,setRefreshNotice]=useState("");
  const addButton=useRef<HTMLButtonElement>(null);
  const validateButton=useRef<HTMLButtonElement>(null);
+ const importButton=useRef<HTMLButtonElement>(null);
  const listRef=useRef<HTMLTableElement>(null);
  const pendingFocusDate=useRef<string|null|undefined>(undefined);
  const editOrigin=useRef<HTMLButtonElement|null>(null);
@@ -47,8 +50,24 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
    else addButton.current?.focus();
   });
  }
+ function openImport(){
+  if(editor||validationOpen||importOpen||!snapshot)return;
+  setSavedNotice("");setRefreshNotice("");
+  setImportOpen(true);onEditingChange(true);
+ }
+ function cancelImport(){
+  setImportOpen(false);onEditingChange(false);
+  requestAnimationFrame(()=>importButton.current?.focus());
+ }
+ function completedImport(counts:{created:number;replaced:number;rejected:number}){
+  // SMN-278 handles cross-year navigation; retain selected year after this import.
+  setImportOpen(false);onEditingChange(false);
+  setSavedNotice(t("countries.importSuccess",counts));
+  setLoad({kind:"loading"});setRetry(n=>n+1);
+  void onChanged().catch(()=>setRefreshNotice(t("countries.savedRefreshFailed")));
+ }
  function openValidation(){
-  if(editor||validationOpen||!snapshot)return;
+  if(editor||validationOpen||importOpen||!snapshot)return;
   setSavedNotice("");setRefreshNotice("");
   setValidationOpen(true);onEditingChange(true);
  }
@@ -155,11 +174,13 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
  return <div className="d-grid gap-3" data-country-year={loadKey}>
   {savedNotice&&<p role="status" className="alert alert-success mb-0">{savedNotice}</p>}
   {refreshNotice&&<p role="alert" className="alert alert-warning mb-0">{refreshNotice}</p>}
-  {canManage&&!editor&&!validationOpen&&<div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+  {canManage&&!editor&&!validationOpen&&!importOpen&&<div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
    <span className="small text-muted">
     {t("countries.editRegisteredDates",{count:holidays.length})}
    </span>
    <div className="d-flex flex-wrap gap-2">
+    <button ref={importButton} type="button" className="btn btn-sm btn-outline-secondary"
+     onClick={openImport}>{t("countries.importOpen")}</button>
     <button ref={validateButton} type="button" className="btn btn-sm btn-outline-primary"
      disabled={snapshot?.administrativeValidated===true} onClick={openValidation}>
      {snapshot?.administrativeValidated?t("countries.validationAlreadyDone"):
@@ -180,7 +201,7 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
   {holidays.length===0&&<p className="alert alert-light border mb-0" role="status">
    {t("countries.noDates")}
   </p>}
-  {mode==="list"?(
+  {!importOpen&&(mode==="list"?(
    holidays.length>0&&<div className="table-responsive">
     <table ref={listRef} tabIndex={-1} className="table table-hover align-middle">
      <thead><tr>
@@ -193,13 +214,13 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
       <td>{holiday.name}</td>
       {canManage&&<td><div className="d-flex flex-wrap gap-2">
        <button type="button" className="btn btn-sm btn-outline-primary"
-        disabled={editor!==null||validationOpen}
+        disabled={editor!==null||validationOpen||importOpen}
         aria-label={t("countries.editUpdateNamed",{date:holiday.date})}
         onClick={event=>startEdit({action:"update",original:holiday},event.currentTarget)}>
         {t("countries.editUpdateAction")}
        </button>
        <button type="button" className="btn btn-sm btn-outline-danger"
-        disabled={editor!==null||validationOpen}
+        disabled={editor!==null||validationOpen||importOpen}
         aria-label={t("countries.editRemoveNamed",{date:holiday.date})}
         onClick={event=>startEdit({action:"delete",original:holiday},event.currentTarget)}>
         {t("countries.editRemoveAction")}
@@ -237,7 +258,9 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
      <strong>{formatDate(selected.date)}</strong> — {selected.name}
     </div>}
    </div>
-  )}
+  ))}
+  {canManage&&importOpen&&<CountryHolidayImportPanel country={{code,name}}
+   onCancel={cancelImport} onCommitted={completedImport}/>}
   {canManage&&validationOpen&&snapshot&&<CountryYearValidationPanel
    code={code} name={name} year={year}
    inspectedFingerprint={snapshot.fingerprint}
