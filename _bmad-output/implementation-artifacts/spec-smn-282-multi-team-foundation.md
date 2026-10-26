@@ -18,6 +18,11 @@
 - `src/app/api/admin/teams/route.ts` : lecture de liste GET réservée à l'Admin, identifiant d'installation issu de son compte authentifié ; entrée HTTP inconnue refusée.
 - `tests/smn-282-team-form.test.ts` : premiers tests de contrat.
 
+### Migration préparatoire non activée
+
+- `src/server/teams/migration.ts` contient les instructions SQL de préparation de l'extension multiéquipes : liens Produit facultatifs, suppression des contraintes monoéquipe, intégrité interinstallations et unicité de rattachement d'un produit à une seule équipe.
+- **Le SQL n'est ni intégré au moteur de migration ni exécuté.** La cohérence avec `schema_version=27`, `_prisma_migrations`, `prisma/schema.prisma` et les consommateurs existants doit être assurée avant toute activation. Cette préparation ne constitue pas une livraison de migration.
+
 ## Encore à développer avant activation
 1. Migration PostgreSQL complète, réversible, compatible avec les tables historiques, l'authentification (contrôles v27) et les anciens consommateurs de l'équipe singleton ; mettre à jour Prisma.
 2. Services transactionnels création/édition et audit, API POST/PATCH, prévention des doublons et concurrence.
