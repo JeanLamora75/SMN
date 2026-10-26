@@ -36,7 +36,9 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const [activeCode,setActiveCode]=useState<string|null>(null);
  const openerRef=useRef<HTMLButtonElement|null>(null);
  const lifecycleOpenerCode=useRef<string|null>(null);
+ const renameOpenerCode=useRef<string|null>(null);
  const archiveFilterRef=useRef<HTMLSelectElement>(null);
+ const addCountryRef=useRef<HTMLButtonElement>(null);
 
  const refresh=useCallback(async()=>{
   const response=await fetch("/api/admin/countries",{cache:"no-store"});
@@ -135,7 +137,8 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     <p className="text-muted small mb-0">{t("countries.nationalOnly")}</p>
    </div>
    {canManage&&<div className="d-flex flex-wrap gap-2">
-    <button type="button" className="btn btn-primary" onClick={()=>setForm({mode:"create"})}>
+    <button ref={addCountryRef} type="button" className="btn btn-primary"
+     onClick={()=>{renameOpenerCode.current=null;setForm({mode:"create"});}}>
      {t("countries.addTitle")}
     </button>
     <button type="button" className="btn btn-outline-secondary"
@@ -229,7 +232,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
          onClick={event=>openCalendar(country.code,event.currentTarget)}>
          {t("countries.manage")}
         </button>
-        {canManage&&<details className="dropdown d-inline-block"
+        {canManage&&<details className="d-inline-block align-middle text-start"
          data-country-actions={country.code}
          onKeyDown={event=>{
           if(event.key==="Escape"){
@@ -244,10 +247,11 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
          }}>
          <summary className="btn btn-sm btn-outline-secondary"
           aria-label={t("countries.lifecycleMenuForCountry",{country:country.name})}>⋯</summary>
-         <div className="dropdown-menu show dropdown-menu-end">
+         <div className="d-flex flex-column gap-1 border rounded-2 bg-body p-2 mt-2 shadow-sm">
           {!country.archived&&<button type="button" className="dropdown-item"
            onClick={event=>{
             event.currentTarget.closest("details")?.removeAttribute("open");
+            renameOpenerCode.current=country.code;
             setForm({mode:"rename",country});
            }}>{t("countries.renameAction")}</button>}
           <button type="button" className="dropdown-item"
@@ -302,7 +306,17 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     try{await refresh();}catch{setLoadFailed(true);setNotice("savedRefreshFailed");}
    }}/>}
   {canManage&&form&&<CountryFormModal key={form.mode+":"+(form.country?.code??"new")}
-   mode={form.mode} country={form.country} onClose={()=>setForm(null)}
+   mode={form.mode} country={form.country} onClose={()=>{
+    setForm(null);
+    const code=renameOpenerCode.current;
+    renameOpenerCode.current=null;
+    requestAnimationFrame(()=>{
+     const trigger=code?Array.from(document.querySelectorAll<HTMLElement>(
+      "[data-country-actions]")).find(el=>el.dataset.countryActions===code)
+       ?.querySelector<HTMLElement>("summary"):null;
+     (trigger??addCountryRef.current??archiveFilterRef.current)?.focus();
+    });
+   }}
    onSaved={onFormSaved}/>}
 
   {activeCountry&&<CountryCalendarModal key={activeCountry.code+":"+selectedYear}
