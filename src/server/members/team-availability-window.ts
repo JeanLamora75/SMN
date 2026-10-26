@@ -49,8 +49,8 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
   day:string;morning_absent:boolean;afternoon_absent:boolean;
  }>(`
  WITH member_days AS (
-  SELECT day::date AS day FROM generate_series($3::date,$4::date,
-   interval '1 day') AS day
+  SELECT gs.day::date AS day FROM generate_series($3::date,$4::date,
+   interval '1 day') AS gs(day)
   WHERE EXISTS (
    SELECT 1 FROM public.smn_member_assignment x
    JOIN public.smn_member m ON m.id=x.member_id
@@ -58,8 +58,8 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
    WHERE x.member_id=$1 AND x.team_id=$2
     AND m.installation_id=t.installation_id
     AND t.installation_id='singleton'
-    AND x.start_on<=day::date
-    AND (x.end_on IS NULL OR x.end_on>=day::date)
+    AND x.start_on<=gs.day::date
+    AND (x.end_on IS NULL OR x.end_on>=gs.day::date)
   )
  )
  SELECT d.day::text AS day,
