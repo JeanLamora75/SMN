@@ -7,6 +7,7 @@ import {readCollectiveDashboard} from "@/server/dashboard/read";
 import SessionActivity from "./session-activity";
 import PrivateShell from "./private-shell";
 import type {PrivateRole} from "@/lib/private-navigation";
+import {MULTI_TEAM_CONTEXT_READY} from "@/lib/team-context-readiness";
 
 export const dynamic="force-dynamic";
 
@@ -22,7 +23,8 @@ export default async function PrivateLayout({children}:{children:ReactNode}) {
   return <>
     <PrivateShell username={account.username} role={account.role as PrivateRole}
       mode={context?.mode??null} product={context?.product??null}
-      team={context?.team??null} teamId={context?.teamId??null}>
+      team={context?.team??null} teamId={context?.teamId??null}
+      teamSwitcherEnabled={MULTI_TEAM_CONTEXT_READY&&account.role==="admin"}>
       {children}
     </PrivateShell>
     <SessionActivity/>
