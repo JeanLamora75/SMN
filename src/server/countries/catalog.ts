@@ -1,4 +1,6 @@
 import type {Client} from "pg";
+import {randomUUID} from "node:crypto";
+import {ensureCountryNameSchema} from "./name-migration";
 import {isValidCountry} from "../members/location";
 export const COUNTRY_SEEDS=[
  {code:"FR",name:"France"},{code:"DE",name:"Allemagne"},
@@ -6,16 +8,16 @@ export const COUNTRY_SEEDS=[
  {code:"PT",name:"Portugal"},{code:"IT",name:"Italie"},
  {code:"CA",name:"Canada"}
 ] as const;
-type Row={code:string;name:string;origin:"initial"|"manual";created_at:string};
+type Row={code:string;name:string;revision?:number;origin:"initial"|"manual";created_at:string};
 type CoverageRow={country_code:string;calendar_year:number;status:"configured"|"partial"|"not-configured"|"invalid";
  entries_count:number;diagnostic:string|null};
 type HolidayRow={country_code:string;date:string;name:string};
 export type NationalCalendar={status:"configured"|"partial"|"not-configured"|"invalid";
  holidays:{date:string;name:string}[]|null;
  years:{year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null}[]};
-export type Country={code:string;name:string;origin:"initial"|"manual";createdAt:string;
+export type Country={code:string;name:string;revision:number;origin:"initial"|"manual";createdAt:string;
  nationalCalendar:NationalCalendar};
-const project=(r:Row):Country=>({code:r.code,name:r.name,origin:r.origin,
+const project=(r:Row):Country=>({code:r.code,name:r.name,revision:r.revision??0,origin:r.origin,
  createdAt:r.created_at,nationalCalendar:{status:"not-configured",holidays:null,years:[]}});
 export function parseCountryInput(input:unknown):{code:string;name:string}|null{
  if(!input||Array.isArray(input)||typeof input!=="object")return null;
@@ -27,7 +29,8 @@ export function parseCountryInput(input:unknown):{code:string;name:string}|null{
  return {code,name};
 }
 export async function listCountries(db:Client):Promise<Country[]>{
- const r=await db.query<Row>(`SELECT code,name,origin,created_at::text AS created_at
+ await ensureCountryNameSchema(db);
+ const r=await db.query<Row>(`SELECT code,name,revision,origin,created_at::text AS created_at
  FROM public.smn_country ORDER BY code ASC LIMIT 251`);
  if(r.rows.length>250)throw new Error("country-catalog-limit");
  const countries=r.rows.map(project).sort((a,b)=>a.code.localeCompare(b.code));
@@ -83,4 +86,55 @@ export async function listNationalHolidays(db:Client,code:string,year:number):
  if(result.rows.length===0)return null;
  return result.rows.filter((row):row is {code:string;date:string;name:string}=>
   row.date!==null&&row.name!==null).map(({date,name})=>({date,name}));
+}
+
+export function parseRenameCountryInput(raw:unknown):{name:string;revision:number}|null{
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
+ const value=raw as Record<string,unknown>;
+ if(Object.keys(value).length!==2||typeof value.name!=="string"||
+  !Number.isInteger(value.revision)||Number(value.revision)<0||
+  Number(value.revision)>2147483647)return null;
+ const name=value.name.trim().replace(/\s+/gu," ");
+ if(!name||name.length>120||/[\u0000-\u001f\u007f]/u.test(value.name))return null;
+ return {name,revision:Number(value.revision)};
+}
+
+/** Rename only the display label. ISO references and national dates remain untouched. */
+export async function renameCountry(db:Client,code:string,actorId:string,raw:unknown){
+ const input=parseRenameCountryInput(raw);
+ if(!actorId||!isValidCountry(code)||!input)
+  return {ok:false,error:"invalid-input"} as const;
+ await ensureCountryNameSchema(db);
+ await db.query("BEGIN");
+ try{
+  const row=await db.query<{name:string;revision:number}>(`SELECT name,revision
+   FROM public.smn_country WHERE code=$1 FOR UPDATE`,[code]);
+  if(row.rowCount!==1){
+   await db.query("ROLLBACK");
+   return {ok:false,error:"not-found"} as const;
+  }
+  const old=row.rows[0];
+  if(old.revision!==input.revision){
+   await db.query("ROLLBACK");
+   return {ok:false,error:"conflict"} as const;
+  }
+  if(old.name===input.name){
+   await db.query("COMMIT");
+   return {ok:true,unchanged:true,code,name:old.name,revision:old.revision} as const;
+  }
+  const changed=await db.query<{name:string;revision:number}>(`UPDATE public.smn_country
+    SET name=$2,revision=revision+1
+    WHERE code=$1 AND revision=$3 RETURNING name,revision`,
+   [code,input.name,input.revision]);
+  if(changed.rowCount!==1){
+   await db.query("ROLLBACK");
+   return {ok:false,error:"conflict"} as const;
+  }
+  await db.query(`INSERT INTO public.smn_country_name_audit
+   (id,country_code,revision,previous_name,new_name,actor_id)
+   VALUES($1,$2,$3,$4,$5,$6)`,
+   [randomUUID(),code,changed.rows[0].revision,old.name,input.name,actorId]);
+  await db.query("COMMIT");
+  return {ok:true,unchanged:false,code,name:input.name,revision:changed.rows[0].revision} as const;
+ }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
