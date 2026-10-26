@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {readMemberCalendar,saveMemberCalendar} from "@/server/members/calendar";
 
@@ -12,7 +12,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  const {id}=await params;
  const onDate=new URL(request.url).searchParams.get("onDate")??undefined;
  try{
-  return jsonResult(await withAuthDb(db=>readMemberCalendar(db,id,onDate)));
+  return jsonResult(await withLegacyMemberApi(db=>readMemberCalendar(db,id,onDate)));
  }catch(error){
   if(error instanceof Error&&error.message==="member-calendar-invalid-input")
    return jsonResult({error:"invalid-input"},400);
@@ -29,7 +29,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>saveMemberCalendar(db,id,actor.id,body));
+  const result=await withLegacyMemberApi(db=>saveMemberCalendar(db,id,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error},
    ["conflict","archived","date-before-latest","weekly-missing"].includes(result.error)?409:
    result.error==="not-found"?404:400);
