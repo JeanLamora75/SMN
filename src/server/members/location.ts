@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidDate} from "./assignment";
+import {COUNTRY_LIFECYCLE_LOCK,ensureCountryArchiveSchema} from "../countries/archive-migration";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const DISALLOWED=new Set(["EU","UN","UK","QO","ZZ","XK","AC","CP","DG","EA","IC","TA"]);
@@ -39,7 +40,7 @@ export type LocationState={memberId:string;teamId:string;archived:boolean;today:
  requestedOn:string;display:MemberEventDisplay|null;
  holidayCalendarScope:"national-only";regionalHolidayAuto:false;holidayDataAvailable:boolean};
 export type LocationResult={ok:true;revision:number}|
- {ok:false;error:"invalid-input"|"not-found"|"archived"|"conflict"|"date-in-past"|"date-before-latest"};
+ {ok:false;error:"invalid-input"|"not-found"|"archived"|"country-archived"|"conflict"|"date-in-past"|"date-before-latest"};
 export function parseLocationChange(raw:unknown):LocationChange|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const v=raw as Record<string,unknown>;
@@ -153,8 +154,10 @@ export async function saveMemberLocation(client:Client,id:string,actorId:string,
  raw:unknown):Promise<LocationResult>{
  const input=parseLocationChange(raw);
  if(!UUID.test(id)||!actorId||!input)return {ok:false,error:"invalid-input"};
+ await ensureCountryArchiveSchema(client);
  await client.query("BEGIN");
  try{
+  await client.query(COUNTRY_LIFECYCLE_LOCK);
   const stop=async(error:Exclude<LocationResult,{ok:true}>["error"]):Promise<LocationResult>=>{
    await client.query("ROLLBACK");return {ok:false,error};
   };
@@ -167,6 +170,12 @@ export async function saveMemberLocation(client:Client,id:string,actorId:string,
   const latest=old.at(-1);
   if((latest?.revision??0)!==input.revision)return stop("conflict");
   if(latest&&input.effectiveFrom<latest.effective_from)return stop("date-before-latest");
+  if(input.countryIso2!==null){
+   const eligible=await client.query<{archived_at:string|null}>(`SELECT archived_at
+    FROM public.smn_country WHERE code=$1 FOR SHARE`,[input.countryIso2]);
+   if(eligible.rowCount!==1||eligible.rows[0].archived_at!==null)
+    return stop("country-archived");
+  }
   await client.query(`INSERT INTO public.smn_member_location
    (id,member_id,revision,country_iso2,region,city,time_zone,effective_from,source,created_by)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8::date,'manual',$9)`,
