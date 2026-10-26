@@ -214,3 +214,19 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 4. Tests réels avec deux équipes, recoupements temporels, révocation et changement de session, vérification de l'intégrité et migration v28 sur copie sauvegardée restent indispensables.
 
 **Aucune activation / aucun déploiement :** `MULTI_TEAM_CONTEXT_READY=false`, écritures équipes désactivées, base non migrée, PR #189 en brouillon. Le sort des comptes `user` existants reste reporté conformément au Product Owner.
+
+## Étape 6A — Fiche membre v28 en lecture seule branchée sur l'équipe (26/10/2026)
+
+**Livrables codés sur la branche de la PR #189, sans activation générale ni migration :**
+
+- `src/app/app/admin/members/[id]/page.tsx` choisit explicitement le chemin **v27 historique** ou le chemin **v28** après vérification de `schema_version`. En v28, seuls les administrateurs autorisés peuvent ouvrir une fiche ; le serveur résout l'équipe via l'URL ou la préférence, contrôle l'**appartenance historique** du membre à cette équipe via ses affectations, puis lit seulement son nom et les versions d'affectation correspondant à l'équipe. Un ID de membre étranger ou une équipe incohérente donne un état « introuvable » et **ne retombe jamais sur la fiche v27**.
+- `src/app/app/admin/members/[id]/member-team-read-only.tsx` : vue Bootstrap dédiée, **sans commandes de modification**, affichant les révisions d'affectation et une sélection de mois pour les seules demi-journées d'absence pendant les jours d'affectation à l'équipe. Les requêtes client sont annulées à la désactivation et les réponses dont `memberId`, `teamId` ou les dates ne correspondent pas au contexte sont rejetées.
+- `src/app/app/admin/members/team-overview.tsx` : liens des cartes et de la liste transportent désormais `teamId` vers le détail. Aucun `cycleId` ni ID historique de l'ancienne équipe n'est recopié lors d'une bascule.
+- Sous-catalogues `src/i18n/member-team-scope.fr.json` et `member-team-scope.en.json` (21 clés identiques), référencés par `src/i18n/catalog.ts`, dans le mécanisme de traduction typé FR/EN existant.
+- `tests/smn-282-member-team-read-only.test.ts` : 5 tests source écrits pour la séparation v27/v28, la propriété membre–équipe, la navigation contextuelle, l'absence d'éditeurs et les traductions.
+
+**Vérification effectivement exécutée :** 18 **contrôles statiques** des fichiers publiés sur GitHub réussis, notamment clés FR/EN, appartenance SQL, URLs, absence de mutation dans la nouvelle vue, absence de repli vers un lecteur non sécurisé, garde de l'ancienne API et verrou du sélecteur. Ces contrôles ne remplacent **pas** l'exécution des 5 tests source ni une compilation TypeScript/React. Aucun `pnpm test`, `pnpm typecheck`, `pnpm build`, `prisma validate`, test PostgreSQL, migration ou recette navigateur exécuté lors de cette tranche.
+
+**Limites impératives :** cette fiche v28 est une **projection réduite de consultation**, pas la fiche individuelle complète. Les motifs personnels, historique d'identité et de cycle de vie, modifications des affectations, absences, calendriers, réunions et capacités réelles sont encore indisponibles en v28. Il faudra établir des contrats de mutation transactionnels contextualisés, contrôler les recouvrements temporels entre équipes et exécuter les tests réels avant de lever les verrous. **Les comptes `user` existants restent hors arbitrage**, aucune habilitation implicite.
+
+**État :** `MULTI_TEAM_CONTEXT_READY=false`; écritures multiéquipes désactivées ; base v28 non migrée ; PR #189 en brouillon et non fusionnée.
