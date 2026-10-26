@@ -777,3 +777,13 @@ Les droits et les appartenances sont revérifiés **côté serveur**, même avec
 **À décider ensuite :** sélection du cycle dans l'équipe cible, traitement des formulaires non sauvegardés, URL/historique explicites, filtres, gestion des échecs et détails du protocole d'isolation. Les passages précédents qui décrivent le comportement de navigation comme non arbitré sont remplacés par **Option B uniquement sur la rubrique et les replis**. Aucune implémentation n'a été engagée.
 
 Références : [Jira SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137 amendée](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
+
+## Arbitrage SMN-282 — Sélection automatique du cycle à chaque changement d'équipe (Option A, 26 octobre 2026)
+
+**Option A validée :** après bascule du sélecteur d'équipe global, choisir automatiquement **le Sprint Scrum ou la période Kanban pertinente appartenant exclusivement à l'équipe cible** : en cours, sinon prochain, sinon dernier disponible. Si aucune période ni Sprint ne sont disponibles, afficher un sélecteur vide avec un état honnête ; ne jamais conserver le cycle de l'équipe précédente ou fabriquer des indicateurs. Actualiser la rubrique conservée (décision de navigation Option B) avec les seules données de l'équipe active.
+
+Les statuts clôturés/suspendus, cycles historiques et droits restent respectés ; autosélection ne signifie pas transition de statut ou modification de données. Vérifier la propriété de chaque cycle côté serveur et traiter les erreurs de chargement distinctement de l'absence de cycles.
+
+**Règle technique existante partielle :** `src/lib/sprint-context.ts` offre `defaultSprintId` pour Scrum ; l'adaptation multiéquipes et l'équivalent Kanban seront à développer, **non implémentés à ce stade**. Priorité des URL, brouillons non sauvegardés, filtres, échecs de transition et isolement détaillé restent à arbitrer.
+
+Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). Aucun développement ni test exécuté.
