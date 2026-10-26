@@ -61,3 +61,19 @@
 - La migration SQL **toujours non activée** prépare un index UNIQUE sur les noms normalisés et crée les tables de contexte et d'audit si absentes. **Il manque toujours** son branchement au pipeline versionné, la validation des anciennes colonnes, Prisma, les lecteurs monoéquipe, les routes d'écriture et le test sur une base réelle.
 - Le fichier `tests/smn-282-team-write.test.ts` contient **8 scénarios supplémentaires** avec faux client PostgreSQL : création sans produit, garde v27, refus Admin, homonymie, conflit de révision, retrait de produit, rollback, liaison produit, protection interinstallation. Ils **n'ont pas été exécutés** ici. Le nombre exact de cas doit être vérifié lors de `pnpm test` : le comptage des cas n'est pas une preuve d'exécution.
 
+## Étape 3 — Migration versionnée v28 et diagnostic coordonné (26/10/2026)
+
+**Éléments effectivement codés sur la branche (non déployés) :**
+
+- `src/server/teams/migration.ts` et `prisma/migrations/20261026_smn282_multi_teams/migration.sql` : SQL strictement identique (vérification statique effectuée) ; suppression des anciennes unicités par installation, produit facultatif, produit à propriétaire unique, liaison équipe–produit dans la même installation, unicité des noms normalisés, tables contexte/audit, passage de `schema_version=27` à **28**.
+- `prisma/schema.prisma` : installations possédant plusieurs équipes et produits ; lien produit facultatif, unique pour une équipe.
+- `src/server/accounts/migration.ts` : la version 28 est reconnue **uniquement** si l'historique et les contraintes d'intégrité sont vérifiés ; la migration identitaire v27 demeure contrôlée en v28, et **aucune application automatique du SQL v28 à l'authentification**.
+- `src/server/db/probe.ts` et `src/server/installation/diagnostic.ts` : lecture seule de **28** entrées du journal au maximum ; vérification du checksum v28, des deux tables de contexte, de la nullabilité du produit et des index/contraintes, sans autorisation de tables étrangères.
+- `scripts/apply-multi-team-migration.ts` : commande **manuelle** exigeant `--apply` et un fichier de sauvegarde non vide, vérifiant l'état v27 et les 27 migrations, transaction + verrou, enregistrement du checksum SQL et diagnostic final. Elle **n'a pas été lancée**.
+- `tests/auth-schema-v27.test.ts` et `tests/smn-282-schema-v28.test.ts` : contrôles de compatibilité v27/v28, refus de v28 sans intégrité, égalité SQL source/fichier, conformité Prisma, exécution manuelle uniquement.
+
+**Vérifications réellement réalisées :** 11 contrôles **statiques de cohérence des fichiers GitHub** ont réussi (SQL identique, v28 dans auth/diagnostic/probe, Prisma et sauvegarde, pas de migration automatique). Ceci ne constitue **ni** un build Next.js **ni** un test PostgreSQL réel. L'environnement disponible possède Node.js 22 et pas de `pnpm`, de clone SMN ni de base PostgreSQL : les tests du projet, `prisma validate`, `tsc`, `pnpm build` et l'application SQL v28 **ne sont pas exécutés**.
+
+**Activation interdite** jusqu'à la correction des consommateurs monoéquipe (dashboard, capacités, calendriers, registres, rapports, API/exports), l'isolation des requêtes par `teamId` et la validation de la migration sur une copie sauvegardée. Les comptes de rôle `user` déjà présents sont hors arbitrage et **ne sont pas modifiés**.
+
+**Prochaine étape :** interface Paramètres > Équipes, routes d'écriture réservées à Admin et adaptation du contexte serveur/sélecteur, en gardant les écritures bloquées tant que la migration n'est pas qualifiée.
