@@ -7,6 +7,7 @@ import {isoCivilDate,mondayFirstMonthCells,moveCalendarMonth}
  from "@/lib/countries/month-grid";
 import CountryFlag from "./country-flag";
 import CountryHolidayEditorPanel,{type HolidayEdit} from "./country-holiday-editor-panel";
+import CountryYearValidationPanel from "./country-year-validation-panel";
 import {parseYearSnapshot,type YearSnapshot} from "@/lib/countries/holiday-editor";
 
 type Country={code:string;name:string;nationalCalendar:{years:TechnicalCoverage[]}};
@@ -17,8 +18,9 @@ const statusCss=(status:AnnualDisplayStatus):string=>
  status==="configured"?"text-bg-success":status==="invalid"?"text-bg-danger":
  status==="review"?"text-bg-warning":"text-bg-secondary";
 
-function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,onEditingChange}:{
- code:string;year:number;month:number;mode:Mode;canManage:boolean;
+function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canManage,onEditingChange,onShowList}:{
+ code:string;name:string;year:number;month:number;mode:Mode;canManage:boolean;
+ onShowList:()=>void;
  onYearStatus:(status:AnnualDisplayStatus)=>void;
  onChanged:()=>Promise<void>;
  onEditingChange:(active:boolean)=>void;
@@ -28,9 +30,13 @@ function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,o
  const [retry,setRetry]=useState(0);
  const [selectedDate,setSelectedDate]=useState<string|null>(null);
  const [editor,setEditor]=useState<HolidayEdit|null>(null);
+ const [validationOpen,setValidationOpen]=useState(false);
  const [savedNotice,setSavedNotice]=useState("");
  const [refreshNotice,setRefreshNotice]=useState("");
  const addButton=useRef<HTMLButtonElement>(null);
+ const validateButton=useRef<HTMLButtonElement>(null);
+ const listRef=useRef<HTMLTableElement>(null);
+ const pendingFocusDate=useRef<string|null|undefined>(undefined);
  const editOrigin=useRef<HTMLButtonElement|null>(null);
  const returnFocus=useRef(false);
  const loadKey=code+":"+year;
@@ -40,6 +46,29 @@ function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,o
    if(element?.isConnected)element.focus();
    else addButton.current?.focus();
   });
+ }
+ function openValidation(){
+  if(editor||validationOpen||!snapshot)return;
+  setSavedNotice("");setRefreshNotice("");
+  setValidationOpen(true);onEditingChange(true);
+ }
+ function cancelValidation(){
+  setValidationOpen(false);onEditingChange(false);
+  requestAnimationFrame(()=>validateButton.current?.focus());
+ }
+ function inspectValidationDates(date:string|null){
+  setValidationOpen(false);onEditingChange(false);
+  pendingFocusDate.current=date;
+  onShowList();
+  setLoad({kind:"loading"});
+  setRetry(n=>n+1);
+ }
+ function validatedYear(){
+  setValidationOpen(false);onEditingChange(false);
+  setSavedNotice(t("countries.validationSuccess"));
+  returnFocus.current=false;
+  setLoad({kind:"loading"});setRetry(n=>n+1);
+  void onChanged().catch(()=>setRefreshNotice(t("countries.savedRefreshFailed")));
  }
  function startEdit(action:HolidayEdit,origin:HTMLButtonElement){
   editOrigin.current=origin;
@@ -96,6 +125,17 @@ function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,o
   }
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[load.kind,editor]);
+ useEffect(()=>{
+  if(load.kind!=="ready"||mode!=="list"||pendingFocusDate.current===undefined)return;
+  const date=pendingFocusDate.current;
+  pendingFocusDate.current=undefined;
+  const frame=requestAnimationFrame(()=>{
+   const row=date?Array.from(listRef.current?.querySelectorAll<HTMLTableRowElement>(
+    "[data-holiday-date]")??[]).find(x=>x.dataset.holidayDate===date):null;
+   (row??listRef.current??addButton.current)?.focus();
+  });
+  return ()=>cancelAnimationFrame(frame);
+ },[load.kind,mode]);
  const byDate=useMemo(()=>new Map(holidays.map(h=>[h.date,h])),[holidays]);
  const selected=selectedDate?.startsWith(String(year)+"-"+String(month+1).padStart(2,"0")+"-")?
   byDate.get(selectedDate):undefined;
@@ -115,14 +155,21 @@ function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,o
  return <div className="d-grid gap-3" data-country-year={loadKey}>
   {savedNotice&&<p role="status" className="alert alert-success mb-0">{savedNotice}</p>}
   {refreshNotice&&<p role="alert" className="alert alert-warning mb-0">{refreshNotice}</p>}
-  {canManage&&!editor&&<div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+  {canManage&&!editor&&!validationOpen&&<div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
    <span className="small text-muted">
     {t("countries.editRegisteredDates",{count:holidays.length})}
    </span>
-   <button ref={addButton} type="button" className="btn btn-sm btn-primary"
-    onClick={event=>startEdit({action:"create"},event.currentTarget)}>
-    {t("countries.editAddTitle")}
-   </button>
+   <div className="d-flex flex-wrap gap-2">
+    <button ref={validateButton} type="button" className="btn btn-sm btn-outline-primary"
+     disabled={snapshot?.administrativeValidated===true} onClick={openValidation}>
+     {snapshot?.administrativeValidated?t("countries.validationAlreadyDone"):
+      t("countries.validationOpen")}
+    </button>
+    <button ref={addButton} type="button" className="btn btn-sm btn-primary"
+     onClick={event=>startEdit({action:"create"},event.currentTarget)}>
+     {t("countries.editAddTitle")}
+    </button>
+   </div>
   </div>}
   {status==="invalid"&&<p className="alert alert-danger mb-0" role="status">
    {t("countries.calendarInvalidWarning")}
@@ -135,24 +182,24 @@ function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,o
   </p>}
   {mode==="list"?(
    holidays.length>0&&<div className="table-responsive">
-    <table className="table table-hover align-middle">
+    <table ref={listRef} tabIndex={-1} className="table table-hover align-middle">
      <thead><tr>
       <th scope="col">{t("countries.csvDate")}</th>
       <th scope="col">{t("countries.csvName")}</th>
       {canManage&&<th scope="col">{t("countries.actions")}</th>}
      </tr></thead>
-     <tbody>{holidays.map(holiday=><tr key={holiday.date}>
+     <tbody>{holidays.map(holiday=><tr key={holiday.date} tabIndex={-1} data-holiday-date={holiday.date}>
       <td className="text-nowrap">{formatDate(holiday.date)}</td>
       <td>{holiday.name}</td>
       {canManage&&<td><div className="d-flex flex-wrap gap-2">
        <button type="button" className="btn btn-sm btn-outline-primary"
-        disabled={editor!==null}
+        disabled={editor!==null||validationOpen}
         aria-label={t("countries.editUpdateNamed",{date:holiday.date})}
         onClick={event=>startEdit({action:"update",original:holiday},event.currentTarget)}>
         {t("countries.editUpdateAction")}
        </button>
        <button type="button" className="btn btn-sm btn-outline-danger"
-        disabled={editor!==null}
+        disabled={editor!==null||validationOpen}
         aria-label={t("countries.editRemoveNamed",{date:holiday.date})}
         onClick={event=>startEdit({action:"delete",original:holiday},event.currentTarget)}>
         {t("countries.editRemoveAction")}
@@ -191,6 +238,11 @@ function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,o
     </div>}
    </div>
   )}
+  {canManage&&validationOpen&&snapshot&&<CountryYearValidationPanel
+   code={code} name={name} year={year}
+   inspectedFingerprint={snapshot.fingerprint}
+   onCancel={cancelValidation} onCertified={validatedYear}
+   onInspectDates={inspectValidationDates}/>}
   {canManage&&editor&&snapshot&&<CountryHolidayEditorPanel key={editor.action+":"+(editor.original?.date??"new")}
    country={code} year={year} snapshot={snapshot} edit={editor}
    onCancel={cancelEdit} onSaved={savedEdit}/>}
@@ -305,8 +357,8 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
     </div>}
    </div>
    <div className="smn-country-calendar-content">
-    <AnnualHolidays key={country.code+":"+year} code={country.code}
-     year={year} month={month} mode={mode} canManage={canManage}
+    <AnnualHolidays key={country.code+":"+year} code={country.code} name={country.name}
+     year={year} month={month} mode={mode} canManage={canManage} onShowList={()=>setMode("list")}
      onYearStatus={setLatestStatus} onChanged={onChanged}
      onEditingChange={setEditing}/>
    </div>
