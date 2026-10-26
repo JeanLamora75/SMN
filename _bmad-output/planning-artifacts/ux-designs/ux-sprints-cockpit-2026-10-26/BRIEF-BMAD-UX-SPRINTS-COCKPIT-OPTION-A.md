@@ -3,7 +3,7 @@
 **Statut : option A validée par le commanditaire le 26/10/2026 ; spécification graphique uniquement.**  
 **Agent UX : Sally / BMAD v6.12.4.**  
 **Écran :** `/app/admin/sprints` (index des sprints Scrum).  
-**Jira :** Epic [SMN-228](https://lmn24.atlassian.net/browse/SMN-228) ; Story graphique à rattacher.  
+**Jira :** Epic [SMN-228](https://lmn24.atlassian.net/browse/SMN-228) ; Story graphique [SMN-284](https://lmn24.atlassian.net/browse/SMN-284) rattachée à l'Epic.  
 **Source visuelle :** page Registres actuellement montrée par le commanditaire, et [avenant Cockpit Agile Option C](../ux-registres-2026-10-25/AVENANT-GRAPHIQUE-OPTION-C-2026-10-26.md).
 
 ## 1. Besoin utilisateur
