@@ -1,28 +1,29 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
-import {ANNUAL_ISSUE_CODES,canConfirmAnnualDiagnostic,diagnosticDate,
+import {canConfirmAnnualDiagnostic,diagnosticDate,
  parseValidationDiagnostic,type AnnualIssueCode,type ValidationDiagnostic,type ValidationIssue}
  from "@/lib/countries/annual-validation";
+import type {TranslationKey} from "@/i18n/catalog";
 
 type State={kind:"loading"}|{kind:"error"}|{kind:"ready";diagnostic:ValidationDiagnostic};
 type Props={
  code:string;name:string;year:number;inspectedFingerprint:string;
  onCancel:()=>void;onCertified:()=>void;onInspectDates:(date:string|null)=>void;
 };
-const issueKeys:Record<AnnualIssueCode,string>={
- "country-archived":"validationIssueArchived",
- "empty-year":"validationIssueEmpty",
- "invalid-coverage":"validationIssueCoverageInvalid",
- "invalid-date":"validationIssueDate",
- "invalid-name":"validationIssueName",
- "duplicate-date":"validationIssueDuplicate",
- "count-mismatch":"validationIssueCount",
- "coverage-missing":"validationIssueCoverageMissing",
- "source-missing":"validationIssueSourceMissing",
- "coverage-note":"validationIssueCoverageNote",
- "national-completeness-unverified":"validationIssueCompleteness",
- "national-only":"validationIssueNational"
+const issueKeys:Record<AnnualIssueCode,TranslationKey>={
+ "country-archived":"countries.validationIssueArchived",
+ "empty-year":"countries.validationIssueEmpty",
+ "invalid-coverage":"countries.validationIssueCoverageInvalid",
+ "invalid-date":"countries.validationIssueDate",
+ "invalid-name":"countries.validationIssueName",
+ "duplicate-date":"countries.validationIssueDuplicate",
+ "count-mismatch":"countries.validationIssueCount",
+ "coverage-missing":"countries.validationIssueCoverageMissing",
+ "source-missing":"countries.validationIssueSourceMissing",
+ "coverage-note":"countries.validationIssueCoverageNote",
+ "national-completeness-unverified":"countries.validationIssueCompleteness",
+ "national-only":"countries.validationIssueNational"
 };
 
 /** Inline confirmation; never opens a second native dialog. */
@@ -64,7 +65,7 @@ export default function CountryYearValidationPanel({
  const diagnostic=state.kind==="ready"?state.diagnostic:null;
  const stale=conflict||!!diagnostic&&diagnostic.fingerprint!==inspectedFingerprint;
  const allowed=canConfirmAnnualDiagnostic(diagnostic,checked,stale,busy);
- const issueLabel=(issue:ValidationIssue):string=>t("countries."+issueKeys[issue.code]);
+ const issueLabel=(issue:ValidationIssue):string=>t(issueKeys[issue.code]);
  const showIssue=(issue:ValidationIssue,index:number)=>(
   <li key={issue.code+":"+index} className="mb-2">
    <span>{issueLabel(issue)}</span>
