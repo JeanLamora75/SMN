@@ -38,3 +38,16 @@
 - Le skill `bmad-agent-dev` et `bmad-build` ont été lus via le dépôt. La commande locale `uv run ... render_skill.py` du skill `bmad-build` n'a pas pu être exécutée, faute de projet cloné/monté. Travail adapté aux connecteurs, **sans prétendre exécuter le workflow BMAD complet**.
 
 **Règle de livraison :** PR en brouillon ; ne pas déclarer la Story terminée ni fusionner avant que le schéma, les lecteurs, les autorisations et les tests réels soient prêts.
+
+## Étape 2 — Services transactionnels préparés (26/10/2026)
+
+- `src/server/teams/write.ts` contient **deux fonctions non exposées par HTTP** : `createInstallationTeam` et `updateInstallationTeam`.
+- Chaque commande effectue `BEGIN`/`COMMIT` ou `ROLLBACK`, verrouille la ligne de l'installation pour sérialiser les modifications, revalide que l'acteur est `admin` actif et appartient à cette installation, et **refuse le schéma historique v27** (`schema-not-ready` tant que la future v28 complète n'est pas opérationnelle).
+- Création : `teamId` neuf, produit seulement s'il est renseigné, contexte d'équipe et **audit revision 1**, homonymies normalisées contrôlées. Aucune création de membre, période, calendrier ou Sprint par défaut.
+- Édition : équipe et contexte verrouillés, contrôle de révision optimiste, produit indépendant ; renommer un produit conserve son identifiant, retirer le produit détache sa référence courante **sans supprimer la ligne Produit historique**, Vision/Product Goal conservés dans l'équipe, audit append-only.
+- **Correction de sécurité du contrat de formulaire** : lors d'une modification, tous les champs du formulaire sont transmis explicitement (`productName`, `vision`, `productGoal` peuvent valoir `null`), pour ne pas effacer silencieusement des valeurs omises ; la création accepte le seul nom.
+- `tests/smn-282-team-write.test.ts` ajoute des scénarios simulés de transaction, rôle refusé, schéma incompatible, doublon, conflit concurrent, produit retiré, rollback ; `tests/smn-282-team-form.test.ts` a été aligné avec le contrat d'édition intégral.
+
+**Limitations actuelles** : ces tests sont **écrits mais non exécutés** dans l'environnement du projet ; la base réelle n'a pas été migrée. Les contraintes SQL finales, l'intégration d'authentification v28 et l'ensemble des consommateurs de `teamId` sont encore à coordonner et à tester. **Aucune méthode POST/PATCH HTTP n'est activée**, aucun lien de Paramètres n'ouvre de faux formulaire. L'éventuelle migration des comptes `user` préexistants reste délibérément hors périmètre.
+
+**Prochaine étape technique :** concevoir/valider une migration versionnée et compatible `schema_version`, `_prisma_migrations`, Prisma, diagnostic et lecteurs ; exécuter les contrôles réels sur une copie de base avant activation des commandes.
