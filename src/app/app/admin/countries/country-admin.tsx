@@ -1,13 +1,14 @@
 "use client";
-import Image from "next/image";
-import {useCallback,useEffect,useMemo,useRef,useState,type FormEvent} from "react";
+import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {annualDisplayStatus,currentParisYear,normalizeCountrySearch,
  type AnnualDisplayStatus,type TechnicalCoverage} from "@/lib/countries/year-status";
 import HolidayCsvImport from "./holiday-csv-import";
 import HolidayIcsImport from "./holiday-ics-import";
+import CountryFlag from "./country-flag";
+import CountryFormModal from "./country-form-modal";
 
-type Country={code:string;name:string;nationalCalendar:{
+type Country={code:string;name:string;revision:number;nationalCalendar:{
  status:"configured"|"partial"|"not-configured"|"invalid";
  years:TechnicalCoverage[];
  holidays:{date:string;name:string}[]|null;
@@ -15,14 +16,6 @@ type Country={code:string;name:string;nationalCalendar:{
 type Holiday={date:string;name:string};
 type Filter="all"|AnnualDisplayStatus;
 const FILTERS:Filter[]=["all","configured","review","not-configured","invalid","unknown"];
-
-function CatalogFlag({code,name}:{code:string;name:string}){
- const [failed,setFailed]=useState(false);
- if(failed)return <span role="img" aria-label={name} title={code}>🌐</span>;
- return <Image src={"/flags/"+code.toLowerCase()+".png"} width={28} height={19}
-  unoptimized alt={name} title={code}
-  onError={()=>setFailed(true)} style={{objectFit:"contain",height:"19px",width:"28px"}}/>;
-}
 
 export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const t=useTranslation();
@@ -32,10 +25,9 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const [filter,setFilter]=useState<Filter>("all");
  const [loaded,setLoaded]=useState(false);
  const [loadFailed,setLoadFailed]=useState(false);
- const [code,setCode]=useState("");
- const [name,setName]=useState("");
+ const [form,setForm]=useState<{mode:"create"|"rename";country?:Country}|null>(null);
+ const [focusCode,setFocusCode]=useState<string|null>(null);
  const [notice,setNotice]=useState("");
- const [busy,setBusy]=useState(false);
  const [refreshing,setRefreshing]=useState(false);
  const [showTools,setShowTools]=useState(false);
  const [activeCode,setActiveCode]=useState<string|null>(null);
@@ -74,6 +66,12 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   ).sort((a,b)=>a.name.localeCompare(b.name));
  },[countries,query,filter,selectedYear]);
  const activeCountry=countries.find(c=>c.code===activeCode)??null;
+ useEffect(()=>{
+  if(!focusCode||form)return;
+  const element=document.querySelector<HTMLButtonElement>(
+   '[data-country-focus="'+focusCode+'"]');
+  if(element){element.focus();setFocusCode(null);}
+ },[countries,focusCode,form]);
 
  useEffect(()=>{
   const dialog=dialogRef.current;
@@ -94,14 +92,12 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   return ()=>controller.abort();
  },[activeCode,selectedYear,version]);
 
- async function submit(event:FormEvent<HTMLFormElement>){
-  event.preventDefault();if(busy)return;setBusy(true);setNotice("");
-  try{
-   const response=await fetch("/api/admin/countries",{method:"POST",
-    headers:{"Content-Type":"application/json"},body:JSON.stringify({code,name})});
-   if(!response.ok){setNotice(response.status===409?"duplicate":response.status===400?"invalid":"failed");return;}
-   await refresh();setCode("");setName("");setNotice("saved");
-  }catch{setNotice("failed");}finally{setBusy(false);}
+ async function onFormSaved(result:{mode:"create"|"rename";code:string}){
+  // Do not re-submit a successful mutation if the catalog refresh fails.
+  setForm(null);setQuery("");setFilter("all");
+  setNotice(result.mode==="create"?"saved":"renameSaved");
+  try{await refresh();setFocusCode(result.code);}
+  catch{setNotice("savedRefreshFailed");setLoadFailed(true);}
  }
  async function refreshCalendars(){
   if(refreshing)return;setRefreshing(true);setNotice("");
@@ -131,11 +127,16 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     <h2 className="h5 mb-1" id="country-catalog-heading">{t("countries.listTitle")}</h2>
     <p className="text-muted small mb-0">{t("countries.nationalOnly")}</p>
    </div>
-   {canManage&&<button type="button" className="btn btn-outline-primary"
-    aria-expanded={showTools} aria-controls="country-tools"
-    onClick={()=>setShowTools(v=>!v)}>
-    {showTools?t("countries.closeTools"):t("countries.openTools")}
-   </button>}
+   {canManage&&<div className="d-flex flex-wrap gap-2">
+    <button type="button" className="btn btn-primary" onClick={()=>setForm({mode:"create"})}>
+     {t("countries.addTitle")}
+    </button>
+    <button type="button" className="btn btn-outline-secondary"
+     aria-expanded={showTools} aria-controls="country-tools"
+     onClick={()=>setShowTools(v=>!v)}>
+     {showTools?t("countries.closeTools"):t("countries.openTools")}
+    </button>
+   </div>}
   </div>
   <div className="row g-3 align-items-end mb-3">
    <div className="col-12 col-md-5">
@@ -167,11 +168,12 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     </div>
    </div>
   </div>
-  {notice&&<p role={["saved","calendarRefreshed"].includes(notice)?"status":"alert"}
-   className={"alert "+(["saved","calendarRefreshed"].includes(notice)?"alert-success":"alert-warning")}>
+  {notice&&<p role={["saved","renameSaved","calendarRefreshed"].includes(notice)?"status":"alert"}
+   className={"alert "+(["saved","renameSaved","calendarRefreshed"].includes(notice)?"alert-success":"alert-warning")}>
    {t(notice==="saved"?"countries.saved":notice==="calendarRefreshed"?
     "countries.calendarRefreshed":notice==="duplicate"?"countries.duplicate":
-    notice==="invalid"?"countries.invalid":"countries.failed")}
+    notice==="invalid"?"countries.invalid":notice==="renameSaved"?"countries.renameSaved":
+    notice==="savedRefreshFailed"?"countries.savedRefreshFailed":"countries.failed")}
   </p>}
   <p className="small text-muted" role="status" aria-live="polite">
    {t("countries.resultsCount",{count:visible.length})} · {selectedYear}
@@ -190,7 +192,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
       const status=statusOf(country);
       return <tr key={country.code}>
        <td><span className="d-inline-flex align-items-center gap-2">
-        <CatalogFlag code={country.code} name={country.name}/>
+        <CountryFlag key={country.code} code={country.code} name={country.name}/>
         <strong>{country.name}</strong>
        </span></td>
        <td><code>{country.code}</code></td>
@@ -198,10 +200,24 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
         {year&&year.count>0&&<span className="small text-muted ms-2">
          {t("countries.yearCount",{count:year.count})}
         </span>}</td>
-       <td className="text-end"><button type="button" className="btn btn-sm btn-outline-primary"
-        onClick={()=>{setHolidays(null);setHolidayError(false);setActiveCode(country.code);}}>
-        {t("countries.manage")}
-       </button></td>
+       <td className="text-end"><div className="d-inline-flex align-items-center gap-2">
+        <button type="button" className="btn btn-sm btn-outline-primary"
+         data-country-focus={country.code}
+         onClick={()=>{setHolidays(null);setHolidayError(false);setActiveCode(country.code);}}>
+         {t("countries.manage")}
+        </button>
+        {canManage&&<details className="dropdown d-inline-block">
+         <summary className="btn btn-sm btn-outline-secondary"
+          aria-label={t("countries.moreActions")}>⋯</summary>
+         <div className="dropdown-menu show dropdown-menu-end">
+          <button type="button" className="dropdown-item"
+           onClick={event=>{
+            event.currentTarget.closest("details")?.removeAttribute("open");
+            setForm({mode:"rename",country});
+           }}>{t("countries.renameAction")}</button>
+         </div>
+        </details>}
+       </div></td>
       </tr>;
      })}
     </tbody>
@@ -227,30 +243,24 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
 
   {canManage&&showTools&&<div id="country-tools" className="border-top mt-4 pt-4">
    <h3 className="h5">{t("countries.toolsTitle")}</h3>
+   <button type="button" className="btn btn-outline-secondary mb-3"
+    onClick={()=>void refreshCalendars()} disabled={refreshing}>
+    {t("countries.refreshCalendars")}
+   </button>
+   <p className="small text-muted">{t("countries.scopeInfo")}</p>
    <div className="row g-4">
-    <div className="col-12 col-xl-5">
-     <h4 className="h6">{t("countries.addTitle")}</h4>
-     <form className="d-grid gap-2" onSubmit={submit}>
-      <label htmlFor="country-new-code">{t("countries.code")}</label>
-      <input id="country-new-code" className="form-control" maxLength={2} required
-       value={code} onChange={event=>setCode(event.target.value.toUpperCase())}/>
-      <label htmlFor="country-new-name">{t("countries.name")}</label>
-      <input id="country-new-name" className="form-control" maxLength={120} required
-       value={name} onChange={event=>setName(event.target.value)}/>
-      <button type="submit" className="btn btn-primary" disabled={busy}>{t("countries.add")}</button>
-     </form>
-     <button type="button" className="btn btn-outline-secondary mt-3"
-      onClick={()=>void refreshCalendars()} disabled={refreshing||busy}>
-      {t("countries.refreshCalendars")}
-     </button>
-     <p className="small text-muted mt-2">{t("countries.scopeInfo")}</p>
-    </div>
-    <div className="col-12 col-xl-7">
+    <div className="col-12 col-xl-6">
      <HolidayCsvImport countries={countries} onCompleted={refresh}/>
+    </div>
+    <div className="col-12 col-xl-6">
      <HolidayIcsImport countries={countries} onCompleted={refresh}/>
     </div>
    </div>
   </div>}
+
+  {canManage&&form&&<CountryFormModal key={form.mode+":"+(form.country?.code??"new")}
+   mode={form.mode} country={form.country} onClose={()=>setForm(null)}
+   onSaved={onFormSaved}/>}
 
   <dialog ref={dialogRef} onClose={()=>setActiveCode(null)}
    className="bg-body text-body border-0 rounded-3 shadow-lg p-0 w-100"
