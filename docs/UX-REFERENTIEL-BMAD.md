@@ -787,3 +787,11 @@ Les statuts clôturés/suspendus, cycles historiques et droits restent respecté
 **Règle technique existante partielle :** `src/lib/sprint-context.ts` offre `defaultSprintId` pour Scrum ; l'adaptation multiéquipes et l'équivalent Kanban seront à développer, **non implémentés à ce stade**. Priorité des URL, brouillons non sauvegardés, filtres, échecs de transition et isolement détaillé restent à arbitrer.
 
 Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). Aucun développement ni test exécuté.
+
+## Arbitrage SMN-282 — Brouillons non sauvegardés : confirmation préalable (Option A, 26 octobre 2026)
+
+**Option A validée :** si des modifications non sauvegardées sont présentes dans un formulaire ou une modale contextuelle au moment où l'utilisateur demande de changer d'équipe dans l'en-tête, afficher **un dialogue de confirmation** avec « Rester sur [équipe actuelle] » / « Abandonner et changer d'équipe ». Annulation : aucune modification de brouillon, équipe, cycle, URL ou préférence mémorisée. Confirmation : abandon explicite du brouillon **local seulement**, puis changement vers l'équipe autorisée selon les règles validées de conservation de rubrique et de cycle pertinent. Aucune autosauvegarde, aucun transfert de brouillon.
+
+Prévoir l'état d'enregistrement en cours : ne pas changer d'équipe tandis qu'une écriture n'est pas définitivement résolue. Dialogue accessible (focus, Échap, clavier, mobile) et libellés FR/EN centralisés. Les autres parcours de sortie ne sont pas modifiés implicitement.
+
+**Encore ouverts :** priorité URL explicite / équipe mémorisée, consultations historiques, isolation des API et filtres, erreurs de transition. Références [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). **Documentation seulement, aucun développement.**
