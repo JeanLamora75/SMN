@@ -66,3 +66,21 @@ export async function createCountry(db:Client,actorId:string,raw:unknown){
   return {ok:true,country:project(r.rows[0])} as const;
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
+
+/** National dates for exactly one country and year, including years outside install range. */
+export async function listNationalHolidays(db:Client,code:string,year:number):
+ Promise<{date:string;name:string}[]|null>{
+ if(!isValidCountry(code)||!Number.isInteger(year)||year<1900||year>2200)
+  throw new Error("invalid-national-calendar-scope");
+ const result=await db.query<{code:string;date:string|null;name:string|null}>(`
+ SELECT c.code,to_char(h.holiday_date,'YYYY-MM-DD') AS date,h.name
+ FROM public.smn_country c
+ LEFT JOIN public.smn_national_holiday h
+ ON h.country_code=c.code
+ AND h.holiday_date>=make_date($2,1,1)
+ AND h.holiday_date<make_date($2+1,1,1)
+ WHERE c.code=$1 ORDER BY h.holiday_date ASC`,[code,year]);
+ if(result.rows.length===0)return null;
+ return result.rows.filter((row):row is {code:string;date:string;name:string}=>
+  row.date!==null&&row.name!==null).map(({date,name})=>({date,name}));
+}

@@ -52,6 +52,13 @@ describe("Catalogue des pays initiaux",()=>{
   assert.equal(canAccess({role:"admin",is_active:true,must_change_password:false},
    "write",resource),true);
  });
+ it("la lecture du catalogue d'administration est réservée au rôle admin",()=>{
+  const resource={type:"settings",exists:true,inScope:true};
+  assert.equal(canAccess({role:"user",is_active:true,must_change_password:false},
+   "read",resource),false);
+  assert.equal(canAccess({role:"admin",is_active:true,must_change_password:false},
+   "read",resource),true);
+ });
  it("création atomique sans obligation de fichier férié",async()=>{
   const f=dbFixture();
   const result=await createCountry(f.client,"admin",{code:"NL",name:"Pays-Bas"});
