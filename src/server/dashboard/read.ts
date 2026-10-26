@@ -53,3 +53,22 @@ export async function readCollectiveDashboard(client: Client,
     attention: [],
   };
 }
+
+/** Compatibilité monoéquipe : en v27, lecture historique inchangée.
+ * En v28, l'acteur devient obligatoire pour résoudre une équipe.
+ * Aucun fallback vers « première équipe » n'est autorisé en multiéquipes.
+ */
+export async function readAccountDashboard(client:Client,actor:TeamActor,
+ requestedTeamId?:string|null):Promise<CollectiveDashboard>{
+ const result=await client.query<{schema_version:number}>(`
+  SELECT i.schema_version FROM public.smn_installation i
+  JOIN public.smn_account a ON a.installation_id=i.id
+  WHERE i.id='singleton' AND i.state='initialized'
+   AND a.id=$1 AND a.is_active=true`,[actor.accountId]);
+ if(result.rows.length!==1)throw new Error("dashboard-context-unavailable");
+ if(result.rows[0].schema_version===28)
+  return readCollectiveDashboard(client,actor,requestedTeamId);
+ if(result.rows[0].schema_version<=27)
+  return readCollectiveDashboard(client);
+ throw new Error("dashboard-context-unavailable");
+}
