@@ -40,6 +40,8 @@ export default function DevelopmentCapacityView({initialPeriod=null}:{
  initialPeriod?:{start:string;end:string}|null;
 }){
  const t=useTranslation();
+ const initialStart=initialPeriod?.start;
+ const initialEnd=initialPeriod?.end;
  // The server supplies only recorded Sprint dates, never guesses from the browser clock.
  const [start,setStart]=useState(initialPeriod?.start??"");
  const [end,setEnd]=useState(initialPeriod?.end??"");
@@ -73,7 +75,7 @@ export default function DevelopmentCapacityView({initialPeriod=null}:{
  // On first entry, recalculate for the selected persisted Sprint. Each later
  // manual date change aborts this request rather than restoring obsolete data.
  useEffect(()=>{
-  if(!initialPeriod||start!==initialPeriod.start||end!==initialPeriod.end)return;
+  if(!initialStart||!initialEnd||start!==initialStart||end!==initialEnd)return;
   const controller=new AbortController();
   const params=new URLSearchParams({start,end});
   void fetch("/api/admin/development-capacity?"+params.toString(),{
@@ -92,7 +94,7 @@ export default function DevelopmentCapacityView({initialPeriod=null}:{
    if(!controller.signal.aborted)setError(t("developmentCapacity.loadError"));
   }).finally(()=>{if(!controller.signal.aborted)setBusy(false);});
   return()=>controller.abort();
- },[start,end,initialPeriod?.start,initialPeriod?.end,t]);
+ },[start,end,initialStart,initialEnd,t]);
  const setPeriodBoundary=(which:"start"|"end",date:string)=>{
   if(manualDirty&&!window.confirm(t("draft.discardWarning")))return;
   if(which==="start")setStart(date);else setEnd(date);
