@@ -62,33 +62,74 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
  const reload=()=>{setLoading(true);setNotice("");setRefresh(n=>n+1);};
  const items=data?.items??[];
  const generateHref="/app/admin/sprints/generate?"+new URLSearchParams({search,status:filter,sort,page:String(page)}).toString();
- return <div className="d-grid gap-4">
-  <header className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-   <div>
-    <h1 className="h3 mb-1">{t("sprintsIndex.title")}</h1>
-    <p className="text-secondary mb-0">{data?.teamName??t("sprintsIndex.teamUnknown")} · Scrum</p>
+ const mainStatuses=new Set(["all","active","planned","finished","closed"]);
+ const allStatuses=[...new Set([...statuses,filter])].filter(status=>status!=="all");
+ const extraStatuses=allStatuses.filter(status=>!mainStatuses.has(status));
+ const tabs=[
+  {status:"all",text:t("sprintsIndex.allStatuses")},
+  {status:"active",text:t("sprintStates.active")},
+  {status:"planned",text:t("sprintStates.planned")},
+  {status:"finished",text:t("sprintStates.finished")},
+  {status:"closed",text:t("sprintStates.closed")}
+ ];
+
+ return <div className="smn-sprints-cockpit d-grid gap-3">
+  <header className="smn-sprints-hero">
+   <div className="smn-sprints-hero-top">
+    <div className="smn-sprints-identity">
+     <h1>{t("sprintsIndex.title")}</h1>
+     <p>{data?.teamName??t("sprintsIndex.teamUnknown")} · Scrum</p>
+    </div>
+    {canManage&&<div className="smn-sprints-hero-actions">
+     <Link className="btn smn-sprints-secondary-action" href="/app/admin/sprints/historical">
+      {t("sprintsIndex.historical")}
+     </Link>
+     <Link className="btn smn-sprints-primary-action" href={generateHref}>
+      <span aria-hidden="true">＋</span>{t("sprintsIndex.generate")}
+     </Link>
+    </div>}
    </div>
-   {canManage&&<div className="d-flex gap-2 flex-wrap"><Link className="btn btn-outline-primary" href="/app/admin/sprints/historical">Reprise historique</Link><Link className="btn btn-primary" href={generateHref}>{t("sprintsIndex.generate")}</Link></div>}
+   <div className="smn-sprints-state-tabs" role="group" aria-label={t("sprintsIndex.statusFilter")}>
+    {tabs.map(tab=><button key={tab.status} type="button"
+     className="smn-sprints-state-tab" aria-pressed={filter===tab.status}
+     onClick={()=>change(()=>setFilter(tab.status))}>{tab.text}</button>)}
+    {extraStatuses.length>0&&<select className="smn-sprints-extra-select"
+     aria-label={t("sprintsIndex.otherStatuses")}
+     value={extraStatuses.includes(filter)?filter:""}
+     onChange={event=>{if(event.target.value)change(()=>setFilter(event.target.value));}}>
+     <option value="">{t("sprintsIndex.otherStatuses")}</option>
+     {extraStatuses.map(status=><option key={status} value={status}>
+      {label({status,suspended:status==="suspended"} as SprintIndexItem)}
+     </option>)}
+    </select>}
+   </div>
+   <div className="smn-sprints-state-mobile">
+    <label htmlFor="sprint-index-status" className="visually-hidden">{t("sprintsIndex.statusFilter")}</label>
+    <select id="sprint-index-status" className="form-select" value={filter}
+     onChange={event=>change(()=>setFilter(event.target.value))}>
+     <option value="all">{t("sprintsIndex.allStatuses")}</option>
+     {allStatuses.map(status=><option key={status} value={status}>
+      {label({status,suspended:status==="suspended"} as SprintIndexItem)}
+     </option>)}
+    </select>
+   </div>
   </header>
-  <section className="smn-panel rounded-4 p-3 p-md-4 d-grid gap-3" aria-label={t("sprintsIndex.filters")}>
-   <div className="row g-3 align-items-end">
-    <div className="col-12 col-lg-6">
+  <section className="smn-sprints-filters" aria-label={t("sprintsIndex.filters")}>
+   <div className="smn-sprints-filters-heading">
+    <h2>{t("sprintsIndex.filtersHeading")}</h2>
+    <div className="smn-sprints-context">
+     <span>{t("sprintsIndex.teamLabel")}: {data?.teamName??t("sprintsIndex.teamUnknown")}</span>
+     {!loading&&!error&&data&&<span>{t("sprintsIndex.total",{count:data.total})}</span>}
+    </div>
+   </div>
+   <div className="smn-sprints-filter-fields">
+    <div>
      <label className="form-label" htmlFor="sprint-index-search">{t("sprintsIndex.search")}</label>
      <input id="sprint-index-search" className="form-control" type="search"
       maxLength={100} value={search} placeholder={t("sprintsIndex.searchPlaceholder")}
       onChange={event=>change(()=>setSearch(event.target.value))}/>
     </div>
-    <div className="col-6 col-lg-3">
-     <label htmlFor="sprint-index-status" className="form-label">{t("sprintsIndex.statusFilter")}</label>
-     <select id="sprint-index-status" className="form-select" value={filter}
-      onChange={event=>change(()=>setFilter(event.target.value))}>
-      <option value="all">{t("sprintsIndex.allStatuses")}</option>
-      {statuses.map(status=><option key={status} value={status}>
-       {label({status,suspended:status==="suspended"} as SprintIndexItem)}
-      </option>)}
-     </select>
-    </div>
-    <div className="col-6 col-lg-3">
+    <div>
      <label htmlFor="sprint-index-sort" className="form-label">{t("sprintsIndex.sort")}</label>
      <select id="sprint-index-sort" className="form-select" value={sort}
       onChange={event=>change(()=>setSort(event.target.value as SprintIndexSort))}>
@@ -98,15 +139,15 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
      </select>
     </div>
    </div>
-   <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap">
-    <span className="text-secondary small" role="status" aria-live="polite">
-     {loading?t("sprintsIndex.loading"):t("sprintsIndex.total",{count:data?.total??0})}
+   <div className="smn-sprints-filter-footer">
+    <span className="small" role="status" aria-live="polite">
+     {loading?t("sprintsIndex.loading"):error?t("sprintsIndex.error"):data?t("sprintsIndex.total",{count:data.total}):""}
     </span>
     <button type="button" className="btn btn-outline-secondary btn-sm"
      onClick={reload} disabled={loading}>{t("sprintStates.refresh")}</button>
    </div>
   </section>
-  <section className="smn-panel rounded-4 p-3 p-md-4" aria-label={t("sprintsIndex.list")}>
+  <section className="smn-sprints-results" aria-label={t("sprintsIndex.list")}>
    {error&&<div role="alert" className="alert alert-warning">
     {t("sprintsIndex.error")}
     <button type="button" className="btn btn-sm btn-outline-secondary ms-2" onClick={reload}>
@@ -125,8 +166,8 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
        {t("sprintsIndex.generate")}</Link>}
     </div>}
    {(!error&&!loading&&items.length>0)&&<>
-    <div className="table-responsive">
-     <table className="table table-hover align-middle">
+    <div className="table-responsive smn-sprints-table-wrap">
+     <table className="table table-hover align-middle smn-sprints-table">
       <thead><tr>
        <th scope="col">{t("sprintStates.name")}</th>
        <th scope="col">{t("sprintsIndex.period")}</th>
@@ -135,22 +176,22 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
       </tr></thead>
       <tbody>{items.map(item=>{
        const current=item.status==="active"&&!item.suspended&&!item.stateMayBeStale;
-       return <tr key={item.id} className={current?"table-active":""}>
-        <th scope="row" className={current?"border-start border-primary border-4":""}>
-         <Link href={sprintDetailPath(item.id)} className="fw-semibold">{item.name}</Link>
+       return <tr key={item.id} className={current?"smn-sprints-current":""}>
+        <th scope="row">
+         <Link href={sprintDetailPath(item.id)} className="smn-sprints-row-title fw-semibold">{item.name}</Link>
          {item.stateMayBeStale&&<small className="d-block text-warning-emphasis">
           {t("sprintsIndex.stateUnverified")}</small>}
         </th>
-        <td><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
+        <td data-label={t("sprintsIndex.period")}><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
          {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
-        <td><span className={"badge "+(current?"text-bg-primary":"text-bg-secondary")}>
+        <td data-label={t("sprintStates.status")}><span className={"badge smn-sprints-status "+(current?"text-bg-primary":"text-bg-secondary")}>
          {label(item)}</span></td>
-        <td className="text-end">
+        <td className="text-end smn-sprints-row-actions" data-label={t("sprintsIndex.actions")}>
          <div className="d-inline-flex gap-2 align-items-center">
           <button type="button" className="btn btn-sm btn-outline-secondary"
            title={t("sprintsIndex.calendarPending")} aria-label={t("sprintsIndex.calendarPending")}
            onClick={()=>setNotice(t("sprintsIndex.calendarPending"))}>▦</button>
-          {canManage?<details className="d-inline-block text-start">
+          {canManage?<details className="d-inline-block text-start smn-sprints-actions-menu">
            <summary className="btn btn-sm btn-outline-secondary"
             aria-label={t("sprintsIndex.rowActions",{name:item.name})}>⋯</summary>
            <div className="border rounded bg-body p-2 mt-2 shadow-sm"
@@ -166,8 +207,8 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
       })}</tbody>
      </table>
     </div>
-    <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
-     <span className="small text-secondary">{t("sprintsIndex.page",{
+    <div className="smn-sprints-pagination">
+     <span className="small">{t("sprintsIndex.page",{
       page:data?.page??page,total:data?.totalPages??1})}</span>
      <div className="btn-group">
       <button type="button" className="btn btn-outline-secondary btn-sm"
@@ -183,7 +224,7 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
    </>}
    {loading&&<p role="status" className="text-secondary">{t("sprintsIndex.loading")}</p>}
   </section>
-  {canManage&&<p className="text-secondary small mb-0">
+  {canManage&&<p className="smn-sprints-legacy-note small mb-0">
    {t("sprintsIndex.transitionNote")} <Link href="/app/admin/sprints/tools">
     {t("sprintsIndex.legacyTools")}</Link>
   </p>}
