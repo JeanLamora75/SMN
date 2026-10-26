@@ -39,6 +39,7 @@ model SmnTeam {
   product SmnProduct? @relation(fields: [productId], references: [id])
   memberBatches SmnMemberBatch[]
   memberAssignments SmnMemberAssignment[]
+  selectedByAccounts SmnAccountTeamPreference[]
   companyClosures SmnCompanyClosure[]
   capacityOverrides SmnCapacityPeriodOverride[]
   historicalQualities SmnCapacityHistoricalQuality[]
@@ -63,6 +64,7 @@ model SmnAccount {
   installation SmnInstallation @relation(fields: [installationId], references: [id])
   recovery SmnRecoveryPhrase?
   authAudit SmnAuthAudit[]
+  teamPreference SmnAccountTeamPreference?
   changedSettings SmnGeneralSettings[]
   settingsAudit SmnGeneralSettingsAudit[]
   assignmentChanges SmnMemberAssignmentVersion[]
@@ -91,6 +93,17 @@ model SmnAccount {
   historicalQualityRevisions SmnCapacityHistoricalQualityHistory[]
   holidayCsvAudits SmnNationalHolidayAudit[]
   @@map("smn_account")
+}
+
+/** Préférence personnelle uniquement ; pas une habilitation compte/équipe. */
+model SmnAccountTeamPreference {
+  accountId String @id @map("account_id")
+  installationId String @map("installation_id")
+  teamId String @map("team_id")
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  account SmnAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  team SmnTeam @relation(fields: [teamId], references: [id])
+  @@map("smn_account_team_preference")
 }
 
 model SmnRecoveryPhrase {
