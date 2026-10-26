@@ -86,9 +86,12 @@ describe("SMN-275 — certification nationale",()=>{
  });
  it("refuse une liste vide sans attestation",async()=>{
   const f=dbFixture({empty:true});
-  const result=await certifyNationalYear(f.client,"FR","admin",request(
-   "e".repeat(64)));
+  const {readAnnualHolidaySnapshot}=await import("../src/server/holidays/manual");
+  const snapshot=await readAnnualHolidaySnapshot(f.client,"FR",2026);
+  assert.ok(snapshot);
+  const result=await certifyNationalYear(f.client,"FR","admin",request(snapshot.fingerprint));
   assert.equal(result.ok,false);
+  if(!result.ok)assert.equal(result.error,"diagnostic-blocked");
  });
  it("atteste en transaction et audite la révision sans toucher aux snapshots",async()=>{
   const f=dbFixture();
