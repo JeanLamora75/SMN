@@ -3,8 +3,6 @@ import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {annualDisplayStatus,currentParisYear,normalizeCountrySearch,
  type AnnualDisplayStatus,type TechnicalCoverage} from "@/lib/countries/year-status";
-import HolidayCsvImport from "./holiday-csv-import";
-import HolidayIcsImport from "./holiday-ics-import";
 import CountryFlag from "./country-flag";
 import CountryFormModal from "./country-form-modal";
 import CountryCalendarModal from "./country-calendar-modal";
@@ -238,14 +236,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     {t("countries.refreshCalendars")}
    </button>
    <p className="small text-muted">{t("countries.scopeInfo")}</p>
-   <div className="row g-4">
-    <div className="col-12 col-xl-6">
-     <HolidayCsvImport countries={countries} onCompleted={refresh}/>
-    </div>
-    <div className="col-12 col-xl-6">
-     <HolidayIcsImport countries={countries} onCompleted={refresh}/>
-    </div>
-   </div>
+   <p className="small text-muted mb-0">{t("countries.importMovedHint")}</p>
   </div>}
 
   {canManage&&form&&<CountryFormModal key={form.mode+":"+(form.country?.code??"new")}
