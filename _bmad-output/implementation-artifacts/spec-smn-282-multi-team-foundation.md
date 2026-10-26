@@ -51,3 +51,13 @@
 **Limitations actuelles** : ces tests sont **écrits mais non exécutés** dans l'environnement du projet ; la base réelle n'a pas été migrée. Les contraintes SQL finales, l'intégration d'authentification v28 et l'ensemble des consommateurs de `teamId` sont encore à coordonner et à tester. **Aucune méthode POST/PATCH HTTP n'est activée**, aucun lien de Paramètres n'ouvre de faux formulaire. L'éventuelle migration des comptes `user` préexistants reste délibérément hors périmètre.
 
 **Prochaine étape technique :** concevoir/valider une migration versionnée et compatible `schema_version`, `_prisma_migrations`, Prisma, diagnostic et lecteurs ; exécuter les contrôles réels sur une copie de base avant activation des commandes.
+
+### Vérifications d'architecture de l'étape 2
+
+- Le service refuse toute écriture tant que `smn_installation.schema_version` n'est pas **28**, et exige un compte `admin` actif dans **la même installation**.
+- Les requêtes de création et de modification sont **transactionnelles** et verrouillent l'installation ; la création rejette les homonymes normalisés ; la modification verrouille l'équipe et contrôle le numéro de révision.
+- Le nom d'équipe est seul requis à la création. L'édition demande explicitement les quatre valeurs (dont `null` pour les options vides), afin qu'un champ omis ne détruise pas silencieusement des données.
+- Le produit facultatif est détaché lors de son effacement sans supprimer la ligne historique ; le changement de produit vérifie la propriété de la même installation et le nombre de lignes modifiées.
+- La migration SQL **toujours non activée** prépare un index UNIQUE sur les noms normalisés et crée les tables de contexte et d'audit si absentes. **Il manque toujours** son branchement au pipeline versionné, la validation des anciennes colonnes, Prisma, les lecteurs monoéquipe, les routes d'écriture et le test sur une base réelle.
+- Le fichier `tests/smn-282-team-write.test.ts` contient **8 scénarios supplémentaires** avec faux client PostgreSQL : création sans produit, garde v27, refus Admin, homonymie, conflit de révision, retrait de produit, rollback, liaison produit, protection interinstallation. Ils **n'ont pas été exécutés** ici. Le nombre exact de cas doit être vérifié lors de `pnpm test` : le comptage des cas n'est pas une preuve d'exécution.
+
