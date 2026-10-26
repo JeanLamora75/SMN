@@ -71,6 +71,7 @@ model SmnAccount {
   changedCalendarExceptions SmnMemberCalendarException[]
   changedLocations SmnMemberLocation[]
   createdCountries SmnCountry[]
+  countryLifecycleEvents SmnCountryLifecycleAudit[]
   createdAbsences SmnMemberAbsence[] @relation("AbsenceCreatedBy")
   updatedAbsences SmnMemberAbsence[] @relation("AbsenceUpdatedBy")
   absenceEdits SmnMemberAbsenceHistory[]
@@ -296,7 +297,24 @@ model SmnCountry {
   manualHolidayAudits SmnNationalHolidayManualAudit[]
   nationalCalendarValidationAudits SmnNationalCalendarValidationAudit[]
   nameAudits SmnCountryNameAudit[]
+  lifecycleAudits SmnCountryLifecycleAudit[]
   @@map("smn_country")
+}
+
+model SmnCountryLifecycleAudit {
+  id String @id
+  countryCode String @map("country_code")
+  action String
+  oldArchivedAt DateTime? @map("old_archived_at") @db.Timestamptz(6)
+  newArchivedAt DateTime? @map("new_archived_at") @db.Timestamptz(6)
+  oldRevision Int @map("old_revision")
+  newRevision Int @map("new_revision")
+  actorId String? @map("actor_id")
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([countryCode,occurredAt])
+  @@map("smn_country_lifecycle_audit")
 }
 
 model SmnCountryNameAudit {
