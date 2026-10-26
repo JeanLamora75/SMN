@@ -147,10 +147,11 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
     WHERE country_code=$1 AND holiday_date>=make_date($2,1,1)
     AND holiday_date<make_date($2+1,1,1)`,[code,year]);
    const total=Number(count.rows[0]?.total??0);
-   const old=await db.query<{status:string}>(`SELECT status
+   const old=await db.query<{status:string;diagnostic:string|null}>(`SELECT status,diagnostic
     FROM public.smn_national_calendar_coverage
     WHERE country_code=$1 AND calendar_year=$2`,[code,year]);
    const previous=old.rows[0]?.status??"not-configured";
+   const previousDiagnostic=old.rows[0]?.diagnostic??null;
    // Preserve technical coverage of historically complete years for capacity.
    const status=total===0?"not-configured":
     previous==="configured"?"configured":previous==="invalid"?"invalid":"partial";
@@ -165,6 +166,7 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
      administrative_validated_at=NULL,validated_revision=NULL,checked_at=now()
     RETURNING revision`,
     [code,year,status,total,total===0?"manual-year-empty":
+     status==="invalid"?(previousDiagnostic??"manual-review"):
      status==="configured"?null:"manual-review"]);
    result.push({year,revision:Number(changed.rows[0].revision),status,count:total});
   }
