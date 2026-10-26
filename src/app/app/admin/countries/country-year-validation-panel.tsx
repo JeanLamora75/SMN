@@ -180,7 +180,8 @@ export default function CountryYearValidationPanel({
    <button type="button" className="btn btn-outline-secondary" disabled={busy}
     onClick={onCancel}>{t("countries.cancel")}</button>
    <button type="button" className="btn btn-primary" disabled={!allowed}
-    aria-describedby={!allowed?"country-validation-disabled":undefined}
+    aria-describedby={!allowed&&state.kind==="ready"&&!diagnostic?.administrativeValidated?
+     "country-validation-disabled":undefined}
     onClick={()=>void validate()}>
     {busy?t("countries.loading"):t("countries.validationConfirm")}
    </button>
