@@ -48,3 +48,13 @@ La Vision et le Product Goal sont du **contexte rattaché à l'équipe**, y comp
 **Encore à arbitrer avant toute implémentation :** choix et mémorisation de l'équipe active, propagation contrôlée aux pages et API, isolation des données, règles de conflits contextuels et homonymies. La propriété Produit en SAFe v1.0 et l'affectation simultanée d'un membre à plusieurs équipes ne sont pas modifiées par déduction. Aucune migration, aucun test ni code exécutés pour cette décision.
 
 Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant UX Équipes](../../ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
+
+## Arbitrage d'interface — Équipe active globale par utilisateur (Option A, 26/10/2026)
+
+**Validé explicitement :** pour le MVP Scrum/Kanban multiéquipes, le sélecteur d'équipe active est placé dans **l'en-tête global**, à côté du sélecteur de cycle (Sprint / période Kanban). La dernière équipe sélectionnée est mémorisée **par utilisateur**, entre navigations et sessions. Les équipes accessibles sont limitées par les permissions serveur effectives ; une préférence personnelle ne constitue jamais une autorisation. Le mécanisme de persistance (préférence de compte côté serveur ou autre dispositif fiable) reste un choix d'implémentation à instruire après cadrage.
+
+**Invariants :** équipe sélectionnée identifiée par `teamId` stable, pas par libellé ; changement du choix d'un utilisateur sans altérer le choix d'un autre ; création d'une équipe sans basculer automatiquement l'équipe active ; un ancien `teamId` devenu inaccessible ne doit ni exposer ses données ni produire de mutation. Affichage accessible (clavier, libellé, responsive, FR/EN).
+
+**Reste à arbitrer avant développement :** conserver la page courante ou aller vers le tableau de bord lors d'un changement ; cycle appartenant à la nouvelle équipe ; brouillons non enregistrés ; URLs et consultations historiques explicites ; gestion d'erreurs et des conflits, propagation/isolation de tous les producteurs métier. Aucun code, test ou migration réalisé pour cette décision.
+
+**Source vérifiée :** `src/app/app/private-shell.tsx` contient déjà `smn-current-team`, actuellement désactivé, et le sélecteur de cycle voisin. `src/app/app/layout.tsx` fournit le contexte serveur actuel ; pas de supposition de prise en charge multiéquipes existante. Traçabilité : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
