@@ -2591,6 +2591,11 @@
     "historyError": "History unavailable."
   },
   "registryList": {
+    "subtitle": "Track the team's risks, obstacles, dependencies, decisions and actions.",
+    "filtersHeading": "Filters and search",
+    "filtersToggle": "Filters",
+    "viewLabel": "View",
+    "summaryCount": "{total} records",
     "viewGroup": "Register display mode",
     "listView": "List",
     "cardsView": "Cards",
