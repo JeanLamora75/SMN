@@ -101,7 +101,8 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
      <button type="button" className="btn-close" disabled={saving}
       aria-label={t("teamUX.cancel")} onClick={dismiss}/>
     </div>
-    <form onSubmit={e=>void save(e)} className="d-grid gap-3">
+    <form onSubmit={e=>void save(e)} className="d-grid gap-3"
+     data-smn-unsaved-changes={dirty?"true":"false"}>
      <div>
       <label htmlFor="smn-team-edit-name" className="form-label">
        {t("teamUX.contextName")}
