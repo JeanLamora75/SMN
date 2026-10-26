@@ -17,4 +17,4 @@ Les deux spines DESIGN/EXPERIENCE prévalent sur les maquettes illustratives en 
 
 Les maquettes PNG desktop/mobile et le prototype HTML ont été fournis dans l'atelier ChatGPT et ne sont **pas publiés dans ce dossier GitHub** ; les joindre à Amelia séparément si une comparaison pixel à pixel est requise.
 
-**Jira :** Epic [SMN-228](https://lmn24.atlassian.net/browse/SMN-228). Story : à lier après sa création.
+**Jira :** Epic [SMN-228](https://lmn24.atlassian.net/browse/SMN-228). Story : [SMN-283](https://lmn24.atlassian.net/browse/SMN-283), rattachée à SMN-228.
