@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {parseTeamCreate} from "../src/lib/team-form";
+import {parseTeamCreate,parseTeamUpdate,normalizedTeamName} from "../src/lib/team-form";
 test("nom d'équipe obligatoire",()=>{assert.equal(parseTeamCreate({name:" "}),null);});
 
 test("création avec champs facultatifs",()=>{
@@ -12,4 +12,16 @@ test("validation des formats",()=>{
  assert.equal(parseTeamCreate({name:"x".repeat(121)}),null);
  assert.equal(parseTeamCreate({name:"Koala",vision:"x".repeat(5001)}),null);
  assert.equal(parseTeamCreate({name:"Koala",installationId:"singleton"}),null);
+});
+
+test("mise à jour exige une révision et un identifiant valides",()=>{
+ assert.deepEqual(parseTeamUpdate({teamId:"team_1",revision:0,name:"Panda"}),{
+  teamId:"team_1",revision:0,name:"Panda",productName:null,vision:null,productGoal:null
+ });
+ assert.equal(parseTeamUpdate({teamId:"../team",revision:0,name:"Panda"}),null);
+ assert.equal(parseTeamUpdate({teamId:"team",revision:-1,name:"Panda"}),null);
+ assert.equal(parseTeamUpdate({teamId:"team",revision:"0",name:"Panda"}),null);
+});
+test("homonymies insensibles aux espaces et à la casse",()=>{
+ assert.equal(normalizedTeamName("  ÉQUIPE   A "),normalizedTeamName("équipe a"));
 });
