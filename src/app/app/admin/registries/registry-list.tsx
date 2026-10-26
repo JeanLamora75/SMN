@@ -233,7 +233,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     </div>
     {canManage&&<button type="button" className="btn btn-primary smn-registry-create"
      aria-label={translate("create")} onClick={()=>setCreateOpen(true)}>
-     <BootstrapIcon name="plus-lg"/><span className="smn-registry-create-label">{translate("create")}</span>
+     <span className="smn-registry-create-plus" aria-hidden="true">+</span><span className="smn-registry-create-label">{translate("create")}</span>
     </button>}
    </div>
   </header>
@@ -257,7 +257,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   <div className="nav nav-tabs flex-wrap d-none d-md-flex smn-registry-category-tabs" role="tablist" aria-label={translate("heading")}>
    {(["all",...registryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
     data-registry-type={kind} className={"nav-link"+(type===kind?" active":"")} onClick={()=>choose(kind)}>
-    <BootstrapIcon name={({all:"collection",risk:"exclamation-octagon-fill",
+    <BootstrapIcon name={({all:"stack",risk:"exclamation-octagon-fill",
      obstacle:"exclamation-triangle-fill",dependency:"stack",decision:"bullseye",
      action:"ticket-perforated-fill",highlight:"bell-fill"} as Record<RegistryScope,string>)[kind]}/>
     <span>{kind==="all"?translate("allTypes"):label(kind)}</span>
@@ -276,10 +276,10 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    <div className="smn-registry-filters-heading">
     <h2><BootstrapIcon name="sliders"/>{translate("filtersHeading")}</h2>
     <div className="smn-registry-context">
-     {result?.state==="available"&&<span><BootstrapIcon name="people"/>{translate("team")}: <strong>{result.team.name}</strong></span>}
-     <span><BootstrapIcon name="layout-text-sidebar"/>{translate("viewLabel")}: <strong>{translate(view==="list"?"listView":"cardsView")}</strong></span>
-     {result?.state==="available"&&<span><BootstrapIcon name="file-earmark-text"/>{t("registryList.summaryCount",{total:result.total})}</span>}
-     {!attentionLoading&&!attentionError&&attention!==null&&<span><BootstrapIcon name="bell"/>{t("registryAttention.count",{count:attention.length})}</span>}
+     {result?.state==="available"&&<span><BootstrapIcon name="people-fill"/>{translate("team")}: <strong>{result.team.name}</strong></span>}
+     <span><BootstrapIcon name="grid-3x3-gap"/>{translate("viewLabel")}: <strong>{translate(view==="list"?"listView":"cardsView")}</strong></span>
+     {result?.state==="available"&&<span><BootstrapIcon name="list-ul"/>{t("registryList.summaryCount",{total:result.total})}</span>}
+     {!attentionLoading&&!attentionError&&attention!==null&&<span><BootstrapIcon name="bell-fill"/>{t("registryAttention.count",{count:attention.length})}</span>}
     </div>
    </div>
    <button type="button" className="btn btn-outline-secondary smn-registry-mobile-filter-toggle d-md-none"
@@ -287,7 +287,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     onClick={()=>setMobileFiltersOpen(value=>!value)}>
     <BootstrapIcon name="sliders"/>{translate("filtersToggle")}
     <span className="smn-registry-filter-indicator">{[draft.lifecycle!=="all",!!draft.cycleId,!!draft.status,draft.sort!=="default",canManage&&!!draft.owner].filter(Boolean).length||""}</span>
-    <BootstrapIcon name={mobileFiltersOpen?"chevron-up":"chevron-down"}/>
+    <span aria-hidden="true">{mobileFiltersOpen?"▴":"▾"}</span>
    </button>
   <form className="row g-2 align-items-end" onSubmit={event=>{
    event.preventDefault();setPage(1);setLoading(true);setRefresh(n=>n+1);
