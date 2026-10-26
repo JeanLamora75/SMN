@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidCountry} from "./location";
+import {ensureCountryArchiveSchema,COUNTRY_LIFECYCLE_LOCK} from "../countries/archive-migration";
 
 export type AgileRole="scrum_master"|"product_owner"|"developer";
 export type QuickMember=Readonly<{
@@ -21,7 +22,7 @@ export type TeamMembers=Readonly<{
 type Request={teamId:string;count:number;requestId:string};
 export type QuickCreateResult=
  {ok:true;created:boolean;members:MemberListItem[]}|
- {ok:false;error:"invalid-input"|"team-unavailable"|"already-initialized"|"request-conflict"};
+ {ok:false;error:"invalid-input"|"team-unavailable"|"already-initialized"|"request-conflict"|"reference-country-archived"};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TEAM_ID=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
 export function parseQuickMembersRequest(raw:unknown):Request|null{
@@ -112,9 +113,11 @@ export async function listTeamMembers(client:Client):Promise<TeamMembers>{
 export async function createQuickMembers(client:Client,actorId:string,raw:unknown):Promise<QuickCreateResult>{
  const input=parseQuickMembersRequest(raw);
  if(!actorId||!input)return {ok:false,error:"invalid-input"};
+ await ensureCountryArchiveSchema(client);
  await client.query("BEGIN");
  try{
   await client.query("SELECT pg_advisory_xact_lock(20261021,42)");
+  await client.query(COUNTRY_LIFECYCLE_LOCK);
   const team=await installedTeam(client);
   if(team.id!==input.teamId){
    await client.query("ROLLBACK");return {ok:false,error:"team-unavailable"};
@@ -147,6 +150,14 @@ export async function createQuickMembers(client:Client,actorId:string,raw:unknow
   const defaults=await client.query<{reference_country:string|null}>(
    "SELECT reference_country FROM public.smn_general_settings WHERE installation_id='singleton'");
   const defaultCountry=defaults.rows[0]?.reference_country??null;
+  if(isValidCountry(defaultCountry)){
+   const allowed=await client.query<{archived_at:string|null}>(`SELECT archived_at FROM public.smn_country
+    WHERE code=$1 FOR SHARE`,[defaultCountry]);
+   if(allowed.rowCount!==1||allowed.rows[0].archived_at!==null){
+    await client.query("ROLLBACK");
+    return {ok:false,error:"reference-country-archived"};
+   }
+  }
   const dateResult=await client.query<{today:string}>("SELECT CURRENT_DATE::text AS today");
   const startOn=dateResult.rows[0]?.today;
   if(!startOn||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(startOn))throw new Error("members-date-unavailable");

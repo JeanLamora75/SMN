@@ -11,6 +11,8 @@ function fakeClient(options:{revision?:number; failAudit?:boolean; zeroUpdate?:b
   const row={...original,revision:options.revision??0};
   const client={query:async(sql:string,values:unknown[]=[])=>{
     calls.push({sql,values});
+    if(sql.includes("FROM public.smn_country WHERE code=$1 FOR SHARE"))
+      return {rowCount:1,rows:[{archived_at:null}]};
     if(sql.includes("SELECT s.locale"))return {rowCount:1,rows:[row]};
     if(sql.includes("UPDATE public.smn_general_settings"))return options.zeroUpdate?{rowCount:0,rows:[]}:
       {rowCount:1,rows:[{locale:values[0],theme:values[1],palette:values[2],reference_country:values[3],revision:row.revision+1,updated_at:new Date()}]};

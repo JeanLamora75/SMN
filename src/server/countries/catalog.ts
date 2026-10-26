@@ -1,7 +1,7 @@
 import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
 import {ensureCountryNameSchema} from "./name-migration";
-import {ensureManualHolidaySchema} from "../holidays/manual-migration";
+import {ensureCountryArchiveSchema} from "./archive-migration";
 import {isValidCountry} from "../members/location";
 export const COUNTRY_SEEDS=[
  {code:"FR",name:"France"},{code:"DE",name:"Allemagne"},
@@ -9,17 +9,18 @@ export const COUNTRY_SEEDS=[
  {code:"PT",name:"Portugal"},{code:"IT",name:"Italie"},
  {code:"CA",name:"Canada"}
 ] as const;
-type Row={code:string;name:string;revision?:number;origin:"initial"|"manual";created_at:string};
+type Row={code:string;name:string;revision?:number;origin:"initial"|"manual";created_at:string;archived_at:string|null};
 type CoverageRow={country_code:string;calendar_year:number;status:"configured"|"partial"|"not-configured"|"invalid";
  entries_count:number;diagnostic:string|null;administrative_validated:boolean};
 type HolidayRow={country_code:string;date:string;name:string};
 export type NationalCalendar={status:"configured"|"partial"|"not-configured"|"invalid";
  holidays:{date:string;name:string}[]|null;
  years:{year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null;administrativeValidated:boolean}[]};
-export type Country={code:string;name:string;revision:number;origin:"initial"|"manual";createdAt:string;
+export type Country={code:string;name:string;revision:number;archived:boolean;archivedAt:string|null;origin:"initial"|"manual";createdAt:string;
  nationalCalendar:NationalCalendar};
 const project=(r:Row):Country=>({code:r.code,name:r.name,revision:r.revision??0,origin:r.origin,
- createdAt:r.created_at,nationalCalendar:{status:"not-configured",holidays:null,years:[]}});
+ createdAt:r.created_at,archived:r.archived_at!=null,archivedAt:r.archived_at??null,
+ nationalCalendar:{status:"not-configured",holidays:null,years:[]}});
 export function parseCountryInput(input:unknown):{code:string;name:string}|null{
  if(!input||Array.isArray(input)||typeof input!=="object")return null;
  const obj=input as Record<string,unknown>;
@@ -30,9 +31,9 @@ export function parseCountryInput(input:unknown):{code:string;name:string}|null{
  return {code,name};
 }
 export async function listCountries(db:Client):Promise<Country[]>{
- await ensureCountryNameSchema(db);
- await ensureManualHolidaySchema(db);
- const r=await db.query<Row>(`SELECT code,name,revision,origin,created_at::text AS created_at
+ await ensureCountryArchiveSchema(db);
+ const r=await db.query<Row>(`SELECT code,name,revision,origin,created_at::text AS created_at,
+ archived_at::text AS archived_at
  FROM public.smn_country ORDER BY code ASC LIMIT 251`);
  if(r.rows.length>250)throw new Error("country-catalog-limit");
  const countries=r.rows.map(project).sort((a,b)=>a.code.localeCompare(b.code));
@@ -110,16 +111,17 @@ export async function renameCountry(db:Client,code:string,actorId:string,raw:unk
  const input=parseRenameCountryInput(raw);
  if(!actorId||!isValidCountry(code)||!input)
   return {ok:false,error:"invalid-input"} as const;
- await ensureCountryNameSchema(db);
+ await ensureCountryArchiveSchema(db);
  await db.query("BEGIN");
  try{
-  const row=await db.query<{name:string;revision:number}>(`SELECT name,revision
+  const row=await db.query<{name:string;revision:number;archived_at:string|null}>(`SELECT name,revision,archived_at
    FROM public.smn_country WHERE code=$1 FOR UPDATE`,[code]);
   if(row.rowCount!==1){
    await db.query("ROLLBACK");
    return {ok:false,error:"not-found"} as const;
   }
   const old=row.rows[0];
+  if(old.archived_at!=null){await db.query("ROLLBACK");return {ok:false,error:"archived"} as const;}
   if(old.revision!==input.revision){
    await db.query("ROLLBACK");
    return {ok:false,error:"conflict"} as const;

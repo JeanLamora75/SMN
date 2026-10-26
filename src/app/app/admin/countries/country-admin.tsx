@@ -6,13 +6,15 @@ import {annualDisplayStatus,currentParisYear,normalizeCountrySearch,
 import CountryFlag from "./country-flag";
 import CountryFormModal from "./country-form-modal";
 import CountryCalendarModal from "./country-calendar-modal";
+import CountryLifecycleModal from "./country-lifecycle-modal";
 
-type Country={code:string;name:string;revision:number;nationalCalendar:{
+type Country={code:string;name:string;revision:number;archived:boolean;archivedAt:string|null;nationalCalendar:{
  status:"configured"|"partial"|"not-configured"|"invalid";
  years:TechnicalCoverage[];
  holidays:{date:string;name:string}[]|null;
 }};
 type Filter="all"|AnnualDisplayStatus;
+type ArchiveFilter="active"|"archived"|"all";
 const FILTERS:Filter[]=["all","configured","review","not-configured","invalid","unknown"];
 
 export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
@@ -21,6 +23,8 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const [selectedYear,setSelectedYear]=useState(()=>currentParisYear());
  const [query,setQuery]=useState("");
  const [filter,setFilter]=useState<Filter>("all");
+ const [archiveFilter,setArchiveFilter]=useState<ArchiveFilter>("active");
+ const [lifecycle,setLifecycle]=useState<Country|null>(null);
  const [loaded,setLoaded]=useState(false);
  const [loadFailed,setLoadFailed]=useState(false);
  const [form,setForm]=useState<{mode:"create"|"rename";country?:Country}|null>(null);
@@ -53,12 +57,13 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const visible=useMemo(()=>{
   const term=normalizeCountrySearch(query);
   return countries.filter(country=>
+   (archiveFilter==="all"||(archiveFilter==="active"?!country.archived:country.archived))&&
    (!term||normalizeCountrySearch(country.name).includes(term)||
     normalizeCountrySearch(country.code).includes(term))&&
    (filter==="all"||annualDisplayStatus(
     country.nationalCalendar.years.find(y=>y.year===selectedYear))===filter)
   ).sort((a,b)=>a.name.localeCompare(b.name));
- },[countries,query,filter,selectedYear]);
+ },[countries,query,filter,selectedYear,archiveFilter]);
  const activeCountry=countries.find(c=>c.code===activeCode)??null;
  useEffect(()=>{
   if(!focusCode||form)return;
@@ -126,13 +131,24 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
    </div>}
   </div>
   <div className="row g-3 align-items-end mb-3">
-   <div className="col-12 col-md-5">
+   <div className="col-12 col-md-3">
+    <label htmlFor="country-archive-filter" className="form-label">
+     {t("countries.lifecycleFilterLabel")}
+    </label>
+    <select id="country-archive-filter" className="form-select"
+     value={archiveFilter} onChange={event=>setArchiveFilter(event.target.value as ArchiveFilter)}>
+     <option value="active">{t("countries.lifecycleActive")}</option>
+     <option value="archived">{t("countries.lifecycleArchived")}</option>
+     <option value="all">{t("countries.statusAll")}</option>
+    </select>
+   </div>
+   <div className="col-12 col-md-4">
     <label className="form-label" htmlFor="country-search">{t("countries.searchLabel")}</label>
     <input className="form-control" id="country-search" type="search"
      placeholder={t("countries.searchPlaceholder")} value={query}
      onChange={event=>setQuery(event.target.value)}/>
    </div>
-   <div className="col-6 col-md-4">
+   <div className="col-6 col-md-3">
     <label className="form-label" htmlFor="country-filter">{t("countries.filterLabel")}</label>
     <select className="form-select" id="country-filter" value={filter}
      onChange={event=>setFilter(event.target.value as Filter)}>
@@ -155,11 +171,12 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
     </div>
    </div>
   </div>
-  {notice&&<p role={["saved","renameSaved","calendarRefreshed"].includes(notice)?"status":"alert"}
-   className={"alert "+(["saved","renameSaved","calendarRefreshed"].includes(notice)?"alert-success":"alert-warning")}>
+  {notice&&<p role={["saved","renameSaved","calendarRefreshed","lifecycleSaved"].includes(notice)?"status":"alert"}
+   className={"alert "+(["saved","renameSaved","calendarRefreshed","lifecycleSaved"].includes(notice)?"alert-success":"alert-warning")}>
    {t(notice==="saved"?"countries.saved":notice==="calendarRefreshed"?
     "countries.calendarRefreshed":notice==="duplicate"?"countries.duplicate":
     notice==="invalid"?"countries.invalid":notice==="renameSaved"?"countries.renameSaved":
+    notice==="lifecycleSaved"?"countries.lifecycleSaved":
     notice==="savedRefreshFailed"?"countries.savedRefreshFailed":"countries.failed")}
   </p>}
   <p className="small text-muted" role="status" aria-live="polite">
@@ -185,6 +202,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
        </span></td>
        <td><code>{country.code}</code></td>
        <td><span className={"badge "+statusClass(status)}>{statusText(status)}</span>
+        {country.archived&&<span className="badge text-bg-secondary ms-2">{t("countries.lifecycleArchived")}</span>}
         {year&&year.count>0&&<span className="small text-muted ms-2">
          {t("countries.yearCount",{count:year.count})}
         </span>}</td>
@@ -202,7 +220,13 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
            onClick={event=>{
             event.currentTarget.closest("details")?.removeAttribute("open");
             setForm({mode:"rename",country});
-           }}>{t("countries.renameAction")}</button>
+           }} disabled={country.archived}>{t("countries.renameAction")}</button>
+          <button type="button" className="dropdown-item"
+           onClick={event=>{
+            event.currentTarget.closest("details")?.removeAttribute("open");
+            setLifecycle(country);
+           }}>{t(country.archived?"countries.lifecycleReactivateAction":
+             "countries.lifecycleArchiveAction")}</button>
          </div>
         </details>}
        </div></td>
@@ -223,7 +247,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   {loaded&&!loadFailed&&visible.length===0&&<div className="text-center p-4">
    <p>{t("countries.emptyResults")}</p>
    <button type="button" className="btn btn-outline-secondary"
-    onClick={()=>{setQuery("");setFilter("all");}}>
+    onClick={()=>{setQuery("");setFilter("all");setArchiveFilter("active");}}>
     {t("countries.resetFilters")}
    </button>
   </div>}
@@ -239,12 +263,18 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
    <p className="small text-muted mb-0">{t("countries.importMovedHint")}</p>
   </div>}
 
+  {canManage&&lifecycle&&<CountryLifecycleModal
+   key={lifecycle.code+":"+lifecycle.revision} country={lifecycle}
+   onClose={()=>setLifecycle(null)} onSaved={async()=>{
+    setLifecycle(null);setNotice("lifecycleSaved");
+    try{await refresh();}catch{setLoadFailed(true);setNotice("savedRefreshFailed");}
+   }}/>}
   {canManage&&form&&<CountryFormModal key={form.mode+":"+(form.country?.code??"new")}
    mode={form.mode} country={form.country} onClose={()=>setForm(null)}
    onSaved={onFormSaved}/>}
 
   {activeCountry&&<CountryCalendarModal key={activeCountry.code+":"+selectedYear}
    country={activeCountry} initialYear={selectedYear} onClose={closeCalendar}
-   canManage={canManage} onChanged={refresh}/>}
+   canManage={canManage&&!activeCountry.archived} onChanged={refresh}/>}
  </section>;
 }

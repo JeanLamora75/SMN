@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {COUNTRY_LIFECYCLE_LOCK,ensureCountryArchiveSchema} from "../countries/archive-migration";
 import {isValidDate} from "./assignment";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -10,7 +11,7 @@ export type LifecycleAction=
 export type LifecycleError="invalid-input"|"not-found"|"team-unavailable"|"conflict"|
  "assignment-not-found"|"assignment-already-closed"|"invalid-date"|"future-version"|
  "assignment-still-open"|"already-archived"|"not-archived"|"historical-references"|
- "business-data"|"cascade-risk";
+ "business-data"|"cascade-risk"|"country-archived";
 export type LifecycleResult=
  |{ok:true;action:LifecycleAction["action"];revision:number;activeCount:number;warning:"team-below-three"|null}
  |{ok:false;error:LifecycleError};
@@ -106,8 +107,10 @@ export async function inspectMemberLifecycle(client:Client,id:string):Promise<Li
 export async function applyLifecycleAction(client:Client,id:string,actorId:string,raw:unknown):Promise<LifecycleResult>{
  const input=parseLifecycleAction(raw);
  if(!input||!UUID.test(id)||!actorId)return {ok:false,error:"invalid-input"};
+ await ensureCountryArchiveSchema(client);
  await client.query("BEGIN");
  try{
+  await client.query(COUNTRY_LIFECYCLE_LOCK);
   const stop=async(error:LifecycleError):Promise<LifecycleResult>=>{
    await client.query("ROLLBACK");return {ok:false,error};
   };
@@ -138,6 +141,18 @@ export async function applyLifecycleAction(client:Client,id:string,actorId:strin
   }else if(input.action==="reactivate"){
    if(state.member.archived_at===null)return stop("not-archived");
    if(list.some(a=>a.end_on===null))return stop("assignment-still-open");
+   const archivedCountries=await client.query<{code:string}>(`WITH latest AS (
+    SELECT country_iso2 FROM public.smn_member_location
+    WHERE member_id=$1 AND effective_from<=CURRENT_DATE
+    ORDER BY effective_from DESC,revision DESC LIMIT 1
+   ), planned AS (
+    SELECT country_iso2 FROM latest
+    UNION SELECT country_iso2 FROM public.smn_member_location
+     WHERE member_id=$1 AND effective_from>CURRENT_DATE
+   )
+   SELECT c.code FROM planned p JOIN public.smn_country c ON c.code=p.country_iso2
+   WHERE c.archived_at IS NOT NULL LIMIT 1`,[id]);
+   if(archivedCountries.rowCount)return stop("country-archived");
    await client.query(`UPDATE public.smn_member SET archived_at=NULL,archived_by=NULL,
      revision=revision+1,updated_at=now() WHERE id=$1 AND installation_id='singleton'`,[id]);
   }else{

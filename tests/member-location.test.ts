@@ -23,6 +23,8 @@ function mock(options:{versions?:typeof first[];reference?:string|null;archived?
    return {rows:[{reference_country:options.reference===undefined?"DE":options.reference}],rowCount:1};
   if(q.includes("FROM public.smn_member_location WHERE member_id=$1"))
    return {rows:options.versions??[],rowCount:(options.versions??[]).length};
+  if(q.includes("FROM public.smn_country WHERE code=$1 FOR SHARE"))
+   return {rows:[{archived_at:null}],rowCount:1};
   if(q.includes("INSERT INTO public.smn_member_location")&&options.fail)throw Error("sql-write-failed");
   return {rows:[],rowCount:1};
  }} as unknown as Client;

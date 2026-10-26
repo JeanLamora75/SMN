@@ -10,6 +10,7 @@ function fake(options:{closed?:boolean;archived?:boolean;hasReferences?:boolean;
  const queries:string[]=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   queries.push(sql);
+  if(sql.includes("SELECT c.code FROM planned"))return {rows:[],rowCount:0};
   if(sql.includes("CURRENT_DATE::text AS today"))return {rows:[{today:"2026-10-21"}]};
   if(sql.includes("FROM public.smn_member m")&&sql.includes("WHERE m.id=$1"))
    return {rows:[{id:memberId,revision:options.empty?0:2,is_provisional:!!options.empty,

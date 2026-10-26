@@ -11,6 +11,8 @@ function fixture(options:{existing?:number;failAt?:number;batch?:boolean;referen
  const db={query:async(query:string,values:unknown[]=[])=>{
   sql.push(query);params.push(values);
   if(query.includes("CURRENT_DATE::text AS today"))return {rowCount:1,rows:[{today:"2026-10-21"}]};
+  if(query.includes("SELECT archived_at FROM public.smn_country"))
+   return {rowCount:1,rows:[{archived_at:null}]};
   if(query.includes("SELECT reference_country FROM public.smn_general_settings"))
    return {rowCount:1,rows:[{reference_country:options.referenceCountry??null}]};
   if(query.includes("FROM public.smn_team t"))return {rowCount:1,rows:[{team_id:"team",team_name:"Produit Scrum",mode:"scrum"}]};

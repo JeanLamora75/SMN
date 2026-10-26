@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {ensureCountryArchiveSchema} from "../countries/archive-migration";
 import {executeHolidayCsv,type ConflictPolicy,type CsvPreview} from "./csv-import";
 
 export type IcsEvent={
@@ -152,7 +153,8 @@ export async function executeHolidayIcs(db:Client,value:unknown,actorId:string):
  const parsed=parseHolidayIcs(input.ics);
  if(!parsed.ok)return parsed;
  if(input.stage==="inspect"){
-  const exists=await db.query("SELECT code FROM public.smn_country WHERE code=$1",[input.country]);
+  await ensureCountryArchiveSchema(db);
+  const exists=await db.query("SELECT code FROM public.smn_country WHERE code=$1 AND archived_at IS NULL",[input.country]);
   if(exists.rowCount!==1)return {ok:false,error:"country-not-found"};
   return {ok:true,events:parsed.events};
  }

@@ -31,7 +31,7 @@ export async function PATCH(request:NextRequest) {
     });
     if(!result.ok) {
       if(result.error==="invalid-input") console.warn("smn-settings-validation-rejected");
-      return jsonResult({error:result.error},result.error==="conflict"?409:result.error==="invalid-input"?400:503);
+      return jsonResult({error:result.error},result.error==="conflict"||result.error==="country-archived"?409:result.error==="invalid-input"?400:503);
     }
     return jsonResult({settings:result.settings,changed:result.changed});
   }catch {
