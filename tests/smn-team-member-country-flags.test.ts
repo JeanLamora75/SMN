@@ -10,8 +10,9 @@ test("member roster uses effective ISO2 location without extra member requests",
 });
 test("team member cards and list display flag beside member name",()=>{
  const code=source("src/app/app/admin/members/team-overview.tsx");
- assert.match(code,/<CountryFlag key=\{m.countryIso2/);
- assert.match(code,/align-items-center justify-content-center gap-2/);
+ assert.match(code,/<CountryFlag countryIso2=\{member.countryIso2\}/);
+ assert.match(code,/smn-team-member-name/);
+ assert.match(code,/smn-team-list-name/);
 });
 test("flag names are normalized and missing assets do not show broken images",()=>{
  const code=source("src/app/app/admin/members/country-flag.tsx");
