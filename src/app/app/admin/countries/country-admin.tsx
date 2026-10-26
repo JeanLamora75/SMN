@@ -31,6 +31,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const [query,setQuery]=useState("");
  const [filter,setFilter]=useState<Filter>("all");
  const [loaded,setLoaded]=useState(false);
+ const [loadFailed,setLoadFailed]=useState(false);
  const [code,setCode]=useState("");
  const [name,setName]=useState("");
  const [notice,setNotice]=useState("");
@@ -48,10 +49,11 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   if(!response.ok)throw Error("read-error");
   const data=await response.json() as {countries:Country[]};
   setCountries(data.countries);
+  setLoadFailed(false);
   setVersion(v=>v+1);
  },[]);
  useEffect(()=>{
-  void refresh().catch(()=>setNotice("failed")).finally(()=>setLoaded(true));
+  void refresh().catch(()=>{setNotice("failed");setLoadFailed(true);}).finally(()=>setLoaded(true));
  },[refresh]);
 
  const yearOptions=useMemo(()=>Array.from(new Set([
@@ -153,10 +155,16 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
    </div>
    <div className="col-6 col-md-3">
     <label className="form-label" htmlFor="country-year">{t("countries.yearLabel")}</label>
-    <select className="form-select" id="country-year" value={selectedYear}
-     onChange={event=>setSelectedYear(Number(event.target.value))}>
-     {yearOptions.map(year=><option key={year} value={year}>{year}</option>)}
-    </select>
+    <div className="input-group">
+     <button type="button" className="btn btn-outline-secondary" disabled={selectedYear<=1900}
+      aria-label={t("countries.previousYear")} onClick={()=>setSelectedYear(year=>year-1)}>‹</button>
+     <select className="form-select" id="country-year" value={selectedYear}
+      onChange={event=>setSelectedYear(Number(event.target.value))}>
+      {yearOptions.map(year=><option key={year} value={year}>{year}</option>)}
+     </select>
+     <button type="button" className="btn btn-outline-secondary" disabled={selectedYear>=2200}
+      aria-label={t("countries.nextYear")} onClick={()=>setSelectedYear(year=>year+1)}>›</button>
+    </div>
    </div>
   </div>
   {notice&&<p role={["saved","calendarRefreshed"].includes(notice)?"status":"alert"}
@@ -191,7 +199,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
          {t("countries.yearCount",{count:year.count})}
         </span>}</td>
        <td className="text-end"><button type="button" className="btn btn-sm btn-outline-primary"
-        onClick={()=>{setHolidays(null);setActiveCode(country.code);}}>
+        onClick={()=>{setHolidays(null);setHolidayError(false);setActiveCode(country.code);}}>
         {t("countries.manage")}
        </button></td>
       </tr>;
@@ -200,7 +208,15 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
    </table>
   </div>
   {!loaded&&<p role="status" className="my-3">{t("countries.loading")}</p>}
-  {loaded&&visible.length===0&&<div className="text-center p-4">
+  {loaded&&loadFailed&&<div className="text-center p-4" role="alert">
+   <p>{t("countries.loadFailed")}</p>
+   <button type="button" className="btn btn-outline-primary" onClick={()=>{
+    setLoaded(false);setNotice("");
+    void refresh().catch(()=>{setLoadFailed(true);setNotice("failed");})
+     .finally(()=>setLoaded(true));
+   }}>{t("common.retry")}</button>
+  </div>}
+  {loaded&&!loadFailed&&visible.length===0&&<div className="text-center p-4">
    <p>{t("countries.emptyResults")}</p>
    <button type="button" className="btn btn-outline-secondary"
     onClick={()=>{setQuery("");setFilter("all");}}>
