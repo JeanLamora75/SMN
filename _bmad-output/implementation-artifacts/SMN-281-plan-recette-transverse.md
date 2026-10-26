@@ -23,6 +23,17 @@
 6. Choisir un pays actif sans membres, un pays avec membres actifs et le pays de référence, plusieurs millésimes dont un sans jours et une année administrativement validée. Prévoir deux sessions administrateur séparées pour les tests de concurrence.
 7. Préparer un CSV UTF-8 et un ICS local contenant des journées entières sur au moins deux millésimes, des doublons et des rejets. Les exemples ci-dessous sont des **données de test** et ne représentent pas des jours fériés nationaux officiels.
 
+## Jeu d'essai et preuves avant modification
+
+Deux fichiers de test sans donnée personnelle sont présents dans `tests/fixtures/` :
+
+- `smn281-recipe-national-multi-year.csv` : dates 2042/2043, doublon, date impossible et code de pays discordant.
+- `smn281-recipe-national-multi-year.ics` : deux événements de journée entière, un événement horaire et une récurrence à exclure.
+
+**ATTENTION : ce sont des fêtes fictives, à importer exclusivement dans une base de recette restaurable, jamais dans les calendriers réels du pilote.** Le fichier CSV vise le pays FR. Pour une base contenant déjà des dates 2042 ou 2043, vérifier la prévisualisation avant toute écriture.
+
+Avant le premier commit, conserver des **preuves expurgées** : nombre de dates et statut pour le pays/année testé ; compte et date de validation annuelle ; nombre de lignes d'audit ; au moins un snapshot de sprint clôturé, la valeur « SP initialement engagés » et l'empreinte de référence d'un PDF/TXT historique exporté. Pour un document exporté localement, PowerShell dispose de `Get-FileHash -Algorithm SHA256 -Path "chemin-du-document.pdf"` ; comparer cette empreinte **sur le même fichier non régénéré** après l'opération, et comparer séparément les données si un nouveau rapport est rendu. Ne jamais diffuser un export contenant des données personnelles.
+
 ## Matrice de recette
 
 Légende des résultats à renseigner : **OK / KO / BLOQUÉ / NON EXÉCUTÉ**. Chaque preuve doit mentionner le pays (ou code anonymisé), l'année et un identifiant de capture/log ne contenant aucune donnée privée.
