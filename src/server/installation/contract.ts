@@ -20,6 +20,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_country_name_audit:r",
   "public.smn_national_holiday:r", "public.smn_national_calendar_coverage:r",
   "public.smn_national_holiday_audit:r",
+  "public.smn_national_holiday_manual_audit:r",
   "public.smn_absence_category:r", "public.smn_member_absence:r",
   "public.smn_member_absence_history:r",
   "public.smn_company_closure:r", "public.smn_company_closure_history:r",
