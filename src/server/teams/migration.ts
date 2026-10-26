@@ -28,6 +28,27 @@ ALTER TABLE public.smn_team
     REFERENCES public.smn_product(id,installation_id)
     ON UPDATE RESTRICT ON DELETE RESTRICT;
 
-CREATE INDEX IF NOT EXISTS smn_team_installation_name_idx
-  ON public.smn_team(installation_id,lower(name));
+-- Index d'intégrité : les doubles clics et les appels concurrents ne peuvent créer
+-- deux noms identiques dans une installation (même casse/espaces normalisés).
+CREATE UNIQUE INDEX IF NOT EXISTS smn_team_installation_name_ci_key
+  ON public.smn_team(installation_id,
+    lower(btrim(regexp_replace(name,'[[:space:]]+',' ','g'))));
+
+-- La table de contexte peut avoir été créée auparavant à la première édition
+-- ou ne pas encore exister dans une installation non éditée.
+CREATE TABLE IF NOT EXISTS public.smn_team_context (
+ team_id text PRIMARY KEY REFERENCES public.smn_team(id) ON DELETE RESTRICT,
+ vision text,product_goal text,dod text,dor text,language text,
+ revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
+ updated_at timestamptz NOT NULL DEFAULT now(),
+ updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS public.smn_team_context_audit (
+ id text PRIMARY KEY,
+ team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
+ revision integer NOT NULL,
+ before_values jsonb NOT NULL,after_values jsonb NOT NULL,
+ actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
+ changed_at timestamptz NOT NULL DEFAULT now(), UNIQUE(team_id,revision)
+);
 `;
