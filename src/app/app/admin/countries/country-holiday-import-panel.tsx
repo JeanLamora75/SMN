@@ -6,12 +6,14 @@ import {detectLocalImportFormat,isExpectedImportPreview,summarizeImportPreview,
  IMPORT_MAX_BYTES,IMPORT_PAGE_SIZE,
  type ImportFormat,type ImportPolicy,type ImportPreview}
  from "@/lib/countries/holiday-import";
+import {parseCommittedImport,unchangedImport,type ImportOutcome}
+ from "@/lib/countries/import-navigation";
 
 type IcsEvent={id:string;date:string|null;name:string;eligible:boolean;reason:string|null};
 type ApiResult={ok:boolean;error?:string;events?:IcsEvent[];
- preview?:unknown;created?:number;replaced?:number};
+ preview?:unknown;created?:number;replaced?:number;changedYears?:number[]};
 type Props={country:{code:string;name:string};onCancel:()=>void;
- onCommitted:(counts:{created:number;replaced:number;rejected:number})=>void};
+ onCommitted:(outcome:ImportOutcome)=>void};
 const rejectedReasons:Record<string,TranslationKey>={
  "column-count":"countries.csvReasonColumns",
  "invalid-date":"countries.csvReasonDate","invalid-name":"countries.csvReasonName",
@@ -126,10 +128,16 @@ export default function CountryHolidayImportPanel({country,onCancel,onCommitted}
     setMessage(t("countries.csvPreviewReady"));
     return;
    }
+   // A confirmed 200 means data may already have been written. Never send the
+   // same commit again, even if its metadata is incomplete.
+   if(!savedPreview)throw Error("missing-confirmed-preview");
+   const outcome=parseCommittedImport(body,savedPreview)??{
+    committed:true,created:body.created??0,replaced:body.replaced??0,
+    rejected:savedPreview.rejected,changedYears:[],
+    examinedYears:[],yearsVerified:false
+   };
    setPreview(null);
-   // Do not post the same fingerprint again after successful commit.
-   onCommitted({created:body.created??0,replaced:body.replaced??0,
-    rejected:savedPreview?.rejected??0});
+   onCommitted(outcome);
   }catch{
    setError(t("countries.failed"));
   }finally{setBusy(false);requestPending.current=false;}
@@ -292,9 +300,16 @@ export default function CountryHolidayImportPanel({country,onCancel,onCommitted}
      onClick={()=>setPreviewPage(n=>n+1)}>›</button>
    </div>
    <p className="small text-muted">{t("countries.importNoAutoValidation")}</p>
-   <button type="button" className="btn btn-primary"
-    disabled={anyBusy||preview.proposed===0}
-    onClick={()=>void send("commit")}>{t("countries.importConfirm")}</button>
+   {preview.proposed===0?
+    <div className="alert alert-info" role="status">
+     <p>{t("countries.importNoChanges")}</p>
+     <button type="button" className="btn btn-outline-primary"
+      disabled={anyBusy} onClick={()=>onCommitted(unchangedImport(preview))}>
+      {t("countries.importBrowseWithoutChanges")}
+     </button>
+    </div>:
+    <button type="button" className="btn btn-primary" disabled={anyBusy}
+     onClick={()=>void send("commit")}>{t("countries.importConfirm")}</button>}
   </section>}
  </section>;
 }

@@ -1175,7 +1175,15 @@
     "importNoAutoValidation": "L’import ne valide jamais automatiquement une année. Après modification, une année déjà validée revient « À vérifier ».",
     "importConfirm": "Confirmer l’import",
     "importMovedHint": "L’import CSV/ICS se trouve désormais dans « Gérer » → « Importer » pour le pays concerné.",
-    "importSuccess": "Import confirmé : {created} dates ajoutées, {replaced} libellés corrigés, {rejected} lignes rejetées."
+    "importSuccess": "Import confirmé : {created} dates ajoutées, {replaced} libellés corrigés, {rejected} lignes rejetées.",
+    "importNoChanges": "Aucune date modifiée. Aucun calendrier validé n'a été dévalidé.",
+    "importBrowseWithoutChanges": "Consulter les années du fichier",
+    "importYearsUnverified": "L'import a été accepté, mais les années réellement modifiées n'ont pas pu être confirmées dans la réponse. Consultez le calendrier et ses données actualisées ; ne relancez pas l'import.",
+    "importCatalogRefreshFailed": "L'import est enregistré, mais la liste des pays n'a pas pu être actualisée. Réessayez la lecture sans importer à nouveau.",
+    "importTouchedYears": "Années réellement modifiées — choisissez celle que vous souhaitez contrôler :",
+    "importConsultYears": "Années mentionnées dans le fichier — vous pouvez les consulter sans importer :",
+    "importRetryOpening": "Réessayer l'ouverture du calendrier",
+    "importDismissSummary": "Masquer le bilan"
   },
   "ics": {
     "title": "Importer des jours fériés nationaux depuis un fichier ICS",

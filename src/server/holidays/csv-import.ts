@@ -14,7 +14,7 @@ export type CsvPreview={
  proposed:number;rejected:number;fingerprint:string;
 };
 export type CsvImportResult=
- |{ok:true;preview:CsvPreview;created?:number;replaced?:number}
+ |{ok:true;preview:CsvPreview;created?:number;replaced?:number;changedYears?:number[]}
  |{ok:false;error:"invalid-input"|"invalid-csv"|"csv-too-large"|"country-not-found"|"preview-expired";preview?:CsvPreview};
 const MAX_BYTES=1024*1024;
 const MAX_ROWS=5000;
@@ -215,7 +215,7 @@ export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string,
    }
   }
   await db.query("COMMIT");
-  return {ok:true,preview,created,replaced};
+  return {ok:true,preview,created,replaced,changedYears:[...years].sort((a,b)=>b-a)};
  }catch(error){
   await db.query("ROLLBACK").catch(()=>undefined);
   throw error;
