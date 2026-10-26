@@ -1944,6 +1944,7 @@
       "not-applicable": "Not applicable"
     },
     "items": {
+      "teams": {"title":"Teams","description":"Create and edit teams and their product context."},
       "general": {
         "title": "General information",
         "description": "Configure language, theme, palette and reference country."
