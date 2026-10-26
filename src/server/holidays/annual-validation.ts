@@ -4,7 +4,7 @@ import {isValidCountry} from "../members/location";
 import {isCivilHolidayDate,readAnnualHolidaySnapshot} from "./manual";
 import {ensureAnnualValidationSchema} from "./validation-migration";
 
-export type YearIssue={code:string;severity:"blocking"|"warning"};
+export type YearIssue={code:string;severity:"blocking"|"warning";details?:string};
 type Snapshot=NonNullable<Awaited<ReturnType<typeof readAnnualHolidaySnapshot>>>;
 type Coverage={status:string|null;entries_count:number|null;diagnostic:string|null;
  source_file:string|null;revision:number|null;validated_revision:number|null;administrative_validated_at:string|null};
@@ -14,25 +14,27 @@ export type AnnualDiagnostic={country:string;year:number;revision:number;fingerp
 
 export function diagnoseNationalYear(snapshot:Snapshot,coverage:Coverage|null,archived:boolean):AnnualDiagnostic{
  const issues:YearIssue[]=[];
- const problem=(code:string,severity:YearIssue["severity"])=>issues.push({code,severity});
+ const problem=(code:string,severity:YearIssue["severity"],details?:string)=>
+  issues.push({code,severity,...(details?{details}:{})});
  if(archived)problem("country-archived","blocking");
  if(snapshot.holidays.length===0)problem("empty-year","blocking");
- if(coverage?.status==="invalid")problem("invalid-coverage","blocking");
+ if(coverage?.status==="invalid")problem("invalid-coverage","blocking",coverage.diagnostic??undefined);
  const used=new Set<string>();
  for(const holiday of snapshot.holidays){
   if(!isCivilHolidayDate(holiday.date)||!holiday.date.startsWith(String(snapshot.year)+"-"))
-   problem("invalid-date","blocking");
+   problem("invalid-date","blocking",holiday.date);
   if(!holiday.name.trim()||holiday.name.length>120||
-   /[\u0000-\u001f\u007f]/u.test(holiday.name))problem("invalid-name","blocking");
-  if(used.has(holiday.date))problem("duplicate-date","blocking");
+   /[\u0000-\u001f\u007f]/u.test(holiday.name))problem("invalid-name","blocking",holiday.date);
+  if(used.has(holiday.date))problem("duplicate-date","blocking",holiday.date);
   used.add(holiday.date);
  }
  if(coverage&&coverage.entries_count!==null&&
   Number(coverage.entries_count)!==snapshot.holidays.length)
-  problem("count-mismatch","blocking");
+  problem("count-mismatch","blocking",String(coverage.entries_count)+" / "+snapshot.holidays.length);
  if(!coverage)problem("coverage-missing","warning");
  if(!coverage?.source_file)problem("source-missing","warning");
- if(coverage?.diagnostic&&coverage.status!=="invalid")problem("coverage-note","warning");
+ if(coverage?.diagnostic&&coverage.status!=="invalid")
+  problem("coverage-note","warning",coverage.diagnostic);
  // Counts and apparently valid dates cannot establish completeness in a country.
  problem("national-completeness-unverified","warning");
  problem("national-only","warning");
