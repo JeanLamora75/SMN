@@ -2,6 +2,7 @@ import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import TeamOverview from "./team-overview";
+import "./team-cockpit.css";
 export const dynamic="force-dynamic";
 export default async function TeamPage(){
  const actor=await currentAccount();
