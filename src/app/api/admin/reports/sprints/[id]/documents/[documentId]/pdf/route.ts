@@ -35,7 +35,16 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   return {manifest} as const;
  });
  if("error" in result)return jsonResult(result,result.error==="not-found"?404:result.error==="quality-blocked"?422:409);
- if("bytes" in result)return new Response(new Uint8Array(result.bytes),{headers:{"Content-Type":"application/pdf","Content-Disposition":'attachment; filename="SMN-report.pdf"',"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"}});
+ if("bytes" in result){
+  // The union can expose an optional bytes property; never build a PDF response without data.
+  if(result.bytes===undefined)return jsonResult({error:"pdf-render-unavailable"},503);
+  return new Response(new Uint8Array(result.bytes),{headers:{
+   "Content-Type":"application/pdf",
+   "Content-Disposition":'attachment; filename="SMN-report.pdf"',
+   "Cache-Control":"private, no-store",
+   "X-Content-Type-Options":"nosniff"
+  }});
+ }
  return jsonResult({ok:true,archiveId:result.manifest.id,version:result.manifest.optionsSnapshot?.studioArchiveVersion},201);
  }catch{return jsonResult({error:"pdf-render-unavailable"},503);}
 }

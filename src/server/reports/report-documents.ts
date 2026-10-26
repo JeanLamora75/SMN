@@ -113,6 +113,7 @@ export async function updateReportDocument(db:Client,actorId:string,sprintId:str
 }
 
 /** Metric snapshots are refreshed only by the explicit data-refresh endpoint. */
-export function preserveAuthoritativeMetrics(stored:Record<string,unknown>,incoming:Record<string,unknown>){
+export function preserveAuthoritativeMetrics<T extends Record<string,unknown>>(
+ stored:Record<string,unknown>,incoming:T){
  return {...incoming,metrics:stored.metrics,dataSource:stored.dataSource};
 }
