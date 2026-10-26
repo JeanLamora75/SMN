@@ -54,11 +54,12 @@ export default function CountryLifecycleModal({country,onClose,onSaved}:{
    });
    if(!response.ok){
     const result=await response.json().catch(()=>({error:"unknown"})) as {error?:string};
-    setError(t(result.error==="active-members"?"countries.lifecycleMembersBlock":
+    const reason=result.error==="active-members"?"countries.lifecycleMembersBlock":
      result.error==="reference-country"?"countries.lifecycleReferenceBlock":
      result.error==="conflict"?"countries.lifecycleConflict":
-     result.error==="forbidden"?"countries.forbidden":"countries.failed"));
+     result.error==="forbidden"?"countries.forbidden":"countries.failed";
     await load();
+    setError(t(reason));
     return;
    }
    await onSaved(); // The server has already committed. No second POST on read failure.
