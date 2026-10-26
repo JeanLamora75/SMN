@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {readMemberAbsences,saveMemberAbsence} from "@/server/members/absence";
 import {readMemberDayAvailability} from "@/server/members/day-availability";
@@ -13,7 +13,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  if(!await authorizeApi(request,"read",resource))return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  const onDate=new URL(request.url).searchParams.get("onDate")??undefined;
- try{return jsonResult(await withAuthDb(async db=>{
+ try{return jsonResult(await withLegacyMemberApi(async db=>{
    const data=await readMemberAbsences(db,id,onDate);
    const dayAvailability=onDate?
     await readMemberDayAvailability(db,id,onDate,data.absences.filter(absence=>!absence.deleted)):null;
@@ -36,7 +36,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>saveMemberAbsence(db,id,actor.id,body));
+  const result=await withLegacyMemberApi(db=>saveMemberAbsence(db,id,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error},
    result.error==="not-found"?404:
    ["conflict","overlap","archived","category-inactive"].includes(result.error)?409:400);
