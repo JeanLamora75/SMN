@@ -8,4 +8,7 @@ test("stale Studio content cannot overwrite an accepted metric refresh",()=>{
  assert.equal((merged.metrics as typeof stored.metrics).committedSp.value,24);
  assert.equal((merged.dataSource as typeof stored.dataSource).snapshotVersion,2);
  assert.deepEqual(merged.userNotes,{intro:"New"});
+ // The helper must preserve the incoming document's additional typed sections.
+ const notes:{intro:string}=merged.userNotes;
+ assert.equal(notes.intro,"New");
 });
