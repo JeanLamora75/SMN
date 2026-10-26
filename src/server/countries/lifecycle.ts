@@ -22,7 +22,7 @@ export function parseCountryLifecycleAction(raw:unknown):
 async function inspect(db:Client,code:string,lock:boolean):Promise<CountryLifecycleImpact|null>{
  const c=await db.query<{code:string;name:string;revision:number;archived_at:string|null}>(`
   SELECT code,name,revision,archived_at::text AS archived_at
-  FROM public.smn_country WHERE code=$1 \${lock?"FOR UPDATE":""}`,[code]);
+  FROM public.smn_country WHERE code=$1 ${lock?"FOR UPDATE":""}`,[code]);
  if(c.rowCount!==1)return null;
  const row=c.rows[0];
  const reference=await db.query<{reference_country:string|null}>(`
