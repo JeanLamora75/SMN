@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {applyLifecycleAction,inspectMemberLifecycle} from "@/server/members/lifecycle";
 
@@ -10,7 +10,7 @@ const resource={type:"members",exists:true,inScope:true} as const;
 export async function GET(request:NextRequest,{params}:{params:Promise<{id:string}>}){
  if(!await authorizeApi(request,"read",resource))return jsonResult({error:"forbidden"},403);
  const {id}=await params;
- try{return jsonResult(await withAuthDb(db=>inspectMemberLifecycle(db,id)));}
+ try{return jsonResult(await withLegacyMemberApi(db=>inspectMemberLifecycle(db,id)));}
  catch(error){
   if(error instanceof Error&&["member-not-found","member-id-invalid"].includes(error.message))
    return jsonResult({error:"not-found"},404);
@@ -25,7 +25,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>applyLifecycleAction(db,id,actor.id,body));
+  const result=await withLegacyMemberApi(db=>applyLifecycleAction(db,id,actor.id,body));
   if(!result.ok){
    const conflict=["conflict","historical-references","business-data","cascade-risk",
     "assignment-already-closed","already-archived","not-archived","assignment-still-open",
