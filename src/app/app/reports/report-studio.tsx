@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useMemo,useRef,useState} from "react";
+import {useEffect,useEffectEvent,useMemo,useRef,useState} from "react";
 import "./studio-print.css";
 import "./studio-responsive.css";
 import {insertSelectedAnalysis,replaceEmbeddedAnalysis,type EmbeddedAnalysis} from "@/lib/report-embedded-analyses";
@@ -60,7 +60,12 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
   }catch(e){setError(e instanceof Error&&e.message==="conflict"?tr("conflict"):tr("saveError"));}
   finally{setSaving(false);editing.setBusy(false);}
  };
- useEffect(()=>{if(readOnly||saved||saving||error)return;const timer=setTimeout(()=>{void save();},650);return ()=>clearTimeout(timer);},[content,saved,saving,error,readOnly]);
+ // Keep the 650 ms debounce tied to document edits, not to the identity of save.
+ // Effect Events always read the latest save closure without restarting the timer.
+ const autoSave=useEffectEvent(()=>{void save();});
+ useEffect(()=>{if(readOnly||saved||saving||error)return;const timer=setTimeout(()=>{
+  autoSave();
+ },650);return ()=>clearTimeout(timer);},[content,saved,saving,error,readOnly]);
  return <section className="smn-studio-shell d-grid gap-3">
   <header className="d-flex flex-wrap justify-content-between gap-2 align-items-center">
    <div><h1 className="h4 mb-1">{document.title}</h1><span className="small text-secondary">{document.templateId} · V{document.templateVersion} · {saved?tr("saved"):tr("unsaved")}</span></div>
