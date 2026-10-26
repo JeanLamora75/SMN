@@ -148,6 +148,11 @@ export default function CountryHolidayEditorPanel({
     {pendingTarget&&" — "+t(target.kind==="error"?"countries.editTargetUnavailable":
      "countries.loading")}
    </p>}
+   {crossYear&&target.kind==="error"&&<button type="button"
+    className="btn btn-sm btn-outline-primary align-self-start mb-2"
+    onClick={()=>{setTarget({kind:"loading"});setTargetAttempt(n=>n+1);}}>
+    {t("countries.editRetryTarget")}
+   </button>}
    {(sourceValidated||targetValidated)&&<div className="alert alert-warning" role="status">
     {t("countries.editValidatedWarning")}
    </div>}
