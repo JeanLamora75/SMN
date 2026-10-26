@@ -74,3 +74,38 @@ Parcours manuel :
 - Le cockpit n'effectue aucune comparaison avec le Sprint précédent ; SMN-86 et raccordement transversaux demeurent à réaliser.
 
 **Livraison :** modifications publiées directement sur `main` selon la préférence utilisateur. **Statut Jira :** aucun passage à Terminé sans preuve de recette locale.
+
+## Avenant du 26 octobre 2026 — Densité des SP rapportée aux J/H
+
+**Jira :** [SMN-235](https://lmn24.atlassian.net/browse/SMN-235), AC8 à AC11.
+
+**Besoin validé :** dans le bloc Story Points du tableau de bord, afficher à droite
+de chaque valeur SP son ratio aux J/H de capacité de même nature.
+
+| Nouvelle information | Numérateur | Dénominateur |
+| --- | --- | --- |
+| SP engagés par J/H prévu | SP initialement engagés | Capacité prévue J/H |
+| SP réalisés par J/H réel | SP réalisés | Capacité réelle J/H |
+
+Le composant `CycleOverview` fournit les quatre métriques de la **même projection
+collective** `CollectiveCycleProjection`, exactement celles déjà affichées
+dans les deux cartes. Le calcul de rapport est pur dans
+`src/lib/dashboard-sp-per-jh.ts` et est rendu par `KpiMetricPair` uniquement
+pour le bloc Story Points (`spPerJh`), sans API supplémentaire ni écriture.
+
+**États et qualité :** 0 SP avec capacité positive -> 0 SP/J/H ; capacité
+nulle ou négative -> « Non calculable », aucune division par zéro ;
+« Non renseigné » et « Non disponibles » sont préservés. Les données
+historiques utilisent la projection issue du snapshot de clôture Vn.
+L'indicateur mesure un **volume SP rapporté à des J/H**, et n'est ni un
+pourcentage ni une mesure de performance individuelle.
+
+**UX :** deux sous-indicateurs à droite de chaque valeur, étiquettes explicites
+FR/EN, unité `SP/J/H`, colonnes flexibles ; la jauge existante de réalisation
+des SP reste visible. Les autres cartes et les droits collectifs restent inchangés.
+
+**Tests ajoutés :** `tests/smn-235-dashboard-sp-per-jh.test.ts` (formules,
+décimales, 0, null, sources absentes, snapshot, rendu FR/EN, jauge conservée).
+`pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` et la recette
+visuelle sur le poste Windows restent nécessaires avant de déclarer l'avenant
+terminé ; les contrôles de code via connecteur ne remplacent pas ces exécutions.

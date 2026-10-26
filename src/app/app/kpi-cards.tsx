@@ -1,6 +1,7 @@
 import type {CSSProperties} from "react";
 import BootstrapIcon from "./bootstrap-icon";
 import {dashboardMetricRatio} from "@/lib/dashboard-metric-ratio";
+import {dashboardStoryPointsPerJh} from "@/lib/dashboard-sp-per-jh";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import type {Language} from "@/lib/language";
 import type {DashboardMetric,DashboardDataSource} from "@/lib/dashboard-data-contract";
@@ -36,11 +37,32 @@ function MetricDisplay({metric,locale,unit,empty,large=false}:Readonly<{
  </div>;
 }
 
+/** Only the retained collective SP and J/H metrics are divided; no member data. */
+function StoryPointsDensity({points,capacity,locale,label}:Readonly<{
+ points?:DashboardMetric;capacity?:DashboardMetric;locale:Language;label:string;
+}>){
+ const metric=dashboardStoryPointsPerJh(points,capacity);
+ const key=metric.state==="not-calculable"?"dashboard.cockpit.notCalculable":
+  metric.state==="unavailable"?"dashboard.cockpit.notAvailable":
+  "dashboard.cockpit.notSpecified";
+ const value=metric.state==="available"?
+  new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{
+   maximumFractionDigits:4
+  }).format(metric.value):translate(locale,key);
+ return <div className="smn-kpi-density">
+  <span className="smn-kpi-density-label">{label}</span>
+  <span className={metric.state==="available"?"smn-kpi-density-value":"smn-kpi-density-missing"}>
+   {value}{metric.state==="available"&&<span className="smn-kpi-density-unit"> SP/J/H</span>}
+  </span>
+ </div>;
+}
+
 export function KpiMetricPair({title,first,second,unit,empty,comparison,firstMetric,
- secondMetric,locale,icon,tone,ratioKey}:Readonly<{
+ secondMetric,locale,icon,tone,ratioKey,spPerJh}:Readonly<{
  title:string;first:string;second:string;unit:string;empty:string;comparison:string;
  firstMetric?:DashboardMetric;secondMetric?:DashboardMetric;locale:Language;
  icon:Icon;tone:Tone;ratioKey:TranslationKey;
+ spPerJh?:Readonly<{planned?:DashboardMetric;actual?:DashboardMetric}>;
 }>){
  const ratio=dashboardMetricRatio(firstMetric,secondMetric);
  const caption=ratio?translate(locale,ratioKey,{percent:ratio.percentage}):null;
@@ -51,14 +73,22 @@ export function KpiMetricPair({title,first,second,unit,empty,comparison,firstMet
    <h2 className="smn-metric-title">{title}</h2>
   </header>
   <dl className="smn-metric-values">
-   <div className="smn-kpi-primary">
-    <dt className="smn-metric-label">{first} <span className="smn-metric-unit">({unit})</span></dt>
-    <dd><MetricDisplay metric={firstMetric} unit={unit} empty={empty} locale={locale} large/></dd>
+   <div className={"smn-kpi-primary"+(spPerJh?" smn-kpi-sp-line":"")}>
+    <div className="smn-kpi-sp-value">
+     <dt className="smn-metric-label">{first} <span className="smn-metric-unit">({unit})</span></dt>
+     <dd><MetricDisplay metric={firstMetric} unit={unit} empty={empty} locale={locale} large/></dd>
+    </div>
+    {spPerJh&&<StoryPointsDensity points={firstMetric} capacity={spPerJh.planned}
+     label={translate(locale,"dashboard.cockpit.committedPerPlannedJh")} locale={locale}/>}
    </div>
-   <div className="smn-kpi-secondary">
-    <div className="smn-kpi-secondary-value">
-     <dt className="smn-metric-label">{second} <span className="smn-metric-unit">({unit})</span></dt>
-     <dd><MetricDisplay metric={secondMetric} unit={unit} empty={empty} locale={locale}/></dd>
+   <div className={"smn-kpi-secondary"+(spPerJh?" smn-kpi-secondary-sp":"")}>
+    <div className={"smn-kpi-secondary-value"+(spPerJh?" smn-kpi-sp-line":"")}>
+     <div className="smn-kpi-sp-value">
+      <dt className="smn-metric-label">{second} <span className="smn-metric-unit">({unit})</span></dt>
+      <dd><MetricDisplay metric={secondMetric} unit={unit} empty={empty} locale={locale}/></dd>
+     </div>
+     {spPerJh&&<StoryPointsDensity points={secondMetric} capacity={spPerJh.actual}
+      label={translate(locale,"dashboard.cockpit.completedPerActualJh")} locale={locale}/>}
     </div>
     {ratio&&caption&&<div className="smn-kpi-ring" role="img"
        aria-label={caption} style={fill}>
