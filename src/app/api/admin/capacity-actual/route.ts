@@ -13,7 +13,13 @@ export async function GET(request:NextRequest){
   return jsonResult({error:"forbidden"},403);
  const p=parseCapacityPeriod(request.nextUrl.searchParams);
  if(!p)return jsonResult({error:"invalid-period"},400);
- try{return jsonResult(await withAuthDb(db=>readActualCapacity(db,p.start,p.end)));}
+ try{return jsonResult(await withAuthDb(async db=>{
+   const v=await db.query<{schema_version:number}>(
+    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+   if((v.rows[0]?.schema_version??0)>=28)
+    throw Error("actual-capacity-read-pending-team-isolation");
+   return readActualCapacity(db,p.start,p.end);
+  }));}
  catch{console.error("actual-capacity-read-failed");return jsonResult({error:"service-unavailable"},503);}
 }
 export async function POST(request:NextRequest){
@@ -22,7 +28,13 @@ export async function POST(request:NextRequest){
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const r=await withAuthDb(db=>saveActualCapacity(db,actor.id,body));
+  const r=await withAuthDb(async db=>{
+   const version=await db.query<{schema_version:number}>(
+    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+   if((version.rows[0]?.schema_version??0)>=28)
+    throw Error("capacity-write-pending-team-isolation");
+   return saveActualCapacity(db,actor.id,body);
+  });
   if(!r.ok)return jsonResult({error:r.error},
    r.error==="protected"?423:r.error==="conflict"||r.error==="nothing-to-clear"?409:
    r.error==="future-period"?400:r.error==="team-unavailable"?503:400);
