@@ -1,5 +1,6 @@
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
+import {withAuthDb} from "@/server/auth/database";
 
 /**
  * Protège les API historiques individuelles : elles exposent des événements,
@@ -16,6 +17,16 @@ export async function assertLegacyMemberApi(db:Client):Promise<void>{
     result.rows[0].schema_version<1||
     result.rows[0].schema_version>27)
   throw new Error("member-api-team-isolation-pending");
+}
+
+/** Encapsule les anciennes routes membres (GET/POST/PATCH/PUT).
+ * Même connexion, garde exécutée avant toute lecture ou mutation métier.
+ */
+export function withLegacyMemberApi<T>(operation:(db:Client)=>Promise<T>):Promise<T>{
+ return withAuthDb(async db=>{
+  await assertLegacyMemberApi(db);
+  return operation(db);
+ });
 }
 
 /** Futur point d'entrée des fiches en v28 : sélection de l'équipe et
