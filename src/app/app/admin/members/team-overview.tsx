@@ -185,7 +185,7 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
     </div>
     {canAdd&&<button type="button" className="btn smn-team-create"
      onClick={()=>setCreationOpen(true)}>
-     <BootstrapIcon name="plus-lg"/>{t("teamUX.addMember")}
+     <span aria-hidden="true" className="smn-team-plus">+</span>{t("teamUX.addMember")}
     </button>}
    </div>
   </header>
@@ -199,7 +199,7 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
       {t("teamCockpit.teamLabel")}: <strong>{roster?.team.name??"—"}</strong></span>
      <span><BootstrapIcon name="grid-3x3-gap"/>
       {t("teamCockpit.viewLabel")}: <strong>{t(view==="cards"?"teamCockpit.cards":"teamCockpit.list")}</strong></span>
-     <span><BootstrapIcon name="people"/>
+     <span><BootstrapIcon name="people-fill"/>
       {t("teamCockpit.displayCount",{count:members.length})}</span>
      {status==="ready"&&activeCount!==members.length&&<span>
       {t("teamUX.activeCount",{count:activeCount})}
@@ -293,7 +293,7 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
         </Link>:canAdd&&index===members.length?
         <button key={"slot-"+index} type="button"
          className="smn-team-add-tile" onClick={()=>setCreationOpen(true)}>
-         <BootstrapIcon name="plus-lg"/><strong>{t("teamUX.addMember")}</strong>
+         <span aria-hidden="true" className="smn-team-plus">+</span><strong>{t("teamUX.addMember")}</strong>
         </button>:
         <div key={"slot-"+index} className="smn-team-empty-slot" aria-hidden="true"/>;
       })}
@@ -322,12 +322,12 @@ export default function TeamOverview({canManage}:{canManage:boolean}){
         </div></td>
         <td>{member.professionalFunction?.trim()||t("teamUX.functionMissing")}</td>
         <td>{memberStatus(member)}</td>
-        <td><BootstrapIcon name="chevron-right"/></td>
+        <td><BootstrapIcon name="arrow-right"/></td>
        </tr>)}</tbody>
       </table>
       {canAdd&&<button type="button" className="btn btn-outline-primary mt-2"
        onClick={()=>setCreationOpen(true)}>
-       <BootstrapIcon name="plus-lg"/> {t("teamUX.addMember")}
+       <span aria-hidden="true" className="smn-team-plus">+</span> {t("teamUX.addMember")}
       </button>}
      </div>}
    </>}
