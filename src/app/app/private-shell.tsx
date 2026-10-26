@@ -33,7 +33,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
   // La liste est fournie par le serveur, sans pagination ni écriture en base.
   useEffect(()=>{
     const ctrl=new AbortController();
-    if(mode!=="scrum"||!teamId){
+    if(!teamId||(mode!=="scrum"&&!(mode==="kanban"&&teamSwitcherEnabled))){
       queueMicrotask(()=>{
         if(ctrl.signal.aborted)return;
         setSprints([]);setSelectedCycleId("");setCycleState("ready");
@@ -41,7 +41,9 @@ export default function PrivateShell({children,username,role,mode,product,team,t
       return ()=>ctrl.abort();
     }
     queueMicrotask(()=>{if(!ctrl.signal.aborted)setCycleState("loading");});
-    void fetch("/api/sprints/context",{signal:ctrl.signal,cache:"no-store"})
+    const endpoint=mode==="kanban"?"/api/kanban/context":"/api/sprints/context";
+    const suffix=teamSwitcherEnabled?"?"+new URLSearchParams({teamId}).toString():"";
+    void fetch(endpoint+suffix,{signal:ctrl.signal,cache:"no-store"})
       .then(async response=>{
         if(!response.ok)throw Error("sprint-context-unavailable");
         return response.json() as Promise<{
@@ -63,7 +65,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
       })
       .catch(()=>{if(!ctrl.signal.aborted){setSprints([]);setSelectedCycleId("");setCycleState("error");}});
     return ()=>ctrl.abort();
-  },[mode,teamId,pathname,requestedCycleId]);
+  },[mode,teamId,pathname,requestedCycleId,teamSwitcherEnabled]);
 
   const changeSprint=(cycleId:string)=>{
     if(!teamId||!sprints.some(item=>item.id===cycleId))return;
@@ -131,7 +133,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
             <label htmlFor="smn-current-cycle">{t(cycleLabel)}</label>
             <select id="smn-current-cycle" className="form-select form-select-sm"
               value={selectedCycleId} onChange={event=>changeSprint(event.target.value)}
-              disabled={mode!=="scrum"||cycleState!=="ready"||sprints.length===0}
+              disabled={(!teamSwitcherEnabled&&mode!=="scrum")||cycleState!=="ready"||sprints.length===0}
               aria-describedby="smn-cycle-help">
               {sprints.length===0&&<option value="">{t(cycleState==="error"?"dashboard.shell.cycleUnavailable":
                 cycleState==="loading"?"dashboard.shell.loadingCycles":"dashboard.shell.noCycle")}</option>}
