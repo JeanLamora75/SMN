@@ -5,7 +5,7 @@ import GB from "./data/GB.json";
 
 type Holiday = {date:string;name:string};
 type LocalBundle = {country:string;years:Record<string,unknown>};
-type YearResult = {year:number;status:"configured"|"not-configured"|"invalid";count:number;diagnostic:string|null};
+type YearResult = {year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null};
 const BUNDLES:Record<string,unknown>={FR,DE,GB};
 const ISO_DATE=/^\d{4}-\d{2}-\d{2}$/;
 
