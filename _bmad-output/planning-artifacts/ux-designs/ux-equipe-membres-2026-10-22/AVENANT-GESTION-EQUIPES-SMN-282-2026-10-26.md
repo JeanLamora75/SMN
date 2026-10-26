@@ -111,3 +111,20 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 **Arbitrages suivants ouverts :** lors du changement d'équipe, faut-il conserver la page (avec rafraîchissement contextuel) ou revenir au tableau de bord ? Comment traiter une édition non sauvegardée, une fiche détaillée, une URL avec `teamId` explicite, un Sprint/période non disponible, l'historique et l'isolation multiéquipes ? Aucune de ces alternatives n'est présumée acceptée. Les mentions précédentes de « sélection d'équipe à arbitrer » sont dépassées **pour le placement et la mémorisation seulement**, mais pas pour le comportement de transition.
 
 **Aucun développement ni migration** au titre de cette validation. Liens : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [PRD D-PRD-137](../../prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
+
+## 10. Arbitrage validé — Changement d'équipe et maintien de rubrique (Option B, 26/10/2026)
+
+**Décision explicitement validée :** lorsque l'utilisateur change d'équipe depuis le sélecteur global, **conserver la même rubrique si elle existe et est accessible dans le contexte de la nouvelle équipe**, en rechargeant ses seules données. Exemples de rubriques collectives : Tableau de bord, Registres, Calendrier, Sprints/périodes et Rapports (si destination correspondante).
+
+**Parcours cible :**
+1. Depuis une **rubrique liste / synthèse**, ouvrir la rubrique équivalente **dans l'équipe cible**, uniquement si applicable et autorisée ; aucune donnée précédente ne doit être présentée au titre de la nouvelle équipe.
+2. Depuis un **détail lié à l'équipe précédente** (fiche membre, cycle, risque, rapport, événement), ne jamais conserver ou réinterpréter l'ancien identifiant dans la nouvelle équipe ; replier vers la **liste parent / section équivalente** de l'équipe cible si disponible, sinon vers **son tableau de bord**.
+3. Si la rubrique ne peut pas être ouverte dans la nouvelle équipe (absence de correspondance, non-applicabilité, droits), choisir le **tableau de bord de l'équipe cible**, à condition d'y être autorisé ; sinon afficher un état d'accès refusé/indisponible sans afficher de données étrangères.
+4. Le changement d'équipe ne déplace, ne copie et ne modifie **aucun membre, cycle, capacité, registre, rapport, historique ou document métier**. Seul le choix personnel d'équipe active et la navigation peuvent changer, selon le protocole de transition à spécifier.
+5. Chaque lecture et mutation devra revérifier **côté serveur** l'identité et les autorisations sur le `teamId`, ainsi que la propriété de tout cycle, fiche ou identifiant de rapport lié. Une URL `teamId` ne confère jamais les droits. Les URL de retour doivent rester allowlistées (référence `src/lib/context-navigation.ts`).
+
+**Arbitrages conservés ouverts** : sélection de cycle de l'équipe cible (par défaut ou vide), confirmation/protection des brouillons, priorité des URL historiques et explicites, compatibilité des filtres, absence de données, échecs serveur pendant le changement, protocole détaillé d'isolation interéquipes. Ne pas présumer ces choix à partir de l'option B.
+
+**Impact technique préparatoire :** `src/app/app/private-shell.tsx` (sélecteur global), `src/app/app/layout.tsx` (contexte serveur), `src/lib/context-navigation.ts` (URLs de retour), pages et API métier contextuelles. Toute redirection/fallback nécessite validation du `teamId` réel et des permissions du compte ; ne pas fabriquer d'identifiants.
+
+**Statut :** décision UX contractuelle validée ; aucun code, migration, test ou recette exécutés. [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
