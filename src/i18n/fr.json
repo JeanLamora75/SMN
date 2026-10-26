@@ -1081,7 +1081,17 @@
     "toolsTitle": "Outils de gestion (transition)",
     "close": "Fermer",
     "noDates": "Aucune date enregistrée pour cette année. Cette absence ne vaut pas confirmation de zéro jour férié.",
-    "reviewOnlyInfo": "Consultation annuelle. La modification et la validation des dates seront disponibles dans les prochaines stories."
+    "reviewOnlyInfo": "Consultation annuelle. La modification et la validation des dates seront disponibles dans les prochaines stories.",
+    "calendarViewMode": "Présentation des jours fériés",
+    "calendarListView": "Liste",
+    "calendarMonthView": "Calendrier",
+    "calendarReadOnly": "Consultation du calendrier national · aucune modification enregistrée.",
+    "calendarClickHint": "Sélectionnez une date fériée pour afficher son nom. Navigation accessible au clavier.",
+    "calendarPreviousMonth": "Mois précédent",
+    "calendarNextMonth": "Mois suivant",
+    "calendarLoadFailed": "Impossible de charger les jours fériés de l'année demandée. Réessayez.",
+    "calendarUnknownWarning": "La couverture de cette année est inconnue. Les dates éventuellement présentes ne sont pas validées.",
+    "calendarInvalidWarning": "Des anomalies ont été détectées pour cette année. Vérifiez les données avant de les exploiter."
   },
   "ics": {
     "title": "Importer des jours fériés nationaux depuis un fichier ICS",
