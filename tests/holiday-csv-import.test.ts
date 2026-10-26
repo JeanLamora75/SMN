@@ -13,7 +13,8 @@ function fakeDb(initial:Record<string,string>={},found=true){
  const holidays=new Map(Object.entries(initial)),audits:unknown[][]=[],queries:string[]=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   queries.push(sql);
-  if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||sql.includes("pg_advisory_xact_lock"))
+  if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||sql.includes("pg_advisory_xact_lock")||
+   sql.includes("ALTER TABLE")||sql.includes("CREATE TABLE")||sql.includes("CREATE INDEX"))
    return {rows:[],rowCount:0};
   if(sql.includes("SELECT code FROM public.smn_country"))
    return {rows:found?[{code:"FR"}]:[],rowCount:found?1:0};
@@ -32,6 +33,10 @@ function fakeDb(initial:Record<string,string>={},found=true){
   if(sql.includes("INSERT INTO public.smn_national_holiday_audit")){
    audits.push(params);return {rows:[],rowCount:1};
   }
+  if(sql.includes("SELECT revision,validated_revision,administrative_validated_at"))
+   return {rows:[],rowCount:0};
+  if(sql.includes("SELECT revision")&&sql.includes("FROM public.smn_national_calendar_coverage"))
+   return {rows:[{revision:1}],rowCount:1};
   if(sql.includes("SELECT count(*)::text AS total")){
    return {rows:[{total:String([...holidays.keys()].filter(d=>d.startsWith(String(params[1]))).length)}],rowCount:1};
   }
