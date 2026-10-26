@@ -34,7 +34,7 @@ async function collides(db:Client,installationId:string,name:string,exceptId?:st
  return result.rows.some(row=>row.id!==exceptId&&normalizedTeamName(row.name)===wanted);
 }
 async function recordChange(db:Client,teamId:string,revision:number,actorId:string,
- before:Record<string,unknown>,after:TeamFormValues){
+ before:object,after:TeamFormValues){
  await db.query("INSERT INTO public.smn_team_context_audit "+
   "(id,team_id,revision,before_values,after_values,actor_id) "+
   "VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)",
