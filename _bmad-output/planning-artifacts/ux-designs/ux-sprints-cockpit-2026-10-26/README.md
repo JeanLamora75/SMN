@@ -12,6 +12,7 @@
 - [PROMPT-AMELIA.md](PROMPT-AMELIA.md) — consignes de prise en charge.
 - [Référence Cockpit Agile Registres](../ux-registres-2026-10-25/AVENANT-GRAPHIQUE-OPTION-C-2026-10-26.md).
 - [Contrats Sprints déjà validés](../ux-sprints-pilotage-2026-10-23/README.md).
+- [Story graphique SMN-284](https://lmn24.atlassian.net/browse/SMN-284).
 - [Epic de refonte SMN-228](https://lmn24.atlassian.net/browse/SMN-228).
 
 **Références visuelles :** captures et prototype Option A validés dans la conversation UX du 26/10/2026 ; **non archivés** dans ce dépôt. Ne pas prétendre qu'ils s'y trouvent.
