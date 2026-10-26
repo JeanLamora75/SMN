@@ -52,7 +52,13 @@ export async function POST(request:NextRequest){
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>saveCapacityOverride(db,actor.id,body));
+  const result=await withAuthDb(async db=>{
+   const version=await db.query<{schema_version:number}>(
+    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+   if((version.rows[0]?.schema_version??0)>=28)
+    throw Error("capacity-write-pending-team-isolation");
+   return saveCapacityOverride(db,actor.id,body);
+  });
   if(!result.ok)return jsonResult({error:result.error},
    result.error==="protected"?423:
    result.error==="conflict"||result.error==="nothing-to-clear"?409:
