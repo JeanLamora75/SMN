@@ -3344,6 +3344,15 @@
     "loadMore": "Charger les événements suivants"
   },
   "reportsCenter": {
+    "heroIntro": "Créez, personnalisez et retrouvez les rapports de votre équipe.",
+    "filtersHeading": "Filtres et recherche",
+    "listHeading": "Liste des rapports",
+    "clearFilters": "Effacer",
+    "searchPlaceholder": "Titre ou modèle…",
+    "reportCountOne": "rapport",
+    "reportCountMany": "rapports",
+    "titlePlaceholder": "Ex. : Bilan Sprint 3",
+    "closeDialog": "Fermer la fenêtre de création",
     "heading": "Centre Rapports",
     "intro": "Consultez les brouillons, modèles et archives de votre équipe.",
     "reports": "Rapports",

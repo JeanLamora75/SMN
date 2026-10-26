@@ -3344,6 +3344,15 @@
     "loadMore": "Load more events"
   },
   "reportsCenter": {
+    "heroIntro": "Create, customize and find your team's reports.",
+    "filtersHeading": "Filters and search",
+    "listHeading": "Report list",
+    "clearFilters": "Clear",
+    "searchPlaceholder": "Title or template…",
+    "reportCountOne": "report",
+    "reportCountMany": "reports",
+    "titlePlaceholder": "E.g. Sprint 3 review",
+    "closeDialog": "Close the create report dialog",
     "heading": "Report Center",
     "intro": "Browse your team's drafts, templates and archives.",
     "reports": "Reports",
