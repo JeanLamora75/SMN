@@ -120,3 +120,27 @@
 6. Sort des comptes `user` préexistants : **décision volontairement différée** par le Product Owner. Ne pas attribuer de nouveaux droits par déduction.
 
 **Consigne absolue :** `MULTI_TEAM_CONTEXT_READY` reste à `false`, `SMN_MULTI_TEAM_WRITES_ENABLED` reste désactivé ; ne pas fusionner la PR ou lancer la migration tant que les protections et tests requis ne sont pas vérifiés.
+
+## Étape 6 — Lectures contextuelles v28 préparées (partie 1, 26/10/2026)
+
+**Code développé sur la branche, pas encore livré ni activé :**
+
+1. `src/server/teams/resolve.ts` : résolution `teamId` sécurisée pour le compte **Admin** actif de la même installation en v28. Un `teamId` d'URL explicitement autorisé prime sur la préférence mémorisée. Identifiants invalides ou équipe étrangère refusés. Un `user` en v28 reste volontairement refusé tant que son modèle d'habilitations n'est pas arbitré.
+2. `src/server/dashboard/read.ts` et `src/lib/collective-projection.ts` : contexte dashboard multiéquipes avec équipe sans produit, lecteur par compte et mode v27 préservé. **Le lecteur historique monoéquipe refuse tout schéma v28** pour empêcher l'exposition accidentelle d'un premier enregistrement.
+3. `src/app/app/layout.tsx`, `src/app/app/page.tsx` : contexte calculé par compte et, sur le tableau de bord, selon l'URL explicite validée. Un `cycleId` demandé n'appartenant pas à l'équipe est rejeté plutôt que substitué.
+4. `src/app/api/sprints/context/route.ts` : route des Sprints avec contexte Admin v28 et isolation par `teamId`, tout en conservant le comportement v27 et sans choix arbitraire de première équipe. `src/server/sprints/context.ts` était déjà filtré par `teamId`.
+5. `src/lib/kanban-context.ts`, `src/server/kanban/context.ts`, `src/app/api/kanban/context/route.ts` : choix temporel de période Kanban propre à l'équipe, consultation **sans DDL ni mutation**, API v28 Admin uniquement ; période en cours > prochaine > dernière disponible, absence de périodes = état vide.
+6. `src/app/app/private-shell.tsx` : options de cycle préparées pour Scrum et Kanban ; le sélecteur multiéquipes demeure **désactivé**. `src/app/app/admin/registries/page.tsx` : sélection du `teamId` via résolution autorisée, plus de première équipe implicite.
+7. Tests sources ajoutés : `tests/smn-282-team-dashboard-context.test.ts`, `tests/smn-282-kanban-context.test.ts` et `tests/smn-282-stage6-isolation.test.ts`.
+
+**Vérification effective :** 15 vérifications **statiques** de cohérence des fichiers via le connecteur GitHub ont réussi (rôle Admin, installation, équipe demandée, anciens lecteurs refusant v28, cycle hors équipe, Kanban sans DDL, contexte Registres, verrou toujours fermé, présence des tests). Ce ne sont **pas** des tests runtime. Aucun `pnpm test`, `pnpm typecheck`, `pnpm build`, Prisma, migration SQL ou recette navigateur n'a été exécuté dans cette étape.
+
+**Étape 6 encore incomplète — blocages explicites avant activation :**
+- Les écrans Calendrier et Membres ainsi que leurs API de capacités et d'absences continuent à résoudre implicitement la seule équipe de l'installation ; ils doivent recevoir un contexte `teamId` résolu côté serveur avant toute activation.
+- Les pages et producteurs de **rapports et exports** ne sont pas tous filtrés par une équipe autorisée ; le centre de rapports est encore à auditer pour éviter la visibilité croisée.
+- Le registre listé est contextualisé, mais **tous ses endpoints/détails** doivent encore être contrôlés avant de déclarer ce domaine conforme.
+- Les services de création de Sprint/période Kanban et les autres endpoints d'écriture supposent encore une équipe unique : ne pas les mettre en production en v28 avant refonte de leur portée.
+- Le contexte explicite des liens historiques doit être synchronisé avec le sélecteur global et les préférences **après** autorisation ; la protection des brouillons doit couvrir tous les formulaires, pas seulement ceux déjà signalés.
+- Les droits des comptes `user` préexistants ne sont **pas** migrés ni devinés, comme l'a demandé le PO.
+
+**Consignes maintenues :** `MULTI_TEAM_CONTEXT_READY:boolean=false`, `SMN_MULTI_TEAM_WRITES_ENABLED` inactif, pas de migration réelle, pas de fusion `main`. **Cette étape est une progression d'implémentation partielle, pas un achèvement de SMN-282.**
