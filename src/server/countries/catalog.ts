@@ -121,7 +121,7 @@ export async function renameCountry(db:Client,code:string,actorId:string,raw:unk
    return {ok:false,error:"not-found"} as const;
   }
   const old=row.rows[0];
-  if(old.archived_at!==null){await db.query("ROLLBACK");return {ok:false,error:"archived"} as const;}
+  if(old.archived_at!=null){await db.query("ROLLBACK");return {ok:false,error:"archived"} as const;}
   if(old.revision!==input.revision){
    await db.query("ROLLBACK");
    return {ok:false,error:"conflict"} as const;
