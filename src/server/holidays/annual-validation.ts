@@ -109,9 +109,11 @@ export async function certifyNationalYear(db:Client,code:string,actor:string,raw
    (id,country_code,calendar_year,action,revision,fingerprint,actor_id,source)
    VALUES($1,$2,$3,'validate',$4,$5,$6,'manual-review')`,
    [randomUUID(),code,input.year,revision,input.fingerprint,actor]);
+  // Return the new revision/fingerprint, never the pre-validation inspection token.
+  const certified=await readData(db,code,input.year);
+  if(!certified)throw Error("certification-result-unavailable");
   await db.query("COMMIT");
-  return {ok:true,unchanged:false,
-   diagnostic:{...current,administrativeValidated:true,status:"configured",revision}} as const;
+  return {ok:true,unchanged:false,diagnostic:certified} as const;
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
 
