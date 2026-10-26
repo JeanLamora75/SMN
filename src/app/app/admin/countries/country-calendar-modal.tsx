@@ -3,7 +3,7 @@ import {useEffect,useMemo,useRef,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {annualDisplayStatus,type TechnicalCoverage,type AnnualDisplayStatus}
  from "@/lib/countries/year-status";
-import {isoCivilDate,mondayFirstMonthCells,moveCalendarMonth}
+import {isoCivilDate,mondayFirstMonthCells,moveCalendarMonth,scopedYearHolidays}
  from "@/lib/countries/month-grid";
 import CountryFlag from "./country-flag";
 
@@ -28,13 +28,13 @@ function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
    "&year="+year,{cache:"no-store",signal:controller.signal})
    .then(async response=>{
     if(!response.ok)throw Error("calendar-read-failed");
-    return response.json() as Promise<{country:string;year:number;holidays:Holiday[]}>;
+    return response.json() as Promise<unknown>;
    })
    .then(result=>{
     if(controller.signal.aborted)return;
-    if(result.country!==code||result.year!==year||!Array.isArray(result.holidays))
-     throw Error("calendar-response-mismatch");
-    setLoad({kind:"ready",holidays:result.holidays});
+    const parsed=scopedYearHolidays(result,code,year);
+    if(!parsed)throw Error("calendar-response-mismatch");
+    setLoad({kind:"ready",holidays:parsed});
    })
    .catch(()=>{if(!controller.signal.aborted)setLoad({kind:"error"});});
   return ()=>controller.abort();
@@ -47,7 +47,8 @@ function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
  const cells=useMemo(()=>mondayFirstMonthCells(year,month),[year,month]);
  const holidays=load.kind==="ready"?load.holidays:[];
  const byDate=useMemo(()=>new Map(holidays.map(h=>[h.date,h])),[holidays]);
- const selected=selectedDate?byDate.get(selectedDate):undefined;
+ const selected=selectedDate?.startsWith(String(year)+"-"+String(month+1).padStart(2,"0")+"-")?
+  byDate.get(selectedDate):undefined;
  const formatDate=(date:string)=>new Intl.DateTimeFormat(language,{
   day:"numeric",month:"long",year:"numeric",timeZone:"UTC"
  }).format(new Date(date+"T12:00:00Z"));
@@ -125,7 +126,8 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
  const dialog=useRef<HTMLDialogElement>(null);
  const firstFocus=useRef<HTMLSelectElement>(null);
  const [year,setYear]=useState(initialYear);
- const [month,setMonth]=useState(new Date().getMonth());
+ const [month,setMonth]=useState(()=>Number(new Intl.DateTimeFormat("en-GB",{
+  month:"numeric",timeZone:"Europe/Paris"}).format(new Date()))-1);
  const [mode,setMode]=useState<Mode>("list");
 
  useEffect(()=>{
