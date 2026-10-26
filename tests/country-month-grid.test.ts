@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {describe,it} from "node:test";
-import {daysInMonth,isoCivilDate,mondayFirstMonthCells,moveCalendarMonth} from "../src/lib/countries/month-grid";
+import {daysInMonth,isoCivilDate,mondayFirstMonthCells,moveCalendarMonth,scopedYearHolidays} from "../src/lib/countries/month-grid";
 
 describe("Calendrier national : calcul civil sans fuseau navigateur",()=>{
  it("commence les semaines le lundi et conserve les fins de mois",()=>{
@@ -19,6 +19,15 @@ describe("Calendrier national : calcul civil sans fuseau navigateur",()=>{
   assert.deepEqual(moveCalendarMonth({year:2026,month:0},-1),{year:2025,month:11});
   assert.deepEqual(moveCalendarMonth({year:1900,month:0},-1),{year:1900,month:0});
   assert.deepEqual(moveCalendarMonth({year:2200,month:11},1),{year:2200,month:11});
+ });
+ it("refuse les données d'un autre pays ou d'une autre année",()=>{
+  const payload={country:"FR",year:2026,holidays:[{date:"2026-05-01",name:"Fête"}]};
+  assert.deepEqual(scopedYearHolidays(payload,"FR",2026),payload.holidays);
+  assert.equal(scopedYearHolidays(payload,"FR",2027),null);
+  assert.equal(scopedYearHolidays(payload,"DE",2026),null);
+  assert.equal(scopedYearHolidays({country:"FR",year:2026,holidays:[
+   {date:"2025-05-01",name:"Fête"}]},"FR",2026),null);
+  assert.equal(scopedYearHolidays({country:"FR",year:2026,holidays:null},"FR",2026),null);
  });
  it("refuse les mois et millésimes hors du périmètre",()=>{
   assert.throws(()=>mondayFirstMonthCells(2026,12),/invalid-calendar-month/);
