@@ -1,5 +1,6 @@
 import type {Client} from "pg";
 import {ensureAnnualValidationSchema} from "./validation-migration";
+import {COUNTRY_LIFECYCLE_LOCK} from "../countries/archive-migration";
 import FR from "./data/FR.json";
 import DE from "./data/DE.json";
 import GB from "./data/GB.json";
@@ -58,7 +59,8 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
  await client.query("BEGIN");
  try{
   await client.query("SELECT pg_advisory_xact_lock(20261021,49)");
-  const found=await client.query("SELECT code FROM public.smn_country WHERE code=$1",[country]);
+  await client.query(COUNTRY_LIFECYCLE_LOCK);
+  const found=await client.query("SELECT code FROM public.smn_country WHERE code=$1 AND archived_at IS NULL FOR SHARE",[country]);
   if(found.rowCount!==1){await client.query("ROLLBACK");return years.map(year=>({
    year,status:"not-configured",count:0,diagnostic:"country-not-in-catalog"}));}
   const results:YearResult[]=[];
