@@ -3,7 +3,7 @@ import {describe,it} from "node:test";
 import {createElement} from "react";
 import {renderToStaticMarkup} from "react-dom/server";
 import {dashboardStoryPointsPerJh} from "../src/lib/dashboard-sp-per-jh";
-import {metricAvailable,metricNotRecorded,metricUnavailable} from "../src/lib/dashboard-data-contract";
+import {collectionUnavailable,metricAvailable,metricNotRecorded,metricUnavailable} from "../src/lib/dashboard-data-contract";
 import CycleOverview from "../src/app/app/cycle-overview";
 import type {CollectiveCycleProjection} from "../src/lib/dashboard-data-contract";
 import type {DashboardContext} from "../src/server/dashboard/read";
@@ -20,14 +20,20 @@ const sprint:SprintContextItem={
  startAt:"2026-10-19T07:00:00Z",endAt:"2026-10-30T17:00:00Z",
  timeZone:"Europe/Paris"
 };
-const projection=(initial:number,done:number,planned:number,actual:number)=>{
- const data={
+const projection=(initial:number,done:number,planned:number,actual:number):
+ CollectiveCycleProjection=>({
   teamId:"team",cycleId:"sprint-1",cycleStatus:"active",snapshotVersion:null,
+  goals:collectionUnavailable("producer-not-ready"),
   capacity:{initialJh:known(planned),actualJh:known(actual)},
-  storyPoints:{initial:known(initial),done:known(done)}
- } as CollectiveCycleProjection;
- return data;
-};
+  storyPoints:{initial:known(initial),done:known(done)},
+  tickets:{initial:metricNotRecorded(),done:metricNotRecorded()},
+  scores:{confidence:metricNotRecorded(),clarity:metricNotRecorded()},
+  workingDaysRemaining:metricNotRecorded(),
+  events:collectionUnavailable("producer-not-ready"),
+  obstacles:collectionUnavailable("producer-not-ready"),
+  risks:collectionUnavailable("producer-not-ready"),
+  notesAndAlerts:collectionUnavailable("producer-not-ready")
+});
 const view=(locale:"fr"|"en",data:CollectiveCycleProjection)=>
  renderToStaticMarkup(createElement(CycleOverview,{
   context,locale,teamHref:"/app/team/team",cycle:sprint,projection:data
