@@ -10,6 +10,8 @@ import CountryHolidayEditorPanel,{type HolidayEdit} from "./country-holiday-edit
 import CountryYearValidationPanel from "./country-year-validation-panel";
 import CountryHolidayImportPanel from "./country-holiday-import-panel";
 import {parseYearSnapshot,type YearSnapshot} from "@/lib/countries/holiday-editor";
+import {navigableImportYears,primaryYear,type ImportOutcome}
+ from "@/lib/countries/import-navigation";
 
 type Country={code:string;name:string;nationalCalendar:{years:TechnicalCoverage[]}};
 type Mode="list"|"calendar";
@@ -19,9 +21,10 @@ const statusCss=(status:AnnualDisplayStatus):string=>
  status==="configured"?"text-bg-success":status==="invalid"?"text-bg-danger":
  status==="review"?"text-bg-warning":"text-bg-secondary";
 
-function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canManage,onEditingChange,onShowList}:{
+function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canManage,onEditingChange,onShowList,onImportDone}:{
  code:string;name:string;year:number;month:number;mode:Mode;canManage:boolean;
  onShowList:()=>void;
+ onImportDone:(outcome:ImportOutcome)=>void;
  onYearStatus:(status:AnnualDisplayStatus)=>void;
  onChanged:()=>Promise<void>;
  onEditingChange:(active:boolean)=>void;
@@ -59,12 +62,10 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
   setImportOpen(false);onEditingChange(false);
   requestAnimationFrame(()=>importButton.current?.focus());
  }
- function completedImport(counts:{created:number;replaced:number;rejected:number}){
-  // SMN-278 handles cross-year navigation; retain selected year after this import.
-  setImportOpen(false);onEditingChange(false);
-  setSavedNotice(t("countries.importSuccess",counts));
-  setLoad({kind:"loading"});setRetry(n=>n+1);
-  void onChanged().catch(()=>setRefreshNotice(t("countries.savedRefreshFailed")));
+ function completedImport(outcome:ImportOutcome){
+  // The server has already committed. Never retry the POST during navigation.
+  setImportOpen(false);
+  onImportDone(outcome);
  }
  function openValidation(){
   if(editor||validationOpen||importOpen||!snapshot)return;
@@ -286,6 +287,31 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
  const [mode,setMode]=useState<Mode>("list");
  const [editing,setEditing]=useState(false);
  const [latestStatus,setLatestStatus]=useState<AnnualDisplayStatus|null>(null);
+ const [importOutcome,setImportOutcome]=useState<ImportOutcome|null>(null);
+ const [reloadVersion,setReloadVersion]=useState(0);
+ const [catalogRefreshProblem,setCatalogRefreshProblem]=useState(false);
+ const firstImportYear=useRef<HTMLButtonElement>(null);
+ function reloadImportCalendar(){
+  setReloadVersion(n=>n+1);
+  if(importOutcome?.committed)
+   void onChanged().then(()=>setCatalogRefreshProblem(false))
+    .catch(()=>setCatalogRefreshProblem(true));
+ }
+ function onImportDone(outcome:ImportOutcome){
+  setEditing(false);
+  setImportOutcome(outcome);
+  setCatalogRefreshProblem(false);
+  setMode("list");
+  chooseYear(primaryYear(outcome,year));
+  setReloadVersion(n=>n+1);
+  if(outcome.committed)
+   void onChanged().catch(()=>setCatalogRefreshProblem(true));
+ }
+ useEffect(()=>{
+  if(!importOutcome)return;
+  const frame=requestAnimationFrame(()=>firstImportYear.current?.focus());
+  return ()=>cancelAnimationFrame(frame);
+ },[importOutcome]);
  function chooseYear(next:number){setYear(next);setLatestStatus(null);}
 
  useEffect(()=>{
@@ -297,9 +323,10 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
 
  const availableYears=useMemo(()=>Array.from(new Set([
   year,initialYear,initialYear-2,initialYear-1,initialYear+1,initialYear+2,
-  ...country.nationalCalendar.years.map(y=>y.year)
+  ...country.nationalCalendar.years.map(y=>y.year),
+  ...(importOutcome?navigableImportYears(importOutcome):[])
  ])).filter(value=>value>=1900&&value<=2200).sort((a,b)=>b-a),
- [country.nationalCalendar.years,initialYear,year]);
+ [country.nationalCalendar.years,initialYear,year,importOutcome]);
  const status=latestStatus??annualDisplayStatus(country.nationalCalendar.years.find(y=>y.year===year));
  const statusLabel=status==="configured"?t("countries.configured"):
   status==="review"?t("countries.statusReview"):
@@ -380,10 +407,37 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
     </div>}
    </div>
    <div className="smn-country-calendar-content">
-    <AnnualHolidays key={country.code+":"+year} code={country.code} name={country.name}
+    {importOutcome&&<div className="alert alert-info mb-3" role="status">
+     <p className="fw-semibold mb-1">{importOutcome.committed&&
+      importOutcome.created+importOutcome.replaced>0?
+      t("countries.importSuccess",importOutcome):t("countries.importNoChanges")}</p>
+     {!importOutcome.yearsVerified&&<p className="text-danger small">
+      {t("countries.importYearsUnverified")}
+     </p>}
+     {catalogRefreshProblem&&<p className="text-danger small" role="alert">
+      {t("countries.importCatalogRefreshFailed")}
+     </p>}
+     <p className="small mb-2">{importOutcome.changedYears.length>0?
+      t("countries.importTouchedYears"):t("countries.importConsultYears")}</p>
+     <div className="d-flex flex-wrap gap-2">
+      {navigableImportYears(importOutcome).map((target,index)=>
+       <button key={target} ref={index===0?firstImportYear:undefined}
+        type="button" className={"btn btn-sm "+(year===target?
+         "btn-primary":"btn-outline-primary")}
+        aria-pressed={year===target}
+        onClick={()=>{chooseYear(target);setMode("list");setReloadVersion(n=>n+1);}}>
+        {target}
+       </button>)}
+      <button type="button" className="btn btn-sm btn-outline-secondary"
+       onClick={reloadImportCalendar}>{t("countries.importRetryOpening")}</button>
+      <button type="button" className="btn btn-sm btn-link"
+       onClick={()=>setImportOutcome(null)}>{t("countries.importDismissSummary")}</button>
+     </div>
+    </div>}
+    <AnnualHolidays key={country.code+":"+year+":"+reloadVersion} code={country.code} name={country.name}
      year={year} month={month} mode={mode} canManage={canManage} onShowList={()=>setMode("list")}
      onYearStatus={setLatestStatus} onChanged={onChanged}
-     onEditingChange={setEditing}/>
+     onImportDone={onImportDone} onEditingChange={setEditing}/>
    </div>
    <footer className="smn-country-calendar-footer">
     <span className="small text-muted">{canManage?t("countries.editAuditHint"):t("countries.calendarReadOnly")}</span>
