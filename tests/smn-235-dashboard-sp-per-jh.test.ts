@@ -34,9 +34,10 @@ const projection=(initial:number,done:number,planned:number,actual:number):
   risks:collectionUnavailable("producer-not-ready"),
   notesAndAlerts:collectionUnavailable("producer-not-ready")
 });
-const view=(locale:"fr"|"en",data:CollectiveCycleProjection)=>
+const view=(locale:"fr"|"en",data:CollectiveCycleProjection,
+ mode:"scrum"|"kanban"="scrum")=>
  renderToStaticMarkup(createElement(CycleOverview,{
-  context,locale,teamHref:"/app/team/team",cycle:sprint,projection:data
+  context:{...context,mode},locale,teamHref:"/app/team/team",cycle:sprint,projection:data
  }));
 
 describe("SMN-235 — SP par jour-homme dans le cockpit",()=>{
@@ -105,5 +106,10 @@ describe("SMN-235 — SP par jour-homme dans le cockpit",()=>{
   assert.match(htmlMissing,/Non renseigné/);
   assert.match(htmlMissing,/Non disponibles/);
   assert.doesNotMatch(htmlMissing,/Infinity|NaN/);
+ });
+ it("ne présente pas les ratios propres à Scrum sur une période Kanban",()=>{
+  const html=view("fr",projection(20,12,25,15),"kanban");
+  assert.doesNotMatch(html,/smn-kpi-density/);
+  assert.match(html,/SP initialement engagés/);
  });
 });
