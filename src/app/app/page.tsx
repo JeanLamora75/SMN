@@ -49,6 +49,9 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   // Un seul snapshot PostgreSQL pour la sélection du Sprint ET ses KPI.
   const sprintResult=context.mode==="scrum"?await withDashboardRead(async db=>{
     const sprintData=await readSprintContext(db,context.teamId);
+    // Un cycle historique demandé ne doit jamais être réinterprété dans une autre équipe.
+    if(requested&&!sprintData.items.some(item=>item.id===requested))
+      throw Error("cycle-out-of-team");
     const cycle=selectedSprint(sprintData.items,requested);
     const projection=cycle?await readCycleDashboard(db,context.teamId,cycle,account.role==="admin"):null;
     return {cycle,projection};
