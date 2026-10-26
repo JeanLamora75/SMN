@@ -17,7 +17,7 @@ function client(o:Opt={}){
    return {rows:o.role===false?[]:[{installation_id:"singleton",schema_version:o.version??28}]};
   if(sql.includes("SELECT t.id AS team_id FROM public.smn_account_team_preference"))
    return {rows:[{team_id:o.preference??"team_a"}]};
-  if(sql.includes("SELECT p.id AS product_id"))
+  if(sql.includes("SELECT p.id AS product_id")&&sql.includes("WHERE t.id=$1"))
    return {rows:o.teamExists===false?[]:[{
     product_id:o.product??null,product:o.product??null,
     team_id:values[0],team:"Panda",mode:"scrum"
