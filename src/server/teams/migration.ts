@@ -1,10 +1,11 @@
-/** Préparation de migration non activée.
+/** Migration versionnée préparée : exécution manuelle et contrôlée uniquement.
  *
  * L'installation actuelle maintient un journal strict (schema_version=27 et
  * _prisma_migrations). Cette constante ne doit pas être exécutée sans adapter
  * simultanément le registre de migrations, le diagnostic et tous les lecteurs
  * qui supposent encore une seule équipe.
  */
+export const MULTI_TEAM_MIGRATION="20261026_smn282_multi_teams";
 export const MULTI_TEAM_SCHEMA_SQL=`
 -- Conservation de toutes les lignes et identifiants existants.
 ALTER TABLE public.smn_product
@@ -16,8 +17,8 @@ ALTER TABLE public.smn_team
 ALTER TABLE public.smn_team ALTER COLUMN product_id DROP NOT NULL;
 
 -- Un produit réel ne peut être partagé par deux équipes.
-CREATE UNIQUE INDEX IF NOT EXISTS smn_team_product_single_owner_idx
-  ON public.smn_team(product_id) WHERE product_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS smn_team_product_id_key
+  ON public.smn_team(product_id);
 
 -- Interdit les liens entre équipes et produits d'installations différentes.
 ALTER TABLE public.smn_product
@@ -34,6 +35,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS smn_team_installation_name_ci_key
   ON public.smn_team(installation_id,
     lower(btrim(regexp_replace(name,'[[:space:]]+',' ','g'))));
 
+-- Le contexte d'une équipe ne doit jamais provenir d'une autre équipe.
 -- La table de contexte peut avoir été créée auparavant à la première édition
 -- ou ne pas encore exister dans une installation non éditée.
 CREATE TABLE IF NOT EXISTS public.smn_team_context (
@@ -43,6 +45,15 @@ CREATE TABLE IF NOT EXISTS public.smn_team_context (
  updated_at timestamptz NOT NULL DEFAULT now(),
  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL
 );
+ALTER TABLE public.smn_team_context
+ ADD COLUMN IF NOT EXISTS vision text,
+ ADD COLUMN IF NOT EXISTS product_goal text,
+ ADD COLUMN IF NOT EXISTS dod text,
+ ADD COLUMN IF NOT EXISTS dor text,
+ ADD COLUMN IF NOT EXISTS language text,
+ ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1,
+ ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now(),
+ ADD COLUMN IF NOT EXISTS updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL;
 CREATE TABLE IF NOT EXISTS public.smn_team_context_audit (
  id text PRIMARY KEY,
  team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
@@ -51,4 +62,6 @@ CREATE TABLE IF NOT EXISTS public.smn_team_context_audit (
  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  changed_at timestamptz NOT NULL DEFAULT now(), UNIQUE(team_id,revision)
 );
+UPDATE public.smn_installation SET schema_version=28
+ WHERE id='singleton' AND schema_version=27;
 `;
