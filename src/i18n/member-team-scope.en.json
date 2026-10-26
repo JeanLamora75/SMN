@@ -1,0 +1,25 @@
+{
+  "memberTeamScope": {
+    "back": "Back to members",
+    "teamLabel": "Team",
+    "readOnly": "Read-only view — editing individual records will be enabled after multi-team security checks.",
+    "notFound": "This member does not belong to this team, or the link is no longer accessible.",
+    "unavailable": "Member details are currently unavailable.",
+    "assignmentTitle": "Assignment history in this team",
+    "start": "Start",
+    "end": "End",
+    "effective": "Effective from",
+    "allocation": "Allocation",
+    "developer": "Developer share",
+    "revision": "Revision",
+    "absenceTitle": "Team availability",
+    "privacy": "Only absence half-days during this team's assignments are shown. Personal reasons are not displayed.",
+    "month": "Month",
+    "loading": "Loading availability…",
+    "noDays": "No assignment days in this team for this month.",
+    "day": "Day",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "absent": "Absent"
+  }
+}
