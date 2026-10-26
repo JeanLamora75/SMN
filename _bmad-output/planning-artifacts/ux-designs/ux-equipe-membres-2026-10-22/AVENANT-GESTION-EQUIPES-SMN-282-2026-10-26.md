@@ -144,3 +144,21 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 **Technique constatée, non développée :** `src/lib/sprint-context.ts` contient `defaultSprintId` et `selectedSprint` pour Scrum (activité temporelle puis futur et passé, avec fallback de liste si seulement clôturé/suspendu) ; `src/app/app/private-shell.tsx` présente le sélecteur de cycles. **Le filtrage strict par `teamId` et la sélection équivalente en mode Kanban restent à développer et tester.** L'algorithme actuel ne constitue pas une preuve d'une sélection multiéquipes Kanban. Toute sélection doit être validée côté serveur ; le simple changement de contexte ne crée ni ne modifie un cycle.
 
 **Non arbitrés par cette décision :** sortie ou conservation des brouillons non sauvegardés ; priorité des URL directes/historiques vs préférences ; conservation des filtres ; comportement des échecs de bascule ; isolation multiéquipes détaillée. Aucun code applicatif, migration ou test n'a été réalisé. Traçabilité [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+## 12. Arbitrage validé — Protection des brouillons non enregistrés (Option A, 26/10/2026)
+
+**Décision validée par le Product Owner :** si un formulaire contextuel de l'équipe active contient des modifications non sauvegardées, **le changement d'équipe doit être précédé d'un avertissement et d'une confirmation explicite**. L'utilisateur ne perd jamais un brouillon sur simple sélection d'une équipe différente dans l'en-tête.
+
+**Parcours :**
+1. L'utilisateur modifie une fiche de l'équipe Koala (sans sauvegarde) et choisit Panda dans le sélecteur global. Tant que la décision n'est pas confirmée, **Koala reste l'équipe active**, son cycle et son URL ne changent pas, le formulaire conserve son contenu.
+2. Un dialogue accessible présente le risque de perte avec deux actions explicites : **« Rester sur Koala »** (annuler) et **« Abandonner et changer d'équipe »**.
+3. « Rester », Échap ou fermeture du dialogue conservent intégralement le brouillon et restaurent le focus ; aucune préférence personnelle d'équipe n'est modifiée.
+4. « Abandonner et changer » écarte seulement les modifications locales non enregistrées, puis applique la transition vers Panda **après validation de l'accès**, conformément aux options déjà validées (même rubrique si disponible, cycle pertinent de Panda).
+5. Aucun transfert ou autosauvegarde de brouillons vers Panda ; les anciennes valeurs validées en base restent intactes. Si une **écriture est en cours**, empêcher une bascule concurrente tant que son résultat n'est pas connu.
+6. Ne pas afficher d'avertissement si aucun formulaire modifié n'existe. Cibler les écrans à contenu modifiable, y compris fiche et modale. Contrôler clavier, focus, responsive et textes FR/EN centralisés.
+
+**Critères Jira :** AC16 à AC18 de [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+**À arbitrer ensuite :** effet d'une URL directe vers une équipe différente sur la sélection mémorisée ; accès à un historique non lié à l'équipe active ; protocole d'isolation multiéquipes des lectures, mutations, filtres et rapports ; comportement détaillé en cas d'échec réseau. L'option A ne constitue **pas** un système de brouillons persistants.
+
+**Statut :** cadrage/documentation seulement. Aucun changement applicatif, migration, test ni recette engagé.
