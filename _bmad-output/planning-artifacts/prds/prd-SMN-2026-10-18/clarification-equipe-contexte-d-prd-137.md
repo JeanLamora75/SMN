@@ -82,3 +82,13 @@ Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant U
 Une écriture serveur en cours doit être sécurisée contre une bascule concurrente ; aucun succès ne doit être annoncé sans confirmation serveur. Le dialogue est accessible et traduit FR/EN. Ce contrat ne demande ni sauvegarde implicite ni persistance des brouillons entre équipes.
 
 **Restent à arbitrer** : URL explicite / équipe mémorisée, historiques, portée des filtres, échecs de bascule et architecture d'isolation serveur ; règles de changement hors sélecteur global non modifiées tacitement. Aucun code ni migration, test ou recette exécutés. [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), AC16–AC18.
+
+## Arbitrage URL — Lien contextuel explicitement autorisé prioritaire (Option A, 26/10/2026)
+
+**Décision produit validée :** une URL explicite vers une équipe et une ressource/cycle/historique **prend le pas sur l'équipe mémorisée par l'utilisateur uniquement lorsque le serveur confirme l'accès et l'appartenance de chaque ressource**. Exemple : Koala mémorisée, lien autorisé vers un rapport de Panda → afficher Panda/ce rapport puis mémoriser Panda pour l'utilisateur après succès. Aucune modification de préférence pour un lien refusé, invalide ou incohérent. Aucun changement de la préférence des autres utilisateurs.
+
+**Contexte historique :** conserver tout `cycleId`, version ou snapshot explicite valide appartenant à l'équipe cible ; ne pas substituer automatiquement son cycle en cours. L'autosélection du cycle pertinent continue de s'appliquer aux changements initiés depuis le sélecteur global et aux liens sans cycle explicite. Préserver l'immutabilité des archives.
+
+**Sécurité :** valider l'équipe, la ressource, la période et les droits **côté serveur** ; ne pas croire un paramètre `teamId`, une préférence personnelle ni un `returnTo` fourni par le client. Les chemins de retour restent limités à des destinations internes contrôlées. La navigation interne respecte le dialogue de confirmation des brouillons (option A, AC16–18) avant changement d'équipe. Ne jamais réassocier un historique de Koala à Panda.
+
+**Encore ouverts :** granularité des droits par équipe, règles d'isolation des lectures/écritures et des filtrages, gestion d'échecs du contexte, homonymies. Source : [Story SMN-282](https://lmn24.atlassian.net/browse/SMN-282), AC19–22. **Documentation uniquement, aucun code ni test.**
