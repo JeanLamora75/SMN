@@ -1,5 +1,6 @@
 import type { Client } from "pg";
 import {projectCollectiveContext,type CollectiveContext} from "@/lib/collective-projection";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 
 export type DashboardContext = CollectiveContext;
 export type CollectiveDashboard = Readonly<{
@@ -21,8 +22,12 @@ export function validRecordId(id: unknown): id is string {
  * producteurs métier enrichiront ce contrat ; une table absente n'est jamais
  * simulée par un cycle ou un indicateur à zéro.
  */
-export async function readCollectiveDashboard(client: Client): Promise<CollectiveDashboard> {
-  const data = await client.query<{ product_id: string; product: string; team_id: string; team: string; mode: string }>(`
+export async function readCollectiveDashboard(client: Client,
+ actor?:TeamActor,requestedTeamId?:string|null): Promise<CollectiveDashboard> {
+  // Un appel sans acteur reste l'ancien lecteur monoéquipe.
+  // La cible multiéquipes exige l'acteur Admin et l'appartenance du teamId.
+  const data = actor ? {rows:[await resolveAdminTeam(client,actor,requestedTeamId)]} :
+   await client.query<{ product_id: string; product: string; team_id: string; team: string; mode: string }>(`
     SELECT p.id AS product_id, p.name AS product, t.id AS team_id, t.name AS team, i.mode
     FROM public.smn_installation i
       JOIN public.smn_product p ON p.installation_id = i.id
