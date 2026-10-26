@@ -31,7 +31,7 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const href=registryDetailHref(item.id,navigation);
- return <tr className={"smn-registry-list-row"+(highlight?" smn-registry-just-created":"")}>
+ return <tr data-registry-type={item.type} className={"smn-registry-list-row"+(highlight?" smn-registry-just-created":"")}>
   <td className="smn-registry-cell-date">
    <span className="smn-registry-mobile-label">{tr("date")}: </span>
    <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time>
