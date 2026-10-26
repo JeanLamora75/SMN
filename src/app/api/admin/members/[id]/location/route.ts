@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {readMemberLocation,saveMemberLocation} from "@/server/members/location";
 
@@ -16,7 +16,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  if((onDate&&at)||[...query.keys()].some(k=>!["onDate","at"].includes(k)))
   return jsonResult({error:"invalid-input"},400);
  try{
-  return jsonResult(await withAuthDb(db=>readMemberLocation(db,id,onDate,at)));
+  return jsonResult(await withLegacyMemberApi(db=>readMemberLocation(db,id,onDate,at)));
  }catch(error){
   if(error instanceof Error&&error.message==="member-location-invalid-input")
    return jsonResult({error:"invalid-input"},400);
@@ -33,7 +33,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
  const input=await readJsonObject(request);
  if(!input)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>saveMemberLocation(db,id,actor.id,input));
+  const result=await withLegacyMemberApi(db=>saveMemberLocation(db,id,actor.id,input));
   if(!result.ok)return jsonResult({error:result.error},
    ["conflict","date-before-latest","archived"].includes(result.error)?409:
    result.error==="not-found"?404:400);
