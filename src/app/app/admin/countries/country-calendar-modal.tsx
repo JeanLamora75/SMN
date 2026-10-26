@@ -3,25 +3,61 @@ import {useEffect,useMemo,useRef,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {annualDisplayStatus,type TechnicalCoverage,type AnnualDisplayStatus}
  from "@/lib/countries/year-status";
-import {isoCivilDate,mondayFirstMonthCells,moveCalendarMonth,scopedYearHolidays}
+import {isoCivilDate,mondayFirstMonthCells,moveCalendarMonth}
  from "@/lib/countries/month-grid";
 import CountryFlag from "./country-flag";
+import CountryHolidayEditorPanel,{type HolidayEdit} from "./country-holiday-editor-panel";
+import {parseYearSnapshot,type YearSnapshot} from "@/lib/countries/holiday-editor";
 
-type Holiday={date:string;name:string};
 type Country={code:string;name:string;nationalCalendar:{years:TechnicalCoverage[]}};
 type Mode="list"|"calendar";
-type LoadState={kind:"loading"}|{kind:"error"}|{kind:"ready";holidays:Holiday[]};
+type LoadState={kind:"loading"}|{kind:"error"}|{kind:"ready";snapshot:YearSnapshot};
 
 const statusCss=(status:AnnualDisplayStatus):string=>
  status==="configured"?"text-bg-success":status==="invalid"?"text-bg-danger":
  status==="review"?"text-bg-warning":"text-bg-secondary";
 
-function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
- month:number;mode:Mode;status:AnnualDisplayStatus}){
+function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,onEditingChange}:{
+ code:string;year:number;month:number;mode:Mode;canManage:boolean;
+ onYearStatus:(status:AnnualDisplayStatus)=>void;
+ onChanged:()=>Promise<void>;
+ onEditingChange:(active:boolean)=>void;
+}){
  const t=useTranslation(),locale=useLocale();
  const [load,setLoad]=useState<LoadState>({kind:"loading"});
  const [retry,setRetry]=useState(0);
  const [selectedDate,setSelectedDate]=useState<string|null>(null);
+ const [editor,setEditor]=useState<HolidayEdit|null>(null);
+ const [savedNotice,setSavedNotice]=useState("");
+ const [refreshNotice,setRefreshNotice]=useState("");
+ const addButton=useRef<HTMLButtonElement>(null);
+ const editOrigin=useRef<HTMLButtonElement|null>(null);
+ const returnFocus=useRef(false);
+ const loadKey=code+":"+year;
+ function restoreEditorFocus(){
+  requestAnimationFrame(()=>{
+   const element=editOrigin.current;
+   if(element?.isConnected)element.focus();
+   else addButton.current?.focus();
+  });
+ }
+ function startEdit(action:HolidayEdit,origin:HTMLButtonElement){
+  editOrigin.current=origin;
+  setSavedNotice("");setRefreshNotice("");
+  setEditor(action);onEditingChange(true);
+ }
+ function cancelEdit(){
+  setEditor(null);onEditingChange(false);
+  restoreEditorFocus();
+ }
+ function savedEdit(){
+  setEditor(null);onEditingChange(false);
+  setSavedNotice(t("countries.editSaved"));
+  returnFocus.current=true;
+  setLoad({kind:"loading"});
+  setRetry(n=>n+1);
+  void onChanged().catch(()=>setRefreshNotice(t("countries.savedRefreshFailed")));
+ }
  useEffect(()=>{
   const controller=new AbortController();
   void fetch("/api/admin/countries/calendar?country="+encodeURIComponent(code)+
@@ -32,9 +68,9 @@ function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
    })
    .then(result=>{
     if(controller.signal.aborted)return;
-    const parsed=scopedYearHolidays(result,code,year);
+    const parsed=parseYearSnapshot(result,code,year);
     if(!parsed)throw Error("calendar-response-mismatch");
-    setLoad({kind:"ready",holidays:parsed});
+    setLoad({kind:"ready",snapshot:parsed});
    })
    .catch(()=>{if(!controller.signal.aborted)setLoad({kind:"error"});});
   return ()=>controller.abort();
@@ -45,7 +81,21 @@ function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
   new Intl.DateTimeFormat(language,{weekday:"short",timeZone:"UTC"})
    .format(new Date(Date.UTC(2026,0,5+index)))),[language]);
  const cells=useMemo(()=>mondayFirstMonthCells(year,month),[year,month]);
- const holidays=load.kind==="ready"?load.holidays:[];
+ const snapshot=load.kind==="ready"?load.snapshot:null;
+ const holidays=snapshot?.holidays??[];
+ const status=annualDisplayStatus(snapshot&&snapshot.status!==null?
+  {year,status:snapshot.status,count:holidays.length,
+   diagnostic:null,administrativeValidated:snapshot.administrativeValidated}:undefined);
+ useEffect(()=>{
+  if(snapshot)onYearStatus(status);
+ },[snapshot,onYearStatus,status]);
+ useEffect(()=>{
+  if(load.kind==="ready"&&returnFocus.current&&!editor){
+   returnFocus.current=false;
+   restoreEditorFocus();
+  }
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ },[load.kind,editor]);
  const byDate=useMemo(()=>new Map(holidays.map(h=>[h.date,h])),[holidays]);
  const selected=selectedDate?.startsWith(String(year)+"-"+String(month+1).padStart(2,"0")+"-")?
   byDate.get(selectedDate):undefined;
@@ -62,7 +112,18 @@ function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
    setLoad({kind:"loading"});setRetry(n=>n+1);
   }}>{t("common.retry")}</button>
  </div>;
- return <div className="d-grid gap-3">
+ return <div className="d-grid gap-3" data-country-year={loadKey}>
+  {savedNotice&&<p role="status" className="alert alert-success mb-0">{savedNotice}</p>}
+  {refreshNotice&&<p role="alert" className="alert alert-warning mb-0">{refreshNotice}</p>}
+  {canManage&&!editor&&<div className="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+   <span className="small text-muted">
+    {t("countries.editRegisteredDates",{count:holidays.length})}
+   </span>
+   <button ref={addButton} type="button" className="btn btn-sm btn-primary"
+    onClick={event=>startEdit({action:"create"},event.currentTarget)}>
+    {t("countries.editAddTitle")}
+   </button>
+  </div>}
   {status==="invalid"&&<p className="alert alert-danger mb-0" role="status">
    {t("countries.calendarInvalidWarning")}
   </p>}
@@ -78,10 +139,25 @@ function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
      <thead><tr>
       <th scope="col">{t("countries.csvDate")}</th>
       <th scope="col">{t("countries.csvName")}</th>
+      {canManage&&<th scope="col">{t("countries.actions")}</th>}
      </tr></thead>
      <tbody>{holidays.map(holiday=><tr key={holiday.date}>
       <td className="text-nowrap">{formatDate(holiday.date)}</td>
       <td>{holiday.name}</td>
+      {canManage&&<td><div className="d-flex flex-wrap gap-2">
+       <button type="button" className="btn btn-sm btn-outline-primary"
+        disabled={editor!==null}
+        aria-label={t("countries.editUpdateNamed",{date:holiday.date})}
+        onClick={event=>startEdit({action:"update",original:holiday},event.currentTarget)}>
+        {t("countries.editUpdateAction")}
+       </button>
+       <button type="button" className="btn btn-sm btn-outline-danger"
+        disabled={editor!==null}
+        aria-label={t("countries.editRemoveNamed",{date:holiday.date})}
+        onClick={event=>startEdit({action:"delete",original:holiday},event.currentTarget)}>
+        {t("countries.editRemoveAction")}
+       </button>
+      </div></td>}
      </tr>)}</tbody>
     </table>
    </div>
@@ -115,12 +191,16 @@ function AnnualHolidays({code,year,month,mode,status}:{code:string;year:number;
     </div>}
    </div>
   )}
-  <p className="small text-muted mb-0">{t("countries.reviewOnlyInfo")}</p>
+  {canManage&&editor&&snapshot&&<CountryHolidayEditorPanel key={editor.action+":"+(editor.original?.date??"new")}
+   country={code} year={year} snapshot={snapshot} edit={editor}
+   onCancel={cancelEdit} onSaved={savedEdit}/>}
+  {!canManage&&<p className="small text-muted mb-0">{t("countries.calendarReadOnly")}</p>}
  </div>;
 }
 
-export default function CountryCalendarModal({country,initialYear,onClose}:{
- country:Country;initialYear:number;onClose:()=>void;
+export default function CountryCalendarModal({country,initialYear,onClose,canManage,onChanged}:{
+ country:Country;initialYear:number;onClose:()=>void;canManage:boolean;
+ onChanged:()=>Promise<void>;
 }){
  const t=useTranslation(),locale=useLocale();
  const dialog=useRef<HTMLDialogElement>(null);
@@ -129,6 +209,9 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
  const [month,setMonth]=useState(()=>Number(new Intl.DateTimeFormat("en-GB",{
   month:"numeric",timeZone:"Europe/Paris"}).format(new Date()))-1);
  const [mode,setMode]=useState<Mode>("list");
+ const [editing,setEditing]=useState(false);
+ const [latestStatus,setLatestStatus]=useState<AnnualDisplayStatus|null>(null);
+ function chooseYear(next:number){setYear(next);setLatestStatus(null);}
 
  useEffect(()=>{
   const node=dialog.current;
@@ -142,7 +225,7 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
   ...country.nationalCalendar.years.map(y=>y.year)
  ])).filter(value=>value>=1900&&value<=2200).sort((a,b)=>b-a),
  [country.nationalCalendar.years,initialYear,year]);
- const status=annualDisplayStatus(country.nationalCalendar.years.find(y=>y.year===year));
+ const status=latestStatus??annualDisplayStatus(country.nationalCalendar.years.find(y=>y.year===year));
  const statusLabel=status==="configured"?t("countries.configured"):
   status==="review"?t("countries.statusReview"):
   status==="not-configured"?t("countries.notConfigured"):
@@ -150,7 +233,7 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
 
  const changeMonth=(step:-1|1)=>{
   const next=moveCalendarMonth({year,month},step);
-  setYear(next.year);setMonth(next.month);
+  chooseYear(next.year);setMonth(next.month);
  };
  const language=locale==="en"?"en-GB":"fr-FR";
  const monthHeading=new Intl.DateTimeFormat(language,{month:"long",year:"numeric",timeZone:"UTC"})
@@ -158,6 +241,7 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
 
  return <dialog ref={dialog} className="smn-country-calendar-dialog"
   aria-labelledby="smn-country-dialog-title" aria-describedby="smn-country-dialog-description"
+  onCancel={event=>{if(editing)event.preventDefault();}}
   onClose={onClose}>
   <div className="smn-country-calendar-shell">
    <header className="smn-country-calendar-header">
@@ -173,7 +257,7 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
      </div>
     </div>
     <button type="button" className="btn-close flex-shrink-0"
-     aria-label={t("countries.close")} onClick={()=>dialog.current?.close()}/>
+     aria-label={t("countries.close")} disabled={editing} onClick={()=>dialog.current?.close()}/>
    </header>
    <div className="smn-country-calendar-toolbar">
     <div className="d-flex flex-wrap align-items-center gap-3">
@@ -183,15 +267,15 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
       </label>
       <div className="input-group input-group-sm">
        <button className="btn btn-outline-secondary" type="button"
-        disabled={year<=1900} aria-label={t("countries.previousYear")}
-        onClick={()=>setYear(y=>Math.max(1900,y-1))}>‹</button>
+        disabled={editing||year<=1900} aria-label={t("countries.previousYear")}
+        onClick={()=>chooseYear(Math.max(1900,year-1))}>‹</button>
        <select ref={firstFocus} id="smn-country-modal-year" className="form-select"
-        value={year} onChange={event=>setYear(Number(event.target.value))}>
+        disabled={editing} value={year} onChange={event=>chooseYear(Number(event.target.value))}>
         {availableYears.map(value=><option key={value} value={value}>{value}</option>)}
        </select>
        <button className="btn btn-outline-secondary" type="button"
-        disabled={year>=2200} aria-label={t("countries.nextYear")}
-        onClick={()=>setYear(y=>Math.min(2200,y+1))}>›</button>
+        disabled={editing||year>=2200} aria-label={t("countries.nextYear")}
+        onClick={()=>chooseYear(Math.min(2200,year+1))}>›</button>
       </div>
      </div>
      <div aria-label={t("countries.yearStatus")}>
@@ -200,11 +284,11 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
      <div className="ms-auto" role="group" aria-label={t("countries.calendarViewMode")}>
       <div className="btn-group btn-group-sm">
        <button type="button" className={"btn "+(mode==="list"?"btn-primary":"btn-outline-primary")}
-        aria-pressed={mode==="list"} onClick={()=>setMode("list")}>
+        aria-pressed={mode==="list"} disabled={editing} onClick={()=>setMode("list")}>
         {t("countries.calendarListView")}
        </button>
        <button type="button" className={"btn "+(mode==="calendar"?"btn-primary":"btn-outline-primary")}
-        aria-pressed={mode==="calendar"} onClick={()=>setMode("calendar")}>
+        aria-pressed={mode==="calendar"} disabled={editing} onClick={()=>setMode("calendar")}>
         {t("countries.calendarMonthView")}
        </button>
       </div>
@@ -213,21 +297,23 @@ export default function CountryCalendarModal({country,initialYear,onClose}:{
     {mode==="calendar"&&<div className="d-flex align-items-center justify-content-between gap-2 mt-3">
      <button type="button" className="btn btn-outline-secondary btn-sm"
       aria-label={t("countries.calendarPreviousMonth")}
-      disabled={year===1900&&month===0} onClick={()=>changeMonth(-1)}>‹</button>
+      disabled={editing||(year===1900&&month===0)} onClick={()=>changeMonth(-1)}>‹</button>
      <h3 className="h6 text-capitalize mb-0" aria-live="polite">{monthHeading}</h3>
      <button type="button" className="btn btn-outline-secondary btn-sm"
       aria-label={t("countries.calendarNextMonth")}
-      disabled={year===2200&&month===11} onClick={()=>changeMonth(1)}>›</button>
+      disabled={editing||(year===2200&&month===11)} onClick={()=>changeMonth(1)}>›</button>
     </div>}
    </div>
    <div className="smn-country-calendar-content">
     <AnnualHolidays key={country.code+":"+year} code={country.code}
-     year={year} month={month} mode={mode} status={status}/>
+     year={year} month={month} mode={mode} canManage={canManage}
+     onYearStatus={setLatestStatus} onChanged={onChanged}
+     onEditingChange={setEditing}/>
    </div>
    <footer className="smn-country-calendar-footer">
-    <span className="small text-muted">{t("countries.calendarReadOnly")}</span>
+    <span className="small text-muted">{canManage?t("countries.editAuditHint"):t("countries.calendarReadOnly")}</span>
     <button type="button" className="btn btn-outline-secondary"
-     onClick={()=>dialog.current?.close()}>{t("countries.close")}</button>
+     disabled={editing} onClick={()=>dialog.current?.close()}>{t("countries.close")}</button>
    </footer>
   </div>
  </dialog>;

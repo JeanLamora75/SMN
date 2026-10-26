@@ -11,7 +11,7 @@ export type ManualResult=
  |{ok:true;years:{year:number;revision:number;status:string;count:number}[]}
  |{ok:false;error:ManualError};
 type CalendarSnapshot={country:string;year:number;holidays:HolidayDate[];revision:number;
- status:string|null;fingerprint:string};
+ status:string|null;fingerprint:string;administrativeValidated:boolean};
 type Request={
  action:ManualAction;
  originalDate?:string;date?:string;name?:string;
@@ -61,8 +61,10 @@ export async function readAnnualHolidaySnapshot(db:Client,code:string,year:numbe
   throw new Error("invalid-calendar-scope");
  const rows=await db.query<{
   code:string;date:string|null;name:string|null;revision:number|null;status:string|null;
+  administrative_validated:boolean;
  }>(`SELECT c.code,to_char(h.holiday_date,'YYYY-MM-DD') AS date,h.name,
-    v.revision,v.status
+    v.revision,v.status,coalesce(v.administrative_validated_at IS NOT NULL
+     AND v.validated_revision=v.revision,false) AS administrative_validated
     FROM public.smn_country c
     LEFT JOIN public.smn_national_holiday h
      ON h.country_code=c.code AND h.holiday_date>=make_date($2,1,1)
@@ -75,7 +77,8 @@ export async function readAnnualHolidaySnapshot(db:Client,code:string,year:numbe
   [{date:row.date,name:row.name}]:[]);
  const revision=Number(rows.rows[0].revision??0),status=rows.rows[0].status??null;
  const fingerprint=createHash("sha256").update(JSON.stringify({code,year,revision,status,holidays})).digest("hex");
- return {country:code,year,holidays,revision,status,fingerprint};
+ return {country:code,year,holidays,revision,status,fingerprint,
+  administrativeValidated:rows.rows[0].administrative_validated===true};
 }
 
 /** Locks preloader/imports, protects both changed years, writes audit and coverage atomically. */

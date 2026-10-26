@@ -253,6 +253,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
    onSaved={onFormSaved}/>}
 
   {activeCountry&&<CountryCalendarModal key={activeCountry.code+":"+selectedYear}
-   country={activeCountry} initialYear={selectedYear} onClose={closeCalendar}/>}
+   country={activeCountry} initialYear={selectedYear} onClose={closeCalendar}
+   canManage={canManage} onChanged={refresh}/>}
  </section>;
 }
