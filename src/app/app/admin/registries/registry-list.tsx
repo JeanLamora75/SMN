@@ -34,6 +34,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const [createdId,setCreatedId]=useState<string|null>(null);
  const [editingId,setEditingId]=useState<string|null>(null);
  const [view,setView]=useState<RegistryDisplayView>("list");
+ const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
  const [draft,setDraft]=useState<Filters>(defaults);
  const [query,setQuery]=useState<Filters>(defaults);
  const [page,setPage]=useState(1);
@@ -209,11 +210,16 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const reset=()=>{
   setDraft(defaults);setQuery(defaults);setPage(1);setLoading(true);setRefresh(n=>n+1);
  };
- return <section className="d-grid gap-3">
+ return <section className="smn-registry-cockpit d-grid gap-3">
   <AttentionCockpit items={attention} error={attentionError}
    loading={attentionLoading} onRetry={retryAttention}/>
-  <header className="d-flex gap-3 align-items-center justify-content-between flex-wrap">
-   <div><h1>{translate("heading")}</h1>{!canManage&&<span className="text-body-secondary">{translate("readonly")}</span>}</div>
+  <div className="smn-registry-hero">
+  <header className="smn-registry-hero-top d-flex gap-3 align-items-center justify-content-between flex-wrap">
+   <div className="smn-registry-hero-identity">
+    <h1>{translate("heading")}</h1>
+    <p className="smn-registry-hero-subtitle">{translate("subtitle")}</p>
+    {!canManage&&<span className="smn-registry-readonly">{translate("readonly")}</span>}
+   </div>
    <div className="d-flex flex-wrap align-items-center gap-2 ms-auto">
     <div className="btn-group smn-registry-view-switch" role="group" aria-label={translate("viewGroup")}>
      <button type="button" className={"btn btn-outline-secondary"+(view==="list"?" active":"")}
@@ -225,8 +231,10 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
       <BootstrapIcon name="grid-3x3-gap"/><span>{translate("cardsView")}</span>
      </button>
     </div>
-    {canManage&&<button type="button" className="btn btn-primary"
-     onClick={()=>setCreateOpen(true)}>{translate("create")}</button>}
+    {canManage&&<button type="button" className="btn btn-primary smn-registry-create"
+     aria-label={translate("create")} onClick={()=>setCreateOpen(true)}>
+     <BootstrapIcon name="plus-lg"/><span className="smn-registry-create-label">{translate("create")}</span>
+    </button>}
    </div>
   </header>
   {createdId&&<div className="alert alert-success d-flex flex-wrap gap-2 align-items-center"
@@ -246,12 +254,16 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     {t("registryCreateModal.backToContext")}
    </Link>}
   </div>}
-  <div className="nav nav-tabs flex-wrap d-none d-md-flex" role="tablist" aria-label={translate("heading")}>
+  <div className="nav nav-tabs flex-wrap d-none d-md-flex smn-registry-category-tabs" role="tablist" aria-label={translate("heading")}>
    {(["all",...registryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
-    className={"nav-link"+(type===kind?" active":"")} onClick={()=>choose(kind)}>
-    {kind==="all"?translate("allTypes"):label(kind)}</button>)}
+    data-registry-type={kind} className={"nav-link"+(type===kind?" active":"")} onClick={()=>choose(kind)}>
+    <BootstrapIcon name={({all:"collection",risk:"exclamation-octagon-fill",
+     obstacle:"exclamation-triangle-fill",dependency:"stack",decision:"bullseye",
+     action:"ticket-perforated-fill",highlight:"bell-fill"} as Record<RegistryScope,string>)[kind]}/>
+    <span>{kind==="all"?translate("allTypes"):label(kind)}</span>
+   </button>)}
   </div>
-  <div className="d-md-none">
+  <div className="d-md-none smn-registry-type-mobile">
    <label className="form-label" htmlFor="reg-type-mobile">{translate("category")}</label>
    <select id="reg-type-mobile" className="form-select" value={type}
     onChange={e=>choose(e.target.value as RegistryScope)}>
@@ -259,6 +271,24 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
      {kind==="all"?translate("allTypes"):label(kind)}</option>)}
    </select>
   </div>
+  </div>
+  <section className="smn-registry-filters-panel" aria-label={translate("filtersHeading")}>
+   <div className="smn-registry-filters-heading">
+    <h2><BootstrapIcon name="sliders"/>{translate("filtersHeading")}</h2>
+    <div className="smn-registry-context">
+     {result?.state==="available"&&<span><BootstrapIcon name="people"/>{translate("team")}: <strong>{result.team.name}</strong></span>}
+     <span><BootstrapIcon name="layout-text-sidebar"/>{translate("viewLabel")}: <strong>{translate(view==="list"?"listView":"cardsView")}</strong></span>
+     {result?.state==="available"&&<span><BootstrapIcon name="file-earmark-text"/>{t("registryList.summaryCount",{total:result.total})}</span>}
+     {!attentionLoading&&!attentionError&&attention!==null&&<span><BootstrapIcon name="bell"/>{t("registryAttention.count",{count:attention.length})}</span>}
+    </div>
+   </div>
+   <button type="button" className="btn btn-outline-secondary smn-registry-mobile-filter-toggle d-md-none"
+    aria-expanded={mobileFiltersOpen} aria-controls="smn-registry-filter-extras"
+    onClick={()=>setMobileFiltersOpen(value=>!value)}>
+    <BootstrapIcon name="sliders"/>{translate("filtersToggle")}
+    <span className="smn-registry-filter-indicator">{[draft.lifecycle!=="all",!!draft.cycleId,!!draft.status,draft.sort!=="default",canManage&&!!draft.owner].filter(Boolean).length||""}</span>
+    <BootstrapIcon name={mobileFiltersOpen?"chevron-up":"chevron-down"}/>
+   </button>
   <form className="row g-2 align-items-end" onSubmit={event=>{
    event.preventDefault();setPage(1);setLoading(true);setRefresh(n=>n+1);
    setQuery({...draft,search:draft.search.trim(),owner:canManage?draft.owner.trim():""});
@@ -268,6 +298,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     <input id="reg-search" className="form-control" maxLength={120} value={draft.search}
      onChange={e=>patch({search:e.target.value})}/>
    </div>
+   <div id="smn-registry-filter-extras" className={"smn-registry-filter-extras"+(mobileFiltersOpen?" is-open":"")}>
    <div className="col-md-3">
     <label className="form-label" htmlFor="reg-lifecycle">{translate("lifecycle")}</label>
     <select id="reg-lifecycle" className="form-select" value={draft.lifecycle}
@@ -311,7 +342,10 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     <button className="btn btn-outline-primary" type="submit">{translate("filter")}</button>
     <button className="btn btn-outline-secondary" type="button" onClick={reset}>{translate("reset")}</button>
    </div>
+   </div>
   </form>
+  </section>
+  <section className="smn-registry-results">
   {query.lifecycle!=="all"&&<p className="small text-body-secondary mb-0">{translate("recordedUnclassified")}</p>}
   {loading?<div role="status" className="spinner-border spinner-border-sm" aria-label={translate("loading")}/>:
    error?<div role="alert" className="alert alert-danger">{translate("error")}{" "}
@@ -320,7 +354,6 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>{setLoading(true);setRefresh(n=>n+1);}}>{translate("retry")}</button></div>:
    result?.state!=="available"?<div role="alert" className="alert alert-warning">{translate("error")}</div>:
    <div className="d-grid gap-2">
-    <p className="small text-body-secondary">{translate("team")}: {result.team.name}</p>
     {result.items.length===0?<div role="status" className="alert alert-light border">
      {translate(filtered?"empty":"emptyInitial")}
      {filtered&&<button type="button" className="btn btn-outline-secondary btn-sm ms-2"
@@ -355,6 +388,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
       onClick={()=>{setPage(p=>p+1);setLoading(true);}}>{translate("next")}</button>
     </div>
    </div>}
+  </section>
   {canManage&&createOpen&&<RegistryCreateModal
    teamId={teamId} initialType={type==="all"?"risk":type}
    sourceId={sourceId} cycleId={query.cycleId||initialCycleId}
