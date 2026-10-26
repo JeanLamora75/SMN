@@ -77,3 +77,21 @@
 **Activation interdite** jusqu'à la correction des consommateurs monoéquipe (dashboard, capacités, calendriers, registres, rapports, API/exports), l'isolation des requêtes par `teamId` et la validation de la migration sur une copie sauvegardée. Les comptes de rôle `user` déjà présents sont hors arbitrage et **ne sont pas modifiés**.
 
 **Prochaine étape :** interface Paramètres > Équipes, routes d'écriture réservées à Admin et adaptation du contexte serveur/sélecteur, en gardant les écritures bloquées tant que la migration n'est pas qualifiée.
+
+## Étape 4 — Page Paramètres > Équipes et API contrôlée (26/10/2026)
+
+**Code ajouté/actualisé sur la branche, non fusionné :**
+- `src/lib/settings-catalog.ts` : nouvelle entrée **Équipes** dans le groupe Organisation Agile (lien `/app/admin/settings/teams`), **statut partial** pendant le chantier.
+- `src/app/app/admin/settings/teams/page.tsx` : nouvelle page serveur, accessible seulement après session `admin` autorisée, avec retour vers Paramètres.
+- `src/app/app/admin/settings/teams/teams-settings.tsx` : liste d'équipes, création/édition des **quatre champs validés** (seul nom d'équipe requis), alertes, sélection locale, confirmation avant abandon d'un formulaire modifié, absence de produit, responsive Bootstrap et retour d'enregistrement sans changer l'équipe active globale.
+- `src/app/api/admin/teams/route.ts` : GET filtré par installation ; POST/PATCH raccordés aux services transactionnels. Autorisation `admin` relue côté serveur, corps JSON plafonné, contrôle d'appartenance, conflits/erreurs adaptés.
+- `src/i18n/fr.json` et `src/i18n/en.json` : messages de page, validation, erreurs et menu centralisés et de mêmes clés.
+- `tests/smn-282-team-settings.test.ts` : tests de contrat du routage, des champs, des clés i18n et des garde-fous de l'API.
+
+**Mesure de sécurité de l'étape :** les écritures sur `/api/admin/teams` sont **désactivées par défaut indépendamment de la migration**, derrière la condition serveur `SMN_MULTI_TEAM_WRITES_ENABLED==="true"`, et les services réexigent par ailleurs le schéma v28. Le GET retourne `canWrite=false` tant que ces deux conditions ne sont pas remplies, et la page affiche un état honnête en lecture seule. **Ne pas activer ce paramètre** avant d'avoir fini l'isolation et les tests des consommateurs métier multiéquipes. Aucune configuration d'environnement ni secret n'a été modifié ou publié.
+
+**Contrôles réels effectués :** 11 vérifications statiques depuis les fichiers GitHub (correspondance FR/EN, menu, formulaire, sécurité et garde v28) ont réussi. Les tests `tests/smn-282-team-settings.test.ts` sont **ajoutés mais non exécutés** ; aucun build Next.js, contrôle TypeScript du projet, migration SQL ni essai navigateur n'a été exécuté ici.
+
+**Limites :** éditeur historique `TeamContextEditor` exige toujours un produit obligatoire et devra être harmonisé ; choix d'équipe global, cycles Scrum/Kanban, propagation des contextes sur les autres services, garde des brouillons au changement global et droits `user` restent à traiter. La Story n'est ni terminée ni prête à fusionner.
+
+**Prochaine étape :** sélecteur global réellement contextualisé par `teamId`, choix du cycle et bascule de rubrique, en conservant toutes les écritures d'équipes bloquées jusqu'à la validation complète.
