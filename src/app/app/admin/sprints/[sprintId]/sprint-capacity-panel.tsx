@@ -1,6 +1,6 @@
 import Link from "next/link";
 import BootstrapIcon from "../../../bootstrap-icon";
-import type {SprintPresence,PresenceMissingSource} from "@/lib/sprint-presence";
+import {totalSprintDevelopmentJh,type SprintPresence,type PresenceMissingSource} from "@/lib/sprint-presence";
 import type {TranslationKey} from "@/i18n/catalog";
 
 type Text=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>string;
@@ -59,13 +59,19 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
     </p>:
     <p className="small text-secondary">{t("sprintDetail.presenceForecast")}</p>}
    <div className="row g-3 mb-3">
-    <div className="col-12 col-md-6">
+    <div className="col-12 col-md-6 col-xl-4">
      <div className="border rounded-3 p-3 h-100">
       <p className="small text-secondary mb-1">{t("sprintDetail.presenceTotal")}</p>
       <strong className="fs-4">{fmt(data.totalPresenceJh)}</strong>
      </div>
     </div>
-    <div className="col-12 col-md-6">
+    <div className="col-12 col-md-6 col-xl-4">
+     <div className="border rounded-3 p-3 h-100">
+      <p className="small text-secondary mb-1">{t("sprintDetail.presenceDevelopmentTotal")}</p>
+      <strong className="fs-4">{fmt(totalSprintDevelopmentJh(data.members))}</strong>
+     </div>
+    </div>
+    <div className="col-12 col-md-6 col-xl-4">
      <div className="border rounded-3 p-3 h-100">
       <p className="small text-secondary mb-1">{t("sprintDetail.presenceMembers")}</p>
       <strong className="fs-4">{data.members.length}</strong>
