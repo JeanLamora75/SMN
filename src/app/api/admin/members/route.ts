@@ -33,7 +33,8 @@ export async function POST(request:NextRequest){
   }
   const result=await withAuthDb(db=>createQuickMembers(db,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error},
-   result.error==="already-initialized"||result.error==="request-conflict"?409:
+   result.error==="already-initialized"||result.error==="request-conflict"||
+   result.error==="reference-country-archived"?409:
    result.error==="team-unavailable"?404:400);
   return jsonResult({members:result.members,created:result.created},result.created?201:200);
  }catch{
