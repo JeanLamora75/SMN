@@ -767,3 +767,13 @@ Cette décision **supplante** les mentions antérieures de « produit unique par
 **Non validé à ce stade :** conservation de la page en cours ou retour au tableau de bord, renouvellement/suppression du cycle lors du changement, gestion des formulaires non sauvegardés, URLs explicites, historique, protection des opérations et isolation des pages/API. Aucun de ces comportements ne peut être déduit du simple placement du sélecteur. Les anciens paragraphes « choix du sélecteur en attente » sont supersédés seulement sur **l'emplacement et la mémoire utilisateur**, pas sur la transition.
 
 Références normatives : [Story SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant UX Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137 amendée](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md). **Aucun code ni migration réalisé.**
+
+## Arbitrage SMN-282 — Maintien de rubrique au changement d'équipe (Option B, 26 octobre 2026)
+
+**Choix validé :** lors d'un changement d'équipe depuis le sélecteur global d'en-tête, **rester dans la même rubrique si celle-ci est accessible et applicable à la nouvelle équipe**, avec données exclusivement issues de son contexte. Si une fiche détaillée appartenait à l'équipe précédente, rediriger vers la liste/section parent équivalente de l'équipe cible ; si indisponible, vers le tableau de bord de cette équipe sous réserve des droits. **Ne jamais réutiliser un identifiant de fiche/cycle/rapport de l'ancienne équipe**, ni copier/déplacer une donnée lors de ce seul changement.
+
+Les droits et les appartenances sont revérifiés **côté serveur**, même avec un `teamId` explicite dans l'URL ou une préférence utilisateur. Le changement de contexte n'autorise aucune écriture métier implicite.
+
+**À décider ensuite :** sélection du cycle dans l'équipe cible, traitement des formulaires non sauvegardés, URL/historique explicites, filtres, gestion des échecs et détails du protocole d'isolation. Les passages précédents qui décrivent le comportement de navigation comme non arbitré sont remplacés par **Option B uniquement sur la rubrique et les replis**. Aucune implémentation n'a été engagée.
+
+Références : [Jira SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant Équipes](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md), [D-PRD-137 amendée](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md).
