@@ -2069,6 +2069,10 @@
     "previous": "Précédente",
     "next": "Suivante",
     "transitionNote": "Pendant la transition, les fonctionnalités de gestion existantes restent disponibles dans",
+    "filtersHeading": "Filtres et recherche",
+    "historical": "Reprise historique",
+    "otherStatuses": "Autres états",
+    "teamLabel": "Équipe",
     "legacyTitle": "Outils de gestion des sprints",
     "legacyDescription": "Accès transitoire aux fonctions existantes, en attendant les assistants et actions contextuelles."
   },
