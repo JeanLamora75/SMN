@@ -834,3 +834,65 @@ dialog.smn-team-context-dialog::backdrop {background:rgba(0,0,0,.52);}
 .smn-registry-row-menu button.smn-registry-row-menu-link:hover,
 .smn-registry-row-menu button.smn-registry-row-menu-link:focus-visible{background:var(--smn-soft)!important;color:var(--smn-primary)}
 @media(max-width:575px){.smn-registry-section-dialog-wide{width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}}
+
+
+/* National calendar inspection: constrained native modal, no stacked dialogs. */
+.smn-country-calendar-dialog{
+ width:min(85vw,1300px);max-width:1300px;max-height:90vh;max-height:90dvh;
+ margin:auto;padding:0;border:0;border-radius:18px;
+ background:var(--smn-surface);color:var(--smn-foreground);
+ box-shadow:0 24px 72px rgba(12,25,44,.25);overflow:hidden;
+}
+.smn-country-calendar-dialog::backdrop{background:rgba(8,20,37,.68);}
+.smn-country-calendar-dialog[open]{display:flex;flex-direction:column;}
+.smn-country-calendar-shell{display:flex;flex-direction:column;min-height:0;min-width:0;flex:1;}
+.smn-country-calendar-header,.smn-country-calendar-toolbar,.smn-country-calendar-footer{
+ padding:1rem 1.5rem;border-bottom:1px solid var(--smn-border);flex-shrink:0;
+}
+.smn-country-calendar-header{display:flex;justify-content:space-between;align-items:start;gap:1rem;}
+.smn-country-calendar-toolbar{background:var(--smn-muted-soft);}
+.smn-country-calendar-footer{
+ border-bottom:0;border-top:1px solid var(--smn-border);
+ display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+.smn-country-calendar-content{
+ padding:1rem 1.5rem;min-height:0;overflow-y:auto;overflow-x:auto;overscroll-behavior:contain;
+}
+.smn-country-month-grid{
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+ border-top:1px solid var(--smn-border);border-left:1px solid var(--smn-border);
+}
+.smn-country-month-weekday{
+ padding:.65rem .25rem;font-weight:600;text-align:center;
+ border-right:1px solid var(--smn-border);border-bottom:1px solid var(--smn-border);
+ background:var(--smn-muted-soft);
+}
+.smn-country-month-day{
+ min-height:96px;min-width:0;padding:.4rem;
+ border-right:1px solid var(--smn-border);border-bottom:1px solid var(--smn-border);
+ background:var(--smn-surface);
+}
+.smn-country-month-day.is-holiday{background:var(--smn-soft);}
+.smn-country-day-number{display:block;font-size:.85rem;font-weight:600;}
+.smn-country-holiday-day{
+ display:block;width:100%;height:100%;text-align:left;background:transparent;
+ border:1px solid transparent;border-radius:.4rem;padding:.1rem .25rem;
+ color:var(--smn-foreground);cursor:pointer;overflow-wrap:anywhere;
+}
+.smn-country-holiday-day:hover{border-color:var(--smn-brand);}
+.smn-country-holiday-day:focus-visible{outline:3px solid var(--smn-brand);outline-offset:0;}
+.smn-country-holiday-day[aria-pressed="true"]{border-color:var(--smn-brand);background:var(--smn-nav-active);}
+.smn-country-day-name{display:block;font-size:.82rem;line-height:1.25;margin-top:.35rem;}
+@media(max-width:767px){
+ .smn-country-calendar-dialog{width:calc(100vw - 12px);max-width:none;max-height:calc(100dvh - 12px);border-radius:12px;}
+ .smn-country-calendar-header,.smn-country-calendar-toolbar,.smn-country-calendar-content,
+ .smn-country-calendar-footer{padding:.75rem;}
+ .smn-country-month-weekday{font-size:.7rem;padding:.5rem .1rem;}
+ .smn-country-month-day{min-height:64px;padding:.15rem;}
+ .smn-country-day-name{font-size:.65rem;line-height:1.1;}
+ .smn-country-day-number{font-size:.75rem;}
+ .smn-country-calendar-footer .small{font-size:.75rem;}
+}
+@media(hover:none){
+ .smn-country-holiday-day{min-height:44px;}
+}
