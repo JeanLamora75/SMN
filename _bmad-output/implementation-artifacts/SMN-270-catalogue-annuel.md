@@ -30,3 +30,23 @@ La création/renommage en modale est traitée dans SMN-271, l'éditeur calendrie
 ## Adaptation BMAD
 
 Les sources officielles des skills `bmad-agent-dev` et `bmad-build` ont été lues sur GitHub. L'environnement ChatGPT ne dispose pas du checkout exécutable complet : le renderer `uv run ... render_skill.py` du workflow `bmad-build` n'a **pas** été lancé, et il serait inexact de prétendre avoir exécuté les étapes d'un snapshot rendu. Le développement a été conduit directement via le connecteur GitHub, sur branche dédiée. Livraison **à revoir / vérifier** avant fusion.
+
+## Revue complémentaire du 26/10/2026
+
+### Corrections effectuées sur la branche
+
+- Navigation année précédente/suivante, bornée à 1900–2200, en complément du sélecteur de millésime (années sans couverture également accessibles).
+- Échec de lecture du catalogue : état d'erreur distinct de l'état vide, bouton de nouvelle tentative, sans affichage trompeur « aucun pays ».
+- Une erreur de lecture d'un calendrier est remise à zéro à l'ouverture d'un autre pays.
+- Traductions FR/EN des contrôles de navigation.
+
+### Preuves disponibles
+
+- Relecture des deux catalogues JSON après corrections : **3 144 clés de chaque côté**, mêmes chemins et paramètres interpolés, sans clés d'interface introuvables dans cette story.
+- Tests purs « statut/recherche/année Paris » : **6/6 réussis** avec Node 22 `--experimental-strip-types`, uniquement sur copie isolée. Ils ne remplacent pas `pnpm test` et ne valident pas l'intégration Next.js.
+- GitHub Actions sur la PR : exécutions terminées en **failure** en quelques secondes ; les jobs `windows-smoke` et `linux-postgres` ne renvoient aucune étape, et la récupération des journaux retourne 404 `BlobNotFound`. Des exécutions récentes sur `main` présentent également le statut `failure`. **Origine non établie ; ne pas attribuer un défaut de code ni considérer cette CI comme réussie.**
+- Pas de dépôt complet dans l'environnement d'exécution ; `git ls-remote` échoue (résolution DNS github.com), et les dépendances Node du projet ne sont pas disponibles. **Ni build ni vérification PostgreSQL/navigation vérifiés.**
+
+### Décision de qualité
+
+**PR en brouillon / Jira En cours.** La fusion et le statut Terminé sont bloqués jusqu'à obtention d'une vraie recette `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, plus contrôle navigateur admin/non-admin sur données réelles. Le passage à SMN-271 doit préserver ce statut de livraison non vérifiée.
