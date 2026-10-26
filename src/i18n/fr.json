@@ -1050,6 +1050,8 @@
     "searchPlaceholder": "Nom du pays ou code ISO",
     "filterLabel": "Statut annuel",
     "yearLabel": "Année commune",
+    "previousYear": "Année précédente",
+    "nextYear": "Année suivante",
     "statusAll": "Tous les statuts",
     "statusReview": "À vérifier",
     "statusUnknown": "Inconnu",
