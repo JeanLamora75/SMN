@@ -6,6 +6,7 @@ import type {SprintContextItem} from "@/lib/sprint-context";
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {useTranslation} from "@/i18n/client";
 import LogoutControl from "./logout-control";
+import ActiveTeamSelector from "./active-team-selector";
 import PrivateNavigation from "./private-navigation";
 import type {PrivateMode,PrivateRole} from "@/lib/private-navigation";
 
@@ -17,10 +18,11 @@ type Props=Readonly<{
   product:string|null;
   team:string|null;
   teamId:string|null;
+  teamSwitcherEnabled:boolean;
 }>;
 
 /** Coquille privée partagée : un contexte réel, aucune sélection de cycle simulée. */
-export default function PrivateShell({children,username,role,mode,product,team,teamId}:Props){
+export default function PrivateShell({children,username,role,mode,product,team,teamId,teamSwitcherEnabled}:Props){
   const t=useTranslation();
   const pathname=usePathname(),router=useRouter(),searchParams=useSearchParams();
   const requestedCycleId=pathname==="/app"?searchParams.get("cycleId"):null;
@@ -123,15 +125,8 @@ export default function PrivateShell({children,username,role,mode,product,team,t
           </Link>
         </div>
         <div className="smn-header-controls" role="group" aria-label={t("dashboard.shell.contextControls")}>
-          <div className="smn-header-field smn-header-team">
-            <label htmlFor="smn-current-team">{t("dashboard.shell.team")}</label>
-            <select id="smn-current-team" className="form-select form-select-sm"
-              value={teamId??""} disabled title={t("dashboard.shell.singleTeam")}
-              aria-describedby="smn-team-help">
-              <option value={teamId??""}>{team??t("dashboard.shell.noTeam")}</option>
-            </select>
-            <span id="smn-team-help" className="visually-hidden">{t("dashboard.shell.singleTeam")}</span>
-          </div>
+          <ActiveTeamSelector enabled={teamSwitcherEnabled&&role==="admin"}
+            mode={mode} teamId={teamId} teamName={team}/>
           <div className="smn-header-field smn-header-cycle">
             <label htmlFor="smn-current-cycle">{t(cycleLabel)}</label>
             <select id="smn-current-cycle" className="form-select form-select-sm"
