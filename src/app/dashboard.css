@@ -442,6 +442,34 @@
   font-size:.68rem;line-height:1.3;
   color:var(--smn-muted);font-weight:500;
 }
+/* Read-only SP/J/H density is adjacent to each SP value, not a replacement
+   for the existing completion gauge or the capacity KPI. */
+.smn-kpi-sp-line {
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:8px;min-width:0;
+}
+.smn-kpi-sp-value {min-width:0;flex:1;}
+.smn-kpi-density {
+  flex:0 1 46%;min-width:0;max-width:150px;
+  border-left:1px solid var(--smn-border);
+  padding-left:9px;display:flex;flex-direction:column;gap:6px;
+}
+.smn-kpi-density-label {
+  color:var(--smn-muted);font-size:.67rem;
+  line-height:1.3;font-weight:600;overflow-wrap:anywhere;
+}
+.smn-kpi-density-value {
+  color:var(--smn-text);font-size:.93rem;line-height:1.2;
+  font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+}
+.smn-kpi-density-unit {font-size:.7em;white-space:nowrap;}
+.smn-kpi-density-missing {
+  color:var(--smn-muted);font-size:.78rem;line-height:1.3;
+  font-weight:650;overflow-wrap:anywhere;
+}
+.smn-kpi-secondary-sp {flex-wrap:wrap;}
+.smn-kpi-secondary-sp .smn-kpi-secondary-value {flex:1 1 100%;width:100%;}
+.smn-kpi-secondary-sp .smn-kpi-ring {margin-left:auto;}
 .smn-kpi-ring {
   position:relative;display:grid;place-items:center;
   flex:0 0 63px;width:63px;height:63px;
