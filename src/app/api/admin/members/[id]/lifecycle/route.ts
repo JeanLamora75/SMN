@@ -28,7 +28,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
   const result=await withAuthDb(db=>applyLifecycleAction(db,id,actor.id,body));
   if(!result.ok){
    const conflict=["conflict","historical-references","business-data","cascade-risk",
-    "assignment-already-closed","already-archived","not-archived","assignment-still-open",
+    "assignment-already-closed","already-archived","not-archived","assignment-still-open","country-archived",
     "future-version"].includes(result.error);
    return jsonResult({error:result.error},result.error==="not-found"||
     result.error==="assignment-not-found"||result.error==="team-unavailable"?404:conflict?409:400);
