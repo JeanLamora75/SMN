@@ -79,3 +79,25 @@ test("transaction annulée si PostgreSQL échoue",async()=>{
  await assert.rejects(()=>createInstallationTeam(db,"singleton","admin",{name:"Panda"}));
  assert.equal(sqls.at(-1),"ROLLBACK");
 });
+
+test("édition refuse un produit référencé hors installation",async()=>{
+ const {db,sqls}=database({current:{
+  id:"team",name:"Koala",product_id:"foreign-product",product_name:null
+ }});
+ await assert.rejects(()=>updateInstallationTeam(db,"singleton","admin",{
+  teamId:"team",revision:1,name:"Koala",productName:"Produit",vision:null,productGoal:null
+ }),/team-product-outside-installation/);
+ assert.equal(sqls.at(-1),"ROLLBACK");
+});
+test("création d'un produit réel propre à la nouvelle équipe",async()=>{
+ const {db,sqls,argumentsSeen}=database();
+ const r=await createInstallationTeam(db,"singleton","admin",{
+  name:"Tigre",productName:"Portail client",vision:"Vision",productGoal:"But"
+ });
+ assert.equal(r.ok,true);
+ const pi=sqls.findIndex(s=>s.startsWith("INSERT INTO public.smn_product("));
+ const ti=sqls.findIndex(s=>s.startsWith("INSERT INTO public.smn_team("));
+ assert.ok(pi>=0&&ti>pi);
+ assert.equal(argumentsSeen[pi][2],"Portail client");
+ assert.equal(argumentsSeen[ti][2],argumentsSeen[pi][0]);
+});
