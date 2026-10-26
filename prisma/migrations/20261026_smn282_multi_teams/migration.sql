@@ -54,5 +54,29 @@ CREATE TABLE IF NOT EXISTS public.smn_team_context_audit (
  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  changed_at timestamptz NOT NULL DEFAULT now(), UNIQUE(team_id,revision)
 );
+-- Préférence d'équipe active indépendante pour chaque compte administrateur.
+-- La présence d'une préférence n'attribue aucun droit aux comptes user.
+ALTER TABLE public.smn_account
+  ADD CONSTRAINT smn_account_installation_pair_key UNIQUE(id,installation_id);
+ALTER TABLE public.smn_team
+  ADD CONSTRAINT smn_team_installation_pair_key UNIQUE(id,installation_id);
+CREATE TABLE public.smn_account_team_preference (
+ account_id text PRIMARY KEY,
+ installation_id text NOT NULL,
+ team_id text NOT NULL,
+ updated_at timestamptz NOT NULL DEFAULT now(),
+ CONSTRAINT smn_team_pref_account_same_installation_fk
+  FOREIGN KEY(account_id,installation_id) REFERENCES public.smn_account(id,installation_id)
+  ON DELETE CASCADE,
+ CONSTRAINT smn_team_pref_team_same_installation_fk
+  FOREIGN KEY(team_id,installation_id) REFERENCES public.smn_team(id,installation_id)
+  ON DELETE RESTRICT
+);
+-- Migration monoéquipe : seuls les admins conservent une préférence explicite.
+INSERT INTO public.smn_account_team_preference(account_id,installation_id,team_id)
+ SELECT a.id,a.installation_id,t.id
+ FROM public.smn_account a
+ JOIN public.smn_team t ON t.installation_id=a.installation_id
+ WHERE a.role='admin' AND a.is_active=true;
 UPDATE public.smn_installation SET schema_version=28
  WHERE id='singleton' AND schema_version=27;
