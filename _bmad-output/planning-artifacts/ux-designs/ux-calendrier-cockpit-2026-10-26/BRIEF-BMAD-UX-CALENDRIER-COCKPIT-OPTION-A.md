@@ -49,4 +49,4 @@ Le code du 26/10/2026 ouvre actuellement une modale de réunion après clic sur 
 ## Recette / preuves
 Comparatif captures Registres / Calendrier cible / Calendrier réel ; Scrum et Kanban ; Cartes/Agenda ; rôle admin et user ; férié ouvré, week-end, aujourd'hui, mois traversé, aucune période, période close ; fuseaux, absences, réunions multiples, tooltip, création ; FR/EN, thème clair/sombre et tailles ci-dessus. Exécuter réellement `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` si disponibles, en documentant chaque résultat et les limites. Ne pas déclarer la refonte terminée sans preuves et validation visuelle de l'utilisateur.
 
-**Lien de livraison Jira :** à renseigner après création de la Story. Aucun code ni test applicatif réalisés par Sally.
+**User Story Jira :** [SMN-283](https://lmn24.atlassian.net/browse/SMN-283), rattachée à l'Epic [SMN-228](https://lmn24.atlassian.net/browse/SMN-228). Aucun code ni test applicatif réalisés par Sally.
