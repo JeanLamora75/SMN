@@ -115,11 +115,3 @@ export async function certifyNationalYear(db:Client,code:string,actor:string,raw
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
 
-/** Call only inside an existing transaction when a previously validated year is changed. */
-export async function appendAnnualInvalidationAudit(db:Client,code:string,year:number,
- revision:number,actorId:string|null,source:string):Promise<void>{
- await db.query(`INSERT INTO public.smn_national_calendar_validation_audit
-  (id,country_code,calendar_year,action,revision,fingerprint,actor_id,source)
-  VALUES($1,$2,$3,'invalidate',$4,NULL,$5,$6)`,
-  [randomUUID(),code,year,revision,actorId,source]);
-}
