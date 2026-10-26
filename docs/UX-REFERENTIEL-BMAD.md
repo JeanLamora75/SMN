@@ -744,3 +744,10 @@ La conception esthétique [Option C « Cockpit Agile »](../_bmad-output/plannin
 **Story de cadrage [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), Epic 3 :** l'administrateur souhaite « Paramètres > Équipes », une page dédiée pour créer ou modifier une équipe avec **Nom de l'équipe seul obligatoire** ; Nom du produit, Vision Produit et Product Goal facultatifs. Voir [avenant BMAD SMN-282](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
 
 **Conflit normatif ouvert :** D-PRD-137 limite l'installation MVP Scrum/Kanban à une équipe/produit, y compris côté API ; le schéma Prisma possède des contraintes `installationId @unique` sur équipe/produit et l'éditeur SMN-221 exige actuellement un nom produit. La demande est enregistrée comme **évolution à arbitrer**, pas comme une modification implicite des décisions existantes ni une fonctionnalité prête à développer. Aucun ajout de route active avant mise en conformité du modèle/contrats, des autorisations et des producteurs de données.
+
+
+## Arbitrage SMN-282 — Multiéquipes MVP validé (26 octobre 2026)
+
+Le Product Owner a **explicitement autorisé plusieurs équipes internes dans une installation Scrum/Kanban dès le MVP**. Cette décision remplace la restriction monoéquipe de D-PRD-137. Les paragraphes historiques antérieurs imposant une seule équipe ne constituent plus la cible produit. Voir [l'amendement PRD](../_bmad-output/planning-artifacts/prds/prd-SMN-2026-10-18/clarification-equipe-contexte-d-prd-137.md) et [l'avenant SMN-282](../_bmad-output/planning-artifacts/ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
+
+**Encore à valider avant développement** : produit par équipe ou partagé et champ facultatif ; équipe active et isolation des membres, cycles, rapports et autres périmètres. Aucune modification de code ni migration n'est effectuée par cette publication documentaire.
