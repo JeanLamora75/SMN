@@ -2,6 +2,7 @@ import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidCountry} from "../members/location";
 import {ensureAnnualValidationSchema} from "./validation-migration";
+import {COUNTRY_LIFECYCLE_LOCK} from "../countries/archive-migration";
 import {appendAnnualInvalidationAudit} from "./validation-audit";
 
 export type HolidayDate={date:string;name:string};
@@ -96,6 +97,7 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
  try{
   await db.query("SELECT pg_advisory_xact_lock(20261021,49)");
   await db.query("SELECT pg_advisory_xact_lock(20261021,50)");
+  await db.query(COUNTRY_LIFECYCLE_LOCK);
   const country=await db.query<{archived_at:string|null}>(`SELECT archived_at
     FROM public.smn_country WHERE code=$1 FOR UPDATE`,[code]);
   if(country.rowCount!==1)return await fail("country-not-found");
