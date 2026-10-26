@@ -144,3 +144,25 @@
 - Les droits des comptes `user` préexistants ne sont **pas** migrés ni devinés, comme l'a demandé le PO.
 
 **Consignes maintenues :** `MULTI_TEAM_CONTEXT_READY:boolean=false`, `SMN_MULTI_TEAM_WRITES_ENABLED` inactif, pas de migration réelle, pas de fusion `main`. **Cette étape est une progression d'implémentation partielle, pas un achèvement de SMN-282.**
+
+## Étape 6A — Membres, capacités, absences et calendrier : lectures principales (26/10/2026)
+
+**Implémentation réalisée sur la branche, sans déploiement ni migration :**
+
+- **Membres** : `src/server/members/quick-create.ts` ajoute le filtrage v28 des personnes et de leurs rôles via les affectations de **l'équipe sélectionnée**, y compris le sous-select latéral ; les anciens services monoéquipe restent fermés en v28. `GET /api/admin/members` vérifie l'Admin et `teamId` auprès de `resolveAdminTeam` en v28. Les pages `/app/admin/members` et `team-overview.tsx` propagent l'équipe de l'URL jusqu'au chargement de la liste.
+- **Capacité prévisionnelle** : `readDevelopmentCapacity` accepte `options.teamId` explicitement en v28 et filtre toutes les affectations et calculs associés à cet identifiant ; l'ancien chemin sans `teamId` refuse v28. `GET /api/admin/development-capacity` résout d'abord le compte, le rôle Admin et l'équipe autorisée, puis transmet le contexte à la lecture. Les paramètres `start/end/teamId` sont contrôlés.
+- **Protection des autres capacités** : `POST /api/admin/development-capacity` (révision/override) et les parcours anciens GET/POST de capacité réelle refusent v28 tant que leur isolation transactionnelle n'a pas été achevée. L'absence de réponse en v28 est intentionnelle : **pas de lecture globale ni d'écriture implicite**.
+- **Calendrier collectif et absences** : `readTeamCalendar` reçoit une équipe autorisée en v28 ; affectations, absences des membres affectés, calendriers individuels, fermetures et agrégats restent construits **à partir des membres de cette seule équipe**. La route `GET /api/team-calendar` résout l'équipe auprès du serveur pour l'Admin, refuse un chemin v28 utilisateur non arbitré, et conserve le comportement historique v27.
+- **Périodes et réunions** : les routes `/api/team-calendar/periods` et `/api/team-calendar/meetings` ajoutent un branchement v28 : périodes Sprint/Kanban et cérémonies Scrum filtrées par `teamId`. Une lecture `listScopedKanbanCalendarMeetings` **sans DDL** a été ajoutée. Les chemins v27 sont conservés.
+- **Vue Calendrier** : `src/app/app/team-calendar/page.tsx` et `team-calendar-view.tsx` transmettent le `teamId` de l'URL à la lecture des périodes, réunions, agrégats et membres ; `key` spécifique à l'équipe provoque le remontage du composant à chaque bascule et évite le maintien de l'ancien état local. Un cycle explicitement indiqué mais absent de la liste de l'équipe cible est refusé.
+- **Tests ajoutés** : `tests/smn-282-lot-6a-scoping.test.ts` contient des scénarios simulés et des contrats statiques pour les affectations, capacités, lecteurs historiques et calendrier. **Leur exécution réelle n'a pas été effectuée.**
+
+**Vérifications effectivement exécutées** : 19 vérifications **statiques**, toutes concluantes, portant sur les gardes de schéma, l'équipe en SQL, l'autorisation serveur, les trois lectures du calendrier, la propagation du `teamId`, les blocages de capacité et le verrou `MULTI_TEAM_CONTEXT_READY:boolean=false`. Pas d'exécution de `pnpm test`, `pnpm typecheck`, `pnpm build`, `prisma validate`, ni de tests PostgreSQL/réels en navigateur ; aucun SQL appliqué.
+
+**À poursuivre sans considérer le lot 6A totalement qualifié** :
+1. **Absences et fiches individuelles** : contrôler la propriété équipe à l'entrée de **toutes** les routes de détail du membre, de ses absences, calendriers, historiques, identités, localisations et affectations ; à ce stade les lectures agrégées du calendrier sont contextualisées, pas chaque endpoint individuel.
+2. **Mutations métier** : adapter les écritures et historiques des capacités réelles, absences, affectations et réunions, ou conserver leur refus explicite en v28.
+3. **Autres services consommateurs** : auditer les lecteurs de capacité initiale/historique, calendriers des événements et dépendances de la page membres qui supposent une seule équipe.
+4. **Contrôles d'exécution** : tests avec deux équipes dont les membres/dates diffèrent, accès interéquipes, rétrocompatibilité v27, intégrité SQL et validation React/TypeScript sur le projet complet.
+
+**Aucune activation** : garde globale toujours à `false`, écritures d'équipes désactivées, migration v28 non appliquée, PR #189 en brouillon sur sa branche. Les droits des comptes `user` existants restent une décision explicitement reportée par le Product Owner. Ne pas créer d'habilitation implicite.
