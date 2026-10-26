@@ -213,3 +213,38 @@ Sprint Terminé mais non Clôturé éditable ; Sprint Clôturé protégé.
 [SMN-21](https://lmn24.atlassian.net/browse/SMN-21).
 **Publication initiale :** [commit 0fcadd1](https://github.com/JeanLamora75/SMN/commit/0fcadd1e41119f9be5037a2894e08d169730d3f0).
 **Statut :** recette TypeScript, tests métier et vérification visuelle Windows encore à confirmer.
+
+## Avenant UX — Totaux de capacité dans la fiche Sprint (26/10/2026)
+
+**Périmètre :** onglet « Capacité » de la fiche Sprint, extension de l'AC5 de
+[SMN-234](https://lmn24.atlassian.net/browse/SMN-234), AC5-KPI01 à AC5-KPI04.
+
+Trois cartes KPI de style identique, dans l'ordre :
+**Présence totale estimée** ; **Capacité totale de développement estimée** ;
+**Membres affectés durant le Sprint**. Responsive Bootstrap :
+1 colonne mobile, 2 colonnes tablette, 3 colonnes desktop large.
+
+- La capacité totale de développement est la **somme des `developmentJh`
+  des membres effectivement présents dans le tableau**, sans deuxième
+  application des facteurs de contribution/développement.
+- Les J/H de présence restent un calcul indépendant de disponibilité.
+- Si une ligne de développement est non calculable, ou si la liste est vide,
+  l'agrégat de développement affiche **« Non calculable »**, sans zéro fictif.
+  Un **0 J/H calculé** reste un zéro légitime.
+- Jusqu'à quatre décimales en locale FR/EN ; aucune nouvelle donnée persistée.
+- Sprints actifs : producteurs actuels ; Sprints clôturés : membres issus de
+  la photographie historique Vn et **aucun recalcul du snapshot**.
+- Réutilisation stricte des droits nominaux : les trois cartes ne sont pas
+  livrées au rôle non habilité par le composant ni par la page serveur.
+
+**Exemple de recette :** 5 membres, présence 45 J/H, développement
+0 + 0 + 10 + 10 + 5 = **25 J/H**. Les tests couvrent aussi null, 0,
+décimales, liste vide, snapshot Vn, traductions et présence des 3 cartes.
+
+**Fichiers :** `src/lib/sprint-presence.ts`,
+`src/app/app/admin/sprints/[sprintId]/sprint-capacity-panel.tsx`,
+`src/i18n/fr.json`, `src/i18n/en.json`,
+`tests/smn-234-sprint-development-total-kpi.test.ts`.
+
+**Statut :** documentation et implémentation proposées ; compilation
+`pnpm` et recette navigateur Windows restent à confirmer.
