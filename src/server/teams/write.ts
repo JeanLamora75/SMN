@@ -51,7 +51,7 @@ export async function createInstallationTeam(db:Client,installationId:string,
  actorId:string,raw:unknown):Promise<TeamWriteResult>{
  const input=parseTeamCreate(raw);
  if(!input)return failed("invalid-input");
- return transaction(db,async()=>{
+ return transaction<TeamWriteResult>(db,async()=>{
   const guard=await lockAuthorizedInstallation(db,installationId,actorId);
   if(guard)return failed(guard);
   if(await collides(db,installationId,input.name))return failed("duplicate-name");
@@ -77,7 +77,7 @@ export async function updateInstallationTeam(db:Client,installationId:string,
  actorId:string,raw:unknown):Promise<TeamWriteResult>{
  const input=parseTeamUpdate(raw);
  if(!input)return failed("invalid-input");
- return transaction(db,async()=>{
+ return transaction<TeamWriteResult>(db,async()=>{
   const guard=await lockAuthorizedInstallation(db,installationId,actorId);
   if(guard)return failed(guard);
   const t=await db.query<TeamRow>("SELECT t.id,t.name,t.product_id,p.name AS product_name "+
