@@ -237,7 +237,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   </div>}
 
   <dialog ref={dialogRef} onClose={()=>setActiveCode(null)}
-   className="border-0 rounded-3 shadow-lg p-0 w-100"
+   className="bg-body text-body border-0 rounded-3 shadow-lg p-0 w-100"
    aria-labelledby="country-calendar-dialog-title" style={{maxWidth:"960px"}}>
    {activeCountry&&<div className="p-3 p-md-4">
     <div className="d-flex justify-content-between align-items-start gap-3">
