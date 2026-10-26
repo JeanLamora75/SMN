@@ -67,3 +67,10 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 - [Jira SMN-221](https://lmn24.atlassian.net/browse/SMN-221) : éditeur du contexte de l'équipe actuelle et audit à réutiliser.
 - [Jira SMN-223](https://lmn24.atlassian.net/browse/SMN-223) : centre Paramètres déjà existant.
 - **Statut** : spécification publiée, développement et recette non engagés. Rouvrir la phase BMAD de cadrage avant de lever les arbitrages ci-dessus.
+
+
+## 7. Arbitrage validé — Plusieurs équipes Scrum/Kanban au MVP (26/10/2026)
+
+**Règle prioritaire et nouvelle :** le Product Owner a explicitement validé **la création de plusieurs équipes dans une installation SMN Scrum/Kanban dès le MVP**. Cela remplace la contrainte monoéquipe inscrite dans la version initiale de D-PRD-137, mais uniquement sur le nombre d'équipes. Les paragraphes historiques « multiéquipes réservé à SAFe » et « en attendant D-PRD-137 demeure la règle normative » rédigés avant cette validation ne doivent plus être appliqués comme cible produit sur ce point.
+
+**En attente d'arbitrage, donc développement toujours bloqué :** politique de rattachement produit et de champ produit vide ; sélection et persistance de l'équipe active ; isolation de toutes les lectures/mutations et historiques ; gestion d'homonymies. Les éléments hors monoéquipe de D-PRD-137 restent applicables jusqu'à décision contraire. Aucun code ou test produit par cet amendement.
