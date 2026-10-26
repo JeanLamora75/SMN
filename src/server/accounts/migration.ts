@@ -538,10 +538,14 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
             WHERE schemaname='public' AND indexname IN
               ('smn_team_product_id_key','smn_team_installation_name_ci_key')
               AND indexdef ILIKE '%UNIQUE%') AS indexes_valid,
-          (SELECT count(*)=2 FROM pg_constraint
+          (SELECT count(*)=6 FROM pg_constraint
             WHERE connamespace='public'::regnamespace AND conname IN
               ('smn_product_id_installation_pair_key',
-               'smn_team_product_same_installation_fk')) AS constraints_valid,
+               'smn_team_product_same_installation_fk',
+               'smn_account_installation_pair_key',
+               'smn_team_installation_pair_key',
+               'smn_team_pref_account_same_installation_fk',
+               'smn_team_pref_team_same_installation_fk')) AS constraints_valid,
           NOT EXISTS(SELECT 1 FROM pg_constraint
             WHERE connamespace='public'::regnamespace AND conname IN
               ('smn_product_installation_id_key','smn_team_installation_id_key')) AS old_unique_gone
@@ -550,7 +554,10 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       assertMultiTeamMigrationValid(version,
         applied(MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL),
         !!row?.product_nullable&&!!row?.indexes_valid&&
-        !!row?.constraints_valid&&!!row?.old_unique_gone);
+        !!row?.constraints_valid&&!!row?.old_unique_gone&&
+        (await client.query<{present:boolean}>(
+          "SELECT to_regclass('public.smn_account_team_preference') IS NOT NULL AS present"
+        )).rows[0]?.present===true);
     }
     await client.query("COMMIT");
   } catch(error) {
