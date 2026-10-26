@@ -1201,7 +1201,14 @@
     "lifecycleConflict": "This country has changed. Refresh the details before confirming.",
     "lifecycleLoadFailed": "Could not load the country's dependencies. Nothing was changed.",
     "lifecycleSavedRefreshFailed": "The operation may be saved but refreshing failed. Refresh without repeating the action.",
-    "lifecycleSaved": "Country status updated and catalog refreshed."
+    "lifecycleSaved": "Country status updated and catalog refreshed.",
+    "lifecycleMenuForCountry": "Actions for {country}",
+    "lifecycleRecheck": "Recheck dependencies",
+    "lifecycleReferenceHelp": "Change the reference country in general settings, then return here and recheck. The app will not automatically select another country.",
+    "lifecycleMemberHelp": "These links open member profiles in the app. Update their locations, then select “Recheck dependencies”.",
+    "lifecycleResolveFirst": "Resolve the dependencies or refresh the catalog before confirming this action.",
+    "lifecycleArchivedSuccess": "Country archived. Calendars and historical data remain available.",
+    "lifecycleReactivatedSuccess": "Country reactivated with its calendars and historical data."
   },
   "ics": {
     "title": "Import national holidays from an ICS file",
