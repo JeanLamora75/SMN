@@ -55,7 +55,7 @@ export function parseTeamCreate(raw:unknown):TeamCreateInput|null{
 /** Mise à jour : un ID et une révision servent au contrôle de concurrence. */
 export function parseTeamUpdate(raw:unknown):TeamUpdateInput|null{
  const data=asRecord(raw);
- if(!data||!exactKeys(data,["teamId","revision","name"],["productName","vision","productGoal"])||
+ if(!data||!exactKeys(data,["teamId","revision","name","productName","vision","productGoal"],[])||
     typeof data.teamId!=="string"||!ID.test(data.teamId)||
     typeof data.revision!=="number"||!Number.isSafeInteger(data.revision)||
     data.revision<0)return null;
