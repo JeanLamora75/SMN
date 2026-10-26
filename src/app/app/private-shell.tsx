@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {usePathname,useRouter,useSearchParams} from "next/navigation";
 import type {SprintContextItem} from "@/lib/sprint-context";
+type CycleChoice=Pick<SprintContextItem,"id"|"name">;
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {useTranslation} from "@/i18n/client";
 import LogoutControl from "./logout-control";
@@ -26,7 +27,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
   const t=useTranslation();
   const pathname=usePathname(),router=useRouter(),searchParams=useSearchParams();
   const requestedCycleId=pathname==="/app"?searchParams.get("cycleId"):null;
-  const [sprints,setSprints]=useState<SprintContextItem[]>([]);
+  const [sprints,setSprints]=useState<CycleChoice[]>([]);
   const [selectedCycleId,setSelectedCycleId]=useState("");
   const [cycleState,setCycleState]=useState<"loading"|"ready"|"error">("loading");
   // Une navigation vers la liste puis une nouvelle génération recharge les options.
@@ -47,7 +48,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
       .then(async response=>{
         if(!response.ok)throw Error("sprint-context-unavailable");
         return response.json() as Promise<{
-          items:SprintContextItem[];defaultCycleId:string|null
+          items:CycleChoice[];defaultCycleId:string|null
         }>;
       })
       .then(result=>{
