@@ -23,7 +23,7 @@ export default function RegistryCard({item,canManage,signals,highlight=false,nav
  const tr=(key:string)=>t(("registryList."+key) as Parameters<typeof t>[0]);
  const label=(key:string)=>t(("registryCreate."+key) as Parameters<typeof t>[0]);
  const href=registryDetailHref(item.id,navigation);
- return <article className={"smn-registry-card"+(highlight?" smn-registry-just-created":"")}>
+ return <article data-registry-type={item.type} className={"smn-registry-card"+(highlight?" smn-registry-just-created":"")}>
   <header className="smn-registry-card-head">
    <span className="smn-registry-row-type">
     <span className="smn-registry-row-type-icon" aria-hidden="true">
