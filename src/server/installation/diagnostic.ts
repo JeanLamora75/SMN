@@ -278,7 +278,8 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
        !migration.finished_at||migration.rolled_back_at||
        !snapshot.multiTeamSchemaValid||
        !names.has("public.smn_team_context:r")||
-       !names.has("public.smn_team_context_audit:r"))
+       !names.has("public.smn_team_context_audit:r")||
+       !names.has("public.smn_account_team_preference:r"))
       return result("installation-incomplete");
   }
   return result("initialized");
