@@ -128,3 +128,19 @@ Responsive et accessibilité : Bootstrap, thèmes actuels, FR/EN dans `src/i18n/
 **Impact technique préparatoire :** `src/app/app/private-shell.tsx` (sélecteur global), `src/app/app/layout.tsx` (contexte serveur), `src/lib/context-navigation.ts` (URLs de retour), pages et API métier contextuelles. Toute redirection/fallback nécessite validation du `teamId` réel et des permissions du compte ; ne pas fabriquer d'identifiants.
 
 **Statut :** décision UX contractuelle validée ; aucun code, migration, test ou recette exécutés. [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+## 11. Arbitrage validé — Cycle pertinent automatique de l'équipe cible (Option A, 26/10/2026)
+
+**Décision validée :** lorsque l'utilisateur change l'équipe active (sélecteur d'en-tête), **SMN sélectionne automatiquement un cycle de l'équipe cible** (Sprint Scrum ou période Kanban), d'après la règle de pertinence existante à adapter au mode : **en cours, sinon prochain, sinon dernier disponible**. La sélection est calculée **après détermination et autorisation de l'équipe cible** ; le cycle de l'équipe précédente ne peut jamais être conservé ou réemployé, même si son nom ou ses dates coïncident.
+
+**Cas de recette fonctionnelle :**
+- **C01** : depuis Équipe Koala / Sprint 12, sélectionner Panda possédant Sprint 6 en cours → afficher Panda / Sprint 6 et données de Panda exclusivement, dans la rubrique conservée selon l'option B de navigation.
+- **C02** : aucun cycle en cours → proposer le prochain cycle pertinent de Panda ; sinon le dernier disponible, sans fabriquer un nouveau cycle.
+- **C03** : Panda possède **zéro cycle** → sélecteur vide et état d'absence explicite ; pas de fausses métriques ni retour implicite au cycle de Koala. Les rubriques indépendantes d'un cycle restent navigables.
+- **C04** : cycle explicitement mentionné dans l'URL mais appartenant à Koala → ne pas l'interpréter comme appartenant à Panda. La gestion fine des URL historiques reste à arbitrer.
+- **C05** : panne de lecture → état d'erreur distinct de « aucun cycle » ; aucune ancienne donnée ne doit être réattribuée à Panda.
+- **C06** : cycle clôturé/suspendu → respecter les statuts et l'accessibilité historique, sans l'activer métier par effet de bord et sans déplacer des données.
+
+**Technique constatée, non développée :** `src/lib/sprint-context.ts` contient `defaultSprintId` et `selectedSprint` pour Scrum (activité temporelle puis futur et passé, avec fallback de liste si seulement clôturé/suspendu) ; `src/app/app/private-shell.tsx` présente le sélecteur de cycles. **Le filtrage strict par `teamId` et la sélection équivalente en mode Kanban restent à développer et tester.** L'algorithme actuel ne constitue pas une preuve d'une sélection multiéquipes Kanban. Toute sélection doit être validée côté serveur ; le simple changement de contexte ne crée ni ne modifie un cycle.
+
+**Non arbitrés par cette décision :** sortie ou conservation des brouillons non sauvegardés ; priorité des URL directes/historiques vs préférences ; conservation des filtres ; comportement des échecs de bascule ; isolation multiéquipes détaillée. Aucun code applicatif, migration ou test n'a été réalisé. Traçabilité [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
