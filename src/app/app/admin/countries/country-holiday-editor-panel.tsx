@@ -35,6 +35,7 @@ export default function CountryHolidayEditorPanel({
  const [busy,setBusy]=useState(false);
  const [failure,setFailure]=useState("");
  const [confirmDelete,setConfirmDelete]=useState(false);
+ const [targetAttempt,setTargetAttempt]=useState(0);
  const dateRef=useRef<HTMLInputElement>(null);
  const reasonRef=useRef<HTMLInputElement>(null);
  const submitting=useRef(false);
