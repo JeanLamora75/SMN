@@ -2,7 +2,7 @@ import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidCountry} from "../members/location";
 import {ensureAnnualValidationSchema} from "./validation-migration";
-import {appendAnnualInvalidationAudit} from "./annual-validation";
+import {appendAnnualInvalidationAudit} from "./validation-audit";
 
 export type HolidayDate={date:string;name:string};
 export type ManualAction="create"|"update"|"delete";
