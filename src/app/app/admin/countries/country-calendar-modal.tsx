@@ -83,8 +83,8 @@ function AnnualHolidays({code,year,month,mode,onYearStatus,onChanged,canManage,o
  const cells=useMemo(()=>mondayFirstMonthCells(year,month),[year,month]);
  const snapshot=load.kind==="ready"?load.snapshot:null;
  const holidays=snapshot?.holidays??[];
- const status=annualDisplayStatus(snapshot?
-  {year,status:snapshot.status??"not-configured",count:holidays.length,
+ const status=annualDisplayStatus(snapshot&&snapshot.status!==null?
+  {year,status:snapshot.status,count:holidays.length,
    diagnostic:null,administrativeValidated:snapshot.administrativeValidated}:undefined);
  useEffect(()=>{
   if(snapshot)onYearStatus(status);
