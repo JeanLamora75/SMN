@@ -144,7 +144,7 @@ export default function CountryHolidayEditorPanel({
      </div>
     </div>}
    {crossYear&&<p className="small text-muted" role="status">
-    {t("countries.editOtherYear",{year:targetYear})}
+    {t("countries.editOtherYear",{year:targetYear??year})}
     {pendingTarget&&" — "+t(target.kind==="error"?"countries.editTargetUnavailable":
      "countries.loading")}
    </p>}
