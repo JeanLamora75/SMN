@@ -50,3 +50,7 @@ En tant que Scrum Master ou RTE, je souhaite que la page **Équipe** possède la
 - Code probable : `src/app/app/admin/members/team-overview.tsx`, `page.tsx`, styles `smn-team-* `, `src/i18n/fr.json`, `src/i18n/en.json` et tests ciblés.
 
 **Statut de livraison : spécification uniquement.** Aucun développement, build, test, publication d'image sur GitHub ni recette visuelle réalisés dans ce brief.
+
+## 6. Handoff développement (Jira)
+
+Story créée : **[SMN-285 — Refonte UX Équipe Cockpit Agile Option A](https://lmn24.atlassian.net/browse/SMN-285)**, enfant de l'Epic SMN-228 ; voir le [prompt de transmission à Amelia](PROMPT-AMELIA.md). Les critères Jira et [RECETTE-UX.md](RECETTE-UX.md) sont alignés.
