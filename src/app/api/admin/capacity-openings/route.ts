@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {openCapacityPeriod} from "@/server/capacity/opening";
 
@@ -14,7 +14,7 @@ export async function POST(request:NextRequest){
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>openCapacityPeriod(db,actor.id,body));
+  const result=await withLegacyTeamApi(db=>openCapacityPeriod(db,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error},
    result.error==="conflict"?409:result.error==="team-unavailable"?503:400);
   return jsonResult(result);
