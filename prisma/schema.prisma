@@ -23,20 +23,20 @@ model SmnInstallation {
 }
 model SmnProduct {
   id String @id
-  installationId String @unique @map("installation_id")
+  installationId String @map("installation_id")
   name String
   installation SmnInstallation @relation(fields: [installationId], references: [id])
-  teams SmnTeam[]
+  team SmnTeam?
   @@map("smn_product")
 }
 model SmnTeam {
  workSlots SmnTeamWorkSlots?
   id String @id
-  installationId String @unique @map("installation_id")
-  productId String @map("product_id")
+  installationId String @map("installation_id")
+  productId String? @unique @map("product_id")
   name String
   installation SmnInstallation @relation(fields: [installationId], references: [id])
-  product SmnProduct @relation(fields: [productId], references: [id])
+  product SmnProduct? @relation(fields: [productId], references: [id])
   memberBatches SmnMemberBatch[]
   memberAssignments SmnMemberAssignment[]
   companyClosures SmnCompanyClosure[]
