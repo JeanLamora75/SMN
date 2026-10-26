@@ -286,7 +286,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     aria-expanded={mobileFiltersOpen} aria-controls="smn-registry-filter-extras"
     onClick={()=>setMobileFiltersOpen(value=>!value)}>
     <BootstrapIcon name="sliders"/>{translate("filtersToggle")}
-    <span className="smn-registry-filter-indicator">{[draft.lifecycle!=="all",!!draft.cycleId,!!draft.status,draft.sort!=="default",canManage&&!!draft.owner].filter(Boolean).length||""}</span>
+    <span className="smn-registry-filter-indicator">{[query.lifecycle!=="all",!!query.cycleId,!!query.status,query.sort!=="default",canManage&&!!query.owner].filter(Boolean).length||""}</span>
     <span aria-hidden="true">{mobileFiltersOpen?"▴":"▾"}</span>
    </button>
   <form className="row g-2 align-items-end" onSubmit={event=>{
