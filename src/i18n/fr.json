@@ -2591,6 +2591,11 @@
     "historyError": "Historique indisponible."
   },
   "registryList": {
+    "subtitle": "Suivez les risques, obstacles, dépendances, décisions et actions de l’équipe.",
+    "filtersHeading": "Filtres et recherche",
+    "filtersToggle": "Filtres",
+    "viewLabel": "Vue",
+    "summaryCount": "{total} fiches",
     "viewGroup": "Mode d’affichage du registre",
     "listView": "Liste",
     "cardsView": "Cartes",

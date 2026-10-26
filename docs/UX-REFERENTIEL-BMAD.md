@@ -734,3 +734,7 @@ une réunion), SMN-79 (statut événement). Implémentation suivie dans
 9. **Source de vérité** : engagement initial SP/tickets distinct du révisé et du terminé, capacité J/H disponible distincte du travail consommé ; qualité/provenance des valeurs historiques et confidentialité par projection serveur. Jamais de données courantes présentées comme un snapshot ancien.
 
 **Développement :** le contrat UX est une cible et non une preuve de réalisation ; aucune migration, build, test TypeScript ou recette PDF n'a été exécuté lors de cette publication documentaire. Les maquettes sont démonstratives, les détails de style restent à confronter au CSS SMN et à valider visuellement. Ne pas supprimer les anciens parcours avant vérification de parité fonctionnelle et validation utilisateur.
+
+## Avenant graphique du registre global — 26 octobre 2026
+
+La conception esthétique [Option C « Cockpit Agile »](../_bmad-output/planning-artifacts/ux-designs/ux-registres-2026-10-25/AVENANT-GRAPHIQUE-OPTION-C-2026-10-26.md) a été approuvée : en-tête contrasté, onglets en pastilles, panneau de filtres séparé, deux vues Liste/Cartes, catégories en sélecteur mobile, filtres secondaires repliables et bouton + de création en tête sur mobile. Ce complément **ne modifie ni règles métier ni parcours**, et n'écrase pas les contrats de la fiche Sprint. Le développement est en branche dédiée jusqu'aux vérifications.

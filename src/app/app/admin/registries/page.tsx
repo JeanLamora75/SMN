@@ -3,6 +3,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import RegistryList from "./registry-list";
+import "./registry-cockpit.css";
 import {registryTypes,type RegistryType} from "@/lib/registry-types";
 import {safeRegistryReturnPath} from "@/lib/registry-return-context";
 export const dynamic="force-dynamic";
