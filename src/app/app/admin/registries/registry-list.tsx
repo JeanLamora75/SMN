@@ -23,6 +23,8 @@ type CyclePage={state:"available";cycles:Cycle[]}|{state:"unavailable";reason:st
 type Filters={search:string;status:string;owner:string;lifecycle:RegistryLifecycle;sort:RegistrySort;cycleId:string};
 const defaults:Filters={search:"",status:"",owner:"",lifecycle:"all",sort:"default",cycleId:""};
 const sortValues:RegistrySort[]=["default","dateDesc","dateAsc","titleAsc","titleDesc"];
+const categoryIcons={all:"stack",risk:"exclamation-octagon-fill",obstacle:"exclamation-triangle-fill",
+ dependency:"stack",decision:"bullseye",action:"ticket-perforated-fill",highlight:"bell-fill"} as const;
 
 export default function RegistryList({canManage,teamId,initialType="all",initialCreate=false,sourceId,initialCycleId,returnTo}:{
  canManage:boolean;teamId:string;initialType?:RegistryScope;initialCreate?:boolean;
@@ -257,9 +259,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   <div className="nav nav-tabs flex-wrap d-none d-md-flex smn-registry-category-tabs" role="tablist" aria-label={translate("heading")}>
    {(["all",...registryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
     data-registry-type={kind} className={"nav-link"+(type===kind?" active":"")} onClick={()=>choose(kind)}>
-    <BootstrapIcon name={({all:"stack",risk:"exclamation-octagon-fill",
-     obstacle:"exclamation-triangle-fill",dependency:"stack",decision:"bullseye",
-     action:"ticket-perforated-fill",highlight:"bell-fill"} as Record<RegistryScope,string>)[kind]}/>
+    <BootstrapIcon name={categoryIcons[kind]}/>
     <span>{kind==="all"?translate("allTypes"):label(kind)}</span>
    </button>)}
   </div>
