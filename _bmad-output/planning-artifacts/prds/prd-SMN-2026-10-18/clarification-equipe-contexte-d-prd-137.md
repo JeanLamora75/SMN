@@ -34,3 +34,17 @@ Cette nouvelle demande **entre en conflit** avec D-PRD-137 et avec les contraint
 **Écart technique vérifié** : `SmnTeam.installationId @unique`, `SmnProduct.installationId @unique`, `SmnTeam.productId` obligatoire et `SmnProduct.name` obligatoire (Prisma). Ce modèle doit évoluer de manière contrôlée après les arbitrages restants, avec migration sans perte de données et isolation serveur. L'approbation produit n'est pas une autorisation de supprimer immédiatement les protections applicatives sans solution cohérente.
 
 Voir [Story 3.26 / SMN-282](https://lmn24.atlassian.net/browse/SMN-282) et [avenant d'architecture UX Équipes](../../ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
+
+## Avenant D-PRD-137 — Produit indépendant et facultatif par équipe (Option A, 26/10/2026)
+
+**Décision explicitement validée par le Product Owner :** en complément du multiéquipes Scrum/Kanban MVP, **chaque équipe dispose de son propre produit indépendant, facultatif (cardinalité équipe → zéro ou un produit)**. Le produit d'une équipe n'est jamais une référence partagée avec une autre équipe au MVP. L'équipe se crée et se modifie avec **son seul nom obligatoire**. **Nom du produit, Vision du produit et Product Goal sont chacun facultatifs**.
+
+La Vision et le Product Goal sont du **contexte rattaché à l'équipe**, y compris lorsqu'aucun produit n'est renseigné. Une équipe sans produit n'entraîne **aucune création de produit fictif ni de nom par défaut**. Deux produits portant le même nom restent indépendants (identifiants distincts). Renommer un produit ne modifie pas le produit d'une autre équipe ni son identifiant courant. Lorsque le nom du produit est retiré, l'absence de produit courant ne doit **pas supprimer des preuves ou références historiques** : conception de détachement/audit à prévoir avant migration.
+
+**Cet avenant remplace, pour le MVP Scrum/Kanban, l'ancienne règle « produit unique et fixe par installation » datée du 19 octobre 2026.** Les décisions historiques ci-dessus sont conservées pour traçabilité, pas pour définir le comportement cible.
+
+**Écarts techniques identifiés (non implémentés) :** `SmnTeam.installationId @unique`, `SmnProduct.installationId @unique`, `SmnTeam.productId` obligatoire, `SmnProduct.name` non nul, API et éditeur [SMN-221](https://lmn24.atlassian.net/browse/SMN-221) exigeant `productName`. La future migration doit préserver l'équipe existante, son produit/ID, les audits et les rapports ; supprimer l'unicité par installation au profit d'un lien optionnel et non partagé vérifié côté serveur. Le schéma exact sera fixé durant la conception technique.
+
+**Encore à arbitrer avant toute implémentation :** choix et mémorisation de l'équipe active, propagation contrôlée aux pages et API, isolation des données, règles de conflits contextuels et homonymies. La propriété Produit en SAFe v1.0 et l'affectation simultanée d'un membre à plusieurs équipes ne sont pas modifiées par déduction. Aucune migration, aucun test ni code exécutés pour cette décision.
+
+Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant UX Équipes](../../ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
