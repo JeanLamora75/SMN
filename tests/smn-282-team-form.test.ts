@@ -15,7 +15,7 @@ test("validation des formats",()=>{
 });
 
 test("mise à jour exige une révision et un identifiant valides",()=>{
- assert.deepEqual(parseTeamUpdate({teamId:"team_1",revision:0,name:"Panda"}),{
+ assert.deepEqual(parseTeamUpdate({teamId:"team_1",revision:0,name:"Panda",productName:null,vision:null,productGoal:null}),{
   teamId:"team_1",revision:0,name:"Panda",productName:null,vision:null,productGoal:null
  });
  assert.equal(parseTeamUpdate({teamId:"../team",revision:0,name:"Panda"}),null);
@@ -24,4 +24,13 @@ test("mise à jour exige une révision et un identifiant valides",()=>{
 });
 test("homonymies insensibles aux espaces et à la casse",()=>{
  assert.equal(normalizedTeamName("  ÉQUIPE   A "),normalizedTeamName("équipe a"));
+});
+
+test("édition exige tous les champs pour éviter les effacements implicites",()=>{
+ assert.equal(parseTeamUpdate({teamId:"team",revision:0,name:"Koala"}),null);
+ assert.equal(parseTeamUpdate({teamId:"team",revision:0,name:"Koala",productName:null,vision:null}),null);
+ assert.deepEqual(parseTeamUpdate({teamId:"team",revision:3,name:"Koala",
+  productName:"Produit",vision:"Vision",productGoal:"But"}),{
+  teamId:"team",revision:3,name:"Koala",productName:"Produit",vision:"Vision",productGoal:"But"
+ });
 });
