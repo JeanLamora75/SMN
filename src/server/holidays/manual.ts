@@ -61,7 +61,7 @@ export async function readAnnualHolidaySnapshot(db:Client,code:string,year:numbe
   throw new Error("invalid-calendar-scope");
  const rows=await db.query<{
   code:string;date:string|null;name:string|null;revision:number|null;status:string|null;
- }>(\`SELECT c.code,to_char(h.holiday_date,'YYYY-MM-DD') AS date,h.name,
+ }>(`SELECT c.code,to_char(h.holiday_date,'YYYY-MM-DD') AS date,h.name,
     v.revision,v.status
     FROM public.smn_country c
     LEFT JOIN public.smn_national_holiday h
@@ -69,7 +69,7 @@ export async function readAnnualHolidaySnapshot(db:Client,code:string,year:numbe
      AND h.holiday_date<make_date($2+1,1,1)
     LEFT JOIN public.smn_national_calendar_coverage v
      ON v.country_code=c.code AND v.calendar_year=$2
-    WHERE c.code=$1 ORDER BY h.holiday_date\`,[code,year]);
+    WHERE c.code=$1 ORDER BY h.holiday_date`,[code,year]);
  if(rows.rows.length===0)return null;
  const holidays=rows.rows.flatMap(row=>row.date!==null&&row.name!==null?
   [{date:row.date,name:row.name}]:[]);
@@ -92,8 +92,8 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
  try{
   await db.query("SELECT pg_advisory_xact_lock(20261021,49)");
   await db.query("SELECT pg_advisory_xact_lock(20261021,50)");
-  const country=await db.query<{archived_at:string|null}>(\`SELECT archived_at
-    FROM public.smn_country WHERE code=$1 FOR UPDATE\`,[code]);
+  const country=await db.query<{archived_at:string|null}>(`SELECT archived_at
+    FROM public.smn_country WHERE code=$1 FOR UPDATE`,[code]);
   if(country.rowCount!==1)return await fail("country-not-found");
   if(country.rows[0].archived_at!==null)return await fail("country-archived");
   const years=Object.keys(input.expectedYears).map(Number).sort((a,b)=>a-b);
@@ -103,8 +103,8 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
     return await fail("conflict");
   }
   const current=input.originalDate?
-   await db.query<{name:string}>(\`SELECT name FROM public.smn_national_holiday
-    WHERE country_code=$1 AND holiday_date=$2::date FOR UPDATE\`,
+   await db.query<{name:string}>(`SELECT name FROM public.smn_national_holiday
+    WHERE country_code=$1 AND holiday_date=$2::date FOR UPDATE`,
      [code,input.originalDate]):null;
   if(input.originalDate&&current?.rowCount!==1)return await fail("not-found");
   const previousName=current?.rows[0]?.name??null;
@@ -113,48 +113,48 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
    return {ok:true,years:[]};
   }
   if(input.action!=="delete"&&input.date!==input.originalDate){
-   const target=await db.query(\`SELECT 1 FROM public.smn_national_holiday
-    WHERE country_code=$1 AND holiday_date=$2::date\`,[code,input.date]);
+   const target=await db.query(`SELECT 1 FROM public.smn_national_holiday
+    WHERE country_code=$1 AND holiday_date=$2::date`,[code,input.date]);
    if(target.rowCount) return await fail("date-conflict");
   }
   if(input.action==="create"){
-   const inserted=await db.query(\`INSERT INTO public.smn_national_holiday
+   const inserted=await db.query(`INSERT INTO public.smn_national_holiday
     (country_code,holiday_date,name) VALUES($1,$2::date,$3)
-    ON CONFLICT (country_code,holiday_date) DO NOTHING\`,[code,input.date,input.name]);
+    ON CONFLICT (country_code,holiday_date) DO NOTHING`,[code,input.date,input.name]);
    if(inserted.rowCount!==1)return await fail("date-conflict");
   }else if(input.action==="delete"){
-   const deleted=await db.query(\`DELETE FROM public.smn_national_holiday
-    WHERE country_code=$1 AND holiday_date=$2::date AND name=$3\`,
+   const deleted=await db.query(`DELETE FROM public.smn_national_holiday
+    WHERE country_code=$1 AND holiday_date=$2::date AND name=$3`,
     [code,input.originalDate,previousName]);
    if(deleted.rowCount!==1)return await fail("conflict");
   }else if(input.originalDate===input.date){
-   const update=await db.query(\`UPDATE public.smn_national_holiday SET name=$3
-    WHERE country_code=$1 AND holiday_date=$2::date AND name=$4\`,
+   const update=await db.query(`UPDATE public.smn_national_holiday SET name=$3
+    WHERE country_code=$1 AND holiday_date=$2::date AND name=$4`,
     [code,input.originalDate,input.name,previousName]);
    if(update.rowCount!==1)return await fail("conflict");
   }else{
    // UNIQUE(country_code,holiday_date) guards the move. Any failure rolls back.
-   const update=await db.query(\`UPDATE public.smn_national_holiday
+   const update=await db.query(`UPDATE public.smn_national_holiday
     SET holiday_date=$3::date,name=$4
-    WHERE country_code=$1 AND holiday_date=$2::date AND name=$5\`,
+    WHERE country_code=$1 AND holiday_date=$2::date AND name=$5`,
     [code,input.originalDate,input.date,input.name,previousName]);
    if(update.rowCount!==1)return await fail("conflict");
   }
   const result:Extract<ManualResult,{ok:true}>["years"]=[];
   for(const year of years){
-   const count=await db.query<{total:string}>(\`SELECT count(*)::text AS total
+   const count=await db.query<{total:string}>(`SELECT count(*)::text AS total
     FROM public.smn_national_holiday
     WHERE country_code=$1 AND holiday_date>=make_date($2,1,1)
-    AND holiday_date<make_date($2+1,1,1)\`,[code,year]);
+    AND holiday_date<make_date($2+1,1,1)`,[code,year]);
    const total=Number(count.rows[0]?.total??0);
-   const old=await db.query<{status:string}>(\`SELECT status
+   const old=await db.query<{status:string}>(`SELECT status
     FROM public.smn_national_calendar_coverage
-    WHERE country_code=$1 AND calendar_year=$2\`,[code,year]);
+    WHERE country_code=$1 AND calendar_year=$2`,[code,year]);
    const previous=old.rows[0]?.status??"not-configured";
    // Preserve technical coverage of historically complete years for capacity.
    const status=total===0?"not-configured":
     previous==="configured"?"configured":previous==="invalid"?"invalid":"partial";
-   const changed=await db.query<{revision:number}>(\`INSERT INTO public.smn_national_calendar_coverage
+   const changed=await db.query<{revision:number}>(`INSERT INTO public.smn_national_calendar_coverage
     (country_code,calendar_year,status,entries_count,diagnostic,source_file,revision,
      administrative_validated_at,validated_revision)
     VALUES($1,$2,$3,$4,$5,'manual',1,NULL,NULL)
@@ -163,14 +163,14 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
      diagnostic=EXCLUDED.diagnostic,source_file='manual',
      revision=smn_national_calendar_coverage.revision+1,
      administrative_validated_at=NULL,validated_revision=NULL,checked_at=now()
-    RETURNING revision\`,
+    RETURNING revision`,
     [code,year,status,total,total===0?"manual-year-empty":
      status==="configured"?null:"manual-review"]);
    result.push({year,revision:Number(changed.rows[0].revision),status,count:total});
   }
-  await db.query(\`INSERT INTO public.smn_national_holiday_manual_audit
+  await db.query(`INSERT INTO public.smn_national_holiday_manual_audit
    (id,country_code,action,previous_date,new_date,previous_name,new_name,reason,actor_id)
-   VALUES($1,$2,$3,$4::date,$5::date,$6,$7,$8,$9)\`,
+   VALUES($1,$2,$3,$4::date,$5::date,$6,$7,$8,$9)`,
     [randomUUID(),code,input.action,input.originalDate??null,input.date??null,
      previousName,input.name??null,input.reason,actorId]);
   await db.query("COMMIT");
