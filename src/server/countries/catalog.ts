@@ -1,6 +1,7 @@
 import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
 import {ensureCountryNameSchema} from "./name-migration";
+import {ensureManualHolidaySchema} from "../holidays/manual-migration";
 import {isValidCountry} from "../members/location";
 export const COUNTRY_SEEDS=[
  {code:"FR",name:"France"},{code:"DE",name:"Allemagne"},
@@ -10,11 +11,11 @@ export const COUNTRY_SEEDS=[
 ] as const;
 type Row={code:string;name:string;revision?:number;origin:"initial"|"manual";created_at:string};
 type CoverageRow={country_code:string;calendar_year:number;status:"configured"|"partial"|"not-configured"|"invalid";
- entries_count:number;diagnostic:string|null};
+ entries_count:number;diagnostic:string|null;administrative_validated:boolean};
 type HolidayRow={country_code:string;date:string;name:string};
 export type NationalCalendar={status:"configured"|"partial"|"not-configured"|"invalid";
  holidays:{date:string;name:string}[]|null;
- years:{year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null}[]};
+ years:{year:number;status:"configured"|"partial"|"not-configured"|"invalid";count:number;diagnostic:string|null;administrativeValidated:boolean}[]};
 export type Country={code:string;name:string;revision:number;origin:"initial"|"manual";createdAt:string;
  nationalCalendar:NationalCalendar};
 const project=(r:Row):Country=>({code:r.code,name:r.name,revision:r.revision??0,origin:r.origin,
@@ -30,12 +31,16 @@ export function parseCountryInput(input:unknown):{code:string;name:string}|null{
 }
 export async function listCountries(db:Client):Promise<Country[]>{
  await ensureCountryNameSchema(db);
+ await ensureManualHolidaySchema(db);
  const r=await db.query<Row>(`SELECT code,name,revision,origin,created_at::text AS created_at
  FROM public.smn_country ORDER BY code ASC LIMIT 251`);
  if(r.rows.length>250)throw new Error("country-catalog-limit");
  const countries=r.rows.map(project).sort((a,b)=>a.code.localeCompare(b.code));
  const coverage=await db.query<CoverageRow>(`SELECT c.country_code,c.calendar_year,c.status,
-   c.entries_count,c.diagnostic FROM public.smn_national_calendar_coverage c
+   c.entries_count,c.diagnostic,
+   coalesce(c.administrative_validated_at IS NOT NULL AND
+    c.validated_revision=c.revision,false) AS administrative_validated
+   FROM public.smn_national_calendar_coverage c
    ORDER BY c.calendar_year ASC`);
  const holidays=await db.query<HolidayRow>(`SELECT h.country_code,
    to_char(h.holiday_date,'YYYY-MM-DD') AS date,h.name
@@ -46,7 +51,8 @@ export async function listCountries(db:Client):Promise<Country[]>{
    ORDER BY h.holiday_date ASC`);
  for(const country of countries){
   const years=coverage.rows.filter(c=>c.country_code===country.code).map(c=>({
-   year:c.calendar_year,status:c.status,count:c.entries_count,diagnostic:c.diagnostic}));
+   year:c.calendar_year,status:c.status,count:c.entries_count,diagnostic:c.diagnostic,
+   administrativeValidated:c.administrative_validated}));
   const status=years.some(y=>y.status==="invalid")?"invalid":
    years.some(y=>y.status==="partial")?"partial":
    years.length>=4&&years.every(y=>y.status==="configured")?"configured":"not-configured";
