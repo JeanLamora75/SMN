@@ -2069,6 +2069,10 @@
     "previous": "Previous",
     "next": "Next",
     "transitionNote": "During the transition, existing management functions remain available in",
+    "filtersHeading": "Filters and search",
+    "historical": "Historical recovery",
+    "otherStatuses": "Other statuses",
+    "teamLabel": "Team",
     "legacyTitle": "Sprint management tools",
     "legacyDescription": "Transitional access to existing functions while the wizard and per-sprint actions are built."
   },

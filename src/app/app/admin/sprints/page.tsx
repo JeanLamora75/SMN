@@ -3,6 +3,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import SprintIndexView from "./sprint-index-view";
+import "./sprints-cockpit.css";
 import {parseSprintIndexQuery} from "@/server/sprints/index";
 
 export const dynamic="force-dynamic";
