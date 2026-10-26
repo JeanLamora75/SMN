@@ -1944,6 +1944,7 @@
       "not-applicable": "Non applicable"
     },
     "items": {
+      "teams": {"title":"Équipes","description":"Créer et modifier les équipes et leur contexte produit."},
       "general": {
         "title": "Informations générales",
         "description": "Définir la langue, le thème, la palette et le pays de référence."
