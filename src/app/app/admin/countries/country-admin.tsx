@@ -68,9 +68,12 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  const activeCountry=countries.find(c=>c.code===activeCode)??null;
  useEffect(()=>{
   if(!focusCode||form)return;
-  const element=document.querySelector<HTMLButtonElement>(
-   '[data-country-focus="'+focusCode+'"]');
-  if(element){element.focus();setFocusCode(null);}
+  const frame=requestAnimationFrame(()=>{
+   const element=document.querySelector<HTMLButtonElement>(
+    '[data-country-focus="'+focusCode+'"]');
+   if(element){element.focus();setFocusCode(null);}
+  });
+  return ()=>cancelAnimationFrame(frame);
  },[countries,focusCode,form]);
 
  useEffect(()=>{
