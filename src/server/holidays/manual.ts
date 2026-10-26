@@ -1,7 +1,8 @@
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidCountry} from "../members/location";
-import {ensureManualHolidaySchema} from "./manual-migration";
+import {ensureAnnualValidationSchema} from "./validation-migration";
+import {appendAnnualInvalidationAudit} from "./validation-audit";
 
 export type HolidayDate={date:string;name:string};
 export type ManualAction="create"|"update"|"delete";
@@ -86,7 +87,7 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
  Promise<ManualResult>{
  const input=parseManualRequest(raw);
  if(!actorId||!isValidCountry(code)||!input)return {ok:false,error:"invalid-input"};
- await ensureManualHolidaySchema(db);
+ await ensureAnnualValidationSchema(db);
  await db.query("BEGIN");
  const fail=async(error:ManualError):Promise<ManualResult>=>{
   await db.query("ROLLBACK");
@@ -150,14 +151,13 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
     WHERE country_code=$1 AND holiday_date>=make_date($2,1,1)
     AND holiday_date<make_date($2+1,1,1)`,[code,year]);
    const total=Number(count.rows[0]?.total??0);
-   const old=await db.query<{status:string;diagnostic:string|null}>(`SELECT status,diagnostic
+   const old=await db.query<{status:string;revision:number;validated_revision:number|null;administrative_validated_at:string|null}>(`SELECT status,revision,validated_revision,administrative_validated_at
     FROM public.smn_national_calendar_coverage
     WHERE country_code=$1 AND calendar_year=$2`,[code,year]);
    const previous=old.rows[0]?.status??"not-configured";
-   const previousDiagnostic=old.rows[0]?.diagnostic??null;
    // Preserve technical coverage of historically complete years for capacity.
    const status=total===0?"not-configured":
-    previous==="configured"?"configured":previous==="invalid"?"invalid":"partial";
+    previous==="configured"?"configured":"partial";
    const changed=await db.query<{revision:number}>(`INSERT INTO public.smn_national_calendar_coverage
     (country_code,calendar_year,status,entries_count,diagnostic,source_file,revision,
      administrative_validated_at,validated_revision)
@@ -166,12 +166,17 @@ export async function changeManualHoliday(db:Client,code:string,actorId:string,r
      status=EXCLUDED.status,entries_count=EXCLUDED.entries_count,
      diagnostic=EXCLUDED.diagnostic,source_file='manual',
      revision=smn_national_calendar_coverage.revision+1,
-     administrative_validated_at=NULL,validated_revision=NULL,checked_at=now()
+     administrative_validated_at=NULL,validated_revision=NULL,
+     validated_by=NULL,validation_source=NULL,checked_at=now()
     RETURNING revision`,
     [code,year,status,total,total===0?"manual-year-empty":
-     status==="invalid"?(previousDiagnostic??"manual-review"):
      status==="configured"?null:"manual-review"]);
-   result.push({year,revision:Number(changed.rows[0].revision),status,count:total});
+   const newRevision=Number(changed.rows[0].revision);
+   const wasValidated=old.rows[0]?.administrative_validated_at!==null&&
+    old.rows[0]?.administrative_validated_at!==undefined&&
+    old.rows[0]?.validated_revision===old.rows[0]?.revision;
+   if(wasValidated)await appendAnnualInvalidationAudit(db,code,year,newRevision,actorId,"manual");
+   result.push({year,revision:newRevision,status,count:total});
   }
   await db.query(`INSERT INTO public.smn_national_holiday_manual_audit
    (id,country_code,action,previous_date,new_date,previous_name,new_name,reason,actor_id)

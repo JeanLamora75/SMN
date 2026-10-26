@@ -92,6 +92,7 @@ model SmnAccount {
   holidayCsvAudits SmnNationalHolidayAudit[]
   countryNameAudits SmnCountryNameAudit[]
   manualHolidayAudits SmnNationalHolidayManualAudit[]
+  nationalCalendarValidationAudits SmnNationalCalendarValidationAudit[]
   @@map("smn_account")
 }
 
@@ -293,6 +294,7 @@ model SmnCountry {
   calendarCoverage SmnNationalCalendarCoverage[]
   holidayAudits SmnNationalHolidayAudit[]
   manualHolidayAudits SmnNationalHolidayManualAudit[]
+  nationalCalendarValidationAudits SmnNationalCalendarValidationAudit[]
   nameAudits SmnCountryNameAudit[]
   @@map("smn_country")
 }
@@ -328,6 +330,8 @@ model SmnNationalCalendarCoverage {
   revision Int @default(0)
   administrativeValidatedAt DateTime? @map("administrative_validated_at") @db.Timestamptz(6)
   validatedRevision Int? @map("validated_revision")
+  validatedBy String? @map("validated_by")
+  validationSource String? @map("validation_source")
   diagnostic String?
   sourceFile String? @map("source_file")
   checkedAt DateTime @default(now()) @map("checked_at") @db.Timestamptz(6)
@@ -367,6 +371,22 @@ model SmnNationalHolidayManualAudit {
   actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
   @@index([countryCode,occurredAt])
   @@map("smn_national_holiday_manual_audit")
+}
+
+model SmnNationalCalendarValidationAudit {
+  id String @id
+  countryCode String @map("country_code")
+  calendarYear Int @map("calendar_year")
+  action String
+  revision Int
+  fingerprint String?
+  actorId String? @map("actor_id")
+  source String
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([countryCode,calendarYear,occurredAt])
+  @@map("smn_national_calendar_validation_audit")
 }
 
 model SmnAbsenceCategory {

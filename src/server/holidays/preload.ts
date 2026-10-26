@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {ensureAnnualValidationSchema} from "./validation-migration";
 import FR from "./data/FR.json";
 import DE from "./data/DE.json";
 import GB from "./data/GB.json";
@@ -53,6 +54,7 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
    : {year,status:(result.diagnostic==="missing-year"?"not-configured":"invalid") as YearResult["status"],
      count:0,diagnostic:result.diagnostic,holidays:[]};
  });
+ await ensureAnnualValidationSchema(client);
  await client.query("BEGIN");
  try{
   await client.query("SELECT pg_advisory_xact_lock(20261021,49)");
@@ -64,10 +66,16 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
    // A manually touched year owns its dates, including deliberate withdrawals.
    // Never recreate a withdrawn holiday from the bundled reference calendar.
    const managed=await client.query<{status:YearResult["status"];entries_count:number;
-    diagnostic:string|null;source_file:string|null}>(`SELECT status,entries_count,diagnostic,source_file
+    diagnostic:string|null;source_file:string|null;
+    revision:number;validated_revision:number|null;administrative_validated_at:string|null
+   }>(`SELECT status,entries_count,diagnostic,source_file,
+     revision,validated_revision,administrative_validated_at
      FROM public.smn_national_calendar_coverage
      WHERE country_code=$1 AND calendar_year=$2`,[country,value.year]);
-   if(managed.rows[0]?.source_file==="manual"){
+   // Attested calendars must remain byte-for-byte untouched by preload.
+   const attested=managed.rows[0]?.administrative_validated_at!=null&&
+    managed.rows[0]?.validated_revision===managed.rows[0]?.revision;
+   if(managed.rows[0]?.source_file==="manual"||attested){
     results.push({year:value.year,status:managed.rows[0].status,
      count:Number(managed.rows[0].entries_count),diagnostic:managed.rows[0].diagnostic});
     continue;

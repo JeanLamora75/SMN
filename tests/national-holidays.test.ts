@@ -7,17 +7,24 @@ import GB from "../src/server/holidays/data/GB.json";
 import {validateNationalYear,preloadNationalCalendar} from "../src/server/holidays/preload";
 import {HOLIDAYS_MIGRATION_SQL} from "../src/server/holidays/migration";
 
-function fakeDb(countryExists=true,manualYears=new Set<number>()){
+function fakeDb(countryExists=true,manualYears=new Set<number>(),validatedYears=new Set<number>()){
  const holidays=new Map<string,string>(),coverage=new Map<string,string>();
  const statements:string[]=[];
  const client={query:async(sql:string,args:unknown[]=[])=>{
   statements.push(sql);
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||
-    sql.includes("pg_advisory_xact_lock"))return {rows:[],rowCount:0};
-  if(sql.includes("SELECT status,entries_count,diagnostic,source_file"))
-   return {rows:manualYears.has(Number(args[1]))?
-    [{status:"not-configured",entries_count:0,diagnostic:"manual-year-empty",source_file:"manual"}]:[],
-    rowCount:manualYears.has(Number(args[1]))?1:0};
+    sql.includes("pg_advisory_xact_lock")||sql.includes("ALTER TABLE")||
+    sql.includes("CREATE TABLE")||sql.includes("CREATE INDEX"))return {rows:[],rowCount:0};
+  if(sql.includes("SELECT status,entries_count,diagnostic,source_file")){
+   const year=Number(args[1]);
+   return {rows:manualYears.has(year)?
+    [{status:"not-configured",entries_count:0,diagnostic:"manual-year-empty",
+     source_file:"manual",revision:0,validated_revision:null,administrative_validated_at:null}]:
+    validatedYears.has(year)?
+    [{status:"configured",entries_count:11,diagnostic:null,source_file:"FR.json",
+     revision:3,validated_revision:3,administrative_validated_at:"2026-10-26"}]:[],
+    rowCount:manualYears.has(year)||validatedYears.has(year)?1:0};
+  }
   if(sql.includes("SELECT code FROM public.smn_country"))
    return {rows:countryExists?[{code:args[0]}]:[],rowCount:countryExists?1:0};
   if(sql.includes("INSERT INTO public.smn_national_holiday")){
@@ -81,6 +88,13 @@ describe("Calendriers nationaux intégrés",()=>{
   assert.equal(result.find(row=>row.year===2026)?.count,0);
   assert.equal([...f.holidays.keys()].some(k=>k.includes(":2026-")),false);
   assert.equal(f.holidays.size,33);
+ });
+ it("ne touche plus aux années explicitement attestées",async()=>{
+  const f=fakeDb(true,new Set(),new Set([2026]));
+  const result=await preloadNationalCalendar(f.client,"FR",2026);
+  assert.equal(result.find(x=>x.year===2026)?.status,"configured");
+  assert.equal(result.find(x=>x.year===2026)?.count,11);
+  assert.ok(![...f.holidays.keys()].some(k=>k.startsWith("FR:2026-")));
  });
  it("pays et année absents : non configuré sans blocage",async()=>{
   const f=fakeDb();
