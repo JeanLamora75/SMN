@@ -58,3 +58,11 @@ Références : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282), [avenant U
 **Reste à arbitrer avant développement :** conserver la page courante ou aller vers le tableau de bord lors d'un changement ; cycle appartenant à la nouvelle équipe ; brouillons non enregistrés ; URLs et consultations historiques explicites ; gestion d'erreurs et des conflits, propagation/isolation de tous les producteurs métier. Aucun code, test ou migration réalisé pour cette décision.
 
 **Source vérifiée :** `src/app/app/private-shell.tsx` contient déjà `smn-current-team`, actuellement désactivé, et le sélecteur de cycle voisin. `src/app/app/layout.tsx` fournit le contexte serveur actuel ; pas de supposition de prise en charge multiéquipes existante. Traçabilité : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
+
+## Arbitrage de navigation — Maintenir la rubrique au changement d'équipe (Option B, 26/10/2026)
+
+**Décision explicitement validée :** avec le sélecteur global d'équipe (Option A), choisir une autre équipe **conserve la rubrique courante si une rubrique équivalente, accessible et applicable existe dans le contexte de la nouvelle équipe**. Les données proviennent exclusivement de l'équipe cible. Si l'utilisateur se trouvait dans le détail d'un objet de l'équipe précédente, il revient vers la liste/section parent de la nouvelle équipe si possible, sinon vers son tableau de bord. Une rubrique indisponible ou non applicable replie vers le tableau de bord autorisé ; aucun contenu appartenant à l'ancienne équipe ne doit être présenté sous le nouveau contexte.
+
+**Sécurité minimale non négociable :** aucune mutation métier lors d'un simple changement d'équipe ; ne jamais reporter les identifiants d'objets de la première équipe dans la seconde ; recontrôler côté serveur les droits et l'appartenance des données, des cycles, des URL explicites, des ressources historiques et des rapports. Une préférence d'équipe n'étend pas les permissions.
+
+**Restent à arbitrer** : cycle cible (choix automatique ou vide), brouillons non enregistrés, URLs historiques et priorité entre URL et choix utilisateur, filtres et échecs de transition, protocole d'isolation détaillé. Aucun développement ou test effectué dans cet arbitrage. Référence : [SMN-282](https://lmn24.atlassian.net/browse/SMN-282).
