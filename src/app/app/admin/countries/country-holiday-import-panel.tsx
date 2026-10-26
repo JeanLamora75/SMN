@@ -1,5 +1,5 @@
 "use client";
-import {useRef,useState,type ChangeEvent} from "react";
+import {useEffect,useRef,useState,type ChangeEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import type {TranslationKey} from "@/i18n/catalog";
 import {detectLocalImportFormat,isExpectedImportPreview,summarizeImportPreview,
@@ -53,6 +53,8 @@ export default function CountryHolidayImportPanel({country,onCancel,onCommitted}
  const requestPending=useRef(false);
  const readGeneration=useRef(0);
  const fileRef=useRef<HTMLInputElement>(null);
+ const titleRef=useRef<HTMLHeadingElement>(null);
+ useEffect(()=>{titleRef.current?.focus();},[]);
  const onChangeFile=async(e:ChangeEvent<HTMLInputElement>)=>{
   const file=e.currentTarget.files?.[0];
   const generation=++readGeneration.current;
@@ -141,7 +143,7 @@ export default function CountryHolidayImportPanel({country,onCancel,onCommitted}
   aria-labelledby="country-import-heading">
   <div className="d-flex justify-content-between align-items-start gap-2">
    <div>
-    <h3 className="h5" id="country-import-heading" tabIndex={-1}>
+    <h3 className="h5" id="country-import-heading" tabIndex={-1} ref={titleRef}>
      {t("countries.importTitle")}
     </h3>
     <p className="text-muted small">{t("countries.importIntro")}</p>
