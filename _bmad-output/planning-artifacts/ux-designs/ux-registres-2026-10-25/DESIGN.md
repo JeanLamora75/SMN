@@ -77,3 +77,7 @@ Arrondis, espacements et ombres cohérents avec les composants SMN existants, sa
 **À éviter :** saisie d'UUID en interface ; statut inventé « Archivé » ; couleur de criticité fondée sur Ouvert ; copie de fiches ; suppression lors de dissociation ; remplacement d'un snapshot par des valeurs courantes ; modification de l'onglet Sprint par contagion.
 
 Voir [CONTRAT-DEVELOPPEMENT.md](CONTRAT-DEVELOPPEMENT.md) et [RECETTE-UX.md](RECETTE-UX.md).
+
+## Avenant esthétique approuvé — 26/10/2026
+
+L'[Option C « Cockpit Agile »](AVENANT-GRAPHIQUE-OPTION-C-2026-10-26.md) complète ce contrat pour la **présentation de l'index global** (en-tête, catégories, filtres, Liste/Cartes, responsive). Les invariants de ce DESIGN.md et de l'EXPERIENCE.md restent applicables ; aucune nouvelle règle métier n'est introduite. Une approbation graphique ne constitue pas une recette technique.
