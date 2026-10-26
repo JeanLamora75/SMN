@@ -1,0 +1,6 @@
+date;nom;pays
+2042-05-01;RECETTE nationale A;FR
+2043-05-01;RECETTE nationale B;FR
+2043-05-01;RECETTE doublon rejete;FR
+2044-02-30;RECETTE date impossible;FR
+2042-08-15;RECETTE autre pays;DE
