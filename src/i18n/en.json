@@ -2257,6 +2257,7 @@
     "presenceRestricted": "Individual attendance estimates are restricted to administrators. Read-only users can view the Sprint page without receiving named member data.",
     "presenceMethod": "Estimated person-days based on scheduled member half-days, excluding recorded absences, public holidays and company closures. Two available half-days = one presence person-day; development shares and allocations do not reduce presence.",
     "presenceTotal": "Estimated total presence",
+    "presenceDevelopmentTotal": "Estimated total development capacity",
     "presenceMembers": "Members assigned during the Sprint",
     "presenceMember": "Member",
     "presenceJh": "Presence (person-days)",
