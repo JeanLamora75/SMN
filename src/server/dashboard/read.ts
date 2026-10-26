@@ -32,7 +32,7 @@ export async function readCollectiveDashboard(client: Client,
     FROM public.smn_installation i
       JOIN public.smn_product p ON p.installation_id = i.id
       JOIN public.smn_team t ON t.installation_id = i.id AND t.product_id = p.id
-    WHERE i.id='singleton' AND i.state='initialized'
+    WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27
     LIMIT 2
   `);
   if (data.rows.length !== 1 || !["scrum", "kanban"].includes(data.rows[0].mode)) {
@@ -68,7 +68,7 @@ export async function readAccountDashboard(client:Client,actor:TeamActor,
  if(result.rows.length!==1)throw new Error("dashboard-context-unavailable");
  if(result.rows[0].schema_version===28)
   return readCollectiveDashboard(client,actor,requestedTeamId);
- if(result.rows[0].schema_version<=27)
+ if(result.rows[0].schema_version>=1&&result.rows[0].schema_version<=27)
   return readCollectiveDashboard(client);
  throw new Error("dashboard-context-unavailable");
 }
