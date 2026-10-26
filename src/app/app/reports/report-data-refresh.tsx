@@ -4,10 +4,11 @@ import {useTranslation} from "@/i18n/client";
 type Item={key:string;oldValue:number|null;newValue:number|null;unit:string;comparable:boolean;changed:boolean};
 export default function ReportDataRefresh({sprintId,documentId,readOnly}:{sprintId:string;documentId:string;readOnly:boolean}){
  const t=useTranslation(),tr=(k:string)=>t(("reportsRefresh."+k) as Parameters<typeof t>[0]);
+ const failedMessage=tr("failed");
  const [result,setResult]=useState<{comparison:Item[]}|null>(null);
  const [error,setError]=useState(""),[busy,setBusy]=useState(false);
  const url="/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/documents/"+encodeURIComponent(documentId)+"/data";
- useEffect(()=>{const ctrl=new AbortController();void fetch(url,{signal:ctrl.signal,cache:"no-store"}).then(async r=>{if(!r.ok)throw Error();return r.json() as Promise<{comparison:Item[]}>;}).then(v=>{if(!ctrl.signal.aborted)setResult(v);}).catch(()=>{if(!ctrl.signal.aborted)setError(tr("failed"));});return ()=>ctrl.abort();},[url]);
+ useEffect(()=>{const ctrl=new AbortController();void fetch(url,{signal:ctrl.signal,cache:"no-store"}).then(async r=>{if(!r.ok)throw Error();return r.json() as Promise<{comparison:Item[]}>;}).then(v=>{if(!ctrl.signal.aborted)setResult(v);}).catch(()=>{if(!ctrl.signal.aborted)setError(failedMessage);});return ()=>ctrl.abort();},[url,failedMessage]);
  const changed=result?.comparison.filter(x=>x.changed)??[];
  const refresh=async()=>{
   if(readOnly||busy||!window.confirm(tr("confirm")))return;
