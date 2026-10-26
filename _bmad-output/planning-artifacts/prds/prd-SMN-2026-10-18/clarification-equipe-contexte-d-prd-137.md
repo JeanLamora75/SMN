@@ -102,3 +102,11 @@ Une écriture serveur en cours doit être sécurisée contre une bascule concurr
 **Écarts techniques non corrigés à ce stade :** `src/server/access-policy.ts` ne modélise pas encore les habilitations individuelles par équipe ; `prisma/schema.prisma` ne relie pas directement `SmnAccount` et `SmnTeam` dans une table d'habilitation. Une évolution du modèle, de l'interface de gestion et des services est nécessaire. Aucune migration ou création de règles de données n'est réalisée par cet arbitrage.
 
 **À arbitrer** : lieu de gestion des attributions par l'Administrateur, migration des comptes existants (éviter les pertes d'accès imprévues sans donner toutes les équipes par défaut), absence d'équipe autorisée, filtres, homonymies et cas d'erreur. Traçabilité : [Story SMN-282 (AC23–27)](https://lmn24.atlassian.net/browse/SMN-282).
+
+## Séquencement — Habilitations dans les fiches utilisateurs en V1 (26/10/2026)
+
+**Décision validée :** les habilitations compte–équipe seront administrées dans la fiche utilisateur **en V1**, pas dans le formulaire « Paramètres > Équipes » du MVP. Le développement MVP multiéquipes SMN-282 est priorisé. Le logiciel comporte déjà une page de gestion des comptes ; le report vise la gestion fine des droits **par équipe**, non la suppression des comptes.
+
+**Sécurité MVP obligatoire :** l'administrateur pilote toutes les équipes de son installation ; aucun compte `user` ne reçoit implicitement un accès aux nouvelles équipes. Les lectures, mutations, URL et exports sont autorisés côté serveur, par installation/équipe/objet, avec historiques préservés. **Proposition à confirmer :** préserver les accès existants des comptes `user` à l'équipe historique uniquement, sans accès aux équipes créées ultérieurement ; la section de gestion et révocation multiéquipes est reportée à V1.
+
+**Conventions techniques proposées à la validation finale :** filtres dépendants de l'équipe réinitialisés à la bascule, préférences d'affichage neutres conservées ; homonymie d'équipes refusée dans une même installation après normalisation ; ancien contexte conservé si la transition échoue. **Aucune implémentation ou migration engagée**. Voir [avenant SMN-282](../../ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
