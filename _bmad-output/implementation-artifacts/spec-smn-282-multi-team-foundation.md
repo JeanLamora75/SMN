@@ -95,3 +95,28 @@
 **Limites :** éditeur historique `TeamContextEditor` exige toujours un produit obligatoire et devra être harmonisé ; choix d'équipe global, cycles Scrum/Kanban, propagation des contextes sur les autres services, garde des brouillons au changement global et droits `user` restent à traiter. La Story n'est ni terminée ni prête à fusionner.
 
 **Prochaine étape :** sélecteur global réellement contextualisé par `teamId`, choix du cycle et bascule de rubrique, en conservant toutes les écritures d'équipes bloquées jusqu'à la validation complète.
+
+## Étape 5 — Préférence d'équipe et sélecteur global préparés (26/10/2026)
+
+**Code créé dans la PR #189 (branche non fusionnée) :**
+
+- `src/server/teams/migration.ts`, `prisma/migrations/20261026_smn282_multi_teams/migration.sql`, `prisma/schema.prisma` : nouvelle table `smn_account_team_preference` (une ligne par compte) avec double clé étrangère de **même installation** pour le compte et l'équipe. Les préférences historiques sont initialisées **pour les administrateurs uniquement** lors de la migration monoéquipe ; aucune attribution de droit aux comptes `user`. Le checksum v28 est recalculé à partir du même SQL que le fichier de migration.
+- `src/server/teams/active.ts` : lecture et modification transactionnelle de la préférence de l'administrateur actif. Le `teamId` est revalidé contre les équipes appartenant à **son installation**. La préférence ne vaut jamais droit d'accès, et les comptes `user` ne sont pas servis par ce mécanisme.
+- `src/app/api/admin/teams/active/route.ts` : GET et PUT de la préférence réservés à l'Admin, origine/JSON contrôlés. **PUT fermé par le verrou d'activation globale** tant que les consommateurs monoéquipe ne sont pas qualifiés.
+- `src/lib/team-navigation.ts` : plan de repli vers la rubrique parent (Registres, membres, calendrier, rapports, Sprints Scrum, Paramètres) sans réutiliser l'ancien ID d'objet, de cycle, de rapport, ni ses filtres.
+- `src/app/app/active-team-selector.tsx`, `src/app/app/private-shell.tsx`, `src/app/app/layout.tsx` : sélecteur d'équipe préparé dans l'en-tête, avec chargement des options autorisées et changement contextuel prévu. **Le composant est actuellement désactivé pour tous** : le verrou `MULTI_TEAM_CONTEXT_READY:boolean=false` dans `src/lib/team-context-readiness.ts` ne peut pas être activé par variable d'environnement. Il devra être retiré **après** adaptation et tests des requêtes dashboard/Scrum/Kanban/rapports.
+- `src/server/accounts/migration.ts`, `src/server/db/probe.ts` et `src/server/installation/diagnostic.ts` : v28 vérifie également la table de préférence et les nouvelles contraintes d'installation.
+- `src/i18n/fr.json` et `src/i18n/en.json` : messages du sélecteur. Les formulaires Équipes et l'éditeur historique exposent `data-smn-unsaved-changes` pour signaler un brouillon. Il faut généraliser cette protection aux **autres** formulaires avant activation globale.
+- `tests/smn-282-team-active.test.ts`, `tests/smn-282-team-navigation.test.ts`, `tests/smn-282-team-context-stage.test.ts` : nouveaux tests source du service, du repli, de l'isolation et du verrou d'activation.
+
+**Vérification réellement exécutée :** 14 contrôles **statiques** de concordance des fichiers sur la branche (SQL source/versionné identiques, contraintes composées, sécurité des comptes, verrou côté API/layout, i18n, diagnostic). Tous ont réussi. **Aucun** `pnpm test`, `pnpm typecheck`, `pnpm build`, `prisma validate`, test PostgreSQL, recette navigateur ou migration exécuté ici. Les tests sources ajoutés ne constituent pas une preuve de réussite.
+
+**Non livré à cette étape :**
+1. Adaptation de `src/server/dashboard/read.ts`, `src/app/app/page.tsx` et `src/app/api/sprints/context/route.ts` qui supposent toujours une seule équipe, ainsi que toutes les autres pages et API métier/exports.
+2. Sélecteur de périodes Kanban et choix d'un cycle valide appartenant à l'équipe après bascule (les règles de sélection sont connues, non raccordées).
+3. Priorité des URL directes historiques et contrôle de propriété des snapshots/rapports ; gestion des chargements concurrents entre onglets.
+4. Protection des brouillons de **tous** les formulaires contextuels, pas uniquement des deux éditeurs signalés.
+5. Validation PostgreSQL v28/Prisma/tests sur une copie de base. Le schéma Prisma doit être confronté aux clés étrangères composées du DDL lors de cette validation.
+6. Sort des comptes `user` préexistants : **décision volontairement différée** par le Product Owner. Ne pas attribuer de nouveaux droits par déduction.
+
+**Consigne absolue :** `MULTI_TEAM_CONTEXT_READY` reste à `false`, `SMN_MULTI_TEAM_WRITES_ENABLED` reste désactivé ; ne pas fusionner la PR ou lancer la migration tant que les protections et tests requis ne sont pas vérifiés.
