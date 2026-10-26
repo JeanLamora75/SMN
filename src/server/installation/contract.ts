@@ -102,6 +102,27 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_actual_snapshot_immutable:function",
   "public.smn_historical_quality_history_immutable:function",
   "public.smn_replanning_history_immutable:function",
+  // Objets SQL appartenant à SMN, créés à la demande par les producteurs métier.
+  // reports: seules les relations effectivement déclarées par le code source.
+  "public.smn_report_document:r", "public.smn_report_document_session_write:r", "public.smn_report_analysis_choice:r",
+  // registries: seules les relations effectivement déclarées par le code source.
+  "public.smn_registry_comment:r", "public.smn_registry_comment_revision:r", "public.smn_registry_linked_request:r",
+  // historicalSprint: seules les relations effectivement déclarées par le code source.
+  "public.smn_sprint_historical_event:r", "public.smn_sprint_historical_actual_capacity:r", "public.smn_sprint_historical_actual_capacity_audit:r",
+  "public.smn_sprint_historical_capacity:r", "public.smn_sprint_historical_capacity_audit:r", "public.smn_sprint_historical_request:r",
+  "public.smn_sprint_historical_goal_detail:r",
+  // kanban: seules les relations effectivement déclarées par le code source.
+  "public.smn_kanban_period:r", "public.smn_kanban_period_audit:r", "public.smn_kanban_report_analysis_choice:r",
+  "public.smn_kanban_closure:r", "public.smn_kanban_batch_audit:r", "public.smn_kanban_cadence:r",
+  "public.smn_kanban_cadence_audit:r", "public.smn_kanban_flow_counts:r", "public.smn_kanban_flow_audit:r",
+  "public.smn_kanban_goal:r", "public.smn_kanban_goal_audit:r", "public.smn_kanban_meeting:r",
+  "public.smn_kanban_registry_link:r", "public.smn_kanban_registry_link_audit:r", "public.smn_kanban_render_reference:r",
+  // ai: seules les relations effectivement déclarées par le code source.
+  "public.smn_ai_brief_archive:r", "public.smn_ai_brief_draft:r", "public.smn_human_analysis:r",
+  "public.smn_ai_brief_response:r", "public.smn_ai_brief_template:r",
+  // historicalCsv: seules les relations effectivement déclarées par le code source.
+  "public.smn_historical_csv_attempt:r", "public.smn_historical_csv_batch:r", "public.smn_historical_csv_change:r",
+  "public.smn_ai_brief_archive_immutable:function",
 ] as const;
 export type ExpressInput = Readonly<{ mode: "scrum" | "kanban"; product: string; team: string; password: string; adminUsername: string; adminEmail: string }>;
 export function validateExpressInput(body: unknown): ExpressInput | null {
