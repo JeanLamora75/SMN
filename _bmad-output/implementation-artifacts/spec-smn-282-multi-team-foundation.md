@@ -195,3 +195,22 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 5. Les droits des comptes `user` préexistants restent **volontairement non arbitrés**, aucun accès aux nouvelles équipes n'est accordé implicitement.
 
 **Verrous :** `MULTI_TEAM_CONTEXT_READY=false` et écritures d'équipes désactivées par défaut. La PR #189 reste en brouillon, aucune migration ni fusion ni mise en production à cette étape. Cette tranche relève de la **sécurisation**, pas de la livraison complète des fiches individuelles multiéquipes.
+
+## Étape 6A — Consultations historiques bornées en v28 (26/10/2026)
+
+**Nouvelles lectures v28 ajoutées sur la branche uniquement :**
+
+- `src/server/members/team-availability-window.ts` et `GET /api/admin/members/[id]/team-availability` : plage explicite `teamId/startOn/endOn` d'au plus **31 jours** ; vérification du rôle Admin et de l'appartenance de l'équipe à la même installation via `resolveAdminTeam`. Les dates retournées appartiennent individuellement à une affectation du membre **dans l'équipe demandée**. Les demi-journées d'absence sont agrégées par jour ; les motifs, catégories personnelles, autres équipes, anciens objets globaux et journées hors affectation **ne sont jamais retournés**. Les absences marquées comme supprimées par l'historique restent exclues. Si la personne n'a aucune affectation dans l'intervalle, refus sans divulgation.
+- `src/server/members/team-assignment-history.ts` et `GET /api/admin/members/[id]/team-assignment-history` : lecture **seulement des versions d'affectation** appartenant à l'équipe autorisée, jointes aux identifiants de l'affectation et à l'installation. Limite 500 versions ; aucun historique d'identité, d'absence brute ou de cycle de vie personnel. Même un membre désormais affecté ailleurs ne permet pas d'obtenir des versions étrangères par simple ID.
+- `tests/smn-282-team-availability-window.test.ts` (5 scénarios) et `tests/smn-282-team-assignment-history.test.ts` (3 scénarios) : limites de dates, absence de motif, appartenance équipe et installation, priorité de l'URL explicite, rôle `user` refusé, IDs forgés, refus d'absence d'affectation.
+- Les **anciennes API individuelles** `/[id]/absences` et `/[id]/history` restent protégées par `withLegacyMemberApi` : **fermées en v28**. Cette nouvelle lecture volontairement minimale ne les réactive pas et ne prétend pas reproduire les fiches personnelles complètes.
+
+**Contrôles effectués :** 17 contrôles statiques sur les sources GitHub ont réussi, notamment limitation de la fenêtre, filtrage SQL par membre/équipe/période, absence de retour des motifs, endpoints GET uniquement, refus des comptes `user`, gardes historiques et sélecteur global fermé. Les 8 tests sont **écrits mais non exécutés** ; la compilation du dépôt, la validation Prisma, le build, les tests PostgreSQL et la recette n'ont **pas été exécutés**.
+
+**Limites de cette tranche :**
+1. Les données d'absence renvoyées correspondent à l'état actuel de l'enregistrement lorsqu'elles concernent un jour historiquement affecté à l'équipe, **pas à une reconstruction temporelle complète « état connu à telle date de consultation »**. Les audits d'identité, de motif ou de cycle de vie personnels restent fermés en v28.
+2. Les modifications d'absence, de capacité réelle, d'affectation et de réunion restent **désactivées en v28** jusqu'à la conception des écritures transactionnelles isolées.
+3. Les nouveaux endpoints ne sont pas encore câblés dans une fiche membre utilisable en v28 ; il faut concevoir une présentation qui n'affiche jamais d'informations hors équipe.
+4. Tests réels avec deux équipes, recoupements temporels, révocation et changement de session, vérification de l'intégrité et migration v28 sur copie sauvegardée restent indispensables.
+
+**Aucune activation / aucun déploiement :** `MULTI_TEAM_CONTEXT_READY=false`, écritures équipes désactivées, base non migrée, PR #189 en brouillon. Le sort des comptes `user` existants reste reporté conformément au Product Owner.
