@@ -23,3 +23,14 @@ Cet amendement complète les FR existantes (notamment FR-1/5/7/27/28/61/66/70/71
 La [Story 3.26 / SMN-282](https://lmn24.atlassian.net/browse/SMN-282), demandée le 26 octobre 2026, vise la **création d'une nouvelle équipe et l'édition d'équipes depuis « Paramètres > Équipes »** avec quatre champs dont seul le nom de l'équipe est obligatoire. Voir l'[avenant de cadrage](../../ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
 
 Cette nouvelle demande **entre en conflit** avec D-PRD-137 et avec les contraintes actuelles d'unicité sur équipe/produit par installation. **Jusqu'à décision produit explicite de changement de périmètre et mise à jour des contrats d'architecture, D-PRD-137 continue de s'appliquer.** La création de la Story et la documentation associée n'autorisent ni un contournement API ni une migration implicite. À arbitrer : mono/multiéquipes Scrum/Kanban, produit partagé ou par équipe et facultatif, sélection d'équipe active, autorisations et non-régression.
+
+
+## Avenant D-PRD-137 — Validation multiéquipes le 26 octobre 2026
+
+**Décision produit explicitement validée : plusieurs équipes internes sont autorisées dans une installation Scrum ou Kanban dès le MVP.** La restriction monoéquipe de D-PRD-137 du 19/10/2026 est remplacée **uniquement sur le nombre d'équipes**. Les descriptions de monoéquipe ci-dessus sont conservées à titre d'historique et ne sont plus le comportement produit cible.
+
+**Non encore arbitré** : produit partagé ou produit propre à chaque équipe, possibilité d'absence de produit (seul le nom d'équipe est obligatoire dans SMN-282), sélection de l'équipe active, portée des membres, cycles, capacités, calendriers, registres, rapports, droits et historiques. La cible SAFe et les autres décisions du 19/10 ne sont pas implicitement modifiées. La gestion multi-affectations d'un même membre entre plusieurs équipes n'est pas autorisée par ce seul avenant.
+
+**Écart technique vérifié** : `SmnTeam.installationId @unique`, `SmnProduct.installationId @unique`, `SmnTeam.productId` obligatoire et `SmnProduct.name` obligatoire (Prisma). Ce modèle doit évoluer de manière contrôlée après les arbitrages restants, avec migration sans perte de données et isolation serveur. L'approbation produit n'est pas une autorisation de supprimer immédiatement les protections applicatives sans solution cohérente.
+
+Voir [Story 3.26 / SMN-282](https://lmn24.atlassian.net/browse/SMN-282) et [avenant d'architecture UX Équipes](../../ux-designs/ux-equipe-membres-2026-10-22/AVENANT-GESTION-EQUIPES-SMN-282-2026-10-26.md).
