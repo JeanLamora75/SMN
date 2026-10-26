@@ -81,7 +81,6 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
  useEffect(()=>{
   if(!activeCode)return;
   const controller=new AbortController();
-  setHolidays(null);setHolidayError(false);
   void fetch("/api/admin/countries/calendar?country="+encodeURIComponent(activeCode)+
     "&year="+selectedYear,{cache:"no-store",signal:controller.signal})
    .then(async response=>{
