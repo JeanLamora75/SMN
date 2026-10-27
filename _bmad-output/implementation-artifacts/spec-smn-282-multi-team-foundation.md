@@ -424,3 +424,14 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - Lecture d'une proposition de nouvelle version (`documents/[documentId]/template-update`) : recherche du document d'équipe autorisé avant toute comparaison avec la bibliothèque ; aucune écriture de version ni migration effectuée.
 - **Attention :** l'édition directe des modèles partagés, la mise à jour effective d'une version, les services transverses PDF/archives et les autres producteurs conservés sous garde v27 ne sont pas rendus accessibles en v28. Le lot 6B.3 ne doit pas être déclaré intégralement vérifié ou terminé avant revue des routes connexes et tests d'intégration.
 - **Tests locaux et migration : non exécutés.** La PR #189 reste en brouillon ; aucune fusion sur main, `MULTI_TEAM_CONTEXT_READY` non modifié. L'adaptation au workflow BMAD sans scripts locaux reste expressément consignée.
+
+
+## Lot 6B.4 — Première tranche : lecture et téléchargement des PDF archivés (27/10/2026)
+
+- `src/server/reports/archive-library.ts` : ajout de `searchTeamPdfArchives`, filtre `a.team_id` obligatoire, exclusion des archives masquées, validation Sprint/teamId et conservation des filtres de recherche et pagination. La requête historique reste inchangée.
+- `src/server/reports/center.ts` : archives contextualisées récupérées pour l'équipe Admin v28 déjà résolue ; suppression de l'état vide forcé.
+- `src/app/api/admin/reports/archives/[id]/download/route.ts` : accès direct v28 avec `teamId` explicite, acteur Admin actif validé via `resolveAdminTeam`, correspondance stricte archive/teamId/Sprint et contrôle d'archive masquée. Les octets d'origine sont relus et vérifiés ; la voie v27 demeure protégée par `withLegacyReportReadDb`.
+- `src/app/app/reports/page.tsx` : affichage de la liste des archives de l'équipe et liens de téléchargement portant le `teamId` contextualisé.
+- **Non livré en 6B.4 :** création de nouveaux PDF, réécriture des producteurs PDF du Studio et du rapport Sprint, opérations de partage/visibilité/permissions sur les archives, recherche avancée et parcours users multiéquipes. Ils restent bloqués en v28 derrière les protections historiques.
+- **6B.3 reste à vérifier :** autres producteurs transverses du Studio, modèles partagés et tests de sécurité des écritures. La présence de code ne constitue pas une recette.
+- **Aucun test, typecheck, lint, build, exécution SQL, migration ni recette exécuté.** La branche et la PR #189 ne sont pas fusionnées ; `MULTI_TEAM_CONTEXT_READY` n'est pas activé.
