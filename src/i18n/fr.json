@@ -1849,6 +1849,7 @@
     "membersHeading": "Membres de l’équipe"
   },
   "teamUX": {
+    "agileModeReadOnly": "Le mode Agile se modifie uniquement dans Paramètres > Équipes, si aucun cycle n'a encore été créé.",
     "productLabel": "Produit",
     "contextGoalHeading": "But du produit",
     "contextOverview": "Vision et but du produit de l’équipe",
