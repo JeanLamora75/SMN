@@ -2054,6 +2054,10 @@
       "kanbanCadence": {
         "title": "Kanban cadence",
         "description": "Monthly, weekly and biweekly reference periods"
+      },
+      "links": {
+        "title": "Link management",
+        "description": "Browse links by team, category and visibility."
       }
     },
     "view": {
@@ -3633,5 +3637,9 @@
     "notFound": "This link no longer exists or is no longer accessible. Refresh the list.",
     "confirmScopeChange": "I confirm the change to this link's visibility. Access will follow its new scope.",
     "confirmScopeRequired": "Confirm the visibility change before saving."
+  },
+  "linksAdmin": {
+    "title": "Link administration",
+    "allTeams": "All teams"
   }
 }
