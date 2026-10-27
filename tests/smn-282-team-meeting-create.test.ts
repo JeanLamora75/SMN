@@ -84,7 +84,7 @@ test("Kanban : création liée à la bonne période et audit append-only",async(
  assert.equal(insert?.params[1],"period_panda");
  const audit=f.calls.find(q=>q.sql.includes("INSERT INTO public.smn_kanban_period_audit"));
  assert.equal(audit?.params[1],"period_panda");
- assert.equal(audit?.params[4],"admin");
+ assert.equal(audit?.params[3],"admin");
  assert.equal(f.calls.at(-1)?.sql,"COMMIT");
 });
 test("mode étranger, cycle inexistant, clos ou hors période : rollback",async()=>{
