@@ -95,9 +95,9 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
     body:JSON.stringify({assignmentId:state.assignmentId,newStartOn:historicalStart,revision:memberRevision})
    });
    const body=await r.json() as {error?:string};
-   if(!r.ok)throw Error(body.error??t("members.assignment.historicalFailure"));
+   if(!r.ok)throw Error("historical-correction-failed");
    onSaved();
-  }catch(e){setError(e instanceof Error?e.message:t("members.assignment.historicalFailure"));}
+  }catch{setError(t("members.assignment.historicalFailure"));}
   finally{setBusy(false);}
  }
  return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="assignment-heading">
