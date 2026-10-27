@@ -90,3 +90,6 @@ BEGIN
    FOR EACH ROW EXECUTE FUNCTION public.smn_lock_team_agile_on_cycle(''kanban'')';
  END IF;
 END $$;
+
+UPDATE public.smn_installation SET schema_version=29
+ WHERE id='singleton' AND schema_version=28;
