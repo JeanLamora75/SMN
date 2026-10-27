@@ -95,3 +95,71 @@ test("une erreur d'historisation annule la création et l'audit",async()=>{
  assert.equal(f.statements.at(-1)?.sql,"ROLLBACK");
  assert.equal(f.statements.some(q=>q.sql==="COMMIT"),false);
 });
+
+const update={...creation,action:"update",id:absenceId,revision:1};
+const remove={action:"delete",id:absenceId,revision:1};
+test("modification dans l'équipe : ancienne ET nouvelle plages vérifiées",async()=>{
+ const f=fixture();
+ const result=await saveMemberAbsence(f.db,memberId,"admin",update,scope);
+ assert.equal(result.ok,true);
+ assert.equal(f.statements.filter(q=>q.sql.includes("FOR SHARE OF a")).length,2);
+ assert.equal(f.statements.filter(q=>q.sql.includes("UPDATE public.smn_member_absence SET")).length,1);
+ assert.equal(f.statements.at(-1)?.sql,"COMMIT");
+});
+test("modification refusée si l'ancienne période relevait d'une autre équipe",async()=>{
+ const f=fixture({oldStart:"2026-09-30",oldEnd:"2026-10-01"});
+ assert.deepEqual(await saveMemberAbsence(f.db,memberId,"admin",update,scope),
+  {ok:false,error:"team-unavailable"});
+ assert.equal(f.statements.at(-1)?.sql,"ROLLBACK");
+ assert.equal(f.statements.some(q=>q.sql.startsWith("UPDATE public.smn_member_absence")),false);
+});
+test("modification refusée si la nouvelle période dépasse l'affectation",async()=>{
+ const f=fixture({assignments:[
+  {team_id:"team_a",start_on:"2026-10-01",end_on:"2026-10-28"}
+ ]});
+ assert.deepEqual(await saveMemberAbsence(f.db,memberId,"admin",
+  {...update,endOn:"2026-10-29"},scope),
+  {ok:false,error:"team-unavailable"});
+ assert.equal(f.statements.at(-1)?.sql,"ROLLBACK");
+});
+test("suppression logique : audit tombstone sans DELETE destructif",async()=>{
+ const f=fixture();
+ const result=await saveMemberAbsence(f.db,memberId,"admin",remove,scope);
+ assert.equal(result.ok,true);
+ if(result.ok)assert.equal(result.deleted,true);
+ const hist=f.statements.find(q=>q.sql.includes("INSERT INTO public.smn_member_absence_history"));
+ assert.ok(hist);
+ assert.match(String(hist.params[4]),/"deleted":true/);
+ assert.ok(f.statements.some(q=>q.sql.includes("FOR SHARE OF a")));
+ assert.equal(f.statements.some(q=>q.sql.startsWith("DELETE FROM public.smn_member_absence")),false);
+ assert.equal(f.statements.at(-1)?.sql,"COMMIT");
+});
+test("suppression refusée sur une période hors équipe",async()=>{
+ const f=fixture({oldStart:"2026-09-29",oldEnd:"2026-09-30"});
+ assert.deepEqual(await saveMemberAbsence(f.db,memberId,"admin",remove,scope),
+  {ok:false,error:"team-unavailable"});
+ assert.equal(f.statements.at(-1)?.sql,"ROLLBACK");
+});
+test("conflit de révision et membre archivé : aucune mutation",async()=>{
+ const stale=fixture({oldRevision:2});
+ assert.deepEqual(await saveMemberAbsence(stale.db,memberId,"admin",update,scope),
+  {ok:false,error:"conflict"});
+ const archived=fixture({archived:true});
+ assert.deepEqual(await saveMemberAbsence(archived.db,memberId,"admin",creation,scope),
+  {ok:false,error:"archived"});
+ for(const f of [stale,archived]){
+  assert.equal(f.statements.at(-1)?.sql,"ROLLBACK");
+  assert.ok(!f.statements.some(q=>q.sql.startsWith("UPDATE public.smn_member_absence")));
+ }
+});
+test("acteur user ou identité différente : rollback et aucun audit",async()=>{
+ const forbidden=fixture();
+ await assert.rejects(()=>saveMemberAbsence(forbidden.db,memberId,"user",
+  creation,{actor:{accountId:"user",role:"user"},teamId:"team_a"}),
+  /team-access-forbidden/);
+ assert.equal(forbidden.statements.at(-1)?.sql,"ROLLBACK");
+ const identity=fixture();
+ assert.deepEqual(await saveMemberAbsence(identity.db,memberId,"someone_else",
+  creation,scope),{ok:false,error:"team-unavailable"});
+ assert.equal(identity.statements.at(-1)?.sql,"ROLLBACK");
+});
