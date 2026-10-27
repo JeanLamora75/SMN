@@ -34,7 +34,7 @@ export default function MemberDetail({id}:{id:string}){
  const [error,setError]=useState("");
  const [location,setLocation]=useState<{current:{city:string|null;region:string|null;countryIso2:string|null}|null}|null>(null);
  const dialogRef=useRef<HTMLDivElement>(null);
- const [modalDirty,setProfileDirty]=useState(false);
+ const [modalDirty,setModalDirty]=useState(false);
  const refresh=useCallback(async()=>{
   const r=await fetch("/api/admin/members",{cache:"no-store"});
   if(!r.ok)throw Error("read-unavailable");
@@ -72,7 +72,7 @@ export default function MemberDetail({id}:{id:string}){
  const button=(target:Exclude<Section,null>,label:string)=>
   <button type="button" className="btn btn-outline-secondary btn-sm ms-2" title={t("memberUX.edit",{name:label})}
    aria-label={t("memberUX.edit",{name:label})} disabled={section!==null||(member?.archived&&target!=="lifecycle")}
-   onClick={()=>{setProfileDirty(false);setSection(target);}}>✎</button>;
+   onClick={()=>{setModalDirty(false);setSection(target);}}>✎</button>;
  return <div className="container-fluid smn-member-page py-4 px-3 px-lg-4">
   <Link href="/app/admin/members" className="btn btn-link px-0 mb-3">← {t("memberUX.back")}</Link>
   {loading&&<p role="status">{t("memberUX.loading")}</p>}
