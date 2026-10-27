@@ -2054,6 +2054,10 @@
       "kanbanCadence": {
         "title": "Cadence Kanban",
         "description": "Périodes mensuelles, hebdomadaires et bihebdomadaires"
+      },
+      "links": {
+        "title": "Gestion des liens",
+        "description": "Consulter les liens par équipe, catégorie et visibilité."
       }
     },
     "view": {
@@ -3633,5 +3637,9 @@
     "notFound": "Ce lien n’existe plus ou n’est plus accessible. Actualisez la liste.",
     "confirmScopeChange": "Je confirme le changement de visibilité de ce lien. Il sera accessible selon sa nouvelle portée.",
     "confirmScopeRequired": "Confirmez explicitement le changement de visibilité avant d'enregistrer."
+  },
+  "linksAdmin": {
+    "title": "Administration des liens",
+    "allTeams": "Toutes les équipes"
   }
 }
