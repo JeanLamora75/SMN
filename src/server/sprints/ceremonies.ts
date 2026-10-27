@@ -104,8 +104,8 @@ export async function ensureCeremonySchema(db:Client){
 }
 // Point d'entrée conservé pour les appels existants (simple, lot, assistant).
 // Depuis le MVP unifié, seules les occurrences des modèles ACTIFS sont générées.
-export async function saveGeneratedCeremonies(db:Client,sprint:Sprint,_weeks:number,options:{reconstructed?:boolean}={}){
+export async function saveGeneratedCeremonies(db:Client,sprint:Sprint,_weeks:number,options:{reconstructed?:boolean;expectedTeamId?:string}={}){
  // Les tables anciennes restent disponibles pour la lecture des Sprints de test.
  await ensureCeremonySchema(db);
- return saveTemplateOccurrences(db,sprint,{reconstructed:options.reconstructed===true});
+ return saveTemplateOccurrences(db,sprint,{reconstructed:options.reconstructed===true,expectedTeamId:options.expectedTeamId});
 }
