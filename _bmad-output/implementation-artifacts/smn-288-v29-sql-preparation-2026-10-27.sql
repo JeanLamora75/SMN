@@ -33,7 +33,7 @@ WHERE EXISTS (
 
 -- Les périodes Kanban existent dans certaines installations seulement :
 -- leurs tables sont créées dynamiquement par le module Kanban.
-DO $
+DO $$
 BEGIN
  IF to_regclass('public.smn_kanban_period') IS NOT NULL THEN
   UPDATE public.smn_team t
@@ -42,12 +42,12 @@ BEGIN
    SELECT 1 FROM public.smn_kanban_period p WHERE p.team_id=t.id
   );
  END IF;
-END $;
+END $$;
 
 -- Verrou de défense en profondeur : aucune requête ne peut effacer
 -- un marqueur historique ni modifier le mode après verrouillage.
 CREATE FUNCTION public.smn_guard_team_agile_mode()
-RETURNS trigger LANGUAGE plpgsql AS $
+RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF OLD.mode_locked AND NOT NEW.mode_locked THEN
   RAISE EXCEPTION 'agile-mode-lock-is-permanent' USING ERRCODE='23514';
@@ -56,7 +56,7 @@ BEGIN
   RAISE EXCEPTION 'agile-mode-is-locked' USING ERRCODE='23514';
  END IF;
  RETURN NEW;
-END $;
+END $$;
 CREATE TRIGGER smn_guard_team_agile_mode_before_update
 BEFORE UPDATE OF agile_mode,mode_locked ON public.smn_team
 FOR EACH ROW EXECUTE FUNCTION public.smn_guard_team_agile_mode();
