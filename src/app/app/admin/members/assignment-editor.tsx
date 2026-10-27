@@ -158,7 +158,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
     </div>
     <p className="small text-secondary">{t("members.assignment.rules")}</p>
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
-    <div className="d-flex gap-2 flex-wrap">
+    <div className="smn-cockpit-form-actions">
      <button type="submit" disabled={busy||(!dirty&&state.versions.length>0)} className="btn btn-primary">
       {t(busy?"members.assignment.saving":"members.assignment.save")}</button>
      <button type="button" disabled={busy} className="btn btn-outline-secondary" onClick={cancel}>
