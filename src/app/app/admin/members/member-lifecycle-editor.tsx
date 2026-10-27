@@ -8,8 +8,8 @@ type Impact={memberId:string;teamId:string;displayName:string;revision:number;
  archived:boolean;archivedAt:string|null;today:string;activeCount:number;
  assignments:Assignment[];referenceCount:number;canDelete:boolean};
 type Action="close"|"archive"|"reactivate"|"delete";
-export default function MemberLifecycleEditor({memberId,onSaved,onCancel}:{
- memberId:string;onSaved:(action:Action,warning:boolean)=>void;onCancel:()=>void;
+export default function MemberLifecycleEditor({memberId,onSaved,onCancel,onDirtyChange}:{
+ memberId:string;onSaved:(action:Action,warning:boolean)=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
 }){
  const t=useTranslation();
  const [impact,setImpact]=useState<Impact|null>(null);
@@ -22,6 +22,7 @@ export default function MemberLifecycleEditor({memberId,onSaved,onCancel}:{
  const open=impact?.assignments.find(a=>a.endOn===null)??null;
  const changed=Boolean(open&&endOn!==impact?.today)||confirmation!=="";
  useUnsavedChanges(changed||busy,t("draft.leaveWarning"));
+ useEffect(()=>{onDirtyChange?.(changed,busy);},[changed,busy,onDirtyChange]);
  useEffect(()=>{
   let active=true;
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/lifecycle",{cache:"no-store"})
