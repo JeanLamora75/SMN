@@ -1,5 +1,6 @@
 "use client";
-import {useEffect,useId,useState} from "react";
+import {useId,useState} from "react";
+import LinkDialog from "./link-dialog";
 import type {LinkEntry} from "@/lib/links-display";
 import {useTranslation} from "@/i18n/client";
 
@@ -14,11 +15,6 @@ export default function LinkEditor({teamId,categories,item,onClose,onSaved}:{
  const [categoryId,setCategoryId]=useState(item?.categoryId??categories[0]?.id??"");
  const [scope,setScope]=useState<"EQUIPE"|"TRANSVERSE">(item?.scope??"EQUIPE");
  const [pending,setPending]=useState(false),[error,setError]=useState("");
- useEffect(()=>{
-  const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape"&&!pending)onClose();};
-  window.addEventListener("keydown",onKey);
-  return()=>window.removeEventListener("keydown",onKey);
- },[onClose,pending]);
  const submit=async(e:React.FormEvent)=>{
   e.preventDefault();if(pending)return;
   setError("");
@@ -38,8 +34,7 @@ export default function LinkEditor({teamId,categories,item,onClose,onSaved}:{
   }catch(e){setError(e instanceof Error&&e.message==="409"?t("links.conflict"):t("links.saveError"));}
   finally{setPending(false);}
  };
- return <div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={id+"-title"} style={{background:"var(--bs-modal-backdrop-bg, rgba(0,0,0,.55))"}}>
-  <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div className="modal-content">
+ return <LinkDialog titleId={id+"-title"} onClose={onClose} locked={pending} large>
    <div className="modal-header"><h2 className="modal-title fs-5" id={id+"-title"}>{item?t("links.edit"):t("links.add")}</h2>
     <button type="button" className="btn-close" aria-label={t("links.cancel")} onClick={onClose} disabled={pending}/></div>
    <form onSubmit={submit}><div className="modal-body d-grid gap-3">
@@ -55,6 +50,5 @@ export default function LinkEditor({teamId,categories,item,onClose,onSaved}:{
     <button type="button" className="btn btn-outline-secondary" onClick={onClose} disabled={pending}>{t("links.cancel")}</button>
     <button type="submit" className="btn btn-primary" disabled={pending||!categoryId}>{pending?t("links.saving"):t("links.save")}</button>
    </div></form>
-  </div></div>
- </div>;
+ </LinkDialog>;
 }
