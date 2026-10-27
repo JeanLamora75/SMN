@@ -29,7 +29,7 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  useEffect(()=>{
   let active=true;
-  void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/absences",{cache:"no-store"})
+  void fetch("/api/admin/members/"+encodeURIComponent(memberId)+(teamId?"/team-absences?"+new URLSearchParams({teamId}):"/absences"),{cache:"no-store"})
    .then(async r=>{if(!r.ok)throw Error("absence-load-failed");return r.json() as Promise<AbsenceState&{today:string}>;})
    .then(data=>{
     if(!active)return;
@@ -44,7 +44,7 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
     setState(data);setToday(data.today);setDraft(values);setBaseline(values);setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return()=>{active=false;};
- },[memberId,record,initialDate]);
+ },[memberId,record,initialDate,teamId]);
  const change=<K extends keyof Draft>(name:K,value:Draft[K])=>
   setDraft(current=>current?{...current,[name]:value}:current);
  const cancel=()=>{
