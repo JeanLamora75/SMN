@@ -53,7 +53,7 @@ export default function ReportStudio({document,readOnly,journal,teamId}:{documen
   const sendingVersion=changeVersion.current;setSaving(true);editing.setBusy(true);setError("");
   try{
    const response=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(document.sprintId)+"/documents/"+encodeURIComponent(document.id)+(teamId?"?teamId="+encodeURIComponent(teamId):""),{
-    method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:sessionId.current,sequence:++sequence.current,content})});
+    method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:sessionId.current,sequence:++sequence.current,revision:editing.revision,content})});
    if(!response.ok)throw Error(response.status===409?"conflict":"failed");
    const data=await response.json() as {revision:number};
    if(data.revision){const stillDirty=changeVersion.current!==sendingVersion;setSaved(!stillDirty);editing.acknowledge(data.revision,stillDirty);}
