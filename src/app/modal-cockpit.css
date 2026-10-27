@@ -142,3 +142,10 @@ dialog.smn-registry-section-dialog.smn-cockpit-modal {
   max-height:calc(100dvh - 1rem);
  }
 }
+
+/* Legacy registry footer expects Cancel and Save grouped at the trailing edge.
+   Override shared space-between without changing DOM or submit semantics. */
+.smn-registry-create-dialog.smn-cockpit-modal .smn-registry-create-footer.smn-cockpit-modal-footer,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-registry-section-dialog-footer.smn-cockpit-modal-footer {
+ justify-content:flex-end;
+}
