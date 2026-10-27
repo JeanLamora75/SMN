@@ -1,5 +1,5 @@
 /**
- * Application explicite de la migration PostgreSQL v28.
+ * Application explicite de la migration PostgreSQL v29.
  * Aucun lancement automatique depuis l'authentification, l'installation ou Next.js.
  * N'utiliser qu'après sauvegarde vérifiée et validation des lecteurs multiéquipes.
  */
@@ -27,10 +27,10 @@ async function main(){
  if(source!==TEAM_AGILE_MIGRATION_SQL)throw Error("Source SQL et migration versionnée divergentes");
 
  const uri=await installedDatabaseUri();
- const before=classifySnapshot(await probePostgres(uri));
+ const snapshot=await probePostgres(uri);
+ const before=classifySnapshot(snapshot);
  if(before.status!=="initialized")throw Error("Diagnostic préalable incorrect : migration refusée");
-  const versionCheck=await probePostgres(uri);
-  if(versionCheck.installations?.[0]?.schema_version!==28)throw Error("Migration v28 requise");
+ if(snapshot.installations?.[0]?.schema_version!==28)throw Error("Migration v28 requise");
 
  const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,
   statement_timeout:30000,application_name:"smn-v29-manual-migration"});
