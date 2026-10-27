@@ -42,3 +42,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `src/app/app/admin/members/member-calendar-exception-editor.tsx` : mêmes conventions pour les actions de sauvegarde et annulation, sans toucher aux cases matin/après-midi.
 - Le formulaire de cycle de vie conserve sa présentation particulière car il rassemble des actions destructives, de clôture et de réactivation : une assimilation au pied standard serait dangereuse sans analyse UX approfondie.
 - Lecture statique du JSX après modification ; aucun typecheck, test, build ni recette navigateur exécuté. La Story reste en cours.
+
+## Étape événements Agile — lisibilité de la modale de réunion
+- Audit ciblé : `calendar-meeting-modal.tsx` est une véritable fenêtre modale ; `exceptional-meeting-form.tsx`, `ceremony-editor.tsx` et `template-form.tsx` sont des panneaux/formulaires de page, pas des modales. Ils ne doivent pas être convertis sans validation fonctionnelle.
+- La modale de réunion sépare à présent formellement bandeau, corps déroulant et pied accessible ; `src/app/modal-cockpit.css` borne sa hauteur et garde les contrôles de fermeture visibles. Les sous-actions de sauvegarde propres aux sections sont conservées, car elles déclenchent des transactions distinctes.
+- Aucun changement de calendrier, API, règles de présence ni stockage.
+- Aucun test compilateur, navigateur ou GitHub Actions exécuté. Tests locaux nécessaires : chargement long, statut en lecture seule, fermeture avec données modifiées, tableaux de décisions et rendu mobile / clair / sombre.
