@@ -21,12 +21,14 @@ export async function createScopedCeremonyOutcome(db:Client,actor:TeamActor,
   const reject=async(error:string)=>{await db.query("ROLLBACK");return {ok:false as const,error};};
   const team=await resolveAdminTeam(db,actor,p.teamId);
   if(team.mode!=="scrum")return reject("mode-mismatch");
+  const sprint=await db.query<{status:string;id:string}>(`
+   SELECT s.status,s.id FROM public.smn_sprint s
+   JOIN public.smn_sprint_ceremony c ON c.sprint_id=s.id
+   WHERE c.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL
+   FOR UPDATE OF s,c`,[p.ceremonyId,team.team_id]);
+  if(sprint.rows.length!==1)return reject("not-found");
   const meeting=await readCalendarMeeting(db,"ceremony",p.ceremonyId,team.team_id);
-  if(!meeting)return reject("not-found");
-  const sprint=await db.query<{status:string}>(`
-   SELECT status FROM public.smn_sprint
-   WHERE id=$1 AND team_id=$2 AND deleted_at IS NULL FOR UPDATE`,
-   [meeting.sprintId,team.team_id]);
+  if(!meeting||meeting.sprintId!==sprint.rows[0].id)return reject("not-found");
   if(sprint.rows.length!==1)return reject("not-found");
   if(sprint.rows[0].status==="closed")return reject("closed-period");
   const required=["smn_registry_item","smn_registry_item_audit","smn_calendar_meeting_outcome_link"];
