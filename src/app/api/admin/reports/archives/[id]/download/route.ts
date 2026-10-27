@@ -1,4 +1,6 @@
 import {NextRequest} from "next/server";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {resolveAdminTeam} from "@/server/teams/resolve";
 import {withLegacyReportReadDb} from "@/server/reports/legacy-read";
 import {readVerifiedPdfArchive} from "@/server/reports/pdf-archive-store";
 import {archiveUserAuthorized} from "@/server/reports/archive-grants";
@@ -15,7 +17,9 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  const {id}=await params;
  if(!/^[a-f0-9-]{36}$/i.test(id))return Response.json({error:"invalid-input"},{status:400});
  try{
- const bytes=await withLegacyReportReadDb(async db=>{
+ const teamId=req.nextUrl.searchParams.get("teamId");
+ if(teamId&&actor.role!=="admin")return Response.json({error:"forbidden"},{status:403});
+ const readArchive=async (db:import("pg").Client)=>{
   const tables=await db.query<{archive:boolean;visibility:boolean}>(`SELECT
    to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS archive,
    to_regclass('public.smn_report_archive_visibility') IS NOT NULL AS visibility`);
@@ -26,12 +30,18 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE a.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
-   AND lower(i.mode)='scrum' ${hidden}`,[id]);
+   AND lower(i.mode)='scrum' ${teamId?"AND a.team_id=$2":""} ${hidden}`,
+   teamId?[id,teamId]:[id]);
   if(scope.rows.length!==1)return null;
   const granted=actor.role==="admin"||await archiveUserAuthorized(db,id,actor.id);
   if(!canAccess(actor,"download",{type:"documents",exists:true,inScope:true,format:"PDF",userAuthorized:granted}))return null;
   return readVerifiedPdfArchive(db,id);
- });
+ };
+ const bytes=teamId?await withSprintIndexDb(async db=>{
+  const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},teamId);
+  if(team.mode!=="scrum")return null;
+  return readArchive(db);
+ }):await withLegacyReportReadDb(readArchive);
  if(!bytes)return Response.json({error:"archive-unavailable"},{status:404});
  return new Response(new Uint8Array(bytes),{headers:{
  "Content-Type":"application/pdf",
