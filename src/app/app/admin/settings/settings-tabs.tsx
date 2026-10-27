@@ -3,15 +3,16 @@ import {useState,useEffect,type ReactNode} from "react";
 type Section={id:string;label:string;content:ReactNode};
 export default function SettingsTabs({sections,label}:{sections:Section[];label:string}){
  const [active,setActive]=useState(sections[0]?.id??"");
+ const sectionIds=sections.map(section=>section.id).join("|");
  useEffect(()=>{
   const selectFromHash=()=>{
    const hash=window.location.hash.slice(1);
-   if(sections.some(section=>section.id===hash))setActive(hash);
+   if(sectionIds.split("|").includes(hash))setActive(hash);
   };
   selectFromHash();
   window.addEventListener("hashchange",selectFromHash);
   return ()=>window.removeEventListener("hashchange",selectFromHash);
- },[sections]);
+ },[sectionIds]);
  const selectTab=(id:string)=>{
   setActive(id);
   window.history.replaceState(null,"","#"+id);
