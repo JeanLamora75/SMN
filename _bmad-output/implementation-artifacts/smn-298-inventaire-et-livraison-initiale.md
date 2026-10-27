@@ -48,3 +48,10 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - La modale de réunion sépare à présent formellement bandeau, corps déroulant et pied accessible ; `src/app/modal-cockpit.css` borne sa hauteur et garde les contrôles de fermeture visibles. Les sous-actions de sauvegarde propres aux sections sont conservées, car elles déclenchent des transactions distinctes.
 - Aucun changement de calendrier, API, règles de présence ni stockage.
 - Aucun test compilateur, navigateur ou GitHub Actions exécuté. Tests locaux nécessaires : chargement long, statut en lecture seule, fermeture avec données modifiées, tableaux de décisions et rendu mobile / clair / sombre.
+
+## Étape Registres, Rapports et Paramètres — 27/10/2026
+- Relecture des vrais conteneurs `registry-create-modal.tsx` et `registry-section-dialog.tsx` : native `<dialog>`, traduction existante, structure Cockpit raccordée dans les étapes précédentes.
+- `src/app/modal-cockpit.css` : ajout de règles ciblées pour maintenir les en-têtes et pieds visibles tout en faisant défiler uniquement le corps des longues modales Registre, y compris sur mobile ; variables de thème existantes conservées.
+- `report-studio.tsx`, `template-library.tsx` et `settings-form.tsx` examinés : aucune fenêtre modale directe dans ces fichiers ; leurs formulaires de page ne sont pas transformés. Il reste à rechercher les modales indirectes dans les composants enfants et autres modules.
+- Pas de modification des règles métier, appels API, sauvegardes ou des contrats de modèle.
+- Aucun typecheck, build ni test navigateur lancé. À vérifier sur PC : top layer dialog, focus, masquage de l'arrière-plan, large contenu, validation, annulation, modes clair/sombre et palette.
