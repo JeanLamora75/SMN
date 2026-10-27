@@ -4,6 +4,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 import {MULTI_TEAM_CONTEXT_READY} from "@/lib/team-context-readiness";
 import TeamCycleCreateForm from "./team-cycle-create-form";
+import TeamCycleList from "./team-cycle-list";
 export const dynamic="force-dynamic";
 
 export default async function TeamCyclesPage({searchParams}:{
@@ -30,5 +31,6 @@ export default async function TeamCyclesPage({searchParams}:{
   <TeamCycleCreateForm teamId={context.teamId} mode={context.mode as "scrum"|"kanban"}
    cadenceRevision={context.revision}
    enabled={MULTI_TEAM_CONTEXT_READY&&process.env.SMN_MULTI_TEAM_WRITES_ENABLED==="true"}/>
+  <TeamCycleList teamId={context.teamId} mode={context.mode as "scrum"|"kanban"}/>
  </main>;
 }
