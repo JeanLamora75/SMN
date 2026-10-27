@@ -1,0 +1,59 @@
+/* Shared Cockpit Agile modal presentation. Uses active Bootstrap/SMN palette. */
+.smn-cockpit-modal {
+  --smn-modal-surface:var(--smn-surface,var(--bs-body-bg));
+  --smn-modal-text:var(--smn-foreground,var(--bs-body-color));
+  --smn-modal-border:var(--smn-border,var(--bs-border-color));
+  --smn-modal-accent:var(--smn-brand,var(--bs-primary));
+  color:var(--smn-modal-text);
+  background:var(--smn-modal-surface);
+  border:1px solid var(--smn-modal-border);
+  border-radius:1rem;
+  box-shadow:0 1rem 3rem color-mix(in srgb,var(--smn-modal-text) 18%,transparent);
+}
+.smn-cockpit-modal .smn-cockpit-modal-header {
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.9rem 1.15rem;
+  background:var(--smn-modal-accent);
+  color:var(--smn-brand-contrast,var(--bs-body-bg));
+  border-radius:calc(1rem - 1px) calc(1rem - 1px) 0 0;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header h2,
+.smn-cockpit-modal .smn-cockpit-modal-header .smn-cal-eyebrow {
+  color:inherit;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header .text-secondary {
+  color:inherit!important;opacity:.83;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header .btn-close {
+  --bs-btn-close-color:currentColor;filter:none;
+  background-color:var(--smn-modal-surface);border-radius:.4rem;padding:.45rem;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header .btn-outline-secondary {
+  color:inherit;border-color:currentColor;
+}
+.smn-cockpit-modal .smn-cockpit-modal-body {padding:1rem 1.15rem;min-width:0;overflow-y:auto;overscroll-behavior:contain;}
+.smn-cockpit-modal .smn-cockpit-modal-footer {
+  padding:.75rem 1.15rem;border-top:1px solid var(--smn-modal-border);
+  background:var(--smn-modal-surface);display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+}
+.smn-cockpit-modal .form-label {font-size:.84rem;font-weight:650;margin-bottom:.3rem;}
+.smn-cockpit-modal .form-control,.smn-cockpit-modal .form-select {
+  background-color:var(--smn-modal-surface);color:var(--smn-modal-text);
+  border-color:var(--smn-modal-border);min-width:0;max-width:100%;
+}
+.smn-cockpit-modal .form-control:focus,.smn-cockpit-modal .form-select:focus {
+  border-color:var(--smn-modal-accent);
+  box-shadow:0 0 0 .2rem color-mix(in srgb,var(--smn-modal-accent) 22%,transparent);
+}
+.smn-cockpit-modal .form-control[readonly] {
+  background:var(--smn-muted-soft,var(--bs-tertiary-bg));
+}
+.smn-cockpit-modal :is(.smn-registry-create-group,.smn-cal-detail-section) {
+  border-color:var(--smn-modal-border);
+}
+@media(max-width:575.98px) {
+ .smn-cockpit-modal {max-width:calc(100vw - 12px);border-radius:.8rem;}
+ .smn-cockpit-modal .smn-cockpit-modal-header {padding:.8rem .85rem;}
+ .smn-cockpit-modal .smn-cockpit-modal-body {padding:.85rem;}
+ .smn-cockpit-modal .smn-cockpit-modal-footer {padding:.75rem .85rem;}
+}
