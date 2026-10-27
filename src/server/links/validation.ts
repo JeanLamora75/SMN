@@ -18,7 +18,7 @@ export function normalizeLink(body:Record<string,unknown>):LinkWrite {
    (body.scope==="TRANSVERSE"&&body.teamId!=null)||
    (body.scope==="EQUIPE"&&!validId(body.teamId))||
    !["http:","https:"].includes(url.protocol)||!url.hostname||
-   url.username||url.password||/[\u0000-\u001f\u007f]/.test(value))
+   url.username||url.password||/[\\s\\u0000-\\u001f\\u007f\\\\]/u.test(value))
   throw new LinkError("invalid-input");
  return {title,url:value,description,categoryId:body.categoryId as string,
   scope:body.scope as LinkWrite["scope"],teamId:body.scope==="EQUIPE"?body.teamId as string:null};
