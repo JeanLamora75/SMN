@@ -23,6 +23,19 @@ export async function storeFinalPdfArchive(db:Client,bytes:Buffer,meta:Omit<PdfA
    let finalManifest=manifest;
    if(studioSource){
     const sourceRef=studioArchiveReference(studioSource);
+    // This row lock serializes the final archive commit with Studio writes.
+    // It prevents a revision change between the last pre-render read and
+    // insertion of the immutable PDF snapshot.
+    const current=await db.query<{id:string;revision:number;team_id:string;sprint_id:string}>(`
+      SELECT d.id,d.revision,d.team_id,d.sprint_id
+      FROM public.smn_report_document d
+      JOIN public.smn_sprint s ON s.id=d.sprint_id AND s.team_id=d.team_id
+      WHERE d.id=$1 AND d.sprint_id=$2 AND d.team_id=$3
+        AND s.deleted_at IS NULL
+      FOR UPDATE OF d`,[studioSource.id,studioSource.sprintId,studioSource.teamId]);
+    if(current.rows.length!==1||Number(current.rows[0].revision)!==studioSource.revision||
+      current.rows[0].team_id!==meta.teamId||current.rows[0].sprint_id!==meta.cycleId)
+      throw Error("studio-archive-revision-changed");
     // Serialize version assignment for this document for all concurrent archive requests.
     await db.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",[studioSource.id]);
     const last=await db.query<{version:number}>(`SELECT COALESCE(MAX(version),0) AS version FROM public.smn_report_studio_archive_snapshot WHERE document_id=$1`,[studioSource.id]);
