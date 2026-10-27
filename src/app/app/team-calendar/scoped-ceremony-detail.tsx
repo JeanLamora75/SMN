@@ -12,6 +12,7 @@ export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
  const [busy,setBusy]=useState(false);
  const [start,setStart]=useState("");
  const [end,setEnd]=useState("");
+ const [outcomes,setOutcomes]=useState<{id:string;type:string;title:string}[]>([]);
  const [attendance,setAttendance]=useState<"held"|"not_held"|"cancelled">("held");
  const [reason,setReason]=useState("");
  const [actualMinutes,setActualMinutes]=useState(0);
@@ -30,6 +31,15 @@ export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
    .catch(()=>{if(!controller.signal.aborted)setError(true);});
   return ()=>controller.abort();
  },[meeting.id,meeting.kind,teamId]);
+ useEffect(()=>{
+  const controller=new AbortController();
+  const query=new URLSearchParams({teamId,kind:meeting.kind,id:meeting.id});
+  void fetch("/api/admin/team-calendar/ceremonies/outcomes?"+query,{cache:"no-store",signal:controller.signal})
+   .then(async res=>{if(!res.ok)throw Error("outcomes");return res.json() as Promise<{outcomes:{id:string;type:string;title:string}[]}>;})
+   .then(data=>{if(!controller.signal.aborted)setOutcomes(data.outcomes);})
+   .catch(()=>{if(!controller.signal.aborted)setOutcomes([]);});
+  return ()=>controller.abort();
+ },[teamId,meeting.id,meeting.kind]);
  const editable=!!detail&&meeting.kind==="ceremony"&&detail.revision!==null&&
   detail.sprintStatus!=="closed"&&detail.status!=="cancelled";
  const save=async()=>{
@@ -87,6 +97,12 @@ export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
      <button type="button" className="btn btn-primary" onClick={()=>void saveAttendance()} disabled={busy||!Number.isSafeInteger(actualMinutes)||actualMinutes<0||actualMinutes>1440}>Enregistrer le suivi</button>
     </div>}
     {!editable&&<p>Consultation uniquement : modification indisponible pour cette occurrence.</p>}</>}
+   {detail&&<section aria-label="Comptes rendus liés" className="mt-3">
+    <h3 className="h6">Décisions, actions et faits marquants</h3>
+    {outcomes.length===0?<p>Aucun élément disponible.</p>:
+     <ul>{outcomes.map(item=><li key={item.id}>{item.title} ({item.type})</li>)}</ul>}
+    <p className="text-muted">Consultation uniquement.</p>
+   </section>}
    {saveError&&<p role="alert" className="alert alert-warning">{saveError}</p>}
    <button type="button" className="btn btn-outline-secondary" onClick={onClose}>Fermer</button>
   </section>
