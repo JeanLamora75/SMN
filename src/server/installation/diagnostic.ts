@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import {readFileSync} from "node:fs";
+import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../links/migration";
 import { INITIAL_MIGRATION, INITIAL_REQUIRED_RELATIONS, INSTALLATION_RELATIONS } from "./contract";
 import { INITIAL_SCHEMA_SQL } from "./migration";
 import { ACCOUNTS_MIGRATION, ACCOUNTS_MIGRATION_SQL } from "../accounts/migration";
@@ -285,9 +285,8 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
       return result("installation-incomplete");
   }
   if(isV29){
-    const sql=readFileSync(new URL("../../../prisma/migrations/20261027_smn306_links/migration.sql",import.meta.url),"utf8");
-    const migration=migrations.find(m=>m.migration_name==="20261027_smn306_links");
-    if(!migration||migration.checksum!==createHash("sha256").update(sql).digest("hex")||
+    const migration=migrations.find(m=>m.migration_name===LINKS_MIGRATION);
+    if(!migration||migration.checksum!==createHash("sha256").update(LINKS_MIGRATION_SQL).digest("hex")||
        !migration.finished_at||migration.rolled_back_at||!snapshot.linksSchemaValid||
        !["public.smn_link:r","public.smn_link_category:r","public.smn_link_audit:r"].every(n=>names.has(n)))
       return result("installation-incomplete");
