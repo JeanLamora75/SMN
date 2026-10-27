@@ -24,6 +24,7 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
  const generate=async (db:import("pg").Client)=>{
   const eligible=teamId?await readTeamStudioDocument(db,{accountId:actor.id,role:actor.role},teamId,id,documentId).then(doc=>doc?inspectStudioDocumentEligibility(doc):null):await inspectPdfEligibility(db,id,documentId);
   if(!eligible)return {error:"not-found"} as const;
+  if(teamId&&eligible.document.status!=="draft")return {error:"not-found"} as const;
   if(eligible.document.revision!==expected)return {error:"revision-changed"} as const;
   if(!eligible.exportable)return {error:"quality-blocked",issues:eligible.errors} as const;
   if(eligible.warnings.length>0&&req.headers.get("x-smn-ack-warnings")!=="true")
@@ -31,7 +32,7 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   const bytes=await renderStudioPdf(eligible.document);
   // Reject a render that became stale while Chromium was producing the PDF.
   const latest=teamId?await readTeamStudioDocument(db,{accountId:actor.id,role:actor.role},teamId,id,documentId):await getReportDocument(db,id,documentId);
-  if(!latest||latest.revision!==expected||latest.teamId!==eligible.document.teamId||latest.sprintId!==id||latest.id!==documentId)return {error:"revision-changed"} as const;
+  if(!latest||latest.revision!==expected||latest.teamId!==eligible.document.teamId||latest.sprintId!==id||latest.id!==documentId||(teamId&&latest.status!=="draft"))return {error:"revision-changed"} as const;
   if(!archive)return {bytes} as const;
   const doc=eligible.document;
   const inputReference=studioArchiveReference(doc);
