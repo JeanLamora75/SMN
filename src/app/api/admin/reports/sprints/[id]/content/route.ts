@@ -8,7 +8,8 @@ import {readReportContentOptions,saveReportContentOptions} from "@/server/report
 export const dynamic="force-dynamic";export const runtime="nodejs";
 const scope={type:"settings",exists:true,inScope:true} as const;
 export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){
- if(!await authorizeApi(req,"write",scope))return jsonResult({error:"forbidden"},403);
+ const reader=await authorizeApi(req,"write",scope);
+ if(!reader)return jsonResult({error:"forbidden"},403);
  const {id}=await params;if(!/^[a-f0-9-]{36}$/i.test(id))return jsonResult({error:"invalid-input"},400);
  const teamId=req.nextUrl.searchParams.get("teamId");
  if(teamId&&reader.role!=="admin")return jsonResult({error:"forbidden"},403);
