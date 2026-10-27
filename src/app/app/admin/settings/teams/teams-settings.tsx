@@ -91,7 +91,7 @@ export default function TeamsSettings(){
     const code=result.error;
     setError(t(code==="duplicate-name"?"teamSettings.duplicate":
      code==="conflict"?"teamSettings.conflict":
-     code==="mode-locked"?"teamSettings.conflict":
+     code==="mode-locked"?"teamSettings.modeConflict":
      code==="invalid-input"?"teamSettings.invalid":
      code==="forbidden"?"teamSettings.denied":
      code==="schema-not-ready"?"teamSettings.unavailable":
@@ -157,9 +157,10 @@ export default function TeamsSettings(){
        aria-required="true" disabled={!canWrite||saving||loading}
        onChange={event=>setField("name",event.target.value)}/>
      </div>
-     <fieldset disabled={!canWrite||saving||loading||current?.modeLocked===true}>
-      <legend className="form-label fs-6 fw-semibold">Mode Agile <span className="text-danger" aria-hidden="true">*</span></legend>
-      {current?.modeLocked?<p className="small text-secondary mb-2">Mode verrouillé : un cycle a déjà été créé pour cette équipe.</p>:null}
+     <fieldset aria-describedby="smn-agile-help" disabled={!canWrite||saving||loading||current?.modeLocked===true}>
+      <legend className="form-label fs-6 fw-semibold">{t("teamSettings.agileMode")} <span className="text-danger" aria-hidden="true">*</span></legend>
+      <p id="smn-agile-help" className="small text-secondary">{t("teamSettings.modeHelp")}</p>
+      {current?.modeLocked?<p className="small text-secondary mb-2">{t("teamSettings.modeLocked")}</p>:null}
       {(["scrum","kanban"] as const).map(mode=><div className="form-check" key={mode}>
        <input className="form-check-input" type="radio" id={"smn-mode-"+mode} name="agileMode"
         value={mode} checked={values.agileMode===mode} required={!current?.modeLocked}
