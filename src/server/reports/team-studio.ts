@@ -36,8 +36,9 @@ export async function readTeamStudioDocument(db:Client,actor:Actor,teamId:string
 export async function saveTeamStudioDocument(db:Client,actor:Actor,teamId:string,cycleId:string,documentId:string,input:unknown):Promise<Result>{
  if(!input||typeof input!=="object"||Array.isArray(input))return {ok:false,error:"invalid-input"};
  const value=input as Record<string,unknown>;
- if(Object.keys(value).sort().join(",")!=="content,sequence,sessionId"||
+ if(Object.keys(value).sort().join(",")!=="content,revision,sequence,sessionId"||
  typeof value.sessionId!=="string"||!uuid.test(value.sessionId)||
+ !Number.isSafeInteger(value.revision)||Number(value.revision)<1||
  !Number.isSafeInteger(value.sequence)||Number(value.sequence)<1||
  !value.content||typeof value.content!=="object"||Array.isArray(value.content)||
  JSON.stringify(value.content).length>500000)
@@ -47,6 +48,9 @@ export async function saveTeamStudioDocument(db:Client,actor:Actor,teamId:string
   const doc=await scopedDocument(db,actor,teamId,cycleId,documentId,true);
   if(!doc||doc.status!=="draft"){
    await db.query("ROLLBACK");return {ok:false,error:"not-found"};
+  }
+  if(doc.revision!==value.revision){
+   await db.query("ROLLBACK");return {ok:false,error:"stale"};
   }
   const prior=await db.query<{last_sequence:number}>(`
    SELECT last_sequence FROM public.smn_report_document_session_write
