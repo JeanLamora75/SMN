@@ -62,3 +62,36 @@ La migration est volontairement additive et **n'est pas encore raccordée au par
 6. Confirmer qu'aucun rapport publié n'est modifié.
 
 Le serveur existant limite actuellement les accès multiéquipes à `admin`. Il ne faut pas ouvrir des droits aux comptes `user` pour contourner ce verrou.
+
+## Blocage bloquant identifié avant migration (étape 4)
+
+Le diagnostic SMN en v28 interdit les objets non listés dans `INSTALLATION_RELATIONS`
+(`src/server/installation/contract.ts`) et impose le même nombre de
+migrations achevées que `schema_version`. Le probe PostgreSQL refuse toute
+table nouvelle non reconnue. **Appliquer le SQL SMN-306 seul provoquerait
+un diagnostic `schema-incompatible`**, empêchant le fonctionnement normal.
+
+Le SQL présent en PR est un **projet de migration, non applicable en l'état**.
+Il ne faut exécuter ni `prisma migrate deploy` ni directement ce SQL.
+
+Un précontrôle de lecture seule a été créé dans
+`scripts/check-links-migration.ts` :
+
+```powershell
+pnpm exec tsx scripts/check-links-migration.ts
+```
+
+Ce précontrôle ne réalise aucune mutation et affiche explicitement
+`migrationAllowed: false`. Il exige une base v28 saine et 28 migrations
+terminées, avec absence des trois tables Liens.
+
+Avant toute application réelle, il faut réaliser une migration versionnée
+v29 **cohérente de bout en bout** : liste blanche des tables, forme des colonnes,
+probe, checksum et diagnostic, script de migration transactionnel, puis
+adapter explicitement les composants dépendant aujourd'hui de v28
+(`src/server/teams/resolve.ts`, etc.). Il faut éviter de modifier
+les politiques SMN-282 sans évaluation transversale et tests.
+
+La prochaine étape technique doit traiter cette évolution du contrat global
+et les collisions éventuelles de version avec d'autres branches en cours.
+Aucun test PostgreSQL ni exécution sur Windows n'a été effectué.
