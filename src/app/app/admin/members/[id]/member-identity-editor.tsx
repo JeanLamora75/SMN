@@ -1,11 +1,12 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
+import {useEffect as useDirtyEffect} from "react";
 import {utcOffsetLabel} from "@/lib/iana-utc-offset";
 type Member={id:string;displayName:string;email:string|null;professionalFunction?:string|null;revision:number};
 type Location={revision:number;countryIso2:string|null;region:string|null;city:string|null;timeZone:string|null};
 type LocationState={today:string;current:Location|null;versions:{revision:number;effective_from:string;country_iso2:string|null;region:string|null;city:string|null;time_zone:string|null}[];suggestedCountryIso2:string|null};
-export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:Member;onSaved:()=>void;onCancel:()=>void}){
+export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyChange}:{member:Member;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean)=>void}){
  const t=useTranslation();
  const [name,setName]=useState(member.displayName);
  const [email,setEmail]=useState(member.email??"");
@@ -20,6 +21,8 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
  const [zone,setZone]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
+ const dirty=name!==member.displayName||email!==(member.email??"")||profession!==(member.professionalFunction??"");
+ useDirtyEffect(()=>{onDirtyChange?.(dirty);},[dirty,onDirtyChange]);
 
  useEffect(()=>{const controller=new AbortController();void fetch("/api/admin/countries",{cache:"no-store",signal:controller.signal})
   .then(async r=>{if(!r.ok)throw Error("countries");return r.json() as Promise<{countries:{code:string;name:string}[]}>;})
