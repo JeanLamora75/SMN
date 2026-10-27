@@ -30,10 +30,10 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const [days,setDays]=useState<DailyAvailability[]>([]);
  useEffect(()=>{
   const range=monthRange(month);
-  if(!range){setDays([]);setStatus("error");return;}
+  if(!range){void Promise.resolve().then(()=>{setDays([]);setStatus("error");});return;}
   const controller=new AbortController();
   const params=new URLSearchParams({teamId,...range});
-  setDays([]);setStatus("loading");
+  void Promise.resolve().then(()=>{if(!controller.signal.aborted){setDays([]);setStatus("loading");}});
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+
    "/team-availability?"+params.toString(),{
     cache:"no-store",signal:controller.signal
