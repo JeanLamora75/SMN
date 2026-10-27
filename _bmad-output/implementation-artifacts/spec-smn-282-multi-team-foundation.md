@@ -519,3 +519,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - `team-studio.ts` compare numériquement `last_sequence` avec la séquence soumise, comme le service documentaire historique, pour préserver le rejet déterministe des écritures obsolètes.
 - Recette à exécuter : édition v27 sans 400, édition v28 avec révision courante acceptée, révision obsolète rejetée en 409 et absence d'écrasement intersessions.
 - **Publication de code uniquement :** aucun test, lint, build ou migration effectués ; aucun merge. Blocage PDF Sprint standard v28 maintenu.
+
+
+## Revue ciblée des accès directs et de l'identité PDF — 27/10/2026
+
+- Routes examinées : liste et création de documents Sprint, accès direct GET/PATCH d'un document, rendu/archivage PDF Studio, téléchargement d'archive et page de détail du Studio.
+- Le rendu PDF Studio recontrôle désormais, après la génération des octets, non seulement la révision du document mais aussi son identité `id`, son `sprintId` et son `teamId`. Si l'identité ou la révision a changé, le rendu est rejeté avant l'archivage.
+- **Limite de concurrence restant à contrôler :** cette relecture n'est pas un verrou transactionnel couvrant tout le rendu et l'insertion finale en archive ; un changement extrêmement rapproché entre la relecture et le commit de l'archive nécessite une qualification supplémentaire. Ne pas considérer l'intégrité atomique PDF comme démontrée.
+- PDF Sprint standard v28 toujours bloqué : implémentation réelle de la prévisualisation interne à identifier. Tests locaux et recette 6C non exécutés. Aucune migration ni fusion.
