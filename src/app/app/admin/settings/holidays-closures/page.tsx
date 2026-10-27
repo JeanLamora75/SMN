@@ -15,7 +15,6 @@ export default async function HolidaysClosuresSettingsPage(){
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"read",{type:"settings",exists:true,inScope:true}))redirect("/app");
  const locale=await requestLocale();
- const fr=locale==="fr";
  return <main className="smn-page container-fluid py-4 px-3 px-lg-4">
   <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">← {translate(locale,"navigation.entries.settings")}</Link>
   <header className="mb-3"><h1 className="h3">{translate(locale,"settingsCatalog.items.holidaysClosures.title")}</h1>
