@@ -14,6 +14,8 @@ async function scopedDocument(db:Client,actor:Actor,teamId:string,cycleId:string
  if(!uuid.test(cycleId)||!uuid.test(documentId))return null;
  const team=await resolveAdminTeam(db,actor,teamId);
  if(team.mode!=="scrum")return null;
+ const present=await db.query<{exists:boolean}>(`SELECT to_regclass('public.smn_report_document') IS NOT NULL AS exists`);
+ if(!present.rows[0]?.exists)return null;
  const result=await db.query<ReportDocument>(`SELECT d.id,d.sprint_id AS "sprintId",d.team_id AS "teamId",
  d.title,d.language,d.status,d.template_id AS "templateId",
  d.template_version AS "templateVersion",d.content,d.revision,
@@ -84,6 +86,8 @@ export async function listTeamStudioDocuments(db:Client,actor:Actor,teamId:strin
  WHERE s.id=$1 AND s.team_id=$2 AND t.installation_id='singleton'
  AND s.deleted_at IS NULL`,[cycleId,team.team_id]);
  if(cycle.rows.length!==1)return null;
+ const present=await db.query<{exists:boolean}>(`SELECT to_regclass('public.smn_report_document') IS NOT NULL AS exists`);
+ if(!present.rows[0]?.exists)return [] as ReportDocument[];
  return (await db.query<ReportDocument>(`SELECT d.id,d.sprint_id AS "sprintId",
  d.team_id AS "teamId",d.title,d.language,d.status,
  d.template_id AS "templateId",d.template_version AS "templateVersion",
