@@ -3629,6 +3629,7 @@
     "confirmDelete": "Confirmer la suppression",
     "deleteWarning": "Le lien sera supprimé. Cette action est irréversible.",
     "invalidFields": "Vérifiez les champs : titre, URL HTTP(S), catégorie et visibilité.",
-    "forbidden": "Vous n’êtes pas autorisé à modifier ce lien."
+    "forbidden": "Vous n’êtes pas autorisé à modifier ce lien.",
+    "notFound": "Ce lien n’existe plus ou n’est plus accessible. Actualisez la liste."
   }
 }
