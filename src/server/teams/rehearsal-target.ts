@@ -9,7 +9,7 @@ export function rehearsalMigrationUri(options:readonly string[], targetRaw:strin
     !target.pathname.slice(1)||!target.username)
   throw Error("rehearsal-target-invalid");
  // Refus même si les identifiants diffèrent : même serveur/port pourrait toucher le cluster principal.
- const endpoint=(u:URL)=>u.hostname.toLowerCase()+":"+(u.port||"5432");
+ const endpoint=(u:URL)=>{const h=u.hostname.toLowerCase();return (["localhost","127.0.0.1","[::1]","::1"].includes(h)?"loopback":h)+":"+(u.port||"5432");};
  if(endpoint(target)===endpoint(installed))throw Error("rehearsal-target-not-isolated");
  if(!["127.0.0.1","localhost","::1","[::1]"].includes(target.hostname.toLowerCase()))
   throw Error("rehearsal-target-must-be-loopback");
