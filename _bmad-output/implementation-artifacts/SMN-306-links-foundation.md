@@ -95,3 +95,29 @@ les politiques SMN-282 sans évaluation transversale et tests.
 La prochaine étape technique doit traiter cette évolution du contrat global
 et les collisions éventuelles de version avec d'autres branches en cours.
 Aucun test PostgreSQL ni exécution sur Windows n'a été effectué.
+
+## Étape 5 — Contrat diagnostic v29 et migration manuelle
+- `src/server/installation/contract.ts` : liste blanche des trois relations Liens.
+- `src/server/db/probe.ts` : lecture de la 29e migration et validation structurelle des colonnes des trois nouvelles tables.
+- `src/server/installation/diagnostic.ts` : reconnaissance de v29, vérification du checksum du SQL versionné et des tables obligatoires.
+- `src/server/teams/resolve.ts` : résolution des administrateurs compatible avec v28 et v29.
+- `prisma/migrations/20261027_smn306_links/migration.sql` : passage de 28 à 29 au sein de la transaction d'application.
+- `scripts/apply-links-migration.ts` : procédure manuelle protégée par un chemin de sauvegarde explicite, version v28 saine, verrou transactionnel, journal Prisma et diagnostic final.
+
+La présence d'un chemin `--backup-file` non vide **ne prouve pas que cette sauvegarde est restaurable** : contrôle manuel indispensable avant toute commande.
+
+**Ne pas appliquer cette migration sur le PC Windows avant revue de compatibilité des autres branches SMN-282 et tests.** Une migration concurrente peut réclamer le numéro 29 ; ce point devra être résolu avant merge. Vérifier également les autres composants qui verrouillent explicitement la version 28.
+
+Commandes prévues après revue et sauvegarde (non exécutées ici) :
+
+```powershell
+pnpm exec tsx scripts/check-links-migration.ts
+pnpm exec tsx scripts/apply-links-migration.ts --apply --backup-file=C:\\chemin\\sauvegarde.sql
+pnpm db:diagnose
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+```
+
+**Statut :** code publié, aucun test ni SQL exécuté. PR à conserver en brouillon.
