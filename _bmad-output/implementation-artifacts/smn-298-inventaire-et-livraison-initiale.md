@@ -62,3 +62,10 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Audit ciblé de `assignment-editor.tsx` : plusieurs chaînes françaises codées en dur demeurent dans la correction d'affectation historique ; elles nécessitent une étape de traduction spécifique.
 - Ne pas déduire de cet audit partiel une conformité FR/EN de toutes les fenêtres.
 - Aucun contrôle `pnpm i18n:check`, lint, TypeScript ou navigateur exécuté. Recette sur PC utilisateur.
+
+## Étape suivante — correction historique d'affectation FR/EN
+- `assignment-editor.tsx` : titre, aide, champ de date, bouton et confirmation de correction historique remplacés par des clés i18n FR/EN. La date actuelle et la date proposée restent interpolées dans la confirmation.
+- `src/i18n/fr.json` et `src/i18n/en.json` : ajout de six clés `members.assignment.historical*` avec les mêmes paramètres.
+- Les conditions d'accès, validations, contrats de sauvegarde, API et avertissements de capacité historique sont inchangés.
+- Le chemin d'erreur serveur peut encore exposer un code technique via `body.error` : à traiter lors du balayage des erreurs localisées.
+- Vérification textuelle statique des substitutions uniquement. `pnpm i18n:check`, lint, typecheck, tests et build non exécutés ; recette sur le PC utilisateur.
