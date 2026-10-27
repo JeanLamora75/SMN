@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {inspectPdfEligibility} from "@/server/reports/studio-export";
 import {renderStudioPdf} from "@/server/reports/studio-pdf-render";
 import {storeFinalPdfArchive} from "@/server/reports/pdf-archive-store";
@@ -17,7 +17,7 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
  if(!Number.isSafeInteger(expected)||expected<1)return jsonResult({error:"expected-revision-required"},400);
  if(!/^[a-f0-9-]{36}$/i.test(id)||!/^[a-f0-9-]{36}$/i.test(documentId))return jsonResult({error:"invalid-input"},400);
  try{
- const result=await withAuthDb(async db=>{
+ const result=await withLegacyTeamApi(async db=>{
   const eligible=await inspectPdfEligibility(db,id,documentId);
   if(!eligible)return {error:"not-found"} as const;
   if(eligible.document.revision!==expected)return {error:"revision-changed"} as const;
