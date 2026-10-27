@@ -19,3 +19,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Les libellés i18n des autres modales et leur migration complète restent à faire.
 - À vérifier sur le PC : contraste réel en clair/sombre et palettes supplémentaires, rendu sans débordement, focus, scroll, sous-formulaires à enregistrement indépendant, non-régression de l'annulation.
 - La Story n'est pas terminée ; il ne s'agit pas d'un inventaire exhaustif.
+
+## Extension de l'étape suivante — 27/10/2026
+- `src/app/app/admin/members/team-context-editor.tsx` : enveloppe et en-tête Cockpit Agile adoptés ; champs, transactions et protection des modifications inchangés.
+- `src/app/app/admin/sprints/[sprintId]/sprint-detail-editor.tsx` : enveloppe et en-tête Cockpit Agile adoptés ; prévisualisation/replanification et protections inchangées.
+- Vérification statique des deux extraits JSX publiés via relecture GitHub, sans exécution de compilateur.
+- Restent : réorganisation des pieds d'action lorsque nécessaire, inventaire exhaustif, autres modales, contrôle des traductions et tests locaux.
