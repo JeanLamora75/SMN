@@ -1,4 +1,8 @@
 import type {Client} from "pg";
+import {randomUUID} from "node:crypto";
+import {listReportTemplates} from "./templates";
+import {prepareSprintReport} from "./sprint-preparation";
+import {emptyNotes} from "./draft-notes";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 import {preserveAuthoritativeMetrics,type ReportDocument} from "./report-documents";
 
@@ -67,5 +71,82 @@ export async function saveTeamStudioDocument(db:Client,actor:Actor,teamId:string
  }catch(e){
   await db.query("ROLLBACK").catch(()=>undefined);
   throw e;
+ }
+}
+
+/** Listing et création de brouillons uniquement dans le Sprint de l'équipe active. */
+export async function listTeamStudioDocuments(db:Client,actor:Actor,teamId:string,cycleId:string){
+ if(!uuid.test(cycleId))return null;
+ const team=await resolveAdminTeam(db,actor,teamId);
+ if(team.mode!=="scrum")return null;
+ const cycle=await db.query<{id:string}>(`SELECT s.id FROM public.smn_sprint s
+ JOIN public.smn_team t ON t.id=s.team_id
+ WHERE s.id=$1 AND s.team_id=$2 AND t.installation_id='singleton'
+ AND s.deleted_at IS NULL`,[cycleId,team.team_id]);
+ if(cycle.rows.length!==1)return null;
+ return (await db.query<ReportDocument>(`SELECT d.id,d.sprint_id AS "sprintId",
+ d.team_id AS "teamId",d.title,d.language,d.status,
+ d.template_id AS "templateId",d.template_version AS "templateVersion",
+ d.content,d.revision,d.updated_at::text AS "updatedAt"
+ FROM public.smn_report_document d
+ WHERE d.sprint_id=$1 AND d.team_id=$2 ORDER BY d.updated_at DESC,d.id`,
+ [cycleId,team.team_id])).rows;
+}
+
+export async function createTeamStudioDocument(db:Client,actor:Actor,teamId:string,cycleId:string,input:unknown){
+ if(!uuid.test(cycleId)||!input||typeof input!=="object"||Array.isArray(input))
+  return {ok:false as const,error:"invalid-input"};
+ const v=input as Record<string,unknown>;
+ if(Object.keys(v).filter(k=>k!=="requestId").sort().join(",")!=="language,templateId,title"||
+ typeof v.title!=="string"||!v.title.trim()||v.title.trim().length>120||
+ (v.language!=="fr"&&v.language!=="en")||
+ typeof v.templateId!=="string"||!v.templateId||
+ (v.requestId!==undefined&&(typeof v.requestId!=="string"||!uuid.test(v.requestId))))
+  return {ok:false as const,error:"invalid-input"};
+ await db.query("BEGIN");
+ try{
+  const team=await resolveAdminTeam(db,actor,teamId);
+  if(team.mode!=="scrum"){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  const sprint=await db.query<{team_id:string}>(`SELECT s.team_id FROM public.smn_sprint s
+   JOIN public.smn_team t ON t.id=s.team_id
+   WHERE s.id=$1 AND s.team_id=$2 AND t.installation_id='singleton'
+   AND s.deleted_at IS NULL FOR UPDATE OF s`,[cycleId,team.team_id]);
+  if(sprint.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  const old=v.requestId?await db.query<{id:string;sprint_id:string;team_id:string}>(`
+   SELECT id,sprint_id,team_id FROM public.smn_report_document
+   WHERE creation_request_id=$1 FOR UPDATE`,[v.requestId]):null;
+  if(old?.rows.length){
+   const existing=old.rows[0];
+   await db.query("ROLLBACK");
+   return existing.sprint_id===cycleId&&existing.team_id===team.team_id?
+    {ok:true as const,id:existing.id,revision:1,reused:true}:
+    {ok:false as const,error:"conflict"};
+  }
+  const templates=await listReportTemplates(db);
+  const template=templates.find(t=>t.id===v.templateId);
+  if(!template){await db.query("ROLLBACK");return {ok:false as const,error:"template-not-found"};}
+  const prepared=await prepareSprintReport(db,cycleId);
+  if(!prepared){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  const id=randomUUID();
+  const initial={
+   sections:structuredClone(template.sections),options:structuredClone(template.content),
+   notes:emptyNotes(),blocks:[],
+   dataSource:{source:prepared.source,snapshotVersion:prepared.snapshotVersion},
+   metrics:{committedSp:prepared.projection.scrum.storyPoints.committed,
+    completedSp:prepared.projection.scrum.storyPoints.completed,
+    plannedJh:prepared.projection.scrum.capacity.planned,
+    actualJh:prepared.projection.scrum.capacity.actual},
+   templateSnapshot:{id:template.id,revision:template.revision,
+    sections:structuredClone(template.sections),content:structuredClone(template.content)}
+  };
+  await db.query(`INSERT INTO public.smn_report_document
+   (id,sprint_id,team_id,title,language,template_id,template_version,
+    content,created_by,updated_by,creation_request_id)
+   VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$9,$10)`,
+   [id,cycleId,team.team_id,v.title.trim(),v.language,template.id,template.revision,
+    JSON.stringify(initial),actor.accountId,v.requestId??null]);
+  await db.query("COMMIT");return {ok:true as const,id,revision:1};
+ }catch(error){
+  await db.query("ROLLBACK").catch(()=>undefined);throw error;
  }
 }
