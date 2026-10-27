@@ -23,7 +23,9 @@ export async function readSprintContext(db:Client,teamId:string,now=Date.now()):
    FROM public.smn_sprint s
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
-   WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+   WHERE i.id='singleton' AND i.state='initialized'
+    AND ((i.schema_version<=28 AND lower(i.mode)='scrum')
+      OR (i.schema_version=29 AND t.agile_mode='scrum' AND t.is_archived=false))
     AND s.team_id=$1 AND s.deleted_at IS NULL
    ORDER BY s.start_at DESC,s.id DESC`,[teamId]);
  const items:SprintContextItem[]=rows.rows.map(item=>({
