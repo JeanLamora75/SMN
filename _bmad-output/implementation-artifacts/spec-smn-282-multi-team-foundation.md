@@ -544,3 +544,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - Les vérifications serveur restent obligatoires ; cette restriction d'interface ne constitue pas à elle seule une autorisation.
 - Scénario 6C complémentaire : vérifier qu'une URL directe vers un document non-brouillon ne rend pas les actions d'édition disponibles.
 - Revue statique uniquement ; aucun test, build, migration ni fusion. Le rendu PDF Sprint standard v28 demeure bloqué.
+
+
+## Revue serveur des états Studio — 27/10/2026
+
+- `src/app/api/admin/reports/sprints/[id]/documents/[documentId]/pdf/route.ts` : pour les requêtes multiéquipes, le serveur vérifie que le document est à l'état `draft` avant le rendu ; l'état est revérifié après le rendu en même temps que la révision, l'identité du document, du Sprint et de l'équipe. Une URL directe ne permet donc pas de contourner la restriction d'interface pour exporter un document hors brouillon.
+- La route historique sans `teamId` conserve son comportement v27.
+- Scénario 6C complémentaire : appel direct POST/PUT PDF sur un document hors brouillon v28 -> refus ; document passé hors brouillon pendant le rendu -> rejet avant archivage.
+- **Aucune exécution de tests, de build, de migration ni de fusion.** Blocage distinct du PDF Sprint standard v28 conservé.
