@@ -57,3 +57,18 @@
  .smn-cockpit-modal .smn-cockpit-modal-body {padding:.85rem;}
  .smn-cockpit-modal .smn-cockpit-modal-footer {padding:.75rem .85rem;}
 }
+
+/* Consistent order even when older editors render their primary action first. */
+.smn-cockpit-modal .smn-cockpit-form-actions {
+ display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:.6rem;
+ padding-top:.75rem;margin-top:.35rem;border-top:1px solid var(--smn-modal-border);
+}
+.smn-cockpit-modal .smn-cockpit-form-actions > .btn-outline-secondary {
+ order:-1;margin-inline-end:auto;
+}
+.smn-cockpit-modal .smn-cockpit-form-actions > .btn-primary {
+ order:1;
+}
+@media(max-width:575.98px) {
+ .smn-cockpit-modal .smn-cockpit-form-actions > .btn {flex:1 1 auto;}
+}
