@@ -93,3 +93,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Correction CSS ciblée dans `modal-cockpit.css` : les pieds des dialogues de création et de section Registre conservent leurs actions groupées à droite, sans changer les boutons, leur ordre ni leur callback.
 - Restent à vérifier au navigateur : conflits spécifiques du calendrier, contraste en-têtes selon palettes, focus Échap/Tab, scroll et contenu long sur mobile.
 - Contrôle réalisé par lecture statique du dépôt ; aucune validation navigateur ni compilation effectuée.
+
+## Étape CSS Calendrier — 27/10/2026
+- Conflit confirmé par lecture statique : `globals.css` appliquait `padding:16px!important` aux modales de réunion sur mobile, incompatible avec le bandeau pleine largeur du Cockpit. Règle ciblée ajoutée dans `modal-cockpit.css` pour réinitialiser le padding uniquement sur les modales Calendrier raccordées au nouveau style.
+- Ajustement de la visibilité du focus clavier du bouton fermer avec bordure/anneau basés sur les couleurs du thème.
+- Aucune modification de la logique de réunion, de la validation, des API ou de la gestion de focus JS.
+- Restent : essai des palettes (contraste réel non mesuré), mobile 320–450px, champs longs et sauvegarde ; tests uniquement sur PC utilisateur.
