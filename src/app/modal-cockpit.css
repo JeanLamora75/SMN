@@ -86,3 +86,30 @@
 @media(max-width:575.98px) {
  .smn-cal-detail-modal.smn-cockpit-modal {max-height:calc(100dvh - 1rem);}
 }
+
+/* Native registry dialogs preserve their browser top-layer behavior. */
+dialog.smn-registry-create-dialog.smn-cockpit-modal,
+dialog.smn-registry-section-dialog.smn-cockpit-modal {
+ max-height:calc(100dvh - 2rem);
+ overflow:hidden;
+}
+.smn-registry-create-dialog.smn-cockpit-modal .smn-registry-create-form,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-registry-section-dialog-layout {
+ display:flex;flex-direction:column;min-height:0;max-height:inherit;
+}
+.smn-registry-create-dialog.smn-cockpit-modal .smn-cockpit-modal-body,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-cockpit-modal-body {
+ flex:1 1 auto;min-height:0;overflow-y:auto;
+}
+.smn-registry-create-dialog.smn-cockpit-modal .smn-cockpit-modal-header,
+.smn-registry-create-dialog.smn-cockpit-modal .smn-cockpit-modal-footer,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-cockpit-modal-header,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-cockpit-modal-footer {
+ flex-shrink:0;
+}
+@media(max-width:575.98px) {
+ dialog.smn-registry-create-dialog.smn-cockpit-modal,
+ dialog.smn-registry-section-dialog.smn-cockpit-modal {
+  max-height:calc(100dvh - 1rem);
+ }
+}
