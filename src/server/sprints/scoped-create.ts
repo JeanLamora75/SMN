@@ -82,7 +82,7 @@ export async function createScopedSprint(db:Client,actor:TeamActor,raw:unknown){
     cadenceRevision:settings.revision})]);
   const ceremonies=await saveGeneratedCeremonies(db,{
    id,startAt:dates.startAt,endAt:dates.endAt,timeZone:dates.timeZone
-  },settings.duration_weeks);
+  },settings.duration_weeks,{expectedTeamId:team.team_id});
   await db.query("COMMIT");
   return {ok:true as const,sprint:{id,number,name,...dates,teamId:team.team_id},ceremonies};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
