@@ -6,48 +6,48 @@ export type SettingsSection="application"|"agile"|"calendar"|"administration";
 export type SettingsEntry=Readonly<{id:string;label:TranslationKey;description:TranslationKey;icon:string;
  href:string|null;status:SettingsAvailability;section:SettingsSection}>;
 export type SettingsGroup=Readonly<{id:SettingsSection;label:TranslationKey;entries:SettingsEntry[]}>;
-type RecordEntry={id:string;icon:string;resource:"settings"|"accounts"|"backups"|"audit";
- mode?:"scrum"|"kanban";href?:string;status?:SettingsAvailability};
+type Resource="settings"|"accounts"|"backups"|"audit";
+type RecordEntry={id:string;icon:string;resources:readonly Resource[];
+ href?:string;status?:SettingsAvailability;mode?:"scrum"|"kanban"};
 const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:readonly RecordEntry[]}>= [
  {id:"application",label:"settingsCatalog.groups.application",entries:[
-  {id:"general",icon:"⚙",resource:"settings",href:"/app/admin/settings/general"},
-  {id:"languages",icon:"文",resource:"settings",href:"/app/admin/settings/general#settings-language"},
-  {id:"appearance",icon:"◐",resource:"settings",href:"/app/admin/settings/general#settings-appearance"}
+  {id:"preferences",icon:"⚙",resources:["settings"],href:"/app/admin/settings/general"}
  ]},
  {id:"agile",label:"settingsCatalog.groups.agile",entries:[
-  {id:"teams",icon:"♧",resource:"settings",href:"/app/admin/settings/teams",status:"partial"},
-  {id:"cadence",icon:"◷",resource:"settings",href:"/app/admin/scrum-cadence",mode:"scrum"},
-  {id:"kanbanCadence",icon:"◷",resource:"settings",href:"/app/admin/kanban-cadence",mode:"kanban"},
-  {id:"ceremonies",icon:"◫",resource:"settings",href:"/app/admin/settings/ceremonies",status:"partial",mode:"scrum"},
-  {id:"capacity",icon:"▤",resource:"settings",status:"partial"},
-  {id:"registries",icon:"▥",resource:"settings",href:"/app/admin/settings/registries"}
+  {id:"teams",icon:"♧",resources:["settings"],href:"/app/admin/settings/teams",status:"partial"},
+  {id:"cadence",icon:"◷",resources:["settings"],href:"/app/admin/scrum-cadence"},
+  {id:"ceremonies",icon:"◫",resources:["settings"],href:"/app/admin/settings/ceremonies",status:"partial",mode:"scrum"},
+  {id:"capacity",icon:"▤",resources:["settings"],status:"planned"},
+  {id:"registries",icon:"▥",resources:["settings"],href:"/app/admin/settings/registries"}
  ]},
  {id:"calendar",label:"settingsCatalog.groups.calendar",entries:[
-  {id:"workingDays",icon:"▦",resource:"settings",href:"/app/admin/settings/working-days",status:"partial",mode:"scrum"},
-  {id:"countries",icon:"◎",resource:"settings",href:"/app/admin/countries"},
-  {id:"closures",icon:"▣",resource:"settings",href:"/app/admin/company-closures"},
-  {id:"absences",icon:"◈",resource:"settings",href:"/app/admin/absence-categories"}
+  {id:"workingDays",icon:"▦",resources:["settings"],href:"/app/admin/settings/working-days",status:"partial",mode:"scrum"},
+  {id:"holidaysClosures",icon:"◎",resources:["settings"],href:"/app/admin/settings/holidays-closures"},
+  {id:"absences",icon:"◈",resources:["settings"],href:"/app/admin/absence-categories"}
  ]},
  {id:"administration",label:"settingsCatalog.groups.administration",entries:[
-  {id:"users",icon:"♙",resource:"accounts",href:"/app/admin/users"},
-  {id:"security",icon:"♧",resource:"settings",href:"/app/security",status:"partial"},
-  {id:"backups",icon:"▣",resource:"backups",href:"/app/admin/backups"},
-  {id:"audit",icon:"▤",resource:"audit",href:"/app/admin/audit"}
+  {id:"users",icon:"♙",resources:["accounts"],href:"/app/admin/users"},
+  {id:"security",icon:"♧",resources:["settings"],href:"/app/security",status:"partial"},
+  {id:"maintenance",icon:"▣",resources:["backups","audit"],href:"/app/admin/settings/maintenance"}
  ]}
 ];
 
-/** Read-only ordered catalogue. Never grants access to a destination. */
 export function settingsCatalog(mode:"scrum"|"kanban"|null,actor:AccessActor):SettingsGroup[]{
  return catalog.map(group=>({
   id:group.id,label:group.label,
-  entries:group.entries.filter(e=>canAccess(actor,"read",{type:e.resource,exists:true,inScope:true}))
+  entries:group.entries.filter(e=>e.resources.some(resource=>
+   canAccess(actor,"read",{type:resource,exists:true,inScope:true})))
    .map(e=>{
     const applicable=!e.mode||e.mode===mode;
     const status:SettingsAvailability=applicable?(e.status??"available"):"not-applicable";
+    const href=e.id==="cadence"
+      ?mode==="scrum"?"/app/admin/scrum-cadence":mode==="kanban"?"/app/admin/kanban-cadence":null
+      :e.href??null;
     return {id:e.id,section:group.id,icon:e.icon,
      label:("settingsCatalog.items."+e.id+".title") as TranslationKey,
      description:("settingsCatalog.items."+e.id+".description") as TranslationKey,
-     status,href:applicable?e.href??null:null};
+     status:!applicable?"not-applicable":e.id==="cadence"&&!href?"planned":status,
+     href:applicable?href:null};
    })
  }));
 }
