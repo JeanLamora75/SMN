@@ -24,3 +24,14 @@ export function normalizeLink(body:Record<string,unknown>):LinkWrite {
   scope:body.scope as LinkWrite["scope"],teamId:body.scope==="EQUIPE"?body.teamId as string:null};
 }
 
+
+export function mapLinkError(error:unknown):{error:string;status:number}{
+ if(error instanceof LinkError)return {error:error.kind,status:({
+ "invalid-input":400,forbidden:403,"not-found":404,conflict:409,"not-ready":503
+ })[error.kind]};
+ if(error instanceof Error&&["team-access-forbidden","team-context-unavailable","team-id-invalid",
+ "team-context-not-ready"].includes(error.message))return {error:"not-found",status:404};
+ if((error as {code?:unknown})?.code==="23503")return {error:"invalid-input",status:400};
+ if((error as {code?:unknown})?.code==="23505")return {error:"conflict",status:409};
+ return {error:"service-unavailable",status:503};
+}
