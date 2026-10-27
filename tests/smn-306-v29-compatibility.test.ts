@@ -28,3 +28,9 @@ test("migration is explicit, refuses implicit execution",()=>{
  assert.match(apply,/ROLLBACK/);
  assert.match(apply,/schema_version!==28/);
 });
+
+test("v29 still probes multi-team integrity instead of silently skipping it",()=>{
+ const probe=read("src/server/db/probe.ts");
+ assert.match(probe,/if\(\(installations\.rows\[0\]\?\.schema_version\?\?0\)>=28\)/);
+ assert.match(probe,/multiTeamSchemaValid=!!row\?\.product_nullable/);
+});
