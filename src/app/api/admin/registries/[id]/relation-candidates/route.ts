@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {withLegacyRegistryReadDb} from "@/server/registries/legacy-read";
 import {jsonResult} from "@/server/auth/request";
 import {parseRelationSearch,readRelationCandidates} from "@/server/registries/relation-candidates";
 
@@ -13,7 +13,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  if(!filter)return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const data=await withSprintIndexDb(db=>readRelationCandidates(db,id,filter));
+  const data=await withLegacyRegistryReadDb(db=>readRelationCandidates(db,id,filter));
   if(!data)return jsonResult({error:"not-found"},404);
   if(data.state==="unavailable")return jsonResult({error:"service-unavailable"},503);
   return jsonResult(data,200);
