@@ -34,7 +34,7 @@ export default function MemberDetail({id}:{id:string}){
  const [error,setError]=useState("");
  const [location,setLocation]=useState<{current:{city:string|null;region:string|null;countryIso2:string|null}|null}|null>(null);
  const dialogRef=useRef<HTMLDivElement>(null);
- const [profileDirty,setProfileDirty]=useState(false);
+ const [modalDirty,setProfileDirty]=useState(false);
  const refresh=useCallback(async()=>{
   const r=await fetch("/api/admin/members",{cache:"no-store"});
   if(!r.ok)throw Error("read-unavailable");
@@ -66,7 +66,7 @@ export default function MemberDetail({id}:{id:string}){
   void fetch("/api/admin/members/"+encodeURIComponent(id)+"/location",{cache:"no-store"})
    .then(async r=>r.ok?r.json():null).then(v=>{if(v)setLocation(v);}).catch(()=>undefined);};
  const closeDialog=()=>{
-  if((section!=="profile"||profileDirty)&&!window.confirm(t("draft.discardWarning")))return;
+  if((section==="lifecycle"||modalDirty)&&!window.confirm(t("draft.discardWarning")))return;
   setSection(null);
  };
  const button=(target:Exclude<Section,null>,label:string)=>
@@ -143,12 +143,12 @@ export default function MemberDetail({id}:{id:string}){
       <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={closeDialog}/>
      </div>
      <div className="smn-cockpit-modal-body">
-      {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog} onDirtyChange={setProfileDirty}/>}
-      {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} memberRevision={member.revision} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
-      {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onSaved={saved} onCancel={()=>setSection(null)}/>}
-      {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog} onDirtyChange={setModalDirty}/>}
+      {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} memberRevision={member.revision} teamId={roster.team.id} teamName={roster.team.name} onDirtyChange={setModalDirty} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onDirtyChange={setModalDirty} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onDirtyChange={setModalDirty} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="absence"&&<MemberAbsenceEditor key={member.id+"-absence-"+(absenceToEdit?.id??"new")} memberId={member.id}
-       record={absenceToEdit} onSaved={saved} onCancel={()=>setSection(null)}/>}
+       record={absenceToEdit} onDirtyChange={setModalDirty} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
      </div>
     </div>
