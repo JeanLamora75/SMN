@@ -94,7 +94,6 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({assignmentId:state.assignmentId,newStartOn:historicalStart,revision:memberRevision})
    });
-   const body=await r.json() as {error?:string};
    if(!r.ok)throw Error("historical-correction-failed");
    onSaved();
   }catch{setError(t("members.assignment.historicalFailure"));}
