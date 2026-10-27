@@ -3,6 +3,7 @@ import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
 import {filterLinks,type LinkEntry} from "@/lib/links-display";
+import LinkEditor from "./link-editor";
 type Item=LinkEntry;
 type View="cards"|"list";
 const key="smn-links-display-view";
@@ -18,6 +19,12 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
  const [sort,setSort]=useState("title");
  const [view,setView]=useState<View>("cards");
  const [reload,setReload]=useState(0);
+ const [editing,setEditing]=useState<{open:true;item:Item|null}|null>(null);
+ const [deleting,setDeleting]=useState<Item|null>(null);
+ const [mutationError,setMutationError]=useState("");
+ const [busy,setBusy]=useState(false);
+ const changed=()=>{setEditing(null);setDeleting(null);setLoading(true);setReload(n=>n+1);};
+ const remove=async()=>{if(!deleting||busy)return;setBusy(true);setMutationError("");try{const response=await fetch("/api/admin/links/"+encodeURIComponent(deleting.id),{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({revision:deleting.revision})});if(!response.ok)throw Error(String(response.status));changed();}catch(e){setMutationError(e instanceof Error&&e.message==="409"?t("links.conflict"):t("links.saveError"));}finally{setBusy(false);}};
  useEffect(()=>{try{const preferred=localStorage.getItem(key);if(preferred==="list")queueMicrotask(()=>setView("list"));}catch{}},[]);
  useEffect(()=>{
   const controller=new AbortController();
@@ -42,13 +49,13 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
  const reset=()=>{setSearch("");setScope("all");setCategory("all");setSort("title");};
  const action=(item:Item)=><div className="d-flex flex-wrap align-items-center gap-2">
   <a className="btn btn-sm btn-outline-primary" href={item.url} target="_blank" rel="noopener noreferrer">{t("links.open")}</a>
-  <button type="button" className="btn btn-sm btn-outline-secondary" disabled title={t("links.editLater")} aria-label={t("links.editLater")+" : "+item.title}><BootstrapIcon name="pencil-square"/></button>
-  <button type="button" className="btn btn-sm btn-outline-secondary" disabled title={t("links.editLater")}>{t("links.actions")}</button>
+  <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>setEditing({open:true,item})} aria-label={t("links.edit")+" : "+item.title}><BootstrapIcon name="pencil-square"/></button>
+  <button type="button" className="btn btn-sm btn-outline-danger" onClick={()=>{setMutationError("");setDeleting(item);}} aria-label={t("links.delete")+" : "+item.title}>{t("links.delete")}</button>
  </div>;
  return <section className="d-grid gap-3">
   <header className="d-flex align-items-center justify-content-between flex-wrap gap-3">
    <div><h1 className="mb-1">{t("links.title")}</h1><p className="text-body-secondary mb-0">{t("links.team")} : {teamName}</p></div>
-   <button type="button" className="btn btn-primary" disabled title={t("links.addLater")}>{t("links.add")}</button>
+   <button type="button" className="btn btn-primary" onClick={()=>setEditing({open:true,item:null})}>{t("links.add")}</button>
   </header>
   <div className="card"><div className="card-body d-grid gap-3">
    <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -88,5 +95,7 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
    <div className="list-group">{shown.map(item=><article key={item.id} className="list-group-item d-flex flex-wrap gap-3 justify-content-between align-items-center">
     <div><h2 className="h6 mb-1">{item.title}</h2><div className="small text-body-secondary">{item.categoryName} · {item.scope==="TRANSVERSE"?t("links.transverse"):t("links.specific")}</div></div>{action(item)}
    </article>)}</div>}
+  {editing&&<LinkEditor teamId={teamId} categories={categories} item={editing.item} onClose={()=>setEditing(null)} onSaved={changed}/>}
+  {deleting&&<div className="modal d-block" role="dialog" aria-modal="true" aria-label={t("links.confirmDelete")} style={{background:"var(--bs-modal-backdrop-bg, rgba(0,0,0,.55))"}}><div className="modal-dialog modal-dialog-centered"><div className="modal-content"><div className="modal-header"><h2 className="modal-title fs-5">{t("links.confirmDelete")}</h2></div><div className="modal-body"><p>{deleting.title}</p><p className="text-body-secondary">{t("links.deleteWarning")}</p>{mutationError&&<div className="alert alert-danger" role="alert">{mutationError}</div>}</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setDeleting(null)}>{t("links.cancel")}</button><button type="button" className="btn btn-danger" disabled={busy} onClick={()=>void remove()}>{t("links.delete")}</button></div></div></div></div>}
  </section>;
 }
