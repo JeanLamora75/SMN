@@ -1,5 +1,6 @@
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {previewSprintBatch,validBatchRequest} from "./batch-preview";
 import {ensureSprintSchema} from "./creation";
 import {saveGeneratedCeremonies} from "./ceremonies";
@@ -32,7 +33,8 @@ async function activeTeam(db:Client){
 }
 export async function issueBatchPreview(db:Client,actorId:string,raw:unknown){
  if(!validBatchRequest(raw)||raw.count<2)return {ok:false as const,error:"invalid-input" as const};
- await ensureBatchSchema(db);
+ await assertLegacyTeamApi(db);
+await ensureBatchSchema(db);
  const result=await previewSprintBatch(db,raw);
  if(!result.ok)return result;
  const teamId=await activeTeam(db);
