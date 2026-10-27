@@ -120,3 +120,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - X et Échap : confirmation seulement si le profil est modifié.
 - Autres formulaires : protections conservées en attendant leur raccordement.
 - Tests PC non exécutés.
+
+## Extension de suivi des brouillons des membres
+- Affectation, calendrier hebdomadaire, exception et absence exposent maintenant le callback optionnel onDirtyChange au conteneur, à partir des états dirty/busy préexistants.
+- La fenêtre Membre utilise un état modalDirty partagé avec le profil et ces quatre formulaires. Fermeture par X ou Échap : confirmation uniquement en cas de modifications ou enregistrement, sauf cycle de vie conservé en mode prudent.
+- Les boutons Annuler des sous-formulaires continuent à utiliser leurs protections natives.
+- Aucun test TypeScript, navigateur, build ni pipeline effectué ; tests manuels PC nécessaires, notamment annulation, erreurs de chargement et réouverture.
