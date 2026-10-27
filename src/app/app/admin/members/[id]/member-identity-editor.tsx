@@ -68,7 +68,7 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
    </select></label></div>
   </div>
   {error&&<p className="alert alert-warning" role="alert">{error}</p>}
-  <div className="d-flex gap-2 justify-content-end"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={onCancel}>{t("teamUX.cancel")}</button>
+  <div className="smn-cockpit-form-actions"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={onCancel}>{t("teamUX.cancel")}</button>
    <button type="submit" className="btn btn-primary" disabled={busy||!location}>{t("members.profile.save")}</button></div>
  </form>;
 }
