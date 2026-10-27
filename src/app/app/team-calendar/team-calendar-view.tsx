@@ -46,7 +46,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const [teamTimeZones,setTeamTimeZones]=useState<string[]>([]);
  const [selectedTimeZone,setSelectedTimeZone]=useState("Europe/Paris");
  const [zonesFailed,setZonesFailed]=useState(false);
- useEffect(()=>{const controller=new AbortController();void fetch("/api/team-calendar/time-zones",{cache:"no-store",signal:controller.signal})
+ useEffect(()=>{const controller=new AbortController();void fetch("/api/team-calendar/time-zones"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store",signal:controller.signal})
   .then(async r=>{if(!r.ok)throw Error("time-zones");return r.json() as Promise<{timeZones:string[]}>;})
   .then(v=>{if(controller.signal.aborted)return;const zones=v.timeZones.filter(z=>{try{new Intl.DateTimeFormat("en",{timeZone:z});return true;}catch{return false;}});
    setTeamTimeZones([...new Set(zones)]);setSelectedTimeZone(current=>zones.includes(current)?current:zones[0]??"Europe/Paris");})
