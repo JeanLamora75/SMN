@@ -50,7 +50,7 @@ export function parseRegistryFilters(params:URLSearchParams):RegistryFilters|nul
 async function installedTeam(db:Client,authorizedTeam?:TeamContextRow){
  if(authorizedTeam)return {id:authorizedTeam.team_id,name:authorizedTeam.team,mode:authorizedTeam.mode};
  const team=await db.query<{id:string;name:string;mode:string}>(
-  "SELECT t.id,t.name,lower(i.mode) AS mode FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban') LIMIT 2");
+  "SELECT t.id,t.name,lower(i.mode) AS mode FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode) IN ('scrum','kanban') LIMIT 2");
  return team.rows.length===1?team.rows[0]:null;
 }
 export async function readRegistryCycles(db:Client,authorizedTeam?:TeamContextRow){
