@@ -3,7 +3,8 @@
  * Refuse toute application sans sauvegarde explicitement désignée.
  */
 import {createHash,randomUUID} from "node:crypto";
-import {existsSync,readFileSync,statSync} from "node:fs";
+import {existsSync,statSync} from "node:fs";
+import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../src/server/links/migration";
 import {resolve} from "node:path";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
@@ -26,7 +27,6 @@ async function main(){
  if(classifySnapshot(snapshot).status!=="initialized"||
     snapshot.installations?.[0]?.schema_version!==28)
   throw Error("Base saine v28 requise");
- const sql=readFileSync(new URL("../prisma/migrations/20261027_smn306_links/migration.sql",import.meta.url),"utf8");
  const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,
   statement_timeout:30000,application_name:"smn-links-manual-migration"});
  let began=false;
@@ -45,14 +45,14 @@ async function main(){
    WHERE relnamespace='public'::regnamespace
    AND relname IN ('smn_link','smn_link_category','smn_link_audit')`);
   if(check.rows[0]?.n!==0)throw Error("Tables Liens déjà présentes");
-  await db.query(sql);
+  await db.query(LINKS_MIGRATION_SQL);
   const stateAfter=await db.query<{schema_version:number}>(`
    SELECT schema_version FROM public.smn_installation WHERE id='singleton'`);
   if(stateAfter.rows[0]?.schema_version!==29)throw Error("Version v29 non confirmée");
   await db.query(`INSERT INTO public._prisma_migrations
    (id,checksum,finished_at,migration_name,applied_steps_count)
    VALUES($1,$2,now(),$3,1)`,[
-    randomUUID(),createHash("sha256").update(sql).digest("hex"),"20261027_smn306_links"
+    randomUUID(),createHash("sha256").update(LINKS_MIGRATION_SQL).digest("hex"),LINKS_MIGRATION
   ]);
   await db.query("COMMIT");began=false;
  }catch(e){
