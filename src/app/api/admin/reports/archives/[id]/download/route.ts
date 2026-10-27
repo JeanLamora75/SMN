@@ -1,6 +1,7 @@
 import {NextRequest} from "next/server";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {assertAdminArchivedReportRead} from "@/server/teams/archived-report-read";
 import {withLegacyReportReadDb} from "@/server/reports/legacy-read";
 import {readVerifiedPdfArchive} from "@/server/reports/pdf-archive-store";
 import {archiveUserAuthorized} from "@/server/reports/archive-grants";
@@ -30,7 +31,9 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE a.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
-   AND lower(i.mode)='scrum' ${teamId?"AND a.team_id=$2":""} ${hidden}`,
+   AND CASE WHEN i.schema_version=29
+    THEN (to_jsonb(t)->>'agile_mode') ELSE lower(i.mode) END='scrum'
+   ${teamId?"AND a.team_id=$2":""} ${hidden}`,
    teamId?[id,teamId]:[id]);
   if(scope.rows.length!==1)return null;
   const granted=actor.role==="admin"||await archiveUserAuthorized(db,id,actor.id);
@@ -38,8 +41,14 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
   return readVerifiedPdfArchive(db,id);
  };
  const bytes=teamId?await withSprintIndexDb(async db=>{
-  const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},teamId);
-  if(team.mode!=="scrum")return null;
+  const identity={accountId:actor.id,role:actor.role};
+  try{
+   const team=await resolveAdminTeam(db,identity,teamId);
+   if(team.mode!=="scrum")return null;
+  }catch{
+   // Only an explicit archived-team guard can authorize historical PDF reads.
+   await assertAdminArchivedReportRead(db,identity,teamId);
+  }
   return readArchive(db);
  }):await withLegacyReportReadDb(readArchive);
  if(!bytes)return Response.json({error:"archive-unavailable"},{status:404});

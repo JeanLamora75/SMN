@@ -3,6 +3,8 @@ import {useCallback,useEffect,useRef,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMode} from "./calendar-option-b";
 import CalendarMeetingModal from "./calendar-meeting-modal";
+import ScopedMeetingEditor from "./scoped-meeting-editor";
+import ScopedCeremonyDetail from "./scoped-ceremony-detail";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
 import {absenceNamesByDate,type CalendarAbsentMember} from "@/lib/calendar-absence-names";
 import BootstrapIcon from "../bootstrap-icon";
@@ -46,7 +48,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const [teamTimeZones,setTeamTimeZones]=useState<string[]>([]);
  const [selectedTimeZone,setSelectedTimeZone]=useState("Europe/Paris");
  const [zonesFailed,setZonesFailed]=useState(false);
- useEffect(()=>{const controller=new AbortController();void fetch("/api/team-calendar/time-zones",{cache:"no-store",signal:controller.signal})
+ useEffect(()=>{const controller=new AbortController();void fetch("/api/team-calendar/time-zones"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store",signal:controller.signal})
   .then(async r=>{if(!r.ok)throw Error("time-zones");return r.json() as Promise<{timeZones:string[]}>;})
   .then(v=>{if(controller.signal.aborted)return;const zones=v.timeZones.filter(z=>{try{new Intl.DateTimeFormat("en",{timeZone:z});return true;}catch{return false;}});
    setTeamTimeZones([...new Set(zones)]);setSelectedTimeZone(current=>zones.includes(current)?current:zones[0]??"Europe/Paris");})
@@ -150,8 +152,11 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  async function save(){if(!period||!editor||!name.trim()||busy||(calendarMode==="scrum"&&!selectedSprint))return;
   setBusy(true);setSaveError("");
   try{const date=new Date(when);if(Number.isNaN(date.valueOf()))throw Error("date");
-   const r=await fetch(calendarMode==="kanban"?"/api/admin/kanban-meetings":"/api/admin/sprints/exceptional-meetings",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(calendarMode==="kanban"?{name:name.trim(),periodId:period.sprintId,duration,startAt:date.toISOString()}:{name:name.trim(),sprintId:selectedSprint!.id,duration,startAt:date.toISOString()})});
+   const scoped=initialTeamId!==null;
+   const endpoint=scoped?"/api/admin/team-meetings":calendarMode==="kanban"?"/api/admin/kanban-meetings":"/api/admin/sprints/exceptional-meetings";
+   const payload=scoped?{teamId:initialTeamId,kind:calendarMode,cycleId:calendarMode==="kanban"?period.sprintId:selectedSprint!.id,name:name.trim(),duration,startAt:date.toISOString()}:
+    calendarMode==="kanban"?{name:name.trim(),periodId:period.sprintId,duration,startAt:date.toISOString()}:{name:name.trim(),sprintId:selectedSprint!.id,duration,startAt:date.toISOString()};
+   const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
    if(!r.ok)throw Error("save");
    setEditor(null);
    const end=shift(period.start,period.count-1);
@@ -265,8 +270,15 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
     onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
   </section>
-  {selectedMeeting&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
-  {selectedMeeting&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
+  {selectedMeeting&&initialTeamId&&(selectedMeeting.kind==="ceremony"||selectedMeeting.kind==="template")&&
+   <ScopedCeremonyDetail meeting={selectedMeeting} teamId={initialTeamId}
+    onClose={()=>setSelectedMeeting(null)} onSaved={()=>setRefreshToken(n=>n+1)}/>}
+  {selectedMeeting&&initialTeamId&&(selectedMeeting.kind==="exceptional"||selectedMeeting.kind==="kanban")&&
+   <ScopedMeetingEditor key={selectedMeeting.id} meeting={selectedMeeting} teamId={initialTeamId}
+    mode={selectedMeeting.kind==="kanban"?"kanban":"scrum"} onClose={()=>setSelectedMeeting(null)}
+    onSaved={()=>{setStatus("loading");setRefreshToken(n=>n+1);}}/>}
+  {selectedMeeting&&!initialTeamId&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
+  {selectedMeeting&&!initialTeamId&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
    meeting={selectedMeeting} isAdmin={isAdmin} onClose={()=>setSelectedMeeting(null)}
    onSaved={()=>{setStatus("loading");setRefreshToken(n=>n+1);}}/>}
   {absenceEditor&&<div className="smn-member-modal-backdrop" role="presentation">
@@ -283,7 +295,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     </select>}
     {chosenMember&&<p className="fw-semibold mb-2">{availableMembers.find(m=>m.id===chosenMember)?.displayName}</p>}
     {chosenMember&&<MemberAbsenceEditor key={chosenMember+absenceEditor} memberId={chosenMember}
-     initialDate={absenceEditor} record={null}
+     initialDate={absenceEditor} record={null} teamId={initialTeamId}
      onSaved={()=>{setAbsenceEditor(null);setStatus("loading");setRefreshToken(n=>n+1);}}
      onCancel={()=>setAbsenceEditor(null)}/>}
     {!chosenMember&&<div className="d-flex justify-content-end mt-3">

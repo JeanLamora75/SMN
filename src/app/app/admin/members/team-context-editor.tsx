@@ -1,11 +1,12 @@
 "use client";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useRouter} from "next/navigation";
+import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
 
 type Context={teamId:string;name:string;productName:string;vision:string|null;
- productGoal:string|null;revision:number};
+ productGoal:string|null;revision:number;agileMode?:"scrum"|"kanban"|null};
 type Version={revision:number;name:string;productName:string|null;vision:string|null;
  productGoal:string|null;changedAt:string};
 type Response={context:Context;history:Version[]};
@@ -103,6 +104,16 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
     </div>
     <form onSubmit={e=>void save(e)} className="d-grid gap-3"
      data-smn-unsaved-changes={dirty?"true":"false"}>
+     <div className="rounded-3 border p-3 bg-body-tertiary">
+      <div className="form-label fw-semibold">{t("teamSettings.agileMode")}</div>
+      <div className="d-flex align-items-center gap-3 flex-wrap">
+       <strong>{data.context.agileMode==="scrum"?"Scrum":data.context.agileMode==="kanban"?"Kanban":"—"}</strong>
+       <Link href="/app/admin/settings/teams" className="small">
+        {t("teamSettings.editTeam")}
+       </Link>
+      </div>
+      <p className="small text-secondary mb-0">{t("teamUX.agileModeReadOnly")}</p>
+     </div>
      <div>
       <label htmlFor="smn-team-edit-name" className="form-label">
        {t("teamUX.contextName")}

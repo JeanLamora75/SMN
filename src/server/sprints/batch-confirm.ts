@@ -1,5 +1,6 @@
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {previewSprintBatch,validBatchRequest} from "./batch-preview";
 import {ensureSprintSchema} from "./creation";
 import {saveGeneratedCeremonies} from "./ceremonies";
@@ -32,7 +33,8 @@ async function activeTeam(db:Client){
 }
 export async function issueBatchPreview(db:Client,actorId:string,raw:unknown){
  if(!validBatchRequest(raw)||raw.count<2)return {ok:false as const,error:"invalid-input" as const};
- await ensureBatchSchema(db);
+ await assertLegacyTeamApi(db);
+await ensureBatchSchema(db);
  const result=await previewSprintBatch(db,raw);
  if(!result.ok)return result;
  const teamId=await activeTeam(db);
@@ -48,6 +50,7 @@ export async function confirmBatch(db:Client,actorId:string,raw:unknown){
  typeof (raw as {token?:unknown}).token!=="string")return {ok:false as const,error:"invalid-input" as const};
  const token=(raw as {token:string}).token;
  if(!/^[0-9a-f-]{36}$/.test(token))return {ok:false as const,error:"invalid-input" as const};
+ await assertLegacyTeamApi(db);
  await ensureBatchSchema(db);
  await db.query("BEGIN");
  try{
@@ -85,6 +88,7 @@ export async function confirmBatch(db:Client,actorId:string,raw:unknown){
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
 export async function batchHistory(db:Client){
+ await assertLegacyTeamApi(db);
  await ensureBatchSchema(db);
  const teamId=await activeTeam(db);
  const r=await db.query(`SELECT id,actor_id,occurred_at::text AS occurred_at,team_id,cadence,sprints

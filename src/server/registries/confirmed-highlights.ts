@@ -35,7 +35,14 @@ export async function riskCriticalEvent(db:Client,id:string,actorId:string,sourc
  return recordConfirmedHighlight(db,{category:"criticalRisk",sourceKind:"registry",sourceId:id,sourceRevision,title:row.title,actorId});
 }
 
-export async function readConfirmedHighlights(db:Client){
+export async function readConfirmedHighlights(db:Client,teamId?:string){
+ const version=await db.query<{schema_version:number}>(
+  "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ const schema=version.rows[0]?.schema_version;
+ if(!Number.isSafeInteger(schema)||schema===undefined||schema<1||schema>29)
+  throw Error("highlights-schema-unavailable");
+ if(schema>=28&&(!teamId||!/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(teamId)))
+  throw Error("highlights-team-required");
  const tables=await db.query<{events:boolean;goals:boolean}>(`SELECT
  to_regclass('public.smn_automatic_highlight') IS NOT NULL AS events,
  to_regclass('public.smn_sprint_goal') IS NOT NULL AS goals`);
@@ -45,7 +52,7 @@ export async function readConfirmedHighlights(db:Client){
  const goalScope=tables.rows[0].goals?`OR (h.source_kind='goal' AND EXISTS(
  SELECT 1 FROM public.smn_sprint_goal g JOIN public.smn_sprint s ON s.id=g.sprint_id
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE g.id=h.source_id AND i.id='singleton' AND i.state='initialized'))`:"";
+ WHERE g.id=h.source_id AND i.id='singleton' AND i.state='initialized' AND ($1::text IS NULL OR s.team_id=$1)))`:"";
  const rows=await db.query<{id:string;category:string;sourceKind:string;sourceId:string;title:string;recordedAt:string}>(`SELECT
  h.id,h.category,h.source_kind AS "sourceKind",h.source_id AS "sourceId",
  h.title,h.created_at::text AS "recordedAt",h.source_revision AS "sourceRevision",
@@ -53,7 +60,7 @@ export async function readConfirmedHighlights(db:Client){
  WHERE (h.source_kind='registry' AND EXISTS(
  SELECT 1 FROM public.smn_registry_item r JOIN public.smn_team t ON t.id=r.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE r.id=h.source_id AND i.id='singleton' AND i.state='initialized'))
- ${goalScope} ORDER BY h.created_at DESC,h.id DESC LIMIT 250`);
+ WHERE r.id=h.source_id AND i.id='singleton' AND i.state='initialized' AND ($1::text IS NULL OR r.team_id=$1)))
+ ${goalScope} ORDER BY h.created_at DESC,h.id DESC LIMIT 250`,[teamId??null]);
  return rows.rows;
 }

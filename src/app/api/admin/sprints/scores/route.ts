@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {writeSprintScores} from "@/server/sprints/sprint-scores";
 
 export const dynamic="force-dynamic";
@@ -14,7 +14,7 @@ export async function PUT(req:NextRequest){
  const raw=await readJsonObject(req);
  if(!raw)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>writeSprintScores(db,actor.id,raw));
+  const result=await withLegacyTeamApi(db=>writeSprintScores(db,actor.id,raw));
   return jsonResult(result,result.ok?200:
    result.error==="closed-period"||result.error==="conflict"?409:
    result.error==="not-found"?404:400);

@@ -119,10 +119,12 @@ export async function changeTeamMeeting(db:Client,actor:TeamActor,
   const query=`UPDATE public.${table}
     SET starts_at=$2::timestamptz,ends_at=$3::timestamptz,
        status=$4${scrum?",duration_minutes=$5":""}
-    WHERE id=$1 AND starts_at=$6::timestamptz
-      AND ends_at=$7::timestamptz AND status='scheduled' RETURNING id`;
-  const saved=await db.query(query,[input.meetingId,start,end,nextStatus,
-   (Date.parse(end)-Date.parse(start))/60000,previousStart,previousEnd]);
+    WHERE id=$1 AND starts_at=${scrum?6:5}::timestamptz
+      AND ends_at=${scrum?7:6}::timestamptz AND status='scheduled' RETURNING id`;
+  const argumentsSql=scrum?[input.meetingId,start,end,nextStatus,
+   (Date.parse(end)-Date.parse(start))/60000,previousStart,previousEnd]:
+   [input.meetingId,start,end,nextStatus,previousStart,previousEnd];
+  const saved=await db.query(query,argumentsSql);
   if(saved.rowCount!==1)return reject("conflict");
   const details=JSON.stringify({teamId:team.team_id,meetingId:input.meetingId,
    before:{startAt:previousStart,endAt:previousEnd,status:"scheduled"},

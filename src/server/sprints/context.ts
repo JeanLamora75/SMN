@@ -15,6 +15,8 @@ export async function readSprintContext(db:Client,teamId:string,now=Date.now()):
   AND column_name='auto_suspended') AS suspension_exists`);
  if(!schema.rows[0]?.table_exists)return {items:[],defaultCycleId:null};
  const suspended=schema.rows[0]?.suspension_exists?"s.auto_suspended":"false";
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ const modeClause=version.rows[0]?.schema_version===29?"t.agile_mode='scrum' AND t.is_archived=false":"lower(i.mode)='scrum'";
  const rows=await db.query<{
   id:string;name:string;status:string;start_at:Date|string;end_at:Date|string;
   time_zone:string;suspended:boolean
@@ -23,7 +25,8 @@ export async function readSprintContext(db:Client,teamId:string,now=Date.now()):
    FROM public.smn_sprint s
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
-   WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+   WHERE i.id='singleton' AND i.state='initialized'
+    AND ${modeClause}
     AND s.team_id=$1 AND s.deleted_at IS NULL
    ORDER BY s.start_at DESC,s.id DESC`,[teamId]);
  const items:SprintContextItem[]=rows.rows.map(item=>({

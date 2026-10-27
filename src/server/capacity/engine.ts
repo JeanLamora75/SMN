@@ -96,11 +96,21 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
  if(!options.externalTransaction)
   await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  try{
+  if(options.teamId!==undefined&&
+   !/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(options.teamId))
+   throw Error("capacity-team-invalid");
   const teams=options.teamId?await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(
-   "SELECT t.id,t.name,i.mode FROM public.smn_team t "+
+   "SELECT t.id,t.name,CASE WHEN i.schema_version=29 "+
+   "THEN (to_jsonb(t)->>'agile_mode') ELSE i.mode END AS mode "+
+   "FROM public.smn_team t "+
    "JOIN public.smn_installation i ON i.id=t.installation_id "+
-   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version=28 "+
-   "AND i.mode IN ('scrum','kanban') AND t.id=$1 LIMIT 2",[options.teamId]):
+   "WHERE i.id='singleton' AND i.state='initialized' "+
+   "AND i.schema_version IN (28,29) AND t.id=$1 "+
+   "AND (i.schema_version=28 OR "+
+   "COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false) "+
+   "AND CASE WHEN i.schema_version=29 "+
+   "THEN (to_jsonb(t)->>'agile_mode') ELSE i.mode END IN ('scrum','kanban') "+
+   "LIMIT 2",[options.teamId]):
    await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(teamSql);
   if(teams.rows.length!==1)throw Error("capacity-team-unavailable");
   const team=teams.rows[0];

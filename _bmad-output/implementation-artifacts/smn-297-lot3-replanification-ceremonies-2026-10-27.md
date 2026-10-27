@@ -1,0 +1,5 @@
+# Lot 3 — Replanification des cérémonies Scrum contextualisées
+
+Nouveau service `src/server/teams/ceremony-reschedule.ts` et route PATCH `api/admin/team-calendar/ceremonies/reschedule`. La route est fermée par défaut (`MULTI_TEAM_CONTEXT_READY=false`), limitée à un administrateur. Le service valide strictement les champs, résout l'équipe, verrouille la cérémonie et son sprint, vérifie la révision, le statut et les bornes du sprint, modifie la cérémonie et ses segments dans la même transaction, puis écrit l'historique. Aucun DDL en cours de requête. Les cérémonies multiéquipes restent en lecture seule dans l'interface tant que les scénarios métier ne sont pas validés.
+
+Test de contrat ajouté : `tests/smn-297-scoped-ceremony-reschedule.test.ts`, non exécuté. Vérifier avant utilisation réelle le modèle de segments, les contraintes PostgreSQL et les cas de concurrence sur le PC de développement. La présence, les comptes rendus et les occurrences de modèles restent à traiter. Aucune migration, activation ou fusion.

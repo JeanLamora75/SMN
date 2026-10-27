@@ -66,7 +66,7 @@ export async function readAccountDashboard(client:Client,actor:TeamActor,
   WHERE i.id='singleton' AND i.state='initialized'
    AND a.id=$1 AND a.is_active=true`,[actor.accountId]);
  if(result.rows.length!==1)throw new Error("dashboard-context-unavailable");
- if(result.rows[0].schema_version===28)
+ if(result.rows[0].schema_version===28||result.rows[0].schema_version===29)
   return readCollectiveDashboard(client,actor,requestedTeamId);
  if(result.rows[0].schema_version>=1&&result.rows[0].schema_version<=27)
   return readCollectiveDashboard(client);

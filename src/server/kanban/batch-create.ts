@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {ensureKanbanPeriodTables} from "./periods";
 import {ensureKanbanCadenceTable,type KanbanFrequency} from "./cadence";
 import {batchPreview} from "./batch-preview";
@@ -16,7 +17,8 @@ export function parseBatchRequest(raw:unknown):Request|null{
 export async function createKanbanBatch(db:Client,actorId:string,raw:unknown){
  const request=parseBatchRequest(raw);
  if(!request)return {ok:false as const,error:"invalid-input" as const};
- await ensureKanbanCadenceTable(db);
+ await assertLegacyTeamApi(db);
+await ensureKanbanCadenceTable(db);
  await ensureKanbanPeriodTables(db);
  await db.query("BEGIN");
  try{

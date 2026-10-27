@@ -4,6 +4,7 @@ import type {SprintContextItem} from "@/lib/sprint-context";
 
 import {readDevelopmentCapacity} from "@/server/capacity/engine";
 import {readActualCapacity} from "@/server/capacity/actual";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 
 const MAX=99999999.9999;
 export type SprintCapacityKpiValues=Readonly<{
@@ -63,6 +64,11 @@ export async function readSavedCapacityKpis(db:Client,sprintId:string):Promise<S
 export async function readSprintCapacityKpiView(
  db:Client,teamId:string,sprint:SprintContextItem
 ):Promise<SprintCapacityKpiView>{
+ // The caller's teamId is an assertion, never a client authorization.
+ const ownership=await db.query<{id:string}>(
+  "SELECT id FROM public.smn_sprint WHERE id=$1 AND team_id=$2 LIMIT 2",
+  [sprint.id,teamId]);
+ if(ownership.rows.length!==1)throw Error("capacity-kpi-team-scope-mismatch");
  if(sprint.status==="closed"){
   const present=await db.query<{present:boolean}>(
    "SELECT to_regclass('public.smn_sprint_closure_snapshot') IS NOT NULL AS present");
@@ -128,13 +134,13 @@ export async function readSprintCapacityKpiView(
   }
  };
  const calculatedPlanned=await optional("smn_capacity_kpi_planned",async()=>{
-  const report=await readDevelopmentCapacity(db,start,end,{externalTransaction:true});
+  const report=await readDevelopmentCapacity(db,start,end,{externalTransaction:true,teamId});
   if(report.team.id!==teamId||report.missing.length||report.status!=="calculated")return null;
   return valid(report.totalJh)?report.totalJh:null;
  });
  const calculatedActual=await optional("smn_capacity_kpi_actual",async()=>{
   const report=await readActualCapacity(db,start,end,readDevelopmentCapacity,
-   {externalTransaction:true});
+   {externalTransaction:true,teamId});
   if(report.status==="upcoming"||report.missingSources.length)return null;
   return valid(report.referenceJh)?report.referenceJh:null;
  });
@@ -152,6 +158,7 @@ export async function writeSprintCapacityKpis(db:Client,actorId:string,raw:unkno
  if(!values||Object.keys(values).sort().join(",")!=="actual,planned"||
   !valid(values.planned)||!valid(values.actual)||!actorId)
   return {ok:false as const,error:"invalid-input" as const};
+ await assertLegacyTeamApi(db);
  await db.query("BEGIN");
  try{
   const sprint=await db.query<{id:string;status:string}>(

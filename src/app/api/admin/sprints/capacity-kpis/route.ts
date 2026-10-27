@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {writeSprintCapacityKpis} from "@/server/sprints/sprint-capacity-kpis";
 
 export const dynamic="force-dynamic";
@@ -14,7 +14,7 @@ export async function PUT(req:NextRequest){
  const body=await readJsonObject(req);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>writeSprintCapacityKpis(db,actor.id,body));
+  const result=await withLegacyTeamApi(db=>writeSprintCapacityKpis(db,actor.id,body));
   return jsonResult(result,result.ok?200:
    result.error==="closed-period"?423:result.error==="conflict"?409:
    result.error==="not-found"?404:400);

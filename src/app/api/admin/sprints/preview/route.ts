@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {issueBatchPreview} from "@/server/sprints/batch-confirm";
 export const dynamic="force-dynamic";
 export async function POST(request:NextRequest){
@@ -10,7 +10,7 @@ export async function POST(request:NextRequest){
  const input=await readJsonObject(request);
  if(!input)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>issueBatchPreview(db,actor.id,input));
+  const result=await withLegacyTeamApi(db=>issueBatchPreview(db,actor.id,input));
   return result.ok?jsonResult(result):jsonResult(result,400);
  }catch{return jsonResult({error:"preview-unavailable"},503);}
 }

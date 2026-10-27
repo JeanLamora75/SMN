@@ -173,7 +173,7 @@ async function readCapacity(db:Client,teamId:string,sprint:SprintContextItem):
   await db.query("SAVEPOINT dashboard_capacity");
   try{
    const actual=await readActualCapacity(db,start,end,readDevelopmentCapacity,
-    {externalTransaction:true});
+    {externalTransaction:true,teamId});
    if(actual.source==="Non renseigné"){
     actualMetric=actual.missingSources.length?
      metricUnavailable("producer-not-ready"):metricNotRecorded();
@@ -200,11 +200,14 @@ async function readCapacity(db:Client,teamId:string,sprint:SprintContextItem):
  */
 export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintContextItem,allowOwner=false):
  Promise<CollectiveCycleProjection>{
+ const versionRow=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ const agileScope=versionRow.rows[0]?.schema_version===29?
+  "t.agile_mode='scrum' AND t.is_archived=false":"lower(i.mode)='scrum'";
  const check=await db.query<{status:string}>(`SELECT s.status FROM public.smn_sprint s
   JOIN public.smn_team t ON t.id=s.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE s.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL
-    AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,
+    AND i.id='singleton' AND i.state='initialized' AND ${agileScope}`,
   [sprint.id,teamId]);
  if(check.rows.length!==1)throw Error("dashboard-cycle-out-of-scope");
  const status=check.rows[0].status;

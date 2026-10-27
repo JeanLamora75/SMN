@@ -27,7 +27,7 @@ export async function readSprintRegisters(
   JOIN public.smn_team t ON t.id=s.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE s.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL
-    AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+    AND i.id='singleton' AND i.state='initialized'\n    AND CASE WHEN i.schema_version=29\n     THEN (to_jsonb(t)->>'agile_mode') ELSE lower(i.mode) END='scrum'
  `,[sprint.id,teamId]);
  if(!scope.rows[0])return null;
  if(scope.rows[0].status==="closed"){

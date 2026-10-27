@@ -28,6 +28,7 @@ import {CAPACITY_HISTORICAL_MIGRATION,CAPACITY_HISTORICAL_MIGRATION_SQL} from ".
 import {CAPACITY_REPLANNING_MIGRATION,CAPACITY_REPLANNING_MIGRATION_SQL} from "../capacity/replanning-migration";
 import {MEMBER_IDENTITY_MIGRATION,MEMBER_IDENTITY_MIGRATION_SQL} from "../members/identity-migration";
 import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../teams/migration";
+import {TEAM_AGILE_MIGRATION,TEAM_AGILE_MIGRATION_SQL} from "../teams/agile-migration";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -42,7 +43,7 @@ const checksum = (s: string) => createHash("sha256").update(s).digest("hex");
 
 /** Même version maximale que le diagnostic, sans autoriser les futures versions non connues. */
 export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
-  return Number.isInteger(version) && version>=1 && version<=28;
+  return Number.isInteger(version) && version>=1 && version<=29;
 }
 
 /** La migration v27 est explicite : l'authentification la vérifie, sans la déclencher. */
@@ -51,7 +52,7 @@ export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
  */
 export function assertMultiTeamMigrationValid(version:number,
  migrationApplied:boolean,shapeValid:boolean):void{
- if(version===28 && (!migrationApplied || !shapeValid))
+ if(version>=28 && (!migrationApplied || !shapeValid))
   throw new Error("smn-schema-incompatible");
 }
 
@@ -528,7 +529,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
         identityColumns.rows[0]?.count,
       );
     }
-    if(version===28){
+    if(version>=28){
       const integrity=await client.query<{product_nullable:boolean;indexes_valid:boolean;constraints_valid:boolean;old_unique_gone:boolean}>(`
         SELECT
           (SELECT is_nullable='YES' FROM information_schema.columns
@@ -558,6 +559,23 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
         (await client.query<{present:boolean}>(
           "SELECT to_regclass('public.smn_account_team_preference') IS NOT NULL AS present"
         )).rows[0]?.present===true);
+    }
+    if(version===29){
+      const checks=await client.query<{valid:boolean}>(`
+       SELECT
+       (SELECT count(*)=3 FROM information_schema.columns
+        WHERE table_schema='public' AND table_name='smn_team'
+         AND column_name IN ('agile_mode','is_archived','mode_locked'))
+       AND EXISTS(SELECT 1 FROM pg_constraint WHERE conname='smn_team_agile_mode_check'
+        AND conrelid='public.smn_team'::regclass AND convalidated)
+       AND EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='smn_sprint_lock_team_agile'
+        AND tgrelid='public.smn_sprint'::regclass AND tgenabled='O')
+       AND EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='smn_guard_team_agile_mode_before_update'
+        AND tgrelid='public.smn_team'::regclass AND tgenabled='O')
+       AS valid
+      `);
+      if(!applied(TEAM_AGILE_MIGRATION,TEAM_AGILE_MIGRATION_SQL)||checks.rows[0]?.valid!==true)
+       throw new Error("smn-schema-incompatible");
     }
     await client.query("COMMIT");
   } catch(error) {

@@ -1,21 +1,22 @@
 "use client";
 import {useCallback,useEffect,useState,type FormEvent} from "react";
+import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 
 type Team={
  id:string;name:string;productName:string|null;vision:string|null;
- productGoal:string|null;revision:number;
+ productGoal:string|null;revision:number;agileMode:"scrum"|"kanban"|null;modeLocked:boolean;isArchived:boolean;
 };
-type Values={name:string;productName:string;vision:string;productGoal:string};
+type Values={name:string;agileMode:"scrum"|"kanban"|"";productName:string;vision:string;productGoal:string};
 type Listing={items:Team[];canWrite:boolean};
 type Response={ok?:boolean;changed?:boolean;teamId?:string;revision?:number;
  error?:string};
-const blank:Values={name:"",productName:"",vision:"",productGoal:""};
+const blank:Values={name:"",agileMode:"",productName:"",vision:"",productGoal:""};
 const valuesFrom=(team:Team):Values=>({
- name:team.name,productName:team.productName??"",vision:team.vision??"",
+ name:team.name,agileMode:team.agileMode??"",productName:team.productName??"",vision:team.vision??"",
  productGoal:team.productGoal??""
 });
-const same=(a:Values,b:Values)=>a.name===b.name&&a.productName===b.productName&&
+const same=(a:Values,b:Values)=>a.name===b.name&&a.agileMode===b.agileMode&&a.productName===b.productName&&
  a.vision===b.vision&&a.productGoal===b.productGoal;
 
 export default function TeamsSettings(){
@@ -32,6 +33,7 @@ export default function TeamsSettings(){
  const initial=current?valuesFrom(current):blank;
  const dirty=!same(initial,values);
  const hasName=values.name.trim().length>0;
+ const hasMode=values.agileMode==="scrum"||values.agileMode==="kanban";
  const requestList=useCallback(async()=>{
   setLoading(true);setError("");
   try{
@@ -69,11 +71,12 @@ export default function TeamsSettings(){
  }
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
-  if(saving||loading||!canWrite||!hasName||!dirty&&current)return;
+  if(saving||loading||!canWrite||!hasName||!hasMode||!dirty&&current)return;
   setSaving(true);setError("");setNotice("");
   const body={
    ...(current?{teamId:current.id,revision:current.revision}:{}),
    name:values.name,
+   agileMode:values.agileMode,
    productName:values.productName.trim()||null,
    vision:values.vision.trim()||null,
    productGoal:values.productGoal.trim()||null
@@ -89,6 +92,7 @@ export default function TeamsSettings(){
     const code=result.error;
     setError(t(code==="duplicate-name"?"teamSettings.duplicate":
      code==="conflict"?"teamSettings.conflict":
+     code==="mode-locked"?"teamSettings.modeConflict":
      code==="invalid-input"?"teamSettings.invalid":
      code==="forbidden"?"teamSettings.denied":
      code==="schema-not-ready"?"teamSettings.unavailable":
@@ -125,7 +129,7 @@ export default function TeamsSettings(){
         (selected===item.id?"fw-semibold bg-body-tertiary":"")}
         aria-current={selected===item.id?"true":undefined}
         disabled={saving} onClick={()=>changeTeam(item.id)}>
-        <span className="d-block">{item.name}</span>
+        <span className="d-block">{item.name} {item.agileMode&&<span className="badge bg-secondary ms-1">{item.agileMode==="scrum"?"Scrum":"Kanban"}</span>}</span>
         <span className="small text-secondary">{item.productName??t("teamSettings.noProduct")}</span>
        </button>
       </li>)}
@@ -138,6 +142,14 @@ export default function TeamsSettings(){
      {t(current?"teamSettings.editTeam":"teamSettings.newTeam")}
     </h2>
     <p className="text-secondary small">{t("teamSettings.description")}</p>
+    {current?.agileMode&&!current.isArchived&&<div className="mb-3">
+     <Link href={"/app/admin/team-cycles?teamId="+encodeURIComponent(current.id)}
+      className="btn btn-sm btn-outline-primary"
+      onClick={event=>{if(dirty&&!window.confirm(t("teamSettings.confirmDiscard")))event.preventDefault();}}>
+      Préparer un cycle {current.agileMode==="scrum"?"Scrum":"Kanban"}
+     </Link>
+     <p className="small text-secondary mt-2 mb-0">La création des cycles multiéquipes demeure désactivée pendant la validation technique.</p>
+    </div>}
     {!canWrite&&!loading&&<p className="alert alert-info" role="status">
      {t("teamSettings.unavailable")}
     </p>}
@@ -154,6 +166,17 @@ export default function TeamsSettings(){
        aria-required="true" disabled={!canWrite||saving||loading}
        onChange={event=>setField("name",event.target.value)}/>
      </div>
+     <fieldset aria-describedby="smn-agile-help" disabled={!canWrite||saving||loading||current?.modeLocked===true}>
+      <legend className="form-label fs-6 fw-semibold">{t("teamSettings.agileMode")} <span className="text-danger" aria-hidden="true">*</span></legend>
+      <p id="smn-agile-help" className="small text-secondary">{t("teamSettings.modeHelp")}</p>
+      {current?.modeLocked?<p className="small text-secondary mb-2">{t("teamSettings.modeLocked")}</p>:null}
+      {(["scrum","kanban"] as const).map(mode=><div className="form-check" key={mode}>
+       <input className="form-check-input" type="radio" id={"smn-mode-"+mode} name="agileMode"
+        value={mode} checked={values.agileMode===mode} required={!current?.modeLocked}
+        onChange={()=>setField("agileMode",mode)}/>
+       <label className="form-check-label" htmlFor={"smn-mode-"+mode}>{mode==="scrum"?"Scrum":"Kanban"}</label>
+      </div>)}
+     </fieldset>
      <div>
       <label htmlFor="smn-team-settings-product" className="form-label">
        {t("teamSettings.productName")} <span className="text-secondary small">({t("teamSettings.optional")})</span>
@@ -185,7 +208,7 @@ export default function TeamsSettings(){
        {t("teamSettings.cancel")}
       </button>
       <button type="submit" className="btn btn-primary"
-       disabled={!canWrite||loading||saving||!hasName||current!==null&&!dirty}>
+       disabled={!canWrite||loading||saving||!hasName||!hasMode||current!==null&&!dirty}>
        {t(current?"teamSettings.save":"teamSettings.create")}
       </button>
      </div>

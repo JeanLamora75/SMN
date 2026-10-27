@@ -25,6 +25,9 @@ model SmnProduct {
   id String @id
   installationId String @map("installation_id")
   name String
+  agileMode String @default("scrum") @map("agile_mode")
+  isArchived Boolean @default(false) @map("is_archived")
+  modeLocked Boolean @default(false) @map("mode_locked")
   installation SmnInstallation @relation(fields: [installationId], references: [id])
   team SmnTeam?
   @@map("smn_product")

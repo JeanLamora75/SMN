@@ -81,11 +81,13 @@ export async function ensureTemplateOccurrenceSchema(db:Client){
  await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes BETWEEN 0 AND 1440)");
 }
 
-export async function saveTemplateOccurrences(db:Client,sprint:Sprint,options:{reconstructed?:boolean}={}){
+export async function saveTemplateOccurrences(db:Client,sprint:Sprint,options:{reconstructed?:boolean;expectedTeamId?:string}={}){
  await ensureTemplateOccurrenceSchema(db);
  const team=await db.query<{team_id:string}>("SELECT team_id FROM public.smn_sprint WHERE id=$1",[sprint.id]);
  if(!team.rows[0])throw Error("sprint-not-found");
  const teamId=team.rows[0].team_id;
+ if(options.expectedTeamId!==undefined&&options.expectedTeamId!==teamId)
+  throw Error("sprint-team-scope-mismatch");
  const templates=await db.query<SprintTemplate>([
   "SELECT id,name,frequency,weekday,position,local_time::text AS time,",
   "duration_minutes AS duration,revision",

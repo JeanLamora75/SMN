@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult} from "@/server/auth/request";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {writeSprintReview} from "@/server/sprints/review-analysis";
 
 export const dynamic="force-dynamic";
@@ -49,7 +49,7 @@ export async function PUT(req:NextRequest){
  const input=await readReviewJson(req);
  if(!input)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>writeSprintReview(db,actor.id,input));
+  const result=await withLegacyTeamApi(db=>writeSprintReview(db,actor.id,input));
   return jsonResult(result,result.ok?200:
    result.error==="closed-period"||result.error==="conflict"?409:
    result.error==="not-found"?404:400);

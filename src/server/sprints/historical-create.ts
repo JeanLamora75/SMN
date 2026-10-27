@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {ensureSprintSchema} from "./creation";
 import {saveGeneratedCeremonies} from "./ceremonies";
 import {ensureTemplateOccurrenceSchema} from "./template-occurrences";
@@ -21,7 +22,8 @@ export function parseHistoricalSprint(raw:unknown):HistoricalSprintInput|null{
 export async function createHistoricalSprint(db:Client,actorId:string,raw:unknown){
  const value=parseHistoricalSprint(raw);
  if(!actorId||!value)return {ok:false as const,error:"invalid-input"};
- await ensureSprintSchema(db);
+ await assertLegacyTeamApi(db);
+await ensureSprintSchema(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_historical_request(
  operation_id text PRIMARY KEY,actor_id text NOT NULL,request_json jsonb NOT NULL,
  sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT)`);
