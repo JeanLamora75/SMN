@@ -511,3 +511,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - `report-studio.tsx` transmet la révision active fournie par `ReportEditingProvider` à chaque sauvegarde. Les requêtes v27 continuent d'utiliser leur contrat historique sans cette propriété.
 - Scénario 6C-04 : vérifier avec deux onglets indépendants qu'une écriture de révision périmée provoque un conflit explicite, puis que l'actualisation du document permet un nouvel enregistrement.
 - **Non exécutés :** tests, typecheck, build, migration, recette. Blocage PDF Sprint standard v28 maintenu ; pas de fusion PR #189.
+
+
+## Contrôle de compatibilité Studio v27/v28 — 27/10/2026
+
+- Correction du payload autosave dans `report-studio.tsx` : la propriété `revision` n'est transmise que si un `teamId` est actif (contrat v28). Le service historique v27 refuse les propriétés inconnues et continue donc à recevoir strictement `content`, `sequence`, `sessionId`.
+- `team-studio.ts` compare numériquement `last_sequence` avec la séquence soumise, comme le service documentaire historique, pour préserver le rejet déterministe des écritures obsolètes.
+- Recette à exécuter : édition v27 sans 400, édition v28 avec révision courante acceptée, révision obsolète rejetée en 409 et absence d'écrasement intersessions.
+- **Publication de code uniquement :** aucun test, lint, build ou migration effectués ; aucun merge. Blocage PDF Sprint standard v28 maintenu.
