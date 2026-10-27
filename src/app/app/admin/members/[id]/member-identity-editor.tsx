@@ -6,7 +6,7 @@ import {utcOffsetLabel} from "@/lib/iana-utc-offset";
 type Member={id:string;displayName:string;email:string|null;professionalFunction?:string|null;revision:number};
 type Location={revision:number;countryIso2:string|null;region:string|null;city:string|null;timeZone:string|null};
 type LocationState={today:string;current:Location|null;versions:{revision:number;effective_from:string;country_iso2:string|null;region:string|null;city:string|null;time_zone:string|null}[];suggestedCountryIso2:string|null};
-export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyChange}:{member:Member;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean)=>void}){
+export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyChange}:{member:Member;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void}){
  const t=useTranslation();
  const [name,setName]=useState(member.displayName);
  const [email,setEmail]=useState(member.email??"");
@@ -24,7 +24,7 @@ export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyCha
  const [locationBaseline,setLocationBaseline]=useState<string|null>(null);
  const dirty=name!==member.displayName||email!==(member.email??"")||profession!==(member.professionalFunction??"")||
   (locationBaseline!==null&&JSON.stringify([country,region,city,zone])!==locationBaseline);
- useDirtyEffect(()=>{onDirtyChange?.(dirty);},[dirty,onDirtyChange]);
+ useDirtyEffect(()=>{onDirtyChange?.(dirty,busy);},[dirty,busy,onDirtyChange]);
 
  useEffect(()=>{const controller=new AbortController();void fetch("/api/admin/countries",{cache:"no-store",signal:controller.signal})
   .then(async r=>{if(!r.ok)throw Error("countries");return r.json() as Promise<{countries:{code:string;name:string}[]}>;})
