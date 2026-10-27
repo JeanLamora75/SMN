@@ -82,3 +82,8 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `src/app/modal-cockpit.css` : bouton fermer renforcé (opacité, bordure, taille, focus-visible) pour ne pas perdre sa visibilité selon les thèmes.
 - Restent : recherche de toutes les occurrences modales dans l'ensemble des 232 fichiers, contrôle rendu/contraste, compatibilité des sélecteurs CSS existants, cas d'erreur localisés, recette locale par l'utilisateur.
 - Pas de compilation, test, action GitHub ni recette exécutés.
+
+## Étape — recette et scroll des modales Membres
+- `src/app/modal-cockpit.css` : ajout de styles ciblés à l'enveloppe de la fiche membre pour faire défiler le corps tout en conservant l'en-tête visible, sans modifier les sous-formulaires.
+- `_bmad-output/implementation-artifacts/smn-298-recette-modales-pc.md` : grille de recette transversale à exécuter uniquement sur le PC du commanditaire, couvrant les cas représentatifs FR/EN, thèmes, responsive, accessibilité, sécurité fonctionnelle et les commandes locales.
+- Cette étape ne clôt pas AC01 (inventaire exhaustif), ni les tests ; aucun navigateur, compilateur ou pipeline GitHub n'a été exécuté.
