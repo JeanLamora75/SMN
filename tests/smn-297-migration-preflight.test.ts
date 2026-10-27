@@ -23,3 +23,10 @@ test("les scripts de migration exigent une action explicite et une sauvegarde",(
   assert.match(source,/schema_version/,file);
  }
 });
+
+test("le diagnostic inclut les migrations v28 et v29",()=>{
+ const source=readFileSync("src/server/installation/diagnostic.ts","utf8");
+ assert.ok(source.includes("snapshot.multiTeamSchemaValid"));
+ assert.ok(source.includes("snapshot.teamAgileSchemaValid"));
+ assert.ok(source.includes("TEAM_AGILE_MIGRATION_SQL"));
+});
