@@ -26,7 +26,7 @@ function draftFrom(state:AssignmentState):Draft{
 }
 const num=(s:string)=>/^(0|[1-9][0-9]{0,2})$/.test(s)?Number(s):NaN;
 export default function AssignmentEditor({memberId,teamId,teamName,memberRevision,onSaved,onCancel,onDirtyChange}:{
- memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean)=>void;
+ memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AssignmentState|null>(null);
@@ -38,7 +38,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
  const [error,setError]=useState("");
  const dirty=draft!==null&&baseline!==null&&JSON.stringify(draft)!==JSON.stringify(baseline);
  useUnsavedChanges(Boolean(dirty||busy),t("draft.leaveWarning"));
- useEffect(()=>{onDirtyChange?.(Boolean(dirty||busy));},[dirty,busy,onDirtyChange]);
+ useEffect(()=>{onDirtyChange?.(Boolean(dirty),busy);},[dirty,busy,onDirtyChange]);
  useEffect(()=>{
   let active=true;
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/assignment",{cache:"no-store"})
