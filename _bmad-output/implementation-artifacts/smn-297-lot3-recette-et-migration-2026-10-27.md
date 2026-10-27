@@ -41,3 +41,9 @@ Le script v29 refuse explicitement une base qui n'est pas en v28. Aucun mécanis
 ## Protection ajoutée aux scripts de répétition
 
 Les scripts v28 et v29 exigent désormais l'option `--rehearsal`, la variable locale `SMN_REHEARSAL_DATABASE_URL`, et une cible PostgreSQL sur loopback avec un port différent de la connexion SMN normale. L'ancien lancement avec les seuls paramètres `--apply --backup-file` est refusé. Le fichier `src/server/teams/rehearsal-target.ts` centralise le contrôle et `tests/smn-297-rehearsal-target.test.ts` contient les cas négatifs. **Attention : cela ne prouve pas qu'une instance est réellement indépendante.** La vérification du cluster cible (data directory / identité système), de l'absence de proxy, et de la restauration reste obligatoire avant exécution ; ne pas lancer les scripts à cette étape. Les tests n'ont pas été exécutés.
+
+## Arbitrage utilisateur — environnement avant V1 (27 octobre 2026)
+
+SMN est encore en développement : **une seule base de développement** existe. La séparation des environnements de test et de production est **reportée à la V1**. En conséquence, les phases 3B et 3C décrites ci-dessus constituent une préparation future, **pas une tâche à exécuter maintenant**, et ne sont plus des prérequis immédiats pour poursuivre le code du lot 3. Les essais automatisés hors base et l'analyse statique se poursuivent. Ne pas demander de cluster supplémentaire ni de base de production avant V1.
+
+Le garde `rehearsalMigrationUri` reste défensif mais les scripts de migration demeurent non utilisables dans la configuration actuelle ; ne pas l'interpréter comme une obligation d'installer une deuxième base dès maintenant. En phase de développement, ne jamais modifier le schéma existant sans une décision distincte de l'utilisateur et une procédure adaptée. Les vérifications locales restent à exécuter par l'utilisateur sur son PC.
