@@ -33,16 +33,18 @@ export async function readAdminActiveTeam(db:Client,accountId:string):
  Promise<ActiveTeamState|null>{
  const installation=await adminInstallation(db,accountId);
  if(!installation)return null;
- if(installation.schemaVersion!==28)
+ if(installation.schemaVersion!==28&&installation.schemaVersion!==29)
   return {ready:false,teamId:null,items:[]};
  const options=await db.query<TeamChoice>(
   "SELECT id,name FROM public.smn_team WHERE installation_id=$1 "+
+  (installation.schemaVersion===29?"AND is_archived=false ":"")+
   "ORDER BY lower(name),id",[installation.id]);
  const preference=await db.query<{team_id:string}>(`
    SELECT p.team_id FROM public.smn_account_team_preference p
    JOIN public.smn_team t ON t.id=p.team_id
      AND t.installation_id=p.installation_id
-   WHERE p.account_id=$1 AND p.installation_id=$2`,
+   WHERE p.account_id=$1 AND p.installation_id=$2
+     ${installation.schemaVersion===29?"AND t.is_archived=false":""}`,
   [accountId,installation.id]);
  const selected=preference.rows[0]?.team_id;
  return {
@@ -62,11 +64,12 @@ export async function saveAdminActiveTeam(db:Client,accountId:string,
  try{
   const installation=await adminInstallation(db,accountId);
   if(!installation){await db.query("ROLLBACK");return {ok:false,error:"forbidden"};}
-  if(installation.schemaVersion!==28){
+  if(installation.schemaVersion!==28&&installation.schemaVersion!==29){
    await db.query("ROLLBACK");return {ok:false,error:"not-ready"};
   }
   const team=await db.query<{id:string}>(
-   "SELECT id FROM public.smn_team WHERE id=$1 AND installation_id=$2",
+   "SELECT id FROM public.smn_team WHERE id=$1 AND installation_id=$2"+
+    (installation.schemaVersion===29?" AND is_archived=false":""),
    [teamId,installation.id]);
   if(team.rows.length!==1){
    await db.query("ROLLBACK");return {ok:false,error:"not-found"};
