@@ -230,3 +230,20 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 **Limites impératives :** cette fiche v28 est une **projection réduite de consultation**, pas la fiche individuelle complète. Les motifs personnels, historique d'identité et de cycle de vie, modifications des affectations, absences, calendriers, réunions et capacités réelles sont encore indisponibles en v28. Il faudra établir des contrats de mutation transactionnels contextualisés, contrôler les recouvrements temporels entre équipes et exécuter les tests réels avant de lever les verrous. **Les comptes `user` existants restent hors arbitrage**, aucune habilitation implicite.
 
 **État :** `MULTI_TEAM_CONTEXT_READY=false`; écritures multiéquipes désactivées ; base v28 non migrée ; PR #189 en brouillon et non fusionnée.
+
+## Étape 6A — Mutation transactionnelle des révisions d'affectation en v28 (27/10/2026)
+
+**Développement réellement effectué dans la PR #189, sans activation :**
+
+- `src/server/members/team-assignment-write.ts` : `saveTeamAssignmentRevision`, transaction PostgreSQL dédiée à la **révision d'une affectation existante et ouverte** dans l'équipe Admin explicitement autorisée. Utilise le parseur validé `parseAssignmentInput` (8 champs, parts Agile totalisant 100 %, pourcentages de capacité contrôlés, date ISO, révision initiale ≥1).
+- Validation dans la transaction de l'**acteur Admin actif** et de `teamId` via `resolveAdminTeam` sur la même installation v28. Verrouillage des lignes membre et affectation (`FOR UPDATE`), refus des membres archivés et des affectations absentes ou closes, refus d'une date passée, antérieure au début de l'affectation ou à la dernière version.
+- Lecture de la dernière révision de `smn_member_assignment_version` et contrôle optimiste ; insertion **append-only** d'une nouvelle version avec `created_by`. `COMMIT` en réussite, `ROLLBACK` en cas de conflit ou d'erreur. **Aucune** création ou mutation destructive d'affectation, aucun changement d'équipe implicite.
+- `src/app/api/admin/members/[id]/team-assignment/route.ts` : nouveau POST réservé à Admin, origine contrôlée par `authorizeApi`, JSON strict, erreurs traduites en statuts HTTP. L'endpoint vérifie le **verrou de livraison `MULTI_TEAM_CONTEXT_READY=false` avant tout accès DB**, donc ne permet pas encore de modification réelle, même si une base v28 existe.
+- L'ancien `POST /api/admin/members/[id]/assignment` reste entouré de `withLegacyMemberApi` et **refusé en v28** pour éviter une mutation non contextualisée.
+- `tests/smn-282-team-assignment-write.test.ts` : 7 scénarios simulés couvrant transaction, acteur Admin, appartenance, dates, conflit de révision, absence d'affectation, archivage et rollback. `tests/smn-282-team-assignment-route.test.ts` : 4 contrats statiques du verrou HTTP et de l'historique append-only.
+
+**Vérifications réellement effectuées :** 17 contrôles **statiques** de cohérence sur les fichiers présents sur GitHub (validation des entrées, droits Admin, portée d'équipe, verrouillage SQL, révisions, dates, rollback, append-only, verrou de route et conservation de la garde historique). **Aucune exécution de tests du dépôt**, `pnpm test`, `pnpm typecheck`, `pnpm build`, `prisma validate`, ni tests PostgreSQL ou navigateur. Les 11 scénarios de tests ajoutés sont **écrits, non exécutés**.
+
+**À faire avant activation de cette mutation :** tests PostgreSQL réels avec deux équipes et affectations simultanées, concurrence entre deux mises à jour, contrôle des sommes de capacités transversales si plusieurs équipes sont possibles pour une personne, revues des anciens consommateurs des versions et d'impact sur les calculs, protection des formulaires non enregistrés et validation des droits historiques. Les créations/fermetures/transferts d'affectation et les mutations d'absences, capacités réelles et réunions ne sont pas couverts dans cette tranche.
+
+**Sécurité générale inchangée :** sélecteur toujours verrouillé, écriture des équipes désactivée par défaut, migration v28 non appliquée, PR draft non fusionnée. Sort des comptes `user` existants maintenu en décision reportée, sans attribution implicite.
