@@ -9,6 +9,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canVisitPrivate} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {getReportDocument} from "@/server/reports/report-documents";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {readAnalysisJournal} from "@/server/ai-briefs/journal";
 import {readTemplateUpdateOffer} from "@/server/reports/template-versioning";
 import {requestLocale} from "@/i18n/locale.server";
@@ -19,7 +20,12 @@ export default async function ReportDetail({params,searchParams}:{params:Promise
  if(!canVisitPrivate({role:account.role,mustChangePassword:account.must_change_password}))notFound();
  const {documentId}=await params,{cycleId}=await searchParams;
  if(!cycleId||!/^[a-f0-9-]{36}$/i.test(cycleId))notFound();
- const doc=await withSprintIndexDb(db=>getReportDocument(db,cycleId,documentId)).catch(()=>null);
+ const doc=await withSprintIndexDb(async db=>{
+  // La page Studio et les actions PDF ne sont pas encore isolées par teamId :
+  // refuser la v28 même pour un lien direct vers un document de l'équipe.
+  await assertLegacyTeamApi(db);
+  return getReportDocument(db,cycleId,documentId);
+ }).catch(()=>null);
  if(!doc)notFound();
  const journal=await withSprintIndexDb(db=>readAnalysisJournal(db,doc.teamId,{cycleId})).catch(()=>[]);
  const updateOffer=await withSprintIndexDb(db=>readTemplateUpdateOffer(db,cycleId,documentId)).catch(()=>null);
