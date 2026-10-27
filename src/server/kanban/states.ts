@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureKanbanPeriodTables} from "./periods";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {readDevelopmentCapacity} from "@/server/capacity/engine";
 
 export type KanbanPeriodState="planned"|"active"|"finished"|"closed";
@@ -11,6 +12,8 @@ export function calendarState(status:KanbanPeriodState,startOn:string,endOn:stri
  return "planned";
 }
 export async function reconcileKanbanStates(db:Client){
+ // Ne jamais exécuter la réconciliation monoéquipe ni sa DDL en v28.
+ await assertLegacyTeamApi(db);
  await ensureKanbanPeriodTables(db);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_period_transition (
  id text PRIMARY KEY, period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
