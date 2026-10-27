@@ -151,7 +151,7 @@
 .smn-calendar-cockpit .smn-cal-events{margin-top:14px;gap:6px;min-width:0}
 .smn-calendar-cockpit .smn-cal-event{
  background:var(--smn-soft);border-inline-start:3px solid var(--smn-cal-meeting);
- border-left:0;border-radius:7px;padding:7px;gap:7px;
+ border-radius:7px;padding:7px;gap:7px;
 }
 .smn-calendar-cockpit .smn-cal-event .smn-cal-icon{color:var(--smn-cal-meeting)}
 .smn-calendar-cockpit .smn-cal-event .smn-cal-event-title{color:var(--smn-foreground);font-size:.75rem;line-height:1.35}
