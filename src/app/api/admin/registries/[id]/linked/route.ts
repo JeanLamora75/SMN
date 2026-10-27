@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {createRegistryItem} from "@/server/registries/items";
 import {parseLinkedJournalCreation} from "@/lib/registry-linked-creation";
@@ -22,7 +22,7 @@ export async function POST(req:NextRequest,{params}:{
  const {id}=await params;
  const {requestId,...fields}=parsed;
  try{
-  const result=await withAuthDb(db=>
+  const result=await withLegacyTeamApi(db=>
    createRegistryItem(db,actor.id,{...fields,sourceId:id},requestId));
   return jsonResult(result,result.ok?201:
    result.error==="conflict"?409:result.error==="not-found"?404:400);
