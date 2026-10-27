@@ -2071,6 +2071,15 @@
       "switchLabel": "Mode d’affichage des paramètres",
       "cards": "Affichage en cartes",
       "list": "Affichage en liste"
+    },
+    "tabs": {
+      "categories": "Catégories automatiques",
+      "alerts": "Alertes d'échéance",
+      "slots": "Plages horaires",
+      "lunch": "Pause déjeuner",
+      "general": "Général",
+      "language": "Langue",
+      "appearance": "Apparence"
     }
   },
   "memberAbsences": {
