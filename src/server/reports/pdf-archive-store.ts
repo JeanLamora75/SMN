@@ -66,9 +66,13 @@ export async function readVerifiedPdfArchive(db:Client,id:string):Promise<Buffer
  if(!/^[a-f0-9-]{36}$/i.test(id))return null;
  const exists=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present`);
  if(!exists.rows[0]?.present)return null;
- const r=await db.query<{sha256:string;byte_length:number;stored_name:string;manifest:PdfArchiveManifest}>(`SELECT sha256,byte_length,stored_name,manifest FROM public.smn_report_pdf_archive WHERE id=$1`,[id]);
+ const r=await db.query<{sha256:string;byte_length:number;stored_name:string;team_id:string;cycle_id:string;manifest:PdfArchiveManifest}>(`SELECT sha256,byte_length,stored_name,team_id,cycle_id,manifest FROM public.smn_report_pdf_archive WHERE id=$1`,[id]);
  const record=r.rows[0];if(!record||record.stored_name!==id+".pdf")return null;
- const opts=record.manifest?.optionsSnapshot;
+ // Reject inconsistent metadata before reading any stored PDF bytes.
+ if(!record.manifest||record.manifest.id!==id||
+  record.manifest.teamId!==record.team_id||record.manifest.cycleId!==record.cycle_id||
+  record.manifest.sha256!==record.sha256||Number(record.manifest.byteLength)!==Number(record.byte_length))return null;
+ const opts=record.manifest.optionsSnapshot;
  if(opts?.studioArchiveVersion){
   const snapshot=await db.query<{snapshot:ReportDocument;document_id:string;version:number;document_revision:number;source_sha256:string}>(
    `SELECT snapshot,document_id,version,document_revision,source_sha256 FROM public.smn_report_studio_archive_snapshot WHERE archive_id=$1`,[id]);
