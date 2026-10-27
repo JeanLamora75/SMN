@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {ensureCeremonyEditSchema} from "./ceremony-edits";
 import {ensureTemplateOccurrenceSchema} from "./template-occurrences";
 import {ensureExceptionalMeetingSchema} from "./exceptional-meetings";
@@ -55,6 +56,7 @@ export async function updateCalendarMeetingSchedule(db:Client,actorId:string,raw
  {ok:false;error:ScheduleError}>{
  const input=parse(raw);
  if(!input)return {ok:false,error:"invalid-input"};
+ await assertLegacyTeamApi(db);
  await ensureScheduleSchema(db);
  const spec=tables[input.kind],duration=(Date.parse(input.endAt)-Date.parse(input.startAt))/60000;
  await db.query("BEGIN");
