@@ -60,7 +60,8 @@ test("UI v28 : pas d'édition et équipe transmise aux fetch et à l'URL",()=>{
  assert.match(page,/<RegistryList key=\{teamId\}/);
  assert.match(detail,/context\?\.version===28/);
  assert.match(detail,/readTeamRegistryItem\(db/);
- assert.match(detail,/if\(context\?\.version===28\)/);\n assert.match(detail,/context\.item/);
+ assert.match(detail,/if\(context\?\.version===28\)/);
+ assert.match(detail,/context\.item/);
  assert.match(list,/teamId,type,search:query\.search/);
  assert.match(list,/new URLSearchParams\(\{teamId\}\)/);
  assert.match(list,/type,\.\.\.query,page,view,teamId/);
