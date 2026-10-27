@@ -1,5 +1,6 @@
 "use client";
 import {useCallback,useEffect,useState,type FormEvent} from "react";
+import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 
 type Team={
@@ -141,6 +142,14 @@ export default function TeamsSettings(){
      {t(current?"teamSettings.editTeam":"teamSettings.newTeam")}
     </h2>
     <p className="text-secondary small">{t("teamSettings.description")}</p>
+    {current?.agileMode&&!current.isArchived&&<div className="mb-3">
+     <Link href={"/app/admin/team-cycles?teamId="+encodeURIComponent(current.id)}
+      className="btn btn-sm btn-outline-primary"
+      onClick={event=>{if(dirty&&!window.confirm(t("teamSettings.confirmDiscard")))event.preventDefault();}}>
+      Préparer un cycle {current.agileMode==="scrum"?"Scrum":"Kanban"}
+     </Link>
+     <p className="small text-secondary mt-2 mb-0">La création des cycles multiéquipes demeure désactivée pendant la validation technique.</p>
+    </div>}
     {!canWrite&&!loading&&<p className="alert alert-info" role="status">
      {t("teamSettings.unavailable")}
     </p>}
