@@ -69,3 +69,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Les conditions d'accès, validations, contrats de sauvegarde, API et avertissements de capacité historique sont inchangés.
 - Le chemin d'erreur serveur peut encore exposer un code technique via `body.error` : à traiter lors du balayage des erreurs localisées.
 - Vérification textuelle statique des substitutions uniquement. `pnpm i18n:check`, lint, typecheck, tests et build non exécutés ; recette sur le PC utilisateur.
+
+## Étape — ne pas exposer les erreurs API aux utilisateurs
+- `assignment-editor.tsx` : lors de la correction d'une date d'affectation, une erreur serveur affichait directement `body.error` ; la fenêtre affiche désormais le message localisé `members.assignment.historicalFailure` sans divulguer un code technique.
+- `member-identity-editor.tsx` : suppression du suffixe technique `identity-400`, `identity-409` ou similaire ajouté à l'erreur affichée ; le message métier `memberUX.identitySaveFailed` reste affiché.
+- Aucune modification des requêtes, valeurs métiers ou règles serveur. Les détails d'erreur techniques ne sont plus exposés dans ces deux chemins de formulaire ; un audit du reste des fenêtres est encore nécessaire.
+- Pas de tests ou builds exécutés ; vérification sur PC utilisateur indispensable.
