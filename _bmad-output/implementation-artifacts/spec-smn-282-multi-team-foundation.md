@@ -386,3 +386,12 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - La page complète du Studio et ses autres routes demeurent fermées en v28 : la tranche n'autorise pas leur ouverture implicite. Pas de migration v28 ni de fusion.
 
 **Adaptation du workflow :** skills Amelia et bmad-build consultés ; le script BMAD `uv ... render_skill.py` exige un checkout local et ne peut pas être exécuté ici. La publication de cette tranche par GitHub Connecteur est effectuée à la demande expresse du Product Owner, sans revendiquer l'exécution complète du workflow. **Aucun test, typecheck, lint, build, SQL ou recette exécuté.** Vérifications et ajustements restent nécessaires sur le PC Windows, notamment pour les routes du Studio et les suites de tests de sécurité interéquipes.
+
+
+## Étape 6B.3 — Deuxième tranche, création et modèles (27/10/2026)
+
+- `src/server/reports/team-studio.ts` : liste filtrée par `teamId` et Sprint autorisé ; création transactionnelle d'un document avec `teamId` explicite, validation stricte, préparation de projection du Sprint, modèle référencé, traitement des `requestId` existants et absence de duplication volontaire.
+- `src/app/api/admin/reports/sprints/[id]/documents/route.ts` : GET/POST contextualisés quand `teamId` est présent, avec contrôle d'acteur administrateur et conservation de la voie legacy v27.
+- `src/app/api/admin/reports/templates/route.ts` : consultation des modèles par un administrateur dont le contexte d'équipe v28 a été résolu ; écriture des modèles maintenue derrière le verrou v27. Les modèles personnalisés sont encore partagés à l'installation : leur gouvernance et l'éventuelle propriété d'équipe nécessitent une décision explicite.
+- La page Studio détaillée, les autres APIs de manipulation (blocs, sections, contenu, notes, historique, etc.), exports PDF/archives et les modèles en écriture demeurent fermés en v28 ; ne pas présenter ces opérations comme opérationnelles.
+- **Aucun test, commande Node/pnpm, Prisma, migration PostgreSQL ni recette exécutés.** Code poussé via le connecteur GitHub sur la PR brouillon #189 ; aucune fusion, aucun basculement du feature flag.
