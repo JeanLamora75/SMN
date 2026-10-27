@@ -30,3 +30,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `src/app/app/admin/members/[id]/member-detail.tsx` : l'enveloppe unique des éditions profil, affectation, calendrier, exception de calendrier, absence et cycle de vie adopte les classes visuelles Cockpit Agile (header et body).
 - Les sous-formulaires `MemberIdentityEditor`, `AssignmentEditor`, `MemberCalendarEditor`, `MemberCalendarExceptionEditor`, `MemberAbsenceEditor`, `MemberLifecycleEditor` restent inchangés dans leur logique ; leurs boutons d'action internes ne sont pas encore déplacés dans un pied partagé.
 - À contrôler localement : scroll, focus, alignement des actions, boutons de fermeture et rendu des thèmes pour chacun des six cas. Pas de tests exécutés.
+
+## Étape supplémentaire — actions Enregistrer / Annuler
+- `src/app/modal-cockpit.css` : pied de formulaire réutilisable `.smn-cockpit-form-actions`, séparation discrète selon le thème, action secondaire à gauche et primaire à droite, mise en page responsive.
+- `src/app/app/admin/members/member-absence-editor.tsx`, `assignment-editor.tsx`, `[id]/member-identity-editor.tsx` : les actions internes adoptent cette classe sans changer les callbacks, les contraintes `disabled` ni l'ordre DOM.
+- Les autres éditeurs, en particulier les calendriers avec champs intégrés au pied, restent à traiter individuellement pour préserver leur disposition et leur comportement.
+- Aucun test ni build exécuté. À vérifier sur PC : FR/EN, thèmes, lisibilité mobile et états de sauvegarde/erreur.
