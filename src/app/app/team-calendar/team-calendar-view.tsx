@@ -4,6 +4,7 @@ import {useLocale,useTranslation} from "@/i18n/client";
 import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMode} from "./calendar-option-b";
 import CalendarMeetingModal from "./calendar-meeting-modal";
 import ScopedMeetingEditor from "./scoped-meeting-editor";
+import ScopedCeremonyDetail from "./scoped-ceremony-detail";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
 import {absenceNamesByDate,type CalendarAbsentMember} from "@/lib/calendar-absence-names";
 import BootstrapIcon from "../bootstrap-icon";
@@ -269,6 +270,9 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
     onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
   </section>
+  {selectedMeeting&&initialTeamId&&(selectedMeeting.kind==="ceremony"||selectedMeeting.kind==="template")&&
+   <ScopedCeremonyDetail meeting={selectedMeeting} teamId={initialTeamId}
+    onClose={()=>setSelectedMeeting(null)}/>}
   {selectedMeeting&&initialTeamId&&(selectedMeeting.kind==="exceptional"||selectedMeeting.kind==="kanban")&&
    <ScopedMeetingEditor key={selectedMeeting.id} meeting={selectedMeeting} teamId={initialTeamId}
     mode={selectedMeeting.kind==="kanban"?"kanban":"scrum"} onClose={()=>setSelectedMeeting(null)}
