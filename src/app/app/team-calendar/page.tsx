@@ -1,3 +1,4 @@
+import "./calendar-cockpit.css";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
