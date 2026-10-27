@@ -99,3 +99,10 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Ajustement de la visibilité du focus clavier du bouton fermer avec bordure/anneau basés sur les couleurs du thème.
 - Aucune modification de la logique de réunion, de la validation, des API ou de la gestion de focus JS.
 - Restent : essai des palettes (contraste réel non mesuré), mobile 320–450px, champs longs et sauvegarde ; tests uniquement sur PC utilisateur.
+
+## Étape accessibilité clavier — 27/10/2026
+- `member-detail.tsx` : le piège de focus dans les modales Membres ignore désormais les éléments cachés, et ramène Tab dans la fenêtre lorsque le focus est en dehors.
+- `calendar-meeting-modal.tsx` : même récupération du focus par Tab si celui-ci se trouve hors du dialogue.
+- Les raccourcis Échap, la fermeture avec confirmation éventuelle, la restitution de focus et les mutations métier n'ont pas été modifiés.
+- Cette correction est ciblée sur les boîtes `role="dialog"` gérées manuellement ; les dialogues natifs Registres/Sprint/Équipe restent sous le comportement natif du navigateur.
+- À vérifier sur PC : Tab, Shift+Tab, champs masqués/désactivés, ouverture/fermeture Échap, retour focus, formulaires à champs conditionnels, lecteur d'écran. Aucun test exécuté.
