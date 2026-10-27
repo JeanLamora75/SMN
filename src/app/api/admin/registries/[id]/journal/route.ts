@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {withLegacyRegistryReadDb} from "@/server/registries/legacy-read";
 import {jsonResult} from "@/server/auth/request";
 import {readRegistryComments} from "@/server/registries/comments";
 import {readRegistryJournalLinks} from "@/server/registries/journal-links";
@@ -18,7 +18,7 @@ export async function GET(req:NextRequest,{params}:{
  if(!actor)return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  try{
-  const result=await withSprintIndexDb(async db=>{
+  const result=await withLegacyRegistryReadDb(async db=>{
    const comments=await readRegistryComments(db,id,actor.role==="admin");
    if(!comments)return null;
    const events=await readRegistryJournalLinks(db,id,actor.role==="admin");
