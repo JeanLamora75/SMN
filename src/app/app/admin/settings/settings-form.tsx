@@ -67,9 +67,10 @@ export default function SettingsForm() {
   const dirty=!!saved&&(locale!==saved.locale||theme!==saved.theme||palette!==saved.palette||country!==(saved.referenceCountry??""));
   useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
   const chooseTab=(next:"general"|"language"|"appearance")=>{
-    if(busy)return;
-    if(dirty&&!window.confirm(t("draft.leaveWarning")))return;
+    if(busy)return false;
+    if(dirty&&!window.confirm(t("draft.leaveWarning")))return false;
     setTab(next);
+    return true;
   };
   const discardAndReload=()=>{
     if(dirty&&!window.confirm(t("draft.discardWarning")))return;
@@ -89,8 +90,7 @@ export default function SettingsForm() {
           const names=["general","language","appearance"] as const;
           const next=event.key==="Home"?0:event.key==="End"?2:
             (index+(event.key==="ArrowRight"?1:-1)+3)%3;
-          chooseTab(names[next]);
-          document.getElementById("settings-tab-"+names[next])?.focus();
+          if(chooseTab(names[next]))document.getElementById("settings-tab-"+names[next])?.focus();
         }}>{name==="general"?t("settings.fixed"):name==="language"?t("settings.locale"):t("settings.theme")}</button>)}
     </div>}
     {loaded&&saved&&<form onSubmit={submit} className="smn-panel p-4 d-grid gap-4" aria-describedby={error?"settings-feedback":undefined}>
