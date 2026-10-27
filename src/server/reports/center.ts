@@ -1,6 +1,6 @@
 import type {Client} from "pg";
 import {listReportTemplates} from "./templates";
-import {searchPdfArchives} from "./archive-library";
+import {searchPdfArchives,searchTeamPdfArchives} from "./archive-library";
 import {listUserPdfArchives} from "./user-archive-library";
 import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import type {TeamContextRow} from "@/server/teams/resolve";
@@ -69,6 +69,7 @@ export async function readTeamCenter(db:Client,team:TeamContextRow){
   [] as CenterDocument[];
  // Ne jamais appeler searchPdfArchives sans filtre team_id : le seul cycleId
  // n'est pas une autorisation et ses fonctions actuelles sont monoéquipe.
+ const archiveResult=await searchTeamPdfArchives(db,team.team_id,{page:1});
  return {documents,cycles:cycles.rows,templates:await listReportTemplates(db),
-  archives:[]};
+  archives:archiveResult.items.map(a=>({id:String(a.id),cycleId:String(a.cycleId),cycleName:String(a.cycleName),createdAt:String(a.createdAt),language:String(a.language),snapshotVersion:a.snapshotVersion as number|null}))};
 }
