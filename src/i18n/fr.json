@@ -598,7 +598,8 @@
       "countries": "Pays",
       "calendar": "Calendrier",
       "sprint": "Sprint",
-      "register": "Registre"
+      "register": "Registre",
+      "links": "Liens"
     }
   },
   "detail": {
@@ -3584,5 +3585,33 @@
     "unavailable": "Sélecteur d'équipe temporairement indisponible.",
     "choose": "Choisir une équipe",
     "discard": "Des modifications non enregistrées sont présentes. Les abandonner pour changer d'équipe ?"
+  },
+  "links": {
+    "title": "Liens",
+    "team": "Équipe",
+    "open": "Ouvrir",
+    "editLater": "Modification disponible prochainement",
+    "actions": "Actions",
+    "addLater": "Ajout disponible prochainement",
+    "add": "+ Ajouter un lien",
+    "search": "Rechercher un lien",
+    "view": "Affichage",
+    "cards": "Cartes",
+    "list": "Liste",
+    "scope": "Portée",
+    "allScopes": "Toutes les portées",
+    "transverse": "Transverse",
+    "specific": "Équipe",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "sort": "Tri",
+    "sortTitle": "Titre",
+    "sortCategory": "Catégorie",
+    "loading": "Chargement des liens…",
+    "error": "Impossible de charger les liens.",
+    "retry": "Réessayer",
+    "empty": "Aucun lien disponible.",
+    "noMatch": "Aucun résultat pour ces filtres.",
+    "reset": "Réinitialiser"
   }
 }
