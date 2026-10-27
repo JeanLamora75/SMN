@@ -598,7 +598,8 @@
       "countries": "Countries",
       "calendar": "Calendar",
       "sprint": "Sprint",
-      "register": "Register"
+      "register": "Register",
+      "links": "Links"
     }
   },
   "detail": {
@@ -3584,5 +3585,33 @@
     "unavailable": "Team switcher is temporarily unavailable.",
     "choose": "Choose a team",
     "discard": "You have unsaved changes. Discard them to switch teams?"
+  },
+  "links": {
+    "title": "Links",
+    "team": "Team",
+    "open": "Open",
+    "editLater": "Editing available later",
+    "actions": "Actions",
+    "addLater": "Adding links available later",
+    "add": "+ Add link",
+    "search": "Search links",
+    "view": "View",
+    "cards": "Cards",
+    "list": "List",
+    "scope": "Scope",
+    "allScopes": "All scopes",
+    "transverse": "Cross-team",
+    "specific": "Team",
+    "category": "Category",
+    "allCategories": "All categories",
+    "sort": "Sort",
+    "sortTitle": "Title",
+    "sortCategory": "Category",
+    "loading": "Loading links…",
+    "error": "Unable to load links.",
+    "retry": "Retry",
+    "empty": "No links available.",
+    "noMatch": "No links match these filters.",
+    "reset": "Reset"
   }
 }
