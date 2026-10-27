@@ -395,3 +395,12 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - `src/app/api/admin/reports/templates/route.ts` : consultation des modèles par un administrateur dont le contexte d'équipe v28 a été résolu ; écriture des modèles maintenue derrière le verrou v27. Les modèles personnalisés sont encore partagés à l'installation : leur gouvernance et l'éventuelle propriété d'équipe nécessitent une décision explicite.
 - La page Studio détaillée, les autres APIs de manipulation (blocs, sections, contenu, notes, historique, etc.), exports PDF/archives et les modèles en écriture demeurent fermés en v28 ; ne pas présenter ces opérations comme opérationnelles.
 - **Aucun test, commande Node/pnpm, Prisma, migration PostgreSQL ni recette exécutés.** Code poussé via le connecteur GitHub sur la PR brouillon #189 ; aucune fusion, aucun basculement du feature flag.
+
+
+## Étape 6B.3 — Consultation contextuelle du document (27/10/2026)
+
+- `src/app/app/reports/[documentId]/page.tsx` reconnaît le paramètre `teamId` : accès limité à l'Admin, résolution de l'équipe côté serveur, vérification que le document et son Sprint appartiennent à cette équipe. Les URLs sans `teamId` conservent le parcours v27 protégé par `assertLegacyTeamApi`.
+- En v28, rendu de consultation restreinte du document (titre, statut, révision, langue et contenu enregistré) : **aucun** montage des composants historiques du Studio, PDF, rafraîchissement, journal IA ou versionnement global tant qu'ils ne sont pas contextualisés.
+- `src/app/app/reports/page.tsx` relie la liste d'une équipe à cette fiche via `teamId` explicite.
+- **Restant dans 6B.3 :** adaptation transactionnelle et qualification des services SQL des sections, blocs, notes, choix de contenu, versions et historiques, des endpoints dédiés et de l'UI d'édition. Ils demeurent inaccessibles en v28, même par URL directe. Ce lot n'est pas terminé.
+- **Non réalisés :** commande BMAD locale, tests, typecheck, lint, build, migration, recette. PR #189 toujours en brouillon, sans merge ni activation.
