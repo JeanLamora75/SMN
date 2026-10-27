@@ -38,6 +38,7 @@ export default async function ReportDetail({params,searchParams}:{params:Promise
    <Link href={"/app/reports?teamId="+encodeURIComponent(teamId)+"&cycleId="+encodeURIComponent(cycleId)}>Retour au Centre Rapports</Link>
    <p role="status" className="alert alert-info mt-3">Édition contextualisée par équipe : les fonctions PDF, archives, rafraîchissement et insertion de nouvelles analyses restent désactivées jusqu'à qualification de leurs accès.</p>
    <ReportEditingProvider initialRevision={doc.revision}>
+    <ReportPdfActions sprintId={cycleId} documentId={documentId} teamId={teamId} readOnly={false}/>
     <ReportQualityControl content={doc.content}/>
     <ReportStudio document={doc} readOnly={false} teamId={teamId} journal={[]}/>
    </ReportEditingProvider>
