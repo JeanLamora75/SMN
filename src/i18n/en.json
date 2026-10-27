@@ -808,7 +808,13 @@
       "empty": "No version recorded.",
       "version": "Revision",
       "shareSummary": "SM {sm}% · PO {po}% · Dev {dev}%",
-      "historyNote": "Corrections on the same day retain every revision; the latest applies to that date. A future version takes effect only on its chosen date."
+      "historyNote": "Corrections on the same day retain every revision; the latest applies to that date. A future version takes effect only on its chosen date.",
+      "historicalTitle": "Correct assignment start date",
+      "historicalDescription": "Current date: {date}. You can move the start to before SMN was installed without changing allocation percentages or later versions. Closed reports remain unchanged.",
+      "historicalRealDate": "Actual arrival date",
+      "historicalAction": "Correct historical start date",
+      "historicalConfirm": "Move this member's arrival date from {current} to {next}? Historical capacity that is not frozen may be recalculated. Closed reports will remain unchanged.",
+      "historicalFailure": "Could not correct the start date. Check the history before trying again."
     },
     "lifecycle": {
       "title": "Member lifecycle",
