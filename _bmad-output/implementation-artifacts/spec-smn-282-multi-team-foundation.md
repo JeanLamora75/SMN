@@ -536,3 +536,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - Cette garantie couvre l'instant de **commit de l'archive Studio** contre les écritures concurrentes normales qui verrouillent le même document. Elle ne remplace ni le contrôle préalable de l'Admin et de l'équipe ni une recette de concurrence réelle.
 - **Recette 6C complémentaire :** déclencher une modification du document pendant le rendu PDF, vérifier qu'aucune archive périmée n'est enregistrée, puis retenter avec la révision courante ; répéter sur deux équipes pour vérifier l'isolation.
 - Aucun test, typecheck, build, migration ou fusion exécuté. L'export PDF Sprint standard v28 reste explicitement bloqué tant que la prévisualisation interne n'est pas qualifiée.
+
+
+## Revue de cohérence des états Studio — 27/10/2026
+
+- `src/app/app/reports/[documentId]/page.tsx` : les actions de modification du Studio et d'export/archivage PDF sont désormais masquées ou désactivées dès que `doc.status!=="draft"` en contexte multiéquipes. L'interface ne prétend plus qu'un document hors brouillon peut être enregistré.
+- Les vérifications serveur restent obligatoires ; cette restriction d'interface ne constitue pas à elle seule une autorisation.
+- Scénario 6C complémentaire : vérifier qu'une URL directe vers un document non-brouillon ne rend pas les actions d'édition disponibles.
+- Revue statique uniquement ; aucun test, build, migration ni fusion. Le rendu PDF Sprint standard v28 demeure bloqué.
