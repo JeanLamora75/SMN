@@ -20,3 +20,11 @@
 **Conflit identifié :** le cadrage actuel privilégie un cycle en cours, sinon le plus récent, alors qu'un contrat de SMN-282 mentionnait un cycle à venir prioritaire. Pour cette nouvelle évolution, appliquer la décision D-AGILE-02 ; harmoniser les documents lors du développement, sans effacer la traçabilité historique.
 
 **Droits :** les habilitations spécifiques aux comptes `user` sont reportées à V1 selon SMN-282 ; la sécurité reste fermée par défaut, jamais simulée.
+
+## Avenant UX finalisé
+- [DESIGN.md — Sally](../../ux-designs/ux-agile-multiequipes-2026-10-27/DESIGN.md)
+- [EXPERIENCE.md — Sally](../../ux-designs/ux-agile-multiequipes-2026-10-27/EXPERIENCE.md)
+- [BRIEF-AMELIA-UX.md](../../ux-designs/ux-agile-multiequipes-2026-10-27/BRIEF-AMELIA-UX.md)
+- [RECETTE-UX.md](../../ux-designs/ux-agile-multiequipes-2026-10-27/RECETTE-UX.md)
+
+**Décisions UX-01 à UX-04 approuvées le 27/10/2026** : consultation archivée en lecture seule admin, interdiction des écritures opérationnelles sur archive, protection de la dernière équipe active, édition du mode uniquement depuis Paramètres > Équipes.
