@@ -808,7 +808,13 @@
       "empty": "Aucune version enregistrée.",
       "version": "Révision",
       "shareSummary": "SM {sm} % · PO {po} % · Dev {dev} %",
-      "historyNote": "Les corrections réalisées le même jour conservent toutes leurs révisions ; la plus récente s'applique pour cette date. Une version future n'est appliquée qu'à compter de sa date d'effet."
+      "historyNote": "Les corrections réalisées le même jour conservent toutes leurs révisions ; la plus récente s'applique pour cette date. Une version future n'est appliquée qu'à compter de sa date d'effet.",
+      "historicalTitle": "Corriger la date de début d'affectation",
+      "historicalDescription": "Date actuelle : {date}. Vous pouvez avancer l'arrivée à une date antérieure à l'installation de SMN, sans modifier les pourcentages ni les versions ultérieures. Les rapports clôturés restent figés.",
+      "historicalRealDate": "Date réelle d'arrivée",
+      "historicalAction": "Corriger la date historique",
+      "historicalConfirm": "Antidater l'arrivée du membre du {current} au {next} ? Les capacités historiques non figées pourront être recalculées. Les rapports déjà clôturés resteront inchangés.",
+      "historicalFailure": "Correction impossible. Vérifiez l'historique avant de réessayer."
     },
     "lifecycle": {
       "title": "Cycle de vie du membre",
