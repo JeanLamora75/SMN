@@ -20,6 +20,21 @@ export async function ensureKanbanPeriodTables(db:Client){
  await db.query(`ALTER TABLE public.smn_kanban_period ADD COLUMN IF NOT EXISTS deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL`);
  await db.query(`CREATE INDEX IF NOT EXISTS smn_kanban_period_team_dates_idx
  ON public.smn_kanban_period(team_id,start_on,end_on)`);
+ // Une installation v29 peut créer la table Kanban après la migration.
+ // Le trigger est alors installé au même moment, avant toute insertion.
+ await db.query(`DO $$
+ BEGIN
+  IF to_regprocedure('public.smn_lock_team_agile_on_cycle()') IS NOT NULL
+   AND NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+    WHERE tgrelid='public.smn_kanban_period'::regclass
+     AND tgname='smn_kanban_period_lock_team_agile' AND NOT tgisinternal
+   ) THEN
+    CREATE TRIGGER smn_kanban_period_lock_team_agile
+    BEFORE INSERT ON public.smn_kanban_period
+    FOR EACH ROW EXECUTE FUNCTION public.smn_lock_team_agile_on_cycle('kanban');
+  END IF;
+ END $$`);
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_period_audit (
  id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
  action text NOT NULL,details jsonb NOT NULL,
