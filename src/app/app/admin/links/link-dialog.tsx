@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useRef,type KeyboardEvent as ReactKeyboardEvent,type ReactNode} from "react";
+import {useEffect,useRef,useState,type KeyboardEvent as ReactKeyboardEvent,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 
 /** SMN-298 : piège de focus, Échap, retour au déclencheur, verrouillage du scroll. */
@@ -7,8 +7,10 @@ export default function LinkDialog({titleId,children,onClose,locked=false,large=
  titleId:string;children:ReactNode;onClose:()=>void;locked?:boolean;large?:boolean;
 }){
  const ref=useRef<HTMLDivElement>(null);
+ const [mounted,setMounted]=useState(false);
  const closeRef=useRef(onClose);closeRef.current=onClose;
  useEffect(()=>{
+  setMounted(true);
   const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
   const originalOverflow=document.body.style.overflow;
   document.body.style.overflow="hidden";
@@ -32,6 +34,7 @@ export default function LinkDialog({titleId,children,onClose,locked=false,large=
    event.preventDefault();first.focus();
   }
  };
+ if(!mounted)return null;
  return createPortal(<div ref={ref} tabIndex={-1} className="modal d-block" role="dialog"
   aria-modal="true" aria-labelledby={titleId} onKeyDown={keydown}
   style={{backgroundColor:"rgba(0,0,0,.55)"}}>
