@@ -35,10 +35,12 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   JOIN public.smn_team t ON t.id=p.team_id
    AND t.installation_id=p.installation_id
   WHERE p.account_id=$1 AND p.installation_id=$2
-   AND ($3::integer<29 OR t.is_archived=false)`,
+   AND ($3::integer<29 OR COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false)`,
   [actor.accountId,installation,details.rows[0].schema_version]);
  const id=requestedTeamId??chosen.rows[0]?.team_id;
  if(!id||!validRecordId(id))throw new Error("team-context-unavailable");
+ const modeColumn=details.rows[0].schema_version===29?"t.agile_mode":"i.mode";
+ const activeClause=details.rows[0].schema_version===29?"AND t.is_archived=false":"";
  const row=await db.query<TeamContextRow>(`
   SELECT p.id AS product_id,p.name AS product,t.id AS team_id,
     t.name AS team,${modeColumn} AS mode
