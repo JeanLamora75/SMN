@@ -5,6 +5,9 @@ import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {withAuthDb} from "@/server/auth/database";
+import {assertTeamReportCycle} from "@/server/reports/team-cycle";
+import {withLegacyReportReadDb} from "@/server/reports/legacy-read";
 import {composeHtmlReportPreview} from "@/server/reports/html-preview";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
@@ -14,24 +17,28 @@ import {readFrozenReportReference} from "@/server/reports/render-reference";
 import PrintReportButton from "./print-report-button";
 import FrozenPdfExport from "./frozen-pdf-export";
 export const dynamic="force-dynamic";
-export default async function ReportPreviewPage({params,searchParams}:{params:Promise<{sprintId:string}>;searchParams:Promise<{reference?:string}>}){
+export default async function ReportPreviewPage({params,searchParams}:{params:Promise<{sprintId:string}>;searchParams:Promise<{reference?:string;teamId?:string}>}){
  const account=await currentAccount();if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"write",{type:"settings",exists:true,inScope:true}))notFound();
  const {sprintId}=await params;if(!/^[a-f0-9-]{36}$/i.test(sprintId))notFound();
- const requested=(await searchParams).reference;
+ const {reference:requested,teamId}=await searchParams;
+ if(teamId!==undefined&&(!/^[a-f0-9-]{36}$/i.test(teamId)||account.role!=="admin"))notFound();
  const frozen=typeof requested==="string"&&/^[a-f0-9-]{36}$/i.test(requested);
  if(requested&&!frozen)notFound();
- const payload=await withSprintIndexDb(async db=>{
+ const load=async (db:import("pg").Client)=>{
+  if(teamId&&!await assertTeamReportCycle(db,{accountId:account.id,role:account.role},teamId,sprintId))return null;
   if(frozen){
-   const ref=await readFrozenReportReference(db,requested,sprintId);
+   const ref=await readFrozenReportReference(db,requested,sprintId,teamId);
    if(!ref)return null;
    return ref.payload;
   }
+  if(teamId)return null; // No live preview in v28: a verified frozen reference is required.
   return {data:await composeHtmlReportPreview(db,sprintId),
-  language:await readReportLanguage(db,sprintId),
-  logo:await readReportLogo(db,sprintId)};
- }).catch(()=>null);
+   language:await readReportLanguage(db,sprintId),
+   logo:await readReportLogo(db,sprintId)};
+ };
+ const payload=await (teamId?withAuthDb(load):withLegacyReportReadDb(load)).catch(()=>null);
  if(!payload?.data)notFound();
  const data=payload.data;
  const locale=payload.language.language,label=(key:string)=>translate(locale,("reportPreview."+key) as "reportPreview.title");
@@ -39,7 +46,7 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
  return <main lang={locale} className="container-fluid px-3 px-lg-4 py-4 smn-report-printable">
  <span className="d-print-none"><Link href={"/app/admin/sprints/"+encodeURIComponent(sprintId)+"/report"}>{label("back")}</Link></span>
  {frozen&&<p className="alert alert-info" role="status">{label("frozenReference")}: <code>{requested}</code></p>}
- {frozen?<FrozenPdfExport sprintId={sprintId} reference={requested} label={label("pdfExport")} errorLabel={label("pdfError")}/>:<PrintReportButton label={label("print")} warning={label("printWarning")}/> }
+ {frozen&&!teamId?<FrozenPdfExport sprintId={sprintId} reference={requested} label={label("pdfExport")} errorLabel={label("pdfError")}/>:!frozen?<PrintReportButton label={label("print")} warning={label("printWarning")}/>:null}
  <article className="smn-panel rounded-4 p-4 my-3">
  <header className="border-bottom pb-3 mb-4"><div className="d-flex gap-4 justify-content-between align-items-start"><div><h1 className="h3">{label("title")}</h1>
  <h2 className="h5">{data.sprint.name}</h2>
