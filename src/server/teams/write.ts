@@ -2,13 +2,13 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {normalizedTeamName,parseTeamCreate,parseTeamUpdate,type TeamFormValues} from "@/lib/team-form";
 
-export type TeamWriteError="invalid-input"|"forbidden"|"not-found"|"schema-not-ready"|"duplicate-name"|"conflict";
+export type TeamWriteError="invalid-input"|"forbidden"|"not-found"|"schema-not-ready"|"duplicate-name"|"conflict"|"mode-locked";
 export type TeamWriteResult=
  | Readonly<{ok:false;error:TeamWriteError}>
  | Readonly<{ok:true;changed:boolean;teamId:string;revision:number;values:TeamFormValues}>;
 
 type Installation={id:string;schema_version:number;state:string;mode:string};
-type TeamRow={id:string;name:string;product_id:string|null;product_name:string|null};
+type TeamRow={id:string;name:string;product_id:string|null;product_name:string|null;agile_mode:"scrum"|"kanban";mode_locked:boolean;is_archived:boolean};
 type Stored={revision:number;vision:string|null;product_goal:string|null};
 const failed=(error:TeamWriteError):TeamWriteResult=>({ok:false,error});
 
@@ -24,7 +24,7 @@ async function lockAuthorizedInstallation(db:Client,installationId:string,actorI
   [actorId,installationId]);
  if(account.rows.length!==1)return "forbidden";
  // Ne jamais activer une création multiéquipes avec la structure historique monoéquipe.
- if(i.schema_version!==28)return "schema-not-ready";
+ if(i.schema_version!==29)return "schema-not-ready";
  return null;
 }
 async function collides(db:Client,installationId:string,name:string,exceptId?:string){
@@ -62,8 +62,8 @@ export async function createInstallationTeam(db:Client,installationId:string,
    await db.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES($1,$2,$3)",
     [productId,installationId,input.productName]);
   }
-  await db.query("INSERT INTO public.smn_team(id,installation_id,product_id,name) VALUES($1,$2,$3,$4)",
-   [teamId,installationId,productId,input.name]);
+  await db.query("INSERT INTO public.smn_team(id,installation_id,product_id,name,agile_mode) VALUES($1,$2,$3,$4,$5)",
+   [teamId,installationId,productId,input.name,input.agileMode]);
   await db.query("INSERT INTO public.smn_team_context "+
    "(team_id,vision,product_goal,revision,updated_by) VALUES($1,$2,$3,1,$4)",
    [teamId,input.vision,input.productGoal,actorId]);
@@ -80,13 +80,15 @@ export async function updateInstallationTeam(db:Client,installationId:string,
  return transaction<TeamWriteResult>(db,async()=>{
   const guard=await lockAuthorizedInstallation(db,installationId,actorId);
   if(guard)return failed(guard);
-  const t=await db.query<TeamRow>("SELECT t.id,t.name,t.product_id,p.name AS product_name "+
+  const t=await db.query<TeamRow>("SELECT t.id,t.name,t.product_id,t.agile_mode,t.mode_locked,t.is_archived,p.name AS product_name "+
    "FROM public.smn_team t LEFT JOIN public.smn_product p "+
    "ON p.id=t.product_id AND p.installation_id=t.installation_id "+
    "WHERE t.id=$1 AND t.installation_id=$2 FOR UPDATE OF t",
    [input.teamId,installationId]);
   const team=t.rows[0];
   if(!team)return failed("not-found");
+  if(team.is_archived)return failed("forbidden");
+  if(team.mode_locked&&team.agile_mode!==input.agileMode)return failed("mode-locked");
   if(team.product_id!==null&&team.product_name===null)
    throw Error("team-product-outside-installation");
   const stored=await db.query<Stored>("SELECT revision,vision,product_goal "+
@@ -96,11 +98,11 @@ export async function updateInstallationTeam(db:Client,installationId:string,
   if(await collides(db,installationId,input.name,input.teamId))return failed("duplicate-name");
   const before:TeamFormValues={
    name:team.name,productName:team.product_name??null,
-   vision:previous?.vision??null,productGoal:previous?.product_goal??null
+   vision:previous?.vision??null,productGoal:previous?.product_goal??null,agileMode:team.agile_mode
   };
   const after:TeamFormValues={
    name:input.name,productName:input.productName,
-   vision:input.vision,productGoal:input.productGoal
+   vision:input.vision,productGoal:input.productGoal,agileMode:input.agileMode
   };
   if(Object.keys(after).every(key=>before[key as keyof TeamFormValues]===after[key as keyof TeamFormValues]))
    return {ok:true,changed:false,teamId:input.teamId,revision,values:before};
@@ -115,8 +117,8 @@ export async function updateInstallationTeam(db:Client,installationId:string,
    await db.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES($1,$2,$3)",
     [productId,installationId,after.productName]);
   }
-  const saved=await db.query("UPDATE public.smn_team SET name=$3,product_id=$4 "+
-   "WHERE id=$1 AND installation_id=$2",[input.teamId,installationId,after.name,productId]);
+  const saved=await db.query("UPDATE public.smn_team SET name=$3,product_id=$4,agile_mode=$5 "+
+   "WHERE id=$1 AND installation_id=$2",[input.teamId,installationId,after.name,productId,after.agileMode]);
   if(saved.rowCount!==1)throw Error("team-update-inconsistent");
   if(previous){
    const changed=await db.query("UPDATE public.smn_team_context "+
