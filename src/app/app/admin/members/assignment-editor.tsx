@@ -87,7 +87,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
  }
  async function correctHistoricalStart(){
   if(!state?.assignmentId||!state.startOn||!historicalStart||historicalStart>=state.startOn||busy)return;
-  if(!window.confirm("Antidater l'arrivée du membre du "+state.startOn+" au "+historicalStart+" ? Les capacités historiques non figées pourront être recalculées. Les clichés déjà clôturés resteront inchangés."))return;
+  if(!window.confirm(t("members.assignment.historicalConfirm",{current:state.startOn,next:historicalStart})))return;
   setBusy(true);setError("");
   try{
    const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/assignment/start-date",{
@@ -95,9 +95,9 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
     body:JSON.stringify({assignmentId:state.assignmentId,newStartOn:historicalStart,revision:memberRevision})
    });
    const body=await r.json() as {error?:string};
-   if(!r.ok)throw Error(body.error??"Correction impossible");
+   if(!r.ok)throw Error(body.error??t("members.assignment.historicalFailure"));
    onSaved();
-  }catch(e){setError(e instanceof Error?e.message:"Correction impossible");}
+  }catch(e){setError(e instanceof Error?e.message:t("members.assignment.historicalFailure"));}
   finally{setBusy(false);}
  }
  return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="assignment-heading">
@@ -110,14 +110,14 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
    <p className="small text-secondary">{t(state.versions.length>0?
     "prefill.savedAssignment":"prefill.suggestedAssignment")}</p>
    {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
-    <h4 className="h6">Corriger la date de prise en compte historique</h4>
-    <p className="small text-secondary">Date actuelle : {state.startOn}. Vous pouvez avancer l&apos;arrivée à une date antérieure à l&apos;installation de SMN, sans changer les pourcentages ni les versions ultérieures. Les rapports clôturés restent figés.</p>
+    <h4 className="h6">{t("members.assignment.historicalTitle")}</h4>
+    <p className="small text-secondary">{t("members.assignment.historicalDescription",{date:state.startOn})}</p>
     <div className="d-flex flex-wrap align-items-end gap-2">
-     <label className="form-label mb-0">Date d&apos;arrivée réelle
+     <label className="form-label mb-0">{t("members.assignment.historicalRealDate")}
       <input type="date" className="form-control" max={state.startOn} value={historicalStart} disabled={busy}
        onChange={e=>setHistoricalStart(e.target.value)}/></label>
      <button type="button" className="btn btn-outline-primary" disabled={busy||!historicalStart||historicalStart>=state.startOn}
-      onClick={()=>void correctHistoricalStart()}>Corriger la date historique</button>
+      onClick={()=>void correctHistoricalStart()}>{t("members.assignment.historicalAction")}</button>
     </div>
    </div>}
    <form onSubmit={submit} className="d-grid gap-3">
