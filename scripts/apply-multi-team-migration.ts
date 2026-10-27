@@ -8,6 +8,7 @@ import {existsSync,readFileSync,statSync} from "node:fs";
 import {resolve} from "node:path";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
+import {rehearsalMigrationUri} from "../src/server/teams/rehearsal-target";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../src/server/teams/migration";
@@ -15,7 +16,7 @@ import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../src/server/teams/mi
 async function main(){
  const options=process.argv.slice(2);
  const file=options.find(a=>a.startsWith("--backup-file="))?.slice("--backup-file=".length);
- if(options.length!==2||!options.includes("--apply")||!file){
+ if(options.length!==3||!options.includes("--rehearsal")||!options.includes("--apply")||!file){
   throw Error("Usage: pnpm exec tsx scripts/apply-multi-team-migration.ts --apply --backup-file=<sauvegarde-confirmee>");
  }
  const backup=resolve(file);
@@ -26,7 +27,7 @@ async function main(){
   import.meta.url),"utf8");
  if(source!==MULTI_TEAM_SCHEMA_SQL)throw Error("Source SQL et migration versionnée divergentes");
 
- const uri=await installedDatabaseUri();
+ const uri=rehearsalMigrationUri(options,process.env.SMN_REHEARSAL_DATABASE_URL,await installedDatabaseUri());
  const before=classifySnapshot(await probePostgres(uri));
  if(before.status!=="initialized")throw Error("Diagnostic préalable incorrect : migration refusée");
 
