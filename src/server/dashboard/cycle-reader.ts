@@ -173,7 +173,7 @@ async function readCapacity(db:Client,teamId:string,sprint:SprintContextItem):
   await db.query("SAVEPOINT dashboard_capacity");
   try{
    const actual=await readActualCapacity(db,start,end,readDevelopmentCapacity,
-    {externalTransaction:true});
+    {externalTransaction:true,teamId});
    if(actual.source==="Non renseigné"){
     actualMetric=actual.missingSources.length?
      metricUnavailable("producer-not-ready"):metricNotRecorded();
