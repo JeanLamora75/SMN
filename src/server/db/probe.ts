@@ -80,11 +80,12 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const shapeValid = required.every((name) => columnSet.has(name));
     if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 28",
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 29",
     )).rows;
     // Métadonnées de schéma lues en READ ONLY ; aucun DDL ni réparation implicite.
     let multiTeamSchemaValid:boolean|undefined;
-    if(installations.rows[0]?.schema_version===28){
+    let teamAgileSchemaValid:boolean|undefined;
+    if(installations.rows[0]?.schema_version>=28){
       const integrity=await client.query<{
         product_nullable:boolean;indexes_valid:boolean;
         constraints_valid:boolean;old_unique_gone:boolean;
@@ -119,7 +120,22 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
         ["account_id","installation_id","team_id","updated_at"]
           .every(n=>columnSet.has("smn_account_team_preference:"+n));
     }
-    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
+    if(installations.rows[0]?.schema_version===29){
+      const checks=await client.query<{constraint_valid:boolean;triggers_valid:boolean;function_valid:boolean}>(`
+        SELECT
+         EXISTS(SELECT 1 FROM pg_constraint WHERE conname='smn_team_agile_mode_check'
+          AND conrelid='public.smn_team'::regclass AND convalidated) AS constraint_valid,
+         EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='smn_guard_team_agile_mode_before_update'
+          AND tgrelid='public.smn_team'::regclass AND tgenabled='O')
+         AND EXISTS(SELECT 1 FROM pg_trigger WHERE tgname='smn_sprint_lock_team_agile'
+          AND tgrelid='public.smn_sprint'::regclass AND tgenabled='O') AS triggers_valid,
+         to_regprocedure('public.smn_lock_team_agile_on_cycle()') IS NOT NULL AS function_valid
+      `);
+      const c=checks.rows[0];
+      teamAgileSchemaValid=!!c?.constraint_valid&&!!c?.triggers_valid&&!!c?.function_valid&&
+       ["agile_mode","is_archived","mode_locked"].every(n=>columnSet.has("smn_team:"+n));
+    }
+    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, teamAgileSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
       configurationTasksSchemaValid: ["smn_configuration_task:installation_id","smn_configuration_task:task_key",
         "smn_configuration_task:status","smn_configuration_task:updated_at","smn_configuration_task:updated_by"]
