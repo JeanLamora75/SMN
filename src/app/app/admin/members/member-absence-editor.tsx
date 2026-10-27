@@ -125,7 +125,7 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
      onChange={event=>change("isPlanned",event.target.checked)}/>
      {t("members.absence.planned")}</label>
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
-    <div className="d-flex gap-2 flex-wrap">
+    <div className="smn-cockpit-form-actions">
      <button className="btn btn-primary" type="submit" disabled={busy||state.archived}>
       {t(record?"members.absence.saveEdit":"members.absence.save")}</button>
      <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={cancel}>
