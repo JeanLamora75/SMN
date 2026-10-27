@@ -1,12 +1,13 @@
 /** Bootstrap Icons (MIT) — SVG officiels, intégrés sans CDN ni police externe.
  * Source: https://github.com/twbs/icons/tree/main/icons */
-type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders"|"floppy"|"list-ul"|"grid-3x3-gap";
+type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders"|"floppy"|"list-ul"|"grid-3x3-gap"|"link-45deg";
 
 export default function BootstrapIcon({name,className=""}:Readonly<{
  name:Name;className?:string;
 }>){
  const icon=(()=>{
   switch(name){
+   case "link-45deg":return <path d="M4.715 6.542 3.343 7.914a3 3 0 0 0 4.243 4.243l1.828-1.829a3 3 0 0 0 0-4.242.5.5 0 0 0-.707.707 2 2 0 0 1 0 2.828L6.879 11.45a2 2 0 0 1-2.829-2.829l1.372-1.372a.5.5 0 1 0-.707-.707m5.87-3.37a3 3 0 0 0-4.243 0L4.515 5a3 3 0 0 0 0 4.243.5.5 0 1 0 .707-.707 2 2 0 0 1 0-2.829L7.05 3.879A2 2 0 0 1 9.88 6.707l-1.372 1.372a.5.5 0 0 0 .707.707l1.372-1.372a3 3 0 0 0 0-4.243z"/>;
    case "list-ul":return <path fillRule="evenodd"
     d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>;
    case "grid-3x3-gap":return <path
