@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
+import {assertActiveTeamResource} from "@/server/teams/resource-guard";
 import {readDevelopmentCapacity} from "@/server/capacity/engine";
 
 type TeamPeriodResult=Readonly<{teamId:string;mode:"scrum"|"kanban";
@@ -23,6 +24,14 @@ export async function reconcileAuthorizedTeamPeriods(db:Client,actor:TeamActor,
  await db.query("BEGIN");
  try{
   const team=await resolveAdminTeam(db,actor,requestedTeamId);
+  // Keep the team row locked until commit: concurrent archival cannot race
+  // with the period state transitions.
+  const owner=await db.query<{id:string}>(`
+   SELECT id FROM public.smn_team WHERE id=$1 AND installation_id=(
+    SELECT installation_id FROM public.smn_account WHERE id=$2
+   ) AND ($3::boolean=false OR is_archived=false) FOR UPDATE`,
+   [team.team_id,actor.accountId,true]);
+  if(owner.rows.length!==1)throw Error("team-access-forbidden");
   const mode=team.mode as "scrum"|"kanban";
   const ready=await db.query<{name:string|null}>(`
    SELECT to_regclass('public.'||t.name)::text AS name
@@ -46,6 +55,7 @@ export async function reconcileAuthorizedTeamPeriods(db:Client,actor:TeamActor,
     ORDER BY s.start_at,s.id FOR UPDATE OF s`,[team.team_id]);
    for(const s of rows.rows){
     if(!s.has_started||!["planned","active"].includes(s.status))continue;
+    await assertActiveTeamResource(db,actor,team.team_id,"sprint",s.id);
     if(s.status==="planned"){
      await db.query(`INSERT INTO public.smn_sprint_transition
       (id,sprint_id,transition,business_at,actor_id)
@@ -85,6 +95,7 @@ export async function reconcileAuthorizedTeamPeriods(db:Client,actor:TeamActor,
     ORDER BY p.start_on,p.id FOR UPDATE OF p`,[team.team_id]);
    for(const p of rows.rows){
     if(p.today<p.start_on)continue;
+    await assertActiveTeamResource(db,actor,team.team_id,"kanban-period",p.id);
     if(p.status==="planned"){
      const late=p.today>p.start_on;
      // Une ouverture historique ne doit jamais inventer de J/H initial.
