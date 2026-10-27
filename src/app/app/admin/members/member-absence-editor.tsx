@@ -13,8 +13,9 @@ const initial=(today:string,record:AbsenceItem|null):Draft=>record?{
  endSlot:"afternoon",isPlanned:true,reason:""};
 
 /** Une fenêtre = création OU correction d'une seule absence, jamais son historique. */
-export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved,onCancel}:{
+export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved,onCancel,teamId=null}:{
  memberId:string;record:AbsenceItem|null;initialDate?:string;onSaved:()=>void;onCancel:()=>void;
+ teamId?:string|null;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AbsenceState|null>(null);
@@ -57,8 +58,8 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
   try{
    const payload={action:record?"update":"create",...(record?{id:record.id}:{}),
     revision:record?.revision??0,...draft};
-   const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/absences",{
-    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
+   const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+(teamId?"/team-absence":"/absences"),{
+    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(teamId?{teamId,change:payload}:payload)
    });
    const result=await r.json() as {error?:string};
    if(!r.ok){
