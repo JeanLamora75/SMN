@@ -2,6 +2,7 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {calculateSprint} from "./creation";
+import {saveGeneratedCeremonies} from "./ceremonies";
 
 type Request={teamId:string;startOn:string;name?:string;cadenceRevision:number};
 type Cadence={duration_weeks:number;start_day:number;start_time:string;end_day:number;end_time:string;time_zone:string;revision:number};
@@ -79,7 +80,10 @@ export async function createScopedSprint(db:Client,actor:TeamActor,raw:unknown){
    VALUES($1,$2,'created',$3,$4::jsonb)`,
    [randomUUID(),id,actor.accountId,JSON.stringify({...dates,name,number,teamId:team.team_id,
     cadenceRevision:settings.revision})]);
+  const ceremonies=await saveGeneratedCeremonies(db,{
+   id,startAt:dates.startAt,endAt:dates.endAt,timeZone:dates.timeZone
+  },settings.duration_weeks);
   await db.query("COMMIT");
-  return {ok:true as const,sprint:{id,number,name,...dates,teamId:team.team_id}};
+  return {ok:true as const,sprint:{id,number,name,...dates,teamId:team.team_id},ceremonies};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
