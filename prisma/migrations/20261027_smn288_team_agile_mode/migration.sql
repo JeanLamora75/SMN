@@ -59,3 +59,34 @@ BEFORE UPDATE OF agile_mode,mode_locked ON public.smn_team
 FOR EACH ROW EXECUTE FUNCTION public.smn_guard_team_agile_mode();
 
 
+
+-- Le verrouillage d'un cycle doit être atomique avec son insertion.
+-- Un déclencheur prend un verrou de ligne sur son équipe parente ; une édition
+-- concurrente du mode ne peut ainsi contourner la première création.
+CREATE FUNCTION public.smn_lock_team_agile_on_cycle()
+RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE
+ expected_mode text := TG_ARGV[0];
+BEGIN
+ UPDATE public.smn_team
+ SET mode_locked=true
+ WHERE id=NEW.team_id AND agile_mode=expected_mode AND is_archived=false;
+ IF NOT FOUND THEN
+  RAISE EXCEPTION 'team-unavailable-for-cycle' USING ERRCODE='23514';
+ END IF;
+ RETURN NEW;
+END $$;
+
+CREATE TRIGGER smn_sprint_lock_team_agile
+BEFORE INSERT ON public.smn_sprint
+FOR EACH ROW EXECUTE FUNCTION public.smn_lock_team_agile_on_cycle('scrum');
+
+-- La table des périodes Kanban peut être créée plus tard par le serveur.
+DO $$
+BEGIN
+ IF to_regclass('public.smn_kanban_period') IS NOT NULL THEN
+  EXECUTE 'CREATE TRIGGER smn_kanban_period_lock_team_agile
+   BEFORE INSERT ON public.smn_kanban_period
+   FOR EACH ROW EXECUTE FUNCTION public.smn_lock_team_agile_on_cycle(''kanban'')';
+ END IF;
+END $$;
