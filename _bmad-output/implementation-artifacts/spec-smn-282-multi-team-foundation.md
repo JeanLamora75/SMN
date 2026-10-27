@@ -527,3 +527,12 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - Le rendu PDF Studio recontrôle désormais, après la génération des octets, non seulement la révision du document mais aussi son identité `id`, son `sprintId` et son `teamId`. Si l'identité ou la révision a changé, le rendu est rejeté avant l'archivage.
 - **Limite de concurrence restant à contrôler :** cette relecture n'est pas un verrou transactionnel couvrant tout le rendu et l'insertion finale en archive ; un changement extrêmement rapproché entre la relecture et le commit de l'archive nécessite une qualification supplémentaire. Ne pas considérer l'intégrité atomique PDF comme démontrée.
 - PDF Sprint standard v28 toujours bloqué : implémentation réelle de la prévisualisation interne à identifier. Tests locaux et recette 6C non exécutés. Aucune migration ni fusion.
+
+
+## Archivage PDF Studio — verrou transactionnel de révision (27/10/2026)
+
+- `src/server/reports/pdf-archive-store.ts` : au sein de la transaction d'insertion d'une archive Studio, la ligne `smn_report_document` est désormais verrouillée avec `FOR UPDATE OF d`. Vérification de `id`, `revision`, `team_id`, `sprint_id` et correspondance avec le manifeste de l'archive ; toute discordance déclenche `studio-archive-revision-changed` et annule la transaction. La suppression du fichier privé non archivé reste gérée par le mécanisme existant.
+- `src/app/api/admin/reports/sprints/[id]/documents/[documentId]/pdf/route.ts` : un conflit détecté lors du commit est renvoyé en HTTP 409 `revision-changed`.
+- Cette garantie couvre l'instant de **commit de l'archive Studio** contre les écritures concurrentes normales qui verrouillent le même document. Elle ne remplace ni le contrôle préalable de l'Admin et de l'équipe ni une recette de concurrence réelle.
+- **Recette 6C complémentaire :** déclencher une modification du document pendant le rendu PDF, vérifier qu'aucune archive périmée n'est enregistrée, puis retenter avec la révision courante ; répéter sur deux équipes pour vérifier l'isolation.
+- Aucun test, typecheck, build, migration ou fusion exécuté. L'export PDF Sprint standard v28 reste explicitement bloqué tant que la prévisualisation interne n'est pas qualifiée.
