@@ -36,3 +36,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `src/app/app/admin/members/member-absence-editor.tsx`, `assignment-editor.tsx`, `[id]/member-identity-editor.tsx` : les actions internes adoptent cette classe sans changer les callbacks, les contraintes `disabled` ni l'ordre DOM.
 - Les autres éditeurs, en particulier les calendriers avec champs intégrés au pied, restent à traiter individuellement pour préserver leur disposition et leur comportement.
 - Aucun test ni build exécuté. À vérifier sur PC : FR/EN, thèmes, lisibilité mobile et états de sauvegarde/erreur.
+
+## Extension — calendriers individuels
+- `src/app/app/admin/members/member-calendar-editor.tsx` : date d'effet placée dans une grille Bootstrap responsive, actions déplacées visuellement sous cette zone, utilisation de `.smn-cockpit-form-actions` sans changement de validation ou d'envoi.
+- `src/app/app/admin/members/member-calendar-exception-editor.tsx` : mêmes conventions pour les actions de sauvegarde et annulation, sans toucher aux cases matin/après-midi.
+- Le formulaire de cycle de vie conserve sa présentation particulière car il rassemble des actions destructives, de clôture et de réactivation : une assimilation au pied standard serait dangereuse sans analyse UX approfondie.
+- Lecture statique du JSX après modification ; aucun typecheck, test, build ni recette navigateur exécuté. La Story reste en cours.
