@@ -3613,6 +3613,20 @@
     "empty": "Aucun lien disponible.",
     "noMatch": "Aucun résultat pour ces filtres.",
     "reset": "Réinitialiser",
-    "sortRecent": "Plus récemment modifiés"
+    "sortRecent": "Plus récemment modifiés",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "titleField": "Titre",
+    "urlField": "URL",
+    "descriptionField": "Description",
+    "noCategories": "Aucune catégorie disponible",
+    "invalidUrl": "Veuillez indiquer une URL HTTP(S) valide.",
+    "saveError": "Opération impossible. Réessayez.",
+    "conflict": "Ce lien a été modifié entre-temps. Actualisez la liste.",
+    "confirmDelete": "Confirmer la suppression",
+    "deleteWarning": "Le lien sera supprimé. Cette action est irréversible."
   }
 }
