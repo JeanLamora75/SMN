@@ -2,7 +2,7 @@ export type LinkWrite={title:string;url:string;description:string|null;categoryI
 export class LinkError extends Error {
  constructor(public readonly kind:"invalid-input"|"forbidden"|"not-found"|"conflict"|"not-ready"){super(kind);}
 }
-const validId=(v:unknown):v is string=>typeof v==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(v);
+export const validId=(v:unknown):v is string=>typeof v==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(v);
 
 export function normalizeLink(body:Record<string,unknown>):LinkWrite {
  const title=typeof body.title==="string"?body.title.trim():"";
