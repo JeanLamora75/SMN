@@ -503,3 +503,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - `src/app/app/reports/[documentId]/page.tsx` : le texte d'information indique maintenant correctement la disponibilité des boutons d'export PDF du Studio, sous réserves des contrôles de qualité et de révision, sans prétendre que le rafraîchissement ni l'insertion d'analyses sont opérationnels en v28.
 - **Rendu PDF Sprint standard toujours fermé** (503 `team-pdf-preview-pending`) : la route interne de prévisualisation ne peut pas être localisée/qualifiée par l'accès GitHub disponible ; interdiction de présenter 6B comme clos.
 - Pas de tests, de build, de migration activée ni de merge. Les scénarios de recette 6C restent non exécutés.
+
+
+## Revue des écritures concurrentes — 27/10/2026
+
+- La sauvegarde `saveTeamStudioDocument` exige désormais `revision` dans la requête multiéquipes, en plus de `sessionId`, `sequence` et `content`. La révision présentée par le client est comparée à celle du document sous verrou `FOR UPDATE OF d` ; tout conflit retourne `stale` (HTTP 409), sans écraser les changements de l'autre session.
+- `report-studio.tsx` transmet la révision active fournie par `ReportEditingProvider` à chaque sauvegarde. Les requêtes v27 continuent d'utiliser leur contrat historique sans cette propriété.
+- Scénario 6C-04 : vérifier avec deux onglets indépendants qu'une écriture de révision périmée provoque un conflit explicite, puis que l'actualisation du document permet un nouvel enregistrement.
+- **Non exécutés :** tests, typecheck, build, migration, recette. Blocage PDF Sprint standard v28 maintenu ; pas de fusion PR #189.
