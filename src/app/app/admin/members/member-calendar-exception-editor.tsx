@@ -20,8 +20,8 @@ const fromCalendar=(data:CalendarState,date:string):Selection=>{
 };
 
 /** Exception ponctuelle indépendante de la trame et des absences. */
-export default function MemberCalendarExceptionEditor({memberId,onSaved,onCancel}:{
- memberId:string;onSaved:()=>void;onCancel:()=>void;
+export default function MemberCalendarExceptionEditor({memberId,onSaved,onCancel,onDirtyChange}:{
+ memberId:string;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean)=>void;
 }){
  const t=useTranslation();
  const [data,setData]=useState<CalendarState|null>(null);
@@ -34,6 +34,7 @@ export default function MemberCalendarExceptionEditor({memberId,onSaved,onCancel
  // Changer de date sans éditer les créneaux n’est pas une modification à sauvegarder.
  const dirty=Boolean(data&&JSON.stringify(selection)!==baseline);
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
+ useEffect(()=>{onDirtyChange?.(Boolean(dirty||busy));},[dirty,busy,onDirtyChange]);
  useEffect(()=>{
   let live=true;
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/calendar",{cache:"no-store"})
