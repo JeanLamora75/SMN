@@ -61,3 +61,16 @@ test("Transition v28 : pas de DDL, ouverture historique sans capacité inventée
  assert.match(s,/initialJh:number\|null=null/);
  assert.doesNotMatch(s,/CREATE TABLE|ALTER TABLE|DROP TABLE/i);
 });
+
+test("Inventaire des cérémonies générées en v28 : Admin, GET seulement et verrou",()=>{
+ const route=source("src/app/api/admin/team-ceremonies/route.ts");
+ const service=source("src/server/teams/ceremonies-read.ts");
+ assert.match(route,/export async function GET/);
+ assert.doesNotMatch(route,/export async function POST|export async function PATCH/);
+ assert.match(route,/actor\.role!=="admin"/);
+ assert.ok(route.indexOf("if(!MULTI_TEAM_CONTEXT_READY)")<
+  route.indexOf("withAuthDb(db=>readTeamCeremonies"));
+ assert.match(service,/resolveAdminTeam\(db,actor,teamId\)/);
+ assert.match(service,/s.team_id=\$2/g);
+ assert.doesNotMatch(service,/CREATE TABLE|ALTER TABLE|INSERT INTO|UPDATE public/);
+});
