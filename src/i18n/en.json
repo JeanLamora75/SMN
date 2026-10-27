@@ -2071,6 +2071,15 @@
       "switchLabel": "Settings display mode",
       "cards": "Card view",
       "list": "List view"
+    },
+    "tabs": {
+      "categories": "Automatic categories",
+      "alerts": "Deadline alerts",
+      "slots": "Working time slots",
+      "lunch": "Lunch break",
+      "general": "General",
+      "language": "Language",
+      "appearance": "Appearance"
     }
   },
   "memberAbsences": {
