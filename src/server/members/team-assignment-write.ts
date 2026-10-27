@@ -34,6 +34,18 @@ export async function saveTeamAssignmentRevision(
   // Sécurité v28 : le compte Admin et le teamId sont résolus par le serveur,
   // pas depuis une simple préférence ou une déclaration du navigateur.
   const team=await resolveAdminTeam(db,actor,input.teamId);
+  // Lock team before member and assignment to serialize with future archival.
+  // The legacy v28 table does not yet have is_archived.
+  const owner=await db.query<{id:string}>(`
+   SELECT t.id FROM public.smn_team t
+   JOIN public.smn_account a ON a.installation_id=t.installation_id
+   JOIN public.smn_installation i ON i.id=t.installation_id
+   WHERE t.id=$1 AND a.id=$2 AND a.role='admin' AND a.is_active=true
+     AND a.must_change_password=false AND i.state='initialized'
+     AND i.schema_version IN (28,29)
+     AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
+   FOR UPDATE OF t`,[team.team_id,actor.accountId]);
+  if(owner.rows.length!==1)throw Error("team-access-forbidden");
   const member=await db.query<{id:string;archived_at:string|null}>(`
    SELECT m.id,m.archived_at::text AS archived_at
    FROM public.smn_member m
