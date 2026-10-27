@@ -72,3 +72,17 @@
 @media(max-width:575.98px) {
  .smn-cockpit-modal .smn-cockpit-form-actions > .btn {flex:1 1 auto;}
 }
+
+/* Meeting editor keeps its actions visible while long content scrolls. */
+.smn-cal-detail-modal.smn-cockpit-modal {
+ display:flex;flex-direction:column;overflow:hidden;
+ max-height:calc(100dvh - 2rem);
+}
+.smn-cal-detail-modal.smn-cockpit-modal .smn-cockpit-modal-header,
+.smn-cal-detail-modal.smn-cockpit-modal .smn-cockpit-modal-footer {flex-shrink:0;}
+.smn-cal-detail-modal.smn-cockpit-modal .smn-cockpit-modal-body {
+ flex:1 1 auto;min-height:0;overflow-y:auto;
+}
+@media(max-width:575.98px) {
+ .smn-cal-detail-modal.smn-cockpit-modal {max-height:calc(100dvh - 1rem);}
+}
