@@ -4,7 +4,7 @@ import type {CalendarMeeting} from "./calendar-option-b";
 import {formatCalendarLocalTime,resolveCalendarLocalTime} from "@/lib/calendar-local-time";
 type Detail={id:string;name:string;startAt:string;endAt:string;status:string;revision:number|null;timeZone:string;sprintStatus:string};
 export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
- meeting:CalendarMeeting;teamId:string;onClose:()=>void;onSaved:()=>void;
+ meeting:CalendarMeeting;teamId:string;onClose:()=>void;onSaved?:()=>void;
 }){
  const [detail,setDetail]=useState<Detail|null>(null);
  const [error,setError]=useState(false);
@@ -41,7 +41,7 @@ export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({teamId,ceremonyId:detail.id,revision:detail.revision,startAt,endAt})});
    if(!res.ok)throw Error("save");
-   onSaved();onClose();
+   onSaved?.();onClose();
   }catch{setSaveError("Modification indisponible ou en conflit.");}
   finally{setBusy(false);}
  };
