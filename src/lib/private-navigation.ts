@@ -4,7 +4,7 @@ export type PrivateMode = "scrum" | "kanban";
 export type PrivateRole = "admin" | "user";
 export type NavigationIcon =
  "house-fill"|"people-fill"|"calendar3"|"calendar-check"|"sticky-fill"|
- "exclamation-octagon-fill"|"bar-chart-line"|"sliders"|"stack"|"ticket-perforated-fill";
+ "exclamation-octagon-fill"|"bar-chart-line"|"sliders"|"stack"|"ticket-perforated-fill"|"link-45deg";
 export type NavigationEntry = Readonly<{
  id:string;
  label:TranslationKey;
@@ -36,7 +36,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole):readon
     href:"/app/team-calendar",icon:"calendar3"},
    {id:"risks",label:"navigation.entries.register",
     href:"/app/admin/registries",icon:"stack"},
-   {id:"links",label:"navigation.entries.links",href:role==="admin"?"/app/admin/links":null,icon:"stack"},
+   {id:"links",label:"navigation.entries.links",href:role==="admin"?"/app/admin/links":null,icon:"link-45deg"},
    {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"}
   ]}
  ];
