@@ -1,11 +1,11 @@
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "./resolve";
 
-type ScopedResource = "sprint"|"kanban-period"|"member"|"team";
+type ScopedResource = "sprint"|"kanban-period"|"member-assignment"|"team";
 const resources:Record<ScopedResource,{table:string;teamColumn:string}>={
  sprint:{table:"smn_sprint",teamColumn:"team_id"},
  "kanban-period":{table:"smn_kanban_period",teamColumn:"team_id"},
- member:{table:"smn_member_assignment",teamColumn:"team_id"},
+ "member-assignment":{table:"smn_member_assignment",teamColumn:"team_id"},
  team:{table:"smn_team",teamColumn:"id"}
 };
 const validId=(value:unknown):value is string=>
