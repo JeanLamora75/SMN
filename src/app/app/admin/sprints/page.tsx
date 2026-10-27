@@ -16,7 +16,7 @@ export default async function SprintsPage({searchParams}:{searchParams:Promise<R
   redirect("/app");
  const isScrum=await withSprintIndexDb(async db=>{
   const result=await db.query(`SELECT 1 FROM public.smn_installation
-   WHERE id='singleton' AND state='initialized' AND lower(mode)='scrum' LIMIT 1`);
+   WHERE id='singleton' AND state='initialized' AND schema_version<=27 AND lower(mode)='scrum' LIMIT 1`);
   return result.rows.length===1;
  }).catch(()=>false);
  if(!isScrum)redirect("/app");
