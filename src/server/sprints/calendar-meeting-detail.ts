@@ -23,7 +23,7 @@ type Row={
  planned_minutes:number;actual_minutes:number|null;revision:number|null;ceremony_kind:string|null;
 };
 /** Read-only and team-scoped. The kind-to-table mapping is a constant whitelist. */
-export async function readCalendarMeeting(db:Client,kind:string,id:string):Promise<CalendarMeetingDetail|null>{
+export async function readCalendarMeeting(db:Client,kind:string,id:string,teamId?:string):Promise<CalendarMeetingDetail|null>{
  if(!validCalendarMeetingRef(kind,id))return null;
  const source=tables[kind],alias=source.alias;
  const columnList=await db.query<{column_name:string}>(`
@@ -52,8 +52,8 @@ export async function readCalendarMeeting(db:Client,kind:string,id:string):Promi
   JOIN public.smn_sprint s ON s.id=${alias}.sprint_id
   JOIN public.smn_team t ON t.id=s.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
-  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
-   AND s.deleted_at IS NULL AND ${alias}.id=$1 LIMIT 1`,[id]);
+  WHERE i.id='singleton' AND i.state='initialized' AND (lower(i.mode)='scrum' OR i.schema_version=29)
+   AND s.deleted_at IS NULL AND ${alias}.id=$1\n   AND ($2::text IS NULL OR (i.schema_version IN (28,29) AND s.team_id=$2))\n   AND (i.schema_version<=27 OR (i.schema_version IN (28,29) AND $2::text IS NOT NULL))\n   LIMIT 1`,[id,teamId??null]);
  const item=res.rows[0];
  if(!item)return null;
  return {
