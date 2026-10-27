@@ -487,3 +487,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - Nouveau document `_bmad-output/implementation-artifacts/recette-smn-282-lot-6c.md` : 18 scénarios manuels interéquipes, permissions Admin/user, composition, concurrence, exports, archives, URLs directes et régression v27.
 - Recherche de la véritable route `/app/admin/sprints/[id]/report/preview` par chemins probables et recherche GitHub non concluante. Aucun fichier de prévisualisation n'a été identifié et modifié. Le POST PDF Sprint standard v28 demeure explicitement bloqué (503) ; ne pas revendiquer la sécurisation du renderer interne.
 - **Aucun test exécuté** ; aucune migration activée ni fusion. La clôture technique 6B reste en attente de l'identification et de la qualification de la page de prévisualisation.
+
+
+## Revue statique préalable à la recette 6C — 27/10/2026
+
+- Services du Centre Rapports : documentation interne harmonisée avec la lecture/téléchargement des archives par `teamId` déjà implémentés.
+- `src/server/reports/team-studio.ts` : les lectures de documents et de listes en contexte d'équipe tolèrent l'absence de la table `smn_report_document` ; document individuel non trouvé / collection vide, sans transformer cette absence en erreur SQL 503. La vérification du compte, de l'équipe et du Sprint reste en place.
+- **Périmètre de cette revue :** inspection statique ciblée des fichiers GitHub, pas une validation TypeScript, SQL ou sécurité exécutée. Les cas du document `recette-smn-282-lot-6c.md` restent tous *non exécutés*.
+- **Point bloquant maintenu :** le rendu PDF Sprint standard v28 est fermé (`team-pdf-preview-pending`) jusqu'à identification et contrôle du point d'entrée de prévisualisation. Ne pas déclarer 6B terminé ni activer la migration.
