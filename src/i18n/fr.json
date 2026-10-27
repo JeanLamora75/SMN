@@ -3640,6 +3640,9 @@
   },
   "linksAdmin": {
     "title": "Administration des liens",
-    "allTeams": "Toutes les équipes"
+    "allTeams": "Toutes les équipes",
+    "transfer": "Changer la portée / transférer",
+    "chooseTeam": "Choisir une équipe",
+    "transferConfirm": "Je confirme le changement de visibilité ou le transfert vers l'équipe sélectionnée."
   }
 }
