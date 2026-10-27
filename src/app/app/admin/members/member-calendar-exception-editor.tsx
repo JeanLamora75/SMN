@@ -120,7 +120,7 @@ export default function MemberCalendarExceptionEditor({memberId,onSaved,onCancel
       value={selection.note} disabled={busy||data.archived||!hasWeek}
       onChange={event=>setSelection(previous=>({...previous,note:event.target.value}))}/></div>
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
-    <div className="d-flex gap-2 flex-wrap">
+    <div className="smn-cockpit-form-actions">
      <button type="submit" className="btn btn-primary" disabled={busy||data.archived||!hasWeek}>
       {t("members.calendar.saveException")}</button>
      <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={close}>
