@@ -355,3 +355,24 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 4. Tests d'accès interéquipes avec deux équipes, URL forgées, changement de préférence, historique multiéquipe, concurrence, régression v27, migrations et vérification de build à exécuter avant activation. Les clôtures définitives et les cérémonies générées non encore mutables du lot 6A demeurent également en attente.
 
 **Invariant de livraison :** PR #189 ouverte en brouillon, **aucune fusion**, `MULTI_TEAM_CONTEXT_READY=false`, écritures équipes désactivées, migration PostgreSQL v28 non appliquée.
+
+## Étape 6B — Centre Rapports contextualisé et sécurisation des sorties PDF/IA (27/10/2026)
+
+**Développement de la deuxième tranche du lot 6B sur la PR #189 (non activée) :**
+
+- `src/server/reports/center.ts` : le lecteur historique `readCenter` est désormais explicitement limité aux schémas v1–v27 grâce à `assertLegacyTeamApi`. Nouveau `readTeamCenter`, appelé uniquement après `resolveAdminTeam` en v28, qui vérifie aussi l'installation et `schema_version=28`, puis filtre **à la source SQL** les Sprints et rapports par `teamId` et l'égalité `s.team_id=d.team_id`. Une équipe Kanban ne reçoit aucun document Scrum. **Les archives ne sont volontairement pas chargées**, car leurs consommateurs actuels ne filtrent pas tous par équipe.
+- `src/app/app/reports/page.tsx` : sélection explicite du contexte v27/v28 et du compte Admin de la même installation, propagation du `teamId` dans les filtres et URL de navigation. En v28, liste des documents autorisés en lecture synthétique uniquement ; commandes de création, ouverture du Studio, gestion des modèles et téléchargement d'archives masquées, archives signalées comme indisponibles, plutôt que de fournir une fonction susceptible de lire des documents d'une autre équipe.
+- `src/app/app/reports/[documentId]/page.tsx` : **liens profonds vers le Studio historique refusés en v28 avant tout appel à `getReportDocument`**, y compris si l'ID exact d'un document est connu.
+- `src/server/reports/legacy-read.ts` : nouveau wrapper `withLegacyReportReadDb` qui exécute `assertLegacyTeamApi` dans la **même transaction READ ONLY** avant toute ancienne lecture. `withLegacyTeamApi` est réutilisé pour les mutations.
+- **22 routes du Centre Rapports / Studio / archives** ont été raccordées à l'un de ces gardes, y compris documents, journaux, aperçus, rendus, téléchargements PDF, gestion d'archives, modèles et options. En complément, **6 routes annexes** (PDF et références Kanban, rapports Kanban, téléchargement et réponses aux archives IA) ont été fermées en v28 pour supprimer les chemins de contournement par URL. **Les anciens parcours v27 sont conservés** via les wrappers.
+- Tests sources ajoutés : `tests/smn-282-report-center-isolation.test.ts` (**4 scénarios**) pour le lecteur par équipe et le refus du lecteur historique sur v28 ; `tests/smn-282-report-routes-isolation.test.ts` (**5 scénarios**) pour la présence des gardes dans les 28 routes, les liens profonds, l'UI et le verrou global.
+
+**Vérifications réellement réalisées :** vérification statique de **22/22 routes principales** raccordées aux wrappers, par inspection des fichiers présents sur GitHub (2 lots de 11). Les 9 scénarios sources ont été **écrits mais non exécutés**. Aucune compilation TypeScript complète, `pnpm test`, `pnpm build`, validation Prisma, requête PostgreSQL réelle, génération PDF, migration ou recette navigateur. Ces vérifications statiques ne prouvent pas que toutes les dépendances transitives sont isolées.
+
+**Périmètre restant :**
+1. Reconcevoir **l'ouverture et l'édition du Studio**, les producteurs de sections, les documents et archives avec un `teamId` serveur autorisé, ainsi que les mécanismes de publication et de contrôle qualité.
+2. Isoler **les exports PDF, les archives et leurs autorisations individuelles** avec des contrôles d'ID document/équipe jusque dans les flux de téléchargement et la recherche d'archives ; ne pas les réactiver par un simple flag.
+3. Contrôler les autres producteurs de données transversaux (indicateurs, tableaux de bord, IA, historique, clôture) et la cohérence des clôtures/instantanés de Sprint/Kanban.
+4. Exécuter tests PostgreSQL multiéquipes et v27, migration v28 sur copie sauvegardée, typecheck, build et recette avant fusion.
+
+**Invariants maintenus :** `MULTI_TEAM_CONTEXT_READY=false`, `SMN_MULTI_TEAM_WRITES_ENABLED` désactivé, migration SQL v28 **non appliquée**, PR #189 **ouverte en brouillon et non fusionnée**. Les comptes `user` préexistants ne reçoivent aucun droit automatique (décision PO reportée).
