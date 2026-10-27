@@ -37,3 +37,7 @@ Toutes les commandes de qualité doivent être vérifiées, les scénarios A/B/C
 Le diagnostic vérifie l'existence des deux migrations versionnées, leurs sommes de contrôle, la validité des structures multiéquipes puis du mode Agile v29. `probePostgres` fonctionne dans une transaction PostgreSQL en lecture seule. Un contrôle supplémentaire a été ajouté au test de prévalidation pour empêcher la disparition accidentelle des deux validations de schéma. La réussite de ce test n'atteste pas la bonne restauration d'une sauvegarde ni la validité du SQL sur une base réelle.
 
 Le script v29 refuse explicitement une base qui n'est pas en v28. Aucun mécanisme d'application automatique n'a été activé. Audit documentaire uniquement, non exécuté.
+
+## Protection ajoutée aux scripts de répétition
+
+Les scripts v28 et v29 exigent désormais l'option `--rehearsal`, la variable locale `SMN_REHEARSAL_DATABASE_URL`, et une cible PostgreSQL sur loopback avec un port différent de la connexion SMN normale. L'ancien lancement avec les seuls paramètres `--apply --backup-file` est refusé. Le fichier `src/server/teams/rehearsal-target.ts` centralise le contrôle et `tests/smn-297-rehearsal-target.test.ts` contient les cas négatifs. **Attention : cela ne prouve pas qu'une instance est réellement indépendante.** La vérification du cluster cible (data directory / identité système), de l'absence de proxy, et de la restauration reste obligatoire avant exécution ; ne pas lancer les scripts à cette étape. Les tests n'ont pas été exécutés.
