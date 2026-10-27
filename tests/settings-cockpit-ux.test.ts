@@ -39,6 +39,12 @@ describe("Centre Paramètres Cockpit — contrats structurels",()=>{
   assert.match(maintenance,/type:"backups"/);
   assert.match(maintenance,/type:"audit"/);
   assert.match(maintenance,/readAuditJournal/);
+  assert.match(maintenance,/AuditJournalView/);
+  const legacy=source("src/app/app/admin/audit/page.tsx");
+  assert.match(legacy,/AuditJournalView/);
+  const view=source("src/app/app/admin/audit/audit-journal-view.tsx");
+  assert.match(view,/audit.operationId/);
+  assert.match(view,/audit.fields/);
  });
  it("traduit les onglets dans les deux langues",()=>{
   for(const lang of ["fr","en"]){
