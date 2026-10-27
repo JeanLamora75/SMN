@@ -41,3 +41,24 @@ Tester deux équipes A/B, admin et user, URL dangereuse, révisions concurrentes
 - Le modèle Prisma des trois tables doit être synchronisé avant toute génération Prisma qui exige un reflet intégral du SQL.
 - Les contrôles de publication et snapshots appartiennent à SMN-311 et SMN-312.
 - Avant un merge, vérifier le chemin officiel d'installation des migrations et la compatibilité avec les développements simultanés de main.
+
+## Complément — sécurité et qualification (étape 3)
+
+- `src/server/links/validation.ts` : refus des URL dont la chaîne contient espaces, contrôles ou antislashs, pour empêcher des normalisations ambiguës.
+- `tests/smn-306-links-validation.test.ts` : nouveaux cas d'URL et identifiants invalides.
+- `tests/smn-306-links-migration.test.ts` : assertions statiques sur les contraintes SQL, la conservation de l'audit et le maintien de la v28.
+
+### Preuves et limites
+Les fichiers sont publiés sur la branche de la PR #207 ; **aucune commande de tests ni migration PostgreSQL n'a été exécutée**. Les tests SQL sont statiques : ils ne démontrent pas le comportement transactionnel d'une vraie base.
+
+La migration est volontairement additive et **n'est pas encore raccordée au parcours d'installation SMN**. Vérifier les règles `_prisma_migrations`, `schema_version` et le diagnostic existant avant application manuelle.
+
+### Recette PostgreSQL restant à réaliser
+1. Vérifier le diagnostic et faire une sauvegarde de la base Windows.
+2. Vérifier la migration sur une base de développement jetable et la cohérence Prisma.
+3. Tester A/B avec deux équipes réelles de la même installation et confirmer que la vue A n'expose jamais B.
+4. Tester les comptes `admin` et `user` (ce dernier doit être refusé tant que les habilitations v1 sont absentes).
+5. Tester une URL dangereuse, un transfert et une suppression avec audit persistant, la catégorie utilisée et une édition concurrente.
+6. Confirmer qu'aucun rapport publié n'est modifié.
+
+Le serveur existant limite actuellement les accès multiéquipes à `admin`. Il ne faut pas ouvrir des droits aux comptes `user` pour contourner ce verrou.
