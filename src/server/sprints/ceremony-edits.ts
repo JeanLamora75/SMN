@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {ensureCeremonySchema} from "./ceremonies";
 
 export async function ensureCeremonyEditSchema(db:Client){
@@ -31,6 +32,7 @@ export async function editCeremony(db:Client,actorId:string,id:string,raw:unknow
  !Number.isSafeInteger(o.minutes)||Number(o.minutes)<1||Number(o.minutes)>600||
  !Number.isSafeInteger(o.revision)||Number(o.revision)<1||
  !["single","following"].includes(String(o.scope)))return {ok:false as const,error:"invalid-input" as const};
+ await assertLegacyTeamApi(db);
  await ensureCeremonyEditSchema(db);
  await db.query("BEGIN");
  try{
