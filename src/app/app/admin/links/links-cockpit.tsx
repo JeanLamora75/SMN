@@ -2,7 +2,8 @@
 import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
-type Item={id:string;title:string;url:string;description:string|null;scope:"TRANSVERSE"|"EQUIPE";teamId:string|null;categoryId:string;categoryName:string;revision:number};
+import {filterLinks,type LinkEntry} from "@/lib/links-display";
+type Item=LinkEntry;
 type View="cards"|"list";
 const key="smn-links-display-view";
 export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:string}){
@@ -17,7 +18,7 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
  const [sort,setSort]=useState("title");
  const [view,setView]=useState<View>("cards");
  const [reload,setReload]=useState(0);
- useEffect(()=>{try{setView(localStorage.getItem(key)==="list"?"list":"cards");}catch{}},[]);
+ useEffect(()=>{try{const preferred=localStorage.getItem(key);if(preferred==="list")queueMicrotask(()=>setView("list"));}catch{}},[]);
  useEffect(()=>{
   const controller=new AbortController();
   const options={signal:controller.signal,cache:"no-store" as const};
@@ -28,31 +29,25 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
     if(!links.ok||!cats.ok)throw Error("unavailable");
     return Promise.all([links.json() as Promise<{items:Item[]}>,cats.json() as Promise<{items:{id:string;name:string}[]}>]);
    }).then(([links,cats])=>{if(controller.signal.aborted)return;
-    setItems(links.items);setCategories(cats.items);setError(false);
-   }).catch(()=>{if(!controller.signal.aborted)setError(true);})
+    setItems(Array.isArray(links.items)?links.items:[]);setCategories(Array.isArray(cats.items)?cats.items:[]);setError(false);
+   }).catch(()=>{if(!controller.signal.aborted){setItems([]);setCategories([]);setError(true);}})
    .finally(()=>{if(!controller.signal.aborted)setLoading(false);});
   return ()=>controller.abort();
  },[teamId,reload]);
  const shown=useMemo(()=>{
-  const q=search.trim().toLocaleLowerCase();
-  return items.filter(item=>(!q||[item.title,item.description,item.url,item.categoryName].some(v=>v?.toLocaleLowerCase().includes(q)))&&
-   (scope==="all"||item.scope===scope)&&(category==="all"||item.categoryId===category))
-   .sort((a,b)=>sort==="recent"?b.id.localeCompare(a.id):sort==="category"?
-    a.categoryName.localeCompare(b.categoryName):a.title.localeCompare(b.title));
+  return filterLinks(items,{search,scope,category,sort});
  },[items,search,scope,category,sort]);
  const selectView=(next:View)=>{setView(next);try{localStorage.setItem(key,next);}catch{}};
  const reset=()=>{setSearch("");setScope("all");setCategory("all");setSort("title");};
  const action=(item:Item)=><div className="d-flex flex-wrap align-items-center gap-2">
   <a className="btn btn-sm btn-outline-primary" href={item.url} target="_blank" rel="noopener noreferrer">{t("links.open")}</a>
   <button className="btn btn-sm btn-outline-secondary" disabled title={t("links.editLater")} aria-label={t("links.editLater")+" : "+item.title}><BootstrapIcon name="pencil-square"/></button>
-  <div className="dropdown">
-   <button type="button" className="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-label={t("links.actions")+" : "+item.title} disabled>{t("links.actions")}</button>
-  </div>
+  <button type="button" className="btn btn-sm btn-outline-secondary" disabled title={t("links.editLater")}>{t("links.actions")}</button>
  </div>;
  return <section className="d-grid gap-3">
   <header className="d-flex align-items-center justify-content-between flex-wrap gap-3">
    <div><h1 className="mb-1">{t("links.title")}</h1><p className="text-body-secondary mb-0">{t("links.team")} : {teamName}</p></div>
-   <button className="btn btn-primary" disabled title={t("links.addLater")}>{t("links.add")}</button>
+   <button type="button" className="btn btn-primary" disabled title={t("links.addLater")}>{t("links.add")}</button>
   </header>
   <div className="card"><div className="card-body d-grid gap-3">
    <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -71,7 +66,7 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
      <option value="all">{t("links.allCategories")}</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
     </select>
     <select className="form-select form-select-sm w-auto" aria-label={t("links.sort")} value={sort} onChange={e=>setSort(e.target.value)}>
-     <option value="title">{t("links.sortTitle")}</option><option value="category">{t("links.sortCategory")}</option>
+     <option value="title">{t("links.sortTitle")}</option><option value="category">{t("links.sortCategory")}</option><option value="recent">{t("links.sortRecent")}</option>
     </select>
     <span className="small text-body-secondary align-self-center ms-auto">{shown.length} / {items.length}</span>
    </div>
