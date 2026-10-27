@@ -87,3 +87,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `src/app/modal-cockpit.css` : ajout de styles ciblés à l'enveloppe de la fiche membre pour faire défiler le corps tout en conservant l'en-tête visible, sans modifier les sous-formulaires.
 - `_bmad-output/implementation-artifacts/smn-298-recette-modales-pc.md` : grille de recette transversale à exécuter uniquement sur le PC du commanditaire, couvrant les cas représentatifs FR/EN, thèmes, responsive, accessibilité, sécurité fonctionnelle et les commandes locales.
 - Cette étape ne clôt pas AC01 (inventaire exhaustif), ni les tests ; aucun navigateur, compilateur ou pipeline GitHub n'a été exécuté.
+
+## Étape conflits CSS hérités — 27/10/2026
+- Inspection de `globals.css` et `modal-cockpit.css` : les pieds de modales Registre utilisaient historiquement `justify-content:flex-end`, tandis que la classe partagée `.smn-cockpit-modal-footer` imposait `space-between`, susceptible de séparer Annuler et Enregistrer.
+- Correction CSS ciblée dans `modal-cockpit.css` : les pieds des dialogues de création et de section Registre conservent leurs actions groupées à droite, sans changer les boutons, leur ordre ni leur callback.
+- Restent à vérifier au navigateur : conflits spécifiques du calendrier, contraste en-têtes selon palettes, focus Échap/Tab, scroll et contenu long sur mobile.
+- Contrôle réalisé par lecture statique du dépôt ; aucune validation navigateur ni compilation effectuée.
