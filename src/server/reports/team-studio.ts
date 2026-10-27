@@ -4,7 +4,7 @@ import {listReportTemplates} from "./templates";
 import {prepareSprintReport} from "./sprint-preparation";
 import {emptyNotes} from "./draft-notes";
 import {resolveAdminTeam} from "@/server/teams/resolve";
-import {preserveAuthoritativeMetrics,type ReportDocument} from "./report-documents";
+import {ensureReportDocumentsSchema,preserveAuthoritativeMetrics,type ReportDocument} from "./report-documents";
 
 const uuid=/^[a-f0-9-]{36}$/i;
 type Actor={accountId:string;role:"admin"|"user"};
@@ -116,6 +116,7 @@ export async function createTeamStudioDocument(db:Client,actor:Actor,teamId:stri
    WHERE s.id=$1 AND s.team_id=$2 AND t.installation_id='singleton'
    AND s.deleted_at IS NULL FOR UPDATE OF s`,[cycleId,team.team_id]);
   if(sprint.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  await ensureReportDocumentsSchema(db);
   const old=v.requestId?await db.query<{id:string;sprint_id:string;team_id:string}>(`
    SELECT id,sprint_id,team_id FROM public.smn_report_document
    WHERE creation_request_id=$1 FOR UPDATE`,[v.requestId]):null;
