@@ -31,7 +31,8 @@ export async function readCenter(db:Client,role:"admin"|"user",userId:string){
 
 /** Centre Rapports v28 : seule une équipe Admin préalablement résolue est
  * autorisée. Documents et cycles restent strictement filtrés sur teamId.
- * Archives et téléchargements ne sont PAS disponibles avant qualification.
+ * Les archives sont filtrées strictement par équipe ; les téléchargements
+ * appliquent également une vérification serveur indépendante.
  */
 export async function readTeamCenter(db:Client,team:TeamContextRow){
  if(!["scrum","kanban"].includes(team.mode))
