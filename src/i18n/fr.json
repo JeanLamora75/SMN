@@ -3630,6 +3630,8 @@
     "deleteWarning": "Le lien sera supprimé. Cette action est irréversible.",
     "invalidFields": "Vérifiez les champs : titre, URL HTTP(S), catégorie et visibilité.",
     "forbidden": "Vous n’êtes pas autorisé à modifier ce lien.",
-    "notFound": "Ce lien n’existe plus ou n’est plus accessible. Actualisez la liste."
+    "notFound": "Ce lien n’existe plus ou n’est plus accessible. Actualisez la liste.",
+    "confirmScopeChange": "Je confirme le changement de visibilité de ce lien. Il sera accessible selon sa nouvelle portée.",
+    "confirmScopeRequired": "Confirmez explicitement le changement de visibilité avant d'enregistrer."
   }
 }
