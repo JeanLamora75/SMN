@@ -17,7 +17,7 @@ const effectiveDefault=(state:CalendarState)=>{
 
 /** Modale dédiée uniquement à la trame hebdomadaire et sa date d'effet. */
 export default function MemberCalendarEditor({memberId,teamName,onSaved,onCancel,onDirtyChange}:{
- memberId:string;teamName:string;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean)=>void;
+ memberId:string;teamName:string;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
 }){
  const t=useTranslation();
  const [data,setData]=useState<CalendarState|null>(null);
@@ -29,7 +29,7 @@ export default function MemberCalendarEditor({memberId,teamName,onSaved,onCancel
  const [error,setError]=useState("");
  const dirty=Boolean(data&&(JSON.stringify(week)!==baseline||effective!==effectiveDefault(data)));
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
- useEffect(()=>{onDirtyChange?.(Boolean(dirty||busy));},[dirty,busy,onDirtyChange]);
+ useEffect(()=>{onDirtyChange?.(Boolean(dirty),busy);},[dirty,busy,onDirtyChange]);
 
  useEffect(()=>{
   let active=true;
