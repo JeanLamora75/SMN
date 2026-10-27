@@ -457,3 +457,13 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - **Chaîne standard non ouverte en v28 :** `src/app/api/admin/reports/sprints/[id]/pdf/route.ts` reste sous garde legacy. Sa page interne de prévisualisation HTTP, la validation des références, des cookies et l'archivage du rendu doivent être audités dans un même périmètre sécurisé avant ouverture. Créer une référence figée n'autorise pas à générer un PDF standard.
 - Les grants des comptes `user` demeurent désactivés en v28, conformément à l'arbitrage V1.
 - Lot 6B non clos techniquement : contrôles de concurrence, production standard, intégrité des archives et recette locale à compléter. **Aucun test, compilation, migration ni fusion exécuté.**
+
+
+## Lot 6B — Revue transversale et rendu PDF Sprint standard (27/10/2026)
+
+- `src/app/api/admin/reports/sprints/[id]/pdf/route.ts` : préparation du chemin v28 avec `teamId`, Admin vérifié et Sprint rattaché à l'équipe ; référence figée contrôlée avant le rendu et relue avant archivage ; archives reprises par `operationId` rejetées si elles ne correspondent pas à l'équipe, la référence, le cycle ou l'auteur.
+- L'URL du rendu interne transporte désormais le `teamId`. La route utilise les mécanismes de verrou et la validation d'intégrité existants et conserve l'ancien chemin v27.
+- **Réserve bloquante :** la page effective `/app/admin/sprints/[id]/report/preview` n'a pas pu être localisée et examinée dans cette intervention. L'isolement côté rendu HTML/session cookie n'est donc PAS prouvé. Le code du POST PDF Sprint standard est une préparation, **pas une ouverture qualifiée**.
+- Revue transversale : la chaîne actuelle comporte au moins la création de référence figée, le chargement de cette référence dans la prévisualisation, le navigateur PDF, l'opération idempotente, la conservation de l'archive et le téléchargement. Leur vérification intégrée doit couvrir la fuite interéquipes, les comptes `user`, la révocation de droits, les collisions d'`operationId`, la mutation pendant le rendu et le multi-session.
+- **Lot 6B non clôturé** tant que le renderer interne, les appels UI Sprint et la recette d'isolation ne sont pas vérifiés sur le PC ; 6C reste distinct.
+- Pas de test ni de build, pas de migration activée, pas de fusion de la PR #189.
