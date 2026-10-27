@@ -146,7 +146,7 @@ export default function MemberDetail({id}:{id:string}){
       <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={closeDialog}/>
      </div>
      <div className="smn-cockpit-modal-body">
-      {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog} onDirtyChange={setModalDirty}/>}
+      {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog} onDirtyChange={reportDraft}/>}
       {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} memberRevision={member.revision} teamId={roster.team.id} teamName={roster.team.name} onDirtyChange={reportDraft} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onDirtyChange={reportDraft} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onDirtyChange={reportDraft} onSaved={saved} onCancel={()=>setSection(null)}/>}
