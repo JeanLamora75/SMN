@@ -42,11 +42,12 @@ Une installation SMN peut contenir plusieurs équipes indépendantes, dont certa
 - Elle reste visible dans Paramètres > Équipes pour être réactivée.
 - Aucune perte ni effacement des données, identifiants, historiques ou références ; le mode et son verrouillage sont conservés.
 
-### Recommandations NON ENCORE VALIDÉES
-- Autoriser la consultation des historiques archivés seulement dans une interface administrateur dédiée.
-- Interdire les écritures métier sur les équipes archivées.
-- Interdire l'archivage de la dernière équipe active de l'installation.
-Ces règles demandent validation du Product Owner avant spécification comme critères de recette définitifs.
+### Arbitrages UX confirmés — 27/10/2026
+- **UX-01 validée :** consulter l'historique des équipes archivées en lecture seule par un administrateur autorisé.
+- **UX-02 validée :** interdire les écritures opérationnelles sur les équipes archivées, contrôles serveur inclus.
+- **UX-03 validée :** interdire l'archivage de la dernière équipe active, y compris les accès concurrents.
+- **UX-04 validée :** seul Paramètres > Équipes permet de modifier le mode ; la modale de la page Équipe le présente en lecture seule.
+Contrats UX normatifs : https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-agile-multiequipes-2026-10-27/DESIGN.md et https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-agile-multiequipes-2026-10-27/EXPERIENCE.md.
 
 ## Limites et existant
 - SMN-282 a livré un socle de création/modification et sélection d'équipe, mais plusieurs verrous de mise en service subsistent.
