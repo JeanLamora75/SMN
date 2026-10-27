@@ -55,15 +55,15 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
    <div className="col-md-6"><label className="form-label">{t("members.profile.emailLabel")}<input className="form-control" type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} disabled={busy}/></label></div>
    <div className="col-12"><label className="form-label">{t("memberUX.functionLabel")}<input className="form-control" value={profession} onChange={e=>setProfession(e.target.value)} maxLength={120} disabled={busy}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.countryLabel")}<select className="form-select" value={country} onChange={e=>setCountry(e.target.value)} disabled={busy||!location||countriesFailed}>
-    <option value="">— Aucun pays —</option>
-    {country&&!countries.some(c=>c.code===country)&&<option value={country}>{country} (hors catalogue)</option>}
-    {countries.map(c=><option key={c.code} value={c.code}>{c.name} ({c.code})</option>)}
-   </select>{countriesFailed&&<small className="text-danger d-block">Catalogue des pays indisponible.</small>}</label></div>
+    <option value="">{t("memberUX.countryNone")}</option>
+    {country&&!countries.some(c=>c.code===country)&&<option value={country}>{country} — {t("memberUX.countryLegacy")}</option>}
+    {countries.map(c=><option key={c.code} value={c.code}>{c.name}</option>)}
+   </select>{countriesFailed&&<small className="text-danger d-block">{t("memberUX.countriesUnavailable")}</small>}</label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.regionLabel")}<input className="form-control" value={region} onChange={e=>setRegion(e.target.value)} maxLength={120} disabled={busy||!location}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.cityLabel")}<input className="form-control" value={city} onChange={e=>setCity(e.target.value)} maxLength={120} disabled={busy||!location}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.zoneLabel")}<select className="form-select" value={zone} onChange={e=>setZone(e.target.value)} disabled={busy||!location}>
-    <option value="">— Aucun fuseau horaire —</option>
-    {zone&&!timeZones.includes(zone)&&<option value={zone}>{zone} ({utcOffsetLabel(zone)}) — existant</option>}
+    <option value="">{t("memberUX.zoneNone")}</option>
+    {zone&&!timeZones.includes(zone)&&<option value={zone}>{zone} ({utcOffsetLabel(zone)}) — {t("memberUX.zoneLegacy")}</option>}
     {timeZones.map(z=><option key={z} value={z}>{z} ({utcOffsetLabel(z)})</option>)}
    </select></label></div>
   </div>
