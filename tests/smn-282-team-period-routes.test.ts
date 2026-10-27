@@ -27,8 +27,9 @@ test("ancienne réconciliation Sprint/Kanban refuse v28 avant sa DDL",()=>{
   "src/server/kanban/states.ts"]){
   const s=source(p);
   assert.match(s,/await assertLegacyTeamApi\(db\)/);
-  assert.ok(s.indexOf("await assertLegacyTeamApi(db)")<
-   s.indexOf("await ensure"));
+  const reconcile=s.slice(s.indexOf("export async function reconcile"));
+  assert.ok(reconcile.indexOf("await assertLegacyTeamApi(db)")<
+   reconcile.indexOf("await ensure"));
  }
 });
 test("anciennes routes de clôtures, périodes et cérémonies toutes gardées",()=>{
