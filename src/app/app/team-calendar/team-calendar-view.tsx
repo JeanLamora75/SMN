@@ -3,6 +3,7 @@ import {useCallback,useEffect,useRef,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMode} from "./calendar-option-b";
 import CalendarMeetingModal from "./calendar-meeting-modal";
+import ScopedMeetingEditor from "./scoped-meeting-editor";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
 import {absenceNamesByDate,type CalendarAbsentMember} from "@/lib/calendar-absence-names";
 import BootstrapIcon from "../bootstrap-icon";
@@ -268,8 +269,12 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
     onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
   </section>
-  {selectedMeeting&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
-  {selectedMeeting&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
+  {selectedMeeting&&initialTeamId&&(selectedMeeting.kind==="exceptional"||selectedMeeting.kind==="kanban")&&
+   <ScopedMeetingEditor key={selectedMeeting.id} meeting={selectedMeeting} teamId={initialTeamId}
+    mode={selectedMeeting.kind==="kanban"?"kanban":"scrum"} onClose={()=>setSelectedMeeting(null)}
+    onSaved={()=>{setStatus("loading");setRefreshToken(n=>n+1);}}/>}
+  {selectedMeeting&&!initialTeamId&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
+  {selectedMeeting&&!initialTeamId&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
    meeting={selectedMeeting} isAdmin={isAdmin} onClose={()=>setSelectedMeeting(null)}
    onSaved={()=>{setStatus("loading");setRefreshToken(n=>n+1);}}/>}
   {absenceEditor&&<div className="smn-member-modal-backdrop" role="presentation">
