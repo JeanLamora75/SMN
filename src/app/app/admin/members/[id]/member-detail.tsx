@@ -130,14 +130,14 @@ export default function MemberDetail({id}:{id:string}){
     <MemberHistory memberId={member.id}/>
    </section>}
    {section&&<div className="smn-member-modal-backdrop" role="presentation">
-    <div className="smn-member-modal" role="dialog" aria-modal="true" aria-label={section==="absence"?t(absenceToEdit?"members.absence.editTitle":"members.absence.newTitle"):
+    <div className="smn-member-modal smn-cockpit-modal" role="dialog" aria-modal="true" aria-label={section==="absence"?t(absenceToEdit?"members.absence.editTitle":"members.absence.newTitle"):
       section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})} ref={dialogRef}>
-     <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+     <div className="smn-cockpit-modal-header">
       <strong>{section==="absence"?t(absenceToEdit?"members.absence.editTitle":"members.absence.newTitle"):
        section==="calendarException"?t("members.calendar.addException"):t("memberUX.edit",{name:section})}</strong>
       <button data-close-dialog type="button" className="btn-close" aria-label={t("teamUX.cancel")} onClick={closeDialog}/>
      </div>
-     <div className="p-3">
+     <div className="smn-cockpit-modal-body">
       {section==="profile"&&<MemberIdentityEditor key={member.id+member.revision} member={member} onSaved={saved} onCancel={closeDialog}/>}
       {section==="assignment"&&roster&&<AssignmentEditor key={member.id} memberId={member.id} memberRevision={member.revision} teamId={roster.team.id} teamName={roster.team.name} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="calendar"&&<MemberCalendarEditor key={member.id+"-calendar-edit"} memberId={member.id} teamName={roster?.team.name??""} onSaved={saved} onCancel={()=>setSection(null)}/>}
