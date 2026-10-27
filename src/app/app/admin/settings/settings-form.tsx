@@ -106,19 +106,19 @@ export default function SettingsForm() {
       </section>
       <section role="group" aria-label={t("settings.editable")}>
         <div className="row g-3">
-          <div className="col-md-6" id="settings-language" role="tabpanel" aria-labelledby="settings-tab-language" hidden={tab!=="language"}><label className="form-label" htmlFor="locale">{t("settings.locale")}</label>
+          <div className={"col-md-6"+(tab!=="language"?" d-none":"")} id="settings-language" role="tabpanel" aria-labelledby="settings-tab-language"><label className="form-label" htmlFor="locale">{t("settings.locale")}</label>
             <select id="locale" aria-describedby="settings-locale-help" className="form-select" value={locale} disabled={busy} onChange={e=>{setLocale(e.target.value as "fr"|"en");setError("");setSuccess("");}}>
               <option value="fr">{t("settings.french")}</option><option value="en">{t("settings.english")}</option>
             </select>
             <p id="settings-locale-help" className="small text-secondary mt-1">{t("settings.localeInfo")}</p>
           </div>
-          <div className="col-md-6" id="settings-appearance" role="tabpanel" aria-labelledby="settings-tab-appearance" hidden={tab!=="appearance"}><label className="form-label" htmlFor="theme">{t("settings.theme")}</label>
+          <div className={"col-md-6"+(tab!=="appearance"?" d-none":"")} id="settings-appearance" role="tabpanel" aria-labelledby="settings-tab-appearance"><label className="form-label" htmlFor="theme">{t("settings.theme")}</label>
             <select id="theme" aria-describedby="settings-theme-help" className="form-select" value={theme} disabled={busy} onChange={e=>{setTheme(e.target.value as "light"|"dark");setError("");setSuccess("");}}>
               <option value="light">{t("settings.light")}</option><option value="dark">{t("settings.dark")}</option>
             </select>
             <p id="settings-theme-help" className="small text-secondary mt-1">{t("settings.themeInfo")}</p>
           </div>
-          <div className="col-md-6" hidden={tab!=="appearance"}><label className="form-label" htmlFor="palette">{t("settings.palette")}</label>
+          <div className={"col-md-6"+(tab!=="appearance"?" d-none":"")}><label className="form-label" htmlFor="palette">{t("settings.palette")}</label>
             <select id="palette" aria-describedby="settings-palette-help" className="form-select" value={palette} disabled={busy}
               onChange={e=>{setPalette(e.target.value as Palette);setError("");setSuccess("");}}>
               <option value="ocean">{t("settings.paletteOcean")}</option>
@@ -127,7 +127,7 @@ export default function SettingsForm() {
             </select>
             <p id="settings-palette-help" className="small text-secondary mt-1">{t("settings.paletteInfo")}</p>
           </div>
-          <div className="col-md-6" hidden={tab!=="general"}><label className="form-label" htmlFor="country">{t("settings.country")}</label>
+          <div className={"col-md-6"+(tab!=="general"?" d-none":"")}><label className="form-label" htmlFor="country">{t("settings.country")}</label>
             <select id="country" aria-describedby="settings-country-help" className="form-select" value={country} disabled={busy} onChange={e=>{setCountry(e.target.value);setError("");setSuccess("");}}>
               <option value="">{t("settings.countryEmpty")}</option>
               {saved.referenceCountry&&!countries.includes(saved.referenceCountry as typeof countries[number])&&
