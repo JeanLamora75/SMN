@@ -33,7 +33,7 @@ export default async function ReportDetail({params,searchParams}:{params:Promise
   return getReportDocument(db,cycleId,documentId);
  }).catch(()=>null);
  if(!doc)notFound();
- if(scoped){
+ if(teamId){
   return <main className="container-fluid px-3 px-lg-4 py-4">
    <Link href={"/app/reports?teamId="+encodeURIComponent(teamId)+"&cycleId="+encodeURIComponent(cycleId)}>Retour au Centre Rapports</Link>
    <p role="status" className="alert alert-info mt-3">Édition contextualisée par équipe : les fonctions PDF, archives, rafraîchissement et insertion de nouvelles analyses restent désactivées jusqu'à qualification de leurs accès.</p>
