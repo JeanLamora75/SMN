@@ -152,7 +152,7 @@ export default function MemberDetail({id}:{id:string}){
       {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onDirtyChange={reportDraft} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="absence"&&<MemberAbsenceEditor key={member.id+"-absence-"+(absenceToEdit?.id??"new")} memberId={member.id}
        record={absenceToEdit} onDirtyChange={reportDraft} onSaved={saved} onCancel={()=>setSection(null)}/>}
-      {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)} onDirtyChange={reportDraft}/> }
+      {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)} onDirtyChange={reportDraft}/>}
      </div>
     </div>
    </div>}
