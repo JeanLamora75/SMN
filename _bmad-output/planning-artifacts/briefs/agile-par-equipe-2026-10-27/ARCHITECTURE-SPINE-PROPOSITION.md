@@ -75,7 +75,7 @@ Conserver le **monolithe modulaire Next.js / PostgreSQL** et les services actuel
 ## Reports / hypothèses non adoptées
 - Habilitations des comptes `user` reportées à V1 par SMN-282 ; refuser toute attribution automatique.
 - Les champs SQL exacts et les contraintes de concurrence seront revus au design d'implémentation.
-- Les règles de lecture des archives d'équipes, des écritures et de la dernière équipe active ne sont pas encore validées.
+- **Mise à jour métier du 27/10/2026 :** UX-01/02/03 ont été explicitement validées. Historique archivé consultable par administrateur en lecture seule, écritures opérationnelles refusées sur équipe archivée, dernière équipe active non archivable (contrôle transactionnel). UX-04 : édition du mode seulement dans Paramètres > Équipes. Les contrats correspondants sont : https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-agile-multiequipes-2026-10-27/DESIGN.md et https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-agile-multiequipes-2026-10-27/EXPERIENCE.md.
 - SAFe et consolidations multiéquipes hors MVP.
 
 **Traçabilité :** `src/server/teams/`, `src/server/kanban/`, `src/server/sprints/`, `src/server/capacity/`, `src/server/reports/`, `prisma/schema.prisma`, SMN-282, SMN-287.
