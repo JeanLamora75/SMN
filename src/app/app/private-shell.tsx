@@ -42,25 +42,29 @@ export default function PrivateShell({children,username,role,mode,product,team,t
       return ()=>ctrl.abort();
     }
     queueMicrotask(()=>{if(!ctrl.signal.aborted)setCycleState("loading");});
-    const endpoint=mode==="kanban"?"/api/kanban/context":"/api/sprints/context";
-    const suffix=teamSwitcherEnabled?"?"+new URLSearchParams({teamId}).toString():"";
+    const endpoint=teamSwitcherEnabled?"/api/admin/team-cycles/list":
+      mode==="kanban"?"/api/kanban/context":"/api/sprints/context";
+    const suffix=teamSwitcherEnabled?"?"+new URLSearchParams({teamId,
+      ...(mode==="scrum"?{pageSize:"50"}:{})}).toString():"";
     void fetch(endpoint+suffix,{signal:ctrl.signal,cache:"no-store"})
       .then(async response=>{
         if(!response.ok)throw Error("sprint-context-unavailable");
         return response.json() as Promise<{
-          items:CycleChoice[];defaultCycleId:string|null
+          items:CycleChoice[];defaultCycleId?:string|null;teamId?:string;mode?:string
         }>;
       })
       .then(result=>{
         if(ctrl.signal.aborted)return;
-        if(!Array.isArray(result.items))throw Error("sprint-context-invalid");
+        if(!Array.isArray(result.items)||
+          (teamSwitcherEnabled&&(result.teamId!==teamId||result.mode!==mode)))
+          throw Error("sprint-context-invalid");
         setSprints(result.items);
         setSelectedCycleId(previous=>{
           if(requestedCycleId&&result.items.some(item=>item.id===requestedCycleId))
             return requestedCycleId;
-          if(pathname==="/app")return result.defaultCycleId??"";
+          if(pathname==="/app")return result.defaultCycleId??result.items[0]?.id??"";
           if(previous&&result.items.some(item=>item.id===previous))return previous;
-          return result.defaultCycleId??"";
+          return result.defaultCycleId??result.items[0]?.id??"";
         });
         setCycleState("ready");
       })
