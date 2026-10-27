@@ -22,7 +22,9 @@ Concevoir uniquement les adaptations visuelles et de parcours de la gestion Scru
 - Éviter toute maquette donnant l'impression qu'un rapport Kanban complet non implémenté est déjà disponible.
 
 ## À arbitrer en une fois
-**Recommandations à faire valider, non acquises :** (a) mode de consultation d'une équipe archivée par un administrateur, (b) refus des écritures opérationnelles sur équipe archivée, (c) dernière équipe active non archivable. Les 24 décisions D-AGILE sont déjà validées et ne nécessitent pas de nouvel atelier.
+**Arbitrages approuvés le 27/10/2026 :** UX-01 consultation historique archivé en lecture seule par admin ; UX-02 refus d'écriture métier sur équipe archivée ; UX-03 dernière équipe active non archivable ; UX-04 édition du mode uniquement depuis Paramètres > Équipes. Les contrats UX finalisés ont été publiés dans https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-agile-multiequipes-2026-10-27/README.md ; aucun nouvel atelier sur ces points n'est requis.
+
+**Statut actuel :** ce brief était la commande initiale de Sally. La conception est désormais finalisée dans DESIGN.md et EXPERIENCE.md du dossier UX ci-dessus.
 
 ## Livrables UX attendus après intervention réelle de Sally
 - `DESIGN.md` : tokens/règles de présentation, modales et responsive.
