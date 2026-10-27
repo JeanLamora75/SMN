@@ -4,6 +4,7 @@ import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
 import {filterLinks,type LinkEntry} from "@/lib/links-display";
 import LinkEditor from "./link-editor";
+import LinkDialog from "./link-dialog";
 type Item=LinkEntry;
 type View="cards"|"list";
 const key="smn-links-display-view";
@@ -96,6 +97,6 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
     <div><h2 className="h6 mb-1">{item.title}</h2><div className="small text-body-secondary">{item.categoryName} · {item.scope==="TRANSVERSE"?t("links.transverse"):t("links.specific")}</div></div>{action(item)}
    </article>)}</div>}
   {editing&&<LinkEditor teamId={teamId} categories={categories} item={editing.item} onClose={()=>setEditing(null)} onSaved={changed}/>}
-  {deleting&&<div className="modal d-block" role="dialog" aria-modal="true" aria-label={t("links.confirmDelete")} style={{background:"var(--bs-modal-backdrop-bg, rgba(0,0,0,.55))"}}><div className="modal-dialog modal-dialog-centered"><div className="modal-content"><div className="modal-header"><h2 className="modal-title fs-5">{t("links.confirmDelete")}</h2></div><div className="modal-body"><p>{deleting.title}</p><p className="text-body-secondary">{t("links.deleteWarning")}</p>{mutationError&&<div className="alert alert-danger" role="alert">{mutationError}</div>}</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setDeleting(null)}>{t("links.cancel")}</button><button type="button" className="btn btn-danger" disabled={busy} onClick={()=>void remove()}>{t("links.delete")}</button></div></div></div></div>}
+  {deleting&&<LinkDialog titleId="smn-links-delete-title" onClose={()=>setDeleting(null)} locked={busy}><div className="modal-header"><h2 id="smn-links-delete-title" className="modal-title fs-5">{t("links.confirmDelete")}</h2></div><div className="modal-body"><p>{deleting.title}</p><p className="text-body-secondary">{t("links.deleteWarning")}</p>{mutationError&&<div className="alert alert-danger" role="alert">{mutationError}</div>}</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setDeleting(null)}>{t("links.cancel")}</button><button type="button" className="btn btn-danger" disabled={busy} onClick={()=>void remove()}>{t("links.delete")}</button></div></LinkDialog>}
  </section>;
 }
