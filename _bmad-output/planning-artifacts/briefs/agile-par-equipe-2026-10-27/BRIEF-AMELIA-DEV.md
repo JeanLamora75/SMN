@@ -11,8 +11,8 @@ Ajouter le mode Scrum/Kanban au niveau de chaque équipe, l'archivage/réactivat
 1. Activer le skill `.agents/skills/bmad-agent-dev/SKILL.md`, relire la `main` actuelle et les documents ci-dessus.
 2. Vérifier la PR #189 de SMN-282 fusionnée le 27/10/2026 mais sans supposer que la base v28, la préférence active ou toutes les lectures sont activées sur Windows.
 3. Confirmer version/état réel PostgreSQL, intégrité `_prisma_migrations`, sauvegarde et restauration testable. Ne jamais appliquer de migration sur données de travail sans validation explicite du Product Owner.
-4. Obtenir les contrats DESIGN/EXPERIENCE définitifs de Sally **avant** les adaptations UI ; son brief n'en tient pas lieu.
-5. Faire confirmer les trois règles fines encore ouvertes sur l'archivage, sans rouvrir les 24 décisions déjà validées.
+4. **Contrats Sally désormais finalisés** : appliquer https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-agile-multiequipes-2026-10-27/DESIGN.md et https://github.com/JeanLamora75/SMN/blob/main/_bmad-output/planning-artifacts/ux-designs/ux-agile-multiequipes-2026-10-27/EXPERIENCE.md ; voir également BRIEF-AMELIA-UX.md et RECETTE-UX.md du même dossier.
+5. **UX-01 à UX-04 validées le 27/10/2026** : lecture des archives en lecture seule admin, écritures métier interdites sur archive, dernière équipe active non archivable, édition du mode exclusivement dans Paramètres > Équipes. Ne pas rouvrir ces arbitrages.
 
 ## Ordre d'exécution
 - **L0** : inventaire des consommateurs `smn_installation.mode`, des comparaisons `schema_version===28`, des routes fail-closed et de l'isolation incomplète. Produire une matrice fichiers/risques.
