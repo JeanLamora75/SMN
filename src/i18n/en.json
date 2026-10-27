@@ -3613,6 +3613,20 @@
     "empty": "No links available.",
     "noMatch": "No links match these filters.",
     "reset": "Reset",
-    "sortRecent": "Recently updated"
+    "sortRecent": "Recently updated",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "titleField": "Title",
+    "urlField": "URL",
+    "descriptionField": "Description",
+    "noCategories": "No categories available",
+    "invalidUrl": "Enter a valid HTTP(S) URL.",
+    "saveError": "Unable to complete the operation. Try again.",
+    "conflict": "This link was changed elsewhere. Refresh the list.",
+    "confirmDelete": "Confirm deletion",
+    "deleteWarning": "This link will be deleted. This action cannot be undone."
   }
 }
