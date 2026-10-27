@@ -3612,6 +3612,7 @@
     "retry": "Réessayer",
     "empty": "Aucun lien disponible.",
     "noMatch": "Aucun résultat pour ces filtres.",
-    "reset": "Réinitialiser"
+    "reset": "Réinitialiser",
+    "sortRecent": "Plus récemment modifiés"
   }
 }
