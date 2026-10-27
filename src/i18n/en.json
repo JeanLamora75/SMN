@@ -1849,6 +1849,7 @@
     "membersHeading": "Team members"
   },
   "teamUX": {
+    "agileModeReadOnly": "The Agile mode can only be changed under Settings > Teams, before the first cycle is created.",
     "productLabel": "Product",
     "contextGoalHeading": "Product Goal",
     "contextOverview": "Team Product Vision and Product Goal",
