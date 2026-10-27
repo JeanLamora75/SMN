@@ -447,3 +447,13 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - **PDF Sprint standard : toujours fermé en v28** : le rendu utilise une page de prévisualisation HTTP/cookie et une référence figée historique. Adapter seulement la route POST sans sécuriser le renderer, la référence, la session et les archives créerait un accès interéquipes non maîtrisé.
 - **UI :** les actions PDF n'ont pas encore été réactivées dans le Studio v28 malgré le nouveau chemin API ; vérifications fonctionnelles et tests sur PC requis avant ouverture.
 - Aucun test, build, lint, typecheck, migration PostgreSQL ou recette exécuté. PR #189 en brouillon, non fusionnée, feature flag inchangé. Cette étape est une publication de code non validée, pas une livraison production.
+
+
+## Lot 6B.4 — Troisième tranche : UI export Studio et référence Sprint (27/10/2026)
+
+- `src/app/app/reports/report-pdf-actions.tsx` accepte un `teamId` optionnel, inclus dans l'URL du rendu/archivage PDF Studio ainsi que dans le lien de téléchargement des octets archivés. La compatibilité des URLs v27 sans `teamId` est conservée.
+- `src/app/app/reports/[documentId]/page.tsx` expose les commandes PDF de l'éditeur v28 pour le document de l'équipe autorisée, en conservant la vérification de révision, les avertissements et l'état brouillon.
+- `src/app/api/admin/reports/sprints/[id]/render-references/route.ts` contextualise la création des références figées Sprint avec `withTeamReportCycle` pour un Admin v28 et conserve la voie legacy sécurisée v27.
+- **Chaîne standard non ouverte en v28 :** `src/app/api/admin/reports/sprints/[id]/pdf/route.ts` reste sous garde legacy. Sa page interne de prévisualisation HTTP, la validation des références, des cookies et l'archivage du rendu doivent être audités dans un même périmètre sécurisé avant ouverture. Créer une référence figée n'autorise pas à générer un PDF standard.
+- Les grants des comptes `user` demeurent désactivés en v28, conformément à l'arbitrage V1.
+- Lot 6B non clos techniquement : contrôles de concurrence, production standard, intégrité des archives et recette locale à compléter. **Aucun test, compilation, migration ni fusion exécuté.**
