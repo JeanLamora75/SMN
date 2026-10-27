@@ -1,5 +1,5 @@
 import {NextRequest} from "next/server";
-import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {withLegacyReportReadDb} from "@/server/reports/legacy-read";
 import {readVerifiedPdfArchive} from "@/server/reports/pdf-archive-store";
 import {archiveUserAuthorized} from "@/server/reports/archive-grants";
 import {canAccess} from "@/server/access-policy";
@@ -15,7 +15,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  const {id}=await params;
  if(!/^[a-f0-9-]{36}$/i.test(id))return Response.json({error:"invalid-input"},{status:400});
  try{
- const bytes=await withSprintIndexDb(async db=>{
+ const bytes=await withLegacyReportReadDb(async db=>{
   const tables=await db.query<{archive:boolean;visibility:boolean}>(`SELECT
    to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS archive,
    to_regclass('public.smn_report_archive_visibility') IS NOT NULL AS visibility`);
