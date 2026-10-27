@@ -25,6 +25,10 @@ export async function recordScopedCeremonyAttendance(db:Client,actor:TeamActor,r
   const reject=async(error:string)=>{await db.query("ROLLBACK");return {ok:false as const,error};};
   const team=await resolveAdminTeam(db,actor,input.teamId);
   if(team.mode!=="scrum")return reject("mode-mismatch");
+  const storage=await db.query<{available:boolean}>(`
+   SELECT to_regclass('public.smn_sprint_ceremony_status_history') IS NOT NULL
+    AND to_regclass('public.smn_meeting_actual_duration_audit') IS NOT NULL AS available`);
+  if(storage.rows[0]?.available!==true)return reject("storage-unavailable");
   const found=await db.query<{revision:number;status:string;end_at:string;sprint_status:string;minutes:number;actual_minutes:number|null}>(`
    SELECT c.revision,c.occurrence_status AS status,c.ends_at::text AS end_at,
     s.status AS sprint_status,c.minutes,c.actual_minutes
