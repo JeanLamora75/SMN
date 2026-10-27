@@ -6,7 +6,7 @@ import {readDevelopmentCapacity} from "@/server/capacity/engine";
 type TeamPeriodResult=Readonly<{teamId:string;mode:"scrum"|"kanban";
  started:number;finished:number;recovered:number}>;
 type SprintRow={id:string;start_at:string;end_at:string;status:string;
- has_started:boolean;has_ended:boolean};
+ has_started:boolean;has_ended:boolean;opening_on_time:boolean};
 type KanbanRow={id:string;start_on:string;end_on:string;status:string;today:string};
 const tables={
  scrum:["smn_sprint","smn_sprint_transition","smn_sprint_capacity_trigger"],
@@ -36,7 +36,8 @@ export async function reconcileAuthorizedTeamPeriods(db:Client,actor:TeamActor,
   if(mode==="scrum"){
    const rows=await db.query<SprintRow>(`
     SELECT s.id,s.status,s.start_at::text AS start_at,s.end_at::text AS end_at,
-     (s.start_at<=now()) AS has_started,(s.end_at<=now()) AS has_ended
+     (s.start_at<=now()) AS has_started,(s.end_at<=now()) AS has_ended,
+     (s.start_at>now()-interval '15 minutes') AS opening_on_time
     FROM public.smn_sprint s
     JOIN public.smn_team t ON t.id=s.team_id
     WHERE s.team_id=$1 AND t.installation_id='singleton'
@@ -53,7 +54,7 @@ export async function reconcileAuthorizedTeamPeriods(db:Client,actor:TeamActor,
       [randomUUID(),s.id,s.start_at,actor.accountId]);
      // Un Sprint découvert après sa fin ne reçoit PAS une nouvelle photo J/H.
      // Le producteur historique dispose déjà de son propre état "indisponible".
-     if(!s.has_ended){
+     if(!s.has_ended&&s.opening_on_time){
       await db.query(`INSERT INTO public.smn_sprint_capacity_trigger
        (sprint_id,due_at) VALUES($1,$2)
        ON CONFLICT(sprint_id) DO NOTHING`,[s.id,s.start_at]);
