@@ -29,8 +29,8 @@ export async function reconcileAuthorizedTeamPeriods(db:Client,actor:TeamActor,
   const owner=await db.query<{id:string}>(`
    SELECT id FROM public.smn_team WHERE id=$1 AND installation_id=(
     SELECT installation_id FROM public.smn_account WHERE id=$2
-   ) AND ($3::boolean=false OR is_archived=false) FOR UPDATE`,
-   [team.team_id,actor.accountId,true]);
+   ) AND COALESCE((to_jsonb(smn_team)->>'is_archived')::boolean,false)=false FOR UPDATE`,
+   [team.team_id,actor.accountId]);
   if(owner.rows.length!==1)throw Error("team-access-forbidden");
   const mode=team.mode as "scrum"|"kanban";
   const ready=await db.query<{name:string|null}>(`
