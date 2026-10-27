@@ -4,7 +4,7 @@ import type {Client} from "pg";
 const TEAM_ID=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/u;
 const NAME_MAX=120,CONTENT_MAX=5000;
 export type TeamContext=Readonly<{teamId:string;name:string;productName:string;vision:string|null;
- productGoal:string|null;revision:number}>;
+ productGoal:string|null;revision:number;agileMode:"scrum"|"kanban"|null}>;
 export type TeamContextVersion=Readonly<{revision:number;name:string;productName:string|null;
  vision:string|null;productGoal:string|null;changedAt:string}>;
 type Scope={id:string;name:string;product_id:string;product_name:string};
@@ -69,6 +69,13 @@ export async function readTeamContext(db:Client,teamId:string):Promise<{
  if(!TEAM_ID.test(teamId))return null;
  const scope=await db.query<Scope>(scopeSql,[teamId]);
  if(scope.rows.length!==1)return null;
+ const schema=await db.query<{schema_version:number}>(
+  "SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
+ const mode=schema.rows[0]?.schema_version===29
+  ?await db.query<{agile_mode:"scrum"|"kanban"}>(
+    "SELECT agile_mode FROM public.smn_team WHERE id=$1 AND installation_id='singleton'",[teamId])
+  :null;
+ const agileMode=mode?.rows[0]?.agile_mode??null;
  const installed=await db.query<{present:boolean}>(
   "SELECT to_regclass('public.smn_team_context') IS NOT NULL AS present");
  let current:CurrentRow|null=null,history:TeamContextVersion[]=[];
@@ -102,7 +109,7 @@ export async function readTeamContext(db:Client,teamId:string):Promise<{
   throw Error("team-context-product-invalid");
  return {context:{teamId,name:scope.rows[0].name,productName:scope.rows[0].product_name,
   vision:current?.vision??null,
-  productGoal:current?.product_goal??null,revision},history};
+  productGoal:current?.product_goal??null,revision,agileMode},history};
 }
 /** One transaction changes team identity and context with a shared revision and append-only audit. */
 export async function saveTeamContext(db:Client,actorId:string,raw:unknown){
