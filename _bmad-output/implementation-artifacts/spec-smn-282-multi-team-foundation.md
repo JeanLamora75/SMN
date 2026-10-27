@@ -376,3 +376,13 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 4. Exécuter tests PostgreSQL multiéquipes et v27, migration v28 sur copie sauvegardée, typecheck, build et recette avant fusion.
 
 **Invariants maintenus :** `MULTI_TEAM_CONTEXT_READY=false`, `SMN_MULTI_TEAM_WRITES_ENABLED` désactivé, migration SQL v28 **non appliquée**, PR #189 **ouverte en brouillon et non fusionnée**. Les comptes `user` préexistants ne reçoivent aucun droit automatique (décision PO reportée).
+
+
+## Étape 6B.3 — Première tranche Studio contextualisé (27/10/2026)
+
+- Ajout de `src/server/reports/team-studio.ts` : lecture d'un document uniquement via équipe Admin résolue côté serveur, cohérence `document → Sprint → teamId`, installation singleton et Sprint non supprimé.
+- Sauvegarde transactionnelle d'un brouillon via `saveTeamStudioDocument` : verrou du document, contrôle du numéro de séquence par session, restriction à l'équipe ciblée, préservation des métriques faisant autorité, incrément de révision et rollback en cas d'erreur.
+- Adaptation des méthodes GET/PATCH de `src/app/api/admin/reports/sprints/[id]/documents/[documentId]/route.ts` lorsque le paramètre explicite `teamId` est fourni. L'acteur doit être réellement Admin ; `resolveAdminTeam` vérifie le compte actif et l'installation. Sans `teamId`, comportement historique v27 maintenu ; le garde-fou v28 historique reste actif.
+- La page complète du Studio et ses autres routes demeurent fermées en v28 : la tranche n'autorise pas leur ouverture implicite. Pas de migration v28 ni de fusion.
+
+**Adaptation du workflow :** skills Amelia et bmad-build consultés ; le script BMAD `uv ... render_skill.py` exige un checkout local et ne peut pas être exécuté ici. La publication de cette tranche par GitHub Connecteur est effectuée à la demande expresse du Product Owner, sans revendiquer l'exécution complète du workflow. **Aucun test, typecheck, lint, build, SQL ou recette exécuté.** Vérifications et ajustements restent nécessaires sur le PC Windows, notamment pour les routes du Studio et les suites de tests de sécurité interéquipes.
