@@ -47,3 +47,5 @@ CREATE TABLE public.smn_link_audit (
  occurred_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX smn_link_audit_link_idx ON public.smn_link_audit(link_id,occurred_at);
+
+UPDATE public.smn_installation SET schema_version=29 WHERE id='singleton' AND schema_version=28;
