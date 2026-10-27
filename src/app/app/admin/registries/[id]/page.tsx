@@ -48,7 +48,7 @@ export default async function RegistryDetailPage({params,searchParams}:{
  if(context?.version===28){
   const item=context.item;
   return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-   <p><Link href={navigation.origin}>← {translate(locale,"memberTeamScope.back")}</Link></p>
+   <p><Link href={navigation.origin}>← {translate(locale,"registryDetail.back")}</Link></p>
    {!item?<p role="alert" className="alert alert-warning">
     Fiche introuvable dans l'équipe sélectionnée.
    </p>:<article className="smn-panel rounded-4 p-3 p-lg-4">
