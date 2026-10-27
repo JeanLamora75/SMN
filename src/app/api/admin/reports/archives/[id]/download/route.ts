@@ -30,7 +30,9 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE a.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
-   AND lower(i.mode)='scrum' ${teamId?"AND a.team_id=$2":""} ${hidden}`,
+   AND CASE WHEN i.schema_version=29
+    THEN (to_jsonb(t)->>'agile_mode') ELSE lower(i.mode) END='scrum'
+   ${teamId?"AND a.team_id=$2":""} ${hidden}`,
    teamId?[id,teamId]:[id]);
   if(scope.rows.length!==1)return null;
   const granted=actor.role==="admin"||await archiveUserAuthorized(db,id,actor.id);
