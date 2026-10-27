@@ -3531,6 +3531,12 @@
     "unavailable": "Impossible de vérifier actuellement la configuration des membres."
   },
   "teamSettings": {
+    "agileMode": "Mode Agile",
+    "modeHelp": "Choisissez Scrum ou Kanban pour cette équipe.",
+    "modeLocked": "Ce mode ne peut plus être modifié : au moins un cycle a déjà été créé.",
+    "modeMissing": "Sélectionnez Scrum ou Kanban pour créer l'équipe.",
+    "modeConflict": "Le mode Agile de cette équipe est verrouillé.",
+    "teamArchived": "Archivée",
     "title": "Équipes",
     "intro": "Créer et modifier les équipes Scrum ou Kanban de cette installation.",
     "back": "Retour aux paramètres",
