@@ -435,3 +435,15 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - **Non livré en 6B.4 :** création de nouveaux PDF, réécriture des producteurs PDF du Studio et du rapport Sprint, opérations de partage/visibilité/permissions sur les archives, recherche avancée et parcours users multiéquipes. Ils restent bloqués en v28 derrière les protections historiques.
 - **6B.3 reste à vérifier :** autres producteurs transverses du Studio, modèles partagés et tests de sécurité des écritures. La présence de code ne constitue pas une recette.
 - **Aucun test, typecheck, lint, build, exécution SQL, migration ni recette exécuté.** La branche et la PR #189 ne sont pas fusionnées ; `MULTI_TEAM_CONTEXT_READY` n'est pas activé.
+
+
+## Lot 6B.4 — Deuxième tranche : génération Studio, masquage et limites de partage (27/10/2026)
+
+- `src/server/reports/studio-export.ts` : extraction de `inspectStudioDocumentEligibility` pour appliquer exactement les mêmes contrôles de qualité aux documents préalablement résolus avec `teamId`.
+- `src/app/api/admin/reports/sprints/[id]/documents/[documentId]/pdf/route.ts` : POST de rendu et PUT d'archivage contextualisés avec `teamId`. Vérification serveur de l'Admin et de l'appartenance document–Sprint–équipe via `readTeamStudioDocument` ; relecture de la même propriété et de la révision après rendu ; métadonnées d'archive basées sur le document réellement autorisé. Sans paramètre, la voie v27 reste protégée.
+- `src/server/reports/team-archive.ts` : nouveau contrôle d'appartenance de l'archive à l'équipe et à son Sprint sous installation valide.
+- `src/app/api/admin/reports/archives/[id]/visibility/route.ts` : masquage v28 permis uniquement après résolution Admin et vérification d'archive/teamId ; voie legacy v27 préservée.
+- **Partage des archives aux comptes `user` : maintenu bloqué en v28.** La gestion des habilitations par compte a été expressément reportée à la V1 ; créer des grants v28 sans politique d'équipes serait dangereux. La route grants historique demeure verrouillée en v28.
+- **PDF Sprint standard : toujours fermé en v28** : le rendu utilise une page de prévisualisation HTTP/cookie et une référence figée historique. Adapter seulement la route POST sans sécuriser le renderer, la référence, la session et les archives créerait un accès interéquipes non maîtrisé.
+- **UI :** les actions PDF n'ont pas encore été réactivées dans le Studio v28 malgré le nouveau chemin API ; vérifications fonctionnelles et tests sur PC requis avant ouverture.
+- Aucun test, build, lint, typecheck, migration PostgreSQL ou recette exécuté. PR #189 en brouillon, non fusionnée, feature flag inchangé. Cette étape est une publication de code non validée, pas une livraison production.
