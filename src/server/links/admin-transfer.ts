@@ -9,7 +9,7 @@ export type TransferInput={scope:"TRANSVERSE"|"EQUIPE";teamId:string|null;revisi
 /** Atomic admin conversion/transfer. Current installation only, optimistic revision + audit. */
 export async function transferAdminLink(db:Client,actor:LinkActor,id:string,input:TransferInput){
  if(actor.role!=="admin"||!validId(actor.id))throw new LinkError("forbidden");
- if(!validId(id)||!Number.isSafeInteger(input.revision)||input.revision<1||
+ if(!input||typeof input!=="object"||!validId(id)||!Number.isSafeInteger(input.revision)||input.revision<1||
   !["TRANSVERSE","EQUIPE"].includes(input.scope)||
   (input.scope==="TRANSVERSE"&&input.teamId!==null)||
   (input.scope==="EQUIPE"&&!validId(input.teamId)))throw new LinkError("invalid-input");
@@ -32,8 +32,9 @@ export async function transferAdminLink(db:Client,actor:LinkActor,id:string,inpu
   if(before.team_id)await resolveAdminTeam(db,{accountId:actor.id,role:"admin"},before.team_id);
   const after=await db.query(`UPDATE public.smn_link SET scope=$3,team_id=$4,
     revision=revision+1,updated_by=$5,updated_at=now()
-    WHERE id=$1 AND installation_id=$2 RETURNING *`,
-    [id,before.installation_id,input.scope,input.teamId,actor.id]);
+    WHERE id=$1 AND installation_id=$2 AND revision=$6 RETURNING *`,
+    [id,before.installation_id,input.scope,input.teamId,actor.id,input.revision]);
+  if(after.rowCount!==1)throw new LinkError("conflict");
   await db.query(`INSERT INTO public.smn_link_audit
     (id,link_id,installation_id,operation,before_values,after_values,actor_id)
     VALUES($1,$2,$3,'UPDATE',$4,$5,$6)`,
