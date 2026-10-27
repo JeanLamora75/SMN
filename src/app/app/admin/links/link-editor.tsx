@@ -16,8 +16,11 @@ export default function LinkEditor({teamId,categories,item,onClose,onSaved}:{
  const [categoryId,setCategoryId]=useState(item?.categoryId??categories[0]?.id??"");
  const [scope,setScope]=useState<"EQUIPE"|"TRANSVERSE">(item?.scope??"EQUIPE");
  const [pending,setPending]=useState(false),[error,setError]=useState("");
+ const [confirmScope,setConfirmScope]=useState(false);
+ const scopeChanged=Boolean(item&&item.scope!==scope);
  const submit=async(e:React.FormEvent)=>{
   e.preventDefault();if(pending)return;
+  if(scopeChanged&&!confirmScope){setError(t("links.confirmScopeRequired"));return;}
   setError("");
   let payload;
   try{
@@ -45,8 +48,9 @@ export default function LinkEditor({teamId,categories,item,onClose,onSaved}:{
     <div><label htmlFor={id+"-description"} className="form-label">{t("links.descriptionField")}</label><textarea id={id+"-description"} className="form-control" maxLength={4000} value={description} onChange={e=>setDescription(e.target.value)} disabled={pending}/></div>
     <div className="row g-3">
      <div className="col-md-6"><label htmlFor={id+"-category"} className="form-label">{t("links.category")} *</label><select id={id+"-category"} className="form-select" required value={categoryId} onChange={e=>setCategoryId(e.target.value)} disabled={pending}>{!categories.length&&<option value="">{t("links.noCategories")}</option>}{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-     <div className="col-md-6"><label htmlFor={id+"-scope"} className="form-label">{t("links.scope")} *</label><select id={id+"-scope"} className="form-select" value={scope} onChange={e=>setScope(e.target.value as "EQUIPE"|"TRANSVERSE")} disabled={pending}><option value="EQUIPE">{t("links.specific")}</option><option value="TRANSVERSE">{t("links.transverse")}</option></select></div>
+     <div className="col-md-6"><label htmlFor={id+"-scope"} className="form-label">{t("links.scope")} *</label><select id={id+"-scope"} className="form-select" value={scope} onChange={e=>{setScope(e.target.value as "EQUIPE"|"TRANSVERSE");setConfirmScope(false);}} disabled={pending}><option value="EQUIPE">{t("links.specific")}</option><option value="TRANSVERSE">{t("links.transverse")}</option></select></div>
     </div>
+    {scopeChanged&&<div className="form-check"><input id={id+"-confirm-scope"} className="form-check-input" type="checkbox" checked={confirmScope} onChange={e=>setConfirmScope(e.target.checked)} disabled={pending}/><label htmlFor={id+"-confirm-scope"} className="form-check-label">{t("links.confirmScopeChange")}</label></div>}
    </div><div className="modal-footer">
     <button type="button" className="btn btn-outline-secondary" onClick={onClose} disabled={pending}>{t("links.cancel")}</button>
     <button type="submit" className="btn btn-primary" disabled={pending||!categoryId}>{pending?t("links.saving"):t("links.save")}</button>
