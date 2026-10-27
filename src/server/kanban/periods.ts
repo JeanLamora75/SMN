@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {readKanbanCadence} from "./cadence";
 import {nextDay,periodFromStart,normalizePeriodName} from "./dates";
 
@@ -49,6 +50,7 @@ async function kanbanTeam(db:Client){
  return r.rows[0].id;
 }
 export async function prepareKanbanPeriod(db:Client){
+ await assertLegacyTeamApi(db);
  const cadence=await readKanbanCadence(db);
  await ensureKanbanPeriodTables(db);
  const id=await kanbanTeam(db);
