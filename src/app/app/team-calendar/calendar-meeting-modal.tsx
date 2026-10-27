@@ -92,6 +92,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
    )).filter(el=>el.getClientRects().length>0);
    if(!controls.length)return;
    const first=controls[0],last=controls[controls.length-1];
+   if(!dialogRef.current.contains(document.activeElement)){event.preventDefault();first.focus();return;}
    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   };
