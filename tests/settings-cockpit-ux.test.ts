@@ -34,6 +34,15 @@ describe("Centre Paramètres Cockpit — contrats structurels",()=>{
   assert.match(form,/d-none/);
   assert.match(form,/useUnsavedChanges/);
  });
+ it("protège les saisies de chaque formulaire horaire lors de la navigation",()=>{
+  for(const file of ["work-slots-form.tsx","lunch-form.tsx"]){
+   const form=source("src/app/app/admin/sprints/"+file);
+   assert.match(form,/useUnsavedChanges/);
+   assert.match(form,/setOriginal/);
+  }
+  const tabs=source("src/app/app/admin/settings/settings-tabs.tsx");
+  assert.match(tabs,/hidden={active!==section.id}/);
+ });
  it("conserve les permissions distinctes du journal et des sauvegardes",()=>{
   const maintenance=source("src/app/app/admin/settings/maintenance/page.tsx");
   assert.match(maintenance,/type:"backups"/);
