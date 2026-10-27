@@ -1,0 +1,165 @@
+/* Shared Cockpit Agile modal presentation. Uses active Bootstrap/SMN palette. */
+.smn-cockpit-modal {
+  --smn-modal-surface:var(--smn-surface,var(--bs-body-bg));
+  --smn-modal-text:var(--smn-foreground,var(--bs-body-color));
+  --smn-modal-border:var(--smn-border,var(--bs-border-color));
+  --smn-modal-accent:var(--smn-brand,var(--bs-primary));
+  color:var(--smn-modal-text);
+  background:var(--smn-modal-surface);
+  border:1px solid var(--smn-modal-border);
+  border-radius:1rem;
+  box-shadow:0 1rem 3rem color-mix(in srgb,var(--smn-modal-text) 18%,transparent);
+}
+.smn-cockpit-modal .smn-cockpit-modal-header {
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.9rem 1.15rem;
+  background:var(--smn-modal-accent);
+  color:var(--smn-brand-contrast,var(--bs-body-bg));
+  border-radius:calc(1rem - 1px) calc(1rem - 1px) 0 0;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header h2,
+.smn-cockpit-modal .smn-cockpit-modal-header .smn-cal-eyebrow {
+  color:inherit;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header .text-secondary {
+  color:inherit!important;opacity:.83;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header .btn-close {
+  opacity:1;
+  flex-shrink:0;
+  background-color:var(--smn-modal-surface);
+  border:1px solid var(--smn-modal-border);
+  border-radius:.4rem;
+  padding:.45rem;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header .btn-close:focus-visible {
+  outline:3px solid var(--smn-modal-text);
+  outline-offset:3px;
+}
+.smn-cockpit-modal .smn-cockpit-modal-header .btn-outline-secondary {
+  color:inherit;border-color:currentColor;
+}
+.smn-cockpit-modal .smn-cockpit-modal-body {padding:1rem 1.15rem;min-width:0;overflow-y:auto;overscroll-behavior:contain;}
+.smn-cockpit-modal .smn-cockpit-modal-footer {
+  padding:.75rem 1.15rem;border-top:1px solid var(--smn-modal-border);
+  background:var(--smn-modal-surface);display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+}
+.smn-cockpit-modal .form-label {font-size:.84rem;font-weight:650;margin-bottom:.3rem;}
+.smn-cockpit-modal .form-control,.smn-cockpit-modal .form-select {
+  background-color:var(--smn-modal-surface);color:var(--smn-modal-text);
+  border-color:var(--smn-modal-border);min-width:0;max-width:100%;
+}
+.smn-cockpit-modal .form-control:focus,.smn-cockpit-modal .form-select:focus {
+  border-color:var(--smn-modal-accent);
+  box-shadow:0 0 0 .2rem color-mix(in srgb,var(--smn-modal-accent) 22%,transparent);
+}
+.smn-cockpit-modal .form-control[readonly] {
+  background:var(--smn-muted-soft,var(--bs-tertiary-bg));
+}
+.smn-cockpit-modal :is(.smn-registry-create-group,.smn-cal-detail-section) {
+  border-color:var(--smn-modal-border);
+}
+@media(max-width:575.98px) {
+ .smn-cockpit-modal {max-width:calc(100vw - 12px);border-radius:.8rem;}
+ .smn-cockpit-modal .smn-cockpit-modal-header {padding:.8rem .85rem;}
+ .smn-cockpit-modal .smn-cockpit-modal-body {padding:.85rem;}
+ .smn-cockpit-modal .smn-cockpit-modal-footer {padding:.75rem .85rem;}
+}
+
+/* Consistent order even when older editors render their primary action first. */
+.smn-cockpit-modal .smn-cockpit-form-actions {
+ display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:.6rem;
+ padding-top:.75rem;margin-top:.35rem;border-top:1px solid var(--smn-modal-border);
+}
+.smn-cockpit-modal .smn-cockpit-form-actions > .btn-outline-secondary {
+ order:-1;margin-inline-end:auto;
+}
+.smn-cockpit-modal .smn-cockpit-form-actions > .btn-primary {
+ order:1;
+}
+@media(max-width:575.98px) {
+ .smn-cockpit-modal .smn-cockpit-form-actions > .btn {flex:1 1 auto;}
+}
+
+/* Meeting editor keeps its actions visible while long content scrolls. */
+.smn-cal-detail-modal.smn-cockpit-modal {
+ display:flex;flex-direction:column;overflow:hidden;
+ max-height:calc(100dvh - 2rem);
+}
+.smn-cal-detail-modal.smn-cockpit-modal .smn-cockpit-modal-header,
+.smn-cal-detail-modal.smn-cockpit-modal .smn-cockpit-modal-footer {flex-shrink:0;}
+.smn-cal-detail-modal.smn-cockpit-modal .smn-cockpit-modal-body {
+ flex:1 1 auto;min-height:0;overflow-y:auto;
+}
+@media(max-width:575.98px) {
+ .smn-cal-detail-modal.smn-cockpit-modal {max-height:calc(100dvh - 1rem);}
+}
+
+/* Native registry dialogs preserve their browser top-layer behavior. */
+dialog.smn-registry-create-dialog.smn-cockpit-modal,
+dialog.smn-registry-section-dialog.smn-cockpit-modal {
+ max-height:calc(100dvh - 2rem);
+ overflow:hidden;
+}
+.smn-registry-create-dialog.smn-cockpit-modal .smn-registry-create-form,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-registry-section-dialog-layout {
+ display:flex;flex-direction:column;min-height:0;max-height:inherit;
+}
+.smn-registry-create-dialog.smn-cockpit-modal .smn-cockpit-modal-body,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-cockpit-modal-body {
+ flex:1 1 auto;min-height:0;overflow-y:auto;
+}
+.smn-registry-create-dialog.smn-cockpit-modal .smn-cockpit-modal-header,
+.smn-registry-create-dialog.smn-cockpit-modal .smn-cockpit-modal-footer,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-cockpit-modal-header,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-cockpit-modal-footer {
+ flex-shrink:0;
+}
+@media(max-width:575.98px) {
+ dialog.smn-registry-create-dialog.smn-cockpit-modal,
+ dialog.smn-registry-section-dialog.smn-cockpit-modal {
+  max-height:calc(100dvh - 1rem);
+ }
+}
+
+/* Member editors: preserve existing form transactions while containing long content. */
+.smn-member-modal.smn-cockpit-modal:not(.smn-cal-detail-modal) {
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+ max-height:calc(100dvh - 2rem);
+}
+.smn-member-modal.smn-cockpit-modal:not(.smn-cal-detail-modal) > .smn-cockpit-modal-header {
+ flex:0 0 auto;
+}
+.smn-member-modal.smn-cockpit-modal:not(.smn-cal-detail-modal) > .smn-cockpit-modal-body {
+ flex:1 1 auto;
+ min-height:0;
+ overflow-y:auto;
+}
+@media(max-width:575.98px) {
+ .smn-member-modal.smn-cockpit-modal:not(.smn-cal-detail-modal) {
+  max-height:calc(100dvh - 1rem);
+ }
+}
+
+/* Legacy registry footer expects Cancel and Save grouped at the trailing edge.
+   Override shared space-between without changing DOM or submit semantics. */
+.smn-registry-create-dialog.smn-cockpit-modal .smn-registry-create-footer.smn-cockpit-modal-footer,
+.smn-registry-section-dialog.smn-cockpit-modal .smn-registry-section-dialog-footer.smn-cockpit-modal-footer {
+ justify-content:flex-end;
+}
+
+/* Calendar legacy rule applied 16px !important padding on mobile, breaking
+   the new full-width modal header. Keep padding in the body instead. */
+@media(max-width:575px) {
+ .smn-cal-detail-modal.smn-cockpit-modal {
+  padding:0!important;
+  width:100%;
+ }
+}
+/* Keep the focus ring discernible on the branded header, irrespective of palette. */
+.smn-cockpit-modal .smn-cockpit-modal-header .btn-close:focus-visible {
+ outline-color:var(--smn-modal-surface);
+ box-shadow:0 0 0 2px var(--smn-modal-text);
+}

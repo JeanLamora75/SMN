@@ -93,14 +93,15 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
   {open&&data&&<dialog ref={dialog} className="smn-team-context-dialog"
    aria-labelledby="smn-team-context-title"
    onCancel={e=>{e.preventDefault();dismiss();}}>
-   <div className="modal-content bg-body border rounded-4 shadow p-3 p-md-4">
-    <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+   <div className="modal-content smn-cockpit-modal">
+    <div className="smn-cockpit-modal-header">
      <h2 className="h5 mb-0" id="smn-team-context-title">
       {t("teamUX.contextHeading")}
      </h2>
      <button type="button" className="btn-close" disabled={saving}
       aria-label={t("teamUX.cancel")} onClick={dismiss}/>
     </div>
+    <div className="smn-cockpit-modal-body">
     <form onSubmit={e=>void save(e)} className="d-grid gap-3"
      data-smn-unsaved-changes={dirty?"true":"false"}>
      <div>
@@ -165,6 +166,7 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
       </button>
      </div>
     </form>
+    </div>
    </div>
   </dialog>}
  </>;

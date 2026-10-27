@@ -92,6 +92,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
    )).filter(el=>el.getClientRects().length>0);
    if(!controls.length)return;
    const first=controls[0],last=controls[controls.length-1];
+   if(!dialogRef.current.contains(document.activeElement)){event.preventDefault();first.focus();return;}
    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   };
@@ -191,15 +192,16 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
   "calendarMeeting.outcomeDecision":type==="action"?
   "calendarMeeting.outcomeAction":"calendarMeeting.outcomeHighlight");
  return <div className="smn-member-modal-backdrop smn-cal-detail-backdrop" role="presentation">
-  <div ref={dialogRef} className="smn-member-modal smn-cal-detail-modal smn-cal-detail-compact p-3 p-md-4" role="dialog" aria-modal="true"
+  <div ref={dialogRef} className="smn-member-modal smn-cal-detail-modal smn-cal-detail-compact smn-cockpit-modal" role="dialog" aria-modal="true"
    aria-labelledby="calendar-meeting-dialog-title" aria-describedby="calendar-meeting-dialog-description">
-   <header className="d-flex justify-content-between align-items-start gap-3 mb-2">
+   <header className="d-flex justify-content-between align-items-start gap-3 mb-2 smn-cockpit-modal-header">
     <div><div className="smn-cal-eyebrow">{t("calendarMeeting.heading")}</div>
      <h2 id="calendar-meeting-dialog-title" className="h5 mb-1">{detail?.name??meeting.name}</h2>
      <p id="calendar-meeting-dialog-description" className="small text-secondary mb-0">{t("calendarMeeting.intro")}</p></div>
     <button ref={closeRef} type="button" className="btn btn-outline-secondary btn-sm"
      aria-label={t("calendarOptionB.close")} onClick={close} disabled={busy}>×</button>
    </header>
+   <div className="smn-cockpit-modal-body">
    {loadState==="loading"&&<p role="status">{t("teamCalendar.loading")}</p>}
    {loadState==="error"&&<p role="alert" className="alert alert-warning">{t("calendarMeeting.loadError")}</p>}
    {detail&&loadState==="ready"&&<>
@@ -300,7 +302,8 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
    </>}
    {notice&&<p role="status" className="alert alert-success py-2 mt-2">{notice}</p>}
    {error&&<p role="alert" className="alert alert-warning py-2 mt-2">{error}</p>}
-   <footer className="d-flex justify-content-end mt-2">
+   </div>
+   <footer className="d-flex justify-content-end mt-2 smn-cockpit-modal-footer">
     <button className="btn btn-outline-secondary btn-sm" type="button" onClick={close} disabled={busy}>
      {t("calendarOptionB.close")}</button>
    </footer>

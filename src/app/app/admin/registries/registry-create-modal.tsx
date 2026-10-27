@@ -173,17 +173,17 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const pickParty=(value:Kind,setter:(value:Kind)=>void)=>{
   setter(value);setError(null);
  };
- return <RegistryDialogPortal><dialog ref={dialog} className="smn-registry-create-dialog" data-registry-dirty={dirty}
+ return <RegistryDialogPortal><dialog ref={dialog} className="smn-registry-create-dialog smn-cockpit-modal" data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancel} onClose={()=>{previousFocus.current?.focus();onDismiss();}}>
   <form className="smn-registry-create-form" onSubmit={save}
    onChangeCapture={()=>{setDirty(true);requestId.current=null;}}
    onInputCapture={()=>{setDirty(true);requestId.current=null;}}>
-   <header className="smn-registry-create-header">
+   <header className="smn-registry-create-header smn-cockpit-modal-header">
     <h2 className="h5 mb-0" id={titleId}>{tr("heading")}</h2>
     <button className="btn-close" type="button" disabled={busy}
      aria-label={tr("cancel")} onClick={close}/>
    </header>
-   <div className="smn-registry-create-body">
+   <div className="smn-registry-create-body smn-cockpit-modal-body">
     {sourceId&&<p className="small text-body-secondary">{tr("source")}
      {sourceTitle&&<strong className="ms-1">{sourceTitle}</strong>}</p>}
     <div className="row g-2">
@@ -308,7 +308,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
      <p className="small text-body-secondary">{tr("linkedCycle")}</p>}
     {error&&<p role="alert" className="alert alert-danger mb-0">{tr(error)}</p>}
    </div>
-   <footer className="smn-registry-create-footer">
+   <footer className="smn-registry-create-footer smn-cockpit-modal-footer">
     <button className="btn btn-outline-secondary" type="button" disabled={busy}
      onClick={close}>{tr("cancel")}</button>
     <button className="btn btn-primary" type="submit"

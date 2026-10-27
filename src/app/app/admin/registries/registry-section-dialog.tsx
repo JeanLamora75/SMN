@@ -38,19 +38,19 @@ export default function RegistrySectionDialog({title,onDismiss,children,wide=fal
  const cancel=(event:SyntheticEvent<HTMLDialogElement>)=>{
   event.preventDefault();close();
  };
- return <RegistryDialogPortal><dialog ref={ref} className={"smn-registry-section-dialog"+(wide?" smn-registry-section-dialog-wide":"")} data-registry-dirty={dirty}
+ return <RegistryDialogPortal><dialog ref={ref} className={"smn-registry-section-dialog smn-cockpit-modal"+(wide?" smn-registry-section-dialog-wide":"")} data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancel} onClose={()=>{origin.current?.focus();onDismiss();}}>
   <div className="smn-registry-section-dialog-layout"
    onChangeCapture={()=>setDirty(true)} onInputCapture={()=>setDirty(true)}>
-   <header className="smn-registry-section-dialog-header">
+   <header className="smn-registry-section-dialog-header smn-cockpit-modal-header">
     <h2 id={titleId} className="h5 mb-0">{title}</h2>
     <button type="button" className="btn-close" onClick={close}
      aria-label={tr("cancel")}/>
    </header>
-   <div className="smn-registry-section-dialog-content">
+   <div className="smn-registry-section-dialog-content smn-cockpit-modal-body">
     {children}
    </div>
-   <footer className="smn-registry-section-dialog-footer">
+   <footer className="smn-registry-section-dialog-footer smn-cockpit-modal-footer">
     <button type="button" className="btn btn-outline-secondary" onClick={close}
      >{tr("cancel")}</button>
    </footer>

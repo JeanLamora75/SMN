@@ -13,8 +13,8 @@ const initial=(today:string,record:AbsenceItem|null):Draft=>record?{
  endSlot:"afternoon",isPlanned:true,reason:""};
 
 /** Une fenêtre = création OU correction d'une seule absence, jamais son historique. */
-export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved,onCancel}:{
- memberId:string;record:AbsenceItem|null;initialDate?:string;onSaved:()=>void;onCancel:()=>void;
+export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved,onCancel,onDirtyChange}:{
+ memberId:string;record:AbsenceItem|null;initialDate?:string;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AbsenceState|null>(null);
@@ -26,6 +26,7 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
  const [error,setError]=useState("");
  const dirty=Boolean(draft&&baseline&&JSON.stringify(draft)!==JSON.stringify(baseline));
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
+ useEffect(()=>{onDirtyChange?.(Boolean(dirty),busy);},[dirty,busy,onDirtyChange]);
  useEffect(()=>{
   let active=true;
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/absences",{cache:"no-store"})
@@ -125,7 +126,7 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
      onChange={event=>change("isPlanned",event.target.checked)}/>
      {t("members.absence.planned")}</label>
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
-    <div className="d-flex gap-2 flex-wrap">
+    <div className="smn-cockpit-form-actions">
      <button className="btn btn-primary" type="submit" disabled={busy||state.archived}>
       {t(record?"members.absence.saveEdit":"members.absence.save")}</button>
      <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={cancel}>

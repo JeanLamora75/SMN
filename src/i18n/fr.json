@@ -204,8 +204,8 @@
       "daysUnit": "jours",
       "capacityRatio": "{percent} % : capacité réelle disponible / capacité prévue",
       "storyPointsRatio": "{percent} % : SP réalisés / SP initialement engagés",
-    "committedPerPlannedJh": "SP engagés par J/H prévu",
-    "completedPerActualJh": "SP réalisés par J/H réel",
+      "committedPerPlannedJh": "SP engagés par J/H prévu",
+      "completedPerActualJh": "SP réalisés par J/H réel",
       "ticketsRatio": "{percent} % : tickets réalisés / tickets initialement engagés",
       "metricEstimated": "Estimé",
       "viewSprintGoals": "Consulter les Sprints",
@@ -808,7 +808,13 @@
       "empty": "Aucune version enregistrée.",
       "version": "Révision",
       "shareSummary": "SM {sm} % · PO {po} % · Dev {dev} %",
-      "historyNote": "Les corrections réalisées le même jour conservent toutes leurs révisions ; la plus récente s'applique pour cette date. Une version future n'est appliquée qu'à compter de sa date d'effet."
+      "historyNote": "Les corrections réalisées le même jour conservent toutes leurs révisions ; la plus récente s'applique pour cette date. Une version future n'est appliquée qu'à compter de sa date d'effet.",
+      "historicalTitle": "Corriger la date de début d'affectation",
+      "historicalDescription": "Date actuelle : {date}. Vous pouvez avancer l'arrivée à une date antérieure à l'installation de SMN, sans modifier les pourcentages ni les versions ultérieures. Les rapports clôturés restent figés.",
+      "historicalRealDate": "Date réelle d'arrivée",
+      "historicalAction": "Corriger la date historique",
+      "historicalConfirm": "Antidater l'arrivée du membre du {current} au {next} ? Les capacités historiques non figées pourront être recalculées. Les rapports déjà clôturés resteront inchangés.",
+      "historicalFailure": "Correction impossible. Vérifiez l'historique avant de réessayer."
     },
     "lifecycle": {
       "title": "Cycle de vie du membre",
@@ -1939,7 +1945,12 @@
     "historyAbsence": "Absence enregistrée ou modifiée",
     "historyLocation": "Localisation enregistrée",
     "historyLifecycle": "Changement de statut du membre",
-    "historyRoleVersion": "Révision de l’affectation Agile"
+    "historyRoleVersion": "Révision de l’affectation Agile",
+    "countryNone": "Aucun pays sélectionné",
+    "countryLegacy": "Pays précédemment enregistré (hors catalogue)",
+    "countriesUnavailable": "Catalogue des pays indisponible.",
+    "zoneNone": "Aucun fuseau horaire sélectionné",
+    "zoneLegacy": "Fuseau horaire précédemment enregistré"
   },
   "calendarUX": {
     "addMeeting": "Ajouter une réunion",
@@ -1975,7 +1986,10 @@
       "not-applicable": "Non applicable"
     },
     "items": {
-      "teams": {"title":"Équipes","description":"Créer et modifier les équipes et leur contexte produit."},
+      "teams": {
+        "title": "Équipes",
+        "description": "Créer et modifier les équipes et leur contexte produit."
+      },
       "general": {
         "title": "Informations générales",
         "description": "Définir la langue, le thème, la palette et le pays de référence."
@@ -3564,8 +3578,7 @@
     "edit": "Modifier",
     "inactive": "Enregistrements temporairement indisponibles",
     "description": "Le nom d'équipe est le seul champ obligatoire. Chaque équipe peut avoir son propre produit facultatif."
-  }
-,
+  },
   "teamSwitch": {
     "pending": "Changement d'équipe en préparation ; non activé tant que l'isolation n'est pas validée.",
     "unavailable": "Sélecteur d'équipe temporairement indisponible.",

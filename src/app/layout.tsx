@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 import "./dashboard.css";
 import "./appearance.css";
+import "./modal-cockpit.css";
 import type {Metadata} from "next";
 import type {ReactNode} from "react";
 import {requestLocale} from "@/i18n/locale.server";

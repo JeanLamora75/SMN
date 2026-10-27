@@ -104,12 +104,13 @@ export default function SprintDetailEditor(props:Props){
   {notice&&<span role="status" className="visually-hidden">{notice}</span>}
   {opened&&<dialog ref={dialog} className="smn-sprint-edit-dialog"
    aria-labelledby={titleId} onCancel={e=>{if(busy)e.preventDefault();else dismiss();}}>
-   <div className="modal-content bg-body border rounded-4 shadow p-3 p-md-4">
-    <div className="d-flex align-items-start justify-content-between gap-3 mb-3">
+   <div className="modal-content smn-cockpit-modal">
+    <div className="smn-cockpit-modal-header">
      <h2 className="h5 mb-0" id={titleId}>{title}</h2>
      <button type="button" className="btn-close" aria-label={t("sprintDetail.close")}
       onClick={dismiss} disabled={busy}/>
     </div>
+    <div className="smn-cockpit-modal-body">
     {isName?<form onSubmit={rename} className="d-grid gap-3">
      <div><label className="form-label" htmlFor="smn-sprint-edit-name">{t("sprintDetail.name")}</label>
       <input autoFocus id="smn-sprint-edit-name" className="form-control"
@@ -154,6 +155,7 @@ export default function SprintDetailEditor(props:Props){
      </div>
     </div>}
     {error&&<p role="alert" className="alert alert-warning mt-3 mb-0">{error}</p>}
+    </div>
    </div>
   </dialog>}
  </>;

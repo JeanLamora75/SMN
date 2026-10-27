@@ -5,7 +5,7 @@ import {utcOffsetLabel} from "@/lib/iana-utc-offset";
 type Member={id:string;displayName:string;email:string|null;professionalFunction?:string|null;revision:number};
 type Location={revision:number;countryIso2:string|null;region:string|null;city:string|null;timeZone:string|null};
 type LocationState={today:string;current:Location|null;versions:{revision:number;effective_from:string;country_iso2:string|null;region:string|null;city:string|null;time_zone:string|null}[];suggestedCountryIso2:string|null};
-export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:Member;onSaved:()=>void;onCancel:()=>void}){
+export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyChange}:{member:Member;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void}){
  const t=useTranslation();
  const [name,setName]=useState(member.displayName);
  const [email,setEmail]=useState(member.email??"");
@@ -20,6 +20,10 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
  const [zone,setZone]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
+ const [locationBaseline,setLocationBaseline]=useState<string|null>(null);
+ const dirty=name!==member.displayName||email!==(member.email??"")||profession!==(member.professionalFunction??"")||
+  (locationBaseline!==null&&JSON.stringify([country,region,city,zone])!==locationBaseline);
+ useEffect(()=>{onDirtyChange?.(dirty,busy);},[dirty,busy,onDirtyChange]);
 
  useEffect(()=>{const controller=new AbortController();void fetch("/api/admin/countries",{cache:"no-store",signal:controller.signal})
   .then(async r=>{if(!r.ok)throw Error("countries");return r.json() as Promise<{countries:{code:string;name:string}[]}>;})
@@ -29,6 +33,7 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
   .then(async r=>{if(!r.ok)throw Error("load");return r.json() as Promise<LocationState>;})
   .then(v=>{if(!active)return;setLocation(v);const latest=v.versions.at(-1);
    setCountry(latest?.country_iso2??v.current?.countryIso2??v.suggestedCountryIso2??"");
+   setLocationBaseline(JSON.stringify([latest?.country_iso2??v.current?.countryIso2??v.suggestedCountryIso2??"",latest?.region??v.current?.region??"",latest?.city??v.current?.city??"",latest?.time_zone??v.current?.timeZone??""]));
    setRegion(latest?.region??v.current?.region??"");setCity(latest?.city??v.current?.city??"");setZone(latest?.time_zone??v.current?.timeZone??"");
 })
   .catch(()=>{if(active)setError(t("memberUX.loadFailed"));});
@@ -46,7 +51,7 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
       revision:latest?.revision??0}})});
    if(!r.ok)throw Error("identity-"+r.status);
    onSaved();
-  }catch(err){setError(t("memberUX.identitySaveFailed")+(err instanceof Error?" ("+err.message+")":""));}
+  }catch{setError(t("memberUX.identitySaveFailed"));}
   finally{setBusy(false);}
  }
  return <form className="d-grid gap-3" onSubmit={e=>void save(e)}>
@@ -55,20 +60,20 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
    <div className="col-md-6"><label className="form-label">{t("members.profile.emailLabel")}<input className="form-control" type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} disabled={busy}/></label></div>
    <div className="col-12"><label className="form-label">{t("memberUX.functionLabel")}<input className="form-control" value={profession} onChange={e=>setProfession(e.target.value)} maxLength={120} disabled={busy}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.countryLabel")}<select className="form-select" value={country} onChange={e=>setCountry(e.target.value)} disabled={busy||!location||countriesFailed}>
-    <option value="">— Aucun pays —</option>
-    {country&&!countries.some(c=>c.code===country)&&<option value={country}>{country} (hors catalogue)</option>}
-    {countries.map(c=><option key={c.code} value={c.code}>{c.name} ({c.code})</option>)}
-   </select>{countriesFailed&&<small className="text-danger d-block">Catalogue des pays indisponible.</small>}</label></div>
+    <option value="">{t("memberUX.countryNone")}</option>
+    {country&&!countries.some(c=>c.code===country)&&<option value={country}>{country} — {t("memberUX.countryLegacy")}</option>}
+    {countries.map(c=><option key={c.code} value={c.code}>{c.name}</option>)}
+   </select>{countriesFailed&&<small className="text-danger d-block">{t("memberUX.countriesUnavailable")}</small>}</label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.regionLabel")}<input className="form-control" value={region} onChange={e=>setRegion(e.target.value)} maxLength={120} disabled={busy||!location}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.cityLabel")}<input className="form-control" value={city} onChange={e=>setCity(e.target.value)} maxLength={120} disabled={busy||!location}/></label></div>
    <div className="col-md-3"><label className="form-label">{t("memberUX.zoneLabel")}<select className="form-select" value={zone} onChange={e=>setZone(e.target.value)} disabled={busy||!location}>
-    <option value="">— Aucun fuseau horaire —</option>
-    {zone&&!timeZones.includes(zone)&&<option value={zone}>{zone} ({utcOffsetLabel(zone)}) — existant</option>}
+    <option value="">{t("memberUX.zoneNone")}</option>
+    {zone&&!timeZones.includes(zone)&&<option value={zone}>{zone} ({utcOffsetLabel(zone)}) — {t("memberUX.zoneLegacy")}</option>}
     {timeZones.map(z=><option key={z} value={z}>{z} ({utcOffsetLabel(z)})</option>)}
    </select></label></div>
   </div>
   {error&&<p className="alert alert-warning" role="alert">{error}</p>}
-  <div className="d-flex gap-2 justify-content-end"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={onCancel}>{t("teamUX.cancel")}</button>
+  <div className="smn-cockpit-form-actions"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={onCancel}>{t("teamUX.cancel")}</button>
    <button type="submit" className="btn btn-primary" disabled={busy||!location}>{t("members.profile.save")}</button></div>
  </form>;
 }
