@@ -1,7 +1,6 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
-import {useEffect as useDirtyEffect} from "react";
 import {utcOffsetLabel} from "@/lib/iana-utc-offset";
 type Member={id:string;displayName:string;email:string|null;professionalFunction?:string|null;revision:number};
 type Location={revision:number;countryIso2:string|null;region:string|null;city:string|null;timeZone:string|null};
@@ -24,7 +23,7 @@ export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyCha
  const [locationBaseline,setLocationBaseline]=useState<string|null>(null);
  const dirty=name!==member.displayName||email!==(member.email??"")||profession!==(member.professionalFunction??"")||
   (locationBaseline!==null&&JSON.stringify([country,region,city,zone])!==locationBaseline);
- useDirtyEffect(()=>{onDirtyChange?.(dirty,busy);},[dirty,busy,onDirtyChange]);
+ useEffect(()=>{onDirtyChange?.(dirty,busy);},[dirty,busy,onDirtyChange]);
 
  useEffect(()=>{const controller=new AbortController();void fetch("/api/admin/countries",{cache:"no-store",signal:controller.signal})
   .then(async r=>{if(!r.ok)throw Error("countries");return r.json() as Promise<{countries:{code:string;name:string}[]}>;})
