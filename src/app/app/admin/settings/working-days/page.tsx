@@ -1,3 +1,4 @@
+import SettingsTabs from "../settings-tabs";
 import Link from "next/link";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
@@ -35,8 +36,10 @@ export default async function WorkingDaysSettingsPage(){
     <h1 className="h3">{t("settingsSprint.workingDaysTitle")}</h1>
     <p className="text-secondary">{t("settingsSprint.workingDaysScope")}</p>
    </header>
-  <WorkSlotsForm/>
-  <LunchForm/>
+  <SettingsTabs label={t("settingsSprint.workingDaysTitle")} sections={[
+   {id:"slots",label:locale==="fr"?"Plages horaires":"Working time slots",content:<WorkSlotsForm/>},
+   {id:"lunch",label:locale==="fr"?"Pause déjeuner":"Lunch break",content:<LunchForm/>}
+  ]}/>
   </div>
  </main>;
 }
