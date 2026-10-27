@@ -114,3 +114,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Décision technique : ne pas tenter une suppression heuristique de la confirmation d'après le seul DOM ; aucun état `dirty` partagé fiable n'est disponible dans le conteneur.
 - Aucun changement de fermeture effectué à cette étape. Prochaine implémentation proposée : contrat explicite `onDirtyChange`/brouillon pour les sous-formulaires de la fiche Membre, puis unifier X/Échap/Annuler.
 - Audit statique exclusivement, pas de tests ni build.
+
+## Brouillons membres (étape partielle)
+- Identité : signalement des changements nom, email, fonction et localisation au conteneur.
+- X et Échap : confirmation seulement si le profil est modifié.
+- Autres formulaires : protections conservées en attendant leur raccordement.
+- Tests PC non exécutés.
