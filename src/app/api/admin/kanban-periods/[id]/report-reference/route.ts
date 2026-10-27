@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {createKanbanRenderReference} from "@/server/kanban/render-reference";
 export const runtime="nodejs";
@@ -15,7 +15,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const reference=await withAuthDb(db=>createKanbanRenderReference(db,id,actor.id,raw.sections as string[],raw.language as "fr"|"en"));
+  const reference=await withLegacyTeamApi(db=>createKanbanRenderReference(db,id,actor.id,raw.sections as string[],raw.language as "fr"|"en"));
   return reference?jsonResult({id:reference.id,sha256:reference.sha256}):jsonResult({error:"not-found-or-empty"},400);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
