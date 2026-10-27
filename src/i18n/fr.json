@@ -3627,6 +3627,8 @@
     "saveError": "Opération impossible. Réessayez.",
     "conflict": "Ce lien a été modifié entre-temps. Actualisez la liste.",
     "confirmDelete": "Confirmer la suppression",
-    "deleteWarning": "Le lien sera supprimé. Cette action est irréversible."
+    "deleteWarning": "Le lien sera supprimé. Cette action est irréversible.",
+    "invalidFields": "Vérifiez les champs : titre, URL HTTP(S), catégorie et visibilité.",
+    "forbidden": "Vous n’êtes pas autorisé à modifier ce lien."
   }
 }
