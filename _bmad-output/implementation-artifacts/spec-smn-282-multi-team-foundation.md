@@ -478,3 +478,12 @@ La route POST `/api/admin/reports/sprints/[id]/pdf` transportait déjà un `team
 **Conditions impératives de réouverture :** identifier la route effective de prévisualisation et tous ses appels, appliquer la même vérification serveur du compte Admin et du `teamId` que celle du Sprint, relier la référence figée à l'équipe autorisée et à la session authentifiée, garantir l'immutabilité du rendu, qualifier la reprise idempotente par `operationId` et la correspondance archive/teamId, puis effectuer la recette Windows avec au moins deux équipes, deux Sprints, des liens directs et des références croisées.
 
 L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun test, build, migration, activation ni fusion effectués.**
+
+
+## Étape suivante — Référence figée et préparation recette 6C (27/10/2026)
+
+- `src/server/reports/render-reference.ts` accepte un `expectedTeamId` facultatif dans la création et la lecture, et l'applique **dans les requêtes SQL** contrôlant le Sprint de la référence ; absence de paramètre compatible v27.
+- Les routes de création de référence et de rendu PDF Sprint transmettent désormais le `teamId` résolu à ces lectures, sans substituer une équipe indiquée par le client à la vérification du serveur.
+- Nouveau document `_bmad-output/implementation-artifacts/recette-smn-282-lot-6c.md` : 18 scénarios manuels interéquipes, permissions Admin/user, composition, concurrence, exports, archives, URLs directes et régression v27.
+- Recherche de la véritable route `/app/admin/sprints/[id]/report/preview` par chemins probables et recherche GitHub non concluante. Aucun fichier de prévisualisation n'a été identifié et modifié. Le POST PDF Sprint standard v28 demeure explicitement bloqué (503) ; ne pas revendiquer la sécurisation du renderer interne.
+- **Aucun test exécuté** ; aucune migration activée ni fusion. La clôture technique 6B reste en attente de l'identification et de la qualification de la page de prévisualisation.
