@@ -560,3 +560,12 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - Cette vérification s'applique aux téléchargements contextualisés par équipe et au chemin historique. Les archives incohérentes sont rejetées plutôt que remises à l'appelant.
 - Scénario 6C complémentaire : altérer les métadonnées d'une archive dans un environnement isolé (id/team/cycle/hash/length), vérifier que le téléchargement échoue ; restaurer les données après le test. Ne pas effectuer cette manipulation sur les données métier.
 - Code publié uniquement, aucun test, build, migration ni fusion. La prévisualisation PDF Sprint standard v28 reste non qualifiée et son export demeure bloqué.
+
+
+## Archivage multiéquipes — verrouillage du masquage (27/10/2026)
+
+- `src/server/reports/archive-visibility.ts` : l'opération de masquage prend un `expectedTeamId` optionnel, et le vérifie dans la requête SQL `FOR UPDATE OF a` qui verrouille l'archive au sein de la transaction. Un archiveId de l'équipe B ne peut plus être masqué après un contrôle initial fait pour l'équipe A.
+- `src/app/api/admin/reports/archives/[id]/visibility/route.ts` transmet le `teamId` autorisé au service. Le chemin historique sans teamId conserve sa politique v27.
+- La route `grants` reste limitée au mode historique : les habilitations `user` en multiéquipes sont reportées à la V1 et ne sont pas ouvertes en v28.
+- Cas de recette complémentaire : masquage A autorisé, masquage de B avec teamId A refusé, contrôle direct sur archive masquée et non-régression v27.
+- **Code publié sans test, build, migration ni fusion.** L'export PDF Sprint standard v28 reste verrouillé en attendant la validation de la prévisualisation.
