@@ -1974,10 +1974,10 @@
   },
   "settingsCatalog": {
     "groups": {
-      "application": "Application et personnalisation",
+      "application": "Application",
       "agile": "Organisation Agile",
-      "calendar": "Calendriers et indisponibilités",
-      "administration": "Administration et maintenance"
+      "calendar": "Calendriers et disponibilités",
+      "administration": "Administration"
     },
     "status": {
       "available": "Disponible",
@@ -2003,8 +2003,8 @@
         "description": "Personnaliser le thème et les couleurs."
       },
       "cadence": {
-        "title": "Cadence des sprints",
-        "description": "Définir les durées et horaires des futurs sprints Scrum."
+        "title": "Cadence Agile",
+        "description": "Configurer les cycles du mode Scrum ou Kanban actif."
       },
       "ceremonies": {
         "title": "Cérémonies et modèles",
@@ -2019,8 +2019,8 @@
         "description": "Définir les règles de calcul de capacité."
       },
       "workingDays": {
-        "title": "Jours ouvrés",
-        "description": "Configurer les plages horaires, le fuseau et la pause déjeuner ; semaine lundi–vendredi fixe."
+        "title": "Horaires de travail",
+        "description": "Plages horaires et pause déjeuner."
       },
       "countries": {
         "title": "Pays et jours fériés",
@@ -2053,6 +2053,18 @@
       "kanbanCadence": {
         "title": "Cadence Kanban",
         "description": "Périodes mensuelles, hebdomadaires et bihebdomadaires"
+      },
+      "preferences": {
+        "title": "Préférences de l'application",
+        "description": "Langue, thème, couleurs et paramètres généraux."
+      },
+      "holidaysClosures": {
+        "title": "Jours fériés et fermetures",
+        "description": "Calendriers nationaux et fermetures de l'entreprise."
+      },
+      "maintenance": {
+        "title": "Maintenance",
+        "description": "Sauvegardes et historique des opérations."
       }
     },
     "view": {
