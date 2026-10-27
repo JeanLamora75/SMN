@@ -37,8 +37,8 @@ export default async function WorkingDaysSettingsPage(){
     <p className="text-secondary">{t("settingsSprint.workingDaysScope")}</p>
    </header>
   <SettingsTabs label={t("settingsSprint.workingDaysTitle")} sections={[
-   {id:"slots",label:locale==="fr"?"Plages horaires":"Working time slots",content:<WorkSlotsForm/>},
-   {id:"lunch",label:locale==="fr"?"Pause déjeuner":"Lunch break",content:<LunchForm/>}
+   {id:"slots",label:t("settingsCatalog.tabs.slots"),content:<WorkSlotsForm/>},
+   {id:"lunch",label:t("settingsCatalog.tabs.lunch"),content:<LunchForm/>}
   ]}/>
   </div>
  </main>;
