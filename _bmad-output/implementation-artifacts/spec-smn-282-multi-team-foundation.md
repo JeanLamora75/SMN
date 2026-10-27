@@ -467,3 +467,14 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - Revue transversale : la chaîne actuelle comporte au moins la création de référence figée, le chargement de cette référence dans la prévisualisation, le navigateur PDF, l'opération idempotente, la conservation de l'archive et le téléchargement. Leur vérification intégrée doit couvrir la fuite interéquipes, les comptes `user`, la révocation de droits, les collisions d'`operationId`, la mutation pendant le rendu et le multi-session.
 - **Lot 6B non clôturé** tant que le renderer interne, les appels UI Sprint et la recette d'isolation ne sont pas vérifiés sur le PC ; 6C reste distinct.
 - Pas de test ni de build, pas de migration activée, pas de fusion de la PR #189.
+
+
+## Lot 6B — Verrou de sûreté PDF Sprint v28 (27/10/2026)
+
+La route POST `/api/admin/reports/sprints/[id]/pdf` transportait déjà un `teamId` vers un navigateur PDF qui charge `/app/admin/sprints/[id]/report/preview`. Cette page interne n'a pas été identifiée avec certitude dans les chemins accessibles via le connecteur GitHub et son contrôle autonome de l'acteur, de l'équipe, du Sprint et de la référence immuable n'a **pas** pu être vérifié. Tant que le rendu HTML ne fait pas lui-même respecter ces droits, transmettre simplement le `teamId` dans l'URL ne suffit pas.
+
+**Décision de sûreté appliquée :** toute demande PDF Sprint standard avec `teamId` renvoie explicitement `503 team-pdf-preview-pending` avant le navigateur, y compris si une référence figée existe. Les demandes historiques sans `teamId` gardent leur garde v27 et ne peuvent pas s'exécuter contre le schéma v28. Cela évite de considérer prématurément l'export standard multiéquipes comme opérationnel.
+
+**Conditions impératives de réouverture :** identifier la route effective de prévisualisation et tous ses appels, appliquer la même vérification serveur du compte Admin et du `teamId` que celle du Sprint, relier la référence figée à l'équipe autorisée et à la session authentifiée, garantir l'immutabilité du rendu, qualifier la reprise idempotente par `operationId` et la correspondance archive/teamId, puis effectuer la recette Windows avec au moins deux équipes, deux Sprints, des liens directs et des références croisées.
+
+L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun test, build, migration, activation ni fusion effectués.**
