@@ -26,7 +26,7 @@ Préparer deux équipes A et B sous une même installation, deux Sprints A1 et B
 | 6C-12 | Masquer archive A avec `teamId=B` | Refus, archive A non modifiée |
 | 6C-13 | Réutiliser `operationId` PDF d'une autre équipe | Conflit, aucune archive remplacée |
 | 6C-14 | Altérer/supprimer les octets PDF en stockage privé | Archive rejetée par le contrôle d'intégrité |
-| 6C-15 | Rendu PDF Sprint standard v28 | **503 `team-pdf-preview-pending` attendu jusqu'à qualification de la page interne** |
+| 6C-15 | Rendu PDF Sprint standard v28 | PDF lisible et archivé avec bonne équipe, refus des références croisées ; Chrome requis |
 | 6C-16 | En v27, parcourir Rapports/Studio/PDF/archives | Non-régression par rapport au MVP précédent |
 | 6C-17 | Vérifier une préférence d'équipe devenue invalide | Refus et absence de sélection implicite |
 | 6C-18 | Tester des homonymes et IDs croisés | Autorisation strictement par ID d'équipe, jamais par nom |
