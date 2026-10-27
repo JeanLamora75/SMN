@@ -11,13 +11,13 @@ function database(options:Options={}){
  const query=async(sql:string,params:unknown[]=[]):Promise<{rows:any[];rowCount:number}>=>{
   sqls.push(sql);argumentsSeen.push(params);
   if(sql.includes("FROM public.smn_installation"))return {rows:[{
-   id:"singleton",schema_version:options.version??28,state:"initialized",mode:"scrum"
+   id:"singleton",schema_version:options.version??29,state:"initialized",mode:"scrum"
   }],rowCount:1};
   if(sql.includes("FROM public.smn_account"))return {rows:options.role===false?[]:[{id:"admin"}],rowCount:1};
   if(sql.includes("SELECT id,name FROM public.smn_team"))return {rows:options.teams??[],rowCount:(options.teams??[]).length};
   if(sql.includes("FROM public.smn_team t LEFT JOIN"))return {
    rows:options.current===null?[]:[options.current??{
-    id:"team",name:"Koala",product_id:"old-product",product_name:"Ancien"
+    id:"team",name:"Koala",product_id:"old-product",product_name:"Ancien",agile_mode:"scrum",mode_locked:false,is_archived:false
    }],rowCount:1
   };
   if(sql.includes("SELECT revision,vision,product_goal"))return{
@@ -30,7 +30,7 @@ function database(options:Options={}){
 }
 test("création produit facultatif, une transaction et un audit",async()=>{
  const {db,sqls,argumentsSeen}=database();
- const r=await createInstallationTeam(db,"singleton","admin",{name:" Panda ",vision:" Vision "});
+ const r=await createInstallationTeam(db,"singleton","admin",{name:" Panda ",agileMode:"scrum",vision:" Vision "});
  assert.equal(r.ok,true);
  if(!r.ok)return;
  assert.equal(r.values.productName,null);
@@ -44,30 +44,30 @@ test("création produit facultatif, une transaction et un audit",async()=>{
 });
 test("la version historique 27 interdit les écritures",async()=>{
  const {db,sqls}=database({version:27});
- const r=await createInstallationTeam(db,"singleton","admin",{name:"Panda"});
+ const r=await createInstallationTeam(db,"singleton","admin",{name:"Panda",agileMode:"scrum"});
  assert.deepEqual(r,{ok:false,error:"schema-not-ready"});
  assert.equal(sqls.some(s=>s.startsWith("INSERT")),false);
 });
 test("un acteur non-admin ou un homonyme ne peut pas créer",async()=>{
  const denied=database({role:false});
- assert.deepEqual(await createInstallationTeam(denied.db,"singleton","admin",{name:"Panda"}),
+ assert.deepEqual(await createInstallationTeam(denied.db,"singleton","admin",{name:"Panda",agileMode:"scrum"}),
   {ok:false,error:"forbidden"});
  const same=database({teams:[{id:"team",name:"  ÉQUIPE   Panda "}]});
- assert.deepEqual(await createInstallationTeam(same.db,"singleton","admin",{name:"équipe panda"}),
+ assert.deepEqual(await createInstallationTeam(same.db,"singleton","admin",{name:"équipe panda",agileMode:"scrum"}),
   {ok:false,error:"duplicate-name"});
  assert.equal(same.sqls.some(s=>s.startsWith("INSERT")),false);
 });
 test("édition : révision contradictoire sans modification",async()=>{
  const {db,sqls}=database({revision:3});
  const r=await updateInstallationTeam(db,"singleton","admin",
-  {teamId:"team",revision:2,name:"Koala",productName:"Ancien",vision:null,productGoal:null});
+  {teamId:"team",revision:2,name:"Koala",agileMode:"scrum",productName:"Ancien",vision:null,productGoal:null});
  assert.deepEqual(r,{ok:false,error:"conflict"});
  assert.equal(sqls.some(s=>s.startsWith("UPDATE public.smn_team SET")),false);
 });
 test("édition : produit retiré sans suppression d'un produit historique",async()=>{
  const {db,sqls,argumentsSeen}=database();
  const r=await updateInstallationTeam(db,"singleton","admin",
-  {teamId:"team",revision:1,name:"Koala",productName:null,vision:"Nouvelle vision",productGoal:null});
+  {teamId:"team",revision:1,name:"Koala",agileMode:"scrum",productName:null,vision:"Nouvelle vision",productGoal:null});
  assert.equal(r.ok,true);
  assert.equal(sqls.some(s=>s.startsWith("DELETE FROM public.smn_product")),false);
  const i=sqls.findIndex(s=>s.startsWith("UPDATE public.smn_team SET"));
@@ -76,23 +76,23 @@ test("édition : produit retiré sans suppression d'un produit historique",async
 });
 test("transaction annulée si PostgreSQL échoue",async()=>{
  const {db,sqls}=database({failInsert:true});
- await assert.rejects(()=>createInstallationTeam(db,"singleton","admin",{name:"Panda"}));
+ await assert.rejects(()=>createInstallationTeam(db,"singleton","admin",{name:"Panda",agileMode:"scrum"}));
  assert.equal(sqls.at(-1),"ROLLBACK");
 });
 
 test("édition refuse un produit référencé hors installation",async()=>{
  const {db,sqls}=database({current:{
-  id:"team",name:"Koala",product_id:"foreign-product",product_name:null
+  id:"team",name:"Koala",product_id:"foreign-product",product_name:null,agile_mode:"scrum",mode_locked:false,is_archived:false
  }});
  await assert.rejects(()=>updateInstallationTeam(db,"singleton","admin",{
-  teamId:"team",revision:1,name:"Koala",productName:"Produit",vision:null,productGoal:null
+  teamId:"team",revision:1,name:"Koala",agileMode:"scrum",productName:"Produit",vision:null,productGoal:null
  }),/team-product-outside-installation/);
  assert.equal(sqls.at(-1),"ROLLBACK");
 });
 test("création d'un produit réel propre à la nouvelle équipe",async()=>{
  const {db,sqls,argumentsSeen}=database();
  const r=await createInstallationTeam(db,"singleton","admin",{
-  name:"Tigre",productName:"Portail client",vision:"Vision",productGoal:"But"
+  name:"Tigre",agileMode:"scrum",productName:"Portail client",vision:"Vision",productGoal:"But"
  });
  assert.equal(r.ok,true);
  const pi=sqls.findIndex(s=>s.startsWith("INSERT INTO public.smn_product("));
