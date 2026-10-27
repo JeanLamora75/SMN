@@ -31,8 +31,8 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(teamId)return Response.json({error:"team-pdf-preview-pending"},{status:503});
  const reference=await (teamId?withAuthDb(async db=>{
   if(!await assertTeamReportCycle(db,{accountId:actor.id,role:actor.role},teamId,id))return null;
-  return readFrozenReportReference(db,referenceId,id);
- }):withLegacyReportReadDb(db=>readFrozenReportReference(db,referenceId,id))).catch(()=>null);
+  return readFrozenReportReference(db,referenceId,id,teamId??undefined);
+ }):withLegacyReportReadDb(db=>readFrozenReportReference(db,referenceId,id,teamId??undefined))).catch(()=>null);
  if(!reference)return Response.json({error:"reference-unavailable"},{status:409});
  const configured=process.env.SMN_PDF_INTERNAL_ORIGIN??"http://127.0.0.1:3003";
  let origin:URL;
@@ -45,7 +45,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
 try{
  const run=async (db:import("pg").Client)=>{
   if(teamId&&!await assertTeamReportCycle(db,{accountId:actor.id,role:actor.role},teamId,id))throw Error("archive-scope-unavailable");
-  const currentRef=await readFrozenReportReference(db,referenceId,id);
+  const currentRef=await readFrozenReportReference(db,referenceId,id,teamId??undefined);
   if(!currentRef||currentRef.sha256!==reference.sha256)throw Error("reference-unavailable");
   // Session-level lock spans the browser render and DB commit.
   await db.query("SELECT pg_advisory_lock(hashtextextended($1::text,0))",[operationId]);
@@ -70,7 +70,7 @@ try{
    JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,[id]);
    if(scope.rows.length!==1||(teamId&&scope.rows[0].teamId!==teamId))throw Error("archive-scope-unavailable");
-   const refreshed=await readFrozenReportReference(db,referenceId,id);
+   const refreshed=await readFrozenReportReference(db,referenceId,id,teamId??undefined);
    if(!refreshed||refreshed.sha256!==reference.sha256)throw Error("reference-unavailable");
    const archived=await storeFinalPdfArchive(db,bytes,{
     authorId:actor.id,language:reference.payload.language.language,
