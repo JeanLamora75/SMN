@@ -55,3 +55,10 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `report-studio.tsx`, `template-library.tsx` et `settings-form.tsx` examinés : aucune fenêtre modale directe dans ces fichiers ; leurs formulaires de page ne sont pas transformés. Il reste à rechercher les modales indirectes dans les composants enfants et autres modules.
 - Pas de modification des règles métier, appels API, sauvegardes ou des contrats de modèle.
 - Aucun typecheck, build ni test navigateur lancé. À vérifier sur PC : top layer dialog, focus, masquage de l'arrière-plan, large contenu, validation, annulation, modes clair/sombre et palette.
+
+## Étape internationalisation des modales membres
+- `member-identity-editor.tsx` : suppression des textes français en dur (aucun pays, pays hors catalogue, catalogue indisponible, aucun fuseau, fuseau existant), avec nouvelles clés `memberUX.*` en FR/EN. Les pays du catalogue s'affichent par nom sans suffixe ISO2 ; les codes restent les valeurs du `select` envoyées au serveur. Pour un ancien pays absent du catalogue, l'identifiant demeure visible uniquement pour identifier une donnée héritée.
+- `src/i18n/fr.json` et `src/i18n/en.json` enrichis avec six libellés chacun.
+- Audit ciblé de `assignment-editor.tsx` : plusieurs chaînes françaises codées en dur demeurent dans la correction d'affectation historique ; elles nécessitent une étape de traduction spécifique.
+- Ne pas déduire de cet audit partiel une conformité FR/EN de toutes les fenêtres.
+- Aucun contrôle `pnpm i18n:check`, lint, TypeScript ou navigateur exécuté. Recette sur PC utilisateur.
