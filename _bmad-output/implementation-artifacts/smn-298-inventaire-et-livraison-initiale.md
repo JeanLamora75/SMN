@@ -75,3 +75,10 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `member-identity-editor.tsx` : suppression du suffixe technique `identity-400`, `identity-409` ou similaire ajouté à l'erreur affichée ; le message métier `memberUX.identitySaveFailed` reste affiché.
 - Aucune modification des requêtes, valeurs métiers ou règles serveur. Les détails d'erreur techniques ne sont plus exposés dans ces deux chemins de formulaire ; un audit du reste des fenêtres est encore nécessaire.
 - Pas de tests ou builds exécutés ; vérification sur PC utilisateur indispensable.
+
+## Étape d'audit complémentaire — inventaire croisé
+- Arborescence GitHub examinée : 232 fichiers TSX sous `src/app/` recensés via l'arbre Git, sans analyse ligne à ligne exhaustive.
+- Vérification du contenu de `operational-overview.tsx`, `cycle-overview.tsx`, `quick-members-admin.tsx`, `sprint-generation-wizard.tsx`, `registry-detail.tsx`, `report-studio.tsx`, `settings/teams/teams-settings.tsx`, `ai-briefs/templates/template-editor.tsx` et `member-location-editor.tsx` : aucun conteneur modal explicite repéré avec les signatures `<dialog>`, `role="dialog"`, `modal-backdrop`, `modal-content` ou `showModal(`. Ce contrôle statique ne garantit pas l'absence de rendu via composants enfants.
+- `src/app/modal-cockpit.css` : bouton fermer renforcé (opacité, bordure, taille, focus-visible) pour ne pas perdre sa visibilité selon les thèmes.
+- Restent : recherche de toutes les occurrences modales dans l'ensemble des 232 fichiers, contrôle rendu/contraste, compatibilité des sélecteurs CSS existants, cas d'erreur localisés, recette locale par l'utilisateur.
+- Pas de compilation, test, action GitHub ni recette exécutés.
