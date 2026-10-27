@@ -29,7 +29,6 @@ export async function createScopedCeremonyOutcome(db:Client,actor:TeamActor,
   if(sprint.rows.length!==1)return reject("not-found");
   const meeting=await readCalendarMeeting(db,"ceremony",p.ceremonyId,team.team_id);
   if(!meeting||meeting.sprintId!==sprint.rows[0].id)return reject("not-found");
-  if(sprint.rows.length!==1)return reject("not-found");
   if(sprint.rows[0].status==="closed")return reject("closed-period");
   const required=["smn_registry_item","smn_registry_item_audit","smn_calendar_meeting_outcome_link"];
   const present=await db.query<{name:string}>(`
