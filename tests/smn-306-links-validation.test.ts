@@ -34,3 +34,14 @@ test("rejects ambiguous external URL normalization and unsupported input",()=>{
  assert.throws(()=>normalizeLink({...basic,scope:"EQUIPE",teamId:"../other"}),LinkError);
  assert.throws(()=>normalizeLink({...basic,categoryId:"../other"}),LinkError);
 });
+
+test("rejects tabs, CRLF and backslashes before URL parsing normalizes them",()=>{
+ const cases=[
+  "https://example.org/\\\\@other.example",
+  "https://example.org/\\nnext",
+  "https://example.org/\\rnext",
+  "https://example.org/\\tpath",
+  "https://example.org/with space"
+ ];
+ for(const url of cases)assert.throws(()=>normalizeLink({...basic,url}),LinkError,url);
+});
