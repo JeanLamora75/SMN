@@ -3152,6 +3152,12 @@
   },
   "calendarOptionB": {
     "eyebrow": "Planification de l'équipe",
+    "heroSubtitle": "Planifiez les cérémonies, réunions et absences de l’équipe.",
+    "filtersHeading": "Affichage et filtres",
+    "scheduleHeading": "Planning du cycle",
+    "zoneLabel": "Fuseau horaire",
+    "zoneFailed": "Fuseaux des membres indisponibles — fuseau de repli actif",
+    "kanbanPeriod": "Période Kanban",
     "display": "Afficher :",
     "presentation": "Présentation :",
     "cards": "Cartes",
