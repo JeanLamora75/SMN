@@ -24,6 +24,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const cookie=req.cookies.get(SESSION_COOKIE)?.value;
  if(!cookie)return Response.json({error:"forbidden"},{status:403});
  const teamId=req.nextUrl.searchParams.get("teamId");
+ if(teamId!==null&&!/^[a-f0-9-]{36}$/i.test(teamId))return Response.json({error:"invalid-input"},{status:400});
  if(teamId&&actor.role!=="admin")return Response.json({error:"forbidden"},{status:403});
  // The internal preview independently checks the session, active team, Sprint and signed-content hash.
  const reference=await (teamId?withAuthDb(async db=>{
