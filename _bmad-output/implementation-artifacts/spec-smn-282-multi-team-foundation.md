@@ -414,3 +414,13 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - Les blocs d'un document restent encapsulés dans `smn_report_document.content` via `saveTeamStudioDocument`; ils ne sont pas exposés par une API dédiée dans cette tranche.
 - **À poursuivre avant ouverture complète du Studio :** contrôle des autres routes de composition/versionnement, fermeture ou adaptation des anciens producteurs connexes, harmonisation UI des mutations, revue du schéma et des protections en concurrence, tests d'isolation interéquipes et non-régression v27.
 - **Statut :** code publié sur la branche de PR #189 ; aucune commande de test, lint, typecheck, build, migration PostgreSQL ou recette exécutée. `MULTI_TEAM_CONTEXT_READY` inchangé, PR non fusionnée. Le workflow BMAD local n'a pas été exécuté faute de checkout/uv dans le contexte connecté ; adaptation documentée conformément à la demande de publication directe.
+
+
+## Étape 6B.3 — Raccordement d'édition et versionnement ciblé (27/10/2026)
+
+- `src/app/app/reports/report-studio.tsx` transmet désormais le `teamId` aux PATCH documentaires utilisés par la sauvegarde automatique ou manuelle. Sections et blocs sont maintenus dans `smn_report_document.content` ; la voie sans `teamId` conserve le mode v27.
+- `src/app/app/reports/[documentId]/page.tsx` rend le Studio éditable pour un compte Admin avec équipe explicitement vérifiée et document appartenant à son Sprint. Les fonctions non qualifiées (PDF, archives, actualisation, journal IA, propositions globales de version) sont exclues de cette branche d'affichage ; les liens directs illégitimes restent refusés.
+- Application de modèle sur Sprint (`apply-template`) et choix de langue (`language`) : les routes acceptent un contrôle explicite de `teamId` via `withTeamReportCycle`, sans contourner les anciens verrous.
+- Lecture d'une proposition de nouvelle version (`documents/[documentId]/template-update`) : recherche du document d'équipe autorisé avant toute comparaison avec la bibliothèque ; aucune écriture de version ni migration effectuée.
+- **Attention :** l'édition directe des modèles partagés, la mise à jour effective d'une version, les services transverses PDF/archives et les autres producteurs conservés sous garde v27 ne sont pas rendus accessibles en v28. Le lot 6B.3 ne doit pas être déclaré intégralement vérifié ou terminé avant revue des routes connexes et tests d'intégration.
+- **Tests locaux et migration : non exécutés.** La PR #189 reste en brouillon ; aucune fusion sur main, `MULTI_TEAM_CONTEXT_READY` non modifié. L'adaptation au workflow BMAD sans scripts locaux reste expressément consignée.
