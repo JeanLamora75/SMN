@@ -19,8 +19,8 @@ export default async function RegistrySettingsPage(){
   <header className="my-3"><h1 className="h3">{translate(locale,"settingsCatalog.items.registries.title")}</h1>
    <p className="text-secondary">{translate(locale,"settingsCatalog.items.registries.description")}</p></header>
   <SettingsTabs label={translate(locale,"settingsCatalog.items.registries.title")} sections={[
-   {id:"categories",label:locale==="fr"?"Catégories automatiques":"Automatic categories",content:<AutomaticHighlightsSettings canManage={actor.role==="admin"}/>},
-   {id:"alerts",label:locale==="fr"?"Alertes d’échéance":"Deadline alerts",content:<RegistryDeadlineAlerts canManage={actor.role==="admin"}/>}
+   {id:"categories",label:translate(locale,"settingsCatalog.tabs.categories"),content:<AutomaticHighlightsSettings canManage={actor.role==="admin"}/>},
+   {id:"alerts",label:translate(locale,"settingsCatalog.tabs.alerts"),content:<RegistryDeadlineAlerts canManage={actor.role==="admin"}/>}
   ]}/>
  </main>;
 }
