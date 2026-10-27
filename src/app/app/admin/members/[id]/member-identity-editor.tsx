@@ -21,7 +21,9 @@ export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyCha
  const [zone,setZone]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
- const dirty=name!==member.displayName||email!==(member.email??"")||profession!==(member.professionalFunction??"");
+ const [locationBaseline,setLocationBaseline]=useState<string|null>(null);
+ const dirty=name!==member.displayName||email!==(member.email??"")||profession!==(member.professionalFunction??"")||
+  (locationBaseline!==null&&JSON.stringify([country,region,city,zone])!==locationBaseline);
  useDirtyEffect(()=>{onDirtyChange?.(dirty);},[dirty,onDirtyChange]);
 
  useEffect(()=>{const controller=new AbortController();void fetch("/api/admin/countries",{cache:"no-store",signal:controller.signal})
@@ -32,6 +34,7 @@ export default function MemberIdentityEditor({member,onSaved,onCancel,onDirtyCha
   .then(async r=>{if(!r.ok)throw Error("load");return r.json() as Promise<LocationState>;})
   .then(v=>{if(!active)return;setLocation(v);const latest=v.versions.at(-1);
    setCountry(latest?.country_iso2??v.current?.countryIso2??v.suggestedCountryIso2??"");
+   setLocationBaseline(JSON.stringify([latest?.country_iso2??v.current?.countryIso2??v.suggestedCountryIso2??"",latest?.region??v.current?.region??"",latest?.city??v.current?.city??"",latest?.time_zone??v.current?.timeZone??""]));
    setRegion(latest?.region??v.current?.region??"");setCity(latest?.city??v.current?.city??"");setZone(latest?.time_zone??v.current?.timeZone??"");
 })
   .catch(()=>{if(active)setError(t("memberUX.loadFailed"));});
