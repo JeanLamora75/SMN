@@ -15,7 +15,7 @@ type JournalChoice={id:string;type:"human"|"ai";scope:string;content:string;arch
 type StudioContent={pageBreaks?:Record<string,boolean>;documentStyle?:unknown;analyses?:EmbeddedAnalysis[];sections?:Section[];blocks?:unknown[];userNotes?:Record<string,string>;metrics?:Record<string,{value:number|null;unit:string}>;[key:string]:unknown};
 type Mode="composition"|"writing"|"preview";
 
-export default function ReportStudio({document,readOnly,journal}:{document:ReportDocument;readOnly:boolean;journal:JournalChoice[]}){
+export default function ReportStudio({document,readOnly,journal,teamId}:{document:ReportDocument;readOnly:boolean;journal:JournalChoice[];teamId?:string}){
  const t=useTranslation(),tr=(k:string)=>t(("reportsStudio."+k) as Parameters<typeof t>[0]);
  const editing=useReportEditing();
  const initial=document.content as StudioContent;
@@ -52,7 +52,7 @@ export default function ReportStudio({document,readOnly,journal}:{document:Repor
   if(readOnly||saving||saved)return;
   const sendingVersion=changeVersion.current;setSaving(true);editing.setBusy(true);setError("");
   try{
-   const response=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(document.sprintId)+"/documents/"+encodeURIComponent(document.id),{
+   const response=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(document.sprintId)+"/documents/"+encodeURIComponent(document.id)+(teamId?"?teamId="+encodeURIComponent(teamId):""),{
     method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({sessionId:sessionId.current,sequence:++sequence.current,content})});
    if(!response.ok)throw Error(response.status===409?"conflict":"failed");
    const data=await response.json() as {revision:number};
