@@ -16,7 +16,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(teamId&&actor.role!=="admin")return jsonResult({error:"forbidden"},403);
  try{const result=teamId?await withAuthDb(async db=>{
   if(!await assertTeamPdfArchive(db,{accountId:actor.id,role:actor.role},teamId,id))return {ok:false as const,error:"not-found"};
-  return hidePdfArchive(db,id,actor.id,reason);
+  return hidePdfArchive(db,id,actor.id,reason,teamId);
  }):await withLegacyTeamApi(db=>hidePdfArchive(db,id,actor.id,reason));
  return jsonResult(result,result.ok?200:result.error==="not-found"?404:400);}
  catch{return jsonResult({error:"unavailable"},503);}
