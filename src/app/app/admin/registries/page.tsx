@@ -19,14 +19,20 @@ export default async function RegistriesPage({searchParams}:{
  const actor=await currentAccount();
  if(!actor)redirect("/login");
  if(!canAccess(actor,"read",{type:"collective",exists:true,inScope:true}))redirect("/app");
- const teamId=await withSprintIndexDb(async db=>{
+ const context=await withSprintIndexDb(async db=>{
   const data=await readAccountDashboard(db,
    {accountId:actor.id,role:actor.role},
    typeof params.teamId==="string"?params.teamId:null);
-  return data.context.teamId;
+  const version=await db.query<{schema_version:number}>(
+   "SELECT schema_version FROM public.smn_installation "+
+   "WHERE id='singleton' AND state='initialized'");
+  return {teamId:data.context.teamId,
+   canManage:actor.role==="admin"&&
+    (version.rows[0]?.schema_version??0)<=27};
  }).catch(()=>null);
+ const teamId=context?.teamId??null;
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-  {teamId?<><RegistryList canManage={actor.role==="admin"} teamId={teamId} initialType={initialType}
+  {teamId?<><RegistryList key={teamId} canManage={context?.canManage??false} teamId={teamId} initialType={initialType}
    initialCreate={params.create==="1"} sourceId={sourceId} initialCycleId={cycleId}
    returnTo={safeRegistryReturnPath(params.returnTo)}/></>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
