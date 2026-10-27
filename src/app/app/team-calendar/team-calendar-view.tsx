@@ -186,7 +186,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
    setMembersStatus("ready");
   }).catch(()=>{if(alive)setMembersStatus("error");});
   return()=>{alive=false;};
- },[absenceEditor,isAdmin]);
+ },[absenceEditor,isAdmin,initialTeamId]);
  return <main className="smn-page smn-team-page smn-calendar-option-b container-fluid py-4 px-3 px-lg-4 d-grid gap-3">
   <div className="smn-cal-page-heading">
    <div>
