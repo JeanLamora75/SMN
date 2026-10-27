@@ -16,6 +16,9 @@ export default function ScopedMeetingEditor({meeting,teamId,mode,onClose,onSaved
  const save=async(action:"reschedule"|"cancel")=>{
   if(busy||meeting.status!=="scheduled")return;
   setBusy(true);setError("");
+  if(action==="reschedule"&&(!Number.isFinite(Date.parse(start))||!Number.isFinite(Date.parse(end))||Date.parse(start)>=Date.parse(end))){
+   setError("Dates invalides.");setBusy(false);return;
+  }
   const previousStart=new Date(meeting.startAt).toISOString();
   const previousEnd=new Date(meeting.endAt).toISOString();
   const payload={teamId,kind:mode,meetingId:meeting.id,action,
