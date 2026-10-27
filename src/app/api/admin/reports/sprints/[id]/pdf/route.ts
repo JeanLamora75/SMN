@@ -1,10 +1,10 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {SESSION_COOKIE} from "@/server/auth/guards";
-import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {withLegacyReportReadDb} from "@/server/reports/legacy-read";
 import {readFrozenReportReference} from "@/server/reports/render-reference";
 import {generateFrozenPdf} from "@/server/reports/frozen-pdf";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {storeFinalPdfArchive,readVerifiedPdfArchive} from "@/server/reports/pdf-archive-store";
 import {validExportOperationId} from "@/server/reports/export-outcome";
 export const runtime="nodejs";
@@ -21,7 +21,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(!validExportOperationId(operationId))return Response.json({error:"operation-id-required"},{status:400});
  const cookie=req.cookies.get(SESSION_COOKIE)?.value;
  if(!cookie)return Response.json({error:"forbidden"},{status:403});
- const reference=await withSprintIndexDb(db=>readFrozenReportReference(db,referenceId,id)).catch(()=>null);
+ const reference=await withLegacyReportReadDb(db=>readFrozenReportReference(db,referenceId,id)).catch(()=>null);
  if(!reference)return Response.json({error:"reference-unavailable"},{status:409});
  const configured=process.env.SMN_PDF_INTERNAL_ORIGIN??"http://127.0.0.1:3003";
  let origin:URL;
@@ -31,7 +31,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const url=new URL("/app/admin/sprints/"+id+"/report/preview",origin);
  url.searchParams.set("reference",reference.id);
 try{
- const result=await withAuthDb(async db=>{
+ const result=await withLegacyTeamApi(async db=>{
   // Session-level lock spans the browser render and DB commit.
   await db.query("SELECT pg_advisory_lock(hashtextextended($1::text,0))",[operationId]);
   try{
