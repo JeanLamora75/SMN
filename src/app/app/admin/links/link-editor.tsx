@@ -3,6 +3,7 @@ import {useId,useState} from "react";
 import LinkDialog from "./link-dialog";
 import type {LinkEntry} from "@/lib/links-display";
 import {useTranslation} from "@/i18n/client";
+import {normalizeLink,LinkError} from "@/server/links/validation";
 
 type Category={id:string;name:string};
 export default function LinkEditor({teamId,categories,item,onClose,onSaved}:{
@@ -18,20 +19,20 @@ export default function LinkEditor({teamId,categories,item,onClose,onSaved}:{
  const submit=async(e:React.FormEvent)=>{
   e.preventDefault();if(pending)return;
   setError("");
+  let payload;
   try{
-   const parsed=new URL(url.trim());
-   if(!["http:","https:"].includes(parsed.protocol)||parsed.username||parsed.password)throw Error("invalid");
-  }catch{setError(t("links.invalidUrl"));return;}
+   payload=normalizeLink({title,url,description,categoryId,scope,teamId:scope==="EQUIPE"?teamId:null});
+  }catch(e){setError(e instanceof LinkError?t("links.invalidFields"):t("links.saveError"));return;}
   setPending(true);
   try{
    const response=await fetch(item?"/api/admin/links/"+encodeURIComponent(item.id):"/api/admin/links",{
     method:item?"PUT":"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({title,url,description,categoryId,scope,teamId:scope==="EQUIPE"?teamId:null,...(item?{revision:item.revision}:{})})
+    body:JSON.stringify({...payload,...(item?{revision:item.revision}:{})})
    });
    if(!response.ok)throw Error(String(response.status));
    onSaved();
-  }catch(e){setError(e instanceof Error&&e.message==="409"?t("links.conflict"):t("links.saveError"));}
+  }catch(e){const status=e instanceof Error?e.message:"";setError(status==="409"?t("links.conflict"):status==="400"?t("links.invalidFields"):status==="403"?t("links.forbidden"):t("links.saveError"));}
   finally{setPending(false);}
  };
  return <LinkDialog titleId={id+"-title"} onClose={onClose} locked={pending} large>
