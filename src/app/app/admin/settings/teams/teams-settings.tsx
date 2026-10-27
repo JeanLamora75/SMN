@@ -47,7 +47,7 @@ export default function TeamsSettings(){
    setCanWrite(false);
   }finally{setLoading(false);}
  },[t]);
- useEffect(()=>{void requestList();},[requestList]);
+ useEffect(()=>{void Promise.resolve().then(()=>requestList());},[requestList]);
  useEffect(()=>{
   if(!dirty)return;
   const protect=(event:BeforeUnloadEvent)=>{
