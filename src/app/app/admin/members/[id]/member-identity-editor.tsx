@@ -46,7 +46,7 @@ export default function MemberIdentityEditor({member,onSaved,onCancel}:{member:M
       revision:latest?.revision??0}})});
    if(!r.ok)throw Error("identity-"+r.status);
    onSaved();
-  }catch(err){setError(t("memberUX.identitySaveFailed")+(err instanceof Error?" ("+err.message+")":""));}
+  }catch{setError(t("memberUX.identitySaveFailed"));}
   finally{setBusy(false);}
  }
  return <form className="d-grid gap-3" onSubmit={e=>void save(e)}>
