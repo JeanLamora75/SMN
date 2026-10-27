@@ -552,3 +552,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - La route historique sans `teamId` conserve son comportement v27.
 - Scénario 6C complémentaire : appel direct POST/PUT PDF sur un document hors brouillon v28 -> refus ; document passé hors brouillon pendant le rendu -> rejet avant archivage.
 - **Aucune exécution de tests, de build, de migration ni de fusion.** Blocage distinct du PDF Sprint standard v28 conservé.
+
+
+## Revue des archives — cohérence manifeste/stockage (27/10/2026)
+
+- `src/server/reports/pdf-archive-store.ts` : la relecture des archives vérifie désormais l'identité et les métadonnées stockées avant la lecture des octets : `manifest.id`, `manifest.teamId`, `manifest.cycleId`, `manifest.sha256` et `manifest.byteLength` doivent correspondre à la ligne SQL. Les contrôles antérieurs sur le nom de fichier, l'empreinte des octets PDF et les snapshots Studio sont conservés.
+- Cette vérification s'applique aux téléchargements contextualisés par équipe et au chemin historique. Les archives incohérentes sont rejetées plutôt que remises à l'appelant.
+- Scénario 6C complémentaire : altérer les métadonnées d'une archive dans un environnement isolé (id/team/cycle/hash/length), vérifier que le téléchargement échoue ; restaurer les données après le test. Ne pas effectuer cette manipulation sur les données métier.
+- Code publié uniquement, aucun test, build, migration ni fusion. La prévisualisation PDF Sprint standard v28 reste non qualifiée et son export demeure bloqué.
