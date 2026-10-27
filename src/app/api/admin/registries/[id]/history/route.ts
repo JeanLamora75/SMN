@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {withLegacyRegistryReadDb} from "@/server/registries/legacy-read";
 import {jsonResult} from "@/server/auth/request";
 import {readRegistryAuditTimeline} from "@/server/registries/audit-timeline";
 
@@ -19,7 +19,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
   return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const history=await withSprintIndexDb(db=>readRegistryAuditTimeline(db,id,page));
+  const history=await withLegacyRegistryReadDb(db=>readRegistryAuditTimeline(db,id,page));
   return jsonResult(history??{error:"not-found"},history?200:404);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
