@@ -52,7 +52,7 @@ export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
  */
 export function assertMultiTeamMigrationValid(version:number,
  migrationApplied:boolean,shapeValid:boolean):void{
- if(version===28 && (!migrationApplied || !shapeValid))
+ if(version>=28 && (!migrationApplied || !shapeValid))
   throw new Error("smn-schema-incompatible");
 }
 
