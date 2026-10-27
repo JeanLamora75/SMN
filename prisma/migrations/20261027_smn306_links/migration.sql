@@ -1,4 +1,4 @@
--- SMN-306: additive and tenant-scoped; schema_version remains 28 (SMN-282).
+-- SMN-306: additive and tenant-scoped; schema_version advances from 28 to 29 (SMN-282 preserved).
 CREATE TABLE public.smn_link_category (
  id text PRIMARY KEY,
  installation_id text NOT NULL REFERENCES public.smn_installation(id) ON DELETE RESTRICT,
