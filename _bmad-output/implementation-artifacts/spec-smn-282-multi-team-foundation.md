@@ -307,3 +307,28 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 5. Tester sous PostgreSQL portable et Node.js 24, sur une **copie sauvegardée**, avec changement d'équipe et écriture concurrente avant toute activation.
 
 **Invariants maintenus :** `MULTI_TEAM_CONTEXT_READY=false`, aucune migration v28 appliquée, écriture des équipes désactivée, PR #189 non fusionnée. Les droits des comptes `user` historiques ne sont pas attribués par défaut (arbitrage différé du PO).
+
+## Étape 6A — Transitions de périodes Scrum/Kanban et inventaire des cérémonies générées (27/10/2026)
+
+**Développement effectué sur la branche de la PR #189 :**
+
+1. `src/server/teams/period-state.ts` : moteur transactionnel de transitions automatiques `planned → active → finished` propre à **une équipe v28 autorisée**. Vérification du rôle Admin actif et de l'installation via `resolveAdminTeam`; lecture des périodes/Sprints filtrée par `team_id`, verrouillage de chaque ligne et advisory lock par équipe. Contrôle de présence des tables via `to_regclass` et **aucune DDL** en v28.
+2. **Scrum** : réutilisation de `smn_sprint_transition` et `smn_sprint_capacity_trigger`. Les Sprints suspendus ou déjà clôturés ne sont pas modifiés. Un démarrage contemporain (fenêtre de 15 minutes) peut déclencher la capture de capacité initiale ; un Sprint découvert plus tard retrouve son état et ses transitions **sans provoquer de capture initiale fictive**.
+3. **Kanban** : réutilisation de `smn_kanban_period_transition` et `smn_kanban_capacity_opening`. En ouverture le jour de début, capture initiale manuelle ou calculée par le moteur explicitement contextualisé à l'équipe ; si l'ouverture a été manquée, inscription `historical-unavailable` avec `initial_jh=NULL`. Une capture déjà présente reste **immuable** (aucun recalcul à la consultation ou à la reprise) ; la fin calendaire passe à `finished`, sans lancer la clôture métier.
+4. `src/server/teams/closure-readiness.ts` : précontrôle de clôture **en lecture seule**, par équipe et cycle, avec détection de l'état terminé, des dates et des tables de snapshots manquantes. **`canClose=false` reste imposé** : les producteurs complets de snapshots clôturés ne sont pas encore qualifiés pour v28. Pas de clôture définitive ni de réouverture à cette étape.
+5. `src/server/teams/ceremonies-read.ts` : inventaire v28 **en lecture seule** des cérémonies Scrum générées et occurrences de modèles du Sprint explicitement autorisé, sans génération de récurrence ni mutation des séries ; refus des Sprints appartenant à une autre équipe, des schémas absents et des listes dépassant 500 éléments.
+6. Routes dédiées `POST /api/admin/team-periods/reconcile`, `GET /api/admin/team-periods/closure-readiness` et `GET /api/admin/team-ceremonies` : accès **Admin**, origine/session contrôlées, paramètres stricts, `MULTI_TEAM_CONTEXT_READY=false` vérifié **avant tout appel BD**. Les nouveaux endpoints restent donc inactifs.
+7. Les anciennes fonctions `reconcileSprintStates` et `reconcileKanbanStates` sont protégées par `assertLegacyTeamApi` **avant leurs routines de création de tables**. Sept routes historiques (`sprints/closure`, `sprints/states`, `kanban-periods/[id]/closure`, `kanban-periods`, `sprints/ceremonies`, `sprints/templates`, `sprints/template-occurrences`) ont été entourées de `withLegacyTeamApi` et refusent désormais v28 sans contextualisation.
+8. Sources de tests ajoutées : `tests/smn-282-team-period-states.test.ts` (8), `tests/smn-282-team-closure-readiness.test.ts` (4), `tests/smn-282-team-period-routes.test.ts` (6), `tests/smn-282-team-ceremonies-read.test.ts` (4). **22 scénarios écrits mais non exécutés**.
+
+**Vérification réelle :** inspection des fichiers et contrôle de cohérence **statique** avec le connecteur GitHub. Ces vérifications n'ont pas exécuté `pnpm test`, `pnpm typecheck`, `pnpm build`, `prisma validate`, de transaction PostgreSQL ni de migration. Le framework BMAD a été lu depuis `.agents/skills/bmad-agent-dev/SKILL.md` ; ses scripts locaux `uv` n'ont pas été exécutés faute de clone complet exécutable.
+
+**Reste indispensable avant activation / fusion :**
+
+- **Clôtures et réouvertures définitives** : adapter les producteurs `changeSprintClosure` / `changeKanbanClosure` et tous les contributeurs des captures de bilan (capacités initiales/réelles, indicateurs, participants, registres, réunions et historiques) à l'équipe autorisée, et valider l'immuabilité des snapshots d'une équipe.
+- **Cérémonies générées et récurrentes** : adapter les mutations, régénérations, replanifications des segments et historiques ; l'inventaire actuel est volontairement *read-only*.
+- **Capacité réelle sur plusieurs équipes** : vérifier la non-invention de J/H et l'absence de correction des capacités d'une autre équipe au fil des ouvertures/rattrapages.
+- Exécuter les tests et le build sur le poste Windows/Node24 avec PostgreSQL portable, préparer une migration **v28 sur copie sauvegardée** et contrôler deux équipes Scrum/Kanban, liens étrangers, double traitement concurrent, changements d'équipe et rapports/export.
+- Poursuivre les lots **6B Registres/Rapports/Exports** et **6C Sécurité et validation globale**. Les comptes `user` existants restent hors arbitrage selon la décision explicite du Product Owner.
+
+**Statut :** PR #189 ouverte en brouillon, non fusionnée ; `MULTI_TEAM_CONTEXT_READY=false`, écritures d'équipes désactivées et migration v28 non appliquée.
