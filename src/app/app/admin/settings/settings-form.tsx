@@ -91,7 +91,7 @@ export default function SettingsForm() {
           const next=event.key==="Home"?0:event.key==="End"?2:
             (index+(event.key==="ArrowRight"?1:-1)+3)%3;
           if(chooseTab(names[next]))document.getElementById("settings-tab-"+names[next])?.focus();
-        }}>{name==="general"?t("settings.fixed"):name==="language"?t("settings.locale"):t("settings.theme")}</button>)}
+        }}>{t(`settingsCatalog.tabs.${name}`)}</button>)}
     </div>}
     {loaded&&saved&&<form onSubmit={submit} className="smn-panel p-4 d-grid gap-4" aria-describedby={error?"settings-feedback":undefined}>
       <section id="settings-panel-general" role="tabpanel" aria-labelledby="settings-tab-general" hidden={tab!=="general"}>
