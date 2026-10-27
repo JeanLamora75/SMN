@@ -31,9 +31,11 @@ Préparer deux équipes A et B sous une même installation, deux Sprints A1 et B
 | 6C-17 | Vérifier une préférence d'équipe devenue invalide | Refus et absence de sélection implicite |
 | 6C-18 | Tester des homonymes et IDs croisés | Autorisation strictement par ID d'équipe, jamais par nom |
 
-## Barrière de clôture 6B
+## Barrière de clôture 6B — état du code au 27/10/2026
 
-Le rendu Sprint standard utilise `/app/admin/sprints/[id]/report/preview`, mais le fichier qui matérialise cette URL n'a pas pu être identifié de manière fiable par les actions GitHub disponibles. **Ne pas enlever le blocage v28 de `pdf/route.ts`** avant d'avoir localisé la véritable implémentation de cette page, contrôlé indépendamment les droits de session/Admin, l'équipe, le Sprint et le hash de la référence figée, et validé le comportement du navigateur PDF. Transmettre `teamId` dans les paramètres d'URL n'est pas une preuve d'autorisation.
+Le point d'entrée `src/app/app/admin/sprints/[id]/report/preview/page.tsx` a été créé et la route PDF v28 raccordée. La prévisualisation vérifie l'authentification, l'appartenance au Sprint/équipe et l'intégrité de la référence figée. **Ces protections n'ont pas été exécutées localement.** Ne pas considérer le lot 6B validé avant de vérifier le rendu réel, les refus d'accès interéquipes, l'intégrité et le comportement historique v27.
+
+Tests PDF manuels complémentaires : export A avec référence A (succès) ; URL directe A avec référence B (404) ; export A avec `teamId` B (refus) ; URL directe sans équipe en v28 (refus) ; rôle user (refus) ; référence corrompue (refus) ; opération PDF relancée avec le même identifiant (même archive) ; format A4 et contenu du PDF lisibles. Vérifier qu'un `teamId` malformé renvoie HTTP 400.
 
 ## Résultats et décision
 
