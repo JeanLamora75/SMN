@@ -5,6 +5,7 @@ import CalendarOptionB,{type CalendarEntry,type CalendarMeeting,type CalendarMod
 import CalendarMeetingModal from "./calendar-meeting-modal";
 import MemberAbsenceEditor from "../admin/members/member-absence-editor";
 import {absenceNamesByDate,type CalendarAbsentMember} from "@/lib/calendar-absence-names";
+import BootstrapIcon from "../bootstrap-icon";
 type Calendar={team:{name:string};central:{items:CalendarEntry[]};collective:{date:string;declaredAbsentMemberCount:number}[];
  admin?:{members:CalendarAbsentMember[]}};
 type Meeting=CalendarMeeting;
@@ -187,66 +188,83 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   }).catch(()=>{if(alive)setMembersStatus("error");});
   return()=>{alive=false;};
  },[absenceEditor,isAdmin,initialTeamId]);
- return <main className="smn-page smn-team-page smn-calendar-option-b container-fluid py-4 px-3 px-lg-4 d-grid gap-3">
-  <div className="smn-cal-page-heading">
-   <div>
-    <div className="smn-cal-eyebrow">{t("calendarOptionB.eyebrow")}</div>
-    <h1 className="h3 mb-2">{t("teamCalendar.title")}</h1>
-    <div className="smn-cal-context">
-     {teamName&&<strong>{teamName}</strong>}
-     <strong>{period?.sprintId?period.label:t("calendarOptionB.fallback")}</strong>
-     {calendarMode==="kanban"&&<span>Période Kanban</span>}
-     {period&&<span>{currentDate(period.start)} – {currentDate(shift(period.start,period.count-1))}</span>}
-     {period?.sprintId&&<span className="smn-cal-state">{localizedStatus(sprints.find(s=>s.id===period.sprintId)?.status)}</span>}
-     {teamTimeZones.length<=1?<span>Fuseau : {teamTimeZones[0]??"Europe/Paris"}</span>:<label className="d-inline-flex align-items-center gap-2">Fuseau horaire
-      <select className="form-select form-select-sm" aria-label="Fuseau horaire du calendrier" value={selectedTimeZone} onChange={e=>setSelectedTimeZone(e.target.value)}>
-       {teamTimeZones.map(z=><option key={z} value={z}>{z}</option>)}
-      </select></label>}
-     {zonesFailed&&<span className="text-warning">Fuseaux membres indisponibles — Europe/Paris</span>}
+ return <main className="smn-page smn-team-page smn-calendar-option-b smn-calendar-cockpit container-fluid py-4 px-3 px-lg-4 d-grid gap-3">
+  <section className="smn-cal-hero" aria-label={t("teamCalendar.title")}>
+   <div className="smn-cal-hero-top">
+    <div className="smn-cal-hero-identity">
+     <div className="smn-cal-eyebrow">{t("calendarOptionB.eyebrow")}</div>
+     <h1>{t("teamCalendar.title")}</h1>
+     <p className="smn-cal-hero-subtitle">{t("calendarOptionB.heroSubtitle")}</p>
     </div>
-   </div>
-   <div className="smn-cal-nav">
-    {sprints.length>0&&<select className="form-select form-select-sm smn-cal-select"
+    <nav className="smn-cal-nav" aria-label={t("calendarOptionB.selectSprint")}>
+     {sprints.length>0&&<select className="form-select form-select-sm smn-cal-select"
       aria-label={t("calendarOptionB.selectSprint")} value={period?.sprintId??""}
       onChange={e=>{const selected=sprints.find(s=>s.id===e.target.value);if(selected)selectPeriod(sprintPeriod(selected));}}>
       <option value="" disabled>{t("calendarOptionB.selectSprint")}</option>
       {sprints.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
      </select>}
-    <button className="btn btn-outline-secondary btn-sm" aria-label={t("calendarOptionB.previous")}
-      disabled={!period} onClick={()=>change(-1)}>‹</button>
-    <button className="btn btn-outline-primary btn-sm" onClick={resetPeriod}>{t("calendarOptionB.today")}</button>
-    <button className="btn btn-outline-secondary btn-sm" aria-label={t("calendarOptionB.next")}
-      disabled={!period} onClick={()=>change(1)}>›</button>
+     <button type="button" className="btn smn-cal-nav-arrow" aria-label={t("calendarOptionB.previous")}
+      disabled={!period} onClick={()=>change(-1)}><BootstrapIcon name="arrow-left"/></button>
+     <button type="button" className="btn smn-cal-nav-today" onClick={resetPeriod}>{t("calendarOptionB.today")}</button>
+     <button type="button" className="btn smn-cal-nav-arrow" aria-label={t("calendarOptionB.next")}
+      disabled={!period} onClick={()=>change(1)}><BootstrapIcon name="arrow-right"/></button>
+    </nav>
    </div>
-  </div>
-  <div className="smn-cal-toolbar">
-   <div className="smn-cal-control-group"><strong>{t("calendarOptionB.display")}</strong>
-    <button type="button" className={"smn-cal-chip"+(showMeetings?" is-selected":"")} aria-pressed={showMeetings}
-      onClick={()=>setShowMeetings(v=>!v)}>{t("calendarOptionB.meetings")}</button>
-    <button type="button" className={"smn-cal-chip"+(showAbsences?" is-selected":"")} aria-pressed={showAbsences}
-      onClick={()=>setShowAbsences(v=>!v)}>{t("calendarOptionB.absenceFilter")}</button>
-   </div>
-   <div className="smn-cal-control-group"><strong>{t("calendarOptionB.presentation")}</strong>
-    <div className="smn-cal-switch" role="group" aria-label={t("calendarOptionB.presentation")}>
+   <div className="smn-cal-hero-bottom">
+    <div className="smn-cal-context">
+     {teamName&&<span className="smn-cal-context-item"><BootstrapIcon name="people-fill"/><strong>{teamName}</strong></span>}
+     <span className="smn-cal-context-item"><BootstrapIcon name="calendar3"/><strong>{period?.sprintId?period.label:t("calendarOptionB.fallback")}</strong></span>
+     {calendarMode==="kanban"&&<span className="smn-cal-context-item">{t("calendarOptionB.kanbanPeriod")}</span>}
+     {period&&<span className="smn-cal-context-item">{currentDate(period.start)} – {currentDate(shift(period.start,period.count-1))}</span>}
+     {period?.sprintId&&<span className="smn-cal-context-item smn-cal-context-state">{localizedStatus(sprints.find(s=>s.id===period.sprintId)?.status)}</span>}
+    </div>
+    <div className="smn-cal-hero-view" role="group" aria-label={t("calendarOptionB.presentation")}>
      <button type="button" className={view==="cards"?"is-active":""} aria-pressed={view==="cards"}
-       onClick={()=>setView("cards")}>{t("calendarOptionB.cards")}</button>
+      onClick={()=>setView("cards")}><BootstrapIcon name="grid-3x3-gap"/>{t("calendarOptionB.cards")}</button>
      <button type="button" className={view==="agenda"?"is-active":""} aria-pressed={view==="agenda"}
-       onClick={()=>setView("agenda")}>{t("calendarOptionB.agenda")}</button>
+      onClick={()=>setView("agenda")}><BootstrapIcon name="list-ul"/>{t("calendarOptionB.agenda")}</button>
     </div>
    </div>
-  </div>
-  <p className="smn-cal-legend">
-   <span>{t("calendarOptionB.legendToday")}</span>
-   <span>{t("calendarOptionB.legendNonwork")}</span>
-   <span>{t("calendarOptionB.legendActions")}</span>
-  </p>
-  {status==="loading"&&<p role="status">{t("teamCalendar.loading")}</p>}
-  {status==="error"&&<p role="alert" className="alert alert-warning">{t("teamCalendar.loadFailed")} — {t("calendarOptionB.errorCounts")}</p>}
-  {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
-   absenceCounts={absenceCounts} absentNames={absentNames} today={now} mode={view} timeZone={selectedTimeZone}
-   showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
-   onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
-   onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
+  </section>
+  <section className="smn-cal-filters-panel" aria-label={t("calendarOptionB.filtersHeading")}>
+   <div className="smn-cal-filters-heading">
+    <h2><BootstrapIcon name="sliders"/>{t("calendarOptionB.filtersHeading")}</h2>
+    <div className="smn-cal-control-group" role="group" aria-label={t("calendarOptionB.display")}>
+     <button type="button" className={"smn-cal-chip"+(showMeetings?" is-selected":"")} aria-pressed={showMeetings}
+      onClick={()=>setShowMeetings(v=>!v)}><BootstrapIcon name="calendar-check"/>{t("calendarOptionB.meetings")}</button>
+     <button type="button" className={"smn-cal-chip"+(showAbsences?" is-selected":"")} aria-pressed={showAbsences}
+      onClick={()=>setShowAbsences(v=>!v)}><BootstrapIcon name="people-fill"/>{t("calendarOptionB.absenceFilter")}</button>
+    </div>
+   </div>
+   <div className="smn-cal-timezone">
+    {teamTimeZones.length<=1?
+     <span><strong>{t("calendarOptionB.zoneLabel")} :</strong> {teamTimeZones[0]??selectedTimeZone}</span>:
+     <label htmlFor="smn-cal-timezone-select">{t("calendarOptionB.zoneLabel")}
+      <select id="smn-cal-timezone-select" className="form-select form-select-sm"
+       value={selectedTimeZone} onChange={e=>setSelectedTimeZone(e.target.value)}>
+       {teamTimeZones.map(z=><option key={z} value={z}>{z}</option>)}
+      </select>
+     </label>}
+    {zonesFailed&&<span className="smn-cal-zone-error" role="status">{t("calendarOptionB.zoneFailed")}</span>}
+   </div>
+  </section>
+  <section className="smn-cal-results" aria-label={t("calendarOptionB.scheduleHeading")}>
+   <div className="smn-cal-results-heading">
+    <h2><BootstrapIcon name="calendar3"/>{t("calendarOptionB.scheduleHeading")}</h2>
+    <div className="smn-cal-legend">
+     <span>{t("calendarOptionB.legendToday")}</span>
+     <span>{t("calendarOptionB.legendNonwork")}</span>
+     <span>{t("calendarOptionB.legendActions")}</span>
+    </div>
+   </div>
+   {status==="loading"&&<p role="status">{t("teamCalendar.loading")}</p>}
+   {status==="error"&&<p role="alert" className="alert alert-warning">{t("teamCalendar.loadFailed")} — {t("calendarOptionB.errorCounts")}</p>}
+   {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
+    absenceCounts={absenceCounts} absentNames={absentNames} today={now} mode={view} timeZone={selectedTimeZone}
+    showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
+    onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
+    onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
+  </section>
   {selectedMeeting&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
   {selectedMeeting&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
    meeting={selectedMeeting} isAdmin={isAdmin} onClose={()=>setSelectedMeeting(null)}
