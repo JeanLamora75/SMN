@@ -5,13 +5,13 @@ export type RegistryIndexState={
  type:"all"|RegistryType;search:string;status:string;owner:string;
  lifecycle:"all"|"followup"|"final";
  sort:"default"|"dateDesc"|"dateAsc"|"titleAsc"|"titleDesc";
- cycleId:string;page:number;view:"list"|"cards";
+ cycleId:string;page:number;view:"list"|"cards";teamId?:string;
 };
 export type RegistryNavigation={origin:string;trail:string[]};
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const sorts=["default","dateDesc","dateAsc","titleAsc","titleDesc"] as const;
 const lifecycleValues=["all","followup","final"] as const;
-const allowed=new Set(["type","search","status","owner","lifecycle","sort","cycleId","page","view"]);
+const allowed=new Set(["type","search","status","owner","lifecycle","sort","cycleId","page","view","teamId"]);
 const empty:RegistryIndexState={
  type:"all",search:"",status:"",owner:"",lifecycle:"all",
  sort:"default",cycleId:"",page:1,view:"list"
@@ -39,13 +39,17 @@ export function parseRegistryIndexState(raw:unknown):RegistryIndexState{
  const rawPage=Number(p.get("page")??"1");
  const page=Number.isSafeInteger(rawPage)&&rawPage>=1&&rawPage<=100000?rawPage:1;
  const rawCycle=p.get("cycleId")??"";
+ const teamId=p.get("teamId");
  return {type,search,status,owner,lifecycle,sort,
   cycleId:uuid.test(rawCycle)?rawCycle:"",
-  page,view:p.get("view")==="cards"?"cards":"list"};
+  page,view:p.get("view")==="cards"?"cards":"list",
+  ...(teamId&&/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(teamId)?{teamId}:{})};
 }
 export function registryIndexUrl(state:RegistryIndexState):string{
  const params=new URLSearchParams();
  if(state.type!=="all")params.set("type",state.type);
+ if(state.teamId&&/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/.test(state.teamId))
+  params.set("teamId",state.teamId);
  if(state.search)params.set("search",state.search.slice(0,120));
  if(state.status)params.set("status",state.status);
  if(state.owner)params.set("owner",state.owner.slice(0,200));
