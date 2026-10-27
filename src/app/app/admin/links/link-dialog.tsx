@@ -10,7 +10,7 @@ export default function LinkDialog({titleId,children,onClose,locked=false,large=
  const [mounted,setMounted]=useState(false);
  const closeRef=useRef(onClose);closeRef.current=onClose;
  useEffect(()=>{
-  setMounted(true);
+  queueMicrotask(()=>setMounted(true));
   const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
   const originalOverflow=document.body.style.overflow;
   document.body.style.overflow="hidden";
