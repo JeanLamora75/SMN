@@ -25,3 +25,12 @@ test("rejects blank required fields and overlong description",()=>{
  for(const update of [{title:"  "},{categoryId:""},{description:"x".repeat(4001)},{url:""}])
   assert.throws(()=>normalizeLink({...basic,...update}),LinkError);
 });
+
+test("rejects ambiguous external URL normalization and unsupported input",()=>{
+ for(const url of ["https://example.org\\\\@evil.test/","https://example.org/a b",
+  "https://example.org/\\tpath","https://example.org/é space"]){
+  assert.throws(()=>normalizeLink({...basic,url}),LinkError,url);
+ }
+ assert.throws(()=>normalizeLink({...basic,scope:"EQUIPE",teamId:"../other"}),LinkError);
+ assert.throws(()=>normalizeLink({...basic,categoryId:"../other"}),LinkError);
+});
