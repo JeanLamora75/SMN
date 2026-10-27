@@ -3152,6 +3152,12 @@
   },
   "calendarOptionB": {
     "eyebrow": "Team planning",
+    "heroSubtitle": "Plan your team's ceremonies, meetings and absences.",
+    "filtersHeading": "Display and filters",
+    "scheduleHeading": "Cycle schedule",
+    "zoneLabel": "Time zone",
+    "zoneFailed": "Team time zones unavailable — fallback time zone active",
+    "kanbanPeriod": "Kanban period",
     "display": "Show:",
     "presentation": "View:",
     "cards": "Cards",
