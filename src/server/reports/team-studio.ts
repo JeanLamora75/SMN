@@ -55,7 +55,7 @@ export async function saveTeamStudioDocument(db:Client,actor:Actor,teamId:string
   const prior=await db.query<{last_sequence:number}>(`
    SELECT last_sequence FROM public.smn_report_document_session_write
    WHERE document_id=$1 AND session_id=$2`,[documentId,value.sessionId]);
-  if(prior.rows[0]&&prior.rows[0].last_sequence>=Number(value.sequence)){
+  if(prior.rows[0]&&Number(prior.rows[0].last_sequence)>=Number(value.sequence)){
    await db.query("ROLLBACK");return {ok:false,error:"stale"};
   }
   const safe=preserveAuthoritativeMetrics(doc.content as Record<string,unknown>,value.content as Record<string,unknown>);
