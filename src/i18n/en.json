@@ -204,8 +204,8 @@
       "daysUnit": "days",
       "capacityRatio": "{percent}%: actual available capacity / planned capacity",
       "storyPointsRatio": "{percent}%: completed story points / initially committed story points",
-    "committedPerPlannedJh": "Committed SP per planned person-day",
-    "completedPerActualJh": "Completed SP per actual person-day",
+      "committedPerPlannedJh": "Committed SP per planned person-day",
+      "completedPerActualJh": "Completed SP per actual person-day",
       "ticketsRatio": "{percent}%: completed tickets / initially committed tickets",
       "metricEstimated": "Estimated",
       "viewSprintGoals": "View Sprints",
@@ -1939,7 +1939,12 @@
     "historyAbsence": "Absence added or updated",
     "historyLocation": "Location updated",
     "historyLifecycle": "Member lifecycle event",
-    "historyRoleVersion": "Agile assignment revision"
+    "historyRoleVersion": "Agile assignment revision",
+    "countryNone": "No country selected",
+    "countryLegacy": "Previously saved country (not in catalogue)",
+    "countriesUnavailable": "Country catalogue unavailable.",
+    "zoneNone": "No time zone selected",
+    "zoneLegacy": "Previously saved time zone"
   },
   "calendarUX": {
     "addMeeting": "Add meeting",
@@ -1975,7 +1980,10 @@
       "not-applicable": "Not applicable"
     },
     "items": {
-      "teams": {"title":"Teams","description":"Create and edit teams and their product context."},
+      "teams": {
+        "title": "Teams",
+        "description": "Create and edit teams and their product context."
+      },
       "general": {
         "title": "General information",
         "description": "Configure language, theme, palette and reference country."
@@ -3564,8 +3572,7 @@
     "edit": "Edit",
     "inactive": "Saving is temporarily unavailable",
     "description": "Only the team name is required. Each team can have its own optional product."
-  }
-,
+  },
   "teamSwitch": {
     "pending": "Team switching is being prepared and will only be enabled after isolation checks.",
     "unavailable": "Team switcher is temporarily unavailable.",
