@@ -34,7 +34,7 @@ export default async function ReportsCenter({searchParams}:Params){
    return {...await readTeamCenter(db,team),
     teamId:team.team_id,scope:"team" as const};
   }
-  if(!Number.isSafeInteger(schema)||schema!<1||schema!>27)
+  if(typeof schema!=="number"||!Number.isSafeInteger(schema)||schema<1||schema>27)
    throw Error("report-schema-not-ready");
   return {...await readCenter(db,account.role==="admin"?"admin":"user",account.id),
    teamId:null,scope:"legacy" as const};
