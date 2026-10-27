@@ -46,8 +46,9 @@ export default function MemberDetail({id}:{id:string}){
   return()=>{alive=false;};},[t]);
  useEffect(()=>{if(!section)return;const previous=document.activeElement as HTMLElement|null;
   const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape"){event.preventDefault();dialogRef.current?.querySelector<HTMLButtonElement>("[data-close-dialog]")?.click();}
-   if(event.key==="Tab"){const items=Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')??[]);
+   if(event.key==="Tab"){const items=Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')??[]).filter(item=>item.getClientRects().length>0);
     if(!items.length)return;const first=items[0],last=items[items.length-1];
+    if(!dialogRef.current?.contains(document.activeElement)){event.preventDefault();first.focus();return;}
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}};
   document.addEventListener("keydown",onKey);
