@@ -108,7 +108,7 @@ export default function TeamContextEditor({teamId,teamName,onSaved}:{
       <div className="form-label fw-semibold">{t("teamSettings.agileMode")}</div>
       <div className="d-flex align-items-center gap-3 flex-wrap">
        <strong>{data.context.agileMode==="scrum"?"Scrum":data.context.agileMode==="kanban"?"Kanban":"—"}</strong>
-       <Link href="/app/admin/settings/teams" onClick={dismiss} className="small">
+       <Link href="/app/admin/settings/teams" className="small">
         {t("teamSettings.editTeam")}
        </Link>
       </div>
