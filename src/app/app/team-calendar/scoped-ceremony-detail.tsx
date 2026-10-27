@@ -12,6 +12,8 @@ export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
  const [busy,setBusy]=useState(false);
  const [start,setStart]=useState("");
  const [end,setEnd]=useState("");
+ const [outcomeType,setOutcomeType]=useState<"decision"|"action"|"highlight">("decision");
+ const [outcomeText,setOutcomeText]=useState("");
  const [outcomes,setOutcomes]=useState<{id:string;type:string;title:string}[]>([]);
  const [attendance,setAttendance]=useState<"held"|"not_held"|"cancelled">("held");
  const [reason,setReason]=useState("");
@@ -74,6 +76,19 @@ export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
   }catch{setSaveError("Enregistrement de la présence indisponible ou en conflit.");}
   finally{setBusy(false);}
  };
+ const createOutcome=async()=>{
+  if(!detail||detail.sprintStatus==="closed"||busy||!outcomeText.trim())return;
+  setBusy(true);setSaveError("");
+  try{
+   const response=await fetch("/api/admin/team-calendar/ceremonies/outcome-create",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({teamId,ceremonyId:detail.id,type:outcomeType,text:outcomeText.trim()})
+   });
+   if(!response.ok)throw Error("outcome");
+   onSaved?.();onClose();
+  }catch{setSaveError("Création du compte rendu indisponible.");}
+  finally{setBusy(false);}
+ };
  return <div className="smn-member-modal-backdrop" role="presentation">
   <section className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Détail de cérémonie">
    {error&&<p role="alert">Détail indisponible.</p>}
@@ -101,7 +116,19 @@ export default function ScopedCeremonyDetail({meeting,teamId,onClose,onSaved}:{
     <h3 className="h6">Décisions, actions et faits marquants</h3>
     {outcomes.length===0?<p>Aucun élément disponible.</p>:
      <ul>{outcomes.map(item=><li key={item.id}>{item.title} ({item.type})</li>)}</ul>}
-    <p className="text-muted">Consultation uniquement.</p>
+    {meeting.kind==="ceremony"&&detail.sprintStatus!=="closed"&&<>
+     <label className="form-label" htmlFor="scoped-outcome-type">Type</label>
+     <select className="form-select mb-2" id="scoped-outcome-type" value={outcomeType}
+      onChange={e=>setOutcomeType(e.target.value as "decision"|"action"|"highlight")} disabled={busy}>
+      <option value="decision">Décision</option><option value="action">Action</option>
+      <option value="highlight">Fait marquant</option>
+     </select>
+     <label className="form-label" htmlFor="scoped-outcome-text">Compte rendu</label>
+     <textarea className="form-control mb-2" id="scoped-outcome-text" maxLength={2000}
+      value={outcomeText} onChange={e=>setOutcomeText(e.target.value)} disabled={busy}/>
+     <button type="button" className="btn btn-primary" onClick={()=>void createOutcome()}
+      disabled={busy||!outcomeText.trim()}>Ajouter au Registre</button>
+    </>}
    </section>}
    {saveError&&<p role="alert" className="alert alert-warning">{saveError}</p>}
    <button type="button" className="btn btn-outline-secondary" onClick={onClose}>Fermer</button>
