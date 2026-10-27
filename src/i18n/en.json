@@ -3629,6 +3629,7 @@
     "confirmDelete": "Confirm deletion",
     "deleteWarning": "This link will be deleted. This action cannot be undone.",
     "invalidFields": "Check the fields: title, HTTP(S) URL, category and scope.",
-    "forbidden": "You are not authorized to change this link."
+    "forbidden": "You are not authorized to change this link.",
+    "notFound": "This link no longer exists or is no longer accessible. Refresh the list."
   }
 }
