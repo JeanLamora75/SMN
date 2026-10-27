@@ -3613,6 +3613,25 @@
     "empty": "No links available.",
     "noMatch": "No links match these filters.",
     "reset": "Reset",
-    "sortRecent": "Recently updated"
+    "sortRecent": "Recently updated",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "titleField": "Title",
+    "urlField": "URL",
+    "descriptionField": "Description",
+    "noCategories": "No categories available",
+    "invalidUrl": "Enter a valid HTTP(S) URL.",
+    "saveError": "Unable to complete the operation. Try again.",
+    "conflict": "This link was changed elsewhere. Refresh the list.",
+    "confirmDelete": "Confirm deletion",
+    "deleteWarning": "This link will be deleted. This action cannot be undone.",
+    "invalidFields": "Check the fields: title, HTTP(S) URL, category and scope.",
+    "forbidden": "You are not authorized to change this link.",
+    "notFound": "This link no longer exists or is no longer accessible. Refresh the list.",
+    "confirmScopeChange": "I confirm the change to this link's visibility. Access will follow its new scope.",
+    "confirmScopeRequired": "Confirm the visibility change before saving."
   }
 }
