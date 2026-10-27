@@ -29,7 +29,8 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
     if(!links.ok||!cats.ok)throw Error("unavailable");
     return Promise.all([links.json() as Promise<{items:Item[]}>,cats.json() as Promise<{items:{id:string;name:string}[]}>]);
    }).then(([links,cats])=>{if(controller.signal.aborted)return;
-    setItems(Array.isArray(links.items)?links.items:[]);setCategories(Array.isArray(cats.items)?cats.items:[]);setError(false);
+    if(!Array.isArray(links.items)||!Array.isArray(cats.items))throw Error("invalid-response");
+    setItems(links.items);setCategories(cats.items);setError(false);
    }).catch(()=>{if(!controller.signal.aborted){setItems([]);setCategories([]);setError(true);}})
    .finally(()=>{if(!controller.signal.aborted)setLoading(false);});
   return ()=>controller.abort();
@@ -41,7 +42,7 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
  const reset=()=>{setSearch("");setScope("all");setCategory("all");setSort("title");};
  const action=(item:Item)=><div className="d-flex flex-wrap align-items-center gap-2">
   <a className="btn btn-sm btn-outline-primary" href={item.url} target="_blank" rel="noopener noreferrer">{t("links.open")}</a>
-  <button className="btn btn-sm btn-outline-secondary" disabled title={t("links.editLater")} aria-label={t("links.editLater")+" : "+item.title}><BootstrapIcon name="pencil-square"/></button>
+  <button type="button" className="btn btn-sm btn-outline-secondary" disabled title={t("links.editLater")} aria-label={t("links.editLater")+" : "+item.title}><BootstrapIcon name="pencil-square"/></button>
   <button type="button" className="btn btn-sm btn-outline-secondary" disabled title={t("links.editLater")}>{t("links.actions")}</button>
  </div>;
  return <section className="d-grid gap-3">
@@ -68,12 +69,12 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
     <select className="form-select form-select-sm w-auto" aria-label={t("links.sort")} value={sort} onChange={e=>setSort(e.target.value)}>
      <option value="title">{t("links.sortTitle")}</option><option value="category">{t("links.sortCategory")}</option><option value="recent">{t("links.sortRecent")}</option>
     </select>
-    <span className="small text-body-secondary align-self-center ms-auto">{shown.length} / {items.length}</span>
+    <span className="small text-body-secondary align-self-center ms-auto" role="status" aria-live="polite">{shown.length} / {items.length}</span>
    </div>
   </div></div>
   {loading?<p role="status">{t("links.loading")}</p>:error?
    <div className="alert alert-warning" role="alert">{t("links.error")} <button className="btn btn-outline-secondary btn-sm ms-2" onClick={()=>{setLoading(true);setReload(x=>x+1);}}>{t("links.retry")}</button></div>:
-   shown.length===0?<div className="alert alert-info">{items.length===0?t("links.empty"):t("links.noMatch")}
+   shown.length===0?<div className="alert alert-info" role="status">{items.length===0?t("links.empty"):t("links.noMatch")}
     {items.length>0&&<button className="btn btn-outline-primary btn-sm ms-2" onClick={reset}>{t("links.reset")}</button>}
    </div>:view==="cards"?
    <div className="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">{shown.map(item=><div key={item.id} className="col">
