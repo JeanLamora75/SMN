@@ -495,3 +495,11 @@ L'étape 6B ne peut être marquée « terminée » avant ces contrôles. **Aucun
 - `src/server/reports/team-studio.ts` : les lectures de documents et de listes en contexte d'équipe tolèrent l'absence de la table `smn_report_document` ; document individuel non trouvé / collection vide, sans transformer cette absence en erreur SQL 503. La vérification du compte, de l'équipe et du Sprint reste en place.
 - **Périmètre de cette revue :** inspection statique ciblée des fichiers GitHub, pas une validation TypeScript, SQL ou sécurité exécutée. Les cas du document `recette-smn-282-lot-6c.md` restent tous *non exécutés*.
 - **Point bloquant maintenu :** le rendu PDF Sprint standard v28 est fermé (`team-pdf-preview-pending`) jusqu'à identification et contrôle du point d'entrée de prévisualisation. Ne pas déclarer 6B terminé ni activer la migration.
+
+
+## Revue suivante — Corrections ciblées avant 6C (27/10/2026)
+
+- `src/server/reports/team-studio.ts` : création d'un document v28 après autorisation Admin et verrouillage du Sprint : appel au mécanisme existant `ensureReportDocumentsSchema(db)`, afin que la première création ne déclenche pas une erreur « relation inexistante » sur une base dépourvue de documents. C'est une correction de code : aucun DDL n'a été exécuté dans cet échange.
+- `src/app/app/reports/[documentId]/page.tsx` : le texte d'information indique maintenant correctement la disponibilité des boutons d'export PDF du Studio, sous réserves des contrôles de qualité et de révision, sans prétendre que le rafraîchissement ni l'insertion d'analyses sont opérationnels en v28.
+- **Rendu PDF Sprint standard toujours fermé** (503 `team-pdf-preview-pending`) : la route interne de prévisualisation ne peut pas être localisée/qualifiée par l'accès GitHub disponible ; interdiction de présenter 6B comme clos.
+- Pas de tests, de build, de migration activée ni de merge. Les scénarios de recette 6C restent non exécutés.
