@@ -200,6 +200,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
     <button ref={closeRef} type="button" className="btn btn-outline-secondary btn-sm"
      aria-label={t("calendarOptionB.close")} onClick={close} disabled={busy}>×</button>
    </header>
+   <div className="smn-cockpit-modal-body">
    {loadState==="loading"&&<p role="status">{t("teamCalendar.loading")}</p>}
    {loadState==="error"&&<p role="alert" className="alert alert-warning">{t("calendarMeeting.loadError")}</p>}
    {detail&&loadState==="ready"&&<>
@@ -300,6 +301,7 @@ export default function CalendarMeetingModal({meeting,isAdmin,onClose,onSaved}:{
    </>}
    {notice&&<p role="status" className="alert alert-success py-2 mt-2">{notice}</p>}
    {error&&<p role="alert" className="alert alert-warning py-2 mt-2">{error}</p>}
+   </div>
    <footer className="d-flex justify-content-end mt-2 smn-cockpit-modal-footer">
     <button className="btn btn-outline-secondary btn-sm" type="button" onClick={close} disabled={busy}>
      {t("calendarOptionB.close")}</button>
