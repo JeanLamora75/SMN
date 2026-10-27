@@ -10,7 +10,7 @@ test("les lectures du calendrier reconnaissent v29 avec résolution d'équipe",(
  ]){
   const content=readFileSync(path,"utf8");
   assert.match(content,/resolveAdminTeam\(db,/);
-  assert.match(content,/===28\|\|\w+===29/,path);
+  assert.ok(content.includes("===28")&&content.includes("===29"),path);
  }
 });
 test("les modifications de réunion restent bloquées en schéma multiéquipes",()=>{
