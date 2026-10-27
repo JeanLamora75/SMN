@@ -69,7 +69,7 @@ export default function MemberDetail({id}:{id:string}){
    .then(async r=>r.ok?r.json():null).then(v=>{if(v)setLocation(v);}).catch(()=>undefined);};
  const closeDialog=()=>{
   if(modalBusy)return;
-  if((section==="lifecycle"||modalDirty)&&!window.confirm(t("draft.discardWarning")))return;
+  if(modalDirty&&!window.confirm(t("draft.discardWarning")))return;
   setSection(null);
  };
  const button=(target:Exclude<Section,null>,label:string)=>
@@ -152,7 +152,7 @@ export default function MemberDetail({id}:{id:string}){
       {section==="calendarException"&&<MemberCalendarExceptionEditor key={member.id+"-calendar-exception"} memberId={member.id} onDirtyChange={reportDraft} onSaved={saved} onCancel={()=>setSection(null)}/>}
       {section==="absence"&&<MemberAbsenceEditor key={member.id+"-absence-"+(absenceToEdit?.id??"new")} memberId={member.id}
        record={absenceToEdit} onDirtyChange={reportDraft} onSaved={saved} onCancel={()=>setSection(null)}/>}
-      {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)}/>}
+      {section==="lifecycle"&&<MemberLifecycleEditor key={member.id} memberId={member.id} onSaved={saved} onCancel={()=>setSection(null)} onDirtyChange={reportDraft}/> }
      </div>
     </div>
    </div>}
