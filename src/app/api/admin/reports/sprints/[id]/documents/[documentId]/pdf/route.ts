@@ -31,7 +31,7 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   const bytes=await renderStudioPdf(eligible.document);
   // Reject a render that became stale while Chromium was producing the PDF.
   const latest=teamId?await readTeamStudioDocument(db,{accountId:actor.id,role:actor.role},teamId,id,documentId):await getReportDocument(db,id,documentId);
-  if(!latest||latest.revision!==expected)return {error:"revision-changed"} as const;
+  if(!latest||latest.revision!==expected||latest.teamId!==eligible.document.teamId||latest.sprintId!==id||latest.id!==documentId)return {error:"revision-changed"} as const;
   if(!archive)return {bytes} as const;
   const doc=eligible.document;
   const inputReference=studioArchiveReference(doc);
