@@ -33,7 +33,7 @@ async function main(){
    state:row?.state??null,completedMigrations:history.rows[0]?.completed??null,
    alreadyPresentTables:names,
    migrationAllowed:false,
-   reason:"The v28 diagnostic requires an explicit v29 contract and whitelist before any migration."
+   reason:"Apply only with the controlled transactional migration runner after backup and compatibility checks."
   },null,2)+"\n");
   await db.query("ROLLBACK");
   if(!safe)process.exitCode=1;
