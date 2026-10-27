@@ -106,3 +106,11 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Les raccourcis Échap, la fermeture avec confirmation éventuelle, la restitution de focus et les mutations métier n'ont pas été modifiés.
 - Cette correction est ciblée sur les boîtes `role="dialog"` gérées manuellement ; les dialogues natifs Registres/Sprint/Équipe restent sous le comportement natif du navigateur.
 - À vérifier sur PC : Tab, Shift+Tab, champs masqués/désactivés, ouverture/fermeture Échap, retour focus, formulaires à champs conditionnels, lecteur d'écran. Aucun test exécuté.
+
+## Étape audit fermeture et brouillons — 27/10/2026
+- Fenêtres Registre : `registry-create-modal.tsx` utilise un `<dialog>` natif et un unique contrôle `close()` pour Échap, X et Annuler ; fermeture bloquée pendant `busy` ; avertissement lorsque `dirty`. Le dialogue de section bloque également la fermeture sur brouillon modifié.
+- Équipe : `team-context-editor.tsx` centralise `dismiss()` pour Annuler, X et Échap ; vérifie `saving` et `dirty` et demande confirmation uniquement si nécessaire.
+- Fiche Membre : le bouton X et Échap déclenchent systématiquement `draft.discardWarning` via `closeDialog`, même sans saisie modifiée. En revanche plusieurs boutons Annuler des sous-formulaires possèdent des gardes locaux. Cette divergence est documentée et nécessite une refonte coordonnée de l'état `dirty` des sous-formulaires pour ne pas risquer de perdre des données.
+- Décision technique : ne pas tenter une suppression heuristique de la confirmation d'après le seul DOM ; aucun état `dirty` partagé fiable n'est disponible dans le conteneur.
+- Aucun changement de fermeture effectué à cette étape. Prochaine implémentation proposée : contrat explicite `onDirtyChange`/brouillon pour les sous-formulaires de la fiche Membre, puis unifier X/Échap/Annuler.
+- Audit statique exclusivement, pas de tests ni build.
