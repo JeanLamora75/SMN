@@ -31,7 +31,9 @@ describe("SMN-225 — Catalogue des Paramètres",()=>{
  });
  it("respecte le mode Kanban sans retirer les rubriques du catalogue",()=>{
   const entries=flatten("kanban");
-  for(const id of ["cadence","ceremonies","workingDays"]){
+  assert.equal(entries.find(e=>e.id==="cadence")?.status,"available");
+  assert.equal(entries.find(e=>e.id==="cadence")?.href,"/app/admin/kanban-cadence");
+  for(const id of ["ceremonies","workingDays"]){
    assert.equal(entries.find(e=>e.id===id)?.status,"not-applicable");
    assert.equal(entries.find(e=>e.id===id)?.href,null);
   }
