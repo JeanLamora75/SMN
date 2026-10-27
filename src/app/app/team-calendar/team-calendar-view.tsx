@@ -150,8 +150,11 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  async function save(){if(!period||!editor||!name.trim()||busy||(calendarMode==="scrum"&&!selectedSprint))return;
   setBusy(true);setSaveError("");
   try{const date=new Date(when);if(Number.isNaN(date.valueOf()))throw Error("date");
-   const r=await fetch(calendarMode==="kanban"?"/api/admin/kanban-meetings":"/api/admin/sprints/exceptional-meetings",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(calendarMode==="kanban"?{name:name.trim(),periodId:period.sprintId,duration,startAt:date.toISOString()}:{name:name.trim(),sprintId:selectedSprint!.id,duration,startAt:date.toISOString()})});
+   const scoped=initialTeamId!==null;
+   const endpoint=scoped?"/api/admin/team-meetings":calendarMode==="kanban"?"/api/admin/kanban-meetings":"/api/admin/sprints/exceptional-meetings";
+   const payload=scoped?{teamId:initialTeamId,kind:calendarMode,cycleId:calendarMode==="kanban"?period.sprintId:selectedSprint!.id,name:name.trim(),duration,startAt:date.toISOString()}:
+    calendarMode==="kanban"?{name:name.trim(),periodId:period.sprintId,duration,startAt:date.toISOString()}:{name:name.trim(),sprintId:selectedSprint!.id,duration,startAt:date.toISOString()};
+   const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
    if(!r.ok)throw Error("save");
    setEditor(null);
    const end=shift(period.start,period.count-1);
