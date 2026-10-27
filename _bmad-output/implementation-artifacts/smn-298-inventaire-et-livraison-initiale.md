@@ -126,3 +126,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - La fenêtre Membre utilise un état modalDirty partagé avec le profil et ces quatre formulaires. Fermeture par X ou Échap : confirmation uniquement en cas de modifications ou enregistrement, sauf cycle de vie conservé en mode prudent.
 - Les boutons Annuler des sous-formulaires continuent à utiliser leurs protections natives.
 - Aucun test TypeScript, navigateur, build ni pipeline effectué ; tests manuels PC nécessaires, notamment annulation, erreurs de chargement et réouverture.
+
+## Étape — verrouillage pendant sauvegarde
+- Les formulaires Membre Identité, Affectation, Calendrier, Exception et Absence rapportent désormais séparément le brouillon modifié et l'état busy au conteneur.
+- Le conteneur bloque X et Échap si une sauvegarde est en cours ; il affiche une confirmation uniquement pour une saisie modifiée lorsque aucune opération n'est en cours.
+- Les boutons internes Annuler conservent leurs protections déjà présentes ; le cycle de vie reste traité prudemment à part.
+- Aucun test exécuté : vérifier en local la fermeture pendant une requête lente, l'erreur réseau, l'annulation sans changement et les réouvertures successives.
