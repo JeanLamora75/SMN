@@ -25,10 +25,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(!cookie)return Response.json({error:"forbidden"},{status:403});
  const teamId=req.nextUrl.searchParams.get("teamId");
  if(teamId&&actor.role!=="admin")return Response.json({error:"forbidden"},{status:403});
- // Never run Chromium against an unqualified internal preview in multi-team mode.
- // The preview route must independently verify the authenticated actor, team,
- // Sprint and immutable reference before this branch can be enabled.
- if(teamId)return Response.json({error:"team-pdf-preview-pending"},{status:503});
+ // The internal preview independently checks the session, active team, Sprint and signed-content hash.
  const reference=await (teamId?withAuthDb(async db=>{
   if(!await assertTeamReportCycle(db,{accountId:actor.id,role:actor.role},teamId,id))return null;
   return readFrozenReportReference(db,referenceId,id,teamId??undefined);
