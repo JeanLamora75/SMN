@@ -267,3 +267,23 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 4. Les mutations de capacité réelle, de réunions et les lots 6B (registres, rapports/exports), 6C (sécurité et tests globaux) sont encore en attente.
 
 **État inchangé :** `MULTI_TEAM_CONTEXT_READY=false`, `SMN_MULTI_TEAM_WRITES_ENABLED` désactivé par défaut, migration v28 non exécutée, PR #189 non fusionnée. Les comptes `user` historiques restent un sujet reporté.
+
+## Étape 6A — Capacité réelle par équipe : lecture contextualisée et correction verrouillée (27/10/2026)
+
+**Implémentation publiée uniquement dans la PR #189 (non fusionnée) :**
+
+- **Lecture calculée v28** : `src/server/capacity/actual.ts` accepte une option `teamId` explicite pour un schéma **v28** et la transmet au moteur `readDevelopmentCapacity` ; les lignes de période, valeurs manuelles et snapshots initiaux/clôturés restent lus **par identifiant d'équipe**. Le lecteur historique sans `teamId` ne peut plus lire un schéma v28 (`schema_version<=27`). Pour une période close, le lecteur conserve le **snapshot figé** sans recalcul depuis des absences nouvelles.
+- `GET /api/admin/capacity-actual` : en v28, rôle **Admin**, autorisation et installation vérifiées via `resolveAdminTeam`, `teamId` explicite ou préférence contrôlée, puis lecture de capacité réelle de cette équipe. Les périodes v27 conservent l'API historique. Le `POST` historique reste bloqué en v28 pour éviter une écriture non contextualisée.
+- **Correction transactionnelle v28** : `src/server/capacity/team-actual-write.ts` implémente `saveTeamActualCapacity`, saisie ou effacement d'une valeur manuelle en J/H, en réutilisant `parseActualChange` (validation précise des dates, J/H et révision). `BEGIN`, résolution de l'Admin et de l'équipe, verrou `FOR UPDATE` sur l'équipe pour sérialiser les premières créations, verrou sur la période et la valeur existantes, refus des périodes **futures**, **figées** ou **clôturées**, puis contrôle de révision optimiste. Les écritures n'altèrent ni les snapshots ni la capacité calculée : elles modifient seulement `smn_capacity_actual_override` et insèrent une ligne append-only `smn_capacity_actual_override_history` avec acteur, valeur précédente, nouvelle valeur et opération.
+- `POST /api/admin/team-capacity-actual` : route dédiée à l'Admin, JSON strict `{teamId,change}` et origine/permissions contrôlées. **Le verrou `MULTI_TEAM_CONTEXT_READY=false` est testé avant tout accès à PostgreSQL : impossible de modifier la capacité réelle v28 sur une installation normale à cette étape**. L'ancienne route de modification ne change pas son comportement v27.
+- **Tests sources ajoutés** : `tests/smn-282-team-capacity-actual-write.test.ts` (7 scénarios : création, modification, effacement, clôture/figement, conflit, futur, absence d'équipe, rollback, rôle `user`) ; `tests/smn-282-team-capacity-actual-read.test.ts` (3 scénarios : calcul limité à l'équipe, snapshot figé, refus d'un moteur renvoyant une autre équipe) ; `tests/smn-282-team-capacity-actual-route.test.ts` (4 contrats des routes et garde-fous).
+
+**Contrôles réellement effectués :** **22 contrôles statiques** du contenu GitHub, tous réussis (portée v28, compatibilité v27, priorité manuelle, snapshots protégés, verrous, audit, révision et fermeture POST). **Les 14 tests ont été écrits mais non exécutés**. Aucune exécution de `pnpm test`, `pnpm typecheck`, `pnpm build`, `prisma validate`, migration ou requête PostgreSQL réelle ; pas de recette navigateur.
+
+**Limites et prochaines étapes obligatoires :**
+1. Les **clôtures** et **ouvertures** de périodes en v28 ne sont pas adaptées ici ; leurs parcours monoéquipe restent protégés et ne doivent pas être activés. Vérifier les connexions aux indicateurs Sprint et dashboards, notamment après changement d'équipe.
+2. Tests transactionnels réels avec deux équipes, valeurs manuelles différentes, corrections concurrentes, snapshots déjà clôturés, révisions et historiques ; contrôler l'absence de fuite interéquipes.
+3. Adapter les écritures et historiques des **réunions/événements** avant la fin du lot 6A ; poursuivre les lots 6B (registres/rapports/exports) et 6C (sécurité globale et recette).
+4. Vérifier la prise en charge des scénarios d'affectations simultanées, en particulier lorsqu'une absence personnelle concerne plusieurs équipes.
+
+**État inchangé :** `MULTI_TEAM_CONTEXT_READY=false`, écritures multiéquipes générales désactivées, PostgreSQL v28 **non migré**, PR draft **non fusionnée**. Les comptes `user` historiques restent hors arbitrage conformément au Product Owner.
