@@ -84,7 +84,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     )).rows;
     // Métadonnées de schéma lues en READ ONLY ; aucun DDL ni réparation implicite.
     let multiTeamSchemaValid:boolean|undefined;
-    if(installations.rows[0]?.schema_version===28){
+    if((installations.rows[0]?.schema_version??0)>=28){
       const integrity=await client.query<{
         product_nullable:boolean;indexes_valid:boolean;
         constraints_valid:boolean;old_unique_gone:boolean;
