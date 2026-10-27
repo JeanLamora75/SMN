@@ -18,6 +18,8 @@ function mock(archived=false){
   if(sql.includes("JOIN public.smn_account a ON"))return {rows:archived?[]:[{id:"team_a"}]};
   if(sql.includes("FROM public.smn_scrum_cadence"))return {rows:[{duration_weeks:2,start_day:1,start_time:"09:00",end_day:5,end_time:"18:00",time_zone:"Europe/Paris",revision:1}]};
   if(sql.includes("SELECT id FROM public.smn_sprint"))return {rows:[]};
+  if(sql.includes("SELECT team_id FROM public.smn_sprint WHERE id="))return {rows:[{team_id:"team_a"}]};
+  if(sql.includes("FROM public.smn_scrum_ceremony_template"))return {rows:[]};
   if(sql.includes("next_number"))return {rows:[{next_number:1}]};
   return {rows:[],rowCount:1};
  };
@@ -38,4 +40,5 @@ test("équipe active : transaction, numéro et audit",async()=>{
  assert.ok(queries.some(s=>s.includes("INSERT INTO public.smn_sprint\n")));
  assert.ok(queries.some(s=>s.includes("INSERT INTO public.smn_sprint_audit")));
  assert.equal(queries.at(-1),"COMMIT");
+ assert.ok(queries.some(s=>s.includes("SELECT team_id FROM public.smn_sprint WHERE id=")));
 });
