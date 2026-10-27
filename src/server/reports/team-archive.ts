@@ -6,6 +6,8 @@ export async function assertTeamPdfArchive(db:Client,actor:TeamActor,teamId:stri
  if(!/^[a-f0-9-]{36}$/i.test(archiveId))return false;
  const team=await resolveAdminTeam(db,actor,teamId);
  if(team.mode!=="scrum")return false;
+ const table=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present");
+ if(!table.rows[0]?.present)return false;
  const scope=await db.query<{id:string}>(`SELECT a.id
  FROM public.smn_report_pdf_archive a
  JOIN public.smn_sprint s ON s.id=a.cycle_id AND s.team_id=a.team_id
