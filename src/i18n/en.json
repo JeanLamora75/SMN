@@ -3630,6 +3630,8 @@
     "deleteWarning": "This link will be deleted. This action cannot be undone.",
     "invalidFields": "Check the fields: title, HTTP(S) URL, category and scope.",
     "forbidden": "You are not authorized to change this link.",
-    "notFound": "This link no longer exists or is no longer accessible. Refresh the list."
+    "notFound": "This link no longer exists or is no longer accessible. Refresh the list.",
+    "confirmScopeChange": "I confirm the change to this link's visibility. Access will follow its new scope.",
+    "confirmScopeRequired": "Confirm the visibility change before saving."
   }
 }
