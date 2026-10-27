@@ -26,7 +26,7 @@ function statusOf(result:TeamWriteResult):number{
  if(result.ok)return 200;
  if(result.error==="forbidden")return 403;
  if(result.error==="not-found")return 404;
- if(result.error==="duplicate-name"||result.error==="conflict")return 409;
+ if(result.error==="duplicate-name"||result.error==="conflict"||result.error==="mode-locked")return 409;
  if(result.error==="schema-not-ready")return 503;
  return 400;
 }
@@ -47,7 +47,7 @@ export async function GET(request:NextRequest){
     [installationId]);
    return {items:await listInstallationTeams(db,installationId),
     canWrite:teamWritesEnabled()&&state.rows[0]?.state==="initialized"&&
-      state.rows[0]?.schema_version===28};
+      state.rows[0]?.schema_version===29};
   });
   return data?jsonResult(data):jsonResult({error:"forbidden"},403);
  }catch{
