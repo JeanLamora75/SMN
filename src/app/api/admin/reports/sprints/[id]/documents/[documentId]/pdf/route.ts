@@ -1,7 +1,9 @@
 import {NextRequest} from "next/server";
-import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
-import {inspectPdfEligibility} from "@/server/reports/studio-export";
+import {readTeamStudioDocument} from "@/server/reports/team-studio";
+import {authorizeApi} from "@/server/auth/authorization";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
+import {inspectStudioDocumentEligibility,inspectPdfEligibility} from "@/server/reports/studio-export";
 import {renderStudioPdf} from "@/server/reports/studio-pdf-render";
 import {storeFinalPdfArchive} from "@/server/reports/pdf-archive-store";
 import {jsonResult} from "@/server/auth/request";
@@ -16,24 +18,28 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
  const expected=Number(req.headers.get("x-smn-expected-revision"));
  if(!Number.isSafeInteger(expected)||expected<1)return jsonResult({error:"expected-revision-required"},400);
  if(!/^[a-f0-9-]{36}$/i.test(id)||!/^[a-f0-9-]{36}$/i.test(documentId))return jsonResult({error:"invalid-input"},400);
+ const teamId=req.nextUrl.searchParams.get("teamId");
+ if(teamId&&actor.role!=="admin")return jsonResult({error:"forbidden"},403);
  try{
- const result=await withAuthDb(async db=>{
-  const eligible=await inspectPdfEligibility(db,id,documentId);
+ const generate=async (db:import("pg").Client)=>{
+  const eligible=teamId?await readTeamStudioDocument(db,{accountId:actor.id,role:actor.role},teamId,id,documentId).then(doc=>doc?inspectStudioDocumentEligibility(doc):null):await inspectPdfEligibility(db,id,documentId);
   if(!eligible)return {error:"not-found"} as const;
+  if(teamId&&eligible.document.status!=="draft")return {error:"not-found"} as const;
   if(eligible.document.revision!==expected)return {error:"revision-changed"} as const;
   if(!eligible.exportable)return {error:"quality-blocked",issues:eligible.errors} as const;
   if(eligible.warnings.length>0&&req.headers.get("x-smn-ack-warnings")!=="true")
    return {error:"warnings-require-confirmation",issues:eligible.warnings} as const;
   const bytes=await renderStudioPdf(eligible.document);
   // Reject a render that became stale while Chromium was producing the PDF.
-  const latest=await getReportDocument(db,id,documentId);
-  if(!latest||latest.revision!==expected)return {error:"revision-changed"} as const;
+  const latest=teamId?await readTeamStudioDocument(db,{accountId:actor.id,role:actor.role},teamId,id,documentId):await getReportDocument(db,id,documentId);
+  if(!latest||latest.revision!==expected||latest.teamId!==eligible.document.teamId||latest.sprintId!==id||latest.id!==documentId||(teamId&&latest.status!=="draft"))return {error:"revision-changed"} as const;
   if(!archive)return {bytes} as const;
   const doc=eligible.document;
   const inputReference=studioArchiveReference(doc);
   const manifest=await storeFinalPdfArchive(db,bytes,{authorId:actor.id,language:doc.language,templateId:doc.templateId,teamId:doc.teamId,cycleId:doc.sprintId,cycleStatus:"draft",snapshotVersion:null,templateName:doc.title,optionsSnapshot:{studioDocumentId:inputReference.documentId,studioDocumentRevision:inputReference.documentRevision,studioSourceSha256:inputReference.sourceSha256}},undefined,doc);
   return {manifest} as const;
- });
+ };
+ const result=teamId?await withAuthDb(generate):await withLegacyTeamApi(generate);
  if("error" in result)return jsonResult(result,result.error==="not-found"?404:result.error==="quality-blocked"?422:409);
  if("bytes" in result){
   // The union can expose an optional bytes property; never build a PDF response without data.
@@ -46,7 +52,11 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   }});
  }
  return jsonResult({ok:true,archiveId:result.manifest.id,version:result.manifest.optionsSnapshot?.studioArchiveVersion},201);
- }catch{return jsonResult({error:"pdf-render-unavailable"},503);}
+ }catch(error){
+  if(error instanceof Error&&error.message==="studio-archive-revision-changed")
+   return jsonResult({error:"revision-changed"},409);
+  return jsonResult({error:"pdf-render-unavailable"},503);
+ }
 }
 export async function POST(req:NextRequest,ctx:P){return execute(req,ctx,false);}
 export async function PUT(req:NextRequest,ctx:P){return execute(req,ctx,true);}

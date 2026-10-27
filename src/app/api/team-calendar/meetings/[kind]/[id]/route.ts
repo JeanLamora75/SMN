@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {updateCalendarMeetingSchedule} from "@/server/sprints/calendar-meeting-reschedule";
 import {readCalendarMeeting,validCalendarMeetingRef} from "@/server/sprints/calendar-meeting-detail";
@@ -15,7 +15,7 @@ export async function GET(request:NextRequest,{params}:Context){
  const {kind,id}=await params;
  if(!validCalendarMeetingRef(kind,id))return jsonResult({error:"invalid-input"},400);
  try{
-  const meeting=await withAuthDb(db=>readCalendarMeeting(db,kind,id));
+  const meeting=await withLegacyTeamApi(db=>readCalendarMeeting(db,kind,id));
   return meeting?jsonResult({meeting}):jsonResult({error:"not-found"},404);
  }catch{
   console.error("calendar-meeting-detail-read-failed");
@@ -34,7 +34,7 @@ export async function PATCH(request:NextRequest,{params}:Context){
   Object.keys(payload).sort().join(",")!=="endAt,revision,startAt")
   return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>updateCalendarMeetingSchedule(db,actor.id,{
+  const result=await withLegacyTeamApi(db=>updateCalendarMeetingSchedule(db,actor.id,{
    kind,id,startAt:payload.startAt,endAt:payload.endAt,revision:payload.revision
   }));
   if(result.ok)return jsonResult(result,200);

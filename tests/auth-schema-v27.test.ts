@@ -2,18 +2,19 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   assertIdentityMigrationValid,
+  assertMultiTeamMigrationValid,
   isSupportedAuthenticationSchemaVersion,
 } from "../src/server/accounts/migration";
 
 describe("Authentification : compatibilité du schéma v27", () => {
-  it("autorise les schémas 1 à 27, dont la migration manuelle de l'identité", () => {
-    for (let version = 1; version <= 27; version++) {
+  it("autorise les schémas 1 à 28, dont les migrations manuelles de l'identité et des équipes", () => {
+    for (let version = 1; version <= 28; version++) {
       assert.equal(isSupportedAuthenticationSchemaVersion(version), true);
     }
   });
 
   it("refuse les versions futures, absentes ou mal formées", () => {
-    for (const version of [0, 28, 99, -1, 1.5, Number.NaN, Infinity]) {
+    for (const version of [0, 29, 99, -1, 1.5, Number.NaN, Infinity]) {
       assert.equal(isSupportedAuthenticationSchemaVersion(version), false);
     }
   });
@@ -23,6 +24,14 @@ describe("Authentification : compatibilité du schéma v27", () => {
     assert.throws(() => assertIdentityMigrationValid(27, false, "7"), /smn-schema-incompatible/);
     assert.throws(() => assertIdentityMigrationValid(27, true, "6"), /smn-schema-incompatible/);
     assert.throws(() => assertIdentityMigrationValid(27, true, undefined), /smn-schema-incompatible/);
+    assert.throws(() => assertIdentityMigrationValid(28, false, "7"), /smn-schema-incompatible/);
+  });
+
+  it("refuse la v28 si migration absente ou structure incomplète",()=>{
+    assert.doesNotThrow(()=>assertMultiTeamMigrationValid(28,true,true));
+    assert.throws(()=>assertMultiTeamMigrationValid(28,false,true),/smn-schema-incompatible/);
+    assert.throws(()=>assertMultiTeamMigrationValid(28,true,false),/smn-schema-incompatible/);
+    assert.doesNotThrow(()=>assertMultiTeamMigrationValid(27,false,false));
   });
 
   it("n'impose pas rétroactivement la migration facultative aux schémas antérieurs", () => {

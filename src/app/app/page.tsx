@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { currentAccount } from "@/server/auth/session";
 import { withAuthDb } from "@/server/auth/database";
 import { canAccess } from "@/server/access-policy";
-import { readCollectiveDashboard } from "@/server/dashboard/read";
+import { readAccountDashboard } from "@/server/dashboard/read";
 import CycleOverview from "./cycle-overview";
 import OperationalOverview from "./operational-overview";
 import MemberConfigurationAlerts from "./member-configuration-alerts";
@@ -25,9 +25,12 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   const locale=await requestLocale();
   const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
 
-  let dashboard: Awaited<ReturnType<typeof readCollectiveDashboard>>;
+  let dashboard: Awaited<ReturnType<typeof readAccountDashboard>>;
   try {
-    dashboard = await withAuthDb(readCollectiveDashboard);
+    const query=await searchParams;
+    dashboard = await withAuthDb(db=>readAccountDashboard(db,
+      {accountId:account.id,role:account.role},
+      typeof query.teamId==="string"?query.teamId:null));
   } catch {
     return <div className="py-5">
       <section className="smn-panel p-4" role="alert">
@@ -46,6 +49,9 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   // Un seul snapshot PostgreSQL pour la sélection du Sprint ET ses KPI.
   const sprintResult=context.mode==="scrum"?await withDashboardRead(async db=>{
     const sprintData=await readSprintContext(db,context.teamId);
+    // Un cycle historique demandé ne doit jamais être réinterprété dans une autre équipe.
+    if(requested&&!sprintData.items.some(item=>item.id===requested))
+      throw Error("cycle-out-of-team");
     const cycle=selectedSprint(sprintData.items,requested);
     const projection=cycle?await readCycleDashboard(db,context.teamId,cycle,account.role==="admin"):null;
     return {cycle,projection};

@@ -25,14 +25,14 @@ export function hashReportPayload(payload:FrozenReportPayload){
 export function verifiedFrozenReference(ref:FrozenReportReference){
  return ref.sha256===hashReportPayload(ref.payload)&&ref.sprintId===ref.payload.data.sprint.id;
 }
-export async function createFrozenReportReference(db:Client,sprintId:string,actorId:string){
+export async function createFrozenReportReference(db:Client,sprintId:string,actorId:string,expectedTeamId?:string){
  if(!actorId||!/^[a-f0-9-]{36}$/i.test(sprintId))return null;
  await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
  try{
  const scope=await db.query(`SELECT s.id FROM public.smn_sprint s
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
- AND lower(i.mode)='scrum'`,[sprintId]);
+ AND lower(i.mode)='scrum' AND ($2::text IS NULL OR s.team_id=$2)`,[sprintId,expectedTeamId??null]);
  if(scope.rows.length!==1){await db.query("ROLLBACK");return null;}
  const data=await composeHtmlReportPreview(db,sprintId);
  if(!data){await db.query("ROLLBACK");return null;}
@@ -52,7 +52,7 @@ export async function createFrozenReportReference(db:Client,sprintId:string,acto
  return {id,sprintId,createdAt:saved.rows[0].createdAt,sha256,payload};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
-export async function readFrozenReportReference(db:Client,id:string,sprintId:string){
+export async function readFrozenReportReference(db:Client,id:string,sprintId:string,expectedTeamId?:string){
  if(!/^[a-f0-9-]{36}$/i.test(id)||!/^[a-f0-9-]{36}$/i.test(sprintId))return null;
  const table=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_report_render_reference') IS NOT NULL AS present`);
  if(!table.rows[0]?.present)return null;
@@ -62,7 +62,7 @@ export async function readFrozenReportReference(db:Client,id:string,sprintId:str
  JOIN public.smn_sprint s ON s.id=r.sprint_id
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE r.id=$1 AND r.sprint_id=$2 AND s.deleted_at IS NULL
- AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,[id,sprintId]);
+ AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum' AND ($3::text IS NULL OR s.team_id=$3)`,[id,sprintId,expectedTeamId??null]);
  const ref=q.rows[0];
  return ref&&verifiedFrozenReference(ref)?ref:null;
 }

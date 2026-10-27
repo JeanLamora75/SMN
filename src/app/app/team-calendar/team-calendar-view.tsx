@@ -16,8 +16,9 @@ function dates(start:string,n:number){return Array.from({length:n},(_,i)=>shift(
 function monthStart(d:string){return d.slice(0,7)+"-01";}
 function monthLength(d:string){const [y,m]=d.split("-").map(Number);return new Date(Date.UTC(y,m,0)).getUTCDate();}
 function localDate(raw:string){return iso(new Date(raw));}
-export default function TeamCalendarView({isAdmin,initialCreate=false,initialCycleId=null}:{
+export default function TeamCalendarView({isAdmin,initialCreate=false,initialCycleId=null,initialTeamId=null}:{
  isAdmin:boolean;initialCreate?:boolean;initialCycleId?:string|null;
+ initialTeamId?:string|null;
 }){
  const t=useTranslation(),locale=useLocale();
  const openedFromLink=useRef(false);
@@ -59,9 +60,14 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  const now=iso(new Date());
  useEffect(()=>{let live=true;const current=iso(new Date());
   const fallback=()=>({start:monthStart(current),count:monthLength(current),label:current.slice(0,7),sprintId:null});
-  void fetch("/api/team-calendar/periods",{cache:"no-store"}).then(async r=>{
+  void fetch("/api/team-calendar/periods"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store"}).then(async r=>{
    if(!r.ok)throw Error();return r.json() as Promise<{sprints:Sprint[];mode?:"scrum"|"kanban"}>;})
-   .then(result=>{if(!live)return;const list=result.sprints??[];setSprints(list);setCalendarMode(result.mode??"scrum");
+   .then(result=>{if(!live)return;const list=result.sprints??[];
+    // Un cycle de lien direct doit appartenir à l'équipe filtrée.
+    if(initialCycleId&&!list.some(s=>s.id===initialCycleId)){
+     setStatus("error");return;
+    }
+    setSprints(list);setCalendarMode(result.mode??"scrum");
     const active=(initialCycleId?list.find(s=>s.id===initialCycleId):null)
       ??list.find(s=>s.status==="active"&&localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
       ??list.find(s=>localDate(s.startAt)<=current&&localDate(s.endAt)>=current)
@@ -73,16 +79,16 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     selectPeriod({start:begin,count,label:active.name,sprintId:active.id});
    }).catch(()=>{if(live)selectPeriod(fallback());});
    return()=>{live=false;};
- },[initialCycleId]);
+ },[initialCycleId,initialTeamId]);
  useEffect(()=>{if(!period)return;let alive=true;
   const days=dates(period.start,period.count);
   const blocks:Array<Promise<Calendar>>=[];
   for(let i=0;i<period.count;i+=28){
-   const query=new URLSearchParams({start:days[i],days:"28"});
+   const query=new URLSearchParams({start:days[i],days:"28",...(initialTeamId?{teamId:initialTeamId}:{})});
    blocks.push(fetch("/api/team-calendar?"+query,{cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("calendar");return r.json() as Promise<Calendar>;}));
   }
   const end=days[days.length-1];
-  void Promise.all([Promise.all(blocks),fetch("/api/team-calendar/meetings?"+new URLSearchParams({start:period.start,end}),{cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("meetings");return r.json() as Promise<{meetings:Meeting[]}>;})])
+  void Promise.all([Promise.all(blocks),fetch("/api/team-calendar/meetings?"+new URLSearchParams({start:period.start,end,...(initialTeamId?{teamId:initialTeamId}:{})}),{cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("meetings");return r.json() as Promise<{meetings:Meeting[]}>;})])
   .then(([parts,meet])=>{if(!alive)return;
    const counts:Record<string,number>={};
    for(const p of parts){for(const day of p.collective){
@@ -98,7 +104,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
    setAbsenceCounts(counts);setAbsentNames(named);setTeamName(parts[0]?.team.name??"");
    setEvents(parts.flatMap(x=>x.central.items));setMeetings(meet.meetings);setStatus("ready");})
   .catch(()=>{if(alive)setStatus("error");});return()=>{alive=false;};
- },[period,refreshToken,isAdmin]);
+ },[period,refreshToken,isAdmin,initialTeamId]);
  function sprintPeriod(s:Sprint){
   const start=localDate(s.startAt),finish=localDate(s.endAt);
   return {start,count:Math.max(1,Math.round((new Date(finish+"T12:00:00Z").getTime()-new Date(start+"T12:00:00Z").getTime())/86400000)+1),label:s.name,sprintId:s.id};
@@ -148,7 +154,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
    if(!r.ok)throw Error("save");
    setEditor(null);
    const end=shift(period.start,period.count-1);
-   const refresh=await fetch("/api/team-calendar/meetings?"+new URLSearchParams({start:period.start,end}),{cache:"no-store"});
+   const refresh=await fetch("/api/team-calendar/meetings?"+new URLSearchParams({start:period.start,end,...(initialTeamId?{teamId:initialTeamId}:{})}),{cache:"no-store"});
    if(refresh.ok)setMeetings((await refresh.json() as {meetings:Meeting[]}).meetings);
   }catch{setSaveError(t("calendarUX.saveFailed"));}finally{setBusy(false);}
  }
@@ -170,7 +176,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  useEffect(()=>{
   if(!absenceEditor||!isAdmin)return;
   let alive=true;
-  void fetch("/api/admin/members",{cache:"no-store"}).then(async r=>{
+  void fetch("/api/admin/members"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store"}).then(async r=>{
    if(!r.ok)throw Error("members");
    return r.json() as Promise<{members:MemberOption[]}>;
   }).then(data=>{

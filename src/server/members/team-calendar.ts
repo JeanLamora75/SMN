@@ -86,17 +86,20 @@ const latestAt=<T extends {effective_from:string;revision:number}>(
  .sort((a,b)=>a.effective_from.localeCompare(b.effective_from)||a.revision-b.revision).at(-1)??null;
 
 /** Sanitized, member-free collective data are built without serializing private rows. */
-export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin:boolean):
- Promise<TeamCalendarResponse>{
+export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin:boolean,
+ authorizedTeam?:TeamRow):Promise<TeamCalendarResponse>{
  if(!isValidDate(query.start)||query.start<"1900-01-01"||query.start>"2200-12-01"||
   ![7,14,28].includes(query.days)||(!isAdmin&&(query.memberId||query.categoryId||query.kind!=="all")))
   throw Error("team-calendar-invalid-input");
  const dates=calendarDates(query.start,query.days);
  const end=dates.at(-1)!;
- const teams=await db.query<TeamRow>([
+ // Le service ne déduit jamais la première équipe sur une base v28.
+ // authorizedTeam est fourni uniquement après resolveAdminTeam côté API.
+ const teams=authorizedTeam?{rows:[authorizedTeam]}:await db.query<TeamRow>([
   "SELECT t.id,t.name,i.mode FROM public.smn_team t",
   "JOIN public.smn_installation i ON i.id=t.installation_id",
-  "WHERE i.id='singleton' AND i.state='initialized' AND i.mode IN ('scrum','kanban') LIMIT 2"
+  "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27",
+  "AND i.mode IN ('scrum','kanban') LIMIT 2"
  ].join(" "));
  if(teams.rows.length!==1)throw Error("team-calendar-unavailable");
  const team=teams.rows[0];

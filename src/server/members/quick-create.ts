@@ -41,7 +41,8 @@ type TeamRow={team_id:string;team_name:string;mode:"scrum"|"kanban"};
 async function installedTeam(client:Client):Promise<TeamMembers["team"]>{
  const team=await client.query<TeamRow>(`SELECT t.id AS team_id,t.name AS team_name,i.mode
   FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
-  WHERE i.id='singleton' AND i.state='initialized' AND i.mode IN ('scrum','kanban')
+  WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27
+   AND i.mode IN ('scrum','kanban')
   LIMIT 2`);
  if(team.rows.length!==1||!["scrum","kanban"].includes(team.rows[0].mode))
   throw new Error("members-team-unavailable");
@@ -100,10 +101,20 @@ function project(row:MemberRow):MemberListItem{
   allocationPercent:row.v_allocation??row.allocation_percent??0,rolePercent:row.role_percent??0,
   roleShares:shares,developmentCapacityJh:null};
 }
-export async function listTeamMembers(client:Client):Promise<TeamMembers>{
- const team=await installedTeam(client);
- const members=await client.query<MemberRow>(memberSelect+
-  " AND EXISTS(SELECT 1 FROM public.smn_team t WHERE t.id=$1 AND t.installation_id=m.installation_id) ORDER BY m.member_number ASC LIMIT 51",[team.id]);
+export async function listTeamMembers(client:Client,
+ authorizedTeam?:TeamMembers["team"]):Promise<TeamMembers>{
+ const team=authorizedTeam??await installedTeam(client);
+ // En v28 seuls les membres avec une affectation à l'équipe cible
+ // sont visibles. Le LEFT JOIN latéral doit sélectionner cette même équipe.
+ const memberSql=authorizedTeam?
+  memberSelect.replace("WHERE a.member_id=m.id",
+   "WHERE a.member_id=m.id AND a.team_id=$1")+
+  " AND EXISTS(SELECT 1 FROM public.smn_member_assignment x "+
+  "WHERE x.member_id=m.id AND x.team_id=$1) "+
+  "ORDER BY m.member_number ASC LIMIT 51":
+  memberSelect+
+  " AND EXISTS(SELECT 1 FROM public.smn_team t WHERE t.id=$1 AND t.installation_id=m.installation_id) ORDER BY m.member_number ASC LIMIT 51";
+ const members=await client.query<MemberRow>(memberSql,[team.id]);
  if(members.rows.length>50)throw new Error("members-list-limit");
  return {team,members:members.rows.map(project)};
 }

@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {listManualAiResponses,saveManualAiResponse} from "@/server/ai-briefs/responses";
 export const dynamic="force-dynamic";
@@ -15,7 +15,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  if(!await authorizeApi(req,"read",{type:"collective",exists:true,inScope:true}))return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  try{
-  const result=await withAuthDb(async db=>{
+  const result=await withLegacyTeamApi(async db=>{
    const team=await teamId(db);if(!team)return null;
    return listManualAiResponses(db,id,team);
   });
@@ -28,7 +28,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const input=await readJsonObject(req,300000);if(!input)return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const result=await withAuthDb(async db=>{
+  const result=await withLegacyTeamApi(async db=>{
    const team=await teamId(db);if(!team)return {ok:false as const,error:"not-found"};
    return saveManualAiResponse(db,id,team,actor.id,input);
   });

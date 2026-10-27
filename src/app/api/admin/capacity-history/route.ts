@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {parseCapacityPeriod} from "@/server/capacity/engine";
 import {readHistoricalQuality,saveHistoricalQuality} from "@/server/capacity/historical";
@@ -14,7 +14,7 @@ export async function GET(request:NextRequest){
  const period=parseCapacityPeriod(request.nextUrl.searchParams);
  if(!period)return jsonResult({error:"invalid-period"},400);
  try{
-  return jsonResult(await withAuthDb(db=>readHistoricalQuality(db,period.start,period.end)));
+  return jsonResult(await withLegacyTeamApi(db=>readHistoricalQuality(db,period.start,period.end)));
  }catch{
   console.error("historical-quality-read-unavailable");
   return jsonResult({error:"service-unavailable"},503);
@@ -26,7 +26,7 @@ export async function POST(request:NextRequest){
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>saveHistoricalQuality(db,actor.id,body));
+  const result=await withLegacyTeamApi(db=>saveHistoricalQuality(db,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error},
    result.error==="conflict"?409:result.error==="team-unavailable"?503:400);
   return jsonResult(result);

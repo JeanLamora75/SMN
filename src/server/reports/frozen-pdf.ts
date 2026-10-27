@@ -3,7 +3,7 @@ import {validateFinalPdf} from "./pdf-archive-contract";
 const MAX_PDF_BYTES=20*1024*1024;
 export async function generateFrozenPdf(url:string,sessionCookie:{name:string;value:string}):Promise<Buffer>{
  const parsed=new URL(url);
- if(parsed.protocol!=="http:"||!["127.0.0.1","localhost"].includes(parsed.hostname)||!(/^\/app\/admin\/sprints\/[a-f0-9-]{36}\/report\/preview$/.test(parsed.pathname)||/^\/app\/admin\/kanban-periods\/[a-f0-9-]{36}\/report\/frozen$/.test(parsed.pathname))||!/^[a-f0-9-]{36}$/i.test(parsed.searchParams.get("reference")??""))throw Error("pdf-url-invalid");
+ if(parsed.protocol!=="http:"||!["127.0.0.1","localhost"].includes(parsed.hostname)||!(/^\/app\/admin\/sprints\/[a-f0-9-]{36}\/report\/preview$/.test(parsed.pathname)||/^\/app\/admin\/kanban-periods\/[a-f0-9-]{36}\/report\/frozen$/.test(parsed.pathname))||!/^[a-f0-9-]{36}$/i.test(parsed.searchParams.get("reference")??"")||(parsed.searchParams.has("teamId")&&!/^[a-f0-9-]{36}$/i.test(parsed.searchParams.get("teamId")??"")))throw Error("pdf-url-invalid");
  const chromePath=await findPdfChrome();
  if(!chromePath)throw Error("pdf-browser-unavailable");
  const moduleName="puppeteer-core";

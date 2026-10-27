@@ -27,6 +27,7 @@ import {CAPACITY_ACTUAL_MIGRATION,CAPACITY_ACTUAL_MIGRATION_SQL} from "../capaci
 import {CAPACITY_HISTORICAL_MIGRATION,CAPACITY_HISTORICAL_MIGRATION_SQL} from "../capacity/historical-migration";
 import {CAPACITY_REPLANNING_MIGRATION,CAPACITY_REPLANNING_MIGRATION_SQL} from "../capacity/replanning-migration";
 import {MEMBER_IDENTITY_MIGRATION,MEMBER_IDENTITY_MIGRATION_SQL} from "../members/identity-migration";
+import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../teams/migration";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -41,16 +42,25 @@ const checksum = (s: string) => createHash("sha256").update(s).digest("hex");
 
 /** Même version maximale que le diagnostic, sans autoriser les futures versions non connues. */
 export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
-  return Number.isInteger(version) && version>=1 && version<=27;
+  return Number.isInteger(version) && version>=1 && version<=28;
 }
 
 /** La migration v27 est explicite : l'authentification la vérifie, sans la déclencher. */
+/** La migration 28 est manuelle. L'authentification vérifie son checksum et l'intégrité,
+ * sans la déclencher lors de la création d'une session.
+ */
+export function assertMultiTeamMigrationValid(version:number,
+ migrationApplied:boolean,shapeValid:boolean):void{
+ if(version===28 && (!migrationApplied || !shapeValid))
+  throw new Error("smn-schema-incompatible");
+}
+
 export function assertIdentityMigrationValid(
   version:number,
   migrationApplied:boolean,
   identityColumnCount:string|undefined,
 ):void {
-  if(version===27 && (!migrationApplied || identityColumnCount!=="7"))
+  if(version>=27 && (!migrationApplied || identityColumnCount!=="7"))
     throw new Error("smn-schema-incompatible");
 }
 
@@ -504,7 +514,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
          'confirmed_values','preview_digest','confirmed_by','confirmed_at'))
       )`);
     if(replanningColumns.rows[0]?.count!=="16")throw new Error("smn-schema-incompatible");
-    if(version===27){
+    if(version>=27){
       const identityColumns=await client.query<{count:string}>(`
         SELECT count(*)::text AS count FROM information_schema.columns
         WHERE table_schema='public' AND (
@@ -517,6 +527,37 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
         applied(MEMBER_IDENTITY_MIGRATION,MEMBER_IDENTITY_MIGRATION_SQL),
         identityColumns.rows[0]?.count,
       );
+    }
+    if(version===28){
+      const integrity=await client.query<{product_nullable:boolean;indexes_valid:boolean;constraints_valid:boolean;old_unique_gone:boolean}>(`
+        SELECT
+          (SELECT is_nullable='YES' FROM information_schema.columns
+            WHERE table_schema='public' AND table_name='smn_team'
+              AND column_name='product_id') AS product_nullable,
+          (SELECT count(*)=2 FROM pg_indexes
+            WHERE schemaname='public' AND indexname IN
+              ('smn_team_product_id_key','smn_team_installation_name_ci_key')
+              AND indexdef ILIKE '%UNIQUE%') AS indexes_valid,
+          (SELECT count(*)=6 FROM pg_constraint
+            WHERE connamespace='public'::regnamespace AND conname IN
+              ('smn_product_id_installation_pair_key',
+               'smn_team_product_same_installation_fk',
+               'smn_account_installation_pair_key',
+               'smn_team_installation_pair_key',
+               'smn_team_pref_account_same_installation_fk',
+               'smn_team_pref_team_same_installation_fk')) AS constraints_valid,
+          NOT EXISTS(SELECT 1 FROM pg_constraint
+            WHERE connamespace='public'::regnamespace AND conname IN
+              ('smn_product_installation_id_key','smn_team_installation_id_key')) AS old_unique_gone
+      `);
+      const row=integrity.rows[0];
+      assertMultiTeamMigrationValid(version,
+        applied(MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL),
+        !!row?.product_nullable&&!!row?.indexes_valid&&
+        !!row?.constraints_valid&&!!row?.old_unique_gone&&
+        (await client.query<{present:boolean}>(
+          "SELECT to_regclass('public.smn_account_team_preference') IS NOT NULL AS present"
+        )).rows[0]?.present===true);
     }
     await client.query("COMMIT");
   } catch(error) {

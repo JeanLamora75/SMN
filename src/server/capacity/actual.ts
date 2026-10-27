@@ -27,7 +27,7 @@ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 const teamSql=[
  "SELECT t.id FROM public.smn_team t JOIN public.smn_installation i",
  "ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized'",
- "AND i.mode IN ('scrum','kanban') LIMIT 2"
+ "AND i.schema_version<=27 AND i.mode IN ('scrum','kanban') LIMIT 2"
 ].join(" ");
 const periodSql=[
  "SELECT id,closed_at::text AS closed_at FROM public.smn_capacity_period_override",
@@ -106,16 +106,21 @@ const state=(input:{
   gapJh:gap,missingSources:input.missingSources};
 };
 export async function readActualCapacity(db:Client,start:string,end:string,
- calculate:(db:Client,start:string,end:string,options:{externalTransaction:true;includeExceptionalImpact?:boolean})=>
+ calculate:(db:Client,start:string,end:string,options:{externalTransaction:true;includeExceptionalImpact?:boolean;teamId?:string})=>
   Promise<CapacityReport>=readDevelopmentCapacity,
- options:{externalTransaction?:boolean}={}):Promise<ActualResult>{
+ options:{externalTransaction?:boolean;teamId?:string}={}):Promise<ActualResult>{
  if(!parseCapacityPeriod(new URLSearchParams({start,end})))throw Error("actual-invalid-period");
  // Le dashboard possède déjà sa transaction cohérente et strictement READ ONLY.
  // Les appels historiques gardent leur transaction autonome par défaut.
  if(!options.externalTransaction)
   await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  try{
-  const teams=await db.query<ActorTeam>(teamSql);
+  // v28: teamId issu du résolveur Admin. Le lecteur sans contexte refuse v28.
+  const teams=options.teamId?await db.query<ActorTeam>(
+   "SELECT t.id FROM public.smn_team t JOIN public.smn_installation i "+
+   "ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' "+
+   "AND i.schema_version=28 AND t.id=$1 LIMIT 2",[options.teamId]):
+   await db.query<ActorTeam>(teamSql);
   if(teams.rows.length!==1)throw Error("actual-team-unavailable");
   const teamId=teams.rows[0].id;
   const clock=await db.query<{today:string}>(
@@ -146,7 +151,8 @@ export async function readActualCapacity(db:Client,start:string,end:string,
   if(status!=="upcoming"){
    const last=realThrough(end,today);
    if(last!==null&&last>=start){
-    const report=await calculate(db,start,last,{externalTransaction:true,includeExceptionalImpact:true});
+    const report=await calculate(db,start,last,{externalTransaction:true,includeExceptionalImpact:true,
+     ...(options.teamId?{teamId:options.teamId}:{})});
     if(report.team.id!==teamId)throw Error("actual-team-changed");
     referenceJh=report.totalJh;
     missingSources=[...new Set(report.missing.map(m=>m.source))];

@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {jsonResult} from "@/server/auth/request";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
@@ -11,7 +11,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  const {id}=await params;
  if(!UUID.test(id))return jsonResult({error:"invalid-input"},400);
  try{
-  return jsonResult(await withAuthDb(async db=>{
+  return jsonResult(await withLegacyMemberApi(async db=>{
    const exists=await db.query("SELECT 1 FROM public.smn_member WHERE id=$1 AND installation_id='singleton'",[id]);
    if(exists.rows.length!==1)return {events:[],found:false};
    const records=await db.query<{changed_at:string;previous_values:unknown;next_values:unknown}>(

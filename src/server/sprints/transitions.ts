@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 
 export async function ensureSprintStateSchema(db:Client){
  await ensureSprintSchema(db);
@@ -22,6 +23,8 @@ export async function ensureSprintStateSchema(db:Client){
  )`);
 }
 export async function reconcileSprintStates(db:Client){
+ // Ne jamais exécuter la réconciliation monoéquipe ni sa DDL en v28.
+ await assertLegacyTeamApi(db);
  await ensureSprintStateSchema(db);
  await db.query("BEGIN");
  try{

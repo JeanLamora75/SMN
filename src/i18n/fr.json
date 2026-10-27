@@ -1975,6 +1975,7 @@
       "not-applicable": "Non applicable"
     },
     "items": {
+      "teams": {"title":"Équipes","description":"Créer et modifier les équipes et leur contexte produit."},
       "general": {
         "title": "Informations générales",
         "description": "Définir la langue, le thème, la palette et le pays de référence."
@@ -3522,5 +3523,47 @@
     "calendar": "Calendrier non configuré",
     "roles": "Répartition des rôles non renseignée",
     "unavailable": "Impossible de vérifier actuellement la configuration des membres."
+  },
+  "teamSettings": {
+    "title": "Équipes",
+    "intro": "Créer et modifier les équipes Scrum ou Kanban de cette installation.",
+    "back": "Retour aux paramètres",
+    "noTeams": "Aucune équipe disponible.",
+    "select": "Sélectionner une équipe à modifier",
+    "newTeam": "Nouvelle équipe",
+    "editTeam": "Modifier l'équipe",
+    "teamName": "Nom de l'équipe",
+    "productName": "Nom du produit",
+    "vision": "Vision du produit",
+    "productGoal": "But du produit (Product Goal)",
+    "optional": "Facultatif",
+    "required": "Obligatoire",
+    "save": "Enregistrer",
+    "create": "Créer l'équipe",
+    "cancel": "Annuler",
+    "loading": "Chargement des équipes…",
+    "loadFailed": "Impossible de charger les équipes. Réessayez.",
+    "retry": "Réessayer",
+    "saved": "Équipe enregistrée.",
+    "created": "Équipe créée. L'équipe active reste inchangée.",
+    "unavailable": "La gestion multiéquipes est en préparation. Les enregistrements ne sont pas encore activés.",
+    "duplicate": "Ce nom est déjà utilisé pour une autre équipe.",
+    "conflict": "Cette équipe a été modifiée ailleurs. Actualisez la liste avant de réessayer.",
+    "invalid": "Vérifiez les informations saisies.",
+    "denied": "Vous n'êtes pas autorisé à effectuer cette action.",
+    "saveFailed": "Enregistrement impossible pour le moment.",
+    "confirmDiscard": "Des modifications ne sont pas enregistrées. Les abandonner ?",
+    "noProduct": "Aucun produit renseigné",
+    "showForm": "Créer une équipe",
+    "edit": "Modifier",
+    "inactive": "Enregistrements temporairement indisponibles",
+    "description": "Le nom d'équipe est le seul champ obligatoire. Chaque équipe peut avoir son propre produit facultatif."
+  }
+,
+  "teamSwitch": {
+    "pending": "Changement d'équipe en préparation ; non activé tant que l'isolation n'est pas validée.",
+    "unavailable": "Sélecteur d'équipe temporairement indisponible.",
+    "choose": "Choisir une équipe",
+    "discard": "Des modifications non enregistrées sont présentes. Les abandonner pour changer d'équipe ?"
   }
 }

@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {saveMemberIdentity} from "@/server/members/identity";
 export const runtime="nodejs";
@@ -13,7 +13,7 @@ export async function PUT(request:NextRequest,{params}:{params:Promise<{id:strin
  if(!input)return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const result=await withAuthDb(db=>saveMemberIdentity(db,id,actor.id,input));
+  const result=await withLegacyMemberApi(db=>saveMemberIdentity(db,id,actor.id,input));
   if(!result.ok)return jsonResult(result,
    result.error==="not-found"?404:
    ["conflict","archived","date-before-latest"].includes(result.error)?409:400);

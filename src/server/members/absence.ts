@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidDate} from "./assignment";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 
 export type AbsenceSlot="morning"|"afternoon";
 export type AbsenceCategory={id:string;name:string;color:string;isActive:boolean};
@@ -19,7 +20,7 @@ export type AbsenceItem={
 export type AbsenceState={memberId:string;archived:boolean;categories:AbsenceCategory[];
  absences:AbsenceItem[];selectedDate:string|null;onDate:AbsenceItem[]};
 export type AbsenceError="invalid-input"|"reason-required"|"category-required"|
- "invalid-period"|"not-found"|"archived"|"conflict"|"category-inactive"|"overlap";
+ "invalid-period"|"not-found"|"archived"|"conflict"|"category-inactive"|"overlap"|"team-unavailable";
 export type AbsenceResult={ok:true;id:string;revision:number;created:boolean;deleted?:boolean}|
  {ok:false;error:AbsenceError};
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
@@ -136,8 +137,12 @@ const snapshot=(v:Snapshot)=>({
  categoryId:v.categoryId,startOn:v.startOn,endOn:v.endOn,startSlot:v.startSlot,
  endSlot:v.endSlot,isPlanned:v.isPlanned,reason:v.reason
 });
+/** En v28, la portée d'équipe est explicitement résolue puis vérifiée
+ * à l'intérieur de la transaction, sous verrou membre et affectations.
+ * Sans scope, cet ancien service reste réservé aux routes v27 gardées.
+ */
 export async function saveMemberAbsence(db:Client,memberId:string,actorId:string,
- raw:unknown):Promise<AbsenceResult>{
+ raw:unknown,scope?:Readonly<{actor:TeamActor;teamId:string}>):Promise<AbsenceResult>{
  const parsed=parseAbsenceChange(raw);
  if(!UUID.test(memberId)||!actorId)return {ok:false,error:"invalid-input"};
  if(!parsed.ok)return parsed;
@@ -147,9 +152,36 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
   const fail=async(error:AbsenceError):Promise<AbsenceResult>=>{
    await db.query("ROLLBACK");return {ok:false,error};
   };
+  // L'autorisation Admin doit être validée dans la même transaction que l'audit.
+  const authorized=scope?await resolveAdminTeam(db,scope.actor,scope.teamId):null;
+  if(scope&&(!authorized||scope.actor.accountId!==actorId))
+   return fail("team-unavailable");
   const m=await findMember(db,memberId,true);
   if(!m)return fail("not-found");
   if(m.archived_at!==null)return fail("archived");
+
+  /** Les absences sont globales à la personne : la moindre journée affectée
+   * simultanément ou exclusivement à une autre équipe interdit la mutation.
+   * FOR SHARE interdit qu'une affectation existante change pendant l'opération.
+   * Le verrou du membre sérialise aussi les futures créations d'affectation.
+   */
+  const ownsEntirePeriod=async(startOn:string,endOn:string):Promise<boolean>=>{
+   if(!authorized)return true;
+   const assignments=await db.query<{team_id:string;start_on:string;end_on:string|null}>(`
+    SELECT a.team_id,a.start_on::text AS start_on,a.end_on::text AS end_on
+    FROM public.smn_member_assignment a
+    JOIN public.smn_team t ON t.id=a.team_id
+    JOIN public.smn_member m ON m.id=a.member_id
+    WHERE a.member_id=$1 AND m.installation_id=t.installation_id
+      AND t.installation_id='singleton'
+      AND a.start_on<=$3::date
+      AND (a.end_on IS NULL OR a.end_on>=$2::date)
+    FOR SHARE OF a`,[memberId,startOn,endOn]);
+   const rows=assignments.rows;
+   return rows.some(a=>a.team_id===authorized.team_id&&a.start_on<=startOn&&
+      (a.end_on===null||a.end_on>=endOn))&&
+      rows.every(a=>a.team_id===authorized.team_id);
+  };
   if(input.action==="delete"){
    const previous=await db.query<AbsenceRow>(`
     SELECT a.id,a.member_id,a.category_id,c.name AS category_name,c.color AS category_color,
@@ -165,6 +197,8 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
    if(!old)return fail("not-found");
    if(old.revision!==input.revision)return fail("conflict");
    if(old.deleted)return fail("not-found");
+   if(!await ownsEntirePeriod(old.start_on,old.end_on))
+    return fail("team-unavailable");
    const before=snapshot({categoryId:old.category_id,startOn:old.start_on,endOn:old.end_on,
     startSlot:old.start_slot,endSlot:old.end_slot,isPlanned:old.is_planned,reason:old.reason});
    // A tombstone in the existing append-only audit avoids destructive DELETE and
@@ -200,6 +234,11 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
   const old=previous?.rows[0]??null;
   if(old&&old.revision!==input.revision)return fail("conflict");
   if(old?.deleted)return fail("not-found");
+  // Une édition qui déplace des dates est refusée si l'ancien OU le nouveau
+  // périmètre touche une autre équipe (ou ne relève pas de l'équipe cible).
+  if((old&&!await ownsEntirePeriod(old.start_on,old.end_on))||
+     !await ownsEntirePeriod(input.startOn,input.endOn))
+    return fail("team-unavailable");
   if(!category.rows[0].is_active&&(!old||old.category_id!==input.categoryId))
    return fail("category-inactive");
   const other=await db.query<{id:string;start_on:string;end_on:string;

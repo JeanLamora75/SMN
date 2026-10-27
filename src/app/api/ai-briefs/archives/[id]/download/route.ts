@@ -1,6 +1,6 @@
 import {NextRequest,NextResponse} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {jsonResult} from "@/server/auth/request";
 import {readPrivateBriefArchive} from "@/server/ai-briefs/library";
 
@@ -10,7 +10,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  if(!actor)return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  try{
-  const result=await withAuthDb(async db=>{
+  const result=await withLegacyTeamApi(async db=>{
    const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban')`);

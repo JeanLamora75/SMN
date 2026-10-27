@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {SESSION_COOKIE} from "@/server/auth/guards";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {readKanbanRenderReference} from "@/server/kanban/render-reference";
 import {generateFrozenPdf} from "@/server/reports/frozen-pdf";
 import {storeFinalPdfArchive,readVerifiedPdfArchive} from "@/server/reports/pdf-archive-store";
@@ -20,7 +20,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  if(!validExportOperationId(operationId))return Response.json({error:"operation-id-required"},{status:400});
  const cookie=req.cookies.get(SESSION_COOKIE)?.value;
  if(!cookie)return Response.json({error:"forbidden"},{status:403});
- const reference=await withAuthDb(db=>readKanbanRenderReference(db,id,body.reference as string)).catch(()=>null);
+ const reference=await withLegacyTeamApi(db=>readKanbanRenderReference(db,id,body.reference as string)).catch(()=>null);
  if(!reference)return Response.json({error:"reference-unavailable"},{status:409});
  let origin:URL;
  try{
@@ -31,7 +31,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const url=new URL("/app/admin/kanban-periods/"+id+"/report/frozen",origin);
  url.searchParams.set("reference",reference.id);
  try{
-  const result=await withAuthDb(async db=>{
+  const result=await withLegacyTeamApi(async db=>{
    await db.query("SELECT pg_advisory_lock(hashtextextended($1::text,0))",[operationId]);
    try{
     const table=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present`);

@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {correctAssignmentStart} from "@/server/members/assignment-start-correction";
 export const dynamic="force-dynamic";
@@ -12,7 +12,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const body=await readJsonObject(req);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>correctAssignmentStart(db,id,actor.id,body));
+  const result=await withLegacyMemberApi(db=>correctAssignmentStart(db,id,actor.id,body));
   return jsonResult(result,result.ok?200:result.error==="not-found"?404:
     ["conflict","overlap","missing-version"].includes(result.error)?409:400);
  }catch{return jsonResult({error:"service-unavailable"},503);}

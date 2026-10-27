@@ -80,9 +80,46 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const shapeValid = required.every((name) => columnSet.has(name));
     if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 27",
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 28",
     )).rows;
-    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
+    // Métadonnées de schéma lues en READ ONLY ; aucun DDL ni réparation implicite.
+    let multiTeamSchemaValid:boolean|undefined;
+    if(installations.rows[0]?.schema_version===28){
+      const integrity=await client.query<{
+        product_nullable:boolean;indexes_valid:boolean;
+        constraints_valid:boolean;old_unique_gone:boolean;
+      }>(`
+        SELECT
+          (SELECT is_nullable='YES' FROM information_schema.columns
+            WHERE table_schema='public' AND table_name='smn_team'
+              AND column_name='product_id') AS product_nullable,
+          (SELECT count(*)=2 FROM pg_indexes
+            WHERE schemaname='public' AND indexname IN
+              ('smn_team_product_id_key','smn_team_installation_name_ci_key')
+              AND indexdef ILIKE '%UNIQUE%') AS indexes_valid,
+          (SELECT count(*)=6 FROM pg_constraint
+            WHERE connamespace='public'::regnamespace AND conname IN
+              ('smn_product_id_installation_pair_key',
+               'smn_team_product_same_installation_fk',
+               'smn_account_installation_pair_key',
+               'smn_team_installation_pair_key',
+               'smn_team_pref_account_same_installation_fk',
+               'smn_team_pref_team_same_installation_fk')) AS constraints_valid,
+          NOT EXISTS(SELECT 1 FROM pg_constraint
+            WHERE connamespace='public'::regnamespace AND conname IN
+              ('smn_product_installation_id_key','smn_team_installation_id_key')) AS old_unique_gone
+      `);
+      const row=integrity.rows[0];
+      multiTeamSchemaValid=!!row?.product_nullable&&!!row?.indexes_valid&&
+        !!row?.constraints_valid&&!!row?.old_unique_gone&&
+        ["id","team_id","revision","after_values","before_values"]
+          .every(n=>columnSet.has("smn_team_context_audit:"+n))&&
+        ["team_id","vision","product_goal","revision"]
+          .every(n=>columnSet.has("smn_team_context:"+n))&&
+        ["account_id","installation_id","team_id","updated_at"]
+          .every(n=>columnSet.has("smn_account_team_preference:"+n));
+    }
+    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
       configurationTasksSchemaValid: ["smn_configuration_task:installation_id","smn_configuration_task:task_key",
         "smn_configuration_task:status","smn_configuration_task:updated_at","smn_configuration_task:updated_by"]

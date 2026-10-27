@@ -1,7 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
-import {withAuthDb} from "@/server/auth/database";
+import {withLegacyMemberApi} from "@/server/members/team-scope";
 import {readMemberAssignment,saveMemberAssignment} from "@/server/members/assignment";
 
 export const dynamic="force-dynamic";
@@ -11,7 +11,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  if(!await authorizeApi(request,"read",resource))return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  try{
-  const state=await withAuthDb(db=>readMemberAssignment(db,id));
+  const state=await withLegacyMemberApi(db=>readMemberAssignment(db,id));
   return jsonResult(state);
  }catch(error){
   if(error instanceof Error&&["member-not-found","member-id-invalid"].includes(error.message))
@@ -27,7 +27,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{id:stri
  const body=await readJsonObject(request);
  if(!body)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>saveMemberAssignment(db,id,actor.id,body));
+  const result=await withLegacyMemberApi(db=>saveMemberAssignment(db,id,actor.id,body));
   if(!result.ok)return jsonResult({error:result.error},
    ["conflict","already-assigned","date-before-latest"].includes(result.error)?409:
    ["not-found","team-unavailable"].includes(result.error)?404:400);

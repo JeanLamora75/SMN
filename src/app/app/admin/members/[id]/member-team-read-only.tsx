@@ -1,0 +1,119 @@
+"use client";
+import {useEffect,useState} from "react";
+import {useTranslation} from "@/i18n/client";
+import type {TeamAssignmentRevision} from "@/server/members/team-assignment-history";
+
+type DailyAvailability={date:string;morningAbsent:boolean;afternoonAbsent:boolean};
+type Response={memberId:string;teamId:string;startOn:string;endOn:string;
+ days:DailyAvailability[]};
+type Props=Readonly<{memberId:string;teamId:string;teamName:string;
+ memberName:string;versions:TeamAssignmentRevision[]}>;
+
+function monthRange(month:string):{startOn:string;endOn:string}|null{
+ if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return null;
+ const [year,number]=month.split("-").map(Number);
+ if(year<1900||year>2200)return null;
+ const dayCount=new Date(Date.UTC(year,number,0)).getUTCDate();
+ const startOn=month+"-01";
+ return {startOn,endOn:month+"-"+String(dayCount).padStart(2,"0")};
+}
+
+/** Vue v28 volontairement limitée aux données d'affectation de l'équipe.
+ * Aucun éditeur de fiche, d'absence, d'identité ou de calendrier personnel.
+ */
+export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
+ versions}:Props){
+ const t=useTranslation();
+ const [month,setMonth]=useState(()=>
+  new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"}).slice(0,7));
+ const [status,setStatus]=useState<"loading"|"ready"|"empty"|"error">("loading");
+ const [days,setDays]=useState<DailyAvailability[]>([]);
+ useEffect(()=>{
+  const range=monthRange(month);
+  if(!range){setDays([]);setStatus("error");return;}
+  const controller=new AbortController();
+  const params=new URLSearchParams({teamId,...range});
+  setDays([]);setStatus("loading");
+  void fetch("/api/admin/members/"+encodeURIComponent(memberId)+
+   "/team-availability?"+params.toString(),{
+    cache:"no-store",signal:controller.signal
+   }).then(async res=>{
+    if(res.status===404)return null;
+    if(!res.ok)throw Error("team-availability-fetch");
+    return res.json() as Promise<Response>;
+   }).then(result=>{
+    if(controller.signal.aborted)return;
+    if(result===null){setStatus("empty");return;}
+    if(result.memberId!==memberId||result.teamId!==teamId||
+       result.startOn!==range.startOn||result.endOn!==range.endOn||
+       !Array.isArray(result.days))throw Error("team-availability-scope");
+    setDays(result.days);setStatus(result.days.length?"ready":"empty");
+   }).catch(()=>{
+    if(!controller.signal.aborted){setDays([]);setStatus("error");}
+   });
+  return()=>controller.abort();
+ },[memberId,teamId,month]);
+ return <div className="d-grid gap-3">
+  <header className="smn-panel rounded-4 p-3 p-lg-4">
+   <p className="text-secondary mb-1">{t("memberTeamScope.teamLabel")}: {teamName}</p>
+   <h1 className="h3 mb-2">{memberName}</h1>
+   <p className="text-secondary mb-0">{t("memberTeamScope.readOnly")}</p>
+  </header>
+  <section className="smn-panel rounded-4 p-3 p-lg-4"
+   aria-labelledby="smn-team-member-assignment-title">
+   <h2 className="h5" id="smn-team-member-assignment-title">
+    {t("memberTeamScope.assignmentTitle")}
+   </h2>
+   <div className="table-responsive">
+    <table className="table table-striped align-middle">
+     <thead><tr>
+      <th scope="col">{t("memberTeamScope.start")}</th>
+      <th scope="col">{t("memberTeamScope.end")}</th>
+      <th scope="col">{t("memberTeamScope.effective")}</th>
+      <th scope="col">{t("memberTeamScope.allocation")}</th>
+      <th scope="col">{t("memberTeamScope.developer")}</th>
+      <th scope="col">{t("memberTeamScope.revision")}</th>
+     </tr></thead>
+     <tbody>{versions.map(v=><tr key={v.assignmentId+"-"+v.revision}>
+      <td>{v.startOn}</td><td>{v.endOn??"—"}</td>
+      <td>{v.effectiveFrom}</td><td>{v.allocationPercent} %</td>
+      <td>{v.developerPercent} %</td><td>{v.revision}</td>
+     </tr>)}</tbody>
+    </table>
+   </div>
+  </section>
+  <section className="smn-panel rounded-4 p-3 p-lg-4"
+   aria-labelledby="smn-team-member-availability-title">
+   <h2 className="h5" id="smn-team-member-availability-title">
+    {t("memberTeamScope.absenceTitle")}
+   </h2>
+   <p className="text-secondary">{t("memberTeamScope.privacy")}</p>
+   <label className="form-label" htmlFor="smn-member-team-month">
+    {t("memberTeamScope.month")}
+   </label>
+   <input className="form-control mb-3" id="smn-member-team-month"
+    type="month" min="1900-01" max="2200-12" value={month}
+    onChange={event=>setMonth(event.target.value)}/>
+   {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
+   {status==="error"&&<p role="alert" className="alert alert-warning">
+    {t("memberTeamScope.unavailable")}
+   </p>}
+   {status==="empty"&&<p role="status" className="alert alert-info">
+    {t("memberTeamScope.noDays")}
+   </p>}
+   {status==="ready"&&<div className="table-responsive">
+    <table className="table table-sm align-middle">
+     <thead><tr><th scope="col">{t("memberTeamScope.day")}</th>
+      <th scope="col">{t("memberTeamScope.morning")}</th>
+      <th scope="col">{t("memberTeamScope.afternoon")}</th>
+     </tr></thead>
+     <tbody>{days.map(d=><tr key={d.date}>
+      <th scope="row">{d.date}</th>
+      <td>{d.morningAbsent?t("memberTeamScope.absent"):"—"}</td>
+      <td>{d.afternoonAbsent?t("memberTeamScope.absent"):"—"}</td>
+     </tr>)}</tbody>
+    </table>
+   </div>}
+  </section>
+ </div>;
+}

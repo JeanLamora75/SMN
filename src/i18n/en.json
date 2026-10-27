@@ -1975,6 +1975,7 @@
       "not-applicable": "Not applicable"
     },
     "items": {
+      "teams": {"title":"Teams","description":"Create and edit teams and their product context."},
       "general": {
         "title": "General information",
         "description": "Configure language, theme, palette and reference country."
@@ -3522,5 +3523,47 @@
     "calendar": "Calendar not configured",
     "roles": "Role allocation not provided",
     "unavailable": "Member configuration cannot currently be checked."
+  },
+  "teamSettings": {
+    "title": "Teams",
+    "intro": "Create and edit Scrum or Kanban teams in this installation.",
+    "back": "Back to settings",
+    "noTeams": "No teams available.",
+    "select": "Select a team to edit",
+    "newTeam": "New team",
+    "editTeam": "Edit team",
+    "teamName": "Team name",
+    "productName": "Product name",
+    "vision": "Product vision",
+    "productGoal": "Product Goal",
+    "optional": "Optional",
+    "required": "Required",
+    "save": "Save changes",
+    "create": "Create team",
+    "cancel": "Cancel",
+    "loading": "Loading teams…",
+    "loadFailed": "Unable to load teams. Try again.",
+    "retry": "Retry",
+    "saved": "Team saved.",
+    "created": "Team created. The active team has not changed.",
+    "unavailable": "Multi-team management is being prepared. Changes are not enabled yet.",
+    "duplicate": "Another team already uses this name.",
+    "conflict": "This team was updated elsewhere. Refresh the list and try again.",
+    "invalid": "Please check the information you entered.",
+    "denied": "You do not have permission to do that.",
+    "saveFailed": "Changes could not be saved.",
+    "confirmDiscard": "You have unsaved changes. Discard them?",
+    "noProduct": "No product configured",
+    "showForm": "Create a team",
+    "edit": "Edit",
+    "inactive": "Saving is temporarily unavailable",
+    "description": "Only the team name is required. Each team can have its own optional product."
+  }
+,
+  "teamSwitch": {
+    "pending": "Team switching is being prepared and will only be enabled after isolation checks.",
+    "unavailable": "Team switcher is temporarily unavailable.",
+    "choose": "Choose a team",
+    "discard": "You have unsaved changes. Discard them to switch teams?"
   }
 }

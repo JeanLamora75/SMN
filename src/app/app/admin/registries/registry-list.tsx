@@ -97,7 +97,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   return()=>{active=false;window.removeEventListener("popstate",onPop);};
  },[canManage]);
  const origin=registryIndexUrl({
-  type,...query,page,view
+  type,...query,page,view,teamId
  } satisfies RegistryIndexState);
  useEffect(()=>{
   if(!restored||createOpen)return;
@@ -126,7 +126,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  };
  useEffect(()=>{
   const ctrl=new AbortController();
-  void fetch("/api/admin/registries/attention",{cache:"no-store",signal:ctrl.signal})
+  void fetch("/api/admin/registries/attention?"+new URLSearchParams({teamId}),{cache:"no-store",signal:ctrl.signal})
    .then(async response=>{
     if(!response.ok)throw Error("attention-unavailable");
     const result=parseRegistryAttentionPayload(await response.json() as unknown);
@@ -143,7 +143,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    })
    .finally(()=>{if(!ctrl.signal.aborted)setAttentionLoading(false);});
   return()=>ctrl.abort();
- },[attentionRefresh]);
+ },[attentionRefresh,teamId]);
  const retryAttention=()=>{
   setAttention(null);setAttentionError(false);setAttentionLoading(true);
   setAttentionRefresh(n=>n+1);
@@ -156,7 +156,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
 
  useEffect(()=>{
   const ctrl=new AbortController();
-  void fetch("/api/admin/registries/cycles",{signal:ctrl.signal,cache:"no-store"})
+  void fetch("/api/admin/registries/cycles?"+new URLSearchParams({teamId}),{signal:ctrl.signal,cache:"no-store"})
    .then(async response=>{if(!response.ok)throw Error("unavailable");return response.json() as Promise<CyclePage>;})
    .then(data=>{
     if(ctrl.signal.aborted)return;
@@ -166,13 +166,13 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    .catch(()=>{if(!ctrl.signal.aborted)setCycleError(true);})
    .finally(()=>{if(!ctrl.signal.aborted)setCyclesLoading(false);});
   return()=>ctrl.abort();
- },[cycleRefresh]);
+ },[cycleRefresh,teamId]);
 
  useEffect(()=>{
   if(!restored)return;
   const ctrl=new AbortController();
   const params=new URLSearchParams({
-   type,search:query.search,status:query.status,lifecycle:query.lifecycle,
+   teamId,type,search:query.search,status:query.status,lifecycle:query.lifecycle,
    sort:query.sort,page:String(page)
   });
   if(query.cycleId)params.set("cycleId",query.cycleId);
@@ -184,7 +184,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    }})
    .catch(()=>{if(!ctrl.signal.aborted){setError(true);setLoading(false);}});
   return()=>ctrl.abort();
- },[type,query,page,canManage,refresh,restored]);
+ },[type,query,page,canManage,refresh,restored,teamId]);
 
  const clearCreationQuery=()=>{
   const next=new URL(window.location.href);

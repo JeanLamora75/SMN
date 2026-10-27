@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import type {TeamContextRow} from "@/server/teams/resolve";
 import {registryTypes,registryStatuses,type RegistryType} from "@/lib/registry-types";
 
 export type RegistryScope="all"|RegistryType;
@@ -46,13 +47,14 @@ export function parseRegistryFilters(params:URLSearchParams):RegistryFilters|nul
   lifecycle:lifecycle as RegistryLifecycle,sort:sort as RegistrySort,cycleId};
 }
 
-async function installedTeam(db:Client){
+async function installedTeam(db:Client,authorizedTeam?:TeamContextRow){
+ if(authorizedTeam)return {id:authorizedTeam.team_id,name:authorizedTeam.team,mode:authorizedTeam.mode};
  const team=await db.query<{id:string;name:string;mode:string}>(
-  "SELECT t.id,t.name,lower(i.mode) AS mode FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode) IN ('scrum','kanban') LIMIT 2");
+  "SELECT t.id,t.name,lower(i.mode) AS mode FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode) IN ('scrum','kanban') LIMIT 2");
  return team.rows.length===1?team.rows[0]:null;
 }
-export async function readRegistryCycles(db:Client){
- const team=await installedTeam(db);
+export async function readRegistryCycles(db:Client,authorizedTeam?:TeamContextRow){
+ const team=await installedTeam(db,authorizedTeam);
  if(!team)return {state:"unavailable" as const,reason:"team-unavailable" as const};
  const kanban=team.mode==="kanban";
  const source=kanban?"smn_kanban_period":"smn_sprint";
@@ -66,11 +68,12 @@ export async function readRegistryCycles(db:Client){
  return {state:"available" as const,cycles:cycles.rows};
 }
 
-export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeOwner:boolean){
+export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeOwner:boolean,
+ authorizedTeam?:TeamContextRow){
  // A missing source must not be represented as an empty register.
  const installed=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_registry_item') IS NOT NULL AS present");
  if(!installed.rows[0]?.present)return {state:"unavailable" as const,reason:"not-installed" as const};
- const team=await installedTeam(db);
+ const team=await installedTeam(db,authorizedTeam);
  if(!team)return {state:"unavailable" as const,reason:"team-unavailable" as const};
  if(filters.owner&&!canSeeOwner)return {state:"forbidden" as const};
  if(filters.cycleId){
