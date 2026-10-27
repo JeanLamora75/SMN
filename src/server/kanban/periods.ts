@@ -69,6 +69,7 @@ export async function createKanbanPeriod(db:Client,actorId:string,raw:unknown){
  catch{return {ok:false as const,error:"invalid-start"};}
  const name=data.name===undefined?period.name:normalizePeriodName(data.name);
  if(!name)return {ok:false as const,error:"invalid-name"};
+ await assertLegacyTeamApi(db);
  await ensureKanbanPeriodTables(db);
  const teamId=await kanbanTeam(db);
  await db.query("BEGIN");
