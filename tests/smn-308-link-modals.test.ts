@@ -20,3 +20,9 @@ test("write pending state blocks Escape closing",()=>{
  const dialog=read("src/app/app/admin/links/link-dialog.tsx");
  assert.match(dialog,/if\(!locked\)closeRef\.current\(\)/);
 });
+
+test("portal does not access document.body during the server render",()=>{
+ const dialog=read("src/app/app/admin/links/link-dialog.tsx");
+ assert.match(dialog,/if\(!mounted\)return null/);
+ assert.match(dialog,/queueMicrotask\(\(\)=>setMounted\(true\)\)/);
+});
