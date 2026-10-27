@@ -51,7 +51,11 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   }});
  }
  return jsonResult({ok:true,archiveId:result.manifest.id,version:result.manifest.optionsSnapshot?.studioArchiveVersion},201);
- }catch{return jsonResult({error:"pdf-render-unavailable"},503);}
+ }catch(error){
+  if(error instanceof Error&&error.message==="studio-archive-revision-changed")
+   return jsonResult({error:"revision-changed"},409);
+  return jsonResult({error:"pdf-render-unavailable"},503);
+ }
 }
 export async function POST(req:NextRequest,ctx:P){return execute(req,ctx,false);}
 export async function PUT(req:NextRequest,ctx:P){return execute(req,ctx,true);}
