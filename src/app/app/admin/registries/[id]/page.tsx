@@ -50,7 +50,7 @@ export default async function RegistryDetailPage({params,searchParams}:{
   return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
    <p><Link href={navigation.origin}>← {translate(locale,"registryDetail.back")}</Link></p>
    {!item?<p role="alert" className="alert alert-warning">
-    Fiche introuvable dans l'équipe sélectionnée.
+    Fiche introuvable dans l&apos;équipe sélectionnée.
    </p>:<article className="smn-panel rounded-4 p-3 p-lg-4">
     <p className="text-secondary mb-2">Registre · Consultation seule</p>
     <h1 className="h3">{item.title}</h1>
@@ -65,7 +65,7 @@ export default async function RegistryDetailPage({params,searchParams}:{
     </dl>
     <p className="text-secondary small mt-3 mb-0">
      Les relations, historiques, commentaires et modifications restent
-     indisponibles jusqu'à leur isolation multiéquipes.
+     indisponibles jusqu&apos;à leur isolation multiéquipes.
     </p>
    </article>}
   </main>;
