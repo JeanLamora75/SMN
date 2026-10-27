@@ -8,6 +8,7 @@ import {existsSync,readFileSync,statSync} from "node:fs";
 import {resolve} from "node:path";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
+import {rehearsalMigrationUri} from "../src/server/teams/rehearsal-target";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {TEAM_AGILE_MIGRATION,TEAM_AGILE_MIGRATION_SQL} from "../src/server/teams/agile-migration";
@@ -15,7 +16,7 @@ import {TEAM_AGILE_MIGRATION,TEAM_AGILE_MIGRATION_SQL} from "../src/server/teams
 async function main(){
  const options=process.argv.slice(2);
  const file=options.find(a=>a.startsWith("--backup-file="))?.slice("--backup-file=".length);
- if(options.length!==2||!options.includes("--apply")||!file){
+ if(options.length!==3||!options.includes("--rehearsal")||!options.includes("--apply")||!file){
   throw Error("Usage: pnpm exec tsx scripts/apply-team-agile-migration.ts --apply --backup-file=<sauvegarde-confirmee>");
  }
  const backup=resolve(file);
@@ -26,7 +27,7 @@ async function main(){
   import.meta.url),"utf8");
  if(source!==TEAM_AGILE_MIGRATION_SQL)throw Error("Source SQL et migration versionnée divergentes");
 
- const uri=await installedDatabaseUri();
+ const uri=rehearsalMigrationUri(options,process.env.SMN_REHEARSAL_DATABASE_URL,await installedDatabaseUri());
  const snapshot=await probePostgres(uri);
  const before=classifySnapshot(snapshot);
  if(before.status!=="initialized")throw Error("Diagnostic préalable incorrect : migration refusée");
