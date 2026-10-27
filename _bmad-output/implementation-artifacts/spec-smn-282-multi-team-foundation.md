@@ -404,3 +404,13 @@ Ces routes refusent désormais toute consultation/écriture en v28, tant que leu
 - `src/app/app/reports/page.tsx` relie la liste d'une équipe à cette fiche via `teamId` explicite.
 - **Restant dans 6B.3 :** adaptation transactionnelle et qualification des services SQL des sections, blocs, notes, choix de contenu, versions et historiques, des endpoints dédiés et de l'UI d'édition. Ils demeurent inaccessibles en v28, même par URL directe. Ce lot n'est pas terminé.
 - **Non réalisés :** commande BMAD locale, tests, typecheck, lint, build, migration, recette. PR #189 toujours en brouillon, sans merge ni activation.
+
+
+## Étape 6B.3 — APIs sections, contenu, notes et historique (27/10/2026)
+
+- Nouveau garde serveur `src/server/reports/team-cycle.ts` : contexte Admin v28 résolu depuis le compte authentifié, contrôle du Sprint et de sa propriété `teamId`, refus si cycle absent, supprimé ou mode non Scrum.
+- Les routes `sections`, `content`, `notes`, `history` acceptent un `teamId` explicite pour leurs opérations GET/PATCH. Elles vérifient le rôle réel Admin, puis réutilisent les services de lecture/écriture historiques après le contrôle d'appartenance. En l'absence de `teamId`, la voie v27 protégée reste inchangée.
+- Les services existants assurent respectivement validation des options, version optimiste, transactions, notes, audit et profondeur d'historique. Les tendances historiques s'appuient sur le `team_id` du Sprint après contrôle serveur du cycle.
+- Les blocs d'un document restent encapsulés dans `smn_report_document.content` via `saveTeamStudioDocument`; ils ne sont pas exposés par une API dédiée dans cette tranche.
+- **À poursuivre avant ouverture complète du Studio :** contrôle des autres routes de composition/versionnement, fermeture ou adaptation des anciens producteurs connexes, harmonisation UI des mutations, revue du schéma et des protections en concurrence, tests d'isolation interéquipes et non-régression v27.
+- **Statut :** code publié sur la branche de PR #189 ; aucune commande de test, lint, typecheck, build, migration PostgreSQL ou recette exécutée. `MULTI_TEAM_CONTEXT_READY` inchangé, PR non fusionnée. Le workflow BMAD local n'a pas été exécuté faute de checkout/uv dans le contexte connecté ; adaptation documentée conformément à la demande de publication directe.
