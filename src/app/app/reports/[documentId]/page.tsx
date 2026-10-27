@@ -34,13 +34,13 @@ export default async function ReportDetail({params,searchParams}:{params:Promise
  }).catch(()=>null);
  if(!doc)notFound();
  if(scoped){
-  const content=JSON.stringify(doc.content,null,2);
   return <main className="container-fluid px-3 px-lg-4 py-4">
    <Link href={"/app/reports?teamId="+encodeURIComponent(teamId)+"&cycleId="+encodeURIComponent(cycleId)}>Retour au Centre Rapports</Link>
-   <h1 className="h4 mt-3">{doc.title}</h1>
-   <p role="status" className="alert alert-info">Consultation sécurisée par équipe. Les outils d'édition, de mise en page et les exports restent indisponibles tant que toutes leurs opérations ne sont pas isolées.</p>
-   <dl><dt>Statut</dt><dd>{doc.status}</dd><dt>Révision</dt><dd>{doc.revision}</dd><dt>Langue</dt><dd>{doc.language}</dd></dl>
-   <details><summary>Contenu enregistré du document</summary><pre className="border rounded p-3 text-wrap" style={{overflowWrap:"anywhere"}}>{content}</pre></details>
+   <p role="status" className="alert alert-info mt-3">Édition contextualisée par équipe : les fonctions PDF, archives, rafraîchissement et insertion de nouvelles analyses restent désactivées jusqu'à qualification de leurs accès.</p>
+   <ReportEditingProvider initialRevision={doc.revision}>
+    <ReportQualityControl content={doc.content}/>
+    <ReportStudio document={doc} readOnly={false} teamId={teamId} journal={[]}/>
+   </ReportEditingProvider>
   </main>;
  }
  const journal=await withSprintIndexDb(db=>readAnalysisJournal(db,doc.teamId,{cycleId})).catch(()=>[]);
