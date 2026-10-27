@@ -132,3 +132,9 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - Le conteneur bloque X et Échap si une sauvegarde est en cours ; il affiche une confirmation uniquement pour une saisie modifiée lorsque aucune opération n'est en cours.
 - Les boutons internes Annuler conservent leurs protections déjà présentes ; le cycle de vie reste traité prudemment à part.
 - Aucun test exécuté : vérifier en local la fermeture pendant une requête lente, l'erreur réseau, l'annulation sans changement et les réouvertures successives.
+
+## Étape — cycle de vie et fermeture après erreur de chargement
+- Le formulaire Cycle de vie transmet au conteneur ses états `changed` et `busy`, via le même contrat que les cinq autres éditeurs Membre.
+- Fermeture X/Échap : bloquée pendant sauvegarde et conditionnée à confirmation seulement si des modifications existent ; une erreur de chargement sans brouillon peut être fermée directement.
+- Les confirmations métier d'archivage, réactivation, clôture ou suppression et les contrôles serveur sont conservés.
+- Aucun test, typecheck ou build exécuté ; recette Windows requise avant validation.
