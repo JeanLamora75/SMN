@@ -31,3 +31,9 @@ Vérifier après chaque étape le diagnostic, le journal des migrations, les mem
 ## Critères de sortie
 
 Toutes les commandes de qualité doivent être vérifiées, les scénarios A/B/C et la restauration documentés ; absence de fuite entre équipes ; validation fonctionnelle explicite du propriétaire. La PR #204 reste en brouillon, `MULTI_TEAM_CONTEXT_READY=false`, et les migrations ne sont ni appliquées ni autorisées par ce document.
+
+## Audit statique complémentaire du diagnostic v28/v29
+
+Le diagnostic vérifie l'existence des deux migrations versionnées, leurs sommes de contrôle, la validité des structures multiéquipes puis du mode Agile v29. `probePostgres` fonctionne dans une transaction PostgreSQL en lecture seule. Un contrôle supplémentaire a été ajouté au test de prévalidation pour empêcher la disparition accidentelle des deux validations de schéma. La réussite de ce test n'atteste pas la bonne restauration d'une sauvegarde ni la validité du SQL sur une base réelle.
+
+Le script v29 refuse explicitement une base qui n'est pas en v28. Aucun mécanisme d'application automatique n'a été activé. Audit documentaire uniquement, non exécuté.
