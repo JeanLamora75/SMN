@@ -1,0 +1,21 @@
+# SMN — DESIGN.md — Modales Cockpit Agile standardisées
+Date : 27 octobre 2026 | Agent : Sally (UX Designer) | Décision : Option B validée | Portée : toutes les fenêtres modales.
+## Objectif
+Uniformiser les modales de création, consultation/édition et confirmation de SMN (Équipe, Membres, Sprints, Calendrier, Registres, Rapports, Paramètres), sans changer leurs fonctionnalités.
+## Contrat visuel
+1. Une structure commune : `modal-dialog > modal-content > modal-header + modal-body + modal-footer`. Header avec pictogramme métier, titre orienté action, sous-titre contextuel facultatif et fermeture accessible ; corps organisé ; pied d'actions Annuler à gauche, Enregistrer/Confirmer à droite.
+2. Réutiliser Bootstrap, React-Bootstrap et les classes/tokens de l'application ; aucun hexadécimal figé, aucune couleur spécifique à un thème appliquée en dur. Les couleurs de surface/texte/bordure/primary/focus/erreur proviennent du thème actif, via variables `--bs-*` ou tokens SMN existants. En-tête « Cockpit Agile » contrasté, adaptatif au thème. Démontrer compatibilité avec l'ensemble des thèmes proposés dans Paramètres, y compris mode sombre.
+3. Format standard homogène : largeur modale de référence `modal-lg` (ajustement exclusivement si contenu contraint, documenté) ; grille `row g-3`, `col-12 col-md-6`, pleine largeur pour longues descriptions et tables ; labels systématiquement au-dessus des contrôles, espacements compacts, tailles de saisie cohérentes, hiérarchie par sous-titres discrets lorsque nécessaire.
+4. Les formulaires courts ne sont pas artificiellement agrandis : la structure est unique mais la hauteur épouse le contenu. Les longs formulaires utilisent un body défilant et conservent header/footer visibles ; `modal-dialog-scrollable` selon nécessité. Éviter les modales imbriquées ; gérer le focus au retour.
+5. Les icônes fournissent des repères mais jamais une information exclusive ; badges et codes internes ne remplacent jamais un libellé humain. Transformer les valeurs techniques par des listes de correspondance localisées (statuts, rôles, catégories, niveaux, pays et fuseaux), préserver les identifiants envoyés à l'API.
+6. Formulaires compacts et lisibles : champs associés à leur label, unités et aide courte, obligations identifiables, erreurs près du champ, boutons explicites ; éviter les tags lorsque le contrôle standard est plus clair. Les véritables multi-sélections peuvent garder des puces avec nom complet localisé, suppression clavier et description accessible.
+7. Pied constant : action principale à droite, Annuler à gauche, état chargement visible, empêcher doubles soumissions ; suppression destructive distinguée et confirmée selon règles existantes.
+8. Aucun changement de modèle métier, de validation serveur, API, autorisations, transaction, historique ou calendrier.
+## Internationalisation et accessibilité
+Tous les contenus visibles FR/EN utilisent l'infrastructure i18n actuelle (aucune chaîne française en dur) ; locale correcte des dates/heures, des nombres et noms d'options. La modale possède rôle/dialogue, titre relié, focus initial pertinent, piège de focus, retour au déclencheur, fermeture Échap sauf action non interruptible justifiée, contrastes et navigation clavier. États invalides `aria-invalid`/`aria-describedby`.
+## Responsive
+Desktop : deux colonnes pour champs courts liés ; tablette : adaptation souple ; mobile : une seule colonne, actions toujours accessibles, aucun dépassement horizontal ; contrôles tactiles.
+## Écart illustration/code
+La maquette Option B validée est illustrative et prime sur les détails de code uniquement pour le visuel ; les contrats UX métier existants priment pour les règles de comportement. Ne pas recopier des noms fictifs ou options de la maquette dans l'application.
+## Critères de recette
+Comparer au minimum trois modales réelles (réunion, membre, risque), puis l'inventaire exhaustif. Chaque modale doit être validée en FR/EN, thèmes disponibles, bureau/mobile, clavier, erreurs, enregistrement et annulation.
