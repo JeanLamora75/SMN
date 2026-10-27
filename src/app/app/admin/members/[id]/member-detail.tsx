@@ -72,7 +72,7 @@ export default function MemberDetail({id}:{id:string}){
  const button=(target:Exclude<Section,null>,label:string)=>
   <button type="button" className="btn btn-outline-secondary btn-sm ms-2" title={t("memberUX.edit",{name:label})}
    aria-label={t("memberUX.edit",{name:label})} disabled={section!==null||(member?.archived&&target!=="lifecycle")}
-   onClick={()=>setSection(target)}>✎</button>;
+   onClick={()=>{setProfileDirty(false);setSection(target);}}>✎</button>;
  return <div className="container-fluid smn-member-page py-4 px-3 px-lg-4">
   <Link href="/app/admin/members" className="btn btn-link px-0 mb-3">← {t("memberUX.back")}</Link>
   {loading&&<p role="status">{t("memberUX.loading")}</p>}
