@@ -1,6 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
-import {normalizedTeamName,parseTeamCreate,parseTeamUpdate,type TeamFormValues} from "@/lib/team-form";
+import {normalizedTeamName,parseTeamCreate,parseTeamUpdate,type TeamFormValues,type TeamCreateInput} from "@/lib/team-form";
 
 export type TeamWriteError="invalid-input"|"forbidden"|"not-found"|"schema-not-ready"|"duplicate-name"|"conflict"|"mode-locked";
 export type TeamWriteResult=
@@ -96,11 +96,11 @@ export async function updateInstallationTeam(db:Client,installationId:string,
   const previous=stored.rows[0]??null,revision=previous?.revision??0;
   if(revision!==input.revision)return failed("conflict");
   if(await collides(db,installationId,input.name,input.teamId))return failed("duplicate-name");
-  const before:TeamFormValues={
+  const before:TeamCreateInput={
    name:team.name,productName:team.product_name??null,
    vision:previous?.vision??null,productGoal:previous?.product_goal??null,agileMode:team.agile_mode
   };
-  const after:TeamFormValues={
+  const after:TeamCreateInput={
    name:input.name,productName:input.productName,
    vision:input.vision,productGoal:input.productGoal,agileMode:input.agileMode
   };
