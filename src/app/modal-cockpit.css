@@ -149,3 +149,17 @@ dialog.smn-registry-section-dialog.smn-cockpit-modal {
 .smn-registry-section-dialog.smn-cockpit-modal .smn-registry-section-dialog-footer.smn-cockpit-modal-footer {
  justify-content:flex-end;
 }
+
+/* Calendar legacy rule applied 16px !important padding on mobile, breaking
+   the new full-width modal header. Keep padding in the body instead. */
+@media(max-width:575px) {
+ .smn-cal-detail-modal.smn-cockpit-modal {
+  padding:0!important;
+  width:100%;
+ }
+}
+/* Keep the focus ring discernible on the branded header, irrespective of palette. */
+.smn-cockpit-modal .smn-cockpit-modal-header .btn-close:focus-visible {
+ outline-color:var(--smn-modal-surface);
+ box-shadow:0 0 0 2px var(--smn-modal-text);
+}
