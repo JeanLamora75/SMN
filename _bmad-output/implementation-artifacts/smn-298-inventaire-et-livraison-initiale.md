@@ -25,3 +25,8 @@ Date : 27/10/2026 | Branche : feat/smn-298-modal-cockpit-base
 - `src/app/app/admin/sprints/[sprintId]/sprint-detail-editor.tsx` : enveloppe et en-tête Cockpit Agile adoptés ; prévisualisation/replanification et protections inchangées.
 - Vérification statique des deux extraits JSX publiés via relecture GitHub, sans exécution de compilateur.
 - Restent : réorganisation des pieds d'action lorsque nécessaire, inventaire exhaustif, autres modales, contrôle des traductions et tests locaux.
+
+## Extension — fenêtres de la fiche membre
+- `src/app/app/admin/members/[id]/member-detail.tsx` : l'enveloppe unique des éditions profil, affectation, calendrier, exception de calendrier, absence et cycle de vie adopte les classes visuelles Cockpit Agile (header et body).
+- Les sous-formulaires `MemberIdentityEditor`, `AssignmentEditor`, `MemberCalendarEditor`, `MemberCalendarExceptionEditor`, `MemberAbsenceEditor`, `MemberLifecycleEditor` restent inchangés dans leur logique ; leurs boutons d'action internes ne sont pas encore déplacés dans un pied partagé.
+- À contrôler localement : scroll, focus, alignement des actions, boutons de fermeture et rendu des thèmes pour chacun des six cas. Pas de tests exécutés.
