@@ -272,7 +272,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
   </section>
   {selectedMeeting&&initialTeamId&&(selectedMeeting.kind==="ceremony"||selectedMeeting.kind==="template")&&
    <ScopedCeremonyDetail meeting={selectedMeeting} teamId={initialTeamId}
-    onClose={()=>setSelectedMeeting(null)}/>}
+    onClose={()=>setSelectedMeeting(null)} onSaved={()=>setRefreshToken(n=>n+1)}/>}
   {selectedMeeting&&initialTeamId&&(selectedMeeting.kind==="exceptional"||selectedMeeting.kind==="kanban")&&
    <ScopedMeetingEditor key={selectedMeeting.id} meeting={selectedMeeting} teamId={initialTeamId}
     mode={selectedMeeting.kind==="kanban"?"kanban":"scrum"} onClose={()=>setSelectedMeeting(null)}
