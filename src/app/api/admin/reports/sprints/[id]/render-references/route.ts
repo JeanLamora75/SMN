@@ -12,7 +12,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const teamId=req.nextUrl.searchParams.get("teamId");
  if(teamId&&actor.role!=="admin")return Response.json({error:"forbidden"},{status:403});
  try{
- const ref=teamId?await withTeamReportCycle({accountId:actor.id,role:actor.role},teamId,id,db=>createFrozenReportReference(db,id,actor.id)):await withLegacyTeamApi(db=>createFrozenReportReference(db,id,actor.id));
+ const ref=teamId?await withTeamReportCycle({accountId:actor.id,role:actor.role},teamId,id,db=>createFrozenReportReference(db,id,actor.id,teamId)):await withLegacyTeamApi(db=>createFrozenReportReference(db,id,actor.id));
  return ref?Response.json({id:ref.id,sha256:ref.sha256,createdAt:ref.createdAt},{status:201}):Response.json({error:"not-found"},{status:404});
  }catch{return Response.json({error:"unavailable"},{status:503});}
 }
