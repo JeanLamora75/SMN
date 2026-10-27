@@ -114,7 +114,8 @@ export default function MemberCalendarEditor({memberId,teamName,onSaved,onCancel
       </td>)}
      </tr>)}</tbody>
     </table></div>
-    <div className="d-flex gap-3 flex-wrap align-items-end">
+    <div className="d-grid gap-2">
+     <div className="row g-3"><div className="col-12 col-md-6">
      <div><label className="form-label" htmlFor="calendar-effective">
       {t("members.calendar.effectiveFrom")}</label>
       <input id="calendar-effective" type="date" required className="form-control"
@@ -122,10 +123,13 @@ export default function MemberCalendarEditor({memberId,teamName,onSaved,onCancel
         newest(data)!.effective_from:data.today}
        value={effective} disabled={busy||data.archived}
        onChange={event=>setEffective(event.target.value)}/></div>
+     </div></div>
+     <div className="smn-cockpit-form-actions">
      <button className="btn btn-primary" disabled={busy||data.archived}
       type="submit">{t("members.calendar.saveWeek")}</button>
      <button type="button" className="btn btn-outline-secondary" disabled={busy}
       onClick={cancel}>{t("members.profile.cancel")}</button>
+     </div>
     </div>
    </form>
   </>}
