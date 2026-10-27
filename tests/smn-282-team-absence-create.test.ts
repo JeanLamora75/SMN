@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import type {Client} from "pg";
-import {saveMemberAbsence} from "../src/server/members/absence";
+import {saveMemberAbsence,parseAbsenceChange,overlapsAbsence,absenceOnDate} from "../src/server/members/absence";
 
 const memberId="123e4567-e89b-42d3-a456-426614174000";
 const absenceId="123e4567-e89b-42d3-a456-426614174111";
@@ -162,4 +162,24 @@ test("acteur user ou identité différente : rollback et aucun audit",async()=>{
  assert.deepEqual(await saveMemberAbsence(identity.db,memberId,"someone_else",
   creation,scope),{ok:false,error:"team-unavailable"});
  assert.equal(identity.statements.at(-1)?.sql,"ROLLBACK");
+});
+
+test("demi-journées : matin et après-midi distincts ne se chevauchent pas",()=>{
+ const am={startOn:"2026-10-28",endOn:"2026-10-28",
+  startSlot:"morning" as const,endSlot:"morning" as const};
+ const pm={startOn:"2026-10-28",endOn:"2026-10-28",
+  startSlot:"afternoon" as const,endSlot:"afternoon" as const};
+ assert.deepEqual(absenceOnDate(am,"2026-10-28"),
+  {morning:true,afternoon:false});
+ assert.deepEqual(absenceOnDate(pm,"2026-10-28"),
+  {morning:false,afternoon:true});
+ assert.equal(overlapsAbsence(am,pm),false);
+ assert.equal(overlapsAbsence(am,am),true);
+ assert.equal(overlapsAbsence(pm,pm),true);
+});
+test("validation historique : refus de l'inversion après-midi vers matin",()=>{
+ const invalid={...creation,startOn:"2026-10-28",endOn:"2026-10-28",
+  startSlot:"afternoon",endSlot:"morning"};
+ assert.deepEqual(parseAbsenceChange(invalid),
+  {ok:false,error:"invalid-period"});
 });
