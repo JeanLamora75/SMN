@@ -38,8 +38,8 @@ const order:Record<SprintIndexSort,(suspended:string)=>string>={
 
 /** Consultation sans DDL, sans reconcileSprintStates, sans trigger d'ouverture.
  * La réconciliation reste l'opération métier existante sur l'ancienne API. */
-export async function readSprintIndex(db:Client,query:SprintIndexQuery){
- const team=await db.query<{id:string;name:string}>(`
+export async function readSprintIndex(db:Client,query:SprintIndexQuery,scopedTeam?:{id:string;name:string}){
+ const team=scopedTeam?{rows:[scopedTeam]}:await db.query<{id:string;name:string}>(`
  SELECT t.id,t.name FROM public.smn_team t
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
