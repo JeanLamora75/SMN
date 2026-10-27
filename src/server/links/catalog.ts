@@ -5,6 +5,7 @@ import {resolveAdminTeam} from "@/server/teams/resolve";
 
 export type LinkActor={id:string;role:"admin"|"user"};
 import {LinkError,type LinkWrite,validId} from "./validation";
+export {mapLinkError} from "./validation";
 export {normalizeLink} from "./validation";
 
 async function installation(db:Client,actor:LinkActor):Promise<string>{
@@ -112,14 +113,4 @@ export async function deleteLink(db:Client,actor:LinkActor,id:string,revision:nu
 export async function listCategories(db:Client,actor:LinkActor){
  const tenant=await installation(db,actor);
  return (await db.query("SELECT id,name FROM public.smn_link_category WHERE installation_id=$1 ORDER BY lower(name),id",[tenant])).rows;
-}
-export function mapLinkError(error:unknown):{error:string;status:number}{
- if(error instanceof LinkError)return {error:error.kind,status:({
- "invalid-input":400,forbidden:403,"not-found":404,conflict:409,"not-ready":503
- })[error.kind]};
- if(error instanceof Error&&["team-access-forbidden","team-context-unavailable","team-id-invalid",
- "team-context-not-ready"].includes(error.message))return {error:"not-found",status:404};
- if((error as {code?:unknown})?.code==="23503")return {error:"invalid-input",status:400};
- if((error as {code?:unknown})?.code==="23505")return {error:"conflict",status:409};
- return {error:"service-unavailable",status:503};
 }
