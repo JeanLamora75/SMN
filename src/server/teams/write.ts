@@ -1,4 +1,6 @@
 import {randomUUID} from "node:crypto";
+import {ensureCadenceTable} from "@/server/sprints/cadence";
+import {ensureKanbanCadenceTable} from "@/server/kanban/cadence";
 import type {Client} from "pg";
 import {normalizedTeamName,parseTeamCreate,parseTeamUpdate,type TeamFormValues,type TeamCreateInput} from "@/lib/team-form";
 
@@ -67,7 +69,7 @@ export async function createInstallationTeam(db:Client,installationId:string,
   await db.query("INSERT INTO public.smn_team_context "+
    "(team_id,vision,product_goal,revision,updated_by) VALUES($1,$2,$3,1,$4)",
    [teamId,input.vision,input.productGoal,actorId]);
-  await recordChange(db,teamId,1,actorId,{},input);
+  // Initialize the team-specific cadence atomically with team creation.\n  if(input.agileMode==="scrum"){\n   await ensureCadenceTable(db);\n   await db.query("INSERT INTO public.smn_scrum_cadence(team_id,updated_by) VALUES($1,$2)",\n    [teamId,actorId]);\n  }else{\n   await ensureKanbanCadenceTable(db);\n   await db.query("INSERT INTO public.smn_kanban_cadence(team_id,updated_by) VALUES($1,$2)",\n    [teamId,actorId]);\n  }\n  await recordChange(db,teamId,1,actorId,{},input);
   return {ok:true,changed:true,teamId,revision:1,values:input};
  });
 }
