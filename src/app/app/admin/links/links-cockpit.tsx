@@ -25,7 +25,23 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
  const [mutationError,setMutationError]=useState("");
  const [busy,setBusy]=useState(false);
  const changed=()=>{setEditing(null);setDeleting(null);setLoading(true);setReload(n=>n+1);};
- const remove=async()=>{if(!deleting||busy)return;setBusy(true);setMutationError("");try{const response=await fetch("/api/admin/links/"+encodeURIComponent(deleting.id),{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({revision:deleting.revision})});if(!response.ok)throw Error(String(response.status));changed();}catch(e){setMutationError(e instanceof Error&&e.message==="409"?t("links.conflict"):t("links.saveError"));}finally{setBusy(false);}};
+ const remove=async()=>{
+  if(!deleting||busy)return;
+  setBusy(true);setMutationError("");
+  try{
+   const response=await fetch("/api/admin/links/"+encodeURIComponent(deleting.id),{
+    method:"DELETE",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({revision:deleting.revision})
+   });
+   if(!response.ok)throw Error(String(response.status));
+   changed();
+  }catch(e){
+   const status=e instanceof Error?e.message:"";
+   setMutationError(status==="409"?t("links.conflict"):
+    status==="404"?t("links.notFound"):
+    status==="403"?t("links.forbidden"):t("links.saveError"));
+  }finally{setBusy(false);}
+ };
  useEffect(()=>{try{const preferred=localStorage.getItem(key);if(preferred==="list")queueMicrotask(()=>setView("list"));}catch{}},[]);
  useEffect(()=>{
   const controller=new AbortController();
