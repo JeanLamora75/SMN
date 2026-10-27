@@ -286,7 +286,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     </select>}
     {chosenMember&&<p className="fw-semibold mb-2">{availableMembers.find(m=>m.id===chosenMember)?.displayName}</p>}
     {chosenMember&&<MemberAbsenceEditor key={chosenMember+absenceEditor} memberId={chosenMember}
-     initialDate={absenceEditor} record={null}
+     initialDate={absenceEditor} record={null} teamId={initialTeamId}
      onSaved={()=>{setAbsenceEditor(null);setStatus("loading");setRefreshToken(n=>n+1);}}
      onCancel={()=>setAbsenceEditor(null)}/>}
     {!chosenMember&&<div className="d-flex justify-content-end mt-3">
