@@ -1974,10 +1974,10 @@
   },
   "settingsCatalog": {
     "groups": {
-      "application": "Application and personalization",
+      "application": "Application",
       "agile": "Agile organization",
-      "calendar": "Calendars and unavailability",
-      "administration": "Administration and maintenance"
+      "calendar": "Calendars and availability",
+      "administration": "Administration"
     },
     "status": {
       "available": "Available",
@@ -2003,8 +2003,8 @@
         "description": "Customize the theme and colors."
       },
       "cadence": {
-        "title": "Sprint cadence",
-        "description": "Configure future Scrum sprint duration and timing."
+        "title": "Agile cadence",
+        "description": "Configure cycles for the active Scrum or Kanban mode."
       },
       "ceremonies": {
         "title": "Ceremonies and templates",
@@ -2019,8 +2019,8 @@
         "description": "Configure capacity calculation rules."
       },
       "workingDays": {
-        "title": "Working days",
-        "description": "Set working hours, time zone and lunch break; Monday–Friday stays fixed."
+        "title": "Working hours",
+        "description": "Working time slots and lunch break."
       },
       "countries": {
         "title": "Countries and public holidays",
@@ -2053,6 +2053,18 @@
       "kanbanCadence": {
         "title": "Kanban cadence",
         "description": "Monthly, weekly and biweekly reference periods"
+      },
+      "preferences": {
+        "title": "Application preferences",
+        "description": "Language, theme, colors and general preferences."
+      },
+      "holidaysClosures": {
+        "title": "Public holidays and closures",
+        "description": "National calendars and company-wide closures."
+      },
+      "maintenance": {
+        "title": "Maintenance",
+        "description": "Backups and operation history."
       }
     },
     "view": {
