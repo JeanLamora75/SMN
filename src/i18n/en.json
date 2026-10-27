@@ -3640,6 +3640,9 @@
   },
   "linksAdmin": {
     "title": "Link administration",
-    "allTeams": "All teams"
+    "allTeams": "All teams",
+    "transfer": "Change scope / transfer",
+    "chooseTeam": "Select team",
+    "transferConfirm": "I confirm the scope change or transfer to the selected team."
   }
 }
