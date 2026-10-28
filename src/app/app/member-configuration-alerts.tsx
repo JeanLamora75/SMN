@@ -3,32 +3,19 @@ import Link from "next/link";
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 
-type Member={id:string;displayName:string;archived:boolean;isAssigned:boolean;roleShares?:{scrumMaster:number;productOwner:number;developer:number}};
-type Roster={members:Member[]};
-type CalendarState={memberId:string;configured:boolean};
 type Warning={id:string;name:string;missingCalendar:boolean;missingRoles:boolean};
-export function missingMemberRoles(member:Member):boolean{
- const shares=member.roleShares;
- return !shares||!([shares.scrumMaster,shares.productOwner,shares.developer].some(v=>Number.isFinite(v)&&v>0));
-}
 export default function MemberConfigurationAlerts(){
  const t=useTranslation(),[warnings,setWarnings]=useState<Warning[]>([]),[error,setError]=useState(false);
  useEffect(()=>{
   const controller=new AbortController();
   const run=async()=>{
-   const response=await fetch("/api/admin/members",{signal:controller.signal,cache:"no-store"});
-   if(!response.ok)throw Error("members-unavailable");
-   const roster=await response.json() as Roster;
-   if(!Array.isArray(roster.members))throw Error("invalid-roster");
-   const active=roster.members.filter(m=>!m.archived&&m.isAssigned);
-   const checked=await Promise.all(active.map(async member=>{
-    const r=await fetch("/api/admin/members/"+encodeURIComponent(member.id)+"/calendar",{signal:controller.signal,cache:"no-store"});
-    if(!r.ok)throw Error("calendar-unavailable");
-    const calendar=await r.json() as CalendarState;
-    if(calendar.memberId!==member.id||typeof calendar.configured!=="boolean")throw Error("calendar-invalid");
-    return {id:member.id,name:member.displayName,missingCalendar:!calendar.configured,missingRoles:missingMemberRoles(member)};
-   }));
-   if(!controller.signal.aborted)setWarnings(checked.filter(w=>w.missingCalendar||w.missingRoles));
+   const response=await fetch("/api/admin/members/configuration-alerts",{
+    signal:controller.signal,cache:"no-store"
+   });
+   if(!response.ok)throw Error("configuration-alerts-unavailable");
+   const result=await response.json() as {warnings?:Warning[]};
+   if(!Array.isArray(result.warnings))throw Error("invalid-alerts");
+   if(!controller.signal.aborted)setWarnings(result.warnings);
   };
   void run().catch(()=>{if(!controller.signal.aborted)setError(true);});
   return ()=>controller.abort();
