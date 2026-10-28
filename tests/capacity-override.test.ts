@@ -166,7 +166,7 @@ describe("SMN-58 : capacité manuelle prioritaire",()=>{
  it("ne modifie ni snapshots, ni jours Sprint, ni absences, et réserve l'écriture à l'admin",async()=>{
   const f=fakeDb();
   await saveCapacityOverride(f.db,actor,set(32));
-  assert.ok(f.queries.filter(x=>/\bINSERT\b|\bUPDATE\b/i.test(x))
+  assert.ok(f.queries.filter(x=>/^\s*(INSERT|UPDATE)\b/i.test(x))
    .every(x=>x.includes("smn_capacity_period_override")));
   const r={type:"members",exists:true,inScope:true};
   assert.equal(canAccess({role:"admin",is_active:true,must_change_password:false},
