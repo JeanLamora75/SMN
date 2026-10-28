@@ -7,7 +7,7 @@ export type TeamFormValues=Readonly<{
  vision:string|null;
  productGoal:string|null;
 }>;
-export type TeamCreateInput=TeamFormValues;
+export type TeamCreateInput=TeamFormValues&Readonly<{agileMode:"scrum"|"kanban"}>;
 export type TeamUpdateInput=TeamFormValues&Readonly<{teamId:string;revision:number}>;
 
 const ID=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/u;
@@ -45,11 +45,13 @@ function parseFields(data:Record<string,unknown>):TeamFormValues|null{
  return {name,productName,vision,productGoal};
 }
 
-/** Création : le seul champ obligatoire est le nom de l'équipe. */
+/** Création : nom et mode Agile obligatoires pour chaque nouvelle équipe. */
 export function parseTeamCreate(raw:unknown):TeamCreateInput|null{
  const data=asRecord(raw);
- if(!data||!exactKeys(data,["name"],["productName","vision","productGoal"]))return null;
- return parseFields(data);
+ if(!data||!exactKeys(data,["name","agileMode"],["productName","vision","productGoal"])||
+  (data.agileMode!=="scrum"&&data.agileMode!=="kanban"))return null;
+ const fields=parseFields(data);
+ return fields?{...fields,agileMode:data.agileMode}:null;
 }
 
 /** Mise à jour : un ID et une révision servent au contrôle de concurrence. */
