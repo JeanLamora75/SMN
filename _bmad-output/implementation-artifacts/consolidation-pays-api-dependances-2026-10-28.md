@@ -35,3 +35,17 @@ La branche #201 appelle `ensureCountryNameSchema`, `ensureCountryArchiveSchema`,
 Ajout de `src/server/countries/schema-guard.ts` : `requireCountrySchemaV30` effectue une lecture SQL unique vérifiant le marqueur v30, les quatre tables d'audit et les colonnes attendues. En cas de prérequis absent, elle lève `CountrySchemaUnavailableError` ; elle n'exécute ni DDL ni DML. Test associé dans `tests/country-schema-guard.test.ts` (réponse prête/incomplète et une lecture SQL).
 
 **Attention :** la garde est disponible mais **n'est pas encore raccordée aux services ni routes**. Elle ne remplace pas la validation complète des migrations/checksums fournie par le diagnostic d'installation. Les tests ne sont pas exécutés ; aucun déploiement n'a été réalisé.
+
+
+## Lot 2 — remplacement effectif des quatre helpers DDL (28 octobre)
+
+Sur la branche de consolidation, les chemins suivants sont désormais présents avec les mêmes noms exportés que dans la branche historique, mais ne font qu'appeler `requireCountrySchemaV30` :
+
+- `src/server/countries/name-migration.ts` : `ensureCountryNameSchema`
+- `src/server/countries/archive-migration.ts` : `ensureCountryArchiveSchema` (constante de verrou métier conservée)
+- `src/server/holidays/manual-migration.ts` : `ensureManualHolidaySchema`
+- `src/server/holidays/validation-migration.ts` : `ensureAnnualValidationSchema`
+
+Le fichier `tests/country-no-implicit-ddl.test.ts` vérifie par doubles de base les appels uniquement en lecture et le refus en version 29. Ces tests **n'ont pas été exécutés**.
+
+**Limites importantes :** les helpers sont publiés mais les services métier/les routes qui les invoquent n'ont pas encore été importés depuis #201 ; aucune compatibilité de bout en bout n'est acquise. Les opérations de migration restent exclusivement explicites. Ne pas fusionner avant vérification et recette.
