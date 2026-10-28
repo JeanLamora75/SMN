@@ -14,6 +14,8 @@ function fakeDb(countryExists=true){
   statements.push(sql);
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||
     sql.includes("pg_advisory_xact_lock"))return {rows:[],rowCount:0};
+  if(sql.includes("FROM public.smn_country WHERE code=$1 FOR UPDATE"))
+   return {rows:countryExists?[{code:args[0],archived_at:null}]:[],rowCount:countryExists?1:0};
   if(sql.includes("SELECT code FROM public.smn_country"))
    return {rows:countryExists?[{code:args[0]}]:[],rowCount:countryExists?1:0};
   if(sql.includes("INSERT INTO public.smn_national_holiday")){
