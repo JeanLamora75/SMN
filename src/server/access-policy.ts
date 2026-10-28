@@ -17,7 +17,7 @@ export type AccessResource = Readonly<{
   userAuthorized?: unknown;
   collection?: unknown;
 }>;
-const resourceTypes = ["collective", "individual", "accounts", "settings", "audit", "documents", "backups", "members"];
+const resourceTypes = ["collective", "individual", "accounts", "settings", "audit", "documents", "backups", "members", "companies"];
 const actionTypes = ["read", "write", "generate", "download"];
 
 export function canAccess(actor: AccessActor | null | undefined, action: string, resource: AccessResource): boolean {
@@ -25,6 +25,7 @@ export function canAccess(actor: AccessActor | null | undefined, action: string,
     (actor.role !== "admin" && actor.role !== "user") ||
     !actionTypes.includes(action) || !resourceTypes.includes(resource.type) ||
     resource.exists !== true || resource.inScope !== true) return false;
+  if (resource.type === "companies") return action === "read" || (actor.role === "admin" && action === "write");
   if (resource.type === "audit") return actor.role === "admin" && action === "read";
   if (resource.type === "documents") {
     if (action === "generate") return actor.role === "admin" && resource.collection === true;
