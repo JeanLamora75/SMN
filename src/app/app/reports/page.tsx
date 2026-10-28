@@ -31,7 +31,7 @@ export default async function ReportsCenter({searchParams}:Params){
    SELECT schema_version FROM public.smn_installation
    WHERE id='singleton' AND state='initialized'`);
   const schema=version.rows[0]?.schema_version;
-  if(schema===28){
+  if([28,29,30].includes(schema??0)){
    if(account.role!=="admin"||Array.isArray(params.teamId))
     throw Error("report-team-forbidden");
    const team=await resolveAdminTeam(db,
