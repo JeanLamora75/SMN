@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 
 const idRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const textMax=4000;
@@ -63,14 +64,16 @@ export async function ensureCommentSchema(db:Client):Promise<void>{
   changed_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE(comment_id,revision))`);
 }
-async function scopedItem(db:Client,itemId:string,lock:boolean){
+async function scopedItem(db:Client,itemId:string,lock:boolean,teamId?:string){
  const result=await db.query<{id:string;comment:string|null}>(`SELECT r.id,r.comment
   FROM public.smn_registry_item r
   JOIN public.smn_team t ON t.id=r.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'
    AND lower(i.mode) IN ('scrum','kanban')
-  ${lock?"FOR UPDATE OF r":""}`,[itemId]);
+   AND ($2::text IS NULL OR r.team_id=$2)
+   AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
+  ${lock?"FOR UPDATE OF r":""}`,[itemId,teamId??null]);
  return result.rows.length===1?result.rows[0]:null;
 }
 async function actorIdentity(db:Client,actorId:string){
@@ -84,12 +87,15 @@ function missingLegacy(text:string|null|undefined,admin:boolean){
   {text,author:null,recordedAt:null,origin:"legacy" as const}:null;
 }
 
-export async function createRegistryComment(db:Client,actorId:string,itemId:string,raw:unknown):Promise<Reply>{
+export async function createRegistryComment(db:Client,actorId:string,itemId:string,raw:unknown,
+ scope?:Readonly<{actor:TeamActor;teamId:string}>):Promise<Reply>{
  const parsed=parseNewComment(raw);
  if(!parsed||!idRx.test(itemId)||!actorId)return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
-  const item=await scopedItem(db,itemId,true);
+  const team=scope?await resolveAdminTeam(db,scope.actor,scope.teamId):null;
+  if(scope&&scope.actor.accountId!==actorId)throw Error("team-access-forbidden");
+  const item=await scopedItem(db,itemId,true,team?.team_id);
   if(!item){await db.query("ROLLBACK");return {ok:false,error:"not-found"};}
   const name=await actorIdentity(db,actorId);
   if(!name){await db.query("ROLLBACK");return {ok:false,error:"not-found"};}
