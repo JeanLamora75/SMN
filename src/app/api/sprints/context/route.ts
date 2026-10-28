@@ -26,7 +26,7 @@ export async function GET(request:NextRequest){
     SELECT schema_version FROM public.smn_installation
     WHERE id='singleton' AND state='initialized'`);
    if(version.rows.length!==1)throw Error("sprint-context-unavailable");
-   if(version.rows[0].schema_version===28){
+   if([28,29,30].includes(version.rows[0].schema_version)){
     const context=await resolveAdminTeam(db,
       {accountId:actor.id,role:actor.role},requested);
     if(context.mode!=="scrum")throw Error("sprint-context-mode-invalid");
