@@ -52,5 +52,9 @@ export async function deleteCategory(db:Client,actor:LinkActor,id:string){
  WHERE id=$1 AND installation_id=$2 RETURNING id`,[id,tenant]);
   if(r.rowCount!==1)throw new LinkError("not-found");
   await db.query("COMMIT");return {deleted:true};
- }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
+ }catch(error){
+  await db.query("ROLLBACK").catch(()=>undefined);
+  if((error as {code?:unknown})?.code==="23503")throw new LinkError("conflict");
+  throw error;
+ }
 }
