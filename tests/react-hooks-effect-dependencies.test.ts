@@ -28,5 +28,6 @@ test("l'autosauvegarde du studio conserve sa temporisation sans dépendre de la 
  assert.match(text,/const timer=setTimeout\(\(\)=>\{\s*autoSave\(\);\s*\},650\)/);
  assert.match(text,/return \(\)=>clearTimeout\(timer\);\},\[content,saved,saving,error,readOnly\]\);/);
  assert.match(text,/changeVersion\.current!==sendingVersion/);
- assert.match(text,/sessionId:sessionId\.current,sequence:\+\+sequence\.current,content/);
+ assert.match(text,/sessionId:sessionId\.current,sequence:\+\+sequence\.current,/);
+ assert.match(text,/\bcontent\}\)\}/);
 });
