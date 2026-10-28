@@ -18,7 +18,7 @@ export async function GET(request:NextRequest){
   return jsonResult(await withAuthDb(async db=>{
    const mode=await db.query<{mode:string;schema_version:number}>(
     "SELECT mode,schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
-   if(mode.rows[0]?.schema_version===28){
+   if(typeof mode.rows[0]?.schema_version==="number"&&mode.rows[0].schema_version>=28&&mode.rows[0].schema_version<=30){
     if(actor.role!=="admin")throw Error("calendar-periods-team-forbidden");
     const team=await resolveAdminTeam(db,
      {accountId:actor.id,role:actor.role},params.get("teamId"));
