@@ -48,7 +48,7 @@ export default function CountryAdmin({canManage=true}:{canManage?:boolean}){
   setLoadFailed(false);
  },[]);
  useEffect(()=>{
-  void refresh().catch(()=>{setNotice("failed");setLoadFailed(true);}).finally(()=>setLoaded(true));
+  queueMicrotask(()=>{void refresh().catch(()=>{setNotice("failed");setLoadFailed(true);}).finally(()=>setLoaded(true));});
  },[refresh]);
 
  const yearOptions=useMemo(()=>Array.from(new Set([
