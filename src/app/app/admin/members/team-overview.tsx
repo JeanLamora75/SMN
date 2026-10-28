@@ -9,7 +9,7 @@ import TeamContextEditor from "./team-context-editor";
 import BootstrapIcon from "../../bootstrap-icon";
 import {availableFunctions,filterTeamMembers,initialTeamFilters,type TeamFilters} from "./team-cockpit-filter";
 
-type Member={id:string;companyId?:string|null;companyName?:string|null;displayName:string;countryIso2:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
+type Member={id:string;companyId?:string|null;companyName?:string|null;companyColor?:string|null;displayName:string;countryIso2:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type CompanyChoice={id:string;name:string;archivedAt:string|null};
 type Roster={team:{id:string;name:string;mode:string};members:Member[]};
 type TeamContextOverview={teamId:string;name:string;productName:string;
@@ -188,7 +188,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
          aria-label={t("teamUX.openMember",{name:member.displayName})}>
          <div className="smn-team-member-name">
           <CountryFlag countryIso2={member.countryIso2}/>
-          <strong>{member.displayName}</strong>
+          <strong>{member.displayName}</strong>{member.companyName&&<span className="d-block small text-secondary" title="Entreprise">Entreprise : {member.companyName}</span>}
          </div>
          <NeutralAvatar size={60}/>
          <div className="smn-team-member-roles">
@@ -226,7 +226,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
          e.preventDefault();router.push(memberHref(member));
         }}}>
         <th scope="row"><span className="smn-team-list-name">
-         <CountryFlag countryIso2={member.countryIso2}/>{member.displayName}
+         <CountryFlag countryIso2={member.countryIso2}/>{member.displayName}{member.companyName&&<span className="ms-2 small text-secondary">· {member.companyName}</span>}
         </span></th>
         <td><div className="smn-team-member-roles">
          {roles(member).map(([name,share])=>roleBadge(name,share))}
