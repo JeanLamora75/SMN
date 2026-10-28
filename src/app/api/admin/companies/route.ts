@@ -5,7 +5,7 @@ import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {createCompany,listCompanies} from "@/server/companies/catalog";
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
-const resource={type:"settings",exists:true,inScope:true} as const;
+const resource={type:"companies",exists:true,inScope:true} as const;
 export async function GET(request:NextRequest){
  if(!await authorizeApi(request,"read",resource))return jsonResult({error:"forbidden"},403);
  try{return jsonResult({companies:await withAuthDb(listCompanies)});}
