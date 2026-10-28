@@ -80,11 +80,11 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const shapeValid = required.every((name) => columnSet.has(name));
     if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 28",
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 29",
     )).rows;
     // Métadonnées de schéma lues en READ ONLY ; aucun DDL ni réparation implicite.
     let multiTeamSchemaValid:boolean|undefined;
-    if(installations.rows[0]?.schema_version===28){
+    if((installations.rows[0]?.schema_version??0)>=28){
       const integrity=await client.query<{
         product_nullable:boolean;indexes_valid:boolean;
         constraints_valid:boolean;old_unique_gone:boolean;
@@ -119,7 +119,12 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
         ["account_id","installation_id","team_id","updated_at"]
           .every(n=>columnSet.has("smn_account_team_preference:"+n));
     }
-    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
+    const linksSchemaValid = installations.rows[0]?.schema_version===29 ? [
+      ...['id','installation_id','name','created_at','updated_at'].map(n=>'smn_link_category:'+n),
+      ...['id','installation_id','title','url','description','category_id','scope','team_id','created_by','updated_by','created_at','updated_at','revision'].map(n=>'smn_link:'+n),
+      ...['id','link_id','installation_id','operation','before_values','after_values','actor_id','occurred_at'].map(n=>'smn_link_audit:'+n)
+    ].every(n=>columnSet.has(n)) : undefined;
+    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, linksSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
       configurationTasksSchemaValid: ["smn_configuration_task:installation_id","smn_configuration_task:task_key",
         "smn_configuration_task:status","smn_configuration_task:updated_at","smn_configuration_task:updated_by"]

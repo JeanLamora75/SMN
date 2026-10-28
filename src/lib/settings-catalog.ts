@@ -20,7 +20,8 @@ const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:rea
   {id:"kanbanCadence",icon:"◷",resource:"settings",href:"/app/admin/kanban-cadence",mode:"kanban"},
   {id:"ceremonies",icon:"◫",resource:"settings",href:"/app/admin/settings/ceremonies",status:"partial",mode:"scrum"},
   {id:"capacity",icon:"▤",resource:"settings",status:"partial"},
-  {id:"registries",icon:"▥",resource:"settings",href:"/app/admin/settings/registries"}
+  {id:"registries",icon:"▥",resource:"settings",href:"/app/admin/settings/registries"},
+  {id:"links",icon:"🔗",resource:"settings",href:"/app/admin/settings/links",status:"partial"}
  ]},
  {id:"calendar",label:"settingsCatalog.groups.calendar",entries:[
   {id:"workingDays",icon:"▦",resource:"settings",href:"/app/admin/settings/working-days",status:"partial",mode:"scrum"},

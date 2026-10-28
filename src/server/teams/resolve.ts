@@ -26,7 +26,7 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
  WHERE a.id=$1 AND a.role='admin' AND a.is_active=true
    AND a.must_change_password=false AND i.state='initialized'`,
  [actor.accountId]);
- if(details.rows.length!==1||details.rows[0].schema_version!==28)
+ if(details.rows.length!==1||![28,29].includes(details.rows[0].schema_version))
   throw new Error("team-context-not-ready");
  const installation=details.rows[0].installation_id;
  // Ne jamais conserver une préférence devenue invalide.
@@ -46,7 +46,7 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   LEFT JOIN public.smn_product p ON p.id=t.product_id
    AND p.installation_id=t.installation_id
   WHERE t.id=$1 AND t.installation_id=$2
-   AND i.state='initialized' AND i.schema_version=28
+   AND i.state='initialized' AND i.schema_version IN (28,29)
   LIMIT 2`,[id,installation]);
  if(row.rows.length!==1||!["scrum","kanban"].includes(row.rows[0].mode))
   throw new Error("team-context-unavailable");
