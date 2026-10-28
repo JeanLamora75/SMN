@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {ensureSprintSchema} from "./creation";
 import {deriveStoryPoints} from "@/lib/sprint-indicator-values";
 export {deriveStoryPoints} from "@/lib/sprint-indicator-values";
@@ -21,20 +22,26 @@ export async function ensureStoryPointsSchema(db:Client){
  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  changed_at timestamptz NOT NULL DEFAULT now())`);
 }
-async function scope(db:Client,id:string,lock=false){
+async function scope(db:Client,id:string,lock=false,teamId?:string){
+ const criterion=teamId?
+  "AND s.team_id=$2 AND i.schema_version IN (28,29,30) AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
+  "AND i.schema_version<=27 AND lower(i.mode)='scrum'";
  const r=await db.query<{id:string;status:string;name:string;start_at:string;end_at:string}>(`SELECT s.id,s.status,s.name,s.start_at::text,s.end_at::text FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton'
- AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum' ${lock?"FOR UPDATE OF s":""}`,[id]);
+ AND i.state='initialized' ${criterion} ${lock?"FOR UPDATE OF s":""}`,teamId?[id,teamId]:[id]);
  return r.rows[0];
 }
-export async function readStoryPoints(db:Client,id:string){
- await ensureStoryPointsSchema(db);const sprint=await scope(db,id);if(!sprint)return null;
+export async function readStoryPoints(db:Client,id:string,access?:{actor:TeamActor;teamId:string}){
+ const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
+ if(team&&team.mode!=="scrum")return null;
+ await ensureStoryPointsSchema(db);const sprint=await scope(db,id,false,team?.team_id);if(!sprint)return null;
  const r=await db.query<{initial:string|null;added:string|null;removed:string|null;done:string|null;revision:number}>(`SELECT initial_sp::text AS initial,added_sp::text AS added,removed_sp::text AS removed,done_sp::text AS done,revision
  FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[id]);
  const d=r.rows[0],points:Points={initial:d?.initial==null?null:Number(d.initial),added:d?.added==null?null:Number(d.added),removed:d?.removed==null?null:Number(d.removed),done:d?.done==null?null:Number(d.done)};
  return {sprint,points,revision:d?.revision??0,derived:deriveStoryPoints(points)};
 }
-export async function writeStoryPoints(db:Client,actor:string,raw:unknown){
+export async function writeStoryPoints(db:Client,actor:string,raw:unknown,
+ access?:{actor:TeamActor;teamId:string}){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
  const v=raw as Record<string,unknown>;
  if(Object.keys(v).sort().join(",")!=="points,revision,sprintId"||typeof v.sprintId!=="string"||!/^[a-f\d-]{36}$/i.test(v.sprintId)||
@@ -43,7 +50,10 @@ export async function writeStoryPoints(db:Client,actor:string,raw:unknown){
  if(Object.keys(p).sort().join(",")!=="added,done,initial,removed"||![p.initial,p.added,p.removed,p.done].every(valid))return {ok:false as const,error:"invalid-input"};
  const values=p as Points;await ensureStoryPointsSchema(db);await db.query("BEGIN");
  try{
- const sprint=await scope(db,v.sprintId,true);
+ const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
+ if(access&&(access.actor.accountId!==actor||team?.mode!=="scrum"))
+  throw Error("team-access-forbidden");
+ const sprint=await scope(db,v.sprintId,true,team?.team_id);
  if(!sprint){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
  if(sprint.status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period"};}
  const prior=await db.query<{initial_sp:string|null;added_sp:string|null;removed_sp:string|null;done_sp:string|null;revision:number}>(`SELECT initial_sp::text,added_sp::text,removed_sp::text,done_sp::text,revision
