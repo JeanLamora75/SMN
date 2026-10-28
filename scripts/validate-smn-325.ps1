@@ -23,6 +23,8 @@ $checks = @(
   @{name="company-schema-migration"; args=@("exec","tsx","--test","tests/company-schema-migration.test.ts")},
   @{name="company-catalog"; args=@("exec","tsx","--test","tests/company-catalog.test.ts")},
   @{name="member-company"; args=@("exec","tsx","--test","tests/member-company.test.ts")},
+  @{name="member-company-ui"; args=@("exec","tsx","--test","tests/member-company-ui-contract.test.ts")},
+  @{name="smn-315-v31-audit"; args=@("exec","tsx","--test","tests/smn-315-v31-audit.test.ts")},
   @{name="company-closures"; args=@("exec","tsx","--test","tests/company-closures-v31.test.ts")},
   @{name="company-capacity"; args=@("exec","tsx","--test","tests/company-capacity.test.ts")},
   @{name="company-recalculation"; args=@("exec","tsx","--test","tests/company-capacity-outbox.test.ts")},
