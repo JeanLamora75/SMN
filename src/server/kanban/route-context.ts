@@ -18,9 +18,10 @@ export async function withKanbanRouteTeam<T>(db:Client,request:NextRequest,
   if(write&&(!MULTI_TEAM_CONTEXT_READY||
      process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
    throw Error("context-not-ready");
-  if(!requested||context.team?.team_id!==requested)
+  if(!context.team||(requested&&context.team.team_id!==requested)||
+     (write&&!requested))
    throw Error("team-access-forbidden");
-  return action({actor:{accountId:actor.id,role:actor.role},teamId:requested});
+  return action({actor:{accountId:actor.id,role:actor.role},teamId:context.team.team_id});
  }
  return action();
 }
