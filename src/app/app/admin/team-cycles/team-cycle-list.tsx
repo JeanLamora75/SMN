@@ -6,13 +6,15 @@ type Listing={teamId:string;mode:Mode;items:Cycle[];page?:number;totalPages?:num
 export default function TeamCycleList({teamId,mode}:{teamId:string;mode:Mode}){
  const [items,setItems]=useState<Cycle[]>([]);
  const [error,setError]=useState(false);
- const [loading,setLoading]=useState(true);
+ const [loadedKey,setLoadedKey]=useState<string|null>(null);
  const [page,setPage]=useState(1);
  const [search,setSearch]=useState("");
  const [status,setStatus]=useState("all");
  const [sort,setSort]=useState<"priority"|"newest"|"oldest">("priority");
  const [totalPages,setTotalPages]=useState(1);
  const [total,setTotal]=useState(0);
+ const requestKey=JSON.stringify([teamId,mode,page,search,status,sort]);
+ const loading=loadedKey!==requestKey;
  useEffect(()=>{
   const controller=new AbortController();
   const params=new URLSearchParams({teamId});
@@ -23,7 +25,6 @@ export default function TeamCycleList({teamId,mode}:{teamId:string;mode:Mode}){
    params.set("status",status);
    params.set("sort",sort);
   }
-  setLoading(true);
   void fetch("/api/admin/team-cycles/list?"+params.toString(),{cache:"no-store",signal:controller.signal})
    .then(async response=>{if(!response.ok)throw Error();return response.json() as Promise<Listing>;})
    .then(value=>{
@@ -32,12 +33,12 @@ export default function TeamCycleList({teamId,mode}:{teamId:string;mode:Mode}){
     setItems(value.items);
     setTotalPages(value.totalPages??1);
     setTotal(value.total??value.items.length);
-    setError(false);setLoading(false);
-   }).catch(()=>{if(!controller.signal.aborted){setError(true);setLoading(false);}});
+    setError(false);setLoadedKey(requestKey);
+   }).catch(()=>{if(!controller.signal.aborted){setError(true);setLoadedKey(requestKey);}});
   return()=>controller.abort();
- },[teamId,mode,page,search,status,sort]);
+ },[teamId,mode,page,search,status,sort,requestKey]);
  return <section className="smn-panel rounded-4 p-4 mt-4">
-  <h2 className="h5">{mode==="scrum"?"Sprints":"Périodes Kanban"} de l'équipe</h2>
+  <h2 className="h5">{mode==="scrum"?"Sprints":"Périodes Kanban"} de l&apos;équipe</h2>
   {mode==="scrum"&&<div className="row g-2 mb-3">
    <div className="col-12 col-md-5"><label htmlFor="team-cycles-search" className="form-label">Rechercher</label>
     <input id="team-cycles-search" className="form-control" maxLength={100} value={search}
