@@ -1,11 +1,10 @@
 /**
  * Application explicite de la migration PostgreSQL v28.
  * Aucun lancement automatique depuis l'authentification, l'installation ou Next.js.
- * N'utiliser qu'après sauvegarde vérifiée et validation des lecteurs multiéquipes.
+ * Sauvegarde recommandée, mais non vérifiée par ce script.
  */
 import {createHash,randomUUID} from "node:crypto";
-import {existsSync,readFileSync,statSync} from "node:fs";
-import {resolve} from "node:path";
+import {readFileSync} from "node:fs";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {probePostgres} from "../src/server/db/probe";
@@ -13,14 +12,8 @@ import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../src/server/teams/migration";
 
 async function main(){
- const options=process.argv.slice(2);
- const file=options.find(a=>a.startsWith("--backup-file="))?.slice("--backup-file=".length);
- if(options.length!==2||!options.includes("--apply")||!file){
-  throw Error("Usage: pnpm exec tsx scripts/apply-multi-team-migration.ts --apply --backup-file=<sauvegarde-confirmee>");
- }
- const backup=resolve(file);
- if(!existsSync(backup)||!statSync(backup).isFile()||statSync(backup).size===0)
-  throw Error("Sauvegarde absente ou vide : migration refusée");
+ if(process.argv.slice(2).join(" ")!=="--apply")
+  throw Error("Usage: pnpm exec tsx scripts/apply-multi-team-migration.ts --apply");
 
  const source=readFileSync(new URL("../prisma/migrations/20261026_smn282_multi_teams/migration.sql",
   import.meta.url),"utf8");
