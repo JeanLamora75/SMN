@@ -52,9 +52,9 @@ export async function POST(request:NextRequest){
   return jsonResult({error:"invalid-input"},400);
  const {mode,...input}=body;
  try{
-  const result=await withAuthDb(db=>mode==="scrum"?
-   createScopedSprint(db,{accountId:actor.id,role:"admin"},input):
-   createScopedKanbanPeriod(db,{accountId:actor.id,role:"admin"},input));
+  const result=mode==="scrum"?
+   await withAuthDb(db=>createScopedSprint(db,{accountId:actor.id,role:"admin"},input)):
+   await withAuthDb(db=>createScopedKanbanPeriod(db,{accountId:actor.id,role:"admin"},input));
   if(result.ok)return jsonResult(result,201);
   return jsonResult({error:result.error},
    result.error==="invalid-input"?400:
