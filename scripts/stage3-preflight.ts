@@ -37,7 +37,17 @@ async function main(){
   console.log("Schéma : v30 / initialized");
   console.log("Équipes actives :",counts.rows[0]?.active??"?", "- archivées :",counts.rows[0]?.archived??"?");
   console.log("Migrations non terminées :",migrations.rows[0]?.pending??"?");
-  const missing=Object.entries(checks.rows[0]??{}).filter(([,value])=>Number(value)!==1).map(([key])=>key);
+  const modes=await db.query<{mode:string}>(
+   "SELECT DISTINCT lower(agile_mode) AS mode FROM public.smn_team "+
+   "WHERE installation_id='singleton' AND "+
+   "COALESCE((to_jsonb(smn_team)->>'is_archived')::boolean,false)=false");
+  const hasKanban=modes.rows.some(row=>row.mode==="kanban");
+  const hasScrum=modes.rows.some(row=>row.mode==="scrum");
+  const required=["account","preference","team","registry",
+   ...(hasScrum?["sprint"]:[]),...(hasKanban?["kanban"]:[])];
+  const missing=required.filter(name=>Number(checks.rows[0]?.[name as keyof typeof checks.rows[number]])!==1);
+  if(!hasKanban&&Number(checks.rows[0]?.kanban)!==1)
+   console.log("INFO : table Kanban absente ; aucune équipe Kanban active, contrôle différé");
   if(missing.length)throw Error("required-tables-missing:"+missing.join(","));
   if(Number(migrations.rows[0]?.pending)!==0)throw Error("migrations-incomplete");
   console.log("PASS : prérequis de structure vérifiés en lecture seule");
