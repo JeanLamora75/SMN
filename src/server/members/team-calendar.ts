@@ -34,7 +34,7 @@ export type TeamCalendarResponse={
  team:{id:string;name:string;mode:"scrum"|"kanban"};
  start:string;end:string;days:7|14|28;kind:TeamCalendarKind;
  collective:CollectiveDay[];
- closures:{id:string;name:string;startOn:string;endOn:string}[];
+ closures:{id:string;name:string;startOn:string;endOn:string;companyId?:string;companyName?:string;companyColor?:string;members?:{id:string;name:string}[]}[];
  admin?:{categories:{id:string;name:string}[];
   members:{id:string;displayName:string;memberNumber:number;days:MemberDay[]}[]};
 };
@@ -49,7 +49,7 @@ type Week=WeekRow&{member_id:string};
 type Exception=ExceptionRow&{member_id:string};
 type Location={member_id:string;effective_from:string;revision:number;country_iso2:string};
 type Holiday={country_code:string;holiday_date:string;name:string};
-type ClosureRow={id:string;name:string;start_on:string;end_on:string};
+type ClosureRow={id:string;name:string;start_on:string;end_on:string;company_id?:string;company_name?:string;company_color?:string;member_ids?:string[];member_names?:string[]};
 
 export function parseTeamCalendarQuery(params:URLSearchParams,isAdmin:boolean):
  TeamCalendarQuery|null{
@@ -87,7 +87,7 @@ const latestAt=<T extends {effective_from:string;revision:number}>(
 
 /** Sanitized, member-free collective data are built without serializing private rows. */
 export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin:boolean,
- authorizedTeam?:TeamRow):Promise<TeamCalendarResponse>{
+ authorizedTeam?:TeamRow,companyMode=false):Promise<TeamCalendarResponse>{
  if(!isValidDate(query.start)||query.start<"1900-01-01"||query.start>"2200-12-01"||
   ![7,14,28].includes(query.days)||(!isAdmin&&(query.memberId||query.categoryId||query.kind!=="all")))
   throw Error("team-calendar-invalid-input");
@@ -158,10 +158,21 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
   isAdmin?db.query<{id:string;name:string}>(
    "SELECT id,name FROM public.smn_absence_category ORDER BY name,id LIMIT 101"):
    Promise.resolve({rows:[] as {id:string;name:string}[]}),
-  db.query<ClosureRow>([
+  db.query<ClosureRow>(companyMode?[
+   "SELECT c.id,c.name,c.start_on::text AS start_on,c.end_on::text AS end_on,",
+   "c.company_id,co.name AS company_name,co.color AS company_color,",
+   "array_agg(DISTINCT m.id) AS member_ids,",
+   "array_agg(DISTINCT m.display_name) AS member_names",
+   "FROM public.smn_company_closure c",
+   "JOIN public.smn_company co ON co.id=c.company_id AND co.installation_id='singleton'",
+   "JOIN public.smn_member m ON m.company_id=co.id AND m.installation_id=co.installation_id",
+   "JOIN public.smn_member_assignment a ON a.member_id=m.id AND a.team_id=$1",
+   "AND a.start_on<=c.end_on AND (a.end_on IS NULL OR a.end_on>=c.start_on)",
+   "WHERE c.is_active=true AND c.start_on<=$3::date AND c.end_on>=$2::date",
+   "GROUP BY c.id,co.id ORDER BY c.start_on,c.id LIMIT 101"
+  ]:[
    "SELECT id,name,start_on::text AS start_on,end_on::text AS end_on",
-   "FROM public.smn_company_closure",
-   "WHERE team_id=$1 AND is_active=true",
+   "FROM public.smn_company_closure WHERE team_id=$1 AND is_active=true",
    "AND start_on<=$3::date AND end_on>=$2::date",
    "ORDER BY start_on,id LIMIT 101"
   ].join(" "),[team.id,query.start,end])
@@ -193,7 +204,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
    const records=active.map(a=>({
     startOn:a.start_on,endOn:a.end_on,startSlot:a.start_slot,endSlot:a.end_slot
    }));
-   const activeClosure=closures.rows.find(c=>c.start_on<=date&&c.end_on>=date);
+   const activeClosure=closures.rows.find(c=>(!companyMode||c.member_ids?.includes(memberId))&&c.start_on<=date&&c.end_on>=date);
    const resolution=resolveDayAvailability(date,calendar.slots,isNational,records,
     Boolean(activeClosure));
    const count=collective[i];
@@ -234,7 +245,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
  }
  return {
   team,start:query.start,end,days:query.days,kind:query.kind,collective,
-  closures:closures.rows.map(c=>({id:c.id,name:c.name,startOn:c.start_on,endOn:c.end_on})),
+  closures:closures.rows.map(c=>({id:c.id,name:c.name,startOn:c.start_on,endOn:c.end_on,\n   ...(companyMode?{companyId:c.company_id,companyName:c.company_name,companyColor:c.company_color,\n   members:isAdmin?(c.member_ids??[]).map((id,i)=>({id,name:c.member_names?.[i]??""})):[]}: {})})),
   ...(isAdmin?{admin:{categories:categories.rows,members:adminMembers}}:{})
  };
 }
