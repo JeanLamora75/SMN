@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import type {SprintScores} from "@/lib/sprint-indicator-values";
 
 const valid=(x:unknown)=>x===null||(typeof x==="number"&&
@@ -26,7 +27,8 @@ export async function ensureSprintScoresSchema(db:Client){
 }
 
 /** Latest per-sprint 1–5 measures with immutable per-revision audit history. */
-export async function writeSprintScores(db:Client,actorId:string,raw:unknown){
+export async function writeSprintScores(db:Client,actorId:string,raw:unknown,
+ access?:{actor:TeamActor;teamId:string}){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))
   return {ok:false as const,error:"invalid-input" as const};
  const v=raw as Record<string,unknown>;
@@ -42,14 +44,20 @@ export async function writeSprintScores(db:Client,actorId:string,raw:unknown){
  const values=scores as SprintScores;
  await db.query("BEGIN");
  try{
+  const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
+  if(access&&(access.actor.accountId!==actorId||team?.mode!=="scrum"))
+   throw Error("team-access-forbidden");
+  const criterion=team?
+   "AND s.team_id=$2 AND i.schema_version IN (28,29,30) AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
+   "AND i.schema_version<=27 AND lower(i.mode)='scrum'";
   const found=await db.query<{id:string;status:string}>(`
    SELECT s.id,s.status FROM public.smn_sprint s
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton'
-    AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum'
+    AND i.state='initialized' ${criterion}
    FOR UPDATE OF s
-  `,[v.sprintId]);
+  `,team?[v.sprintId,team.team_id]:[v.sprintId]);
   const sprint=found.rows[0];
   if(!sprint){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(sprint.status==="closed"){
