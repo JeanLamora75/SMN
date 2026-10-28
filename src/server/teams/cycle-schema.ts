@@ -3,7 +3,7 @@ import type {Client} from "pg";
 /** Read-only SQL contract check. Never creates or migrates schema objects. */
 export async function requireScopedCycleSchema(db:Client,mode:"scrum"|"kanban"):Promise<void>{
  const required=mode==="scrum"
-  ?["smn_team","smn_scrum_cadence","smn_sprint","smn_sprint_audit","smn_scrum_ceremony_template"]
+  ?["smn_team","smn_scrum_cadence","smn_sprint","smn_sprint_audit","smn_scrum_ceremony_template","smn_scrum_template_occurrence"]
   :["smn_team","smn_kanban_cadence","smn_kanban_period","smn_kanban_period_audit"];
  const tables=await db.query<{name:string}>(`
   SELECT c.relname AS name FROM pg_catalog.pg_class c
@@ -19,7 +19,8 @@ export async function requireScopedCycleSchema(db:Client,mode:"scrum"|"kanban"):
  const columns=mode==="scrum"
   ?{smn_scrum_cadence:["team_id","revision","duration_weeks","start_day","end_day","start_time","end_time","time_zone"],
     smn_sprint:["id","team_id","number","name","start_at","end_at","time_zone","created_by","deleted_at"],
-    smn_sprint_audit:["id","sprint_id","action","actor_id","details"]}
+    smn_sprint_audit:["id","sprint_id","action","actor_id","details"],
+    smn_scrum_template_occurrence:["id","template_id","template_revision","sprint_id","name","starts_at","ends_at","generation_source","status","status_explicit","actual_minutes"]}
   :{smn_kanban_cadence:["team_id","revision","frequency","time_zone"],
     smn_kanban_period:["id","team_id","name","start_on","end_on","time_zone","created_by","deleted_at"],
     smn_kanban_period_audit:["id","period_id","action","details","actor_id"]};
