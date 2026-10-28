@@ -38,13 +38,14 @@ const order:Record<SprintIndexSort,(suspended:string)=>string>={
 
 /** Consultation sans DDL, sans reconcileSprintStates, sans trigger d'ouverture.
  * La réconciliation reste l'opération métier existante sur l'ancienne API. */
-export async function readSprintIndex(db:Client,query:SprintIndexQuery){
- const team=await db.query<{id:string;name:string}>(`
+export async function readSprintIndex(db:Client,query:SprintIndexQuery,
+ scopedTeam?:Readonly<{id:string;name:string}>){
+ const team=scopedTeam?null:await db.query<{id:string;name:string}>(`
  SELECT t.id,t.name FROM public.smn_team t
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
- if(team.rows.length!==1)throw Error("scrum-team-unavailable");
- const {id:teamId,name:teamName}=team.rows[0];
+ if(!scopedTeam&&team?.rows.length!==1)throw Error("scrum-team-unavailable");
+ const {id:teamId,name:teamName}=scopedTeam??team!.rows[0];
  // Une nouvelle installation peut ne pas avoir encore créé le premier sprint.
  // L'index n'exécute jamais de migration pour afficher une liste vide.
  const schema=await db.query<{table_exists:boolean;suspension_exists:boolean}>(`
