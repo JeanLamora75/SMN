@@ -13,6 +13,7 @@ export async function ensureCapacityRecalcOutbox(db:Client){
   status text NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','running','done','failed')),
   attempts integer NOT NULL DEFAULT 0 CHECK(attempts>=0),
   last_error text,
+  result jsonb,
   next_attempt_at timestamptz NOT NULL DEFAULT now(),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
@@ -53,11 +54,11 @@ export async function claimRecalculation(db:Client):Promise<RecalcJob|null>{
   return {...job,attempts:job.attempts+1};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
-export async function finishRecalculation(db:Client,id:string,error?:string){
+export async function finishRecalculation(db:Client,id:string,error?:string,result?:unknown){
  await db.query(`UPDATE public.smn_company_capacity_recalc SET
- status=$2,last_error=$3,next_attempt_at=CASE WHEN $3::text IS NULL THEN now()
+ status=$2,last_error=$3,result=$4::jsonb,next_attempt_at=CASE WHEN $3::text IS NULL THEN now()
  ELSE now()+interval '5 minutes'*LEAST(attempts,12) END,updated_at=now()
- WHERE id=$1 AND status='running'`,[id,error?"failed":"done",error?.slice(0,500)??null]);
+ WHERE id=$1 AND status='running'`,[id,error?"failed":"done",error?.slice(0,500)??null,result===undefined?null:JSON.stringify(result)]);
 }
 export async function recoverStaleRecalculations(db:Client){
  await db.query(`UPDATE public.smn_company_capacity_recalc
