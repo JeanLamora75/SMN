@@ -105,3 +105,9 @@ PR #213 : deux workflows GitHub Actions en échec sur le commit précédent : «
 Correction publiée : `preloadNationalCalendar` prend maintenant les verrous `20261021,49` (préchargement), `20261021,50` (édition/import) puis `20261026,279` (cycle de vie), dans le même ordre que le flux CSV. Cela empêche les modifications simultanées avec les imports CSV/ICS ou les éditions manuelles. Test statique correspondant complété. **Ce correctif ne remplace pas une recette transactionnelle PostgreSQL.**
 
 Décision : PR maintenue en brouillon, pas de fusion dans main tant que la compilation et les actions ne sont pas concluantes. Contrôles attendus : `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, puis migration v30 sur base de développement et `pnpm db:diagnose`.
+
+## Réparation des fixtures de test après garde v30
+
+Les deux workflows CI du dernier commit avant cette correction sont encore en échec (`Vérification I0`, `SMN — Paquet Windows pilote`) ; les trois jobs Windows/PostgreSQL/paquet échouent et les journaux détaillés retournent toujours `BlobNotFound`. Cause précise indéterminée.
+
+Une incompatibilité vérifiable du code a été corrigée dans cinq fixtures de tests (`holiday-ics-import`, `holiday-csv-import`, `national-calendar-validation`, `national-holiday-manual`, `country-lifecycle`) : les doubles SQL simulent maintenant le résultat `schema_version=30,ready=true` **uniquement** pour la requête de garde contenant `to_regclass('public.smn_country_name_audit')`. La garde applicative n'est pas contournée ni modifiée. Tests non exécutés ; résultats CI à contrôler au nouveau commit.
