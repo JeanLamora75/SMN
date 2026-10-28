@@ -3,6 +3,9 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
 import {preloadNationalCalendar} from "@/server/holidays/preload";
+import {isValidCountry} from "@/server/members/location";
+import {readAnnualHolidaySnapshot} from "@/server/holidays/manual";
+import {ensureManualHolidaySchema} from "@/server/holidays/manual-migration";
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
 const target={type:"settings",exists:true,inScope:true} as const;
@@ -13,6 +16,7 @@ export async function POST(req:NextRequest){
  if(!actor)return jsonResult({error:"forbidden"},403);
  try{
   const result=await withAuthDb(async db=>{
+   await ensureManualHolidaySchema(db);
    const r=await db.query<{country:string|null;year:number}>(`SELECT
      s.reference_country AS country,EXTRACT(YEAR FROM i.created_at)::integer AS year
      FROM public.smn_general_settings s JOIN public.smn_installation i
@@ -26,4 +30,23 @@ export async function POST(req:NextRequest){
   console.error("smn-national-calendar-refresh-failed");
   return jsonResult({error:"service-unavailable"},503);
  }
+}
+
+/** Admin-only annual drilldown; POST remains reserved for explicit local refresh. */
+export async function GET(req:NextRequest){
+ if(!await authorizeApi(req,"read",target))return jsonResult({error:"forbidden"},403);
+ const code=req.nextUrl.searchParams.get("country");
+ const yearText=req.nextUrl.searchParams.get("year");
+ if(!code||!isValidCountry(code)||!yearText||! /^\d{4}$/.test(yearText))
+  return jsonResult({error:"invalid-input"},400);
+ const year=Number(yearText);
+ if(year<1900||year>2200)return jsonResult({error:"invalid-input"},400);
+ try{
+  const snapshot=await withAuthDb(async db=>{
+   await ensureManualHolidaySchema(db);
+   return readAnnualHolidaySnapshot(db,code,year);
+  });
+  if(!snapshot)return jsonResult({error:"country-not-found"},404);
+  return jsonResult(snapshot);
+ }catch{return jsonResult({error:"service-unavailable"},503);}
 }
