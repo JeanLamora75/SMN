@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 
 const TEAM_ID=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/u;
 const NAME_MAX=120,CONTENT_MAX=5000;
@@ -105,11 +106,17 @@ export async function readTeamContext(db:Client,teamId:string):Promise<{
   productGoal:current?.product_goal??null,revision},history};
 }
 /** One transaction changes team identity and context with a shared revision and append-only audit. */
-export async function saveTeamContext(db:Client,actorId:string,raw:unknown){
+export async function saveTeamContext(db:Client,actorId:string,raw:unknown,
+ authorized?:TeamActor){
  const input=parseTeamContextChange(raw);
  if(!actorId||!input)return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
+  if(authorized){
+   if(authorized.accountId!==actorId)throw Error("team-access-forbidden");
+   const team=await resolveAdminTeam(db,authorized,input.teamId);
+   if(team.team_id!==input.teamId)throw Error("team-access-forbidden");
+  }
   const scope=await db.query<Scope>(scopeSql+" FOR UPDATE OF t,p",[input.teamId]);
   if(scope.rows.length!==1){
    await db.query("ROLLBACK");
