@@ -223,7 +223,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     if(calendar.slots===null)problems.push("work-calendar");
     const location=latest(memberLocations,date);
     const country=location?.country_iso2??null;
-    const closure=closures.rows.some(c=>(!isV31||c.member_id===memberId)&&c.start_on<=date&&c.end_on>=date);
+    const closure=closureForMember(closures.rows,memberId,date,isV31);
     const national=country!==null&&holidays.has(country+":"+date);
     const availability=resolveDayAvailability(date,calendar.slots,national,
      memberAbsences.map(a=>({startOn:a.start_on,endOn:a.end_on,
