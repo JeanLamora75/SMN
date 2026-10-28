@@ -37,3 +37,16 @@ Après fusion de la PR #226 (commit `c7d28258`), trois corrections ont été pub
 - `src/app/app/admin/company-closures/page.tsx` : lien vers le catalogue.
 
 **Statut de validation : non exécuté.** Ces modifications sur `main` ne constituent pas une recette. L'intégration de l'entreprise dans la fiche membre, la robustesse des traductions FR/EN, l'ensemble des références anciennes au schéma, les tests PostgreSQL v31 et le démarrage autonome du worker restent à vérifier. La migration v31 n'a pas été exécutée.
+
+
+## Vérifications GitHub Actions — 28 octobre, complément
+Les runs associés au commit d'audit `09114902` ont été effectivement consultés (les résultats **ne sont pas ceux des derniers commits sur main**) :
+- `Vérification I0` run `40772943995` : Linux/PostgreSQL échoue sur lint, avec une erreur de syntaxe dans `scripts/verify-multi-team-stage2.mjs` ligne 8. Windows smoke échoue aussi ; ses étapes suivantes sont ignorées.
+- `SMN — Paquet Windows pilote` run `40772944043` : compilation Next réussie, mais TypeScript échoue sur `src/app/app/admin/links/links-cockpit.tsx:77`, icône `people` non reconnue.
+- `SMN — Diagnostic consolidation Pays` run `40772944047` : job de validation en échec et tests historiques non passants, plusieurs assertions de contrat obsolètes ou incompatibles. Ne pas interpréter les tests non exécutés comme réussis.
+
+Correctifs publiés sur `main` :
+- remplacement de l'icône invalide par `people-fill` ;
+- suppression des séquences de retour à la ligne littérales corrompant le script de vérification multiéquipes.
+
+**Validation des correctifs en attente :** aucune nouvelle exécution GitHub Actions n'est actuellement associée au dernier commit vérifié `1395ac23`. Un vrai rerun sur ce SHA ou une nouvelle PR de validation CI est nécessaire pour confirmer la correction des deux erreurs. Les autres échecs des scénarios historiques restent à qualifier individuellement. Le code n'a pas été téléchargé localement : le clone GitHub est inaccessible dans ce conteneur (résolution DNS), et le runtime Node trouvé ici est v22, non conforme à l'exigence Node 24 du projet. Aucun test local n'a été exécuté.
