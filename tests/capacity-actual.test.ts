@@ -70,8 +70,8 @@ function fixture(opts:FixtureOptions={}){
   throw Error("Unexpected SQL: "+sql);
  }} as unknown as Client;
  const calculate=(value:number|null)=>{
-  let calls=0;const fn=async(_:Client,from:string,to:string,extra:{externalTransaction:true})=>{
-   calls++;assert.deepEqual(extra,{externalTransaction:true});
+  let calls=0;const fn=async(_:Client,from:string,to:string,extra:{externalTransaction:true;includeExceptionalImpact?:boolean})=>{
+   calls++;assert.deepEqual(extra,{externalTransaction:true,includeExceptionalImpact:true});
    return {team:{id:teamId,name:"MVP",mode:"scrum"},start:from,end:to,
     totalJh:value,missing:value===null?[{date:from,memberId:null,source:"work-calendar"}]:[]};
   };
