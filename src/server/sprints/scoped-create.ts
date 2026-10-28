@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
+import {requireScopedCycleSchema} from "@/server/teams/cycle-schema";
 import {calculateSprint} from "./creation";
 import {saveGeneratedCeremonies} from "./ceremonies";
 
@@ -33,6 +34,7 @@ export async function createScopedSprint(db:Client,actor:TeamActor,raw:unknown){
  if(!input)return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
+  await requireScopedCycleSchema(db,"scrum");
   const team=await resolveAdminTeam(db,actor,input.teamId);
   if(team.team_id!==input.teamId||team.mode!=="scrum")throw Error("scrum-team-unavailable");
   const locked=await db.query<{id:string}>(`
