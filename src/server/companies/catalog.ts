@@ -30,14 +30,17 @@ export async function listCompanies(db:Client){
  return r.rows.map(map);
 }
 export async function getCompany(db:Client,id:string){
+ if(!validId(id))return null;
  const r=await db.query<Row>(`SELECT ${fields} FROM public.smn_company
  WHERE installation_id='singleton' AND id=$1`,[id]);
  return r.rows[0]?map(r.rows[0]):null;
 }
 const unique=(e:unknown)=>typeof e==="object"&&e!==null&&"code" in e&&(e as {code:unknown}).code==="23505";
+const validId=(id:unknown):id is string=>typeof id==="string"&&/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)&&id.length===36;
+const validActor=(id:unknown):id is string=>typeof id==="string"&&id.length>0&&id.length<=120;
 export async function createCompany(db:Client,actorId:string,raw:unknown){
  const input=parseCompanyInput(raw);
- if(!input||!actorId)return {ok:false as const,error:"invalid-input" as CompanyError};
+ if(!input||!validActor(actorId))return {ok:false as const,error:"invalid-input" as CompanyError};
  try{
   const r=await db.query<Row>(`INSERT INTO public.smn_company
    (id,installation_id,name,comment,color,created_by,updated_by)
@@ -51,7 +54,7 @@ export async function changeCompany(db:Client,id:string,actorId:string,raw:unkno
  const v=raw as Record<string,unknown>;
  const revision=v.revision;
  const input=parseCompanyInput(Object.fromEntries(Object.entries(v).filter(([k])=>k!=="revision")));
- if(!input||Object.keys(v).some(k=>!["name","comment","color","revision"].includes(k))||!Number.isSafeInteger(revision)||Number(revision)<1)return {ok:false as const,error:"invalid-input" as CompanyError};
+ if(!validId(id)||!validActor(actorId)||!input||Object.keys(v).some(k=>!["name","comment","color","revision"].includes(k))||!Number.isSafeInteger(revision)||Number(revision)<1)return {ok:false as const,error:"invalid-input" as CompanyError};
  try{
   const r=await db.query<Row>(`UPDATE public.smn_company SET name=$3,comment=$4,color=$5,
    revision=revision+1,updated_by=$6,updated_at=now()
@@ -59,11 +62,11 @@ export async function changeCompany(db:Client,id:string,actorId:string,raw:unkno
    RETURNING ${fields}`,[id,revision,input.name,input.comment,input.color,actorId]);
   if(r.rows[0])return {ok:true as const,company:map(r.rows[0])};
   const found=await getCompany(db,id);
-  return {ok:false as const,error:(!found?"not-found":found.archivedAt?"already-archived":"conflict") as CompanyError};
+  return {ok:false as const,error:(!found?"not-found":found.revision!==revision?"conflict":"already-archived") as CompanyError};
  }catch(e){if(unique(e))return {ok:false as const,error:"duplicate-name" as CompanyError};throw e;}
 }
 export async function setCompanyArchived(db:Client,id:string,actorId:string,revision:unknown,archive:boolean){
- if(!Number.isSafeInteger(revision)||Number(revision)<1)return {ok:false as const,error:"invalid-input" as CompanyError};
+ if(!validId(id)||!validActor(actorId)||!Number.isSafeInteger(revision)||Number(revision)<1)return {ok:false as const,error:"invalid-input" as CompanyError};
  const r=await db.query<Row>(`UPDATE public.smn_company
  SET archived_at=${archive?"now()":"NULL"},revision=revision+1,updated_by=$3,updated_at=now()
  WHERE id=$1 AND installation_id='singleton' AND revision=$2
