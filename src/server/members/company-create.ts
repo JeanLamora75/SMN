@@ -1,0 +1,83 @@
+import {randomUUID} from "node:crypto";
+import type {Client} from "pg";
+import {resolveAdminTeam} from "../teams/resolve";
+
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const TEAM=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
+export type CompanyMemberRequest=Readonly<{requestId:string;teamId:string;displayName:string;companyId:string|null}>;
+export function parseCompanyMemberRequest(raw:unknown):CompanyMemberRequest|null{
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
+ const r=raw as Record<string,unknown>;
+ if(Object.keys(r).some(k=>!["requestId","teamId","displayName","companyId"].includes(k))||
+  typeof r.requestId!=="string"||!UUID.test(r.requestId)||
+  typeof r.teamId!=="string"||!TEAM.test(r.teamId)||
+  typeof r.displayName!=="string"||/[\u0000-\u001f\u007f]/u.test(r.displayName))return null;
+ const name=r.displayName.trim().replace(/\s+/gu," ");
+ if(name.length<1||name.length>120||
+  (r.companyId!==undefined&&r.companyId!==null&&(typeof r.companyId!=="string"||!UUID.test(r.companyId))))return null;
+ return {requestId:r.requestId,teamId:r.teamId,displayName:name,companyId:r.companyId as string|null??null};
+}
+type Row={id:string;member_number:number;display_name:string;company_id:string|null;company_name:string|null;company_color:string|null};
+const select=`SELECT m.id,m.member_number,m.display_name,m.company_id,
+ c.name AS company_name,c.color AS company_color FROM public.smn_member m
+ LEFT JOIN public.smn_company c ON c.id=m.company_id AND c.installation_id=m.installation_id
+ WHERE m.id=$1 AND m.installation_id='singleton'`;
+function project(row:Row){return {id:row.id,memberNumber:row.member_number,displayName:row.display_name,
+ companyId:row.company_id,companyName:row.company_name,companyColor:row.company_color};}
+export async function createCompanyMember(db:Client,actorId:string,raw:unknown){
+ const input=parseCompanyMemberRequest(raw);
+ if(!input||!TEAM.test(actorId))return {ok:false as const,error:"invalid-input" as const};
+ await db.query("BEGIN");
+ try{
+  const abort=async(error:"team-unavailable"|"company-unavailable"|"not-initialized"|"roster-full"|"request-conflict")=>{
+   await db.query("ROLLBACK");return {ok:false as const,error};
+  };
+  await db.query("SELECT pg_advisory_xact_lock(20261021,42)");
+  const team=await resolveAdminTeam(db,{accountId:actorId,role:"admin"},input.teamId);
+  if(team.team_id!==input.teamId)return abort("team-unavailable");
+  const previous=await db.query<Row>(select,[input.requestId]);
+  if(previous.rows.length){
+   const row=previous.rows[0];
+   const assignment=await db.query<{exists:boolean}>(`SELECT EXISTS(
+    SELECT 1 FROM public.smn_member_assignment WHERE member_id=$1 AND team_id=$2 AND end_on IS NULL
+   ) AS exists`,[input.requestId,input.teamId]);
+   if(row.display_name!==input.displayName||row.company_id!==input.companyId||!assignment.rows[0]?.exists)
+    return abort("request-conflict");
+   await db.query("COMMIT");
+   return {ok:true as const,created:false,member:project(row)};
+  }
+  if(input.companyId){
+   const company=await db.query<{id:string}>(`SELECT id FROM public.smn_company
+    WHERE id=$1 AND installation_id='singleton' AND archived_at IS NULL FOR SHARE`,[input.companyId]);
+   if(company.rows.length!==1)return abort("company-unavailable");
+  }
+  const batch=await db.query<{id:string}>(`SELECT id FROM public.smn_member_batch
+   WHERE team_id=$1 AND installation_id='singleton' ORDER BY created_at,id LIMIT 1`,[input.teamId]);
+  if(!batch.rows.length)return abort("not-initialized");
+  const count=await db.query<{next:number;total:number}>(`SELECT
+   COALESCE(MAX(member_number),0)::int+1 AS next,count(*)::int AS total
+   FROM public.smn_member WHERE installation_id='singleton'`);
+  const number=count.rows[0]?.next??0;
+  if(number<1||number>50||count.rows[0]?.total>=50)return abort("roster-full");
+  const clock=await db.query<{today:string}>("SELECT CURRENT_DATE::text AS today");
+  const today=clock.rows[0]?.today;
+  if(!today)throw Error("member-date-unavailable");
+  await db.query(`INSERT INTO public.smn_member
+   (id,installation_id,batch_id,member_number,display_name,company_id,is_provisional,contract_percent,contribution_percent)
+   VALUES($1,'singleton',$2,$3,$4,$5,false,100,100)`,
+   [input.requestId,batch.rows[0].id,number,input.displayName,input.companyId]);
+  const assignmentId=randomUUID();
+  await db.query(`INSERT INTO public.smn_member_assignment
+   (id,member_id,team_id,start_on,agile_role,allocation_percent,role_percent)
+   VALUES($1,$2,$3,$4::date,'developer',100,100)`,
+   [assignmentId,input.requestId,input.teamId,today]);
+  await db.query(`INSERT INTO public.smn_member_assignment_version
+   (id,assignment_id,revision,effective_from,allocation_percent,contract_percent,
+   contribution_percent,scrum_master_percent,product_owner_percent,developer_percent)
+   VALUES($1,$2,1,$3::date,100,100,100,0,0,100)`,[randomUUID(),assignmentId,today]);
+  const stored=await db.query<Row>(select,[input.requestId]);
+  if(stored.rows.length!==1)throw Error("member-create-incomplete");
+  await db.query("COMMIT");
+  return {ok:true as const,created:true,member:project(stored.rows[0])};
+ }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
+}
