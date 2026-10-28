@@ -20,6 +20,7 @@ function fake(options:{version?:number;foreign?:boolean}={}){
    return {rows:[{installation_id:"singleton",schema_version:28}]};
   if(sql.includes("FROM public.smn_account_team_preference p"))
    return {rows:[{team_id:"team_b"}]};
+  if(sql.includes("FROM information_schema.columns"))return {rows:[]};
   if(sql.includes("SELECT p.id AS product_id"))
    return {rows:[{product_id:null,product:null,team_id:"team_a",
     team:"Alpha",mode:"scrum"}]};
