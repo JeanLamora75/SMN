@@ -29,7 +29,7 @@ export async function ensureKanbanPeriodTables(db:Client){
 }
 async function kanbanTeam(db:Client){
  const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'`);
+ WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='kanban'`);
  if(r.rows.length!==1)throw Error("kanban-team-unavailable");
  return r.rows[0].id;
 }
