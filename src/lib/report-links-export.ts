@@ -9,10 +9,14 @@ export function safeExportLinks(values:unknown):ExportLink[]{
   try{const u=new URL(x.url);return ["https:","http:"].includes(u.protocol)&&!u.username&&!u.password;}catch{return false;}
  });
 }
+function markdownLabel(value:string):string{
+ // A title must remain one list item: flatten line breaks and escape Markdown delimiters.
+ return value.replace(/[\r\n\u2028\u2029]+/g," ").replace(/[\\\[\]]/g,"\\$&");
+}
 export function reportLinksMarkdown(values:unknown):string{
  const links=safeExportLinks(values);
  if(!links.length)return "";
- return "## Liens et références\n\n"+links.map(x=>"- ["+x.title.replace(/[\\[\\]]/g,"\\$&")+"]("+encodeURI(x.url).replace(/\\(/g,"%28").replace(/\\)/g,"%29")+")").join("\n")+"\n";
+ return "## Liens et références\n\n"+links.map(x=>"- ["+markdownLabel(x.title)+"]("+encodeURI(x.url).replace(/\(/g,"%28").replace(/\)/g,"%29")+")").join("\n")+"\n";
 }
 export function reportLinksHtml(values:unknown):string{
  const escape=(s:string)=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]??c));
