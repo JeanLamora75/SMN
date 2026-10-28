@@ -16,7 +16,7 @@ export default function ReportLinkSelection({sprintId}:{sprintId:string}){
    .finally(()=>{if(!controller.signal.aborted)setLoading(false);});
   return()=>controller.abort();
  },[sprintId]);
- const filtered=useMemo(()=>items.filter(item=>(item.title+" "+item.categoryName).toLocaleLowerCase().includes(query.toLocaleLowerCase())),[items,query]);
+ const filtered=useMemo(()=>items.filter(item=>(item.title+" "+item.categoryName+" "+(item.description??"")).toLocaleLowerCase().includes(query.toLocaleLowerCase())),[items,query]);
  const dirty=revision!==null&&JSON.stringify(selected)!==baseline;
  const save=async()=>{if(!dirty||saving||revision===null)return;setSaving(true);setSaveError("");setSaved(false);try{const r=await fetch("/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/links/selection",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids:selected,revision})});if(!r.ok)throw Error(String(r.status));const next=await r.json() as {revision:number};setRevision(next.revision);setBaseline(JSON.stringify(selected));setSaved(true);}catch(e){setSaveError(e instanceof Error&&e.message==="409"?t("links.conflict"):t("links.saveError"));}finally{setSaving(false);}};
  const move=(index:number,direction:number)=>setSelected(old=>{const other=index+direction;if(other<0||other>=old.length)return old;const next=[...old];[next[index],next[other]]=[next[other],next[index]];return next;});
