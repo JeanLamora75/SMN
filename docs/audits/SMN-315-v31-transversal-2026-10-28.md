@@ -53,3 +53,20 @@ Correctifs publiés sur `main` :
 
 ## Nouveau contrôle CI
 Relance demandée sur l'état courant de `main` ; les résultats doivent être vérifiés sur le nouveau SHA. Les tests PostgreSQL v31 réels restent distincts des tests statiques.
+
+## Cycle de corrections CI — PR #228, 28 octobre 2026
+Exécutions réellement consultées :
+- [Vérification I0](https://github.com/JeanLamora75/SMN/actions/runs/40775679171) : Linux + PostgreSQL : **lint réussi**, étape tests échouée, 2070 tests / 1935 pass / 133 fail / 2 autres ; étapes Prisma, typecheck, build et HTTP non exécutées car CI arrêtée.
+- Même workflow, Windows Smoke : tests de langage/ports/contrats échoués ; typecheck/build Windows non exécutés.
+- [Diagnostic consolidation Pays](https://github.com/JeanLamora75/SMN/actions/runs/40775679215) : baseline-tests réussi, validation échouée.
+
+### Liste des familles d'échecs observées
+1. **Moteur de capacité v31** : le test « la fermeture d'une entreprise ne s'applique qu'à ses membres » échouait et le moteur utilisait `closureForMember` sans définition retrouvée. **Corrigé sur main** : fonction explicite filtrant membre et date, sans retrait additionnel.
+2. **Tests de contrats v28/v30 devenus strictement dépendants d'anciennes chaînes** : assertions exigeant `schema_version IN (28,29,30)` incompatibles avec introduction v31. À réécrire selon les comportements attendus, sans masquer de régressions.
+3. **Interfaces historiques et refontes** : tableaux de bord, navigation, registre, modales, calendrier et cycle Scrum présentent des assertions de structure et de rendu échouées. Chaque cas demande qualification produit.
+4. **Métier capacité / affectations** : plusieurs tests sur le rôle développeur, le calcul des J/H, périodes historiques, jours fériés et affectations échouent. Priorité forte : vérifier les résultats et les mocks, ne pas simplement modifier les tests.
+5. **Scripts de validation et schémas** : tests migration v30 refusant versions au-delà de 30, diagnostic et contrats multiéquipes doivent accepter v31 explicitement, tout en refusant >=32.
+6. **Tests FR/EN et responsive** : plusieurs assertions sur libellés, menus et accessibilité échouent ; un audit écran par écran est encore requis.
+
+### État de vérification
+La correction de `closureForMember` a été publiée **après** le run #228. Elle n'est pas validée par ce run. Aucune migration v31 réelle n'a été exécutée dans ces pipelines (le job est arrêté avant les étapes de migration/intégration correspondantes). L'Epic reste non validée.
