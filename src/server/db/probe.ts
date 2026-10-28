@@ -132,7 +132,11 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
       ...['id','installation_id','title','url','description','category_id','scope','team_id','created_by','updated_by','created_at','updated_at','revision'].map(n=>'smn_link:'+n),
       ...['id','link_id','installation_id','operation','before_values','after_values','actor_id','occurred_at'].map(n=>'smn_link_audit:'+n)
     ].every(n=>columnSet.has(n)) : undefined;
-    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, linksSchemaValid, countryConsolidationSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
+    const companySchemaValid = (installations.rows[0]?.schema_version??0)<31 || [
+      ...["id","installation_id","name","comment","color","archived_at","revision"].map(n=>"smn_company:"+n),
+      "smn_member:company_id","smn_company_closure:company_id"
+    ].every(n=>columnSet.has(n)) && !columnSet.has("smn_company_closure:team_id");
+    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, linksSchemaValid, countryConsolidationSchemaValid, companySchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
       configurationTasksSchemaValid: ["smn_configuration_task:installation_id","smn_configuration_task:task_key",
         "smn_configuration_task:status","smn_configuration_task:updated_at","smn_configuration_task:updated_by"]
@@ -187,7 +191,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
         ...["id","installation_id","revision","previous_hours","new_hours","changed_by","changed_at"].map(n=>"smn_capacity_settings_audit:"+n)
       ].every(n=>columnSet.has(n)),
       closuresSchemaValid: [
-        ...["id","team_id","name","start_on","end_on","is_active","revision",
+        ...["id",(installations.rows[0]?.schema_version??0)>=31?"company_id":"team_id","name","start_on","end_on","is_active","revision",
           "created_by","created_at","updated_by","updated_at"]
           .map(n=>"smn_company_closure:"+n),
         ...["id","closure_id","revision","operation","previous_values",
