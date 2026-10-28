@@ -2,23 +2,19 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {requireScopedCycleSchema} from "@/server/teams/cycle-schema";
+import {isValidCycleStartDate} from "@/lib/cycle-input";
 import {calculateSprint} from "./creation";
 import {saveGeneratedCeremonies} from "./ceremonies";
 
 type Request={teamId:string;startOn:string;name?:string;cadenceRevision:number};
 type Cadence={duration_weeks:number;start_day:number;start_time:string;end_day:number;end_time:string;time_zone:string;revision:number};
 const identifier=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
-const validStartOn=(value:string):boolean=>{
- if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
- const parsed=new Date(value+"T00:00:00Z");
- return Number.isFinite(parsed.getTime())&&parsed.toISOString().slice(0,10)===value;
-};
 export function parseScopedSprintCreate(raw:unknown):Request|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const value=raw as Record<string,unknown>;
  if(Object.keys(value).some(k=>!["teamId","startOn","name","cadenceRevision"].includes(k))||
  typeof value.teamId!=="string"||!identifier.test(value.teamId)||
- (typeof value.startOn!=="string"||!validStartOn(value.startOn))||
+ (typeof value.startOn!=="string"||!isValidCycleStartDate(value.startOn))||
  typeof value.cadenceRevision!=="number"||!Number.isSafeInteger(value.cadenceRevision)||
  value.cadenceRevision<1||
  (value.name!==undefined&&(typeof value.name!=="string"||!value.name.trim()||value.name.trim().length>160)))
