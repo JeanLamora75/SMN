@@ -105,12 +105,12 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
     <article className="card h-100"><div className="card-body d-flex flex-column gap-2">
      <h2 className="h5 mb-0 text-break">{item.title}</h2>
      <div className="small text-body-secondary">{item.categoryName} · {item.scope==="TRANSVERSE"?t("links.transverse"):t("links.specific")}</div>
-     {item.description&&<p className="small mb-0 text-break">{item.description}</p>}
+     {item.description&&<p className="small mb-0 text-break" style={{whiteSpace:"pre-wrap"}}>{item.description}</p>}
      <div className="mt-auto pt-2">{action(item)}</div>
     </div></article>
    </div>)}</div>:
    <div className="list-group">{shown.map(item=><article key={item.id} className="list-group-item d-flex flex-wrap gap-3 justify-content-between align-items-center">
-    <div><h2 className="h6 mb-1">{item.title}</h2><div className="small text-body-secondary">{item.categoryName} · {item.scope==="TRANSVERSE"?t("links.transverse"):t("links.specific")}</div></div>{action(item)}
+    <div className="flex-grow-1"><h2 className="h6 mb-1">{item.title}</h2><div className="small text-body-secondary">{item.categoryName} · {item.scope==="TRANSVERSE"?t("links.transverse"):t("links.specific")}</div>{item.description&&<p className="small text-break mb-0" style={{whiteSpace:"pre-wrap"}}>{item.description}</p>}</div>{action(item)}
    </article>)}</div>}
   {editing&&<LinkEditor teamId={teamId} categories={categories} item={editing.item} onClose={()=>setEditing(null)} onSaved={changed}/>}
   {deleting&&<LinkDialog titleId="smn-links-delete-title" onClose={()=>setDeleting(null)} locked={busy}><div className="modal-header"><h2 id="smn-links-delete-title" className="modal-title fs-5">{t("links.confirmDelete")}</h2></div><div className="modal-body"><p>{deleting.title}</p><p className="text-body-secondary">{t("links.deleteWarning")}</p>{mutationError&&<div className="alert alert-danger" role="alert">{mutationError}</div>}</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setDeleting(null)}>{t("links.cancel")}</button><button type="button" className="btn btn-danger" disabled={busy} onClick={()=>void remove()}>{t("links.delete")}</button></div></LinkDialog>}
