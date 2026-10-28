@@ -49,7 +49,7 @@ type Week=WeekRow&{member_id:string};
 type Exception=ExceptionRow&{member_id:string};
 type Location={member_id:string;effective_from:string;revision:number;country_iso2:string};
 type Holiday={country_code:string;holiday_date:string;name:string};
-type ClosureRow={id:string;name:string;start_on:string;end_on:string;company_id?:string;company_name?:string;company_color?:string;member_ids?:string[];member_names?:string[]};
+type ClosureRow={id:string;name:string;start_on:string;end_on:string;company_id?:string;company_name?:string;company_color?:string;member_ids?:string[];member_details?:{id:string;name:string}[]};
 
 export function parseTeamCalendarQuery(params:URLSearchParams,isAdmin:boolean):
  TeamCalendarQuery|null{
@@ -158,11 +158,11 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
   isAdmin?db.query<{id:string;name:string}>(
    "SELECT id,name FROM public.smn_absence_category ORDER BY name,id LIMIT 101"):
    Promise.resolve({rows:[] as {id:string;name:string}[]}),
-  db.query<ClosureRow>(companyMode?[
+  db.query<ClosureRow>((companyMode?[
    "SELECT c.id,c.name,c.start_on::text AS start_on,c.end_on::text AS end_on,",
    "c.company_id,co.name AS company_name,co.color AS company_color,",
    "array_agg(DISTINCT m.id) AS member_ids,",
-   "array_agg(DISTINCT m.display_name) AS member_names",
+   "jsonb_agg(DISTINCT jsonb_build_object('id',m.id,'name',m.display_name)) AS member_details",
    "FROM public.smn_company_closure c",
    "JOIN public.smn_company co ON co.id=c.company_id AND co.installation_id='singleton'",
    "JOIN public.smn_member m ON m.company_id=co.id AND m.installation_id=co.installation_id",
@@ -175,7 +175,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
    "FROM public.smn_company_closure WHERE team_id=$1 AND is_active=true",
    "AND start_on<=$3::date AND end_on>=$2::date",
    "ORDER BY start_on,id LIMIT 101"
-  ].join(" "),[team.id,query.start,end])
+  ]).join(" "),[team.id,query.start,end])
  ]);
  if(closures.rows.length>100)throw Error("team-calendar-closures-limit");
  const countryHolidays=new Map(holidays.rows.map(h=>[h.country_code+":"+h.holiday_date,h.name]));
@@ -245,7 +245,7 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
  }
  return {
   team,start:query.start,end,days:query.days,kind:query.kind,collective,
-  closures:closures.rows.map(c=>({id:c.id,name:c.name,startOn:c.start_on,endOn:c.end_on,\n   ...(companyMode?{companyId:c.company_id,companyName:c.company_name,companyColor:c.company_color,\n   members:isAdmin?(c.member_ids??[]).map((id,i)=>({id,name:c.member_names?.[i]??""})):[]}: {})})),
+  closures:closures.rows.map(c=>({id:c.id,name:c.name,startOn:c.start_on,endOn:c.end_on,\n   ...(companyMode?{companyId:c.company_id,companyName:c.company_name,companyColor:c.company_color,\n   members:isAdmin?(c.member_details??[]):[]}: {})})),
   ...(isAdmin?{admin:{categories:categories.rows,members:adminMembers}}:{})
  };
 }
