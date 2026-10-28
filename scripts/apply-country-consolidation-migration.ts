@@ -12,7 +12,7 @@ async function main(){
  if(process.argv.slice(2).join(" ")!=="--apply")
   throw Error("Usage: pnpm exec tsx scripts/apply-country-consolidation-migration.ts --apply");
  const sql=readFileSync(new URL("../prisma/migrations/20261028_smn270_281_country_consolidation/migration.sql",import.meta.url),"utf8");
- if(sql!==COUNTRY_CONSOLIDATION_MIGRATION_SQL)
+ if(sql.replace(/\r\n/g,"\n")!==COUNTRY_CONSOLIDATION_MIGRATION_SQL.replace(/\r\n/g,"\n"))
   throw Error("Source SQL v30 divergente : migration refusée");
  const uri=await installedDatabaseUri();
  const before=await probePostgres(uri);
