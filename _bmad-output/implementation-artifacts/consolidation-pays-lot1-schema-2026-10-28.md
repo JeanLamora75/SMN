@@ -41,3 +41,11 @@ Sources : `prisma/schema.prisma` et `src/server/installation/contract.ts` sur `m
 - `src/server/installation/contract.ts` enrichi avec les quatre tables Pays tout en conservant les tables Liens.
 - **Attention : le schéma SQL réel n'a pas été migré.** Les fonctions historiques `ensureCountryNameSchema` et `ensureCountryArchiveSchema` effectuent des changements DDL à l'exécution ; leur remplacement par des migrations versionnées doit précéder toute activation du code Pays.
 - **Non validé :** `prisma validate`, typecheck, tests, migrations, build, recette. Ne pas fusionner ce lot dans `main` à ce stade.
+
+## Migration SQL versionnée publiée
+
+Fichier : `prisma/migrations/20261028_smn270_281_country_consolidation/migration.sql`.
+
+La migration est additive (quatre tables d'audit Pays, champs de révision / archivage / attestation, index et références). Elle conserve les tables Liens et les préférences d'équipe. Le marqueur `schema_version` ne passe de 29 à 30 que lorsque la base indique 29.
+
+**Contrôles bloquants restants :** valider le mécanisme de migration Prisma sur une base de développement, la cohérence du marqueur de version avec le code de démarrage, les différences éventuelles de structures préexistantes, les modèles Prisma et la non-régression. Aucune commande ni migration PostgreSQL n'a été exécutée. Ne pas fusionner ce lot sur `main` avant ces vérifications.
