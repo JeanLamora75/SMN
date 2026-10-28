@@ -85,3 +85,9 @@ Correction sur cette branche : verrou partagé avec l'archivage (`pg_advisory_xa
 Composants UX repris depuis #201 : catalogue `country-admin.tsx`, page Pays, formulaire, calendrier, éditeur et import de jours fériés, validation annuelle, cycle de vie, drapeaux. Six utilitaires `src/lib/countries/` ont été transférés. Les traductions `countries` ont été fusionnées **clé par clé** dans FR/EN en conservant les autres sections de `main` (notamment `links`, `linksAdmin`, `teamSettings`, `teamSwitch`, `reportLinks`).
 
 **Aucune commande i18n/typecheck/lint/test/build exécutée** : contrats API et interactions UX à valider. Les ajustements CSS transversaux et les imports CSV/ICS restent à examiner. Pas de fusion vers `main`.
+
+## Consolidation des imports CSV/ICS
+
+Les fichiers `src/server/holidays/csv-import.ts` et `src/server/holidays/ics-import.ts` ont été réconciliés depuis la branche terminale #201. Les versions intégrées vérifient désormais l'archivage lors des prévisualisations, imposent le prérequis v30 en lecture seule et mettent à jour les révisions de couverture et l'invalidation des validations annuelles lors des modifications CSV. L'ICS réutilise le flux CSV pour l'enregistrement. Les tests `holiday-csv-import.test.ts` et `holiday-ics-import.test.ts` ont été synchronisés.
+
+**Attention :** code publié sans exécution des tests. Il reste à qualifier le conflit entre préchargement automatique et modifications CSV/ICS, les changements de libellés à nombre égal, la conformité des modales et de `globals.css`, ainsi que le diagnostic de migration v30 en base. Aucune PR fusionnée.
