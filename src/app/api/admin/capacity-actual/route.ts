@@ -23,7 +23,7 @@ export async function GET(request:NextRequest){
  try{return jsonResult(await withAuthDb(async db=>{
    const v=await db.query<{schema_version:number}>(
     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
-   if(v.rows[0]?.[28,29,30].includes(v.rows[0]?.schema_version??0)){
+   if([28,29,30].includes(v.rows[0]?.schema_version??0)){
     if(actor.role!=="admin")throw Error("actual-capacity-team-forbidden");
     const team=await resolveAdminTeam(db,
      {accountId:actor.id,role:actor.role},query.get("teamId"));
