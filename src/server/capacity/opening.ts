@@ -25,7 +25,7 @@ const rowFields=[
 const teamSql=[
  "SELECT t.id FROM public.smn_team t JOIN public.smn_installation i",
  "ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized'",
- "AND i.mode IN ('scrum','kanban') LIMIT 2"
+ "AND i.schema_version<=27 AND i.mode IN ('scrum','kanban') LIMIT 2"
 ].join(" ");
 const present=(r:InitialRow):InitialSnapshot=>({
  id:r.id,eventId:r.event_id,initialJh:r.initial_jh,
