@@ -13,6 +13,8 @@ function fake(options:Case={}){
    const names=args?.[0] as string[];
    return {rows:names.map(name=>({name}))};
   }
+  if(sql.includes("SELECT column_name AS name"))
+   return {rows:[{name:"agile_mode"},{name:"is_archived"}]};
   if(sql.includes("information_schema.columns")){
    if(sql.includes("column_name IN ('agile_mode'"))
     return {rows:[{column_name:"agile_mode"},{column_name:"is_archived"}]};
@@ -27,8 +29,6 @@ function fake(options:Case={}){
   if(sql.includes("SELECT a.installation_id,i.schema_version"))
    return {rows:[{installation_id:"installation_a",schema_version:30}]};
   if(sql.includes("FROM public.smn_account_team_preference"))return {rows:[]};
-  if(sql.includes("SELECT column_name AS name"))
-   return {rows:[{name:"agile_mode"},{name:"is_archived"}]};
   if(sql.includes("SELECT p.id AS product_id"))
    return {rows:[{product_id:null,product:null,team_id:"team_a",team:"A",mode:"kanban"}]};
   if(sql.includes("FOR UPDATE OF t"))
