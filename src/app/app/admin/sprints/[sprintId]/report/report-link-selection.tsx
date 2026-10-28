@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "@/i18n/client";
-type LinkItem={id:string;title:string;url:string;categoryName:string;scope:"TRANSVERSE"|"EQUIPE"};
+type LinkItem={id:string;title:string;url:string;description?:string|null;categoryName:string;scope:"TRANSVERSE"|"EQUIPE"};
 export default function ReportLinkSelection({sprintId}:{sprintId:string}){
  const t=useTranslation();
  const [items,setItems]=useState<LinkItem[]>([]),[selected,setSelected]=useState<string[]>([]);
@@ -29,11 +29,11 @@ export default function ReportLinkSelection({sprintId}:{sprintId:string}){
    <input type="search" className="form-control" aria-label={t("links.search")} placeholder={t("links.search")} value={query} onChange={e=>setQuery(e.target.value)}/>
    <div className="list-group">{filtered.map(item=><label key={item.id} className="list-group-item d-flex align-items-center gap-2">
     <input type="checkbox" className="form-check-input" checked={selected.includes(item.id)} onChange={e=>setSelected(old=>e.target.checked?[...old,item.id]:old.filter(x=>x!==item.id))}/>
-    <span className="flex-grow-1">{item.title} <small className="text-secondary">({item.categoryName})</small></span>
+    <span className="flex-grow-1"><span>{item.title} <small className="text-secondary">({item.categoryName})</small></span>{item.description&&<span className="d-block small text-body-secondary text-break" style={{whiteSpace:"pre-wrap"}}>{item.description}</span>}</span>
    </label>)}</div>
    <h3 className="h6">{t("reportLinks.selected")} ({selected.length})</h3>
    <ol className="list-group list-group-numbered">{selected.map((id,index)=>{const item=items.find(x=>x.id===id);return item?<li key={id} className="list-group-item d-flex align-items-center gap-2">
-     <span className="flex-grow-1">{item.title}</span><button className="btn btn-outline-secondary btn-sm" type="button" disabled={index===0} onClick={()=>move(index,-1)} aria-label={t("reportLinks.up")}>↑</button><button className="btn btn-outline-secondary btn-sm" type="button" disabled={index===selected.length-1} onClick={()=>move(index,1)} aria-label={t("reportLinks.down")}>↓</button><button className="btn btn-outline-danger btn-sm" type="button" onClick={()=>setSelected(old=>old.filter(x=>x!==id))}>{t("reportLinks.remove")}</button>
+     <span className="flex-grow-1">{item.title}{item.description&&<span className="d-block small text-body-secondary text-break" style={{whiteSpace:"pre-wrap"}}>{item.description}</span>}</span><button className="btn btn-outline-secondary btn-sm" type="button" disabled={index===0} onClick={()=>move(index,-1)} aria-label={t("reportLinks.up")}>↑</button><button className="btn btn-outline-secondary btn-sm" type="button" disabled={index===selected.length-1} onClick={()=>move(index,1)} aria-label={t("reportLinks.down")}>↓</button><button className="btn btn-outline-danger btn-sm" type="button" onClick={()=>setSelected(old=>old.filter(x=>x!==id))}>{t("reportLinks.remove")}</button>
     </li>:null;})}</ol>
    <div className="d-flex gap-2 flex-wrap align-items-center"><a className="btn btn-outline-secondary" href={"/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/links/markdown"}>{t("reportLinks.exportMarkdown")}</a><button type="button" className="btn btn-primary" disabled={!dirty||saving} onClick={()=>void save()}>{saving?t("links.saving"):t("links.save")}</button>{saved&&<p className="text-success mt-2" role="status">{t("reportLinks.saved")}</p>}{saveError&&<p className="text-danger mt-2" role="alert">{saveError}</p>}</div>
   </>}
