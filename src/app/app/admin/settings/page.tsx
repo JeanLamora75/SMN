@@ -1,4 +1,5 @@
 import {redirect} from "next/navigation";
+import Link from "next/link";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
@@ -26,6 +27,10 @@ export default async function SettingsPortalPage(){
    <h1 className="h3">{t("navigation.entries.settings")}</h1>
    <p className="text-secondary">{t("settingsPortal.subtitle")}</p>
   </header>
+  {account.role==="admin"&&<nav className="d-flex gap-2 flex-wrap mb-3" aria-label="Entreprises et disponibilités">
+   <Link className="btn btn-outline-primary" href="/app/admin/companies">Entreprises</Link>
+   <Link className="btn btn-outline-secondary" href="/app/admin/company-closures">Fermetures d’entreprise</Link>
+  </nav>}
   <SettingsCatalogView groups={groups}/>
  </main>;
 }
