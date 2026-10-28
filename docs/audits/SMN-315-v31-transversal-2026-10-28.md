@@ -110,3 +110,17 @@ Le run GitHub Actions `40779701299`, déclenché sur `main` au commit `5b62fe73`
 
 ### Réserves
 Ces modifications ne garantissent pas l'absence de régressions fonctionnelles ; les règles d'accès à la base de données restent à éprouver par des tests PostgreSQL réels sur v31. Ne pas déclarer les autres échecs de la suite historique corrigés sans exécution probante.
+
+## Cycle de correction v31 élargi et typecheck (28 octobre)
+Le dernier run terminé et consulté sur la branche main avant les dernières corrections Scrum/Kanban est [Vérification I0 #40779701299](https://github.com/JeanLamora75/SMN/actions/runs/40779701299) : **TypeScript indépendant SUCCESS**, **Linux 2069 tests / 1947 PASS / 120 FAIL / 2 SKIP**, **Windows 2058 / 1935 PASS / 121 FAIL / 2 SKIP**. Les tests restent bloquants ; étapes en aval non validées.
+
+Correctifs successifs publiés directement sur main après ce passage, à requalifier en CI :
+- Compatibilité entreprise v31 des lectures / écritures des équipes et des informations d'équipe : `teams/active.ts`, `teams/write.ts`, `members/team-context.ts`, `api/admin/teams/route.ts`.
+- Contexte multiéquipes et registres : `dashboard/read.ts`, `registries/team-access.ts`.
+- Capacités et calendriers : `api/admin/capacity-actual/route.ts`, `api/admin/development-capacity/route.ts`, `api/team-calendar/periods/route.ts`.
+- Sprints et Kanban : `api/sprints/context/route.ts`, `kanban/metrics-block.ts`, `kanban/rename.ts`, `kanban/scoped-period.ts`, `kanban/scoped-create.ts`, `sprints/goals.ts`, `sprints/scoped-create.ts`, `sprints/sprint-scores.ts`, `sprints/story-points.ts`.
+- Reportings : `reports/center.ts`, `reports/archive-library.ts`.
+- Typage corrigé et vérifié : `app/bootstrap-icon.tsx`, `app/admin/links/links-cockpit.tsx`, `members/company-presentation.ts`. Le job TypeScript a ensuite réussi sur le commit `5b62fe73`.
+- Tests de non-régression v31 renforcés ; le cockpit sans cycle conserve le contexte équipe/produit.
+
+**Aucune validation PostgreSQL réelle du nouveau schéma v31 à ce stade.** Les runs déclenchés après le dernier commit `00423e6e` n'avaient pas de conclusion lors de cette rédaction. Ne pas utiliser les 120/121 échecs du run antérieur comme bilan final de la dernière révision, ni annoncer zéro échec.
