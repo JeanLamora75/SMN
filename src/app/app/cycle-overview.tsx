@@ -44,6 +44,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
     <header className="smn-cycle-overview-header smn-cycle-header-compact" id="cycles">
       <div className="smn-cycle-identity">
         <h1 id="smn-cycle-overview-heading">{cycle?cycle.name+" - "+context.team:t("dashboard.cockpit.noCycle")}</h1>
+        {!cycle&&<p className="smn-cycle-context mb-1"><strong>{context.team}</strong> · {context.product}</p>}
         {cycle?<div className="smn-cycle-summary" role="group" aria-label={t("dashboard.cockpit.details")}>
           <span className="smn-cycle-date-range">
             <BootstrapIcon name="calendar3"/>
