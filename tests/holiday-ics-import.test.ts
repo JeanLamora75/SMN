@@ -22,6 +22,8 @@ function fakeDb(existing:Record<string,string>={},found=true){
  const sqls:string[]=[];
  const db={query:async(sql:string,args:unknown[]=[])=>{
   sqls.push(sql);
+  if(sql.includes("to_regclass('public.smn_country_name_audit')"))
+   return {rows:[{schema_version:30,ready:true}],rowCount:1};
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||
      sql.includes("pg_advisory_xact_lock")||sql.includes("ALTER TABLE")||
      sql.includes("CREATE TABLE")||sql.includes("CREATE INDEX"))return {rowCount:0,rows:[]};
