@@ -3656,10 +3656,11 @@
   },
   "reportLinks": {
     "title": "Liens et références",
-    "draftNotice": "Sélection provisoire : l’enregistrement et l’export seront intégrés dans la prochaine étape.",
+    "draftNotice": "Les références sélectionnées sont enregistrées dans le brouillon du sprint ; l’export sera intégré ensuite.",
     "selected": "Références choisies",
     "up": "Monter",
     "down": "Descendre",
-    "remove": "Retirer"
+    "remove": "Retirer",
+    "saved": "Sélection enregistrée."
   }
 }
