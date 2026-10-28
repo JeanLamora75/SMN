@@ -26,3 +26,18 @@ test("échec de worker conservé et réessayable",async()=>{
  assert.equal(args[1],"failed");
  assert.equal(args[2],"worker-failed");
 });
+
+test("un job terminé conserve la référence calculée",async()=>{
+ let query="",args:unknown[]=[];
+ const db={query:async(q:string,p:unknown[])=>{query=q;args=p;return {rows:[]};}} as unknown as Client;
+ await finishRecalculation(db,id,undefined,{periods:[{teamId:"team-main",referenceJh:3}]});
+ assert.equal(args[1],"done");
+ assert.match(String(args[3]),/"referenceJh":3/);
+ assert.match(query,/result=\$4::jsonb/);
+});
+test("consommation concurrente avec verrou SKIP LOCKED",async()=>{
+ const queries:string[]=[];
+ const db={query:async(q:string)=>{queries.push(q);return {rows:[]};}} as unknown as Client;
+ await claimRecalculation(db);
+ assert.ok(queries.some(q=>q.includes("FOR UPDATE SKIP LOCKED")));
+});
