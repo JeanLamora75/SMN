@@ -7,6 +7,7 @@ import {readRegistryItem,updateRegistryItem} from "@/server/registries/items";
 import {resolveRegistryReadContext} from "@/server/registries/team-access";
 import {readTeamRegistryItem} from "@/server/registries/team-item-read";
 import {assertLegacyTeamApi} from "@/server/teams/legacy";
+import {MULTI_TEAM_CONTEXT_READY} from "@/lib/team-context-readiness";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
 const target={type:"collective",exists:true,inScope:true} as const;
@@ -48,9 +49,23 @@ export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}
  const {revision,...input}=body;
  try{
   const result=await withAuthDb(async db=>{
-   await assertLegacyTeamApi(db);
+   const requestedTeamId=typeof input.teamId==="string"?input.teamId:null;
+   const context=await resolveRegistryReadContext(db,{
+    accountId:actor.id,role:actor.role
+   },requestedTeamId);
+   if(context.version===28){
+    if(!MULTI_TEAM_CONTEXT_READY||
+       process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true")
+     throw Error("registry-team-write-not-ready");
+    if(!requestedTeamId||context.team?.team_id!==requestedTeamId)
+     throw Error("registry-team-write-forbidden");
+   }else await assertLegacyTeamApi(db);
    return updateRegistryItem(db,actor.id,id,revision as number,input);
   });
   return jsonResult(result,result.ok?200:result.error==="conflict"?409:result.error==="not-found"?404:400);
- }catch{return jsonResult({error:"service-unavailable"},503);}
+ }catch(error){
+  if(error instanceof Error&&error.message==="registry-team-write-not-ready")
+   return jsonResult({error:"context-not-ready"},503);
+  return jsonResult({error:"service-unavailable"},503);
+ }
 }
