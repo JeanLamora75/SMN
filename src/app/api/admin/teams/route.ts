@@ -47,7 +47,7 @@ export async function GET(request:NextRequest){
     [installationId]);
    return {items:await listInstallationTeams(db,installationId),
     canWrite:teamWritesEnabled()&&state.rows[0]?.state==="initialized"&&
-      [28,29,30].includes(state.rows[0]?.schema_version??-1)};
+      [28,29,30,31].includes(state.rows[0]?.schema_version??-1)};
   });
   return data?jsonResult(data):jsonResult({error:"forbidden"},403);
  }catch{
