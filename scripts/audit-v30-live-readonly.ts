@@ -43,7 +43,7 @@ async function main(){
    /team-access-forbidden/);
   console.log("PASS: refus de choix d'équipe pour rôle user");
   if(teams.rows.length<2){
-   console.log("SKIP: au moins deux équipes sont nécessaires pour vérifier la lecture croisée");
+   throw Error("RECETTE INCOMPLETE : deux équipes actives sont nécessaires");
   }else{
    const [a,b]=teams.rows;
    const records=await db.query<{id:string;team_id:string}>(
@@ -59,7 +59,7 @@ async function main(){
     assert.equal(crossing,null,"fuite interéquipes sur une fiche");
     checks++;
    }
-   if(!checks)console.log("SKIP: aucune fiche existante dans les deux équipes");
+   if(!checks)throw Error("RECETTE INCOMPLETE : aucune fiche disponible pour tester une lecture croisée");
    else console.log("PASS: lectures croisées refusées ; fiches vérifiées :",checks);
   }
   await db.query("ROLLBACK");
