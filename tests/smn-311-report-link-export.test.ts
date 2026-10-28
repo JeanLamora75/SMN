@@ -39,8 +39,17 @@ test("rejects credentials and unsupported URL schemes",()=>{
 
 test("final PDF archive freezes the same references used to render it",()=>{
 
- const route=readFileSync("src/app/api/admin/reports/sprints/[id]/documents/[documentId]/pdf/route.ts","utf8");
+ const route=readFileSync(new URL("../src/app/api/admin/reports/sprints/[id]/documents/[documentId]/pdf/route.ts",import.meta.url),"utf8");
  assert.match(route,/const links=actor\.role==="admin"\?safeExportLinks\(await selectedReportExportLinks/);
  assert.match(route,/renderStudioPdf\(eligible\.document,links\)/);
  assert.match(route,/optionsSnapshot:\{[^}]*reportLinks:links\}/);
+});
+
+test("archive preserves PDF bytes and manifest metadata for saved links",()=>{
+ const store=readFileSync(new URL("../src/server/reports/pdf-archive-store.ts",import.meta.url),"utf8");
+ assert.match(store,/optionsSnapshot:\{\.\.\.manifest\.optionsSnapshot/);
+ assert.match(store,/JSON\.stringify\(finalManifest\)/);
+ assert.match(store,/const written=await readFile\(location\)/);
+ assert.match(store,/integrity\.sha256!==manifest\.sha256/);
+ assert.match(store,/verified\.sha256===record\.sha256/);
 });
