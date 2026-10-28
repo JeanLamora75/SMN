@@ -54,5 +54,6 @@ test("le chemin d'application est manuel et demande une sauvegarde",()=>{
  const account=read("src/server/accounts/migration.ts");
  assert.doesNotMatch(account,/await client\.query\(MULTI_TEAM_SCHEMA_SQL\)/);
  const probe=read("src/server/db/probe.ts");
- assert.match(probe,/LIMIT 30/);
+ assert.match(probe,/FROM public\._prisma_migrations/);
+ assert.doesNotMatch(probe,/FROM public\._prisma_migrations LIMIT\s+\d+/);
 });
