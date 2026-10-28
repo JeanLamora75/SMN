@@ -3643,6 +3643,12 @@
     "allTeams": "All teams",
     "transfer": "Change scope / transfer",
     "chooseTeam": "Select team",
-    "transferConfirm": "I confirm the scope change or transfer to the selected team."
+    "transferConfirm": "I confirm the scope change or transfer to the selected team.",
+    "categories": "Categories",
+    "categoryName": "Category name",
+    "createCategory": "Create category",
+    "categoryDuplicate": "This category name already exists.",
+    "categoryInUse": "This category is used by links. Reassign them before deletion.",
+    "usedBy": "link(s)"
   }
 }
