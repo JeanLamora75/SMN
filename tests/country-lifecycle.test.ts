@@ -10,6 +10,8 @@ function fixture(options:Options={}){
  let revision=options.revision??2, archived=options.archived??false;
  const db={query:async(q:string,p:unknown[]=[])=>{
   sql.push(q);params.push(p);
+  if(q.includes("to_regclass('public.smn_country_name_audit')"))
+   return {rows:[{schema_version:30,ready:true}],rowCount:1};
   if(q==="BEGIN"||q==="COMMIT"||q==="ROLLBACK"||q.includes("pg_advisory_xact_lock")||
     q.includes("CREATE TABLE")||q.includes("CREATE INDEX")||q.includes("ALTER TABLE"))
     return {rows:[],rowCount:0};
