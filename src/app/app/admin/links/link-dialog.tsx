@@ -8,7 +8,6 @@ export default function LinkDialog({titleId,children,onClose,locked=false,large=
 }){
  const ref=useRef<HTMLDivElement>(null);
  const [mounted,setMounted]=useState(false);
- const closeRef=useRef(onClose);closeRef.current=onClose;
  useEffect(()=>{
   queueMicrotask(()=>setMounted(true));
   const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
@@ -21,7 +20,7 @@ export default function LinkDialog({titleId,children,onClose,locked=false,large=
   return()=>{cancelAnimationFrame(frame);document.body.style.overflow=originalOverflow;previous?.focus();};
  },[]);
  const keydown=(event:ReactKeyboardEvent<HTMLDivElement>)=>{
-  if(event.key==="Escape"){event.stopPropagation();if(!locked)closeRef.current();return;}
+  if(event.key==="Escape"){event.stopPropagation();if(!locked)onClose();return;}
   if(event.key!=="Tab")return;
   const all=Array.from(ref.current?.querySelectorAll<HTMLElement>(
    'button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
