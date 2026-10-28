@@ -47,7 +47,8 @@ export async function readAdminActiveTeam(db:Client,accountId:string):
  const selected=preference.rows[0]?.team_id;
  return {
   ready:true,
-  teamId:options.rows.some(row=>row.id===selected)?selected:null,
+  teamId:options.rows.some(row=>row.id===selected)?selected:
+   options.rows.length===1?options.rows[0].id:null,
   items:options.rows.map(row=>({id:row.id,name:row.name}))
  };
 }
