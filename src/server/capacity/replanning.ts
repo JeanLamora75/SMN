@@ -57,7 +57,7 @@ export function parseConfirmation(raw:unknown):
 const teamSql=[
  "SELECT t.id FROM public.smn_team t JOIN public.smn_installation i",
  "ON t.installation_id=i.id WHERE i.id='singleton' AND i.state='initialized'",
- "AND i.mode IN ('scrum','kanban') LIMIT 2"
+ "AND i.schema_version<=27 AND i.mode IN ('scrum','kanban') LIMIT 2"
 ].join(" ");
 const originSql=[
  "SELECT id,manual_jh::float8 AS manual_jh,revision,",
