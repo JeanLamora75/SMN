@@ -54,6 +54,9 @@ async function transaction<T>(db:Client,fn:()=>Promise<T>):Promise<T>{
 /** Les cycles supprimés ou archivés comptent toujours : mode verrouillé à vie. */
 async function hasEverHadCycle(db:Client,teamId:string):Promise<boolean>{
  for(const table of ["smn_sprint","smn_kanban_period"]){
+  const present=await db.query<{available:boolean}>(
+   "SELECT to_regclass($1) IS NOT NULL AS available",["public."+table]);
+  if(!present.rows[0]?.available)continue;
   const result=await db.query<{exists:boolean}>(
    "SELECT EXISTS (SELECT 1 FROM "+(table==="smn_sprint"?
     "public.smn_sprint":"public.smn_kanban_period")+
