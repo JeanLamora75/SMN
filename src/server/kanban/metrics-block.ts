@@ -18,7 +18,7 @@ export async function saveKanbanMetrics(db:Client,periodId:string,actorId:string
   const p=await db.query<{status:string}>(`SELECT p.status FROM public.smn_kanban_period p
    JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
-   AND lower(i.mode)='kanban' FOR UPDATE OF p`,[periodId]);
+   AND i.schema_version<=27 AND lower(i.mode)='kanban' FOR UPDATE OF p`,[periodId]);
   if(!p.rows[0]){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(p.rows[0].status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
   const oldCounts=await db.query("SELECT started,throughput,wip_final FROM public.smn_kanban_flow_counts WHERE period_id=$1 FOR UPDATE",[periodId]);
