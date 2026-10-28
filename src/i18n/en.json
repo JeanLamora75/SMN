@@ -3656,10 +3656,11 @@
   },
   "reportLinks": {
     "title": "Links and references",
-    "draftNotice": "Draft selection: persistence and export will be added in the next step.",
+    "draftNotice": "Selected references are saved in the sprint draft; export integration follows.",
     "selected": "Selected references",
     "up": "Move up",
     "down": "Move down",
-    "remove": "Remove"
+    "remove": "Remove",
+    "saved": "Selection saved."
   }
 }
