@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
+import {requireScopedCycleSchema} from "@/server/teams/cycle-schema";
 import {periodFromStart,normalizePeriodName} from "./dates";
 import type {KanbanFrequency} from "./cadence";
 
@@ -28,6 +29,7 @@ export async function createScopedKanbanPeriod(db:Client,actor:TeamActor,raw:unk
  if(!input)return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
+  await requireScopedCycleSchema(db,"kanban");
   const team=await resolveAdminTeam(db,actor,input.teamId);
   if(team.team_id!==input.teamId||team.mode!=="kanban")
    throw Error("kanban-team-unavailable");
