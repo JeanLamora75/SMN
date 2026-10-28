@@ -35,7 +35,7 @@ export default function ReportLinkSelection({sprintId}:{sprintId:string}){
    <ol className="list-group list-group-numbered">{selected.map((id,index)=>{const item=items.find(x=>x.id===id);return item?<li key={id} className="list-group-item d-flex align-items-center gap-2">
      <span className="flex-grow-1">{item.title}</span><button className="btn btn-outline-secondary btn-sm" type="button" disabled={index===0} onClick={()=>move(index,-1)} aria-label={t("reportLinks.up")}>↑</button><button className="btn btn-outline-secondary btn-sm" type="button" disabled={index===selected.length-1} onClick={()=>move(index,1)} aria-label={t("reportLinks.down")}>↓</button><button className="btn btn-outline-danger btn-sm" type="button" onClick={()=>setSelected(old=>old.filter(x=>x!==id))}>{t("reportLinks.remove")}</button>
     </li>:null;})}</ol>
-   <div><button type="button" className="btn btn-primary" disabled={!dirty||saving} onClick={()=>void save()}>{saving?t("links.saving"):t("links.save")}</button>{saved&&<p className="text-success mt-2" role="status">{t("reportLinks.saved")}</p>}{saveError&&<p className="text-danger mt-2" role="alert">{saveError}</p>}</div>
+   <div className="d-flex gap-2 flex-wrap align-items-center"><a className="btn btn-outline-secondary" href={"/api/admin/reports/sprints/"+encodeURIComponent(sprintId)+"/links/markdown"}>{t("reportLinks.exportMarkdown")}</a><button type="button" className="btn btn-primary" disabled={!dirty||saving} onClick={()=>void save()}>{saving?t("links.saving"):t("links.save")}</button>{saved&&<p className="text-success mt-2" role="status">{t("reportLinks.saved")}</p>}{saveError&&<p className="text-danger mt-2" role="alert">{saveError}</p>}</div>
   </>}
  </section>;
 }
