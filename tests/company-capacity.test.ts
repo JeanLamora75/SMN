@@ -21,3 +21,7 @@ test("sans entreprise ni jour férié ni absence, capacité complète",()=>{
  assert.equal(availability.deductedHalfDays,0);
  assert.deepEqual(computeDevelopmentDay(2,8,100,100,100),{hours:8,jh:1});
 });
+
+test("une fermeture ne doit jamais être imputée à un identifiant absent",()=>{
+ assert.equal(closureForMember(closures,"inconnu","2026-12-25",true),false);
+});
