@@ -21,6 +21,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
     assert.match(scrum,/Aucun cycle créé/);
     assert.match(scrum,/Équipe Alpha/);
     assert.match(scrum,/Produit pilote/);
+    assert.match(scrum,/Produit pilote/);
     assert.match(scrum,/Sprint/);
     assert.match(kanban,/Période Kanban/);
     assert.match(kanban,/Équipe Ops/);
