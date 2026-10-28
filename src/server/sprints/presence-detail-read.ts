@@ -17,7 +17,7 @@ export async function readSprintMemberPresence(
   JOIN public.smn_team t ON t.id=s.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE s.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL
-   AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+   AND i.id='singleton' AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode))='scrum'
  `,[sprint.id,teamId]);
  if(!scope.rows[0])return null;
  if(scope.rows[0].status==="closed"){
