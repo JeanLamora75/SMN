@@ -1,0 +1,21 @@
+/* Sprint detail — Cockpit Agile visual vocabulary, confined to the page. */
+.smn-sprint-detail-cockpit{min-width:0;color:var(--smn-foreground)}
+.smn-sprint-detail-cockpit .smn-sprint-detail-hero{
+ padding:clamp(16px,1.65vw,24px);min-width:0;color:#fff;
+ background:linear-gradient(125deg,color-mix(in srgb,var(--smn-brand) 78%,#10294d),#10294d);
+ border-radius:16px;box-shadow:0 9px 25px rgba(12,34,64,.12)
+}
+.smn-sprint-detail-cockpit .smn-sprint-detail-hero h1{font-size:clamp(1.5rem,2.15vw,2.15rem);font-weight:760;letter-spacing:-.02em;color:#fff}
+.smn-sprint-detail-cockpit .smn-sprint-detail-hero .text-secondary,
+.smn-sprint-detail-cockpit .smn-sprint-detail-hero .smn-cycle-eyebrow{color:rgba(255,255,255,.86)!important}
+.smn-sprint-detail-cockpit .smn-sprint-detail-hero .btn{border-radius:9px;min-height:37px;font-size:.84rem;font-weight:650}
+.smn-sprint-detail-cockpit .smn-sprint-detail-hero .btn-outline-primary{color:#fff;border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.10)}
+.smn-sprint-detail-cockpit .smn-sprint-detail-hero .btn-outline-primary:hover{color:#10294d;background:#fff;border-color:#fff}
+.smn-sprint-detail-cockpit .smn-sprint-detail-content{background:var(--smn-surface);border:1px solid var(--smn-border);border-radius:15px;padding:16px 20px;min-width:0;box-shadow:0 5px 17px rgba(12,34,64,.045)}
+.smn-sprint-detail-cockpit .smn-sprint-detail-tabs{border-bottom:1px solid var(--smn-border);margin-bottom:4px}
+.smn-sprint-detail-cockpit .smn-sprint-detail-tabs .nav-tabs{border:0;gap:6px}
+.smn-sprint-detail-cockpit .smn-sprint-detail-tabs .nav-link{border:1px solid transparent;border-radius:9px 9px 0 0;color:var(--smn-foreground);font-size:.87rem;font-weight:650;padding:10px 13px}
+.smn-sprint-detail-cockpit .smn-sprint-detail-tabs .nav-link:hover{background:var(--smn-muted-soft);border-color:var(--smn-border)}
+.smn-sprint-detail-cockpit .smn-sprint-detail-tabs .nav-link.active{color:var(--smn-brand);background:var(--smn-surface);border-color:var(--smn-border);border-bottom-color:var(--smn-surface)}
+.smn-sprint-detail-cockpit :is(a,button,input,select,textarea):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
+@media(max-width:650px){.smn-sprint-detail-cockpit .smn-sprint-detail-hero{padding:16px}.smn-sprint-detail-cockpit .smn-sprint-detail-content{padding:12px}}
