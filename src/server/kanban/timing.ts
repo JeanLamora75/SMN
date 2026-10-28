@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {scopedKanbanPeriod,type KanbanTeamAccess} from "@/server/kanban/scoped-period";
 import {ensureKanbanPeriodTables} from "./periods";
 export type TimingValue={days:number|null;convention:"calendar"|"business"|"unknown";source:string};
 export function parseTiming(raw:unknown):{cycle:TimingValue;lead:TimingValue}|null{
@@ -32,16 +33,9 @@ export async function ensureKanbanTimingSchema(db:Client){
  before_values jsonb,after_values jsonb NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  created_at timestamptz NOT NULL DEFAULT now())`);
 }
-async function period(db:Client,id:string,lock=false){
- const r=await db.query<{id:string;status:string}>(`SELECT p.id,p.status FROM public.smn_kanban_period p
- JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'
- ${lock?"FOR UPDATE OF p":""}`,[id]);
- return r.rows[0]??null;
-}
-export async function readKanbanTiming(db:Client,id:string){
+export async function readKanbanTiming(db:Client,id:string,access?:KanbanTeamAccess){
  await ensureKanbanTimingSchema(db);
- const p=await period(db,id);
+ const p=await scopedKanbanPeriod(db,id,false,access);
  if(!p)return null;
  const r=await db.query<{cycle_days:string|null;cycle_convention:TimingValue["convention"];cycle_source:string;lead_days:string|null;lead_convention:TimingValue["convention"];lead_source:string}>(`SELECT cycle_days::text,cycle_convention,cycle_source,lead_days::text,lead_convention,lead_source FROM public.smn_kanban_timing WHERE period_id=$1`,[id]);
  const x=r.rows[0];
@@ -49,13 +43,13 @@ export async function readKanbanTiming(db:Client,id:string){
  const lead:TimingValue={days:x?.lead_days==null?null:Number(x.lead_days),convention:x?.lead_convention??"unknown",source:x?.lead_source??""};
  return {cycle,lead,comparable:{cycle:comparableTiming(cycle),lead:comparableTiming(lead)},status:p.status};
 }
-export async function saveKanbanTiming(db:Client,actorId:string,id:string,raw:unknown){
+export async function saveKanbanTiming(db:Client,actorId:string,id:string,raw:unknown,access?:KanbanTeamAccess){
  const values=parseTiming(raw);
  if(!values)return {ok:false as const,error:"invalid-input" as const};
  await ensureKanbanTimingSchema(db);
  await db.query("BEGIN");
  try{
-  const p=await period(db,id,true);
+  const p=await scopedKanbanPeriod(db,id,true,access,actorId);
   if(!p){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(p.status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
   const before=await db.query(`SELECT * FROM public.smn_kanban_timing WHERE period_id=$1 FOR UPDATE`,[id]);
