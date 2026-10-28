@@ -61,3 +61,7 @@ Le diagnostic existant refusait les versions supérieures à 29 et le probe ne l
 Le code `src/server/countries/consolidation-migration.ts` fige le texte SQL v30 du dossier Prisma ; `src/server/installation/diagnostic.ts` exige désormais une empreinte SHA-256 identique dans `_prisma_migrations`, en plus de la date de réussite, de l'absence de rollback et de la structure observée. Test statique créé dans `tests/country-consolidation-v30.test.ts` (égalité SQL, présence Pays et Liens, nombre de migrations v30, assertions de migration additive).
 
 **Limites restantes :** les tests ajoutés ne démontrent pas une installation v29 valide ni une installation v30 valide de bout en bout ; fixtures réalistes de 29/30 migrations et contrôles SQL de contraintes toujours à écrire. Aucune commande de tests, Prisma ou PostgreSQL exécutée. Le lot n'est pas prêt à être fusionné sur `main`.
+
+## Tests complémentaires (28 octobre)
+
+Le fichier `tests/country-consolidation-v30.test.ts` comprend désormais des scénarios négatifs v29, le refus des versions inconnues au-delà de v30 et des assertions sur les contraintes SQL (FK, révision, unicité, année, audit). Ces scénarios ne constituent pas une simulation complète d'une installation v29 ou v30 valide ; celle-ci exige les 29 migrations antérieures avec leurs checksums et une vérification PostgreSQL. **Aucune commande de test exécutée ; statut NO-GO maintenu.**
