@@ -3649,6 +3649,9 @@
     "createCategory": "Create category",
     "categoryDuplicate": "This category name already exists.",
     "categoryInUse": "This category is used by links. Reassign them before deletion.",
-    "usedBy": "link(s)"
+    "usedBy": "link(s)",
+    "reassignTo": "Reassign links to category",
+    "chooseCategory": "Select a category",
+    "reassign": "Reassign links"
   }
 }
