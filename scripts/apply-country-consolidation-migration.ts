@@ -1,7 +1,6 @@
-/** Migration Pays v29 -> v30, jamais automatique. Sauvegarde vérifiée exigée. */
+/** Migration Pays v29 -> v30, jamais automatique. Sauvegarde recommandée, sans contrôle du fichier. */
 import {createHash,randomUUID} from "node:crypto";
-import {existsSync,readFileSync,statSync} from "node:fs";
-import {resolve} from "node:path";
+import {readFileSync} from "node:fs";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {probePostgres} from "../src/server/db/probe";
@@ -10,13 +9,8 @@ import {COUNTRY_CONSOLIDATION_MIGRATION,COUNTRY_CONSOLIDATION_MIGRATION_SQL}
  from "../src/server/countries/consolidation-migration";
 
 async function main(){
- const args=process.argv.slice(2);
- const value=args.find(arg=>arg.startsWith("--backup-file="))?.slice("--backup-file=".length);
- if(args.length!==2||!args.includes("--apply")||!value)
-  throw Error("Usage: pnpm exec tsx scripts/apply-country-consolidation-migration.ts --apply --backup-file=<sauvegarde>");
- const backup=resolve(value);
- if(!existsSync(backup)||!statSync(backup).isFile()||statSync(backup).size===0)
-  throw Error("Sauvegarde absente ou vide : migration refusée");
+ if(process.argv.slice(2).join(" ")!=="--apply")
+  throw Error("Usage: pnpm exec tsx scripts/apply-country-consolidation-migration.ts --apply");
  const sql=readFileSync(new URL("../prisma/migrations/20261028_smn270_281_country_consolidation/migration.sql",import.meta.url),"utf8");
  if(sql!==COUNTRY_CONSOLIDATION_MIGRATION_SQL)
   throw Error("Source SQL v30 divergente : migration refusée");
