@@ -13,7 +13,8 @@ test("lecture fiche équipe v30: identité Admin et teamId serveur",()=>{
 test("les changements de contexte ne contournent pas le verrou historique",()=>{
  const route=readFileSync(new URL("../src/app/api/admin/team-context/route.ts",import.meta.url),"utf8");
  const patch=route.slice(route.indexOf("export async function PATCH"));
- assert.match(patch,/withLegacyTeamApi\(db=>saveTeamContext/);
+ assert.match(patch,/assertLegacyTeamApi/);
+ assert.match(patch,/MULTI_TEAM_CONTEXT_READY/);
 });
 
 test("contexte v30: mode de l'équipe et équipes archivées",()=>{
