@@ -201,7 +201,7 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
   assert.match(page,/sprintResult!==null&&<>/);
   assert.match(page,/withDashboardRead\(async db=>/);
   assert.match(page,/readSprintContext\(db,context.teamId\)/);
-  assert.match(page,/readCycleDashboard\(db,context.teamId,cycle\)/);
+  assert.match(page,/readCycleDashboard\(db,context.teamId,cycle,account.role==="admin"\)/);
   assert.match(file("src/server/dashboard/read-only-db.ts"),
    /BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY/);
  });
