@@ -1,6 +1,6 @@
 "use client";
 import {useState} from "react";
-import LinkDialog from "../../../links/link-dialog";
+import LinkDialog from "../../links/link-dialog";
 import {useTranslation} from "@/i18n/client";
 type Item={id:string;title:string;scope:"TRANSVERSE"|"EQUIPE";teamId:string|null;revision:number};
 type Team={id:string;name:string};
@@ -13,7 +13,7 @@ export default function LinkTransfer({item,teams,onClose,onDone}:{
  const [confirmed,setConfirmed]=useState(false);
  const [busy,setBusy]=useState(false),[error,setError]=useState("");
  const changed=scope!==item.scope||(scope==="EQUIPE"&&teamId!==item.teamId);
- const valid=changed&&confirmed&&(scope==="TRANSVERSE"||Boolean(teamId));
+ const valid=changed&&confirmed&&(scope==="TRANSVERSE"||teams.some(team=>team.id===teamId));
  const submit=async()=>{
   if(!valid||busy)return;setBusy(true);setError("");
   try{
@@ -25,7 +25,7 @@ export default function LinkTransfer({item,teams,onClose,onDone}:{
    onDone();
   }catch(e){
    const status=e instanceof Error?e.message:"";
-   setError(status==="409"?t("links.conflict"):status==="403"?t("links.forbidden"):t("links.saveError"));
+   setError(status==="409"?t("links.conflict"):status==="403"?t("links.forbidden"):status==="404"?t("links.notFound"):status==="400"?t("links.invalidFields"):t("links.saveError"));
   }finally{setBusy(false);}
  };
  return <LinkDialog titleId="smn-links-transfer-title" onClose={onClose} locked={busy} large>
