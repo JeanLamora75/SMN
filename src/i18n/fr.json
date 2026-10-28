@@ -3767,7 +3767,9 @@
     "showForm": "Créer une équipe",
     "edit": "Modifier",
     "inactive": "Enregistrements temporairement indisponibles",
-    "description": "Le nom d'équipe est le seul champ obligatoire. Chaque équipe peut avoir son propre produit facultatif."
+    "description": "Le nom et le mode Agile sont obligatoires à la création. Le produit est facultatif.",
+    "agileMode": "Mode Agile",
+    "agileModeImmutable": "Le mode Agile ne peut pas être modifié après la création de l’équipe."
   },
   "teamSwitch": {
     "pending": "Changement d'équipe en préparation ; non activé tant que l'isolation n'est pas validée.",
