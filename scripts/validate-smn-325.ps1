@@ -11,9 +11,8 @@ function Invoke-Check([string]$Name,[string[]]$Arguments) {
   $started = Get-Date
   $outputFile = Join-Path $OutputDirectory ($Name + ".log")
   Write-Host ("SMN-325 : " + $Name)
-  & pnpm @Arguments *> $outputFile
-  $code = $LASTEXITCODE
-  $results += $null
+  try { & pnpm @Arguments *> $outputFile; $code = $LASTEXITCODE }
+  catch { $_ | Out-String | Add-Content $outputFile; $code = 1 }
   return [pscustomobject]@{
     check=$Name; status=$(if($code -eq 0){"PASS"}else{"FAIL"})
     exitCode=$code; startedAt=$started.ToString("o")
