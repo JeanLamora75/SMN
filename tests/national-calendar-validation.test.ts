@@ -17,6 +17,8 @@ function dbFixture(opts:{empty?:boolean;invalid?:boolean;archived?:boolean;audit
  let status=opts.invalid?"invalid":"partial", validated=false, revision=2;
  const client={query:async(query:string,args:unknown[]=[])=>{
   queries.push(query);params.push(args);
+  if(query.includes("to_regclass('public.smn_country_name_audit')"))
+   return {rows:[{schema_version:30,ready:true}],rowCount:1};
   if(["BEGIN","COMMIT","ROLLBACK"].includes(query)||
      query.includes("pg_advisory_xact_lock")||query.includes("ALTER TABLE")||
      query.includes("CREATE TABLE")||query.includes("CREATE INDEX"))
