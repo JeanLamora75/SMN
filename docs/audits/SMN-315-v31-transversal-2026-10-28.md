@@ -85,3 +85,10 @@ La correction de `closureForMember` a été publiée **après** le run #228. Ell
 - Les autres échecs historiques ne doivent pas être supprimés ou ignorés en bloc : une partie correspond à des contrats obsolètes, d'autres à des écarts de comportement qu'il faut diagnostiquer.
 
 - Test `tests/country-consolidation-v30.test.ts` corrigé : v31 est désormais une version reconnue du diagnostic, mais une installation avec journal de migrations vide ne doit pas être déclarée initialisée. Cette correction ne change ni le SQL ni le diagnostic de production.
+
+## Cycle CI #230 — bilan intermédiaire (28 octobre 2026)
+- Run Linux/PostgreSQL `40777207474` : tests **2070 au total, 1950 réussis, 118 échoués, 2 ignorés** ; étape de tests échouée. Le lint a passé. La suite PostgreSQL et le build en aval ne peuvent pas être tenus pour validés.
+- Comparaison : 133 puis 122 puis 118 échecs Linux ; amélioration mesurée de 15 échecs, **mais 118 anomalies restent à qualifier**.
+- Correctif additionnel postérieur au déclenchement de #230 : `tests/sprint-presence-team-v30.test.ts` reconnaît v31. Son résultat n'est pas inclus dans ce run.
+- Les échecs toujours présents concernent particulièrement le dashboard SMN-21, les modales et UX, le registre, les exports/rapports, les droits et contrats multiéquipes. Ne pas les passer en `skip` sans qualification.
+- **Aucune migration réelle v31 n'a été exécutée.**
