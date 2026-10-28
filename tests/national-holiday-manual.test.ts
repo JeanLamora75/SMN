@@ -10,6 +10,8 @@ function fixture(initial:Record<string,string>={},opts:{archived?:boolean;auditF
  const sql:string[]=[],audits:unknown[][]=[];
  const client={query:async(text:string,args:unknown[]=[])=>{
   sql.push(text);
+  if(text.includes("INSERT INTO public.smn_national_holiday_manual_audit")){if(opts.auditFails)throw Error("audit-failure");audits.push(args);return {rowCount:1,rows:[]};}
+
   if(text.includes("to_regclass('public.smn_country_name_audit')"))
    return {rows:[{schema_version:30,ready:true}],rowCount:1};
   if(["BEGIN","COMMIT","ROLLBACK"].includes(text)||text.includes("pg_advisory_xact_lock")||
