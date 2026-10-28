@@ -131,7 +131,7 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
    .format(new Date(Date.UTC(2026,0,5+index)))),[language]);
  const cells=useMemo(()=>mondayFirstMonthCells(year,month),[year,month]);
  const snapshot=load.kind==="ready"?load.snapshot:null;
- const holidays=snapshot?.holidays??[];
+ const holidays=useMemo(()=>snapshot?.holidays??[],[snapshot]);
  const status=annualDisplayStatus(snapshot&&snapshot.status!==null?
   {year,status:snapshot.status,count:holidays.length,
    diagnostic:null,administrativeValidated:snapshot.administrativeValidated}:undefined);
@@ -143,7 +143,6 @@ function AnnualHolidays({code,name,year,month,mode,onYearStatus,onChanged,canMan
    returnFocus.current=false;
    restoreEditorFocus();
   }
- // eslint-disable-next-line react-hooks/exhaustive-deps
  },[load.kind,editor]);
  useEffect(()=>{
   if(load.kind!=="ready"||mode!=="list"||pendingFocusDate.current===undefined)return;
