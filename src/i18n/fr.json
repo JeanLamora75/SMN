@@ -3649,6 +3649,9 @@
     "createCategory": "Créer une catégorie",
     "categoryDuplicate": "Ce nom de catégorie existe déjà.",
     "categoryInUse": "Cette catégorie est utilisée par des liens. Réaffectez-les avant de la supprimer.",
-    "usedBy": "lien(s)"
+    "usedBy": "lien(s)",
+    "reassignTo": "Réaffecter les liens à la catégorie",
+    "chooseCategory": "Choisir une catégorie",
+    "reassign": "Réaffecter les liens"
   }
 }
