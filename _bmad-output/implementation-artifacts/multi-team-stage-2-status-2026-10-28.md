@@ -45,3 +45,18 @@ Les correctifs de la branche `main` sont du code préparatoire, non une preuve d
 - Aucune validation transactionnelle Team A / Team B n'a encore été rapportée.
 
 Prochaine décision : poursuivre la qualification par familles de mutations, sans demander d'intervention PC tant qu'un lot cohérent ne sera pas prêt.
+
+## Consolidation finale des contrôles
+
+Commande unique de recette : `node scripts/verify-multi-team-stage2.mjs`.
+Elle enchaîne TypeScript, tests d'isolation ciblés, diagnostic PostgreSQL
+et recette réelle en lecture seule. Le script refuse de commencer si le verrou
+`MULTI_TEAM_CONTEXT_READY` n'est plus à `false`.
+
+La recette réelle échoue désormais explicitement, au lieu de conclure à tort
+au succès, si la base ne contient pas au moins deux équipes actives et
+une fiche permettant de tester un accès croisé.
+
+**Clôture non prononcée** en absence de preuves d'exécution récentes et
+d'une couverture vérifiée des autres mutations et de l'interface multiéquipes.
+Ne pas assimiler le succès de tests statiques à une preuve de sécurité.
