@@ -22,7 +22,7 @@ export async function ensureSprintGoalsSchema(db:Client){
 async function findSprint(db:Client,id:string,lock=false){
  const r=await db.query<{id:string;name:string;status:string;start_at:string;end_at:string}>(`SELECT s.id,s.name,s.status,s.start_at::text,s.end_at::text FROM public.smn_sprint s
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+ WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum'
  ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
 export async function readSprintGoals(db:Client,sprintId:string){
