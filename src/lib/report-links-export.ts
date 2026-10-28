@@ -1,11 +1,12 @@
 /** Render only validated http(s) references, keeping stored order. */
-export type ExportLink={title:string;url:string};
+export type ExportLink={title:string;url:string;description?:string|null};
 export function safeExportLinks(values:unknown):ExportLink[]{
  if(!Array.isArray(values))return [];
  return values.filter((v):v is ExportLink=>{
   if(!v||typeof v!=="object")return false;
   const x=v as Record<string,unknown>;
-  if(typeof x.title!=="string"||typeof x.url!=="string"||x.title.length>200)return false;
+  if(typeof x.title!=="string"||typeof x.url!=="string"||x.title.length>200||
+   (x.description!=null&&(typeof x.description!=="string"||x.description.length>4000)))return false;
   try{const u=new URL(x.url);return ["https:","http:"].includes(u.protocol)&&!u.username&&!u.password;}catch{return false;}
  });
 }
@@ -16,11 +17,11 @@ function markdownLabel(value:string):string{
 export function reportLinksMarkdown(values:unknown):string{
  const links=safeExportLinks(values);
  if(!links.length)return "";
- return "## Liens et références\n\n"+links.map(x=>"- ["+markdownLabel(x.title)+"]("+encodeURI(x.url).replace(/\(/g,"%28").replace(/\)/g,"%29")+")").join("\n")+"\n";
+ return "## Liens et références\n\n"+links.map(x=>"- ["+markdownLabel(x.title)+"]("+encodeURI(x.url).replace(/\(/g,"%28").replace(/\)/g,"%29")+")"+(x.description?.trim()?"\n  "+x.description.trim().split(/\r?\n/).map(markdownLabel).join("\n  "):"")).join("\n")+"\n";
 }
 export function reportLinksHtml(values:unknown):string{
  const escape=(s:string)=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]??c));
  const links=safeExportLinks(values);
  if(!links.length)return "";
- return '<section><h2>Liens et références</h2><ul>'+links.map(x=>'<li><a href="'+escape(x.url)+'">'+escape(x.title)+'</a></li>').join("")+"</ul></section>";
+ return '<section><h2>Liens et références</h2><ul>'+links.map(x=>'<li><a href="'+escape(x.url)+'">'+escape(x.title)+'</a>'+(x.description?.trim()?'<p>'+escape(x.description).replace(/\r?\n/g,'<br>')+'</p>':'')+'</li>').join("")+"</ul></section>";
 }
