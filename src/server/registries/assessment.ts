@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import {riskCriticalEvent} from "./confirmed-highlights";
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {criticality,validLevel,type Level} from "@/lib/risk-criticality";
 export async function ensureRiskAssessment(db:Client){
  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_risk_assessment(
@@ -16,7 +17,8 @@ export async function ensureRiskAssessment(db:Client){
  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(item_id,revision))`);
 }
-export async function saveRiskAssessment(db:Client,actorId:string,id:string,raw:unknown){
+export async function saveRiskAssessment(db:Client,actorId:string,id:string,raw:unknown,
+ scope?:Readonly<{actor:TeamActor;teamId:string}>){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input" as const};
  const v=raw as Record<string,unknown>;
  if(Object.keys(v).sort().join(",")!=="impact,probability,revision"||
@@ -26,10 +28,14 @@ export async function saveRiskAssessment(db:Client,actorId:string,id:string,raw:
   !/^[0-9a-f-]{36}$/i.test(id)||!actorId)return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
-  const scope=await db.query(`SELECT r.id FROM public.smn_registry_item r
+  const team=scope?await resolveAdminTeam(db,scope.actor,scope.teamId):null;
+  if(scope&&scope.actor.accountId!==actorId)throw Error("team-access-forbidden");
+  const scopedRecord=await db.query(`SELECT r.id FROM public.smn_registry_item r
    JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-   WHERE r.id=$1 AND r.type='risk' AND i.id='singleton' AND i.state='initialized' FOR UPDATE OF r`,[id]);
-  if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
+   WHERE r.id=$1 AND r.type='risk' AND i.id='singleton' AND i.state='initialized'
+    AND ($2::text IS NULL OR r.team_id=$2)
+    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false FOR UPDATE OF r`,[id,team?.team_id??null]);
+  if(scopedRecord.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   await ensureRiskAssessment(db);
   const prev=await db.query<{probability:Level|null;impact:Level|null;revision:number}>(`
    SELECT probability,impact,revision FROM public.smn_risk_assessment WHERE item_id=$1 FOR UPDATE`,[id]);
