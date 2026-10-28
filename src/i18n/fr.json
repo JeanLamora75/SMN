@@ -598,7 +598,8 @@
       "countries": "Pays",
       "calendar": "Calendrier",
       "sprint": "Sprint",
-      "register": "Registre"
+      "register": "Registre",
+      "links": "Liens"
     }
   },
   "detail": {
@@ -2053,6 +2054,10 @@
       "kanbanCadence": {
         "title": "Cadence Kanban",
         "description": "Périodes mensuelles, hebdomadaires et bihebdomadaires"
+      },
+      "links": {
+        "title": "Gestion des liens",
+        "description": "Consulter les liens par équipe, catégorie et visibilité."
       },
       "preferences": {
         "title": "Préférences de l'application",
@@ -3605,5 +3610,79 @@
     "unavailable": "Sélecteur d'équipe temporairement indisponible.",
     "choose": "Choisir une équipe",
     "discard": "Des modifications non enregistrées sont présentes. Les abandonner pour changer d'équipe ?"
+  },
+  "links": {
+    "title": "Liens",
+    "team": "Équipe",
+    "open": "Ouvrir",
+    "editLater": "Modification disponible prochainement",
+    "actions": "Actions",
+    "addLater": "Ajout disponible prochainement",
+    "add": "+ Ajouter un lien",
+    "search": "Rechercher un lien",
+    "view": "Affichage",
+    "cards": "Cartes",
+    "list": "Liste",
+    "scope": "Portée",
+    "allScopes": "Toutes les portées",
+    "transverse": "Transverse",
+    "specific": "Équipe",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "sort": "Tri",
+    "sortTitle": "Titre",
+    "sortCategory": "Catégorie",
+    "loading": "Chargement des liens…",
+    "error": "Impossible de charger les liens.",
+    "retry": "Réessayer",
+    "empty": "Aucun lien disponible.",
+    "noMatch": "Aucun résultat pour ces filtres.",
+    "reset": "Réinitialiser",
+    "sortRecent": "Plus récemment modifiés",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "titleField": "Titre",
+    "urlField": "URL",
+    "descriptionField": "Commentaire",
+    "noCategories": "Aucune catégorie disponible",
+    "invalidUrl": "Veuillez indiquer une URL HTTP(S) valide.",
+    "saveError": "Opération impossible. Réessayez.",
+    "conflict": "Ce lien a été modifié entre-temps. Actualisez la liste.",
+    "confirmDelete": "Confirmer la suppression",
+    "deleteWarning": "Le lien sera supprimé. Cette action est irréversible.",
+    "invalidFields": "Vérifiez les champs : titre, URL HTTP(S), catégorie et visibilité.",
+    "forbidden": "Vous n’êtes pas autorisé à modifier ce lien.",
+    "notFound": "Ce lien n’existe plus ou n’est plus accessible. Actualisez la liste.",
+    "confirmScopeChange": "Je confirme le changement de visibilité de ce lien. Il sera accessible selon sa nouvelle portée.",
+    "confirmScopeRequired": "Confirmez explicitement le changement de visibilité avant d'enregistrer."
+  },
+  "linksAdmin": {
+    "title": "Administration des liens",
+    "allTeams": "Toutes les équipes",
+    "transfer": "Changer la portée / transférer",
+    "chooseTeam": "Choisir une équipe",
+    "transferConfirm": "Je confirme le changement de visibilité ou le transfert vers l'équipe sélectionnée.",
+    "categories": "Catégories",
+    "categoryName": "Nom de la catégorie",
+    "createCategory": "Créer une catégorie",
+    "categoryDuplicate": "Ce nom de catégorie existe déjà.",
+    "categoryInUse": "Cette catégorie est utilisée par des liens. Réaffectez-les avant de la supprimer.",
+    "usedBy": "lien(s)",
+    "reassignTo": "Réaffecter les liens à la catégorie",
+    "chooseCategory": "Choisir une catégorie",
+    "reassign": "Réaffecter les liens"
+  },
+  "reportLinks": {
+    "title": "Liens et références",
+    "draftNotice": "Les références sélectionnées sont enregistrées dans le brouillon du sprint ; l’export sera intégré ensuite.",
+    "selected": "Références choisies",
+    "up": "Monter",
+    "down": "Descendre",
+    "remove": "Retirer",
+    "saved": "Sélection enregistrée.",
+    "exportMarkdown": "Exporter les références (Markdown)"
   }
 }

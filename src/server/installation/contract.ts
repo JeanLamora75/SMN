@@ -122,6 +122,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_ai_brief_response:r", "public.smn_ai_brief_template:r",
   // historicalCsv: seules les relations effectivement déclarées par le code source.
   "public.smn_historical_csv_attempt:r", "public.smn_historical_csv_batch:r", "public.smn_historical_csv_change:r",
+  "public.smn_link_category:r", "public.smn_link:r", "public.smn_link_audit:r",
   "public.smn_ai_brief_archive_immutable:function",
 ] as const;
 export type ExpressInput = Readonly<{ mode: "scrum" | "kanban"; product: string; team: string; password: string; adminUsername: string; adminEmail: string }>;

@@ -7,10 +7,10 @@ const source=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"ut
 const admin={role:"admin",is_active:true,must_change_password:false};
 
 describe("Centre Paramètres Cockpit — contrats structurels",()=>{
- it("présente douze cartes sans recherche globale",()=>{
+ it("présente le Cockpit et la nouvelle rubrique Liens",()=>{
   const groups=settingsCatalog("scrum",admin);
-  assert.deepEqual(groups.map(g=>g.entries.length),[1,5,3,3]);
-  assert.equal(groups.flatMap(g=>g.entries).length,12);
+  assert.deepEqual(groups.map(g=>g.entries.length),[1,6,3,3]);
+  assert.equal(groups.flatMap(g=>g.entries).length,13);
   const view=source("src/app/app/admin/settings/settings-catalog-view.tsx");
   assert.doesNotMatch(view,/placeholder=.*[Rr]echerch/);
  });

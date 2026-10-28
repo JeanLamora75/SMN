@@ -15,6 +15,7 @@ import ReportArchiveList from "./report-archive-list";
 import ReportLanguageChoice from "./report-language-choice";
 import ReportLogoEditor from "./report-logo-editor";
 import ReportSectionEditor from "./report-section-editor";
+import ReportLinkSelection from "./report-link-selection";
 import FreezeReportButton from "./freeze-report-button";
 import ReportAnalysisChoices from "./report-analysis-choices";
 import FactSelection from "@/app/app/admin/registries/fact-selection";
@@ -64,6 +65,7 @@ export default async function PrepareReportPage({params}:{params:Promise<{sprint
    <ReportArchiveList sprintId={s.id}/>
    <ReportTemplateChooser sprintId={s.id}/>
    <ReportSectionEditor sprintId={s.id} sections={data.sections}/>
+   <ReportLinkSelection sprintId={s.id}/>
    <ReportContentEditor sprintId={s.id} values={{committed:data.projection.scrum.storyPoints.committed.value,completed:data.projection.scrum.storyPoints.completed.value,planned:data.projection.scrum.capacity.planned.value,actual:data.projection.scrum.capacity.actual.value}} facts={[]}/>
    <FactSelection canManage={true}/>
    <ConfirmedHighlights canManage={true}/>

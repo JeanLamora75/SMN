@@ -6,12 +6,12 @@ const admin={role:"admin",is_active:true,must_change_password:false};
 const user={role:"user",is_active:true,must_change_password:false};
 const flatten=(mode:"scrum"|"kanban"|null,actor=admin)=>settingsCatalog(mode,actor).flatMap(g=>g.entries);
 describe("SMN-225 — Catalogue des Paramètres",()=>{
- it("expose exactement 12 domaines dans les 4 familles attendues",()=>{
+ it("expose les rubriques Cockpit et Liens dans les 4 familles attendues",()=>{
   const groups=settingsCatalog("scrum",admin);
   assert.deepEqual(groups.map(x=>x.id),["application","agile","calendar","administration"]);
   assert.deepEqual(groups.map(g=>g.entries.map(e=>e.id)),[
    ["preferences"],
-   ["teams","cadence","ceremonies","capacity","registries"],
+   ["teams","cadence","ceremonies","capacity","registries","links"],
    ["workingDays","holidaysClosures","absences"],
    ["users","security","maintenance"]
   ]);

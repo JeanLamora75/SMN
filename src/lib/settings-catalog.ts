@@ -18,7 +18,8 @@ const catalog:ReadonlyArray<{id:SettingsSection;label:TranslationKey;entries:rea
   {id:"cadence",icon:"◷",resources:["settings"],href:"/app/admin/scrum-cadence"},
   {id:"ceremonies",icon:"◫",resources:["settings"],href:"/app/admin/settings/ceremonies",status:"partial",mode:"scrum"},
   {id:"capacity",icon:"▤",resources:["settings"],status:"planned"},
-  {id:"registries",icon:"▥",resources:["settings"],href:"/app/admin/settings/registries"}
+  {id:"registries",icon:"▥",resources:["settings"],href:"/app/admin/settings/registries"},
+  {id:"links",icon:"🔗",resources:["settings"],href:"/app/admin/settings/links",status:"partial"}
  ]},
  {id:"calendar",label:"settingsCatalog.groups.calendar",entries:[
   {id:"workingDays",icon:"▦",resources:["settings"],href:"/app/admin/settings/working-days",status:"partial",mode:"scrum"},

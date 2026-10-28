@@ -979,3 +979,46 @@ model SmnTeamWorkSlots {
  team SmnTeam @relation(fields:[teamId],references:[id],onDelete:Restrict)
  @@map("smn_team_work_slots")
 }
+
+
+model SmnLinkCategory {
+ id String @id
+ installationId String @map("installation_id")
+ name String
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ @@unique([id,installationId])
+ @@map("smn_link_category")
+}
+
+model SmnLink {
+ id String @id
+ installationId String @map("installation_id")
+ title String
+ url String
+ description String?
+ categoryId String @map("category_id")
+ scope String
+ teamId String? @map("team_id")
+ createdBy String? @map("created_by")
+ updatedBy String? @map("updated_by")
+ createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+ updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+ revision Int @default(1)
+ @@index([installationId,scope,teamId],map:"smn_link_installation_scope_idx")
+ @@index([categoryId],map:"smn_link_category_idx")
+ @@map("smn_link")
+}
+
+model SmnLinkAudit {
+ id String @id
+ linkId String @map("link_id")
+ installationId String @map("installation_id")
+ operation String
+ beforeValues Json? @map("before_values") @db.JsonB
+ afterValues Json? @map("after_values") @db.JsonB
+ actorId String? @map("actor_id")
+ occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+ @@index([linkId,occurredAt],map:"smn_link_audit_link_idx")
+ @@map("smn_link_audit")
+}

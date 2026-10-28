@@ -3,9 +3,10 @@ import {validateFinalPdf} from "./pdf-archive-contract";
 import {reportDocumentStyle} from "@/lib/report-document-style";
 import {isReportBlock} from "@/lib/report-studio-blocks";
 import type {ReportDocument} from "./report-documents";
+import {reportLinksHtml,type ExportLink} from "@/lib/report-links-export";
 
 const esc=(x:unknown)=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]??c));
-export function studioDocumentHtml(doc:ReportDocument){
+export function studioDocumentHtml(doc:ReportDocument,reportLinks:ExportLink[]=[]){
  const c=(doc.content&&typeof doc.content==="object"&&!Array.isArray(doc.content)?doc.content:{}) as Record<string,unknown>,style=reportDocumentStyle(c.documentStyle);
  const sections=Array.isArray(c.sections)?c.sections as Array<{key:string;visible:boolean}>:[];
  const notes=(c.userNotes??{}) as Record<string,string>;
@@ -31,16 +32,17 @@ export function studioDocumentHtml(doc:ReportDocument){
  <h1>${esc(doc.title)}</h1>
  ${style.toc?`<nav><h2>Sommaire</h2><ol>${sections.filter(s=>s.visible).map(s=>`<li>${esc(s.key)}</li>`).join("")}</ol></nav>`:""}
  ${body}
+ ${reportLinksHtml(reportLinks)}
  ${analyses.map(a=>`<section><h2>${esc(a.scope)}</h2><p>Origine : ${esc(a.origin)}</p><p>${text(a.content)}</p></section>`).join("")}
  <footer>${esc(style.footerText)}</footer></body></html>`;
 }
-export async function renderStudioPdf(doc:ReportDocument):Promise<Buffer>{
+export async function renderStudioPdf(doc:ReportDocument,reportLinks:ExportLink[]=[]):Promise<Buffer>{
  const executablePath=await findPdfChrome();if(!executablePath)throw Error("pdf-browser-unavailable");
  const moduleName="puppeteer-core";const puppeteer=(await import(moduleName)).default;
  const browser=await puppeteer.launch({executablePath,headless:true,args:["--no-first-run","--no-default-browser-check"]});
  try{const page=await browser.newPage();
   try{await page.setRequestInterception(true);page.on("request",(request:{abort:()=>void})=>request.abort());
-   await page.setContent(studioDocumentHtml(doc),{waitUntil:"load"});
+   await page.setContent(studioDocumentHtml(doc,reportLinks),{waitUntil:"load"});
    const bytes=Buffer.from(await page.pdf({format:"A4",preferCSSPageSize:true,printBackground:true,timeout:20000}));
    if(!validateFinalPdf(bytes))throw Error("pdf-invalid");
    return bytes;

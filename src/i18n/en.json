@@ -598,7 +598,8 @@
       "countries": "Countries",
       "calendar": "Calendar",
       "sprint": "Sprint",
-      "register": "Register"
+      "register": "Register",
+      "links": "Links"
     }
   },
   "detail": {
@@ -2053,6 +2054,10 @@
       "kanbanCadence": {
         "title": "Kanban cadence",
         "description": "Monthly, weekly and biweekly reference periods"
+      },
+      "links": {
+        "title": "Link management",
+        "description": "Browse links by team, category and visibility."
       },
       "preferences": {
         "title": "Application preferences",
@@ -3605,5 +3610,79 @@
     "unavailable": "Team switcher is temporarily unavailable.",
     "choose": "Choose a team",
     "discard": "You have unsaved changes. Discard them to switch teams?"
+  },
+  "links": {
+    "title": "Links",
+    "team": "Team",
+    "open": "Open",
+    "editLater": "Editing available later",
+    "actions": "Actions",
+    "addLater": "Adding links available later",
+    "add": "+ Add link",
+    "search": "Search links",
+    "view": "View",
+    "cards": "Cards",
+    "list": "List",
+    "scope": "Scope",
+    "allScopes": "All scopes",
+    "transverse": "Cross-team",
+    "specific": "Team",
+    "category": "Category",
+    "allCategories": "All categories",
+    "sort": "Sort",
+    "sortTitle": "Title",
+    "sortCategory": "Category",
+    "loading": "Loading links…",
+    "error": "Unable to load links.",
+    "retry": "Retry",
+    "empty": "No links available.",
+    "noMatch": "No links match these filters.",
+    "reset": "Reset",
+    "sortRecent": "Recently updated",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "titleField": "Title",
+    "urlField": "URL",
+    "descriptionField": "Comment",
+    "noCategories": "No categories available",
+    "invalidUrl": "Enter a valid HTTP(S) URL.",
+    "saveError": "Unable to complete the operation. Try again.",
+    "conflict": "This link was changed elsewhere. Refresh the list.",
+    "confirmDelete": "Confirm deletion",
+    "deleteWarning": "This link will be deleted. This action cannot be undone.",
+    "invalidFields": "Check the fields: title, HTTP(S) URL, category and scope.",
+    "forbidden": "You are not authorized to change this link.",
+    "notFound": "This link no longer exists or is no longer accessible. Refresh the list.",
+    "confirmScopeChange": "I confirm the change to this link's visibility. Access will follow its new scope.",
+    "confirmScopeRequired": "Confirm the visibility change before saving."
+  },
+  "linksAdmin": {
+    "title": "Link administration",
+    "allTeams": "All teams",
+    "transfer": "Change scope / transfer",
+    "chooseTeam": "Select team",
+    "transferConfirm": "I confirm the scope change or transfer to the selected team.",
+    "categories": "Categories",
+    "categoryName": "Category name",
+    "createCategory": "Create category",
+    "categoryDuplicate": "This category name already exists.",
+    "categoryInUse": "This category is used by links. Reassign them before deletion.",
+    "usedBy": "link(s)",
+    "reassignTo": "Reassign links to category",
+    "chooseCategory": "Select a category",
+    "reassign": "Reassign links"
+  },
+  "reportLinks": {
+    "title": "Links and references",
+    "draftNotice": "Selected references are saved in the sprint draft; export integration follows.",
+    "selected": "Selected references",
+    "up": "Move up",
+    "down": "Move down",
+    "remove": "Remove",
+    "saved": "Selection saved.",
+    "exportMarkdown": "Export references (Markdown)"
   }
 }
