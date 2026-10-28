@@ -56,7 +56,7 @@ export default function SettingsCatalogView({groups}:{groups:SettingsGroup[]}){
       {view==="list"&&entry.href&&<span aria-hidden="true" className="ms-auto">›</span>}
      </>;
      const classes="smn-panel rounded-4 p-3 h-100 d-flex gap-3 align-items-start text-body"+
-      (entry.href?" text-decoration-none smn-settings-entry-link":"");
+      (entry.href?" text-decoration-none smn-settings-entry-link":" opacity-50 bg-body-tertiary");
      return <div className={view==="cards"?"col":""} key={entry.id}>
       {entry.href?<Link href={entry.href} className={classes} aria-label={label}>{body}</Link>:
        <div className={classes}>{body}</div>}

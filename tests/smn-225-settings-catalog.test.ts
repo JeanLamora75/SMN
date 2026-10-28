@@ -6,14 +6,14 @@ const admin={role:"admin",is_active:true,must_change_password:false};
 const user={role:"user",is_active:true,must_change_password:false};
 const flatten=(mode:"scrum"|"kanban"|null,actor=admin)=>settingsCatalog(mode,actor).flatMap(g=>g.entries);
 describe("SMN-225 — Catalogue des Paramètres",()=>{
- it("expose exactement 14 rubriques dans les 4 familles attendues",()=>{
+ it("expose les rubriques Cockpit et Liens dans les 4 familles attendues",()=>{
   const groups=settingsCatalog("scrum",admin);
   assert.deepEqual(groups.map(x=>x.id),["application","agile","calendar","administration"]);
   assert.deepEqual(groups.map(g=>g.entries.map(e=>e.id)),[
-   ["general","languages","appearance"],
-   ["cadence","ceremonies","capacity"],
-   ["workingDays","countries","closures","absences"],
-   ["users","security","backups","audit"]
+   ["preferences"],
+   ["teams","cadence","ceremonies","capacity","registries","links"],
+   ["workingDays","holidaysClosures","absences"],
+   ["users","security","maintenance"]
   ]);
  });
  it("n'invente aucun lien pour les fonctions manquantes ou partiellement accessibles",()=>{
@@ -25,13 +25,15 @@ describe("SMN-225 — Catalogue des Paramètres",()=>{
   assert.equal(entries.find(e=>e.id==="workingDays")?.href,"/app/admin/settings/working-days");
   assert.equal(entries.find(e=>e.id==="ceremonies")?.status,"partial");
   assert.equal(entries.find(e=>e.id==="ceremonies")?.href,"/app/admin/settings/ceremonies");
-  assert.equal(entries.find(e=>e.id==="capacity")?.status,"partial");
-  assert.equal(entries.find(e=>e.id==="general")?.href,"/app/admin/settings/general");
+  assert.equal(entries.find(e=>e.id==="capacity")?.status,"planned");
+  assert.equal(entries.find(e=>e.id==="preferences")?.href,"/app/admin/settings/general");
   assert.equal(entries.some(e=>["integrations","notifications"].includes(e.id)),false);
  });
  it("respecte le mode Kanban sans retirer les rubriques du catalogue",()=>{
   const entries=flatten("kanban");
-  for(const id of ["cadence","ceremonies","workingDays"]){
+  assert.equal(entries.find(e=>e.id==="cadence")?.status,"available");
+  assert.equal(entries.find(e=>e.id==="cadence")?.href,"/app/admin/kanban-cadence");
+  for(const id of ["ceremonies","workingDays"]){
    assert.equal(entries.find(e=>e.id===id)?.status,"not-applicable");
    assert.equal(entries.find(e=>e.id===id)?.href,null);
   }

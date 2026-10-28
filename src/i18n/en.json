@@ -1975,10 +1975,10 @@
   },
   "settingsCatalog": {
     "groups": {
-      "application": "Application and personalization",
+      "application": "Application",
       "agile": "Agile organization",
-      "calendar": "Calendars and unavailability",
-      "administration": "Administration and maintenance"
+      "calendar": "Calendars and availability",
+      "administration": "Administration"
     },
     "status": {
       "available": "Available",
@@ -2004,8 +2004,8 @@
         "description": "Customize the theme and colors."
       },
       "cadence": {
-        "title": "Sprint cadence",
-        "description": "Configure future Scrum sprint duration and timing."
+        "title": "Agile cadence",
+        "description": "Configure cycles for the active Scrum or Kanban mode."
       },
       "ceremonies": {
         "title": "Ceremonies and templates",
@@ -2020,8 +2020,8 @@
         "description": "Configure capacity calculation rules."
       },
       "workingDays": {
-        "title": "Working days",
-        "description": "Set working hours, time zone and lunch break; Monday–Friday stays fixed."
+        "title": "Working hours",
+        "description": "Working time slots and lunch break."
       },
       "countries": {
         "title": "Countries and public holidays",
@@ -2058,12 +2058,33 @@
       "links": {
         "title": "Link management",
         "description": "Browse links by team, category and visibility."
+      },
+      "preferences": {
+        "title": "Application preferences",
+        "description": "Language, theme, colors and general preferences."
+      },
+      "holidaysClosures": {
+        "title": "Public holidays and closures",
+        "description": "National calendars and company-wide closures."
+      },
+      "maintenance": {
+        "title": "Maintenance",
+        "description": "Backups and operation history."
       }
     },
     "view": {
       "switchLabel": "Settings display mode",
       "cards": "Card view",
       "list": "List view"
+    },
+    "tabs": {
+      "categories": "Automatic categories",
+      "alerts": "Deadline alerts",
+      "slots": "Working time slots",
+      "lunch": "Lunch break",
+      "general": "General",
+      "language": "Language",
+      "appearance": "Appearance"
     }
   },
   "memberAbsences": {

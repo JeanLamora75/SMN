@@ -25,7 +25,7 @@ describe("SMN-226 — modes Cartes/Liste du catalogue",()=>{
   assert.match(view,/view==="cards"\?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"/);
   assert.match(view,/entry\.href\?<Link href=\{entry\.href\}/);
   assert.equal(settingsCatalog("scrum",{role:"admin",is_active:true,must_change_password:false})
-   .flatMap(g=>g.entries).length,14);
+   .flatMap(g=>g.entries).length,12);
  });
  it("annonce les boutons et leur sélection aux technologies d'assistance",()=>{
   const view=source("src/app/app/admin/settings/settings-catalog-view.tsx");
