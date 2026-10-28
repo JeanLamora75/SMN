@@ -96,7 +96,7 @@ export function planSprintTemplateOccurrences(sprint:SprintBounds,
  for(let day=from,i=0;day<=to&&i<35;day=nextDay(day),i++){
   for(const template of templates){
    if(template.frequency==="sprint"||
-    template.frequency==="daily"&&weekday(day)>5||
+    template.frequency==="daily"&&(weekday(day)>5||blockedDates.has(day))||
     template.frequency==="weekly"&&template.weekday!==weekday(day))continue;
    const begin=requestedMinute(day,template.time,sprint.timeZone);
    const finish=begin+template.duration*MINUTE;
