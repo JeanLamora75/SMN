@@ -65,3 +65,7 @@ Le code `src/server/countries/consolidation-migration.ts` fige le texte SQL v30 
 ## Tests complémentaires (28 octobre)
 
 Le fichier `tests/country-consolidation-v30.test.ts` comprend désormais des scénarios négatifs v29, le refus des versions inconnues au-delà de v30 et des assertions sur les contraintes SQL (FK, révision, unicité, année, audit). Ces scénarios ne constituent pas une simulation complète d'une installation v29 ou v30 valide ; celle-ci exige les 29 migrations antérieures avec leurs checksums et une vérification PostgreSQL. **Aucune commande de test exécutée ; statut NO-GO maintenu.**
+
+## Contrôle supplémentaire — historique des migrations non tronqué
+
+Le diagnostic PostgreSQL utilisait `LIMIT 30` sans `ORDER BY` pour lire `_prisma_migrations`. Cela risquait de masquer une migration supplémentaire, de façon non déterministe. Le `LIMIT` a été retiré : la classification compare désormais tout l'historique avec la version attendue. Un test structurel a été ajouté pour empêcher cette régression. L'application ne réalise aucune écriture pendant ce diagnostic. Exécution des tests et contrôle PostgreSQL toujours en attente.
