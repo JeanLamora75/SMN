@@ -71,3 +71,11 @@ Fichiers ajoutés : `src/server/countries/lifecycle.ts`, route `GET/POST /api/ad
 Le service de cycle de vie vérifie la révision, les membres actifs rattachés au pays, les déplacements futurs et la référence de pays avant archivage ; il historise l'action et conserve le verrou de sérialisation métier.
 
 **Réserve :** les tests sont copiés mais non exécutés, le service de préchargement peut avoir d'autres dépendances non encore migrées, les nouveaux contrats API ne sont pas validés en environnement réel. Il reste à réaliser un audit de compilation, compatibilité interservices et permissions avant fusion.
+
+## Revue transversale — correction du rafraîchissement national
+
+Contrôle statique : les services intégrés utilisent la garde v30 avant les transactions ; les routes Pays sont protégées par `authorizeApi` selon lecture/écriture. Un risque a été identifié dans `preloadNationalCalendar` : le rafraîchissement actualisait le statut et le nombre d'entrées sans réviser ni invalider l'attestation annuelle.
+
+Correction sur cette branche : verrou partagé avec l'archivage (`pg_advisory_xact_lock(20261026,279)`), lecture verrouillée du pays, refus des pays archivés, incrément de la révision de couverture et effacement de l'attestation administrative **si le statut, le nombre ou le diagnostic change**. Les rafraîchissements sans changement de ces champs conservent la validation. Test structurel ajouté : `tests/country-preload-invalidation.test.ts`.
+
+**Réserves :** les tests ne sont pas exécutés ; les collisions entre imports CSV/ICS, modifications manuelles et rafraîchissement nécessitent une recette transactionnelle PostgreSQL. La détection de changement ne tient pas compte du nom d'un jour férié lorsque les indicateurs de couverture ne changent pas ; à qualifier avec les règles d'importation et l'empreinte de validation. `main` reste inchangée.
