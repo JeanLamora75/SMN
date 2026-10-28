@@ -1,7 +1,7 @@
 import {canAccess} from "../src/server/access-policy";
 import assert from "node:assert/strict";
 import test from "node:test";
-import {parseCompanyInput,changeCompany,setCompanyArchived,getCompany} from "../src/server/companies/catalog";
+import {parseCompanyInput,changeCompany,setCompanyArchived,getCompany,createCompany,listCompanies} from "../src/server/companies/catalog";
 import type {Client} from "pg";
 
 test("company input normalizes name and optional comment",()=>{
@@ -57,4 +57,43 @@ test("identifiant malformé ne consulte pas la base",async()=>{
  const db={query:async()=>{throw Error("unexpected database call");}} as unknown as Client;
  assert.equal(await getCompany(db,"invalid"),null);
  assert.deepEqual(await setCompanyArchived(db,"invalid","admin",1,true),{ok:false,error:"invalid-input"});
+});
+
+test("création réussie transmet seulement les valeurs métier paramétrées",async()=>{
+ let sql="",params:unknown[]=[];
+ const db={query:async(q:string,p:unknown[])=>{
+  sql=q;params=p;
+  return {rows:[{id:"10ae30ef-2562-4459-a276-010102030405",name:"Acme",comment:null,color:"green",archived_at:null,revision:1}]};
+ }} as unknown as Client;
+ const result=await createCompany(db,"admin",{name:" Acme ",color:"green"});
+ assert.equal(result.ok,true);
+ assert.match(sql,/installation_id,name,comment,color/);
+ assert.equal(params[1],"Acme");
+ assert.equal(params[3],"green");
+});
+test("doublon de nom ciblé renvoie duplicate-name",async()=>{
+ const db={query:async()=>{throw Object.assign(Error("duplicate"),{code:"23505",constraint:"smn_company_installation_name_uq"});}} as unknown as Client;
+ const result=await createCompany(db,"admin",{name:"Acme",color:"blue"});
+ assert.deepEqual(result,{ok:false,error:"duplicate-name"});
+});
+test("autre violation SQL non masquée en doublon",async()=>{
+ const db={query:async()=>{throw Object.assign(Error("constraint"),{code:"23505",constraint:"some_other_constraint"});}} as unknown as Client;
+ await assert.rejects(()=>createCompany(db,"admin",{name:"Acme",color:"blue"}),/constraint/);
+});
+test("réactivation réussie respecte la révision attendue",async()=>{
+ let sql="";
+ const db={query:async(q:string)=>{
+  sql=q;
+  return {rows:[{id:"10ae30ef-2562-4459-a276-010102030405",name:"Acme",comment:null,color:"blue",archived_at:null,revision:5}]};
+ }} as unknown as Client;
+ const result=await setCompanyArchived(db,"10ae30ef-2562-4459-a276-010102030405","admin",4,false);
+ assert.equal(result.ok,true);
+ assert.match(sql,/archived_at=NULL/);
+ assert.match(sql,/archived_at IS NOT NULL/);
+});
+test("lecture catalogue limitée à l'installation courante",async()=>{
+ let sql="";
+ const db={query:async(q:string)=>{sql=q;return {rows:[]};}} as unknown as Client;
+ assert.deepEqual(await listCompanies(db),[]);
+ assert.match(sql,/installation_id='singleton'/);
 });
