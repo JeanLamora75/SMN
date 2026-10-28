@@ -245,7 +245,9 @@ export async function readTeamCalendar(db:Client,query:TeamCalendarQuery,isAdmin
  }
  return {
   team,start:query.start,end,days:query.days,kind:query.kind,collective,
-  closures:closures.rows.map(c=>({id:c.id,name:c.name,startOn:c.start_on,endOn:c.end_on,\n   ...(companyMode?{companyId:c.company_id,companyName:c.company_name,companyColor:c.company_color,\n   members:isAdmin?(c.member_details??[]):[]}: {})})),
+  closures:closures.rows.map(c=>({id:c.id,name:c.name,startOn:c.start_on,endOn:c.end_on,
+   ...(companyMode?{companyId:c.company_id,companyName:c.company_name,companyColor:c.company_color,
+   members:isAdmin?(c.member_details??[]):[]}: {})})),
   ...(isAdmin?{admin:{categories:categories.rows,members:adminMembers}}:{})
  };
 }
