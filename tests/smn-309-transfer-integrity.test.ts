@@ -20,3 +20,10 @@ test("transfer doesn't mutate published report snapshots",()=>{
  assert.doesNotMatch(transfer,/UPDATE\s+public\.smn_report/i);
  assert.doesNotMatch(transfer,/DELETE\s+FROM\s+public\.smn_report/i);
 });
+
+test("transfer dialog resolves shared modal and rejects unknown destination teams",()=>{
+ const ui=readFileSync(new URL("../src/app/app/admin/settings/links/link-transfer.tsx",import.meta.url),"utf8");
+ assert.match(ui,/from "\.\.\/\.\.\/links\/link-dialog"/);
+ assert.match(ui,/teams\.some\(team=>team\.id===teamId\)/);
+ assert.match(ui,/status==="404"\?t\("links\.notFound"\)/);
+});
