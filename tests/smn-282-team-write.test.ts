@@ -31,7 +31,7 @@ function database(options:Options={}){
 }
 test("création produit facultatif, une transaction et un audit",async()=>{
  const {db,sqls,argumentsSeen}=database();
- const r=await createInstallationTeam(db,"singleton","admin",{name:" Panda ",vision:" Vision "});
+ const r=await createInstallationTeam(db,"singleton","admin",{agileMode:"scrum",name:" Panda ",vision:" Vision "});
  assert.equal(r.ok,true);
  if(!r.ok)return;
  assert.equal(r.values.productName,null);
@@ -45,16 +45,16 @@ test("création produit facultatif, une transaction et un audit",async()=>{
 });
 test("la version historique 27 interdit les écritures",async()=>{
  const {db,sqls}=database({version:27});
- const r=await createInstallationTeam(db,"singleton","admin",{name:"Panda"});
+ const r=await createInstallationTeam(db,"singleton","admin",{agileMode:"scrum",name:"Panda"});
  assert.deepEqual(r,{ok:false,error:"schema-not-ready"});
  assert.equal(sqls.some(s=>s.startsWith("INSERT")),false);
 });
 test("un acteur non-admin ou un homonyme ne peut pas créer",async()=>{
  const denied=database({role:false});
- assert.deepEqual(await createInstallationTeam(denied.db,"singleton","admin",{name:"Panda"}),
+ assert.deepEqual(await createInstallationTeam(denied.db,"singleton","admin",{agileMode:"scrum",name:"Panda"}),
   {ok:false,error:"forbidden"});
  const same=database({teams:[{id:"team",name:"  ÉQUIPE   Panda "}]});
- assert.deepEqual(await createInstallationTeam(same.db,"singleton","admin",{name:"équipe panda"}),
+ assert.deepEqual(await createInstallationTeam(same.db,"singleton","admin",{agileMode:"scrum",name:"équipe panda"}),
   {ok:false,error:"duplicate-name"});
  assert.equal(same.sqls.some(s=>s.startsWith("INSERT")),false);
 });
@@ -77,7 +77,7 @@ test("édition : produit retiré sans suppression d'un produit historique",async
 });
 test("transaction annulée si PostgreSQL échoue",async()=>{
  const {db,sqls}=database({failInsert:true});
- await assert.rejects(()=>createInstallationTeam(db,"singleton","admin",{name:"Panda"}));
+ await assert.rejects(()=>createInstallationTeam(db,"singleton","admin",{agileMode:"scrum",name:"Panda"}));
  assert.equal(sqls.at(-1),"ROLLBACK");
 });
 
