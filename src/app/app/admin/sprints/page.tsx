@@ -1,4 +1,5 @@
 import {redirect} from "next/navigation";
+import Link from "next/link";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
@@ -28,6 +29,11 @@ export default async function SprintsPage({searchParams}:{searchParams:Promise<R
  const parsed=parseSprintIndexQuery(qs);
  const initialFilters=parsed?{search:parsed.search,status:parsed.status,sort:parsed.sort,page:parsed.page}:undefined;
  return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
+  {account.role==="admin"&&<div className="d-flex justify-content-end mb-3">
+   <Link href="/app/admin/team-cycles" className="btn btn-outline-secondary btn-sm">
+    Consulter les cycles par équipe
+   </Link>
+  </div>}
   <SprintIndexView canManage={account.role==="admin"} initialFilters={initialFilters}/>
  </main>;
 }
