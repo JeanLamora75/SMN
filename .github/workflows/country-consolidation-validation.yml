@@ -45,3 +45,31 @@ jobs:
             diagnostic/
             pnpm-lock.yaml
           if-no-files-found: warn
+
+  baseline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.10.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Compare test suite against main
+        shell: bash
+        run: |
+          mkdir -p baseline
+          pnpm install --no-frozen-lockfile > baseline/install.log 2>&1
+          pnpm test > baseline/tests.log 2>&1 || true
+          tail -n 30 baseline/tests.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smn-main-baseline-tests
+          path: baseline/
+          if-no-files-found: warn
