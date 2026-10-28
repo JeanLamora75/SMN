@@ -7,14 +7,14 @@ import {
 } from "../src/server/accounts/migration";
 
 describe("Authentification : compatibilité du schéma v27", () => {
-  it("autorise les schémas 1 à 28, dont les migrations manuelles de l'identité et des équipes", () => {
-    for (let version = 1; version <= 28; version++) {
+  it("autorise les schémas 1 à 30, dont les migrations manuelles de l'identité et des équipes", () => {
+    for (let version = 1; version <= 30; version++) {
       assert.equal(isSupportedAuthenticationSchemaVersion(version), true);
     }
   });
 
   it("refuse les versions futures, absentes ou mal formées", () => {
-    for (const version of [0, 29, 99, -1, 1.5, Number.NaN, Infinity]) {
+    for (const version of [0, 31, 99, -1, 1.5, Number.NaN, Infinity]) {
       assert.equal(isSupportedAuthenticationSchemaVersion(version), false);
     }
   });
