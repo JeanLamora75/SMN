@@ -49,3 +49,9 @@ Fichier : `prisma/migrations/20261028_smn270_281_country_consolidation/migration
 La migration est additive (quatre tables d'audit Pays, champs de révision / archivage / attestation, index et références). Elle conserve les tables Liens et les préférences d'équipe. Le marqueur `schema_version` ne passe de 29 à 30 que lorsque la base indique 29.
 
 **Contrôles bloquants restants :** valider le mécanisme de migration Prisma sur une base de développement, la cohérence du marqueur de version avec le code de démarrage, les différences éventuelles de structures préexistantes, les modèles Prisma et la non-régression. Aucune commande ni migration PostgreSQL n'a été exécutée. Ne pas fusionner ce lot sur `main` avant ces vérifications.
+
+## Compatibilité diagnostic v30 — contrôle statique
+
+Le diagnostic existant refusait les versions supérieures à 29 et le probe ne lisait que 29 migrations. Correctifs publiés : `diagnostic.ts` accepte 30, recherche la migration Pays v30 et contrôle les quatre tables d'audit ; `probe.ts` lit jusqu'à 30 migrations, valide les colonnes Pays en v30 et maintient le contrôle du schéma Liens pour toute version >=29.
+
+**Limites à lever avant fusion :** le contrôle v30 vérifie le statut de migration et l'existence des objets/colonnes mais pas encore l'empreinte SHA-256 de la migration ni toutes les contraintes SQL. Il faut ajouter les tests de diagnostic v29/v30, vérifier la compatibilité avec le moteur qui applique les migrations Prisma, contrôler le marqueur v30 sur base de développement et exécuter réellement TypeScript/tests/build. Aucune migration SQL ni commande locale exécutée ici.
