@@ -4,13 +4,13 @@ import {useEffect,useRef,type KeyboardEvent} from "react";
 import {useRouter} from "next/navigation";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 import {sprintTabKeys,type SprintTab} from "@/lib/sprint-detail-tabs";
-export default function SprintDetailTabs({sprintId,active,labels,navLabel}:{
- sprintId:string;active:SprintTab;labels:Readonly<Record<SprintTab,string>>;navLabel:string;
+export default function SprintDetailTabs({sprintId,teamId,active,labels,navLabel}:{
+ sprintId:string;teamId:string;active:SprintTab;labels:Readonly<Record<SprintTab,string>>;navLabel:string;
 }){
  const router=useRouter();
  const tabs=useRef<Array<HTMLAnchorElement|null>>([]);
  const focused=useRef<number|null>(null);
- const tabHref=(key:SprintTab)=>sprintDetailPath(sprintId)+"?tab="+key;
+ const tabHref=(key:SprintTab)=>sprintDetailPath(sprintId)+"?"+new URLSearchParams({tab:key,teamId}).toString();
  useEffect(()=>{
   if(focused.current!==null){tabs.current[focused.current]?.focus();focused.current=null;}
  },[active]);
