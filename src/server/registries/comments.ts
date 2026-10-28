@@ -114,14 +114,17 @@ export async function createRegistryComment(db:Client,actorId:string,itemId:stri
 }
 type Current={id:string;body:string;revision:number;withdrawnAt:string|null};
 export async function reviseRegistryComment(db:Client,actorId:string,itemId:string,
- commentId:string,action:"edit"|"withdraw",raw:unknown):Promise<Reply>{
+ commentId:string,action:"edit"|"withdraw",raw:unknown,
+ scope?:Readonly<{actor:TeamActor;teamId:string}>):Promise<Reply>{
  const parsedEdit=action==="edit"?parseCommentRevision(raw):null;
  const parsedWithdrawal=action==="withdraw"?parseCommentWithdrawal(raw):null;
  const parsed=parsedEdit??parsedWithdrawal;
  if(!parsed||!idRx.test(itemId)||!idRx.test(commentId)||!actorId)return {ok:false,error:"invalid-input"};
  await db.query("BEGIN");
  try{
-  if(!await scopedItem(db,itemId,true)){
+  const team=scope?await resolveAdminTeam(db,scope.actor,scope.teamId):null;
+  if(scope&&scope.actor.accountId!==actorId)throw Error("team-access-forbidden");
+  if(!await scopedItem(db,itemId,true,team?.team_id)){
    await db.query("ROLLBACK");return {ok:false,error:"not-found"};
   }
   const installed=await db.query<{installed:boolean}>(`SELECT
