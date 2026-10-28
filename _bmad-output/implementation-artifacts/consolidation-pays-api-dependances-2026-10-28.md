@@ -63,3 +63,11 @@ Le service `src/server/holidays/manual.ts`, le service `src/server/holidays/annu
 Les services appellent `ensureAnnualValidationSchema`, désormais remplacé dans cette branche par la garde SQL v30 strictement en lecture seule ; les mutations métier et audits restent transactionnels. Les tests métier `tests/national-holiday-manual.test.ts` et `tests/national-calendar-validation.test.ts` ont également été transférés.
 
 **À vérifier :** tous les scénarios d'autorisation et de concurrence, les routes de consultation annuelle, les contraintes SQL et la compilation globale. Les tests sont présents mais non exécutés. Les services ne doivent être utilisés qu'après migration explicite v30 ; rien n'a été appliqué à une base PostgreSQL ou fusionné dans `main`.
+
+## Archivage/réactivation et consultation annuelle intégrés
+
+Fichiers ajoutés : `src/server/countries/lifecycle.ts`, route `GET/POST /api/admin/countries/[code]/lifecycle`, tests `country-lifecycle.test.ts`, `country-calendar-read.test.ts`. Route existante `GET/POST /api/admin/countries/calendar` harmonisée avec les fonctionnalités de la branche #201 ; garde de schéma v30 ajoutée à la voie POST avant rechargement, et voie GET via `ensureManualHolidaySchema`.
+
+Le service de cycle de vie vérifie la révision, les membres actifs rattachés au pays, les déplacements futurs et la référence de pays avant archivage ; il historise l'action et conserve le verrou de sérialisation métier.
+
+**Réserve :** les tests sont copiés mais non exécutés, le service de préchargement peut avoir d'autres dépendances non encore migrées, les nouveaux contrats API ne sont pas validés en environnement réel. Il reste à réaliser un audit de compilation, compatibilité interservices et permissions avant fusion.
