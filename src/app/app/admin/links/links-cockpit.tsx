@@ -74,7 +74,7 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
    <div className="smn-links-hero-top">
     <div className="smn-links-identity">
      <h1><BootstrapIcon name="link-45deg"/> {t("links.title")}</h1>
-     <p><BootstrapIcon name="people"/> {t("links.team")} : {teamName}</p>
+     <p><BootstrapIcon name="people-fill"/> {t("links.team")} : {teamName}</p>
     </div>
     <button type="button" className="btn smn-links-create" onClick={()=>setEditing({open:true,item:null})}>
      <BootstrapIcon name="plus-lg"/> {t("links.add")}
