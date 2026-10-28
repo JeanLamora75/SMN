@@ -13,5 +13,5 @@ test("frontend catches duplicate category names but backend remains authority",(
  assert.match(service,/INSERT INTO public\.smn_link_category/);
 });
 test("new deletion dialog clears stale target and errors",()=>{
- assert.match(ui,/setTarget\(" "\)/.source? /setTarget\(" "\)/: /setTarget\(" "\)/);
+ assert.match(ui,/setTarget\(""\);setError\(""\);setDeleting\(c\)/);
 });
