@@ -103,7 +103,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
  return <section className="smn-team-cockpit d-grid gap-3">
   <header className="smn-team-hero">
    <div className="smn-team-hero-identity"><div className="d-flex align-items-center gap-2">
-    <h1>{t("teamCockpit.title")}</h1>
+    <h1>{roster?.team.name??t("teamCockpit.title")}</h1>
     {canManage&&roster&&<TeamContextEditor teamId={roster.team.id} teamName={roster.team.name} onSaved={updated=>{
      setRoster(current=>current&&current.team.id===updated.teamId?{...current,team:{...current.team,name:updated.name}}:current);
      setTeamContext({status:"ready",value:updated});
