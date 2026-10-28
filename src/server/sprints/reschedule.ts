@@ -15,7 +15,7 @@ function parse(raw:unknown):Input|null{
 }
 async function scope(db:Client,id:string,locked=false){
  const r=await db.query<{id:string;team_id:string;start_at:string;end_at:string;status:string;time_zone:string}>(`SELECT s.id,s.team_id,s.start_at::text,s.end_at::text,s.status,s.time_zone FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND lower(i.mode)='scrum' AND i.state='initialized' ${locked?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
+ WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND lower(i.mode)='scrum' AND i.state='initialized' AND i.schema_version<=27 ${locked?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
 async function examine(db:Client,input:Input){
  const s=await scope(db,input.sprintId);
