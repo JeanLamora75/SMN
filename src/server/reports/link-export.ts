@@ -9,5 +9,5 @@ export async function selectedReportExportLinks(db:Client,actor:LinkActor,sprint
  const saved=await readReportLinks(db,sprintId);
  const visible=await listLinks(db,actor,teamId);
  const byId=new Map(visible.map(link=>[link.id as string,link]));
- return saved.ids.flatMap(id=>{const link=byId.get(id);return link?[{title:link.title as string,url:link.url as string}]:[];});
+ return saved.ids.flatMap(id=>{const link=byId.get(id);return link?[{title:link.title as string,url:link.url as string,description:link.description as string|null}]:[];});
 }
