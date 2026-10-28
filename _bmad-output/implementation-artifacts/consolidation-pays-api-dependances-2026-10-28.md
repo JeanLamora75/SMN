@@ -79,3 +79,9 @@ Contrôle statique : les services intégrés utilisent la garde v30 avant les tr
 Correction sur cette branche : verrou partagé avec l'archivage (`pg_advisory_xact_lock(20261026,279)`), lecture verrouillée du pays, refus des pays archivés, incrément de la révision de couverture et effacement de l'attestation administrative **si le statut, le nombre ou le diagnostic change**. Les rafraîchissements sans changement de ces champs conservent la validation. Test structurel ajouté : `tests/country-preload-invalidation.test.ts`.
 
 **Réserves :** les tests ne sont pas exécutés ; les collisions entre imports CSV/ICS, modifications manuelles et rafraîchissement nécessitent une recette transactionnelle PostgreSQL. La détection de changement ne tient pas compte du nom d'un jour férié lorsque les indicateurs de couverture ne changent pas ; à qualifier avec les règles d'importation et l'empreinte de validation. `main` reste inchangée.
+
+## Lot interface Pays — transfert initial (28 octobre)
+
+Composants UX repris depuis #201 : catalogue `country-admin.tsx`, page Pays, formulaire, calendrier, éditeur et import de jours fériés, validation annuelle, cycle de vie, drapeaux. Six utilitaires `src/lib/countries/` ont été transférés. Les traductions `countries` ont été fusionnées **clé par clé** dans FR/EN en conservant les autres sections de `main` (notamment `links`, `linksAdmin`, `teamSettings`, `teamSwitch`, `reportLinks`).
+
+**Aucune commande i18n/typecheck/lint/test/build exécutée** : contrats API et interactions UX à valider. Les ajustements CSS transversaux et les imports CSV/ICS restent à examiner. Pas de fusion vers `main`.
