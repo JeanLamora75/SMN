@@ -34,6 +34,7 @@ import SprintTrendsPanel from "./sprint-trends-panel";
 import SprintReviewPanel from "./sprint-review-panel";
 import SprintRegistersPanel from "./sprint-registers-panel";
 import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
+import "./sprint-detail-cockpit.css";
 
 export const dynamic="force-dynamic";
 
@@ -124,16 +125,16 @@ export default async function SprintDetailPage({params,searchParams}:{
   sprintId:cycle.id,name:cycle.name,startAt:cycle.startAt,
   endAt:cycle.endAt,timeZone:cycle.timeZone
  };
- return <main className="container-fluid px-3 px-lg-4 py-4 smn-sprint-detail">
+ return <main className="smn-page container-fluid px-3 px-lg-4 py-4 smn-sprint-detail smn-sprint-detail-cockpit">
   <nav aria-label={t("dashboard.cockpit.sprintDetailsTitle")}
    className="d-flex gap-3 flex-wrap align-items-center mb-3">
    <Link className="d-inline-flex align-items-center gap-2"
-    href="/app/admin/sprints">
+    href={"/app/admin/sprints?"+new URLSearchParams({teamId}).toString()}>
     <BootstrapIcon name="arrow-left"/>{t("sprintDetail.backSprints")}
    </Link>
    <Link href={dashboardHref}>{t("dashboard.cockpit.backToDashboard")}</Link>
   </nav>
-  <div className="smn-panel rounded-4 p-3 p-md-4 mb-3">
+  <div className="smn-sprint-detail-hero mb-3">
    <header className="d-flex justify-content-between align-items-start flex-wrap gap-3">
     <div className="flex-grow-1" style={{minWidth:0}}>
      <p className="smn-cycle-eyebrow mb-1">{t("dashboard.cockpit.sprintDetailsTitle")}</p>
@@ -160,8 +161,8 @@ export default async function SprintDetailPage({params,searchParams}:{
     </span></div>
    </header>
   </div>
-  <div className="smn-panel rounded-4 p-3 p-md-4">
-   <SprintDetailTabs sprintId={cycle.id} active={active}
+  <div className="smn-sprint-detail-content">
+   <SprintDetailTabs sprintId={cycle.id} teamId={teamId} active={active}
     labels={labels} navLabel={t("dashboard.cockpit.sprintDetailsTitle")}/>
    <section role="tabpanel" tabIndex={0} id="smn-sprint-detail-panel"
     aria-labelledby={"smn-sprint-tab-"+active} className="pt-4">
