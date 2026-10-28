@@ -50,7 +50,7 @@ export default function TeamCycleCreateForm({teamId,mode,cadenceRevision,enabled
   finally{setSaving(false);}
  }
  return <form className="d-grid gap-3" onSubmit={submit}>
-  <p className="text-secondary mb-0">{mode==="scrum"?"Créer un Sprint Scrum":"Créer une période Kanban"} pour l'équipe sélectionnée.</p>
+  <p className="text-secondary mb-0">{mode==="scrum"?"Créer un Sprint Scrum":"Créer une période Kanban"} pour l&apos;équipe sélectionnée.</p>
   {contextError&&<p role="alert" className="alert alert-warning">Contexte d’équipe indisponible : actualisez cette page.</p>}
   {!ready&&!contextError&&<p role="status" className="alert alert-warning mb-0">Création multiéquipes non activée : validation technique en cours.</p>}
   <label className="form-label" htmlFor="team-cycle-start">Date de début</label>
