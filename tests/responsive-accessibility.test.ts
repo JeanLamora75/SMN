@@ -62,7 +62,7 @@ describe("SMN-25 — structure responsive et accessibilité de base",()=>{
   });
   it("cache les symboles décoratifs au lecteur d'écran sans cacher le libellé de la navigation",()=>{
     const nav=source("src/app/app/private-navigation.tsx");
-    assert.match(nav,/aria-hidden="true"\>\{entry\.icon\}/);
+    assert.match(nav,/<span className="smn-nav-icon" aria-hidden="true"><BootstrapIcon name=\{entry\.icon\}\/><\/span>/);
     assert.match(nav,/\{t\(entry\.label\)\}/);
     assert.match(nav,/aria-current=/);
     assert.match(nav,/aria-disabled="true"/);
