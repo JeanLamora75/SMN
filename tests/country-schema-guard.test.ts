@@ -6,7 +6,7 @@ describe("Pays — prérequis schéma v30 sans DDL",()=>{
  it("accepte un schéma déclaré prêt",async()=>{
   let calls=0;
   const db={query:async(sql:string)=>{calls++;assert.match(sql,/to_regclass/);
-   assert.doesNotMatch(sql,/\b(?:ALTER|CREATE|DROP|INSERT|UPDATE|DELETE)\s+(?:TABLE|INDEX|INTO|public)/i);
+   assert.ok(sql.trimStart().startsWith("SELECT "));
    return {rows:[{schema_version:30,ready:true}]};}};
   await requireCountrySchemaV30(db as never);
   assert.equal(calls,1);
