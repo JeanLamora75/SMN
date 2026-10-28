@@ -53,3 +53,16 @@ test("archive preserves PDF bytes and manifest metadata for saved links",()=>{
  assert.match(store,/integrity\.sha256!==manifest\.sha256/);
  assert.match(store,/verified\.sha256===record\.sha256/);
 });
+
+test("SMN-314 displays an optional comment in Markdown and PDF without breaking old links",()=>{
+ const refs=[{title:"Doc",url:"https://example.org",description:"Why this link matters\nAdditional context"}];
+ const md=reportLinksMarkdown(refs),html=reportLinksHtml(refs);
+ assert.match(md,/Why this link matters\n  Additional context/);
+ assert.match(html,/Why this link matters<br>Additional context/);
+ assert.doesNotMatch(reportLinksHtml([{title:"Legacy",url:"https://example.org"}]),/<p>/);
+});
+test("SMN-314 safely escapes comment content in HTML",()=>{
+ const html=reportLinksHtml([{title:"Doc",url:"https://example.org",description:'<script>alert("x")</script>'}]);
+ assert.doesNotMatch(html,/<script>/);
+ assert.match(html,/&lt;script&gt;/);
+});
