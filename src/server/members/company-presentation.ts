@@ -1,9 +1,12 @@
 import type {Client} from "pg";
 import type {TeamMembers} from "./quick-create";
 
+type Enriched = TeamMembers["members"][number] & {
+ companyId:string|null;companyName:string|null;companyColor:string|null
+};
 /** Enrichit exclusivement les membres du périmètre équipe déjà autorisé. */
-export async function withMemberCompanies(db:Client,data:TeamMembers){
- if(!data.members.length)return data;
+export async function withMemberCompanies(db:Client,data:TeamMembers):Promise<Omit<TeamMembers,"members"> & {members:Enriched[]}>{
+ if(!data.members.length)return {...data,members:[]};
  const ids=data.members.map(m=>m.id);
  const found=await db.query<{id:string;company_id:string|null;company_name:string|null;company_color:string|null}>(`
  SELECT m.id,m.company_id,c.name AS company_name,c.color AS company_color
