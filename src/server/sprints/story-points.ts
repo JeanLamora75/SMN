@@ -24,7 +24,7 @@ export async function ensureStoryPointsSchema(db:Client){
 async function scope(db:Client,id:string,lock=false){
  const r=await db.query<{id:string;status:string;name:string;start_at:string;end_at:string}>(`SELECT s.id,s.status,s.name,s.start_at::text,s.end_at::text FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton'
- AND i.state='initialized' AND lower(i.mode)='scrum' ${lock?"FOR UPDATE OF s":""}`,[id]);
+ AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum' ${lock?"FOR UPDATE OF s":""}`,[id]);
  return r.rows[0];
 }
 export async function readStoryPoints(db:Client,id:string){
