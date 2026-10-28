@@ -22,6 +22,8 @@ function fakeDb(existing:Record<string,string>={},found=true){
  const sqls:string[]=[];
  const db={query:async(sql:string,args:unknown[]=[])=>{
   sqls.push(sql);
+  if(sql.includes("SELECT revision,validated_revision,administrative_validated_at"))return {rows:[],rowCount:0};
+
   if(sql.includes("to_regclass('public.smn_country_name_audit')"))
    return {rows:[{schema_version:30,ready:true}],rowCount:1};
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||
