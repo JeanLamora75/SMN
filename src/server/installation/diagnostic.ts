@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import {readFileSync} from "node:fs";
 import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../links/migration";
 import {COUNTRY_CONSOLIDATION_MIGRATION,COUNTRY_CONSOLIDATION_MIGRATION_SQL} from "../countries/consolidation-migration";
 import { INITIAL_MIGRATION, INITIAL_REQUIRED_RELATIONS, INSTALLATION_RELATIONS } from "./contract";
