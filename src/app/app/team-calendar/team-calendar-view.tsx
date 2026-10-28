@@ -28,6 +28,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
  }
  const [period,setPeriod]=useState<{start:string;count:number;label:string;sprintId:string|null}|null>(null);
  const [events,setEvents]=useState<CalendarEntry[]>([]);
+ const [selectedClosure,setSelectedClosure]=useState<CalendarEntry|null>(null);
  const [teamName,setTeamName]=useState("");
  const [absenceCounts,setAbsenceCounts]=useState<Record<string,number>>({});
  const [absentNames,setAbsentNames]=useState<Record<string,string[]>>({});
@@ -262,9 +263,20 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
    {status==="ready"&&<CalendarOptionB days={all} entries={events} meetings={meetings}
     absenceCounts={absenceCounts} absentNames={absentNames} today={now} mode={view} timeZone={selectedTimeZone}
     showMeetings={showMeetings} showAbsences={showAbsences} isEditable={isEditable}
-    onMeeting={openCreate} onOpenEvent={setSelectedMeeting}
+    onMeeting={openCreate} onOpenEvent={setSelectedMeeting} onClosure={setSelectedClosure}
     onAbsence={day=>{setChosenMember("");setAvailableMembers([]);setMembersStatus("loading");setAbsenceEditor(day);}}/>}
   </section>
+  {selectedClosure&&<div className="smn-member-modal-backdrop" role="presentation" onClick={()=>setSelectedClosure(null)}>
+   <div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Détail de fermeture d'entreprise" onClick={event=>event.stopPropagation()}>
+    <h2 className="h5">{selectedClosure.companyName??"Fermeture d'entreprise"}</h2>
+    <p><strong>Fermeture :</strong> {selectedClosure.title}</p>
+    <p><strong>Entreprise :</strong> {selectedClosure.companyName??"Non renseignée"}</p>
+    <p><strong>Date :</strong> {selectedClosure.date}</p>
+    {isAdmin&&<><p><strong>Effectif concerné :</strong> {selectedClosure.members?.length??0}</p>
+     <ul>{(selectedClosure.members??[]).map(m=><li key={m.id}>{m.name}</li>)}</ul></>}
+    <button type="button" className="btn btn-secondary" onClick={()=>setSelectedClosure(null)}>Fermer</button>
+   </div>
+  </div>}
   {selectedMeeting&&selectedMeeting.kind==="kanban"&&<div className="smn-member-modal-backdrop" role="presentation"><div className="smn-member-modal p-4" role="dialog" aria-modal="true" aria-label="Réunion Kanban"><h2 className="h5">{selectedMeeting.name}</h2><p>{selectedMeeting.startAt} — {selectedMeeting.endAt}</p><p>Statut : {selectedMeeting.status??"Non renseigné"}</p><button className="btn btn-outline-secondary" onClick={()=>setSelectedMeeting(null)}>Fermer</button></div></div>}
   {selectedMeeting&&selectedMeeting.kind!=="kanban"&&<CalendarMeetingModal key={selectedMeeting.kind+":"+selectedMeeting.id}
    meeting={selectedMeeting} isAdmin={isAdmin} onClose={()=>setSelectedMeeting(null)}
