@@ -25,3 +25,24 @@ test("aucun lancement automatique de migration",()=>{
  assert.match(runner,/ROLLBACK/);
  assert.match(runner,/Journal des 30 migrations non conforme/);
 });
+
+test("migration refuse tout jeu de fermetures ou historique non vide",()=>{
+ assert.match(sql,/RAISE EXCEPTION 'Existing company closures\/history/);
+ assert.match(sql,/Expected initialized installation schema v30/);
+});
+test("identité entreprise isolée au sein de l'installation",()=>{
+ assert.match(sql,/UNIQUE \(installation_id,id\)/);
+ assert.match(sql,/smn_company_installation_name_uq/);
+ assert.match(sql,/CHECK \(color IN/);
+});
+test("références membre et fermeture sont restrictives",()=>{
+ assert.match(sql,/smn_member_company_same_installation_fk/);
+ assert.match(sql,/smn_closure_company_fk/);
+ assert.match(sql,/ON DELETE RESTRICT/);
+});
+test("diagnostic inclut la version 31 et valide son empreinte",()=>{
+ const source=readFileSync(new URL("../src/server/installation/diagnostic.ts",import.meta.url),"utf8");
+ assert.match(source,/schema_version>=31/);
+ assert.match(source,/company\.checksum!==createHash/);
+ assert.match(source,/snapshot\.companySchemaValid/);
+});
