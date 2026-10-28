@@ -119,8 +119,8 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   if(assignments.rows.length>500)throw Error("capacity-assignment-limit");
   const assignmentIds=assignments.rows.map(a=>a.id);
   const memberIds=[...new Set(assignments.rows.map(a=>a.member_id))];
-  const schema=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
-  const isV31=schema.rows[0]?.schema_version===31;
+  const schema=options.teamId?await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'"):null;
+  const isV31=schema?.rows[0]?.schema_version===31;
   const [versions,weeks,exceptions,locations,absences,closures]=await Promise.all([
    db.query<Version>([
     "SELECT assignment_id,revision,effective_from::text AS effective_from,",
@@ -223,7 +223,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     if(calendar.slots===null)problems.push("work-calendar");
     const location=latest(memberLocations,date);
     const country=location?.country_iso2??null;
-    const closure=closures.rows.some(c=>c.member_id===memberId&&c.start_on<=date&&c.end_on>=date);
+    const closure=closures.rows.some(c=>(!isV31||c.member_id===memberId)&&c.start_on<=date&&c.end_on>=date);
     const national=country!==null&&holidays.has(country+":"+date);
     const availability=resolveDayAvailability(date,calendar.slots,national,
      memberAbsences.map(a=>({startOn:a.start_on,endOn:a.end_on,
