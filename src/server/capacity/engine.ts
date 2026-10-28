@@ -36,6 +36,10 @@ type Absence={member_id:string;start_on:string;end_on:string;
  start_slot:"morning"|"afternoon";end_slot:"morning"|"afternoon"};
 type Holiday={country_code:string;holiday_date:string;name:string};
 type Closure={member_id:string;start_on:string;end_on:string};
+/** Une fermeture v31 ne concerne que les membres explicitement projetés par la requête entreprise. */
+export function closureForMember(rows:readonly Closure[],memberId:string,date:string,_companyMode:boolean):boolean{
+ return rows.some(row=>row.member_id===memberId&&row.start_on<=date&&row.end_on>=date);
+}
 const round=(v:number)=>Math.round((v+Number.EPSILON)*10000)/10000;
 const validRate=(p:unknown)=>typeof p==="number"&&Number.isInteger(p)&&p>=0&&p<=100;
 export const validHoursPerJh=(v:unknown):v is number=>
