@@ -80,7 +80,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
     const shapeValid = required.every((name) => columnSet.has(name));
     if (!shapeValid || !tables.includes(history)) return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, shapeValid: false };
     const migrations = (await client.query<{ migration_name: string; checksum: string; finished_at: Date | null; rolled_back_at: Date | null }>(
-      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations LIMIT 30",
+      "SELECT migration_name, checksum, finished_at, rolled_back_at FROM public._prisma_migrations",
     )).rows;
     // Métadonnées de schéma lues en READ ONLY ; aucun DDL ni réparation implicite.
     let multiTeamSchemaValid:boolean|undefined;
