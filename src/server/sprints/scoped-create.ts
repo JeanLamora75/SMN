@@ -38,7 +38,7 @@ export async function createScopedSprint(db:Client,actor:TeamActor,raw:unknown){
    JOIN public.smn_account a ON a.installation_id=t.installation_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE t.id=$1 AND a.id=$2 AND a.role='admin' AND a.is_active=true
-    AND a.must_change_password=false AND i.schema_version IN (29,30)
+    AND a.must_change_password=false AND i.schema_version IN (29,30,31)
     AND t.agile_mode='scrum' AND t.is_archived=false FOR UPDATE OF t`,
    [team.team_id,actor.accountId]);
   if(locked.rows.length!==1)throw Error("scrum-team-unavailable");
