@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import {readFileSync} from "node:fs";
 import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../links/migration";
 import {COUNTRY_CONSOLIDATION_MIGRATION,COUNTRY_CONSOLIDATION_MIGRATION_SQL} from "../countries/consolidation-migration";
 import { INITIAL_MIGRATION, INITIAL_REQUIRED_RELATIONS, INSTALLATION_RELATIONS } from "./contract";
@@ -33,7 +34,7 @@ import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../teams/migration";
 export type DiagnosticStatus = "configuration-missing" | "configuration-invalid" | "configuration-key-missing" | "database-missing" | "connection-error" | "permissions-insufficient" | "server-version-unsupported" | "virgin" | "initialized" | "schema-incompatible" | "installation-incomplete";
 export type Diagnostic = Readonly<{ status: DiagnosticStatus; canEnterSetup: boolean }>;
 export type Migration = Readonly<{ migration_name: string; checksum?: string; finished_at: Date | null; rolled_back_at: Date | null }>;
-export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean;accountAuditSchemaValid?:boolean;backupRetentionSchemaValid?:boolean;membersSchemaValid?:boolean;memberProfileSchemaValid?:boolean;assignmentVersionsSchemaValid?:boolean;lifecycleSchemaValid?:boolean;memberCalendarSchemaValid?:boolean;memberLocationSchemaValid?:boolean;countriesSchemaValid?:boolean;holidaysSchemaValid?:boolean;holidayCsvSchemaValid?:boolean;absencesSchemaValid?:boolean;closuresSchemaValid?:boolean;capacitySchemaValid?:boolean;capacityOverrideSchemaValid?:boolean;capacityInitialSchemaValid?:boolean;capacityActualSchemaValid?:boolean;capacityHistoricalSchemaValid?:boolean;capacityReplanningSchemaValid?:boolean;memberIdentitySchemaValid?:boolean;multiTeamSchemaValid?:boolean;linksSchemaValid?:boolean;countryConsolidationSchemaValid?:boolean }>;
+export type Snapshot = Readonly<{ schemaUsage: boolean; schemaCreate?: boolean; serverVersion?: number; tables: readonly string[]; tableRead?: boolean; migrationsRead?: boolean; migrations?: readonly Migration[]; installations?: readonly { id: string; state: string; schema_version: number }[]; shapeValid?: boolean; accountActiveColumn?: boolean; recoverySchemaValid?: boolean; settingsSchemaValid?: boolean; configurationTasksSchemaValid?: boolean;paletteSchemaValid?: boolean;accountAuditSchemaValid?:boolean;backupRetentionSchemaValid?:boolean;membersSchemaValid?:boolean;memberProfileSchemaValid?:boolean;assignmentVersionsSchemaValid?:boolean;lifecycleSchemaValid?:boolean;memberCalendarSchemaValid?:boolean;memberLocationSchemaValid?:boolean;countriesSchemaValid?:boolean;holidaysSchemaValid?:boolean;holidayCsvSchemaValid?:boolean;absencesSchemaValid?:boolean;closuresSchemaValid?:boolean;capacitySchemaValid?:boolean;capacityOverrideSchemaValid?:boolean;capacityInitialSchemaValid?:boolean;capacityActualSchemaValid?:boolean;capacityHistoricalSchemaValid?:boolean;capacityReplanningSchemaValid?:boolean;memberIdentitySchemaValid?:boolean;multiTeamSchemaValid?:boolean;linksSchemaValid?:boolean;countryConsolidationSchemaValid?:boolean;companySchemaValid?:boolean }>;
 export type DiagnosticProbe = () => Promise<Snapshot>;
 function result(status: DiagnosticStatus): Diagnostic { return { status, canEnterSetup: status === "virgin" }; }
 export function classifyDatabaseError(error: unknown): DiagnosticStatus {
@@ -55,7 +56,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INITIAL_REQUIRED_RELATIONS.every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
@@ -212,6 +213,13 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
      !names.has("public.smn_member_absence:r")||
      !names.has("public.smn_member_absence_history:r"))
       return result("installation-incomplete");
+  }
+  if(records[0].schema_version>=31){
+    const companySql=readFileSync(new URL("../../../prisma/migrations/20261028_smn316_company_catalog/migration.sql",import.meta.url),"utf8");
+    const company=migrations.find(m=>m.migration_name==="20261028_smn316_company_catalog");
+    if(!company||company.checksum!==createHash("sha256").update(companySql).digest("hex")||
+      !company.finished_at||company.rolled_back_at||!snapshot.companySchemaValid||
+      !names.has("public.smn_company:r"))return result("installation-incomplete");
   }
   if(isV20){
     const migration=migrations.find(m=>m.migration_name===CLOSURES_MIGRATION);
