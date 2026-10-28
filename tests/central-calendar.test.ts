@@ -90,7 +90,7 @@ describe("SMN-64 — agenda collectif en lecture seule",()=>{
   const found=output.items.find(x=>x.type==="meeting");
   assert.ok(found);
   assert.equal(found.meetingStatus,"unknown");
-  assert.equal(found.utcInstant,meeting.startsAtUtc);
+  assert.equal(new Date(found.utcInstant).getTime(),new Date(meeting.startsAtUtc).getTime());
   assert.equal(found.ianaZone,"Europe/Paris");
   assert.equal(found.date,"2026-10-19");
   assert.equal(output.meetingsAvailable,true);
