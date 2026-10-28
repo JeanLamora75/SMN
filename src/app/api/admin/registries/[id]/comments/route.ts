@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withLegacyTeamApi} from "@/server/teams/legacy";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {withAuthDb} from "@/server/auth/database";
 import {resolveRegistryReadContext} from "@/server/registries/team-access";
 import {MULTI_TEAM_CONTEXT_READY} from "@/lib/team-context-readiness";
@@ -46,7 +46,8 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
      actor:{accountId:actor.id,role:actor.role},teamId:context.team.team_id
     });
    }
-   return withLegacyTeamApi(inner=>createRegistryComment(inner,actor.id,id,body));
+   await assertLegacyTeamApi(db);
+   return createRegistryComment(db,actor.id,id,body);
   });
   return jsonResult(result,result.ok?201:result.error==="not-found"?404:400);
  }catch{
