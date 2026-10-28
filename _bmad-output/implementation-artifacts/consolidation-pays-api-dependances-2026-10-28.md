@@ -29,3 +29,9 @@ La branche #201 appelle `ensureCountryNameSchema`, `ensureCountryArchiveSchema`,
 - Tests `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` et recette PostgreSQL.
 
 **État :** audit API réalisé, publication des routes différée jusqu'à sécurisation des dépendances ; aucun test exécuté.
+
+## Garde v30 sans migration implicite
+
+Ajout de `src/server/countries/schema-guard.ts` : `requireCountrySchemaV30` effectue une lecture SQL unique vérifiant le marqueur v30, les quatre tables d'audit et les colonnes attendues. En cas de prérequis absent, elle lève `CountrySchemaUnavailableError` ; elle n'exécute ni DDL ni DML. Test associé dans `tests/country-schema-guard.test.ts` (réponse prête/incomplète et une lecture SQL).
+
+**Attention :** la garde est disponible mais **n'est pas encore raccordée aux services ni routes**. Elle ne remplace pas la validation complète des migrations/checksums fournie par le diagnostic d'installation. Les tests ne sont pas exécutés ; aucun déploiement n'a été réalisé.
