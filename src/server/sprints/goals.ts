@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {ensureSprintSchema} from "./creation";
 import {recordConfirmedHighlight} from "@/server/registries/confirmed-highlights";
 type Evaluation="not_evaluated"|"achieved"|"partially_achieved"|"not_achieved";
@@ -19,21 +20,28 @@ export async function ensureSprintGoalsSchema(db:Client){
  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  changed_at timestamptz NOT NULL DEFAULT now())`);
 }
-async function findSprint(db:Client,id:string,lock=false){
+async function findSprint(db:Client,id:string,lock=false,teamId?:string){
+ const criterion=teamId?
+  "AND s.team_id=$2 AND i.schema_version IN (28,29,30) AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
+  "AND i.schema_version<=27 AND lower(i.mode)='scrum'";
  const r=await db.query<{id:string;name:string;status:string;start_at:string;end_at:string}>(`SELECT s.id,s.name,s.status,s.start_at::text,s.end_at::text FROM public.smn_sprint s
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum'
- ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
+ WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' ${criterion}
+ ${lock?"FOR UPDATE OF s":""}`,teamId?[id,teamId]:[id]);return r.rows[0];
 }
-export async function readSprintGoals(db:Client,sprintId:string){
+export async function readSprintGoals(db:Client,sprintId:string,
+ access?:{actor:TeamActor;teamId:string}){
+ const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
+ if(team&&team.mode!=="scrum")return null;
  await ensureSprintGoalsSchema(db);
- const sprint=await findSprint(db,sprintId);
+ const sprint=await findSprint(db,sprintId,false,team?.team_id);
  if(!sprint)return null;
  const goals=await db.query(`SELECT id,title,evaluation,comment,revision,created_at::text AS "createdAt",updated_at::text AS "updatedAt"
  FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]);
  return {sprint:{id:sprint.id,name:sprint.name,status:sprint.status,startAt:sprint.start_at,endAt:sprint.end_at},goals:goals.rows};
 }
-export async function writeSprintGoal(db:Client,actorId:string,raw:unknown){
+export async function writeSprintGoal(db:Client,actorId:string,raw:unknown,
+ access?:{actor:TeamActor;teamId:string}){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input" as const};
  const v=raw as Record<string,unknown>;
  if(Object.keys(v).some(k=>!["sprintId","id","title","evaluation","comment","revision"].includes(k))||
@@ -47,7 +55,10 @@ export async function writeSprintGoal(db:Client,actorId:string,raw:unknown){
  if(!updating&&v.evaluation!=="not_evaluated")return {ok:false as const,error:"initial-status-required" as const};
  await ensureSprintGoalsSchema(db);await db.query("BEGIN");
  try{
-  const sprint=await findSprint(db,v.sprintId,true);
+  const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
+  if(access&&(access.actor.accountId!==actorId||team?.mode!=="scrum"))
+   throw Error("team-access-forbidden");
+  const sprint=await findSprint(db,v.sprintId,true,team?.team_id);
   if(!sprint){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(sprint.status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
   const id=updating?v.id as string:randomUUID();
