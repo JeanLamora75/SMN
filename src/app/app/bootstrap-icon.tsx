@@ -1,12 +1,17 @@
 /** Bootstrap Icons (MIT) — SVG officiels, intégrés sans CDN ni police externe.
  * Source: https://github.com/twbs/icons/tree/main/icons */
-type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders"|"floppy"|"list-ul"|"grid-3x3-gap"|"link-45deg";
+type Name="house-fill"|"bullseye"|"calendar3"|"arrow-right"|"arrow-left"|"people-fill"|"stack"|"ticket-perforated-fill"|"calendar-event"|"exclamation-octagon-fill"|"exclamation-triangle-fill"|"sticky-fill"|"bell-fill"|"pencil-square"|"calendar-check"|"bar-chart-line"|"chat-dots"|"sliders"|"floppy"|"list-ul"|"grid-3x3-gap"|"link-45deg"|"plus-lg"|"funnel"|"search"|"hourglass-split"|"tag";
 
 export default function BootstrapIcon({name,className=""}:Readonly<{
  name:Name;className?:string;
 }>){
  const icon=(()=>{
   switch(name){
+   case "plus-lg":return <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>;
+   case "funnel":return <path d="M1.5 1a.5.5 0 0 0-.4.8L6 8.333V14.5a.5.5 0 0 0 .724.447l2-1A.5.5 0 0 0 9 13.5V8.333L13.9 1.8a.5.5 0 0 0-.4-.8z"/>;
+   case "search":return <><circle cx="6.5" cy="6.5" r="5" fill="none" stroke="currentColor" strokeWidth="1.5"/><path d="m10.5 10.5 4 4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>;
+   case "hourglass-split":return <path d="M2.5 1a.5.5 0 0 0-.5.5V3c0 .265.105.52.293.707L6.586 8l-4.293 4.293A1 1 0 0 0 2 13v1.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V13a1 1 0 0 0-.293-.707L9.414 8l4.293-4.293A1 1 0 0 0 14 3V1.5a.5.5 0 0 0-.5-.5zm.5 1h10v1L8 8l5 5v1H3v-1l5-5-5-5z"/>;
+   case "tag":return <path d="M2 2a1 1 0 0 0-1 1v5.586c0 .265.105.52.293.707l5.414 5.414a1 1 0 0 0 1.414 0l6.586-6.586a1 1 0 0 0 0-1.414L9.293 1.293A1 1 0 0 0 8.586 1H3a1 1 0 0 0-1 1m1 0h5.586L14 7.414 7.414 14 2 8.586V3a1 1 0 0 1 1-1m2 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>;
    case "link-45deg":return <path d="M4.715 6.542 3.343 7.914a3 3 0 0 0 4.243 4.243l1.828-1.829a3 3 0 0 0 0-4.242.5.5 0 0 0-.707.707 2 2 0 0 1 0 2.828L6.879 11.45a2 2 0 0 1-2.829-2.829l1.372-1.372a.5.5 0 1 0-.707-.707m5.87-3.37a3 3 0 0 0-4.243 0L4.515 5a3 3 0 0 0 0 4.243.5.5 0 1 0 .707-.707 2 2 0 0 1 0-2.829L7.05 3.879A2 2 0 0 1 9.88 6.707l-1.372 1.372a.5.5 0 0 0 .707.707l1.372-1.372a3 3 0 0 0 0-4.243z"/>;
    case "list-ul":return <path fillRule="evenodd"
     d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>;
