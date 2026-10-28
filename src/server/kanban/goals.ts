@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {scopedKanbanPeriod,type KanbanTeamAccess} from "@/server/kanban/scoped-period";
 import {ensureKanbanPeriodTables} from "./periods";
 
 export const goalEvaluations=["not_evaluated","achieved","partially_achieved","not_achieved"] as const;
@@ -35,28 +36,21 @@ export async function ensureKanbanGoals(db:Client){
  changed_at timestamptz NOT NULL DEFAULT now()
  )`);
 }
-async function period(db:Client,id:string,lock=false){
- const r=await db.query<{id:string;status:string}>(`SELECT p.id,p.status FROM public.smn_kanban_period p
- JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'
- ${lock?"FOR UPDATE OF p":""}`,[id]);
- return r.rows[0]??null;
-}
-export async function readKanbanGoals(db:Client,periodId:string){
+export async function readKanbanGoals(db:Client,periodId:string,access?:KanbanTeamAccess){
  await ensureKanbanGoals(db);
- const p=await period(db,periodId);
+ const p=await scopedKanbanPeriod(db,periodId,false,access);
  if(!p)return null;
  const r=await db.query(`SELECT id,title,description,evaluation,comment,revision,updated_at::text AS "updatedAt"
  FROM public.smn_kanban_goal WHERE period_id=$1 ORDER BY created_at,id`,[periodId]);
  return {periodStatus:p.status,goals:r.rows};
 }
-export async function saveKanbanGoal(db:Client,actorId:string,periodId:string,raw:unknown){
+export async function saveKanbanGoal(db:Client,actorId:string,periodId:string,raw:unknown,access?:KanbanTeamAccess){
  const value=parseKanbanGoal(raw);
  if(!value)return {ok:false as const,error:"invalid-input" as const};
  await ensureKanbanGoals(db);
  await db.query("BEGIN");
  try{
-  const p=await period(db,periodId,true);
+  const p=await scopedKanbanPeriod(db,periodId,true,access,actorId);
   if(!p){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(p.status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
   const id=value.id??randomUUID();
