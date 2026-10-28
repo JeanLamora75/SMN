@@ -78,3 +78,8 @@ La correction de `closureForMember` a été publiée **après** le run #228. Ell
 - Comparativement au précédent Linux (133 échecs sur 2070), le nouveau Linux compte 122 échecs. La régression de fermeture de membre n'apparaît plus parmi les premiers échecs du nouveau run. Les échecs persistants concernent les contrats v28–v30, la navigation, le dashboard, les cycles, le calendrier, la capacité et les contrôles historiques.
 - Correction UX supplémentaire publiée sur main : changement d'entreprise dans la modale des fermetures requiert désormais confirmation si saisie non enregistrée, pour éviter toute perte silencieuse.
 **Ne pas confondre les tests statiques des garde-fous v31 et une migration réellement exécutée sur une base de test : cette dernière n'est pas certifiée.**
+
+## Correction CI complémentaire sur main
+- Le test `tests/capacity-actual.test.ts` exigeait littéralement `IN (28,29,30)`, tandis que `src/server/capacity/actual.ts` accepte volontairement `IN (28,29,30,31)`. Assertion et intitulé corrigés pour inclure explicitement la version 31 (sans élargir aux versions futures).
+- Le passage précédent #229 demeure la référence des résultats : 122 échecs Linux, 123 Windows. Le correctif ci-dessus n'a pas encore été exécuté par un pipeline sur son commit.
+- Les autres échecs historiques ne doivent pas être supprimés ou ignorés en bloc : une partie correspond à des contrats obsolètes, d'autres à des écarts de comportement qu'il faut diagnostiquer.
