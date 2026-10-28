@@ -45,6 +45,9 @@ export async function deleteCategory(db:Client,actor:LinkActor,id:string){
  if(!validId(id))throw new LinkError("invalid-input");
  await db.query("BEGIN");
  try{
+  const category=await db.query(`SELECT id FROM public.smn_link_category
+   WHERE id=$1 AND installation_id=$2 FOR UPDATE`,[id,tenant]);
+  if(category.rowCount!==1)throw new LinkError("not-found");
   const usage=await db.query<{link_count:string}>(`SELECT count(*)::text AS link_count FROM public.smn_link
  WHERE category_id=$1 AND installation_id=$2`,[id,tenant]);
   if(Number(usage.rows[0]?.link_count)>0)throw new LinkError("conflict");
