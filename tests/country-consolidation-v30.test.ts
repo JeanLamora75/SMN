@@ -9,7 +9,7 @@ import {INSTALLATION_RELATIONS} from "../src/server/installation/contract";
 const migrationPath=new URL("../prisma/migrations/20261028_smn270_281_country_consolidation/migration.sql",import.meta.url);
 describe("Pays — vérification de la migration v30",()=>{
  it("conserve une seule source SQL équivalente à la migration versionnée",()=>{
-  assert.equal(COUNTRY_CONSOLIDATION_MIGRATION_SQL,readFileSync(migrationPath,"utf8"));
+  assert.equal(COUNTRY_CONSOLIDATION_MIGRATION_SQL.replace(/\r\n/g,"\n"),readFileSync(migrationPath,"utf8").replace(/\r\n/g,"\n"));
   assert.equal(COUNTRY_CONSOLIDATION_MIGRATION,"20261028_smn270_281_country_consolidation");
  });
  it("reconnaît les tables Pays sans effacer le module Liens",()=>{
