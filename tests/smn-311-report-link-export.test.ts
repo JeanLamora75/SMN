@@ -24,3 +24,14 @@ test("empty or invalid references do not create an export section",()=>{
  assert.equal(reportLinksMarkdown([{title:"Unsafe",url:"javascript:alert(1)"}]),"");
  assert.equal(reportLinksHtml([]),"");
 });
+
+test("PDF HTML escapes malicious title markup and URL attributes",()=>{
+ const html=reportLinksHtml([{title:'<img src=x onerror="alert(1)">',url:"https://example.org/?a=1&b=2"}]);
+ assert.doesNotMatch(html,/<img/);
+ assert.match(html,/&lt;img src=x onerror=&quot;alert\(1\)&quot;&gt;/);
+ assert.match(html,/href="https:\/\/example\.org\/\?a=1&amp;b=2"/);
+});
+test("rejects credentials and unsupported URL schemes",()=>{
+ const urls=["javascript:alert(1)","data:text/html,x","https://user:password@example.org/path"];
+ assert.deepEqual(safeExportLinks(urls.map(url=>({title:"Bad",url}))),[]);
+});
