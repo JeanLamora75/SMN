@@ -64,7 +64,7 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
   const html=render(empty,score(4));
   assert.equal((html.match(/class="smn-score-progress"/g)||[]).length,1);
   assert.match(html,/80 %/);
-  assert.doesNotMatch(html,/0 %|0\/5/);
+  assert.doesNotMatch(html,/(?:^|[^0-9])0 %|0\/5/);
   for(const n of [0,6,2.5]){
    const invalid=render(score(n),empty);
    assert.doesNotMatch(invalid,/class="smn-score-progress"/);
