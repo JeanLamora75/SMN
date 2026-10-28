@@ -15,7 +15,8 @@ test("routes Kanban : équipe vérifiée et écritures verrouillées",()=>{
  assert.match(ctx,/resolveRegistryReadContext\(db,/);
  assert.match(ctx,/!MULTI_TEAM_CONTEXT_READY/);
  assert.match(ctx,/SMN_MULTI_TEAM_WRITES_ENABLED/);
- assert.match(ctx,/context\.team\?\.team_id!==requested/);
+ assert.match(ctx,/requested&&context\.team\.team_id!==requested/);
+ assert.match(ctx,/write&&!requested/);
  for(const entry of ["flow","timing","goals"]){
   const src=read("src/app/api/admin/kanban-periods/[id]/"+entry+"/route.ts");
   assert.match(src,/withKanbanRouteTeam\(db,/);
