@@ -9,6 +9,7 @@ import {storeFinalPdfArchive} from "@/server/reports/pdf-archive-store";
 import {jsonResult} from "@/server/auth/request";
 import {getReportDocument} from "@/server/reports/report-documents";
 import {studioArchiveReference} from "@/server/reports/studio-archive-reference";
+import {selectedReportExportLinks} from "@/server/reports/link-export";
 export const dynamic="force-dynamic";export const runtime="nodejs";
 type P={params:Promise<{id:string;documentId:string}>};
 async function execute(req:NextRequest,{params}:P,archive:boolean){
@@ -29,7 +30,9 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   if(!eligible.exportable)return {error:"quality-blocked",issues:eligible.errors} as const;
   if(eligible.warnings.length>0&&req.headers.get("x-smn-ack-warnings")!=="true")
    return {error:"warnings-require-confirmation",issues:eligible.warnings} as const;
-  const bytes=await renderStudioPdf(eligible.document);
+  // Draft preview may include current links; archival path remains unchanged until snapshot contract is extended.
+  const links=!archive&&actor.role==="admin"?await selectedReportExportLinks(db,actor,id,eligible.document.teamId):[];
+  const bytes=await renderStudioPdf(eligible.document,links);
   // Reject a render that became stale while Chromium was producing the PDF.
   const latest=teamId?await readTeamStudioDocument(db,{accountId:actor.id,role:actor.role},teamId,id,documentId):await getReportDocument(db,id,documentId);
   if(!latest||latest.revision!==expected||latest.teamId!==eligible.document.teamId||latest.sprintId!==id||latest.id!==documentId||(teamId&&latest.status!=="draft"))return {error:"revision-changed"} as const;
