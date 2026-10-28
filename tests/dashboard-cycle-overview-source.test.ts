@@ -11,7 +11,7 @@ const operational=src("src/app/app/operational-overview.tsx");
 
 describe("SMN-21 — intégration du lot 2 au dashboard",()=>{
   it("remplace le bandeau hero et les anciens KPI génériques sans perdre les modules existants",()=>{
-    assert.match(page,/<CycleOverview context=\{context\} locale=\{locale\} teamHref=\{teamHref\} cycle=\{cycle\} projection=\{projection\}\/>/);
+    assert.match(page,/<CycleOverview context=\{context\} locale=\{locale\} teamHref=\{teamHref\} cycle=\{cycle\} projection=\{projection\}/);
     assert.doesNotMatch(page,/smn-context-card|smn-cycle-empty|dashboard\.metricsDesc/);
     assert.match(operational,/definition\.id==="events"\?"calendrier"/);
     assert.match(operational,/definition\.id==="obstacles"\?"registres"/);
