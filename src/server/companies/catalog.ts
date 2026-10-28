@@ -8,8 +8,8 @@ export type CompanyInput={name:string;comment:string|null;color:string};
 export type CompanyError="invalid-input"|"duplicate-name"|"not-found"|"conflict"|"already-archived"|"already-active";
 function normalizeName(value:unknown):string|null{
  if(typeof value!=="string")return null;
- const name=value.trim().replace(/\\s+/gu," ");
- return name.length>=1&&name.length<=120&&!/[\\u0000-\\u001f\\u007f]/u.test(name)?name:null;
+ const name=value.trim().replace(/\s+/gu," ");
+ return name.length>=1&&name.length<=120&&!/[\u0000-\u001f\u007f]/u.test(name)?name:null;
 }
 export function parseCompanyInput(raw:unknown):CompanyInput|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
@@ -19,7 +19,7 @@ export function parseCompanyInput(raw:unknown):CompanyInput|null{
  if(!name||typeof v.color!=="string"||!colors.has(v.color))return null;
  const comment=v.comment===undefined||v.comment===null?null:typeof v.comment==="string"?v.comment.trim():null;
  if(v.comment!==undefined&&v.comment!==null&&typeof v.comment!=="string")return null;
- if(comment!==null&&(comment.length>2000||/[\\u0000]/u.test(comment)))return null;
+ if(comment!==null&&(comment.length>2000||/[\u0000]/u.test(comment)))return null;
  return {name,comment:comment||null,color:v.color};
 }
 function map(r:Row){return {id:r.id,name:r.name,comment:r.comment,color:r.color,archivedAt:r.archived_at,revision:r.revision};}
