@@ -50,3 +50,6 @@ Correctifs publiés sur `main` :
 - suppression des séquences de retour à la ligne littérales corrompant le script de vérification multiéquipes.
 
 **Validation des correctifs en attente :** aucune nouvelle exécution GitHub Actions n'est actuellement associée au dernier commit vérifié `1395ac23`. Un vrai rerun sur ce SHA ou une nouvelle PR de validation CI est nécessaire pour confirmer la correction des deux erreurs. Les autres échecs des scénarios historiques restent à qualifier individuellement. Le code n'a pas été téléchargé localement : le clone GitHub est inaccessible dans ce conteneur (résolution DNS), et le runtime Node trouvé ici est v22, non conforme à l'exigence Node 24 du projet. Aucun test local n'a été exécuté.
+
+## Nouveau contrôle CI
+Relance demandée sur l'état courant de `main` ; les résultats doivent être vérifiés sur le nouveau SHA. Les tests PostgreSQL v31 réels restent distincts des tests statiques.
