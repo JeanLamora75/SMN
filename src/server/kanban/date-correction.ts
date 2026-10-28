@@ -40,7 +40,7 @@ async function read(db:Client,id:string){
  const row=await db.query<{id:string;name:string;start_on:string;end_on:string;status:string;time_zone:string;team_id:string}>(`SELECT p.id,p.name,p.start_on::text,p.end_on::text,p.status,p.time_zone,p.team_id
  FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE i.id='singleton' AND lower(i.mode)='kanban' AND p.id=$1 AND p.deleted_at IS NULL FOR UPDATE OF p`,[id]);
+ WHERE i.id='singleton' AND i.schema_version<=27 AND lower(i.mode)='kanban' AND p.id=$1 AND p.deleted_at IS NULL FOR UPDATE OF p`,[id]);
  if(!row.rows.length)return null;
  const p=row.rows[0];
  const others=await db.query<{id:string;name:string;start_on:string;end_on:string;status:string;time_zone:string}>(`SELECT id,name,start_on::text,end_on::text,status,time_zone FROM public.smn_kanban_period
