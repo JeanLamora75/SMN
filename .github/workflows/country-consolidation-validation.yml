@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p diagnostic
           failed=0
-          for command in "pnpm install --frozen-lockfile" "pnpm exec prisma generate" "pnpm exec prisma validate" "pnpm i18n:check" "pnpm lint" "pnpm typecheck" "pnpm test" "pnpm build"; do
+          for command in "pnpm install --no-frozen-lockfile" "pnpm exec prisma generate" "pnpm exec prisma validate" "pnpm i18n:check" "pnpm lint" "pnpm typecheck" "pnpm test" "pnpm build"; do
             name=$(echo "$command" | tr ' :/' '___')
             echo "::group::$command"
             if ! bash -lc "$command" > "diagnostic/$name.log" 2>&1; then
@@ -41,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: country-consolidation-diagnostics
-          path: diagnostic/
+          path: |\n            diagnostic/\n            pnpm-lock.yaml
           if-no-files-found: warn
