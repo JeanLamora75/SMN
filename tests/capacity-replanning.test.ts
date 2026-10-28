@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {describe,it} from "node:test";
+import {readFileSync} from "node:fs";
 import type {Client} from "pg";
 import {parseReplanning,parseConfirmation,capacityDelta,
  previewReplanning,confirmReplanning,type ReplanningPreview}
@@ -84,6 +85,11 @@ function fixture(options:{manual?:number|null;actual?:number|null;frozen?:boolea
   changeManual(value:number|null){if(row){row.manual_jh=value;row.revision++;}}};
 }
 describe("SMN-62 — prévisualiser une replanification sans écraser les capacités",()=>{
+ it("refuse le sélecteur monoéquipe dès le schéma v28, sans choisir une équipe arbitraire",()=>{
+  const source=readFileSync(new URL("../src/server/capacity/replanning.ts",import.meta.url),"utf8");
+  assert.match(source,/i\.schema_version<=27/);
+  assert.match(source,/teams\.rows\.length!==1/);
+ });
  it("AC1 — calcule Avant 30, Après 28, écart -2 sans écriture",async()=>{
   const f=fixture();
   const result=await previewReplanning(f.db,dates,f.calc(30,28).fn);
