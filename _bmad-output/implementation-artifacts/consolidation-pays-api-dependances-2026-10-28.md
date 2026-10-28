@@ -97,3 +97,11 @@ Les fichiers `src/server/holidays/csv-import.ts` et `src/server/holidays/ics-imp
 Vérification du fichier `src/app/globals.css` : sur la branche historique #201, les styles Pays constituent un ajout strict à la fin du fichier de `main` (aucune modification du préfixe). Ce complément CSS a été intégré sur la branche de consolidation, couvrant la modale native, la grille mensuelle, les états interactifs, les médias mobiles et l'accessibilité clavier. Test de contrat statique `tests/country-css-contract.test.ts` ajouté. Les endpoints présents dans le catalogue, le calendrier et l'import ont été relevés et correspondent aux chemins API présents sur la branche.
 
 **Limites :** contrôle statique uniquement ; aucun rendu de navigateur, aucune compilation et aucune recette UX. Les styles de modalité devront être comparés avec le contrat transversal SMN-298 et contrôlés sur mobile avant fusion.
+
+## Vérification avant fusion — 28 octobre 2026
+
+PR #213 : deux workflows GitHub Actions en échec sur le commit précédent : « Vérification I0 » (jobs Windows et PostgreSQL/Linux) et « SMN — Paquet Windows pilote ». Les archives des journaux des trois jobs sont indisponibles via GitHub (BlobNotFound) : impossible d'attribuer les erreurs avec certitude. Les tests, le build et la migration PostgreSQL n'ont pas été exécutés localement.
+
+Correction publiée : `preloadNationalCalendar` prend maintenant les verrous `20261021,49` (préchargement), `20261021,50` (édition/import) puis `20261026,279` (cycle de vie), dans le même ordre que le flux CSV. Cela empêche les modifications simultanées avec les imports CSV/ICS ou les éditions manuelles. Test statique correspondant complété. **Ce correctif ne remplace pas une recette transactionnelle PostgreSQL.**
+
+Décision : PR maintenue en brouillon, pas de fusion dans main tant que la compilation et les actions ne sont pas concluantes. Contrôles attendus : `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, puis migration v30 sur base de développement et `pnpm db:diagnose`.
