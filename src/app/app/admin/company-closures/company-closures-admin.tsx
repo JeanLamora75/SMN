@@ -6,7 +6,8 @@ import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 
 type Closure={id:string;teamId:string;name:string;startOn:string;endOn:string;
  isActive:boolean;revision:number;createdAt:string;updatedAt:string};
-type Catalog={team:{id:string;name:string};closures:Closure[]};
+type Catalog={team?:{id:string;name:string};closures:Closure[]};
+type Company={id:string;name:string;archivedAt:string|null};
 type Draft={id:string|null;revision:number;name:string;startOn:string;endOn:string;isActive:boolean};
 const empty=():Draft=>({id:null,revision:0,name:"",startOn:"",endOn:"",isActive:true});
 const errorKey:Record<string,string>={
@@ -17,6 +18,9 @@ const errorKey:Record<string,string>={
 export default function CompanyClosuresAdmin(){
  const t=useTranslation();
  const [catalog,setCatalog]=useState<Catalog|null>(null);
+ const [companyId,setCompanyId]=useState("");
+ const [companies,setCompanies]=useState<Company[]>([]);
+ const [companyMode,setCompanyMode]=useState(false);
  const [draft,setDraft]=useState<Draft>(empty);
  const [base,setBase]=useState(JSON.stringify(empty()));
  const [busy,setBusy]=useState(false);
@@ -27,19 +31,39 @@ export default function CompanyClosuresAdmin(){
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  useEffect(()=>{
   let alive=true;
-  void fetch("/api/admin/company-closures",{cache:"no-store"})
-   .then(async r=>{if(!r.ok)throw Error("load");return r.json() as Promise<Catalog>;})
-   .then(data=>{if(!alive)return;
+  void fetch("/api/admin/companies",{cache:"no-store"}).then(async r=>{
+   if(!r.ok)throw Error("companies");
+   return r.json() as Promise<{companies:Company[]}>;
+  }).then(async response=>{
+   if(!alive)return;
+   const list=response.companies.filter(c=>!c.archivedAt);
+   setCompanies(list);setCompanyMode(true);
+   const first=list[0]?.id??"";
+   setCompanyId(first);
+   if(!first){setCatalog({closures:[]});setLoadState("ready");return;}
+   const r=await fetch("/api/admin/companies/closures?companyId="+encodeURIComponent(first),{cache:"no-store"});
+   if(!r.ok)throw Error("closures");
+   const result=await r.json() as Catalog;
+   if(!alive)return;
+   setCatalog(result);setLoadState("ready");
+  }).catch(()=>{
+   if(!alive)return;
+   void fetch("/api/admin/company-closures",{cache:"no-store"}).then(async r=>{
+    if(!r.ok)throw Error("legacy");return r.json() as Promise<Catalog>;
+   }).then(data=>{
+    if(!alive)return;
     if(!data.team?.id||!Array.isArray(data.closures))throw Error("invalid");
     setCatalog(data);setLoadState("ready");
    }).catch(()=>{if(alive)setLoadState("error");});
-  return ()=>{alive=false;};
+  });return()=>{alive=false;};
  },[]);
- const reload=async()=>{
-  const response=await fetch("/api/admin/company-closures",{cache:"no-store"});
+ const reload=async(selected=companyId)=>{
+  const url=companyMode?"/api/admin/companies/closures?companyId="+encodeURIComponent(selected):"/api/admin/company-closures";
+  const response=await fetch(url,{cache:"no-store"});
   if(!response.ok)throw Error("load");
   const data=await response.json() as Catalog;
-  if(!data.team?.id||!Array.isArray(data.closures))throw Error("invalid");
+  if(!Array.isArray(data.closures))throw Error("invalid");
+  if(!companyMode&&!data.team?.id)throw Error("invalid");
   setCatalog(data);setLoadState("ready");
  };
  const setEditor=(d:Draft)=>{setDraft(d);setBase(JSON.stringify(d));setMessage("");setIsError(false);};
@@ -59,13 +83,13 @@ export default function CompanyClosuresAdmin(){
   setBusy(true);setMessage("");setIsError(false);
   const isEdit=draft.id!==null;
   const payload=isEdit?{action:"update",id:draft.id,revision:draft.revision,
-   teamId:catalog.team.id,name:draft.name,startOn:draft.startOn,endOn:draft.endOn,
+   ...(companyMode?{companyId}:{teamId:catalog.team!.id}),name:draft.name,startOn:draft.startOn,endOn:draft.endOn,
    isActive:draft.isActive}:{
-   action:"create",teamId:catalog.team.id,name:draft.name,
+   action:"create",...(companyMode?{companyId}:{teamId:catalog.team!.id}),name:draft.name,
    startOn:draft.startOn,endOn:draft.endOn
   };
   try{
-   const response=await fetch("/api/admin/company-closures",{
+   const response=await fetch(companyMode?"/api/admin/companies/closures":"/api/admin/company-closures",{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify(payload)
    });
@@ -92,7 +116,7 @@ export default function CompanyClosuresAdmin(){
    }}>{t("common.retry")}</button>
   </p>}
   {catalog&&loadState==="ready"&&<>
-   <h3 className="h6">{t("companyClosures.team",{team:catalog.team.name})}</h3>
+   {companyMode?<div><label htmlFor="closure-company" className="form-label">Entreprise</label><select id="closure-company" className="form-select" value={companyId} onChange={e=>{setCompanyId(e.target.value);setEditor(empty());setLoadState("loading");void reload(e.target.value).catch(()=>setLoadState("error"));}}>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>:<h3 className="h6">{t("companyClosures.team",{team:catalog.team!.name})}</h3>}
    <div className="table-responsive">
     <table className="table table-sm">
      <thead><tr>
@@ -137,7 +161,7 @@ export default function CompanyClosuresAdmin(){
      {t("companyClosures.enabled")}</label>}
     <p className="small text-secondary">{t("companyClosures.auditHint")}</p>
     <div className="d-flex gap-2 flex-wrap">
-     <button type="submit" className="btn btn-primary" disabled={busy}>
+     <button type="submit" className="btn btn-primary" disabled={busy||(companyMode&&!companyId)}>
       {t(draft.id?"companyClosures.save":"companyClosures.create")}</button>
      <button type="button" className="btn btn-outline-secondary" disabled={busy}
       onClick={newClosure}>{t("companyClosures.new")}</button>
