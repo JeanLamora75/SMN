@@ -92,3 +92,8 @@ La correction de `closureForMember` a été publiée **après** le run #228. Ell
 - Correctif additionnel postérieur au déclenchement de #230 : `tests/sprint-presence-team-v30.test.ts` reconnaît v31. Son résultat n'est pas inclus dans ce run.
 - Les échecs toujours présents concernent particulièrement le dashboard SMN-21, les modales et UX, le registre, les exports/rapports, les droits et contrats multiéquipes. Ne pas les passer en `skip` sans qualification.
 - **Aucune migration réelle v31 n'a été exécutée.**
+
+## Cycle de correction cockpit et tests — PR #231
+- Échec confirmé du test dashboard sans cycle : le composant n'affichait plus le nom de l'équipe et le produit, contrairement au contrat d'usage ; correction du composant sur `main`.
+- Assertion statique dashboard trop stricte sur le composant auto-fermant : l'ajout du paramètre d'autorisation `canViewCapacity` la faisait échouer. Le test vérifie désormais les données essentielles, indépendamment des props ultérieures.
+- PR [#231](https://github.com/JeanLamora75/SMN/pull/231) déclenchée pour rejouer les contrôles. Les autres échecs du run antérieur ne sont pas déclarés corrigés ; aucun résultat nouveau n'est présumé.
