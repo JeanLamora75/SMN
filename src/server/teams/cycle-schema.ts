@@ -23,7 +23,7 @@ export async function requireScopedCycleSchema(db:Client,mode:"scrum"|"kanban"):
   :{smn_kanban_cadence:["team_id","revision","frequency","time_zone"],
     smn_kanban_period:["id","team_id","name","start_on","end_on","time_zone","created_by","deleted_at"],
     smn_kanban_period_audit:["id","period_id","action","details","actor_id"]};
- const checks=Object.entries(columns);
+ const checks=Object.entries(columns) as [string,string[]][];
  const found=await db.query<{table_name:string;column_name:string}>(`
   SELECT table_name,column_name FROM information_schema.columns
   WHERE table_schema='public' AND table_name=ANY($1::text[])`,[checks.map(([table])=>table)]);
