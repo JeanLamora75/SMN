@@ -295,7 +295,8 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   }
   if(isV30){
     const migration=migrations.find(m=>m.migration_name===COUNTRY_CONSOLIDATION_MIGRATION);
-    if(!migration||migration.checksum!==createHash("sha256").update(COUNTRY_CONSOLIDATION_MIGRATION_SQL).digest("hex")||
+    if(!migration||![COUNTRY_CONSOLIDATION_MIGRATION_SQL,COUNTRY_CONSOLIDATION_MIGRATION_SQL.replace(/\n/g,"\r\n")]
+        .some(sql=>migration.checksum===createHash("sha256").update(sql).digest("hex"))||
       !migration.finished_at||migration.rolled_back_at||!snapshot.countryConsolidationSchemaValid||
       !["public.smn_country_name_audit:r","public.smn_country_lifecycle_audit:r",
         "public.smn_national_holiday_manual_audit:r","public.smn_national_calendar_validation_audit:r"]
