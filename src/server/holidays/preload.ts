@@ -56,6 +56,7 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
  await client.query("BEGIN");
  try{
   await client.query("SELECT pg_advisory_xact_lock(20261021,49)");
+  await client.query("SELECT pg_advisory_xact_lock(20261021,50)");
   await client.query("SELECT pg_advisory_xact_lock(20261026,279)");
   const found=await client.query<{code:string;archived_at:string|null}>(
    "SELECT code,archived_at::text AS archived_at FROM public.smn_country WHERE code=$1 FOR UPDATE",[country]);
