@@ -49,3 +49,9 @@ Sur la branche de consolidation, les chemins suivants sont désormais présents 
 Le fichier `tests/country-no-implicit-ddl.test.ts` vérifie par doubles de base les appels uniquement en lecture et le refus en version 29. Ces tests **n'ont pas été exécutés**.
 
 **Limites importantes :** les helpers sont publiés mais les services métier/les routes qui les invoquent n'ont pas encore été importés depuis #201 ; aucune compatibilité de bout en bout n'est acquise. Les opérations de migration restent exclusivement explicites. Ne pas fusionner avant vérification et recette.
+
+## Lot 2 — catalogue Pays et renommage (28 octobre)
+
+`src/server/countries/catalog.ts` a été intégré depuis #201, avec garantie du prérequis v30 **avant toute transaction de création de pays** et lors du renommage/lecture des pays. La route `PATCH /api/admin/countries/[code]` a été ajoutée, protégée par `authorizeApi(...,'write',settings)`. La transaction de renommage maintient la comparaison de révision, le verrou `FOR UPDATE`, l'audit du changement de nom et le refus des pays archivés. Test statique ciblé `tests/country-consolidation-rename.test.ts` créé (validation des entrées et blocage v29 avant transaction).
+
+**À vérifier avant fusion :** tests existants du catalogue dont les attentes de résultats peuvent être anciennes, compatibilité de la page Pays avec les nouveaux champs, exécution réelle de TypeScript/lint/tests/build ; migrations non exécutées. Les autres API Pays (jours fériés, validation, archivage) restent à intégrer.
