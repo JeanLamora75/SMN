@@ -72,9 +72,9 @@ describe("Réunion décalée : dates début et fin",()=>{
  it("valide la route en écriture et le formulaire indépendant Début / Fin",()=>{
   const modal=readFileSync(fileURLToPath(new URL("../src/app/app/team-calendar/calendar-meeting-modal.tsx",import.meta.url)),"utf8");
   const route=readFileSync(fileURLToPath(new URL("../src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",import.meta.url)),"utf8");
-  assert.match(modal,/setEnd\\(e\\.target\\.value\\)/);
-  assert.match(modal,/durationBetweenLocal\\(start,end,detail\\.timeZone\\)/);
-  assert.match(modal,/void patch\\(api,\\{startAt:iso,endAt:isoEnd,revision:detail\\.revision\\}\\)/);
+  assert.match(modal,/setEnd\(e\.target\.value\)/);
+  assert.match(modal,/durationBetweenLocal\(start,end,detail\.timeZone\)/);
+  assert.match(modal,/void patch\(api,\{startAt:iso,endAt:isoEnd,revision:detail\.revision\}\)/);
   assert.match(route,/authorizeApi\(request,"write"/);
  });
  it("préserve le calcul autonome pour cérémonie et réunion exceptionnelle",async()=>{
