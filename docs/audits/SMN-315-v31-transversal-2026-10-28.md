@@ -26,3 +26,14 @@ Inspection à distance des sources de `main` via connecteur GitHub et des critè
 
 ## Décision de livraison
 **Ne pas fusionner automatiquement cette PR.** La revue doit examiner la correction et les points P0 avant décision ; la migration PostgreSQL n'est pas appliquée. Les états Jira ne doivent pas être marqués « Terminé » avant tests réels et recette.
+
+
+## Suite sur main — 28 octobre 2026
+
+Après fusion de la PR #226 (commit `c7d28258`), trois corrections ont été publiées directement sur `main` à la demande de l'utilisateur :
+
+- `src/app/app/admin/company-closures/company-closures-admin.tsx` : sélection d'entreprise active et appels à l'API v31, avec repli vers l'API historique pré-v31.
+- `src/app/app/admin/companies/page.tsx` et `companies-admin.tsx` : nouveau catalogue administratif permettant création, édition, archivage et réactivation.
+- `src/app/app/admin/company-closures/page.tsx` : lien vers le catalogue.
+
+**Statut de validation : non exécuté.** Ces modifications sur `main` ne constituent pas une recette. L'intégration de l'entreprise dans la fiche membre, la robustesse des traductions FR/EN, l'ensemble des références anciennes au schéma, les tests PostgreSQL v31 et le démarrage autonome du worker restent à vérifier. La migration v31 n'a pas été exécutée.
