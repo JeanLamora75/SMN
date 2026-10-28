@@ -12,7 +12,8 @@ export async function GET(request:NextRequest,{params}:Context){
  if(!actor)return jsonResult({error:"forbidden"},403);
  const teamId=request.nextUrl.searchParams.get("teamId");
  if(!teamId)return jsonResult({error:"invalid-input"},400);
- try{return jsonResult({item:await withAuthDb(db=>getLink(db,actor,teamId,(await params).id))});}
+ const {id}=await params;
+ try{return jsonResult({item:await withAuthDb(db=>getLink(db,actor,teamId,id))});}
  catch(error){const result=mapLinkError(error);return jsonResult({error:result.error},result.status);}
 }
 export async function PUT(request:NextRequest,{params}:Context){
@@ -20,7 +21,8 @@ export async function PUT(request:NextRequest,{params}:Context){
  if(!actor)return jsonResult({error:"forbidden"},403);
  const body=await readJsonObject(request,8192);
  if(!body)return jsonResult({error:"invalid-input"},400);
- try{return jsonResult({item:await withAuthDb(db=>updateLink(db,actor,(await params).id,normalizeLink(body),body.revision as number))});}
+ const {id}=await params;
+ try{return jsonResult({item:await withAuthDb(db=>updateLink(db,actor,id,normalizeLink(body),body.revision as number))});}
  catch(error){const result=mapLinkError(error);return jsonResult({error:result.error},result.status);}
 }
 export async function DELETE(request:NextRequest,{params}:Context){
@@ -28,6 +30,7 @@ export async function DELETE(request:NextRequest,{params}:Context){
  if(!actor)return jsonResult({error:"forbidden"},403);
  const body=await readJsonObject(request,1024);
  if(!body)return jsonResult({error:"invalid-input"},400);
- try{return jsonResult(await withAuthDb(db=>deleteLink(db,actor,(await params).id,body.revision as number)));}
+ const {id}=await params;
+ try{return jsonResult(await withAuthDb(db=>deleteLink(db,actor,id,body.revision as number)));}
  catch(error){const result=mapLinkError(error);return jsonResult({error:result.error},result.status);}
 }
