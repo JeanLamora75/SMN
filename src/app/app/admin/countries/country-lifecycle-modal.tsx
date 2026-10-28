@@ -38,7 +38,7 @@ export default function CountryLifecycleModal({country,onClose,onSaved}:{
   if(el&&!el.open)el.showModal();
   heading.current?.focus();
   const controller=new AbortController();
-  void load(controller.signal);
+  queueMicrotask(()=>{if(!controller.signal.aborted)void load(controller.signal);});
   return ()=>{controller.abort();if(el?.open)el.close();};
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[]);
