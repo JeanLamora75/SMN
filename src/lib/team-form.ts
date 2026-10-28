@@ -8,7 +8,7 @@ export type TeamFormValues=Readonly<{
  productGoal:string|null;
 }>;
 export type TeamCreateInput=TeamFormValues&Readonly<{agileMode:"scrum"|"kanban"}>;
-export type TeamUpdateInput=TeamFormValues&Readonly<{teamId:string;revision:number}>;
+export type TeamUpdateInput=TeamFormValues&Readonly<{teamId:string;revision:number;agileMode?:"scrum"|"kanban"}>;
 
 const ID=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/u;
 const NAME_MAX=120;
@@ -57,12 +57,12 @@ export function parseTeamCreate(raw:unknown):TeamCreateInput|null{
 /** Mise à jour : un ID et une révision servent au contrôle de concurrence. */
 export function parseTeamUpdate(raw:unknown):TeamUpdateInput|null{
  const data=asRecord(raw);
- if(!data||!exactKeys(data,["teamId","revision","name","productName","vision","productGoal"],[])||
+ if(!data||!exactKeys(data,["teamId","revision","name","productName","vision","productGoal"],["agileMode"])||
     typeof data.teamId!=="string"||!ID.test(data.teamId)||
     typeof data.revision!=="number"||!Number.isSafeInteger(data.revision)||
-    data.revision<0)return null;
+    data.revision<0||(data.agileMode!==undefined&&data.agileMode!=="scrum"&&data.agileMode!=="kanban"))return null;
  const fields=parseFields(data);
- return fields?{...fields,teamId:data.teamId,revision:data.revision}:null;
+ return fields?{...fields,teamId:data.teamId,revision:data.revision,...(data.agileMode?{agileMode:data.agileMode}: {})}:null;
 }
 
 /** Même comparaison pour création et renommage ; toujours limitée à une installation. */
