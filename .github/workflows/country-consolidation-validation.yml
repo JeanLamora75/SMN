@@ -1,0 +1,47 @@
+name: SMN — Diagnostic consolidation Pays
+on:
+  push:
+    branches:
+      - consolidation/smn-pays-lot1-schema-2026-10-28
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.10.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
+      - name: Validate Prisma schema
+        run: pnpm exec prisma validate
+      - name: Run all validation commands and preserve output
+        shell: bash
+        run: |
+          mkdir -p diagnostic
+          failed=0
+          for command in "pnpm i18n:check" "pnpm lint" "pnpm typecheck" "pnpm test" "pnpm build"; do
+            name=$(echo "$command" | tr ' :' '__')
+            echo "::group::$command"
+            bash -lc "$command" > "diagnostic/$name.log" 2>&1 || failed=1
+            tail -n 100 "diagnostic/$name.log"
+            echo "::endgroup::"
+          done
+          exit "$failed"
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: country-consolidation-diagnostics
+          path: diagnostic/
+          if-no-files-found: warn
