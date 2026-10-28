@@ -1,0 +1,36 @@
+# Consolidation Pays — lot 1 : Prisma, schéma et installation
+
+**Date :** 28 octobre 2026. **Branche :** `consolidation/smn-pays-lot1-schema-2026-10-28`, créée depuis `main`. **Statut :** analyse de compatibilité, aucune migration exécutée.
+
+## Écarts constatés directement dans les fichiers
+
+Sources : `prisma/schema.prisma` et `src/server/installation/contract.ts` sur `main` et sur `feat/smn-281-country-regression-recipe` (#201).
+
+### Fonctionnalités Pays manquantes dans main
+
+- `SmnCountryLifecycleAudit` : historique d'archivage/réactivation des pays et révisions.
+- `SmnCountryNameAudit` : historique des renommages.
+- `SmnNationalHolidayManualAudit` : traçabilité des éditions manuelles des jours fériés.
+- `SmnNationalCalendarValidationAudit` : validation annuelle et empreinte.
+- Champs de validation annuelle : `administrativeValidatedAt`, `validatedRevision`, `validatedBy`, `validationSource`.
+- Le contrat d'installation Pays ajoute quatre objets SQL correspondants.
+
+### Développements main à préserver impérativement
+
+- `SmnAccountTeamPreference` et les relations équipe/compte de la couche multiéquipes.
+- `SmnLinkCategory`, `SmnLink`, `SmnLinkAudit` et leurs relations pour le module Liens.
+- Les changements de nullabilité et d'unicité des relations `productId`, `installationId` et `team` déjà présents dans `main`.
+- Les trois objets SQL `smn_link_category`, `smn_link`, `smn_link_audit` du contrat d'installation.
+
+## Décisions et contrôles obligatoires
+
+1. **Ne jamais remplacer intégralement** le schéma ou le contrat de `main` par ceux de la branche #201. Cela supprimerait les types et relations récents du module Liens et des préférences d'équipe.
+2. Préparer une migration SQL **additive, idempotente et versionnée** pour les tables d'audit Pays et les colonnes de validation annuelle ; vérifier les contraintes de références existantes et les tables réellement présentes.
+3. Ajouter seulement ensuite les quatre modèles Prisma et les champs correspondants, avec relations bidirectionnelles cohérentes.
+4. Actualiser le contrat d'installation pour intégrer simultanément les quatre nouvelles tables Pays **et** préserver les trois tables Liens déjà reconnues.
+5. Vérifier la cohérence avec `src/server/installation/contract.ts`, la version des migrations et la détection de schéma avant de rendre les routes Pays accessibles.
+6. Exécuter `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` et le diagnostic PostgreSQL sur Windows 11 avant intégration.
+
+**Risque majeur identifié :** écraser le modèle `SmnAccountTeamPreference` ou les modèles `SmnLink*` en important le `schema.prisma` historique.
+
+**Pas de code de migration publié dans ce lot ; aucune PR fusionnée ou fermée.**
