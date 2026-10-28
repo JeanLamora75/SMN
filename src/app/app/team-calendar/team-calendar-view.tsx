@@ -271,7 +271,7 @@ export default function TeamCalendarView({isAdmin,initialCreate=false,initialCyc
     <h2 className="h5">{selectedClosure.companyName??"Fermeture d'entreprise"}</h2>
     <p><strong>Fermeture :</strong> {selectedClosure.title}</p>
     <p><strong>Entreprise :</strong> {selectedClosure.companyName??"Non renseignée"}</p>
-    <p><strong>Date :</strong> {selectedClosure.date}</p>
+    <p><strong>Période :</strong> {selectedClosure.startOn??selectedClosure.date} — {selectedClosure.endOn??selectedClosure.date}</p>
     {isAdmin&&<><p><strong>Effectif concerné :</strong> {selectedClosure.members?.length??0}</p>
      <ul>{(selectedClosure.members??[]).map(m=><li key={m.id}>{m.name}</li>)}</ul></>}
     <button type="button" className="btn btn-secondary" onClick={()=>setSelectedClosure(null)}>Fermer</button>
