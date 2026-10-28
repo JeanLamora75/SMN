@@ -14,11 +14,11 @@ test("markdown retains selection order and blocks dangerous protocols",()=>{
 });
 
 test("markdown escapes bracket and backslash markup without adding rows",()=>{
- const md=reportLinksMarkdown([{title:"One [label]\\\\name\\n- injected",url:"https://example.org/a(b)"}]);
- assert.match(md,/One/);
+ const md=reportLinksMarkdown([{title:"One [label]\\name\n- injected",url:"https://example.org/a(b)"}]);
+ assert.match(md,/One \\\[label\\\]\\\\name/);
  assert.match(md,/%28b%29/);
- assert.equal(md.split("\\n- ").length,2);
- assert.doesNotMatch(md,/\\n- injected/);
+ assert.equal(md.split("\n- ").length,1);
+ assert.doesNotMatch(md,/\n- injected/);
 });
 test("empty or invalid references do not create an export section",()=>{
  assert.equal(reportLinksMarkdown([{title:"Unsafe",url:"javascript:alert(1)"}]),"");
