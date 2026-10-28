@@ -94,3 +94,22 @@ jobs:
         run: pnpm run doctor
       - name: Démarrer Next en mode dev sous Windows
         run: node scripts/verify-windows-smoke.mjs
+
+  independent-typecheck:
+    name: TypeScript indépendant des tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances verrouillées
+        run: pnpm install --frozen-lockfile
+      - name: Vérifier les types, même si les tests métier échouent
+        run: pnpm typecheck
