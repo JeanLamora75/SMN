@@ -21,14 +21,14 @@ export async function GET(request:NextRequest){
    const version=await db.query<{schema_version:number}>(
     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
    const schema=version.rows[0]?.schema_version;
-   if(typeof schema==="number"&&schema>=28&&schema<=30){
+   if(typeof schema==="number"&&schema>=28&&schema<=31){
     if(!admin)throw Error("team-calendar-forbidden");
     const authorized=await resolveAdminTeam(db,
      {accountId:actor.id,role:actor.role},parsed.teamId);
     return readTeamCalendar(db,parsed,true,{
      id:authorized.team_id,name:authorized.team,
      mode:authorized.mode as "scrum"|"kanban"
-    });
+    },schema===31);
    }
    if(typeof schema!=="number"||schema<1||schema>27)
     throw Error("team-calendar-schema-invalid");
