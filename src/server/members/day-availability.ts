@@ -60,6 +60,8 @@ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 export async function readMemberDayAvailability(db:Client,memberId:string,onDate:string,
  absences:readonly AbsenceItem[]):Promise<DayAvailability>{
  if(!UUID.test(memberId)||!isValidDate(onDate))throw Error("member-availability-invalid-input");
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
+ const companyScoped=version.rows[0]?.schema_version===31;
  const [weeks,exceptions,locations,assignments,closures]=await Promise.all([
   db.query<WeekRow>([
    "SELECT revision,effective_from::text AS effective_from,days,created_at::text AS created_at",
@@ -84,7 +86,15 @@ export async function readMemberDayAvailability(db:Client,memberId:string,onDate
    "AND i.state='initialized' AND i.mode IN ('scrum','kanban')",
    "AND a.start_on<=$2::date AND (a.end_on IS NULL OR a.end_on>=$2::date)"
   ].join(" "),[memberId,onDate]),
-  db.query<{name:string}>([
+  db.query<{name:string}>(companyScoped?[
+   "SELECT c.name FROM public.smn_company_closure c",
+   "JOIN public.smn_member m ON m.company_id=c.company_id",
+   "JOIN public.smn_company company ON company.id=c.company_id",
+   "AND company.installation_id=m.installation_id",
+   "WHERE m.id=$1 AND m.installation_id='singleton'",
+   "AND c.is_active=true AND c.start_on<=$2::date AND c.end_on>=$2::date",
+   "ORDER BY c.id LIMIT 2"
+  ]:[
    "SELECT c.name FROM public.smn_company_closure c",
    "JOIN public.smn_member_assignment a ON a.team_id=c.team_id",
    "JOIN public.smn_team t ON t.id=c.team_id AND t.installation_id='singleton'",
