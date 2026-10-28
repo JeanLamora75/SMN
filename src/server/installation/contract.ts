@@ -105,6 +105,7 @@ export const INSTALLATION_RELATIONS = [
   // Objets SQL appartenant à SMN, créés à la demande par les producteurs métier.
   // reports: seules les relations effectivement déclarées par le code source.
   "public.smn_report_document:r", "public.smn_report_document_session_write:r", "public.smn_report_analysis_choice:r",
+  "public.smn_report_link_selection:r",
   // registries: seules les relations effectivement déclarées par le code source.
   "public.smn_registry_comment:r", "public.smn_registry_comment_revision:r", "public.smn_registry_linked_request:r",
   // historicalSprint: seules les relations effectivement déclarées par le code source.
@@ -113,6 +114,8 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_sprint_historical_goal_detail:r",
   // kanban: seules les relations effectivement déclarées par le code source.
   "public.smn_kanban_period:r", "public.smn_kanban_period_audit:r", "public.smn_kanban_report_analysis_choice:r",
+  "public.smn_kanban_capacity_opening:r", "public.smn_kanban_period_transition:r",
+  "public.smn_kanban_timing:r", "public.smn_kanban_timing_audit:r",
   "public.smn_kanban_closure:r", "public.smn_kanban_batch_audit:r", "public.smn_kanban_cadence:r",
   "public.smn_kanban_cadence_audit:r", "public.smn_kanban_flow_counts:r", "public.smn_kanban_flow_audit:r",
   "public.smn_kanban_goal:r", "public.smn_kanban_goal_audit:r", "public.smn_kanban_meeting:r",
