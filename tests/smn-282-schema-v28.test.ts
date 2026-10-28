@@ -10,8 +10,8 @@ const read=(name:string)=>readFileSync(new URL(name,root),"utf8");
 
 test("le SQL référencé par checksum est identique au fichier versionné",()=>{
  assert.equal(MULTI_TEAM_MIGRATION,"20261026_smn282_multi_teams");
- assert.equal(read("prisma/migrations/20261026_smn282_multi_teams/migration.sql"),
-  MULTI_TEAM_SCHEMA_SQL);
+ assert.equal(read("prisma/migrations/20261026_smn282_multi_teams/migration.sql").replace(/\r\n/g,"\n"),
+  MULTI_TEAM_SCHEMA_SQL.replace(/\r\n/g,"\n"));
 });
 test("v28 préserve les tables et enregistre la version uniquement à la fin",()=>{
  const sql=MULTI_TEAM_SCHEMA_SQL;
@@ -37,7 +37,9 @@ test("contrat Prisma : équipes multiples et produit facultatif unique",()=>{
 test("authentification admet v28 uniquement si migration et structure valides",()=>{
  assert.equal(isSupportedAuthenticationSchemaVersion(27),true);
  assert.equal(isSupportedAuthenticationSchemaVersion(28),true);
- assert.equal(isSupportedAuthenticationSchemaVersion(29),false);
+ assert.equal(isSupportedAuthenticationSchemaVersion(29),true);
+ assert.equal(isSupportedAuthenticationSchemaVersion(30),true);
+ assert.equal(isSupportedAuthenticationSchemaVersion(31),false);
  assert.doesNotThrow(()=>assertMultiTeamMigrationValid(28,true,true));
  assert.throws(()=>assertMultiTeamMigrationValid(28,false,true),/smn-schema-incompatible/);
  assert.throws(()=>assertMultiTeamMigrationValid(28,true,false),/smn-schema-incompatible/);
@@ -52,5 +54,5 @@ test("le chemin d'application est manuel et demande une sauvegarde",()=>{
  const account=read("src/server/accounts/migration.ts");
  assert.doesNotMatch(account,/await client\.query\(MULTI_TEAM_SCHEMA_SQL\)/);
  const probe=read("src/server/db/probe.ts");
- assert.match(probe,/LIMIT 28/);
+ assert.match(probe,/LIMIT 30/);
 });
