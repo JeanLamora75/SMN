@@ -17,9 +17,9 @@ test("admin team preference and registry reads remain enabled on v29",()=>{
  const active=read("src/server/teams/active.ts");
  const registry=read("src/server/registries/team-access.ts");
  const resolve=read("src/server/teams/resolve.ts");
- assert.match(active,/\[28,29\]\.includes\(installation\.schemaVersion\)/);
- assert.match(registry,/version===28\|\|version===29/);
- assert.match(resolve,/schema_version IN \(28,29\)/);
+ assert.match(active,/\[28,29,30\]\.includes\(installation\.schemaVersion\)/);
+ assert.match(registry,/version===28\|\|version===29\|\|version===30/);
+ assert.match(resolve,/schema_version IN \(28,29,30\)/);
 });
 test("migration is explicit, refuses implicit execution",()=>{
  const apply=read("scripts/apply-links-migration.ts");
