@@ -14,7 +14,7 @@ export async function renameKanbanPeriod(db:Client,actorId:string,periodId:strin
  try{
   const r=await db.query<{id:string;name:string;team_id:string;status:string}>(`SELECT p.id,p.name,p.team_id,p.status FROM public.smn_kanban_period p
    JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-   WHERE p.id=$1 AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban' AND p.deleted_at IS NULL FOR UPDATE OF p`,[periodId]);
+   WHERE p.id=$1 AND i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='kanban' AND p.deleted_at IS NULL FOR UPDATE OF p`,[periodId]);
   if(!r.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   const previous=r.rows[0];
   const duplicates=await db.query<{id:string}>(`SELECT id FROM public.smn_kanban_period
