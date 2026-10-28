@@ -22,7 +22,7 @@ export async function transferAdminLink(db:Client,actor:LinkActor,id:string,inpu
     JOIN public.smn_installation i ON i.id=l.installation_id
     WHERE l.id=$1 AND a.id=$2 AND a.role='admin'
     AND a.is_active=true AND a.must_change_password=false
-    AND i.state='initialized' AND i.schema_version=29
+    AND i.state='initialized' AND i.schema_version IN (29,30)
     FOR UPDATE OF l`,[id,actor.id]);
   if(current.rowCount!==1)throw new LinkError("not-found");
   const before=current.rows[0];
