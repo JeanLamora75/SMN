@@ -44,7 +44,7 @@ export async function readTeamCenter(db:Client,team:TeamContextRow){
   SELECT t.id FROM public.smn_team t
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE t.id=$1 AND t.installation_id='singleton'
-   AND i.state='initialized' AND i.schema_version=28 AND lower(i.mode)='scrum'
+   AND i.state='initialized' AND i.schema_version IN (28,29,30) AND lower(i.mode)='scrum'
   LIMIT 2`,[team.team_id]);
  if(valid.rows.length!==1)throw Error("report-team-unavailable");
  const cycles=await db.query<{id:string;name:string}>(`
