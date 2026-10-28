@@ -46,3 +46,17 @@ L'API GitHub retourne **87 PR ouvertes, toutes en brouillon**. Trois ciblent dir
 5. Lancer la recette technique et fonctionnelle finale.
 
 **Aucune PR n'a été fusionnée ni fermée par cette campagne d'audit.**
+
+
+## Complément du 28 octobre 2026 — inventaire Git exhaustif
+
+**Vérification effectuée :** comparaison individuelle de chacune des 87 branches de PR ouvertes contre `main` via `compare_commits` du connecteur GitHub. Aucun commit fusionné par l'audit.
+
+- **73 PR avec `ahead_by=0` et aucun fichier divergent contre `main`** : #57–88 (32), #127–138 (12), #147–171 (25), #208–211 (4). Leur historique de commits est déjà ancêtre de `main`. Attention : cela ne prouve pas la recette ni l'état Jira.
+- **14 PR avec commits absents de `main` :** #102 (8 commits, 4 fichiers), #190 (17, 11), #191 (30, 19), #192 (42, 24), #193 (57, 31), #194 (73, 35), #195 (94, 43), #196 (103, 47), #197 (112, 51), #198 (121, 55), #199 (156, 73), #200 (164, 76), #201 (171, 81), #204 (280, 221).
+
+**Interprétation :** les PR Pays sont empilées, donc leurs nombres de commits/fichiers ne doivent pas être additionnés. La branche terminale #201 inclut les ancêtres de la chaîne ; la qualification doit porter sur le diff consolidé et les conflits avec la dernière version de `main`.
+
+**Règles d'action :** (1) ne pas remerger les 73 PR historiquement intégrées ; (2) ne les fermer qu'après rapprochement Jira/équivalence fonctionnelle ; (3) reconstruire sur `main` des branches de consolidation pour Pays, Multiéquipes et Cérémonies ; (4) exécuter les tests, lint, typage, build et recette avant toute fusion.
+
+**Statut :** inventaire exhaustif des historiques Git achevé ; audit fonctionnel et exécution des tests non achevés. Aucune PR fermée ni fusionnée par cette étape.
