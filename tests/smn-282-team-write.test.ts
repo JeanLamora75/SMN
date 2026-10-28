@@ -93,7 +93,7 @@ test("édition refuse un produit référencé hors installation",async()=>{
 test("création d'un produit réel propre à la nouvelle équipe",async()=>{
  const {db,sqls,argumentsSeen}=database();
  const r=await createInstallationTeam(db,"singleton","admin",{
-  name:"Tigre",productName:"Portail client",vision:"Vision",productGoal:"But"
+  agileMode:"kanban",name:"Tigre",productName:"Portail client",vision:"Vision",productGoal:"But"
  });
  assert.equal(r.ok,true);
  const pi=sqls.findIndex(s=>s.startsWith("INSERT INTO public.smn_product("));
