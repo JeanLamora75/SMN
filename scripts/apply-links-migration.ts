@@ -1,24 +1,18 @@
 /**
  * Migration manuelle SMN Liens v28 -> v29.
- * Refuse toute application sans sauvegarde explicitement désignée.
+ * Sauvegarde recommandée, sans vérification obligatoire du fichier.
  */
 import {createHash,randomUUID} from "node:crypto";
-import {existsSync,statSync} from "node:fs";
+import {existsSync} from "node:fs";
 import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../src/server/links/migration";
-import {resolve} from "node:path";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 
 async function main(){
- const args=process.argv.slice(2);
- const backupFile=args.find(a=>a.startsWith("--backup-file="))?.slice(14);
- if(args.length!==2||!args.includes("--apply")||!backupFile)
-  throw Error("Usage: pnpm exec tsx scripts/apply-links-migration.ts --apply --backup-file=<backup>");
- const backup=resolve(backupFile);
- if(!existsSync(backup)||!statSync(backup).isFile()||statSync(backup).size===0)
-  throw Error("Sauvegarde absente ou vide : migration refusée");
+ if(process.argv.slice(2).join(" ")!=="--apply")
+  throw Error("Usage: pnpm exec tsx scripts/apply-links-migration.ts --apply");
  for(const file of [".env.local",".env"]){
   if(!process.env.SMN_DATABASE_URL&&existsSync(file))process.loadEnvFile(file);
  }
