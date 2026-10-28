@@ -21,22 +21,18 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Generate Prisma client
-        run: pnpm exec prisma generate
-      - name: Validate Prisma schema
-        run: pnpm exec prisma validate
-      - name: Run all validation commands and preserve output
+      - name: Run diagnostics and preserve logs including installation failures
         shell: bash
         run: |
           mkdir -p diagnostic
           failed=0
-          for command in "pnpm i18n:check" "pnpm lint" "pnpm typecheck" "pnpm test" "pnpm build"; do
-            name=$(echo "$command" | tr ' :' '__')
+          for command in "pnpm install --frozen-lockfile" "pnpm exec prisma generate" "pnpm exec prisma validate" "pnpm i18n:check" "pnpm lint" "pnpm typecheck" "pnpm test" "pnpm build"; do
+            name=$(echo "$command" | tr ' :/' '___')
             echo "::group::$command"
-            bash -lc "$command" > "diagnostic/$name.log" 2>&1 || failed=1
-            tail -n 100 "diagnostic/$name.log"
+            if ! bash -lc "$command" > "diagnostic/$name.log" 2>&1; then
+              failed=1
+            fi
+            tail -n 120 "diagnostic/$name.log"
             echo "::endgroup::"
           done
           exit "$failed"
