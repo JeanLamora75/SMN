@@ -60,3 +60,22 @@ une fiche permettant de tester un accès croisé.
 **Clôture non prononcée** en absence de preuves d'exécution récentes et
 d'une couverture vérifiée des autres mutations et de l'interface multiéquipes.
 Ne pas assimiler le succès de tests statiques à une preuve de sécurité.
+
+## Retour de recette Windows reçu le 28 octobre 2026
+
+- TypeScript : PASS.
+- Tests ciblés : 36 PASS / 1 FAIL. L'échec était une assertion obsolète
+  `withLegacyTeamApi` après refonte de la route ; assertion mise à jour
+  dans le commit 2f188f9d.
+- Diagnostic PostgreSQL : PASS, schéma 30, 30 migrations, 0 objet inconnu.
+- Recette d'isolation réelle : **incomplète** parce qu'une seule équipe
+  active existe ; aucun verdict de sécurité Team A / Team B ne peut être
+  prononcé à partir de cette exécution.
+- Verrouillage supplémentaire : les mutations Kanban contextualisées
+  verrouillent maintenant simultanément la période et l'équipe pour éviter
+  une course avec l'archivage.
+
+**Conclusion vérifiable : lot 2 non clôturé.** Le statut ne peut pas devenir
+« terminé » sans une recette à deux équipes et la qualification des routes
+transversales encore exclues. Ne pas activer le multiéquipes par simple changement
+de drapeau.
