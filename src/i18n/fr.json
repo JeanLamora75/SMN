@@ -3661,6 +3661,7 @@
     "up": "Monter",
     "down": "Descendre",
     "remove": "Retirer",
-    "saved": "Sélection enregistrée."
+    "saved": "Sélection enregistrée.",
+    "exportMarkdown": "Exporter les références (Markdown)"
   }
 }
