@@ -39,6 +39,7 @@ export async function saveTeamAssignmentRevision(
    FROM public.smn_member m
    JOIN public.smn_team t ON t.installation_id=m.installation_id
    WHERE m.id=$1 AND t.id=$2 AND t.installation_id='singleton'
+    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
    FOR UPDATE OF m`,[memberId,team.team_id]);
   if(member.rows.length!==1)return fail("not-found");
   if(member.rows[0].archived_at!==null)return fail("archived");
