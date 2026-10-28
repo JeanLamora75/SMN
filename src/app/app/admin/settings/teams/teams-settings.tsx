@@ -3,19 +3,19 @@ import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
 type Team={
- id:string;name:string;productName:string|null;vision:string|null;
+ id:string;name:string;agileMode:"scrum"|"kanban";productName:string|null;vision:string|null;
  productGoal:string|null;revision:number;
 };
-type Values={name:string;productName:string;vision:string;productGoal:string};
+type Values={name:string;agileMode:"scrum"|"kanban";productName:string;vision:string;productGoal:string};
 type Listing={items:Team[];canWrite:boolean};
 type Response={ok?:boolean;changed?:boolean;teamId?:string;revision?:number;
  error?:string};
-const blank:Values={name:"",productName:"",vision:"",productGoal:""};
+const blank:Values={name:"",agileMode:"scrum",productName:"",vision:"",productGoal:""};
 const valuesFrom=(team:Team):Values=>({
- name:team.name,productName:team.productName??"",vision:team.vision??"",
+ name:team.name,agileMode:team.agileMode,productName:team.productName??"",vision:team.vision??"",
  productGoal:team.productGoal??""
 });
-const same=(a:Values,b:Values)=>a.name===b.name&&a.productName===b.productName&&
+const same=(a:Values,b:Values)=>a.name===b.name&&a.agileMode===b.agileMode&&a.productName===b.productName&&
  a.vision===b.vision&&a.productGoal===b.productGoal;
 
 export default function TeamsSettings(){
@@ -72,7 +72,7 @@ export default function TeamsSettings(){
   if(saving||loading||!canWrite||!hasName||!dirty&&current)return;
   setSaving(true);setError("");setNotice("");
   const body={
-   ...(current?{teamId:current.id,revision:current.revision}:{}),
+   ...(current?{teamId:current.id,revision:current.revision}:{agileMode:values.agileMode}),
    name:values.name,
    productName:values.productName.trim()||null,
    vision:values.vision.trim()||null,
@@ -126,7 +126,7 @@ export default function TeamsSettings(){
         aria-current={selected===item.id?"true":undefined}
         disabled={saving} onClick={()=>changeTeam(item.id)}>
         <span className="d-block">{item.name}</span>
-        <span className="small text-secondary">{item.productName??t("teamSettings.noProduct")}</span>
+        <span className="small text-secondary">{item.productName??t("teamSettings.noProduct")} · {item.agileMode==="kanban"?"Kanban":"Scrum"}</span>
        </button>
       </li>)}
      </ul>}
@@ -153,6 +153,19 @@ export default function TeamsSettings(){
        required maxLength={120} autoComplete="off" value={values.name}
        aria-required="true" disabled={!canWrite||saving||loading}
        onChange={event=>setField("name",event.target.value)}/>
+     </div>
+     <div>
+      <label htmlFor="smn-team-settings-agile-mode" className="form-label">
+       Mode Agile <span className="text-danger" aria-hidden="true">*</span>
+      </label>
+      <select id="smn-team-settings-agile-mode" className="form-select"
+       value={values.agileMode} required aria-required="true"
+       disabled={!!current||!canWrite||saving||loading}
+       onChange={event=>setField("agileMode",event.target.value)}>
+       <option value="scrum">Scrum</option>
+       <option value="kanban">Kanban</option>
+      </select>
+      {current&&<p className="form-text">Le mode Agile d'une équipe existante est conservé pour protéger ses cycles.</p>}
      </div>
      <div>
       <label htmlFor="smn-team-settings-product" className="form-label">
