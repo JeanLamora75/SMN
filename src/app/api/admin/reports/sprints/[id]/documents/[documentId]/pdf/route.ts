@@ -10,6 +10,7 @@ import {jsonResult} from "@/server/auth/request";
 import {getReportDocument} from "@/server/reports/report-documents";
 import {studioArchiveReference} from "@/server/reports/studio-archive-reference";
 import {selectedReportExportLinks} from "@/server/reports/link-export";
+import {safeExportLinks} from "@/lib/report-links-export";
 export const dynamic="force-dynamic";export const runtime="nodejs";
 type P={params:Promise<{id:string;documentId:string}>};
 async function execute(req:NextRequest,{params}:P,archive:boolean){
@@ -30,8 +31,8 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   if(!eligible.exportable)return {error:"quality-blocked",issues:eligible.errors} as const;
   if(eligible.warnings.length>0&&req.headers.get("x-smn-ack-warnings")!=="true")
    return {error:"warnings-require-confirmation",issues:eligible.warnings} as const;
-  // Draft preview may include current links; archival path remains unchanged until snapshot contract is extended.
-  const links=!archive&&actor.role==="admin"?await selectedReportExportLinks(db,actor,id,eligible.document.teamId):[];
+  // Capture the exact references for both preview and immutable PDF archive.
+  const links=actor.role==="admin"?safeExportLinks(await selectedReportExportLinks(db,actor,id,eligible.document.teamId)):[];
   const bytes=await renderStudioPdf(eligible.document,links);
   // Reject a render that became stale while Chromium was producing the PDF.
   const latest=teamId?await readTeamStudioDocument(db,{accountId:actor.id,role:actor.role},teamId,id,documentId):await getReportDocument(db,id,documentId);
@@ -39,7 +40,7 @@ async function execute(req:NextRequest,{params}:P,archive:boolean){
   if(!archive)return {bytes} as const;
   const doc=eligible.document;
   const inputReference=studioArchiveReference(doc);
-  const manifest=await storeFinalPdfArchive(db,bytes,{authorId:actor.id,language:doc.language,templateId:doc.templateId,teamId:doc.teamId,cycleId:doc.sprintId,cycleStatus:"draft",snapshotVersion:null,templateName:doc.title,optionsSnapshot:{studioDocumentId:inputReference.documentId,studioDocumentRevision:inputReference.documentRevision,studioSourceSha256:inputReference.sourceSha256}},undefined,doc);
+  const manifest=await storeFinalPdfArchive(db,bytes,{authorId:actor.id,language:doc.language,templateId:doc.templateId,teamId:doc.teamId,cycleId:doc.sprintId,cycleStatus:"draft",snapshotVersion:null,templateName:doc.title,optionsSnapshot:{studioDocumentId:inputReference.documentId,studioDocumentRevision:inputReference.documentRevision,studioSourceSha256:inputReference.sourceSha256,reportLinks:links}},undefined,doc);
   return {manifest} as const;
  };
  const result=teamId?await withAuthDb(generate):await withLegacyTeamApi(generate);
