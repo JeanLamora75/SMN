@@ -3,7 +3,7 @@ import {notFound,redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
-import {readCollectiveDashboard} from "@/server/dashboard/read";
+import {readAccountDashboard} from "@/server/dashboard/read";
 import {withDashboardRead} from "@/server/dashboard/read-only-db";
 import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
 import {readSprintDetailIndicators} from "@/server/sprints/indicators-read";
@@ -40,7 +40,7 @@ export const dynamic="force-dynamic";
 /** A Sprint identity is always resolved server-side in the authorized team's scope. */
 export default async function SprintDetailPage({params,searchParams}:{
  params:Promise<{sprintId:string}>;
- searchParams:Promise<{tab?:string|string[];page?:string|string[];kind?:string|string[]}>;
+ searchParams:Promise<{tab?:string|string[];page?:string|string[];kind?:string|string[];teamId?:string|string[]}>;
 }){
  const account=await currentAccount();
  if(!account)redirect("/login");
@@ -56,7 +56,9 @@ export default async function SprintDetailPage({params,searchParams}:{
  const ceremonyPage=/^[1-9]\d{0,6}$/.test(pageParam)?Number(pageParam):1;
  const registerKind=typeof requested.kind==="string"&&isRegisterKind(requested.kind)?
   requested.kind:null;
- const dashboard=await withAuthDb(readCollectiveDashboard).catch(()=>null);
+ const requestedTeamId=typeof requested.teamId==="string"?requested.teamId:null;
+ const dashboard=await withAuthDb(db=>readAccountDashboard(db,
+  {accountId:account.id,role:account.role},requestedTeamId)).catch(()=>null);
  if(!dashboard)return <main className="container-fluid px-3 px-lg-4 py-4">
   <div role="alert" className="alert alert-warning">
    {t("dashboard.cockpit.sprintDetailUnavailable")}
