@@ -57,7 +57,8 @@ describe("SMN-21 — lot 3 : quatre colonnes opérationnelles",()=>{
   it("conserve l'autorisation et le bandeau, sans bloc de configuration doublon",()=>{
     const page=source("src/app/app/page.tsx");
     assert.match(page,/canAccess\(account, "read"/);
-    assert.match(page,/readCollectiveDashboard/);
+    assert.match(page,/readAccountDashboard/);
+    assert.match(page,/withDashboardRead/);
     assert.ok(page.indexOf("<CycleOverview")<page.indexOf("<OperationalOverview"));
     assert.doesNotMatch(page,/ConfigurationChecklist|readConfigurationChecklist/);
     assert.doesNotMatch(page,/EmptyBlock|smn-attention-card|id="reportings"/);
