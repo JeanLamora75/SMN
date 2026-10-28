@@ -3,7 +3,7 @@ import {useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../bootstrap-icon";
 
-export type CalendarEntry={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;aggregateCount?:number};
+export type CalendarEntry={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;aggregateCount?:number;companyId?:string;companyName?:string;companyColor?:string;startOn?:string;endOn?:string;members?:{id:string;name:string}[]};
 export type CalendarMeeting={id:string;name:string;startAt:string;endAt:string;kind:string;href:string;generationSource?:string;status?:string};
 export type CalendarMode="cards"|"agenda";
 
@@ -21,12 +21,12 @@ function meetingIcon(meeting:CalendarMeeting):IconName{
 }
 
 export default function CalendarOptionB({days,entries,meetings,absenceCounts,absentNames,today,
- mode,showMeetings,showAbsences,timeZone="Europe/Paris",isEditable,onMeeting,onAbsence,onOpenEvent}:{
+ mode,showMeetings,showAbsences,timeZone="Europe/Paris",isEditable,onMeeting,onAbsence,onOpenEvent,onClosure}:{
  days:string[];entries:CalendarEntry[];meetings:CalendarMeeting[];
  absenceCounts:Record<string,number>;absentNames:Record<string,string[]>;today:string;mode:CalendarMode;
  showMeetings:boolean;showAbsences:boolean;timeZone?:string;isEditable:(date:string)=>boolean;
  onMeeting:(date:string)=>void;onAbsence:(date:string)=>void;
- onOpenEvent:(event:CalendarMeeting)=>void;
+ onOpenEvent:(event:CalendarMeeting)=>void;onClosure:(event:CalendarEntry)=>void;
 }){
  const t=useTranslation(),locale=useLocale();
  const [openedAbsenceDate,setOpenedAbsenceDate]=useState<string|null>(null);
@@ -83,9 +83,9 @@ export default function CalendarOptionB({days,entries,meetings,absenceCounts,abs
       {m.generationSource==="reconstructed"&&<span className="smn-cal-event-time">{t("sprintWizard.reconstructedLabel")}</span>}
      </div>
     </div>)}
-   {closures.map(item=><div key={item.id} className="smn-cal-event smn-cal-closure">
+   {closures.map(item=><div key={item.id} className="smn-cal-event smn-cal-closure" style={{borderLeft:item.companyColor?`4px solid var(--bs-${item.companyColor}, var(--bs-secondary))`:undefined}}>
     <span className="smn-cal-icon"><BootstrapIcon name="calendar3"/></span>
-    <span className="smn-cal-event-title">{item.title}</span>
+    <button type="button" className="smn-cal-event-title smn-cal-event-open" aria-haspopup="dialog" onClick={()=>onClosure(item)}>{item.companyName?item.companyName+" · ":""}{item.title}</button>
    </div>)}
   </>;
  };
