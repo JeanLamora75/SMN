@@ -214,6 +214,13 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
      !names.has("public.smn_member_absence_history:r"))
       return result("installation-incomplete");
   }
+  if(records[0].schema_version>=31){
+    const companySql=readFileSync(new URL("../../../prisma/migrations/20261028_smn316_company_catalog/migration.sql",import.meta.url),"utf8");
+    const company=migrations.find(m=>m.migration_name==="20261028_smn316_company_catalog");
+    if(!company||company.checksum!==createHash("sha256").update(companySql).digest("hex")||
+      !company.finished_at||company.rolled_back_at||!snapshot.companySchemaValid||
+      !names.has("public.smn_company:r"))return result("installation-incomplete");
+  }
   if(isV20){
     const migration=migrations.find(m=>m.migration_name===CLOSURES_MIGRATION);
     if(!migration||migration.checksum!==createHash("sha256").update(CLOSURES_MIGRATION_SQL).digest("hex")||
