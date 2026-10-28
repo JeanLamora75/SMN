@@ -67,8 +67,8 @@ describe("SMN-20 — checklist de configuration",()=>{
     assert.equal(db.queries.length,0);
   });
   it("migration SQL exacte et additive sans réactivation automatique",async()=>{
-    assert.equal(await readFile("prisma/migrations/20261020_smn20_configuration_tasks/migration.sql","utf8"),
-      CONFIGURATION_MIGRATION_SQL);
+    const sql=await readFile("prisma/migrations/20261020_smn20_configuration_tasks/migration.sql","utf8");
+    assert.equal(sql.replace(/\r\n/g,"\n"),CONFIGURATION_MIGRATION_SQL.replace(/\r\n/g,"\n"));
     assert.match(CONFIGURATION_MIGRATION_SQL,/schema_version=5/);
     assert.match(CONFIGURATION_MIGRATION_SQL,/reference_country IS NOT NULL/);
     assert.match(CONFIGURATION_MIGRATION_SQL,/smn_recovery_phrase/);
