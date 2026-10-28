@@ -55,7 +55,7 @@ export default function CountryYearValidationPanel({
  };
  useEffect(()=>{
   const controller=new AbortController();
-  setChecked(false);
+  queueMicrotask(()=>{if(!controller.signal.aborted)setChecked(false);});
   void loadDiagnostic(controller.signal)
    .then(d=>{if(!controller.signal.aborted)setState({kind:"ready",diagnostic:d});})
    .catch(()=>{if(!controller.signal.aborted)setState({kind:"error"});});
