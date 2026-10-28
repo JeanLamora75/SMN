@@ -99,7 +99,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   const teams=options.teamId?await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(
    "SELECT t.id,t.name,i.mode FROM public.smn_team t "+
    "JOIN public.smn_installation i ON i.id=t.installation_id "+
-   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version=28 "+
+   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version IN (28,29,30) "+
    "AND i.mode IN ('scrum','kanban') AND t.id=$1 LIMIT 2",[options.teamId]):
    await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(teamSql);
   if(teams.rows.length!==1)throw Error("capacity-team-unavailable");
