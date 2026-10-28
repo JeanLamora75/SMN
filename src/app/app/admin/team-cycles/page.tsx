@@ -1,4 +1,5 @@
 import {redirect} from "next/navigation";
+import Link from "next/link";
 import {currentAccount} from "@/server/auth/session";
 import {withAuthDb} from "@/server/auth/database";
 import {resolveAdminTeam} from "@/server/teams/resolve";
@@ -23,9 +24,28 @@ export default async function TeamCyclesPage({searchParams}:{
   return {teamId:team.team_id,teamName:team.team,mode:team.mode,
    revision:cadence.rows[0]?.revision??0};
  }).catch(()=>null);
- if(!context||!["scrum","kanban"].includes(context.mode))
-  return <main className="container py-4"><h1 className="h3">Création d'un cycle</h1>
-   <p role="alert" className="alert alert-warning">Aucune équipe active et cadence valide n'est disponible.</p></main>;
+ if(!context||!["scrum","kanban"].includes(context.mode)){
+  const choices=await withAuthDb(async db=>{
+   const rows=await db.query<{id:string;name:string}>(`
+    SELECT t.id,t.name FROM public.smn_team t
+    JOIN public.smn_account a ON a.installation_id=t.installation_id
+    WHERE a.id=$1 AND a.role='admin' AND a.is_active=true
+      AND a.must_change_password=false
+    ORDER BY lower(t.name),t.id LIMIT 100`,[actor.id]);
+   return rows.rows;
+  }).catch(()=>[]);
+  return <main className="container py-4"><h1 className="h3">Cycles par équipe</h1>
+   <p role="status" className="alert alert-warning">
+    Sélectionnez une équipe pour consulter ses cycles. La création reste désactivée.
+   </p>
+   {choices.length===0?<p>Aucune équipe accessible.</p>:
+    <ul className="list-group">{choices.map(team=><li className="list-group-item" key={team.id}>
+     <Link href={"/app/admin/team-cycles?"+new URLSearchParams({teamId:team.id}).toString()}>
+      {team.name}
+     </Link>
+    </li>)}</ul>}
+  </main>;
+ }
  return <main className="container py-4" style={{maxWidth:760}}>
   <h1 className="h3">Création d'un cycle — {context.teamName}</h1>
   <TeamCycleCreateForm teamId={context.teamId} mode={context.mode as "scrum"|"kanban"}
