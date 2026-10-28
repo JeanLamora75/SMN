@@ -35,7 +35,7 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   JOIN public.smn_team t ON t.id=p.team_id
    AND t.installation_id=p.installation_id
   WHERE p.account_id=$1 AND p.installation_id=$2
-   AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false`
+   AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false`,
   [actor.accountId,installation]);
  // L'absence de préférence peut être résolue sans ambiguïté uniquement
  // lorsqu'une seule équipe appartient à l'installation de l'administrateur.
