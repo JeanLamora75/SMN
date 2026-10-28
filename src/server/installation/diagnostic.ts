@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../links/migration";
+import {COUNTRY_CONSOLIDATION_MIGRATION,COUNTRY_CONSOLIDATION_MIGRATION_SQL} from "../countries/consolidation-migration";
 import { INITIAL_MIGRATION, INITIAL_REQUIRED_RELATIONS, INSTALLATION_RELATIONS } from "./contract";
 import { INITIAL_SCHEMA_SQL } from "./migration";
 import { ACCOUNTS_MIGRATION, ACCOUNTS_MIGRATION_SQL } from "../accounts/migration";
@@ -293,8 +294,9 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
       return result("installation-incomplete");
   }
   if(isV30){
-    const migration=migrations.find(m=>m.migration_name==="20261028_smn270_281_country_consolidation");
-    if(!migration||!migration.finished_at||migration.rolled_back_at||!snapshot.countryConsolidationSchemaValid||
+    const migration=migrations.find(m=>m.migration_name===COUNTRY_CONSOLIDATION_MIGRATION);
+    if(!migration||migration.checksum!==createHash("sha256").update(COUNTRY_CONSOLIDATION_MIGRATION_SQL).digest("hex")||
+      !migration.finished_at||migration.rolled_back_at||!snapshot.countryConsolidationSchemaValid||
       !["public.smn_country_name_audit:r","public.smn_country_lifecycle_audit:r",
         "public.smn_national_holiday_manual_audit:r","public.smn_national_calendar_validation_audit:r"]
        .every(n=>names.has(n)))return result("installation-incomplete");
