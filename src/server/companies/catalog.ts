@@ -14,7 +14,7 @@ function normalizeName(value:unknown):string|null{
 export function parseCompanyInput(raw:unknown):CompanyInput|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const v=raw as Record<string,unknown>;
- if(Object.keys(v).some(k=>!["name","comment","color"].includes(k)))return null;
+ if(!Object.hasOwn(v,"name")||!Object.hasOwn(v,"color")||Object.keys(v).some(k=>!["name","comment","color"].includes(k)))return null;
  const name=normalizeName(v.name);
  if(!name||typeof v.color!=="string"||!colors.has(v.color))return null;
  const comment=v.comment===undefined||v.comment===null?null:typeof v.comment==="string"?v.comment.trim():null;
@@ -51,7 +51,7 @@ export async function changeCompany(db:Client,id:string,actorId:string,raw:unkno
  const v=raw as Record<string,unknown>;
  const revision=v.revision;
  const input=parseCompanyInput(Object.fromEntries(Object.entries(v).filter(([k])=>k!=="revision")));
- if(!input||!Number.isSafeInteger(revision)||Number(revision)<1)return {ok:false as const,error:"invalid-input" as CompanyError};
+ if(!input||Object.keys(v).some(k=>!["name","comment","color","revision"].includes(k))||!Number.isSafeInteger(revision)||Number(revision)<1)return {ok:false as const,error:"invalid-input" as CompanyError};
  try{
   const r=await db.query<Row>(`UPDATE public.smn_company SET name=$3,comment=$4,color=$5,
    revision=revision+1,updated_by=$6,updated_at=now()
