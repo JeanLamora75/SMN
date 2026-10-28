@@ -31,12 +31,13 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
  const [newName,setNewName]=useState("");
  const [newCompanyId,setNewCompanyId]=useState("");
  const [companyChoices,setCompanyChoices]=useState<CompanyChoice[]>([]);
+ const [companyEnabled,setCompanyEnabled]=useState(false);
  const [creating,setCreating]=useState(false);
  const [createError,setCreateError]=useState("");
  const requestId=useRef<string|null>(null);
  useEffect(()=>{let live=true;void fetch("/api/admin/companies",{cache:"no-store"})
  .then(async r=>{if(!r.ok)throw Error("company-catalog");return r.json() as Promise<{companies:CompanyChoice[]}>;})
- .then(data=>{if(live)setCompanyChoices(data.companies.filter(c=>!c.archivedAt));})
+ .then(data=>{if(live){setCompanyChoices(data.companies.filter(c=>!c.archivedAt));setCompanyEnabled(true);}})
  .catch(()=>{if(live)setCompanyChoices([]);});return()=>{live=false};},[]);
  useEffect(()=>{void Promise.resolve().then(()=>{try{if(localStorage.getItem(CHOICE)==="list")setView("list");}catch{}});},[]);
  useEffect(()=>{let alive=true;fetch("/api/admin/members"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store"})
@@ -72,7 +73,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
   try{
    const r=await fetch("/api/admin/members",{method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({teamId:roster.team.id,displayName:newName.trim(),companyId:newCompanyId||null,requestId:requestId.current})});
+    body:JSON.stringify({teamId:roster.team.id,displayName:newName.trim(),...(companyEnabled?{companyId:newCompanyId||null}:{}),requestId:requestId.current})});
    const body=await r.json() as {error?:string};
    if(!r.ok)throw Error(body.error??"service");
    const refreshed=await fetch("/api/admin/members"+(initialTeamId?"?"+new URLSearchParams({teamId:initialTeamId}):""),{cache:"no-store"});
@@ -257,12 +258,12 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
       <input id="new-team-member" className="form-control"
        maxLength={120} required autoFocus value={newName} disabled={creating}
        onChange={e=>{setNewName(e.target.value);setCreateError("");requestId.current=null;}}/>
-      <label className="form-label mt-3" htmlFor="new-member-company">Entreprise (facultatif)</label>
+      {companyEnabled&&<><label className="form-label mt-3" htmlFor="new-member-company">Entreprise (facultatif)</label>
       <select id="new-member-company" className="form-select" value={newCompanyId} disabled={creating}
        onChange={e=>{setNewCompanyId(e.target.value);requestId.current=null;}}>
        <option value="">Aucune entreprise</option>
        {companyChoices.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
-      </select>
+      </select></>}
       <p className="small text-secondary mt-2">{t("teamUX.defaultRole")}</p>
       {createError&&<p role="alert" className="alert alert-warning">
        {t("teamUX.createError",{reason:createError})}</p>}
