@@ -2,6 +2,7 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidDate} from "../members/assignment";
 import {ensureCapacityRecalcOutbox,queueClosureRecalculation} from "../capacity/company-recalc-outbox";
+import {processCompanyRecalculation} from "../capacity/company-recalc-worker";
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type Row={id:string;company_id:string;name:string;start_on:string;end_on:string;is_active:boolean;revision:number;created_at:string;updated_at:string};
 const columns="id,company_id,name,start_on::text AS start_on,end_on::text AS end_on,is_active,revision,created_at::text AS created_at,updated_at::text AS updated_at";
@@ -80,6 +81,9 @@ export async function saveCompanyClosureV31(db:Client,actorId:string,raw:unknown
   const result=await db.query<Row>(`SELECT ${columns} FROM public.smn_company_closure WHERE id=$1 AND company_id=$2`,[id,v.companyId]);
   if(result.rows.length!==1)throw Error("closure-write-inconsistent");
   await db.query("COMMIT");
+  // Best-effort immediate processing after commit: the durable job survives errors.
+  try{await processCompanyRecalculation(db);}
+  catch{console.error("company-capacity-recalc-deferred");}
   return {ok:true,created:!prior,closure:view(result.rows[0])};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
