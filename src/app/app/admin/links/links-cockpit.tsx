@@ -115,7 +115,7 @@ export default function LinksCockpit({teamId,teamName}:{teamId:string;teamName:s
   <div className="smn-links-results">
    {loading?<div className="smn-links-state" role="status"><BootstrapIcon name="hourglass-split"/> {t("links.loading")}</div>:error?
     <div className="smn-links-state smn-links-state-error" role="alert">
-     <BootstrapIcon name="exclamation-triangle"/> {t("links.error")}
+     <BootstrapIcon name="exclamation-triangle-fill"/> {t("links.error")}
      <button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setLoading(true);setReload(x=>x+1);}}>{t("links.retry")}</button>
     </div>:shown.length===0?
     <div className="smn-links-state" role="status">
