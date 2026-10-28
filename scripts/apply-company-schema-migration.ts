@@ -22,6 +22,16 @@ export async function applyCompanySchemaMigration(db:Client,sql:string){
    const count=await db.query<{n:string}>(`SELECT count(*)::text AS n FROM public.${table}`);
    if(count.rows[0]?.n!=="0")throw Error("Migration refusée : données présentes dans "+table);
   }
+  // A dependent view, trigger or external foreign key must not be silently removed.
+  // DROP COLUMN uses PostgreSQL RESTRICT by default; fail early with a clear diagnostic.
+  const dependencies=await db.query<{name:string}>(`SELECT c.relname AS name
+   FROM pg_depend d
+   JOIN pg_attribute a ON a.attrelid=d.refobjid AND a.attnum=d.refobjsubid
+   JOIN pg_class c ON c.oid=d.objid
+   WHERE a.attrelid='public.smn_company_closure'::regclass
+    AND a.attname='team_id' AND c.relkind IN ('v','m')
+   LIMIT 1`);
+  if(dependencies.rows.length)throw Error("Colonne team_id utilisée par une vue : migration refusée");
   const exists=await db.query<{present:boolean}>(
    "SELECT to_regclass('public.smn_company') IS NOT NULL AS present");
   if(exists.rows[0]?.present)throw Error("Catalogue entreprise déjà présent");
