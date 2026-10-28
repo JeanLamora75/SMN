@@ -6,12 +6,17 @@ import type {KanbanFrequency} from "./cadence";
 
 type Request={teamId:string;startOn:string;name?:string;cadenceRevision:number};
 const identifier=/^[A-Za-z0-9][A-Za-z0-9_-]{0,79}$/;
+const validStartOn=(value:string):boolean=>{
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+ const parsed=new Date(value+"T00:00:00Z");
+ return Number.isFinite(parsed.getTime())&&parsed.toISOString().slice(0,10)===value;
+};
 export function parseScopedKanbanCreate(raw:unknown):Request|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const v=raw as Record<string,unknown>;
  if(Object.keys(v).some(k=>!["teamId","startOn","name","cadenceRevision"].includes(k))||
   typeof v.teamId!=="string"||!identifier.test(v.teamId)||
-  typeof v.startOn!=="string"||typeof v.cadenceRevision!=="number"||
+  (typeof v.startOn!=="string"||!validStartOn(v.startOn))||typeof v.cadenceRevision!=="number"||
   !Number.isSafeInteger(v.cadenceRevision)||v.cadenceRevision<1||
   (v.name!==undefined&&typeof v.name!=="string"))return null;
  return v as Request;
