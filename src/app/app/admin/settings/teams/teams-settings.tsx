@@ -161,7 +161,7 @@ export default function TeamsSettings(){
       <select id="smn-team-settings-agile-mode" className="form-select"
        value={values.agileMode} required aria-required="true"
        disabled={!!current||!canWrite||saving||loading}
-       onChange={event=>setField("agileMode",event.target.value)}>
+       onChange={event=>setValues(old=>({...old,agileMode:event.target.value==="kanban"?"kanban":"scrum"}))}>
        <option value="scrum">Scrum</option>
        <option value="kanban">Kanban</option>
       </select>
