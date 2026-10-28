@@ -95,7 +95,7 @@ describe("SMN-18 — paramètres généraux",()=>{
     assert.deepEqual(write?.values,["en","dark","violet","DE","admin",0]);
     const audit=db.calls.find(x=>x.sql.includes("INSERT INTO public.smn_general_settings_audit"));
     assert.ok(audit);
-    assert.match(JSON.stringify(audit?.values),/"palette":"violet"/);
+    assert.ok(audit?.values.some(value=>{\n      if(typeof value!=="string")return false;\n      try{const parsed=JSON.parse(value) as unknown;\n        return typeof parsed==="object"&&parsed!==null&&\n          "palette" in parsed&&parsed.palette==="violet";\n      }catch{return false;}\n    }),"La palette violette doit figurer dans le JSON de l’audit");
     assert.ok(db.calls.findIndex(x=>x.sql.includes("INSERT INTO public.smn_general_settings_audit"))<
       db.calls.findIndex(x=>x.sql==="COMMIT"));
   });
