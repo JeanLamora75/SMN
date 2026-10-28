@@ -3653,5 +3653,13 @@
     "reassignTo": "Reassign links to category",
     "chooseCategory": "Select a category",
     "reassign": "Reassign links"
+  },
+  "reportLinks": {
+    "title": "Links and references",
+    "draftNotice": "Draft selection: persistence and export will be added in the next step.",
+    "selected": "Selected references",
+    "up": "Move up",
+    "down": "Move down",
+    "remove": "Remove"
   }
 }
