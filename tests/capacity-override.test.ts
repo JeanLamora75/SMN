@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {describe,it} from "node:test";
+import {readFileSync} from "node:fs";
 import type {Client} from "pg";
 import {chooseCapacity,parseCapacityOverride,readCapacityOverride,
  saveCapacityOverride,type OverrideRow} from "../src/server/capacity/override";
@@ -56,6 +57,11 @@ function fakeDb(){
  return {db,queries,audit,get row(){return row},setLock};
 }
 describe("SMN-58 : capacité manuelle prioritaire",()=>{
+ it("refuse les écritures historiques de capacité prévue en schéma multiéquipes",()=>{
+  const source=readFileSync(new URL("../src/server/capacity/override.ts",import.meta.url),"utf8");
+  assert.match(source,/i\.schema_version<=27/);
+  assert.match(source,/t\.rows\.length!==1/);
+ });
  it("AC1 : conserve 32 JH saisis et affiche la référence 30 et la provenance Saisie",async()=>{
   const f=fakeDb();
   const created=await saveCapacityOverride(f.db,actor,set(32));
