@@ -58,3 +58,30 @@ export async function deleteCategory(db:Client,actor:LinkActor,id:string){
   throw error;
  }
 }
+
+/** Reassign all links atomically, preserving revisions and recording each change. */
+export async function reassignCategory(db:Client,actor:LinkActor,sourceId:string,targetId:string){
+ const tenant=await tenantFor(db,actor);
+ if(!validId(sourceId)||!validId(targetId)||sourceId===targetId)throw new LinkError("invalid-input");
+ await db.query("BEGIN");
+ try{
+  // Lock categories to serialize concurrent reassignments / deletions.
+  const cats=await db.query(`SELECT id FROM public.smn_link_category
+   WHERE installation_id=$1 AND id IN ($2,$3) FOR UPDATE`,[tenant,sourceId,targetId]);
+  if(cats.rowCount!==2)throw new LinkError("not-found");
+  const affected=await db.query(`SELECT * FROM public.smn_link
+   WHERE installation_id=$1 AND category_id=$2 FOR UPDATE`,[tenant,sourceId]);
+  for(const before of affected.rows){
+   const after=await db.query(`UPDATE public.smn_link
+    SET category_id=$3,updated_at=now(),updated_by=$4,revision=revision+1
+    WHERE installation_id=$1 AND id=$2 RETURNING *`,
+    [tenant,before.id,targetId,actor.id]);
+   await db.query(`INSERT INTO public.smn_link_audit
+    (id,link_id,installation_id,operation,before_values,after_values,actor_id)
+    VALUES($1,$2,$3,'UPDATE',$4,$5,$6)`,
+    [randomUUID(),before.id,tenant,JSON.stringify(before),JSON.stringify(after.rows[0]),actor.id]);
+  }
+  await db.query("COMMIT");
+  return {reassigned:affected.rows.length};
+ }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
+}
