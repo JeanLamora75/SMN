@@ -3,6 +3,7 @@ import {currentAccount} from "@/server/auth/session";
 import {withAuthDb} from "@/server/auth/database";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 import LinksCockpit from "./links-cockpit";
+import "./links-cockpit.css";
 export const dynamic="force-dynamic";
 export default async function LinksPage(){
  const actor=await currentAccount();
