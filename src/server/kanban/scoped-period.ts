@@ -15,7 +15,7 @@ export async function scopedKanbanPeriod(db:Client,id:string,lock=false,
   JOIN public.smn_team t ON t.id=p.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton'
-   AND i.state='initialized' ${criterion} ${lock?"FOR UPDATE OF p":""}`,
+   AND i.state='initialized' ${criterion} ${lock?(team?"FOR UPDATE OF p,t":"FOR UPDATE OF p"):""}`,
   team?[id,team.team_id]:[id]);
  return row.rows[0]??null;
 }
