@@ -40,6 +40,7 @@ CREATE INDEX smn_member_company_idx ON public.smn_member(company_id)
 
 ALTER TABLE public.smn_company_closure ADD COLUMN company_id text;
 -- The source closure table is empty: replace team ownership rather than retain two models.
+DROP INDEX IF EXISTS public.smn_company_closure_team_dates_idx;
 ALTER TABLE public.smn_company_closure DROP COLUMN team_id;
 ALTER TABLE public.smn_company_closure ALTER COLUMN company_id SET NOT NULL;
 ALTER TABLE public.smn_company_closure ADD CONSTRAINT smn_closure_company_fk
