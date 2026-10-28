@@ -24,7 +24,7 @@ async function lockAuthorizedInstallation(db:Client,installationId:string,actorI
   [actorId,installationId]);
  if(account.rows.length!==1)return "forbidden";
  // Ne jamais activer une création multiéquipes avec la structure historique monoéquipe.
- if(![28,29,30].includes(i.schema_version))return "schema-not-ready";
+ if(![28,29,30,31].includes(i.schema_version))return "schema-not-ready";
  const required=await db.query<{ready:boolean}>(`SELECT
   to_regclass('public.smn_team_context') IS NOT NULL
   AND to_regclass('public.smn_team_context_audit') IS NOT NULL
