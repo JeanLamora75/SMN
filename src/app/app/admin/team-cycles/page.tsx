@@ -31,6 +31,7 @@ export default async function TeamCyclesPage({searchParams}:{
     JOIN public.smn_account a ON a.installation_id=t.installation_id
     WHERE a.id=$1 AND a.role='admin' AND a.is_active=true
       AND a.must_change_password=false
+      AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
     ORDER BY lower(t.name),t.id LIMIT 100`,[actor.id]);
    return rows.rows;
   }).catch(()=>[]);
