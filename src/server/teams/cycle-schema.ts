@@ -16,4 +16,18 @@ export async function requireScopedCycleSchema(db:Client,mode:"scrum"|"kanban"):
   WHERE table_schema='public' AND table_name='smn_team'
     AND column_name IN ('agile_mode','is_archived')`);
  if(teamColumns.rows.length!==2)throw Error("cycle-schema-not-ready");
+ const columns=mode==="scrum"
+  ?{smn_scrum_cadence:["team_id","revision","duration_weeks","start_day","end_day","start_time","end_time","time_zone"],
+    smn_sprint:["id","team_id","number","name","start_at","end_at","time_zone","created_by","deleted_at"],
+    smn_sprint_audit:["id","sprint_id","action","actor_id","details"]}
+  :{smn_kanban_cadence:["team_id","revision","frequency","time_zone"],
+    smn_kanban_period:["id","team_id","name","start_on","end_on","time_zone","created_by","deleted_at"],
+    smn_kanban_period_audit:["id","period_id","action","details","actor_id"]};
+ const checks=Object.entries(columns);
+ const found=await db.query<{table_name:string;column_name:string}>(`
+  SELECT table_name,column_name FROM information_schema.columns
+  WHERE table_schema='public' AND table_name=ANY($1::text[])`,[checks.map(([table])=>table)]);
+ const available=new Set(found.rows.map(row=>row.table_name+"."+row.column_name));
+ if(checks.some(([table,names])=>names.some(name=>!available.has(table+"."+name))))
+  throw Error("cycle-schema-not-ready");
 }
