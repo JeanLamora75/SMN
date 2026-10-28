@@ -46,7 +46,7 @@ async function main(){
   await db.query(`INSERT INTO public._prisma_migrations
    (id,checksum,finished_at,migration_name,applied_steps_count)
    VALUES($1,$2,now(),$3,1)`,[
-    randomUUID(),createHash("sha256").update(sql).digest("hex"),COUNTRY_CONSOLIDATION_MIGRATION
+    randomUUID(),createHash("sha256").update(COUNTRY_CONSOLIDATION_MIGRATION_SQL).digest("hex"),COUNTRY_CONSOLIDATION_MIGRATION
    ]);
   await db.query("COMMIT");begun=false;
  }catch(error){
