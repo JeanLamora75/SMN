@@ -17,7 +17,8 @@ async function main(){
 
  const source=readFileSync(new URL("../prisma/migrations/20261026_smn282_multi_teams/migration.sql",
   import.meta.url),"utf8");
- if(source!==MULTI_TEAM_SCHEMA_SQL)throw Error("Source SQL et migration versionnée divergentes");
+ if(source.replace(/\r\n/g,"\n")!==MULTI_TEAM_SCHEMA_SQL.replace(/\r\n/g,"\n"))
+  throw Error("Source SQL et migration versionnée divergentes");
 
  const uri=await installedDatabaseUri();
  const before=classifySnapshot(await probePostgres(uri));
