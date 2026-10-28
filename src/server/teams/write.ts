@@ -24,7 +24,12 @@ async function lockAuthorizedInstallation(db:Client,installationId:string,actorI
   [actorId,installationId]);
  if(account.rows.length!==1)return "forbidden";
  // Ne jamais activer une création multiéquipes avec la structure historique monoéquipe.
- if(i.schema_version!==28)return "schema-not-ready";
+ if(![28,29,30].includes(i.schema_version))return "schema-not-ready";
+ const required=await db.query<{ready:boolean}>(`SELECT
+  to_regclass('public.smn_team_context') IS NOT NULL
+  AND to_regclass('public.smn_team_context_audit') IS NOT NULL
+  AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_team' AND column_name='product_id' AND is_nullable='YES') AS ready`);
+ if(required.rows[0]?.ready!==true)return "schema-not-ready";
  return null;
 }
 async function collides(db:Client,installationId:string,name:string,exceptId?:string){
