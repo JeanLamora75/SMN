@@ -9,6 +9,7 @@ test("période Kanban : aucun accès par identifiant seul en v30",()=>{
  assert.match(src,/i\.schema_version<=27/);
  assert.match(src,/t\.is_archived=false/);
  assert.match(src,/FOR UPDATE OF p/);
+ assert.match(src,/team\?"FOR UPDATE OF p,t"/);
 });
 test("routes Kanban : équipe vérifiée et écritures verrouillées",()=>{
  const ctx=read("src/server/kanban/route-context.ts");
