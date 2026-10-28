@@ -1,3 +1,4 @@
+import {readFileSync} from "node:fs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import {reportLinksHtml,reportLinksMarkdown,safeExportLinks} from "../src/lib/report-links-export";
@@ -34,4 +35,12 @@ test("PDF HTML escapes malicious title markup and URL attributes",()=>{
 test("rejects credentials and unsupported URL schemes",()=>{
  const urls=["javascript:alert(1)","data:text/html,x","https://user:password@example.org/path"];
  assert.deepEqual(safeExportLinks(urls.map(url=>({title:"Bad",url}))),[]);
+});
+
+test("final PDF archive freezes the same references used to render it",()=>{
+
+ const route=readFileSync("src/app/api/admin/reports/sprints/[id]/documents/[documentId]/pdf/route.ts","utf8");
+ assert.match(route,/const links=actor\.role==="admin"\?safeExportLinks\(await selectedReportExportLinks/);
+ assert.match(route,/renderStudioPdf\(eligible\.document,links\)/);
+ assert.match(route,/optionsSnapshot:\{[^}]*reportLinks:links\}/);
 });
