@@ -8,7 +8,10 @@ test("PDF export requires administrator generate rights and verified reference",
  assert.match(route,/authorizeApi\(req,"generate"/);
  assert.match(route,/readFrozenReportReference/);
  assert.match(route,/reference-unavailable/);
- assert.doesNotMatch(route,/storeFinalPdfArchive|INSERT INTO/);
+ assert.match(route,/storeFinalPdfArchive/);
+ assert.match(route,/validExportOperationId/);
+ assert.match(route,/pg_advisory_lock/);
+ assert.match(route,/assertTeamReportCycle/);
 });
 test("server PDF only visits local frozen preview and blocks external requests",()=>{
  const src=source("src/server/reports/frozen-pdf.ts");
@@ -21,6 +24,7 @@ test("server PDF only visits local frozen preview and blocks external requests",
 });
 test("export is available only for an immutable frozen HTML preview",()=>{
  const page=source("src/app/app/admin/sprints/[sprintId]/report/preview/page.tsx");
- assert.match(page,/frozen\?<FrozenPdfExport/);
+ assert.match(page,/frozen&&!teamId\?<FrozenPdfExport/);
+ assert.match(page,/if\(teamId&&!await assertTeamReportCycle/);
  assert.match(page,/readFrozenReportReference/);
 });
