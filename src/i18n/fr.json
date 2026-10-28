@@ -3643,6 +3643,15 @@
     "allTeams": "Toutes les équipes",
     "transfer": "Changer la portée / transférer",
     "chooseTeam": "Choisir une équipe",
-    "transferConfirm": "Je confirme le changement de visibilité ou le transfert vers l'équipe sélectionnée."
+    "transferConfirm": "Je confirme le changement de visibilité ou le transfert vers l'équipe sélectionnée.",
+    "categories": "Catégories",
+    "categoryName": "Nom de la catégorie",
+    "createCategory": "Créer une catégorie",
+    "categoryDuplicate": "Ce nom de catégorie existe déjà.",
+    "categoryInUse": "Cette catégorie est utilisée par des liens. Réaffectez-les avant de la supprimer.",
+    "usedBy": "lien(s)",
+    "reassignTo": "Réaffecter les liens à la catégorie",
+    "chooseCategory": "Choisir une catégorie",
+    "reassign": "Réaffecter les liens"
   }
 }
