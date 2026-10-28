@@ -34,14 +34,16 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   SELECT t.id AS team_id FROM public.smn_account_team_preference p
   JOIN public.smn_team t ON t.id=p.team_id
    AND t.installation_id=p.installation_id
-  WHERE p.account_id=$1 AND p.installation_id=$2`,
+  WHERE p.account_id=$1 AND p.installation_id=$2
+   AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false`
   [actor.accountId,installation]);
  // L'absence de préférence peut être résolue sans ambiguïté uniquement
  // lorsqu'une seule équipe appartient à l'installation de l'administrateur.
  let id=requestedTeamId??chosen.rows[0]?.team_id;
  if(!id){
   const only=await db.query<{id:string}>(
-   "SELECT id FROM public.smn_team WHERE installation_id=$1 LIMIT 2",[installation]);
+   "SELECT id FROM public.smn_team WHERE installation_id=$1 "+
+   "AND COALESCE((to_jsonb(smn_team)->>'is_archived')::boolean,false)=false LIMIT 2",[installation]);
   if(only.rows.length===1)id=only.rows[0].id;
  }
  if(!id||!validRecordId(id))throw new Error("team-context-unavailable");
