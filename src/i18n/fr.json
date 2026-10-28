@@ -3625,7 +3625,7 @@
     "saving": "Enregistrement…",
     "titleField": "Titre",
     "urlField": "URL",
-    "descriptionField": "Description",
+    "descriptionField": "Commentaire",
     "noCategories": "Aucune catégorie disponible",
     "invalidUrl": "Veuillez indiquer une URL HTTP(S) valide.",
     "saveError": "Opération impossible. Réessayez.",
