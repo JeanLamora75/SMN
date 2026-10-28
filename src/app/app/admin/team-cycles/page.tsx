@@ -48,7 +48,7 @@ export default async function TeamCyclesPage({searchParams}:{
   </main>;
  }
  return <main className="container py-4" style={{maxWidth:760}}>
-  <h1 className="h3">Création d'un cycle — {context.teamName}</h1>
+  <h1 className="h3">Création d&apos;un cycle — {context.teamName}</h1>
   <TeamCycleCreateForm teamId={context.teamId} mode={context.mode as "scrum"|"kanban"}
    cadenceRevision={context.revision}
    enabled={MULTI_TEAM_CONTEXT_READY&&process.env.SMN_MULTI_TEAM_WRITES_ENABLED==="true"}/>
