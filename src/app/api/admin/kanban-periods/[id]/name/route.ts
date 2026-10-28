@@ -3,6 +3,8 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {renameKanbanPeriod} from "@/server/kanban/rename";
+import {resolveRegistryReadContext} from "@/server/registries/team-access";
+import {MULTI_TEAM_CONTEXT_READY} from "@/lib/team-context-readiness";
 export const dynamic="force-dynamic";
 export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}>}){
  const actor=await authorizeApi(req,"write",{type:"collective",exists:true,inScope:true});
@@ -11,8 +13,28 @@ export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}
  if(!input)return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const result=await withAuthDb(db=>renameKanbanPeriod(db,actor.id,id,input));
+  const result=await withAuthDb(async db=>{
+   const params=req.nextUrl.searchParams;
+   if([...params.keys()].some(k=>k!=="teamId")||params.getAll("teamId").length>1)
+    return {ok:false as const,error:"invalid-input" as const};
+   const teamId=params.get("teamId");
+   const context=await resolveRegistryReadContext(db,
+    {accountId:actor.id,role:actor.role},teamId);
+   if(context.version===28){
+    if(!MULTI_TEAM_CONTEXT_READY||process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true")
+     throw Error("context-not-ready");
+    if(!teamId||context.team?.team_id!==teamId)throw Error("team-access-forbidden");
+    return renameKanbanPeriod(db,actor.id,id,input,{
+     actor:{accountId:actor.id,role:actor.role},teamId
+    });
+   }
+   return renameKanbanPeriod(db,actor.id,id,input);
+  });
   if(!result.ok)return jsonResult({error:result.error},result.error==="not-found"?404:400);
   return jsonResult(result);
- }catch{return jsonResult({error:"service-unavailable"},503);}
+ }catch(error){
+  if(error instanceof Error&&error.message==="context-not-ready")
+   return jsonResult({error:"context-not-ready"},503);
+  return jsonResult({error:"service-unavailable"},503);
+ }
 }
