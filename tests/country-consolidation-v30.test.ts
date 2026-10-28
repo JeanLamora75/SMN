@@ -56,8 +56,8 @@ describe("Pays — vérification de la migration v30",()=>{
  });
  it("ne tronque pas l'historique des migrations du diagnostic PostgreSQL",()=>{
   const probe=readFileSync(new URL("../src/server/db/probe.ts",import.meta.url),"utf8");
-  assert.match(probe,/FROM public\\._prisma_migrations/);
-  assert.doesNotMatch(probe,/FROM public\\._prisma_migrations LIMIT/);
+  assert.match(probe,/FROM public\._prisma_migrations/);
+  assert.doesNotMatch(probe,/FROM public\._prisma_migrations LIMIT/);
  });
  it("le SQL v30 reste additif avec son marqueur de version",()=>{
   assert.match(COUNTRY_CONSOLIDATION_MIGRATION_SQL,/ADD COLUMN IF NOT EXISTS revision/);
