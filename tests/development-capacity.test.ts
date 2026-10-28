@@ -82,7 +82,7 @@ function fixture(opts:Options={}){
    return {rows,rowCount:rows.length};
   }
   if(q.includes("FROM public.smn_company_closure")){
-   const rows=opts.closure?[{start_on:"2026-05-01",end_on:"2026-05-01"}]:[];
+   const rows=opts.closure?[{member_id:memberId,start_on:"2026-05-01",end_on:"2026-05-01"}]:[];
    return {rows,rowCount:rows.length};
   }
   if(q.includes("FROM public.smn_national_holiday")){
