@@ -24,7 +24,7 @@ export async function ensureStoryPointsSchema(db:Client){
 }
 async function scope(db:Client,id:string,lock=false,teamId?:string){
  const criterion=teamId?
-  "AND s.team_id=$2 AND i.schema_version IN (28,29,30) AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
+  "AND s.team_id=$2 AND i.schema_version IN (28,29,30,31) AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
   "AND i.schema_version<=27 AND lower(i.mode)='scrum'";
  const r=await db.query<{id:string;status:string;name:string;start_at:string;end_at:string}>(`SELECT s.id,s.status,s.name,s.start_at::text,s.end_at::text FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton'
