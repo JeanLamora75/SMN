@@ -5,11 +5,11 @@ import {readFileSync,existsSync} from "node:fs";
 import {join} from "node:path";
 const root=process.cwd();
 const readiness=readFileSync(join(root,"src/lib/team-context-readiness.ts"),"utf8");
-if(!/MULTI_TEAM_CONTEXT_READY:boolean=false/.test(readiness)){
+if(!/SMN_MULTI_TEAM_CONTEXT_READY/.test(readiness)||\n   !/SMN_MULTI_TEAM_PILOT_ACK/.test(readiness)){
  console.error("FAIL: verrou de livraison modifié ; vérification interrompue");
  process.exit(2);
 }
-console.log("PASS: verrou multiéquipes désactivé");
+if(process.env.SMN_MULTI_TEAM_CONTEXT_READY==="true"||\n   process.env.SMN_MULTI_TEAM_WRITES_ENABLED==="true"){\n console.error("FAIL: désactiver les variables multiéquipes avant cette recette");\n process.exit(2);\n}\nconsole.log("PASS: activation multiéquipes non demandée");
 const pnpm=process.platform==="win32"?"pnpm.cmd":"pnpm";
 const checks=[
  ["TypeScript",pnpm,["exec","tsc","--noEmit"]],
