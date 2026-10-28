@@ -20,7 +20,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
  if(!MULTI_TEAM_CONTEXT_READY)return jsonResult({error:"context-not-ready"},503);
  const teamId=request.nextUrl.searchParams.get("teamId");
  const onDate=request.nextUrl.searchParams.get("onDate");
- if(!teamId||!onDate||!/^\\d{4}-\\d{2}-\\d{2}$/.test(onDate)||
+ if(!teamId||!onDate||!/^\d{4}-\d{2}-\d{2}$/.test(onDate)||
   [...request.nextUrl.searchParams.keys()].some(k=>!["teamId","onDate"].includes(k)))
   return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
