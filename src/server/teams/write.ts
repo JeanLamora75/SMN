@@ -39,7 +39,7 @@ async function collides(db:Client,installationId:string,name:string,exceptId?:st
  return result.rows.some(row=>row.id!==exceptId&&normalizedTeamName(row.name)===wanted);
 }
 async function recordChange(db:Client,teamId:string,revision:number,actorId:string,
- before:object,after:TeamFormValues){
+ before:object,after:TeamFormValues|object){
  await db.query("INSERT INTO public.smn_team_context_audit "+
   "(id,team_id,revision,before_values,after_values,actor_id) "+
   "VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)",
@@ -67,8 +67,8 @@ export async function createInstallationTeam(db:Client,installationId:string,
    await db.query("INSERT INTO public.smn_product(id,installation_id,name) VALUES($1,$2,$3)",
     [productId,installationId,input.productName]);
   }
-  await db.query("INSERT INTO public.smn_team(id,installation_id,product_id,name) VALUES($1,$2,$3,$4)",
-   [teamId,installationId,productId,input.name]);
+  await db.query("INSERT INTO public.smn_team(id,installation_id,product_id,name,agile_mode) VALUES($1,$2,$3,$4,$5)",
+   [teamId,installationId,productId,input.name,input.agileMode]);
   await db.query("INSERT INTO public.smn_team_context "+
    "(team_id,vision,product_goal,revision,updated_by) VALUES($1,$2,$3,1,$4)",
    [teamId,input.vision,input.productGoal,actorId]);
