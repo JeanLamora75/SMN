@@ -19,7 +19,7 @@ export async function GET(request:NextRequest){
    const r=await db.query<{schema_version:number}>(
     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
    const version=r.rows[0]?.schema_version;
-   if(version===28){
+   if(version===28||version===29||version===30){
     if(actor.role!=="admin")throw Error("members-team-forbidden");
     const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},
       params.get("teamId"));
