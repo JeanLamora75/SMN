@@ -10,6 +10,7 @@ export type CentralCalendarItem={
  title:string;memberId?:string;memberName?:string;
  sourceHref:string|null;categoryColor?:string;categoryName?:string;
  aggregateCount?:number;planned?:boolean;
+ companyId?:string;companyName?:string;companyColor?:string;members?:{id:string;name:string}[];
  startOn?:string;endOn?:string;
  utcInstant?:string;ianaZone?:string;localTime?:string;
  meetingStatus?:MeetingStatus;
@@ -67,6 +68,8 @@ export function projectCentralCalendar(
   for(const date of dates){
    if(within(date,closure.startOn,closure.endOn))add({
     id:closure.id,date,type:"closure",title:closure.name,
+    companyId:closure.companyId,companyName:closure.companyName,companyColor:closure.companyColor,
+    members:isAdmin?closure.members:[],
     startOn:closure.startOn,endOn:closure.endOn,
     sourceHref:isAdmin?"/app/admin/company-closures": "#team-calendar-collective"
    });
