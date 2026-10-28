@@ -1,58 +1,80 @@
 #!/usr/bin/env node
 /**
- * Recette SMN avant consolidation. Lecture seule vis-a-vis de PostgreSQL :
- * aucune migration, seed ou creation de cycle n'est appelee.
+ * Recette globale SMN avec journal integral sur disque, y compris stderr.
  * Usage : node scripts/premerge-check.mjs [--skip-build] [--skip-db]
+ * Sorties a la racine : SMN-premerge-full.log et SMN-premerge-summary.json
  */
-import {spawnSync} from "node:child_process";
-import {mkdirSync,writeFileSync} from "node:fs";
-import {join} from "node:path";
+import {spawn} from "node:child_process";
+import {createWriteStream,writeFileSync} from "node:fs";
+import {join,dirname,resolve} from "node:path";
 import {fileURLToPath} from "node:url";
-import {dirname,resolve} from "node:path";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const flags=new Set(process.argv.slice(2));
-const accepted=new Set(["--skip-build","--skip-db"]);
-if([...flags].some(flag=>!accepted.has(flag))){
+if([...flags].some(flag=>!["--skip-build","--skip-db"].includes(flag))){
  console.error("Usage : node scripts/premerge-check.mjs [--skip-build] [--skip-db]");
  process.exit(2);
 }
-const stages=[
+const logPath=join(root,"SMN-premerge-full.log");
+const summaryPath=join(root,"SMN-premerge-summary.json");
+const log=createWriteStream(logPath,{flags:"w",encoding:"utf8"});
+let logFailure=null;
+log.on("error",error=>{logFailure=error;console.error("Impossible d'ecrire le journal :",error.message);});
+function write(message){
+ const line=String(message);
+ if(!logFailure)log.write(line);
+ process.stdout.write(line);
+}
+function runStage(stage){
+ return new Promise(resolveStage=>{
+  const begin=Date.now();
+  write("\n"+ "=".repeat(72)+"\n"+stage.name+"\n"+ "=".repeat(72)+"\n");
+  // The child output is piped to the file as it arrives, not buffered in RAM.
+  const child=spawn(process.platform==="win32"?"pnpm.cmd":"pnpm",stage.args,{
+   cwd:root,env:{...process.env,FORCE_COLOR:"0",NO_COLOR:"1"},
+   shell:process.platform==="win32",windowsHide:true,stdio:["ignore","pipe","pipe"]
+  });
+  let spawnError=null;
+  child.stdout?.on("data",chunk=>write(chunk.toString("utf8")));
+  child.stderr?.on("data",chunk=>write(chunk.toString("utf8")));
+  child.on("error",error=>{spawnError=error.message;});
+  child.on("close",(code,signal)=>{
+   const passed=code===0&&!spawnError&&!signal;
+   const result={name:stage.name,passed,exitCode:code,signal,
+    durationMs:Date.now()-begin,error:spawnError};
+   write("\nRESULTAT "+stage.name+" : "+(passed?"OK":"ECHEC")+" (code "+String(code)+")\n");
+   resolveStage(result);
+  });
+ });
+}
+const steps=[
  {name:"TypeScript",args:["exec","tsc","--noEmit"]},
  {name:"ESLint",args:["lint"]},
- {name:"Traductions",args:["i18n:check"]},
- {name:"Tests complets",args:["test"]},
+ {name:"Traductions FR/EN",args:["i18n:check"]},
+ {name:"Suite complete des tests",args:["test"]},
  ...(!flags.has("--skip-build")?[{name:"Build Next.js",args:["build"]}]:[]),
- ...(!flags.has("--skip-db")?[{name:"Diagnostic PostgreSQL (lecture seule)",args:["db:diagnose"]}]:[])
+ ...(!flags.has("--skip-db")?[{name:"Diagnostic PostgreSQL",args:["db:diagnose"]}]:[])
 ];
 const startedAt=new Date().toISOString();
 const results=[];
-console.log("=== SMN : recette pre-fusion ===");
-console.log("Aucune migration ni ecriture metier volontaire. Les tests individuels sont executes par pnpm test.");
-for(const stage of stages){
- console.log("\n=== "+stage.name+" ===");
- const t0=Date.now();
- const run=spawnSync(process.platform==="win32"?"pnpm.cmd":"pnpm",stage.args,{
-  cwd:root,stdio:"inherit",shell:process.platform==="win32",env:process.env
- });
- const passed=!run.error&&run.status===0;
- results.push({name:stage.name,passed,exitCode:run.status,
-  durationMs:Date.now()-t0,error:run.error?.message??null});
- console.log("RESULTAT "+stage.name+" : "+(passed?"OK":"ECHEC"));
-}
-const report={title:"SMN - recette pre-fusion",startedAt,finishedAt:new Date().toISOString(),
- overallPassed:results.every(item=>item.passed),stages:results,
- limitations:[
-  "Tests PostgreSQL concurrents et isolation transactionnelle reelle non couverts par ce lanceur.",
-  "Le diagnostic valide le schema, pas la compatibilite metier de toutes les requetes.",
-  "Ne pas activer les ecritures multi-equipes sans une recette d'integration sur une base de test."
+write("SMN - recette pre-fusion\nDate de debut : "+startedAt+
+ "\nDossier : "+root+"\nJournal : "+logPath+
+ "\nAucune migration ni commande de creation de donnees n'est appelee par ce lanceur.\n");
+for(const stage of steps)results.push(await runStage(stage));
+const report={startedAt,finishedAt:new Date().toISOString(),
+ overallPassed:results.every(s=>s.passed)&&!logFailure,stages:results,
+ notes:[
+  "Les tests existants peuvent creer des fichiers temporaires. Examiner le code des tests avant usage sur donnees sensibles.",
+  "Le diagnostic SQL ne valide pas les transactions concurrentes reelles.",
+  "Les ecritures multi-equipes restent bloquees en attente de validation."
  ]};
-const outputDirectory=join(root,"_bmad-output");
-mkdirSync(outputDirectory,{recursive:true});
-const output=join(outputDirectory,"premerge-check-report.json");
-writeFileSync(output,JSON.stringify(report,null,2)+"\n","utf8");
-console.log("\n=== BILAN ===");
-for(const stage of results)console.log((stage.passed?"OK":"ECHEC")+" - "+stage.name);
-console.log("Rapport : "+output);
-console.log("Resultat global : "+(report.overallPassed?"OK":"ECHEC"));
-process.exitCode=report.overallPassed?0:1;
+write("\n"+ "=".repeat(72)+"\nBILAN GLOBAL\n"+ "=".repeat(72)+"\n");
+for(const stage of results)write((stage.passed?"OK":"ECHEC")+" | "+stage.name+
+ " | "+stage.durationMs+" ms\n");
+write("RESULTAT GLOBAL : "+(report.overallPassed?"OK":"ECHEC")+
+ "\nJournal integral : "+logPath+"\nSynthese : "+summaryPath+"\n");
+try{writeFileSync(summaryPath,JSON.stringify(report,null,2)+"\n","utf8");}
+catch(error){console.error("Impossible d'ecrire la synthese :",error);process.exitCode=1;}
+await new Promise(resolveLog=>log.end(resolveLog));
+if(logFailure)process.exitCode=1;
+else if(!report.overallPassed)process.exitCode=1;
