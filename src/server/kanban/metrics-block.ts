@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {randomUUID} from "node:crypto";
 import {parseFlowCounts,ensureKanbanFlowSchema} from "./flow-counts";
 import {parseTiming,ensureKanbanTimingSchema} from "./timing";
@@ -9,16 +10,23 @@ export function parseMetricsDraft(raw:unknown){
  const counts=parseFlowCounts(v.counts),timing=parseTiming(v.timing);
  return counts&&timing?{counts,timing}:null;
 }
-export async function saveKanbanMetrics(db:Client,periodId:string,actorId:string,raw:unknown){
+export async function saveKanbanMetrics(db:Client,periodId:string,actorId:string,raw:unknown,
+ access?:{actor:TeamActor;teamId:string}){
  const input=parseMetricsDraft(raw);
  if(!input)return {ok:false as const,error:"invalid-input" as const};
  await ensureKanbanFlowSchema(db);await ensureKanbanTimingSchema(db);
  await db.query("BEGIN");
  try{
+  const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
+  if(access&&(access.actor.accountId!==actorId||team?.mode!=="kanban"))
+   throw Error("team-access-forbidden");
+  const criterion=team?
+   "AND p.team_id=$2 AND i.schema_version IN (28,29,30) AND lower(t.agile_mode)='kanban' AND t.is_archived=false":
+   "AND i.schema_version<=27 AND lower(i.mode)='kanban'";
   const p=await db.query<{status:string}>(`SELECT p.status FROM public.smn_kanban_period p
    JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
-   AND i.schema_version<=27 AND lower(i.mode)='kanban' FOR UPDATE OF p`,[periodId]);
+   ${criterion} FOR UPDATE OF p`,team?[periodId,team.team_id]:[periodId]);
   if(!p.rows[0]){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(p.rows[0].status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
   const oldCounts=await db.query("SELECT started,throughput,wip_final FROM public.smn_kanban_flow_counts WHERE period_id=$1 FOR UPDATE",[periodId]);
