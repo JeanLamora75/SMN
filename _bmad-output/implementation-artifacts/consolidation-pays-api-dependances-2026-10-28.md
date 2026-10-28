@@ -55,3 +55,11 @@ Le fichier `tests/country-no-implicit-ddl.test.ts` vérifie par doubles de base 
 `src/server/countries/catalog.ts` a été intégré depuis #201, avec garantie du prérequis v30 **avant toute transaction de création de pays** et lors du renommage/lecture des pays. La route `PATCH /api/admin/countries/[code]` a été ajoutée, protégée par `authorizeApi(...,'write',settings)`. La transaction de renommage maintient la comparaison de révision, le verrou `FOR UPDATE`, l'audit du changement de nom et le refus des pays archivés. Test statique ciblé `tests/country-consolidation-rename.test.ts` créé (validation des entrées et blocage v29 avant transaction).
 
 **À vérifier avant fusion :** tests existants du catalogue dont les attentes de résultats peuvent être anciennes, compatibilité de la page Pays avec les nouveaux champs, exécution réelle de TypeScript/lint/tests/build ; migrations non exécutées. Les autres API Pays (jours fériés, validation, archivage) restent à intégrer.
+
+## Lot 2 — API jours fériés et attestation annuelle
+
+Le service `src/server/holidays/manual.ts`, le service `src/server/holidays/annual-validation.ts`, le journal `validation-audit.ts` ainsi que les routes `POST /api/admin/countries/[code]/holidays` et `GET/POST /api/admin/countries/[code]/calendar/validate` ont été transférés depuis la branche #201.
+
+Les services appellent `ensureAnnualValidationSchema`, désormais remplacé dans cette branche par la garde SQL v30 strictement en lecture seule ; les mutations métier et audits restent transactionnels. Les tests métier `tests/national-holiday-manual.test.ts` et `tests/national-calendar-validation.test.ts` ont également été transférés.
+
+**À vérifier :** tous les scénarios d'autorisation et de concurrence, les routes de consultation annuelle, les contraintes SQL et la compilation globale. Les tests sont présents mais non exécutés. Les services ne doivent être utilisés qu'après migration explicite v30 ; rien n'a été appliqué à une base PostgreSQL ou fusionné dans `main`.
