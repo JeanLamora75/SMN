@@ -41,5 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: country-consolidation-diagnostics
-          path: |\n            diagnostic/\n            pnpm-lock.yaml
+          path: |
+            diagnostic/
+            pnpm-lock.yaml
           if-no-files-found: warn
