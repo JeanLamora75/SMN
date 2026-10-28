@@ -3767,7 +3767,9 @@
     "showForm": "Create a team",
     "edit": "Edit",
     "inactive": "Saving is temporarily unavailable",
-    "description": "Only the team name is required. Each team can have its own optional product."
+    "description": "Team name and Agile mode are required when creating a team. Product is optional.",
+    "agileMode": "Agile mode",
+    "agileModeImmutable": "The Agile mode cannot be changed after team creation."
   },
   "teamSwitch": {
     "pending": "Team switching is being prepared and will only be enabled after isolation checks.",
