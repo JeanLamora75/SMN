@@ -3,7 +3,7 @@ import {useCallback,useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 
 type Team={
- id:string;name:string;agileMode:"scrum"|"kanban";productName:string|null;vision:string|null;
+ id:string;name:string;agileMode:"scrum"|"kanban";isArchived:boolean;canChangeMode:boolean;productName:string|null;vision:string|null;
  productGoal:string|null;revision:number;
 };
 type Values={name:string;agileMode:"scrum"|"kanban";productName:string;vision:string;productGoal:string};
@@ -67,12 +67,32 @@ export default function TeamsSettings(){
  function setField(key:keyof Values,value:string){
   setValues(old=>({...old,[key]:value}));setError("");setNotice("");
  }
+ async function toggleArchived(){
+  if(!current||saving||loading||!canWrite)return;
+  const archived=!current.isArchived;
+  if(!window.confirm(archived?"Archiver cette équipe ? Elle restera consultable et pourra être réactivée.":"Réactiver cette équipe ?"))return;
+  setSaving(true);setError("");setNotice("");
+  try{
+   const response=await fetch("/api/admin/teams",{
+    method:"PATCH",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({teamId:current.id,revision:current.revision,archived})
+   });
+   const data=await response.json() as Response;
+   if(!response.ok||!data.ok){
+    setError(data.error==="last-active-team"?"La dernière équipe active ne peut pas être archivée.":t("teamSettings.saveFailed"));
+    return;
+   }
+   setSelected(null);setValues(blank);
+   await requestList();
+  }catch{setError(t("teamSettings.saveFailed"));}
+  finally{setSaving(false);}
+ }
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(saving||loading||!canWrite||!hasName||!dirty&&current)return;
   setSaving(true);setError("");setNotice("");
   const body={
-   ...(current?{teamId:current.id,revision:current.revision}:{agileMode:values.agileMode}),
+   ...(current?{teamId:current.id,revision:current.revision,agileMode:values.agileMode}:{agileMode:values.agileMode}),
    name:values.name,
    productName:values.productName.trim()||null,
    vision:values.vision.trim()||null,
@@ -126,7 +146,7 @@ export default function TeamsSettings(){
         aria-current={selected===item.id?"true":undefined}
         disabled={saving} onClick={()=>changeTeam(item.id)}>
         <span className="d-block">{item.name}</span>
-        <span className="small text-secondary">{item.productName??t("teamSettings.noProduct")} · {item.agileMode==="kanban"?"Kanban":"Scrum"}</span>
+        <span className="small text-secondary">{item.productName??t("teamSettings.noProduct")} · {item.agileMode==="kanban"?"Kanban":"Scrum"} {item.isArchived?"· Archivée":""}</span>
        </button>
       </li>)}
      </ul>}
@@ -143,6 +163,7 @@ export default function TeamsSettings(){
     </p>}
     {notice&&<p className="alert alert-success" role="status">{notice}</p>}
     {error&&<p className="alert alert-warning" role="alert">{error}</p>}
+    {current&&<div className="d-flex justify-content-end mb-3"><button type="button" className="btn btn-outline-secondary" disabled={saving||!canWrite} onClick={()=>void toggleArchived()}>{current.isArchived?"Réactiver l’équipe":"Archiver l’équipe"}</button></div>}
     <form className="d-grid gap-3" data-smn-unsaved-changes={dirty?"true":"false"}
      onSubmit={event=>void submit(event)}>
      <div>
@@ -151,7 +172,7 @@ export default function TeamsSettings(){
       </label>
       <input id="smn-team-settings-name" className="form-control" type="text"
        required maxLength={120} autoComplete="off" value={values.name}
-       aria-required="true" disabled={!canWrite||saving||loading}
+       aria-required="true" disabled={!canWrite||saving||loading||!!current?.isArchived}
        onChange={event=>setField("name",event.target.value)}/>
      </div>
      <div>
@@ -160,12 +181,12 @@ export default function TeamsSettings(){
       </label>
       <select id="smn-team-settings-agile-mode" className="form-select"
        value={values.agileMode} required aria-required="true"
-       disabled={!!current||!canWrite||saving||loading}
+       disabled={!!current&&(!current.canChangeMode||current.isArchived)||!canWrite||saving||loading}
        onChange={event=>setValues(old=>({...old,agileMode:event.target.value==="kanban"?"kanban":"scrum"}))}>
        <option value="scrum">Scrum</option>
        <option value="kanban">Kanban</option>
       </select>
-      {current&&<p className="form-text">{t("teamSettings.agileModeImmutable")}</p>}
+      {current&&!current.canChangeMode&&<p className="form-text">{t("teamSettings.agileModeImmutable")}</p>}
      </div>
      <div>
       <label htmlFor="smn-team-settings-product" className="form-label">
