@@ -122,6 +122,7 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_ai_brief_response:r", "public.smn_ai_brief_template:r",
   // historicalCsv: seules les relations effectivement déclarées par le code source.
   "public.smn_historical_csv_attempt:r", "public.smn_historical_csv_batch:r", "public.smn_historical_csv_change:r",
+  "public.smn_account_team_preference:r",
   "public.smn_country_name_audit:r",
   "public.smn_country_lifecycle_audit:r",
   "public.smn_national_holiday_manual_audit:r",
