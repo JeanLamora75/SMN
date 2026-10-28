@@ -33,7 +33,7 @@ export async function readAdminActiveTeam(db:Client,accountId:string):
  Promise<ActiveTeamState|null>{
  const installation=await adminInstallation(db,accountId);
  if(!installation)return null;
- if(![28,29].includes(installation.schemaVersion))
+ if(![28,29,30].includes(installation.schemaVersion))
   return {ready:false,teamId:null,items:[]};
  const options=await db.query<TeamChoice>(
   "SELECT id,name FROM public.smn_team WHERE installation_id=$1 "+
@@ -62,7 +62,7 @@ export async function saveAdminActiveTeam(db:Client,accountId:string,
  try{
   const installation=await adminInstallation(db,accountId);
   if(!installation){await db.query("ROLLBACK");return {ok:false,error:"forbidden"};}
-  if(![28,29].includes(installation.schemaVersion)){
+  if(![28,29,30].includes(installation.schemaVersion)){
    await db.query("ROLLBACK");return {ok:false,error:"not-ready"};
   }
   const team=await db.query<{id:string}>(
