@@ -3661,6 +3661,7 @@
     "up": "Move up",
     "down": "Move down",
     "remove": "Remove",
-    "saved": "Selection saved."
+    "saved": "Selection saved.",
+    "exportMarkdown": "Export references (Markdown)"
   }
 }
