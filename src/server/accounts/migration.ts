@@ -42,7 +42,7 @@ const checksum = (s: string) => createHash("sha256").update(s).digest("hex");
 
 /** Même version maximale que le diagnostic, sans autoriser les futures versions non connues. */
 export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
-  return Number.isInteger(version) && version>=1 && version<=28;
+  return Number.isInteger(version) && version>=1 && version<=30;
 }
 
 /** La migration v27 est explicite : l'authentification la vérifie, sans la déclencher. */
@@ -51,7 +51,7 @@ export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
  */
 export function assertMultiTeamMigrationValid(version:number,
  migrationApplied:boolean,shapeValid:boolean):void{
- if(version===28 && (!migrationApplied || !shapeValid))
+ if(version>=28 && (!migrationApplied || !shapeValid))
   throw new Error("smn-schema-incompatible");
 }
 
@@ -528,7 +528,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
         identityColumns.rows[0]?.count,
       );
     }
-    if(version===28){
+    if(version>=28){
       const integrity=await client.query<{product_nullable:boolean;indexes_valid:boolean;constraints_valid:boolean;old_unique_gone:boolean}>(`
         SELECT
           (SELECT is_nullable='YES' FROM information_schema.columns
