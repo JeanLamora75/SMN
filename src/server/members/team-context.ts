@@ -15,7 +15,9 @@ const scopeSql="SELECT t.id,t.name,p.id AS product_id,p.name AS product_name FRO
  "JOIN public.smn_product p ON p.id=t.product_id AND p.installation_id=t.installation_id "+
  "JOIN public.smn_installation i ON i.id=t.installation_id "+
  "WHERE t.id=$1 AND i.id='singleton' AND i.state='initialized' "+
- "AND lower(i.mode) IN ('scrum','kanban')";
+ "AND ((i.schema_version<=27 AND lower(i.mode) IN ('scrum','kanban')) "+
+ "OR (i.schema_version IN (28,29,30) AND lower(COALESCE(to_jsonb(t)->>'agile_mode',i.mode)) IN ('scrum','kanban'))) "+
+ "AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false";
 const record=(raw:unknown):Record<string,unknown>|null=>
  raw!==null&&typeof raw==="object"&&!Array.isArray(raw)?
  raw as Record<string,unknown>:null;
