@@ -3,7 +3,7 @@ import {useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../bootstrap-icon";
 
-export type CalendarEntry={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;aggregateCount?:number;companyId?:string;companyName?:string;companyColor?:string;members?:{id:string;name:string}[]};
+export type CalendarEntry={id:string;date:string;type:"absence"|"closure"|"holiday"|"cycle"|"meeting";title:string;sourceHref:string|null;aggregateCount?:number;companyId?:string;companyName?:string;companyColor?:string;startOn?:string;endOn?:string;members?:{id:string;name:string}[]};
 export type CalendarMeeting={id:string;name:string;startAt:string;endAt:string;kind:string;href:string;generationSource?:string;status?:string};
 export type CalendarMode="cards"|"agenda";
 
