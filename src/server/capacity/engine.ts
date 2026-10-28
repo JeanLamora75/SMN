@@ -119,8 +119,8 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   if(assignments.rows.length>500)throw Error("capacity-assignment-limit");
   const assignmentIds=assignments.rows.map(a=>a.id);
   const memberIds=[...new Set(assignments.rows.map(a=>a.member_id))];
-  const schema=options.teamId?await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'"):null;
-  const isV31=schema?.rows[0]?.schema_version===31;
+  const schema=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
+  const isV31=schema.rows[0]?.schema_version===31;
   const [versions,weeks,exceptions,locations,absences,closures]=await Promise.all([
    db.query<Version>([
     "SELECT assignment_id,revision,effective_from::text AS effective_from,",
