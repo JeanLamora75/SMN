@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidDate} from "../members/assignment";
+import {ensureCapacityRecalcOutbox,queueClosureRecalculation} from "../capacity/company-recalc-outbox";
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 type Row={id:string;company_id:string;name:string;start_on:string;end_on:string;is_active:boolean;revision:number;created_at:string;updated_at:string};
 const columns="id,company_id,name,start_on::text AS start_on,end_on::text AS end_on,is_active,revision,created_at::text AS created_at,updated_at::text AS updated_at";
@@ -32,6 +33,7 @@ export async function saveCompanyClosureV31(db:Client,actorId:string,raw:unknown
  Promise<{ok:true;created:boolean;closure:ReturnType<typeof view>}|{ok:false;error:Failure}>{
  const v=parseCompanyClosure(raw);
  if(!v||!actorId)return {ok:false,error:"invalid-input"};
+ await ensureCapacityRecalcOutbox(db);
  await db.query("BEGIN");
  try{
   const fail=async(error:Failure)=>{await db.query("ROLLBACK");return {ok:false as const,error};};
@@ -72,6 +74,9 @@ export async function saveCompanyClosureV31(db:Client,actorId:string,raw:unknown
   await db.query(`INSERT INTO public.smn_company_closure_history
    (id,closure_id,revision,operation,previous_values,next_values,changed_by)
    VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7)`,[randomUUID(),id,revision,prior?"update":"create",before?JSON.stringify(before):null,JSON.stringify(after),actorId]);
+  await queueClosureRecalculation(db,{companyId:v.companyId,closureId:id,revision,
+   startOn:v.startOn,endOn:v.endOn,
+   previousStartOn:prior?.start_on,previousEndOn:prior?.end_on});
   const result=await db.query<Row>(`SELECT ${columns} FROM public.smn_company_closure WHERE id=$1 AND company_id=$2`,[id,v.companyId]);
   if(result.rows.length!==1)throw Error("closure-write-inconsistent");
   await db.query("COMMIT");
