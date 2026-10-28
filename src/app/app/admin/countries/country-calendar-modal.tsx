@@ -410,7 +410,7 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
     {importOutcome&&<div className="alert alert-info mb-3" role="status">
      <p className="fw-semibold mb-1">{importOutcome.committed&&
       importOutcome.created+importOutcome.replaced>0?
-      t("countries.importSuccess",importOutcome):t("countries.importNoChanges")}</p>
+      t("countries.importSuccess",{created:importOutcome.created,replaced:importOutcome.replaced}):t("countries.importNoChanges")}</p>
      {!importOutcome.yearsVerified&&<p className="text-danger small">
       {t("countries.importYearsUnverified")}
      </p>}
