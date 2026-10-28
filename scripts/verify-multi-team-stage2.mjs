@@ -5,11 +5,17 @@ import {readFileSync,existsSync} from "node:fs";
 import {join} from "node:path";
 const root=process.cwd();
 const readiness=readFileSync(join(root,"src/lib/team-context-readiness.ts"),"utf8");
-if(!/SMN_MULTI_TEAM_CONTEXT_READY/.test(readiness)||\n   !/SMN_MULTI_TEAM_PILOT_ACK/.test(readiness)){
+if(!/SMN_MULTI_TEAM_CONTEXT_READY/.test(readiness)||
+   !/SMN_MULTI_TEAM_PILOT_ACK/.test(readiness)){
  console.error("FAIL: verrou de livraison modifié ; vérification interrompue");
  process.exit(2);
 }
-if(process.env.SMN_MULTI_TEAM_CONTEXT_READY==="true"||\n   process.env.SMN_MULTI_TEAM_WRITES_ENABLED==="true"){\n console.error("FAIL: désactiver les variables multiéquipes avant cette recette");\n process.exit(2);\n}\nconsole.log("PASS: activation multiéquipes non demandée");
+if(process.env.SMN_MULTI_TEAM_CONTEXT_READY==="true"||
+   process.env.SMN_MULTI_TEAM_WRITES_ENABLED==="true"){
+ console.error("FAIL: désactiver les variables multiéquipes avant cette recette");
+ process.exit(2);
+}
+console.log("PASS: activation multiéquipes non demandée");
 const pnpm=process.platform==="win32"?"pnpm.cmd":"pnpm";
 const checks=[
  ["TypeScript",pnpm,["exec","tsc","--noEmit"]],
@@ -25,5 +31,6 @@ for(const [label,command,args] of checks){
  if(result.status!==0){errors++;console.error("FAIL "+label+": "+(result.status??"execution impossible"));}
  else console.log("PASS "+label);
 }
-console.log("\nBilan : "+(checks.length-errors)+"/"+checks.length+" contrôles réussis");
+console.log("
+Bilan : "+(checks.length-errors)+"/"+checks.length+" contrôles réussis");
 if(errors)process.exitCode=1;
