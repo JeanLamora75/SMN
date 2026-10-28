@@ -19,7 +19,7 @@ async function lookup(db:Client,ids:string[],lock:boolean){
  FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE s.id=ANY($1::text[]) AND s.deleted_at IS NULL AND i.id='singleton'
- AND i.state='initialized' AND lower(i.mode)='scrum'`+(lock?" FOR UPDATE OF s":""),[ids]);
+ AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum'`+(lock?" FOR UPDATE OF s":""),[ids]);
  return result.rows;
 }
 async function eligible(db:Client,rows:Sprint[],ids:string[]){
