@@ -83,3 +83,5 @@ La correction de `closureForMember` a été publiée **après** le run #228. Ell
 - Le test `tests/capacity-actual.test.ts` exigeait littéralement `IN (28,29,30)`, tandis que `src/server/capacity/actual.ts` accepte volontairement `IN (28,29,30,31)`. Assertion et intitulé corrigés pour inclure explicitement la version 31 (sans élargir aux versions futures).
 - Le passage précédent #229 demeure la référence des résultats : 122 échecs Linux, 123 Windows. Le correctif ci-dessus n'a pas encore été exécuté par un pipeline sur son commit.
 - Les autres échecs historiques ne doivent pas être supprimés ou ignorés en bloc : une partie correspond à des contrats obsolètes, d'autres à des écarts de comportement qu'il faut diagnostiquer.
+
+- Test `tests/country-consolidation-v30.test.ts` corrigé : v31 est désormais une version reconnue du diagnostic, mais une installation avec journal de migrations vide ne doit pas être déclarée initialisée. Cette correction ne change ni le SQL ni le diagnostic de production.
