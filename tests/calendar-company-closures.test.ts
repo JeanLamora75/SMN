@@ -7,7 +7,7 @@ const closure={id:"c1",name:"Fermeture annuelle",startOn:"2026-12-24",endOn:"202
  companyId:"co1",companyName:"Entreprise A",companyColor:"blue",
  members:[{id:"m1",name:"Alice"}]};
 function fixture():TeamCalendarResponse{return {
- team:{id:"t1",name:"Équipe",mode:"scrum"},start:"2026-12-24",end:"2026-12-25",
+ team:{id:"t1",name:"Équipe",mode:"scrum"},start:"2026-12-24",end:"2026-12-30",
  days:7,kind:"all",closures:[closure],collective:[],
  admin:{categories:[],members:[]}
 };}
