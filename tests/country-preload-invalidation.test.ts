@@ -6,6 +6,8 @@ const source=readFileSync(new URL("../src/server/holidays/preload.ts",import.met
 
 describe("Pays — garde du rafraîchissement annuel",()=>{
  it("sérialise le rafraîchissement avec les opérations de cycle de vie",()=>{
+  assert.match(source,/pg_advisory_xact_lock\(20261021,49\)/);
+  assert.match(source,/pg_advisory_xact_lock\(20261021,50\)/);
   assert.match(source,/pg_advisory_xact_lock\(20261026,279\)/);
   assert.match(source,/FROM public\.smn_country WHERE code=\$1 FOR UPDATE/);
   assert.match(source,/country-archived/);
