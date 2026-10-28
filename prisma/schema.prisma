@@ -73,6 +73,10 @@ model SmnAccount {
   changedCalendarExceptions SmnMemberCalendarException[]
   changedLocations SmnMemberLocation[]
   createdCountries SmnCountry[]
+  countryLifecycleEvents SmnCountryLifecycleAudit[]
+  countryNameAudits SmnCountryNameAudit[]
+  manualHolidayAudits SmnNationalHolidayManualAudit[]
+  nationalCalendarValidationAudits SmnNationalCalendarValidationAudit[]
   createdAbsences SmnMemberAbsence[] @relation("AbsenceCreatedBy")
   updatedAbsences SmnMemberAbsence[] @relation("AbsenceUpdatedBy")
   absenceEdits SmnMemberAbsenceHistory[]
@@ -294,6 +298,8 @@ model SmnMemberLocation {
 model SmnCountry {
   code String @id
   name String
+  revision Int @default(0)
+  archivedAt DateTime? @map("archived_at") @db.Timestamptz(6)
   origin String
   createdBy String? @map("created_by")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -301,6 +307,10 @@ model SmnCountry {
   nationalHolidays SmnNationalHoliday[]
   calendarCoverage SmnNationalCalendarCoverage[]
   holidayAudits SmnNationalHolidayAudit[]
+  manualHolidayAudits SmnNationalHolidayManualAudit[]
+  nationalCalendarValidationAudits SmnNationalCalendarValidationAudit[]
+  nameAudits SmnCountryNameAudit[]
+  lifecycleAudits SmnCountryLifecycleAudit[]
   @@map("smn_country")
 }
 
@@ -318,6 +328,11 @@ model SmnNationalCalendarCoverage {
   calendarYear Int @map("calendar_year")
   status String
   entriesCount Int @default(0) @map("entries_count")
+  revision Int @default(0)
+  administrativeValidatedAt DateTime? @map("administrative_validated_at") @db.Timestamptz(6)
+  validatedRevision Int? @map("validated_revision")
+  validatedBy String? @map("validated_by")
+  validationSource String? @map("validation_source")
   diagnostic String?
   sourceFile String? @map("source_file")
   checkedAt DateTime @default(now()) @map("checked_at") @db.Timestamptz(6)
@@ -1021,4 +1036,68 @@ model SmnLinkAudit {
  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
  @@index([linkId,occurredAt],map:"smn_link_audit_link_idx")
  @@map("smn_link_audit")
+}
+
+
+model SmnCountryLifecycleAudit {
+  id String @id
+  countryCode String @map("country_code")
+  action String
+  oldArchivedAt DateTime? @map("old_archived_at") @db.Timestamptz(6)
+  newArchivedAt DateTime? @map("new_archived_at") @db.Timestamptz(6)
+  oldRevision Int @map("old_revision")
+  newRevision Int @map("new_revision")
+  actorId String? @map("actor_id")
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([countryCode,occurredAt])
+  @@map("smn_country_lifecycle_audit")
+}
+
+model SmnCountryNameAudit {
+  id String @id
+  countryCode String @map("country_code")
+  revision Int
+  previousName String @map("previous_name")
+  newName String @map("new_name")
+  actorId String? @map("actor_id")
+  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@unique([countryCode,revision])
+  @@map("smn_country_name_audit")
+}
+
+model SmnNationalHolidayManualAudit {
+  id String @id
+  countryCode String @map("country_code")
+  action String
+  previousDate DateTime? @map("previous_date") @db.Date
+  newDate DateTime? @map("new_date") @db.Date
+  previousName String? @map("previous_name")
+  newName String? @map("new_name")
+  reason String
+  actorId String? @map("actor_id")
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([countryCode,occurredAt])
+  @@map("smn_national_holiday_manual_audit")
+}
+
+model SmnNationalCalendarValidationAudit {
+  id String @id
+  countryCode String @map("country_code")
+  calendarYear Int @map("calendar_year")
+  action String
+  revision Int
+  fingerprint String?
+  actorId String? @map("actor_id")
+  source String
+  occurredAt DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  country SmnCountry @relation(fields:[countryCode],references:[code],onDelete:Restrict)
+  actor SmnAccount? @relation(fields:[actorId],references:[id],onDelete:SetNull)
+  @@index([countryCode,calendarYear,occurredAt])
+  @@map("smn_national_calendar_validation_audit")
 }
