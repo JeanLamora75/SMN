@@ -33,6 +33,8 @@ export async function processCompanyRecalculation(db:Client){
     SELECT team_id,start_on::text AS start_on,end_on::text AS end_on
     FROM public.smn_capacity_period_override
     WHERE closed_at IS NULL AND frozen_at IS NULL AND manual_jh IS NULL
+     AND NOT EXISTS (SELECT 1 FROM public.smn_capacity_actual_override actual
+       WHERE actual.period_id=smn_capacity_period_override.id AND actual.manual_jh IS NOT NULL)
     ${cycles.length?"UNION ALL "+cycles.join(" UNION ALL "):""}
    ) p
    JOIN public.smn_member_assignment a ON a.team_id=p.team_id
@@ -42,7 +44,9 @@ export async function processCompanyRecalculation(db:Client){
     AND NOT EXISTS (SELECT 1 FROM public.smn_capacity_period_override protected
       WHERE protected.team_id=p.team_id AND protected.start_on=p.start_on::date
       AND protected.end_on=p.end_on::date AND
-      (protected.closed_at IS NOT NULL OR protected.frozen_at IS NOT NULL OR protected.manual_jh IS NOT NULL))
+      (protected.closed_at IS NOT NULL OR protected.frozen_at IS NOT NULL OR protected.manual_jh IS NOT NULL
+       OR EXISTS (SELECT 1 FROM public.smn_capacity_actual_override actual
+         WHERE actual.period_id=protected.id AND actual.manual_jh IS NOT NULL)))
    ORDER BY p.team_id,p.start_on LIMIT 501`,[job.company_id,job.start_on,job.end_on]);
   if(periods.rows.length>500)throw Error("recalc-period-limit");
   const results=[];
