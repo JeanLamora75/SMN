@@ -5,7 +5,7 @@ import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {getCompany,changeCompany,setCompanyArchived} from "@/server/companies/catalog";
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
-const resource={type:"settings",exists:true,inScope:true} as const;
+const resource={type:"companies",exists:true,inScope:true} as const;
 type Ctx={params:Promise<{id:string}>};
 export async function GET(request:NextRequest,{params}:Ctx){
  if(!await authorizeApi(request,"read",resource))return jsonResult({error:"forbidden"},403);
@@ -30,7 +30,7 @@ export async function POST(request:NextRequest,{params}:Ctx){
  if(!actor)return jsonResult({error:"forbidden"},403);
  const {id}=await params;const body=await readJsonObject(request);
  if(!body||!["archive","reactivate"].includes(String(body.action)))return jsonResult({error:"invalid-input"},400);
- if(Object.keys(body).some(k=>!["action","revision"].includes(k)))return jsonResult({error:"invalid-input"},400);
+ if(Object.keys(body).length!==2||Object.keys(body).some(k=>!["action","revision"].includes(k)))return jsonResult({error:"invalid-input"},400);
  try{const result=await withAuthDb(db=>setCompanyArchived(db,id,actor.id,body.revision,body.action==="archive"));
  if(result.ok)return jsonResult(result);
  return jsonResult({error:result.error},result.error==="not-found"?404:
