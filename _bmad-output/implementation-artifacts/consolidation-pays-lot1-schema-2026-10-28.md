@@ -55,3 +55,9 @@ La migration est additive (quatre tables d'audit Pays, champs de révision / arc
 Le diagnostic existant refusait les versions supérieures à 29 et le probe ne lisait que 29 migrations. Correctifs publiés : `diagnostic.ts` accepte 30, recherche la migration Pays v30 et contrôle les quatre tables d'audit ; `probe.ts` lit jusqu'à 30 migrations, valide les colonnes Pays en v30 et maintient le contrôle du schéma Liens pour toute version >=29.
 
 **Limites à lever avant fusion :** le contrôle v30 vérifie le statut de migration et l'existence des objets/colonnes mais pas encore l'empreinte SHA-256 de la migration ni toutes les contraintes SQL. Il faut ajouter les tests de diagnostic v29/v30, vérifier la compatibilité avec le moteur qui applique les migrations Prisma, contrôler le marqueur v30 sur base de développement et exécuter réellement TypeScript/tests/build. Aucune migration SQL ni commande locale exécutée ici.
+
+## Vérification SHA-256 et tests (suite)
+
+Le code `src/server/countries/consolidation-migration.ts` fige le texte SQL v30 du dossier Prisma ; `src/server/installation/diagnostic.ts` exige désormais une empreinte SHA-256 identique dans `_prisma_migrations`, en plus de la date de réussite, de l'absence de rollback et de la structure observée. Test statique créé dans `tests/country-consolidation-v30.test.ts` (égalité SQL, présence Pays et Liens, nombre de migrations v30, assertions de migration additive).
+
+**Limites restantes :** les tests ajoutés ne démontrent pas une installation v29 valide ni une installation v30 valide de bout en bout ; fixtures réalistes de 29/30 migrations et contrôles SQL de contraintes toujours à écrire. Aucune commande de tests, Prisma ou PostgreSQL exécutée. Le lot n'est pas prêt à être fusionné sur `main`.
