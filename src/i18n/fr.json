@@ -3653,5 +3653,13 @@
     "reassignTo": "Réaffecter les liens à la catégorie",
     "chooseCategory": "Choisir une catégorie",
     "reassign": "Réaffecter les liens"
+  },
+  "reportLinks": {
+    "title": "Liens et références",
+    "draftNotice": "Sélection provisoire : l’enregistrement et l’export seront intégrés dans la prochaine étape.",
+    "selected": "Références choisies",
+    "up": "Monter",
+    "down": "Descendre",
+    "remove": "Retirer"
   }
 }
