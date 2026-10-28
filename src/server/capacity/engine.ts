@@ -35,7 +35,7 @@ type Location={member_id:string;revision:number;effective_from:string;country_is
 type Absence={member_id:string;start_on:string;end_on:string;
  start_slot:"morning"|"afternoon";end_slot:"morning"|"afternoon"};
 type Holiday={country_code:string;holiday_date:string;name:string};
-type Closure={start_on:string;end_on:string};
+type Closure={member_id:string;start_on:string;end_on:string};
 const round=(v:number)=>Math.round((v+Number.EPSILON)*10000)/10000;
 const validRate=(p:unknown)=>typeof p==="number"&&Number.isInteger(p)&&p>=0&&p<=100;
 export const validHoursPerJh=(v:unknown):v is number=>
@@ -99,7 +99,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   const teams=options.teamId?await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(
    "SELECT t.id,t.name,i.mode FROM public.smn_team t "+
    "JOIN public.smn_installation i ON i.id=t.installation_id "+
-   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version IN (28,29,30) "+
+   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version IN (28,29,30,31) "+
    "AND i.mode IN ('scrum','kanban') AND t.id=$1 LIMIT 2",[options.teamId]):
    await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(teamSql);
   if(teams.rows.length!==1)throw Error("capacity-team-unavailable");
@@ -119,6 +119,8 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   if(assignments.rows.length>500)throw Error("capacity-assignment-limit");
   const assignmentIds=assignments.rows.map(a=>a.id);
   const memberIds=[...new Set(assignments.rows.map(a=>a.member_id))];
+  const schema=options.teamId?await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'"):null;
+  const isV31=schema?.rows[0]?.schema_version===31;
   const [versions,weeks,exceptions,locations,absences,closures]=await Promise.all([
    db.query<Version>([
     "SELECT assignment_id,revision,effective_from::text AS effective_from,",
@@ -152,15 +154,27 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     "AND h.revision=public.smn_member_absence.revision AND h.after_values->>'deleted'='true')",
     "ORDER BY member_id,start_on LIMIT 10001"
    ].join(" "),[memberIds,start,end]),
-   db.query<Closure>([
-    "SELECT start_on::text AS start_on,end_on::text AS end_on",
-    "FROM public.smn_company_closure WHERE team_id=$1 AND is_active=true",
-    "AND start_on<=$3::date AND end_on>=$2::date ORDER BY start_on LIMIT 501"
+   isV31?db.query<Closure>([
+    "SELECT m.id AS member_id,c.start_on::text AS start_on,c.end_on::text AS end_on",
+    "FROM public.smn_member m",
+    "JOIN public.smn_company_closure c ON c.company_id=m.company_id AND c.is_active=true",
+    "JOIN public.smn_company company ON company.id=c.company_id",
+    "AND company.installation_id=m.installation_id",
+    "WHERE m.installation_id='singleton' AND m.id=ANY($1::text[])",
+    "AND c.start_on<=$3::date AND c.end_on>=$2::date",
+    "ORDER BY m.id,c.start_on LIMIT 10001"
+   ].join(" "),[memberIds,start,end]):db.query<Closure>([
+    "SELECT a.member_id,c.start_on::text AS start_on,c.end_on::text AS end_on",
+    "FROM public.smn_company_closure c",
+    "JOIN public.smn_member_assignment a ON a.team_id=c.team_id",
+    "WHERE c.team_id=$1 AND c.is_active=true",
+    "AND c.start_on<=$3::date AND c.end_on>=$2::date",
+    "ORDER BY a.member_id,c.start_on LIMIT 10001"
    ].join(" "),[team.id,start,end])
   ]);
   if(versions.rows.length>15000||weeks.rows.length>10000||
    exceptions.rows.length>10000||locations.rows.length>10000||
-   absences.rows.length>10000||closures.rows.length>500)throw Error("capacity-data-limit");
+   absences.rows.length>10000||closures.rows.length>10000)throw Error("capacity-data-limit");
   const countries=[...new Set(locations.rows.map(l=>l.country_iso2))];
   // National holidays are deductions, not a prerequisite for calculating capacity.
   // No member country or matching holiday record means no national deduction.
@@ -209,7 +223,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     if(calendar.slots===null)problems.push("work-calendar");
     const location=latest(memberLocations,date);
     const country=location?.country_iso2??null;
-    const closure=closures.rows.some(c=>c.start_on<=date&&c.end_on>=date);
+    const closure=closureForMember(closures.rows,memberId,date,isV31);
     const national=country!==null&&holidays.has(country+":"+date);
     const availability=resolveDayAvailability(date,calendar.slots,national,
      memberAbsences.map(a=>({startOn:a.start_on,endOn:a.end_on,
