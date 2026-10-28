@@ -34,12 +34,13 @@ describe("Pays — vérification de la migration v30",()=>{
   assert.equal(classifySnapshot(minimal).status,"installation-incomplete");
   assert.equal(classifySnapshot({...minimal,linksSchemaValid:false}).status,"installation-incomplete");
  });
- it("refuse les versions au-delà de 30 sans accepter un schéma inconnu",()=>{
+ it("reconnaît v31 comme version connue mais refuse un journal de migration incomplet",()=>{
   const minimal:Snapshot={schemaUsage:true,schemaCreate:true,serverVersion:180006,
    tables:["public._prisma_migrations:r","public.smn_installation:r"],
    tableRead:true,migrationsRead:true,shapeValid:true,
    installations:[{id:"singleton",state:"initialized",schema_version:31}],migrations:[]};
-  assert.equal(classifySnapshot(minimal).status,"schema-incompatible");
+  assert.notEqual(classifySnapshot(minimal).status,"schema-incompatible");
+  assert.notEqual(classifySnapshot(minimal).status,"initialized");
  });
  it("contrôle les contraintes SQL essentielles des quatre audits",()=>{
   const sql=COUNTRY_CONSOLIDATION_MIGRATION_SQL;
