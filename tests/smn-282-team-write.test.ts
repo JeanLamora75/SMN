@@ -14,6 +14,7 @@ function database(options:Options={}){
    id:"singleton",schema_version:options.version??28,state:"initialized",mode:"scrum"
   }],rowCount:1};
   if(sql.includes("FROM public.smn_account"))return {rows:options.role===false?[]:[{id:"admin"}],rowCount:1};
+  if(sql.includes("to_regclass("))return {rows:[{ready:true}],rowCount:1};
   if(sql.includes("SELECT id,name FROM public.smn_team"))return {rows:options.teams??[],rowCount:(options.teams??[]).length};
   if(sql.includes("FROM public.smn_team t LEFT JOIN"))return {
    rows:options.current===null?[]:[options.current??{
