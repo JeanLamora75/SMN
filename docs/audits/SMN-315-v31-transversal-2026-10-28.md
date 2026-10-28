@@ -97,3 +97,16 @@ La correction de `closureForMember` a été publiée **après** le run #228. Ell
 - Échec confirmé du test dashboard sans cycle : le composant n'affichait plus le nom de l'équipe et le produit, contrairement au contrat d'usage ; correction du composant sur `main`.
 - Assertion statique dashboard trop stricte sur le composant auto-fermant : l'ajout du paramètre d'autorisation `canViewCapacity` la faisait échouer. Le test vérifie désormais les données essentielles, indépendamment des props ultérieures.
 - PR [#231](https://github.com/JeanLamora75/SMN/pull/231) déclenchée pour rejouer les contrôles. Les autres échecs du run antérieur ne sont pas déclarés corrigés ; aucun résultat nouveau n'est présumé.
+
+## Cycle de corrections transverse — 28 octobre, contrôle typecheck autonome
+Le run GitHub Actions `40779701299`, déclenché sur `main` au commit `5b62fe73`, a **réussi le job TypeScript indépendant**. Les tests Linux et Windows sont des jobs distincts dont le résultat doit être consulté avant tout bilan final.
+
+### Correctifs de production publiés
+- Cockpit sans cycle : affiche explicitement l'équipe et le produit sélectionnés.
+- Compatibilité schéma 31 : sélection d'équipe active, lecture du dashboard, registre, écriture de configuration d'équipe, contexte détaillé de l'équipe, liste et droits des équipes, lecture des capacités prévues et réelles, contexte Sprint et liste des cycles du calendrier.
+- Module Liens : prise en charge des icônes SVG utilisées par les écrans, et utilisation d'une icône d'avertissement reconnue par TypeScript.
+- Projection de membres et entreprise : type enrichi conservé également lorsque l'équipe n'a aucun membre.
+- CI : job TypeScript indépendant pour détecter les erreurs même lorsque la suite de tests historiques bloque le job Linux.
+
+### Réserves
+Ces modifications ne garantissent pas l'absence de régressions fonctionnelles ; les règles d'accès à la base de données restent à éprouver par des tests PostgreSQL réels sur v31. Ne pas déclarer les autres échecs de la suite historique corrigés sans exécution probante.
