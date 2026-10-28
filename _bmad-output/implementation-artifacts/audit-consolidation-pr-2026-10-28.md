@@ -60,3 +60,28 @@ L'API GitHub retourne **87 PR ouvertes, toutes en brouillon**. Trois ciblent dir
 **Règles d'action :** (1) ne pas remerger les 73 PR historiquement intégrées ; (2) ne les fermer qu'après rapprochement Jira/équivalence fonctionnelle ; (3) reconstruire sur `main` des branches de consolidation pour Pays, Multiéquipes et Cérémonies ; (4) exécuter les tests, lint, typage, build et recette avant toute fusion.
 
 **Statut :** inventaire exhaustif des historiques Git achevé ; audit fonctionnel et exécution des tests non achevés. Aucune PR fermée ni fusionnée par cette étape.
+
+
+## Audit approfondi Pays — branche terminale #201
+
+Comparaison Git réalisée contre `main` : **171 commits d'avance**, **693 de retard**, **81 fichiers divergents**. Ancêtre commun `55d72dcabee1cb250af6874bde80cda33d0d7e8a`.
+
+Sur les **300 fichiers modifiés dans main** depuis cet ancêtre, **7 chemins chevauchent les 81 fichiers de la branche Pays** :
+
+1. `prisma/schema.prisma` — risque de divergence de schéma, migrations et génération de client.
+2. `src/app/api/admin/members/[id]/lifecycle/route.ts` — risque sur gestion des membres et permissions.
+3. `src/app/api/admin/members/route.ts` — risque sur création / lecture des membres.
+4. `src/i18n/en.json` — traductions.
+5. `src/i18n/fr.json` — traductions.
+6. `src/server/installation/contract.ts` — risque sur versionnement et prérequis du schéma.
+7. `src/server/members/quick-create.ts` — risque de régression création rapide.
+
+Il reste **74 fichiers modifiés uniquement dans la branche Pays**, à intégrer ou écarter après revue de leur impact et de leurs dépendances. L'absence de chevauchement de chemin ne garantit pas l'absence de conflit sémantique (API, SQL, types, rapports).
+
+### Préconisation d'intégration
+
+- Ne pas fusionner directement #201 : la branche contient 171 commits historiques et les 7 recouvrements ci-dessus.
+- Construire une branche propre depuis `main`, intégrer les fichiers Pays propres par lots (API/SQL, composants UX, tests), puis réconcilier manuellement les sept fichiers communs.
+- **Ne pas écraser** `schema.prisma` ni le contrat d'installation de `main`. Ajouter uniquement les évolutions absentes, avec migration versionnée et compatibilité du schéma actuel.
+- Vérifier les droits administrateur et les références de calendrier des membres, puis lancer i18n/lint/typecheck/tests/build et recette PostgreSQL.
+- Aucun code de la branche Pays n'a été fusionné pendant cet audit.
