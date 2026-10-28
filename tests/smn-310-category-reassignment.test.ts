@@ -10,6 +10,7 @@ test("category reassignment validates distinct source and destination in tenant"
 });
 test("all reassigned links are versioned and audited atomically",()=>{
  assert.match(service,/category_id=\$3,updated_at=now\(\),updated_by=\$4,revision=revision\+1/);
+ assert.match(service,/if\(after\.rowCount!==1\)throw new LinkError\("conflict"\)/);
  assert.match(service,/INSERT INTO public\.smn_link_audit/);
  assert.match(service,/await db\.query\("COMMIT"\)/);
  assert.match(service,/await db\.query\("ROLLBACK"\)/);
