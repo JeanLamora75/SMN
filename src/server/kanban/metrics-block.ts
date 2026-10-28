@@ -21,7 +21,7 @@ export async function saveKanbanMetrics(db:Client,periodId:string,actorId:string
   if(access&&(access.actor.accountId!==actorId||team?.mode!=="kanban"))
    throw Error("team-access-forbidden");
   const criterion=team?
-   "AND p.team_id=$2 AND i.schema_version IN (28,29,30) AND lower(t.agile_mode)='kanban' AND t.is_archived=false":
+   "AND p.team_id=$2 AND i.schema_version IN (28,29,30,31) AND lower(t.agile_mode)='kanban' AND t.is_archived=false":
    "AND i.schema_version<=27 AND lower(i.mode)='kanban'";
   const p=await db.query<{status:string}>(`SELECT p.status FROM public.smn_kanban_period p
    JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
