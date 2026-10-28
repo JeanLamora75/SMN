@@ -70,3 +70,11 @@ Exécutions réellement consultées :
 
 ### État de vérification
 La correction de `closureForMember` a été publiée **après** le run #228. Elle n'est pas validée par ce run. Aucune migration v31 réelle n'a été exécutée dans ces pipelines (le job est arrêté avant les étapes de migration/intégration correspondantes). L'Epic reste non validée.
+
+## Nouveau cycle PR #229 (28 octobre, seconde vérification)
+- Linux/PostgreSQL run [40776160281](https://github.com/JeanLamora75/SMN/actions/runs/40776160281) : lint terminé avec succès ; tests : **2070 tests, 1946 réussis, 122 échoués, 2 ignorés**. Pipeline bloqué à l'étape tests, donc validation PostgreSQL v31 et build de production non démontrés.
+- Windows Smoke du même run : **2059 tests, 1934 réussis, 123 échoués, 2 ignorés** ; pipeline échoué à l'étape de tests.
+- Consolidation Pays run [40776160284](https://github.com/JeanLamora75/SMN/actions/runs/40776160284) : comparaison baseline réussie ; validation à confirmer selon son résultat final.
+- Comparativement au précédent Linux (133 échecs sur 2070), le nouveau Linux compte 122 échecs. La régression de fermeture de membre n'apparaît plus parmi les premiers échecs du nouveau run. Les échecs persistants concernent les contrats v28–v30, la navigation, le dashboard, les cycles, le calendrier, la capacité et les contrôles historiques.
+- Correction UX supplémentaire publiée sur main : changement d'entreprise dans la modale des fermetures requiert désormais confirmation si saisie non enregistrée, pour éviter toute perte silencieuse.
+**Ne pas confondre les tests statiques des garde-fous v31 et une migration réellement exécutée sur une base de test : cette dernière n'est pas certifiée.**
