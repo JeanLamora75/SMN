@@ -47,7 +47,7 @@ export async function writeSprintScores(db:Client,actorId:string,raw:unknown){
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton'
-    AND i.state='initialized' AND lower(i.mode)='scrum'
+    AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum'
    FOR UPDATE OF s
   `,[v.sprintId]);
   const sprint=found.rows[0];
