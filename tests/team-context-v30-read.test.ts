@@ -15,3 +15,10 @@ test("les changements de contexte ne contournent pas le verrou historique",()=>{
  const patch=route.slice(route.indexOf("export async function PATCH"));
  assert.match(patch,/withLegacyTeamApi\(db=>saveTeamContext/);
 });
+
+test("contexte v30: mode de l'équipe et équipes archivées",()=>{
+ const service=readFileSync(new URL("../src/server/members/team-context.ts",import.meta.url),"utf8");
+ assert.match(service,/i\.schema_version IN \(28,29,30\)/);
+ assert.match(service,/to_jsonb\(t\)->>'agile_mode'/);
+ assert.match(service,/to_jsonb\(t\)->>'is_archived'/);
+});
