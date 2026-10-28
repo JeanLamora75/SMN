@@ -15,3 +15,13 @@ test("fermeture par entreprise uniquement",()=>{
  assert.match(sql,/ALTER COLUMN company_id SET NOT NULL/);
 });
 test("mise à niveau versionnée",()=>assert.match(sql,/schema_version=31/));
+
+test("index hérité supprimé explicitement",()=>{
+ assert.match(sql,/DROP INDEX IF EXISTS public\.smn_company_closure_team_dates_idx/);
+});
+test("aucun lancement automatique de migration",()=>{
+ const runner=readFileSync(new URL("../scripts/apply-company-schema-migration.ts",import.meta.url),"utf8");
+ assert.match(runner,/--apply/);
+ assert.match(runner,/ROLLBACK/);
+ assert.match(runner,/Journal des 30 migrations non conforme/);
+});
