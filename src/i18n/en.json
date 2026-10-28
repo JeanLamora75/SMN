@@ -3625,7 +3625,7 @@
     "saving": "Saving…",
     "titleField": "Title",
     "urlField": "URL",
-    "descriptionField": "Description",
+    "descriptionField": "Comment",
     "noCategories": "No categories available",
     "invalidUrl": "Enter a valid HTTP(S) URL.",
     "saveError": "Unable to complete the operation. Try again.",
