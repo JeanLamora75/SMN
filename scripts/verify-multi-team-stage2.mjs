@@ -31,6 +31,5 @@ for(const [label,command,args] of checks){
  if(result.status!==0){errors++;console.error("FAIL "+label+": "+(result.status??"execution impossible"));}
  else console.log("PASS "+label);
 }
-console.log("
-Bilan : "+(checks.length-errors)+"/"+checks.length+" contrôles réussis");
+console.log("\nBilan : "+(checks.length-errors)+"/"+checks.length+" contrôles réussis");
 if(errors)process.exitCode=1;
