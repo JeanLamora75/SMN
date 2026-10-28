@@ -195,7 +195,10 @@ export async function confirmReplanning(db:Client,actorId:string,raw:unknown,
   if(ctx.plan?.revision!==undefined&&ctx.plan.revision!==value.revision||
    !ctx.plan&&value.revision!==0)return fail("conflict");
   // The planning and all referenced capacity values are re-read in this transaction.
-  // L'empreinte de l'aperçu porte uniquement sur les quatre dates métier.\n  // Les champs POST (revision, eventId, previewDigest) ne font pas partie des faits.\n  const dates:Dates={oldStart:value.oldStart,oldEnd:value.oldEnd,\n   newStart:value.newStart,newEnd:value.newEnd};\n  const preview=await compute(db,dates,ctx,calculate);
+  // L'empreinte porte sur les dates métier, sans les champs techniques du POST.
+  const dates:Dates={oldStart:value.oldStart,oldEnd:value.oldEnd,
+   newStart:value.newStart,newEnd:value.newEnd};
+  const preview=await compute(db,dates,ctx,calculate);
   if(preview.originalClosed)return fail("closed");
   if(preview.targetOccupied)return fail("target-in-use");
   if(!preview.canConfirm)return fail("not-calculable");
