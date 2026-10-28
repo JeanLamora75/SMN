@@ -74,6 +74,7 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown,re
   const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE t.id=$1 AND i.id='singleton' AND i.state='initialized'
+    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
     AND lower(i.mode) IN ('scrum','kanban') FOR UPDATE OF t`,[input.teamId]);
   if(team.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(input.cycleId){
@@ -183,6 +184,7 @@ export async function updateRegistryItem(db:Client,actorId:string,id:string,revi
    FROM public.smn_registry_item r JOIN public.smn_team t ON t.id=r.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'
+    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
    FOR UPDATE OF r`,[id]);
   const old=prior.rows[0];
   if(!old||old.team_id!==input.teamId){
