@@ -13,8 +13,8 @@ const initial=(today:string,record:AbsenceItem|null):Draft=>record?{
  endSlot:"afternoon",isPlanned:true,reason:""};
 
 /** Une fenêtre = création OU correction d'une seule absence, jamais son historique. */
-export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved,onCancel,onDirtyChange}:{
- memberId:string;record:AbsenceItem|null;initialDate?:string;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
+export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,onSaved,onCancel,onDirtyChange}:{
+ memberId:string;teamId?:string;record:AbsenceItem|null;initialDate?:string;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AbsenceState|null>(null);
@@ -29,7 +29,8 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
  useEffect(()=>{onDirtyChange?.(Boolean(dirty),busy);},[dirty,busy,onDirtyChange]);
  useEffect(()=>{
   let active=true;
-  void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/absences",{cache:"no-store"})
+  void fetch("/api/admin/members/"+encodeURIComponent(memberId)+
+   (teamId?"/team-absence?"+new URLSearchParams({teamId,onDate:initialDate??""}):"/absences"),{cache:"no-store"})
    .then(async r=>{if(!r.ok)throw Error("absence-load-failed");return r.json() as Promise<AbsenceState&{today:string}>;})
    .then(data=>{
     if(!active)return;
@@ -44,7 +45,7 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
     setState(data);setToday(data.today);setDraft(values);setBaseline(values);setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return()=>{active=false;};
- },[memberId,record,initialDate]);
+ },[memberId,teamId,record,initialDate]);
  const change=<K extends keyof Draft>(name:K,value:Draft[K])=>
   setDraft(current=>current?{...current,[name]:value}:current);
  const cancel=()=>{
@@ -58,8 +59,9 @@ export default function MemberAbsenceEditor({memberId,record,initialDate,onSaved
   try{
    const payload={action:record?"update":"create",...(record?{id:record.id}:{}),
     revision:record?.revision??0,...draft};
-   const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/absences",{
-    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
+   const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+
+    (teamId?"/team-absence":"/absences"),{
+    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(teamId?{teamId,change:payload}:payload)
    });
    const result=await r.json() as {error?:string};
    if(!r.ok){
