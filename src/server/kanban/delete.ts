@@ -11,7 +11,7 @@ export async function kanbanDeletionSummary(db:Client,id:string){
  const r=await db.query<Row>(`SELECT p.id,p.name,p.start_on::text,p.end_on::text,p.status,p.created_at::text,p.created_by
  FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE p.id=$1 AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'
+ WHERE p.id=$1 AND i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='kanban'
  AND p.deleted_at IS NULL`,[id]);
  if(!r.rows.length)return null;
  const period=r.rows[0];
@@ -32,7 +32,7 @@ export async function deleteKanbanPeriod(db:Client,actorId:string,id:string,expe
  try{
   const r=await db.query<{id:string;team_id:string}>(`SELECT p.id,p.team_id FROM public.smn_kanban_period p
    JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-   WHERE p.id=$1 AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'
+   WHERE p.id=$1 AND i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='kanban'
    AND p.deleted_at IS NULL FOR UPDATE OF p`,[id]);
   if(!r.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   const summary=await kanbanDeletionSummary(db,id);
