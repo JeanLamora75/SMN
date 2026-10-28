@@ -3,7 +3,7 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {listInstallationTeams} from "@/server/teams/list";
-import {createInstallationTeam,updateInstallationTeam,type TeamWriteResult}
+import {createInstallationTeam,updateInstallationTeam,setTeamArchived,type TeamWriteResult}
  from "@/server/teams/write";
 
 export const runtime="nodejs";
@@ -26,7 +26,7 @@ function statusOf(result:TeamWriteResult):number{
  if(result.ok)return 200;
  if(result.error==="forbidden")return 403;
  if(result.error==="not-found")return 404;
- if(result.error==="duplicate-name"||result.error==="conflict")return 409;
+ if(["duplicate-name","conflict","has-cycles","last-active-team","archived-team"].includes(result.error))return 409;
  if(result.error==="schema-not-ready")return 503;
  return 400;
 }
@@ -86,7 +86,9 @@ export async function PATCH(request:NextRequest){
  try{
   const result=await withAuthDb(async db=>{
    const installationId=await accountInstallation(db,actor.id);
-   return installationId?updateInstallationTeam(db,installationId,actor.id,input):
+   return installationId?(Object.keys(input).sort().join(",")==="archived,revision,teamId"?
+    setTeamArchived(db,installationId,actor.id,input):
+    updateInstallationTeam(db,installationId,actor.id,input)):
     {ok:false as const,error:"forbidden" as const};
   });
   return jsonResult(result,statusOf(result));
