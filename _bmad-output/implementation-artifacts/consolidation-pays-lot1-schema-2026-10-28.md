@@ -34,3 +34,10 @@ Sources : `prisma/schema.prisma` et `src/server/installation/contract.ts` sur `m
 **Risque majeur identifié :** écraser le modèle `SmnAccountTeamPreference` ou les modèles `SmnLink*` en important le `schema.prisma` historique.
 
 **Pas de code de migration publié dans ce lot ; aucune PR fusionnée ou fermée.**
+
+## Implémentation partielle du 28 octobre
+
+- `prisma/schema.prisma` enrichi avec les quatre modèles Pays et leurs relations, en conservant les modèles Liens et préférences multiéquipes de `main`.
+- `src/server/installation/contract.ts` enrichi avec les quatre tables Pays tout en conservant les tables Liens.
+- **Attention : le schéma SQL réel n'a pas été migré.** Les fonctions historiques `ensureCountryNameSchema` et `ensureCountryArchiveSchema` effectuent des changements DDL à l'exécution ; leur remplacement par des migrations versionnées doit précéder toute activation du code Pays.
+- **Non validé :** `prisma validate`, typecheck, tests, migrations, build, recette. Ne pas fusionner ce lot dans `main` à ce stade.
