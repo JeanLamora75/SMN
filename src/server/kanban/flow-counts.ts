@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {scopedKanbanPeriod,type KanbanTeamAccess} from "@/server/kanban/scoped-period";
 import {ensureKanbanPeriodTables} from "./periods";
 export type FlowCounts={started:number|null;throughput:number|null;wipFinal:number|null};
 export function parseFlowCounts(raw:unknown):FlowCounts|null{
@@ -25,29 +26,22 @@ export async function ensureKanbanFlowSchema(db:Client){
  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  created_at timestamptz NOT NULL DEFAULT now())`);
 }
-async function authorizedPeriod(db:Client,id:string,lock=false){
- const r=await db.query<{id:string;status:string}>(`SELECT p.id,p.status FROM public.smn_kanban_period p
- JOIN public.smn_team t ON t.id=p.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
- AND lower(i.mode)='kanban' ${lock?"FOR UPDATE OF p":""}`,[id]);
- return r.rows[0]??null;
-}
-export async function readKanbanFlow(db:Client,id:string){
+export async function readKanbanFlow(db:Client,id:string,access?:KanbanTeamAccess){
  await ensureKanbanFlowSchema(db);
- const p=await authorizedPeriod(db,id);
+ const p=await scopedKanbanPeriod(db,id,false,access);
  if(!p)return null;
  const r=await db.query<{started:string|null;throughput:string|null;wip_final:string|null;updated_at:string}>(`SELECT started::text,throughput::text,wip_final::text,updated_at::text
  FROM public.smn_kanban_flow_counts WHERE period_id=$1`,[id]);
  const x=r.rows[0];
  return {counts:{started:x?.started===null||!x?null:Number(x.started),throughput:x?.throughput===null||!x?null:Number(x.throughput),wipFinal:x?.wip_final===null||!x?null:Number(x.wip_final)},updatedAt:x?.updated_at??null,status:p.status};
 }
-export async function saveKanbanFlow(db:Client,actorId:string,id:string,raw:unknown){
+export async function saveKanbanFlow(db:Client,actorId:string,id:string,raw:unknown,access?:KanbanTeamAccess){
  const counts=parseFlowCounts(raw);
  if(!counts)return {ok:false as const,error:"invalid-input" as const};
  await ensureKanbanFlowSchema(db);
  await db.query("BEGIN");
  try{
-  const p=await authorizedPeriod(db,id,true);
+  const p=await scopedKanbanPeriod(db,id,true,access,actorId);
   if(!p){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   if(p.status==="closed"){await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};}
   const before=await db.query(`SELECT started,throughput,wip_final FROM public.smn_kanban_flow_counts WHERE period_id=$1 FOR UPDATE`,[id]);
