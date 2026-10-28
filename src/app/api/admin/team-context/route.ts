@@ -1,6 +1,8 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withLegacyTeamApi} from "@/server/teams/legacy";
+import {withAuthDb} from "@/server/auth/database";
+import {resolveRegistryReadContext} from "@/server/registries/team-access";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {readTeamContext,saveTeamContext} from "@/server/members/team-context";
 
@@ -10,13 +12,27 @@ const collective={type:"collective",exists:true,inScope:true} as const;
 const settings={type:"settings",exists:true,inScope:true} as const;
 
 export async function GET(request:NextRequest){
- if(!await authorizeApi(request,"read",collective))
-  return jsonResult({error:"forbidden"},403);
+ const actor=await authorizeApi(request,"read",collective);
+ if(!actor)return jsonResult({error:"forbidden"},403);
  const params=request.nextUrl.searchParams;
  if(params.size!==1||!params.get("teamId"))
   return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withLegacyTeamApi(db=>readTeamContext(db,params.get("teamId")!));
+  const result=await withAuthDb(async db=>{
+   const teamId=params.get("teamId")!;
+   const context=await resolveRegistryReadContext(db,
+    {accountId:actor.id,role:actor.role},teamId);
+   if(context.version===28){
+    if(context.team?.team_id!==teamId)throw Error("team-context-forbidden");
+    return readTeamContext(db,teamId);
+   }
+   // Le parcours monoéquipe historique reste inchangé.
+   const version=await db.query<{schema_version:number}>(
+    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+   if(version.rows.length!==1||version.rows[0].schema_version>27)
+    throw Error("team-context-schema-unavailable");
+   return readTeamContext(db,teamId);
+  });
   return jsonResult(result??{error:"not-found"},result?200:404);
  }catch{
   console.error("team-context-read-unavailable");
