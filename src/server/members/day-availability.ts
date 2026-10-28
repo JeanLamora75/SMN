@@ -86,7 +86,7 @@ export async function readMemberDayAvailability(db:Client,memberId:string,onDate
    "AND i.state='initialized' AND i.mode IN ('scrum','kanban')",
    "AND a.start_on<=$2::date AND (a.end_on IS NULL OR a.end_on>=$2::date)"
   ].join(" "),[memberId,onDate]),
-  db.query<{name:string}>(companyScoped?[
+  db.query<{name:string}>((companyScoped?[
    "SELECT c.name FROM public.smn_company_closure c",
    "JOIN public.smn_member m ON m.company_id=c.company_id",
    "JOIN public.smn_company company ON company.id=c.company_id",
@@ -102,7 +102,7 @@ export async function readMemberDayAvailability(db:Client,memberId:string,onDate
    "AND (a.end_on IS NULL OR a.end_on>=$2::date)",
    "AND c.is_active=true AND c.start_on<=$2::date AND c.end_on>=$2::date",
    "ORDER BY c.id LIMIT 2"
-  ].join(" "),[memberId,onDate])
+  ]).join(" "),[memberId,onDate])
  ]);
  if(Number(assignments.rows[0]?.team_count)>1)
   throw Error("member-availability-multiple-teams");
