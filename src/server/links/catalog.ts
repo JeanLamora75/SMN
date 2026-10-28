@@ -14,7 +14,7 @@ async function installation(db:Client,actor:LinkActor):Promise<string>{
  const r=await db.query<{installation_id:string}>(`SELECT a.installation_id FROM public.smn_account a
  JOIN public.smn_installation i ON i.id=a.installation_id
  WHERE a.id=$1 AND a.role='admin' AND a.is_active=true
- AND a.must_change_password=false AND i.state='initialized' AND i.schema_version=29`,[actor.id]);
+ AND a.must_change_password=false AND i.state='initialized' AND i.schema_version IN (29,30)`,[actor.id]);
  if(r.rows.length!==1)throw new LinkError("not-ready");
  return r.rows[0].installation_id;
 }
