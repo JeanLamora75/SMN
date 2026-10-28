@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {ensureCountryArchiveSchema} from "../countries/archive-migration";
 import {executeHolidayCsv,type ConflictPolicy,type CsvPreview} from "./csv-import";
 
 export type IcsEvent={
@@ -10,7 +11,7 @@ type IcsRequest={
  selected:string[];fingerprint?:string;
 };
 export type IcsResult=
- |{ok:true;events:IcsEvent[];preview?:CsvPreview;created?:number;replaced?:number}
+ |{ok:true;events:IcsEvent[];preview?:CsvPreview;created?:number;replaced?:number;changedYears?:number[]}
  |{ok:false;error:"invalid-input"|"invalid-ics"|"ics-too-large"|
   "country-not-found"|"invalid-selection"|"preview-expired";events?:IcsEvent[];preview?:CsvPreview};
 const MAX_BYTES=1024*1024;
@@ -152,7 +153,8 @@ export async function executeHolidayIcs(db:Client,value:unknown,actorId:string):
  const parsed=parseHolidayIcs(input.ics);
  if(!parsed.ok)return parsed;
  if(input.stage==="inspect"){
-  const exists=await db.query("SELECT code FROM public.smn_country WHERE code=$1",[input.country]);
+  await ensureCountryArchiveSchema(db);
+  const exists=await db.query("SELECT code FROM public.smn_country WHERE code=$1 AND archived_at IS NULL",[input.country]);
   if(exists.rowCount!==1)return {ok:false,error:"country-not-found"};
   return {ok:true,events:parsed.events};
  }
@@ -169,5 +171,6 @@ export async function executeHolidayIcs(db:Client,value:unknown,actorId:string):
  };
  return {ok:true,events:parsed.events,preview:response.preview,
   ...(typeof response.created==="number"?{created:response.created}:{ }),
-  ...(typeof response.replaced==="number"?{replaced:response.replaced}:{ })};
+  ...(typeof response.replaced==="number"?{replaced:response.replaced}:{ }),
+  ...(Array.isArray(response.changedYears)?{changedYears:response.changedYears}:{})};
 }

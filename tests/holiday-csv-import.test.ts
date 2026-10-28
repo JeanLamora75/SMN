@@ -9,11 +9,14 @@ const header="date;nom;pays\n";
 const request=(csv:string,stage:"preview"|"commit"="preview",policy:"skip"|"replace"="skip",
  fingerprint?:string)=>({country:"FR",csv,stage,policy,...(fingerprint?{fingerprint}:{})});
 
-function fakeDb(initial:Record<string,string>={},found=true){
- const holidays=new Map(Object.entries(initial)),audits:unknown[][]=[],queries:string[]=[];
+function fakeDb(initial:Record<string,string>={},found=true,validatedYears=new Set<number>()){
+ const holidays=new Map(Object.entries(initial)),audits:unknown[][]=[],validationAudits:unknown[][]=[],queries:string[]=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   queries.push(sql);
-  if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||sql.includes("pg_advisory_xact_lock"))
+  if(sql.includes("to_regclass('public.smn_country_name_audit')"))
+   return {rows:[{schema_version:30,ready:true}],rowCount:1};
+  if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||sql.includes("pg_advisory_xact_lock")||
+   sql.includes("ALTER TABLE")||sql.includes("CREATE TABLE")||sql.includes("CREATE INDEX"))
    return {rows:[],rowCount:0};
   if(sql.includes("SELECT code FROM public.smn_country"))
    return {rows:found?[{code:"FR"}]:[],rowCount:found?1:0};
@@ -32,6 +35,15 @@ function fakeDb(initial:Record<string,string>={},found=true){
   if(sql.includes("INSERT INTO public.smn_national_holiday_audit")){
    audits.push(params);return {rows:[],rowCount:1};
   }
+  if(sql.includes("SELECT revision,validated_revision,administrative_validated_at"))
+   return {rows:validatedYears.has(Number(params[1]))?
+    [{revision:2,validated_revision:2,administrative_validated_at:"2026-10-26"}]:[],
+    rowCount:validatedYears.has(Number(params[1]))?1:0};
+  if(sql.includes("INSERT INTO public.smn_national_calendar_validation_audit")){
+   validationAudits.push(params);return {rows:[],rowCount:1};
+  }
+  if(sql.includes("SELECT revision")&&sql.includes("FROM public.smn_national_calendar_coverage"))
+   return {rows:[{revision:1}],rowCount:1};
   if(sql.includes("SELECT count(*)::text AS total")){
    return {rows:[{total:String([...holidays.keys()].filter(d=>d.startsWith(String(params[1]))).length)}],rowCount:1};
   }
@@ -39,7 +51,7 @@ function fakeDb(initial:Record<string,string>={},found=true){
    return {rows:[],rowCount:1};
   throw new Error("SQL not expected: "+sql);
  }} as unknown as Client;
- return {db,holidays,audits,queries};
+ return {db,holidays,audits,validationAudits,queries};
 }
 describe("Importer CSV national — prévisualisation et confirmation",()=>{
  it("accepte des années historiques/futures sans fenêtre de quatre ans, et des champs entre guillemets",async()=>{
@@ -108,6 +120,28 @@ describe("Importer CSV national — prévisualisation et confirmation",()=>{
   if(changed.ok)assert.equal(changed.replaced,1);
   assert.equal(f.holidays.get("2020-01-01"),"Après");
   assert.deepEqual(f.audits[0].slice(3,6),["Avant","Après","replace"]);
+ });
+ it("un réimport identique ne révoque pas l'attestation",async()=>{
+  const f=fakeDb({"2026-05-01":"Travail"},true,new Set([2026]));
+  const csv=header+"2026-05-01;Travail;FR";
+  const preview=await executeHolidayCsv(f.db,request(csv),"admin");
+  assert.equal(preview.ok,true);
+  if(!preview.ok)return;
+  const done=await executeHolidayCsv(f.db,request(csv,"commit","skip",preview.preview.fingerprint),"admin");
+  assert.equal(done.ok,true);
+  assert.equal(f.validationAudits.length,0);
+ });
+ it("un import qui remplace réellement un nom invalide l'attestation une seule fois",async()=>{
+  const f=fakeDb({"2026-05-01":"Avant"},true,new Set([2026]));
+  const csv=header+"2026-05-01;Après;FR";
+  const preview=await executeHolidayCsv(f.db,request(csv,"preview","replace"),"admin");
+  assert.equal(preview.ok,true);
+  if(!preview.ok)return;
+  const done=await executeHolidayCsv(f.db,request(csv,"commit","replace",preview.preview.fingerprint),"admin");
+  assert.equal(done.ok,true);
+  assert.equal(f.validationAudits.length,1);
+  assert.equal(f.validationAudits[0][1],"FR");
+  assert.equal(f.validationAudits[0][2],2026);
  });
  it("refuse de confirmer si la base change depuis l'aperçu",async()=>{
   const f=fakeDb();

@@ -1,0 +1,75 @@
+name: SMN — Diagnostic consolidation Pays
+on:
+  push:
+    branches:
+      - consolidation/smn-pays-lot1-schema-2026-10-28
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.10.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Run diagnostics and preserve logs including installation failures
+        shell: bash
+        run: |
+          mkdir -p diagnostic
+          failed=0
+          for command in "pnpm install --frozen-lockfile" "pnpm exec prisma generate" "pnpm exec prisma validate" "pnpm i18n:check" "pnpm lint" "pnpm typecheck" "pnpm test" "pnpm build"; do
+            name=$(echo "$command" | tr ' :/' '___')
+            echo "::group::$command"
+            if ! bash -lc "$command" > "diagnostic/$name.log" 2>&1; then
+              failed=1
+            fi
+            tail -n 120 "diagnostic/$name.log"
+            echo "::endgroup::"
+          done
+          exit "$failed"
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: country-consolidation-diagnostics
+          path: |
+            diagnostic/
+            pnpm-lock.yaml
+          if-no-files-found: warn
+
+  baseline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.10.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Compare test suite against main
+        shell: bash
+        run: |
+          mkdir -p baseline
+          pnpm install --no-frozen-lockfile > baseline/install.log 2>&1
+          pnpm test > baseline/tests.log 2>&1 || true
+          tail -n 30 baseline/tests.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smn-main-baseline-tests
+          path: baseline/
+          if-no-files-found: warn

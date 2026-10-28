@@ -1,5 +1,8 @@
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {ensureAnnualValidationSchema} from "./validation-migration";
+import {COUNTRY_LIFECYCLE_LOCK,ensureCountryArchiveSchema} from "../countries/archive-migration";
+import {appendAnnualInvalidationAudit} from "./validation-audit";
 
 export type ConflictPolicy="skip"|"replace";
 export type CsvRow={
@@ -12,7 +15,7 @@ export type CsvPreview={
  proposed:number;rejected:number;fingerprint:string;
 };
 export type CsvImportResult=
- |{ok:true;preview:CsvPreview;created?:number;replaced?:number}
+ |{ok:true;preview:CsvPreview;created?:number;replaced?:number;changedYears?:number[]}
  |{ok:false;error:"invalid-input"|"invalid-csv"|"csv-too-large"|"country-not-found"|"preview-expired";preview?:CsvPreview};
 const MAX_BYTES=1024*1024;
 const MAX_ROWS=5000;
@@ -137,15 +140,18 @@ export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string,
  if(!parsed.ok)return {ok:false,error:parsed.error};
  const rows=parseRows(parsed.lines,input.country);
  if(input.stage==="preview"){
-  const country=await db.query("SELECT code FROM public.smn_country WHERE code=$1",[input.country]);
+  await ensureCountryArchiveSchema(db);
+  const country=await db.query("SELECT code FROM public.smn_country WHERE code=$1 AND archived_at IS NULL",[input.country]);
   if(country.rowCount!==1)return {ok:false,error:"country-not-found"};
   return {ok:true,preview:await previewInDb(db,input,rows)};
  }
+ await ensureAnnualValidationSchema(db);
  await db.query("BEGIN");
  try{
   // Same lock as the national preload prevents a concurrent automatic import.
   await db.query("SELECT pg_advisory_xact_lock(20261021,49)");
   await db.query("SELECT pg_advisory_xact_lock(20261021,50)");
+  await db.query(COUNTRY_LIFECYCLE_LOCK);
   const found=await db.query("SELECT code FROM public.smn_country WHERE code=$1",[input.country]);
   if(found.rowCount!==1){await db.query("ROLLBACK");return {ok:false,error:"country-not-found"};}
   const preview=await previewInDb(db,input,rows);
@@ -177,23 +183,42 @@ export async function executeHolidayCsv(db:Client,raw:unknown,actorId:string,
       [randomUUID(),input.country,row.date,row.previousName,row.name,row.action,origin,actorId]);
   }
   for(const year of years){
+   const prior=await db.query<{
+    revision:number;validated_revision:number|null;administrative_validated_at:string|null;
+   }>(`SELECT revision,validated_revision,administrative_validated_at
+    FROM public.smn_national_calendar_coverage WHERE country_code=$1 AND calendar_year=$2`,
+    [input.country,year]);
+   const wasValidated=prior.rows[0]?.administrative_validated_at!=null&&
+    prior.rows[0]?.validated_revision===prior.rows[0]?.revision;
    const n=await db.query<{total:string}>(`SELECT count(*)::text AS total
      FROM public.smn_national_holiday WHERE country_code=$1
      AND holiday_date>=make_date($2,1,1) AND holiday_date<make_date($2+1,1,1)`,
      [input.country,year]);
    await db.query(`INSERT INTO public.smn_national_calendar_coverage
-     (country_code,calendar_year,status,entries_count,diagnostic,source_file)
-     VALUES($1,$2,'partial',$3,$4,$5)
+     (country_code,calendar_year,status,entries_count,diagnostic,source_file,
+      revision,administrative_validated_at,validated_revision,validated_by,validation_source)
+     VALUES($1,$2,'partial',$3,$4,$5,1,NULL,NULL,NULL,NULL)
      ON CONFLICT (country_code,calendar_year) DO UPDATE SET
       status=CASE WHEN smn_national_calendar_coverage.status='configured'
        THEN 'configured' ELSE 'partial' END,
       entries_count=EXCLUDED.entries_count,
       diagnostic=CASE WHEN smn_national_calendar_coverage.status='configured'
-       THEN NULL ELSE EXCLUDED.diagnostic END,checked_at=now()`,
+       THEN NULL ELSE EXCLUDED.diagnostic END,
+      revision=smn_national_calendar_coverage.revision+1,
+      administrative_validated_at=NULL,validated_revision=NULL,
+      validated_by=NULL,validation_source=NULL,checked_at=now()
+     RETURNING revision`,
      [input.country,year,Number(n.rows[0]?.total),origin+'-partial',origin]);
+   if(wasValidated){
+    const latest=await db.query<{revision:number}>(`SELECT revision
+     FROM public.smn_national_calendar_coverage
+     WHERE country_code=$1 AND calendar_year=$2`,[input.country,year]);
+    await appendAnnualInvalidationAudit(db,input.country,year,
+     Number(latest.rows[0].revision),actorId,origin);
+   }
   }
   await db.query("COMMIT");
-  return {ok:true,preview,created,replaced};
+  return {ok:true,preview,created,replaced,changedYears:[...years].sort((a,b)=>b-a)};
  }catch(error){
   await db.query("ROLLBACK").catch(()=>undefined);
   throw error;

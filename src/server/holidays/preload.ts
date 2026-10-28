@@ -56,9 +56,13 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
  await client.query("BEGIN");
  try{
   await client.query("SELECT pg_advisory_xact_lock(20261021,49)");
-  const found=await client.query("SELECT code FROM public.smn_country WHERE code=$1",[country]);
+  await client.query("SELECT pg_advisory_xact_lock(20261021,50)");
+  await client.query("SELECT pg_advisory_xact_lock(20261026,279)");
+  const found=await client.query<{code:string;archived_at:string|null}>(
+   "SELECT code,archived_at::text AS archived_at FROM public.smn_country WHERE code=$1 FOR UPDATE",[country]);
   if(found.rowCount!==1){await client.query("ROLLBACK");return years.map(year=>({
    year,status:"not-configured",count:0,diagnostic:"country-not-in-catalog"}));}
+  if(found.rows[0].archived_at!==null){await client.query("ROLLBACK");throw new Error("country-archived");}
   const results:YearResult[]=[];
   for(const value of validated){
    let status=value.status,diagnostic=value.diagnostic,count=value.count;
@@ -82,7 +86,19 @@ export async function preloadNationalCalendar(client:Client,country:string,insta
       VALUES($1,$2,$3,$4,$5,$6)
       ON CONFLICT (country_code,calendar_year) DO UPDATE SET
       status=EXCLUDED.status,entries_count=EXCLUDED.entries_count,
-      diagnostic=EXCLUDED.diagnostic,source_file=EXCLUDED.source_file,checked_at=now()`,
+      diagnostic=EXCLUDED.diagnostic,source_file=EXCLUDED.source_file,checked_at=now(),
+      revision=CASE WHEN smn_national_calendar_coverage.status IS DISTINCT FROM EXCLUDED.status
+        OR smn_national_calendar_coverage.entries_count IS DISTINCT FROM EXCLUDED.entries_count
+        OR smn_national_calendar_coverage.diagnostic IS DISTINCT FROM EXCLUDED.diagnostic
+        THEN smn_national_calendar_coverage.revision+1 ELSE smn_national_calendar_coverage.revision END,
+      administrative_validated_at=CASE WHEN smn_national_calendar_coverage.status IS DISTINCT FROM EXCLUDED.status
+        OR smn_national_calendar_coverage.entries_count IS DISTINCT FROM EXCLUDED.entries_count
+        OR smn_national_calendar_coverage.diagnostic IS DISTINCT FROM EXCLUDED.diagnostic
+        THEN NULL ELSE smn_national_calendar_coverage.administrative_validated_at END,
+      validated_revision=CASE WHEN smn_national_calendar_coverage.status IS DISTINCT FROM EXCLUDED.status
+        OR smn_national_calendar_coverage.entries_count IS DISTINCT FROM EXCLUDED.entries_count
+        OR smn_national_calendar_coverage.diagnostic IS DISTINCT FROM EXCLUDED.diagnostic
+        THEN NULL ELSE smn_national_calendar_coverage.validated_revision END`,
      [country,value.year,status,status==="configured"?count:0,diagnostic,
       bundle?`${country}.json`:null]);
    results.push({year:value.year,status,count:status==="configured"?count:0,diagnostic});

@@ -9,6 +9,8 @@ function dbFixture(options:{existing?:boolean;fail?:boolean}={}){
  const sql:string[]=[],params:unknown[][]=[];
  const client={query:async(q:string,values:unknown[]=[])=>{
   sql.push(q);params.push(values);
+  if(q.includes("to_regclass('public.smn_country_name_audit')"))
+   return {rows:[{schema_version:30,ready:true}],rowCount:1};
   if(q.includes("FROM public.smn_country ORDER BY"))return {rows:COUNTRY_SEEDS.map(
    c=>({code:c.code,name:c.name,origin:"initial",created_at:"2026-10-21T12:00:00Z"})),rowCount:7};
   if(q.includes("INSERT INTO public.smn_country")){

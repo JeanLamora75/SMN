@@ -22,8 +22,13 @@ function fakeDb(existing:Record<string,string>={},found=true){
  const sqls:string[]=[];
  const db={query:async(sql:string,args:unknown[]=[])=>{
   sqls.push(sql);
+  if(sql.includes("SELECT revision,validated_revision,administrative_validated_at"))return {rows:[],rowCount:0};
+
+  if(sql.includes("to_regclass('public.smn_country_name_audit')"))
+   return {rows:[{schema_version:30,ready:true}],rowCount:1};
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||
-     sql.includes("pg_advisory_xact_lock"))return {rowCount:0,rows:[]};
+     sql.includes("pg_advisory_xact_lock")||sql.includes("ALTER TABLE")||
+     sql.includes("CREATE TABLE")||sql.includes("CREATE INDEX"))return {rowCount:0,rows:[]};
   if(sql.includes("SELECT code FROM public.smn_country"))
    return {rowCount:found?1:0,rows:found?[{code:args[0]}]:[]};
   if(sql.includes("SELECT to_char(holiday_date"))

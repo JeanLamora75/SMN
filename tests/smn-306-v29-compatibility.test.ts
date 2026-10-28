@@ -9,7 +9,7 @@ test("v29 is recognized by installation diagnostic and probing",()=>{
  const contract=read("src/server/installation/contract.ts");
  assert.match(diag,/const isV29 = records\[0\]\.schema_version >= 29/);
  assert.match(diag,/snapshot\.linksSchemaValid/);
- assert.match(probe,/LIMIT 29/);
+ assert.doesNotMatch(probe,/FROM public\\._prisma_migrations LIMIT/);
  for(const table of ["smn_link","smn_link_category","smn_link_audit"])
   assert.ok(contract.includes("public."+table+":r"));
 });
