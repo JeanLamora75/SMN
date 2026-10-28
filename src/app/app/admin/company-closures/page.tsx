@@ -19,6 +19,7 @@ export default async function CompanyClosuresPage(){
    <Link href="/app/admin/settings" className="btn btn-link px-0 mb-2">← {translate(locale,"navigation.entries.settings")}</Link>
    <h1 className="h3">{translate(locale,"companyClosures.title")}</h1>
    <p>{translate(locale,"companyClosures.intro")}</p>
+   <Link href="/app/admin/companies" className="btn btn-outline-primary me-2">Gérer les entreprises</Link>
    <Link href="/app/team-calendar" className="btn btn-outline-secondary">
     {translate(locale,"companyClosures.openTeamCalendar")}</Link>
   </header>
