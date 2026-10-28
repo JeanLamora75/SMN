@@ -29,7 +29,7 @@ export async function saveTeamActualCapacity(db:Client,actor:TeamActor,
   // Sérialise les premières créations d'une même équipe/période.
   const team=await db.query<{id:string}>(
    "SELECT t.id FROM public.smn_team t WHERE t.id=$1 "+
-   "AND t.installation_id='singleton' FOR UPDATE",[authorized.team_id]);
+   "AND t.installation_id='singleton' AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false FOR UPDATE",[authorized.team_id]);
   if(team.rows.length!==1)return fail("team-unavailable");
   const clock=await db.query<{today:string}>(
    "SELECT (now() AT TIME ZONE 'Europe/Paris')::date::text AS today");
