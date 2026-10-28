@@ -55,7 +55,7 @@ export async function readSprintMemberPresence(
  try{
   const period=sprintPresenceDates(sprint);
   const capacity=await readDevelopmentCapacity(db,period.start,period.end,{
-   externalTransaction:true,includeExceptionalImpact:false
+   externalTransaction:true,includeExceptionalImpact:false,teamId
   });
   if(capacity.team.id!==teamId||capacity.team.mode!=="scrum")
    throw Error("presence-team-mismatch");
