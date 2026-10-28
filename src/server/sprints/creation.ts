@@ -70,7 +70,7 @@ export async function ensureSprintSchema(db:Client){
 }
 async function context(db:Client){
  const t=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
+ WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version<=27 AND lower(i.mode)='scrum'`);
  if(t.rows.length!==1)throw Error("scrum-team-unavailable");
  const teamId=t.rows[0].id;
  await db.query("INSERT INTO public.smn_scrum_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING",[teamId]);
