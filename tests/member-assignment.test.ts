@@ -114,7 +114,7 @@ describe("Affectations et rôles Agile à effet daté",()=>{
   const result=await saveMemberAssignment(f.db,memberId,"actor",{...initial,revision:0});
   assert.equal(result.ok,true);
   if(result.ok){assert.equal(result.created,true);assert.equal(result.revision,1);}
-  assert.ok(f.queries.some(q=>q.includes("INSERT INTO public.smn_member_assignment\\n")));
+  assert.ok(f.queries.some(q=>q.includes("INSERT INTO public.smn_member_assignment")));
   assert.ok(f.queries.every(q=>!q.includes("DELETE FROM public.smn_member_assignment")));
   const reread=dbFixture({closed:true});
   const state=await readMemberAssignment(reread.db,memberId);
