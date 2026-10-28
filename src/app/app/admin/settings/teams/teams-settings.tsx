@@ -156,7 +156,7 @@ export default function TeamsSettings(){
      </div>
      <div>
       <label htmlFor="smn-team-settings-agile-mode" className="form-label">
-       Mode Agile <span className="text-danger" aria-hidden="true">*</span>
+       {t("teamSettings.agileMode")} <span className="text-danger" aria-hidden="true">*</span>
       </label>
       <select id="smn-team-settings-agile-mode" className="form-select"
        value={values.agileMode} required aria-required="true"
@@ -165,7 +165,7 @@ export default function TeamsSettings(){
        <option value="scrum">Scrum</option>
        <option value="kanban">Kanban</option>
       </select>
-      {current&&<p className="form-text">Le mode Agile d'une équipe existante est conservé pour protéger ses cycles.</p>}
+      {current&&<p className="form-text">{t("teamSettings.agileModeImmutable")}</p>}
      </div>
      <div>
       <label htmlFor="smn-team-settings-product" className="form-label">
