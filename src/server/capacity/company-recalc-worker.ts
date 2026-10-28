@@ -10,17 +10,23 @@ export async function processCompanyRecalculation(db:Client){
  const job=await claimRecalculation(db);
  if(!job)return {processed:false};
  try{
-  const optional=await db.query<{name:string}>(`SELECT relname AS name FROM pg_class
-   WHERE oid IN (to_regclass('public.smn_sprint'),to_regclass('public.smn_kanban_period'))`);
-  const tables=new Set(optional.rows.map(r=>r.name));
-  const cycles=[
-   ...(tables.has("smn_sprint")?[`SELECT s.team_id,s.start_on::text AS start_on,s.end_on::text AS end_on
-    FROM public.smn_sprint s
-    WHERE s.deleted_at IS NULL AND s.closed_at IS NULL`]:[]),
-   ...(tables.has("smn_kanban_period")?[`SELECT k.team_id,k.start_on::text AS start_on,k.end_on::text AS end_on
-    FROM public.smn_kanban_period k
-    WHERE k.deleted_at IS NULL AND k.status NOT IN ('closed','finished')`]:[])
-  ];
+  const cols=await db.query<{table_name:string;column_name:string}>(`SELECT table_name,column_name
+   FROM information_schema.columns WHERE table_schema='public'
+   AND table_name IN ('smn_sprint','smn_kanban_period')`);
+  const columns=(table:string)=>new Set(cols.rows.filter(r=>r.table_name===table).map(r=>r.column_name));
+  const sprint=columns("smn_sprint"),kanban=columns("smn_kanban_period");
+  const source=(table:string,alias:string,columns:Set<string>)=>{
+   if(!["team_id","start_on","end_on"].every(c=>columns.has(c)))return null;
+   const filters=[
+    ...(columns.has("deleted_at")?[`${alias}.deleted_at IS NULL`]:[]),
+    ...(columns.has("closed_at")?[`${alias}.closed_at IS NULL`]:[]),
+    ...(columns.has("status")?[`${alias}.status NOT IN ('closed','finished','cancelled')`]:[])
+   ];
+   return `SELECT ${alias}.team_id,${alias}.start_on::text AS start_on,${alias}.end_on::text AS end_on
+    FROM public.${table} ${alias} ${filters.length?"WHERE "+filters.join(" AND "):""}`;
+  };
+  const cycles=[source("smn_sprint","s",sprint),source("smn_kanban_period","k",kanban)]
+   .filter((sql):sql is string=>sql!==null);
   const periods=await db.query<{team_id:string;start_on:string;end_on:string}>(`
    SELECT DISTINCT p.team_id,p.start_on,p.end_on
    FROM (
