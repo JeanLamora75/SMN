@@ -1,5 +1,4 @@
 import {redirect} from "next/navigation";
-import Link from "next/link";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {requestLocale} from "@/i18n/locale.server";
@@ -27,33 +26,6 @@ export default async function SettingsPortalPage(){
    <h1 className="h3">{t("navigation.entries.settings")}</h1>
    <p className="text-secondary">{t("settingsPortal.subtitle")}</p>
   </header>
-  {account.role==="admin"&&<section className="mb-4" aria-labelledby="smn-settings-companies-title">
-   <h2 className="h5 mb-3" id="smn-settings-companies-title">Entreprises</h2>
-   <div className="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3">
-    <div className="col">
-     <Link className="smn-panel rounded-4 p-3 h-100 d-flex gap-3 align-items-start text-body text-decoration-none smn-settings-entry-link"
-      href="/app/admin/companies">
-      <span className="fs-4 flex-shrink-0" aria-hidden="true">▤</span>
-      <span className="d-flex flex-column align-items-start gap-2 flex-grow-1">
-       <span className="fw-semibold">Gestion des entreprises</span>
-       <span className="text-secondary small w-100">Consulter et gérer les entreprises de l’organisation.</span>
-       <span className="small text-secondary">Disponible</span>
-      </span>
-     </Link>
-    </div>
-    <div className="col">
-     <Link className="smn-panel rounded-4 p-3 h-100 d-flex gap-3 align-items-start text-body text-decoration-none smn-settings-entry-link"
-      href="/app/admin/company-closures">
-      <span className="fs-4 flex-shrink-0" aria-hidden="true">▦</span>
-      <span className="d-flex flex-column align-items-start gap-2 flex-grow-1">
-       <span className="fw-semibold">Fermetures d’entreprise</span>
-       <span className="text-secondary small w-100">Consulter et gérer les périodes de fermeture des entreprises.</span>
-       <span className="small text-secondary">Disponible</span>
-      </span>
-     </Link>
-    </div>
-   </div>
-  </section>}
-  <SettingsCatalogView groups={groups}/>
+  <SettingsCatalogView groups={groups} showCompanies={account.role==="admin"}/>
  </main>;
 }
