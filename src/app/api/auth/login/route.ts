@@ -25,7 +25,11 @@ export async function POST(request: NextRequest) {
     return setSessionCookie(jsonResult({
       ok: true, mustChangePassword: account.must_change_password,
     }), request, token);
-  } catch {
+  } catch (error) {
+    // Journal technique uniquement : ne jamais enregistrer identité, mot de passe ou jeton.
+    const code = error && typeof error === "object" && "code" in error && typeof error.code === "string"
+      ? error.code : "AUTH_DB_CHECK_FAILED";
+    console.error("smn-auth-login-unavailable", code);
     return jsonResult({ error: "service-unavailable" }, 503);
   }
 }
