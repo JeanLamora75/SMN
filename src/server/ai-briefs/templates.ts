@@ -1,3 +1,4 @@
+import {assertAiBriefSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {initialBriefTemplates,allowedBriefFields,type BriefMode} from "@/lib/ai-brief-templates";
@@ -14,12 +15,7 @@ export function validateBriefTemplate(value:unknown):value is Omit<ManagedBriefT
  Number.isInteger(v.depth)&&Number(v.depth)>=1&&Number(v.depth)<=5;
 }
 async function ensureSchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_ai_brief_template(
- id uuid PRIMARY KEY,title text NOT NULL,description text NOT NULL DEFAULT '',
- sections jsonb NOT NULL,questions jsonb NOT NULL,instructions jsonb NOT NULL,data jsonb NOT NULL,
- depth integer NOT NULL CHECK(depth BETWEEN 1 AND 5),revision integer NOT NULL DEFAULT 1,
- active boolean NOT NULL DEFAULT true,created_by text,created_at timestamptz NOT NULL DEFAULT now(),
- updated_at timestamptz NOT NULL DEFAULT now())`);
+ await assertAiBriefSchema(db,"templates");
 }
 export async function listBriefTemplates(db:Client):Promise<ManagedBriefTemplate[]>{
  const exists=await db.query<{found:boolean}>(`SELECT to_regclass('public.smn_ai_brief_template') IS NOT NULL AS found`);
