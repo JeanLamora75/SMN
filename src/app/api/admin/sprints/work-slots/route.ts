@@ -13,6 +13,6 @@ export async function GET(req:NextRequest){
 export async function PUT(req:NextRequest){
  const actor=await authorizeApi(req,"write",target);if(!actor)return jsonResult({error:"forbidden"},403);
  const body=await readJsonObject(req);if(!body)return jsonResult({error:"invalid-input"},400);
- try{const r=await withAuthDb(db=>saveTeamSlots(db,actor.id,body));return jsonResult(r,r.ok?200:409);}
- catch{return jsonResult({error:"unavailable"},503);}
+ try{const r=await withAuthDb(db=>saveTeamSlots(db,actor.id,body));return jsonResult(r,r.ok?200:r.error==="conflict"?409:400);}
+ catch(error){console.error("smn-work-slots-save-unavailable",error instanceof Error?error.message:"unknown");return jsonResult({error:"unavailable"},503);}
 }
