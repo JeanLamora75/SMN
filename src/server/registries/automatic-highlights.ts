@@ -15,12 +15,6 @@ export async function saveAutomaticHighlightSettings(db:Client,actorId:string,ra
  try{
   const i=await db.query(`SELECT id FROM public.smn_installation WHERE id='singleton' AND state='initialized' FOR UPDATE`);
   if(i.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_automatic_highlight_settings(
-   installation_id text NOT NULL REFERENCES public.smn_installation(id),
-   category text NOT NULL CHECK(category IN ('criticalRisk','atRiskDependency','resolvedObstacle','achievedGoal','recordedDecision','satisfiedDependency')),
-   enabled boolean NOT NULL,revision integer NOT NULL CHECK(revision>0),
-   updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   updated_at timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(installation_id,category))`);
   const existing=await db.query<{revision:number}>(`SELECT revision FROM public.smn_automatic_highlight_settings
    WHERE installation_id='singleton' FOR UPDATE`);
   const revision=existing.rows[0]?.revision??0;
