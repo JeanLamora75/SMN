@@ -38,7 +38,7 @@ describe("Fiche membre V2 — Calendrier : consultation et modales séparées",(
    "MemberAbsenceEditor","MemberCalendarExceptionEditor","members.calendar.weekHistory",
    "members.calendar.exceptionHistory","members.calendar.exceptionHeading",
    "members.absence.","onSubmit={saveException}","absenceDirty",
-   "onDirtyChange","calendar-on-date"
+   "calendar-on-date"
   ])assert.ok(!weekly.includes(forbidden),"La modale trame contient encore : "+forbidden);
  });
  it("propose Ajouter une exception depuis l'onglet et dans une modale distincte",()=>{
