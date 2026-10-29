@@ -39,7 +39,6 @@ test("anciennes routes de clôtures, périodes et cérémonies toutes gardées",
   "src/app/api/admin/kanban-periods/[id]/closure/route.ts",
   "src/app/api/admin/kanban-periods/route.ts",
   "src/app/api/admin/sprints/ceremonies/route.ts",
-  "src/app/api/admin/sprints/templates/route.ts",
   "src/app/api/admin/sprints/template-occurrences/route.ts"
  ];
  for(const p of paths){
@@ -47,6 +46,9 @@ test("anciennes routes de clôtures, périodes et cérémonies toutes gardées",
   assert.match(s,/withLegacyTeamApi\(/,p);
   assert.doesNotMatch(s,/withAuthDb\(/,p);
  }
+ const templates=source("src/app/api/admin/sprints/templates/route.ts");
+ assert.match(templates,/authorizeApi\(req,"write",target\)/);
+ assert.match(templates,/saveTemplate\(db,actor.id,input,teamId/);
  assert.match(source("src/lib/team-context-readiness.ts"),
   /SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
