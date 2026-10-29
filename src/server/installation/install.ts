@@ -33,6 +33,9 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
  if(!existsSync(BASELINE_FILE))return {ok:false,status:"baseline-v32-unavailable"};
  const sql=readFileSync(BASELINE_FILE,"utf8");
  if(!nativeBaselineReady(sql))return {ok:false,status:"baseline-v32-incompatible"};
+ // Le diagnostic historique exige 32 entrées : interdire le COMMIT tant que
+ // la reconnaissance de la baseline native n'est pas déployée (étape 3).
+ return {ok:false,status:"baseline-v32-diagnostic-pending"};
  const uri=new URL(settings.uri);
  const before=await diagnoseInstallation(()=>probePostgres(uri.toString()));
  if(before.status!=="virgin")return {ok:false,status:before.status};
