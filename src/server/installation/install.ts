@@ -7,6 +7,7 @@ import { INITIAL_MIGRATION, validateExpressInput } from "./contract";
 import { INITIAL_SCHEMA_SQL, PRISMA_HISTORY_SQL } from "./migration";
 import { passwordHash } from "../auth/password";
 import { seedDefaultScrumCeremonyTemplates } from "../sprints/ceremony-templates";
+import {ceremonyStatements} from "../../../scripts/apply-ceremony-schema-v32";
 export { passwordHash } from "../auth/password";
 
 export type InstallResult = { ok: true } | { ok: false; status: string };
@@ -82,7 +83,16 @@ export async function installExpress(rawBody: unknown, rawUri: string | undefine
     await dbClient.query("INSERT INTO public.smn_team(id,installation_id,product_id,name) VALUES('team','singleton','product',$1)", [input.team]);
     // Les quatre cérémonies Scrum sont de simples modèles actifs par défaut.
     // Aucun modèle n'est ajouté en mode Kanban.
-    if (input.mode === "scrum") await seedDefaultScrumCeremonyTemplates(dbClient, "team");
+    if (input.mode === "scrum") {
+      // During first-time installation, materialize the two versioned template relations
+      // before their default data is seeded. Business services must never execute DDL.
+      const templateTables = ceremonyStatements.filter(sql =>
+        sql.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template(") ||
+        sql.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template_history("));
+      if (templateTables.length !== 2) throw Error("scrum-template-migration-unavailable");
+      for (const sql of templateTables) await dbClient.query(sql);
+      await seedDefaultScrumCeremonyTemplates(dbClient, "team");
+    }
     await dbClient.query(
       "INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($1,'singleton',$2,$3,'admin',$4,true)",
       [randomUUID(), input.adminUsername, input.adminEmail, adminHash],
