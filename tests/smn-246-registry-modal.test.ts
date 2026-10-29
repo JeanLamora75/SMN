@@ -99,7 +99,7 @@ const basic={teamId:"team-one",type:"action",title:"Action réelle",
 test("création liée : source bornée équipe, fiches et association validées par le même COMMIT",async()=>{
  const calls:string[]=[];
  const db={query:async(sql:string)=>{
-  calls.push(sql);
+  calls.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
   if(sql.includes("SELECT r.id FROM public.smn_registry_item r")&&sql.includes("FOR UPDATE OF r"))
    return {rows:[{id:uuid}]};
@@ -115,7 +115,7 @@ test("création liée : source bornée équipe, fiches et association validées 
 test("source inexistante : aucune création, transaction annulée",async()=>{
  const calls:string[]=[];
  const db={query:async(sql:string)=>{
-  calls.push(sql);
+  calls.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   return {rows:sql.includes("SELECT t.id FROM public.smn_team")?[{id:"team-one"}]:[]};
  }} as unknown as Client;
  const result=await createRegistryItem(db,"admin",{...basic,sourceId:uuid});
@@ -126,7 +126,7 @@ test("source inexistante : aucune création, transaction annulée",async()=>{
 test("erreur du détail métier : la création et l'audit ne sont jamais commités partiellement",async()=>{
  const calls:string[]=[];
  const db={query:async(sql:string)=>{
-  calls.push(sql);
+  calls.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(/INSERT INTO public\.smn_decision_detail\s*\(/.test(sql))throw Error("db-failure");
   return {rows:sql.includes("SELECT t.id FROM public.smn_team")?[{id:"team-one"}]:[]};
  }} as unknown as Client;
@@ -154,7 +154,7 @@ test("retour sûr au contexte initial, sans URL externe ni redirection récursiv
 test("échec cible remplacée : validation en transaction avant première insertion",async()=>{
  const sql:string[]=[];
  const db={query:async(q:string)=>{
-  sql.push(q);
+  sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
   return {rows:[]};
  }} as unknown as Client;
@@ -169,7 +169,7 @@ test("échec cible remplacée : validation en transaction avant première insert
 test("risque initial : évaluation et ROAM audités dans le même commit",async()=>{
  const sql:string[]=[];
  const db={query:async(q:string)=>{
-  sql.push(q);
+  sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
   return {rows:[]};
  }} as unknown as Client;
@@ -187,7 +187,7 @@ test("risque initial : évaluation et ROAM audités dans le même commit",async(
 test("dépendance : parties réelles et vigilance auditées atomiquement",async()=>{
  const sql:string[]=[];
  const db={query:async(q:string)=>{
-  sql.push(q);
+  sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   return {rows:q.includes("SELECT t.id FROM public.smn_team")?[{id:"team-one"}]:[]};
  }} as unknown as Client;
  const r=await createRegistryItem(db,"admin",{
@@ -206,7 +206,7 @@ test("dépendance : parties réelles et vigilance auditées atomiquement",async(
 test("décision : remplacement explicite vérifié et audité atomiquement",async()=>{
  const sql:string[]=[];
  const db={query:async(q:string)=>{
-  sql.push(q);
+  sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-one"}]};
   if(q.includes("WHERE r.id=$1 AND r.team_id=$2 AND r.type='decision'"))return {rows:[{id:uuid}]};
   return {rows:[]};
