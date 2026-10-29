@@ -9,21 +9,9 @@ type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;
 type Preview={ok:true;valid:boolean;items:Item[];count:number};
 const digest=(items:Item[])=>createHash("sha256").update(JSON.stringify(items.map(i=>({number:i.number,name:i.name,startAt:i.startAt,endAt:i.endAt,timeZone:i.timeZone})))).digest("hex");
 export async function ensureBatchSchema(db:Client){
- await ensureSprintSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_batch_preview(
- token text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- actor_id text NOT NULL REFERENCES public.smn_account(id) ON DELETE RESTRICT,
- start_on date NOT NULL, count integer NOT NULL CHECK(count BETWEEN 2 AND 6),
- digest text NOT NULL, expires_at timestamptz NOT NULL,
- consumed_at timestamptz,
- created_at timestamptz NOT NULL DEFAULT now()
- )`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_batch_audit(
- id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- occurred_at timestamptz NOT NULL DEFAULT now(),
- cadence jsonb NOT NULL,sprints jsonb NOT NULL
- )`);
+ const names=["smn_sprint_batch_preview","smn_sprint_batch_audit"] as const;
+ const found=await db.query<{present:string[]}>(`SELECT array_agg(relname)::text[] AS present FROM pg_class WHERE relnamespace='public'::regnamespace AND relname=ANY($1::text[])`,[names]);
+ if(names.some(name=>!found.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 async function activeTeam(db:Client,actorId:string,requestedTeamId?:string|null){
  const version=await db.query<{schema_version:number}>(
