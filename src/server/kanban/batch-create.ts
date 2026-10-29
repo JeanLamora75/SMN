@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureKanbanPeriodTables} from "./periods";
@@ -41,13 +42,7 @@ export async function createKanbanBatch(db:Client,actorId:string,raw:unknown){
   if(!preview.canConfirm){await db.query("ROLLBACK");return {ok:false as const,error:"overlap" as const,items:preview.items};}
   const batchId=randomUUID();
   const created=preview.items.map(item=>({id:randomUUID(),name:item.name,startOn:item.startOn,endOn:item.endOn}));
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_batch_audit (
-   id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
-   actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   created_at timestamptz NOT NULL DEFAULT now(),
-   cadence text NOT NULL,quantity integer NOT NULL CHECK(quantity BETWEEN 2 AND 6),
-   cadence_revision integer NOT NULL,periods jsonb NOT NULL
-  )`);
+  await assertKanbanSchema(db,"smn_kanban_batch_audit");
   for(const period of created){
    await db.query(`INSERT INTO public.smn_kanban_period
     (id,team_id,name,start_on,end_on,time_zone,created_by)
