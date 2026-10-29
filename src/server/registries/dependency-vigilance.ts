@@ -6,16 +6,8 @@ export type DependencyState=typeof dependencyStates[number];
 export function dependencyActive(status:string){return status==="open"||status==="in_progress";}
 export function dependencyLate(status:string,dueOn:string|null,today:string){return dependencyActive(status)&&dueOn!==null&&dueOn<today;}
 export async function ensureDependencyFlag(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dependency_vigilance(
- item_id text PRIMARY KEY REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- at_risk boolean NOT NULL DEFAULT false,revision integer NOT NULL DEFAULT 1,
- updated_at timestamptz NOT NULL DEFAULT now(),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dependency_vigilance_audit(
- id text PRIMARY KEY,item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- revision integer NOT NULL,before_values jsonb,after_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(item_id,revision))`);
+ await db.query("SELECT to_regclass('public.smn_dependency_vigilance') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
+ await db.query("SELECT to_regclass('public.smn_dependency_vigilance_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
 }
 export async function readDependencyFlag(db:Client,id:string){
  const scope=await db.query(`SELECT r.id FROM public.smn_registry_item r
