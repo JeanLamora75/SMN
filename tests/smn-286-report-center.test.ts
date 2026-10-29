@@ -33,7 +33,7 @@ test("center retains existing report, model and archive routes",()=>{
  assert.match(page,/\/api\/admin\/reports\/archives\//);
 });
 test("admin-only creation uses native modal and preserves existing request contract",()=>{
- assert.match(page,/account\.role==="admin"&&<NewReportForm/);
+ assert.match(page,/account\.role==="admin"&&!scoped&&<NewReportForm/);
  assert.match(dialog,/<dialog/);
  assert.match(dialog,/\.showModal\(\)/);
  assert.match(dialog,/onCancel=/);
