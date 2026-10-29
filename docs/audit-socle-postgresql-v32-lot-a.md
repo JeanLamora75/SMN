@@ -220,3 +220,15 @@ et testée séparément avant retrait.
 
 Ce passage ne constitue pas une validation PostgreSQL réelle : les dépendances
 transitives des services et l'ensemble des tests calendaires restent à vérifier.
+
+
+### Calendrier — audit de replanification historique extrait
+
+Le DDL de `smn_sprint_reschedule_audit` a été déplacé de
+`src/server/sprints/reschedule.ts` vers
+`scripts/apply-legacy-sprint-reschedule-audit.ts`.
+Cette migration additive est **strictement réservée aux installations v1–v27**,
+qui utilisent encore le parcours historique de replanification. Elle refuse une
+installation v32 et ne doit **pas être exécutée** sur la base actuelle v32.
+Le service métier vérifie uniquement la présence de la table. La migration
+nécessite une validation sur une ancienne base réelle avant toute exploitation.
