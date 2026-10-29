@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {scopedKanbanPeriod,type KanbanTeamAccess} from "@/server/kanban/scoped-period";
@@ -23,15 +24,8 @@ export function comparableTiming(v:TimingValue){return v.days!==null&&v.conventi
 export function formatTiming(value:number|null,locale:"fr"|"en"){return value===null?"—":new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{minimumFractionDigits:1,maximumFractionDigits:1}).format(value);}
 export async function ensureKanbanTimingSchema(db:Client){
  await ensureKanbanPeriodTables(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_timing(
- period_id text PRIMARY KEY REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- cycle_days numeric(14,6),cycle_convention text NOT NULL DEFAULT 'unknown',cycle_source text NOT NULL DEFAULT '',
- lead_days numeric(14,6),lead_convention text NOT NULL DEFAULT 'unknown',lead_source text NOT NULL DEFAULT '',
- updated_at timestamptz NOT NULL DEFAULT now(),updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_timing_audit(
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- before_values jsonb,after_values jsonb NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now())`);
+ await assertKanbanSchema(db,"smn_kanban_timing");
+ await assertKanbanSchema(db,"smn_kanban_timing_audit");
 }
 export async function readKanbanTiming(db:Client,id:string,access?:KanbanTeamAccess){
  await ensureKanbanTimingSchema(db);
