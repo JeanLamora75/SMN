@@ -15,11 +15,9 @@ export function parseHistoricalEvent(raw:unknown){
 }
 export async function ensureHistoricalEventSchema(db:Client){
  await ensureExceptionalMeetingSchema(db);
- await db.query(`ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'manual'`);
- await db.query(`ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_historical_event(
- meeting_id text PRIMARY KEY REFERENCES public.smn_sprint_exceptional_meeting(id) ON DELETE RESTRICT,
- kind text NOT NULL,created_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_sprint_exceptional_meeting' AND column_name='generation_source'").then(r=>{if(!r.rows.length)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_sprint_exceptional_meeting' AND column_name='status_explicit'").then(r=>{if(!r.rows.length)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_historical_event') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 export async function createHistoricalEvent(db:Client,actorId:string,raw:unknown){
  const input=parseHistoricalEvent(raw);
