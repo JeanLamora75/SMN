@@ -48,7 +48,7 @@ describe("Refonte UX du panneau latéral — premier lot",()=>{
   }
   assert.deepEqual(privateNavigation("scrum","admin")[0].entries
    .map(e=>translate("fr",e.label)),
-    ["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Rapports"]);
+    ["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Liens","Rapports"]);
   const css=read("src/app/dashboard.css");
   assert.match(css,/smn-nav-label[^{]*\{[^}]*white-space:nowrap/);
   assert.match(css,/smn-nav-label[^{]*\{[^}]*text-overflow:ellipsis/);
