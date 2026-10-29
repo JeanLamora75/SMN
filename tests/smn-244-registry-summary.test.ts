@@ -127,7 +127,7 @@ test("le producteur de relations scinde les titres sur la même équipe",async()
  assert.deepEqual(query.params,[id,"team-1"]);
  assert.match(query.sql,/s\.team_id=\$2/);
  assert.match(query.sql,/r\.team_id=\$2/);
- assert.match(query.sql,/x\.team_id=\$2/);
+ assert.match(source("src/server/registries/relations.ts"),/x\.team_id=\$2/);
 });
 
 test("FR/EN : mêmes clés, droits et états vides accessibles",()=>{
