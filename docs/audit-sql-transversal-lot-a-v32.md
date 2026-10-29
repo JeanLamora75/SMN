@@ -11,7 +11,7 @@ confondus. Parmi elles, **81 occurrences potentielles dans 40 fichiers
 dernier `CREATE UNIQUE INDEX` du service des documents Rapports (commit
 `54fb3aa402093832fc6e286037242048c76602f4`).
 
-Ces décomptes sont des **candidats lexicaux**, pas 81 exécutions avérées.
+**Après correction**, le workflow d'inventaire n° 40938002782, sur le commit `54fb3aa402093832fc6e286037242048c76602f4`, confirme **635 occurrences potentielles dans l'ensemble des fichiers éligibles, dont 80 dans 39 fichiers métier candidats**. Le workflow s'est terminé avec succès.\n\nCes décomptes sont des **candidats lexicaux**, pas 81 exécutions avérées.
 Certains sont des références textuelles à une migration, notamment
 `src/server/installation/install.ts`. Les DDL assemblés dynamiquement
 peuvent ne pas apparaître dans la recherche.
