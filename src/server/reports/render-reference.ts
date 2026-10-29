@@ -40,10 +40,7 @@ export async function createFrozenReportReference(db:Client,sprintId:string,acto
  data,language:await readReportLanguage(db,sprintId),logo:await readReportLogo(db,sprintId)
  };
  const id=randomUUID(),sha256=hashReportPayload(payload);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_render_reference(
- id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- created_at timestamptz NOT NULL DEFAULT now(),created_by text NOT NULL,
- sha256 text NOT NULL,payload jsonb NOT NULL)`);
+ await db.query("SELECT to_regclass('public.smn_report_render_reference') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
  const saved=await db.query<{createdAt:string}>(`INSERT INTO public.smn_report_render_reference
  (id,sprint_id,created_by,sha256,payload)
  VALUES($1,$2,$3,$4,$5::jsonb) RETURNING created_at::text AS "createdAt"`,
