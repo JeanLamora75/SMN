@@ -29,3 +29,18 @@ test("Registres: les deux migrations sont explicites, transactionnelles et non d
   "smn_dependency_parties","smn_dependency_vigilance","smn_fact_selection"])
   assert.ok(ext.includes(name),name);
 });
+
+test("Registres: déploiement atomique unique et contrôles structurels après migration",()=>{
+ const script=read("scripts/apply-registry-schema-v32.ts");
+ assert.match(script,/registryCoreStatements/);
+ assert.match(script,/registryExtensionStatements/);
+ assert.match(script,/outcomeDDL/);
+ assert.match(script,/pg_advisory_xact_lock/);
+ assert.match(script,/BEGIN/);
+ assert.match(script,/COMMIT/);
+ assert.match(script,/ROLLBACK/);
+ assert.match(script,/smn_calendar_meeting_outcome_link/);
+ assert.match(script,/smn_registry_item_team_type_date/);
+ assert.match(script,/smn_registry_comment_item_date/);
+ assert.doesNotMatch(script,/\b(?:DROP TABLE|TRUNCATE TABLE|DELETE FROM)\b/i);
+});
