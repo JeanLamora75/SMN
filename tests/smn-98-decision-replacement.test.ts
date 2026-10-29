@@ -9,7 +9,7 @@ test("refus de se remplacer soi-même",async()=>{
 });
 test("lien de remplacement sécurisé et historisé sans modifier l'ancienne décision",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.team_id,r.status"))return {rows:[{team_id:"team-1",status:"active"}]};
   if(q.includes("SELECT 1 FROM public.smn_registry_item"))return {rows:[{one:1}]};
   return {rows:[]};
@@ -23,7 +23,7 @@ test("lien de remplacement sécurisé et historisé sans modifier l'ancienne dé
 });
 test("cible inexistante annulée sans écriture de détail",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);return {rows:q.includes("SELECT r.team_id,r.status")?[{team_id:"team-1",status:"active"}]:[]};}} as unknown as Client;
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};return {rows:q.includes("SELECT r.team_id,r.status")?[{team_id:"team-1",status:"active"}]:[]};}} as unknown as Client;
  const r=await saveDecisionDetail(db,"admin",id,{rationale:null,replacesId:"22222222-2222-4222-8222-222222222222",revision:0});
  assert.deepEqual(r,{ok:false,error:"invalid-target"});
  assert.equal(sql.at(-1),"ROLLBACK");
