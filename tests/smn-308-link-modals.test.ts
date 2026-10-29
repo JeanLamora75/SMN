@@ -10,7 +10,7 @@ test("create/edit and delete use the shared modal shell",()=>{
 });
 test("modal traps tab focus and restores triggering element",()=>{
  const dialog=read("src/app/app/admin/links/link-dialog.tsx");
- assert.match(dialog,/event\.key==="Tab"/);
+ assert.match(dialog,/event\.key!=="Tab"/);
  assert.match(dialog,/last\.focus\(\)/);
  assert.match(dialog,/first\.focus\(\)/);
  assert.match(dialog,/previous\?\.focus\(\)/);
@@ -18,7 +18,7 @@ test("modal traps tab focus and restores triggering element",()=>{
 });
 test("write pending state blocks Escape closing",()=>{
  const dialog=read("src/app/app/admin/links/link-dialog.tsx");
- assert.match(dialog,/if\(!locked\)closeRef\.current\(\)/);
+ assert.match(dialog,/if\(!locked\)onClose\(\)/);
 });
 
 test("portal does not access document.body during the server render",()=>{
