@@ -22,9 +22,7 @@ export async function createHistoricalSprint(db:Client,actorId:string,raw:unknow
  const value=parseHistoricalSprint(raw);
  if(!actorId||!value)return {ok:false as const,error:"invalid-input"};
  await ensureSprintSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_historical_request(
- operation_id text PRIMARY KEY,actor_id text NOT NULL,request_json jsonb NOT NULL,
- sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT)`);
+ await db.query("SELECT to_regclass('public.smn_sprint_historical_request') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("BEGIN");
  try{
   const team=await db.query<{id:string;time_zone:string}>(`
