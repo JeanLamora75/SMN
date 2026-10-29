@@ -13,6 +13,7 @@ test("ROAM transactionnel et audit, aucun changement de criticité",async()=>{
  const sql:string[]=[];
  const db={query:async(q:string)=>{
   sql.push(q);
+  if(/^SELECT to_regclass\('public\.[^']+'\) AS present$/.test(q))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.id FROM public.smn_registry_item"))return {rows:[{id:"existing"}]};
   if(q.includes("SELECT classification,revision"))return {rows:[]};
   return {rows:[]};
@@ -28,6 +29,7 @@ test("refuse version obsolète avant mutation",async()=>{
  const sql:string[]=[];
  const db={query:async(q:string)=>{
   sql.push(q);
+  if(/^SELECT to_regclass\('public\.[^']+'\) AS present$/.test(q))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.id FROM public.smn_registry_item"))return {rows:[{id:"existing"}]};
   if(q.includes("SELECT classification,revision"))return {rows:[{classification:"owned",revision:2}]};
   return {rows:[]};
