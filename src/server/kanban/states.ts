@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureKanbanPeriodTables} from "./periods";
@@ -15,31 +16,9 @@ export async function reconcileKanbanStates(db:Client){
  // Ne jamais exécuter la réconciliation monoéquipe ni sa DDL en v28.
  await assertLegacyTeamApi(db);
  await ensureKanbanPeriodTables(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_period_transition (
- id text PRIMARY KEY, period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- transition text NOT NULL CHECK(transition IN ('started','ended')),
- business_on date NOT NULL, processed_at timestamptz NOT NULL DEFAULT now(),
- provenance text NOT NULL CHECK(provenance IN ('on-time','recovered')),
- UNIQUE(period_id,transition)
- )`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_capacity_opening (
- period_id text PRIMARY KEY REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- opened_on date NOT NULL, captured_at timestamptz NOT NULL DEFAULT now(),
- provenance text NOT NULL CHECK(provenance IN ('pending-capture','historical-unavailable')),
- initial_jh numeric(12,4),
- CHECK(provenance<>'historical-unavailable' OR initial_jh IS NULL)
- )`);
- await db.query(`DO $$ BEGIN
- IF NOT EXISTS (SELECT 1 FROM pg_constraint
- WHERE conname='smn_kanban_capacity_opening_provenance_v2_check'
- AND conrelid='public.smn_kanban_capacity_opening'::regclass) THEN
- ALTER TABLE public.smn_kanban_capacity_opening
- DROP CONSTRAINT IF EXISTS smn_kanban_capacity_opening_provenance_check;
- ALTER TABLE public.smn_kanban_capacity_opening
- ADD CONSTRAINT smn_kanban_capacity_opening_provenance_v2_check
- CHECK (provenance IN ('pending-capture','historical-unavailable','calculated','manual','unavailable-at-opening'));
- END IF;
- END; $$`);
+ await assertKanbanSchema(db,"smn_kanban_period_transition");
+ await assertKanbanSchema(db,"smn_kanban_capacity_opening");
+ await assertKanbanSchema(db,"smn_kanban_capacity_opening");
  await db.query("BEGIN");
  try{
   const teams=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
