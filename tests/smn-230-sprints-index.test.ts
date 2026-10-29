@@ -199,7 +199,8 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   assert.match(helper,/await client\.query\("BEGIN READ ONLY"\)/);
   assert.match(helper,/await client\.query\("COMMIT"\)/);
   assert.match(helper,/await client\.query\("ROLLBACK"\)/);
-  assert.match(route,/withSprintIndexDb\(db=>readSprintIndex\(db,options\)\)/);
+  assert.match(route,/withSprintIndexDb\(async db=>/);
+  assert.match(route,/readSprintIndex\(db,options/);
   assert.match(page,/withSprintIndexDb\(async db=>/);
   assert.doesNotMatch(route,/withAuthDb|reconcileSprintStates/);
   assert.doesNotMatch(page,/withAuthDb|reconcileSprintStates/);
