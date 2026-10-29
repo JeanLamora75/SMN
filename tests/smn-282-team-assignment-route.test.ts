@@ -17,7 +17,7 @@ test("verrou global dans la route avant toute transaction",()=>{
  const db=route.indexOf("withAuthDb(db=>saveTeamAssignmentRevision");
  assert.ok(gate>0&&db>gate);
  assert.match(source("src/lib/team-context-readiness.ts"),
-  /MULTI_TEAM_CONTEXT_READY:boolean=false/);
+  /SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
 test("ancienne API affectation reste refusée en v28",()=>{
  const old=source("src/app/api/admin/members/[id]/assignment/route.ts");
