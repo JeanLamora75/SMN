@@ -73,6 +73,10 @@ test("lien diagnostic conserve le Sprint et les permissions de lecture des membr
  const dashboard=source("src/app/app/page.tsx");
  assert.match(overview,/canViewCapacity&&cycle&&cycle\.status!=="closed"/);
  assert.match(overview,/development-capacity\?cycleId=/);
+ assert.match(overview,/action=\{canViewCapacity&&cycle/);
+ assert.doesNotMatch(overview,/className="smn-capacity-diagnostic-link"/);
+ const cards=source("src/app/app/kpi-cards.tsx");
+ assert.match(cards,/action&&<Link href=\{action.href\}/);
  assert.match(dashboard,/canViewCapacity=\{canAccess\(account,"read",\{type:"members"/);
 });
 
