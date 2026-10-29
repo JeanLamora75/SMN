@@ -67,9 +67,7 @@ async function teamId(db:Client,actor?:{accountId:string;role:"admin"|"user"},re
  return r.rows[0].id;
 }
 export async function readCadence(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null):Promise<ScrumCadence>{
- await ensureCadenceTable(db);
  const id=await teamId(db,actor,requestedTeamId);
- await db.query(`INSERT INTO public.smn_scrum_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING`,[id]);
  const r=await db.query<Row>(query,[id]);
  if(r.rows.length!==1)throw Error("cadence-unavailable");
  return map(r.rows[0]);
