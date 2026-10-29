@@ -1,5 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 
 export type KanbanFrequency="monthly"|"weekly"|"biweekly";
 export type KanbanCadence={frequency:KanbanFrequency;startDay:number;timeZone:string;revision:number;updatedAt:string};
@@ -57,21 +59,32 @@ export async function ensureKanbanCadenceTable(db:Client){
  changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(team_id,revision)
  )`);
 }
-async function teamId(db:Client):Promise<string>{
+async function teamId(db:Client,actor:TeamActor,requestedTeamId?:string|null):Promise<string>{
+ const state=await db.query<{schema_version:number}>(
+  "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ const version=state.rows[0]?.schema_version;
+ if(evaluateSchemaCapability(version,"multi-team").ok){
+  const team=await resolveAdminTeam(db,actor,requestedTeamId);
+  if(team.mode!=="kanban")throw Error("kanban-team-unavailable");
+  return team.team_id;
+ }
+ if(typeof version!=="number"||version<1||version>27)
+  throw Error("kanban-schema-unavailable");
+ if(requestedTeamId!=null)throw Error("kanban-team-unavailable");
  const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'`);
  if(r.rows.length!==1)throw Error("kanban-team-unavailable");
  return r.rows[0].id;
 }
-export async function readKanbanCadence(db:Client):Promise<KanbanCadence>{
+export async function readKanbanCadence(db:Client,actor:TeamActor,requestedTeamId?:string|null):Promise<KanbanCadence>{
  await ensureKanbanCadenceTable(db);
- const id=await teamId(db);
+ const id=await teamId(db,actor,requestedTeamId);
  await db.query("INSERT INTO public.smn_kanban_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING",[id]);
  const r=await db.query<Row>(select,[id]);
  if(r.rows.length!==1)throw Error("kanban-cadence-unavailable");
  return map(r.rows[0]);
 }
-export async function updateKanbanCadence(db:Client,actorId:string,raw:unknown){
+export async function updateKanbanCadence(db:Client,actor:TeamActor,raw:unknown,requestedTeamId?:string|null){
  const input=parseKanbanCadence(raw);
  if(!input)return {ok:false as const,error:"invalid-input" as const};
  await ensureKanbanCadenceTable(db);
@@ -89,12 +102,12 @@ export async function updateKanbanCadence(db:Client,actorId:string,raw:unknown){
   const updated=await db.query<Row>(`UPDATE public.smn_kanban_cadence
  SET frequency=$2,start_day=$3,time_zone=$4,revision=revision+1,updated_at=now(),updated_by=$5
  WHERE team_id=$1 RETURNING frequency,start_day,time_zone,revision,updated_at::text AS updated_at`,
-  [id,input.frequency,input.startDay,input.timeZone,actorId]);
+  [id,input.frequency,input.startDay,input.timeZone,actor.accountId]);
   const after=map(updated.rows[0]);
   await db.query(`INSERT INTO public.smn_kanban_cadence_audit
  (id,team_id,revision,before_values,after_values,changed_by)
  VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
- [randomUUID(),id,after.revision,JSON.stringify(before),JSON.stringify(after),actorId]);
+ [randomUUID(),id,after.revision,JSON.stringify(before),JSON.stringify(after),actor.accountId]);
   await db.query("COMMIT");
   return {ok:true as const,cadence:after,changed:true};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
