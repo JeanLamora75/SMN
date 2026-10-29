@@ -123,9 +123,12 @@ test("AC6 : FR/EN, thème, zoom et filtres accessibles",()=>{
  const en=JSON.parse(file("src/i18n/en.json")).registryJournal;
  assert.deepEqual(Object.keys(fr).sort(),Object.keys(en).sort());
  for(const key of ["all","comments","action","decision","highlight","emptyFiltered",
-  "reset","submit","withdrawn","edited","loading","unavailable"]){
+  "reset","submit","loading","unavailable"]){
   assert.ok(fr[key]&&en[key],key);
  }
+ const commentFr=JSON.parse(file("src/i18n/fr.json")).registryComments;
+ const commentEn=JSON.parse(file("src/i18n/en.json")).registryComments;
+ for(const key of ["withdrawn","edited"])assert.ok(commentFr[key]&&commentEn[key],key);
  const css=file("src/app/globals.css");
  assert.ok(css.includes(".smn-registry-journal"));
  assert.ok(css.includes("@media(max-width:575px)"));
