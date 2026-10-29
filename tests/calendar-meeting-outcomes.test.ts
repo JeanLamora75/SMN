@@ -19,6 +19,7 @@ function fixture(sprintStatus="active",present=true){
  const calls:Array<{sql:string;args?:unknown[]}>= [];
  const db={query:async(sql:string,args?:unknown[])=>{
   calls.push({sql,args});
+  if(sql.includes("relname AS name FROM pg_class"))return {rows:["smn_registry_item","smn_registry_item_audit","smn_calendar_meeting_outcome_link"].map(name=>({name}))};
   if(sql.includes("information_schema.columns"))return {rows:[
    "id","sprint_id","kind","starts_at","ends_at","occurrence_status",
    "revision","minutes","actual_minutes","generation_source","status_explicit"
