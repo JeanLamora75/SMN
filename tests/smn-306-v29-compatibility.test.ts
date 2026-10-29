@@ -24,7 +24,7 @@ test("admin team preference and registry reads remain enabled on v29",()=>{
 test("migration is explicit, refuses implicit execution",()=>{
  const apply=read("scripts/apply-links-migration.ts");
  assert.match(apply,/--apply/);
- assert.match(apply,/backup-file/);
+ assert.match(apply,/Sauvegarde recommandée/);
  assert.match(apply,/ROLLBACK/);
  assert.match(apply,/schema_version!==28/);
 });
