@@ -28,5 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: schema-v32-ddl-inventory
-          path: audit-output/schema-v32-ddl-inventory.*
+          path: |
+            audit-output/schema-v32-ddl-inventory.*
+            audit-output/schema-v32-runtime-candidates.*
           if-no-files-found: error
