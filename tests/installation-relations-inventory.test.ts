@@ -16,7 +16,8 @@ function sourceFiles(root:string):string[]{
 }
 const roots=[
  fileURLToPath(new URL("../src/server/",import.meta.url)),
- fileURLToPath(new URL("../src/app/api/",import.meta.url))
+ fileURLToPath(new URL("../src/app/api/",import.meta.url)),
+ fileURLToPath(new URL("../scripts/",import.meta.url))
 ];
 test("every SMN table created by application SQL has an explicit diagnostic allowlist entry",()=>{
  const known=new Set<string>(INSTALLATION_RELATIONS);
