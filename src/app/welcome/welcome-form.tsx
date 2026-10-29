@@ -13,9 +13,6 @@ export default function SetupWelcome() {
   const [postgresUser, setPostgresUser] = useState("postgres");
   const [postgresPassword, setPostgresPassword] = useState("");
   const [postgresPort, setPostgresPort] = useState("5432");
-  const [mode, setMode] = useState("scrum");
-  const [product, setProduct] = useState("");
-  const [team, setTeam] = useState("");
   const [adminEmail, setAdminEmail] = useState("admin@localhot.com");
   const [adminUsername, setAdminUsername] = useState("admin");
   const [password, setPassword] = useState("admin");
@@ -52,7 +49,7 @@ export default function SetupWelcome() {
       const r = await fetch("/api/bootstrap", {
         method: "POST", cache: "no-store", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ dbMode, postgresUser, postgresPassword, postgresPort: Number(postgresPort),
-          mode, product, team, password, adminEmail, adminUsername, confirmed,
+          password, adminEmail, adminUsername, confirmed,
           recoverPartial: needsRecovery && recoveryApproved }),
       });
       const data = await r.json() as { status: string };
@@ -91,18 +88,6 @@ export default function SetupWelcome() {
         <p className="small text-secondary">{t("welcome.dbExistingInfo")}</p>
       </>}
       {dbMode === "portable" && <p className="small text-secondary">{t("welcome.dbPortableInfo")}</p>}
-      <h2 className="h5">{t("welcome.workspace")}</h2>
-      <label className="form-label">{t("welcome.mode")}
-        <select className="form-select" value={mode} onChange={e=>setMode(e.target.value)}>
-          <option value="scrum">Scrum</option><option value="kanban">Kanban</option>
-        </select>
-      </label>
-      <label className="form-label">{t("welcome.product")}
-        <input required maxLength={120} className="form-control" value={product} onChange={e=>setProduct(e.target.value)}/>
-      </label>
-      <label className="form-label">{t("welcome.team")}
-        <input required maxLength={120} className="form-control" value={team} onChange={e=>setTeam(e.target.value)}/>
-      </label>
       <h2 className="h5">{t("welcome.admin")}</h2>
       <label className="form-label">{t("welcome.email")}
         <input required type="email" className="form-control" value={adminEmail} onChange={e=>setAdminEmail(e.target.value)}/>
