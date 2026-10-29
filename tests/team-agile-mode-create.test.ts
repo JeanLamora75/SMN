@@ -12,7 +12,7 @@ test("mode Agile explicite obligatoire et contrôlé",()=>{
 test("le mode est persisté et restitué dans la liste",()=>{
  const write=read("src/server/teams/write.ts");
  const list=read("src/server/teams/list.ts");
- assert.match(write,/name,agile_mode\)/);
+ assert.match(write,/name,agile_mode\) VALUES/);
  assert.match(write,/input\.agileMode/);
  assert.match(list,/t\.agile_mode/);
  assert.match(list,/agileMode:row\.agile_mode/);
@@ -22,5 +22,5 @@ test("le formulaire présente Scrum et Kanban sans modifier le mode existant",()
  assert.match(ui,/id="smn-team-settings-agile-mode"/);
  assert.match(ui,/<option value="scrum">Scrum<\/option>/);
  assert.match(ui,/<option value="kanban">Kanban<\/option>/);
- assert.match(ui,/disabled=\{!!current\|\|!canWrite/);
+ assert.match(ui,/disabled=\{!!current&&\(!current\.canChangeMode\|\|current\.isArchived\)\|\|!canWrite/);
 });
