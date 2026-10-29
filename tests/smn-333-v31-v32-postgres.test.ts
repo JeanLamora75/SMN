@@ -49,6 +49,31 @@ test("SMN-333: v31 vers v32 conserve les cycles Scrum et Kanban sur PostgreSQL 1
   await admin.end();
  }
 });
+test("SMN-333: une migration v32 invalide annule les modifications atomiquement",{skip:!ci},async()=>{
+ assert.ok(approved,"Base CI temporaire requise");
+ const admin=new Client({connectionString:uri});await admin.connect();
+ const name="smn333rollback_"+randomUUID().replaceAll("-","").slice(0,12);
+ let db:Client|undefined;
+ try{
+  await admin.query('CREATE DATABASE "'+name+'"');
+  const target=new URL(uri!);target.pathname="/"+name;
+  db=new Client({connectionString:target.toString()});await db.connect();
+  await db.query(`CREATE TABLE public.smn_installation(id text PRIMARY KEY,state text NOT NULL,schema_version integer NOT NULL,mode text NOT NULL);
+   CREATE TABLE public.smn_team(id text PRIMARY KEY,installation_id text NOT NULL,name text NOT NULL);
+   INSERT INTO public.smn_installation VALUES('singleton','initialized',31,'invalid');
+   INSERT INTO public.smn_team VALUES('koala','singleton','Koala');`);
+  await db.query("BEGIN");
+  try{await db.query(sql);await db.query("COMMIT");assert.fail("Une migration incohérente ne doit pas être validée");}
+  catch(e){await db.query("ROLLBACK");assert.match(String(e),/constraint|check|invalid/i);}
+  assert.equal((await db.query("SELECT schema_version FROM public.smn_installation")).rows[0].schema_version,31);
+  assert.equal((await db.query("SELECT id FROM public.smn_team")).rows[0].id,"koala");
+  assert.equal((await db.query("SELECT count(*)::int n FROM information_schema.columns WHERE table_name='smn_team' AND column_name='agile_mode'")).rows[0].n,0);
+ }finally{
+  if(db)await db.end().catch(()=>undefined);
+  await admin.query('DROP DATABASE IF EXISTS "'+name+'" WITH (FORCE)').catch(()=>undefined);
+  await admin.end();
+ }
+});
 test("SMN-333: v32 incomplète refusée par le contrat d'intégrité",()=>{
  const result=assessSchemaIntegrity("per-team-agile-mode",32,{
   tables:["smn_team"],columns:["smn_team:agile_mode"],constraints:[],
