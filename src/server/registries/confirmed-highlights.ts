@@ -8,12 +8,7 @@ export async function recordConfirmedHighlight(db:Client,input:{
 }){
  const settings=await readAutomaticHighlightSettings(db);
  if(!settings.categories[input.category])return false;
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_automatic_highlight(
- id text PRIMARY KEY,category text NOT NULL,source_kind text NOT NULL,
- source_id text NOT NULL,source_revision integer NOT NULL CHECK(source_revision>0),
- title text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- UNIQUE(category,source_kind,source_id,source_revision))`);
+ await db.query("SELECT to_regclass('public.smn_automatic_highlight') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
  const saved=await db.query(`INSERT INTO public.smn_automatic_highlight
  (id,category,source_kind,source_id,source_revision,title,actor_id)
  VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT DO NOTHING RETURNING id`,
