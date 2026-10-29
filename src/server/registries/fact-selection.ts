@@ -2,17 +2,8 @@ import type {Client} from "pg";
 export type FactOrigin="manual"|"automatic";
 export function selectableFact(hidden:boolean,invalidated:boolean){return !hidden&&!invalidated;}
 export async function ensureFactSelection(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_fact_selection(
- origin text NOT NULL CHECK(origin IN ('manual','automatic')),fact_id text NOT NULL,
- hidden boolean NOT NULL DEFAULT false,promoted boolean NOT NULL DEFAULT false,
- selected boolean NOT NULL DEFAULT true,revision integer NOT NULL DEFAULT 1,
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- updated_at timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(origin,fact_id))`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_fact_selection_audit(
- id text PRIMARY KEY,origin text NOT NULL,fact_id text NOT NULL,
- previous_values jsonb,next_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_fact_selection') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
+ await db.query("SELECT to_regclass('public.smn_fact_selection_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
 }
 export async function scopeFact(db:Client,origin:FactOrigin,id:string){
  const sql=origin==="manual"?
