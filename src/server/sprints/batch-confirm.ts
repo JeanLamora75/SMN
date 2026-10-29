@@ -1,5 +1,6 @@
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
+import {resolveAdminTeam} from "@/server/teams/resolve";
 import {previewSprintBatch,validBatchRequest} from "./batch-preview";
 import {ensureSprintSchema} from "./creation";
 import {saveGeneratedCeremonies} from "./ceremonies";
@@ -24,18 +25,27 @@ export async function ensureBatchSchema(db:Client){
  cadence jsonb NOT NULL,sprints jsonb NOT NULL
  )`);
 }
-async function activeTeam(db:Client){
+async function activeTeam(db:Client,actorId:string,requestedTeamId?:string|null){
+ const version=await db.query<{schema_version:number}>(
+  "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ if(version.rows[0]?.schema_version>=28){
+  const team=await resolveAdminTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
+  if(team.mode!=="scrum")throw Error("scrum-team-unavailable");
+  return team.team_id;
+ }
+ if(!version.rows[0]||version.rows[0].schema_version<1)throw Error("scrum-schema-unavailable");
+ if(requestedTeamId!=null)throw Error("scrum-team-unavailable");
  const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
  if(r.rows.length!==1)throw Error("scrum-team-unavailable");
  return r.rows[0].id;
 }
-export async function issueBatchPreview(db:Client,actorId:string,raw:unknown){
+export async function issueBatchPreview(db:Client,actorId:string,raw:unknown,requestedTeamId?:string|null){
  if(!validBatchRequest(raw)||raw.count<2)return {ok:false as const,error:"invalid-input" as const};
  await ensureBatchSchema(db);
- const result=await previewSprintBatch(db,raw);
+ const teamId=await activeTeam(db,actorId,requestedTeamId);
+ const result=await previewSprintBatch(db,raw,teamId);
  if(!result.ok)return result;
- const teamId=await activeTeam(db);
  if(!result.valid)return {...result,token:null};
  const token=randomUUID();
  await db.query(`INSERT INTO public.smn_sprint_batch_preview(token,team_id,actor_id,start_on,count,digest,expires_at)
@@ -43,7 +53,7 @@ export async function issueBatchPreview(db:Client,actorId:string,raw:unknown){
  [token,teamId,actorId,raw.startOn,raw.count,digest(result.items)]);
  return {...result,token};
 }
-export async function confirmBatch(db:Client,actorId:string,raw:unknown){
+export async function confirmBatch(db:Client,actorId:string,raw:unknown,requestedTeamId?:string|null){
  if(!raw||typeof raw!=="object"||Array.isArray(raw)||Object.keys(raw).length!==1||
  typeof (raw as {token?:unknown}).token!=="string")return {ok:false as const,error:"invalid-input" as const};
  const token=(raw as {token:string}).token;
@@ -55,8 +65,10 @@ export async function confirmBatch(db:Client,actorId:string,raw:unknown){
   FROM public.smn_sprint_batch_preview WHERE token=$1 AND consumed_at IS NULL AND expires_at>now() FOR UPDATE`,[token]);
   const saved=rows.rows[0];
   if(!saved||saved.actor_id!==actorId){await db.query("ROLLBACK");return {ok:false as const,error:"preview-expired" as const};}
+  const authorizedTeam=await activeTeam(db,actorId,requestedTeamId);
+  if(authorizedTeam!==saved.team_id){await db.query("ROLLBACK");return {ok:false as const,error:"preview-expired" as const};}
   await db.query("SELECT pg_advisory_xact_lock(hashtext($1))",[saved.team_id]);
-  const preview=await previewSprintBatch(db,{startOn:saved.start_on,count:saved.count});
+  const preview=await previewSprintBatch(db,{startOn:saved.start_on,count:saved.count},saved.team_id);
   if(!preview.ok||!preview.valid||digest(preview.items)!==saved.digest){
    await db.query("ROLLBACK");return {ok:false as const,error:"stale-preview" as const};
   }
@@ -84,9 +96,9 @@ export async function confirmBatch(db:Client,actorId:string,raw:unknown){
   return {ok:true as const,batchId:auditId,sprints:created};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
-export async function batchHistory(db:Client){
+export async function batchHistory(db:Client,actorId:string,requestedTeamId?:string|null){
  await ensureBatchSchema(db);
- const teamId=await activeTeam(db);
+ const teamId=await activeTeam(db,actorId,requestedTeamId);
  const r=await db.query(`SELECT id,actor_id,occurred_at::text AS occurred_at,team_id,cadence,sprints
  FROM public.smn_sprint_batch_audit WHERE team_id=$1 ORDER BY occurred_at DESC LIMIT 50`,[teamId]);
  return r.rows;
