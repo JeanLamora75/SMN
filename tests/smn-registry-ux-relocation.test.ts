@@ -4,8 +4,10 @@ import {readFileSync} from "node:fs";
 const read=(p:string)=>readFileSync(p,"utf8");
 test("registry screen keeps collective attention first and six-register consultation second",()=>{
  const page=read("src/app/app/admin/registries/page.tsx");
- assert.ok(page.indexOf("<AttentionCockpit/>")>=0);
- assert.ok(page.indexOf("<RegistryList")>page.indexOf("<AttentionCockpit/>"));
+ const list=read("src/app/app/admin/registries/registry-list.tsx");
+ assert.ok(page.includes("<RegistryList"));
+ assert.ok(list.includes("<AttentionCockpit items={attention}"));
+ assert.ok(list.indexOf("<AttentionCockpit items={attention}")<list.indexOf("smn-registry-list-table"));
  for(const name of ["FactSelection","ConfirmedHighlights","AutomaticHighlightsSettings","RegistryDeadlineAlerts"])assert.ok(!page.includes("<"+name));
 });
 test("configuration components move to the settings portal",()=>{
