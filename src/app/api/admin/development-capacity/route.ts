@@ -26,7 +26,7 @@ export async function GET(request:NextRequest){
     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
    const schema=version.rows[0]?.schema_version;
    let teamId:string|undefined;
-   if([28,29,30,31].includes(schema??0)){
+   if([28,29,30,31,32].includes(schema??0)){
     if(actor.role!=="admin")throw Error("capacity-team-forbidden");
     const team=await resolveAdminTeam(db,
       {accountId:actor.id,role:actor.role},search.get("teamId"));
@@ -35,7 +35,7 @@ export async function GET(request:NextRequest){
      throw Error("capacity-schema-unsupported");
    const report=await readDevelopmentCapacity(db,period.start,period.end,
      teamId?{teamId}:{});
-   if(![28,29,30,31].includes(schema??0)&&search.has("teamId")&&search.get("teamId")!==report.team.id)
+   if(![28,29,30,31,32].includes(schema??0)&&search.has("teamId")&&search.get("teamId")!==report.team.id)
     throw Error("capacity-team-unavailable");
    const selection=await readCapacityOverride(db,report);
    const initialSnapshot=await readInitialSnapshot(db,report.team.id,report.start,report.end);
