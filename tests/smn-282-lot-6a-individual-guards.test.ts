@@ -73,6 +73,9 @@ test("routes individuelles : anciennes fonctions d'accès toutes couvertes",()=>
   assert.match(content,/withLegacyMemberApi\(/,file);
   assert.doesNotMatch(content,/withAuthDb\(/,file);
  }
+ const context=readFileSync(new URL("../src/app/api/admin/team-context/route.ts",import.meta.url),"utf8");
+ assert.match(context,/resolveRegistryReadContext\(db/);
+ assert.match(context,/context\.team\?\.team_id!==teamId/);
 });
 test("routes capacités et détails de réunion : garde v28",()=>{
  const files=[
@@ -82,7 +85,6 @@ test("routes capacités et détails de réunion : garde v28",()=>{
   "src/app/api/team-calendar/meetings/[kind]/[id]/route.ts",
   "src/app/api/team-calendar/meetings/[kind]/[id]/outcomes/route.ts",
   "src/app/api/admin/kanban-meetings/route.ts",
-  "src/app/api/admin/team-context/route.ts",
   "src/app/api/admin/company-closures/route.ts"
  ];
  for(const file of files){
