@@ -29,3 +29,12 @@ Aucune compilation ni test PostgreSQL réel n'a été exécuté dans cette inter
 Tests statiques publiés dans `tests/smn-330-batch-scope.test.ts` : confirmation liée à l'acteur et à l'équipe; prévisualisation filtrée par `team_id`. Les signatures des services et leurs appels dans les routes `admin/sprints/preview` et `admin/sprints/batch` ont été relus sur `main` : correspondance constatée.
 
 **Limites** : tests non exécutés; état CI non confirmé (aucun statut reporté sur le commit interrogé). Les tests de sécurité PostgreSQL multiéquipes, et les appels de prévisualisation hors de ces routes, restent à vérifier avant clôture.
+
+## Sécurisation des parcours complémentaires
+
+- Wizard Sprint : résolution `resolveAdminTeam` avant prévisualisation, recalcul limité à l'équipe du jeton et revalidation avant confirmation. Routes `admin/sprints/wizard/preview` et `wizard/confirm` adaptées.
+- Propositions de cadence Kanban : `kanbanCadenceProposal` et `confirmKanbanCadenceProposal` utilisent désormais l'équipe autorisée; la requête des périodes est filtrée par `team_id`. Route `admin/kanban-cadence/proposal` adaptée.
+- Tests statiques : `tests/smn-330-wizard-cadence-scope.test.ts` créé.
+
+### État de recette
+Une exécution GitHub Actions « Vérification I0 » est en attente pour le dernier commit consulté. Les tests PostgreSQL à deux équipes, la compilation TypeScript et la CI verte ne sont **pas encore attestés**. Par conséquent SMN-330 doit rester **à valider**, et son statut Jira ne doit pas être déclaré « Terminé » à ce stade.
