@@ -80,7 +80,7 @@ test("contextes : aucun cycle proposé n'est confondu avec un cycle lié",()=>{
  const s=source("src/app/app/admin/registries/registry-summary.tsx");
  assert.match(s,/parseSummaryCycles/);
  assert.match(s,/parseSummaryRelations/);
- assert.match(s,/encodeURIComponent\(record\.id\)/);
+ assert.match(s,/registryDetailHref\(record\.id,navigation\)/);
  assert.match(s,/cyclesApplicable/);
  assert.match(s,/tr\("cyclesUnsupported"\)/);
  assert.match(s,/relations\.state==="unavailable"/);
