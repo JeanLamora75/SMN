@@ -21,7 +21,7 @@ test("API nouvelle écriture : verrou côté serveur avant accès PostgreSQL",()
  assert.ok(s.indexOf("if(!MULTI_TEAM_CONTEXT_READY)")<
   s.indexOf("withAuthDb(db=>saveTeamActualCapacity"));
  assert.match(src("src/lib/team-context-readiness.ts"),
-  /MULTI_TEAM_CONTEXT_READY:boolean=false/);
+  /SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
 test("service d'écriture : autorisation, verrous, revisions et audit",()=>{
  const s=src("src/server/capacity/team-actual-write.ts");
@@ -39,6 +39,6 @@ test("service d'écriture : autorisation, verrous, revisions et audit",()=>{
 test("lecteur actuel v27 ne peut pas choisir une équipe arbitraire en v28",()=>{
  const s=src("src/server/capacity/actual.ts");
  assert.match(s,/i\.schema_version<=27/);
- assert.match(s,/i\.schema_version=28 AND t\.id=\$1/);
+ assert.match(s,/i\.schema_version IN \(28,29,30,31\) AND t\.id=\$1/);
  assert.match(s,/options\.teamId\?\{teamId:options\.teamId\}:\{\}/);
 });
