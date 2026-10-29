@@ -107,7 +107,7 @@ test("page : un seul appel métier partagé avec Liste et Cartes",()=>{
 });
 test("API rend 503 si producteur non installé et valide autorisation collective",()=>{
  const api=file("src/app/api/admin/registries/attention/route.ts");
- assert.match(api,/authorizeApi\(req,"read",\{type:"collective",exists:true,inScope:true\}\)/);
+ assert.match(api,/authorizeApi\(req,"read",\s*\{type:"collective",exists:true,inScope:true\}\)/);
  assert.match(api,/result\.state==="unavailable"\?503:200/);
  assert.match(api,/lower\(i\.mode\) IN \('scrum','kanban'\)/);
 });
