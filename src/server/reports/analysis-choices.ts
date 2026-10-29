@@ -8,9 +8,7 @@ export async function reportAnalysisCandidates(db:Client,sprintId:string){
  return readAnalysisJournal(db,scope.rows[0].team_id,{});
 }
 async function ensure(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_analysis_choice(
- sprint_id text PRIMARY KEY,selected_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
- updated_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_report_analysis_choice') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
 }
 export async function readReportAnalysisChoice(db:Client,sprintId:string){
  const existing=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_report_analysis_choice') IS NOT NULL AS present`);
