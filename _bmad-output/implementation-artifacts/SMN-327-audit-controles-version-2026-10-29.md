@@ -40,3 +40,33 @@ Le dépôt contient 866 fichiers TS/TSX sous `src`; cette première passe a insp
 ## Références
 ADR : `_bmad-output/planning-artifacts/architecture/ADR-SMN-SCHEMA-COMPATIBILITY-CENTRALISEE-2026-10-29.md`
 Epic Jira : SMN-326; Story : SMN-327.
+
+## Deuxième passe — contrôles complémentaires confirmés
+
+Périmètre additionnel : 15 fichiers inspectés directement dans les services équipes, sprints, Kanban, calendrier, registres et sondes PostgreSQL; le recensement global sur les 866 fichiers reste à terminer.
+
+| Priorité | Fichier : ligne | Constat vérifié | Action proposée |
+|---|---|---|---|
+| **P0** | `src/server/kanban/scoped-create.ts:38` | `i.schema_version IN (29,30,31)` refuse la v32 lors de la création Kanban scoped | Correction ciblée urgente, puis capability `kanban-periods` |
+| P1 | `src/server/kanban/route-context.ts:17` | `context.version===28` active un comportement strictement versionné | Analyser la logique legacy v28 et extraire dans un adaptateur |
+| P1 | `src/app/api/team-calendar/time-zones/route.ts:16` | `schema>=28&&schema<=32` : prochaine migration nécessite modification | Capability `multi-team`; garder un adaptateur <=27 |
+| P1 | `src/server/kanban/cadence.ts:62` | `lower(i.mode)='kanban'` : dépendance au mode d'installation | Confirmer chemin historique; utiliser mode de l'équipe autorisée si multiéquipes |
+| P1 | `src/server/sprints/batch-confirm.ts:29` | `lower(i.mode)='scrum'` : dépendance au mode global | Évaluer le chemin d'appel; retirer pour parcours multiéquipes |
+| P1 | `src/server/registries/team-access.ts:16` | Versions 28–30 et `>=31` sans borne supérieure | Remplacer par capability et refus explicite d'une version future inconnue |
+| P2 | `src/server/teams/legacy.ts:14` | `version<=27` | Conserver dans adaptateur historique identifié |
+| P2 | `src/server/sprints/creation.ts:73` | `schema_version<=27` avec `i.mode` | Laisser au code legacy si appels cloisonnés |
+| P2 | `src/server/sprints/work-slot-config.ts:7` | `version>=28` sans plafond | Contrôle central avec support connu |
+| P2 | `src/server/db/probe.ts:87,122,130,135,137,196` | Vérifications de structure par seuils v28/v29/v30/v31/v32 | Registre de capacités et exigences de colonnes |
+| P2 | `src/server/teams/cycle-schema.ts:16-18` | Vérifie les deux nouvelles colonnes | Préserver comme contrat d'intégrité, centraliser l'appel |
+
+Le fait que `smn_installation.mode` soit utilisé n'est **pas** automatiquement une anomalie : les parcours monoéquipe historiques (<=27) doivent être identifiés avant correction. Pour le mode multiéquipes v32, vérifier systématiquement que l'équipe choisie reste autorisée et que son `agile_mode` prédomine.
+
+### Contrat minimal suggéré pour SMN-328
+- Version d'exécution maximale explicitement connue, sans fausse compatibilité avec les versions futures.
+- Capacités `multi-team`, `per-team-agile-mode`, `kanban-cycles`, `scrum-cycles`, `team-calendar`, `company-catalog`.
+- Une capacité dépend du marqueur de migration **et** des objets physiques nécessaires.
+- Résolution d'équipe indépendante de l'autorisation de capacité.
+- Tests statiques bloquants identifiant `schema_version IN (...)`, `version<=N`, `version===N` dans les endpoints; exceptions annotées pour les migrations et le legacy.
+
+### Critère de fermeture SMN-327
+Non atteint : recherche automatisée complète dans le dépôt et classification de toutes les occurrences restantes nécessaires. Ne pas déclarer la Story terminée sur cette seule passe.
