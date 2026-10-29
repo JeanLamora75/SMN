@@ -124,3 +124,17 @@ Correctifs successifs publiés directement sur main après ce passage, à requal
 - Tests de non-régression v31 renforcés ; le cockpit sans cycle conserve le contexte équipe/produit.
 
 **Aucune validation PostgreSQL réelle du nouveau schéma v31 à ce stade.** Les runs déclenchés après le dernier commit `00423e6e` n'avaient pas de conclusion lors de cette rédaction. Ne pas utiliser les 120/121 échecs du run antérieur comme bilan final de la dernière révision, ni annoncer zéro échec.
+
+## 29 octobre 2026 — audit CI et correction des gardes v31
+
+Résultat de référence avant cette vague : workflow `40780552933` sur `95c5c82a` : **2069 tests Linux, 1943 pass, 124 fail** ; **2058 tests Windows, 1931 pass, 125 fail**. Le lint et le TypeScript indépendant ont réussi, mais les tests bloquent les autres étapes Linux.
+
+Corrections de production publiées sur `main` :
+- `src/app/app/reports/page.tsx` : présentation du Centre Rapports autorisée pour une équipe explicitement résolue en schéma v31.
+- `src/server/links/{admin-transfer,admin,catalog,categories-admin}.ts` : compatibilité du module Liens avec le schéma v31 sans accepter les versions inconnues.
+
+Contrats de tests actualisés après inspection des gardes serveur :
+- `tests/schema-v30-module-compatibility.test.ts` et `tests/schema-v30-scoped-read-guards.test.ts` : assertions de version cohérentes avec v31.
+- `tests/sprint-context-v30.test.ts`, `tests/team-context-v30-read.test.ts`, `tests/team-isolation-v30-kanban-metrics.test.ts` : lectures contextualisées en v31.
+
+Vérification GitHub Actions relancée automatiquement par les commits sur `main` : `40825156048` (head `200b6332`). Typecheck indépendant **réussi** ; le résultat complet de cette exécution doit être consulté avant toute conclusion. Les autres défauts métier/UX historiques restent bloquants tant qu'ils ne sont pas corrigés avec leurs critères d'acceptation. Aucune migration réelle v31 n'a été appliquée.
