@@ -24,7 +24,7 @@ test("préférence stockée par compte sans attribuer de droit user",()=>{
  const schema=source("prisma/schema.prisma");
  assert.match(schema,/model SmnAccountTeamPreference/);
  const sql=source("prisma/migrations/20261026_smn282_multi_teams/migration.sql");
- assert.equal(sql,MULTI_TEAM_SCHEMA_SQL);
+ assert.equal(sql.replace(/\r\n/g,"\n"),MULTI_TEAM_SCHEMA_SQL.replace(/\r\n/g,"\n"));
 });
 test("lecture et écriture côté serveur filtrées par installation et rôle",()=>{
  const active=source("src/server/teams/active.ts");
