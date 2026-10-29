@@ -201,3 +201,22 @@ le schéma si l'une manque : matérialiser les registres **avant** cette migrati
 Cette séparation ne garantit pas encore la complétude des migrations Registres ;
 la CI et une restauration de données historiques sous PostgreSQL réel restent
 indispensables avant déclaration de conformité complète.
+
+
+## Module Calendrier — revue initiale des DDL
+
+Revue des services : calendrier central, calendriers équipe et membre, absences,
+plages de travail, jours fériés, déplacement et résultats des réunions.
+Les onze services principaux couverts par
+`tests/calendar-runtime-ddl-audit.test.ts` n'exécutent plus de DDL directs.
+Le test empêche leur réintroduction.
+
+**Exception isolée :** `src/server/sprints/reschedule.ts` possède encore un
+`CREATE TABLE IF NOT EXISTS smn_sprint_reschedule_audit`, dans un parcours
+historique limité à `schema_version<=27`. Il ne faut ni l'intégrer
+aveuglément à une migration v32 ni supprimer la table d'audit :
+une migration compatible avec ces anciennes installations doit être conçue
+et testée séparément avant retrait.
+
+Ce passage ne constitue pas une validation PostgreSQL réelle : les dépendances
+transitives des services et l'ensemble des tests calendaires restent à vérifier.
