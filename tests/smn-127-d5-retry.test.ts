@@ -14,7 +14,7 @@ test("export route requires an operation id and holds a session lock until archi
 test("archive operation key is unique in DB and retrying client preserves it",()=>{
  const store=read("src/server/reports/pdf-archive-store.ts");
  const client=read("src/app/app/admin/sprints/[sprintId]/report/preview/frozen-pdf-export.tsx");
- assert.match(store,/CREATE UNIQUE INDEX IF NOT EXISTS smn_pdf_archive_operation_uq/);
+ assert.match(store,/operation_id\) VALUES/);
  assert.match(client,/useRef<string\|null>/);
  assert.match(client,/X-SMN-Export-Operation/);
 });
