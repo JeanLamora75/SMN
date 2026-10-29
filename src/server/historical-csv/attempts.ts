@@ -1,16 +1,10 @@
+import {assertHistoricalCsvTable} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 export type CsvAttemptStatus="preview-valid"|"preview-refused"|"preview-cancelled"|"import-confirmed"|"import-refused";
 export type CsvAttemptInput={actorId:string;status:CsvAttemptStatus;mode:string;scope:string;batchId?:string|null;readCount:number;recognizedCount:number;appliedCount:number;preservedCount:number;rejectedCount:number;cycleIds:string[];errors?:{line:number;column:string;message:string}[]};
 export async function ensureCsvAttemptSchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_historical_csv_attempt(
- id text PRIMARY KEY,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
- status text NOT NULL CHECK(status IN ('preview-valid','preview-refused','preview-cancelled','import-confirmed','import-refused')),
- mode text NOT NULL,scope text NOT NULL,batch_id text,
- read_count integer NOT NULL,recognized_count integer NOT NULL,
- applied_count integer NOT NULL,preserved_count integer NOT NULL,rejected_count integer NOT NULL,
- cycle_ids jsonb NOT NULL DEFAULT '[]'::jsonb,errors jsonb NOT NULL DEFAULT '[]'::jsonb)`);
+ await assertHistoricalCsvTable(db,"smn_historical_csv_attempt");
 }
 export async function recordCsvAttempt(db:Client,input:CsvAttemptInput){
  await ensureCsvAttemptSchema(db);
