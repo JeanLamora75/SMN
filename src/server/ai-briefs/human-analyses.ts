@@ -1,3 +1,4 @@
+import {assertAiBriefSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 export type HumanAnalysis={id:string;team_id:string;cycle_id:string;mode:"scrum"|"kanban";archive_id:string|null;scope:string;content:string;author_id:string;created_at:string;updated_at:string;origin:"human"};
