@@ -13,7 +13,7 @@ function fixture(version=28){
   if(sql.includes("SELECT schema_version FROM public.smn_installation"))
    return {rows:[{schema_version:version}]};
   if(sql.includes("SELECT t.id FROM public.smn_team t")&&
-     sql.includes("i.schema_version IN (28,29,30,31)"))return {rows:[{id:"panda"}]};
+     sql.includes("i.schema_version BETWEEN 28 AND 32"))return {rows:[{id:"panda"}]};
   if(sql.includes("SELECT s.id,s.name FROM public.smn_sprint s"))
    return {rows:[{id:"sprint_panda",name:"Sprint Panda"}]};
   if(sql.includes("to_regclass('public.smn_report_pdf_archive')"))return {rows:[{present:false}]};
