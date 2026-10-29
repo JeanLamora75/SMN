@@ -65,7 +65,7 @@ test("report language and frozen render references are recognized as native SMN 
   ["smn_report_language","language.ts"],
   ["smn_report_render_reference","render-reference.ts"]
  ] as const){
-  const source=readFileSync(new URL("../src/server/reports/"+file,import.meta.url),"utf8");
+  const source=readFileSync(new URL("../scripts/apply-report-schema-v32.ts",import.meta.url),"utf8");
   assert.ok(source.includes("CREATE TABLE IF NOT EXISTS public."+name+"("));
   const relation="public."+name+":r";
   assert.ok((INSTALLATION_RELATIONS as readonly string[]).includes(relation));
