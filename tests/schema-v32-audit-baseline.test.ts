@@ -21,6 +21,8 @@ test("A-03: deferred table DDL is explicit and absent from business services",()
  for(const path of ["src/server/registries/automatic-highlights.ts","src/server/reports/templates.ts","src/server/reports/draft-notes.ts"]){
   assert.doesNotMatch(source(path),/\\b(?:CREATE|ALTER|DROP) TABLE\\b/i,path);
  }
+ assert.match(migration,/validateTypes\(table.name,prior.rows,true\)/);
+ assert.match(migration,/validateTypes\(table.name,columns.rows\)/);
  assert.match(migration,/ROLLBACK/);
  assert.match(migration,/schema_version!==32/);
 });
