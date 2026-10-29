@@ -1,17 +1,8 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 export async function ensureDecisionDetail(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_decision_detail(
- item_id text PRIMARY KEY REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- rationale text, replaces_id text REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
- updated_at timestamptz NOT NULL DEFAULT now(),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_decision_detail_audit(
- id text PRIMARY KEY,item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- revision integer NOT NULL,before_values jsonb,after_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(item_id,revision))`);
+ await db.query("SELECT to_regclass('public.smn_decision_detail') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
+ await db.query("SELECT to_regclass('public.smn_decision_detail_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
 }
 export async function readDecisionDetail(db:Client,id:string){
  if(!/^[0-9a-f-]{36}$/i.test(id))return null;
