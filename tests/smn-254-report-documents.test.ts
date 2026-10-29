@@ -17,6 +17,8 @@ function fakeDb(){
   if(sql.includes("FROM public.smn_report_template")&&sql.includes("information_schema"))return {rows:[]};
   if(sql.includes("to_regclass('public.smn_report_template')"))return {rows:[{exists:false}]};
   if(sql.includes("to_regclass('public.smn_report_document')"))return {rows:[{present:true}]};
+  if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:true}]};
+  if(sql.includes("information_schema.columns")&&sql.includes("creation_request_id"))return {rows:[{column_name:"creation_request_id"}]};
   if(sql.includes("INSERT INTO public.smn_report_document")&&!sql.includes("smn_report_document_session_write")){
    const [id,sprint,team,title,language,templateId,templateVersion,json]=args;
    docs.set(id as string,{id,sprintId:sprint,teamId:team,title,language,status:"draft",templateId,templateVersion,content:JSON.parse(json as string),revision:1,updatedAt:"now"});
