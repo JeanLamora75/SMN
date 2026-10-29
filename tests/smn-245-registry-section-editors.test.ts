@@ -55,7 +55,8 @@ test("aucune commande d'écriture au lecteur collectif, même depuis une URL dir
 test("la sauvegarde actualise la fiche uniquement après réponse confirmée",()=>{
  const ui=read("src/app/app/admin/registries/registry-core-editor.tsx");
  const detail=read("src/app/app/admin/registries/registry-detail.tsx");
- assert.ok(ui.includes('if(!response.ok||!result.ok'));
+ assert.ok(ui.includes('if(!response.ok)throw Error("save-failed")'));
+ assert.ok(ui.includes('if(!result.ok||typeof result.revision!=="number"'));
  assert.ok(ui.includes("onSaved()"));
  assert.ok(detail.includes("retry();"));
 });
