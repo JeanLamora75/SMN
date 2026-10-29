@@ -267,3 +267,21 @@ et trois index. En cas d'erreur, la transaction entière est annulée.
 Les commandes séparées restent disponibles pour le diagnostic et les corrections
 ciblées, mais ne doivent pas être enchaînées en parallèle.
 Aucune migration n'a été exécutée sur la base locale de l'utilisateur.
+
+
+## Rapports — extraction SQL v32 (en cours de validation)
+
+Les définitions SQL issues de 12 services du module Rapports ont été regroupées dans
+`scripts/apply-report-schema-v32.ts`, pour les documents du studio,
+options de contenu, sections et historiques, langue, référence de rendu,
+sélection des liens, logo, choix d'analyse et contrôles de visibilité
+des archives. Les services métier ne doivent plus créer ces objets au moment
+d'un enregistrement. La commande exige une installation initialisée en v32
+et effectue ses instructions dans une transaction avec verrou advisory.
+
+**Prérequis** : les tables de base des équipes, comptes et sprints doivent
+exister ; les deux tables de droits/visibilité d'archives dépendent de
+`smn_report_pdf_archive`. Sauvegarde et vérification des schémas historiques
+nécessaires avant exécution. Cette migration n'a pas été exécutée sur le PC
+utilisateur. Attendre la validation CI et un test PostgreSQL de migration,
+ainsi que l'audit des déclarations indirectes hors `src/server/reports`.
