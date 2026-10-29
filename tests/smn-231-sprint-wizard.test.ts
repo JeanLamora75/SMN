@@ -166,7 +166,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
  it("enregistre la provenance reconstituée, sans inventer un statut de réunion tenue",()=>{
   const standard=read("src/server/sprints/ceremonies.ts");
   const templates=read("src/server/sprints/template-occurrences.ts");
-  assert.match(standard,/generation_source/);
+  assert.match(read("scripts/apply-ceremony-schema-v32.ts"),/generation_source/);
   assert.match(standard,/return saveTemplateOccurrences\(db,sprint,/);
   assert.doesNotMatch(standard,/INSERT INTO public\.smn_sprint_ceremony\s*\(/);
   assert.match(templates,/generation_source/);
