@@ -128,7 +128,7 @@ test("AC1/AC5 : modal de SMN-246 réutilisée, sélection limitée et POST dédi
 test("AC4 : dans le journal, choix des trois types et lien vers la fiche créée",()=>{
  const ui=read("src/app/app/admin/registries/registry-journal.tsx");
  for(const value of ["chooseLinked","linkedJournalTypes","RegistryCreateModal","linkedFromJournal",
-  "teamId={teamId}","sourceId={itemId}","setLinkedCreated","encodeURIComponent(linkedCreated.id)"])
+  "teamId={teamId}","sourceId={itemId}","setLinkedCreated","registryDetailHref(linkedCreated.id,navigation)"])
   assert.ok(ui.includes(value),value);
  assert.match(ui,/refresh\(\)/);
  assert.match(ui,/setFilter\(type\)/);
