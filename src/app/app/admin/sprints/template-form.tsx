@@ -8,6 +8,7 @@ const empty:Input={name:"",frequency:"daily",weekday:null,position:null,time:"09
 export default function TemplateForm(){
  const t=useTranslation();
  const [rows,setRows]=useState<Row[]>([]);
+ const [teamId,setTeamId]=useState<string|null>(null);
  const [id,setId]=useState("");
  const [form,setForm]=useState<Input>(empty);
  const [active,setActive]=useState(true);
@@ -15,11 +16,11 @@ export default function TemplateForm(){
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [message,setMessage]=useState("");
- async function load(){const r=await fetch("/api/admin/sprints/templates",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.templates);}
+ async function load(){const r=await fetch("/api/admin/sprints/templates",{cache:"no-store"});if(!r.ok)throw Error();const j=await r.json();setRows(j.templates);setTeamId(j.teamId??null);}
  useEffect(()=>{void Promise.resolve().then(load).catch(()=>setError(t("ceremonyTemplates.error")));},[t]);
  function choose(key:string){const x=rows.find(v=>v.id===key);setId(key);setForm(x?{name:x.name,frequency:x.frequency,weekday:x.weekday,position:x.position,time:x.time.slice(0,5),duration:x.duration}:empty);setActive(x?.active??true);setRevision(x?.revision??1);setError("");setMessage("");}
  async function save(e:FormEvent){e.preventDefault();setBusy(true);setError("");setMessage("");
- try{const r=await fetch("/api/admin/sprints/templates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...(id?{id,revision}:{}),active,template:form})});
+ try{const r=await fetch("/api/admin/sprints/templates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...(id?{id,revision}:{}),...(teamId?{teamId}:{}),active,template:form})});
  const d=await r.json();if(!r.ok)throw Error();await load();choose("");setMessage(t("ceremonyTemplates.saved"));}
  catch{setError(t("ceremonyTemplates.error"));}finally{setBusy(false);}}
  return <section className="smn-panel p-4 mt-4"><h2 className="h4">{t("ceremonyTemplates.title")}</h2><p>{t("ceremonyTemplates.intro")}</p>
