@@ -117,7 +117,7 @@ test("AC2/3 : liens d'action sans UUID et dissociation confirmée",()=>{
 test("AC5 : accès collectif lecture, écriture admin et GET sans mutation",()=>{
  const source=file("src/app/api/admin/registries/[id]/relation-candidates/route.ts");
  assert.ok(source.includes('authorizeApi(req,"read",{type:"collective"'));
- assert.ok(source.includes("withSprintIndexDb"));
+ assert.ok(source.includes("withLegacyRegistryReadDb"));
  assert.ok(!source.includes("withAuthDb"));
  const change=file("src/app/api/admin/registries/[id]/relations/route.ts");
  assert.ok(change.includes('authorizeApi(req,"write",{type:"settings"'));
