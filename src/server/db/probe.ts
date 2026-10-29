@@ -133,7 +133,7 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
       ...['id','link_id','installation_id','operation','before_values','after_values','actor_id','occurred_at'].map(n=>'smn_link_audit:'+n)
     ].every(n=>columnSet.has(n)) : undefined;
     const teamAgileModeSchemaValid = (installations.rows[0]?.schema_version??0)<32 ||
-      columnSet.has("smn_team:agile_mode");
+      ["smn_team:agile_mode","smn_team:is_archived"].every(name=>columnSet.has(name));
     const companySchemaValid = (installations.rows[0]?.schema_version??0)<31 || [
       ...["id","installation_id","name","comment","color","archived_at","revision"].map(n=>"smn_company:"+n),
       "smn_member:company_id","smn_company_closure:company_id"
