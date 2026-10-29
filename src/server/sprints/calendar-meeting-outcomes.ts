@@ -34,16 +34,8 @@ export function meetingOutcomeDate(iso:string,timeZone:string){
   month:"2-digit",day:"2-digit"}).format(new Date(iso));
 }
 async function ensureOutcomeLink(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_calendar_meeting_outcome_link(
-  registry_item_id text PRIMARY KEY REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
-  sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
-  meeting_kind text NOT NULL CHECK(meeting_kind IN ('ceremony','template','exceptional')),
-  meeting_id text NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now()
- )`);
- await db.query(`CREATE INDEX IF NOT EXISTS smn_calendar_meeting_outcome_by_event
-  ON public.smn_calendar_meeting_outcome_link(meeting_kind,meeting_id,created_at)`);
+ const check=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_calendar_meeting_outcome_link') IS NOT NULL AS present`);
+ if(!check.rows[0]?.present)throw Error("meeting-outcome-schema-not-ready: apply-meeting-outcome-schema-v32");
 }
 /** GET is SELECT-only. The meeting and its team are rechecked by the caller's authenticated scope. */
 export async function readMeetingOutcomes(db:Client,kind:string,id:string):Promise<MeetingOutcome[]|null>{
