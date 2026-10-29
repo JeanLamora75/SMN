@@ -70,3 +70,19 @@ Le fait que `smn_installation.mode` soit utilisé n'est **pas** automatiquement 
 
 ### Critère de fermeture SMN-327
 Non atteint : recherche automatisée complète dans le dépôt et classification de toutes les occurrences restantes nécessaires. Ne pas déclarer la Story terminée sur cette seule passe.
+
+## Troisième passe — audit automatisable (source publiée)
+
+Le script existant `scripts/audit-schema-version-guards.mjs` a été étendu pour parcourir tous les fichiers `.ts`, `.tsx` et `.mjs` sous `src/`, sans modifier le code métier. Il classe les correspondances dans cinq familles : versions SQL, bornes numériques, listes de versions, référence au mode global, repli mode équipe→installation. Chaque résultat contient le chemin, la ligne, la catégorie, la portée et un extrait.
+
+Commandes :
+```powershell
+node scripts/audit-schema-version-guards.mjs --summary
+node scripts/audit-schema-version-guards.mjs > schema-guards-inventory.json
+```
+
+Le mode `--fail-on-api-guards` est destiné à une future règle de CI **après la réduction des gardes historiques**, car il détecterait également la dette existante. Il n'est pas activé dans la CI.
+
+**Limites :** contrôle par expressions régulières, qui ne remplace pas l'analyse AST, peut ignorer les conditions sur plusieurs lignes et signaler des références historiques légitimes. La commande n'a pas été exécutée contre un clone local durant cette intervention. Aucun total exhaustif de correspondances n'est donc affirmé.
+
+**Blocage prioritaire précédemment vérifié :** `src/server/kanban/scoped-create.ts` accepte uniquement `IN (29,30,31)` ; un correctif fonctionnel distinct est requis pour v32.
