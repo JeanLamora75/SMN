@@ -41,6 +41,10 @@ describe("SMN-18 — paramètres généraux",()=>{
     assert.equal(result.referenceCountry,null);
     assert.equal(result.palette,"ocean");
     assert.equal(result.revision,0);
+    const query=db.calls.find(call=>call.sql.includes("SELECT s.locale"))?.sql??"";
+    assert.match(query,/LEFT JOIN LATERAL/);
+    assert.match(query,/LIMIT 1/);
+    assert.doesNotMatch(query,/JOIN public\.smn_product p ON p\.installation_id=i\.id/);
   });
   it("n'entre pas en transaction si la validation a échoué",async()=>{
     const db=fakeClient();
