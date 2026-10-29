@@ -23,7 +23,7 @@ export async function GET(request:NextRequest){
     "WHERE id='singleton' AND state='initialized'");
    const version=installation.rows[0]?.schema_version;
    let scopedTeamId:string|null=null;
-   if(typeof version==="number"&&version>=28&&version<=31){
+   if(typeof version==="number"&&version>=28&&version<=32){
     if(actor.role!=="admin")throw Error("calendar-meetings-forbidden");
     const team=await resolveAdminTeam(db,
       {accountId:actor.id,role:actor.role},params.get("teamId"));
