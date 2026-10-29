@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,readdirSync} from "node:fs";
 import {test} from "node:test";
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const services=["items.ts","relations.ts","comments.ts","cycle-links.ts","assessment.ts","roam.ts",
  "action-links.ts","confirmed-highlights.ts","deadlines.ts","decision-actions.ts",
  "decision-detail.ts","dependency-parties.ts","dependency-vigilance.ts",
  "fact-selection.ts","highlight-invalidation.ts"];
-test("Registres: les services métier ne créent plus de tables, colonnes ni index",()=>{
- for(const file of services){
+test("Registres: tous les services métier du répertoire évitent les DDL",()=>{
+ for(const file of readdirSync(new URL("../src/server/registries/",import.meta.url)).filter(name=>name.endsWith(".ts"))){
   const s=read("src/server/registries/"+file);
   assert.doesNotMatch(s,/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)\b/i,file);
   assert.match(s,/registry-schema-not-ready/,file);
