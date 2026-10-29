@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {test} from "node:test";
 import {Client} from "pg";
 import {sprintAggregateStatements} from "../scripts/apply-sprint-aggregates-v32";
+import {sprintCoreStatements} from "../scripts/apply-sprint-core-v32";
 
 const uri=process.env.SMN_TEST_DATABASE_URL,run=process.env.GITHUB_RUN_ID;
 const enabled=process.env.CI==="true"&&process.env.GITHUB_ACTIONS==="true"&&
@@ -25,7 +26,6 @@ test("Sprint v32: migrations agrégées idempotentes sur PostgreSQL isolé avec 
     "CREATE TABLE public.smn_installation(id text PRIMARY KEY)",
     "CREATE TABLE public.smn_team(id text PRIMARY KEY)",
     "CREATE TABLE public.smn_account(id text PRIMARY KEY)",
-    "CREATE TABLE public.smn_sprint(id text PRIMARY KEY)",
     "CREATE TABLE public.smn_sprint_exceptional_meeting(id text PRIMARY KEY)"
    ])await db.query(sql);
    await db.query("INSERT INTO public.smn_team(id) VALUES('team')");
@@ -33,7 +33,7 @@ test("Sprint v32: migrations agrégées idempotentes sur PostgreSQL isolé avec 
    await db.query("INSERT INTO public.smn_sprint(id) VALUES('sprint')");
    for(const sql of sprintAggregateStatements)await db.query(sql);
    await db.query("INSERT INTO public.smn_sprint_scores(sprint_id) VALUES('sprint')");
-   for(const sql of sprintAggregateStatements)await db.query(sql);
+   for(const sql of [...sprintCoreStatements,...sprintAggregateStatements])await db.query(sql);
    const rows=await db.query<{sprint_id:string}>("SELECT sprint_id FROM public.smn_sprint_scores WHERE sprint_id='sprint'");
    assert.equal(rows.rows[0]?.sprint_id,"sprint");
    const tables=sprintAggregateStatements.filter(sql=>sql.startsWith("CREATE TABLE IF NOT EXISTS public."))
