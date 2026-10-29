@@ -21,17 +21,8 @@ export function parseHistoricalCapacity(raw:unknown):HistoricalCapacityInput|nul
 export async function writeHistoricalCapacity(db:Client,actorId:string,raw:unknown){
  const x=parseHistoricalCapacity(raw);
  if(!actorId||!x)return {ok:false as const,error:"invalid-input"};
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_historical_capacity(
- sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- quality text NOT NULL CHECK (quality IN ('known','estimated','not-supplied')),
- qualified_jh numeric(13,4),source_ref text,reason text,
- revision integer NOT NULL DEFAULT 1,updated_at timestamptz NOT NULL DEFAULT now(),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- CHECK ((quality='not-supplied' AND qualified_jh IS NULL) OR (quality<>'not-supplied' AND qualified_jh IS NOT NULL)))`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_historical_capacity_audit(
- id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- before_values jsonb,after_values jsonb NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_sprint_historical_capacity') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_historical_capacity_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("BEGIN");
  try{
   const sprint=await db.query<{status:string}>(`
