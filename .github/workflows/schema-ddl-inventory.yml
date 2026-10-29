@@ -1,0 +1,32 @@
+name: SMN — Inventaire SQL DDL v32
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/audit-runtime-ddl-v32.ts"
+      - ".github/workflows/schema-ddl-inventory.yml"
+permissions:
+  contents: read
+jobs:
+  audit-ddl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.10.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Inventorier les DDL statiques
+        run: pnpm exec tsx scripts/audit-runtime-ddl-v32.ts
+      - name: Publier le rapport
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-v32-ddl-inventory
+          path: audit-output/schema-v32-ddl-inventory.*
+          if-no-files-found: error
