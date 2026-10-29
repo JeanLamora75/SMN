@@ -154,6 +154,6 @@ describe("SMN-235 — projection dashboard isolée du Sprint",()=>{
    projection
   }));
   assert.match(english,/Closure snapshot/);
-  assert.match(english,/View Sprints/);
+  assert.match(english,/View sprint details/);
  });
 });
