@@ -18,11 +18,7 @@ export async function grantArchiveUser(db:Client,archiveId:string,userId:string,
   WHERE a.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
   AND lower(i.mode)='scrum' ${hidden}`,[archiveId]);
   if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_archive_grant(
-   archive_id text NOT NULL REFERENCES public.smn_report_pdf_archive(id) ON DELETE RESTRICT,
-   user_id text NOT NULL REFERENCES public.smn_account(id) ON DELETE RESTRICT,
-   granted_by text NOT NULL,granted_at timestamptz NOT NULL DEFAULT now(),
-   revoked_at timestamptz,PRIMARY KEY(archive_id,user_id))`);
+  await db.query("SELECT to_regclass('public.smn_report_archive_grant') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
   const user=await db.query(`SELECT 1 FROM public.smn_account WHERE id=$1 AND role='user' AND is_active=true`,[userId]);
   if(user.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   await db.query(`INSERT INTO public.smn_report_archive_grant(archive_id,user_id,granted_by)
