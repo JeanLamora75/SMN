@@ -66,7 +66,7 @@ test("la ligne sépare type, statut, dates, responsable autorisé et actions cla
 test("attention calculée par SMN-104 uniquement, jamais depuis le statut ou le type",()=>{
  const list=source("src/app/app/admin/registries/registry-list.tsx");
  const row=source("src/app/app/admin/registries/registry-list-row.tsx");
- assert.match(list,/fetch\("\/api\/admin\/registries\/attention"/);
+ assert.match(list,/fetch\("\/api\/admin\/registries\/attention\?"/);
  assert.match(list,/attentionError/);
  assert.match(list,/attention\?\.filter\(signal=>signal\.id===item\.id\)/);
  assert.ok(!row.includes('item.status==="open"')&&!row.includes('item.type==="risk"'));
