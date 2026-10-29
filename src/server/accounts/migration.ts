@@ -388,7 +388,7 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       SELECT count(*)::text AS count FROM information_schema.columns
       WHERE table_schema='public' AND
       ((table_name='smn_company_closure' AND column_name IN
-        ('id','team_id','name','start_on','end_on','is_active','revision',
+        ('id',${version>=31?"company_id":"team_id"},'name','start_on','end_on','is_active','revision',
          'created_by','created_at','updated_by','updated_at'))
        OR (table_name='smn_company_closure_history' AND column_name IN
         ('id','closure_id','revision','operation','previous_values','next_values',
