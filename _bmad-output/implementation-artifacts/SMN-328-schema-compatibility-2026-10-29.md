@@ -17,3 +17,14 @@ Ce registre est une vérification **de version uniquement**, pas encore une preu
 4. Exécuter `pnpm exec tsx --test tests/schema-compatibility.test.ts`, `pnpm typecheck`, `pnpm test` et la CI.
 
 Aucune validation TypeScript/CI ou PostgreSQL réelle n'est attestée dans cet incrément.
+
+## Incrément — API calendrier et pause déjeuner
+
+Trois routes ont été raccordées au registre `evaluateSchemaCapability(version,"multi-team")` :
+- `src/app/api/team-calendar/meetings/route.ts`
+- `src/app/api/team-calendar/periods/route.ts`
+- `src/app/api/admin/sprints/lunch/route.ts`
+
+Les contrôles d'autorisation `resolveAdminTeam` et les adaptateurs historiques <=27 sont maintenus. Un test statique de non-régression a été ajouté dans `tests/schema-capability-calendar-adoption.test.ts`.
+
+**Limites :** le registre n'effectue pas encore les vérifications physiques et transactionnelles de SMN-329. Le test vient d'être publié mais son exécution, la compilation et les contrôles d'intégration ne sont pas attestés.
