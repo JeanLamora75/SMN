@@ -11,7 +11,7 @@ test("plain TXT retains units, provenance, missing quality and provisional statu
  assert.match(txt,/Equipe Atlas/);assert.match(txt,/Produit A/);
  assert.match(txt,/Terminés : 0 SP \[Provisoire/);
  assert.match(txt,/Capacité : Non renseigné \[Non renseigné/);
- assert.match(txt,/Questions/);assert.match(txt,/Ne pas extrapoler/);
+ assert.match(txt,/QUESTIONS/);assert.match(txt,/Ne pas extrapoler/);
  assert.doesNotMatch(txt,/member.email/);
  assert.doesNotMatch(txt,/<(?:svg|img|canvas)/i);
 });
