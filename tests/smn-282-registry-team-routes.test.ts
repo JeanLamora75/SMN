@@ -8,7 +8,7 @@ const protectedId=[
  "relation-candidates","relations","roam","vigilance"
 ];
 const protectedOther=[
- "automatic-highlights","confirmed-highlights","deadlines","fact-selection"
+ "confirmed-highlights","deadlines","fact-selection"
 ];
 
 test("Sous-routes historiques des registres : chaque lecture/écriture passe par le verrou v27",()=>{
@@ -24,6 +24,10 @@ test("Sous-routes historiques des registres : chaque lecture/écriture passe par
   assert.doesNotMatch(code,/withAuthDb\(|withSprintIndexDb\(/,file);
   assert.match(code,/withLegacyRegistryReadDb\(|withLegacyTeamApi\(/,file);
  }
+ // Les paramètres collectifs v32 utilisent désormais l'autorisation explicite par ressource.
+ const settings=source("src/app/api/admin/registries/automatic-highlights/route.ts");
+ assert.match(settings,/authorizeApi\(req,"read",\{type:"collective"/);
+ assert.match(settings,/authorizeApi\(req,"write",\{type:"settings"/);
  const confirmed=source("src/app/api/admin/registries/confirmed-highlights/[id]/route.ts");
  assert.match(confirmed,/withLegacyTeamApi\(/);
 });
