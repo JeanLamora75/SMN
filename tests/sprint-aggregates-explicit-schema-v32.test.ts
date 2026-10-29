@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync,readdirSync} from "node:fs";
 import {test} from "node:test";
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const services=["creation.ts","goals.ts","historical-actual-capacity.ts","historical-capacity.ts","historical-create.ts","historical-partial.ts","review-analysis.ts","sprint-scores.ts","story-points.ts","closure.ts","historical-events.ts","wizard.ts","transitions.ts","ticket-counts.ts","deletion.ts"];
 test("Sprint: huit services d'agrégats sans DDL à l'exécution",()=>{
- for(const name of services){
+ for(const name of readdirSync(new URL("../src/server/sprints/",import.meta.url)).filter(n=>n.endsWith(".ts"))){
   const src=read("src/server/sprints/"+name);
   assert.doesNotMatch(src,/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)\b/i,name);
-  assert.match(src,/(?:sprint-schema-not-ready|sprint-core-schema-not-ready)/,name);
+  if(services.includes(name))assert.match(src,/(?:sprint-schema-not-ready|sprint-core-schema-not-ready)/,name);
  }
 });
 test("Sprint: migration explicite, additive et transactionnelle",()=>{
