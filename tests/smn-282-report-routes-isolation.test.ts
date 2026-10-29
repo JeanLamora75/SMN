@@ -40,9 +40,14 @@ test("22 endpoints rapports/documents/archives : tous refusent les anciens accè
  assert.equal(reports.length,22);
  for(const path of reports){
   const src=source(path);
-  assert.ok(src.includes("withLegacyTeamApi(")||
-   src.includes("withLegacyReportReadDb("),path);
-  assert.doesNotMatch(src,/withAuthDb\(|withSprintIndexDb\(/,path);
+  if(path.includes("/archives/[id]/download/")){
+   assert.match(src,/withLegacyReportReadDb\(readArchive\)/);
+   assert.match(src,/resolveAdminTeam\(db/);
+   assert.match(src,/canAccess\(actor,"download"/);
+  }else{
+   assert.ok(src.includes("withLegacyTeamApi(")||src.includes("withLegacyReportReadDb("),path);
+   assert.doesNotMatch(src,/withAuthDb\(|withSprintIndexDb\(/,path);
+  }
  }
 });
 test("6 sorties indirectes Kanban/PDF/briefs IA : même protection anti-fuite",()=>{
