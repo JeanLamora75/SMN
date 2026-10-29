@@ -42,7 +42,7 @@ const checksum = (s: string) => createHash("sha256").update(s).digest("hex");
 
 /** Même version maximale que le diagnostic, sans autoriser les futures versions non connues. */
 export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
-  return Number.isInteger(version) && version>=1 && version<=30;
+  return Number.isInteger(version) && version>=1 && version<=31;
 }
 
 /** La migration v27 est explicite : l'authentification la vérifie, sans la déclencher. */
