@@ -113,6 +113,9 @@ export default function TeamsSettings(){
      code==="forbidden"?"teamSettings.denied":
      code==="schema-not-ready"?"teamSettings.unavailable":
      "teamSettings.saveFailed"));
+    if(code==="has-cycles")setError("Ce mode ne peut plus être modifié : au moins un cycle a été créé pour cette équipe.");
+    if(code==="archived-team")setError("Réactivez cette équipe avant de modifier son mode Agile.");
+    if(code==="service-unavailable")setError("Erreur serveur lors de la modification de l’équipe (HTTP "+res.status+"). Consultez le terminal SMN : teams-edit-unavailable.");
     return;
    }
    // Rafraîchir la liste, sans modifier l'équipe active dans le shell.
