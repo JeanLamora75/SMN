@@ -1,4 +1,5 @@
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 export type TemplateInput={name:string;frequency:"daily"|"weekly"|"sprint";weekday:number|null;position:"start"|"end"|null;time:string;duration:number};
@@ -79,7 +80,7 @@ export async function ensureTemplateSchema(db:Client){
 async function activeTeam(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
  const state=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
  const version=state.rows[0]?.schema_version;
- if(version!==undefined&&version>=28&&version<=31){
+ if(evaluateSchemaCapability(version,"multi-team").ok){
   if(!actor)throw Error("team-access-forbidden");
   const selected=await resolveAdminTeam(db,actor,requestedTeamId);
   if(selected.mode!=="scrum")throw Error("scrum-team-unavailable");
@@ -92,7 +93,7 @@ async function activeTeam(db:Client,actor?:{accountId:string;role:"admin"|"user"
  return r.rows[0].id;
 }
 export async function listTemplates(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
- await ensureTemplateSchema(db);const teamId=await activeTeam(db,actor,requestedTeamId);
+ const teamId=await activeTeam(db,actor,requestedTeamId);
  const r=await db.query(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,active,revision
  FROM public.smn_scrum_ceremony_template WHERE team_id=$1 ORDER BY created_at,id`,[teamId]);
  return r.rows;
