@@ -5,6 +5,7 @@ import {ensureBatchSchema} from "./batch-confirm";
 import {saveGeneratedCeremonies} from "./ceremonies";
 import {ensureTemplateSchema} from "./ceremony-templates";
 import {ensureLunchSchema,lunchForTeam} from "./lunch";
+import {resolveAdminTeam} from "@/server/teams/resolve";
 
 type WizardInput={startOn:string;count:number;names?:string[];generateHistoricalCeremonies:boolean};
 type Item={number:number;name:string;startOn:string;endOn:string;startAt:string;endAt:string;
@@ -46,12 +47,10 @@ async function schema(db:Client){
   expires_at timestamptz NOT NULL,consumed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now())`);
 }
-async function activeTeam(db:Client){
- const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t
-  JOIN public.smn_installation i ON i.id=t.installation_id
-  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
- if(r.rows.length!==1)throw Error("scrum-team-unavailable");
- return r.rows[0].id;
+async function activeTeam(db:Client,actorId:string,requestedTeamId?:string|null){
+ const team=await resolveAdminTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
+ if(team.mode!=="scrum")throw Error("scrum-team-unavailable");
+ return team.team_id;
 }
 async function generationSettings(db:Client,teamId:string){
  const cadence=await db.query(`SELECT duration_weeks,start_day,start_time::text,end_day,
@@ -81,18 +80,18 @@ export class WizardPreviewFailure extends Error{
 }
 
 /** Prévisualisation diagnostiquable par étape, sans divulgation SQL au navigateur. */
-export async function previewWizard(db:Client,actorId:string,raw:unknown){
+export async function previewWizard(db:Client,actorId:string,raw:unknown,requestedTeamId?:string|null){
  const input=parseWizardInput(raw);
  if(!input)return {ok:false as const,error:"invalid-input" as const};
  let stage:WizardPreviewStage="schema";
  try{
   await schema(db);
+  stage="team";
+  const teamId=await activeTeam(db,actorId,requestedTeamId);
   stage="periods";
-  const draft=await previewSprintBatch(db,{startOn:input.startOn,count:input.count});
+  const draft=await previewSprintBatch(db,{startOn:input.startOn,count:input.count},teamId);
   if(!draft.ok)return draft;
   const preview=namesApplied(draft,input);
-  stage="team";
-  const teamId=await activeTeam(db);
   stage="lunch";
   await lunchForTeam(db,teamId);
   stage="settings";
@@ -121,7 +120,7 @@ export async function previewWizard(db:Client,actorId:string,raw:unknown){
  }
 }
 
-export async function confirmWizard(db:Client,actorId:string,raw:unknown){
+export async function confirmWizard(db:Client,actorId:string,raw:unknown,requestedTeamId?:string|null){
  if(!raw||typeof raw!=="object"||Array.isArray(raw)||Object.keys(raw).length!==1||
   typeof (raw as {token?:unknown}).token!=="string"||
   !/^[0-9a-f-]{36}$/i.test((raw as {token:string}).token))
@@ -138,13 +137,15 @@ export async function confirmWizard(db:Client,actorId:string,raw:unknown){
    await db.query("ROLLBACK");
    return {ok:false as const,error:"preview-expired" as const};
   }
+  const authorizedTeam=await activeTeam(db,actorId,requestedTeamId);
+  if(authorizedTeam!==saved.team_id){await db.query("ROLLBACK");return {ok:false as const,error:"preview-expired" as const};}
   await db.query("SELECT pg_advisory_xact_lock(hashtext($1))",[saved.team_id]);
   const input=parseWizardInput(saved.request);
   if(!input){
    await db.query("ROLLBACK");
    return {ok:false as const,error:"stale-preview" as const};
   }
-  const draft=await previewSprintBatch(db,{startOn:input.startOn,count:input.count});
+  const draft=await previewSprintBatch(db,{startOn:input.startOn,count:input.count},saved.team_id);
   if(!draft.ok||!draft.valid){
    await db.query("ROLLBACK");
    return {ok:false as const,error:"stale-preview" as const};
