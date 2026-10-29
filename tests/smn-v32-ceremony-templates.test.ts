@@ -3,7 +3,7 @@ import {readFileSync} from "node:fs";
 import {test} from "node:test";
 import {evaluateSchemaCapability} from "../src/server/schema/compatibility";
 
-const read=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("v32: ceremony template reads resolve the selected Scrum team",()=>{
  const service=read("src/server/sprints/ceremony-templates.ts");
  assert.equal(evaluateSchemaCapability(32,"multi-team").ok,true);
