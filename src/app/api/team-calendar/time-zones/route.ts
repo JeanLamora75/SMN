@@ -3,6 +3,7 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 export const dynamic="force-dynamic";
 /** Only distinct time zones are exposed, not individual member locations. */
 export async function GET(req:NextRequest){
@@ -13,10 +14,10 @@ export async function GET(req:NextRequest){
    const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
    const schema=version.rows[0]?.schema_version??0;
    let teamId:string;
-   if(schema>=28&&schema<=32){
+   if(evaluateSchemaCapability(schema,"multi-team").ok){
     const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},req.nextUrl.searchParams.get("teamId"));
     teamId=team.team_id;
-   }else if(schema>=1&&schema<=27){
+   }else if(schema>=1&&schema<28){
     const teams=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND i.mode IN ('scrum','kanban') LIMIT 2`);
     if(teams.rows.length!==1)throw Error("team-unavailable");
     teamId=teams.rows[0].id;
