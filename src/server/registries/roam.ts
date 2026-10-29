@@ -9,19 +9,8 @@ export function shouldAlertHighRisk(roam:Roam|null,probability:number|null,impac
  return roam!=="resolved"&&probability!==null&&impact!==null&&probability*impact>=6;
 }
 export async function ensureRoamSchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_risk_roam(
- item_id text PRIMARY KEY REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- classification text NOT NULL CHECK(classification IN ('resolved','owned','accepted','mitigated')),
- revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- updated_at timestamptz NOT NULL DEFAULT now())`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_risk_roam_audit(
- id text PRIMARY KEY,item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- revision integer NOT NULL CHECK(revision>0),
- previous_classification text,next_classification text NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now(),
- UNIQUE(item_id,revision))`);
+ await db.query("SELECT to_regclass('public.smn_risk_roam') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_risk_roam_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
 }
 /** Separate ROAM aggregate: this write never touches risk probability, impact or status. */
 export async function updateRiskRoam(db:Client,actorId:string,id:string,raw:unknown){
