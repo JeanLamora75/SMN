@@ -25,6 +25,7 @@ const publicBootstrapErrors = new Set([
   "database-missing","configuration-missing","configuration-invalid","virgin",
   "initialized","schema-incompatible","installation-incomplete","connection-error",
   "permissions-insufficient","server-version-unsupported",
+  "baseline-v32-unavailable","baseline-v32-incompatible",
 ]);
 export function safeBootstrapError(error: unknown): string {
   const code = error instanceof Error ? error.message : "";
