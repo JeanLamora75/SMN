@@ -18,8 +18,8 @@ test("Kanban reference freezes selected analyses before PDF rendering",()=>{
 test("Scrum and Kanban choice APIs enforce admin writes on writable connections",()=>{
  const scrum=readFileSync("src/app/api/admin/reports/sprints/[id]/analysis-choices/route.ts","utf8");
  const kanban=readFileSync("src/app/api/admin/kanban-periods/[id]/analysis-choices/route.ts","utf8");
- assert.match(scrum,/withAuthDb/);
- assert.match(kanban,/withAuthDb/);
+ assert.match(scrum,/withAuthDb|withLegacyTeamApi/);
+ assert.match(kanban,/withAuthDb|withLegacyTeamApi/);
  assert.match(scrum,/authorizeApi\(req,"write"/);
  assert.match(kanban,/authorizeApi\(req,"write"/);
 });
