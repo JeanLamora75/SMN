@@ -11,7 +11,9 @@ const change={teamId:"team",revision:0,name:"  Team Renommée  ",productName:" M
 function fake(handler:(sql:string,args?:unknown[])=>{rows:unknown[];rowCount?:number}){
  const calls:{sql:string;args?:unknown[]}[]=[];
  const db={query:async(sql:string,args?:unknown[])=>{
-  calls.push({sql,args});return handler(sql,args);
+  calls.push({sql,args});
+  if(sql.includes("relname AS name FROM pg_class"))return {rows:[{name:"smn_team_context"},{name:"smn_team_context_audit"}]};
+  return handler(sql,args);
  }} as unknown as Client;
  return {db,calls};
 }
