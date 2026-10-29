@@ -184,7 +184,7 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
    assert.ok(tools.includes("<"+component),component);
   }
   assert.match(tools,/canAccess\(actor,"read",\{type:"settings"/);
-  assert.match(ui,/canManage&&<Link/);
+  assert.match(ui,/canManage&&<div className="smn-sprints-hero-actions">/);
   assert.match(ui,/useDeferredValue/);
   assert.match(ui,/table-responsive/);
   assert.match(ui,/sprintsIndex\.stateUnverified/);
