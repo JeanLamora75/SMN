@@ -23,3 +23,9 @@ Aucun test exécutable n'a été effectué dans cet incrément.
 `tests/smn-330-sprint-context.test.ts` contient deux tests de non-régression statiques sur ces règles.
 La fonction reçoit toujours un `teamId` ; l'autorisation de cet identifiant par l'appelant est à vérifier au niveau des routes et des services. Les autres services historiques, notamment cadence Kanban et batch Sprint, restent à auditer avant une transformation sûre.
 Aucune compilation ni test PostgreSQL réel n'a été exécuté dans cette intervention.
+
+## Lot Sprint — vérification supplémentaire
+
+Tests statiques publiés dans `tests/smn-330-batch-scope.test.ts` : confirmation liée à l'acteur et à l'équipe; prévisualisation filtrée par `team_id`. Les signatures des services et leurs appels dans les routes `admin/sprints/preview` et `admin/sprints/batch` ont été relus sur `main` : correspondance constatée.
+
+**Limites** : tests non exécutés; état CI non confirmé (aucun statut reporté sur le commit interrogé). Les tests de sécurité PostgreSQL multiéquipes, et les appels de prévisualisation hors de ces routes, restent à vérifier avant clôture.
