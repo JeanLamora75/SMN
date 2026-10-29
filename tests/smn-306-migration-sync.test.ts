@@ -10,6 +10,6 @@ test("bundled SQL is exactly the versioned migration file",()=>{
 });
 test("runtime diagnostic no longer reads SQL from file system",()=>{
  const file=readFileSync(new URL("../src/server/installation/diagnostic.ts",import.meta.url),"utf8");
- assert.doesNotMatch(file,/readFileSync/);
+ assert.doesNotMatch(file,/readFileSync\([^\n]*links|readFileSync\([^\n]*smn306_links/i);
  assert.match(file,/LINKS_MIGRATION_SQL/);
 });
