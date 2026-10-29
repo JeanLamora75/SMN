@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 const validRecordId=(id:unknown):id is string=>
  typeof id==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(id);
 
@@ -26,7 +27,7 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
  WHERE a.id=$1 AND a.role='admin' AND a.is_active=true
    AND a.must_change_password=false AND i.state='initialized'`,
  [actor.accountId]);
- if(details.rows.length!==1||![28,29,30,31,32].includes(details.rows[0].schema_version))
+ if(details.rows.length!==1||!evaluateSchemaCapability(details.rows[0].schema_version,"multi-team").ok)
   throw new Error("team-context-not-ready");
  const installation=details.rows[0].installation_id;
  // Ne jamais conserver une préférence devenue invalide.
@@ -56,7 +57,7 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   LEFT JOIN public.smn_product p ON p.id=t.product_id
    AND p.installation_id=t.installation_id
   WHERE t.id=$1 AND t.installation_id=$2
-   AND i.state='initialized' AND i.schema_version IN (28,29,30,31,32)
+   AND i.state='initialized'
    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
   LIMIT 2`,[id,installation]);
  if(row.rows.length!==1||!["scrum","kanban"].includes(row.rows[0].mode))
