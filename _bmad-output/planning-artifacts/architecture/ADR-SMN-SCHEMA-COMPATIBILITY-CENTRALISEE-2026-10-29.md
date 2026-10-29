@@ -1,6 +1,6 @@
 # ADR — Compatibilité des schémas centralisée (SMN)
 
-Date : 29 octobre 2026 — statut : décision de conception, développement non engagé.
+Date : 29 octobre 2026 — statut : décision adoptée, mise en œuvre incrémentale ; certification globale encore en cours.
 Références : SMN v31 et branche de préparation v32 `fix/smn-v32-team-agile-mode`.
 
 ## Problème
@@ -41,3 +41,9 @@ E. Recette multiéquipes et documentation de procédure vN→vN+1.
 - Dépend de la finalisation de la v32 et de la stabilisation des contrats de tables.
 - Les écrans historiques basés sur `smn_installation.mode` nécessitent un audit distinct.
 - Ne pas raccourcir la compatibilité historique avant validation du chemin de migration.
+
+## Complément SMN-334 — politique de support et migrations futures
+
+La politique et la procédure opérationnelles sont définies dans [le guide SMN-334](../../implementation-artifacts/SMN-334-politique-support-guide-migration-2026-10-29.md). Son contrat couvre : identification des versions/capabilities, diagnostic physique et checksum, sauvegarde restaurable, migration transactionnelle explicite, test vN→vN+1 sur copie complète, isolation multiéquipes, vérification CI, ROLLBACK avant commit, restauration maîtrisée après commit et dépréciation uniquement avec preuve de transition. Le registre central actuel cible v32 ; les supports hérités ne sont pas supprimés sans certification documentée. Une migration ne doit jamais être déclenchée implicitement par un GET ou une authentification.
+
+Cette actualisation documentaire **ne certifie pas** SMN-333 ni les tests de migration réelle v31→v32 sur une copie complète.
