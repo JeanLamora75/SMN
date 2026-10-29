@@ -32,7 +32,7 @@ test("API : vérification Admin, désactivation par défaut et schéma 28",()=>{
  assert.match(api,/export async function POST/);
  assert.match(api,/export async function PATCH/);
  assert.equal(api.split("if(!teamWritesEnabled())").length-1,2);
- assert.match(api,/schema_version===28/);
+ assert.match(api,/\[28,29,30,31\]\.includes\(state\.rows\[0\]\?\.schema_version\?\?-1\)/);
  assert.match(api,/authorizeApi\(request,"write",settings\)/);
  assert.match(api,/readJsonObject\(request,48000\)/);
 });
