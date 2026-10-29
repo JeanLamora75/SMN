@@ -22,11 +22,13 @@ async function scan(dir){
   if(!/\.(?:ts|tsx|mjs)$/.test(entry.name))continue;
   const path=relative(process.cwd(),file).replaceAll("\\","/");
   const lines=(await readFile(file,"utf8")).split(/\r?\n/);
+  const getLine=lines.findIndex(line=>/export async function GET\s*\(/.test(line));
+  const nextHandler=getLine<0?-1:lines.findIndex((line,i)=>i>getLine&&/export async function (?:POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s*\(/.test(line));
   for(let i=0;i<lines.length;i++){
    for(const rule of rules){
     if(rule.regex.test(lines[i]))findings.push({path,line:i+1,rule:rule.id,level:rule.level,
       scope:path.startsWith("src/app/api/")?"api":path.startsWith("src/server/")?"server":"other",
-      readCandidate:path.startsWith("src/app/api/")&&lines.some(x=>/export async function GET\(/.test(x)),
+      readCandidate:path.startsWith("src/app/api/")&&getLine>=0&&i>=getLine&&(nextHandler<0||i<nextHandler),
       source:lines[i].trim().slice(0,200)});
    }
   }
