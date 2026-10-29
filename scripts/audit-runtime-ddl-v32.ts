@@ -50,7 +50,7 @@ writeFileSync("audit-output/schema-v32-runtime-candidates.md",[
  "",
  "| Fichier | Occurrences | Lignes |",
  "| --- | ---: | --- |",
- ...grouped.map(x=>`| \\`\${x.path}\\` | \${x.count} | \${x.lines.join(", ")} |`)
+ ...grouped.map(x=>"| `"+x.path+"` | "+x.count+" | "+x.lines.join(", ")+" |")
 ].join("\n"));
 console.log("Lot A — candidats DDL hors migrations : "+runtimeSuspects.length+" occurrences dans "+grouped.length+" fichiers");
 for(const x of grouped)console.log("DDL-CANDIDATE "+x.count+" "+x.path+" :"+x.lines.join(","));
