@@ -6,7 +6,7 @@ test("profile selects countries from the configured country catalogue",()=>{
  assert.match(view,/fetch\("\/api\/admin\/countries"/);
  assert.match(view,/data\.countries/);
  assert.match(view,/<select className="form-select" value=\{country\}/);
- assert.match(view,/c\.name.*c\.code/);
+ assert.match(view,/countries\.map\(c=><option key=\{c\.code\} value=\{c\.code\}>\{c\.name\}<\/option>/);
 });
 test("profile offers IANA time zones and preserves existing values",()=>{
  assert.match(view,/Intl\.supportedValuesOf\("timeZone"\)/);
