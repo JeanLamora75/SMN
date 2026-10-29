@@ -32,6 +32,26 @@ const definitions: Array<{name:string;sql:string;required:string[]}>= [
  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
  changed_at timestamptz NOT NULL DEFAULT now())`}
 ];
+const expectedTypes:Record<string,Record<string,string>>={
+ smn_automatic_highlight_settings:{installation_id:"text",category:"text",enabled:"boolean",revision:"integer",updated_by:"text",updated_at:"timestamp with time zone"},
+ smn_report_template:{id:"text",name:"text",sections:"jsonb",content:"jsonb",created_by:"text",created_at:"timestamp with time zone",history_depth:"integer",revision:"integer"},
+ smn_report_draft:{sprint_id:"text",notes:"jsonb",revision:"integer",updated_at:"timestamp with time zone",updated_by:"text"},
+ smn_report_draft_audit:{id:"text",sprint_id:"text",revision:"integer",before_values:"jsonb",after_values:"jsonb",actor_id:"text",changed_at:"timestamp with time zone"}
+};
+const requiredNotNull:Record<string,string[]>={
+ smn_automatic_highlight_settings:["installation_id","category","enabled","revision","updated_at"],
+ smn_report_template:["id","name","sections","content","created_at","history_depth","revision"],
+ smn_report_draft:["sprint_id","notes","revision","updated_at"],
+ smn_report_draft_audit:["id","sprint_id","revision","after_values","changed_at"]
+};
+function validateTypes(table:string,columns:Array<{name:string;typ:string;nullable:string}>,partial=false){
+ const mapping=expectedTypes[table];const notNull=requiredNotNull[table];
+ for(const col of columns){
+  if(mapping[col.name]!==undefined&&col.typ!==mapping[col.name])throw Error("Type incompatible "+table+"."+col.name+": "+col.typ);
+  if(notNull.includes(col.name)&&col.nullable!=="NO")throw Error("Colonne nullable incompatible "+table+"."+col.name);
+ }
+ if(!partial&&Object.keys(mapping).some(name=>!columns.some(x=>x.name===name)))throw Error("Colonnes manquantes : "+table);
+}
 async function main(){
  if(process.argv.slice(2).join(" ")!=="--apply")throw Error("Usage: pnpm exec tsx scripts/apply-deferred-schema-v32.ts --apply");
  const db=new Client({connectionString:await installedDatabaseUri(),connectionTimeoutMillis:3500,statement_timeout:30000});
@@ -48,6 +68,7 @@ async function main(){
       SELECT column_name AS name,data_type AS typ,is_nullable AS nullable
       FROM information_schema.columns WHERE table_schema='public' AND table_name=$1`,[table.name]);
     if(prior.rows.length){
+     validateTypes(table.name,prior.rows,true);
      const known=new Map(prior.rows.map(x=>[x.name,x]));
      // The legacy templates table may lack the two additive columns.
      const missing=table.required.filter(x=>!known.has(x));
@@ -59,8 +80,9 @@ async function main(){
      await db.query("ALTER TABLE public.smn_report_template ADD COLUMN IF NOT EXISTS history_depth integer NOT NULL DEFAULT 5 CHECK(history_depth BETWEEN 1 AND 5)");
      await db.query("ALTER TABLE public.smn_report_template ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1");
     }
-    const columns=await db.query<{name:string}>(`SELECT column_name AS name FROM information_schema.columns
+    const columns=await db.query<{name:string;typ:string;nullable:string}>(`SELECT column_name AS name,data_type AS typ,is_nullable AS nullable FROM information_schema.columns
        WHERE table_schema='public' AND table_name=$1`,[table.name]);
+    validateTypes(table.name,columns.rows);
     const present=new Set(columns.rows.map(x=>x.name));
     if(table.required.some(x=>!present.has(x)))throw Error("Validation des colonnes échouée : "+table.name);
    }
