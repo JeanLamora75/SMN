@@ -18,8 +18,8 @@ test("page v28 : isolation Admin et appartenance membre-équipe vérifiées au s
 test("les liens cartes et liste transmettent l'équipe de la liste affichée",()=>{
  const listing=source("src/app/app/admin/members/team-overview.tsx");
  assert.match(listing,/new URLSearchParams\(\{teamId:roster\.team\.id\}\)/);
- assert.match(listing,/href=\{detailUrl\(m\.id\)\}/);
- assert.equal(listing.split("router.push(detailUrl(m.id))").length-1,2);
+ assert.match(listing,/href=\{memberHref\(member\)\}/);
+ assert.equal(listing.split("router.push(memberHref(member))").length-1,2);
 });
 test("vue membre v28 : pas d'éditeur, pas de mutation HTTP et purge des requêtes obsolètes",()=>{
  const view=source("src/app/app/admin/members/[id]/member-team-read-only.tsx");
