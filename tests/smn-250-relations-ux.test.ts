@@ -137,6 +137,7 @@ test("AC3/4 : dissociation d'une relation sortante n'efface ni fiche, ni autre l
  const sql:{text:string;params?:unknown[]}[]=[];
  const db={query:async(text:string,params?:unknown[])=>{
   sql.push({text,params});
+  if(text.startsWith("SELECT to_regclass(")&&text.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(text.includes("SELECT r.team_id,r.type FROM public.smn_registry_item"))
    return {rows:[{team_id:"team-one",type:"risk"}]};
   if(text.includes("SELECT r.id,r.type FROM public.smn_registry_item"))
