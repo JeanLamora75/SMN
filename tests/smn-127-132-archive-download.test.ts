@@ -5,7 +5,9 @@ import {join} from "node:path";
 const root=process.cwd();
 test("private download requires admin authentication and scoped archive ownership",()=>{
  const s=readFileSync(join(root,"src/app/api/admin/reports/archives/[id]/download/route.ts"),"utf8");
- assert.match(s,/authorizeApi\(req,"write"/);
+ assert.match(s,/sessionAccount\(req\.cookies\.get\(SESSION_COOKIE\)\?\.value\)/);
+ assert.match(s,/archiveUserAuthorized\(db,id,actor\.id\)/);
+ assert.match(s,/canAccess\(actor,"download"/);
  assert.match(s,/s\.team_id=a\.team_id/);
  assert.match(s,/smn_installation/);
  assert.match(s,/readVerifiedPdfArchive\(db,id\)/);
