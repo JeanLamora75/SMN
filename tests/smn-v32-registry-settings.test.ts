@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
-const read=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 
 test("v32 registry automatic highlight settings no longer call v27-only guards",()=>{
  const route=read("src/app/api/admin/registries/automatic-highlights/route.ts");
