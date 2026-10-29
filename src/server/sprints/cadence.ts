@@ -1,4 +1,5 @@
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 
@@ -53,7 +54,7 @@ export async function ensureCadenceTable(db:Client){
 async function teamId(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null):Promise<string>{
  const installation=await db.query<{schema_version:number}>(`SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'`);
  const version=installation.rows[0]?.schema_version;
- if(version!==undefined&&version>=28&&version<=31){
+ if(evaluateSchemaCapability(version,"multi-team").ok){
   if(!actor)throw Error("team-access-forbidden");
   const team=await resolveAdminTeam(db,actor,requestedTeamId);
   if(team.mode!=="scrum")throw Error("scrum-team-unavailable");
