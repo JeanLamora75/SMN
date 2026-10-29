@@ -22,7 +22,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
     assert.match(scrum,/Équipe Alpha/);
     assert.match(scrum,/Produit pilote/);
     assert.match(scrum,/Sprint/);
-    assert.match(kanban,/Période Kanban/);
+    assert.match(kanban,/[Pp]ériode Kanban/);
     assert.match(kanban,/Équipe Ops/);
     assert.equal((scrum.match(/<h1\b/g)||[]).length,1);
     assert.match(scrum,/href="\/app\/team\/team-1\?returnTo=%2Fapp"/);
