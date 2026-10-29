@@ -44,6 +44,15 @@ CREATE TABLE IF NOT EXISTS public.smn_ai_brief_template(
  active boolean NOT NULL DEFAULT true,created_by text,created_at timestamptz NOT NULL DEFAULT now(),
  updated_at timestamptz NOT NULL DEFAULT now());
 
+-- human-analyses
+CREATE TABLE IF NOT EXISTS public.smn_human_analysis(
+   id uuid PRIMARY KEY,team_id text NOT NULL,cycle_id text NOT NULL,
+   mode text NOT NULL CHECK(mode IN ('scrum','kanban')),archive_id uuid,
+   scope text NOT NULL,content text NOT NULL,origin text NOT NULL DEFAULT 'human' CHECK(origin='human'),
+   author_id text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),
+   updated_at timestamptz NOT NULL DEFAULT now()
+  );
+
 -- responses
 CREATE TABLE IF NOT EXISTS public.smn_ai_brief_response(
  id uuid PRIMARY KEY,archive_id uuid NOT NULL REFERENCES public.smn_ai_brief_archive(id) ON DELETE RESTRICT,
