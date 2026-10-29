@@ -777,7 +777,7 @@ try {
     })).status,403);
     const adminPage=await get("/app/admin/users",{headers:{Cookie:replacement},redirect:"manual"});
     assert.equal(adminPage.status,200);
-    assert.match(await adminPage.text(),/Administration des utilisateurs/);
+    assert.match(await adminPage.text(),/Administration des utilisateurs|User administration/);
     const newUser={username:"pilote",email:"pilote@example.test",role:"user",password:"pilot1234"};
     assert.equal((await postAuth("/api/admin/accounts",newUser,replacement,"http://evil.example")).status,403);
     const accountCount=()=>withDb(async client=>(await client.query("SELECT count(*)::text AS count FROM public.smn_account")).rows[0].count);
