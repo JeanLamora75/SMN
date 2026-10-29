@@ -761,25 +761,13 @@ try {
     const unknownDetail=await get("/app/team/unknown",{headers:{Cookie:replacement},redirect:"manual"});
     assert.equal(unknownDetail.status,404);
     assert.doesNotMatch(await unknownDetail.text(),/admin@localhot.com|password_hash/);
-    const teamRow=await withDb(async client=>(await client.query(
-      "SELECT row_to_json(t)::text AS snapshot FROM public.smn_team t WHERE id='team'"
-    )).rows[0]);
-    assert.ok(teamRow);
-    try {
-      await withDb(client=>client.query("DELETE FROM public.smn_team WHERE id='team'"));
-      const removedTeam=await get("/app/team/team",{headers:{Cookie:replacement},redirect:"manual"});
-      assert.equal(removedTeam.status,404);
-      const missingContext=await get("/api/dashboard",{headers:{Cookie:replacement}});
-      assert.equal(missingContext.status,403);
-      assert.deepEqual(await missingContext.json(),{error:"forbidden"});
-      assert.match(missingContext.headers.get("cache-control")??"",/no-store/);
-      assert.match(missingContext.headers.get("cache-control")??"",/private/);
-    } finally {
-      await withDb(client=>client.query(
-        "INSERT INTO public.smn_team SELECT * FROM json_populate_record(NULL::public.smn_team,$1::json)",
-        [teamRow.snapshot],
-      ));
-    }
+    // Une équipe utilisée par un registre de membres ne peut être supprimée
+    // sans rompre les clés étrangères : la recette vérifie cette intégrité.
+    await assert.rejects(
+      ()=>withDb(client=>client.query("DELETE FROM public.smn_team WHERE id='team'")),
+      error=>error?.code==="23503"
+    );
+    assert.equal((await get("/app/team/team",{headers:{Cookie:replacement},redirect:"manual"})).status,200);
     await verifyDashboard(replacement);
     assert.equal(await rawStatus("/api/dashboard",{Cookie:replacement,Host:"evil.example:3003"}),403);
     // Gestion des comptes : seuls les administrateurs authentifiés peuvent agir.
