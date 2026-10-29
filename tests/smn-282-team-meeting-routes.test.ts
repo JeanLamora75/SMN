@@ -49,5 +49,5 @@ test("anciens détails de réunions restent fermés en v28",()=>{
  ];
  for(const p of previous)assert.match(source(p),/withLegacyTeamApi\(/);
  assert.match(source("src/lib/team-context-readiness.ts"),
-  /MULTI_TEAM_CONTEXT_READY:boolean=false/);
+  /SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
