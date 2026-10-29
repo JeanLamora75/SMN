@@ -2,8 +2,6 @@ import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
-import {ensureKanbanPeriodTables} from "@/server/kanban/periods";
-import {reconcileKanbanStates} from "@/server/kanban/states";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 export const dynamic="force-dynamic";
@@ -11,8 +9,8 @@ export async function GET(req:NextRequest){
  const actor=await authorizeApi(req,"read",{type:"collective",exists:true,inScope:true});
  if(!actor)return jsonResult({error:"forbidden"},403);
  try{return jsonResult(await withAuthDb(async db=>{
-  await ensureKanbanPeriodTables(db);
-  await reconcileKanbanStates(db);
+  const present=await db.query<{ready:boolean}>("SELECT to_regclass('public.smn_kanban_period') IS NOT NULL AS ready");
+  if(!present.rows[0]?.ready)throw Error("kanban-schema-unavailable");
   const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
   const schema=version.rows[0]?.schema_version??0;
   let scopedTeamId:string|null=null;
