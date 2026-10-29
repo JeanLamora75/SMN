@@ -21,6 +21,39 @@ for(const path of candidates){
   found.push({path,line,operation:hit[0].replace(/\s+/g," ").toUpperCase(),context,classification});
  }
 }
+const runtimeSuspects=found.filter(x=>x.path.startsWith("src/server/") &&
+ !/(?:^|\/)(?:migration|[^/]*-migration)\.ts$/.test(x.path) &&
+ !x.path.endsWith(".test.ts"));
+const grouped=[...runtimeSuspects.reduce((map,x)=>{
+ const item=map.get(x.path)??{path:x.path,count:0,lines:[] as number[]};
+ item.count++;item.lines.push(x.line);map.set(x.path,item);return map;
+},new Map<string,{path:string;count:number;lines:number[]}>()).values()]
+ .sort((a,b)=>b.count-a.count||a.path.localeCompare(b.path));
+const actionable={
+ generatedAt:new Date().toISOString(),
+ commit:execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim(),
+ runtimeCandidates:runtimeSuspects.length,
+ files:grouped.length,
+ severity:"potential; lexical detection does not prove execution",
+ entries:grouped
+};
+mkdirSync("audit-output",{recursive:true});
+writeFileSync("audit-output/schema-v32-runtime-candidates.json",JSON.stringify(actionable,null,2));
+writeFileSync("audit-output/schema-v32-runtime-candidates.md",[
+ "# Lot A — DDL encore présents dans les fichiers métier",
+ "",
+ "Commit: "+actionable.commit,
+ "Occurrences candidates: "+runtimeSuspects.length,
+ "Fichiers candidats: "+grouped.length,
+ "",
+ "Ce rapport inclut les faux positifs lexicaux et peut manquer les chaînes construites dynamiquement. Chaque résultat exige une revue manuelle du chemin d'exécution.",
+ "",
+ "| Fichier | Occurrences | Lignes |",
+ "| --- | ---: | --- |",
+ ...grouped.map(x=>`| \\`\${x.path}\\` | \${x.count} | \${x.lines.join(", ")} |`)
+].join("\n"));
+console.log("Lot A — candidats DDL hors migrations : "+runtimeSuspects.length+" occurrences dans "+grouped.length+" fichiers");
+for(const x of grouped)console.log("DDL-CANDIDATE "+x.count+" "+x.path+" :"+x.lines.join(","));
 const summary=Object.entries(found.reduce<Record<string,number>>((x,r)=>{x[r.classification]=(x[r.classification]??0)+1;return x;},{}));
 const md=[
  "# Lot A — Inventaire SQL DDL (lecture seule)",
