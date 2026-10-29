@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {readKanbanCadence} from "./cadence";
@@ -5,27 +6,11 @@ import {nextDay,periodFromStart,normalizePeriodName} from "./dates";
 
 export {nextDay,periodFromStart} from "./dates";
 export async function ensureKanbanPeriodTables(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_period (
- id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- name text NOT NULL,start_on date NOT NULL,end_on date NOT NULL,
- status text NOT NULL DEFAULT 'planned',
- time_zone text NOT NULL,
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now(),
- deleted_at timestamptz,
- deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- CHECK(end_on>=start_on)
- )`);
- await db.query(`ALTER TABLE public.smn_kanban_period ADD COLUMN IF NOT EXISTS deleted_at timestamptz`);
- await db.query(`ALTER TABLE public.smn_kanban_period ADD COLUMN IF NOT EXISTS deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL`);
- await db.query(`CREATE INDEX IF NOT EXISTS smn_kanban_period_team_dates_idx
- ON public.smn_kanban_period(team_id,start_on,end_on)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_period_audit (
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- action text NOT NULL,details jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now()
- )`);
+ await assertKanbanSchema(db,"smn_kanban_period");
+ await assertKanbanSchema(db,"smn_kanban_period");
+ await assertKanbanSchema(db,"smn_kanban_period");
+ 
+ await assertKanbanSchema(db,"smn_kanban_period_audit");
 }
 async function kanbanTeam(db:Client){
  const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
