@@ -3,6 +3,15 @@ import {useEffect,useState,type FormEvent} from "react";
 type Company={id:string;name:string;comment:string|null;color:string;archivedAt:string|null;revision:number};
 const palette=["blue","indigo","violet","teal","green","amber","orange","red"];
 const blank=()=>({name:"",comment:"",color:"blue"});
+async function readCompaniesResponse(response:Response):Promise<{companies:Company[]}>{
+ if(!response.ok){
+  const body=await response.json().catch(()=>({})) as {error?:string};
+  if(body.error==="company-schema-missing")throw Error("Le catalogue des entreprises n’est pas installé dans la base. Vérifiez la migration v31 avec pnpm db:diagnose.");
+  if(response.status===403)throw Error("Accès au catalogue des entreprises refusé.");
+  throw Error("Chargement des entreprises impossible (HTTP "+response.status+"). Vérifiez le diagnostic de la base et les journaux du serveur.");
+ }
+ return response.json() as Promise<{companies:Company[]}>;
+}
 export default function CompaniesAdmin(){
  const [items,setItems]=useState<Company[]>([]);
  const [selected,setSelected]=useState<Company|null>(null);
@@ -13,14 +22,13 @@ export default function CompaniesAdmin(){
  const [loading,setLoading]=useState(true);
  async function load(){
   const r=await fetch("/api/admin/companies",{cache:"no-store"});
-  if(!r.ok)throw Error("catalog");
-  const value=await r.json() as {companies:Company[]};
+  const value=await readCompaniesResponse(r);
   setItems(value.companies);
  }
  useEffect(()=>{let alive=true;void fetch("/api/admin/companies",{cache:"no-store"})
-  .then(async r=>{if(!r.ok)throw Error("catalog");return r.json() as Promise<{companies:Company[]}>;})
+  .then(readCompaniesResponse)
   .then(x=>{if(alive)setItems(x.companies)})
-  .catch(()=>{if(alive)setError("Chargement des entreprises impossible.")})
+  .catch((cause:unknown)=>{if(alive)setError(cause instanceof Error?cause.message:"Chargement des entreprises impossible.")})
   .finally(()=>{if(alive)setLoading(false)});return()=>{alive=false};},[]);
  function edit(c:Company|null){
   setSelected(c);setDraft(c?{name:c.name,comment:c.comment??"",color:c.color}:blank());
