@@ -13,10 +13,7 @@ export async function updateDeadlineSettings(db:Client,actorId:string,value:unkn
  !Number.isInteger(v.revision)||Number(v.revision)<0||!actorId)return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_deadline_settings(
-  id text PRIMARY KEY CHECK(id='singleton'),days integer NOT NULL CHECK(days BETWEEN 0 AND 365),
-  revision integer NOT NULL,updated_at timestamptz NOT NULL DEFAULT now(),
-  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
+  await db.query("SELECT to_regclass('public.smn_registry_deadline_settings') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
   const previous=await db.query<{days:number;revision:number}>(`SELECT days,revision FROM public.smn_registry_deadline_settings WHERE id='singleton' FOR UPDATE`);
   const old=previous.rows[0],revision=(old?.revision??0)+1;
   if((old?.revision??0)!==v.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};}
