@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {scopedKanbanPeriod,type KanbanTeamAccess} from "@/server/kanban/scoped-period";
@@ -20,21 +21,8 @@ export function parseKanbanGoal(raw:unknown){
 }
 export async function ensureKanbanGoals(db:Client){
  await ensureKanbanPeriodTables(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_goal (
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- title text NOT NULL CHECK(length(btrim(title)) BETWEEN 1 AND 240),
- description text NOT NULL DEFAULT '',
- evaluation text NOT NULL DEFAULT 'not_evaluated' CHECK(evaluation IN ('not_evaluated','achieved','partially_achieved','not_achieved')),
- comment text,revision integer NOT NULL DEFAULT 1,
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now()
- )`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_goal_audit (
- id text PRIMARY KEY,goal_id text NOT NULL REFERENCES public.smn_kanban_goal(id) ON DELETE RESTRICT,
- before_values jsonb,after_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now()
- )`);
+ await assertKanbanSchema(db,"smn_kanban_goal");
+ await assertKanbanSchema(db,"smn_kanban_goal_audit");
 }
 export async function readKanbanGoals(db:Client,periodId:string,access?:KanbanTeamAccess){
  await ensureKanbanGoals(db);
