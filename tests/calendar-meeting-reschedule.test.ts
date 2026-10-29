@@ -14,6 +14,7 @@ function fake(overrides:{kind?:string;status?:string;sprintStatus?:string;
  const history:Array<{sql:string;args:unknown[]}>= [];
  const db={query:async(sql:string,args:unknown[]=[])=>{
   history.push({sql,args});
+  if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_sprint_ceremony_history","smn_scrum_template_occurrence","smn_sprint_exceptional_meeting","smn_sprint_exceptional_meeting_history","smn_scrum_ceremony_template","smn_scrum_ceremony_template_history","smn_calendar_meeting_schedule_history"]}]};
   if(sql.includes("FOR UPDATE OF m,s")){
    if(overrides.closed)return {rows:[]};
    return {rows:[{id,sprint_id:"sprint-1",starts_at:overrides.started??"2026-11-22T14:00:00Z",
