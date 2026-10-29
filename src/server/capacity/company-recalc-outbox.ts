@@ -1,27 +1,19 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 
-/** Durable outbox is installed before the domain transaction; never inside read paths. */
+/** Vérifie la migration sans modifier le schéma sur le chemin métier. */
 export async function ensureCapacityRecalcOutbox(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_company_capacity_recalc (
-  id text PRIMARY KEY,
-  company_id text NOT NULL REFERENCES public.smn_company(id) ON DELETE RESTRICT,
-  closure_id text NOT NULL REFERENCES public.smn_company_closure(id) ON DELETE RESTRICT,
-  closure_revision integer NOT NULL CHECK(closure_revision>0),
-  start_on date NOT NULL,
-  end_on date NOT NULL,
-  status text NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','running','done','failed')),
-  attempts integer NOT NULL DEFAULT 0 CHECK(attempts>=0),
-  last_error text,
-  result jsonb,
-  next_attempt_at timestamptz NOT NULL DEFAULT now(),
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CHECK(start_on<=end_on),
-  UNIQUE(closure_id,closure_revision)
- )`);
- await db.query(`CREATE INDEX IF NOT EXISTS smn_company_capacity_recalc_due_idx
- ON public.smn_company_capacity_recalc(status,next_attempt_at)`);
+ const check=await db.query<{ready:boolean}>(`SELECT
+  to_regclass('public.smn_company_capacity_recalc') IS NOT NULL
+  AND EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname='public'
+   AND tablename='smn_company_capacity_recalc'
+   AND indexname='smn_company_capacity_recalc_due_idx')
+  AND (SELECT count(DISTINCT column_name) FROM information_schema.columns
+   WHERE table_schema='public' AND table_name='smn_company_capacity_recalc'
+   AND column_name IN ('id','company_id','closure_id','closure_revision','start_on',
+   'end_on','status','attempts','last_error','result','next_attempt_at','created_at','updated_at'))=13
+  AS ready`);
+ if(!check.rows[0]?.ready)throw Error("company-capacity-outbox-schema-missing: apply company capacity outbox migration");
 }
 export async function queueClosureRecalculation(db:Client,input:{
  companyId:string;closureId:string;revision:number;startOn:string;endOn:string;
