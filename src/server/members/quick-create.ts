@@ -54,7 +54,7 @@ type MemberRow={id:string;member_number:number;display_name:string;email:string|
  allocation_percent:number|null;role_percent:number|null;
  v_contract:number|null;v_allocation:number|null;v_contribution:number|null;
  v_sm:number|null;v_po:number|null;v_dev:number|null;country_iso2:string|null};
-const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,m.professional_function,m.revision,m.is_provisional,
+const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,to_jsonb(m)->>'professional_function' AS professional_function,m.revision,m.is_provisional,
  m.archived_at::text AS archived_at,m.contract_percent,m.contribution_percent,
  a.agile_role,a.start_on::text AS start_on,a.end_on::text AS end_on,
  a.allocation_percent,a.role_percent,loc.country_iso2,v.contract_percent AS v_contract,
