@@ -36,3 +36,9 @@ test("API : vérification Admin, désactivation par défaut et schéma 28",()=>{
  assert.match(api,/authorizeApi\(request,"write",settings\)/);
  assert.match(api,/readJsonObject\(request,48000\)/);
 });
+
+test("liste des équipes : archive facultative compatible avec les anciens schémas",()=>{
+ const list=source("src/server/teams/list.ts");
+ assert.equal((list.match(/COALESCE\(\(to_jsonb\(t\)->>'is_archived'\)::boolean,false\) AS is_archived/g)||[]).length,2);
+ assert.match(list,/canChangeMode:!locked\.has\(row\.id\)/);
+});
