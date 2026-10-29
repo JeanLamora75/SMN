@@ -28,6 +28,7 @@ import {CAPACITY_HISTORICAL_MIGRATION,CAPACITY_HISTORICAL_MIGRATION_SQL} from ".
 import {CAPACITY_REPLANNING_MIGRATION,CAPACITY_REPLANNING_MIGRATION_SQL} from "../capacity/replanning-migration";
 import {MEMBER_IDENTITY_MIGRATION,MEMBER_IDENTITY_MIGRATION_SQL} from "../members/identity-migration";
 import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../teams/migration";
+import {CURRENT_SCHEMA_VERSION} from "../schema/compatibility";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -42,7 +43,7 @@ const checksum = (s: string) => createHash("sha256").update(s).digest("hex");
 
 /** Même version maximale que le diagnostic, sans autoriser les futures versions non connues. */
 export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
-  return Number.isInteger(version) && version>=1 && version<=32;
+  return Number.isInteger(version) && version>=1 && version<=CURRENT_SCHEMA_VERSION;
 }
 
 /** La migration v27 est explicite : l'authentification la vérifie, sans la déclencher. */
