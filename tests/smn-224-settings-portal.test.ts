@@ -28,7 +28,7 @@ describe("SMN-224 — portail Paramètres",()=>{
   const portal=file("src/app/app/admin/settings/page.tsx");
   const form=file("src/app/app/admin/settings/general/page.tsx");
   assert.match(portal,/settingsCatalog\(mode,account\)/);
-  assert.match(portal,/<SettingsCatalogView groups=\{groups\}\/>/);
+  assert.match(portal,/<SettingsCatalogView groups=\{groups\} showCompanies=\{account\.role==="admin"\}\/>/);
   assert.doesNotMatch(portal,/SettingsForm|fetch\(/);
   assert.match(form,/import SettingsForm from "\.\.\/settings-form"/);
   assert.match(form,/<SettingsForm\/>/);
