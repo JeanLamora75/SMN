@@ -39,7 +39,18 @@ async function main(){
   const r=await db.query<{schema_version:number;state:string}>("SELECT schema_version,state FROM public.smn_installation WHERE id='singleton' FOR UPDATE");
   if(r.rows.length!==1||r.rows[0].schema_version!==32||r.rows[0].state!=="initialized")throw Error("Base initialisée v32 requise");
   if(!(await db.query<{ready:boolean}>("SELECT to_regclass('public.smn_sprint') IS NOT NULL AS ready")).rows[0]?.ready)throw Error("Schéma Sprint central absent");
+  const prerequisite=await db.query<{ready:boolean}>(`SELECT
+   to_regclass('public.smn_team') IS NOT NULL
+   AND to_regclass('public.smn_account') IS NOT NULL
+   AND to_regclass('public.smn_sprint_exceptional_meeting') IS NOT NULL AS ready`);
+  if(!prerequisite.rows[0]?.ready)throw Error("Schémas Équipe, Compte et Cérémonies requis");
   for(const sql of sprintAggregateStatements)await db.query(sql);
+  const tables=sprintAggregateStatements.filter(sql=>sql.startsWith("CREATE TABLE IF NOT EXISTS public."))
+   .map(sql=>sql.match(/^CREATE TABLE IF NOT EXISTS public\\.([a-z0-9_]+)/)?.[1]).filter(Boolean);
+  const result=await db.query<{relname:string}>(`SELECT relname FROM pg_class WHERE relnamespace='public'::regnamespace
+   AND relkind IN ('r','p') AND relname=ANY($1::text[])`,[tables]);
+  const present=new Set(result.rows.map(row=>row.relname));
+  for(const table of tables)if(table&&!present.has(table))throw Error("Table Sprint manquante: "+table);
   await db.query("COMMIT");
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}}
  finally{await db.end();}
