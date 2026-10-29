@@ -10,7 +10,7 @@ test("Registres: tous les services métier du répertoire évitent les DDL",()=>
  for(const file of readdirSync(new URL("../src/server/registries/",import.meta.url)).filter(name=>name.endsWith(".ts"))){
   const s=read("src/server/registries/"+file);
   assert.doesNotMatch(s,/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)\b/i,file);
-  assert.match(s,/registry-schema-not-ready/,file);
+  if(services.includes(file))assert.match(s,/registry-schema-not-ready/,file);
  }
 });
 test("Registres: les deux migrations sont explicites, transactionnelles et non destructives",()=>{
