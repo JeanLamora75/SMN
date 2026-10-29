@@ -95,7 +95,8 @@ export async function PATCH(request:NextRequest){
  }catch(error){
   if((error as {code?:unknown})?.code==="23505")
    return jsonResult({error:"conflict"},409);
-  console.error("teams-edit-unavailable");
+  const code=(error&&typeof error==="object"&&"code" in error&&typeof error.code==="string")?error.code:"unknown";
+  console.error("teams-edit-unavailable",code,error instanceof Error?error.message:"unknown");
   return jsonResult({error:"service-unavailable"},503);
  }
 }
