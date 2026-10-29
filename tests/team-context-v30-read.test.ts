@@ -19,7 +19,7 @@ test("les changements de contexte ne contournent pas le verrou historique",()=>{
 
 test("contexte v31: mode de l'équipe et équipes archivées",()=>{
  const service=readFileSync(new URL("../src/server/members/team-context.ts",import.meta.url),"utf8");
- assert.match(service,/i\.schema_version IN \(28,29,30,31\)/);
+ assert.match(service,/i\.schema_version BETWEEN 28 AND 32/);
  assert.match(service,/to_jsonb\(t\)->>'agile_mode'/);
  assert.match(service,/to_jsonb\(t\)->>'is_archived'/);
 });
