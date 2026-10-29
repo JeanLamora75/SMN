@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
-const services=["goals.ts","historical-actual-capacity.ts","historical-capacity.ts","historical-create.ts","historical-partial.ts","review-analysis.ts","sprint-scores.ts","story-points.ts"];
+const services=["goals.ts","historical-actual-capacity.ts","historical-capacity.ts","historical-create.ts","historical-partial.ts","review-analysis.ts","sprint-scores.ts","story-points.ts","closure.ts","historical-events.ts","wizard.ts","transitions.ts","ticket-counts.ts","deletion.ts"];
 test("Sprint: huit services d'agrégats sans DDL à l'exécution",()=>{
  for(const name of services){
   const src=read("src/server/sprints/"+name);
