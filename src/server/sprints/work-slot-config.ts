@@ -1,10 +1,11 @@
 import type {Client} from "pg";
 import {validWorkSlots,readWorkSlots} from "@/server/capacity/work-slots";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 export async function getTeamSlots(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
  const installation=await db.query<{schema_version:number}>(`SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'`);
  const version=installation.rows[0]?.schema_version;
- if(version!==undefined&&version>=28){
+ if(evaluateSchemaCapability(version,"multi-team").ok){
   if(!actor)throw Error("team-access-forbidden");
   const team=await resolveAdminTeam(db,actor,requestedTeamId);
   if(team.mode!=="scrum")throw Error("scrum-team-unavailable");
