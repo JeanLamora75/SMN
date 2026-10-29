@@ -9,18 +9,8 @@ const valid=(x:unknown)=>x===null||(typeof x==="number"&&Number.isSafeInteger(x)
 
 export async function ensureStoryPointsSchema(db:Client){
  await ensureSprintSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_story_points(
- sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- initial_sp bigint,added_sp bigint,removed_sp bigint,done_sp bigint,
- revision integer NOT NULL DEFAULT 1,updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- updated_at timestamptz NOT NULL DEFAULT now(),
- CHECK(initial_sp BETWEEN 0 AND 1000000000),CHECK(added_sp BETWEEN 0 AND 1000000000),
- CHECK(removed_sp BETWEEN 0 AND 1000000000),CHECK(done_sp BETWEEN 0 AND 1000000000))`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_story_points_audit(
- id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- before_values jsonb,after_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_sprint_story_points') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_story_points_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 async function scope(db:Client,id:string,lock=false,teamId?:string){
  const criterion=teamId?
