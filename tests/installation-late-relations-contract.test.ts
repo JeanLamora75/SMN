@@ -59,7 +59,7 @@ test("les relations de reports et registres correspondent à leurs DDL métier, 
   ["src/server/historical-csv/confirm.ts","smn_historical_csv_batch"]
  ] as const;
  for(const [file,name] of verified){
-  const ddlFile=file==="src/server/registries/comments.ts"||file==="src/server/registries/items.ts"?"scripts/apply-registry-core-v32.ts":file;
+  const ddlFile=file.startsWith("src/server/reports/")?"scripts/apply-report-schema-v32.ts":file==="src/server/registries/comments.ts"||file==="src/server/registries/items.ts"?"scripts/apply-registry-core-v32.ts":file;
   assert.match(source(ddlFile),new RegExp("CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?public\\."+name+"\\b","i"));
   assert.ok(INSTALLATION_RELATIONS.includes(("public."+name+":r") as typeof INSTALLATION_RELATIONS[number]),name);
  }
