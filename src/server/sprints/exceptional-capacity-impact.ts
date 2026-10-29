@@ -2,23 +2,9 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureActualDurationSchema} from "./actual-duration";
 export async function ensureExceptionalImpactSchema(db:Client){
- await ensureActualDurationSchema(db);
- await db.query("ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS impacts_capacity boolean NOT NULL DEFAULT false");
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_exceptional_meeting_participant (
- meeting_id text NOT NULL REFERENCES public.smn_sprint_exceptional_meeting(id) ON DELETE RESTRICT,
- member_id text NOT NULL REFERENCES public.smn_member(id) ON DELETE RESTRICT,
- created_at timestamptz NOT NULL DEFAULT now(),
- PRIMARY KEY(meeting_id,member_id))`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_exceptional_meeting_participant_audit (
- id text PRIMARY KEY,meeting_id text NOT NULL REFERENCES public.smn_sprint_exceptional_meeting(id) ON DELETE RESTRICT,
- before_member_ids jsonb NOT NULL,after_member_ids jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now())`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_exceptional_capacity_impact_history (
-  id text PRIMARY KEY,meeting_id text NOT NULL REFERENCES public.smn_sprint_exceptional_meeting(id) ON DELETE RESTRICT,
-  previous_value boolean NOT NULL,new_value boolean NOT NULL,
-  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  changed_at timestamptz NOT NULL DEFAULT now())`);
+ const names=["smn_exceptional_meeting_participant","smn_exceptional_meeting_participant_audit","smn_exceptional_capacity_impact_history"] as const;
+ const found=await db.query<{present:string[]}>(`SELECT array_agg(relname)::text[] AS present FROM pg_class WHERE relnamespace='public'::regnamespace AND relname=ANY($1::text[])`,[names]);
+ if(names.some(name=>!found.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 async function team(db:Client){const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);if(r.rows.length!==1)throw Error("scrum-team-unavailable");return r.rows[0].id;}
 export function proratedDeduction(durationMinutes:number,developerFraction:number,hoursPerJh=8){
