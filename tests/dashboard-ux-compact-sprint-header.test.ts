@@ -52,7 +52,7 @@ describe("UX — lot 1, bandeau Sprint compact et fiche",()=>{
   assert.match(output,/class="smn-cycle-overview-header smn-cycle-header-compact"/);
   assert.equal((output.match(/<h1\b/g)||[]).length,1);
   assert.match(output,/Sprint 12/);
-  assert.match(output,/Mon produit/);
+  assert.doesNotMatch(output,/Mon produit/);
   assert.match(output,/Équipe pilote/);
   assert.match(output,/Améliorer l&#x27;expérience utilisateur|Améliorer l'expérience utilisateur/);
   assert.match(output,/Objectif du sprint/);
@@ -69,8 +69,9 @@ describe("UX — lot 1, bandeau Sprint compact et fiche",()=>{
   ],3,{source:"manual"}));
   const banner=output.slice(0,output.indexOf('class="smn-metric-grid"'));
   assert.match(banner,/Objectif alpha/);
-  assert.match(banner,/et 2 autre\(s\) objectif\(s\)/);
-  assert.doesNotMatch(banner,/Objectif beta|Objectif gamma/);
+  assert.match(banner,/Objectif beta/);
+  assert.match(banner,/Objectif gamma/);
+  assert.equal((banner.match(/smn-cycle-goal-text/g)||[]).length,3);
   assert.match(banner,/href="\/app\/admin\/sprints\//);
  });
  it("distingue objectif absent d'une source indisponible",()=>{
@@ -98,7 +99,7 @@ describe("UX — lot 1, bandeau Sprint compact et fiche",()=>{
  });
  it("la fiche est autorisée côté serveur, liée à l'équipe et en lecture seule",()=>{
   const page=read("src/app/app/admin/sprints/[sprintId]/page.tsx");
-  assert.match(page,/canAccess\(account,"read",\{type:"collective"/);
+  assert.match(page,/canAccess\(account,"read",collective\)/);
   assert.match(page,/readSprintContext\(db,teamId\)/);
   assert.match(page,/context\.items\.find\(item=>item\.id===sprintId\)/);
   assert.match(page,/if\(!cycle\)return null/);
