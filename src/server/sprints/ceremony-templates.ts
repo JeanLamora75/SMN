@@ -1,3 +1,4 @@
+import {resolveAdminTeam} from "@/server/teams/resolve";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 export type TemplateInput={name:string;frequency:"daily"|"weekly"|"sprint";weekday:number|null;position:"start"|"end"|null;time:string;duration:number};
@@ -75,26 +76,35 @@ export async function ensureTemplateSchema(db:Client){
  changed_at timestamptz NOT NULL DEFAULT now(),
  UNIQUE(template_id,revision))`);
 }
-async function activeTeam(db:Client){
+async function activeTeam(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
+ const state=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ const version=state.rows[0]?.schema_version;
+ if(version!==undefined&&version>=28&&version<=31){
+  if(!actor)throw Error("team-access-forbidden");
+  const selected=await resolveAdminTeam(db,actor,requestedTeamId);
+  if(selected.mode!=="scrum")throw Error("scrum-team-unavailable");
+  return selected.team_id;
+ }
+ if(version===undefined||version>27)throw Error("team-schema-unavailable");
  const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
- if(r.rows.length!==1)throw Error("scrum-team-unavailable");
+ if(r.rows.length!==1||(requestedTeamId&&requestedTeamId!==r.rows[0].id))throw Error("scrum-team-unavailable");
  return r.rows[0].id;
 }
-export async function listTemplates(db:Client){
- await ensureTemplateSchema(db);const teamId=await activeTeam(db);
+export async function listTemplates(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
+ await ensureTemplateSchema(db);const teamId=await activeTeam(db,actor,requestedTeamId);
  const r=await db.query(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,active,revision
  FROM public.smn_scrum_ceremony_template WHERE team_id=$1 ORDER BY created_at,id`,[teamId]);
  return r.rows;
 }
-export async function saveTemplate(db:Client,actorId:string,raw:unknown){
+export async function saveTemplate(db:Client,actorId:string,raw:unknown,requestedTeamId?:string|null){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input" as const};
  const obj=raw as Record<string,unknown>;
  const input=parseTemplate(obj.template);if(!input||Object.keys(obj).some(k=>!["id","revision","template","active"].includes(k)))return {ok:false as const,error:"invalid-input" as const};
  if(obj.active!==undefined&&typeof obj.active!=="boolean")return {ok:false as const,error:"invalid-input" as const};
  const isUpdate=typeof obj.id==="string"&&/^[0-9a-f-]{36}$/i.test(obj.id);
  if(obj.id!==undefined&&!isUpdate||isUpdate&&(!Number.isSafeInteger(obj.revision)||Number(obj.revision)<1))return {ok:false as const,error:"invalid-input" as const};
- await ensureTemplateSchema(db);const teamId=await activeTeam(db);
+ await ensureTemplateSchema(db);const teamId=await activeTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
  await db.query("BEGIN");
  try{
   const id=isUpdate?obj.id as string:randomUUID();
