@@ -25,13 +25,7 @@ export async function createHumanAnalysis(db:Client,actor:string,input:unknown){
    const found=await db.query(`SELECT 1 FROM public.smn_ai_brief_archive WHERE id=$1 AND team_id=$2 AND cycle_id=$3`,[a.archiveId,t.rows[0].team_id,a.cycleId]);
    if(!found.rows[0]){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   }
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_human_analysis(
-   id uuid PRIMARY KEY,team_id text NOT NULL,cycle_id text NOT NULL,
-   mode text NOT NULL CHECK(mode IN ('scrum','kanban')),archive_id uuid,
-   scope text NOT NULL,content text NOT NULL,origin text NOT NULL DEFAULT 'human' CHECK(origin='human'),
-   author_id text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),
-   updated_at timestamptz NOT NULL DEFAULT now()
-  )`);
+  await assertAiBriefSchema(db,"human-analyses");
   const id=randomUUID();
   await db.query(`INSERT INTO public.smn_human_analysis
    (id,team_id,cycle_id,mode,archive_id,scope,content,author_id)
