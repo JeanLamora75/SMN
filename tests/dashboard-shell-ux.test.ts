@@ -13,20 +13,20 @@ describe("SMN-21 — refonte UX, lot 1 : coque de navigation",()=>{
   it("maintient les contrôles d'accès serveur avant de transmettre le contexte collectif",()=>{
     assert.match(layout,/await currentAccount\(\)/);
     assert.match(layout,/canAccess\(account,"read"/);
-    assert.match(layout,/withAuthDb\(readCollectiveDashboard\)/);
+    assert.match(layout,/withAuthDb\(db=>readAccountDashboard\(db,/);
     assert.match(layout,/teamId=\{context\?\.teamId\?\?null\}/);
-    assert.match(shell,/fetch\("\/api\/sprints\/context"/);
+    assert.match(shell,/mode==="kanban"\?"\/api\/kanban\/context":"\/api\/sprints\/context"/);
     assert.doesNotMatch(shell,/smn_account|password_hash/i);
   });
   it("place les sélecteurs Équipe et Cycle avant une recherche explicitement indisponible",()=>{
-    const team=shell.indexOf('id="smn-current-team"');
+    const team=shell.indexOf("<ActiveTeamSelector");
     const cycle=shell.indexOf('id="smn-current-cycle"');
     const search=shell.indexOf('id="smn-global-search"');
     assert.ok(team>0&&cycle>team&&search>cycle);
-    assert.match(shell,/value=\{teamId\?\?""\} disabled/);
-    assert.match(shell,/value=\{selectedCycleId\} onChange=/);
+    assert.match(shell,/teamId=\{teamId\} teamName=\{team\}/);
+    assert.match(shell,/value=\{selectedCycleId\} onChange=\{event=>changeSprint/);
     assert.match(shell,/sprints\.map\(item=><option/);
-    assert.match(shell,/disabled=\{mode!=="scrum"/);
+    assert.match(shell,/disabled=\{\(!teamSwitcherEnabled&&mode!=="scrum"\)/);
     assert.match(shell,/disabled placeholder=\{t\("dashboard.shell.searchUnavailable"\)\}/);
     assert.match(shell,/noCycle/);
     assert.doesNotMatch(shell,/mock|fake|demo|sample|Math\.random/i);
