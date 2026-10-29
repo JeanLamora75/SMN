@@ -81,3 +81,29 @@ Sur le run `40907675714`, les erreurs observées dans les journaux sont :
 Les quatre annotations TypeScript, le montage du portail et les assertions A-01/A-02 ont été corrigés sur `main`. Les autres régressions de tests des modules Links, Registres, Rapports demandent un traitement indépendant : distinguer contrat historique volontaire et comportement attendu en v32.
 
 **Attention :** aucune CI verte n'est attestée au titre du lot A à ce stade.
+
+
+## Classification réelle de l'artefact GitHub Actions du 29 octobre 2026
+
+L'exécution `40909396354` du workflow d'inventaire a réussi : 1 397 fichiers texte suivis inspectés, 611 occurrences de motifs DDL détectées. Classification des 611 occurrences d'après l'artefact JSON téléchargé :
+
+| Groupe | Occurrences |
+|---|---:|
+| Migrations SQL versionnées (`prisma/migrations/`) | 193 |
+| Tests et fixtures (`tests/`) | 136 |
+| Scripts CLI/maintenance (`scripts/`) | 12 |
+| Déclarations de migrations dans les services (`src/server/**/migration*.ts`) | 37 |
+| DDL potentiels dans le code applicatif hors fichiers `migration*.ts` | 233 |
+| **Total** | **611** |
+
+Le dernier groupe comprend **103 chemins de fichiers distincts**, mais le nom `migration` dans les chemins est seulement un critère lexical : une validation des appels exécutables reste indispensable. L'inventaire n'est pas une preuve de 233 opérations exécutées.
+
+### Règle de sécurisation avant extraction
+
+- Priorité aux DDL déclenchés au cours d'un GET/PATCH/POST ou à la connexion, et aux `ALTER TABLE` du code métier.
+- Ne pas modifier l'empreinte des migrations v30–v32.
+- Ne pas retirer de DDL à l'exécution avant qu'une migration explicite et versionnée garantisse l'existence et la conformité des objets sur une base comportant déjà des données.
+- Refuser les dérives de schéma sans perte de données ; aucune réparation automatique destructive.
+- Une éventuelle v33 doit être un chantier de migration distinct, accompagné d'un jeu de tests PostgreSQL réels et d'un plan de reprise.
+
+Cette classification résulte de l'artefact archivé du workflow et ne remplace pas un audit manuel des 103 fichiers potentiellement concernés.
