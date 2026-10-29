@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import test from "node:test";
 import {formatReportCenterDate} from "../src/lib/report-center-date";
 
-const root=path.resolve(import.meta.dirname,"..");
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const page=readFileSync(path.join(root,"src/app/app/reports/page.tsx"),"utf8");
 const dialog=readFileSync(path.join(root,"src/app/app/reports/new-report-form.tsx"),"utf8");
 const css=readFileSync(path.join(root,"src/app/app/reports/report-center-cockpit.css"),"utf8");
