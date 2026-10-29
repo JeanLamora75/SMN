@@ -38,3 +38,12 @@ test("diagnostic v32 exige le contenu SQL exact et les colonnes",()=>{
  assert.match(probe,/smn_team:agile_mode/);
  assert.match(probe,/smn_team:is_archived/);
 });
+
+test("création Kanban scoped réserve les écritures aux schémas ayant agile_mode",()=>{
+ const source=read("src/server/kanban/scoped-create.ts");
+ assert.match(source,/i\.schema_version>=32/);
+ assert.match(source,/i\.state='initialized'/);
+ assert.match(source,/t\.agile_mode='kanban'/);
+ assert.match(source,/t\.is_archived=false/);
+ assert.doesNotMatch(source,/schema_version IN \(29,30,31\)/);
+});
