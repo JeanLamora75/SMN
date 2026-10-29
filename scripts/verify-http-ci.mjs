@@ -559,25 +559,15 @@ try {
     const countriesGet=(cookie=replacement)=>get(countriesUrl,{headers:cookie?{Cookie:cookie}:{}});
     const countriesPost=(input,cookie=replacement)=>postAuth(countriesUrl,input,cookie);
     assert.equal((await countriesGet("")).status,403);
+    // Le catalogue v30 ne doit pas effectuer de lectures ni de mutations en schéma v15.
+    // Ses parcours positifs sont couverts par les contrats d'entreprise v31.
     const seeded=await countriesGet();
-    assert.equal(seeded.status,200);
-    const initialCountries=(await seeded.json()).countries;
-    assert.deepEqual(initialCountries.map(c=>c.code),["CA","DE","ES","FR","GB","IT","PT"]);
-    assert.ok(initialCountries.every(c=>c.nationalCalendar.status==="not-configured"&&
-      c.nationalCalendar.holidays===null));
-    assert.equal((await countriesPost({code:"XX",name:"Pays imaginaire"})).status,400);
-    const addedCountry=await countriesPost({code:"NL",name:"Pays-Bas"});
-    assert.equal(addedCountry.status,201);
-    const savedCountry=(await addedCountry.json()).country;
-    assert.equal(savedCountry.code,"NL");
-    assert.equal(savedCountry.nationalCalendar.status,"not-configured");
-    assert.equal((await countriesPost({code:"nl",name:"Doublon"})).status,409);
-    const expandedCountries=(await (await countriesGet()).json()).countries;
-    assert.equal(expandedCountries.length,8);
-    assert.equal(expandedCountries.find(c=>c.code==="NL").name,"Pays-Bas");
+    assert.equal(seeded.status,503);
+    assert.deepEqual(await seeded.json(),{error:"service-unavailable"});
+    assert.equal((await countriesPost({code:"NL",name:"Pays-Bas"})).status,503);
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT count(*)::int AS count FROM public.smn_country WHERE code='NL'"
-    )).rows[0].count)),1);
+    )).rows[0].count)),0);
     const initialBackupStatus=await get("/api/admin/backups",{headers:{Cookie:replacement}});
     assert.equal(initialBackupStatus.status,200);
     assert.equal((await initialBackupStatus.json()).needsRecoveryPhrase,true);
