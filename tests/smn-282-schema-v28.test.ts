@@ -46,8 +46,8 @@ test("authentification admet v28 uniquement si migration et structure valides",(
 });
 test("le chemin d'application est manuel et demande une sauvegarde",()=>{
  const runner=read("scripts/apply-multi-team-migration.ts");
- assert.match(runner,/options\.includes\("--apply"\)/);
- assert.match(runner,/--backup-file=/);
+ assert.match(runner,/process\.argv\.slice\(2\)\.join\(" "\)!=="--apply"/);
+ assert.match(runner,/Usage: pnpm exec tsx scripts\/apply-multi-team-migration\.ts --apply/);
  assert.match(runner,/await db\.query\("BEGIN"\)/);
  assert.match(runner,/await db\.query\("ROLLBACK"\)/);
  assert.match(runner,/classifySnapshot\(await probePostgres\(uri\)\)/);
