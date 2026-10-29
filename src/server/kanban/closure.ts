@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureKanbanGoals} from "./goals";
@@ -11,12 +12,7 @@ export function nextClosureVersion(versions:number[]){return versions.length?Mat
 export async function ensureKanbanClosures(db:Client){
  await ensureKanbanGoals(db);await ensureKanbanFlowSchema(db);await ensureKanbanTimingSchema(db);
  await ensureKanbanMeetingSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_closure(
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- version integer NOT NULL CHECK(version>0),snapshot jsonb NOT NULL,
- created_at timestamptz NOT NULL DEFAULT now(),
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- UNIQUE(period_id,version))`);
+ await assertKanbanSchema(db,"smn_kanban_closure");
 }
 export async function readKanbanClosures(db:Client,id:string){
  await ensureKanbanClosures(db);
