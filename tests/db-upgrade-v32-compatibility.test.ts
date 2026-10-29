@@ -2,7 +2,7 @@ import {test} from "node:test";
 import {strict as assert} from "node:assert";
 import {createHash} from "node:crypto";
 import {decideUpgrade} from "../scripts/db-upgrade-policy";
-import {verifyHistory} from "../scripts/db-diagnostic-exhaustive";
+import {verifyHistory} from "../scripts/db-migration-history";
 
 test("v31 saine seule autorisée à migrer",()=>{
  assert.equal(decideUpgrade("initialized",31,31).kind,"migrate");
