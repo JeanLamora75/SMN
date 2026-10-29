@@ -170,3 +170,20 @@ une table inexistante. Ne pas supprimer ce dernier DDL avant de résoudre cette 
 les vérifications sur structures déjà présentes et la CI du dernier commit restent
 à confirmer. `CREATE TABLE IF NOT EXISTS` n'est pas à lui seul un contrôle complet
 d'intégrité des contraintes et des types.
+
+
+### Dépendance Cérémonies / Registres : résultats de réunion
+
+La création de `smn_calendar_meeting_outcome_link` et de son index a été retirée
+de `src/server/sprints/calendar-meeting-outcomes.ts` et placée dans
+`scripts/apply-meeting-outcome-schema-v32.ts`. Migration additive, transactionnelle,
+verrouillée, réservée aux installations v32 initialisées, **avec précondition
+`smn_registry_item` présente**. Ordre impératif : matérialiser les tables de Registres,
+puis lancer `pnpm exec tsx scripts/apply-meeting-outcome-schema-v32.ts --apply`,
+avant le démarrage du nouveau service de résultats de réunion.
+
+**Limite à résoudre au lot Registres** : `createMeetingOutcome` appelle toujours
+`ensureRegistrySchema`, qui peut créer d'autres structures dynamiquement. Le
+dernier DDL directement détenu par ce service a été retiré, mais la chaîne d'appel
+n'est pas entièrement débarrassée des DDL tant que le lot Registres ne l'est pas.
+Le résultat de CI et l'application PostgreSQL réelle sont encore à confirmer.
