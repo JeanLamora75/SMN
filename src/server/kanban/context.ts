@@ -17,7 +17,7 @@ export async function readKanbanPeriodContext(db:Client,teamId:string,
  JOIN public.smn_team t ON t.id=k.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized'
-   AND lower(i.mode)='kanban' AND k.team_id=$1
+   AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode))='kanban' AND k.team_id=$1
    AND k.deleted_at IS NULL
  ORDER BY k.start_on DESC,k.id DESC`,[teamId]);
  const items=periods.rows.map(p=>({
