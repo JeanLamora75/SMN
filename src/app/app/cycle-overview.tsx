@@ -14,10 +14,9 @@ type Props=Readonly<{
   teamHref:string;
   cycle:SprintContextItem|null;
   projection?:CollectiveCycleProjection|null;
-  canViewCapacity?:boolean;
 }>;
 
-export default function CycleOverview({context,locale,teamHref,cycle,projection,canViewCapacity=false}:Props){
+export default function CycleOverview({context,locale,teamHref,cycle,projection,}:Props){
   const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
   const scrum=context.mode==="scrum";
   const effectiveStatus=cycle?effectiveSprintStatus(cycle):null;
@@ -71,11 +70,6 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         </div>
       </div>
       <div className="smn-cycle-header-actions">
-        {canViewCapacity&&cycle&&cycle.status!=="closed"&&
-         <Link className="btn btn-outline-secondary btn-sm"
-          href={"/app/admin/development-capacity?cycleId="+encodeURIComponent(cycle.id)}>
-          <BootstrapIcon name="people-fill"/> {t("dashboard.cockpit.capacityDiagnosis")}
-         </Link>}
         {cycle?
           <Link className="btn btn-outline-primary btn-sm smn-cycle-detail-link"
             href={sprintDetailPath(cycle.id)}>
