@@ -1,3 +1,4 @@
+import {assertAiBriefSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {briefArchiveIdValid,readPrivateBriefArchive} from "./library";
@@ -12,20 +13,11 @@ export function validManualAiResponse(raw:unknown):raw is {text:string;provider?
 }
 const optional=(x:string|null|undefined)=>x?.trim()||null;
 async function ensureResponseSchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_ai_brief_response(
- id uuid PRIMARY KEY,archive_id uuid NOT NULL REFERENCES public.smn_ai_brief_archive(id) ON DELETE RESTRICT,
- team_id text NOT NULL,author_id text NOT NULL,response_text text NOT NULL,
- provider text,model text,created_at timestamptz NOT NULL DEFAULT now(),
- CHECK(length(btrim(response_text))>0))`);
- await db.query("ALTER TABLE public.smn_ai_brief_response ADD COLUMN IF NOT EXISTS deleted_at timestamptz");
- await db.query("ALTER TABLE public.smn_ai_brief_response ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now()");
- await db.query("ALTER TABLE public.smn_ai_brief_response ADD COLUMN IF NOT EXISTS human_edited boolean NOT NULL DEFAULT false");
- // Existing duplicates are preserved in history, but only the most recent remains active.
- await db.query(`WITH ranked AS (SELECT id,row_number() OVER(PARTITION BY archive_id ORDER BY created_at DESC,id DESC) AS rn
- FROM public.smn_ai_brief_response WHERE deleted_at IS NULL)
- UPDATE public.smn_ai_brief_response r SET deleted_at=now() FROM ranked WHERE r.id=ranked.id AND ranked.rn>1`);
- await db.query(`CREATE UNIQUE INDEX IF NOT EXISTS smn_ai_brief_one_active_response
- ON public.smn_ai_brief_response(archive_id) WHERE deleted_at IS NULL`);
+ await assertAiBriefSchema(db,"responses");
+ await assertAiBriefSchema(db,"responses");
+ await assertAiBriefSchema(db,"responses");
+ await assertAiBriefSchema(db,"responses");
+ await assertAiBriefSchema(db,"responses");
 }
 export async function listManualAiResponses(db:Client,archiveId:string,teamId:string):Promise<ManualAiResponse[]>{
  if(!briefArchiveIdValid(archiveId))return [];
