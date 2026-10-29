@@ -11,6 +11,7 @@ test("reject malformed/self relations",async()=>{
 test("commit validated relationship with append-only audit",async()=>{
  const sql:string[]=[];
  const db={query:async(q:string)=>{sql.push(q);
+  if(/^SELECT to_regclass\('public\.[^']+'\) AS present$/.test(q))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.team_id,r.type"))return {rows:[{team_id:"team1",type:"action"}]};
   if(q.includes("SELECT r.id,r.type"))return {rows:[{id:target,type:"obstacle"}]};
   return {rows:[]};
@@ -22,7 +23,8 @@ test("commit validated relationship with append-only audit",async()=>{
 });
 test("reject forbidden goals without mutations",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);return {rows:q.includes("SELECT r.team_id,r.type")?[{team_id:"team1",type:"risk"}]:[]};}} as unknown as Client;
+ const db={query:async(q:string)=>{sql.push(q);
+  if(/^SELECT to_regclass\('public\.[^']+'\) AS present$/.test(q))return {rows:[{present:"migrated"}]};return {rows:q.includes("SELECT r.team_id,r.type")?[{team_id:"team1",type:"risk"}]:[]};}} as unknown as Client;
  const r=await changeRelation(db,"admin",source,{kind:"goal",id:target},"linked");
  assert.deepEqual(r,{ok:false,error:"incompatible"});
  assert.equal(sql.at(-1),"ROLLBACK");
