@@ -39,7 +39,7 @@ function dbFixture(){
 describe("SMN-231 — prévisualisation avec schéma de cadence réel (42703)",()=>{
  it("ne filtre jamais la cadence avec la colonne inexistante deleted_at",async()=>{
   const {db,queries}=dbFixture();
-  const result=await previewSprintBatch(db,{startOn:"2026-10-26",count:2});
+  const result=await previewSprintBatch(db,{startOn:"2026-10-26",count:2},"team-1");
   assert.equal(result.ok,true);
   if(!result.ok)return;
   assert.equal(result.items.length,2);
@@ -54,7 +54,7 @@ describe("SMN-231 — prévisualisation avec schéma de cadence réel (42703)",(
  });
  it("conserve le filtrage des Sprints supprimés sans altérer la cadence",async()=>{
   const {db,queries}=dbFixture();
-  await previewSprintBatch(db,{startOn:"2026-10-26",count:1});
+  await previewSprintBatch(db,{startOn:"2026-10-26",count:1},"team-1");
   const existing=queries.find(sql=>sql.includes("SELECT id,name,start_at::text,end_at::text FROM public.smn_sprint"));
   assert.ok(existing);
   assert.match(existing,/deleted_at IS NULL/);
