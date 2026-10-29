@@ -65,7 +65,7 @@ export function assessSchemaIntegrity(
  if(!actual.migrations.includes(required.migration))
   return {ok:false,capability,reason:"migration-missing",details:[required.migration]};
  if(actual.migrationChecksum!==undefined &&
-    ![migrationSql[capability],migrationSql[capability].replace(/\\n/g,"\\r\\n")]
+    ![migrationSql[capability],migrationSql[capability].replace(/\n/g,"\r\n")]
      .some(sql=>actual.migrationChecksum===checksum(sql)))
   return {ok:false,capability,reason:"migration-missing",details:["checksum:"+required.migration]};
  const absent=[
