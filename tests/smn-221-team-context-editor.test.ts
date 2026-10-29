@@ -109,6 +109,7 @@ test("renommage du produit et audit : rollback complet si une écriture échoue"
  const statements:string[]=[];
  const db={query:async(sql:string)=>{
   statements.push(sql);
+  if(sql.includes("relname AS name FROM pg_class"))return {rows:[{name:"smn_team_context"},{name:"smn_team_context_audit"}]};
   if(sql.includes("INSERT INTO public.smn_team_context_audit"))throw Error("audit-failed");
   if(sql.includes("SELECT t.id,t.name"))return {rows:[{
    id:"team",name:"Team Renommée",product_id:"product",product_name:"My Product"}]};
@@ -128,6 +129,7 @@ test("erreur SQL : rollback de la mutation du nom et de la vision",async()=>{
  const statements:string[]=[];
  const db={query:async(sql:string)=>{
   statements.push(sql);
+  if(sql.includes("relname AS name FROM pg_class"))return {rows:[{name:"smn_team_context"},{name:"smn_team_context_audit"}]};
   if(sql.includes("INSERT INTO public.smn_team_context_audit"))throw Error("db-failure");
   if(sql.includes("SELECT t.id,t.name"))return {rows:[{id:"team",name:"Ancienne",product_id:"product",product_name:"My Product"}]};
   if(sql.includes("SELECT vision,product_goal,revision"))return {rows:[]};
