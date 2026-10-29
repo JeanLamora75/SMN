@@ -86,3 +86,9 @@ Le mode `--fail-on-api-guards` est destiné à une future règle de CI **après 
 **Limites :** contrôle par expressions régulières, qui ne remplace pas l'analyse AST, peut ignorer les conditions sur plusieurs lignes et signaler des références historiques légitimes. La commande n'a pas été exécutée contre un clone local durant cette intervention. Aucun total exhaustif de correspondances n'est donc affirmé.
 
 **Blocage prioritaire précédemment vérifié :** `src/server/kanban/scoped-create.ts` accepte uniquement `IN (29,30,31)` ; un correctif fonctionnel distinct est requis pour v32.
+
+## Correction P0 appliquée — 29 octobre 2026
+
+Le blocage `src/server/kanban/scoped-create.ts` a été corrigé sur `main` : la condition `IN (29,30,31)` est remplacée par `i.state='initialized' AND i.schema_version>=32`. Le module `resolveAdminTeam`, appelé avant l'écriture, continue d'imposer les versions d'installation connues jusqu'à v32 et d'autoriser l'équipe. La borne basse v32 correspond aux colonnes `agile_mode` et `is_archived` requises par cette écriture et introduites dans la migration v32. Tests de contrat statiques ajoutés dans `tests/team-agile-mode-v32.test.ts`.
+
+**Validation restante :** exécuter `pnpm exec tsx --test tests/team-agile-mode-v32.test.ts`, `pnpm typecheck` et les tests PostgreSQL. Ce changement ciblé ne remplace pas encore le registre central SMN-328. Le blocage P0 est corrigé dans le code, mais la recette fonctionnelle reste ouverte.
