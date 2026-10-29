@@ -35,34 +35,9 @@ export function parseCommentWithdrawal(raw:unknown):{revision:number}|null{
  * Readers must never create or backfill records, and no legacy text is copied.
  */
 export async function ensureCommentSchema(db:Client):Promise<void>{
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_comment(
-  id text PRIMARY KEY,
-  item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
-  body text NOT NULL CHECK(length(btrim(body)) BETWEEN 1 AND 4000),
-  revision integer NOT NULL DEFAULT 1 CHECK(revision>=1),
-  author_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  author_name text NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  edited_at timestamptz,
-  editor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  editor_name text,
-  withdrawn_at timestamptz,
-  withdrawn_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  withdrawn_by_name text,
-  CHECK(withdrawn_at IS NULL OR withdrawn_by_name IS NOT NULL))`);
- await db.query(`CREATE INDEX IF NOT EXISTS smn_registry_comment_item_date
-  ON public.smn_registry_comment(item_id,created_at DESC,id DESC)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_comment_revision(
-  id text PRIMARY KEY,
-  comment_id text NOT NULL REFERENCES public.smn_registry_comment(id) ON DELETE RESTRICT,
-  revision integer NOT NULL CHECK(revision>=1),
-  action text NOT NULL CHECK(action IN ('created','edited','withdrawn')),
-  before_text text,
-  after_text text,
-  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  actor_name text NOT NULL,
-  changed_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(comment_id,revision))`);
+ await db.query("SELECT to_regclass('public.smn_registry_comment') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_registry_comment_item_date') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_registry_comment_revision') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
 }
 async function scopedItem(db:Client,itemId:string,lock:boolean,teamId?:string){
  const result=await db.query<{id:string;comment:string|null}>(`SELECT r.id,r.comment
