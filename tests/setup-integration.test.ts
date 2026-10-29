@@ -6,7 +6,9 @@ import { classifySnapshot } from "../src/server/installation/diagnostic";
 import { probePostgres } from "../src/server/db/probe";
 import { parseConnectionSettings } from "../src/server/db/config";
 import { readFile } from "node:fs/promises";
+import {readFileSync} from "node:fs";
 import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
+import {ceremonyStatements} from "../scripts/apply-ceremony-schema-v32";
 import { prepareExisting } from "../src/server/bootstrap/existing";
 import { authenticate, changeInitialPassword } from "../src/server/auth/credentials";
 import { ensureAccountsSchema, ACCOUNTS_MIGRATION_SQL } from "../src/server/accounts/migration";
@@ -25,6 +27,13 @@ async function withClient<T>(uri: string, task: (client: Client) => Promise<T>):
   try { await client.connect(); return await task(client); }
   finally { await client.end().catch(() => undefined); }
 }
+it("l'installation prépare explicitement les modèles Scrum avant de les renseigner",()=>{
+ const installer=readFileSync(new URL("../src/server/installation/install.ts",import.meta.url),"utf8");
+ const create=installer.indexOf("for (const sql of templateTables) await dbClient.query(sql)");
+ const seed=installer.indexOf("await seedDefaultScrumCeremonyTemplates(dbClient, \"team\")");
+ assert.ok(create>=0&&seed>create,"Les modèles doivent être créés par la migration avant le seed");
+ assert.equal(ceremonyStatements.filter(sql=>/CREATE TABLE IF NOT EXISTS public\\.smn_scrum_ceremony_template(?:_history)?\\(/.test(sql)).length,2);
+});
 describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enabled }, () => {
   it("contrôle les identifiants PostgreSQL fournis avant création de la base SMN", async () => {
     assert.ok(source);
