@@ -42,7 +42,7 @@ const checksum = (s: string) => createHash("sha256").update(s).digest("hex");
 
 /** Même version maximale que le diagnostic, sans autoriser les futures versions non connues. */
 export function isSupportedAuthenticationSchemaVersion(version:number):boolean {
-  return Number.isInteger(version) && version>=1 && version<=31;
+  return Number.isInteger(version) && version>=1 && version<=32;
 }
 
 /** La migration v27 est explicite : l'authentification la vérifie, sans la déclencher. */
@@ -558,6 +558,18 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
         (await client.query<{present:boolean}>(
           "SELECT to_regclass('public.smn_account_team_preference') IS NOT NULL AS present"
         )).rows[0]?.present===true);
+    }
+    if(version>=32){
+      const modeColumn=await client.query<{valid:boolean}>(`
+        SELECT (SELECT count(*) FROM information_schema.columns
+          WHERE table_schema='public' AND table_name='smn_team'
+            AND column_name IN ('agile_mode','is_archived') AND is_nullable='NO'
+        )=2 AS valid`);
+      if(modeColumn.rows[0]?.valid!==true)throw Error("smn-schema-incompatible");
+      const invalidModes=await client.query<{count:string}>(`
+        SELECT count(*)::text AS count FROM public.smn_team
+        WHERE agile_mode NOT IN ('scrum','kanban')`);
+      if(invalidModes.rows[0]?.count!=="0")throw Error("smn-schema-incompatible");
     }
     await client.query("COMMIT");
   } catch(error) {

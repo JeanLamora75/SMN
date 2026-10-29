@@ -13,7 +13,7 @@ export async function resolveRegistryReadContext(
   WHERE id='singleton' AND state='initialized'`);
  if(state.rows.length!==1)throw Error("registry-schema-unavailable");
  const version=state.rows[0].schema_version;
- if(version===28||version===29||version===30||version===31)return {
+ if(version===28||version===29||version===30||version>=31)return {
   version:28,team:await resolveAdminTeam(db,actor,requestedTeamId)
  };
  if(Number.isSafeInteger(version)&&version>=1&&version<=27)
