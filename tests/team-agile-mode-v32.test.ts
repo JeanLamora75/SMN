@@ -23,3 +23,18 @@ test("le serveur interdit le changement de mode lorsqu'un cycle existe",()=>{
  assert.match(source,/smn_sprint/);
  assert.match(source,/smn_kanban_period/);
 });
+
+test("script de migration : vérification transactionnelle avant commit",()=>{
+ const script=read("scripts/apply-team-agile-mode-v32.ts");
+ assert.match(script,/schema_version!==32/);
+ assert.match(script,/missing_columns!=="0"/);
+ assert.match(script,/invalid_modes!=="0"/);
+ assert.match(script,/ROLLBACK/);
+});
+test("diagnostic v32 exige le contenu SQL exact et les colonnes",()=>{
+ const diagnostic=read("src/server/installation/diagnostic.ts");
+ const probe=read("src/server/db/probe.ts");
+ assert.match(diagnostic,/teamAgileModeSchemaValid/);
+ assert.match(probe,/smn_team:agile_mode/);
+ assert.match(probe,/smn_team:is_archived/);
+});
