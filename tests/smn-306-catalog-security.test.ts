@@ -9,8 +9,8 @@ test("service imports shared identifier validation",()=>{
  assert.match(source,/import \{LinkError,type LinkWrite,validId\} from "\.\/validation"/);
  assert.match(validation,/export const validId=/);
 });
-test("links require a migrated schema v29 through v31 before accessing their tables",()=>{
- assert.match(source,/i\.schema_version IN \(29,30,31\)/);
+test("links require a migrated schema v29 through v32 before accessing their tables",()=>{
+ assert.match(source,/i\.schema_version BETWEEN 29 AND 32/);
  assert.doesNotMatch(source,/i\.schema_version=28/);
 });
 test("list and detail remain scoped to requested team plus transverse",()=>{
