@@ -19,11 +19,7 @@ export async function saveReportLinks(db:Client,actor:LinkActor,sprintId:string,
  try{
   const cycle=await db.query(`SELECT id FROM public.smn_sprint WHERE id=$1 AND team_id=$2 AND deleted_at IS NULL FOR UPDATE`,[sprintId,teamId]);
   if(cycle.rowCount!==1)throw new LinkError("not-found");
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_link_selection(
-   sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-   link_ids jsonb NOT NULL,revision integer NOT NULL CHECK(revision>0),
-   updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   updated_at timestamptz NOT NULL DEFAULT now())`);
+  await db.query("SELECT to_regclass('public.smn_report_link_selection') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
   const old=await db.query<{revision:number}>(`SELECT revision FROM public.smn_report_link_selection WHERE sprint_id=$1 FOR UPDATE`,[sprintId]);
   if((old.rows[0]?.revision??0)!==revision)throw new LinkError("conflict");
   const next=Number(revision)+1;
