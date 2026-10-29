@@ -20,7 +20,7 @@ async function main(){
   if(version.rows[0]?.schema_version!==32)throw Error("Expected an initialized v32 database");
   const report:Record<string,{present:boolean;missing:string[];columns:string[];constraints:string[]}>={};
   for(const [name,required] of Object.entries(tables)){
-   const existing=await db.query<{exists:boolean}>("SELECT to_regclass($1) IS NOT NULL AS exists",["public."+name]);
+   const existing=await db.query<{exists:boolean}>("SELECT to_regclass($1::text) IS NOT NULL AS exists",["public."+name]);
    const present=existing.rows[0]?.exists===true;
    let columns:string[]=[];let constraints:string[]=[];
    if(present){
