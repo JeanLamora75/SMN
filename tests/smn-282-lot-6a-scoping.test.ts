@@ -35,7 +35,7 @@ test("capacité v28 : teamId est exigé explicitement dans le calcul",async()=>{
  }} as unknown as Client;
  await assert.rejects(()=>readDevelopmentCapacity(db,"2026-10-01","2026-10-31",
   {teamId:"panda"}),/capacity-team-unavailable/);
- assert.ok(seen.some(v=>v.sql.includes("i.schema_version=28")&&
+ assert.ok(seen.some(v=>/i\.schema_version\s*(?:IN\s*\(28,29,30,31\)|=28)/.test(v.sql)&&
   v.sql.includes("t.id=$1")&&v.args[0]==="panda"));
  assert.equal(seen.at(-1)?.sql,"ROLLBACK");
 });
