@@ -1,3 +1,4 @@
+import {assertAiBriefSchema} from "./schema-ready";
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import type {BriefMode} from "@/lib/ai-brief-templates";
@@ -16,23 +17,11 @@ export function validateFinalizeInput(raw:unknown):raw is FinalizeInput{
  (x.draftId===undefined||(typeof x.draftId==="string"&&/^[a-f0-9-]{36}$/i.test(x.draftId)&&Number.isSafeInteger(x.draftRevision)&&Number(x.draftRevision)>=1));
 }
 async function ensureArchiveSchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_ai_brief_archive(
- id uuid PRIMARY KEY,mode text NOT NULL CHECK(mode IN ('scrum','kanban')),
- cycle_id text NOT NULL,team_id text NOT NULL,template_id text NOT NULL,
- template_revision integer NOT NULL,author_id text NOT NULL,
- created_at timestamptz NOT NULL DEFAULT now(),sha256 text NOT NULL,
- byte_length integer NOT NULL CHECK(byte_length>0),content bytea NOT NULL,
- reviewed boolean NOT NULL CHECK(reviewed=true),
- CHECK(octet_length(content)=byte_length)
- )`);
- await db.query(`ALTER TABLE public.smn_ai_brief_archive ADD COLUMN IF NOT EXISTS parent_archive_id uuid`);
- await db.query(`CREATE OR REPLACE FUNCTION public.smn_ai_brief_archive_immutable()
- RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN
- RAISE EXCEPTION 'finalized AI brief archives are immutable';
- END $$`);
- await db.query(`DROP TRIGGER IF EXISTS smn_ai_brief_immutable ON public.smn_ai_brief_archive`);
- await db.query(`CREATE TRIGGER smn_ai_brief_immutable BEFORE UPDATE OR DELETE
- ON public.smn_ai_brief_archive FOR EACH ROW EXECUTE FUNCTION public.smn_ai_brief_archive_immutable()`);
+ await assertAiBriefSchema(db,"archive");
+ await assertAiBriefSchema(db,"archive");
+ await assertAiBriefSchema(db,"archive");
+ await assertAiBriefSchema(db,"archive");
+ await assertAiBriefSchema(db,"archive");
 }
 export async function finalizeAiBrief(db:Client,actorId:string,raw:unknown){
  if(!validateFinalizeInput(raw))return {ok:false as const,error:"invalid-or-unreviewed"};
