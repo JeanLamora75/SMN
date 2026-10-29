@@ -41,6 +41,7 @@ function fake(handler:(sql:string,params?:unknown[])=>{rows:unknown[]}){
  const statements:string[]=[];
  const db={query:async(sql:string,params?:unknown[])=>{
   statements.push(sql);
+  if(sql.startsWith("SELECT to_regclass(\'public.smn_sprint_scores\') AS present")||sql.startsWith("SELECT to_regclass(\'public.smn_sprint_scores_audit\') AS present"))return {rows:[{present:"migrated"}]};
   if(!/^\s*(SELECT|BEGIN|COMMIT|ROLLBACK|CREATE|INSERT|UPDATE)/i.test(sql))
    throw Error("Unsupported query");
   return handler(sql,params);
