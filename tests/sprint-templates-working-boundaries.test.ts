@@ -80,6 +80,7 @@ describe("Intégration du générateur central (unitaire, lot, wizard)",()=>{
  it("utilise les créneaux d'équipe, fermetures et jours fériés collectifs",async()=>{
   const inserts:{sql:string;args:unknown[]}[]=[];
   const db={query:async(sql:string,args:unknown[]=[]):Promise<{rows:unknown[];rowCount:number}>=>{
+   if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_scrum_template_occurrence","smn_scrum_ceremony_template","smn_scrum_ceremony_template_history"]}],rowCount:1};
    if(sql.includes("SELECT team_id FROM public.smn_sprint"))return {rows:[{team_id:"team-1"}],rowCount:1};
    if(sql.includes("WHERE team_id=$1 AND active=true"))return {rows:templates,rowCount:4};
    if(sql.includes("to_regclass('public.smn_team_work_slots')"))return {rows:[{present:false}],rowCount:1};
