@@ -306,3 +306,31 @@ final, les tests PostgreSQL réels avec données préexistantes et la
 compatibilité avec l'installation initiale restent obligatoires.
 Ne pas appliquer la commande sur l'installation utilisateur avant cette
 recette et une sauvegarde.
+
+
+### Sprint — consolidation centrale v32
+
+Après la première extraction, le périmètre du module `src/server/sprints/`
+inclut la migration explicite des tables de base `smn_sprint` et
+`smn_sprint_audit`, et les 27 instructions de schéma des agrégats et
+extensions : objectifs, scores, story points, tickets, capacités historiques,
+analyses de review, clôture, transitions, assistant de Sprint et événements
+historiques. Les services métiers ne doivent plus créer ni modifier leurs
+tables à l'exécution.
+
+**Commande unique recommandée, après sauvegarde et recette** :
+`pnpm exec tsx scripts/apply-sprint-schema-v32.ts --apply`.
+Ce script exige une base initialisée v32, les structures Équipes/Comptes
+et Cérémonies, exécute une transaction complète et contrôle les tables et
+colonnes requises. Il ne supprime aucune ligne. L'ordre de migration est
+Équipes/Comptes → Cérémonies → Sprint central et agrégats → Registres/Rapports.
+La présence des anciennes structures n'est pas une preuve de leur compatibilité
+totale : vérifier les données et contraintes historiques avant déploiement.
+
+**Vérifications** :
+`tests/sprint-aggregates-explicit-schema-v32.test.ts` inspecte tous les
+services du répertoire ; `tests/sprint-aggregates-pg-integration.test.ts`
+exerce la double application sur une base CI isolée. La CI du dernier
+commit et les validations Windows/PostgreSQL doivent réussir avant de
+déclarer ce sous-lot clos. Aucune migration n'a été exécutée sur la base
+locale utilisateur.
