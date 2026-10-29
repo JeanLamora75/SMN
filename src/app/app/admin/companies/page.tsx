@@ -13,6 +13,5 @@ export default async function CompaniesPage(){
   <header className="mb-4"><Link href="/app/admin/settings" className="btn btn-link px-0">← Paramètres</Link>
    <h1>Entreprises</h1><p>Référentiel partagé entre toutes les équipes.</p></header>
   <CompaniesAdmin/>
-  <Link href="/app/admin/company-closures" className="btn btn-outline-secondary mt-3">Gérer les fermetures</Link>
  </main>;
 }
