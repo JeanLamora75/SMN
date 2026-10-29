@@ -132,12 +132,53 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
       ...['id','installation_id','title','url','description','category_id','scope','team_id','created_by','updated_by','created_at','updated_at','revision'].map(n=>'smn_link:'+n),
       ...['id','link_id','installation_id','operation','before_values','after_values','actor_id','occurred_at'].map(n=>'smn_link_audit:'+n)
     ].every(n=>columnSet.has(n)) : undefined;
-    const teamAgileModeSchemaValid = (installations.rows[0]?.schema_version??0)<32 ||
-      ["smn_team:agile_mode","smn_team:is_archived"].every(name=>columnSet.has(name));
-    const companySchemaValid = (installations.rows[0]?.schema_version??0)<31 || [
-      ...["id","installation_id","name","comment","color","archived_at","revision"].map(n=>"smn_company:"+n),
-      "smn_member:company_id","smn_company_closure:company_id"
-    ].every(n=>columnSet.has(n)) && !columnSet.has("smn_company_closure:team_id");
+    // Validate physical schema contracts, not just the presence of columns.
+    let teamAgileModeSchemaValid = (installations.rows[0]?.schema_version??0)<32;
+    if(!teamAgileModeSchemaValid){
+      const check=await client.query<{valid:boolean}>(`
+        SELECT
+          (SELECT count(*)=2 FROM information_schema.columns
+           WHERE table_schema='public' AND table_name='smn_team'
+             AND ((column_name='agile_mode' AND data_type='text' AND is_nullable='NO')
+               OR (column_name='is_archived' AND data_type='boolean'
+                 AND is_nullable='NO' AND column_default IN ('false','false::boolean')))) AND
+          EXISTS(SELECT 1 FROM pg_constraint
+            WHERE conrelid='public.smn_team'::regclass
+              AND conname='smn_team_agile_mode_check' AND contype='c'
+              AND convalidated AND pg_get_constraintdef(oid) ILIKE '%agile_mode%'
+              AND pg_get_constraintdef(oid) ILIKE '%scrum%'
+              AND pg_get_constraintdef(oid) ILIKE '%kanban%')
+          AS valid
+      `);
+      teamAgileModeSchemaValid=check.rows[0]?.valid===true;
+    }
+    let companySchemaValid = (installations.rows[0]?.schema_version??0)<31;
+    if(!companySchemaValid){
+      const columns=[
+        ...["id","installation_id","name","comment","color","archived_at","revision"].map(n=>"smn_company:"+n),
+        "smn_member:company_id","smn_company_closure:company_id"
+      ].every(n=>columnSet.has(n)) && !columnSet.has("smn_company_closure:team_id");
+      if(columns){
+        const check=await client.query<{valid:boolean}>(`
+          SELECT
+            EXISTS(SELECT 1 FROM pg_constraint
+              WHERE conrelid='public.smn_member'::regclass
+                AND conname='smn_member_company_same_installation_fk'
+                AND contype='f' AND convalidated
+                AND confrelid='public.smn_company'::regclass) AND
+            EXISTS(SELECT 1 FROM pg_constraint
+              WHERE conrelid='public.smn_company_closure'::regclass
+                AND conname='smn_closure_company_fk'
+                AND contype='f' AND convalidated
+                AND confrelid='public.smn_company'::regclass) AND
+            EXISTS(SELECT 1 FROM information_schema.columns
+              WHERE table_schema='public' AND table_name='smn_company_closure'
+                AND column_name='company_id' AND is_nullable='NO')
+            AS valid
+        `);
+        companySchemaValid=check.rows[0]?.valid===true;
+      }
+    }
     return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, linksSchemaValid, countryConsolidationSchemaValid, companySchemaValid, teamAgileModeSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
       configurationTasksSchemaValid: ["smn_configuration_task:installation_id","smn_configuration_task:task_key",
