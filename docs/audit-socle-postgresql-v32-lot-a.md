@@ -124,3 +124,30 @@ Le script crée transactionnellement et sans suppression :
 Les services `automatic-highlights.ts`, `templates.ts` et `draft-notes.ts` n'exécutent plus de création de table. La migration conserve `schema_version=32` : ces tables figuraient déjà parmi les objets différés autorisés du contrat v32. Il ne s'agit PAS d'une migration Prisma v33 ; une consolidation ultérieure du versionnement demeure nécessaire.
 
 **Précaution :** la validation des schémas préexistants est encore partielle (colonnes et présence) ; comparer également types, contraintes et clés étrangères avant d'exécuter sur une base contenant des historiques. Sauvegarder la base. Les autres DDL dynamiques inventoriés restent à extraire.
+
+
+## Sous-lot Cérémonies — extraction de neuf producteurs de DDL
+
+Les créations de structure ont été déplacées depuis les services suivants :
+`ceremonies.ts`, `ceremony-templates.ts`, `lunch.ts`, `ceremony-edits.ts`,
+`exceptional-meetings.ts`, `template-occurrences.ts`, `attendance.ts`,
+`actual-duration.ts` et `calendar-meeting-reschedule.ts`.
+
+Le script explicite `scripts/apply-ceremony-schema-v32.ts` regroupe 32 instructions SQL
+transactionnelles, créant ou complétant les tables des cérémonies, modèles, occurrences,
+réunions exceptionnelles, historique des changements, présences, durées réelles,
+déplacements et pauses déjeuner. Les fonctions `ensure*Schema` concernées ne
+créent plus de tables ; elles vérifient leur présence.
+
+**Préparation impérative avant le lancement de l'application modifiée :**
+1. Sauvegarder PostgreSQL.
+2. Vérifier `pnpm db:diagnose` sur une base initialisée v32.
+3. Exécuter explicitement `pnpm exec tsx scripts/apply-ceremony-schema-v32.ts --apply`.
+4. Exécuter `pnpm exec tsx scripts/apply-deferred-schema-v32.ts --apply` pour les quatre tables de rapports / registres déjà extraites.
+5. Relancer le diagnostic et tester les cérémonies, modèles, plannings, absences, modifications et historique.
+
+Ce script de matérialisation ne modifie pas `schema_version` : ces tables figuraient
+déjà dans le périmètre des relations différées acceptées en v32.
+**Validation restant à effectuer :** essais PostgreSQL réels avec données historiques,
+contrôles de types/contraintes au-delà de la seule présence des tables,
+et CI du dernier commit. Ne pas déployer ce nouveau code sur une base non migrée.
