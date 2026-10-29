@@ -7,28 +7,8 @@ import {
 
 /** DDL only on explicit admin mutation or the authorized closure workflow. */
 export async function ensureSprintReviewSchema(db:Client):Promise<void>{
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_review_analysis(
-  sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  kind text NOT NULL CHECK(kind IN ('manual','ai')),
-  body text CHECK(body IS NULL OR length(body)<=3000),
-  revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
-  origin text NOT NULL DEFAULT 'human'
-   CHECK(origin IN ('human','ai-generated','human-edited-ai')),
-  human_edited boolean NOT NULL DEFAULT true,
-  generation_id text,
-  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY(sprint_id,kind)
- )`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_review_analysis_audit(
-  id text PRIMARY KEY,
-  sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  kind text NOT NULL CHECK(kind IN ('manual','ai')),
-  previous_values jsonb,
-  next_values jsonb NOT NULL,
-  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  changed_at timestamptz NOT NULL DEFAULT now()
- )`);
+ await db.query("SELECT to_regclass('public.smn_sprint_review_analysis') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_review_analysis_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 
 type DbReviewRow={
