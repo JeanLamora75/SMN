@@ -8,20 +8,9 @@ type Kind="standard"|"custom"|"exceptional";
 type State="scheduled"|"held"|"not_held"|"cancelled";
 const tables:Record<Kind,{table:string;history:string;key:string}>={standard:{table:"smn_sprint_ceremony",history:"smn_sprint_ceremony_status_history",key:"ceremony_id"},custom:{table:"smn_scrum_template_occurrence",history:"smn_scrum_template_occurrence_status_history",key:"occurrence_id"},exceptional:{table:"smn_sprint_exceptional_meeting",history:"smn_sprint_exceptional_meeting_status_history",key:"meeting_id"}};
 export async function ensureAttendanceSchema(db:Client){
- await ensureExceptionalMeetingSchema(db);await ensureCeremonyEditSchema(db);await ensureTemplateOccurrenceSchema(db);
- await db.query(`ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'`);
- await db.query(`ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
- await db.query(`ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
- await db.query(`ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'manual'`);
- await db.query(`ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false`);
- for(const kind of ["standard","custom","exceptional"] as Kind[]){
-  const t=tables[kind];
-  await db.query(`CREATE TABLE IF NOT EXISTS public.${t.history}(
-   id text PRIMARY KEY,${t.key} text NOT NULL REFERENCES public.${t.table}(id) ON DELETE RESTRICT,
-   previous_status text NOT NULL,next_status text NOT NULL,
-   reason text,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   changed_at timestamptz NOT NULL DEFAULT now())`);
- }
+ const names=["smn_sprint_ceremony_status_history","smn_scrum_template_occurrence_status_history","smn_sprint_exceptional_meeting_status_history"] as const;
+ const found=await db.query<{present:string[]}>(`SELECT array_agg(relname)::text[] AS present FROM pg_class WHERE relnamespace='public'::regnamespace AND relname=ANY($1::text[])`,[names]);
+ if(names.some(name=>!found.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 const column=(kind:Kind)=>kind==="standard"?"occurrence_status":"status";
 async function team(db:Client){const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);if(r.rows.length!==1)throw Error("scrum-team-unavailable");return r.rows[0].id;}
