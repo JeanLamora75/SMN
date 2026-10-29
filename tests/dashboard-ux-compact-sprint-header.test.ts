@@ -103,9 +103,9 @@ describe("UX — lot 1, bandeau Sprint compact et fiche",()=>{
   assert.match(page,/readSprintContext\(db,teamId\)/);
   assert.match(page,/context\.items\.find\(item=>item\.id===sprintId\)/);
   assert.match(page,/if\(!cycle\)return null/);
-  assert.match(page,/readCycleDashboard\(db,teamId,cycle\)/);
+  assert.match(page,/readSprintDetailGoals\(db,teamId,cycle\.id\)/);
   assert.match(page,/if\(result===null\)notFound\(\)/);
-  assert.match(page,/goals\.items\.map\(goal=>/);
+  assert.match(page,/<SprintGoalsPanel\s/);
   assert.match(page,/backToDashboard/);
   assert.doesNotMatch(page,/CREATE TABLE|UPDATE public\.|INSERT INTO/);
   const index=read("src/app/app/admin/sprints/sprint-index-view.tsx");
