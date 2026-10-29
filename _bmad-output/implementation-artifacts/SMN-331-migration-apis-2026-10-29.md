@@ -20,3 +20,13 @@ Les versions <=27 conservent leurs chemins monoéquipe dans les services qui les
 - Les services de calendrier/Kanban comportent encore des fonctions `ensure*` pouvant effectuer des DDL ; la suppression des mutations implicites requiert une revue du contrat historique et du schéma physique.
 - La dernière CI terminée au début de l'intervention était rouge ; les nouveaux commits doivent encore être compilés et testés.
 - La recette d'isolation Koala/Panda et la vérification des réponses HTTP sont indispensables avant clôture.
+
+## Incrément — suppression d'effets de bord dans les lectures
+
+Les chemins GET `admin/kanban-periods/list` et `admin/kanban-periods/preview` ne déclenchent plus `ensureKanbanPeriodTables`. Le premier ne déclenche plus `reconcileKanbanStates` pendant la consultation ; la présence physique de la table est vérifiée avec `to_regclass` et toute absence provoque une erreur explicite sans réparation implicite.
+
+Les services `readCadence` (Scrum) et `readKanbanCadence` (Kanban) ne créent plus de tables et n'insèrent plus de lignes par défaut lorsqu'ils sont invoqués en lecture. Une cadence absente sera désormais signalée, ce qui nécessite de confirmer que l'initialisation explicite est assurée avant consultation.
+
+Tests statiques ajoutés : `tests/smn-331-kanban-readonly-routes.test.ts` et `tests/smn-331-cadence-readonly.test.ts`.
+
+**Limites de contrôle :** ceci couvre les chemins ciblés, pas toutes les API du dépôt. Le recensement exhaustif des DDL / écritures cachées et le traitement des tests historiques CI ne sont pas achevés. La dernière CI des nouveaux commits est en attente ou en cours, aucune validation PostgreSQL réelle n'est affirmée.
