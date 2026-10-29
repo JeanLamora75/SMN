@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {canonicalJson} from "@/server/reports/render-reference";
@@ -8,10 +9,7 @@ export function hashKanbanPayload(payload:FrozenKanbanPayload){
  return createHash("sha256").update(canonicalJson(payload),"utf8").digest("hex");
 }
 export async function ensureKanbanRenderReference(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_render_reference(
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- created_at timestamptz NOT NULL DEFAULT now(),created_by text NOT NULL,
- sha256 text NOT NULL,payload jsonb NOT NULL)`);
+ await assertKanbanSchema(db,"smn_kanban_render_reference");
 }
 export async function createKanbanRenderReference(db:Client,periodId:string,actorId:string,sections:string[],language:"fr"|"en"){
  if(!actorId||!/^[a-f0-9-]{36}$/i.test(periodId))return null;
