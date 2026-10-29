@@ -232,3 +232,26 @@ qui utilisent encore le parcours historique de replanification. Elle refuse une
 installation v32 et ne doit **pas être exécutée** sur la base actuelle v32.
 Le service métier vérifie uniquement la présence de la table. La migration
 nécessite une validation sur une ancienne base réelle avant toute exploitation.
+
+
+## Registres — lot A, extraction du DDL direct (v32)
+
+Les créations directes dans 15 services Registres ont été déplacées dans deux scripts :
+
+1. `pnpm exec tsx scripts/apply-registry-core-v32.ts --apply` — fiches, audits,
+   relations, commentaires, évaluations et ROAM ;
+2. `pnpm exec tsx scripts/apply-registry-extensions-v32.ts --apply` —
+   relations aux cycles, actions, décisions, dépendances, sélections,
+   faits marquants et paramétrage des échéances.
+
+**Ordre de déploiement** : sauvegarde et vérification du diagnostic v32,
+migration noyau, migration extensions, puis
+`pnpm exec tsx scripts/apply-meeting-outcome-schema-v32.ts --apply`
+pour la dépendance Cérémonies/Registres. Ne pas démarrer les écritures
+des services modifiés avant ces matérialisations.
+
+Les scripts sont transactionnels et additifs, mais n'ont pas encore fait l'objet
+d'une recette de migration sur une copie des données utilisateurs v32. Les
+vérifications statiques ne prouvent ni la compatibilité de toutes les structures
+historiques ni la conformité des index/contraintes préexistants. L'état CI
+doit être vérifié sur le dernier commit avant la clôture.
