@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 import type {Client} from "pg";
 import {normalizedTeamName,parseTeamCreate,parseTeamUpdate,type TeamFormValues} from "@/lib/team-form";
 
@@ -24,7 +25,7 @@ async function lockAuthorizedInstallation(db:Client,installationId:string,actorI
   [actorId,installationId]);
  if(account.rows.length!==1)return "forbidden";
  // Ne jamais activer une création multiéquipes avec la structure historique monoéquipe.
- if(![28,29,30,31,32].includes(i.schema_version))return "schema-not-ready";
+ if(!evaluateSchemaCapability(i.schema_version,"multi-team").ok)return "schema-not-ready";
  const required=await db.query<{ready:boolean}>(`SELECT
   to_regclass('public.smn_team_context') IS NOT NULL
   AND to_regclass('public.smn_team_context_audit') IS NOT NULL
