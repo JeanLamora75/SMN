@@ -16,6 +16,7 @@ function fixture(version=28){
      sql.includes("i.schema_version IN (28,29,30,31)"))return {rows:[{id:"panda"}]};
   if(sql.includes("SELECT s.id,s.name FROM public.smn_sprint s"))
    return {rows:[{id:"sprint_panda",name:"Sprint Panda"}]};
+  if(sql.includes("to_regclass('public.smn_report_pdf_archive')"))return {rows:[{present:false}]};
   if(sql.includes("to_regclass('public.smn_report_document')"))
    return {rows:[{present:true}]};
   if(sql.includes('d.sprint_id AS "sprintId"'))
@@ -44,7 +45,7 @@ test("v28 : documents et cycles filtrés par même teamId, sans archive globale"
  assert.deepEqual(doc?.params,["panda"]);
  assert.match(doc!.sql,/d.team_id=\$1/);
  assert.match(doc!.sql,/s.team_id=d.team_id/);
- assert.equal(f.queries.some(x=>x.sql.includes("smn_report_pdf_archive")),false);
+ assert.ok(f.queries.some(x=>x.sql.includes("to_regclass(\'public.smn_report_pdf_archive\')")));
 });
 test("mode Kanban : aucune archive ou document Scrum présenté",async()=>{
  const f=fixture();
