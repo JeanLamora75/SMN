@@ -39,6 +39,26 @@ async function main(){
      WHERE n.nspname='public' AND c.relkind IN ('r','p') AND c.relname=ANY($1::text[])`,[expectedTables]);
    const installed=new Set(found.rows.map(row=>row.relname));
    for(const name of expectedTables)if(!installed.has(name))throw Error("Table Registres manquante: "+name);
+   const requiredColumns:Record<string,Record<string,string>>={
+    smn_registry_item:{id:"text",installation_id:"text",team_id:"text",type:"text",occurred_on:"date",revision:"integer"},
+    smn_registry_item_audit:{id:"text",item_id:"text",revision:"integer",after_values:"jsonb"},
+    smn_registry_comment:{id:"text",item_id:"text",body:"text",revision:"integer"},
+    smn_registry_comment_revision:{id:"text",comment_id:"text",revision:"integer"},
+    smn_risk_assessment:{item_id:"text",probability:"smallint",impact:"smallint"},
+    smn_risk_roam:{item_id:"text",classification:"text"},
+    smn_calendar_meeting_outcome_link:{registry_item_id:"text",meeting_kind:"text",meeting_id:"text"}
+   };
+   const cols=await db.query<{table_name:string;column_name:string;data_type:string}>(`SELECT table_name,column_name,data_type FROM information_schema.columns
+     WHERE table_schema='public' AND table_name=ANY($1::text[])`,[Object.keys(requiredColumns)]);
+   for(const [table,columns] of Object.entries(requiredColumns))
+    for(const [name,type] of Object.entries(columns))
+     if(!cols.rows.some(col=>col.table_name===table&&col.column_name===name&&col.data_type===type))
+      throw Error("Colonne Registres incompatible: "+table+"."+name);
+   const keys=await db.query<{table_name:string}>(`SELECT c.relname AS table_name FROM pg_constraint pk
+      JOIN pg_class c ON c.oid=pk.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace
+      WHERE n.nspname='public' AND pk.contype='p' AND c.relname=ANY($1::text[])`,[expectedTables]);
+   const keyed=new Set(keys.rows.map(row=>row.table_name));
+   for(const name of expectedTables)if(!keyed.has(name))throw Error("Clé primaire Registres manquante: "+name);
    const indexes=await db.query<{name:string}>(`SELECT indexname AS name FROM pg_indexes
       WHERE schemaname='public' AND indexname=ANY($1::text[])`,
       [["smn_registry_item_team_type_date","smn_registry_comment_item_date","smn_calendar_meeting_outcome_by_event"]]);
