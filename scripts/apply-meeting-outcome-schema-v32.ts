@@ -23,7 +23,7 @@ async function main(){
    await db.query("SELECT pg_advisory_xact_lock(20261029,35)");
    const state=await db.query<{schema_version:number;state:string}>("SELECT schema_version,state FROM public.smn_installation WHERE id='singleton' FOR UPDATE");
    if(state.rows.length!==1||state.rows[0].schema_version!==32||state.rows[0].state!=="initialized")throw Error("Installation v32 initialisée requise");
-   const required=["smn_registry_item","smn_sprint","smn_team"];
+   const required=["smn_registry_item","smn_registry_item_audit","smn_sprint","smn_team"];
    const present=await db.query<{name:string}>(`SELECT c.relname AS name FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
      WHERE n.nspname='public' AND c.relname=ANY($1::text[]) AND c.relkind IN ('r','p')`,[required]);
    const available=new Set(present.rows.map(x=>x.name));
