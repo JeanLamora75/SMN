@@ -99,7 +99,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
   });
   it("reconnaît les deux tables de scores de Sprint créées par SMN-234 D3 sans accepter de tables étrangères", () => {
     const source = readFileSync(
-      new URL("../src/server/sprints/sprint-scores.ts", import.meta.url), "utf8"
+      new URL("../scripts/apply-sprint-aggregates-v32.ts", import.meta.url), "utf8"
     );
     const relations = [
       "public.smn_sprint_scores:r",
