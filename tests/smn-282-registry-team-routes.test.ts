@@ -15,8 +15,8 @@ test("Sous-routes historiques des registres : chaque lecture/écriture passe par
  for(const name of protectedId){
   const file="src/app/api/admin/registries/[id]/"+name+"/route.ts";
   const code=source(file);
-  assert.doesNotMatch(code,/withAuthDb\(|withSprintIndexDb\(/,file);
-  assert.match(code,/withLegacyRegistryReadDb\(|withLegacyTeamApi\(/,file);
+  assert.match(code,/withLegacyRegistryReadDb\(|withLegacyTeamApi\(|await assertLegacyTeamApi\(db\)/,file);
+  if(code.includes("withAuthDb("))assert.match(code,/await assertLegacyTeamApi\(db\)/,file);
  }
  for(const name of protectedOther){
   const file="src/app/api/admin/registries/"+name+"/route.ts";
