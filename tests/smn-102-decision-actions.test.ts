@@ -5,7 +5,7 @@ import {createActionFromDecision} from "../src/server/registries/decision-action
 const id="11111111-1111-4111-8111-111111111111",raw={teamId:"team",type:"action",title:"Follow up",occurredOn:"2026-10-23",status:"todo"};
 test("deux confirmations créent deux actions distinctes liées à la décision",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);return {rows:q.includes("SELECT r.id FROM public.smn_registry_item")?[{id}]:[]};}} as unknown as Client;
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};return {rows:q.includes("SELECT r.id FROM public.smn_registry_item")?[{id}]:[]};}} as unknown as Client;
  const first=await createActionFromDecision(db,"admin",id,raw),second=await createActionFromDecision(db,"admin",id,raw);
  assert.equal(first.ok,true);assert.equal(second.ok,true);
  if(first.ok&&second.ok)assert.notEqual(first.id,second.id);
@@ -14,7 +14,7 @@ test("deux confirmations créent deux actions distinctes liées à la décision"
 });
 test("échec de lien annule transaction et audit",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.id FROM public.smn_registry_item"))return {rows:[{id}]};
   if(q.includes("INSERT INTO public.smn_action_link(action_id"))throw Error("fail");
   return {rows:[]};
