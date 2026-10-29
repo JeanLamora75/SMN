@@ -7,7 +7,7 @@ test("export PDF route contains exactly one handler and one generation path",()=
  assert.equal((route.match(/export async function POST\(/g)??[]).length,1);
  assert.equal((route.match(/generateFrozenPdf\(/g)??[]).length,1);
  assert.equal((route.match(/return new Response\(new Uint8Array\(result.bytes\)/g)??[]).length,1);
- assert.ok(route.indexOf("pg_advisory_lock")<route.indexOf("generateFrozenPdf"));
+ assert.ok(route.indexOf("pg_advisory_lock")<route.indexOf("await generateFrozenPdf"));
  assert.ok(route.indexOf("storeFinalPdfArchive")<route.indexOf("return new Response"));
 });
 test("client sends and reuses valid operation ID",()=>{
