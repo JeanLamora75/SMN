@@ -1,5 +1,6 @@
 import {randomUUID} from "node:crypto";
 import {evaluateSchemaCapability} from "@/server/schema/compatibility";
+import {inspectSchemaCapability} from "@/server/schema/integrity";
 import type {Client} from "pg";
 import {normalizedTeamName,parseTeamCreate,parseTeamUpdate,type TeamFormValues} from "@/lib/team-form";
 
@@ -31,6 +32,10 @@ async function lockAuthorizedInstallation(db:Client,installationId:string,actorI
   AND to_regclass('public.smn_team_context_audit') IS NOT NULL
   AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_team' AND column_name='product_id' AND is_nullable='YES') AS ready`);
  if(required.rows[0]?.ready!==true)return "schema-not-ready";
+ if(i.schema_version>=32){
+  const integrity=await inspectSchemaCapability(db,"per-team-agile-mode");
+  if(!integrity.ok)return "schema-not-ready";
+ }
  return null;
 }
 async function collides(db:Client,installationId:string,name:string,exceptId?:string){
