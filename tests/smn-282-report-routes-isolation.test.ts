@@ -64,7 +64,7 @@ test("Centre Rapports v28 : filtre teamId SQL, aucune archive ni ouverture Studi
  const body=api.slice(api.indexOf("export async function readTeamCenter"));
  assert.match(body,/WHERE d.team_id=\$1/);
  assert.match(body,/WHERE s.team_id=\$1/);
- assert.match(body,/i.schema_version=28/);
+ assert.match(body,/i\.schema_version IN \(28,29,30,31\)/);
  assert.doesNotMatch(body,/await searchPdfArchives\(|await listUserPdfArchives\(/);
  const ui=source("src/app/app/reports/page.tsx");
  assert.match(ui,/resolveAdminTeam\(db,/);
