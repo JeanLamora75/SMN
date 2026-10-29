@@ -5,13 +5,13 @@ import {useUnsavedChanges} from "@/app/app/use-unsaved-changes";
 type Slots={morningStart:string;morningEnd:string;afternoonStart:string;afternoonEnd:string};
 const EMPTY:Slots={morningStart:"",morningEnd:"",afternoonStart:"",afternoonEnd:""};
 export default function WorkSlotsForm(){
- const t=useTranslation();const [slots,setSlots]=useState<Slots>(EMPTY),[zone,setZone]=useState("Europe/Paris"),[revision,setRevision]=useState(0),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
+ const t=useTranslation();const [slots,setSlots]=useState<Slots>(EMPTY),[zone,setZone]=useState("Europe/Paris"),[revision,setRevision]=useState(0),[teamId,setTeamId]=useState<string|null>(null),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
  const [original,setOriginal]=useState<{slots:Slots;zone:string}|null>(null);
  const dirty=original!==null&&(JSON.stringify(slots)!==JSON.stringify(original.slots)||zone!==original.zone);
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
- useEffect(()=>{fetch("/api/admin/sprints/work-slots",{cache:"no-store"}).then(r=>r.json()).then(d=>{if(d.current){setSlots(d.current.slots);setZone(d.current.zone);setRevision(d.current.revision??0);setOriginal({slots:d.current.slots,zone:d.current.zone});}}).catch(()=>setMessage(t("epic4WorkSlots.error")));},[t]);
+ useEffect(()=>{fetch("/api/admin/sprints/work-slots",{cache:"no-store"}).then(r=>r.json()).then(d=>{if(d.teamId)setTeamId(d.teamId);if(d.current){setSlots(d.current.slots);setZone(d.current.zone);setRevision(d.current.revision??0);setOriginal({slots:d.current.slots,zone:d.current.zone});}}).catch(()=>setMessage(t("epic4WorkSlots.error")));},[t]);
  async function save(){setBusy(true);setMessage("");try{
-  const response=await fetch("/api/admin/sprints/work-slots",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({...slots,timeZone:zone,revision})});
+  const response=await fetch("/api/admin/sprints/work-slots",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({...slots,timeZone:zone,revision,...(teamId?{teamId}:{})})});
   if(!response.ok)throw Error();setOriginal({slots:{...slots},zone});setRevision(n=>n+1);setMessage(t("epic4WorkSlots.saved"));
  }catch{setMessage(t("epic4WorkSlots.error"));}finally{setBusy(false);}}
  const fields=[["morningStart","morningStart"],["morningEnd","morningEnd"],["afternoonStart","afternoonStart"],["afternoonEnd","afternoonEnd"]] as const;
