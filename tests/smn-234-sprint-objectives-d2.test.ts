@@ -94,7 +94,7 @@ describe("SMN-234 D2 — écran et écritures",()=>{
   const page=source("src/app/app/admin/sprints/[sprintId]/page.tsx");
   const panel=source("src/app/app/admin/sprints/[sprintId]/sprint-goals-panel.tsx");
   assert.match(page,/readSprintDetailGoals\(/);
-  assert.match(page,/<SprintGoalsPanel /);
+  assert.match(page,/<SprintGoalsPanel\s/);
   assert.match(panel,/canManage&&status!=="closed"/);
   assert.match(panel,/method:"POST"/);
   assert.match(panel,/revision:current!\.revision/);
