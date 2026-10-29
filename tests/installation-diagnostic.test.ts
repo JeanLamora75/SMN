@@ -50,6 +50,14 @@ describe("SMN-11 — régression des tables optionnelles de contexte Équipe", (
   });
 });
 
+const registryDdlSource=(path:string)=>{
+ const source=path==="src/server/registries/items.ts"||
+  path==="src/server/registries/assessment.ts"||
+  path==="src/server/registries/roam.ts"?"scripts/apply-registry-core-v32.ts":
+  path==="src/server/registries/cycle-links.ts"?"scripts/apply-registry-extensions-v32.ts":
+  path==="src/server/reports/draft-notes.ts"?"scripts/apply-deferred-schema-v32.ts":path;
+ return readFileSync(new URL("../"+source,import.meta.url),"utf8");
+};
 describe("SMN — historique de correction de date d'arrivée d'un membre", () => {
   it("accepte la table d'audit créée par la correction rétroactive sans ouvrir le schéma aux objets étrangers", () => {
     const relation="public.smn_member_assignment_start_audit:r";
@@ -116,10 +124,10 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     ] as const;
     const relations:string[]=[];
     for(const [path,expected] of origins){
-      const source=readFileSync(new URL("../"+path,import.meta.url),"utf8");
+      const source=registryDdlSource(path);
       for(const relation of expected){
         assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
-        assert.ok((path==="src/server/reports/draft-notes.ts"?readFileSync(new URL("../scripts/apply-deferred-schema-v32.ts",import.meta.url),"utf8"):source).includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
+        assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
         relations.push(relation);
       }
     }
@@ -137,7 +145,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
     ] as const;
     const relations:string[]=[];
     for(const [path,expected] of origins){
-      const source=readFileSync(new URL("../"+path,import.meta.url),"utf8");
+      const source=registryDdlSource(path);
       for(const relation of expected){
         assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
         assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
@@ -157,7 +165,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
       ]]
     ] as const;
     for(const [path,expected] of origins){
-      const source=readFileSync(new URL("../"+path,import.meta.url),"utf8");
+      const source=registryDdlSource(path);
       for(const relation of expected){
         assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
         assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
