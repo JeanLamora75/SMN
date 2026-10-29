@@ -35,8 +35,8 @@ test("diagnostic v32 exige le contenu SQL exact et les colonnes",()=>{
  const diagnostic=read("src/server/installation/diagnostic.ts");
  const probe=read("src/server/db/probe.ts");
  assert.match(diagnostic,/teamAgileModeSchemaValid/);
- assert.match(probe,/smn_team:agile_mode/);
- assert.match(probe,/smn_team:is_archived/);
+ assert.match(probe,/column_name='agile_mode'/);
+ assert.match(probe,/column_name='is_archived'/);
 });
 
 test("création Kanban scoped réserve les écritures aux schémas ayant agile_mode",()=>{
