@@ -17,5 +17,9 @@ test("Calendrier: services du périmètre courant sans DDL à l'exécution",()=>
 test("Calendrier: identifier explicitement la dépendance ancienne du report Sprint",()=>{
  const legacy=source("src/server/sprints/reschedule.ts");
  assert.match(legacy,/i\.schema_version<=27/);
- assert.match(legacy,/CREATE TABLE IF NOT EXISTS public\.smn_sprint_reschedule_audit/);
+ assert.doesNotMatch(legacy,/CREATE TABLE IF NOT EXISTS/);
+ assert.match(legacy,/legacy-reschedule-schema-not-ready/);
+ const migration=source("scripts/apply-legacy-sprint-reschedule-audit.ts");
+ assert.match(migration,/CREATE TABLE IF NOT EXISTS public\.smn_sprint_reschedule_audit/);
+ assert.match(migration,/ROLLBACK/);
 });
