@@ -10,7 +10,7 @@ test("Liens : les opérations autorisées acceptent le schéma 29 et 30",()=>{
   assert.doesNotMatch(sql,/i\.schema_version=29\b/,file);
  }
 });
-test("Centre Rapports et archives : la lecture reste bornée à l'équipe sur v30",()=>{
+test("Centre Rapports et archives : la lecture reste bornée à l'équipe sur v31",()=>{
  const page=source("src/app/app/reports/page.tsx");
  const archive=source("src/server/reports/archive-library.ts");
  assert.match(page,/if\(\[28,29,30\]\.includes\(schema\?\?0\)\)/);
