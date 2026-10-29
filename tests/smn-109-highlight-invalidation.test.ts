@@ -10,6 +10,7 @@ test("invalidations demandent un motif et un identifiant valide",async()=>{
 test("invalidation conserve le fait et sa provenance",async()=>{
  const statements:string[]=[];
  const db={query:async(sql:string)=>{statements.push(sql);
+  if(sql.includes("information_schema.columns"))return {rows:[{exists:true}]};
   if(sql.includes("to_regclass"))return {rows:[{exists:true}]};
   if(sql.includes("SELECT h.id,h.invalidated_at"))return {rows:[{id,invalidated_at:null}]};
   return {rows:[]};
@@ -22,6 +23,7 @@ test("invalidation conserve le fait et sa provenance",async()=>{
 test("un fait déjà invalidé ne peut pas être réinvalidé",async()=>{
  const statements:string[]=[];
  const db={query:async(sql:string)=>{statements.push(sql);
+  if(sql.includes("information_schema.columns"))return {rows:[{exists:true}]};
   if(sql.includes("to_regclass"))return {rows:[{exists:true}]};
   if(sql.includes("SELECT h.id,h.invalidated_at"))return {rows:[{id,invalidated_at:"2026-10-23"}]};
   return {rows:[]};
