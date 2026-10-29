@@ -50,10 +50,12 @@ function project(row:Row):GeneralSettings {
     revision:row.revision,updatedAt:row.updated_at,
     mode:row.mode,product:row.product};
 }
-const select = `SELECT s.locale,s.theme,s.palette,s.reference_country,s.revision,s.updated_at,i.mode,p.name AS product
+const select = `SELECT s.locale,s.theme,s.palette,s.reference_country,s.revision,s.updated_at,i.mode,COALESCE(p.name,'') AS product
  FROM public.smn_general_settings s
  JOIN public.smn_installation i ON i.id=s.installation_id
- JOIN public.smn_product p ON p.installation_id=i.id
+ LEFT JOIN LATERAL (SELECT pr.name FROM public.smn_team t
+  JOIN public.smn_product pr ON pr.id=t.product_id AND pr.installation_id=t.installation_id
+  WHERE t.installation_id=i.id ORDER BY t.id LIMIT 1) p ON true
  WHERE s.installation_id='singleton' AND i.state='initialized'`;
 export async function readGeneralSettings(client:Client):Promise<GeneralSettings> {
   const rows=await client.query<Row>(select);
