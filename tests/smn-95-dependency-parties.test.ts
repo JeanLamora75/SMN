@@ -11,7 +11,7 @@ test("équipe locale vérifiée et équipe externe texte libre",()=>{
 });
 test("sauvegarde unique et historisée, sans création d'équipe fictive",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.id,r.team_id"))return {rows:[{id,team_id:"t1"}]};
   return {rows:[]};
  }} as unknown as Client;
@@ -23,7 +23,7 @@ test("sauvegarde unique et historisée, sans création d'équipe fictive",async(
 });
 test("absence de portée interdit toute sauvegarde",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);return {rows:[]};}} as unknown as Client;
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};return {rows:[]};}} as unknown as Client;
  const r=await writeParties(db,"admin",id,{revision:0,requester:{kind:"local",teamId:"t1"},contributor:{kind:"external",name:"Vendor"}});
  assert.deepEqual(r,{ok:false,error:"not-found"});
  assert.equal(sql.at(-1),"ROLLBACK");
