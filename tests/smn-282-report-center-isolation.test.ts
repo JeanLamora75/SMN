@@ -13,7 +13,7 @@ function fixture(version=28){
   if(sql.includes("SELECT schema_version FROM public.smn_installation"))
    return {rows:[{schema_version:version}]};
   if(sql.includes("SELECT t.id FROM public.smn_team t")&&
-     sql.includes("i.schema_version=28"))return {rows:[{id:"panda"}]};
+     sql.includes("i.schema_version IN (28,29,30,31)"))return {rows:[{id:"panda"}]};
   if(sql.includes("SELECT s.id,s.name FROM public.smn_sprint s"))
    return {rows:[{id:"sprint_panda",name:"Sprint Panda"}]};
   if(sql.includes("to_regclass('public.smn_report_document')"))
@@ -36,7 +36,7 @@ test("v28 : documents et cycles filtrés par même teamId, sans archive globale"
  assert.equal(result.documents.length,1);
  assert.deepEqual(result.archives,[]);
  assert.ok(result.templates.length>=1);
- const scope=f.queries.find(x=>x.sql.includes("i.schema_version=28"));
+ const scope=f.queries.find(x=>x.sql.includes("i.schema_version IN (28,29,30,31)"));
  const cycle=f.queries.find(x=>x.sql.includes("SELECT s.id,s.name"));
  const doc=f.queries.find(x=>x.sql.includes('d.sprint_id AS "sprintId"'));
  assert.deepEqual(scope?.params,["panda"]);
