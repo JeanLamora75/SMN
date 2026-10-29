@@ -11,6 +11,8 @@ function fakeDb(){
  const docs=new Map<string,Record<string,unknown>>();
  const query=async (sql:string,args:unknown[]=[])=>{
   if(sql.includes("SELECT s.team_id"))return {rows:[{team_id:teamId}]};
+  if(sql.includes("SELECT s.id,s.name,s.status"))return {rows:[{id:sprintId,name:"Sprint test",status:"active",teamId,team:"Équipe",product:"Produit",startAt:"2026-10-19",endAt:"2026-10-30",timeZone:"Europe/Paris"}]};
+  if(sql.includes("to_regclass(\'public.smn_sprint_goal\')"))return {rows:[{goals:false,closures:false}]};
   if(sql.includes("FROM public.smn_report_template")&&sql.includes("information_schema"))return {rows:[]};
   if(sql.includes("to_regclass('public.smn_report_template')"))return {rows:[{exists:false}]};
   if(sql.includes("to_regclass('public.smn_report_document')"))return {rows:[{present:true}]};
