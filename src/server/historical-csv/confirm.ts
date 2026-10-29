@@ -1,3 +1,4 @@
+import {assertHistoricalCsvTable} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {validateHistoricalCsv} from "@/lib/historical-csv-validator";
@@ -41,17 +42,10 @@ export async function confirmHistoricalCsv(db:Client,actorId:string,csv:string,c
       choice.decision==="keep"&&expected==="insert"){await db.query("ROLLBACK");return invalid("stale-preview");}
   }
   const batchId=randomUUID();
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_historical_csv_batch(
-   id text PRIMARY KEY,mode text NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   created_at timestamptz NOT NULL DEFAULT clock_timestamp())`);
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_historical_csv_change(
-   id text PRIMARY KEY,batch_id text NOT NULL REFERENCES public.smn_historical_csv_batch(id) ON DELETE RESTRICT,
-   cycle_id text NOT NULL,metric_code text NOT NULL,previous_value numeric(14,4),
-   next_value numeric(14,4) NOT NULL,quality text NOT NULL CHECK(quality IN ('known','estimated')),
-   action text NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   changed_at timestamptz NOT NULL DEFAULT clock_timestamp())`);
-  await db.query("ALTER TABLE public.smn_historical_csv_change ADD COLUMN IF NOT EXISTS source_line integer");
-  await db.query("ALTER TABLE public.smn_historical_csv_change ADD COLUMN IF NOT EXISTS previous_quality text");
+  await assertHistoricalCsvTable(db,"smn_historical_csv_batch");
+  await assertHistoricalCsvTable(db,"smn_historical_csv_change");
+  await assertHistoricalCsvTable(db,"smn_historical_csv_change");
+  await assertHistoricalCsvTable(db,"smn_historical_csv_change");
   await db.query("INSERT INTO public.smn_historical_csv_batch(id,mode,actor_id) VALUES($1,$2,$3)",[batchId,mode,actorId]);
   let inserted=0,replaced=0,preserved=0;
   for(const row of preview){
