@@ -27,3 +27,10 @@ test("Cérémonies: résultats de réunion migrés après les registres",()=>{
  assert.match(migration,/ROLLBACK/);
  assert.doesNotMatch(service,/\\b(?:CREATE|ALTER|DROP)\\s+(?:TABLE|INDEX)\\b/i);
 });
+
+test("Cérémonies: résultats de réunion sans DDL indirect des registres",()=>{
+ const service=read("src/server/sprints/calendar-meeting-outcomes.ts");
+ assert.doesNotMatch(service,/ensureRegistrySchema/);
+ assert.match(service,/smn_registry_item_audit/);
+ assert.match(service,/meeting-outcome-schema-not-ready/);
+});
