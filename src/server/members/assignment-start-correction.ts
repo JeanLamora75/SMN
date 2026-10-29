@@ -27,10 +27,8 @@ export async function correctAssignmentStart(db:Client,memberId:string,actorId:s
   const first=await db.query<{id:string;effective_from:string}>(`SELECT id,effective_from::text FROM public.smn_member_assignment_version
     WHERE assignment_id=$1 ORDER BY effective_from ASC,revision ASC LIMIT 1 FOR UPDATE`,[v.assignmentId]);
   if(first.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"missing-version"};}
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_member_assignment_start_audit(
-   id uuid PRIMARY KEY,member_id uuid NOT NULL,assignment_id uuid NOT NULL,
-   old_start_on date NOT NULL,new_start_on date NOT NULL,
-   changed_at timestamptz NOT NULL DEFAULT now(),changed_by text NOT NULL)`);
+  const audit=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_member_assignment_start_audit') IS NOT NULL AS present`);
+  if(!audit.rows[0]?.present)throw Error("member-audit-schema-not-ready: apply-member-deferred-v32");
   await db.query(`UPDATE public.smn_member_assignment SET start_on=$1::date WHERE id=$2 AND member_id=$3`,[v.newStartOn,v.assignmentId,memberId]);
   // The first recorded allocation is extended backwards; subsequent effective versions remain unchanged.
   if(first.rows[0].effective_from>a.start_on||first.rows[0].effective_from===a.start_on)
