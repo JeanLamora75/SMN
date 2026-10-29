@@ -66,7 +66,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
     </p>}
     {sprintResult!==null&&<>
       <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle} projection={projection}
-       canViewCapacity={canAccess(account,"read",{type:"members",exists:true,inScope:true})}/>
+       />
 
       <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone} canManage={account.role==="admin"}/>
     </>}
