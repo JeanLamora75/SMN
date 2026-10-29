@@ -2,12 +2,9 @@ import type {Client} from "pg";
 export type Lunch={start:string;end:string;revision:number};
 const valid=(s:unknown):s is string=>typeof s==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 export async function ensureLunchSchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_scrum_lunch(
- team_id text PRIMARY KEY REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- start_time time NOT NULL DEFAULT '12:00',end_time time NOT NULL DEFAULT '13:00',
- revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
- updated_at timestamptz NOT NULL DEFAULT now(),
- CHECK(start_time<end_time))`);
+ const tables=["smn_scrum_lunch"] as const;
+ const state=await db.query<{present:string[]}>(`SELECT array_agg(c.relname)::text[] AS present FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname = ANY($1::text[]) AND c.relkind IN ('r','p')`,[tables]);
+ if(tables.some(name=>!state.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 export async function lunchForTeam(db:Client,teamId:string):Promise<Lunch>{
  await ensureLunchSchema(db);
