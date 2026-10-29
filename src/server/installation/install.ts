@@ -1,17 +1,15 @@
 /** Native v32 installer. Requires a reviewed baseline; never falls back to legacy v1. */
 import {randomUUID,createHash,timingSafeEqual} from "node:crypto";
-import {existsSync,readFileSync} from "node:fs";
 import {Client} from "pg";
 import {parseConnectionSettings} from "../db/config";
 import {probePostgres} from "../db/probe";
 import {classifySnapshot,diagnoseInstallation} from "./diagnostic";
 import {validateExpressInput} from "./contract";
-import {nativeBaselineSql} from "./native-v32";
+import {nativeBaselineSql,NATIVE_V32_NAME} from "./native-v32";
 import {passwordHash} from "../auth/password";
 export {passwordHash} from "../auth/password";
 
-export const NATIVE_BASELINE_NAME="smn_v32_native_baseline";
-const BASELINE_FILE=new URL("../../../prisma/baseline/v32/schema.sql",import.meta.url);
+export const NATIVE_BASELINE_NAME=NATIVE_V32_NAME;
 export type InstallResult={ok:true}|{ok:false;status:string};
 
 export function setupAuthorized(configured:string|undefined,supplied:unknown):boolean{
@@ -31,12 +29,11 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
  const settings=parseConnectionSettings(rawUri);
  if(!settings.ok)return {ok:false,status:settings.status};
  // Preconditions are evaluated before creating a database or changing any object.
- if(!existsSync(BASELINE_FILE))return {ok:false,status:"baseline-v32-unavailable"};
- const sql=readFileSync(BASELINE_FILE,"utf8");
+ const sql=nativeBaselineSql();
+ if(!sql)return {ok:false,status:"baseline-v32-unavailable"};
  if(!nativeBaselineReady(sql))return {ok:false,status:"baseline-v32-incompatible"};
  // Le diagnostic historique exige 32 entrées : interdire le COMMIT tant que
  // la reconnaissance de la baseline native n'est pas déployée (étape 3).
- if(nativeBaselineSql()===null)return {ok:false,status:"baseline-v32-incompatible"};
  const uri=new URL(settings.uri);
  const before=await diagnoseInstallation(()=>probePostgres(uri.toString()));
  if(before.status!=="virgin")return {ok:false,status:before.status};
