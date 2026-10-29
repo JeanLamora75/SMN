@@ -15,7 +15,7 @@ test("Sprint non clôturé : données actuelles, caractère provisoire et aucune
  const result=await prepareSprintReport(db,id);
  assert.equal(result?.provisional,true);assert.equal(result?.template,"standard");
  assert.equal(result?.goals.length,1);
- assert.equal(sql.every(q=>!/(INSERT|UPDATE|DELETE|CREATE TABLE)/i.test(q)),true);
+ assert.equal(sql.every(q=>!/\b(?:INSERT|UPDATE|DELETE|CREATE\s+TABLE)\b/i.test(q)),true);
 });
 test("Sprint clôturé sans snapshot : ne pas inventer des objectifs",async()=>{
  const db={query:async(q:string)=>q.includes("FROM public.smn_sprint s")?{rows:[{...sprint,status:"closed"}]}:
