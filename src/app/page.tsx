@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {redirect} from "next/navigation";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import {requestLocale} from "@/i18n/locale.server";
 import {currentInstallationDiagnostic} from "@/server/installation/current";
@@ -8,6 +9,7 @@ import {canOfferPortable} from "@/server/bootstrap/portable";
 export const dynamic="force-dynamic";
 export default async function HomePage(){
   const [diagnostic,locale]=await Promise.all([currentInstallationDiagnostic(),requestLocale()]);
+  if(diagnostic.status==="initialized")redirect("/login");
   const t=(key:TranslationKey)=>translate(locale,key);
   const canInstall=canOfferPortable()&&diagnostic.status!=="initialized";
   const firstRun=diagnostic.status==="configuration-missing"&&canInstall;
@@ -27,7 +29,7 @@ export default async function HomePage(){
       <p className="smn-subtitle">{canInstall?t("home.willPrepare"):t("home.noAutoSetup")}</p>
       <div className="d-flex flex-wrap gap-2 mt-4">
         <Link className="btn btn-outline-primary" href="/">{t("home.retryDiagnostics")}</Link>
-        {diagnostic.status==="initialized"&&<Link className="btn btn-primary" href="/login">{t("common.signIn")}</Link>}
+        {!canVisitSetup(diagnostic)&&<Link className="btn btn-primary" href="/login">{t("common.signIn")}</Link>}
         {firstRun?<Link className="btn btn-primary" href="/welcome">{t("home.install")}</Link>:
           canVisitSetup(diagnostic)&&<Link className="btn btn-primary" href="/welcome">{t("home.prepare")}</Link>}
       </div>
