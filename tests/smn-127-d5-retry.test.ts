@@ -7,7 +7,7 @@ test("export route requires an operation id and holds a session lock until archi
  assert.match(source,/validExportOperationId\(operationId\)/);
  assert.match(source,/pg_advisory_lock/);
  assert.match(source,/pg_advisory_unlock/);
- assert.ok(source.indexOf("pg_advisory_lock")<source.indexOf("generateFrozenPdf("));
+ assert.ok(source.indexOf("pg_advisory_lock")<source.indexOf("await generateFrozenPdf("));
  assert.match(source,/readVerifiedPdfArchive\(db,archived.id\)/);
  assert.match(source,/retry-conflict/);
 });
