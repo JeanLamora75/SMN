@@ -47,26 +47,16 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   if(only.rows.length===1)id=only.rows[0].id;
  }
  if(!id||!validRecordId(id))throw new Error("team-context-unavailable");
- // The team Agile mode is authoritative when the additive columns exist.
- // For legacy installations, retain the installation mode without referencing
- // columns that may not exist. Archived teams must never be selectable.
- const columns=await db.query<{name:string}>(`
-  SELECT column_name AS name FROM information_schema.columns
-  WHERE table_schema='public' AND table_name='smn_team'
-    AND column_name IN ('agile_mode','is_archived')`);
- const names=new Set(columns.rows.map(row=>row.name));
- const modeColumn=names.has("agile_mode")?"t.agile_mode":"i.mode";
- const archivedClause=names.has("is_archived")?"AND t.is_archived=false":"";
- const row=await db.query<TeamContextRow>(`
+ // Résolution SQL sans introspection des colonnes historiques.\n const row=await db.query<TeamContextRow>(`
   SELECT p.id AS product_id,p.name AS product,t.id AS team_id,
-    t.name AS team,${modeColumn} AS mode
+    t.name AS team,COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode) AS mode
   FROM public.smn_team t
   JOIN public.smn_installation i ON i.id=t.installation_id
   LEFT JOIN public.smn_product p ON p.id=t.product_id
    AND p.installation_id=t.installation_id
   WHERE t.id=$1 AND t.installation_id=$2
    AND i.state='initialized' AND i.schema_version IN (28,29,30,31)
-   ${archivedClause}
+   AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
   LIMIT 2`,[id,installation]);
  if(row.rows.length!==1||!["scrum","kanban"].includes(row.rows[0].mode))
   throw new Error("team-context-unavailable");
