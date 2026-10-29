@@ -12,7 +12,7 @@ type Result={
 };
 const known=["planned","active","finished","closed","suspended"] as const;
 
-export default function SprintIndexView({canManage,initialFilters}:{canManage:boolean;initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number}}){
+export default function SprintIndexView({canManage,initialFilters,teamId}:{canManage:boolean;initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number};teamId:string|null}){
  const t=useTranslation(),locale=useLocale();
  const [search,setSearch]=useState(initialFilters?.search??"");
  const deferredSearch=useDeferredValue(search);
@@ -27,6 +27,7 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
  useEffect(()=>{
   const ctrl=new AbortController();
   const params=new URLSearchParams({search:deferredSearch,status:filter,sort,page:String(page)});
+  if(teamId)params.set("teamId",teamId);
   void fetch("/api/sprints/index?"+params.toString(),{cache:"no-store",signal:ctrl.signal})
    .then(async response=>{
     if(!response.ok)throw Error("index-unavailable");
@@ -40,7 +41,7 @@ export default function SprintIndexView({canManage,initialFilters}:{canManage:bo
    })
    .catch(()=>{if(!ctrl.signal.aborted){setLoading(false);setError(true);}});
   return()=>ctrl.abort();
- },[deferredSearch,filter,sort,page,refresh]);
+ },[deferredSearch,filter,sort,page,refresh,teamId]);
  const label=(item:SprintIndexItem)=>{
   const status=item.suspended?"suspended":item.status;
   const map:Record<string,TranslationKey>={
