@@ -5,6 +5,7 @@ import {jsonResult} from "@/server/auth/request";
 import {parseTeamCalendarQuery,readTeamCalendar} from "@/server/members/team-calendar";
 import {projectCentralCalendar} from "@/server/members/central-calendar";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -21,7 +22,7 @@ export async function GET(request:NextRequest){
    const version=await db.query<{schema_version:number}>(
     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
    const schema=version.rows[0]?.schema_version;
-   if(typeof schema==="number"&&schema>=28&&schema<=32){
+   if(evaluateSchemaCapability(schema,"multi-team").ok){
     if(!admin)throw Error("team-calendar-forbidden");
     const authorized=await resolveAdminTeam(db,
      {accountId:actor.id,role:actor.role},parsed.teamId);
