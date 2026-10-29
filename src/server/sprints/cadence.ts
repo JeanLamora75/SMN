@@ -1,3 +1,4 @@
+import {resolveAdminTeam} from "@/server/teams/resolve";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 
@@ -49,25 +50,34 @@ export async function ensureCadenceTable(db:Client){
  UNIQUE(team_id,revision)
  )`);
 }
-async function teamId(db:Client):Promise<string>{
+async function teamId(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null):Promise<string>{
+ const installation=await db.query<{schema_version:number}>(`SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'`);
+ const version=installation.rows[0]?.schema_version;
+ if(version!==undefined&&version>=28&&version<=31){
+  if(!actor)throw Error("team-access-forbidden");
+  const team=await resolveAdminTeam(db,actor,requestedTeamId);
+  if(team.mode!=="scrum")throw Error("scrum-team-unavailable");
+  return team.team_id;
+ }
+ if(version===undefined||version>27)throw Error("team-schema-unavailable");
  const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
  if(r.rows.length!==1)throw Error("scrum-team-unavailable");
  return r.rows[0].id;
 }
-export async function readCadence(db:Client):Promise<ScrumCadence>{
+export async function readCadence(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null):Promise<ScrumCadence>{
  await ensureCadenceTable(db);
- const id=await teamId(db);
+ const id=await teamId(db,actor,requestedTeamId);
  await db.query(`INSERT INTO public.smn_scrum_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING`,[id]);
  const r=await db.query<Row>(query,[id]);
  if(r.rows.length!==1)throw Error("cadence-unavailable");
  return map(r.rows[0]);
 }
-export async function updateCadence(db:Client,actorId:string,raw:unknown){
+export async function updateCadence(db:Client,actorId:string,raw:unknown,requestedTeamId?:string|null){
  const input=parseCadence(raw);
  if(!input)return {ok:false as const,error:"invalid-input" as const};
  await ensureCadenceTable(db);
- const id=await teamId(db);
+ const id=await teamId(db,{accountId:actorId,role:"admin"},requestedTeamId);
  await db.query("BEGIN");
  try{
   await db.query(`INSERT INTO public.smn_scrum_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING`,[id]);
