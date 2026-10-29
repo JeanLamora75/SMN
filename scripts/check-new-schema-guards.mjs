@@ -24,6 +24,12 @@ export function auditPatch(patch,{testExists=(p)=>existsSync(resolve(p))}={}){
    const src=row.slice(1);
    if(routePath(path)){
     const hits=guardRules.filter(x=>x.regex.test(src));
+    // An SQL schema_version comparison also matches the generic JS bound rule.
+    // Report that same introduced line once, with the more specific SQL rule.
+    if(hits.some(x=>x.id==="schema-version-sql")){
+     const generic=hits.findIndex(x=>x.id==="schema-version-js");
+     if(generic>=0)hits.splice(generic,1);
+    }
     for(const rule of hits){
      const permit=(src.match(exception)||previous.match(exception));
      if(!permit||!testExists(permit[2]))failures.push({path,line,rule:rule.id,source:src.trim()});
