@@ -63,6 +63,7 @@ test("AC2 : un deuxième envoi de la même requête confirme la fiche existante 
  const sql:string[]=[];
  const db={query:async(query:string)=>{
   sql.push(query);
+  if(query.startsWith("SELECT to_regclass(")&&query.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(query.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-1"}]};
   if(query.includes("SELECT r.id FROM public.smn_registry_item r")&&query.includes("FOR UPDATE OF r"))
    return {rows:[{id:sourceId}]};
