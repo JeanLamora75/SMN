@@ -37,25 +37,9 @@ export function parseRegistryInput(value:unknown):RegistryInput|null{
 }
 /** Migration additive explicite, jamais appelée par un lecteur SELECT-only. */
 export async function ensureRegistrySchema(db:Client):Promise<void>{
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_item(
- id text PRIMARY KEY,installation_id text NOT NULL REFERENCES public.smn_installation(id),
- team_id text NOT NULL REFERENCES public.smn_team(id),
- type text NOT NULL CHECK(type IN ('risk','obstacle','dependency','decision','action','highlight')),
- title text NOT NULL CHECK(length(btrim(title)) BETWEEN 1 AND 240),
- occurred_on date NOT NULL,status text NOT NULL,
- description text,owner_name text,due_on date,comment text,
- revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now(),
- updated_at timestamptz NOT NULL DEFAULT now())`);
- await db.query(`CREATE INDEX IF NOT EXISTS smn_registry_item_team_type_date
- ON public.smn_registry_item(team_id,type,occurred_on DESC,id)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_item_audit(
- id text PRIMARY KEY,item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- revision integer NOT NULL CHECK(revision>0),
- before_values jsonb,after_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(item_id,revision))`);
+ await db.query("SELECT to_regclass('public.smn_registry_item') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_registry_item_team_type_date') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_registry_item_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
 }
 /** Creation et revision initiale sont atomiques et propres à l'équipe installée. */
 export async function createRegistryItem(db:Client,actorId:string,raw:unknown,requestId?:string){
@@ -101,14 +85,7 @@ export async function createRegistryItem(db:Client,actorId:string,raw:unknown,re
   if(requestId!==undefined){
    // A retry with the same operation key must not create a second autonomous record.
    // The deferred FK is checked at COMMIT after the record is inserted below.
-   await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_linked_request(
-    request_id text PRIMARY KEY,
-    source_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
-    actor_id text NOT NULL REFERENCES public.smn_account(id) ON DELETE RESTRICT,
-    request_fingerprint text NOT NULL,
-    new_item_id text NOT NULL UNIQUE REFERENCES public.smn_registry_item(id)
-     DEFERRABLE INITIALLY DEFERRED,
-    created_at timestamptz NOT NULL DEFAULT now())`);
+   await db.query("SELECT to_regclass('public.smn_registry_linked_request') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
    const fingerprint=createHash("sha256").update(JSON.stringify({
     input,details:parsed.value,sourceId
    })).digest("hex");
