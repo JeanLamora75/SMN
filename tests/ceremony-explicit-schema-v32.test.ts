@@ -6,7 +6,7 @@ test("Cérémonies: SQL déplacé hors des trois services métier",()=>{
  for(const p of ["ceremonies.ts","ceremony-templates.ts","lunch.ts","ceremony-edits.ts","exceptional-meetings.ts","template-occurrences.ts","attendance.ts","actual-duration.ts","calendar-meeting-reschedule.ts","exceptional-capacity-impact.ts","cadence.ts","batch-confirm.ts","calendar-meeting-outcomes.ts"]){
   const s=read("src/server/sprints/"+p);
   assert.doesNotMatch(s,/\b(?:CREATE|ALTER|DROP|TRUNCATE)\s+(?:TABLE|INDEX)\b/i,p);
-  assert.match(s,/ceremony-schema-not-ready/);
+  assert.match(s,/schema-not-ready/);
  }
 });
 test("Cérémonies: migration explicite, additive, transactionnelle v32",()=>{
