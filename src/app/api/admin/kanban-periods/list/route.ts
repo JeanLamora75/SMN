@@ -5,6 +5,7 @@ import {jsonResult} from "@/server/auth/request";
 import {ensureKanbanPeriodTables} from "@/server/kanban/periods";
 import {reconcileKanbanStates} from "@/server/kanban/states";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 export const dynamic="force-dynamic";
 export async function GET(req:NextRequest){
  const actor=await authorizeApi(req,"read",{type:"collective",exists:true,inScope:true});
@@ -15,7 +16,7 @@ export async function GET(req:NextRequest){
   const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
   const schema=version.rows[0]?.schema_version??0;
   let scopedTeamId:string|null=null;
-  if(schema>=28&&schema<=32){
+  if(evaluateSchemaCapability(schema,"multi-team").ok){
    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},req.nextUrl.searchParams.get("teamId"));
    if(team.mode!=="kanban")throw Error("team-not-kanban");
    scopedTeamId=team.team_id;
