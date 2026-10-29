@@ -28,3 +28,19 @@ Le mode Agile sera configuré lors de la création de chaque équipe.
 Ne pas utiliser la nouvelle installation pour initialiser une base réelle tant que
 les points 1 à 4 ne sont pas validés sur une base isolée. La base pilote existante
 n'est pas touchée par ces changements de code.
+
+## Étape 3 — contrôle du diagnostic natif
+
+Le diagnostic reconnaît maintenant deux historiques distincts :
+- la chaîne historique des 32 migrations, laissée inchangée ;
+- une entrée unique `smn_v32_native_baseline`, uniquement lorsque son checksum
+  correspond au fichier SQL v32, que le schéma a la version 32 et que les contrôles
+  de structure essentiels réussissent.
+
+Le verrou permanent a été remplacé par un contrôle de baseline à l'exécution.
+**À ce jour le fichier SQL de référence est absent du dépôt**, donc le refus
+`baseline-v32-unavailable` reste le comportement attendu. Aucune installation
+native réussie n'a été observée ni validée sur une base PostgreSQL vierge.
+
+La prochaine validation doit produire la baseline, contrôler les DDL des modules
+optionnels et réaliser une installation de recette isolée.
