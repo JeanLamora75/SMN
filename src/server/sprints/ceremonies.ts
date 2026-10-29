@@ -85,22 +85,9 @@ export function computeCeremonies(sprint:Sprint,weeks:number,box:Timeboxes=defau
  return items;
 }
 export async function ensureCeremonySchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_ceremony(
- id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- kind text NOT NULL CHECK(kind IN ('planning','daily','review','retrospective')),
- starts_at timestamptz NOT NULL,ends_at timestamptz NOT NULL,
- minutes integer NOT NULL CHECK(minutes>0),generated_at timestamptz NOT NULL DEFAULT now(),
- CHECK(ends_at>starts_at),UNIQUE(sprint_id,kind,starts_at)
- )`);
- await db.query("ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'standard'");
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_ceremony_segment(
- ceremony_id text NOT NULL REFERENCES public.smn_sprint_ceremony(id) ON DELETE CASCADE,
- position integer NOT NULL CHECK(position>0),
- starts_at timestamptz NOT NULL,
- ends_at timestamptz NOT NULL,
- minutes integer NOT NULL CHECK(minutes>0),
- PRIMARY KEY(ceremony_id,position),
- CHECK(ends_at>starts_at))`);
+ const tables=["smn_sprint_ceremony","smn_sprint_ceremony_segment"] as const;
+ const state=await db.query<{present:string[]}>(`SELECT array_agg(c.relname)::text[] AS present FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname = ANY($1::text[]) AND c.relkind IN ('r','p')`,[tables]);
+ if(tables.some(name=>!state.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 // Point d'entrée conservé pour les appels existants (simple, lot, assistant).
 // Depuis le MVP unifié, seules les occurrences des modèles ACTIFS sont générées.
