@@ -21,11 +21,7 @@ export async function saveReportContentOptions(db:Client,actorId:string,sprintId
    JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.id=$1 AND s.deleted_at IS NULL
    AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum' FOR UPDATE OF s`,[sprintId]);
   if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_content_options(
-   sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-   options jsonb NOT NULL,revision integer NOT NULL CHECK(revision>0),
-   updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   updated_at timestamptz NOT NULL DEFAULT now())`);
+  await db.query("SELECT to_regclass('public.smn_report_content_options') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
   const prior=await db.query<{revision:number}>(`SELECT revision FROM public.smn_report_content_options WHERE sprint_id=$1 FOR UPDATE`,[sprintId]);
   if((prior.rows[0]?.revision??0)!==body.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict"};}
   const revision=Number(body.revision)+1;
@@ -33,11 +29,7 @@ export async function saveReportContentOptions(db:Client,actorId:string,sprintId
    VALUES($1,$2::jsonb,$3,$4) ON CONFLICT(sprint_id) DO UPDATE SET options=EXCLUDED.options,
    revision=EXCLUDED.revision,updated_by=EXCLUDED.updated_by,updated_at=now()`,
    [sprintId,JSON.stringify(body.options),revision,actorId]);
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_content_options_audit(
-   id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-   revision integer NOT NULL,options jsonb NOT NULL,
-   actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-   changed_at timestamptz NOT NULL DEFAULT now())`);
+  await db.query("SELECT to_regclass('public.smn_report_content_options_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
   await db.query(`INSERT INTO public.smn_report_content_options_audit(id,sprint_id,revision,options,actor_id)
    VALUES($1,$2,$3,$4::jsonb,$5)`,[randomUUID(),sprintId,revision,JSON.stringify(body.options),actorId]);
   await db.query("COMMIT");return {ok:true as const,revision};
