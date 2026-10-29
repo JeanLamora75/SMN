@@ -65,20 +65,9 @@ async function blockedTeamDates(db:Client,teamId:string,start:string,end:string)
 }
 
 export async function ensureTemplateOccurrenceSchema(db:Client){
- await ensureTemplateSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_scrum_template_occurrence(
- id text PRIMARY KEY,
- template_id text NOT NULL REFERENCES public.smn_scrum_ceremony_template(id) ON DELETE RESTRICT,
- template_revision integer NOT NULL,
- sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- name text NOT NULL,
- starts_at timestamptz NOT NULL,ends_at timestamptz NOT NULL,
- created_at timestamptz NOT NULL DEFAULT now(),
- CHECK(ends_at>starts_at),UNIQUE(template_id,sprint_id,starts_at))`);
- await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'");
- await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false");
- await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'standard'");
- await db.query("ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes BETWEEN 0 AND 1440)");
+ const tables=["smn_scrum_template_occurrence"] as const;
+ const state=await db.query<{present:string[]}>(`SELECT array_agg(c.relname)::text[] AS present FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname = ANY($1::text[]) AND c.relkind IN ('r','p')`,[tables]);
+ if(tables.some(name=>!state.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 
 export async function saveTemplateOccurrences(db:Client,sprint:Sprint,options:{reconstructed?:boolean;schemaPrevalidated?:boolean}={}){
