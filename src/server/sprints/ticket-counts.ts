@@ -39,21 +39,8 @@ export async function readSprintTickets(db:Client,id:string){
 /** Les tables agrégées et leur audit ne sont créés que sur une action
  * explicite de sauvegarde par un administrateur autorisé. */
 async function ensureTickets(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS ${DB_TABLE}(
-  sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  initial_tickets bigint,done_tickets bigint,
-  revision integer NOT NULL DEFAULT 1,
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  CHECK(initial_tickets BETWEEN 0 AND 1000000000),
-  CHECK(done_tickets BETWEEN 0 AND 1000000000))`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_ticket_counts_audit(
-  id text PRIMARY KEY,
-  sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  before_values jsonb,
-  after_values jsonb NOT NULL,
-  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  changed_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_sprint_ticket_counts') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_ticket_counts_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 /** Deux nombres facultatifs indépendants des SP, aucune notion de ticket individuel. */
 export async function writeSprintTickets(db:Client,actor:string,raw:unknown){
