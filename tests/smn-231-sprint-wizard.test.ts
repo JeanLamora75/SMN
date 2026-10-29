@@ -36,7 +36,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   assert.match(server,/smn_sprint_wizard_preview/);
   assert.match(server,/count\s*:\s*input\.count/);
   assert.doesNotMatch(server,/raw\.count<2|count BETWEEN 2 AND 6/);
-  assert.match(server,/previewSprintBatch\(db,\{startOn:input\.startOn,count:input\.count\}\)/);
+  assert.match(server,/previewSprintBatch\(db,\{startOn:input\.startOn,count:input\.count\},teamId\)/);
  });
  it("n'enregistre aucun sprint lors de l'aperçu, uniquement un jeton à durée limitée",()=>{
   const segment=server.slice(server.indexOf("export async function previewWizard("),
