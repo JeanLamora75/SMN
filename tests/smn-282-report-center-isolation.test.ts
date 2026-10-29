@@ -37,7 +37,7 @@ test("v28 : documents et cycles filtrés par même teamId, sans archive globale"
  assert.equal(result.documents.length,1);
  assert.deepEqual(result.archives,[]);
  assert.ok(result.templates.length>=1);
- const scope=f.queries.find(x=>x.sql.includes("i.schema_version IN (28,29,30,31)"));
+ const scope=f.queries.find(x=>x.sql.includes("i.schema_version BETWEEN 28 AND 32"));
  const cycle=f.queries.find(x=>x.sql.includes("SELECT s.id,s.name"));
  const doc=f.queries.find(x=>x.sql.includes('d.sprint_id AS "sprintId"'));
  assert.deepEqual(scope?.params,["panda"]);
