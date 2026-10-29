@@ -1,4 +1,9 @@
 import type {Client} from "pg";
+import {createHash} from "node:crypto";
+import {readFileSync} from "node:fs";
+import {MULTI_TEAM_SCHEMA_SQL} from "../teams/migration";
+import {LINKS_MIGRATION_SQL} from "../links/migration";
+import {COUNTRY_CONSOLIDATION_MIGRATION_SQL} from "../countries/consolidation-migration";
 import {evaluateSchemaCapability,type SchemaCapability} from "./compatibility";
 
 /** Requirements are deliberately explicit, and are not trusted solely from schema_version. */
@@ -35,6 +40,16 @@ const requirements:Readonly<Record<SchemaCapability,Requirement>>={
   migration:"20261028_smn270_281_country_consolidation"
  }
 };
+const v31=readFileSync(new URL("../../../prisma/migrations/20261028_smn316_company_catalog/migration.sql",import.meta.url),"utf8");
+const v32=readFileSync(new URL("../../../prisma/migrations/20261029_smn_team_agile_mode_v32/migration.sql",import.meta.url),"utf8");
+const migrationSql:Readonly<Record<SchemaCapability,string>>={
+ "multi-team":MULTI_TEAM_SCHEMA_SQL,
+ "per-team-agile-mode":v32,
+ "company-catalog":v31,
+ "links":LINKS_MIGRATION_SQL,
+ "country-consolidation":COUNTRY_CONSOLIDATION_MIGRATION_SQL
+};
+const checksum=(sql:string)=>createHash("sha256").update(sql).digest("hex");
 export type IntegrityResult=
  |Readonly<{ok:true;version:number;capability:SchemaCapability}>
  |Readonly<{ok:false;capability:SchemaCapability;reason:"version-invalid"|"migration-missing"|"structure-incomplete";details:readonly string[]}>;
@@ -42,13 +57,17 @@ export type IntegrityResult=
 /** Pure contract evaluation, usable with fake DB snapshots in unit tests. */
 export function assessSchemaIntegrity(
  capability:SchemaCapability,version:unknown,
- actual:Readonly<{tables:readonly string[];columns:readonly string[];constraints:readonly string[];migrations:readonly string[]}>
+ actual:Readonly<{tables:readonly string[];columns:readonly string[];constraints:readonly string[];migrations:readonly string[];migrationChecksum?:string}>
 ):IntegrityResult{
  const verdict=evaluateSchemaCapability(version,capability);
  if(!verdict.ok)return {ok:false,capability,reason:"version-invalid",details:[verdict.reason]};
  const required=requirements[capability];
  if(!actual.migrations.includes(required.migration))
   return {ok:false,capability,reason:"migration-missing",details:[required.migration]};
+ if(actual.migrationChecksum!==undefined &&
+    ![migrationSql[capability],migrationSql[capability].replace(/\\n/g,"\\r\\n")]
+     .some(sql=>actual.migrationChecksum===checksum(sql)))
+  return {ok:false,capability,reason:"migration-missing",details:["checksum:"+required.migration]};
  const absent=[
   ...required.tables.filter(x=>!actual.tables.includes(x)).map(x=>"table:"+x),
   ...required.columns.filter(x=>!actual.columns.includes(x)).map(x=>"column:"+x),
@@ -69,8 +88,8 @@ export async function inspectSchemaCapability(db:Pick<Client,"query">,capability
  if(!versionCheck.ok)
   return {ok:false,capability,reason:"version-invalid",details:[versionCheck.reason]};
  const required=requirements[capability];
- const history=await db.query<{migration_name:string}>(`
-  SELECT migration_name FROM public._prisma_migrations
+ const history=await db.query<{migration_name:string;checksum:string}>(`
+  SELECT migration_name,checksum FROM public._prisma_migrations
   WHERE migration_name=$1 AND finished_at IS NOT NULL AND rolled_back_at IS NULL
   LIMIT 1`,[required.migration]);
  if(history.rows.length!==1)
@@ -89,7 +108,7 @@ export async function inspectSchemaCapability(db:Pick<Client,"query">,capability
   WHERE n.nspname='public' AND con.convalidated AND con.conname=ANY($1::text[])`,[required.constraints]);
  return assessSchemaIntegrity(capability,row.schema_version,{
   tables:tables.rows.map(x=>x.name),columns:columns.rows.map(x=>x.name),
-  constraints:constraints.rows.map(x=>x.name),migrations:history.rows.map(x=>x.migration_name)
+  constraints:constraints.rows.map(x=>x.name),migrations:history.rows.map(x=>x.migration_name),migrationChecksum:history.rows[0]?.checksum
  });
 }
 export async function requireSchemaCapability(db:Pick<Client,"query">,capability:SchemaCapability):Promise<number>{
