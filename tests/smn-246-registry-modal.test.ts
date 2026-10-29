@@ -53,7 +53,7 @@ test("modale : champs généraux et métier avant une seule confirmation serveur
  for(const term of ["probability","impact","roam","requester","contributor","atRisk","rationale"])
   assert.ok(code.includes(term),term);
  assert.ok(code.includes('method:"POST"'));
- assert.ok(code.includes("response.status===201"));
+ assert.ok(code.includes("response.status!==201"));
  assert.ok(code.includes("decisionChoices.map"));
  assert.ok(code.includes("replacesId"));
  assert.ok(code.includes("onCreated("));
@@ -127,7 +127,7 @@ test("erreur du détail métier : la création et l'audit ne sont jamais commit�
  const calls:string[]=[];
  const db={query:async(sql:string)=>{
   calls.push(sql);
-  if(sql.includes("INSERT INTO public.smn_decision_detail("))throw Error("db-failure");
+  if(/INSERT INTO public\.smn_decision_detail\s*\(/.test(sql))throw Error("db-failure");
   return {rows:sql.includes("SELECT t.id FROM public.smn_team")?[{id:"team-one"}]:[]};
  }} as unknown as Client;
  await assert.rejects(()=>createRegistryItem(db,"admin",{
@@ -197,7 +197,7 @@ test("dépendance : parties réelles et vigilance auditées atomiquement",async(
   }
  });
  assert.equal(r.ok,true);
- assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_parties(")));
+ assert.ok(sql.some(x=>/INSERT INTO public\.smn_dependency_parties\s*\(/.test(x)));
  assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_parties_audit")));
  assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_vigilance")));
  assert.ok(sql.some(x=>x.includes("INSERT INTO public.smn_dependency_vigilance_audit")));
