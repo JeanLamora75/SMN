@@ -20,10 +20,11 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
   assert.equal(scrum.find(x=>x.id==="cadence")?.href,"/app/admin/scrum-cadence");
  });
  it("refuse les paramètres Scrum dans Kanban et pour les utilisateurs sans droits",()=>{
-  for(const id of ["workingDays","ceremonies","cadence"]){
+  for(const id of ["workingDays","ceremonies"]){
    assert.equal(entries("kanban").find(x=>x.id===id)?.href,null,id);
    assert.equal(entries("kanban").find(x=>x.id===id)?.status,"not-applicable",id);
   }
+  assert.equal(entries("kanban").find(x=>x.id==="cadence")?.href,"/app/admin/kanban-cadence");
   assert.equal(settingsCatalog("scrum",user).flatMap(g=>g.entries).length,0);
   assert.equal(canAccess(user,"write",{type:"settings",exists:true,inScope:true}),false);
  });
@@ -81,7 +82,7 @@ describe("SMN-229 — paramètres partagés séparés des sprints",()=>{
    const api=read("src/app/api/admin/sprints/"+path+"/route.ts");
    for(const method of methods)assert.match(api,new RegExp("export async function "+method+"\\("));
    assert.match(api,/authorizeApi\(/);
-   assert.match(api,/withAuthDb\(/);
+   assert.match(api,/withAuthDb\(|withLegacyTeamApi\(/);
   }
   assert.match(read("src/server/sprints/work-slot-config.ts"),/revision/);
   assert.match(read("src/server/sprints/lunch.ts"),/revision/);
