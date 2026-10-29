@@ -35,19 +35,9 @@ function parse(raw:unknown):ScheduleInput|null{
   startAt:x.startAt as string,endAt:x.endAt as string,revision:x.revision as number};
 }
 async function ensureScheduleSchema(db:Client){
- await ensureCeremonyEditSchema(db);
- await ensureTemplateOccurrenceSchema(db);
- await ensureExceptionalMeetingSchema(db);
- for(const table of [tables.template.table,tables.exceptional.table]){
-  await db.query(`ALTER TABLE public.${table} ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1 CHECK(revision>=1)`);
- }
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_calendar_meeting_schedule_history(
-  id text PRIMARY KEY,
-  meeting_kind text NOT NULL CHECK(meeting_kind IN ('ceremony','template','exceptional')),
-  meeting_id text NOT NULL,previous_values jsonb NOT NULL,next_values jsonb NOT NULL,
-  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  changed_at timestamptz NOT NULL DEFAULT now()
- )`);
+ const names=["smn_calendar_meeting_schedule_history"] as const;
+ const found=await db.query<{present:string[]}>(`SELECT array_agg(relname)::text[] AS present FROM pg_class WHERE relnamespace='public'::regnamespace AND relname=ANY($1::text[])`,[names]);
+ if(names.some(name=>!found.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 /** Reschedules one occurrence without changing its recurrence template. */
 export async function updateCalendarMeetingSchedule(db:Client,actorId:string,raw:unknown):
