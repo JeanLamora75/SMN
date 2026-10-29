@@ -46,27 +46,8 @@ export function calculateSprint(startOn:string,c:Cadence){
 }
 export async function ensureSprintSchema(db:Client){
  await ensureCadenceTable(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint(
- id text PRIMARY KEY,
- team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- number integer NOT NULL CHECK(number>0),
- name text NOT NULL CHECK(length(btrim(name)) BETWEEN 1 AND 160),
- start_at timestamptz NOT NULL,
- end_at timestamptz NOT NULL,
- time_zone text NOT NULL,
- status text NOT NULL DEFAULT 'planned',
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now(),
- deleted_at timestamptz,
- deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- CHECK(end_at>start_at),
- UNIQUE(team_id,number)
- )`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_audit(
- id text PRIMARY KEY, sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- action text NOT NULL, actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- occurred_at timestamptz NOT NULL DEFAULT now(), details jsonb NOT NULL
- )`);
+ await db.query("SELECT to_regclass('public.smn_sprint') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-core-schema-not-ready: apply-sprint-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-core-schema-not-ready: apply-sprint-core-v32")});
 }
 async function context(db:Client){
  const t=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
