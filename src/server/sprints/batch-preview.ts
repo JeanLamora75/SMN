@@ -11,13 +11,20 @@ export function validBatchRequest(raw:unknown):raw is {startOn:string;count:numb
  return Object.keys(v).length===2&&isDate(v.startOn as string)&&Number.isInteger(v.count)&&(v.count as number)>=1&&(v.count as number)<=6;
 }
 const overlaps=(a:{startAt:string;endAt:string},b:{startAt:string;endAt:string})=>a.startAt<b.endAt&&a.endAt>b.startAt;
-export async function previewSprintBatch(db:Client,raw:unknown){
+export async function previewSprintBatch(db:Client,raw:unknown,scopedTeamId?:string){
  if(!validBatchRequest(raw))return {ok:false as const,error:"invalid-input" as const};
  await ensureSprintSchema(db);
- const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
- if(team.rows.length!==1)throw Error("scrum-team-unavailable");
- const id=team.rows[0].id;
+ let id=scopedTeamId;
+ if(!id){
+  const version=await db.query<{schema_version:number}>(
+   "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+  if(!version.rows[0]||version.rows[0].schema_version>=28)
+   throw Error("scrum-team-context-required");
+  const team=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
+   WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
+  if(team.rows.length!==1)throw Error("scrum-team-unavailable");
+  id=team.rows[0].id;
+ }
  await db.query("INSERT INTO public.smn_scrum_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING",[id]);
  const c=await db.query<Cadence>("SELECT duration_weeks,start_day,start_time::text,end_day,end_time::text,time_zone FROM public.smn_scrum_cadence WHERE team_id=$1",[id]);
  if(c.rows.length!==1)throw Error("cadence-unavailable");
