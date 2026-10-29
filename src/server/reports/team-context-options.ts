@@ -18,11 +18,7 @@ export async function saveTeamContextChoices(db:Client,sprintId:string,actorId:s
  JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.id=$1 AND s.deleted_at IS NULL AND
  i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum' FOR UPDATE OF s`,[sprintId]);
   if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_team_context_options(
-  sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  options jsonb NOT NULL,revision integer NOT NULL CHECK(revision>0),
-  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  updated_at timestamptz NOT NULL DEFAULT now())`);
+  await db.query("SELECT to_regclass('public.smn_report_team_context_options') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
   const old=await db.query<{revision:number}>(`SELECT revision FROM public.smn_report_team_context_options WHERE sprint_id=$1 FOR UPDATE`,[sprintId]);
   if((old.rows[0]?.revision??0)!==input.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict"};}
   const revision=Number(input.revision)+1;
