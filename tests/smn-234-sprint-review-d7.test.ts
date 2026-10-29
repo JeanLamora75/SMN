@@ -20,7 +20,9 @@ const fake=(answer:(sql:string,args?:readonly unknown[])=>{rows:unknown[]})=>{
  const calls:{sql:string;args?:readonly unknown[]}[]=[];
  return {
   db:{query:async(sql:string,args?:readonly unknown[])=>{
-   calls.push({sql,args});return answer(sql,args);
+   calls.push({sql,args});
+   if(sql.startsWith("SELECT to_regclass(\'public.smn_sprint_review_analysis")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
+   return answer(sql,args);
   }} as unknown as Client,
   calls
  };
