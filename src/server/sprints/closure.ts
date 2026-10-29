@@ -16,18 +16,8 @@ export async function ensureClosureSchema(db:Client){
  await ensureSprintScoresSchema(db);
  await ensureSprintCapacityKpiSchema(db);
  await ensureSprintReviewSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_closure_snapshot (
- id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- version integer NOT NULL CHECK(version>=1),
- snapshot jsonb NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- closed_at timestamptz NOT NULL DEFAULT now(),
- UNIQUE(sprint_id,version))`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_closure_audit (
- id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- operation text NOT NULL CHECK(operation IN ('close','reopen')),
- previous_status text NOT NULL,next_status text NOT NULL,
- snapshot_version integer,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- occurred_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_sprint_closure_snapshot') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_closure_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 async function sprintScope(db:Client,id:string,lock=false){
  const r=await db.query<{id:string;team_id:string;name:string;status:string;start_at:string;end_at:string;time_zone:string}>(`SELECT s.id,s.team_id,s.name,s.status,s.start_at::text,s.end_at::text,s.time_zone
