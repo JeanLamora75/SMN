@@ -1,0 +1,19 @@
+/* Administration des liens — harmonisation Cockpit Agile, sans impact métier. */
+.smn-links-admin-cockpit{width:100%;max-width:none;min-width:0;color:var(--smn-foreground)}
+.smn-links-admin-inventory{min-width:0}
+.smn-links-admin-hero{padding:clamp(18px,2vw,28px);background:linear-gradient(125deg,color-mix(in srgb,var(--smn-brand) 78%,#10294d),#10294d);color:#fff;border-radius:16px;box-shadow:0 9px 25px rgba(12,34,64,.12)}
+.smn-links-admin-hero h1{font-size:clamp(1.55rem,2.2vw,2.15rem);font-weight:760;letter-spacing:-.02em;margin:0;color:#fff}
+.smn-links-admin-eyebrow{margin:0 0 8px;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;font-weight:750;color:rgba(255,255,255,.85)}
+.smn-links-admin-panel{padding:18px;border:1px solid var(--smn-border);background:var(--smn-surface);border-radius:15px;min-width:0;box-shadow:0 5px 17px rgba(12,34,64,.045)}
+.smn-links-admin-filters{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(145px,1fr));align-items:center;gap:10px}
+.smn-links-admin-filters .form-control,.smn-links-admin-filters .form-select{width:100%!important;max-width:none!important;min-width:0;min-height:40px;border-radius:9px;background-color:var(--smn-surface)}
+.smn-links-admin-count{justify-self:start;border:1px solid var(--smn-border);background:var(--smn-muted-soft);border-radius:999px;padding:4px 12px;font-size:.82rem;margin:0}
+.smn-links-admin-list{display:grid;gap:10px;min-width:0}
+.smn-links-admin-row{padding:16px 18px;background:var(--smn-surface);border:1px solid var(--smn-border);border-radius:12px;min-width:0;box-shadow:0 3px 10px rgba(12,34,64,.035)}
+.smn-links-admin-row strong{color:var(--smn-heading)}
+.smn-links-admin-panel .smn-links-admin-categories h2{font-size:1.15rem;font-weight:750;color:var(--smn-heading);margin:0}
+.smn-links-admin-categories .list-group{display:grid;gap:9px}
+.smn-links-admin-categories .list-group-item{border:1px solid var(--smn-border);border-radius:10px;padding:13px 16px;background:var(--smn-surface)}
+.smn-links-admin-cockpit :is(button,input,select,a):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
+@media(max-width:1100px){.smn-links-admin-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.smn-links-admin-filters{grid-template-columns:1fr}.smn-links-admin-panel{padding:13px}.smn-links-admin-row{align-items:stretch!important}}
