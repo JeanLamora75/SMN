@@ -20,6 +20,7 @@ test("création Sprint : seules les occurrences des modèles actifs sont enregis
  const db={
   async query(sql:string,params:unknown[]=[]){
    seen.push(sql);
+   if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_sprint_ceremony","smn_sprint_ceremony_segment","smn_scrum_template_occurrence","smn_scrum_ceremony_template","smn_scrum_ceremony_template_history"]}]};
    if(sql.includes("SELECT team_id FROM public.smn_sprint"))return {rows:[{team_id:"team"}],rowCount:1};
    if(sql.includes("WHERE team_id=$1 AND active=true")){
     return {rows:DEFAULT_SCRUM_CEREMONY_TEMPLATES.filter(x=>x.name!=="Sprint Planning").map((v,i)=>({
@@ -48,7 +49,8 @@ test("installation, migration additive et calendrier couvrent les modèles",()=>
  const calendar=source("src/app/api/team-calendar/meetings/route.ts");
  const detail=source("src/app/app/team-calendar/meeting/[kind]/[id]/page.tsx");
  const conflicts=source("src/server/sprints/meeting-conflicts.ts");
- assert.match(installation,/input\.mode === "scrum"\) await seedDefaultScrumCeremonyTemplates/);
+ assert.match(installation,/if \(input\.mode === "scrum"\) \{/);
+ assert.match(installation,/await seedDefaultScrumCeremonyTemplates/);
  assert.match(syncScript,/seedDefaultScrumCeremonyTemplates/);
  assert.match(syncScript,/installedDatabaseUri/);
  assert.doesNotMatch(syncScript,/(?:UPDATE|DELETE)\s+(?:FROM\s+)?public\.smn_sprint\b/i);
