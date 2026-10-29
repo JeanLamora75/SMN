@@ -17,3 +17,9 @@ Rendre le contexte d'équipe fiable et indépendant des bornes de version dans l
 - Contrôles de type, tests unitaires, tests de base PostgreSQL et CI à exécuter.
 
 Aucun test exécutable n'a été effectué dans cet incrément.
+
+## Incrément suivant — lecture du contexte Sprint
+`src/server/sprints/context.ts` refuse désormais le repli sur `smn_installation.mode` pour les équipes de schéma v32 : la résolution du mode Scrum utilise la colonne propre à l'équipe. Les équipes archivées sont exclues en v32. Les versions pré-v32 conservent leurs adaptateurs historiques via `to_jsonb(t)` (les colonnes v32 n'existent pas nécessairement physiquement).
+`tests/smn-330-sprint-context.test.ts` contient deux tests de non-régression statiques sur ces règles.
+La fonction reçoit toujours un `teamId` ; l'autorisation de cet identifiant par l'appelant est à vérifier au niveau des routes et des services. Les autres services historiques, notamment cadence Kanban et batch Sprint, restent à auditer avant une transformation sûre.
+Aucune compilation ni test PostgreSQL réel n'a été exécuté dans cette intervention.
