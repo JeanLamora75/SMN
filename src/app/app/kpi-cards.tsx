@@ -1,4 +1,5 @@
 import type {CSSProperties} from "react";
+import Link from "next/link";
 import BootstrapIcon from "./bootstrap-icon";
 import {dashboardMetricRatio} from "@/lib/dashboard-metric-ratio";
 import {dashboardStoryPointsPerJh} from "@/lib/dashboard-sp-per-jh";
@@ -58,11 +59,12 @@ function StoryPointsDensity({points,capacity,locale,label}:Readonly<{
 }
 
 export function KpiMetricPair({title,first,second,unit,empty,comparison,firstMetric,
- secondMetric,locale,icon,tone,ratioKey,spPerJh}:Readonly<{
+ secondMetric,locale,icon,tone,ratioKey,spPerJh,action}:Readonly<{
  title:string;first:string;second:string;unit:string;empty:string;comparison:string;
  firstMetric?:DashboardMetric;secondMetric?:DashboardMetric;locale:Language;
  icon:Icon;tone:Tone;ratioKey:TranslationKey;
  spPerJh?:Readonly<{planned?:DashboardMetric;actual?:DashboardMetric}>;
+ action?:Readonly<{href:string;label:string}>;
 }>){
  const ratio=dashboardMetricRatio(firstMetric,secondMetric);
  const caption=ratio?translate(locale,ratioKey,{percent:ratio.percentage}):null;
@@ -98,6 +100,7 @@ export function KpiMetricPair({title,first,second,unit,empty,comparison,firstMet
    </div>
   </dl>
   <p className="smn-metric-comparison">{comparison}</p>
+  {action&&<Link href={action.href} className="smn-kpi-card-action small">{action.label}</Link>}
  </article>;
 }
 
