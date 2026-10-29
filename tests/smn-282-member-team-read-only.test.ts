@@ -47,5 +47,5 @@ test("anciens historiques et absences restent interdits en v28",()=>{
  ]){
   assert.match(source(path),/withLegacyMemberApi\(/);
  }
- assert.match(source("src/lib/team-context-readiness.ts"),/MULTI_TEAM_CONTEXT_READY:boolean=false/);
+ assert.match(source("src/lib/team-context-readiness.ts"),/SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
