@@ -6,8 +6,9 @@ import {getTeamSlots,saveTeamSlots} from "@/server/sprints/work-slot-config";
 export const dynamic="force-dynamic";
 const target={type:"settings",exists:true,inScope:true} as const;
 export async function GET(req:NextRequest){
- if(!await authorizeApi(req,"read",target))return jsonResult({error:"forbidden"},403);
- try{return jsonResult(await withAuthDb(getTeamSlots));}catch{return jsonResult({error:"unavailable"},503);}
+ const actor=await authorizeApi(req,"read",target);
+ if(!actor)return jsonResult({error:"forbidden"},403);
+ try{return jsonResult(await withAuthDb(db=>getTeamSlots(db,{accountId:actor.id,role:actor.role},req.nextUrl.searchParams.get("teamId"))));}catch{return jsonResult({error:"unavailable"},503);}
 }
 export async function PUT(req:NextRequest){
  const actor=await authorizeApi(req,"write",target);if(!actor)return jsonResult({error:"forbidden"},403);
