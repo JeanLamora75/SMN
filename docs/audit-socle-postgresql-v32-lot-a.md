@@ -285,3 +285,24 @@ exister ; les deux tables de droits/visibilité d'archives dépendent de
 nécessaires avant exécution. Cette migration n'a pas été exécutée sur le PC
 utilisateur. Attendre la validation CI et un test PostgreSQL de migration,
 ainsi que l'audit des déclarations indirectes hors `src/server/reports`.
+
+
+## Sprint — agrégats, première extraction v32
+
+Huit services Sprint ont été débarrassés de 14 définitions `CREATE TABLE`
+exécutées pendant les opérations métier : objectifs, capacité historique
+prévue/réelle, demandes d'import historique, détails historiques, analyses
+de review, scores et story points. Les créations sont centralisées dans
+`scripts/apply-sprint-aggregates-v32.ts`, transactionnel, additif et
+réservé à une installation initialisée v32. Les écrivains vérifient
+désormais la présence des relations attendues et échouent explicitement
+si le schéma n'a pas été préparé. Test statique :
+`tests/sprint-aggregates-explicit-schema-v32.test.ts`.
+
+**Non clôturé** : les tables centrales de création de sprint, transitions,
+suppression logique, clôture, décomptes de tickets et événements historiques
+présentent d'autres DDL à inventorier et migrer. Une CI verte sur le commit
+final, les tests PostgreSQL réels avec données préexistantes et la
+compatibilité avec l'installation initiale restent obligatoires.
+Ne pas appliquer la commande sur l'installation utilisateur avant cette
+recette et une sauvegarde.
