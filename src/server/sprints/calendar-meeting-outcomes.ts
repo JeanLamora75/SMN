@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {validCalendarMeetingRef,readCalendarMeeting,type CalendarMeetingKind}
  from "@/server/sprints/calendar-meeting-detail";
-import {ensureRegistrySchema} from "@/server/registries/items";
+
 import {registryStatuses} from "@/lib/registry-types";
 import {recordConfirmedHighlight} from "@/server/registries/confirmed-highlights";
 
@@ -91,7 +91,9 @@ export async function createMeetingOutcome(
   if(sprint.status==="closed"){
    await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
   }
-  await ensureRegistrySchema(db);
+  const required=["smn_registry_item","smn_registry_item_audit","smn_calendar_meeting_outcome_link"];
+  const available=await db.query<{name:string}>(`SELECT relname AS name FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind IN ('r','p') AND relname=ANY($1::text[])`,[required]);
+  if(required.some(name=>!available.rows.some(row=>row.name===name)))throw Error("meeting-outcome-schema-not-ready: migrate registries and outcomes");
   await ensureOutcomeLink(db);
   const idNew=randomUUID();
   const title=nameFor(input.text);
