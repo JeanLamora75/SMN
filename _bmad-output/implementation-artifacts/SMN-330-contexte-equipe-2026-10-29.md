@@ -38,3 +38,7 @@ Tests statiques publiés dans `tests/smn-330-batch-scope.test.ts` : confirmation
 
 ### État de recette
 Une exécution GitHub Actions « Vérification I0 » est en attente pour le dernier commit consulté. Les tests PostgreSQL à deux équipes, la compilation TypeScript et la CI verte ne sont **pas encore attestés**. Par conséquent SMN-330 doit rester **à valider**, et son statut Jira ne doit pas être déclaré « Terminé » à ce stade.
+
+## Bilan transversal du 29 octobre — contrôle de clôture
+
+SMN-330 : résolution d'équipe active, cadence Scrum/Kanban, contexte Sprint, génération par lot et Wizard, confirmations et historique ont reçu des protections par équipe. Le contrat central est utilisé sur le service de cadence Scrum et la liste Kanban (SMN-331). La validation complète reste BLOQUÉE : la dernière CI I0 consultée s'est terminée en échec, et aucune recette PostgreSQL à deux équipes n'a été constatée. Ne pas déclarer la story Done sur Jira.
