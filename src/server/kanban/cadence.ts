@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
@@ -43,21 +44,8 @@ export function kanbanBounds(reference:string,frequency:KanbanFrequency,startDay
  return {startOn:iso(start),endOn:iso(end)};
 }
 export async function ensureKanbanCadenceTable(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_cadence (
- team_id text PRIMARY KEY REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- frequency text NOT NULL DEFAULT 'monthly' CHECK (frequency IN ('monthly','weekly','biweekly')),
- start_day integer NOT NULL DEFAULT 1 CHECK (start_day BETWEEN 1 AND 7),
- time_zone text NOT NULL DEFAULT 'Europe/Paris',
- revision integer NOT NULL DEFAULT 1 CHECK (revision>=1),
- updated_at timestamptz NOT NULL DEFAULT now(),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL
- )`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_cadence_audit (
- id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- revision integer NOT NULL,before_values jsonb NOT NULL,after_values jsonb NOT NULL,
- changed_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(team_id,revision)
- )`);
+ await assertKanbanSchema(db,"smn_kanban_cadence");
+ await assertKanbanSchema(db,"smn_kanban_cadence_audit");
 }
 async function teamId(db:Client,actor?:TeamActor,requestedTeamId?:string|null):Promise<string>{
  const state=await db.query<{schema_version:number}>(
