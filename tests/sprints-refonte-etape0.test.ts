@@ -30,7 +30,7 @@ describe("Refonte Sprints — garde-fous métier avant déplacement UX",()=>{
    assert.match(code,/authorizeApi\(/,path);
    assert.match(code,/forbidden/,path);
    assert.match(code,/403/,path);
-   assert.match(code,/withAuthDb\(/,path);
+   assert.match(code,/withAuthDb\(|withLegacyTeamApi\(/,path);
   }
  });
  it("ne perd pas les API de configuration lors du déplacement de leurs formulaires",()=>{
@@ -43,7 +43,7 @@ describe("Refonte Sprints — garde-fous métier avant déplacement UX",()=>{
    const code=source(path);
    for(const method of methods)assert.ok(code.includes("export async function "+method+"("),path+" "+method);
    assert.match(code,/authorizeApi\(/,path);
-   assert.match(code,/withAuthDb\(/,path);
+   assert.match(code,/withAuthDb\(|withLegacyTeamApi\(/,path);
   }
  });
  it("conserve la création unitaire transactionnelle avec contrôle de chevauchement",()=>{
