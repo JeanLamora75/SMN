@@ -13,15 +13,8 @@ export async function createActionFromDecision(db:Client,actorId:string,decision
    WHERE r.id=$1 AND r.type='decision' AND r.team_id=$2 AND i.id='singleton' AND i.state='initialized' FOR UPDATE OF r`,[decisionId,input.teamId]);
   if(source.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   await ensureRegistrySchema(db);
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_action_link(
-    action_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
-    related_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
-    PRIMARY KEY(action_id,related_id))`);
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_action_link_audit(
-    id text PRIMARY KEY,action_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
-    related_id text NOT NULL,action text NOT NULL CHECK(action IN ('linked','unlinked')),
-    actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-    changed_at timestamptz NOT NULL DEFAULT now())`);
+  await db.query("SELECT to_regclass('public.smn_action_link') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
+  await db.query("SELECT to_regclass('public.smn_action_link_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
   const id=randomUUID();
   await db.query(`INSERT INTO public.smn_registry_item
    (id,installation_id,team_id,type,title,occurred_on,status,description,owner_name,due_on,comment,created_by)
