@@ -44,6 +44,10 @@ test("22 endpoints rapports/documents/archives : tous refusent les anciens accè
    assert.match(src,/withLegacyReportReadDb\(readArchive\)/);
    assert.match(src,/resolveAdminTeam\(db/);
    assert.match(src,/canAccess\(actor,"download"/);
+  }else if(path.endsWith("/documents/route.ts")){
+   assert.match(src,/listTeamStudioDocuments\(db/);
+   assert.match(src,/createTeamStudioDocument\(db/);
+   assert.match(src,/withLegacyTeamApi\(/);
   }else if(path.includes("/documents/[documentId]/template-update/")){
    assert.match(src,/readTeamStudioDocument\(db/);
    assert.match(src,/withLegacyReportReadDb\(/);
