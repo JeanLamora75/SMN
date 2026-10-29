@@ -45,7 +45,7 @@ test("AC2 : transaction réutilisée et requête de création idempotente",()=>{
 test("AC2 : une création liée validée enregistre une seule fiche et son association auditée",async()=>{
  const statements:string[]=[];
  const db={query:async(sql:string)=>{
-  statements.push(sql);
+  statements.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-1"}]};
   if(sql.includes("SELECT r.id FROM public.smn_registry_item r")&&sql.includes("FOR UPDATE OF r"))
    return {rows:[{id:sourceId}]};
@@ -83,7 +83,7 @@ test("AC2 : un deuxième envoi de la même requête confirme la fiche existante 
 test("AC2/AC5 : échec de l'audit provoque un rollback et ne confirme pas un succès",async()=>{
  const statements:string[]=[];
  const db={query:async(sql:string)=>{
-  statements.push(sql);
+  statements.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-1"}]};
   if(sql.includes("SELECT r.id FROM public.smn_registry_item r")&&sql.includes("FOR UPDATE OF r"))
    return {rows:[{id:sourceId}]};
@@ -98,7 +98,7 @@ test("AC2/AC5 : échec de l'audit provoque un rollback et ne confirme pas un suc
 test("AC3 : origine d'une autre équipe bloque la transaction avant tout INSERT métier",async()=>{
  const statements:string[]=[];
  const db={query:async(sql:string)=>{
-  statements.push(sql);
+  statements.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   return {rows:sql.includes("SELECT t.id FROM public.smn_team")?[{id:"team-1"}]:[]};
  }} as unknown as Client;
  const result=await createRegistryItem(db,"actor-1",{...base,sourceId},requestId);
@@ -168,7 +168,7 @@ test("AC2 : nouvelle émission identique reconnue sans nouvelle fiche ni doublon
  })).digest("hex");
  const calls:string[]=[];
  const db={query:async(sql:string)=>{
-  calls.push(sql);
+  calls.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("SELECT t.id FROM public.smn_team"))return {rows:[{id:"team-1"}]};
   if(sql.includes("SELECT r.id FROM public.smn_registry_item r")&&sql.includes("FOR UPDATE OF r"))
    return {rows:[{id:sourceId}]};
