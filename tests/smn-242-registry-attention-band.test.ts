@@ -98,7 +98,7 @@ test("page : un seul appel métier partagé avec Liste et Cartes",()=>{
  const page=file("src/app/app/admin/registries/page.tsx");
  const list=file("src/app/app/admin/registries/registry-list.tsx");
  const band=file("src/app/app/admin/registries/attention-cockpit.tsx");
- assert.equal((list.match(/fetch\("\/api\/admin\/registries\/attention"/g)||[]).length,1);
+ assert.equal((list.match(/fetch\("\/api\/admin\/registries\/attention\?"/g)||[]).length,1);
  assert.ok(list.includes("<AttentionCockpit items={attention}"));
  assert.ok(list.includes("parseRegistryAttentionPayload("));
  assert.ok(!page.includes("<AttentionCockpit/>"));
