@@ -158,3 +158,27 @@ jobs:
           tests/calendar-company-closures.test.ts
           tests/smn-315-v31-ci-gates.test.ts
           tests/smn-315-v31-readiness.test.ts
+
+  schema-guard-regression:
+    name: SMN-332 — Nouveaux gardes de schéma
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Valider les règles du détecteur
+        run: node --test tests/smn-332-new-schema-guards.test.mjs
+      - name: Refuser les gardes locaux introduits dans les API
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "Base Git absente : contrôle bloqué (fail closed)."
+            exit 1
+          fi
+          node scripts/check-new-schema-guards.mjs --base="$BASE_SHA" --head="$HEAD_SHA"
