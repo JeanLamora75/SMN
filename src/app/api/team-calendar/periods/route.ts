@@ -4,6 +4,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
 import {ensureKanbanPeriodTables} from "@/server/kanban/periods";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
 const resource={type:"collective",exists:true,inScope:true} as const;
@@ -18,7 +19,7 @@ export async function GET(request:NextRequest){
   return jsonResult(await withAuthDb(async db=>{
    const mode=await db.query<{mode:string;schema_version:number}>(
     "SELECT mode,schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
-   if(typeof mode.rows[0]?.schema_version==="number"&&mode.rows[0].schema_version>=28&&mode.rows[0].schema_version<=32){
+   if(evaluateSchemaCapability(mode.rows[0]?.schema_version,"multi-team").ok){
     if(actor.role!=="admin")throw Error("calendar-periods-team-forbidden");
     const team=await resolveAdminTeam(db,
      {accountId:actor.id,role:actor.role},params.get("teamId"));
