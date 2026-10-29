@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {scopedKanbanPeriod,type KanbanTeamAccess} from "@/server/kanban/scoped-period";
@@ -15,16 +16,8 @@ export function parseFlowCounts(raw:unknown):FlowCounts|null{
 }
 export async function ensureKanbanFlowSchema(db:Client){
  await ensureKanbanPeriodTables(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_flow_counts(
- period_id text PRIMARY KEY REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- started bigint CHECK(started>=0),throughput bigint CHECK(throughput>=0),wip_final bigint CHECK(wip_final>=0),
- updated_at timestamptz NOT NULL DEFAULT now(),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_flow_audit(
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- previous_values jsonb,next_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now())`);
+ await assertKanbanSchema(db,"smn_kanban_flow_counts");
+ await assertKanbanSchema(db,"smn_kanban_flow_audit");
 }
 export async function readKanbanFlow(db:Client,id:string,access?:KanbanTeamAccess){
  await ensureKanbanFlowSchema(db);
