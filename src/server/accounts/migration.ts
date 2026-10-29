@@ -561,11 +561,10 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
     }
     if(version>=32){
       const modeColumn=await client.query<{valid:boolean}>(`
-        SELECT EXISTS(
-          SELECT 1 FROM information_schema.columns
+        SELECT (SELECT count(*) FROM information_schema.columns
           WHERE table_schema='public' AND table_name='smn_team'
-            AND column_name='agile_mode' AND is_nullable='NO'
-        ) AS valid`);
+            AND column_name IN ('agile_mode','is_archived') AND is_nullable='NO'
+        )=2 AS valid`);
       if(modeColumn.rows[0]?.valid!==true)throw Error("smn-schema-incompatible");
       const invalidModes=await client.query<{count:string}>(`
         SELECT count(*)::text AS count FROM public.smn_team
