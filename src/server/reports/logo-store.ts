@@ -14,11 +14,7 @@ export async function saveReportLogo(db:Client,sprintId:string,actorId:string,lo
   JOIN public.smn_installation i ON i.id=t.installation_id WHERE s.id=$1 AND s.deleted_at IS NULL
   AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum' FOR UPDATE OF s`,[sprintId]);
   if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_logo(
-  sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  mime text NOT NULL CHECK (mime IN ('image/png','image/jpeg')),data bytea NOT NULL,
-  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  updated_at timestamptz NOT NULL DEFAULT now())`);
+  await db.query("SELECT to_regclass('public.smn_report_logo') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
   if(logo===null)await db.query(`DELETE FROM public.smn_report_logo WHERE sprint_id=$1`,[sprintId]);
   else await db.query(`INSERT INTO public.smn_report_logo(sprint_id,mime,data,updated_by)
   VALUES($1,$2,decode($3,'base64'),$4) ON CONFLICT(sprint_id)
