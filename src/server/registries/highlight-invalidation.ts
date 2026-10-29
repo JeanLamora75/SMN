@@ -5,9 +5,9 @@ export async function invalidateHighlight(db:Client,actorId:string,id:string,rea
  try{
   const installed=await db.query<{exists:boolean}>(`SELECT to_regclass('public.smn_automatic_highlight') IS NOT NULL AS exists`);
   if(!installed.rows[0]?.exists){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
-  await db.query(`ALTER TABLE public.smn_automatic_highlight ADD COLUMN IF NOT EXISTS invalidated_at timestamptz`);
-  await db.query(`ALTER TABLE public.smn_automatic_highlight ADD COLUMN IF NOT EXISTS invalidated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL`);
-  await db.query(`ALTER TABLE public.smn_automatic_highlight ADD COLUMN IF NOT EXISTS invalidation_reason text`);
+  await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_automatic_highlight' AND column_name='invalidated_at'").then(r=>{if(!r.rows.length)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
+  await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_automatic_highlight' AND column_name='invalidated_by'").then(r=>{if(!r.rows.length)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
+  await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_automatic_highlight' AND column_name='invalidation_reason'").then(r=>{if(!r.rows.length)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
   const scoped=await db.query<{id:string;invalidated_at:string|null}>(`SELECT h.id,h.invalidated_at FROM public.smn_automatic_highlight h
    WHERE h.id=$1 AND ((h.source_kind='registry' AND EXISTS(SELECT 1 FROM public.smn_registry_item r
    JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
