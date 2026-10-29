@@ -29,7 +29,7 @@ export async function GET(request:NextRequest){
     return readTeamCalendar(db,parsed,true,{
      id:authorized.team_id,name:authorized.team,
      mode:authorized.mode as "scrum"|"kanban"
-    },schema===31);
+    },evaluateSchemaCapability(schema,"company-catalog").ok);
    }
    if(typeof schema!=="number"||schema<1||schema>27)
     throw Error("team-calendar-schema-invalid");
