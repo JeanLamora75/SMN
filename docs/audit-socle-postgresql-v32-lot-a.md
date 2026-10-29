@@ -255,3 +255,15 @@ d'une recette de migration sur une copie des données utilisateurs v32. Les
 vérifications statiques ne prouvent ni la compatibilité de toutes les structures
 historiques ni la conformité des index/contraintes préexistants. L'état CI
 doit être vérifié sur le dernier commit avant la clôture.
+
+
+### Point d'entrée recommandé : transaction unique
+
+Le script `pnpm exec tsx scripts/apply-registry-schema-v32.ts --apply`
+remplace l'exécution manuelle des trois migrations séparées pour une base v32.
+Il applique, dans **une seule transaction**, le noyau Registres, les extensions
+et la liaison aux résultats des réunions, puis vérifie les 26 tables attendues
+et trois index. En cas d'erreur, la transaction entière est annulée.
+Les commandes séparées restent disponibles pour le diagnostic et les corrections
+ciblées, mais ne doivent pas être enchaînées en parallèle.
+Aucune migration n'a été exécutée sur la base locale de l'utilisateur.
