@@ -119,7 +119,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
       const source=readFileSync(new URL("../"+path,import.meta.url),"utf8");
       for(const relation of expected){
         assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
-        assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
+        assert.ok((path==="src/server/reports/draft-notes.ts"?readFileSync(new URL("../scripts/apply-deferred-schema-v32.ts",import.meta.url),"utf8"):source).includes("CREATE TABLE IF NOT EXISTS "+relation.slice(0,-2)+"("));
         relations.push(relation);
       }
     }
