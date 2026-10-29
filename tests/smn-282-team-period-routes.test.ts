@@ -48,7 +48,7 @@ test("anciennes routes de clôtures, périodes et cérémonies toutes gardées",
   assert.doesNotMatch(s,/withAuthDb\(/,p);
  }
  assert.match(source("src/lib/team-context-readiness.ts"),
-  /MULTI_TEAM_CONTEXT_READY:boolean=false/);
+  /SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
 test("Transition v28 : pas de DDL, ouverture historique sans capacité inventée",()=>{
  const s=source("src/server/teams/period-state.ts");
