@@ -18,7 +18,15 @@ export const ceremonyStatements=[
   "ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'",
   "ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false",
   "ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'standard'",
-  "ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes BETWEEN 0 AND 1440)"
+  "ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes BETWEEN 0 AND 1440)",
+  "ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'scheduled'",
+  "ALTER TABLE public.smn_scrum_template_occurrence ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false",
+  "ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false",
+  "ALTER TABLE public.smn_sprint_exceptional_meeting ADD COLUMN IF NOT EXISTS generation_source text NOT NULL DEFAULT 'manual'",
+  "ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS status_explicit boolean NOT NULL DEFAULT false",
+  "CREATE TABLE IF NOT EXISTS public.smn_sprint_ceremony_status_history(\n   id text PRIMARY KEY,ceremony_id text NOT NULL REFERENCES public.smn_sprint_ceremony(id) ON DELETE RESTRICT,\n   previous_status text NOT NULL,next_status text NOT NULL,\n   reason text,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,\n   changed_at timestamptz NOT NULL DEFAULT now())",
+  "CREATE TABLE IF NOT EXISTS public.smn_scrum_template_occurrence_status_history(\n   id text PRIMARY KEY,occurrence_id text NOT NULL REFERENCES public.smn_scrum_template_occurrence(id) ON DELETE RESTRICT,\n   previous_status text NOT NULL,next_status text NOT NULL,\n   reason text,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,\n   changed_at timestamptz NOT NULL DEFAULT now())",
+  "CREATE TABLE IF NOT EXISTS public.smn_sprint_exceptional_meeting_status_history(\n   id text PRIMARY KEY,meeting_id text NOT NULL REFERENCES public.smn_sprint_exceptional_meeting(id) ON DELETE RESTRICT,\n   previous_status text NOT NULL,next_status text NOT NULL,\n   reason text,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,\n   changed_at timestamptz NOT NULL DEFAULT now())"
 ] as const;
 async function main(){
  if(process.argv.slice(2).join(" ")!=="--apply")throw Error("Usage: pnpm exec tsx scripts/apply-ceremony-schema-v32.ts --apply");
