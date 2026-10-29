@@ -49,7 +49,7 @@ describe("Cérémonies de sprint : premier et dernier jour/heure ouvrés",()=>{
   const sunday={...templates[1],name:"Hebdo dimanche",frequency:"weekly" as const,weekday:7,time:"14:00"};
   const list=planSprintTemplateOccurrences(sprint,[...templates,sunday],slots,new Set(["2026-11-20"]));
   assert.ok(list.some(x=>x.name==="Hebdo dimanche"&&local(x.startAt)==="2026-11-22 14:00"));
-  assert.ok(list.some(x=>x.name==="Daily Scrum"&&local(x.startAt)==="2026-11-20 09:00"));
+  assert.ok(!list.some(x=>x.name==="Daily Scrum"&&local(x.startAt)==="2026-11-20 09:00")); // Pas de Daily un jour de fermeture collective.
   assert.ok(list.filter(x=>x.position==="end").every(x=>local(x.startAt).slice(0,10)==="2026-11-19"));
  });
  it("créneaux de travail modifiés : calcul relatif à l'équipe, sans horaire figé",()=>{
