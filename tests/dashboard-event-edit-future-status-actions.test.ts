@@ -32,6 +32,7 @@ test("l'édition de la durée réelle d'un Daily déjà marqué tenu ne renvoie 
  const db={
   query:async(sql:string)=>{
    statements.push(sql);
+   if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_meeting_actual_duration_audit","smn_sprint_ceremony_status_history","smn_scrum_template_occurrence_status_history","smn_sprint_exceptional_meeting_status_history"]}]};
    if(sql.includes("information_schema.columns"))return {rows:columns.map(column_name=>({column_name}))};
    if(sql.includes("SELECT e.id,e.name AS title"))return {rows:[{
     id,title:"Daily Scrum",start_at:futureStart,end_at:futureEnd,
@@ -59,6 +60,7 @@ test("la sauvegarde d'une nouvelle réunion tenue à une date future est bloqué
  const columns=["id","sprint_id","starts_at","ends_at","name","status","actual_minutes"];
  const db={query:async(sql:string)=>{
   statements.push(sql);
+  if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_meeting_actual_duration_audit","smn_sprint_ceremony_status_history","smn_scrum_template_occurrence_status_history","smn_sprint_exceptional_meeting_status_history"]}]};
   if(sql.includes("information_schema.columns"))return {rows:columns.map(column_name=>({column_name}))};
   if(sql.includes("SELECT e.id,e.name AS title"))return {rows:[{
    id,title:"Daily Scrum",start_at:futureStart,end_at:futureEnd,
