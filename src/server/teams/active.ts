@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 
 const validId=(v:unknown):v is string=>
  typeof v==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/u.test(v);
@@ -33,7 +34,7 @@ export async function readAdminActiveTeam(db:Client,accountId:string):
  Promise<ActiveTeamState|null>{
  const installation=await adminInstallation(db,accountId);
  if(!installation)return null;
- if(![28,29,30,31,32].includes(installation.schemaVersion))
+ if(!evaluateSchemaCapability(installation.schemaVersion,"multi-team").ok)
   return {ready:false,teamId:null,items:[]};
  const options=await db.query<TeamChoice>(
   "SELECT id,name FROM public.smn_team WHERE installation_id=$1 "+
@@ -65,7 +66,7 @@ export async function saveAdminActiveTeam(db:Client,accountId:string,
  try{
   const installation=await adminInstallation(db,accountId);
   if(!installation){await db.query("ROLLBACK");return {ok:false,error:"forbidden"};}
-  if(![28,29,30,31,32].includes(installation.schemaVersion)){
+  if(!evaluateSchemaCapability(installation.schemaVersion,"multi-team").ok){
    await db.query("ROLLBACK");return {ok:false,error:"not-ready"};
   }
   const team=await db.query<{id:string}>(
