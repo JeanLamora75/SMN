@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
 import {ensureRegistrySchema} from "@/server/registries/items";
@@ -7,11 +8,7 @@ import {ensureRegistrySchema} from "@/server/registries/items";
  */
 export async function ensureKanbanQualitativeLinks(db:Client){
  await ensureRegistrySchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_registry_link(
- period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- created_at timestamptz NOT NULL DEFAULT now(),
- PRIMARY KEY(period_id,item_id))`);
+ await assertKanbanSchema(db,"smn_kanban_registry_link");
 }
 export async function captureKanbanQualitative(db:Client,periodId:string,teamId:string){
  const schema=await db.query<{items:boolean;links:boolean}>(`
@@ -40,12 +37,7 @@ export function parseKanbanLinkChange(raw:unknown):{itemId:string;action:"link"|
 }
 export async function ensureKanbanLinkAudit(db:Client){
  await ensureKanbanQualitativeLinks(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_registry_link_audit(
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- action text NOT NULL CHECK(action IN ('linked','unlinked')),
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now())`);
+ await assertKanbanSchema(db,"smn_kanban_registry_link_audit");
 }
 export async function readKanbanLinkChoices(db:Client,periodId:string){
  const scope=await db.query<{team_id:string;status:string}>(`SELECT p.team_id,p.status
