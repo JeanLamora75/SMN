@@ -112,8 +112,10 @@ test("AC1 / AC5 : journal Synthèse et lien fiche autonome, pas d'audit techniqu
 test("AC5 : API journal unique respecte périmètre collectif et lecture seule",()=>{
  const api=file("src/app/api/admin/registries/[id]/journal/route.ts");
  assert.match(api,/authorizeApi\(req,"read",\{type:"collective"/);
- assert.match(api,/withSprintIndexDb/);
+ assert.match(api,/withLegacyRegistryReadDb/);
  assert.ok(!api.includes("withAuthDb"));
+ const gate=file("src/server/registries/legacy-read.ts");
+ assert.match(gate,/withSprintIndexDb|schema_version|schemaVersion/);
  assert.match(api,/readRegistryComments\(db,id,actor\.role==="admin"\)/);
 });
 test("AC6 : FR/EN, thème, zoom et filtres accessibles",()=>{
