@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureKanbanPeriodTables} from "./periods";
@@ -14,13 +15,7 @@ export function parseKanbanMeeting(raw:unknown):KanbanMeetingInput|null{
 }
 export async function ensureKanbanMeetingSchema(db:Client){
  await ensureKanbanPeriodTables(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_meeting(
- id text PRIMARY KEY,period_id text NOT NULL REFERENCES public.smn_kanban_period(id) ON DELETE RESTRICT,
- name text NOT NULL,starts_at timestamptz NOT NULL,ends_at timestamptz NOT NULL,
- status text NOT NULL DEFAULT 'scheduled' CHECK(status IN ('scheduled','held','not_held','cancelled')),
- provenance text NOT NULL DEFAULT 'manual' CHECK(provenance IN ('manual','exceptional')),
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now(),CHECK(ends_at>starts_at))`);
+ await assertKanbanSchema(db,"smn_kanban_meeting");
 }
 export async function listKanbanCalendarMeetings(db:Client,start:string,end:string){
  await ensureKanbanMeetingSchema(db);
