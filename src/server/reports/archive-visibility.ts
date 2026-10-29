@@ -5,9 +5,7 @@ export async function hidePdfArchive(db:Client,id:string,actorId:string,reason:s
  try{
  const t=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_report_pdf_archive') IS NOT NULL AS present");
  if(!t.rows[0]?.present){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_archive_visibility(
- archive_id text PRIMARY KEY REFERENCES public.smn_report_pdf_archive(id) ON DELETE RESTRICT,
- hidden_at timestamptz NOT NULL DEFAULT now(),hidden_by text NOT NULL,reason text NOT NULL)`);
+ await db.query("SELECT to_regclass('public.smn_report_archive_visibility') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
  const record=await db.query(`SELECT a.id FROM public.smn_report_pdf_archive a
  JOIN public.smn_sprint s ON s.id=a.cycle_id AND s.team_id=a.team_id
  JOIN public.smn_team t ON t.id=s.team_id
