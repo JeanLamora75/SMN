@@ -10,7 +10,7 @@ export const SETTINGS_VIEW_STORAGE_KEY="smn-settings-catalog-view";
 export function normalizeSettingsView(value:string|null):View{
  return value==="list"?"list":"cards";
 }
-export default function SettingsCatalogView({groups}:{groups:SettingsGroup[]}){
+export default function SettingsCatalogView({groups,showCompanies=false}:{groups:SettingsGroup[];showCompanies?:boolean}){
  const t=useTranslation();
  const [view,setView]=useState<View>("cards");
  useEffect(()=>{
@@ -34,6 +34,29 @@ export default function SettingsCatalogView({groups}:{groups:SettingsGroup[]}){
      onClick={()=>choose("list")}><span aria-hidden="true">☷</span></button>
    </div>
   </div>
+  {showCompanies&&<section className="mb-4" aria-labelledby="smn-settings-companies-title">
+   <h2 className="h5 mb-3" id="smn-settings-companies-title">Entreprises</h2>
+   <div className={view==="cards"?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"}>
+    {[
+     {id:"companies",href:"/app/admin/companies",icon:"▤",title:"Gestion des entreprises",
+      description:"Consulter et gérer les entreprises de l’organisation."},
+     {id:"closures",href:"/app/admin/company-closures",icon:"▦",title:"Fermetures d’entreprise",
+      description:"Consulter et gérer les périodes de fermeture des entreprises."}
+    ].map(entry=><div key={entry.id} className={view==="cards"?"col":""}>
+     <Link href={entry.href}
+      className="smn-panel rounded-4 p-3 h-100 d-flex gap-3 align-items-start text-body text-decoration-none smn-settings-entry-link"
+      aria-label={entry.title}>
+      <span className="fs-4 flex-shrink-0" aria-hidden="true">{entry.icon}</span>
+      <span className={"d-flex flex-wrap align-items-start gap-2 flex-grow-1"+(view==="cards"?" flex-column":"")}>
+       <span className="fw-semibold">{entry.title}</span>
+       <span className={"text-secondary small "+(view==="cards"?"w-100":"flex-grow-1")}>{entry.description}</span>
+       <span className="small text-secondary">Disponible</span>
+      </span>
+      {view==="list"&&<span aria-hidden="true" className="ms-auto">›</span>}
+     </Link>
+    </div>)}
+   </div>
+  </section>}
   {groups.map(group=><section key={group.id} className="mb-4" aria-labelledby={"settings-group-"+group.id}>
    <h2 className="h5 mb-3" id={"settings-group-"+group.id}>{t(group.label)}</h2>
    <div className={view==="cards"?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"}>
