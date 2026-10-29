@@ -39,7 +39,7 @@ test("every SMN table created by application SQL has an explicit diagnostic allo
 test("automatic highlights are recognized while foreign relations remain rejected",()=>{
  const native="public.smn_automatic_highlight:r";
  assert.ok(INSTALLATION_RELATIONS.includes(native));
- const source=readFileSync(new URL("../src/server/registries/confirmed-highlights.ts",import.meta.url),"utf8");
+ const source=readFileSync(new URL("../scripts/apply-registry-extensions-v32.ts",import.meta.url),"utf8");
  assert.match(source,/CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+public\.smn_automatic_highlight\(/);
  const baseline:Snapshot={
   schemaUsage:true,schemaCreate:true,serverVersion:180006,tableRead:true,
