@@ -559,6 +559,19 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
           "SELECT to_regclass('public.smn_account_team_preference') IS NOT NULL AS present"
         )).rows[0]?.present===true);
     }
+    if(version>=32){
+      const modeColumn=await client.query<{valid:boolean}>(`
+        SELECT EXISTS(
+          SELECT 1 FROM information_schema.columns
+          WHERE table_schema='public' AND table_name='smn_team'
+            AND column_name='agile_mode' AND is_nullable='NO'
+        ) AS valid`);
+      if(modeColumn.rows[0]?.valid!==true)throw Error("smn-schema-incompatible");
+      const invalidModes=await client.query<{count:string}>(`
+        SELECT count(*)::text AS count FROM public.smn_team
+        WHERE agile_mode NOT IN ('scrum','kanban')`);
+      if(invalidModes.rows[0]?.count!=="0")throw Error("smn-schema-incompatible");
+    }
     await client.query("COMMIT");
   } catch(error) {
     await client.query("ROLLBACK").catch(()=>undefined);
