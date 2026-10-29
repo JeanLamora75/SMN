@@ -1,16 +1,10 @@
+import {assertAiBriefSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {readPrivateBriefArchive,briefArchiveIdValid} from "./library";
 
 export async function ensureBriefDrafts(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_ai_brief_draft(
- id uuid PRIMARY KEY,parent_archive_id uuid NOT NULL,
- team_id text NOT NULL,mode text NOT NULL,cycle_id text NOT NULL,
- template_id text NOT NULL,template_revision integer NOT NULL,
- content text NOT NULL,revision integer NOT NULL DEFAULT 1,
- created_by text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),
- updated_at timestamptz NOT NULL DEFAULT now(),finalized_archive_id uuid
- )`);
+ await assertAiBriefSchema(db,"duplicates");
 }
 export async function duplicateBrief(db:Client,parentId:string,teamId:string,actorId:string){
  if(!briefArchiveIdValid(parentId))return {ok:false as const,error:"not-found"};
