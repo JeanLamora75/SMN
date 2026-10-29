@@ -9,7 +9,7 @@ test("une échéance absente n'est jamais en retard",()=>{
 });
 test("lien vers décision/obstacle, transaction et audit sans statut voisin modifié",async()=>{
  const calls:string[]=[];
- const db={query:async(q:string)=>{calls.push(q);return {rows:q.includes("SELECT a.id FROM public.smn_registry_item")?[{id:"a"}]:[]};}} as unknown as Client;
+ const db={query:async(q:string)=>{calls.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};return {rows:q.includes("SELECT a.id FROM public.smn_registry_item")?[{id:"a"}]:[]};}} as unknown as Client;
  const id="11111111-1111-4111-8111-111111111111";
  const related="22222222-2222-4222-8222-222222222222";
  assert.deepEqual(await changeActionLink(db,"admin",id,related,"linked"),{ok:true});
