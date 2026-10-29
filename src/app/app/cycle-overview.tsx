@@ -14,7 +14,7 @@ type Props=Readonly<{
   teamHref:string;
   cycle:SprintContextItem|null;
   projection?:CollectiveCycleProjection|null;
-  canViewCapacity:boolean;
+  canViewCapacity?:boolean;
 }>;
 
 export default function CycleOverview({context,locale,teamHref,cycle,projection,canViewCapacity,}:Props){
