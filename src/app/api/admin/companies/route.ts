@@ -9,7 +9,14 @@ const resource={type:"companies",exists:true,inScope:true} as const;
 export async function GET(request:NextRequest){
  if(!await authorizeApi(request,"read",resource))return jsonResult({error:"forbidden"},403);
  try{return jsonResult({companies:await withAuthDb(listCompanies)});}
- catch{return jsonResult({error:"service-unavailable"},503);}
+ catch(error){
+  const dbError=error as {code?:string;message?:string};
+  if(dbError.code==="42P01"&&dbError.message?.includes("smn_company")){
+   return jsonResult({error:"company-schema-missing"},503);
+  }
+  console.error("smn-companies-list-unavailable",dbError.code??"unknown");
+  return jsonResult({error:"service-unavailable"},503);
+ }
 }
 export async function POST(request:NextRequest){
  const actor=await authorizeApi(request,"write",resource);
