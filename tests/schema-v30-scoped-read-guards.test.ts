@@ -6,9 +6,9 @@ test("Les lectures contextualisées fonctionnent en v28-v31 et les écritures hi
  const report=readFileSync(new URL("../src/server/reports/center.ts",import.meta.url),"utf8");
  const api=readFileSync(new URL("../src/app/api/admin/development-capacity/route.ts",import.meta.url),"utf8");
  const opening=readFileSync(new URL("../src/server/capacity/opening.ts",import.meta.url),"utf8");
- assert.match(report,/i\.schema_version IN \(28,29,30\)/);
+ assert.match(report,/i\.schema_version IN \(28,29,30,31\)/);
  assert.match(report,/WHERE d\.team_id=\$1/);
- assert.match(api,/if\(\[28,29,30\]\.includes\(schema\?\?0\)\)/);
+ assert.match(api,/if\(\[28,29,30,31\]\.includes\(schema\?\?0\)\)/);
  assert.match(api,/resolveAdminTeam\(db,/);
  assert.match(api,/if\(\(version\.rows\[0\]\?\.schema_version\?\?0\)>=28\)/);
  assert.match(opening,/i\.schema_version<=27/);
