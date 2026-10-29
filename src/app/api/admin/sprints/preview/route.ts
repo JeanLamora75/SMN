@@ -9,8 +9,10 @@ export async function POST(request:NextRequest){
  if(!actor)return jsonResult({error:"forbidden"},403);
  const input=await readJsonObject(request);
  if(!input)return jsonResult({error:"invalid-input"},400);
+ const {teamId,...payload}=input;
+ if(teamId!==undefined&&typeof teamId!=="string")return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>issueBatchPreview(db,actor.id,input));
+  const result=await withAuthDb(db=>issueBatchPreview(db,actor.id,payload,typeof teamId==="string"?teamId:null));
   return result.ok?jsonResult(result):jsonResult(result,400);
  }catch{return jsonResult({error:"preview-unavailable"},503);}
 }
