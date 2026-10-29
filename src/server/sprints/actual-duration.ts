@@ -4,16 +4,9 @@ import {ensureAttendanceSchema} from "./attendance";
 type Kind="standard"|"custom"|"exceptional";
 const table:Record<Kind,{name:string;planned:string}>={standard:{name:"smn_sprint_ceremony",planned:"minutes"},custom:{name:"smn_scrum_template_occurrence",planned:"EXTRACT(EPOCH FROM (ends_at-starts_at))/60"},exceptional:{name:"smn_sprint_exceptional_meeting",planned:"duration_minutes"}};
 export async function ensureActualDurationSchema(db:Client){
- await ensureAttendanceSchema(db);
- for(const kind of Object.keys(table) as Kind[]){
-  const name=table[kind].name;
-  await db.query(`ALTER TABLE public.${name} ADD COLUMN IF NOT EXISTS actual_minutes integer CHECK(actual_minutes>=0 AND actual_minutes<=1440)`);
- }
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_meeting_actual_duration_audit(
-  id text PRIMARY KEY,kind text NOT NULL CHECK(kind IN ('standard','custom','exceptional')),
-  event_id text NOT NULL,previous_minutes integer,new_minutes integer NOT NULL,
-  planned_minutes integer NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  changed_at timestamptz NOT NULL DEFAULT now())`);
+ const names=["smn_meeting_actual_duration_audit"] as const;
+ const found=await db.query<{present:string[]}>(`SELECT array_agg(relname)::text[] AS present FROM pg_class WHERE relnamespace='public'::regnamespace AND relname=ANY($1::text[])`,[names]);
+ if(names.some(name=>!found.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 async function team(db:Client){
  const r=await db.query<{id:string}>(`SELECT t.id FROM public.smn_team t JOIN public.smn_installation i ON i.id=t.installation_id
