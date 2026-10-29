@@ -5,7 +5,7 @@ import {join} from "node:path";
 const route=readFileSync(join(process.cwd(),"src/app/api/admin/reports/sprints/[id]/pdf/route.ts"),"utf8");
 test("success response follows archival, never precedes it",()=>{
  const archive=route.indexOf("storeFinalPdfArchive(db,bytes");
- const response=route.indexOf("return new Response(new Uint8Array(bytes)");
+ const response=route.indexOf("return new Response(new Uint8Array(result.bytes)");
  assert.ok(archive>=0&&response>archive);
  assert.match(route,/X-SMN-Archive-Id/);
  assert.match(route,/pdf-export-or-archive-failed/);
