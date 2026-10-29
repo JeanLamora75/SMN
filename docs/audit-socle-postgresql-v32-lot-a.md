@@ -107,3 +107,20 @@ Le dernier groupe comprend **103 chemins de fichiers distincts**, mais le nom `m
 - Une éventuelle v33 doit être un chantier de migration distinct, accompagné d'un jeu de tests PostgreSQL réels et d'un plan de reprise.
 
 Cette classification résulte de l'artefact archivé du workflow et ne remplace pas un audit manuel des 103 fichiers potentiellement concernés.
+
+
+## Migration explicite des quatre premières tables différées (v32)
+
+**Ordre de déploiement obligatoire :** mettre à jour le dépôt puis, **avant le démarrage du nouveau code métier**, exécuter :
+`pnpm exec tsx scripts/apply-deferred-schema-v32.ts --apply`
+Ensuite : `pnpm db:diagnose`.
+
+Le script crée transactionnellement et sans suppression :
+- `smn_automatic_highlight_settings`
+- `smn_report_template` (avec `history_depth` et `revision`)
+- `smn_report_draft`
+- `smn_report_draft_audit`
+
+Les services `automatic-highlights.ts`, `templates.ts` et `draft-notes.ts` n'exécutent plus de création de table. La migration conserve `schema_version=32` : ces tables figuraient déjà parmi les objets différés autorisés du contrat v32. Il ne s'agit PAS d'une migration Prisma v33 ; une consolidation ultérieure du versionnement demeure nécessaire.
+
+**Précaution :** la validation des schémas préexistants est encore partielle (colonnes et présence) ; comparer également types, contraintes et clés étrangères avant d'exécuter sur une base contenant des historiques. Sauvegarder la base. Les autres DDL dynamiques inventoriés restent à extraire.
