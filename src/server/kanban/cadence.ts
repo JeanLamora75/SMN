@@ -1,4 +1,5 @@
 import {assertKanbanSchema} from "./schema-ready";
+import {assertKanbanSchema} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
