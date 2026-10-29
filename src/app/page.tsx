@@ -11,7 +11,7 @@ export default async function HomePage(){
   const [diagnostic,locale]=await Promise.all([currentInstallationDiagnostic(),requestLocale()]);
   if(diagnostic.status==="initialized")redirect("/login");
   const t=(key:TranslationKey)=>translate(locale,key);
-  const canInstall=canOfferPortable()&&diagnostic.status!=="initialized";
+  const canInstall=canOfferPortable();
   const firstRun=diagnostic.status==="configuration-missing"&&canInstall;
   const status=firstRun?t("home.firstRun"):t(
     `installation.diagnostic.${diagnostic.status}` as TranslationKey);
