@@ -113,3 +113,48 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Vérifier les types, même si les tests métier échouent
         run: pnpm typecheck
+
+  company-v31-contracts:
+    name: Contrats entreprise v31 indépendants
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: smn_ci
+          POSTGRES_PASSWORD: smn_ci_ephemeral_test
+          POSTGRES_DB: smn_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U smn_ci -d smn_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - name: Installer les dépendances verrouillées
+        run: pnpm install --frozen-lockfile
+      - name: Exécuter les contrats v31 sans être bloqué par les tests historiques
+        run: >-
+          pnpm exec tsx --test
+          tests/company-schema-migration.test.ts
+          tests/company-catalog.test.ts
+          tests/member-company.test.ts
+          tests/company-closures-v31.test.ts
+          tests/company-capacity.test.ts
+          tests/company-capacity-outbox.test.ts
+          tests/calendar-company-closures.test.ts
+          tests/smn-315-v31-ci-gates.test.ts
+          tests/smn-315-v31-readiness.test.ts
