@@ -743,7 +743,7 @@ try {
     // SMN-23 : navigation HTML en lecture seule, liée à une vraie équipe I0.
     const detailPath="/app/team/team";
     assert.equal((await get(detailPath,{redirect:"manual"})).status,307);
-    const linked=await get("/app?filter=sample&cycleId=cycle-42&version=2&asOf=2026-10-20",
+    const linked=await get("/app?filter=sample&version=2&asOf=2026-10-20",
       {headers:{Cookie:replacement},redirect:"manual"});
     assert.equal(linked.status,200);
     const linkedHtml=await linked.text();
