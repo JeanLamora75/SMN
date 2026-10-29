@@ -5,7 +5,7 @@ import {assertLegacyTeamApi} from "@/server/teams/legacy";
 
 export async function ensureSprintStateSchema(db:Client){
  await ensureSprintSchema(db);
- await db.query("ALTER TABLE public.smn_sprint ADD COLUMN IF NOT EXISTS auto_suspended boolean NOT NULL DEFAULT false");
+ await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_sprint' AND column_name='auto_suspended'").then(r=>{if(!r.rows.length)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("SELECT to_regclass('public.smn_sprint_transition') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("SELECT to_regclass('public.smn_sprint_capacity_trigger') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
