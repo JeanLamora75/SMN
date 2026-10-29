@@ -8,22 +8,8 @@ const valid=(x:unknown)=>x===null||(typeof x==="number"&&
 
 /** Called on explicit admin save (or pre-closure preparation), never by readers. */
 export async function ensureSprintScoresSchema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_scores(
-  sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  confidence smallint CHECK(confidence BETWEEN 1 AND 5),
-  clarity smallint CHECK(clarity BETWEEN 1 AND 5),
-  revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL
- )`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_scores_audit(
-  id text PRIMARY KEY,
-  sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
-  before_values jsonb,
-  after_values jsonb NOT NULL,
-  actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  changed_at timestamptz NOT NULL DEFAULT now()
- )`);
+ await db.query("SELECT to_regclass('public.smn_sprint_scores') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT to_regclass('public.smn_sprint_scores_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 
 /** Latest per-sprint 1–5 measures with immutable per-revision audit history. */
