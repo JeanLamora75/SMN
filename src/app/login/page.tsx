@@ -1,14 +1,11 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
-import {currentInstallationDiagnostic} from "@/server/installation/current";
 import {currentAccount} from "@/server/auth/session";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import LoginForm from "./login-form";
 export const dynamic="force-dynamic";
 export default async function LoginPage(){
-  const diagnostic=await currentInstallationDiagnostic();
-  if(diagnostic.status!=="initialized")redirect("/");
   const account=await currentAccount();
   if(account)redirect(account.must_change_password?"/change-password":"/app");
   const locale=await requestLocale();
