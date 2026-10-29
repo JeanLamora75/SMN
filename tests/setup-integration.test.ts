@@ -32,7 +32,7 @@ it("l'installation prépare explicitement les modèles Scrum avant de les rensei
  const create=installer.indexOf("for (const sql of templateTables) await dbClient.query(sql)");
  const seed=installer.indexOf("await seedDefaultScrumCeremonyTemplates(dbClient, \"team\")");
  assert.ok(create>=0&&seed>create,"Les modèles doivent être créés par la migration avant le seed");
- assert.equal(ceremonyStatements.filter(sql=>/CREATE TABLE IF NOT EXISTS public\\.smn_scrum_ceremony_template(?:_history)?\\(/.test(sql)).length,2);
+ assert.equal(ceremonyStatements.filter(sql=>sql.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template(")||sql.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template_history(")).length,2);
 });
 describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enabled }, () => {
   it("contrôle les identifiants PostgreSQL fournis avant création de la base SMN", async () => {
