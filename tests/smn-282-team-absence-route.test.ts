@@ -6,7 +6,10 @@ const src=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8"
 test("nouvelle route POST verrouillée : pas de lecture ni mutation avant validation",()=>{
  const route=src("src/app/api/admin/members/[id]/team-absence/route.ts");
  assert.match(route,/export async function POST/);
- assert.doesNotMatch(route,/export async function GET|export async function PUT|export async function DELETE/);
+ assert.match(route,/export async function GET/);
+ assert.doesNotMatch(route,/export async function PUT|export async function DELETE/);
+ assert.match(route,/resolveAdminTeam\(db,\{accountId:actor\.id,role:"admin"\},teamId\)/);
+ assert.match(route,/a\.start_on<=\$3::date AND \(a\.end_on IS NULL OR a\.end_on>=\$3::date\)/);
  assert.match(route,/authorizeApi\(request,"write",resource\)/);
  assert.match(route,/actor\.role!=="admin"/);
  assert.match(route,/readJsonObject\(request,4096\)/);
