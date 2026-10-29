@@ -17,6 +17,9 @@ export const registryExtensionStatements=[
   "ALTER TABLE public.smn_automatic_highlight ADD COLUMN IF NOT EXISTS invalidated_at timestamptz",
   "ALTER TABLE public.smn_automatic_highlight ADD COLUMN IF NOT EXISTS invalidated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL",
   "ALTER TABLE public.smn_automatic_highlight ADD COLUMN IF NOT EXISTS invalidation_reason text"
+,
+"CREATE TABLE IF NOT EXISTS public.smn_registry_cycle_link(\n item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,\n sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,\n created_at timestamptz NOT NULL DEFAULT now(),\n PRIMARY KEY(item_id,sprint_id))",
+"CREATE TABLE IF NOT EXISTS public.smn_registry_cycle_link_audit(\n id text PRIMARY KEY,item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,\n sprint_id text NOT NULL,action text NOT NULL CHECK(action IN ('linked','unlinked')),\n actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,\n changed_at timestamptz NOT NULL DEFAULT now())"
 ] as const;
 async function main(){
  if(process.argv.slice(2).join(" ")!=="--apply")throw Error("Usage: pnpm exec tsx scripts/apply-registry-extensions-v32.ts --apply");
