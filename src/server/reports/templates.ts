@@ -3,13 +3,8 @@ import type {Client} from "pg";
 import {STANDARD_REPORT_TEMPLATE_ID,standardReportTemplate,validReportTemplate,type ReportTemplate} from "@/lib/report-templates";
 
 async function schema(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_template(
- id text PRIMARY KEY CHECK(id<>'standard'), name text NOT NULL,
- sections jsonb NOT NULL,content jsonb NOT NULL,
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now())`);
- await db.query("ALTER TABLE public.smn_report_template ADD COLUMN IF NOT EXISTS history_depth integer NOT NULL DEFAULT 5 CHECK (history_depth BETWEEN 1 AND 5)");
- await db.query("ALTER TABLE public.smn_report_template ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1");
+ const check=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_report_template') IS NOT NULL AS present`);
+ if(!check.rows[0]?.present)throw Error("report-template-schema-missing: run apply-deferred-schema-v32");
 }
 export async function listReportTemplates(db:Client):Promise<ReportTemplate[]>{
  const present=await db.query<{exists:boolean}>(`SELECT to_regclass('public.smn_report_template') IS NOT NULL AS exists`);
