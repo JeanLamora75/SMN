@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
-const source=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+const source=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("v32 work slot team resolution uses the central schema capability",()=>{
  const service=source("src/server/sprints/work-slot-config.ts");
  assert.match(service,/evaluateSchemaCapability\(version,"multi-team"\)\.ok/);
