@@ -14,9 +14,10 @@ type Props=Readonly<{
   teamHref:string;
   cycle:SprintContextItem|null;
   projection?:CollectiveCycleProjection|null;
+  canViewCapacity:boolean;
 }>;
 
-export default function CycleOverview({context,locale,teamHref,cycle,projection,}:Props){
+export default function CycleOverview({context,locale,teamHref,cycle,projection,canViewCapacity,}:Props){
   const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
   const scrum=context.mode==="scrum";
   const effectiveStatus=cycle?effectiveSprintStatus(cycle):null;
@@ -89,6 +90,11 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         firstMetric={projection?.capacity.initialJh} secondMetric={projection?.capacity.actualJh}
         icon="people-fill" tone="capacity" ratioKey="dashboard.cockpit.capacityRatio"
         locale={locale} comparison={comparison}/>
+      {canViewCapacity&&cycle&&cycle.status!=="closed"&&
+       <Link href={"/app/admin/development-capacity?cycleId="+encodeURIComponent(cycle.id)}
+         className="smn-capacity-diagnostic-link">
+         {t("dashboard.cockpit.capacityDiagnosis")}
+       </Link>}
       <KpiMetricPair title={t("dashboard.cockpit.storyPoints")}
         first={t("dashboard.cockpit.initialStoryPoints")}
         second={t("dashboard.cockpit.completedStoryPoints")}
