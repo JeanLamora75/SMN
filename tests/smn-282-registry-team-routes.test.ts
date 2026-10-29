@@ -8,7 +8,7 @@ const protectedId=[
  "relation-candidates","relations","roam","vigilance"
 ];
 const protectedOther=[
- "confirmed-highlights","deadlines","fact-selection"
+ "confirmed-highlights","fact-selection"
 ];
 
 test("Sous-routes historiques des registres : chaque lecture/écriture passe par le verrou v27",()=>{
@@ -28,6 +28,9 @@ test("Sous-routes historiques des registres : chaque lecture/écriture passe par
  const settings=source("src/app/api/admin/registries/automatic-highlights/route.ts");
  assert.match(settings,/authorizeApi\(req,"read",\{type:"collective"/);
  assert.match(settings,/authorizeApi\(req,"write",\{type:"settings"/);
+ const deadline=source("src/app/api/admin/registries/deadlines/route.ts");
+ assert.match(deadline,/authorizeApi\(req,"read",\{type:"collective"/);
+ assert.match(deadline,/resolveAdminTeam\(db,/);
  const confirmed=source("src/app/api/admin/registries/confirmed-highlights/[id]/route.ts");
  assert.match(confirmed,/withLegacyTeamApi\(/);
 });
