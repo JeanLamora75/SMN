@@ -9,6 +9,7 @@ import {canVisitPrivate} from "@/server/access-policy";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {readCenter,readTeamCenter} from "@/server/reports/center";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import "./report-center-cockpit.css";
@@ -31,7 +32,7 @@ export default async function ReportsCenter({searchParams}:Params){
    SELECT schema_version FROM public.smn_installation
    WHERE id='singleton' AND state='initialized'`);
   const schema=version.rows[0]?.schema_version;
-  if([28,29,30,31].includes(schema??0)){
+  if(evaluateSchemaCapability(schema,"multi-team").ok){
    if(account.role!=="admin"||Array.isArray(params.teamId))
     throw Error("report-team-forbidden");
    const team=await resolveAdminTeam(db,
