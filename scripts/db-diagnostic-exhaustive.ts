@@ -1,28 +1,12 @@
 /** Audit en lecture seule : historique, empreintes SQL, structures et cohérence v32. */
-import {createHash} from "node:crypto";
 import {readFileSync,readdirSync} from "node:fs";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {INSTALLATION_RELATIONS} from "../src/server/installation/contract";
+import {verifyHistory} from "./db-migration-history";
 
-export function verifyHistory(rows:readonly {migration_name:string;checksum?:string;finished_at:Date|null;rolled_back_at:Date|null}[],
- sources:ReadonlyMap<string,string>):string[]{
- const errors:string[]=[];
- const names=new Set<string>();
- for(const row of rows){
-  if(names.has(row.migration_name))errors.push("Migration en double : "+row.migration_name);
-  names.add(row.migration_name);
-  if(!row.finished_at||row.rolled_back_at)errors.push("Migration non terminée : "+row.migration_name);
-  const sql=sources.get(row.migration_name);
-  if(sql===undefined)errors.push("SQL source introuvable : "+row.migration_name);
-  else if(createHash("sha256").update(sql).digest("hex")!==row.checksum)
-   errors.push("Checksum divergent : "+row.migration_name);
- }
- for(const name of sources.keys())if(!names.has(name))errors.push("Migration non appliquée : "+name);
- return errors;
-}
 async function main(){
  if(process.argv.length!==2)throw Error("Usage : pnpm db:diagnose:full");
  const uri=await installedDatabaseUri();
