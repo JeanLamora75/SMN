@@ -78,9 +78,7 @@ async function teamId(db:Client,actor?:TeamActor,requestedTeamId?:string|null):P
  return r.rows[0].id;
 }
 export async function readKanbanCadence(db:Client,actor?:TeamActor,requestedTeamId?:string|null):Promise<KanbanCadence>{
- await ensureKanbanCadenceTable(db);
  const id=await teamId(db,actor,requestedTeamId);
- await db.query("INSERT INTO public.smn_kanban_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING",[id]);
  const r=await db.query<Row>(select,[id]);
  if(r.rows.length!==1)throw Error("kanban-cadence-unavailable");
  return map(r.rows[0]);
