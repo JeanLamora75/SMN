@@ -9,11 +9,11 @@ test("les versions v28 à v31 autorisent les lecteurs multiéquipes avec context
  const registry=read("src/server/registries/team-access.ts");
  const write=read("src/server/teams/write.ts");
  const teamContext=read("src/server/members/team-context.ts");
- assert.match(active,/\[28,29,30,31\]\.includes\(installation\.schemaVersion\)/);
- assert.match(resolve,/schema_version IN \(28,29,30,31\)/);
- assert.match(resolve,/\[28,29,30,31\]\.includes\(details\.rows\[0\]\.schema_version\)/);
- assert.match(dashboard,/\[28,29,30,31\]\.includes\(result\.rows\[0\]\.schema_version\)/);
- assert.match(registry,/version===31/);
- assert.match(write,/\[28,29,30,31\]\.includes\(i\.schema_version\)/);
- assert.match(teamContext,/i\.schema_version IN \(28,29,30,31\)/);
+ assert.match(active,/evaluateSchemaCapability\(installation\.schemaVersion,"multi-team"\)/);
+ assert.match(resolve,/evaluateSchemaCapability/);
+ assert.match(resolve,/evaluateSchemaCapability\(details\.rows\[0\]\.schema_version,"multi-team"\)/);
+ assert.match(dashboard,/\[28,29,30,31,32\]\.includes\(result\.rows\[0\]\.schema_version\)/);
+ assert.match(registry,/version===32/);
+ assert.match(write,/evaluateSchemaCapability\(i\.schema_version,"multi-team"\)/);
+ assert.match(teamContext,/i\.schema_version BETWEEN 28 AND 32/);
 });
