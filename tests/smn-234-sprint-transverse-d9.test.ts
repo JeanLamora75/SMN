@@ -140,7 +140,7 @@ describe("SMN-234 D9 — immutabilité, liens sûrs et dette explicitée",()=>{
   assert.match(panel("ceremonies"),/data.source==="recorded-events"/);
   assert.match(panel("ceremonies"),/ceremonyHistoricalLinkUnavailable/);
   assert.match(panel("registers"),/data.source==="closure-snapshot"/);
-  assert.match(panel("registers"),/registersHistoricalLinkUnavailable/);
+  assert.match(file("src/app/app/admin/sprints/[sprintId]/sprint-register-row.tsx"),/registersHistoricalLinkUnavailable/);
  });
  it("distingue source Epic 5 absente d'une liste de registres réellement vide",()=>{
   const registry=reader("registers-detail-read");
