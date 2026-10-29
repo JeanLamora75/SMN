@@ -77,5 +77,5 @@ test("Centre Rapports v28 : filtre teamId SQL, aucune archive ni ouverture Studi
 });
 test("v28 n'active pas le sélecteur ni les écritures d'équipe",()=>{
  assert.match(source("src/lib/team-context-readiness.ts"),
-  /MULTI_TEAM_CONTEXT_READY:boolean=false/);
+  /SMN_MULTI_TEAM_PILOT_ACK==="I_ACCEPT_UNVERIFIED_ISOLATION"/);
 });
