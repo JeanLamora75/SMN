@@ -22,7 +22,9 @@
     "pdf:smoke": "node scripts/report-pdf-doctor.mjs --smoke",
     "db:upgrade": "tsx scripts/db-upgrade.ts",
     "db:diagnose:full": "tsx scripts/db-diagnostic-exhaustive.ts",
-    "test:db:compat": "tsx --test tests/db-upgrade-v32-compatibility.test.ts"
+    "test:db:compat": "tsx --test tests/db-upgrade-v32-compatibility.test.ts",
+    "db:baseline:v32": "tsx scripts/generate-v32-baseline.ts",
+    "test:db:baseline": "tsx --test tests/generate-v32-baseline.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
