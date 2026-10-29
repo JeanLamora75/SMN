@@ -47,7 +47,8 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
   if(only.rows.length===1)id=only.rows[0].id;
  }
  if(!id||!validRecordId(id))throw new Error("team-context-unavailable");
- // Résolution SQL sans introspection des colonnes historiques.\n const row=await db.query<TeamContextRow>(`
+ // Résolution SQL sans introspection des colonnes historiques.
+ const row=await db.query<TeamContextRow>(`
   SELECT p.id AS product_id,p.name AS product,t.id AS team_id,
     t.name AS team,COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode) AS mode
   FROM public.smn_team t
