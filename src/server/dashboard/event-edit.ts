@@ -1,3 +1,4 @@
+import {assertDashboardTable} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureActualDurationSchema} from "@/server/sprints/actual-duration";
@@ -205,11 +206,7 @@ export async function updateDashboardEvent(db:Client,actorId:string,
       endAt:prev.endAt,status:prev.status},after:{title:o.title.trim(),startAt:start.toISOString(),
       endAt:end.toISOString(),status:o.status}})]);
    }
-   await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dashboard_event_edit_audit(
-    id text PRIMARY KEY,event_kind text NOT NULL,event_id text NOT NULL,
-    before_values jsonb NOT NULL,after_values jsonb NOT NULL,
-    actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-    changed_at timestamptz NOT NULL DEFAULT now())`);
+   await assertDashboardTable(db,"smn_dashboard_event_edit_audit");
    await db.query(`INSERT INTO public.smn_dashboard_event_edit_audit
     (id,event_kind,event_id,before_values,after_values,actor_id)
     VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,
