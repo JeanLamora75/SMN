@@ -14,13 +14,13 @@ test("A-04: v32 is the latest recognized installation version",()=>{
  assert.match(runner,/schema_version!==31/);
 });
 
-test("A-03: legacy runtime DDL must remain explicitly inventoried until migrated",()=>{
- const paths=[
-  "src/server/registries/automatic-highlights.ts",
-  "src/server/reports/templates.ts",
-  "src/server/reports/draft-notes.ts"
- ];
- for(const path of paths){
-  assert.match(source(path),/CREATE TABLE IF NOT EXISTS/,"runtime DDL baseline changed in "+path+"; review migration plan");
+test("A-03: deferred table DDL is explicit and absent from business services",()=>{
+ const migration=source("scripts/apply-deferred-schema-v32.ts");
+ for(const name of ["smn_automatic_highlight_settings","smn_report_template","smn_report_draft","smn_report_draft_audit"])
+  assert.ok(migration.includes("CREATE TABLE IF NOT EXISTS public."+name));
+ for(const path of ["src/server/registries/automatic-highlights.ts","src/server/reports/templates.ts","src/server/reports/draft-notes.ts"]){
+  assert.doesNotMatch(source(path),/\\b(?:CREATE|ALTER|DROP) TABLE\\b/i,path);
  }
+ assert.match(migration,/ROLLBACK/);
+ assert.match(migration,/schema_version!==32/);
 });
