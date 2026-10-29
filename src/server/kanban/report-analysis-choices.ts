@@ -1,3 +1,4 @@
+import {assertKanbanSchema} from "./schema-ready";
 import type {Client} from "pg";
 import {readAnalysisJournal} from "@/server/ai-briefs/journal";
 export async function kanbanAnalysisCandidates(db:Client,periodId:string){
@@ -28,8 +29,7 @@ export async function saveKanbanAnalyses(db:Client,periodId:string,raw:unknown){
  if(!candidates)return {ok:false as const,error:"not-found"};
  const allowed=new Set(candidates.map(x=>x.type+":"+x.id));
  if(raw.some(x=>!allowed.has(x)))return {ok:false as const,error:"not-authorized"};
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_kanban_report_analysis_choice(
- period_id text PRIMARY KEY,selected_ids jsonb NOT NULL DEFAULT '[]'::jsonb,updated_at timestamptz NOT NULL DEFAULT now())`);
+ await assertKanbanSchema(db,"smn_kanban_report_analysis_choice");
  await db.query(`INSERT INTO public.smn_kanban_report_analysis_choice(period_id,selected_ids)
  VALUES($1,$2::jsonb) ON CONFLICT(period_id) DO UPDATE SET selected_ids=EXCLUDED.selected_ids,updated_at=now()`,[periodId,JSON.stringify([...new Set(raw)])]);
  return {ok:true as const};
