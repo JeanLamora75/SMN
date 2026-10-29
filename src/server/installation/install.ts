@@ -12,6 +12,7 @@ export {passwordHash} from "../auth/password";
 export const NATIVE_BASELINE_NAME="smn_v32_native_baseline";
 const BASELINE_FILE=new URL("../../../prisma/baseline/v32/schema.sql",import.meta.url);
 export type InstallResult={ok:true}|{ok:false;status:string};
+function baselineDiagnosticEnabled():boolean{return false;}
 
 export function setupAuthorized(configured:string|undefined,supplied:unknown):boolean{
  if(!configured||configured.length<32||typeof supplied!=="string")return false;
@@ -35,7 +36,7 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
  if(!nativeBaselineReady(sql))return {ok:false,status:"baseline-v32-incompatible"};
  // Le diagnostic historique exige 32 entrées : interdire le COMMIT tant que
  // la reconnaissance de la baseline native n'est pas déployée (étape 3).
- return {ok:false,status:"baseline-v32-diagnostic-pending"};
+ if(!baselineDiagnosticEnabled())return {ok:false,status:"baseline-v32-diagnostic-pending"};
  const uri=new URL(settings.uri);
  const before=await diagnoseInstallation(()=>probePostgres(uri.toString()));
  if(before.status!=="virgin")return {ok:false,status:before.status};
