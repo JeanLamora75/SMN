@@ -33,6 +33,7 @@ test("transaction atomique et audit pour une creation autorisee",async()=>{
  const sql:string[]=[];
  const fake={query:async (statement:string)=>{
   sql.push(statement);
+  if(/^SELECT to_regclass\('public\.[^']+'\) AS present$/.test(statement))return {rows:[{present:"migrated"}]};
   return {rows:statement.includes("SELECT t.id")?[{id:"team-1"}]:[]};
  }} as unknown as Client;
  const result=await createRegistryItem(fake,"actor-1",{...base,type:"risk"});
@@ -45,6 +46,7 @@ test("echec SQL: rollback sans succes declare",async()=>{
  const sql:string[]=[];
  const fake={query:async (statement:string)=>{
   sql.push(statement);
+  if(/^SELECT to_regclass\('public\.[^']+'\) AS present$/.test(statement))return {rows:[{present:"migrated"}]};
   if(statement.includes("SELECT t.id"))return {rows:[{id:"team-1"}]};
   if(statement.includes("INSERT INTO public.smn_registry_item\n"))throw Error("database-error");
   return {rows:[]};
