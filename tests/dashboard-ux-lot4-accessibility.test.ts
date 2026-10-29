@@ -40,14 +40,18 @@ function contrast(a:string,b:string):number {
 
 describe("SMN-21 — lot 4 : audit statique accessibilité et responsive",()=>{
   it("garde les contrôles natifs étiquetés et expose la cause de leur indisponibilité",()=>{
-    for(const id of ["smn-current-team","smn-current-cycle","smn-global-search"]){
+    for(const id of ["smn-current-cycle","smn-global-search"]){
       assert.ok(source.includes(`htmlFor="${id}"`),id);
       assert.ok(source.includes(`id="${id}"`),id);
     }
-    for(const id of ["smn-team-help","smn-cycle-help","smn-search-help"]){
+    for(const id of ["smn-cycle-help","smn-search-help"]){
       assert.ok(source.includes(`id="${id}"`),id);
       assert.ok(source.includes(`aria-describedby="${id}"`),id);
     }
+    const selector=read("src/app/app/active-team-selector.tsx");
+    assert.match(selector,/htmlFor="smn-current-team"/);
+    assert.match(selector,/id="smn-current-team"/);
+    assert.match(selector,/aria-describedby="smn-team-help"/);
     assert.match(source,/aria-controls="smn-private-sidebar"/);
     assert.match(source,/aria-expanded=\{!collapsed\}/);
     assert.match(source,/aria-expanded=\{mobileOpen\}/);
@@ -93,8 +97,8 @@ describe("SMN-21 — lot 4 : audit statique accessibilité et responsive",()=>{
     const page=read("src/app/app/page.tsx");
     assert.match(page,/currentAccount\(\)/);
     assert.match(page,/canAccess\(account, "read"/);
-    assert.match(page,/readCollectiveDashboard/);
-    assert.match(page,/canManageConfiguration/);
+    assert.match(page,/readAccountDashboard/);
+    assert.match(page,/account.role==="admin"/);
     assert.match(page,/OperationalOverview/);
     for(const locale of ["fr","en"] as const){
       for(const key of ["openMenu","closeMenu","expandMenu","collapseMenu",
