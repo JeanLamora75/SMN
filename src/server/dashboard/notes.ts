@@ -1,3 +1,4 @@
+import {assertDashboardTable} from "./schema-ready";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 
@@ -21,18 +22,8 @@ export async function createDashboardNote(db:Client,actorId:string,raw:unknown){
     AND s.status<>'closed' AND i.id='singleton' AND i.state='initialized'
     AND lower(i.mode)='scrum' FOR UPDATE OF s`,[sprintId,teamId]);
   if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dashboard_note(
-    id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id),
-    team_id text NOT NULL REFERENCES public.smn_team(id),
-    body text NOT NULL CHECK(length(btrim(body)) BETWEEN 1 AND 2000),
-    status text NOT NULL DEFAULT 'open' CHECK(status IN ('open','done')),
-    created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-    created_at timestamptz NOT NULL DEFAULT now())`);
-  await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dashboard_note_audit(
-    id text PRIMARY KEY,note_id text NOT NULL REFERENCES public.smn_dashboard_note(id),
-    action text NOT NULL CHECK(action IN ('created','done')),
-    actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-    changed_at timestamptz NOT NULL DEFAULT now(),details jsonb NOT NULL)`);
+  await assertDashboardTable(db,"smn_dashboard_note");
+  await assertDashboardTable(db,"smn_dashboard_note_audit");
   const id=randomUUID();
   await db.query(`INSERT INTO public.smn_dashboard_note(id,sprint_id,team_id,body,created_by)
     VALUES($1,$2,$3,$4,$5)`,[id,sprintId,teamId,text,actorId]);
@@ -86,11 +77,7 @@ export async function updateDashboardNote(db:Client,actorId:string,id:string,raw
   }
   const next={body:o.text.trim(),status:o.status as "open"|"done"};
   if(next.body!==prev.body||next.status!==prev.status){
-   await db.query(`CREATE TABLE IF NOT EXISTS public.smn_dashboard_note_edit_audit(
-    id text PRIMARY KEY,note_id text NOT NULL REFERENCES public.smn_dashboard_note(id),
-    before_values jsonb NOT NULL,after_values jsonb NOT NULL,
-    actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-    changed_at timestamptz NOT NULL DEFAULT now())`);
+   await assertDashboardTable(db,"smn_dashboard_note_edit_audit");
    await db.query("UPDATE public.smn_dashboard_note SET body=$2,status=$3 WHERE id=$1",
     [id,next.body,next.status]);
    await db.query(`INSERT INTO public.smn_dashboard_note_edit_audit
