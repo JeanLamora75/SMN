@@ -4,6 +4,7 @@ import {jsonResult} from "@/server/auth/request";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {readSprintContext} from "@/server/sprints/context";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
@@ -26,7 +27,7 @@ export async function GET(request:NextRequest){
     SELECT schema_version FROM public.smn_installation
     WHERE id='singleton' AND state='initialized'`);
    if(version.rows.length!==1)throw Error("sprint-context-unavailable");
-   if([28,29,30,31].includes(version.rows[0].schema_version)){
+   if(evaluateSchemaCapability(version.rows[0].schema_version,"multi-team").ok){
     const context=await resolveAdminTeam(db,
       {accountId:actor.id,role:actor.role},requested);
     if(context.mode!=="scrum")throw Error("sprint-context-mode-invalid");
