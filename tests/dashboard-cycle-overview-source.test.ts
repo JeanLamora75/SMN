@@ -16,8 +16,8 @@ describe("SMN-21 — intégration du lot 2 au dashboard",()=>{
     assert.match(operational,/definition\.id==="events"\?"calendrier"/);
     assert.match(operational,/definition\.id==="obstacles"\?"registres"/);
     assert.match(page,/cycle=\{cycle\}/);
-    assert.ok(page.indexOf("<CycleOverview")<page.indexOf("<ConfigurationChecklist"));
-    assert.match(page,/readConfigurationChecklist/);
+    assert.match(page,/account.role==="admin"&&<MemberConfigurationAlerts\/>/);
+    assert.match(page,/readCycleDashboard/);
   });
   it("ne force ni capacité, ni engagement, ni compteur lorsqu'aucun producteur n'existe",()=>{
     assert.match(dashboard,/currentCycle: null/);
@@ -25,7 +25,7 @@ describe("SMN-21 — intégration du lot 2 au dashboard",()=>{
     assert.match(dashboard,/metrics: \[\]/);
     assert.match(overview,/noPreviousCycle/);
     assert.match(overview,/notSpecified/);
-    assert.match(overview,/notCalculable/);
+    assert.match(overview,/emptyMetric/);
     assert.doesNotMatch(overview,/Math\.round|Date\.now|\b0\s*(?:\*|\+|SP|J\/H)/);
   });
   it("utilise la largeur utile du contenu et les tokens de thèmes existants",()=>{
