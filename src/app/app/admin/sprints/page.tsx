@@ -28,6 +28,7 @@ export default async function SprintsPage({searchParams}:{searchParams:Promise<R
  const parsed=parseSprintIndexQuery(qs);
  const initialFilters=parsed?{search:parsed.search,status:parsed.status,sort:parsed.sort,page:parsed.page}:undefined;
  return <main className="smn-page smn-team-page container-fluid py-4 px-3 px-lg-4">
-  <SprintIndexView canManage={account.role==="admin"} initialFilters={initialFilters}/>
+  <SprintIndexView canManage={account.role==="admin"} initialFilters={initialFilters}
+   teamId={typeof requested.teamId==="string"?requested.teamId:null}/>
  </main>;
 }
