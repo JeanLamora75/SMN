@@ -10,6 +10,7 @@ test("v32 initialise le mode de chaque équipe et non une constante",()=>{
  assert.match(sql,/SET agile_mode=i\.mode/);
  assert.match(sql,/WHERE t\.installation_id=i\.id AND t\.agile_mode IS NULL/);
  assert.match(sql,/schema_version=32/);
+ assert.match(sql,/ADD COLUMN IF NOT EXISTS is_archived boolean NOT NULL DEFAULT false/);
  assert.doesNotMatch(sql,/DELETE FROM|TRUNCATE|DROP TABLE/i);
 });
 test("édition accepte un changement de mode explicite",()=>{
