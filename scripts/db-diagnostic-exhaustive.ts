@@ -28,18 +28,10 @@ async function main(){
  if(migrations.length!==version)errors.push("Journal et version différents");
  const unexpected=snapshot.tables.filter(t=>!INSTALLATION_RELATIONS.includes(t as typeof INSTALLATION_RELATIONS[number]));
  if(unexpected.length)errors.push("Objets non prévus : "+unexpected.join(", "));
- for(const [label,ok] of Object.entries({
-  "Structure initiale":snapshot.shapeValid,
-  "Multi-équipes":snapshot.multiTeamSchemaValid,
-  "Liens":snapshot.linksSchemaValid,
-  "Pays":snapshot.countryConsolidationSchemaValid,
-  "Entreprises":snapshot.companySchemaValid,
-  "Mode Agile v32":snapshot.teamAgileModeSchemaValid,
-  "Absences":snapshot.absencesSchemaValid,
-  "Capacités":snapshot.capacitySchemaValid,
-  "Capacité réelle":snapshot.capacityActualSchemaValid,
-  "Replanification":snapshot.capacityReplanningSchemaValid
- }))if(ok!==true)errors.push("Contrat non satisfait : "+label);
+ const contracts=Object.entries(snapshot).filter(([key])=>key.endsWith("SchemaValid"));
+ for(const [name,ok] of contracts)if(ok!==true)errors.push("Contrat non satisfait : "+name);
+ if(contracts.length<20)errors.push("Audit incomplet : seuls "+contracts.length+" contrats ont été sondés");
+ if(snapshot.shapeValid!==true)errors.push("Structure initiale invalide");
  const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,statement_timeout:10000,
   application_name:"smn-v32-full-diagnostic-readonly"});
  await db.connect();
