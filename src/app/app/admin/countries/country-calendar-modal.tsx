@@ -315,7 +315,7 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
  },[importOutcome]);
  function chooseYear(next:number){setYear(next);setLatestStatus(null);}
 
- useEffect(()=>{setPortalReady(true);},[]);
+ useEffect(()=>{queueMicrotask(()=>setPortalReady(true));},[]);
  useEffect(()=>{
   if(!portalReady)return;
   const node=dialog.current;
