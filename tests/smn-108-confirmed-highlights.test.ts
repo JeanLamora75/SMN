@@ -4,7 +4,7 @@ import type {Client} from "pg";
 import {recordConfirmedHighlight} from "../src/server/registries/confirmed-highlights";
 test("catégorie désactivée : aucune création automatique",async()=>{
  const commands:string[]=[];
- const db={query:async(sql:string)=>{commands.push(sql);
+ const db={query:async(sql:string)=>{commands.push(sql);if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("to_regclass"))return {rows:[{present:false}]};
   return {rows:[]};
  }} as unknown as Client;
@@ -15,7 +15,7 @@ test("catégorie désactivée : aucune création automatique",async()=>{
 });
 test("événement confirmé : insertion idempotente par catégorie/source/révision",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("to_regclass"))return {rows:[{present:false}]};
   if(q.includes("RETURNING id"))return {rows:[{id:"created"}]};
   return {rows:[]};
