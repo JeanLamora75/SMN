@@ -46,25 +46,9 @@ export function parseTeamContextChange(raw:unknown):{
  return {teamId:v.teamId,revision:v.revision,name,productName,vision,productGoal};
 }
 export async function ensureTeamContextSchema(db:Client){
- await db.query("CREATE TABLE IF NOT EXISTS public.smn_team_context ("+
-  "team_id text PRIMARY KEY REFERENCES public.smn_team(id) ON DELETE RESTRICT,"+
-  "vision text,product_goal text,dod text,dor text,language text,"+
-  "revision integer NOT NULL DEFAULT 1 CHECK(revision>0),"+
-  "updated_at timestamptz NOT NULL DEFAULT now(),"+
-  "updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)");
- // Backward-compatible if a former producer created this table with fewer fields.
- await db.query("ALTER TABLE public.smn_team_context "+
-  "ADD COLUMN IF NOT EXISTS vision text,ADD COLUMN IF NOT EXISTS product_goal text,"+
-  "ADD COLUMN IF NOT EXISTS dod text,ADD COLUMN IF NOT EXISTS dor text,"+
-  "ADD COLUMN IF NOT EXISTS language text,"+
-  "ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1,"+
-  "ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now(),"+
-  "ADD COLUMN IF NOT EXISTS updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL");
- await db.query("CREATE TABLE IF NOT EXISTS public.smn_team_context_audit ("+
-  "id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,"+
-  "revision integer NOT NULL, before_values jsonb NOT NULL,after_values jsonb NOT NULL,"+
-  "actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,"+
-  "changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(team_id,revision))");
+ const tables=["smn_team_context","smn_team_context_audit"];
+ const found=await db.query<{name:string}>(`SELECT relname AS name FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind IN ('r','p') AND relname=ANY($1::text[])`,[tables]);
+ if(tables.some(name=>!found.rows.some(row=>row.name===name)))throw Error("member-team-context-schema-not-ready: apply versioned multi-team migration");
 }
 export async function readTeamContext(db:Client,teamId:string):Promise<{
  context:TeamContext;history:TeamContextVersion[]
