@@ -88,7 +88,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   }} as unknown as Client;
   await assert.rejects(()=>previewWizard(fake,"actor-1",request(2)),error=>{
    assert.ok(error instanceof WizardPreviewFailure);
-   assert.equal(error.stage,"periods");
+   assert.equal(error.stage,"team");
    assert.equal(error.sqlState,null);
    return true;
   });
