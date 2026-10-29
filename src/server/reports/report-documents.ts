@@ -8,27 +8,11 @@ import {prepareSprintReport} from "./sprint-preparation";
 const uuid=/^[a-f0-9-]{36}$/i;
 export type ReportDocument={id:string;sprintId:string;teamId:string;title:string;language:"fr"|"en";status:"draft";templateId:string;templateVersion:number;content:unknown;revision:number;updatedAt:string};
 const select=`SELECT id,sprint_id AS "sprintId",team_id AS "teamId",title,language,status,template_id AS "templateId",template_version AS "templateVersion",content,revision,updated_at::text AS "updatedAt" FROM public.smn_report_document`;
-const ddl=`CREATE TABLE IF NOT EXISTS public.smn_report_document(
- id text PRIMARY KEY,
- sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
- title text NOT NULL CHECK(length(trim(title)) BETWEEN 1 AND 120),
- language text NOT NULL CHECK(language IN ('fr','en')),
- status text NOT NULL DEFAULT 'draft' CHECK(status='draft'),
- template_id text NOT NULL,
- template_version integer NOT NULL CHECK(template_version>=0),
- content jsonb NOT NULL CHECK(jsonb_typeof(content)='object'),
- revision integer NOT NULL DEFAULT 1 CHECK(revision>=1),
- created_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- created_at timestamptz NOT NULL DEFAULT now(),
- updated_at timestamptz NOT NULL DEFAULT now()
-)`;
 export async function ensureReportDocumentsSchema(db:Client){
- await db.query(ddl);
- await db.query(`CREATE INDEX IF NOT EXISTS smn_report_document_sprint_idx ON public.smn_report_document(sprint_id,updated_at DESC)`);
- await db.query(`ALTER TABLE public.smn_report_document ADD COLUMN IF NOT EXISTS creation_request_id text`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_document_session_write(document_id text NOT NULL REFERENCES public.smn_report_document(id) ON DELETE CASCADE, session_id text NOT NULL, last_sequence integer NOT NULL CHECK(last_sequence>=1), PRIMARY KEY(document_id,session_id))`);
+ await db.query("SELECT to_regclass('public.smn_report_document') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
+ await db.query("SELECT to_regclass('public.smn_report_document_sprint_idx') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
+ await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_report_document' AND column_name='creation_request_id'").then(r=>{if(!r.rows.length)throw Error("report-schema-not-ready: apply-report-schema-v32")});
+ await db.query("SELECT to_regclass('public.smn_report_document_session_write') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
  await db.query(`CREATE UNIQUE INDEX IF NOT EXISTS smn_report_document_create_request_idx ON public.smn_report_document(creation_request_id) WHERE creation_request_id IS NOT NULL`);
 }
 async function scopedSprint(db:Client,sprintId:string,lock=false){
