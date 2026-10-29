@@ -10,7 +10,7 @@ export default async function LinksPage(){
  if(!actor)redirect("/login");
  if(actor.role!=="admin")return <main className="container-fluid px-3 px-lg-4 py-4"><p role="alert">Accès non autorisé / Access denied.</p></main>;
  const context=await withAuthDb(db=>resolveAdminTeam(db,{accountId:actor.id,role:"admin"})).catch(()=>null);
- return <main className="smn-page container-fluid px-3 px-lg-4 py-4">
+ return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
   {context?<LinksCockpit key={context.team_id} teamId={context.team_id} teamName={context.team}/>:<p role="alert">Équipe indisponible / Team unavailable.</p>}
  </main>;
 }
