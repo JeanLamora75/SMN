@@ -187,3 +187,17 @@ avant le démarrage du nouveau service de résultats de réunion.
 dernier DDL directement détenu par ce service a été retiré, mais la chaîne d'appel
 n'est pas entièrement débarrassée des DDL tant que le lot Registres ne l'est pas.
 Le résultat de CI et l'application PostgreSQL réelle sont encore à confirmer.
+
+
+### Cérémonies — suppression de la création indirecte du registre
+
+La création d'un résultat de réunion ne déclenche plus `ensureRegistrySchema` (et donc ses
+créations de schéma métier), mais vérifie explicitement la présence de
+`smn_registry_item`, `smn_registry_item_audit` et
+`smn_calendar_meeting_outcome_link`. Le script de migration des résultats
+requiert aussi les deux tables de registre. La fonctionnalité échoue sans modifier
+le schéma si l'une manque : matérialiser les registres **avant** cette migration.
+
+Cette séparation ne garantit pas encore la complétude des migrations Registres ;
+la CI et une restauration de données historiques sous PostgreSQL réel restent
+indispensables avant déclaration de conformité complète.
