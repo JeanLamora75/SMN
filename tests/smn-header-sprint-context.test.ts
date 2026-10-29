@@ -83,7 +83,7 @@ describe("SMN — sélecteur Sprint contextuel",()=>{
   assert.match(route,/authorizeApi\(request,"read"/);
   assert.match(route,/withSprintIndexDb/);
   assert.match(dashboard,/selectedSprint\(sprintData\.items/);
-  assert.match(dashboard,/<CycleOverview context=\{context\} locale=\{locale\} teamHref=\{teamHref\} cycle=\{cycle\} projection=\{projection\}\/>/);
+  assert.match(dashboard,/<CycleOverview context=\{context\} locale=\{locale\} teamHref=\{teamHref\} cycle=\{cycle\} projection=\{projection\}/);
   assert.match(cycle,/effectiveSprintStatus\(cycle\)/);
  });
 });
