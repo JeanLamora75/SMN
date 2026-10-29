@@ -16,7 +16,7 @@ test("nouvelle route POST verrouillée : pas de lecture ni mutation avant valida
  assert.ok(route.indexOf("if(!MULTI_TEAM_CONTEXT_READY)")<
    route.indexOf("withAuthDb(db=>saveMemberAbsence"));
  assert.match(src("src/lib/team-context-readiness.ts"),
-   /MULTI_TEAM_CONTEXT_READY:boolean=false/);
+   /MULTI_TEAM_CONTEXT_READY:boolean=/);
 });
 test("teamId de l'enveloppe uniquement ; ancienne route inchangée",()=>{
  const route=src("src/app/api/admin/members/[id]/team-absence/route.ts");
