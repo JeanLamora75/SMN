@@ -180,7 +180,7 @@ export async function writeSprintReview(db:Client,actorId:string,raw:unknown){
    randomUUID(),data.sprintId,data.kind,
    previous?JSON.stringify(previous):null,
    JSON.stringify({body,revision:newRevision,
-    origin:previous?.generationId!==null?"human-edited-ai":"human",
+    origin:previous?.generationId!=null?"human-edited-ai":"human",
     humanEdited:true,generationId:previous?.generationId??null}),
    actorId
   ]);
