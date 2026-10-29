@@ -28,12 +28,13 @@
 .smn-calendar-cockpit .smn-cal-hero-subtitle{
  color:rgba(255,255,255,.86);font-size:.89rem;line-height:1.5;margin:0;
 }
-.smn-calendar-cockpit .smn-cal-nav{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.smn-calendar-cockpit .smn-cal-nav{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:nowrap}
 .smn-calendar-cockpit .smn-cal-nav .btn,
 .smn-calendar-cockpit .smn-cal-select{
  min-height:40px;border-radius:9px;font-weight:650;
 }
 .smn-calendar-cockpit .smn-cal-select{
+ flex:0 1 240px;min-width:130px;
  max-width:240px;width:min(240px,100%);border-color:rgba(255,255,255,.6);
  background-color:#fff;color:#10294d;font-size:.83rem;
 }
