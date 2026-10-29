@@ -20,5 +20,5 @@ test("la requête est bornée aux cycles clôturés antérieurs sans écriture",
  assert.match(trend.sql,/s.end_at<=\$3::timestamptz/);
  assert.match(trend.sql,/LIMIT \$4/);
  assert.equal(trend.params?.[3],3);
- assert.equal(calls.some(x=>/INSERT|UPDATE|DELETE/i.test(x.sql)),false);
+ assert.equal(calls.some(x=>/\b(?:INSERT|UPDATE|DELETE)\b/i.test(x.sql)),false);
 });
