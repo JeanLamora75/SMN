@@ -28,6 +28,7 @@ function dbFor(options:{country?:string|null;status?:string|null;holiday?:string
   calls.push(sql);
   // A closure query also joins smn_member_assignment. Match the specific
   // statement first so the fake database mirrors the SQL result type.
+  if(sql.includes("SELECT schema_version FROM public.smn_installation"))return {rowCount:1,rows:[{schema_version:30}]};
   if(sql.includes("FROM public.smn_company_closure c")){
    const rows=options.closure?[{name:"Fermeture collective"}]:[];
    return {rowCount:rows.length,rows};
@@ -100,8 +101,8 @@ describe("jour régional traité comme absence individuelle",()=>{
   assert.equal(scheduleUnknown.deductedHalfDays,null);
   assert.equal(scheduleUnknown.availableSlots,null);
   const nationalUnknown=resolveDayAvailability(national,working,null,[afternoon]);
-  assert.equal(nationalUnknown.status,"unknown");
-  assert.equal(nationalUnknown.deductedHalfDays,null);
+  assert.equal(nationalUnknown.status,"known");
+  assert.equal(nationalUnknown.deductedHalfDays,1);
   assert.deepEqual(nationalUnknown.absenceSlots,{morning:false,afternoon:true});
  });
  it("récupère calendrier, localisation effective et jour férié sans dédupliquer par équipe",async()=>{
@@ -123,11 +124,11 @@ describe("jour régional traité comme absence individuelle",()=>{
  it("n'invente aucun férié lorsque le pays est inconnu ou le calendrier incomplet",async()=>{
   const noCountry=await readMemberDayAvailability(dbFor({country:null}).db,memberId,national,[item(allDay)]);
   assert.equal(noCountry.nationalHoliday,null);
-  assert.equal(noCountry.status,"unknown");
+  assert.equal(noCountry.status,"known");
   const partial=await readMemberDayAvailability(dbFor({status:"partial",holiday:null}).db,
    memberId,national,[item(allDay)]);
   assert.equal(partial.nationalHoliday,null);
-  assert.equal(partial.status,"unknown");
+  assert.equal(partial.status,"known");
   const holidayInPartial=await readMemberDayAvailability(dbFor({status:"partial"}).db,
    memberId,national,[item(allDay)]);
   assert.equal(holidayInPartial.nationalHoliday,true);
