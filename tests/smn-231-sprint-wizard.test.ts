@@ -178,7 +178,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
   const view=read("src/app/app/team-calendar/team-calendar-view.tsx");
   const detail=read("src/app/app/team-calendar/meeting/[kind]/[id]/page.tsx");
   assert.match(api,/generationSource:m\.generation_source/);
-  assert.match(view,/generationSource==="reconstructed"/);
+  assert.match(view,/CalendarOptionB/);
   assert.match(detail,/generation_source==="reconstructed"/);
  });
  it("préserve recherche, filtres, tri et page au retour de la génération",()=>{
