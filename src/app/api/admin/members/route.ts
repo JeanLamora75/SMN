@@ -6,6 +6,7 @@ import {createQuickMembers,createIndividualMember,listTeamMembers} from "@/serve
 import {withMemberCompanies} from "@/server/members/company-presentation";
 import {createCompanyMember} from "@/server/members/company-create";
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
@@ -21,14 +22,15 @@ export async function GET(request:NextRequest){
    const r=await db.query<{schema_version:number}>(
     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
    const version=r.rows[0]?.schema_version;
-   if(version===28||version===29||version===30||version===31){
+   if(evaluateSchemaCapability(version,"multi-team").ok){
     if(actor.role!=="admin")throw Error("members-team-forbidden");
     const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},
       params.get("teamId"));
     const listed=await listTeamMembers(db,{
      id:team.team_id,name:team.team,mode:team.mode as "scrum"|"kanban"
     });
-    return version===31?withMemberCompanies(db,listed):listed;
+    return evaluateSchemaCapability(version,"company-catalog").ok?
+      withMemberCompanies(db,listed):listed;
    }
    if(typeof version!=="number"||version<1||version>27)
     throw Error("members-schema-unavailable");
@@ -54,7 +56,7 @@ export async function POST(request:NextRequest){
     const r=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
     return r.rows[0]?.schema_version;
    });
-   if(current===31){
+   if(evaluateSchemaCapability(current,"company-catalog").ok){
     const single=await withAuthDb(db=>createCompanyMember(db,actor.id,body));
     if(!single.ok)return jsonResult({error:single.error},
      ["request-conflict","roster-full"].includes(single.error)?409:
@@ -68,7 +70,7 @@ export async function POST(request:NextRequest){
     });
     return jsonResult({member:item??single.member,created:single.created},single.created?201:200);
    }
-   if(current!==undefined&&current>31)return jsonResult({error:"schema-unavailable"},503);
+   if(current!==undefined&&current>32)return jsonResult({error:"schema-unavailable"},503);
    const single=await withAuthDb(db=>createIndividualMember(db,actor.id,body));
    if(!single.ok)return jsonResult({error:single.error},
     single.error==="request-conflict"||single.error==="roster-full"?409:
