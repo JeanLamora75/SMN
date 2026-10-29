@@ -10,15 +10,8 @@ export function validRelationTarget(v:unknown):v is RelationTarget{
  (v as RelationTarget).kind==="goal"&&idRx.test((v as RelationTarget).id);
 }
 export async function ensureRelations(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_relation(
- id text PRIMARY KEY,source_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- target_kind text NOT NULL CHECK(target_kind IN ('record','goal')),
- target_id text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),
- UNIQUE(source_id,target_kind,target_id))`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_registry_relation_audit(
- id text PRIMARY KEY,source_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- target_kind text NOT NULL,target_id text NOT NULL,action text NOT NULL CHECK(action IN ('linked','unlinked')),
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,changed_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_registry_relation') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_registry_relation_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
 }
 export async function readRelations(db:Client,recordId:string){
  if(!idRx.test(recordId))return null;
