@@ -19,7 +19,10 @@
     "recover:admin": "node scripts/recover-admin.mjs",
     "i18n:check": "node scripts/verify-i18n.mjs",
     "pdf:doctor": "node scripts/report-pdf-doctor.mjs",
-    "pdf:smoke": "node scripts/report-pdf-doctor.mjs --smoke"
+    "pdf:smoke": "node scripts/report-pdf-doctor.mjs --smoke",
+    "db:upgrade": "tsx scripts/db-upgrade.ts",
+    "db:diagnose:full": "tsx scripts/db-diagnostic-exhaustive.ts",
+    "test:db:compat": "tsx --test tests/db-upgrade-v32-compatibility.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
