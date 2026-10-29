@@ -25,10 +25,7 @@ export async function saveHistoricalPartial(db:Client,actor:string,raw:unknown){
  const x=parseHistoricalPartial(raw);
  if(!actor||!x)return {ok:false as const,error:"invalid-input"};
  await ensureSprintGoalsSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_historical_goal_detail(
- goal_id text PRIMARY KEY REFERENCES public.smn_sprint_goal(id) ON DELETE RESTRICT,
- description text,source text,recorded_at timestamptz NOT NULL DEFAULT now(),
- recorded_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
+ await db.query("SELECT to_regclass('public.smn_sprint_historical_goal_detail') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("BEGIN");
  try{
   const res=await db.query<{status:string}>(`SELECT s.status FROM public.smn_sprint s
