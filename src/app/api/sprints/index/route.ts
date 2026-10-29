@@ -24,7 +24,7 @@ export async function GET(request:NextRequest){
   const version=installation.rows[0]?.schema_version??0;
   if(version>=28){
    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},requestedTeamId);
-   if(team.mode!=="scrum")return {error:"not-scrum"};
+   if(team.mode!=="scrum")throw Error("sprint-team-not-scrum");
    return readSprintIndex(db,options,{id:team.team_id,name:team.team});
   }
   return readSprintIndex(db,options);
