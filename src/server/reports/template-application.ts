@@ -19,21 +19,9 @@ export async function applyReportTemplate(db:Client,actorId:string,sprintId:stri
  if(!row.rows[0]||!validReportTemplate(row.rows[0])){await db.query("ROLLBACK");return {ok:false as const,error:"template-unavailable"};}
  source=row.rows[0];
  }
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_section_options(
- sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- options jsonb NOT NULL,revision integer NOT NULL CHECK(revision>0),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- updated_at timestamptz NOT NULL DEFAULT now())`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_content_options(
- sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- options jsonb NOT NULL,revision integer NOT NULL CHECK(revision>0),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- updated_at timestamptz NOT NULL DEFAULT now())`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_report_history_options(
- sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- depth integer NOT NULL CHECK(depth BETWEEN 1 AND 5),revision integer NOT NULL CHECK(revision>0),
- updated_at timestamptz NOT NULL DEFAULT now(),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
+ await db.query("SELECT to_regclass('public.smn_report_section_options') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
+ await db.query("SELECT to_regclass('public.smn_report_content_options') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
+ await db.query("SELECT to_regclass('public.smn_report_history_options') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
  await db.query(`INSERT INTO public.smn_report_section_options(sprint_id,options,revision,updated_by)
  VALUES($1,$2::jsonb,1,$3) ON CONFLICT(sprint_id) DO UPDATE SET options=EXCLUDED.options,
  revision=public.smn_report_section_options.revision+1,updated_by=EXCLUDED.updated_by,updated_at=now()`,
