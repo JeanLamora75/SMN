@@ -151,3 +151,22 @@ déjà dans le périmètre des relations différées acceptées en v32.
 **Validation restant à effectuer :** essais PostgreSQL réels avec données historiques,
 contrôles de types/contraintes au-delà de la seule présence des tables,
 et CI du dernier commit. Ne pas déployer ce nouveau code sur une base non migrée.
+
+
+### Cérémonies — deuxième passage, état des extractions
+
+La migration explicite `scripts/apply-ceremony-schema-v32.ts` contient désormais **40 instructions SQL**
+extraites de **12 services**, notamment les modèles, réunions exceptionnelles, occurrences,
+historisation des statuts, durées réelles, cadence, création en lot et impacts de capacité.
+Le test `tests/ceremony-explicit-schema-v32.test.ts` vérifie leur absence de DDL métier.
+
+**Reste à sécuriser dans le sous-lot :** `calendar-meeting-outcomes.ts` crée
+`smn_calendar_meeting_outcome_link` et un index. Cette table référence
+`smn_registry_item`, qui peut être elle-même créée à la demande. L'extraction
+doit donc être coordonnée avec la migration des Registres pour éviter de référencer
+une table inexistante. Ne pas supprimer ce dernier DDL avant de résoudre cette dépendance.
+
+**Limite actuelle :** script transactionnel non encore exécuté sur PostgreSQL réel ;
+les vérifications sur structures déjà présentes et la CI du dernier commit restent
+à confirmer. `CREATE TABLE IF NOT EXISTS` n'est pas à lui seul un contrôle complet
+d'intégrité des contraintes et des types.
