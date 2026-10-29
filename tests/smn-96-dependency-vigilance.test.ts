@@ -12,7 +12,7 @@ test("seuls les états actifs déclenchent le retard",()=>{
 });
 test("le signal à risque ne modifie pas le statut de la dépendance",async()=>{
  const sql:string[]=[];
- const db={query:async(q:string)=>{sql.push(q);
+ const db={query:async(q:string)=>{sql.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.id FROM public.smn_registry_item"))return {rows:[{id:"known"}]};
   return {rows:[]};
  }} as unknown as Client;
