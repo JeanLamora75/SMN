@@ -20,6 +20,8 @@ const sections:ReadonlyArray<{prefix:string;destination:string}>= [
 export function teamSwitchDestination(pathname:string,teamId:string,
  mode:TeamNavigationMode):string{
  if(!validId(teamId))return "/app";
+ // Reject a stale URL carrying filters or a team selection from the previous context.
+ if(pathname.includes("?")||pathname.includes("#"))return "/app?"+new URLSearchParams({teamId}).toString();
  let destination="/app";
  if(pathname==="/app")destination="/app";
  else{
