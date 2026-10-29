@@ -39,13 +39,7 @@ async function schema(db:Client){
  await ensureBatchSchema(db);
  await ensureTemplateSchema(db);
  await ensureLunchSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_wizard_preview(
-  token text PRIMARY KEY,
-  team_id text NOT NULL REFERENCES public.smn_team(id) ON DELETE RESTRICT,
-  actor_id text NOT NULL REFERENCES public.smn_account(id) ON DELETE RESTRICT,
-  request jsonb NOT NULL,digest text NOT NULL,
-  expires_at timestamptz NOT NULL,consumed_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now())`);
+ await db.query("SELECT to_regclass('public.smn_sprint_wizard_preview') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 async function activeTeam(db:Client,actorId:string,requestedTeamId?:string|null){
  const team=await resolveAdminTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
