@@ -13,7 +13,7 @@ export async function ensureReportDocumentsSchema(db:Client){
  await db.query("SELECT to_regclass('public.smn_report_document_sprint_idx') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
  await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_report_document' AND column_name='creation_request_id'").then(r=>{if(!r.rows.length)throw Error("report-schema-not-ready: apply-report-schema-v32")});
  await db.query("SELECT to_regclass('public.smn_report_document_session_write') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
- await db.query(`CREATE UNIQUE INDEX IF NOT EXISTS smn_report_document_create_request_idx ON public.smn_report_document(creation_request_id) WHERE creation_request_id IS NOT NULL`);
+ await db.query("SELECT to_regclass('public.smn_report_document_create_request_idx') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("report-schema-not-ready: apply-report-schema-v32")});
 }
 async function scopedSprint(db:Client,sprintId:string,lock=false){
  const r=await db.query<{team_id:string}>(`SELECT s.team_id FROM public.smn_sprint s
