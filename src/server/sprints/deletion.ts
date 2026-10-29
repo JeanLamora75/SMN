@@ -11,8 +11,8 @@ const selected=(raw:unknown):string[]|null=>{
 };
 async function ensureDeletion(db:Client){
  await ensureSprintSchema(db);
- await db.query("ALTER TABLE public.smn_sprint ADD COLUMN IF NOT EXISTS deleted_at timestamptz");
- await db.query("ALTER TABLE public.smn_sprint ADD COLUMN IF NOT EXISTS deleted_by text REFERENCES public.smn_account(id) ON DELETE SET NULL");
+ await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_sprint' AND column_name='deleted_at'").then(r=>{if(!r.rows.length)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
+ await db.query("SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_sprint' AND column_name='deleted_by'").then(r=>{if(!r.rows.length)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
 async function lookup(db:Client,ids:string[],lock:boolean){
  const result=await db.query<Sprint>(`SELECT s.id,s.team_id,s.name,s.status,s.start_at::text,s.end_at::text
