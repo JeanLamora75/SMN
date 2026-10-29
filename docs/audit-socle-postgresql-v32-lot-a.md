@@ -51,3 +51,33 @@ Ne pas accepter indistinctement toute version supérieure à 32 : une version in
 - Revue des faux positifs et des contrôles de contraintes catalogues avant généralisation.
 
 **État : travaux de sécurisation publiés, audit du lot A non clos.**
+
+
+## Préparation de migration contrôlée A-03 (sans écriture sur la base)
+
+Exécuter `pnpm exec tsx scripts/audit-runtime-ddl-v32.ts` dans une copie du dépôt : l'inventaire examine tous les fichiers suivis par Git avec extension .ts/.tsx/.js/.mjs/.cjs/.sql. Les résultats sont écrits sous `audit-output/`, pas dans PostgreSQL.
+
+**Limite du scanner :** il repère des motifs DDL littéraux, y compris des faux positifs de commentaires et de tests ; les chaînes construites dynamiquement nécessitent une revue manuelle. Le résultat n'a pas encore été exécuté sur un checkout complet dans cet environnement.
+
+**Stratégie de migration après v32 :**
+1. Recenser et classer toutes les occurrences DDL réellement exécutables ; identifier leurs fonctions appelantes.
+2. Exporter la définition canonique de chaque table depuis les SQL d'origine (y compris contraintes, index, références et audit).
+3. Construire une migration **v33 explicitement déclenchée** et non un lancement implicite ; prévoir sauvegarde et contrôles des tables préexistantes avant toute transformation.
+4. Comparer les structures actuelles par catalogues PostgreSQL et refuser les divergences non prévues ; ne jamais utiliser `DROP` ou `TRUNCATE` comme réparation automatique.
+5. Exécuter une transaction contrôlée et journalisée ; valider l'empreinte SQL, l'état des contraintes et l'isolation avant COMMIT.
+6. Modifier seulement ensuite les services métiers pour supprimer leurs DDL et retourner une erreur de schéma explicite lorsque les tables nécessaires sont absentes.
+7. Tester sur deux installations : v32 sans table différée et v32 avec données historisées dans ces tables. Vérifier également le rollback et la non-modification au démarrage.
+
+Cette préparation **ne constitue pas une migration exécutable**. Aucune v33 ne doit être appliquée avant le contrôle des données réelles.
+
+## Analyse CI du 29 octobre 2026
+
+Sur le run `40907675714`, les erreurs observées dans les journaux sont :
+- TypeScript TS7006 sur quatre lecteurs de fichiers de tests v32 (paramètre `p` implicite).
+- ESLint `react-hooks/set-state-in-effect` dans `country-calendar-modal.tsx`, ligne 318, à la suite du montage du portail React.
+- Plusieurs échecs de tests dont les assertions attendent des schémas v28–v31 ou un contenu textuel du probe antérieur à son renforcement.
+- Une assertion incorrecte dans le nouveau test A-02 recherchait `!snapshot.companySchemaValid` dans le probe plutôt que dans le diagnostic.
+
+Les quatre annotations TypeScript, le montage du portail et les assertions A-01/A-02 ont été corrigés sur `main`. Les autres régressions de tests des modules Links, Registres, Rapports demandent un traitement indépendant : distinguer contrat historique volontaire et comportement attendu en v32.
+
+**Attention :** aucune CI verte n'est attestée au titre du lot A à ce stade.
