@@ -25,7 +25,7 @@ test("A-02: the v31 probe checks validated foreign keys and nonnullable closure 
  }
  assert.match(probe,/contype='f' AND convalidated/);
  assert.match(probe,/column_name='company_id' AND is_nullable='NO'/);
- assert.match(probe,/!snapshot\.companySchemaValid/);
+ assert.match(diagnostic,/!snapshot\.companySchemaValid/);
 });
 
 test("A-01/A-02: migration files remain versioned and immutable",()=>{
