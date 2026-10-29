@@ -64,7 +64,7 @@ test("AC1 / RBAC : audit d'association réelle seulement, cible bornée à l'éq
   queries.push(sql);
   if(sql.includes("SELECT to_regclass"))return {rows:[{ready:true}]};
   return {rows:[{id:link.id,recordId:actionId,title:link.title,type:"action",
-   recordedAt:link.recordedAt,authorName:"admin"}]};
+   recordedAt:link.recordedAt,authorName:"admin",eventKind:"linked"}]};
  }} as unknown as Client;
  const result=await readRegistryJournalLinks(db,recordId,true);
  assert.deepEqual(result,[link]);
