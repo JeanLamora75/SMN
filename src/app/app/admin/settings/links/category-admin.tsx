@@ -38,7 +38,7 @@ export default function CategoryAdmin(){
   }catch(e){setError(e instanceof Error&&e.message==="409"?t("linksAdmin.categoryInUse"):t("links.saveError"));}
   finally{setBusy(false);}
  };
- return <section className="d-grid gap-3">
+ return <section className="smn-links-admin-categories d-grid gap-3">
   <h2 className="h4">{t("linksAdmin.categories")}</h2>
   {error&&<p className="alert alert-warning" role="alert">{error}</p>}
   <div className="d-flex gap-2 flex-wrap"><input className="form-control" style={{maxWidth:320}} maxLength={100} aria-label={t("linksAdmin.categoryName")} value={name} disabled={busy} onChange={e=>setName(e.target.value)}/><button type="button" className="btn btn-primary" disabled={busy||!name.trim()} onClick={()=>void submit()}>{editing?t("links.save"):t("linksAdmin.createCategory")}</button>{editing&&<button type="button" className="btn btn-outline-secondary" onClick={()=>{setEditing(null);setName("");}}>{t("links.cancel")}</button>}</div>
