@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import type {Client} from "pg";
+import {readFileSync} from "node:fs";
 import {recordConfirmedHighlight} from "../src/server/registries/confirmed-highlights";
 test("catégorie désactivée : aucune création automatique",async()=>{
  const commands:string[]=[];
@@ -22,6 +23,6 @@ test("événement confirmé : insertion idempotente par catégorie/source/révis
  }} as unknown as Client;
  assert.equal(await recordConfirmedHighlight(db,{category:"recordedDecision",sourceKind:"registry",
  sourceId:"11111111-1111-4111-8111-111111111111",sourceRevision:1,title:"Decision",actorId:"admin"}),true);
- assert.ok(sql.some(x=>x.includes("UNIQUE(category,source_kind,source_id,source_revision)")));
+ assert.match(readFileSync(new URL("../scripts/apply-registry-extensions-v32.ts",import.meta.url),"utf8"),/UNIQUE\(category,source_kind,source_id,source_revision\)/);
  assert.ok(sql.some(x=>x.includes("ON CONFLICT DO NOTHING")));
 });
