@@ -47,6 +47,7 @@
 .smn-calendar-cockpit .smn-cal-nav-arrow:disabled{opacity:.5}
 .smn-calendar-cockpit .smn-cal-nav-today{
  background:#fff;border:1px solid #fff;color:#10294d;padding:7px 13px;
+ flex:0 0 auto;min-width:max-content;width:auto;white-space:nowrap;overflow-wrap:normal;word-break:normal;
 }
 .smn-calendar-cockpit .smn-cal-nav-today:hover{background:#e8f1fd;color:#10294d}
 .smn-calendar-cockpit .smn-cal-hero .btn:focus-visible,
