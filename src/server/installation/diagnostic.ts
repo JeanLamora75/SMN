@@ -56,7 +56,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INITIAL_REQUIRED_RELATIONS.every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
@@ -309,6 +309,13 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
       !["public.smn_country_name_audit:r","public.smn_country_lifecycle_audit:r",
         "public.smn_national_holiday_manual_audit:r","public.smn_national_calendar_validation_audit:r"]
        .every(n=>names.has(n)))return result("installation-incomplete");
+  }
+  if(records[0].schema_version>=32){
+    const sql=readFileSync(new URL("../../../prisma/migrations/20261029_smn_team_agile_mode_v32/migration.sql",import.meta.url),"utf8");
+    const migration=migrations?.find(m=>m.migration_name==="20261029_smn_team_agile_mode_v32");
+    if(!migration||migration.checksum!==createHash("sha256").update(sql).digest("hex")||
+       !migration.finished_at||migration.rolled_back_at)
+      return result("installation-incomplete");
   }
   return result("initialized");
 }
