@@ -5,8 +5,8 @@ import {privateNavigation,activePrivateEntry,type NavigationIcon} from "../src/l
 import {translate} from "../src/i18n/catalog";
 
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
-const ids=["dashboard","members","cycles","centralCalendar","risks","reporting"];
-const labels=["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Rapports"];
+const ids=["dashboard","members","cycles","centralCalendar","risks","links","reporting"];
+const labels=["Tableau de Bord","Équipe","Sprint","Calendrier","Registre","Liens","Rapports"];
 
 describe("SMN — navigation latérale, second lot (six menus et Paramètres)",()=>{
  it("ordonne exactement les six menus demandés, sans sous-rubriques supplémentaires",()=>{
@@ -16,7 +16,7 @@ describe("SMN — navigation latérale, second lot (six menus et Paramètres)",(
    assert.deepEqual(groups[0].entries.map(e=>translate("fr",e.label)),labels);
    assert.equal(groups.length,role==="admin"?2:1);
    const all=groups.flatMap(g=>g.entries);
-   assert.deepEqual(all.slice(0,6).map(e=>e.id),ids);
+   assert.deepEqual(all.slice(0,7).map(e=>e.id),ids);
    assert.ok(!all.some(e=>["reviews","briefs","security","events"].includes(e.id)));
   }
  });
@@ -24,7 +24,7 @@ describe("SMN — navigation latérale, second lot (six menus et Paramètres)",(
   const entries=privateNavigation("scrum","admin").flatMap(g=>g.entries);
   assert.deepEqual(entries.map(e=>e.href),[
    "/app","/app/admin/members","/app/admin/sprints",
-   "/app/team-calendar","/app/admin/registries",null,"/app/admin/settings"
+   "/app/team-calendar","/app/admin/registries","/app/admin/links","/app/reports","/app/admin/settings"
   ]);
   assert.equal(entries.filter(e=>e.id==="settings").length,1);
   assert.equal(activePrivateEntry("/app/admin/registries/example",entries[4]),true);
