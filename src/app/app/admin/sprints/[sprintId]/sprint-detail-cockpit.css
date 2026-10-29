@@ -1,5 +1,5 @@
 /* Sprint detail — Cockpit Agile visual vocabulary, confined to the page. */
-.smn-sprint-detail-cockpit{min-width:0;color:var(--smn-foreground)}
+.smn-sprint-detail-cockpit{min-width:0;width:100%;max-width:none;color:var(--smn-foreground)}
 .smn-sprint-detail-cockpit .smn-sprint-detail-hero{
  padding:clamp(16px,1.65vw,24px);min-width:0;color:#fff;
  background:linear-gradient(125deg,color-mix(in srgb,var(--smn-brand) 78%,#10294d),#10294d);
