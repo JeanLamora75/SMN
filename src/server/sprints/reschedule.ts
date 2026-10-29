@@ -67,10 +67,8 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
 export async function ensureRescheduleSchema(db:Client){
  await ensureSprintSchema(db);
  await ensureExceptionalImpactSchema(db);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_reschedule_audit(
- id text PRIMARY KEY,sprint_id text NOT NULL REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,
- old_start timestamptz NOT NULL,old_end timestamptz NOT NULL,new_start timestamptz NOT NULL,new_end timestamptz NOT NULL,
- mode text NOT NULL,actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,occurred_at timestamptz NOT NULL DEFAULT now())`);
+ const check=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_reschedule_audit') IS NOT NULL AS present`);
+ if(!check.rows[0]?.present)throw Error("legacy-reschedule-schema-not-ready: apply-legacy-sprint-reschedule-audit");
 }
 export async function previewReschedule(db:Client,raw:unknown){
  const input=parse(raw);if(!input)return {ok:false as const,error:"invalid-input"};
