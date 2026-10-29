@@ -7,7 +7,7 @@ test("lecteur historique monoéquipe n'est jamais utilisé sur la version 28",()
  const read=source("src/server/dashboard/read.ts");
  assert.match(read,/i\.schema_version<=27/);
  assert.match(read,/resolveAdminTeam\(client,actor,requestedTeamId\)/);
- assert.match(read,/\[28,29,30,31\]\.includes\(result\.rows\[0\]\.schema_version\)/);
+ assert.match(read,/\[28,29,30,31,32\]\.includes\(result\.rows\[0\]\.schema_version\)/);
 });
 test("tableau de bord utilise acteur, teamId explicite et cycle vérifié",()=>{
  const dashboard=source("src/app/app/page.tsx");
@@ -18,7 +18,7 @@ test("tableau de bord utilise acteur, teamId explicite et cycle vérifié",()=>{
 });
 test("lecture des Sprints conserve v27 et valide équipe/mode en v28",()=>{
  const route=source("src/app/api/sprints/context/route.ts");
- assert.match(route,/\[28,29,30,31\]\.includes\(version\.rows\[0\]\.schema_version\)/);
+ assert.match(route,/evaluateSchemaCapability\(version\.rows\[0\]\.schema_version,"multi-team"\)\.ok/);
  assert.match(route,/resolveAdminTeam\(db,/);
  assert.match(route,/context\.mode!=="scrum"/);
  assert.match(route,/readSprintContext\(db,context\.team_id\)/);
