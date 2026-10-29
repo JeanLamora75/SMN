@@ -190,7 +190,7 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   assert.match(ui,/sprintsIndex\.stateUnverified/);
   assert.match(ui,/sprintsIndex\.calendarPending/);
   assert.doesNotMatch(ui,/href="#"/);
-  assert.doesNotMatch(ui,/href=\{.*?item\.id.*?\}/);
+  assert.match(ui,/href=\{sprintDetailPath\(item\.id\)\}/);
  });
  it("isole le SQL de l'index dans une transaction PostgreSQL READ ONLY",()=>{
   const helper=read("src/server/sprints/read-only-db.ts");
