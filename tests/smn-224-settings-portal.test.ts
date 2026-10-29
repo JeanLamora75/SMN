@@ -8,7 +8,7 @@ describe("SMN-224 — portail Paramètres",()=>{
  it("conserve l'entrée sidebar engrenage sur le portail pour admin uniquement",()=>{
   const admin=privateNavigation("scrum","admin").flatMap(x=>x.entries);
   const user=privateNavigation("scrum","user").flatMap(x=>x.entries);
-  assert.deepEqual(admin.filter(x=>x.id==="settings").map(x=>[x.href,x.icon]),[["/app/admin/settings","⚙"]]);
+  assert.deepEqual(admin.filter(x=>x.id==="settings").map(x=>[x.href,x.icon]),[["/app/admin/settings","sliders"]]);
   assert.equal(user.some(x=>x.id==="settings"),false);
   assert.equal(activePrivateEntry("/app/admin/settings/general",admin.find(x=>x.id==="settings")!),true);
  });
@@ -27,8 +27,9 @@ describe("SMN-224 — portail Paramètres",()=>{
  it("sépare portail et formulaire d'origine sans nouvelle écriture",()=>{
   const portal=file("src/app/app/admin/settings/page.tsx");
   const form=file("src/app/app/admin/settings/general/page.tsx");
-  assert.match(portal,/href="\/app\/admin\/settings\/general"/);
-  assert.doesNotMatch(portal,/SettingsForm|fetch\(|\.query\(/);
+  assert.match(portal,/settingsCatalog\(mode,account\)/);
+  assert.match(portal,/<SettingsCatalogView groups=\{groups\}\/>/);
+  assert.doesNotMatch(portal,/SettingsForm|fetch\(/);
   assert.match(form,/import SettingsForm from "\.\.\/settings-form"/);
   assert.match(form,/<SettingsForm\/>/);
   assert.match(form,/href="\/app\/admin\/settings"/);
