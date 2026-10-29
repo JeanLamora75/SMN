@@ -3,15 +3,9 @@ import type {Client} from "pg";
 import {ensureCeremonySchema} from "./ceremonies";
 
 export async function ensureCeremonyEditSchema(db:Client){
- await ensureCeremonySchema(db);
- await db.query("ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS provenance text NOT NULL DEFAULT 'generated'");
- await db.query("ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS occurrence_status text NOT NULL DEFAULT 'scheduled'");
- await db.query("ALTER TABLE public.smn_sprint_ceremony ADD COLUMN IF NOT EXISTS revision integer NOT NULL DEFAULT 1");
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_sprint_ceremony_history(
-  id text PRIMARY KEY,ceremony_id text NOT NULL REFERENCES public.smn_sprint_ceremony(id) ON DELETE RESTRICT,
-  revision integer NOT NULL,previous_values jsonb NOT NULL,next_values jsonb NOT NULL,
-  changed_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,
-  changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(ceremony_id,revision))`);
+ const tables=["smn_sprint_ceremony_history"] as const;
+ const state=await db.query<{present:string[]}>(`SELECT array_agg(c.relname)::text[] AS present FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname = ANY($1::text[]) AND c.relkind IN ('r','p')`,[tables]);
+ if(tables.some(name=>!state.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
 }
 export async function listEditableCeremonies(db:Client){
  await ensureCeremonyEditSchema(db);
