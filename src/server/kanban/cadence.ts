@@ -59,11 +59,12 @@ export async function ensureKanbanCadenceTable(db:Client){
  changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(team_id,revision)
  )`);
 }
-async function teamId(db:Client,actor:TeamActor,requestedTeamId?:string|null):Promise<string>{
+async function teamId(db:Client,actor?:TeamActor,requestedTeamId?:string|null):Promise<string>{
  const state=await db.query<{schema_version:number}>(
   "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
  const version=state.rows[0]?.schema_version;
  if(evaluateSchemaCapability(version,"multi-team").ok){
+  if(!actor)throw Error("kanban-team-context-required");
   const team=await resolveAdminTeam(db,actor,requestedTeamId);
   if(team.mode!=="kanban")throw Error("kanban-team-unavailable");
   return team.team_id;
@@ -76,7 +77,7 @@ async function teamId(db:Client,actor:TeamActor,requestedTeamId?:string|null):Pr
  if(r.rows.length!==1)throw Error("kanban-team-unavailable");
  return r.rows[0].id;
 }
-export async function readKanbanCadence(db:Client,actor:TeamActor,requestedTeamId?:string|null):Promise<KanbanCadence>{
+export async function readKanbanCadence(db:Client,actor?:TeamActor,requestedTeamId?:string|null):Promise<KanbanCadence>{
  await ensureKanbanCadenceTable(db);
  const id=await teamId(db,actor,requestedTeamId);
  await db.query("INSERT INTO public.smn_kanban_cadence(team_id) VALUES($1) ON CONFLICT DO NOTHING",[id]);
