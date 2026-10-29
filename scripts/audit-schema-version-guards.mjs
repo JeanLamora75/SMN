@@ -9,7 +9,10 @@ const rules=[
  {id:"version-bounds",level:"high",regex:/\b(?:schema|version|schemaVersion)\s*(?:<=|>=|===|==|<|>)\s*(?:2[7-9]|3\d)\b|\b(?:2[7-9]|3\d)\s*(?:<=|>=|===|==|<|>)\s*(?:schema|version|schemaVersion)\b/},
  {id:"version-list",level:"high",regex:/\[(?:\s*2[7-9]|\s*3\d)(?:\s*,\s*\d+)+\s*\]\.includes\(|\bschema_version\s+IN\s*\(/i},
  {id:"global-agile-mode",level:"review",regex:/\b(?:i|installation)\.mode\b|\blower\(i\.mode\)/i},
- {id:"team-mode-fallback",level:"review",regex:/\bagile_mode.{0,100}\bi\.mode\b/i}
+ {id:"team-mode-fallback",level:"review",regex:/\bagile_mode.{0,100}\bi\.mode\b/i},
+ {id:"implicit-ddl",level:"high",regex:/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX|SCHEMA|TYPE)\b/i},
+ {id:"read-side-effect-call",level:"high",regex:/\bawait\s+(?:ensure[A-Z]\w*|reconcile[A-Z]\w*)\s*\(/},
+ {id:"read-side-effect-sql",level:"review",regex:/\b(?:INSERT INTO|UPDATE public\.|DELETE FROM)\b/i}
 ];
 async function scan(dir){
  const entries=(await readdir(dir,{withFileTypes:true})).sort((a,b)=>a.name.localeCompare(b.name));
@@ -23,6 +26,7 @@ async function scan(dir){
    for(const rule of rules){
     if(rule.regex.test(lines[i]))findings.push({path,line:i+1,rule:rule.id,level:rule.level,
       scope:path.startsWith("src/app/api/")?"api":path.startsWith("src/server/")?"server":"other",
+      readCandidate:path.startsWith("src/app/api/")&&lines.some(x=>/export async function GET\(/.test(x)),
       source:lines[i].trim().slice(0,200)});
    }
   }
@@ -32,6 +36,7 @@ await scan(root);
 const totals=Object.fromEntries(rules.map(r=>[r.id,findings.filter(f=>f.rule===r.id).length]));
 const files=[...new Set(findings.map(f=>f.path))];
 const result={filesWithFindings:files.length,findings:findings.length,byRule:totals,
+ readCandidates:findings.filter(f=>f.readCandidate&&["implicit-ddl","read-side-effect-call","read-side-effect-sql"].includes(f.rule)).length,
  apiGuards:findings.filter(f=>f.scope==="api"&&["schema-version-sql","version-bounds","version-list"].includes(f.rule)).length,
  matches:findings};
 if(process.argv.includes("--summary"))console.log(JSON.stringify({...result,matches:undefined},null,2));
