@@ -17,7 +17,8 @@ export const reportSchemaStatements=[
   "CREATE INDEX IF NOT EXISTS smn_report_document_sprint_idx ON public.smn_report_document(sprint_id,updated_at DESC)",
   "ALTER TABLE public.smn_report_document ADD COLUMN IF NOT EXISTS creation_request_id text",
   "CREATE TABLE IF NOT EXISTS public.smn_report_document_session_write(document_id text NOT NULL REFERENCES public.smn_report_document(id) ON DELETE CASCADE, session_id text NOT NULL, last_sequence integer NOT NULL CHECK(last_sequence>=1), PRIMARY KEY(document_id,session_id))",
-  "CREATE UNIQUE INDEX IF NOT EXISTS smn_report_document_create_request_idx ON public.smn_report_document(creation_request_id) WHERE creation_request_id IS NOT NULL"
+  "CREATE UNIQUE INDEX IF NOT EXISTS smn_report_document_create_request_idx ON public.smn_report_document(creation_request_id) WHERE creation_request_id IS NOT NULL",
+  "CREATE TABLE IF NOT EXISTS public.smn_report_team_context_options(\n  sprint_id text PRIMARY KEY REFERENCES public.smn_sprint(id) ON DELETE RESTRICT,\n  options jsonb NOT NULL,revision integer NOT NULL CHECK(revision>0),\n  updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL,\n  updated_at timestamptz NOT NULL DEFAULT now())"
 ] as const;
 async function main(){
  if(process.argv.slice(2).join(" ")!=="--apply")throw Error("Usage: pnpm exec tsx scripts/apply-report-schema-v32.ts --apply");
