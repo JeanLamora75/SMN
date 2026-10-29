@@ -14,7 +14,7 @@ test("le mode est persisté et restitué dans la liste",()=>{
  const list=read("src/server/teams/list.ts");
  assert.match(write,/name,agile_mode\) VALUES/);
  assert.match(write,/input\.agileMode/);
- assert.match(list,/t\.agile_mode/);
+ assert.match(list,/to_jsonb\(t\)->>'agile_mode'/);
  assert.match(list,/agileMode:row\.agile_mode/);
 });
 test("le formulaire présente Scrum et Kanban sans modifier le mode existant",()=>{
