@@ -4,18 +4,8 @@ import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {criticality,validLevel,type Level} from "@/lib/risk-criticality";
 export async function ensureRiskAssessment(db:Client){
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_risk_assessment(
- item_id text PRIMARY KEY REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- probability smallint CHECK(probability BETWEEN 1 AND 3),
- impact smallint CHECK(impact BETWEEN 1 AND 3),
- revision integer NOT NULL DEFAULT 1 CHECK(revision>0),
- updated_at timestamptz NOT NULL DEFAULT now(),
- updated_by text REFERENCES public.smn_account(id) ON DELETE SET NULL)`);
- await db.query(`CREATE TABLE IF NOT EXISTS public.smn_risk_assessment_audit(
- id text PRIMARY KEY,item_id text NOT NULL REFERENCES public.smn_registry_item(id) ON DELETE RESTRICT,
- revision integer NOT NULL,old_values jsonb,new_values jsonb NOT NULL,
- actor_id text REFERENCES public.smn_account(id) ON DELETE SET NULL,
- changed_at timestamptz NOT NULL DEFAULT now(),UNIQUE(item_id,revision))`);
+ await db.query("SELECT to_regclass('public.smn_risk_assessment') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
+ await db.query("SELECT to_regclass('public.smn_risk_assessment_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-core-v32")});
 }
 export async function saveRiskAssessment(db:Client,actorId:string,id:string,raw:unknown,
  scope?:Readonly<{actor:TeamActor;teamId:string}>){
