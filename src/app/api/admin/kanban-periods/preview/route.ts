@@ -3,7 +3,6 @@ import {authorizeApi} from "@/server/auth/authorization";
 import {withAuthDb} from "@/server/auth/database";
 import {jsonResult} from "@/server/auth/request";
 import {readKanbanCadence} from "@/server/kanban/cadence";
-import {ensureKanbanPeriodTables} from "@/server/kanban/periods";
 import {batchPreview} from "@/server/kanban/batch-preview";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 export const dynamic="force-dynamic";
@@ -19,7 +18,8 @@ export async function GET(request:NextRequest){
    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},params.get("teamId"));
    if(team.mode!=="kanban")throw Error("kanban-team-unavailable");
    const cadence=await readKanbanCadence(db,{accountId:actor.id,role:actor.role},team.team_id);
-   await ensureKanbanPeriodTables(db);
+   const present=await db.query<{ready:boolean}>("SELECT to_regclass('public.smn_kanban_period') IS NOT NULL AS ready");
+   if(!present.rows[0]?.ready)throw Error("kanban-schema-unavailable");
    const r=await db.query<{id:string;start_on:string;end_on:string}>(`SELECT p.id,p.start_on::text,p.end_on::text
     FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id
     JOIN public.smn_installation i ON i.id=t.installation_id
