@@ -13,7 +13,7 @@ test("entrée erronée refusée sans écriture",async()=>{
 });
 test("sélection transactionnelle avec audit, sans modifier les sources",async()=>{
  const calls:string[]=[];
- const db={query:async(q:string)=>{calls.push(q);
+ const db={query:async(q:string)=>{calls.push(q);if(q.startsWith("SELECT to_regclass(")&&q.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(q.includes("SELECT r.id FROM public.smn_registry_item"))return {rows:[{id:"ok"}]};
   return {rows:[]};
  }} as unknown as Client;
