@@ -13,8 +13,8 @@ describe("Authentification : compatibilité du schéma v27", () => {
     }
   });
 
-  it("refuse les versions futures, absentes ou mal formées", () => {
-    for (const version of [0, 31, 99, -1, 1.5, Number.NaN, Infinity]) {
+  it("refuse les versions supérieures à v32, absentes ou mal formées", () => {
+    for (const version of [0, 33, 99, -1, 1.5, Number.NaN, Infinity]) {
       assert.equal(isSupportedAuthenticationSchemaVersion(version), false);
     }
   });
