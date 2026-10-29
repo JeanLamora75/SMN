@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
+import {createPortal} from "react-dom";
 import {useLocale,useTranslation} from "@/i18n/client";
 import {annualDisplayStatus,type TechnicalCoverage,type AnnualDisplayStatus}
  from "@/lib/countries/year-status";
@@ -279,6 +280,7 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
 }){
  const t=useTranslation(),locale=useLocale();
  const dialog=useRef<HTMLDialogElement>(null);
+ const [portalReady,setPortalReady]=useState(false);
  const firstFocus=useRef<HTMLSelectElement>(null);
  const [year,setYear]=useState(initialYear);
  const [month,setMonth]=useState(()=>Number(new Intl.DateTimeFormat("en-GB",{
@@ -313,12 +315,14 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
  },[importOutcome]);
  function chooseYear(next:number){setYear(next);setLatestStatus(null);}
 
+ useEffect(()=>{setPortalReady(true);},[]);
  useEffect(()=>{
+  if(!portalReady)return;
   const node=dialog.current;
   if(node&&!node.open)node.showModal();
   firstFocus.current?.focus();
   return ()=>{if(node?.open)node.close();};
- },[]);
+ },[portalReady]);
 
  const availableYears=useMemo(()=>Array.from(new Set([
   year,initialYear,initialYear-2,initialYear-1,initialYear+1,initialYear+2,
@@ -340,7 +344,9 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
  const monthHeading=new Intl.DateTimeFormat(language,{month:"long",year:"numeric",timeZone:"UTC"})
   .format(new Date(Date.UTC(year,month,1)));
 
- return <dialog ref={dialog} className="smn-country-calendar-dialog"
+ if(!portalReady)return null;
+ // Place the native dialog at document level to avoid inherited modal/clipping contexts.
+ return createPortal(<dialog ref={dialog} className="smn-country-calendar-dialog"
   aria-labelledby="smn-country-dialog-title" aria-describedby="smn-country-dialog-description"
   onCancel={event=>{if(editing)event.preventDefault();}}
   onClose={onClose}>
@@ -444,5 +450,5 @@ export default function CountryCalendarModal({country,initialYear,onClose,canMan
      disabled={editing} onClick={()=>dialog.current?.close()}>{t("countries.close")}</button>
    </footer>
   </div>
- </dialog>;
+ </dialog>,document.body);
 }
