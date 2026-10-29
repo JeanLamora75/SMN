@@ -14,6 +14,7 @@ const makeDB=(opts:{item?:boolean;comment?:boolean;currentRevision?:number;withd
  table?:boolean;failAudit?:boolean;legacy?:string|null}={})=>{
  const calls:Calls[]=[];
  const db={query:async(sql:string,params?:unknown[])=>{
+   if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   calls.push({sql,params});
   if(opts.failAudit&&sql.includes("INSERT INTO public.smn_registry_comment_revision"))throw Error("audit-failed");
   if(sql.includes("SELECT r.id,r.comment")&&sql.includes("FROM public.smn_registry_item"))
@@ -160,6 +161,7 @@ test("lecture collective : texte retiré masqué, trace visible, identité auteu
   editedAt:null,editorName:null,withdrawnAt:"2026-10-25 13:00:00+00",
   withdrawnByName:"admin.real"};
  const db={query:async(sql:string)=>{
+   if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("SELECT r.id,r.comment"))return {rows:[{id:ID,comment:null}]};
   if(sql.includes("AS installed"))return {rows:[{installed:true}]};
   if(sql.includes("FROM public.smn_registry_comment c")&&sql.includes("ORDER BY"))
@@ -181,6 +183,7 @@ test("correction affichable sans effacer la date de création",async()=>{
   editedAt:"2026-10-25 13:00:00+00",editorName:"admin.editor",
   withdrawnAt:null,withdrawnByName:null};
  const db={query:async(sql:string)=>{
+   if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("SELECT r.id,r.comment"))return {rows:[{id:ID,comment:null}]};
   if(sql.includes("AS installed"))return {rows:[{installed:true}]};
   if(sql.includes("FROM public.smn_registry_comment c")&&sql.includes("ORDER BY"))
@@ -197,6 +200,7 @@ test("versions : ancienne/nouvelle valeur, auteur réel et chronologie de révis
  const versions=[{revision:2,action:"edited",beforeText:"Avant",afterText:"Après",
   actorName:"admin.editor",changedAt:"2026-10-25 13:00:00+00"}];
  const db={query:async(sql:string)=>{
+   if(sql.startsWith("SELECT to_regclass(")&&sql.endsWith(" AS present"))return {rows:[{present:"migrated"}]};
   if(sql.includes("SELECT r.id,r.comment"))return {rows:[{id:ID,comment:null}]};
   if(sql.includes("AS installed"))return {rows:[{installed:true}]};
   if(sql.includes("SELECT id FROM public.smn_registry_comment"))
