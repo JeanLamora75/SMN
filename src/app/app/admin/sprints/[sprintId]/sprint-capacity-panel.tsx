@@ -14,8 +14,8 @@ const missingTranslation:Record<PresenceMissingSource,TranslationKey>={
 };
 
 /** The parent must NEVER fetch or pass the nominal data for role=user. */
-export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
- data:SprintPresence|null;canViewNames:boolean;locale:"fr"|"en";t:Text;
+export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:{
+ data:SprintPresence|null;canViewNames:boolean;teamId:string;locale:"fr"|"en";t:Text;
 }){
  if(!canViewNames)return <section aria-label={t("sprintDetail.tabs.capacity")}>
   <h2 className="h5 mb-3">{t("sprintDetail.tabs.capacity")}</h2>
@@ -115,7 +115,7 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
     <p className="mb-2">Certaines journées ne peuvent pas être calculées faute de données applicables aux dates du Sprint. Les chiffres manquants ne sont pas assimilés à zéro.</p>
     <ul className="mb-2">{data.members.filter(m=>m.missingSources?.length).map(m=>
      <li key={m.memberId}><strong>{m.displayName}</strong> :{" "}
-      {m.missingSources!.map(code=>t(missingTranslation[code])).join("; ")}{m.missingSources!.includes("work-calendar")?<span> — trame hebdomadaire absente ou sans version en vigueur pendant le Sprint. <Link href={"/app/admin/members/"+encodeURIComponent(m.memberId)}>Ouvrir la fiche et vérifier le calendrier</Link></span>:null}</li>)}
+      {m.missingSources!.map(code=>t(missingTranslation[code])).join("; ")}{m.missingSources!.includes("work-calendar")?<span> — trame hebdomadaire absente ou sans version en vigueur pendant le Sprint. <Link href={"/app/admin/members/"+encodeURIComponent(m.memberId)+"?"+new URLSearchParams({teamId})}>Ouvrir la fiche et vérifier le calendrier</Link></span>:null}</li>)}
     </ul>
     <Link href="/app/admin/development-capacity">{t("sprintDetail.presenceSeeDiagnosis")}</Link>
    </div>}
