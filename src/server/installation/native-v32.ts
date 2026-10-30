@@ -1,13 +1,16 @@
 import {createHash} from "node:crypto";
 import {existsSync,readFileSync} from "node:fs";
+import {resolve} from "node:path";
 import type {Snapshot} from "./diagnostic";
 
 export const NATIVE_V32_NAME="smn_v32_native_baseline";
-export const NATIVE_V32_FILE=new URL("../../../prisma/baseline/v32/schema.sql",import.meta.url);
+// Resolve at runtime: bundlers must not require this optional SQL file at build time.
+export const NATIVE_V32_FILE=()=>resolve(process.cwd(),"prisma","baseline","v32","schema.sql");
 
 export function nativeBaselineSql():string|null {
- if(!existsSync(NATIVE_V32_FILE))return null;
- const sql=readFileSync(NATIVE_V32_FILE,"utf8");
+ const file=NATIVE_V32_FILE();
+ if(!existsSync(file))return null;
+ const sql=readFileSync(file,"utf8");
  // A dump from a historical installation is NOT automatically a native baseline.
  // It must contain the neutral installation contract and be reviewed separately.
  if(!sql.includes("smn_installation")||!sql.includes("smn_account")||
