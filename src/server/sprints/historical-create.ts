@@ -1,6 +1,7 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
+import {resolveAdminTeam} from "@/server/teams/resolve";
 import {saveGeneratedCeremonies} from "./ceremonies";
 import {ensureTemplateOccurrenceSchema} from "./template-occurrences";
 const UUID=/^[a-f0-9-]{36}$/i;
@@ -18,18 +19,24 @@ export function parseHistoricalSprint(raw:unknown):HistoricalSprintInput|null{
  Date.parse(v.endAt)<=Date.parse(v.startAt))return null;
  return {name:v.name.trim(),startAt:v.startAt,endAt:v.endAt,generateCeremonies:v.generateCeremonies,operationId:v.operationId};
 }
-export async function createHistoricalSprint(db:Client,actorId:string,raw:unknown){
+export async function createHistoricalSprint(db:Client,actorId:string,raw:unknown,requestedTeamId?:string|null){
  const value=parseHistoricalSprint(raw);
  if(!actorId||!value)return {ok:false as const,error:"invalid-input"};
  await ensureSprintSchema(db);
  await db.query("SELECT to_regclass('public.smn_sprint_historical_request') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("BEGIN");
  try{
+  const scope=await resolveAdminTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
+  if(scope.mode!=="scrum"){
+   await db.query("ROLLBACK");return {ok:false as const,error:"team-unavailable"};
+  }
   const team=await db.query<{id:string;time_zone:string}>(`
    SELECT t.id,c.time_zone FROM public.smn_team t
    JOIN public.smn_installation i ON i.id=t.installation_id
    JOIN public.smn_scrum_cadence c ON c.team_id=t.id
-   WHERE i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`);
+   WHERE t.id=$1 AND i.id='singleton' AND i.state='initialized'
+    AND LOWER(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'
+    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false`,[scope.team_id]);
   if(team.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"team-unavailable"};}
   const t=team.rows[0];
   // Share the same team creation lock used by normal Sprint generation.
