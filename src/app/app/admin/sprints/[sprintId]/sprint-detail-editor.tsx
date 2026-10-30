@@ -78,7 +78,16 @@ export default function SprintDetailEditor(props:Props){
    const r=await fetch("/api/admin/sprints/reschedule",{
     method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(input)});
    const data=await r.json();
-   if(!r.ok||!data.ok||typeof data.token!=="string")throw Error(data.error??"preview");
+   if(!r.ok||!data.ok||typeof data.token!=="string"){
+    const message=data.error==="not-found"?"Sprint introuvable dans l’équipe active.":
+     data.error==="closed-period"?"Ce Sprint est clôturé et ne peut pas être replanifié.":
+     data.error==="sprint-overlap"?"La période chevauche un autre Sprint de cette équipe.":
+     data.error==="events-outside-new-period"?"Des événements existants sortent de la nouvelle période.":
+     data.error==="recalculation-not-supported"?"Le recalcul automatique n’est pas disponible pour cette opération.":
+     data.error==="unavailable"?"Prévisualisation indisponible : erreur du serveur. Consultez le terminal.":
+     t("sprintDetail.previewError");
+    setError(message);return;
+   }
    setPreview({token:data.token,input,impact:data.impact,warnings:data.warnings});
   }catch{setError(t("sprintDetail.previewError"));}
   finally{setBusy(false);}
