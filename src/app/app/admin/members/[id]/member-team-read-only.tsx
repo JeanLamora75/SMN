@@ -41,9 +41,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const locale=useLocale();
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
- const [editor,setEditor]=useState<"profile"|"location"|"calendar"|"absence"|null>(null);
+ const [editor,setEditor]=useState<"profile"|"assignment"|"location"|"calendar"|"absence"|null>(null);
  const dialogRef=useRef<HTMLDialogElement>(null);
- const [editingAssignment,setEditingAssignment]=useState(false);
  const [refreshKey,setRefreshKey]=useState(0);
  const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
  const [sprintDays,setSprintDays]=useState<{start:string;end:string}|null>(null);
@@ -142,9 +141,10 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <p className="smn-member-role">{role||t("memberTeamScope.noRole")} — {identity.profession||t("memberTeamScope.noFunction")}</p>
    </div>
    <div className="smn-member-hero-actions">
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("profile")}>Modifier le profil</button>
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("location")}>Modifier la localisation</button>
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("calendar")}>Modifier le calendrier de travail</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("profile")}>Profil</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("location")}>Localisation</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("calendar")}>Calendrier</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("assignment")}>Modifier Affectation</button>
     <Link className="smn-member-readonly smn-member-back" href={backHref}>← {t("memberTeamScope.back")}</Link>
    </div>
   </header>
@@ -152,11 +152,12 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    onCancel={()=>setEditor(null)}>
    <div className="modal-content smn-cockpit-modal">
     <div className="smn-cockpit-modal-header">
-     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":editor==="calendar"?"Modifier le calendrier de travail":"Ajouter une absence"}</h2>
+     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":editor==="calendar"?"Modifier le calendrier de travail":editor==="assignment"?"Modifier l’affectation et les rôles":"Ajouter une absence"}</h2>
      <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
     </div>
     <div className="smn-cockpit-modal-body">
-     {editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
+     {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
+      editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
       onCancel={()=>setEditor(null)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditor(null);router.refresh();}}/>:
       <MemberTeamPlanningEditor key={editor+"-"+refreshKey} memberId={memberId} teamId={teamId}
@@ -176,8 +177,6 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <div><span>{t("memberTeamScope.allocation")}</span><strong>{active.allocationPercent} %</strong></div>
     <div><span>{t("memberTeamScope.annualAbsences")}</span><strong>{annual===null?t("memberTeamScope.notAvailable"):annual}</strong></div>
    </div>}
-   <div className="mb-3"><button className="btn btn-outline-primary btn-sm" type="button" onClick={()=>setEditingAssignment(v=>!v)}>{editingAssignment?"Fermer":"Modifier l’affectation et les rôles"}</button></div>
-   {editingAssignment&&<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditingAssignment(false);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditingAssignment(false)}/>}
    <div className="table-responsive">
     <table className="table table-striped align-middle smn-member-table">
      <thead><tr>
