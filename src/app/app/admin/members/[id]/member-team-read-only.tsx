@@ -41,10 +41,9 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const locale=useLocale();
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
- const [editor,setEditor]=useState<"profile"|"location"|"calendar"|null>(null);
+ const [editor,setEditor]=useState<"profile"|"location"|"calendar"|"absence"|null>(null);
  const dialogRef=useRef<HTMLDialogElement>(null);
  const [editingAssignment,setEditingAssignment]=useState(false);
- const [editingAbsence,setEditingAbsence]=useState(false);
  const [refreshKey,setRefreshKey]=useState(0);
  const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
  const [sprintDays,setSprintDays]=useState<{start:string;end:string}|null>(null);
@@ -153,11 +152,12 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    onCancel={()=>setEditor(null)}>
    <div className="modal-content smn-cockpit-modal">
     <div className="smn-cockpit-modal-header">
-     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":"Modifier le calendrier de travail"}</h2>
+     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":editor==="calendar"?"Modifier le calendrier de travail":"Ajouter une absence"}</h2>
      <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
     </div>
     <div className="smn-cockpit-modal-body">
-     {editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
+     {editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
+      editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
       onCancel={()=>setEditor(null)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditor(null);router.refresh();}}/>:
       <MemberTeamPlanningEditor key={editor+"-"+refreshKey} memberId={memberId} teamId={teamId}
        kind={editor} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}}
@@ -201,13 +201,12 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <h2 className="smn-member-panel-title" id="smn-team-member-availability-title">
      {t("memberTeamScope.absenceTitle")}
     </h2>
-    <button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingAbsence(v=>!v)}>{editingAbsence?"Fermer":"Ajouter une absence"}</button>
     <input className="form-control smn-member-month-select" id="smn-member-team-month"
      aria-label={t("memberTeamScope.month")} type="month" min="1900-01" max="2200-12"
      value={month} onChange={event=>setMonth(event.target.value)}/>
+    <button type="button" className="smn-member-readonly smn-member-month-action" onClick={()=>setEditor("absence")}>Ajouter une absence</button>
    </div>
    <p className="text-secondary">{t("memberTeamScope.privacy")}</p>
-   {editingAbsence&&<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditingAbsence(false);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditingAbsence(false)}/>}
    {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
    {status==="error"&&<p role="alert" className="alert alert-warning">
     {t("memberTeamScope.unavailable")}
