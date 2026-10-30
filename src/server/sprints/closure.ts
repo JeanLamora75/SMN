@@ -23,7 +23,7 @@ async function sprintScope(db:Client,id:string,lock=false){
  const r=await db.query<{id:string;team_id:string;name:string;status:string;start_at:string;end_at:string;time_zone:string}>(`SELECT s.id,s.team_id,s.name,s.status,s.start_at::text,s.end_at::text,s.time_zone
  FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+ WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum' AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
  ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
 async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:string;start_at:string;end_at:string;time_zone:string},historical=false){
