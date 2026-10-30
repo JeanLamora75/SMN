@@ -2,6 +2,8 @@
 import {useEffect,useState} from "react";
 import Link from "next/link";
 import MemberTeamProfileEditor from "./member-team-profile-editor";
+import AssignmentEditor from "../assignment-editor";
+import MemberAbsenceEditor from "../member-absence-editor";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TeamAssignmentRevision} from "@/server/members/team-assignment-history";
 
@@ -37,6 +39,9 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
  const [editing,setEditing]=useState(false);
+ const [editingAssignment,setEditingAssignment]=useState(false);
+ const [editingAbsence,setEditingAbsence]=useState(false);
+ const [refreshKey,setRefreshKey]=useState(0);
  const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
  const [sprintDays,setSprintDays]=useState<{start:string;end:string}|null>(null);
  const [month,setMonth]=useState(()=>
@@ -146,6 +151,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <div><span>{t("memberTeamScope.allocation")}</span><strong>{active.allocationPercent} %</strong></div>
     <div><span>{t("memberTeamScope.annualAbsences")}</span><strong>{annual===null?t("memberTeamScope.notAvailable"):annual}</strong></div>
    </div>}
+   <div className="mb-3"><button className="btn btn-outline-primary btn-sm" type="button" onClick={()=>setEditingAssignment(v=>!v)}>{editingAssignment?"Fermer":"Modifier l’affectation et les rôles"}</button></div>
+   {editingAssignment&&<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditingAssignment(false);setRefreshKey(v=>v+1);}} onCancel={()=>setEditingAssignment(false)}/>}
    <div className="table-responsive">
     <table className="table table-striped align-middle smn-member-table">
      <thead><tr>
@@ -169,11 +176,13 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <h2 className="smn-member-panel-title" id="smn-team-member-availability-title">
      {t("memberTeamScope.absenceTitle")}
     </h2>
+    <button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingAbsence(v=>!v)}>{editingAbsence?"Fermer":"Ajouter une absence"}</button>
     <input className="form-control smn-member-month-select" id="smn-member-team-month"
      aria-label={t("memberTeamScope.month")} type="month" min="1900-01" max="2200-12"
      value={month} onChange={event=>setMonth(event.target.value)}/>
    </div>
    <p className="text-secondary">{t("memberTeamScope.privacy")}</p>
+   {editingAbsence&&<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditingAbsence(false);setRefreshKey(v=>v+1);}} onCancel={()=>setEditingAbsence(false)}/>}
    {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
    {status==="error"&&<p role="alert" className="alert alert-warning">
     {t("memberTeamScope.unavailable")}
