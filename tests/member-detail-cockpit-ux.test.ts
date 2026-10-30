@@ -74,3 +74,21 @@ test("Cockpit membre : navigation intégrée au bandeau sans fil d'Ariane extern
  assert.match(page,/backHref={back}/);
  assert.match(css,/smn-member-back:focus-visible/);
 });
+
+test("Cockpit membre : trois synthèses, historique SM PO DEV et dates de sprint",()=>{
+ const windowSource=read("src/server/members/team-availability-window.ts");
+ assert.match(view,/smn-member-sprint-day/);
+ assert.match(view,/smn-current-cycle/);
+ assert.match(view,/sprintDays/);
+ assert.match(view,/<th scope="col">SM<\/th>/);
+ assert.match(view,/<th scope="col">PO<\/th>/);
+ assert.match(view,/<th scope="col">DEV<\/th>/);
+ assert.match(view,/v\.scrumMasterPercent/);
+ assert.match(view,/v\.productOwnerPercent/);
+ assert.match(view,/v\.developerPercent/);
+ assert.doesNotMatch(view,/<th scope="col">\{t\("memberTeamScope\.effective"\)\}<\/th>/);
+ assert.doesNotMatch(view,/<div><span>\{t\("memberTeamScope\.developer"\)\}/);
+ assert.match(windowSource,/generate_series\(\$3::date,\$4::date/);
+ assert.match(windowSource,/d\.assigned AND a\.id IS NOT NULL/);
+ assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+});
