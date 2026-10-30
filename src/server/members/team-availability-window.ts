@@ -45,39 +45,35 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
  // The member/team assignment and all daily absences share one SQL snapshot.
  // A former team receives dates from its own assignment, not dates when the
  // member subsequently joined another team.
+ const membership=await db.query<{id:string}>(`
+ SELECT a.id FROM public.smn_member_assignment a
+ JOIN public.smn_member m ON m.id=a.member_id
+ WHERE a.member_id=$1 AND a.team_id=$2 AND m.installation_id='singleton'
+ LIMIT 1`,[parsed.memberId,authorized.team_id]);
+ if(!membership.rows.length)throw Error("member-out-of-team");
  const result=await db.query<{
   day:string;morning_absent:boolean;afternoon_absent:boolean;
  }>(`
  WITH member_days AS (
-  SELECT gs.day::date AS day FROM generate_series($3::date,$4::date,
-   interval '1 day') AS gs(day)
-  WHERE EXISTS (
-   SELECT 1 FROM public.smn_member_assignment x
-   JOIN public.smn_member m ON m.id=x.member_id
-   JOIN public.smn_team t ON t.id=x.team_id
-   WHERE x.member_id=$1 AND x.team_id=$2
-    AND m.installation_id=t.installation_id
-    AND t.installation_id='singleton'
-    AND x.start_on<=gs.day::date
-    AND (x.end_on IS NULL OR x.end_on>=gs.day::date)
-  )
+  SELECT gs.day::date AS day,
+   EXISTS(SELECT 1 FROM public.smn_member_assignment x
+    WHERE x.member_id=$1 AND x.team_id=$2
+     AND x.start_on<=gs.day::date
+     AND (x.end_on IS NULL OR x.end_on>=gs.day::date)) AS assigned
+  FROM generate_series($3::date,$4::date,interval '1 day') AS gs(day)
  )
  SELECT d.day::text AS day,
-  COALESCE(bool_or(a.id IS NOT NULL AND
-    (a.start_on<d.day OR a.start_slot='morning')),false) AS morning_absent,
-  COALESCE(bool_or(a.id IS NOT NULL AND
-    (a.end_on>d.day OR a.end_slot='afternoon')),false) AS afternoon_absent
+  COALESCE(bool_or(d.assigned AND a.id IS NOT NULL AND
+   (a.start_on<d.day OR a.start_slot='morning')),false) AS morning_absent,
+  COALESCE(bool_or(d.assigned AND a.id IS NOT NULL AND
+   (a.end_on>d.day OR a.end_slot='afternoon')),false) AS afternoon_absent
  FROM member_days d
  LEFT JOIN public.smn_member_absence a
   ON a.member_id=$1 AND a.start_on<=d.day AND a.end_on>=d.day
-  AND NOT EXISTS(
-   SELECT 1 FROM public.smn_member_absence_history h
+  AND NOT EXISTS(SELECT 1 FROM public.smn_member_absence_history h
    WHERE h.absence_id=a.id AND h.revision=a.revision
-    AND h.after_values->>'deleted'='true'
-  )
- GROUP BY d.day
- ORDER BY d.day
- LIMIT 31`,
+    AND h.after_values->>'deleted'='true')
+ GROUP BY d.day ORDER BY d.day LIMIT 31`,
  [parsed.memberId,authorized.team_id,parsed.startOn,parsed.endOn]);
  if(!result.rows.length)throw Error("member-out-of-team");
  return {
