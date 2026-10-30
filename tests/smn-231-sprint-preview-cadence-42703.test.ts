@@ -16,7 +16,7 @@ function dbFixture(){
  const queries:string[]=[];
  const db={query:async (sql:string,parameters?:unknown[])=>{
   queries.push(sql);
-  if(sql.includes("CREATE TABLE IF NOT EXISTS"))return {rows:[],rowCount:0};
+  if(sql.includes("to_regclass"))return {rows:[{present:"smn_sprint"}],rowCount:1};
   if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_scrum_cadence","smn_scrum_cadence_audit"]}]};
   if(sql.includes("SELECT t.id FROM public.smn_team t"))
    return {rows:[{id:"team-1"}],rowCount:1};
