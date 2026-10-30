@@ -9,6 +9,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import MemberDetail from "./member-detail";
 import MemberTeamReadOnly from "./member-team-read-only";
+import "./member-cockpit.css";
 
 export const dynamic="force-dynamic";
 type PageContext=Readonly<
