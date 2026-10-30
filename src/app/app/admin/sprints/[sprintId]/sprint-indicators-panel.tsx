@@ -129,7 +129,7 @@ export default function SprintIndicatorsPanel({sprintId,teamId,status,canManage,
    if(!r.ok||!result.ok){
     if(result.error==="conflict"){setError(t("sprintDetail.indicatorConflict"));return;}
     if(result.error==="closed-period"){setError(t("sprintDetail.indicatorClosed"));return;}
-    setError(result.error==="context-not-ready"?"Écriture multiéquipes non activée sur cette installation.":result.error==="not-found"?"Sprint introuvable dans l’équipe active.":t("sprintDetail.indicatorSaveError"));return;
+    setError(result.error==="schema-not-ready"?"Les tables SQL des Story Points ne sont pas installées. Applique la migration des agrégats du Sprint.":result.error==="context-not-ready"?"Écriture multiéquipes non activée sur cette installation.":result.error==="not-found"?"Sprint introuvable dans l’équipe active.":result.error==="unavailable"?"Erreur serveur lors de l’enregistrement. Consulte le journal « sprint-story-points-save-failed » dans le terminal.":t("sprintDetail.indicatorSaveError"));return;
    }
    setNotice(t("sprintDetail.indicatorSaved"));
    setGroup(null);router.refresh();
