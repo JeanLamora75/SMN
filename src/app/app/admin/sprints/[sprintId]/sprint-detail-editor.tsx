@@ -5,7 +5,7 @@ import {useTranslation} from "@/i18n/client";
 import {sprintZonedInput,sprintZonedToIso} from "@/lib/sprint-detail-time";
 import BootstrapIcon from "../../../bootstrap-icon";
 
-type Props={kind:"name"|"dates";sprintId:string;name:string;
+type Props={kind:"name"|"dates";sprintId:string;teamId:string;name:string;
  startAt:string;endAt:string;timeZone:string};
 type RescheduleInput={sprintId:string;startAt:string;endAt:string;mode:"keep"};
 type OutsideEvent={id:string;name:string;kind:string;status:string;startAt:string;endAt:string;removable:boolean};
@@ -44,7 +44,7 @@ export default function SprintDetailEditor(props:Props){
   if(busy||!name.trim()||name.trim().length>160)return;
   setBusy(true);setError("");
   try{
-   const r=await fetch("/api/admin/sprints/"+encodeURIComponent(props.sprintId),{
+   const r=await fetch("/api/admin/sprints/"+encodeURIComponent(props.sprintId)+"?"+new URLSearchParams({teamId:props.teamId}),{
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({name:name.trim()})});
    const data=await r.json();
