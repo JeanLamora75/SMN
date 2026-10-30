@@ -90,11 +90,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         unit="J/H" empty={emptyMetric}
         firstMetric={projection?.capacity.initialJh} secondMetric={projection?.capacity.actualJh}
         icon="people-fill" tone="capacity" ratioKey="dashboard.cockpit.capacityRatio"
-        locale={locale} comparison={comparison}
-        action={canViewCapacity&&cycle&&cycle.status!=="closed"?{
-          href:"/app/admin/development-capacity?cycleId="+encodeURIComponent(cycle.id),
-          label:t("dashboard.cockpit.capacityDiagnosis")
-        }:undefined}/>
+        locale={locale} comparison={comparison}/>
       <KpiMetricPair title={t("dashboard.cockpit.storyPoints")}
         first={t("dashboard.cockpit.initialStoryPoints")}
         second={t("dashboard.cockpit.completedStoryPoints")}
