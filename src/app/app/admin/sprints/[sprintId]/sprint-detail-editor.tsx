@@ -102,9 +102,20 @@ export default function SprintDetailEditor(props:Props){
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({input:preview.input,token:preview.token,removeCeremonies})});
    const data=await r.json();
-   if(!r.ok||!data.ok)throw Error("confirm");
+   if(!r.ok||!data.ok){
+    const reason=data.error==="stale-preview"?
+     "La prévisualisation a expiré : les événements ou les dates ont changé. Relancez la prévisualisation.":
+     data.error==="events-outside-new-period"?
+     "Des cérémonies ont changé ou ne peuvent pas être supprimées. Relancez la prévisualisation.":
+     data.error==="invalid-input"?
+     "La sélection des cérémonies n'est pas valide. Relancez la prévisualisation.":
+     data.error==="unavailable"?
+     "Erreur serveur pendant l'enregistrement. Consultez le journal « sprint-reschedule-confirm-failed ».":
+     t("sprintDetail.saveError");
+    setError(reason);setPreview(null);return;
+   }
    setOpened(false);setPreview(null);setNotice(t("sprintDetail.savedDates"));router.refresh();
-  }catch{setError(t("sprintDetail.saveError"));setPreview(null);}
+  }catch{setError("La connexion a échoué pendant l'enregistrement. Réessayez après vérification.");setPreview(null);}
   finally{setBusy(false);}
  }
  return <>
