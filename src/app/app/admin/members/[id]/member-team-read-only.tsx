@@ -144,7 +144,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("profile")}>Profil</button>
     <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("location")}>Localisation</button>
     <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("calendar")}>Calendrier</button>
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("assignment")}>Modifier Affectation</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("assignment")}>Affectation</button>
     <Link className="smn-member-readonly smn-member-back" href={backHref}>← {t("memberTeamScope.back")}</Link>
    </div>
   </header>
@@ -155,7 +155,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":editor==="calendar"?"Modifier le calendrier de travail":editor==="assignment"?"Modifier l’affectation et les rôles":"Ajouter une absence"}</h2>
      <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
     </div>
-    <div className="smn-cockpit-modal-body">
+    <div className="smn-cockpit-modal-body smn-member-edit-body">
      {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
