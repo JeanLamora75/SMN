@@ -119,7 +119,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   review:"sprintDetail.pendingReview"
  };
  const commonProps={
-  sprintId:cycle.id,name:cycle.name,startAt:cycle.startAt,
+  teamId,sprintId:cycle.id,name:cycle.name,startAt:cycle.startAt,
   endAt:cycle.endAt,timeZone:cycle.timeZone
  };
  return <main className="smn-page container-fluid px-3 px-lg-4 py-4 smn-sprint-detail smn-sprint-detail-cockpit">
