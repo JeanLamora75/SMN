@@ -1,6 +1,6 @@
 import type {Client} from "pg";
 import {isValidDate} from "../members/assignment";
-import {resolveCalendarDay,type WeekRow,type ExceptionRow} from "../members/calendar";
+import {resolveCalendarDay,DEFAULT_WEEK,type WeekRow,type ExceptionRow} from "../members/calendar";
 import {resolveDayAvailability} from "../members/day-availability";
 import {readWorkSlots,workingIntervals,occupiedMinutes} from "./work-slots";
 import {capacityImpactJh,type Interval} from "./meeting-intervals";
@@ -225,7 +225,13 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     const version=active.length===1?
      latest(versions.rows.filter(v=>v.assignment_id===active[0].id),date):null;
     if(active.length===1&&!version)problems.push("assignment-version");
-    const calendar=resolveCalendarDay(memberWeeks,memberExceptions,date);
+    // The member calendar editor proposes DEFAULT_WEEK when no effective
+    // individual version exists. Apply the same baseline to capacity so
+    // assigned members are not incorrectly classified as unavailable.
+    const effectiveWeeks=memberWeeks.some(w=>w.effective_from<=date)?
+     memberWeeks:[{revision:0,effective_from:"1900-01-01",days:DEFAULT_WEEK,
+      created_at:""}];
+    const calendar=resolveCalendarDay(effectiveWeeks,memberExceptions,date);
     if(calendar.slots===null)problems.push("work-calendar");
     const location=latest(memberLocations,date);
     const country=location?.country_iso2??null;
