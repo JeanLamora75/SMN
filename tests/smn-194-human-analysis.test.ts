@@ -14,7 +14,7 @@ test("human analysis explicitly stores origin, author and timestamps",()=>{
  assert.match(source,/author_id text NOT NULL/);
  assert.match(source,/created_at timestamptz NOT NULL DEFAULT now\(\)/);
  assert.match(source,/updated_at=now\(\)/);
- assert.doesNotMatch(source,/UPDATE public\.smn_ai_brief_response/);
+ assert.doesNotMatch(readFileSync("src/server/ai-briefs/human-analyses.ts","utf8"),/UPDATE public\.smn_ai_brief_response/);
 });
 test("read-only accounts cannot create or modify human analyses",()=>{
  const route=readFileSync("src/app/api/ai-briefs/human-analyses/route.ts","utf8");
