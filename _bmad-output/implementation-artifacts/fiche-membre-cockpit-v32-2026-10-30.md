@@ -43,3 +43,8 @@ Ces validations ne sont pas attestées avant exécution locale.
 - Historique : suppression de « Applicable depuis » ; trois colonnes distinctes SM, PO, DEV (pourcentages historiques) à la place de « Part développeur ».
 - Responsive : conserver le calendrier 1–15 et 16–fin, contrôle de confidentialité par équipe, affichage civil localisé FR/EN.
 - Contrôles : alternance des sprints, absence hors sprint, mois entier, historique et rendu responsive ; typecheck/lint/recette locale requis avant clôture.
+
+## Retouche de densité calendrier — 30/10/2026
+- Le sélecteur natif de mois est aligné à droite du titre « Calendrier », sans libellé visible mais avec un nom accessible.
+- Suppression des deux indicateurs récapitulatifs Matin et Après-midi ; les colonnes de demi-journées du tableau sont conservées.
+- La synthèse annuelle est simplement nommée « Absences cette année », sans changer l'unité de calcul (demi-journées).
