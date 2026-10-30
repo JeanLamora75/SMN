@@ -38,7 +38,7 @@ describe("Fiche Sprint — métadonnées des capacités",()=>{
   });
   const data={...report(),members:report().members.map(m=>({...m,...mapped.get(m.memberId)}))};
   const html=renderToStaticMarkup(createElement(SprintCapacityPanel,{
-   data,canViewNames:true,locale:"fr",t:(key,params)=>translate("fr",key,params)
+   data,teamId,canViewNames:true,locale:"fr",t:(key,params)=>translate("fr",key,params)
   }));
   assert.match(html,/Rôles Agile/);
   assert.match(html,/Fonction/);
@@ -75,7 +75,7 @@ describe("Fiche Sprint — métadonnées des capacités",()=>{
   assert.deepEqual(mapped.get(memberId)?.contributionPercents,[50,80]);
   const data={...report(),members:report().members.map(m=>({...m,...mapped.get(m.memberId)}))};
   const html=renderToStaticMarkup(createElement(SprintCapacityPanel,{
-   data,canViewNames:true,locale:"fr",t:(key,params)=>translate("fr",key,params)
+   data,teamId,canViewNames:true,locale:"fr",t:(key,params)=>translate("fr",key,params)
   }));
   assert.match(html,/50 % → 80 %/);
  });
@@ -84,7 +84,7 @@ describe("Fiche Sprint — métadonnées des capacités",()=>{
    professionalFunction:"UX designer",agileRoles:["scrumMaster" as const],
    contributionPercents:[75]}]};
   const html=renderToStaticMarkup(createElement(SprintCapacityPanel,{
-   data,canViewNames:false,locale:"fr",t:(key,params)=>translate("fr",key,params)
+   data,teamId,canViewNames:false,locale:"fr",t:(key,params)=>translate("fr",key,params)
   }));
   assert.doesNotMatch(html,/Alex|UX designer|Scrum Master|75 %/);
  });
