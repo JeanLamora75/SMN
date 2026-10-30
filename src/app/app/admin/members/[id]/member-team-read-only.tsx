@@ -4,6 +4,7 @@ import Link from "next/link";
 import MemberTeamProfileEditor from "./member-team-profile-editor";
 import AssignmentEditor from "../assignment-editor";
 import MemberAbsenceEditor from "../member-absence-editor";
+import MemberTeamPlanningEditor from "./member-team-planning-editor";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TeamAssignmentRevision} from "@/server/members/team-assignment-history";
 
@@ -40,6 +41,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const [annual,setAnnual]=useState<number|null>(null);
  const [editing,setEditing]=useState(false);
  const [editingAssignment,setEditingAssignment]=useState(false);
+ const [editingPlanning,setEditingPlanning]=useState<"location"|"calendar"|null>(null);
  const [editingAbsence,setEditingAbsence]=useState(false);
  const [refreshKey,setRefreshKey]=useState(0);
  const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
@@ -140,6 +142,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   </header>
   {editing&&<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
    onCancel={()=>setEditing(false)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditing(false);}}/>}
+  <div className="d-flex flex-wrap gap-2"><button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingPlanning("location")}>Modifier la localisation</button><button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingPlanning("calendar")}>Modifier le calendrier de travail</button></div>
+  {editingPlanning&&<MemberTeamPlanningEditor key={editingPlanning+"-"+refreshKey} memberId={memberId} teamId={teamId} kind={editingPlanning} onSaved={()=>{setEditingPlanning(null);setRefreshKey(v=>v+1);}} onCancel={()=>setEditingPlanning(null)}/>}
   <div className="smn-member-body">
   <section className="smn-member-panel smn-member-history"
    aria-labelledby="smn-team-member-assignment-title">
