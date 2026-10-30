@@ -37,8 +37,8 @@ const groupFields=(group:Group)=>group==="points"?pointFields:
 const serialize=(value:object):Draft=>
  Object.fromEntries(Object.entries(value).map(([key,n])=>[key,n===null?"":String(n)]));
 const display=(n:number|null)=>n===null?"—":String(n);
-export default function SprintIndicatorsPanel({sprintId,status,canManage,data,capacityKpis}:{
- sprintId:string;status:string;canManage:boolean;data:SprintDetailIndicators;
+export default function SprintIndicatorsPanel({sprintId,teamId,status,canManage,data,capacityKpis}:{
+ sprintId:string;teamId:string;status:string;canManage:boolean;data:SprintDetailIndicators;
  capacityKpis:SprintCapacityKpiView;
 }){
  const t=useTranslation(),router=useRouter(),modal=useRef<HTMLDialogElement>(null);
@@ -122,14 +122,14 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
    {sprintId,revision:current.revision,scores:values};
   setBusy(true);setError("");
   try{
-   const r=await fetch("/api/admin/sprints/"+path,{
+   const r=await fetch("/api/admin/sprints/"+path+"?"+new URLSearchParams({teamId}),{
     method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
    });
    const result=await r.json();
    if(!r.ok||!result.ok){
     if(result.error==="conflict"){setError(t("sprintDetail.indicatorConflict"));return;}
     if(result.error==="closed-period"){setError(t("sprintDetail.indicatorClosed"));return;}
-    setError(t("sprintDetail.indicatorSaveError"));return;
+    setError(result.error==="context-not-ready"?"Écriture multiéquipes non activée sur cette installation.":result.error==="not-found"?"Sprint introuvable dans l’équipe active.":t("sprintDetail.indicatorSaveError"));return;
    }
    setNotice(t("sprintDetail.indicatorSaved"));
    setGroup(null);router.refresh();
@@ -235,7 +235,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
      <button type="button" className="btn-close" aria-label={t("sprintDetail.close")}
       disabled={busy} onClick={dismiss}/>
     </div>
-    <form onSubmit={save} className="d-grid gap-3">
+    <form onSubmit={save} className="d-grid gap-3 smn-indicator-dialog-form">
      {groupFields(group).map((field,index)=>{
       const entered=draft[field.key]??"";
       const good=parseIndicatorDraft(entered,field.kind).ok;
