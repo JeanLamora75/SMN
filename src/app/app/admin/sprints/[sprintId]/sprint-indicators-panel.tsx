@@ -91,7 +91,7 @@ export default function SprintIndicatorsPanel({sprintId,teamId,status,canManage,
   return()=>window.removeEventListener("beforeunload",prevent);
  },[dirty]);
  function begin(g:Group,field:Field,button:HTMLButtonElement){
-  if(!editable||(g==="capacity"&&capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined))return;
+  if(!editable)return;
   const item=g==="capacity"?capacityKpis:source?.[g];
   if(item?.state!=="available")return;
   action.current=button;setFocusField(field);
@@ -158,7 +158,7 @@ export default function SprintIndicatorsPanel({sprintId,teamId,status,canManage,
         <strong className="fs-5">{item?
          groupName==="capacity"?(val===null?t("sprintDetail.indicatorNotEntered"):formatJh(val)):
           display(val):t("dashboard.cockpit.notAvailable")}</strong>
-        {editable&&item&&!(groupName==="capacity"&&capacityKpis.state==="available"&&capacityKpis.historicalQuality!==undefined)&&<button className="btn btn-link btn-sm p-1" type="button"
+        {editable&&item&&<button className="btn btn-link btn-sm p-1" type="button"
          aria-label={t("sprintDetail.indicatorEdit",{name:t(field.label as "storyPoints.initial")})}
          title={t("sprintDetail.indicatorEdit",{name:t(field.label as "storyPoints.initial")})}
          onClick={e=>begin(groupName,field.key,e.currentTarget)}>
