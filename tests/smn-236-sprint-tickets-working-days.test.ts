@@ -93,19 +93,22 @@ describe("SMN-236 — tickets agrégés",()=>{
  });
  it("PUT applique le contrôle de révision et audite les deux champs, sans copie de SP",async()=>{
   const payload={sprintId:id,revision:0,counts:{initial:0,done:7}};
-  const f=mockDb(sql=>sql.includes("SELECT s.id,s.status")?
+  const f=mockDb(sql=>sql.includes("SELECT to_regclass")?{rows:[{present:"smn_sprint_ticket_counts"}]}:
+   sql.includes("SELECT s.id,s.status")?
    {rows:[{id,status:"active",name:"Sprint pilote"}]}:
    sql.includes("FROM public.smn_sprint_ticket_counts WHERE sprint_id")?
     {rows:[]}:undefined);
   const result=await writeSprintTickets(f.db,"user",payload);
   assert.equal(result.ok,true);
-  assert.ok(f.seen.some(x=>x.sql.includes("CREATE TABLE IF NOT EXISTS public.smn_sprint_ticket_counts(")));
+  assert.ok(f.seen.some(x=>x.sql.includes("to_regclass"))); 
+  assert.ok(!f.seen.some(x=>/CREATE\\s+TABLE/i.test(x.sql)));
   assert.ok(f.seen.some(x=>x.sql.includes("smn_sprint_ticket_counts_audit")));
   assert.ok(f.seen.some(x=>x.sql.includes("COMMIT")));
   assert.ok(!f.seen.some(x=>x.sql.includes("story_points")));
   const audit=f.seen.find(x=>x.sql.includes("INSERT INTO public.smn_sprint_ticket_counts_audit"));
   assert.deepEqual(JSON.parse(audit?.args?.[3] as string),{initial:0,done:7});
-  const conflict=mockDb(sql=>sql.includes("SELECT s.id,s.status")?
+  const conflict=mockDb(sql=>sql.includes("SELECT to_regclass")?{rows:[{present:"smn_sprint_ticket_counts"}]}:
+   sql.includes("SELECT s.id,s.status")?
    {rows:[{id,status:"active",name:"Sprint pilote"}]}:
    sql.includes("FROM public.smn_sprint_ticket_counts WHERE sprint_id")?
     {rows:[{initial_tickets:"4",done_tickets:"3",revision:2}]}:undefined);
