@@ -27,12 +27,10 @@ async function withClient<T>(uri: string, task: (client: Client) => Promise<T>):
   try { await client.connect(); return await task(client); }
   finally { await client.end().catch(() => undefined); }
 }
-it("l'installation prépare explicitement les modèles Scrum avant de les renseigner",()=>{
- const installer=readFileSync(new URL("../src/server/installation/install.ts",import.meta.url),"utf8");
- const create=installer.indexOf("for (const sql of templateTables) await dbClient.query(sql)");
- const seed=installer.indexOf("await seedDefaultScrumCeremonyTemplates(dbClient, \"team\")");
- assert.ok(create>=0&&seed>create,"Les modèles doivent être créés par la migration avant le seed");
- assert.equal(ceremonyStatements.filter(sql=>sql.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template(")||sql.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template_history(")).length,2);
+it("l'installation native v32 définit les modèles Scrum dans les migrations explicites",()=>{
+ const sql=readFileSync(new URL("../prisma/baseline/v32/schema.sql",import.meta.url),"utf8");
+ assert.match(sql,/smn_scrum_ceremony_template/);
+ assert.equal(ceremonyStatements.filter(s=>s.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template(")||s.startsWith("CREATE TABLE IF NOT EXISTS public.smn_scrum_ceremony_template_history(")).length,2);
 });
 describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enabled }, () => {
   it("contrôle les identifiants PostgreSQL fournis avant création de la base SMN", async () => {
