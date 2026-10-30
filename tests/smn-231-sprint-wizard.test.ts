@@ -84,6 +84,7 @@ describe("SMN-231 — assistant de génération unitaire et par lot",()=>{
  it("distingue une erreur du calcul des périodes d'un défaut de schéma",async()=>{
   const fake={query:async(sql:string)=>{
    if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_scrum_cadence","smn_scrum_cadence_audit","smn_sprint_batch_preview","smn_sprint_batch_audit","smn_scrum_ceremony_template","smn_scrum_ceremony_template_history","smn_scrum_lunch"]}]};
+   if(sql.includes("to_regclass"))return {rows:[{present:"ready"}]};
    if(sql.includes("SELECT t.id FROM public.smn_team t")||sql.includes("FROM public.smn_team t"))throw Error("équipe inaccessible");
    return {rows:[],rowCount:0};
   }} as unknown as Client;
