@@ -19,3 +19,16 @@
 .smn-sprint-detail-cockpit .smn-sprint-detail-tabs .nav-link.active{color:var(--smn-brand);background:var(--smn-surface);border-color:var(--smn-border);border-bottom-color:var(--smn-surface)}
 .smn-sprint-detail-cockpit :is(a,button,input,select,textarea):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
 @media(max-width:650px){.smn-sprint-detail-cockpit .smn-sprint-detail-hero{padding:16px}.smn-sprint-detail-cockpit .smn-sprint-detail-content{padding:12px}}
+
+
+/* SMN Sprint — compacte l'identité sans fil d'Ariane et aligne état et actions. */
+.smn-sprint-detail-cockpit .smn-sprint-hero-meta{font-size:.91rem;line-height:1.35}
+.smn-sprint-detail-cockpit .smn-sprint-team-name{font-size:1rem;font-weight:650;color:rgba(255,255,255,.94)}
+.smn-sprint-detail-cockpit .smn-sprint-status-pill{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:37px;padding:6px 12px;border-radius:9px;
+ font-size:.84rem;font-weight:650;line-height:1.3;
+ background:rgba(255,255,255,.10);color:#fff;
+ border:1px solid rgba(255,255,255,.6)
+}
+@media(max-width:760px){.smn-sprint-detail-cockpit .smn-sprint-hero-meta{align-items:flex-start!important}}
