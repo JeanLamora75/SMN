@@ -27,8 +27,6 @@ import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import HistoricalEventForm from "./historical-event-form";
 import HistoricalPartialForm from "./historical-partial-form";
-import HistoricalCapacityForm from "./historical-capacity-form";
-import HistoricalActualCapacityForm from "./historical-actual-capacity-form";
 import SprintCapacityPanel from "./sprint-capacity-panel";
 import SprintTrendsPanel from "./sprint-trends-panel";
 import SprintReviewPanel from "./sprint-review-panel";
@@ -91,7 +89,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers,isHistorical}=result;
+ const {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
  const statusKeys:Record<string,TranslationKey>={
@@ -164,7 +162,7 @@ export default async function SprintDetailPage({params,searchParams}:{
      active==="indicators"?<><SprintIndicatorsPanel
       sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
-      capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/>{canManage&&isHistorical&&cycle.status!=="closed"&&<><HistoricalCapacityForm sprintId={cycle.id} revision={capacityKpis?.state==="available"?capacityKpis.revision:0} initialQuality={capacityKpis?.state==="available"?capacityKpis.historicalQuality:"not-supplied"} initialJh={capacityKpis?.state==="available"?capacityKpis.values.planned:null} initialSource={capacityKpis?.state==="available"?capacityKpis.historicalSource:null}/><HistoricalActualCapacityForm sprintId={cycle.id} revision={capacityKpis?.state==="available"?capacityKpis.historicalActualRevision:0} initialQuality={capacityKpis?.state==="available"?capacityKpis.historicalActualQuality:"not-supplied"} initialJh={capacityKpis?.state==="available"?capacityKpis.values.actual:null} initialSource={capacityKpis?.state==="available"?capacityKpis.historicalActualSource:null}/></>}</>:
+      capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/></> :
      active==="ceremonies"?<><SprintCeremoniesPanel
       sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
       canManage={canManage&&cycle.status!=="closed"}
