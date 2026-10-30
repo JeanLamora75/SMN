@@ -1,6 +1,4 @@
-/** Orchestrateur conservateur : seule la transition v31 -> v32 est automatisée. */
-import {spawnSync} from "node:child_process";
-import {existsSync} from "node:fs";
+/** v32 native is the baseline. Historical upgrades are explicit maintenance only. */
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
@@ -27,15 +25,6 @@ async function main(){
    console.log("Prévisualisation seule. Utiliser --apply après sauvegarde de la base.");
    return;
  }
- if(!existsSync("scripts/apply-team-agile-mode-v32.ts"))
-   throw Error("Migration v32 absente");
- const result=spawnSync(process.execPath,["--import","tsx","scripts/apply-team-agile-mode-v32.ts","--apply"],
-   {stdio:"inherit",shell:false,env:process.env});
- if(result.error)throw result.error;
- if(result.status!==0)throw Error("Migration v32 échouée, code "+String(result.status));
- const after=await inspect();
- if(decideUpgrade(after.status,after.version,after.migrations).kind!=="noop")
-   throw Error("Post-contrôle v32 échoué : "+JSON.stringify(after));
- console.log("Mise à niveau v32 validée.");
+ throw Error("Aucune migration automatique historique. La baseline v32 est le point de départ. Utiliser une procédure de maintenance dédiée pour les anciennes bases.");
 }
 main().catch(error=>{console.error(error instanceof Error?error.message:String(error));process.exitCode=1;});

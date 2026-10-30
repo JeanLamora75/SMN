@@ -26,7 +26,7 @@ async function main(){
  const native=migrations.length===1&&migrations[0]?.migration_name===NATIVE_V32_NAME;
  if(native&&!nativeBaselineSql())errors.push("Baseline native v32 absente ou invalide");
  errors.push(...checkRecordedMigrationJournal(migrations,native?1:version));
- const warnings=["Empreintes historiques non auditées à partir des fichiers prisma/migrations : source non canonique. Le diagnostic standard vérifie ses migrations de référence."];
+ const warnings=native?[]:["Empreintes historiques non auditées à partir des fichiers prisma/migrations : source non canonique. Le diagnostic standard vérifie ses migrations de référence."];
  const unexpected=snapshot.tables.filter(t=>!INSTALLATION_RELATIONS.includes(t as typeof INSTALLATION_RELATIONS[number]));
  if(unexpected.length)errors.push("Objets non prévus : "+unexpected.join(", "));
  const contracts=Object.entries(snapshot).filter(([key])=>key.endsWith("SchemaValid"));
@@ -48,7 +48,7 @@ async function main(){
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);errors.push("Contrôle SQL : "+String(e))}
  finally{await db.end().catch(()=>undefined)}
  console.log(JSON.stringify({status,version,migrationCount:migrations.length,sourceCount:directories.length,warnings,
-  unexpectedRelations:unexpected,errors,ok:errors.length===0},null,2));
+  historyKind:native?"native-v32":"historical-v32",unexpectedRelations:unexpected,errors,ok:errors.length===0},null,2));
  if(errors.length)process.exitCode=1;
 }
 main().catch(e=>{console.error(e instanceof Error?e.message:String(e));process.exitCode=1});

@@ -5,12 +5,14 @@ import {readFileSync} from "node:fs";
 import {decideUpgrade} from "../scripts/db-upgrade-policy";
 import {verifyHistory} from "../scripts/db-migration-history";
 
-test("v31 saine seule autorisée à migrer",()=>{
- assert.equal(decideUpgrade("initialized",31,31).kind,"migrate");
+test("les versions historiques ne migrent pas automatiquement",()=>{
+ assert.equal(decideUpgrade("initialized",31,31).kind,"refuse");
  for(const version of [27,28,29,30,33])assert.equal(decideUpgrade("initialized",version,version).kind,"refuse");
 });
 test("v32 saine idempotente, historique erroné bloqué",()=>{
  assert.equal(decideUpgrade("initialized",32,32).kind,"noop");
+ assert.equal(decideUpgrade("initialized",32,1).kind,"noop");
+ assert.equal(decideUpgrade("initialized",32,2).kind,"refuse");
  assert.equal(decideUpgrade("initialized",32,31).kind,"refuse");
  assert.equal(decideUpgrade("initialized",31,32).kind,"refuse");
 });
