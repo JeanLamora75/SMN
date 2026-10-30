@@ -57,18 +57,26 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const morning=days.filter(d=>d.morningAbsent).length;
  const afternoon=days.filter(d=>d.afternoonAbsent).length;
  return <div className="smn-member-cockpit d-grid gap-3">
-  <header className="smn-panel rounded-4 p-3 p-lg-4">
-   <p className="text-secondary mb-1">{t("memberTeamScope.teamLabel")}: {teamName}</p>
-   <h1 className="h3 mb-2">{memberName}</h1>
-   <p className="text-secondary mb-0">{t("memberTeamScope.readOnly")}</p>
+  <header className="smn-member-hero">
+   <div className="smn-member-hero-main">
+    <p className="smn-member-eyebrow">{t("memberTeamScope.teamLabel")}: {teamName}</p>
+    <h1>{memberName}</h1>
+    <p className="smn-member-hero-description">{t("memberTeamScope.readOnly")}</p>
+   </div>
+   <span className="smn-member-readonly">{t("memberTeamScope.readOnly").split(" — ")[0]}</span>
   </header>
   <section className="smn-member-panel"
    aria-labelledby="smn-team-member-assignment-title">
    <h2 className="smn-member-panel-title" id="smn-team-member-assignment-title">
     {t("memberTeamScope.assignmentTitle")}
    </h2>
+   {active&&<div className="smn-member-metrics">
+    <div><span>{t("memberTeamScope.start")}</span><strong>{active.startOn}</strong></div>
+    <div><span>{t("memberTeamScope.allocation")}</span><strong>{active.allocationPercent} %</strong></div>
+    <div><span>{t("memberTeamScope.developer")}</span><strong>{active.developerPercent} %</strong></div>
+   </div>}
    <div className="table-responsive">
-    <table className="table table-striped align-middle">
+    <table className="table table-striped align-middle smn-member-table">
      <thead><tr>
       <th scope="col">{t("memberTeamScope.start")}</th>
       <th scope="col">{t("memberTeamScope.end")}</th>
@@ -85,7 +93,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     </table>
    </div>
   </section>
-  <section className="smn-panel rounded-4 p-3 p-lg-4"
+  <section className="smn-member-panel"
    aria-labelledby="smn-team-member-availability-title">
    <h2 className="smn-member-panel-title" id="smn-team-member-availability-title">
     {t("memberTeamScope.absenceTitle")}
@@ -96,7 +104,11 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    </label>
    <input className="form-control" id="smn-member-team-month"
     type="month" min="1900-01" max="2200-12" value={month}
-    onChange={event=>setMonth(event.target.value)}/></div>\n   {status==="ready"&&<div className="smn-member-availability-summary">\n    <span>{t("memberTeamScope.morning")}: <strong>{morning}</strong></span>\n    <span>{t("memberTeamScope.afternoon")}: <strong>{afternoon}</strong></span>\n   </div>}
+    onChange={event=>setMonth(event.target.value)}/></div>
+   {status==="ready"&&<div className="smn-member-availability-summary">
+    <span>{t("memberTeamScope.morning")}: <strong>{morning}</strong></span>
+    <span>{t("memberTeamScope.afternoon")}: <strong>{afternoon}</strong></span>
+   </div>}
    {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
    {status==="error"&&<p role="alert" className="alert alert-warning">
     {t("memberTeamScope.unavailable")}
