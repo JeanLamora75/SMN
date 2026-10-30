@@ -12,8 +12,8 @@ export async function ensureSprintGoalsSchema(db:Client){
 }
 async function findSprint(db:Client,id:string,lock=false,teamId?:string){
  const criterion=teamId?
-  "AND s.team_id=$2 AND i.schema_version IN (28,29,30,31) AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
-  "AND i.schema_version<=27 AND lower(i.mode)='scrum'";
+  "AND s.team_id=$2 AND i.schema_version BETWEEN 28 AND 32 AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
+  "AND i.schema_version<=27 AND lower(to_jsonb(i)->>'mode')='scrum'";
  const r=await db.query<{id:string;name:string;status:string;start_at:string;end_at:string}>(`SELECT s.id,s.name,s.status,s.start_at::text,s.end_at::text FROM public.smn_sprint s
  JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' ${criterion}
