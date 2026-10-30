@@ -80,20 +80,35 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  useEffect(()=>{
   const controller=new AbortController();
   const params=new URLSearchParams({teamId});
+  let onCycleChange:(()=>void)|null=null;
+  let selector:HTMLSelectElement|null=null;
   void fetch("/api/sprints/context?"+params.toString(),{signal:controller.signal,cache:"no-store"})
-   .then(async response=>{if(!response.ok)throw Error("sprint-context");
-    return response.json() as Promise<{items:{id:string;startAt:string;endAt:string;timeZone:string}[];defaultCycleId:string|null}>;})
-   .then(data=>{
+   .then(async response=>{
+    if(!response.ok)throw Error("sprint-context");
+    return response.json() as Promise<{items:{id:string;startAt:string;endAt:string;timeZone:string}[];defaultCycleId:string|null}>;
+   }).then(data=>{
     if(controller.signal.aborted)return;
-    const control=document.getElementById("smn-current-cycle") as HTMLSelectElement|null;
-    const selected=data.items.find(i=>i.id===control?.value)??data.items.find(i=>i.id===data.defaultCycleId);
-    if(!selected){setSprintDays(null);return;}
-    const civil=(iso:string)=>new Intl.DateTimeFormat("en-CA",
-     {timeZone:selected.timeZone||"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"})
-     .format(new Date(iso));
-    setSprintDays({start:civil(selected.startAt),end:civil(selected.endAt)});
+    selector=document.getElementById("smn-current-cycle") as HTMLSelectElement|null;
+    onCycleChange=()=>{
+     const selected=data.items.find(i=>i.id===selector?.value)??
+      data.items.find(i=>i.id===data.defaultCycleId);
+     if(!selected){setSprintDays(null);return;}
+     const civil=(iso:string)=>{
+      const pieces=new Intl.DateTimeFormat("en-US",
+       {timeZone:selected.timeZone||"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"})
+       .formatToParts(new Date(iso));
+      const part=(key:string)=>pieces.find(p=>p.type===key)?.value??"";
+      return part("year")+"-"+part("month")+"-"+part("day");
+     };
+     setSprintDays({start:civil(selected.startAt),end:civil(selected.endAt)});
+    };
+    selector?.addEventListener("change",onCycleChange);
+    onCycleChange();
    }).catch(()=>{if(!controller.signal.aborted)setSprintDays(null);});
-  return()=>controller.abort();
+  return()=>{
+   controller.abort();
+   if(selector&&onCycleChange)selector.removeEventListener("change",onCycleChange);
+  };
  },[teamId]);
  const active=versions[0];
  const role=active?[
