@@ -24,16 +24,24 @@ async function teamWorkSlots(db:Client,teamId:string):Promise<WorkSlots>{
  return DEFAULT_TEAM_SLOTS;
 }
 async function blockedTeamDates(db:Client,teamId:string,start:string,end:string){
- const closed=await db.query<{start_on:string;end_on:string}>([
-  "SELECT start_on::text AS start_on,end_on::text AS end_on",
-  "FROM public.smn_company_closure WHERE team_id=$1 AND is_active=true",
-  "AND start_on<=$3::date AND end_on>=$2::date"
+ // Une fermeture d'entreprise ne bloque l'équipe entière que si tous les
+ // membres affectés ce jour sont concernés. Les anciens schémas utilisaient team_id.
+ const closed=await db.query<{date:string}>([
+  "WITH days AS (SELECT d::date AS day FROM generate_series($2::date,$3::date,interval '1 day') d),",
+  "assigned AS (SELECT d.day,a.member_id,to_jsonb(m)->>'company_id' AS company_id",
+  "FROM days d JOIN public.smn_member_assignment a ON a.team_id=$1",
+  "AND a.start_on<=d.day AND (a.end_on IS NULL OR a.end_on>=d.day)",
+  "JOIN public.smn_member m ON m.id=a.member_id),",
+  "covered AS (SELECT a.day,a.member_id,EXISTS(",
+  "SELECT 1 FROM public.smn_company_closure c",
+  "WHERE c.is_active=true AND c.start_on<=a.day AND c.end_on>=a.day",
+  "AND (to_jsonb(c)->>'team_id'=$1 OR (a.company_id IS NOT NULL",
+  "AND to_jsonb(c)->>'company_id'=a.company_id))) AS closed",
+  "FROM assigned a)",
+  "SELECT day::text AS date FROM covered GROUP BY day",
+  "HAVING COUNT(*)>0 AND BOOL_AND(closed)"
  ].join(" "),[teamId,start,end]);
- const blocked=new Set<string>();
- for(const row of closed.rows){
-  for(let d=row.start_on;d<=row.end_on;d=nextDay(d))
-   if(d>=start&&d<=end)blocked.add(d);
- }
+ const blocked=new Set<string>(closed.rows.map(row=>row.date));
  // Holiday only when all people assigned on that date observe it;
  // holidays affecting only part of an international team are not team closures.
  const holidays=await db.query<{date:string}>([
