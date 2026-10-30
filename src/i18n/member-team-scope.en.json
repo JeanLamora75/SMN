@@ -12,7 +12,7 @@
     "allocation": "Allocation",
     "developer": "Developer share",
     "revision": "Revision",
-    "absenceTitle": "Team availability",
+    "absenceTitle": "Calendar",
     "privacy": "Only absence half-days during this team's assignments are shown. Personal reasons are not displayed.",
     "month": "Month",
     "loading": "Loading availability…",
@@ -20,6 +20,12 @@
     "day": "Day",
     "morning": "Morning",
     "afternoon": "Afternoon",
-    "absent": "Absent"
+    "absent": "Absent",
+    "annualAbsences": "Absences this year (half-days)",
+    "role": "Agile role",
+    "function": "Function",
+    "noRole": "Role not specified",
+    "noFunction": "Function not specified",
+    "notAvailable": "Unavailable"
   }
 }
