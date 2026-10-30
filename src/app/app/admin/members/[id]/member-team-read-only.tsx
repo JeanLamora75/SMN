@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
 import Link from "next/link";
+import {useRouter} from "next/navigation";
 import MemberTeamProfileEditor from "./member-team-profile-editor";
 import AssignmentEditor from "../assignment-editor";
 import MemberAbsenceEditor from "../member-absence-editor";
@@ -36,6 +37,7 @@ function monthRange(month:string):{startOn:string;endOn:string}|null{
 export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,professionalFunction,backHref,
  versions}:Props){
  const t=useTranslation();
+ const router=useRouter();
  const locale=useLocale();
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
@@ -143,7 +145,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   {editing&&<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
    onCancel={()=>setEditing(false)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditing(false);}}/>}
   <div className="d-flex flex-wrap gap-2"><button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingPlanning("location")}>Modifier la localisation</button><button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingPlanning("calendar")}>Modifier le calendrier de travail</button></div>
-  {editingPlanning&&<MemberTeamPlanningEditor key={editingPlanning+"-"+refreshKey} memberId={memberId} teamId={teamId} kind={editingPlanning} onSaved={()=>{setEditingPlanning(null);setRefreshKey(v=>v+1);}} onCancel={()=>setEditingPlanning(null)}/>}
+  {editingPlanning&&<MemberTeamPlanningEditor key={editingPlanning+"-"+refreshKey} memberId={memberId} teamId={teamId} kind={editingPlanning} onSaved={()=>{setEditingPlanning(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditingPlanning(null)}/>}
   <div className="smn-member-body">
   <section className="smn-member-panel smn-member-history"
    aria-labelledby="smn-team-member-assignment-title">
@@ -156,7 +158,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <div><span>{t("memberTeamScope.annualAbsences")}</span><strong>{annual===null?t("memberTeamScope.notAvailable"):annual}</strong></div>
    </div>}
    <div className="mb-3"><button className="btn btn-outline-primary btn-sm" type="button" onClick={()=>setEditingAssignment(v=>!v)}>{editingAssignment?"Fermer":"Modifier l’affectation et les rôles"}</button></div>
-   {editingAssignment&&<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditingAssignment(false);setRefreshKey(v=>v+1);}} onCancel={()=>setEditingAssignment(false)}/>}
+   {editingAssignment&&<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditingAssignment(false);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditingAssignment(false)}/>}
    <div className="table-responsive">
     <table className="table table-striped align-middle smn-member-table">
      <thead><tr>
@@ -186,7 +188,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      value={month} onChange={event=>setMonth(event.target.value)}/>
    </div>
    <p className="text-secondary">{t("memberTeamScope.privacy")}</p>
-   {editingAbsence&&<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditingAbsence(false);setRefreshKey(v=>v+1);}} onCancel={()=>setEditingAbsence(false)}/>}
+   {editingAbsence&&<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditingAbsence(false);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditingAbsence(false)}/>}
    {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
    {status==="error"&&<p role="alert" className="alert alert-warning">
     {t("memberTeamScope.unavailable")}
