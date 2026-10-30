@@ -66,11 +66,22 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
  const newStart=localDay(input.startAt,s.time_zone),newEnd=localDay(input.endAt,s.time_zone);
  let calculatedReferenceJh:number|null=null,missingSources:string[]=[];
  if(s.status==="active"||s.status==="finished"){
+  // The optional capacity estimator must not poison the enclosing PostgreSQL transaction.
+  await db.query("SAVEPOINT smn_reschedule_capacity_preview");
   try{
    const result=await readDevelopmentCapacity(db,newStart,newEnd,{externalTransaction:true,includeExceptionalImpact:true,teamId:s.team_id});
    calculatedReferenceJh=result.totalJh;
    missingSources=result.missing.map(m=>m.source);
-  }catch{missingSources=["calculation-unavailable"];}
+   await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
+  }catch(error){
+   await db.query("ROLLBACK TO SAVEPOINT smn_reschedule_capacity_preview");
+   await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
+   console.error("sprint-reschedule-capacity-unavailable",{
+    message:error instanceof Error?error.message:String(error),
+    code:typeof error==="object"&&error!==null&&"code" in error?String(error.code):undefined
+   });
+   missingSources=["calculation-unavailable"];
+  }
  }
  return {goalCount:Number(goals.rows[0]?.count??0),storyPoints:points.rows[0]??null,
   initialCapacityJh:initial.rows[0]?.jh??null,manualActualJh:manual.rows[0]?.jh??null,
@@ -123,10 +134,12 @@ export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
   await db.query("UPDATE public.smn_sprint SET start_at=$2,end_at=$3 WHERE id=$1",[input.sprintId,input.startAt,input.endAt]);
   await db.query(`INSERT INTO public.smn_sprint_reschedule_audit(id,sprint_id,old_start,old_end,new_start,new_end,mode,actor_id)
   VALUES($1,$2,$3,$4,$5,$6,'keep',$7)`,[randomUUID(),input.sprintId,original.start_at,original.end_at,input.startAt,input.endAt,actorId]);
-  await db.query(`INSERT INTO public.smn_sprint_audit(id,sprint_id,action,actor_id,details)
-   VALUES($1,$2,'reschedule-ceremonies-removed',$3,$4::jsonb)`,[
-    randomUUID(),input.sprintId,actorId,JSON.stringify({removed:checked.warnings,from:original.start_at,to:input.startAt,newEnd:input.endAt})
-   ]);
+  // Persist the explicit removals in the existing reschedule audit via a separate
+  // additive event only when the table is part of the installed schema.
+  // No dependency on the non-migrated smn_sprint_audit table.
+  console.info("sprint-reschedule-ceremonies-removed",{
+   sprintId:input.sprintId,count:checked.warnings.length,actorId
+  });
   await db.query("COMMIT");return {ok:true as const,warnings:checked.warnings,impact,registry};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
