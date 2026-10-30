@@ -35,3 +35,11 @@ Ces validations ne sont pas attestées avant exécution locale.
 - À droite de cette pastille, intégrer le lien « ← Retour aux membres » avec la même finition bordée et un état de focus clavier visible.
 - Conserver l'URL contextualisée par équipe (teamId) et les protections serveur inchangées.
 - Critères de contrôle : présence du lien dans le bandeau, absence du breadcrumb externe, absence de la description répétée, alignement sur grand et petit écran.
+
+## Extension calendrier / historique — 30 octobre 2026 (SMN-44)
+- Calendrier : tous les jours civils du mois choisi, avec absences affichées si la date appartient à l'affectation de l'équipe autorisée ; jamais de détail personnel et jamais de restriction au seul sprint.
+- Sprint : les dates du sprint sélectionné dans le bandeau global sont surlignées, indépendamment du filtrage des absences. En absence de sprint valide, aucun surlignage.
+- Synthèses : trois blocs sur une rangée desktop (début, allocation, demi-journées d'absence annuelles) ; retrait de la synthèse « Part développeur ».
+- Historique : suppression de « Applicable depuis » ; trois colonnes distinctes SM, PO, DEV (pourcentages historiques) à la place de « Part développeur ».
+- Responsive : conserver le calendrier 1–15 et 16–fin, contrôle de confidentialité par équipe, affichage civil localisé FR/EN.
+- Contrôles : alternance des sprints, absence hors sprint, mois entier, historique et rendu responsive ; typecheck/lint/recette locale requis avant clôture.
