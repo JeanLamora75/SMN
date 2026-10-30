@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useState} from "react";
 import Link from "next/link";
+import MemberTeamProfileEditor from "./member-team-profile-editor";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TeamAssignmentRevision} from "@/server/members/team-assignment-history";
 
@@ -35,6 +36,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const locale=useLocale();
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
+ const [editing,setEditing]=useState(false);
+ const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
  const [sprintDays,setSprintDays]=useState<{start:string;end:string}|null>(null);
  const [month,setMonth]=useState(()=>
   new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"}).slice(0,7));
@@ -122,14 +125,16 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   <header className="smn-member-hero">
    <div className="smn-member-hero-main">
     <p className="smn-member-eyebrow">{t("memberTeamScope.teamLabel")}: {teamName}</p>
-    <h1>{memberName}</h1>
-    <p className="smn-member-role">{role||t("memberTeamScope.noRole")} — {professionalFunction||t("memberTeamScope.noFunction")}</p>
+    <h1>{identity.name}</h1>
+    <p className="smn-member-role">{role||t("memberTeamScope.noRole")} — {identity.profession||t("memberTeamScope.noFunction")}</p>
    </div>
    <div className="smn-member-hero-actions">
-    <span className="smn-member-readonly">{t("memberTeamScope.readOnly").split(" — ")[0]}</span>
+    <button type="button" className="smn-member-readonly smn-member-back" aria-expanded={editing} onClick={()=>setEditing(v=>!v)}>{editing?"Fermer l’édition":"Modifier le profil"}</button>
     <Link className="smn-member-readonly smn-member-back" href={backHref}>← {t("memberTeamScope.back")}</Link>
    </div>
   </header>
+  {editing&&<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
+   onCancel={()=>setEditing(false)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditing(false);}}/>}
   <div className="smn-member-body">
   <section className="smn-member-panel smn-member-history"
    aria-labelledby="smn-team-member-assignment-title">
