@@ -25,8 +25,8 @@ function draftFrom(state:AssignmentState):Draft{
  };
 }
 const num=(s:string)=>/^(0|[1-9][0-9]{0,2})$/.test(s)?Number(s):NaN;
-export default function AssignmentEditor({memberId,teamId,teamName,memberRevision,onSaved,onCancel,onDirtyChange}:{
- memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;
+export default function AssignmentEditor({memberId,teamId,teamName,memberRevision,onSaved,onCancel,onDirtyChange,teamScoped=false}:{
+ memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;teamScoped?:boolean;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AssignmentState|null>(null);
@@ -41,7 +41,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
  useEffect(()=>{onDirtyChange?.(Boolean(dirty),busy);},[dirty,busy,onDirtyChange]);
  useEffect(()=>{
   let active=true;
-  void fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/assignment",{cache:"no-store"})
+  void fetch("/api/admin/members/"+encodeURIComponent(memberId)+(teamScoped?"/team-assignment?"+new URLSearchParams({teamId}):"/assignment"),{cache:"no-store"})
    .then(async r=>{if(!r.ok)throw new Error("load-failed");return r.json() as Promise<AssignmentState>;})
    .then(data=>{if(!active)return;
     if(data.memberId!==memberId||data.teamId!==teamId||!Array.isArray(data.versions))throw new Error("wrong-team");
@@ -70,7 +70,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
   }
   setBusy(true);setError("");
   try{
-   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/assignment",{
+   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+(teamScoped?"/team-assignment":"/assignment"),{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({memberId,teamId,effectiveFrom:draft.effectiveFrom,contractPercent,
      allocationPercent,contributionPercent,shares,revision:state.latestRevision})
