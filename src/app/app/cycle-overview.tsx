@@ -43,7 +43,8 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
     aria-labelledby="smn-cycle-overview-heading">
     <header className="smn-cycle-overview-header smn-cycle-header-compact" id="cycles">
       <div className="smn-cycle-identity">
-        <h1 id="smn-cycle-overview-heading">{cycle?cycle.name+" - "+context.team:t("dashboard.cockpit.noCycle")}</h1>
+        <p className="smn-cycle-eyebrow">{t("memberTeamScope.teamLabel")}: {context.team}</p>
+        <h1 id="smn-cycle-overview-heading">{cycle?cycle.name:t("dashboard.cockpit.noCycle")}</h1>
         {!cycle&&<p className="smn-cycle-context mb-1"><strong>{context.team}</strong> · {context.product}</p>}
         {cycle?<div className="smn-cycle-summary" role="group" aria-label={t("dashboard.cockpit.details")}>
           <span className="smn-cycle-date-range">
@@ -72,7 +73,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
       </div>
       <div className="smn-cycle-header-actions">
         {cycle?
-          <Link className="btn btn-outline-primary btn-sm smn-cycle-detail-link"
+          <Link className="btn btn-sm smn-cycle-detail-link"
             href={sprintDetailPath(cycle.id)}>
             {t("dashboard.cockpit.viewSprintDetail")}
             <BootstrapIcon name="arrow-right"/>
