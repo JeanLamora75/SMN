@@ -21,7 +21,7 @@ export function nativeBaselineReady(sql:string):boolean{
  // Do not silently provide an application-level mode or a default team.
  return sql.includes("smn_installation")&&sql.includes("smn_account")&&
    sql.includes("smn_team")&&sql.includes("agile_mode")&&
-   !/CREATE\s+TABLE\s+(?:public\.)?smn_installation\s*\([\s\S]*?\bmode\s+text\s+NOT\s+NULL/i.test(sql);
+   !/CREATE TABLE\s+"public"\."smn_installation"\s*\([^;]*"mode"\s+"text"/i.test(sql);
 }
 export async function installExpress(rawBody:unknown,rawUri:string|undefined):Promise<InstallResult>{
  const input=validateExpressInput(rawBody);
@@ -57,6 +57,7 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
    (id,checksum,finished_at,migration_name,applied_steps_count)
    VALUES($1,$2,now(),$3,1)`,
    [randomUUID(),createHash("sha256").update(sql).digest("hex"),NATIVE_BASELINE_NAME]);
+  await client.query("INSERT INTO public.smn_general_settings(installation_id) VALUES ('singleton')");
   await client.query("COMMIT");transaction=false;
   // A baseline journal needs the new classifier contract (step 3) before reporting success.
   const after=classifySnapshot(await probePostgres(uri.toString()));
