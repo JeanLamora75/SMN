@@ -7,6 +7,11 @@ export async function readTeamAnnualAbsence(db:Client,actor:TeamActor,
  if(!UUID.test(memberId)||!Number.isInteger(year)||year<1900||year>2200)
   throw Error("team-annual-absence-invalid-input");
  const team=await resolveAdminTeam(db,actor,teamId);
+ const membership=await db.query<{id:string}>(`SELECT a.id FROM public.smn_member_assignment a
+ JOIN public.smn_member m ON m.id=a.member_id
+ WHERE a.member_id=$1 AND a.team_id=$2 AND m.installation_id='singleton' LIMIT 1`,
+ [memberId,team.team_id]);
+ if(membership.rows.length!==1)throw Error("member-out-of-team");
  const result=await db.query<{half_days:number}>(`
  WITH member_days AS (
   SELECT DISTINCT g.day::date AS day
