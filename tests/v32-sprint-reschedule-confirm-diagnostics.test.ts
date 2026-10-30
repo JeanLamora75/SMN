@@ -15,5 +15,7 @@ test("confirmation : raison fonctionnelle affichée sans supprimer les choix imp
   assert.ok(form.includes('data.error==="'+code+'"'));
  assert.match(form,/removeCeremonies/);
  assert.match(service,/ROLLBACK/);
- assert.match(service,/reschedule-ceremonies-removed/);
+ assert.match(service,/checked\.warnings\.some\(e=>!e\.removable\)/);
+ assert.match(service,/checked\.warnings\.some\(e=>!removeIds\.includes\(e\.id\)\)/);
+ assert.match(service,/events-outside-new-period/);
 });
