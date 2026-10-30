@@ -162,7 +162,7 @@ export default async function SprintDetailPage({params,searchParams}:{
       sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
      active==="indicators"?<><SprintIndicatorsPanel
-      sprintId={cycle.id} status={cycle.status} canManage={canManage}
+      sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
       capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/>{canManage&&isHistorical&&cycle.status!=="closed"&&<><HistoricalCapacityForm sprintId={cycle.id} revision={capacityKpis?.state==="available"?capacityKpis.revision:0} initialQuality={capacityKpis?.state==="available"?capacityKpis.historicalQuality:"not-supplied"} initialJh={capacityKpis?.state==="available"?capacityKpis.values.planned:null} initialSource={capacityKpis?.state==="available"?capacityKpis.historicalSource:null}/><HistoricalActualCapacityForm sprintId={cycle.id} revision={capacityKpis?.state==="available"?capacityKpis.historicalActualRevision:0} initialQuality={capacityKpis?.state==="available"?capacityKpis.historicalActualQuality:"not-supplied"} initialJh={capacityKpis?.state==="available"?capacityKpis.values.actual:null} initialSource={capacityKpis?.state==="available"?capacityKpis.historicalActualSource:null}/></>}</>:
      active==="ceremonies"?<><SprintCeremoniesPanel
