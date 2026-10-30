@@ -41,7 +41,7 @@ export function projectSprintTrend(row:Row):SprintTrendPoint{
   actualCapacityJh:capacityJh};
 }
 
-/** G04: <= 5 last closed Sprints of the selected team, up to its start.
+/** Read at most six closure snapshots in the selected team, up to its start.
  * Reader is SELECT-only and safe inside a REPEATABLE READ READ ONLY transaction.
  * teamId is mandatory for user-facing collective projections; the optional
  * form preserves the older admin-only /api/admin/sprints/trends endpoint. */
@@ -54,7 +54,7 @@ export async function readSprintTrends(
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE s.id=$1 ${teamId?"AND s.team_id=$2":""}
    AND s.deleted_at IS NULL AND i.id='singleton'
-   AND i.state='initialized' AND lower(i.mode)='scrum'
+   AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode))='scrum'
  `,teamId?[selectedSprintId,teamId]:[selectedSprintId]);
  const target=selected.rows[0];
  if(!target)return null;
@@ -71,7 +71,7 @@ export async function readSprintTrends(
   ) latest ON true
   WHERE s.team_id=$1 AND s.deleted_at IS NULL AND s.status='closed'
    AND s.start_at<=$2::timestamptz
-  ORDER BY s.start_at DESC,s.id DESC LIMIT 5
+  ORDER BY s.start_at DESC,s.id DESC LIMIT 6
  `,[target.team_id,target.start_at]);
  return r.rows.reverse().map(projectSprintTrend);
 }
