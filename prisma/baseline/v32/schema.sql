@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict Vqop8FFuxRqDvGqlkyAogorUzW0PdiHn39axf2mhl1NNp6DhgC5XUZY9pYuMOF9
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
@@ -23,7 +22,7 @@ SET row_security = off;
 -- Name: public; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA "public";
+CREATE SCHEMA IF NOT EXISTS "public";
 
 
 --
@@ -52,8 +51,10 @@ CREATE FUNCTION "public"."smn_actual_snapshot_immutable"() RETURNS "trigger"
 
 CREATE FUNCTION "public"."smn_ai_brief_archive_immutable"() RETURNS "trigger"
     LANGUAGE "plpgsql"
-    AS $$ BEGIN
- RAISE EXCEPTION 'finalized AI brief archives are immutable';
+    AS $$ BEGIN
+
+ RAISE EXCEPTION 'finalized AI brief archives are immutable';
+
  END $$;
 
 
@@ -89,10 +90,14 @@ CREATE FUNCTION "public"."smn_initial_snapshot_immutable"() RETURNS "trigger"
 
 CREATE FUNCTION "public"."smn_reject_studio_archive_snapshot_mutation"() RETURNS "trigger"
     LANGUAGE "plpgsql"
-    AS $$
-BEGIN
- RAISE EXCEPTION 'studio archive snapshots are immutable';
-END;
+    AS $$
+
+BEGIN
+
+ RAISE EXCEPTION 'studio archive snapshots are immutable';
+
+END;
+
 $$;
 
 
@@ -1147,9 +1152,7 @@ CREATE TABLE "public"."smn_installation" (
     "id" "text" NOT NULL,
     "state" "text" NOT NULL,
     "schema_version" integer NOT NULL,
-    "mode" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "smn_installation_mode_check" CHECK (("mode" = ANY (ARRAY['scrum'::"text", 'kanban'::"text"])))
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 
@@ -8077,5 +8080,4 @@ ALTER TABLE ONLY "public"."smn_team"
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Vqop8FFuxRqDvGqlkyAogorUzW0PdiHn39axf2mhl1NNp6DhgC5XUZY9pYuMOF9
 
