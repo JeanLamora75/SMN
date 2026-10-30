@@ -12,7 +12,7 @@
     "allocation": "Allocation",
     "developer": "Part développeur",
     "revision": "Révision",
-    "absenceTitle": "Indisponibilités de l'équipe",
+    "absenceTitle": "Calendrier",
     "privacy": "Seules les demi-journées d'absence pendant les affectations à cette équipe sont visibles. Les motifs personnels ne sont pas affichés.",
     "month": "Mois à consulter",
     "loading": "Chargement des indisponibilités…",
@@ -20,6 +20,12 @@
     "day": "Jour",
     "morning": "Matin",
     "afternoon": "Après-midi",
-    "absent": "Absent"
+    "absent": "Absent",
+    "annualAbsences": "Absences cette année (½ j)",
+    "role": "Rôle Agile",
+    "function": "Fonction",
+    "noRole": "Rôle non renseigné",
+    "noFunction": "Fonction non renseignée",
+    "notAvailable": "Indisponible"
   }
 }
