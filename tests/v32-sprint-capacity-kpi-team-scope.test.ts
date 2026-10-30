@@ -21,7 +21,7 @@ test("C02 : capacité réelle v32 et calcul imbriqué restent dans la même équ
  assert.match(actual,/report\.team\.id!==teamId/);
 });
 test("Indicateurs : une valeur saisie reste distincte de la valeur calculée",()=>{
- assert.match(kpis,/selectCapacityKpis\(stored\?\.planned_jh\?\?null,stored\?\.actual_jh\?\?null,/);
+ assert.match(kpis,/selectCapacityKpis\(stored\?\.planned_jh\?\?legacyPlanned,stored\?\.actual_jh\?\?legacyActual,/);
  assert.match(kpis,/ROLLBACK TO SAVEPOINT/);
  assert.match(kpis,/calculatedPlanned,calculatedActual/);
 });

@@ -3,10 +3,13 @@ import {test} from "node:test";
 import {readFileSync} from "node:fs";
 
 const source=(name:string)=>readFileSync(new URL("../"+name,import.meta.url),"utf8");
-test("nouvelle API : seule la mutation POST Admin et origine locale est exposée",()=>{
+test("API équipe : mutation POST et lecture GET réservées aux administrateurs",()=>{
  const route=source("src/app/api/admin/members/[id]/team-assignment/route.ts");
  assert.match(route,/export async function POST/);
- assert.doesNotMatch(route,/export async function GET|export async function PUT|export async function PATCH/);
+ assert.match(route,/export async function GET/);
+ assert.doesNotMatch(route,/export async function PUT|export async function PATCH/);
+ assert.match(route,/authorizeApi\(request,"read",resource\)/);
+ assert.match(route,/if\(!teamId\|\|\[\.\.\.request\.nextUrl\.searchParams\.keys\(\)\]/);
  assert.match(route,/authorizeApi\(request,"write",resource\)/);
  assert.match(route,/actor\.role!=="admin"/);
  assert.match(route,/readJsonObject\(request,4096\)/);
