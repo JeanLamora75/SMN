@@ -15,7 +15,9 @@ function fixture(config:Config={}){
   calls.push({sql,args});
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK")return {rows:[],rowCount:0};
   if(sql.includes("array_agg(relname)"))return {rows:[{present:[
-   "smn_scrum_cadence","smn_scrum_cadence_audit","smn_meeting_actual_duration_audit"
+   "smn_scrum_cadence","smn_scrum_cadence_audit","smn_meeting_actual_duration_audit",
+   "smn_exceptional_meeting_participant","smn_exceptional_meeting_participant_audit",
+   "smn_exceptional_capacity_impact_history"
   ]}]};
   if(sql.includes("FROM pg_class"))return {rows:[
    {name:"smn_sprint_capacity_kpi"},{name:"smn_sprint_capacity_kpi_audit"}
