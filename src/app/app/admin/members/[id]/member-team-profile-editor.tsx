@@ -35,7 +35,6 @@ export default function MemberTeamProfileEditor({memberId,teamId,onSaved,onCance
   finally{setBusy(false);}
  }
  return <div className="smn-member-profile-editor border rounded-3 p-3">
-  <h2 className="h5">Modifier les informations du membre</h2>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {!profile&&!error?<p role="status">Chargement…</p>:
    <form onSubmit={submit} className="row g-3">
