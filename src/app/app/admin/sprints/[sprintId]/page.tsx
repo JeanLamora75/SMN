@@ -126,14 +126,6 @@ export default async function SprintDetailPage({params,searchParams}:{
   endAt:cycle.endAt,timeZone:cycle.timeZone
  };
  return <main className="smn-page container-fluid px-3 px-lg-4 py-4 smn-sprint-detail smn-sprint-detail-cockpit">
-  <nav aria-label={t("dashboard.cockpit.sprintDetailsTitle")}
-   className="d-flex gap-3 flex-wrap align-items-center mb-3">
-   <Link className="d-inline-flex align-items-center gap-2"
-    href={"/app/admin/sprints?"+new URLSearchParams({teamId}).toString()}>
-    <BootstrapIcon name="arrow-left"/>{t("sprintDetail.backSprints")}
-   </Link>
-   <Link href={dashboardHref}>{t("dashboard.cockpit.backToDashboard")}</Link>
-  </nav>
   <div className="smn-sprint-detail-hero mb-3">
    <header className="d-flex justify-content-between align-items-start flex-wrap gap-3">
     <div className="flex-grow-1" style={{minWidth:0}}>
@@ -142,10 +134,9 @@ export default async function SprintDetailPage({params,searchParams}:{
       <h1 className="h4 mb-0 text-break">{cycle.name}</h1>
       {canManage&&<SprintDetailEditor kind="name" {...commonProps}/>}
      </div>
-     <p className="small text-secondary mt-2 mb-2">
-      {dashboard.context.product} · {dashboard.context.team}
-     </p>
-     <div className="d-flex flex-wrap align-items-center gap-2 small">
+     <div className="smn-sprint-hero-meta d-flex flex-wrap align-items-center gap-3 mt-2">
+      <span className="smn-sprint-team-name">{dashboard.context.product} · {dashboard.context.team}</span>
+      <div className="d-flex flex-wrap align-items-center gap-2 small">
       <BootstrapIcon name="calendar3"/>
       <time dateTime={start.toISOString()}>{day(start)}</time>
       <span aria-hidden="true">—</span>
@@ -153,10 +144,11 @@ export default async function SprintDetailPage({params,searchParams}:{
       {canManage&&cycle.status!=="closed"&&
        <SprintDetailEditor kind="dates" {...commonProps}/>}
       <span className="text-secondary">({cycle.timeZone})</span>
+      </div>
      </div>
     </div>
     <div className="d-flex gap-2 align-items-center flex-wrap">{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:"scrum",id:cycle.id}).toString()}>Générer un brief IA</Link>}{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/sprints/"+encodeURIComponent(cycle.id)+"/report"}>{t("sprintReportPrepare.launch")}</Link>}
-    <span className="badge text-bg-secondary" title={t("sprintDetail.statusHelp")}>
+    <span className="smn-sprint-status-pill" title={t("sprintDetail.statusHelp")}>
      {t(statusKeys[status]??"dashboard.cockpit.notAvailable")}
     </span></div>
    </header>
