@@ -53,15 +53,18 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    });
   return()=>controller.abort();
  },[memberId,teamId,month]);
- return <div className="d-grid gap-3">
+ const active=versions[0];
+ const morning=days.filter(d=>d.morningAbsent).length;
+ const afternoon=days.filter(d=>d.afternoonAbsent).length;
+ return <div className="smn-member-cockpit d-grid gap-3">
   <header className="smn-panel rounded-4 p-3 p-lg-4">
    <p className="text-secondary mb-1">{t("memberTeamScope.teamLabel")}: {teamName}</p>
    <h1 className="h3 mb-2">{memberName}</h1>
    <p className="text-secondary mb-0">{t("memberTeamScope.readOnly")}</p>
   </header>
-  <section className="smn-panel rounded-4 p-3 p-lg-4"
+  <section className="smn-member-panel"
    aria-labelledby="smn-team-member-assignment-title">
-   <h2 className="h5" id="smn-team-member-assignment-title">
+   <h2 className="smn-member-panel-title" id="smn-team-member-assignment-title">
     {t("memberTeamScope.assignmentTitle")}
    </h2>
    <div className="table-responsive">
@@ -77,23 +80,23 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      <tbody>{versions.map(v=><tr key={v.assignmentId+"-"+v.revision}>
       <td>{v.startOn}</td><td>{v.endOn??"—"}</td>
       <td>{v.effectiveFrom}</td><td>{v.allocationPercent} %</td>
-      <td>{v.developerPercent} %</td><td>{v.revision}</td>
+      <td>{v.developerPercent} %</td><td><span className="smn-member-revision">{v.revision}</span></td>
      </tr>)}</tbody>
     </table>
    </div>
   </section>
   <section className="smn-panel rounded-4 p-3 p-lg-4"
    aria-labelledby="smn-team-member-availability-title">
-   <h2 className="h5" id="smn-team-member-availability-title">
+   <h2 className="smn-member-panel-title" id="smn-team-member-availability-title">
     {t("memberTeamScope.absenceTitle")}
    </h2>
    <p className="text-secondary">{t("memberTeamScope.privacy")}</p>
-   <label className="form-label" htmlFor="smn-member-team-month">
+   <div className="smn-member-toolbar"><label className="form-label" htmlFor="smn-member-team-month">
     {t("memberTeamScope.month")}
    </label>
-   <input className="form-control mb-3" id="smn-member-team-month"
+   <input className="form-control" id="smn-member-team-month"
     type="month" min="1900-01" max="2200-12" value={month}
-    onChange={event=>setMonth(event.target.value)}/>
+    onChange={event=>setMonth(event.target.value)}/></div>\n   {status==="ready"&&<div className="smn-member-availability-summary">\n    <span>{t("memberTeamScope.morning")}: <strong>{morning}</strong></span>\n    <span>{t("memberTeamScope.afternoon")}: <strong>{afternoon}</strong></span>\n   </div>}
    {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
    {status==="error"&&<p role="alert" className="alert alert-warning">
     {t("memberTeamScope.unavailable")}
@@ -102,7 +105,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     {t("memberTeamScope.noDays")}
    </p>}
    {status==="ready"&&<div className="table-responsive">
-    <table className="table table-sm align-middle">
+    <table className="table table-sm align-middle smn-member-table">
      <thead><tr><th scope="col">{t("memberTeamScope.day")}</th>
       <th scope="col">{t("memberTeamScope.morning")}</th>
       <th scope="col">{t("memberTeamScope.afternoon")}</th>
