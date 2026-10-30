@@ -29,7 +29,7 @@ export default function SprintClosureAction({sprintId,teamId,status,canManage}:P
     setError(result.error==="invalid-transition"?"Le statut du Sprint a changé. Recharge la page.":result.error==="not-found"?"Sprint introuvable dans l’équipe active.":"Impossible de modifier la clôture du Sprint.");
     return;
    }
-   dismiss();
+   setOpen(false);setConfirmed(false);setError("");
    router.refresh();
   }catch{setError("Erreur réseau lors de la modification du Sprint.");}
   finally{setBusy(false);}
