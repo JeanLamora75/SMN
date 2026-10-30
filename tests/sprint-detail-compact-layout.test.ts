@@ -14,7 +14,7 @@ test("Sprint : pas de retour externe, contexte équipe et dates sur la même lig
  assert.match(page,/<time dateTime=\{start\.toISOString\(\)\}/);
 });
 test("Sprint : pastille de statut alignée aux boutons, avec style Cockpit",()=>{
- assert.match(page,/className="smn-sprint-status-pill"/);
+ assert.match(page,/<SprintClosureAction sprintId=\{cycle\.id\} teamId=\{teamId\} status=\{status\} canManage=\{canManage\}\/>/);
  assert.match(css,/\.smn-sprint-status-pill/);
  assert.match(css,/min-height:37px/);
  assert.match(page,/sprintReportPrepare\.launch/);
