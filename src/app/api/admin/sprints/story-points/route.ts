@@ -54,8 +54,13 @@ export async function PUT(req:NextRequest){
   return jsonResult(r,r.ok?200:r.error==="closed-period"||r.error==="conflict"?409:
    r.error==="not-found"?404:400);
  }catch(error){
-  if(error instanceof Error&&error.message==="context-not-ready")
+  const message=error instanceof Error?error.message:String(error);
+  const code=typeof error==="object"&&error!==null&&"code" in error?String(error.code):undefined;
+  console.error("sprint-story-points-save-failed",{message,code});
+  if(message==="context-not-ready")
    return jsonResult({error:"context-not-ready"},503);
+  if(message.startsWith("sprint-schema-not-ready")||message.startsWith("sprint-core-schema-not-ready"))
+   return jsonResult({error:"schema-not-ready"},503);
   return jsonResult({error:"unavailable"},503);
  }
 }
