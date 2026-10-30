@@ -171,7 +171,7 @@ export default async function SprintDetailPage({params,searchParams}:{
       t={(key,params)=>translate(locale,key,params)}
       data={ceremonies??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalEventForm sprintId={cycle.id}/>}</>:
      active==="capacity"?<SprintCapacityPanel
-      canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
+      teamId={teamId} canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
      active==="trends"?<SprintTrendsPanel
       data={trends} locale={locale}
