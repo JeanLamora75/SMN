@@ -19,9 +19,19 @@ import { listAccounts,createAccount,updateAccount } from "../src/server/accounts
 const source = process.env.SMN_TEST_DATABASE_URL;
 const enabled = process.env.GITHUB_ACTIONS === "true" && process.env.CI === "true" &&
   !!source && /^postgresql:\/\/smn_ci:[^@]+@127\.0\.0\.1:5432\/smn_ci$/.test(source);
-const input = { mode: "scrum", product: "Produit SMN", team: "Équipe Alpha", password: "MotDePasseTest2026Solide" };
+const input = { password: "MotDePasseTest2026Solide" };
 const target = enabled ? new URL(source!) : undefined;
 if (target) target.pathname = "/smn_ci_setup";
+async function createTestDatabase(name: string): Promise<void> {
+ assert.ok(source);
+ const maintenance=new URL(source);maintenance.pathname="/postgres";
+ await withClient(maintenance.toString(),async db=>{
+  const present=await db.query<{present:boolean}>(
+   "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname=$1) AS present",[name]);
+  assert.equal(present.rows[0]?.present,false,"La base de test doit être absente");
+  await db.query('CREATE DATABASE "'+name+'"');
+ });
+}
 async function withClient<T>(uri: string, task: (client: Client) => Promise<T>): Promise<T> {
   const client = new Client({ connectionString: uri });
   try { await client.connect(); return await task(client); }
@@ -63,7 +73,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
     assert.ok(source && target);
     const unknown = new URL(target);
     unknown.pathname = "/smn_ci_invalid";
-    const result = await installExpress({ ...input, mode: "invalid" }, unknown.toString());
+    const result = await installExpress({ ...input, adminEmail: "not-an-email" }, unknown.toString());
     assert.deepEqual(result, { ok: false, status: "invalid-input" });
     const maintenance = new URL(source); maintenance.pathname = "/postgres";
     const present = await withClient(maintenance.toString(), async (client) => {
@@ -79,6 +89,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
     targetRace.pathname = "/smn_ci_race";
     const maintenance = new URL(source); maintenance.pathname = "/postgres";
     try {
+      await createTestDatabase("smn_ci_race");
       const results = await Promise.all([installExpress(input, targetRace.toString()), installExpress(input, targetRace.toString())]);
       assert.equal(results.filter((r) => r.ok).length, 1, "Une seule initialisation doit réussir");
       const count = await withClient(targetRace.toString(), async (client) => {
@@ -105,6 +116,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       assert.equal(check.rows[0].present, false, "La base de test doit être absente avant essai.");
     });
     try {
+      await createTestDatabase("smn_ci_setup");
       const first = await installExpress(input, target.toString());
       assert.deepEqual(first, { ok: true });
       const snapshot = await probePostgres(target.toString());
