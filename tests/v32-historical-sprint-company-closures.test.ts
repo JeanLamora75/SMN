@@ -14,7 +14,7 @@ test("v32 : génération des cérémonies sans colonne team_id supprimée des fe
  assert.match(occurrences,/to_jsonb\(c\)->>'team_id'/);
 });
 test("v32 : une fermeture collective n'est retenue que pour les membres affectés concernés",()=>{
- assert.match(occurrences,/FROM public\.smn_member_assignment a/);
+ assert.match(occurrences,/JOIN public\.smn_member_assignment a ON a\.team_id=\$1/);
  assert.match(occurrences,/BOOL_AND\(closed\)/);
  assert.match(occurrences,/COUNT\(\*\)>0/);
 });
