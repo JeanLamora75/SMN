@@ -165,8 +165,7 @@ export default async function SprintDetailPage({params,searchParams}:{
       teamId={teamId} canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
      active==="trends"?<SprintTrendsPanel
-      data={trends} locale={locale}
-      t={(key,params)=>translate(locale,key,params)}/>:
+      data={trends} locale={locale}/>:
      active==="review"?<SprintReviewPanel
       data={review} sprintId={cycle.id} status={cycle.status}
       canManage={canManage} locale={locale} timeZone={cycle.timeZone}/>:
