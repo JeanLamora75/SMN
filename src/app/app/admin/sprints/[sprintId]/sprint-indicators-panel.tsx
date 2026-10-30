@@ -227,8 +227,8 @@ export default function SprintIndicatorsPanel({sprintId,teamId,status,canManage,
   {group!==null&&editable&&<dialog ref={modal} className="smn-sprint-edit-dialog"
    aria-labelledby="smn-indicator-dialog-title"
    onCancel={e=>{e.preventDefault();dismiss();}}>
-   <div className="modal-content bg-body border rounded-4 shadow p-3 p-md-4">
-    <div className="d-flex justify-content-between align-items-start gap-3 mb-3">
+   <div className="modal-content smn-indicator-dialog-content">
+    <div className="smn-indicator-dialog-header">
      <h3 className="h5" id="smn-indicator-dialog-title">
       {t("sprintDetail.indicatorEditGroup")}
      </h3>
