@@ -1,8 +1,9 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {isValidDate} from "./assignment";
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
-export async function correctAssignmentStart(db:Client,memberId:string,actorId:string,input:unknown){
+export async function correctAssignmentStart(db:Client,memberId:string,actorId:string,input:unknown,teamScope?:{actor:TeamActor;teamId:string}){
  if(!UUID.test(memberId)||!actorId||!input||typeof input!=="object"||Array.isArray(input))return {ok:false as const,error:"invalid-input"};
  const v=input as Record<string,unknown>;
  if(Object.keys(v).sort().join(",")!=="assignmentId,newStartOn,revision"||typeof v.assignmentId!=="string"||!UUID.test(v.assignmentId)||
@@ -17,6 +18,10 @@ export async function correctAssignmentStart(db:Client,memberId:string,actorId:s
   WHERE a.id=$1 AND a.member_id=$2 AND i.id='singleton' AND i.state='initialized' FOR UPDATE`,[v.assignmentId,memberId]);
   const a=rows.rows[0];
   if(!a){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  if(teamScope){
+   const selected=await resolveAdminTeam(db,teamScope.actor,teamScope.teamId);
+   if(a.team_id!==selected.team_id){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
+  }
   if(v.newStartOn===a.start_on){await db.query("ROLLBACK");return {ok:false as const,error:"unchanged"};}
   // Retroactive correction only: a later date could discard days of proven contribution.
   if((v.newStartOn as string)>a.start_on){await db.query("ROLLBACK");return {ok:false as const,error:"later-date-not-supported"};}
