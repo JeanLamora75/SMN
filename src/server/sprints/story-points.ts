@@ -1,14 +1,13 @@
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
-import {ensureSprintSchema} from "./creation";
 import {deriveStoryPoints} from "@/lib/sprint-indicator-values";
 export {deriveStoryPoints} from "@/lib/sprint-indicator-values";
 export type Points={initial:number|null;added:number|null;removed:number|null;done:number|null};
 const valid=(x:unknown)=>x===null||(typeof x==="number"&&Number.isSafeInteger(x)&&x>=0&&x<=1000000000);
 
 export async function ensureStoryPointsSchema(db:Client){
- await ensureSprintSchema(db);
+ await db.query("SELECT to_regclass('public.smn_sprint') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-core-schema-not-ready: apply-sprint-core-v32")});
  await db.query("SELECT to_regclass('public.smn_sprint_story_points') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("SELECT to_regclass('public.smn_sprint_story_points_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
