@@ -10,7 +10,7 @@ const page=read("src/app/app/admin/members/[id]/page.tsx");
 test("Cockpit membre : bandeau contextualisé et statut lecture seule",()=>{
  assert.match(view,/className="smn-member-hero"/);
  assert.match(view,/\{teamName\}/);
- assert.match(view,/\{memberName\}/);
+ assert.match(view,/<h1>\{identity\.name\}<\/h1>/);
  assert.match(view,/smn-member-readonly/);
  assert.match(view,/memberTeamScope\.readOnly/);
  assert.match(page,/import "\.\/member-cockpit\.css"/);
