@@ -121,13 +121,13 @@ export async function readSprintCapacityKpiView(
   }
  };
  const calculatedPlanned=await optional("smn_capacity_kpi_planned",async()=>{
-  const report=await readDevelopmentCapacity(db,start,end,{externalTransaction:true});
+  const report=await readDevelopmentCapacity(db,start,end,{externalTransaction:true,teamId});
   if(report.team.id!==teamId||report.missing.length||report.status!=="calculated")return null;
   return valid(report.totalJh)?report.totalJh:null;
  });
  const calculatedActual=await optional("smn_capacity_kpi_actual",async()=>{
   const report=await readActualCapacity(db,start,end,readDevelopmentCapacity,
-   {externalTransaction:true});
+   {externalTransaction:true,teamId});
   if(report.status==="upcoming"||report.missingSources.length)return null;
   return valid(report.referenceJh)?report.referenceJh:null;
  });
