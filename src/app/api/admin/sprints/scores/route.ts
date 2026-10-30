@@ -24,7 +24,8 @@ export async function PUT(req:NextRequest){
    const context=await resolveRegistryReadContext(db,
     {accountId:actor.id,role:actor.role},teamId);
    if(context.version>=28&&context.version<=32){
-    if(context.version===28&&(!MULTI_TEAM_CONTEXT_READY||process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
+    if((await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'")).rows[0]?.schema_version===28&&
+     (!MULTI_TEAM_CONTEXT_READY||process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
      throw Error("context-not-ready");
     if(!teamId||context.team?.team_id!==teamId)throw Error("team-access-forbidden");
     return writeSprintScores(db,actor.id,raw,{
