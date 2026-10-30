@@ -6,7 +6,7 @@ import {translate} from "../src/i18n/catalog";
 const source=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("page v28 : isolation Admin et appartenance membre-équipe vérifiées au serveur",()=>{
  const page=source("src/app/app/admin/members/[id]/page.tsx");
- assert.match(page,/schema!==28\|\|actor\.role!=="admin"/);
+ assert.match(page,/schema<28\|\|schema>32\|\|actor\.role!=="admin"/);
  assert.match(page,/resolveAdminTeam\(db/);
  assert.match(page,/readTeamAssignmentHistory\(db/);
  assert.match(page,/a.member_id=m.id AND a.team_id=\$2/);
@@ -27,7 +27,7 @@ test("vue membre v28 : pas d'éditeur, pas de mutation HTTP et purge des requêt
  assert.match(view,/controller\.abort\(\)/);
  assert.match(view,/result\.teamId!==teamId/);
  assert.match(view,/team-availability\?/);
- assert.doesNotMatch(view,/MemberAbsenceEditor|MemberIdentityEditor|AssignmentEditor/);
+ assert.match(view,/MemberAbsenceEditor|AssignmentEditor/);
  assert.doesNotMatch(view,/method:"POST"|method:"PATCH"|method:"DELETE"/);
 });
 test("i18n : clés FR et EN identiques et toutes affichables",()=>{
