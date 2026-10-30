@@ -75,7 +75,7 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
    if(inTransaction)await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
   }catch(error){
    if(inTransaction)await db.query("ROLLBACK TO SAVEPOINT smn_reschedule_capacity_preview");
-   await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
+   if(inTransaction)await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
    console.error("sprint-reschedule-capacity-unavailable",{
     message:error instanceof Error?error.message:String(error),
     code:typeof error==="object"&&error!==null&&"code" in error?String(error.code):undefined
