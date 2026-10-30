@@ -48,7 +48,7 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
     const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
- },[memberId,teamId]);
+ },[memberId,teamId,teamScoped]);
  const change=(key:keyof Draft,value:string)=>setDraft(current=>current?{...current,[key]:value}:current);
  const cancel=()=>{if(busy)return;if(dirty&&!window.confirm(t("draft.discardWarning")))return;onCancel();};
  async function submit(event:FormEvent<HTMLFormElement>){
