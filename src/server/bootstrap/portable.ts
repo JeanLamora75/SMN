@@ -113,6 +113,21 @@ async function validateOwner(uri: string): Promise<void> {
     }
   } finally { await client.end().catch(() => undefined); }
 }
+/** Create only the application's dedicated database during an explicitly approved setup.
+ * PostgreSQL initdb creates the maintenance database, not the SMN database. */
+async function createManagedDatabase(uri:string):Promise<void>{
+ const maintenance=new URL(uri);
+ maintenance.pathname="/postgres";
+ const client=new Client({connectionString:maintenance.toString(),connectionTimeoutMillis:3500});
+ try{
+  await client.connect();
+  const existing=await client.query<{exists:boolean}>(
+   "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname='smn') AS exists");
+  if(existing.rows[0]?.exists)throw Error("database-already-present");
+  await client.query('CREATE DATABASE smn OWNER smn_owner');
+ }finally{await client.end().catch(()=>undefined);}
+}
+
 // Read-only first launch never downloads or creates a database.
 export function canOfferPortable(): boolean {
   return process.platform === "win32" && !!process.env.LOCALAPPDATA;
@@ -202,5 +217,6 @@ export async function prepareManaged(onProgress: (step: string) => void, recover
   const running = await ensureRunning(cfg);
   const uri = buildUri(running.user, password, running.port);
   await validateOwner(uri);
+  await createManagedDatabase(uri);
   return uri;
 }
