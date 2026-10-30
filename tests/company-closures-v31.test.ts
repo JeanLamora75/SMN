@@ -18,6 +18,7 @@ test("chevauchement provoque rollback et zéro écriture",async()=>{
  const statements:string[]=[];
  const db={query:async(sql:string)=>{
   statements.push(sql);
+  if(sql.includes("to_regclass")&&sql.includes("smn_company_capacity_recalc"))return {rows:[{ready:true}]};
   if(sql.includes("FROM public.smn_company\n"))return {rows:[{id:company}]};
   if(sql.includes("WHERE company_id=$1 AND is_active=true"))return {rows:[{id:closure}]};
   return {rows:[]};
@@ -29,7 +30,7 @@ test("chevauchement provoque rollback et zéro écriture",async()=>{
 });
 test("entreprise inexistante bloque création",async()=>{
  const commands:string[]=[];
- const db={query:async(sql:string)=>{commands.push(sql);return {rows:[]};}} as unknown as Client;
+ const db={query:async(sql:string)=>{commands.push(sql);return sql.includes("to_regclass")?{rows:[{ready:true}]}:{rows:[]};}} as unknown as Client;
  assert.deepEqual(await saveCompanyClosureV31(db,"admin",create),{ok:false,error:"company-not-found"});
  assert.ok(commands.includes("ROLLBACK"));
 });
