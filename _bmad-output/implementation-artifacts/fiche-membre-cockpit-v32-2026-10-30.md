@@ -28,3 +28,10 @@ Optimiser l'exploitation de la fiche membre sans scrolling inutile et conserver 
 ## Vérification attendue
 Exécuter pnpm typecheck, pnpm lint et les tests ciblés localement. Contrôler desktop large, 1150px et mobile ; données de rôle/fonction présentes et absentes ; affichage français/anglais ; année sans absence (0) ; source indisponible (valeur non affichée) ; équipe différente (refus).
 Ces validations ne sont pas attestées avant exécution locale.
+
+## Ajustement validé : navigation du bandeau — 30/10/2026
+- Supprimer le lien « Retour aux membres » en dehors du bandeau : gain de hauteur.
+- Supprimer le message de consultation seule répété sous le titre et conserver uniquement la pastille de statut.
+- À droite de cette pastille, intégrer le lien « ← Retour aux membres » avec la même finition bordée et un état de focus clavier visible.
+- Conserver l'URL contextualisée par équipe (teamId) et les protections serveur inchangées.
+- Critères de contrôle : présence du lien dans le bandeau, absence du breadcrumb externe, absence de la description répétée, alignement sur grand et petit écran.
