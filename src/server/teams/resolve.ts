@@ -51,7 +51,7 @@ export async function resolveAdminTeam(db:Client,actor:TeamActor,
  // Résolution SQL sans introspection des colonnes historiques.
  const row=await db.query<TeamContextRow>(`
   SELECT p.id AS product_id,p.name AS product,t.id AS team_id,
-    t.name AS team,COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode) AS mode
+    t.name AS team,COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode') AS mode
   FROM public.smn_team t
   JOIN public.smn_installation i ON i.id=t.installation_id
   LEFT JOIN public.smn_product p ON p.id=t.product_id
