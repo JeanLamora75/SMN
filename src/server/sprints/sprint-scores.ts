@@ -34,7 +34,7 @@ export async function writeSprintScores(db:Client,actorId:string,raw:unknown,
   if(access&&(access.actor.accountId!==actorId||team?.mode!=="scrum"))
    throw Error("team-access-forbidden");
   const criterion=team?
-   "AND s.team_id=$2 AND i.schema_version IN (28,29,30,31) AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
+   "AND s.team_id=$2 AND i.schema_version BETWEEN 28 AND 32 AND lower(t.agile_mode)='scrum' AND t.is_archived=false":
    "AND i.schema_version<=27 AND lower(i.mode)='scrum'";
   const found=await db.query<{id:string;status:string}>(`
    SELECT s.id,s.status FROM public.smn_sprint s
