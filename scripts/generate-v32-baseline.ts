@@ -31,7 +31,7 @@ async function main(){
  // libpq does not interpret PGDATABASE as a connection URI here. Forward each
  // connection parameter explicitly, without leaking credentials in argv/logs.
  const connection=new URL(uri);
- const pgEnv={...process.env,
+ const pgEnv:NodeJS.ProcessEnv={...process.env,
   PGHOST:decodeURIComponent(connection.hostname.replace(/^\\[|\\]$/g,"")),
   PGPORT:connection.port||"5432",
   PGDATABASE:decodeURIComponent(connection.pathname.slice(1)),
