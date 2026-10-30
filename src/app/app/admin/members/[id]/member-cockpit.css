@@ -44,3 +44,9 @@
 .smn-member-cockpit .smn-member-month-columns tr.smn-member-sprint-day th{font-weight:800;color:var(--smn-heading)}
 @media(max-width:1150px){.smn-member-cockpit .smn-member-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){.smn-member-cockpit .smn-member-metrics{grid-template-columns:1fr}}
+
+.smn-member-cockpit .smn-member-calendar-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;margin-bottom:12px}
+.smn-member-cockpit .smn-member-calendar-heading .smn-member-panel-title{margin:0}
+.smn-member-cockpit .smn-member-month-select{width:min(100%,230px);min-height:36px}
+.smn-member-cockpit .smn-member-calendar-heading + p{margin-bottom:12px}
+@media(max-width:550px){.smn-member-cockpit .smn-member-calendar-heading{align-items:flex-start}.smn-member-cockpit .smn-member-month-select{width:100%}}
