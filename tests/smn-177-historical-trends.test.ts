@@ -12,10 +12,10 @@ describe("SMN-177 — tendances historiques Scrum",()=>{
   const p=projectSprintTrend(mk({done_sp:null,initial_sp:null,added_sp:null,removed_sp:null}));
   assert.equal(p.completedSp,null);assert.equal(p.completionRate,null);assert.equal(p.completedSpQuality,"unqualified");
  });
- it("la sélection limite aux 5 Sprints clôturés antérieurs",()=>{
+ it("la sélection permet six clôtures historiques pour le filtre",()=>{
   const src=readFileSync("src/server/sprints/trends.ts","utf8");
   assert.match(src,/s.status='closed'/);
   assert.match(src,/s.start_at<=\$2::timestamptz/);
-  assert.match(src,/LIMIT 5/);
+  assert.match(src,/LIMIT 6/);
  });
 });
