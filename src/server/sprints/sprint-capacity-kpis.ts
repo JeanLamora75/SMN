@@ -152,7 +152,7 @@ export async function writeSprintCapacityKpis(db:Client,actorId:string,raw:unkno
    "JOIN public.smn_team t ON t.id=s.team_id "+
    "JOIN public.smn_installation i ON i.id=t.installation_id "+
    "WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' "+
-   "AND i.state='initialized' AND lower(i.mode)='scrum' FOR UPDATE OF s",[input.sprintId]);
+   "AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum' AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false FOR UPDATE OF s",[input.sprintId]);
   if(!sprint.rows[0]){
    await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};
   }
