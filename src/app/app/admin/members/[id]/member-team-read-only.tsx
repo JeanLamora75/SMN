@@ -35,6 +35,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const locale=useLocale();
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
+ const [sprintDays,setSprintDays]=useState<{start:string;end:string}|null>(null);
  const [month,setMonth]=useState(()=>
   new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"}).slice(0,7));
  const [status,setStatus]=useState<"loading"|"ready"|"empty"|"error">("loading");
@@ -76,6 +77,24 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    .catch(()=>{if(!controller.signal.aborted)setAnnual(null);});
   return()=>controller.abort();
  },[memberId,teamId,year]);
+ useEffect(()=>{
+  const controller=new AbortController();
+  const params=new URLSearchParams({teamId});
+  void fetch("/api/sprints/context?"+params.toString(),{signal:controller.signal,cache:"no-store"})
+   .then(async response=>{if(!response.ok)throw Error("sprint-context");
+    return response.json() as Promise<{items:{id:string;startAt:string;endAt:string;timeZone:string}[];defaultCycleId:string|null}>;})
+   .then(data=>{
+    if(controller.signal.aborted)return;
+    const control=document.getElementById("smn-current-cycle") as HTMLSelectElement|null;
+    const selected=data.items.find(i=>i.id===control?.value)??data.items.find(i=>i.id===data.defaultCycleId);
+    if(!selected){setSprintDays(null);return;}
+    const civil=(iso:string)=>new Intl.DateTimeFormat("en-CA",
+     {timeZone:selected.timeZone||"Europe/Paris",year:"numeric",month:"2-digit",day:"2-digit"})
+     .format(new Date(iso));
+    setSprintDays({start:civil(selected.startAt),end:civil(selected.endAt)});
+   }).catch(()=>{if(!controller.signal.aborted)setSprintDays(null);});
+  return()=>controller.abort();
+ },[teamId]);
  const active=versions[0];
  const role=active?[
   active.scrumMasterPercent>0?"Scrum Master":null,
@@ -107,7 +126,6 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    {active&&<div className="smn-member-metrics">
     <div><span>{t("memberTeamScope.start")}</span><strong>{formatCivil(active.startOn,locale)}</strong></div>
     <div><span>{t("memberTeamScope.allocation")}</span><strong>{active.allocationPercent} %</strong></div>
-    <div><span>{t("memberTeamScope.developer")}</span><strong>{active.developerPercent} %</strong></div>
     <div><span>{t("memberTeamScope.annualAbsences")}</span><strong>{annual===null?t("memberTeamScope.notAvailable"):annual}</strong></div>
    </div>}
    <div className="table-responsive">
@@ -115,15 +133,14 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      <thead><tr>
       <th scope="col">{t("memberTeamScope.start")}</th>
       <th scope="col">{t("memberTeamScope.end")}</th>
-      <th scope="col">{t("memberTeamScope.effective")}</th>
       <th scope="col">{t("memberTeamScope.allocation")}</th>
-      <th scope="col">{t("memberTeamScope.developer")}</th>
+      <th scope="col">SM</th><th scope="col">PO</th><th scope="col">DEV</th>
       <th scope="col">{t("memberTeamScope.revision")}</th>
      </tr></thead>
      <tbody>{versions.map(v=><tr key={v.assignmentId+"-"+v.revision}>
       <td>{formatCivil(v.startOn,locale)}</td><td>{v.endOn?formatCivil(v.endOn,locale):"—"}</td>
-      <td>{formatCivil(v.effectiveFrom,locale)}</td><td>{v.allocationPercent} %</td>
-      <td>{v.developerPercent} %</td><td><span className="smn-member-revision">{v.revision}</span></td>
+      <td>{v.allocationPercent} %</td>
+      <td>{v.scrumMasterPercent} %</td><td>{v.productOwnerPercent} %</td><td>{v.developerPercent} %</td><td><span className="smn-member-revision">{v.revision}</span></td>
      </tr>)}</tbody>
     </table>
    </div>
@@ -158,7 +175,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
        <thead><tr><th scope="col">{t("memberTeamScope.day")}</th>
         <th scope="col">{t("memberTeamScope.morning")}</th>
         <th scope="col">{t("memberTeamScope.afternoon")}</th></tr></thead>
-       <tbody>{part.map(d=><tr key={d.date}>
+       <tbody>{part.map(d=><tr key={d.date} className={sprintDays&&d.date>=sprintDays.start&&d.date<=sprintDays.end?"smn-member-sprint-day":undefined}>
         <th scope="row">{formatCivil(d.date,locale)}</th>
         <td>{d.morningAbsent?t("memberTeamScope.absent"):"—"}</td>
         <td>{d.afternoonAbsent?t("memberTeamScope.absent"):"—"}</td>
