@@ -15,7 +15,14 @@ function parse(raw:unknown):Input|null{
 }
 async function scope(db:Client,id:string,locked=false){
  const r=await db.query<{id:string;team_id:string;start_at:string;end_at:string;status:string;time_zone:string}>(`SELECT s.id,s.team_id,s.start_at::text,s.end_at::text,s.status,s.time_zone FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND lower(i.mode)='scrum' AND i.state='initialized' AND i.schema_version<=27 ${locked?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
+ WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
+ AND (
+  (i.schema_version<=27 AND lower(to_jsonb(i)->>'mode')='scrum')
+  OR
+  (i.schema_version BETWEEN 28 AND 32
+   AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'
+   AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false)
+ ) ${locked?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
 }
 async function examine(db:Client,input:Input){
  const s=await scope(db,input.sprintId);
@@ -53,7 +60,7 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
  let calculatedReferenceJh:number|null=null,missingSources:string[]=[];
  if(s.status==="active"||s.status==="finished"){
   try{
-   const result=await readDevelopmentCapacity(db,newStart,newEnd,{externalTransaction:true,includeExceptionalImpact:true});
+   const result=await readDevelopmentCapacity(db,newStart,newEnd,{externalTransaction:true,includeExceptionalImpact:true,teamId:s.team_id});
    calculatedReferenceJh=result.totalJh;
    missingSources=result.missing.map(m=>m.source);
   }catch{missingSources=["calculation-unavailable"];}
