@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
 const draft=readFileSync("src/server/ai-briefs/duplicates.ts","utf8");
-const archive=readFileSync("src/server/ai-briefs/archive.ts","utf8");
+const archive=readFileSync("src/server/ai-briefs/archive.ts","utf8")+"\n"+readFileSync("prisma/migrations/20261029_ai_brief_runtime_ddl/migration.sql","utf8");
 const editor=readFileSync("src/app/app/admin/ai-briefs/duplicates/draft-editor.tsx","utf8");
 test("duplication allocates a distinct draft with explicit parent and copies only TXT",()=>{
  assert.match(draft,/const id=randomUUID\(\)/);
