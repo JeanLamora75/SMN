@@ -20,7 +20,7 @@ export async function createDashboardNote(db:Client,actorId:string,raw:unknown){
     JOIN public.smn_installation i ON i.id=t.installation_id
     WHERE s.id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL
     AND s.status<>'closed' AND i.id='singleton' AND i.state='initialized'
-    AND lower(i.mode)='scrum' FOR UPDATE OF s`,[sprintId,teamId]);
+    AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum' FOR UPDATE OF s`,[sprintId,teamId]);
   if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   await assertDashboardTable(db,"smn_dashboard_note");
   await assertDashboardTable(db,"smn_dashboard_note_audit");
@@ -43,7 +43,7 @@ export async function readDashboardNote(db:Client,id:string,teamId:string,sprint
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE n.id=$1 AND n.team_id=$2 AND n.sprint_id=$3
     AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
-    AND lower(i.mode)='scrum'`,[id,teamId,sprintId]);
+    AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'`,[id,teamId,sprintId]);
  return r.rows[0]??null;
 }
 
@@ -67,7 +67,7 @@ export async function updateDashboardNote(db:Client,actorId:string,id:string,raw
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE n.id=$1 AND n.sprint_id=$2 AND n.team_id=$3
-   AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'
+   AND i.id='singleton' AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'
    AND s.deleted_at IS NULL FOR UPDATE OF n,s`,[id,o.sprintId,o.teamId]);
   const prev=found.rows[0];
   if(!prev){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
