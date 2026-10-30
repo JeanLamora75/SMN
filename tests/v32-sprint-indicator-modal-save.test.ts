@@ -11,7 +11,7 @@ const css=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-cockpit.css")
 test("v32: writes remain team-scoped without depending on pilot-only v28 gate",()=>{
  for(const route of [points,scores]){
   assert.ok(route.includes("context.version>=28&&context.version<=32"));
-  assert.ok(route.includes("context.version===28&&(!MULTI_TEAM_CONTEXT_READY"));
+  assert.ok(route.includes("schema_version===28&&"));
  }
  assert.match(service,/i\.schema_version BETWEEN 28 AND 32/);
 });
