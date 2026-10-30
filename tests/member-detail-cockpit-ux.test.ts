@@ -19,11 +19,11 @@ test("Cockpit membre : panneaux, indicateurs réels, tableaux et mois conservés
  assert.match(view,/smn-member-panel/);
  assert.match(view,/const active=versions\[0\]/);
  assert.match(view,/active\.allocationPercent/);
- assert.match(view,/active\.developerPercent/);
+ assert.match(view,/v\.developerPercent/);
  assert.match(view,/smn-member-revision/);
  assert.match(view,/type="month"/);
- assert.match(view,/days\.filter\(d=>d\.morningAbsent\)/);
- assert.match(view,/days\.filter\(d=>d\.afternoonAbsent\)/);
+ assert.match(view,/d\.morningAbsent\?t\("memberTeamScope\.absent"\)/);
+ assert.match(view,/d\.afternoonAbsent\?t\("memberTeamScope\.absent"\)/);
  assert.match(view,/memberTeamScope\.privacy/);
 });
 test("Cockpit membre : style isolé et responsive, aucun accès métier ajouté",()=>{
