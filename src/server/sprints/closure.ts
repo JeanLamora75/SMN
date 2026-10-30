@@ -67,7 +67,7 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
  // calendar/absence edits. A missing producer remains visibly unavailable.
  const reviewAnalysis=await reviewClosureSnapshot(db,sprintId);
  const qualitative=historical?{state:"historical-unavailable",capturedAt:new Date().toISOString(),items:[],relations:[],facts:[],explanation:"Aucune photographie qualitative passée attestée. Les registres actuels ne sont pas reproduits."}:await qualitativeClosureSnapshot(db,sprintId,context.team_id);
- const memberPresence=historical?null:await readSprintMemberPresence(db,context.team_id,{
+ const memberPresence=await readSprintMemberPresence(db,context.team_id,{
   id:sprintId,name:context.name,status:"finished",suspended:false,
   startAt:context.start_at,endAt:context.end_at,timeZone:context.time_zone
  });
@@ -88,7 +88,8 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
   actual_jh:saved?.actual_jh??captured.actual_jh
  }:saved?{initial_jh:saved.planned_jh,actual_jh:saved.actual_jh}:null;
  return {goals:goals.rows,qualitative,storyPoints:points.rows[0]??null,
-  memberPresence:historical?{state:"historical-unavailable",reason:"no-contemporaneous-evidence"}:memberPresence??{state:"unavailable",reason:"read-failed"},
+  memberPresence:memberPresence??{state:"unavailable",reason:"read-failed"},
+  memberPresenceProvenance:historical?"retrospective-calendar-estimate":"closure-calendar-estimate",
   reviewAnalysis,
   confidenceClarity:scores.rows[0]??null,
   ticketCounts:ticket?.rows[0]??null,
