@@ -11,7 +11,11 @@ export async function POST(req:NextRequest){
  const raw=await readJsonObject(req);
  if(!raw)return jsonResult({error:"invalid-input"},400);
  try{
-  const result=await withAuthDb(db=>createHistoricalSprint(db,actor.id,raw));
+  const result=await withAuthDb(db=>createHistoricalSprint(db,actor.id,raw,req.nextUrl.searchParams.get("teamId")));
   return jsonResult(result,result.ok?201:result.error==="invalid-input"?400:result.error==="team-unavailable"?404:409);
- }catch{return jsonResult({error:"service-unavailable"},503);}
+ }catch(error){
+  if(error instanceof Error&&["team-context-unavailable","team-context-not-ready","team-id-invalid","team-access-forbidden"].includes(error.message))
+   return jsonResult({error:"team-unavailable"},404);
+  return jsonResult({error:"service-unavailable"},503);
+ }
 }
