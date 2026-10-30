@@ -156,7 +156,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      <label className="form-label mb-0">{t("members.assignment.historicalRealDate")}
       <input type="date" className="form-control" max={state.startOn} value={historicalStart} disabled={busy}
        onChange={e=>setHistoricalStart(e.target.value)}/></label>
-     <button type="button" className="btn btn-outline-primary" disabled={busy||!historicalStart||historicalStart>=state.startOn}
+     <button type="button" className="btn btn-primary smn-member-assignment-historical-action" disabled={busy||!historicalStart||historicalStart>=state.startOn}
       onClick={()=>void correctHistoricalStart()}>{t("members.assignment.historicalAction")}</button>
     </div>
    </div>}
