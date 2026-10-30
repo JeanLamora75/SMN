@@ -62,7 +62,6 @@ export default function MemberTeamPlanningEditor({memberId,teamId,kind,onSaved,o
   <input className="form-control mt-1" value={location[key]} maxLength={maxLength} disabled={busy}
    onChange={e=>setLocation(v=>({...v,[key]:e.target.value}))}/></label>;
  return <section className="smn-member-panel p-3" aria-label={kind==="location"?"Modifier la localisation":"Modifier le calendrier"}>
-  <h2 className="h5">{kind==="location"?"Modifier la localisation":"Modifier la semaine de travail"}</h2>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {!ready?<p role="status">Chargement…</p>:<form onSubmit={submit} className="row g-3">
    <label className="col-12">Date d&apos;effet<input type="date" required value={date} className="form-control mt-1" onChange={e=>setDate(e.target.value)} disabled={busy}/></label>
