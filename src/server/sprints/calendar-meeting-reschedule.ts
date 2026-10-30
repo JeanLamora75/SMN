@@ -58,7 +58,7 @@ export async function updateCalendarMeetingSchedule(db:Client,actorId:string,raw
    JOIN public.smn_team t ON t.id=s.team_id
    JOIN public.smn_installation i ON i.id=t.installation_id
    WHERE m.id=$1 AND i.id='singleton' AND i.state='initialized'
-    AND lower(i.mode)='scrum' AND s.deleted_at IS NULL
+    AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum' AND s.deleted_at IS NULL
    FOR UPDATE OF m,s`,[input.id]);
   const prior=rows.rows[0];
   const reject=async(error:ScheduleError)=>{
