@@ -115,3 +115,15 @@ Les critères HIS-01 à HIS-08 restent applicables, complétés par les [quatre 
 - **Sécurité et conservation** : accès aux fichiers, rétention du CSV original facultative, contenu du journal et anonymisation des informations sensibles.
 
 **Traçabilité :** F-14/F-16/F-19/F-24/F-25/F-64/F-71/F-72/F-91 à F-96 ; D-PRD-031 à D-PRD-035, D-PRD-076 à D-PRD-086, D-PRD-111 à D-PRD-125 ; FR-14/FR-15/FR-20/FR-22/FR-23/FR-24/FR-30/FR-41. Les sources détaillées demeurent [PRD](prd.md), [Reporting](reportings-html-pdf.md) et [Registres qualitatifs](registres-qualitatifs.md).
+
+
+## Avenant du 30 octobre 2026 — Reprises historiques successives (SMN-159, AC6–AC10)
+
+**Décision validée :** ajouter sous les options du formulaire une case « Enregistrer un autre Sprint après celui-ci », **décochée par défaut**, indépendante de la génération de cérémonies.
+
+- **Si décochée :** après une création réussie, conserver le bandeau de confirmation et masquer le formulaire (comportement initial).
+- **Si cochée :** après une création réussie, conserver le bandeau de confirmation et afficher **sous celui-ci** un nouveau formulaire de reprise historique vide (nom, début et fin), avec les deux cases décochées et un nouvel identifiant d'opération.
+- **Si erreur :** préserver saisies et cases sans afficher de confirmation ni réinitialiser l'identifiant d'opération ; appliquer les validations existantes.
+- **Exigences transversales :** accès administrateur inchangé, aucune modification de l'API ni des contrôles anti-chevauchement, libellé accessible et responsive ; vérifier parcours avec et sans enchaînement, saisies multiples et échec.
+
+**Implémentation visée :** `src/app/app/admin/sprints/historical/historical-sprint-form.tsx` ; aucune migration SQL ni modification du modèle de données. Référence Jira : SMN-159.
