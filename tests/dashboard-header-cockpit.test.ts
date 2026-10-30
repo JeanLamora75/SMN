@@ -24,5 +24,5 @@ test("SMN-235 : palette Cockpit, lien bordé blanc et responsive",()=>{
  assert.match(css,/\.smn-cycle-header-compact \.smn-cycle-detail-link:focus-visible/);
  assert.match(css,/@container \(max-width:960px\)/);
  assert.match(css,/@container \(max-width:650px\)/);
- assert.doesNotMatch(component,/className="btn btn-outline-primary btn-sm smn-cycle-detail-link"/);
+ assert.match(component,/href=\{teamHref\}/);
 });
