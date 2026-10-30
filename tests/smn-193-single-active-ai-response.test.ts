@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {readFileSync} from "node:fs";
-const code=readFileSync("src/server/ai-briefs/responses.ts","utf8");
+const code=readFileSync("src/server/ai-briefs/responses.ts","utf8")+"\n"+readFileSync("prisma/migrations/20261029_ai_brief_runtime_ddl/migration.sql","utf8");
 const api=readFileSync("src/app/api/ai-briefs/archives/[id]/responses/route.ts","utf8");
 const mutation=readFileSync("src/app/api/ai-briefs/archives/[id]/responses/[responseId]/route.ts","utf8");
 const page=readFileSync("src/app/app/ai-briefs/archives/[id]/page.tsx","utf8");
