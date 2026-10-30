@@ -100,15 +100,10 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
   }catch{setError(t("members.assignment.historicalFailure"));}
   finally{setBusy(false);}
  }
- return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="assignment-heading">
-  <h3 className="h5" id="assignment-heading">{t("members.assignment.heading")}</h3>
-  <p className="small text-secondary mb-0">{t("members.assignment.intro")}</p>
-  <p className="small text-secondary mb-0">{t("prefill.teamContext",{team:teamName})}</p>
+ return <section className="smn-panel p-4 d-grid gap-3" aria-label={t("members.assignment.heading")}>
   {status==="loading"&&<p role="status">{t("members.assignment.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.assignment.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
-   <p className="small text-secondary">{t(state.versions.length>0?
-    "prefill.savedAssignment":"prefill.suggestedAssignment")}</p>
    {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
     <h4 className="h6">{t("members.assignment.historicalTitle")}</h4>
     <p className="small text-secondary">{t("members.assignment.historicalDescription",{date:state.startOn})}</p>
