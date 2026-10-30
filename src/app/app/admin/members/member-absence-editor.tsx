@@ -77,8 +77,7 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
   }catch{setError(t("members.absence.failed"));}
   finally{setBusy(false);}
  };
- return <section className="smn-panel p-4 d-grid gap-3" aria-labelledby="absence-edit-title">
-  <h3 id="absence-edit-title" className="h5">{t(record?"members.absence.editTitle":"members.absence.newTitle")}</h3>
+ return <section className="smn-panel p-4 d-grid gap-3" aria-label={t(record?"members.absence.editTitle":"members.absence.newTitle")}>
   {status==="loading"&&<p role="status">{t("members.absence.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.absence.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
