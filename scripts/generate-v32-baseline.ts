@@ -28,8 +28,19 @@ async function main(){
   snapshot.migrations?.filter(m=>m.finished_at&&!m.rolled_back_at).length??0);
  // pg_dump must be installed alongside PostgreSQL; can be set to a portable executable path.
  const bin=process.env.SMN_PG_DUMP_PATH||"pg_dump";
- const dump=spawnSync(bin,["--schema-only","--no-owner","--no-privileges","--schema=public","--quote-all-identifiers"],
-  {encoding:"utf8",env:{...process.env,PGDATABASE:uri},maxBuffer:64*1024*1024,windowsHide:true});
+ // libpq does not interpret PGDATABASE as a connection URI here. Forward each
+ // connection parameter explicitly, without leaking credentials in argv/logs.
+ const connection=new URL(uri);
+ const pgEnv={...process.env,
+  PGHOST:decodeURIComponent(connection.hostname.replace(/^\\[|\\]$/g,"")),
+  PGPORT:connection.port||"5432",
+  PGDATABASE:decodeURIComponent(connection.pathname.slice(1)),
+  PGUSER:decodeURIComponent(connection.username),
+  PGPASSWORD:decodeURIComponent(connection.password)};
+ const sslmode=connection.searchParams.get("sslmode");
+ if(sslmode)pgEnv.PGSSLMODE=sslmode;
+ const dump=spawnSync(bin,["--no-password","--schema-only","--no-owner","--no-privileges","--schema=public","--quote-all-identifiers"],
+  {encoding:"utf8",env:pgEnv,maxBuffer:64*1024*1024,windowsHide:true});
  if(dump.error)throw Error("pg_dump inaccessible : "+dump.error.message);
  if(dump.status!==0)throw Error("pg_dump a échoué (code "+dump.status+") : "+dump.stderr.slice(0,500));
  const sql=dump.stdout;
