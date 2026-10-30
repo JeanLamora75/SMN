@@ -30,7 +30,7 @@ describe("SMN-152 — validation de l'ouverture et des snapshots Vn",()=>{
  it("AC1 — capture une fois sur l'ouverture réelle, avec provenance et contrainte d'unicité",()=>{
   const src=file("src/server/kanban/states.ts")+"\n"+file("prisma/migrations/20261029_kanban_runtime_ddl/migration.sql");
   assert.match(src,/DO \$\$ BEGIN/);
-  assert.match(src,/END; \$\$\x60\);/);
+  assert.match(src,/END; \$\$;/);
   assert.match(src,/period_id text PRIMARY KEY REFERENCES public\.smn_kanban_period/);
   assert.match(src,/ON CONFLICT\(period_id\) DO NOTHING/);
   assert.match(src,/openingWasMissed\?"recovered":"on-time"/);
