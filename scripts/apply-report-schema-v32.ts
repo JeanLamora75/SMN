@@ -1,4 +1,5 @@
 import {Client} from "pg";
+import {readFileSync} from "node:fs";
 import {installedDatabaseUri} from "../src/server/auth/database";
 export const reportSchemaStatements=[
   "CREATE TABLE IF NOT EXISTS public.smn_report_analysis_choice(\n sprint_id text PRIMARY KEY,selected_ids jsonb NOT NULL DEFAULT '[]'::jsonb,\n updated_at timestamptz NOT NULL DEFAULT now())",
@@ -28,6 +29,9 @@ async function main(){
   await db.query("SELECT pg_advisory_xact_lock(20261029,41)");
   const r=await db.query<{schema_version:number;state:string}>("SELECT schema_version,state FROM public.smn_installation WHERE id='singleton' FOR UPDATE");
   if(r.rows.length!==1||r.rows[0].schema_version!==32||r.rows[0].state!=="initialized")throw Error("Installation initialisée v32 requise");
+  // Les droits et visibilités référencent la table archive PDF. La matérialiser avant.
+  const archiveSql=readFileSync(new URL("../prisma/migrations/20261025_smn_reports_archive_snapshots/migration.sql",import.meta.url),"utf8");
+  await db.query(archiveSql);
   for(const sql of reportSchemaStatements)await db.query(sql);
   await db.query("COMMIT");
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}}
