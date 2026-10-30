@@ -73,7 +73,7 @@ export default async function MemberPage({params,searchParams}:{
  const back=context.kind==="team"
   ?"/app/admin/members?"+new URLSearchParams({teamId:context.teamId})
   :"/app/admin/members";
- return <main className="smn-page container-fluid py-4 px-3 px-lg-4">
+ return <main className="smn-page smn-member-detail-page w-100 py-4 px-3 px-lg-4" style={{maxWidth:"none"}}>
   <Link href={back} className="btn btn-link px-0 mb-3">
    ← {translate(locale,"memberTeamScope.back")}
   </Link>
