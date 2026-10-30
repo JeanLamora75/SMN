@@ -16,6 +16,12 @@ export async function POST(req:NextRequest){
  }catch(error){
   if(error instanceof Error&&["team-context-unavailable","team-context-not-ready","team-id-invalid","team-access-forbidden"].includes(error.message))
    return jsonResult({error:"team-unavailable"},404);
-  return jsonResult({error:"service-unavailable"},503);
+  const code=error instanceof Error?error.message:"unknown";
+  const category=code.includes("schema-not-ready")?"schema-not-ready":
+   code.includes("ceremony-schema-not-ready")?"schema-not-ready":
+   code.startsWith("team-")?"team-unavailable":"service-unavailable";
+  console.error("historical-sprint-create-failed",{category,
+   code:error instanceof Error?error.message:"unknown"});
+  return jsonResult({error:category},503);
  }
 }
