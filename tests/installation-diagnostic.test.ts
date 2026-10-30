@@ -56,7 +56,7 @@ const registryDdlSource=(path:string)=>{
   path==="src/server/registries/roam.ts"?"scripts/apply-registry-core-v32.ts":
   path==="src/server/registries/cycle-links.ts"?"scripts/apply-registry-extensions-v32.ts":
   path==="src/server/reports/draft-notes.ts"?"scripts/apply-deferred-schema-v32.ts":
-  path==="src/server/dashboard/notes.ts"?"scripts/apply-dashboard-schema-v32.ts":path;
+  path==="src/server/dashboard/notes.ts"?"prisma/migrations/20261029_dashboard_runtime_ddl/migration.sql":path;
  return readFileSync(new URL("../"+source,import.meta.url),"utf8");
 };
 describe("SMN — historique de correction de date d'arrivée d'un membre", () => {
