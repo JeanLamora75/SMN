@@ -147,6 +147,7 @@ test("une modification de note valide est enregistrée et auditée en transactio
  const statements:string[]=[];
  const db={query:async(sql:string)=>{
   statements.push(sql);
+  if(sql.includes("to_regclass"))return {rows:[{ready:true}]};
   if(sql.includes("SELECT n.id,n.body,n.status,s.status"))return {rows:[{
    id:u(3),body:"Avant",status:"open",sprint_status:"active"}]};
   return {rows:[],rowCount:1};
