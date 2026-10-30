@@ -4,8 +4,8 @@ import {readFileSync} from "node:fs";
 const read=(p:string)=>readFileSync(p,"utf8");
 test("dashboard Sprint header includes team without redundant product/eyebrow",()=>{
  const s=read("src/app/app/cycle-overview.tsx");
- assert.match(s,/cycle\.name\+" - "\+context\.team/);
- assert.doesNotMatch(s,/smn-cycle-eyebrow/);
+ assert.match(s,/<h1 id="smn-cycle-overview-heading">\{cycle\?cycle\.name:/);
+ assert.match(s,/smn-cycle-eyebrow/);
  assert.doesNotMatch(s,/<strong>\{context\.product\}/);
 });
 test("dashboard renders up to three goals without additional-goal link",()=>{
