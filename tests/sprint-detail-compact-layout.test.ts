@@ -19,9 +19,17 @@ test("Sprint : pastille de statut alignée aux boutons, avec style Cockpit",()=>
  assert.match(css,/min-height:37px/);
  assert.match(page,/sprintReportPrepare\.launch/);
 });
-test("Indicateurs : trois colonnes desktop avec édition et calcul C02 préservés",()=>{
- assert.match(indicators,/col-12 col-md-6 col-xl-4/);
- assert.match(indicators,/col-12 col-sm-6 col-xl-4/);
+test("Indicateurs : trois colonnes fonctionnelles avec sections empilées",()=>{
+ const capacity=indicators.indexOf('section(t("sprintDetail.indicatorCapacityTitle")');
+ const scores=indicators.indexOf('section(t("sprintDetail.indicatorScoresTitle")');
+ const points=indicators.indexOf('section(t("storyPoints.title")');
+ const tickets=indicators.indexOf('section(t("sprintTickets.title")');
+ const derived=indicators.indexOf('<section aria-label={t("sprintDetail.indicatorDerivedTitle")}');
+ assert.ok(capacity>=0&&capacity<scores&&scores<points&&points<tickets&&tickets<derived);
+ assert.equal((indicators.match(/className="smn-sprint-indicators-column"/g)??[]).length,3);
+ assert.match(indicators,/className="smn-sprint-indicators-layout"/);
  assert.match(indicators,/calculatedActual/);
- assert.match(indicators,/sprintDetail\.indicatorCalculatedReference/);
+ const css=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-cockpit.css");
+ assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(max-width:700px\)/);
 });
