@@ -1,0 +1,24 @@
+/* Fiche membre multiéquipes — présentation Cockpit Agile, styles circonscrits. */
+.smn-member-cockpit{min-width:0;width:100%;gap:16px!important}
+.smn-member-cockpit .smn-member-hero{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;padding:clamp(20px,2.4vw,32px);color:#fff;background:linear-gradient(125deg,color-mix(in srgb,var(--smn-brand) 78%,#10294d),#10294d);border-radius:16px;box-shadow:0 9px 25px rgba(12,34,64,.12)}
+.smn-member-cockpit .smn-member-hero-main{min-width:0;flex:1 1 300px}
+.smn-member-cockpit .smn-member-eyebrow{font-size:.85rem;font-weight:650;margin:0 0 8px;color:rgba(255,255,255,.85)}
+.smn-member-cockpit .smn-member-hero h1{font-size:clamp(1.55rem,2.25vw,2.2rem);line-height:1.2;font-weight:760;letter-spacing:-.02em;color:#fff;margin:0 0 8px;overflow-wrap:anywhere}
+.smn-member-cockpit .smn-member-hero-description{font-size:.89rem;color:rgba(255,255,255,.88);margin:0;max-width:70ch}
+.smn-member-cockpit .smn-member-readonly{border:1px solid rgba(255,255,255,.5);border-radius:99px;padding:6px 12px;font-size:.78rem;font-weight:700;white-space:nowrap;background:rgba(255,255,255,.12)}
+.smn-member-cockpit .smn-member-panel{min-width:0;background:var(--smn-surface);color:var(--smn-foreground);border:1px solid var(--smn-border);border-radius:15px;padding:clamp(16px,1.9vw,24px);box-shadow:0 5px 17px rgba(12,34,64,.045)}
+.smn-member-cockpit .smn-member-panel-title{font-size:1rem;font-weight:750;color:var(--smn-heading);margin:0 0 16px}
+.smn-member-cockpit .smn-member-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.smn-member-cockpit .smn-member-metrics>div{display:flex;flex-direction:column;gap:6px;min-width:0;padding:13px 15px;background:var(--smn-muted-soft);border:1px solid var(--smn-border);border-radius:11px}
+.smn-member-cockpit .smn-member-metrics span{font-size:.76rem;color:var(--smn-foreground)}
+.smn-member-cockpit .smn-member-metrics strong{font-size:1.05rem;color:var(--smn-heading);overflow-wrap:anywhere}
+.smn-member-cockpit .smn-member-table{margin:0;font-size:.88rem}
+.smn-member-cockpit .smn-member-table th{font-size:.79rem;font-weight:750;white-space:nowrap;color:var(--smn-heading)}
+.smn-member-cockpit .smn-member-table td{vertical-align:middle}
+.smn-member-cockpit .smn-member-revision{display:inline-flex;min-width:28px;min-height:26px;align-items:center;justify-content:center;border-radius:99px;background:var(--smn-muted-soft);border:1px solid var(--smn-border);font-weight:700}
+.smn-member-cockpit .smn-member-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px}
+.smn-member-cockpit .smn-member-toolbar label{font-weight:650;font-size:.84rem;margin:0}
+.smn-member-cockpit .smn-member-toolbar input{width:min(100%,265px)}
+.smn-member-cockpit .smn-member-availability-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.smn-member-cockpit .smn-member-availability-summary span{padding:7px 11px;border-radius:9px;border:1px solid var(--smn-border);background:var(--smn-muted-soft);font-size:.81rem}
+@media(max-width:650px){.smn-member-cockpit .smn-member-metrics{grid-template-columns:1fr}.smn-member-cockpit .smn-member-hero{padding:20px}.smn-member-cockpit .smn-member-readonly{white-space:normal}}
