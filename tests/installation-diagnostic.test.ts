@@ -87,7 +87,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
   });
   it("reconnaît les tables internes de l'assistant et de replanification sans ouvrir le schéma aux objets étrangers", () => {
     for (const [relation, sourcePath] of [
-      ["public.smn_sprint_wizard_preview:r", "scripts/apply-sprint-schema-v32.ts"],
+      ["public.smn_sprint_wizard_preview:r", "prisma/migrations/20261023_smn231_sprint_wizard/migration.sql"],
       ["public.smn_sprint_reschedule_audit:r", "scripts/apply-legacy-sprint-reschedule-audit.ts"],
     ]) {
       assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
