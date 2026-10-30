@@ -84,7 +84,7 @@ function fixture(opts:FixtureOptions={}){
 describe("SMN-60 — réalisé collectif selon statut métier",()=>{
  it("lecture contextualisée v28 à v31, écriture monoéquipe interdite dès v28",()=>{
   const source=readFileSync(new URL("../src/server/capacity/actual.ts",import.meta.url),"utf8");
-  assert.match(source,/i\.schema_version IN \(28,29,30,31\) AND t\.id=\$1/);
+  assert.match(source,/i\\.schema_version BETWEEN 28 AND 32 AND t\.id=\$1/);
   assert.match(source,/i\.schema_version<=27/);
   assert.match(source,/if\(teams\.rows\.length!==1\)/);
  });
