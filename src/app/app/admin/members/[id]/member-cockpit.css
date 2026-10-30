@@ -79,7 +79,12 @@
  outline:3px solid #ffcf66;outline-offset:2px;
 }
 .smn-member-edit-dialog .smn-cockpit-modal-body .btn-primary:disabled{
- background:#1b508d;border-color:#1b508d;color:#fff;opacity:.55;
+ background:#1b508d;border-color:#1b508d;color:#fff;opacity:1;
+ filter:none;cursor:not-allowed;
+}
+.smn-member-edit-dialog .smn-cockpit-modal-body .btn-primary:disabled::after{
+ content:"";display:inline-block;width:5px;height:5px;margin-left:8px;
+ border-radius:50%;background:rgba(255,255,255,.65);vertical-align:middle;
 }
 .smn-member-edit-dialog .smn-cockpit-modal-header{position:sticky;top:0;z-index:2}
 .smn-member-edit-dialog .smn-cockpit-form-actions{
