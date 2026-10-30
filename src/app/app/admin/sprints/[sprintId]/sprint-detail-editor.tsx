@@ -172,7 +172,7 @@ export default function SprintDetailEditor(props:Props){
      <div className="d-flex justify-content-end flex-wrap gap-2">
       <button type="button" className="btn btn-outline-secondary"
        disabled={busy} onClick={dismiss}>{t("sprintDetail.cancel")}</button>
-      {preview?<button type="button" className="btn btn-primary" disabled={busy}
+      {preview?<button type="button" className="btn btn-primary"
        onClick={confirmDates} disabled={busy||Boolean(preview.warnings?.some(w=>!w.removable||!removeCeremonies.includes(w.id)))}>{t("sprintDetail.confirm")}</button>:
        <button type="button" className="btn btn-primary" disabled={busy||!start||!end}
         onClick={checkDates}>{t("sprintDetail.preview")}</button>}
