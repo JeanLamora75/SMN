@@ -62,7 +62,8 @@ function mockDb(fn:(sql:string,args?:unknown[])=>{rows:unknown[]}|undefined){
 }
 describe("SMN-236 — tickets agrégés",()=>{
  it("GET ne modifie pas le schéma et retourne deux absences quand la table n'existe pas",async()=>{
-  const f=mockDb(sql=>sql.includes("SELECT s.id,s.status")?
+  const f=mockDb(sql=>sql.includes("SELECT to_regclass")?{rows:[{present:"smn_sprint_ticket_counts"}]}:
+   sql.includes("SELECT s.id,s.status")?
    {rows:[{id,status:"active",name:"Sprint pilote"}]}:
    sql.includes("to_regclass")?{rows:[{present:false}]}:undefined);
   const result=await readSprintTickets(f.db,id);
