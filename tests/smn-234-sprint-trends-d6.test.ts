@@ -25,7 +25,7 @@ const snapshot=(done:unknown="8",actual:unknown="10")=>({
  capacity:{actual_jh:actual}
 });
 
-describe("SMN-234 D6 — cinq clôtures G04, lectures collectives et métriques",()=>{
+describe("SMN-234 D6 — six clôtures pour le filtre, lectures collectives et métriques",()=>{
  it("refuse un Sprint d'une autre équipe avant toute projection",async()=>{
   const f=sqlFixture(()=>({rows:[]}));
   assert.equal(await readSprintTrends(f.db,sprintId,teamId),null);
@@ -39,7 +39,7 @@ describe("SMN-234 D6 — cinq clôtures G04, lectures collectives et métriques"
   assert.deepEqual(await readSprintTrends(f.db,sprintId,teamId),[]);
   assert.ok(f.calls.every(({sql})=>!/(?:CREATE|ALTER|UPDATE|INSERT|DELETE)\s+(?:TABLE|public)/i.test(sql)));
  });
- it("ramène au plus cinq clos, même équipe, non postérieurs, du plus ancien au plus récent",async()=>{
+ it("ramène au plus six clos, même équipe, non postérieurs, du plus ancien au plus récent",async()=>{
   const rows=[
    history(5,snapshot()),history(4,snapshot()),
    history(3,snapshot()),history(2,snapshot()),history(1,snapshot())
