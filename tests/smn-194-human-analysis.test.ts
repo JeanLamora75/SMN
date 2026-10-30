@@ -9,7 +9,7 @@ test("human analysis does not require a parent brief",()=>{
  assert.equal(validHumanAnalysis({...base,content:" "}),false);
 });
 test("human analysis explicitly stores origin, author and timestamps",()=>{
- const source=readFileSync("src/server/ai-briefs/human-analyses.ts","utf8");
+ const source=readFileSync("src/server/ai-briefs/human-analyses.ts","utf8")+"\n"+readFileSync("prisma/migrations/20261029_ai_brief_runtime_ddl/migration.sql","utf8");
  assert.match(source,/CHECK\(origin='human'\)/);
  assert.match(source,/author_id text NOT NULL/);
  assert.match(source,/created_at timestamptz NOT NULL DEFAULT now\(\)/);
