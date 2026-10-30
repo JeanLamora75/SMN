@@ -10,7 +10,7 @@ test("manual pasted response required, AI provider and model optional",()=>{
  assert.equal(validManualAiResponse({text:"ok",provider:123}),false);
 });
 test("manual responses link to exact immutable archive, without modifying TXT",()=>{
- const src=readFileSync("src/server/ai-briefs/responses.ts","utf8");
+ const src=readFileSync("src/server/ai-briefs/responses.ts","utf8")+"\n"+readFileSync("prisma/migrations/20261029_ai_brief_runtime_ddl/migration.sql","utf8");
  assert.match(src,/archive_id uuid NOT NULL REFERENCES public.smn_ai_brief_archive/);
  assert.match(src,/readPrivateBriefArchive\(db,archiveId,teamId\)/);
  assert.match(src,/INSERT INTO public.smn_ai_brief_response/);
