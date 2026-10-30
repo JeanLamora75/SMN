@@ -41,8 +41,8 @@ test("Cockpit membre : largeur complète et grille historique/calendrier deux ti
  assert.match(view,/smn-member-body/);
  assert.match(view,/smn-member-history/);
  assert.match(view,/smn-member-calendar/);
- assert.match(view,/days\.slice\(0,split\)/);
- assert.match(view,/days\.slice\(split\)/);
+ assert.match(view,/firstHalf=days\.filter/);
+ assert.match(view,/secondHalf=days\.filter/);
  assert.match(page,/maxWidth:"none"/);
 });
 test("Cockpit membre : rôle, fonction, dates civiles localisées et annuel confidentiel",()=>{
@@ -59,6 +59,7 @@ test("Cockpit membre : rôle, fonction, dates civiles localisées et annuel conf
  assert.match(service,/resolveAdminTeam/);
  assert.match(service,/x\.team_id=\$2/);
  assert.match(service,/SELECT DISTINCT/);
+ assert.match(service,/member-out-of-team/);
  assert.match(service,/EXISTS\(SELECT 1 FROM public\.smn_member_absence/);
  assert.match(route,/actor\.role!=="admin"/);
  assert.doesNotMatch(route,/export async function (?:POST|PATCH|DELETE)/);
