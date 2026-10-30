@@ -91,7 +91,6 @@ export async function previewReschedule(db:Client,raw:unknown){
  if(!result.ok)return result;
  const impact=await reviewImpact(db,result.sprint,input);
  const registry=await registryImpact(db,result.sprint.id,input.startAt,input.endAt,result.sprint.time_zone);
- if(result.warnings.some(e=>!e.removable))return {ok:false as const,error:"events-outside-new-period",warnings:result.warnings,impact,registry};
  // Recalculation is not offered until a protected-event-safe preview engine is implemented.
  if(input.mode==="recalculate")return {ok:false as const,error:"recalculation-not-supported",warnings:result.warnings};
  const token=createHash("sha256").update(JSON.stringify({input,oldStart:result.sprint.start_at,oldEnd:result.sprint.end_at,warnings:result.warnings})).digest("hex");
