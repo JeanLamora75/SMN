@@ -12,7 +12,7 @@ test("the exact approved UTF-8 bytes are required",()=>{
  assert.equal(validateFinalizeInput({...valid,approvedSha256:"invalid"}),false);
 });
 test("the archive is transactional and immutable at DB level",()=>{
- const source=readFileSync("src/server/ai-briefs/archive.ts","utf8");
+ const source=readFileSync("src/server/ai-briefs/archive.ts","utf8")+"\n"+readFileSync("prisma/migrations/20261029_ai_brief_runtime_ddl/migration.sql","utf8");
  assert.match(source,/BEGIN/);assert.match(source,/COMMIT/);assert.match(source,/ROLLBACK/);
  assert.match(source,/BEFORE UPDATE OR DELETE/);
  assert.match(source,/content bytea NOT NULL/);
