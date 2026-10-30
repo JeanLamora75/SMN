@@ -91,7 +91,8 @@
  display:flex;align-items:center;justify-content:flex-end;gap:10px;
  padding-top:12px;border-top:1px solid var(--smn-border);
 }
-.smn-member-edit-dialog .smn-cockpit-form-actions .btn-outline-secondary{order:0;margin-right:auto}
+.smn-member-edit-dialog .smn-cockpit-form-actions .btn-outline-secondary{order:0;margin-right:0}
+.smn-member-edit-dialog .smn-cockpit-form-actions{justify-content:flex-end}
 .smn-member-edit-dialog .smn-cockpit-form-actions .btn-primary{order:1}
 .smn-member-edit-dialog .smn-member-assignment-historical-action{min-height:38px}
 @media(max-width:550px){
