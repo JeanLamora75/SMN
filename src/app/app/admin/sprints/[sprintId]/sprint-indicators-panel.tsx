@@ -228,11 +228,11 @@ export default function SprintIndicatorsPanel({sprintId,teamId,status,canManage,
    aria-labelledby="smn-indicator-dialog-title"
    onCancel={e=>{e.preventDefault();dismiss();}}>
    <div className="modal-content smn-indicator-dialog-content">
-    <div className="smn-indicator-dialog-header">
-     <h3 className="h5" id="smn-indicator-dialog-title">
+    <div className="smn-indicator-dialog-header" style={{backgroundColor:"#1b508d",color:"#fff",padding:"18px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+     <h3 className="h5 mb-0 text-white" id="smn-indicator-dialog-title">
       {t("sprintDetail.indicatorEditGroup")}
      </h3>
-     <button type="button" className="btn-close" aria-label={t("sprintDetail.close")}
+     <button type="button" className="btn-close bg-white opacity-100 rounded-2" aria-label={t("sprintDetail.close")}
       disabled={busy} onClick={dismiss}/>
     </div>
     <form onSubmit={save} className="d-grid gap-3 smn-indicator-dialog-form">
