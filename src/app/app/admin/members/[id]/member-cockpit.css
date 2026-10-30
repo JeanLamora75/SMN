@@ -34,3 +34,8 @@
 .smn-member-cockpit .smn-member-history .smn-member-table :is(th,td){padding:7px 6px}
 @media(max-width:1150px){.smn-member-cockpit .smn-member-body{grid-template-columns:1fr}}
 @media(max-width:750px){.smn-member-cockpit .smn-member-month-columns{grid-template-columns:1fr}}
+
+.smn-member-cockpit .smn-member-hero-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px}
+.smn-member-cockpit .smn-member-back{display:inline-flex;align-items:center;color:#fff;text-decoration:none;min-height:31px}
+.smn-member-cockpit .smn-member-back:hover{color:#fff;background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.75)}
+.smn-member-cockpit .smn-member-back:focus-visible{outline:3px solid #ffcf66;outline-offset:3px}
