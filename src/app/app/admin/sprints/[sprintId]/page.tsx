@@ -79,8 +79,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   const trends=active==="trends"?await readSprintTrends(db,cycle.id,teamId):null;
   const review=active==="review"?await readSprintReview(db,teamId,cycle.id):null;
   const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage,readEpic5SprintRegisterSource,registerKind):null;
-  const historic=await db.query<{historical:boolean}>(`SELECT EXISTS(SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created') AS historical`,[cycle.id]);
-  return {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers,isHistorical:historic.rows[0]?.historical??false};
+  return {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
