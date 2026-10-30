@@ -101,10 +101,12 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   await db.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  try{
   const teams=options.teamId?await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(
-   "SELECT t.id,t.name,i.mode FROM public.smn_team t "+
+   "SELECT t.id,t.name,LOWER(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode')) AS mode FROM public.smn_team t "+
    "JOIN public.smn_installation i ON i.id=t.installation_id "+
-   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version IN (28,29,30,31) "+
-   "AND i.mode IN ('scrum','kanban') AND t.id=$1 LIMIT 2",[options.teamId]):
+   "WHERE i.id='singleton' AND i.state='initialized' AND i.schema_version BETWEEN 28 AND 32 "+
+   "AND LOWER(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode')) IN ('scrum','kanban') "+
+   "AND (i.schema_version<32 OR COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false) "+
+   "AND t.id=$1 LIMIT 2",[options.teamId]):
    await db.query<{id:string;name:string;mode:"scrum"|"kanban"}>(teamSql);
   if(teams.rows.length!==1)throw Error("capacity-team-unavailable");
   const team=teams.rows[0];
@@ -124,7 +126,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   const assignmentIds=assignments.rows.map(a=>a.id);
   const memberIds=[...new Set(assignments.rows.map(a=>a.member_id))];
   const schema=options.teamId?await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'"):null;
-  const isV31=schema?.rows[0]?.schema_version===31;
+  const usesCompanyClosures=(schema?.rows[0]?.schema_version??0)>=31;
   const [versions,weeks,exceptions,locations,absences,closures]=await Promise.all([
    db.query<Version>([
     "SELECT assignment_id,revision,effective_from::text AS effective_from,",
@@ -158,7 +160,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     "AND h.revision=public.smn_member_absence.revision AND h.after_values->>'deleted'='true')",
     "ORDER BY member_id,start_on LIMIT 10001"
    ].join(" "),[memberIds,start,end]),
-   isV31?db.query<Closure>([
+   usesCompanyClosures?db.query<Closure>([
     "SELECT m.id AS member_id,c.start_on::text AS start_on,c.end_on::text AS end_on",
     "FROM public.smn_member m",
     "JOIN public.smn_company_closure c ON c.company_id=m.company_id AND c.is_active=true",
