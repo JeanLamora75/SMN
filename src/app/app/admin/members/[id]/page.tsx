@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
@@ -74,13 +73,10 @@ export default async function MemberPage({params,searchParams}:{
   ?"/app/admin/members?"+new URLSearchParams({teamId:context.teamId})
   :"/app/admin/members";
  return <main className="smn-page smn-member-detail-page w-100 py-4 px-3 px-lg-4" style={{maxWidth:"none"}}>
-  <Link href={back} className="btn btn-link px-0 mb-3">
-   ← {translate(locale,"memberTeamScope.back")}
-  </Link>
   {context.kind==="team"?<MemberTeamReadOnly
    key={id+"-"+context.teamId} memberId={id}
    teamId={context.teamId} teamName={context.teamName}
-   memberName={context.memberName} professionalFunction={context.professionalFunction} versions={[...context.versions]}/>:
+   memberName={context.memberName} professionalFunction={context.professionalFunction} backHref={back} versions={[...context.versions]}/>:
    <p role="alert" className="alert alert-warning">
     {translate(locale,context.kind==="missing"?
      "memberTeamScope.notFound":"memberTeamScope.unavailable")}
