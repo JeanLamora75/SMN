@@ -35,7 +35,9 @@ function fake(handler:(sql:string,args?:unknown[])=>{rows:unknown[];rowCount?:nu
  return {db,calls};
 }
 test("l'API enregistre un 0 J/H autorisé avec révision, audit et transaction",async()=>{
- const f=fake(sql=>sql.includes("SELECT s.id,s.status")?
+ const f=fake(sql=>sql.includes("FROM pg_class")?
+  {rows:[{name:"smn_sprint_capacity_kpi"},{name:"smn_sprint_capacity_kpi_audit"}]}:
+  sql.includes("SELECT s.id,s.status")?
   {rows:[{id,status:"finished"}]}:{rows:[],rowCount:1});
  const result=await writeSprintCapacityKpis(f.db,"account-1",{
   sprintId:id,revision:0,capacity:{planned:0,actual:13.5}
@@ -69,7 +71,9 @@ test("un Sprint clôturé ne permet aucune écriture; un sprint hors périmètre
  }),{ok:false,error:"not-found"});
 });
 test("conflit de révision : ni mise à jour ni écrasement",async()=>{
- const f=fake(sql=>sql.includes("SELECT s.id,s.status")?
+ const f=fake(sql=>sql.includes("FROM pg_class")?
+  {rows:[{name:"smn_sprint_capacity_kpi"},{name:"smn_sprint_capacity_kpi_audit"}]}:
+  sql.includes("SELECT s.id,s.status")?
   {rows:[{id,status:"active"}]}:sql.includes("SELECT planned_jh::text")?
   {rows:[{planned_jh:"18",actual_jh:"12",revision:3}]}:{rows:[]});
  assert.deepEqual(await writeSprintCapacityKpis(f.db,"admin",{
