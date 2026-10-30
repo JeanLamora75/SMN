@@ -92,3 +92,14 @@ test("Cockpit membre : trois synthèses, historique SM PO DEV et dates de sprint
  assert.match(windowSource,/d\.assigned AND a\.id IS NOT NULL/);
  assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });
+
+test("Cockpit membre : sélecteur de mois sur la ligne du titre sans compteurs",()=>{
+ assert.match(view,/smn-member-calendar-heading/);
+ assert.match(view,/smn-member-month-select/);
+ assert.match(view,/aria-label=\{t\("memberTeamScope\.month"\)\}/);
+ assert.doesNotMatch(view,/smn-member-availability-summary/);
+ assert.doesNotMatch(view,/smn-member-toolbar/);
+ assert.match(css,/justify-content:space-between/);
+ const fr=read("src/i18n/member-team-scope.fr.json");
+ assert.match(fr,/"annualAbsences": "Absences cette année"/);
+});
