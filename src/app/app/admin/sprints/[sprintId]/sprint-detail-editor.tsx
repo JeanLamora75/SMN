@@ -8,10 +8,11 @@ import BootstrapIcon from "../../../bootstrap-icon";
 type Props={kind:"name"|"dates";sprintId:string;name:string;
  startAt:string;endAt:string;timeZone:string};
 type RescheduleInput={sprintId:string;startAt:string;endAt:string;mode:"keep"};
+type OutsideEvent={id:string;name:string;kind:string;status:string;startAt:string;endAt:string;removable:boolean};
 type Preview={token:string;input:RescheduleInput;impact?:{
  goalCount:number;storyPoints:unknown;initialCapacityJh:number|null;
  manualActualJh:number|null;recalculatedReferenceJh:number|null;
- missingSources:string[]};warnings?:Array<{kind:string;id:string}>};
+ missingSources:string[]};warnings?:OutsideEvent[]};
 
 export default function SprintDetailEditor(props:Props){
  const t=useTranslation(),router=useRouter();
@@ -21,6 +22,7 @@ export default function SprintDetailEditor(props:Props){
  const [start,setStart]=useState(sprintZonedInput(props.startAt,props.timeZone)??"");
  const [end,setEnd]=useState(sprintZonedInput(props.endAt,props.timeZone)??"");
  const [preview,setPreview]=useState<Preview|null>(null);
+ const [removeCeremonies,setRemoveCeremonies]=useState<string[]>([]);
  const [error,setError]=useState(""),[notice,setNotice]=useState("");
  const isName=props.kind==="name";
  const title=t(isName?"sprintDetail.editNameTitle":"sprintDetail.editDatesTitle");
@@ -34,7 +36,7 @@ export default function SprintDetailEditor(props:Props){
   setName(props.name);
   setStart(sprintZonedInput(props.startAt,props.timeZone)??"");
   setEnd(sprintZonedInput(props.endAt,props.timeZone)??"");
-  setPreview(null);setError("");setNotice("");setOpened(true);
+  setPreview(null);setRemoveCeremonies([]);setError("");setNotice("");setOpened(true);
  };
  const dismiss=()=>{if(!busy){setOpened(false);setPreview(null);setError("");}};
  async function rename(e:FormEvent<HTMLFormElement>){
@@ -68,7 +70,7 @@ export default function SprintDetailEditor(props:Props){
  }
  async function checkDates(){
   if(busy)return;
-  setError("");setPreview(null);
+  setError("");setPreview(null);setRemoveCeremonies([]);
   const input=resolveInput();if(!input)return;
   if(input.startAt===props.startAt&&input.endAt===props.endAt){
    setError(t("sprintDetail.noChange"));return;
@@ -93,12 +95,12 @@ export default function SprintDetailEditor(props:Props){
   finally{setBusy(false);}
  }
  async function confirmDates(){
-  if(busy||!preview)return;
+  if(busy||!preview||preview.warnings?.some(w=>!w.removable||!removeCeremonies.includes(w.id)))return;
   setBusy(true);setError("");
   try{
    const r=await fetch("/api/admin/sprints/reschedule",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({input:preview.input,token:preview.token})});
+    body:JSON.stringify({input:preview.input,token:preview.token,removeCeremonies})});
    const data=await r.json();
    if(!r.ok||!data.ok)throw Error("confirm");
    setOpened(false);setPreview(null);setNotice(t("sprintDetail.savedDates"));router.refresh();
@@ -151,14 +153,27 @@ export default function SprintDetailEditor(props:Props){
        <li>{t("sprintDetail.impactManual")} : {preview.impact?.manualActualJh??t("sprintDetail.missing")}</li>
        <li>{t("sprintDetail.impactReference")} : {preview.impact?.recalculatedReferenceJh??t("sprintDetail.missing")}</li>
       </ul>
-      {preview.warnings?.length?<p>{t("sprintDetail.affectedEvents")} : {preview.warnings.length}</p>:null}
+      {preview.warnings?.length?<div className="mt-2">
+       <p className="fw-semibold mb-2">Cérémonies hors de la nouvelle période ({preview.warnings.length})</p>
+       {preview.warnings.map(event=><div key={event.kind+event.id} className="border rounded p-2 mb-2">
+        <label className="d-flex gap-2 align-items-start">
+         <input type="checkbox" className="form-check-input mt-1" disabled={!event.removable||busy}
+          checked={removeCeremonies.includes(event.id)}
+          onChange={e=>setRemoveCeremonies(current=>e.target.checked?[...current,event.id]:current.filter(id=>id!==event.id))}/>
+         <span><strong>{event.name||event.kind}</strong> · {event.status}
+          <span className="d-block small">{event.startAt} — {event.endAt}</span>
+          <span className="d-block small">{event.removable?"Retirer cette cérémonie planifiée lors de la confirmation":"Événement protégé : déplacement ou suppression indisponible"}</span>
+         </span>
+        </label>
+       </div>)}
+      </div>:null}
       {preview.impact?.missingSources?.length?<p>{t("sprintReschedule.missingSources")} : {preview.impact.missingSources.join(", ")}</p>:null}
      </div>}
      <div className="d-flex justify-content-end flex-wrap gap-2">
       <button type="button" className="btn btn-outline-secondary"
        disabled={busy} onClick={dismiss}>{t("sprintDetail.cancel")}</button>
       {preview?<button type="button" className="btn btn-primary" disabled={busy}
-       onClick={confirmDates}>{t("sprintDetail.confirm")}</button>:
+       onClick={confirmDates} disabled={busy||Boolean(preview.warnings?.some(w=>!w.removable||!removeCeremonies.includes(w.id)))}>{t("sprintDetail.confirm")}</button>:
        <button type="button" className="btn btn-primary" disabled={busy||!start||!end}
         onClick={checkDates}>{t("sprintDetail.preview")}</button>}
      </div>
