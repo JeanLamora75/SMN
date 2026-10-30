@@ -42,3 +42,27 @@ export async function POST(request:NextRequest,
   return jsonResult({error:"service-unavailable"},503);
  }
 }
+
+export async function GET(request:NextRequest,{params}:{params:Promise<{id:string}>}){
+ const actor=await authorizeApi(request,"read",resource);
+ if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
+ const teamId=request.nextUrl.searchParams.get("teamId"),{id}=await params;
+ if(!teamId||[...request.nextUrl.searchParams.keys()].some(k=>k!=="teamId"))return jsonResult({error:"invalid-input"},400);
+ try{return jsonResult(await withAuthDb(async db=>{
+  const {readTeamAssignmentHistory}=await import("@/server/members/team-assignment-history");
+  const history=await readTeamAssignmentHistory(db,{accountId:actor.id,role:"admin"},id,teamId);
+  const latest=history.versions[0],today=(await db.query<{today:string}>("SELECT CURRENT_DATE::text AS today")).rows[0].today;
+  return {memberId:id,teamId,assignmentId:latest.assignmentId,startOn:latest.startOn,today,
+   latestRevision:latest.revision,current:{
+    revision:latest.revision,effectiveFrom:latest.effectiveFrom,contractPercent:latest.contractPercent,
+    allocationPercent:latest.allocationPercent,contributionPercent:latest.contributionPercent,
+    shares:{scrumMaster:latest.scrumMasterPercent,productOwner:latest.productOwnerPercent,developer:latest.developerPercent},
+    developerShare:latest.developerPercent/100
+   },versions:[...history.versions].reverse().map(v=>({
+    revision:v.revision,effectiveFrom:v.effectiveFrom,contractPercent:v.contractPercent,
+    allocationPercent:v.allocationPercent,contributionPercent:v.contributionPercent,
+    shares:{scrumMaster:v.scrumMasterPercent,productOwner:v.productOwnerPercent,developer:v.developerPercent},
+    developerShare:v.developerPercent/100
+   }))};
+ }));}catch{return jsonResult({error:"not-found"},404);}
+}
