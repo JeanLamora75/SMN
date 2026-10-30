@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import MemberTeamProfileEditor from "./member-team-profile-editor";
@@ -41,9 +41,9 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const locale=useLocale();
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
- const [editing,setEditing]=useState(false);
+ const [editor,setEditor]=useState<"profile"|"location"|"calendar"|null>(null);
+ const dialogRef=useRef<HTMLDialogElement>(null);
  const [editingAssignment,setEditingAssignment]=useState(false);
- const [editingPlanning,setEditingPlanning]=useState<"location"|"calendar"|null>(null);
  const [editingAbsence,setEditingAbsence]=useState(false);
  const [refreshKey,setRefreshKey]=useState(0);
  const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
@@ -52,6 +52,11 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"}).slice(0,7));
  const [status,setStatus]=useState<"loading"|"ready"|"empty"|"error">("loading");
  const [days,setDays]=useState<DailyAvailability[]>([]);
+ useEffect(()=>{
+  const dialog=dialogRef.current;
+  if(editor&&dialog&&!dialog.open)dialog.showModal();
+  return()=>{if(dialog?.open)dialog.close();};
+ },[editor]);
  useEffect(()=>{
   const range=monthRange(month);
   if(!range){void Promise.resolve().then(()=>{setDays([]);setStatus("error");});return;}
@@ -138,14 +143,28 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <p className="smn-member-role">{role||t("memberTeamScope.noRole")} — {identity.profession||t("memberTeamScope.noFunction")}</p>
    </div>
    <div className="smn-member-hero-actions">
-    <button type="button" className="smn-member-readonly smn-member-back" aria-expanded={editing} onClick={()=>setEditing(v=>!v)}>{editing?"Fermer l’édition":"Modifier le profil"}</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("profile")}>Modifier le profil</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("location")}>Modifier la localisation</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("calendar")}>Modifier le calendrier de travail</button>
     <Link className="smn-member-readonly smn-member-back" href={backHref}>← {t("memberTeamScope.back")}</Link>
    </div>
   </header>
-  {editing&&<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
-   onCancel={()=>setEditing(false)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditing(false);}}/>}
-  <div className="d-flex flex-wrap gap-2"><button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingPlanning("location")}>Modifier la localisation</button><button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>setEditingPlanning("calendar")}>Modifier le calendrier de travail</button></div>
-  {editingPlanning&&<MemberTeamPlanningEditor key={editingPlanning+"-"+refreshKey} memberId={memberId} teamId={teamId} kind={editingPlanning} onSaved={()=>{setEditingPlanning(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditingPlanning(null)}/>}
+  {editor&&<dialog ref={dialogRef} className="smn-member-edit-dialog" aria-labelledby="smn-member-edit-title"
+   onCancel={()=>setEditor(null)}>
+   <div className="modal-content smn-cockpit-modal">
+    <div className="smn-cockpit-modal-header">
+     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":"Modifier le calendrier de travail"}</h2>
+     <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
+    </div>
+    <div className="smn-cockpit-modal-body">
+     {editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
+      onCancel={()=>setEditor(null)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditor(null);router.refresh();}}/>:
+      <MemberTeamPlanningEditor key={editor+"-"+refreshKey} memberId={memberId} teamId={teamId}
+       kind={editor} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}}
+       onCancel={()=>setEditor(null)}/>}
+    </div>
+   </div>
+  </dialog>}
   <div className="smn-member-body">
   <section className="smn-member-panel smn-member-history"
    aria-labelledby="smn-team-member-assignment-title">
