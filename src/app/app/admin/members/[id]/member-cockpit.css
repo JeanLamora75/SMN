@@ -67,3 +67,29 @@
 .smn-member-cockpit .smn-member-calendar-heading .smn-member-month-action:focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
 .smn-member-cockpit .smn-member-calendar-heading .smn-member-panel-title{margin-right:auto}
 .smn-member-edit-dialog .smn-panel{border:0!important;box-shadow:none!important;padding:0!important;background:transparent}
+
+/* Contrat Cockpit Agile : actions primaires et modale affectation. */
+.smn-member-edit-dialog .smn-cockpit-modal-body .btn-primary:not(:disabled){
+ background:#1b508d;border-color:#1b508d;color:#fff;
+}
+.smn-member-edit-dialog .smn-cockpit-modal-body .btn-primary:not(:disabled):hover{
+ background:#153f70;border-color:#153f70;color:#fff;
+}
+.smn-member-edit-dialog .smn-cockpit-modal-body .btn-primary:focus-visible{
+ outline:3px solid #ffcf66;outline-offset:2px;
+}
+.smn-member-edit-dialog .smn-cockpit-modal-body .btn-primary:disabled{
+ background:#1b508d;border-color:#1b508d;color:#fff;opacity:.55;
+}
+.smn-member-edit-dialog .smn-cockpit-modal-header{position:sticky;top:0;z-index:2}
+.smn-member-edit-dialog .smn-cockpit-form-actions{
+ display:flex;align-items:center;justify-content:flex-end;gap:10px;
+ padding-top:12px;border-top:1px solid var(--smn-border);
+}
+.smn-member-edit-dialog .smn-cockpit-form-actions .btn-outline-secondary{order:0;margin-right:auto}
+.smn-member-edit-dialog .smn-cockpit-form-actions .btn-primary{order:1}
+.smn-member-edit-dialog .smn-member-assignment-historical-action{min-height:38px}
+@media(max-width:550px){
+ .smn-member-edit-dialog .smn-cockpit-form-actions{flex-wrap:wrap}
+ .smn-member-edit-dialog .smn-cockpit-form-actions .btn{max-width:100%}
+}
