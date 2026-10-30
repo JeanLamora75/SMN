@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useState} from "react";
+import Link from "next/link";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TeamAssignmentRevision} from "@/server/members/team-assignment-history";
 
@@ -7,7 +8,7 @@ type DailyAvailability={date:string;morningAbsent:boolean;afternoonAbsent:boolea
 type Response={memberId:string;teamId:string;startOn:string;endOn:string;
  days:DailyAvailability[]};
 type Props=Readonly<{memberId:string;teamId:string;teamName:string;
- memberName:string;professionalFunction:string|null;versions:TeamAssignmentRevision[]}>;
+ memberName:string;professionalFunction:string|null;backHref:string;versions:TeamAssignmentRevision[]}>;
 
 function formatCivil(date:string,locale:string):string{
  const parts=/^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
@@ -28,7 +29,7 @@ function monthRange(month:string):{startOn:string;endOn:string}|null{
 /** Vue v28 volontairement limitée aux données d'affectation de l'équipe.
  * Aucun éditeur de fiche, d'absence, d'identité ou de calendrier personnel.
  */
-export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,professionalFunction,
+export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,professionalFunction,backHref,
  versions}:Props){
  const t=useTranslation();
  const locale=useLocale();
@@ -91,9 +92,11 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <p className="smn-member-eyebrow">{t("memberTeamScope.teamLabel")}: {teamName}</p>
     <h1>{memberName}</h1>
     <p className="smn-member-role">{role||t("memberTeamScope.noRole")} — {professionalFunction||t("memberTeamScope.noFunction")}</p>
-    <p className="smn-member-hero-description">{t("memberTeamScope.readOnly")}</p>
    </div>
-   <span className="smn-member-readonly">{t("memberTeamScope.readOnly").split(" — ")[0]}</span>
+   <div className="smn-member-hero-actions">
+    <span className="smn-member-readonly">{t("memberTeamScope.readOnly").split(" — ")[0]}</span>
+    <Link className="smn-member-readonly smn-member-back" href={backHref}>← {t("memberTeamScope.back")}</Link>
+   </div>
   </header>
   <div className="smn-member-body">
   <section className="smn-member-panel smn-member-history"
