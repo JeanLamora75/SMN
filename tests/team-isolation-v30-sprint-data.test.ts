@@ -10,7 +10,7 @@ for(const [name,service,route] of [
   const source=read(service);
   assert.match(source,/s\.team_id=\$2/);
   assert.match(source,/t\.is_archived=false/);
-  assert.match(source,/i\.schema_version IN \(28,29,30,31\)/);
+  assert.match(source,/i\.schema_version BETWEEN 28 AND 32/);
   assert.match(source,/resolveAdminTeam\(db,access\.actor,access\.teamId\)/);
   assert.match(source,/i\.schema_version<=27/);
  });
