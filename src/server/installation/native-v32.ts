@@ -15,7 +15,7 @@ export function nativeBaselineSql():string|null {
  // It must contain the neutral installation contract and be reviewed separately.
  if(!sql.includes("smn_installation")||!sql.includes("smn_account")||
     !sql.includes("agile_mode")||!sql.includes("smn_team"))return null;
- if(/\bmode\s+text\s+NOT\s+NULL/i.test(sql))return null;
+ if(/CREATE TABLE\s+"public"\."smn_installation"\s*\([^;]*"mode"\s+"text"/i.test(sql))return null;
  return sql;
 }
 export function nativeV32HistoryValid(snapshot:Snapshot,sql:string|null):boolean {
