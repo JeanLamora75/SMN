@@ -21,7 +21,7 @@ export function nativeBaselineReady(sql:string):boolean{
  // Do not silently provide an application-level mode or a default team.
  return sql.includes("smn_installation")&&sql.includes("smn_account")&&
    sql.includes("smn_team")&&sql.includes("agile_mode")&&
-   !/CREATE TABLE\s+"public"\."smn_installation"\s*\([^;]*"mode"\s+"text"/i.test(sql);
+   !/CREATE\s+TABLE\s+(?:(?:"?public"?\.)?)"?smn_installation"?\s*\([^;]*"?mode"?\s+(?:"?text"?)\s+NOT\s+NULL/i.test(sql);
 }
 export async function installExpress(rawBody:unknown,rawUri:string|undefined):Promise<InstallResult>{
  const input=validateExpressInput(rawBody);
