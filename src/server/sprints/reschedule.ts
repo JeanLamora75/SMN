@@ -54,7 +54,7 @@ async function registryImpact(db:Client,sprintId:string,newStart:string,newEnd:s
  const start=localDay(newStart,zone),end=localDay(newEnd,zone);
  return {preserved:true,items:rows.rows.map(r=>({...r,outside:r.dueOn!==null&&(r.dueOn<start||r.dueOn>end)}))};
 }
-async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;start_at:string;end_at:string;time_zone:string},input:Input){
+async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;start_at:string;end_at:string;time_zone:string},input:Input,inTransaction=false){
  const [goals,points,initial,manual]=await Promise.all([
   db.query<{count:string}>(`SELECT count(*)::text AS count FROM public.smn_sprint_goal WHERE sprint_id=$1`,[s.id]),
   db.query(`SELECT initial_sp::text AS initial,added_sp::text AS added,removed_sp::text AS removed,done_sp::text AS done FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[s.id]),
@@ -67,14 +67,14 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
  let calculatedReferenceJh:number|null=null,missingSources:string[]=[];
  if(s.status==="active"||s.status==="finished"){
   // The optional capacity estimator must not poison the enclosing PostgreSQL transaction.
-  await db.query("SAVEPOINT smn_reschedule_capacity_preview");
+  if(inTransaction)await db.query("SAVEPOINT smn_reschedule_capacity_preview");
   try{
    const result=await readDevelopmentCapacity(db,newStart,newEnd,{externalTransaction:true,includeExceptionalImpact:true,teamId:s.team_id});
    calculatedReferenceJh=result.totalJh;
    missingSources=result.missing.map(m=>m.source);
-   await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
+   if(inTransaction)await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
   }catch(error){
-   await db.query("ROLLBACK TO SAVEPOINT smn_reschedule_capacity_preview");
+   if(inTransaction)await db.query("ROLLBACK TO SAVEPOINT smn_reschedule_capacity_preview");
    await db.query("RELEASE SAVEPOINT smn_reschedule_capacity_preview");
    console.error("sprint-reschedule-capacity-unavailable",{
     message:error instanceof Error?error.message:String(error),
@@ -124,7 +124,7 @@ export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
    checked.warnings.some(e=>!removeIds.includes(e.id))){await db.query("ROLLBACK");return {ok:false as const,error:"events-outside-new-period",warnings:checked.warnings};}
   const token=createHash("sha256").update(JSON.stringify({input,oldStart:original.start_at,oldEnd:original.end_at,warnings:checked.warnings})).digest("hex");
   if(token!==data.token){await db.query("ROLLBACK");return {ok:false as const,error:"stale-preview"};}
-  const impact=await reviewImpact(db,original,input);
+  const impact=await reviewImpact(db,original,input,true);
   const registry=await registryImpact(db,original.id,input.startAt,input.endAt,original.time_zone);
   for(const event of checked.warnings){
    const deleted=await db.query(`DELETE FROM public.smn_scrum_template_occurrence
