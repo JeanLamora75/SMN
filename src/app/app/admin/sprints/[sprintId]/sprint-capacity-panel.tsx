@@ -48,6 +48,7 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
   <p className="small text-secondary">
    {t("sprintDetail.presenceMethod")}
   </p>
+  <p className="small text-secondary">Le total de présence additionne les demi-journées disponibles de tous les membres affectés. La capacité de développement retient uniquement leur part de rôle Agile Développeur, pondérée par l’affectation et la contribution. Les calendriers doivent être effectifs aux dates du Sprint.</p>
   {!data||data.state==="unavailable"?<div className="alert alert-warning" role="status">
    {t(data?.state==="unavailable"&&data.reason==="history-missing"?
     "sprintDetail.presenceHistoryMissing":
@@ -111,10 +112,10 @@ export default function SprintCapacityPanel({data,canViewNames,locale,t}:{
     </div>}
    {data.members.some(m=>m.missingSources?.length)&&
    <div className="alert alert-warning" role="status">
-    <p className="mb-2">{t("sprintDetail.presenceMissingIntro")}</p>
+    <p className="mb-2">Certaines journées ne peuvent pas être calculées faute de données applicables aux dates du Sprint. Les chiffres manquants ne sont pas assimilés à zéro.</p>
     <ul className="mb-2">{data.members.filter(m=>m.missingSources?.length).map(m=>
      <li key={m.memberId}><strong>{m.displayName}</strong> :{" "}
-      {m.missingSources!.map(code=>t(missingTranslation[code])).join("; ")}</li>)}
+      {m.missingSources!.map(code=>t(missingTranslation[code])).join("; ")}{m.missingSources!.includes("work-calendar")?<span> — trame hebdomadaire absente ou sans version en vigueur pendant le Sprint. <Link href={"/app/admin/members/"+encodeURIComponent(m.memberId)}>Ouvrir la fiche et vérifier le calendrier</Link></span>:null}</li>)}
     </ul>
     <Link href="/app/admin/development-capacity">{t("sprintDetail.presenceSeeDiagnosis")}</Link>
    </div>}
