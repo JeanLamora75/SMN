@@ -38,7 +38,7 @@ test("Sprint v32: migrations agrégées idempotentes sur PostgreSQL isolé avec 
    const rows=await db.query<{sprint_id:string}>("SELECT sprint_id FROM public.smn_sprint_scores WHERE sprint_id='sprint'");
    assert.equal(rows.rows[0]?.sprint_id,"sprint");
    const tables=sprintAggregateStatements.filter(sql=>sql.startsWith("CREATE TABLE IF NOT EXISTS public."))
-    .map(sql=>sql.match(/^CREATE TABLE IF NOT EXISTS public\\.([a-z0-9_]+)/)?.[1]).filter(Boolean);
+    .map(sql=>sql.match(/^CREATE TABLE IF NOT EXISTS public\.([a-z0-9_]+)/)?.[1]).filter(Boolean);
    const found=await db.query<{relname:string}>(`SELECT relname FROM pg_class WHERE relnamespace='public'::regnamespace
     AND relkind='r' AND relname=ANY($1::text[])`,[tables]);
    assert.equal(found.rows.length,new Set(tables).size);
