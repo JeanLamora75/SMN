@@ -217,11 +217,11 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
       </div>
      </div>)}
    </dl>
-    </div>
-  </div>
     {calculated.overrun&&source&&
     <p role="status" className="alert alert-warning">{t("storyPoints.overrun")}</p>}
   </section>
+   </div>
+  </div>
   <p className="small text-secondary">{t("sprintTickets.noSource")}</p>
   {notice&&<p role="status" className="alert alert-success">{notice}</p>}
   {group!==null&&editable&&<dialog ref={modal} className="smn-sprint-edit-dialog"
