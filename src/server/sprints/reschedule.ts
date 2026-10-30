@@ -134,12 +134,15 @@ export async function confirmReschedule(db:Client,actorId:string,raw:unknown){
   await db.query("UPDATE public.smn_sprint SET start_at=$2,end_at=$3 WHERE id=$1",[input.sprintId,input.startAt,input.endAt]);
   await db.query(`INSERT INTO public.smn_sprint_reschedule_audit(id,sprint_id,old_start,old_end,new_start,new_end,mode,actor_id)
   VALUES($1,$2,$3,$4,$5,$6,'keep',$7)`,[randomUUID(),input.sprintId,original.start_at,original.end_at,input.startAt,input.endAt,actorId]);
-  // Persist the explicit removals in the existing reschedule audit via a separate
-  // additive event only when the table is part of the installed schema.
-  // No dependency on the non-migrated smn_sprint_audit table.
-  console.info("sprint-reschedule-ceremonies-removed",{
-   sprintId:input.sprintId,count:checked.warnings.length,actorId
-  });
+  // Record removals durably in the migrated reschedule audit table.
+  // Never rely on the non-migrated smn_sprint_audit table.
+  if(checked.warnings.length){
+   await db.query(`INSERT INTO public.smn_sprint_reschedule_audit
+    (id,sprint_id,old_start,old_end,new_start,new_end,mode,actor_id)
+    VALUES($1,$2,$3,$4,$5,$6,'ceremonies-removed',$7)`,[
+    randomUUID(),input.sprintId,original.start_at,original.end_at,input.startAt,input.endAt,actorId
+   ]);
+  }
   await db.query("COMMIT");return {ok:true as const,warnings:checked.warnings,impact,registry};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
