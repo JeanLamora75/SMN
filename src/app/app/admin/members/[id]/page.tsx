@@ -16,7 +16,7 @@ type PageContext=Readonly<
  {kind:"legacy"}|
  {kind:"denied"}|
  {kind:"missing"}|
- {kind:"team";teamId:string;teamName:string;memberName:string;
+ {kind:"team";teamId:string;teamName:string;memberName:string;professionalFunction:string|null;
   versions:Awaited<ReturnType<typeof readTeamAssignmentHistory>>["versions"]}
 >;
 
@@ -51,8 +51,8 @@ export default async function MemberPage({params,searchParams}:{
     const history=await readTeamAssignmentHistory(db,{
      accountId:actor.id,role:"admin"
     },id,team.team_id);
-    const person=await db.query<{display_name:string}>(`
-     SELECT m.display_name FROM public.smn_member m
+    const person=await db.query<{display_name:string;professional_function:string|null}>(`
+     SELECT m.display_name,m.professional_function FROM public.smn_member m
      WHERE m.id=$1 AND m.installation_id='singleton'
       AND EXISTS(SELECT 1 FROM public.smn_member_assignment a
        JOIN public.smn_team t ON t.id=a.team_id
@@ -61,7 +61,7 @@ export default async function MemberPage({params,searchParams}:{
      LIMIT 2`,[id,team.team_id]);
     if(person.rows.length!==1)return {kind:"missing"} as const;
     return {kind:"team",teamId:team.team_id,teamName:team.team,
-     memberName:person.rows[0].display_name,versions:history.versions} as const;
+     memberName:person.rows[0].display_name,professionalFunction:person.rows[0].professional_function,versions:history.versions} as const;
    }catch{return {kind:"missing"} as const;}
   });
  }catch{
@@ -80,7 +80,7 @@ export default async function MemberPage({params,searchParams}:{
   {context.kind==="team"?<MemberTeamReadOnly
    key={id+"-"+context.teamId} memberId={id}
    teamId={context.teamId} teamName={context.teamName}
-   memberName={context.memberName} versions={[...context.versions]}/>:
+   memberName={context.memberName} professionalFunction={context.professionalFunction} versions={[...context.versions]}/>:
    <p role="alert" className="alert alert-warning">
     {translate(locale,context.kind==="missing"?
      "memberTeamScope.notFound":"memberTeamScope.unavailable")}
