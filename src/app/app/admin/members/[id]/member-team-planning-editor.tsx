@@ -65,7 +65,7 @@ export default function MemberTeamPlanningEditor({memberId,teamId,kind,onSaved,o
   <h2 className="h5">{kind==="location"?"Modifier la localisation":"Modifier la semaine de travail"}</h2>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {!ready?<p role="status">Chargement…</p>:<form onSubmit={submit} className="row g-3">
-   <label className="col-12">Date d'effet<input type="date" required value={date} className="form-control mt-1" onChange={e=>setDate(e.target.value)} disabled={busy}/></label>
+   <label className="col-12">Date d&apos;effet<input type="date" required value={date} className="form-control mt-1" onChange={e=>setDate(e.target.value)} disabled={busy}/></label>
    {kind==="location"?<>
     {field("countryIso2","Code pays (ISO 2 lettres)",2)}
     {field("region","Région",120)}
