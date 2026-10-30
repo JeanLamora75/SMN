@@ -1,11 +1,11 @@
 /** Audit en lecture seule : historique, empreintes SQL, structures et cohérence v32. */
-import {readFileSync,readdirSync} from "node:fs";
+import {readdirSync} from "node:fs";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {INSTALLATION_RELATIONS} from "../src/server/installation/contract";
-import {verifyHistory} from "./db-migration-history";
+import {checkRecordedMigrationJournal} from "./db-recorded-history";
 import {NATIVE_V32_NAME,nativeBaselineSql} from "../src/server/installation/native-v32";
 
 async function main(){
@@ -20,25 +20,13 @@ async function main(){
  const migrations=snapshot.migrations??[];
  const directories=readdirSync("prisma/migrations",{withFileTypes:true})
    .filter(d=>d.isDirectory()).map(d=>d.name).sort();
- const sources=new Map<string,string>();
- for(const name of directories){
-  try{sources.set(name,readFileSync("prisma/migrations/"+name+"/migration.sql","utf8"))}
-  catch{errors.push("SQL absent : "+name)}
- }
+ // Les migrations Prisma de ce dépôt ne sont pas toutes l'artefact SQL exact
+ // inscrit dans le journal historique (certaines proviennent de chaînes TS).
+ // Ne jamais inventer une divergence d'empreinte en comparant ces deux sources.
  const native=migrations.length===1&&migrations[0]?.migration_name===NATIVE_V32_NAME;
- if(native){
-  if(!nativeBaselineSql())errors.push("Baseline native v32 absente ou invalide");
- }else{
-  // Les fichiers disponibles ne correspondent pas à des migrations toutes appliquées :
-  // l'historique v32 est journalisé sur 32 entrées seulement.
-  const appliedSources=new Map<string,string>();
-  for(const m of migrations){
-   const sql=sources.get(m.migration_name);
-   if(sql!==undefined)appliedSources.set(m.migration_name,sql);
-  }
-  errors.push(...verifyHistory(migrations,appliedSources));
-  if(migrations.length!==version)errors.push("Journal et version différents");
- }
+ if(native&&!nativeBaselineSql())errors.push("Baseline native v32 absente ou invalide");
+ errors.push(...checkRecordedMigrationJournal(migrations,native?1:version));
+ const warnings=["Empreintes historiques non auditées à partir des fichiers prisma/migrations : source non canonique. Le diagnostic standard vérifie ses migrations de référence."];
  const unexpected=snapshot.tables.filter(t=>!INSTALLATION_RELATIONS.includes(t as typeof INSTALLATION_RELATIONS[number]));
  if(unexpected.length)errors.push("Objets non prévus : "+unexpected.join(", "));
  const contracts=Object.entries(snapshot).filter(([key])=>key.endsWith("SchemaValid"));
@@ -59,7 +47,7 @@ async function main(){
   await db.query("ROLLBACK");
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);errors.push("Contrôle SQL : "+String(e))}
  finally{await db.end().catch(()=>undefined)}
- console.log(JSON.stringify({status,version,migrationCount:migrations.length,sourceCount:sources.size,
+ console.log(JSON.stringify({status,version,migrationCount:migrations.length,sourceCount:directories.length,warnings,
   unexpectedRelations:unexpected,errors,ok:errors.length===0},null,2));
  if(errors.length)process.exitCode=1;
 }
