@@ -151,8 +151,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
      const val=item?(item as unknown as Record<string,number|null>)[field.key]:null;
      const calculated=groupName==="capacity"?
       item?.[field.key==="planned"?"calculatedPlanned":"calculatedActual"]??null:null;
-     return <div key={field.code} className={groupName==="capacity"?
-      "col-12 col-md-6 col-xl-4":"col-12 col-sm-6 col-xl-4"}>
+     return <div key={field.code} className="col-12">
       <div className="border rounded-3 p-3 h-100">
        <p className="small text-secondary mb-2">{field.code} · {t(field.label as "storyPoints.initial")}</p>
        <div className="d-flex align-items-center justify-content-between gap-2">
@@ -192,10 +191,16 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
    <div>Capacité réelle — qualité : {capacityKpis.historicalActualQuality==="known"?"Connue":capacityKpis.historicalActualQuality==="estimated"?"Estimée":"Non renseignée"} · Enregistrement : {capacityKpis.historicalActualRecordedAt??"Non renseigné"}</div>
    <div>Les références calculées sont des valeurs dérivées de sources disponibles ; elles ne constituent pas des observations historiques indépendantes.</div>
   </div>}
-  {section(t("sprintDetail.indicatorCapacityTitle"),"capacity",capacityFields)}
-  {section(t("storyPoints.title"),"points",pointFields)}
-  {section(t("sprintTickets.title"),"tickets",ticketFields)}
-  {section(t("sprintDetail.indicatorScoresTitle"),"scores",scoreFields)}
+  <div className="smn-sprint-indicators-layout">
+   <div className="smn-sprint-indicators-column">
+    {section(t("sprintDetail.indicatorCapacityTitle"),"capacity",capacityFields)}
+    {section(t("sprintDetail.indicatorScoresTitle"),"scores",scoreFields)}
+   </div>
+   <div className="smn-sprint-indicators-column">
+    {section(t("storyPoints.title"),"points",pointFields)}
+    {section(t("sprintTickets.title"),"tickets",ticketFields)}
+   </div>
+   <div className="smn-sprint-indicators-column">
   <section aria-label={t("sprintDetail.indicatorDerivedTitle")}>
    <h2 className="h6 mb-3">{t("sprintDetail.indicatorDerivedTitle")}</h2>
    <dl className="row g-3">
@@ -204,7 +209,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
      ["F06","storyPoints.remaining",calculated.remaining,false],
      ["F07","storyPoints.rate",calculated.rate,true],
      ["F12","sprintDetail.indicatorTicketRate",calculated.ticketRate,true]
-    ] as const).map(([code,label,val,pct])=><div className="col-12 col-sm-6 col-xl-4" key={code}>
+    ] as const).map(([code,label,val,pct])=><div className="col-12" key={code}>
       <div className="border rounded-3 p-3 h-100">
        <dt className="small text-secondary mb-2">{code} · {t(label)}</dt>
        <dd className="fs-5 fw-semibold mb-0">{source&&(code==="F12"?source.tickets.state==="available":source.points.state==="available")?
@@ -212,7 +217,9 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
       </div>
      </div>)}
    </dl>
-   {calculated.overrun&&source&&
+    </div>
+  </div>
+    {calculated.overrun&&source&&
     <p role="status" className="alert alert-warning">{t("storyPoints.overrun")}</p>}
   </section>
   <p className="small text-secondary">{t("sprintTickets.noSource")}</p>
