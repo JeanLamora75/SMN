@@ -152,7 +152,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
      const calculated=groupName==="capacity"?
       item?.[field.key==="planned"?"calculatedPlanned":"calculatedActual"]??null:null;
      return <div key={field.code} className={groupName==="capacity"?
-      "col-12 col-md-6":"col-12 col-sm-6 col-xl-3"}>
+      "col-12 col-md-6 col-xl-4":"col-12 col-sm-6 col-xl-4"}>
       <div className="border rounded-3 p-3 h-100">
        <p className="small text-secondary mb-2">{field.code} · {t(field.label as "storyPoints.initial")}</p>
        <div className="d-flex align-items-center justify-content-between gap-2">
@@ -204,7 +204,7 @@ export default function SprintIndicatorsPanel({sprintId,status,canManage,data,ca
      ["F06","storyPoints.remaining",calculated.remaining,false],
      ["F07","storyPoints.rate",calculated.rate,true],
      ["F12","sprintDetail.indicatorTicketRate",calculated.ticketRate,true]
-    ] as const).map(([code,label,val,pct])=><div className="col-12 col-sm-6 col-xl-3" key={code}>
+    ] as const).map(([code,label,val,pct])=><div className="col-12 col-sm-6 col-xl-4" key={code}>
       <div className="border rounded-3 p-3 h-100">
        <dt className="small text-secondary mb-2">{code} · {t(label)}</dt>
        <dd className="fs-5 fw-semibold mb-0">{source&&(code==="F12"?source.tickets.state==="available":source.points.state==="available")?
