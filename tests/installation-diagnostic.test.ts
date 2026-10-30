@@ -55,7 +55,8 @@ const registryDdlSource=(path:string)=>{
   path==="src/server/registries/assessment.ts"||
   path==="src/server/registries/roam.ts"?"scripts/apply-registry-core-v32.ts":
   path==="src/server/registries/cycle-links.ts"?"scripts/apply-registry-extensions-v32.ts":
-  path==="src/server/reports/draft-notes.ts"?"scripts/apply-deferred-schema-v32.ts":path;
+  path==="src/server/reports/draft-notes.ts"?"scripts/apply-deferred-schema-v32.ts":
+  path==="src/server/dashboard/notes.ts"?"scripts/apply-dashboard-schema-v32.ts":path;
  return readFileSync(new URL("../"+source,import.meta.url),"utf8");
 };
 describe("SMN — historique de correction de date d'arrivée d'un membre", () => {
@@ -86,7 +87,7 @@ describe("SMN-11 — diagnostic sans mutation", () => {
   });
   it("reconnaît les tables internes de l'assistant et de replanification sans ouvrir le schéma aux objets étrangers", () => {
     for (const [relation, sourcePath] of [
-      ["public.smn_sprint_wizard_preview:r", "src/server/sprints/wizard.ts"],
+      ["public.smn_sprint_wizard_preview:r", "scripts/apply-sprint-schema-v32.ts"],
       ["public.smn_sprint_reschedule_audit:r", "scripts/apply-legacy-sprint-reschedule-audit.ts"],
     ]) {
       assert.ok(INSTALLATION_RELATIONS.includes(relation as typeof INSTALLATION_RELATIONS[number]));
