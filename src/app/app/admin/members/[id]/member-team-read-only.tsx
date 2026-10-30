@@ -118,8 +118,6 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  ].filter(Boolean).join(" / "):"";
  const firstHalf=days.filter(d=>Number(d.date.slice(-2))<=15);
  const secondHalf=days.filter(d=>Number(d.date.slice(-2))>15);
- const morning=days.filter(d=>d.morningAbsent).length;
- const afternoon=days.filter(d=>d.afternoonAbsent).length;
  return <div className="smn-member-cockpit d-grid gap-3">
   <header className="smn-member-hero">
    <div className="smn-member-hero-main">
@@ -162,20 +160,15 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   </section>
   <section className="smn-member-panel smn-member-calendar"
    aria-labelledby="smn-team-member-availability-title">
-   <h2 className="smn-member-panel-title" id="smn-team-member-availability-title">
-    {t("memberTeamScope.absenceTitle")}
-   </h2>
+   <div className="smn-member-calendar-heading">
+    <h2 className="smn-member-panel-title" id="smn-team-member-availability-title">
+     {t("memberTeamScope.absenceTitle")}
+    </h2>
+    <input className="form-control smn-member-month-select" id="smn-member-team-month"
+     aria-label={t("memberTeamScope.month")} type="month" min="1900-01" max="2200-12"
+     value={month} onChange={event=>setMonth(event.target.value)}/>
+   </div>
    <p className="text-secondary">{t("memberTeamScope.privacy")}</p>
-   <div className="smn-member-toolbar"><label className="form-label" htmlFor="smn-member-team-month">
-    {t("memberTeamScope.month")}
-   </label>
-   <input className="form-control" id="smn-member-team-month"
-    type="month" min="1900-01" max="2200-12" value={month}
-    onChange={event=>setMonth(event.target.value)}/></div>
-   {status==="ready"&&<div className="smn-member-availability-summary">
-    <span>{t("memberTeamScope.morning")}: <strong>{morning}</strong></span>
-    <span>{t("memberTeamScope.afternoon")}: <strong>{afternoon}</strong></span>
-   </div>}
    {status==="loading"&&<p role="status">{t("memberTeamScope.loading")}</p>}
    {status==="error"&&<p role="alert" className="alert alert-warning">
     {t("memberTeamScope.unavailable")}
