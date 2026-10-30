@@ -8,16 +8,19 @@ import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import { createHash } from "node:crypto";
 import { validateExistingDbInput } from "../src/server/bootstrap/existing";
 import { validateDatabaseChoice } from "../src/server/bootstrap/job";
-const base = { mode: "scrum", product: "Alpha", team: "Bravo", password: "SecretFort2026ABC" };
+const base = { adminUsername: "admin", adminEmail: "admin@example.test", password: "SecretFort2026ABC" };
 describe("SMN-12 — contrat d'installation", () => {
-  it("valide Scrum/Kanban et rejette les saisies incomplètes", () => {
-    assert.ok(validateExpressInput(base));
-    assert.equal(validateExpressInput({ ...base, password: "admin" })?.adminUsername, "admin");
-    assert.equal(validateExpressInput({ ...base, password: "admin" })?.adminEmail, "admin@localhot.com");
-    assert.equal(validateExpressInput({ ...base, adminUsername: "autre", adminEmail: "autre@example.test" })?.adminUsername, "autre"); assert.ok(validateExpressInput({ ...base, mode: "kanban" }));
-    assert.equal(validateExpressInput({ ...base, mode: "safe" }), null);
-    assert.equal(validateExpressInput({ ...base, team: "" }), null);
+  it("valide le compte administrateur sans mode global ni équipe lors de l'installation native v32", () => {
+    assert.deepEqual(validateExpressInput(base), base);
+    assert.deepEqual(validateExpressInput({ password: base.password }), {
+      password: base.password, adminUsername: "admin", adminEmail: "admin@localhot.com"
+    });
+    assert.deepEqual(validateExpressInput({ ...base, mode: "scrum", product: "Alpha", team: "Bravo" }), base);
+    assert.deepEqual(validateExpressInput({ ...base, mode: "kanban" }), base);
+    assert.deepEqual(validateExpressInput({ ...base, mode: "safe", team: "" }), base);
     assert.equal(validateExpressInput({ ...base, password: "abc" }), null);
+    assert.equal(validateExpressInput({ ...base, adminUsername: "invalid name" }), null);
+    assert.equal(validateExpressInput({ ...base, adminEmail: "invalid" }), null);
   });
   it("valide la connexion PostgreSQL existante et autorise une instance portable sans identifiants", () => {
     const existing = { dbMode: "existing", postgresUser: "postgres", postgresPassword: "secret", postgresPort: 5432 };
