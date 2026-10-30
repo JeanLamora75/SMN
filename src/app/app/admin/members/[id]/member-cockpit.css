@@ -60,3 +60,10 @@
 .smn-member-edit-dialog .smn-cockpit-modal-body{padding:22px 20px;background:var(--smn-surface)}
 .smn-member-edit-dialog .smn-member-panel,.smn-member-edit-dialog .smn-member-profile-editor{border:0!important;box-shadow:none!important;padding:0!important;background:transparent}
 @media(max-width:650px){.smn-member-edit-dialog{width:calc(100vw - 24px)}.smn-member-edit-dialog .smn-cockpit-modal-body{padding:16px}}
+
+/* Action absence : pastille Cockpit Agile placée après la sélection du mois. */
+.smn-member-cockpit .smn-member-calendar-heading .smn-member-month-action{display:inline-flex;align-items:center;justify-content:center;min-height:36px;color:var(--smn-heading);background:var(--smn-surface);border:1px solid var(--smn-brand);cursor:pointer}
+.smn-member-cockpit .smn-member-calendar-heading .smn-member-month-action:hover{background:var(--smn-muted-soft);color:var(--smn-heading)}
+.smn-member-cockpit .smn-member-calendar-heading .smn-member-month-action:focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
+.smn-member-cockpit .smn-member-calendar-heading .smn-member-panel-title{margin-right:auto}
+.smn-member-edit-dialog .smn-panel{border:0!important;box-shadow:none!important;padding:0!important;background:transparent}
