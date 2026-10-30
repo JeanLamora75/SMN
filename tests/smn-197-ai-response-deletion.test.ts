@@ -3,7 +3,7 @@ import {readFileSync} from "node:fs";
 import {test} from "node:test";
 
 const ui=readFileSync("src/app/app/ai-briefs/archives/[id]/manual-response-actions.tsx","utf8");
-const store=readFileSync("src/server/ai-briefs/responses.ts","utf8");
+const store=readFileSync("src/server/ai-briefs/responses.ts","utf8")+"\n"+readFileSync("prisma/migrations/20261029_ai_brief_runtime_ddl/migration.sql","utf8");
 const mutation=readFileSync("src/app/api/ai-briefs/archives/[id]/responses/[responseId]/route.ts","utf8");
 test("the deletion confirmation identifies the precise active IA response and its parent",()=>{
  assert.match(ui,/window\.confirm\(/);
