@@ -32,3 +32,23 @@
  border:1px solid rgba(255,255,255,.6)
 }
 @media(max-width:760px){.smn-sprint-detail-cockpit .smn-sprint-hero-meta{align-items:flex-start!important}}
+
+
+/* Trois colonnes fonctionnelles : capacité + collectif, SP + tickets, indicateurs dérivés. */
+.smn-sprint-detail-cockpit .smn-sprint-indicators-layout{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:16px;align-items:start;min-width:0;
+}
+.smn-sprint-detail-cockpit .smn-sprint-indicators-column{min-width:0}
+.smn-sprint-detail-cockpit .smn-sprint-indicators-column>section{min-width:0}
+.smn-sprint-detail-cockpit .smn-sprint-indicators-column .row{--bs-gutter-y:10px}
+@media(max-width:1100px){
+ .smn-sprint-detail-cockpit .smn-sprint-indicators-layout{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .smn-sprint-detail-cockpit .smn-sprint-indicators-column:last-child{grid-column:1/-1}
+ .smn-sprint-detail-cockpit .smn-sprint-indicators-column:last-child dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .smn-sprint-detail-cockpit .smn-sprint-indicators-layout{grid-template-columns:minmax(0,1fr)}
+ .smn-sprint-detail-cockpit .smn-sprint-indicators-column:last-child{grid-column:auto}
+ .smn-sprint-detail-cockpit .smn-sprint-indicators-column:last-child dl{grid-template-columns:minmax(0,1fr)}
+}
