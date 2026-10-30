@@ -61,10 +61,10 @@ test("les relations métier sont déclarées dans leurs migrations SQL explicite
  for(const [file,name] of verified){
   const ddlFile=file.startsWith("src/server/reports/")?"scripts/apply-report-schema-v32.ts":
    file.startsWith("src/server/registries/")?"scripts/apply-registry-core-v32.ts":
-   file.startsWith("src/server/sprints/")?"scripts/apply-sprint-schema-v32.ts":
-   file.startsWith("src/server/kanban/")?"scripts/apply-kanban-schema-v32.ts":
-   file.startsWith("src/server/ai-briefs/")?"scripts/apply-ai-brief-schema-v32.ts":
-   file.startsWith("src/server/historical-csv/")?"scripts/apply-historical-csv-schema-v32.ts":file;
+   file.startsWith("src/server/sprints/")?"prisma/migrations/20261029_sprint_runtime_ddl/migration.sql":
+   file.startsWith("src/server/kanban/")?"prisma/migrations/20261029_kanban_runtime_ddl/migration.sql":
+   file.startsWith("src/server/ai-briefs/")?"prisma/migrations/20261029_ai_brief_runtime_ddl/migration.sql":
+   file.startsWith("src/server/historical-csv/")?"prisma/migrations/20261029_historical_csv_runtime_ddl/migration.sql":file;
   assert.match(source(ddlFile),new RegExp("CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?public\\."+name+"\\b","i"));
   assert.ok(INSTALLATION_RELATIONS.includes(("public."+name+":r") as typeof INSTALLATION_RELATIONS[number]),name);
  }
