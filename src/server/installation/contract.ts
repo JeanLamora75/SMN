@@ -83,6 +83,8 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_report_history_options:r", "public.smn_report_logo:r",
   "public.smn_report_language:r", "public.smn_report_render_reference:r",
   "public.smn_report_pdf_archive:r",
+  "public.smn_report_studio_archive_snapshot:r",
+  "public.smn_reject_studio_archive_snapshot_mutation:function",
   "public.smn_report_section_options:r", "public.smn_report_section_options_audit:r",
   "public.smn_report_team_context_options:r", "public.smn_report_template:r",
   "public.smn_report_content_options:r", "public.smn_report_content_options_audit:r",
