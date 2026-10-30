@@ -74,31 +74,32 @@ export async function readSprintCapacityKpiView(
   return {state:"available",source:"closure-snapshot",revision:0,
    values:selectCapacityKpis(planned,actual,null,null)};
  }
- const recorded=await db.query<{details:unknown;occurred_at:string}>(`
- SELECT details,occurred_at::text AS occurred_at FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created'
- ORDER BY occurred_at LIMIT 1`,[sprint.id]);
- const historical=recorded.rows.length>0;
- if(historical){
-  const table=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_historical_capacity') IS NOT NULL AS present`);
-  const value=table.rows[0]?.present?await db.query<{qualified_jh:string|null;quality:"known"|"estimated"|"not-supplied";source_ref:string|null;revision:number;updated_at:string}>(`
-   SELECT qualified_jh::text,quality,source_ref,revision,updated_at::text FROM public.smn_sprint_historical_capacity WHERE sprint_id=$1`,[sprint.id]):null;
-  const entry=value?.rows[0];
-  const planned=entry?.qualified_jh===null||!entry?null:Number(entry.qualified_jh);
-  const actualTable=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_sprint_historical_actual_capacity') IS NOT NULL AS present`);
-  const actualRows=actualTable.rows[0]?.present?await db.query<{qualified_jh:string|null;quality:"known"|"estimated"|"not-supplied";source_ref:string|null;revision:number;updated_at:string}>(`
-   SELECT qualified_jh::text,quality,source_ref,revision,updated_at::text FROM public.smn_sprint_historical_actual_capacity WHERE sprint_id=$1`,[sprint.id]):null;
-  const actualEntry=actualRows?.rows[0];
-  const actual=actualEntry?.qualified_jh===null||!actualEntry?null:Number(actualEntry.qualified_jh);
-  return {state:"available",source:"current",revision:entry?.revision??0,
-   historicalQuality:entry?.quality??"not-supplied",historicalSource:entry?.source_ref??null,
-   historicalActualQuality:actualEntry?.quality??"not-supplied",
-   historicalActualSource:actualEntry?.source_ref??null,
-   historicalActualRevision:actualEntry?.revision??0,
-   historicalRecordedAt:entry?.updated_at??null,historicalActualRecordedAt:actualEntry?.updated_at??null,
-   historicalCreatedAt:recorded.rows[0]?.occurred_at??null,
-   values:selectCapacityKpis(planned,actual,null,null)};
- }
+ // Historical sprint values remain readable as a compatibility fallback, but
+ // all new edits use the standard capacity KPI record and audit trail.
  const stored=await readSavedCapacityKpis(db,sprint.id);
+ let legacyPlanned:number|null=null,legacyActual:number|null=null;
+ if(!stored){
+  const historical=await db.query<{present:boolean}>(
+   "SELECT EXISTS(SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created') AS present",
+   [sprint.id]);
+  if(historical.rows[0]?.present){
+   for(const [table,key] of [
+    ["smn_sprint_historical_capacity","planned"],
+    ["smn_sprint_historical_actual_capacity","actual"]
+   ] as const){
+    const exists=await db.query<{present:boolean}>(
+     "SELECT to_regclass($1) IS NOT NULL AS present",["public."+table]);
+    if(!exists.rows[0]?.present)continue;
+    const value=await db.query<{qualified_jh:string|null}>(
+     "SELECT qualified_jh::text FROM public."+table+" WHERE sprint_id=$1",[sprint.id]);
+    const n=storedNumber(value.rows[0]?.qualified_jh);
+    if(n!==undefined){
+     if(key==="planned")legacyPlanned=n;
+     else legacyActual=n;
+    }
+   }
+  }
+ }
  const date=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{
   timeZone:sprint.timeZone,year:"numeric",month:"2-digit",day:"2-digit"
  }).formatToParts(new Date(value));
@@ -132,7 +133,7 @@ export async function readSprintCapacityKpiView(
   return valid(report.referenceJh)?report.referenceJh:null;
  });
  return {state:"available",source:"current",revision:stored?.revision??0,
-  values:selectCapacityKpis(stored?.planned_jh??null,stored?.actual_jh??null,
+  values:selectCapacityKpis(stored?.planned_jh??legacyPlanned,stored?.actual_jh??legacyActual,
    calculatedPlanned,calculatedActual)};
 }
 export async function writeSprintCapacityKpis(db:Client,actorId:string,raw:unknown){
@@ -158,12 +159,6 @@ export async function writeSprintCapacityKpis(db:Client,actorId:string,raw:unkno
   }
   if(sprint.rows[0].status==="closed"){
    await db.query("ROLLBACK");return {ok:false as const,error:"closed-period" as const};
-  }
-  const historical=await db.query<{historical:boolean}>(`SELECT EXISTS(
-   SELECT 1 FROM public.smn_sprint_audit WHERE sprint_id=$1 AND action='historical-created'
-  ) AS historical`,[input.sprintId]);
-  if(historical.rows[0]?.historical){
-   await db.query("ROLLBACK");return {ok:false as const,error:"historical-capacity-protected" as const};
   }
   await ensureSprintCapacityKpiSchema(db);
   const before=await db.query<{planned_jh:string|null;actual_jh:string|null;revision:number}>(
