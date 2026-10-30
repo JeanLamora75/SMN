@@ -45,7 +45,8 @@ function fixture(config:Config={}){
 }
 const goal=(revision=1)=>({sprintId,id:goalId,title:"Après",evaluation:"partially_achieved",comment:null,revision});
 const points=(revision=1)=>({sprintId,revision,points:{initial:5,added:1,removed:0,done:3}});
-const writes=(calls:Call[])=>calls.filter(x=>/\b(?:INSERT|UPDATE|DELETE)\b/i.test(x.sql));
+// FOR UPDATE verrouille un SELECT : ce n’est pas une écriture DML.
+const writes=(calls:Call[])=>calls.filter(x=>/^\s*(?:INSERT\s+INTO|UPDATE\s+|DELETE\s+FROM)\b/i.test(x.sql));
 for(const [name,action] of [
  ["Objectifs", (db:Client,revision:number)=>writeSprintGoal(db,"admin",goal(revision))],
  ["Story Points",(db:Client,revision:number)=>writeStoryPoints(db,"admin",points(revision))]
