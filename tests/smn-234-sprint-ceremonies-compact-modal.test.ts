@@ -83,6 +83,7 @@ describe("SMN-234 — densification de l'onglet Cérémonies",()=>{
   const db={query:async(sql:string)=>{
    statements.push(sql);
    if(sql.includes("array_agg(relname)")||sql.includes("array_agg(c.relname)"))return {rows:[{present:["smn_meeting_actual_duration_audit","smn_sprint_ceremony_status_history","smn_scrum_template_occurrence_status_history","smn_sprint_exceptional_meeting_status_history","smn_sprint_ceremony_history","smn_scrum_template_occurrence","smn_sprint_exceptional_meeting","smn_sprint_exceptional_meeting_history","smn_scrum_ceremony_template","smn_scrum_ceremony_template_history"]}]};
+   if(sql.includes("to_regclass"))return {rows:[{ready:true}]};
    if(sql.includes("information_schema.columns"))return {rows:[
     "id","sprint_id","name","starts_at","ends_at","status","actual_minutes"
    ].map(column_name=>({column_name}))};
