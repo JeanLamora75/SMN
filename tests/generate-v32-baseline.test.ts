@@ -5,7 +5,7 @@ test("accepte seulement une installation v32 saine à 32 migrations",()=>{
  assert.doesNotThrow(()=>assertBaselineSource(32,"initialized",32,32));
  for(const args of [[31,"initialized",31,31],[32,"installation-incomplete",32,32],
   [32,"initialized",31,31],[32,"initialized",32,31]] as const)
-  assert.throws(()=>assertBaselineSource(...args));
+  assert.throws(()=>assertBaselineSource(args[0],args[1],args[2],args[3]));
 });
 test("refuse les dumps incomplets ou contenant des données",()=>{
  assert.throws(()=>verifyDump("CREATE TABLE public.foo(x int);"));
