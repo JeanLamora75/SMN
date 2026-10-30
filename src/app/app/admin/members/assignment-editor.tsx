@@ -7,7 +7,7 @@ type Shares={scrumMaster:number;productOwner:number;developer:number};
 type Version={revision:number;effectiveFrom:string;contractPercent:number;
  allocationPercent:number;contributionPercent:number;shares:Shares;developerShare:number};
 type AssignmentState={memberId:string;teamId:string;assignmentId:string|null;
- startOn:string|null;today:string;latestRevision:number;
+ startOn:string|null;today:string;latestRevision:number;memberRevision?:number;
  current:Version|null;versions:Version[]};
 type Kind="loading"|"ready"|"error";
 type Draft={effectiveFrom:string;contractPercent:string;allocationPercent:string;
@@ -93,7 +93,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
   try{
    const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/assignment/start-date",{
     method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({assignmentId:state.assignmentId,newStartOn:historicalStart,revision:memberRevision})
+    body:JSON.stringify({assignmentId:state.assignmentId,newStartOn:historicalStart,
+     revision:state.memberRevision??memberRevision,...(teamScoped?{teamId}:{})})
    });
    if(!r.ok)throw Error("historical-correction-failed");
    onSaved();
