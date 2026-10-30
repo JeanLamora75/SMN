@@ -66,12 +66,13 @@ test("la note exige un Sprint et une équipe et conserve un audit",async()=>{
   sprintId:"123e4567-e89b-42d3-a456-426614174000",teamId:"team-a",text:" À surveiller "
  };
  const saved=fake(sql=>{
+  if(sql.includes("to_regclass"))return [{ready:true}];
   if(sql.includes("SELECT s.id"))return [{id:inputs.sprintId}];
   return [];
  });
  const r=await createDashboardNote(saved.db,"actor-a",inputs);
  assert.equal(r.ok,true);
- assert.ok(saved.history.some(q=>q.sql.includes("CREATE TABLE IF NOT EXISTS public.smn_dashboard_note(")));
+ assert.ok(!saved.history.some(q=>/\\bCREATE\\s+TABLE\\b/i.test(q.sql)));
  assert.ok(saved.history.some(q=>q.sql.includes("smn_dashboard_note_audit")));
  assert.ok(saved.history.some(q=>q.sql.includes("INSERT INTO public.smn_dashboard_note(")&&q.args[3]==="À surveiller"));
  assert.equal(saved.history.at(-1)?.sql,"COMMIT");
