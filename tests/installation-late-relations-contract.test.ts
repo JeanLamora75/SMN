@@ -45,7 +45,7 @@ test("les nouveaux objets SMN sont reconnus sans élargir le contrat aux objets 
   "public.smn_imaginary_unapproved:r"]}).status,"schema-incompatible");
 });
 
-test("les relations de reports et registres correspondent à leurs DDL métier, sans migration fictive",()=>{
+test("les relations métier sont déclarées dans leurs migrations SQL explicites",()=>{
  const verified=[
   ["src/server/reports/report-documents.ts","smn_report_document"],
   ["src/server/reports/report-documents.ts","smn_report_document_session_write"],
@@ -59,7 +59,12 @@ test("les relations de reports et registres correspondent à leurs DDL métier, 
   ["src/server/historical-csv/confirm.ts","smn_historical_csv_batch"]
  ] as const;
  for(const [file,name] of verified){
-  const ddlFile=file.startsWith("src/server/reports/")?"scripts/apply-report-schema-v32.ts":file==="src/server/registries/comments.ts"||file==="src/server/registries/items.ts"?"scripts/apply-registry-core-v32.ts":file;
+  const ddlFile=file.startsWith("src/server/reports/")?"scripts/apply-report-schema-v32.ts":
+   file.startsWith("src/server/registries/")?"scripts/apply-registry-core-v32.ts":
+   file.startsWith("src/server/sprints/")?"scripts/apply-sprint-schema-v32.ts":
+   file.startsWith("src/server/kanban/")?"scripts/apply-kanban-schema-v32.ts":
+   file.startsWith("src/server/ai-briefs/")?"scripts/apply-ai-brief-schema-v32.ts":
+   file.startsWith("src/server/historical-csv/")?"scripts/apply-historical-csv-schema-v32.ts":file;
   assert.match(source(ddlFile),new RegExp("CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?public\\."+name+"\\b","i"));
   assert.ok(INSTALLATION_RELATIONS.includes(("public."+name+":r") as typeof INSTALLATION_RELATIONS[number]),name);
  }
