@@ -9,7 +9,7 @@ function fixture(opt:Opt={}){
  const calls:{sql:string;params:unknown[]}[]=[];
  const client={query:async(sql:string,params:unknown[]=[])=>{
   calls.push({sql,params});
-  if(sql.includes("SELECT t.id FROM public.smn_team t JOIN")&&sql.includes("i.schema_version IN (28,29,30,31)"))
+  if(sql.includes("SELECT t.id FROM public.smn_team t JOIN")&&sql.includes("i.schema_version BETWEEN 28 AND 32"))
    return {rows:[{id:"panda"}]};
   if(sql.includes("AS today"))return {rows:[{today:"2026-10-27"}]};
   if(sql.includes("FROM public.smn_capacity_period_override"))
@@ -42,7 +42,7 @@ test("lecture v28 : calcul de capacité limité à teamId et transaction READ ON
  assert.deepEqual(seen,{externalTransaction:true,includeExceptionalImpact:true,teamId:"panda"});
  assert.equal(f.calls[0].sql,"BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  assert.equal(f.calls.at(-1)?.sql,"COMMIT");
- const scope=f.calls.find(c=>c.sql.includes("i.schema_version IN (28,29,30,31)"));
+ const scope=f.calls.find(c=>c.sql.includes("i.schema_version BETWEEN 28 AND 32"));
  assert.deepEqual(scope?.params,["panda"]);
  const period=f.calls.find(c=>c.sql.includes("FROM public.smn_capacity_period_override"));
  assert.deepEqual(period?.params,["panda","2026-10-01","2026-10-31"]);
