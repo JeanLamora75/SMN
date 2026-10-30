@@ -1,3 +1,4 @@
+import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {randomUUID} from "node:crypto";
 import {qualitativeClosureSnapshot} from "@/server/registries/closure-snapshot";
 import type {Client} from "pg";
@@ -19,12 +20,12 @@ export async function ensureClosureSchema(db:Client){
  await db.query("SELECT to_regclass('public.smn_sprint_closure_snapshot') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
  await db.query("SELECT to_regclass('public.smn_sprint_closure_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("sprint-schema-not-ready: apply-sprint-aggregates-v32")});
 }
-async function sprintScope(db:Client,id:string,lock=false){
+async function sprintScope(db:Client,id:string,lock=false,teamId?:string){
  const r=await db.query<{id:string;team_id:string;name:string;status:string;start_at:string;end_at:string;time_zone:string}>(`SELECT s.id,s.team_id,s.name,s.status,s.start_at::text,s.end_at::text,s.time_zone
  FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum' AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
- ${lock?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
+ WHERE s.id=$1 AND ($2::text IS NULL OR s.team_id=$2) AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum' AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false
+ ${lock?"FOR UPDATE OF s":""}`,[id,teamId??null]);return r.rows[0];
 }
 async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:string;start_at:string;end_at:string;time_zone:string},historical=false){
  const [goals,points,ceremonies,custom,exceptional,capacity,participants,scores]=await Promise.all([
@@ -102,14 +103,18 @@ export async function listSprintClosures(db:Client,sprintId:string){
  FROM public.smn_sprint_closure_snapshot WHERE sprint_id=$1 ORDER BY version DESC`,[sprintId]);
  return {sprint,latest:versions.rows[0]??null,versions:versions.rows};
 }
-export async function changeSprintClosure(db:Client,actorId:string,raw:unknown){
+export async function changeSprintClosure(db:Client,actorId:string,raw:unknown,access?:{actor:TeamActor;teamId:string}){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
  const v=raw as Record<string,unknown>;
  if(Object.keys(v).sort().join(",")!=="action,sprintId"||!["close","reopen"].includes(String(v.action))||
  typeof v.sprintId!=="string"||!/^[a-f\d-]{36}$/i.test(v.sprintId))return {ok:false as const,error:"invalid-input"};
+ if(access){
+  const team=await resolveAdminTeam(db,access.actor,access.teamId);
+  if(access.actor.accountId!==actorId||team.mode!=="scrum")return {ok:false as const,error:"not-found"};
+ }
  await ensureClosureSchema(db);await db.query("BEGIN");
  try{
-  const s=await sprintScope(db,v.sprintId,true);
+  const s=await sprintScope(db,v.sprintId,true,access?.teamId);
   if(!s){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   await db.query("SELECT pg_advisory_xact_lock(hashtext($1))",[s.team_id]);
   if(v.action==="close"&&(s.status!=="finished"||new Date(s.end_at)>new Date())||
