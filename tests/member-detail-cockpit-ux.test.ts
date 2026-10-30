@@ -64,3 +64,13 @@ test("Cockpit membre : rôle, fonction, dates civiles localisées et annuel conf
  assert.match(route,/actor\.role!=="admin"/);
  assert.doesNotMatch(route,/export async function (?:POST|PATCH|DELETE)/);
 });
+
+test("Cockpit membre : navigation intégrée au bandeau sans fil d'Ariane externe",()=>{
+ assert.match(view,/smn-member-hero-actions/);
+ assert.match(view,/className="smn-member-readonly smn-member-back"/);
+ assert.match(view,/href={backHref}/);
+ assert.doesNotMatch(view,/smn-member-hero-description/);
+ assert.doesNotMatch(page,/<Link href={back}/);
+ assert.match(page,/backHref={back}/);
+ assert.match(css,/smn-member-back:focus-visible/);
+});
