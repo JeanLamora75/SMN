@@ -21,6 +21,7 @@ import {requestLocale} from "@/i18n/locale.server";
 import {translate,type TranslationKey} from "@/i18n/catalog";
 import BootstrapIcon from "../../../bootstrap-icon";
 import SprintDetailEditor from "./sprint-detail-editor";
+import SprintClosureAction from "./sprint-closure-action";
 import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
 import SprintIndicatorsPanel from "./sprint-indicators-panel";
@@ -91,11 +92,6 @@ export default async function SprintDetailPage({params,searchParams}:{
  const {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const status=effectiveSprintStatus(cycle);
- const statusKeys:Record<string,TranslationKey>={
-  planned:"sprintStates.planned",active:"sprintStates.active",
-  finished:"sprintStates.finished",closed:"sprintStates.closed",
-  suspended:"sprintStates.suspended"
- };
  const day=(date:Date)=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
   timeZone:cycle.timeZone,day:"numeric",month:"long",year:"numeric"
  }).format(date);
@@ -145,9 +141,7 @@ export default async function SprintDetailPage({params,searchParams}:{
      </div>
     </div>
     <div className="d-flex gap-2 align-items-center flex-wrap">{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/ai-briefs/prepare?"+new URLSearchParams({mode:"scrum",id:cycle.id}).toString()}>Générer un brief IA</Link>}{canManage&&<Link className="btn btn-outline-primary btn-sm" href={"/app/admin/sprints/"+encodeURIComponent(cycle.id)+"/report"}>{t("sprintReportPrepare.launch")}</Link>}
-    <span className="smn-sprint-status-pill" title={t("sprintDetail.statusHelp")}>
-     {t(statusKeys[status]??"dashboard.cockpit.notAvailable")}
-    </span></div>
+    <SprintClosureAction sprintId={cycle.id} teamId={teamId} status={status} canManage={canManage}/></div>
    </header>
   </div>
   <div className="smn-sprint-detail-content">
