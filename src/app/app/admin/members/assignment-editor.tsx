@@ -25,7 +25,7 @@ function draftFrom(state:AssignmentState):Draft{
  };
 }
 const num=(s:string)=>/^(0|[1-9][0-9]{0,2})$/.test(s)?Number(s):NaN;
-export default function AssignmentEditor({memberId,teamId,teamName,memberRevision,onSaved,onCancel,onDirtyChange,teamScoped=false}:{
+export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved,onCancel,onDirtyChange,teamScoped=false}:{
  memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;teamScoped?:boolean;
 }){
  const t=useTranslation();
@@ -104,17 +104,6 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
   {status==="loading"&&<p role="status">{t("members.assignment.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.assignment.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
-   {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
-    <h4 className="h6">{t("members.assignment.historicalTitle")}</h4>
-    <p className="small text-secondary">{t("members.assignment.historicalDescription",{date:state.startOn})}</p>
-    <div className="d-flex flex-wrap align-items-end gap-2">
-     <label className="form-label mb-0">{t("members.assignment.historicalRealDate")}
-      <input type="date" className="form-control" max={state.startOn} value={historicalStart} disabled={busy}
-       onChange={e=>setHistoricalStart(e.target.value)}/></label>
-     <button type="button" className="btn btn-outline-primary" disabled={busy||!historicalStart||historicalStart>=state.startOn}
-      onClick={()=>void correctHistoricalStart()}>{t("members.assignment.historicalAction")}</button>
-    </div>
-   </div>}
    <form onSubmit={submit} className="d-grid gap-3">
     <div className="row g-3">
      <div className="col-md-4">
@@ -160,6 +149,17 @@ export default function AssignmentEditor({memberId,teamId,teamName,memberRevisio
       {t("members.profile.cancel")}</button>
     </div>
    </form>
+   {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
+    <h4 className="h6">{t("members.assignment.historicalTitle")}</h4>
+    <p className="small text-secondary">{t("members.assignment.historicalDescription",{date:state.startOn})}</p>
+    <div className="d-flex flex-wrap align-items-end gap-2">
+     <label className="form-label mb-0">{t("members.assignment.historicalRealDate")}
+      <input type="date" className="form-control" max={state.startOn} value={historicalStart} disabled={busy}
+       onChange={e=>setHistoricalStart(e.target.value)}/></label>
+     <button type="button" className="btn btn-outline-primary" disabled={busy||!historicalStart||historicalStart>=state.startOn}
+      onClick={()=>void correctHistoricalStart()}>{t("members.assignment.historicalAction")}</button>
+    </div>
+   </div>}
   </>}
   {status==="error"&&<button type="button" className="btn btn-outline-secondary align-self-start" onClick={onCancel}>{t("members.profile.cancel")}</button>}
  </section>;
