@@ -41,7 +41,7 @@ export default async function MemberPage({params,searchParams}:{
    if(version.rows.length!==1) return {kind:"denied"} as const;
    const schema=version.rows[0].schema_version;
    if(schema>=1&&schema<=27)return {kind:"legacy"} as const;
-   if(schema!==28||actor.role!=="admin")return {kind:"denied"} as const;
+   if(schema<28||schema>32||actor.role!=="admin")return {kind:"denied"} as const;
    if(explicitTeamId==="")return {kind:"missing"} as const;
    try{
     const team=await resolveAdminTeam(db,{
