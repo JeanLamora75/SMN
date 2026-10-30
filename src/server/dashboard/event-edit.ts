@@ -42,7 +42,7 @@ async function findEvent(db:Client,kind:EditableEventKind,id:string,lock=false):
  JOIN public.smn_team t ON t.id=s.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE e.id=$1 AND i.id='singleton' AND i.state='initialized'
- AND lower(i.mode)='scrum' AND s.deleted_at IS NULL
+ AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum' AND s.deleted_at IS NULL
  ${lock?"FOR UPDATE OF e,s":""}`,[id]);
  const r=result.rows[0];if(!r)return null;
  return {id:r.id,title:r.title,startAt:new Date(r.start_at).toISOString(),
