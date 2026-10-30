@@ -5,7 +5,7 @@ const view=readFileSync(new URL("../src/app/app/admin/members/[id]/member-team-r
 const style=readFileSync(new URL("../src/app/app/admin/members/[id]/member-cockpit.css",import.meta.url),"utf8");
 test("les trois actions sont dans le bandeau Cockpit Agile",()=>{
  const hero=view.slice(view.indexOf('<header className="smn-member-hero">'),view.indexOf('</header>'));
- for(const action of ["Profil","Localisation","Calendrier","Modifier Affectation"])
+ for(const action of ["Profil","Localisation","Calendrier","Affectation"])
   assert.ok(hero.includes(action),action);
  assert.ok(!view.includes('setEditingPlanning('));
 });
