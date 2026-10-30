@@ -81,7 +81,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   active.productOwnerPercent>0?"Product Owner":null,
   active.developerPercent>0?(locale==="fr"?"Développeur":"Developer"):null
  ].filter(Boolean).join(" / "):"";
- const split=Math.ceil(days.length/2);
+ const firstHalf=days.filter(d=>Number(d.date.slice(-2))<=15);
+ const secondHalf=days.filter(d=>Number(d.date.slice(-2))>15);
  const morning=days.filter(d=>d.morningAbsent).length;
  const afternoon=days.filter(d=>d.afternoonAbsent).length;
  return <div className="smn-member-cockpit d-grid gap-3">
@@ -148,7 +149,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     {t("memberTeamScope.noDays")}
    </p>}
    {status==="ready"&&<div className="smn-member-month-columns">
-    {[days.slice(0,split),days.slice(split)].map((part,index)=>
+    {[firstHalf,secondHalf].map((part,index)=>
      <div key={index} className="table-responsive">
       <table className="table table-sm align-middle smn-member-table">
        <thead><tr><th scope="col">{t("memberTeamScope.day")}</th>
