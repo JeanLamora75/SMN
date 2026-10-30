@@ -3,7 +3,7 @@ import {useState} from "react";
 import Link from "next/link";
 const toUtc=(raw:string)=>{const date=new Date(raw);return Number.isFinite(date.getTime())?date.toISOString():null;};
 type Conflict={id:string;name:string;start_at:string;end_at:string};
-export default function HistoricalSprintForm(){
+export default function HistoricalSprintForm({teamId}:{teamId:string|null}){
  const [name,setName]=useState(""),[start,setStart]=useState(""),[end,setEnd]=useState("");
  const [generateCeremonies,setGenerateCeremonies]=useState(false);
  const [operationId,setOperationId]=useState(()=>crypto.randomUUID());
@@ -17,9 +17,9 @@ export default function HistoricalSprintForm(){
   }
   setBusy(true);
   try{
-   const res=await fetch("/api/admin/sprints/historical",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),startAt,endAt,generateCeremonies,operationId})});
+   const res=await fetch("/api/admin/sprints/historical"+(teamId?"?"+new URLSearchParams({teamId}).toString():""),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),startAt,endAt,generateCeremonies,operationId})});
    const json=await res.json() as {ok?:boolean;error?:string;conflicts?:Conflict[];sprint?:{id:string;name:string;recordedAt:string}};
-   if(!res.ok||!json.ok){setConflicts(json.conflicts??[]);setError(json.error==="overlap"?"Chevauchement avec un Sprint existant.":json.error==="not-finished"?"Ce Sprint n'est pas réellement terminé.":"Création impossible : vérifiez les dates et votre accès.");return;}
+   if(!res.ok||!json.ok){setConflicts(json.conflicts??[]);setError(json.error==="overlap"?"Chevauchement avec un Sprint existant.":json.error==="not-finished"?"Ce Sprint n'est pas réellement terminé.":json.error==="team-unavailable"?"Équipe Scrum indisponible : sélectionnez une équipe active dans l’en-tête.":"Création impossible : vérifiez les dates et votre accès.");return;}
    setCreated(json.sprint?{...json.sprint,name:name.trim(),recordedAt:json.sprint.recordedAt??new Date().toISOString()}:null);
   }catch{setError("Service momentanément indisponible.");}
   finally{setBusy(false);}
