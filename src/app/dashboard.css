@@ -1174,3 +1174,71 @@ dialog.smn-operational-create-dialog::backdrop {background:rgba(10,20,36,.65);}
     margin-top:12px;
   }
 }
+
+
+/* SMN-235 — en-tête dashboard harmonisé au bandeau Cockpit Agile. */
+.smn-cycle-overview-header.smn-cycle-header-compact{
+  background:linear-gradient(125deg,color-mix(in srgb,var(--smn-brand) 78%,#10294d),#10294d);
+  color:#fff;border:0;border-radius:16px;
+  box-shadow:0 9px 25px rgba(12,34,64,.12);
+  padding:clamp(20px,2.4vw,32px);
+  grid-template-columns:minmax(0,1fr) minmax(0,.95fr) auto;
+  gap:clamp(14px,2vw,28px);
+}
+.smn-cycle-header-compact .smn-cycle-eyebrow{
+  color:rgba(255,255,255,.85);font-size:.85rem;font-weight:650;
+  letter-spacing:0;text-transform:none;margin:0 0 8px;
+}
+.smn-cycle-header-compact h1{
+  color:#fff;font-size:clamp(1.55rem,2.25vw,2.2rem);
+  font-weight:760;letter-spacing:-.02em;margin:0 0 12px;
+}
+.smn-cycle-header-compact .smn-cycle-context,
+.smn-cycle-header-compact .smn-cycle-description{color:rgba(255,255,255,.86)}
+.smn-cycle-header-compact .smn-cycle-date-range,
+.smn-cycle-header-compact .smn-cycle-status{
+  border:1px solid rgba(255,255,255,.5);
+  background:rgba(255,255,255,.12);color:#fff;
+  padding:6px 12px;font-weight:700;
+}
+.smn-cycle-header-compact .smn-cycle-date-range svg{color:#fff}
+.smn-cycle-header-compact .smn-cycle-status[data-status]{
+  border-color:rgba(255,255,255,.5);
+  color:#fff;background:rgba(255,255,255,.14);
+}
+.smn-cycle-header-compact .smn-cycle-goal-block{
+  border-left:1px solid rgba(255,255,255,.28);
+  padding-left:clamp(14px,2vw,24px);align-items:flex-start;
+}
+.smn-cycle-header-compact .smn-cycle-goal-icon{
+  background:rgba(255,255,255,.13);color:#fff;
+}
+.smn-cycle-header-compact .smn-cycle-goal-copy h2,
+.smn-cycle-header-compact .smn-cycle-goal-text{color:#fff}
+.smn-cycle-header-compact .smn-cycle-goal-placeholder{color:rgba(255,255,255,.83)}
+.smn-cycle-header-compact .smn-cycle-detail-link{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.6);
+  color:#fff;border-radius:999px;padding:8px 14px;min-height:38px;
+}
+.smn-cycle-header-compact .smn-cycle-detail-link:hover{
+  background:rgba(255,255,255,.24);border-color:#fff;color:#fff;
+}
+.smn-cycle-header-compact .smn-cycle-detail-link:focus-visible{
+  outline:3px solid #ffcf66;outline-offset:3px;
+}
+@container (max-width:960px){
+  .smn-cycle-overview-header.smn-cycle-header-compact{
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+  .smn-cycle-header-compact .smn-cycle-goal-block{
+    grid-column:1/-1;grid-row:2;border-left:0;
+    border-top:1px solid rgba(255,255,255,.28);padding:12px 0 0;
+  }
+  .smn-cycle-header-compact .smn-cycle-header-actions{grid-column:2;grid-row:1}
+}
+@container (max-width:650px){
+  .smn-cycle-overview-header.smn-cycle-header-compact{grid-template-columns:minmax(0,1fr)}
+  .smn-cycle-header-compact .smn-cycle-header-actions{
+    grid-column:1;grid-row:3;justify-content:stretch;
+  }
+}
