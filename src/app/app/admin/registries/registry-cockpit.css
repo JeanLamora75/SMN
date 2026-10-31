@@ -312,3 +312,52 @@
 .smn-registry-description-dialog.smn-cockpit-modal .smn-cockpit-modal-footer{
  margin-top:18px;padding:14px 20px;border-top:1px solid var(--smn-border);
 }
+
+
+/* Journal de suivi : bandeau d'action, barre compacte et chronologie. */
+.smn-registry-detail-cockpit .smn-registry-detail-header{position:relative}
+.smn-registry-detail-cockpit .smn-registry-journal-hero-add{
+ align-self:flex-end;margin-left:auto;display:inline-flex;align-items:center;gap:9px;
+ background:var(--bs-primary);border:1px solid rgba(255,255,255,.7);
+ color:#fff;white-space:nowrap;min-height:42px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-hero-add:hover{background:var(--bs-primary);filter:brightness(1.12)}
+.smn-registry-detail-cockpit .smn-registry-journal-hero-add:focus-visible{outline:3px solid var(--smn-focus);outline-offset:3px}
+.smn-registry-detail-cockpit .smn-registry-journal-toolbar{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+ background:var(--smn-surface);border:1px solid var(--smn-border);
+ border-radius:12px;padding:12px;margin-bottom:12px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-search{width:clamp(180px,23%,300px);min-height:36px}
+.smn-registry-detail-cockpit .smn-registry-journal-filters{
+ display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:1;min-width:0;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-filters .btn{white-space:nowrap;min-height:35px;border-radius:8px}
+.smn-registry-detail-cockpit .smn-registry-journal-sort{width:auto;min-width:145px;min-height:36px}
+.smn-registry-detail-cockpit .smn-registry-journal-list{
+ border:1px solid var(--smn-border);border-radius:12px;overflow:hidden;
+ background:var(--smn-surface);padding:0;margin:0;list-style:none;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry{
+ border-bottom:1px solid var(--smn-border);padding:16px 18px 16px 48px;
+ position:relative;min-width:0;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry:last-child{border-bottom:0}
+.smn-registry-detail-cockpit .smn-registry-journal-entry::before{
+ content:"";position:absolute;top:20px;left:18px;width:14px;height:14px;
+ border-radius:50%;background:var(--smn-primary);border:3px solid var(--smn-surface);
+ box-shadow:0 0 0 2px var(--smn-primary);
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-top{
+ display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-top time{color:var(--smn-muted);font-size:.83rem}
+.smn-registry-detail-cockpit .smn-registry-journal-actions{display:flex;gap:6px;flex-wrap:wrap}
+.smn-registry-journal-compose-dialog .smn-registry-linked-create{margin-top:14px}
+@media(max-width:768px){
+ .smn-registry-detail-cockpit .smn-registry-journal-search,
+ .smn-registry-detail-cockpit .smn-registry-journal-sort{width:100%}
+ .smn-registry-detail-cockpit .smn-registry-journal-hero-add{margin-top:12px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry{padding:12px 12px 12px 38px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry::before{left:13px}
+}
