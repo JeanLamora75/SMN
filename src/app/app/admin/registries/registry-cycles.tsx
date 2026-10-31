@@ -52,11 +52,11 @@ export default function RegistryCycles({id,teamId,canManage,onSaved,embedded=fal
   }catch{setError(true);}finally{setBusy(null);}
  };
  return <section className="card p-3 mt-3">
-  {!embedded&&<div className="d-flex align-items-center justify-content-between gap-2">
+  <div className="d-flex align-items-center justify-content-between gap-2">
    <h2 className="h5 mb-0">{tr("heading")}</h2>
-   <button type="button" className="btn btn-sm btn-outline-secondary" aria-expanded={expanded}
+   {!embedded&&<button type="button" className="btn btn-sm btn-outline-secondary" aria-expanded={expanded}
     aria-controls="registry-cycles-list" aria-label={expanded?"Replier les cycles associés":"Déplier les cycles associés"}
-    onClick={()=>setExpanded(value=>!value)}>{expanded?"▴":"▾"}</button>
+    onClick={()=>setExpanded(value=>!value)}>{expanded?"▴":"▾"}</button>}
   </div>}
   {(embedded||expanded)&&<><p className="text-body-secondary mt-2">{tr("intro")}</p>
   {!currentData&&!currentError?<p role="status">{tr("loading")}</p>:null}
