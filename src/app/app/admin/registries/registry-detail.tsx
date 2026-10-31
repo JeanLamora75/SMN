@@ -132,7 +132,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
   {canManage&&section!=="riskAssessment"&&section!=="riskRoam"&&section!=="registryRelations"&&section!=="registryCycles"&&<div className="smn-registry-business-edit-bar">
    <button type="button" className="btn btn-sm btn-outline-secondary"
     aria-label={t("registryEdit.editNamed",{name})}
-    onClick={()=>section==="riskAssessment"||section==="riskRoam"||section==="registryRelations"?setFullEditing(true):setBusinessEditing(section)}>
+    onClick={()=>setBusinessEditing(section)}>
     <BootstrapIcon name="pencil-square"/><span>{t("registryEdit.edit")}</span>
    </button>
   </div>}
