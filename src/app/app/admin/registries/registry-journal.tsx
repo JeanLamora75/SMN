@@ -261,12 +261,6 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
        </span>
       </div>
       <div className="smn-registry-journal-entry-main">
-       <div className="smn-registry-journal-entry-author small text-body-secondary">
-        {entry.kind==="comment"?(entry.comment.authorName??commentsText("unknownAuthor")):
-         (entry.authorName??commentsText("unknownAuthor"))}
-        {entry.kind==="comment"&&entry.comment.edited&&
-         <span className="smn-registry-journal-meta"> · {commentsText("edited")}</span>}
-       </div>
       {entry.kind==="link"?
        <div className="smn-registry-journal-linked-title">
         <Link href={registryDetailHref(entry.recordId,navigation)}>{entry.title}</Link>
@@ -329,7 +323,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
         <button type="button" className="btn btn-outline-danger btn-sm"
          title={commentsText("withdraw")} aria-label={commentsText("withdraw")} disabled={editSaving}
          onClick={()=>void withdraw(entry.comment)}>
-         <BootstrapIcon name="trash"/>
+         <BootstrapIcon name="trash-fill"/>
         </button>
        </>:<button type="button" className="btn btn-outline-secondary btn-sm"
         title={commentsText("edit")} aria-label={commentsText("edit")}
