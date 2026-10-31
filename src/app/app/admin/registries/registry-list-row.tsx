@@ -36,6 +36,18 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
    <span className="smn-registry-mobile-label">{tr("date")}: </span>
    <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time>
   </td>
+  <td className="smn-registry-cell-status">
+   <span className="smn-registry-mobile-label">{tr("status")}: </span>
+   <span className={"smn-registry-row-status badge "+(["open","in_progress","todo","active"].includes(item.status)?"smn-registry-status-active":["resolved","satisfied","completed"].includes(item.status)?"smn-registry-status-resolved":"smn-registry-status-neutral")}>
+    {label(item.status)}
+   </span>
+   {signals.length>0&&<div className="smn-registry-row-attentions">
+    {signals.map(signal=><span className="smn-registry-row-attention" key={signal.reason}>
+     <span className="visually-hidden">{tr("attentionLabel")}: </span>
+     {t(("registryAttention."+signal.reason) as Parameters<typeof t>[0])}
+    </span>)}
+   </div>}
+  </td>
   <td className="smn-registry-cell-type">
    <span className="smn-registry-row-type">
     <span className="smn-registry-row-type-icon" aria-hidden="true">
@@ -49,18 +61,6 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
    {item.description&&<p className="smn-registry-row-description" title={item.description}>
     {item.description}
    </p>}
-  </td>
-  <td className="smn-registry-cell-status">
-   <span className="smn-registry-mobile-label">{tr("status")}: </span>
-   <span className="smn-registry-row-status badge border text-body-emphasis bg-body-secondary">
-    {label(item.status)}
-   </span>
-   {signals.length>0&&<div className="smn-registry-row-attentions">
-    {signals.map(signal=><span className="smn-registry-row-attention" key={signal.reason}>
-     <span className="visually-hidden">{tr("attentionLabel")}: </span>
-     {t(("registryAttention."+signal.reason) as Parameters<typeof t>[0])}
-    </span>)}
-   </div>}
   </td>
   {canManage&&<td className="smn-registry-cell-owner">
    <span className="smn-registry-mobile-label">{tr("owner")}: </span>
