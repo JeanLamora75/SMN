@@ -82,12 +82,13 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
  }),[locale]);
  const when=(iso:string)=>formatter.format(new Date(iso));
  const url="/api/admin/registries/"+encodeURIComponent(itemId)+"/comments";
+ const createUrl=url+"?teamId="+encodeURIComponent(teamId);
  const save=async(event:FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
   if(!canManage||saving||!draft.trim()||draft.length>4000)return;
   setSaving(true);setError(null);setSuccess(false);
   try{
-   const response=await fetch(url,{
+   const response=await fetch(createUrl,{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({text:draft})
    });
