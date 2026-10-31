@@ -1,6 +1,8 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withLegacyTeamApi} from "@/server/teams/legacy";
+import {withAuthDb} from "@/server/auth/database";
+import {assertLegacyTeamApi} from "@/server/teams/legacy";
+import {resolveRegistryReadContext} from "@/server/registries/team-access";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {createRegistryItem} from "@/server/registries/items";
 import {parseLinkedJournalCreation} from "@/lib/registry-linked-creation";
@@ -22,8 +24,19 @@ export async function POST(req:NextRequest,{params}:{
  const {id}=await params;
  const {requestId,...fields}=parsed;
  try{
-  const result=await withLegacyTeamApi(db=>
-   createRegistryItem(db,actor.id,{...fields,sourceId:id},requestId));
+  const result=await withAuthDb(async db=>{
+   const requestedTeamId=typeof fields.teamId==="string"?fields.teamId:null;
+   if(!requestedTeamId)return {ok:false as const,error:"invalid-input" as const};
+   const context=await resolveRegistryReadContext(db,{
+    accountId:actor.id,role:actor.role
+   },requestedTeamId);
+   if(context.version===27){
+    await assertLegacyTeamApi(db);
+   }else if(context.team?.team_id!==requestedTeamId){
+    return {ok:false as const,error:"not-found" as const};
+   }
+   return createRegistryItem(db,actor.id,{...fields,sourceId:id},requestId);
+  });
   return jsonResult(result,result.ok?201:
    result.error==="conflict"?409:result.error==="not-found"?404:400);
  }catch(error){
