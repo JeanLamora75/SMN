@@ -614,3 +614,19 @@ button.smn-risk-roam-tile{cursor:pointer}
 .smn-registry-detail-cockpit .smn-registry-detail-header .smn-registry-detail-meta>span time{
  color:inherit;font-weight:750;
 }
+
+
+/* Point d'entrée de création entre les filtres et les résultats. */
+.smn-registry-cockpit .smn-registry-add-event{
+ display:flex;align-items:center;justify-content:center;gap:10px;
+ width:100%;min-height:58px;padding:12px 18px;
+ border:2px dashed var(--smn-border);border-radius:12px;
+ background:var(--smn-surface);color:var(--smn-primary);font-weight:750;
+ cursor:pointer;transition:background-color .15s,border-color .15s;
+}
+.smn-registry-cockpit .smn-registry-add-event:hover{
+ border-color:var(--smn-primary);background:var(--smn-soft);
+}
+.smn-registry-cockpit .smn-registry-add-event:focus-visible{
+ outline:3px solid var(--smn-focus);outline-offset:3px;
+}
