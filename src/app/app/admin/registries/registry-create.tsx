@@ -41,7 +41,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
  useEffect(()=>{
   if(!itemId)return;
   let active=true;
-  void fetch("/api/admin/registries/"+encodeURIComponent(itemId),{cache:"no-store"})
+  void fetch("/api/admin/registries/"+encodeURIComponent(itemId)+"?teamId="+encodeURIComponent(teamId??""),{cache:"no-store"})
    .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<{item:Record<string,unknown>}>;})
    .then(({item})=>{if(!active)return;
     if(item.teamId!==teamId)throw Error("mismatch");
