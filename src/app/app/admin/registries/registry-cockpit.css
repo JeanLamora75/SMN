@@ -484,3 +484,20 @@
  .smn-registry-detail-cockpit .smn-registry-journal-entry::before,
  .smn-registry-detail-cockpit .smn-registry-journal-entry::after{display:none}
 }
+
+
+/* Icône de retrait explicite et contrastée en thème clair/sombre. */
+.smn-registry-detail-cockpit .smn-registry-journal-actions .btn-outline-danger{
+ color:var(--bs-danger-text-emphasis,#842029);
+ background:var(--bs-danger-bg-subtle,#f8d7da);
+ border:1.5px solid var(--bs-danger-border-subtle,#ea868f);
+}
+.smn-registry-detail-cockpit .smn-registry-journal-actions .btn-outline-danger svg{
+ width:17px;height:17px;opacity:1;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-actions .btn-outline-danger:hover{
+ color:#fff;background:var(--bs-danger,#dc3545);border-color:var(--bs-danger,#dc3545);
+}
+.smn-registry-detail-cockpit .smn-registry-journal-actions .btn-outline-danger:focus-visible{
+ outline:3px solid var(--smn-focus);outline-offset:2px;
+}
