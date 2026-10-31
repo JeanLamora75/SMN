@@ -103,3 +103,30 @@ a:not(.btn) {color:var(--smn-link);}
 [data-bs-theme="dark"][data-smn-palette="forest"] {--bs-primary-rgb:134,226,196;--bs-link-color-rgb:156,235,210;}
 [data-bs-theme="dark"][data-smn-palette="violet"] {--bs-primary-rgb:198,176,255;--bs-link-color-rgb:209,191,255;}
 html {--bs-focus-ring-color:var(--smn-focus);}
+
+
+/* Red & Purple — variante claire. Préserve les palettes historiques. */
+[data-bs-theme="light"][data-smn-palette="red-purple"] {
+  --smn-bg:#f7f5fa;--smn-surface:#ffffff;--smn-text:#17243b;
+  --smn-muted:#56536a;--smn-border:#ded9e7;--smn-soft:#faeaf0;
+  --smn-soft-text:#650a21;--smn-primary:#ba1732;--smn-link:#5236ab;
+  --smn-focus:#5236ab;--smn-highlight:#fde6ec;
+  --smn-context-start:#a10e32;--smn-context-end:#35206c;
+  --smn-btn-bg:#ba1732;--smn-btn-hover:#991f3d;--smn-btn-text:#ffffff;
+  --bs-primary-rgb:186,23,50;--bs-link-color-rgb:82,54,171;
+}
+/* Anthracite & Red Purple — variante sombre approuvée par Sally. */
+[data-bs-theme="dark"][data-smn-palette="red-purple"] {
+  color-scheme:dark;
+  --smn-bg:#15161b;--smn-surface:#24252d;--smn-text:#f4f3f6;
+  --smn-muted:#c7c2d4;--smn-border:#484751;--smn-soft:#35313e;
+  --smn-soft-text:#f4dce6;--smn-primary:#ff7387;--smn-link:#b9a5ff;
+  --smn-focus:#b9a5ff;--smn-highlight:#4b2337;
+  --smn-context-start:#991f3d;--smn-context-end:#35206c;
+  --smn-context-fg:#ffffff;--smn-context-muted:#f1e4fa;
+  --smn-btn-bg:#ba1732;--smn-btn-hover:#991f3d;--smn-btn-text:#ffffff;
+  --smn-unavailable:#35353d;--smn-unavailable-text:#d4cddc;
+  --bs-body-bg:var(--smn-bg);--bs-body-color:var(--smn-text);
+  --bs-secondary-color:var(--smn-muted);--bs-border-color:var(--smn-border);
+  --bs-primary-rgb:255,115,135;--bs-link-color-rgb:185,165,255;
+}
