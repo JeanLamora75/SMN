@@ -683,3 +683,25 @@ button.smn-risk-roam-tile{cursor:pointer}
  .smn-registry-cockpit .smn-registry-results{overflow-x:auto}
  .smn-registry-cockpit .smn-registry-list-table{min-width:1050px}
 }
+
+
+/* Criticité des risques 1–9 : colonne autonome, sans rupture du statut. */
+.smn-registry-cockpit .smn-registry-list-table th.smn-registry-risk-heading,
+.smn-registry-cockpit .smn-registry-list-table td.smn-registry-cell-risk{
+ width:70px;max-width:70px;text-align:center;white-space:nowrap;padding-inline:5px;
+}
+.smn-registry-cockpit .smn-registry-risk-score{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:32px;height:32px;border-radius:6px;font-weight:800;font-size:.95rem;
+ line-height:1;border:1px solid rgba(0,0,0,.08);
+}
+.smn-registry-cockpit .smn-registry-risk-score-1{background:#2e7d32;color:white}
+.smn-registry-cockpit .smn-registry-risk-score-2{background:#4caf50;color:#10280e}
+.smn-registry-cockpit .smn-registry-risk-score-3{background:#7cb342;color:#17290a}
+.smn-registry-cockpit .smn-registry-risk-score-4{background:#c0ca33;color:#202609}
+.smn-registry-cockpit .smn-registry-risk-score-5{background:#fdd835;color:#302500}
+.smn-registry-cockpit .smn-registry-risk-score-6{background:#ffb300;color:#302000}
+.smn-registry-cockpit .smn-registry-risk-score-7{background:#fb8c00;color:#251200}
+.smn-registry-cockpit .smn-registry-risk-score-8{background:#f4511e;color:#fff}
+.smn-registry-cockpit .smn-registry-risk-score-9{background:#c62828;color:#fff}
+.smn-registry-cockpit .smn-registry-list-table th:nth-child(4){width:125px}
