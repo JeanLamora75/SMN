@@ -249,19 +249,19 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
     </div>:
     <ol className="smn-registry-journal-list">
      {visible.map(entry=><li key={entry.id} className={"smn-registry-journal-entry smn-registry-journal-entry-"+(entry.kind==="comment"?"comment":entry.type)}>
-      <div className="smn-registry-journal-entry-top">
-       <span className={"smn-registry-journal-kind smn-registry-journal-kind-"+(entry.kind==="comment"?"comment":entry.type)}>
-        {entry.kind==="comment"?tr("comment"):recordType(entry.type)}
-       </span>
-       <time dateTime={entry.at}>{when(entry.at)}</time>
-      </div>
-      <div className="small text-body-secondary">
-       {entry.kind==="comment"?
-        (entry.comment.authorName??commentsText("unknownAuthor")):
-        (entry.authorName??commentsText("unknownAuthor"))}
-       {entry.kind==="comment"&&entry.comment.edited&&
-        <span className="smn-registry-journal-meta"> · {commentsText("edited")}</span>}
-      </div>
+      <time className="smn-registry-journal-entry-date" dateTime={entry.at}>{when(entry.at)}</time>
+      <div className="smn-registry-journal-entry-main">
+       <div className="smn-registry-journal-entry-top">
+        <span className={"smn-registry-journal-kind smn-registry-journal-kind-"+(entry.kind==="comment"?"comment":entry.type)}>
+         {entry.kind==="comment"?tr("comment"):recordType(entry.type)}
+        </span>
+        <span className="smn-registry-journal-entry-author">
+         {entry.kind==="comment"?(entry.comment.authorName??commentsText("unknownAuthor")):
+          (entry.authorName??commentsText("unknownAuthor"))}
+         {entry.kind==="comment"&&entry.comment.edited&&
+          <span className="smn-registry-journal-meta"> · {commentsText("edited")}</span>}
+        </span>
+       </div>
       {entry.kind==="link"?
        <div className="smn-registry-journal-linked-title">
         <Link href={registryDetailHref(entry.recordId,navigation)}>{entry.title}</Link>
@@ -332,6 +332,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
            </ul>}
          </div>}
        </>}
+      </div>
      </li>)}
     </ol>}
     {canManage&&data?.legacy&&<aside className="smn-registry-journal-legacy">
