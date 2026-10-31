@@ -12,6 +12,7 @@ import RegistryEditModal from "./registry-edit-modal";
 import RegistrySummary from "./registry-summary";
 import RegistryDescriptionEditor from "./registry-description-editor";
 import RegistryHistory from "./registry-history";
+import RegistryJournal from "./registry-journal";
 import RegistryRelations from "./registry-relations";
 import RegistryCycles from "./registry-cycles";
 import RiskRoam from "./risk-roam";
@@ -180,7 +181,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      </div>
      <div className="smn-registry-detail-meta">
       <span className="badge bg-body-secondary text-body-emphasis border">{label(item.status)}</span>
-      <span>{tr("businessDate")}: <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time></span>
+      <span className="smn-registry-business-date">{tr("businessDate")}: <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time></span>
       {item.dueOn&&<span>{tr("due")}: <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time></span>}
       {canManage&&item.owner&&<span>{tr("owner")}: {item.owner}</span>}
      </div>
@@ -189,7 +190,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
    </header>
     <div className="smn-registry-detail-tabs" role="tablist" aria-label={tr("tabs")}>
      {tabs.map((name)=>{
-      const text=name==="business"?tr(registryBusinessTabKeys[item.type]!):tr(name);
+      const text=name==="business"?tr(registryBusinessTabKeys[item.type]!):name==="journal"?t("registrySummary.journal"):tr(name);
       return <button key={name} ref={node=>{buttons.current[name]=node;}}
        type="button" role="tab" id={prefix+"-tab-"+name}
        aria-controls={prefix+"-panel-"+name} aria-selected={tab===name}
@@ -211,6 +212,10 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        sectionView("registryCycles",t("registryCycles.heading"),
         <RegistryCycles id={id} teamId={teamId} canManage={false} embedded/>)}
      </div>}
+     {tab==="journal"&&<section className="smn-registry-summary-panel">
+      <RegistryJournal key={id} itemId={id} itemTitle={item.title}
+       teamId={teamId} canManage={canManage} navigation={onward}/>
+     </section>}
      {tab==="history"&&(!canManage?
       <p role="status" className="alert alert-secondary">{tr("historyRestricted")}</p>:
       canManage&&<RegistryHistory key={id} id={id}/>)}
