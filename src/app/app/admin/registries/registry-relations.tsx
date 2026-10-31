@@ -45,7 +45,8 @@ export default function RegistryRelations({id,type,canManage,navigation,onSaved}
    });});
   return()=>ctrl.abort();
  },[endpoint,id,requestKey]);
- const groups=useMemo(()=>groupRegistryRelations(items,id),[items,id]);
+ const groups=useMemo(()=>groupRegistryRelations(items,id).filter(group=>
+  group.type==="risk"||group.type==="obstacle"||group.type==="dependency"),[items,id]);
  const change=async(target:{kind:"record"|"goal";id:string},
   action:"linked"|"unlinked",sourceId=id)=>{
   if(!canManage||busy)return;
