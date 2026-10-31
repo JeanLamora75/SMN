@@ -2840,6 +2840,7 @@
     "historyError": "Historique indisponible."
   },
   "registryList": {
+    "addEvent": "Ajouter un événement",
     "subtitle": "Suivez les risques, obstacles, dépendances, décisions et actions de l’équipe.",
     "filtersHeading": "Filtres et recherche",
     "filtersToggle": "Filtres",
