@@ -35,7 +35,8 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const titleId=useId();
  const [type,setType]=useState<RegistryType>(initialType);
  const [title,setTitle]=useState("");
- const [occurredOn,setOccurredOn]=useState(nowInParis);
+ const [initialDate]=useState(nowInParis);
+ const [occurredOn,setOccurredOn]=useState(initialDate);
  const [status,setStatus]=useState<string>(registryStatuses[initialType][0]);
  const [description,setDescription]=useState("");
  const [owner,setOwner]=useState("");
@@ -54,8 +55,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const [decisionSearch,setDecisionSearch]=useState("");
  const [decisionChoices,setDecisionChoices]=useState<{id:string;title:string;occurredOn:string}[]>([]);
  const [decisionUnavailable,setDecisionUnavailable]=useState(false);
- const initialDate=useRef(occurredOn);
- const dirty=type!==initialType||title!==""||occurredOn!==initialDate.current||
+ const dirty=type!==initialType||title!==""||occurredOn!==initialDate||
   status!==registryStatuses[initialType][0]||description!==""||owner!==""||dueOn!==""||
   comment!==""||probability!==""||impact!==""||roam!==""||
   requesterKind!==""||requesterName!==""||contributorKind!==""||contributorName!==""||
