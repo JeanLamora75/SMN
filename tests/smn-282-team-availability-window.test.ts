@@ -16,6 +16,8 @@ function fake(options:FakeOptions={}){
     [{installation_id:"singleton",schema_version:28}]};
   if(sql.includes("SELECT t.id AS team_id FROM public.smn_account_team_preference"))
    return {rows:[{team_id:"team_a"}]};
+  if(sql.includes("SELECT a.id FROM public.smn_member_assignment a"))
+   return {rows:options.assignment===false?[]:[{id:"assignment_b"}]};
   if(sql.includes("SELECT p.id AS product_id"))
    return {rows:[{product_id:null,product:null,team_id:"team_b",
      team:"Panda",mode:"scrum"}]};
