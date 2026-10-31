@@ -10,7 +10,7 @@ import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigat
 export type RegistryListItem={
  id:string;type:RegistryType;title:string;description:string|null;
  status:string;occurredOn:string;dueOn:string|null;recordedAt:string;
- owner?:string|null;
+ owner?:string|null;decisionsCount?:number;actionsCount?:number;highlightsCount?:number;commentsCount?:number;
 };
 export type RegistrySignal={
  id:string;reason:"highRisk"|"obstacle"|"atRisk"|"upcoming"|"overdue";
@@ -62,6 +62,15 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
     {item.description}
    </p>}
   </td>
+  {([
+   ["decisionsCount","bullseye","decisions"],
+   ["actionsCount","ticket-perforated-fill","actions"],
+   ["highlightsCount","bell-fill","highlights"],
+   ["commentsCount","chat-dots","comments"]
+  ] as const).map(([key,icon,title])=><td key={key} className="smn-registry-count-col"
+   title={tr(title)+": "+(item[key]??0)}>
+   <span className="smn-registry-count"><BootstrapIcon name={icon}/><span>{item[key]??0}</span></span>
+  </td>)}
   {canManage&&<td className="smn-registry-cell-owner">
    <span className="smn-registry-mobile-label">{tr("owner")}: </span>
    {item.owner??tr("notProvided")}
