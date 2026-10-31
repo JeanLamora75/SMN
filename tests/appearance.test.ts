@@ -16,7 +16,7 @@ function contrast(a:string,b:string):number{
 }
 describe("SMN-24 — thèmes et palettes accessibles",()=>{
   it("propose une liste fermée et une valeur de repli non corrompue",()=>{
-    assert.deepEqual(PALETTES,["ocean","forest","violet"]);
+    assert.deepEqual(PALETTES,["ocean","forest","violet","red-purple"]);
     for(const palette of PALETTES){
       assert.equal(validPalette(palette),true);
       assert.deepEqual(safeAppearance("dark",palette),{theme:"dark",palette});
@@ -40,9 +40,9 @@ describe("SMN-24 — thèmes et palettes accessibles",()=>{
     const surfaceLight="#ffffff",surfaceDark="#1c2735",textLight="#14213b",textDark="#eff4fa";
     assert.ok(contrast(textLight,surfaceLight)>=4.5);
     assert.ok(contrast(textDark,surfaceDark)>=4.5);
-    for(const accent of ["#154d8d","#086653","#6037a7"])
+    for(const accent of ["#154d8d","#086653","#6037a7","#5236ab"])
       assert.ok(contrast(accent,surfaceLight)>=4.5,accent);
-    for(const accent of ["#90bdfb","#86e2c4","#c6b0ff"])
+    for(const accent of ["#90bdfb","#86e2c4","#c6b0ff","#b9a5ff"])
       assert.ok(contrast(accent,surfaceDark)>=4.5,accent);
     for(const button of ["#154d8d","#086653","#6037a7","#285c9c","#167d65","#6841a4"])
       assert.ok(contrast("#ffffff",button)>=4.5,button);
