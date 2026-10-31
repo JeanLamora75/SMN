@@ -123,7 +123,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
   {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="action"&&<ActionLinks id={itemId} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="decision"&&<><DecisionDetail id={itemId} canManage={canManage} onSaved={onSaved}/>{teamId&&<DecisionActions id={itemId} teamId={teamId} title={title} description={description} canManage={canManage} onSaved={onSaved}/>}</>}
-  {itemId&&loaded&&(type==="risk"||type==="dependency"||type==="obstacle")&&<RegistryCycles id={itemId} canManage={canManage} onSaved={onSaved}/>}
+  {itemId&&loaded&&(type==="risk"||type==="dependency"||type==="obstacle")&&<RegistryCycles teamId={teamId??undefined} id={itemId} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="dependency"&&<><DependencyParties id={itemId} canManage={canManage} onSaved={onSaved}/><DependencyVigilance id={itemId} canManage={canManage} onSaved={onSaved}/></>}
   {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage} onSaved={onSaved}/><RiskAssessment id={itemId} canManage={canManage} onSaved={onSaved}/>{teamId&&<MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage} onSaved={onSaved}/>}</>}
  </div>;
