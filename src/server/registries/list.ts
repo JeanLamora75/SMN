@@ -7,7 +7,7 @@ export type RegistryLifecycle="all"|"followup"|"final";
 export type RegistrySort="default"|"dateDesc"|"dateAsc"|"titleAsc"|"titleDesc";
 export type RegistryFilters={
  type:RegistryScope;search:string;status:string;owner:string;page:number;
- lifecycle:RegistryLifecycle;sort:RegistrySort;cycleId:string;showResolved:boolean;
+ lifecycle:RegistryLifecycle;sort:RegistrySort;cycleId:string;showResolved?:boolean;
 };
 
 // Only known business terminal statuses are final. A recorded highlight is neither
