@@ -8,6 +8,7 @@ import {parseSummaryCycles,parseSummaryRelations,validRegistryActivityTime,
 import BootstrapIcon from "../../bootstrap-icon";
 import RiskAssessment from "./risk-assessment";
 import RiskRoam from "./risk-roam";
+import RegistryJournal from "./registry-journal";
 import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
 
 export type RegistrySummaryItem={
@@ -81,6 +82,11 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
     </header>
     {item.description?<p className="smn-registry-detail-description">{item.description}</p>:
      <p className="text-body-secondary mb-0">{tr("noDescription")}</p>}
+   </section>
+   <section className="smn-registry-summary-panel smn-registry-summary-journal">
+    <h2 className="h5">{t("registryJournal.heading")}</h2>
+    <RegistryJournal itemId={item.id} itemTitle={item.title} teamId={teamId}
+     canManage={canManage} navigation={navigation} embedded/>
    </section>
   </div>
   <aside className="smn-registry-summary-side" aria-label={tr("context")}>
