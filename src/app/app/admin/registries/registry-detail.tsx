@@ -64,6 +64,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const [problem,setProblem]=useState<"missing"|"unavailable"|null>(null);
  const [reload,setReload]=useState(0);
  const [tab,setTab]=useState<RegistryDetailTab>("summary");
+ const [journalCreateOpen,setJournalCreateOpen]=useState(false);
  const [fullEditing,setFullEditing]=useState(false);
  const [businessEditing,setBusinessEditing]=useState<BusinessSection|null>(null);
  const [descriptionEditing,setDescriptionEditing]=useState(false);
@@ -186,6 +187,8 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
       {canManage&&item.owner&&<span>{tr("owner")}: {item.owner}</span>}
      </div>
     </div>
+    {canManage&&tab==="journal"&&<button type="button" className="btn btn-primary smn-registry-journal-hero-add"
+     onClick={()=>setJournalCreateOpen(true)}><BootstrapIcon name="plus-lg"/>{t("registryJournal.addToJournal")}</button>}
     {!canManage&&<span className="small text-body-secondary">{tr("readOnly")}</span>}
    </header>
     <div className="smn-registry-detail-tabs" role="tablist" aria-label={tr("tabs")}>
@@ -214,7 +217,8 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      </div>}
      {tab==="journal"&&<section className="smn-registry-summary-panel">
       <RegistryJournal key={id} itemId={id} itemTitle={item.title}
-       teamId={teamId} canManage={canManage} navigation={onward}/>
+       teamId={teamId} canManage={canManage} navigation={onward}
+       composeOpen={journalCreateOpen} onCloseCompose={()=>setJournalCreateOpen(false)}/>
      </section>}
      {tab==="history"&&(!canManage?
       <p role="status" className="alert alert-secondary">{tr("historyRestricted")}</p>:
