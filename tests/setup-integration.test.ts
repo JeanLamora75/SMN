@@ -11,7 +11,7 @@ import { INITIAL_SCHEMA_SQL } from "../src/server/installation/migration";
 import {ceremonyStatements} from "../scripts/apply-ceremony-schema-v32";
 import { prepareExisting } from "../src/server/bootstrap/existing";
 import { authenticate, changeInitialPassword } from "../src/server/auth/credentials";
-import { ensureAccountsSchema, ACCOUNTS_MIGRATION_SQL } from "../src/server/accounts/migration";
+import { ACCOUNTS_MIGRATION_SQL } from "../src/server/accounts/migration";
 import { ACCOUNT_AUDIT_MIGRATION_SQL } from "../src/server/audit/account-migration";
 import { listAccounts,createAccount,updateAccount } from "../src/server/accounts/manager";
 
@@ -130,7 +130,7 @@ describe("SMN-12 — installation réelle sur base CI temporaire", { skip: !enab
       assert.equal(data.rows[0].email, "admin@localhot.com");
       assert.equal(data.rows[0].must_change_password, true);
       assert.equal(data.rows[0].password_hash.includes(input.password), false);
-      await withClient(target.toString(), client => ensureAccountsSchema(client));
+      assert.equal(classifySnapshot(await probePostgres(target.toString())).status, "initialized");
       assert.equal((await readFile("prisma/migrations/20261020_smn15_accounts/migration.sql","utf8")), ACCOUNTS_MIGRATION_SQL);
       assert.equal((await readFile("prisma/migrations/20261021_smn29_account_audit/migration.sql","utf8")),ACCOUNT_AUDIT_MIGRATION_SQL);
       assert.equal(classifySnapshot(await probePostgres(target.toString())).status, "initialized");
