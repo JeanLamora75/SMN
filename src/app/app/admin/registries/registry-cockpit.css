@@ -501,3 +501,38 @@
 .smn-registry-detail-cockpit .smn-registry-journal-actions .btn-outline-danger:focus-visible{
  outline:3px solid var(--smn-focus);outline-offset:2px;
 }
+
+
+/* UX Sally 31/10 — matrices d'évaluation et ROAM (lecture + édition). */
+.smn-registry-detail-cockpit .smn-registry-risk-layout{align-items:stretch}
+.smn-registry-detail-cockpit .smn-registry-risk-layout>.smn-registry-business-section{height:100%;min-width:0}
+.smn-registry-detail-cockpit .smn-registry-risk-layout>.smn-registry-business-section>.card{
+ height:100%;display:flex;flex-direction:column;margin-top:0!important;gap:12px;
+}
+.smn-risk-matrix{display:grid;grid-template-columns:78px repeat(3,minmax(0,1fr));gap:7px;width:min(100%,480px);margin:auto}
+.smn-risk-matrix-corner{grid-column:1}
+.smn-risk-matrix-axis{text-align:center;align-self:center;color:var(--smn-muted);font-weight:650;font-size:.85rem}
+.smn-risk-matrix-row{display:contents}
+.smn-risk-matrix-cell{aspect-ratio:1.25;min-height:58px;display:flex;align-items:center;justify-content:center;
+ border-radius:9px;border:1px solid var(--smn-border);position:relative;color:var(--smn-primary);
+ font-size:1.35rem;font-weight:800;background:var(--smn-soft)}
+button.smn-risk-matrix-cell{cursor:pointer}
+.smn-risk-matrix-low{background:var(--bs-success-bg-subtle);border-color:var(--bs-success-border-subtle)}
+.smn-risk-matrix-medium{background:var(--bs-warning-bg-subtle);border-color:var(--bs-warning-border-subtle)}
+.smn-risk-matrix-high{background:var(--bs-danger-bg-subtle);border-color:var(--bs-danger-border-subtle)}
+.smn-risk-matrix-cell.is-selected,.smn-risk-roam-tile.is-selected{outline:3px solid var(--smn-primary);outline-offset:-3px}
+.smn-risk-matrix-cell.is-selected span{border-radius:100%;background:var(--smn-primary);color:#fff;padding:1px 9px}
+.smn-risk-roam-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(100px,1fr));gap:10px;flex:1;min-height:260px}
+.smn-risk-roam-tile{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;position:relative;
+ border:1px solid var(--smn-border);border-radius:9px;background:var(--smn-soft);color:var(--smn-heading);min-width:0}
+button.smn-risk-roam-tile{cursor:pointer}
+.smn-risk-roam-glyph{height:42px;width:42px;display:grid;place-items:center;border-radius:50%;font-size:1.5rem;color:#fff;background:var(--smn-primary)}
+.smn-risk-roam-resolved{background:var(--bs-success-bg-subtle)}
+.smn-risk-roam-resolved .smn-risk-roam-glyph{background:var(--bs-success)}
+.smn-risk-roam-owned{background:var(--bs-info-bg-subtle)}
+.smn-risk-roam-accepted{background:var(--bs-primary-bg-subtle)}
+.smn-risk-roam-mitigated{background:var(--bs-secondary-bg-subtle)}
+.smn-risk-roam-check{position:absolute;top:8px;right:9px;background:var(--smn-primary);color:#fff;border-radius:50%;padding:0 6px}
+.smn-risk-matrix-cell:focus-visible,.smn-risk-roam-tile:focus-visible{outline:3px solid var(--smn-focus);outline-offset:2px}
+@media(max-width:575px){.smn-risk-matrix{grid-template-columns:55px repeat(3,minmax(0,1fr))}
+.smn-risk-matrix-cell{min-height:47px}.smn-risk-roam-grid{min-height:220px}}
