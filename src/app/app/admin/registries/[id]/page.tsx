@@ -1,3 +1,4 @@
+import "../registry-cockpit.css";
 import Link from "next/link";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
