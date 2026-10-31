@@ -603,3 +603,14 @@ button.smn-risk-roam-tile{cursor:pointer}
   grid-template-columns:minmax(0,1fr);
  }
 }
+
+
+/* Bandeau : échéance et responsable lisibles sur fond bleu. */
+.smn-registry-detail-cockpit .smn-registry-detail-header .smn-registry-detail-meta>span:not(.badge):not(.smn-registry-business-date){
+ display:inline-flex;align-items:center;gap:5px;color:#fff;
+ background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.32);
+ border-radius:8px;padding:5px 9px;font-weight:650;
+}
+.smn-registry-detail-cockpit .smn-registry-detail-header .smn-registry-detail-meta>span time{
+ color:inherit;font-weight:750;
+}
