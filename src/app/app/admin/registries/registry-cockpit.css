@@ -384,3 +384,41 @@
 .smn-registry-detail-cockpit .smn-registry-journal-entry-highlight::before{background:var(--bs-info);box-shadow:0 0 0 2px var(--bs-info)}
 .smn-registry-detail-cockpit .smn-registry-journal-entry-comment::before{background:var(--bs-secondary);box-shadow:0 0 0 2px var(--bs-secondary)}
 .smn-registry-detail-cockpit .smn-registry-journal-linked-title{margin-top:8px;font-weight:650}
+
+
+/* Timeline à colonnes : date, repère, information, commandes. */
+.smn-registry-detail-cockpit .smn-registry-journal-toolbar-actions{display:flex;gap:8px;align-items:center;margin-left:auto;white-space:nowrap}
+.smn-registry-detail-cockpit .smn-registry-journal-toolbar-actions .btn{min-height:36px;font-weight:650}
+.smn-registry-detail-cockpit .smn-registry-journal-entry{
+ display:grid;grid-template-columns:132px minmax(0,1fr);column-gap:30px;
+ padding:16px 20px;align-items:start;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry::before{
+ top:19px;left:151px;width:22px;height:22px;z-index:1;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry:not(:last-child)::after{
+ content:"";position:absolute;left:161px;top:40px;bottom:-18px;width:2px;
+ background:var(--smn-border);
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-date{
+ font-size:.78rem;color:var(--smn-muted);text-align:right;padding-top:5px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-main{min-width:0}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-top{align-items:center;margin-bottom:7px}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-author{color:var(--smn-muted);font-size:.83rem}
+.smn-registry-detail-cockpit .smn-registry-journal-linked-title{margin:2px 0 8px}
+.smn-registry-detail-cockpit .smn-registry-journal-content{white-space:pre-wrap;line-height:1.5}
+.smn-registry-detail-cockpit .smn-registry-journal-actions{justify-content:flex-end;margin-top:8px}
+.smn-registry-detail-cockpit .smn-registry-journal-entry .btn{border-radius:7px}
+@media(max-width:900px){
+ .smn-registry-detail-cockpit .smn-registry-journal-entry{grid-template-columns:95px minmax(0,1fr);column-gap:22px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry::before{left:106px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry:not(:last-child)::after{left:116px}
+}
+@media(max-width:600px){
+ .smn-registry-detail-cockpit .smn-registry-journal-entry{display:block;padding:12px 14px 12px 45px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry::before{left:14px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry:not(:last-child)::after{left:24px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry-date{display:block;text-align:left;padding:0;margin-bottom:5px}
+ .smn-registry-detail-cockpit .smn-registry-journal-toolbar-actions{width:100%;justify-content:flex-end}
+}
