@@ -552,3 +552,19 @@ button.smn-risk-roam-tile{cursor:pointer}
 @media(max-width:850px){
  .smn-registry-detail-cockpit .smn-registry-summary-risk-layout{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Synthèse : matrices placées dans la colonne contextuelle sous Cycles associés. */
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-registry-summary-risk-layout{
+ display:flex;flex-direction:column;gap:12px;min-width:0;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-registry-summary-risk-layout>.smn-registry-business-section{
+ height:auto;min-width:0;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-matrix{
+ width:min(100%,410px);grid-template-columns:58px repeat(3,minmax(0,1fr));
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-matrix-cell{min-height:44px}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-roam-grid{
+ min-height:220px;grid-template-rows:repeat(2,minmax(90px,1fr));
+}
