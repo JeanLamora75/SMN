@@ -26,15 +26,23 @@ test("SMN-338 : contraintes de valeur, dépendances et cycle",()=>{
  assert.match(sql,/source_type\s+text\s+NOT NULL CHECK/i);
  assert.match(sql,/smn_ind_dep_indicator_unique/i);
  assert.match(sql,/smn_ind_dep_calendar_unique/i);
- assert.match(sql,/source_indicator_id IS DISTINCT FROM indicator_id/i);
+ assert.match(sql,/source_indicator_id IS NULL OR source_indicator_id <> indicator_id/i);
  assert.match(sql,/FOREIGN KEY\s*\(team_id,indicator_id\)/i);
 });
 
 test("SMN-338 : état disponible exige valeur, état indisponible motif",()=>{
  assert.match(sql,/result_state='available' AND value IS NOT NULL/i);
  assert.match(sql,/result_state='unavailable' AND value IS NULL AND unavailable_reason IS NOT NULL/i);
+ assert.match(sql,/unavailable_reason IS NOT NULL AND unavailable_reason='dependency_unavailable' OR unavailable_source_tag IS NULL/i);
 });
 
 test("SMN-338 : migration non activée et non validée PostgreSQL",()=>{
  assert.match(sql,/NON ACTIVÉ/i);
+});
+
+test("SMN-338 : aucune clé de dépendance composite nullable",()=>{
+ const dependency=sql.split("CREATE TABLE public.smn_indicator_dependency (")[1]?.split(");")[0];
+ assert.ok(dependency);
+ assert.match(dependency,/id text PRIMARY KEY/i);
+ assert.doesNotMatch(dependency,/PRIMARY KEY\\s*\\(indicator_id,source_type,source_indicator_id,source_calendar_tag\\)/i);
 });
