@@ -14,10 +14,12 @@ test("cockpit v32 : éditeurs affectation, rôles, absences, localisation, calen
  assert.match(cockpit,/teamScoped/);
 });
 test("API multiéquipes : isolation équipe et autorisations à chaque lecture et écriture",()=>{
- for(const endpoint of [assignment,loc,cal]){
-  assert.match(endpoint,/authorizeApi\(/);
-  assert.match(endpoint,/resolveAdminTeam\(|requireTeamMemberScope\(/);
- }
+ for(const endpoint of [assignment,loc,cal])assert.match(endpoint,/authorizeApi\(/);
+ for(const endpoint of [loc,cal])assert.match(endpoint,/requireTeamMemberScope\(/);
+ assert.match(assignment,/saveTeamAssignmentRevision\(/);
+ assert.match(assignment,/readTeamAssignmentHistory\(/);
+ const service=read("src/server/members/team-assignment-write.ts");
+ assert.match(service,/resolveAdminTeam\(/);
  assert.match(loc,/parseLocationChange/);
  assert.match(cal,/parseCalendarWrite/);
 });
