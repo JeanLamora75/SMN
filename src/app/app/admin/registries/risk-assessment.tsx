@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {criticality,levels,type Level} from "@/lib/risk-criticality";
 type Assessment={probability:Level|null;impact:Level|null;revision:number};
-export default function RiskAssessment({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
+export default function RiskAssessment({id,canManage,onSaved,compactTitle}:{id:string;canManage:boolean;onSaved?:()=>void;compactTitle?:string}){
  const t=useTranslation();const tr=(x:string)=>t(("registryAssessment."+x) as Parameters<typeof t>[0]);
  const [stored,setStored]=useState<Assessment|null>(null);
  const [p,setP]=useState<Level|null>(null);const [i,setI]=useState<Level|null>(null);
@@ -35,7 +35,7 @@ export default function RiskAssessment({id,canManage,onSaved}:{id:string;canMana
   finally{setSaving(false);}
  };
  return <section className="card p-3 mt-3">
-  <h2 className="h5">{tr("heading")}</h2>
+  <h2 className="h5">{compactTitle??tr("heading")}</h2>
   {!stored?<p role="status">{tr(error??"error")}</p>:<>
    <div className="smn-risk-matrix" role="group" aria-label={tr("heading")}>
     <div className="smn-risk-matrix-corner"/>
