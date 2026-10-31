@@ -1,8 +1,11 @@
 import type {Client} from "pg";
+import {readSprintDetailIndicators} from "./indicators-read";
 
 export type SprintIndexSort="priority"|"newest"|"oldest";
 export type SprintIndexQuery={page:number;pageSize:number;search:string;status:string;sort:SprintIndexSort};
+export type SprintIndexMetrics={f01:number|null;f05:number|null;f07:number|null;f10:number|null;f11:number|null;f12:number|null};
 export type SprintIndexItem={
+ metrics?:SprintIndexMetrics;
  id:string;name:string;status:string;suspended:boolean;
  startAt:string;endAt:string;timeZone:string;stateMayBeStale:boolean;
 };
@@ -87,6 +90,26 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery,
     s.status==="planned"&&from<=now || s.status==="active"&&(from>now||until<=now))
   };
  });
+ // Projection des seuls Sprints de cette page ; source historique Vn pour les clôturés.
+ // Les valeurs manquantes restent null, jamais converties en zéro.
+ for(const item of items){
+  const projection=await readSprintDetailIndicators(db,teamId,item.id);
+  const points=projection?.state==="available"&&projection.points.state==="available"?
+   projection.points.values:null;
+  const tickets=projection?.state==="available"&&projection.tickets.state==="available"?
+   projection.tickets.values:null;
+  const f01=points?.initial??null;
+  const f05=f01!==null&&points?.added!=null&&points?.removed!=null?
+   f01+points.added-points.removed:null;
+  const f07=f05!==null&&f05>0&&points?.done!=null?
+   100*points.done/f05:null;
+  const f10=tickets?.initial??null;
+  const f11=tickets?.done??null;
+  const f12=f10!==null&&f10>0&&f11!==null?100*f11/f10:null;
+  item.metrics={f01,f05:Number.isSafeInteger(f05)?f05:null,
+   f07:f07!==null&&Number.isFinite(f07)?f07:null,
+   f10,f11,f12:f12!==null&&Number.isFinite(f12)?f12:null};
+ }
  const activeCount=globalActive.rows[0]?.active_count??0;
  return {teamName,items,total,page,pageSize:query.pageSize,totalPages,
   statuses:statuses.rows.map(s=>s.status).sort(),activeCount};
