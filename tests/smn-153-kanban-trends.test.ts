@@ -6,7 +6,7 @@ import {parseKanbanTrendPayload} from "../src/lib/kanban-trend-payload";
 import {selectKanbanTrends,type TrendPeriod} from "../src/server/kanban/trends";
 const items:TrendPeriod[]=Array.from({length:8},(_,i)=>({id:"p"+i,name:"P"+i,startOn:`2026-${String(i+1).padStart(2,"0")}-01`,endOn:`2026-${String(i+1).padStart(2,"0")}-28`,status:"closed",started:i===3?null:i,throughput:i+1,wipFinal:0}));
 describe("SMN-153 — tendances de flux Kanban",()=>{
- it("AC1/AC2 — retient au plus cinq périodes clôturées en ordre chronologique",()=>{
+ it("AC1/AC2 — retient au plus cinq périodes quel que soit le statut en ordre chronologique",()=>{
   const result=selectKanbanTrends(items,{startOn:"2026-08-01",id:"p7"});
   assert.equal(result.length,5);
   assert.deepEqual(result.map(p=>p.id),["p3","p4","p5","p6","p7"]);
@@ -19,8 +19,11 @@ describe("SMN-153 — tendances de flux Kanban",()=>{
   assert.equal(result[0].started,null);
   assert.equal(result[0].wipFinal,0);
  });
- it("AC5 — pas d’historique clôturé, pas de point",()=>{
-  assert.deepEqual(selectKanbanTrends(items.map(x=>({...x,status:"active"})),{startOn:"2026-08-01",id:"p7"}),[]);
+ it("AC5 — les périodes actives sont conservées sans inventer leurs métriques",()=>{
+  const active=items.map(x=>({...x,status:"active",started:null}));
+  const result=selectKanbanTrends(active,{startOn:"2026-08-01",id:"p7"});
+  assert.equal(result.length,5);
+  assert.ok(result.every(p=>p.started===null));
  });
 });
 
@@ -40,11 +43,12 @@ describe("SMN-153 — transport sûr et rendu des graphiques",()=>{
   assert.match(view,/p\[key\]!==null&&/);
   assert.doesNotMatch(view,/Math\.max\(0,\s*p\[key\]/);
  });
- it("AC2/AC3 — la requête borne côté serveur à l'équipe, cinq clôturées et aucune date postérieure",()=>{
+ it("AC2/AC3 — la requête borne côté serveur à l'équipe, sans filtrer les statuts",()=>{
   const query=repoFile("src/server/kanban/trends.ts");
-  assert.match(query,/WHERE p\.team_id=\$1 AND p\.deleted_at IS NULL AND p\.status='closed'/);
+  assert.match(query,/WHERE p\.team_id=\$1 AND p\.deleted_at IS NULL/);
+  assert.doesNotMatch(query,/p\.status='closed'/);
   assert.match(query,/p\.start_on<\$2::date/);
-  assert.match(query,/ORDER BY p\.start_on DESC,p\.id DESC LIMIT 5/);
+  assert.match(query,/ORDER BY p\.start_on DESC,p\.id DESC LIMIT 6/);
  });
  it("AC4 — données absentes non interprétées comme zéro et payload non fiable refusé",()=>{
   assert.equal(parseKanbanTrendPayload({periods:[]})?.length,0);
