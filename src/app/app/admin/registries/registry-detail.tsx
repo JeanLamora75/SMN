@@ -129,7 +129,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const descriptionUpdated=()=>{setDescriptionEditing(false);retry();};
  const sectionView=(section:BusinessSection,name:string,content:ReactNode)=><div
   className="smn-registry-business-section" key={section}>
-  {canManage&&section!=="riskAssessment"&&section!=="riskRoam"&&<div className="smn-registry-business-edit-bar">
+  {canManage&&section!=="riskAssessment"&&section!=="riskRoam"&&section!=="registryRelations"&&section!=="registryCycles"&&<div className="smn-registry-business-edit-bar">
    <button type="button" className="btn btn-sm btn-outline-secondary"
     aria-label={t("registryEdit.editNamed",{name})}
     onClick={()=>section==="riskAssessment"||section==="riskRoam"||section==="registryRelations"?setFullEditing(true):setBusinessEditing(section)}>
@@ -206,10 +206,10 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        ()=>setDescriptionEditing(true):undefined}/>}
      {tab==="relations"&&<div className="smn-registry-detail-pair">
       {sectionView("registryRelations",t("registryRelations.heading"),
-       <RegistryRelations id={id} type={item.type} canManage={false} navigation={onward}/>)}
+       <RegistryRelations id={id} type={item.type} canManage={canManage} navigation={onward}/>)}
       {(item.type==="risk"||item.type==="obstacle"||item.type==="dependency")&&
        sectionView("registryCycles",t("registryCycles.heading"),
-        <RegistryCycles id={id} teamId={teamId} canManage={false} embedded/>)}
+        <RegistryCycles id={id} teamId={teamId} canManage={canManage} embedded/>)}
      </div>}
      {tab==="journal"&&<section className="smn-registry-summary-panel">
       <RegistryJournal key={id} itemId={id} itemTitle={item.title}
