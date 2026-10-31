@@ -84,7 +84,7 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
  const values=[team.id,filters.type,"%"+filters.search+"%",filters.status,"%"+filters.owner+"%",filters.lifecycle];
  const clauses=[
   "r.team_id=$1",
-  "($2='all' OR r.type=$2)",
+  "(($2='all' AND r.type IN ('risk','obstacle','dependency')) OR r.type=$2)",
   "($3='%%' OR r.title ILIKE $3 OR COALESCE(r.description,'') ILIKE $3)",
   "($4='' OR r.status=$4)",
   "($5='%%' OR COALESCE(r.owner_name,'') ILIKE $5)",
