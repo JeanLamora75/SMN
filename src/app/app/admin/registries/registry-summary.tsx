@@ -6,7 +6,6 @@ import {useTranslation,useLocale} from "@/i18n/client";
 import {parseSummaryCycles,parseSummaryRelations,validRegistryActivityTime,
  type SummaryRelation,type SummaryCycle,type SummaryContext} from "@/lib/registry-summary-context";
 import BootstrapIcon from "../../bootstrap-icon";
-import RegistryJournal from "./registry-journal";
 import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
 
 export type RegistrySummaryItem={
@@ -74,7 +73,7 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
      <h2 className="h5 mb-0" id="registry-summary-description-title">{tr("description")}</h2>
      {canManage&&onEditDescription&&<button type="button" className="btn btn-outline-secondary btn-sm"
       onClick={onEditDescription} aria-label={tr("editDescription")}>
-      <BootstrapIcon name="pencil-square"/><span className="ms-1">{tr("edit")}</span>
+      <BootstrapIcon name="pencil-square"/>
      </button>}
     </header>
     {item.description?<p className="smn-registry-detail-description">{item.description}</p>:
