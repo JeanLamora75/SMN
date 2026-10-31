@@ -3,6 +3,8 @@
 import Link from "next/link";
 import RegistryCreateModal from "./registry-create-modal";
 import RegistrySectionDialog from "./registry-section-dialog";
+import RegistryEditModal from "./registry-edit-modal";
+import BootstrapIcon from "../../bootstrap-icon";
 import {linkedJournalTypes,type LinkedJournalType} from "@/lib/registry-linked-creation";
 import {useEffect,useId,useMemo,useState,type FormEvent} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
@@ -44,6 +46,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
  const [versions,setVersions]=useState<Record<string,VersionState>>({});
  const [versionsOpen,setVersionsOpen]=useState<string|null>(null);
  const [commentOpen,setCommentOpen]=useState(false);
+ const [linkedEditId,setLinkedEditId]=useState<string|null>(null);
  const [chooseLinked,setChooseLinked]=useState(false);
  const [linkedType,setLinkedType]=useState<LinkedJournalType|null>(null);
  const [linkedCreated,setLinkedCreated]=useState<{id:string;type:LinkedJournalType}|null>(null);
@@ -92,6 +95,8 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
   dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Paris"
  }),[locale]);
  const when=(iso:string)=>formatter.format(new Date(iso));
+ const dateOnly=useMemo(()=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{day:"2-digit",month:"short",year:"numeric",timeZone:"Europe/Paris"}),[locale]);
+ const timeOnly=useMemo(()=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Europe/Paris"}),[locale]);
  const url="/api/admin/registries/"+encodeURIComponent(itemId)+"/comments";
  const createUrl=url+"?teamId="+encodeURIComponent(teamId);
  const save=async(event:FormEvent<HTMLFormElement>)=>{
@@ -249,18 +254,18 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
     </div>:
     <ol className="smn-registry-journal-list">
      {visible.map(entry=><li key={entry.id} className={"smn-registry-journal-entry smn-registry-journal-entry-"+(entry.kind==="comment"?"comment":entry.type)}>
-      <time className="smn-registry-journal-entry-date" dateTime={entry.at}>{when(entry.at)}</time>
+      <time className="smn-registry-journal-entry-date" dateTime={entry.at}><span>{dateOnly.format(new Date(entry.at))}</span><span>{timeOnly.format(new Date(entry.at))}</span></time>
+      <div className="smn-registry-journal-entry-type">
+       <span className={"smn-registry-journal-kind smn-registry-journal-kind-"+(entry.kind==="comment"?"comment":entry.type)}>
+        {entry.kind==="comment"?tr("comment"):recordType(entry.type)}
+       </span>
+      </div>
       <div className="smn-registry-journal-entry-main">
-       <div className="smn-registry-journal-entry-top">
-        <span className={"smn-registry-journal-kind smn-registry-journal-kind-"+(entry.kind==="comment"?"comment":entry.type)}>
-         {entry.kind==="comment"?tr("comment"):recordType(entry.type)}
-        </span>
-        <span className="smn-registry-journal-entry-author">
-         {entry.kind==="comment"?(entry.comment.authorName??commentsText("unknownAuthor")):
-          (entry.authorName??commentsText("unknownAuthor"))}
-         {entry.kind==="comment"&&entry.comment.edited&&
-          <span className="smn-registry-journal-meta"> · {commentsText("edited")}</span>}
-        </span>
+       <div className="smn-registry-journal-entry-author small text-body-secondary">
+        {entry.kind==="comment"?(entry.comment.authorName??commentsText("unknownAuthor")):
+         (entry.authorName??commentsText("unknownAuthor"))}
+        {entry.kind==="comment"&&entry.comment.edited&&
+         <span className="smn-registry-journal-meta"> · {commentsText("edited")}</span>}
        </div>
       {entry.kind==="link"?
        <div className="smn-registry-journal-linked-title">
@@ -270,26 +275,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
        <>
         {entry.comment.withdrawn?<p className="smn-registry-journal-withdrawn mb-0">
          {commentsText("withdrawn")}</p>:
-         <p className="smn-registry-journal-content">{entry.comment.text}</p>}
-        {canManage&&<div className="smn-registry-journal-actions">
-         {!entry.comment.withdrawn&&<>
-          <button type="button" className="btn btn-outline-secondary btn-sm"
-           disabled={editSaving} onClick={()=>{
-            if(!discardEdit())return;
-            if(editingId===entry.comment.id){setEditingId(null);setEditingText("");}
-            else{setEditingId(entry.comment.id);setEditingText(entry.comment.text??"");}
-            setActionError(null);
-           }}>{commentsText("edit")}</button>
-          <button type="button" className="btn btn-outline-secondary btn-sm"
-           disabled={editSaving} onClick={()=>void withdraw(entry.comment)}>
-           {commentsText("withdraw")}
-          </button>
-         </>}
-         <button type="button" className="btn btn-outline-secondary btn-sm"
-          aria-expanded={versionsOpen===entry.comment.id}
-          aria-controls={editorId+"-versions-"+entry.comment.id}
-          onClick={()=>void readVersions(entry.comment.id)}>{commentsText("versions")}</button>
-        </div>}
+         <p className="smn-registry-journal-content"><strong className="smn-registry-journal-comment-title">{tr("comment")}</strong><span>{entry.comment.text}</span></p>}
         {canManage&&editingId===entry.comment.id&&!entry.comment.withdrawn&&
          <div className="smn-registry-journal-editor">
           <label className="form-label" htmlFor={editorId+"-"+entry.comment.id}>
@@ -333,6 +319,22 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
          </div>}
        </>}
       </div>
+      {canManage&&<div className="smn-registry-journal-actions">
+       {entry.kind==="comment"?!entry.comment.withdrawn&&<>
+        <button type="button" className="btn btn-outline-secondary btn-sm"
+         title={commentsText("edit")} aria-label={commentsText("edit")} disabled={editSaving}
+         onClick={()=>{if(!discardEdit())return;setEditingId(entry.comment.id);setEditingText(entry.comment.text??"");setActionError(null);}}>
+         <BootstrapIcon name="pencil-square"/>
+        </button>
+        <button type="button" className="btn btn-outline-danger btn-sm"
+         title={commentsText("withdraw")} aria-label={commentsText("withdraw")} disabled={editSaving}
+         onClick={()=>void withdraw(entry.comment)}>
+         <BootstrapIcon name="trash"/>
+        </button>
+       </>:<button type="button" className="btn btn-outline-secondary btn-sm"
+        title={commentsText("edit")} aria-label={commentsText("edit")}
+        onClick={()=>setLinkedEditId(entry.recordId)}><BootstrapIcon name="pencil-square"/></button>}
+      </div>}
      </li>)}
     </ol>}
     {canManage&&data?.legacy&&<aside className="smn-registry-journal-legacy">
@@ -341,6 +343,9 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
      <p className="small text-body-secondary mb-0">{commentsText("legacyUndated")}</p>
     </aside>}
    </>}
+  {canManage&&linkedEditId&&<RegistryEditModal id={linkedEditId} teamId={teamId}
+   onSaved={()=>{setLinkedEditId(null);refresh();}}
+   onDismiss={()=>setLinkedEditId(null)}/>}
   {canManage&&linkedType&&<RegistryCreateModal key={linkedType} teamId={teamId}
    initialType={linkedType} sourceId={itemId} sourceTitle={itemTitle}
    linkedFromJournal
