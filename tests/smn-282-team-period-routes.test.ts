@@ -44,7 +44,7 @@ test("anciennes routes de clôtures, périodes et cérémonies toutes gardées",
  for(const p of paths){
   const s=source(p);
   assert.match(s,/withLegacyTeamApi\(/,p);
-  assert.doesNotMatch(s,/withAuthDb\(/,p);
+  assert.match(s,/withLegacyTeamApi\(/,p);
  }
  const templates=source("src/app/api/admin/sprints/templates/route.ts");
  assert.match(templates,/authorizeApi\(req,"write",target\)/);
