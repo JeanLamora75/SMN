@@ -61,13 +61,26 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
  const statuses=[...new Set([...known,...(data?.statuses??[])])];
  const change=(fn:()=>void)=>{setLoading(true);setNotice("");fn();setPage(1);};
  const reload=()=>{setLoading(true);setNotice("");setRefresh(n=>n+1);};
- const indicatorCodes=["f01","f05","f07","f10","f11","f12"] as const;
+ const indicatorCodes=["f01","f04","f07","f10","f11","f12"] as const;
  const number=(value:number|null|undefined,code:typeof indicatorCodes[number])=>{
   if(value===null||value===undefined||!Number.isFinite(value))return "—";
   const formatted=new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{
    maximumFractionDigits:code==="f07"||code==="f12"?2:0
   }).format(value);
   return formatted+" "+(code==="f07"||code==="f12"?"%":code==="f10"||code==="f11"?"tck":"sp");
+ };
+ const gauge=(value:number)=> {
+  const ratio=Math.min(100,Math.max(0,value));
+  const angle=-90+(ratio*1.8);
+  const radians=angle*Math.PI/180;
+  const x=22+14*Math.cos(radians),y=22+14*Math.sin(radians);
+  return <svg className="smn-sprints-gauge" viewBox="0 0 44 30" aria-hidden="true" focusable="false">
+   <path d="M 6 22 A 16 16 0 0 1 38 22" fill="none" stroke="var(--bs-secondary-bg)" strokeWidth="5" strokeLinecap="round"/>
+   <path d="M 6 22 A 16 16 0 0 1 38 22" fill="none" stroke="var(--bs-primary)" strokeWidth="5" strokeLinecap="round"
+    strokeDasharray={String(ratio/100*50.27)+" 50.27"}/>
+   <line x1="22" y1="22" x2={x} y2={y} stroke="var(--bs-body-color)" strokeWidth="2" strokeLinecap="round"/>
+   <circle cx="22" cy="22" r="2.8" fill="var(--bs-body-color)"/>
+  </svg>;
  };
  const items=data?.items??[];
  const generateHref="/app/admin/sprints/generate?"+new URLSearchParams({search,status:filter,sort,page:String(page)}).toString();
@@ -199,8 +212,14 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
          {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
         {indicatorCodes.map(code=><td key={code} className="text-end text-nowrap"
          data-label={code.toUpperCase()} title={t(`sprintsIndex.indicatorColumns.${code}`)}>
-         {number(item.metrics?.[code],code)}</td>)}
-        <td data-label={t("sprintStates.status")}><span className={"badge smn-sprints-status "+(current?"text-bg-primary":"text-bg-secondary")}>
+         {(code==="f07"||code==="f12")&&item.metrics?.[code]!=null?
+          <span className="smn-sprints-percent" aria-label={number(item.metrics[code],code)}>
+           {gauge(item.metrics[code])}<span>{number(item.metrics[code],code)}</span>
+          </span>:number(item.metrics?.[code],code)}</td>)}
+        <td data-label={t("sprintStates.status")}><span className={"badge smn-sprints-status "+(item.suspended?"smn-sprints-state-muted":
+          item.status==="active"?"smn-sprints-state-active":
+          item.status==="planned"?"smn-sprints-state-planned":
+          item.status==="finished"||item.status==="closed"?"smn-sprints-state-complete":"smn-sprints-state-muted")}>
          {label(item)}</span></td>
         <td className="text-end smn-sprints-row-actions" data-label={t("sprintsIndex.actions")}>
          <div className="d-inline-flex gap-2 align-items-center">
