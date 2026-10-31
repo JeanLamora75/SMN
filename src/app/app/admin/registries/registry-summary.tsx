@@ -97,8 +97,8 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
      </li>)}</ul>}
    </section>
   {item.type==="risk"&&<div className="smn-registry-summary-risk-layout smn-registry-risk-layout">
-   <div className="smn-registry-business-section"><RiskAssessment id={item.id} canManage={canManage}/></div>
-   <div className="smn-registry-business-section"><RiskRoam id={item.id} canManage={canManage}/></div>
+   <div className="smn-registry-business-section"><RiskAssessment id={item.id} canManage={canManage} compactTitle="Risque"/></div>
+   <div className="smn-registry-business-section"><RiskRoam id={item.id} canManage={canManage} compactTitle="ROAM"/></div>
   </div>}
    <section className="smn-registry-summary-panel">
     <h2 className="h6">{tr("related")}</h2>
