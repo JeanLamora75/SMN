@@ -21,3 +21,15 @@ Conserver l'isolement installation/équipe, RBAC, historique Vn, FR/EN via JSON,
 3. Déplacer le point d'entrée d'ajout dans le bandeau; retirer le formulaire inline de l'onglet; employer une modale pour le commentaire.
 4. Construire barre de filtre et chronologie avec les données réelles, sans ajouter de fonctionnalités « décoratives ».
 5. Vérifier typecheck, tests ciblés, i18n, lint et responsive lorsque l'environnement le permet; indiquer clairement les validations non exécutées. Publication explicitement autorisée directement sur main.
+
+
+## Rectificatif validé sur capture réelle — 31/10/2026
+
+La première implémentation était trop éloignée de la maquette; la référence visuelle doit privilégier une barre de commande réellement compacte et un journal en **lignes de type chronologie** (date à gauche, repère typé, contenu au centre, auteur/actions lisibles), sans empilement de blocs vides. Cette décision remplace le paragraphe antérieur demandant « + Ajouter au journal » dans le bandeau.
+
+- **Bandeau** : aucun bouton d'ajout au journal.
+- **Barre de filtres** : à droite du tri, dans cet ordre, bouton secondaire **« + Commentaire »** puis bouton principal **« + Journal »** ; ils restent visibles selon droits et se replient sur écran étroit.
+- **+ Commentaire** : modale Cockpit Agile centrée, dédiée à la seule saisie du commentaire, enregistrée via le flux existant de commentaires (historique/révisions, sauvegarde, erreurs).
+- **+ Journal** : choix des trois types **Action, Décision, Fait marquant**, chacun déclenchant la modale de création métier liée existante ; aucun formulaire de commentaire dans ce parcours.
+- **Journal affiché** : lignes séparées, date/heure, marqueur/timeline visuel et pastille colorée, titre de fiche liée ou corps du commentaire, auteur, actions réellement supportées. Respecter les données et permissions; ne pas inventer les champs de statut ni des commandes sans backend.
+- **Tests** : ouvertures indépendantes des deux boutons, comportement du focus/Échap, sauvegarde et erreur, filtres et ordre, admin/user, responsive, FR/EN. Validation sur Windows requise avant clôture.
