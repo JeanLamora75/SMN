@@ -57,18 +57,19 @@ describe("SMN-24 — thèmes et palettes accessibles",()=>{
 });
 
 describe("Red & Purple — extension non destructive",()=>{
-  it("préserve la migration historique et autorise quatre palettes dans une migration séparée",()=>{
-    assert.match(APPEARANCE_MIGRATION_SQL,/CHECK \\(palette IN \\('ocean','forest','violet'\\)\\)/);
-    assert.match(redPurpleMigration,/DROP CONSTRAINT IF EXISTS smn_general_settings_palette_check/);
-    assert.match(redPurpleMigration,/CHECK \\(palette IN \\('ocean','forest','violet','red-purple'\\)\\)/);
+  it("préserve la migration historique et autorise quatre palettes par un SQL contrôlé",()=>{
+    assert.ok(APPEARANCE_MIGRATION_SQL.includes("CHECK (palette IN ('ocean','forest','violet'))"));
+    assert.ok(redPurpleMigration.includes("CHECK (palette IN ('ocean','forest','violet','red-purple'))"));
+    assert.match(redPurpleMigration,/expected palette constraint absent or incompatible/);
+    assert.match(redPurpleMigration,/SET LOCAL lock_timeout/);
     assert.doesNotMatch(redPurpleMigration,/DELETE|TRUNCATE|DROP TABLE|UPDATE public\\.smn_general_settings/i);
   });
-  it("garantit les tokens clair/sombre et les principaux contrastes",()=>{
+  it("définit les variantes clair et sombre avec contrastes vérifiables",()=>{
     assert.ok(css.includes('[data-bs-theme="light"][data-smn-palette="red-purple"]'));
     assert.ok(css.includes('[data-bs-theme="dark"][data-smn-palette="red-purple"]'));
-    assert.ok(contrast("#ffffff","#ba1732")>=4.5);
-    assert.ok(contrast("#b9a5ff","#24252d")>=4.5);
-    assert.ok(contrast("#ff7387","#24252d")>=4.5);
-    assert.ok(contrast("#f4f3f6","#24252d")>=4.5);
+    for(const [foreground,background] of [
+      ["#ffffff","#ba1732"],["#b9a5ff","#24252d"],
+      ["#ff7387","#24252d"],["#f4f3f6","#24252d"]
+    ])assert.ok(contrast(foreground,background)>=4.5,foreground+" on "+background);
   });
 });
