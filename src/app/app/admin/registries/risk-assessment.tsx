@@ -17,21 +17,23 @@ export default function RiskAssessment({id,canManage,onSaved}:{id:string;canMana
    .catch(()=>{if(!ctrl.signal.aborted)setError("error");});
   return()=>ctrl.abort();
  },[id]);
- const result=criticality(p,i),dirty=!!stored&&(stored.probability!==p||stored.impact!==i);
- const save=async()=>{
-  if(!canManage||!stored||saving)return;setSaving(true);setError(null);setNotice(false);
+ const result=criticality(p,i);
+ const save=async(probability:Level,impact:Level)=>{
+  if(!canManage||!stored||saving||stored.probability===probability&&stored.impact===impact)return;
+  setSaving(true);setError(null);setNotice(false);
   try{
    const response=await fetch("/api/admin/registries/"+encodeURIComponent(id)+"/assessment",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({probability:p,impact:i,revision:stored.revision})});
-   if(response.status===409){setError("conflict");return;}
+    body:JSON.stringify({probability,impact,revision:stored.revision})});
+   if(response.status===409){setError("conflict");setP(stored.probability);setI(stored.impact);return;}
    if(!response.ok)throw Error("save-failed");
    const data=await response.json() as {ok:boolean;revision:number};
    if(!data.ok)throw Error("save-failed");
-   setStored({probability:p,impact:i,revision:data.revision});setNotice(true);onSaved?.();
-  }catch{setError("error");}finally{setSaving(false);}
+   setStored({probability,impact,revision:data.revision});
+   setP(probability);setI(impact);setNotice(true);onSaved?.();
+  }catch{setP(stored.probability);setI(stored.impact);setError("error");}
+  finally{setSaving(false);}
  };
- const pick=(value:string)=>value===""?null:Number(value) as Level;
  return <section className="card p-3 mt-3">
   <h2 className="h5">{tr("heading")}</h2>
   {!stored?<p role="status">{tr(error??"error")}</p>:<>
@@ -47,7 +49,7 @@ export default function RiskAssessment({id,canManage,onSaved}:{id:string;canMana
       return canManage?<button key={probability} type="button"
        className={"smn-risk-matrix-cell smn-risk-matrix-"+severity+(selected?" is-selected":"")}
        aria-label={aria} aria-pressed={selected} disabled={saving}
-       onClick={()=>{setP(probability);setI(impact);setNotice(false);}}>
+       onClick={()=>void save(probability,impact)}>
        {selected&&<span aria-hidden="true">✓</span>}
       </button>:<div key={probability} className={"smn-risk-matrix-cell smn-risk-matrix-"+severity+(selected?" is-selected":"")}
        role="img" aria-label={aria+(selected?" — sélectionné":"")}>
@@ -58,9 +60,9 @@ export default function RiskAssessment({id,canManage,onSaved}:{id:string;canMana
    </div>
    <p className="mt-3" role="status"><span aria-hidden="true">{result.level==="high"?"▲":result.level==="medium"?"◆":result.level==="low"?"●":"?"} </span>
     {tr("symbol")}: <strong>{tr(result.level)}</strong> {result.score!==null&&<>({tr("score")}: {result.score})</>}
-    {dirty&&<span className="d-block text-warning-emphasis">{tr("provisional")}</span>}
+
    </p>
-   {canManage&&<button className="btn btn-primary align-self-start" type="button" disabled={!dirty||saving} onClick={save}>{tr(saving?"saving":"save")}</button>}
+   {saving&&<p role="status">{tr("saving")}</p>}
    {notice&&<p role="status" className="text-success">{tr("updated")}</p>}
    {error&&<p role="alert" className="text-danger">{tr(error)}</p>}
   </>}
