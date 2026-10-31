@@ -73,11 +73,11 @@ CREATE TABLE public.smn_indicator_computed_result (
 );
 CREATE INDEX smn_ind_computed_indicator_idx ON public.smn_indicator_computed_result(indicator_id,team_id);
 CREATE TABLE public.smn_indicator_dependency (
+ id text PRIMARY KEY,
  indicator_id text NOT NULL REFERENCES public.smn_indicator_definition(id) ON DELETE RESTRICT,
  source_type text NOT NULL CHECK (source_type IN ('indicator','calendar')),
  source_indicator_id text REFERENCES public.smn_indicator_definition(id) ON DELETE RESTRICT,
  source_calendar_tag text,
- PRIMARY KEY (indicator_id,source_type,source_indicator_id,source_calendar_tag),
  CHECK ((source_type='indicator' AND source_indicator_id IS NOT NULL AND source_calendar_tag IS NULL)
  OR (source_type='calendar' AND source_indicator_id IS NULL AND source_calendar_tag IS NOT NULL AND source_calendar_tag ~ '^[A-Z][A-Z0-9_]*$')),
  CHECK (source_indicator_id IS DISTINCT FROM indicator_id)
