@@ -58,7 +58,9 @@ test("requête limite à l'affectation équipe ET aux jours historiques concern�
  await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
  const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
  assert.match(sql,/x.member_id=\$1 AND x.team_id=\$2/);
- assert.match(sql,/m.installation_id=t.installation_id/);
+ const memberScope=calls.find(x=>x.sql.includes("SELECT a.id FROM public.smn_member_assignment a"));
+ assert.match(memberScope!.sql,/m.installation_id=\x27singleton\x27/);
+ assert.deepEqual(memberScope?.values,[memberId,"team_b"]);
  assert.match(sql,/x.start_on<=gs.day::date/);
  assert.match(sql,/x.end_on>=gs.day::date/);
  assert.match(sql,/a.start_on<=d.day AND a.end_on>=d.day/);
