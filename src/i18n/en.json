@@ -2840,6 +2840,12 @@
     "historyError": "History unavailable."
   },
   "registryList": {
+    "clearShort": "Clear",
+    "showResolved": "Show resolved events",
+    "decisions": "Decisions",
+    "actions": "Actions",
+    "highlights": "Highlights",
+    "comments": "Comments",
     "addEvent": "Add an event",
     "subtitle": "Track the team's risks, obstacles, dependencies, decisions and actions.",
     "filtersHeading": "Filters and search",
