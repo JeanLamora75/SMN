@@ -22,6 +22,7 @@ type Cycle={id:string;name:string;status:string};
 type CyclePage={state:"available";cycles:Cycle[]}|{state:"unavailable";reason:string};
 type Filters={search:string;status:string;owner:string;lifecycle:RegistryLifecycle;sort:RegistrySort;cycleId:string};
 const defaults:Filters={search:"",status:"",owner:"",lifecycle:"all",sort:"default",cycleId:""};
+const visibleRegistryTypes=["risk","obstacle","dependency"] as const;
 const sortValues:RegistrySort[]=["default","dateDesc","dateAsc","titleAsc","titleDesc"];
 const categoryIcons={all:"stack",risk:"exclamation-octagon-fill",obstacle:"exclamation-triangle-fill",
  dependency:"stack",decision:"bullseye",action:"ticket-perforated-fill",highlight:"bell-fill"} as const;
@@ -80,7 +81,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    catch{/* Browser storage may be unavailable. */}
    const explicitView=new URLSearchParams(window.location.search).has("view");
    const nextView=explicitView?state.view:preferred;
-   setType(state.type);setDraft({
+   setType(state.type==="all"||visibleRegistryTypes.some(kind=>kind===state.type) ? state.type : "all");setDraft({
     search:state.search,status:state.status,owner:canManage?state.owner:"",
     lifecycle:state.lifecycle,sort:state.sort,cycleId:state.cycleId
    });
@@ -151,7 +152,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const filtered=type!=="all"||query.search!==""||query.status!==""||
   query.owner!==""||query.cycleId!==""||query.lifecycle!=="all";
  const statuses=type==="all"
-  ?Array.from(new Set(registryTypes.flatMap(kind=>[...registryStatuses[kind]])))
+  ?Array.from(new Set(visibleRegistryTypes.flatMap(kind=>[...registryStatuses[kind]])))
   :[...registryStatuses[type]];
 
  useEffect(()=>{
@@ -255,7 +256,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    </Link>}
   </div>}
   <div className="nav nav-tabs flex-wrap d-none d-md-flex smn-registry-category-tabs" role="tablist" aria-label={translate("heading")}>
-   {(["all",...registryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
+   {(["all",...visibleRegistryTypes] as RegistryScope[]).map(kind=><button key={kind} type="button" role="tab" aria-selected={type===kind}
     data-registry-type={kind} className={"nav-link"+(type===kind?" active":"")} onClick={()=>choose(kind)}>
     <BootstrapIcon name={categoryIcons[kind]}/>
     <span>{kind==="all"?translate("allTypes"):label(kind)}</span>
@@ -265,7 +266,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    <label className="form-label" htmlFor="reg-type-mobile">{translate("category")}</label>
    <select id="reg-type-mobile" className="form-select" value={type}
     onChange={e=>choose(e.target.value as RegistryScope)}>
-    {(["all",...registryTypes] as RegistryScope[]).map(kind=><option key={kind} value={kind}>
+    {(["all",...visibleRegistryTypes] as RegistryScope[]).map(kind=><option key={kind} value={kind}>
      {kind==="all"?translate("allTypes"):label(kind)}</option>)}
    </select>
   </div>
