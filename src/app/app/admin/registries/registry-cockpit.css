@@ -188,3 +188,52 @@
 .smn-registry-fold-body {padding:0 14px 14px;background:var(--smn-surface);}
 .smn-registry-fold-body > .card,.smn-registry-fold-body > .smn-registry-relation-panel {margin-top:0!important;border:0!important;box-shadow:none!important;background:transparent!important;padding:12px 0 0!important;}
 .smn-registry-fold-body > .card > h2,.smn-registry-fold-body > .smn-registry-relation-panel > h2 {display:none;}
+
+
+/* Cockpit Agile — register detail, four consistent tabs and responsive paired panels. */
+.smn-registry-detail-cockpit{color:var(--smn-text);max-width:100%;min-width:0;}
+.smn-registry-detail-cockpit .smn-registry-detail-header{
+ background:linear-gradient(125deg,var(--smn-context-start),var(--smn-context-end));
+ color:var(--smn-context-fg);border:0;border-radius:16px;
+ padding:clamp(16px,2vw,28px);box-shadow:var(--smn-shadow);
+}
+.smn-registry-detail-cockpit .smn-registry-detail-header h1,
+.smn-registry-detail-cockpit .smn-registry-detail-kind{color:inherit;}
+.smn-registry-detail-cockpit .smn-registry-detail-header .btn{color:#fff;border-color:rgba(255,255,255,.65);}
+.smn-registry-detail-cockpit .smn-registry-detail-header .btn:hover{background:rgba(255,255,255,.15);}
+.smn-registry-detail-cockpit .smn-registry-detail-tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--smn-border);margin-top:18px;}
+.smn-registry-detail-cockpit .smn-registry-detail-tab{
+ color:var(--smn-muted);border:1px solid transparent;border-radius:9px 9px 0 0;
+ padding:10px 14px;background:transparent;font-weight:650;
+}
+.smn-registry-detail-cockpit .smn-registry-detail-tab:hover{background:var(--smn-soft);color:var(--smn-primary);}
+.smn-registry-detail-cockpit .smn-registry-detail-tab.active,
+.smn-registry-detail-cockpit .smn-registry-detail-tab[aria-selected="true"]{
+ color:var(--smn-primary);background:var(--smn-surface);
+ border-color:var(--smn-border);border-bottom-color:var(--smn-surface);
+}
+.smn-registry-detail-cockpit .smn-registry-detail-tab:focus-visible{outline:3px solid var(--smn-focus);outline-offset:2px;}
+.smn-registry-detail-cockpit .smn-registry-detail-body{
+ background:var(--smn-surface);border:1px solid var(--smn-border);
+ border-radius:0 12px 12px 12px;padding:clamp(12px,1.5vw,22px);min-width:0;
+}
+.smn-registry-detail-cockpit .smn-registry-detail-body[hidden]{display:none;}
+.smn-registry-detail-cockpit .smn-registry-detail-pair,
+.smn-registry-detail-cockpit .smn-registry-risk-layout{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;
+}
+.smn-registry-detail-cockpit .smn-registry-detail-pair > *,
+.smn-registry-detail-cockpit .smn-registry-risk-layout > *{min-width:0;margin-top:0;}
+.smn-registry-detail-cockpit .smn-registry-business-section{
+ position:relative;background:var(--smn-surface);
+ border:1px solid var(--smn-border);border-radius:12px;
+ padding:14px;min-width:0;
+}
+.smn-registry-detail-cockpit .smn-registry-business-section > .card{
+ border:0;box-shadow:none;margin:0!important;padding:0!important;
+ background:transparent;
+}
+@media(max-width:800px){
+ .smn-registry-detail-cockpit .smn-registry-detail-pair,
+ .smn-registry-detail-cockpit .smn-registry-risk-layout{grid-template-columns:minmax(0,1fr);}
+}
