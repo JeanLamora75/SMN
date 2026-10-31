@@ -98,6 +98,7 @@
     "paletteOcean": "Ocean · blue",
     "paletteForest": "Forest · green",
     "paletteViolet": "Violet · purple",
+    "paletteRedPurple": "Red & Purple · red and purple",
     "paletteInfo": "Choose a preset palette with controlled contrast. Custom colours are not supported."
   },
   "dashboard": {
