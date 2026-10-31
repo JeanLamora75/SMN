@@ -3,7 +3,7 @@ import {readSprintDetailIndicators} from "./indicators-read";
 
 export type SprintIndexSort="priority"|"newest"|"oldest";
 export type SprintIndexQuery={page:number;pageSize:number;search:string;status:string;sort:SprintIndexSort};
-export type SprintIndexMetrics={f01:number|null;f05:number|null;f07:number|null;f10:number|null;f11:number|null;f12:number|null};
+export type SprintIndexMetrics={f01:number|null;f04:number|null;f07:number|null;f10:number|null;f11:number|null;f12:number|null};
 export type SprintIndexItem={
  metrics?:SprintIndexMetrics;
  id:string;name:string;status:string;suspended:boolean;
@@ -106,7 +106,7 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery,
   const f10=tickets?.initial??null;
   const f11=tickets?.done??null;
   const f12=f10!==null&&f10>0&&f11!==null?100*f11/f10:null;
-  item.metrics={f01,f05:Number.isSafeInteger(f05)?f05:null,
+  item.metrics={f01,f04:points?.done??null,
    f07:f07!==null&&Number.isFinite(f07)?f07:null,
    f10,f11,f12:f12!==null&&Number.isFinite(f12)?f12:null};
  }
