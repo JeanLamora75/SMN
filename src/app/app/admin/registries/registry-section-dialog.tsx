@@ -7,7 +7,7 @@ import RegistryDialogPortal,{useRegistryPortalReady} from "./registry-dialog-por
 /** Native modal: only ask to discard after a user actually changes a field.
  * The child editor owns the server transaction and calls onSaved after success. */
 export default function RegistrySectionDialog({title,onDismiss,children,wide=false,submitFormId}:{
- title:string;onDismiss:()=>void;children:ReactNode;wide?:boolean;submitFormId?:string;
+ title:ReactNode;onDismiss:()=>void;children:ReactNode;wide?:boolean;submitFormId?:string;
 }){
  const t=useTranslation(),tr=(key:string)=>t(("registryEdit."+key) as Parameters<typeof t>[0]);
  const portalReady=useRegistryPortalReady();
