@@ -2274,7 +2274,7 @@
     "ceremoniesScope": "This page manages reusable templates for upcoming sprints. Standard ceremonies and previously saved meetings remain in Sprint and Calendar flows; no existing occurrence is edited here."
   },
   "sprintsIndex": {
-    "indicatorColumns": {"f01":"Initial commitment (SP)","f05":"Final commitment (SP)","f07":"Completion rate","f10":"Initially committed tickets","f11":"Completed tickets","f12":"Ticket completion rate"},
+    "indicatorColumns": {"f01":"Initial commitment (SP)","f04":"Completed SP","f07":"Completion rate","f10":"Initially committed tickets","f11":"Completed tickets","f12":"Ticket completion rate"},
     "title": "Team sprints",
     "teamUnknown": "Loading team",
     "generate": "Generate sprints",
