@@ -2,10 +2,11 @@
 import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "../../bootstrap-icon";
+import type {ComponentProps} from "react";
 import {registryTypes,type RegistryType} from "@/lib/registry-types";
 import RegistryCreate from "./registry-create";
 import RegistrySectionDialog from "./registry-section-dialog";
-const icons:Record<RegistryType,string>={
+const icons:Record<RegistryType,ComponentProps<typeof BootstrapIcon>["name"]>={
  risk:"exclamation-octagon-fill",obstacle:"exclamation-triangle-fill",
  dependency:"stack",decision:"bullseye",action:"ticket-perforated-fill",highlight:"bell-fill"
 };
