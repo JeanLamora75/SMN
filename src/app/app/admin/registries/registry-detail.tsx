@@ -1,6 +1,5 @@
 "use client";
 
-import RegistryBreadcrumbs from "./registry-breadcrumbs";
 import {enterRegistryRelation,type RegistryNavigation} from "@/lib/registry-navigation";
 import {useEffect,useId,useRef,useState,type KeyboardEvent,type ReactNode} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
@@ -153,13 +152,12 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
    default:return null;
   }
  };
- return <section className="smn-registry-detail" onClickCapture={event=>{
+ return <section className="smn-registry-detail smn-registry-detail-cockpit" onClickCapture={event=>{
   const target=event.target;
   if(!(target instanceof Element)||!target.closest("a[href]")||
    !event.currentTarget.querySelector('[data-registry-dirty="true"]'))return;
   if(!mayLeave()){event.preventDefault();event.stopPropagation();}
  }}>
-  <RegistryBreadcrumbs id={id} title={item?.title} teamId={teamId} navigation={navigation}/>
   {loading?<p role="status">{tr("loading")}</p>:
    problem||!item||item.id!==id?<div className="alert alert-warning" role="alert">
     {tr(problem==="missing"?"notFound":"unavailable")}
@@ -182,11 +180,6 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      </div>
      <div className="smn-registry-detail-meta">
       <span className="badge bg-body-secondary text-body-emphasis border">{label(item.status)}</span>
-      {canManage&&<button type="button" className="btn btn-sm btn-outline-secondary"
-       aria-label={t("registryEdit.editNamed",{name:t("registryEdit.status")})}
-       onClick={()=>setFullEditing(true)}>
-       <BootstrapIcon name="pencil-square"/>
-      </button>}
       <span>{tr("businessDate")}: <time dateTime={item.occurredOn}>{formatRegistryDate(item.occurredOn,locale)}</time></span>
       {item.dueOn&&<span>{tr("due")}: <time dateTime={item.dueOn}>{formatRegistryDate(item.dueOn,locale)}</time></span>}
       {canManage&&item.owner&&<span>{tr("owner")}: {item.owner}</span>}
@@ -211,25 +204,25 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      {tab==="summary"&&<RegistrySummary key={item.id} item={item} teamId={teamId} canManage={canManage} navigation={onward}
       onEditDescription={canManage&&typeof item.revision==="number"&&Number.isSafeInteger(item.revision)?
        ()=>setDescriptionEditing(true):undefined}/>}
-     {tab==="relations"&&<>
+     {tab==="relations"&&<div className="smn-registry-detail-pair">
       {sectionView("registryRelations",t("registryRelations.heading"),
        <RegistryRelations id={id} type={item.type} canManage={false} navigation={onward}/>)}
       {(item.type==="risk"||item.type==="obstacle"||item.type==="dependency")&&
        sectionView("registryCycles",t("registryCycles.heading"),
-        <RegistryCycles id={id} teamId={teamId} canManage={false}/>)}
-     </>}
+        <RegistryCycles id={id} teamId={teamId} canManage={false} embedded/>)}
+     </div>}
      {tab==="history"&&(!canManage?
       <p role="status" className="alert alert-secondary">{tr("historyRestricted")}</p>:
       canManage&&<RegistryHistory key={id} id={id}/>)}
      {tab==="business"&&<>
-      {item.type==="risk"&&<>
+      {item.type==="risk"&&<div className="smn-registry-risk-layout">
        {sectionView("riskAssessment",t("registryAssessment.heading"),
         <RiskAssessment id={id} canManage={false}/>)}
        {sectionView("riskRoam",t("registryRoam.heading"),
         <RiskRoam id={id} canManage={false}/>)}
-       {canManage&&<MaterializeRisk id={id} teamId={teamId} title={item.title}
+      </div>}
+      {item.type==="risk"&&canManage&&<MaterializeRisk id={id} teamId={teamId} title={item.title}
         description={item.description??""} canManage={canManage} navigation={onward}/>}
-      </>}
       {item.type==="obstacle"&&<section className="card p-3">
        <h2 className="h5">{tr("obstacle")}</h2>
        <p className="mb-0">{tr("currentState")}: <strong>{label(item.status)}</strong></p>
