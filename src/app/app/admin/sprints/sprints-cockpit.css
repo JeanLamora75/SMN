@@ -92,7 +92,7 @@
 .smn-sprints-cockpit .smn-sprints-results{padding:12px 15px}
 .smn-sprints-cockpit .smn-sprints-table-wrap{overflow-x:auto}
 .smn-sprints-cockpit .smn-sprints-table{
- border-collapse:separate;border-spacing:0;margin:0;min-width:640px;
+ border-collapse:separate;border-spacing:0;margin:0;min-width:1120px;
 }
 .smn-sprints-cockpit .smn-sprints-table thead th{
  background:var(--smn-muted-soft);color:var(--smn-muted);
@@ -176,8 +176,11 @@
  }
  .smn-sprints-cockpit .smn-sprints-table tbody th{grid-column:1/-1}
  .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(2){grid-column:1/-1}
- .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(3){grid-column:1}
- .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(4){grid-column:2}
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(n+3):nth-child(-n+8){
+  grid-column:auto;text-align:left!important;
+ }
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(9){grid-column:1;text-align:left}
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(10){grid-column:2}
  .smn-sprints-cockpit .smn-sprints-table tbody td[data-label]::before{
   content:attr(data-label) " : ";font-size:.74rem;color:var(--smn-muted);
  }
