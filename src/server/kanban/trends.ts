@@ -19,7 +19,7 @@ export async function readKanbanTrends(db:Client,periodId:string){
  const target=await db.query<{id:string;team_id:string;start_on:string}>(`SELECT p.id,p.team_id,p.start_on::text
  FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id
  JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='kanban'`,[periodId]);
+ WHERE p.id=$1 AND p.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode))='kanban'`,[periodId]);
  if(!target.rows[0])return null;
  const t=target.rows[0];
  const result=await db.query<{id:string;name:string;start_on:string;end_on:string;status:string;started:string|null;throughput:string|null;wip_final:string|null;cycle_days:string|null;lead_days:string|null;cycle_convention:string|null;lead_convention:string|null}>(`
