@@ -1,6 +1,6 @@
 import type {RegistryType} from "./registry-types";
 
-export type RegistryDetailTab="summary"|"business"|"relations"|"history";
+export type RegistryDetailTab="summary"|"business"|"relations"|"history"|"journal";
 
 /** A highlight has no invented business tab. These tabs are a navigation contract,
  * not extra permissions for underlying business endpoints. */
@@ -11,6 +11,6 @@ export const registryBusinessTabKeys={
 
 export function registryDetailTabs(type:RegistryType):readonly RegistryDetailTab[]{
  return registryBusinessTabKeys[type]===null
-  ?["summary","relations","history"]
-  :["summary","business","relations","history"];
+  ?["summary","relations","journal","history"]
+  :["summary","business","relations","journal","history"];
 }
