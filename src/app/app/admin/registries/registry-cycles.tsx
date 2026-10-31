@@ -18,6 +18,7 @@ export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;
  const t=useTranslation(),tr=(k:string)=>t(("registryCycles."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(false),[busy,setBusy]=useState<string|null>(null);
  const [reload,setReload]=useState(0);
+ const [expanded,setExpanded]=useState(false);
  const [loadedKey,setLoadedKey]=useState<string|null>(null);
  const requestKey=id+":"+reload;
  const currentData=loadedKey===requestKey?data:null;
@@ -44,11 +45,18 @@ export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;
     method:"PATCH",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({cycleId:cycle.id,action:linked?"unlinked":"linked",...(teamId?{teamId}:{})})});
    if(!r.ok)throw Error("failed");
-   setData(d=>d?{...d,linkedIds:linked?d.linkedIds.filter(x=>x!==cycle.id):[...d.linkedIds,cycle.id]}:d);onSaved?.();
+   setData(d=>d?{...d,linkedIds:linked?d.linkedIds.filter(x=>x!==cycle.id):[...d.linkedIds,cycle.id]}:d);
+   // Do not call onSaved here: the parent treats it as a request to dismiss the modal.
   }catch{setError(true);}finally{setBusy(null);}
  };
  return <section className="card p-3 mt-3">
-  <h2 className="h5">{tr("heading")}</h2><p className="text-body-secondary">{tr("intro")}</p>
+  <div className="d-flex align-items-center justify-content-between gap-2">
+   <h2 className="h5 mb-0">{tr("heading")}</h2>
+   <button type="button" className="btn btn-sm btn-outline-secondary" aria-expanded={expanded}
+    aria-controls="registry-cycles-list" aria-label={expanded?"Replier les cycles associés":"Déplier les cycles associés"}
+    onClick={()=>setExpanded(value=>!value)}>{expanded?"▴":"▾"}</button>
+  </div>
+  {expanded&&<><p className="text-body-secondary mt-2">{tr("intro")}</p>
   {!currentData&&!currentError?<p role="status">{tr("loading")}</p>:null}
   {currentError&&<div role="alert" className="d-flex gap-2 align-items-center">
    <span className="text-danger">{tr("error")}</span>
@@ -56,7 +64,7 @@ export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;
     onClick={()=>setReload(n=>n+1)}>{tr("retry")}</button>
   </div>}
   {currentData?.cycles.length===0&&<p>{tr("empty")}</p>}
-  <ul className="list-group">{currentData?.cycles.map(cycle=>{
+  <ul id="registry-cycles-list" className="list-group">{currentData?.cycles.map(cycle=>{
    const linked=currentData.linkedIds.includes(cycle.id),closed=cycle.status==="closed";
    return <li className="list-group-item d-flex align-items-center justify-content-between gap-3" key={cycle.id}>
     <span>{cycle.name} {closed&&<small className="text-body-secondary">({tr("closed")})</small>}</span>
@@ -64,6 +72,6 @@ export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;
      disabled={closed||busy!==null} onClick={()=>void toggle(cycle,linked)}>
      {tr(linked?"linked":"unlinked")}</button>:<strong>{tr(linked?"linked":"unlinked")}</strong>}
    </li>;
-  })}</ul>
+  })}</ul></>}
  </section>;
 }
