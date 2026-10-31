@@ -1,6 +1,6 @@
 ---
 name: SMN — Expérience palette Red & Purple
-status: proposed
+status: approved-ux
 updated: 2026-10-31
 description: Contrat comportemental de la palette SMN Red & Purple.
 sources:
@@ -50,3 +50,15 @@ Même disposition et règles responsive Cockpit Agile ; ajouter un choix de pale
 
 ## Décisions ouvertes
 Variantes exactes des couleurs pour le mode sombre et choix de prévisualisation persistante/non persistante ; validation des contrastes et inventaire des composants à couleurs fixes. Aucun test ni mise en production exécuté.
+
+
+## Avenant de validation UX — 31 octobre 2026
+L'utilisateur a validé la **variante sombre A « Anthracite & Red Purple »** à partir de trois maquettes réalistes correspondant aux écrans Tableau de bord, Équipe et Sprints de l'équipe. Le rendu devra s'étendre à l'ensemble de SMN ; les autres palettes `ocean`, `forest` et `violet` restent inchangées.
+
+- Le choix `red-purple` offre les deux modes `light` et `dark` ; le mode sombre suit les tokens et règles de l'avenant de [DESIGN.md](DESIGN.md).
+- La sélection et la sauvegarde restent dans Paramètres > Apparence, avec autorisations, gestion des brouillons, contrôle de révision et audit existants.
+- La couleur rouge de marque ne doit pas faire apparaître une action standard comme une erreur ; les statuts métier ont texte/symbole et sémantique propres.
+- Les données des captures ou maquettes ne constituent pas des exigences nouvelles. Aucune modification des métriques, du modèle Scrum/Kanban, des libellés fonctionnels, ni de la structure de page n'est autorisée par cet avenant.
+- Les questions de contrastes, rendu responsive, accessibilité et stratégie de prévisualisation facultative demeurent des **critères de recette technique**, pas une remise en cause de la direction graphique approuvée.
+
+**Statut : UX approuvée, implémentation et tests non réalisés.**
