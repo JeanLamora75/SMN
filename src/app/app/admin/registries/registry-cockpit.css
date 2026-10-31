@@ -630,3 +630,14 @@ button.smn-risk-roam-tile{cursor:pointer}
 .smn-registry-cockpit .smn-registry-add-event:focus-visible{
  outline:3px solid var(--smn-focus);outline-offset:3px;
 }
+
+
+.smn-registry-cockpit .smn-registry-filters-disclosure{display:inline-flex;align-items:center;gap:9px;background:none;border:0;padding:2px;color:inherit;font:inherit;font-weight:inherit;cursor:pointer}
+.smn-registry-cockpit .smn-registry-filters-disclosure:focus-visible{outline:3px solid var(--smn-focus);outline-offset:3px}
+.smn-registry-cockpit .smn-registry-resolved-toggle{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;font-weight:600;font-size:.8rem;cursor:pointer}
+.smn-registry-cockpit .smn-registry-resolved-toggle input{width:34px;height:18px;accent-color:var(--smn-primary);cursor:pointer}
+.smn-registry-cockpit .smn-registry-create-table-row td{padding:7px!important}
+.smn-registry-cockpit .smn-registry-create-table-row .smn-registry-add-event{min-height:46px}
+.smn-registry-cockpit .smn-registry-count-col{text-align:center;white-space:nowrap;width:68px;font-size:.74rem}
+.smn-registry-cockpit .smn-registry-count{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:650;color:var(--smn-text)}
+.smn-registry-cockpit .smn-registry-count svg{height:14px;width:14px;color:var(--smn-primary)}
