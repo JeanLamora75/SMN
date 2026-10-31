@@ -130,6 +130,7 @@ export default function SettingsForm() {
               <option value="ocean">{t("settings.paletteOcean")}</option>
               <option value="forest">{t("settings.paletteForest")}</option>
               <option value="violet">{t("settings.paletteViolet")}</option>
+              <option value="red-purple">{t("settings.paletteRedPurple")}</option>
             </select>
             <p id="settings-palette-help" className="small text-secondary mt-1">{t("settings.paletteInfo")}</p>
           </div>
