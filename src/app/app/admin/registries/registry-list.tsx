@@ -213,8 +213,6 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
   setDraft(defaults);setQuery(defaults);setPage(1);setLoading(true);setRefresh(n=>n+1);
  };
  return <section className="smn-registry-cockpit d-grid gap-3">
-  <AttentionCockpit items={attention} error={attentionError}
-   loading={attentionLoading} onRetry={retryAttention}/>
   <div className="smn-registry-hero">
   <header className="smn-registry-hero-top d-flex gap-3 align-items-center justify-content-between flex-wrap">
    <div className="smn-registry-hero-identity">
@@ -272,6 +270,8 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    </select>
   </div>
   </div>
+  <AttentionCockpit items={attention} error={attentionError}
+   loading={attentionLoading} onRetry={retryAttention}/>
   <section className="smn-registry-filters-panel" aria-label={translate("filtersHeading")}>
    <div className="smn-registry-filters-heading">
     <h2><BootstrapIcon name="sliders"/>{translate("filtersHeading")}</h2>
@@ -289,7 +289,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     <span className="smn-registry-filter-indicator">{[query.lifecycle!=="all",!!query.cycleId,!!query.status,query.sort!=="default",canManage&&!!query.owner].filter(Boolean).length||""}</span>
     <span aria-hidden="true">{mobileFiltersOpen?"▴":"▾"}</span>
    </button>
-  <form className="row g-2 align-items-end" onSubmit={event=>{
+  <form className="smn-registry-compact-filters" onSubmit={event=>{
    event.preventDefault();setPage(1);setLoading(true);setRefresh(n=>n+1);
    setQuery({...draft,search:draft.search.trim(),owner:canManage?draft.owner.trim():""});
   }}>
@@ -362,9 +362,9 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
      view==="list"?<table className="table table-hover align-middle smn-registry-list-table">
       <thead><tr>
        <th scope="col">{translate("date")}</th>
+       <th scope="col">{translate("status")}</th>
        <th scope="col">{translate("category")}</th>
        <th scope="col">{translate("title")}</th>
-       <th scope="col">{translate("status")}</th>
        {canManage&&<th scope="col">{translate("owner")}</th>}
        <th scope="col">{translate("due")}</th>
        <th scope="col">{translate("actions")}</th>
