@@ -67,7 +67,7 @@ CREATE TABLE public.smn_indicator_computed_result (
  PRIMARY KEY (team_id,cycle_type,cycle_id,indicator_id),
  CHECK ((result_state='available' AND value IS NOT NULL AND unavailable_reason IS NULL AND unavailable_detail IS NULL AND unavailable_source_tag IS NULL)
  OR (result_state='unavailable' AND value IS NULL AND unavailable_reason IS NOT NULL)),
- CHECK (unavailable_reason='dependency_unavailable' OR unavailable_source_tag IS NULL)
+ CHECK (unavailable_reason IS NOT NULL AND unavailable_reason='dependency_unavailable' OR unavailable_source_tag IS NULL)
 );
 CREATE INDEX smn_ind_computed_indicator_idx ON public.smn_indicator_computed_result(indicator_id,team_id);
 CREATE TABLE public.smn_indicator_dependency (
@@ -78,7 +78,7 @@ CREATE TABLE public.smn_indicator_dependency (
  source_calendar_tag text,
  CHECK ((source_type='indicator' AND source_indicator_id IS NOT NULL AND source_calendar_tag IS NULL)
  OR (source_type='calendar' AND source_indicator_id IS NULL AND source_calendar_tag IS NOT NULL AND source_calendar_tag ~ '^[A-Z][A-Z0-9_]*$')),
- CHECK (source_indicator_id IS DISTINCT FROM indicator_id)
+ CHECK (source_indicator_id IS NULL OR source_indicator_id <> indicator_id)
 );
 -- PostgreSQL UNIQUE NULL semantics: partial unique indexes are needed for each exclusive source kind.
 CREATE UNIQUE INDEX smn_ind_dep_indicator_unique ON public.smn_indicator_dependency(indicator_id,source_indicator_id) WHERE source_type='indicator';
