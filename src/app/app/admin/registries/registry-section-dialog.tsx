@@ -41,7 +41,8 @@ export default function RegistrySectionDialog({title,onDismiss,children,wide=fal
  return <RegistryDialogPortal><dialog ref={ref} className={"smn-registry-section-dialog smn-cockpit-modal"+(wide?" smn-registry-section-dialog-wide":"")} data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancel} onClose={()=>{origin.current?.focus();onDismiss();}}>
   <div className="smn-registry-section-dialog-layout"
-   onChangeCapture={()=>setDirty(true)} onInputCapture={()=>setDirty(true)}>
+   onChangeCapture={event=>{if(event.nativeEvent.isTrusted)setDirty(true);}}
+   onInputCapture={event=>{if(event.nativeEvent.isTrusted)setDirty(true);}}>
    <header className="smn-registry-section-dialog-header smn-cockpit-modal-header">
     <h2 id={titleId} className="h5 mb-0">{title}</h2>
     <button type="button" className="btn-close" onClick={close}
