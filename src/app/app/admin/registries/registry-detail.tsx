@@ -70,6 +70,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const [descriptionEditing,setDescriptionEditing]=useState(false);
  const prefix=useId();
  const buttons=useRef<Partial<Record<RegistryDetailTab,HTMLButtonElement|null>>>({});
+ const journalAddButton=useRef<HTMLButtonElement|null>(null);
  useEffect(()=>{
   const controller=new AbortController();
   void fetch("/api/admin/registries/"+encodeURIComponent(id)+"?teamId="+encodeURIComponent(teamId),{
@@ -188,7 +189,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      </div>
     </div>
     {canManage&&tab==="journal"&&<button type="button" className="btn btn-primary smn-registry-journal-hero-add"
-     onClick={()=>setJournalCreateOpen(true)}><BootstrapIcon name="plus-lg"/>{t("registryJournal.addToJournal")}</button>}
+     ref={journalAddButton} onClick={()=>setJournalCreateOpen(true)}><BootstrapIcon name="plus-lg"/>{t("registryJournal.addToJournal")}</button>}
     {!canManage&&<span className="small text-body-secondary">{tr("readOnly")}</span>}
    </header>
     <div className="smn-registry-detail-tabs" role="tablist" aria-label={tr("tabs")}>
@@ -218,7 +219,8 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      {tab==="journal"&&<section className="smn-registry-summary-panel">
       <RegistryJournal key={id} itemId={id} itemTitle={item.title}
        teamId={teamId} canManage={canManage} navigation={onward}
-       composeOpen={journalCreateOpen} onCloseCompose={()=>setJournalCreateOpen(false)}/>
+       composeOpen={journalCreateOpen} onOpenCompose={()=>setJournalCreateOpen(true)}
+       onCloseCompose={()=>{setJournalCreateOpen(false);journalAddButton.current?.focus();}}/>
      </section>}
      {tab==="history"&&(!canManage?
       <p role="status" className="alert alert-secondary">{tr("historyRestricted")}</p>:
