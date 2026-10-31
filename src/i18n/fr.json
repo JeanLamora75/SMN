@@ -2840,6 +2840,12 @@
     "historyError": "Historique indisponible."
   },
   "registryList": {
+    "clearShort": "Effacer",
+    "showResolved": "Afficher les événements résolus",
+    "decisions": "Décisions",
+    "actions": "Actions",
+    "highlights": "Faits marquants",
+    "comments": "Commentaires",
     "addEvent": "Ajouter un événement",
     "subtitle": "Suivez les risques, obstacles, dépendances, décisions et actions de l’équipe.",
     "filtersHeading": "Filtres et recherche",
