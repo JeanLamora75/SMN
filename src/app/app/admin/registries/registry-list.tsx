@@ -372,7 +372,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
        <th scope="col">{translate("status")}</th>
        <th scope="col">{translate("category")}</th>
        <th scope="col">{translate("title")}</th>
-       {(["decisions","actions","highlights","comments"] as const).map(k=><th key={k} scope="col" className="smn-registry-count-col" title={translate(k)}>{translate(k)}</th>)}
+       {(["decisions","actions","highlights","comments"] as const).map(k=><th key={k} scope="col" className="smn-registry-count-col" title={translate(k)}><span className="smn-registry-count-heading">{translate(k)}</span></th>)}
        {canManage&&<th scope="col">{translate("owner")}</th>}
        <th scope="col">{translate("due")}</th>
        <th scope="col">{translate("actions")}</th>
