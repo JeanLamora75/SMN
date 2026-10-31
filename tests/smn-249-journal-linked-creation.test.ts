@@ -207,3 +207,14 @@ test("AC4 : le journal ne confond pas une création initiale avec une relation r
  const audit=query.indexOf(") a ON true",query.indexOf("const result=await db.query"));
  assert.ok(marker>audit);
 });
+
+
+test("Régression v32 : création de décision liée sans garde monoéquipe obsolète",()=>{
+ const route=read("src/app/api/admin/registries/[id]/linked/route.ts");
+ assert.match(route,/withAuthDb\(async db=>/);
+ assert.match(route,/resolveRegistryReadContext\(db/);
+ assert.match(route,/context\.team\?\.team_id!==requestedTeamId/);
+ assert.match(route,/createRegistryItem\(db,actor\.id,\{\.\.\.fields,sourceId:id\},requestId\)/);
+ assert.doesNotMatch(route,/withLegacyTeamApi\(/);
+ assert.match(route,/result\.error==="not-found"\?404/);
+});
