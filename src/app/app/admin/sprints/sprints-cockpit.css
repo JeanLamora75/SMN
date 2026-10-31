@@ -194,3 +194,13 @@
 @media(prefers-reduced-motion:reduce){
  .smn-sprints-cockpit *{scroll-behavior:auto}
 }
+
+
+/* Compact, accessible completion gauges; value remains visible even above 100%. */
+.smn-sprints-cockpit .smn-sprints-percent{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;white-space:nowrap;}
+.smn-sprints-cockpit .smn-sprints-gauge{width:31px;height:23px;flex:none;overflow:visible;}
+.smn-sprints-cockpit .smn-sprints-status{padding:6px 10px;border-radius:8px;font-size:.78rem;font-weight:750;border:1px solid transparent;}
+.smn-sprints-cockpit .smn-sprints-state-active{color:var(--bs-primary-text-emphasis);background:var(--bs-primary-bg-subtle);border-color:var(--bs-primary-border-subtle);}
+.smn-sprints-cockpit .smn-sprints-state-planned{color:var(--bs-secondary-text-emphasis);background:var(--bs-secondary-bg-subtle);border-color:var(--bs-secondary-border-subtle);}
+.smn-sprints-cockpit .smn-sprints-state-complete{color:var(--bs-success-text-emphasis);background:var(--bs-success-bg-subtle);border-color:var(--bs-success-border-subtle);}
+.smn-sprints-cockpit .smn-sprints-state-muted{color:var(--bs-warning-text-emphasis);background:var(--bs-warning-bg-subtle);border-color:var(--bs-warning-border-subtle);}
