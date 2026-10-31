@@ -37,16 +37,23 @@ export default function RiskRoam({id,canManage,onSaved}:{id:string;canManage:boo
  return <section className="card p-3 mt-3">
   <h2 className="h5">{tr("heading")}</h2>
   {!state?<p role="status">{tr(error??"unavailable")}</p>:<>
-   {canManage?<div className="d-flex flex-wrap gap-2 align-items-center">
-    <label htmlFor="risk-roam" className="visually-hidden">{tr("heading")}</label>
-    <select className="form-select w-auto" id="risk-roam" value={value??""} onChange={e=>setValue(e.target.value as Roam)}>
-     <option value="">{tr("none")}</option>
-     {roamValues.map(x=><option key={x} value={x}>{tr(x)}</option>)}
-    </select>
-    <button className="btn btn-primary" type="button" onClick={save} disabled={saving||!value||value===state.classification}>
-     {tr(saving?"saving":"save")}
-    </button>
-   </div>:<p>{value?tr(value):tr("none")}</p>}
+   <div className="smn-risk-roam-grid" role="group" aria-label={tr("heading")}>
+    {roamValues.map(option=>{
+     const selected=value===option;
+     return canManage?<button key={option} type="button"
+      className={"smn-risk-roam-tile smn-risk-roam-"+option+(selected?" is-selected":"")}
+      aria-pressed={selected} disabled={saving} onClick={()=>setValue(option)}>
+      <span className="smn-risk-roam-glyph" aria-hidden="true">{option==="resolved"?"✓":option==="owned"?"●":option==="accepted"?"◆":"✦"}</span>
+      <strong>{tr(option)}</strong>{selected&&<span className="smn-risk-roam-check" aria-hidden="true">✓</span>}
+     </button>:<div key={option} className={"smn-risk-roam-tile smn-risk-roam-"+option+(selected?" is-selected":"")}
+      role="img" aria-label={tr(option)+(selected?" — sélectionné":"")}>
+      <span className="smn-risk-roam-glyph" aria-hidden="true">{option==="resolved"?"✓":option==="owned"?"●":option==="accepted"?"◆":"✦"}</span>
+      <strong>{tr(option)}</strong>{selected&&<span className="smn-risk-roam-check" aria-hidden="true">✓</span>}
+     </div>;
+    })}
+   </div>
+   {canManage&&<button className="btn btn-primary" type="button" onClick={save}
+    disabled={saving||!value||value===state.classification}>{tr(saving?"saving":"save")}</button>}
    {state.updatedAt&&<small className="text-body-secondary">{tr("updatedAt")}: {state.updatedAt}</small>}
    {error&&<p role="alert" className="text-danger">{tr(error)}</p>}
   </>}
