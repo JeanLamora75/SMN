@@ -12,10 +12,10 @@ export async function readLinks(db:Client,id:string,teamId?:string){
  const r=scope.rows[0];if(!r||!["risk","dependency","obstacle"].includes(r.type))return null;
  const resolution=await db.query<{resolvedOn:string|null}>(`
  SELECT CASE WHEN r.status IN ('resolved','satisfied') THEN
-  (SELECT a.changed_at::date::text FROM public.smn_registry_item_audit a
+  COALESCE((SELECT a.changed_at::date::text FROM public.smn_registry_item_audit a
    WHERE a.item_id=r.id AND a.after_values->>'status'=r.status
    AND (a.before_values IS NULL OR a.before_values->>'status' IS DISTINCT FROM r.status)
-   ORDER BY a.revision DESC LIMIT 1) ELSE NULL END AS "resolvedOn"
+   ORDER BY a.revision DESC LIMIT 1),r.updated_at::date::text) ELSE NULL END AS "resolvedOn"
  FROM public.smn_registry_item r WHERE r.id=$1 AND r.team_id=$2`,[id,r.teamId]);
  const resolvedOn=resolution.rows[0]?.resolvedOn??null;
  const cycles=await db.query<{id:string;name:string;status:string;startOn:string;endOn:string}>(`
