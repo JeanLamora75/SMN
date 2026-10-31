@@ -38,7 +38,9 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     accountId:actor.id,role:actor.role
    },requestedTeamId);
    if(context.version===28){
-    if(context.version!==32&&(!MULTI_TEAM_CONTEXT_READY||
+    const schema=await db.query<{schema_version:number}>(
+     "SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
+    if(schema.rows[0]?.schema_version!==32&&(!MULTI_TEAM_CONTEXT_READY||
        process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
      throw Error("registry-team-write-not-ready");
     if(!requestedTeamId||context.team?.team_id!==requestedTeamId)
