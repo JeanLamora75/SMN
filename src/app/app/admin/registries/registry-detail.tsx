@@ -130,7 +130,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const descriptionUpdated=()=>{setDescriptionEditing(false);retry();};
  const sectionView=(section:BusinessSection,name:string,content:ReactNode)=><div
   className="smn-registry-business-section" key={section}>
-  {canManage&&<div className="smn-registry-business-edit-bar">
+  {canManage&&section!=="riskAssessment"&&section!=="riskRoam"&&<div className="smn-registry-business-edit-bar">
    <button type="button" className="btn btn-sm btn-outline-secondary"
     aria-label={t("registryEdit.editNamed",{name})}
     onClick={()=>section==="riskAssessment"||section==="riskRoam"||section==="registryRelations"?setFullEditing(true):setBusinessEditing(section)}>
@@ -223,12 +223,10 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
      {tab==="business"&&<>
       {item.type==="risk"&&<div className="smn-registry-risk-layout">
        {sectionView("riskAssessment",t("registryAssessment.heading"),
-        <RiskAssessment id={id} canManage={false}/>)}
+        <RiskAssessment id={id} canManage={canManage}/>)}
        {sectionView("riskRoam",t("registryRoam.heading"),
-        <RiskRoam id={id} canManage={false}/>)}
+        <RiskRoam id={id} canManage={canManage}/>)}
       </div>}
-      {item.type==="risk"&&canManage&&<MaterializeRisk id={id} teamId={teamId} title={item.title}
-        description={item.description??""} canManage={canManage} navigation={onward}/>}
       {item.type==="obstacle"&&<section className="card p-3">
        <h2 className="h5">{tr("obstacle")}</h2>
        <p className="mb-0">{tr("currentState")}: <strong>{label(item.status)}</strong></p>
