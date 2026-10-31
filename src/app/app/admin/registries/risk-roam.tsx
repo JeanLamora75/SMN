@@ -18,20 +18,20 @@ export default function RiskRoam({id,canManage,onSaved}:{id:string;canManage:boo
    .catch(()=>{if(!ctrl.signal.aborted)setError("unavailable");});
   return()=>ctrl.abort();
  },[id]);
- const save=async()=>{
-  if(!canManage||!state||!value||saving)return;
+ const save=async(next:Roam)=>{
+  if(!canManage||!state||saving||next===state.classification)return;
   setSaving(true);setError(null);
   try{
    const response=await fetch("/api/admin/registries/"+encodeURIComponent(id)+"/roam",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({classification:value,revision:state.revision})
+    body:JSON.stringify({classification:next,revision:state.revision})
    });
-   if(response.status===409){setError("conflict");return;}
+   if(response.status===409){setError("conflict");setValue(state.classification);return;}
    if(!response.ok)throw Error("unavailable");
    const data=await response.json() as RoamState&{ok:boolean};
    if(!data.ok)throw Error("unavailable");
-   setState({...state,...data,updatedAt:new Date().toISOString()});onSaved?.();
-  }catch{setError("error");}
+   setState({...state,...data,classification:next,updatedAt:data.updatedAt??new Date().toISOString()});setValue(next);onSaved?.();
+  }catch{setValue(state.classification);setError("error");}
   finally{setSaving(false);}
  };
  return <section className="card p-3 mt-3">
@@ -42,7 +42,7 @@ export default function RiskRoam({id,canManage,onSaved}:{id:string;canManage:boo
      const selected=value===option;
      return canManage?<button key={option} type="button"
       className={"smn-risk-roam-tile smn-risk-roam-"+option+(selected?" is-selected":"")}
-      aria-pressed={selected} disabled={saving} onClick={()=>setValue(option)}>
+      aria-pressed={selected} disabled={saving} onClick={()=>void save(option)}>
       <span className="smn-risk-roam-glyph" aria-hidden="true">{option==="resolved"?"✓":option==="owned"?"●":option==="accepted"?"◆":"✦"}</span>
       <strong>{tr(option)}</strong>{selected&&<span className="smn-risk-roam-check" aria-hidden="true">✓</span>}
      </button>:<div key={option} className={"smn-risk-roam-tile smn-risk-roam-"+option+(selected?" is-selected":"")}
@@ -52,8 +52,7 @@ export default function RiskRoam({id,canManage,onSaved}:{id:string;canManage:boo
      </div>;
     })}
    </div>
-   {canManage&&<button className="btn btn-primary" type="button" onClick={save}
-    disabled={saving||!value||value===state.classification}>{tr(saving?"saving":"save")}</button>}
+   {saving&&<p role="status">{tr("saving")}</p>}
    {state.updatedAt&&<small className="text-body-secondary">{tr("updatedAt")}: {state.updatedAt}</small>}
    {error&&<p role="alert" className="text-danger">{tr(error)}</p>}
   </>}
