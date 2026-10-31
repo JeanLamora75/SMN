@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {roamValues,type Roam} from "@/lib/roam-values";
 type RoamState={classification:Roam|null;revision:number;updatedAt:string|null};
-export default function RiskRoam({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
+export default function RiskRoam({id,canManage,onSaved,compactTitle}:{id:string;canManage:boolean;onSaved?:()=>void;compactTitle?:string}){
  const t=useTranslation();
  const [state,setState]=useState<RoamState|null>(null);
  const [value,setValue]=useState<Roam|null>(null);
@@ -35,7 +35,7 @@ export default function RiskRoam({id,canManage,onSaved}:{id:string;canManage:boo
   finally{setSaving(false);}
  };
  return <section className="card p-3 mt-3">
-  <h2 className="h5">{tr("heading")}</h2>
+  <h2 className="h5">{compactTitle??tr("heading")}</h2>
   {!state?<p role="status">{tr(error??"unavailable")}</p>:<>
    <div className="smn-risk-roam-grid" role="group" aria-label={tr("heading")}>
     {roamValues.map(option=>{
