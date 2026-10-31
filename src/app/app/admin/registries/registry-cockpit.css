@@ -237,3 +237,49 @@
  .smn-registry-detail-cockpit .smn-registry-detail-pair,
  .smn-registry-detail-cockpit .smn-registry-risk-layout{grid-template-columns:minmax(0,1fr);}
 }
+
+
+/* Wide screens: one uninterrupted row for all seven registry filters. */
+@media(min-width:1200px){
+ .smn-registry-cockpit .smn-registry-compact-filters{
+  display:grid;grid-template-columns:minmax(150px,2fr) repeat(5,minmax(95px,1fr)) minmax(160px,auto);
+  gap:8px;align-items:end;
+ }
+ .smn-registry-cockpit .smn-registry-compact-filters > .col-md-5,
+ .smn-registry-cockpit .smn-registry-filter-extras > .col-md-3,
+ .smn-registry-cockpit .smn-registry-filter-extras > .col-md-4{
+  width:auto;max-width:none;padding:0;min-width:0;
+ }
+ .smn-registry-cockpit .smn-registry-compact-filters .smn-registry-filter-extras{display:contents;}
+ .smn-registry-cockpit .smn-registry-compact-filters .form-label{white-space:nowrap;}
+ .smn-registry-cockpit .smn-registry-compact-filters .form-select,
+ .smn-registry-cockpit .smn-registry-compact-filters .form-control{width:100%;min-width:0;}
+ .smn-registry-cockpit .smn-registry-filter-extras > .d-flex{flex-wrap:nowrap!important;}
+}
+@media(min-width:768px) and (max-width:1199.98px){
+ .smn-registry-cockpit .smn-registry-compact-filters{display:flex;flex-wrap:wrap;gap:8px;}
+ .smn-registry-cockpit .smn-registry-compact-filters > .col-md-5{flex:1 1 190px;width:auto;}
+ .smn-registry-cockpit .smn-registry-filter-extras > div{flex:1 1 140px;width:auto;}
+}
+@media(max-width:767.98px){
+ .smn-registry-cockpit .smn-registry-compact-filters{display:grid;gap:8px;}
+ .smn-registry-cockpit .smn-registry-compact-filters > .col-md-5{width:100%;padding:0;}
+}
+/* Bootstrap semantic colors maintain contrast in both themes and all palettes. */
+.smn-registry-cockpit .smn-registry-row-status{
+ display:inline-flex;align-items:center;min-height:26px;
+ padding:5px 10px;border-radius:8px;font-size:.79rem;font-weight:750;
+ border:1px solid transparent;
+}
+.smn-registry-cockpit .smn-registry-status-active{
+ color:var(--bs-primary-text-emphasis);background:var(--bs-primary-bg-subtle);
+ border-color:var(--bs-primary-border-subtle);
+}
+.smn-registry-cockpit .smn-registry-status-resolved{
+ color:var(--bs-success-text-emphasis);background:var(--bs-success-bg-subtle);
+ border-color:var(--bs-success-border-subtle);
+}
+.smn-registry-cockpit .smn-registry-status-neutral{
+ color:var(--bs-secondary-text-emphasis);background:var(--bs-secondary-bg-subtle);
+ border-color:var(--bs-secondary-border-subtle);
+}
