@@ -18,9 +18,9 @@ type Version={revision:number;action:string;beforeText:string|null;afterText:str
 type VersionState={state:"loading"|"unavailable"|"ready";items:Version[]};
 const recordIdRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation,composeOpen,onOpenCompose,onCloseCompose}:{
+export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation}:{
  itemId:string;itemTitle:string;teamId:string;canManage:boolean;
- navigation:RegistryNavigation;composeOpen:boolean;onOpenCompose:()=>void;onCloseCompose:()=>void;
+ navigation:RegistryNavigation;
 }){
  const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryJournal."+key) as Parameters<typeof t>[0]);
@@ -43,6 +43,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
  const [actionError,setActionError]=useState<string|null>(null);
  const [versions,setVersions]=useState<Record<string,VersionState>>({});
  const [versionsOpen,setVersionsOpen]=useState<string|null>(null);
+ const [commentOpen,setCommentOpen]=useState(false);
  const [chooseLinked,setChooseLinked]=useState(false);
  const [linkedType,setLinkedType]=useState<LinkedJournalType|null>(null);
  const [linkedCreated,setLinkedCreated]=useState<{id:string;type:LinkedJournalType}|null>(null);
@@ -108,7 +109,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
    const result=await response.json() as {ok?:boolean;id?:string;revision?:number};
    if(response.status!==201||!result.ok||typeof result.id!=="string"||
     !recordIdRx.test(result.id)||result.revision!==1)throw Error("unconfirmed");
-   setDraft("");setSuccess(true);onCloseCompose();
+   setDraft("");setSuccess(true);setCommentOpen(false);
    refresh();
   }catch{setError("unavailable");}
   finally{setSaving(false);}
@@ -170,21 +171,21 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
   }catch{setVersions(old=>({...old,[commentId]:{state:"unavailable",items:[]}}));}
  };
  return <section className="smn-registry-journal" aria-label={tr("heading")}
-  data-registry-dirty={Boolean(composeOpen&&draft.length>0||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
+  data-registry-dirty={Boolean(commentOpen&&draft.length>0||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
   {success&&<p role="status" className="small text-success mb-0">{tr("saved")}</p>}
    {linkedCreated&&<div role="status" className="smn-registry-linked-success">
     <span>{tr("createdLinked")}</span>
     <Link href={registryDetailHref(linkedCreated.id,navigation)}
      className="btn btn-sm btn-outline-success">{tr("viewLinked")}</Link>
     <button type="button" className="btn btn-sm btn-outline-success"
-     onClick={()=>{setLinkedCreated(null);setChooseLinked(true);onOpenCompose();}}>
+     onClick={()=>{setLinkedCreated(null);setChooseLinked(true);}}>
      {tr("createAnotherLinked")}
     </button>
     <Link href={registryDetailHref(itemId,{origin:navigation.origin,trail:navigation.trail.slice(0,-1)})}
      className="btn btn-sm btn-link">{tr("backToSource")}</Link>
    </div>}
-  {canManage&&composeOpen&&<RegistrySectionDialog title={t("registryJournal.addToJournal")}
-   onDismiss={onCloseCompose} wide>
+  {canManage&&commentOpen&&<RegistrySectionDialog title={t("registryJournal.addComment")}
+   onDismiss={()=>setCommentOpen(false)} wide>
    <div className="smn-registry-journal-compose-dialog">
   {canManage&&<form className="smn-registry-journal-compose" onSubmit={save}>
    <label className="form-label" htmlFor={editorId}>{tr("writeComment")}</label>
@@ -198,24 +199,16 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
    </div>
    {error&&<p role="alert" className="small text-danger mb-0">{commentsText(error)}</p>}
   </form>}
-  {canManage&&<div className="smn-registry-linked-create">
-   <button type="button" className="btn btn-outline-primary btn-sm"
-    aria-expanded={chooseLinked} aria-controls={editorId+"-linked-chooser"}
-    onClick={()=>setChooseLinked(value=>!value)}>
-    {tr("createLinked")}
-   </button>
-   {chooseLinked&&<div className="smn-registry-linked-chooser"
-    id={editorId+"-linked-chooser"} role="group" aria-label={tr("chooseLinked")}>
-    <span className="small fw-semibold">{tr("chooseLinked")}</span>
+
+
+   </div>
+  </RegistrySectionDialog>}
+  {canManage&&chooseLinked&&<RegistrySectionDialog title={tr("chooseLinked")}
+   onDismiss={()=>setChooseLinked(false)}>
+   <div className="d-flex flex-wrap gap-2">
     {linkedJournalTypes.map(type=><button key={type} type="button"
-     className="btn btn-outline-secondary btn-sm"
-     onClick={()=>{setLinkedType(type);setChooseLinked(false);onCloseCompose();}}>
-     {tr(type)}
-    </button>)}
-   </div>}
-
-  </div>}
-
+     className="btn btn-outline-primary" onClick={()=>{setLinkedType(type);setChooseLinked(false);}}>
+     {tr(type)}</button>)}
    </div>
   </RegistrySectionDialog>}
   <div className="smn-registry-journal-toolbar">
@@ -234,6 +227,12 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
     <option value="newest">{t("registryJournal.newest")}</option>
     <option value="oldest">{t("registryJournal.oldest")}</option>
    </select>
+   {canManage&&<div className="smn-registry-journal-toolbar-actions">
+    <button type="button" className="btn btn-outline-primary btn-sm"
+     onClick={()=>setCommentOpen(true)}>{t("registryJournal.addComment")}</button>
+    <button type="button" className="btn btn-primary btn-sm"
+     onClick={()=>setChooseLinked(true)}>{t("registryJournal.addJournalRecord")}</button>
+   </div>}
   </div>
   {state==="loading"?<p role="status" className="small text-body-secondary mb-0">{tr("loading")}</p>:
    state==="unavailable"?<div role="alert" className="d-flex flex-wrap align-items-center gap-2">
