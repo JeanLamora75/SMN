@@ -57,7 +57,7 @@ export default function RegistryCycles({id,teamId,canManage,onSaved,embedded=fal
    {!embedded&&<button type="button" className="btn btn-sm btn-outline-secondary" aria-expanded={expanded}
     aria-controls="registry-cycles-list" aria-label={expanded?"Replier les cycles associés":"Déplier les cycles associés"}
     onClick={()=>setExpanded(value=>!value)}>{expanded?"▴":"▾"}</button>}
-  </div>}
+  </div>
   {(embedded||expanded)&&<><p className="text-body-secondary mt-2">{tr("intro")}</p>
   {!currentData&&!currentError?<p role="status">{tr("loading")}</p>:null}
   {currentError&&<div role="alert" className="d-flex gap-2 align-items-center">
