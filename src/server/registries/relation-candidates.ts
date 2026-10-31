@@ -25,7 +25,7 @@ export async function readRelationCandidates(db:Client,id:string,filter:Candidat
   JOIN public.smn_team t ON t.id=r.team_id
   JOIN public.smn_installation i ON i.id=t.installation_id
   WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'
-   AND lower(i.mode) IN ('scrum','kanban')`,[id]);
+   AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode')) IN ('scrum','kanban')`,[id]);
  const source=base.rows[0];
  if(!source)return null;
  if(filter.kind==="goal"&&source.type!=="action")return null;
