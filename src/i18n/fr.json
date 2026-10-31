@@ -2622,6 +2622,11 @@
     "discardChanges": "Abandonner les modifications de description non enregistrées ?"
   },
   "registryJournal": {
+    "addToJournal": "Ajouter au journal",
+    "search": "Rechercher dans le journal…",
+    "sort": "Trier le journal",
+    "newest": "Plus récents",
+    "oldest": "Plus anciens",
     "heading": "Journal de suivi",
     "writeComment": "Nouveau commentaire",
     "placeholder": "Ajouter un commentaire de suivi…",
