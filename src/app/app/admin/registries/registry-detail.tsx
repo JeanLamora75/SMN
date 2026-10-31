@@ -148,7 +148,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
    case "decisionDetail":return <DecisionDetail id={id} canManage={true} onSaved={businessUpdated}/>;
    case "registryRelations":return <RegistryRelations id={id} type={item?.type??"risk"} navigation={onward}
     canManage={true} onSaved={businessUpdated}/>;
-   case "registryCycles":return <RegistryCycles id={id} canManage={true} onSaved={businessUpdated}/>;
+   case "registryCycles":return <RegistryCycles id={id} teamId={teamId} canManage={true} onSaved={businessUpdated}/>;
    case "actionLinks":return <ActionLinks id={id} canManage={true} navigation={onward} onSaved={businessUpdated}/>;
    default:return null;
   }
@@ -216,7 +216,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
        <RegistryRelations id={id} type={item.type} canManage={false} navigation={onward}/>)}
       {(item.type==="risk"||item.type==="obstacle"||item.type==="dependency")&&
        sectionView("registryCycles",t("registryCycles.heading"),
-        <RegistryCycles id={id} canManage={false}/>)}
+        <RegistryCycles id={id} teamId={teamId} canManage={false}/>)}
      </>}
      {tab==="history"&&(!canManage?
       <p role="status" className="alert alert-secondary">{tr("historyRestricted")}</p>:
