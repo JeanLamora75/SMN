@@ -2622,6 +2622,11 @@
     "discardChanges": "Discard unsaved description changes?"
   },
   "registryJournal": {
+    "addToJournal": "Add to journal",
+    "search": "Search the journal…",
+    "sort": "Sort journal",
+    "newest": "Newest first",
+    "oldest": "Oldest first",
     "heading": "Follow-up journal",
     "writeComment": "New comment",
     "placeholder": "Add a follow-up comment…",
