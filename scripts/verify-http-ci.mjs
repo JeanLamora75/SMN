@@ -485,7 +485,11 @@ try {
     const afterFuture=await (await calendarRead(memberWithRoles.id)).json();
     assert.equal(afterFuture.weeks.length,2);
     assert.equal(afterFuture.current.revision,1);
-    assert.equal(afterFuture.day.source,"weekly");
+    assert.equal(afterFuture.day.source,
+      calendarBefore.today===saturdayDate?"exception":"weekly");
+    const futureCalendar=await (await calendarRead(memberWithRoles.id,replacement,
+      "?onDate="+futureFrom)).json();
+    assert.equal(futureCalendar.day.source,"weekly");
     assert.equal(afterFuture.exceptions.length,1);
     assert.equal((await withDb(async client=>(await client.query(
       "SELECT count(*)::int AS count FROM public.smn_member_calendar_week WHERE member_id=$1",
