@@ -536,3 +536,19 @@ button.smn-risk-roam-tile{cursor:pointer}
 .smn-risk-matrix-cell:focus-visible,.smn-risk-roam-tile:focus-visible{outline:3px solid var(--smn-focus);outline-offset:2px}
 @media(max-width:575px){.smn-risk-matrix{grid-template-columns:55px repeat(3,minmax(0,1fr))}
 .smn-risk-matrix-cell{min-height:47px}.smn-risk-roam-grid{min-height:220px}}
+
+
+/* Synthèse risque : mêmes cartes interactives que l'onglet Évaluation & ROAM. */
+.smn-registry-detail-cockpit .smn-registry-summary-overview{display:flex;flex-direction:column;gap:16px;min-width:0}
+.smn-registry-detail-cockpit .smn-registry-summary-risk-layout{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-risk-layout>.smn-registry-business-section{
+ min-width:0;height:100%;display:flex;flex-direction:column;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-risk-layout>.smn-registry-business-section>.card{
+ display:flex;flex-direction:column;flex:1;margin:0!important;gap:12px;
+}
+@media(max-width:850px){
+ .smn-registry-detail-cockpit .smn-registry-summary-risk-layout{grid-template-columns:minmax(0,1fr)}
+}
