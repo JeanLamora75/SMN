@@ -18,7 +18,7 @@
     "footer": "I0 / SMN-14 — Authentication"
   },
   "login": {
-    "title": "Sign in to Scrum Master Notebook",
+    "title": "Sign in...",
     "intro": "Use the username or email address configured during installation.",
     "back": "Back to home",
     "identity": "Username or email address",
