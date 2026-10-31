@@ -21,7 +21,7 @@
 }
 .smn-login-logo .smn-brand-name{
  flex:0 1 auto;min-width:0;text-align:left;
- font-size:clamp(1rem,3.6vw,1.43rem);
+ font-size:clamp(1rem,3.6vw,1.93rem);
  font-weight:500;letter-spacing:-.035em;white-space:nowrap;
 }
 .smn-login-logo .smn-brand-name strong{font-weight:800;}
