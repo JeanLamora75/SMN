@@ -87,10 +87,10 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
   const term=query.trim().toLocaleLowerCase(locale==="fr"?"fr":"en");
   const filtered=filterJournalEntries(entries,filter).filter(entry=>!term||
    (entry.kind==="comment"?[entry.comment.text,entry.comment.authorName]:
-    [entry.title,entry.authorName,recordType(entry.type)]).some(value=>
+    [entry.title,entry.authorName,t(("registryCreate."+entry.type) as Parameters<typeof t>[0])]).some(value=>
      (value??"").toLocaleLowerCase(locale==="fr"?"fr":"en").includes(term)));
   return order==="newest"?filtered:filtered.reverse();
- },[entries,filter,query,order,locale]);
+ },[entries,filter,query,order,locale,t]);
  const formatter=useMemo(()=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
   dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Paris"
  }),[locale]);
