@@ -170,8 +170,19 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
   }catch{setVersions(old=>({...old,[commentId]:{state:"unavailable",items:[]}}));}
  };
  return <section className="smn-registry-journal" aria-label={tr("heading")}
-  data-registry-dirty={Boolean(draft.length>0||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
+  data-registry-dirty={Boolean(composeOpen&&draft.length>0||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
   {success&&<p role="status" className="small text-success mb-0">{tr("saved")}</p>}
+   {linkedCreated&&<div role="status" className="smn-registry-linked-success">
+    <span>{tr("createdLinked")}</span>
+    <Link href={registryDetailHref(linkedCreated.id,navigation)}
+     className="btn btn-sm btn-outline-success">{tr("viewLinked")}</Link>
+    <button type="button" className="btn btn-sm btn-outline-success"
+     onClick={()=>{setLinkedCreated(null);setChooseLinked(true);}}>
+     {tr("createAnotherLinked")}
+    </button>
+    <Link href={registryDetailHref(itemId,{origin:navigation.origin,trail:navigation.trail.slice(0,-1)})}
+     className="btn btn-sm btn-link">{tr("backToSource")}</Link>
+   </div>}
   {canManage&&composeOpen&&<RegistrySectionDialog title={t("registryJournal.addToJournal")}
    onDismiss={onCloseCompose} wide>
    <div className="smn-registry-journal-compose-dialog">
@@ -198,21 +209,11 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
     <span className="small fw-semibold">{tr("chooseLinked")}</span>
     {linkedJournalTypes.map(type=><button key={type} type="button"
      className="btn btn-outline-secondary btn-sm"
-     onClick={()=>{setLinkedType(type);setChooseLinked(false);}}>
+     onClick={()=>{setLinkedType(type);setChooseLinked(false);onCloseCompose();}}>
      {tr(type)}
     </button>)}
    </div>}
-   {linkedCreated&&<div role="status" className="smn-registry-linked-success">
-    <span>{tr("createdLinked")}</span>
-    <Link href={registryDetailHref(linkedCreated.id,navigation)}
-     className="btn btn-sm btn-outline-success">{tr("viewLinked")}</Link>
-    <button type="button" className="btn btn-sm btn-outline-success"
-     onClick={()=>{setLinkedCreated(null);setChooseLinked(true);}}>
-     {tr("createAnotherLinked")}
-    </button>
-    <Link href={registryDetailHref(itemId,{origin:navigation.origin,trail:navigation.trail.slice(0,-1)})}
-     className="btn btn-sm btn-link">{tr("backToSource")}</Link>
-   </div>}
+
   </div>}
 
    </div>
