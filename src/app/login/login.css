@@ -1,0 +1,32 @@
+/* Login card: centered in the usable viewport in both themes. */
+.smn-login-page{
+ min-height:100dvh;min-height:100vh;
+ min-height:100dvh;display:grid;place-items:center;
+ padding:clamp(16px,3vw,36px);
+ background:var(--smn-background);
+}
+.smn-login-card{
+ width:100%;max-width:510px;
+ padding:clamp(24px,4vw,40px);
+ background:var(--smn-surface);color:var(--smn-foreground);
+}
+.smn-login-logo{
+ display:flex;align-items:center;justify-content:center;
+ gap:10px;white-space:nowrap;
+ margin-bottom:24px;color:var(--smn-heading);
+}
+.smn-login-logo .smn-mark{
+ width:42px;height:42px;min-width:42px;border-radius:11px;
+ font-size:.95rem;
+}
+.smn-login-logo .smn-brand-name{
+ font-size:clamp(.88rem,2.8vw,1.15rem);
+ font-weight:500;letter-spacing:-.03em;white-space:nowrap;
+}
+.smn-login-logo .smn-brand-name strong{font-weight:800;}
+.smn-login-heading{margin:0 0 22px;font-size:1.65rem;font-weight:700;}
+@media(max-width:375px){
+ .smn-login-logo{gap:7px;}
+ .smn-login-logo .smn-mark{width:36px;height:36px;min-width:36px;font-size:.8rem;}
+ .smn-login-logo .smn-brand-name{font-size:.78rem;}
+}
