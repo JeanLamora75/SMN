@@ -21,7 +21,7 @@ function value(raw:unknown,integer:boolean):number|null{
  return Number.isFinite(n)&&n>=0&&n<=Number.MAX_SAFE_INTEGER&&
   (!integer||Number.isSafeInteger(n))?n:null;
 }
-export function projectSprintTrend(row:Row):SprintTrendPoint{
+export function projectSprintTrend(row:Row & {version:number;snapshot_data:unknown}):SprintTrendPoint{
  const snapshot=object(row.snapshot_data);
  const points=object(snapshot?.storyPoints);
  const capacity=object(snapshot?.capacity);
