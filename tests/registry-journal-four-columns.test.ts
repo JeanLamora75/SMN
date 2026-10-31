@@ -11,7 +11,9 @@ test("Journal : date/heure séparées, type, contenu, icônes accessibles",()=>{
  assert.match(ui,/dateOnly\.format\(new Date\(entry\.at\)\)/);
  assert.match(ui,/timeOnly\.format\(new Date\(entry\.at\)\)/);
  assert.match(ui,/name="pencil-square"/);
- assert.match(ui,/name="trash"/);
+ assert.match(ui,/name="trash-fill"/);
+ const icons=read("src/app/app/bootstrap-icon.tsx");
+ assert.match(icons,/case "trash-fill":return/);
  assert.match(ui,/aria-label=\{commentsText\("withdraw"\)\}/);
  assert.match(ui,/void withdraw\(entry\.comment\)/);
 });
