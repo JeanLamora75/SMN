@@ -249,11 +249,11 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
       onClick={()=>{setFilter("all");setQuery("");}}>{tr("reset")}</button>}
     </div>:
     <ol className="smn-registry-journal-list">
-     {visible.map(entry=><li key={entry.id} className="smn-registry-journal-entry">
+     {visible.map(entry=><li key={entry.id} className={"smn-registry-journal-entry smn-registry-journal-entry-"+(entry.kind==="comment"?"comment":entry.type)}>
       <div className="smn-registry-journal-entry-top">
-       <strong>{entry.kind==="comment"?tr("comment"):
-        tr(entry.eventKind==="created"?"linkedCreatedEvent":"link")+
-        " · "+recordType(entry.type)}</strong>
+       <span className={"smn-registry-journal-kind smn-registry-journal-kind-"+(entry.kind==="comment"?"comment":entry.type)}>
+        {entry.kind==="comment"?tr("comment"):recordType(entry.type)}
+       </span>
        <time dateTime={entry.at}>{when(entry.at)}</time>
       </div>
       <div className="small text-body-secondary">
@@ -264,9 +264,10 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
         <span className="smn-registry-journal-meta"> · {commentsText("edited")}</span>}
       </div>
       {entry.kind==="link"?
-       <Link href={registryDetailHref(entry.recordId,navigation)}>
-        {entry.title}
-       </Link>:
+       <div className="smn-registry-journal-linked-title">
+        <Link href={registryDetailHref(entry.recordId,navigation)}>{entry.title}</Link>
+        <div className="small text-body-secondary">{tr(entry.eventKind==="created"?"linkedCreatedEvent":"link")}</div>
+       </div>:
        <>
         {entry.comment.withdrawn?<p className="smn-registry-journal-withdrawn mb-0">
          {commentsText("withdrawn")}</p>:
