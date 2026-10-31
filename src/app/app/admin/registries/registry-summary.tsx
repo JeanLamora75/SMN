@@ -79,11 +79,6 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
     {item.description?<p className="smn-registry-detail-description">{item.description}</p>:
      <p className="text-body-secondary mb-0">{tr("noDescription")}</p>}
    </section>
-   <section className="smn-registry-summary-panel" aria-labelledby="registry-summary-journal-title">
-    <h2 className="h5" id="registry-summary-journal-title">{tr("journal")}</h2>
-    <RegistryJournal key={item.id} itemId={item.id} itemTitle={item.title}
-     teamId={teamId} canManage={canManage} navigation={navigation}/>
-   </section>
   </div>
   <aside className="smn-registry-summary-side" aria-label={tr("context")}>
    <section className="smn-registry-summary-panel">
