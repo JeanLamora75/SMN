@@ -69,10 +69,6 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
    relation.targetKind==="record"?{id:relation.targetId,title:relation.targetTitle}:null:
    {id:relation.sourceId,title:relation.sourceTitle};
  return <div className="smn-registry-summary-overview" aria-label={tr("heading")}>
-  {item.type==="risk"&&<div className="smn-registry-summary-risk-layout smn-registry-risk-layout">
-   <div className="smn-registry-business-section"><RiskAssessment id={item.id} canManage={canManage}/></div>
-   <div className="smn-registry-business-section"><RiskRoam id={item.id} canManage={canManage}/></div>
-  </div>}
   <div className="smn-registry-summary-grid">
   <div className="smn-registry-summary-main">
    <section className="smn-registry-summary-panel" aria-labelledby="registry-summary-description-title">
@@ -100,6 +96,10 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
       {c.name}
      </li>)}</ul>}
    </section>
+  {item.type==="risk"&&<div className="smn-registry-summary-risk-layout smn-registry-risk-layout">
+   <div className="smn-registry-business-section"><RiskAssessment id={item.id} canManage={canManage}/></div>
+   <div className="smn-registry-business-section"><RiskRoam id={item.id} canManage={canManage}/></div>
+  </div>}
    <section className="smn-registry-summary-panel">
     <h2 className="h6">{tr("related")}</h2>
     {relations.state==="loading"?<p role="status" className="small mb-0">{tr("loading")}</p>:
