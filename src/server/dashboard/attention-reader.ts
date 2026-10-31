@@ -68,22 +68,21 @@ export async function readCycleNotesAndAlerts(db:Client,teamId:string,cycleId:st
   });
  }
  const alerts:DashboardAttention[]=[];
- const completed:DashboardAttention[]=[];
  if(hasTasks){
   const rows=await db.query<{task_key:string;status:string}>(`
    SELECT task_key,status FROM public.smn_configuration_task
-   WHERE installation_id='singleton' AND status IN ('todo','done')
+   WHERE installation_id='singleton' AND status='todo'
    ORDER BY CASE task_key WHEN 'reference-country' THEN 1
       WHEN 'recovery-phrase' THEN 2 WHEN 'display-preferences' THEN 3 ELSE 4 END`);
   const allowed=new Set(["reference-country","recovery-phrase","display-preferences"]);
   for(const row of rows.rows){
-   if(!allowed.has(row.task_key)||!["todo","done"].includes(row.status))continue;
-   const item:DashboardAttention={id:"configuration:"+row.task_key,
-    kind:row.status==="todo"?"alert":"note",title:row.task_key,
-    status:row.status,priority:null,configurationKey:row.task_key as "reference-country"|"recovery-phrase"|"display-preferences"};
-   if(row.status==="todo")alerts.push(item);else completed.push(item);
+   if(!allowed.has(row.task_key)||row.status!=="todo")continue;
+   alerts.push({id:"configuration:"+row.task_key,
+    kind:"alert",title:row.task_key,
+    status:row.status,priority:null,configurationKey:row.task_key as "reference-country"|"recovery-phrase"|"display-preferences"});
   }
  }
- const all=[...alerts,...notes,...completed];
+ // Ne compter que les notes ouvertes et les alertes à traiter.
+ const all=[...alerts,...notes];
  return collectionAvailable(all.slice(0,5),all.length,{source:"manual"});
 }
