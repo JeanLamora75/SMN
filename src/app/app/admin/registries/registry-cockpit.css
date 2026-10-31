@@ -176,3 +176,15 @@
 @media(prefers-reduced-motion:reduce){
  .smn-registry-cockpit .smn-registry-category-tabs .nav-link{transition:none}
 }
+
+
+/* Edit modal: advanced sections use the same compact disclosure treatment as Cycles. */
+.smn-registry-fold {border:1px solid var(--smn-border);border-radius:8px;background:var(--smn-soft);overflow:hidden;}
+.smn-registry-fold > summary {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;font-weight:650;list-style:none;color:var(--smn-text);}
+.smn-registry-fold > summary::-webkit-details-marker {display:none;}
+.smn-registry-fold > summary::after {content:"▾";display:grid;place-items:center;width:26px;height:26px;border:1px solid var(--smn-border);border-radius:4px;font-size:.85rem;flex:none;}
+.smn-registry-fold[open] > summary::after {content:"▴";}
+.smn-registry-fold > summary:focus-visible {outline:3px solid var(--smn-focus);outline-offset:-3px;}
+.smn-registry-fold-body {padding:0 14px 14px;background:var(--smn-surface);}
+.smn-registry-fold-body > .card,.smn-registry-fold-body > .smn-registry-relation-panel {margin-top:0!important;border:0!important;box-shadow:none!important;background:transparent!important;padding:12px 0 0!important;}
+.smn-registry-fold-body > .card > h2,.smn-registry-fold-body > .smn-registry-relation-panel > h2 {display:none;}
