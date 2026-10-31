@@ -84,7 +84,6 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
      <p className="text-body-secondary mb-0">{tr("noDescription")}</p>}
    </section>
    <section className="smn-registry-summary-panel smn-registry-summary-journal">
-    <h2 className="h5">{t("registryJournal.heading")}</h2>
     <RegistryJournal itemId={item.id} itemTitle={item.title} teamId={teamId}
      canManage={canManage} navigation={navigation} embedded/>
    </section>
