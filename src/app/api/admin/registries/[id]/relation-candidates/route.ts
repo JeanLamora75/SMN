@@ -1,6 +1,7 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withLegacyRegistryReadDb} from "@/server/registries/legacy-read";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {authorizeRegistryRecord} from "@/server/registries/scoped-record";
 import {jsonResult} from "@/server/auth/request";
 import {parseRelationSearch,readRelationCandidates} from "@/server/registries/relation-candidates";
 
@@ -13,7 +14,11 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}
  if(!filter)return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const data=await withLegacyRegistryReadDb(db=>readRelationCandidates(db,id,filter));
+  const data=await withSprintIndexDb(async db=>{
+   const teamId=await authorizeRegistryRecord(db,{accountId:actor.id,role:actor.role},id);
+   if(!teamId)return null;
+   return readRelationCandidates(db,id,filter);
+  });
   if(!data)return jsonResult({error:"not-found"},404);
   if(data.state==="unavailable")return jsonResult({error:"service-unavailable"},503);
   return jsonResult(data,200);
