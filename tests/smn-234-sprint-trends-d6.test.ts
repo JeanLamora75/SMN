@@ -25,69 +25,50 @@ const snapshot=(done:unknown="8",actual:unknown="10")=>({
  capacity:{actual_jh:actual}
 });
 
-describe("SMN-234 D6 — six clôtures pour le filtre, lectures collectives et métriques",()=>{
+describe("SMN-335 — tendances Scrum tous statuts",()=>{
  it("refuse un Sprint d'une autre équipe avant toute projection",async()=>{
   const f=sqlFixture(()=>({rows:[]}));
   assert.equal(await readSprintTrends(f.db,sprintId,teamId),null);
   assert.equal(f.calls.length,1);
   assert.deepEqual(f.calls[0].args,[sprintId,teamId]);
  });
- it("n'effectue aucun DDL ; si la source de clôture manque, retour []",async()=>{
+ it("retient jusqu'à six Sprints sans condition sur le statut, même sans clôture",async()=>{
   const f=sqlFixture(sql=>sql.includes("SELECT s.id,s.team_id")?
-   {rows:[{id:sprintId,team_id:teamId,start_at:"2026-10-23T07:00:00Z"}]}:
-   {rows:[{present:false}]});
+   {rows:[{id:sprintId,team_id:teamId,start_at:"2026-10-23T07:00:00Z"}]}:{rows:[]});
   assert.deepEqual(await readSprintTrends(f.db,sprintId,teamId),[]);
+  const list=f.calls[1];
+  assert.match(list.sql,/s.team_id=\$1/);
+  assert.doesNotMatch(list.sql,/s.status='closed'/);
+  assert.match(list.sql,/ORDER BY s.start_at DESC,s.id DESC LIMIT 6/);
+  assert.deepEqual(list.args,[teamId,"2026-10-23T07:00:00Z",sprintId]);
   assert.ok(f.calls.every(({sql})=>!/(?:CREATE|ALTER|UPDATE|INSERT|DELETE)\s+(?:TABLE|public)/i.test(sql)));
  });
- it("ramène au plus six clos, même équipe, non postérieurs, du plus ancien au plus récent",async()=>{
-  const rows=[
-   history(5,snapshot()),history(4,snapshot()),
-   history(3,snapshot()),history(2,snapshot()),history(1,snapshot())
-  ];
+ it("lit exclusivement les snapshots pour les Sprints clôturés",async()=>{
+  const rows=[history(3,snapshot(null,null)),history(2,snapshot("15","3.5")),history(1,snapshot("0","0"))]
+   .map(x=>({id:x.id,name:x.name,end_at:x.end_at,status:"closed",snapshot:x.snapshot_data}));
   const f=sqlFixture((sql,args)=>{
-   if(sql.includes("SELECT s.id,s.team_id"))return {rows:[{
-    id:sprintId,team_id:teamId,start_at:"2026-10-23T07:00:00Z"}]};
-   if(sql.includes("to_regclass"))return {rows:[{present:true}]};
-   assert.match(sql,/s\.team_id=\$1/);
-   assert.match(sql,/s\.status='closed'/);
-   assert.match(sql,/s\.start_at<=\$2::timestamptz/);
-   assert.match(sql,/ORDER BY s\.start_at DESC,s\.id DESC LIMIT 6/);
-   assert.deepEqual(args,[teamId,"2026-10-23T07:00:00Z"]);
-   return {rows};
+   if(sql.includes("SELECT s.id,s.team_id"))return {rows:[{id:sprintId,team_id:teamId,start_at:"2026-10-23T07:00:00Z"}]};
+   if(sql.includes("SELECT s.id,s.name"))return {rows};
+   if(sql.includes("SELECT version,snapshot"))return {rows:[{version:2,snapshot:rows.find(x=>x.id===args?.[0])?.snapshot}]};
+   throw Error("Unexpected SQL "+sql);
   });
   const points=await readSprintTrends(f.db,sprintId,teamId);
-  assert.equal(points?.length,5);
-  assert.deepEqual(points?.map(p=>p.sprintId),
-   ["sprint-1","sprint-2","sprint-3","sprint-4","sprint-5"]);
-  assert.equal(points?.[0].snapshotVersion,2);
+  assert.deepEqual(points?.map(p=>p.sprintId),["sprint-1","sprint-2","sprint-3"]);
+  assert.equal(points?.[1].completedSp,15);
+  assert.equal(points?.[1].completionRate,125);
+  assert.equal(points?.[1].actualCapacityJh,3.5);
+  assert.equal(points?.[0].completedSp,0);
+  assert.equal(points?.[2].completedSp,null);
+  assert.ok(points?.every(p=>p.snapshotVersion===2));
  });
- it("F04 et F07 ne plafonnent pas >100 %, capacité réelle reste distincte de la présence",async()=>{
+ it("un Sprint clôturé sans snapshot conserve une ligne vide sans valeurs fictives",async()=>{
   const f=sqlFixture(sql=>sql.includes("SELECT s.id,s.team_id")?
    {rows:[{id:sprintId,team_id:teamId,start_at:"2026-10-23T07:00:00Z"}]}:
-   sql.includes("to_regclass")?{rows:[{present:true}]}:
-   {rows:[history(1,snapshot("15","3.5"))]});
+   sql.includes("SELECT s.id,s.name")?{rows:[{id:sprintId,name:"Sprint",end_at:"2026-10-30",status:"closed"}]}:{rows:[]});
   const points=await readSprintTrends(f.db,sprintId,teamId);
-  assert.equal(points?.[0].completedSp,15);
-  assert.equal(points?.[0].completionRate,125);
-  assert.equal(points?.[0].actualCapacityJh,3.5);
- });
- it("conserve zéro authentique, null explicite et sources absentes ou invalides",async()=>{
-  const f=sqlFixture(sql=>sql.includes("SELECT s.id,s.team_id")?
-   {rows:[{id:sprintId,team_id:teamId,start_at:"2026-10-23T07:00:00Z"}]}:
-   sql.includes("to_regclass")?{rows:[{present:true}]}:
-   {rows:[history(3,{storyPoints:{initial_sp:"0",added_sp:"0",removed_sp:"0",
-     done_sp:"0"},capacity:{actual_jh:"0"}}),
-    history(2,snapshot(null,null)),
-    history(1,{storyPoints:{initial_sp:"n/a",done_sp:"12"},
-     capacity:{actual_jh:"bad"}})]});
-  const points=await readSprintTrends(f.db,sprintId,teamId);
-  assert.equal(points?.[0].completionRate,null);
-  assert.equal(points?.[0].actualCapacityJh,null);
-  assert.equal(points?.[1].completedSp,null);
-  assert.equal(points?.[1].actualCapacityJh,null);
-  assert.equal(points?.[2].completedSp,0);
-  assert.equal(points?.[2].completionRate,null);
-  assert.equal(points?.[2].actualCapacityJh,0);
+  assert.equal(points?.length,1);
+  assert.equal(points?.[0].completedSp,null);
+  assert.equal(points?.[0].snapshotVersion,null);
  });
 });
 
