@@ -12,7 +12,8 @@ test("Cockpit membre : bandeau contextualisé et statut lecture seule",()=>{
  assert.match(view,/\{teamName\}/);
  assert.match(view,/<h1>\{identity\.name\}<\/h1>/);
  assert.match(view,/smn-member-readonly/);
- assert.match(view,/memberTeamScope\.readOnly/);
+ assert.match(view,/smn-member-hero-actions/);
+ assert.match(view,/smn-member-readonly smn-member-back/);
  assert.match(page,/import "\.\/member-cockpit\.css"/);
 });
 test("Cockpit membre : panneaux, indicateurs réels, tableaux et mois conservés",()=>{

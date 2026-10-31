@@ -51,7 +51,7 @@ describe("SMN-234 D6 — six clôtures pour le filtre, lectures collectives et m
    assert.match(sql,/s\.team_id=\$1/);
    assert.match(sql,/s\.status='closed'/);
    assert.match(sql,/s\.start_at<=\$2::timestamptz/);
-   assert.match(sql,/ORDER BY s\.start_at DESC,s\.id DESC LIMIT 5/);
+   assert.match(sql,/ORDER BY s\.start_at DESC,s\.id DESC LIMIT 6/);
    assert.deepEqual(args,[teamId,"2026-10-23T07:00:00Z"]);
    return {rows};
   });

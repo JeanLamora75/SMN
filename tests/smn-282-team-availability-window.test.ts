@@ -16,6 +16,8 @@ function fake(options:FakeOptions={}){
     [{installation_id:"singleton",schema_version:28}]};
   if(sql.includes("SELECT t.id AS team_id FROM public.smn_account_team_preference"))
    return {rows:[{team_id:"team_a"}]};
+  if(sql.includes("SELECT a.id FROM public.smn_member_assignment a"))
+   return {rows:options.assignment===false?[]:[{id:"assignment_b"}]};
   if(sql.includes("SELECT p.id AS product_id"))
    return {rows:[{product_id:null,product:null,team_id:"team_b",
      team:"Panda",mode:"scrum"}]};
@@ -56,7 +58,9 @@ test("requête limite à l'affectation équipe ET aux jours historiques concern�
  await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
  const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
  assert.match(sql,/x.member_id=\$1 AND x.team_id=\$2/);
- assert.match(sql,/m.installation_id=t.installation_id/);
+ const memberScope=calls.find(x=>x.sql.includes("SELECT a.id FROM public.smn_member_assignment a"));
+ assert.match(memberScope!.sql,/m.installation_id=\x27singleton\x27/);
+ assert.deepEqual(memberScope?.values,[memberId,"team_b"]);
  assert.match(sql,/x.start_on<=gs.day::date/);
  assert.match(sql,/x.end_on>=gs.day::date/);
  assert.match(sql,/a.start_on<=d.day AND a.end_on>=d.day/);

@@ -39,6 +39,6 @@ test("service d'écriture : autorisation, verrous, revisions et audit",()=>{
 test("lecteur actuel v27 ne peut pas choisir une équipe arbitraire en v28",()=>{
  const s=src("src/server/capacity/actual.ts");
  assert.match(s,/i\.schema_version<=27/);
- assert.match(s,/i\.schema_version IN \(28,29,30,31\) AND t\.id=\$1/);
+ assert.match(s,/i\.schema_version BETWEEN 28 AND 32 AND t\.id=\$1/);
  assert.match(s,/options\.teamId\?\{teamId:options\.teamId\}:\{\}/);
 });

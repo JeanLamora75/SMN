@@ -71,9 +71,8 @@ test("le moteur et les lecteurs consultent les données courantes sans altérer 
 test("lien diagnostic conserve le Sprint et les permissions de lecture des membres",()=>{
  const overview=source("src/app/app/cycle-overview.tsx");
  const dashboard=source("src/app/app/page.tsx");
- assert.match(overview,/canViewCapacity&&cycle&&cycle\.status!=="closed"/);
- assert.match(overview,/development-capacity\?cycleId=/);
- assert.match(overview,/action=\{canViewCapacity&&cycle/);
+ assert.doesNotMatch(overview,/development-capacity\?cycleId=/);
+ assert.doesNotMatch(overview,/smn-capacity-diagnostic-link/);
  assert.doesNotMatch(overview,/className="smn-capacity-diagnostic-link"/);
  const cards=source("src/app/app/kpi-cards.tsx");
  assert.match(cards,/action&&<Link href=\{action.href\}/);

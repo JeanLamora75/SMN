@@ -142,13 +142,13 @@ describe("SMN-57 — calcul fiable des JH",()=>{
   assert.equal(f.sql.some(q=>/story.?point|sprint|kanban_indicator|INSERT|UPDATE/i.test(q)),false);
   assert.equal(f.sql[0],"BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
  });
- it("AC2 et AC4 — rôle non Développeur sans calendrier reste non calculable",async()=>{
+ it("AC2 et AC4 — rôle non Développeur sans calendrier individuel utilise la trame par défaut",async()=>{
   const report=await readDevelopmentCapacity(fixture({
    percentScrumMaster:true,missingCalendar:true
   }).db,range.start,range.end);
-  assert.equal(report.status,"not-calculable");
-  assert.equal(report.totalJh,null);
-  assert.ok(report.missing.some(m=>m.source==="work-calendar"));
+  assert.equal(report.status,"calculated");
+  assert.equal(report.totalJh,0);
+  assert.deepEqual(report.missing,[]);
  });
  it("ne déduit qu'une fois les jours fériés, fermetures et absences",async()=>{
   const report=await readDevelopmentCapacity(fixture({
@@ -180,11 +180,12 @@ describe("SMN-57 — calcul fiable des JH",()=>{
   assert.equal(report.members[0].totalJh,null);
   assert.ok(report.missing.some(m=>m.source==="assignment-version"));
  });
- it("le calendrier individuel est requis, mais le pays et les jours fériés ne le sont pas",async()=>{
+ it("sans calendrier individuel, la trame par défaut permet le calcul sans pays ni jours fériés",async()=>{
   const absent=await readDevelopmentCapacity(fixture({missingCalendar:true}).db,
    range.start,range.end);
-  assert.equal(absent.totalJh,null);
-  assert.ok(absent.missing.some(m=>m.source==="work-calendar"));
+  assert.equal(absent.totalJh,2);
+  assert.equal(absent.status,"calculated");
+  assert.deepEqual(absent.missing,[]);
   for(const options of [{partialNational:true},{missingCountry:true},
    {partialNational:true,missingCountry:true}]){
    const report=await readDevelopmentCapacity(fixture(options).db,
