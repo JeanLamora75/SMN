@@ -21,6 +21,7 @@
     "pdf:doctor": "node scripts/report-pdf-doctor.mjs",
     "pdf:smoke": "node scripts/report-pdf-doctor.mjs --smoke",
     "db:upgrade": "tsx scripts/db-upgrade.ts",
+    "db:migrate:red-purple": "tsx scripts/apply-red-purple-migration.ts",
     "db:diagnose:full": "tsx scripts/db-diagnostic-exhaustive.ts",
     "test:db:compat": "tsx --test tests/db-upgrade-v32-compatibility.test.ts",
     "db:baseline:v32": "tsx scripts/generate-v32-baseline.ts",
