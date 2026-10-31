@@ -177,6 +177,23 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
  };
  return <section className="smn-registry-journal" aria-label={tr("heading")}
   data-registry-dirty={Boolean(commentOpen&&draft.length>0||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
+  {embedded&&<div className="smn-registry-summary-journal-heading">
+   <h2 className="h5 mb-0">{tr("heading")}</h2>
+   {canManage&&<div className="smn-registry-summary-journal-create" role="group" aria-label={tr("addToJournal")}>
+    <button type="button" className="smn-registry-summary-journal-add smn-registry-summary-journal-add-action"
+     aria-label={tr("action")} title={tr("action")} onClick={()=>setLinkedType("action")}>
+     <BootstrapIcon name="plus-lg"/>
+    </button>
+    <button type="button" className="smn-registry-summary-journal-add smn-registry-summary-journal-add-decision"
+     aria-label={tr("decision")} title={tr("decision")} onClick={()=>setLinkedType("decision")}>
+     <BootstrapIcon name="plus-lg"/>
+    </button>
+    <button type="button" className="smn-registry-summary-journal-add smn-registry-summary-journal-add-comment"
+     aria-label={tr("addComment")} title={tr("addComment")} onClick={()=>setCommentOpen(true)}>
+     <BootstrapIcon name="plus-lg"/>
+    </button>
+   </div>}
+  </div>}
   {success&&<p role="status" className="small text-success mb-0">{tr("saved")}</p>}
    {linkedCreated&&<div role="status" className="smn-registry-linked-success">
     <span>{tr("createdLinked")}</span>
