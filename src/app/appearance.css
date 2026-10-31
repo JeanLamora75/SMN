@@ -130,3 +130,48 @@ html {--bs-focus-ring-color:var(--smn-focus);}
   --bs-secondary-color:var(--smn-muted);--bs-border-color:var(--smn-border);
   --bs-primary-rgb:255,115,135;--bs-link-color-rgb:185,165,255;
 }
+
+/* Cockpit Agile compatibility: constrain overrides to the new palette. */
+[data-bs-theme="light"][data-smn-palette="red-purple"] {
+  --smn-background:var(--smn-bg);--smn-foreground:var(--smn-text);
+  --smn-heading:var(--smn-text);--smn-brand:#ba1732;
+  --smn-nav-active:#fde6ec;--smn-nav-hover:#fcecf1;
+  --bs-primary:var(--smn-primary);--bs-link-color:var(--smn-link);
+  --bs-link-hover-color:#3c287e;
+}
+[data-bs-theme="dark"][data-smn-palette="red-purple"] {
+  --smn-background:var(--smn-bg);--smn-foreground:var(--smn-text);
+  --smn-heading:var(--smn-text);--smn-brand:#ff7387;
+  --smn-nav-active:#4b2337;--smn-nav-hover:#35313e;
+  --bs-primary:var(--smn-primary);--bs-link-color:var(--smn-link);
+  --bs-link-hover-color:#d9cfff;--bs-emphasis-color:var(--smn-text);
+  --bs-heading-color:var(--smn-text);
+  --bs-secondary-bg:#30313a;--bs-tertiary-bg:#2d2d37;
+}
+html[data-smn-palette="red-purple"] .smn-context-card {
+  background:linear-gradient(125deg,var(--smn-context-start),var(--smn-context-end));
+}
+html[data-smn-palette="red-purple"] .smn-mark {
+  background:var(--smn-btn-bg);color:var(--smn-btn-text);
+}
+html[data-smn-palette="red-purple"] .smn-nav-link.is-active {
+  color:var(--smn-primary);background:var(--smn-highlight);
+}
+html[data-smn-palette="red-purple"] .smn-nav-link:hover {
+  color:var(--smn-primary);background:var(--smn-soft);
+}
+html[data-smn-palette="red-purple"] .smn-context-back {
+  color:var(--smn-link);
+}
+html[data-smn-palette="red-purple"] .btn-primary {
+  --bs-btn-color:#fff;--bs-btn-bg:var(--smn-btn-bg);
+  --bs-btn-border-color:var(--smn-btn-bg);
+  --bs-btn-hover-color:#fff;--bs-btn-hover-bg:var(--smn-btn-hover);
+  --bs-btn-hover-border-color:var(--smn-btn-hover);
+  --bs-btn-disabled-color:#fff;--bs-btn-disabled-bg:var(--smn-btn-bg);
+}
+html[data-smn-palette="red-purple"] .btn-outline-primary {
+  --bs-btn-color:var(--smn-link);--bs-btn-border-color:var(--smn-link);
+  --bs-btn-hover-color:var(--smn-bg);--bs-btn-hover-bg:var(--smn-link);
+  --bs-btn-hover-border-color:var(--smn-link);
+}
