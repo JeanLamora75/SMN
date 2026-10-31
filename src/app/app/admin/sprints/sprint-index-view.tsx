@@ -61,6 +61,14 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
  const statuses=[...new Set([...known,...(data?.statuses??[])])];
  const change=(fn:()=>void)=>{setLoading(true);setNotice("");fn();setPage(1);};
  const reload=()=>{setLoading(true);setNotice("");setRefresh(n=>n+1);};
+ const indicatorCodes=["f01","f05","f07","f10","f11","f12"] as const;
+ const number=(value:number|null|undefined,code:typeof indicatorCodes[number])=>{
+  if(value===null||value===undefined||!Number.isFinite(value))return "—";
+  const formatted=new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{
+   maximumFractionDigits:code==="f07"||code==="f12"?2:0
+  }).format(value);
+  return formatted+" "+(code==="f07"||code==="f12"?"%":code==="f10"||code==="f11"?"tck":"sp");
+ };
  const items=data?.items??[];
  const generateHref="/app/admin/sprints/generate?"+new URLSearchParams({search,status:filter,sort,page:String(page)}).toString();
  const mainStatuses=new Set(["all","active","planned","finished","closed"]);
@@ -172,6 +180,10 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
       <thead><tr>
        <th scope="col">{t("sprintStates.name")}</th>
        <th scope="col">{t("sprintsIndex.period")}</th>
+       {indicatorCodes.map(code=><th scope="col" key={code}
+        title={t(`sprintsIndex.indicatorColumns.${code}`)}
+        aria-label={t(`sprintsIndex.indicatorColumns.${code}`)}
+        className="text-end">{code.toUpperCase()}</th>)}
        <th scope="col">{t("sprintStates.status")}</th>
        <th scope="col" className="text-end">{t("sprintsIndex.actions")}</th>
       </tr></thead>
@@ -185,6 +197,9 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
         </th>
         <td data-label={t("sprintsIndex.period")}><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
          {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
+        {indicatorCodes.map(code=><td key={code} className="text-end text-nowrap"
+         data-label={code.toUpperCase()} title={t(`sprintsIndex.indicatorColumns.${code}`)}>
+         {number(item.metrics?.[code],code)}</td>)}
         <td data-label={t("sprintStates.status")}><span className={"badge smn-sprints-status "+(current?"text-bg-primary":"text-bg-secondary")}>
          {label(item)}</span></td>
         <td className="text-end smn-sprints-row-actions" data-label={t("sprintsIndex.actions")}>
