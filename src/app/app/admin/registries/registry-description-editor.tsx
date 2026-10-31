@@ -59,10 +59,10 @@ export default function RegistryDescriptionEditor({item,onSaved,onDismiss}:{
  const cancelEvent=(e:SyntheticEvent<HTMLDialogElement>)=>{
   e.preventDefault();close();
  };
- return <dialog ref={dialog} className="smn-registry-description-dialog" data-registry-dirty={dirty}
+ return <dialog ref={dialog} className="smn-registry-description-dialog smn-cockpit-modal" data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancelEvent} onClose={onDismiss}>
   <form onSubmit={submit} className="d-grid gap-3">
-   <div className="d-flex justify-content-between align-items-center gap-3">
+   <div className="smn-cockpit-modal-header d-flex justify-content-between align-items-center gap-3">
     <h2 id={titleId} className="h5 mb-0">{tr("editDescription")}</h2>
     <button type="button" className="btn-close" disabled={busy} onClick={close}
      aria-label={tr("cancel")}/>
@@ -74,7 +74,7 @@ export default function RegistryDescriptionEditor({item,onSaved,onDismiss}:{
     rows={7} maxLength={4000} value={draft} disabled={busy}
     onChange={e=>setDraft(e.target.value)}/>
    {failure&&<p role="alert" className="alert alert-danger mb-0">{tr(failure)}</p>}
-   <footer className="d-flex justify-content-end gap-2 flex-wrap">
+   <footer className="smn-cockpit-modal-footer d-flex justify-content-end gap-2 flex-wrap">
     <button type="button" className="btn btn-outline-secondary" disabled={busy}
      onClick={close}>{tr("cancel")}</button>
     <button type="submit" className="btn btn-primary"
