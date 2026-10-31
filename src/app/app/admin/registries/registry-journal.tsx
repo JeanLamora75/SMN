@@ -18,9 +18,9 @@ type Version={revision:number;action:string;beforeText:string|null;afterText:str
 type VersionState={state:"loading"|"unavailable"|"ready";items:Version[]};
 const recordIdRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation,composeOpen,onCloseCompose}:{
+export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation,composeOpen,onOpenCompose,onCloseCompose}:{
  itemId:string;itemTitle:string;teamId:string;canManage:boolean;
- navigation:RegistryNavigation;composeOpen:boolean;onCloseCompose:()=>void;
+ navigation:RegistryNavigation;composeOpen:boolean;onOpenCompose:()=>void;onCloseCompose:()=>void;
 }){
  const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryJournal."+key) as Parameters<typeof t>[0]);
@@ -177,7 +177,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
     <Link href={registryDetailHref(linkedCreated.id,navigation)}
      className="btn btn-sm btn-outline-success">{tr("viewLinked")}</Link>
     <button type="button" className="btn btn-sm btn-outline-success"
-     onClick={()=>{setLinkedCreated(null);setChooseLinked(true);}}>
+     onClick={()=>{setLinkedCreated(null);setChooseLinked(true);onOpenCompose();}}>
      {tr("createAnotherLinked")}
     </button>
     <Link href={registryDetailHref(itemId,{origin:navigation.origin,trail:navigation.trail.slice(0,-1)})}
