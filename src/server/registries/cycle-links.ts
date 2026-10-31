@@ -6,13 +6,16 @@ export async function ensureCycleLinks(db:Client){
 }
 export async function readLinks(db:Client,id:string,teamId?:string){
  if(!/^[0-9a-f-]{36}$/i.test(id))return null;
- const scope=await db.query<{teamId:string;type:string}>(`SELECT r.team_id AS "teamId",r.type FROM public.smn_registry_item r
+ const scope=await db.query<{teamId:string;type:string;occurredOn:string;dueOn:string|null}>(`SELECT r.team_id AS "teamId",r.type,r.occurred_on::text AS "occurredOn",r.due_on::text AS "dueOn" FROM public.smn_registry_item r
  JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized' AND ($2::text IS NULL OR r.team_id=$2)`,[id,teamId??null]);
  const r=scope.rows[0];if(!r||!["risk","dependency","obstacle"].includes(r.type))return null;
  const cycles=await db.query<{id:string;name:string;status:string}>(`
  SELECT s.id,s.name,s.status FROM public.smn_sprint s
- WHERE s.team_id=$1 AND s.deleted_at IS NULL ORDER BY s.start_at DESC,s.id DESC`,[r.teamId]);
+ WHERE s.team_id=$1 AND s.deleted_at IS NULL
+ AND ( (s.start_at::date <= COALESCE($3::date,$2::date) AND s.end_at::date >= $2::date)
+ OR EXISTS (SELECT 1 FROM public.smn_registry_cycle_link l WHERE l.item_id=$4 AND l.sprint_id=s.id))
+ ORDER BY s.start_at DESC,s.id DESC`,[r.teamId,r.occurredOn,r.dueOn,id]);
  const exists=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS present`);
  const linked=exists.rows[0]?.present?await db.query<{sprint_id:string}>(`SELECT l.sprint_id FROM public.smn_registry_cycle_link l JOIN public.smn_sprint s ON s.id=l.sprint_id
  WHERE l.item_id=$1 AND s.team_id=$2 AND s.deleted_at IS NULL`,[id,r.teamId]):{rows:[]};
@@ -29,7 +32,8 @@ export async function changeCycleLink(db:Client,actorId:string,id:string,cycleId
  WHERE r.id=$1 AND r.type IN ('risk','dependency','obstacle') AND i.id='singleton' AND i.state='initialized'
  AND ($3::text IS NULL OR r.team_id=$3)
  AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode')) IN ('scrum','kanban')
- AND s.status<>'closed' FOR UPDATE OF r,s`,[id,cycleId,teamId??null]);
+ AND s.status<>'closed'
+ AND ($4::text='unlinked' OR (s.start_at::date<=COALESCE(r.due_on,r.occurred_on) AND s.end_at::date>=r.occurred_on)) FOR UPDATE OF r,s`,[id,cycleId,teamId??null,action]);
  if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
  await ensureCycleLinks(db);
  const existing=await db.query(`SELECT 1 FROM public.smn_registry_cycle_link WHERE item_id=$1 AND sprint_id=$2`,[id,cycleId]);
