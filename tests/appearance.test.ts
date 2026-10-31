@@ -5,6 +5,7 @@ import {DEFAULT_APPEARANCE,PALETTES,safeAppearance,validPalette} from "../src/li
 import {APPEARANCE_MIGRATION_SQL} from "../src/server/settings/appearance-migration";
 
 const css=readFileSync(new URL("../src/app/appearance.css",import.meta.url),"utf8");
+const redPurpleMigration=readFileSync(new URL("../prisma/migrations/20261031_red_purple_palette/migration.sql",import.meta.url),"utf8");
 function luminance(hex:string):number{
   const channels=hex.slice(1).match(/.{2}/g)!.map(v=>parseInt(v,16)/255)
     .map(v=>v<=0.04045?v/12.92:((v+0.055)/1.055)**2.4);
@@ -52,5 +53,22 @@ describe("SMN-24 — thèmes et palettes accessibles",()=>{
     assert.match(APPEARANCE_MIGRATION_SQL,/CHECK \(palette IN \('ocean','forest','violet'\)\)/);
     assert.match(APPEARANCE_MIGRATION_SQL,/schema_version=6/);
     assert.doesNotMatch(APPEARANCE_MIGRATION_SQL,/DROP|DELETE|TRUNCATE|UPDATE public\.smn_team|UPDATE public\.smn_product/i);
+  });
+});
+
+describe("Red & Purple — extension non destructive",()=>{
+  it("préserve la migration historique et autorise quatre palettes dans une migration séparée",()=>{
+    assert.match(APPEARANCE_MIGRATION_SQL,/CHECK \\(palette IN \\('ocean','forest','violet'\\)\\)/);
+    assert.match(redPurpleMigration,/DROP CONSTRAINT IF EXISTS smn_general_settings_palette_check/);
+    assert.match(redPurpleMigration,/CHECK \\(palette IN \\('ocean','forest','violet','red-purple'\\)\\)/);
+    assert.doesNotMatch(redPurpleMigration,/DELETE|TRUNCATE|DROP TABLE|UPDATE public\\.smn_general_settings/i);
+  });
+  it("garantit les tokens clair/sombre et les principaux contrastes",()=>{
+    assert.ok(css.includes('[data-bs-theme="light"][data-smn-palette="red-purple"]'));
+    assert.ok(css.includes('[data-bs-theme="dark"][data-smn-palette="red-purple"]'));
+    assert.ok(contrast("#ffffff","#ba1732")>=4.5);
+    assert.ok(contrast("#b9a5ff","#24252d")>=4.5);
+    assert.ok(contrast("#ff7387","#24252d")>=4.5);
+    assert.ok(contrast("#f4f3f6","#24252d")>=4.5);
   });
 });
