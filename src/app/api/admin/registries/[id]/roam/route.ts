@@ -1,35 +1,37 @@
 import {NextRequest} from "next/server";
 import {authorizeApi} from "@/server/auth/authorization";
-import {withLegacyTeamApi} from "@/server/teams/legacy";
-import {withLegacyRegistryReadDb} from "@/server/registries/legacy-read";
+import {withAuthDb} from "@/server/auth/database";
+import {withSprintIndexDb} from "@/server/sprints/read-only-db";
+import {authorizeRegistryRecord} from "@/server/registries/scoped-record";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {readRiskRoam,updateRiskRoam} from "@/server/registries/roam";
-export const dynamic="force-dynamic";
-export const runtime="nodejs";
+export const dynamic="force-dynamic";export const runtime="nodejs";
+const target={type:"collective",exists:true,inScope:true} as const;
 export async function GET(req:NextRequest,{params}:{params:Promise<{id:string}>}){
- if(!await authorizeApi(req,"read",{type:"collective",exists:true,inScope:true}))
-  return jsonResult({error:"forbidden"},403);
+ const actor=await authorizeApi(req,"read",target);
+ if(!actor)return jsonResult({error:"forbidden"},403);
  const {id}=await params;
  try{
-  const result=await withLegacyRegistryReadDb(async db=>{
-   const found=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_risk_roam') IS NOT NULL AS present`);
-   if(found.rows[0]?.present)return readRiskRoam(db,id);
-   const item=await db.query(`SELECT r.id FROM public.smn_registry_item r
-    JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-    WHERE r.id=$1 AND r.type='risk' AND i.id='singleton' AND i.state='initialized'`,[id]);
-   return item.rows.length===1?{classification:null,revision:0,updatedAt:null}:null;
+  const data=await withSprintIndexDb(async db=>{
+   const teamId=await authorizeRegistryRecord(db,{accountId:actor.id,role:actor.role},id);
+   if(!teamId)return null;
+   return readRiskRoam(db,id);
   });
-  return jsonResult(result??{error:"not-found"},result?200:404);
+  return jsonResult(data??{error:"not-found"},data?200:404);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
 export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}>}){
  const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
  if(!actor)return jsonResult({error:"forbidden"},403);
- const body=await readJsonObject(req);
- if(!body)return jsonResult({error:"invalid-input"},400);
+ const b=await readJsonObject(req);
+ if(!b)return jsonResult({error:"invalid-input"},400);
  const {id}=await params;
  try{
-  const result=await withLegacyTeamApi(db=>updateRiskRoam(db,actor.id,id,body));
+  const result=await withAuthDb(async db=>{
+   const teamId=await authorizeRegistryRecord(db,{accountId:actor.id,role:actor.role},id);
+   if(!teamId)return {ok:false as const,error:"not-found" as const};
+   return updateRiskRoam(db,actor.id,id,b);
+  });
   return jsonResult(result,result.ok?200:result.error==="conflict"?409:result.error==="not-found"?404:400);
  }catch{return jsonResult({error:"service-unavailable"},503);}
 }
