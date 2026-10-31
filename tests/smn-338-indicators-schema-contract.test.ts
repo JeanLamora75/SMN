@@ -3,7 +3,7 @@ import {strict as assert} from "node:assert";
 import {readFileSync} from "node:fs";
 
 // Tests documentaires statiques : ne connectent aucune base PostgreSQL.
-const sql=readFileSync(new URL("../prisma/migrations/20261031_smn338_indicators_draft/migration.sql",import.meta.url),"utf8");
+const sql=readFileSync(new URL("../_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",import.meta.url),"utf8");
 
 test("SMN-338 : DDL ajout seul, aucune opération destructive",()=>{
  assert.doesNotMatch(sql,/\b(?:DROP|TRUNCATE)\s+(?:TABLE|SCHEMA|DATABASE)\b/i);
