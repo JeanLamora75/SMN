@@ -18,3 +18,12 @@ test("La modale restreinte ne change pas les autres parcours de création",()=>{
  const modal=source("src/app/app/admin/registries/registry-create-modal.tsx");
  assert.match(modal,/restrictedTypes\?\?\(linkedFromJournal\?linkedJournalTypes:registryTypes\)/);
 });
+
+test("Compteurs visuellement renforcés et en-têtes tronqués",()=>{
+ const css=source("src/app/app/admin/registries/registry-cockpit.css");
+ const ui=source("src/app/app/admin/registries/registry-list.tsx");
+ assert.match(ui,/smn-registry-count-heading/);
+ assert.match(css,/\.smn-registry-count-heading\{[\s\S]*?text-overflow:ellipsis;white-space:nowrap/);
+ assert.match(css,/\.smn-registry-count svg\{[\s\S]*?width:29px;height:29px/);
+ assert.match(css,/table-layout:fixed/);
+});
