@@ -54,7 +54,12 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const [decisionSearch,setDecisionSearch]=useState("");
  const [decisionChoices,setDecisionChoices]=useState<{id:string;title:string;occurredOn:string}[]>([]);
  const [decisionUnavailable,setDecisionUnavailable]=useState(false);
- const [dirty,setDirty]=useState(false);
+ const initialDate=useRef(occurredOn);
+ const dirty=type!==initialType||title!==""||occurredOn!==initialDate.current||
+  status!==registryStatuses[initialType][0]||description!==""||owner!==""||dueOn!==""||
+  comment!==""||probability!==""||impact!==""||roam!==""||
+  requesterKind!==""||requesterName!==""||contributorKind!==""||contributorName!==""||
+  atRisk||rationale!==""||replacesId!=="";
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState<"error"|"invalid"|"conflict"|"unavailable"|null>(null);
  const currentType=(next:RegistryType)=>{
@@ -165,7 +170,6 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
    const result=await response.json() as {ok?:boolean;id?:string};
    if(response.status!==201||!result.ok||typeof result.id!=="string"||
     !uuidRx.test(result.id))throw Error("unconfirmed");
-   setDirty(false);
    onCreated(result.id);
   }catch{setError("error");}
   finally{setBusy(false);}
@@ -176,8 +180,8 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  return <RegistryDialogPortal><dialog ref={dialog} className="smn-registry-create-dialog smn-cockpit-modal" data-registry-dirty={dirty}
   aria-labelledby={titleId} onCancel={cancel} onClose={()=>{previousFocus.current?.focus();onDismiss();}}>
   <form className="smn-registry-create-form" onSubmit={save}
-   onChangeCapture={()=>{setDirty(true);requestId.current=null;}}
-   onInputCapture={()=>{setDirty(true);requestId.current=null;}}>
+   onChangeCapture={()=>{requestId.current=null;}}
+   onInputCapture={()=>{requestId.current=null;}}>
    <header className="smn-registry-create-header smn-cockpit-modal-header">
     <h2 className="h5 mb-0" id={titleId}>{tr("heading")}</h2>
     <button className="btn-close" type="button" disabled={busy}
