@@ -182,7 +182,7 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
        <th scope="col">{t("sprintsIndex.period")}</th>
        {indicatorCodes.map(code=><th scope="col" key={code}
         title={t(`sprintsIndex.indicatorColumns.${code}`)}
-        aria-label={t(`sprintsIndex.indicatorColumns.${code}`)}
+        aria-label={t(`sprintsIndex.indicatorColumns.${code}`)} tabIndex={0}
         className="text-end">{code.toUpperCase()}</th>)}
        <th scope="col">{t("sprintStates.status")}</th>
        <th scope="col" className="text-end">{t("sprintsIndex.actions")}</th>
