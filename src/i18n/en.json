@@ -2622,6 +2622,8 @@
     "discardChanges": "Discard unsaved description changes?"
   },
   "registryJournal": {
+    "addComment": "+ Comment",
+    "addJournalRecord": "+ Journal",
     "addToJournal": "Add to journal",
     "search": "Search the journal…",
     "sort": "Sort journal",
