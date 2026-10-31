@@ -175,11 +175,11 @@
   display:block;padding:0;border:0!important;min-width:0;font-size:.82rem;
  }
  .smn-sprints-cockpit .smn-sprints-table tbody th{grid-column:1/-1}
- .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(2){grid-column:1/-1}
- .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(n+3):nth-child(-n+8){
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(3){grid-column:1/-1}
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(n+4):nth-child(-n+9){
   grid-column:auto;text-align:left!important;
  }
- .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(9){grid-column:1;text-align:left}
+ .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(2){grid-column:1;text-align:left}
  .smn-sprints-cockpit .smn-sprints-table tbody td:nth-child(10){grid-column:2}
  .smn-sprints-cockpit .smn-sprints-table tbody td[data-label]::before{
   content:attr(data-label) " : ";font-size:.74rem;color:var(--smn-muted);
@@ -204,3 +204,14 @@
 .smn-sprints-cockpit .smn-sprints-state-planned{color:var(--bs-secondary-text-emphasis);background:var(--bs-secondary-bg-subtle);border-color:var(--bs-secondary-border-subtle);}
 .smn-sprints-cockpit .smn-sprints-state-complete{color:var(--bs-success-text-emphasis);background:var(--bs-success-bg-subtle);border-color:var(--bs-success-border-subtle);}
 .smn-sprints-cockpit .smn-sprints-state-muted{color:var(--bs-warning-text-emphasis);background:var(--bs-warning-bg-subtle);border-color:var(--bs-warning-border-subtle);}
+
+/* Sprint table: readable centered headings and left-anchored percentage gauges. */
+.smn-sprints-cockpit .smn-sprints-table thead th{
+ text-align:center!important;font-size:.86rem;font-weight:750;vertical-align:middle;
+}
+.smn-sprints-cockpit .smn-sprints-table tbody td.smn-sprints-gauge-cell{
+ text-align:left!important;
+}
+.smn-sprints-cockpit .smn-sprints-table .smn-sprints-percent{
+ justify-content:flex-start;width:100%;
+}
