@@ -1,6 +1,6 @@
 ---
 name: SMN — Palette Red & Purple
-status: proposed
+status: approved-ux
 updated: 2026-10-31
 description: Contrat visuel de la quatrième palette SMN, à valider avant implémentation.
 sources:
@@ -98,3 +98,26 @@ Hériter des arrondis, pastilles, contrôles et focus visibles de SMN. Aucun cha
 
 ## Validation
 **À valider** : teinte exacte des variantes sombres, contraste des bannières et boutons, accessibilité au clavier, audit des composants avec couleurs CSS codées en dur. Aucun test visuel ni validation WCAG automatisée exécuté ici.
+
+
+## Avenant validé — variante sombre Anthracite & Red Purple (31 octobre 2026)
+**Décision utilisateur :** la direction A « Anthracite & Red Purple » est validée à partir des trois maquettes correspondant au Tableau de bord, à Équipe et à Sprints de l'équipe. La variante claire Red & Purple reste dans le périmètre de cette quatrième palette. Les trois palettes existantes ne doivent subir aucun changement.
+
+**Hiérarchie visuelle obligatoire :** fond anthracite presque noir, panneaux légèrement plus clairs, textes blanc cassé, rouge dominant pour action principale et navigation active, violet lavande pour liens/actions secondaires et certains accents de métriques. Les bandeaux contextuels utilisent un dégradé rouge profond → violet profond ; **ni le dégradé ni une couleur de graphique ne doivent encoder seuls un statut métier**.
+
+**Tokens de départ approuvés comme orientation, valeurs CSS exactes soumises aux tests de contraste :**
+| Rôle | Valeur cible |
+|---|---|
+| Page sombre | `#15161B` |
+| Surface carte sombre | `#24252D` |
+| Texte principal sombre | `#F4F3F6` |
+| Texte secondaire sombre | `#C7C2D4` |
+| Rouge marque | `#E31937` |
+| Violet accent sombre | `#B9A5FF` |
+| Bandeau sombre | `#991F3D` → `#35206C` |
+
+**Priorité documentaire :** ces tokens remplacent, pour la variante sombre, les valeurs provisoires `#15121D`, `#252030` et `#F4F0FA` proposées plus haut. Les autres couleurs demeurent candidates jusqu'à contrôle WCAG, notamment les boutons sur rouge, la lisibilité du bandeau sur toute sa longueur, les liens et les champs à focus. Les maquettes validées expriment le style ; les contenus inventés ou les écarts d'étiquettes ne sont pas des demandes fonctionnelles.
+
+**Périmètre :** thème clair et sombre, toutes les pages SMN, composants Bootstrap, Cockpit Agile, cartes, tableaux, formulaires, modales, états actifs, survol/focus/désactivés, indicateurs et graphiques. La géométrie et les règles UX existantes ne changent pas.
+
+**Statut :** direction esthétique validée ; conformité WCAG, rendu CSS et recette Windows non attestés.
