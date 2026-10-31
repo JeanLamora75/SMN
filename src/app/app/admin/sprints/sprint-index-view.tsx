@@ -71,7 +71,7 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
  };
  const gauge=(value:number)=> {
   const ratio=Math.min(100,Math.max(0,value));
-  const angle=-90+(ratio*1.8);
+  const angle=180+(ratio*1.8);
   const radians=angle*Math.PI/180;
   const x=22+14*Math.cos(radians),y=22+14*Math.sin(radians);
   return <svg className="smn-sprints-gauge" viewBox="0 0 44 30" aria-hidden="true" focusable="false">
