@@ -90,7 +90,7 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
   {!modalMode&&<header><h1>{translate("title")}</h1><p className="text-body-secondary">{translate("intro")}</p></header>}
   {!teamId?<div role="alert" className="alert alert-warning">{translate("unavailable")}</div>:
    !canManage?<div className="card p-3 d-grid gap-2"><div role="status" className="alert alert-info">{translate("readonly")}</div>{loaded&&<><h2>{title}</h2><p>{translate("date")}: {date}</p><p>{translate("status")}: {translate(status)}</p><p>{description}</p></>}</div>:
-  <form className={modalMode?"d-grid gap-3":"card p-3 p-lg-4 d-grid gap-3"} onSubmit={save}>
+  <form id={modalMode&&itemId?"registry-main-edit":undefined} className={modalMode?"d-grid gap-3":"card p-3 p-lg-4 d-grid gap-3"} onSubmit={save}>
    {dirty&&<div className="alert alert-warning" role="status">{translate("unsaved")}</div>}
    {type==="obstacle"&&<p className="small text-body-secondary" role="status">{itemId&&obstacleTransition(originalStatus,status).valid&&obstacleTransition(originalStatus,status).reopened?t("obstacleLifecycle.reopening"):status==="resolved"?t("obstacleLifecycle.resolved"):status==="abandoned"?t("obstacleLifecycle.abandoned"):obstacleNeedsAttention(status)?t("obstacleLifecycle.active"):""}</p>}
    <div className="row g-3">
@@ -98,33 +98,30 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
      <select id="registry-type" className="form-select" value={type} onChange={e=>changeType(e.target.value as RegistryType)}>
       {registryTypes.map(item=><option key={item} value={item}>{translate(item)}</option>)}
      </select></div>}
-    <div className="col-md-6"><label className="form-label" htmlFor="registry-date">{translate("date")}</label>
+    <div className="col-md-4"><label className="form-label" htmlFor="registry-date">{translate("date")}</label>
      <input id="registry-date" type="date" className="form-control" value={date} required onChange={e=>setDate(e.target.value)}/></div>
-    <div className="col-md-8"><label className="form-label" htmlFor="registry-title">{translate("titleField")}</label>
-     <input id="registry-title" className="form-control" maxLength={240} required value={title} onChange={e=>setTitle(e.target.value)}/></div>
+    <div className="col-md-4"><label className="form-label" htmlFor="registry-due">{translate("due")}</label>
+     <input id="registry-due" type="date" className="form-control" value={due} onChange={e=>setDue(e.target.value)}/></div>
     <div className="col-md-4"><label className="form-label" htmlFor="registry-status">{translate("status")}</label>
      <select id="registry-status" className="form-select" value={status} onChange={e=>setStatus(e.target.value)}>
       {registryStatuses[type].map(s=><option key={s} value={s}>{translate(s)}</option>)}
      </select></div>
-    <div className="col-12"><label className="form-label" htmlFor="registry-description">{translate("description")}</label>
-     <textarea id="registry-description" className="form-control" rows={3} maxLength={4000} value={description} disabled={lockDescription} onChange={e=>setDescription(e.target.value)}/></div>
-    <div className="col-md-6"><label className="form-label" htmlFor="registry-owner">{translate("owner")}</label>
+    <div className="col-12"><label className="form-label" htmlFor="registry-title">{translate("titleField")}</label>
+     <input id="registry-title" className="form-control" maxLength={240} required value={title} onChange={e=>setTitle(e.target.value)}/></div>
+    <div className="col-12"><label className="form-label" htmlFor="registry-owner">{translate("owner")}</label>
      <input id="registry-owner" className="form-control" maxLength={200} value={owner} onChange={e=>setOwner(e.target.value)}/></div>
-    <div className="col-md-6"><label className="form-label" htmlFor="registry-due">{translate("due")}</label>
-     <input id="registry-due" type="date" className="form-control" value={due} onChange={e=>setDue(e.target.value)}/></div>
-    <div className="col-12"><label className="form-label" htmlFor="registry-comment">{translate("comment")}</label>
-     <textarea id="registry-comment" className="form-control" rows={2} maxLength={2000} value={comment} onChange={e=>setComment(e.target.value)}/></div>
-   </div>
-   <div className="d-flex justify-content-end">
+    <div className="col-12"><label className="form-label" htmlFor="registry-description">{translate("description")}</label>
+     <textarea id="registry-description" className="form-control" rows={3} maxLength={4000} value={description} disabled={lockDescription} onChange={e=>setDescription(e.target.value)}/></div>   </div>
+   {!(modalMode&&itemId)&&<div className="d-flex justify-content-end">
     <button type="submit" className="btn btn-primary" disabled={busy||!title.trim()||(!!itemId&&revision===null)}>{busy?translate("creating"):itemId?t("common.save"):translate("create")}</button>
-   </div>
+   </div>}
    {notice&&<div role={notice.ok?"status":"alert"} className={notice.ok?"alert alert-success":"alert alert-danger"}>{notice.message}{createdId&&<a className="ms-2" href={"/app/admin/registries/"+encodeURIComponent(createdId)}>{translate("edit")}</a>}</div>}
   </form>}
-  {itemId&&loaded&&<RegistryRelations id={itemId} type={type} canManage={canManage} onSaved={onSaved}/>}
+  {itemId&&loaded&&<details className="smn-registry-fold"><summary>Relations entre fiches et objectifs</summary><div className="smn-registry-fold-body"><RegistryRelations id={itemId} type={type} canManage={canManage} onSaved={onSaved}/></div></details>}
   {itemId&&loaded&&type==="action"&&<ActionLinks id={itemId} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="decision"&&<><DecisionDetail id={itemId} canManage={canManage} onSaved={onSaved}/>{teamId&&<DecisionActions id={itemId} teamId={teamId} title={title} description={description} canManage={canManage} onSaved={onSaved}/>}</>}
   {itemId&&loaded&&(type==="risk"||type==="dependency"||type==="obstacle")&&<RegistryCycles teamId={teamId??undefined} id={itemId} canManage={canManage} onSaved={onSaved}/>}
   {itemId&&loaded&&type==="dependency"&&<><DependencyParties id={itemId} canManage={canManage} onSaved={onSaved}/><DependencyVigilance id={itemId} canManage={canManage} onSaved={onSaved}/></>}
-  {itemId&&loaded&&type==="risk"&&<><RiskRoam id={itemId} canManage={canManage} onSaved={onSaved}/><RiskAssessment id={itemId} canManage={canManage} onSaved={onSaved}/>{teamId&&<MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage} onSaved={onSaved}/>}</>}
+  {itemId&&loaded&&type==="risk"&&<><details className="smn-registry-fold"><summary>Classification ROAM</summary><div className="smn-registry-fold-body"><RiskRoam id={itemId} canManage={canManage} onSaved={onSaved}/></div></details><details className="smn-registry-fold"><summary>Évaluation du risque</summary><div className="smn-registry-fold-body"><RiskAssessment id={itemId} canManage={canManage} onSaved={onSaved}/></div></details>{teamId&&<details className="smn-registry-fold"><summary>Créer un obstacle à partir du risque</summary><div className="smn-registry-fold-body"><MaterializeRisk id={itemId} teamId={teamId} title={title} description={description} canManage={canManage} onSaved={onSaved}/></div></details>}</>}
  </div>;
 }
