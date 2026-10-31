@@ -346,6 +346,10 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    </div>
   </form>
   </section>
+  {canManage&&<button type="button" className="smn-registry-add-event"
+   onClick={()=>setCreateOpen(true)} aria-label={translate("addEvent")}>
+   <BootstrapIcon name="plus-lg"/><span>{translate("addEvent")}</span>
+  </button>}
   <section className="smn-registry-results">
   {query.lifecycle!=="all"&&<p className="small text-body-secondary mb-0">{translate("recordedUnclassified")}</p>}
   {loading?<div role="status" className="spinner-border spinner-border-sm" aria-label={translate("loading")}/>:
@@ -391,7 +395,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    </div>}
   </section>
   {canManage&&createOpen&&<RegistryCreateModal
-   teamId={teamId} initialType={type==="all"?"risk":type}
+   teamId={teamId} restrictedTypes={visibleRegistryTypes} initialType={type==="all"?"risk":type}
    sourceId={sourceId} cycleId={query.cycleId||initialCycleId}
    onCreated={created} onDismiss={()=>{clearCreationQuery();setCreateOpen(false);}}/>}
   {canManage&&editingId&&<RegistryEditModal id={editingId} teamId={teamId}
