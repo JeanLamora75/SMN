@@ -20,9 +20,9 @@ type Version={revision:number;action:string;beforeText:string|null;afterText:str
 type VersionState={state:"loading"|"unavailable"|"ready";items:Version[]};
 const recordIdRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation}:{
+export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation,embedded=false}:{
  itemId:string;itemTitle:string;teamId:string;canManage:boolean;
- navigation:RegistryNavigation;
+ navigation:RegistryNavigation;embedded?:boolean;
 }){
  const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryJournal."+key) as Parameters<typeof t>[0]);
@@ -216,7 +216,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
      {tr(type)}</button>)}
    </div>
   </RegistrySectionDialog>}
-  <div className="smn-registry-journal-toolbar">
+  {!embedded&&<div className="smn-registry-journal-toolbar">
    <input type="search" className="form-control form-control-sm smn-registry-journal-search"
     aria-label={t("registryJournal.search")} placeholder={t("registryJournal.search")}
     value={query} onChange={event=>setQuery(event.target.value)}/>
@@ -238,7 +238,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
     <button type="button" className="btn btn-primary btn-sm"
      onClick={()=>setChooseLinked(true)}>{t("registryJournal.addJournalRecord")}</button>
    </div>}
-  </div>
+  </div>}
   {state==="loading"?<p role="status" className="small text-body-secondary mb-0">{tr("loading")}</p>:
    state==="unavailable"?<div role="alert" className="d-flex flex-wrap align-items-center gap-2">
     <span>{tr("unavailable")}</span>
