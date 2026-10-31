@@ -705,3 +705,38 @@ button.smn-risk-roam-tile{cursor:pointer}
 .smn-registry-cockpit .smn-registry-risk-score-8{background:#f4511e;color:#fff}
 .smn-registry-cockpit .smn-registry-risk-score-9{background:#c62828;color:#fff}
 .smn-registry-cockpit .smn-registry-list-table th:nth-child(4){width:125px}
+
+
+/* Synthèse : raccourcis de création contextuelle du journal. */
+.smn-registry-detail-cockpit .smn-registry-summary-journal-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ margin-bottom:12px;flex-wrap:wrap;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-create{
+ display:flex;align-items:center;gap:6px;margin-left:auto;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-add{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:36px;height:36px;border-radius:8px;cursor:pointer;
+ border:1px solid transparent;transition:filter .15s,transform .15s;
+ font-weight:800;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-add svg{
+ width:17px;height:17px;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-add:hover{filter:brightness(.94)}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-add:focus-visible{
+ outline:3px solid var(--smn-focus);outline-offset:2px;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-add-action{
+ background:var(--bs-primary-bg-subtle);border-color:var(--bs-primary-border-subtle);
+ color:var(--bs-primary-text-emphasis);
+}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-add-decision{
+ background:var(--bs-success-bg-subtle);border-color:var(--bs-success-border-subtle);
+ color:var(--bs-success-text-emphasis);
+}
+.smn-registry-detail-cockpit .smn-registry-summary-journal-add-comment{
+ background:var(--bs-secondary-bg-subtle);border-color:var(--bs-secondary-border-subtle);
+ color:var(--bs-secondary-text-emphasis);
+}
