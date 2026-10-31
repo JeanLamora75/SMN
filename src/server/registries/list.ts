@@ -112,6 +112,11 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
  const availability=await db.query<{relations:boolean;comments:boolean}>(`SELECT
   to_regclass('public.smn_registry_relation') IS NOT NULL AS relations,
   to_regclass('public.smn_registry_comment') IS NOT NULL AS comments`);
+ const riskAssessmentReady=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_risk_assessment') IS NOT NULL AS present");
+ const riskScoreSql=riskAssessmentReady.rows[0]?.present?
+  "(SELECT (a.probability*a.impact)::int FROM public.smn_risk_assessment a WHERE a.item_id=r.id)":
+  "NULL::integer";
  const relationCounts=availability.rows[0]?.relations?`(SELECT COUNT(*)::int FROM public.smn_registry_relation l
    JOIN public.smn_registry_item linked ON linked.id=CASE WHEN l.source_id=r.id THEN l.target_id ELSE l.source_id END
     AND linked.team_id=r.team_id
@@ -121,7 +126,7 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
  const commentCount=availability.rows[0]?.comments?`(SELECT COUNT(*)::int
    FROM public.smn_registry_comment c WHERE c.item_id=r.id AND c.withdrawn_at IS NULL)`:"0::int";
  const rows=await db.query("SELECT r.id,r.type,r.title,r.description,r.status,r.occurred_on::text AS \"occurredOn\",r.due_on::text AS \"dueOn\",r.created_at::text AS \"recordedAt\","+
-  typedCount("decision")+' AS "decisionsCount",'+typedCount("action")+' AS "actionsCount",'+
+  riskScoreSql+' AS "criticalityScore",'+typedCount("decision")+' AS "decisionsCount",'+typedCount("action")+' AS "actionsCount",'+
   typedCount("highlight")+' AS "highlightsCount",'+commentCount+' AS "commentsCount"'+
   (canSeeOwner?',r.owner_name AS "owner"':"")+
   " FROM public.smn_registry_item r WHERE "+where+" ORDER BY "+orders[filters.sort]+" LIMIT 25 OFFSET $"+(values.length+1),
