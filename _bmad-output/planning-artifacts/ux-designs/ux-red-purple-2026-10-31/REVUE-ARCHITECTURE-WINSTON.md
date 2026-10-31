@@ -40,3 +40,20 @@
 5. Ne déclarer livré qu'après vérification effective, puis actualiser la documentation SMN-24 et Jira sous approbation.
 
 **Vérification** : liens source dans le dépôt GitHub `JeanLamora75/SMN`. Niveau de confiance élevé sur les blocages identifiés, moyen sur le nom réel de la contrainte et le parcours exact de migration en base : inspection PostgreSQL non effectuée.
+
+
+## Validation et transmission Winston → Amelia (31 octobre 2026)
+**Entrées figées pour l'implémentation :** [DESIGN.md](DESIGN.md), [EXPERIENCE.md](EXPERIENCE.md), variante sombre A Anthracite & Red Purple approuvée, quatrième palette `red-purple`, trois palettes historiques intactes.
+
+**Séquence impérative :**
+1. **Inventaire avant modification.** Relever la version réelle de PostgreSQL et de la baseline/migration, retrouver la contrainte `CHECK` active sur `public.smn_general_settings.palette`, examiner ses dépendances et la procédure de montée de version v32. Ne pas supposer le nom de la contrainte ni exécuter un DDL runtime.
+2. **Migration non destructive.** Préparer une migration versionnée distincte de l'historique v6, remplaçant exclusivement la contrainte `CHECK` par l'allowlist à quatre valeurs, en conservant les lignes, le DEFAULT ocean, les révisions et les historiques. Couvrir installation neuve et ancienne ; rollback/échec explicites, pas de migration silencieuse en lecture.
+3. **Contrat de domaine.** Étendre `src/lib/appearance.ts` (`PALETTES`, `Palette`, `validPalette`, `safeAppearance`) et vérifier tous les usages, `src/server/settings/manager.ts`, API de paramètres et projection depuis la DB. Pas de CSS ni de code hexadécimal libre fourni par l'utilisateur.
+4. **Rendu global.** Ajouter les tokens `red-purple` clair/sombre dans `src/app/appearance.css` (notamment `--bs-primary-rgb`, liens, focus, boutons, fonds et surfaces). Vérifier la priorité des règles de `src/app/globals.css` et des sélecteurs Bootstrap; corriger les couleurs codées en dur ciblées sans modifier les trois autres palettes.
+5. **Interface et traduction.** Ajouter l'option `red-purple` à `src/app/app/admin/settings/settings-form.tsx` et aux messages FR/EN; conserver la lecture SSR `src/server/settings/appearance.server.ts`, `data-bs-theme`, `data-smn-palette` et l'audit/revision de l'API.
+6. **TDD et recette.** Mettre à jour `tests/appearance.test.ts` sans réécrire les assertions d'historique v6 ; ajouter tests de la nouvelle migration et de la contrainte SQL finale, des huit combinaisons, rechargement/SSR, rejet des valeurs invalides, conflit 409, conservation des données, accessibilité WCAG AA, responsive, régressions sur Océan/Forêt/Violet. Exécuter réellement `pnpm typecheck`, `pnpm lint`, `pnpm i18n:check`, les tests ciblés et l'intégration PostgreSQL si disponible. Rapporter les commandes non exécutables au lieu de les déclarer vertes.
+7. **Handoff.** Détailler les fichiers modifiés, les décisions, la migration, les preuves de tests et les risques résiduels. Ne publier aucune modification fonctionnelle sans validation supplémentaire. Demander la validation de recette de l'utilisateur avant d'affirmer la livraison complète.
+
+**Attention :** la restriction SQL historique est avérée dans `src/server/settings/appearance-migration.ts`. Le schéma PostgreSQL vivant n'a pas été interrogé à ce jour ; toute instruction `DROP CONSTRAINT` doit être fondée sur un constat SQL réel. Le workflow récent `scripts/db-upgrade.ts` exige une maintenance explicite et n'est pas une preuve qu'une migration automatique fonctionnerait.
+
+**Décision d'architecture :** catalogue fermé de quatre palettes × deux modes ; aucune nouvelle dépendance de thème ni modification du design structurel Cockpit Agile. Le prochain agent est Amelia, responsable de l'implémentation et des preuves TDD, après accord sur le démarrage du développement.
