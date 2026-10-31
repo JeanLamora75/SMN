@@ -4,11 +4,11 @@ export async function ensureCycleLinks(db:Client){
  await db.query("SELECT to_regclass('public.smn_registry_cycle_link') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
  await db.query("SELECT to_regclass('public.smn_registry_cycle_link_audit') AS present").then(r=>{if(!r.rows[0]?.present)throw Error("registry-schema-not-ready: apply-registry-extensions-v32")});
 }
-export async function readLinks(db:Client,id:string){
+export async function readLinks(db:Client,id:string,teamId?:string){
  if(!/^[0-9a-f-]{36}$/i.test(id))return null;
  const scope=await db.query<{teamId:string;type:string}>(`SELECT r.team_id AS "teamId",r.type FROM public.smn_registry_item r
  JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
- WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized'`,[id]);
+ WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized' AND ($2::text IS NULL OR r.team_id=$2)`,[id,teamId??null]);
  const r=scope.rows[0];if(!r||!["risk","dependency","obstacle"].includes(r.type))return null;
  const cycles=await db.query<{id:string;name:string;status:string}>(`
  SELECT s.id,s.name,s.status FROM public.smn_sprint s
@@ -19,7 +19,7 @@ export async function readLinks(db:Client,id:string){
  return {cycles:cycles.rows,linkedIds:linked.rows.map(x=>x.sprint_id)};
 }
 /** Explicit link/unlink only, never mutates registry data, sprint bounds or closure snapshots. */
-export async function changeCycleLink(db:Client,actorId:string,id:string,cycleId:string,action:"linked"|"unlinked"){
+export async function changeCycleLink(db:Client,actorId:string,id:string,cycleId:string,action:"linked"|"unlinked",teamId?:string){
  if(!actorId||!/^[0-9a-f-]{36}$/i.test(id)||!/^[0-9a-f-]{36}$/i.test(cycleId))return {ok:false as const,error:"invalid-input" as const};
  await db.query("BEGIN");
  try{
@@ -27,7 +27,9 @@ export async function changeCycleLink(db:Client,actorId:string,id:string,cycleId
  JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  JOIN public.smn_sprint s ON s.team_id=r.team_id AND s.id=$2 AND s.deleted_at IS NULL
  WHERE r.id=$1 AND r.type IN ('risk','dependency','obstacle') AND i.id='singleton' AND i.state='initialized'
- AND lower(i.mode)='scrum' AND s.status<>'closed' FOR UPDATE OF r,s`,[id,cycleId]);
+ AND ($3::text IS NULL OR r.team_id=$3)
+ AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode')) IN ('scrum','kanban')
+ AND s.status<>'closed' FOR UPDATE OF r,s`,[id,cycleId,teamId??null]);
  if(scope.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
  await ensureCycleLinks(db);
  const existing=await db.query(`SELECT 1 FROM public.smn_registry_cycle_link WHERE item_id=$1 AND sprint_id=$2`,[id,cycleId]);
