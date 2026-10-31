@@ -46,28 +46,10 @@ export default async function RegistryDetailPage({params,searchParams}:{
   return {version:27 as const,teamId:r.rows.length===1?r.rows[0].id:null};
  }).catch(()=>null);
  if(context?.version===28){
-  const item=context.item;
   return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-   <p><Link href={navigation.origin}>← {translate(locale,"registryDetail.back")}</Link></p>
-   {!item?<p role="alert" className="alert alert-warning">
-    Fiche introuvable dans l&apos;équipe sélectionnée.
-   </p>:<article className="smn-panel rounded-4 p-3 p-lg-4">
-    <p className="text-secondary mb-2">Registre · Consultation seule</p>
-    <h1 className="h3">{item.title}</h1>
-    <dl className="row mb-0">
-     <dt className="col-sm-3">Type</dt><dd className="col-sm-9">{item.type}</dd>
-     <dt className="col-sm-3">Statut</dt><dd className="col-sm-9">{item.status}</dd>
-     <dt className="col-sm-3">Date</dt><dd className="col-sm-9">{item.occurredOn}</dd>
-     <dt className="col-sm-3">Échéance</dt>
-     <dd className="col-sm-9">{item.dueOn??"—"}</dd>
-     <dt className="col-sm-3">Description</dt>
-     <dd className="col-sm-9">{item.description??"—"}</dd>
-    </dl>
-    <p className="text-secondary small mt-3 mb-0">
-     Les relations, historiques, commentaires et modifications restent
-     indisponibles jusqu&apos;à leur isolation multiéquipes.
-    </p>
-   </article>}
+   {context.item?<RegistryDetail id={id} teamId={context.teamId}
+    canManage={actor.role==="admin"} navigation={navigation}/>:
+    <p role="alert" className="alert alert-warning">Fiche introuvable dans l&apos;équipe sélectionnée.</p>}
   </main>;
  }
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
