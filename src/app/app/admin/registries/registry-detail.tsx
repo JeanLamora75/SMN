@@ -71,7 +71,7 @@ export default function RegistryDetail({id,teamId,canManage,navigation}:{
  const buttons=useRef<Partial<Record<RegistryDetailTab,HTMLButtonElement|null>>>({});
  useEffect(()=>{
   const controller=new AbortController();
-  void fetch("/api/admin/registries/"+encodeURIComponent(id),{
+  void fetch("/api/admin/registries/"+encodeURIComponent(id)+"?teamId="+encodeURIComponent(teamId),{
    cache:"no-store",signal:controller.signal
   }).then(async response=>{
    if(response.status===404||response.status===403)return {state:"missing" as const};
