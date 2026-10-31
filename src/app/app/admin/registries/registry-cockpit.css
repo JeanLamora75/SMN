@@ -422,3 +422,65 @@
  .smn-registry-detail-cockpit .smn-registry-journal-entry-date{display:block;text-align:left;padding:0;margin-bottom:5px}
  .smn-registry-detail-cockpit .smn-registry-journal-toolbar-actions{width:100%;justify-content:flex-end}
 }
+
+
+/* Contrat UX Journal : quatre colonnes réelles, sans carte interne. */
+.smn-registry-detail-cockpit .smn-registry-journal-entry{
+ display:grid;grid-template-columns:120px 140px minmax(0,1fr) 96px;
+ column-gap:14px;align-items:center;padding:15px 18px;min-height:88px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry::before{
+ left:144px;top:calc(50% - 10px);width:20px;height:20px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry:not(:last-child)::after{
+ left:153px;top:calc(50% + 10px);bottom:-46px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-date{
+ display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+ text-align:left;padding:0;font-size:.81rem;font-variant-numeric:tabular-nums;
+ color:var(--smn-muted);white-space:nowrap;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-date span:last-child{font-weight:650}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-type{
+ display:flex;align-items:center;justify-content:center;min-width:0;
+ padding-left:14px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-main{min-width:0}
+.smn-registry-detail-cockpit .smn-registry-journal-entry-author{margin-bottom:5px}
+.smn-registry-detail-cockpit .smn-registry-journal-linked-title{margin:0}
+.smn-registry-detail-cockpit .smn-registry-journal-linked-title>a{
+ display:block;font-weight:750;color:var(--smn-heading);
+ text-decoration:none;overflow-wrap:anywhere;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-linked-title>a:hover,
+.smn-registry-detail-cockpit .smn-registry-journal-linked-title>a:focus-visible{text-decoration:underline}
+.smn-registry-detail-cockpit .smn-registry-journal-comment-title{
+ display:block;font-weight:750;color:var(--smn-heading);margin-bottom:4px;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-comment-title+span{display:block}
+.smn-registry-detail-cockpit .smn-registry-journal-content{margin:0;overflow-wrap:anywhere}
+.smn-registry-detail-cockpit .smn-registry-journal-actions{
+ display:flex;justify-content:flex-end;gap:6px;margin:0;align-items:center;
+}
+.smn-registry-detail-cockpit .smn-registry-journal-actions .btn{
+ display:inline-flex;width:38px;height:38px;align-items:center;justify-content:center;
+ padding:0;flex-shrink:0;
+}
+@media(max-width:850px){
+ .smn-registry-detail-cockpit .smn-registry-journal-entry{
+  grid-template-columns:90px 118px minmax(0,1fr) 90px;gap:8px;padding:12px;
+ }
+ .smn-registry-detail-cockpit .smn-registry-journal-entry::before{left:104px}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry:not(:last-child)::after{left:113px}
+}
+@media(max-width:575px){
+ .smn-registry-detail-cockpit .smn-registry-journal-entry{
+  display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px 14px;
+ }
+ .smn-registry-detail-cockpit .smn-registry-journal-entry-date{grid-column:1}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry-type{grid-column:2;grid-row:1;padding:0}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry-main{grid-column:1/-1}
+ .smn-registry-detail-cockpit .smn-registry-journal-actions{grid-column:1/-1}
+ .smn-registry-detail-cockpit .smn-registry-journal-entry::before,
+ .smn-registry-detail-cockpit .smn-registry-journal-entry::after{display:none}
+}
