@@ -11,22 +11,23 @@
  background:var(--smn-surface);color:var(--smn-foreground);
 }
 .smn-login-logo{
- display:flex;align-items:center;justify-content:center;
- gap:10px;white-space:nowrap;
+ display:flex;align-items:center;justify-content:space-between;
+ width:100%;gap:10px;white-space:nowrap;
  margin-bottom:24px;color:var(--smn-heading);
 }
 .smn-login-logo .smn-mark{
- width:42px;height:42px;min-width:42px;border-radius:11px;
- font-size:.95rem;
+ width:52px;height:52px;min-width:52px;border-radius:12px;
+ font-size:1.12rem;
 }
 .smn-login-logo .smn-brand-name{
- font-size:clamp(.88rem,2.8vw,1.15rem);
- font-weight:500;letter-spacing:-.03em;white-space:nowrap;
+ flex:1;min-width:0;text-align:right;
+ font-size:clamp(1rem,3.6vw,1.43rem);
+ font-weight:500;letter-spacing:-.035em;white-space:nowrap;
 }
 .smn-login-logo .smn-brand-name strong{font-weight:800;}
-.smn-login-heading{margin:0 0 22px;font-size:1.65rem;font-weight:700;}
+.smn-login-heading{margin:0 0 22px;font-size:1.65rem;font-weight:700;text-align:center;}
 @media(max-width:375px){
  .smn-login-logo{gap:7px;}
- .smn-login-logo .smn-mark{width:36px;height:36px;min-width:36px;font-size:.8rem;}
- .smn-login-logo .smn-brand-name{font-size:.78rem;}
+ .smn-login-logo .smn-mark{width:38px;height:38px;min-width:38px;font-size:.82rem;}
+ .smn-login-logo .smn-brand-name{font-size:clamp(.76rem,3.5vw,1rem);}
 }
