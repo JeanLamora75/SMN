@@ -568,3 +568,38 @@ button.smn-risk-roam-tile{cursor:pointer}
 .smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-roam-grid{
  min-height:220px;grid-template-rows:repeat(2,minmax(90px,1fr));
 }
+
+
+/* Synthèse compacte : Risque et ROAM côte à côte, dans la colonne Cycles associés. */
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-registry-summary-risk-layout{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-registry-summary-risk-layout>.smn-registry-business-section{
+ display:flex;min-width:0;height:100%;padding:10px;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-registry-summary-risk-layout .card{
+ width:100%;min-width:0;height:100%;padding:0!important;font-size:.78rem;gap:8px;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-registry-summary-risk-layout h2{font-size:.95rem;margin:0}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-matrix{
+ width:100%;grid-template-columns:37px repeat(3,minmax(0,1fr));gap:3px;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-matrix-axis{font-size:.66rem}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-matrix-cell{
+ min-height:27px;aspect-ratio:1.15;font-size:.88rem;border-radius:5px;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-matrix-cell.is-selected span{padding:0 5px}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-roam-grid{
+ min-height:150px;grid-template-rows:repeat(2,minmax(65px,1fr));gap:5px;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-roam-tile{gap:3px;padding:4px;text-align:center}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-roam-glyph{height:26px;width:26px;font-size:.95rem}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-roam-tile strong{
+ font-size:.68rem;line-height:1.15;overflow-wrap:anywhere;
+}
+.smn-registry-detail-cockpit .smn-registry-summary-side .smn-risk-roam-check{font-size:.65rem;top:3px;right:3px;padding:0 4px}
+@media(max-width:1100px){
+ .smn-registry-detail-cockpit .smn-registry-summary-side .smn-registry-summary-risk-layout{
+  grid-template-columns:minmax(0,1fr);
+ }
+}
