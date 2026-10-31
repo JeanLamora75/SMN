@@ -38,6 +38,8 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
  const [editingId,setEditingId]=useState<string|null>(null);
  const [view,setView]=useState<RegistryDisplayView>("list");
  const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
+ const [filtersOpen,setFiltersOpen]=useState(false);
+ const [showResolved,setShowResolved]=useState(false);
  const [draft,setDraft]=useState<Filters>(defaults);
  const [query,setQuery]=useState<Filters>(defaults);
  const [page,setPage]=useState(1);
@@ -177,6 +179,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    sort:query.sort,page:String(page)
   });
   if(query.cycleId)params.set("cycleId",query.cycleId);
+  params.set("showResolved",String(showResolved));
   if(canManage&&query.owner)params.set("owner",query.owner);
   void fetch("/api/admin/registries?"+params.toString(),{signal:ctrl.signal,cache:"no-store"})
    .then(async response=>{if(!response.ok)throw Error("unavailable");return response.json() as Promise<Page>;})
@@ -185,7 +188,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    }})
    .catch(()=>{if(!ctrl.signal.aborted){setError(true);setLoading(false);}});
   return()=>ctrl.abort();
- },[type,query,page,canManage,refresh,restored,teamId]);
+ },[type,query,page,canManage,refresh,restored,teamId,showResolved]);
 
  const clearCreationQuery=()=>{
   const next=new URL(window.location.href);
@@ -275,7 +278,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    loading={attentionLoading} onRetry={retryAttention}/>
   <section className="smn-registry-filters-panel" aria-label={translate("filtersHeading")}>
    <div className="smn-registry-filters-heading">
-    <h2><BootstrapIcon name="sliders"/>{translate("filtersHeading")}</h2>
+    <h2><button className="smn-registry-filters-disclosure" type="button" aria-expanded={filtersOpen} aria-controls="smn-registry-filter-body" onClick={()=>setFiltersOpen(v=>!v)}><BootstrapIcon name="sliders"/>{translate("filtersHeading")} <span aria-hidden="true">{filtersOpen?"▴":"▾"}</span></button></h2>
     <div className="smn-registry-context">
      {!loading&&result?.state==="available"&&<span><BootstrapIcon name="people-fill"/>{translate("team")}: <strong>{result.team.name}</strong></span>}
      <span><BootstrapIcon name="grid-3x3-gap"/>{translate("viewLabel")}: <strong>{translate(view==="list"?"listView":"cardsView")}</strong></span>
@@ -290,6 +293,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
     <span className="smn-registry-filter-indicator">{[query.lifecycle!=="all",!!query.cycleId,!!query.status,query.sort!=="default",canManage&&!!query.owner].filter(Boolean).length||""}</span>
     <span aria-hidden="true">{mobileFiltersOpen?"▴":"▾"}</span>
    </button>
+  <div id="smn-registry-filter-body" hidden={!filtersOpen}>
   <form className="smn-registry-compact-filters" onSubmit={event=>{
    event.preventDefault();setPage(1);setLoading(true);setRefresh(n=>n+1);
    setQuery({...draft,search:draft.search.trim(),owner:canManage?draft.owner.trim():""});
@@ -341,15 +345,13 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
    </div>}
    <div className="col-md-3 d-flex flex-wrap gap-2">
     <button className="btn btn-outline-primary" type="submit">{translate("filter")}</button>
-    <button className="btn btn-outline-secondary" type="button" onClick={reset}>{translate("reset")}</button>
+    <button className="btn btn-outline-secondary" type="button" onClick={reset}>{translate("clearShort")}</button>
+    <label className="smn-registry-resolved-toggle"><input type="checkbox" role="switch" checked={showResolved} onChange={e=>{setShowResolved(e.target.checked);setPage(1);setLoading(true);}}/>{translate("showResolved")}</label>
    </div>
    </div>
   </form>
+  </div>
   </section>
-  {canManage&&<button type="button" className="smn-registry-add-event"
-   onClick={()=>setCreateOpen(true)} aria-label={translate("addEvent")}>
-   <BootstrapIcon name="plus-lg"/><span>{translate("addEvent")}</span>
-  </button>}
   <section className="smn-registry-results">
   {query.lifecycle!=="all"&&<p className="small text-body-secondary mb-0">{translate("recordedUnclassified")}</p>}
   {loading?<div role="status" className="spinner-border spinner-border-sm" aria-label={translate("loading")}/>:
@@ -370,11 +372,12 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
        <th scope="col">{translate("status")}</th>
        <th scope="col">{translate("category")}</th>
        <th scope="col">{translate("title")}</th>
+       {(["decisions","actions","highlights","comments"] as const).map(k=><th key={k} scope="col" className="smn-registry-count-col" title={translate(k)}>{translate(k)}</th>)}
        {canManage&&<th scope="col">{translate("owner")}</th>}
        <th scope="col">{translate("due")}</th>
        <th scope="col">{translate("actions")}</th>
       </tr></thead>
-      <tbody>{result.items.map(item=><RegistryListRow key={item.id} item={item}
+      <tbody>{canManage&&<tr className="smn-registry-create-table-row"><td colSpan={canManage?11:10}><button type="button" className="smn-registry-add-event" onClick={()=>setCreateOpen(true)}><BootstrapIcon name="plus-lg"/>{translate("addEvent")}</button></td></tr>}{result.items.map(item=><RegistryListRow key={item.id} item={item}
        navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={()=>setEditingId(item.id)}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
