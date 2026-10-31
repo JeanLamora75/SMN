@@ -1,7 +1,8 @@
 "use client";
 import {useEffect,useState} from "react";
-import {useTranslation} from "@/i18n/client";
-type Cycle={id:string;name:string;status:string};
+import {useLocale,useTranslation} from "@/i18n/client";
+import {formatRegistryDate} from "@/lib/registry-date";
+type Cycle={id:string;name:string;status:string;startOn:string;endOn:string};
 type Data={cycles:Cycle[];linkedIds:string[]};
 const validId=(id:unknown)=>typeof id==="string"&&/^[0-9a-f-]{36}$/i.test(id);
 function parseData(value:unknown):Data|null{
@@ -9,12 +10,14 @@ function parseData(value:unknown):Data|null{
  const data=value as Partial<Data>;
  if(!Array.isArray(data.cycles)||!Array.isArray(data.linkedIds)||
   !data.cycles.every(c=>c&&validId(c.id)&&typeof c.name==="string"&&
-   c.name.trim()&&typeof c.status==="string")||
+   c.name.trim()&&typeof c.status==="string"&&
+   /^\d{4}-\d{2}-\d{2}$/.test(c.startOn)&&/^\d{4}-\d{2}-\d{2}$/.test(c.endOn))||
   !data.linkedIds.every(validId)||
   !data.linkedIds.every(x=>data.cycles!.some(c=>c.id===x)))return null;
  return {cycles:data.cycles,linkedIds:data.linkedIds};
 }
 export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;teamId?:string;canManage:boolean;onSaved?:()=>void}){
+ const locale=useLocale();
  const t=useTranslation(),tr=(k:string)=>t(("registryCycles."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(false),[busy,setBusy]=useState<string|null>(null);
  const [reload,setReload]=useState(0);
@@ -67,7 +70,7 @@ export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;
   <ul id="registry-cycles-list" className="list-group">{currentData?.cycles.map(cycle=>{
    const linked=currentData.linkedIds.includes(cycle.id),closed=cycle.status==="closed";
    return <li className="list-group-item d-flex align-items-center justify-content-between gap-3" key={cycle.id}>
-    <span>{cycle.name} {closed&&<small className="text-body-secondary">({tr("closed")})</small>}</span>
+    <span>{cycle.name} <small className="text-body-secondary">({formatRegistryDate(cycle.startOn,locale)} – {formatRegistryDate(cycle.endOn,locale)})</small> {closed&&<small className="text-body-secondary">({tr("closed")})</small>}</span>
     {canManage?<button type="button" className={"btn btn-sm "+(linked?"btn-outline-danger":"btn-outline-primary")}
      disabled={closed||busy!==null} onClick={()=>void toggle(cycle,linked)}>
      {tr(linked?"linked":"unlinked")}</button>:<strong>{tr(linked?"linked":"unlinked")}</strong>}
