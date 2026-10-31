@@ -1086,7 +1086,7 @@ dialog.smn-operational-create-dialog::backdrop {background:rgba(10,20,36,.65);}
   grid-template-columns:242px minmax(0,1fr);
 }
 .smn-private-layout .smn-sidebar-region {
-  background:linear-gradient(180deg,#f7fbff 0%,var(--smn-surface) 100%);
+  background:linear-gradient(180deg,var(--smn-soft) 0%,var(--smn-surface) 100%);
 }
 .smn-private-layout .smn-private-navigation {
   padding:16px 9px 18px 6px;
@@ -1112,11 +1112,11 @@ dialog.smn-operational-create-dialog::backdrop {background:rgba(10,20,36,.65);}
   overflow-wrap:normal;font-size:inherit;line-height:1.3;
 }
 .smn-private-layout .smn-private-nav-list .smn-nav-link.is-active {
-  background:#e2efff;color:#174f91;font-weight:750;
+  background:var(--smn-highlight);color:var(--smn-primary);font-weight:750;
 }
 .smn-private-layout .smn-private-nav-list .smn-nav-link.is-active::before {
   content:"";position:absolute;left:0;top:9px;bottom:9px;
-  width:3px;border-radius:3px;background:#1869cb;
+  width:3px;border-radius:3px;background:var(--smn-primary);
 }
 .smn-private-layout .smn-private-nav-list .smn-nav-disabled {
   background:transparent;color:var(--smn-muted);
