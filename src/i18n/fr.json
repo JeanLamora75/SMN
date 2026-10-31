@@ -2840,6 +2840,8 @@
     "historyError": "Historique indisponible."
   },
   "registryList": {
+    "riskLevel": "Risque",
+    "notAssessed": "Non évalué",
     "clearShort": "Effacer",
     "showResolved": "Afficher les événements résolus",
     "decisions": "Décisions",
