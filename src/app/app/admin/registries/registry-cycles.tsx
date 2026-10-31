@@ -16,12 +16,12 @@ function parseData(value:unknown):Data|null{
   !data.linkedIds.every(x=>data.cycles!.some(c=>c.id===x)))return null;
  return {cycles:data.cycles,linkedIds:data.linkedIds};
 }
-export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;teamId?:string;canManage:boolean;onSaved?:()=>void}){
+export default function RegistryCycles({id,teamId,canManage,onSaved,embedded=false}:{id:string;teamId?:string;canManage:boolean;onSaved?:()=>void;embedded?:boolean}){
  const locale=useLocale();
  const t=useTranslation(),tr=(k:string)=>t(("registryCycles."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(false),[busy,setBusy]=useState<string|null>(null);
  const [reload,setReload]=useState(0);
- const [expanded,setExpanded]=useState(false);
+ const [expanded,setExpanded]=useState(embedded);
  const [loadedKey,setLoadedKey]=useState<string|null>(null);
  const requestKey=id+":"+reload;
  const currentData=loadedKey===requestKey?data:null;
@@ -52,13 +52,14 @@ export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;
   }catch{setError(true);}finally{setBusy(null);}
  };
  return <section className="card p-3 mt-3">
-  <div className="d-flex align-items-center justify-content-between gap-2">
+  {!embedded&&<div className="d-flex align-items-center justify-content-between gap-2">
    <h2 className="h5 mb-0">{tr("heading")}</h2>
    <button type="button" className="btn btn-sm btn-outline-secondary" aria-expanded={expanded}
     aria-controls="registry-cycles-list" aria-label={expanded?"Replier les cycles associés":"Déplier les cycles associés"}
     onClick={()=>setExpanded(value=>!value)}>{expanded?"▴":"▾"}</button>
-  </div>
-  {expanded&&<><p className="text-body-secondary mt-2">{tr("intro")}</p>
+  </div>}
+  {embedded?null:null}
+  {(embedded||expanded)&&<><p className="text-body-secondary mt-2">{tr("intro")}</p>
   {!currentData&&!currentError?<p role="status">{tr("loading")}</p>:null}
   {currentError&&<div role="alert" className="d-flex gap-2 align-items-center">
    <span className="text-danger">{tr("error")}</span>
