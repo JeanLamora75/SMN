@@ -7,7 +7,7 @@ export type RegistryLifecycle="all"|"followup"|"final";
 export type RegistrySort="default"|"dateDesc"|"dateAsc"|"titleAsc"|"titleDesc";
 export type RegistryFilters={
  type:RegistryScope;search:string;status:string;owner:string;page:number;
- lifecycle:RegistryLifecycle;sort:RegistrySort;cycleId:string;
+ lifecycle:RegistryLifecycle;sort:RegistrySort;cycleId:string;showResolved:boolean;
 };
 
 // Only known business terminal statuses are final. A recorded highlight is neither
@@ -35,7 +35,8 @@ export function parseRegistryFilters(params:URLSearchParams):RegistryFilters|nul
  const type=params.get("type")??"all",search=(params.get("search")??"").trim(),
   status=params.get("status")??"",owner=(params.get("owner")??"").trim(),
   lifecycle=params.get("lifecycle")??"all",sort=params.get("sort")??"default",
-  cycleId=params.get("cycleId")??"",page=Number(params.get("page")??"1");
+  cycleId=params.get("cycleId")??"",page=Number(params.get("page")??"1"),
+  showResolved=params.get("showResolved")==="true";
  const types=type==="all"?registryTypes:registryTypes.filter(t=>t===type);
  if(types.length===0||search.length>120||owner.length>200||
   !Number.isSafeInteger(page)||page<1||page>100000||
@@ -44,7 +45,7 @@ export function parseRegistryFilters(params:URLSearchParams):RegistryFilters|nul
   (cycleId!==""&&!uuidRx.test(cycleId))||
   (status!==""&&!types.some(t=>(registryStatuses[t] as readonly string[]).includes(status))))return null;
  return {type:type as RegistryScope,search,status,owner,page,
-  lifecycle:lifecycle as RegistryLifecycle,sort:sort as RegistrySort,cycleId};
+  lifecycle:lifecycle as RegistryLifecycle,sort:sort as RegistrySort,cycleId,showResolved};
 }
 
 async function installedTeam(db:Client,authorizedTeam?:TeamContextRow){
@@ -96,6 +97,7 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
    ?"EXISTS (SELECT 1 FROM public.smn_kanban_registry_link l JOIN public.smn_kanban_period p ON p.id=l.period_id WHERE l.item_id=r.id AND p.id=$7 AND p.team_id=r.team_id AND p.deleted_at IS NULL)"
    :"EXISTS (SELECT 1 FROM public.smn_registry_cycle_link l JOIN public.smn_sprint s ON s.id=l.sprint_id WHERE l.item_id=r.id AND s.id=$7 AND s.team_id=r.team_id AND s.deleted_at IS NULL)");
  }
+ if(!filters.showResolved)clauses.push("NOT "+finalSql);
  const where=clauses.join(" AND ");
  const count=await db.query<{total:number}>("SELECT COUNT(*)::int AS total FROM public.smn_registry_item r WHERE "+where,values);
  const total=count.rows[0]?.total??0,pageSize=25,totalPages=Math.max(1,Math.ceil(total/pageSize));
@@ -107,7 +109,20 @@ export async function readRegistryPage(db:Client,filters:RegistryFilters,canSeeO
   titleAsc:"r.title ASC,r.occurred_on DESC,r.id ASC",
   titleDesc:"r.title DESC,r.occurred_on DESC,r.id ASC"
  };
- const rows=await db.query("SELECT r.id,r.type,r.title,r.description,r.status,r.occurred_on::text AS \"occurredOn\",r.due_on::text AS \"dueOn\",r.created_at::text AS \"recordedAt\""+
+ const availability=await db.query<{relations:boolean;comments:boolean}>(`SELECT
+  to_regclass('public.smn_registry_relation') IS NOT NULL AS relations,
+  to_regclass('public.smn_registry_comment') IS NOT NULL AS comments`);
+ const relationCounts=availability.rows[0]?.relations?`(SELECT COUNT(*)::int FROM public.smn_registry_relation l
+   JOIN public.smn_registry_item linked ON linked.id=CASE WHEN l.source_id=r.id THEN l.target_id ELSE l.source_id END
+    AND linked.team_id=r.team_id
+   WHERE l.target_kind='record' AND (l.source_id=r.id OR l.target_id=r.id)
+    AND linked.type='${"TYPE"}')`:"0::int";
+ const typedCount=(kind:string)=>relationCounts.replace("TYPE",kind);
+ const commentCount=availability.rows[0]?.comments?`(SELECT COUNT(*)::int
+   FROM public.smn_registry_comment c WHERE c.item_id=r.id AND c.withdrawn_at IS NULL)`:"0::int";
+ const rows=await db.query("SELECT r.id,r.type,r.title,r.description,r.status,r.occurred_on::text AS \"occurredOn\",r.due_on::text AS \"dueOn\",r.created_at::text AS \"recordedAt\","+
+  typedCount("decision")+' AS "decisionsCount",'+typedCount("action")+' AS "actionsCount",'+
+  typedCount("highlight")+' AS "highlightsCount",'+commentCount+' AS "commentsCount"'+
   (canSeeOwner?',r.owner_name AS "owner"':"")+
   " FROM public.smn_registry_item r WHERE "+where+" ORDER BY "+orders[filters.sort]+" LIMIT 25 OFFSET $"+(values.length+1),
   [...values,(page-1)*pageSize]);
