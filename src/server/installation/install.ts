@@ -7,6 +7,8 @@ import {classifySnapshot,diagnoseInstallation} from "./diagnostic";
 import {validateExpressInput} from "./contract";
 import {nativeBaselineSql,NATIVE_V32_NAME} from "./native-v32";
 import {passwordHash} from "../auth/password";
+import {readFileSync} from "node:fs";
+import {paletteMigrationBody} from "../../../scripts/apply-red-purple-migration";
 export {passwordHash} from "../auth/password";
 
 export const NATIVE_BASELINE_NAME=NATIVE_V32_NAME;
@@ -49,6 +51,9 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
      WHERE ns.nspname='public' AND c.relkind IN ('r','p','v','m','S','f')`);
   if(objects.rows[0]?.n!=="0")return {ok:false,status:"not-empty"};
   await client.query(sql);
+  // Extend the untouched v32 baseline inside the same installation transaction.
+  const paletteSql=readFileSync(new URL("../../../prisma/migrations/20261031_red_purple_palette/migration.sql",import.meta.url),"utf8");
+  await client.query(paletteMigrationBody(paletteSql));
   // Baseline must define a neutral installation row contract (no application Agile mode).
   await client.query("INSERT INTO public.smn_installation(id,state,schema_version) VALUES('singleton','initialized',32)");
   await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($1,'singleton',$2,$3,'admin',$4,true)",
@@ -57,7 +62,7 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
    (id,checksum,finished_at,migration_name,applied_steps_count)
    VALUES($1,$2,now(),$3,1)`,
    [randomUUID(),createHash("sha256").update(sql).digest("hex"),NATIVE_BASELINE_NAME]);
-  await client.query("INSERT INTO public.smn_general_settings(installation_id) VALUES ('singleton')");
+  await client.query("INSERT INTO public.smn_general_settings(installation_id,palette) VALUES ('singleton','red-purple')");
   await client.query("COMMIT");transaction=false;
   // A baseline journal needs the new classifier contract (step 3) before reporting success.
   const after=classifySnapshot(await probePostgres(uri.toString()));
