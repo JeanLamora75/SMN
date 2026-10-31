@@ -3,13 +3,13 @@ import {ensureKanbanFlowSchema} from "./flow-counts";
 import {ensureKanbanTimingSchema} from "./timing";
 export type TrendPeriod={id:string;name:string;startOn:string;endOn:string;status:string;started:number|null;throughput:number|null;wipFinal:number|null};
 export function selectKanbanTrends(items:TrendPeriod[],selected:{startOn:string;id:string}){
- return items.filter(p=>p.status==="closed"&&(p.startOn<selected.startOn||(p.startOn===selected.startOn&&p.id===selected.id)))
+ return items.filter(p=>(p.startOn<selected.startOn||(p.startOn===selected.startOn&&p.id===selected.id)))
   .sort((a,b)=>b.startOn.localeCompare(a.startOn)||b.id.localeCompare(a.id)).slice(0,5)
   .reverse();
 }
 export type TimingTrend={id:string;name:string;startOn:string;cycleDays:number|null;leadDays:number|null};
 export function selectTimingTrends(items:(TimingTrend&{status:string})[],selected:{startOn:string;id:string}):TimingTrend[]{
- return items.filter(p=>p.status==="closed"&&(p.startOn<selected.startOn||(p.startOn===selected.startOn&&p.id===selected.id)))
+ return items.filter(p=>(p.startOn<selected.startOn||(p.startOn===selected.startOn&&p.id===selected.id)))
  .sort((a,b)=>b.startOn.localeCompare(a.startOn)||b.id.localeCompare(a.id))
  .slice(0,5).reverse().map(({id,name,startOn,cycleDays,leadDays})=>({id,name,startOn,cycleDays,leadDays}));
 }
@@ -29,9 +29,9 @@ export async function readKanbanTrends(db:Client,periodId:string){
  FROM public.smn_kanban_period p
  LEFT JOIN public.smn_kanban_flow_counts c ON c.period_id=p.id
  LEFT JOIN public.smn_kanban_timing tm ON tm.period_id=p.id
- WHERE p.team_id=$1 AND p.deleted_at IS NULL AND p.status='closed'
+ WHERE p.team_id=$1 AND p.deleted_at IS NULL
  AND (p.start_on<$2::date OR (p.start_on=$2::date AND p.id=$3))
- ORDER BY p.start_on DESC,p.id DESC LIMIT 5`,[t.team_id,t.start_on,t.id]);
+ ORDER BY p.start_on DESC,p.id DESC LIMIT 6`,[t.team_id,t.start_on,t.id]);
  const periods=result.rows.map(p=>({id:p.id,name:p.name,startOn:p.start_on,endOn:p.end_on,status:p.status,
   started:p.started===null?null:Number(p.started),throughput:p.throughput===null?null:Number(p.throughput),
   wipFinal:p.wip_final===null?null:Number(p.wip_final),
