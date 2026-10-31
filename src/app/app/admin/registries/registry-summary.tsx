@@ -6,6 +6,8 @@ import {useTranslation,useLocale} from "@/i18n/client";
 import {parseSummaryCycles,parseSummaryRelations,validRegistryActivityTime,
  type SummaryRelation,type SummaryCycle,type SummaryContext} from "@/lib/registry-summary-context";
 import BootstrapIcon from "../../bootstrap-icon";
+import RiskAssessment from "./risk-assessment";
+import RiskRoam from "./risk-roam";
 import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigation";
 
 export type RegistrySummaryItem={
@@ -66,7 +68,12 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
   relation.sourceId===item.id?
    relation.targetKind==="record"?{id:relation.targetId,title:relation.targetTitle}:null:
    {id:relation.sourceId,title:relation.sourceTitle};
- return <div className="smn-registry-summary-grid" aria-label={tr("heading")}>
+ return <div className="smn-registry-summary-overview" aria-label={tr("heading")}>
+  {item.type==="risk"&&<div className="smn-registry-summary-risk-layout smn-registry-risk-layout">
+   <div className="smn-registry-business-section"><RiskAssessment id={item.id} canManage={canManage}/></div>
+   <div className="smn-registry-business-section"><RiskRoam id={item.id} canManage={canManage}/></div>
+  </div>}
+  <div className="smn-registry-summary-grid">
   <div className="smn-registry-summary-main">
    <section className="smn-registry-summary-panel" aria-labelledby="registry-summary-description-title">
     <header className="smn-registry-summary-panel-head">
@@ -119,5 +126,6 @@ export default function RegistrySummary({item,teamId,canManage,navigation,onEdit
      </ul>}
    </section>
   </aside>
+  </div>
  </div>;
 }
