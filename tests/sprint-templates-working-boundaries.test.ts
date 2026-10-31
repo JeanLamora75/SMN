@@ -84,7 +84,7 @@ describe("Intégration du générateur central (unitaire, lot, wizard)",()=>{
    if(sql.includes("SELECT team_id FROM public.smn_sprint"))return {rows:[{team_id:"team-1"}],rowCount:1};
    if(sql.includes("WHERE team_id=$1 AND active=true"))return {rows:templates,rowCount:4};
    if(sql.includes("to_regclass('public.smn_team_work_slots')"))return {rows:[{present:false}],rowCount:1};
-   if(sql.includes("FROM public.smn_company_closure"))return {rows:[{start_on:"2026-11-20",end_on:"2026-11-20"}],rowCount:1};
+   if(sql.includes("SELECT day::text AS date FROM covered GROUP BY day"))return {rows:[{date:"2026-11-20"}],rowCount:1};
    if(sql.includes("FROM public.smn_member_assignment"))return {rows:[],rowCount:0};
    if(sql.includes("INSERT INTO public.smn_scrum_template_occurrence")){
     inserts.push({sql,args});return {rows:[{id:"new"}],rowCount:1};
