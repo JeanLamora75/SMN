@@ -41,6 +41,12 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
    <span className={"smn-registry-row-status badge "+(["open","in_progress","todo","active"].includes(item.status)?"smn-registry-status-active":["resolved","satisfied","completed"].includes(item.status)?"smn-registry-status-resolved":"smn-registry-status-neutral")}>
     {label(item.status)}
    </span>
+   {signals.filter(signal=>signal.reason!=="highRisk").length>0&&<div className="smn-registry-row-attentions">
+    {signals.filter(signal=>signal.reason!=="highRisk").map(signal=><span className="smn-registry-row-attention" key={signal.reason}>
+     <span className="visually-hidden">{tr("attentionLabel")}: </span>
+     {t(("registryAttention."+signal.reason) as Parameters<typeof t>[0])}
+    </span>)}
+   </div>}
   </td>
   <td className="smn-registry-cell-risk">
    {item.type==="risk"&&Number.isInteger(item.criticalityScore)&&
