@@ -2622,6 +2622,8 @@
     "discardChanges": "Abandonner les modifications de description non enregistrées ?"
   },
   "registryJournal": {
+    "addComment": "+ Commentaire",
+    "addJournalRecord": "+ Journal",
     "addToJournal": "Ajouter au journal",
     "search": "Rechercher dans le journal…",
     "sort": "Trier le journal",
