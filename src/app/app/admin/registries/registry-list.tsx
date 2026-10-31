@@ -370,6 +370,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
       <thead><tr>
        <th scope="col">{translate("date")}</th>
        <th scope="col">{translate("status")}</th>
+       <th scope="col" className="smn-registry-risk-heading">{translate("riskLevel")}</th>
        <th scope="col">{translate("category")}</th>
        <th scope="col">{translate("title")}</th>
        {(["decisions","actions","highlights","comments"] as const).map(k=><th key={k} scope="col" className="smn-registry-count-col" title={translate(k)}><span className="smn-registry-count-heading">{translate(k)}</span></th>)}
@@ -377,7 +378,7 @@ export default function RegistryList({canManage,teamId,initialType="all",initial
        <th scope="col">{translate("due")}</th>
        <th scope="col">{translate("actions")}</th>
       </tr></thead>
-      <tbody>{canManage&&<tr className="smn-registry-create-table-row"><td colSpan={canManage?11:10}><button type="button" className="smn-registry-add-event" onClick={()=>setCreateOpen(true)}><BootstrapIcon name="plus-lg"/>{translate("addEvent")}</button></td></tr>}{result.items.map(item=><RegistryListRow key={item.id} item={item}
+      <tbody>{canManage&&<tr className="smn-registry-create-table-row"><td colSpan={canManage?12:11}><button type="button" className="smn-registry-add-event" onClick={()=>setCreateOpen(true)}><BootstrapIcon name="plus-lg"/>{translate("addEvent")}</button></td></tr>}{result.items.map(item=><RegistryListRow key={item.id} item={item}
        navigation={{origin,trail:[]}} onNavigate={savePosition} onEdit={()=>setEditingId(item.id)}
        canManage={canManage} highlight={createdId===item.id}
        signals={attention?.filter(signal=>signal.id===item.id)??[]}/>)}
