@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import RegistryCreateModal from "./registry-create-modal";
+import RegistrySectionDialog from "./registry-section-dialog";
 import {linkedJournalTypes,type LinkedJournalType} from "@/lib/registry-linked-creation";
 import {useEffect,useId,useMemo,useState,type FormEvent} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
@@ -17,9 +18,9 @@ type Version={revision:number;action:string;beforeText:string|null;afterText:str
 type VersionState={state:"loading"|"unavailable"|"ready";items:Version[]};
 const recordIdRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation}:{
+export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navigation,composeOpen,onCloseCompose}:{
  itemId:string;itemTitle:string;teamId:string;canManage:boolean;
- navigation:RegistryNavigation;
+ navigation:RegistryNavigation;composeOpen:boolean;onCloseCompose:()=>void;
 }){
  const t=useTranslation(),locale=useLocale();
  const tr=(key:string)=>t(("registryJournal."+key) as Parameters<typeof t>[0]);
@@ -30,6 +31,8 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
  const [data,setData]=useState<JournalPayload|null>(null);
  const [reload,setReload]=useState(0);
  const [filter,setFilter]=useState<JournalFilter>("all");
+ const [query,setQuery]=useState("");
+ const [order,setOrder]=useState<"newest"|"oldest">("newest");
  const [draft,setDraft]=useState("");
  const [saving,setSaving]=useState(false);
  const [error,setError]=useState<"conflict"|"unavailable"|"invalid"|null>(null);
@@ -76,7 +79,14 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
   return()=>window.removeEventListener("beforeunload",guard);
  },[draft,editingId,editingText,data]);
  const entries=useMemo(()=>data?buildJournalEntries(data):[],[data]);
- const visible=useMemo(()=>filterJournalEntries(entries,filter),[entries,filter]);
+ const visible=useMemo(()=>{
+  const term=query.trim().toLocaleLowerCase(locale==="fr"?"fr":"en");
+  const filtered=filterJournalEntries(entries,filter).filter(entry=>!term||
+   (entry.kind==="comment"?[entry.comment.text,entry.comment.authorName]:
+    [entry.title,entry.authorName,recordType(entry.type)]).some(value=>
+     (value??"").toLocaleLowerCase(locale==="fr"?"fr":"en").includes(term)));
+  return order==="newest"?filtered:filtered.reverse();
+ },[entries,filter,query,order,locale]);
  const formatter=useMemo(()=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
   dateStyle:"medium",timeStyle:"short",timeZone:"Europe/Paris"
  }),[locale]);
@@ -98,7 +108,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
    const result=await response.json() as {ok?:boolean;id?:string;revision?:number};
    if(response.status!==201||!result.ok||typeof result.id!=="string"||
     !recordIdRx.test(result.id)||result.revision!==1)throw Error("unconfirmed");
-   setDraft("");setSuccess(true);
+   setDraft("");setSuccess(true);onCloseCompose();
    refresh();
   }catch{setError("unavailable");}
   finally{setSaving(false);}
@@ -161,6 +171,10 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
  };
  return <section className="smn-registry-journal" aria-label={tr("heading")}
   data-registry-dirty={Boolean(draft.length>0||editingId&&editingText!==(data?.comments.find(c=>c.id===editingId)?.text??""))}>
+  {success&&<p role="status" className="small text-success mb-0">{tr("saved")}</p>}
+  {canManage&&composeOpen&&<RegistrySectionDialog title={t("registryJournal.addToJournal")}
+   onDismiss={onCloseCompose} wide>
+   <div className="smn-registry-journal-compose-dialog">
   {canManage&&<form className="smn-registry-journal-compose" onSubmit={save}>
    <label className="form-label" htmlFor={editorId}>{tr("writeComment")}</label>
    <textarea className="form-control" id={editorId} rows={3} maxLength={4000}
@@ -173,7 +187,6 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
    </div>
    {error&&<p role="alert" className="small text-danger mb-0">{commentsText(error)}</p>}
   </form>}
-  {success&&<p role="status" className="small text-success mb-0">{tr("saved")}</p>}
   {canManage&&<div className="smn-registry-linked-create">
    <button type="button" className="btn btn-outline-primary btn-sm"
     aria-expanded={chooseLinked} aria-controls={editorId+"-linked-chooser"}
@@ -201,10 +214,25 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
      className="btn btn-sm btn-link">{tr("backToSource")}</Link>
    </div>}
   </div>}
-  <div className="smn-registry-journal-filters" role="group" aria-label={tr("filters")}>
-   {journalFilters.map(kind=><button type="button" key={kind}
-    className={"btn btn-sm "+(filter===kind?"btn-primary":"btn-outline-secondary")}
-    aria-pressed={filter===kind} onClick={()=>setFilter(kind)}>{tr(kind)}</button>)}
+
+   </div>
+  </RegistrySectionDialog>}
+  <div className="smn-registry-journal-toolbar">
+   <input type="search" className="form-control form-control-sm smn-registry-journal-search"
+    aria-label={t("registryJournal.search")} placeholder={t("registryJournal.search")}
+    value={query} onChange={event=>setQuery(event.target.value)}/>
+   <div className="smn-registry-journal-filters" role="group" aria-label={tr("filters")}>
+    {journalFilters.map(kind=><button type="button" key={kind}
+     className={"btn btn-sm "+(filter===kind?"btn-primary":"btn-outline-secondary")}
+     aria-pressed={filter===kind} onClick={()=>setFilter(kind)}>
+     {tr(kind)} ({filterJournalEntries(entries,kind).length})</button>)}
+   </div>
+   <select className="form-select form-select-sm smn-registry-journal-sort"
+    aria-label={t("registryJournal.sort")} value={order}
+    onChange={event=>setOrder(event.target.value as "newest"|"oldest")}>
+    <option value="newest">{t("registryJournal.newest")}</option>
+    <option value="oldest">{t("registryJournal.oldest")}</option>
+   </select>
   </div>
   {state==="loading"?<p role="status" className="small text-body-secondary mb-0">{tr("loading")}</p>:
    state==="unavailable"?<div role="alert" className="d-flex flex-wrap align-items-center gap-2">
@@ -216,8 +244,8 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
     {actionError&&<p role="alert" className="small text-danger">{commentsText(actionError)}</p>}
     {visible.length===0?<div className="smn-registry-journal-empty">
      <p className="mb-2">{entries.length===0?tr("empty"):tr("emptyFiltered")}</p>
-     {filter!=="all"&&<button type="button" className="btn btn-outline-secondary btn-sm"
-      onClick={()=>setFilter("all")}>{tr("reset")}</button>}
+     {(filter!=="all"||query)&&<button type="button" className="btn btn-outline-secondary btn-sm"
+      onClick={()=>{setFilter("all");setQuery("");}}>{tr("reset")}</button>}
     </div>:
     <ol className="smn-registry-journal-list">
      {visible.map(entry=><li key={entry.id} className="smn-registry-journal-entry">
