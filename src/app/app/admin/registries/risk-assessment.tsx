@@ -35,16 +35,26 @@ export default function RiskAssessment({id,canManage,onSaved}:{id:string;canMana
  return <section className="card p-3 mt-3">
   <h2 className="h5">{tr("heading")}</h2>
   {!stored?<p role="status">{tr(error??"error")}</p>:<>
-   <div className="row g-3">
-    {([{field:"probability",value:p,set:setP},{field:"impact",value:i,set:setI}] as const).map(x=>
-     <div key={x.field} className="col-md-6">
-      <label className="form-label" htmlFor={"risk-"+x.field}>{tr(x.field)}</label>
-      <select id={"risk-"+x.field} className="form-select" disabled={!canManage} value={x.value??""}
-       onChange={e=>{x.set(pick(e.target.value));setNotice(false);}}>
-       <option value="">{tr("none")}</option>
-       {levels.map(level=><option value={level} key={level}>{tr(level===1?"low":level===2?"medium":"high")}</option>)}
-      </select>
-     </div>)}
+   <div className="smn-risk-matrix" role="group" aria-label={tr("heading")}>
+    <div className="smn-risk-matrix-corner"/>
+    {levels.map(level=><span key={"col"+level} className="smn-risk-matrix-axis">{tr(level===1?"low":level===2?"medium":"high")}</span>)}
+    {[...levels].reverse().map(impact=><div className="smn-risk-matrix-row" key={impact}>
+     <span className="smn-risk-matrix-axis">{tr(impact===1?"low":impact===2?"medium":"high")}</span>
+     {levels.map(probability=>{
+      const selected=p===probability&&i===impact;
+      const severity=criticality(probability,impact).level;
+      const aria=tr("probability")+": "+tr(probability===1?"low":probability===2?"medium":"high")+", "+tr("impact")+": "+tr(impact===1?"low":impact===2?"medium":"high");
+      return canManage?<button key={probability} type="button"
+       className={"smn-risk-matrix-cell smn-risk-matrix-"+severity+(selected?" is-selected":"")}
+       aria-label={aria} aria-pressed={selected} disabled={saving}
+       onClick={()=>{setP(probability);setI(impact);setNotice(false);}}>
+       {selected&&<span aria-hidden="true">✓</span>}
+      </button>:<div key={probability} className={"smn-risk-matrix-cell smn-risk-matrix-"+severity+(selected?" is-selected":"")}
+       role="img" aria-label={aria+(selected?" — sélectionné":"")}>
+       {selected&&<span aria-hidden="true">✓</span>}
+      </div>;
+     })}
+    </div>)}
    </div>
    <p className="mt-3" role="status"><span aria-hidden="true">{result.level==="high"?"▲":result.level==="medium"?"◆":result.level==="low"?"●":"?"} </span>
     {tr("symbol")}: <strong>{tr(result.level)}</strong> {result.score!==null&&<>({tr("score")}: {result.score})</>}
