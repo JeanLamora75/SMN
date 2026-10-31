@@ -14,7 +14,7 @@ function parseData(value:unknown):Data|null{
   !data.linkedIds.every(x=>data.cycles!.some(c=>c.id===x)))return null;
  return {cycles:data.cycles,linkedIds:data.linkedIds};
 }
-export default function RegistryCycles({id,canManage,onSaved}:{id:string;canManage:boolean;onSaved?:()=>void}){
+export default function RegistryCycles({id,teamId,canManage,onSaved}:{id:string;teamId?:string;canManage:boolean;onSaved?:()=>void}){
  const t=useTranslation(),tr=(k:string)=>t(("registryCycles."+k) as Parameters<typeof t>[0]);
  const [data,setData]=useState<Data|null>(null),[error,setError]=useState(false),[busy,setBusy]=useState<string|null>(null);
  const [reload,setReload]=useState(0);
@@ -24,7 +24,7 @@ export default function RegistryCycles({id,canManage,onSaved}:{id:string;canMana
  const currentError=loadedKey===requestKey?error:false;
  useEffect(()=>{
   const controller=new AbortController();
-  void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/cycles",{cache:"no-store",signal:controller.signal})
+  void fetch("/api/admin/registries/"+encodeURIComponent(id)+"/cycles"+(teamId?"?teamId="+encodeURIComponent(teamId):""),{cache:"no-store",signal:controller.signal})
    .then(async r=>{if(!r.ok)throw Error("unavailable");
     const parsed=parseData(await r.json());if(!parsed)throw Error("invalid");return parsed;})
    .then(v=>{if(!controller.signal.aborted){
@@ -34,7 +34,7 @@ export default function RegistryCycles({id,canManage,onSaved}:{id:string;canMana
     setData(null);setError(true);setLoadedKey(requestKey);
    }});
   return()=>controller.abort();
- },[id,requestKey]);
+ },[id,teamId,requestKey]);
  const toggle=async(cycle:Cycle,linked:boolean)=>{
   if(busy||!canManage||cycle.status==="closed")return;
   if(linked&&!window.confirm(tr("confirmUnlink")))return;
@@ -42,7 +42,7 @@ export default function RegistryCycles({id,canManage,onSaved}:{id:string;canMana
   try{
    const r=await fetch("/api/admin/registries/"+encodeURIComponent(id)+"/cycles",{
     method:"PATCH",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({cycleId:cycle.id,action:linked?"unlinked":"linked"})});
+    body:JSON.stringify({cycleId:cycle.id,action:linked?"unlinked":"linked",...(teamId?{teamId}:{})})});
    if(!r.ok)throw Error("failed");
    setData(d=>d?{...d,linkedIds:linked?d.linkedIds.filter(x=>x!==cycle.id):[...d.linkedIds,cycle.id]}:d);onSaved?.();
   }catch{setError(true);}finally{setBusy(null);}
