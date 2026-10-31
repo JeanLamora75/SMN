@@ -2273,6 +2273,7 @@
     "ceremoniesScope": "Cette page configure les modèles réutilisables pour les prochains sprints. Les cérémonies standards et les réunions déjà enregistrées se gèrent dans les parcours Sprint et Calendrier ; aucune occurrence existante n'est modifiée ici."
   },
   "sprintsIndex": {
+    "indicatorColumns": {"f01":"Engagement initial (SP)","f05":"Engagement final (SP)","f07":"Taux de réalisation","f10":"Tickets initialement engagés","f11":"Tickets terminés","f12":"Taux de réalisation des tickets"},
     "title": "Sprints de l'équipe",
     "teamUnknown": "Équipe en cours de chargement",
     "generate": "Générer des sprints",
