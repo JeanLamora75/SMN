@@ -19,9 +19,9 @@ const nowInParis=()=>{
 };
 const uuidRx=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default function RegistryCreateModal({teamId,initialType="risk",sourceId,cycleId,linkedFromJournal=false,sourceTitle,onDismiss,onCreated}:{
+export default function RegistryCreateModal({teamId,initialType="risk",sourceId,cycleId,linkedFromJournal=false,sourceTitle,restrictedTypes,onDismiss,onCreated}:{
  teamId:string;initialType?:RegistryType;sourceId?:string;cycleId?:string;
- linkedFromJournal?:boolean;sourceTitle?:string;
+ linkedFromJournal?:boolean;sourceTitle?:string;restrictedTypes?:readonly RegistryType[];
  onDismiss:()=>void;onCreated:(id:string)=>void;
 }){
  const t=useTranslation(),tr=(key:string)=>t(("registryCreateModal."+key) as Parameters<typeof t>[0]);
@@ -29,7 +29,7 @@ export default function RegistryCreateModal({teamId,initialType="risk",sourceId,
  const portalReady=useRegistryPortalReady();
  const dialog=useRef<HTMLDialogElement>(null);
  const requestId=useRef<string|null>(null);
- const allowedTypes:readonly RegistryType[]=linkedFromJournal?linkedJournalTypes:registryTypes;
+ const allowedTypes:readonly RegistryType[]=restrictedTypes??(linkedFromJournal?linkedJournalTypes:registryTypes);
  const previousFocus=useRef<HTMLElement|null>(null);
  const firstInput=useRef<HTMLInputElement>(null);
  const titleId=useId();
