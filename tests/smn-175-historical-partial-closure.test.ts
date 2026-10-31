@@ -10,7 +10,7 @@ describe("SMN-175 — clôture historique partielle",()=>{
  it("n'assimile pas les registres actuels à une photographie passée",()=>{
   assert.match(source,/state:"historical-unavailable"/);
   assert.match(source,/historical\?\{state:"historical-unavailable"/);
-  assert.match(source,/historical\?null:await readSprintMemberPresence/);
+  assert.match(source,/memberPresenceProvenance:historical\?"retrospective-calendar-estimate":"closure-calendar-estimate"/);
  });
  it("restitue les capacités qualifiées sans extrapoler les données actuelles",()=>{
   assert.match(source,/to_regclass\('public\.smn_sprint_historical_capacity'\)/);
