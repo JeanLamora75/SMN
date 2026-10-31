@@ -17,7 +17,6 @@ import RegistryRelations from "./registry-relations";
 import RegistryCycles from "./registry-cycles";
 import RiskRoam from "./risk-roam";
 import RiskAssessment from "./risk-assessment";
-import MaterializeRisk from "./materialize-risk";
 import DependencyParties from "./dependency-parties";
 import DependencyVigilance from "./dependency-vigilance";
 import DecisionDetail from "./decision-detail";
