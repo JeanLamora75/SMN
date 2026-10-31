@@ -28,7 +28,7 @@ export default async function RegistriesPage({searchParams}:{
    "WHERE id='singleton' AND state='initialized'");
   return {teamId:data.context.teamId,
    canManage:actor.role==="admin"&&
-    (version.rows[0]?.schema_version??0)<=27};
+    (version.rows[0]?.schema_version??0)<=32};
  }).catch(()=>null);
  const teamId=context?.teamId??null;
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
