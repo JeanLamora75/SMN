@@ -14,3 +14,14 @@ test("Journal intégré masque la barre de recherche, les filtres et le tri",()=
  assert.match(source,/\{!embedded&&<div className="smn-registry-journal-toolbar">/);
  assert.match(source,/<ol className="smn-registry-journal-list">/);
 });
+
+test("Trois raccourcis de création sur Synthèse sans barre de filtres",()=>{
+ const source=read("src/app/app/admin/registries/registry-journal.tsx");
+ assert.match(source,/smn-registry-summary-journal-heading/);
+ assert.match(source,/setLinkedType\("action"\)/);
+ assert.match(source,/setLinkedType\("decision"\)/);
+ assert.match(source,/setCommentOpen\(true\)/);
+ assert.match(source,/\{!embedded&&<div className="smn-registry-journal-toolbar">/);
+ const summary=read("src/app/app/admin/registries/registry-summary.tsx");
+ assert.equal((summary.match(/registryJournal\.heading/g)||[]).length,0);
+});
