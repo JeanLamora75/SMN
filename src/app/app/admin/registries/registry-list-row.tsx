@@ -10,7 +10,7 @@ import {registryDetailHref,type RegistryNavigation} from "@/lib/registry-navigat
 export type RegistryListItem={
  id:string;type:RegistryType;title:string;description:string|null;
  status:string;occurredOn:string;dueOn:string|null;recordedAt:string;
- owner?:string|null;decisionsCount?:number;actionsCount?:number;highlightsCount?:number;commentsCount?:number;
+ owner?:string|null;criticalityScore?:number|null;decisionsCount?:number;actionsCount?:number;highlightsCount?:number;commentsCount?:number;
 };
 export type RegistrySignal={
  id:string;reason:"highRisk"|"obstacle"|"atRisk"|"upcoming"|"overdue";
@@ -41,12 +41,14 @@ export default function RegistryListRow({item,canManage,signals,highlight=false,
    <span className={"smn-registry-row-status badge "+(["open","in_progress","todo","active"].includes(item.status)?"smn-registry-status-active":["resolved","satisfied","completed"].includes(item.status)?"smn-registry-status-resolved":"smn-registry-status-neutral")}>
     {label(item.status)}
    </span>
-   {signals.length>0&&<div className="smn-registry-row-attentions">
-    {signals.map(signal=><span className="smn-registry-row-attention" key={signal.reason}>
-     <span className="visually-hidden">{tr("attentionLabel")}: </span>
-     {t(("registryAttention."+signal.reason) as Parameters<typeof t>[0])}
-    </span>)}
-   </div>}
+  </td>
+  <td className="smn-registry-cell-risk">
+   {item.type==="risk"&&Number.isInteger(item.criticalityScore)&&
+    (item.criticalityScore??0)>=1&&(item.criticalityScore??0)<=9?
+    <span className={"smn-registry-risk-score smn-registry-risk-score-"+item.criticalityScore}
+     title={tr("riskLevel")+": "+item.criticalityScore+"/9"}
+     aria-label={tr("riskLevel")+": "+item.criticalityScore+"/9"}>{item.criticalityScore}</span>:
+    <span className="text-body-secondary" aria-label={tr("notAssessed")}>—</span>}
   </td>
   <td className="smn-registry-cell-type">
    <span className="smn-registry-row-type">
