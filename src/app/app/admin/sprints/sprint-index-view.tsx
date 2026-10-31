@@ -192,13 +192,13 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
      <table className="table table-hover align-middle smn-sprints-table">
       <thead><tr>
        <th scope="col">{t("sprintStates.name")}</th>
+       <th scope="col">{t("sprintStates.status")}</th>
        <th scope="col">{t("sprintsIndex.period")}</th>
        {indicatorCodes.map(code=><th scope="col" key={code}
         title={t(`sprintsIndex.indicatorColumns.${code}`)}
         aria-label={t(`sprintsIndex.indicatorColumns.${code}`)} tabIndex={0}
-        className="text-end">{code.toUpperCase()}</th>)}
-       <th scope="col">{t("sprintStates.status")}</th>
-       <th scope="col" className="text-end">{t("sprintsIndex.actions")}</th>
+        className="text-center">{code.toUpperCase()}</th>)}
+       <th scope="col" className="text-center">{t("sprintsIndex.actions")}</th>
       </tr></thead>
       <tbody>{items.map(item=>{
        const current=item.status==="active"&&!item.suspended&&!item.stateMayBeStale;
@@ -208,19 +208,20 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
          {item.stateMayBeStale&&<small className="d-block text-warning-emphasis">
           {t("sprintsIndex.stateUnverified")}</small>}
         </th>
-        <td data-label={t("sprintsIndex.period")}><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
-         {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
-        {indicatorCodes.map(code=><td key={code} className="text-end text-nowrap"
-         data-label={code.toUpperCase()} title={t(`sprintsIndex.indicatorColumns.${code}`)}>
-         {(code==="f07"||code==="f12")&&item.metrics?.[code]!=null?
-          <span className="smn-sprints-percent" aria-label={number(item.metrics[code],code)}>
-           {gauge(item.metrics[code])}<span>{number(item.metrics[code],code)}</span>
-          </span>:number(item.metrics?.[code],code)}</td>)}
         <td data-label={t("sprintStates.status")}><span className={"badge smn-sprints-status "+(item.suspended?"smn-sprints-state-muted":
           item.status==="active"?"smn-sprints-state-active":
           item.status==="planned"?"smn-sprints-state-planned":
           item.status==="finished"||item.status==="closed"?"smn-sprints-state-complete":"smn-sprints-state-muted")}>
          {label(item)}</span></td>
+        <td data-label={t("sprintsIndex.period")}><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
+         {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
+        {indicatorCodes.map(code=><td key={code} className={(code==="f07"||code==="f12"?"smn-sprints-gauge-cell":"text-end")+" text-nowrap"}
+         data-label={code.toUpperCase()} title={t(`sprintsIndex.indicatorColumns.${code}`)}>
+         {(code==="f07"||code==="f12")&&item.metrics?.[code]!=null?
+          <span className="smn-sprints-percent" aria-label={number(item.metrics[code],code)}>
+           {gauge(item.metrics[code])}<span>{number(item.metrics[code],code)}</span>
+          </span>:number(item.metrics?.[code],code)}</td>)}
+
         <td className="text-end smn-sprints-row-actions" data-label={t("sprintsIndex.actions")}>
          <div className="d-inline-flex gap-2 align-items-center">
           <button type="button" className="btn btn-sm btn-outline-secondary"
