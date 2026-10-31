@@ -10,8 +10,8 @@ export async function readLinks(db:Client,id:string,teamId?:string){
  JOIN public.smn_team t ON t.id=r.team_id JOIN public.smn_installation i ON i.id=t.installation_id
  WHERE r.id=$1 AND i.id='singleton' AND i.state='initialized' AND ($2::text IS NULL OR r.team_id=$2)`,[id,teamId??null]);
  const r=scope.rows[0];if(!r||!["risk","dependency","obstacle"].includes(r.type))return null;
- const cycles=await db.query<{id:string;name:string;status:string}>(`
- SELECT s.id,s.name,s.status FROM public.smn_sprint s
+ const cycles=await db.query<{id:string;name:string;status:string;startOn:string;endOn:string}>(`
+ SELECT s.id,s.name,s.status,s.start_at::date::text AS "startOn",s.end_at::date::text AS "endOn" FROM public.smn_sprint s
  WHERE s.team_id=$1 AND s.deleted_at IS NULL
  AND ( (s.start_at::date <= COALESCE($3::date,$2::date) AND s.end_at::date >= $2::date)
  OR EXISTS (SELECT 1 FROM public.smn_registry_cycle_link l WHERE l.item_id=$4 AND l.sprint_id=s.id))
