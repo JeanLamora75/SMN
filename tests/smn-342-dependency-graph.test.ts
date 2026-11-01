@@ -80,8 +80,8 @@ test("budgets DAG et expressions manuelles sans arêtes",()=>{
 });
 
 test("une cascade de formules bornées individuellement respecte un budget global",()=>{
- const formula="MIN("+Array.from({length:300},()=>"1").join(",")+")";
- const definitions=Array.from({length:350},(_,i)=>({id:String(i),tag:"K_"+i,formula}));
+ const formula="MIN("+Array.from({length:200},()=>"1").join(",")+")";
+ const definitions=Array.from({length:550},(_,i)=>({id:String(i),tag:"K_"+i,formula}));
  const graph=buildDependencyGraph(definitions,[]);
  assert.throws(()=>evaluateDependencies({graph,indicators:{},calendar:{}}),FormulaBudgetError);
 });
