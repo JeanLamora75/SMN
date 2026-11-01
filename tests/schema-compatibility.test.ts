@@ -6,7 +6,7 @@ test("refuse versions inconnues et futures",()=>{
  for(const v of [undefined,null,0,-1,3.5,"32",CURRENT_SCHEMA_VERSION+1]){
   assert.equal(evaluateSchemaCapability(v,"multi-team").ok,false);
  }
- assert.throws(()=>assertSchemaCapability(33,"multi-team"),/unsupported-version/);
+ assert.throws(()=>assertSchemaCapability(CURRENT_SCHEMA_VERSION+1,"multi-team"),/unsupported-version/);
 });
 test("capacités distinctes selon leur migration",()=>{
  assert.equal(evaluateSchemaCapability(27,"multi-team").ok,false);
@@ -18,5 +18,6 @@ test("capacités distinctes selon leur migration",()=>{
  assert.equal(evaluateSchemaCapability(29,"links").ok,true);
 });
 test("une version future ne se déclare jamais compatible",()=>{
- assert.equal(evaluateSchemaCapability(33,"per-team-agile-mode").ok,false);
+ assert.equal(evaluateSchemaCapability(CURRENT_SCHEMA_VERSION+1,"per-team-agile-mode").ok,false);
+ assert.equal(evaluateSchemaCapability(33,"per-team-agile-mode").ok,true);
 });
