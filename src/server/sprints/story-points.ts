@@ -23,6 +23,8 @@ async function scope(db:Client,id:string,lock=false,teamId?:string){
 export async function readStoryPoints(db:Client,id:string,access?:{actor:TeamActor;teamId:string}){
  const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
  if(team&&team.mode!=="scrum")return null;
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ if(version.rows[0]?.schema_version===33)return null;
  await ensureStoryPointsSchema(db);const sprint=await scope(db,id,false,team?.team_id);if(!sprint)return null;
  const r=await db.query<{initial:string|null;added:string|null;removed:string|null;done:string|null;revision:number}>(`SELECT initial_sp::text AS initial,added_sp::text AS added,removed_sp::text AS removed,done_sp::text AS done,revision
  FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[id]);
@@ -37,6 +39,8 @@ export async function writeStoryPoints(db:Client,actor:string,raw:unknown,
  !Number.isInteger(v.revision)||Number(v.revision)<0||!v.points||typeof v.points!=="object"||Array.isArray(v.points))return {ok:false as const,error:"invalid-input"};
  const p=v.points as Record<string,unknown>;
  if(Object.keys(p).sort().join(",")!=="added,done,initial,removed"||![p.initial,p.added,p.removed,p.done].every(valid))return {ok:false as const,error:"invalid-input"};
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ if(version.rows[0]?.schema_version===33)return {ok:false as const,error:"legacy-indicators-retired" as const};
  const values=p as Points;await ensureStoryPointsSchema(db);await db.query("BEGIN");
  try{
  const team=access?await resolveAdminTeam(db,access.actor,access.teamId):null;
