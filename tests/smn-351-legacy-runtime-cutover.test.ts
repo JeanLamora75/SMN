@@ -27,5 +27,5 @@ test("v33 closed snapshots remain readable in obsolete compatibility projection"
  const reader=read("src/server/sprints/indicators-read.ts");
  assert.match(reader,/if\(scope\.rows\[0\]\.status==="closed"\)/);
  assert.match(reader,/FROM public\.smn_sprint_closure_snapshot/);
- assert.match(reader,/public\.smn_indicator_manual_value/);
+ assert.match(reader,/if\(v33\)return \{state:"unavailable",reason:"schema-missing"\}/);
 });
