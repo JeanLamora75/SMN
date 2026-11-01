@@ -154,9 +154,15 @@ FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_assert_cycle_integrity();
 
 -- Sécurité des modifications des objets parents, y compris après création de valeurs.
 CREATE FUNCTION public.smn_indicator_guard_cycle_team_change()
-RETURNS trigger LANGUAGE plpgsql AS $
+RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE changing boolean;
 BEGIN
- IF (TG_OP='DELETE' OR NEW.id IS DISTINCT FROM OLD.id OR NEW.team_id IS DISTINCT FROM OLD.team_id) AND (
+ IF TG_OP='DELETE' THEN
+  changing := true;
+ ELSE
+  changing := NEW.id IS DISTINCT FROM OLD.id OR NEW.team_id IS DISTINCT FROM OLD.team_id;
+ END IF;
+ IF changing AND (
   EXISTS(SELECT 1 FROM public.smn_indicator_manual_value
    WHERE cycle_id=OLD.id AND team_id=OLD.team_id AND cycle_type=TG_ARGV[0])
   OR EXISTS(SELECT 1 FROM public.smn_indicator_computed_result
@@ -166,9 +172,10 @@ BEGIN
  ) THEN
   RAISE EXCEPTION 'indicator-cycle-team-change-blocked' USING ERRCODE='23503';
  END IF;
+ IF TG_OP='DELETE' THEN RETURN OLD; END IF;
  RETURN NEW;
 END;
-$;
+$$;
 CREATE TRIGGER smn_indicator_guard_sprint_team
 BEFORE UPDATE OF team_id,id OR DELETE ON public.smn_sprint
 FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_cycle_team_change('scrum');
@@ -177,7 +184,7 @@ BEFORE UPDATE OF team_id,id OR DELETE ON public.smn_kanban_period
 FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_cycle_team_change('kanban');
 
 CREATE FUNCTION public.smn_indicator_guard_definition_type_change()
-RETURNS trigger LANGUAGE plpgsql AS $
+RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF NEW.indicator_type IS DISTINCT FROM OLD.indicator_type AND (OLD.type_locked OR
   EXISTS(SELECT 1 FROM public.smn_indicator_manual_value WHERE indicator_id=OLD.id)
@@ -187,7 +194,7 @@ BEGIN
  END IF;
  RETURN NEW;
 END;
-$;
+$$;
 CREATE TRIGGER smn_indicator_guard_definition_type
 BEFORE UPDATE OF indicator_type ON public.smn_indicator_definition
 FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_definition_type_change();
