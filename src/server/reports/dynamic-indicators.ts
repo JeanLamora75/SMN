@@ -5,7 +5,8 @@ export type ReportIndicatorValue=Readonly<{
  value:string|null;available:boolean;reason:string|null
 }>;
 export const parseReportIndicatorSelection=(raw:unknown):string[]|null=>{
- if(raw===undefined||raw===null||raw==="")return null;
+ if(raw===undefined||raw===null)return null;
+ if(raw==="")return [];
  if(typeof raw!=="string"||raw.length>4000)return null;
  const ids=raw.split(",");
  if(ids.length>50||ids.some(id=>!/^[a-f0-9-]{36}$/i.test(id))||new Set(ids).size!==ids.length)throw Error("invalid-report-indicator-selection");
