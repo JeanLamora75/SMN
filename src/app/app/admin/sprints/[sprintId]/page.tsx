@@ -6,8 +6,6 @@ import {withAuthDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
 import {withDashboardRead} from "@/server/dashboard/read-only-db";
 import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
-import {readSprintDetailIndicators} from "@/server/sprints/indicators-read";
-import {readSprintCapacityKpiView} from "@/server/sprints/sprint-capacity-kpis";
 import {readSprintDetailCeremonies} from "@/server/sprints/ceremonies-detail-read";
 import {readSprintMemberPresence} from "@/server/sprints/presence-detail-read";
 import {readSprintTrends} from "@/server/sprints/trends";
@@ -24,7 +22,6 @@ import SprintDetailEditor from "./sprint-detail-editor";
 import SprintClosureAction from "./sprint-closure-action";
 import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
-import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import UniversalIndicatorInput from "../../indicators/universal-input";
 import {indicatorTeams} from "@/server/indicators/team-access";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
@@ -75,15 +72,13 @@ export default async function SprintDetailPage({params,searchParams}:{
   const cycle=context.items.find(item=>item.id===sprintId);
   if(!cycle)return null;
   const goals=active==="objectives"?await readSprintDetailGoals(db,teamId,cycle.id):null;
-  const indicators=active==="indicators"?await readSprintDetailIndicators(db,teamId,cycle.id):null;
-  const capacityKpis=active==="indicators"?await readSprintCapacityKpiView(db,teamId,cycle):null;
   const ceremonies=active==="ceremonies"?await readSprintDetailCeremonies(db,teamId,cycle.id,ceremonyPage):null;
   const presence=active==="capacity"&&canViewMembers?
    await readSprintMemberPresence(db,teamId,cycle):null;
   const trends=active==="trends"?await readSprintTrends(db,cycle.id,teamId):null;
   const review=active==="review"?await readSprintReview(db,teamId,cycle.id):null;
   const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage,readEpic5SprintRegisterSource,registerKind):null;
-  return {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers};
+  return {cycle,goals,ceremonies,presence,trends,review,registers};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -92,7 +87,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers}=result;
+ const {cycle,goals,ceremonies,presence,trends,review,registers}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const canManageDynamicIndicators=await withAuthDb(async db=>(await indicatorTeams(db,{accountId:account.id,role:account.role})).some(t=>t.id===teamId)).catch(()=>false);
  const status=effectiveSprintStatus(cycle);
@@ -156,10 +151,7 @@ export default async function SprintDetailPage({params,searchParams}:{
     {active==="objectives"?<><SprintGoalsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
-     active==="indicators"?<>{canManageDynamicIndicators&&<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>}<SprintIndicatorsPanel
-      sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
-      data={indicators??{state:"unavailable",reason:"read-failed"}}
-      capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/></> :
+     active==="indicators"?<>{canManageDynamicIndicators&&<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>}<IndicatorReporting teamId={teamId} cycleType="scrum" screen="cycle_detail" cycleId={cycle.id} locale={locale}/></> :
      active==="ceremonies"?<><SprintCeremoniesPanel
       sprintId={cycle.id} teamId={teamId} timeZone={cycle.timeZone} locale={locale}
       canManage={canManage&&cycle.status!=="closed"}
