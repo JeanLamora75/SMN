@@ -40,7 +40,7 @@ test("SMN-349 PostgreSQL: configured screens, all statuses, NULL and team isolat
    assert.deepEqual(list.cycles.map(x=>x.values[id]),["0",null,"5"]);
    assert.ok(list.cycles.every(x=>x.id!=="s349other"));
    const trends=await readIndicatorReporting(db,"team349a","trends","scrum");
-   assert.deepEqual(trends.cycles.map(x=>x.values[id]),["0",undefined,"5"]);
+   assert.deepEqual(trends.cycles.map(x=>x.values[id]),["0",null,"5"]);
    assert.equal(trends.columns[0].style,"line");
    const kanban=await readIndicatorReporting(db,"team349k","trends","kanban");
    assert.equal(kanban.columns[0].style,"bar");assert.equal(kanban.cycles[0].values[id],"9");
