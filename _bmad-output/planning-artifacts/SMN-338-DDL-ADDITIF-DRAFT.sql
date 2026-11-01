@@ -124,8 +124,8 @@ DECLARE expected_type text;
 BEGIN
  SELECT indicator_type INTO expected_type
  FROM public.smn_indicator_definition WHERE id=NEW.indicator_id FOR SHARE;
- IF expected_type IS DISTINCT FROM
-   CASE WHEN TG_TABLE_NAME='smn_indicator_manual_value' THEN 'manual' ELSE 'computed' END THEN
+ IF (TG_TABLE_NAME='smn_indicator_manual_value' AND expected_type IS DISTINCT FROM 'manual')
+    OR (TG_TABLE_NAME='smn_indicator_computed_result' AND expected_type IS DISTINCT FROM 'computed') THEN
   RAISE EXCEPTION 'indicator-type-mismatch' USING ERRCODE='23514';
  END IF;
  IF NEW.cycle_type='scrum' THEN
