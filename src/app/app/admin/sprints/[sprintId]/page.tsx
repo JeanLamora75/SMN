@@ -32,6 +32,7 @@ import HistoricalEventForm from "./historical-event-form";
 import HistoricalPartialForm from "./historical-partial-form";
 import SprintCapacityPanel from "./sprint-capacity-panel";
 import SprintTrendsPanel from "./sprint-trends-panel";
+import IndicatorReporting from "../../indicators/reporting-view";
 import SprintReviewPanel from "./sprint-review-panel";
 import SprintRegistersPanel from "./sprint-registers-panel";
 import {parseSprintTab,type SprintTab} from "@/lib/sprint-detail-tabs";
@@ -167,8 +168,8 @@ export default async function SprintDetailPage({params,searchParams}:{
      active==="capacity"?<SprintCapacityPanel
       teamId={teamId} canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
-     active==="trends"?<SprintTrendsPanel
-      data={trends} locale={locale}/>:
+     active==="trends"?<><SprintTrendsPanel
+      data={trends} locale={locale}/><IndicatorReporting teamId={teamId} cycleType="scrum" screen="trends" locale={locale}/></>:
      active==="review"?<SprintReviewPanel
       data={review} sprintId={cycle.id} status={cycle.status}
       canManage={canManage} locale={locale} timeZone={cycle.timeZone}/>:
