@@ -1,3 +1,4 @@
+import "./dashboard-slot-cockpit.css";
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
@@ -80,10 +81,10 @@ export default function DashboardIndicatorBlocks({teamId,cycleId,cycleType,local
     </div>;
    })}</div>
   </article>)}
-  {selected&&<dialog ref={dialog} aria-modal="true" aria-labelledby="smn-slot-modal-title" onCancel={e=>{e.preventDefault();close();}} className="smn-dashboard-slot-dialog" style={{border:"1px solid var(--bs-border-color)",borderRadius:14,width:"min(94vw,520px)",padding:0,boxShadow:"0 20px 70px rgba(0,0,0,.3)"}}>
-   <div className="modal-content">
-    <div className="modal-header"><h2 id="smn-slot-modal-title" className="h5 modal-title">{t("indicators.dashboard.configureSlot")}</h2><button type="button" className="btn-close" onClick={close} aria-label={t("indicators.input.close")}/></div>
-    <div className="modal-body">
+  {selected&&<dialog ref={dialog} aria-modal="true" aria-labelledby="smn-slot-modal-title" onCancel={e=>{e.preventDefault();close();}} className="smn-dashboard-slot-dialog smn-sprint-edit-dialog">
+   <div className="modal-content smn-indicator-dialog-content">
+    <div className="modal-header smn-indicator-dialog-header"><h2 id="smn-slot-modal-title" className="h5 modal-title">{t("indicators.dashboard.configureSlot")}</h2><button type="button" className="btn-close" onClick={close} aria-label={t("indicators.input.close")}/></div>
+    <div className="modal-body smn-indicator-dialog-form">
      <p className="text-secondary small">{titles[selected.block]} · {t("indicators.dashboard.position")} {selected.index}</p>
      {pickerError&&<p role="alert" className="alert alert-warning">{pickerError}</p>}
      <label className="form-label d-block">{t("indicators.reporting.indicator")}
