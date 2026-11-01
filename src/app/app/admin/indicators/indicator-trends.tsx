@@ -28,6 +28,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  const format=(v:number|null)=>v===null?"—":new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:3}).format(v);
  const chartTitle=active&&range.length?active.name+" : "+range[0].name+" - "+range[range.length-1].name:"";
  const nonnegative=actual.length>0&&actual.every(v=>v>=0)&&actual.some(v=>v>0)&&actual.length===nums.length;
+ const gaugeValid=last!==null&&last>=0&&last<=100;
  const isParts=applied?.style==="pie"||applied?.style==="donut";
  const total=actual.reduce((a,b)=>a+b,0);
  const colors=["#1b508d","#6d5faf","#159895","#dc8a36","#ab4b6e","#5474a5","#7a8a35","#b35252"];
@@ -61,8 +62,8 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
    <button className="btn btn-primary" type="submit" disabled={!indicator||!validBounds}>{locale==="fr"?"Filtrer":"Filter"}</button>
   </form>
   {report.columns.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}
-  {active&&<><div className="d-flex justify-content-end mb-2"><button type="button" className="btn btn-outline-primary btn-sm" disabled={actual.length===0||isParts&&!nonnegative} onClick={()=>void exportPng()}>{locale==="fr"?"Enregistrer en PNG":"Save as PNG"}</button></div>
-   {actual.length===0?<p role="status">{t("indicators.reporting.empty")}</p>:isParts&&!nonnegative?<p role="alert">{locale==="fr"?"Secteurs et anneau nécessitent des valeurs non négatives et renseignées pour chaque Sprint.":"Pie and donut need nonnegative values for every cycle."}</p>:
+  {active&&<><div className="d-flex justify-content-end mb-2"><button type="button" className="btn btn-outline-primary btn-sm" disabled={actual.length===0||isParts&&!nonnegative||applied?.style==="gauge"&&!gaugeValid} onClick={()=>void exportPng()}>{locale==="fr"?"Enregistrer en PNG":"Save as PNG"}</button></div>
+   {actual.length===0?<p role="status">{t("indicators.reporting.empty")}</p>:applied?.style==="gauge"&&!gaugeValid?<p role="alert">{locale==="fr"?"La jauge nécessite une valeur finale comprise entre 0 et 100 (référence : 100).":"Gauge requires a final value between 0 and 100 (reference: 100)."}</p>:isParts&&!nonnegative?<p role="alert">{locale==="fr"?"Secteurs et anneau nécessitent des valeurs non négatives et renseignées pour chaque Sprint.":"Pie and donut need nonnegative values for every cycle."}</p>:
    <svg ref={svgRef} viewBox="0 0 960 380" className="w-100" role="img" aria-label={chartTitle} xmlns="http://www.w3.org/2000/svg">
     <rect x="0" y="0" width="960" height="380" fill="var(--bs-body-bg)"/>
     <text x="480" y="34" textAnchor="middle" fontSize="19" fill="var(--bs-body-color)">{chartTitle}</text>
