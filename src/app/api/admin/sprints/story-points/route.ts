@@ -1,4 +1,5 @@
 import {NextRequest} from "next/server";
+import {legacyIndicatorEndpointRetired} from "@/server/indicators/legacy-cutover";
 import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {withAuthDb} from "@/server/auth/database";
@@ -11,6 +12,7 @@ const target={type:"settings",exists:true,inScope:true} as const;
 export async function GET(req:NextRequest){
  const actor=await authorizeApi(req,"read",target);
  if(!actor)return jsonResult({error:"forbidden"},403);
+ try{if(await legacyIndicatorEndpointRetired())return jsonResult({error:"legacy-indicators-retired",replacement:"/api/admin/indicators/input"},410);}catch{return jsonResult({error:"unavailable"},503);}
  const params=req.nextUrl.searchParams;
  const id=params.get("sprintId");
  if(!id||[...params.keys()].some(k=>!["sprintId","teamId"].includes(k))||
@@ -30,6 +32,7 @@ export async function GET(req:NextRequest){
 export async function PUT(req:NextRequest){
  const actor=await authorizeApi(req,"write",target);
  if(!actor)return jsonResult({error:"forbidden"},403);
+ try{if(await legacyIndicatorEndpointRetired())return jsonResult({error:"legacy-indicators-retired",replacement:"/api/admin/indicators/input"},410);}catch{return jsonResult({error:"unavailable"},503);}
  const params=req.nextUrl.searchParams;
  if([...params.keys()].some(k=>k!=="teamId")||params.getAll("teamId").length>1)
   return jsonResult({error:"invalid-input"},400);
