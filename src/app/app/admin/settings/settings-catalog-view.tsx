@@ -34,6 +34,13 @@ export default function SettingsCatalogView({groups,showCompanies=false}:{groups
      onClick={()=>choose("list")}><span aria-hidden="true">☷</span></button>
    </div>
   </div>
+  {showCompanies&&<section className="mb-4" aria-labelledby="settings-indicators-title">
+   <h2 className="h5 mb-3" id="settings-indicators-title">{t("indicators.title")}</h2>
+   <Link className="smn-panel rounded-4 p-3 d-flex text-decoration-none text-body gap-3" href="/app/admin/indicators">
+    <span aria-hidden="true" className="fs-4">▤</span>
+    <span><strong>{t("indicators.catalog")}</strong><span className="d-block small text-secondary">{t("indicators.preferences")}</span></span>
+   </Link>
+  </section>}
   {showCompanies&&<section className="mb-4" aria-labelledby="smn-settings-companies-title">
    <h2 className="h5 mb-3" id="smn-settings-companies-title">Entreprises</h2>
    <div className={view==="cards"?"row row-cols-1 row-cols-md-2 row-cols-xl-4 g-3":"d-grid gap-2"}>
