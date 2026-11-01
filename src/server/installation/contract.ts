@@ -134,6 +134,16 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_national_holiday_manual_audit:r",
   "public.smn_national_calendar_validation_audit:r",
   "public.smn_link_category:r", "public.smn_link:r", "public.smn_link_audit:r",
+  "public.smn_indicator_definition:r",
+  "public.smn_indicator_team_selection:r",
+  "public.smn_indicator_display_preference:r",
+  "public.smn_indicator_manual_value:r",
+  "public.smn_indicator_computed_result:r",
+  "public.smn_indicator_dependency:r",
+  "public.smn_indicator_cycle_revision:r",
+  "public.smn_indicator_system_revision:r",
+  "public.smn_indicator_assert_cycle_integrity:function",
+  "public.smn_indicator_assert_value_integrity:function",
   "public.smn_ai_brief_archive_immutable:function",
 ] as const;
 export type ExpressInput = Readonly<{ password: string; adminUsername: string; adminEmail: string }>;
