@@ -144,6 +144,8 @@ export const INSTALLATION_RELATIONS = [
   "public.smn_indicator_system_revision:r",
   "public.smn_indicator_assert_cycle_integrity:function",
   "public.smn_indicator_assert_value_integrity:function",
+  "public.smn_indicator_guard_cycle_team_change:function",
+  "public.smn_indicator_guard_definition_type_change:function",
   "public.smn_ai_brief_archive_immutable:function",
 ] as const;
 export type ExpressInput = Readonly<{ password: string; adminUsername: string; adminEmail: string }>;
