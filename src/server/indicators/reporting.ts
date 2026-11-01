@@ -34,5 +34,32 @@ export async function readIndicatorReporting(db:Client,teamId:string,screen:Scre
  ]);
  const map=new Map(cycles.map(c=>[c.id,Object.fromEntries(columns.rows.map(d=>[d.id,null])) as Record<string,string|null>]));
  for(const item of [...manual.rows,...computed.rows])map.get(item.cycle_id)![item.indicator_id]=item.value;
+ // The operational cycle table must never substitute current values for frozen Scrum closures.
+ if(screen==="cycle_list"&&cycleType==="scrum"){
+  const closed=cycles.filter(c=>c.status==="closed").map(c=>c.id);
+  if(closed.length){
+   const snapshots=await db.query<{sprint_id:string;snapshot:unknown}>(`
+     SELECT snap.sprint_id,snap.snapshot FROM public.smn_sprint_closure_snapshot snap
+     JOIN public.smn_sprint s ON s.id=snap.sprint_id AND s.team_id=$1
+     WHERE snap.sprint_id=ANY($2::text[])
+     ORDER BY snap.sprint_id,snap.version DESC`,[teamId,closed]);
+   const seen=new Set<string>();
+   for(const row of snapshots.rows){
+    if(seen.has(row.sprint_id))continue;
+    seen.add(row.sprint_id);
+    const obj=row.snapshot&&typeof row.snapshot==="object"&&!Array.isArray(row.snapshot)
+     ?row.snapshot as Record<string,unknown>:null;
+    const saved=Array.isArray(obj?.indicatorsV33)?obj.indicatorsV33:[];
+    const frozen=new Map<string,string|null>();
+    for(const item of saved){
+     if(item&&typeof item==="object"&&"id" in item&&typeof item.id==="string"&&"value" in item)
+      frozen.set(item.id,typeof item.value==="string"?item.value:null);
+    }
+    map.set(row.sprint_id,Object.fromEntries(indicatorIds.map(id=>[id,frozen.get(id)??null])));
+   }
+   // Closure without a v33 capture is unavailable, not an invitation to read live data.
+   for(const id of closed)if(!seen.has(id))map.set(id,Object.fromEntries(indicatorIds.map(key=>[key,null])));
+  }
+ }
  return {columns:columns.rows,cycles:cycles.map(c=>({...c,values:map.get(c.id)!}))};
 }
