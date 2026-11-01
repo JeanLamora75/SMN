@@ -1,4 +1,5 @@
 import {test} from "node:test";import assert from "node:assert/strict";import {readFileSync} from "node:fs";
+import {protectedBusinessObject} from "../scripts/smn-351-legacy-audit";
 const script=readFileSync("scripts/smn-351-legacy-audit.ts","utf8");
 const plan=readFileSync("_bmad-output/planning-artifacts/SMN-351-INVENTAIRE-CUTOVER.md","utf8");
 test("SMN-351 audit remains read-only and fail-closed before destructive cutover",()=>{
@@ -34,4 +35,13 @@ test("SMN-351: v33 Scrum report previews omit legacy Fxx while immutable referen
  assert.match(compose,/dynamicIndicators/);
  const frozen=readFileSync("src/server/reports/render-reference.ts","utf8");
  assert.match(frozen,/canonicalJson\(payload\)/);
+});
+
+test("SMN-351: business table families are protected from DROP even if not inventoried by name",()=>{
+ for(const table of ["smn_capacity_settings","smn_sprint_capacity_kpi","smn_team_calendar","smn_member_absence","smn_sprint_closure_snapshot","smn_kanban_closure","smn_report_studio_archive_snapshot","smn_report_render_reference","smn_sprint_historical_capacity","smn_registry_history","smn_indicator_manual_value"]){
+  assert.equal(protectedBusinessObject(table),true,table);
+ }
+ for(const table of ["smn_sprint_story_points","smn_sprint_ticket_counts"])assert.equal(protectedBusinessObject(table),false,table);
+ assert.match(script,/unsafeCandidates/);
+ assert.match(script,/readOnly:true/);
 });
