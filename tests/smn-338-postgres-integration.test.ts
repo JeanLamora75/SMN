@@ -76,6 +76,44 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
     VALUES('cal-1','ind-b','calendar','HOLIDAYS')`);
    await mustReject(`INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_calendar_tag)
     VALUES('cal-2','ind-b','calendar','HOLIDAYS')`);
+   // Invariants SQL complémentaires : valeurs disponibles, motifs et références.
+   await db.query(`INSERT INTO public.smn_indicator_computed_result
+    (team_id,cycle_type,cycle_id,indicator_id,result_state,value,formula_revision)
+    VALUES('team-1','scrum','sprint-1','ind-b','available',0,1)`);
+   await db.query(`INSERT INTO public.smn_indicator_computed_result
+    (team_id,cycle_type,cycle_id,indicator_id,result_state,unavailable_reason,formula_revision)
+    VALUES('team-1','scrum','sprint-2','ind-b','unavailable','missing_source',1)`);
+   await mustReject(`INSERT INTO public.smn_indicator_computed_result
+    (team_id,cycle_type,cycle_id,indicator_id,result_state,value,unavailable_reason,formula_revision)
+    VALUES('team-1','scrum','sprint-3','ind-b','available',1,'missing_source',1)`);
+   await mustReject(`INSERT INTO public.smn_indicator_computed_result
+    (team_id,cycle_type,cycle_id,indicator_id,result_state,value,unavailable_reason,formula_revision)
+    VALUES('team-1','scrum','sprint-3','ind-b','unavailable',1,'missing_source',1)`);
+   await mustReject(`INSERT INTO public.smn_indicator_computed_result
+    (team_id,cycle_type,cycle_id,indicator_id,result_state,unavailable_reason,formula_revision)
+    VALUES('team-1','scrum','sprint-3','ind-b','unavailable','wrong_reason',1)`);
+   await mustReject(`INSERT INTO public.smn_indicator_computed_result
+    (team_id,cycle_type,cycle_id,indicator_id,result_state,unavailable_reason,unavailable_source_tag,formula_revision)
+    VALUES('team-1','scrum','sprint-3','ind-b','unavailable','missing_source','IND_A',1)`);
+   await mustReject(`INSERT INTO public.smn_indicator_dependency
+    (id,indicator_id,source_type,source_indicator_id,source_calendar_tag)
+    VALUES('both','ind-b','calendar','ind-a','HOLIDAYS')`);
+   await mustReject(`INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type)
+    VALUES('neither','ind-b','calendar')`);
+   await mustReject(`INSERT INTO public.smn_indicator_display_preference(team_id,indicator_id,screen_key)
+    VALUES('team-1','ind-a','unknown')`);
+   await mustReject(`INSERT INTO public.smn_indicator_cycle_revision
+    (team_id,cycle_type,cycle_id,revision) VALUES('team-1','scrum','sprint-1',-1)`);
+   await mustReject(`INSERT INTO public.smn_indicator_system_revision(singleton_key,revision)
+    VALUES('other',0)`);
+   const available=await db.query<{value:string|null}>(`SELECT value::text FROM public.smn_indicator_computed_result
+    WHERE team_id='team-1' AND cycle_id='sprint-1'`);
+   assert.equal(available.rows[0]?.value,"0");
+   const unavailable=await db.query<{reason:string;value:string|null}>(`SELECT unavailable_reason AS reason,value::text
+    FROM public.smn_indicator_computed_result WHERE team_id='team-1' AND cycle_id='sprint-2'`);
+   assert.deepEqual(unavailable.rows[0],{reason:"missing_source",value:null});
+   // L'intégrité cycle_id/team_id et le type manual/computed ne sont PAS garantis par ce DDL ;
+   // ce sera une porte applicative explicite avant toute activation de migration.
    const crossTeam=await db.query<{n:string}>(`SELECT count(*)::text n FROM public.smn_indicator_manual_value WHERE team_id='team-2'`);
    assert.equal(crossTeam.rows[0]?.n,"0");
    await db.query("ROLLBACK");
