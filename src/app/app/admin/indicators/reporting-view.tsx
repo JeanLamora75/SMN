@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from "react";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
-export default function IndicatorReporting({teamId,cycleType,screen,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"trends";locale:"fr"|"en"}){
+export default function IndicatorReporting({teamId,cycleType,screen,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"trends"|"dashboard";locale:"fr"|"en"}){
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
  const t=(fr:string,en:string)=>locale==="fr"?fr:en;
