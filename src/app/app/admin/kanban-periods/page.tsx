@@ -27,8 +27,7 @@ export default async function KanbanPeriodsPage(){
   <Link href="/app/admin/kanban-cadence" className="btn btn-link px-0 mb-2">← Paramètres Kanban</Link>
   <KanbanPeriodForm canManage={account.role==="admin"}/>
   <PeriodNameList canManage={account.role==="admin"}/>
-  {enabled.length>0&&<IndicatorReporting teamId={enabled[0].team_id} cycleType="kanban" screen="cycle_list" locale={locale}/>}
-  {enabled.length>0&&<IndicatorReporting teamId={enabled[0].team_id} cycleType="kanban" screen="trends" locale={locale}/>}
+  {[...new Set(enabled.map(p=>p.team_id))].map(teamId=><section key={teamId}><IndicatorReporting teamId={teamId} cycleType="kanban" screen="cycle_list" locale={locale}/><IndicatorReporting teamId={teamId} cycleType="kanban" screen="trends" locale={locale}/></section>)}
   {enabled.length>0&&<section className="smn-panel rounded-4 p-3 mt-3"><h2 className="h5">{translate(locale,"indicators.input.kanbanTitle")}</h2>{enabled.map(p=><div key={p.id} className="d-flex align-items-center justify-content-between gap-3 border-bottom py-2"><span>{p.name}</span><UniversalIndicatorInput teamId={p.team_id} cycleType="kanban" cycleId={p.id}/></div>)}</section>}
   <Link href="/app/admin/kanban-periods/preview" className="btn btn-outline-primary mt-3">Prévisualiser un lot de périodes →</Link>
  </main>;
