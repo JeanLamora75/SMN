@@ -99,5 +99,57 @@ CREATE TABLE public.smn_indicator_system_revision (
  updated_at timestamptz NOT NULL DEFAULT now()
 );
 INSERT INTO public.smn_indicator_system_revision(singleton_key) VALUES ('singleton');
+-- Version de cycle : aucun indicateur à vérifier, seule l'équipe et le cycle.
+CREATE FUNCTION public.smn_indicator_assert_cycle_integrity()
+RETURNS trigger LANGUAGE plpgsql AS $
+BEGIN
+ IF NEW.cycle_type='scrum' THEN
+  PERFORM 1 FROM public.smn_sprint WHERE id=NEW.cycle_id AND team_id=NEW.team_id FOR SHARE;
+ ELSIF NEW.cycle_type='kanban' THEN
+  PERFORM 1 FROM public.smn_kanban_period WHERE id=NEW.cycle_id AND team_id=NEW.team_id FOR SHARE;
+ END IF;
+ IF NOT FOUND THEN
+  RAISE EXCEPTION 'indicator-cycle-team-mismatch' USING ERRCODE='23503';
+ END IF;
+ RETURN NEW;
+END;
+$;
+
+-- Validation de l'intégrité polymorphe en base : les cycles Scrum et Kanban
+-- vivent dans des tables différentes. Aucun FK polymorphe natif PostgreSQL.
+-- Une seule fonction vérifie l'appartenance réelle et le type des indicateurs.
+CREATE FUNCTION public.smn_indicator_assert_value_integrity()
+RETURNS trigger LANGUAGE plpgsql AS $
+DECLARE expected_type text;
+BEGIN
+ SELECT indicator_type INTO expected_type
+ FROM public.smn_indicator_definition WHERE id=NEW.indicator_id FOR SHARE;
+ IF expected_type IS DISTINCT FROM
+   CASE WHEN TG_TABLE_NAME='smn_indicator_manual_value' THEN 'manual' ELSE 'computed' END THEN
+  RAISE EXCEPTION 'indicator-type-mismatch' USING ERRCODE='23514';
+ END IF;
+ IF NEW.cycle_type='scrum' THEN
+  PERFORM 1 FROM public.smn_sprint
+    WHERE id=NEW.cycle_id AND team_id=NEW.team_id FOR SHARE;
+ ELSIF NEW.cycle_type='kanban' THEN
+  PERFORM 1 FROM public.smn_kanban_period
+    WHERE id=NEW.cycle_id AND team_id=NEW.team_id FOR SHARE;
+ END IF;
+ IF NOT FOUND THEN
+  RAISE EXCEPTION 'indicator-cycle-team-mismatch' USING ERRCODE='23503';
+ END IF;
+ RETURN NEW;
+END;
+$;
+CREATE TRIGGER smn_indicator_manual_value_integrity
+BEFORE INSERT OR UPDATE ON public.smn_indicator_manual_value
+FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_assert_value_integrity();
+CREATE TRIGGER smn_indicator_computed_result_integrity
+BEFORE INSERT OR UPDATE ON public.smn_indicator_computed_result
+FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_assert_value_integrity();
+CREATE TRIGGER smn_indicator_cycle_revision_integrity
+BEFORE INSERT OR UPDATE ON public.smn_indicator_cycle_revision
+FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_assert_cycle_integrity();
+
 -- A AJOUTER AU CONTRAT : validation applicative de cycle_id/team_id et de type manuel/computed,
 -- cycle DAG, regexp tags réservés, lock global des producteurs et vérification physique DB.
