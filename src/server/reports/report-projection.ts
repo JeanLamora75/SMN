@@ -13,35 +13,6 @@ export async function readScrumReportProjection(db:Client,input:{
  const schema=present.rows[0];
  let committed:unknown=null,completed:unknown=null,planned:unknown=null,actual:unknown=null;
  let version:number|null=null,capturedAt:string|null=null;
- if(v33&&input.status!=="closed"){
-  // Live v33 values are resolved by stable business tags, independently of display preferences.
-  // A missing value remains null; it must never be replaced with zero.
-  const scope=await db.query<{team_id:string}>(`
-   SELECT s.team_id FROM public.smn_sprint s
-   JOIN public.smn_team t ON t.id=s.team_id
-   WHERE s.id=$1 AND s.deleted_at IS NULL AND t.agile_mode='scrum'
-   AND t.installation_id='singleton' AND NOT t.is_archived`,[id]);
-  const teamId=scope.rows[0]?.team_id;
-  if(teamId){
-   const values=await db.query<{tag:string;value:string|null}>(`
-    SELECT d.tag,CASE
-     WHEN d.indicator_type='manual' THEN m.value::text
-     WHEN r.result_state='available' THEN r.value::text
-     ELSE NULL END AS value
-    FROM public.smn_indicator_definition d
-    JOIN public.smn_indicator_team_selection sel
-     ON sel.indicator_id=d.id AND sel.team_id=$1 AND sel.is_active=true
-    LEFT JOIN public.smn_indicator_manual_value m
-     ON m.indicator_id=d.id AND m.team_id=$1 AND m.cycle_type='scrum' AND m.cycle_id=$2
-    LEFT JOIN public.smn_indicator_computed_result r
-     ON r.indicator_id=d.id AND r.team_id=$1 AND r.cycle_type='scrum' AND r.cycle_id=$2
-    WHERE d.archived_at IS NULL AND d.tag=ANY($3::text[])`,
-    [teamId,id,["F01","F06"]]);
-   const byTag=new Map(values.rows.map(x=>[x.tag,x.value]));
-   committed=byTag.get("F01")??null;
-   completed=byTag.get("F06")??null;
-  }
- }
  if(input.status==="closed"){
   if(schema?.closed){
    const r=await db.query<{version:number;closedAt:string;snapshot:Record<string,unknown>}>(`
