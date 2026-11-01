@@ -22,6 +22,7 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
   const db=new Client({connectionString:uri.toString(),connectionTimeoutMillis:3500});
   await db.connect();
   try{
+   await db.query("INSERT INTO public.smn_capacity_settings(installation_id,hours_per_jh) VALUES('singleton',8) ON CONFLICT(installation_id) DO NOTHING");
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES('team345','singleton','Scrum','scrum')");
    await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES "+
     "('sprint345','team345',1,'Sprint', '2026-11-01','2026-11-14','Europe/Paris','closed'),"+
