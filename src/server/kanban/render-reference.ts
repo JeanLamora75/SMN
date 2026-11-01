@@ -2,16 +2,17 @@ import {assertKanbanSchema} from "./schema-ready";
 import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {canonicalJson} from "@/server/reports/render-reference";
+import {readReportIndicatorProjection,type ReportIndicatorValue} from "@/server/reports/dynamic-indicators";
 import {selectedKanbanAnalyses} from "./report-analysis-choices";
 import {composeKanbanReport,selectKanbanReportSections} from "./report-preparation";
-export type FrozenKanbanPayload={data:NonNullable<Awaited<ReturnType<typeof composeKanbanReport>>>;sections:string[];language:"fr"|"en";chosenAnalyses?:Awaited<ReturnType<typeof selectedKanbanAnalyses>>};
+export type FrozenKanbanPayload={data:NonNullable<Awaited<ReturnType<typeof composeKanbanReport>>>;sections:string[];language:"fr"|"en";chosenAnalyses?:Awaited<ReturnType<typeof selectedKanbanAnalyses>>;dynamicIndicators?:ReportIndicatorValue[]};
 export function hashKanbanPayload(payload:FrozenKanbanPayload){
  return createHash("sha256").update(canonicalJson(payload),"utf8").digest("hex");
 }
 export async function ensureKanbanRenderReference(db:Client){
  await assertKanbanSchema(db,"smn_kanban_render_reference");
 }
-export async function createKanbanRenderReference(db:Client,periodId:string,actorId:string,sections:string[],language:"fr"|"en"){
+export async function createKanbanRenderReference(db:Client,periodId:string,actorId:string,sections:string[],language:"fr"|"en",indicatorSelection:string[]|null=null){
  if(!actorId||!/^[a-f0-9-]{36}$/i.test(periodId))return null;
  const chosen=selectKanbanReportSections(sections);
  if(!chosen.length)return null;
@@ -21,7 +22,10 @@ export async function createKanbanRenderReference(db:Client,periodId:string,acto
  await db.query("BEGIN");
  try{
   const chosenAnalyses=await selectedKanbanAnalyses(db,periodId);
-  const payload:FrozenKanbanPayload={data,sections:chosen,language,chosenAnalyses};
+  const scope=await db.query<{team_id:string}>("SELECT team_id FROM public.smn_kanban_period WHERE id=$1 AND deleted_at IS NULL",[periodId]);
+  if(scope.rows.length!==1)throw Error("cycle-not-found");
+  const dynamicIndicators=await readReportIndicatorProjection(db,scope.rows[0].team_id,"kanban",periodId,indicatorSelection);
+  const payload:FrozenKanbanPayload={data,sections:chosen,language,chosenAnalyses,dynamicIndicators};
   const id=randomUUID(),sha256=hashKanbanPayload(payload);
   await db.query(`INSERT INTO public.smn_kanban_render_reference
    (id,period_id,created_by,sha256,payload) VALUES($1,$2,$3,$4,$5::jsonb)`,

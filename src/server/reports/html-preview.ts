@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {readReportIndicatorProjection} from "./dynamic-indicators";
 import {composeStandardReport} from "./standard-composition";
 import {selectedReportAnalyses} from "./analysis-choices";
 import {readReportSectionOptions} from "./section-options";
@@ -12,7 +13,7 @@ import {orderReportSections} from "@/lib/report-section-options";
 import {projectSelectedMetrics,eligibleReportFact} from "@/lib/report-content-options";
 import {selectedTeamContext} from "@/lib/report-team-context";
 import {safeCollectiveContext,safeCollectiveItems} from "@/lib/report-privacy";
-export async function composeHtmlReportPreview(db:Client,sprintId:string){
+export async function composeHtmlReportPreview(db:Client,sprintId:string,reportIndicatorSelection:string[]|null=null){
  const report=await composeStandardReport(db,sprintId);
  if(!report)return null;
  const [sections,contents,draft,contextOptions,context,history]=await Promise.all([
@@ -20,6 +21,7 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string){
  readReportDraft(db,sprintId),readTeamContextChoices(db,sprintId),
  readTeamReportContext(db,report.sprint.teamId),readReportHistoryOptions(db,sprintId)
  ]);
+ const dynamicIndicators=await readReportIndicatorProjection(db,report.sprint.teamId,"scrum",sprintId,reportIndicatorSelection);
  const projection=report.projection.scrum;
  const metrics=projectSelectedMetrics({committed:projection.storyPoints.committed.value,
  completed:projection.storyPoints.completed.value,planned:projection.capacity.planned.value,
@@ -55,7 +57,7 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string){
  const chosenAnalyses=await selectedReportAnalyses(db,sprintId);
  return {sprint:safeCollectiveContext(report.sprint),provisional:report.provisional,generatedAt:new Date().toISOString(),
  source:report.source,version:report.snapshotVersion,historicalEvidence,sections:chosen,metrics,
- notes:draft.notes,teamContext:selectedTeamContext(context,contextOptions.options),
+ dynamicIndicators,notes:draft.notes,teamContext:selectedTeamContext(context,contextOptions.options),
  trends:contents.options.metrics.length?trends??[]:[],historyDepth:history.depth,
  qualitativePolicy:"not-verified" as const,chosenAnalyses};
 }

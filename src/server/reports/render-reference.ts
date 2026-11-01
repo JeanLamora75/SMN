@@ -25,7 +25,7 @@ export function hashReportPayload(payload:FrozenReportPayload){
 export function verifiedFrozenReference(ref:FrozenReportReference){
  return ref.sha256===hashReportPayload(ref.payload)&&ref.sprintId===ref.payload.data.sprint.id;
 }
-export async function createFrozenReportReference(db:Client,sprintId:string,actorId:string,expectedTeamId?:string){
+export async function createFrozenReportReference(db:Client,sprintId:string,actorId:string,expectedTeamId?:string,indicatorSelection:string[]|null=null){
  if(!actorId||!/^[a-f0-9-]{36}$/i.test(sprintId))return null;
  await db.query("BEGIN ISOLATION LEVEL REPEATABLE READ");
  try{
@@ -34,7 +34,7 @@ export async function createFrozenReportReference(db:Client,sprintId:string,acto
  WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized'
  AND lower(i.mode)='scrum' AND ($2::text IS NULL OR s.team_id=$2)`,[sprintId,expectedTeamId??null]);
  if(scope.rows.length!==1){await db.query("ROLLBACK");return null;}
- const data=await composeHtmlReportPreview(db,sprintId);
+ const data=await composeHtmlReportPreview(db,sprintId,indicatorSelection);
  if(!data){await db.query("ROLLBACK");return null;}
  const payload:FrozenReportPayload={
  data,language:await readReportLanguage(db,sprintId),logo:await readReportLogo(db,sprintId)

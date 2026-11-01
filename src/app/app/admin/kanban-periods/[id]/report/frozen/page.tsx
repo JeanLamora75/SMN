@@ -29,6 +29,11 @@ export default async function FrozenKanbanReportPage({params,searchParams}:{para
     <h2 className="h5">{labels[key]??key}</h2>
     <pre className="text-wrap small">{present(values[key])}</pre>
    </section>)}
+   {!!stored.payload.dynamicIndicators?.length&&<section className="border-top pt-3 mt-3">
+    <h2 className="h5">{language==="fr"?"Indicateurs sélectionnés":"Selected indicators"}</h2>
+    <table className="table table-sm"><thead><tr><th>{language==="fr"?"Indicateur":"Indicator"}</th><th>{language==="fr"?"Valeur":"Value"}</th><th>{language==="fr"?"Source":"Source"}</th></tr></thead>
+    <tbody>{stored.payload.dynamicIndicators.map(x=><tr key={x.id}><th title={x.name}>{x.tag} — {x.name}</th><td>{x.value===null?"—":x.value+(x.unit?" "+x.unit:"")}</td><td>{x.source}{x.reason?" · "+x.reason:""}</td></tr>)}</tbody></table>
+   </section>}
    {stored.payload.chosenAnalyses?.length?<section className="border-top mt-4 pt-3"><h2 className="h5">Analyses choisies — interprétations, non KPI</h2>{stored.payload.chosenAnalyses.map(a=><article className="border-start ps-3 mb-3" key={a.type+":"+a.id}><h3 className="h6">{a.origin} · {a.scope}</h3><p className="small text-secondary">Origine : {a.type==="human"?"Humaine":"IA"} · Date : {a.createdAt} · Cycle : {a.cycleId}{a.archiveId?" · Brief source : "+a.archiveId:""}</p><p style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{a.content}</p></article>)}</section>:null}
    <p className="small text-secondary">Aucun indicateur en Story Points. Valeurs absentes non reconstruites.</p>
   </article>

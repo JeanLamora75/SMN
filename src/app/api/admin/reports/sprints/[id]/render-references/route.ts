@@ -3,6 +3,7 @@ import {withTeamReportCycle} from "@/server/reports/team-cycle";
 import {authorizeApi} from "@/server/auth/authorization";
 import {withLegacyTeamApi} from "@/server/teams/legacy";
 import {createFrozenReportReference} from "@/server/reports/render-reference";
+import {parseReportIndicatorSelection} from "@/server/reports/dynamic-indicators";
 export const runtime="nodejs";
 export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>}){
  const actor=await authorizeApi(req,"write",{type:"settings",exists:true,inScope:true});
@@ -10,9 +11,11 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
  const {id}=await params;
  if(!/^[a-f0-9-]{36}$/i.test(id))return Response.json({error:"invalid-input"},{status:400});
  const teamId=req.nextUrl.searchParams.get("teamId");
+ let selection:string[]|null;
+ try{selection=parseReportIndicatorSelection(req.nextUrl.searchParams.get("indicators"));}catch{return Response.json({error:"invalid-input"},{status:400});}
  if(teamId&&actor.role!=="admin")return Response.json({error:"forbidden"},{status:403});
  try{
- const ref=teamId?await withTeamReportCycle({accountId:actor.id,role:actor.role},teamId,id,db=>createFrozenReportReference(db,id,actor.id,teamId)):await withLegacyTeamApi(db=>createFrozenReportReference(db,id,actor.id));
+ const ref=teamId?await withTeamReportCycle({accountId:actor.id,role:actor.role},teamId,id,db=>createFrozenReportReference(db,id,actor.id,teamId,selection)):await withLegacyTeamApi(db=>createFrozenReportReference(db,id,actor.id,undefined,selection));
  return ref?Response.json({id:ref.id,sha256:ref.sha256,createdAt:ref.createdAt},{status:201}):Response.json({error:"not-found"},{status:404});
  }catch{return Response.json({error:"unavailable"},{status:503});}
 }
