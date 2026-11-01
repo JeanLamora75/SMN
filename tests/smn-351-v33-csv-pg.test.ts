@@ -24,6 +24,8 @@ test("SMN-351 PG: mapped CSV v33 inserts, preserves, replaces, journals and reje
   await db.connect();
   try{
    const account=(await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin'")).rows[0].id;
+   // Fresh installation forces an initial password change: complete that test-only prerequisite.
+   await db.query("UPDATE public.smn_account SET must_change_password=false WHERE id=$1 AND role='admin'",[account]);
    const team=randomUUID(),otherTeam=randomUUID(),cycle=randomUUID(),closed=randomUUID(),indicator=randomUUID();
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES($1,'singleton','CSV Team','scrum'),($2,'singleton','Other Team','scrum')",[team,otherTeam]);
    await db.query(`INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status)
