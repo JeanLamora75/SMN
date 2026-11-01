@@ -156,7 +156,7 @@ FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_assert_cycle_integrity();
 CREATE FUNCTION public.smn_indicator_guard_cycle_team_change()
 RETURNS trigger LANGUAGE plpgsql AS $
 BEGIN
- IF NEW.team_id IS DISTINCT FROM OLD.team_id AND (
+ IF (TG_OP='DELETE' OR NEW.id IS DISTINCT FROM OLD.id OR NEW.team_id IS DISTINCT FROM OLD.team_id) AND (
   EXISTS(SELECT 1 FROM public.smn_indicator_manual_value
    WHERE cycle_id=OLD.id AND team_id=OLD.team_id AND cycle_type=TG_ARGV[0])
   OR EXISTS(SELECT 1 FROM public.smn_indicator_computed_result
@@ -170,10 +170,10 @@ BEGIN
 END;
 $;
 CREATE TRIGGER smn_indicator_guard_sprint_team
-BEFORE UPDATE OF team_id ON public.smn_sprint
+BEFORE UPDATE OF team_id,id OR DELETE ON public.smn_sprint
 FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_cycle_team_change('scrum');
 CREATE TRIGGER smn_indicator_guard_kanban_team
-BEFORE UPDATE OF team_id ON public.smn_kanban_period
+BEFORE UPDATE OF team_id,id OR DELETE ON public.smn_kanban_period
 FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_cycle_team_change('kanban');
 
 CREATE FUNCTION public.smn_indicator_guard_definition_type_change()
