@@ -15,3 +15,8 @@ test("diagnostic recognises additive migration without upgrading version 33",()=
  assert.match(diag,/20261101_smn_dashboard_slots_additive/);
  assert.match(diag,/slotMigration\.checksum/);
 });
+
+test("auth migration SQL is resolved using a filesystem path under Turbopack",()=>{
+ assert.match(auth,/resolve\(process\.cwd\(\),"prisma","migrations","20261101_smn_dashboard_slots_additive","migration\.sql"\)/);
+ assert.doesNotMatch(auth,/readFileSync\(new URL\("\.\.\/\.\.\/\.\.\/prisma\/migrations\/20261101_smn_dashboard_slots_additive/);
+});
