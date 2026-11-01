@@ -18,3 +18,12 @@ Les habilitations des Scrum Masters sont retirées du cockpit opérationnel et c
 Le développement a été publié mais ni `pnpm typecheck`, ni `pnpm lint`, ni les tests locaux PostgreSQL ou la recette navigateur n'ont été exécutés dans l'environnement Windows de l'utilisateur. Ne pas marquer la Story Jira comme « Terminé » avant validation.
 Points de recette : équipe choisie par le sélecteur global, isolation Koala/Panda, tableau Scrum et Kanban, états et snapshots de clôture, bouton Modifier et rechargement après sauvegarde, préférences pliées au premier affichage, accessibilité clavier et rendu Red & Purple clair/sombre.
 Aucune migration ajoutée et aucune ancienne table supprimée pour ce lot.
+
+## Ajustements finaux de l'implémentation
+- Navigation active : `teamSwitchDestination` conserve désormais `/app/admin/indicators?teamId=...` lors d'un changement d'équipe, sans conserver de cycle de l'ancienne équipe.
+- Le mode de l'équipe est lu explicitement dans `smn_team.agile_mode` après vérification de la liste autorisée, sans déduire Scrum du rôle de l'utilisateur.
+- Le tableau des cycles affiche les dates début et fin, les codes indicateurs, les unités et une action **Modifier** ouvrant la modale universelle.
+- La restitution `cycle_list` des sprints clôturés utilise la dernière version du snapshot `indicatorsV33` ; en absence de capture, elle affiche une lacune, jamais la valeur courante.
+- Contrôle PostgreSQL de la restitution historique étendu dans `tests/smn-dashboard-bmad-pg.test.ts`.
+- Le catalogue global reste limité au rôle `admin` dans `/app/admin/settings/indicators`, les habilitations y sont déplacées dans un panneau repliable.
+- Aucune recette locale ni migration exécutée par l'assistant ; les points de validation restent ouverts.
