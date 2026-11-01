@@ -1,0 +1,26 @@
+name: SMN-351 — Legacy cutover guards
+on:
+  push:
+    branches: ["feature/smn-351-legacy-indicator-cutover", "main"]
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:smn-351
+      - run: pnpm typecheck
+      - run: pnpm lint
