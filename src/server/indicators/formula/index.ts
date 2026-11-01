@@ -59,10 +59,12 @@ function power(base:bigint,exponent:bigint):bigint{
 }
 export class DecimalEngine {
  static parse(input:string):bigint{
-  if(!/^(?:0|[0-9]+)(?:\.[0-9]+)?$/.test(input))throw new FormulaSyntaxError("Invalid decimal");
-  const [whole,part=""]=input.split(".");
+  if(!/^[+-]?(?:0|[0-9]+)(?:\.[0-9]+)?$/.test(input))throw new FormulaSyntaxError("Invalid decimal");
+  const negative=input.startsWith("-");
+  const unsigned=input.replace(/^[+-]/,"");
+  const [whole,part=""]=unsigned.split(".");
   if(whole.length>48||part.length>24)throw new FormulaBudgetError("decimal digits");
-  return boundedMagnitude(BigInt(whole)*SCALE+BigInt(part.padEnd(24,"0")));
+  return boundedMagnitude((negative?-1n:1n)*(BigInt(whole)*SCALE+BigInt(part.padEnd(24,"0"))));
  }
  static format(value:bigint):string{
   const sign=value<0n?"-":"",digits=abs(value).toString().padStart(25,"0");
