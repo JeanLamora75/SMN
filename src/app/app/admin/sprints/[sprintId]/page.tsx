@@ -26,6 +26,7 @@ import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
 import SprintIndicatorsPanel from "./sprint-indicators-panel";
 import UniversalIndicatorInput from "../../indicators/universal-input";
+import {indicatorTeams} from "@/server/indicators/team-access";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import HistoricalEventForm from "./historical-event-form";
 import HistoricalPartialForm from "./historical-partial-form";
@@ -92,6 +93,7 @@ export default async function SprintDetailPage({params,searchParams}:{
  </main>;
  const {cycle,goals,indicators,capacityKpis,ceremonies,presence,trends,review,registers}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
+ const canManageDynamicIndicators=await withAuthDb(async db=>(await indicatorTeams(db,{accountId:account.id,role:account.role})).some(t=>t.id===teamId)).catch(()=>false);
  const status=effectiveSprintStatus(cycle);
  const day=(date:Date)=>new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{
   timeZone:cycle.timeZone,day:"numeric",month:"long",year:"numeric"
@@ -153,7 +155,7 @@ export default async function SprintDetailPage({params,searchParams}:{
     {active==="objectives"?<><SprintGoalsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
-     active==="indicators"?<>{canManage&&<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>}<SprintIndicatorsPanel
+     active==="indicators"?<>{canManageDynamicIndicators&&<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>}<SprintIndicatorsPanel
       sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
       capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/></> :
