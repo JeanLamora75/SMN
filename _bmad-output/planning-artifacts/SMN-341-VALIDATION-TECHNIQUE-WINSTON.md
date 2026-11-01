@@ -54,3 +54,11 @@ Ces clarifications sont **propositions techniques** pour Amelia ; en cas de dive
 **NO-GO** pour considérer la bibliothèque définitivement choisie, pour publier des formules sans qualification numérique et pour déployer l'intégration de persistance avant SMN-338.
 
 Cette décision ne vaut pas démarrage de l'agent Amelia. Le commanditaire a demandé de valider les choix techniques **avant** son activation.
+
+## Mise en œuvre Amelia — 01/11/2026
+- L'implémentation existante du moteur AST a été conservée ; aucune dépendance externe ou utilisation de `eval` n'a été ajoutée.
+- `DecimalEngine` reste basé sur `BigInt` à échelle fixe de 24 décimales. Les sources acceptent désormais les valeurs signées, sans conversion en `Number`.
+- Les opérations et les puissances sont bornées à une magnitude représentée par 72 chiffres décimaux (y compris l'échelle). Le calcul des racines borne également le volume de l'entier intermédiaire. Le parseur borne les jetons à 512, en plus des contrôles déjà présents.
+- Ces bornes sont des **décisions d'implémentation provisoires à qualifier** au regard des besoins fonctionnels et des valeurs métiers ; elles peuvent écarter certaines formules pourtant mathématiquement valides. Le plafond de degré fractionnaire réduit (32) reste explicite. Au-delà, `FormulaBudgetError` est une erreur technique et ne doit jamais être convertie en résultat métier indisponible.
+- Les tests étendent les scénarios sur entrées signées, précision décimale, `HALF_UP`, puissance fractionnaire, budget et refus de code arbitraire.
+- **Aucune preuve d'exécution des tests de ce lot n'est disponible à la rédaction.** Recette locale : `pnpm test:smn-341`, `pnpm typecheck`, `pnpm lint`. Aucune migration PostgreSQL n'est nécessaire pour SMN-341.
