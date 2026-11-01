@@ -23,6 +23,7 @@
     "db:upgrade": "tsx scripts/db-upgrade.ts",
     "db:migrate:red-purple": "tsx scripts/apply-red-purple-migration.ts",
     "db:diagnose:full": "tsx scripts/db-diagnostic-exhaustive.ts",
+    "db:audit:smn-337": "tsx scripts/audit-smn-337-dependencies.ts",
     "test:db:compat": "tsx --test tests/db-upgrade-v32-compatibility.test.ts",
     "db:baseline:v32": "tsx scripts/generate-v32-baseline.ts",
     "test:db:baseline": "tsx --test tests/generate-v32-baseline.test.ts"
