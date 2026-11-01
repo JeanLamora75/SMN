@@ -5,6 +5,7 @@ import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {installExpress} from "../src/server/installation/install";
 import {saveCompanyClosureV31} from "../src/server/closures/company-service";
+import {saveMemberAbsence} from "../src/server/members/absence";
 import {lockIndicatorRevisionBeforeCalendarWrite,recalculateCalendarImpactWithinTransaction} from "../src/server/indicators/calendar-integration";
 
 test("SMN-345 transaction partagée : changements non committés, impact dates, rollback",{timeout:180000},async()=>{
@@ -31,7 +32,7 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    const company="8999a8a8-6ee2-45a2-8d7f-51f733456782";
    await db.query("INSERT INTO public.smn_company(id,installation_id,name,color) VALUES($1,'singleton','Company','blue')",[company]);
    await db.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES('batch345','singleton','team345',3)");
-   await db.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name,company_id) VALUES('member345','singleton','batch345',1,'Member 345',$1)",[company]);
+   await db.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name,company_id) VALUES('123e4567-e89b-42d3-a456-426614174345','singleton','batch345',1,'Member 345',$1)",[company]);
    await db.query("INSERT INTO public.smn_member_assignment(id,member_id,team_id,start_on,agile_role) VALUES('assignment345','member345','team345','2026-10-01','developer')");
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula) VALUES "+
     "('capacity345','CAP345','Capacity','computed','CAL_CAPACITY_JH+1')");
@@ -71,12 +72,22 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    await db.query("ROLLBACK");
    assert.equal((await db.query<{name:string}>("SELECT name FROM public.smn_sprint WHERE id='sprint345'")).rows[0].name,'Sprint');
    const actor=(await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin' LIMIT 1")).rows[0].id;
+   await db.query("UPDATE public.smn_account SET must_change_password=false WHERE id=$1",[actor]);
+   await db.query("INSERT INTO public.smn_absence_category(id,name,color) VALUES('vacation345','Vacances','#336699')");
    const changedClosure=await saveCompanyClosureV31(db,actor,{
     action:"create",companyId:company,name:"Test closure",startOn:"2026-11-02",endOn:"2026-11-03"
    });
    assert.equal(changedClosure.ok,true);
    assert.equal((await db.query<{revision:string}>("SELECT revision::text FROM public.smn_indicator_system_revision WHERE singleton_key='singleton'")).rows[0].revision,"1");
    assert.equal((await db.query("SELECT indicator_id FROM public.smn_indicator_computed_result WHERE cycle_id='sprint345'")).rows.length,1);
+   const absence=await saveMemberAbsence(db,"123e4567-e89b-42d3-a456-426614174345",actor,{
+    action:"create",id:null,revision:0,categoryId:"vacation345",
+    startOn:"2026-11-04",endOn:"2026-11-05",startSlot:"morning",endSlot:"afternoon",
+    isPlanned:true,reason:"Congé"
+   },{actor:{accountId:actor,role:"admin"},teamId:"team345"});
+   assert.equal(absence.ok,true);
+   assert.equal((await db.query<{revision:string}>("SELECT revision::text FROM public.smn_indicator_system_revision WHERE singleton_key='singleton'")).rows[0].revision,"2");
+
   }finally{await db.end();}
  }finally{
   try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)');}
