@@ -33,3 +33,12 @@ test("SMN-351: closed standard report renders only frozen v33 snapshot values",(
  assert.match(reports,/d\.state==="available"/);
  assert.doesNotMatch(reports,/UPDATE public\.smn_sprint_closure_snapshot/);
 });
+
+test("SMN-351: v33 Sprint reschedule keeps capacity while reading dynamic indicators",()=>{
+ const code=readFileSync("src/server/sprints/reschedule.ts","utf8");
+ assert.match(code,/i\.schema_version BETWEEN 28 AND 33/);
+ assert.match(code,/readIndicatorReporting\(db,s\.team_id,"cycle_detail","scrum",\[s\.id\]\)/);
+ assert.match(code,/v33\?Promise\.resolve/);
+ assert.match(code,/readDevelopmentCapacity/);
+ assert.match(code,/smn_capacity_initial_snapshot/);
+});
