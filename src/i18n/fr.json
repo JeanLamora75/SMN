@@ -2274,7 +2274,14 @@
     "ceremoniesScope": "Cette page configure les modèles réutilisables pour les prochains sprints. Les cérémonies standards et les réunions déjà enregistrées se gèrent dans les parcours Sprint et Calendrier ; aucune occurrence existante n'est modifiée ici."
   },
   "sprintsIndex": {
-    "indicatorColumns": {"f01":"Engagement initial (SP)","f04":"SP terminés","f07":"Taux de réalisation","f10":"Tickets initialement engagés","f11":"Tickets terminés","f12":"Taux de réalisation des tickets"},
+    "indicatorColumns": {
+      "f01": "Engagement initial (SP)",
+      "f04": "SP terminés",
+      "f07": "Taux de réalisation",
+      "f10": "Tickets initialement engagés",
+      "f11": "Tickets terminés",
+      "f12": "Taux de réalisation des tickets"
+    },
     "title": "Sprints de l'équipe",
     "teamUnknown": "Équipe en cours de chargement",
     "generate": "Générer des sprints",
@@ -2858,7 +2865,6 @@
     "listView": "Liste",
     "cardsView": "Cartes",
     "due": "Échéance",
-    "actions": "Actions",
     "actionsFor": "Actions pour « {title} »",
     "openRecord": "Consulter la fiche",
     "editRecord": "Modifier la fiche",
@@ -3868,5 +3874,53 @@
     "remove": "Retirer",
     "saved": "Sélection enregistrée.",
     "exportMarkdown": "Exporter les références (Markdown)"
+  },
+  "indicators": {
+    "title": "Indicateurs dynamiques",
+    "catalog": "Catalogue",
+    "selections": "Sélections par équipe",
+    "preferences": "Affichage",
+    "team": "Équipe",
+    "search": "Rechercher un indicateur",
+    "filter": "Filtrer le catalogue",
+    "all": "Tous",
+    "active": "Actifs",
+    "archived": "Archivé",
+    "create": "Créer un indicateur",
+    "edit": "Modifier",
+    "archive": "Archiver",
+    "confirmArchive": "Archiver cet indicateur ? Les valeurs historiques et les dépendances sont conservées.",
+    "tag": "Code",
+    "name": "Nom",
+    "type": "Type",
+    "actions": "Actions",
+    "manual": "Manuel",
+    "computed": "Calculé",
+    "selected": "Sélectionné",
+    "visible": "Visible",
+    "order": "Ordre",
+    "style": "Présentation",
+    "error": "Erreur",
+    "retry": "Réessayer",
+    "empty": "Aucun indicateur",
+    "editor": "Éditeur d’indicateur",
+    "formula": "Formule",
+    "description": "Description",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "screen": {
+      "dashboard": "Tableau de bord",
+      "cycle_list": "Liste des cycles",
+      "cycle_detail": "Détail du cycle",
+      "trends": "Tendances",
+      "reports": "Rapports"
+    },
+    "display": {
+      "number": "Nombre",
+      "card": "Carte",
+      "gauge": "Jauge",
+      "line": "Courbe",
+      "bar": "Barres"
+    }
   }
 }
