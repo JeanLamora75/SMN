@@ -3921,6 +3921,10 @@
       "gauge": "Jauge",
       "line": "Courbe",
       "bar": "Barres"
-    }
+    },
+    "unit": "Unité",
+    "shortUnit": "Unité courte",
+    "color": "Couleur",
+    "icon": "Icône"
   }
 }
