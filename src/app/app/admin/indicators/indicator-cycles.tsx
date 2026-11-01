@@ -23,17 +23,17 @@ export default function IndicatorCycles({teamId,cycleType,locale}:{teamId:string
  },[teamId,cycleType,revision]);
  const date=(v:string|undefined)=>{if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?v.slice(0,10):new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{day:"2-digit",month:"short",year:"numeric"}).format(d);};
  const value=(v:string|null|undefined,unit:string)=>v==null?"—":v.replace(".",locale==="fr"?",":".")+(unit?" "+unit:"");
- return <section className="smn-panel rounded-4 p-3" aria-label={t("indicators.reporting.title")}>
+ return <section className="smn-indicator-cycles" aria-label={t("indicators.reporting.title")}>
   {error&&<p role="alert" className="alert alert-warning">{t("indicators.reporting.unavailable")}</p>}
   {!data&&!error&&<p role="status">{t("indicators.reporting.loading")}</p>}
-  {data&&<div className="table-responsive"><table className="table table-hover align-middle">
+  {data&&<div className="table-responsive"><table className="table table-hover align-middle smn-indicator-cycle-table">
    <thead><tr><th scope="col">{t("indicators.reporting.cycle")}</th><th scope="col">{t("indicators.reporting.status")}</th><th scope="col">{t("indicators.dashboard.period")}</th>
-    {data.columns.map(column=><th scope="col" key={column.id} title={column.name} className="text-end">{column.tag}</th>)}
-    <th scope="col">{t("indicators.actions")}</th></tr></thead>
+    {data.columns.map(column=><th scope="col" key={column.id} title={column.tag} tabIndex={0} className="text-end smn-indicator-heading">{column.name}</th>)}
+    <th scope="col" className="text-end">{t("indicators.actions")}</th></tr></thead>
    <tbody>{data.cycles.map(cycle=><tr key={cycle.id}>
     <th scope="row">{cycle.name}</th><td>{cycle.status}</td><td className="text-nowrap">{date(cycle.startAt)} — {date(cycle.endAt)}</td>
     {data.columns.map(column=><td key={column.id} className="text-end">{value(cycle.values[column.id],column.unit)}</td>)}
-    <td><UniversalIndicatorInput key={cycle.id} teamId={teamId} cycleType={cycleType} cycleId={cycle.id} buttonLabel={t("indicators.edit")}/></td>
+    <td className="text-end"><UniversalIndicatorInput key={cycle.id} teamId={teamId} cycleType={cycleType} cycleId={cycle.id} buttonLabel={t("indicators.edit")}/></td>
    </tr>)}</tbody>
   </table>{data.cycles.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}</div>}
  </section>;
