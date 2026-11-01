@@ -3,17 +3,17 @@ import {useEffect,useRef,useState} from "react";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
-export default function IndicatorReporting({teamId,cycleType,screen,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"trends"|"dashboard";locale:"fr"|"en"}){
+export default function IndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
  const t=(fr:string,en:string)=>locale==="fr"?fr:en;
  useEffect(()=>{const ctrl=new AbortController();
-  void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({teamId,cycleType,screen}),{cache:"no-store",signal:ctrl.signal})
+  void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({...{teamId,cycleType,screen},...(cycleId?{cycleId}:{})}),{cache:"no-store",signal:ctrl.signal})
   .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<Report>})
   .then(x=>{if(!ctrl.signal.aborted){setData(x);setError(false);}})
   .catch(()=>{if(!ctrl.signal.aborted)setError(true);});
   return()=>ctrl.abort();
- },[teamId,cycleType,screen]);
+ },[teamId,cycleType,screen,cycleId]);
  const definition=data?.columns.find(c=>c.id===chosen)??data?.columns[0];
  const values=data?.cycles.map(c=>{const raw=definition?c.values[definition.id]:null;return raw!=null&&raw!==""&&Number.isFinite(Number(raw))?Number(raw):null;})??[];
  const valid=values.filter((x):x is number=>x!==null);
