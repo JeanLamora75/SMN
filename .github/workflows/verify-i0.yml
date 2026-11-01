@@ -113,6 +113,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Vérifier les types, même si les tests métier échouent
         run: pnpm typecheck
+      - name: Recette moteur et graphe indicateurs
+        run: pnpm test:smn-341-342
 
   company-v31-contracts:
     name: Contrats entreprise v31 indépendants
