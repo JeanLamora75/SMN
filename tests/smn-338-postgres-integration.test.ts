@@ -38,7 +38,7 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    await db.query("INSERT INTO public.smn_team(id) VALUES ('team-1'),('team-2')");
    await db.query("INSERT INTO public.smn_account(id) VALUES ('account')");
    await db.query(`INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type)
-    VALUES('ind-a','IND_A','A','manual'),('ind-b','IND_B','B','computed')`);
+    VALUES('ind-a','IND_A','A','manual'),('ind-b','IND_B','B','manual')`);
    await db.query("INSERT INTO public.smn_indicator_team_selection(team_id,indicator_id) VALUES('team-1','ind-a')");
    await db.query(`INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value)
     VALUES('team-1','scrum','sprint-1','ind-a',NULL),('team-1','scrum','sprint-2','ind-a',0)`);
