@@ -4,6 +4,7 @@ import {randomBytes} from "node:crypto";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {installExpress} from "../src/server/installation/install";
+import {saveCompanyClosureV31} from "../src/server/closures/company-service";
 import {lockIndicatorRevisionBeforeCalendarWrite,recalculateCalendarImpactWithinTransaction} from "../src/server/indicators/calendar-integration";
 
 test("SMN-345 transaction partagée : changements non committés, impact dates, rollback",{timeout:180000},async()=>{
