@@ -23,7 +23,7 @@ export async function applyV33(db:Client,apply:boolean){
    const verified=await db.query<{name:string}>("SELECT relname name FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname=ANY($1::text[])",[INDICATOR_TABLES]);
    if(verified.rows.length!==8)throw Error("Validation des 8 tables v33 échouée");
    const triggers=await db.query<{n:string}>("SELECT count(*)::text n FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE NOT t.tgisinternal AND c.relname LIKE 'smn_indicator_%'");
-   if(Number(triggers.rows[0]?.n)!==3)throw Error("Validation des 3 triggers v33 échouée");
+   if(Number(triggers.rows[0]?.n)!==4)throw Error("Validation des 4 triggers sur tables indicateur v33 échouée");
    await db.query("INSERT INTO public._prisma_migrations(id,checksum,finished_at,migration_name,applied_steps_count) VALUES($1,$2,now(),$3,1)",[randomUUID(),checksum,SMN338_V33_NAME]);
    await db.query("UPDATE public.smn_installation SET schema_version=33 WHERE id='singleton'");
    await db.query("COMMIT");
