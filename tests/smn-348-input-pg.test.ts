@@ -32,22 +32,23 @@ test("SMN-348: live preview is read-only, grouped save is atomic and team scoped
    const m=await applyCatalogCommand(db,adminActor,{action:"create",tag:"INPUT_348",name:"Input",indicatorType:"manual"});
    const n=await applyCatalogCommand(db,adminActor,{action:"create",tag:"INPUT2_348",name:"Input 2",indicatorType:"manual"});
    const f=await applyCatalogCommand(db,adminActor,{action:"create",tag:"RESULT_348",name:"Result",indicatorType:"computed",formula:"INPUT_348*2+INPUT2_348"});
-   if(!("id" in m)||!("id" in n)||!("id" in f))throw Error("missing defs");
-   await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348a",indicatorId:m.id,active:true});
-   await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348a",indicatorId:n.id,active:true});
-   await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348a",indicatorId:f.id,active:true});
-   const input={teamId:"team348a",cycleType:"scrum" as const,cycleId:"cycle348",expectedRevision:0,changes:[{indicatorId:m.id,value:"4"},{indicatorId:n.id,value:"3"}]};
+   const requireId=(r:{id?:string}):string=>{if(typeof r.id!=="string")throw Error("missing defs");return r.id;};
+   const mId=requireId(m),nId=requireId(n),fId=requireId(f);
+   await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348a",indicatorId:mId,active:true});
+   await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348a",indicatorId:nId,active:true});
+   await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348a",indicatorId:fId,active:true});
+   const input={teamId:"team348a",cycleType:"scrum" as const,cycleId:"cycle348",expectedRevision:0,changes:[{indicatorId:mId,value:"4"},{indicatorId:nId,value:"3"}]};
    await assert.rejects(()=>previewIndicatorInput(db,user,{...input,teamId:"team348b"}));
    const preview=await previewIndicatorInput(db,user,input);
    assert.equal(preview.revision,0);
    assert.ok(preview.systemRevision>=6);
-   assert.equal(preview.results.find(x=>x.indicatorId===f.id)?.kind,"available");
+   assert.equal(preview.results.find(x=>x.indicatorId===fId)?.kind,"available");
    assert.deepEqual((await readManualCycleValues(db,input.teamId,input.cycleType,input.cycleId)).values,[]);
    const saved=await writeManualValues(db,user.accountId,{...input,expectedSystemRevision:preview.systemRevision},async(a,t,client)=>{await requireIndicatorTeam(client,{accountId:a,role:"user"},t);return true;});
    assert.deepEqual(saved,{ok:true,revision:1});
    const written=await readManualCycleValues(db,input.teamId,input.cycleType,input.cycleId);
    assert.equal(written.revision,1);assert.equal(written.values.length,2);
-   const computed=await db.query<{value:string}>("SELECT value::text FROM public.smn_indicator_computed_result WHERE team_id=$1 AND cycle_id=$2 AND indicator_id=$3",[input.teamId,input.cycleId,f.id]);
+   const computed=await db.query<{value:string}>("SELECT value::text FROM public.smn_indicator_computed_result WHERE team_id=$1 AND cycle_id=$2 AND indicator_id=$3",[input.teamId,input.cycleId,fId]);
    assert.equal(Number(computed.rows[0].value),11);
    assert.deepEqual(await writeManualValues(db,user.accountId,{...input,expectedSystemRevision:preview.systemRevision},async()=>true),{ok:false,error:"conflict"});
    await updateIndicatorGrant(db,adminActor,user.accountId,"team348a",false);
@@ -56,13 +57,13 @@ test("SMN-348: live preview is read-only, grouped save is atomic and team scoped
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES('team348k','singleton','Kanban','kanban')");
    await db.query("INSERT INTO public.smn_kanban_period(id,team_id,name,start_on,end_on,time_zone,status) VALUES('period348','team348k','Période',current_date-15,current_date-1,'Europe/Paris','closed')");
    await updateIndicatorGrant(db,adminActor,user.accountId,"team348k",true);
-   for(const indicatorId of [m.id,n.id,f.id])await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348k",indicatorId,active:true});
-   const kanban={teamId:"team348k",cycleType:"kanban" as const,cycleId:"period348",expectedRevision:0,changes:[{indicatorId:m.id,value:"5"},{indicatorId:n.id,value:"1"}]};
+   for(const indicatorId of [mId,nId,fId])await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348k",indicatorId,active:true});
+   const kanban={teamId:"team348k",cycleType:"kanban" as const,cycleId:"period348",expectedRevision:0,changes:[{indicatorId:mId,value:"5"},{indicatorId:nId,value:"1"}]};
    const kanbanPreview=await previewIndicatorInput(db,user,kanban);
-   assert.equal(kanbanPreview.results.find(x=>x.indicatorId===f.id)?.kind,"available");
+   assert.equal(kanbanPreview.results.find(x=>x.indicatorId===fId)?.kind,"available");
    assert.equal((await readManualCycleValues(db,"team348k","kanban","period348")).values.length,0);
    assert.deepEqual(await writeManualValues(db,user.accountId,{...kanban,expectedSystemRevision:kanbanPreview.systemRevision},async(a,t,client)=>{await requireIndicatorTeam(client,{accountId:a,role:"user"},t);return true;}),{ok:true,revision:1});
-   const kResult=await db.query<{value:string}>("SELECT value::text FROM public.smn_indicator_computed_result WHERE team_id='team348k' AND cycle_id='period348' AND indicator_id=$1",[f.id]);
+   const kResult=await db.query<{value:string}>("SELECT value::text FROM public.smn_indicator_computed_result WHERE team_id='team348k' AND cycle_id='period348' AND indicator_id=$1",[fId]);
    assert.equal(Number(kResult.rows[0].value),11);
   }finally{await db.end();}
  }finally{try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)');}finally{await admin.end();}}
