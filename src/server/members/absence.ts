@@ -97,7 +97,7 @@ async function findMember(db:Client,id:string,lock:boolean){
   m.archived_at::text AS archived_at FROM public.smn_member m
   JOIN public.smn_installation i ON i.id=m.installation_id
   WHERE m.id=$1 AND m.installation_id='singleton' AND i.state='initialized'
-   AND i.mode IN ('scrum','kanban')`+(lock?" FOR UPDATE OF m":""),[id]);
+`+(lock?" FOR UPDATE OF m":""),[id]);
  return r.rows.length===1?r.rows[0]:null;
 }
 /** Reusable for any assignment: slots belong to the person, not to a team. */
