@@ -99,7 +99,7 @@ export function KpiMetricPair({title,first,second,unit,empty,comparison,firstMet
      </div>}
    </div>
   </dl>
-  <p className="smn-metric-comparison">{comparison}</p>
+  <p className="smn-metric-comparison">{tone==="capacity"&&caption?caption:comparison}</p>
   {action&&<Link href={action.href} className="smn-kpi-card-action small">{action.label}</Link>}
  </article>;
 }
