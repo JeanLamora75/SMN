@@ -11,6 +11,12 @@ export type Expression=
  |Readonly<{kind:"call";name:"MIN"|"MAX"|"ROUND";args:readonly Expression[]}>;
 type Token={type:"num"|"id"|"op"|"end";value:string};
 const SCALE=10n**24n;
+const MAX_MAGNITUDE_DIGITS=72;
+const MAX_POWER_DIGITS=8192;
+function boundedMagnitude(value:bigint):bigint{
+ if(abs(value).toString().length>MAX_MAGNITUDE_DIGITS)throw new FormulaBudgetError("numeric magnitude");
+ return value;
+}
 const abs=(n:bigint)=>n<0n?-n:n;
 const gcd=(a:bigint,b:bigint):bigint=>b===0n?abs(a):gcd(b,a%b);
 function roundedDiv(a:bigint,b:bigint):bigint {
@@ -19,7 +25,7 @@ function roundedDiv(a:bigint,b:bigint):bigint {
  return ((a<0n)!==(b<0n)?-1n:1n)*(q+(r*2n>=d?1n:0n));
 }
 function rootFloor(value:bigint,degree:number):bigint{
- if(value<0n||degree<1)throw new FormulaBudgetError("root");
+ if(value<0n||degree<1||value.toString().length>MAX_POWER_DIGITS)throw new FormulaBudgetError("root");
  if(value<2n)return value;
  let low=0n,high=1n;
  while(high**BigInt(degree)<=value)high*=2n;
@@ -28,8 +34,9 @@ function rootFloor(value:bigint,degree:number):bigint{
 }
 function powInteger(base:bigint,exponent:number):bigint{
  if(!Number.isSafeInteger(exponent)||Math.abs(exponent)>64)throw new FormulaBudgetError("power");
+ if(abs(base).toString().length>MAX_MAGNITUDE_DIGITS)throw new FormulaBudgetError("power magnitude");
  let result=SCALE,x=base,n=Math.abs(exponent);
- while(n>0){if(n%2===1)result=roundedDiv(result*x,SCALE);n=Math.floor(n/2);if(n)x=roundedDiv(x*x,SCALE);}
+ while(n>0){if(n%2===1)result=boundedMagnitude(roundedDiv(result*x,SCALE));n=Math.floor(n/2);if(n)x=boundedMagnitude(roundedDiv(x*x,SCALE));}
  if(exponent<0){if(result===0n)throw new Error("zero");return roundedDiv(SCALE*SCALE,result);}
  return result;
 }
@@ -42,6 +49,7 @@ function power(base:bigint,exponent:bigint):bigint{
  const divisor=gcd(numerator,denominator);numerator/=divisor;denominator/=divisor;
  if(denominator>32n||abs(numerator)>64n)throw new FormulaBudgetError("fractional power budget");
  const magnitude=powInteger(base,Number(abs(numerator)));
+ if(magnitude.toString().length+24*(Number(denominator)-1)>MAX_POWER_DIGITS)throw new FormulaBudgetError("fractional power magnitude");
  const degree=Number(denominator);
  const radicand=magnitude*SCALE**BigInt(degree-1);
  const floor=rootFloor(radicand,degree);
@@ -54,18 +62,18 @@ export class DecimalEngine {
   if(!/^(?:0|[0-9]+)(?:\.[0-9]+)?$/.test(input))throw new FormulaSyntaxError("Invalid decimal");
   const [whole,part=""]=input.split(".");
   if(whole.length>48||part.length>24)throw new FormulaBudgetError("decimal digits");
-  return BigInt(whole)*SCALE+BigInt(part.padEnd(24,"0"));
+  return boundedMagnitude(BigInt(whole)*SCALE+BigInt(part.padEnd(24,"0")));
  }
  static format(value:bigint):string{
   const sign=value<0n?"-":"",digits=abs(value).toString().padStart(25,"0");
   const whole=digits.slice(0,-24),fraction=digits.slice(-24).replace(/0+$/,"");
   return (value===0n?"":sign)+whole+(fraction?"."+fraction:"");
  }
- static add(a:bigint,b:bigint){return a+b;}
- static subtract(a:bigint,b:bigint){return a-b;}
- static multiply(a:bigint,b:bigint){return roundedDiv(a*b,SCALE);}
- static divide(a:bigint,b:bigint){return roundedDiv(a*SCALE,b);}
- static power(a:bigint,b:bigint){return power(a,b);}
+ static add(a:bigint,b:bigint){return boundedMagnitude(a+b);}
+ static subtract(a:bigint,b:bigint){return boundedMagnitude(a-b);}
+ static multiply(a:bigint,b:bigint){return boundedMagnitude(roundedDiv(a*b,SCALE));}
+ static divide(a:bigint,b:bigint){return boundedMagnitude(roundedDiv(a*SCALE,b));}
+ static power(a:bigint,b:bigint){return boundedMagnitude(power(a,b));}
  static round(a:bigint,places:number){
   if(!Number.isInteger(places)||places<0||places>24)throw new RangeError("round precision");
   const factor=10n**BigInt(24-places);return roundedDiv(a,factor)*factor;
@@ -84,6 +92,7 @@ function tokenize(input:string):Token[]{
   if("+-*/^%(),".includes(ch)){result.push({type:"op",value:ch});offset++;continue;}
   throw new FormulaSyntaxError("Unsupported character at "+offset);
  }
+ if(result.length>512)throw new FormulaBudgetError("token count");
  result.push({type:"end",value:""});return result;
 }
 const functions=new Set(["MIN","MAX","ROUND"]);
