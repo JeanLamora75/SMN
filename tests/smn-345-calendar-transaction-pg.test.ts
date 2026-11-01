@@ -27,6 +27,11 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES "+
     "('sprint345','team345',1,'Sprint', '2026-11-01','2026-11-14','Europe/Paris','closed'),"+
     "('outside345','team345',2,'Outside','2027-01-01','2027-01-14','Europe/Paris','planned')");
+   const company="8999a8a8-6ee2-45a2-8d7f-51f733456782";
+   await db.query("INSERT INTO public.smn_company(id,installation_id,name,color) VALUES($1,'singleton','Company','blue')",[company]);
+   await db.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES('batch345','singleton','team345',3)");
+   await db.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name,company_id) VALUES('member345','singleton','batch345',1,'Member 345',$1)",[company]);
+   await db.query("INSERT INTO public.smn_member_assignment(id,member_id,team_id,start_on,agile_role) VALUES('assignment345','member345','team345','2026-10-01','developer')");
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula) VALUES "+
     "('capacity345','CAP345','Capacity','computed','CAL_CAPACITY_JH+1')");
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_calendar_tag) VALUES "+
@@ -64,6 +69,13 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    }),/forced-calendar-result-error/);
    await db.query("ROLLBACK");
    assert.equal((await db.query<{name:string}>("SELECT name FROM public.smn_sprint WHERE id='sprint345'")).rows[0].name,'Sprint');
+   const actor=(await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin' LIMIT 1")).rows[0].id;
+   const changedClosure=await saveCompanyClosureV31(db,actor,{
+    action:"create",companyId:company,name:"Test closure",startOn:"2026-11-02",endOn:"2026-11-03"
+   });
+   assert.equal(changedClosure.ok,true);
+   assert.equal((await db.query<{revision:string}>("SELECT revision::text FROM public.smn_indicator_system_revision WHERE singleton_key='singleton'")).rows[0].revision,"1");
+   assert.equal((await db.query("SELECT indicator_id FROM public.smn_indicator_computed_result WHERE cycle_id='sprint345'")).rows.length,1);
   }finally{await db.end();}
  }finally{
   try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)');}
