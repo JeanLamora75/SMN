@@ -8,8 +8,8 @@ test("SMN-351 auto: reject remote DB and non-SMN source",()=>{
 });
 test("SMN-351 auto: isolated unique scratch databases and no cleanup approval",()=>{
  const source=readFileSync("scripts/smn-351-auto-compare.ts","utf8");
- assert.match(source,/smn351_fresh_/);
- assert.match(source,/smn351_migrated_/);
+ assert.match(source,/smn_351_fresh_/);
+ assert.match(source,/smn_351_migrated_/);
  assert.match(source,/cleanupAuthorized:false/);
  assert.match(source,/DROP DATABASE/);
  assert.doesNotMatch(source,/DROP TABLE|TRUNCATE TABLE/);
