@@ -40,3 +40,12 @@ test("SMN-338 : tableaux SQL transmis comme un paramètre unique",()=>{
  assert.match(script,/relname=ANY\(\$1::text\[\]\)"\s*,\s*\[\[\.\.\.required,\.\.\.INDICATOR_TABLES\]\]/);
  assert.match(script,/relname=ANY\(\$1::text\[\]\)"\s*,\s*\[INDICATOR_TABLES\]/);
 });
+
+test("SMN-338 : installation neuve v33 journalise deux migrations canoniques",()=>{
+ const install=read("src/server/installation/install.ts");
+ assert.match(install,/const indicatorSql=indicatorV33Sql\(\)/);
+ assert.match(install,/await client\.query\(indicatorSql\)/);
+ assert.match(install,/VALUES\('singleton','initialized',33\)/);
+ assert.match(install,/SMN338_V33_NAME/);
+ assert.match(install,/NATIVE_BASELINE_NAME/);
+});
