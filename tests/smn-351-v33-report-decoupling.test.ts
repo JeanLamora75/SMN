@@ -4,8 +4,9 @@ import {readFileSync} from "node:fs";
 test("SMN-351: current standard reports use v33 team-selected indicators",()=>{
  const source=readFileSync("src/server/reports/standard-composition.ts","utf8");
  assert.match(source,/readIndicatorReporting\(db,sprint\.teamId,"reports","scrum",\[sprintId\]\)/);
- assert.match(source,/!v33&&s\?\.points/);
- assert.match(source,/!v33&&s\?\.tickets/);
+ assert.match(source,/if\(!v33\)/);
+ assert.match(source,/readLegacyReportPoints/);
+ assert.match(source,/readLegacyReportTickets/);
  assert.match(source,/dynamicIndicators\.columns/);
 });
 test("SMN-351: closed standard reports continue reading immutable closure snapshots",()=>{
