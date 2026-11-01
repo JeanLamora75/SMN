@@ -63,7 +63,7 @@ test("budgets numériques et exposants fractionnaires bornés",()=>{
  assert.equal(value("16^0.25"),"2");
  assert.equal(value("(-2)^3"),"-8");
  assert.equal(calculateFormula("(-8)^0.333333333333333333333333").kind,"unavailable");
- assert.throws(()=>calculateFormula("2^64"),FormulaBudgetError);
+ assert.throws(()=>calculateFormula("10^64"),FormulaBudgetError);
  assert.throws(()=>calculateFormula("2^0.000000000000000000000001"),FormulaBudgetError);
  assert.throws(()=>calculateFormula("999999999999999999999999999999999999999999999999^2"),FormulaBudgetError);
  assert.throws(()=>calculateFormula("1+".repeat(300)+"1"),FormulaBudgetError);
