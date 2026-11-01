@@ -4,6 +4,7 @@ import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {decideUpgrade} from "./db-upgrade-policy";
 import {Client} from "pg";
+import {readFileSync} from "node:fs";
 import {applyV33} from "./apply-smn-338-v33";
 
 async function inspect(){
@@ -27,6 +28,21 @@ async function main(){
    if(process.env.SMN_V33_BACKUP_VERIFIED!=="YES")throw Error("Sauvegarde v32 vérifiée requise : SMN_V33_BACKUP_VERIFIED=YES");
    const db=new Client({connectionString:await installedDatabaseUri(),connectionTimeoutMillis:3500,statement_timeout:60000});
    await db.connect();try{console.log(JSON.stringify(await applyV33(db,true),null,2))}finally{await db.end()}
+   return;
+ }
+ if(before.status==="initialized"&&before.version===33&&decision.kind==="noop"){
+   const db=new Client({connectionString:await installedDatabaseUri(),connectionTimeoutMillis:3500,statement_timeout:60000});
+   await db.connect();
+   try{
+     const present=await db.query<{exists:boolean}>("SELECT to_regclass('public.smn_indicator_team_grant') IS NOT NULL AS exists");
+     if(present.rows[0]?.exists){console.log("SMN-347 : habilitations présentes.");return;}
+     if(!args.includes("--apply")){console.log("SMN-347 : migration additive des habilitations disponible. Utiliser --apply après sauvegarde.");return;}
+     if(process.env.SMN_V33_BACKUP_VERIFIED!=="YES")throw Error("Sauvegarde vérifiée requise : SMN_V33_BACKUP_VERIFIED=YES");
+     const sql=readFileSync(new URL("../prisma/migrations/20261101_smn347_team_grants/migration.sql",import.meta.url),"utf8");
+     await db.query("BEGIN");
+     try{await db.query(sql);await db.query("COMMIT");}catch(e){await db.query("ROLLBACK");throw e;}
+     console.log("SMN-347 : droits d'équipe installés.");
+   }finally{await db.end();}
    return;
  }
  if(decision.kind==="noop")return;
