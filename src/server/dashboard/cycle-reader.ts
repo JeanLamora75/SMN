@@ -207,6 +207,8 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     AND i.id='singleton' AND i.state='initialized' AND lower(i.mode)='scrum'`,
   [sprint.id,teamId]);
  if(check.rows.length!==1)throw Error("dashboard-cycle-out-of-scope");
+ const state=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ const v33=state.rows[0]?.schema_version===33;
  const status=check.rows[0].status;
  let goals:CollectiveCycleProjection["goals"]=collectionUnavailable("producer-not-ready");
  let storyPoints:CollectiveCycleProjection["storyPoints"]={
@@ -257,7 +259,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     WHERE sprint_id=$1 ORDER BY created_at,id`,[sprint.id]);
    goals=goalsFrom(r.rows,null);
   }else goals=collectionUnavailable("schema-missing");
-  if(await tableExists(db,"smn_sprint_story_points")){
+  if(!v33&&await tableExists(db,"smn_sprint_story_points")){
    const r=await db.query<{initial_sp:string|null;done_sp:string|null}>(`
     SELECT initial_sp::text,done_sp::text FROM public.smn_sprint_story_points
     WHERE sprint_id=$1`,[sprint.id]);
@@ -266,7 +268,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     done:metricUnavailable("schema-missing")};
   await db.query("SAVEPOINT dashboard_current_tickets");
   try{
-   tickets=await currentTickets(db,sprint.id);
+   tickets=v33?{initial:metricUnavailable("producer-not-ready"),done:metricUnavailable("producer-not-ready")}:await currentTickets(db,sprint.id);
    await db.query("RELEASE SAVEPOINT dashboard_current_tickets");
   }catch(error){
    await db.query("ROLLBACK TO SAVEPOINT dashboard_current_tickets");
