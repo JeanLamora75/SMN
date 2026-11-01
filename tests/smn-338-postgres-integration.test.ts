@@ -33,7 +33,15 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    await db.query("CREATE TABLE public.smn_kanban_period(id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id))");
    const ddl=readFileSync(new URL("../_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",import.meta.url),"utf8");
    assert.doesNotMatch(ddl,/\b(?:DROP|TRUNCATE)\s+(?:TABLE|DATABASE|SCHEMA)\b/i);
-   await db.query(ddl);
+   try{await db.query(ddl);}
+   catch(error){
+    const position=typeof error==="object"&&error!==null&&"position" in error
+     ? Number(error.position):NaN;
+    const location=Number.isInteger(position)&&position>0
+     ? "position "+position+" : "+JSON.stringify(ddl.slice(Math.max(0,position-100),Math.min(ddl.length,position+100)))
+     : "position non fournie";
+    throw new Error("SMN-338 DDL invalide ("+location+")",{cause:error});
+   }
    const tables=await db.query<{n:string}>(`SELECT count(*)::text AS n FROM pg_catalog.pg_class
     WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname LIKE 'smn_indicator_%'`);
    assert.equal(tables.rows[0]?.n,"8");
