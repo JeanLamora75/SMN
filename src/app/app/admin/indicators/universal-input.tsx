@@ -1,13 +1,14 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 type D={id:string;tag:string;name:string;indicator_type:string;formula:string|null};
 type Form={revision:number;definitions:D[];values:{indicator_id:string;value:string|null}[]};
 type Result={indicatorId:string;kind:string;value?:string;reason?:string;sourceTag?:string};
 export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string}){
- const t=useTranslation(),router=useRouter();
+ const t=useTranslation(),router=useRouter(),dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false),[form,setForm]=useState<Form|null>(null),[draft,setDraft]=useState<Record<string,string>>({}),[preview,setPreview]=useState<Result[]|null>(null),[systemRevision,setSystemRevision]=useState<number|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
+ useEffect(()=>{if(!open)return;const node=dialog.current;if(node&&!node.open)node.showModal();return()=>{if(node?.open)node.close();};},[open]);
  useEffect(()=>{if(!open)return;const controller=new AbortController();
   void fetch("/api/admin/indicators/input?"+new URLSearchParams({teamId,cycleType,cycleId}),{cache:"no-store",signal:controller.signal})
    .then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error);return d as Form;})
@@ -41,7 +42,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{team
  return <div>
   <button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>{setOpen(true);setMessage("");}}>{t("indicators.input.open")}</button>
   {message&&!open&&<p role="status">{message}</p>}
-  {open&&<div className="modal d-block" role="dialog" aria-modal="true" aria-labelledby="smn-universal-indicators-title" tabIndex={-1}>
+  {open&&<dialog ref={dialog} className="smn-indicator-universal-dialog" aria-modal="true" aria-labelledby="smn-universal-indicators-title" onCancel={()=>setOpen(false)} style={{border:0,borderRadius:12,padding:0,width:"min(90vw,900px)",maxWidth:"900px"}}>
    <div className="modal-dialog modal-dialog-centered modal-lg"><div className="modal-content">
     <div className="modal-header"><h2 className="modal-title h5" id="smn-universal-indicators-title">{t("indicators.input.title")}</h2>
      <button type="button" className="btn-close" aria-label={t("indicators.input.close")} onClick={()=>setOpen(false)}/></div>
@@ -62,6 +63,6 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{team
      <button type="button" className="btn btn-primary" disabled={!preview||systemRevision===null||busy} onClick={()=>void run("save")}>{t("indicators.input.save")}</button>
     </div>
    </div></div>
-  </div>}
+  </dialog>}
  </div>;
 }
