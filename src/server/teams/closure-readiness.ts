@@ -44,7 +44,8 @@ export async function readTeamClosureReadiness(db:Client,actor:TeamActor,
    WHERE p.id=$1 AND p.team_id=$2 AND t.installation_id='singleton'
     AND p.deleted_at IS NULL LIMIT 2`,[cycleId,team.team_id]);
  if(result.rows.length!==1)throw Error("period-readiness-not-found");
- const needed=[...dependencies[mode]];
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ const needed=dependencies[mode].filter(name=>version.rows[0]?.schema_version!==33||name!=="smn_sprint_story_points");
  const available=await db.query<{name:string;exists:boolean}>(`
   SELECT x.name,to_regclass('public.'||x.name) IS NOT NULL AS exists
   FROM unnest($1::text[]) AS x(name)`,[needed]);
