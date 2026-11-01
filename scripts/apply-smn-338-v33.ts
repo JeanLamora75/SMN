@@ -13,7 +13,7 @@ export async function applyV33(db:Client,apply:boolean){
   const n=Number(hist.rows[0]?.n);
   if(![1,32].includes(n)||Number(hist.rows[0]?.done)!==n)throw Error("Journal v32 incompatible");
   const required=["smn_team","smn_account","smn_sprint","smn_kanban_period"];
-  const found=await db.query<{relname:string}>("SELECT relname FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname=ANY($1::text[])",[...required,...INDICATOR_TABLES]);
+  const found=await db.query<{relname:string}>("SELECT relname FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname=ANY($1::text[])",[[...required,...INDICATOR_TABLES]]);
   const names=new Set(found.rows.map(r=>r.relname));
   if(required.some(r=>!names.has(r))||INDICATOR_TABLES.some(r=>names.has(r)))throw Error("Relations préalables manquantes ou v33 partiellement présente");
   const sql=indicatorV33Sql();
