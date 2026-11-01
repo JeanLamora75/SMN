@@ -38,7 +38,7 @@ async function prepare(db:Client,input:FormulaProposal){
   if(isCalendarSourceTag(tag))return {indicator_id:input.indicatorId,source_type:"calendar",source_indicator_id:null,source_calendar_tag:tag};
   throw new FormulaPublicationError("invalid_formula","Unknown tag: "+tag);
  });
- const edges=[...existing.filter(x=>x.indicator_id!==input.indicatorId),...replacement];
+ const edges=[...existing.rows.filter(x=>x.indicator_id!==input.indicatorId),...replacement];
  const proposed=defs.rows.map(x=>x.id===input.indicatorId?{...x,formula:input.formula}:x);
  let graph:ReturnType<typeof buildDependencyGraph>;
  try{graph=buildDependencyGraph(proposed,edges);}
