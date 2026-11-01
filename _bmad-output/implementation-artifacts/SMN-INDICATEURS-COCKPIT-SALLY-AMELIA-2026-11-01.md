@@ -27,3 +27,6 @@ Aucune migration ajoutée et aucune ancienne table supprimée pour ce lot.
 - Contrôle PostgreSQL de la restitution historique étendu dans `tests/smn-dashboard-bmad-pg.test.ts`.
 - Le catalogue global reste limité au rôle `admin` dans `/app/admin/settings/indicators`, les habilitations y sont déplacées dans un panneau repliable.
 - Aucune recette locale ni migration exécutée par l'assistant ; les points de validation restent ouverts.
+
+## Avenant dashboard — Sélection directe des emplacements (01/11/2026)
+Sur les huit positions configurables du tableau de bord (Story Points 4, Tickets 2, Complémentaires 2), une petite action « + » en haut à droite ouvre une modale. Elle ne propose que les définitions actives, non archivées et sélectionnées pour l'équipe active ; les indicateurs déjà attribués à un autre emplacement ne sont pas proposés afin de préserver l'unicité. Le choix peut remplacer l'occupant de l'emplacement ou sélectionner « Aucun ». Le serveur revérifie les habilitations et effectue la substitution transactionnelle ; le tableau de bord recharge ensuite la projection. Les sources de valeurs et snapshots ne sont pas modifiés. Libellés FR/EN et contrôle statique : `tests/smn-dashboard-slot-picker.test.ts`. **Recette navigateur et tests Windows requis avant validation finale.**
