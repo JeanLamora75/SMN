@@ -57,7 +57,7 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery,
    WHERE table_schema='public' AND table_name='smn_sprint'
    AND column_name='auto_suspended') AS suspension_exists`);
  if(!schema.rows[0]?.table_exists)
-  return {teamName,items:[] as SprintIndexItem[],total:0,page:1,
+  return {teamId,teamName,items:[] as SprintIndexItem[],total:0,page:1,
    pageSize:query.pageSize,totalPages:1,statuses:[] as string[],activeCount:0};
  const suspended=schema.rows[0]?.suspension_exists?"s.auto_suspended":"false";
  const filter=`s.team_id=$1 AND s.deleted_at IS NULL
@@ -111,6 +111,6 @@ export async function readSprintIndex(db:Client,query:SprintIndexQuery,
    f10,f11,f12:f12!==null&&Number.isFinite(f12)?f12:null};
  }
  const activeCount=globalActive.rows[0]?.active_count??0;
- return {teamName,items,total,page,pageSize:query.pageSize,totalPages,
+ return {teamId,teamName,items,total,page,pageSize:query.pageSize,totalPages,
   statuses:statuses.rows.map(s=>s.status).sort(),activeCount};
 }
