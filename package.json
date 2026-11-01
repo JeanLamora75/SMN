@@ -54,7 +54,7 @@
     "db:test:smn-347": "tsx --test tests/smn-347-catalog-pg.test.ts",
     "validate:smn-347": "pnpm test:smn-347 && pnpm db:test:smn-347 && pnpm typecheck && pnpm lint && pnpm i18n:check",
     "db:test:smn-349": "tsx --test tests/smn-349-reporting-pg.test.ts",
-    "test:smn-351": "tsx --test tests/smn-351-v33-report-decoupling.test.ts tests/smn-351-application-dependencies.test.ts tests/smn-351-auto-compare.test.ts tests/smn-351-schema-compare.test.ts tests/smn-351-v33-context-regression.test.ts tests/smn-351-cutover-guard.test.ts tests/smn-230-sprint-index-indicator-columns.test.ts tests/v32-sprint-indicator-modal-save.test.ts",
+    "test:smn-351": "tsx --test tests/smn-351-legacy-runtime-cutover.test.ts tests/smn-351-v33-report-decoupling.test.ts tests/smn-351-application-dependencies.test.ts tests/smn-351-auto-compare.test.ts tests/smn-351-schema-compare.test.ts tests/smn-351-v33-context-regression.test.ts tests/smn-351-cutover-guard.test.ts tests/smn-230-sprint-index-indicator-columns.test.ts tests/v32-sprint-indicator-modal-save.test.ts",
     "db:check:smn-351": "tsx scripts/smn-351-legacy-audit.ts --check",
     "db:compare:smn-351": "tsx scripts/smn-351-schema-compare.ts --check",
     "db:compare:smn-351:auto": "tsx scripts/smn-351-auto-compare.ts --check",
