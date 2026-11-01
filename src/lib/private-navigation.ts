@@ -31,7 +31,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole,canMana
     href:role==="admin"?"/app/admin/members":null,icon:"people-fill"},
    {id:"cycles",label:mode==="scrum"?"navigation.entries.sprint":
     mode==="kanban"?"navigation.entries.kanbanPeriods":"navigation.entries.cyclesUnknown",
-    href:mode==="scrum"?"/app/admin/sprints":null,icon:"calendar-check"},
+    href:mode==="scrum"?"/app/admin/sprints":mode==="kanban"&&canManageIndicators?"/app/admin/kanban-periods":null,icon:"calendar-check"},
    {id:"centralCalendar",label:"navigation.entries.calendar",
     href:"/app/team-calendar",icon:"calendar3"},
    {id:"risks",label:"navigation.entries.register",
@@ -60,6 +60,7 @@ export function activePrivateEntry(pathname:string,entry:NavigationEntry):boolea
   (entry.id==="centralCalendar"&&pathname.startsWith("/app/team-calendar/"))||
   (entry.id==="settings"&&pathname.startsWith("/app/admin/settings/"))||
   (entry.id==="risks"&&pathname.startsWith("/app/admin/registries/"))||
+  (entry.id==="cycles"&&entry.href==="/app/admin/kanban-periods"&&pathname.startsWith("/app/admin/kanban-periods/"))||
   (entry.id==="cycles"&&entry.href==="/app/admin/sprints"&&
     pathname.startsWith("/app/admin/sprints/")));
 }
