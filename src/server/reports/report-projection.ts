@@ -39,7 +39,7 @@ export async function readScrumReportProjection(db:Client,input:{
     [teamId,id,["F01","F06"]]);
    const byTag=new Map(values.rows.map(x=>[x.tag,x.value]));
    committed=byTag.get("F01")??null;
-   completed=byTag.get("F04")??null;
+   completed=byTag.get("F06")??null;
   }
  }
  if(input.status==="closed"){
