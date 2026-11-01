@@ -9,6 +9,7 @@ import {withAuthDb} from "@/server/auth/database";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {withLegacyReportReadDb} from "@/server/reports/legacy-read";
 import {composeHtmlReportPreview} from "@/server/reports/html-preview";
+import {parseReportIndicatorSelection} from "@/server/reports/dynamic-indicators";
 import {requestLocale} from "@/i18n/locale.server";
 import {translate} from "@/i18n/catalog";
 import {readReportLanguage} from "@/server/reports/language";
@@ -17,15 +18,17 @@ import {readFrozenReportReference} from "@/server/reports/render-reference";
 import PrintReportButton from "./print-report-button";
 import FrozenPdfExport from "./frozen-pdf-export";
 export const dynamic="force-dynamic";
-export default async function ReportPreviewPage({params,searchParams}:{params:Promise<{sprintId:string}>;searchParams:Promise<{reference?:string;teamId?:string}>}){
+export default async function ReportPreviewPage({params,searchParams}:{params:Promise<{sprintId:string}>;searchParams:Promise<{reference?:string;teamId?:string;indicators?:string}>}){
  const account=await currentAccount();if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"write",{type:"settings",exists:true,inScope:true}))notFound();
  const {sprintId}=await params;if(!/^[a-f0-9-]{36}$/i.test(sprintId))notFound();
- const {reference:requested,teamId}=await searchParams;
+ const {reference:requested,teamId,indicators}=await searchParams;
+ let selection:string[]|null;
+ try{selection=parseReportIndicatorSelection(indicators);}catch{notFound();}
  if(teamId!==undefined&&(!/^[a-f0-9-]{36}$/i.test(teamId)||account.role!=="admin"))notFound();
  const frozen=typeof requested==="string"&&/^[a-f0-9-]{36}$/i.test(requested);
- if(requested&&!frozen)notFound();
+ if(requested&&!frozen||frozen&&indicators!==undefined)notFound();
  const load=async (db:import("pg").Client)=>{
   if(teamId&&!await assertTeamReportCycle(db,{accountId:account.id,role:account.role},teamId,sprintId))return null;
   if(frozen){
@@ -34,7 +37,7 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
    return ref.payload;
   }
   if(teamId)return null; // No live preview in v28: a verified frozen reference is required.
-  return {data:await composeHtmlReportPreview(db,sprintId),
+  return {data:await composeHtmlReportPreview(db,sprintId,selection),
    language:await readReportLanguage(db,sprintId),
    logo:await readReportLogo(db,sprintId)};
  };
@@ -68,6 +71,7 @@ export default async function ReportPreviewPage({params,searchParams}:{params:Pr
  <h2 className="h5">{translate(locale,("standardReport."+section.key) as "standardReport.executive")}</h2>
  {section.key==="indicators"?<>
  <ul>{data.metrics.map(m=><li key={m.key}>{translate(locale,("reportContent."+m.key) as "reportContent.committedSp")}: {m.available?m.value+" "+m.unit:label("missing")}{data.historicalEvidence&&<small className="ms-2 text-secondary">({(()=>{const q=m.key==="completedSp"?data.historicalEvidence.completedSpQuality:m.key==="plannedJh"?data.historicalEvidence.capacityPlannedQuality:m.key==="actualJh"?data.historicalEvidence.capacityActualQuality:"not-supplied";return q==="known"?(locale==="fr"?"Connue":"Known"):q==="estimated"?(locale==="fr"?"Estimée":"Estimated"):(locale==="fr"?"Qualité non attestée":"Unverified quality");})()})</small>}</li>)}</ul>
+ {(data.dynamicIndicators??[]).length>0&&<div className="table-responsive"><table className="table table-sm"><caption className="caption-top">{locale==="fr"?"Indicateurs configurés pour ce rapport":"Indicators selected for this report"}</caption><thead><tr><th>{locale==="fr"?"Indicateur":"Indicator"}</th><th>{locale==="fr"?"Valeur":"Value"}</th><th>{locale==="fr"?"Source":"Source"}</th></tr></thead><tbody>{data.dynamicIndicators.map(m=><tr key={m.id}><th title={m.name}>{m.tag} — {m.name}</th><td>{m.available?m.value+(m.unit?" "+m.unit:""):label("missing")}</td><td>{m.source==="manual"?(locale==="fr"?"Saisie manuelle":"Manual entry"):(locale==="fr"?"Calcul":"Calculated")}{m.reason?" · "+m.reason:""}</td></tr>)}</tbody></table></div>}
  {data.trends.length>0&&<div className="table-responsive"><table className="table table-sm"><caption className="caption-top">{label("trendsCaption")}</caption><thead><tr><th scope="col">{label("cycle")}</th><th scope="col">SP</th><th scope="col">%</th><th scope="col">JH</th></tr></thead><tbody>
  {data.trends.map(p=><tr key={p.sprintId}><td>{p.name}</td><td>{p.completedSp??label("missing")}</td>
  <td>{p.completionRate??label("missing")}</td><td>{p.actualCapacityJh??label("missing")}</td></tr>)}
