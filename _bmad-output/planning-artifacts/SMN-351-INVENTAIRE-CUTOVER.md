@@ -52,3 +52,13 @@ Les points d'entrée actifs de la page Sprint utilisent dorénavant la saisie un
 - La projection de la fiche Sprint utilise les préférences **`cycle_detail`**, distinctes de celles du tableau de bord, et n'est affichée qu'aux équipes explicitement habilitées.
 - La nouvelle sélection des indicateurs sur la liste est fondée sur `cycle_list`, les tendances sur `trends` ; les anciennes colonnes fixes Fxx ont disparu.
 - **Aucun DROP SQL n'a été lancé.** Les outils métier de capacité et les snapshots indépendants restent protégés.
+
+## Mise en place finale de l'affichage dynamique (sans suppression SQL)
+
+- La liste Sprint intègre maintenant les **colonnes dynamiques directement dans son tableau** : identifiant d'indicateur, libellé en infobulle, unité courte, ordre configuré par équipe, valeurs `NULL` visibles en « — », jauge lorsqu'elle est configurée. L'API `/api/admin/indicators/reporting?screen=cycle_list` fournit les valeurs ; les anciennes colonnes Fxx figées ne sont plus calculées.
+- Le chargement est limité aux équipes auxquelles le compte a droit. La réponse affichée est liée à l'identité de l'équipe, afin de ne pas montrer les valeurs précédentes après un changement d'équipe.
+- Sur la fiche Sprint, l'onglet Indicateurs utilise la configuration `cycle_detail`, la saisie universelle v33 et les habilitations ; l'onglet Tendances utilise `trends`.
+- Pour les **nouveaux rapports Scrum en v33**, les anciennes métriques prédéfinies Fxx et leurs tendances ne sont plus composées : les indicateurs dynamiques ajoutés par SMN-350 deviennent la référence. Les références figées précédemment produites restent lisibles et ne sont pas remodifiées.
+- Les API Fxx historiques v33 renvoient `410`. Les anciennes implémentations et tableaux SQL sont temporairement conservés pour les dépendances v32/snapshots métiers : **aucun DROP** ni récupération des vieilles valeurs.
+
+Il reste à valider la recette navigateur Windows et la CI correspondant au dernier commit avant de certifier cette étape. La suppression SQL est exclue de cette livraison.
