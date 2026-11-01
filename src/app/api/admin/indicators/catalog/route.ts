@@ -25,7 +25,7 @@ export async function GET(req:NextRequest){
 }
 export async function POST(req:NextRequest){
  const actor=await actorFor(req,true);
- if(!actor||actor.role!=="admin")return jsonResult({error:"forbidden"},403);
+ if(!actor)return jsonResult({error:"forbidden"},403);
  const raw=await readJsonObject(req,10000);
  if(!raw||typeof raw.action!=="string")return jsonResult({error:"invalid-input"},400);
  try{
