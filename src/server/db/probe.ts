@@ -200,9 +200,17 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
       `);
       indicatorV33SchemaValid=verify.rows[0]?.function_count==="4"&&
         verify.rows[0]?.trigger_count==="6"&&verify.rows[0]?.index_count==="2"&&
-        ["definition","team_selection","display_preference","manual_value",
-         "computed_result","dependency","cycle_revision","system_revision"]
-         .every(n=>["id","team_id","indicator_id"].some(c=>columnSet.has("smn_indicator_"+n+":"+c)));
+        (Object.entries({
+          definition:["id","tag","indicator_type"],
+          team_selection:["team_id","indicator_id"],
+          display_preference:["team_id","indicator_id","screen_key"],
+          manual_value:["team_id","cycle_id","indicator_id"],
+          computed_result:["team_id","cycle_id","indicator_id"],
+          dependency:["id","indicator_id","source_type"],
+          cycle_revision:["team_id","cycle_id","revision"],
+          system_revision:["singleton_key","revision"]
+        }) as [string,string[]][]).every(([n,columns])=>
+          columns.every(c=>columnSet.has("smn_indicator_"+n+":"+c)));
     }
     return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, ...(indicatorV33SchemaValid===undefined?{}:{indicatorV33SchemaValid}), multiTeamSchemaValid, linksSchemaValid, countryConsolidationSchemaValid, companySchemaValid, teamAgileModeSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
