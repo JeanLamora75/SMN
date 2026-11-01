@@ -17,7 +17,7 @@ test("v32: writes remain team-scoped without depending on pilot-only v28 gate",(
 });
 test("editor passes teamId and displays Cockpit Agile modal",()=>{
  assert.ok(editor.includes('new URLSearchParams({teamId})'));
- assert.ok(page.includes('sprintId={cycle.id} teamId={teamId} status={cycle.status}'));
+ assert.ok(page.includes('<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>'));
  assert.ok(editor.includes('smn-indicator-dialog-header'));
  assert.ok(editor.includes('style={{backgroundColor:"#1b508d"'));
  assert.ok(editor.includes('className="h5 mb-0 text-white"'));
