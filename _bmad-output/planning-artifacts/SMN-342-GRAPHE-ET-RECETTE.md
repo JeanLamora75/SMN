@@ -7,7 +7,7 @@
 - Moteur `evaluateDependencies` : évalue dans l'ordre topologique les indicateurs calculés concernés ; sources manuelles préchargées, sources calendaires fournies par l'appelant ; aucune SQL/IO pendant les formules et aucun cache global.
 - `missing_source` distinct de zéro ; une indisponibilité de source calculée devient `dependency_unavailable` avec le **tag direct**.
 - Le registre technique initial des tags est `CAL_WORKING_DAYS`, `CAL_WORKING_HOURS`, `CAL_PUBLIC_HOLIDAYS`, `CAL_ABSENCE_DAYS`, `CAL_CLOSURE_DAYS`, `CAL_CAPACITY_JH`. **Attention : nomenclature technique à confirmer contre l'adaptateur calendrier lors de son implémentation ; les valeurs ne sont ni inventées ni calculées dans SMN-342.** Les tags calendaires ne sont pas ajoutés au catalogue SQL.
-- Sécurité : entrées bornées à 10 000 définitions et 100 000 arêtes, expressions bornées par SMN-341 ; toute incohérence échoue avec `DependencyGraphError`. L'orchestrateur de transactions et la persistance des résultats ne font pas partie de SMN-342.
+- Sécurité : entrées bornées à 10 000 définitions et 100 000 arêtes, expressions bornées par SMN-341 et budget cumulé de 100 000 nœuds AST évalués par cascade ; toute incohérence échoue avec `DependencyGraphError`. L'orchestrateur de transactions et la persistance des résultats ne font pas partie de SMN-342.
 
 ## Tests
 
@@ -21,3 +21,6 @@
 - [SMN-342](https://lmn24.atlassian.net/browse/SMN-342)
 - [SMN-338 DDL](SMN-338-DDL-ADDITIF-DRAFT.sql)
 - [Architecture consolidée](SMN-IND-ARCHITECTURE-CONSOLIDEE.md)
+
+## CI
+Un job indépendant de la CI `Vérification I0` exécute `pnpm test:smn-341-342` à chaque push sur `main`, sans dépendance PostgreSQL. La première exécution a réussi sur le commit 8d13866, mais le dernier durcissement du budget cumulé exige une nouvelle recette verte.
