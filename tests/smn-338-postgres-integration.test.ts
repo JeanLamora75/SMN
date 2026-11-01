@@ -131,6 +131,11 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    await mustReject("INSERT INTO public.smn_indicator_computed_result(team_id,cycle_type,cycle_id,indicator_id,result_state,value,formula_revision) VALUES('team-1','scrum','sprint-3','ind-a','available',1,1)");
    await mustReject("INSERT INTO public.smn_indicator_cycle_revision(team_id,cycle_type,cycle_id,revision) VALUES('team-1','scrum','other-sprint',1)");
    await db.query("INSERT INTO public.smn_indicator_cycle_revision(team_id,cycle_type,cycle_id,revision) VALUES('team-1','kanban','kanban-1',1)");
+   // Mutations des parents interdites dès qu'une valeur/révision les référence.
+   await mustReject("UPDATE public.smn_sprint SET team_id='team-2' WHERE id='sprint-1'");
+   await mustReject("UPDATE public.smn_kanban_period SET team_id='team-2' WHERE id='kanban-1'");
+   await mustReject("UPDATE public.smn_indicator_definition SET indicator_type='computed',formula='1+1' WHERE id='ind-a'");
+   await mustReject("UPDATE public.smn_indicator_definition SET indicator_type='manual',formula=NULL WHERE id='ind-b'");
    const crossTeam=await db.query<{n:string}>(`SELECT count(*)::text n FROM public.smn_indicator_manual_value WHERE team_id='team-2'`);
    assert.equal(crossTeam.rows[0]?.n,"0");
    await db.query("ROLLBACK");
