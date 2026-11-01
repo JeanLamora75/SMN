@@ -29,6 +29,8 @@ function toCounts(row:TicketRow|undefined):TicketCounts{
 }
 /** La consultation n'exécute jamais de DDL ni de réconciliation d'état. */
 export async function readSprintTickets(db:Client,id:string){
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ if(version.rows[0]?.schema_version===33)return null;
  const sprint=await inScope(db,id);
  if(!sprint)return null;
  if(!await exists(db))return {sprint,counts:none,revision:0};
@@ -56,6 +58,8 @@ export async function writeSprintTickets(db:Client,actor:string,raw:unknown){
  if(Object.keys(counts).sort().join(",")!=="done,initial"||
   !valid(counts.initial)||!valid(counts.done))
   return {ok:false as const,error:"invalid-input" as const};
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ if(version.rows[0]?.schema_version===33)return {ok:false as const,error:"legacy-indicators-retired" as const};
  await db.query("BEGIN");
  try{
   const sprint=await inScope(db,v.sprintId,true);
