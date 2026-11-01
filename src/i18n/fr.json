@@ -3882,7 +3882,8 @@
       "block": "Bloc",
       "position": "Position",
       "none": "Aucun",
-      "period": "Période"
+      "period": "Période",
+      "configureSlot": "Configurer cet emplacement"
     },
     "reporting": {
       "title": "Indicateurs configurés",
