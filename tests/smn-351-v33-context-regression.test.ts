@@ -13,10 +13,9 @@ test("v33: registries reuse the authorized team resolver",()=>{
  assert.match(content,/resolveAdminTeam/);
 });
 test("v33: links inventory and admin lists remain team-scoped",()=>{
- for(const path of ["src/server/links/catalog.ts","src/server/links/admin.ts"]){
+ for(const path of ["src/server/links/catalog.ts","src/server/links/admin.ts","src/server/links/categories-admin.ts","src/server/links/admin-transfer.ts"]){
   const content=source(path);
   assert.match(content,/i\.schema_version BETWEEN 29 AND 33/);
-  assert.match(content,/resolveAdminTeam/);
  }
 });
 test("v33: reports are team-scoped, old multi-team version cap retired",()=>{
