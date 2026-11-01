@@ -57,6 +57,9 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   await client.query(paletteMigrationBody(paletteSql));
   const indicatorSql=indicatorV33Sql();
   await client.query(indicatorSql);
+  // SMN-347 additive grants remain independent from immutable v33 migration checksum.
+  const grantSql=readFileSync(new URL("../../../prisma/migrations/20261101_smn347_team_grants/migration.sql",import.meta.url),"utf8");
+  await client.query(grantSql);
   // Baseline must define a neutral installation row contract (no application Agile mode).
   await client.query("INSERT INTO public.smn_installation(id,state,schema_version) VALUES('singleton','initialized',33)");
   await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($1,'singleton',$2,$3,'admin',$4,true)",
