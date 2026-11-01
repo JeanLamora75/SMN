@@ -23,7 +23,8 @@ export async function readIndicatorReporting(db:Client,teamId:string,screen:Scre
  const all=await db.query<{id:string;name:string;status:string}>(`
  SELECT id,name,status FROM public.${table}
  WHERE team_id=$1 AND deleted_at IS NULL
- ORDER BY ${cycleType==="scrum"?"start_at":"start_on"},id LIMIT 1000`,[teamId]);
+ ORDER BY ${cycleType==="scrum"?"start_at":"start_on"},id LIMIT 10001`,[teamId]);
+ if(all.rows.length>10000)throw Error("reporting-cycle-budget");
  const cycles=cycleIds?all.rows.filter(c=>cycleIds.includes(c.id)):all.rows;
  if(cycles.length===0||columns.rows.length===0)return {columns:columns.rows,cycles:cycles.map(c=>({...c,values:{}}))};
  const ids=cycles.map(c=>c.id),indicatorIds=columns.rows.map(c=>c.id);
