@@ -83,7 +83,7 @@ test("saisie manuelle v33 atomique, révisions, NULL, équipe et cycles clos",{t
     assert.equal((await readManualCycleValues(db,"team-a","scrum","sprint-a")).revision,4);
    }finally{await other.end();}
    await db.query("CREATE FUNCTION public.smn_343_fail_second() RETURNS trigger LANGUAGE plpgsql AS "+
-    "$ BEGIN IF NEW.indicator_id='m2' THEN RAISE EXCEPTION 'forced-second-write-failure'; END IF; RETURN NEW; END; $");
+    "$$ BEGIN IF NEW.indicator_id='m2' THEN RAISE EXCEPTION 'forced-second-write-failure'; END IF; RETURN NEW; END; $$");
    await db.query("CREATE TRIGGER smn_343_fail_second BEFORE INSERT OR UPDATE "+
     "ON public.smn_indicator_manual_value FOR EACH ROW EXECUTE FUNCTION public.smn_343_fail_second()");
    const beforeFailedBatch=await readManualCycleValues(db,"team-a","scrum","sprint-a");
