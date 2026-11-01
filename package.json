@@ -52,7 +52,8 @@
     "validate:smn-346": "pnpm test:smn-346 && pnpm db:test:smn-346 && pnpm typecheck && pnpm lint",
     "test:smn-346": "tsx --test tests/smn-346-publish-contract.test.ts",
     "db:test:smn-347": "tsx --test tests/smn-347-catalog-pg.test.ts",
-    "validate:smn-347": "pnpm db:test:smn-347 && pnpm typecheck && pnpm lint && pnpm i18n:check"
+    "validate:smn-347": "pnpm test:smn-347 && pnpm db:test:smn-347 && pnpm typecheck && pnpm lint && pnpm i18n:check",
+    "test:smn-347": "tsx --test tests/smn-347-ui-contract.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
