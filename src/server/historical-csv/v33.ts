@@ -27,7 +27,7 @@ async function collect(db:Client,input:CsvV33Request,lock=false){
  if(!parsed.valid)return reject("invalid-csv");
  const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
  if(version.rows[0]?.schema_version!==33)return reject("v33-required");
- const team=await db.query("SELECT id FROM public.smn_team WHERE id=$1 AND installation_id='singleton' AND agile_mode=$2 AND NOT is_archived",[input.teamId,input.mode]);
+ const team=await db.query("SELECT id FROM public.smn_team WHERE id=$1 AND installation_id='singleton' AND agile_mode=$2 AND COALESCE(is_archived,false)=false",[input.teamId,input.mode]);
  if(team.rows.length!==1)return reject("team-not-found");
  const codes=new Map(input.mappings.map(x=>[x.code,x.indicatorId]));
  if(parsed.rows.some(r=>!codes.has(r.metric_code)))return reject("mapping-incomplete");
