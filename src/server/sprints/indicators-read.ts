@@ -113,7 +113,7 @@ export async function readSprintDetailIndicators(
    LEFT JOIN public.smn_indicator_computed_result c ON c.indicator_id=d.id
      AND c.team_id=$1 AND c.cycle_type='scrum' AND c.cycle_id=$2
    WHERE d.archived_at IS NULL AND d.tag=ANY($3::text[])`,
-   [teamId,sprintId,["F01","F02","F03","F04","F10","F11"]]);
+   [teamId,sprintId,["F01","F02","F03","F06","F10","F11"]]);
   const byTag=new Map(values.rows.map(row=>[row.tag,row.value]));
   return {state:"available",source:"manual",snapshotVersion:null,
    points:pointsFrom({initial:byTag.get("F01")??null,added:byTag.get("F02")??null,
