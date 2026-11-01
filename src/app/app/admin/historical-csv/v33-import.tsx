@@ -40,7 +40,7 @@ export default function V33HistoricalCsvImport(){
   <label className="form-label">ID de l&apos;équipe<input className="form-control" value={teamId} onChange={e=>{setTeamId(e.target.value);setPreview(null);}}/></label>
   <label className="form-label ms-2">Mode<select className="form-select" value={mode} onChange={e=>{setMode(e.target.value as "scrum"|"kanban");setPreview(null);}}>
    <option value="scrum">Scrum</option><option value="kanban">Kanban</option></select></label>
-  <div className="table-responsive"><table className="table table-sm"><thead><tr><th>Code CSV</th><th>ID de l'indicateur manuel v33</th></tr></thead><tbody>
+  <div className="table-responsive"><table className="table table-sm"><thead><tr><th>Code CSV</th><th>ID de l&apos;indicateur manuel v33</th></tr></thead><tbody>
    {codes.map(code=><tr key={code}><td><code>{code}</code></td><td><input className="form-control form-control-sm" aria-label={"Indicateur pour "+code}
     value={map[code]??""} onChange={e=>{setMap(prev=>({...prev,[code]:e.target.value}));setPreview(null);}} placeholder="UUID de l'indicateur"/></td></tr>)}
   </tbody></table></div>
