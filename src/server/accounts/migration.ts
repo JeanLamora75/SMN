@@ -1,4 +1,5 @@
 import { randomUUID, createHash } from "node:crypto";
+import {readFileSync} from "node:fs";
 import type { Client } from "pg";
 import { INITIAL_MIGRATION } from "../installation/contract";
 import { INITIAL_SCHEMA_SQL } from "../installation/migration";
@@ -83,7 +84,8 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
     const slotsName="20261101_smn_dashboard_slots_additive";
     const slots=migrations.rows.filter(m=>m.migration_name===slotsName);
     const slotsPresent=await client.query<{present:boolean}>("SELECT to_regclass('public.smn_indicator_dashboard_slot') IS NOT NULL AS present");
-    const additiveValid=version===33&&slots.length===1&&!!slots[0].finished_at&&!slots[0].rolled_back_at&&slotsPresent.rows[0]?.present===true;
+    const slotsSql=readFileSync(new URL("../../../prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",import.meta.url),"utf8");
+    const additiveValid=version===33&&slots.length===1&&slots[0].checksum===checksum(slotsSql)&&!!slots[0].finished_at&&!slots[0].rolled_back_at&&slotsPresent.rows[0]?.present===true;
     const expectedHistory=version+(additiveValid?1:0);
     if (!applied(INITIAL_MIGRATION,INITIAL_SCHEMA_SQL) || migrations.rowCount !== expectedHistory || (slots.length>0&&!additiveValid))
       throw new Error("smn-schema-incompatible");
