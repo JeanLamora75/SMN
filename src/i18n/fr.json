@@ -3881,7 +3881,8 @@
       "emptySlot": "Aucun indicateur configuré",
       "block": "Bloc",
       "position": "Position",
-      "none": "Aucun"
+      "none": "Aucun",
+      "period": "Période"
     },
     "reporting": {
       "title": "Indicateurs configurés",
