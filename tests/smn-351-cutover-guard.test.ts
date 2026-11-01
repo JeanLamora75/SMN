@@ -12,3 +12,17 @@ test("SMN-351 inventory distinguishes legacy candidates and protected business d
  for(const classification of ["KEEP","ADAPT","DROP"])assert.ok(plan.includes(classification));
  assert.match(plan,/essai de restauration/);
 });
+
+test("SMN-351: obsolete Fxx APIs fail closed on v33 and point to dynamic replacements",()=>{
+ const routes=["story-points","tickets","scores","trends"];
+ for(const route of routes){
+  const source=readFileSync("src/app/api/admin/sprints/"+route+"/route.ts","utf8");
+  assert.match(source,/legacyIndicatorEndpointRetired\(\)/);
+  assert.match(source,/legacy-indicators-retired/);
+  assert.match(source,/410/);
+  assert.match(source,/authorizeApi/);
+ }
+ const retired=readFileSync("src/server/indicators/legacy-cutover.ts","utf8");
+ assert.match(retired,/schema_version===33/);
+ assert.doesNotMatch(retired,/DROP|DELETE FROM|TRUNCATE/);
+});
