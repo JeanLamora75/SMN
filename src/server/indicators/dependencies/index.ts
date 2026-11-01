@@ -125,11 +125,11 @@ export function evaluateDependencies(input:EvaluateDependenciesInput):ReadonlyMa
  }
  return results;
 }
-export interface DependencyReader{query<T>(sql:string,params?:readonly unknown[]):Promise<{rows:T[]}>;}
+export interface DependencyReader{query(sql:string):Promise<{rows:unknown[]}>;}
 export async function loadDependencyGraph(client:DependencyReader):Promise<DependencyGraph>{
  const [defs,edges]=await Promise.all([
-  client.query<IndicatorDefinition>("SELECT id,tag,formula FROM public.smn_indicator_definition ORDER BY tag"),
-  client.query<DependencyRow>("SELECT indicator_id,source_type,source_indicator_id,source_calendar_tag FROM public.smn_indicator_dependency ORDER BY indicator_id,source_type,source_indicator_id,source_calendar_tag")
+  client.query("SELECT id,tag,formula FROM public.smn_indicator_definition ORDER BY tag"),
+  client.query("SELECT indicator_id,source_type,source_indicator_id,source_calendar_tag FROM public.smn_indicator_dependency ORDER BY indicator_id,source_type,source_indicator_id,source_calendar_tag")
  ]);
- return buildDependencyGraph(defs.rows,edges.rows);
+ return buildDependencyGraph(defs.rows as IndicatorDefinition[],edges.rows as DependencyRow[]);
 }
