@@ -17,5 +17,6 @@ test("SMN-351: test and migration files do not hide runtime dependencies",()=>{
  assert.equal(classifyDependency("src/server/reports/standard-composition.ts"),"runtime-blocker");
  assert.equal(classifyDependency("tests/smn-234-sprint-indicators-d3.test.ts"),"migration-or-test");
  assert.equal(classifyDependency("prisma/migrations/old/migration.sql"),"migration-or-test");
- assert.ok(scanLegacyDependencies().some(x=>x.classification==="runtime-blocker"));
+ assert.ok(scanLegacyDependencies().some(x=>x.file.startsWith("src/server/compat-v32/")));
+ assert.ok(!scanLegacyDependencies().some(x=>x.classification==="runtime-blocker"));
 });
