@@ -6,6 +6,7 @@ import {probePostgres} from "../db/probe";
 import {classifySnapshot,diagnoseInstallation} from "./diagnostic";
 import {validateExpressInput} from "./contract";
 import {nativeBaselineSql,NATIVE_V32_NAME} from "./native-v32";
+import {SMN338_V33_NAME,indicatorV33Sql} from "./indicator-v33-contract";
 import {passwordHash} from "../auth/password";
 import {readFileSync} from "node:fs";
 import {paletteMigrationBody} from "../../../scripts/apply-red-purple-migration";
@@ -54,8 +55,10 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   // Extend the untouched v32 baseline inside the same installation transaction.
   const paletteSql=readFileSync(new URL("../../../prisma/migrations/20261031_red_purple_palette/migration.sql",import.meta.url),"utf8");
   await client.query(paletteMigrationBody(paletteSql));
+  const indicatorSql=indicatorV33Sql();
+  await client.query(indicatorSql);
   // Baseline must define a neutral installation row contract (no application Agile mode).
-  await client.query("INSERT INTO public.smn_installation(id,state,schema_version) VALUES('singleton','initialized',32)");
+  await client.query("INSERT INTO public.smn_installation(id,state,schema_version) VALUES('singleton','initialized',33)");
   await client.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($1,'singleton',$2,$3,'admin',$4,true)",
    [randomUUID(),input.adminUsername,input.adminEmail,hash]);
   await client.query(`INSERT INTO public._prisma_migrations
@@ -63,6 +66,8 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
    VALUES($1,$2,now(),$3,1)`,
    [randomUUID(),createHash("sha256").update(sql).digest("hex"),NATIVE_BASELINE_NAME]);
   await client.query("INSERT INTO public.smn_general_settings(installation_id,palette) VALUES ('singleton','red-purple')");
+  await client.query("INSERT INTO public._prisma_migrations(id,checksum,finished_at,migration_name,applied_steps_count) VALUES($1,$2,now(),$3,1)",
+   [randomUUID(),createHash("sha256").update(indicatorSql).digest("hex"),SMN338_V33_NAME]);
   await client.query("COMMIT");transaction=false;
   // A baseline journal needs the new classifier contract (step 3) before reporting success.
   const after=classifySnapshot(await probePostgres(uri.toString()));
