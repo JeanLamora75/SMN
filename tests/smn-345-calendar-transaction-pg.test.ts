@@ -47,6 +47,15 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    await db.query("BEGIN");
    await lockIndicatorRevisionBeforeCalendarWrite(db);
    await db.query("UPDATE public.smn_sprint SET name='Still uncommitted' WHERE id='sprint345'");
+   const competitor=new Client({connectionString:uri.toString(),connectionTimeoutMillis:3500});
+   await competitor.connect();
+   try{
+    await competitor.query("BEGIN");
+    await competitor.query("SET LOCAL lock_timeout='200ms'");
+    await assert.rejects(()=>lockIndicatorRevisionBeforeCalendarWrite(competitor),
+      error=>(error as {code?:string}).code==="55P03");
+    await competitor.query("ROLLBACK");
+   }finally{await competitor.end();}
    await db.query("CREATE FUNCTION public.smn_345_reject() RETURNS trigger LANGUAGE plpgsql AS "+
     "$$ BEGIN RAISE EXCEPTION 'forced-calendar-result-error'; END; $$");
    await db.query("CREATE TRIGGER smn_345_reject BEFORE INSERT ON public.smn_indicator_computed_result FOR EACH ROW EXECUTE FUNCTION public.smn_345_reject()");
