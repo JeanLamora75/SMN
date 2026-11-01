@@ -3876,7 +3876,13 @@
     "exportMarkdown": "Export references (Markdown)"
   },
   "indicators": {
-    "dashboard": {"complementary": "Additional indicators", "emptySlot": "No indicator configured", "block": "Block", "position": "Position", "none": "None"},
+    "dashboard": {
+      "complementary": "Additional indicators",
+      "emptySlot": "No indicator configured",
+      "block": "Block",
+      "position": "Position",
+      "none": "None"
+    },
     "reporting": {
       "title": "Configured indicators",
       "unavailable": "Indicators unavailable",
@@ -3973,6 +3979,7 @@
     "unavailable": "Unavailable",
     "confirmPublish": "Confirm publishing this preview?",
     "publish": "Publish",
-    "preview": "Preview"
+    "preview": "Preview",
+    "navTitle": "Indicator"
   }
 }
