@@ -117,7 +117,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (records[0].schema_version === 32 && migrations?.some(m => m.migration_name === NATIVE_V32_NAME)) {
     return result(nativeV32HistoryValid(snapshot,nativeBaselineSql()) ? "initialized" : "installation-incomplete");
   }
-  if (migrations?.length !== records[0].schema_version) return result("installation-incomplete");
+  if ((migrations?.length??0)-(records[0].schema_version===33&&migrations?.some(m=>m.migration_name==="20261101_smn_dashboard_slots_additive")?1:0) !== records[0].schema_version) return result("installation-incomplete");
   const base = migrations.find(m => m.migration_name === INITIAL_MIGRATION);
   if (!base || base.checksum !== createHash("sha256").update(INITIAL_SCHEMA_SQL).digest("hex") ||
       !base.finished_at || base.rolled_back_at) return result("installation-incomplete");
