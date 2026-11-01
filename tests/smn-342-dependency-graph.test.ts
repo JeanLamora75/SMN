@@ -1,5 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
+import {FormulaBudgetError} from "../src/server/indicators/formula";
 import {buildDependencyGraph,impactedIndicatorIds,evaluateDependencies,isCalendarSourceTag,DependencyGraphError,loadDependencyGraph,type IndicatorDefinition,type DependencyRow} from "../src/server/indicators/dependencies";
 const defs:IndicatorDefinition[]=[
  {id:"a",tag:"A",formula:null},{id:"b",tag:"B",formula:"A+1"},
@@ -76,4 +77,11 @@ test("budgets DAG et expressions manuelles sans arêtes",()=>{
  assert.throws(()=>buildDependencyGraph([{id:"m",tag:"MANUAL",formula:null}],[
   {indicator_id:"m",source_type:"calendar",source_indicator_id:null,source_calendar_tag:"CAL_WORKING_DAYS"}
  ]),e=>e instanceof DependencyGraphError&&e.code==="formula_mismatch");
+});
+
+test("une cascade de formules bornées individuellement respecte un budget global",()=>{
+ const formula="MIN("+Array.from({length:300},()=>"1").join(",")+")";
+ const definitions=Array.from({length:350},(_,i)=>({id:String(i),tag:"K_"+i,formula}));
+ const graph=buildDependencyGraph(definitions,[]);
+ assert.throws(()=>evaluateDependencies({graph,indicators:{},calendar:{}}),FormulaBudgetError);
 });
