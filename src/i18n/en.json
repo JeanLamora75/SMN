@@ -3925,6 +3925,17 @@
     "unit": "Unit",
     "shortUnit": "Short unit",
     "color": "Color",
-    "icon": "Icon"
+    "icon": "Icon",
+    "formulaEditor": "Edit formula",
+    "previewReady": "Preview completed",
+    "published": "Formula published",
+    "previewSummary": "Preview impact",
+    "impactedIndicators": "Affected indicators",
+    "cycles": "Affected cycles",
+    "results": "Recalculated results",
+    "unavailable": "Unavailable",
+    "confirmPublish": "Confirm publishing this preview?",
+    "publish": "Publish",
+    "preview": "Preview"
   }
 }
