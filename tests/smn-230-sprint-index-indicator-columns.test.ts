@@ -7,7 +7,10 @@ test("SMN-351: sprint list does not query or render legacy Fxx indicators",()=>{
  const ui=read("src/app/app/admin/sprints/sprint-index-view.tsx");
  assert.doesNotMatch(source,/readSprintDetailIndicators|item\.metrics=|SprintIndexMetrics/);
  assert.doesNotMatch(ui,/indicatorCodes|item\.metrics|smn-sprints-gauge-cell/);
- assert.match(ui,/IndicatorReporting teamId=\{data\.teamId\} cycleType="scrum" screen="cycle_list"/);
+ assert.match(ui,/\/api\/admin\/indicators\/reporting/);
+ assert.match(ui,/screen:"cycle_list"/);
+ assert.match(ui,/dynamicReport\?\.columns/);
+ assert.match(ui,/dynamicValues\.get\(item\.id\)/);
 });
 test("SMN-351: business navigation and status presentation stay available",()=>{
  const ui=read("src/app/app/admin/sprints/sprint-index-view.tsx");
