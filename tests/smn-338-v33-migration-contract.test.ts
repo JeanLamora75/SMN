@@ -53,3 +53,10 @@ test("SMN-338 : installation neuve v33 journalise deux migrations canoniques",()
  assert.match(install,/SMN338_V33_NAME/);
  assert.match(install,/NATIVE_BASELINE_NAME/);
 });
+
+test("SMN-338 : le diagnostic valide les colonnes propres à chaque table, y compris system_revision",()=>{
+ const probe=read("src/server/db/probe.ts");
+ assert.match(probe,/system_revision:\["singleton_key","revision"\]/);
+ assert.match(probe,/columns\.every\(c=>columnSet\.has/);
+ assert.doesNotMatch(probe,/\["id","team_id","indicator_id"\]\.some/);
+});
