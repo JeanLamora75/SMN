@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
-const service=read("src/server/sprints/story-points.ts");
+const service=read("src/server/compat-v32/story-points.ts");
 const route=read("src/app/api/admin/sprints/story-points/route.ts");
 const form=read("src/app/app/admin/sprints/[sprintId]/sprint-indicators-panel.tsx");
 test("Story Points writing checks only the actual needed Sprint and aggregate tables",()=>{
