@@ -63,8 +63,27 @@ test("saisie manuelle v33 atomique, révisions, NULL, équipe et cycles clos",{t
    assert.equal(checkedScope,"team-a");
    assert.deepEqual(await writeManualValues(db,"user-343",{...input,teamId:"team-b",cycleId:"sprint-b",expectedRevision:0},
     async()=>false),{ok:false,error:"forbidden"});
+   await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES('team-k','singleton','Kanban','kanban')");
+   await db.query("INSERT INTO public.smn_kanban_period(id,team_id,name,start_on,end_on,time_zone,status) "+
+    "VALUES('period-k','team-k','Période K',current_date-15,current_date-1,'Europe/Paris','closed')");
+   await db.query("INSERT INTO public.smn_indicator_team_selection(team_id,indicator_id) VALUES('team-k','m1')");
+   assert.deepEqual(await writeManualValues(db,actor,{
+    teamId:"team-k",cycleType:"kanban",cycleId:"period-k",expectedRevision:0,changes:[{indicatorId:"m1",value:"3"}]
+   }),{ok:true,revision:1});
+   assert.deepEqual((await readManualCycleValues(db,"team-k","kanban","period-k")).values,[{indicator_id:"m1",value:"3"}]);
+   const other=new Client({connectionString:uri.toString(),connectionTimeoutMillis:3500});await other.connect();
+   try{
+    const concurrent={...input,expectedRevision:3,changes:[{indicatorId:"m1",value:"10"}]};
+    const [first,second]=await Promise.all([
+     writeManualValues(db,actor,concurrent),
+     writeManualValues(other,actor,{...concurrent,changes:[{indicatorId:"m1",value:"11"}]})
+    ]);
+    assert.equal([first,second].filter(v=>v.ok).length,1);
+    assert.equal([first,second].filter(v=>!v.ok&&v.error==="conflict").length,1);
+    assert.equal((await readManualCycleValues(db,"team-a","scrum","sprint-a")).revision,4);
+   }finally{await other.end();}
    const system=await db.query<{revision:string}>("SELECT revision::text FROM public.smn_indicator_system_revision WHERE singleton_key='singleton'");
-   assert.equal(system.rows[0].revision,"3");
+   assert.equal(system.rows[0].revision,"5");
    assert.equal(validateManualWrite({...input,changes:[{indicatorId:"m1",value:"1e2"}]}),false);
    assert.equal(validateManualWrite({...input,changes:[{indicatorId:"m1",value:"1"},{indicatorId:"m1",value:"2"}]}),false);
   }finally{await db.end()}
