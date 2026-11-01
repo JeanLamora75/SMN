@@ -23,9 +23,12 @@ export default function DashboardIndicatorBlocks({teamId,cycleId,cycleType,local
  },[teamId,cycleType,cycleId]);
  useEffect(()=>{
   const controller=new AbortController();
-  void reload(controller.signal).catch(()=>{if(!controller.signal.aborted)setError(true);});
+  void fetch("/api/admin/indicators/dashboard-cockpit?"+new URLSearchParams({teamId,cycleType,...(cycleId?{cycleId}:{})}),{cache:"no-store",signal:controller.signal})
+   .then(async response=>{if(!response.ok)throw Error("unavailable");return response.json() as Promise<{blocks:Block[]}>;})
+   .then(data=>{if(!controller.signal.aborted){setBlocks(data.blocks);setError(false);}})
+   .catch(()=>{if(!controller.signal.aborted)setError(true);});
   return()=>controller.abort();
- },[reload]);
+ },[teamId,cycleType,cycleId]);
  useEffect(()=>{
   if(!selected)return;
   const node=dialog.current;
