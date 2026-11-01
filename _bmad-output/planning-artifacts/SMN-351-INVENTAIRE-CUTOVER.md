@@ -112,3 +112,14 @@ Aucune migration de suppression n'est activée ; aucun DROP sur `smn`.
 - Imports CSV historiques : les codes `SP_INITIAL`, `SP_ADDED`, `SP_REMOVED`, `SP_DONE` ne peuvent pas être automatiquement associés à des définitions v33 configurables sans une table explicite de correspondance et un contrat de migration des valeurs/audits ; ne jamais créer une équivalence par supposition.
 - Les tests de contrats ajoutés à `pnpm test:smn-351` sont statiques. Les tests d'intégration PostgreSQL locaux de clôture, replanification, rapports et import historique restent à exécuter après finalisation des adaptateurs.
 - Aucun DROP ni autorisation de nettoyer : `cleanupAuthorized=false` reste la politique jusqu'à l'audit exhaustif et la validation historique.
+
+## Durcissement des chemins historiques v33 — 01/11/2026
+
+- `story-points.ts` et `ticket-counts.ts` refusent en v33 les anciennes lectures/écritures sur les tables de valeurs et d'audit. Les chemins pré-v33 restent présents pour compatibilité avec les installations historiques.
+- `dashboard/cycle-reader.ts` ne lit plus les anciennes valeurs SP/Tickets pour les cycles actifs en v33 ; faute de correspondance métier v33 explicitement validée avec les anciens champs du contrat du dashboard, ces anciens champs sont signalés indisponibles plutôt que déduits d'un autre indicateur. La couche reporting v33 sélectionnée par équipe doit être utilisée pour les nouveaux indicateurs.
+- `reports/report-projection.ts` ne lit plus les anciennes valeurs SP sur les cycles courants en v33 ; les snapshots clos existants sont conservés. Le modèle de projection historique fixe continue de présenter les champs traditionnels comme absents s'ils ne disposent pas de données de snapshot.
+- `sprints/indicators-read.ts` conserve l'accès aux snapshots clos ; pour les cycles courants v33, l'ancien contrat fixe signale une source indisponible et ne relit plus les tables historiques.
+- `historical-csv/confirm.ts` refuse explicitement la confirmation en v33 (`v33-indicator-mapping-required`) avant toute écriture ; des codes CSV hérités ne peuvent être affectés à des IDs v33 configurables sans mapping validé, contrôle d'équipe, révisions et préservation des journaux d'import.
+- Test de non-régression des chemins historiques ajouté à `pnpm test:smn-351`.
+
+**Le découplage fonctionnel complet n'est pas terminé.** Le refus des opérations CSV et anciennes écritures en v33 est une mesure de sûreté, pas un remplacement fonctionnel. L'analyse de l'inventaire doit encore examiner notamment les adaptateurs d'import, les consommateurs du contrat fixe et les vues tableau de bord pour assurer leur remplacement sans perte. Le précontrôle conserve `authorized:false` et aucune migration DROP n'a été préparée pour application.
