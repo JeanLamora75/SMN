@@ -10,7 +10,7 @@ export default function IndicatorCatalog({teams}:{teams:{id:string;name:string}[
  const t=useTranslation(),[team,setTeam]=useState(teams[0]?.id??""),[data,setData]=useState<Data|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[search,setSearch]=useState(""),[filter,setFilter]=useState("all"),[edit,setEdit]=useState<D|null>(null),[create,setCreate]=useState(false);
  const [tag,setTag]=useState(""),[name,setName]=useState(""),[kind,setKind]=useState("manual"),[formula,setFormula]=useState(""),[description,setDescription]=useState("");
  const load=useCallback(async()=>{try{const r=await fetch("/api/admin/indicators/catalog"+(team?"?teamId="+encodeURIComponent(team):""),{cache:"no-store"});const j=await r.json();if(!r.ok)throw Error(j.error);setData(j);setError("");}catch(e){setError(String(e));}},[team]);
- useEffect(()=>{void load();},[load]);
+ useEffect(()=>{void Promise.resolve().then(()=>load());},[load]);
  async function send(command:Record<string,unknown>){setBusy(true);setError("");try{const r=await fetch("/api/admin/indicators/catalog",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(command)});const j=await r.json();if(!r.ok)throw Error(j.error);await load();return true;}catch(e){setError(String(e));return false;}finally{setBusy(false);}}
  function editor(d?:D){setCreate(!d);setEdit(d??null);setTag(d?.tag??"");setName(d?.name??"");setKind(d?.indicator_type??"manual");setFormula(d?.formula??"");setDescription(d?.description??"");}
  const selections=new Map(data?.selections.map(x=>[x.indicator_id,x.is_active]));
