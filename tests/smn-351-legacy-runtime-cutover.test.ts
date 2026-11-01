@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=(p:string)=>readFileSync(p,"utf8");
 test("v33 legacy story-point and ticket writers fail closed",()=>{
- const points=read("src/server/sprints/story-points.ts");
- const tickets=read("src/server/sprints/ticket-counts.ts");
+ const points=read("src/server/compat-v32/story-points.ts");
+ const tickets=read("src/server/compat-v32/ticket-counts.ts");
  for(const file of [points,tickets]){
   assert.match(file,/schema_version===33/);
   assert.match(file,/legacy-indicators-retired/);
