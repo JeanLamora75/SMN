@@ -14,12 +14,12 @@ export async function readIndicatorReporting(db:Client,teamId:string,screen:Scre
  const team=await db.query("SELECT 1 FROM public.smn_team WHERE id=$1 AND installation_id='singleton' AND agile_mode=$2 AND NOT is_archived",[teamId,cycleType]);
  if(team.rows.length!==1)throw Error("team-not-found");
  const columns=await db.query<{id:string;tag:string;name:string;unit:string;style:string;order:number}>(`
- SELECT d.id,d.tag,d.name,d.unit_short AS unit,p.display_style AS style,p.display_order AS "order"
+ SELECT d.id,d.tag,d.name,d.unit_short AS unit,COALESCE(p.display_style,'number') AS style,COALESCE(p.display_order,0) AS "order"
  FROM public.smn_indicator_definition d
  JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id AND s.team_id=$1 AND s.is_active=true
- JOIN public.smn_indicator_display_preference p ON p.indicator_id=d.id AND p.team_id=s.team_id
- WHERE d.archived_at IS NULL AND p.screen_key=$2 AND p.is_visible=true
- ORDER BY p.display_order,d.tag,d.id LIMIT 100`,[teamId,screen]);
+ LEFT JOIN public.smn_indicator_display_preference p ON p.indicator_id=d.id AND p.team_id=s.team_id AND p.screen_key=$2
+ WHERE d.archived_at IS NULL AND COALESCE(p.is_visible,true)=true
+ ORDER BY COALESCE(p.display_order,0),d.tag,d.id LIMIT 100`,[teamId,screen]);
  const all=await db.query<{id:string;name:string;status:string}>(`
  SELECT id,name,status FROM public.${table}
  WHERE team_id=$1 AND deleted_at IS NULL
