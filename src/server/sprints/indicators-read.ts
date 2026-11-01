@@ -101,26 +101,7 @@ export async function readSprintDetailIndicators(
      confidence:scores.confidence,clarity:scores.clarity}:null)
   };
  }
- if(v33){
-  const values=await db.query<{tag:string;value:string|null}>(`
-   SELECT d.tag,CASE WHEN d.indicator_type='manual' THEN m.value::text
-    WHEN c.result_state='available' THEN c.value::text ELSE NULL END AS value
-   FROM public.smn_indicator_definition d
-   JOIN public.smn_indicator_team_selection sel ON sel.indicator_id=d.id
-     AND sel.team_id=$1 AND sel.is_active=true
-   LEFT JOIN public.smn_indicator_manual_value m ON m.indicator_id=d.id
-     AND m.team_id=$1 AND m.cycle_type='scrum' AND m.cycle_id=$2
-   LEFT JOIN public.smn_indicator_computed_result c ON c.indicator_id=d.id
-     AND c.team_id=$1 AND c.cycle_type='scrum' AND c.cycle_id=$2
-   WHERE d.archived_at IS NULL AND d.tag=ANY($3::text[])`,
-   [teamId,sprintId,["F01","F02","F03","F06","F10","F11"]]);
-  const byTag=new Map(values.rows.map(row=>[row.tag,row.value]));
-  return {state:"available",source:"manual",snapshotVersion:null,
-   points:pointsFrom({initial:byTag.get("F01")??null,added:byTag.get("F02")??null,
-    removed:byTag.get("F03")??null,done:byTag.get("F06")??null}),
-   tickets:ticketsFrom({initial:byTag.get("F10")??null,done:byTag.get("F11")??null}),
-   scores:absent("schema-missing")};
- }
+ if(v33)return {state:"unavailable",reason:"schema-missing"};
  const available=await db.query<{points:boolean;tickets:boolean;scores:boolean}>(`
   SELECT
    to_regclass('public.smn_sprint_story_points') IS NOT NULL AS points,
