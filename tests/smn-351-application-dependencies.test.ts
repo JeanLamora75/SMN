@@ -4,8 +4,11 @@ import {auditApplicationDependencies,classifyDependency,scanLegacyDependencies} 
 test("SMN-351: historical Sprint closure and report composition block SQL removal",()=>{
  const report=auditApplicationDependencies();
  const relevant=report.runtimeBlockers.map(x=>x.file);
- assert.ok(relevant.includes("src/server/sprints/closure.ts"),"closure snapshots still read legacy values");
+ assert.ok(!relevant.includes("src/server/sprints/closure.ts"),"closure v32 SQL has been isolated");
  assert.ok(!relevant.includes("src/server/reports/standard-composition.ts"),"standard report SQL was extracted into a v32 compatibility adapter");
+ assert.ok(!relevant.includes("src/server/reports/report-projection.ts"),"report projection SQL was extracted into a v32 compatibility adapter");
+ assert.ok(!relevant.includes("src/server/sprints/indicators-read.ts"),"detail SQL was extracted into a v32 compatibility adapter");
+ assert.ok(!relevant.includes("src/server/sprints/reschedule.ts"),"reschedule SQL was extracted into a v32 compatibility adapter");
  assert.equal(report.authorizedForDrop,false);
  assert.ok(report.references.every(x=>x.line>0&&x.relation.startsWith("smn_sprint_")));
 });
