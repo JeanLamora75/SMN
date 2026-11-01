@@ -11,7 +11,7 @@ export async function GET(req:NextRequest){
  if(!actor)return jsonResult({error:"forbidden"},403);
  const teamId=req.nextUrl.searchParams.get("teamId")??"";
  if(!teamId)return jsonResult({error:"invalid-input"},400);
- try{return jsonResult(await withAuthDb(async db=>{await requireIndicatorTeam(db,{accountId:actor.id,role:actor.role},teamId);return {slots:await readDashboardSlots(db,teamId)};}),200);}
+ try{return jsonResult(await withAuthDb(async db=>{await requireIndicatorTeam(db,{accountId:actor.id,role:actor.role},teamId);const candidates=await db.query<{id:string;tag:string;name:string}>(`SELECT d.id,d.tag,d.name FROM public.smn_indicator_definition d JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id AND s.team_id=$1 AND s.is_active=true WHERE d.archived_at IS NULL ORDER BY d.name,d.tag`,[teamId]);return {slots:await readDashboardSlots(db,teamId),candidates:candidates.rows};}),200);}
  catch{return jsonResult({error:"unavailable"},503);}
 }
 export async function POST(req:NextRequest){
