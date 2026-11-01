@@ -52,8 +52,19 @@ test("saisie manuelle v33 atomique, révisions, NULL, équipe et cycles clos",{t
    assert.deepEqual(await writeManualValues(db,actor,{...input,expectedRevision:0,teamId:"team-b"}),
     {ok:false,error:"not-found"});
    assert.equal((await readManualCycleValues(db,"team-b","scrum","sprint-b")).values.length,0);
+   await db.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) "+
+    "VALUES('user-343','singleton','user343','user343@example.test','user','disabled-test-password-hash',false)");
+   assert.deepEqual(await writeManualValues(db,"user-343",{...input,expectedRevision:2}),
+    {ok:false,error:"forbidden"});
+   let checkedScope="";
+   assert.deepEqual(await writeManualValues(db,"user-343",{...input,expectedRevision:2,changes:[{indicatorId:"m1",value:"7"}]},
+    async (account,team)=>{assert.equal(account,"user-343");checkedScope=team;return team==="team-a";}),
+    {ok:true,revision:3});
+   assert.equal(checkedScope,"team-a");
+   assert.deepEqual(await writeManualValues(db,"user-343",{...input,teamId:"team-b",cycleId:"sprint-b",expectedRevision:0},
+    async()=>false),{ok:false,error:"forbidden"});
    const system=await db.query<{revision:string}>("SELECT revision::text FROM public.smn_indicator_system_revision WHERE singleton_key='singleton'");
-   assert.equal(system.rows[0].revision,"2");
+   assert.equal(system.rows[0].revision,"3");
    assert.equal(validateManualWrite({...input,changes:[{indicatorId:"m1",value:"1e2"}]}),false);
    assert.equal(validateManualWrite({...input,changes:[{indicatorId:"m1",value:"1"},{indicatorId:"m1",value:"2"}]}),false);
   }finally{await db.end()}
