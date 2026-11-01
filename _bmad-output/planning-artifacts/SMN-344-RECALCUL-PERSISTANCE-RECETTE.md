@@ -32,9 +32,12 @@ Le service `src/server/indicators/recalculation.ts` calcule les indicateurs via 
 
 `pnpm db:test:smn-343` : non-régression et recalcul en transaction commune après saisie manuelle.
 
-`pnpm typecheck`, `pnpm lint`, workflow CI [Vérification I0](https://github.com/JeanLamora75/SMN/actions). Les preuves de la CI sont à constater et à consigner avant clôture. Les tests locaux Windows ne sont pas présumés.
+`pnpm typecheck`, `pnpm lint`, workflow CI [Vérification I0](https://github.com/JeanLamora75/SMN/actions). Les étapes PostgreSQL isolées SMN-343 et SMN-344 ont réussi dans [GitHub Actions 41294641514](https://github.com/JeanLamora75/SMN/actions/runs/41294641514). Leur succès ne signifie pas que la totalité des jobs de la CI globale a réussi. Les tests locaux Windows ne sont pas présumés.
 
 ## Liens
 - [SMN-344](https://lmn24.atlassian.net/browse/SMN-344)
 - [SMN-343](https://lmn24.atlassian.net/browse/SMN-343)
 - [Architecture indicateurs](SMN-IND-ARCHITECTURE-CONSOLIDEE.md)
+
+## Recette de rollback commune
+Le test d'intégration provoque une erreur de trigger durant le recalcul déclenché par une saisie manuelle ; le service annule également la valeur saisie et la révision de cycle. Il n'existe aucun COMMIT partiel.
