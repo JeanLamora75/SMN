@@ -6,10 +6,10 @@ const engineModule=existsSync(enginePath)
  ? await import("../src/server/indicators/"+ "formula/index")
  : null;
 const {calculateFormula,evaluateFormula,parseFormula,referencedTags,FormulaBudgetError,FormulaSyntaxError}=engineModule ?? {
- calculateFormula: (()=>{throw Error("moteur non disponible");}) as (...args:any[])=>any,
- evaluateFormula: (()=>{throw Error("moteur non disponible");}) as (...args:any[])=>any,
- parseFormula: (()=>{throw Error("moteur non disponible");}) as (...args:any[])=>any,
- referencedTags: (()=>{throw Error("moteur non disponible");}) as (...args:any[])=>any,
+ calculateFormula: (()=>{throw Error("moteur non disponible");}) as (...args:unknown[])=>never,
+ evaluateFormula: (()=>{throw Error("moteur non disponible");}) as (...args:unknown[])=>never,
+ parseFormula: (()=>{throw Error("moteur non disponible");}) as (...args:unknown[])=>never,
+ referencedTags: (()=>{throw Error("moteur non disponible");}) as (...args:unknown[])=>never,
  FormulaBudgetError: Error,FormulaSyntaxError:Error
 };
 const testFormula:typeof test=engineModule?test:test.skip;
