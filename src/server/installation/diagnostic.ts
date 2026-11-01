@@ -1,5 +1,5 @@
 import {nativeBaselineSql,nativeV32HistoryValid,NATIVE_V32_NAME} from "./native-v32";
-import {SMN338_V33_NAME,SMN338_V33_FILE,INDICATOR_TABLES} from "../../../scripts/apply-smn-338-v33";
+import {SMN338_V33_NAME,INDICATOR_TABLES,indicatorV33Sql} from "./indicator-v33-contract";
 import { createHash } from "node:crypto";
 import {readFileSync} from "node:fs";
 import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../links/migration";
@@ -93,7 +93,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const isV30 = records[0].schema_version >= 30;
   if(records[0].schema_version===33){
     const v33=migrations?.find(m=>m.migration_name===SMN338_V33_NAME);
-    const ddl=readFileSync(SMN338_V33_FILE,"utf8");
+    const ddl=indicatorV33Sql();
     const validV33=!!v33&&v33.checksum===createHash("sha256").update(ddl).digest("hex")&&
       !!v33.finished_at&&!v33.rolled_back_at&&
       INDICATOR_TABLES.every(n=>names.has("public."+n+":r"))&&
