@@ -273,7 +273,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     WHERE d.archived_at IS NULL AND d.tag=ANY($3::text[])`,
     [teamId,sprint.id,["F01","F06","F10","F11"]]);
    const values=new Map(result.rows.map(r=>[r.tag,r.value]));
-   storyPoints={initial:metric(values.get("F01"),"manual"),done:metric(values.get("F04"),"manual")};
+   storyPoints={initial:metric(values.get("F01"),"manual"),done:metric(values.get("F06"),"manual")};
    tickets={initial:metric(values.get("F10"),"manual"),done:metric(values.get("F11"),"manual")};
   }else if(await tableExists(db,"smn_sprint_story_points")){
    const r=await db.query<{initial_sp:string|null;done_sp:string|null}>(`
