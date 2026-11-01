@@ -25,6 +25,7 @@ test("SMN-351 PG: legacy v32 history survives isolated upgrade to v33",{timeout:
   await db.connect();
   try{
    const baseline=nativeBaselineSql();
+   assert.ok(baseline,"Native v32 baseline required");
    await db.query("BEGIN");
    try{
     await db.query(baseline);
@@ -34,6 +35,7 @@ test("SMN-351 PG: legacy v32 history survives isolated upgrade to v33",{timeout:
     await db.query("COMMIT");
    }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
    const team=randomUUID(),cycle=randomUUID(),account=randomUUID();
+   await db.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password) VALUES($1,'singleton','historian','historian@example.test','admin','test-only-hash',true)",[account]);
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES($1,'singleton','Historique conservé','scrum')",[team]);
    await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES($1,$2,1,'Cycle historique',now()-interval '20 days',now()-interval '10 days','Europe/Paris','closed')",[cycle,team]);
    await db.query("INSERT INTO public.smn_sprint_story_points(sprint_id,initial_sp,added_sp,removed_sp,done_sp) VALUES($1,13,3,1,11)",[cycle]);
