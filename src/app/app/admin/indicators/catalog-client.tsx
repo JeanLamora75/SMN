@@ -23,7 +23,7 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
  const teamSelector=scope==="team"?<></>:<label className="form-label">{t("indicators.team")}<select className="form-select mt-1" value={team} onChange={e=>setTeam(e.target.value)}>{teams.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>;
  return <div>
   {error&&<div role="alert" className="alert alert-danger">{t("indicators.error")}: {error} <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>void load()}>{t("indicators.retry")}</button></div>}
-  <SettingsTabs label={t("indicators.title")} sections={[
+  <SettingsTabs label={t("indicators.title")} variant={scope==="team"?"cockpit":"default"} sections={[
    ...(scope==="team"?[{id:"cycles",label:t("indicators.navTitle"),content:<IndicatorCycles teamId={team} cycleType={cycleType} locale={locale}/>}]:[]),
    ...(scope==="global"?[{id:"catalog",label:t("indicators.catalog"),content:<section>
     <div className="d-flex flex-wrap gap-2 justify-content-between mb-3"><input aria-label={t("indicators.search")} placeholder={t("indicators.search")} type="search" className="form-control w-auto" value={search} onChange={e=>setSearch(e.target.value)}/><select aria-label={t("indicators.filter")} className="form-select w-auto" value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">{t("indicators.all")}</option><option value="active">{t("indicators.active")}</option><option value="archived">{t("indicators.archived")}</option></select>{isAdmin&&<button type="button" className="btn btn-primary" onClick={()=>editor()}>{t("indicators.create")}</button>}</div>
