@@ -60,7 +60,7 @@
     "db:compare:smn-351:auto": "tsx scripts/smn-351-auto-compare.ts --check",
     "db:preflight:smn-351": "tsx scripts/smn-351-cleanup-preflight.ts --check",
     "db:audit:smn-351": "tsx scripts/smn-351-app-dependencies.ts --check",
-    "db:test:smn-351": "tsx --test tests/smn-351-v33-capture-pg.test.ts",
+    "db:test:smn-351": "tsx --test tests/smn-351-v33-capture-pg.test.ts tests/smn-351-v33-legacy-writes-pg.test.ts",
     "test:smn-350": "tsx --test tests/smn-350-report-contract.test.ts",
     "db:test:smn-350": "tsx --test tests/smn-350-report-projection-pg.test.ts",
     "test:smn-349": "tsx --test tests/smn-349-reporting-contract.test.ts",
