@@ -25,3 +25,17 @@ export async function readLegacyReschedulePoints(db:Client,sprintId:string){
  FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]);
  return result.rows[0]??null;
 }
+
+export async function readLegacyClosurePoints(db:Client,sprintId:string){
+ const rows=await db.query(`SELECT initial_sp::text,added_sp::text,removed_sp::text,
+ done_sp::text,revision FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]);
+ return rows.rows[0]??null;
+}
+export async function readLegacyClosureTickets(db:Client,sprintId:string){
+ const exists=await db.query<{present:boolean}>(
+  "SELECT to_regclass('public.smn_sprint_ticket_counts') IS NOT NULL AS present");
+ if(!exists.rows[0]?.present)return null;
+ const rows=await db.query(`SELECT initial_tickets::text,done_tickets::text
+ FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]);
+ return rows.rows[0]??null;
+}
