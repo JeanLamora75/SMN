@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {lockIndicatorRevisionBeforeCalendarWrite,recalculateCalendarImpactWithinTransaction} from "../indicators/calendar-integration";
 import type {Client} from "pg";
 import {isValidDate} from "../members/assignment";
 import {ensureCapacityRecalcOutbox,queueClosureRecalculation} from "../capacity/company-recalc-outbox";
@@ -37,6 +38,7 @@ export async function saveCompanyClosureV31(db:Client,actorId:string,raw:unknown
  await ensureCapacityRecalcOutbox(db);
  await db.query("BEGIN");
  try{
+  const indicatorsReady=await lockIndicatorRevisionBeforeCalendarWrite(db);
   const fail=async(error:Failure)=>{await db.query("ROLLBACK");return {ok:false as const,error};};
   const company=await db.query<{id:string}>(`SELECT id FROM public.smn_company
    WHERE id=$1 AND installation_id='singleton' FOR UPDATE`,[v.companyId]);
@@ -80,6 +82,8 @@ export async function saveCompanyClosureV31(db:Client,actorId:string,raw:unknown
    previousStartOn:prior?.start_on,previousEndOn:prior?.end_on});
   const result=await db.query<Row>(`SELECT ${columns} FROM public.smn_company_closure WHERE id=$1 AND company_id=$2`,[id,v.companyId]);
   if(result.rows.length!==1)throw Error("closure-write-inconsistent");
+  if(indicatorsReady)await recalculateCalendarImpactWithinTransaction(db,{companyId:v.companyId,
+   startOn:v.startOn,endOn:v.endOn,previousStartOn:prior?.start_on,previousEndOn:prior?.end_on});
   await db.query("COMMIT");
   // Best-effort immediate processing after commit: the durable job survives errors.
   try{await processCompanyRecalculation(db);}
