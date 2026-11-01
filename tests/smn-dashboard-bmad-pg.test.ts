@@ -45,6 +45,8 @@ test("Dashboard B01/B02 PG: native schema, 4/2/2 limits, collision, team isolati
    assert.equal((await readDashboardCockpit(db,"dashteam1","scrum","dashsprint1"))[0].positions[0].indicator?.value,"12");
    const history=await readIndicatorReporting(db,"dashteam1","cycle_list","scrum",["dashsprint1"]);
    assert.equal(history.cycles[0].values.dashmetric1,"12","closed cycle list must use the frozen value, not the live value");
+   const trendHistory=await readIndicatorReporting(db,"dashteam1","trends","scrum",["dashsprint1"]);
+   assert.equal(trendHistory.cycles[0].values.dashmetric1,"12","trends must use the frozen closure version");
    assert.equal((await readDashboardCockpit(db,"dashteam2","scrum"))[0].positions[0].indicator,null);
   }finally{await db.end();}
  }finally{try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)');}finally{await admin.end();}}
