@@ -42,7 +42,7 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    assert.deepEqual(current.rows,[{result_state:"unavailable",value:null,unavailable_reason:"missing_source"}]);
    await db.query("ROLLBACK");
    assert.equal((await db.query<{name:string}>("SELECT name FROM public.smn_sprint WHERE id='sprint345'")).rows[0].name,'Sprint');
-   assert.equal((await db.query("SELECT id FROM public.smn_indicator_computed_result WHERE cycle_id='sprint345'")).rows.length,0);
+   assert.equal((await db.query("SELECT indicator_id FROM public.smn_indicator_computed_result WHERE cycle_id='sprint345'")).rows.length,0);
    await db.query("BEGIN");
    await lockIndicatorRevisionBeforeCalendarWrite(db);
    await db.query("UPDATE public.smn_sprint SET name='Still uncommitted' WHERE id='sprint345'");
