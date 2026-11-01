@@ -19,15 +19,17 @@ export function revokeSession(token: string | undefined): void { state().session
 export function revokeAccountSessions(accountId: string): void { state().sessions.revokeAccount(accountId); }
 export async function sessionAccount(token: string | undefined): Promise<Account | null> {
   const session = state().sessions.get(token);
-  if (!session) return null;
+  if (!session) { if (token) console.warn("smn-session-invalid", "not-in-server-store"); return null; }
   try {
     const account = await withAuthDb(client => accountById(client, session.accountId));
     if (!account || passwordFingerprint(account.password_hash) !== session.passwordFingerprint || account.role !== session.role) {
       state().sessions.revoke(token);
+      console.warn("smn-session-invalid", !account?"account-not-found":"account-fingerprint-or-role-changed");
       return null;
     }
     return account;
   } catch {
+    console.warn("smn-session-invalid", "account-database-read-failed");
     // Fail closed : une base indisponible ne justifie jamais l'accès privé.
     return null;
   }
