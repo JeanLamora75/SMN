@@ -49,7 +49,8 @@
     "db:test:smn-345": "tsx --test tests/smn-345-calendar-transaction-pg.test.ts",
     "validate:smn-345": "pnpm db:test:smn-343 && pnpm db:test:smn-344 && pnpm db:test:smn-345 && pnpm typecheck && pnpm lint",
     "db:test:smn-346": "tsx --test tests/smn-346-formula-publication-pg.test.ts",
-    "validate:smn-346": "pnpm db:test:smn-346 && pnpm typecheck && pnpm lint"
+    "validate:smn-346": "pnpm test:smn-346 && pnpm db:test:smn-346 && pnpm typecheck && pnpm lint",
+    "test:smn-346": "tsx --test tests/smn-346-publish-contract.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
