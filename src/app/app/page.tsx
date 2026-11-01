@@ -5,6 +5,7 @@ import { withAuthDb } from "@/server/auth/database";
 import { canAccess } from "@/server/access-policy";
 import { readAccountDashboard } from "@/server/dashboard/read";
 import CycleOverview from "./cycle-overview";
+import IndicatorReporting from "./admin/indicators/reporting-view";
 import OperationalOverview from "./operational-overview";
 import MemberConfigurationAlerts from "./member-configuration-alerts";
 import {requestLocale} from "@/i18n/locale.server";
@@ -69,6 +70,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
        canViewCapacity={canAccess(account,"read",{type:"members",exists:true,inScope:true})}
        />
 
+      <IndicatorReporting teamId={context.teamId} cycleType={context.mode} screen="dashboard" locale={locale}/>
       <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone} canManage={account.role==="admin"}/>
     </>}
 
