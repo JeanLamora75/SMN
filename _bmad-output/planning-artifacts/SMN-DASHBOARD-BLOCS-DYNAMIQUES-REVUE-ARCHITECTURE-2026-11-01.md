@@ -26,3 +26,12 @@ Critères : (1) trois blocs et 8 positions toujours affichés ; (2) un seul indi
 
 ## Verdict
 **CONCERNS — architecture compatible sur le principe, mais conditions de migration/snapshot non résolues dans le code.** La présente revue ne prétend pas provenir de l'exécution autonome d'un agent Winston ou du skill BMAD introuvable. **Gate avant implémentation :** vérifier concrètement les contraintes DDL v33, le format des snapshots et l'orchestrateur de migration ; ne pas faire de DROP d'anciennes tables pendant ce lot.
+
+## Implémentation B01–B04 publiée le 01/11/2026 — état non recetté
+- **B01** : table `smn_indicator_dashboard_slot` avec clés par équipe, bloc et position ; contrainte 4/2/2, unicité d'un indicateur par équipe, API d'affectation et éditeur dans les préférences « Tableau de bord ». Migration additive `scripts/apply-dashboard-slots.ts --check|--apply`, intégrée à l'installation native v33 et reconnue par le diagnostic sans changer `schema_version=33`.
+- **B02** : `readDashboardCockpit` renvoie toujours huit positions ; lecture de `indicatorsV33` depuis la dernière version du snapshot des Sprints Scrum clôturés. Valeur `null`, zéro et indisponibilité distincts ; récupération de la période Kanban sélectionnée.
+- **B03** : `DashboardIndicatorBlocks` affiche les trois blocs du cockpit et leur contenu ; Capacité et Jours ouvrés restent conservés.
+- **B04** : appels des anciennes tuiles SP/Tickets/I01/I02 et affichage tabulaire dynamique parallèle retirés du cockpit. Les lecteurs historiques partagés et les anciennes tables ne sont **pas supprimés**, conformément à SMN-351.
+- **Tests ajoutés** : `tests/smn-dashboard-bmad-contract.test.ts`, `tests/smn-dashboard-bmad-pg.test.ts`; readiness BMAD ajustée.
+- **À vérifier localement** : `pnpm typecheck`, `pnpm lint`, tests statiques, test PostgreSQL utilisant une base temporaire ; `pnpm exec tsx scripts/apply-dashboard-slots.ts --check`.
+- **Attention** : installation existante requiert la migration additive explicite après sauvegarde vérifiée. Aucun script de migration n'a été exécuté via GitHub. Recette PostgreSQL, validation CLI et preuve d'installation neuve/migrée restent à obtenir avant qualification terminée.
