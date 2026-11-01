@@ -53,6 +53,17 @@ test("SMN-348: live preview is read-only, grouped save is atomic and team scoped
    await updateIndicatorGrant(db,adminActor,user.accountId,"team348a",false);
    await assert.rejects(()=>writeManualValues(db,user.accountId,{...input,expectedRevision:1},async(a,t,client)=>{await requireIndicatorTeam(client,{accountId:a,role:"user"},t);return true;}));
    assert.equal((await readManualCycleValues(db,input.teamId,input.cycleType,input.cycleId)).revision,1);
+   await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES('team348k','singleton','Kanban','kanban')");
+   await db.query("INSERT INTO public.smn_kanban_period(id,team_id,name,start_on,end_on,time_zone,status) VALUES('period348','team348k','Période',current_date-15,current_date-1,'Europe/Paris','closed')");
+   await updateIndicatorGrant(db,adminActor,user.accountId,"team348k",true);
+   for(const indicatorId of [m.id,n.id,f.id])await applyCatalogCommand(db,adminActor,{action:"selection",teamId:"team348k",indicatorId,active:true});
+   const kanban={teamId:"team348k",cycleType:"kanban" as const,cycleId:"period348",expectedRevision:0,changes:[{indicatorId:m.id,value:"5"},{indicatorId:n.id,value:"1"}]};
+   const kanbanPreview=await previewIndicatorInput(db,user,kanban);
+   assert.equal(kanbanPreview.results.find(x=>x.indicatorId===f.id)?.kind,"available");
+   assert.equal((await readManualCycleValues(db,"team348k","kanban","period348")).values.length,0);
+   assert.deepEqual(await writeManualValues(db,user.accountId,{...kanban,expectedSystemRevision:kanbanPreview.systemRevision},async(a,t,client)=>{await requireIndicatorTeam(client,{accountId:a,role:"user"},t);return true;}),{ok:true,revision:1});
+   const kResult=await db.query<{value:string}>("SELECT value::text FROM public.smn_indicator_computed_result WHERE team_id='team348k' AND cycle_id='period348' AND indicator_id=$1",[f.id]);
+   assert.equal(Number(kResult.rows[0].value),11);
   }finally{await db.end();}
  }finally{try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)');}finally{await admin.end();}}
 });
