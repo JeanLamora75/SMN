@@ -62,27 +62,6 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  const statuses=[...new Set([...known,...(data?.statuses??[])])];
  const change=(fn:()=>void)=>{setLoading(true);setNotice("");fn();setPage(1);};
  const reload=()=>{setLoading(true);setNotice("");setRefresh(n=>n+1);};
- const indicatorCodes=["f01","f04","f07","f10","f11","f12"] as const;
- const number=(value:number|null|undefined,code:typeof indicatorCodes[number])=>{
-  if(value===null||value===undefined||!Number.isFinite(value))return "—";
-  const formatted=new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{
-   maximumFractionDigits:code==="f07"||code==="f12"?2:0
-  }).format(value);
-  return formatted+" "+(code==="f07"||code==="f12"?"%":code==="f10"||code==="f11"?"tck":"sp");
- };
- const gauge=(value:number)=> {
-  const ratio=Math.min(100,Math.max(0,value));
-  const angle=180+(ratio*1.8);
-  const radians=angle*Math.PI/180;
-  const x=22+14*Math.cos(radians),y=22+14*Math.sin(radians);
-  return <svg className="smn-sprints-gauge" viewBox="0 0 44 30" aria-hidden="true" focusable="false">
-   <path d="M 6 22 A 16 16 0 0 1 38 22" fill="none" stroke="var(--bs-secondary-bg)" strokeWidth="5" strokeLinecap="round"/>
-   <path d="M 6 22 A 16 16 0 0 1 38 22" fill="none" stroke="var(--bs-primary)" strokeWidth="5" strokeLinecap="round"
-    strokeDasharray={String(ratio/100*50.27)+" 50.27"}/>
-   <line x1="22" y1="22" x2={x} y2={y} stroke="var(--bs-body-color)" strokeWidth="2" strokeLinecap="round"/>
-   <circle cx="22" cy="22" r="2.8" fill="var(--bs-body-color)"/>
-  </svg>;
- };
  const items=data?.items??[];
  const generateHref="/app/admin/sprints/generate?"+new URLSearchParams({search,status:filter,sort,page:String(page)}).toString();
  const mainStatuses=new Set(["all","active","planned","finished","closed"]);
@@ -196,10 +175,6 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
        <th scope="col">{t("sprintStates.name")}</th>
        <th scope="col">{t("sprintStates.status")}</th>
        <th scope="col">{t("sprintsIndex.period")}</th>
-       {indicatorCodes.map(code=><th scope="col" key={code}
-        title={t(`sprintsIndex.indicatorColumns.${code}`)}
-        aria-label={t(`sprintsIndex.indicatorColumns.${code}`)} tabIndex={0}
-        className="text-center">{code.toUpperCase()}</th>)}
        <th scope="col" className="text-center">{t("sprintsIndex.actions")}</th>
       </tr></thead>
       <tbody>{items.map(item=>{
@@ -217,12 +192,6 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
          {label(item)}</span></td>
         <td data-label={t("sprintsIndex.period")}><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
          {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
-        {indicatorCodes.map(code=><td key={code} className={(code==="f07"||code==="f12"?"smn-sprints-gauge-cell":"text-end")+" text-nowrap"}
-         data-label={code.toUpperCase()} title={t(`sprintsIndex.indicatorColumns.${code}`)}>
-         {(code==="f07"||code==="f12")&&item.metrics?.[code]!=null?
-          <span className="smn-sprints-percent" aria-label={number(item.metrics[code],code)}>
-           {gauge(item.metrics[code])}<span>{number(item.metrics[code],code)}</span>
-          </span>:number(item.metrics?.[code],code)}</td>)}
 
         <td className="text-end smn-sprints-row-actions" data-label={t("sprintsIndex.actions")}>
          <div className="d-inline-flex gap-2 align-items-center">
