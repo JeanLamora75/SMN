@@ -25,6 +25,7 @@ import SprintClosureAction from "./sprint-closure-action";
 import SprintDetailTabs from "./sprint-detail-tabs";
 import SprintGoalsPanel from "./sprint-goals-panel";
 import SprintIndicatorsPanel from "./sprint-indicators-panel";
+import UniversalIndicatorInput from "../../indicators/universal-input";
 import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import HistoricalEventForm from "./historical-event-form";
 import HistoricalPartialForm from "./historical-partial-form";
@@ -152,7 +153,7 @@ export default async function SprintDetailPage({params,searchParams}:{
     {active==="objectives"?<><SprintGoalsPanel
       sprintId={cycle.id} status={cycle.status} canManage={canManage}
       data={goals??{state:"unavailable",reason:"read-failed"}}/>{canManage&&cycle.status==="finished"&&<HistoricalPartialForm sprintId={cycle.id}/>}</>:
-     active==="indicators"?<><SprintIndicatorsPanel
+     active==="indicators"?<>{canManage&&<UniversalIndicatorInput teamId={teamId} cycleType="scrum" cycleId={cycle.id}/>}<SprintIndicatorsPanel
       sprintId={cycle.id} teamId={teamId} status={cycle.status} canManage={canManage}
       data={indicators??{state:"unavailable",reason:"read-failed"}}
       capacityKpis={capacityKpis??{state:"unavailable",reason:"read-failed"}}/></> :
