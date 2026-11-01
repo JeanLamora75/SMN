@@ -3877,6 +3877,13 @@
   },
   "indicators": {
     "input": {
+      "kanbanTitle": "Saisie des indicateurs Kanban",
+      "reasons": {
+        "missing_source": "Source manquante",
+        "division_by_zero": "Division par zéro",
+        "dependency_unavailable": "Dépendance indisponible",
+        "invalid_domain": "Domaine de calcul invalide"
+      },
       "open": "Saisir les indicateurs",
       "title": "Saisie des indicateurs",
       "close": "Fermer",
