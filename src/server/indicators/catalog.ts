@@ -41,7 +41,7 @@ function meta(x:{name:string;description?:string;unitName?:string;unitShort?:str
  guard(typeof x.unitShort==="undefined"||typeof x.unitShort==="string"&&x.unitShort.length<=20,"invalid-input");
  guard(colorOk(x.color),"invalid-input");guard(typeof x.icon==="undefined"||x.icon===null||typeof x.icon==="string"&&x.icon.length<=80,"invalid-input");
 }
-async function deriveDependencies(db:Client,formula:string,indicatorId:string):Promise<DependencyRow[]>{
+async function deriveDependencies(db:Client,formula:string,indicatorId:string,indicatorTag:string):Promise<DependencyRow[]>{
  const tags=[...new Set(referencedTags(parseFormula(formula)))].sort();
  const definitions=await db.query<IndicatorDefinition>("SELECT id,tag,formula FROM public.smn_indicator_definition ORDER BY tag");
  const byTag=new Map(definitions.rows.map(d=>[d.tag,d.id]));
@@ -51,7 +51,7 @@ async function deriveDependencies(db:Client,formula:string,indicatorId:string):P
   return {indicator_id:indicatorId,source_type:"calendar",source_indicator_id:null,source_calendar_tag:t};
  });
  const old=await db.query<DependencyRow>("SELECT indicator_id,source_type,source_indicator_id,source_calendar_tag FROM public.smn_indicator_dependency");
- buildDependencyGraph([...definitions.rows,{id:indicatorId,tag:"__NEW__",formula}], [...old.rows,...dependencies]);
+ buildDependencyGraph([...definitions.rows,{id:indicatorId,tag:indicatorTag,formula}], [...old.rows,...dependencies]);
  return dependencies;
 }
 export async function applyCatalogCommand(db:Client,actor:TeamActor,command:CatalogCommand){
@@ -65,7 +65,7 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
    guard(command.indicatorType==="manual"||command.indicatorType==="computed","invalid-input");
    guard(command.indicatorType==="manual"?!command.formula:typeof command.formula==="string"&&command.formula.length>0,"invalid-input");
    const indicatorId=randomUUID();
-   const edges=command.indicatorType==="computed"?await deriveDependencies(db,command.formula!,indicatorId):[];
+   const edges=command.indicatorType==="computed"?await deriveDependencies(db,command.formula!,indicatorId,command.tag):[];
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,description,unit_name,unit_short,color,icon,indicator_type,formula) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",[indicatorId,command.tag,command.name,command.description??"",command.unitName??"",command.unitShort??"",command.color??null,command.icon??null,command.indicatorType,command.indicatorType==="computed"?command.formula:null]);
    for(const e of edges)await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id,source_calendar_tag) VALUES($1,$2,$3,$4,$5)",[randomUUID(),e.indicator_id,e.source_type,e.source_indicator_id,e.source_calendar_tag]);
    await bump(db);await db.query("COMMIT");return {id:indicatorId};
