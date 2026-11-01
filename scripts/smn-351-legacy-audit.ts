@@ -23,7 +23,7 @@ const protectedObjects=[
  "smn_indicator_cycle_revision","smn_indicator_system_revision",
  "smn_indicator_team_grant"
 ] as const;
-export const protectedBusinessObject=(name:string)=>/^(?:smn_.*(?:capacity|calendar|absence|holiday|closure|snapshot|historical|history|report|archive|document|ceremony|meeting|member|attendance|work_slot|company|registry|audit)|smn_indicator_(?:definition|team_selection|display_preference|manual_value|computed_result|dependency|cycle_revision|system_revision|team_grant))$/.test(name);
+export const protectedBusinessObject=(name:string)=>/^(?:smn_.*(?:capacity|calendar|absence|holiday|closure|snapshot|historical|history|report|archive|document|ceremony|meeting|member|attendance|work_slot|company|registry|audit)[a-z0-9_]*|smn_indicator_(?:definition|team_selection|display_preference|manual_value|computed_result|dependency|cycle_revision|system_revision|team_grant))$/.test(name);
 const legacyCandidates=[
  "smn_sprint_story_points","smn_sprint_ticket_counts",
  "smn_sprint_confidence_clarity","smn_sprint_indicator_scores",
