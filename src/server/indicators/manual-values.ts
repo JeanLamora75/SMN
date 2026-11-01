@@ -97,9 +97,12 @@ export async function writeManualValues(
 export async function readManualCycleValues(db:Client,teamId:string,cycleType:CycleType,cycleId:string){
  if(!idValid(teamId)||!idValid(cycleId)||!["scrum","kanban"].includes(cycleType))
   throw new ManualWriteError("invalid-scope");
- const [revision,values]=await Promise.all([
-  db.query<{revision:string}>("SELECT revision::text FROM public.smn_indicator_cycle_revision WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3",[teamId,cycleType,cycleId]),
-  db.query<{indicator_id:string;value:string|null}>("SELECT indicator_id,value::text FROM public.smn_indicator_manual_value WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3 ORDER BY indicator_id",[teamId,cycleType,cycleId])
- ]);
- return {revision:Number(revision.rows[0]?.revision??0),values:values.rows};
+ // Both the revision and values are read in one PostgreSQL statement snapshot.
+ const result=await db.query<{revision:string;values:{indicator_id:string;value:string|null}[]}>(
+  "SELECT COALESCE((SELECT revision::text FROM public.smn_indicator_cycle_revision "+
+  "WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3),'0') AS revision,"+
+  "COALESCE((SELECT jsonb_agg(jsonb_build_object('indicator_id',indicator_id,'value',value::text) ORDER BY indicator_id) "+
+  "FROM public.smn_indicator_manual_value WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3),'[]'::jsonb) AS values",
+  [teamId,cycleType,cycleId]);
+ return {revision:Number(result.rows[0].revision),values:result.rows[0].values};
 }
