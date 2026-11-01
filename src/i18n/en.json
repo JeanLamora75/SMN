@@ -3882,7 +3882,8 @@
       "block": "Block",
       "position": "Position",
       "none": "None",
-      "period": "Period"
+      "period": "Period",
+      "configureSlot": "Configure this slot"
     },
     "reporting": {
       "title": "Configured indicators",
