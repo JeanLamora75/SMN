@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { SessionStore } from "./session-store";
 import { LoginLimiter } from "./rate-limit";
 import { accountById, passwordFingerprint, type Account } from "./credentials";
-import { withAuthDb } from "./database";
+import { withSessionReadDb } from "./database";
 import { SESSION_COOKIE } from "./guards";
 
 type AuthState = { sessions: SessionStore; limiter: LoginLimiter };
@@ -21,7 +21,7 @@ export async function sessionAccount(token: string | undefined): Promise<Account
   const session = state().sessions.get(token);
   if (!session) { if (token) console.warn("smn-session-invalid", "not-in-server-store"); return null; }
   try {
-    const account = await withAuthDb(client => accountById(client, session.accountId));
+    const account = await withSessionReadDb(client => accountById(client, session.accountId));
     if (!account || passwordFingerprint(account.password_hash) !== session.passwordFingerprint || account.role !== session.role) {
       state().sessions.revoke(token);
       console.warn("smn-session-invalid", !account?"account-not-found":"account-fingerprint-or-role-changed");
