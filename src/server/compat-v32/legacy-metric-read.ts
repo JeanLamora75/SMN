@@ -16,3 +16,12 @@ export async function readLegacyReportTickets(db:Client,sprintId:string){
   "SELECT initial_tickets::text,done_tickets::text FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1",[sprintId]);
  return values.rows[0]??null;
 }
+
+export async function readLegacyReschedulePoints(db:Client,sprintId:string){
+ const available=await db.query<{present:boolean}>("SELECT to_regclass('public.smn_sprint_story_points') IS NOT NULL AS present");
+ if(!available.rows[0]?.present)return null;
+ const result=await db.query(`SELECT initial_sp::text AS initial,added_sp::text AS added,
+ removed_sp::text AS removed,done_sp::text AS done
+ FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]);
+ return result.rows[0]??null;
+}
