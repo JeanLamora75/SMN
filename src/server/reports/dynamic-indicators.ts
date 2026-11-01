@@ -27,7 +27,7 @@ export async function readReportIndicatorProjection(db:Client,teamId:string,cycl
  CASE WHEN d.indicator_type='manual' THEN m.value IS NOT NULL
       ELSE r.result_state='available' END AS available,
  CASE WHEN d.indicator_type='manual' THEN CASE WHEN m.value IS NULL THEN 'missing_source' ELSE NULL END
-      ELSE COALESCE(r.unavailable_reason,CASE WHEN r.id IS NULL THEN 'missing_source' ELSE NULL END) END AS reason
+      ELSE COALESCE(r.unavailable_reason,CASE WHEN r.indicator_id IS NULL THEN 'missing_source' ELSE NULL END) END AS reason
  FROM public.smn_indicator_definition d
  JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id AND s.team_id=$1 AND s.is_active=true
  LEFT JOIN public.smn_indicator_display_preference p ON p.team_id=s.team_id AND p.indicator_id=d.id AND p.screen_key='reports'
