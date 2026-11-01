@@ -2,7 +2,7 @@ import type {Client} from "pg";
 import type {ScreenKey} from "./catalog";
 
 export type ReportIndicator=Readonly<{id:string;tag:string;name:string;unit:string;style:string;order:number}>;
-export type ReportCycle=Readonly<{id:string;name:string;status:string;values:Record<string,string|null>}>;
+export type ReportCycle=Readonly<{id:string;name:string;status:string;startAt?:string;endAt?:string;values:Record<string,string|null>}>;
 export type ReportData=Readonly<{columns:ReportIndicator[];cycles:ReportCycle[]}>;
 
 /** Configured selections are authoritative; there is no implicit Fxx catalogue. */
@@ -20,8 +20,8 @@ export async function readIndicatorReporting(db:Client,teamId:string,screen:Scre
  LEFT JOIN public.smn_indicator_display_preference p ON p.indicator_id=d.id AND p.team_id=s.team_id AND p.screen_key=$2
  WHERE d.archived_at IS NULL AND COALESCE(p.is_visible,true)=true
  ORDER BY COALESCE(p.display_order,0),d.tag,d.id LIMIT 100`,[teamId,screen]);
- const all=await db.query<{id:string;name:string;status:string}>(`
- SELECT id,name,status FROM public.${table}
+ const all=await db.query<{id:string;name:string;status:string;startAt:string;endAt:string}>(`
+ SELECT id,name,status,${cycleType==="scrum"?"start_at":"start_on"}::text AS "startAt",${cycleType==="scrum"?"end_at":"end_on"}::text AS "endAt" FROM public.${table}
  WHERE team_id=$1 AND deleted_at IS NULL
  ORDER BY ${cycleType==="scrum"?"start_at":"start_on"},id LIMIT 10001`,[teamId]);
  if(all.rows.length>10000)throw Error("reporting-cycle-budget");
