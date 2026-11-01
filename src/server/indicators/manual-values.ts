@@ -59,7 +59,7 @@ export async function writeManualValues(
    "SELECT d.id FROM public.smn_indicator_definition d "+
    "JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id "+
    "WHERE s.team_id=$1 AND s.is_active=true AND d.archived_at IS NULL "+
-   "AND d.indicator_type='manual' AND d.id=ANY($2::text[])",
+   "AND d.indicator_type='manual' AND d.id=ANY($2::text[]) FOR SHARE OF d,s",
    [input.teamId,ids]);
   if(allowed.rows.length!==ids.length){
    await db.query("ROLLBACK");return {ok:false,error:"indicator-unavailable"};
