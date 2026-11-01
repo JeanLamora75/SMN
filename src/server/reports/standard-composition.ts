@@ -26,9 +26,11 @@ export async function composeStandardReport(db:Client,sprintId:string){
   }else{
    const points=snapshot.storyPoints as Record<string,unknown>|null|undefined;
    const tickets=snapshot.ticketCounts as Record<string,unknown>|null|undefined;
+   const frozen=Array.isArray(snapshot.indicatorsV33)?snapshot.indicatorsV33 as Array<Record<string,unknown>>:null;
    add("indicators",[
     ...(["initial_sp","done_sp"].flatMap(k=>points?.[k]===null||points?.[k]===undefined?[]:[item(k,String(points[k]))])),
-    ...(["initial_tickets","done_tickets"].flatMap(k=>tickets?.[k]===null||tickets?.[k]===undefined?[]:[item(k,String(tickets[k]))]))
+    ...(["initial_tickets","done_tickets"].flatMap(k=>tickets?.[k]===null||tickets?.[k]===undefined?[]:[item(k,String(tickets[k]))])),
+    ...(frozen??[]).filter(d=>d.state==="available"&&d.value!==null&&d.value!==undefined).map(d=>item(String(d.name),String(d.value)+(d.unit?" "+String(d.unit):"")))
    ]);
    const ceremonyKeys=["ceremonies","customMeetings","exceptionalMeetings"] as const;
    add("events",ceremonyKeys.flatMap(key=>Array.isArray(snapshot[key])?
