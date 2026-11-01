@@ -1,3 +1,4 @@
+import {readLegacyDetailMetrics} from "@/server/compat-v32/legacy-metric-read";
 import type {Client} from "pg";
 import {
  type SprintPoints,type SprintTickets,type SprintScores
@@ -102,29 +103,11 @@ export async function readSprintDetailIndicators(
   };
  }
  if(v33)return {state:"unavailable",reason:"schema-missing"};
- const available=await db.query<{points:boolean;tickets:boolean;scores:boolean}>(`
-  SELECT
-   to_regclass('public.smn_sprint_story_points') IS NOT NULL AS points,
-   to_regclass('public.smn_sprint_ticket_counts') IS NOT NULL AS tickets,
-   to_regclass('public.smn_sprint_scores') IS NOT NULL AS scores`);
- const installed=available.rows[0]??{points:false,tickets:false,scores:false};
- const points=installed.points?await db.query<{
-  initial:string|null;added:string|null;removed:string|null;done:string|null;revision:number
- }>(`SELECT initial_sp::text AS initial,added_sp::text AS added,
-   removed_sp::text AS removed,done_sp::text AS done,revision
-   FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]):null;
- const tickets=installed.tickets?await db.query<{
-  initial:string|null;done:string|null;revision:number
- }>(`SELECT initial_tickets::text AS initial,done_tickets::text AS done,revision
-   FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]):null;
- const scores=installed.scores?await db.query<{
-  confidence:number|null;clarity:number|null;revision:number
- }>(`SELECT confidence,clarity,revision FROM public.smn_sprint_scores
-   WHERE sprint_id=$1`,[sprintId]):null;
+ const legacy=await readLegacyDetailMetrics(db,sprintId);
  return {state:"available",source:"manual",snapshotVersion:null,
   // The uninstalled table is equivalent to no values yet on an editable Sprint:
   // mutations create it on explicit admin save. Null is never changed to zero.
-  points:pointsFrom(points?.rows[0]??null),
-  tickets:ticketsFrom(tickets?.rows[0]??null),
-  scores:scoresFrom(scores?.rows[0]??null)};
+  points:pointsFrom(legacy.points),
+  tickets:ticketsFrom(legacy.tickets),
+  scores:scoresFrom(legacy.scores)};
 }
