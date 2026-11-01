@@ -27,7 +27,7 @@ export default function HistoricalCsvTemplateView(){
    setCheck(null);setReplacement({});void loadAttempts();
   }catch{setConfirmation("Import indisponible.");}finally{setConfirming(false);}
  }
- async function validate(){const snapshot=version.current;setChecking(true);setCheck(null);setReplacement({});try{const r=await fetch("/api/admin/historical-csv/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv})});const value=await r.json();if(Array.isArray(value.errors)&&version.current===snapshot)setCheck(value);else setError("Vérification impossible.");}catch{setError("Vérification indisponible.");}finally{setChecking(false);}}
+ async function validate(){const snapshot=version.current;setChecking(true);setCheck(null);setReplacement({});try{const r=await fetch("/api/admin/historical-csv/validate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({csv})});const value=await r.json();if(version.current!==snapshot)return; if(!r.ok&&typeof value.message==="string")setError(value.message);else if(Array.isArray(value.errors))setCheck(value);else setError("Vérification impossible.");}catch{setError("Vérification indisponible.");}finally{setChecking(false);}}
  useEffect(()=>{const task=window.setTimeout(()=>{void loadAttempts();},0);void fetch("/api/admin/historical-csv/template",{cache:"no-store"})
   .then(r=>{if(!r.ok)throw Error();return r.json() as Promise<Catalog>;})
   .then(setData).catch(()=>setError("Catalogue momentanément indisponible."));return ()=>window.clearTimeout(task);},[]);
