@@ -3876,6 +3876,7 @@
     "exportMarkdown": "Export references (Markdown)"
   },
   "indicators": {
+    "reporting": {"title":"Configured indicators","unavailable":"Indicators unavailable","loading":"Loading","empty":"No indicator selected for this screen","indicator":"Indicator","exportPng":"Export PNG","cycle":"Cycle","status":"Status"},
     "input": {
       "kanbanTitle": "Kanban indicator entry",
       "reasons": {

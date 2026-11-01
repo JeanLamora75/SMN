@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import IndicatorReporting from "../indicators/reporting-view";
 import {useDeferredValue,useEffect,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {SprintIndexItem,SprintIndexSort} from "@/server/sprints/index";
@@ -7,12 +8,12 @@ import type {TranslationKey} from "@/i18n/catalog";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 
 type Result={
- teamName:string;items:SprintIndexItem[];total:number;page:number;pageSize:number;
+ teamId:string;teamName:string;items:SprintIndexItem[];total:number;page:number;pageSize:number;
  totalPages:number;statuses:string[];activeCount:number;
 };
 const known=["planned","active","finished","closed","suspended"] as const;
 
-export default function SprintIndexView({canManage,initialFilters,teamId}:{canManage:boolean;initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number};teamId:string|null}){
+export default function SprintIndexView({canManage,permittedTeamIds=[],initialFilters,teamId}:{canManage:boolean;permittedTeamIds?:string[];initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number};teamId:string|null}){
  const t=useTranslation(),locale=useLocale();
  const [search,setSearch]=useState(initialFilters?.search??"");
  const deferredSearch=useDeferredValue(search);
@@ -169,6 +170,7 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
      onClick={reload} disabled={loading}>{t("sprintStates.refresh")}</button>
    </div>
   </section>
+  {data?.teamId&&permittedTeamIds.includes(data.teamId)&&<IndicatorReporting teamId={data.teamId} cycleType="scrum" screen="cycle_list" locale={locale}/>}
   <section className="smn-sprints-results" aria-label={t("sprintsIndex.list")}>
    {error&&<div role="alert" className="alert alert-warning">
     {t("sprintsIndex.error")}

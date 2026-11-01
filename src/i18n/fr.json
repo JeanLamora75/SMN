@@ -3876,6 +3876,7 @@
     "exportMarkdown": "Exporter les références (Markdown)"
   },
   "indicators": {
+    "reporting": {"title":"Indicateurs configurés","unavailable":"Indicateurs indisponibles","loading":"Chargement","empty":"Aucun indicateur sélectionné pour cet écran","indicator":"Indicateur","exportPng":"Exporter PNG","cycle":"Cycle","status":"Statut"},
     "input": {
       "kanbanTitle": "Saisie des indicateurs Kanban",
       "reasons": {

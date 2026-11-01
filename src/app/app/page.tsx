@@ -5,6 +5,7 @@ import { withAuthDb } from "@/server/auth/database";
 import { canAccess } from "@/server/access-policy";
 import { readAccountDashboard } from "@/server/dashboard/read";
 import CycleOverview from "./cycle-overview";
+import IndicatorReporting from "./admin/indicators/reporting-view";
 import OperationalOverview from "./operational-overview";
 import MemberConfigurationAlerts from "./member-configuration-alerts";
 import {requestLocale} from "@/i18n/locale.server";
@@ -12,6 +13,7 @@ import {translate,type TranslationKey} from "@/i18n/catalog";
 import {dashboardReturnPath,teamDetailPath,type DashboardQuery} from "@/lib/context-navigation";
 import {withDashboardRead} from "@/server/dashboard/read-only-db";
 import {readCycleDashboard} from "@/server/dashboard/cycle-reader";
+import {indicatorTeams} from "@/server/indicators/team-access";
 import {readSprintContext} from "@/server/sprints/context";
 import {selectedSprint} from "@/lib/sprint-context";
 
@@ -42,6 +44,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   }
 
   const { context } = dashboard;
+  const canViewIndicators=await withAuthDb(async db=>(await indicatorTeams(db,{accountId:account.id,role:account.role})).some(t=>t.id===context.teamId)).catch(()=>false);
   const query=await searchParams;
   const returnTo=dashboardReturnPath(query,context.teamId);
   const teamHref=teamDetailPath(context.teamId,returnTo);
@@ -69,6 +72,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
        canViewCapacity={canAccess(account,"read",{type:"members",exists:true,inScope:true})}
        />
 
+      {canViewIndicators&&<IndicatorReporting teamId={context.teamId} cycleType={context.mode} screen="dashboard" cycleId={cycle?.id} locale={locale}/>}
       <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone} canManage={account.role==="admin"}/>
     </>}
 
