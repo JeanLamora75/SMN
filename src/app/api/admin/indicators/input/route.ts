@@ -33,7 +33,7 @@ export async function POST(req:NextRequest){
  const input=body as unknown as ManualWrite&{action:string};
  try{
   if(input.action==="preview")return jsonResult(await withAuthDb(db=>previewIndicatorInput(db,{accountId:a.id,role:a.role},input)),200);
-  if(!Number.isSafeInteger(input.expectedSystemRevision)||input.expectedSystemRevision<0)return jsonResult({error:"invalid-input"},400);
+  if(typeof input.expectedSystemRevision!=="number"||!Number.isSafeInteger(input.expectedSystemRevision)||input.expectedSystemRevision<0)return jsonResult({error:"invalid-input"},400);
   const result=await withAuthDb(db=>writeManualValues(db,a.id,input,async(actorId,teamId,client)=>{
    await requireIndicatorTeam(client,{accountId:actorId,role:a.role},teamId);
    return true;
