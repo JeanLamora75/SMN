@@ -58,6 +58,10 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   }).catch(()=>null):{cycle:null,projection:null};
   const cycle=sprintResult?.cycle??null;
   const projection=sprintResult?.projection??null;
+  const kanbanCycleId=context.mode==="kanban"?await withAuthDb(async db=>{
+    const period=await db.query<{id:string}>("SELECT id FROM public.smn_kanban_period WHERE team_id=$1 AND deleted_at IS NULL AND ($2::text IS NULL OR id=$2) ORDER BY start_on DESC,id DESC LIMIT 1",[context.teamId,requested]);
+    return period.rows[0]?.id??null;
+  }).catch(()=>null):null;
 
   return <>
     {account.role==="admin"&&<MemberConfigurationAlerts/>}
@@ -66,6 +70,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
     </p>}
     {sprintResult!==null&&<>
       <CycleOverview context={context} locale={locale} teamHref={teamHref} cycle={cycle} projection={projection}
+       dashboardCycleId={context.mode==="kanban"?kanbanCycleId:cycle?.id}
        canViewCapacity={canAccess(account,"read",{type:"members",exists:true,inScope:true})}
        />
 
