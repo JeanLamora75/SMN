@@ -39,3 +39,19 @@ export async function readLegacyClosureTickets(db:Client,sprintId:string){
  FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]);
  return rows.rows[0]??null;
 }
+
+export async function readLegacyDetailMetrics(db:Client,sprintId:string){
+ const present=await db.query<{points:boolean;tickets:boolean;scores:boolean}>(`SELECT
+ to_regclass('public.smn_sprint_story_points') IS NOT NULL AS points,
+ to_regclass('public.smn_sprint_ticket_counts') IS NOT NULL AS tickets,
+ to_regclass('public.smn_sprint_scores') IS NOT NULL AS scores`);
+ const tables=present.rows[0]??{points:false,tickets:false,scores:false};
+ const points=tables.points?await db.query(`SELECT initial_sp::text AS initial,added_sp::text AS added,
+ removed_sp::text AS removed,done_sp::text AS done,revision
+ FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]):null;
+ const tickets=tables.tickets?await db.query(`SELECT initial_tickets::text AS initial,
+ done_tickets::text AS done,revision FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]):null;
+ const scores=tables.scores?await db.query(`SELECT confidence,clarity,revision
+ FROM public.smn_sprint_scores WHERE sprint_id=$1`,[sprintId]):null;
+ return {points:points?.rows[0]??null,tickets:tickets?.rows[0]??null,scores:scores?.rows[0]??null};
+}
