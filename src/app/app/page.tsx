@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentAccount } from "@/server/auth/session";
-import { withAuthDb } from "@/server/auth/database";
+import { withAuthDb,withSessionReadDb } from "@/server/auth/database";
 import { canAccess } from "@/server/access-policy";
 import { readAccountDashboard } from "@/server/dashboard/read";
 import CycleOverview from "./cycle-overview";
@@ -28,10 +28,11 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   let dashboard: Awaited<ReturnType<typeof readAccountDashboard>>;
   try {
     const query=await searchParams;
-    dashboard = await withAuthDb(db=>readAccountDashboard(db,
+    dashboard = await withSessionReadDb(db=>readAccountDashboard(db,
       {accountId:account.id,role:account.role},
       typeof query.teamId==="string"?query.teamId:null));
-  } catch {
+  } catch(error) {
+    console.error("smn-dashboard-context-unavailable",error instanceof Error?error.message:"unknown");
     return <div className="py-5">
       <section className="smn-panel p-4" role="alert">
         <h1 className="h4">{t("dashboard.unavailableTitle")}</h1>
