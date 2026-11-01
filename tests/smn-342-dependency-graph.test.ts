@@ -46,7 +46,7 @@ test("grands graphes itératifs et impacts transitifs",()=>{
  assert.equal(impactedIndicatorIds(graph,["0"]).length,n);
 });
 test("chargement SQL et isolation des données sans cache global",async()=>{
- const query=async <T>(sql:string):Promise<{rows:T[]}>=>({rows:(sql.includes("smn_indicator_definition")?defs:edges) as T[]});
+ const query=async <T>(sql:string):Promise<{rows:T[]}>=>({rows:(sql.trimStart().startsWith("SELECT id,tag,formula")?defs:edges) as T[]});
  const graph=await loadDependencyGraph({query});
  assert.equal(graph.order.length,4);
  const another=buildDependencyGraph([{id:"x",tag:"X",formula:null}],[]);
