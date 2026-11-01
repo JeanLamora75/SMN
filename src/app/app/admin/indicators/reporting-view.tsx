@@ -22,11 +22,12 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
  const line=points.map((p,i)=>p.y===null?null:{p,i}).filter((x):x is {p:typeof points[number];i:number}=>x!==null);
  async function savePng(){if(!ref.current)return;let url="";
   try{const svg=ref.current.cloneNode(true) as SVGSVGElement;
-   svg.querySelectorAll<SVGElement>("[data-theme-color]").forEach(node=>{node.setAttribute("fill","#334155");});
+   const originals=ref.current!.querySelectorAll("*"),clones=svg.querySelectorAll("*");
+   originals.forEach((node,i)=>{const target=clones.item(i);if(!target)return;const style=window.getComputedStyle(node);for(const prop of ["fill","stroke"]){const val=style.getPropertyValue(prop);if(val)target.setAttribute(prop,val);}});
    url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:"image/svg+xml"}));
    const image=new Image();image.src=url;await image.decode();
-   const canvas=document.createElement("canvas");canvas.width=1600;canvas.height=720;const ctx=canvas.getContext("2d");if(!ctx)throw Error("canvas");
-   ctx.fillStyle="#ffffff";ctx.fillRect(0,0,1600,720);ctx.drawImage(image,0,0,1600,720);
+   const canvas=document.createElement("canvas");canvas.width=1920;canvas.height=720;const ctx=canvas.getContext("2d");if(!ctx)throw Error("canvas");
+   ctx.fillStyle=window.getComputedStyle(document.body).backgroundColor;ctx.fillRect(0,0,1920,720);ctx.drawImage(image,0,0,1920,720);
    const blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(resolve,"image/png"));if(!blob)throw Error("png");
    const download=URL.createObjectURL(blob),a=document.createElement("a");a.href=download;a.download="indicateurs-"+definition?.tag+".png";a.click();URL.revokeObjectURL(download);
   }catch{setError(true);}finally{if(url)URL.revokeObjectURL(url);}
@@ -42,10 +43,10 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
     <button type="button" className="btn btn-outline-primary" disabled={!valid.length} onClick={()=>void savePng()}>{t("Exporter PNG","Export PNG")}</button>
    </div>
    <svg ref={ref} viewBox="0 0 960 360" xmlns="http://www.w3.org/2000/svg" className="w-100" role="img" aria-label={definition.name}>
-    <rect width="960" height="360" fill="#ffffff"/><text x="480" y="35" fontSize="18" textAnchor="middle" fill="#334155">{definition.tag} — {definition.name} ({definition.unit})</text>
-    {[0,.25,.5,.75,1].map(n=><line key={n} x1="75" x2="845" y1={290-n*205} y2={290-n*205} stroke="#dddddd"/>)}
-    {definition.style!=="bar"&&points.map((p,i)=>p.y!==null&&i>0&&points[i-1].y!==null?<line key={"l"+i} x1={points[i-1].x} y1={points[i-1].y!} x2={p.x} y2={p.y} stroke="#2563eb" strokeWidth="3"/>:null)}
-    {definition.style==="bar"&&points.map((p,i)=>p.y!==null?<rect key={"bar"+i} x={p.x-18} y={Math.min(290,p.y)} width="36" height={Math.abs(290-p.y)} fill="#2563eb"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></rect>:null)}
+    <rect width="960" height="360" fill="var(--bs-body-bg)"/><text x="480" y="35" fontSize="18" textAnchor="middle" fill="var(--bs-body-color)">{definition.tag} — {definition.name} ({definition.unit})</text>
+    {[0,.25,.5,.75,1].map(n=><line key={n} x1="75" x2="845" y1={290-n*205} y2={290-n*205} stroke="var(--bs-border-color)"/>)}
+    {definition.style!=="bar"&&points.map((p,i)=>p.y!==null&&i>0&&points[i-1].y!==null?<line key={"l"+i} x1={points[i-1].x} y1={points[i-1].y!} x2={p.x} y2={p.y} stroke="var(--bs-primary)" strokeWidth="3"/>:null)}
+    {definition.style==="bar"&&points.map((p,i)=>p.y!==null?<rect key={"bar"+i} x={p.x-18} y={Math.min(290,p.y)} width="36" height={Math.abs(290-p.y)} fill="var(--bs-primary)"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></rect>:null)}
     {definition.style!=="bar"&&line.map(({p,i})=><circle key={i} cx={p.x} cy={p.y!} r="4" fill="#2563eb"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></circle>)}
     {points.map((p,i)=><text key={"x"+i} x={p.x} y="314" fontSize="10" fill="#334155" textAnchor="middle">{i+1}</text>)}
    </svg>
