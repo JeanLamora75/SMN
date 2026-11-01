@@ -5,6 +5,18 @@ const protectedObjects=[
  "smn_sprint_closure_snapshot","smn_kanban_closure","smn_kanban_capacity_opening",
  "smn_sprint_capacity","smn_sprint_capacity_kpis","smn_sprint_goal",
  "smn_sprint_ceremony","smn_sprint","smn_kanban_period",
+ "smn_capacity_actual_override","smn_capacity_actual_override_history",
+ "smn_capacity_actual_snapshot","smn_capacity_historical_quality",
+ "smn_capacity_historical_quality_history","smn_capacity_initial_snapshot",
+ "smn_capacity_period_override","smn_capacity_period_override_history",
+ "smn_capacity_replanning","smn_capacity_replanning_history",
+ "smn_capacity_settings","smn_capacity_settings_audit",
+ "smn_company_capacity_recalc","smn_company_closure","smn_company_closure_history",
+ "smn_exceptional_capacity_impact_history","smn_report_studio_archive_snapshot",
+ "smn_sprint_capacity_kpi","smn_sprint_capacity_kpi_audit",
+ "smn_sprint_capacity_trigger","smn_sprint_closure_audit",
+ "smn_sprint_historical_actual_capacity","smn_sprint_historical_actual_capacity_audit",
+ "smn_sprint_historical_capacity","smn_sprint_historical_capacity_audit",
  "smn_indicator_definition","smn_indicator_team_selection",
  "smn_indicator_display_preference","smn_indicator_manual_value",
  "smn_indicator_computed_result","smn_indicator_dependency",
@@ -13,7 +25,8 @@ const protectedObjects=[
 ] as const;
 const legacyCandidates=[
  "smn_sprint_story_points","smn_sprint_ticket_counts",
- "smn_sprint_confidence_clarity","smn_sprint_indicator_scores"
+ "smn_sprint_confidence_clarity","smn_sprint_indicator_scores",
+ "smn_sprint_story_points_audit","smn_sprint_ticket_counts_audit"
 ] as const;
 
 export async function auditLegacyIndicators(db:Client){
