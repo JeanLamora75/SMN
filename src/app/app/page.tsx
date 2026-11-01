@@ -70,7 +70,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
        canViewCapacity={canAccess(account,"read",{type:"members",exists:true,inScope:true})}
        />
 
-      <IndicatorReporting teamId={context.teamId} cycleType={context.mode} screen="dashboard" locale={locale}/>
+      <IndicatorReporting teamId={context.teamId} cycleType={context.mode} screen="dashboard" cycleId={cycle?.id} locale={locale}/>
       <OperationalOverview locale={locale} projection={projection} timeZone={cycle?.timeZone} canManage={account.role==="admin"}/>
     </>}
 
