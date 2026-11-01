@@ -179,7 +179,7 @@ FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_cycle_team_change('kanb
 CREATE FUNCTION public.smn_indicator_guard_definition_type_change()
 RETURNS trigger LANGUAGE plpgsql AS $
 BEGIN
- IF NEW.indicator_type IS DISTINCT FROM OLD.indicator_type AND (
+ IF NEW.indicator_type IS DISTINCT FROM OLD.indicator_type AND (OLD.type_locked OR
   EXISTS(SELECT 1 FROM public.smn_indicator_manual_value WHERE indicator_id=OLD.id)
   OR EXISTS(SELECT 1 FROM public.smn_indicator_computed_result WHERE indicator_id=OLD.id)
  ) THEN
