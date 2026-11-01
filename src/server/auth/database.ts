@@ -34,3 +34,29 @@ export async function withAuthDb<T>(action: (client: Client) => Promise<T>): Pro
     await client.end().catch(() => undefined);
   }
 }
+
+/** Read-only account lookup for sessions: no schema locks, migrations or calendar preload. */
+export async function withSessionReadDb<T>(action: (client: Client) => Promise<T>): Promise<T> {
+  const uri = await installedDatabaseUri();
+  const client = new Client({
+    connectionString: uri,
+    connectionTimeoutMillis: 3500,
+    statement_timeout: 5000,
+    query_timeout: 5000,
+    application_name: "smn-session-read",
+  });
+  try {
+    await client.connect();
+    await client.query("BEGIN TRANSACTION READ ONLY");
+    try {
+      const value = await action(client);
+      await client.query("COMMIT");
+      return value;
+    } catch (error) {
+      await client.query("ROLLBACK").catch(() => undefined);
+      throw error;
+    }
+  } finally {
+    await client.end().catch(() => undefined);
+  }
+}
