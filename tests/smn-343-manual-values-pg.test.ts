@@ -22,6 +22,7 @@ test("saisie manuelle v33 atomique, révisions, NULL, équipe et cycles clos",{t
   const db=new Client({connectionString:uri.toString(),connectionTimeoutMillis:3500});
   await db.connect();
   try{
+   await db.query("UPDATE public.smn_account SET must_change_password=false WHERE role='admin'");
    const actor=(await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin' LIMIT 1")).rows[0].id;
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES('team-a','singleton','Équipe A','scrum'),('team-b','singleton','Équipe B','scrum')");
    await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES "+
