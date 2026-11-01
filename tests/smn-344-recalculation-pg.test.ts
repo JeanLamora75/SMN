@@ -5,6 +5,7 @@ import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {installExpress} from "../src/server/installation/install";
 import {recalculateIndicatorResults} from "../src/server/indicators/recalculation";
+import {writeManualValues} from "../src/server/indicators/manual-values";
 
 test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180000},async()=>{
  const ci=process.env.CI==="true"&&process.env.GITHUB_ACTIONS==="true";
@@ -67,6 +68,13 @@ test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180
    await db.query("CREATE FUNCTION public.smn_344_reject() RETURNS trigger LANGUAGE plpgsql AS "+
     "$$ BEGIN IF NEW.indicator_id='c' THEN RAISE EXCEPTION 'forced-result-failure'; END IF; RETURN NEW; END; $$");
    await db.query("CREATE TRIGGER smn_344_reject BEFORE INSERT OR UPDATE ON public.smn_indicator_computed_result FOR EACH ROW EXECUTE FUNCTION public.smn_344_reject()");
+   await db.query("INSERT INTO public.smn_indicator_team_selection(team_id,indicator_id) VALUES('t-s','a')");
+   await db.query("UPDATE public.smn_account SET must_change_password=false WHERE role='admin'");
+   const actor=(await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin' LIMIT 1")).rows[0].id;
+   const beforeManual=(await db.query<{value:string|null}>("SELECT value::text FROM public.smn_indicator_manual_value WHERE team_id='t-s' AND cycle_id='s-one' AND indicator_id='a'")).rows[0].value;
+   await assert.rejects(()=>writeManualValues(db,actor,{teamId:"t-s",cycleType:"scrum",cycleId:"s-one",expectedRevision:0,changes:[{indicatorId:"a",value:"42"}]}),/forced-result-failure/);
+   assert.equal((await db.query<{value:string|null}>("SELECT value::text FROM public.smn_indicator_manual_value WHERE team_id='t-s' AND cycle_id='s-one' AND indicator_id='a'")).rows[0].value,beforeManual);
+   assert.equal((await db.query<{n:string}>("SELECT count(*)::text AS n FROM public.smn_indicator_cycle_revision WHERE team_id='t-s' AND cycle_id='s-one'")).rows[0].n,"0");
    const before=(await read()).rows;
    await assert.rejects(()=>recalculateIndicatorResults(db,{teamId:"t-s"}),/forced-result-failure/);
    assert.deepEqual((await read()).rows,before);
