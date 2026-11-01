@@ -33,3 +33,9 @@ test("SMN-338 : baseline v33 candidate non activée",()=>{
  assert.match(code,/nativeBaselineSql/);
  assert.match(code,/indicatorV33Sql/);
 });
+
+test("SMN-338 : tableaux SQL transmis comme un paramètre unique",()=>{
+ const script=read("scripts/apply-smn-338-v33.ts");
+ assert.match(script,/relname=ANY\(\$1::text\[\]\)"\s*,\s*\[\[\.\.\.required,\.\.\.INDICATOR_TABLES\]\]/);
+ assert.match(script,/relname=ANY\(\$1::text\[\]\)"\s*,\s*\[INDICATOR_TABLES\]/);
+});
