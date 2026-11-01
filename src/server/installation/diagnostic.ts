@@ -1,4 +1,5 @@
 import {nativeBaselineSql,nativeV32HistoryValid,NATIVE_V32_NAME} from "./native-v32";
+import {SMN338_V33_NAME,SMN338_V33_FILE,INDICATOR_TABLES} from "../../../scripts/apply-smn-338-v33";
 import { createHash } from "node:crypto";
 import {readFileSync} from "node:fs";
 import {LINKS_MIGRATION,LINKS_MIGRATION_SQL} from "../links/migration";
@@ -57,7 +58,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
-  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32].includes(records[0].schema_version)) return result("schema-incompatible");
+  if (![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33].includes(records[0].schema_version)) return result("schema-incompatible");
   if (records[0].state !== "initialized") return result("installation-incomplete");
   if (!INITIAL_REQUIRED_RELATIONS.every((name) => names.has(name)) || !snapshot.migrationsRead || !snapshot.shapeValid) return result("installation-incomplete");
   const migrations = snapshot.migrations;
@@ -90,6 +91,21 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const isV28 = records[0].schema_version >= 28;
   const isV29 = records[0].schema_version >= 29;
   const isV30 = records[0].schema_version >= 30;
+  if(records[0].schema_version===33){
+    const v33=migrations?.find(m=>m.migration_name===SMN338_V33_NAME);
+    const ddl=readFileSync(SMN338_V33_FILE,"utf8");
+    const validV33=!!v33&&v33.checksum===createHash("sha256").update(ddl).digest("hex")&&
+      !!v33.finished_at&&!v33.rolled_back_at&&
+      INDICATOR_TABLES.every(n=>names.has("public."+n+":r"))&&
+      ["public.smn_indicator_assert_cycle_integrity:function","public.smn_indicator_assert_value_integrity:function"].every(n=>names.has(n));
+    if(!validV33)return result("installation-incomplete");
+    const prior=migrations!.filter(m=>m.migration_name!==SMN338_V33_NAME);
+    if(prior.length===1&&prior[0]?.migration_name===NATIVE_V32_NAME){
+      const oldSnapshot={...snapshot,installations:[{...records[0],schema_version:32}],migrations:prior};
+      return result(nativeV32HistoryValid(oldSnapshot,nativeBaselineSql())?"initialized":"installation-incomplete");
+    }
+    if(prior.length!==32)return result("installation-incomplete");
+  }
   if (records[0].schema_version === 32 && migrations?.some(m => m.migration_name === NATIVE_V32_NAME)) {
     return result(nativeV32HistoryValid(snapshot,nativeBaselineSql()) ? "initialized" : "installation-incomplete");
   }
