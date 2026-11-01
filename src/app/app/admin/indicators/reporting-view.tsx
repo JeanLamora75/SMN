@@ -1,12 +1,13 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
+import {useTranslation} from "@/i18n/client";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
 export default function IndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
- const t=(fr:string,en:string)=>locale==="fr"?fr:en;
+ const t=useTranslation();
  useEffect(()=>{const ctrl=new AbortController();
   void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({...{teamId,cycleType,screen},...(cycleId?{cycleId}:{})}),{cache:"no-store",signal:ctrl.signal})
   .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<Report>})
@@ -34,15 +35,15 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
    const download=URL.createObjectURL(blob),a=document.createElement("a");a.href=download;a.download="indicateurs-"+definition?.tag+".png";a.click();URL.revokeObjectURL(download);
   }catch{setError(true);}finally{if(url)URL.revokeObjectURL(url);}
  }
- return <section className="smn-panel rounded-4 p-3 my-3" aria-label={t("Indicateurs configurés","Configured indicators")}>
-  <h2 className="h5">{t("Indicateurs configurés","Configured indicators")}</h2>
-  {error&&<p role="alert" className="alert alert-warning">{t("Indicateurs indisponibles","Indicators unavailable")}</p>}
-  {!data&&!error&&<p role="status">{t("Chargement","Loading")}</p>}
-  {data?.columns.length===0&&<p role="status">{t("Aucun indicateur sélectionné pour cet écran","No indicator selected for this screen")}</p>}
+ return <section className="smn-panel rounded-4 p-3 my-3" aria-label={t("indicators.reporting.title")}>
+  <h2 className="h5">{t("indicators.reporting.title")}</h2>
+  {error&&<p role="alert" className="alert alert-warning">{t("indicators.reporting.unavailable")}</p>}
+  {!data&&!error&&<p role="status">{t("indicators.reporting.loading")}</p>}
+  {data?.columns.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}
   {screen==="trends"&&definition&&<>
    <div className="d-flex gap-2 align-items-end flex-wrap mb-3">
-    <label className="form-label">{t("Indicateur","Indicator")}<select className="form-select" value={definition.id} onChange={e=>setChosen(e.target.value)}>{data!.columns.map(c=><option key={c.id} value={c.id}>{c.tag} — {c.name}</option>)}</select></label>
-    <button type="button" className="btn btn-outline-primary" disabled={!valid.length} onClick={()=>void savePng()}>{t("Exporter PNG","Export PNG")}</button>
+    <label className="form-label">{t("indicators.reporting.indicator")}<select className="form-select" value={definition.id} onChange={e=>setChosen(e.target.value)}>{data!.columns.map(c=><option key={c.id} value={c.id}>{c.tag} — {c.name}</option>)}</select></label>
+    <button type="button" className="btn btn-outline-primary" disabled={!valid.length} onClick={()=>void savePng()}>{t("indicators.reporting.exportPng")}</button>
    </div>
    <svg ref={ref} viewBox="0 0 960 360" xmlns="http://www.w3.org/2000/svg" className="w-100" role="img" aria-label={definition.name}>
     <rect width="960" height="360" fill="var(--bs-body-bg)"/><text x="480" y="35" fontSize="18" textAnchor="middle" fill="var(--bs-body-color)">{definition.tag} — {definition.name} ({definition.unit})</text>
@@ -60,7 +61,7 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
    </svg>
   </>}
   {data&&data.columns.length>0&&<div className="table-responsive"><table className="table table-striped align-middle">
-   <thead><tr><th>{t("Cycle","Cycle")}</th><th>{t("Statut","Status")}</th>{(screen==="trends"?definition?[definition]:[]:data.columns).map(c=><th className="text-end" scope="col" key={c.id} title={c.name} tabIndex={0}>{c.tag}</th>)}</tr></thead>
+   <thead><tr><th>{t("indicators.reporting.cycle")}</th><th>{t("indicators.reporting.status")}</th>{(screen==="trends"?definition?[definition]:[]:data.columns).map(c=><th className="text-end" scope="col" key={c.id} title={c.name} tabIndex={0}>{c.tag}</th>)}</tr></thead>
    <tbody>{data.cycles.map(c=><tr key={c.id}><th>{c.name}</th><td>{c.status}</td>{(screen==="trends"?definition?[definition]:[]:data.columns).map(d=><td className="text-end" key={d.id}>{c.values[d.id]??"—"}{c.values[d.id]!=null&&d.unit?" "+d.unit:""}</td>)}</tr>)}</tbody>
   </table></div>}
  </section>;
