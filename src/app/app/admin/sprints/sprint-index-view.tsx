@@ -13,7 +13,7 @@ type Result={
 };
 const known=["planned","active","finished","closed","suspended"] as const;
 
-export default function SprintIndexView({canManage,initialFilters,teamId}:{canManage:boolean;initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number};teamId:string|null}){
+export default function SprintIndexView({canManage,permittedTeamIds=[],initialFilters,teamId}:{canManage:boolean;permittedTeamIds?:string[];initialFilters?:{search:string;status:string;sort:SprintIndexSort;page:number};teamId:string|null}){
  const t=useTranslation(),locale=useLocale();
  const [search,setSearch]=useState(initialFilters?.search??"");
  const deferredSearch=useDeferredValue(search);
@@ -170,7 +170,7 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
      onClick={reload} disabled={loading}>{t("sprintStates.refresh")}</button>
    </div>
   </section>
-  {data?.teamId&&<IndicatorReporting teamId={data.teamId} cycleType="scrum" screen="cycle_list" locale={locale}/>}
+  {data?.teamId&&permittedTeamIds.includes(data.teamId)&&<IndicatorReporting teamId={data.teamId} cycleType="scrum" screen="cycle_list" locale={locale}/>}
   <section className="smn-sprints-results" aria-label={t("sprintsIndex.list")}>
    {error&&<div role="alert" className="alert alert-warning">
     {t("sprintsIndex.error")}
