@@ -17,6 +17,7 @@ test("SMN-338 : activation explicite avec sauvegarde et transaction",()=>{
  assert.match(script,/INSERT INTO public\._prisma_migrations/);
  assert.match(script,/SET schema_version=33/);
  assert.match(script,/INDICATOR_TABLES/);
+ assert.match(script,/Validation des 4 triggers/);
 });
 test("SMN-338 : diagnostic autorise v33 et exige signature de migration",()=>{
  const code=read("src/server/installation/diagnostic.ts");
