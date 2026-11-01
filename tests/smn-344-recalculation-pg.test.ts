@@ -25,24 +25,29 @@ test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES('t-s','singleton','Scrum','scrum'),('t-k','singleton','Kanban','kanban')");
    await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES "+
     "('s-one','t-s',1,'One',now()-interval '30 days',now()-interval '20 days','Europe/Paris','closed'),"+
-    "('s-two','t-s',2,'Two',now()-interval '19 days',now()+interval '5 days','Europe/Paris','active')");
+    "('s-two','t-s',2,'Two',now()-interval '19 days',now()+interval '5 days','Europe/Paris','active'),"+
+    "('s-three','t-s',3,'Three',now()+interval '6 days',now()+interval '15 days','Europe/Paris','planned')");
    await db.query("INSERT INTO public.smn_kanban_period(id,team_id,name,start_on,end_on,time_zone,status) VALUES "+
     "('k-one','t-k','Kanban',current_date-20,current_date-10,'Europe/Paris','closed')");
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula,formula_revision) VALUES "+
     "('a','A','A','manual',null,0),('b','B','B','computed','A+1',2),"+
-    "('c','C','C','computed','B*2',5),('d','D','D','computed','1/0',1)");
+    "('c','C','C','computed','B*2',5),('d','D','D','computed','1/0',1),"+
+    "('e','E','E','computed','CAL_WORKING_DAYS+1',6)");
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id) VALUES "+
-    "('ab','b','indicator','a'),('bc','c','indicator','b')");
+    "('ab','b','indicator','a'),('bc','c','indicator','b'),"+
+    "('ce','e','calendar','null')");
    await db.query("INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value) VALUES "+
     "('t-s','scrum','s-one','a',0),('t-s','scrum','s-two','a',3),('t-k','kanban','k-one','a',7)");
+   await db.query("DELETE FROM public.smn_indicator_dependency WHERE id='ce'");
+   await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_calendar_tag) VALUES('ce','e','calendar','CAL_WORKING_DAYS')");
    const first=await recalculateIndicatorResults(db,{teamId:"t-s"});
-   assert.deepEqual(first,{cycles:2,results:6});
+   assert.deepEqual(first,{cycles:3,results:12});
    const read=()=>db.query<{cycle_id:string;indicator_id:string;result_state:string;value:string|null;unavailable_reason:string|null;formula_revision:string}>(
     "SELECT cycle_id,indicator_id,result_state,value::text,unavailable_reason,formula_revision::text "+
     "FROM public.smn_indicator_computed_result WHERE team_id='t-s' ORDER BY cycle_id,indicator_id");
    const stored=(await read()).rows;
    assert.deepEqual(stored.filter(x=>x.cycle_id==="s-one").map(x=>[x.indicator_id,x.value,x.unavailable_reason]),[
-    ["b","1",null],["c","2",null],["d",null,"division_by_zero"]]);
+    ["b","1",null],["c","2",null],["d",null,"division_by_zero"],["e",null,"missing_source"]]);
    assert.equal(stored.find(x=>x.indicator_id==="c")?.formula_revision,"5");
    const only=await recalculateIndicatorResults(db,{teamId:"t-s",changedIndicatorIds:["a"],cycles:[{teamId:"t-s",cycleType:"scrum",cycleId:"s-one"}]});
    assert.deepEqual(only,{cycles:1,results:2});
@@ -52,7 +57,7 @@ test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180
    assert.equal(missing.find(x=>x.cycle_id==="s-one"&&x.indicator_id==="b")?.unavailable_reason,"missing_source");
    assert.equal(missing.find(x=>x.cycle_id==="s-one"&&x.indicator_id==="c")?.unavailable_reason,"dependency_unavailable");
    const kanban=await recalculateIndicatorResults(db,{teamId:"t-k"});
-   assert.deepEqual(kanban,{cycles:1,results:3});
+   assert.deepEqual(kanban,{cycles:1,results:4});
    await db.query("CREATE FUNCTION public.smn_344_reject() RETURNS trigger LANGUAGE plpgsql AS "+
     "$$ BEGIN IF NEW.indicator_id='c' THEN RAISE EXCEPTION 'forced-result-failure'; END IF; RETURN NEW; END; $$");
    await db.query("CREATE TRIGGER smn_344_reject BEFORE INSERT OR UPDATE ON public.smn_indicator_computed_result FOR EACH ROW EXECUTE FUNCTION public.smn_344_reject()");
@@ -62,7 +67,7 @@ test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180
    await db.query("DROP TRIGGER smn_344_reject ON public.smn_indicator_computed_result");
    await db.query("DROP FUNCTION public.smn_344_reject()");
    await assert.rejects(()=>recalculateIndicatorResults(db,{teamId:"t-s",cycles:[{teamId:"t-s",cycleType:"scrum",cycleId:"k-one"}]}));
-   assert.equal((await db.query("SELECT count(*)::int AS n FROM public.smn_indicator_computed_result WHERE team_id='t-k'")).rows[0].n,3);
+   assert.equal((await db.query("SELECT count(*)::int AS n FROM public.smn_indicator_computed_result WHERE team_id='t-k'")).rows[0].n,4);
   }finally{await db.end();}
  }finally{
   try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)')}
