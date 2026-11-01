@@ -32,7 +32,7 @@ export async function readIndicatorReporting(db:Client,teamId:string,screen:Scre
  db.query<{cycle_id:string;indicator_id:string;value:string|null}>("SELECT cycle_id,indicator_id,value::text AS value FROM public.smn_indicator_manual_value WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=ANY($3::text[]) AND indicator_id=ANY($4::text[])",[teamId,cycleType,ids,indicatorIds]),
  db.query<{cycle_id:string;indicator_id:string;value:string|null}>("SELECT cycle_id,indicator_id,CASE WHEN result_state='available' THEN value::text ELSE NULL END AS value FROM public.smn_indicator_computed_result WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=ANY($3::text[]) AND indicator_id=ANY($4::text[])",[teamId,cycleType,ids,indicatorIds])
  ]);
- const map=new Map(cycles.map(c=>[c.id,{} as Record<string,string|null>]));
+ const map=new Map(cycles.map(c=>[c.id,Object.fromEntries(columns.rows.map(d=>[d.id,null])) as Record<string,string|null>]));
  for(const item of [...manual.rows,...computed.rows])map.get(item.cycle_id)![item.indicator_id]=item.value;
  return {columns:columns.rows,cycles:cycles.map(c=>({...c,values:map.get(c.id)!}))};
 }
