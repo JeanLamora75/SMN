@@ -41,6 +41,10 @@ test("SMN-346 : simulation sans écritures, publication atomique, stale et rollb
    assert.equal((await db.query("SELECT count(*)::int AS n FROM public.smn_indicator_computed_result")).rows[0].n,0);
    await db.query("UPDATE public.smn_indicator_system_revision SET revision=revision+1 WHERE singleton_key='singleton'");
    assert.deepEqual(await publishFormula(db,proposal,preview),{ok:false,error:"stale_preview"});
+   const contentPreview=await previewFormula(db,proposal);
+   await db.query("UPDATE public.smn_indicator_manual_value SET value=9 WHERE team_id='team346' AND cycle_id='s346a' AND indicator_id='a346'");
+   assert.deepEqual(await publishFormula(db,proposal,contentPreview),{ok:false,error:"stale_preview"});
+   await db.query("UPDATE public.smn_indicator_manual_value SET value=2 WHERE team_id='team346' AND cycle_id='s346a' AND indicator_id='a346'");
    const fresh=await previewFormula(db,proposal);
    assert.notEqual(fresh.fingerprint,preview.fingerprint);
    const done=await publishFormula(db,proposal,fresh);
