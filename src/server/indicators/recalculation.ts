@@ -1,6 +1,6 @@
 import type {Client} from "pg";
 import {loadDependencyGraph,impactedIndicatorIds,evaluateDependencies,type CalendarSourceTag} from "./dependencies";
-import type {SourceValue,Result} from "./formula";
+import type {SourceValue} from "./formula";
 import type {CycleType} from "./manual-values";
 
 export type CycleScope=Readonly<{teamId:string;cycleType:CycleType;cycleId:string}>;
@@ -69,7 +69,6 @@ export async function recalculateIndicatorResults(db:Client,input:RecalculationR
    }
    const values=evaluateDependencies({graph,indicators:sources,calendar:input.calendarSources?.[cycleKey(scope)]??{},changedIndicatorIds:input.changedIndicatorIds,changedCalendarTags:input.changedCalendarTags});
    for(const [indicatorId,result] of values){
-    const definition=graph.definitions.get(indicatorId)!;
     const revision=await db.query<{formula_revision:string}>("SELECT formula_revision::text FROM public.smn_indicator_definition WHERE id=$1 FOR SHARE",[indicatorId]);
     const formulaRevision=revision.rows[0]?.formula_revision;
     if(formulaRevision===undefined)throw new IndicatorRecalculationError("schema-not-ready","Indicator removed");
@@ -84,7 +83,6 @@ export async function recalculateIndicatorResults(db:Client,input:RecalculationR
       available?result.value:null,available?null:result.reason,available?null:result.detail??null,
       available?null:result.reason==="dependency_unavailable"?result.sourceTag??null:null,formulaRevision]);
     written++;
-    void definition;
    }
   }
   await db.query("COMMIT");
