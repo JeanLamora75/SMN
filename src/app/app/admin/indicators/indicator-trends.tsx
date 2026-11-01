@@ -28,11 +28,11 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  const format=(v:number|null)=>v===null?"—":new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:3}).format(v);
  const chartTitle=active&&range.length?active.name+" : "+range[0].name+" - "+range[range.length-1].name:"";
  const nonnegative=actual.length>0&&actual.every(v=>v>=0)&&actual.some(v=>v>0)&&actual.length===nums.length;
- const gaugeValid=last!==null&&last>=0&&last<=100;
  const isParts=applied?.style==="pie"||applied?.style==="donut";
  const total=actual.reduce((a,b)=>a+b,0);
  const colors=["#1b508d","#6d5faf","#159895","#dc8a36","#ab4b6e","#5474a5","#7a8a35","#b35252"];
  const last=nums.length?nums[nums.length-1]:null;
+ const gaugeValid=last!==null&&last>=0&&last<=100;
  async function exportPng(){
   if(!svgRef.current)return;
   let url="";
