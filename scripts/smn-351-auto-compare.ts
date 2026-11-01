@@ -1,5 +1,7 @@
 import {randomBytes,createHash} from "node:crypto";
 import {Client} from "pg";
+import {readFileSync} from "node:fs";
+import {paletteMigrationBody} from "./apply-red-purple-migration";
 import {installedDatabaseUri} from "../src/server/auth/database";
 import {installExpress} from "../src/server/installation/install";
 import {nativeBaselineSql,NATIVE_V32_NAME} from "../src/server/installation/native-v32";
@@ -40,6 +42,15 @@ async function main(){
     await db.query("COMMIT");
    }catch(e){await db.query("ROLLBACK");throw e;}
    await applyV33(db,true);
+   // Apply the same additive post-baseline contracts as native v33 installation.
+   const paletteSql=readFileSync(new URL("../prisma/migrations/20261031_red_purple_palette/migration.sql",import.meta.url),"utf8");
+   const grantsSql=readFileSync(new URL("../prisma/migrations/20261101_smn347_team_grants/migration.sql",import.meta.url),"utf8");
+   await db.query("BEGIN");
+   try{
+    await db.query(paletteMigrationBody(paletteSql));
+    await db.query(grantsSql);
+    await db.query("COMMIT");
+   }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
   }finally{await db.end();}
   const read=async(name:string)=>{const c=new Client({connectionString:uri(name),connectionTimeoutMillis:3500});await c.connect();try{return await readSchema(c);}finally{await c.end();}};
   const [left,right]=await Promise.all([read(fresh),read(migrated)]);
