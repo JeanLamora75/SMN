@@ -17,7 +17,7 @@ export async function assignDashboardSlot(db:Client,teamId:string,block:Dashboar
    if(valid.rows.length!==1)throw Error("indicator-unavailable");
   }
   const occupied=await db.query<{indicator_id:string}>("SELECT indicator_id FROM public.smn_indicator_dashboard_slot WHERE team_id=$1 AND block_key=$2 AND slot_index=$3 FOR UPDATE",[teamId,block,position]);
-  if(occupied.rows.length&&occupied.rows[0].indicator_id!==indicatorId&&indicatorId!==null)throw Error("slot-occupied");
+  // Explicit selection replaces the target slot; the prior choice remains in the catalogue.
   await db.query("DELETE FROM public.smn_indicator_dashboard_slot WHERE team_id=$1 AND block_key=$2 AND slot_index=$3",[teamId,block,position]);
   if(indicatorId!==null){
    await db.query("DELETE FROM public.smn_indicator_dashboard_slot WHERE team_id=$1 AND indicator_id=$2",[teamId,indicatorId]);
