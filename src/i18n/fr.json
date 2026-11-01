@@ -3876,7 +3876,13 @@
     "exportMarkdown": "Exporter les références (Markdown)"
   },
   "indicators": {
-    "dashboard": {"complementary": "Indicateurs complémentaires", "emptySlot": "Aucun indicateur configuré", "block": "Bloc", "position": "Position", "none": "Aucun"},
+    "dashboard": {
+      "complementary": "Indicateurs complémentaires",
+      "emptySlot": "Aucun indicateur configuré",
+      "block": "Bloc",
+      "position": "Position",
+      "none": "Aucun"
+    },
     "reporting": {
       "title": "Indicateurs configurés",
       "unavailable": "Indicateurs indisponibles",
@@ -3973,6 +3979,7 @@
     "unavailable": "Indisponibles",
     "confirmPublish": "Confirmer la publication de la simulation ?",
     "publish": "Publier",
-    "preview": "Simuler"
+    "preview": "Simuler",
+    "navTitle": "Indicateur"
   }
 }
