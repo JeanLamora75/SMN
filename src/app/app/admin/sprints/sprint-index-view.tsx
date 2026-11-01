@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
-import IndicatorReporting from "../indicators/reporting-view";
 import {useDeferredValue,useEffect,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {SprintIndexItem,SprintIndexSort} from "@/server/sprints/index";
 import type {TranslationKey} from "@/i18n/catalog";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 
+type DynamicReport={columns:Array<{id:string;tag:string;name:string;unit:string;style:string;order:number}>;cycles:Array<{id:string;values:Record<string,string|null>}>};
 type Result={
  teamId:string;teamName:string;items:SprintIndexItem[];total:number;page:number;pageSize:number;
  totalPages:number;statuses:string[];activeCount:number;
@@ -22,6 +22,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  const [page,setPage]=useState(initialFilters?.page??1);
  const [refresh,setRefresh]=useState(0);
  const [data,setData]=useState<Result|null>(null);
+ const [dynamicReport,setDynamicReport]=useState<DynamicReport|null>(null);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState(false);
  const [notice,setNotice]=useState("");
@@ -43,6 +44,16 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
    .catch(()=>{if(!ctrl.signal.aborted){setLoading(false);setError(true);}});
   return()=>ctrl.abort();
  },[deferredSearch,filter,sort,page,refresh,teamId]);
+ useEffect(()=>{
+  const ctrl=new AbortController();
+  setDynamicReport(null);
+  if(!teamId||!permittedTeamIds.includes(teamId))return()=>ctrl.abort();
+  void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({teamId,cycleType:"scrum",screen:"cycle_list"}),{cache:"no-store",signal:ctrl.signal})
+   .then(async response=>{if(!response.ok)throw Error("indicator-reporting-unavailable");return response.json() as Promise<DynamicReport>;})
+   .then(result=>{if(!ctrl.signal.aborted&&Array.isArray(result.columns)&&Array.isArray(result.cycles))setDynamicReport(result);})
+   .catch(()=>{if(!ctrl.signal.aborted)setDynamicReport(null);});
+  return()=>ctrl.abort();
+ },[teamId,permittedTeamIds]);
  const label=(item:SprintIndexItem)=>{
   const status=item.suspended?"suspended":item.status;
   const map:Record<string,TranslationKey>={
@@ -63,6 +74,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  const change=(fn:()=>void)=>{setLoading(true);setNotice("");fn();setPage(1);};
  const reload=()=>{setLoading(true);setNotice("");setRefresh(n=>n+1);};
  const items=data?.items??[];
+ const dynamicValues=new Map((dynamicReport?.cycles??[]).map(c=>[c.id,c.values]));
  const generateHref="/app/admin/sprints/generate?"+new URLSearchParams({search,status:filter,sort,page:String(page)}).toString();
  const mainStatuses=new Set(["all","active","planned","finished","closed"]);
  const allStatuses=[...new Set([...statuses,filter])].filter(status=>status!=="all");
@@ -149,7 +161,6 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
      onClick={reload} disabled={loading}>{t("sprintStates.refresh")}</button>
    </div>
   </section>
-  {data?.teamId&&permittedTeamIds.includes(data.teamId)&&<IndicatorReporting teamId={data.teamId} cycleType="scrum" screen="cycle_list" locale={locale}/>}
   <section className="smn-sprints-results" aria-label={t("sprintsIndex.list")}>
    {error&&<div role="alert" className="alert alert-warning">
     {t("sprintsIndex.error")}
@@ -175,6 +186,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
        <th scope="col">{t("sprintStates.name")}</th>
        <th scope="col">{t("sprintStates.status")}</th>
        <th scope="col">{t("sprintsIndex.period")}</th>
+       {(dynamicReport?.columns??[]).map(col=><th scope="col" key={col.id} title={col.name} className="text-center">{col.tag}</th>)}
        <th scope="col" className="text-center">{t("sprintsIndex.actions")}</th>
       </tr></thead>
       <tbody>{items.map(item=>{
@@ -192,6 +204,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
          {label(item)}</span></td>
         <td data-label={t("sprintsIndex.period")}><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
          {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
+        {(dynamicReport?.columns??[]).map(col=>{const raw=dynamicValues.get(item.id)?.[col.id]??null;return <td key={col.id} data-label={col.name} className="text-end text-nowrap" title={col.name}>{raw===null?"—":raw.replace(".",locale==="fr"?",":".")+(col.unit?" "+col.unit:"")}</td>;})}
 
         <td className="text-end smn-sprints-row-actions" data-label={t("sprintsIndex.actions")}>
          <div className="d-inline-flex gap-2 align-items-center">
