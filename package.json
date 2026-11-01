@@ -43,7 +43,9 @@
     "test:smn-341-342": "pnpm test:smn-341 && pnpm test:smn-342 && pnpm typecheck && pnpm lint",
     "test:smn-343": "tsx --test tests/smn-343-manual-values.test.ts",
     "db:test:smn-343": "tsx --test tests/smn-343-manual-values-pg.test.ts",
-    "validate:smn-343": "pnpm test:smn-343 && pnpm db:test:smn-343 && pnpm typecheck && pnpm lint"
+    "validate:smn-343": "pnpm test:smn-343 && pnpm db:test:smn-343 && pnpm typecheck && pnpm lint",
+    "db:test:smn-344": "tsx --test tests/smn-344-recalculation-pg.test.ts",
+    "validate:smn-344": "pnpm db:test:smn-344 && pnpm typecheck && pnpm lint"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
