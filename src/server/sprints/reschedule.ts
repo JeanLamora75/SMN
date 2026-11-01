@@ -1,6 +1,7 @@
 import {randomUUID,createHash} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
+import {readIndicatorReporting} from "@/server/indicators/reporting";
 import {ensureExceptionalImpactSchema} from "./exceptional-capacity-impact";
 import {readDevelopmentCapacity} from "@/server/capacity/engine";
 type Input={sprintId:string;startAt:string;endAt:string;mode:"keep"|"recalculate"};
@@ -20,7 +21,7 @@ async function scope(db:Client,id:string,locked=false){
  AND (
   (i.schema_version<=27 AND lower(to_jsonb(i)->>'mode')='scrum')
   OR
-  (i.schema_version BETWEEN 28 AND 32
+  (i.schema_version BETWEEN 28 AND 33
    AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'
    AND COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false)
  ) ${locked?"FOR UPDATE OF s":""}`,[id]);return r.rows[0];
@@ -55,9 +56,12 @@ async function registryImpact(db:Client,sprintId:string,newStart:string,newEnd:s
  return {preserved:true,items:rows.rows.map(r=>({...r,outside:r.dueOn!==null&&(r.dueOn<start||r.dueOn>end)}))};
 }
 async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;start_at:string;end_at:string;time_zone:string},input:Input,inTransaction=false){
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
+ const v33=version.rows[0]?.schema_version===33;
+ const dynamicIndicators=v33?await readIndicatorReporting(db,s.team_id,"cycle_detail","scrum",[s.id]):null;
  const [goals,points,initial,manual]=await Promise.all([
   db.query<{count:string}>(`SELECT count(*)::text AS count FROM public.smn_sprint_goal WHERE sprint_id=$1`,[s.id]),
-  db.query(`SELECT initial_sp::text AS initial,added_sp::text AS added,removed_sp::text AS removed,done_sp::text AS done FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[s.id]),
+  v33?Promise.resolve({rows:[] as Array<Record<string,unknown>>}):db.query(`SELECT initial_sp::text AS initial,added_sp::text AS added,removed_sp::text AS removed,done_sp::text AS done FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[s.id]),
   db.query(`SELECT initial_jh::float8 AS jh,provenance FROM public.smn_capacity_initial_snapshot i JOIN public.smn_capacity_period_override p ON p.id=i.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
    [s.team_id,localDay(s.start_at,s.time_zone),localDay(s.end_at,s.time_zone)]),
   db.query(`SELECT a.manual_jh::float8 AS jh FROM public.smn_capacity_actual_override a JOIN public.smn_capacity_period_override p ON p.id=a.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
@@ -83,7 +87,7 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
    missingSources=["calculation-unavailable"];
   }
  }
- return {goalCount:Number(goals.rows[0]?.count??0),storyPoints:points.rows[0]??null,
+ return {goalCount:Number(goals.rows[0]?.count??0),storyPoints:points.rows[0]??null,indicatorsV33:dynamicIndicators,
   initialCapacityJh:initial.rows[0]?.jh??null,manualActualJh:manual.rows[0]?.jh??null,
   recalculatedReferenceJh:calculatedReferenceJh,missingSources,
   messages:["review-goals","review-story-points","review-capacity-reference"],
