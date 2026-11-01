@@ -23,6 +23,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  const [refresh,setRefresh]=useState(0);
  const [data,setData]=useState<Result|null>(null);
  const [dynamicReport,setDynamicReport]=useState<DynamicReport|null>(null);
+ const isTeamPermitted=!!teamId&&permittedTeamIds.includes(teamId);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState(false);
  const [notice,setNotice]=useState("");
@@ -47,13 +48,13 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  useEffect(()=>{
   const ctrl=new AbortController();
   setDynamicReport(null);
-  if(!teamId||!permittedTeamIds.includes(teamId))return()=>ctrl.abort();
+  if(!teamId||!isTeamPermitted)return()=>ctrl.abort();
   void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({teamId,cycleType:"scrum",screen:"cycle_list"}),{cache:"no-store",signal:ctrl.signal})
    .then(async response=>{if(!response.ok)throw Error("indicator-reporting-unavailable");return response.json() as Promise<DynamicReport>;})
    .then(result=>{if(!ctrl.signal.aborted&&Array.isArray(result.columns)&&Array.isArray(result.cycles))setDynamicReport(result);})
    .catch(()=>{if(!ctrl.signal.aborted)setDynamicReport(null);});
   return()=>ctrl.abort();
- },[teamId,permittedTeamIds]);
+ },[teamId,isTeamPermitted]);
  const label=(item:SprintIndexItem)=>{
   const status=item.suspended?"suspended":item.status;
   const map:Record<string,TranslationKey>={
