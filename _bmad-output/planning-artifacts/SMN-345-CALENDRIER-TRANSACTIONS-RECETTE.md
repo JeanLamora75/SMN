@@ -26,3 +26,9 @@ L'installation personnelle `smn` reste en v32. Aucun changement local ni mise à
 
 - [SMN-345](https://lmn24.atlassian.net/browse/SMN-345)
 - [Architecture consolidée](SMN-IND-ARCHITECTURE-CONSOLIDEE.md)
+
+## Compatibilité et preuves constatées
+
+Le garde d'installation `src/server/schema/compatibility.ts` reconnaît maintenant la version 33 pour les capacités existantes ; le test `tests/schema-compatibility.test.ts` maintient le refus de la version suivante. Le lecteur d'absences ne s'appuie plus sur la colonne historique supprimée `smn_installation.mode` ; la résolution serveur des équipes conserve ses contrôles d'appartenance.
+
+Sur le commit `80890362`, le job CI [Vérification I0](https://github.com/JeanLamora75/SMN/actions/runs/41296273521) rapporte `Recette PostgreSQL isolée SMN-345` : **success**, et le job de vérification TypeScript : **success**. La réussite intégrale des autres jobs CI reste indépendante de cette preuve.
