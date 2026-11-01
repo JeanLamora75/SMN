@@ -2274,7 +2274,14 @@
     "ceremoniesScope": "This page manages reusable templates for upcoming sprints. Standard ceremonies and previously saved meetings remain in Sprint and Calendar flows; no existing occurrence is edited here."
   },
   "sprintsIndex": {
-    "indicatorColumns": {"f01":"Initial commitment (SP)","f04":"Completed SP","f07":"Completion rate","f10":"Initially committed tickets","f11":"Completed tickets","f12":"Ticket completion rate"},
+    "indicatorColumns": {
+      "f01": "Initial commitment (SP)",
+      "f04": "Completed SP",
+      "f07": "Completion rate",
+      "f10": "Initially committed tickets",
+      "f11": "Completed tickets",
+      "f12": "Ticket completion rate"
+    },
     "title": "Team sprints",
     "teamUnknown": "Loading team",
     "generate": "Generate sprints",
@@ -2858,7 +2865,6 @@
     "listView": "List",
     "cardsView": "Cards",
     "due": "Due date",
-    "actions": "Actions",
     "actionsFor": "Actions for “{title}”",
     "openRecord": "View record",
     "editRecord": "Edit record",
@@ -3868,5 +3874,53 @@
     "remove": "Remove",
     "saved": "Selection saved.",
     "exportMarkdown": "Export references (Markdown)"
+  },
+  "indicators": {
+    "title": "Dynamic indicators",
+    "catalog": "Catalog",
+    "selections": "Team selections",
+    "preferences": "Display",
+    "team": "Team",
+    "search": "Search indicators",
+    "filter": "Filter catalog",
+    "all": "All",
+    "active": "Active",
+    "archived": "Archived",
+    "create": "Create indicator",
+    "edit": "Edit",
+    "archive": "Archive",
+    "confirmArchive": "Archive this indicator? Historical values and dependencies are preserved.",
+    "tag": "Code",
+    "name": "Name",
+    "type": "Type",
+    "actions": "Actions",
+    "manual": "Manual",
+    "computed": "Computed",
+    "selected": "Selected",
+    "visible": "Visible",
+    "order": "Order",
+    "style": "Display style",
+    "error": "Error",
+    "retry": "Retry",
+    "empty": "No indicators",
+    "editor": "Indicator editor",
+    "formula": "Formula",
+    "description": "Description",
+    "cancel": "Cancel",
+    "save": "Save",
+    "screen": {
+      "dashboard": "Dashboard",
+      "cycle_list": "Cycle list",
+      "cycle_detail": "Cycle details",
+      "trends": "Trends",
+      "reports": "Reports"
+    },
+    "display": {
+      "number": "Number",
+      "card": "Card",
+      "gauge": "Gauge",
+      "line": "Line chart",
+      "bar": "Bars"
+    }
   }
 }
