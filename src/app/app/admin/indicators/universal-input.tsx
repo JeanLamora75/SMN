@@ -37,7 +37,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{team
   try{const r=await fetch("/api/admin/indicators/input",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,teamId,cycleType,cycleId,expectedRevision:form.revision,expectedSystemRevision:action==="save"?systemRevision:undefined,changes})});
    const data=await r.json();if(!r.ok||data.ok===false)throw Error(data.error??"unavailable");
    if(action==="preview"){setPreview(data.results);setSystemRevision(data.systemRevision);setMessage(t("indicators.input.previewReady"));}
-   else{setOpen(false);setForm(null);setPreview(null);setSystemRevision(null);router.refresh();setMessage(t("indicators.input.saved"));}
+   else{setOpen(false);setForm(null);setPreview(null);setSystemRevision(null);window.dispatchEvent(new CustomEvent("smn:indicators-saved",{detail:{teamId,cycleType,cycleId}}));router.refresh();setMessage(t("indicators.input.saved"));}
   }catch(e){setPreview(null);setSystemRevision(null);setError(e instanceof Error?e.message:"unavailable");}finally{setBusy(false);}
  }
  return <div>
