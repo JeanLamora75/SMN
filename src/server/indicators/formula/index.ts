@@ -146,7 +146,7 @@ export type SourceValue=string|null|{kind:"unavailable";reason:Reason;sourceTag?
 export function evaluateFormula(ast:Expression,sources:Readonly<Record<string,SourceValue>>,maxOperations=1000):Result{
  let operations=0;
  type Evaluated={kind:"available";value:bigint}|{kind:"unavailable";reason:Reason;sourceTag?:string;detail?:string};
- const unavailable=(reason:Reason,sourceTag?:string,detail?:string):Evaluated=>({kind:"unavailable",reason,sourceTag,detail});
+ const unavailable=(reason:Reason,sourceTag?:string,detail?:string):Evaluated=>({kind:"unavailable",reason,...(sourceTag===undefined?{}:{sourceTag}),...(detail===undefined?{}:{detail})});
  function walk(n:Expression,depth:number):Evaluated{
   if(depth>96||++operations>maxOperations)throw new FormulaBudgetError("evaluation budget");
   if(n.kind==="number")return {kind:"available",value:DecimalEngine.parse(n.value)};
