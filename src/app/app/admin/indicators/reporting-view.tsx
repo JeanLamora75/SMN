@@ -64,7 +64,23 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
     {(definition.style==="line"||definition.style==="bar")&&points.map((p,i)=><text key={"x"+i} x={p.x} y="314" fontSize="10" fill="var(--bs-body-color)" textAnchor="middle">{i+1}</text>)}
    </svg>
   </>}
-  {data&&data.columns.length>0&&<div className="table-responsive"><table className="table table-striped align-middle">
+  {screen==="cycle_detail"&&data&&data.columns.length>0&&<div className="row g-3" role="list" aria-label={t("indicators.reporting.title")}>
+   {data.columns.map(column=>{
+    const cycle=data.cycles.find(c=>c.id===cycleId);
+    const raw=cycle?.values[column.id]??null;
+    return <div className="col-12 col-sm-6 col-xl-4" role="listitem" key={column.id}>
+     <article className="border rounded-4 bg-body p-3 h-100 d-flex flex-column text-center">
+      <h3 className="h6 fw-semibold mb-3">{column.name}</h3>
+      <div className="d-flex align-items-baseline justify-content-center gap-1 my-auto py-2">
+       <span className="fs-2 fw-bold lh-1">{raw===null?"—":raw.replace(".",locale==="fr"?",":".")}</span>
+       {raw!==null&&column.unit&&<span className="small text-secondary">{column.unit}</span>}
+      </div>
+      <div className="small fw-bold text-center mt-3">{column.tag}</div>
+     </article>
+    </div>;
+   })}
+  </div>}
+  {data&&data.columns.length>0&&screen!=="cycle_detail"&&<div className="table-responsive"><table className="table table-striped align-middle">
    <thead><tr><th>{t("indicators.reporting.cycle")}</th><th>{t("indicators.reporting.status")}</th>{(screen==="trends"?definition?[definition]:[]:data.columns).map(c=><th className="text-end" scope="col" key={c.id} title={c.name} tabIndex={0}>{c.tag}</th>)}</tr></thead>
    <tbody>{data.cycles.map(c=><tr key={c.id}><th>{c.name}</th><td>{c.status}</td>{(screen==="trends"?definition?[definition]:[]:data.columns).map(d=><td className="text-end" key={d.id}>{displayValue(c.values[d.id]??null,d.unit)}</td>)}</tr>)}</tbody>
   </table></div>}
