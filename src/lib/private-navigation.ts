@@ -21,7 +21,7 @@ export type NavigationGroup = Readonly<{
  * The account security page remains available through Settings.
  * Group headers remain for semantics but are visually hidden by the sidebar CSS.
  */
-export function privateNavigation(mode:PrivateMode|null,role:PrivateRole):readonly NavigationGroup[]{
+export function privateNavigation(mode:PrivateMode|null,role:PrivateRole,canManageIndicators=false):readonly NavigationGroup[]{
  if(mode!==null&&mode!=="scrum"&&mode!=="kanban")throw Error("navigation-mode-unsupported");
  if(role!=="admin"&&role!=="user")throw Error("navigation-role-unsupported");
  const groups:NavigationGroup[]=[
@@ -37,7 +37,8 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole):readon
    {id:"risks",label:"navigation.entries.register",
     href:"/app/admin/registries",icon:"stack"},
    {id:"links",label:"navigation.entries.links",href:role==="admin"?"/app/admin/links":null,icon:"link-45deg"},
-   {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"}
+   {id:"reporting",label:"navigation.entries.reporting",href:"/app/reports",icon:"bar-chart-line"},
+   ...(canManageIndicators?[{id:"indicators",label:"indicators.title" as TranslationKey,href:"/app/admin/indicators",icon:"sliders" as NavigationIcon}]:[])
   ]}
  ];
  if(role==="admin")groups.push({
@@ -52,6 +53,7 @@ export function privateNavigation(mode:PrivateMode|null,role:PrivateRole):readon
 /** Active state derives from real implemented routes, never placeholders. */
 export function activePrivateEntry(pathname:string,entry:NavigationEntry):boolean{
  return entry.href!==null&&(entry.href===pathname||
+  (entry.id==="indicators"&&pathname.startsWith("/app/admin/indicators/"))||
   (entry.id==="links"&&pathname.startsWith("/app/admin/links/"))||
   (entry.id==="reporting"&&pathname.startsWith("/app/reports/"))||
   (entry.id==="members"&&pathname.startsWith("/app/admin/members/"))||
