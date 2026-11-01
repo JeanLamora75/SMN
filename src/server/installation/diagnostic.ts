@@ -54,7 +54,7 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
     if (names.size === 0) return result(snapshot.schemaCreate === true ? "virgin" : "permissions-insufficient");
     return result(names.size === 1 && names.has("public._prisma_migrations:r") ? "installation-incomplete" : "schema-incompatible");
   }
-  if ([...names].some((name) => !(INSTALLATION_RELATIONS as readonly string[]).includes(name))) return result("schema-incompatible");
+  if ([...names].some((name) => name!=="public.smn_indicator_dashboard_slot:r" && !(INSTALLATION_RELATIONS as readonly string[]).includes(name))) return result("schema-incompatible");
   if (!snapshot.tableRead) return result("permissions-insufficient");
   const records = snapshot.installations;
   if (!records?.length || records.length !== 1 || records[0].id !== "singleton") return result("installation-incomplete");
