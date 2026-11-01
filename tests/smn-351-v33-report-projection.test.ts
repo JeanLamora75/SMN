@@ -8,7 +8,7 @@ test("SMN-351: open Scrum reports use selected v33 indicator values without lega
  assert.match(source,/public\.smn_indicator_manual_value/);
  assert.match(source,/public\.smn_indicator_computed_result/);
  assert.match(source,/committed=byTag\.get\("F01"\)\?\?null/);
- assert.match(source,/completed=byTag\.get\("F04"\)\?\?null/);
+ assert.match(source,/completed=byTag\.get\("F06"\)\?\?null/);
  assert.match(source,/if\(!v33&&schema\?\.points\)/);
 });
 test("SMN-351: closed reports always use frozen snapshot",()=>{
