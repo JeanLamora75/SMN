@@ -3925,6 +3925,17 @@
     "unit": "Unité",
     "shortUnit": "Unité courte",
     "color": "Couleur",
-    "icon": "Icône"
+    "icon": "Icône",
+    "formulaEditor": "Modifier la formule",
+    "previewReady": "Simulation effectuée",
+    "published": "Formule publiée",
+    "previewSummary": "Impact de la simulation",
+    "impactedIndicators": "Indicateurs touchés",
+    "cycles": "Cycles concernés",
+    "results": "Résultats recalculés",
+    "unavailable": "Indisponibles",
+    "confirmPublish": "Confirmer la publication de la simulation ?",
+    "publish": "Publier",
+    "preview": "Simuler"
   }
 }
