@@ -3,6 +3,7 @@ import {currentAccount} from "@/server/auth/session";
 import {indicatorTeams} from "@/server/indicators/team-access";
 import {withAuthDb} from "@/server/auth/database";
 import IndicatorCatalog from "./catalog-client";
+import TeamGrants from "./team-grants";
 export const dynamic="force-dynamic";
 export default async function IndicatorCatalogPage(){
  const actor=await currentAccount();
@@ -16,5 +17,6 @@ export default async function IndicatorCatalogPage(){
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
   <header className="mb-4"><h1 className="h3">Indicateurs dynamiques</h1><p className="text-secondary">Catalogue global, sélections par équipe et préférences d’affichage.</p></header>
   <IndicatorCatalog teams={teams} isAdmin={actor.role==="admin"}/>
+  {actor.role==="admin"&&<TeamGrants/>}
  </main>;
 }
