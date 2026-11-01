@@ -72,6 +72,8 @@ export async function readSprintDetailIndicators(
  AND i.id='singleton' AND i.state='initialized' AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),i.mode))='scrum'
  `,[sprintId,teamId]);
  if(!scope.rows[0])return null;
+ const v=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id=\'singleton\' AND state=\'initialized\'");
+ const v33=v.rows[0]?.schema_version===33;
  if(scope.rows[0].status==="closed"){
   const has=await db.query<{present:boolean}>(`
    SELECT to_regclass('public.smn_sprint_closure_snapshot') IS NOT NULL AS present`);
@@ -99,6 +101,7 @@ export async function readSprintDetailIndicators(
      confidence:scores.confidence,clarity:scores.clarity}:null)
   };
  }
+ if(v33)return {state:"unavailable",reason:"schema-missing"};
  const available=await db.query<{points:boolean;tickets:boolean;scores:boolean}>(`
   SELECT
    to_regclass('public.smn_sprint_story_points') IS NOT NULL AS points,
