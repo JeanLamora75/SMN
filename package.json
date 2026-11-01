@@ -35,7 +35,8 @@
     "db:migrate:smn-338": "tsx scripts/apply-smn-338-v33.ts",
     "test:db:smn-338:contract": "tsx --test tests/smn-338-indicators-schema-contract.test.ts tests/db-upgrade-v32-compatibility.test.ts",
     "db:test:smn-338:v33": "tsx --test tests/smn-338-real-v33-migration.test.ts",
-    "test:db:smn-338:v33:contracts": "tsx --test tests/smn-338-v33-migration-contract.test.ts tests/db-upgrade-v32-compatibility.test.ts"
+    "test:db:smn-338:v33:contracts": "tsx --test tests/smn-338-v33-migration-contract.test.ts tests/db-upgrade-v32-compatibility.test.ts",
+    "db:test:smn-338:native": "tsx --test tests/smn-338-native-v33-install.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
