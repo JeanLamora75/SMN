@@ -35,7 +35,7 @@ export async function readIndicatorReporting(db:Client,teamId:string,screen:Scre
  const map=new Map(cycles.map(c=>[c.id,Object.fromEntries(columns.rows.map(d=>[d.id,null])) as Record<string,string|null>]));
  for(const item of [...manual.rows,...computed.rows])map.get(item.cycle_id)![item.indicator_id]=item.value;
  // The operational cycle table must never substitute current values for frozen Scrum closures.
- if(screen==="cycle_list"&&cycleType==="scrum"){
+ if((screen==="cycle_list"||screen==="trends")&&cycleType==="scrum"){
   const closed=cycles.filter(c=>c.status==="closed").map(c=>c.id);
   if(closed.length){
    const snapshots=await db.query<{sprint_id:string;snapshot:unknown}>(`
