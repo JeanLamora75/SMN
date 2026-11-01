@@ -1,13 +1,13 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 type GrantData={teams:{id:string;name:string}[];users:{id:string;username:string}[];grants:{account_id:string;team_id:string}[]};
 export default function TeamGrants(){
  const [data,setData]=useState<GrantData|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false);
- async function load(){
+ const load=useCallback(async()=>{
   try{const r=await fetch("/api/admin/indicators/grants",{cache:"no-store"});if(!r.ok)throw Error(String(r.status));setData(await r.json());setError("");}
   catch(e){setError(String(e));}
- }
- useEffect(()=>{void Promise.resolve().then(load);},[]);
+ },[]);
+ useEffect(()=>{void Promise.resolve().then(load);},[load]);
  async function change(accountId:string,teamId:string,enabled:boolean){
   setBusy(true);
   try{const r=await fetch("/api/admin/indicators/grants",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({accountId,teamId,enabled})});
