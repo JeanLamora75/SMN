@@ -1,4 +1,5 @@
 import {NextRequest} from "next/server";
+import {legacyIndicatorEndpointRetired} from "@/server/indicators/legacy-cutover";
 import {authorizeApi} from "@/server/auth/authorization";
 import {readJsonObject,jsonResult} from "@/server/auth/request";
 import {withAuthDb} from "@/server/auth/database";
@@ -13,6 +14,7 @@ const resource={type:"settings",exists:true,inScope:true} as const;
 export async function PUT(req:NextRequest){
  const actor=await authorizeApi(req,"write",resource);
  if(!actor)return jsonResult({error:"forbidden"},403);
+ try{if(await legacyIndicatorEndpointRetired())return jsonResult({error:"legacy-indicators-retired",replacement:"/api/admin/indicators/input"},410);}catch{return jsonResult({error:"unavailable"},503);}
  const raw=await readJsonObject(req);
  if(!raw)return jsonResult({error:"invalid-input"},400);
  try{
