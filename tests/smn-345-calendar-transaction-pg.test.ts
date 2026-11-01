@@ -33,7 +33,7 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    await db.query("INSERT INTO public.smn_company(id,installation_id,name,color) VALUES($1,'singleton','Company','blue')",[company]);
    await db.query("INSERT INTO public.smn_member_batch(id,installation_id,team_id,requested_count) VALUES('batch345','singleton','team345',3)");
    await db.query("INSERT INTO public.smn_member(id,installation_id,batch_id,member_number,display_name,company_id) VALUES('123e4567-e89b-42d3-a456-426614174345','singleton','batch345',1,'Member 345',$1)",[company]);
-   await db.query("INSERT INTO public.smn_member_assignment(id,member_id,team_id,start_on,agile_role) VALUES('assignment345','member345','team345','2026-10-01','developer')");
+   await db.query("INSERT INTO public.smn_member_assignment(id,member_id,team_id,start_on,agile_role) VALUES('assignment345','123e4567-e89b-42d3-a456-426614174345','team345','2026-10-01','developer')");
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula) VALUES "+
     "('capacity345','CAP345','Capacity','computed','CAL_CAPACITY_JH+1')");
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_calendar_tag) VALUES "+
