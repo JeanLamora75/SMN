@@ -55,5 +55,6 @@ export async function recalculateCalendarImpactWithinTransaction(db:Client,impac
    changedCalendarTags:[...CALENDAR_CHANGE_TAGS],calendarSources:sources});
   cycles+=output.cycles;results+=output.results;
  }
+ await db.query("UPDATE public.smn_indicator_system_revision SET revision=revision+1,updated_at=now() WHERE singleton_key='singleton'");
  return {cycles,results};
 }
