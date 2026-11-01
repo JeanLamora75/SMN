@@ -74,7 +74,7 @@ export async function previewFormula(db:Client,input:FormulaProposal):Promise<Fo
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
 /** Confirmation must supply the exact preview revision and content fingerprint. */
-export async function publishFormula(db:Client,input:FormulaProposal,confirmation:Pick<FormulaPreview,"globalRevision"|"fingerprint">):Promise<FormulaPublishResult>{
+async function publishFormulaOnce(db:Client,input:FormulaProposal,confirmation:Pick<FormulaPreview,"globalRevision"|"fingerprint">):Promise<FormulaPublishResult>{
  check(input);
  if(!confirmation||typeof confirmation.globalRevision!=="string"||!/^[a-f0-9]{64}$/.test(confirmation.fingerprint))
   return {ok:false,error:"stale_preview"};
@@ -102,4 +102,17 @@ export async function publishFormula(db:Client,input:FormulaProposal,confirmatio
   if(e instanceof FormulaPublicationError)return {ok:false,error:e.code};
   throw e;
  }
+}
+
+/** At most one technical retry. Business refusals (including stale_preview) never retry. */
+export async function publishFormula(db:Client,input:FormulaProposal,confirmation:Pick<FormulaPreview,"globalRevision"|"fingerprint">):Promise<FormulaPublishResult>{
+ for(let attempt=0;attempt<2;attempt++){
+  try{return await publishFormulaOnce(db,input,confirmation);}
+  catch(error){
+   const code=error&&typeof error==="object"&&"code" in error?String(error.code):"";
+   if(attempt===1||!["40001","40P01","55P03"].includes(code))throw error;
+   console.warn("indicator-formula-transient-retry",{indicatorId:input.indicatorId,attempt:attempt+1,code});
+  }
+ }
+ throw new Error("unreachable-formula-retry");
 }
