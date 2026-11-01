@@ -70,3 +70,9 @@ Il reste à valider la recette navigateur Windows et la CI correspondant au dern
 Le diagnostic `pnpm db:check:smn-351` distingue désormais `unsafeCandidates` (dépendances SQL cataloguées) et indique `readOnly: true`. L'absence de dépendance cataloguée ne certifie pas les dépendances applicatives TypeScript ni les fonctions SQL écrites en texte ; une analyse supplémentaire reste nécessaire avant tout DDL. Les snapshots métiers, historiques et références figées de rapports restent immuables. Les migrations de capacité et de calendrier sont hors périmètre DROP.
 
 **Contrat de non-régression** : `tests/smn-351-cutover-guard.test.ts` contrôle que ces catégories sont classées KEEP et que les seules tables envisagées comme candidates sont celles des anciens indicateurs. Ce test ne démontre pas à lui seul la restauration ni l'exhaustivité de tous les appelants.
+
+## Préparation nettoyage et comparaison v33 — 01/11/2026
+
+- `pnpm db:preflight:smn-351` exécute une inspection SQL en lecture seule et renvoie volontairement un **code 2** : retrait **non autorisé** tant que comparaison neuve/migrée et audit applicatif ne sont pas certifiés.
+- `pnpm db:compare:smn-351` compare les signatures PostgreSQL des deux **bases isolées v33** fournies dans `SMN_351_FRESH_DATABASE_URL` et `SMN_351_MIGRATED_DATABASE_URL`. Il refuse les URL absentes, identiques ou égales au connecteur de l'installation active ; il lit relations, colonnes, contraintes, index, triggers et fonctions dans des transactions en lecture seule. Les différences entraînent un code 2.
+- Aucun outil de suppression SQL n'a été ajouté. La comparaison de deux bases réelles distinctes n'a pas encore été exécutée dans ChatGPT : des environnements préparés et leur résultat sont nécessaires.
