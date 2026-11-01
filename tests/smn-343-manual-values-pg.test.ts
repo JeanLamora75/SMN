@@ -32,6 +32,8 @@ test("saisie manuelle v33 atomique, révisions, NULL, équipe et cycles clos",{t
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type) VALUES "+
     "('m1','M1','Nombre de tickets','manual'),('m2','M2','Points','manual')");
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula) VALUES('calc','CALC','Calcul','computed','M1+M2')");
+   await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id) VALUES "+
+    "('calc-m1','calc','indicator','m1'),('calc-m2','calc','indicator','m2')");
    await db.query("INSERT INTO public.smn_indicator_team_selection(team_id,indicator_id) VALUES "+
     "('team-a','m1'),('team-a','m2'),('team-b','m1')");
    const input={teamId:"team-a",cycleType:"scrum" as const,cycleId:"sprint-a",expectedRevision:0,changes:[
