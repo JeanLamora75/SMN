@@ -9,6 +9,8 @@ const sources={
 export type PreviewRow={line:number;cycleId:string;cycleName:string|null;metricCode:string;value:number;quality:"known"|"estimated";existingValue:number|null;impact:"preserved"|"new";decision:"keep"|"insert"|"replace";validation:"valid"};
 /** Only SELECT statements; neither migrations nor target values are changed by a preview. */
 export async function previewHistoricalCsv(db:Client,rows:readonly CsvRow[],mode:HistoricalCsvMode):Promise<PreviewRow[]>{
+ const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ if(version.rows[0]?.schema_version===33)throw Error("v33-indicator-mapping-required");
  const cycleTable=mode==="scrum"?"smn_sprint":"smn_kanban_period";
  const ids=[...new Set(rows.map(r=>r.cycle_id))];
  const cycles=await db.query<{id:string;name:string}>(`SELECT c.id,c.name FROM public.${cycleTable} c
