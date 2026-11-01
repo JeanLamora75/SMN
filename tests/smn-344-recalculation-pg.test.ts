@@ -40,8 +40,8 @@ test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_calendar_tag) VALUES('ce','e','calendar','CAL_WORKING_DAYS')");
    const first=await recalculateIndicatorResults(db,{teamId:"t-s"});
    assert.deepEqual(first,{cycles:3,results:12});
-   const read=()=>db.query<{cycle_id:string;indicator_id:string;result_state:string;value:string|null;unavailable_reason:string|null;formula_revision:string}>(
-    "SELECT cycle_id,indicator_id,result_state,value::text,unavailable_reason,formula_revision::text "+
+   const read=()=>db.query<{cycle_id:string;indicator_id:string;result_state:string;value:string|null;unavailable_reason:string|null;unavailable_source_tag:string|null;formula_revision:string}>(
+    "SELECT cycle_id,indicator_id,result_state,value::text,unavailable_reason,unavailable_source_tag,formula_revision::text "+
     "FROM public.smn_indicator_computed_result WHERE team_id='t-s' ORDER BY cycle_id,indicator_id");
    const stored=(await read()).rows;
    assert.deepEqual(stored.filter(x=>x.cycle_id==="s-one").map(x=>[x.indicator_id,x.value,x.unavailable_reason]),[
@@ -54,6 +54,14 @@ test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180
    const missing=(await read()).rows;
    assert.equal(missing.find(x=>x.cycle_id==="s-one"&&x.indicator_id==="b")?.unavailable_reason,"missing_source");
    assert.equal(missing.find(x=>x.cycle_id==="s-one"&&x.indicator_id==="c")?.unavailable_reason,"dependency_unavailable");
+   assert.equal(missing.find(x=>x.cycle_id==="s-one"&&x.indicator_id==="c")?.unavailable_source_tag,"B");
+   const changedCalendar=await recalculateIndicatorResults(db,{
+    teamId:"t-s",changedCalendarTags:["CAL_WORKING_DAYS"],
+    cycles:[{teamId:"t-s",cycleType:"scrum",cycleId:"s-one"}],
+    calendarSources:{"scrum:s-one":{CAL_WORKING_DAYS:"4"}}
+   });
+   assert.deepEqual(changedCalendar,{cycles:1,results:1});
+   assert.equal((await read()).rows.find(x=>x.cycle_id==="s-one"&&x.indicator_id==="e")?.value,"5");
    const kanban=await recalculateIndicatorResults(db,{teamId:"t-k"});
    assert.deepEqual(kanban,{cycles:1,results:4});
    await db.query("CREATE FUNCTION public.smn_344_reject() RETURNS trigger LANGUAGE plpgsql AS "+
