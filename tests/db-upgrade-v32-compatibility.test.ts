@@ -7,7 +7,7 @@ import {verifyHistory} from "../scripts/db-migration-history";
 
 test("les versions historiques ne migrent pas automatiquement",()=>{
  assert.equal(decideUpgrade("initialized",31,31).kind,"refuse");
- for(const version of [27,28,29,30,33])assert.equal(decideUpgrade("initialized",version,version).kind,"refuse");
+ for(const version of [27,28,29,30])assert.equal(decideUpgrade("initialized",version,version).kind,"refuse");
 });
 test("v32 saine idempotente, historique erroné bloqué",()=>{
  assert.equal(decideUpgrade("initialized",32,32).kind,"noop");
@@ -48,4 +48,11 @@ test("historique manquant et non réconcilié",()=>{
  const row={migration_name:"orphan",checksum:"abc",finished_at:new Date(),rolled_back_at:null};
  assert(verifyHistory([row],new Map()).some(e=>e.includes("introuvable")));
  assert(verifyHistory([{...row,rolled_back_at:new Date()}],new Map()).some(e=>e.includes("non terminée")));
+});
+
+test("SMN-338 : v33 valide est idempotente ; historique incorrect bloqué",()=>{
+ assert.equal(decideUpgrade("initialized",33,33).kind,"noop");
+ assert.equal(decideUpgrade("initialized",33,2).kind,"noop");
+ assert.equal(decideUpgrade("initialized",33,1).kind,"refuse");
+ assert.equal(decideUpgrade("initialized",33,32).kind,"refuse");
 });
