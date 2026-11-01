@@ -51,4 +51,4 @@ SMN-338 pour le schéma v33 ; SMN-342 pour le calcul des impacts ; SMN-344 pour 
 
 ## État de validation
 
-Les résultats CI du dernier commit devront être constatés avant déclaration « Terminé ». Aucune migration de la base locale v32 de l'utilisateur n'a été effectuée.
+Recette validée sur GitHub Actions [Vérification I0](https://github.com/JeanLamora75/SMN/actions/runs/41292897017) : test PostgreSQL jetable SUCCESS, job indépendant TypeScript et tests unitaires SUCCESS. La Story a été passée en **Terminé** dans Jira. Les tests locaux Windows restent facultatifs pour cette validation de service ; aucune migration de la base personnelle v32 n'a été effectuée.
