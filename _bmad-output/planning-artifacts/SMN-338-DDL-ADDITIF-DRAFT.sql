@@ -151,5 +151,46 @@ CREATE TRIGGER smn_indicator_cycle_revision_integrity
 BEFORE INSERT OR UPDATE ON public.smn_indicator_cycle_revision
 FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_assert_cycle_integrity();
 
+
+-- Sécurité des modifications des objets parents, y compris après création de valeurs.
+CREATE FUNCTION public.smn_indicator_guard_cycle_team_change()
+RETURNS trigger LANGUAGE plpgsql AS $
+BEGIN
+ IF NEW.team_id IS DISTINCT FROM OLD.team_id AND (
+  EXISTS(SELECT 1 FROM public.smn_indicator_manual_value
+   WHERE cycle_id=OLD.id AND team_id=OLD.team_id AND cycle_type=TG_ARGV[0])
+  OR EXISTS(SELECT 1 FROM public.smn_indicator_computed_result
+   WHERE cycle_id=OLD.id AND team_id=OLD.team_id AND cycle_type=TG_ARGV[0])
+  OR EXISTS(SELECT 1 FROM public.smn_indicator_cycle_revision
+   WHERE cycle_id=OLD.id AND team_id=OLD.team_id AND cycle_type=TG_ARGV[0])
+ ) THEN
+  RAISE EXCEPTION 'indicator-cycle-team-change-blocked' USING ERRCODE='23503';
+ END IF;
+ RETURN NEW;
+END;
+$;
+CREATE TRIGGER smn_indicator_guard_sprint_team
+BEFORE UPDATE OF team_id ON public.smn_sprint
+FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_cycle_team_change('scrum');
+CREATE TRIGGER smn_indicator_guard_kanban_team
+BEFORE UPDATE OF team_id ON public.smn_kanban_period
+FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_cycle_team_change('kanban');
+
+CREATE FUNCTION public.smn_indicator_guard_definition_type_change()
+RETURNS trigger LANGUAGE plpgsql AS $
+BEGIN
+ IF NEW.indicator_type IS DISTINCT FROM OLD.indicator_type AND (
+  EXISTS(SELECT 1 FROM public.smn_indicator_manual_value WHERE indicator_id=OLD.id)
+  OR EXISTS(SELECT 1 FROM public.smn_indicator_computed_result WHERE indicator_id=OLD.id)
+ ) THEN
+  RAISE EXCEPTION 'indicator-type-change-blocked' USING ERRCODE='23514';
+ END IF;
+ RETURN NEW;
+END;
+$;
+CREATE TRIGGER smn_indicator_guard_definition_type
+BEFORE UPDATE OF indicator_type ON public.smn_indicator_definition
+FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_guard_definition_type_change();
+
 -- A AJOUTER AU CONTRAT : validation applicative de cycle_id/team_id et de type manuel/computed,
 -- cycle DAG, regexp tags réservés, lock global des producteurs et vérification physique DB.
