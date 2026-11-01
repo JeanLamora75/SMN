@@ -7,8 +7,9 @@ import {installExpress} from "../src/server/installation/install";
 import {readManualCycleValues,writeManualValues,validateManualWrite} from "../src/server/indicators/manual-values";
 
 test("saisie manuelle v33 atomique, révisions, NULL, équipe et cycles clos",{timeout:180000},async()=>{
- const origin=new URL(await installedDatabaseUri());
- if(origin.pathname!=="/smn"||!["127.0.0.1","localhost","[::1]"].includes(origin.hostname))
+ const ci=process.env.CI==="true"&&process.env.GITHUB_ACTIONS==="true";
+ const origin=new URL(ci&&process.env.SMN_TEST_DATABASE_URL?process.env.SMN_TEST_DATABASE_URL:await installedDatabaseUri());
+ if(!(origin.pathname==="/smn"||ci&&origin.pathname==="/smn_ci")||!["127.0.0.1","localhost","[::1]"].includes(origin.hostname))
   throw Error("Local source SMN required");
  const name="smn_343_"+randomBytes(6).toString("hex");
  const adminUri=new URL(origin);adminUri.pathname="/postgres";
