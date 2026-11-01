@@ -55,20 +55,25 @@ export function buildDependencyGraph(definitions:readonly IndicatorDefinition[],
  }
  // The SQL graph must match the AST; missing edges would silently skip recalculation.
  for(const d of byId.values()){
-  if(d.formula===null)continue;
+  if(d.formula===null){if(deps.get(d.id)!.size||calendar.get(d.id)!.size)throw new DependencyGraphError("formula_mismatch",d.id);continue;}
   const expected=new Set(referencedTags(parseFormula(d.formula)));
   const actual=new Set([...deps.get(d.id)!].map(id=>byId.get(id)!.tag).concat([...calendar.get(d.id)!]));
   if(expected.size!==actual.size||[...expected].some(tag=>!actual.has(tag)))
    throw new DependencyGraphError("formula_mismatch",d.id);
  }
  const indegree=new Map([...deps].map(([id,items])=>[id,items.size]));
- const ready=[...indegree].filter(([,n])=>n===0).map(([id])=>id).sort((a,b)=>compare(byId.get(a)!.tag,byId.get(b)!.tag));
+ const sorted=[...byId.keys()].sort((a,b)=>compare(byId.get(a)!.tag,byId.get(b)!.tag));
+ const ranks=new Map(sorted.map((id,i)=>[id,i]));
+ const heap:string[]=[];
+ const push=(id:string)=>{heap.push(id);let i=heap.length-1;while(i>0){const p=(i-1)>>1;if(ranks.get(heap[p])!<=ranks.get(id)!)break;heap[i]=heap[p];i=p;}heap[i]=id;};
+ const pop=():string=>{const top=heap[0],last=heap.pop()!;if(heap.length){let i=0;while(i*2+1<heap.length){let child=i*2+1;if(child+1<heap.length&&ranks.get(heap[child+1])!<ranks.get(heap[child])!)child++;if(ranks.get(last)!<=ranks.get(heap[child])!)break;heap[i]=heap[child];i=child;}heap[i]=last;}return top;};
+ for(const id of sorted)if(indegree.get(id)===0)push(id);
  const order:string[]=[];
- while(ready.length){
-  const id=ready.shift()!;order.push(id);
+ while(heap.length){
+  const id=pop();order.push(id);
   for(const downstream of reverse.get(id)!){
    const remaining=indegree.get(downstream)!-1;indegree.set(downstream,remaining);
-   if(remaining===0){ready.push(downstream);ready.sort((a,b)=>compare(byId.get(a)!.tag,byId.get(b)!.tag));}
+   if(remaining===0)push(downstream);
   }
  }
  if(order.length!==byId.size)throw new DependencyGraphError("cycle","indicator graph has a cycle");
@@ -123,8 +128,8 @@ export function evaluateDependencies(input:EvaluateDependenciesInput):ReadonlyMa
 export interface DependencyReader{query<T>(sql:string,params?:readonly unknown[]):Promise<{rows:T[]}>;}
 export async function loadDependencyGraph(client:DependencyReader):Promise<DependencyGraph>{
  const [defs,edges]=await Promise.all([
-  client.query<IndicatorDefinition>("SELECT id,tag,formula FROM public.smn_indicator_definition WHERE archived_at IS NULL ORDER BY tag"),
-  client.query<DependencyRow>("SELECT d.indicator_id,d.source_type,d.source_indicator_id,d.source_calendar_tag FROM public.smn_indicator_dependency d JOIN public.smn_indicator_definition i ON i.id=d.indicator_id WHERE i.archived_at IS NULL ORDER BY d.indicator_id,d.source_type,d.source_indicator_id,d.source_calendar_tag")
+  client.query<IndicatorDefinition>("SELECT id,tag,formula FROM public.smn_indicator_definition ORDER BY tag"),
+  client.query<DependencyRow>("SELECT indicator_id,source_type,source_indicator_id,source_calendar_tag FROM public.smn_indicator_dependency ORDER BY indicator_id,source_type,source_indicator_id,source_calendar_tag")
  ]);
  return buildDependencyGraph(defs.rows,edges.rows);
 }
