@@ -13,7 +13,7 @@ export default async function IndicatorPage({searchParams}:{searchParams:Promise
  const locale=await requestLocale();
  const teams=await withSessionReadDb(db=>indicatorTeams(db,{accountId:actor.id,role:actor.role}));
  if(teams.length===0)redirect("/app");
- const dashboard=await withSessionReadDb(db=>readAccountDashboard(db,{accountId:actor.id,role:actor.role})).catch(()=>null);
+ const dashboard=actor.role==="admin"?await withSessionReadDb(db=>readAccountDashboard(db,{accountId:actor.id,role:actor.role})).catch(()=>null):null;
  const active=dashboard?.context;
  const requested=(await searchParams).teamId;
  const team=requested&&teams.some(t=>t.id===requested)?requested:teams.some(t=>t.id===active?.teamId)?active?.teamId:teams[0].id;
