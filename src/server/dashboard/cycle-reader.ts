@@ -271,7 +271,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     LEFT JOIN public.smn_indicator_computed_result c
       ON c.team_id=$1 AND c.cycle_type='scrum' AND c.cycle_id=$2 AND c.indicator_id=d.id
     WHERE d.archived_at IS NULL AND d.tag=ANY($3::text[])`,
-    [teamId,sprint.id,["F01","F04","F10","F11"]]);
+    [teamId,sprint.id,["F01","F06","F10","F11"]]);
    const values=new Map(result.rows.map(r=>[r.tag,r.value]));
    storyPoints={initial:metric(values.get("F01"),"manual"),done:metric(values.get("F04"),"manual")};
    tickets={initial:metric(values.get("F10"),"manual"),done:metric(values.get("F11"),"manual")};
