@@ -27,10 +27,8 @@ export function validateRecalculationRequest(input:RecalculationRequest):void{
    throw new IndicatorRecalculationError("invalid-scope","Invalid cycle");
  }
 }
-export async function recalculateIndicatorResults(db:Client,input:RecalculationRequest):Promise<{cycles:number;results:number}>{
+export async function recalculateIndicatorResultsWithinTransaction(db:Client,input:RecalculationRequest):Promise<{cycles:number;results:number}>{
  validateRecalculationRequest(input);
- await db.query("BEGIN");
- try{
   const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
   if(version.rows[0]?.schema_version!==33)throw new IndicatorRecalculationError("schema-not-ready","v33 required");
   // All indicator writers lock the global revision first.
@@ -42,7 +40,7 @@ export async function recalculateIndicatorResults(db:Client,input:RecalculationR
   const selected=input.changedIndicatorIds!==undefined||input.changedCalendarTags!==undefined?
    impactedIndicatorIds(graph,changed,calendar):graph.order;
   const calculated=selected.filter(id=>graph.definitions.get(id)?.formula!==null);
-  if(calculated.length===0){await db.query("COMMIT");return {cycles:0,results:0};}
+  if(calculated.length===0)return {cycles:0,results:0};
   const scopes:CycleScope[]=input.cycles?[...input.cycles]:[
    ...(await db.query<{id:string}>("SELECT s.id FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id WHERE s.team_id=$1 AND s.deleted_at IS NULL AND t.agile_mode='scrum' AND NOT t.is_archived ORDER BY s.id",[input.teamId])).rows.map(r=>({teamId:input.teamId,cycleType:"scrum" as const,cycleId:r.id})),
    ...(await db.query<{id:string}>("SELECT p.id FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id WHERE p.team_id=$1 AND p.deleted_at IS NULL AND t.agile_mode='kanban' AND NOT t.is_archived ORDER BY p.id",[input.teamId])).rows.map(r=>({teamId:input.teamId,cycleType:"kanban" as const,cycleId:r.id}))
@@ -85,7 +83,14 @@ export async function recalculateIndicatorResults(db:Client,input:RecalculationR
     written++;
    }
   }
-  await db.query("COMMIT");
   return {cycles:scopes.length,results:written};
+}
+export async function recalculateIndicatorResults(db:Client,input:RecalculationRequest):Promise<{cycles:number;results:number}>{
+ validateRecalculationRequest(input);
+ await db.query("BEGIN");
+ try{
+  const result=await recalculateIndicatorResultsWithinTransaction(db,input);
+  await db.query("COMMIT");
+  return result;
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
