@@ -30,7 +30,7 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    await db.query("CREATE TABLE public.smn_team(id text PRIMARY KEY)");
    await db.query("CREATE TABLE public.smn_account(id text PRIMARY KEY)");
    const ddl=readFileSync(new URL("../_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",import.meta.url),"utf8");
-   assert.doesNotMatch(ddl,/\\b(?:DROP|TRUNCATE)\\s+(?:TABLE|DATABASE|SCHEMA)\\b/i);
+   assert.doesNotMatch(ddl,/\b(?:DROP|TRUNCATE)\s+(?:TABLE|DATABASE|SCHEMA)\b/i);
    await db.query(ddl);
    const tables=await db.query<{n:string}>(`SELECT count(*)::text AS n FROM pg_catalog.pg_class
     WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname LIKE 'smn_indicator_%'`);
