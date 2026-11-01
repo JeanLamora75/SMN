@@ -117,7 +117,7 @@ export async function readSprintDetailIndicators(
   const byTag=new Map(values.rows.map(row=>[row.tag,row.value]));
   return {state:"available",source:"manual",snapshotVersion:null,
    points:pointsFrom({initial:byTag.get("F01")??null,added:byTag.get("F02")??null,
-    removed:byTag.get("F03")??null,done:byTag.get("F04")??null}),
+    removed:byTag.get("F03")??null,done:byTag.get("F06")??null}),
    tickets:ticketsFrom({initial:byTag.get("F10")??null,done:byTag.get("F11")??null}),
    scores:absent("schema-missing")};
  }
