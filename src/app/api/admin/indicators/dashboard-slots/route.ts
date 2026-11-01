@@ -19,7 +19,7 @@ export async function POST(req:NextRequest){
  if(!actor)return jsonResult({error:"forbidden"},403);
  if(!validMutationOrigin(req.headers.get("host"),req.headers.get("origin")))return jsonResult({error:"forbidden"},403);
  const body=await readJsonObject(req,2048);
- if(!body||typeof body.teamId!=="string"||!["story_points","tickets","complementary"].includes(String(body.block))||!Number.isInteger(body.position)||!(body.indicatorId===null||typeof body.indicatorId==="string"))return jsonResult({error:"invalid-input"},400);
+ if(!body||typeof body.teamId!=="string"||!["story_points","tickets","complementary"].includes(String(body.block))||(typeof body.position!=="number"||!Number.isInteger(body.position))||!(body.indicatorId===null||typeof body.indicatorId==="string"))return jsonResult({error:"invalid-input"},400);
  try{
   await withAuthDb(async db=>{await requireIndicatorTeam(db,{accountId:actor.id,role:actor.role},body.teamId as string);await assignDashboardSlot(db,body.teamId as string,body.block as DashboardBlockKey,body.position as number,body.indicatorId as string|null);});
   return jsonResult({ok:true},200);
