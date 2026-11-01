@@ -3921,6 +3921,10 @@
       "gauge": "Gauge",
       "line": "Line chart",
       "bar": "Bars"
-    }
+    },
+    "unit": "Unit",
+    "shortUnit": "Short unit",
+    "color": "Color",
+    "icon": "Icon"
   }
 }
