@@ -115,6 +115,8 @@ jobs:
         run: pnpm typecheck
       - name: Recette moteur et graphe indicateurs
         run: pnpm test:smn-341-342
+      - name: Contrats SMN 343
+        run: pnpm test:smn-343
 
   company-v31-contracts:
     name: Contrats entreprise v31 indépendants
