@@ -16,9 +16,10 @@ type Props=Readonly<{
   cycle:SprintContextItem|null;
   projection?:CollectiveCycleProjection|null;
   canViewCapacity?:boolean;
+  dashboardCycleId?:string|null;
 }>;
 
-export default function CycleOverview({context,locale,teamHref,cycle,projection,canViewCapacity,}:Props){
+export default function CycleOverview({context,locale,teamHref,cycle,projection,canViewCapacity,dashboardCycleId}:Props){
   const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
   const scrum=context.mode==="scrum";
   const effectiveStatus=cycle?effectiveSprintStatus(cycle):null;
@@ -92,7 +93,7 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         firstMetric={projection?.capacity.initialJh} secondMetric={projection?.capacity.actualJh}
         icon="people-fill" tone="capacity" ratioKey="dashboard.cockpit.capacityRatio"
         locale={locale} comparison={comparison}/>
-      <DashboardIndicatorBlocks teamId={context.teamId} cycleType={context.mode} cycleId={cycle?.id} locale={locale}/>
+      <DashboardIndicatorBlocks teamId={context.teamId} cycleType={context.mode} cycleId={dashboardCycleId??cycle?.id} locale={locale}/>
       <KpiDeadline locale={locale} metric={projection?.workingDaysRemaining}
         cycleExists={!!cycle} status={effectiveStatus}/>
     </div>
