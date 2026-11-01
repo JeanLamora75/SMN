@@ -98,3 +98,17 @@ Le contrôle automatique `pnpm db:audit:smn-351` recense dans `src/`, `scripts/`
 **Trajectoire historique non validée** : la comparaison native v32→v33 a été effectuée et les signatures se correspondent. Elle ne remplace pas une restauration isolée d'une installation ayant suivi les 32 migrations historiques. La preuve de restauration et les tests d'intégrité de cette trajectoire sont obligatoires avant de considérer un DROP. Le diagnostic applicatif parcourt les références textuelles ; il ne prouve pas à lui seul l'absence de SQL dynamique ou de dépendances externes.
 
 Aucune migration de suppression n'est activée ; aucun DROP sur `smn`.
+
+## Découplage progressif v33 — 01/11/2026
+
+**Réalisé sur main** :
+- Les rapports standards pour cycles non clôturés affichent les valeurs sélectionnées dans `smn_indicator_team_selection`, lues par `readIndicatorReporting` et filtrées par équipe/cycle. Les anciennes lectures Story Points/Tickets restent uniquement sur le chemin v32 de cette composition.
+- Pour les nouvelles clôtures v33, `captureCycleIndicators` capture un tableau `indicatorsV33` avec métadonnées figées (id, code, titre, unité, type, état, valeur) ; les anciennes colonnes Story Points/Tickets ne sont plus lues dans ce chemin v33. Les snapshots antérieurs restent intégralement inchangés.
+- Les rapports clos affichent exclusivement les valeurs du snapshot enregistré, y compris `indicatorsV33` lorsqu'il existe, sans recalcul rétroactif.
+- La replanification accepte v33, affiche sa sélection d'indicateurs, et garde les vérifications de capacité ; elle ne relit pas les anciennes Story Points dans ce chemin.
+
+**Encore bloquant** :
+- Lectures historiques et écritures dans `src/server/sprints/story-points.ts`, `ticket-counts.ts`, `indicators-read.ts`, `dashboard/cycle-reader.ts`, `reports/report-projection.ts`.
+- Imports CSV historiques : les codes `SP_INITIAL`, `SP_ADDED`, `SP_REMOVED`, `SP_DONE` ne peuvent pas être automatiquement associés à des définitions v33 configurables sans une table explicite de correspondance et un contrat de migration des valeurs/audits ; ne jamais créer une équivalence par supposition.
+- Les tests de contrats ajoutés à `pnpm test:smn-351` sont statiques. Les tests d'intégration PostgreSQL locaux de clôture, replanification, rapports et import historique restent à exécuter après finalisation des adaptateurs.
+- Aucun DROP ni autorisation de nettoyer : `cleanupAuthorized=false` reste la politique jusqu'à l'audit exhaustif et la validation historique.
