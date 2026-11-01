@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
+import {requestLocale} from "@/i18n/locale.server";
+import {translate} from "@/i18n/catalog";
 import {canAccess} from "@/server/access-policy";
 import KanbanPeriodForm from "./period-form";
 import PeriodNameList from "./period-name-list";
@@ -13,6 +15,7 @@ export default async function KanbanPeriodsPage(){
  if(!account)redirect("/login");
  if(account.must_change_password)redirect("/change-password");
  if(!canAccess(account,"read",{type:"collective",exists:true,inScope:true}))redirect("/app");
+ const locale=await requestLocale();
  const enabled=await withAuthDb(async db=>{
   const teams=await indicatorTeams(db,{accountId:account.id,role:account.role});
   if(!teams.length)return [];
@@ -23,7 +26,7 @@ export default async function KanbanPeriodsPage(){
   <Link href="/app/admin/kanban-cadence" className="btn btn-link px-0 mb-2">← Paramètres Kanban</Link>
   <KanbanPeriodForm canManage={account.role==="admin"}/>
   <PeriodNameList canManage={account.role==="admin"}/>
-  {enabled.length>0&&<section className="smn-panel rounded-4 p-3 mt-3"><h2 className="h5">Saisie des indicateurs Kanban</h2>{enabled.map(p=><div key={p.id} className="d-flex align-items-center justify-content-between gap-3 border-bottom py-2"><span>{p.name}</span><UniversalIndicatorInput teamId={p.team_id} cycleType="kanban" cycleId={p.id}/></div>)}</section>}
+  {enabled.length>0&&<section className="smn-panel rounded-4 p-3 mt-3"><h2 className="h5">{translate(locale,"indicators.input.kanbanTitle")}</h2>{enabled.map(p=><div key={p.id} className="d-flex align-items-center justify-content-between gap-3 border-bottom py-2"><span>{p.name}</span><UniversalIndicatorInput teamId={p.team_id} cycleType="kanban" cycleId={p.id}/></div>)}</section>}
   <Link href="/app/admin/kanban-periods/preview" className="btn btn-outline-primary mt-3">Prévisualiser un lot de périodes →</Link>
  </main>;
 }
