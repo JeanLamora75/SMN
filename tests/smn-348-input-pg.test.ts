@@ -25,7 +25,7 @@ test("SMN-348: live preview is read-only, grouped save is atomic and team scoped
    const adminId=(await db.query<{id:string}>("SELECT id FROM public.smn_account WHERE role='admin'")).rows[0].id;
    await db.query("UPDATE public.smn_account SET must_change_password=false WHERE id=$1",[adminId]);
    await db.query("INSERT INTO public.smn_team(id,installation_id,name,agile_mode) VALUES('team348a','singleton','A','scrum'),('team348b','singleton','B','scrum')");
-   await db.query("INSERT INTO public.smn_sprint(id,team_id,name,start_at,end_at,status) VALUES('cycle348','team348a','Test','2026-10-01','2026-10-15','open')");
+   await db.query("INSERT INTO public.smn_sprint(id,team_id,number,name,start_at,end_at,time_zone,status) VALUES('cycle348','team348a',1,'Test','2026-10-01','2026-10-15','Europe/Paris','closed')");
    await db.query("INSERT INTO public.smn_account(id,installation_id,username,email,role,password_hash,must_change_password,is_active) SELECT 'user348','singleton','user348','user348@example.test','user',password_hash,false,true FROM public.smn_account WHERE id=$1",[adminId]);
    const adminActor={accountId:adminId,role:"admin" as const},user={accountId:"user348",role:"user" as const};
    await updateIndicatorGrant(db,adminActor,user.accountId,"team348a",true);
