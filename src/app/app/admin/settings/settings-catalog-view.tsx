@@ -36,9 +36,9 @@ export default function SettingsCatalogView({groups,showCompanies=false}:{groups
   </div>
   {showCompanies&&<section className="mb-4" aria-labelledby="settings-indicators-title">
    <h2 className="h5 mb-3" id="settings-indicators-title">{t("indicators.title")}</h2>
-   <Link className="smn-panel rounded-4 p-3 d-flex text-decoration-none text-body gap-3" href="/app/admin/indicators">
+   <Link className="smn-panel rounded-4 p-3 d-flex text-decoration-none text-body gap-3" href="/app/admin/settings/indicators">
     <span aria-hidden="true" className="fs-4">▤</span>
-    <span><strong>{t("indicators.catalog")}</strong><span className="d-block small text-secondary">{t("indicators.preferences")}</span></span>
+    <span><strong>{t("indicators.catalog")}</strong><span className="d-block small text-secondary">{t("indicators.catalog")}</span></span>
    </Link>
   </section>}
   {showCompanies&&<section className="mb-4" aria-labelledby="smn-settings-companies-title">
