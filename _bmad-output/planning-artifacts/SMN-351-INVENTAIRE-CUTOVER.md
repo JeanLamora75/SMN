@@ -76,3 +76,9 @@ Le diagnostic `pnpm db:check:smn-351` distingue désormais `unsafeCandidates` (d
 - `pnpm db:preflight:smn-351` exécute une inspection SQL en lecture seule et renvoie volontairement un **code 2** : retrait **non autorisé** tant que comparaison neuve/migrée et audit applicatif ne sont pas certifiés.
 - `pnpm db:compare:smn-351` compare les signatures PostgreSQL des deux **bases isolées v33** fournies dans `SMN_351_FRESH_DATABASE_URL` et `SMN_351_MIGRATED_DATABASE_URL`. Il refuse les URL absentes, identiques ou égales au connecteur de l'installation active ; il lit relations, colonnes, contraintes, index, triggers et fonctions dans des transactions en lecture seule. Les différences entraînent un code 2.
 - Aucun outil de suppression SQL n'a été ajouté. La comparaison de deux bases réelles distinctes n'a pas encore été exécutée dans ChatGPT : des environnements préparés et leur résultat sont nécessaires.
+
+## Comparaison automatique isolée — SMN-351
+
+La commande `pnpm db:compare:smn-351:auto` ne nécessite pas de saisir les mots de passe PostgreSQL. Elle utilise **uniquement** la connexion locale SMN existante, vérifie que la source est `/smn` et que le compte peut créer des bases, crée deux bases temporaires aléatoires `smn351_fresh_*` et `smn351_migrated_*`, installe la v33 native dans la première et une baseline v32 suivie de la migration v33 dans la seconde, compare leurs signatures, puis supprime exclusivement ses deux bases temporaires.
+
+**Limite importante :** ce scénario teste les deux chemins **baseline native v32 → v33** et **installation native v33**, et non une migration réelle depuis l'intégralité des 32 migrations historiques. Il ne suffit donc pas à lui seul à autoriser le nettoyage de la base SMN réelle. La comparaison ne modifie jamais `smn` et ne déclenche aucune suppression de table métier. Les différences de signature provoquent un code de sortie 2 ; il faut les examiner avant toute autorisation.
