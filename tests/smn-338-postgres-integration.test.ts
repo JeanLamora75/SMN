@@ -29,6 +29,8 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    await db.query("BEGIN");
    await db.query("CREATE TABLE public.smn_team(id text PRIMARY KEY)");
    await db.query("CREATE TABLE public.smn_account(id text PRIMARY KEY)");
+   await db.query("CREATE TABLE public.smn_sprint(id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id))");
+   await db.query("CREATE TABLE public.smn_kanban_period(id text PRIMARY KEY,team_id text NOT NULL REFERENCES public.smn_team(id))");
    const ddl=readFileSync(new URL("../_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",import.meta.url),"utf8");
    assert.doesNotMatch(ddl,/\b(?:DROP|TRUNCATE)\s+(?:TABLE|DATABASE|SCHEMA)\b/i);
    await db.query(ddl);
@@ -37,8 +39,10 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    assert.equal(tables.rows[0]?.n,"8");
    await db.query("INSERT INTO public.smn_team(id) VALUES ('team-1'),('team-2')");
    await db.query("INSERT INTO public.smn_account(id) VALUES ('account')");
-   await db.query(`INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type)
-    VALUES('ind-a','IND_A','A','manual'),('ind-b','IND_B','B','manual')`);
+   await db.query("INSERT INTO public.smn_sprint(id,team_id) VALUES (\'sprint-1\',\'team-1\'),(\'sprint-2\',\'team-1\'),(\'sprint-3\',\'team-1\'),(\'other-sprint\',\'team-2\')");
+   await db.query("INSERT INTO public.smn_kanban_period(id,team_id) VALUES (\'kanban-1\',\'team-1\')");
+   await db.query(`INSERT INTO public.smn_indicator_definition(id,tag,name,indicator_type,formula)
+    VALUES('ind-a','IND_A','A','manual',NULL),('ind-b','IND_B','B','computed','1+1')`);
    await db.query("INSERT INTO public.smn_indicator_team_selection(team_id,indicator_id) VALUES('team-1','ind-a')");
    await db.query(`INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value)
     VALUES('team-1','scrum','sprint-1','ind-a',NULL),('team-1','scrum','sprint-2','ind-a',0)`);
@@ -112,8 +116,13 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    const unavailable=await db.query<{reason:string;value:string|null}>(`SELECT unavailable_reason AS reason,value::text
     FROM public.smn_indicator_computed_result WHERE team_id='team-1' AND cycle_id='sprint-2'`);
    assert.deepEqual(unavailable.rows[0],{reason:"missing_source",value:null});
-   // L'intégrité cycle_id/team_id et le type manual/computed ne sont PAS garantis par ce DDL ;
-   // ce sera une porte applicative explicite avant toute activation de migration.
+   // Les mises à jour des entités parentes et la migration restent à qualifier.
+   await mustReject("INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value) VALUES('team-1','scrum','other-sprint','ind-a',5)");
+   await mustReject("INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value) VALUES('team-1','scrum','missing-cycle','ind-a',5)");
+   await mustReject("INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value) VALUES('team-1','scrum','sprint-3','ind-b',5)");
+   await mustReject("INSERT INTO public.smn_indicator_computed_result(team_id,cycle_type,cycle_id,indicator_id,result_state,value,formula_revision) VALUES('team-1','scrum','sprint-3','ind-a','available',1,1)");
+   await mustReject("INSERT INTO public.smn_indicator_cycle_revision(team_id,cycle_type,cycle_id,revision) VALUES('team-1','scrum','other-sprint',1)");
+   await db.query("INSERT INTO public.smn_indicator_cycle_revision(team_id,cycle_type,cycle_id,revision) VALUES('team-1','kanban','kanban-1',1)");
    const crossTeam=await db.query<{n:string}>(`SELECT count(*)::text n FROM public.smn_indicator_manual_value WHERE team_id='team-2'`);
    assert.equal(crossTeam.rows[0]?.n,"0");
    await db.query("ROLLBACK");
