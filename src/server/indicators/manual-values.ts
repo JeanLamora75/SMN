@@ -1,3 +1,4 @@
+import {recalculateIndicatorResultsWithinTransaction} from "./recalculation";
 import type {Client} from "pg";
 
 export type CycleType="scrum"|"kanban";
@@ -85,6 +86,11 @@ export async function writeManualValues(
     "value=EXCLUDED.value,updated_by=EXCLUDED.updated_by,updated_at=now()",
     [input.teamId,input.cycleType,input.cycleId,change.indicatorId,change.value,actorId]);
   }
+  await recalculateIndicatorResultsWithinTransaction(db,{
+   teamId:input.teamId,
+   cycles:[{teamId:input.teamId,cycleType:input.cycleType,cycleId:input.cycleId}],
+   changedIndicatorIds:ids
+  });
   await db.query("UPDATE public.smn_indicator_cycle_revision SET revision=revision+1,updated_at=now() "+
    "WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3",
    [input.teamId,input.cycleType,input.cycleId]);
