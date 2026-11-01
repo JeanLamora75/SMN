@@ -7,7 +7,7 @@ type Form={revision:number;definitions:D[];values:{indicator_id:string;value:str
 type Result={indicatorId:string;kind:string;value?:string;reason?:string;sourceTag?:string};
 export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string}){
  const t=useTranslation(),router=useRouter();
- const [open,setOpen]=useState(false),[form,setForm]=useState<Form|null>(null),[draft,setDraft]=useState<Record<string,string>>({}),[preview,setPreview]=useState<Result[]|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
+ const [open,setOpen]=useState(false),[form,setForm]=useState<Form|null>(null),[draft,setDraft]=useState<Record<string,string>>({}),[preview,setPreview]=useState<Result[]|null>(null),[systemRevision,setSystemRevision]=useState<number|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
  useEffect(()=>{if(!open)return;const controller=new AbortController();
   void fetch("/api/admin/indicators/input?"+new URLSearchParams({teamId,cycleType,cycleId}),{cache:"no-store",signal:controller.signal})
    .then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error);return d as Form;})
@@ -20,7 +20,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{team
   const ctrl=new AbortController();
   const timeout=setTimeout(()=>{
    const changes=form.definitions.filter(d=>d.indicator_type==="manual").map(d=>({indicatorId:d.id,value:(draft[d.id]??"").trim()||null}));
-   void fetch("/api/admin/indicators/input",{method:"POST",headers:{"content-type":"application/json"},signal:ctrl.signal,body:JSON.stringify({action:"preview",teamId,cycleType,cycleId,expectedRevision:form.revision,expectedSystemRevision:action==="save"?systemRevision:undefined,changes})})
+   void fetch("/api/admin/indicators/input",{method:"POST",headers:{"content-type":"application/json"},signal:ctrl.signal,body:JSON.stringify({action:"preview",teamId,cycleType,cycleId,expectedRevision:form.revision,changes})})
     .then(async r=>{const data=await r.json();if(!r.ok)throw Error(data.error??"unavailable");return data as {results:Result[];systemRevision:number};})
     .then(data=>{if(!ctrl.signal.aborted){setPreview(data.results);setSystemRevision(data.systemRevision);setError("");}})
     .catch(e=>{if(!ctrl.signal.aborted){setPreview(null);setSystemRevision(null);setError(String(e));}});
@@ -32,7 +32,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{team
  async function run(action:"preview"|"save"){
   if(!form)return;setBusy(true);setError("");setMessage("");
   const changes=manual.map(d=>({indicatorId:d.id,value:(draft[d.id]??"").trim()||null}));
-  try{const r=await fetch("/api/admin/indicators/input",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,teamId,cycleType,cycleId,expectedRevision:form.revision,changes})});
+  try{const r=await fetch("/api/admin/indicators/input",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action,teamId,cycleType,cycleId,expectedRevision:form.revision,expectedSystemRevision:action==="save"?systemRevision:undefined,changes})});
    const data=await r.json();if(!r.ok||data.ok===false)throw Error(data.error??"unavailable");
    if(action==="preview"){setPreview(data.results);setSystemRevision(data.systemRevision);setMessage(t("indicators.input.previewReady"));}
    else{setOpen(false);setForm(null);setPreview(null);setSystemRevision(null);router.refresh();setMessage(t("indicators.input.saved"));}
