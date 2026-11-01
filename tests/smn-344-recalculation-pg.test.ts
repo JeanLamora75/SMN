@@ -34,11 +34,9 @@ test("SMN-344 : v33 résultats différentiés, cascade et rollback",{timeout:180
     "('c','C','C','computed','B*2',5),('d','D','D','computed','1/0',1),"+
     "('e','E','E','computed','CAL_WORKING_DAYS+1',6)");
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id) VALUES "+
-    "('ab','b','indicator','a'),('bc','c','indicator','b'),"+
-    "('ce','e','calendar','null')");
+    "('ab','b','indicator','a'),('bc','c','indicator','b')");
    await db.query("INSERT INTO public.smn_indicator_manual_value(team_id,cycle_type,cycle_id,indicator_id,value) VALUES "+
     "('t-s','scrum','s-one','a',0),('t-s','scrum','s-two','a',3),('t-k','kanban','k-one','a',7)");
-   await db.query("DELETE FROM public.smn_indicator_dependency WHERE id='ce'");
    await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_calendar_tag) VALUES('ce','e','calendar','CAL_WORKING_DAYS')");
    const first=await recalculateIndicatorResults(db,{teamId:"t-s"});
    assert.deepEqual(first,{cycles:3,results:12});
