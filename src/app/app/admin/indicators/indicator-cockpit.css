@@ -1,0 +1,11 @@
+/* Indicateur : vocabulaire visuel partagé avec la fiche Sprint Cockpit Agile. */
+.smn-indicator-cockpit .smn-indicator-tabs{border-bottom:1px solid var(--smn-border);margin-bottom:16px;gap:6px}
+.smn-indicator-cockpit .smn-indicator-tabs .nav-link{border:1px solid transparent;border-radius:9px 9px 0 0;color:var(--smn-foreground);font-size:.87rem;font-weight:650;padding:10px 13px}
+.smn-indicator-cockpit .smn-indicator-tabs .nav-link:hover{background:var(--smn-muted-soft);border-color:var(--smn-border)}
+.smn-indicator-cockpit .smn-indicator-tabs .nav-link.active{color:var(--smn-brand);background:var(--smn-surface);border-color:var(--smn-border);border-bottom-color:var(--smn-surface)}
+.smn-indicator-cockpit .smn-indicator-cycle-table{margin-bottom:0;font-size:.88rem}
+.smn-indicator-cockpit .smn-indicator-cycle-table thead th{background:var(--smn-muted-soft);color:var(--smn-foreground);font-weight:700;vertical-align:middle;padding:12px;white-space:normal}
+.smn-indicator-cockpit .smn-indicator-cycle-table tbody td,.smn-indicator-cockpit .smn-indicator-cycle-table tbody th{padding:11px 12px;vertical-align:middle;border-bottom:1px solid var(--smn-border)}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-heading{min-width:130px;max-width:225px;line-height:1.3}
+.smn-indicator-cockpit :is(button,a,summary,th[tabindex]):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
+@media(max-width:700px){.smn-indicator-cockpit .smn-indicator-cycle-table{font-size:.82rem}}
