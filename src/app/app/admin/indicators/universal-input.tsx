@@ -5,7 +5,7 @@ import {useTranslation} from "@/i18n/client";
 type D={id:string;tag:string;name:string;indicator_type:string;formula:string|null};
 type Form={revision:number;definitions:D[];values:{indicator_id:string;value:string|null}[]};
 type Result={indicatorId:string;kind:string;value?:string;reason?:string;sourceTag?:string};
-export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string}){
+export default function UniversalIndicatorInput({teamId,cycleType,cycleId,buttonLabel}:{teamId:string;cycleType:"scrum"|"kanban";cycleId:string;buttonLabel?:string}){
  const t=useTranslation(),router=useRouter(),dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false),[form,setForm]=useState<Form|null>(null),[draft,setDraft]=useState<Record<string,string>>({}),[preview,setPreview]=useState<Result[]|null>(null),[systemRevision,setSystemRevision]=useState<number|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
  useEffect(()=>{if(!open)return;const node=dialog.current;if(node&&!node.open)node.showModal();return()=>{if(node?.open)node.close();};},[open]);
@@ -41,7 +41,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{team
   }catch(e){setPreview(null);setSystemRevision(null);setError(e instanceof Error?e.message:"unavailable");}finally{setBusy(false);}
  }
  return <div>
-  <button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>{setOpen(true);setMessage("");}}>{t("indicators.input.open")}</button>
+  <button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>{setOpen(true);setMessage("");}}>{buttonLabel??t("indicators.input.open")}</button>
   {message&&!open&&<p role="status">{message}</p>}
   {open&&<dialog ref={dialog} className="smn-indicator-universal-dialog" aria-modal="true" aria-labelledby="smn-universal-indicators-title" onCancel={e=>{e.preventDefault();close();}} style={{border:0,borderRadius:12,padding:0,width:"min(90vw,900px)",maxWidth:"900px"}}>
    <div className="modal-dialog modal-dialog-centered modal-lg"><div className="modal-content">
