@@ -23,6 +23,7 @@ const protectedObjects=[
  "smn_indicator_cycle_revision","smn_indicator_system_revision",
  "smn_indicator_team_grant"
 ] as const;
+export const protectedBusinessObject=(name:string)=>/^(?:smn_.*(?:capacity|calendar|absence|holiday|closure|snapshot|historical|history|report|archive|document|ceremony|meeting|member|attendance|work_slot|company|registry|audit)|smn_indicator_(?:definition|team_selection|display_preference|manual_value|computed_result|dependency|cycle_revision|system_revision|team_grant))$/.test(name);
 const legacyCandidates=[
  "smn_sprint_story_points","smn_sprint_ticket_counts",
  "smn_sprint_confidence_clarity","smn_sprint_indicator_scores",
@@ -36,9 +37,10 @@ export async function auditLegacyIndicators(db:Client){
   "SELECT referred.relname AS object,dependent.relname AS dependent FROM pg_catalog.pg_depend d JOIN pg_catalog.pg_class referred ON referred.oid=d.refobjid JOIN pg_catalog.pg_class dependent ON dependent.oid=d.objid WHERE referred.relnamespace='public'::regnamespace AND dependent.relnamespace='public'::regnamespace AND d.refobjid<>d.objid ORDER BY referred.relname,dependent.relname");
  const names=new Set(objects.rows.map(x=>x.name));
  const candidates=legacyCandidates.filter(x=>names.has(x)).map(name=>({name,dependentObjects:dependencies.rows.filter(x=>x.object===name).map(x=>x.dependent)}));
- const preserved=protectedObjects.filter(x=>names.has(x));
- const unknown=objects.rows.filter(x=>/indicator|story_points|ticket_counts|confidence_clarity|capacity|snapshot|closure/.test(x.name)&&!legacyCandidates.includes(x.name as typeof legacyCandidates[number])&&!protectedObjects.includes(x.name as typeof protectedObjects[number]));
- return {schemaVersion:(await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'")).rows[0]?.schema_version??null,candidates,preserved,unknown,destructiveOperationExecuted:false};
+ const preserved=[...names].filter(x=>protectedObjects.includes(x as typeof protectedObjects[number])||protectedBusinessObject(x)&&!legacyCandidates.includes(x as typeof legacyCandidates[number])).sort();
+ const unknown=objects.rows.filter(x=>/indicator|story_points|ticket_counts|confidence_clarity|capacity|snapshot|closure/.test(x.name)&&!legacyCandidates.includes(x.name as typeof legacyCandidates[number])&&!preserved.includes(x.name));
+ const unsafeCandidates=candidates.filter(c=>c.dependentObjects.length>0);
+ return {unsafeCandidates,readOnly:true,schemaVersion:(await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'")).rows[0]?.schema_version??null,candidates,preserved,unknown,destructiveOperationExecuted:false};
 }
 async function main(){
  if(process.argv.slice(2).join(" ")!=="--check")throw Error("Usage: pnpm exec tsx scripts/smn-351-legacy-audit.ts --check (read-only)");
