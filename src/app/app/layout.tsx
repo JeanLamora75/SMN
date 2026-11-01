@@ -4,6 +4,7 @@ import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
 import {withAuthDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
+import {indicatorTeams} from "@/server/indicators/team-access";
 import SessionActivity from "./session-activity";
 import PrivateShell from "./private-shell";
 import type {PrivateRole} from "@/lib/private-navigation";
@@ -21,11 +22,13 @@ export default async function PrivateLayout({children}:{children:ReactNode}) {
   const dashboard=await withAuthDb(db=>readAccountDashboard(db,
     {accountId:account.id,role:account.role})).catch(()=>null);
   const context=dashboard?.context??null;
+  const canManageIndicators=account.role==="admin"||await withAuthDb(async db=>(await indicatorTeams(db,{accountId:account.id,role:account.role})).length>0).catch(()=>false);
   return <>
     <PrivateShell username={account.username} role={account.role as PrivateRole}
       mode={context?.mode??null} product={context?.product??null}
       team={context?.team??null} teamId={context?.teamId??null}
-      teamSwitcherEnabled={MULTI_TEAM_CONTEXT_READY&&account.role==="admin"}>
+      teamSwitcherEnabled={MULTI_TEAM_CONTEXT_READY&&account.role==="admin"}
+      canManageIndicators={canManageIndicators}>
       {children}
     </PrivateShell>
     <SessionActivity/>
