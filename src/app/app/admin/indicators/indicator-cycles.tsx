@@ -32,7 +32,7 @@ export default function IndicatorCycles({teamId,cycleType,locale}:{teamId:string
    <tbody>{data.cycles.map(cycle=><tr key={cycle.id}>
     <th scope="row">{cycle.name}</th><td>{cycle.status}</td>
     {data.columns.map(column=><td key={column.id} className="text-end">{value(cycle.values[column.id],column.unit)}</td>)}
-    <td><UniversalIndicatorInput key={cycle.id} teamId={teamId} cycleType={cycleType} cycleId={cycle.id}/></td>
+    <td><UniversalIndicatorInput key={cycle.id} teamId={teamId} cycleType={cycleType} cycleId={cycle.id} buttonLabel={t("indicators.edit")}/></td>
    </tr>)}</tbody>
   </table>{data.cycles.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}</div>}
  </section>;
