@@ -4,7 +4,7 @@ import {useTranslation} from "@/i18n/client";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
-export default function IndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
+export default function IndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
  const t=useTranslation();
