@@ -44,3 +44,11 @@ Le runner BMAD `uv` n'est pas disponible dans le contexte ChatGPT ; lecture des 
 Les points d'entrée actifs de la page Sprint utilisent dorénavant la saisie universelle (`UniversalIndicatorInput`) et la projection dynamique v33 (`IndicatorReporting`). L'ancien éditeur Fxx du panneau Sprint n'est plus monté ; les colonnes Fxx et leurs lectures SQL ont été retirées de l'index Sprint, où s'affiche la projection configurée pour `cycle_list`. Le panneau des tendances anciennes n'est plus monté dans la fiche Sprint au profit de la projection `trends`. Les tests d'assertions UI historiques ont été réorientés vers ce contrat.
 
 **Reste en place intentionnellement :** routes API et services historiques v32, fichiers de formulaires historiques non montés, lectures de snapshots de clôture pour les autres modules métier, états de capacité et de rapports. Les retirer sans audit des consommateurs et sans preuve de parité fonctionnelle casserait des contrats métiers indépendants. Le retrait physique des API/DDL demeure une phase distincte de SMN-351. Les tables n'ont pas été touchées.
+
+## Retrait applicatif supplémentaire, sans DDL
+
+- Sur les installations **v33**, les routes historiques `/api/admin/sprints/story-points`, `/tickets`, `/scores` et `/trends` sont explicitement fermées (`410 legacy-indicators-retired`) après authentification. Elles renvoient vers les routes dynamiques et ne peuvent plus servir à modifier d'anciennes valeurs.
+- Le comportement des routes sur les bases historiques jusqu'en v32 reste isolé et conservé, afin d'éviter une rupture brutale des installations non migrées. Les services et fichiers historiques sont conservés temporairement comme compatibilité technique ; ils ne sont plus montés dans la fiche Sprint v33.
+- La projection de la fiche Sprint utilise les préférences **`cycle_detail`**, distinctes de celles du tableau de bord, et n'est affichée qu'aux équipes explicitement habilitées.
+- La nouvelle sélection des indicateurs sur la liste est fondée sur `cycle_list`, les tendances sur `trends` ; les anciennes colonnes fixes Fxx ont disparu.
+- **Aucun DROP SQL n'a été lancé.** Les outils métier de capacité et les snapshots indépendants restent protégés.
