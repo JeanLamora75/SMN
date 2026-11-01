@@ -82,3 +82,19 @@ Le diagnostic `pnpm db:check:smn-351` distingue désormais `unsafeCandidates` (d
 La commande `pnpm db:compare:smn-351:auto` ne nécessite pas de saisir les mots de passe PostgreSQL. Elle utilise **uniquement** la connexion locale SMN existante, vérifie que la source est `/smn` et que le compte peut créer des bases, crée deux bases temporaires aléatoires `smn351_fresh_*` et `smn351_migrated_*`, installe la v33 native dans la première et une baseline v32 suivie de la migration v33 dans la seconde, compare leurs signatures, puis supprime exclusivement ses deux bases temporaires.
 
 **Limite importante :** ce scénario teste les deux chemins **baseline native v32 → v33** et **installation native v33**, et non une migration réelle depuis l'intégralité des 32 migrations historiques. Il ne suffit donc pas à lui seul à autoriser le nettoyage de la base SMN réelle. La comparaison ne modifie jamais `smn` et ne déclenche aucune suppression de table métier. Les différences de signature provoquent un code de sortie 2 ; il faut les examiner avant toute autorisation.
+
+## Audit applicatif transversal — 01/11/2026
+
+Le contrôle automatique `pnpm db:audit:smn-351` recense dans `src/`, `scripts/`, `tests/` et `prisma/migrations/` les mentions des quatre tables historiques candidates, avec chemin, ligne, table et catégorie de consommation. Il est intégré à `pnpm db:preflight:smn-351` ; le code de retour 2 signifie **suppression interdite**.
+
+**Dépendances runtime identifiées et à résoudre avant DROP :**
+- `src/server/sprints/closure.ts` lit les anciennes données Story Points/Tickets lors de la création de **nouveaux snapshots de clôture**. Retirer ces tables casserait la clôture, même si les anciens écrans ont été retirés.
+- `src/server/reports/standard-composition.ts` conserve des lectures des anciennes tables pour des rapports de sprints non clôturés ; les rapports et snapshots clos reposent aussi sur la préservation des données figées.
+- `src/server/sprints/indicators-read.ts` fournit toujours la lecture historique / compatibilité ; les autres routes et services v32 ne sont pas des garanties d'absence d'appels indirects.
+- Les migrations historiques et tests conservent des références nécessaires à la reproductibilité ; ne pas les supprimer aveuglément.
+
+**Méthode de résolution** : remplacer les producteurs runtime avec un contrat métier propre, vérifier de manière intégrée la clôture Scrum/Kanban, les capacités et les rapports historiques, puis refaire l'audit de références ; les tables historiques ne doivent pas être effacées au seul motif que les écrans ne les affichent plus.
+
+**Trajectoire historique non validée** : la comparaison native v32→v33 a été effectuée et les signatures se correspondent. Elle ne remplace pas une restauration isolée d'une installation ayant suivi les 32 migrations historiques. La preuve de restauration et les tests d'intégrité de cette trajectoire sont obligatoires avant de considérer un DROP. Le diagnostic applicatif parcourt les références textuelles ; il ne prouve pas à lui seul l'absence de SQL dynamique ou de dépendances externes.
+
+Aucune migration de suppression n'est activée ; aucun DROP sur `smn`.
