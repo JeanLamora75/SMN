@@ -1,0 +1,14 @@
+/* Dashboard slot selector — Cockpit Agile modal, matching Sprint edit dialogs. */
+.smn-dashboard-slot-dialog{width:min(94vw,520px);max-width:520px;max-height:90vh;margin:auto;padding:0;border:1px solid #d6e0ed;border-radius:16px;overflow:auto;box-shadow:0 24px 70px rgba(7,26,52,.3);background:var(--smn-surface,#fff);color:var(--smn-foreground)}
+.smn-dashboard-slot-dialog::backdrop{background:rgba(0,0,0,.54)}
+.smn-dashboard-slot-dialog .smn-indicator-dialog-content{background:var(--smn-surface,#fff);border:0;border-radius:16px;overflow:hidden}
+.smn-dashboard-slot-dialog .smn-indicator-dialog-header{display:flex;justify-content:space-between;align-items:center;gap:16px;background:#1b508d;color:#fff;padding:16px 20px}
+.smn-dashboard-slot-dialog .smn-indicator-dialog-header .modal-title{color:#fff;margin:0;font-size:1.1rem;font-weight:700}
+.smn-dashboard-slot-dialog .smn-indicator-dialog-header .btn-close{background-color:#fff;opacity:1;border-radius:6px;padding:10px;flex-shrink:0}
+.smn-dashboard-slot-dialog .smn-indicator-dialog-form{padding:20px}
+.smn-dashboard-slot-dialog .smn-indicator-dialog-form .form-label{font-weight:600}
+.smn-dashboard-slot-dialog .modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px 18px;border-top:0}
+.smn-dashboard-slot-dialog .modal-footer .btn{border-radius:9px}
+.smn-dashboard-slot-dialog .modal-footer .btn-primary{background:#1b508d;border-color:#1b508d}
+.smn-dashboard-slot-dialog .modal-footer .btn-primary:hover{background:#153f70;border-color:#153f70}
+@media(max-width:650px){.smn-dashboard-slot-dialog{width:calc(100vw - 24px)}.smn-dashboard-slot-dialog .smn-indicator-dialog-form{padding:16px}}
