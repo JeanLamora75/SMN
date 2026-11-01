@@ -22,10 +22,12 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string,reportI
  readTeamReportContext(db,report.sprint.teamId),readReportHistoryOptions(db,sprintId)
  ]);
  const dynamicIndicators=await readReportIndicatorProjection(db,report.sprint.teamId,"scrum",sprintId,reportIndicatorSelection);
+ const v33=(await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton'")).rows[0]?.schema_version===33;
  const projection=report.projection.scrum;
- const metrics=projectSelectedMetrics({committed:projection.storyPoints.committed.value,
+ const legacyMetrics=projectSelectedMetrics({committed:projection.storyPoints.committed.value,
  completed:projection.storyPoints.completed.value,planned:projection.capacity.planned.value,
  actual:projection.capacity.actual.value},contents.options);
+ const metrics=v33?[]:legacyMetrics;
  const filtered=orderReportSections(report.sections,sections.options).map(section=>{
  if(section.key==="indicators")return {...section,items:[],state:"empty" as const};
  if(section.key==="attention"||section.key==="decisions")return {...section,
