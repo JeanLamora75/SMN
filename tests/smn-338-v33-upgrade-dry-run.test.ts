@@ -49,7 +49,7 @@ test("SMN-338 : recette additive et convergence sur deux bases jetables", {timeo
     const indexes=await db.query("SELECT tablename,indexname,indexdef FROM pg_indexes WHERE schemaname='public' AND tablename LIKE 'smn_indicator_%' ORDER BY tablename,indexname");
     const constraints=await db.query("SELECT table_name,constraint_name,constraint_type FROM information_schema.table_constraints WHERE table_schema='public' AND table_name LIKE 'smn_indicator_%' ORDER BY table_name,constraint_name");
     const triggers=await db.query("SELECT tgname FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE NOT t.tgisinternal AND c.relname LIKE 'smn_indicator_%' ORDER BY tgname");
-    assert.equal(triggers.rows.length,3);
+    assert.equal(triggers.rows.length,4);
     signatures.push(JSON.stringify([tables.rows,columns.rows,indexes.rows,constraints.rows,triggers.rows]));
     const prior=await db.query("SELECT count(*)::int AS n FROM public._prisma_migrations");
     assert.equal(prior.rows[0]?.n,historyCount);
