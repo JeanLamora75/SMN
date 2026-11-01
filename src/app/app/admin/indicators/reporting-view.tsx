@@ -1,5 +1,5 @@
 "use client";
-import {useCallback,useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
