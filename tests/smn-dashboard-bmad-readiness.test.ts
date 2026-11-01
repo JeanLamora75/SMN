@@ -7,7 +7,6 @@ const policy=read("scripts/db-upgrade-policy.ts");
 const capture=read("src/server/indicators/closure-snapshot.ts");
 const closure=read("src/server/sprints/closure.ts");
 const reporting=read("src/server/indicators/reporting.ts");
-const catalog=read("src/server/indicators/catalog.ts");
 test("v33 upgrade only applies explicit, backed-up migrations",()=>{
  assert.match(migration,/SMN_V33_BACKUP_VERIFIED/);
  assert.match(migration,/before\.version===32/);
