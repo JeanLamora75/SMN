@@ -19,6 +19,8 @@ export async function confirmHistoricalCsv(db:Client,actorId:string,csv:string,c
  for(const c of choices){if(seen.has(c.line))return invalid("duplicate-decision");seen.add(c.line);}
  await db.query("BEGIN");
  try{
+  const version=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+  if(version.rows[0]?.schema_version===33){await db.query("ROLLBACK");return invalid("v33-indicator-mapping-required");}
   const installation=await db.query<{mode:string}>(`SELECT lower(mode) AS mode FROM public.smn_installation WHERE id='singleton' AND state='initialized' FOR UPDATE`);
   const mode=installation.rows[0]?.mode as HistoricalCsvMode;
   if(mode!=="scrum"&&mode!=="kanban"){await db.query("ROLLBACK");return invalid("unsupported-mode");}
