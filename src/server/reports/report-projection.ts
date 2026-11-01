@@ -1,3 +1,4 @@
+import {readLegacyReportPoints} from "@/server/compat-v32/legacy-metric-read";
 import type {Client} from "pg";
 import {projectScrum,type ScrumReportProjection,type ReportCycle} from "@/lib/report-data-contract";
 export async function readScrumReportProjection(db:Client,input:{
@@ -6,9 +7,8 @@ export async function readScrumReportProjection(db:Client,input:{
  const id=input.cycle.id;
  const state=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id=\'singleton\' AND state=\'initialized\'");
  const v33=state.rows[0]?.schema_version===33;
- const present=await db.query<{closed:boolean;points:boolean;capacity:boolean}>(`SELECT
+ const present=await db.query<{closed:boolean;capacity:boolean}>(`SELECT
  to_regclass('public.smn_sprint_closure_snapshot') IS NOT NULL AS closed,
- to_regclass('public.smn_sprint_story_points') IS NOT NULL AS points,
  to_regclass('public.smn_capacity_initial_snapshot') IS NOT NULL AS capacity`);
  const schema=present.rows[0];
  let committed:unknown=null,completed:unknown=null,planned:unknown=null,actual:unknown=null;
@@ -26,10 +26,9 @@ export async function readScrumReportProjection(db:Client,input:{
    }
   }
  }else{
-  if(!v33&&schema?.points){
-   const r=await db.query<{initial_sp:string|null;done_sp:string|null}>(`SELECT initial_sp::text,done_sp::text
-    FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[id]);
-   committed=r.rows[0]?.initial_sp;completed=r.rows[0]?.done_sp;
+  if(!v33){
+   const legacy=await readLegacyReportPoints(db,id);
+   committed=legacy?.initial_sp??null;completed=legacy?.done_sp??null;
   }
   // Current capacity is not populated until a verified period-specific adapter exists.
  }
