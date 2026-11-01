@@ -1,4 +1,4 @@
-import {calculateFormula,referencedTags,parseFormula,type Result,type SourceValue} from "../formula";
+import {evaluateFormula,referencedTags,parseFormula,FormulaBudgetError,type Expression,type Result,type SourceValue} from "../formula";
 
 export type DependencyRow=Readonly<{indicator_id:string;source_type:"indicator"|"calendar";source_indicator_id:string|null;source_calendar_tag:string|null}>;
 export type IndicatorDefinition=Readonly<{id:string;tag:string;formula:string|null;isActive?:boolean}>;
@@ -15,7 +15,7 @@ export class DependencyGraphError extends Error {
   super(message);this.name="DependencyGraphError";
  }
 }
-const MAX_NODES=10000,MAX_EDGES=100000;
+const MAX_NODES=10000,MAX_EDGES=100000,MAX_CASCADE_OPERATIONS=100000;
 const compare=(a:string,b:string)=>a.localeCompare(b,"en");
 const validTag=(tag:string)=>/^[A-Z][A-Z0-9_]*$/.test(tag);
 
@@ -108,6 +108,7 @@ export function evaluateDependencies(input:EvaluateDependenciesInput):ReadonlyMa
  const order=input.changedIndicatorIds||input.changedCalendarTags?
   impactedIndicatorIds(graph,input.changedIndicatorIds??[],input.changedCalendarTags??[]):graph.order;
  const results=new Map<string,Result>(),byId=new Map<string,SourceValue>();
+ let remainingOperations=MAX_CASCADE_OPERATIONS;
  for(const [id,value] of Object.entries(input.indicators))byId.set(id,value);
  for(const id of order){
   const definition=graph.definitions.get(id)!;
@@ -119,7 +120,16 @@ export function evaluateDependencies(input:EvaluateDependenciesInput):ReadonlyMa
    sources[source.tag]=value?(value.kind==="available"?value.value:{kind:"unavailable",reason:value.reason,sourceTag:value.sourceTag}):byId.get(upstream)??null;
   }
   for(const tag of graph.calendarDependencies.get(id)??[])sources[tag]=input.calendar[tag as CalendarSourceTag]??null;
-  const result=calculateFormula(definition.formula,sources);
+  const ast=parseFormula(definition.formula);
+  const pending:Expression[]=[ast];let requiredOperations=0;
+  while(pending.length){const node=pending.pop()!;requiredOperations++;
+   if(requiredOperations>remainingOperations)throw new FormulaBudgetError("cascade evaluation budget");
+   if(node.kind==="binary")pending.push(node.left,node.right);
+   else if(node.kind==="unary"||node.kind==="percent")pending.push(node.child);
+   else if(node.kind==="call")pending.push(...node.args);
+  }
+  remainingOperations-=requiredOperations;
+  const result=evaluateFormula(ast,sources,requiredOperations);
   results.set(id,result);
   byId.set(id,result.kind==="available"?result.value:{kind:"unavailable",reason:result.reason,sourceTag:result.sourceTag});
  }
