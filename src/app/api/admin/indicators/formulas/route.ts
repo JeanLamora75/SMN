@@ -20,7 +20,7 @@ export async function POST(req:NextRequest){
    const c=body.confirmation as Record<string,unknown>;
    if(Object.keys(c).length!==2||typeof c.globalRevision!=="string"||typeof c.fingerprint!=="string")
     return jsonResult({error:"invalid-input"},400);
-   const result=await withAuthDb(db=>publishFormula(db,proposal,{globalRevision:c.globalRevision,fingerprint:c.fingerprint}));
+   const result=await withAuthDb(db=>publishFormula(db,proposal,{globalRevision:c.globalRevision as string,fingerprint:c.fingerprint as string}));
    return jsonResult(result,result.ok?200:result.error==="stale_preview"?409:result.error==="not_found"?404:422);
   }
   return jsonResult({error:"invalid-input"},400);
