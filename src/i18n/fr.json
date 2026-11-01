@@ -3876,6 +3876,20 @@
     "exportMarkdown": "Exporter les références (Markdown)"
   },
   "indicators": {
+    "input": {
+      "open": "Saisir les indicateurs",
+      "title": "Saisie des indicateurs",
+      "close": "Fermer",
+      "loading": "Chargement…",
+      "computed": "Valeurs calculées (lecture seule)",
+      "previewRequired": "Aperçu nécessaire",
+      "unavailable": "Indisponible",
+      "cancel": "Annuler",
+      "preview": "Prévisualiser",
+      "save": "Enregistrer",
+      "previewReady": "Aperçu calculé sans enregistrement.",
+      "saved": "Valeurs enregistrées."
+    },
     "grantsTitle": "Habilitations des Scrum Masters par équipe",
     "grantsAccount": "Compte",
     "grantsAria": "Habilitations Scrum Masters",
