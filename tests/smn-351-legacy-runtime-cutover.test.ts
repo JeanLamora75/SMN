@@ -16,7 +16,8 @@ test("v33 dashboard and report projections do not read current legacy tables",()
  const report=read("src/server/reports/report-projection.ts");
  assert.match(dashboard,/!v33&&await tableExists\(db,"smn_sprint_story_points"\)/);
  assert.match(dashboard,/tickets=v33\?/);
- assert.match(report,/!v33&&schema\?\.points/);
+ assert.match(report,/if\(!v33\)/);
+ assert.match(report,/readLegacyReportPoints/);
 });
 test("v33 CSV confirms reject prior to old metric table updates",()=>{
  const csv=read("src/server/historical-csv/confirm.ts");
