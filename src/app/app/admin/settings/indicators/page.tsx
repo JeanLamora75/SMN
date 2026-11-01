@@ -11,7 +11,7 @@ export default async function IndicatorSettingsPage(){
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
   <header className="smn-panel rounded-4 px-4 py-3 mb-3">
    <h1 className="h4 mb-1">Paramètres · Indicateurs</h1>
-   <p className="small text-secondary mb-0">Catalogue global des définitions d'indicateurs — administration</p>
+   <p className="small text-secondary mb-0">Catalogue global des définitions d’indicateurs — administration</p>
   </header>
   <IndicatorCatalog teams={[]} isAdmin scope="global"/>
   <details className="smn-panel rounded-4 p-3 mt-4"><summary className="fw-semibold">Habilitations des Scrum Masters par équipe</summary><TeamGrants/></details>
