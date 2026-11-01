@@ -179,7 +179,32 @@ export async function probePostgres(uri: string): Promise<Snapshot> {
         companySchemaValid=check.rows[0]?.valid===true;
       }
     }
-    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, multiTeamSchemaValid, linksSchemaValid, countryConsolidationSchemaValid, companySchemaValid, teamAgileModeSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
+    let indicatorV33SchemaValid:boolean|undefined;
+    if((installations.rows[0]?.schema_version??0)>=33){
+      const verify=await client.query<{function_count:string;trigger_count:string;index_count:string}>(`
+        SELECT
+         (SELECT count(*)::text FROM pg_proc p JOIN pg_namespace ns ON ns.oid=p.pronamespace
+           WHERE ns.nspname='public' AND p.proname IN
+            ('smn_indicator_assert_cycle_integrity','smn_indicator_assert_value_integrity',
+             'smn_indicator_guard_cycle_team_change','smn_indicator_guard_definition_type_change')) AS function_count,
+         (SELECT count(*)::text FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+           JOIN pg_namespace ns ON ns.oid=c.relnamespace
+           WHERE ns.nspname='public' AND NOT t.tgisinternal AND t.tgenabled<>'D'
+             AND t.tgname IN
+             ('smn_indicator_manual_value_integrity','smn_indicator_computed_result_integrity',
+              'smn_indicator_cycle_revision_integrity','smn_indicator_guard_sprint_team',
+              'smn_indicator_guard_kanban_team','smn_indicator_guard_definition_type')) AS trigger_count,
+         (SELECT count(*)::text FROM pg_indexes
+           WHERE schemaname='public' AND indexname IN
+           ('smn_ind_dep_indicator_unique','smn_ind_dep_calendar_unique')) AS index_count
+      `);
+      indicatorV33SchemaValid=verify.rows[0]?.function_count==="4"&&
+        verify.rows[0]?.trigger_count==="6"&&verify.rows[0]?.index_count==="2"&&
+        ["definition","team_selection","display_preference","manual_value",
+         "computed_result","dependency","cycle_revision","system_revision"]
+         .every(n=>["id","team_id","indicator_id"].some(c=>columnSet.has("smn_indicator_"+n+":"+c)));
+    }
+    return { schemaUsage, schemaCreate, serverVersion, tables, tableRead, migrationsRead, installations: installations.rows, migrations, shapeValid, ...(indicatorV33SchemaValid===undefined?{}:{indicatorV33SchemaValid}), multiTeamSchemaValid, linksSchemaValid, countryConsolidationSchemaValid, companySchemaValid, teamAgileModeSchemaValid, accountActiveColumn: columnSet.has("smn_account:is_active"),
       recoverySchemaValid: ["smn_recovery_phrase:account_id","smn_recovery_phrase:phrase_hash","smn_recovery_phrase:created_at","smn_auth_audit:id","smn_auth_audit:account_id","smn_auth_audit:action","smn_auth_audit:created_at"].every(col=>columnSet.has(col)),
       configurationTasksSchemaValid: ["smn_configuration_task:installation_id","smn_configuration_task:task_key",
         "smn_configuration_task:status","smn_configuration_task:updated_at","smn_configuration_task:updated_by"]
