@@ -50,6 +50,8 @@ jobs:
         run: pnpm db:test:smn-344
       - name: Recette PostgreSQL isolée SMN-345
         run: pnpm db:test:smn-345
+      - name: Recette PostgreSQL isolée SMN-346
+        run: pnpm db:test:smn-346
       - name: Lint
         run: pnpm lint
       - name: Tests unitaires et intégration PG réelle
