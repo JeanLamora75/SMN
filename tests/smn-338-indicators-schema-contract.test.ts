@@ -46,3 +46,14 @@ test("SMN-338 : aucune clé de dépendance composite nullable",()=>{
  assert.match(dependency,/id text PRIMARY KEY/i);
  assert.doesNotMatch(dependency,/PRIMARY KEY\\s*\\(indicator_id,source_type,source_indicator_id,source_calendar_tag\\)/i);
 });
+
+
+test("SMN-338 : fonctions PL/pgSQL délimitées et déclencheurs d'intégrité présents",()=>{
+ const starts=[...sql.matchAll(/RETURNS trigger LANGUAGE plpgsql AS \$\$/g)];
+ const endings=[...sql.matchAll(/\$\$;/g)];
+ assert.equal(starts.length,2);
+ assert.equal(endings.length,2);
+ assert.match(sql,/CREATE TRIGGER smn_indicator_manual_value_integrity/);
+ assert.match(sql,/CREATE TRIGGER smn_indicator_computed_result_integrity/);
+ assert.match(sql,/CREATE TRIGGER smn_indicator_cycle_revision_integrity/);
+});
