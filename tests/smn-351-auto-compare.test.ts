@@ -16,3 +16,12 @@ test("SMN-351 auto: isolated unique scratch databases and no cleanup approval",(
  assert.match(source,/applyV33\(db,true\)/);
  assert.match(source,/installExpress/);
 });
+
+test("SMN-351 auto: migrated v33 applies native additive palette and team grants",()=>{
+ const source=readFileSync("scripts/smn-351-auto-compare.ts","utf8");
+ assert.match(source,/paletteMigrationBody\(paletteSql\)/);
+ assert.match(source,/20261031_red_purple_palette\/migration\.sql/);
+ assert.match(source,/20261101_smn347_team_grants\/migration\.sql/);
+ assert.match(source,/await db\.query\(grantsSql\)/);
+ assert.match(source,/await db\.query\("COMMIT"\)/);
+});
