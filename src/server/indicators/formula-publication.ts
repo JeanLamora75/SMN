@@ -48,19 +48,20 @@ async function prepare(db:Client,input:FormulaProposal){
   "SELECT s.team_id,'scrum'::text AS cycle_type,s.id AS cycle_id FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id WHERE s.deleted_at IS NULL AND NOT t.is_archived AND t.agile_mode='scrum' "+
   "UNION ALL SELECT p.team_id,'kanban',p.id FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id WHERE p.deleted_at IS NULL AND NOT t.is_archived AND t.agile_mode='kanban' ORDER BY team_id,cycle_type,cycle_id LIMIT 1001");
  if(cycles.rows.length>MAX_CYCLES||cycles.rows.length*affected.length>MAX_RESULTS)throw new FormulaPublicationError("budget","Too many recalculations");
- const content={definitions:defs.rows,dependencies:existing.rows,cycles:cycles.rows};
- const fingerprint=digest({revision:rev.rows[0].revision,content,proposal:input});
+ const inputs:unknown[]=[];
  let unavailable=0;
  for(const cycle of cycles.rows){
   const params=[cycle.team_id,cycle.cycle_type,cycle.cycle_id];
   const manual=await db.query<{indicator_id:string;value:string|null}>("SELECT indicator_id,value::text AS value FROM public.smn_indicator_manual_value WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3 ORDER BY indicator_id",params);
   const computed=await db.query<{indicator_id:string;result_state:string;value:string|null;unavailable_reason:string|null;unavailable_source_tag:string|null}>("SELECT indicator_id,result_state,value::text AS value,unavailable_reason,unavailable_source_tag FROM public.smn_indicator_computed_result WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3 ORDER BY indicator_id",params);
+  inputs.push({scope:cycle,manual:manual.rows,computed:computed.rows});
   const values:Record<string,SourceValue>=Object.create(null) as Record<string,SourceValue>;
   for(const v of manual.rows)values[v.indicator_id]=v.value;
   for(const v of computed.rows)values[v.indicator_id]=v.result_state==="available"?v.value:{kind:"unavailable",reason:(v.unavailable_reason??"missing_source") as "missing_source",sourceTag:v.unavailable_source_tag??undefined};
   const calculated=evaluateDependencies({graph,indicators:values,calendar:{},changedIndicatorIds:[input.indicatorId]});
   unavailable+=[...calculated.values()].filter(x=>x.kind==="unavailable").length;
  }
+ const fingerprint=digest({revision:rev.rows[0].revision,definitions:defs.rows,dependencies:existing.rows,cycles:cycles.rows,inputs,proposal:input});
  return {globalRevision:rev.rows[0].revision,fingerprint,indicatorId:input.indicatorId,formula:input.formula,affectedIndicators:affected,cycles:cycles.rows.length,results:cycles.rows.length*affected.length,unavailable,edges:replacement,teams:[...new Set(cycles.rows.map(x=>x.team_id))].sort()};
 }
 /** No writes, not even sequence changes or audit records. */
