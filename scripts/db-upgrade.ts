@@ -3,6 +3,8 @@ import {installedDatabaseUri} from "../src/server/auth/database";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {decideUpgrade} from "./db-upgrade-policy";
+import {Client} from "pg";
+import {applyV33} from "./apply-smn-338-v33";
 
 async function inspect(){
  const snapshot=await probePostgres(await installedDatabaseUri());
@@ -20,7 +22,15 @@ async function main(){
  const decision=decideUpgrade(before.status,before.version,before.migrations);
  console.log(JSON.stringify({before,decision},null,2));
  if(decision.kind==="refuse")throw Error(decision.reason);
+ if(before.status==="initialized"&&before.version===32&&(before.migrations===32||before.migrations===1)){
+   if(!args.includes("--apply")){console.log("Migration v33 disponible uniquement après sauvegarde vérifiée. Contrôle: pnpm db:check:smn-338");return;}
+   if(process.env.SMN_V33_BACKUP_VERIFIED!=="YES")throw Error("Sauvegarde v32 vérifiée requise : SMN_V33_BACKUP_VERIFIED=YES");
+   const db=new Client({connectionString:await installedDatabaseUri(),connectionTimeoutMillis:3500,statement_timeout:60000});
+   await db.connect();try{console.log(JSON.stringify(await applyV33(db,true),null,2))}finally{await db.end()}
+   return;
+ }
  if(decision.kind==="noop")return;
+
  if(!args.includes("--apply")){
    console.log("Prévisualisation seule. Utiliser --apply après sauvegarde de la base.");
    return;
