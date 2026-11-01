@@ -33,10 +33,11 @@ export async function POST(req:NextRequest){
  const input=body as unknown as ManualWrite&{action:string};
  try{
   if(input.action==="preview")return jsonResult(await withAuthDb(db=>previewIndicatorInput(db,{accountId:a.id,role:a.role},input)),200);
-  const result=await withAuthDb(async db=>{
-   await requireIndicatorTeam(db,{accountId:a.id,role:a.role},input.teamId);
-   return writeManualValues(db,a.id,input,async()=>true);
-  });
+  if(!Number.isSafeInteger(input.expectedSystemRevision)||input.expectedSystemRevision<0)return jsonResult({error:"invalid-input"},400);
+  const result=await withAuthDb(db=>writeManualValues(db,a.id,input,async(actorId,teamId,client)=>{
+   await requireIndicatorTeam(client,{accountId:actorId,role:a.role},teamId);
+   return true;
+  }));
   return jsonResult(result,result.ok?200:result.error==="conflict"?409:result.error==="forbidden"?403:400);
  }catch(e){const code=e instanceof Error?e.message:"unavailable";return jsonResult({error:code},code==="conflict"?409:code==="invalid-input"?400:code==="not-found"?404:code==="indicator-unavailable"?422:code==="team-access-forbidden"?403:503);}
 }
