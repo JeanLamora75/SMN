@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import IndicatorReporting from "../indicators/reporting-view";
 import {useDeferredValue,useEffect,useState} from "react";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {SprintIndexItem,SprintIndexSort} from "@/server/sprints/index";
@@ -169,6 +170,7 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
      onClick={reload} disabled={loading}>{t("sprintStates.refresh")}</button>
    </div>
   </section>
+  {teamId&&<IndicatorReporting teamId={teamId} cycleType="scrum" screen="cycle_list" locale={locale}/>}
   <section className="smn-sprints-results" aria-label={t("sprintsIndex.list")}>
    {error&&<div role="alert" className="alert alert-warning">
     {t("sprintsIndex.error")}
