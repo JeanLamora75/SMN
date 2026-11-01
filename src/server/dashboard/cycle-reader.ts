@@ -259,7 +259,23 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     WHERE sprint_id=$1 ORDER BY created_at,id`,[sprint.id]);
    goals=goalsFrom(r.rows,null);
   }else goals=collectionUnavailable("schema-missing");
-  if(!v33&&await tableExists(db,"smn_sprint_story_points")){
+  if(v33){
+   const result=await db.query<{tag:string;value:string|null}>(`
+    SELECT d.tag,CASE WHEN d.indicator_type='manual' THEN m.value::text
+      WHEN c.result_state='available' THEN c.value::text ELSE NULL END AS value
+    FROM public.smn_indicator_definition d
+    JOIN public.smn_indicator_team_selection sel
+      ON sel.indicator_id=d.id AND sel.team_id=$1 AND sel.is_active=true
+    LEFT JOIN public.smn_indicator_manual_value m
+      ON m.team_id=$1 AND m.cycle_type='scrum' AND m.cycle_id=$2 AND m.indicator_id=d.id
+    LEFT JOIN public.smn_indicator_computed_result c
+      ON c.team_id=$1 AND c.cycle_type='scrum' AND c.cycle_id=$2 AND c.indicator_id=d.id
+    WHERE d.archived_at IS NULL AND d.tag=ANY($3::text[])`,
+    [teamId,sprint.id,["F01","F04","F10","F11"]]);
+   const values=new Map(result.rows.map(r=>[r.tag,r.value]));
+   storyPoints={initial:metric(values.get("F01"),"manual"),done:metric(values.get("F04"),"manual")};
+   tickets={initial:metric(values.get("F10"),"manual"),done:metric(values.get("F11"),"manual")};
+  }else if(await tableExists(db,"smn_sprint_story_points")){
    const r=await db.query<{initial_sp:string|null;done_sp:string|null}>(`
     SELECT initial_sp::text,done_sp::text FROM public.smn_sprint_story_points
     WHERE sprint_id=$1`,[sprint.id]);
@@ -268,7 +284,7 @@ export async function readCycleDashboard(db:Client,teamId:string,sprint:SprintCo
     done:metricUnavailable("schema-missing")};
   await db.query("SAVEPOINT dashboard_current_tickets");
   try{
-   tickets=v33?{initial:metricUnavailable("producer-not-ready"),done:metricUnavailable("producer-not-ready")}:await currentTickets(db,sprint.id);
+   if(!v33)tickets=await currentTickets(db,sprint.id);
    await db.query("RELEASE SAVEPOINT dashboard_current_tickets");
   }catch(error){
    await db.query("ROLLBACK TO SAVEPOINT dashboard_current_tickets");
