@@ -52,3 +52,28 @@ test("chargement SQL et isolation des données sans cache global",async()=>{
  const another=buildDependencyGraph([{id:"x",tag:"X",formula:null}],[]);
  assert.deepEqual(another.order,["x"]);
 });
+
+test("source calendaire cachée : impact transitif et motif de manque conservé",()=>{
+ const graph=buildDependencyGraph([
+  {id:"base",tag:"BASE",formula:"CAL_WORKING_DAYS*2",isActive:false},
+  {id:"final",tag:"FINAL",formula:"BASE+1"},
+  {id:"alone",tag:"ALONE",formula:"4"}
+ ],[
+  {indicator_id:"base",source_type:"calendar",source_indicator_id:null,source_calendar_tag:"CAL_WORKING_DAYS"},
+  {indicator_id:"final",source_type:"indicator",source_indicator_id:"base",source_calendar_tag:null}
+ ]);
+ assert.deepEqual(impactedIndicatorIds(graph,[],["CAL_WORKING_DAYS"]),["base","final"]);
+ const missing=evaluateDependencies({graph,indicators:{},calendar:{CAL_WORKING_DAYS:null}});
+ assert.deepEqual(missing.get("base"),{kind:"unavailable",reason:"missing_source",sourceTag:"CAL_WORKING_DAYS"});
+ assert.deepEqual(missing.get("final"),{kind:"unavailable",reason:"dependency_unavailable",sourceTag:"BASE"});
+ const subset=evaluateDependencies({graph,indicators:{},calendar:{CAL_WORKING_DAYS:"3"},changedCalendarTags:["CAL_WORKING_DAYS"]});
+ assert.equal(subset.has("alone"),false);
+ assert.deepEqual(subset.get("final"),{kind:"available",value:"7"});
+});
+test("budgets DAG et expressions manuelles sans arêtes",()=>{
+ const large=Array.from({length:10001},(_,i)=>({id:String(i),tag:"TAG_"+i,formula:null}));
+ assert.throws(()=>buildDependencyGraph(large,[]),e=>e instanceof DependencyGraphError&&e.code==="budget");
+ assert.throws(()=>buildDependencyGraph([{id:"m",tag:"MANUAL",formula:null}],[
+  {indicator_id:"m",source_type:"calendar",source_indicator_id:null,source_calendar_tag:"CAL_WORKING_DAYS"}
+ ]),e=>e instanceof DependencyGraphError&&e.code==="formula_mismatch");
+});
