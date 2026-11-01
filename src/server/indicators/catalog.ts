@@ -1,6 +1,7 @@
 import type {Client} from "pg";
 import {randomUUID} from "node:crypto";
-import {resolveAdminTeam,type TeamActor} from "../teams/resolve";
+import type {TeamActor} from "../teams/resolve";
+import {requireIndicatorTeam} from "./team-access";
 import {parseFormula,referencedTags} from "./formula";
 import {isCalendarSourceTag,buildDependencyGraph,type DependencyRow,type IndicatorDefinition} from "./dependencies";
 
@@ -21,9 +22,11 @@ async function version(db:Client){const r=await db.query<{schema_version:number}
 async function lock(db:Client){const r=await db.query("SELECT revision FROM public.smn_indicator_system_revision WHERE singleton_key='singleton' FOR UPDATE");guard(r.rows.length===1,"schema-not-ready");}
 async function bump(db:Client){await db.query("UPDATE public.smn_indicator_system_revision SET revision=revision+1,updated_at=now() WHERE singleton_key='singleton'");}
 export async function listIndicatorCatalog(db:Client,actor:TeamActor,teamId?:string){
- await version(db);const defs=await db.query<Definition>("SELECT id,tag,name,description,unit_name,unit_short,color,icon,indicator_type,formula,formula_revision::text,type_locked,archived_at::text FROM public.smn_indicator_definition ORDER BY tag");
+ await version(db);if(actor.role!=="admin"&&!teamId)throw new IndicatorCatalogError("forbidden");
+ if(teamId)await requireIndicatorTeam(db,actor,teamId).catch(()=>{throw new IndicatorCatalogError("forbidden")});
+ const defs=await db.query<Definition>("SELECT id,tag,name,description,unit_name,unit_short,color,icon,indicator_type,formula,formula_revision::text,type_locked,archived_at::text FROM public.smn_indicator_definition ORDER BY tag");
  if(!teamId)return {definitions:defs.rows,teamId:null,selections:[] as Selection[],preferences:[] as Preference[]};
- const team=await resolveAdminTeam(db,actor,teamId);
+ const team={team_id:teamId};
  const selections=await db.query<Selection>("SELECT team_id,indicator_id,is_active FROM public.smn_indicator_team_selection WHERE team_id=$1 ORDER BY indicator_id",[team.team_id]);
  const preferences=await db.query<Preference>("SELECT team_id,indicator_id,screen_key,is_visible,display_order,display_style FROM public.smn_indicator_display_preference WHERE team_id=$1 ORDER BY screen_key,display_order,indicator_id",[team.team_id]);
  return {definitions:defs.rows,teamId:team.team_id,selections:selections.rows,preferences:preferences.rows};
@@ -55,11 +58,16 @@ async function deriveDependencies(db:Client,formula:string,indicatorId:string,in
  return dependencies;
 }
 export async function applyCatalogCommand(db:Client,actor:TeamActor,command:CatalogCommand){
- guard(actor.role==="admin","forbidden");
+ guard(actor.role==="admin"||actor.role==="user","forbidden");
  guard(command&&typeof command==="object","invalid-input");
  await db.query("BEGIN");
  try{
-  await version(db);await lock(db);
+  await version(db);
+  if(command.action==="create"||command.action==="edit"||command.action==="archive")guard(actor.role==="admin","forbidden");
+  if(command.action==="selection"||command.action==="preference"){
+   await requireIndicatorTeam(db,actor,command.teamId).catch(()=>{throw new IndicatorCatalogError("forbidden")});
+  }
+  await lock(db);
   if(command.action==="create"){
    meta(command);guard(tag(command.tag)&&!isCalendarSourceTag(command.tag),"invalid-input");
    guard(command.indicatorType==="manual"||command.indicatorType==="computed","invalid-input");
@@ -79,7 +87,7 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
    const r=await db.query("UPDATE public.smn_indicator_definition SET archived_at=now(),updated_at=now() WHERE id=$1 AND archived_at IS NULL RETURNING id",[command.indicatorId]);guard(r.rows.length===1,"not-found");
   }else if(command.action==="selection"||command.action==="preference"){
    guard(id(command.teamId)&&id(command.indicatorId),"invalid-input");
-   await resolveAdminTeam(db,actor,command.teamId);
+
    const d=await db.query<{archived_at:string|null}>("SELECT archived_at::text FROM public.smn_indicator_definition WHERE id=$1 FOR SHARE",[command.indicatorId]);guard(d.rows.length===1,"not-found");
    if(command.action==="selection"){
     guard(typeof command.active==="boolean","invalid-input");

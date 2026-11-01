@@ -3876,6 +3876,9 @@
     "exportMarkdown": "Export references (Markdown)"
   },
   "indicators": {
+    "grantsTitle": "Scrum Master permissions by team",
+    "grantsAccount": "Account",
+    "grantsAria": "Scrum Master permissions",
     "title": "Dynamic indicators",
     "catalog": "Catalog",
     "selections": "Team selections",

@@ -6,14 +6,15 @@ import {useTranslation} from "@/i18n/client";
 import BootstrapIcon from "./bootstrap-icon";
 import {privateNavigation,activePrivateEntry,type PrivateMode,type PrivateRole} from "@/lib/private-navigation";
 
-export default function PrivateNavigation({mode,role,onNavigate}:{
+export default function PrivateNavigation({mode,role,canManageIndicators,onNavigate}:{
   mode:PrivateMode|null;
   role:PrivateRole;
+  canManageIndicators?:boolean;
   onNavigate?:()=>void;
 }) {
   const pathname=usePathname();
   const t=useTranslation();
-  const groups=privateNavigation(mode,role);
+  const groups=privateNavigation(mode,role,canManageIndicators);
   return <aside className="smn-sidebar" aria-label={t("navigation.ariaLabel")}>
     <nav className="smn-private-navigation" aria-label={t("navigation.ariaLabel")}>
       {groups.map(group=><section key={group.id}

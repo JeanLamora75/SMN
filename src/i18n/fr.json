@@ -3876,6 +3876,9 @@
     "exportMarkdown": "Exporter les références (Markdown)"
   },
   "indicators": {
+    "grantsTitle": "Habilitations des Scrum Masters par équipe",
+    "grantsAccount": "Compte",
+    "grantsAria": "Habilitations Scrum Masters",
     "title": "Indicateurs dynamiques",
     "catalog": "Catalogue",
     "selections": "Sélections par équipe",

@@ -17,10 +17,12 @@ test("SMN-347 : écrans catalogue, équipe, préférences, accessible au clavier
  assert.match(ui,/aria-label=/);assert.match(ui,/role="alert"/);
  assert.match(ui,/window.confirm/);
  assert.match(ui,/type="checkbox"/);
- assert.match(page,/canAccess/);
- assert.match(api,/authorizeApi/);
- assert.match(api,/actor.role!=="admin"/);
- assert.match(server,/resolveAdminTeam/);
+ assert.match(page,/TeamGrants/);
+ assert.match(api,/sessionAccount/);
+ assert.match(api,/actorFor/);
+ assert.match(api,/sessionAccount/);
+ assert.match(page,/indicatorTeams/);
+ assert.match(server,/requireIndicatorTeam/);
  assert.match(server,/FOR UPDATE/);
  assert.match(server,/archived_at IS NULL/);
 });
