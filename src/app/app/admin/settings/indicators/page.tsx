@@ -1,6 +1,7 @@
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import IndicatorCatalog from "../../indicators/catalog-client";
+import TeamGrants from "../../indicators/team-grants";
 export const dynamic="force-dynamic";
 export default async function IndicatorSettingsPage(){
  const account=await currentAccount();
@@ -13,5 +14,6 @@ export default async function IndicatorSettingsPage(){
    <p className="small text-secondary mb-0">Catalogue global des définitions d'indicateurs — administration</p>
   </header>
   <IndicatorCatalog teams={[]} isAdmin scope="global"/>
+  <details className="smn-panel rounded-4 p-3 mt-4"><summary className="fw-semibold">Habilitations des Scrum Masters par équipe</summary><TeamGrants/></details>
  </main>;
 }
