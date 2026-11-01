@@ -1,3 +1,4 @@
+import {readLegacyReschedulePoints} from "@/server/compat-v32/legacy-metric-read";
 import {randomUUID,createHash} from "node:crypto";
 import type {Client} from "pg";
 import {ensureSprintSchema} from "./creation";
@@ -61,7 +62,7 @@ async function reviewImpact(db:Client,s:{id:string;team_id:string;status:string;
  const dynamicIndicators=v33?await readIndicatorReporting(db,s.team_id,"cycle_detail","scrum",[s.id]):null;
  const [goals,points,initial,manual]=await Promise.all([
   db.query<{count:string}>(`SELECT count(*)::text AS count FROM public.smn_sprint_goal WHERE sprint_id=$1`,[s.id]),
-  v33?Promise.resolve({rows:[] as Array<Record<string,unknown>>}):db.query(`SELECT initial_sp::text AS initial,added_sp::text AS added,removed_sp::text AS removed,done_sp::text AS done FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[s.id]),
+  v33?Promise.resolve({rows:[] as Array<Record<string,unknown>>}):readLegacyReschedulePoints(db,s.id).then(value=>({rows:value?[value]:[]})),
   db.query(`SELECT initial_jh::float8 AS jh,provenance FROM public.smn_capacity_initial_snapshot i JOIN public.smn_capacity_period_override p ON p.id=i.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
    [s.team_id,localDay(s.start_at,s.time_zone),localDay(s.end_at,s.time_zone)]),
   db.query(`SELECT a.manual_jh::float8 AS jh FROM public.smn_capacity_actual_override a JOIN public.smn_capacity_period_override p ON p.id=a.period_id WHERE p.team_id=$1 AND p.start_on=$2::date AND p.end_on=$3::date LIMIT 1`,
