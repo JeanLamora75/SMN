@@ -16,7 +16,7 @@ async function main(){
  const adminUri=new URL(source);adminUri.pathname="/postgres";
  const admin=new Client({connectionString:adminUri.toString(),connectionTimeoutMillis:3500});
  const suffix=randomBytes(6).toString("hex");
- const fresh="smn351_fresh_"+suffix,migrated="smn351_migrated_"+suffix;
+ const fresh="smn_351_fresh_"+suffix,migrated="smn_351_migrated_"+suffix;
  const owned:string[]=[];
  const uri=(name:string)=>{const u=new URL(source);u.pathname="/"+name;return u.toString();};
  await admin.connect();
@@ -48,7 +48,7 @@ async function main(){
   if(!compared.identical)process.exitCode=2;
  }finally{
   for(const name of owned.reverse()){
-   if(!/^smn351_(fresh|migrated)_[a-f0-9]{12}$/.test(name))throw Error("Unsafe cleanup target");
+   if(!/^smn_351_(fresh|migrated)_[a-f0-9]{12}$/.test(name))throw Error("Unsafe cleanup target");
    await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)');
   }
   await admin.end();
