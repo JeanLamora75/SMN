@@ -9,7 +9,7 @@ export function sourceFingerprint(uri:string){
  if(!["localhost","127.0.0.1","::1"].includes(u.hostname)||u.pathname!=="/smn")throw Error("local SMN source required");
  return createHash("sha256").update([u.protocol,u.hostname,u.port||"5432",u.username,u.pathname].join("|")).digest("hex");
 }
-export type Proof={version:1;source:string;createdAt:string;comparison:{identical:true;freshHash:string;migratedHash:string;freshCount:number;migratedCount:number};restoration:{historyPreserved:true;isolated:true};cleanupAuthorized:false};
+export type Proof={version:1;source:string;createdAt:string;comparison:{identical:true;freshHash:string;migratedHash:string;freshCount:number;migratedCount:number};restoration:{historyPreserved:true;isolated:true};backup:{backupRestored:true;candidateRowsPreserved:true;isolated:true};cleanupAuthorized:false};
 export function loadProof(source:string):Proof|null{
  if(!existsSync(proofPath()))return null;
  try{
@@ -17,7 +17,8 @@ export function loadProof(source:string):Proof|null{
   return p.version===1&&p.source===source&&Date.now()-Date.parse(p.createdAt)<24*3600000&&Date.parse(p.createdAt)<=Date.now()&&
    p.comparison?.identical===true&&p.comparison.freshHash===p.comparison.migratedHash&&
    Number.isSafeInteger(p.comparison.freshCount)&&p.comparison.freshCount>0&&p.comparison.freshCount===p.comparison.migratedCount&&
-   p.restoration?.historyPreserved===true&&p.restoration.isolated===true&&p.cleanupAuthorized===false?p:null;
+   p.restoration?.historyPreserved===true&&p.restoration.isolated===true&&
+   p.backup?.backupRestored===true&&p.backup.candidateRowsPreserved===true&&p.backup.isolated===true&&p.cleanupAuthorized===false?p:null;
  }catch{return null;}
 }
 async function main(){
@@ -39,10 +40,16 @@ async function main(){
  if(!marker)throw Error("Historic v32 preservation proof missing");
  const restored=JSON.parse(marker) as Record<string,unknown>;
  if(restored.isolated!==true||restored.historyPreserved!==true||restored.cleanupAuthorized!==false)throw Error("Historic preservation not proven");
+ const backupOutput=run(["db:prove:smn-351:backup"]);
+ const backupMarker=backupOutput.split(/\r?\n/).find(x=>x.startsWith('{"proof":"smn-351-backup-restore"'));
+ if(!backupMarker)throw Error("Backup restoration proof missing");
+ const backup=JSON.parse(backupMarker) as Record<string,unknown>;
+ if(backup.isolated!==true||backup.backupRestored!==true||backup.candidateRowsPreserved!==true||backup.cleanupAuthorized!==false)
+  throw Error("Backup restoration not proven");
  const proof:Proof={version:1,source,createdAt:new Date().toISOString(),
   comparison:{identical:true,freshHash:String(compare.freshHash),migratedHash:String(compare.migratedHash),
    freshCount:Number(compare.freshCount),migratedCount:Number(compare.migratedCount)},
-  restoration:{historyPreserved:true,isolated:true},cleanupAuthorized:false};
+  restoration:{historyPreserved:true,isolated:true},backup:{backupRestored:true,candidateRowsPreserved:true,isolated:true},cleanupAuthorized:false};
  mkdirSync(resolve(process.cwd(),".next"),{recursive:true});
  writeFileSync(proofPath(),JSON.stringify(proof,null,2)+"\n",{mode:0o600});
  console.log(JSON.stringify({evidenceRecorded:true,location:".next/smn-351-proof.json",cleanupAuthorized:false}));
