@@ -36,7 +36,7 @@ export async function readScrumReportProjection(db:Client,input:{
     LEFT JOIN public.smn_indicator_computed_result r
      ON r.indicator_id=d.id AND r.team_id=$1 AND r.cycle_type='scrum' AND r.cycle_id=$2
     WHERE d.archived_at IS NULL AND d.tag=ANY($3::text[])`,
-    [teamId,id,["F01","F04"]]);
+    [teamId,id,["F01","F06"]]);
    const byTag=new Map(values.rows.map(x=>[x.tag,x.value]));
    committed=byTag.get("F01")??null;
    completed=byTag.get("F04")??null;
