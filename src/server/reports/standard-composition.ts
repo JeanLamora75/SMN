@@ -1,3 +1,4 @@
+import {readLegacyReportPoints,readLegacyReportTickets} from "@/server/compat-v32/legacy-metric-read";
 import type {Client} from "pg";
 import {prepareSprintReport} from "./sprint-preparation";
 import {readReportDataQuality} from "./data-quality";
@@ -46,17 +47,17 @@ export async function composeStandardReport(db:Client,sprintId:string){
   const schemaVersion=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
   const v33=schemaVersion.rows[0]?.schema_version===33;
   const dynamicIndicators=v33?await readIndicatorReporting(db,sprint.teamId,"reports","scrum",[sprintId]):null;
-  const schemas=await db.query<{points:boolean;tickets:boolean;ceremonies:boolean;links:boolean}>(`
-   SELECT to_regclass('public.smn_sprint_story_points') IS NOT NULL AS points,
-   to_regclass('public.smn_sprint_ticket_counts') IS NOT NULL AS tickets,
-   to_regclass('public.smn_sprint_ceremony') IS NOT NULL AS ceremonies,
+  const schemas=await db.query<{ceremonies:boolean;links:boolean}>(`
+   SELECT    to_regclass('public.smn_sprint_ceremony') IS NOT NULL AS ceremonies,
    to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS links`);
   const s=schemas.rows[0];
   const indicators:ReportSection["items"]=[];
-  if(!v33&&s?.points){const x=await db.query<Record<string,unknown>>(`SELECT initial_sp,done_sp FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]);
-   if(x.rows[0])for(const [k,v] of Object.entries(x.rows[0]))if(v!==null)indicators.push(item(k,String(v)));}
-  if(!v33&&s?.tickets){const x=await db.query<Record<string,unknown>>(`SELECT initial_tickets,done_tickets FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]);
-   if(x.rows[0])for(const [k,v] of Object.entries(x.rows[0]))if(v!==null)indicators.push(item(k,String(v)));}
+  if(!v33){
+   const points=await readLegacyReportPoints(db,sprintId);
+   const tickets=await readLegacyReportTickets(db,sprintId);
+   if(points)for(const [k,v] of Object.entries(points))if(v!==null)indicators.push(item(k,String(v)));
+   if(tickets)for(const [k,v] of Object.entries(tickets))if(v!==null)indicators.push(item(k,String(v)));
+  }
   if(dynamicIndicators){
    const cycle=dynamicIndicators.cycles.find(c=>c.id===sprintId);
    for(const indicator of dynamicIndicators.columns){
@@ -64,7 +65,7 @@ export async function composeStandardReport(db:Client,sprintId:string){
     if(value!==null&&value!==undefined)indicators.push(item(indicator.name,value+(indicator.unit?" "+indicator.unit:"")));
    }
   }
-  add("indicators",indicators,v33?!dynamicIndicators?.columns.length:!s?.points&&!s?.tickets);
+  add("indicators",indicators,v33?!dynamicIndicators?.columns.length:indicators.length===0);
   const events=s?.ceremonies?await db.query<{kind:string;status:string}>(`SELECT kind,occurrence_status AS status FROM public.smn_sprint_ceremony WHERE sprint_id=$1 ORDER BY starts_at`,[sprintId]):{rows:[]};
   add("events",events.rows.map(e=>item(e.kind,e.status)),!s?.ceremonies);
   const registry=s?.links?await db.query<{id:string;title:string;type:string;status:string}>(`
