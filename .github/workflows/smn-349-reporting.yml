@@ -1,0 +1,25 @@
+name: SMN-349 — Dynamic reporting
+on:
+  push:
+    branches: ["feature/smn-349-dynamic-reporting", "main"]
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  reporting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:smn-349
+      - run: pnpm i18n:check
+      - run: pnpm typecheck
+      - run: pnpm lint
