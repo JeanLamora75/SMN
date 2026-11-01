@@ -134,6 +134,9 @@ test("SMN-338 : DDL et contraintes sur une base PostgreSQL temporaire dédiée",
    // Mutations des parents interdites dès qu'une valeur/révision les référence.
    await mustReject("UPDATE public.smn_sprint SET team_id='team-2' WHERE id='sprint-1'");
    await mustReject("UPDATE public.smn_kanban_period SET team_id='team-2' WHERE id='kanban-1'");
+   await mustReject("UPDATE public.smn_sprint SET id=\'sprint-renamed\' WHERE id=\'sprint-1\'");
+   await mustReject("DELETE FROM public.smn_sprint WHERE id=\'sprint-1\'");
+   await mustReject("DELETE FROM public.smn_kanban_period WHERE id=\'kanban-1\'");
    await mustReject("UPDATE public.smn_indicator_definition SET indicator_type='computed',formula='1+1' WHERE id='ind-a'");
    await mustReject("UPDATE public.smn_indicator_definition SET indicator_type='manual',formula=NULL WHERE id='ind-b'");
    const crossTeam=await db.query<{n:string}>(`SELECT count(*)::text n FROM public.smn_indicator_manual_value WHERE team_id='team-2'`);
