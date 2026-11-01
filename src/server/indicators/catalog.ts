@@ -72,7 +72,7 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
   }
   if(command.action==="edit"){
    guard(id(command.indicatorId),"invalid-input");meta(command);
-   const r=await db.query("UPDATE public.smn_indicator_definition SET name=$2,description=$3,unit_name=$4,unit_short=$5,color=$6,icon=$7,updated_at=now() WHERE id=$1 AND archived_at IS NULL RETURNING id",[command.indicatorId,command.name,command.description??"",command.unitName??"",command.unitShort??"",command.color??null,command.icon??null]);
+   const r=await db.query("UPDATE public.smn_indicator_definition SET name=$2,description=$3,unit_name=$4,unit_short=$5,color=COALESCE($6,color),icon=COALESCE($7,icon),updated_at=now() WHERE id=$1 AND archived_at IS NULL RETURNING id",[command.indicatorId,command.name,command.description??"",command.unitName??"",command.unitShort??"",command.color??null,command.icon??null]);
    guard(r.rows.length===1,"not-found");
   }else if(command.action==="archive"){
    guard(id(command.indicatorId),"invalid-input");
