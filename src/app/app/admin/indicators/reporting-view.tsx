@@ -1,5 +1,6 @@
 "use client";
-import {useEffect,useRef,useState} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
+import Link from "next/link";
 import {useTranslation} from "@/i18n/client";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
@@ -8,6 +9,8 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
  const t=useTranslation();
+ const [refreshKey,setRefreshKey]=useState(0);
+ useEffect(()=>{const handler=(event:Event)=>{const detail=(event as CustomEvent<{teamId:string;cycleType:string;cycleId:string}>).detail;if(detail?.teamId===teamId&&detail.cycleType===cycleType&&(!cycleId||detail.cycleId===cycleId))setRefreshKey(k=>k+1);};window.addEventListener("smn:indicators-saved",handler);return()=>window.removeEventListener("smn:indicators-saved",handler);},[teamId,cycleType,cycleId]);
  const displayValue=(raw:string|null,unit:string)=>raw===null?"—":raw.replace(".",locale==="fr"?",":".")+(unit?" "+unit:"");
  useEffect(()=>{const ctrl=new AbortController();
   void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({...{teamId,cycleType,screen},...(cycleId?{cycleId}:{})}),{cache:"no-store",signal:ctrl.signal})
@@ -15,7 +18,7 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
   .then(x=>{if(!ctrl.signal.aborted){setData(x);setError(false);}})
   .catch(()=>{if(!ctrl.signal.aborted)setError(true);});
   return()=>ctrl.abort();
- },[teamId,cycleType,screen,cycleId]);
+ },[teamId,cycleType,screen,cycleId,refreshKey]);
  const definition=data?.columns.find(c=>c.id===chosen)??data?.columns[0];
  const values=data?.cycles.map(c=>{const raw=definition?c.values[definition.id]:null;return raw!=null&&raw!==""&&Number.isFinite(Number(raw))?Number(raw):null;})??[];
  const valid=values.filter((x):x is number=>x!==null);
@@ -40,7 +43,7 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
   <h2 className="h5">{t("indicators.reporting.title")}</h2>
   {error&&<p role="alert" className="alert alert-warning">{t("indicators.reporting.unavailable")}</p>}
   {!data&&!error&&<p role="status">{t("indicators.reporting.loading")}</p>}
-  {data?.columns.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}
+  {data?.columns.length===0&&<div role="status"><p>{t("indicators.reporting.empty")}</p><p>{t("indicators.reporting.configureHint")}</p><Link href="/app/admin/indicators" className="btn btn-outline-primary btn-sm">{t("indicators.reporting.configureAction")}</Link></div>}
   {screen==="trends"&&definition&&<>
    <div className="d-flex gap-2 align-items-end flex-wrap mb-3">
     <label className="form-label">{t("indicators.reporting.indicator")}<select className="form-select" value={definition.id} onChange={e=>setChosen(e.target.value)}>{data!.columns.map(c=><option key={c.id} value={c.id}>{c.tag} — {c.name}</option>)}</select></label>
