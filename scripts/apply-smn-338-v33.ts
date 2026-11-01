@@ -1,11 +1,8 @@
 /** SMN-338 v33 : opération explicite, jamais lancée automatiquement. */
 import {Client} from "pg";
 import {randomUUID,createHash} from "node:crypto";
-import {readFileSync} from "node:fs";
 import {installedDatabaseUri} from "../src/server/auth/database";
-export const SMN338_V33_NAME="20261101_smn338_indicator_v33";
-export const SMN338_V33_FILE=new URL("../_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",import.meta.url);
-export const INDICATOR_TABLES=["definition","team_selection","display_preference","manual_value","computed_result","dependency","cycle_revision","system_revision"].map(x=>"smn_indicator_"+x);
+import {SMN338_V33_NAME,INDICATOR_TABLES,indicatorV33Sql} from "../src/server/installation/indicator-v33-contract";
 export async function applyV33(db:Client,apply:boolean){
  await db.query(apply?"BEGIN":"BEGIN TRANSACTION READ ONLY");
  try{
@@ -19,7 +16,7 @@ export async function applyV33(db:Client,apply:boolean){
   const found=await db.query<{relname:string}>("SELECT relname FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname=ANY($1::text[])",[...required,...INDICATOR_TABLES]);
   const names=new Set(found.rows.map(r=>r.relname));
   if(required.some(r=>!names.has(r))||INDICATOR_TABLES.some(r=>names.has(r)))throw Error("Relations préalables manquantes ou v33 partiellement présente");
-  const sql=readFileSync(SMN338_V33_FILE,"utf8");
+  const sql=indicatorV33Sql();
   const checksum=createHash("sha256").update(sql).digest("hex");
   if(apply){
    await db.query(sql);
