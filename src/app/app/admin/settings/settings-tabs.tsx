@@ -1,7 +1,7 @@
 "use client";
 import {useState,useEffect,type ReactNode} from "react";
 type Section={id:string;label:string;content:ReactNode};
-export default function SettingsTabs({sections,label}:{sections:Section[];label:string}){
+export default function SettingsTabs({sections,label,variant="default"}:{sections:Section[];label:string;variant?:"default"|"cockpit"}){
  const [active,setActive]=useState(sections[0]?.id??"");
  const sectionIds=sections.map(section=>section.id).join("|");
  useEffect(()=>{
@@ -18,7 +18,7 @@ export default function SettingsTabs({sections,label}:{sections:Section[];label:
   window.history.replaceState(null,"","#"+id);
  };
  return <div>
-  <div className="nav nav-tabs mb-3" role="tablist" aria-label={label}>
+  <div className={"nav nav-tabs mb-3"+(variant==="cockpit"?" smn-indicator-tabs":"")} role="tablist" aria-label={label}>
    {sections.map((section,index)=><button key={section.id} type="button" role="tab"
     id={"tab-"+section.id} aria-controls={"panel-"+section.id}
     aria-selected={active===section.id} tabIndex={active===section.id?0:-1}
