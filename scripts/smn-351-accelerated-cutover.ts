@@ -1,8 +1,8 @@
 /** Explicitly authorized development-only SMN-351 cutover. Backup and restore before DROP. */
 import {randomBytes} from "node:crypto";
-import {mkdirSync,mkdtempSync,rmSync,statSync} from "node:fs";
+import {mkdirSync,statSync} from "node:fs";
 import {join,resolve} from "node:path";
-import {tmpdir,homedir} from "node:os";
+import {homedir} from "node:os";
 import {spawnSync} from "node:child_process";
 import {Client} from "pg";
 import {installedDatabaseUri} from "../src/server/auth/database";
