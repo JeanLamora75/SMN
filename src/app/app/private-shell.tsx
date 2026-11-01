@@ -20,10 +20,11 @@ type Props=Readonly<{
   team:string|null;
   teamId:string|null;
   teamSwitcherEnabled:boolean;
+  canManageIndicators:boolean;
 }>;
 
 /** Coquille privée partagée : un contexte réel, aucune sélection de cycle simulée. */
-export default function PrivateShell({children,username,role,mode,product,team,teamId,teamSwitcherEnabled}:Props){
+export default function PrivateShell({children,username,role,mode,product,team,teamId,teamSwitcherEnabled,canManageIndicators}:Props){
   const t=useTranslation();
   const pathname=usePathname(),router=useRouter(),searchParams=useSearchParams();
   const requestedCycleId=pathname==="/app"?searchParams.get("cycleId"):null;
@@ -166,7 +167,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
     </header>
     <div className="smn-shell-content">
       <div ref={sidebar} className="smn-sidebar-region" id="smn-private-sidebar">
-        <PrivateNavigation mode={mode} role={role}
+        <PrivateNavigation mode={mode} role={role} canManageIndicators={canManageIndicators}
           onNavigate={()=>setMobileOpen(false)}/>
       </div>
       <main id="smn-main" className="smn-private-main pb-5">{children}</main>
