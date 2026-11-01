@@ -1,6 +1,6 @@
 # SMN-351 — Inventaire de démantèlement et préconditions
 
-Statut : **en cours — sauvegarde et essai de restauration confirmés par l'utilisateur le 01/11/2026 ; aucune suppression encore exécutée**.
+Statut : **bascule d'interface en cours sur main — sauvegarde et restauration confirmées le 01/11/2026 ; aucun DROP SQL exécuté**.
 
 ## KEEP — ne jamais supprimer avec l'ancien catalogue
 - Calendriers et absences, capacités et leurs ouvertures, KPI capacités, fermetures et snapshots métiers versionnés, objectifs, tickets métiers, cérémonies, historiques.
@@ -38,3 +38,9 @@ pnpm db:diagnose
 Ce diagnostic ne lance aucun DROP et ne change aucune préférence ni donnée métier.
 
 Le runner BMAD `uv` n'est pas disponible dans le contexte ChatGPT ; lecture des skills et exécution via connecteurs GitHub/Jira.
+
+## Bascule UI v33 — 01/11/2026
+
+Les points d'entrée actifs de la page Sprint utilisent dorénavant la saisie universelle (`UniversalIndicatorInput`) et la projection dynamique v33 (`IndicatorReporting`). L'ancien éditeur Fxx du panneau Sprint n'est plus monté ; les colonnes Fxx et leurs lectures SQL ont été retirées de l'index Sprint, où s'affiche la projection configurée pour `cycle_list`. Le panneau des tendances anciennes n'est plus monté dans la fiche Sprint au profit de la projection `trends`. Les tests d'assertions UI historiques ont été réorientés vers ce contrat.
+
+**Reste en place intentionnellement :** routes API et services historiques v32, fichiers de formulaires historiques non montés, lectures de snapshots de clôture pour les autres modules métier, états de capacité et de rapports. Les retirer sans audit des consommateurs et sans preuve de parité fonctionnelle casserait des contrats métiers indépendants. Le retrait physique des API/DDL demeure une phase distincte de SMN-351. Les tables n'ont pas été touchées.
