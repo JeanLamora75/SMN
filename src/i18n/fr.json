@@ -3876,6 +3876,27 @@
     "exportMarkdown": "Exporter les références (Markdown)"
   },
   "indicators": {
+    "input": {
+      "kanbanTitle": "Saisie des indicateurs Kanban",
+      "reasons": {
+        "missing_source": "Source manquante",
+        "division_by_zero": "Division par zéro",
+        "dependency_unavailable": "Dépendance indisponible",
+        "invalid_domain": "Domaine de calcul invalide"
+      },
+      "open": "Saisir les indicateurs",
+      "title": "Saisie des indicateurs",
+      "close": "Fermer",
+      "loading": "Chargement…",
+      "computed": "Valeurs calculées (lecture seule)",
+      "previewRequired": "Aperçu nécessaire",
+      "unavailable": "Indisponible",
+      "cancel": "Annuler",
+      "preview": "Prévisualiser",
+      "save": "Enregistrer",
+      "previewReady": "Aperçu calculé sans enregistrement.",
+      "saved": "Valeurs enregistrées."
+    },
     "grantsTitle": "Habilitations des Scrum Masters par équipe",
     "grantsAccount": "Compte",
     "grantsAria": "Habilitations Scrum Masters",

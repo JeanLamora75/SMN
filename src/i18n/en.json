@@ -3876,6 +3876,27 @@
     "exportMarkdown": "Export references (Markdown)"
   },
   "indicators": {
+    "input": {
+      "kanbanTitle": "Kanban indicator entry",
+      "reasons": {
+        "missing_source": "Missing source",
+        "division_by_zero": "Division by zero",
+        "dependency_unavailable": "Unavailable dependency",
+        "invalid_domain": "Invalid calculation domain"
+      },
+      "open": "Enter indicators",
+      "title": "Indicator entry",
+      "close": "Close",
+      "loading": "Loading…",
+      "computed": "Calculated values (read only)",
+      "previewRequired": "Preview required",
+      "unavailable": "Unavailable",
+      "cancel": "Cancel",
+      "preview": "Preview",
+      "save": "Save",
+      "previewReady": "Preview calculated without saving.",
+      "saved": "Values saved."
+    },
     "grantsTitle": "Scrum Master permissions by team",
     "grantsAccount": "Account",
     "grantsAria": "Scrum Master permissions",

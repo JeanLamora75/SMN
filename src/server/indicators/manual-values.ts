@@ -3,7 +3,7 @@ import type {Client} from "pg";
 
 export type CycleType="scrum"|"kanban";
 export type ManualChange=Readonly<{indicatorId:string;value:string|null}>;
-export type ManualWrite=Readonly<{teamId:string;cycleType:CycleType;cycleId:string;expectedRevision:number;changes:readonly ManualChange[]}>;
+export type ManualWrite=Readonly<{teamId:string;cycleType:CycleType;cycleId:string;expectedRevision:number;expectedSystemRevision?:number;changes:readonly ManualChange[]}>;
 export type ManualWriteResult=
  |Readonly<{ok:true;revision:number}>
  |Readonly<{ok:false;error:"invalid-input"|"forbidden"|"not-found"|"conflict"|"indicator-unavailable"}>;
@@ -19,6 +19,7 @@ export function validateManualWrite(input:ManualWrite):boolean{
  if(!input||!idValid(input.teamId)||!idValid(input.cycleId)||
   !["scrum","kanban"].includes(input.cycleType)||
   !Number.isSafeInteger(input.expectedRevision)||input.expectedRevision<0||
+  (input.expectedSystemRevision!==undefined&&(!Number.isSafeInteger(input.expectedSystemRevision)||input.expectedSystemRevision<0))||
   !Array.isArray(input.changes)||input.changes.length<1||input.changes.length>100)return false;
  const ids=new Set<string>();
  for(const item of input.changes){
@@ -48,6 +49,9 @@ export async function writeManualValues(
   const global=await db.query<{revision:string}>(
    "SELECT revision::text FROM public.smn_indicator_system_revision WHERE singleton_key='singleton' FOR UPDATE");
   if(!global.rows[0])throw new ManualWriteError("global-revision-missing");
+  if(input.expectedSystemRevision!==undefined&&Number(global.rows[0].revision)!==input.expectedSystemRevision){
+   await db.query("ROLLBACK");return {ok:false,error:"conflict"};
+  }
   const table=input.cycleType==="scrum"?"smn_sprint":"smn_kanban_period";
   const cycle=await db.query<{id:string}>(
    "SELECT c.id FROM public."+table+" c JOIN public.smn_team t ON t.id=c.team_id "+
