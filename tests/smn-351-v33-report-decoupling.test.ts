@@ -16,3 +16,20 @@ test("SMN-351: closed standard reports continue reading immutable closure snapsh
  assert.match(source,/snapshot\.ticketCounts/);
  assert.doesNotMatch(source,/UPDATE public\.smn_sprint_closure_snapshot/);
 });
+
+test("SMN-351: v33 closure snapshots capture selected indicator values without legacy reads",()=>{
+ const closure=readFileSync("src/server/sprints/closure.ts","utf8");
+ const adapter=readFileSync("src/server/indicators/closure-snapshot.ts","utf8");
+ assert.match(closure,/captureCycleIndicators\(db,context\.team_id,sprintId\)/);
+ assert.match(closure,/v33\?Promise\.resolve/);
+ assert.match(closure,/indicatorsV33,storyPoints/);
+ assert.match(adapter,/smn_indicator_manual_value/);
+ assert.match(adapter,/smn_indicator_computed_result/);
+ assert.match(adapter,/smn_indicator_team_selection/);
+});
+test("SMN-351: closed standard report renders only frozen v33 snapshot values",()=>{
+ const reports=readFileSync("src/server/reports/standard-composition.ts","utf8");
+ assert.match(reports,/snapshot\.indicatorsV33/);
+ assert.match(reports,/d\.state==="available"/);
+ assert.doesNotMatch(reports,/UPDATE public\.smn_sprint_closure_snapshot/);
+});
