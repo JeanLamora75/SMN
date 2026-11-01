@@ -5,7 +5,8 @@ import {readFileSync} from "node:fs";
 const source=readFileSync("src/server/reports/report-projection.ts","utf8");
 test("v33 legacy report does not fabricate mappings from configurable indicators",()=>{
  assert.match(source,/schema_version===33/);
- assert.match(source,/if\(!v33&&schema\?\.points\)/);
+ assert.match(source,/if\(!v33\)/);
+ assert.match(source,/readLegacyReportPoints/);
  assert.doesNotMatch(source,/byTag\.get\("F0[1-9]"\)/);
 });
 test("closed reports read the original immutable closure snapshot",()=>{
