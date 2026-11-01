@@ -1,5 +1,5 @@
 /** SMN-328 — Contrat central de compatibilité (aucune migration implicite). */
-export const CURRENT_SCHEMA_VERSION=32 as const;
+export const CURRENT_SCHEMA_VERSION=33 as const;
 export const MIN_MULTI_TEAM_SCHEMA_VERSION=28 as const;
 export type SchemaCapability="multi-team"|"per-team-agile-mode"|"company-catalog"|"links"|"country-consolidation";
 const thresholds:Readonly<Record<SchemaCapability,number>>={
