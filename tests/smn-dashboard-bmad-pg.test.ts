@@ -6,6 +6,7 @@ import {installedDatabaseUri} from "../src/server/auth/database";
 import {installExpress} from "../src/server/installation/install";
 import {assignDashboardSlot,readDashboardSlots} from "../src/server/indicators/dashboard-slots";
 import {readDashboardCockpit} from "../src/server/indicators/dashboard-cockpit";
+import {readIndicatorReporting} from "../src/server/indicators/reporting";
 import {applyDashboardSlots} from "../scripts/apply-dashboard-slots";
 
 test("Dashboard B01/B02 PG: native schema, 4/2/2 limits, collision, team isolation and frozen snapshot",{timeout:180000},async()=>{
@@ -42,6 +43,8 @@ test("Dashboard B01/B02 PG: native schema, 4/2/2 limits, collision, team isolati
    assert.equal(blocks[0].positions[1].indicator,null);
    await db.query("UPDATE public.smn_indicator_manual_value SET value=99 WHERE team_id='dashteam1' AND indicator_id='dashmetric1'");
    assert.equal((await readDashboardCockpit(db,"dashteam1","scrum","dashsprint1"))[0].positions[0].indicator?.value,"12");
+   const history=await readIndicatorReporting(db,"dashteam1","cycle_list","scrum",["dashsprint1"]);
+   assert.equal(history.cycles[0].values.dashmetric1,"12","closed cycle list must use the frozen value, not the live value");
    assert.equal((await readDashboardCockpit(db,"dashteam2","scrum"))[0].positions[0].indicator,null);
   }finally{await db.end();}
  }finally{try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)');}finally{await admin.end();}}
