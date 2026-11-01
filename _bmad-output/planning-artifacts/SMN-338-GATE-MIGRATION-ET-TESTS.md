@@ -1,5 +1,5 @@
 # SMN-338 — Porte de validation de la migration (Winston)
-**31/10/2026 — conception en cours ; aucune migration appliquée ni test PostgreSQL exécuté.**
+**01/11/2026 — DDL validé en test local : 7/7 statiques et 1/1 intégration PostgreSQL. Aucune migration de la base SMN appliquée.**
 
 ## Correction de sécurité
 Le brouillon DDL a été déplacé de `prisma/migrations/20261031_smn338_indicators_draft/migration.sql` vers `_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql`. Cela évite qu'un processus de découverte des migrations historiques interprète ce brouillon comme une migration à exécuter. Le test de contrat pointe désormais sur cette copie documentaire.
@@ -22,3 +22,14 @@ Inspection textuelle du SQL publié : 8 déclarations `CREATE TABLE public.smn_i
 - Aucune DDL implicite dans les API.
 - L'ajout non destructif précède tout démantèlement.
 - La Story SMN-338 ne doit pas être déclarée terminée sans preuves PostgreSQL et convergence.
+
+## Préparation de la migration additive — phase de conception
+- `db:upgrade` (`scripts/db-upgrade.ts`) refuse actuellement toute opération au-delà de la baseline v32 : ne pas le présenter comme capable de migrer vers v33.
+- La v32 peut avoir un historique complet de **32 migrations** ou une baseline native de **1 migration** ; les deux scénarios doivent être pris en charge explicitement.
+- Les préconditions minimales sont `smn_team`, `smn_account`, `smn_sprint`, `smn_kanban_period`, une installation initialisée en v32 et aucun objet `smn_indicator_*` déjà présent.
+- Le nouveau script `pnpm db:check:smn-338` vérifie ces conditions **en transaction READ ONLY**. Ce n'est ni une sauvegarde ni une migration et il ne certifie pas la convergence.
+- Le brouillon contient **8 tables, 2 fonctions PL/pgSQL et 3 triggers**. Les triggers référencent les deux tables métiers de cycles et nécessitent leur présence préalable.
+- **Prochaine porte obligatoire :** préparer une copie isolée représentative de la base v32, tester une application transactionnelle du DDL, vérifier les signatures (tables, colonnes, contraintes, index, fonctions, triggers), puis comparer au résultat de l'installation neuve cible.
+- **Ne pas ajouter maintenant** de SQL au répertoire `prisma/migrations`, incrémenter `schema_version` ou le journal `_prisma_migrations`, remplacer la baseline v32, ni appeler `--apply` sur la base utilisateur.
+- Tests de concurrence et de mutations des données parentes : garantir l'intégrité lors du déplacement d'un cycle entre équipes et lors du changement de type d'indicateur ; arbitrer la règle d'immutabilité au niveau métier et DB avant activation.
+- L'audit SMN-337 demeure une condition préalable à toute suppression des anciennes tables ; **aucun DROP** ici.
