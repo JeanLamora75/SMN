@@ -12,6 +12,13 @@ export async function POST(req:NextRequest){
  try{
   const body=await req.json() as {csv?:unknown};
   if(typeof body?.csv!=="string")return Response.json({error:"invalid-input"},{status:400});
+  const version=await withAuthDb(async db=>{
+   const r=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+   return r.rows[0]?.schema_version;
+  });
+  if(version===33)return Response.json({valid:false,confirmable:false,error:"v33-indicator-mapping-required",
+   message:"L'import CSV historique nécessite une correspondance explicite vers les identifiants des indicateurs manuels v33. Aucune valeur n'a été modifiée."},
+   {status:409,headers:{"Cache-Control":"no-store"}});
   const mode=await withAuthDb(async db=>{
    const r=await db.query<{mode:string}>(`SELECT lower(mode) AS mode FROM public.smn_installation
    WHERE id='singleton' AND state='initialized'`);
