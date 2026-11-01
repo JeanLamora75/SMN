@@ -21,10 +21,15 @@ export async function readDashboardCockpit(db:Client,teamId:string,cycleType:"sc
   const obj=snap&&typeof snap==="object"&&!Array.isArray(snap)?snap as Record<string,unknown>:null;
   frozen=Array.isArray(obj?.indicatorsV33)?obj.indicatorsV33 as FrozenIndicator[]:null;
  }
+ const computedStates=!historical?await db.query<{indicator_id:string;result_state:string}>(
+  "SELECT indicator_id,result_state FROM public.smn_indicator_computed_result WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=$3 AND indicator_id=ANY($4::text[])",
+  [teamId,cycleType,cycleId,report.columns.map(c=>c.id)]
+ ):null;
+ const unavailable=new Set((computedStates?.rows??[]).filter(r=>r.result_state!=="available").map(r=>r.indicator_id));
  const byId=new Map(report.columns.map(column=>{
   const raw=cycle.values[column.id]??null;
   const saved=frozen?.find(item=>item.id===column.id);
-  const state:DashboardValue["state"]=historical?(!saved?"unavailable":saved.state):raw===null?"not-recorded":"available";
+  const state:DashboardValue["state"]=historical?(!saved?"unavailable":saved.state):unavailable.has(column.id)?"unavailable":raw===null?"not-recorded":"available";
   return [column.id,{id:column.id,tag:historical&&saved?saved.tag:column.tag,name:historical&&saved?saved.name:column.name,unit:historical&&saved?saved.unit:column.unit,state,value:historical?saved?.value??null:raw} as DashboardValue] as const;
  }));
  for(const slot of slots){
