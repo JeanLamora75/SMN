@@ -62,6 +62,7 @@
     "db:prove:smn-351": "tsx scripts/smn-351-proof-record.ts --check",
     "db:prove:smn-351:backup": "tsx --test tests/smn-351-backup-restore-pg.test.ts",
     "db:preflight:smn-351": "tsx scripts/smn-351-cleanup-preflight.ts --check",
+    "db:cutover:smn-351": "tsx scripts/smn-351-accelerated-cutover.ts --apply",
     "db:audit:smn-351": "tsx scripts/smn-351-app-dependencies.ts --check",
     "db:test:smn-351": "tsx --test tests/smn-351-v33-capture-pg.test.ts tests/smn-351-v33-legacy-writes-pg.test.ts tests/smn-351-v33-csv-pg.test.ts",
     "test:smn-350": "tsx --test tests/smn-350-report-contract.test.ts",
