@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useState} from "react";
 import SettingsTabs from "../settings/settings-tabs";
+import FormulaPublicationEditor from "./formula-publication-editor";
 import {useTranslation} from "@/i18n/client";
 type D={id:string;tag:string;name:string;description:string;indicator_type:"manual"|"computed";formula:string|null;archived_at:string|null;unit_name:string;unit_short:string;color:string|null;icon:string|null};
 type P={indicator_id:string;screen_key:string;is_visible:boolean;display_order:number;display_style:string};
@@ -33,6 +34,6 @@ export default function IndicatorCatalog({teams}:{teams:{id:string;name:string}[
  <label className="col-md-3 form-label">{t("indicators.shortUnit")}<input className="form-control" value={unitShort} maxLength={20} onChange={e=>setUnitShort(e.target.value)}/></label>
  <label className="col-md-3 form-label">{t("indicators.color")}<input className="form-control" value={color} placeholder="#336699" pattern="#[0-9a-fA-F]{6}" onChange={e=>setColor(e.target.value)}/></label>
  <label className="col-md-3 form-label">{t("indicators.icon")}<input className="form-control" value={icon} maxLength={80} onChange={e=>setIcon(e.target.value)}/></label>
- </div><div className="d-flex justify-content-end gap-2"><button type="button" className="btn btn-outline-secondary" onClick={()=>{setCreate(false);setEdit(null);}}>{t("indicators.cancel")}</button><button type="submit" className="btn btn-primary" disabled={busy}>{t("indicators.save")}</button></div></form></section>}
+ </div><div className="d-flex justify-content-end gap-2"><button type="button" className="btn btn-outline-secondary" onClick={()=>{setCreate(false);setEdit(null);}}>{t("indicators.cancel")}</button><button type="submit" className="btn btn-primary" disabled={busy}>{t("indicators.save")}</button></div></form>{edit?.indicator_type==="computed"&&edit.formula!==null&&<FormulaPublicationEditor key={edit.id+edit.formula} indicatorId={edit.id} initialFormula={edit.formula} onPublished={load}/>}</section>}
  </div>;
 }
