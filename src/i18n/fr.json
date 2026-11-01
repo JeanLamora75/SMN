@@ -3876,6 +3876,7 @@
     "exportMarkdown": "Exporter les références (Markdown)"
   },
   "indicators": {
+    "dashboard": {"complementary": "Indicateurs complémentaires", "emptySlot": "Aucun indicateur configuré", "block": "Bloc", "position": "Position", "none": "Aucun"},
     "reporting": {
       "title": "Indicateurs configurés",
       "unavailable": "Indicateurs indisponibles",
