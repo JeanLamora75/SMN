@@ -13,7 +13,9 @@ import {readSprintMemberPresence} from "./presence-detail-read";
 import {ensureSprintReviewSchema,reviewClosureSnapshot} from "./review-analysis";
 
 export async function ensureClosureSchema(db:Client){
- await ensureSprintGoalsSchema(db);await ensureStoryPointsSchema(db);
+ const v=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+ await ensureSprintGoalsSchema(db);
+ if(v.rows[0]?.schema_version!==33)await ensureStoryPointsSchema(db);
  await ensureActualDurationSchema(db);await ensureExceptionalImpactSchema(db);
  await ensureSprintScoresSchema(db);
  await ensureSprintCapacityKpiSchema(db);
@@ -58,7 +60,7 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
       ORDER BY a.closed_at DESC,a.id DESC LIMIT 1) AS provenance
     FROM public.smn_sprint s WHERE s.id=$1`,[sprintId]),
   db.query(`SELECT p.meeting_id,p.member_id FROM public.smn_exceptional_meeting_participant p JOIN public.smn_sprint_exceptional_meeting m ON m.id=p.meeting_id WHERE m.sprint_id=$1 ORDER BY p.meeting_id,p.member_id`,[sprintId]),
-  db.query(`SELECT confidence,clarity,revision FROM public.smn_sprint_scores WHERE sprint_id=$1`,[sprintId])
+  v33?Promise.resolve({rows:[] as Array<Record<string,unknown>>}):db.query(`SELECT confidence,clarity,revision FROM public.smn_sprint_scores WHERE sprint_id=$1`,[sprintId])
  ]);
  // Le décompte Tickets agrégé peut ne pas être installé sur les anciennes bases.
  // Une ancienne clôture conserve une absence de source plutôt qu'un faux zéro.
