@@ -133,3 +133,12 @@ Aucune migration de suppression n'est activée ; aucun DROP sur `smn`.
 - L'interface d'import affiche la nécessité d'une correspondance explicite. La suite de tests SMN-351 inclut les contrôles de fermeture, d'incompatibilité CSV et de non-correspondance implicite.
 - **À terminer avant activation d'un import v33** : contrat fonctionnel approuvé de correspondance code CSV → identifiant d'indicateur manuel sélectionné pour l'équipe et le cycle ; contrôles d'autorisation multiéquipes, de révision concurrente et de journal d'import ; prévisualisation puis confirmation transactionnelle.
 - Les tests PostgreSQL et TypeScript du dernier état publié doivent être exécutés localement. Aucune suppression SQL n'est autorisée.
+
+
+## Extraction physique des lecteurs et écritures v32 — 01/11/2026
+
+Les lectures v32 des rapports standard et historiques, de la replanification, de la clôture et du détail des sprints ont été regroupées dans `src/server/compat-v32/legacy-metric-read.ts`. Les implémentations historiques des éditeurs de story points et de tickets sont désormais dans `src/server/compat-v32/story-points.ts` et `src/server/compat-v32/ticket-counts.ts`, avec réexport depuis leurs chemins précédents. Les contrôles `schema_version===33` continuent de refuser les anciens éditeurs avant écriture ; les services v33 ne lisent pas ces tables. La lecture des snapshots de clôture existants reste inchangée.
+
+Le test `tests/smn-351-v33-csv-pg.test.ts` a été ajouté à `pnpm db:test:smn-351`. Il installe une base v33 temporaire isolée, exerce prévisualisation, insertion, préservation, remplacement, détection de prévisualisation périmée, contrôle des cycles clôturés et de l'appartenance de l'équipe, vérification du journal des changements et incrément de révision. Il détruit exclusivement sa base temporaire. **Résultat d'exécution non encore reçu**.
+
+La baisse des références catégorisées runtime ne suffit pas à autoriser un DROP : conserver les deux preuves distinctes « comparaison des schémas » et « restauration de l'installation historiquement migrée v32 » comme blocages. Aucun DDL destructif sur la base de l'utilisateur.
