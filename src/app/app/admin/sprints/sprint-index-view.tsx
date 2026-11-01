@@ -23,7 +23,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  const [refresh,setRefresh]=useState(0);
  const [data,setData]=useState<Result|null>(null);
  const [dynamicState,setDynamicState]=useState<{teamId:string;report:DynamicReport}|null>(null);
- const dynamicReport=dynamicState?.teamId===teamId?dynamicState.report:null;
+ const dynamicReport=isTeamPermitted&&dynamicState?.teamId===teamId?dynamicState.report:null;
  const isTeamPermitted=!!teamId&&permittedTeamIds.includes(teamId);
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState(false);
@@ -48,7 +48,6 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  },[deferredSearch,filter,sort,page,refresh,teamId]);
  useEffect(()=>{
   const ctrl=new AbortController();
-  setDynamicState(null);
   if(!teamId||!isTeamPermitted)return()=>ctrl.abort();
   void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({teamId,cycleType:"scrum",screen:"cycle_list"}),{cache:"no-store",signal:ctrl.signal})
    .then(async response=>{if(!response.ok)throw Error("indicator-reporting-unavailable");return response.json() as Promise<DynamicReport>;})
