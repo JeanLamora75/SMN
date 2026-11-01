@@ -1,4 +1,4 @@
-/** Native v32 installer. Requires a reviewed baseline; never falls back to legacy v1. */
+/** Native v33 installer: baseline canonique v32 + DDL indicateurs v33 atomiques. */
 import {randomUUID,createHash,timingSafeEqual} from "node:crypto";
 import {Client} from "pg";
 import {parseConnectionSettings} from "../db/config";
@@ -69,7 +69,7 @@ export async function installExpress(rawBody:unknown,rawUri:string|undefined):Pr
   await client.query("INSERT INTO public._prisma_migrations(id,checksum,finished_at,migration_name,applied_steps_count) VALUES($1,$2,now(),$3,1)",
    [randomUUID(),createHash("sha256").update(indicatorSql).digest("hex"),SMN338_V33_NAME]);
   await client.query("COMMIT");transaction=false;
-  // A baseline journal needs the new classifier contract (step 3) before reporting success.
+  // L'installation est acceptée uniquement après diagnostic physique v33.
   const after=classifySnapshot(await probePostgres(uri.toString()));
   return after.status==="initialized"?{ok:true}:{ok:false,status:"verification-failed"};
  }catch{return {ok:false,status:"installation-failed"}}
