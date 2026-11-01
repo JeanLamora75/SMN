@@ -37,7 +37,7 @@ export async function writeManualValues(
    "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
   if(installation.rows[0]?.schema_version!==33){await db.query("ROLLBACK");return {ok:false,error:"not-found"};}
   const actor=await db.query<{role:string}>(
-   "SELECT role FROM public.smn_account WHERE id=$1 AND installation_id='singleton' AND is_active=true",
+   "SELECT role FROM public.smn_account WHERE id=$1 AND installation_id='singleton' AND is_active=true AND must_change_password=false",
    [actorId]);
   if(!actor.rows[0]){await db.query("ROLLBACK");return {ok:false,error:"forbidden"};}
   if(actor.rows[0].role!=="admin"&&(!canWriteTeam||!await canWriteTeam(actorId,input.teamId,db))){
