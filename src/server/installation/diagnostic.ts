@@ -99,7 +99,15 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
       INDICATOR_TABLES.every(n=>names.has("public."+n+":r"))&&
       ["public.smn_indicator_assert_cycle_integrity:function","public.smn_indicator_assert_value_integrity:function"].every(n=>names.has(n));
     if(!validV33||snapshot.indicatorV33SchemaValid!==true)return result("installation-incomplete");
-    const prior=migrations!.filter(m=>m.migration_name!==SMN338_V33_NAME);
+    const slotsName="20261101_smn_dashboard_slots_additive";
+    const slotMigration=migrations!.find(m=>m.migration_name===slotsName);
+    if(slotMigration){
+      const slotSql=readFileSync(new URL("../../../prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",import.meta.url),"utf8");
+      if(slotMigration.checksum!==createHash("sha256").update(slotSql).digest("hex")||
+         !slotMigration.finished_at||slotMigration.rolled_back_at||
+         !names.has("public.smn_indicator_dashboard_slot:r"))return result("installation-incomplete");
+    }
+    const prior=migrations!.filter(m=>m.migration_name!==SMN338_V33_NAME&&m.migration_name!==slotsName);
     if(prior.length===1&&prior[0]?.migration_name===NATIVE_V32_NAME){
       const oldSnapshot={...snapshot,installations:[{...records[0],schema_version:32}],migrations:prior};
       return result(nativeV32HistoryValid(oldSnapshot,nativeBaselineSql())?"initialized":"installation-incomplete");
