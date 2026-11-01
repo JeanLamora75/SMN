@@ -2,7 +2,7 @@ import {redirect} from "next/navigation";
 import type {ReactNode} from "react";
 import {currentAccount} from "@/server/auth/session";
 import {canAccess} from "@/server/access-policy";
-import {withAuthDb} from "@/server/auth/database";
+import {withSessionReadDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
 import {indicatorTeams} from "@/server/indicators/team-access";
 import SessionActivity from "./session-activity";
@@ -19,10 +19,10 @@ export default async function PrivateLayout({children}:{children:ReactNode}) {
   if(account.must_change_password)redirect("/change-password");
   if(!canAccess(account,"read",{type:"collective",exists:true,inScope:true}))redirect("/login");
   // Ne jamais inventer de produit/équipe lorsque la base n'est pas disponible.
-  const dashboard=await withAuthDb(db=>readAccountDashboard(db,
+  const dashboard=await withSessionReadDb(db=>readAccountDashboard(db,
     {accountId:account.id,role:account.role})).catch(()=>null);
   const context=dashboard?.context??null;
-  const canManageIndicators=account.role==="admin"||await withAuthDb(async db=>(await indicatorTeams(db,{accountId:account.id,role:account.role})).length>0).catch(()=>false);
+  const canManageIndicators=account.role==="admin"||await withSessionReadDb(async db=>(await indicatorTeams(db,{accountId:account.id,role:account.role})).length>0).catch(()=>false);
   return <>
     <PrivateShell username={account.username} role={account.role as PrivateRole}
       mode={context?.mode??null} product={context?.product??null}
