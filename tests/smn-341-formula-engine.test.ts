@@ -48,3 +48,31 @@ test("budgets techniques ne deviennent jamais unavailable",()=>{
  assert.throws(()=>calculateFormula("2^1000"),FormulaBudgetError);
  assert.throws(()=>evaluateFormula(parseFormula("1+2"),{},1),FormulaBudgetError);
 });
+
+test("valeurs sources signées et HALF_UP sans perte IEEE754",()=>{
+ assert.equal(value("A+0.2",{A:"-0.1"}),"0.1");
+ assert.equal(value("A+0.2",{A:"+0.1"}),"0.3");
+ assert.equal(value("ROUND(-1.235,2)"),"-1.24");
+ assert.equal(value("ROUND(1.235,2)"),"1.24");
+ assert.equal(value("0.000000000000000000000001+0.000000000000000000000001"),"0.000000000000000000000002");
+});
+test("budgets numériques et exposants fractionnaires bornés",()=>{
+ for(const formula of ["9^0.5","16^0.25","2^-3","(-2)^3","4^0.5"]){
+  const r=calculateFormula(formula);assert.equal(r.kind,"available",formula);
+ }
+ assert.equal(value("16^0.25"),"2");
+ assert.equal(value("(-2)^3"),"-8");
+ assert.equal(calculateFormula("(-8)^0.333333333333333333333333").kind,"unavailable");
+ assert.throws(()=>calculateFormula("2^64"),FormulaBudgetError);
+ assert.throws(()=>calculateFormula("2^0.000000000000000000000001"),FormulaBudgetError);
+ assert.throws(()=>calculateFormula("999999999999999999999999999999999999999999999999^2"),FormulaBudgetError);
+ assert.throws(()=>calculateFormula("1+".repeat(300)+"1"),FormulaBudgetError);
+});
+test("grammaire et domaines : exceptions techniques distinctes de unavailable",()=>{
+ for(const s of ["MIN()","MAX(1)","ROUND(1)","ROUND(1,2,3)","A B","2+","1;process.exit()","Math.random()"])
+  assert.throws(()=>parseFormula(s),FormulaSyntaxError,s);
+ assert.deepEqual(calculateFormula("ROUND(1,1.5)"),{kind:"unavailable",reason:"invalid_domain",detail:"ROUND precision"});
+ assert.equal(calculateFormula("0^-2").kind,"unavailable");
+ assert.equal(calculateFormula("0^0").kind,"unavailable");
+ assert.deepEqual(calculateFormula("X+1",{X:null}),{kind:"unavailable",reason:"missing_source",sourceTag:"X"});
+});
