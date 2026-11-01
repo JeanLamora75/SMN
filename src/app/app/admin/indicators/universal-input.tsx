@@ -38,7 +38,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId}:{team
    const data=await r.json();if(!r.ok||data.ok===false)throw Error(data.error??"unavailable");
    if(action==="preview"){setPreview(data.results);setSystemRevision(data.systemRevision);setMessage(t("indicators.input.previewReady"));}
    else{setOpen(false);setForm(null);setPreview(null);setSystemRevision(null);router.refresh();setMessage(t("indicators.input.saved"));}
-  }catch(e){setError(e instanceof Error?e.message:"unavailable");}finally{setBusy(false);}
+  }catch(e){setPreview(null);setSystemRevision(null);setError(e instanceof Error?e.message:"unavailable");}finally{setBusy(false);}
  }
  return <div>
   <button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>{setOpen(true);setMessage("");}}>{t("indicators.input.open")}</button>
