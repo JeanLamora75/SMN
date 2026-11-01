@@ -3876,7 +3876,18 @@
     "exportMarkdown": "Exporter les références (Markdown)"
   },
   "indicators": {
-    "reporting": {"title":"Indicateurs configurés","unavailable":"Indicateurs indisponibles","loading":"Chargement","empty":"Aucun indicateur sélectionné pour cet écran","indicator":"Indicateur","exportPng":"Exporter PNG","cycle":"Cycle","status":"Statut"},
+    "reporting": {
+      "title": "Indicateurs configurés",
+      "unavailable": "Indicateurs indisponibles",
+      "loading": "Chargement",
+      "empty": "Aucun indicateur sélectionné pour cet écran",
+      "indicator": "Indicateur",
+      "exportPng": "Exporter PNG",
+      "cycle": "Cycle",
+      "status": "Statut",
+      "configureHint": "Les valeurs enregistrées ne sont affichées que si l’indicateur est actif pour cette équipe et visible sur cet écran.",
+      "configureAction": "Configurer les indicateurs"
+    },
     "input": {
       "kanbanTitle": "Saisie des indicateurs Kanban",
       "reasons": {
