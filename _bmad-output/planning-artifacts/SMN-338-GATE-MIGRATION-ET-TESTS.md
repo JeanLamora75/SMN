@@ -33,3 +33,11 @@ Inspection textuelle du SQL publié : 8 déclarations `CREATE TABLE public.smn_i
 - **Ne pas ajouter maintenant** de SQL au répertoire `prisma/migrations`, incrémenter `schema_version` ou le journal `_prisma_migrations`, remplacer la baseline v32, ni appeler `--apply` sur la base utilisateur.
 - Tests de concurrence et de mutations des données parentes : garantir l'intégrité lors du déplacement d'un cycle entre équipes et lors du changement de type d'indicateur ; arbitrer la règle d'immutabilité au niveau métier et DB avant activation.
 - L'audit SMN-337 demeure une condition préalable à toute suppression des anciennes tables ; **aucun DROP** ici.
+
+## Lot intégré v33 — 01/11/2026
+- **Migration transactionnelle** : `scripts/apply-smn-338-v33.ts` applique DDL, vérifie 8 tables et 3 triggers, journalise SHA-256 sous `20261101_smn338_indicator_v33`, puis passe `smn_installation.schema_version` à 33 dans la même transaction. Un échec entraîne ROLLBACK. `--apply` exige `SMN_V33_BACKUP_VERIFIED=YES`; NE PAS utiliser sur la base principale tant que les dernières recettes n'ont pas été validées.
+- **Orchestrateur** : `db:upgrade` reconnaît v33 comme déjà migrée et peut demander explicitement l'application de v33 pour les bases v32 après validation de sauvegarde. Sans `--apply`, aucun changement.
+- **Diagnostics** : liste des objets v33 mise à jour et validation de la signature SHA-256 de la migration v33 pour les historiques 32→33 et natifs v32→33. Audit exhaustif v33 adapté.
+- **Baseline installation neuve** : `pnpm db:baseline:v33:candidate` assemble la baseline native v32 et l'extension additive v33 dans `prisma/baseline/v33/schema-candidate.sql` **localement**. Ce fichier est un **candidat documentaire**, non une baseline installable activée. L'amorçage natif v33, son journal et sa recette d'installation neuve sont à finaliser avant d'autoriser une installation neuve directe en v33.
+- **Tests** : `pnpm test:db:compat` (politique v32/v33) et `pnpm db:test:smn-338:v33` (restauration de la base v32, migration COMMIT sur une base jetable, diagnostic initialized, préservation des enregistrements, destruction de la base isolée).
+- **Preuves non acquises** : aucune exécution de ces nouvelles commandes n'a encore été fournie ; ne pas affirmer que le lot a été validé. La migration n'a PAS été exécutée sur `smn`.
