@@ -101,7 +101,7 @@ CREATE TABLE public.smn_indicator_system_revision (
 INSERT INTO public.smn_indicator_system_revision(singleton_key) VALUES ('singleton');
 -- Version de cycle : aucun indicateur à vérifier, seule l'équipe et le cycle.
 CREATE FUNCTION public.smn_indicator_assert_cycle_integrity()
-RETURNS trigger LANGUAGE plpgsql AS $
+RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
  IF NEW.cycle_type='scrum' THEN
   PERFORM 1 FROM public.smn_sprint WHERE id=NEW.cycle_id AND team_id=NEW.team_id FOR SHARE;
@@ -113,13 +113,13 @@ BEGIN
  END IF;
  RETURN NEW;
 END;
-$;
+$$;
 
 -- Validation de l'intégrité polymorphe en base : les cycles Scrum et Kanban
 -- vivent dans des tables différentes. Aucun FK polymorphe natif PostgreSQL.
 -- Une seule fonction vérifie l'appartenance réelle et le type des indicateurs.
 CREATE FUNCTION public.smn_indicator_assert_value_integrity()
-RETURNS trigger LANGUAGE plpgsql AS $
+RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE expected_type text;
 BEGIN
  SELECT indicator_type INTO expected_type
@@ -140,7 +140,7 @@ BEGIN
  END IF;
  RETURN NEW;
 END;
-$;
+$$;
 CREATE TRIGGER smn_indicator_manual_value_integrity
 BEFORE INSERT OR UPDATE ON public.smn_indicator_manual_value
 FOR EACH ROW EXECUTE FUNCTION public.smn_indicator_assert_value_integrity();
