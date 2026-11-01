@@ -79,7 +79,13 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       "SELECT migration_name,checksum,finished_at,rolled_back_at FROM public._prisma_migrations ORDER BY migration_name");
     const applied=(name:string,sql:string)=>migrations.rows.some(x=>x.migration_name===name &&
       x.checksum===checksum(sql) && !!x.finished_at && !x.rolled_back_at);
-    if (!applied(INITIAL_MIGRATION,INITIAL_SCHEMA_SQL) || migrations.rowCount !== version)
+    // Additive dashboard slots migration is independently checksummed and does not bump schema_version.
+    const slotsName="20261101_smn_dashboard_slots_additive";
+    const slots=migrations.rows.filter(m=>m.migration_name===slotsName);
+    const slotsPresent=await client.query<{present:boolean}>("SELECT to_regclass('public.smn_indicator_dashboard_slot') IS NOT NULL AS present");
+    const additiveValid=version===33&&slots.length===1&&!!slots[0].finished_at&&!slots[0].rolled_back_at&&slotsPresent.rows[0]?.present===true;
+    const expectedHistory=version+(additiveValid?1:0);
+    if (!applied(INITIAL_MIGRATION,INITIAL_SCHEMA_SQL) || migrations.rowCount !== expectedHistory || (slots.length>0&&!additiveValid))
       throw new Error("smn-schema-incompatible");
 
     if (version===1) {
