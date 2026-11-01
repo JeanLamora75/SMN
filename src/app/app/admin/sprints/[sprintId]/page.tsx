@@ -8,7 +8,6 @@ import {withDashboardRead} from "@/server/dashboard/read-only-db";
 import {readSprintDetailGoals} from "@/server/sprints/goals-detail-read";
 import {readSprintDetailCeremonies} from "@/server/sprints/ceremonies-detail-read";
 import {readSprintMemberPresence} from "@/server/sprints/presence-detail-read";
-import {readSprintTrends} from "@/server/sprints/trends";
 import {readSprintReview} from "@/server/sprints/review-analysis";
 import {readSprintRegisters} from "@/server/sprints/registers-detail-read";
 import {isRegisterKind} from "@/lib/sprint-registers";
@@ -28,7 +27,6 @@ import SprintCeremoniesPanel from "./sprint-ceremonies-panel";
 import HistoricalEventForm from "./historical-event-form";
 import HistoricalPartialForm from "./historical-partial-form";
 import SprintCapacityPanel from "./sprint-capacity-panel";
-import SprintTrendsPanel from "./sprint-trends-panel";
 import IndicatorReporting from "../../indicators/reporting-view";
 import SprintReviewPanel from "./sprint-review-panel";
 import SprintRegistersPanel from "./sprint-registers-panel";
@@ -75,10 +73,9 @@ export default async function SprintDetailPage({params,searchParams}:{
   const ceremonies=active==="ceremonies"?await readSprintDetailCeremonies(db,teamId,cycle.id,ceremonyPage):null;
   const presence=active==="capacity"&&canViewMembers?
    await readSprintMemberPresence(db,teamId,cycle):null;
-  const trends=active==="trends"?await readSprintTrends(db,cycle.id,teamId):null;
   const review=active==="review"?await readSprintReview(db,teamId,cycle.id):null;
   const registers=active==="registers"?await readSprintRegisters(db,teamId,cycle,ceremonyPage,readEpic5SprintRegisterSource,registerKind):null;
-  return {cycle,goals,ceremonies,presence,trends,review,registers};
+  return {cycle,goals,ceremonies,presence,review,registers};
  }).catch(()=>undefined);
  if(result===null)notFound();
  if(!result)return <main className="container-fluid px-3 px-lg-4 py-4">
@@ -87,7 +84,7 @@ export default async function SprintDetailPage({params,searchParams}:{
   </div>
   <Link href="/app">{t("dashboard.cockpit.backToDashboard")}</Link>
  </main>;
- const {cycle,goals,ceremonies,presence,trends,review,registers}=result;
+ const {cycle,goals,ceremonies,presence,review,registers}=result;
  const canManage=canAccess(account,"write",{type:"settings",exists:true,inScope:true});
  const canManageDynamicIndicators=await withAuthDb(async db=>(await indicatorTeams(db,{accountId:account.id,role:account.role})).some(t=>t.id===teamId)).catch(()=>false);
  const status=effectiveSprintStatus(cycle);
@@ -160,8 +157,7 @@ export default async function SprintDetailPage({params,searchParams}:{
      active==="capacity"?<SprintCapacityPanel
       teamId={teamId} canViewNames={canViewMembers} data={canViewMembers?presence:null} locale={locale}
       t={(key,params)=>translate(locale,key,params)}/>:
-     active==="trends"?<><SprintTrendsPanel
-      data={trends} locale={locale}/>{canManageDynamicIndicators&&<IndicatorReporting teamId={teamId} cycleType="scrum" screen="trends" locale={locale}/>}</>:
+     active==="trends"?<>{canManageDynamicIndicators&&<IndicatorReporting teamId={teamId} cycleType="scrum" screen="trends" locale={locale}/>}</>:
      active==="review"?<SprintReviewPanel
       data={review} sprintId={cycle.id} status={cycle.status}
       canManage={canManage} locale={locale} timeZone={cycle.timeZone}/>:
