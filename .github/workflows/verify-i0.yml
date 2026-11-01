@@ -52,6 +52,8 @@ jobs:
         run: pnpm db:test:smn-345
       - name: Recette PostgreSQL isolée SMN-346
         run: pnpm db:test:smn-346
+      - name: Recette PostgreSQL isolée SMN-347
+        run: pnpm db:test:smn-347
       - name: Contrats de retry SMN-346
         run: pnpm test:smn-346
       - name: Lint
