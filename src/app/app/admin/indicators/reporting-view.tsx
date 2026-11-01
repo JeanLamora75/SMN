@@ -44,8 +44,9 @@ export default function IndicatorReporting({teamId,cycleType,screen,locale}:{tea
    <svg ref={ref} viewBox="0 0 960 360" xmlns="http://www.w3.org/2000/svg" className="w-100" role="img" aria-label={definition.name}>
     <rect width="960" height="360" fill="#ffffff"/><text x="480" y="35" fontSize="18" textAnchor="middle" fill="#334155">{definition.tag} — {definition.name} ({definition.unit})</text>
     {[0,.25,.5,.75,1].map(n=><line key={n} x1="75" x2="845" y1={290-n*205} y2={290-n*205} stroke="#dddddd"/>)}
-    {points.map((p,i)=>p.y!==null&&i>0&&points[i-1].y!==null?<line key={"l"+i} x1={points[i-1].x} y1={points[i-1].y!} x2={p.x} y2={p.y} stroke="#2563eb" strokeWidth="3"/>:null)}
-    {line.map(({p,i})=><circle key={i} cx={p.x} cy={p.y!} r="4" fill="#2563eb"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></circle>)}
+    {definition.style!=="bar"&&points.map((p,i)=>p.y!==null&&i>0&&points[i-1].y!==null?<line key={"l"+i} x1={points[i-1].x} y1={points[i-1].y!} x2={p.x} y2={p.y} stroke="#2563eb" strokeWidth="3"/>:null)}
+    {definition.style==="bar"&&points.map((p,i)=>p.y!==null?<rect key={"bar"+i} x={p.x-18} y={Math.min(290,p.y)} width="36" height={Math.abs(290-p.y)} fill="#2563eb"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></rect>:null)}
+    {definition.style!=="bar"&&line.map(({p,i})=><circle key={i} cx={p.x} cy={p.y!} r="4" fill="#2563eb"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></circle>)}
     {points.map((p,i)=><text key={"x"+i} x={p.x} y="314" fontSize="10" fill="#334155" textAnchor="middle">{i+1}</text>)}
    </svg>
   </>}
