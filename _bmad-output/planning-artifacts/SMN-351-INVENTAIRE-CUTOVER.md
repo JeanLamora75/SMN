@@ -62,3 +62,11 @@ Les points d'entrée actifs de la page Sprint utilisent dorénavant la saisie un
 - Les API Fxx historiques v33 renvoient `410`. Les anciennes implémentations et tableaux SQL sont temporairement conservés pour les dépendances v32/snapshots métiers : **aucun DROP** ni récupération des vieilles valeurs.
 
 Il reste à valider la recette navigateur Windows et la CI correspondant au dernier commit avant de certifier cette étape. La suppression SQL est exclue de cette livraison.
+
+## Audit de dépendances métier — garde-fou complémentaire
+
+**KEEP explicite** : les familles SQL contenant `capacity`, `calendar`, `absence`, `holiday`, `closure`, `snapshot`, `historical`, `history`, `report`, `archive`, `document`, `ceremony`, `meeting`, `member`, `attendance`, `work_slot`, `company`, `registry` ou `audit` sont traitées conservativement comme données métier à préserver, même lorsqu'une table nouvelle n'est pas dans l'inventaire manuel. Les tables de l'ancien système explicitement candidates et leurs audits restent des **candidats**, jamais des suppressions autorisées.
+
+Le diagnostic `pnpm db:check:smn-351` distingue désormais `unsafeCandidates` (dépendances SQL cataloguées) et indique `readOnly: true`. L'absence de dépendance cataloguée ne certifie pas les dépendances applicatives TypeScript ni les fonctions SQL écrites en texte ; une analyse supplémentaire reste nécessaire avant tout DDL. Les snapshots métiers, historiques et références figées de rapports restent immuables. Les migrations de capacité et de calendrier sont hors périmètre DROP.
+
+**Contrat de non-régression** : `tests/smn-351-cutover-guard.test.ts` contrôle que ces catégories sont classées KEEP et que les seules tables envisagées comme candidates sont celles des anciens indicateurs. Ce test ne démontre pas à lui seul la restauration ni l'exhaustivité de tous les appelants.
