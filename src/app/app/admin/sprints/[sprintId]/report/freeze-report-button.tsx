@@ -18,7 +18,6 @@ export default function FreezeReportButton({sprintId,teamId,label,errorLabel,loc
  },[teamId]);
  const available=(data?.definitions??[]).filter(d=>!d.archived_at&&data?.selections.some(s=>s.indicator_id===d.id&&s.is_active));
  const custom=loaded&&data!==null;
- const indicators=custom?"&indicators="+encodeURIComponent(selected.join(",")):"";
  const preview="/app/admin/sprints/"+encodeURIComponent(sprintId)+"/report/preview"+(custom?"?indicators="+encodeURIComponent(selected.join(",")):"");
  const move=(id:string,dir:number)=>setSelected(previous=>{const values=[...previous],i=values.indexOf(id),j=i+dir;if(i<0||j<0||j>=values.length)return previous;[values[i],values[j]]=[values[j],values[i]];return values;});
  async function freeze(){
