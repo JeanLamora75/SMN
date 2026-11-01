@@ -23,8 +23,8 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
  const [refresh,setRefresh]=useState(0);
  const [data,setData]=useState<Result|null>(null);
  const [dynamicState,setDynamicState]=useState<{teamId:string;report:DynamicReport}|null>(null);
- const dynamicReport=isTeamPermitted&&dynamicState?.teamId===teamId?dynamicState.report:null;
  const isTeamPermitted=!!teamId&&permittedTeamIds.includes(teamId);
+ const dynamicReport=isTeamPermitted&&dynamicState?.teamId===teamId?dynamicState.report:null;
  const [loading,setLoading]=useState(true);
  const [error,setError]=useState(false);
  const [notice,setNotice]=useState("");
