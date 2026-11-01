@@ -27,6 +27,10 @@ test("SMN-338 : diagnostic autorise v33 et exige signature de migration",()=>{
  const relations=read("src/server/installation/contract.ts");
  for(const n of ["definition","team_selection","display_preference","manual_value","computed_result","dependency","cycle_revision","system_revision"])
   assert.ok(relations.includes("public.smn_indicator_"+n+":r"));
+ for(const n of ["smn_indicator_assert_cycle_integrity","smn_indicator_assert_value_integrity",
+  "smn_indicator_guard_cycle_team_change","smn_indicator_guard_definition_type_change"])
+  assert.ok(relations.includes("public."+n+":function"));
+ assert.match(read("src/server/db/probe.ts"),/indicatorV33SchemaValid/);
 });
 test("SMN-338 : baseline v33 candidate non activée",()=>{
  const code=read("scripts/build-smn-338-v33-baseline-candidate.ts");
