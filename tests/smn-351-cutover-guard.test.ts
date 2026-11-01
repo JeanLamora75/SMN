@@ -10,5 +10,5 @@ test("SMN-351 audit remains read-only and fail-closed before destructive cutover
 test("SMN-351 inventory distinguishes legacy candidates and protected business datasets",()=>{
  for(const key of ["smn_indicator_definition","smn_sprint_closure_snapshot","smn_kanban_closure","smn_kanban_capacity_opening"])assert.ok(script.includes(key));
  for(const classification of ["KEEP","ADAPT","DROP"])assert.ok(plan.includes(classification));
- assert.match(plan,/restaurée sur base jetable/);
+ assert.match(plan,/essai de restauration/);
 });
