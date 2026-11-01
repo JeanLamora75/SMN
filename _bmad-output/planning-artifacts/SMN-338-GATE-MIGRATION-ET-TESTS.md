@@ -58,3 +58,11 @@ Inspection textuelle du SQL publié : 8 déclarations `CREATE TABLE public.smn_i
 - **Aucun de ces derniers changements n'est encore validé en exécution locale.** Passage en Terminé de la Story conditionné aux recettes et à la résolution des éventuels défauts.
 - Recette complète conseillée après Pull origin (sur la base v32 source non modifiée) : `pnpm test:db:smn-338:v33:contracts` ; `pnpm exec tsx --test tests/smn-338-indicators-schema-contract.test.ts` ; `pnpm db:test:smn-338` ; `pnpm db:test:smn-338:upgrade` ; `pnpm db:test:smn-338:v33` ; `pnpm db:test:smn-338:native` ; `pnpm typecheck` ; `pnpm lint` ; `pnpm db:diagnose:full`.
 - **Ne pas utiliser** `db:upgrade --apply` sur la base principale tant que les tests du dernier lot ne sont pas confirmés. L'utilisateur n'a pas encore validé le basculement de son instance.
+
+## Livraison technique intégrée — candidat à validation finale
+- Le flux natif v33, la migration transactionnelle v32→v33, le diagnostic v33 physique et les garde-fous sur les cycles/indicateurs sont désormais **codés** sur `main`.
+- En v33, le diagnostic physique contrôle notamment **4 fonctions**, **6 triggers activés** et les **2 index uniques partiels** des dépendances ; un trigger critique désactivé rend l'installation incompatible.
+- Les triggers de protection couvrent les changements de `team_id`, les changements d'identifiant et les suppressions de cycles référencés, ainsi que le changement de type des indicateurs porteurs de valeurs ou verrouillés.
+- La commande consolidée `pnpm db:validate:smn-338` lance, sans migrer la base source, les tests contractuels, les suites PostgreSQL isolées, l'installation native v33 sur base vierge jetable, TypeScript, ESLint et le diagnostic v32.
+- **Non-régression encore non prouvée pour ce dernier lot :** l'utilisateur doit exécuter cette commande sur PostgreSQL 18.6 portable. Seules les phases antérieures (14/14 et restauration v32) ont été exécutées et validées.
+- La migration effective de `smn` est une opération de déploiement distincte, exclue de cette livraison sans sauvegarde vérifiée et accord explicite.
