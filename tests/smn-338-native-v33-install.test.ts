@@ -41,6 +41,10 @@ test("SMN-338 : installation native v33 complète sur base vierge isolée",{time
    assert.equal(adminCount.rows[0]?.n,"1");
    const palette=await db.query<{palette:string}>("SELECT palette FROM public.smn_general_settings WHERE installation_id='singleton'");
    assert.equal(palette.rows[0]?.palette,"red-purple");
+   await db.query("ALTER TABLE public.smn_indicator_manual_value DISABLE TRIGGER smn_indicator_manual_value_integrity");
+   assert.equal(classifySnapshot(await probePostgres(targetUri.toString())).status,"installation-incomplete",
+    "Un trigger critique désactivé doit invalider le diagnostic v33");
+
   }finally{await db.end().catch(()=>undefined)}
  }finally{
   try{if(created)await admin.query('DROP DATABASE "'+name+'" WITH (FORCE)')}
