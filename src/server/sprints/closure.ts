@@ -1,3 +1,4 @@
+import {readLegacyClosurePoints,readLegacyClosureTickets} from "@/server/compat-v32/legacy-metric-read";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 import {randomUUID} from "node:crypto";
 import {qualitativeClosureSnapshot} from "@/server/registries/closure-snapshot";
@@ -36,7 +37,7 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
  const indicatorsV33=v33?await captureCycleIndicators(db,context.team_id,sprintId):null;
  const [goals,points,ceremonies,custom,exceptional,capacity,participants,scores]=await Promise.all([
   db.query(`SELECT id,title,evaluation,comment,revision FROM public.smn_sprint_goal WHERE sprint_id=$1 ORDER BY created_at,id`,[sprintId]),
-  v33?Promise.resolve({rows:[] as Array<Record<string,unknown>>}):db.query(`SELECT initial_sp::text,added_sp::text,removed_sp::text,done_sp::text,revision FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]),
+  v33?Promise.resolve({rows:[] as Array<Record<string,unknown>>}):readLegacyClosurePoints(db,sprintId).then(row=>({rows:row?[row]:[]})),
   db.query(`SELECT id,kind,starts_at::text,ends_at::text,occurrence_status AS status,actual_minutes,generation_source FROM public.smn_sprint_ceremony WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT id,template_id,template_revision,name,starts_at::text,ends_at::text,status,actual_minutes,generation_source FROM public.smn_scrum_template_occurrence WHERE sprint_id=$1`,[sprintId]),
   db.query(`SELECT id,name,starts_at::text,ends_at::text,status,actual_minutes,impacts_capacity FROM public.smn_sprint_exceptional_meeting WHERE sprint_id=$1`,[sprintId]),
@@ -64,11 +65,7 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
  ]);
  // Le décompte Tickets agrégé peut ne pas être installé sur les anciennes bases.
  // Une ancienne clôture conserve une absence de source plutôt qu'un faux zéro.
- const ticketsInstalled=v33?{rows:[{present:false}]}:await db.query<{present:boolean}>(
-  "SELECT to_regclass('public.smn_sprint_ticket_counts') IS NOT NULL AS present");
- const ticket= ticketsInstalled.rows[0]?.present?
-  await db.query(`SELECT initial_tickets::text,done_tickets::text
-    FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]):null;
+ const ticket=v33?null:await readLegacyClosureTickets(db,sprintId);
  // Capture member presence at closure. Never recompute this section from future
  // calendar/absence edits. A missing producer remains visibly unavailable.
  const reviewAnalysis=await reviewClosureSnapshot(db,sprintId);
@@ -98,7 +95,7 @@ async function snapshot(db:Client,sprintId:string,context:{team_id:string;name:s
   memberPresenceProvenance:historical?"retrospective-calendar-estimate":"closure-calendar-estimate",
   reviewAnalysis,
   confidenceClarity:scores.rows[0]??null,
-  ticketCounts:ticket?.rows[0]??null,
+  ticketCounts:ticket??null,
   ceremonies:ceremonies.rows,customMeetings:custom.rows,exceptionalMeetings:exceptional.rows,
   capacity:snapshotCapacity,capacityKpis:historical?{planned:historicalCapacity?.rows[0]?.qualified_jh??null,actual:historicalActual?.rows[0]?.qualified_jh??null}:saved?{
    planned:saved.planned_jh,actual:saved.actual_jh
