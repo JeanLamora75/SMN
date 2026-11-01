@@ -19,6 +19,8 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
  const valid=values.filter((x):x is number=>x!==null);
  const min=Math.min(0,...valid),max=Math.max(1,...valid),range=Math.max(1,max-min);
  const points=values.map((v,i)=>({x:75+(i+0.5)*770/Math.max(1,values.length),y:v===null?null:290-(v-min)/range*205,value:v}));
+ const last=values.length?values[values.length-1]:null;
+ const baseline=290-(0-min)/range*205;
  const line=points.map((p,i)=>p.y===null?null:{p,i}).filter((x):x is {p:typeof points[number];i:number}=>x!==null);
  async function savePng(){if(!ref.current)return;let url="";
   try{const svg=ref.current.cloneNode(true) as SVGSVGElement;
@@ -44,11 +46,17 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
    </div>
    <svg ref={ref} viewBox="0 0 960 360" xmlns="http://www.w3.org/2000/svg" className="w-100" role="img" aria-label={definition.name}>
     <rect width="960" height="360" fill="var(--bs-body-bg)"/><text x="480" y="35" fontSize="18" textAnchor="middle" fill="var(--bs-body-color)">{definition.tag} — {definition.name} ({definition.unit})</text>
-    {[0,.25,.5,.75,1].map(n=><line key={n} x1="75" x2="845" y1={290-n*205} y2={290-n*205} stroke="var(--bs-border-color)"/>)}
-    {definition.style!=="bar"&&points.map((p,i)=>p.y!==null&&i>0&&points[i-1].y!==null?<line key={"l"+i} x1={points[i-1].x} y1={points[i-1].y!} x2={p.x} y2={p.y} stroke="var(--bs-primary)" strokeWidth="3"/>:null)}
-    {definition.style==="bar"&&points.map((p,i)=>p.y!==null?<rect key={"bar"+i} x={p.x-18} y={Math.min(290,p.y)} width="36" height={Math.abs(290-p.y)} fill="var(--bs-primary)"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></rect>:null)}
-    {definition.style!=="bar"&&line.map(({p,i})=><circle key={i} cx={p.x} cy={p.y!} r="4" fill="#2563eb"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></circle>)}
-    {points.map((p,i)=><text key={"x"+i} x={p.x} y="314" fontSize="10" fill="#334155" textAnchor="middle">{i+1}</text>)}
+    {(definition.style==="line"||definition.style==="bar")&&[0,.25,.5,.75,1].map(n=><line key={n} x1="75" x2="845" y1={290-n*205} y2={290-n*205} stroke="var(--bs-border-color)"/>)}
+    {definition.style==="line"&&points.map((p,i)=>p.y!==null&&i>0&&points[i-1].y!==null?<line key={"l"+i} x1={points[i-1].x} y1={points[i-1].y!} x2={p.x} y2={p.y} stroke="var(--bs-primary)" strokeWidth="3"/>:null)}
+    {definition.style==="bar"&&points.map((p,i)=>p.y!==null?<rect key={"bar"+i} x={p.x-18} y={Math.min(baseline,p.y)} width="36" height={Math.abs(baseline-p.y)} fill="var(--bs-primary)"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></rect>:null)}
+    {definition.style==="line"&&line.map(({p,i})=><circle key={i} cx={p.x} cy={p.y!} r="4" fill="var(--bs-primary)"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></circle>)}
+    {definition.style==="gauge"&&<g>
+     <path d="M320 280 A160 160 0 0 1 640 280" stroke="var(--bs-border-color)" strokeWidth="28" fill="none"/>
+     {last!==null&&last>=0&&last<=100&&<path d="M320 280 A160 160 0 0 1 640 280" stroke="var(--bs-primary)" strokeWidth="28" fill="none" pathLength="100" strokeDasharray={last+" 100"}/>}
+     <text x="480" y="215" textAnchor="middle" fontSize="35" fill="var(--bs-body-color)">{last===null?"—":last+" "+definition.unit}</text>
+    </g>}
+    {(definition.style==="number"||definition.style==="card")&&<text x="480" y="195" fontSize="52" textAnchor="middle" fill="var(--bs-primary)">{last===null?"—":last+" "+definition.unit}</text>}
+    {(definition.style==="line"||definition.style==="bar")&&points.map((p,i)=><text key={"x"+i} x={p.x} y="314" fontSize="10" fill="var(--bs-body-color)" textAnchor="middle">{i+1}</text>)}
    </svg>
   </>}
   {data&&data.columns.length>0&&<div className="table-responsive"><table className="table table-striped align-middle">
