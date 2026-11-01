@@ -29,7 +29,8 @@
     "test:db:baseline": "tsx --test tests/generate-v32-baseline.test.ts",
     "db:test:smn-338": "tsx --test tests/smn-338-postgres-integration.test.ts",
     "db:check:smn-338": "tsx scripts/check-smn-338-upgrade-readiness.ts --check",
-    "db:test:smn-338:upgrade": "tsx --test tests/smn-338-v33-upgrade-dry-run.test.ts"
+    "db:test:smn-338:upgrade": "tsx --test tests/smn-338-v33-upgrade-dry-run.test.ts",
+    "db:test:smn-338:restore": "tsx --test tests/smn-338-real-v32-restore.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
