@@ -29,7 +29,7 @@ export async function GET(request:NextRequest){
     const options=parseSprintIndexQuery(filters);
     if(!options)return {error:"invalid-input" as const};
     const index=await readSprintIndex(db,options,{id:team.team_id,name:team.team});
-    return {mode:"scrum" as const,teamId:team.team_id,...index};
+    return {mode:"scrum" as const,...index};
    }
    // The Kanban list stays read-only and bound to the resolved team.
    if([...params.keys()].some(k=>k!=="teamId"))return {error:"invalid-input" as const};
