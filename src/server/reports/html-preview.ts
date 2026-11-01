@@ -60,6 +60,6 @@ export async function composeHtmlReportPreview(db:Client,sprintId:string,reportI
  return {sprint:safeCollectiveContext(report.sprint),provisional:report.provisional,generatedAt:new Date().toISOString(),
  source:report.source,version:report.snapshotVersion,historicalEvidence,sections:chosen,metrics,
  dynamicIndicators,notes:draft.notes,teamContext:selectedTeamContext(context,contextOptions.options),
- trends:contents.options.metrics.length?trends??[]:[],historyDepth:history.depth,
+ trends:!v33&&contents.options.metrics.length?trends??[]:[],historyDepth:history.depth,
  qualitativePolicy:"not-verified" as const,chosenAnalyses};
 }
