@@ -81,7 +81,7 @@ test("SMN-345 transaction partagée : changements non committés, impact dates, 
    assert.equal((await db.query<{revision:string}>("SELECT revision::text FROM public.smn_indicator_system_revision WHERE singleton_key='singleton'")).rows[0].revision,"1");
    assert.equal((await db.query("SELECT indicator_id FROM public.smn_indicator_computed_result WHERE cycle_id='sprint345'")).rows.length,1);
    const absence=await saveMemberAbsence(db,"123e4567-e89b-42d3-a456-426614174345",actor,{
-    action:"create",id:null,revision:0,categoryId:"vacation345",
+    action:"create",revision:0,categoryId:"vacation345",
     startOn:"2026-11-04",endOn:"2026-11-05",startSlot:"morning",endSlot:"afternoon",
     isPlanned:true,reason:"Congé"
    },{actor:{accountId:actor,role:"admin"},teamId:"team345"});
