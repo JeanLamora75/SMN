@@ -8,7 +8,7 @@ import type {TranslationKey} from "@/i18n/catalog";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
 
 type Result={
- teamName:string;items:SprintIndexItem[];total:number;page:number;pageSize:number;
+ teamId:string;teamName:string;items:SprintIndexItem[];total:number;page:number;pageSize:number;
  totalPages:number;statuses:string[];activeCount:number;
 };
 const known=["planned","active","finished","closed","suspended"] as const;
@@ -170,7 +170,7 @@ export default function SprintIndexView({canManage,initialFilters,teamId}:{canMa
      onClick={reload} disabled={loading}>{t("sprintStates.refresh")}</button>
    </div>
   </section>
-  {teamId&&<IndicatorReporting teamId={teamId} cycleType="scrum" screen="cycle_list" locale={locale}/>}
+  {data?.teamId&&<IndicatorReporting teamId={data.teamId} cycleType="scrum" screen="cycle_list" locale={locale}/>}
   <section className="smn-sprints-results" aria-label={t("sprintsIndex.list")}>
    {error&&<div role="alert" className="alert alert-warning">
     {t("sprintsIndex.error")}
