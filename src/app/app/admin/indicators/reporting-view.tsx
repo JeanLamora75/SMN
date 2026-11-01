@@ -1,11 +1,12 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
 import Link from "next/link";
+import IndicatorTrends from "./indicator-trends";
 import {useTranslation} from "@/i18n/client";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
-export default function IndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
+function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
  const t=useTranslation();
@@ -85,4 +86,9 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
    <tbody>{data.cycles.map(c=><tr key={c.id}><th>{c.name}</th><td>{c.status}</td>{(screen==="trends"?definition?[definition]:[]:data.columns).map(d=><td className="text-end" key={d.id}>{displayValue(c.values[d.id]??null,d.unit)}</td>)}</tr>)}</tbody>
   </table></div>}
  </section>;
+}
+
+export default function IndicatorReporting(props:{teamId:string;cycleType:"scrum"|"kanban";screen:"cycle_list"|"cycle_detail"|"trends"|"dashboard";cycleId?:string;locale:"fr"|"en"}){
+ if(props.screen==="trends")return <IndicatorTrends teamId={props.teamId} cycleType={props.cycleType} cycleId={props.cycleId} locale={props.locale}/>;
+ return <LegacyIndicatorReporting {...props}/>;
 }
