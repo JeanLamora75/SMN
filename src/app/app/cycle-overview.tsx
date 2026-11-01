@@ -6,7 +6,8 @@ import {effectiveSprintStatus,type SprintContextItem} from "@/lib/sprint-context
 import type {CollectiveCycleProjection} from "@/lib/dashboard-data-contract";
 import BootstrapIcon from "./bootstrap-icon";
 import {sprintDetailPath} from "@/lib/sprint-detail-path";
-import {KpiMetricPair,KpiDeadline,KpiSprintScores} from "./kpi-cards";
+import {KpiMetricPair,KpiDeadline} from "./kpi-cards";
+import DashboardIndicatorBlocks from "./dashboard-indicator-blocks";
 
 type Props=Readonly<{
   context:DashboardContext;
@@ -91,25 +92,9 @@ export default function CycleOverview({context,locale,teamHref,cycle,projection,
         firstMetric={projection?.capacity.initialJh} secondMetric={projection?.capacity.actualJh}
         icon="people-fill" tone="capacity" ratioKey="dashboard.cockpit.capacityRatio"
         locale={locale} comparison={comparison}/>
-      <KpiMetricPair title={t("dashboard.cockpit.storyPoints")}
-        first={t("dashboard.cockpit.initialStoryPoints")}
-        second={t("dashboard.cockpit.completedStoryPoints")}
-        unit="SP" empty={emptyMetric}
-        firstMetric={projection?.storyPoints.initial} secondMetric={projection?.storyPoints.done}
-        spPerJh={scrum?{planned:projection?.capacity.initialJh,actual:projection?.capacity.actualJh}:undefined}
-        icon="stack" tone="points" ratioKey="dashboard.cockpit.storyPointsRatio"
-        locale={locale} comparison={comparison}/>
-      <KpiMetricPair title={t("dashboard.cockpit.tickets")}
-        first={t("dashboard.cockpit.initialTickets")}
-        second={t("dashboard.cockpit.completedTickets")}
-        unit={t("dashboard.cockpit.ticketsUnit")}
-        firstMetric={projection?.tickets.initial} secondMetric={projection?.tickets.done}
-        empty={emptyMetric} locale={locale}
-        icon="ticket-perforated-fill" tone="tickets" ratioKey="dashboard.cockpit.ticketsRatio"
-        comparison={comparison}/>
+      <DashboardIndicatorBlocks teamId={context.teamId} cycleType={context.mode} cycleId={cycle?.id} locale={locale}/>
       <KpiDeadline locale={locale} metric={projection?.workingDaysRemaining}
         cycleExists={!!cycle} status={effectiveStatus}/>
-      <KpiSprintScores locale={locale} scores={projection?.scores}/>
     </div>
   </section>;
 }
