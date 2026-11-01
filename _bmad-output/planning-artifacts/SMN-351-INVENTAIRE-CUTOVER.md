@@ -123,3 +123,13 @@ Aucune migration de suppression n'est activée ; aucun DROP sur `smn`.
 - Test de non-régression des chemins historiques ajouté à `pnpm test:smn-351`.
 
 **Le découplage fonctionnel complet n'est pas terminé.** Le refus des opérations CSV et anciennes écritures en v33 est une mesure de sûreté, pas un remplacement fonctionnel. L'analyse de l'inventaire doit encore examiner notamment les adaptateurs d'import, les consommateurs du contrat fixe et les vues tableau de bord pour assurer leur remplacement sans perte. Le précontrôle conserve `authorized:false` et aucune migration DROP n'a été préparée pour application.
+
+
+## Renforcement des adaptateurs — 01/11/2026
+
+- La précondition de clôture ne requiert plus `smn_sprint_story_points` sur le schéma 33 ; la capture v33 utilise toujours `captureCycleIndicators` dans un nouveau snapshot versionné. Les clôtures v32 gardent leur condition de compatibilité.
+- Les anciens contrats fixes de détails, dashboard et rapports ne fabriquent pas de correspondance Fxx vers les indicateurs configurables. La projection métier cible reste la lecture dynamique avec sélection et préférences par équipe.
+- Le contrôle CSV refuse maintenant dès la prévisualisation et la fourniture du modèle v32 lorsque l'installation est en v33, avec le diagnostic `v33-indicator-mapping-required`. La confirmation existante refuse également avant toute écriture.
+- L'interface d'import affiche la nécessité d'une correspondance explicite. La suite de tests SMN-351 inclut les contrôles de fermeture, d'incompatibilité CSV et de non-correspondance implicite.
+- **À terminer avant activation d'un import v33** : contrat fonctionnel approuvé de correspondance code CSV → identifiant d'indicateur manuel sélectionné pour l'équipe et le cycle ; contrôles d'autorisation multiéquipes, de révision concurrente et de journal d'import ; prévisualisation puis confirmation transactionnelle.
+- Les tests PostgreSQL et TypeScript du dernier état publié doivent être exécutés localement. Aucune suppression SQL n'est autorisée.
