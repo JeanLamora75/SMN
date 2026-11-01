@@ -30,7 +30,10 @@
     "db:test:smn-338": "tsx --test tests/smn-338-postgres-integration.test.ts",
     "db:check:smn-338": "tsx scripts/check-smn-338-upgrade-readiness.ts --check",
     "db:test:smn-338:upgrade": "tsx --test tests/smn-338-v33-upgrade-dry-run.test.ts",
-    "db:test:smn-338:restore": "tsx --test tests/smn-338-real-v32-restore.test.ts"
+    "db:test:smn-338:restore": "tsx --test tests/smn-338-real-v32-restore.test.ts",
+    "db:baseline:v33:candidate": "tsx scripts/build-smn-338-v33-baseline-candidate.ts --generate",
+    "db:migrate:smn-338": "tsx scripts/apply-smn-338-v33.ts",
+    "test:db:smn-338:contract": "tsx --test tests/smn-338-indicators-schema-contract.test.ts tests/db-upgrade-v32-compatibility.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
