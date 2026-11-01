@@ -1,4 +1,5 @@
 import {randomUUID} from "node:crypto";
+import {lockIndicatorRevisionBeforeCalendarWrite,recalculateCalendarImpactWithinTransaction} from "../indicators/calendar-integration";
 import type {Client} from "pg";
 import {isValidDate} from "./assignment";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
@@ -149,6 +150,8 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
  const input=parsed.value;
  await db.query("BEGIN");
  try{
+  const indicatorsReady=await lockIndicatorRevisionBeforeCalendarWrite(db);
+  if(indicatorsReady&&!scope)throw Error("indicator-absence-team-scope-required");
   const fail=async(error:AbsenceError):Promise<AbsenceResult>=>{
    await db.query("ROLLBACK");return {ok:false,error};
   };
@@ -213,6 +216,7 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
     VALUES($1,$2,$3,'update',$4::jsonb,$5::jsonb,$6)`,
     [randomUUID(),input.id,input.revision+1,JSON.stringify(before),
      JSON.stringify({...before,deleted:true}),actorId]);
+   if(indicatorsReady)await recalculateCalendarImpactWithinTransaction(db,{teamIds:[authorized!.team_id],startOn:old.start_on,endOn:old.end_on});
    await db.query("COMMIT");
    return {ok:true,id:input.id,revision:input.revision+1,created:false,deleted:true};
   }
@@ -278,6 +282,8 @@ export async function saveMemberAbsence(db:Client,memberId:string,actorId:string
    VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7)`,
    [randomUUID(),id,revision,input.action,before?JSON.stringify(before):null,
     JSON.stringify(snapshot(input)),actorId]);
+  if(indicatorsReady)await recalculateCalendarImpactWithinTransaction(db,{teamIds:[authorized!.team_id],
+   startOn:input.startOn,endOn:input.endOn,previousStartOn:old?.start_on,previousEndOn:old?.end_on});
   await db.query("COMMIT");
   return {ok:true,id,revision,created:input.action==="create"};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
