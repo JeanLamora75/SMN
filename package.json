@@ -38,7 +38,9 @@
     "test:db:smn-338:v33:contracts": "tsx --test tests/smn-338-v33-migration-contract.test.ts tests/db-upgrade-v32-compatibility.test.ts",
     "db:test:smn-338:native": "tsx --test tests/smn-338-native-v33-install.test.ts",
     "db:validate:smn-338": "pnpm test:db:smn-338:v33:contracts && pnpm exec tsx --test tests/smn-338-indicators-schema-contract.test.ts && pnpm db:test:smn-338 && pnpm db:test:smn-338:upgrade && pnpm db:test:smn-338:v33 && pnpm db:test:smn-338:native && pnpm typecheck && pnpm lint && pnpm db:diagnose:full",
-    "test:smn-341": "tsx --test tests/smn-341-formula-engine.test.ts"
+    "test:smn-341": "tsx --test tests/smn-341-formula-engine.test.ts",
+    "test:smn-342": "tsx --test tests/smn-342-dependency-graph.test.ts",
+    "test:smn-341-342": "pnpm test:smn-341 && pnpm test:smn-342 && pnpm typecheck && pnpm lint"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
