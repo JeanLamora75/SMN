@@ -1,6 +1,7 @@
 import type {Client} from "pg";
 import {prepareSprintReport} from "./sprint-preparation";
 import {readReportDataQuality} from "./data-quality";
+import {readIndicatorReporting} from "@/server/indicators/reporting";
 export const standardReportSections=["executive","objectives","indicators","events","attention","decisions"] as const;
 export type ReportSection={key:typeof standardReportSections[number];items:Array<{label:string;detail:string;href:string|null}>;state:"available"|"empty"|"unavailable"};
 const item=(label:string,detail:string,href:string|null=null)=>({label,detail,href});
@@ -40,6 +41,9 @@ export async function composeStandardReport(db:Client,sprintId:string){
     .map(r=>item(String(r.title),String(r.status))),!qualitative);
   }
  }else{
+  const schemaVersion=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+  const v33=schemaVersion.rows[0]?.schema_version===33;
+  const dynamicIndicators=v33?await readIndicatorReporting(db,sprint.teamId,"reports","scrum",[sprintId]):null;
   const schemas=await db.query<{points:boolean;tickets:boolean;ceremonies:boolean;links:boolean}>(`
    SELECT to_regclass('public.smn_sprint_story_points') IS NOT NULL AS points,
    to_regclass('public.smn_sprint_ticket_counts') IS NOT NULL AS tickets,
@@ -47,11 +51,18 @@ export async function composeStandardReport(db:Client,sprintId:string){
    to_regclass('public.smn_registry_cycle_link') IS NOT NULL AS links`);
   const s=schemas.rows[0];
   const indicators:ReportSection["items"]=[];
-  if(s?.points){const x=await db.query<Record<string,unknown>>(`SELECT initial_sp,done_sp FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]);
+  if(!v33&&s?.points){const x=await db.query<Record<string,unknown>>(`SELECT initial_sp,done_sp FROM public.smn_sprint_story_points WHERE sprint_id=$1`,[sprintId]);
    if(x.rows[0])for(const [k,v] of Object.entries(x.rows[0]))if(v!==null)indicators.push(item(k,String(v)));}
-  if(s?.tickets){const x=await db.query<Record<string,unknown>>(`SELECT initial_tickets,done_tickets FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]);
+  if(!v33&&s?.tickets){const x=await db.query<Record<string,unknown>>(`SELECT initial_tickets,done_tickets FROM public.smn_sprint_ticket_counts WHERE sprint_id=$1`,[sprintId]);
    if(x.rows[0])for(const [k,v] of Object.entries(x.rows[0]))if(v!==null)indicators.push(item(k,String(v)));}
-  add("indicators",indicators,!s?.points&&!s?.tickets);
+  if(dynamicIndicators){
+   const cycle=dynamicIndicators.cycles.find(c=>c.id===sprintId);
+   for(const indicator of dynamicIndicators.columns){
+    const value=cycle?.values[indicator.id];
+    if(value!==null&&value!==undefined)indicators.push(item(indicator.name,value+(indicator.unit?" "+indicator.unit:"")));
+   }
+  }
+  add("indicators",indicators,v33?!dynamicIndicators?.columns.length:!s?.points&&!s?.tickets);
   const events=s?.ceremonies?await db.query<{kind:string;status:string}>(`SELECT kind,occurrence_status AS status FROM public.smn_sprint_ceremony WHERE sprint_id=$1 ORDER BY starts_at`,[sprintId]):{rows:[]};
   add("events",events.rows.map(e=>item(e.kind,e.status)),!s?.ceremonies);
   const registry=s?.links?await db.query<{id:string;title:string;type:string;status:string}>(`
