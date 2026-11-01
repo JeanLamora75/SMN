@@ -8,14 +8,16 @@ import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {SMN338_V33_NAME,INDICATOR_TABLES} from "../src/server/installation/indicator-v33-contract";
 import {NATIVE_V32_NAME} from "../src/server/installation/native-v32";
+import {parseConnectionSettings} from "../src/server/db/config";
 test("SMN-338 : installation native v33 complète sur base vierge isolée",{timeout:180000},async()=>{
  const source=new URL(await installedDatabaseUri());
  if(!["postgres:","postgresql:"].includes(source.protocol)||source.pathname!=="/smn"||
   !["localhost","127.0.0.1","::1"].includes(source.hostname))
   throw Error("Base SMN locale obligatoire");
- const name="smn338_native_"+randomBytes(6).toString("hex");
+ const name="smn_338_native_"+randomBytes(6).toString("hex");
  const adminUri=new URL(source.toString());adminUri.pathname="/postgres";
  const targetUri=new URL(source.toString());targetUri.pathname="/"+name;
+ assert.equal(parseConnectionSettings(targetUri.toString()).ok,true,"URL de test conforme au contrat local SMN");
  const admin=new Client({connectionString:adminUri.toString(),connectionTimeoutMillis:3500,statement_timeout:20000});
  let created=false;
  await admin.connect();
