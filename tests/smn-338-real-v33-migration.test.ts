@@ -76,8 +76,14 @@ test("SMN-338 : migration versionnée v33 sur restauration complète isolée", {
    }
    assert.equal((await db.query("SELECT count(*)::int n FROM public._prisma_migrations")).rows[0]?.n,historyBefore.rows[0]?.n+1);
    assert.equal((await db.query("SELECT schema_version FROM public.smn_installation WHERE id='singleton'")).rows[0]?.schema_version,33);
-   const diagnostic=classifySnapshot(await probePostgres(targetUri.toString()));
-   assert.equal(diagnostic.status,"initialized","Diagnostic après migration sur copie");
+   const snapshot=await probePostgres(targetUri.toString());
+   const diagnostic=classifySnapshot(snapshot);
+   assert.equal(diagnostic.status,"initialized","Diagnostic après migration sur copie : "+
+    JSON.stringify({indicatorV33SchemaValid:snapshot.indicatorV33SchemaValid,
+      version:snapshot.installations?.[0]?.schema_version,
+      migrations:snapshot.migrations?.length,
+      unexpectedRelations:snapshot.tables.filter(t=>t.startsWith("public.smn_indicator_")),
+      shapeValid:snapshot.shapeValid,teamAgileModeSchemaValid:snapshot.teamAgileModeSchemaValid}));
    console.log("Migration v33 réellement validée sur restauration isolée ; base temporaire supprimée.");
 
   }finally{await db.end().catch(()=>undefined)}
