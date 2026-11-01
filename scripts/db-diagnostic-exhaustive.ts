@@ -7,6 +7,7 @@ import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {INSTALLATION_RELATIONS} from "../src/server/installation/contract";
 import {checkRecordedMigrationJournal} from "./db-recorded-history";
 import {NATIVE_V32_NAME,nativeBaselineSql} from "../src/server/installation/native-v32";
+import {SMN338_V33_NAME} from "../src/server/installation/indicator-v33-contract";
 
 async function main(){
  if(process.argv.length!==2)throw Error("Usage : pnpm db:diagnose:full");
@@ -16,16 +17,16 @@ async function main(){
  const status=classifySnapshot(snapshot).status;
  if(status!=="initialized")errors.push("État installation : "+status);
  const version=snapshot.installations?.[0]?.schema_version;
- if(version!==32)errors.push("Version attendue : 32 ; obtenue : "+String(version));
+ if(version!==32&&version!==33)errors.push("Version attendue : 32 ou 33 ; obtenue : "+String(version));
  const migrations=snapshot.migrations??[];
  const directories=readdirSync("prisma/migrations",{withFileTypes:true})
    .filter(d=>d.isDirectory()).map(d=>d.name).sort();
  // Les migrations Prisma de ce dépôt ne sont pas toutes l'artefact SQL exact
  // inscrit dans le journal historique (certaines proviennent de chaînes TS).
  // Ne jamais inventer une divergence d'empreinte en comparant ces deux sources.
- const native=migrations.length===1&&migrations[0]?.migration_name===NATIVE_V32_NAME;
+ const native=migrations.some(m=>m.migration_name===NATIVE_V32_NAME);
  if(native&&!nativeBaselineSql())errors.push("Baseline native v32 absente ou invalide");
- errors.push(...checkRecordedMigrationJournal(migrations,native?1:version));
+ errors.push(...checkRecordedMigrationJournal(migrations,native?(version===33?2:1):version));
  const warnings=native?[]:["Empreintes historiques non auditées à partir des fichiers prisma/migrations : source non canonique. Le diagnostic standard vérifie ses migrations de référence."];
  const unexpected=snapshot.tables.filter(t=>!INSTALLATION_RELATIONS.includes(t as typeof INSTALLATION_RELATIONS[number]));
  if(unexpected.length)errors.push("Objets non prévus : "+unexpected.join(", "));
@@ -48,7 +49,7 @@ async function main(){
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);errors.push("Contrôle SQL : "+String(e))}
  finally{await db.end().catch(()=>undefined)}
  console.log(JSON.stringify({status,version,migrationCount:migrations.length,sourceCount:directories.length,warnings,
-  historyKind:native?"native-v32":"historical-v32",unexpectedRelations:unexpected,errors,ok:errors.length===0},null,2));
+  historyKind:native?(version===33?"native-v32-upgraded-v33":"native-v32"):(version===33?"historical-v33":"historical-v32"),unexpectedRelations:unexpected,errors,ok:errors.length===0},null,2));
  if(errors.length)process.exitCode=1;
 }
 main().catch(e=>{console.error(e instanceof Error?e.message:String(e));process.exitCode=1});
