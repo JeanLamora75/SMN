@@ -28,13 +28,12 @@ test("closure appends immutable versioned v33 indicator snapshots",()=>{
  assert.match(closure,/COALESCE\(MAX\(version\),0\)\+1/);
  assert.match(closure,/INSERT INTO public\.smn_sprint_closure_snapshot/);
 });
-test("current dashboard has three legacy metric blocks plus separate v33 report",()=>{
+test("dashboard now uses dynamic cards instead of legacy SP Tickets and score blocks",()=>{
  const overview=read("src/app/app/cycle-overview.tsx");
  const page=read("src/app/app/page.tsx");
- assert.match(overview,/KpiSprintScores/);
- assert.match(overview,/dashboard\.cockpit\.storyPoints/);
- assert.match(overview,/dashboard\.cockpit\.tickets/);
- assert.match(page,/screen="dashboard"/);
+ assert.match(overview,/DashboardIndicatorBlocks/);
+ assert.doesNotMatch(overview,/KpiSprintScores/);
+ assert.doesNotMatch(page,/screen="dashboard"/);
 });
 test("v33 reporting is team-scoped and currently reads live values (known gap)",()=>{
  assert.match(reporting,/WHERE team_id=\$1 AND deleted_at IS NULL/);
@@ -42,7 +41,10 @@ test("v33 reporting is team-scoped and currently reads live values (known gap)",
  assert.match(reporting,/smn_indicator_computed_result/);
  assert.doesNotMatch(reporting,/FROM public\.smn_sprint_closure_snapshot/);
 });
-test("v33 display preferences have not yet implemented block assignment (known gap)",()=>{
- assert.match(catalog,/screenKey:ScreenKey;visible:boolean;order:number/);
- assert.doesNotMatch(catalog,/dashboard_block|dashboardBlock/);
+test("dashboard slot assignments are in a dedicated constrained table",()=>{
+ const sql=read("prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql");
+ assert.match(sql,/PRIMARY KEY\(team_id,block_key,slot_index\)/);
+ assert.match(sql,/UNIQUE\(team_id,indicator_id\)/);
+ assert.match(sql,/slot_index BETWEEN 1 AND 4/);
+ assert.match(sql,/slot_index BETWEEN 1 AND 2/);
 });
