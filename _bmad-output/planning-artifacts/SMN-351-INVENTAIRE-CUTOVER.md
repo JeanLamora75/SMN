@@ -1,6 +1,6 @@
 # SMN-351 — Inventaire de démantèlement et préconditions
 
-Statut : **en cours — aucune suppression autorisée ni exécutée**.
+Statut : **en cours — sauvegarde et essai de restauration confirmés par l'utilisateur le 01/11/2026 ; aucune suppression encore exécutée**.
 
 ## KEEP — ne jamais supprimer avec l'ancien catalogue
 - Calendriers et absences, capacités et leurs ouvertures, KPI capacités, fermetures et snapshots métiers versionnés, objectifs, tickets métiers, cérémonies, historiques.
@@ -14,12 +14,16 @@ Statut : **en cours — aucune suppression autorisée ni exécutée**.
 - `src/server/reports/standard-composition.ts`, `src/server/reports/html-preview.ts`, `src/server/sprints/trends.ts` et des rapports d'archives lisent des snapshots historiques dont l'intégrité doit être conservée.
 - Les tableaux et rapports dynamiques v33 de SMN-349/350 doivent rester la projection cible ; retrait des anciens éditeurs seulement après remplacement fonctionnel sans placeholder.
 
+## Constat PostgreSQL v33 du 01/11/2026
+
+Diagnostic utilisateur : schéma 33, 33 migrations terminées, deux tables de valeurs candidates (`smn_sprint_story_points`, `smn_sprint_ticket_counts`), aucune dépendance SQL visible par le premier audit. Deux tables d'audit associées ont été reclassées dans les candidats. Les 26 autres objets d'abord marqués « unknown » sont des structures métier protégées KEEP. Cette absence de dépendances SQL cataloguées ne signifie **pas** absence d'appelants applicatifs : routes et composants historiques demeurent présents dans `main`.
+
 ## DROP — candidats, NON validés pour DROP SQL
 - `smn_sprint_story_points`, `smn_sprint_ticket_counts`, `smn_sprint_confidence_clarity`, `smn_sprint_indicator_scores` : noms potentiels à **confirmer** par le diagnostic réel et par les dépendances d'API/tests/DDL.
 - D'anciennes routes d'édition proprement indicateurs ne seront supprimables qu'après recension exhaustive des appels directs et des tests, puis validation des cas de bord.
 
 ## Critères bloquants de bascule
-1. Sauvegarde physique de l'installation locale **effectuée et restaurée sur base jetable**, avec preuve de restauration.
+1. Sauvegarde de l'installation v33 et essai de restauration : **confirmés verbalement par l'utilisateur**, à distinguer d'un contrôle automatisé de restauration non effectué par ChatGPT.
 2. Inventaire SQL réel, y compris FK/vues/triggers/fonctions, et appelants source/tests/exports, classé KEEP/ADAPT/DROP puis approuvé.
 3. Comparaison de signatures PostgreSQL installation neuve vs migration existante (v33 et droits), et absence de divergence.
 4. Tests d'intégrité métier, snapshots fermés, capacités, calendriers, Scrum/Kanban, RBAC, rapports HTML/PDF et régression.
