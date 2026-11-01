@@ -8,7 +8,7 @@ Le rendu v33 précédent affichait uniquement le sélecteur d'indicateur et l'ex
 - `indicator-trends.tsx` : composant client dédié au filtre Indicateur → Sprint de départ → Style → Sprint de fin → Filtrer ; plage par défaut cinq précédents + courant, six inclusifs maximum.
 - Graphes SVG : barres par défaut, ligne, aire, secteurs, anneau, jauge 0–100 ; bornes et style réellement choisis indépendants des préférences catalogue. Refus explicite des répartitions non positives/incomplètes et des jauges hors plage.
 - Le nom de l'indicateur et les noms réels des cycles filtrés sont dessinés dans le SVG. Les données manquantes ne deviennent pas zéro. Tableau accessible sous le graphe et export PNG depuis le SVG filtré.
-- `reporting-view.tsx` délègue le seul écran `trends` au nouveau composant ; les autres projections restent inchangées. Données v33 filtrées par équipe dans l'API existante ; tous cycles non supprimés selon `readIndicatorReporting`. La restitution des sprints clôturés dans `trends` doit encore être revue pour les captures historiques : le service v33 `reporting.ts` fige actuellement seulement `screen="cycle_list"`.
+- `reporting-view.tsx` délègue le seul écran `trends` au nouveau composant ; les autres projections restent inchangées. Données v33 filtrées par équipe dans l'API existante ; tous cycles non supprimés selon `readIndicatorReporting`. La restitution des Sprints Scrum clôturés est également figée pour `screen="trends"` via la dernière version de `indicatorsV33` ; un test PostgreSQL complémentaire a été ajouté. Les périodes Kanban clôturées demandent une validation historique distincte.
 - Test statique `tests/smn-335-v33-trends-cockpit.test.ts`.
 
 ## Limites et recette à compléter
