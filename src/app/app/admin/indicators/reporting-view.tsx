@@ -8,6 +8,7 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
  const [data,setData]=useState<Report|null>(null),[error,setError]=useState(false),[chosen,setChosen]=useState("");
  const ref=useRef<SVGSVGElement>(null);
  const t=useTranslation();
+ const displayValue=(raw:string|null,unit:string)=>raw===null?"—":raw.replace(".",locale==="fr"?",":".")+(unit?" "+unit:"");
  useEffect(()=>{const ctrl=new AbortController();
   void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({...{teamId,cycleType,screen},...(cycleId?{cycleId}:{})}),{cache:"no-store",signal:ctrl.signal})
   .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<Report>})
@@ -62,7 +63,7 @@ export default function IndicatorReporting({teamId,cycleType,screen,cycleId,loca
   </>}
   {data&&data.columns.length>0&&<div className="table-responsive"><table className="table table-striped align-middle">
    <thead><tr><th>{t("indicators.reporting.cycle")}</th><th>{t("indicators.reporting.status")}</th>{(screen==="trends"?definition?[definition]:[]:data.columns).map(c=><th className="text-end" scope="col" key={c.id} title={c.name} tabIndex={0}>{c.tag}</th>)}</tr></thead>
-   <tbody>{data.cycles.map(c=><tr key={c.id}><th>{c.name}</th><td>{c.status}</td>{(screen==="trends"?definition?[definition]:[]:data.columns).map(d=><td className="text-end" key={d.id}>{c.values[d.id]??"—"}{c.values[d.id]!=null&&d.unit?" "+d.unit:""}</td>)}</tr>)}</tbody>
+   <tbody>{data.cycles.map(c=><tr key={c.id}><th>{c.name}</th><td>{c.status}</td>{(screen==="trends"?definition?[definition]:[]:data.columns).map(d=><td className="text-end" key={d.id}>{displayValue(c.values[d.id]??null,d.unit)}</td>)}</tr>)}</tbody>
   </table></div>}
  </section>;
 }
