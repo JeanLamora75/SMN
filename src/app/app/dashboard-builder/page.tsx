@@ -32,7 +32,7 @@ export default async function DashboardBuilderPage({searchParams}:{
    const mode=context.context.mode as "scrum"|"kanban";
    const cycles=await listDashboardCycles(db,{installationId:owner.rows[0].installation_id,accountId:account.id,teamId},mode);
    const navigation=cycleNavigation(cycles,typeof query.cycleId==="string"?query.cycleId:null);
-   return {teamId,teamName:context.context.team,mode,layout:saved.layout,revision:saved.revision,canEdit:rights.canEdit,navigation};
+   return {teamId,teamName:context.context.team,mode,layout:saved.layout,revision:saved.revision,canEdit:rights.canEdit,navigation,cycles};
   });
   const locale=await requestLocale();
   return <div className="py-3">
@@ -44,7 +44,7 @@ export default async function DashboardBuilderPage({searchParams}:{
     </div>
    </div>
    <DashboardEditor initialLayout={data.layout} initialRevision={data.revision} canEdit={data.canEdit}
-    teamId={data.teamId} navigation={data.navigation} mode={data.mode} locale={locale}/>
+    teamId={data.teamId} navigation={data.navigation} cycles={data.cycles} mode={data.mode} locale={locale}/>
   </div>;
  }catch{
   return <section className="smn-panel p-4" role="alert">
