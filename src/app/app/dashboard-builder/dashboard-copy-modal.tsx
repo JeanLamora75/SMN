@@ -20,8 +20,11 @@ export function DashboardCopyModal({sourceTeamId,layout,unsaved,onClose,onSucces
   return ()=>controller.abort();
  },[sourceTeamId]);
  const target=targets.find(t=>t.id===selected);
- const blocks=[...layout.header.blocks,...layout.rows.flatMap(r=>r.blocks)];
- const incompatible=useMemo(()=>target?[...new Set(blocks.flatMap(b=>b.slots).filter(s=>s.source&&!target.availableCodes.includes(s.source)).map(s=>s.source!))]:[],[target,blocks]);
+ const incompatible=useMemo(()=>{
+  if(!target)return [];
+  const blocks=[...layout.header.blocks,...layout.rows.flatMap(r=>r.blocks)];
+  return [...new Set(blocks.flatMap(b=>b.slots).filter(s=>s.source&&!target.availableCodes.includes(s.source)).map(s=>s.source!))];
+ },[target,layout]);
  const copy=async()=>{
   if(!target||busy||(target.hasSavedLayout&&!confirmed))return;
   setBusy(true);setError("");
