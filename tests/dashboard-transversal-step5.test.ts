@@ -192,7 +192,9 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
    }
   }
   const css=file("src/app/dashboard.css");
-  assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+  const builder=file("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+  assert.match(builder,/gridColumns/);
+  assert.match(builder,/visibleSlots\(block\)/);
   assert.match(css,/@container \(max-width:1000px\)/);
   assert.match(css,/@container \(max-width:650px\)/);
   assert.match(css,/\.smn-operational-grid\s*\{grid-template-columns:minmax\(0,1fr\);\}/);
