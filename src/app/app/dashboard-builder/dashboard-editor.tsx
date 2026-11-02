@@ -1,5 +1,5 @@
 "use client";
-import {useCallback,useMemo,useState} from "react";
+import {useCallback,useEffect,useMemo,useState} from "react";
 import {duplicateDashboardBlock,changeDashboardBlockTemplate,removeDashboardRow,removeDashboardBlock,rowHasConfiguredContent,blockHasConfiguredContent} from "@/lib/dashboard-builder/block-actions";
 import {getDashboardTemplate,listCreatableDashboardTemplates} from "@/lib/dashboard-builder/templates";
 import {BlockDimensionControl} from "./block-dimensions";
@@ -29,6 +29,8 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [saving,setSaving]=useState(false);
  const [exitOpen,setExitOpen]=useState(false);
  const [error,setError]=useState<string|null>(null);
+ const [success,setSuccess]=useState<string|null>(null);
+ useEffect(()=>{if(!success)return;const timeout=setTimeout(()=>setSuccess(null),4000);return ()=>clearTimeout(timeout);},[success]);
  const [galleryRow,setGalleryRow]=useState<string|null>(null);
  const [wizardSlot,setWizardSlot]=useState<string|null>(null);
  const [pendingAction,setPendingAction]=useState<{kind:"row"|"block"|"template";id:string;template?:DashboardTemplateId}|null>(null);
@@ -56,6 +58,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    setRevision(saved.revision);
    setDraft(leave?null:copy(saved.layout));
    setExitOpen(false);
+   setSuccess("Tableau de bord enregistré.");
   }catch(e){
    setError(e instanceof Error?e.message:"Erreur réseau. Votre brouillon est conservé.");
   }finally{setSaving(false);}
@@ -110,6 +113,8 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   setGalleryRow(null);
  };
  return <div>
+  {success&&<div className="alert alert-success py-2" role="status">{success}</div>}
+  {error&&!editing&&<div className="alert alert-danger" role="alert">{error}<button type="button" className="btn btn-sm btn-outline-secondary ms-2" onClick={()=>setError(null)}>Fermer</button></div>}
   {!editing&&canEdit&&<details className="dropdown mb-3">
    <summary className="btn btn-outline-primary">Actions du tableau de bord</summary>
    <ul className="dropdown-menu show position-static">
