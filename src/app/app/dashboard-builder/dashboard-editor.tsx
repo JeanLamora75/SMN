@@ -159,6 +159,21 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    </details>
    <button className="btn btn-outline-secondary" type="button" onClick={requestExit} disabled={saving}>Quitter</button>
   </div>}
+  {editing&&draft&&<section className="smn-panel p-3 mb-3" aria-label="Titres des blocs d'en-tête">
+   <h3 className="h6 mb-3">Blocs d'en-tête</h3>
+   <div className="row g-3">{draft.header.blocks.map((block,index)=><div className="col-12 col-md-6" key={block.id}>
+    <label className="form-label small w-100">Titre du bloc d'en-tête {index+1}
+     <input type="text" className="form-control form-control-sm" maxLength={100}
+      value={block.title??""} onChange={e=>setBlockTitle(block.id,e.target.value)} disabled={saving}
+      placeholder="Titre du bloc (facultatif)"/>
+    </label>
+    {block.slots.map(slot=><label className="form-label small w-100" key={slot.id}>Titre de l'emplacement
+     <input type="text" className="form-control form-control-sm" maxLength={100}
+      value={slot.title??""} onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}
+      placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}/>
+    </label>)}
+   </div>)}</div>
+  </section>}
   <DashboardConsultation layout={draft??published} teamId={teamId} navigation={navigation}
    mode={mode} locale={locale} personalizing={editing} canManage={canEdit}/>
   {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
