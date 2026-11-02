@@ -91,7 +91,8 @@
     "test:smn-368": "tsx --test tests/smn-368-dashboard-dimensions.test.ts",
     "test:smn-369": "tsx --test tests/smn-369-block-actions.test.ts",
     "test:smn-370": "tsx --test tests/smn-370-dashboard-states.test.ts",
-    "test:smn-371": "tsx --test tests/smn-371-dashboard-reset.test.ts"
+    "test:smn-371": "tsx --test tests/smn-371-dashboard-reset.test.ts",
+    "test:smn-372": "tsx --test tests/smn-372-dashboard-copy.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
