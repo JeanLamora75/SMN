@@ -1,10 +1,11 @@
 import type {Client} from "pg";
+import {readRegistryDashboardList,type DashboardListPayload} from "./lists";
 import type {LayoutScope} from "./layout";
 import {requireDashboardPermission} from "./permissions";
 import {listDashboardSources,resolveDashboardSource} from "./sources";
 
 export type BatchRequest=Readonly<{id:string;source:string;view:string;cycleId?:string|null;filters?:Record<string,unknown>}>;
-export type BatchResult=Readonly<{id:string;state:"available"|"null"|"absent"|"unavailable"|"incompatible"|"error";value?:string;unit?:string|null;message?:string}>;
+export type BatchResult=Readonly<{id:string;state:"available"|"null"|"absent"|"unavailable"|"incompatible"|"error";value?:string;unit?:string|null;message?:string;list?:DashboardListPayload}>;
 const idOk=(v:unknown):v is string=>typeof v==="string"&&/^[A-Za-z0-9_-]{1,100}$/.test(v);
 const sourceOk=(v:unknown):v is string=>typeof v==="string"&&/^[A-Za-z][A-Za-z0-9:_-]{0,119}$/.test(v);
 const cleanFilter=(f:unknown):f is Record<string,unknown>=>f===undefined||(!!f&&typeof f==="object"&&!Array.isArray(f)&&Object.keys(f).length<=20&&JSON.stringify(f).length<=3000);
@@ -42,6 +43,10 @@ export async function readDashboardBatch(db:Client,scope:LayoutScope,requests:re
   if(source.status==="unknown")return {state:"absent"};
   if(source.status==="unavailable")return {state:"unavailable",message:source.reason};
   if(source.status==="incompatible")return {state:"incompatible"};
+  if(source.source.category==="registry"&&r.view==="list"){
+   try{const list=await readRegistryDashboardList(db,scope,r);return {state:list.rows.length?"available":"absent",list};}
+   catch{return {state:"error",message:"registry-read-failed"};}
+  }
   if(source.source.category!=="indicator")return {state:"unavailable"};
   if(!r.cycleId)return {state:"absent"};
   try{
