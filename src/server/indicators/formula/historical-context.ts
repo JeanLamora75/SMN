@@ -1,0 +1,62 @@
+import type {Client} from "pg";
+import {calculateHistorical,type HistoricalPoint} from "./history";
+import type {HistoricalFunction,HistoricalResolver,Result} from "./index";
+
+export type HistoryScope=Readonly<{teamId:string;cycleType:"scrum"|"kanban";cycleId:string}>;
+type Cycle={id:string;name:string;status:string};
+type Stored={cycle_id:string;indicator_id:string;value:string|null};
+type Snapshot={sprint_id:string;snapshot:unknown};
+
+/** Historical reads never cross the active team or include future cycles. */
+export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:ReadonlyMap<string,string>):Promise<HistoricalResolver>{
+ const scrum=scope.cycleType==="scrum";
+ const table=scrum?"smn_sprint":"smn_kanban_period";
+ const date= scrum?"start_at":"start_on";
+ const cycles=await db.query<Cycle>(`SELECT id,name,status FROM public.${table}
+ WHERE team_id=$1 AND deleted_at IS NULL ORDER BY ${date},id LIMIT 1001`,[scope.teamId]);
+ if(cycles.rows.length>1000)throw Error("historical-cycle-budget");
+ const index=cycles.rows.findIndex(c=>c.id===scope.cycleId);
+ if(index<0)throw Error("historical-cycle-not-found");
+ const selected=cycles.rows.slice(0,index+1);
+ const ids=selected.map(c=>c.id);
+ const values=new Map<string,Map<string,string|null>>();
+ for(const cycle of selected)values.set(cycle.id,new Map());
+ if(ids.length){
+  const manual=await db.query<Stored>(`SELECT cycle_id,indicator_id,value::text AS value FROM public.smn_indicator_manual_value
+ WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=ANY($3::text[])`,[scope.teamId,scope.cycleType,ids]);
+  const computed=await db.query<Stored>(`SELECT cycle_id,indicator_id,CASE WHEN result_state='available' THEN value::text ELSE NULL END AS value
+ FROM public.smn_indicator_computed_result
+ WHERE team_id=$1 AND cycle_type=$2 AND cycle_id=ANY($3::text[])`,[scope.teamId,scope.cycleType,ids]);
+  for(const record of [...manual.rows,...computed.rows])values.get(record.cycle_id)?.set(record.indicator_id,record.value);
+ }
+ if(scrum){
+  const closed=selected.filter(c=>c.status==="closed").map(c=>c.id);
+  if(closed.length){
+   const snapshots=await db.query<Snapshot>(`SELECT snap.sprint_id,snap.snapshot FROM public.smn_sprint_closure_snapshot snap
+ JOIN public.smn_sprint s ON s.id=snap.sprint_id AND s.team_id=$1
+ WHERE snap.sprint_id=ANY($2::text[]) ORDER BY snap.sprint_id,snap.version DESC`,[scope.teamId,closed]);
+   const first=new Set<string>();
+   for(const row of snapshots.rows){
+    if(first.has(row.sprint_id))continue;
+    first.add(row.sprint_id);
+    const snapshot=row.snapshot&&typeof row.snapshot==="object"&&!Array.isArray(row.snapshot)?row.snapshot as Record<string,unknown>:null;
+    const stored=Array.isArray(snapshot?.indicatorsV33)?snapshot.indicatorsV33:[];
+    const frozen=new Map<string,string|null>();
+    for(const entry of stored){
+     if(entry&&typeof entry==="object"&&"id" in entry&&typeof entry.id==="string"&&"value" in entry)
+      frozen.set(entry.id,typeof entry.value==="string"?entry.value:null);
+    }
+    values.set(row.sprint_id,frozen);
+   }
+   for(const id of closed)if(!first.has(id))values.set(id,new Map());
+  }
+ }
+ return (name:HistoricalFunction,tag:string,count:number):Result=>{
+  const indicatorId=byTag.get(tag);
+  if(!indicatorId)return {kind:"unavailable",reason:"missing_source",sourceTag:tag};
+  const points:HistoricalPoint[]=selected.map(c=>({cycleId:c.id,label:c.name,value:values.get(c.id)?.get(indicatorId)??null}));
+  const result=calculateHistorical(name,points,count);
+  if(result.kind==="series")return {kind:"unavailable",reason:"invalid_domain",detail:"series-result-requires-visualization"};
+  return result;
+ };
+}
