@@ -101,7 +101,7 @@ function QuickAddContent({kind,teamId,cycleId,close,onSaved}:{
  kind:Kind;teamId:string;cycleId:string;close:()=>void;onSaved?:()=>void;
 }){
  const router=useRouter();
- const saved=()=>{close();router.refresh();};
+ const saved=()=>{close();onSaved?.();router.refresh();};
  return kind==="obstacles"||kind==="risks"?
   <RegistryCreate teamId={teamId} cycleId={cycleId} canManage
    initialType={kind==="risks"?"risk":"obstacle"} modalMode onCreated={saved}/>:
