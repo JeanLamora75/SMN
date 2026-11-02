@@ -12,7 +12,7 @@ export function normalizeSlotOptions(value:SlotOptions,category:string,cycleIds:
  }else if(value.type!==undefined||value.showClosed!==undefined)throw Error("dashboard-slot-option-incompatible");
  if(category==="indicator"){
   if(value.limit!==undefined||value.sort!==undefined||value.columns!==undefined)throw Error("dashboard-slot-option-incompatible");
- }else if(["registry","cycle","calendar","team","link"].includes(category)){
+ }else if(["registry","cycle","calendar","notes","team","link"].includes(category)){
   if(value.limit!==undefined){
    if(!Number.isSafeInteger(value.limit)||value.limit<1||value.limit>100)throw Error("dashboard-slot-option-invalid");
    next.limit=value.limit;
