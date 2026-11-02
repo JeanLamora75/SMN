@@ -2,9 +2,13 @@
 import {useEffect,useMemo,useState} from "react";
 import type {SourceDescriptor,SourceView} from "@/server/dashboard-builder/sources";
 import {compatibleVisualizations} from "@/server/dashboard-builder/visualizations";
+import type {DashboardSlot} from "@/server/dashboard-builder/layout";
+import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
+import {normalizeSlotOptions,type SlotOptions} from "@/lib/dashboard-builder/slot-options";
 
-export function DashboardSlotWizard({teamId,onClose,onConfirm}:{
- teamId:string;onClose:()=>void;onConfirm:(source:string,view:SourceView)=>void;
+export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm,onClear}:{
+ teamId:string;initialSlot?:DashboardSlot;cycles:readonly DashboardCycle[];onClose:()=>void;
+ onConfirm:(source:string,view:SourceView,options:SlotOptions)=>void;onClear:()=>void;
 }){
  const [sources,setSources]=useState<readonly SourceDescriptor[]>([]);
  const [loading,setLoading]=useState(true);
@@ -12,7 +16,10 @@ export function DashboardSlotWizard({teamId,onClose,onConfirm}:{
  const [search,setSearch]=useState("");
  const [category,setCategory]=useState("all");
  const [selected,setSelected]=useState<SourceDescriptor|null>(null);
- const [view,setView]=useState<SourceView|null>(null);
+ const [view,setView]=useState<SourceView|null>((initialSlot?.view as SourceView|undefined)??null);
+ const [options,setOptions]=useState<SlotOptions>(()=>({...initialSlot?.filters} as SlotOptions));
+ const [confirmClear,setConfirmClear]=useState(false);
+ const [optionError,setOptionError]=useState("");
  useEffect(()=>{
   const controller=new AbortController();
   setLoading(true);setError("");setSources([]);
@@ -21,7 +28,10 @@ export function DashboardSlotWizard({teamId,onClose,onConfirm}:{
    .then(async response=>{
     if(!response.ok)throw Error(response.status===403?"Accès à cette équipe refusé.":"Catalogue des sources indisponible.");
     return response.json() as Promise<{sources:SourceDescriptor[]}>;
-   }).then(data=>setSources(data.sources)).catch(()=>{
+   }).then(data=>{setSources(data.sources);
+    if(initialSlot?.source){const current=data.sources.find(x=>x.code===initialSlot.source&&x.status==="available");
+     if(current)setSelected(current);}
+   }).catch(()=>{
     if(!controller.signal.aborted)setError("Accès refusé ou sources indisponibles pour cette équipe.");
    }).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
   return ()=>controller.abort();
@@ -35,7 +45,13 @@ export function DashboardSlotWizard({teamId,onClose,onConfirm}:{
   (category==="all"||s.category===category)&&
   (s.code+" "+s.name).toLocaleLowerCase().includes(search.toLocaleLowerCase())),[sources,category,search]);
  const views=selected?compatibleVisualizations(selected):[];
- const chooseSource=(source:SourceDescriptor)=>{if(source.status!=="available")return;setSelected(source);setView(null);};
+ const chooseSource=(source:SourceDescriptor)=>{if(source.status!=="available")return;setSelected(source);setView(null);setOptions({});setOptionError("");};
+ const confirm=()=>{
+  if(!selected||!view)return;
+  try{const clean=normalizeSlotOptions(options,selected.category,cycles.map(c=>c.id));
+   onConfirm(selected.code,view,clean);
+  }catch(e){setOptionError(e instanceof Error?e.message:"Options invalides");}
+ };
  return <div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1060}}>
   <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
    <div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="slot-wizard-title">
@@ -82,17 +98,56 @@ export function DashboardSlotWizard({teamId,onClose,onConfirm}:{
          <p className="text-body-secondary mb-0">Sélectionnez une visualisation pour voir son aperçu.</p>}
        </section>
       </div>
+      <div className="col-12">
+       <details className="border rounded p-3">
+        <summary>Options avancées</summary>
+        <div className="row g-3 mt-2">
+         <div className="col-12 col-md-6">
+          <label className="form-label" htmlFor="slot-cycle">Exception de cycle</label>
+          <select id="slot-cycle" className="form-select" value={options.cycleIdOverride??""}
+           onChange={e=>setOptions(o=>({...o,cycleIdOverride:e.target.value||undefined}))}>
+           <option value="">Cycle actif</option>
+           {cycles.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+         </div>
+         {["registry","cycle","calendar","team","link"].includes(selected.category)&&<>
+          <div className="col-6 col-md-3"><label className="form-label" htmlFor="slot-limit">Nombre</label>
+           <input id="slot-limit" type="number" min="1" max="100" className="form-control"
+            value={options.limit??""} onChange={e=>setOptions(o=>({...o,limit:e.target.value?Number(e.target.value):undefined}))}/></div>
+          <div className="col-6 col-md-3"><label className="form-label" htmlFor="slot-sort">Tri</label>
+           <select id="slot-sort" className="form-select" value={options.sort??""}
+            onChange={e=>setOptions(o=>({...o,sort:e.target.value as SlotOptions["sort"]||undefined}))}>
+            <option value="">Par défaut</option><option value="asc">Croissant</option><option value="desc">Décroissant</option>
+           </select></div>
+          <div className="col-12"><label htmlFor="slot-columns" className="form-label">Colonnes (codes séparés par une virgule)</label>
+           <input id="slot-columns" className="form-control" value={(options.columns??[]).join(",")}
+            onChange={e=>setOptions(o=>({...o,columns:e.target.value?e.target.value.split(",").map(x=>x.trim()):undefined}))}/></div>
+         </>}
+        </div>
+       </details>
+       {optionError&&<p role="alert" className="alert alert-danger mt-2">{optionError}</p>}
+      </div>
      </div>}
     </div>
     <div className="modal-footer justify-content-between">
-     <div>{selected&&<button type="button" className="btn btn-outline-secondary" onClick={()=>{setSelected(null);setView(null);}}>Retour aux sources</button>}</div>
+     <div>{initialSlot?.source&&<button type="button" className="btn btn-outline-danger" onClick={()=>setConfirmClear(true)}>Vider cet emplacement</button>}{selected&&<button type="button" className="btn btn-outline-secondary" onClick={()=>{setSelected(null);setView(null);}}>Retour aux sources</button>}</div>
      <div className="d-flex gap-2">
       <button type="button" className="btn btn-outline-secondary" onClick={onClose}>Annuler</button>
       {selected&&<button type="button" className="btn btn-primary" disabled={!view}
-       onClick={()=>{if(view)onConfirm(selected.code,view);}}>Confirmer</button>}
+       onClick={confirm}>Confirmer</button>}
      </div>
     </div>
    </div>
   </div>
+  {confirmClear&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1070}}>
+   <div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="slot-clear-title">
+    <div className="modal-header"><h3 className="modal-title fs-5" id="slot-clear-title">Vider cet emplacement ?</h3></div>
+    <div className="modal-body">Seul cet emplacement sera vidé dans le brouillon.</div>
+    <div className="modal-footer">
+     <button className="btn btn-outline-secondary" onClick={()=>setConfirmClear(false)}>Conserver</button>
+     <button className="btn btn-danger" onClick={onClear}>Confirmer le vidage</button>
+    </div>
+   </div></div>
+  </div>}
  </div>;
 }
