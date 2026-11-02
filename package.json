@@ -70,7 +70,8 @@
     "test:smn-349": "tsx --test tests/smn-349-reporting-contract.test.ts",
     "test:smn-348": "tsx --test tests/smn-348-input-contract.test.ts",
     "db:test:smn-348": "tsx --test tests/smn-348-input-pg.test.ts",
-    "test:smn-347": "tsx --test tests/smn-347-ui-contract.test.ts tests/smn-347-team-grants-contract.test.ts"
+    "test:smn-347": "tsx --test tests/smn-347-ui-contract.test.ts tests/smn-347-team-grants-contract.test.ts",
+    "test:smn-354": "tsx --test tests/smn-354-dashboard-template-catalog.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
