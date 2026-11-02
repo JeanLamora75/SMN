@@ -37,10 +37,11 @@ test("SMN-349 PostgreSQL: configured screens, all statuses, NULL and team isolat
    const list=await readIndicatorReporting(db,"team349a","cycle_list","scrum");
    assert.deepEqual(list.columns.map(x=>x.tag),["CUSTOM349"]);
    assert.deepEqual(list.cycles.map(x=>x.status),["planned","finished","closed"]);
-   assert.deepEqual(list.cycles.map(x=>x.values[id]),["0",null,"5"]);
+   // A closed Sprint without a v33 snapshot is unavailable, not its mutable live value.
+   assert.deepEqual(list.cycles.map(x=>x.values[id]),["0",null,null]);
    assert.ok(list.cycles.every(x=>x.id!=="s349other"));
    const trends=await readIndicatorReporting(db,"team349a","trends","scrum");
-   assert.deepEqual(trends.cycles.map(x=>x.values[id]),["0",null,"5"]);
+   assert.deepEqual(trends.cycles.map(x=>x.values[id]),["0",null,null]);
    assert.equal(trends.columns[0].style,"line");
    const kanban=await readIndicatorReporting(db,"team349k","trends","kanban");
    assert.equal(kanban.columns[0].style,"bar");assert.equal(kanban.cycles[0].values[id],"9");
