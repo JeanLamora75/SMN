@@ -1,0 +1,11 @@
+.blockRow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;align-items:start}
+.blockCell{grid-column:span var(--smn-block-width,1);min-width:0}
+.fixedContent{overflow:auto;min-width:0}
+.innerSlots{display:grid;gap:1rem;min-width:0}
+@media(max-width:767.98px){
+ .blockRow{grid-template-columns:minmax(0,1fr)}
+ .blockCell{grid-column:1/-1!important}
+ .fixedContent{height:auto!important;max-height:none!important}
+ .innerSlots{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto!important}
+ .innerSlots>*{grid-column:auto!important;grid-row:auto!important;min-width:0}
+}
