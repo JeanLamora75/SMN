@@ -29,7 +29,7 @@ function fixture(opts:Options={}){
  },...(opts.assignmentChanges?[{
   assignment_id:assignmentId,revision:2,effective_from:"2026-05-03",
   contract_percent:100,allocation_percent:50,contribution_percent:50,
-  developer_percent:100
+  scrum_master_percent:0,product_owner_percent:0,developer_percent:100
  }]:[])];
  const db={query:async(q:string,args:unknown[]=[])=>{
   sql.push(q);
@@ -76,7 +76,7 @@ function fixture(opts:Options={}){
   }
   if(q.includes("FROM public.smn_member_absence")){
    const rows=opts.absence?[{
-    member_id:memberId,start_on:"2026-05-01",end_on:"2026-05-01",
+    member_id:memberId,is_planned:true,start_on:"2026-05-01",end_on:"2026-05-01",
     start_slot:"morning",end_slot:"afternoon"
    }]:[];
    return {rows,rowCount:rows.length};
