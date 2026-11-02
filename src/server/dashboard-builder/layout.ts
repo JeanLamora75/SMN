@@ -30,7 +30,7 @@ export function validateDashboardLayout(layout: DashboardLayout, sources?:readon
     const template = getDashboardTemplate(block.templateId, block.templateVersion);
     if (!template || !Array.isArray(block.slots) || block.slots.length !== template.slotCount)
       throw new Error("dashboard-layout-invalid-template");
-    const expected = new Set(template.slots.map(s => s.slotId));
+    const expected = new Set<string>(template.slots.map(s => s.slotId));
     const actual = new Set<string>();
     for (const slot of block.slots) {
       checkId(ids, slot.id);
