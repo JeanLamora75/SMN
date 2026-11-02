@@ -15,6 +15,6 @@ describe("SMN-169 — aperçu CSV sans écriture",()=>{
  it("le changement de fichier rend l’aperçu précédent obsolète",()=>{
   const source=readFileSync("src/app/app/admin/historical-csv/template-view.tsx","utf8");
   assert.match(source,/version\.current\+\+/);
-  assert.match(source,/version\.current===snapshot/);
+  assert.match(source,/if\(version\.current!==snapshot\)return/);
  });
 });
