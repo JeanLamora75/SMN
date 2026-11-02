@@ -4,6 +4,7 @@ import {assertLegacyTeamApi} from "@/server/teams/legacy";
 import {withAuthDb} from "@/server/auth/database";
 import {resolveRegistryReadContext} from "@/server/registries/team-access";
 import {MULTI_TEAM_CONTEXT_READY} from "@/lib/team-context-readiness";
+import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 import {withSprintIndexDb} from "@/server/sprints/read-only-db";
 import {authorizeRegistryRecord} from "@/server/registries/scoped-record";
 import {jsonResult,readJsonObject} from "@/server/auth/request";
@@ -37,10 +38,10 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
    const context=await resolveRegistryReadContext(db,{
     accountId:actor.id,role:actor.role
    },requestedTeamId);
-   if(context.version>=28&&context.version<=33){
+   if(context.version===28){
     const schema=await db.query<{schema_version:number}>(
      "SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
-    if((schema.rows[0]?.schema_version??0)<32&&(!MULTI_TEAM_CONTEXT_READY||
+    if(!evaluateSchemaCapability(schema.rows[0]?.schema_version,"per-team-agile-mode").ok&&(!MULTI_TEAM_CONTEXT_READY||
        process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
      throw Error("registry-team-write-not-ready");
     if(!requestedTeamId||context.team?.team_id!==requestedTeamId)
