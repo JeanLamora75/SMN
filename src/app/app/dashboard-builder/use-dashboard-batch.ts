@@ -9,15 +9,15 @@ const identity=(teamId:string,cycleId:string|null,request:BatchRequest)=>
 export function useDashboardBatch(teamId:string,cycleId:string|null,items:readonly BatchRequest[],refreshMilliseconds=60000){
  const [state,setState]=useState<Record<string,Stored>>({});
  const [revision,setRevision]=useState(0);
- const [retryCounter,setRetryCounter]=useState<Record<string,number>>({});
+ const [retryRequest,setRetryRequest]=useState<{id:string;nonce:number}|null>(null);
  const generation=useRef(0);
  const retryGeneration=useRef(0);
  const serialized=JSON.stringify(items);
  const stableItems=useMemo(()=>JSON.parse(serialized) as BatchRequest[],[serialized]);
  const context=JSON.stringify([teamId,cycleId,serialized]);
  const refresh=useCallback(()=>setRevision(v=>v+1),[]);
- const retry=useCallback((id:string)=>setRetryCounter(v=>({...v,[id]:(v[id]??0)+1})),[]);
- const retries=JSON.stringify(retryCounter);
+ const retry=useCallback((id:string)=>setRetryRequest(v=>({id,nonce:(v?.nonce??0)+1})),[]);
+ const retries=retryRequest?.nonce??0;
  useEffect(()=>{
   const controller=new AbortController();
   const current=++generation.current;
@@ -55,10 +55,9 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
   return ()=>clearInterval(interval);
  },[refresh,refreshMilliseconds]);
  useEffect(()=>{
-  const entries=Object.entries(retryCounter).filter(([,count])=>count>0);
-  if(!entries.length)return;
+  if(!retryRequest)return;
   const controller=new AbortController();
-  const batch=stableItems.filter(item=>entries.some(([id])=>id===item.id))
+  const batch=stableItems.filter(item=>item.id===retryRequest.id)
    .map(item=>({...item,cycleId:item.cycleId??cycleId}));
   const current=++retryGeneration.current;
   setState(previous=>({...previous,...Object.fromEntries(batch.map(item=>
