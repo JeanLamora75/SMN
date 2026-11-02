@@ -1,28 +1,36 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
+import {resolveDashboardSource} from "../src/server/dashboard-builder/sources";
+import {dashboardPermission} from "../src/server/dashboard-builder/permissions";
+import type {Client} from "pg";
+
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
-test("dashboard offers a plus action on each configurable position",()=>{
- const component=read("src/app/app/dashboard-indicator-blocks.tsx");
- assert.match(component,/block\.positions\.map/);
- assert.match(component,/onClick=\{\(\)=>void open\(block\.key,position\.index/);
- assert.match(component,/aria-label=\{t\("indicators\.dashboard\.configureSlot"\)/);
- assert.match(component,/showModal\(\)/);
+test("Dashboard Builder uses configurable slots, not fixed legacy dashboard positions",()=>{
+ const consultation=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+ assert.match(consultation,/visibleSlots\(block\)/);
+ assert.match(consultation,/slot\.source/);
+ assert.match(consultation,/slot\.view/);
+ const batch=read("src/server/dashboard-builder/batch.ts");
+ assert.match(batch,/requireDashboardPermission\(db,scope,"read"\)/);
+ assert.match(batch,/scope\.teamId/);
 });
-test("slot picker only offers active, nonarchived indicators of authorized team",()=>{
- const route=read("src/app/api/admin/indicators/dashboard-slots/route.ts");
- assert.match(route,/requireIndicatorTeam/);
- assert.match(route,/s\.team_id=\$1 AND s\.is_active=true/);
- assert.match(route,/d\.archived_at IS NULL/);
- assert.match(route,/candidates:candidates\.rows/);
- const component=read("src/app/app/dashboard-indicator-blocks.tsx");
- assert.match(component,/candidates\.filter\(c=>!occupiedByOther\(c\.id\)\)/);
+test("indicator source is unavailable when absent and rejects incompatible visualization",()=>{
+ const sources=[{code:"indicator:id1",name:"Indicateur",category:"indicator" as const,
+  unit:"SP",scope:"cycle" as const,permission:"read" as const,views:["number" as const],
+  status:"available" as const}];
+ assert.equal(resolveDashboardSource(sources,"indicator:unknown","number").status,"unknown");
+ assert.equal(resolveDashboardSource(sources,"indicator:id1","list").status,"incompatible");
+ assert.equal(resolveDashboardSource(sources,"indicator:id1","number").status,"available");
 });
-test("slot replacement remains atomic and does not touch historical indicator values",()=>{
- const src=read("src/server/indicators/dashboard-slots.ts");
- assert.match(src,/BEGIN/);
- assert.match(src,/pg_advisory_xact_lock/);
- assert.match(src,/DELETE FROM public\.smn_indicator_dashboard_slot/);
- assert.match(src,/COMMIT/);
- assert.doesNotMatch(src,/DELETE FROM public\.smn_indicator_manual_value/);
+test("permissions refuse an unauthorized team instead of leaking indicators",async()=>{
+ const db={query:async()=>({rows:[]})} as unknown as Client;
+ const permission=await dashboardPermission(db,{installationId:"installation1",accountId:"account1",teamId:"team1"});
+ assert.deepEqual(permission,{canRead:false,canEdit:false});
+});
+test("Dashboard Builder never deletes manual indicator values during slot configuration",()=>{
+ const batch=read("src/server/dashboard-builder/batch.ts");
+ const consultation=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+ assert.doesNotMatch(batch,/DELETE FROM public\.smn_indicator_manual_value/);
+ assert.doesNotMatch(consultation,/DELETE FROM public\.smn_indicator_manual_value/);
 });
