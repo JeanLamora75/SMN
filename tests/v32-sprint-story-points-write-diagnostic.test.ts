@@ -4,7 +4,7 @@ import {test} from "node:test";
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const service=read("src/server/compat-v32/story-points.ts");
 const route=read("src/app/api/admin/sprints/story-points/route.ts");
-const form=read("src/app/app/admin/sprints/[sprintId]/sprint-indicators-panel.tsx");
+const dynamic=read("src/app/app/admin/sprints/[sprintId]/page.tsx");
 test("Story Points writing checks only the actual needed Sprint and aggregate tables",()=>{
  assert.doesNotMatch(service,/ensureSprintSchema/);
  assert.match(service,/to_regclass\('public\.smn_sprint'\)/);
@@ -14,6 +14,6 @@ test("Story Points writing checks only the actual needed Sprint and aggregate ta
 test("v32 errors can distinguish missing tables and actual server faults",()=>{
  assert.match(route,/sprint-story-points-save-failed/);
  assert.match(route,/error:"schema-not-ready"/);
- assert.match(form,/result\.error==="schema-not-ready"/);
- assert.match(form,/sprint-story-points-save-failed/);
+ assert.match(dynamic,/UniversalIndicatorInput/);
+ assert.doesNotMatch(dynamic,/<SprintIndicatorsPanel/);
 });
