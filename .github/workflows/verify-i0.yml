@@ -42,6 +42,9 @@ jobs:
           run_install: false
       - name: Installer exclusivement les versions verrouillées
         run: pnpm install --frozen-lockfile
+      - name: Préparer la base éphémère dédiée aux contrats v31/v32
+        run: |
+          PGPASSWORD=smn_ci_ephemeral_test psql -h 127.0.0.1 -U smn_ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE smn_ci"
       - name: Parité des catalogues FR/EN
         run: pnpm i18n:check
       - name: Recette PostgreSQL isolée SMN-343
@@ -100,8 +103,15 @@ jobs:
           run_install: false
       - name: Installer les dépendances (Windows sans élévation)
         run: pnpm install --frozen-lockfile
-      - name: Test de langage, ports et règles (PG réel explicitement ignoré hors CI DB)
-        run: pnpm test
+      - name: Tests unitaires Windows sans base PostgreSQL (intégrations PG couvertes par linux-postgres)
+        shell: pwsh
+        run: |
+          $pgPattern = "(?i)(postgres|(?:^|-)pg\.test|smn-338-(native|real|v33-upgrade)|smn-dashboard-bmad-pg|smn-333-v31-v32|smn-355-dashboard-layout)"
+          $files = @(Get-ChildItem -Path tests -File | Where-Object { $_.Name -match "\.test\.(ts|mjs)$" -and $_.Name -notmatch $pgPattern } | ForEach-Object { "tests/$($_.Name)" })
+          if ($files.Count -eq 0) { throw "Aucun test Windows sélectionné" }
+          Write-Host "Tests Windows sans PG: $($files.Count) fichiers"
+          pnpm exec tsx --test @files
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         env:
           CI: "false"
       - name: Typecheck et build Windows
