@@ -3,6 +3,7 @@ import {randomUUID} from "node:crypto";
 import type {TeamActor} from "../teams/resolve";
 import {requireIndicatorTeam} from "./team-access";
 import {parseFormula,referencedTags} from "./formula";
+import {recalculateIndicatorResultsWithinTransaction} from "./recalculation";
 import {isCalendarSourceTag,buildDependencyGraph,type DependencyRow,type IndicatorDefinition} from "./dependencies";
 
 export const SCREENS=["dashboard","cycle_list","cycle_detail","trends","reports"] as const;
@@ -76,6 +77,14 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
    const edges=command.indicatorType==="computed"?await deriveDependencies(db,command.formula!,indicatorId,command.tag):[];
    await db.query("INSERT INTO public.smn_indicator_definition(id,tag,name,description,unit_name,unit_short,color,icon,indicator_type,formula) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",[indicatorId,command.tag,command.name,command.description??"",command.unitName??"",command.unitShort??"",command.color??null,command.icon??null,command.indicatorType,command.indicatorType==="computed"?command.formula:null]);
    for(const e of edges)await db.query("INSERT INTO public.smn_indicator_dependency(id,indicator_id,source_type,source_indicator_id,source_calendar_tag) VALUES($1,$2,$3,$4,$5)",[randomUUID(),e.indicator_id,e.source_type,e.source_indicator_id,e.source_calendar_tag]);
+   // Role-derived indicators have no ordinary tag dependencies: calculate their
+   // existing periods as soon as the catalog entry is created.
+   if(command.indicatorType==="computed"&&/\\b(?:ROLE_JH|ROLE_JH_PLANNED|ROLE_MAX_JH)\\s*\\(/.test(command.formula!)){
+    const teams=await db.query<{id:string}>("SELECT id FROM public.smn_team WHERE installation_id='singleton' AND agile_mode IN ('scrum','kanban') AND NOT is_archived ORDER BY id LIMIT 101");
+    if(teams.rows.length>100)throw new IndicatorCatalogError("invalid-input");
+    for(const team of teams.rows)
+     await recalculateIndicatorResultsWithinTransaction(db,{teamId:team.id,changedIndicatorIds:[indicatorId]});
+   }
    await bump(db);await db.query("COMMIT");return {id:indicatorId};
   }
   if(command.action==="edit"){
