@@ -1,4 +1,4 @@
-import {evaluateFormula,referencedTags,parseFormula,FormulaBudgetError,type Expression,type Result,type SourceValue} from "../formula";
+import {evaluateFormula,referencedTags,parseFormula,FormulaBudgetError,type Expression,type Result,type SourceValue,type HistoricalResolver} from "../formula";
 
 export type DependencyRow=Readonly<{indicator_id:string;source_type:"indicator"|"calendar";source_indicator_id:string|null;source_calendar_tag:string|null}>;
 export type IndicatorDefinition=Readonly<{id:string;tag:string;formula:string|null;isActive?:boolean}>;
@@ -102,6 +102,7 @@ export type EvaluateDependenciesInput=Readonly<{
  calendar:Readonly<Partial<Record<CalendarSourceTag,SourceValue>>>;
  changedIndicatorIds?:readonly string[];
  changedCalendarTags?:readonly string[];
+ historical?: (indicatorId:string)=>HistoricalResolver;
 }>;
 export function evaluateDependencies(input:EvaluateDependenciesInput):ReadonlyMap<string,Result>{
  const {graph}=input;
@@ -129,7 +130,7 @@ export function evaluateDependencies(input:EvaluateDependenciesInput):ReadonlyMa
    else if(node.kind==="call")pending.push(...node.args);
   }
   remainingOperations-=requiredOperations;
-  const result=evaluateFormula(ast,sources,requiredOperations);
+  const result=evaluateFormula(ast,sources,requiredOperations,input.historical?.(id));
   results.set(id,result);
   byId.set(id,result.kind==="available"?result.value:{kind:"unavailable",reason:result.reason,sourceTag:result.sourceTag});
  }
