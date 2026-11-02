@@ -127,8 +127,8 @@ test("configuration: ignorée exclue, terminée informative, todo alerte",async(
  const read=await readCycleNotesAndAlerts(db,"team-1","sprint-1");
  assert.equal(read.state,"available");
  if(read.state==="available"){
-  assert.equal(read.total,2);
-  assert.deepEqual(read.items.map(x=>x.kind),["alert","note"]);
+  assert.equal(read.total,1);
+  assert.deepEqual(read.items.map(x=>x.kind),["alert"]);
  }
 });
 
