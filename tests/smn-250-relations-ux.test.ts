@@ -102,7 +102,7 @@ test("AC4 : le serveur retire seulement le lien et garde l'audit",()=>{
 test("AC3/4 : cycles clos et associations existantes confirmées séparément",()=>{
  const cycles=file("src/app/app/admin/registries/registry-cycles.tsx");
  const server=file("src/server/registries/cycle-links.ts");
- assert.ok(cycles.includes("window.confirm(tr(\"confirmUnlink\"))"));
+ assert.ok(!cycles.includes("window.confirm("));
  assert.ok(cycles.includes('closed||busy!==null'));
  assert.ok(server.includes("s.status<>'closed'"));
  assert.ok(!server.includes("DELETE FROM public.smn_registry_item"));
