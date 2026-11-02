@@ -18,6 +18,11 @@ for (const forbidden of [".env",".settings-key","postgres-connection.json","runt
   assert.equal(existsSync(path.join(root,forbidden)),false,
     "Un fichier de configuration sensible a été inclus dans le paquet : "+forbidden);
 }
+const manifestPath=path.join(root,".next","server","middleware-manifest.json");
+if(existsSync(manifestPath)) {
+ const manifest=JSON.parse(await readFile(manifestPath,"utf8"));
+ console.log("Routes du proxy standalone : "+JSON.stringify(Object.keys(manifest.middleware??{})));
+} else console.log("ATTENTION : manifeste proxy absent du paquet standalone");
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const recoveryProbe=spawnSync(path.join(root,"node.exe"),[path.join(root,"recover-admin.mjs")],{
   cwd:root,windowsHide:true,encoding:"utf8",stdio:["pipe","pipe","pipe"],
