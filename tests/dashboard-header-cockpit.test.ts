@@ -3,26 +3,26 @@ import {readFileSync} from "node:fs";
 import {test} from "node:test";
 
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
-const component=read("src/app/app/cycle-overview.tsx");
-const css=read("src/app/dashboard.css");
+const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+const layout=read("src/server/dashboard-builder/layout.ts");
+const permission=read("src/server/dashboard-builder/permissions.ts");
 
-test("SMN-235 : bandeau plein Cockpit avec équipe, sprint et informations réelles",()=>{
- assert.match(component,/smn-cycle-overview-header smn-cycle-header-compact/);
- assert.match(component,/memberTeamScope\.teamLabel/);
- assert.match(component,/\{context\.team\}/);
- assert.match(component,/\{cycle\?cycle\.name:/);
- assert.match(component,/smn-cycle-date-range/);
- assert.match(component,/smn-cycle-status/);
- assert.match(component,/smn-cycle-goal-block/);
- assert.match(component,/goals\.items\.slice/);
- assert.match(component,/sprintDetailPath\(cycle\.id\)/);
+test("v33 Builder header displays selected cycle context and supports cycle navigation",()=>{
+ assert.match(builder,/navigation\.current\?\.name/);
+ assert.match(builder,/navigation\.current\.startAt/);
+ assert.match(builder,/navigation\.current\.endAt/);
+ assert.match(builder,/navigation\.previous/);
+ assert.match(builder,/navigation\.next/);
+ assert.match(builder,/aria-label="En-tête du tableau de bord"/);
 });
-test("SMN-235 : palette Cockpit, lien bordé blanc et responsive",()=>{
- assert.match(css,/smn-cycle-overview-header\.smn-cycle-header-compact/);
- assert.match(css,/linear-gradient\(125deg/);
- assert.match(css,/color:#fff/);
- assert.match(css,/\.smn-cycle-header-compact \.smn-cycle-detail-link:focus-visible/);
- assert.match(css,/@container \(max-width:960px\)/);
- assert.match(css,/@container \(max-width:650px\)/);
- assert.match(component,/href=\{teamHref\}/);
+test("v33 header owns exactly two configurable dynamic blocks",()=>{
+ assert.match(layout,/layout\.header\.blocks\.length !== 2/);
+ assert.match(builder,/layout\.header\.blocks\.map\(renderBlock\)/);
+ assert.match(builder,/getDashboardTemplate\(block\.templateId,block\.templateVersion\)/);
+});
+test("dashboard header never bypasses team permissions or exposes unauthorised records",()=>{
+ assert.match(permission,/t\.installation_id=i\.id/);
+ assert.match(permission,/t\.id=\$3/);
+ assert.match(permission,/a\.is_active=true/);
+ assert.match(permission,/canRead:false,canEdit:false/);
 });
