@@ -252,8 +252,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     if(availability.status==="unknown"&&problems.length===0)
      problems.push("work-calendar");
     if(version&&(!validRate(version.allocation_percent)||!validRate(version.contract_percent)||
-       !validRate(version.developer_percent)||!validRate(version.scrum_master_percent)||
-       !validRate(version.product_owner_percent)||!validRate(version.contribution_percent)||
+       !validRate(roleShare(version,options.role))||!validRate(version.contribution_percent)||
        version.allocation_percent>version.contract_percent))
       throw Error("capacity-versions-corrupt");
     if(problems.length){
