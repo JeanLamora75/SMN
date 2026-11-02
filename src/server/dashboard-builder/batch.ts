@@ -1,11 +1,12 @@
 import type {Client} from "pg";
+import {loadHistoricalResolver} from "../indicators/formula/historical-context";
 import {readRegistryDashboardList,readCalendarDashboardList,readNotesDashboardList,type DashboardListPayload} from "./lists";
 import type {LayoutScope} from "./layout";
 import {requireDashboardPermission} from "./permissions";
 import {listDashboardSources,resolveDashboardSource} from "./sources";
 
 export type BatchRequest=Readonly<{id:string;source:string;view:string;cycleId?:string|null;filters?:Record<string,unknown>}>;
-export type BatchResult=Readonly<{id:string;state:"available"|"null"|"absent"|"unavailable"|"incompatible"|"error";value?:string;unit?:string|null;message?:string;list?:DashboardListPayload}>;
+export type BatchResult=Readonly<{id:string;state:"available"|"null"|"absent"|"unavailable"|"incompatible"|"error";value?:string;unit?:string|null;message?:string;list?:DashboardListPayload;points?:readonly {label:string;value:number|null}[]}>;
 const idOk=(v:unknown):v is string=>typeof v==="string"&&/^[A-Za-z0-9_-]{1,100}$/.test(v);
 const sourceOk=(v:unknown):v is string=>typeof v==="string"&&/^[A-Za-z][A-Za-z0-9:_-]{0,119}$/.test(v);
 const cleanFilter=(f:unknown):f is Record<string,unknown>=>f===undefined||(!!f&&typeof f==="object"&&!Array.isArray(f)&&Object.keys(f).length<=20&&JSON.stringify(f).length<=3000);
@@ -57,6 +58,18 @@ export async function readDashboardBatch(db:Client,scope:LayoutScope,requests:re
   if(!r.cycleId)return {state:"absent"};
   try{
    const indicatorId=r.source.slice("indicator:".length);
+   if(r.view==="line"||r.view==="bar"){
+    const definitions=await db.query<{id:string;tag:string;formula:string|null}>(
+     "SELECT id,tag,formula FROM public.smn_indicator_definition WHERE archived_at IS NULL");
+    const current=definitions.rows.find(x=>x.id===indicatorId);
+    if(!current)return {state:"absent"};
+    const history=await loadHistoricalResolver(db,{teamId:scope.teamId,cycleType:"scrum",cycleId:r.cycleId},new Map(definitions.rows.map(x=>[x.tag,x.id])));
+    const match=/^LAST_VALUES\(([A-Z][A-Z0-9_]*),([1-9][0-9]*)\)$/.exec(current.formula?.replace(/\s+/g,"")??"");
+    const target=match?.[1]??current.tag;
+    const size=match?Number(match[2]):6;
+    const series=history.series(target,size);
+    return {state:"available",points:series.points.map(p=>({label:p.label,value:p.value===null?null:Number(p.value)})),unit:source.source.unit};
+   }
    const query=await db.query<IndicatorResult>(`
     SELECT value::text AS value FROM public.smn_indicator_manual_value
     WHERE team_id=$1 AND indicator_id=$2 AND cycle_id=$3
