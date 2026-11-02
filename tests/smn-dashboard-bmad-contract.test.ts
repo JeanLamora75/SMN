@@ -28,12 +28,12 @@ test("B02 frozen v33 sprint snapshots supersede current values",()=>{
  assert.match(src,/indicatorsV33/);
  assert.match(src,/historical\?saved\?\.value\?\?null:raw/);
 });
-test("B03 and B04 dashboard has fixed cards with no duplicate dynamic table or historic KPIs",()=>{
- const cockpit=read("src/app/app/cycle-overview.tsx");
- const blocks=read("src/app/app/dashboard-indicator-blocks.tsx");
+test("B03/B04 compatibility is historical; current dashboard uses configurable Builder blocks",()=>{
+ const layout=read("src/server/dashboard-builder/layout.ts");
+ const consultation=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
  const page=read("src/app/app/page.tsx");
- assert.match(cockpit,/DashboardIndicatorBlocks/);
- assert.match(blocks,/block.positions.map/);
- assert.doesNotMatch(cockpit,/KpiSprintScores|firstMetric=\{projection\?\.storyPoints|firstMetric=\{projection\?\.tickets/);
- assert.doesNotMatch(page,/screen="dashboard"/);
+ assert.match(layout,/header:\s*\{\s*blocks:\s*\[defaultBlock\(\), defaultBlock\(\)\]/);
+ assert.match(consultation,/visibleSlots\(block\)/);
+ assert.match(consultation,/layout\.rows\.flatMap/);
+ assert.match(page,/dashboardBuilderCutoverEnabled\(\)/);
 });
