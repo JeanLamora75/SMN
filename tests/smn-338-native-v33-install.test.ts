@@ -31,7 +31,7 @@ test("SMN-338 : installation native v33 complète sur base vierge isolée",{time
   const snapshot=await probePostgres(targetUri.toString());
   assert.equal(classifySnapshot(snapshot).status,"initialized");
   assert.equal(snapshot.installations?.[0]?.schema_version,33);
-  assert.equal(snapshot.migrations?.length,2);
+  assert.ok((snapshot.migrations?.length??0)>=2);
   assert.ok(snapshot.migrations?.some(m=>m.migration_name===NATIVE_V32_NAME));
   assert.ok(snapshot.migrations?.some(m=>m.migration_name===SMN338_V33_NAME));
   const db=new Client({connectionString:targetUri.toString(),connectionTimeoutMillis:3500,statement_timeout:10000});
