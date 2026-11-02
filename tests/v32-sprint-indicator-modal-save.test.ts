@@ -5,9 +5,7 @@ const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const points=read("src/app/api/admin/sprints/story-points/route.ts");
 const scores=read("src/app/api/admin/sprints/scores/route.ts");
 const service=read("src/server/sprints/sprint-scores.ts");
-const editor=read("src/app/app/admin/sprints/[sprintId]/sprint-indicators-panel.tsx");
 const page=read("src/app/app/admin/sprints/[sprintId]/page.tsx");
-const css=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-cockpit.css");
 test("v32: writes remain team-scoped without depending on pilot-only v28 gate",()=>{
  for(const route of [points,scores]){
   assert.ok(route.includes("context.version>=28&&context.version<=32"));
