@@ -40,3 +40,11 @@ test("Dashboard Builder: slot displays business source labels without leaking UU
  assert.doesNotMatch(editor,/["\u0027]✎ ["\u0027]\+slot\.source/);
  assert.match(editor,/updateDashboardSlot\(current,wizardSlot,\{source,view,filters:options\}\)/);
 });
+
+test("Dashboard Builder: editing is separate from consultation and has responsive cards",()=>{
+ assert.match(editor,/!editing&&<DashboardConsultation/);
+ assert.match(editor,/editing&&draft&&<details className="smn-panel p-3 mb-3"/);
+ assert.match(editor,/row-cols-1 row-cols-xl-2 g-3/);
+ assert.match(editor,/row-cols-1 row-cols-md-2 g-2/);
+ assert.match(editor,/Personnaliser les blocs d’en-tête/);
+});
