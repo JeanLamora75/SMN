@@ -88,7 +88,7 @@ export function migrateTemplateBlock<T extends { templateSlotId: string }>(
   if (!getDashboardTemplate(block.templateId, block.templateVersion)) throw new Error("Unknown source template version");
   if (block.templateVersion > target.version) throw new Error("Future template version");
   const source = getDashboardTemplate(block.templateId, block.templateVersion)!;
-  const validSourceSlots = new Set(source.slots.map(s => s.slotId));
+  const validSourceSlots = new Set<string>(source.slots.map(s => s.slotId));
   if (new Set(block.slots.map(s => s.templateSlotId)).size !== block.slots.length ||
       block.slots.some(s => !validSourceSlots.has(s.templateSlotId))) {
     throw new Error("Stored block has duplicate or unknown template slots");
@@ -108,7 +108,7 @@ export function migrateTemplateBlock<T extends { templateSlotId: string }>(
     slots = next;
     version += 1;
   }
-  const allowed = new Set(target.slots.map(s => s.slotId));
+  const allowed = new Set<string>(target.slots.map(s => s.slotId));
   if (slots.some(s => !allowed.has(s.templateSlotId))) throw new Error("Migration produced slot absent from geometry");
   return { templateId: block.templateId, templateVersion: version, slots };
 }
