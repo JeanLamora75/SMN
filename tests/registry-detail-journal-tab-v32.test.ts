@@ -24,7 +24,9 @@ test("journal API is team scoped on v32 and POST receives team id",()=>{
  const journal=read("src/app/app/admin/registries/registry-journal.tsx");
  assert.match(api,/authorizeRegistryRecord/);
  assert.doesNotMatch(api,/withLegacyRegistryReadDb/);
- assert.match(post,/context.version!==32/);
+ assert.match(post,/context\.version>=28&&context\.version<=33/);
+ assert.match(post,/context\.team\?\.team_id!==requestedTeamId/);
+ assert.match(post,/schema\.rows\[0\]\?\.schema_version\?\?0\)<32/);
  assert.match(journal,/createUrl=url\+"\?teamId="/);
 });
 test("business date uses accessible contrasting theme hero style",()=>{
