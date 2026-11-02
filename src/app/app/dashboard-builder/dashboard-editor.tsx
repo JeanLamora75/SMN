@@ -1,5 +1,7 @@
 "use client";
 import {useCallback,useMemo,useState} from "react";
+import {BlockDimensionControl} from "./block-dimensions";
+import {updateBlockDimensions} from "@/lib/dashboard-builder/dimensions";
 import {moveDashboardRow,moveDashboardBlock,deleteDashboardRow,deleteDashboardBlock} from "@/lib/dashboard-builder/reorder";
 import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/layout";
 import {updateDashboardSlot,type SlotOptions} from "@/lib/dashboard-builder/slot-options";
@@ -126,6 +128,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
         <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>setDraft(d=>d?deleteDashboardBlock(d,block.id):null)}>Supprimer</button>
        </div></details>
       </div>
+      <div className="d-flex justify-content-end mb-2"><BlockDimensionControl value={block.dimensions} disabled={saving} onChange={value=>setDraft(d=>d?updateBlockDimensions(d,block.id,value):null)}/></div>
       <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
        <button type="button" className="btn btn-outline-secondary w-100" onClick={()=>setWizardSlot(slot.id)} disabled={saving}
         aria-label={`Configurer emplacement ${slot.templateSlotId}`}>
