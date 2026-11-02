@@ -8,7 +8,7 @@ test("v33 indicator save refreshes matching reporting screens",()=>{
  assert.match(input,/if\(!r\.ok\|\|data\.ok===false\)throw/);
  assert.match(input,/dispatchEvent\(new CustomEvent\("smn:indicators-saved"/);
  assert.match(report,/addEventListener\("smn:indicators-saved"/);
- assert.match(report,/detail\.teamId===teamId&&detail\.cycleType===cycleType&&\(!cycleId\|\|detail\.cycleId===cycleId\)/);
+ assert.match(report,/detail\?\.teamId===teamId&&detail\.cycleType===cycleType&&\(!cycleId\|\|detail\.cycleId===cycleId\)/);
  assert.match(report,/setRefreshKey\(k=>k\+1\)/);
  assert.match(report,/\[teamId,cycleType,screen,cycleId,refreshKey\]/);
 });
