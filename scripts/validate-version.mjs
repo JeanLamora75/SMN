@@ -1,6 +1,7 @@
 import {spawnSync} from "node:child_process";
 import {mkdirSync, writeFileSync} from "node:fs";
-import {join} from "node:path";
+import {join,resolve} from "node:path";
+import {pathToFileURL} from "node:url";
 
 export const SCHEMA_TARGET = 33;
 export const PROFILES = Object.freeze({
@@ -43,7 +44,7 @@ export function run(profile, options={}) {
   }
   return result;
 }
-if (process.argv[1] && import.meta.url === new URL("file://"+process.argv[1].replaceAll("\\","/")).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
     const args=process.argv.slice(2);
     if(args.length!==2||args[0]!=="--profile") throw Error("Usage : node scripts/validate-version.mjs --profile <profil>");
