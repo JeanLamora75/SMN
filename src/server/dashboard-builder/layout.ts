@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { requireDashboardPermission } from "./permissions";
+import { resolveDashboardSource, type SourceDescriptor } from "./sources";
 import type { Client } from "pg";
 import { getDashboardTemplate, type DashboardTemplateId } from "../../lib/dashboard-builder/templates";
 
@@ -16,7 +17,7 @@ const checkId = (ids: Set<string>, id: unknown): void => {
   if (!validId(id) || ids.has(id)) throw new Error("dashboard-layout-invalid-id");
   ids.add(id);
 };
-export function validateDashboardLayout(layout: DashboardLayout): void {
+export function validateDashboardLayout(layout: DashboardLayout, sources?:readonly SourceDescriptor[]): void {
   if (!layout || layout.schemaVersion !== DASHBOARD_LAYOUT_SCHEMA_VERSION ||
       !layout.header || !Array.isArray(layout.header.blocks) || layout.header.blocks.length !== 2 ||
       !Array.isArray(layout.rows)) throw new Error("dashboard-layout-invalid-schema");
@@ -33,6 +34,14 @@ export function validateDashboardLayout(layout: DashboardLayout): void {
       if (!expected.has(slot.templateSlotId) || actual.has(slot.templateSlotId))
         throw new Error("dashboard-layout-invalid-slot");
       actual.add(slot.templateSlotId);
+      if(slot.source!==undefined || slot.view!==undefined){
+        if(typeof slot.source!=="string"||typeof slot.view!=="string"||!slot.source||!slot.view)
+          throw new Error("dashboard-layout-invalid-view");
+        if(sources){
+          const choice=resolveDashboardSource(sources,slot.source,slot.view);
+          if(choice.status!=="available")throw new Error("dashboard-layout-incompatible-view");
+        }
+      }
     }
   };
   for (const block of layout.header.blocks) validateBlock(block);
