@@ -110,6 +110,21 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
            {cycles.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
          </div>
+         {selected.category==="registry"&&<>
+          <div className="col-12 col-md-6"><label className="form-label" htmlFor="registry-type">Type de fiche</label>
+           <select id="registry-type" className="form-select" value={options.type??"all"}
+            onChange={e=>setOptions(o=>({...o,type:e.target.value}))}>
+            <option value="all">Risques, obstacles et dépendances</option>
+            <option value="risk">Risques</option><option value="obstacle">Obstacles</option>
+            <option value="dependency">Dépendances</option>
+            <option value="highlight">Événements</option>
+            <option value="decision">Décisions</option><option value="action">Actions</option>
+           </select></div>
+          <div className="col-12 col-md-6"><label className="form-check mt-4">
+           <input className="form-check-input" type="checkbox" checked={options.showClosed===true}
+            onChange={e=>setOptions(o=>({...o,showClosed:e.target.checked}))}/>
+           <span className="form-check-label">Inclure les fiches clôturées</span></label></div>
+         </>}
          {["registry","cycle","calendar","team","link"].includes(selected.category)&&<>
           <div className="col-6 col-md-3"><label className="form-label" htmlFor="slot-limit">Nombre</label>
            <input id="slot-limit" type="number" min="1" max="100" className="form-control"
