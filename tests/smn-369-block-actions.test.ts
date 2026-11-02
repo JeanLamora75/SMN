@@ -33,7 +33,9 @@ test("SMN-369 AC3: model reduction preserves first configured slot and reports l
  const block=original.rows[0].blocks[0];
  const expanded=changeDashboardBlockTemplate(original,block.id,"M03",["second","third"]).layout;
  expanded.rows[0].blocks[0].slots[0].source="indicator:one";
+ expanded.rows[0].blocks[0].slots[0].view="number";
  expanded.rows[0].blocks[0].slots[1].source="indicator:two";
+ expanded.rows[0].blocks[0].slots[1].view="number";
  const transformed=changeDashboardBlockTemplate(expanded,block.id,"M01",[]);
  assert.equal(transformed.lostConfigured,1);
  assert.equal(transformed.layout.rows[0].blocks[0].slots[0].source,"indicator:one");
