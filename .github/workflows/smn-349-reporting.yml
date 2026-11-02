@@ -39,3 +39,10 @@ jobs:
         run: pnpm test:validate-version
       - name: Validation commune v33 — SMN-349
         run: node scripts/validate-version.mjs --profile smn-349
+      - name: Archiver le rapport commun
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-validation-smn-349
+          path: audit-output/version-validation-smn-349.json
+          if-no-files-found: warn
