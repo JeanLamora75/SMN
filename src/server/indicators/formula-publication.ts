@@ -51,7 +51,7 @@ async function prepare(db:Client,input:FormulaProposal){
   "SELECT s.team_id,'scrum'::text AS cycle_type,s.id AS cycle_id FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id WHERE s.deleted_at IS NULL AND NOT t.is_archived AND t.agile_mode='scrum' "+
   "UNION ALL SELECT p.team_id,'kanban',p.id FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id WHERE p.deleted_at IS NULL AND NOT t.is_archived AND t.agile_mode='kanban' ORDER BY team_id,cycle_type,cycle_id LIMIT 1001");
  if(cycles.rows.length>MAX_CYCLES||cycles.rows.length*affected.length>MAX_RESULTS)throw new FormulaPublicationError("budget","Too many recalculations");
- const rolePattern=/\\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\\s*\\(\\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\\s*\\)/g;
+ const rolePattern=/\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\s*\(\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\s*\)/g;
  const requestedRoles:RoleCapacityRequest[]=[];
  for(const definition of proposed.filter(d=>affected.includes(d.id)))for(const match of definition.formula?.matchAll(rolePattern)??[]){
   if(!requestedRoles.some(x=>x.name===match[1]&&x.role===match[2]))
