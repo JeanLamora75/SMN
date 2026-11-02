@@ -4,6 +4,8 @@ import type {DashboardLayout} from "@/server/dashboard-builder/layout";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import DashboardConsultation from "./dashboard-consultation";
 import {DashboardTemplateGallery} from "./template-gallery";
+import {DashboardSlotWizard} from "./slot-wizard";
+import type {SourceView} from "@/server/dashboard-builder/sources";
 import {appendDashboardRow,appendDashboardBlock} from "@/lib/dashboard-builder/composition";
 import type {DashboardTemplateId} from "@/lib/dashboard-builder/templates";
 
@@ -22,6 +24,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [exitOpen,setExitOpen]=useState(false);
  const [error,setError]=useState<string|null>(null);
  const [galleryRow,setGalleryRow]=useState<string|null>(null);
+ const [wizardSlot,setWizardSlot]=useState<string|null>(null);
  const editing=draft!==null;
  const changed=useMemo(()=>draft!==null&&signature(draft)!==signature(published),[draft,published]);
  const enter=()=>{if(!canEdit)return;setDraft(copy(published));setError(null);};
@@ -51,6 +54,14 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  },[draft,changed,saving,canEdit,teamId,revision]);
  // The structural draft action is deliberately non-destructive; future stories
  // provide the full row/block/slot editor while retaining this save lifecycle.
+ const confirmSlot=(source:string,view:SourceView)=>{
+  if(!wizardSlot)return;
+  setDraft(current=>current?{...current,
+   header:{blocks:current.header.blocks.map(block=>({...block,slots:block.slots.map(slot=>slot.id===wizardSlot?{...slot,source,view}:slot)}))},
+   rows:current.rows.map(row=>({...row,blocks:row.blocks.map(block=>({...block,slots:block.slots.map(slot=>slot.id===wizardSlot?{...slot,source,view}:slot)}))}))
+  }:null);
+  setWizardSlot(null);
+ };
  const addRow=()=>setDraft(current=>current?appendDashboardRow(current,crypto.randomUUID()):null);
  const addBlock=(templateId:DashboardTemplateId)=>{
   if(!galleryRow||!draft)return;
@@ -80,8 +91,9 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
      <div className="border rounded p-2">
       <div className="fw-semibold mb-2">{block.templateId}</div>
       <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
-       <button type="button" className="btn btn-outline-secondary w-100" disabled
-        aria-label={`Emplacement ${slot.templateSlotId} à configurer`}>+</button>
+       <button type="button" className="btn btn-outline-secondary w-100" onClick={()=>setWizardSlot(slot.id)} disabled={saving}
+        aria-label={`Configurer emplacement ${slot.templateSlotId}`}>
+        {slot.source?slot.source:"+"}</button>
       </div>)}</div>
      </div>
     </div>)}</div>
@@ -92,6 +104,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    <button className="btn btn-outline-primary w-100" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
   </section>}
   {galleryRow&&<DashboardTemplateGallery onChoose={addBlock} onClose={()=>setGalleryRow(null)}/>}
+  {wizardSlot&&<DashboardSlotWizard teamId={teamId} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot}/>}
 
   {editing&&<div className="position-fixed bottom-0 start-0 end-0 bg-body border-top shadow-sm p-3" style={{zIndex:1040}}
     role="region" aria-label="Barre de sauvegarde du Dashboard">
