@@ -19,7 +19,7 @@ function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot
  const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
 }
-export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false}:{
+export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false,canManage=false}:{
  layout:DashboardLayout;teamId:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
  mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;
 }){
