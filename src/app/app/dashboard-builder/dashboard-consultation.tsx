@@ -13,15 +13,15 @@ import {getDashboardTemplate} from "@/lib/dashboard-builder/templates";
 import styles from "./dashboard-dimensions.module.css";
 import {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
 export {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
-import type {CSSProperties} from "react";
+import type {CSSProperties,ReactNode} from "react";
 
 function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot:DashboardSlot):CSSProperties {
  const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
 }
-export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false,canManage=false}:{
+export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false,canManage=false,headerActions}:{
  layout:DashboardLayout;teamId:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
- mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;
+ mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;headerActions?:ReactNode;
 }){
  const cycleId=navigation.current?.id??null;
  const [pages,setPages]=useState<Record<string,number>>({});
@@ -85,23 +85,25 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
  const header=layout.header.blocks.map(renderBlock).filter(Boolean);
  const rows=layout.rows.map(row=>row.blocks.map(block=>({block,content:renderBlock(block)})).filter(item=>item.content)).filter(row=>row.length);
  return <main className="smn-dashboard-builder" aria-label="Dashboard personnalisé">
-  <div className="d-flex align-items-center justify-content-between mb-3">
-   <h1 className="h4 mb-0">Tableau de bord</h1>
-   <button className="btn btn-outline-secondary" type="button" onClick={refresh}>Actualiser</button>
-  </div>
-  <section className="smn-panel p-3 mb-3" aria-label="Cycle actif">
+  <header className="smn-panel p-3 mb-3" aria-label="En-tête du tableau de bord">
    <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
     <div className="d-flex align-items-center gap-2">
-     {navigation.previous&&!personalizing?<Link aria-label="Cycle précédent" href={cycleLink(navigation.previous)} className="btn btn-outline-secondary">◀</Link>:
-      <button type="button" aria-label="Cycle précédent" className="btn btn-outline-secondary" disabled>◀</button>}
-     <div className="text-center"><strong>{navigation.current?.name??(mode==="scrum"?"Aucun sprint":"Aucune période")}</strong>
-      {navigation.current&&<div className="small text-body-secondary">{date(navigation.current.startAt)} — {date(navigation.current.endAt)}</div>}</div>
-     {navigation.next&&!personalizing?<Link aria-label="Cycle suivant" href={cycleLink(navigation.next)} className="btn btn-outline-secondary">▶</Link>:
-      <button type="button" aria-label="Cycle suivant" className="btn btn-outline-secondary" disabled>▶</button>}
+     {navigation.previous&&!personalizing?<Link aria-label="Sprint précédent" href={cycleLink(navigation.previous)} className="btn btn-link btn-sm text-body-secondary px-1 text-decoration-none">‹</Link>:
+      <button type="button" aria-label="Sprint précédent" className="btn btn-link btn-sm text-body-secondary px-1" disabled>‹</button>}
+     <div>
+      <h1 className="h4 fw-bold mb-0">{navigation.current?.name??(mode==="scrum"?"Aucun sprint":"Aucune période")}</h1>
+      {navigation.current&&<div className="small text-body-secondary">{date(navigation.current.startAt)} — {date(navigation.current.endAt)}</div>}
+     </div>
+     {navigation.next&&!personalizing?<Link aria-label="Sprint suivant" href={cycleLink(navigation.next)} className="btn btn-link btn-sm text-body-secondary px-1 text-decoration-none">›</Link>:
+      <button type="button" aria-label="Sprint suivant" className="btn btn-link btn-sm text-body-secondary px-1" disabled>›</button>}
+     {navigation.current&&<span className="badge text-bg-secondary ms-2">{navigation.current.status}</span>}
     </div>
-    {navigation.current&&<span className="badge text-bg-secondary">{navigation.current.status}</span>}
+    <div className="d-flex align-items-center gap-2">
+     {headerActions}
+     <button className="btn btn-outline-secondary btn-sm" type="button" onClick={refresh}>Actualiser</button>
+    </div>
    </div>
-  </section>
+  </header>
   {header.length>0&&<div className="row g-3 mb-3">{header.map((block,i)=>
    <div className="col-12 col-lg-6" key={i}>{block}</div>)}</div>}
   {rows.length>0?rows.map((row,i)=><div className={`${styles.blockRow} mb-3`} key={i}>
