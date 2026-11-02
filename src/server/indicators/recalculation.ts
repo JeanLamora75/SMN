@@ -1,4 +1,5 @@
 import type {Client} from "pg";
+import {loadHistoricalResolver} from "./formula/historical-context";
 import {loadDependencyGraph,impactedIndicatorIds,evaluateDependencies,type CalendarSourceTag} from "./dependencies";
 import type {SourceValue} from "./formula";
 import type {CycleType} from "./manual-values";
@@ -65,7 +66,8 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
     else if(row.unavailable_reason==="missing_source"||row.unavailable_reason==="division_by_zero"||row.unavailable_reason==="dependency_unavailable"||row.unavailable_reason==="invalid_domain")
      sources[row.indicator_id]={kind:"unavailable",reason:row.unavailable_reason,sourceTag:row.unavailable_source_tag??undefined};
    }
-   const values=evaluateDependencies({graph,indicators:sources,calendar:input.calendarSources?.[cycleKey(scope)]??{},changedIndicatorIds:input.changedIndicatorIds,changedCalendarTags:input.changedCalendarTags});
+   const historical=await loadHistoricalResolver(db,scope,graph.byTag);
+   const values=evaluateDependencies({graph,indicators:sources,calendar:input.calendarSources?.[cycleKey(scope)]??{},changedIndicatorIds:input.changedIndicatorIds,changedCalendarTags:input.changedCalendarTags,historical:()=>historical});
    for(const [indicatorId,result] of values){
     const revision=await db.query<{formula_revision:string}>("SELECT formula_revision::text FROM public.smn_indicator_definition WHERE id=$1 FOR SHARE",[indicatorId]);
     const formulaRevision=revision.rows[0]?.formula_revision;
