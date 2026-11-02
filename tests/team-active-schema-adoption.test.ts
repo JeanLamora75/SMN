@@ -7,7 +7,7 @@ test("une préférence d'équipe ne doit pas contourner la validation de version
  const source=readFileSync(new URL("../src/server/teams/active.ts",import.meta.url),"utf8");
  assert.match(source,/evaluateSchemaCapability\(installation\.schemaVersion,"multi-team"\)/);
  assert.equal(source.includes("[28,29,30,31,32].includes"),false);
- assert.equal(evaluateSchemaCapability(33,"multi-team").ok,false);
+ assert.equal(evaluateSchemaCapability(34,"multi-team").ok,false);
 });
 test("le contexte sélectionné conserve ses conditions d'accès administrateur",()=>{
  const source=readFileSync(new URL("../src/server/teams/active.ts",import.meta.url),"utf8");
