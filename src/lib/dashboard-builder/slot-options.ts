@@ -1,11 +1,15 @@
 import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/layout";
-export type SlotOptions={limit?:number;sort?:"asc"|"desc";columns?:string[];cycleIdOverride?:string};
+export type SlotOptions={limit?:number;sort?:"asc"|"desc";columns?:string[];cycleIdOverride?:string;type?:string;showClosed?:boolean};
 export function normalizeSlotOptions(value:SlotOptions,category:string,cycleIds:readonly string[]):SlotOptions{
  const next:SlotOptions={};
  if(value.cycleIdOverride){
   if(!cycleIds.includes(value.cycleIdOverride))throw Error("dashboard-slot-cycle-forbidden");
   next.cycleIdOverride=value.cycleIdOverride;
  }
+ if(category==="registry"){
+  if(value.type!==undefined){if(!["all","risk","obstacle","dependency","highlight","decision","action"].includes(value.type))throw Error("dashboard-slot-option-invalid");next.type=value.type;}
+  if(value.showClosed!==undefined){if(typeof value.showClosed!=="boolean")throw Error("dashboard-slot-option-invalid");next.showClosed=value.showClosed;}
+ }else if(value.type!==undefined||value.showClosed!==undefined)throw Error("dashboard-slot-option-incompatible");
  if(category==="indicator"){
   if(value.limit!==undefined||value.sort!==undefined||value.columns!==undefined)throw Error("dashboard-slot-option-incompatible");
  }else if(["registry","cycle","calendar","team","link"].includes(category)){
