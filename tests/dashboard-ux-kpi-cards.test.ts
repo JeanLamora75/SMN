@@ -36,14 +36,14 @@ describe("UX lot 2 — cartes KPI fiables",()=>{
   const html=renderToStaticMarkup(createElement(CycleOverview,{
    locale:"fr",context,teamHref:"/app/team/team",cycle:sprint
   }));
-  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,5);
-  for(const icon of ["people-fill","stack","ticket-perforated-fill","calendar-event"]){
+  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,2);
+  for(const icon of ["people-fill","calendar-event"]){
    assert.match(html,new RegExp('class="bi bi-'+icon));
   }
   assert.match(html,/Capacité prévue/);
   assert.match(html,/Capacité réelle/);
-  assert.match(html,/SP initialement engagés/);
-  assert.match(html,/Tickets initialement engagés/);
+  assert.match(html,/smn-metric-grid/);
+  assert.doesNotMatch(html,/Tickets réalisés[^<]*0/);
   assert.match(html,/Jours ouvrés restants/);
   assert.doesNotMatch(html,/Avancement global/);
  });

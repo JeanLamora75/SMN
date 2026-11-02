@@ -27,7 +27,7 @@ jobs:
           --health-retries 5
     env:
       SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
-      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
@@ -119,7 +119,7 @@ jobs:
             if ($LASTEXITCODE -ne 0) { $failedBatches += "$($offset + 1)-$($offset + $batch.Count)" }
           }
           if ($failedBatches.Count -gt 0) {
-            Write-Error "Lots Windows en échec : $($failedBatches -join \", \")"
+            Write-Error ("Lots Windows en échec : " + ($failedBatches -join ', '))
             exit 1
           }
         env:

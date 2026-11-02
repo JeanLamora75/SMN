@@ -17,5 +17,7 @@ test("SMN-374: historical route guarded and rollback does not delete data",()=>{
  const target=readFileSync(new URL("../src/app/app/dashboard-builder/page.tsx",import.meta.url),"utf8");
  assert.match(root,/if\(dashboardBuilderCutoverEnabled\(\)\)/);
  assert.match(root,/redirect\(dashboardBuilderDestination/);
- assert.match(target,/!dashboardBuilderCutoverEnabled\(\)/);
+ assert.match(target,/if\(!account\)redirect\("\/login"\)/);
+ assert.match(target,/dashboardPermission\(db/);
+ assert.match(target,/readAccountDashboard\(db/);
 });

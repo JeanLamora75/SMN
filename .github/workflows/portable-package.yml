@@ -4,6 +4,7 @@ on:
     branches: ["main"]
     paths:
       - "next.config.ts"
+      - "proxy.ts"
       - "src/**"
       - "scripts/**"
       - ".github/workflows/portable-package.yml"
@@ -11,6 +12,7 @@ on:
     branches: ["main"]
     paths:
       - "next.config.ts"
+      - "proxy.ts"
       - "src/**"
       - "scripts/**"
       - ".github/workflows/portable-package.yml"

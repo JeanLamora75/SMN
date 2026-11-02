@@ -68,48 +68,36 @@ describe("SMN-235 — SP par jour-homme dans le cockpit",()=>{
   assert.deepEqual(dashboardStoryPointsPerJh(estimated(2),known(5)),{state:"available",value:0.4});
   assert.deepEqual(dashboardStoryPointsPerJh(known(2),known(-5)),{state:"not-calculable"});
  });
- it("place exactement deux ratios à droite des SP dans la carte sans retirer le taux actuel",()=>{
+ it("v33: le cockpit ne réintroduit pas les anciennes cartes SP/JH fixes",()=>{
   const html=view("fr",projection(20,12,25,15));
-  assert.match(html,/SP engagés par J\/H prévu/);
-  assert.match(html,/SP réalisés par J\/H réel/);
-  assert.equal((html.match(/class="smn-kpi-density"/g)||[]).length,2);
-  assert.match(html,/0,8[\s\S]*?SP\/J\/H/);
-  assert.match(html,/class="smn-kpi-ring"/);
-  assert.match(html,/60 % : SP réalisés \/ SP initialement engagés/);
-  assert.equal((html.match(/class="smn-metric-card/g)||[]).length,5);
+  assert.doesNotMatch(html,/smn-kpi-density|smn-kpi-ring/);
+  assert.equal((html.match(/class="smn-metric-card/g)||[]).length,2);
   assert.doesNotMatch(html,/NaN|Infinity/);
+  assert.deepEqual(dashboardStoryPointsPerJh(known(20),known(25)),{state:"available",value:0.8});
  });
- it("affiche en anglais et réutilise les mesures d'un snapshot sans requête actuelle",()=>{
+ it("v33: les snapshots clôturés restent calculables sans carte SP/JH imposée",()=>{
   const data=projection(18,10,20,10);
-  const closed:CollectiveCycleProjection={
-   ...data,cycleStatus:"closed",snapshotVersion:2,
+  const closed:CollectiveCycleProjection={...data,cycleStatus:"closed",snapshotVersion:2,
    storyPoints:{initial:known(18,"closure-snapshot"),done:known(10,"closure-snapshot")},
-   capacity:{initialJh:known(20,"closure-snapshot"),actualJh:known(10,"closure-snapshot")}
-  };
+   capacity:{initialJh:known(20,"closure-snapshot"),actualJh:known(10,"closure-snapshot")}};
   const html=view("en",closed);
-  assert.match(html,/Committed SP per planned person-day/);
-  assert.match(html,/Completed SP per actual person-day/);
-  assert.match(html,/0\.9[\s\S]*?SP\/J\/H/);
-  assert.match(html,/1[\s\S]*?SP\/J\/H/);
-  assert.match(html,/Closure snapshot/);
+  assert.doesNotMatch(html,/smn-kpi-density|NaN|Infinity/);
+  assert.deepEqual(dashboardStoryPointsPerJh(closed.storyPoints.initial,closed.capacity.initialJh),{state:"available",value:0.9});
+  assert.deepEqual(dashboardStoryPointsPerJh(closed.storyPoints.done,closed.capacity.actualJh),{state:"available",value:1});
  });
- it("n'affiche ni division ni zéro fictif en cas de capacité absente ou nulle",()=>{
+ it("v33: capacités nulles et manquantes ne créent jamais de ratios fictifs",()=>{
   const data=projection(8,0,0,10);
   const html=view("fr",data);
-  assert.match(html,/Non calculable/);
-  assert.match(html,/0[\s\S]*?SP\/J\/H/);
-  const missing:CollectiveCycleProjection={
-   ...data,storyPoints:{initial:metricNotRecorded(),done:metricNotRecorded()},
-   capacity:{initialJh:metricNotRecorded(),actualJh:metricUnavailable("read-failed")}
-  };
-  const htmlMissing=view("fr",missing);
-  assert.match(htmlMissing,/Non renseigné/);
-  assert.match(htmlMissing,/Non disponibles/);
-  assert.doesNotMatch(htmlMissing,/Infinity|NaN/);
+  assert.doesNotMatch(html,/NaN|Infinity|smn-kpi-density/);
+  assert.deepEqual(dashboardStoryPointsPerJh(data.storyPoints.initial,data.capacity.initialJh),{state:"not-calculable"});
+  const missing:CollectiveCycleProjection={...data,
+   storyPoints:{initial:metricNotRecorded(),done:metricNotRecorded()},
+   capacity:{initialJh:metricNotRecorded(),actualJh:metricUnavailable("read-failed")}};
+  assert.doesNotMatch(view("fr",missing),/Infinity|NaN/);
+  assert.equal(dashboardStoryPointsPerJh(missing.storyPoints.initial,missing.capacity.initialJh).state,"not-recorded");
  });
- it("ne présente pas les ratios propres à Scrum sur une période Kanban",()=>{
+ it("v33: une période Kanban ne montre pas les anciens ratios Scrum",()=>{
   const html=view("fr",projection(20,12,25,15),"kanban");
-  assert.doesNotMatch(html,/smn-kpi-density/);
-  assert.match(html,/SP initialement engagés/);
+  assert.doesNotMatch(html,/smn-kpi-density|SP initialement engagés/);
  });
 });

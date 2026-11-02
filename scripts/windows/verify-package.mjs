@@ -18,6 +18,11 @@ for (const forbidden of [".env",".settings-key","postgres-connection.json","runt
   assert.equal(existsSync(path.join(root,forbidden)),false,
     "Un fichier de configuration sensible a été inclus dans le paquet : "+forbidden);
 }
+const manifestPath=path.join(root,".next","server","middleware-manifest.json");
+if(existsSync(manifestPath)) {
+ const manifest=JSON.parse(await readFile(manifestPath,"utf8"));
+ console.log("Routes du proxy standalone : "+JSON.stringify(Object.keys(manifest.middleware??{})));
+} else console.log("ATTENTION : manifeste proxy absent du paquet standalone");
 const isolatedHome = await mkdtemp(path.join(os.tmpdir(), "smn-portable-ci-"));
 const recoveryProbe=spawnSync(path.join(root,"node.exe"),[path.join(root,"recover-admin.mjs")],{
   cwd:root,windowsHide:true,encoding:"utf8",stdio:["pipe","pipe","pipe"],
@@ -157,7 +162,16 @@ try {
     assert.match(html, /Scrum Master/);
     assert.match(html, /Notebook/);
     assert.match(html, /smn-login-heading/);
-    assert.equal((await fetchTimed(base + "/welcome")).status, 404);
+    const restrictedWelcome = await fetchTimed(base + "/welcome", {redirect:"manual"});
+    assert.ok([307,308,404].includes(restrictedWelcome.status),
+      "Après installation /welcome doit rediriger ou répondre 404, sans streamer le formulaire");
+    if([307,308].includes(restrictedWelcome.status)) {
+      const destination = new URL(restrictedWelcome.headers.get("location")??"",base);
+      assert.equal(destination.pathname,"/","L'assistant fermé doit rediriger vers l'accueil");
+    }
+    const restrictedHtml = await restrictedWelcome.text();
+    assert.doesNotMatch(restrictedHtml,/Installer Scrum Master Notebook|smn-local-setup|<form[^>]*>/,
+      "Le formulaire d'installation ne doit plus être envoyé");
     console.log("PASS : installation Express complète dans une base Windows isolée.");
   } else {
     console.log("PASS : page d'accueil et assistant accessibles sans base implicite.");

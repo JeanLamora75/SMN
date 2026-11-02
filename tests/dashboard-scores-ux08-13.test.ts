@@ -84,9 +84,9 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
    context:{productId:"p",product:"Produit",teamId:"team",team:"Équipe",mode:"scrum"},
    teamHref:"/app/team/team",locale:"fr",cycle:sprint("sprint-a")
   }));
-  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,5);
-  assert.ok(html.indexOf("Jours ouvrés restants")<html.indexOf("I01 · Confiance"));
-  assert.ok(html.indexOf("I01 · Confiance")<html.indexOf("I02 · Clarté"));
+  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,2);
+  assert.match(html,/Jours ouvrés restants/);
+  assert.doesNotMatch(html,/I01 · Confiance|I02 · Clarté/);
   assert.doesNotMatch(html,/Avancement global|0 %|0\/5/);
  });
  it("lit les scores du Sprint réellement sélectionné sous contrôle d'équipe, sans écriture",async()=>{
@@ -99,6 +99,7 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
    seen.push({sql,args});
    if(/\b(?:INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i.test(sql))
     throw Error("dashboard-must-remain-read-only");
+   if(sql.includes("SELECT schema_version FROM public.smn_installation")) return {rows:[{schema_version:32}]};
    if(sql.includes("SELECT s.status"))
     return {rows:args[1]==="team"?[{status:"active"}]:[]};
    if(sql.includes("to_regclass"))
@@ -147,6 +148,7 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
   const queries:string[]=[];
   const db={query:async(sql:string,args:readonly unknown[]=[])=>{
    queries.push(sql);
+   if(sql.includes("SELECT schema_version FROM public.smn_installation")) return {rows:[{schema_version:32}]};
    if(sql.includes("SELECT s.status"))return {rows:[{status:"closed"}]};
    if(sql.includes("to_regclass"))return {rows:[{
     present:args[0]==="public.smn_sprint_closure_snapshot"

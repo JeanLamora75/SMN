@@ -89,18 +89,13 @@ describe("SMN-234 D6 — graphique et accessibilité",()=>{
   assert.ok(v.maxY>=200);
   assert.ok(v.dots.every(p=>p.y>=0&&p.y<=220));
  });
- it("raccorde l'onglet à une lecture d'équipe et rend 3 SVG avec tableau textuel",()=>{
-  const page=readFileSync(new URL(
-   "../src/app/app/admin/sprints/[sprintId]/page.tsx",import.meta.url),"utf8");
-  const panel=readFileSync(new URL(
-   "../src/app/app/admin/sprints/[sprintId]/sprint-trends-panel.tsx",import.meta.url),"utf8");
-  assert.match(page,/active==="trends"\?await readSprintTrends\(db,cycle\.id,teamId\)/);
-  assert.match(page,/active==="trends"\?<SprintTrendsPanel/);
-  assert.match(panel,/role="img"/);
-  assert.match(panel,/<table/);
-  assert.match(panel,/completedSp/);
-  assert.match(panel,/completionRate/);
-  assert.match(panel,/actualCapacityJh/);
-  assert.doesNotMatch(panel,/pencil-square/);
- });
+ it("raccorde les tendances au reporting dynamique v33 de l'équipe",()=>{
+ const page=readFileSync(new URL("../src/app/app/admin/sprints/[sprintId]/page.tsx",import.meta.url),"utf8");
+ const reporting=readFileSync(new URL("../src/app/app/admin/indicators/reporting-view.tsx",import.meta.url),"utf8");
+ assert.match(page,/active==="trends"/);
+ assert.match(page,/<IndicatorReporting teamId=\{teamId\} cycleType="scrum" screen="trends"/);
+ assert.match(page,/canManageDynamicIndicators/);
+ assert.match(reporting,/teamId/);
+ assert.match(reporting,/trends/);
+ });;
 });

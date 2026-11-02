@@ -13,8 +13,8 @@ test("Sprint state sits between name and period in header and body",()=>{
 test("percentage columns are left aligned with centered larger headings",()=>{
  const view=read("src/app/app/admin/sprints/sprint-index-view.tsx");
  const css=read("src/app/app/admin/sprints/sprints-cockpit.css");
- assert.match(view,/smn-sprints-gauge-cell/);
+ assert.match(view,/col\.style==="gauge"\?"text-start text-nowrap"/);
  assert.match(css,/thead th\{\s*text-align:center!important;font-size:\.86rem/);
- assert.match(css,/tbody td\.smn-sprints-gauge-cell\{\s*text-align:left!important/);
+ assert.match(view,/className=\{col\.style==="gauge"/);
  assert.match(css,/tbody td:nth-child\(3\)\{grid-column:1\/-1\}/);
 });

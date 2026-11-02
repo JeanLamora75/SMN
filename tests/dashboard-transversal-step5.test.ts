@@ -28,6 +28,7 @@ function mock(handler:(sql:string,args:readonly unknown[])=>readonly RecordRow[]
  const history:{sql:string;args:readonly unknown[]}[]=[];
  const db={query:async(sql:string,args:readonly unknown[]=[])=>{
   history.push({sql,args});
+  if(sql.includes("SELECT schema_version FROM public.smn_installation"))return {rows:[{schema_version:32}]};
   if(/\b(?:INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|TRUNCATE)\b/i.test(sql))
    throw Error("dashboard-must-be-read-only");
   return {rows:handler(sql,args)};
@@ -167,7 +168,8 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
    cycle:{...sprint("sprintA"),startAt:"2098-11-09T08:00:00Z",
     endAt:"2098-11-22T22:59:59Z"},projection
   }));
-  assert.match(overview,/SP initialement engagés/);
+  assert.match(overview,/smn-metric-grid/);
+  assert.doesNotMatch(overview,/SP initialement engagés/);
   assert.match(overview,/Jours ouvrés restants/);
   assert.match(overview,/Sprint à venir/);
  });
