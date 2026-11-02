@@ -17,7 +17,8 @@ test("SMN-347 : écrans catalogue, équipe, préférences, accessible au clavier
  assert.match(ui,/aria-label=/);assert.match(ui,/role="alert"/);
  assert.match(ui,/window.confirm/);
  assert.match(ui,/type="checkbox"/);
- assert.match(page,/TeamGrants/);
+ assert.match(page,/indicatorTeams/);
+ assert.match(page,/activeTeamId=\\{team\\}/);
  assert.match(api,/sessionAccount/);
  assert.match(api,/actorFor/);
  assert.match(api,/sessionAccount/);
