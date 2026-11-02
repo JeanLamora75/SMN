@@ -48,3 +48,39 @@ export async function readRegistryDashboardList(db:Client,scope:LayoutScope,requ
   href:"/app/admin/registries/"+encodeURIComponent(r.id),date:r.date})),
  total,nextOffset:f.offset+result.rows.length<total?f.offset+result.rows.length:null};
 }
+
+/** Calendar events are read from the same authoritative projection as the legacy dashboard. */
+export async function readCalendarDashboardList(db:Client,scope:LayoutScope,request:BatchRequest):Promise<DashboardListPayload>{
+ if(!request.cycleId)return {rows:[],total:0,nextOffset:null};
+ const allowed=await db.query<{id:string;status:string}>(`
+ SELECT s.id,s.status FROM public.smn_sprint s
+ JOIN public.smn_team t ON t.id=s.team_id AND t.installation_id=$2
+ WHERE s.id=$1 AND s.team_id=$3 AND s.deleted_at IS NULL`,[request.cycleId,scope.installationId,scope.teamId]);
+ if(allowed.rows.length!==1)throw Error("dashboard-cycle-out-of-team");
+ const {readCurrentSprintEvents}=await import("../dashboard/events-reader");
+ const data=await readCurrentSprintEvents(db,request.cycleId,new Date(),allowed.rows[0].status==="closed");
+ if(data.state!=="available")throw Error("dashboard-calendar-unavailable");
+ const f=listFilters(request.filters);
+ const rows=data.items.map(item=>({id:item.id,label:item.title,status:item.status,kind:item.kind,
+  href:"/app/team-calendar",date:item.startsAt}));
+ const ordered=f.sort==="asc"?[...rows].reverse():rows;
+ return {rows:ordered.slice(f.offset,f.offset+f.limit),total:data.total,
+  nextOffset:f.offset+f.limit<data.total?f.offset+f.limit:null};
+}
+/** Notes retain sprint/team ownership; alerts come from the same existing read-only projector. */
+export async function readNotesDashboardList(db:Client,scope:LayoutScope,request:BatchRequest):Promise<DashboardListPayload>{
+ if(!request.cycleId)return {rows:[],total:0,nextOffset:null};
+ const allowed=await db.query<{id:string}>(`
+ SELECT s.id FROM public.smn_sprint s
+ JOIN public.smn_team t ON t.id=s.team_id AND t.installation_id=$2
+ WHERE s.id=$1 AND s.team_id=$3 AND s.deleted_at IS NULL`,[request.cycleId,scope.installationId,scope.teamId]);
+ if(allowed.rows.length!==1)throw Error("dashboard-cycle-out-of-team");
+ const {readCycleNotesAndAlerts}=await import("../dashboard/attention-reader");
+ const data=await readCycleNotesAndAlerts(db,scope.teamId,request.cycleId);
+ if(data.state!=="available")throw Error("dashboard-notes-unavailable");
+ const f=listFilters(request.filters);
+ const rows=data.items.map(item=>({id:item.id,label:item.title,status:item.status,kind:item.kind,
+  href:"/app?"+new URLSearchParams({teamId:scope.teamId,cycleId:request.cycleId!}).toString(),date:null}));
+ return {rows:rows.slice(f.offset,f.offset+f.limit),total:data.total,
+  nextOffset:f.offset+f.limit<data.total?f.offset+f.limit:null};
+}
