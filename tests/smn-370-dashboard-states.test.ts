@@ -16,7 +16,7 @@ test("SMN-370 AC2: retry is addressed by slot id, not a global refresh",()=>{
  const ui=read("../src/app/app/dashboard-builder/dashboard-consultation.tsx");
  const hook=read("../src/app/app/dashboard-builder/use-dashboard-batch.ts");
  assert.match(ui,/retry\(slot.id\)/);
- assert.match(hook,/stableItems\.filter\(item=>entries\.some\(\(\[id\]\)=>id===item.id\)\)/);
+ assert.match(hook,/stableItems\.filter\(item=>item.id===retryRequest.id\)/);
  assert.match(hook,/AbortController/);
 });
 test("SMN-370 AC3: success expires while error stays until addressed",()=>{
