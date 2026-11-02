@@ -98,7 +98,7 @@ function NoteQuickForm({sprintId,teamId,onSaved}:{sprintId:string;teamId:string;
 }
 
 function QuickAddContent({kind,teamId,cycleId,close,onSaved}:{
- kind:Kind;teamId:string;cycleId:string;close:()=>void;
+ kind:Kind;teamId:string;cycleId:string;close:()=>void;onSaved?:()=>void;
 }){
  const router=useRouter();
  const saved=()=>{close();router.refresh();};
