@@ -99,6 +99,7 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
    seen.push({sql,args});
    if(/\b(?:INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i.test(sql))
     throw Error("dashboard-must-remain-read-only");
+   if(sql.includes("SELECT schema_version FROM public.smn_installation")) return {rows:[{schema_version:32}]};
    if(sql.includes("SELECT s.status"))
     return {rows:args[1]==="team"?[{status:"active"}]:[]};
    if(sql.includes("to_regclass"))
@@ -147,6 +148,7 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
   const queries:string[]=[];
   const db={query:async(sql:string,args:readonly unknown[]=[])=>{
    queries.push(sql);
+   if(sql.includes("SELECT schema_version FROM public.smn_installation")) return {rows:[{schema_version:32}]};
    if(sql.includes("SELECT s.status"))return {rows:[{status:"closed"}]};
    if(sql.includes("to_regclass"))return {rows:[{
     present:args[0]==="public.smn_sprint_closure_snapshot"
