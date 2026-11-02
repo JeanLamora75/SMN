@@ -19,7 +19,7 @@ test("Centre Rapports et archives : la lecture reste bornée à l'équipe jusqu'
 });
 test("Capacité réelle : lecture v31 contextualisée, écriture historique encore interdite",()=>{
  const route=source("src/app/api/admin/capacity-actual/route.ts");
- assert.match(route,/if\(\[28,29,30,31,32\]\.includes\(v\.rows\[0\]\?\.schema_version\?\?0\)\)/);
+ assert.match(route,/if\(\[28,29,30,31,32,33\]\.includes\(v\.rows\[0\]\?\.schema_version\?\?0\)\)/);
  assert.match(route,/resolveAdminTeam\(db,/);
  assert.match(route,/if\(\(version\.rows\[0\]\?\.schema_version\?\?0\)>=28\)/);
 });
