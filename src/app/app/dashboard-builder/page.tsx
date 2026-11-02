@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {dashboardBuilderCutoverEnabled} from "@/lib/dashboard-builder/cutover";
 import {redirect} from "next/navigation";
 import {currentAccount} from "@/server/auth/session";
 import {withSessionReadDb} from "@/server/auth/database";
@@ -36,7 +37,7 @@ export default async function DashboardBuilderPage({searchParams}:{
   });
   const locale=await requestLocale();
   return <div className="py-3">
-   <div className="mb-3"><Link href="/app" className="text-decoration-none">← Tableau de bord principal</Link></div>
+   {!dashboardBuilderCutoverEnabled()&&<div className="mb-3"><Link href="/app" className="text-decoration-none">← Tableau de bord principal</Link></div>}
    <div className="smn-panel p-3 mb-3">
     <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
      <h2 className="h5 mb-0">{data.teamName}</h2>
