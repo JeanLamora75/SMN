@@ -25,6 +25,7 @@
 - Test baseline historique A-04 : diagnostic reconnaît v33 ; fichier/migration v32 conserve son contrat propre.
 - Tests du module Liens : acceptent les schémas v29 à v33 avec refus des schémas futurs ; isolation équipe inchangée.
 - API lecture `development-capacity` et `capacity-actual` : ajout de v33 dans la liste des schémas autorisés pour la **lecture contextualisée** ; écriture historique bloquée à partir de v28.
+- Lecteur serveur `src/server/capacity/actual.ts` : extension du filtrage multiéquipes v28–v32 à v28–v33, en conservant exclusion des équipes archivées et filtrage `teamId`.
 - Tests de lectures capacité : reflètent la lecture contextualisée v33 tout en conservant les assertions d'interdiction d'écriture.
 - Nouveau contrat `tests/smn-v33-migration-preflight-audit.test.ts` : évalue la prévisualisation non destructive, l'installation initialisée, la complétude du journal, les relations minimales, la non-régression des versions futures et l'absence d'écriture pendant le préflight.
 - Vérification de préflight ajoutée au job indépendant de `.github/workflows/verify-i0.yml`, pour obtenir une preuve même si `pnpm test` I0 échoue ailleurs.
