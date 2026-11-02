@@ -175,7 +175,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    </div>)}</div>
   </details>}
   {!editing&&<DashboardConsultation layout={published} teamId={teamId} navigation={navigation}
-   mode={mode} locale={locale} personalizing={false} canManage={canEdit}/>}
+   mode={mode} locale={locale} personalizing={editing} canManage={canEdit}/>}
   {editing&&<p className="small text-body-secondary mb-3">Modifiez les titres, les blocs et les emplacements ci-dessous. Enregistrez pour retrouver le résultat sur votre tableau de bord.</p>}
   {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
    {draft.rows.map((row,index)=><div className="smn-panel p-3 mb-3" key={row.id} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();dropOnRow(row.id,index);}}>
