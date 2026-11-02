@@ -94,7 +94,9 @@
     "test:smn-371": "tsx --test tests/smn-371-dashboard-reset.test.ts",
     "test:smn-372": "tsx --test tests/smn-372-dashboard-copy.test.ts",
     "test:smn-373": "tsx --test tests/smn-373-dashboard-lists.test.ts",
-    "test:smn-374": "tsx --test tests/smn-374-dashboard-cutover.test.ts"
+    "test:smn-374": "tsx --test tests/smn-374-dashboard-cutover.test.ts",
+    "test:smn-375": "tsx --test tests/smn-375-acceptance-coverage.test.ts",
+    "test:dashboard-builder": "tsx --test tests/smn-36*-*.test.ts tests/smn-37*-*.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
