@@ -22,7 +22,6 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
  const [optionError,setOptionError]=useState("");
  useEffect(()=>{
   const controller=new AbortController();
-  setLoading(true);setError("");setSources([]);
   fetch("/api/dashboard-builder/sources?teamId="+encodeURIComponent(teamId),
    {cache:"no-store",signal:controller.signal})
    .then(async response=>{
@@ -35,7 +34,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
     if(!controller.signal.aborted)setError("Accès refusé ou sources indisponibles pour cette équipe.");
    }).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
   return ()=>controller.abort();
- },[teamId]);
+ },[teamId,initialSlot?.source]);
  useEffect(()=>{
   const handle=(event:KeyboardEvent)=>{if(event.key==="Escape")onClose();};
   window.addEventListener("keydown",handle);
