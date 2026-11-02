@@ -10,21 +10,10 @@ import {DashboardVisualization} from "./dashboard-visualization";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
 import {getDashboardTemplate} from "@/lib/dashboard-builder/templates";
 import styles from "./dashboard-dimensions.module.css";
+import {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
+export {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
 import type {CSSProperties} from "react";
 
-function hasContent(slot:DashboardSlot):boolean{
- return typeof slot.source==="string"&&slot.source.length>0&&
-        typeof slot.view==="string"&&slot.view.length>0;
-}
-export function visibleSlots(block:DashboardBlock){
- return block.slots.filter(hasContent);
-}
-export function gridColumns(block:DashboardBlock):string{
- const template=getDashboardTemplate(block.templateId,block.templateVersion);
- if(!template)return "minmax(0,1fr)";
- const active=template.slots.filter(cell=>block.slots.some(s=>s.templateSlotId===cell.slotId&&hasContent(s)));
- return active.length?active.map(cell=>`${cell.columnSpan}fr`).join(" "):"minmax(0,1fr)";
-}
 function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot:DashboardSlot):CSSProperties {
  const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
