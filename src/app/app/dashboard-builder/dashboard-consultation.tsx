@@ -44,7 +44,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      const result=slots[slot.id];
      let model:VisualizationModel;
      if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
-     if(result.state==="available"&&result.list)return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
+     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&["calendar:ceremonies","notes:sprint"].includes(slot.source??"")&&<div className="mb-2"><OperationalQuickAdd kind={slot.source==="notes:sprint"?"notes":"events"} teamId={teamId} cycleId={cycleId} label={slot.source==="notes:sprint"?"+ Ajouter une note":"+ Ajouter un événement"} onSaved={refresh}/></div>}
       <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
        onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
