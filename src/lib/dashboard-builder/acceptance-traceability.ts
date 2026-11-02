@@ -135,7 +135,8 @@ export const DASHBOARD_RX_TRACEABILITY=[
     "requirement": "UX-DB-22",
     "scenarios": [
       "RX-10",
-      "RX-11"
+      "RX-11",
+      "RX-21"
     ]
   },
   {
@@ -168,7 +169,8 @@ export const DASHBOARD_RX_TRACEABILITY=[
   {
     "requirement": "UX-DB-27",
     "scenarios": [
-      "RX-16"
+      "RX-16",
+      "RX-20"
     ]
   },
   {
