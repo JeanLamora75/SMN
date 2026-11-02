@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import type {Client} from "pg";
+import {readFileSync} from "node:fs";
 import {applyV33} from "../scripts/apply-smn-338-v33";
 import {decideUpgrade} from "../scripts/db-upgrade-policy";
 import {evaluateSchemaCapability,CURRENT_SCHEMA_VERSION} from "../src/server/schema/compatibility";
@@ -50,4 +51,12 @@ test("capabilities recognize exactly v33 and fail closed for future versions",()
   assert.equal(evaluateSchemaCapability(33,capability).ok,true);
   assert.equal(evaluateSchemaCapability(34,capability).ok,false);
  }
+});
+
+test("standalone migration CLI must inspect full schema and checksums before connecting to write",()=>{
+ const cli=readFileSync(new URL("../scripts/apply-smn-338-v33.ts",import.meta.url),"utf8");
+ assert.match(cli,/classifySnapshot\(snapshot\)\.status!=="initialized"/);
+ assert.match(cli,/probePostgres\(uri\)/);
+ assert.match(cli,/snapshot\.installations\?\.\[0\]\?\.schema_version!==32/);
+ assert.match(cli,/SMN_V33_BACKUP_VERIFIED/);
 });
