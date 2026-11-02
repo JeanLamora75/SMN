@@ -10,7 +10,7 @@ test("SMN-356 AC1: GET, PUT and PATCH require server-authorized session",()=>{
  assert.match(api,/export const PUT=write/);
  assert.match(api,/export const PATCH=write/);
  assert.match(api,/authorizeApi\(request,"read",resource\)/);
- assert.match(api,/authorizeApi\(request,"write",resource\)/);
+ assert.match(store,/requireDashboardPermission\(db,scope,"edit"\)/);
  assert.match(api,/scopeFor\(db,actor.id/);
  assert.doesNotMatch(api,/input\.accountId|input\.installationId/);
 });
