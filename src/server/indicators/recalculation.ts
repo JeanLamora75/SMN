@@ -56,7 +56,8 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
    throw new IndicatorRecalculationError("budget","Recalculation budget exceeded");
   const requestedRoles:RoleCapacityRequest[]=[];
   const rolePattern=/\\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\\s*\\(\\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\\s*\\)/g;
-  for(const definition of graph.definitions.values())for(const match of definition.formula?.matchAll(rolePattern)??[]){
+  for(const definition of [...graph.definitions.values()].filter(d=>selected.includes(d.id)))
+   for(const match of definition.formula?.matchAll(rolePattern)??[]){
    if(!requestedRoles.some(x=>x.name===match[1]&&x.role===match[2]))
     requestedRoles.push({name:match[1] as RoleCapacityFunction,role:match[2] as AgileRole});
   }
