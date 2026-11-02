@@ -3,10 +3,10 @@ import {readFileSync} from "node:fs";
 import {test} from "node:test";
 
 const source=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
-test("Liens : les opérations autorisées acceptent le schéma 29 à 32",()=>{
+test("Liens : les opérations autorisées acceptent le schéma 29 à 33",()=>{
  for(const file of ["admin-transfer.ts","admin.ts","catalog.ts","categories-admin.ts"]){
   const sql=source("src/server/links/"+file);
-  assert.match(sql,/i\.schema_version BETWEEN 29 AND 32/,file);
+  assert.match(sql,/i\.schema_version BETWEEN 29 AND 33/,file);
   assert.doesNotMatch(sql,/i\.schema_version=29\b/,file);
  }
 });
