@@ -345,6 +345,13 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
        </>:<button type="button" className="btn btn-outline-secondary btn-sm"
         title={commentsText("edit")} aria-label={commentsText("edit")}
         onClick={()=>setLinkedEditId(entry.recordId)}><BootstrapIcon name="pencil-square"/></button>}
+       {entry.kind==="comment"&&<button type="button" className="btn btn-outline-secondary btn-sm"
+        aria-controls={editorId+"-versions-"+entry.comment.id}
+        aria-expanded={versionsOpen===entry.comment.id}
+        aria-label={commentsText("versions")} title={commentsText("versions")}
+        onClick={()=>void readVersions(entry.comment.id)}>
+        <BootstrapIcon name="clock-history"/>
+       </button>}
       </div>}
      </li>)}
     </ol>}
