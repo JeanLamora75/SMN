@@ -26,8 +26,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
-      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
@@ -170,8 +170,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
-      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci_ci
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci_ci
     steps:
       - uses: actions/checkout@v4
         with:
