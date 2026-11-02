@@ -45,6 +45,6 @@ export async function readRegistryDashboardList(db:Client,scope:LayoutScope,requ
  LIMIT $5 OFFSET $6`,[...filters,f.limit,f.offset]);
  const total=count.rows[0]?.total??0;
  return {rows:result.rows.map(r=>({id:r.id,label:r.title,status:r.status,kind:r.type,
-  href:"/app/registries/"+encodeURIComponent(r.id),date:r.date})),
+  href:"/app/admin/registries/"+encodeURIComponent(r.id),date:r.date})),
  total,nextOffset:f.offset+result.rows.length<total?f.offset+result.rows.length:null};
 }
