@@ -163,13 +163,15 @@ try {
     assert.match(html, /Notebook/);
     assert.match(html, /smn-login-heading/);
     const restrictedWelcome = await fetchTimed(base + "/welcome", {redirect:"manual"});
-    assert.ok([200,404].includes(restrictedWelcome.status), "Statut inattendu de la page d’installation");
+    assert.ok([307,308,404].includes(restrictedWelcome.status),
+      "Après installation /welcome doit rediriger ou répondre 404, sans streamer le formulaire");
+    if([307,308].includes(restrictedWelcome.status)) {
+      const destination = new URL(restrictedWelcome.headers.get("location")??"",base);
+      assert.equal(destination.pathname,"/","L'assistant fermé doit rediriger vers l'accueil");
+    }
     const restrictedHtml = await restrictedWelcome.text();
-    console.log("Garde /welcome : "+JSON.stringify(serverOutput.match(/SMN welcome guard [\\w-]+/g)?.slice(-4)??[]));
-    assert.match(restrictedHtml,/Accès indisponible|Access unavailable/,
-      "La page d’installation doit afficher un refus après initialisation");
-    assert.doesNotMatch(restrictedHtml,/Installer Scrum Master Notebook/,
-      "L’assistant d’installation ne doit plus être visible");
+    assert.doesNotMatch(restrictedHtml,/Installer Scrum Master Notebook|smn-local-setup|<form[^>]*>/,
+      "Le formulaire d'installation ne doit plus être envoyé");
     console.log("PASS : installation Express complète dans une base Windows isolée.");
   } else {
     console.log("PASS : page d'accueil et assistant accessibles sans base implicite.");
