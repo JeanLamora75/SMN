@@ -41,6 +41,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
   return ()=>window.removeEventListener("keydown",handle);
  },[onClose]);
  const filtered=useMemo(()=>sources.filter(s=>
+  s.status==="available"&&
   (category==="all"||s.category===category)&&
   (s.name+" "+(s.category==="indicator"?s.unit??"":"")).toLocaleLowerCase().includes(search.toLocaleLowerCase())),[sources,category,search]);
  const views=selected?compatibleVisualizations(selected):[];
@@ -61,12 +62,12 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
     <div className="modal-body">
      {!selected?<div>
       <div className="row g-2 mb-3">
-       <div className="col-12 col-md-7"><label htmlFor="slot-search" className="form-label">Rechercher par code ou nom</label>
+       <div className="col-12 col-md-7"><label htmlFor="slot-search" className="form-label">Rechercher une source</label>
         <input id="slot-search" className="form-control" value={search} onChange={e=>setSearch(e.target.value)}/></div>
        <div className="col-12 col-md-5"><label htmlFor="slot-category" className="form-label">Catégorie</label>
         <select id="slot-category" className="form-select" value={category} onChange={e=>setCategory(e.target.value)}>
          <option value="all">Toutes les catégories</option>
-         {["indicator","registry","cycle","calendar","objective","team","link"].map(c=><option key={c} value={c}>{c}</option>)}
+         {[...new Set(sources.filter(s=>s.status==="available").map(s=>s.category))].map(c=><option key={c} value={c}>{c}</option>)}
         </select></div>
       </div>
       {loading?<p role="status">Chargement des sources…</p>:error?<p role="alert" className="alert alert-warning">{error}</p>:
@@ -76,7 +77,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
         onClick={()=>chooseSource(s)}>
         <strong>{s.name}</strong>
         <span className="ms-2 small text-body-secondary">{({indicator:"Indicateur",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",objective:"Objectifs",team:"Équipe",link:"Liens"} as const)[s.category]} · {s.scope==="cycle"?"Par cycle":"Par équipe"}{s.unit?" · "+s.unit:""}</span>
-        {s.status!=="available"&&<span className="ms-2 badge text-bg-secondary">Indisponible</span>}
+        
        </button>)}</div>}
      </div>:<div className="row g-3">
       <div className="col-12 col-lg-7">
