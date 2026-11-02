@@ -45,6 +45,8 @@ jobs:
       - name: Préparer la base éphémère dédiée aux contrats v31/v32
         run: |
           PGPASSWORD=smn_ci_ephemeral_test psql -h 127.0.0.1 -U smn_ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE smn_ci"
+      - name: Contrat de validation v33
+        run: pnpm test:validate-version
       - name: Parité des catalogues FR/EN
         run: pnpm i18n:check
       - name: Recette PostgreSQL isolée SMN-343
