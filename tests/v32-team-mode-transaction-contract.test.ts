@@ -12,6 +12,11 @@ const paths=[
 
 test("les opérations transactionnelles Scrum utilisent le mode de l'équipe sans accès direct au mode global",()=>{
  for(const path of paths){
+  if(path.endsWith("/ticket-counts.ts")){
+   const entry=source(path);
+   assert.match(entry,/export \* from "@\/server\/compat-v32\/ticket-counts"/);
+   assert.doesNotMatch(entry,/\b(?:INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i);
+  }
   const sql=source(path.endsWith("/ticket-counts.ts")?"src/server/compat-v32/ticket-counts.ts":path);
   assert.match(sql,/to_jsonb\(t\)->>'agile_mode'/,path);
   assert.match(sql,/to_jsonb\(i\)->>'mode'/,path);
