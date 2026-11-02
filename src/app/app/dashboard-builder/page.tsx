@@ -18,8 +18,7 @@ export default async function DashboardBuilderPage({searchParams}:{
  const account=await currentAccount();
  if(!account)redirect("/login");
  const query=await searchParams;
- try{
-  const data=await withSessionReadDb(async db=>{
+ const data=await withSessionReadDb(async db=>{
    const context=await readAccountDashboard(db,{accountId:account.id,role:account.role},
     typeof query.teamId==="string"?query.teamId:null);
    const owner=await db.query<{installation_id:string}>(
@@ -34,7 +33,8 @@ export default async function DashboardBuilderPage({searchParams}:{
    const cycles=await listDashboardCycles(db,{installationId:owner.rows[0].installation_id,accountId:account.id,teamId},mode);
    const navigation=cycleNavigation(cycles,typeof query.cycleId==="string"?query.cycleId:null);
    return {teamId,teamName:context.context.team,mode,layout:saved.layout,revision:saved.revision,canEdit:rights.canEdit,navigation,cycles};
-  });
+  }).catch(()=>null);
+  if(!data)return <section className="smn-panel p-4" role="alert"><h1 className="h4">Tableau de bord indisponible</h1><p>La configuration de cette équipe est inaccessible.</p><Link href="/app">Retour</Link></section>;
   const locale=await requestLocale();
   return <div className="py-3">
    {!dashboardBuilderCutoverEnabled()&&<div className="mb-3"><Link href="/app" className="text-decoration-none">← Tableau de bord principal</Link></div>}
@@ -47,11 +47,4 @@ export default async function DashboardBuilderPage({searchParams}:{
    <DashboardEditor initialLayout={data.layout} initialRevision={data.revision} canEdit={data.canEdit}
     teamId={data.teamId} navigation={data.navigation} cycles={data.cycles} mode={data.mode} locale={locale}/>
   </div>;
- }catch{
-  return <section className="smn-panel p-4" role="alert">
-   <h1 className="h4">Tableau de bord indisponible</h1>
-   <p>La configuration de cette équipe n'est pas accessible actuellement.</p>
-   <Link href="/app" className="btn btn-outline-primary">Retour au tableau de bord</Link>
-  </section>;
  }
-}
