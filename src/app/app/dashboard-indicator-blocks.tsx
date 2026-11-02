@@ -1,5 +1,4 @@
 "use client";
-import "./dashboard-slot-cockpit.css";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 type Indicator={id:string;tag:string;name:string;unit:string;value:string|null;state:"available"|"not-recorded"|"unavailable"};
