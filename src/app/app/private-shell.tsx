@@ -27,7 +27,8 @@ type Props=Readonly<{
 export default function PrivateShell({children,username,role,mode,product,team,teamId,teamSwitcherEnabled,canManageIndicators}:Props){
   const t=useTranslation();
   const pathname=usePathname(),router=useRouter(),searchParams=useSearchParams();
-  const requestedCycleId=pathname==="/app"?searchParams.get("cycleId"):null;
+  const cyclePage=pathname==="/app"||pathname==="/app/dashboard-builder";
+  const requestedCycleId=cyclePage?searchParams.get("cycleId"):null;
   const [sprints,setSprints]=useState<CycleChoice[]>([]);
   const [selectedCycleId,setSelectedCycleId]=useState("");
   const [cycleState,setCycleState]=useState<"loading"|"ready"|"error">("loading");
@@ -59,7 +60,7 @@ export default function PrivateShell({children,username,role,mode,product,team,t
         setSelectedCycleId(previous=>{
           if(requestedCycleId&&result.items.some(item=>item.id===requestedCycleId))
             return requestedCycleId;
-          if(pathname==="/app")return result.defaultCycleId??"";
+          if(cyclePage)return result.defaultCycleId??"";
           if(previous&&result.items.some(item=>item.id===previous))return previous;
           return result.defaultCycleId??"";
         });
@@ -67,16 +68,16 @@ export default function PrivateShell({children,username,role,mode,product,team,t
       })
       .catch(()=>{if(!ctrl.signal.aborted){setSprints([]);setSelectedCycleId("");setCycleState("error");}});
     return ()=>ctrl.abort();
-  },[mode,teamId,pathname,requestedCycleId,teamSwitcherEnabled]);
+  },[mode,teamId,pathname,requestedCycleId,teamSwitcherEnabled,cyclePage]);
 
   const changeSprint=(cycleId:string)=>{
     if(!teamId||!sprints.some(item=>item.id===cycleId))return;
     setSelectedCycleId(cycleId);
-    const params=pathname==="/app"?new URLSearchParams(searchParams.toString()):new URLSearchParams();
+    const params=cyclePage?new URLSearchParams(searchParams.toString()):new URLSearchParams();
     params.set("teamId",teamId);
     params.set("cycleId",cycleId);
     params.delete("version");params.delete("asOf");
-    router.push("/app?"+params.toString());
+    router.push((cyclePage?pathname:"/app")+"?"+params.toString());
   };
   const [collapsed,setCollapsed]=useState(false);
   const [mobileOpen,setMobileOpen]=useState(false);

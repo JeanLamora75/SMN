@@ -21,7 +21,8 @@ export async function listDashboardCycles(db:Client,scope:LayoutScope,mode:"scru
 }
 export function cycleNavigation(cycles:readonly DashboardCycle[],requested:string|null){
  if(requested&&!cycles.some(c=>c.id===requested))throw Error("dashboard-cycle-out-of-team");
- const current=cycles.findIndex(c=>c.id===(requested??cycles.at(-1)?.id));
+ const defaultCycle=cycles.find(c=>c.status==="active")??cycles.find(c=>c.status==="finished")??cycles.at(-1);
+ const current=cycles.findIndex(c=>c.id===(requested??defaultCycle?.id));
  return {current:current<0?null:cycles[current],
   previous:current>0?cycles[current-1].id:null,
   next:current>=0&&current<cycles.length-1?cycles[current+1].id:null};

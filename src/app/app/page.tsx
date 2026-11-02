@@ -85,7 +85,7 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
     </>}
 
 
-    <div className="mb-3"><Link className="btn btn-outline-primary" href={`/app/dashboard-builder?teamId=${encodeURIComponent(context.teamId)}`}>
+    <div className="mb-3"><Link className="btn btn-outline-primary" href={`/app/dashboard-builder?${new URLSearchParams({teamId:context.teamId,...(cycle?.id?{cycleId:cycle.id}:{})}).toString()}`}>
       Ouvrir mon Dashboard Builder
     </Link></div>
     <footer className="smn-dashboard-footer">
