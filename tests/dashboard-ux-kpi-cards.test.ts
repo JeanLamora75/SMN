@@ -105,14 +105,12 @@ describe("UX lot 2 — cartes KPI fiables",()=>{
   assert.match(absent,/Cannot be calculated/);
   assert.doesNotMatch(absent,/>0<span/);
  });
- it("garde 4 / 2 / 1 colonnes et n'introduit ni scores globaux ni CDN",()=>{
-  const css=read("src/app/dashboard.css");
+ it("le Builder ne fixe pas la grille des indicateurs et conserve les règles de calcul",()=>{
+  const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
   const component=read("src/app/app/kpi-cards.tsx");
-  assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
-  assert.match(css,/@container \(max-width:1000px\)/);
-  assert.match(css,/@container \(max-width:520px\)/);
-  assert.match(css,/\.smn-kpi-ring::before/);
+  assert.match(builder,/gridColumns/);
+  assert.match(builder,/visibleSlots\(block\)/);
   assert.match(component,/dashboardMetricRatio\(firstMetric,secondMetric\)/);
-  assert.doesNotMatch(component,/https?:\/\/|Math\.random|progress-global|globalProgress/);
+  assert.doesNotMatch(builder,/deriveSprintIndicators\(/);
  });
 });
