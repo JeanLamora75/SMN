@@ -28,6 +28,7 @@ function mock(handler:(sql:string,args:readonly unknown[])=>readonly RecordRow[]
  const history:{sql:string;args:readonly unknown[]}[]=[];
  const db={query:async(sql:string,args:readonly unknown[]=[])=>{
   history.push({sql,args});
+  if(sql.includes("SELECT schema_version FROM public.smn_installation"))return {rows:[{schema_version:32}]};
   if(/\b(?:INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|TRUNCATE)\b/i.test(sql))
    throw Error("dashboard-must-be-read-only");
   return {rows:handler(sql,args)};
