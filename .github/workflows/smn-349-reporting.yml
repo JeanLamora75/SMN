@@ -35,8 +35,7 @@ jobs:
           version: "12.10.0"
           run_install: false
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test:smn-349
-      - run: pnpm db:test:smn-349
-      - run: pnpm i18n:check
-      - run: pnpm typecheck
-      - run: pnpm lint
+      - name: Contrat orchestrateur
+        run: pnpm test:validate-version
+      - name: Validation commune v33 — SMN-349
+        run: node scripts/validate-version.mjs --profile smn-349
