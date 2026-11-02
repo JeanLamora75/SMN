@@ -13,7 +13,7 @@ describe("SMN-21 — refonte UX, lot 1 : coque de navigation",()=>{
   it("maintient les contrôles d'accès serveur avant de transmettre le contexte collectif",()=>{
     assert.match(layout,/await currentAccount\(\)/);
     assert.match(layout,/canAccess\(account,"read"/);
-    assert.match(layout,/withAuthDb\(db=>readAccountDashboard\(db,/);
+    assert.match(layout,/withSessionReadDb\(db=>readAccountDashboard\(db,/);
     assert.match(layout,/teamId=\{context\?\.teamId\?\?null\}/);
     assert.match(shell,/mode==="kanban"\?"\/api\/kanban\/context":"\/api\/sprints\/context"/);
     assert.doesNotMatch(shell,/smn_account|password_hash/i);
