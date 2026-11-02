@@ -18,6 +18,7 @@ const sprint=(id:string,status="active"):SprintContextItem=>({
 const read=(queries:(text:string,args?:readonly unknown[])=>{rows:unknown[]})=>{
  const seen:string[]=[];
  const db={query:async (sql:string,args?:readonly unknown[])=>{
+  if(sql.includes("SELECT schema_version FROM public.smn_installation"))return {rows:[{schema_version:32}]};
   seen.push(sql);
   assert.doesNotMatch(sql,/\b(?:CREATE|ALTER|INSERT|UPDATE|DELETE|DROP)\b/i);
   if(sql.includes("SELECT now() AS at"))return {rows:[{at:"2026-10-23T12:00:00Z"}]};
