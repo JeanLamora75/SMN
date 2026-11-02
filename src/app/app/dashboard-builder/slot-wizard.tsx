@@ -76,7 +76,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
         className="list-group-item list-group-item-action text-start" disabled={s.status!=="available"}
         onClick={()=>chooseSource(s)}>
         <strong>{s.name}</strong>
-        <span className="ms-2 small text-body-secondary">{({indicator:"Indicateur",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",objective:"Objectifs",team:"Équipe",link:"Liens"} as const)[s.category]} · {s.scope==="cycle"?"Par cycle":"Par équipe"}{s.unit?" · "+s.unit:""}</span>
+        <span className="ms-2 small text-body-secondary">{({indicator:"Indicateur",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",notes:"Notes",objective:"Objectifs",team:"Équipe",link:"Liens"} as const)[s.category]} · {s.scope==="cycle"?"Par cycle":"Par équipe"}{s.unit?" · "+s.unit:""}</span>
         
        </button>)}</div>}
      </div>:<div className="row g-3">

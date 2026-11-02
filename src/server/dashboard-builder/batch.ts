@@ -1,5 +1,5 @@
 import type {Client} from "pg";
-import {readRegistryDashboardList,type DashboardListPayload} from "./lists";
+import {readRegistryDashboardList,readCalendarDashboardList,readNotesDashboardList,type DashboardListPayload} from "./lists";
 import type {LayoutScope} from "./layout";
 import {requireDashboardPermission} from "./permissions";
 import {listDashboardSources,resolveDashboardSource} from "./sources";
@@ -46,6 +46,12 @@ export async function readDashboardBatch(db:Client,scope:LayoutScope,requests:re
   if(source.source.category==="registry"&&r.view==="list"){
    try{const list=await readRegistryDashboardList(db,scope,r);return {state:list.rows.length?"available":"absent",list};}
    catch{return {state:"error",message:"registry-read-failed"};}
+  }
+  if((source.source.category==="calendar"||source.source.category==="notes")&&r.view==="list"){
+   try{
+    const list=source.source.category==="calendar"?await readCalendarDashboardList(db,scope,r):await readNotesDashboardList(db,scope,r);
+    return {state:list.rows.length?"available":"absent",list};
+   }catch{return {state:"error",message:"dashboard-list-read-failed"};}
   }
   if(source.source.category!=="indicator")return {state:"unavailable"};
   if(!r.cycleId)return {state:"absent"};

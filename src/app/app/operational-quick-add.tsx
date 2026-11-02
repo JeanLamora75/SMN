@@ -97,11 +97,11 @@ function NoteQuickForm({sprintId,teamId,onSaved}:{sprintId:string;teamId:string;
  </form>;
 }
 
-function QuickAddContent({kind,teamId,cycleId,close}:{
- kind:Kind;teamId:string;cycleId:string;close:()=>void;
+function QuickAddContent({kind,teamId,cycleId,close,onSaved}:{
+ kind:Kind;teamId:string;cycleId:string;close:()=>void;onSaved?:()=>void;
 }){
  const router=useRouter();
- const saved=()=>{close();router.refresh();};
+ const saved=()=>{close();onSaved?.();router.refresh();};
  return kind==="obstacles"||kind==="risks"?
   <RegistryCreate teamId={teamId} cycleId={cycleId} canManage
    initialType={kind==="risks"?"risk":"obstacle"} modalMode onCreated={saved}/>:
@@ -110,8 +110,8 @@ function QuickAddContent({kind,teamId,cycleId,close}:{
 }
 
 /** Modale native : focus piégé dans la fenêtre, Escape et retour du focus gérés par showModal. */
-export default function OperationalQuickAdd({kind,teamId,cycleId,label}:{kind:Kind;
- teamId:string;cycleId:string;label:string;
+export default function OperationalQuickAdd({kind,teamId,cycleId,label,onSaved}:{kind:Kind;
+ teamId:string;cycleId:string;label:string;onSaved?:()=>void;
 }){
  const t=useTranslation(),modalId=useId();
  const dialog=useRef<HTMLDialogElement>(null);
@@ -132,7 +132,7 @@ export default function OperationalQuickAdd({kind,teamId,cycleId,label}:{kind:Ki
      <button type="button" className="btn-close" aria-label={t("dashboard.operational.quickAdd.close")}
       onClick={close}/>
     </header>
-    <QuickAddContent kind={kind} teamId={teamId} cycleId={cycleId} close={close}/>
+    <QuickAddContent kind={kind} teamId={teamId} cycleId={cycleId} close={close} onSaved={onSaved}/>
     <div className="d-flex justify-content-end mt-3">
      <button type="button" className="btn btn-outline-secondary" onClick={close}>
       {t("dashboard.operational.quickAdd.cancel")}

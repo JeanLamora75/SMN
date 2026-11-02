@@ -2,7 +2,7 @@ import type { Client } from "pg";
 import { requireDashboardPermission } from "./permissions";
 import type { LayoutScope } from "./layout";
 
-export const SOURCE_CATEGORIES = ["indicator", "registry", "cycle", "calendar", "objective", "team", "link"] as const;
+export const SOURCE_CATEGORIES = ["indicator", "registry", "cycle", "calendar", "notes", "objective", "team", "link"] as const;
 export const SOURCE_VIEWS = ["number", "card", "gauge", "line", "bar", "list", "text"] as const;
 export type SourceCategory = typeof SOURCE_CATEGORIES[number];
 export type SourceView = typeof SOURCE_VIEWS[number];
@@ -50,7 +50,6 @@ export function validateSourceDescriptors(sources:readonly SourceDescriptor[]): 
 
 const PENDING:readonly Omit<SourceDescriptor,"status"|"reason">[] = [
  {code:"cycle:overview",name:"Cycles Scrum/Kanban",category:"cycle",unit:null,scope:"cycle",permission:"read",views:["card","list"]},
- {code:"calendar:ceremonies",name:"Calendrier et cérémonies",category:"calendar",unit:null,scope:"cycle",permission:"read",views:["list"]},
  {code:"objective:team",name:"Objectifs",category:"objective",unit:null,scope:"team",permission:"read",views:["text","card"]},
  {code:"team:overview",name:"Équipe",category:"team",unit:null,scope:"team",permission:"read",views:["card","list"]},
  {code:"link:catalog",name:"Liens",category:"link",unit:null,scope:"team",permission:"read",views:["list"]},
@@ -86,7 +85,9 @@ export async function listDashboardSources(db:Client,scope:LayoutScope):Promise<
  }
  const pending=PENDING.map(x=>descriptor({...x,status:"unavailable",reason:"adapter-not-connected"}));
  const registry:SourceDescriptor=descriptor({code:"registry:items",name:"Risques, obstacles et dépendances",category:"registry",unit:null,scope:"team",permission:"read",views:["list"],status:"available"});
- const sources=Object.freeze([...indicators,registry,...pending]);
+ const calendar:SourceDescriptor=descriptor({code:"calendar:ceremonies",name:"Calendrier et cérémonies",category:"calendar",unit:null,scope:"cycle",permission:"read",views:["list"],status:"available"});
+ const notes:SourceDescriptor=descriptor({code:"notes:sprint",name:"Notes et alertes du sprint",category:"notes",unit:null,scope:"cycle",permission:"read",views:["list"],status:"available"});
+ const sources=Object.freeze([...indicators,registry,calendar,notes,...pending]);
  validateSourceDescriptors(sources);
  return sources;
 }

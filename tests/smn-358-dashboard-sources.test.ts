@@ -1,3 +1,4 @@
+import {readFileSync} from "node:fs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import type {Client} from "pg";
@@ -30,4 +31,18 @@ test("SMN-358 AC1/AC3: SQL reads configured v33 indicator metadata only",async()
  assert.equal(sources.find(s=>s.code==="registry:items")?.status,"available");
  assert.ok(calls.some(s=>s.includes("smn_indicator_team_selection")));
  assert.ok(calls.every(s=>!/^\s*(INSERT|UPDATE|DELETE)/i.test(s)));
+});
+
+test("Dashboard Builder: calendrier et notes raccordés aux producteurs métiers",()=>{
+ const sources=readFileSync(new URL("../src/server/dashboard-builder/sources.ts",import.meta.url),"utf8");
+ const batch=readFileSync(new URL("../src/server/dashboard-builder/batch.ts",import.meta.url),"utf8");
+ const lists=readFileSync(new URL("../src/server/dashboard-builder/lists.ts",import.meta.url),"utf8");
+ assert.ok(sources.includes('code:"calendar:ceremonies"'));
+ assert.ok(sources.includes('code:"notes:sprint"'));
+ assert.ok(sources.includes('status:"available"'));
+ assert.match(batch,/readCalendarDashboardList/);
+ assert.match(batch,/readNotesDashboardList/);
+ assert.match(lists,/readCurrentSprintEvents/);
+ assert.match(lists,/readCycleNotesAndAlerts/);
+ assert.match(lists,/s\.team_id=\$3/);
 });

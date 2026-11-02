@@ -1,6 +1,7 @@
 "use client";
 import {useMemo,useState} from "react";
 import {DashboardBusinessList} from "./dashboard-business-list";
+import OperationalQuickAdd from "../operational-quick-add";
 import Link from "next/link";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import type {DashboardLayout,DashboardBlock,DashboardSlot} from "@/server/dashboard-builder/layout";
@@ -18,9 +19,9 @@ function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot
  const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
 }
-export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false}:{
+export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false,canManage=false}:{
  layout:DashboardLayout;teamId:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
- mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;
+ mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;
 }){
  const cycleId=navigation.current?.id??null;
  const [pages,setPages]=useState<Record<string,number>>({});
@@ -43,7 +44,8 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      const result=slots[slot.id];
      let model:VisualizationModel;
      if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
-     if(result.state==="available"&&result.list)return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
+     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
+      {canManage&&mode==="scrum"&&cycleId&&!personalizing&&["calendar:ceremonies","notes:sprint"].includes(slot.source??"")&&<div className="mb-2"><OperationalQuickAdd kind={slot.source==="notes:sprint"?"notes":"events"} teamId={teamId} cycleId={cycleId} label={slot.source==="notes:sprint"?"+ Ajouter une note":"+ Ajouter un événement"} onSaved={refresh}/></div>}
       <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
        onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
        onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
