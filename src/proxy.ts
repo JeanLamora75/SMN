@@ -1,17 +1,11 @@
-import {NextResponse} from "next/server";
+import {NextResponse, type NextRequest} from "next/server";
 import {currentInstallationDiagnostic} from "./server/installation/current";
 
-/**
- * Refuser /welcome avant le rendu React : Next.js peut streamer un ancien
- * formulaire puis envoyer un notFound, avec un statut HTTP déjà fixé à 200.
- * Le diagnostic reste basé sur la base réellement installée, jamais sur un cookie.
- */
-export async function proxy(){
+/** Empêcher le streaming du formulaire une fois SMN installé. */
+export async function proxy(_request:NextRequest){
  const installation=await currentInstallationDiagnostic();
- console.info("SMN welcome guard",installation.status);
  if(installation.status==="initialized")return new NextResponse("Accès indisponible",{
-  status:404,
-  headers:{"Cache-Control":"no-store"}
+  status:404,headers:{"Cache-Control":"no-store"}
  });
  return NextResponse.next();
 }
