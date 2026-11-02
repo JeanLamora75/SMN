@@ -40,7 +40,7 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
   const graph=await loadDependencyGraph(db);
   const calendar=input.changedCalendarTags??[];
   const roleAffected=calendar.length?[...graph.definitions.values()]
-   .filter(d=>d.formula!==null&&/\\b(?:ROLE_JH|ROLE_JH_PLANNED|ROLE_MAX_JH)\\s*\\(/.test(d.formula))
+   .filter(d=>d.formula!==null&&/\b(?:ROLE_JH|ROLE_JH_PLANNED|ROLE_MAX_JH)\s*\(/.test(d.formula))
    .map(d=>d.id):[];
   const changed=[...(input.changedIndicatorIds??[]),...roleAffected];
   const selected=input.changedIndicatorIds!==undefined||input.changedCalendarTags!==undefined?
@@ -55,7 +55,7 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
   if(scopes.length>MAX_CYCLES||scopes.length*calculated.length>MAX_RESULTS)
    throw new IndicatorRecalculationError("budget","Recalculation budget exceeded");
   const requestedRoles:RoleCapacityRequest[]=[];
-  const rolePattern=/\\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\\s*\\(\\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\\s*\\)/g;
+  const rolePattern=/\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\s*\(\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\s*\)/g;
   for(const definition of [...graph.definitions.values()].filter(d=>selected.includes(d.id)))
    for(const match of definition.formula?.matchAll(rolePattern)??[]){
    if(!requestedRoles.some(x=>x.name===match[1]&&x.role===match[2]))
