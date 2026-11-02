@@ -24,7 +24,7 @@ test("journal API is team scoped on v32 and POST receives team id",()=>{
  const journal=read("src/app/app/admin/registries/registry-journal.tsx");
  assert.match(api,/authorizeRegistryRecord/);
  assert.doesNotMatch(api,/withLegacyRegistryReadDb/);
- assert.match(post,/context\.version===28/);
+ assert.match(post,/if\(context\.team\)/);
  assert.match(post,/context\.team\?\.team_id!==requestedTeamId/);
  assert.match(post,/evaluateSchemaCapability\(schema\.rows\[0\]\?\.schema_version,"per-team-agile-mode"\)\.ok/);
  assert.match(journal,/createUrl=url\+"\?teamId="/);
