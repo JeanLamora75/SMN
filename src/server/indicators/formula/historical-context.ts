@@ -1,14 +1,15 @@
 import type {Client} from "pg";
-import {calculateHistorical,type HistoricalPoint} from "./history";
+import {calculateHistorical,type HistoricalPoint,type HistoricalSeries} from "./history";
 import type {HistoricalFunction,HistoricalResolver,Result} from "./index";
 
+export type HistoricalContextResolver=HistoricalResolver & {series:(tag:string,count:number)=>HistoricalSeries};
 export type HistoryScope=Readonly<{teamId:string;cycleType:"scrum"|"kanban";cycleId:string}>;
 type Cycle={id:string;name:string;status:string};
 type Stored={cycle_id:string;indicator_id:string;value:string|null};
 type Snapshot={sprint_id:string;snapshot:unknown};
 
 /** Historical reads never cross the active team or include future cycles. */
-export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:ReadonlyMap<string,string>):Promise<HistoricalResolver>{
+export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:ReadonlyMap<string,string>):Promise<HistoricalContextResolver>{
  const scrum=scope.cycleType==="scrum";
  const table=scrum?"smn_sprint":"smn_kanban_period";
  const date= scrum?"start_at":"start_on";
@@ -51,12 +52,21 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
    for(const id of closed)if(!first.has(id))values.set(id,new Map());
   }
  }
- return (name:HistoricalFunction,tag:string,count:number):Result=>{
+ const series=(tag:string,count:number):HistoricalSeries=>{
+  const indicatorId=byTag.get(tag);
+  if(!indicatorId)throw Error("historical-tag-unknown");
+  const points:HistoricalPoint[]=selected.map(c=>({cycleId:c.id,label:c.name,value:values.get(c.id)?.get(indicatorId)??null}));
+  const result=calculateHistorical("LAST_VALUES",points,count);
+  if(result.kind!=="series")throw Error("historical-series-unavailable");
+  return result;
+ };
+ const resolver:HistoricalResolver=(name:HistoricalFunction,tag:string,count:number):Result=>{
   const indicatorId=byTag.get(tag);
   if(!indicatorId)return {kind:"unavailable",reason:"missing_source",sourceTag:tag};
-  const points:HistoricalPoint[]=selected.map(c=>({cycleId:c.id,label:c.name,value:values.get(c.id)?.get(indicatorId)??null}));
+  const points=series(tag,Math.max(count+1,1)).points;
   const result=calculateHistorical(name,points,count);
   if(result.kind==="series")return {kind:"unavailable",reason:"invalid_domain",detail:"series-result-requires-visualization"};
   return result;
  };
+ return Object.assign(resolver,{series});
 }
