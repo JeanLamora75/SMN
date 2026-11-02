@@ -41,7 +41,8 @@ test("authentification admet v28 uniquement si migration et structure valides",(
  assert.equal(isSupportedAuthenticationSchemaVersion(30),true);
  assert.equal(isSupportedAuthenticationSchemaVersion(31),true);
  assert.equal(isSupportedAuthenticationSchemaVersion(32),true);
- assert.equal(isSupportedAuthenticationSchemaVersion(33),false);
+ assert.equal(isSupportedAuthenticationSchemaVersion(33),true);
+ assert.equal(isSupportedAuthenticationSchemaVersion(34),false);
  assert.doesNotThrow(()=>assertMultiTeamMigrationValid(28,true,true));
  assert.throws(()=>assertMultiTeamMigrationValid(28,false,true),/smn-schema-incompatible/);
  assert.throws(()=>assertMultiTeamMigrationValid(28,true,false),/smn-schema-incompatible/);
