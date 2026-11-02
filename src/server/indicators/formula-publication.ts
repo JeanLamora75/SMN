@@ -3,6 +3,8 @@ import type {Client} from "pg";
 import {buildDependencyGraph,evaluateDependencies,impactedIndicatorIds,isCalendarSourceTag,type IndicatorDefinition,type DependencyRow} from "./dependencies";
 import {parseFormula,referencedTags,type SourceValue} from "./formula";
 import {loadHistoricalResolver} from "./formula/historical-context";
+import {loadRoleCapacityResolver,type RoleCapacityRequest} from "./formula/role-context";
+import type {AgileRole,RoleCapacityFunction} from "./formula";
 import {recalculateIndicatorResultsWithinTransaction} from "./recalculation";
 
 export type FormulaProposal=Readonly<{indicatorId:string;formula:string}>;
@@ -49,6 +51,12 @@ async function prepare(db:Client,input:FormulaProposal){
   "SELECT s.team_id,'scrum'::text AS cycle_type,s.id AS cycle_id FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id WHERE s.deleted_at IS NULL AND NOT t.is_archived AND t.agile_mode='scrum' "+
   "UNION ALL SELECT p.team_id,'kanban',p.id FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id WHERE p.deleted_at IS NULL AND NOT t.is_archived AND t.agile_mode='kanban' ORDER BY team_id,cycle_type,cycle_id LIMIT 1001");
  if(cycles.rows.length>MAX_CYCLES||cycles.rows.length*affected.length>MAX_RESULTS)throw new FormulaPublicationError("budget","Too many recalculations");
+ const rolePattern=/\\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\\s*\\(\\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\\s*\\)/g;
+ const requestedRoles:RoleCapacityRequest[]=[];
+ for(const definition of proposed)for(const match of definition.formula?.matchAll(rolePattern)??[]){
+  if(!requestedRoles.some(x=>x.name===match[1]&&x.role===match[2]))
+   requestedRoles.push({name:match[1] as RoleCapacityFunction,role:match[2] as AgileRole});
+ }
  const inputs:unknown[]=[];
  let unavailable=0;
  for(const cycle of cycles.rows){
@@ -59,8 +67,10 @@ async function prepare(db:Client,input:FormulaProposal){
   const values:Record<string,SourceValue>=Object.create(null) as Record<string,SourceValue>;
   for(const v of manual.rows)values[v.indicator_id]=v.value;
   for(const v of computed.rows)values[v.indicator_id]=v.result_state==="available"?v.value:{kind:"unavailable",reason:(v.unavailable_reason??"missing_source") as "missing_source",sourceTag:v.unavailable_source_tag??undefined};
-  const historical=await loadHistoricalResolver(db,{teamId:cycle.team_id,cycleType:cycle.cycle_type,cycleId:cycle.cycle_id},graph.byTag);
-  const calculated=evaluateDependencies({graph,indicators:values,calendar:{},changedIndicatorIds:[input.indicatorId],historical:()=>historical});
+  const scope={teamId:cycle.team_id,cycleType:cycle.cycle_type,cycleId:cycle.cycle_id};
+  const historical=await loadHistoricalResolver(db,scope,graph.byTag);
+  const roleCapacity=await loadRoleCapacityResolver(db,scope,requestedRoles);
+  const calculated=evaluateDependencies({graph,indicators:values,calendar:{},changedIndicatorIds:[input.indicatorId],historical:()=>historical,roleCapacity});
   unavailable+=[...calculated.values()].filter(x=>x.kind==="unavailable").length;
  }
  const fingerprint=digest({revision:rev.rows[0].revision,definitions:defs.rows,dependencies:existing.rows,cycles:cycles.rows,inputs,proposal:input});
