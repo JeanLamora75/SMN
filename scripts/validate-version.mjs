@@ -1,5 +1,5 @@
 import {spawnSync} from "node:child_process";
-import {existsSync, mkdirSync, writeFileSync} from "node:fs";
+import {mkdirSync, writeFileSync} from "node:fs";
 import {join} from "node:path";
 
 export const SCHEMA_TARGET = 33;
