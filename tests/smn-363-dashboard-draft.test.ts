@@ -6,7 +6,7 @@ const page=readFileSync(new URL("../src/app/app/dashboard-builder/page.tsx",impo
 test("SMN-363 AC1: draft is distinct and personalization requires edit permission",()=>{
  assert.match(editor,/setDraft\(copy\(published\)\)/);
  assert.match(editor,/if\(!canEdit\)return/);
- assert.match(editor,/Actions du tableau de bord/);
+ assert.match(editor,/<summary className="btn btn-outline-primary btn-sm">Actions<\/summary>/);
  assert.match(editor,/Personnaliser/);
  assert.match(page,/dashboardPermission\(db/);
  assert.match(page,/canEdit=\{data.canEdit\}/);
@@ -58,4 +58,16 @@ test("Dashboard Builder: list quick-add appears after results and supports notes
  for(const kind of ['kind="risks"','kind="obstacles"','+ Ajouter une note','+ Ajouter un événement'])assert.ok(consultation.includes(kind));
  assert.match(consultation,/canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation\.current\?\.status!=="closed"/);
  assert.match(consultation,/onSaved=\{refresh\}/);
+});
+
+test("Dashboard Builder: en-tête Cockpit Agile unique et commandes intégrées",()=>{
+ const consultation=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+ const page=readFileSync(new URL("../src/app/app/dashboard-builder/page.tsx",import.meta.url),"utf8");
+ assert.doesNotMatch(page,/← Tableau de bord principal/);
+ assert.doesNotMatch(page,/<h2 className="h5 mb-0">\{data.teamName\}/);
+ assert.match(consultation,/aria-label="En-tête du tableau de bord"/);
+ assert.match(consultation,/className="h4 fw-bold mb-0"/);
+ assert.match(consultation,/\{headerActions\}/);
+ assert.match(consultation,/Actualiser/);
+ assert.doesNotMatch(consultation,/<h1 className="h4 mb-0">Tableau de bord<\/h1>/);
 });
