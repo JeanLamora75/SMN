@@ -168,7 +168,8 @@ describe("Étape 5 — recette transversale du cockpit Scrum (SMN-21)",()=>{
    cycle:{...sprint("sprintA"),startAt:"2098-11-09T08:00:00Z",
     endAt:"2098-11-22T22:59:59Z"},projection
   }));
-  assert.match(overview,/SP initialement engagés/);
+  assert.match(overview,/smn-metric-grid/);
+  assert.doesNotMatch(overview,/SP initialement engagés/);
   assert.match(overview,/Jours ouvrés restants/);
   assert.match(overview,/Sprint à venir/);
  });
