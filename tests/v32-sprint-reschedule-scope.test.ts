@@ -7,7 +7,7 @@ const service=read("src/server/sprints/reschedule.ts");
 const editor=read("src/app/app/admin/sprints/[sprintId]/sprint-detail-editor.tsx");
 
 test("v32 : la prévisualisation et la confirmation recherchent le Sprint dans une équipe Scrum active",()=>{
- assert.match(service,/i\.schema_version BETWEEN 28 AND 32/);
+ assert.match(service,/i\.schema_version BETWEEN 28 AND 33/);
  assert.match(service,/to_jsonb\(t\)->>'agile_mode'/);
  assert.match(service,/to_jsonb\(t\)->>'is_archived'/);
  assert.match(service,/const s=await scope\(db,input\.sprintId\)/);
