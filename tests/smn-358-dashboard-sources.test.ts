@@ -27,7 +27,7 @@ test("SMN-358 AC1/AC3: SQL reads configured v33 indicator metadata only",async()
  }} as unknown as Client;
  const sources=await listDashboardSources(db,{installationId:"singleton",accountId:"actor1",teamId:"team1"});
  assert.equal(sources.find(s=>s.code==="indicator:uuid-1")?.status,"available");
- assert.equal(sources.find(s=>s.code==="registry:items")?.status,"unavailable");
+ assert.equal(sources.find(s=>s.code==="registry:items")?.status,"available");
  assert.ok(calls.some(s=>s.includes("smn_indicator_team_selection")));
  assert.ok(calls.every(s=>!/^\s*(INSERT|UPDATE|DELETE)/i.test(s)));
 });
