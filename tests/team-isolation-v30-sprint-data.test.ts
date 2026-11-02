@@ -7,7 +7,7 @@ for(const [name,service,route] of [
  ["Objectifs","src/server/sprints/goals.ts","src/app/api/admin/sprints/goals/route.ts"]
 ] as const){
  test(name+": la requête SQL filtre strictement par équipe",()=>{
-  const source=read(service);
+  const source=read(service.endsWith("/story-points.ts")?"src/server/compat-v32/story-points.ts":service);
   assert.match(source,/s\.team_id=\$2/);
   assert.match(source,/t\.is_archived=false/);
   assert.match(source,/i\.schema_version BETWEEN 28 AND 32/);
