@@ -11,12 +11,18 @@ const protectedOther=[
  "confirmed-highlights","fact-selection"
 ];
 
-test("Sous-routes historiques des registres : chaque lecture/écriture passe par le verrou v27",()=>{
+test("Sous-routes registres : chaque lecture/écriture utilise un verrou historique ou un contrôle équipe",()=>{
  for(const name of protectedId){
   const file="src/app/api/admin/registries/[id]/"+name+"/route.ts";
   const code=source(file);
-  assert.match(code,/withLegacyRegistryReadDb\(|withLegacyTeamApi\(|await assertLegacyTeamApi\(db\)/,file);
-  if(code.includes("withAuthDb("))assert.match(code,/await assertLegacyTeamApi\(db\)/,file);
+  const legacy=/withLegacyRegistryReadDb\(|withLegacyTeamApi\(|await assertLegacyTeamApi\(db\)/.test(code);
+  const scoped=/authorizeRegistryRecord\(|resolveRegistryReadContext\(/.test(code);
+  assert.ok(legacy||scoped,file+" doit vérifier le périmètre avant les données");
+  assert.match(code,/authorizeApi\(/,file);
+  if(!legacy){
+   assert.match(code,/withSprintIndexDb\(/,file);
+   if(code.includes("withAuthDb("))assert.ok(scoped,file+" écriture contextualisée");
+  }
  }
  for(const name of protectedOther){
   const file="src/app/api/admin/registries/"+name+"/route.ts";
