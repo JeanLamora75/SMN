@@ -2,13 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
-test("journal has its own tab; summary keeps description and context only",()=>{
+test("journal remains accessible in its tab and embedded in the summary",()=>{
  const tabs=read("src/lib/registry-detail-tabs.ts");
  const detail=read("src/app/app/admin/registries/registry-detail.tsx");
  const summary=read("src/app/app/admin/registries/registry-summary.tsx");
  assert.match(tabs,/"journal"/);
  assert.match(detail,/tab==="journal"&&<section/);
- assert.doesNotMatch(summary,/<RegistryJournal/);
+ assert.match(summary,/<RegistryJournal/);
+ assert.match(summary,/embedded\/>/);
 });
 test("description edit uses accessible icon-only action and cockpit modal",()=>{
  const summary=read("src/app/app/admin/registries/registry-summary.tsx");

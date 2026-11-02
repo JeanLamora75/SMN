@@ -20,6 +20,8 @@ function fakeDb(options:{archived?:boolean;categories?:string[];days?:Array<{
  const db={query:async(sql:string,params:unknown[]=[])=>{
   sqls.push(sql);
   if(["BEGIN","COMMIT","ROLLBACK"].includes(sql))return {rows:[],rowCount:0};
+  if(sql.includes("SELECT schema_version FROM public.smn_installation"))
+   return {rows:[{schema_version:32}],rowCount:1};
   if(sql.includes("FROM public.smn_member m")&&sql.includes("JOIN public.smn_installation i"))
    return {rows:options.missing?[]:[{id:memberId,archived_at:options.archived?"2026-10-20":null}],
     rowCount:options.missing?0:1};
