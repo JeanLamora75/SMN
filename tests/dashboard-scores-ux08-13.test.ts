@@ -79,7 +79,7 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
   assert.match(html,/Not specified/);
   assert.doesNotMatch(html,/Confiance de l’équipe|Non renseigné/);
  });
- it("préserve les quatre KPI précédents et ajoute la cinquième carte en dernier",()=>{
+ it("v33 ne force pas les anciennes jauges de notes dans l’en-tête",()=>{
   const html=renderToStaticMarkup(createElement(CycleOverview,{
    context:{productId:"p",product:"Produit",teamId:"team",team:"Équipe",mode:"scrum"},
    teamHref:"/app/team/team",locale:"fr",cycle:sprint("sprint-a")
