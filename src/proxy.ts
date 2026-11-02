@@ -8,6 +8,7 @@ import {currentInstallationDiagnostic} from "./server/installation/current";
  */
 export async function proxy(){
  const installation=await currentInstallationDiagnostic();
+ console.info("SMN welcome guard",installation.status);
  if(installation.status==="initialized")return new NextResponse("Accès indisponible",{
   status:404,
   headers:{"Cache-Control":"no-store"}
