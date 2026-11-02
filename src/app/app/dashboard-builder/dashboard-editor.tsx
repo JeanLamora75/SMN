@@ -1,5 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
+import {resetDashboardDraft} from "@/lib/dashboard-builder/reset";
 import {duplicateDashboardBlock,changeDashboardBlockTemplate,removeDashboardRow,removeDashboardBlock,rowHasConfiguredContent,blockHasConfiguredContent} from "@/lib/dashboard-builder/block-actions";
 import {getDashboardTemplate,listCreatableDashboardTemplates} from "@/lib/dashboard-builder/templates";
 import {BlockDimensionControl} from "./block-dimensions";
@@ -28,6 +29,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [revision,setRevision]=useState(initialRevision);
  const [saving,setSaving]=useState(false);
  const [exitOpen,setExitOpen]=useState(false);
+ const [resetOpen,setResetOpen]=useState(false);
  const [error,setError]=useState<string|null>(null);
  const [success,setSuccess]=useState<string|null>(null);
  useEffect(()=>{if(!success)return;const timeout=setTimeout(()=>setSuccess(null),4000);return ()=>clearTimeout(timeout);},[success]);
@@ -38,7 +40,13 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const editing=draft!==null;
  const changed=useMemo(()=>draft!==null&&signature(draft)!==signature(published),[draft,published]);
  const enter=()=>{if(!canEdit)return;setDraft(copy(published));setError(null);};
- const cancel=()=>{if(saving)return;setDraft(null);setError(null);setExitOpen(false);};
+ const cancel=()=>{if(saving)return;setDraft(null);setError(null);setExitOpen(false);setResetOpen(false);};
+ const confirmReset=()=>{
+  if(!draft||saving||!canEdit)return;
+  setDraft(resetDashboardDraft(mode,()=>crypto.randomUUID()));
+  setResetOpen(false);
+  setGalleryRow(null);setWizardSlot(null);setPendingAction(null);setError(null);
+ };
  const requestExit=()=>{if(!editing||saving)return;if(changed)setExitOpen(true);else cancel();};
  const save=useCallback(async(leave=false)=>{
   if(!draft||!changed||saving||!canEdit)return;
@@ -123,6 +131,9 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   </details>}
   {editing&&<div className="d-flex align-items-center gap-2 mb-3">
    <span className="badge text-bg-secondary">Personnalisation</span>
+   <details className="dropdown"><summary className="btn btn-outline-secondary">Actions du tableau de bord</summary>
+    <ul className="dropdown-menu show position-static"><li><button className="dropdown-item" type="button" disabled={saving} onClick={()=>setResetOpen(true)}>Réinitialiser</button></li></ul>
+   </details>
    <button className="btn btn-outline-secondary" type="button" onClick={requestExit} disabled={saving}>Quitter</button>
   </div>}
   <DashboardConsultation layout={draft??published} teamId={teamId} navigation={navigation}
@@ -176,6 +187,16 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    </div>)}
    <button className="btn btn-outline-primary w-100" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
   </section>}
+  {resetOpen&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1080}}>
+   <div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="dashboard-reset-title">
+    <div className="modal-header"><h2 className="modal-title fs-5" id="dashboard-reset-title">Réinitialiser le Dashboard {mode==="scrum"?"Scrum":"Kanban"} ?</h2></div>
+    <div className="modal-body"><p>La disposition de départ remplacera uniquement votre brouillon pour cette équipe.</p>
+     <p>Les deux zones dynamiques d’en-tête seront restaurées. Les informations fixes du cycle et les données métier ne seront pas modifiées.</p>
+     <p className="mb-0">Vous pourrez encore choisir « Annuler » pour retrouver votre Dashboard enregistré. Aucune sauvegarde automatique ne sera effectuée.</p></div>
+    <div className="modal-footer"><button className="btn btn-outline-secondary" type="button" onClick={()=>setResetOpen(false)}>Conserver mon brouillon</button>
+     <button className="btn btn-danger" type="button" onClick={confirmReset} disabled={saving}>Réinitialiser le brouillon</button></div>
+   </div></div>
+  </div>}
   {pendingAction&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1070}}><div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="block-action-confirm"><div className="modal-header"><h2 className="modal-title fs-5" id="block-action-confirm">Confirmer la perte de contenu ?</h2></div><div className="modal-body">Cette opération retirera du brouillon des emplacements configurés. Annuler conserve l’intégralité de la configuration.</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" onClick={()=>setPendingAction(null)}>Annuler</button><button type="button" className="btn btn-danger" onClick={commitPending}>Confirmer</button></div></div></div></div>}
   {galleryRow&&<DashboardTemplateGallery onChoose={addBlock} onClose={()=>setGalleryRow(null)}/>}
   {wizardSlot&&<DashboardSlotWizard teamId={teamId} initialSlot={activeSlot} cycles={cycles} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot} onClear={()=>{setDraft(current=>current?updateDashboardSlot(current,wizardSlot,null):null);setWizardSlot(null);}}/>}
