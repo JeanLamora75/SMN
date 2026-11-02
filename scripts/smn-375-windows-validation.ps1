@@ -13,7 +13,7 @@ function Run-Check([string]$name,[string]$command) {
  $started=Get-Date
  cmd /c $command 2>&1 | Out-File -FilePath $log -Encoding utf8
  $exit=$LASTEXITCODE
- $results+=@{name=$name;command=$command;exitCode=$exit;started=$started.ToString('o');ended=(Get-Date).ToString('o');log="$name.log"}
+ $script:results+=@{name=$name;command=$command;exitCode=$exit;started=$started.ToString('o');ended=(Get-Date).ToString('o');log="$name.log"}
  if($exit -ne 0){Write-Warning "$name failed ($exit). Check $log"}
 }
 Run-Check 'typecheck' 'pnpm typecheck'
