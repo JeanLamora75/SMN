@@ -38,8 +38,9 @@ test("édition : la fiche, le statut, les sections risque/ROAM/relations et le m
  assert.match(modal,/modalMode onSaved=\{onSaved\}/);
  assert.match(modal,/itemId=\{id\}/);
  assert.match(detail,/canManage&&fullEditing&&<RegistryEditModal/);
- assert.match(detail,/section==="riskAssessment"\|\|section==="riskRoam"\|\|section==="registryRelations"\?setFullEditing\(true\)/);
- assert.ok((detail.match(/setFullEditing\(true\)/g)||[]).length>=3);
+ assert.match(detail,/onClick=\{\(\)=>setFullEditing\(true\)\}/);
+ assert.match(detail,/setBusinessEditing\(section\)/);
+ assert.ok((detail.match(/setFullEditing\(true\)/g)||[]).length>=1);
  assert.match(list,/canManage&&editingId&&<RegistryEditModal/);
  for(const name of ["registry-list-row.tsx","registry-card.tsx"]){
   assert.match(ui(name),/onEdit\(\)/);
