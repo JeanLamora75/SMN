@@ -1,6 +1,6 @@
 import type {Client} from "pg";
 import {calculateHistorical,type HistoricalPoint,type HistoricalSeries} from "./history";
-import type {HistoricalFunction,HistoricalResolver,Result} from "./index";
+import type {HistoricalFunction,HistoricalResolver,Result,SourceValue} from "./index";
 
 export type HistoricalContextResolver=HistoricalResolver & {series:(tag:string,count:number)=>HistoricalSeries};
 export type HistoryScope=Readonly<{teamId:string;cycleType:"scrum"|"kanban";cycleId:string}>;
@@ -60,10 +60,12 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
   if(result.kind!=="series")throw Error("historical-series-unavailable");
   return result;
  };
- const resolver:HistoricalResolver=(name:HistoricalFunction,tag:string,count:number):Result=>{
+ const resolver:HistoricalResolver=(name:HistoricalFunction,tag:string,count:number,current?:SourceValue):Result=>{
   const indicatorId=byTag.get(tag);
   if(!indicatorId)return {kind:"unavailable",reason:"missing_source",sourceTag:tag};
-  const points=series(tag,selected.length||1).points;
+  const points=[...series(tag,selected.length||1).points];
+  if(selected.at(-1)?.status!=="closed"&&typeof current==="string"&&points.length)
+   points[points.length-1]={...points[points.length-1],value:current};
   const result=calculateHistorical(name,points,count);
   if(result.kind==="series")return {kind:"unavailable",reason:"invalid_domain",detail:"series-result-requires-visualization"};
   return result;
