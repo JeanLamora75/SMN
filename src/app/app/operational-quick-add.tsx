@@ -132,7 +132,7 @@ export default function OperationalQuickAdd({kind,teamId,cycleId,label,onSaved}:
      <button type="button" className="btn-close" aria-label={t("dashboard.operational.quickAdd.close")}
       onClick={close}/>
     </header>
-    <QuickAddContent kind={kind} teamId={teamId} cycleId={cycleId} close={close}/>
+    <QuickAddContent kind={kind} teamId={teamId} cycleId={cycleId} close={close} onSaved={onSaved}/>
     <div className="d-flex justify-content-end mt-3">
      <button type="button" className="btn btn-outline-secondary" onClick={close}>
       {t("dashboard.operational.quickAdd.cancel")}
