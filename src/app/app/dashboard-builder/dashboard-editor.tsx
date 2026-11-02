@@ -91,6 +91,16 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   setDraft(current=>current?updateDashboardSlot(current,wizardSlot,{source,view,filters:options}):null);
   setWizardSlot(null);
  };
+ const setBlockTitle=(blockId:string,title:string)=>setDraft(layout=>layout?{
+  ...layout,
+  header:{blocks:layout.header.blocks.map(block=>block.id===blockId?{...block,title}:block)},
+  rows:layout.rows.map(row=>({...row,blocks:row.blocks.map(block=>block.id===blockId?{...block,title}:block)}))
+ }:null);
+ const setSlotTitle=(slotId:string,title:string)=>setDraft(layout=>layout?{
+  ...layout,
+  header:{blocks:layout.header.blocks.map(block=>({...block,slots:block.slots.map(slot=>slot.id===slotId?{...slot,title}:slot)}))},
+  rows:layout.rows.map(row=>({...row,blocks:row.blocks.map(block=>({...block,slots:block.slots.map(slot=>slot.id===slotId?{...slot,title}:slot)}))}))
+ }:null);
  const reorderRow=(id:string,index:number)=>setDraft(d=>d?moveDashboardRow(d,id,index):null);
  const reorderBlock=(id:string,rowId:string,index:number)=>setDraft(d=>d?moveDashboardBlock(d,id,rowId,index):null);
  const dropOnRow=(targetId:string,index:number)=>{
@@ -186,8 +196,18 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
         <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>blockHasConfiguredContent(block)?setPendingAction({kind:"block",id:block.id}):setDraft(d=>d?removeDashboardBlock(d,block.id):null)}>Supprimer</button>
        </div></details>
       </div>
+      <label className="form-label small w-100">Titre du bloc
+       <input type="text" className="form-control form-control-sm" maxLength={100} value={block.title??""}
+        placeholder="Titre du bloc (facultatif)" disabled={saving}
+        onChange={e=>setBlockTitle(block.id,e.target.value)}/>
+      </label>
       <div className="d-flex justify-content-end mb-2"><BlockDimensionControl value={block.dimensions} disabled={saving} onChange={value=>setDraft(d=>d?updateBlockDimensions(d,block.id,value):null)}/></div>
       <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
+       <label className="form-label small w-100">Titre de l'emplacement
+        <input type="text" className="form-control form-control-sm" maxLength={100}
+         value={slot.title??""} placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}
+         onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}/>
+       </label>
        <button type="button" className="btn btn-outline-secondary w-100" onClick={()=>setWizardSlot(slot.id)} disabled={saving}
         aria-label={`Configurer emplacement ${slot.templateSlotId}`}>
         {slot.source?<span className="d-flex flex-column align-items-start text-start"><strong>✎ {sourceByCode.get(slot.source)?.name??"Source introuvable"}</strong>{sourceByCode.get(slot.source)&&<span className="small text-body-secondary">{sourceByCode.get(slot.source)?.category==="indicator"?"Indicateur":sourceByCode.get(slot.source)?.category==="registry"?"Registre":"Source"} · {sourceByCode.get(slot.source)?.scope==="cycle"?"Par cycle":"Par équipe"}{sourceByCode.get(slot.source)?.unit?" · "+sourceByCode.get(slot.source)?.unit:""}</span>}</span>:"+"}</button>
