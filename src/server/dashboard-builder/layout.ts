@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { requireDashboardPermission } from "./permissions";
 import type { Client } from "pg";
 import { getDashboardTemplate, type DashboardTemplateId } from "../../lib/dashboard-builder/templates";
 
@@ -70,6 +71,7 @@ LIMIT 1`, [s.installationId,s.accountId,s.teamId]);
 }
 /** Missing row returns a transient default: reading never writes. */
 export async function readDashboardLayout(db: Client, scope: LayoutScope): Promise<StoredLayout> {
+  await requireDashboardPermission(db,scope,"read");
   const mode=await checkScope(db,scope);
   const result=await db.query<{layout:DashboardLayout;revision:string}>(`
 SELECT layout,revision FROM public.smn_dashboard_layout
@@ -86,6 +88,7 @@ export async function saveDashboardLayout(db:Client,scope:LayoutScope,layout:Das
   if (!Number.isSafeInteger(expectedRevision)||expectedRevision<0) throw new Error("dashboard-revision-invalid");
   await db.query("BEGIN");
   try {
+    await requireDashboardPermission(db,scope,"edit");
     await checkScope(db,scope);
     const q=expectedRevision===0
       ? await db.query<{revision:string}>(`INSERT INTO public.smn_dashboard_layout
