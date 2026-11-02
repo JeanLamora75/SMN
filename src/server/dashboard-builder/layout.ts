@@ -61,7 +61,11 @@ export function createDefaultDashboardLayout(mode: "scrum"|"kanban"): DashboardL
   // The source configuration is intentionally empty; no inferred metric or fake values.
   return { schemaVersion: DASHBOARD_LAYOUT_SCHEMA_VERSION,
     header: { blocks: [defaultBlock(), defaultBlock()] },
-    rows: [{ id: randomUUID(), blocks: [defaultBlock()] }] };
+    rows: [
+      { id: randomUUID(), blocks: [defaultBlock(), defaultBlock()] },
+      { id: randomUUID(), blocks: [defaultBlock(), defaultBlock()] },
+      { id: randomUUID(), blocks: [defaultBlock()] },
+    ] };
 }
 async function checkScope(db: Client, s: LayoutScope): Promise<"scrum"|"kanban"> {
   if (![s.installationId,s.accountId,s.teamId].every(validId)) throw new Error("dashboard-scope-invalid");
