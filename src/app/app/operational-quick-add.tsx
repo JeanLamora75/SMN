@@ -111,7 +111,7 @@ function QuickAddContent({kind,teamId,cycleId,close,onSaved}:{
 
 /** Modale native : focus piégé dans la fenêtre, Escape et retour du focus gérés par showModal. */
 export default function OperationalQuickAdd({kind,teamId,cycleId,label,onSaved}:{kind:Kind;
- teamId:string;cycleId:string;label:string;
+ teamId:string;cycleId:string;label:string;onSaved?:()=>void;
 }){
  const t=useTranslation(),modalId=useId();
  const dialog=useRef<HTMLDialogElement>(null);
