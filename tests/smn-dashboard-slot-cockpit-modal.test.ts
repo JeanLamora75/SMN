@@ -1,16 +1,17 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
-test("dashboard indicator picker uses Cockpit Agile modal structure",()=>{
- const view=read("src/app/app/dashboard-indicator-blocks.tsx");
- const css=read("src/app/app/dashboard-slot-cockpit.css");
- assert.ok(view.startsWith('"use client";'));
- assert.match(view,/smn-dashboard-slot-dialog smn-sprint-edit-dialog/);
- assert.match(view,/smn-indicator-dialog-header/);
- assert.match(view,/smn-indicator-dialog-form/);
- assert.match(view,/modal-footer/);
- assert.match(css,/background:#1b508d/);
- assert.match(css,/::backdrop/);
- assert.match(css,/\.btn-close/);
+const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
+test("Dashboard Builder renders customizable slots with a Bootstrap cockpit panel",()=>{
+ const view=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+ assert.match(view,/visibleSlots\(block\)/);
+ assert.match(view,/className="smn-panel p-3"/);
+ assert.match(view,/getDashboardTemplate\(block\.templateId,block\.templateVersion\)/);
+});
+test("Dashboard Builder does not bypass team-scoped server authorization",()=>{
+ const batch=read("src/server/dashboard-builder/batch.ts");
+ const permission=read("src/server/dashboard-builder/permissions.ts");
+ assert.match(batch,/requireDashboardPermission\(db,scope,"read"\)/);
+ assert.match(permission,/t\.id=\$3/);
+ assert.match(permission,/a\.is_active=true/);
 });
