@@ -130,7 +130,8 @@ describe("SMN-234 D9 — immutabilité, liens sûrs et dette explicitée",()=>{
    assert.match(code,/closure_snapshot/);
    assert.match(code,/ORDER BY version DESC LIMIT 1/);
   }
-  assert.match(reader("trends"),/ORDER BY v.version DESC LIMIT 1/);
+  assert.match(reader("trends"),/FROM public\.smn_sprint_closure_snapshot/);
+  assert.match(reader("trends"),/ORDER BY version DESC LIMIT 1/);
   const closure=reader("closure");
   assert.match(closure,/memberPresence:/);
   assert.match(closure,/reviewAnalysis,/);
