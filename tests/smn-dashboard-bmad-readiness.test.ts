@@ -34,11 +34,11 @@ test("dashboard now uses dynamic cards instead of legacy SP Tickets and score bl
  assert.doesNotMatch(overview,/KpiSprintScores/);
  assert.doesNotMatch(page,/screen="dashboard"/);
 });
-test("v33 reporting is team-scoped and currently reads live values (known gap)",()=>{
+test("v33 reporting is team-scoped and reads frozen closure snapshots",()=>{
  assert.match(reporting,/WHERE team_id=\$1 AND deleted_at IS NULL/);
  assert.match(reporting,/smn_indicator_manual_value/);
  assert.match(reporting,/smn_indicator_computed_result/);
- assert.doesNotMatch(reporting,/FROM public\.smn_sprint_closure_snapshot/);
+ assert.match(reporting,/FROM public\.smn_sprint_closure_snapshot/);
 });
 test("dashboard slot assignments are in a dedicated constrained table",()=>{
  const sql=read("prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql");
