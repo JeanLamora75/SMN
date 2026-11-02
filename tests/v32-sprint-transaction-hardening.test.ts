@@ -2,7 +2,7 @@ import {strict as assert} from "node:assert";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
 
-const source=(name:string)=>readFileSync(new URL("../src/server/sprints/"+name,import.meta.url),"utf8");
+const source=(name:string)=>readFileSync(new URL("../src/server/"+(name==="story-points.ts"?"compat-v32/":"sprints/")+name,import.meta.url),"utf8");
 const cases=[
  {name:"goals.ts",mode:"i.schema_version BETWEEN 28 AND 32",legacy:true},
  {name:"story-points.ts",mode:"i.schema_version BETWEEN 28 AND 32",legacy:true},
