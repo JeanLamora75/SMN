@@ -159,9 +159,9 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    </details>
    <button className="btn btn-outline-secondary" type="button" onClick={requestExit} disabled={saving}>Quitter</button>
   </div>}
-  {editing&&draft&&<section className="smn-panel p-3 mb-3" aria-label="Titres des blocs d'en-tête">
-   <h3 className="h6 mb-3">Blocs d'en-tête</h3>
-   <div className="row g-3">{draft.header.blocks.map((block,index)=><div className="col-12 col-md-6" key={block.id}>
+  {editing&&draft&&<details className="smn-panel p-3 mb-3" aria-label="Titres des blocs d'en-tête">
+   <summary className="fw-semibold">Personnaliser les blocs d’en-tête</summary>
+   <div className="row g-3 mt-2">{draft.header.blocks.map((block,index)=><div className="col-12 col-md-6" key={block.id}>
     <label className="form-label small w-100">Titre du bloc d'en-tête {index+1}
      <input type="text" className="form-control form-control-sm" maxLength={100}
       value={block.title??""} onChange={e=>setBlockTitle(block.id,e.target.value)} disabled={saving}
@@ -173,9 +173,10 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
       placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}/>
     </label>)}
    </div>)}</div>
-  </section>}
-  <DashboardConsultation layout={draft??published} teamId={teamId} navigation={navigation}
-   mode={mode} locale={locale} personalizing={editing} canManage={canEdit}/>
+  </details>}
+  {!editing&&<DashboardConsultation layout={published} teamId={teamId} navigation={navigation}
+   mode={mode} locale={locale} personalizing={false} canManage={canEdit}/>}
+  {editing&&<p className="small text-body-secondary mb-3">Modifiez les titres, les blocs et les emplacements ci-dessous. Enregistrez pour retrouver le résultat sur votre tableau de bord.</p>}
   {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
    {draft.rows.map((row,index)=><div className="smn-panel p-3 mb-3" key={row.id} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();dropOnRow(row.id,index);}}>
     <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
@@ -193,7 +194,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
       </details>
      </div>
     </div>
-    <div className="row g-2 mb-2">{row.blocks.map((block,blockIndex)=><div className="col-12 col-lg" key={block.id}
+    <div className="row row-cols-1 row-cols-xl-2 g-3 mb-2">{row.blocks.map((block,blockIndex)=><div className="col" key={block.id}
      onDragOver={e=>e.preventDefault()} onDrop={e=>{e.stopPropagation();e.preventDefault();if(dragged?.kind==="block")reorderBlock(dragged.id,row.id,blockIndex);setDragged(null);}}>
      <div className="border rounded p-2">
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-2">
@@ -217,7 +218,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
         onChange={e=>setBlockTitle(block.id,e.target.value)}/>
       </label>
       <div className="d-flex justify-content-end mb-2"><BlockDimensionControl value={block.dimensions} disabled={saving} onChange={value=>setDraft(d=>d?updateBlockDimensions(d,block.id,value):null)}/></div>
-      <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
+      <div className="row row-cols-1 row-cols-md-2 g-2">{block.slots.map(slot=><div className="col" key={slot.id}>
        <label className="form-label small w-100">Titre de l'emplacement
         <input type="text" className="form-control form-control-sm" maxLength={100}
          value={slot.title??""} placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}
