@@ -32,20 +32,13 @@ const pair=(locale:"fr"|"en",initial?:DashboardMetric,done?:DashboardMetric)=>
  }));
 
 describe("UX lot 2 — cartes KPI fiables",()=>{
- it("conserve quatre KPI initiaux et ajoute la carte des deux notes",()=>{
-  const html=renderToStaticMarkup(createElement(CycleOverview,{
-   locale:"fr",context,teamHref:"/app/team/team",cycle:sprint
-  }));
-  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,2);
-  for(const icon of ["people-fill","calendar-event"]){
-   assert.match(html,new RegExp('class="bi bi-'+icon));
-  }
-  assert.match(html,/Capacité prévue/);
-  assert.match(html,/Capacité réelle/);
-  assert.match(html,/smn-metric-grid/);
-  assert.doesNotMatch(html,/Tickets réalisés[^<]*0/);
-  assert.match(html,/Jours ouvrés restants/);
-  assert.doesNotMatch(html,/Avancement global/);
+ it("v33: le Dashboard Builder permet des blocs configurables sans imposer les anciens KPI",()=>{
+  const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+  const sources=read("src/server/dashboard-builder/sources.ts");
+  assert.match(builder,/visibleSlots\(block\)/);
+  assert.match(builder,/getDashboardTemplate\(block\.templateId,block\.templateVersion\)/);
+  assert.match(sources,/SOURCE_VIEWS/);
+  assert.doesNotMatch(builder,/deriveSprintIndicators\(/);
  });
  it("valorise les valeurs enregistrées, leur unité et leur provenance",()=>{
   const html=pair("fr",available(65),available(47));
