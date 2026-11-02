@@ -6,11 +6,12 @@ const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8
 const list=()=>read("src/app/app/admin/registries/registry-list.tsx");
 const css=()=>read("src/app/app/admin/registries/registry-cockpit.css");
 
-test("Option C : styles ciblés sur l'index et non sur les fiches détaillées",()=>{
+test("Option C : styles isolés pour les vues index et détail",()=>{
  assert.match(read("src/app/app/admin/registries/page.tsx"),/import "\.\/registry-cockpit\.css"/);
  assert.match(list(),/smn-registry-cockpit/);
  assert.match(css(),/\.smn-registry-cockpit \.smn-registry-hero/);
- assert.doesNotMatch(css(),/\.smn-registry-detail\b/);
+ assert.match(css(),/\.smn-registry-detail-cockpit \.smn-registry-detail-header/);
+ assert.match(css(),/\.smn-registry-cockpit \.smn-registry-hero/);
 });
 
 test("Option C : catégories visibles, recherche toujours présente et filtres repliables",()=>{
