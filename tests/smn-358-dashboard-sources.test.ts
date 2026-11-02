@@ -31,3 +31,16 @@ test("SMN-358 AC1/AC3: SQL reads configured v33 indicator metadata only",async()
  assert.ok(calls.some(s=>s.includes("smn_indicator_team_selection")));
  assert.ok(calls.every(s=>!/^\s*(INSERT|UPDATE|DELETE)/i.test(s)));
 });
+
+test("Dashboard Builder: calendrier et notes raccordés aux producteurs métiers",()=>{
+ const sources=readFileSync(new URL("../src/server/dashboard-builder/sources.ts",import.meta.url),"utf8");
+ const batch=readFileSync(new URL("../src/server/dashboard-builder/batch.ts",import.meta.url),"utf8");
+ const lists=readFileSync(new URL("../src/server/dashboard-builder/lists.ts",import.meta.url),"utf8");
+ assert.match(sources,/code:"calendar:ceremonies"[\\s\\S]*?status:"available"/);
+ assert.match(sources,/code:"notes:sprint"[\\s\\S]*?status:"available"/);
+ assert.match(batch,/readCalendarDashboardList/);
+ assert.match(batch,/readNotesDashboardList/);
+ assert.match(lists,/readCurrentSprintEvents/);
+ assert.match(lists,/readCycleNotesAndAlerts/);
+ assert.match(lists,/s.team_id=\\$3/);
+});
