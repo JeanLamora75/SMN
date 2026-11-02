@@ -4,7 +4,7 @@ import {duplicateDashboardBlock,changeDashboardBlockTemplate,removeDashboardRow,
 import {getDashboardTemplate,listCreatableDashboardTemplates} from "@/lib/dashboard-builder/templates";
 import {BlockDimensionControl} from "./block-dimensions";
 import {updateBlockDimensions} from "@/lib/dashboard-builder/dimensions";
-import {moveDashboardRow,moveDashboardBlock,deleteDashboardRow,deleteDashboardBlock} from "@/lib/dashboard-builder/reorder";
+import {moveDashboardRow,moveDashboardBlock} from "@/lib/dashboard-builder/reorder";
 import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/layout";
 import {updateDashboardSlot,type SlotOptions} from "@/lib/dashboard-builder/slot-options";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
