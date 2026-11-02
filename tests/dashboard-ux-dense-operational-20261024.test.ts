@@ -150,13 +150,12 @@ test("le lecteur masque les responsables avant même le rendu pour un utilisateu
  assert.equal(queries.some(sql=>sql.includes("SELECT r.id")&&sql.includes(",r.owner_name,")),false);
 });
 
-test("le contrat responsive 4/2/1 et les quatre modales restent présents",()=>{
- const css=readFileSync(new URL("../src/app/dashboard.css",import.meta.url),"utf8");
+test("le Builder conserve les listes configurables et les modales autorisées",()=>{
+ const builder=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
  const modal=readFileSync(new URL("../src/app/app/operational-quick-add.tsx",import.meta.url),"utf8");
- assert.ok(css.includes("grid-template-columns:repeat(4,minmax(0,1fr))"));
- assert.ok(css.includes("@container (max-width:1100px)"));
- assert.ok(css.includes("@container (max-width:650px)"));
- assert.ok(css.includes("-webkit-line-clamp:2"));
+ assert.match(builder,/visibleSlots\(block\)/);
+ assert.match(builder,/DashboardBusinessList/);
+ assert.match(builder,/canManage&&mode==="scrum"&&cycleId&&!personalizing/);
  assert.ok(modal.includes("showModal()"));
  for(const name of ["RegistryCreate","MeetingQuickForm","NoteQuickForm"])
   assert.ok(modal.includes("<"+name));
