@@ -41,8 +41,14 @@ jobs:
           version: "12.10.0"
           run_install: false
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test:smn-348
-      - run: pnpm db:test:smn-348
-      - run: pnpm i18n:check
-      - run: pnpm typecheck
-      - run: pnpm lint
+      - name: Contrat orchestrateur
+        run: pnpm test:validate-version
+      - name: Validation commune v33 — SMN-348
+        run: node scripts/validate-version.mjs --profile smn-348
+      - name: Archiver le rapport commun
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-validation-smn-348
+          path: audit-output/version-validation-smn-348.json
+          if-no-files-found: warn

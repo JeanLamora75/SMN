@@ -155,12 +155,12 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   {editing&&draft&&<details className="smn-panel p-3 mb-3" aria-label="Titres des blocs d'en-tête">
    <summary className="fw-semibold">Personnaliser les blocs d’en-tête</summary>
    <div className="row g-3 mt-2">{draft.header.blocks.map((block,index)=><div className="col-12 col-md-6" key={block.id}>
-    <label className="form-label small w-100">Titre du bloc d'en-tête {index+1}
+    <label className="form-label small w-100">Titre du bloc d&apos;en-tête {index+1}
      <input type="text" className="form-control form-control-sm" maxLength={100}
       value={block.title??""} onChange={e=>setBlockTitle(block.id,e.target.value)} disabled={saving}
       placeholder="Titre du bloc (facultatif)"/>
     </label>
-    {block.slots.map(slot=><label className="form-label small w-100" key={slot.id}>Titre de l'emplacement
+    {block.slots.map(slot=><label className="form-label small w-100" key={slot.id}>Titre de l&apos;emplacement
      <input type="text" className="form-control form-control-sm" maxLength={100}
       value={slot.title??""} onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}
       placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}/>
@@ -219,7 +219,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
       </label>
       <div className="d-flex justify-content-end mb-2"><BlockDimensionControl value={block.dimensions} disabled={saving} onChange={value=>setDraft(d=>d?updateBlockDimensions(d,block.id,value):null)}/></div>
       <div className="row row-cols-1 row-cols-md-2 g-2">{block.slots.map(slot=><div className="col" key={slot.id}>
-       <label className="form-label small w-100">Titre de l'emplacement
+       <label className="form-label small w-100">Titre de l&apos;emplacement
         <input type="text" className="form-control form-control-sm" maxLength={100}
          value={slot.title??""} placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}
          onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}/>

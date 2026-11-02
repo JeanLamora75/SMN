@@ -26,8 +26,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
-      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
@@ -45,8 +45,10 @@ jobs:
       - name: Préparer la base éphémère dédiée aux contrats v31/v32
         run: |
           PGPASSWORD=smn_ci_ephemeral_test psql -h 127.0.0.1 -U smn_ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE smn_ci"
-      - name: Parité des catalogues FR/EN
-        run: pnpm i18n:check
+      - name: Contrat de validation v33
+        run: pnpm test:validate-version
+      - name: Qualité commune v33
+        run: node scripts/validate-version.mjs --profile quality
       - name: Recette PostgreSQL isolée SMN-343
         run: pnpm db:test:smn-343
       - name: Recette PostgreSQL isolée SMN-344
@@ -65,14 +67,10 @@ jobs:
         run: pnpm test:smn-348
       - name: Contrats de retry SMN-346
         run: pnpm test:smn-346
-      - name: Lint
-        run: pnpm lint
       - name: Tests unitaires et intégration PG réelle
         run: pnpm test
       - name: Valider le schéma Prisma
         run: pnpm exec prisma validate
-      - name: Typecheck
-        run: pnpm typecheck
       - name: Diagnostic de port et de prérequis
         run: |
           pnpm run doctor
@@ -103,6 +101,8 @@ jobs:
           run_install: false
       - name: Installer les dépendances (Windows sans élévation)
         run: pnpm install --frozen-lockfile
+      - name: Contrat de validation v33 sur Windows
+        run: pnpm test:validate-version
       - name: Tests unitaires Windows sans base PostgreSQL (intégrations PG couvertes par linux-postgres)
         shell: pwsh
         run: |
@@ -111,11 +111,16 @@ jobs:
           if ($files.Count -eq 0) { throw "Aucun test Windows sélectionné" }
           Write-Host "Tests Windows sans PG: $($files.Count) fichiers"
           # Windows imposes a short command-line limit; execute every selected test in bounded batches.
+          $failedBatches = @()
           for ($offset = 0; $offset -lt $files.Count; $offset += 40) {
             $batch = @($files | Select-Object -Skip $offset -First 40)
             Write-Host "Exécution Windows: fichiers $($offset + 1) à $($offset + $batch.Count) / $($files.Count)"
             pnpm exec tsx --test @batch
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if ($LASTEXITCODE -ne 0) { $failedBatches += "$($offset + 1)-$($offset + $batch.Count)" }
+          }
+          if ($failedBatches.Count -gt 0) {
+            Write-Error "Lots Windows en échec : $($failedBatches -join \", \")"
+            exit 1
           }
         env:
           CI: "false"
@@ -170,8 +175,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
-      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci_ci
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci_ci
     steps:
       - uses: actions/checkout@v4
         with:

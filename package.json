@@ -96,7 +96,9 @@
     "test:smn-373": "tsx --test tests/smn-373-dashboard-lists.test.ts",
     "test:smn-374": "tsx --test tests/smn-374-dashboard-cutover.test.ts",
     "test:smn-375": "tsx --test tests/smn-375-acceptance-coverage.test.ts",
-    "test:dashboard-builder": "tsx --test tests/smn-36*-*.test.ts tests/smn-37*-*.test.ts"
+    "test:dashboard-builder": "tsx --test tests/smn-36*-*.test.ts tests/smn-37*-*.test.ts",
+    "validate:version": "node scripts/validate-version.mjs --profile quality",
+    "test:validate-version": "node --test tests/version-validation-runner.test.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
