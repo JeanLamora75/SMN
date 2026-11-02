@@ -2,6 +2,8 @@
 import {Client} from "pg";
 import {randomUUID,createHash} from "node:crypto";
 import {installedDatabaseUri} from "../src/server/auth/database";
+import {probePostgres} from "../src/server/db/probe";
+import {classifySnapshot} from "../src/server/installation/diagnostic";
 import {SMN338_V33_NAME,INDICATOR_TABLES,indicatorV33Sql} from "../src/server/installation/indicator-v33-contract";
 export async function applyV33(db:Client,apply:boolean){
  await db.query(apply?"BEGIN":"BEGIN TRANSACTION READ ONLY");
@@ -36,7 +38,11 @@ async function main(){
  if(args.length!==1||!["--check","--apply"].includes(args[0]))throw Error("Usage: pnpm exec tsx scripts/apply-smn-338-v33.ts --check|--apply");
  if(args[0]==="--apply"&&process.env.SMN_V33_BACKUP_VERIFIED!=="YES")
   throw Error("Migration refusée : sauvegarde vérifiée et SMN_V33_BACKUP_VERIFIED=YES requises");
- const uri=await installedDatabaseUri();const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,statement_timeout:60000});
+ const uri=await installedDatabaseUri();
+ const snapshot=await probePostgres(uri);
+ if(classifySnapshot(snapshot).status!=="initialized"||snapshot.installations?.[0]?.schema_version!==32)
+  throw Error("Préconditions v32 invalides : diagnostic structurel et historique requis avant migration v33");
+ const db=new Client({connectionString:uri,connectionTimeoutMillis:3500,statement_timeout:60000});
  await db.connect();try{console.log(JSON.stringify(await applyV33(db,args[0]==="--apply"),null,2))}
  finally{await db.end()}
 }
