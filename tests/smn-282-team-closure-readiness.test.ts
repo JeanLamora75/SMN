@@ -17,6 +17,8 @@ function fixture(opt:Opt={}){
   if(sql.includes("SELECT p.id AS product_id"))
    return {rows:[{team_id:"panda",team:"Panda",
     mode:opt.mode??"scrum",product_id:null,product:null}]};
+  if(sql.includes("SELECT schema_version FROM public.smn_installation"))
+   return {rows:[{schema_version:28}]};
   if(sql.includes("AS ended"))return {rows:opt.cycleFound===false?[]:
    [{status:opt.status??"finished",ended:opt.ended??true}]};
   if(sql.includes("to_regclass('public.'||x.name)")){
