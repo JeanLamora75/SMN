@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {readFileSync} from "node:fs";
 import {createDefaultDashboardLayout,validateDashboardLayout} from "../src/server/dashboard-builder/layout";
-import {visibleSlots,gridColumns} from "../src/app/app/dashboard-builder/dashboard-consultation";
+import {visibleSlots,gridColumns} from "../src/lib/dashboard-builder/consultation-layout";
 test("SMN-361 AC1: Scrum/Kanban defaults provide two header blocks and three rows",()=>{
  for(const mode of ["scrum","kanban"] as const){
   const layout=createDefaultDashboardLayout(mode);
