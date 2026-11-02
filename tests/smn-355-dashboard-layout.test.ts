@@ -38,3 +38,29 @@ test("SMN-355 AC3: no storage on read; write requires expected revision",()=>{
  assert.match(code,/AND revision=\$6/);
  assert.match(code,/ROLLBACK/);
 });
+
+test("Dashboard Builder: custom titles on M01-M06 blocks and slots are persisted and validated",()=>{
+ const layout=createDefaultDashboardLayout("scrum");
+ const block=layout.rows[0].blocks[0];
+ block.title="Qualité du sprint";
+ block.slots[0].title="Tickets terminés";
+ assert.doesNotThrow(()=>validateDashboardLayout(layout));
+ const saved=JSON.parse(JSON.stringify(layout));
+ assert.equal(saved.rows[0].blocks[0].title,"Qualité du sprint");
+ assert.equal(saved.rows[0].blocks[0].slots[0].title,"Tickets terminés");
+ block.title="x".repeat(101);
+ assert.throws(()=>validateDashboardLayout(layout),/block-title-invalid/);
+ block.title="Qualité";
+ block.slots[0].title="x".repeat(101);
+ assert.throws(()=>validateDashboardLayout(layout),/slot-title-invalid/);
+});
+test("Dashboard Builder: personalized titles render in edit and consultation modes",()=>{
+ const editor=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-editor.tsx",import.meta.url),"utf8");
+ const consultation=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+ assert.match(editor,/setBlockTitle\(/);
+ assert.match(editor,/setSlotTitle\(/);
+ assert.match(editor,/Titre du bloc/);
+ assert.match(editor,/Titre de l'emplacement/);
+ assert.match(consultation,/block\.title\?\.trim\(\)/);
+ assert.match(consultation,/slot\.title\?\.trim\(\)/);
+});

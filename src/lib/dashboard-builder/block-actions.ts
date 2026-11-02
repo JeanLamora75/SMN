@@ -2,9 +2,9 @@ import type {DashboardBlock,DashboardLayout,DashboardSlot} from "@/server/dashbo
 import {requireCreatableDashboardTemplate,type DashboardTemplateId} from "./templates";
 import {deleteDashboardBlock,deleteDashboardRow} from "./reorder";
 
-const configured=(slot:DashboardSlot)=>!!slot.source||!!slot.view;
+const configured=(slot:DashboardSlot)=>!!slot.source||!!slot.view||!!slot.title?.trim();
 export function blockHasConfiguredContent(block:DashboardBlock):boolean{
- return block.slots.some(configured);
+ return !!block.title?.trim()||block.slots.some(configured);
 }
 export function rowHasConfiguredContent(layout:DashboardLayout,rowId:string):boolean{
  const row=layout.rows.find(r=>r.id===rowId);

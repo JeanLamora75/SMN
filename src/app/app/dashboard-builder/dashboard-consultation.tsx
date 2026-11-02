@@ -38,13 +38,15 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
   if(!active.length)return null;
   const template=getDashboardTemplate(block.templateId,block.templateVersion);
   const dimensions=block.dimensions;
-  return <section key={block.id} className="smn-panel p-3" aria-label="Bloc du tableau de bord">
+  return <section key={block.id} className="smn-panel p-3" aria-label={block.title?.trim()||"Bloc du tableau de bord"}>
+   {block.title?.trim()&&<h2 className="h6 mb-3">{block.title.trim()}</h2>}
    <div className={`${styles.innerSlots} ${styles.fixedContent}`} style={{gridTemplateColumns:`repeat(${template?.columns??1},minmax(0,1fr))`,gridTemplateRows:`repeat(${template?.rows??1},minmax(0,auto))`,height:dimensions?.height==="auto"?undefined:dimensions?.height}}>
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
-     if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
-     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
+     if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2">{slot.title?.trim()&&<h3 className="h6">{slot.title.trim()}</h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
+     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.title?.trim()||"Liste du tableau de bord"}>
+      {slot.title?.trim()&&<h3 className="h6 mb-2">{slot.title.trim()}</h3>}
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&["calendar:ceremonies","notes:sprint"].includes(slot.source??"")&&<div className="mb-2"><OperationalQuickAdd kind={slot.source==="notes:sprint"?"notes":"events"} teamId={teamId} cycleId={cycleId} label={slot.source==="notes:sprint"?"+ Ajouter une note":"+ Ajouter un événement"} onSaved={refresh}/></div>}
       <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
        onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
@@ -57,7 +59,8 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
-     return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
+     return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>
+      {slot.title?.trim()&&<h3 className="h6 mb-2">{slot.title.trim()}</h3>}
       {result.state==="absent"&&slot.view==="list"?<p role="status">Aucun résultat</p>:result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
        <DashboardVisualization model={model} locale={locale}/>}
       {model.state==="error"&&<button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>retry(slot.id)}>Réessayer cet emplacement</button>}
