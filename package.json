@@ -79,7 +79,8 @@
     "test:smn-357": "tsx --test tests/smn-357-dashboard-permissions.test.ts",
     "db:migrate:smn-357": "tsx scripts/apply-smn-357-dashboard-permissions.ts",
     "test:smn-358": "tsx --test tests/smn-358-dashboard-sources.test.ts",
-    "test:smn-359": "tsx --test tests/smn-359-dashboard-visualizations.test.ts"
+    "test:smn-359": "tsx --test tests/smn-359-dashboard-visualizations.test.ts",
+    "test:smn-360": "tsx --test tests/smn-360-dashboard-batch.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
