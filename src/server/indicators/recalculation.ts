@@ -42,7 +42,7 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
    impactedIndicatorIds(graph,changed,calendar):graph.order;
   const calculated=selected.filter(id=>graph.definitions.get(id)?.formula!==null);
   if(calculated.length===0)return {cycles:0,results:0};
-  const hasHistorical=[...graph.definitions.values()].some(d=>d.formula!==null&&/\\b(?:SUM_LAST|LAST_VALUES|AVG_LAST|MIN_LAST|MAX_LAST|PREVIOUS|DELTA|DELTA_PCT)\\s*\\(/.test(d.formula));
+  const hasHistorical=[...graph.definitions.values()].some(d=>d.formula!==null&&/\b(?:SUM_LAST|LAST_VALUES|AVG_LAST|MIN_LAST|MAX_LAST|PREVIOUS|DELTA|DELTA_PCT)\s*\(/.test(d.formula));
   const scopes:CycleScope[]=input.cycles&&!hasHistorical?[...input.cycles]:[
    ...(await db.query<{id:string}>("SELECT s.id FROM public.smn_sprint s JOIN public.smn_team t ON t.id=s.team_id WHERE s.team_id=$1 AND s.deleted_at IS NULL AND t.agile_mode='scrum' AND NOT t.is_archived ORDER BY s.start_at,s.id",[input.teamId])).rows.map(r=>({teamId:input.teamId,cycleType:"scrum" as const,cycleId:r.id})),
    ...(await db.query<{id:string}>("SELECT p.id FROM public.smn_kanban_period p JOIN public.smn_team t ON t.id=p.team_id WHERE p.team_id=$1 AND p.deleted_at IS NULL AND t.agile_mode='kanban' AND NOT t.is_archived ORDER BY p.start_on,p.id",[input.teamId])).rows.map(r=>({teamId:input.teamId,cycleType:"kanban" as const,cycleId:r.id}))
