@@ -87,14 +87,20 @@ export function migrateTemplateBlock<T extends { templateSlotId: string }>(
   if (!target) throw new Error(`Unknown template: ${block.templateId}`);
   if (!getDashboardTemplate(block.templateId, block.templateVersion)) throw new Error("Unknown source template version");
   if (block.templateVersion > target.version) throw new Error("Future template version");
-  let slots = block.slots.map(s => ({ ...s }));
+  const source = getDashboardTemplate(block.templateId, block.templateVersion)!;
+  const validSourceSlots = new Set(source.slots.map(s => s.slotId));
+  if (new Set(block.slots.map(s => s.templateSlotId)).size !== block.slots.length ||
+      block.slots.some(s => !validSourceSlots.has(s.templateSlotId))) {
+    throw new Error("Stored block has duplicate or unknown template slots");
+  }
+  let slots = structuredClone(block.slots) as T[];
   let version = block.templateVersion;
   while (version < target.version) {
     const candidates = migrations.filter(m => m.templateId === block.templateId && m.fromVersion === version && m.toVersion === version + 1);
     if (candidates.length !== 1) throw new Error(`Missing or ambiguous migration: ${block.templateId} v${version}`);
     const previousIds = new Set(slots.map(s => s.templateSlotId));
     if (previousIds.size !== slots.length) throw new Error("Duplicate templateSlotId");
-    const next = candidates[0].migrate(slots).map(s => ({ ...s }));
+    const next = structuredClone(candidates[0].migrate(structuredClone(slots))) as T[];
     const nextIds = new Set(next.map(s => s.templateSlotId));
     if (nextIds.size !== next.length || [...previousIds].some(id => !nextIds.has(id))) {
       throw new Error("Migration would discard or duplicate configured slots");
