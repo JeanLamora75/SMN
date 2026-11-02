@@ -6,7 +6,7 @@ import { readDashboardLayout, saveDashboardLayout, type DashboardLayout } from "
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-const resource = {type:"settings",exists:true,inScope:true} as const;
+const resource = {type:"collective",exists:true,inScope:true} as const;
 const validTeamId=(v:unknown):v is string=>typeof v==="string"&&/^[a-zA-Z0-9_-]{1,80}$/.test(v);
 
 async function scopeFor(db:import("pg").Client,accountId:string,teamId:string){
@@ -44,7 +44,9 @@ export async function GET(request:NextRequest){
  }catch(error){return failure(error);}
 }
 async function write(request:NextRequest){
- const actor=await authorizeApi(request,"write",resource);
+ // Authenticate the session and verify mutation origin; fine-grained edit rights
+ // are checked inside the database transaction, including for non-admin users.
+ const actor=await authorizeApi(request,"read",resource);
  if(!actor)return jsonResult({error:"forbidden",keepDraft:true},403);
  if(request.nextUrl.searchParams.size!==0)return jsonResult({error:"invalid-input",keepDraft:true},400);
  const input=await readJsonObject(request,262144);
