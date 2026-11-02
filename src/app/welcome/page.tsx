@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { currentInstallationDiagnostic } from "@/server/installation/current";
 import SetupWelcome from "./welcome-form";
 import {requestLocale} from "@/i18n/locale.server";
@@ -7,7 +6,7 @@ import {translate} from "@/i18n/catalog";
 export const dynamic = "force-dynamic";
 export default async function WelcomePage() {
   const state = await currentInstallationDiagnostic();
-  if (state.status === "initialized") notFound();
+  if (state.status === "initialized") return <main id="smn-main" className="smn-page container py-5"><section className="smn-panel p-4 p-md-5"><h1 className="h3">Accès indisponible</h1><p>L’installation est déjà terminée.</p><Link href="/" className="btn btn-outline-primary">Retour à l’accueil</Link></section></main>;
   const locale=await requestLocale();
   return <main id="smn-main" className="smn-page container py-5"><section className="smn-panel p-4 p-md-5">
     <h1 className="h3">{translate(locale,"welcome.title")}</h1>
