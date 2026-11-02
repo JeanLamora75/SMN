@@ -1,5 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
+import {DashboardCopyModal} from "./dashboard-copy-modal";
 import {resetDashboardDraft} from "@/lib/dashboard-builder/reset";
 import {duplicateDashboardBlock,changeDashboardBlockTemplate,removeDashboardRow,removeDashboardBlock,rowHasConfiguredContent,blockHasConfiguredContent} from "@/lib/dashboard-builder/block-actions";
 import {getDashboardTemplate,listCreatableDashboardTemplates} from "@/lib/dashboard-builder/templates";
@@ -30,6 +31,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [saving,setSaving]=useState(false);
  const [exitOpen,setExitOpen]=useState(false);
  const [resetOpen,setResetOpen]=useState(false);
+ const [copyOpen,setCopyOpen]=useState(false);
  const [error,setError]=useState<string|null>(null);
  const [success,setSuccess]=useState<string|null>(null);
  useEffect(()=>{if(!success)return;const timeout=setTimeout(()=>setSuccess(null),4000);return ()=>clearTimeout(timeout);},[success]);
@@ -127,12 +129,13 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    <summary className="btn btn-outline-primary">Actions du tableau de bord</summary>
    <ul className="dropdown-menu show position-static">
     <li><button type="button" className="dropdown-item" onClick={enter}>Personnaliser</button></li>
+    <li><button type="button" className="dropdown-item" onClick={()=>setCopyOpen(true)}>Copier vers une autre équipe</button></li>
    </ul>
   </details>}
   {editing&&<div className="d-flex align-items-center gap-2 mb-3">
    <span className="badge text-bg-secondary">Personnalisation</span>
    <details className="dropdown"><summary className="btn btn-outline-secondary">Actions du tableau de bord</summary>
-    <ul className="dropdown-menu show position-static"><li><button className="dropdown-item" type="button" disabled={saving} onClick={()=>setResetOpen(true)}>Réinitialiser</button></li></ul>
+    <ul className="dropdown-menu show position-static"><li><button className="dropdown-item" type="button" disabled={saving} onClick={()=>setResetOpen(true)}>Réinitialiser</button><li><button className="dropdown-item" type="button" disabled={saving} onClick={()=>setCopyOpen(true)}>Copier vers une autre équipe</button></li></li></ul>
    </details>
    <button className="btn btn-outline-secondary" type="button" onClick={requestExit} disabled={saving}>Quitter</button>
   </div>}
@@ -187,6 +190,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    </div>)}
    <button className="btn btn-outline-primary w-100" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
   </section>}
+  {copyOpen&&<DashboardCopyModal sourceTeamId={teamId} layout={published} unsaved={changed} onClose={()=>setCopyOpen(false)} onSuccess={setSuccess}/>}
   {resetOpen&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1080}}>
    <div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="dashboard-reset-title">
     <div className="modal-header"><h2 className="modal-title fs-5" id="dashboard-reset-title">Réinitialiser le Dashboard {mode==="scrum"?"Scrum":"Kanban"} ?</h2></div>
