@@ -82,5 +82,10 @@ describe("UX dashboard — lot 4 : cartes de priorité, sans donnée fabriquée"
   assert.doesNotMatch(source,/fetch\(|INSERT INTO|UPDATE public\.|DELETE FROM/);
   assert.match(source,/producer-not-ready/);
   assert.match(source,/items\.slice\(0,5\)/);
+  const builder=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+  const lists=readFileSync(new URL("../src/server/dashboard-builder/lists.ts",import.meta.url),"utf8");
+  assert.match(builder,/DashboardBusinessList/);
+  assert.match(builder,/visibleSlots\(block\)/);
+  assert.match(lists,/readRegistryDashboardList/);
  });
 });
