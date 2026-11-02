@@ -12,7 +12,7 @@ export type Expression=
  |Readonly<{kind:"historical";name:HistoricalFunction;tag:string;count:number}>;
 export type HistoricalFunction="SUM_LAST"|"LAST_VALUES"|"AVG_LAST"|"MIN_LAST"|"MAX_LAST"|"PREVIOUS"|"DELTA"|"DELTA_PCT";
 export const HISTORICAL_FUNCTIONS=new Set<HistoricalFunction>(["SUM_LAST","LAST_VALUES","AVG_LAST","MIN_LAST","MAX_LAST","PREVIOUS","DELTA","DELTA_PCT"]);
-export type HistoricalResolver=(name:HistoricalFunction,tag:string,count:number)=>Result;
+export type HistoricalResolver=(name:HistoricalFunction,tag:string,count:number,current?:SourceValue)=>Result;
 type Token={type:"num"|"id"|"op"|"end";value:string};
 const SCALE=10n**24n;
 const MAX_MAGNITUDE_DIGITS=72;
@@ -174,7 +174,7 @@ export function evaluateFormula(ast:Expression,sources:Readonly<Record<string,So
   if(depth>96||++operations>maxOperations)throw new FormulaBudgetError("evaluation budget");
   if(n.kind==="historical"){
    if(!historical)return unavailable("missing_source",n.tag);
-   const value=historical(n.name,n.tag,n.count);
+   const value=historical(n.name,n.tag,n.count,sources[n.tag]);
    return value.kind==="available"?{kind:"available",value:DecimalEngine.parse(value.value)}:unavailable(value.reason,value.sourceTag,value.detail);
   }
   if(n.kind==="number")return {kind:"available",value:DecimalEngine.parse(n.value)};
