@@ -81,7 +81,8 @@ test("AC1/2 : liste, cartes, relations, journal et synthèse propagent l'origine
  assert.match(list,/window\.addEventListener\("popstate"/);
  assert.match(list,/sessionStorage\.setItem/);
  assert.match(list,/onNavigate=\{savePosition\}/);
- assert.match(detail,/RegistryBreadcrumbs/);
+ assert.doesNotMatch(detail,/RegistryBreadcrumbs/);
+ assert.match(detail,/enterRegistryRelation\(navigation,id\)/);
  assert.match(detail,/enterRegistryRelation\(navigation,id\)/);
  for(const name of ["registry-list-row.tsx","registry-card.tsx","registry-relations.tsx",
   "registry-summary.tsx","registry-journal.tsx","action-links.tsx"])
