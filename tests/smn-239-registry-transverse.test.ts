@@ -6,7 +6,7 @@ import {parseRegistryFilters,readRegistryPage,readRegistryCycles,registryLifecyc
 const cycleId="11111111-1111-4111-8111-111111111111";
 test("périmètre transverse équipe sans cycle implicite ; validation stricte",()=>{
  assert.deepEqual(parseRegistryFilters(new URLSearchParams()),{
-  type:"all",search:"",status:"",owner:"",page:1,lifecycle:"all",sort:"default",cycleId:""
+  type:"all",search:"",status:"",owner:"",page:1,lifecycle:"all",sort:"default",cycleId:"",showResolved:false
  });
  assert.equal(parseRegistryFilters(new URLSearchParams("type=highlight&status=recorded"))?.type,"highlight");
  assert.equal(parseRegistryFilters(new URLSearchParams("type=all&status=satisfied"))?.status,"satisfied");
