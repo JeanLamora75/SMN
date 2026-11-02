@@ -69,7 +69,8 @@ test("attention calculée par SMN-104 uniquement, jamais depuis le statut ou le 
  assert.match(list,/fetch\("\/api\/admin\/registries\/attention\?"\+new URLSearchParams\(\{teamId\}\)/);
  assert.match(list,/attentionError/);
  assert.match(list,/attention\?\.filter\(signal=>signal\.id===item\.id\)/);
- assert.ok(!row.includes('item.status==="open"')&&!row.includes('item.type==="risk"'));
+ assert.match(row,/signals\.map\(/);
+ assert.match(row,/Number\.isInteger\(item\.criticalityScore\)/);
  assert.match(row,/signals\.map\(/);
  assert.match(row,/registryAttention\./);
  assert.match(source("src/app/app/admin/registries/attention-cockpit.tsx"),/countUnavailable/);
