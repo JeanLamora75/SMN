@@ -8,6 +8,8 @@ import {useDashboardBatch} from "./use-dashboard-batch";
 import {DashboardVisualization} from "./dashboard-visualization";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
 import {getDashboardTemplate} from "@/lib/dashboard-builder/templates";
+import styles from "./dashboard-dimensions.module.css";
+import type {CSSProperties} from "react";
 
 function hasContent(slot:DashboardSlot):boolean{
  return typeof slot.source==="string"&&slot.source.length>0&&
@@ -21,6 +23,10 @@ export function gridColumns(block:DashboardBlock):string{
  if(!template)return "minmax(0,1fr)";
  const active=template.slots.filter(cell=>block.slots.some(s=>s.templateSlotId===cell.slotId&&hasContent(s)));
  return active.length?active.map(cell=>`${cell.columnSpan}fr`).join(" "):"minmax(0,1fr)";
+}
+function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot:DashboardSlot):CSSProperties {
+ const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
+ return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
 }
 export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false"}:{
  layout:DashboardLayout;teamId:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
@@ -37,12 +43,14 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
  const renderBlock=(block:DashboardBlock)=>{
   const active=visibleSlots(block);
   if(!active.length)return null;
+  const template=getDashboardTemplate(block.templateId,block.templateVersion);
+  const dimensions=block.dimensions;
   return <section key={block.id} className="smn-panel p-3" aria-label="Bloc du tableau de bord">
-   <div style={{display:"grid",gridTemplateColumns:gridColumns(block),gap:"1rem"}}>
+   <div className={`${styles.innerSlots} ${styles.fixedContent}`} style={{gridTemplateColumns:`repeat(${template?.columns??1},minmax(0,1fr))`,gridTemplateRows:`repeat(${template?.rows??1},minmax(0,auto))`,height:dimensions?.height==="auto"?undefined:dimensions?.height}}>
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
-     if(!result||result.state==="loading")return <section key={slot.id} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><span role="status">Chargement…</span></section>;
+     if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><span role="status">Chargement…</span></section>;
      if(result.state==="available"){
       const number=Number(result.value);
       model=Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
@@ -50,7 +58,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
-     return <section key={slot.id} className="p-2" aria-label={slot.source}>
+     return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
       <DashboardVisualization model={model} locale={locale}/>
      </section>;
     })}
@@ -79,8 +87,8 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
   </section>
   {header.length>0&&<div className="row g-3 mb-3">{header.map((block,i)=>
    <div className="col-12 col-lg-6" key={i}>{block}</div>)}</div>}
-  {rows.length>0?rows.map((row,i)=><div className="row g-3 mb-3" key={i}>
-   {row.map((block,j)=><div className="col-12 col-lg" key={j}>{block}</div>)}
+  {rows.length>0?rows.map((row,i)=><div className={`${styles.blockRow} mb-3`} key={i}>
+   {row.map(({block,content})=><div className={styles.blockCell} key={block.id} style={{"--smn-block-width":block.dimensions?.width??1} as CSSProperties}>{content}</div>)}
   </div>):<section className="smn-panel p-4" role="status">
    <p className="mb-0">Aucune donnée configurée pour ce tableau de bord.</p>
   </section>}
