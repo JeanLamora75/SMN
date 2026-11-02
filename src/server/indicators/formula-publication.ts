@@ -2,6 +2,7 @@ import {createHash,randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {buildDependencyGraph,evaluateDependencies,impactedIndicatorIds,isCalendarSourceTag,type IndicatorDefinition,type DependencyRow} from "./dependencies";
 import {parseFormula,referencedTags,type SourceValue} from "./formula";
+import {loadHistoricalResolver} from "./formula/historical-context";
 import {recalculateIndicatorResultsWithinTransaction} from "./recalculation";
 
 export type FormulaProposal=Readonly<{indicatorId:string;formula:string}>;
@@ -58,7 +59,8 @@ async function prepare(db:Client,input:FormulaProposal){
   const values:Record<string,SourceValue>=Object.create(null) as Record<string,SourceValue>;
   for(const v of manual.rows)values[v.indicator_id]=v.value;
   for(const v of computed.rows)values[v.indicator_id]=v.result_state==="available"?v.value:{kind:"unavailable",reason:(v.unavailable_reason??"missing_source") as "missing_source",sourceTag:v.unavailable_source_tag??undefined};
-  const calculated=evaluateDependencies({graph,indicators:values,calendar:{},changedIndicatorIds:[input.indicatorId]});
+  const historical=await loadHistoricalResolver(db,{teamId:cycle.team_id,cycleType:cycle.cycle_type,cycleId:cycle.cycle_id},graph.byTag);
+  const calculated=evaluateDependencies({graph,indicators:values,calendar:{},changedIndicatorIds:[input.indicatorId],historical:()=>historical});
   unavailable+=[...calculated.values()].filter(x=>x.kind==="unavailable").length;
  }
  const fingerprint=digest({revision:rev.rows[0].revision,definitions:defs.rows,dependencies:existing.rows,cycles:cycles.rows,inputs,proposal:input});
