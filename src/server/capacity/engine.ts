@@ -27,12 +27,16 @@ export type CapacityReport={
 type Assignment={id:string;member_id:string;display_name:string;
  start_on:string;end_on:string|null};
 type Version={assignment_id:string;revision:number;effective_from:string;
+ scrum_master_percent:number;product_owner_percent:number;
  contract_percent:number;allocation_percent:number;contribution_percent:number;
  developer_percent:number};
+function roleShare(version:Version,role:"DEVELOPER"|"SCRUM_MASTER"|"PRODUCT_OWNER"|undefined):number{
+ return role==="SCRUM_MASTER"?version.scrum_master_percent:role==="PRODUCT_OWNER"?version.product_owner_percent:version.developer_percent;
+}
 type Week=WeekRow&{member_id:string};
 type Exception=ExceptionRow&{member_id:string};
 type Location={member_id:string;revision:number;effective_from:string;country_iso2:string};
-type Absence={member_id:string;start_on:string;end_on:string;
+type Absence={member_id:string;is_planned:boolean;start_on:string;end_on:string;
  start_slot:"morning"|"afternoon";end_slot:"morning"|"afternoon"};
 type Holiday={country_code:string;holiday_date:string;name:string};
 type Closure={member_id:string;start_on:string;end_on:string};
@@ -94,7 +98,8 @@ const listDates=(start:string,end:string)=>{
 };
 /** Queries share one repeatable-read snapshot; no mutation of historical snapshots. */
 export async function readDevelopmentCapacity(db:Client,start:string,end:string,
- options:{externalTransaction?:boolean;includeExceptionalImpact?:boolean;teamId?:string}={}):Promise<CapacityReport>{
+ options:{externalTransaction?:boolean;includeExceptionalImpact?:boolean;teamId?:string;
+ role?:"DEVELOPER"|"SCRUM_MASTER"|"PRODUCT_OWNER";absenceMode?:"all"|"planned"|"none"}={}):Promise<CapacityReport>{
  const parsed=parseCapacityPeriod(new URLSearchParams({start,end}));
  if(!parsed)throw Error("capacity-invalid-period");
  if(!options.externalTransaction)
@@ -130,7 +135,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
   const [versions,weeks,exceptions,locations,absences,closures]=await Promise.all([
    db.query<Version>([
     "SELECT assignment_id,revision,effective_from::text AS effective_from,",
-    "contract_percent,allocation_percent,contribution_percent,developer_percent",
+    "contract_percent,allocation_percent,contribution_percent,developer_percent,scrum_master_percent,product_owner_percent",
     "FROM public.smn_member_assignment_version WHERE assignment_id=ANY($1::text[])",
     "AND effective_from<=$2::date ORDER BY assignment_id,effective_from,revision LIMIT 15001"
    ].join(" "),[assignmentIds,end]),
@@ -152,7 +157,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     "AND effective_from<=$2::date ORDER BY member_id,effective_from,revision LIMIT 10001"
    ].join(" "),[memberIds,end]),
    db.query<Absence>([
-    "SELECT member_id,start_on::text AS start_on,end_on::text AS end_on,",
+    "SELECT member_id,is_planned,start_on::text AS start_on,end_on::text AS end_on,",
     "start_slot,end_slot FROM public.smn_member_absence",
     "WHERE member_id=ANY($1::text[]) AND start_on<=$3::date AND end_on>=$2::date",
     "AND NOT EXISTS (SELECT 1 FROM public.smn_member_absence_history h",
@@ -214,7 +219,8 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
    const memberWeeks=rowsFor(weeks.rows,memberId);
    const memberExceptions=rowsFor(exceptions.rows,memberId);
    const memberLocations=rowsFor(locations.rows,memberId);
-   const memberAbsences=rowsFor(absences.rows,memberId);
+   const memberAbsences=rowsFor(absences.rows,memberId).filter(a=>
+    options.absenceMode!=="none"&&(options.absenceMode!=="planned"||a.is_planned));
    const days:DayCapacity[]=[];
    let memberExactJh=0;
    for(const date of dates){
@@ -243,7 +249,8 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     if(availability.status==="unknown"&&problems.length===0)
      problems.push("work-calendar");
     if(version&&(!validRate(version.allocation_percent)||!validRate(version.contract_percent)||
-       !validRate(version.developer_percent)||!validRate(version.contribution_percent)||
+       !validRate(version.developer_percent)||!validRate(version.scrum_master_percent)||
+       !validRate(version.product_owner_percent)||!validRate(version.contribution_percent)||
        version.allocation_percent>version.contract_percent))
       throw Error("capacity-versions-corrupt");
     if(problems.length){
@@ -254,7 +261,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     const availableHalfDays=Number(availability.availableSlots!.morning)+
      Number(availability.availableSlots!.afternoon);
     const computed=computeDevelopmentDay(availableHalfDays,hoursPerJh,
-     version!.allocation_percent,version!.developer_percent,version!.contribution_percent);
+     version!.allocation_percent,roleShare(version!,options.role),version!.contribution_percent);
     if(!computed)throw Error("capacity-rate-corrupt");
     let netJh=computed.jh,netHours=computed.hours;
     if(options.includeExceptionalImpact&&team.mode==="scrum"){
@@ -273,7 +280,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
       const intervals:Interval[]=impacted.map(e=>({start:Date.parse(e.start_at),end:Date.parse(e.end_at)}));
       const minutes=occupiedMinutes(intervals,work);
       const deducted=capacityImpactJh(minutes,hoursPerJh,{allocationPercent:version!.allocation_percent,
-       developerPercent:version!.developer_percent,contributionPercent:version!.contribution_percent});
+       developerPercent:roleShare(version!,options.role),contributionPercent:version!.contribution_percent});
       netJh=Math.max(0,computed.jh-deducted);netHours=netJh*hoursPerJh;
      }
     }
@@ -283,7 +290,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
      developmentHours:round(netHours),availableHalfDays,
      allocationPercent:version!.allocation_percent,
      contractPercent:version!.contract_percent,
-     developerPercent:version!.developer_percent,
+     developerPercent:roleShare(version!,options.role),
      contributionPercent:version!.contribution_percent,missing:[]
     });
    }
