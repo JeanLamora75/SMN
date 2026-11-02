@@ -30,8 +30,11 @@ type Version={assignment_id:string;revision:number;effective_from:string;
  scrum_master_percent:number;product_owner_percent:number;
  contract_percent:number;allocation_percent:number;contribution_percent:number;
  developer_percent:number};
-function roleShare(version:Version,role:"DEVELOPER"|"SCRUM_MASTER"|"PRODUCT_OWNER"|undefined):number{
+export function roleShare(version:Pick<Version,"developer_percent"|"scrum_master_percent"|"product_owner_percent">,role:"DEVELOPER"|"SCRUM_MASTER"|"PRODUCT_OWNER"|undefined):number{
  return role==="SCRUM_MASTER"?version.scrum_master_percent:role==="PRODUCT_OWNER"?version.product_owner_percent:version.developer_percent;
+}
+export function absenceApplies(isPlanned:boolean,mode:"all"|"planned"|"none"|undefined):boolean{
+ return mode!=="none"&&(mode!=="planned"||isPlanned);
 }
 type Week=WeekRow&{member_id:string};
 type Exception=ExceptionRow&{member_id:string};
@@ -220,7 +223,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
    const memberExceptions=rowsFor(exceptions.rows,memberId);
    const memberLocations=rowsFor(locations.rows,memberId);
    const memberAbsences=rowsFor(absences.rows,memberId).filter(a=>
-    options.absenceMode!=="none"&&(options.absenceMode!=="planned"||a.is_planned));
+    absenceApplies(a.is_planned,options.absenceMode));
    const days:DayCapacity[]=[];
    let memberExactJh=0;
    for(const date of dates){
