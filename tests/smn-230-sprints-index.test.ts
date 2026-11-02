@@ -210,8 +210,16 @@ describe("SMN-230 — liste de sprints consultable en lecture seule",()=>{
   const en=JSON.parse(read("src/i18n/en.json")).sprintsIndex;
   assert.deepEqual(Object.keys(fr).sort(),Object.keys(en).sort());
   for(const key of Object.keys(fr)){
-   assert.ok(typeof fr[key]==="string"&&fr[key].length>0);
-   assert.ok(typeof en[key]==="string"&&en[key].length>0);
+   if(key==="indicatorColumns"){
+    assert.deepEqual(Object.keys(fr[key]).sort(),Object.keys(en[key]).sort());
+    for(const name of Object.keys(fr[key])){
+     assert.ok(typeof fr[key][name]==="string"&&fr[key][name].length>0);
+     assert.ok(typeof en[key][name]==="string"&&en[key][name].length>0);
+    }
+   }else{
+    assert.ok(typeof fr[key]==="string"&&fr[key].length>0);
+    assert.ok(typeof en[key]==="string"&&en[key].length>0);
+   }
   }
  });
 });
