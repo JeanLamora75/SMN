@@ -12,7 +12,7 @@ const paths=[
 
 test("les opérations transactionnelles Scrum utilisent le mode de l'équipe sans accès direct au mode global",()=>{
  for(const path of paths){
-  const sql=source(path);
+  const sql=source(path.endsWith("/ticket-counts.ts")?"src/server/compat-v32/ticket-counts.ts":path);
   assert.match(sql,/to_jsonb\(t\)->>'agile_mode'/,path);
   assert.match(sql,/to_jsonb\(i\)->>'mode'/,path);
   assert.doesNotMatch(sql,/\bi\.mode\b/,path);
