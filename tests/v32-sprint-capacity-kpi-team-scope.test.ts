@@ -10,7 +10,7 @@ const engine=read("src/server/capacity/engine.ts");
 test("C01 : capacité prévisionnelle v32 explicitement bornée à l'équipe du Sprint",()=>{
  assert.match(kpis,/readDevelopmentCapacity\(db,start,end,\{externalTransaction:true,teamId\}\)/);
  assert.match(kpis,/report\.team\.id!==teamId/);
- assert.match(engine,/i\.schema_version BETWEEN 28 AND 32/);
+ assert.match(engine,/i\.schema_version BETWEEN 28 AND 33/);
 });
 test("C02 : capacité réelle v32 et calcul imbriqué restent dans la même équipe",()=>{
  assert.match(kpis,/readActualCapacity\(db,start,end,readDevelopmentCapacity,\s*\{externalTransaction:true,teamId\}\)/);
