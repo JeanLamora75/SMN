@@ -64,8 +64,7 @@ export async function readCalendarDashboardList(db:Client,scope:LayoutScope,requ
  const rows=data.items.map(item=>({id:item.id,label:item.title,status:item.status,kind:item.kind,
   href:"/app/team-calendar",date:item.startsAt}));
  const ordered=f.sort==="asc"?[...rows].reverse():rows;
- return {rows:ordered.slice(f.offset,f.offset+f.limit),total:data.total,
-  nextOffset:f.offset+f.limit<data.total?f.offset+f.limit:null};
+ return {rows:ordered.slice(f.offset,f.offset+f.limit),total:data.total,nextOffset:null};
 }
 /** Notes retain sprint/team ownership; alerts come from the same existing read-only projector. */
 export async function readNotesDashboardList(db:Client,scope:LayoutScope,request:BatchRequest):Promise<DashboardListPayload>{
@@ -81,6 +80,5 @@ export async function readNotesDashboardList(db:Client,scope:LayoutScope,request
  const f=listFilters(request.filters);
  const rows=data.items.map(item=>({id:item.id,label:item.title,status:item.status,kind:item.kind,
   href:"/app?"+new URLSearchParams({teamId:scope.teamId,cycleId:request.cycleId!}).toString(),date:null}));
- return {rows:rows.slice(f.offset,f.offset+f.limit),total:data.total,
-  nextOffset:f.offset+f.limit<data.total?f.offset+f.limit:null};
+ return {rows:rows.slice(f.offset,f.offset+f.limit),total:data.total,nextOffset:null};
 }
