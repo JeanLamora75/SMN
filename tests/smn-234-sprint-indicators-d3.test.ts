@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import {describe,it} from "node:test";
 import {readFileSync} from "node:fs";
 import type {Client} from "pg";
-import {deriveSprintIndicators,parseIndicatorDraft} from "../src/lib/sprint-indicator-values";
+import {parseIndicatorDraft} from "../src/lib/sprint-indicator-values";
+import {calculateFormula} from "../src/server/indicators/formula";
 import {readSprintDetailIndicators} from "../src/server/sprints/indicators-read";
 import {writeSprintScores} from "../src/server/sprints/sprint-scores";
 
@@ -10,20 +11,22 @@ const id="123e4567-e89b-42d3-a456-426614174000";
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 
 describe("SMN-234 D3 — calculs purs des indicateurs",()=>{
- it("recalcule F05/F06/F07/F12 sans écriture ou plafonnement",()=>{
-  assert.deepEqual(deriveSprintIndicators(
-   {initial:10,added:5,removed:2,done:15},{initial:4,done:5}),
-   {final:13,remaining:-2,rate:15/13*100,ticketRate:125,overrun:true});
+ it("v33: les indicateurs calculés utilisent des tags et non des codes Fxx imposés",()=>{
+  const sources={SP_INITIAUX:"10",SP_AJOUTES:"5",SP_RETIRES:"2",SP_TERMINES:"15"};
+  assert.deepEqual(calculateFormula("SP_INITIAUX+SP_AJOUTES-SP_RETIRES",sources),
+   {kind:"available",value:"13"});
+  assert.deepEqual(calculateFormula("SP_TERMINES-(SP_INITIAUX+SP_AJOUTES-SP_RETIRES)",sources),
+   {kind:"available",value:"2"});
+  assert.deepEqual(calculateFormula("ROUND(SP_TERMINES/(SP_INITIAUX+SP_AJOUTES-SP_RETIRES)*100,2)",sources),
+   {kind:"available",value:"115.38"});
  });
- it("préserve null et zéro et refuse les divisions par zéro",()=>{
-  const zero=deriveSprintIndicators(
-   {initial:0,added:0,removed:0,done:0},{initial:0,done:0});
-  assert.equal(zero.final,0);assert.equal(zero.remaining,0);
-  assert.equal(zero.rate,null);assert.equal(zero.ticketRate,null);
-  const missing=deriveSprintIndicators(
-   {initial:null,added:1,removed:0,done:0},{initial:null,done:2});
-  assert.equal(missing.final,null);assert.equal(missing.remaining,null);
-  assert.equal(missing.rate,null);assert.equal(missing.ticketRate,null);
+ it("v33: zéro, absence et division par zéro restent distincts",()=>{
+  assert.deepEqual(calculateFormula("SP_TERMINES+1",{SP_TERMINES:"0"}),
+   {kind:"available",value:"1"});
+  assert.deepEqual(calculateFormula("SP_TERMINES+1",{SP_TERMINES:null}),
+   {kind:"unavailable",reason:"missing_source",sourceTag:"SP_TERMINES"});
+  assert.equal(calculateFormula("SP_TERMINES/SP_INITIAUX",{SP_TERMINES:"5",SP_INITIAUX:"0"}).kind,
+   "unavailable");
  });
  it("valide les entiers, les champs vides et les scores 1–5",()=>{
   assert.deepEqual(parseIndicatorDraft("", "count"),{ok:true,value:null});
@@ -48,7 +51,7 @@ function fake(handler:(sql:string,params?:unknown[])=>{rows:unknown[]}){
  }} as unknown as Client;
  return {db,statements};
 }
-describe("SMN-234 D3 — lecteurs historiques et autorisations",()=>{
+describe("SMN-234 D3 — compatibilité des lecteurs historiques et autorisations",()=>{
  it("refuse un sprint hors équipe avant toute lecture des valeurs",async()=>{
   const f=fake(()=>({rows:[]}));
   assert.equal(await readSprintDetailIndicators(f.db,"team-1",id),null);
