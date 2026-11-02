@@ -39,7 +39,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
   .flatMap(block=>visibleSlots(block).map(slot=>({
    id:slot.id,source:slot.source!,view:slot.view!,cycleId:slot.filters?.cycleIdOverride as string|undefined ?? cycleId,filters:slot.filters,
   }))),[layout,cycleId]);
- const {slots,refresh}=useDashboardBatch(teamId,cycleId,requests);
+ const {slots,refresh,retry}=useDashboardBatch(teamId,cycleId,requests);
  const renderBlock=(block:DashboardBlock)=>{
   const active=visibleSlots(block);
   if(!active.length)return null;
@@ -50,16 +50,18 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
-     if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><span role="status">Chargement…</span></section>;
+     if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
      if(result.state==="available"){
-      const number=Number(result.value);
+      const number=result.value===undefined||result.value===null?NaN:Number(result.value);
       model=Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
        {state:"error",kind:slot.view as VisualizationModel["kind"]};
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
      return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
-      <DashboardVisualization model={model} locale={locale}/>
+      {result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
+       <DashboardVisualization model={model} locale={locale}/>}
+      {model.state==="error"&&<button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>retry(slot.id)}>Réessayer cet emplacement</button>}
      </section>;
     })}
    </div>
