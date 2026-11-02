@@ -129,12 +129,12 @@ describe("SMN-234 D3 — lecteurs historiques et autorisations",()=>{
   assert.match(api,/authorizeApi\(req,"write",resource\)/);
   assert.match(api,/withAuthDb\(/);
  });
- it("l'onglet réel utilise le lecteur collectif et le panneau sans sélecteur Sprint",()=>{
+ it("v33: l'onglet indicateurs utilise les saisies et rapports dynamiques d'équipe",()=>{
   const page=read("src/app/app/admin/sprints/[sprintId]/page.tsx");
-  const panel=read("src/app/app/admin/sprints/[sprintId]/sprint-indicators-panel.tsx");
   assert.match(page,/active==="indicators"/);
-  assert.match(page,/readSprintDetailIndicators\(/);
-  assert.match(panel,/sprintId/);
-  assert.doesNotMatch(panel,/\/api\/admin\/sprints\/states/);
- });
+  assert.match(page,/<UniversalIndicatorInput teamId=\{teamId\}/);
+  assert.match(page,/<IndicatorReporting teamId=\{teamId\}/);
+  assert.match(page,/canManageDynamicIndicators/);
+  assert.doesNotMatch(page,/<SprintIndicatorsPanel/);
+ });;
 });
