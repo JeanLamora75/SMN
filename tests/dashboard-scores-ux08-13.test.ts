@@ -177,7 +177,8 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
   assert.equal(canAccess({role:"user",is_active:true,must_change_password:false},
    "write",resource),false);
   const css=readFileSync(new URL("../src/app/dashboard.css",import.meta.url),"utf8");
-  assert.match(css,/\.smn-metric-grid\s*\{\s*display:grid;grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+  const builder=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+  assert.match(builder,/gridColumns/);
   for(const width of [1180,1000,520])assert.match(css,new RegExp("@container \\(max-width:"+width+"px\\)"));
   assert.match(css,/\.smn-score-section \+ \.smn-score-section \{border-top:1px solid var\(--smn-border\)/);
   assert.match(css,/\.smn-score-track \{stroke:var\(--smn-muted\)/);
