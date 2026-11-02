@@ -13,7 +13,7 @@ import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import DashboardConsultation from "./dashboard-consultation";
 import {DashboardTemplateGallery} from "./template-gallery";
 import {DashboardSlotWizard} from "./slot-wizard";
-import type {SourceView} from "@/server/dashboard-builder/sources";
+import type {SourceDescriptor,SourceView} from "@/server/dashboard-builder/sources";
 import {appendDashboardRow,appendDashboardBlock} from "@/lib/dashboard-builder/composition";
 import type {DashboardTemplateId} from "@/lib/dashboard-builder/templates";
 
@@ -34,6 +34,16 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [copyOpen,setCopyOpen]=useState(false);
  const [error,setError]=useState<string|null>(null);
  const [success,setSuccess]=useState<string|null>(null);
+ const [sourceCatalog,setSourceCatalog]=useState<readonly SourceDescriptor[]>([]);
+ useEffect(()=>{
+  const controller=new AbortController();
+  void fetch("/api/dashboard-builder/sources?"+new URLSearchParams({teamId}),{cache:"no-store",signal:controller.signal})
+   .then(async response=>{if(!response.ok)throw Error("source-catalog-unavailable");return response.json() as Promise<{sources:SourceDescriptor[]}>;})
+   .then(result=>{if(!controller.signal.aborted)setSourceCatalog(Array.isArray(result.sources)?result.sources:[]);})
+   .catch(()=>{if(!controller.signal.aborted)setSourceCatalog([]);});
+  return()=>controller.abort();
+ },[teamId]);
+ const sourceByCode=useMemo(()=>new Map(sourceCatalog.map(source=>[source.code,source])),[sourceCatalog]);
  useEffect(()=>{if(!success)return;const timeout=setTimeout(()=>setSuccess(null),4000);return ()=>clearTimeout(timeout);},[success]);
  const [galleryRow,setGalleryRow]=useState<string|null>(null);
  const [wizardSlot,setWizardSlot]=useState<string|null>(null);
@@ -180,7 +190,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
       <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
        <button type="button" className="btn btn-outline-secondary w-100" onClick={()=>setWizardSlot(slot.id)} disabled={saving}
         aria-label={`Configurer emplacement ${slot.templateSlotId}`}>
-        {slot.source?"✎ "+slot.source:"+"}</button>
+        {slot.source?<span className="d-flex flex-column align-items-start text-start"><strong>✎ {sourceByCode.get(slot.source)?.name??"Source introuvable"}</strong>{sourceByCode.get(slot.source)&&<span className="small text-body-secondary">{sourceByCode.get(slot.source)?.category==="indicator"?"Indicateur":sourceByCode.get(slot.source)?.category==="registry"?"Registre":"Source"} · {sourceByCode.get(slot.source)?.scope==="cycle"?"Par cycle":"Par équipe"}{sourceByCode.get(slot.source)?.unit?" · "+sourceByCode.get(slot.source)?.unit:""}</span>}</span>:"+"}</button>
       </div>)}</div>
      </div>
     </div>)}</div>

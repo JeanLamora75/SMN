@@ -32,3 +32,11 @@ test("SMN-363 AC4: conflict/network errors keep draft and navigation disabled",(
  assert.match(consultation,/navigation.previous&&!personalizing/);
  assert.match(consultation,/navigation.next&&!personalizing/);
 });
+
+test("Dashboard Builder: slot displays business source labels without leaking UUIDs",()=>{
+ assert.match(editor,/fetch\("\/api\/dashboard-builder\/sources\?"/);
+ assert.match(editor,/sourceByCode\.get\(slot\.source\)\?\.name/);
+ assert.match(editor,/Source introuvable/);
+ assert.doesNotMatch(editor,/["\u0027]✎ ["\u0027]\+slot\.source/);
+ assert.match(editor,/updateDashboardSlot\(current,wizardSlot,\{source,view,filters:options\}\)/);
+});
