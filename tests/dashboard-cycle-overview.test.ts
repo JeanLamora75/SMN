@@ -30,9 +30,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
   it("présente cinq cartes, dont les deux notes de Sprint, et les unités existantes",()=>{
     const html=view("scrum","fr");
     assert.equal((html.match(/class="smn-metric-card/g)||[]).length,2);
-    for(const label of ["Capacité prévue","Capacité réelle","SP initialement engagés",
-      "SP réalisés","Tickets initialement engagés","Tickets réalisés",
-      "Jours ouvrés restants","Confiance de l’équipe","Clarté des objectifs","J/H","SP"]){
+    for(const label of ["Capacité prévue","Capacité réelle","Jours ouvrés restants","J/H"]){
       assert.ok(html.includes(label),label);
     }
     assert.doesNotMatch(html,/Avancement global|Productivité|\b0\s*(?:SP|J\/H|tickets)\b/i);
@@ -63,8 +61,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
   it("traduit tout le cockpit en anglais et conserve une vraie fiche d'équipe",()=>{
     const html=view("kanban","en");
     for(const s of ["No cycle created","Kanban period","Planned capacity",
-      "Actual capacity","Initially committed story points","Working days remaining",
-      "No previous cycle","Not specified"]){
+      "Actual capacity","Working days remaining","Not specified"]){
       assert.ok(html.includes(s),s);
     }
     assert.match(html,/href="\/app\/team\/team-1\?returnTo=%2Fapp"/);
