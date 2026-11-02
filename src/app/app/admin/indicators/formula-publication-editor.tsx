@@ -17,7 +17,7 @@ export default function FormulaPublicationEditor({indicatorId,initialFormula,onP
   finally{setBusy(false);}
  }
  return <section aria-label={t("indicators.formulaEditor")} className="smn-panel rounded-4 p-3 mt-3">
-  <h3 className="h6">{t("indicators.formulaEditor")}</h3>
+  <div className="d-flex justify-content-between align-items-center gap-2 flex-wrap"><h3 className="h6 mb-0">{t("indicators.formulaEditor")}</h3><a className="btn btn-outline-secondary btn-sm" href="/app/admin/settings/indicators#guide-expressions" target="_blank" rel="noopener noreferrer">Guide des expressions (nouvel onglet)</a></div>
   <label className="form-label d-block">{t("indicators.formula")}<textarea className="form-control mt-1" maxLength={4096} value={formula} onChange={e=>{setFormula(e.target.value);setPreview(null);}}/></label>
   {error&&<p role="alert" className="alert alert-danger">{t("indicators.error")}: {error}</p>}
   {message&&<p role="status" className="alert alert-info">{message}</p>}
