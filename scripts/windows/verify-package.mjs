@@ -160,6 +160,7 @@ try {
     const restrictedWelcome = await fetchTimed(base + "/welcome", {redirect:"manual"});
     assert.ok([200,404].includes(restrictedWelcome.status), "Statut inattendu de la page d’installation");
     const restrictedHtml = await restrictedWelcome.text();
+    console.log("Garde /welcome : "+JSON.stringify(serverOutput.match(/SMN welcome guard [\\w-]+/g)?.slice(-4)??[]));
     assert.match(restrictedHtml,/Accès indisponible|Access unavailable/,
       "La page d’installation doit afficher un refus après initialisation");
     assert.doesNotMatch(restrictedHtml,/Installer Scrum Master Notebook/,
