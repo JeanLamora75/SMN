@@ -49,7 +49,6 @@ export function validateSourceDescriptors(sources:readonly SourceDescriptor[]): 
 }
 
 const PENDING:readonly Omit<SourceDescriptor,"status"|"reason">[] = [
- {code:"registry:items",name:"Registres",category:"registry",unit:null,scope:"team",permission:"read",views:["list","card"]},
  {code:"cycle:overview",name:"Cycles Scrum/Kanban",category:"cycle",unit:null,scope:"cycle",permission:"read",views:["card","list"]},
  {code:"calendar:ceremonies",name:"Calendrier et cérémonies",category:"calendar",unit:null,scope:"cycle",permission:"read",views:["list"]},
  {code:"objective:team",name:"Objectifs",category:"objective",unit:null,scope:"team",permission:"read",views:["text","card"]},
@@ -86,7 +85,8 @@ export async function listDashboardSources(db:Client,scope:LayoutScope):Promise<
   }));
  }
  const pending=PENDING.map(x=>descriptor({...x,status:"unavailable",reason:"adapter-not-connected"}));
- const sources=Object.freeze([...indicators,...pending]);
+ const registry:SourceDescriptor=descriptor({code:"registry:items",name:"Risques, obstacles et dépendances",category:"registry",unit:null,scope:"team",permission:"read",views:["list"],status:"available"});
+ const sources=Object.freeze([...indicators,registry,...pending]);
  validateSourceDescriptors(sources);
  return sources;
 }
