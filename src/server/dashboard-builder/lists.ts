@@ -32,7 +32,7 @@ export async function readRegistryDashboardList(db:Client,scope:LayoutScope,requ
  const cycleTable=mode==="kanban"?"smn_kanban_period":"smn_sprint";
  const cycleColumn=mode==="kanban"?"period_id":"sprint_id";
  const filters=[scope.teamId,f.type,f.showClosed,cycleId??null] as unknown[];
- const where=`r.team_id=$1 AND ($2='all' OR r.type=$2)
+ const where=`r.team_id=$1 AND (($2='all' AND r.type IN ('risk','obstacle','dependency')) OR r.type=$2)
  AND ($3::boolean OR NOT ${finalSql})
  AND ($4::text IS NULL OR EXISTS (SELECT 1 FROM public.${linkTable} l
  JOIN public.${cycleTable} c ON c.id=l.${cycleColumn}
