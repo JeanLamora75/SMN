@@ -5,8 +5,8 @@ const wizard=readFileSync(new URL("../src/app/app/dashboard-builder/slot-wizard.
 const editor=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-editor.tsx",import.meta.url),"utf8");
 test("SMN-365 AC1: catalog search, category filter and team-scoped request",()=>{
  assert.match(wizard,/api\/dashboard-builder\/sources\?teamId=/);
- assert.match(wizard,/Rechercher par code ou nom/);
- assert.match(wizard,/s\.code\+" "\+s\.name/);
+ assert.match(wizard,/\[search,setSearch\]=useState\(""\)/);
+ assert.match(wizard,/s\.name\+" "\+\(s\.category/);
  assert.match(wizard,/category=== "all"|category==="all"/);
 });
 test("SMN-365 AC2: only compatible visualizations, responsive preview",()=>{
