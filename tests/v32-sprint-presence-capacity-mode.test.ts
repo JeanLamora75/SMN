@@ -7,7 +7,7 @@ const engine=read("src/server/capacity/engine.ts");
 const presence=read("src/server/sprints/presence-detail-read.ts");
 
 test("v32 capacité Sprint : l'équipe est résolue par son mode et les versions 28 à 32",()=>{
- assert.match(engine,/i\.schema_version BETWEEN 28 AND 32/);
+ assert.match(engine,/i\.schema_version BETWEEN 28 AND 33/);
  assert.match(engine,/to_jsonb\(t\)->>'agile_mode'/);
  assert.match(engine,/to_jsonb\(i\)->>'mode'/);
  assert.match(engine,/to_jsonb\(t\)->>'is_archived'/);
