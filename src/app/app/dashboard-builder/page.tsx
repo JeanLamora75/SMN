@@ -5,7 +5,8 @@ import {withSessionReadDb} from "@/server/auth/database";
 import {readAccountDashboard} from "@/server/dashboard/read";
 import {readDashboardLayout} from "@/server/dashboard-builder/layout";
 import {requestLocale} from "@/i18n/locale.server";
-import DashboardConsultation from "./dashboard-consultation";
+import {DashboardEditor} from "./dashboard-editor";
+import {dashboardPermission} from "@/server/dashboard-builder/permissions";
 import {listDashboardCycles,cycleNavigation} from "@/server/dashboard-builder/cycles";
 
 export const dynamic="force-dynamic";
@@ -27,10 +28,11 @@ export default async function DashboardBuilderPage({searchParams}:{
    const saved=await readDashboardLayout(db,{
     installationId:owner.rows[0].installation_id,accountId:account.id,teamId,
    });
+   const rights=await dashboardPermission(db,{installationId:owner.rows[0].installation_id,accountId:account.id,teamId});
    const mode=context.context.mode as "scrum"|"kanban";
    const cycles=await listDashboardCycles(db,{installationId:owner.rows[0].installation_id,accountId:account.id,teamId},mode);
    const navigation=cycleNavigation(cycles,typeof query.cycleId==="string"?query.cycleId:null);
-   return {teamId,teamName:context.context.team,mode,layout:saved.layout,navigation};
+   return {teamId,teamName:context.context.team,mode,layout:saved.layout,revision:saved.revision,canEdit:rights.canEdit,navigation};
   });
   const locale=await requestLocale();
   return <div className="py-3">
@@ -41,8 +43,8 @@ export default async function DashboardBuilderPage({searchParams}:{
      <span className="badge text-bg-secondary">{data.mode==="scrum"?"Scrum":"Kanban"}</span>
     </div>
    </div>
-   <DashboardConsultation layout={data.layout} teamId={data.teamId}
-    navigation={data.navigation} mode={data.mode} locale={locale}/>
+   <DashboardEditor initialLayout={data.layout} initialRevision={data.revision} canEdit={data.canEdit}
+    teamId={data.teamId} navigation={data.navigation} mode={data.mode} locale={locale}/>
   </div>;
  }catch{
   return <section className="smn-panel p-4" role="alert">
