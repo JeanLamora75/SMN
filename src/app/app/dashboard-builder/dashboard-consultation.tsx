@@ -67,7 +67,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      </section>;
      if(result.state==="available"){
       const number=result.value===undefined||result.value===null?NaN:Number(result.value);
-      model=Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
+      model=result.points&&(["line","bar"].includes(slot.view!))?{state:"ready",kind:slot.view as VisualizationModel["kind"],points:result.points,unit:result.unit}:Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
        {state:"error",kind:slot.view as VisualizationModel["kind"]};
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
