@@ -11,6 +11,7 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
  const [revision,setRevision]=useState(0);
  const [retryCounter,setRetryCounter]=useState<Record<string,number>>({});
  const generation=useRef(0);
+ const retryGeneration=useRef(0);
  const serialized=JSON.stringify(items);
  const stableItems=useMemo(()=>JSON.parse(serialized) as BatchRequest[],[serialized]);
  const context=JSON.stringify([teamId,cycleId,serialized]);
@@ -59,7 +60,7 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
   const controller=new AbortController();
   const batch=stableItems.filter(item=>entries.some(([id])=>id===item.id))
    .map(item=>({...item,cycleId:item.cycleId??cycleId}));
-  const current=++generation.current;
+  const current=++retryGeneration.current;
   setState(previous=>({...previous,...Object.fromEntries(batch.map(item=>
    [item.id,{context:identity(teamId,cycleId,item),value:{id:item.id,state:"loading" as const}}]))}));
   void (async()=>{
@@ -68,7 +69,7 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
      body:JSON.stringify({teamId,items:batch}),signal:controller.signal,cache:"no-store"});
     if(!response.ok)throw Error("dashboard-retry-failed");
     const body=await response.json() as {results:BatchResult[]};
-    if(!controller.signal.aborted&&current===generation.current)
+    if(!controller.signal.aborted&&current===retryGeneration.current)
      setState(previous=>({...previous,...Object.fromEntries(body.results.map(value=>{
       const item=batch.find(i=>i.id===value.id)!;return [value.id,{context:identity(teamId,cycleId,item),value}];
      }))}));
@@ -78,7 +79,7 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
       [item.id,{context:identity(teamId,cycleId,item),value:{id:item.id,state:"error" as const}}]))}));
    }
   })();
-  return ()=>controller.abort();
+  return ()=>{controller.abort();retryGeneration.current++;};
  },[retries,teamId,cycleId,stableItems]);
  const slots=Object.fromEntries(stableItems.map(item=>{
   const stored=state[item.id],expected=identity(teamId,cycleId,{...item,cycleId:item.cycleId??cycleId});
