@@ -32,7 +32,7 @@ test("table, colonne ou contrainte manquante bloquent",()=>{
  }
 });
 test("version future refusée même avec toutes les structures",()=>{
- const result=assessSchemaIntegrity("per-team-agile-mode",33,valid);
+ const result=assessSchemaIntegrity("per-team-agile-mode",34,valid);
  assert.equal(result.ok,false);
 });
 
