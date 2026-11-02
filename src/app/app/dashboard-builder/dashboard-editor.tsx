@@ -150,7 +150,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    <button className="btn btn-outline-secondary" type="button" onClick={requestExit} disabled={saving}>Quitter</button>
   </div>}
   <DashboardConsultation layout={draft??published} teamId={teamId} navigation={navigation}
-   mode={mode} locale={locale} personalizing={editing}/>
+   mode={mode} locale={locale} personalizing={editing} canManage={canEdit}/>
   {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
    {draft.rows.map((row,index)=><div className="smn-panel p-3 mb-3" key={row.id} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();dropOnRow(row.id,index);}}>
     <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
