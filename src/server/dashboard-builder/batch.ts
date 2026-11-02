@@ -63,7 +63,9 @@ export async function readDashboardBatch(db:Client,scope:LayoutScope,requests:re
      "SELECT id,tag,formula FROM public.smn_indicator_definition WHERE archived_at IS NULL");
     const current=definitions.rows.find(x=>x.id===indicatorId);
     if(!current)return {state:"absent"};
-    const history=await loadHistoricalResolver(db,{teamId:scope.teamId,cycleType:"scrum",cycleId:r.cycleId},new Map(definitions.rows.map(x=>[x.tag,x.id])));
+    const mode=await db.query<{agile_mode:"scrum"|"kanban"}>("SELECT agile_mode FROM public.smn_team WHERE id=$1 AND NOT is_archived",[scope.teamId]);
+    if(!mode.rows[0]||!["scrum","kanban"].includes(mode.rows[0].agile_mode))return {state:"unavailable"};
+    const history=await loadHistoricalResolver(db,{teamId:scope.teamId,cycleType:mode.rows[0].agile_mode,cycleId:r.cycleId},new Map(definitions.rows.map(x=>[x.tag,x.id])));
     const match=/^LAST_VALUES\(([A-Z][A-Z0-9_]*),([1-9][0-9]*)\)$/.exec(current.formula?.replace(/\s+/g,"")??"");
     const target=match?.[1]??current.tag;
     const size=match?Number(match[2]):6;
