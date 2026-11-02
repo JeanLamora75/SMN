@@ -14,16 +14,12 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
  const retryGeneration=useRef(0);
  const serialized=JSON.stringify(items);
  const stableItems=useMemo(()=>JSON.parse(serialized) as BatchRequest[],[serialized]);
- const context=JSON.stringify([teamId,cycleId,serialized]);
  const refresh=useCallback(()=>setRevision(v=>v+1),[]);
  const retry=useCallback((id:string)=>setRetryRequest(v=>({id,nonce:(v?.nonce??0)+1})),[]);
- const retries=retryRequest?.nonce??0;
  useEffect(()=>{
   const controller=new AbortController();
   const current=++generation.current;
   const selected=stableItems.map(item=>({...item,cycleId:item.cycleId??cycleId}));
-  const init=Object.fromEntries(selected.map(item=>[item.id,{context:identity(teamId,cycleId,item),value:{id:item.id,state:"loading" as const}}]));
-  setState(init);
   async function load(){
    for(let offset=0;offset<selected.length;offset+=20){
     if(controller.signal.aborted)return;
@@ -47,7 +43,7 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
    }
   }
   void load();
-  return ()=>{controller.abort();generation.current++;};
+  return ()=>{controller.abort();};
  },[teamId,cycleId,serialized,stableItems,revision]);
  useEffect(()=>{
   if(refreshMilliseconds<=0)return;
@@ -60,8 +56,6 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
   const batch=stableItems.filter(item=>item.id===retryRequest.id)
    .map(item=>({...item,cycleId:item.cycleId??cycleId}));
   const current=++retryGeneration.current;
-  setState(previous=>({...previous,...Object.fromEntries(batch.map(item=>
-   [item.id,{context:identity(teamId,cycleId,item),value:{id:item.id,state:"loading" as const}}]))}));
   void (async()=>{
    try{
     const response=await fetch("/api/dashboard-builder/batch",{method:"POST",headers:{"Content-Type":"application/json"},
@@ -73,13 +67,13 @@ export function useDashboardBatch(teamId:string,cycleId:string|null,items:readon
       const item=batch.find(i=>i.id===value.id)!;return [value.id,{context:identity(teamId,cycleId,item),value}];
      }))}));
    }catch{
-    if(!controller.signal.aborted&&current===generation.current)
+    if(!controller.signal.aborted&&current===retryGeneration.current)
      setState(previous=>({...previous,...Object.fromEntries(batch.map(item=>
       [item.id,{context:identity(teamId,cycleId,item),value:{id:item.id,state:"error" as const}}]))}));
    }
   })();
-  return ()=>{controller.abort();retryGeneration.current++;};
- },[retries,teamId,cycleId,stableItems]);
+  return ()=>{controller.abort();};
+ },[retryRequest,teamId,cycleId,stableItems]);
  const slots=Object.fromEntries(stableItems.map(item=>{
   const stored=state[item.id],expected=identity(teamId,cycleId,{...item,cycleId:item.cycleId??cycleId});
   return [item.id,stored?.context===expected?stored.value:{id:item.id,state:"loading"}];
