@@ -9,7 +9,7 @@ test("la cadence Scrum v32 utilise le contrat central",()=>{
  assert.match(s,/evaluateSchemaCapability\(version,"multi-team"\)/);
  assert.match(s,/resolveAdminTeam/);
  assert.equal(evaluateSchemaCapability(32,"multi-team").ok,true);
- assert.equal(evaluateSchemaCapability(33,"multi-team").ok,false);
+ assert.equal(evaluateSchemaCapability(34,"multi-team").ok,false);
 });
 test("la liste Kanban v32 exige une équipe autorisée",()=>{
  const s=source("src/app/api/admin/kanban-periods/list/route.ts");
