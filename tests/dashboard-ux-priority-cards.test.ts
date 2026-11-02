@@ -77,7 +77,7 @@ describe("UX dashboard — lot 4 : cartes de priorité, sans donnée fabriquée"
   assert.ok(html.includes("Impediment"));
   assert.match(html,/aria-hidden="true"/);
  });
- it("n'ajoute aucune mutation, source SQL fictive ou navigation vers un registre absent",()=>{
+ it("la compatibilité des cartes historiques reste sans mutation, tandis que les listes Builder utilisent des lecteurs dédiés",()=>{
   const source=readFileSync(new URL("../src/app/app/operational-overview.tsx",import.meta.url),"utf8");
   assert.doesNotMatch(source,/fetch\(|INSERT INTO|UPDATE public\.|DELETE FROM/);
   assert.match(source,/producer-not-ready/);
