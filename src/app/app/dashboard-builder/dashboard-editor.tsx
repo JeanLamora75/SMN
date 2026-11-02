@@ -1,5 +1,6 @@
 "use client";
 import {useCallback,useMemo,useState} from "react";
+import {moveDashboardRow,moveDashboardBlock,deleteDashboardRow,deleteDashboardBlock} from "@/lib/dashboard-builder/reorder";
 import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/layout";
 import {updateDashboardSlot,type SlotOptions} from "@/lib/dashboard-builder/slot-options";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
@@ -26,6 +27,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [error,setError]=useState<string|null>(null);
  const [galleryRow,setGalleryRow]=useState<string|null>(null);
  const [wizardSlot,setWizardSlot]=useState<string|null>(null);
+ const [dragged,setDragged]=useState<{kind:"row"|"block";id:string}|null>(null);
  const editing=draft!==null;
  const changed=useMemo(()=>draft!==null&&signature(draft)!==signature(published),[draft,published]);
  const enter=()=>{if(!canEdit)return;setDraft(copy(published));setError(null);};
@@ -61,6 +63,14 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   setDraft(current=>current?updateDashboardSlot(current,wizardSlot,{source,view,filters:options}):null);
   setWizardSlot(null);
  };
+ const reorderRow=(id:string,index:number)=>setDraft(d=>d?moveDashboardRow(d,id,index):null);
+ const reorderBlock=(id:string,rowId:string,index:number)=>setDraft(d=>d?moveDashboardBlock(d,id,rowId,index):null);
+ const dropOnRow=(targetId:string,index:number)=>{
+  if(!dragged)return;
+  if(dragged.kind==="row")reorderRow(dragged.id,index);
+  else reorderBlock(dragged.id,targetId,0);
+  setDragged(null);
+ };
  const addRow=()=>setDraft(current=>current?appendDashboardRow(current,crypto.randomUUID()):null);
  const addBlock=(templateId:DashboardTemplateId)=>{
   if(!galleryRow||!draft)return;
@@ -84,11 +94,38 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   <DashboardConsultation layout={draft??published} teamId={teamId} navigation={navigation}
    mode={mode} locale={locale} personalizing={editing}/>
   {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
-   {draft.rows.map((row,index)=><div className="smn-panel p-3 mb-3" key={row.id}>
-    <h3 className="h6">Ligne {index+1}</h3>
-    <div className="row g-2 mb-2">{row.blocks.map(block=><div className="col-12 col-lg" key={block.id}>
+   {draft.rows.map((row,index)=><div className="smn-panel p-3 mb-3" key={row.id} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();dropOnRow(row.id,index);}}>
+    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+     <h3 className="h6 mb-0">Ligne {index+1}</h3>
+     <div className="d-flex align-items-center gap-2">
+      <button type="button" className="btn btn-outline-secondary btn-sm" draggable
+       onDragStart={()=>setDragged({kind:"row",id:row.id})} onDragEnd={()=>setDragged(null)}
+       aria-label={`Déplacer ligne ${index+1} à la souris`}>⠿</button>
+      <details><summary className="btn btn-outline-secondary btn-sm">Actions ligne</summary>
+       <div className="d-flex flex-wrap gap-1 mt-1">
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===0} onClick={()=>reorderRow(row.id,index-1)}>Monter</button>
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===draft.rows.length-1} onClick={()=>reorderRow(row.id,index+1)}>Descendre</button>
+        <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>setDraft(d=>d?deleteDashboardRow(d,row.id):null)}>Supprimer</button>
+       </div>
+      </details>
+     </div>
+    </div>
+    <div className="row g-2 mb-2">{row.blocks.map((block,blockIndex)=><div className="col-12 col-lg" key={block.id}
+     onDragOver={e=>e.preventDefault()} onDrop={e=>{e.stopPropagation();e.preventDefault();if(dragged?.kind==="block")reorderBlock(dragged.id,row.id,blockIndex);setDragged(null);}}>
      <div className="border rounded p-2">
-      <div className="fw-semibold mb-2">{block.templateId}</div>
+      <div className="d-flex flex-wrap align-items-center justify-content-between gap-1 mb-2">
+       <strong>{block.templateId}</strong>
+       <button className="btn btn-outline-secondary btn-sm" type="button" draggable
+        onDragStart={()=>setDragged({kind:"block",id:block.id})} onDragEnd={()=>setDragged(null)}
+        aria-label={`Déplacer bloc ${block.templateId} à la souris`}>⠿</button>
+       <details><summary className="btn btn-outline-secondary btn-sm">Actions bloc</summary><div className="d-flex flex-wrap gap-1 mt-1">
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||blockIndex===0} onClick={()=>reorderBlock(block.id,row.id,blockIndex-1)}>Monter</button>
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||blockIndex===row.blocks.length-1} onClick={()=>reorderBlock(block.id,row.id,blockIndex+1)}>Descendre</button>
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===0} onClick={()=>reorderBlock(block.id,draft.rows[index-1].id,draft.rows[index-1].blocks.length)}>Ligne précédente</button>
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===draft.rows.length-1} onClick={()=>reorderBlock(block.id,draft.rows[index+1].id,draft.rows[index+1].blocks.length)}>Ligne suivante</button>
+        <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>setDraft(d=>d?deleteDashboardBlock(d,block.id):null)}>Supprimer</button>
+       </div></details>
+      </div>
       <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
        <button type="button" className="btn btn-outline-secondary w-100" onClick={()=>setWizardSlot(slot.id)} disabled={saving}
         aria-label={`Configurer emplacement ${slot.templateSlotId}`}>
