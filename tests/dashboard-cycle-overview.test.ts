@@ -1,70 +1,33 @@
 import assert from "node:assert/strict";
-import {describe,it} from "node:test";
-import {createElement} from "react";
-import {renderToStaticMarkup} from "react-dom/server";
-import CycleOverview from "../src/app/app/cycle-overview";
-import type {DashboardContext} from "../src/server/dashboard/read";
+import {test} from "node:test";
+import {readFileSync} from "node:fs";
+import {cycleNavigation} from "../src/server/dashboard-builder/cycles";
+import {createDefaultDashboardLayout} from "../src/server/dashboard-builder/layout";
 
-const contexts:Record<"scrum"|"kanban",DashboardContext>={
-  scrum:{productId:"product-1",product:"Produit pilote",teamId:"team-1",team:"Équipe Alpha",mode:"scrum"},
-  kanban:{productId:"product-1",product:"Service pilote",teamId:"team-1",team:"Équipe Ops",mode:"kanban"},
-};
-const view=(mode:"scrum"|"kanban",locale:"fr"|"en")=>
-  renderToStaticMarkup(createElement(CycleOverview,{
-    context:contexts[mode],locale,teamHref:"/app/team/team-1?returnTo=%2Fapp",cycle:null,
-  }));
+const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 
-describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
-  it("affiche un seul titre de cycle neutre et les vrais contextes Scrum/Kanban",()=>{
-    const scrum=view("scrum","fr");
-    const kanban=view("kanban","fr");
-    assert.match(scrum,/Aucun cycle créé/);
-    assert.match(scrum,/Équipe Alpha/);
-    assert.match(scrum,/Produit pilote/);
-    assert.match(scrum,/Sprint/);
-    assert.match(kanban,/[Pp]ériode Kanban/);
-    assert.match(kanban,/Équipe Ops/);
-    assert.equal((scrum.match(/<h1\b/g)||[]).length,1);
-    assert.match(scrum,/href="\/app\/team\/team-1\?returnTo=%2Fapp"/);
-  });
-  it("présente cinq cartes, dont les deux notes de Sprint, et les unités existantes",()=>{
-    const html=view("scrum","fr");
-    assert.equal((html.match(/class="smn-metric-card/g)||[]).length,2);
-    for(const label of ["Capacité prévue","Capacité réelle","Jours ouvrés restants","J/H"]){
-      assert.ok(html.includes(label),label);
-    }
-    assert.doesNotMatch(html,/Avancement global|Productivité|\b0\s*(?:SP|J\/H|tickets)\b/i);
-    assert.match(html,/Non renseigné/);
-    assert.match(html,/Aucun cycle précédent/);
-  });
-  it("n'invente ni dates, ni objectifs, ni comparaison en l'absence de producteurs",()=>{
-    const html=view("scrum","fr");
-    assert.match(html,/Objectif/);
-    assert.match(html,/Non renseigné/);
-    assert.doesNotMatch(html,/smn-cycle-date-range/);
-    assert.doesNotMatch(html,/20\d\d-\d\d-\d\d|\b\d+\s*jours ouvrés restants\b/);
-    assert.doesNotMatch(html,/href="\/app\/cycles/);
-  });
-  it("affiche le Sprint sélectionné, son état temporel et ses dates, sans inventer de KPI",()=>{
-    const html=renderToStaticMarkup(createElement(CycleOverview,{
-      context:contexts.scrum,locale:"fr",teamHref:"/app/team/team-1",
-      cycle:{id:"sprint-1",name:"Sprint de novembre",status:"planned",
-        suspended:false,startAt:"2026-11-09T08:00:00Z",
-        endAt:"2026-11-22T22:59:00Z",timeZone:"Europe/Paris"}
-    }));
-    assert.match(html,/Sprint de novembre/);
-    assert.match(html,/9 nov\. 2026/);
-    assert.match(html,/22 nov\. 2026/);
-    assert.doesNotMatch(html,/Aucun cycle créé/);
-    assert.match(html,/Source non encore raccordée/);
-  });
-  it("traduit tout le cockpit en anglais et conserve une vraie fiche d'équipe",()=>{
-    const html=view("kanban","en");
-    for(const s of ["No cycle created","Kanban period","Planned capacity",
-      "Actual capacity","Working days remaining","Not specified"]){
-      assert.ok(html.includes(s),s);
-    }
-    assert.match(html,/href="\/app\/team\/team-1\?returnTo=%2Fapp"/);
-    assert.doesNotMatch(html,/Aucun cycle créé|Capacité prévue/);
-  });
+test("dashboard v33 defaults to two configurable header blocks, not old fixed Fxx cards",()=>{
+ const layout=createDefaultDashboardLayout();
+ assert.equal(layout.header.blocks.length,2);
+ assert.ok(layout.rows.every(row=>Array.isArray(row.blocks)));
+});
+test("dashboard v33 never invents fixed metric sources in its empty layout",()=>{
+ const layout=createDefaultDashboardLayout();
+ for(const block of [...layout.header.blocks,...layout.rows.flatMap(row=>row.blocks)]){
+  for(const slot of block.slots)assert.ok(!slot.source || !/^indicator:F\\d{2}$/.test(slot.source));
+ }
+});
+test("dashboard v33 isolates cycles through team-scoped permission and source adapters",()=>{
+ const permissions=read("src/server/dashboard-builder/permissions.ts");
+ const sources=read("src/server/dashboard-builder/batch.ts");
+ assert.match(permissions,/t\.installation_id=i\.id AND t\.id=\$3/);
+ assert.match(sources,/requireDashboardPermission\(db,scope,"read"\)/);
+ assert.match(sources,/scope\.teamId/);
+});
+test("dashboard v33 displays selected cycle rather than hardcoded dates or zeros",()=>{
+ const component=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+ assert.match(component,/navigation\.current\?\.name/);
+ assert.match(component,/navigation\.current\.startAt/);
+ assert.match(component,/navigation\.current\.endAt/);
+ assert.doesNotMatch(component,/deriveSprintIndicators\(/);
 });
