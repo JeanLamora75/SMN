@@ -8,7 +8,11 @@ export type Expression=
  |Readonly<{kind:"unary";op:"+"|"-";child:Expression}>
  |Readonly<{kind:"percent";child:Expression}>
  |Readonly<{kind:"binary";op:"+"|"-"|"*"|"/"|"^";left:Expression;right:Expression}>
- |Readonly<{kind:"call";name:"MIN"|"MAX"|"ROUND";args:readonly Expression[]}>;
+ |Readonly<{kind:"call";name:"MIN"|"MAX"|"ROUND";args:readonly Expression[]}>
+ |Readonly<{kind:"historical";name:HistoricalFunction;tag:string;count:number}>;
+export type HistoricalFunction="SUM_LAST"|"LAST_VALUES"|"AVG_LAST"|"MIN_LAST"|"MAX_LAST"|"PREVIOUS"|"DELTA"|"DELTA_PCT";
+export const HISTORICAL_FUNCTIONS=new Set<HistoricalFunction>(["SUM_LAST","LAST_VALUES","AVG_LAST","MIN_LAST","MAX_LAST","PREVIOUS","DELTA","DELTA_PCT"]);
+export type HistoricalResolver=(name:HistoricalFunction,tag:string,count:number)=>Result;
 type Token={type:"num"|"id"|"op"|"end";value:string};
 const SCALE=10n**24n;
 const MAX_MAGNITUDE_DIGITS=72;
@@ -97,7 +101,7 @@ function tokenize(input:string):Token[]{
  if(result.length>512)throw new FormulaBudgetError("token count");
  result.push({type:"end",value:""});return result;
 }
-const functions=new Set(["MIN","MAX","ROUND"]);
+const functions=new Set(["MIN","MAX","ROUND",...HISTORICAL_FUNCTIONS]);
 export function parseFormula(input:string):Expression{
  const tokens=tokenize(input);let pos=0,nodes=0;
  const peek=()=>tokens[pos];
@@ -112,8 +116,16 @@ export function parseFormula(input:string):Expression{
     take("(");const args:Expression[]=[];
     if(peek().value!==")"){do{args.push(expression(0,depth+1));if(peek().value!==",")break;take(",");}while(true);}
     take(")");
+    if(HISTORICAL_FUNCTIONS.has(first.value as HistoricalFunction)){
+     if(args.length!==2||args[0]?.kind!=="tag"||args[1]?.kind!=="number"||!/^[0-9]+$/.test(args[1].value))
+      throw new FormulaSyntaxError("Historical arguments must be (TAG, positive integer)");
+     const count=Number(args[1].value);
+     if(!Number.isSafeInteger(count)||count<1||count>1000)throw new FormulaSyntaxError("Historical window out of range");
+     left=make({kind:"historical",name:first.value as HistoricalFunction,tag:args[0].name,count});
+    }else{
     if(first.value==="ROUND"&&args.length!==2||first.value!=="ROUND"&&args.length<2)throw new FormulaSyntaxError("Invalid function arity");
     left=make({kind:"call",name:first.value as "MIN"|"MAX"|"ROUND",args:Object.freeze(args)});
+    }
    }else {
     if(functions.has(first.value))throw new FormulaSyntaxError("Reserved function name");
     left=make({kind:"tag",name:first.value});
@@ -146,7 +158,7 @@ export function referencedTags(ast:Expression):string[]{
  const found=new Set<string>(),stack:Expression[]=[ast];
  while(stack.length){
   const n=stack.pop()!;
-  if(n.kind==="tag")found.add(n.name);
+  if(n.kind==="tag"||n.kind==="historical")found.add(n.kind==="tag"?n.name:n.tag);
   else if(n.kind==="unary"||n.kind==="percent")stack.push(n.child);
   else if(n.kind==="binary")stack.push(n.right,n.left);
   else if(n.kind==="call")stack.push(...n.args);
@@ -154,12 +166,17 @@ export function referencedTags(ast:Expression):string[]{
  return [...found].sort();
 }
 export type SourceValue=string|null|{kind:"unavailable";reason:Reason;sourceTag?:string};
-export function evaluateFormula(ast:Expression,sources:Readonly<Record<string,SourceValue>>,maxOperations=1000):Result{
+export function evaluateFormula(ast:Expression,sources:Readonly<Record<string,SourceValue>>,maxOperations=1000,historical?:HistoricalResolver):Result{
  let operations=0;
  type Evaluated={kind:"available";value:bigint}|{kind:"unavailable";reason:Reason;sourceTag?:string;detail?:string};
  const unavailable=(reason:Reason,sourceTag?:string,detail?:string):Evaluated=>({kind:"unavailable",reason,...(sourceTag===undefined?{}:{sourceTag}),...(detail===undefined?{}:{detail})});
  function walk(n:Expression,depth:number):Evaluated{
   if(depth>96||++operations>maxOperations)throw new FormulaBudgetError("evaluation budget");
+  if(n.kind==="historical"){
+   if(!historical)return unavailable("missing_source",n.tag);
+   const value=historical(n.name,n.tag,n.count);
+   return value.kind==="available"?{kind:"available",value:DecimalEngine.parse(value.value)}:unavailable(value.reason,value.sourceTag,value.detail);
+  }
   if(n.kind==="number")return {kind:"available",value:DecimalEngine.parse(n.value)};
   if(n.kind==="tag"){
    const source=sources[n.name];
