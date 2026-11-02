@@ -111,7 +111,10 @@ export default function RegistryCreate({teamId,canManage,itemId,initialType="ris
     <div className="col-12"><label className="form-label" htmlFor="registry-owner">{translate("owner")}</label>
      <input id="registry-owner" className="form-control" maxLength={200} value={owner} onChange={e=>setOwner(e.target.value)}/></div>
     <div className="col-12"><label className="form-label" htmlFor="registry-description">{translate("description")}</label>
-     <textarea id="registry-description" className="form-control" rows={3} maxLength={4000} value={description} disabled={lockDescription} onChange={e=>setDescription(e.target.value)}/></div>   </div>
+     <textarea id="registry-description" className="form-control" rows={3} maxLength={4000} value={description} disabled={lockDescription} onChange={e=>setDescription(e.target.value)}/></div>
+    <div className="col-12"><label className="form-label" htmlFor="registry-comment">{translate("comment")}</label>
+     <textarea id="registry-comment" className="form-control" rows={2} maxLength={4000} value={comment} onChange={e=>setComment(e.target.value)}/></div>
+   </div>
    {!(modalMode&&itemId)&&<div className="d-flex justify-content-end">
     <button type="submit" className="btn btn-primary" disabled={busy||!title.trim()||(!!itemId&&revision===null)}>{busy?translate("creating"):itemId?t("common.save"):translate("create")}</button>
    </div>}
