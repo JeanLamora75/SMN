@@ -53,7 +53,7 @@ async function prepare(db:Client,input:FormulaProposal){
  if(cycles.rows.length>MAX_CYCLES||cycles.rows.length*affected.length>MAX_RESULTS)throw new FormulaPublicationError("budget","Too many recalculations");
  const rolePattern=/\\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\\s*\\(\\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\\s*\\)/g;
  const requestedRoles:RoleCapacityRequest[]=[];
- for(const definition of proposed)for(const match of definition.formula?.matchAll(rolePattern)??[]){
+ for(const definition of proposed.filter(d=>affected.includes(d.id)))for(const match of definition.formula?.matchAll(rolePattern)??[]){
   if(!requestedRoles.some(x=>x.name===match[1]&&x.role===match[2]))
    requestedRoles.push({name:match[1] as RoleCapacityFunction,role:match[2] as AgileRole});
  }
