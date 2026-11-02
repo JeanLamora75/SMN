@@ -27,7 +27,7 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
  if((model.kind==="number"||model.kind==="card")&&model.value!==undefined)
   return <output>{valueLabel(model.value,model.unit,locale)}</output>;
  if(model.kind==="gauge"&&model.ratio!==undefined&&model.value!==undefined)
-  return <div role="meter" aria-valuenow={model.value} aria-valuemin={0} aria-valuemax={100}
+  return <div role="progressbar" aria-valuenow={model.ratio*100} aria-valuemin={0} aria-valuemax={100}
     aria-label={valueLabel(model.value,model.unit,locale)}>
     <div aria-hidden="true" style={{height:12,border:"1px solid currentColor",borderRadius:6,overflow:"hidden"}}>
       <div style={{height:"100%",width:`${model.ratio*100}%`,background:"currentColor"}}/>
