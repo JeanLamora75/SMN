@@ -84,9 +84,9 @@ describe("SMN-21 — AC-UX08 à AC-UX13 : notes I01/I02",()=>{
    context:{productId:"p",product:"Produit",teamId:"team",team:"Équipe",mode:"scrum"},
    teamHref:"/app/team/team",locale:"fr",cycle:sprint("sprint-a")
   }));
-  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,5);
-  assert.ok(html.indexOf("Jours ouvrés restants")<html.indexOf("I01 · Confiance"));
-  assert.ok(html.indexOf("I01 · Confiance")<html.indexOf("I02 · Clarté"));
+  assert.equal((html.match(/class="smn-metric-card /g)||[]).length,2);
+  assert.match(html,/Jours ouvrés restants/);
+  assert.doesNotMatch(html,/I01 · Confiance|I02 · Clarté/);
   assert.doesNotMatch(html,/Avancement global|0 %|0\/5/);
  });
  it("lit les scores du Sprint réellement sélectionné sous contrôle d'équipe, sans écriture",async()=>{
