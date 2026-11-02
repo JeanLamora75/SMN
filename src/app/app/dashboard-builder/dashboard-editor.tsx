@@ -1,5 +1,7 @@
 "use client";
 import {useCallback,useMemo,useState} from "react";
+import {duplicateDashboardBlock,changeDashboardBlockTemplate,removeDashboardRow,removeDashboardBlock,rowHasConfiguredContent,blockHasConfiguredContent} from "@/lib/dashboard-builder/block-actions";
+import {getDashboardTemplate,listCreatableDashboardTemplates} from "@/lib/dashboard-builder/templates";
 import {BlockDimensionControl} from "./block-dimensions";
 import {updateBlockDimensions} from "@/lib/dashboard-builder/dimensions";
 import {moveDashboardRow,moveDashboardBlock,deleteDashboardRow,deleteDashboardBlock} from "@/lib/dashboard-builder/reorder";
@@ -29,6 +31,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [error,setError]=useState<string|null>(null);
  const [galleryRow,setGalleryRow]=useState<string|null>(null);
  const [wizardSlot,setWizardSlot]=useState<string|null>(null);
+ const [pendingAction,setPendingAction]=useState<{kind:"row"|"block"|"template";id:string;template?:DashboardTemplateId}|null>(null);
  const [dragged,setDragged]=useState<{kind:"row"|"block";id:string}|null>(null);
  const editing=draft!==null;
  const changed=useMemo(()=>draft!==null&&signature(draft)!==signature(published),[draft,published]);
@@ -73,6 +76,30 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   else reorderBlock(dragged.id,targetId,0);
   setDragged(null);
  };
+ const duplicateBlock=(id:string)=>setDraft(d=>{if(!d)return null;const block=d.rows.flatMap(r=>r.blocks).find(b=>b.id===id);return block?duplicateDashboardBlock(d,id,crypto.randomUUID(),block.slots.map(()=>crypto.randomUUID())):d;});
+ const chooseTemplate=(id:string,template:DashboardTemplateId)=>{
+  if(!draft)return;
+  const current=draft.rows.flatMap(r=>r.blocks).find(b=>b.id===id);
+  if(!current)return;
+  const model=getDashboardTemplate(template)!;
+  if(current.slots.slice(model.slotCount).some(slot=>!!slot.source||!!slot.view)){
+   setPendingAction({kind:"template",id,template});return;
+  }
+  setDraft(d=>d?changeDashboardBlockTemplate(d,id,template,Array.from({length:Math.max(0,model.slotCount-current.slots.length)},()=>crypto.randomUUID())).layout:null);
+ };
+ const commitPending=()=>{
+  if(!pendingAction)return;
+  const action=pendingAction;
+  setDraft(d=>{if(!d)return null;
+   if(action.kind==="row")return removeDashboardRow(d,action.id,true);
+   if(action.kind==="block")return removeDashboardBlock(d,action.id,true);
+   const block=d.rows.flatMap(r=>r.blocks).find(b=>b.id===action.id);
+   if(!block||!action.template)return d;
+   const target=getDashboardTemplate(action.template)!;
+   return changeDashboardBlockTemplate(d,action.id,action.template,Array.from({length:Math.max(0,target.slotCount-block.slots.length)},()=>crypto.randomUUID())).layout;
+  });
+  setPendingAction(null);
+ };
  const addRow=()=>setDraft(current=>current?appendDashboardRow(current,crypto.randomUUID()):null);
  const addBlock=(templateId:DashboardTemplateId)=>{
   if(!galleryRow||!draft)return;
@@ -107,7 +134,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
        <div className="d-flex flex-wrap gap-1 mt-1">
         <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===0} onClick={()=>reorderRow(row.id,index-1)}>Monter</button>
         <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===draft.rows.length-1} onClick={()=>reorderRow(row.id,index+1)}>Descendre</button>
-        <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>setDraft(d=>d?deleteDashboardRow(d,row.id):null)}>Supprimer</button>
+        <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>rowHasConfiguredContent(draft,row.id)?setPendingAction({kind:"row",id:row.id}):setDraft(d=>d?removeDashboardRow(d,row.id):null)}>Supprimer</button>
        </div>
       </details>
      </div>
@@ -125,7 +152,9 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
         <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||blockIndex===row.blocks.length-1} onClick={()=>reorderBlock(block.id,row.id,blockIndex+1)}>Descendre</button>
         <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===0} onClick={()=>reorderBlock(block.id,draft.rows[index-1].id,draft.rows[index-1].blocks.length)}>Ligne précédente</button>
         <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving||index===draft.rows.length-1} onClick={()=>reorderBlock(block.id,draft.rows[index+1].id,draft.rows[index+1].blocks.length)}>Ligne suivante</button>
-        <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>setDraft(d=>d?deleteDashboardBlock(d,block.id):null)}>Supprimer</button>
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={saving} onClick={()=>duplicateBlock(block.id)}>Dupliquer</button>
+        <label className="small">Modèle <select className="form-select form-select-sm" value={block.templateId} disabled={saving} onChange={e=>chooseTemplate(block.id,e.target.value as DashboardTemplateId)}>{listCreatableDashboardTemplates().map(t=><option key={t.id} value={t.id}>{t.id}</option>)}</select></label>
+        <button type="button" className="btn btn-outline-danger btn-sm" disabled={saving} onClick={()=>blockHasConfiguredContent(block)?setPendingAction({kind:"block",id:block.id}):setDraft(d=>d?removeDashboardBlock(d,block.id):null)}>Supprimer</button>
        </div></details>
       </div>
       <div className="d-flex justify-content-end mb-2"><BlockDimensionControl value={block.dimensions} disabled={saving} onChange={value=>setDraft(d=>d?updateBlockDimensions(d,block.id,value):null)}/></div>
@@ -142,6 +171,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    </div>)}
    <button className="btn btn-outline-primary w-100" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
   </section>}
+  {pendingAction&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1070}}><div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="block-action-confirm"><div className="modal-header"><h2 className="modal-title fs-5" id="block-action-confirm">Confirmer la perte de contenu ?</h2></div><div className="modal-body">Cette opération retirera du brouillon des emplacements configurés. Annuler conserve l’intégralité de la configuration.</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" onClick={()=>setPendingAction(null)}>Annuler</button><button type="button" className="btn btn-danger" onClick={commitPending}>Confirmer</button></div></div></div></div>}
   {galleryRow&&<DashboardTemplateGallery onChoose={addBlock} onClose={()=>setGalleryRow(null)}/>}
   {wizardSlot&&<DashboardSlotWizard teamId={teamId} initialSlot={activeSlot} cycles={cycles} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot} onClear={()=>{setDraft(current=>current?updateDashboardSlot(current,wizardSlot,null):null);setWizardSlot(null);}}/>}
 
