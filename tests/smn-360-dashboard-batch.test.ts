@@ -40,6 +40,6 @@ test("SMN-360 AC4: obsolete contexts are aborted by client hook",async()=>{
  const s=fs.readFileSync(new URL("../src/app/app/dashboard-builder/use-dashboard-batch.ts",import.meta.url),"utf8");
  assert.match(s,/AbortController/);
  assert.match(s,/controller\.abort\(\)/);
- assert.match(s,/sequence\.current/);
+ assert.match(s,/generation\.current/);
  assert.match(s,/setInterval\(refresh/);
 });
