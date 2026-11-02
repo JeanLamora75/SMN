@@ -27,12 +27,12 @@ test("closure appends immutable versioned v33 indicator snapshots",()=>{
  assert.match(closure,/COALESCE\(MAX\(version\),0\)\+1/);
  assert.match(closure,/INSERT INTO public\.smn_sprint_closure_snapshot/);
 });
-test("dashboard now uses dynamic cards instead of legacy SP Tickets and score blocks",()=>{
- const overview=read("src/app/app/cycle-overview.tsx");
+test("dashboard cutover allows configurable Builder rather than fixed legacy KPIs",()=>{
  const page=read("src/app/app/page.tsx");
- assert.match(overview,/DashboardIndicatorBlocks/);
- assert.doesNotMatch(overview,/KpiSprintScores/);
- assert.doesNotMatch(page,/screen="dashboard"/);
+ const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+ assert.match(page,/dashboardBuilderCutoverEnabled\(\)/);
+ assert.match(builder,/visibleSlots\(block\)/);
+ assert.match(builder,/layout\.header\.blocks/);
 });
 test("v33 reporting is team-scoped and reads frozen closure snapshots",()=>{
  assert.match(reporting,/WHERE team_id=\$1 AND deleted_at IS NULL/);
