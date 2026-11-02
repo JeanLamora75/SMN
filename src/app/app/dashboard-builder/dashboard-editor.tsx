@@ -3,6 +3,9 @@ import {useCallback,useMemo,useState} from "react";
 import type {DashboardLayout} from "@/server/dashboard-builder/layout";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import DashboardConsultation from "./dashboard-consultation";
+import {DashboardTemplateGallery} from "./template-gallery";
+import {appendDashboardRow,appendDashboardBlock} from "@/lib/dashboard-builder/composition";
+import type {DashboardTemplateId} from "@/lib/dashboard-builder/templates";
 
 type Navigation={current:DashboardCycle|null;previous:string|null;next:string|null};
 type SaveResponse={layout:DashboardLayout;revision:number;persisted:boolean};
@@ -18,6 +21,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  const [saving,setSaving]=useState(false);
  const [exitOpen,setExitOpen]=useState(false);
  const [error,setError]=useState<string|null>(null);
+ const [galleryRow,setGalleryRow]=useState<string|null>(null);
  const editing=draft!==null;
  const changed=useMemo(()=>draft!==null&&signature(draft)!==signature(published),[draft,published]);
  const enter=()=>{if(!canEdit)return;setDraft(copy(published));setError(null);};
@@ -47,7 +51,15 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  },[draft,changed,saving,canEdit,teamId,revision]);
  // The structural draft action is deliberately non-destructive; future stories
  // provide the full row/block/slot editor while retaining this save lifecycle.
- const addRow=()=>setDraft(current=>current?{...current,rows:[...current.rows,{id:crypto.randomUUID(),blocks:[]}]}:null);
+ const addRow=()=>setDraft(current=>current?appendDashboardRow(current,crypto.randomUUID()):null);
+ const addBlock=(templateId:DashboardTemplateId)=>{
+  if(!galleryRow||!draft)return;
+  const templateSlots={M01:1,M02:2,M03:3,M04:4,M05:2,M06:3}[templateId];
+  setDraft(current=>current?appendDashboardBlock(current,galleryRow,templateId,{
+   blockId:crypto.randomUUID(),slotIds:Array.from({length:templateSlots},()=>crypto.randomUUID()),
+  }):null);
+  setGalleryRow(null);
+ };
  return <div>
   {!editing&&canEdit&&<details className="dropdown mb-3">
    <summary className="btn btn-outline-primary">Actions du tableau de bord</summary>
@@ -57,11 +69,30 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   </details>}
   {editing&&<div className="d-flex align-items-center gap-2 mb-3">
    <span className="badge text-bg-secondary">Personnalisation</span>
-   <button className="btn btn-outline-primary" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
    <button className="btn btn-outline-secondary" type="button" onClick={requestExit} disabled={saving}>Quitter</button>
   </div>}
   <DashboardConsultation layout={draft??published} teamId={teamId} navigation={navigation}
    mode={mode} locale={locale} personalizing={editing}/>
+  {editing&&draft&&<section className="mb-5 pb-5" aria-label="Composition des lignes">
+   {draft.rows.map((row,index)=><div className="smn-panel p-3 mb-3" key={row.id}>
+    <h3 className="h6">Ligne {index+1}</h3>
+    <div className="row g-2 mb-2">{row.blocks.map(block=><div className="col-12 col-lg" key={block.id}>
+     <div className="border rounded p-2">
+      <div className="fw-semibold mb-2">{block.templateId}</div>
+      <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
+       <button type="button" className="btn btn-outline-secondary w-100" disabled
+        aria-label={`Emplacement ${slot.templateSlotId} à configurer`}>+</button>
+      </div>)}</div>
+     </div>
+    </div>)}</div>
+    <button className="btn btn-outline-primary" type="button" onClick={()=>setGalleryRow(row.id)} disabled={saving}>
+     Ajouter un bloc
+    </button>
+   </div>)}
+   <button className="btn btn-outline-primary w-100" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
+  </section>}
+  {galleryRow&&<DashboardTemplateGallery onChoose={addBlock} onClose={()=>setGalleryRow(null)}/>}
+
   {editing&&<div className="position-fixed bottom-0 start-0 end-0 bg-body border-top shadow-sm p-3" style={{zIndex:1040}}
     role="region" aria-label="Barre de sauvegarde du Dashboard">
    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
