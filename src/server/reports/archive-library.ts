@@ -56,7 +56,9 @@ export async function searchTeamPdfArchives(db:Client,teamId:string,filters:Arch
  AND t.installation_id='singleton' AND s.deleted_at IS NULL
  AND EXISTS(SELECT 1 FROM public.smn_installation i
  WHERE i.id=t.installation_id AND i.state='initialized'
- AND i.schema_version BETWEEN 28 AND 32 AND lower(i.mode)='scrum'))`;
+ AND i.schema_version BETWEEN 28 AND 33
+ AND lower(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode'))='scrum'
+ AND (i.schema_version<32 OR COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false)))`;
  const args=[teamId,f.cycleId,f.from,f.to,f.templateId,f.status];
  const total=await db.query<{count:string}>(`SELECT count(*)::text AS count
  FROM public.smn_report_pdf_archive a ${where}`,args);

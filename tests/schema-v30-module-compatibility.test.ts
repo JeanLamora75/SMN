@@ -10,11 +10,14 @@ test("Liens : les opérations autorisées acceptent le schéma 29 à 33",()=>{
   assert.doesNotMatch(sql,/i\.schema_version=29\b/,file);
  }
 });
-test("Centre Rapports et archives : la lecture reste bornée à l'équipe jusqu'en v32",()=>{
+test("Centre Rapports et archives : la lecture est bornée à l'équipe et au mode Scrum jusqu'en v33",()=>{
  const page=source("src/app/app/reports/page.tsx");
  const archive=source("src/server/reports/archive-library.ts");
  assert.match(page,/evaluateSchemaCapability\(schema,"multi-team"\)\.ok/);
- assert.match(archive,/i\.schema_version BETWEEN 28 AND 32/);
+ assert.match(archive,/i\.schema_version BETWEEN 28 AND 33/);
+ assert.match(archive,/to_jsonb\(t\)->>'agile_mode'/);
+ assert.match(archive,/to_jsonb\(t\)->>'is_archived'/);
+ assert.doesNotMatch(archive,/BETWEEN 28 AND 32/);
  assert.match(archive,/WHERE a\.team_id=\$1/);
 });
 test("Capacité réelle : lecture v31 contextualisée, écriture historique encore interdite",()=>{
