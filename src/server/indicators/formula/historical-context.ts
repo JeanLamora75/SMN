@@ -63,7 +63,7 @@ export async function loadHistoricalResolver(db:Client,scope:HistoryScope,byTag:
  const resolver:HistoricalResolver=(name:HistoricalFunction,tag:string,count:number):Result=>{
   const indicatorId=byTag.get(tag);
   if(!indicatorId)return {kind:"unavailable",reason:"missing_source",sourceTag:tag};
-  const points=series(tag,Math.max(count+1,1)).points;
+  const points=series(tag,selected.length||1).points;
   const result=calculateHistorical(name,points,count);
   if(result.kind==="series")return {kind:"unavailable",reason:"invalid_domain",detail:"series-result-requires-visualization"};
   return result;
