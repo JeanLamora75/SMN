@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import {normalizeSlotOptions,type SlotOptions} from "../../lib/dashboard-builder/slot-options";
 import { requireDashboardPermission } from "./permissions";
 import { resolveDashboardSource, type SourceDescriptor } from "./sources";
 import type { Client } from "pg";
@@ -34,6 +35,11 @@ export function validateDashboardLayout(layout: DashboardLayout, sources?:readon
       if (!expected.has(slot.templateSlotId) || actual.has(slot.templateSlotId))
         throw new Error("dashboard-layout-invalid-slot");
       actual.add(slot.templateSlotId);
+      if(slot.filters!==undefined){
+       if(!slot.source||typeof slot.filters!=="object"||Array.isArray(slot.filters))throw Error("dashboard-slot-option-invalid");
+       const category=slot.source.split(":")[0];
+       normalizeSlotOptions(slot.filters as SlotOptions,category,slot.filters.cycleIdOverride?[String(slot.filters.cycleIdOverride)]:[]);
+      }
       if(slot.source!==undefined || slot.view!==undefined){
         if(typeof slot.source!=="string"||typeof slot.view!=="string"||!slot.source||!slot.view)
           throw new Error("dashboard-layout-invalid-view");
@@ -103,6 +109,13 @@ export async function saveDashboardLayout(db:Client,scope:LayoutScope,layout:Das
   try {
     await requireDashboardPermission(db,scope,"edit");
     await checkScope(db,scope);
+    const referencedCycles=[...layout.header.blocks,...layout.rows.flatMap(r=>r.blocks)].flatMap(b=>b.slots)
+     .map(slot=>slot.filters?.cycleIdOverride).filter((id):id is string=>typeof id==="string");
+    if(referencedCycles.length){
+     const cycles=await db.query<{id:string}>(`SELECT id FROM public.smn_sprint WHERE team_id=$1 AND deleted_at IS NULL AND id=ANY($2::text[])
+      UNION SELECT id FROM public.smn_kanban_period WHERE team_id=$1 AND deleted_at IS NULL AND id=ANY($2::text[])`,[scope.teamId,referencedCycles]);
+     if(referencedCycles.some(id=>!cycles.rows.some(c=>c.id===id)))throw Error("dashboard-slot-cycle-forbidden");
+    }
     const q=expectedRevision===0
       ? await db.query<{revision:string}>(`INSERT INTO public.smn_dashboard_layout
 (installation_id,account_id,team_id,schema_version,revision,layout)
