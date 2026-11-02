@@ -12,7 +12,7 @@ test("risk and relations panels are paired; cycles inline on detail",()=>{
  const src=read("src/app/app/admin/registries/registry-detail.tsx");
  assert.match(src,/smn-registry-risk-layout/);
  assert.match(src,/smn-registry-detail-pair/);
- assert.match(src,/<RegistryCycles id=\{id\} teamId=\{teamId\} canManage=\{false\} embedded\/>/);
+ assert.match(src,/<RegistryCycles id=\{id\} teamId=\{teamId\} canManage=\{canManage\} embedded\/>/);
 });
 test("history endpoint uses authorized team instead of legacy v27 guard",()=>{
  const src=read("src/app/api/admin/registries/[id]/history/route.ts");
