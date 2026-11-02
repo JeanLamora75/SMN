@@ -110,8 +110,13 @@ jobs:
           $files = @(Get-ChildItem -Path tests -File | Where-Object { $_.Name -match "\.test\.(ts|mjs)$" -and $_.Name -notmatch $pgPattern } | ForEach-Object { "tests/$($_.Name)" })
           if ($files.Count -eq 0) { throw "Aucun test Windows sélectionné" }
           Write-Host "Tests Windows sans PG: $($files.Count) fichiers"
-          pnpm exec tsx --test @files
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Windows imposes a short command-line limit; execute every selected test in bounded batches.
+          for ($offset = 0; $offset -lt $files.Count; $offset += 40) {
+            $batch = @($files | Select-Object -Skip $offset -First 40)
+            Write-Host "Exécution Windows: fichiers $($offset + 1) à $($offset + $batch.Count) / $($files.Count)"
+            pnpm exec tsx --test @batch
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
         env:
           CI: "false"
       - name: Typecheck et build Windows
