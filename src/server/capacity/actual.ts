@@ -119,7 +119,7 @@ export async function readActualCapacity(db:Client,start:string,end:string,
   const teams=options.teamId?await db.query<ActorTeam>(
    "SELECT t.id FROM public.smn_team t JOIN public.smn_installation i "+
    "ON i.id=t.installation_id WHERE i.id='singleton' AND i.state='initialized' "+
-   "AND i.schema_version BETWEEN 28 AND 32 AND t.id=$1 "+
+   "AND i.schema_version BETWEEN 28 AND 33 AND t.id=$1 "+
    "AND LOWER(COALESCE(NULLIF(to_jsonb(t)->>'agile_mode',''),to_jsonb(i)->>'mode')) IN ('scrum','kanban') "+
    "AND (i.schema_version<32 OR COALESCE((to_jsonb(t)->>'is_archived')::boolean,false)=false) LIMIT 2",[options.teamId]):
    await db.query<ActorTeam>(teamSql);
