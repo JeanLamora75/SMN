@@ -95,7 +95,10 @@ describe("SMN-234 — Registres compacts et modales de l'onglet Sprint",()=>{
   for(const [file,name] of Object.entries(components)){
    const code=read("src/app/app/admin/registries/"+file+".tsx");
    assert.ok(registry.includes("<"+name),name+" doit rester accessible");
-   assert.match(code,/onSaved\?\.\(\)/);
+   if(name==="RegistryCycles") {
+    assert.match(code,/setData\(d=>d\?/);
+    assert.doesNotMatch(code,/onSaved\?\.\(\)/);
+   } else assert.match(code,/onSaved\?\.\(\)/);
    assert.match(registry,new RegExp("<"+name+"[^>]+onSaved=\\{onSaved\\}"));
   }
  });
