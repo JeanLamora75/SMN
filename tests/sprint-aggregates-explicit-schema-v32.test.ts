@@ -8,7 +8,12 @@ test("Sprint: huit services d'agrégats sans DDL à l'exécution",()=>{
   const src=read("src/server/sprints/"+name);
   assert.doesNotMatch(src,/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)\b/i,name);
   if(services.includes(name)){
-   const implementation=name==="story-points.ts"||name==="ticket-counts.ts"?read("src/server/compat-v32/"+name):src;
+   const relocated=name==="story-points.ts"||name==="ticket-counts.ts";
+   if(relocated){
+    assert.match(src,/export \* from "@\/server\/compat-v32\//,name);
+   }
+   const implementation=relocated?read("src/server/compat-v32/"+name):src;
+   assert.doesNotMatch(implementation,/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)\b/i,name);
    assert.match(implementation,/(?:sprint-schema-not-ready|sprint-core-schema-not-ready)/,name);
   }
  }
