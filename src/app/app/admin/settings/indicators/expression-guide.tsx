@@ -15,9 +15,9 @@ const catalog:Entry[]=[
  {name:"DELTA(TAG, X)",category:"Historique",description:"Écart absolu avec la valeur du cycle précédent choisi.",example:"DELTA(SP_TERMINES, 1)",available:true},
  {name:"DELTA_PCT(TAG, X)",category:"Historique",description:"Écart relatif en pourcentage ; indisponible si la base vaut zéro.",example:"DELTA_PCT(SP_TERMINES, 1)",available:true},
  {name:"LAST_VALUES(TAG, X)",category:"Historique",description:"Renvoie une série datée, réservée aux visualisations compatibles (pas un nombre).",example:"LAST_VALUES(SP_TERMINES, 5)",available:true},
- {name:"ROLE_MAX_JH(ROLE)",category:"Capacité",description:"J/H théoriques du rôle après contributions, avant absences.",example:'ROLE_MAX_JH("DEVELOPER")',available:false},
- {name:"ROLE_JH_PLANNED(ROLE)",category:"Capacité",description:"J/H du rôle après absences planifiées uniquement.",example:'ROLE_JH_PLANNED("DEVELOPER")',available:false},
- {name:"ROLE_JH(ROLE)",category:"Capacité",description:"J/H du rôle après toutes les absences.",example:'ROLE_JH("DEVELOPER")',available:false}
+ {name:"ROLE_MAX_JH(ROLE)",category:"Capacité",description:"J/H théoriques du rôle après contributions, avant absences.",example:'ROLE_MAX_JH("DEVELOPER")',available:true},
+ {name:"ROLE_JH_PLANNED(ROLE)",category:"Capacité",description:"J/H du rôle après absences planifiées uniquement.",example:'ROLE_JH_PLANNED("DEVELOPER")',available:true},
+ {name:"ROLE_JH(ROLE)",category:"Capacité",description:"J/H du rôle après toutes les absences.",example:'ROLE_JH("DEVELOPER")',available:true}
 ];
 export default function ExpressionGuide(){
  const [query,setQuery]=useState(""),[category,setCategory]=useState("Toutes"),[copied,setCopied]=useState("");
@@ -25,7 +25,7 @@ export default function ExpressionGuide(){
   `${item.name} ${item.description} ${item.example}`.toLocaleLowerCase("fr").includes(query.toLocaleLowerCase("fr"))),[query,category]);
  return <section aria-label="Guide des expressions" className="smn-panel rounded-4 p-3">
   <h2 className="h5">Guide des expressions</h2>
-  <p className="text-secondary small">Les exemples de tags doivent être remplacés par les tags de votre catalogue. Les expressions annoncées « En préparation » ne sont pas utilisables.</p>
+  <p className="text-secondary small">Les exemples de tags doivent être remplacés par les tags de votre catalogue. Les rôles disponibles sont DEVELOPER, SCRUM_MASTER et PRODUCT_OWNER.</p>
   <div className="row g-2 mb-3"><div className="col-md-8"><label htmlFor="expression-search" className="form-label">Rechercher</label><input id="expression-search" className="form-control" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Fonction, exemple ou description"/></div>
   <div className="col-md-4"><label htmlFor="expression-category" className="form-label">Catégorie</label><select id="expression-category" className="form-select" value={category} onChange={e=>setCategory(e.target.value)}>{["Toutes","Calcul","Historique","Capacité"].map(v=><option key={v}>{v}</option>)}</select></div></div>
   <p aria-live="polite" className="small text-secondary">{rows.length} expression(s)</p>
