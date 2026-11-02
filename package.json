@@ -85,7 +85,8 @@
     "test:smn-362": "tsx --test tests/smn-362-dashboard-header.test.ts",
     "test:smn-363": "tsx --test tests/smn-363-dashboard-draft.test.ts",
     "test:smn-364": "tsx --test tests/smn-364-dashboard-composition.test.ts",
-    "test:smn-365": "tsx --test tests/smn-365-slot-wizard.test.ts"
+    "test:smn-365": "tsx --test tests/smn-365-slot-wizard.test.ts",
+    "test:smn-366": "tsx --test tests/smn-366-slot-options.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
