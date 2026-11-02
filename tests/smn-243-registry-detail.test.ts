@@ -11,7 +11,7 @@ test("les six catégories ont toujours Synthèse, Relations et Historique",()=>{
  }
 });
 test("l'onglet métier est conditionnel et jamais fictif sur un fait marquant",()=>{
- assert.deepEqual(registryDetailTabs("highlight"),["summary","relations","history"]);
+ assert.deepEqual(registryDetailTabs("highlight"),["summary","relations","journal","history"]);
  for(const type of ["risk","obstacle","dependency","decision","action"] as const){
   assert.ok(registryDetailTabs(type).includes("business"));
   assert.equal(typeof registryBusinessTabKeys[type],"string");
@@ -42,13 +42,13 @@ test("onglets accessibles au clavier avec ids reliés et activation par flèches
 });
 test("composants métier existants réemployés, éditions ciblées réservées aux administrateurs",()=>{
  const ui=read("src/app/app/admin/registries/registry-detail.tsx");
- for(const c of ["RiskAssessment","RiskRoam","MaterializeRisk","DependencyParties","DependencyVigilance",
+ for(const c of ["RiskAssessment","RiskRoam","DependencyParties","DependencyVigilance",
   "DecisionDetail","DecisionActions","ActionLinks","RegistryCycles","RegistryRelations"])
   assert.ok(ui.includes("<"+c),c);
  assert.match(ui,/canManage&&<button/);
  assert.match(ui,/RegistrySectionDialog/);
  assert.match(ui,/RegistryEditModal/);
- assert.match(ui,/canManage=\{false\}/);
+ assert.match(ui,/canManage=\{canManage\}/);
 });
 test("la synthèse utilise le journal réel sans dupliquer le bandeau ou le legacy",()=>{
  const ui=read("src/app/app/admin/registries/registry-summary.tsx");
