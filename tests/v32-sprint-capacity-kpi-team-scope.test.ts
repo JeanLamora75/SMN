@@ -14,7 +14,7 @@ test("C01 : capacité prévisionnelle v32 explicitement bornée à l'équipe du 
 });
 test("C02 : capacité réelle v32 et calcul imbriqué restent dans la même équipe",()=>{
  assert.match(kpis,/readActualCapacity\(db,start,end,readDevelopmentCapacity,\s*\{externalTransaction:true,teamId\}\)/);
- assert.match(actual,/i\.schema_version BETWEEN 28 AND 32/);
+ assert.match(actual,/i\.schema_version BETWEEN 28 AND 33/);
  assert.match(actual,/to_jsonb\(t\)->>'agile_mode'/);
  assert.match(actual,/to_jsonb\(t\)->>'is_archived'/);
  assert.match(actual,/teamId:options\.teamId/);
