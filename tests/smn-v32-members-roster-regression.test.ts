@@ -20,6 +20,6 @@ test("SMN v32: member creation uses company-catalog capability, not v31-only gat
  assert.doesNotMatch(route,/if\(current===31\)|if\(version===28\|\|version===29/);
 });
 test("SMN: unknown future schemas still fail closed",()=>{
- assert.equal(evaluateSchemaCapability(33,"multi-team").ok,false);
- assert.equal(evaluateSchemaCapability(33,"company-catalog").ok,false);
+ assert.equal(evaluateSchemaCapability(34,"multi-team").ok,false);
+ assert.equal(evaluateSchemaCapability(34,"company-catalog").ok,false);
 });
