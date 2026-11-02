@@ -1,5 +1,6 @@
 "use client";
-import {useMemo} from "react";
+import {useMemo,useState} from "react";
+import {DashboardBusinessList} from "./dashboard-business-list";
 import Link from "next/link";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import type {DashboardLayout,DashboardBlock,DashboardSlot} from "@/server/dashboard-builder/layout";
@@ -33,12 +34,14 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
  mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;
 }){
  const cycleId=navigation.current?.id??null;
+ const [pages,setPages]=useState<Record<string,number>>({});
  const cycleLink=(id:string)=>`/app/dashboard-builder?teamId=${encodeURIComponent(teamId)}&cycleId=${encodeURIComponent(id)}`;
  const date=(value:string)=>new Intl.DateTimeFormat(locale,{day:"2-digit",month:"short",year:"numeric"}).format(new Date(value));
  const requests=useMemo<BatchRequest[]>(()=>[...layout.header.blocks,...layout.rows.flatMap(r=>r.blocks)]
   .flatMap(block=>visibleSlots(block).map(slot=>({
-   id:slot.id,source:slot.source!,view:slot.view!,cycleId:slot.filters?.cycleIdOverride as string|undefined ?? cycleId,filters:slot.filters,
-  }))),[layout,cycleId]);
+   id:slot.id,source:slot.source!,view:slot.view!,cycleId:slot.filters?.cycleIdOverride as string|undefined ?? cycleId,
+   filters:slot.view==="list"?{...slot.filters,offset:(pages[slot.id]??0)*(Number(slot.filters?.limit) || 10)}:slot.filters,
+  }))),[layout,cycleId,pages]);
  const {slots,refresh,retry}=useDashboardBatch(teamId,cycleId,requests);
  const renderBlock=(block:DashboardBlock)=>{
   const active=visibleSlots(block);
@@ -51,6 +54,11 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      const result=slots[slot.id];
      let model:VisualizationModel;
      if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2"><div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
+     if(result.state==="available"&&result.list)return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
+      <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
+       onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
+       onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
+     </section>;
      if(result.state==="available"){
       const number=result.value===undefined||result.value===null?NaN:Number(result.value);
       model=Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
@@ -59,7 +67,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
      return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.source}>
-      {result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
+      {result.state==="absent"&&slot.view==="list"?<p role="status">Aucun résultat</p>:result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
        <DashboardVisualization model={model} locale={locale}/>}
       {model.state==="error"&&<button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>retry(slot.id)}>Réessayer cet emplacement</button>}
      </section>;
