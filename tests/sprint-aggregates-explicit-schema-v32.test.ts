@@ -7,7 +7,10 @@ test("Sprint: huit services d'agrégats sans DDL à l'exécution",()=>{
  for(const name of readdirSync(new URL("../src/server/sprints/",import.meta.url)).filter(n=>n.endsWith(".ts"))){
   const src=read("src/server/sprints/"+name);
   assert.doesNotMatch(src,/\b(?:CREATE|ALTER|DROP)\s+(?:TABLE|INDEX)\b/i,name);
-  if(services.includes(name))assert.match(src,/(?:sprint-schema-not-ready|sprint-core-schema-not-ready)/,name);
+  if(services.includes(name)){
+   const implementation=name==="story-points.ts"||name==="ticket-counts.ts"?read("src/server/compat-v32/"+name):src;
+   assert.match(implementation,/(?:sprint-schema-not-ready|sprint-core-schema-not-ready)/,name);
+  }
  }
 });
 test("Sprint: migration explicite, additive et transactionnelle",()=>{
