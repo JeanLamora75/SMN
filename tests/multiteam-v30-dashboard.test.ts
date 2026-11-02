@@ -12,8 +12,8 @@ test("les versions v28 à v31 autorisent les lecteurs multiéquipes avec context
  assert.match(active,/evaluateSchemaCapability\(installation\.schemaVersion,"multi-team"\)/);
  assert.match(resolve,/evaluateSchemaCapability/);
  assert.match(resolve,/evaluateSchemaCapability\(details\.rows\[0\]\.schema_version,"multi-team"\)/);
- assert.match(dashboard,/\[28,29,30,31,32\]\.includes\(result\.rows\[0\]\.schema_version\)/);
- assert.match(registry,/version===32/);
+ assert.match(dashboard,/\[28,29,30,31,32,33\]\.includes\(result\.rows\[0\]\.schema_version\)/);
+ assert.match(registry,/version===33/);
  assert.match(write,/evaluateSchemaCapability\(i\.schema_version,"multi-team"\)/);
- assert.match(teamContext,/i\.schema_version BETWEEN 28 AND 32/);
+ assert.match(teamContext,/i\.schema_version BETWEEN 28 AND 33/);
 });
