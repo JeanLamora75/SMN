@@ -9,11 +9,16 @@ export type Expression=
  |Readonly<{kind:"percent";child:Expression}>
  |Readonly<{kind:"binary";op:"+"|"-"|"*"|"/"|"^";left:Expression;right:Expression}>
  |Readonly<{kind:"call";name:"MIN"|"MAX"|"ROUND";args:readonly Expression[]}>
- |Readonly<{kind:"historical";name:HistoricalFunction;tag:string;count:number}>;
+ |Readonly<{kind:"historical";name:HistoricalFunction;tag:string;count:number}>
+ |Readonly<{kind:"role";name:RoleCapacityFunction;role:AgileRole}>;
 export type HistoricalFunction="SUM_LAST"|"LAST_VALUES"|"AVG_LAST"|"MIN_LAST"|"MAX_LAST"|"PREVIOUS"|"DELTA"|"DELTA_PCT";
 export const HISTORICAL_FUNCTIONS=new Set<HistoricalFunction>(["SUM_LAST","LAST_VALUES","AVG_LAST","MIN_LAST","MAX_LAST","PREVIOUS","DELTA","DELTA_PCT"]);
 export type HistoricalResolver=(name:HistoricalFunction,tag:string,count:number,current?:SourceValue)=>Result;
-type Token={type:"num"|"id"|"op"|"end";value:string};
+export type RoleCapacityFunction="ROLE_JH"|"ROLE_JH_PLANNED"|"ROLE_MAX_JH";
+export type AgileRole="DEVELOPER"|"SCRUM_MASTER"|"PRODUCT_OWNER";
+export const ROLE_CAPACITY_FUNCTIONS=new Set<RoleCapacityFunction>(["ROLE_JH","ROLE_JH_PLANNED","ROLE_MAX_JH"]);
+export type RoleCapacityResolver=(name:RoleCapacityFunction,role:AgileRole)=>Result;
+type Token={type:"num"|"id"|"op"|"str"|"end";value:string};
 const SCALE=10n**24n;
 const MAX_MAGNITUDE_DIGITS=72;
 const MAX_POWER_DIGITS=8192;
@@ -92,6 +97,8 @@ function tokenize(input:string):Token[]{
   const remaining=input.slice(offset),ws=/^\s+/.exec(remaining);if(ws){offset+=ws[0].length;continue;}
   const num=/^(?:\d+\.\d+|\d+)/.exec(remaining);
   if(num){result.push({type:"num",value:num[0]});offset+=num[0].length;continue;}
+  const str=/^"(?:DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"/.exec(remaining);
+  if(str){result.push({type:"str",value:str[0].slice(1,-1)});offset+=str[0].length;continue;}
   const id=/^[A-Z][A-Z0-9_]*/.exec(remaining);
   if(id){result.push({type:"id",value:id[0]});offset+=id[0].length;continue;}
   const ch=remaining[0];
@@ -101,7 +108,7 @@ function tokenize(input:string):Token[]{
  if(result.length>512)throw new FormulaBudgetError("token count");
  result.push({type:"end",value:""});return result;
 }
-const functions=new Set(["MIN","MAX","ROUND",...HISTORICAL_FUNCTIONS]);
+const functions=new Set(["MIN","MAX","ROUND",...HISTORICAL_FUNCTIONS,...ROLE_CAPACITY_FUNCTIONS]);
 export function parseFormula(input:string):Expression{
  const tokens=tokenize(input);let pos=0,nodes=0;
  const peek=()=>tokens[pos];
@@ -113,6 +120,11 @@ export function parseFormula(input:string):Expression{
   if(first.type==="num")left=make({kind:"number",value:first.value});
   else if(first.type==="id"){
    if(functions.has(first.value)&&peek().value==="("){
+    if(ROLE_CAPACITY_FUNCTIONS.has(first.value as RoleCapacityFunction)){
+     take("(");const role=tokens[pos++];
+     if(role.type!=="str"||peek().value!==")")throw new FormulaSyntaxError("Role function requires a quoted Agile role");
+     take(")");left=make({kind:"role",name:first.value as RoleCapacityFunction,role:role.value as AgileRole});
+    }else{
     take("(");const args:Expression[]=[];
     if(peek().value!==")"){do{args.push(expression(0,depth+1));if(peek().value!==",")break;take(",");}while(true);}
     take(")");
@@ -125,6 +137,7 @@ export function parseFormula(input:string):Expression{
     }else{
     if(first.value==="ROUND"&&args.length!==2||first.value!=="ROUND"&&args.length<2)throw new FormulaSyntaxError("Invalid function arity");
     left=make({kind:"call",name:first.value as "MIN"|"MAX"|"ROUND",args:Object.freeze(args)});
+    }
     }
    }else {
     if(functions.has(first.value))throw new FormulaSyntaxError("Reserved function name");
@@ -166,12 +179,17 @@ export function referencedTags(ast:Expression):string[]{
  return [...found].sort();
 }
 export type SourceValue=string|null|{kind:"unavailable";reason:Reason;sourceTag?:string};
-export function evaluateFormula(ast:Expression,sources:Readonly<Record<string,SourceValue>>,maxOperations=1000,historical?:HistoricalResolver):Result{
+export function evaluateFormula(ast:Expression,sources:Readonly<Record<string,SourceValue>>,maxOperations=1000,historical?:HistoricalResolver,roleCapacity?:RoleCapacityResolver):Result{
  let operations=0;
  type Evaluated={kind:"available";value:bigint}|{kind:"unavailable";reason:Reason;sourceTag?:string;detail?:string};
  const unavailable=(reason:Reason,sourceTag?:string,detail?:string):Evaluated=>({kind:"unavailable",reason,...(sourceTag===undefined?{}:{sourceTag}),...(detail===undefined?{}:{detail})});
  function walk(n:Expression,depth:number):Evaluated{
   if(depth>96||++operations>maxOperations)throw new FormulaBudgetError("evaluation budget");
+  if(n.kind==="role"){
+   if(!roleCapacity)return unavailable("missing_source",n.role);
+   const value=roleCapacity(n.name,n.role);
+   return value.kind==="available"?{kind:"available",value:DecimalEngine.parse(value.value)}:unavailable(value.reason,value.sourceTag,value.detail);
+  }
   if(n.kind==="historical"){
    if(!historical)return unavailable("missing_source",n.tag);
    const value=historical(n.name,n.tag,n.count,sources[n.tag]);
