@@ -153,7 +153,10 @@ try {
     assert.equal(loginUrl.pathname, "/login");
     const loginPage = await fetchTimed(loginUrl, { redirect: "manual" });
     assert.equal(loginPage.status, 200);
-    assert.match(await loginPage.text(), /Se connecter à Scrum Master Notebook/);
+    const html = await loginPage.text();
+    assert.match(html, /Scrum Master/);
+    assert.match(html, /Notebook/);
+    assert.match(html, /smn-login-heading/);
     assert.equal((await fetchTimed(base + "/welcome")).status, 404);
     console.log("PASS : installation Express complète dans une base Windows isolée.");
   } else {
