@@ -38,8 +38,11 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
   const lock=await db.query("SELECT revision FROM public.smn_indicator_system_revision WHERE singleton_key='singleton' FOR UPDATE");
   if(!lock.rows.length)throw new IndicatorRecalculationError("schema-not-ready","revision missing");
   const graph=await loadDependencyGraph(db);
-  const changed=input.changedIndicatorIds??[];
   const calendar=input.changedCalendarTags??[];
+  const roleAffected=calendar.length?[...graph.definitions.values()]
+   .filter(d=>d.formula!==null&&/\\b(?:ROLE_JH|ROLE_JH_PLANNED|ROLE_MAX_JH)\\s*\\(/.test(d.formula))
+   .map(d=>d.id):[];
+  const changed=[...(input.changedIndicatorIds??[]),...roleAffected];
   const selected=input.changedIndicatorIds!==undefined||input.changedCalendarTags!==undefined?
    impactedIndicatorIds(graph,changed,calendar):graph.order;
   const calculated=selected.filter(id=>graph.definitions.get(id)?.formula!==null);
@@ -77,7 +80,7 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
    }
    const historical=await loadHistoricalResolver(db,scope,graph.byTag);
    const roleCapacity=await loadRoleCapacityResolver(db,scope,requestedRoles);
-   const values=evaluateDependencies({graph,indicators:sources,calendar:input.calendarSources?.[cycleKey(scope)]??{},changedIndicatorIds:input.changedIndicatorIds,changedCalendarTags:input.changedCalendarTags,historical:()=>historical,roleCapacity});
+   const values=evaluateDependencies({graph,indicators:sources,calendar:input.calendarSources?.[cycleKey(scope)]??{},changedIndicatorIds:changed.length?changed:input.changedIndicatorIds,changedCalendarTags:input.changedCalendarTags,historical:()=>historical,roleCapacity});
    for(const [indicatorId,result] of values){
     const revision=await db.query<{formula_revision:string}>("SELECT formula_revision::text FROM public.smn_indicator_definition WHERE id=$1 FOR SHARE",[indicatorId]);
     const formulaRevision=revision.rows[0]?.formula_revision;
