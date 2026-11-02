@@ -48,3 +48,14 @@ test("Dashboard Builder: editing is separate from consultation and has responsiv
  assert.match(editor,/row-cols-1 row-cols-md-2 g-2/);
  assert.match(editor,/Personnaliser les blocs d’en-tête/);
 });
+
+test("Dashboard Builder: list quick-add appears after results and supports notes, ceremonies, risks and obstacles",()=>{
+ const consultation=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+ const resultPosition=consultation.indexOf("<DashboardBusinessList");
+ const footerPosition=consultation.indexOf('className="border-top mt-3 pt-2 text-center"');
+ assert.ok(resultPosition>=0&&footerPosition>resultPosition);
+ for(const source of ["calendar:ceremonies","notes:sprint","registry:items"])assert.ok(consultation.includes(source));
+ for(const kind of ['kind="risks"','kind="obstacles"','+ Ajouter une note','+ Ajouter un événement'])assert.ok(consultation.includes(kind));
+ assert.match(consultation,/canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation\.current\?\.status!=="closed"/);
+ assert.match(consultation,/onSaved=\{refresh\}/);
+});

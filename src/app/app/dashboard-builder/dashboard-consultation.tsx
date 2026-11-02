@@ -47,10 +47,23 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2">{slot.title?.trim()&&<h3 className="h6">{slot.title.trim()}</h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
      if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.title?.trim()||"Liste du tableau de bord"}>
       {slot.title?.trim()&&<h3 className="h6 mb-2">{slot.title.trim()}</h3>}
-      {canManage&&mode==="scrum"&&cycleId&&!personalizing&&["calendar:ceremonies","notes:sprint"].includes(slot.source??"")&&<div className="mb-2"><OperationalQuickAdd kind={slot.source==="notes:sprint"?"notes":"events"} teamId={teamId} cycleId={cycleId} label={slot.source==="notes:sprint"?"+ Ajouter une note":"+ Ajouter un événement"} onSaved={refresh}/></div>}
       <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
        onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
        onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
+      {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
+       (slot.source==="calendar:ceremonies"||slot.source==="notes:sprint"||
+        (slot.source==="registry:items"&&["all","risk","obstacle"].includes(String(slot.filters?.type??"all"))))&&
+       <div className="border-top mt-3 pt-2 text-center">
+        {slot.source==="registry:items"&&(!slot.filters?.type||slot.filters.type==="all")?<div className="d-flex flex-wrap justify-content-center gap-3">
+         <OperationalQuickAdd kind="risks" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un risque" onSaved={refresh}/>
+         <OperationalQuickAdd kind="obstacles" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un obstacle" onSaved={refresh}/>
+        </div>:<OperationalQuickAdd
+         kind={slot.source==="notes:sprint"?"notes":slot.source==="calendar:ceremonies"?"events":slot.filters?.type==="risk"?"risks":"obstacles"}
+         teamId={teamId}
+         cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")}
+         label={slot.source==="notes:sprint"?"+ Ajouter une note":slot.source==="calendar:ceremonies"?"+ Ajouter un événement":slot.filters?.type==="risk"?"+ Ajouter un risque":"+ Ajouter un obstacle"}
+         onSaved={refresh}/>}
+       </div>}
      </section>;
      if(result.state==="available"){
       const number=result.value===undefined||result.value===null?NaN:Number(result.value);
