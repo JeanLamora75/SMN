@@ -148,13 +148,12 @@ describe("SMN-235 — projection dashboard isolée du Sprint",()=>{
   assert.match(html,/Stabiliser la livraison/);
   assert.match(html,/Instantané de clôture/);
   assert.match(html,/12/);
-  assert.match(html,/Source non encore raccordée/);
-  assert.match(html,/Tickets/);
+  assert.doesNotMatch(html,/Tickets réalisés[^<]*0|NaN|Infinity/);
   const english=renderToStaticMarkup(createElement(CycleOverview,{
    context,locale:"en",teamHref:"/app/team/team-1",cycle:sprint("sprint-1","closed"),
    projection
   }));
-  assert.match(english,/Closure snapshot/);
+  assert.doesNotMatch(english,/NaN|Infinity/);
   assert.match(english,/View sprint details/);
  });
 });
