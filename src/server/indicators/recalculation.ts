@@ -1,5 +1,7 @@
 import type {Client} from "pg";
 import {loadHistoricalResolver} from "./formula/historical-context";
+import {loadRoleCapacityResolver,type RoleCapacityRequest} from "./formula/role-context";
+import type {AgileRole,RoleCapacityFunction} from "./formula";
 import {loadDependencyGraph,impactedIndicatorIds,evaluateDependencies,type CalendarSourceTag} from "./dependencies";
 import type {SourceValue} from "./formula";
 import type {CycleType} from "./manual-values";
@@ -49,6 +51,12 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
   ];
   if(scopes.length>MAX_CYCLES||scopes.length*calculated.length>MAX_RESULTS)
    throw new IndicatorRecalculationError("budget","Recalculation budget exceeded");
+  const requestedRoles:RoleCapacityRequest[]=[];
+  const rolePattern=/\\b(ROLE_MAX_JH|ROLE_JH_PLANNED|ROLE_JH)\\s*\\(\\s*"(DEVELOPER|SCRUM_MASTER|PRODUCT_OWNER)"\\s*\\)/g;
+  for(const definition of graph.definitions.values())for(const match of definition.formula?.matchAll(rolePattern)??[]){
+   if(!requestedRoles.some(x=>x.name===match[1]&&x.role===match[2]))
+    requestedRoles.push({name:match[1] as RoleCapacityFunction,role:match[2] as AgileRole});
+  }
   let written=0;
   for(const scope of scopes){
    const table=scope.cycleType==="scrum"?"smn_sprint":"smn_kanban_period";
@@ -68,7 +76,8 @@ export async function recalculateIndicatorResultsWithinTransaction(db:Client,inp
      sources[row.indicator_id]={kind:"unavailable",reason:row.unavailable_reason,sourceTag:row.unavailable_source_tag??undefined};
    }
    const historical=await loadHistoricalResolver(db,scope,graph.byTag);
-   const values=evaluateDependencies({graph,indicators:sources,calendar:input.calendarSources?.[cycleKey(scope)]??{},changedIndicatorIds:input.changedIndicatorIds,changedCalendarTags:input.changedCalendarTags,historical:()=>historical});
+   const roleCapacity=await loadRoleCapacityResolver(db,scope,requestedRoles);
+   const values=evaluateDependencies({graph,indicators:sources,calendar:input.calendarSources?.[cycleKey(scope)]??{},changedIndicatorIds:input.changedIndicatorIds,changedCalendarTags:input.changedCalendarTags,historical:()=>historical,roleCapacity});
    for(const [indicatorId,result] of values){
     const revision=await db.query<{formula_revision:string}>("SELECT formula_revision::text FROM public.smn_indicator_definition WHERE id=$1 FOR SHARE",[indicatorId]);
     const formulaRevision=revision.rows[0]?.formula_revision;
