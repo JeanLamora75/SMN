@@ -1,0 +1,52 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {createDefaultDashboardLayout,validateDashboardLayout} from "../src/server/dashboard-builder/layout";
+import {duplicateDashboardBlock,changeDashboardBlockTemplate,removeDashboardBlock,removeDashboardRow} from "../src/lib/dashboard-builder/block-actions";
+import {readFileSync} from "node:fs";
+test("SMN-369 AC1: duplicate copies configuration but has new identities",()=>{
+ const original=createDefaultDashboardLayout("scrum");
+ const first=original.rows[0].blocks[0];
+ first.slots[0].source="indicator:demo";first.slots[0].view="number";
+ first.slots[0].filters={cycleIdOverride:"cycle1"};
+ first.dimensions={width:2,height:320};
+ const result=duplicateDashboardBlock(original,first.id,"new-block",["new-slot"]);
+ const copy=result.rows[0].blocks[1];
+ assert.equal(copy.id,"new-block");
+ assert.equal(copy.slots[0].id,"new-slot");
+ assert.deepEqual(copy.dimensions,first.dimensions);
+ assert.deepEqual(copy.slots[0].filters,first.slots[0].filters);
+ assert.equal(copy.slots[0].source,first.slots[0].source);
+ assert.equal(result.rows[0].blocks[0].id,first.id);
+ validateDashboardLayout(result);
+});
+test("SMN-369 AC2: empty deletes immediately but configured content requires confirmation",()=>{
+ const original=createDefaultDashboardLayout("scrum");
+ const id=original.rows[0].blocks[0].id;
+ assert.equal(removeDashboardBlock(original,id).rows[0].blocks.length,1);
+ original.rows[0].blocks[0].slots[0].source="indicator:x";
+ assert.throws(()=>removeDashboardBlock(original,id),/confirmation-required/);
+ assert.throws(()=>removeDashboardRow(original,original.rows[0].id),/confirmation-required/);
+ assert.equal(removeDashboardBlock(original,id,true).rows[0].blocks.length,1);
+});
+test("SMN-369 AC3: model reduction preserves first configured slot and reports loss",()=>{
+ const original=createDefaultDashboardLayout("scrum");
+ const block=original.rows[0].blocks[0];
+ const expanded=changeDashboardBlockTemplate(original,block.id,"M03",["second","third"]).layout;
+ expanded.rows[0].blocks[0].slots[0].source="indicator:one";
+ expanded.rows[0].blocks[0].slots[1].source="indicator:two";
+ const transformed=changeDashboardBlockTemplate(expanded,block.id,"M01",[]);
+ assert.equal(transformed.lostConfigured,1);
+ assert.equal(transformed.layout.rows[0].blocks[0].slots[0].source,"indicator:one");
+ assert.equal(transformed.layout.rows[0].blocks[0].slots[0].id,block.slots[0].id);
+ assert.equal(expanded.rows[0].blocks[0].slots.length,3);
+ validateDashboardLayout(transformed.layout);
+});
+test("SMN-369 AC4: header is untouched and editor provides confirmation + cancel",()=>{
+ const editor=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-editor.tsx",import.meta.url),"utf8");
+ assert.match(editor,/Dupliquer/);
+ assert.match(editor,/Confirmer la perte de contenu/);
+ assert.match(editor,/setPendingAction\(null\)/);
+ const initial=createDefaultDashboardLayout("kanban");
+ const changed=duplicateDashboardBlock(initial,initial.rows[0].blocks[0].id,"copy",["copy-slot"]);
+ assert.deepEqual(changed.header,initial.header);
+});
