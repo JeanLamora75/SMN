@@ -83,7 +83,8 @@
     "test:smn-360": "tsx --test tests/smn-360-dashboard-batch.test.ts",
     "test:smn-361": "tsx --test tests/smn-361-dashboard-consultation.test.ts",
     "test:smn-362": "tsx --test tests/smn-362-dashboard-header.test.ts",
-    "test:smn-363": "tsx --test tests/smn-363-dashboard-draft.test.ts"
+    "test:smn-363": "tsx --test tests/smn-363-dashboard-draft.test.ts",
+    "test:smn-364": "tsx --test tests/smn-364-dashboard-composition.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
