@@ -38,7 +38,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
    const context=await resolveRegistryReadContext(db,{
     accountId:actor.id,role:actor.role
    },requestedTeamId);
-   if(context.version===28){
+   if(context.team){
     const schema=await db.query<{schema_version:number}>(
      "SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
     if(!evaluateSchemaCapability(schema.rows[0]?.schema_version,"per-team-agile-mode").ok&&(!MULTI_TEAM_CONTEXT_READY||
