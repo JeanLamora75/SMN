@@ -49,14 +49,12 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  // provide the full row/block/slot editor while retaining this save lifecycle.
  const addRow=()=>setDraft(current=>current?{...current,rows:[...current.rows,{id:crypto.randomUUID(),blocks:[]}]}:null);
  return <div>
-  {!editing&&canEdit&&<div className="dropdown mb-3">
-   <button className="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Actions du tableau de bord
-   </button>
-   <ul className="dropdown-menu">
+  {!editing&&canEdit&&<details className="dropdown mb-3">
+   <summary className="btn btn-outline-primary">Actions du tableau de bord</summary>
+   <ul className="dropdown-menu show position-static">
     <li><button type="button" className="dropdown-item" onClick={enter}>Personnaliser</button></li>
    </ul>
-  </div>}
+  </details>}
   {editing&&<div className="d-flex align-items-center gap-2 mb-3">
    <span className="badge text-bg-secondary">Personnalisation</span>
    <button className="btn btn-outline-primary" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
@@ -64,7 +62,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
   </div>}
   <DashboardConsultation layout={draft??published} teamId={teamId} navigation={navigation}
    mode={mode} locale={locale} personalizing={editing}/>
-  {editing&&<div className="position-sticky bottom-0 bg-body border-top shadow-sm p-3 mt-4"
+  {editing&&<div className="position-fixed bottom-0 start-0 end-0 bg-body border-top shadow-sm p-3" style={{zIndex:1040}}
     role="region" aria-label="Barre de sauvegarde du Dashboard">
    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
     <span role="status">{saving?"Enregistrement en cours…":changed?"Modifications non enregistrées":"Aucune modification"}</span>
