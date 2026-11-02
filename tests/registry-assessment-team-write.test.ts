@@ -8,8 +8,7 @@ test("évaluation du risque : équipe autorisée, filtre SQL et verrou de livrai
  assert.match(service,/resolveAdminTeam\(db,scope\.actor,scope\.teamId\)/);
  assert.match(service,/r\.team_id=\$2/);
  assert.match(service,/is_archived/);
- assert.match(route,/resolveRegistryReadContext\(db,/);
- assert.match(route,/MULTI_TEAM_CONTEXT_READY/);
- assert.match(route,/SMN_MULTI_TEAM_WRITES_ENABLED/);
- assert.match(route,/assertLegacyTeamApi\(db\)/);
+ assert.match(route,/authorizeRegistryRecord\(db,/);
+ assert.match(route,/authorizeApi\(req,"write",\{type:"settings"/);
+ assert.match(route,/withAuthDb/);
 });
