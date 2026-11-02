@@ -111,11 +111,16 @@ jobs:
           if ($files.Count -eq 0) { throw "Aucun test Windows sélectionné" }
           Write-Host "Tests Windows sans PG: $($files.Count) fichiers"
           # Windows imposes a short command-line limit; execute every selected test in bounded batches.
+          $failedBatches = @()
           for ($offset = 0; $offset -lt $files.Count; $offset += 40) {
             $batch = @($files | Select-Object -Skip $offset -First 40)
             Write-Host "Exécution Windows: fichiers $($offset + 1) à $($offset + $batch.Count) / $($files.Count)"
             pnpm exec tsx --test @batch
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if ($LASTEXITCODE -ne 0) { $failedBatches += "$($offset + 1)-$($offset + $batch.Count)" }
+          }
+          if ($failedBatches.Count -gt 0) {
+            Write-Error "Lots Windows en échec : $($failedBatches -join \", \")"
+            exit 1
           }
         env:
           CI: "false"
