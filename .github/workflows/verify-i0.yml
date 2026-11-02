@@ -18,16 +18,16 @@ jobs:
         env:
           POSTGRES_USER: smn_ci
           POSTGRES_PASSWORD: smn_ci_ephemeral_test
-          POSTGRES_DB: smn_ci
+          POSTGRES_DB: smn
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U smn_ci -d smn_ci"
+          --health-cmd "pg_isready -U smn_ci -d smn"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
     env:
-      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
-      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn_ci
+      SMN_TEST_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
+      SMN_DATABASE_URL: postgresql://smn_ci:smn_ci_ephemeral_test@127.0.0.1:5432/smn
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
