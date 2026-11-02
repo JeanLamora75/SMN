@@ -76,7 +76,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
   </section>;
  };
  const header=layout.header.blocks.map(renderBlock).filter(Boolean);
- const rows=layout.rows.map(row=>row.blocks.map(renderBlock).filter(Boolean)).filter(row=>row.length);
+ const rows=layout.rows.map(row=>row.blocks.map(block=>({block,content:renderBlock(block)})).filter(item=>item.content)).filter(row=>row.length);
  return <main className="smn-dashboard-builder" aria-label="Dashboard personnalisé">
   <div className="d-flex align-items-center justify-content-between mb-3">
    <h1 className="h4 mb-0">Tableau de bord</h1>
