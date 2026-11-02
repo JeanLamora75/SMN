@@ -350,7 +350,7 @@ export default function RegistryJournal({itemId,itemTitle,teamId,canManage,navig
         aria-expanded={versionsOpen===entry.comment.id}
         aria-label={commentsText("versions")} title={commentsText("versions")}
         onClick={()=>void readVersions(entry.comment.id)}>
-        <BootstrapIcon name="clock-history"/>
+        <BootstrapIcon name="hourglass-split"/>
        </button>}
       </div>}
      </li>)}
