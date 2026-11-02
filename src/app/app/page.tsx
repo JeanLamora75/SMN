@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {dashboardBuilderCutoverEnabled,dashboardBuilderDestination} from "@/lib/dashboard-builder/cutover";
 import { redirect } from "next/navigation";
 import { currentAccount } from "@/server/auth/session";
 import { withAuthDb,withSessionReadDb } from "@/server/auth/database";
@@ -22,6 +23,11 @@ export default async function DashboardPage({searchParams}:{searchParams:Promise
   if (!account) redirect("/login");
   if (!canAccess(account, "read", { type: "collective", exists: true, inScope: true }))
     redirect("/change-password");
+  if(dashboardBuilderCutoverEnabled()){
+    const query=await searchParams;
+    redirect(dashboardBuilderDestination(typeof query.teamId==="string"?query.teamId:null,
+      typeof query.cycleId==="string"?query.cycleId:null));
+  }
   const locale=await requestLocale();
   const t=(key:TranslationKey,params?:Record<string,string|number>)=>translate(locale,key,params);
 
