@@ -6,6 +6,7 @@ import {readAccountDashboard} from "@/server/dashboard/read";
 import {readDashboardLayout} from "@/server/dashboard-builder/layout";
 import {requestLocale} from "@/i18n/locale.server";
 import DashboardConsultation from "./dashboard-consultation";
+import {listDashboardCycles,cycleNavigation} from "@/server/dashboard-builder/cycles";
 
 export const dynamic="force-dynamic";
 /** Separate route until approved cutover of the existing /app dashboard. */
@@ -26,7 +27,10 @@ export default async function DashboardBuilderPage({searchParams}:{
    const saved=await readDashboardLayout(db,{
     installationId:owner.rows[0].installation_id,accountId:account.id,teamId,
    });
-   return {teamId,teamName:context.context.team,mode:context.context.mode,layout:saved.layout};
+   const mode=context.context.mode as "scrum"|"kanban";
+   const cycles=await listDashboardCycles(db,{installationId:owner.rows[0].installation_id,accountId:account.id,teamId},mode);
+   const navigation=cycleNavigation(cycles,typeof query.cycleId==="string"?query.cycleId:null);
+   return {teamId,teamName:context.context.team,mode,layout:saved.layout,navigation};
   });
   const locale=await requestLocale();
   return <div className="py-3">
@@ -38,7 +42,7 @@ export default async function DashboardBuilderPage({searchParams}:{
     </div>
    </div>
    <DashboardConsultation layout={data.layout} teamId={data.teamId}
-    cycleId={typeof query.cycleId==="string"?query.cycleId:null} locale={locale}/>
+    navigation={data.navigation} mode={data.mode} locale={locale}/>
   </div>;
  }catch{
   return <section className="smn-panel p-4" role="alert">
