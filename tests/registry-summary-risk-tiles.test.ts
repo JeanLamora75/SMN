@@ -18,5 +18,6 @@ test("Cartes compactes côte à côte dans la colonne droite, repli si étroit",
  const marker=css.lastIndexOf(".smn-registry-summary-side .smn-registry-summary-risk-layout{");
  assert.ok(marker>0);
  assert.match(css.slice(marker,marker+180),/grid-template-columns:minmax\(0,1fr\)/);
- assert.match(css.slice(marker),/@media\(max-width:1100px\)/);
+ assert.match(css.slice(0,marker),/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css.slice(0,marker),/@media\(max-width:1100px\)/);
 });
