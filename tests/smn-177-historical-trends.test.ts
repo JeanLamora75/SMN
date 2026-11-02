@@ -17,7 +17,7 @@ describe("SMN-177 — tendances historiques Scrum",()=>{
   assert.match(src,/WHERE s.team_id=\$1 AND s.deleted_at IS NULL/);
   assert.match(src,/if\(row.status==="closed"\)/);
   assert.match(src,/smn_sprint_closure_snapshot/);
-  assert.match(src,/s.start_at<=\$2::timestamptz/);
+  assert.match(src,/\(s.start_at,s.id\)<=\(\$2::timestamptz,\$3\)/);
   assert.match(src,/LIMIT 6/);
  });
 });
