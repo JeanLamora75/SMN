@@ -26,6 +26,7 @@ function fakeDb(){
  let clock=1;
  const db={query:async(sql:string,args:unknown[]=[])=>{
   queries.push(sql);
+  if(sql.includes("SELECT schema_version FROM public.smn_installation")) return {rowCount:1,rows:[{schema_version:32}]};
   if(sql==="BEGIN"||sql==="COMMIT"||sql==="ROLLBACK"||sql.includes("pg_advisory_xact_lock"))
    return {rowCount:0,rows:[]};
   if(sql.includes("COALESCE(count(a.id)"))return {rowCount:categories.length,rows:categories
