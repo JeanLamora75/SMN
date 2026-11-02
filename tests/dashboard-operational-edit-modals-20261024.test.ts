@@ -140,7 +140,10 @@ test("les sous-formulaires risques propagent un succès sans modifier les autres
   const dash=read("src/app/app/admin/registries/"+
    (name==="RiskRoam"?"risk-roam":name==="RiskAssessment"?"risk-assessment":
     name==="RegistryCycles"?"registry-cycles":"registry-relations")+".tsx");
-  assert.match(dash,/onSaved\?\.\(\)/);
+  if(name==="RegistryCycles"){
+   assert.match(dash,/setData\(d=>d\?/);
+   assert.match(dash,/Do not call onSaved here/);
+  }else assert.match(dash,/onSaved\?\.\(\)/);
  }
 });
 test("une modification de note valide est enregistrée et auditée en transaction",async()=>{
