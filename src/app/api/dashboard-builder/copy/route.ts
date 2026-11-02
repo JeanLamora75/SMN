@@ -50,7 +50,7 @@ export async function POST(request:NextRequest){
  }catch(error){
   const message=error instanceof Error?error.message:"";
   return jsonResult({error:message==="dashboard-revision-conflict"?"revision-conflict":
-   message==="dashboard-copy-source-not-saved"?"source-not-saved":"copy-unavailable"},
+   message==="dashboard-copy-source-not-saved"?"source-not-saved":"copy-unavailable",
    message:message==="dashboard-revision-conflict"?"La disposition cible a changé. Actualisez la sélection avant de confirmer.":"Copie impossible. Aucune modification appliquée."},
    message==="dashboard-revision-conflict"?409:message==="dashboard-copy-source-not-saved"?400:403);
  }
