@@ -52,14 +52,17 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
        onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
       {canManage&&mode==="scrum"&&!personalizing&&(slot.filters?.cycleIdOverride?true:navigation.current?.status!=="closed")&&
        (slot.source==="calendar:ceremonies"||slot.source==="notes:sprint"||
-        (slot.source==="registry:items"&&["risk","obstacle"].includes(String(slot.filters?.type))))&&
+        (slot.source==="registry:items"&&["all","risk","obstacle"].includes(String(slot.filters?.type??"all"))))&&
        <div className="border-top mt-3 pt-2 text-center">
-        <OperationalQuickAdd
+        {slot.source==="registry:items"&&(!slot.filters?.type||slot.filters.type==="all")?<div className="d-flex flex-wrap justify-content-center gap-3">
+         <OperationalQuickAdd kind="risks" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un risque" onSaved={refresh}/>
+         <OperationalQuickAdd kind="obstacles" teamId={teamId} cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")} label="+ Ajouter un obstacle" onSaved={refresh}/>
+        </div>:<OperationalQuickAdd
          kind={slot.source==="notes:sprint"?"notes":slot.source==="calendar:ceremonies"?"events":slot.filters?.type==="risk"?"risks":"obstacles"}
          teamId={teamId}
          cycleId={String(slot.filters?.cycleIdOverride??cycleId??"")}
          label={slot.source==="notes:sprint"?"+ Ajouter une note":slot.source==="calendar:ceremonies"?"+ Ajouter un événement":slot.filters?.type==="risk"?"+ Ajouter un risque":"+ Ajouter un obstacle"}
-         onSaved={refresh}/>
+         onSaved={refresh}/>}
        </div>}
      </section>;
      if(result.state==="available"){
