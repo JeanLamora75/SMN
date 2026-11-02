@@ -157,7 +157,13 @@ try {
     assert.match(html, /Scrum Master/);
     assert.match(html, /Notebook/);
     assert.match(html, /smn-login-heading/);
-    assert.equal((await fetchTimed(base + "/welcome")).status, 404);
+    const restrictedWelcome = await fetchTimed(base + "/welcome", {redirect:"manual"});
+    assert.ok([200,404].includes(restrictedWelcome.status), "Statut inattendu de la page d’installation");
+    const restrictedHtml = await restrictedWelcome.text();
+    assert.match(restrictedHtml,/Accès indisponible|Access unavailable/,
+      "La page d’installation doit afficher un refus après initialisation");
+    assert.doesNotMatch(restrictedHtml,/Installer Scrum Master Notebook/,
+      "L’assistant d’installation ne doit plus être visible");
     console.log("PASS : installation Express complète dans une base Windows isolée.");
   } else {
     console.log("PASS : page d'accueil et assistant accessibles sans base implicite.");
