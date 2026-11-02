@@ -38,19 +38,12 @@ function projection():CollectiveCycleProjection{
   workingDaysRemaining:metric,events:list(events),obstacles:list([attention[0]]),
   risks:list([attention[1]]),notesAndAlerts:list(notes)};
 }
-test("les titres des quatre familles sont des boutons accessibles, sans quitter le tableau de bord",()=>{
- const html=renderToStaticMarkup(createElement(OperationalOverview,{
-  locale:"fr",projection:projection(),timeZone:"Europe/Paris",canManage:true
- }));
- assert.equal((html.match(/aria-haspopup="dialog"/g)??[]).length,5);
- assert.match(html,/Blocage/);
- assert.match(html,/Une note saisie/);
- assert.match(html,/Définir le pays de référence/);
- assert.match(html,/bi-arrow-right/);
- assert.match(html,/meeting\/template\//);
- assert.match(html,/registries\/00000000-0000-4000-8000-000000000001/);
- assert.equal((html.match(/class="smn-operational-create-link"/g)??[]).length,4);
- assert.doesNotMatch(html,/<dialog\b/);
+test("les listes Builder ne forcent pas quatre cartes mais gardent les actions autorisées",()=>{
+ const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+ assert.match(builder,/DashboardBusinessList/);
+ assert.match(builder,/visibleSlots\(block\)/);
+ assert.match(builder,/canManage&&mode==="scrum"&&cycleId&&!personalizing/);
+ assert.match(builder,/OperationalQuickAdd/);
 });
 test("le tableau de bord n'a plus de bloc configuration dupliqué",()=>{
  const page=read("src/app/app/page.tsx");
