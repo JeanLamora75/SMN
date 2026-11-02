@@ -50,7 +50,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
       <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
        onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
        onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
-      {canManage&&mode==="scrum"&&!personalizing&&(slot.filters?.cycleIdOverride?true:navigation.current?.status!=="closed")&&
+      {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
        (slot.source==="calendar:ceremonies"||slot.source==="notes:sprint"||
         (slot.source==="registry:items"&&["all","risk","obstacle"].includes(String(slot.filters?.type??"all"))))&&
        <div className="border-top mt-3 pt-2 text-center">
