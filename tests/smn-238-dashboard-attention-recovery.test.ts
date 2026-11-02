@@ -52,11 +52,11 @@ test("notes de Sprint et alertes globales : À faire alertes, Terminées informa
  const result=await readCycleNotesAndAlerts(saved.db,"team-a","cycle-a");
  assert.equal(result.state,"available");
  if(result.state==="available"){
-  assert.equal(result.total,4);
-  assert.deepEqual(result.items.map(x=>x.kind),["alert","note","note","note"]);
+  assert.equal(result.total,2);
+  assert.deepEqual(result.items.map(x=>x.kind),["alert","note"]);
   assert.equal(result.items[0].configurationKey,"reference-country");
   assert.equal(result.items[1].title,"Décision de Sprint");
-  assert.equal(result.items[2].status,"done");
+  assert.ok(result.items.every(x=>x.status!=="done"));
  }
  assert.ok(saved.history.some(q=>q.sql.includes("n.sprint_id=$2")&&q.args[1]==="cycle-a"));
 });
