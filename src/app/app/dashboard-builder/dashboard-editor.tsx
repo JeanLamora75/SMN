@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useMemo,useState} from "react";
-import type {DashboardLayout} from "@/server/dashboard-builder/layout";
+import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/layout";
+import {updateDashboardSlot,type SlotOptions} from "@/lib/dashboard-builder/slot-options";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import DashboardConsultation from "./dashboard-consultation";
 import {DashboardTemplateGallery} from "./template-gallery";
@@ -13,9 +14,9 @@ type Navigation={current:DashboardCycle|null;previous:string|null;next:string|nu
 type SaveResponse={layout:DashboardLayout;revision:number;persisted:boolean};
 const copy=(layout:DashboardLayout):DashboardLayout=>structuredClone(layout);
 const signature=(layout:DashboardLayout)=>JSON.stringify(layout);
-export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,navigation,mode,locale}:{
+export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,navigation,cycles,mode,locale}:{
  initialLayout:DashboardLayout;initialRevision:number;canEdit:boolean;teamId:string;
- navigation:Navigation;mode:"scrum"|"kanban";locale:string;
+ navigation:Navigation;cycles:readonly DashboardCycle[];mode:"scrum"|"kanban";locale:string;
 }){
  const [published,setPublished]=useState<DashboardLayout>(()=>copy(initialLayout));
  const [draft,setDraft]=useState<DashboardLayout|null>(null);
@@ -54,12 +55,10 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
  },[draft,changed,saving,canEdit,teamId,revision]);
  // The structural draft action is deliberately non-destructive; future stories
  // provide the full row/block/slot editor while retaining this save lifecycle.
- const confirmSlot=(source:string,view:SourceView)=>{
+ const activeSlot:DashboardSlot|undefined=draft?[...draft.header.blocks,...draft.rows.flatMap(r=>r.blocks)].flatMap(b=>b.slots).find(s=>s.id===wizardSlot):undefined;
+ const confirmSlot=(source:string,view:SourceView,options:SlotOptions)=>{
   if(!wizardSlot)return;
-  setDraft(current=>current?{...current,
-   header:{blocks:current.header.blocks.map(block=>({...block,slots:block.slots.map(slot=>slot.id===wizardSlot?{...slot,source,view}:slot)}))},
-   rows:current.rows.map(row=>({...row,blocks:row.blocks.map(block=>({...block,slots:block.slots.map(slot=>slot.id===wizardSlot?{...slot,source,view}:slot)}))}))
-  }:null);
+  setDraft(current=>current?updateDashboardSlot(current,wizardSlot,{source,view,filters:options}):null);
   setWizardSlot(null);
  };
  const addRow=()=>setDraft(current=>current?appendDashboardRow(current,crypto.randomUUID()):null);
@@ -93,7 +92,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
       <div className="d-flex gap-2">{block.slots.map(slot=><div className="flex-fill" key={slot.id}>
        <button type="button" className="btn btn-outline-secondary w-100" onClick={()=>setWizardSlot(slot.id)} disabled={saving}
         aria-label={`Configurer emplacement ${slot.templateSlotId}`}>
-        {slot.source?slot.source:"+"}</button>
+        {slot.source?"✎ "+slot.source:"+"}</button>
       </div>)}</div>
      </div>
     </div>)}</div>
@@ -104,7 +103,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
    <button className="btn btn-outline-primary w-100" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
   </section>}
   {galleryRow&&<DashboardTemplateGallery onChoose={addBlock} onClose={()=>setGalleryRow(null)}/>}
-  {wizardSlot&&<DashboardSlotWizard teamId={teamId} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot}/>}
+  {wizardSlot&&<DashboardSlotWizard teamId={teamId} initialSlot={activeSlot} cycles={cycles} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot} onClear={()=>{setDraft(current=>current?updateDashboardSlot(current,wizardSlot,null):null);setWizardSlot(null);}}/>}
 
   {editing&&<div className="position-fixed bottom-0 start-0 end-0 bg-body border-top shadow-sm p-3" style={{zIndex:1040}}
     role="region" aria-label="Barre de sauvegarde du Dashboard">
