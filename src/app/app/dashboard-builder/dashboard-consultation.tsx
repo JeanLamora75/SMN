@@ -1,5 +1,7 @@
 "use client";
 import {useMemo} from "react";
+import Link from "next/link";
+import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import type {DashboardLayout,DashboardBlock,DashboardSlot} from "@/server/dashboard-builder/layout";
 import type {BatchRequest} from "@/server/dashboard-builder/batch";
 import {useDashboardBatch} from "./use-dashboard-batch";
@@ -20,12 +22,16 @@ export function gridColumns(block:DashboardBlock):string{
  const active=template.slots.filter(cell=>block.slots.some(s=>s.templateSlotId===cell.slotId&&hasContent(s)));
  return active.length?active.map(cell=>`${cell.columnSpan}fr`).join(" "):"minmax(0,1fr)";
 }
-export default function DashboardConsultation({layout,teamId,cycleId,locale="fr"}:{
- layout:DashboardLayout;teamId:string;cycleId:string|null;locale?:string;
+export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false"}:{
+ layout:DashboardLayout;teamId:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
+ mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;
 }){
+ const cycleId=navigation.current?.id??null;
+ const cycleLink=(id:string)=>`/app/dashboard-builder?teamId=${encodeURIComponent(teamId)}&cycleId=${encodeURIComponent(id)}`;
+ const date=(value:string)=>new Intl.DateTimeFormat(locale,{day:"2-digit",month:"short",year:"numeric"}).format(new Date(value));
  const requests=useMemo<BatchRequest[]>(()=>[...layout.header.blocks,...layout.rows.flatMap(r=>r.blocks)]
   .flatMap(block=>visibleSlots(block).map(slot=>({
-   id:slot.id,source:slot.source!,view:slot.view!,cycleId,filters:slot.filters,
+   id:slot.id,source:slot.source!,view:slot.view!,cycleId:slot.filters?.cycleIdOverride as string|undefined ?? cycleId,filters:slot.filters,
   }))),[layout,cycleId]);
  const {slots,refresh}=useDashboardBatch(teamId,cycleId,requests);
  const renderBlock=(block:DashboardBlock)=>{
@@ -58,6 +64,19 @@ export default function DashboardConsultation({layout,teamId,cycleId,locale="fr"
    <h1 className="h4 mb-0">Tableau de bord</h1>
    <button className="btn btn-outline-secondary" type="button" onClick={refresh}>Actualiser</button>
   </div>
+  <section className="smn-panel p-3 mb-3" aria-label="Cycle actif">
+   <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <div className="d-flex align-items-center gap-2">
+     {navigation.previous&&!personalizing?<Link aria-label="Cycle précédent" href={cycleLink(navigation.previous)} className="btn btn-outline-secondary">◀</Link>:
+      <button type="button" aria-label="Cycle précédent" className="btn btn-outline-secondary" disabled>◀</button>}
+     <div className="text-center"><strong>{navigation.current?.name??(mode==="scrum"?"Aucun sprint":"Aucune période")}</strong>
+      {navigation.current&&<div className="small text-body-secondary">{date(navigation.current.startAt)} — {date(navigation.current.endAt)}</div>}</div>
+     {navigation.next&&!personalizing?<Link aria-label="Cycle suivant" href={cycleLink(navigation.next)} className="btn btn-outline-secondary">▶</Link>:
+      <button type="button" aria-label="Cycle suivant" className="btn btn-outline-secondary" disabled>▶</button>}
+    </div>
+    {navigation.current&&<span className="badge text-bg-secondary">{navigation.current.status}</span>}
+   </div>
+  </section>
   {header.length>0&&<div className="row g-3 mb-3">{header.map((block,i)=>
    <div className="col-12 col-lg-6" key={i}>{block}</div>)}</div>}
   {rows.length>0?rows.map((row,i)=><div className="row g-3 mb-3" key={i}>
