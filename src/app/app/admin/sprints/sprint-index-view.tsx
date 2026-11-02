@@ -205,7 +205,7 @@ export default function SprintIndexView({canManage,permittedTeamIds=[],initialFi
          {label(item)}</span></td>
         <td data-label={t("sprintsIndex.period")}><time dateTime={item.startAt}>{day(item.startAt,item.timeZone)}</time>
          {" — "}<time dateTime={item.endAt}>{day(item.endAt,item.timeZone)}</time></td>
-        {(dynamicReport?.columns??[]).map(col=>{const raw=dynamicValues.get(item.id)?.[col.id]??null;return <td key={col.id} data-label={col.name} className="text-end text-nowrap" title={col.name}>{raw===null?"—":<span className="d-inline-flex align-items-center gap-2">{col.style==="gauge"&&Number.isFinite(Number(raw))&&<progress aria-label={col.name} value={Math.max(0,Math.min(100,Number(raw)))} max={100} style={{width:65,height:8}}/>}{raw.replace(".",locale==="fr"?",":".")+(col.unit?" "+col.unit:"")}</span>}</td>;})}
+        {(dynamicReport?.columns??[]).map(col=>{const raw=dynamicValues.get(item.id)?.[col.id]??null;return <td key={col.id} data-label={col.name} className={col.style==="gauge"?"smn-sprints-gauge-cell text-start text-nowrap":"text-end text-nowrap"} title={col.name}>{raw===null?"—":<span className="d-inline-flex align-items-center gap-2">{col.style==="gauge"&&Number.isFinite(Number(raw))&&<progress aria-label={col.name} value={Math.max(0,Math.min(100,Number(raw)))} max={100} style={{width:65,height:8}}/>}{raw.replace(".",locale==="fr"?",":".")+(col.unit?" "+col.unit:"")}</span>}</td>;})}
 
         <td className="text-end smn-sprints-row-actions" data-label={t("sprintsIndex.actions")}>
          <div className="d-inline-flex gap-2 align-items-center">
