@@ -49,16 +49,16 @@ test("les libellés anglais et les permissions restent cohérents",()=>{
  assert.doesNotMatch(viewer,/class="smn-operational-create-link"/);
 });
 
-test("le tableau de bord supprime le lien calendrier redondant et conserve les quatre cartes",()=>{
- const page=read("src/app/app/page.tsx");
- assert.doesNotMatch(page,/t\("teamCalendar\.open"\)/);
- const styles=read("src/app/dashboard.css");
- assert.match(styles,/\.smn-operational-create-link\s*\{/);
- assert.match(styles,/text-align:center/);
- assert.match(styles,/font-weight:700/);
- assert.match(styles,/text-decoration:none/);
+test("P1: les listes Builder sont configurables plutôt que quatre cartes imposées",()=>{
+ const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
+ const batch=read("src/server/dashboard-builder/batch.ts");
+ assert.match(builder,/DashboardBusinessList/);
+ assert.match(builder,/visibleSlots\(block\)/);
+ assert.match(batch,/readRegistryDashboardList/);
+ assert.match(batch,/readCalendarDashboardList/);
+ assert.match(batch,/readNotesDashboardList/);
+ assert.match(batch,/requireDashboardPermission\(db,scope,"read"\)/);
 });
-
 test("les quatre raccourcis ouvrent les formulaires en modale sans navigation",()=>{
  const overview=read("src/app/app/operational-overview.tsx");
  const modal=read("src/app/app/operational-quick-add.tsx");
