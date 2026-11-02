@@ -47,8 +47,8 @@ jobs:
           PGPASSWORD=smn_ci_ephemeral_test psql -h 127.0.0.1 -U smn_ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE DATABASE smn_ci"
       - name: Contrat de validation v33
         run: pnpm test:validate-version
-      - name: Parité des catalogues FR/EN
-        run: pnpm i18n:check
+      - name: Qualité commune v33
+        run: node scripts/validate-version.mjs --profile quality
       - name: Recette PostgreSQL isolée SMN-343
         run: pnpm db:test:smn-343
       - name: Recette PostgreSQL isolée SMN-344
@@ -67,14 +67,10 @@ jobs:
         run: pnpm test:smn-348
       - name: Contrats de retry SMN-346
         run: pnpm test:smn-346
-      - name: Lint
-        run: pnpm lint
       - name: Tests unitaires et intégration PG réelle
         run: pnpm test
       - name: Valider le schéma Prisma
         run: pnpm exec prisma validate
-      - name: Typecheck
-        run: pnpm typecheck
       - name: Diagnostic de port et de prérequis
         run: |
           pnpm run doctor
@@ -105,6 +101,8 @@ jobs:
           run_install: false
       - name: Installer les dépendances (Windows sans élévation)
         run: pnpm install --frozen-lockfile
+      - name: Contrat de validation v33 sur Windows
+        run: pnpm test:validate-version
       - name: Tests unitaires Windows sans base PostgreSQL (intégrations PG couvertes par linux-postgres)
         shell: pwsh
         run: |
