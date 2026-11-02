@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {parseRegistryFilters,readRegistryPage} from "../src/server/registries/list";
 import type {Client} from "pg";
 test("type, statut, pagination et longueurs contrôlés",()=>{
- assert.deepEqual(parseRegistryFilters(new URLSearchParams()),{type:"all",search:"",status:"",owner:"",page:1,lifecycle:"all",sort:"default",cycleId:""});
+ assert.deepEqual(parseRegistryFilters(new URLSearchParams()),{type:"all",search:"",status:"",owner:"",page:1,lifecycle:"all",sort:"default",cycleId:"",showResolved:false});
  assert.equal(parseRegistryFilters(new URLSearchParams("type=risk&status=cancelled")),null);
  assert.equal(parseRegistryFilters(new URLSearchParams("type=dependency&status=satisfied"))?.status,"satisfied");
  assert.equal(parseRegistryFilters(new URLSearchParams("page=-1")),null);
