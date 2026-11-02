@@ -15,7 +15,7 @@ const range={start:"2026-05-01",end:"2026-05-04"};
 type Options={percentPO?:boolean;percentScrumMaster?:boolean;missingVersion?:boolean;missingCalendar?:boolean;
  missingCountry?:boolean;partialNational?:boolean;holiday?:boolean;
  closure?:boolean;absence?:boolean;assignmentChanges?:boolean;multiAssignment?:boolean;
- noAssignments?:boolean;hours?:number};
+ noAssignments?:boolean;hours?:number;absencePlanned?:boolean};
 function fixture(opts:Options={}){
  const sql:string[]=[];
  const assignment={id:assignmentId,member_id:memberId,display_name:"Membre référent",
@@ -76,7 +76,7 @@ function fixture(opts:Options={}){
   }
   if(q.includes("FROM public.smn_member_absence")){
    const rows=opts.absence?[{
-    member_id:memberId,is_planned:true,start_on:"2026-05-01",end_on:"2026-05-01",
+    member_id:memberId,is_planned:opts.absencePlanned??true,start_on:"2026-05-01",end_on:"2026-05-01",
     start_slot:"morning",end_slot:"afternoon"
    }]:[];
    return {rows,rowCount:rows.length};
@@ -221,6 +221,25 @@ describe("SMN-57 — calcul fiable des JH",()=>{
    range.start,range.end);
   assert.equal(report.totalJh,null);
   assert.ok(report.missing.some(m=>m.source==="ambiguous-assignment"));
+ });
+ it("les trois fonctions de capacité distinguent les absences imprévues sur toute la période",async()=>{
+  const f=fixture({absence:true,absencePlanned:false});
+  const max=await readDevelopmentCapacity(f.db,range.start,range.end,{role:"DEVELOPER",absenceMode:"none"});
+  const planned=await readDevelopmentCapacity(f.db,range.start,range.end,{role:"DEVELOPER",absenceMode:"planned"});
+  const actual=await readDevelopmentCapacity(f.db,range.start,range.end,{role:"DEVELOPER",absenceMode:"all"});
+  assert.equal(max.totalJh,2);
+  assert.equal(planned.totalJh,2);
+  assert.equal(actual.totalJh,1);
+ });
+ it("la capacité utilise le taux de contribution correspondant à chaque rôle",async()=>{
+  for(const [role,options] of [
+   ["SCRUM_MASTER",{percentScrumMaster:true}],
+   ["PRODUCT_OWNER",{percentPO:true}]
+  ] as const){
+   const report=await readDevelopmentCapacity(fixture(options).db,range.start,range.end,{role,absenceMode:"none"});
+   assert.equal(report.status,"calculated");
+   assert.equal(report.totalJh,2);
+  }
  });
  it("aucune affectation connue n'est jamais convertie en zéro JH",async()=>{
   const report=await readDevelopmentCapacity(fixture({noAssignments:true}).db,
