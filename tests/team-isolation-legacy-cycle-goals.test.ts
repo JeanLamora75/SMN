@@ -8,7 +8,7 @@ for(const [name,path] of [
  ["renommage Kanban","src/server/kanban/rename.ts"]
 ] as const){
  test(name+" : le parcours non contextualisé est réservé aux schémas historiques",()=>{
-  const source=file(path);
+  const source=file(path.endsWith("/story-points.ts")?"src/server/compat-v32/story-points.ts":path);
   assert.match(source,/i\.schema_version<=27/);
   assert.match(source,/i\.state='initialized'/);
   assert.match(source,/team_id/);
