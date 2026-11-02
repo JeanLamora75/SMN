@@ -140,7 +140,8 @@ test("API : contrôle collectif lecture, admin écriture, audit admin, états 40
  assert.match(collection,/authorizeApi\(req,"write",\{type:"settings"/);
  assert.match(item,/authorizeApi\(req,"write",\{type:"settings"/);
  assert.match(versions,/authorizeApi\(req,"read",\{type:"audit"/);
- assert.ok(collection.includes("withLegacyRegistryReadDb"));
+ assert.ok(collection.includes("withSprintIndexDb"));
+ assert.ok(collection.includes("authorizeRegistryRecord"));
  assert.ok(collection.includes("withAuthDb"));
  assert.ok(item.includes('result.error==="conflict"?409'));
  assert.ok(item.includes('result.error==="withdrawn"?409'));
