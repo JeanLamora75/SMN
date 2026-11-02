@@ -37,3 +37,13 @@ test("SMN-362 AC1: all cycle reads tenant scoped and read only",()=>{
  assert.match(file,/t\.installation_id=\$2/);
  assert.doesNotMatch(file,/\b(INSERT|UPDATE|DELETE)\b/i);
 });
+
+test("SMN-362: navigation du Builder et sélection globale utilisent le même cycle",()=>{
+ const shell=readFileSync(new URL("../src/app/app/private-shell.tsx",import.meta.url),"utf8");
+ const home=readFileSync(new URL("../src/app/app/page.tsx",import.meta.url),"utf8");
+ assert.match(shell,/pathname==="\/app\/dashboard-builder"/);
+ assert.match(shell,/const requestedCycleId=cyclePage\?searchParams\.get\("cycleId"\):null/);
+ assert.match(shell,/router\.push\(\(cyclePage\?pathname:"\/app"\)/);
+ assert.match(home,/cycleId:cycle\.id/);
+ assert.equal(cycleNavigation(cycles,null).current?.id,"two");
+});
