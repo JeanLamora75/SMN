@@ -4,11 +4,11 @@ import {test} from "node:test";
 
 const source=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 
-test("A-04: v32 is the latest recognized installation version",()=>{
+test("A-04: v33 is the latest recognized installation version; v32 upgrade remains explicit",()=>{
  const diagnostic=source("src/server/installation/diagnostic.ts");
  const schema=source("prisma/migrations/20261029_smn_team_agile_mode_v32/migration.sql");
  const runner=source("scripts/apply-team-agile-mode-v32.ts");
- assert.match(diagnostic,/30,31,32\]\.includes\(records\[0\]\.schema_version\)/);
+ assert.match(diagnostic,/30,31,32,33\]\.includes\(records\[0\]\.schema_version\)/);
  assert.match(diagnostic,/schema_version>=32/);
  assert.match(schema,/SET schema_version=32/);
  assert.match(runner,/schema_version!==31/);
