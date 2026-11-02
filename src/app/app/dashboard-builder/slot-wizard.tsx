@@ -42,7 +42,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
  },[onClose]);
  const filtered=useMemo(()=>sources.filter(s=>
   (category==="all"||s.category===category)&&
-  (s.code+" "+s.name).toLocaleLowerCase().includes(search.toLocaleLowerCase())),[sources,category,search]);
+  (s.name+" "+(s.category==="indicator"?s.unit??"":"")).toLocaleLowerCase().includes(search.toLocaleLowerCase())),[sources,category,search]);
  const views=selected?compatibleVisualizations(selected):[];
  const chooseSource=(source:SourceDescriptor)=>{if(source.status!=="available")return;setSelected(source);setView(null);setOptions({});setOptionError("");};
  const confirm=()=>{
@@ -74,8 +74,8 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
        <div className="list-group">{filtered.map(s=><button key={s.code} type="button"
         className="list-group-item list-group-item-action text-start" disabled={s.status!=="available"}
         onClick={()=>chooseSource(s)}>
-        <strong>{s.name}</strong> <code>{s.code}</code>
-        <span className="ms-2 small text-body-secondary">{s.category} · {s.scope} · {s.unit??"sans unité"}</span>
+        <strong>{s.name}</strong>
+        <span className="ms-2 small text-body-secondary">{({indicator:"Indicateur",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",objective:"Objectifs",team:"Équipe",link:"Liens"} as const)[s.category]} · {s.scope==="cycle"?"Par cycle":"Par équipe"}{s.unit?" · "+s.unit:""}</span>
         {s.status!=="available"&&<span className="ms-2 badge text-bg-secondary">Indisponible</span>}
        </button>)}</div>}
      </div>:<div className="row g-3">
