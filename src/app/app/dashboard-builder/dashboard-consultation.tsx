@@ -21,7 +21,7 @@ function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot
 }
 export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false}:{
  layout:DashboardLayout;teamId:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
- mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;
+ mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;
 }){
  const cycleId=navigation.current?.id??null;
  const [pages,setPages]=useState<Record<string,number>>({});
