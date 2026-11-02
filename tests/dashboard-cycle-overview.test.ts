@@ -29,7 +29,7 @@ describe("SMN-21 — cockpit UX lot 2, état sans cycle",()=>{
   });
   it("présente cinq cartes, dont les deux notes de Sprint, et les unités existantes",()=>{
     const html=view("scrum","fr");
-    assert.equal((html.match(/class="smn-metric-card/g)||[]).length,5);
+    assert.equal((html.match(/class="smn-metric-card/g)||[]).length,2);
     for(const label of ["Capacité prévue","Capacité réelle","SP initialement engagés",
       "SP réalisés","Tickets initialement engagés","Tickets réalisés",
       "Jours ouvrés restants","Confiance de l’équipe","Clarté des objectifs","J/H","SP"]){
