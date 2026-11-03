@@ -104,7 +104,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     setAnnual(data.year===year&&Number.isInteger(data.halfDays)?data.halfDays:null);})
    .catch(()=>{if(!controller.signal.aborted)setAnnual(null);});
   return()=>controller.abort();
- },[memberId,teamId,year]);
+ },[memberId,teamId,year,refreshKey]);
  useEffect(()=>{
   const controller=new AbortController();
   const params=new URLSearchParams({teamId});
