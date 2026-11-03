@@ -95,7 +95,7 @@ function project(row:MemberRow):MemberListItem{
   email:row.email??null,countryIso2:row.country_iso2??null,professionalFunction:row.professional_function??null,revision:row.revision??0,isProvisional:row.is_provisional,
   agileRole:primary,startOn:row.start_on,endOn:row.end_on,
   archived:row.archived_at!=null,archivedAt:row.archived_at??null,
-  isAssigned:row.start_on!==null,
+  isAssigned:row.start_on!==null&&row.end_on===null,
   contractPercent:row.v_contract??row.contract_percent,
   contributionPercent:row.v_contribution??row.contribution_percent,
   allocationPercent:row.v_allocation??row.allocation_percent??0,rolePercent:row.role_percent??0,
