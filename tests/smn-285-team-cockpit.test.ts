@@ -13,19 +13,19 @@ const members=[
  {displayName:"Teddy C.",professionalFunction:"Lead Tech",archived:true,isProvisional:false,
   roleShares:{scrumMaster:0,productOwner:100,developer:0}}
 ];
-test("filtres Equipe : actifs par defaut et pas de donnees inventees",()=>{
- assert.deepEqual(filterTeamMembers(members,initialTeamFilters).map(x=>x.displayName),["Élodie A.","Mina B."]);
+test("filtres Equipe : toutes les affectations visibles par défaut",()=>{
+ assert.deepEqual(filterTeamMembers(members,initialTeamFilters).map(x=>x.displayName),["Élodie A.","Mina B.","Teddy C."]);
  assert.deepEqual(availableFunctions(members),["Consultante","Lead Tech"]);
 });
 test("recherche texte insensible aux accents/casse et filtre fonction",()=>{
  assert.equal(filterTeamMembers(members,{...initialTeamFilters,search:"ELODIE"})[0]?.displayName,"Élodie A.");
- assert.equal(filterTeamMembers(members,{...initialTeamFilters,search:"TECH"}).length,1);
- assert.equal(filterTeamMembers(members,{...initialTeamFilters,functionName:"Lead Tech"}).length,1);
+ assert.equal(filterTeamMembers(members,{...initialTeamFilters,search:"TECH"}).length,2);
+ assert.equal(filterTeamMembers(members,{...initialTeamFilters,functionName:"Lead Tech"}).length,2);
 });
 test("filtre roles : une personne peut avoir plusieurs roles",()=>{
  assert.equal(filterTeamMembers(members,{...initialTeamFilters,role:"sm"}).length,1);
  assert.equal(filterTeamMembers(members,{...initialTeamFilters,role:"dev"}).length,2);
- assert.equal(filterTeamMembers(members,{...initialTeamFilters,role:"po"}).length,0);
+ assert.equal(filterTeamMembers(members,{...initialTeamFilters,role:"po"}).length,1);
 });
 test("statuts : archives/provisoires seulement si accessibles dans le roster",()=>{
  assert.deepEqual(filterTeamMembers(members,{...initialTeamFilters,status:"archived"}).map(x=>x.displayName),["Teddy C."]);
