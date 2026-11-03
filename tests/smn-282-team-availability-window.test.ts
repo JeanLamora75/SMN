@@ -23,8 +23,8 @@ function fake(options:FakeOptions={}){
      team:"Panda",mode:"scrum"}]};
   if(sql.includes("WITH member_days AS"))
    return {rows:options.assignment===false?[]:[
-    {day:"2026-10-01",morning_absent:true,afternoon_absent:false},
-    {day:"2026-10-02",morning_absent:false,afternoon_absent:false}
+    {day:"2026-10-01",morning_absent:true,afternoon_absent:false,holiday_name:null},
+    {day:"2026-10-02",morning_absent:false,afternoon_absent:false,holiday_name:"Fête nationale"}
    ]};
   throw Error("Unexpected SQL: "+sql);
  };
@@ -45,8 +45,8 @@ test("le lien historique explicite prime sur la préférence et vérifie l'insta
  assert.equal(result.teamId,"team_b");
  assert.equal(result.memberId,memberId);
  assert.deepEqual(result.days,[
-  {date:"2026-10-01",morningAbsent:true,afternoonAbsent:false},
-  {date:"2026-10-02",morningAbsent:false,afternoonAbsent:false}
+  {date:"2026-10-01",morningAbsent:true,afternoonAbsent:false,holidayName:null},
+  {date:"2026-10-02",morningAbsent:false,afternoonAbsent:false,holidayName:"Fête nationale"}
  ]);
  const context=calls.find(x=>x.sql.includes("SELECT p.id AS product_id"));
  assert.deepEqual(context?.values,["team_b","singleton"]);
@@ -83,4 +83,15 @@ test("compte user et payload non autorisé refusés avant lecture des absences",
   {accountId:"admin",role:"admin"},{...params,installationId:"singleton"}),
   /team-availability-invalid-input/);
  assert.equal(malformed.calls.length,0);
+});
+
+test("jours fériés : source nationale selon localisation historique, sans détails personnels",async()=>{
+ const {db,calls}=fake();
+ await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
+ const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
+ assert.match(sql,/public\\.smn_national_holiday/);
+ assert.match(sql,/public\\.smn_member_location/);
+ assert.match(sql,/l\\.effective_from<=d\\.day/);
+ assert.match(sql,/CASE WHEN d\\.assigned THEN/);
+ assert.doesNotMatch(sql,/a\\.reason|a\\.category_id/);
 });
