@@ -4,6 +4,7 @@ import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 
 export type TeamDayAvailability=Readonly<{
  date:string;morningAbsent:boolean;afternoonAbsent:boolean;holidayName:string|null;
+ isExit:boolean;exitReason:string|null;
 }>;
 export type TeamAvailabilityWindow=Readonly<{
  memberId:string;teamId:string;startOn:string;endOn:string;
@@ -53,6 +54,7 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
  if(!membership.rows.length)throw Error("member-out-of-team");
  const result=await db.query<{
   day:string;morning_absent:boolean;afternoon_absent:boolean;holiday_name:string|null;
+  assigned:boolean;is_exit:boolean;exit_reason:string|null;
  }>(`
  WITH member_days AS (
   SELECT gs.day::date AS day,
@@ -61,8 +63,23 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
      AND x.start_on<=gs.day::date
      AND (x.end_on IS NULL OR x.end_on>=gs.day::date)) AS assigned
   FROM generate_series($3::date,$4::date,interval '1 day') AS gs(day)
+ ),
+ scoped_days AS (
+  SELECT d.day,d.assigned,
+   (SELECT x.id FROM public.smn_member_assignment x
+    WHERE x.member_id=$1 AND x.team_id=$2 AND x.end_on=d.day-1
+    ORDER BY x.start_on DESC,x.id DESC LIMIT 1) AS exit_assignment_id
+  FROM member_days d
  )
- SELECT d.day::text AS day,
+ SELECT d.day::text AS day,d.assigned,
+  (NOT d.assigned AND d.exit_assignment_id IS NOT NULL) AS is_exit,
+  CASE WHEN NOT d.assigned AND d.exit_assignment_id IS NOT NULL THEN
+   (SELECT NULLIF(btrim(e.details->>'reason'),'')
+    FROM public.smn_member_lifecycle_event e
+    WHERE e.member_id=$1 AND e.assignment_id=d.exit_assignment_id
+     AND e.action='close' AND e.effective_on=d.day-1
+    ORDER BY e.id DESC LIMIT 1)
+  ELSE NULL END AS exit_reason,
   CASE WHEN d.assigned THEN (SELECT h.name FROM public.smn_national_holiday h
    WHERE h.country_code=(
     /* Match the country currently configured in the member's location
@@ -77,7 +94,7 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
    (a.start_on<d.day OR a.start_slot='morning')),false) AS morning_absent,
   COALESCE(bool_or(d.assigned AND a.id IS NOT NULL AND
    (a.end_on>d.day OR a.end_slot='afternoon')),false) AS afternoon_absent
- FROM member_days d
+ FROM scoped_days d
  LEFT JOIN public.smn_member_absence a
   ON a.member_id=$1 AND a.start_on<=d.day AND a.end_on>=d.day
   AND NOT EXISTS(SELECT 1 FROM public.smn_member_absence_history h
@@ -89,9 +106,11 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
  return {
   memberId:parsed.memberId,teamId:authorized.team_id,
   startOn:parsed.startOn,endOn:parsed.endOn,
-  days:result.rows.map(r=>({
-   date:r.day,morningAbsent:r.morning_absent,
-   afternoonAbsent:r.afternoon_absent,holidayName:r.holiday_name??null
+  days:result.rows.filter(r=>r.assigned||r.is_exit).map(r=>({
+   date:r.day,morningAbsent:r.assigned&&r.morning_absent,
+   afternoonAbsent:r.assigned&&r.afternoon_absent,
+   holidayName:r.assigned?r.holiday_name??null:null,
+   isExit:r.is_exit,exitReason:r.is_exit?r.exit_reason??null:null
   }))
  };
 }
