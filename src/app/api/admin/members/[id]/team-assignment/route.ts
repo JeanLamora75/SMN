@@ -54,7 +54,15 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
   const latest=history.versions[0],today=(await db.query<{today:string}>("SELECT CURRENT_DATE::text AS today")).rows[0].today;
   const member=(await db.query<{revision:number}>("SELECT revision FROM public.smn_member WHERE id=$1 AND installation_id='singleton'",[id])).rows[0];
   if(!member)throw Error("member-not-found");
-  return {memberId:id,teamId,assignmentId:latest.assignmentId,startOn:latest.startOn,endOn:latest.endOn,today,
+  const closing=latest.endOn?await db.query<{reason:string|null}>(`
+   SELECT NULLIF(btrim(details->>'reason'),'') AS reason
+   FROM public.smn_member_lifecycle_event
+   WHERE member_id=$1 AND assignment_id=$2 AND action='close'
+    AND effective_on=$3::date
+   ORDER BY occurred_at DESC,id DESC LIMIT 1`,
+   [id,latest.assignmentId,latest.endOn]):null;
+  return {memberId:id,teamId,assignmentId:latest.assignmentId,startOn:latest.startOn,endOn:latest.endOn,
+   endReason:closing?.rows[0]?.reason??null,today,
    memberRevision:member.revision,latestRevision:latest.revision,current:{
     revision:latest.revision,effectiveFrom:latest.effectiveFrom,contractPercent:latest.contractPercent,
     allocationPercent:latest.allocationPercent,contributionPercent:latest.contributionPercent,
