@@ -28,6 +28,7 @@
     "noFunction": "Fonction non renseignée",
     "notAvailable": "Indisponible",
     "exit": "Sortie de l'équipe",
-    "exitUnknownReason": "Motif non renseigné"
+    "exitUnknownReason": "Motif non renseigné",
+    "annualHalfDayUnit": "demi-journées"
   }
 }
