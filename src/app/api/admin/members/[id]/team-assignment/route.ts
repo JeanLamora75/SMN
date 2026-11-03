@@ -54,7 +54,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
   const latest=history.versions[0],today=(await db.query<{today:string}>("SELECT CURRENT_DATE::text AS today")).rows[0].today;
   const member=(await db.query<{revision:number}>("SELECT revision FROM public.smn_member WHERE id=$1 AND installation_id='singleton'",[id])).rows[0];
   if(!member)throw Error("member-not-found");
-  return {memberId:id,teamId,assignmentId:latest.assignmentId,startOn:latest.startOn,today,
+  return {memberId:id,teamId,assignmentId:latest.assignmentId,startOn:latest.startOn,endOn:latest.endOn,today,
    memberRevision:member.revision,latestRevision:latest.revision,current:{
     revision:latest.revision,effectiveFrom:latest.effectiveFrom,contractPercent:latest.contractPercent,
     allocationPercent:latest.allocationPercent,contributionPercent:latest.contributionPercent,
