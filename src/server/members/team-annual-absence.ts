@@ -3,7 +3,7 @@ import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 export async function readTeamAnnualAbsence(db:Client,actor:TeamActor,
- memberId:string,teamId:string,year:number):Promise<{year:number;halfDays:number}>{
+ memberId:string,teamId:string,year:number):Promise<{year:number;halfDays:number;months:{month:string;halfDays:number}[]}>{
  if(!UUID.test(memberId)||!Number.isInteger(year)||year<1900||year>2200)
   throw Error("team-annual-absence-invalid-input");
  const team=await resolveAdminTeam(db,actor,teamId);
@@ -12,7 +12,7 @@ export async function readTeamAnnualAbsence(db:Client,actor:TeamActor,
  WHERE a.member_id=$1 AND a.team_id=$2 AND m.installation_id='singleton' LIMIT 1`,
  [memberId,team.team_id]);
  if(membership.rows.length!==1)throw Error("member-out-of-team");
- const result=await db.query<{half_days:number}>(`
+ const result=await db.query<{day:string;morning:boolean;afternoon:boolean}>(`
  WITH member_days AS (
   SELECT DISTINCT g.day::date AS day
   FROM public.smn_member_assignment x
@@ -51,8 +51,18 @@ export async function readTeamAnnualAbsence(db:Client,actor:TeamActor,
        AND h.after_values->>'deleted'='true')) AS afternoon
   FROM eligible_days d
  )
- SELECT COUNT(*) FILTER (WHERE morning)::int+
-        COUNT(*) FILTER (WHERE afternoon)::int AS half_days
- FROM slots`,[memberId,team.team_id,year]);
- return {year,halfDays:result.rows[0]?.half_days??0};
+ SELECT day::text AS day,morning,afternoon FROM slots ORDER BY day`,
+  [memberId,team.team_id,year]);
+ // Une ligne par jour éligible : la somme est vérifiable, et chaque
+ // demi-journée est comptée au plus une fois, même en cas de doublon.
+ const perMonth=new Map<string,number>();
+ let halfDays=0;
+ for(const day of result.rows){
+  const count=Number(day.morning===true)+Number(day.afternoon===true);
+  if(!count)continue;
+  halfDays+=count;
+  const month=day.day.slice(0,7);
+  perMonth.set(month,(perMonth.get(month)??0)+count);
+ }
+ return {year,halfDays,months:[...perMonth].map(([month,halfDays])=>({month,halfDays}))};
 }
