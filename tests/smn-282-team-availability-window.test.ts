@@ -85,27 +85,34 @@ test("compte user et payload non autorisé refusés avant lecture des absences",
  assert.equal(malformed.calls.length,0);
 });
 
-test("jours fériés : source nationale selon localisation historique, sans détails personnels",async()=>{
+test("jours fériés : pays actuellement enregistré, sans exposition de données personnelles",async()=>{
  const {db,calls}=fake();
  await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
  const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
  assert.match(sql,/public\.smn_national_holiday/);
  assert.match(sql,/public\.smn_member_location/);
- assert.match(sql,/l\.effective_from<=d\.day/);
- assert.match(sql,/CASE WHEN d\.assigned THEN/);
- assert.doesNotMatch(sql,/a\.reason|a\.category_id/);
-});
-
-test("jours fériés historiques : pays de la première localisation si aucune version encore effective",async()=>{
- const {db,calls}=fake();
- const result=await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
- const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
- assert.match(sql,/CASE WHEN EXISTS\(/);
- assert.match(sql,/l\.effective_from<=d\.day/);
- assert.match(sql,/ORDER BY l\.effective_from ASC,l\.revision ASC LIMIT 1/);
- assert.match(sql,/ORDER BY l\.effective_from DESC,l\.revision DESC LIMIT 1/);
+ assert.match(sql,/SELECT l\.country_iso2 FROM public\.smn_member_location l/);
+ assert.match(sql,/ORDER BY l\.revision DESC LIMIT 1/);
  assert.match(sql,/CASE WHEN d\.assigned THEN/);
  assert.match(sql,/h\.holiday_date=d\.day/);
- assert.equal(result.days[1]?.holidayName,"Fête nationale");
+ assert.doesNotMatch(sql,/l\.effective_from<=d\.day/);
+ assert.doesNotMatch(sql,/ORDER BY l\.effective_from ASC/);
+ assert.doesNotMatch(sql,/reference_country|smn_general_settings/);
+ assert.doesNotMatch(sql,/a\.reason|a\.category_id/);
  assert.doesNotMatch(sql,/\b(?:INSERT|UPDATE|DELETE|ALTER|CREATE)\b/i);
+});
+
+test("jours fériés : même sélection du pays pour un mois antérieur ou postérieur à la localisation",async()=>{
+ const cases=[
+  {startOn:"2026-04-01",endOn:"2026-04-30"},
+  {startOn:"2026-11-01",endOn:"2026-11-30"}
+ ];
+ for(const dates of cases){
+  const {db,calls}=fake();
+  await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},{...params,...dates});
+  const query=calls.find(x=>x.sql.includes("WITH member_days AS"))!;
+  assert.deepEqual(query.values,[memberId,"team_b",dates.startOn,dates.endOn]);
+  assert.match(query.sql,/ORDER BY l\.revision DESC LIMIT 1/);
+  assert.doesNotMatch(query.sql,/l\.effective_from<=d\.day/);
+ }
 });
