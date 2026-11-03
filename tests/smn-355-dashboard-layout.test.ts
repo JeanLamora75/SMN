@@ -60,7 +60,7 @@ test("Dashboard Builder: personalized titles render in edit and consultation mod
  assert.match(editor,/setBlockTitle\(/);
  assert.match(editor,/setSlotTitle\(/);
  assert.match(editor,/Titre du bloc/);
- assert.match(editor,/Titre de l'emplacement/);
+ assert.match(editor,/Titre de l(?:'|&apos;)emplacement/);
  assert.match(consultation,/block\.title\?\.trim\(\)/);
  assert.match(consultation,/slot\.title\?\.trim\(\)/);
 });
