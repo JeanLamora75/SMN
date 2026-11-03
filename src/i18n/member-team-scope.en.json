@@ -28,6 +28,7 @@
     "noFunction": "Function not specified",
     "notAvailable": "Unavailable",
     "exit": "Left the team",
-    "exitUnknownReason": "Reason not specified"
+    "exitUnknownReason": "Reason not specified",
+    "annualHalfDayUnit": "half-days"
   }
 }
