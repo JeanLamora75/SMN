@@ -15,7 +15,8 @@ type Draft={effectiveFrom:string;contractPercent:string;allocationPercent:string
 function draftFrom(state:AssignmentState):Draft{
  const baseline=state.versions.at(-1)??null;
  return {
-  effectiveFrom:baseline&&baseline.effectiveFrom>state.today?baseline.effectiveFrom:state.today,
+  effectiveFrom:state.endOn?baseline?.effectiveFrom??state.startOn??state.today:
+   baseline&&baseline.effectiveFrom>state.today?baseline.effectiveFrom:state.today,
   contractPercent:String(baseline?.contractPercent??100),
   allocationPercent:String(baseline?.allocationPercent??100),
   contributionPercent:String(baseline?.contributionPercent??100),
@@ -66,19 +67,27 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    allocationPercent>contractPercent){
    setError(t("members.assignment.invalidShares"));return;
   }
-  if(draft.effectiveFrom<state.today||
-   (state.versions.length>0&&draft.effectiveFrom<state.versions.at(-1)!.effectiveFrom)){
+  if(state.endOn?
+   (draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn):
+   (draft.effectiveFrom<state.today||
+   (state.versions.length>0&&draft.effectiveFrom<state.versions.at(-1)!.effectiveFrom))){
    setError(t("members.assignment.invalidDate"));return;
   }
   setBusy(true);setError("");
   try{
-   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+(teamScoped?"/team-assignment":"/assignment"),{
+   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+
+    (teamScoped&&state.endOn?"/team-assignment/history-correction":teamScoped?"/team-assignment":"/assignment"),{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({memberId,teamId,effectiveFrom:draft.effectiveFrom,contractPercent,
      allocationPercent,contributionPercent,shares,revision:state.latestRevision})
    });
    const payload=await response.json() as {error?:string};
    if(!response.ok){
+    if(teamScoped&&state.endOn){
+     setError(payload.error==="conflict"?"Cette affectation a été modifiée. Rechargez la fiche.":
+      payload.error==="outside-assignment"?"La version choisie ne relève plus de cette période d'affectation.":
+      "La correction historique n'a pas pu être enregistrée.");return;
+    }
     setError(t(response.status===409?"members.assignment.conflict":
      response.status===404?"members.assignment.notFound":
      response.status===400?"members.assignment.invalidShares":"members.assignment.failed"));
@@ -148,15 +157,32 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
   {status==="loading"&&<p role="status">{t("members.assignment.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.assignment.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
-   {(!teamScoped||state.endOn===null)&&<form onSubmit={submit} className="d-grid gap-3">
+   <form onSubmit={submit} className="d-grid gap-3">
     <div className="row g-3">
      <div className="col-md-4">
       <label htmlFor="effective-from" className="form-label">{t("members.assignment.effectiveFrom")}</label>
-      <input id="effective-from" type="date" className="form-control" required
-       min={state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.today?
-        state.versions.at(-1)!.effectiveFrom:state.today}
-       value={draft.effectiveFrom} disabled={busy}
-       onChange={e=>change("effectiveFrom",e.target.value)}/>
+      {teamScoped&&state.endOn?
+       <select id="effective-from" className="form-select" value={draft.effectiveFrom}
+        disabled={busy} onChange={e=>{
+         const selected=[...state.versions].reverse().find(v=>v.effectiveFrom===e.target.value);
+         if(!selected)return;
+         const values:Draft={effectiveFrom:selected.effectiveFrom,
+          contractPercent:String(selected.contractPercent),
+          allocationPercent:String(selected.allocationPercent),
+          contributionPercent:String(selected.contributionPercent),
+          scrumMaster:String(selected.shares.scrumMaster),
+          productOwner:String(selected.shares.productOwner),
+          developer:String(selected.shares.developer)};
+         setDraft(values);setBaseline(values);setError("");
+        }}>
+        {[...new Set(state.versions.map(v=>v.effectiveFrom))].sort().map(date=>
+         <option key={date} value={date}>{date}</option>)}
+       </select>:
+       <input id="effective-from" type="date" className="form-control" required
+        min={state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.today?
+         state.versions.at(-1)!.effectiveFrom:state.today}
+        value={draft.effectiveFrom} disabled={busy}
+        onChange={e=>change("effectiveFrom",e.target.value)}/>}
      </div>
     </div>
     <div className="row g-3">
@@ -185,14 +211,18 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      </div>)}
     </div>
     <p className="small text-secondary">{t("members.assignment.rules")}</p>
+    {teamScoped&&state.endOn&&<p className="small text-secondary">
+     Correction historisée : sélectionnez une version datée et rectifiez ses pourcentages.
+     Les versions antérieures et les rapports clôturés restent conservés.</p>}
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
     <div className="smn-cockpit-form-actions">
      <button type="submit" disabled={busy||(!dirty&&state.versions.length>0)} className="btn btn-primary">
-      {t(busy?"members.assignment.saving":"members.assignment.save")}</button>
+      {busy?t("members.assignment.saving"):teamScoped&&state.endOn?
+       "Corriger la version historique":t("members.assignment.save")}</button>
      <button type="button" disabled={busy} className="btn btn-outline-secondary" onClick={cancel}>
       {t("members.profile.cancel")}</button>
     </div>
-   </form>}
+   </form>
    {teamScoped&&state.assignmentId&&state.startOn&&<form onSubmit={closeTeamAssignment}
     className="border rounded-3 p-3 d-grid gap-3">
     <h4 className="h6 mb-0">Fin d'affectation à l'équipe</h4>
