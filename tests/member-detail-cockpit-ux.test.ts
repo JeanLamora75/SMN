@@ -112,7 +112,7 @@ test("calendrier membre : jours de semaine abrégés, week-ends et fériés dist
  assert.match(view,/smn-member-weekend/);
  assert.match(view,/smn-member-holiday/);
  assert.match(view,/smn-member-holiday-name/);
- assert.match(view,/dayClass=holiday\?"smn-member-holiday":weekend\?"smn-member-weekend":/);
+ assert.match(view,/dayClass=d\.isExit\?"smn-member-exit":holiday\?"smn-member-holiday":/);
  assert.match(view,/holiday\?<td colSpan=\{2\} className="smn-member-holiday-name">\{d\.holidayName\}<\/td>/);
  assert.match(view,/weekend\?<><td aria-label=\{locale==="en"\?"Weekend":"Week-end"\}><\/td><td aria-label=\{locale==="en"\?"Weekend":"Week-end"\}><\/td><\/>/);
  assert.match(view,/dateTime=\{d\.date\}/);
@@ -125,4 +125,14 @@ test("calendrier membre : jours de semaine abrégés, week-ends et fériés dist
  assert.match(css,/smn-member-holiday-name/);
  assert.match(css,/tr\.smn-member-holiday/);
  assert.match(css,/tr\.smn-member-sprint-day/);
+});
+
+test("Cockpit membre : événement J+1 prioritaire, motif et absence de cellules de disponibilité",()=>{
+ assert.match(view,/isExit:boolean;exitReason:string\|null/);
+ assert.match(view,/d\.isExit\?<td colSpan=\{2\} className="smn-member-exit-name">/);
+ assert.match(view,/Sortie de l'équipe/);
+ assert.match(view,/Motif non renseigné/);
+ assert.match(view,/d\.exitReason/);
+ assert.match(css,/tr\.smn-member-exit/);
+ assert.match(css,/td\.smn-member-exit-name/);
 });
