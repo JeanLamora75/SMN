@@ -2064,7 +2064,8 @@
     "startDate": "Start date",
     "endDate": "End date",
     "inactiveAssignmentStatus": "Inactive",
-    "nonArchivedMembers": "Non-archived members"
+    "nonArchivedMembers": "Non-archived members",
+    "workedDays": "Days worked"
   },
   "memberUX": {
     "back": "Team",
