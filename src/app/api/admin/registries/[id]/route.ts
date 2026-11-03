@@ -58,7 +58,7 @@ export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}
     // Older multi-team schemas retain the explicit pilot gate.
     const schema=await db.query<{schema_version:number}>(
      "SELECT schema_version FROM public.smn_installation WHERE id='singleton'");
-    if(schema.rows[0]?.schema_version!==32&&
+    if(![32,33].includes(schema.rows[0]?.schema_version??0)&&
        (!MULTI_TEAM_CONTEXT_READY||process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
      throw Error("registry-team-write-not-ready");
     if(!requestedTeamId||context.team?.team_id!==requestedTeamId)
