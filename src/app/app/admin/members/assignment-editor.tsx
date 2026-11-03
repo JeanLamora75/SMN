@@ -134,7 +134,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
   {status==="loading"&&<p role="status">{t("members.assignment.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.assignment.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
-   <form onSubmit={submit} className="d-grid gap-3">
+   {(!teamScoped||state.endOn===null)&&<form onSubmit={submit} className="d-grid gap-3">
     <div className="row g-3">
      <div className="col-md-4">
       <label htmlFor="effective-from" className="form-label">{t("members.assignment.effectiveFrom")}</label>
@@ -178,7 +178,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      <button type="button" disabled={busy} className="btn btn-outline-secondary" onClick={cancel}>
       {t("members.profile.cancel")}</button>
     </div>
-   </form>
+   </form>}
    {teamScoped&&state.assignmentId&&state.startOn&&<form onSubmit={closeTeamAssignment}
     className="border rounded-3 p-3 d-grid gap-3">
     <h4 className="h6 mb-0">Fin d'affectation à l'équipe</h4>
@@ -202,11 +202,11 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
        </select>
       </label>
      </div>
-     <button type="submit" className="btn btn-outline-primary justify-self-start"
+     <button type="submit" className="btn btn-outline-primary align-self-start"
       disabled={busy||!endOn}>Enregistrer la fin d'affectation</button>
     </>}
    </form>}
-   {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
+   {state.assignmentId&&state.startOn&&(!teamScoped||state.endOn===null)&&<div className="border rounded-3 p-3">
     <h4 className="h6">{t("members.assignment.historicalTitle")}</h4>
     <p className="small text-secondary">{t("members.assignment.historicalDescription",{date:state.startOn})}</p>
     <div className="d-flex flex-wrap align-items-end gap-2">
