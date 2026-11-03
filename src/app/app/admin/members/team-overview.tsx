@@ -181,8 +181,8 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
     </div>}
    {status==="ready"&&roster&&roster.members.length>0&&
     ([
-     {id:"active",title:"Membres actifs dans l'équipe",items:grouped.active},
-     {id:"inactive",title:"Membres inactifs dans l'équipe",items:grouped.inactive}
+     {id:"active",title:t("teamUX.activeAssignmentHeading"),items:grouped.active},
+     {id:"inactive",title:t("teamUX.inactiveAssignmentHeading"),items:grouped.inactive}
     ] as const).map(section=>
     <section className="smn-team-results" key={section.id}
      aria-labelledby={"smn-team-"+section.id+"-title"}>
