@@ -3,7 +3,7 @@ import {isValidDate} from "@/server/members/assignment";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
 
 export type TeamDayAvailability=Readonly<{
- date:string;morningAbsent:boolean;afternoonAbsent:boolean;
+ date:string;morningAbsent:boolean;afternoonAbsent:boolean;holidayName:string|null;
 }>;
 export type TeamAvailabilityWindow=Readonly<{
  memberId:string;teamId:string;startOn:string;endOn:string;
@@ -52,7 +52,7 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
  LIMIT 1`,[parsed.memberId,authorized.team_id]);
  if(!membership.rows.length)throw Error("member-out-of-team");
  const result=await db.query<{
-  day:string;morning_absent:boolean;afternoon_absent:boolean;
+  day:string;morning_absent:boolean;afternoon_absent:boolean;holiday_name:string|null;
  }>(`
  WITH member_days AS (
   SELECT gs.day::date AS day,
@@ -63,6 +63,13 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
   FROM generate_series($3::date,$4::date,interval '1 day') AS gs(day)
  )
  SELECT d.day::text AS day,
+  (SELECT h.name FROM public.smn_national_holiday h
+   WHERE h.country_code=(
+    SELECT l.country_iso2 FROM public.smn_member_location l
+    WHERE l.member_id=$1 AND l.effective_from<=d.day
+    ORDER BY l.effective_from DESC,l.revision DESC LIMIT 1
+   ) AND h.holiday_date=d.day
+   ORDER BY h.name LIMIT 1) AS holiday_name,
   COALESCE(bool_or(d.assigned AND a.id IS NOT NULL AND
    (a.start_on<d.day OR a.start_slot='morning')),false) AS morning_absent,
   COALESCE(bool_or(d.assigned AND a.id IS NOT NULL AND
@@ -81,7 +88,7 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
   startOn:parsed.startOn,endOn:parsed.endOn,
   days:result.rows.map(r=>({
    date:r.day,morningAbsent:r.morning_absent,
-   afternoonAbsent:r.afternoon_absent
+   afternoonAbsent:r.afternoon_absent,holidayName:r.holiday_name??null
   }))
  };
 }
