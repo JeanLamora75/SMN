@@ -44,3 +44,15 @@ Contrôles statiques possibles à travers le connecteur GitHub et tests de contr
 **AC-AN4 :** le périmètre équipe, le filtrage des absences supprimées et l'isolation des membres sont conservés ; la valeur est une lecture dynamique, non une modification d'historique.
 
 **Code cible :** `src/server/members/team-annual-absence.ts` et tests associés. **Référence complémentaire Jira :** [SMN-55](https://lmn24.atlassian.net/browse/SMN-55). Statut de recette à qualifier : pas d'exécution locale/PostgreSQL attestée.
+
+
+## Avenant — 03/11/2026 : gérer les absences depuis la fiche membre
+
+**Besoin validé :** la modale « Ajouter une absence » devient une interface à deux onglets, **Ajouter une absence** et **Gérer les absences**. Le deuxième onglet liste les absences du membre (planifiées et imprévues), avec dates, créneaux, catégorie, motif, état prévu/imprévu, et actions **Modifier** et **Supprimer**.
+
+**AC6 :** l'ouverture de l'onglet Gérer affiche les absences non supprimées, triées de la plus récente à la plus ancienne ; les absences historiques restent consultables pour un membre sorti de l'équipe, uniquement dans le périmètre autorisé.
+**AC7 :** Modifier précharge l'absence sélectionnée et permet une correction complète avec contrôle de révision, de chevauchement, de catégorie, de motif et de dates. Les modifications ne réécrivent pas les snapshots figés.
+**AC8 :** Supprimer demande une confirmation explicite et réalise un *soft delete* historisé, sans suppression physique. Toute annulation met à jour le calendrier et le compteur annuel ; les écritures sont limitées à l'équipe autorisée, y compris pour l'historique.
+**AC9 :** le formulaire Ajouter existant reste fonctionnel. États vide/chargement/erreur et traductions FR/EN ; les motifs personnels ne doivent jamais être divulgués hors du périmètre membre autorisé. Tests des parcours et de la concurrence.
+
+**Impacts :** `member-absence-editor.tsx`, `member-team-read-only.tsx`, routes `team-absence`, service `absence.ts`, tests UI et PostgreSQL. Ne pas confondre « annuler le congé » et supprimer les données de l'audit. Publication ≠ validation par exécution locale.
