@@ -7,6 +7,7 @@ import {withMemberCompanies} from "@/server/members/company-presentation";
 import {createCompanyMember} from "@/server/members/company-create";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 import {evaluateSchemaCapability} from "@/server/schema/compatibility";
+import {readTeamAnnualWorkedForRoster} from "@/server/members/team-annual-absence";
 
 export const dynamic="force-dynamic";
 export const runtime="nodejs";
@@ -29,8 +30,15 @@ export async function GET(request:NextRequest){
     const listed=await listTeamMembers(db,{
      id:team.team_id,name:team.team,mode:team.mode as "scrum"|"kanban"
     });
-    return evaluateSchemaCapability(version,"company-catalog").ok?
-      withMemberCompanies(db,listed):listed;
+    const enriched=evaluateSchemaCapability(version,"company-catalog").ok?
+      await withMemberCompanies(db,listed):listed;
+    const year=Number(new Intl.DateTimeFormat("en-US",
+     {year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
+    const worked=await readTeamAnnualWorkedForRoster(db,team.team_id,
+     enriched.members.map(member=>member.id),year);
+    return {...enriched,members:enriched.members.map(member=>({
+     ...member,workedDays:(worked.get(member.id)??0)/2
+    }))};
    }
    if(typeof version!=="number"||version<1||version>27)
     throw Error("members-schema-unavailable");
