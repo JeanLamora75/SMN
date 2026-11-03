@@ -80,7 +80,7 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
   AND NOT EXISTS(SELECT 1 FROM public.smn_member_absence_history h
    WHERE h.absence_id=a.id AND h.revision=a.revision
     AND h.after_values->>'deleted'='true')
- GROUP BY d.day ORDER BY d.day LIMIT 31`,
+ GROUP BY d.day,d.assigned ORDER BY d.day LIMIT 31`,
  [parsed.memberId,authorized.team_id,parsed.startOn,parsed.endOn]);
  if(!result.rows.length)throw Error("member-out-of-team");
  return {
