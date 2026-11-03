@@ -23,21 +23,39 @@ export async function correctAssignmentStart(db:Client,memberId:string,actorId:s
    if(a.team_id!==selected.team_id){await db.query("ROLLBACK");return {ok:false as const,error:"not-found"};}
   }
   if(v.newStartOn===a.start_on){await db.query("ROLLBACK");return {ok:false as const,error:"unchanged"};}
-  // Retroactive correction only: a later date could discard days of proven contribution.
-  if((v.newStartOn as string)>a.start_on){await db.query("ROLLBACK");return {ok:false as const,error:"later-date-not-supported"};}
-  const earlier=await db.query(`SELECT id FROM public.smn_member_assignment WHERE member_id=$1 AND id<>$2
-    AND start_on<$4::date AND (end_on IS NULL OR end_on>=$3::date) LIMIT 1`,
-    [memberId,v.assignmentId,v.newStartOn,a.start_on]);
-  if(earlier.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap"};}
+  const newStartOn=v.newStartOn as string;
+  if(a.end_on!==null&&newStartOn>a.end_on){
+   await db.query("ROLLBACK");return {ok:false as const,error:"after-end"};
+  }
+  // Check overlap with every other assignment, in both correction directions.
+  const overlaps=await db.query(`SELECT id FROM public.smn_member_assignment WHERE member_id=$1 AND id<>$2
+    AND start_on<=COALESCE($3::date,$4::date)
+    AND (end_on IS NULL OR end_on>=$4::date) LIMIT 1`,
+    [memberId,v.assignmentId,a.end_on,newStartOn]);
+  if(overlaps.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap"};}
+  if(newStartOn>a.start_on){
+   const absence=await db.query(`SELECT id FROM public.smn_member_absence a
+    WHERE a.member_id=$1 AND a.start_on<$2::date AND a.end_on>=$3::date
+     AND NOT EXISTS(SELECT 1 FROM public.smn_member_absence_history h
+      WHERE h.absence_id=a.id AND h.revision=a.revision
+       AND h.after_values->>'deleted'='true') LIMIT 1`,
+    [memberId,newStartOn,a.start_on]);
+   if(absence.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"historical-absences"};}
+  }
   const first=await db.query<{id:string;effective_from:string}>(`SELECT id,effective_from::text FROM public.smn_member_assignment_version
     WHERE assignment_id=$1 ORDER BY effective_from ASC,revision ASC LIMIT 1 FOR UPDATE`,[v.assignmentId]);
   if(first.rows.length!==1){await db.query("ROLLBACK");return {ok:false as const,error:"missing-version"};}
+  if(newStartOn>a.start_on){
+   const priorVersions=await db.query(`SELECT id FROM public.smn_member_assignment_version
+    WHERE assignment_id=$1 AND id<>$2 AND effective_from<$3::date LIMIT 1`,
+    [v.assignmentId,first.rows[0].id,newStartOn]);
+   if(priorVersions.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"historical-versions"};}
+  }
   const audit=await db.query<{present:boolean}>(`SELECT to_regclass('public.smn_member_assignment_start_audit') IS NOT NULL AS present`);
   if(!audit.rows[0]?.present)throw Error("member-audit-schema-not-ready: apply-member-deferred-v32");
   await db.query(`UPDATE public.smn_member_assignment SET start_on=$1::date WHERE id=$2 AND member_id=$3`,[v.newStartOn,v.assignmentId,memberId]);
-  // The first recorded allocation is extended backwards; subsequent effective versions remain unchanged.
-  if(first.rows[0].effective_from>a.start_on||first.rows[0].effective_from===a.start_on)
-   await db.query(`UPDATE public.smn_member_assignment_version SET effective_from=$1::date WHERE id=$2`,[v.newStartOn,first.rows[0].id]);
+  // Shift the first version with the corrected entry date; later versions remain unchanged.
+  await db.query(`UPDATE public.smn_member_assignment_version SET effective_from=$1::date WHERE id=$2`,[newStartOn,first.rows[0].id]);
   await db.query(`UPDATE public.smn_member SET revision=revision+1,updated_at=now() WHERE id=$1`,[memberId]);
   await db.query(`INSERT INTO public.smn_member_assignment_start_audit(id,member_id,assignment_id,old_start_on,new_start_on,changed_by)
    VALUES($1,$2,$3,$4::date,$5::date,$6)`,[randomUUID(),memberId,v.assignmentId,a.start_on,v.newStartOn,actorId]);
