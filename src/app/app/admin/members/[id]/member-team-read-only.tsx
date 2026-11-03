@@ -9,7 +9,8 @@ import MemberTeamPlanningEditor from "./member-team-planning-editor";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TeamAssignmentRevision} from "@/server/members/team-assignment-history";
 
-type DailyAvailability={date:string;morningAbsent:boolean;afternoonAbsent:boolean;holidayName:string|null};
+type DailyAvailability={date:string;morningAbsent:boolean;afternoonAbsent:boolean;holidayName:string|null;
+ isExit:boolean;exitReason:string|null};
 type Response={memberId:string;teamId:string;startOn:string;endOn:string;
  days:DailyAvailability[]};
 type Props=Readonly<{memberId:string;teamId:string;teamName:string;
@@ -236,11 +237,15 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
         const holiday=d.holidayName!==null;
         const weekend=isWeekend(d.date);
         const inSprint=Boolean(sprintDays&&d.date>=sprintDays.start&&d.date<=sprintDays.end);
-        const dayClass=holiday?"smn-member-holiday":weekend?"smn-member-weekend":
-         inSprint?"smn-member-sprint-day":undefined;
+        const dayClass=d.isExit?"smn-member-exit":holiday?"smn-member-holiday":
+         weekend?"smn-member-weekend":inSprint?"smn-member-sprint-day":undefined;
         return <tr key={d.date} className={dayClass}>
          <th scope="row"><time dateTime={d.date}>{formatCalendarDay(d.date,locale)}</time></th>
-         {holiday?<td colSpan={2} className="smn-member-holiday-name">{d.holidayName}</td>:
+         {d.isExit?<td colSpan={2} className="smn-member-exit-name">
+           {locale==="en"?"Left the team":"Sortie de l'équipe"}
+           {" — "}{d.exitReason|| (locale==="en"?"Reason not specified":"Motif non renseigné")}
+          </td>:
+          holiday?<td colSpan={2} className="smn-member-holiday-name">{d.holidayName}</td>:
           weekend?<><td aria-label={locale==="en"?"Weekend":"Week-end"}></td><td aria-label={locale==="en"?"Weekend":"Week-end"}></td></>:
           <><td>{d.morningAbsent?t("memberTeamScope.absent"):"—"}</td>
            <td>{d.afternoonAbsent?t("memberTeamScope.absent"):"—"}</td></>}
