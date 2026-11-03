@@ -44,7 +44,7 @@ export async function requireTeamMemberScope(db:Client,actor:TeamActor,
   throw new Error("member-id-invalid");
  const team=await resolveAdminTeam(db,actor,requestedTeamId);
  const memberships=await db.query<{member_id:string}>(`
-  SELECT a.member_id FROM public.smn_member_assignment a
+  SELECT DISTINCT a.member_id FROM public.smn_member_assignment a
   JOIN public.smn_member m ON m.id=a.member_id
   JOIN public.smn_team t ON t.id=a.team_id
   WHERE a.member_id=$1 AND a.team_id=$2
