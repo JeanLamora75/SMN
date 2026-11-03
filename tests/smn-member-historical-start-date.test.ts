@@ -4,8 +4,11 @@ import {test} from "node:test";
 const srv=readFileSync("src/server/members/assignment-start-correction.ts","utf8");
 const route=readFileSync("src/app/api/admin/members/[id]/assignment/start-date/route.ts","utf8");
 const ui=readFileSync("src/app/app/admin/members/assignment-editor.tsx","utf8");
-test("historical start-date edit accepts an earlier real arrival only",()=>{
- assert.match(srv,/later-date-not-supported/);
+test("historical start-date edit accepts guarded corrections in both directions",()=>{
+ assert.doesNotMatch(srv,/later-date-not-supported/);
+ assert.match(srv,/historical-absences/);
+ assert.match(srv,/historical-versions/);
+ assert.match(srv,/after-end/);
  assert.match(srv,/isValidDate\(v.newStartOn\)/);
  assert.match(srv,/revision!==v.revision/);
  assert.match(srv,/BEGIN/);assert.match(srv,/ROLLBACK/);
@@ -19,5 +22,6 @@ test("correction shifts first role version but not subsequent versions",()=>{
 test("admin authorization and explicit confirmation required",()=>{
  assert.match(route,/authorizeApi\(req,"write",\{type:"members"/);
  assert.match(ui,/window.confirm/);
- assert.match(ui,/historicalStart>=state.startOn/);
+ assert.match(ui,/historicalStart===state.startOn/);
+ assert.match(ui,/errors\[response.error\?\?""\]/);
 });
