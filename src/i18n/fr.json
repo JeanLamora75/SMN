@@ -2062,7 +2062,9 @@
     "activeAssignmentHeading": "Membres actifs dans l'équipe",
     "inactiveAssignmentHeading": "Membres inactifs dans l'équipe",
     "startDate": "Date début",
-    "endDate": "Date fin"
+    "endDate": "Date fin",
+    "inactiveAssignmentStatus": "Inactif",
+    "nonArchivedMembers": "Membres non archivés"
   },
   "memberUX": {
     "back": "Équipe",
