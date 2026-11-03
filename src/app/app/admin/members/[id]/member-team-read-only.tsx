@@ -176,7 +176,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    onCancel={()=>setEditor(null)}>
    <div className="modal-content smn-cockpit-modal">
     <div className="smn-cockpit-modal-header">
-     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":editor==="calendar"?"Modifier le calendrier de travail":editor==="assignment"?"Modifier l’affectation et les rôles":"Ajouter une absence"}</h2>
+     <h2 id="smn-member-edit-title" className="h5 mb-0">{editor==="profile"?"Modifier le profil":editor==="location"?"Modifier la localisation":editor==="calendar"?"Modifier le calendrier de travail":editor==="assignment"?"Modifier l’affectation et les rôles":t("members.absence.historyTitle")}</h2>
      <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
     </div>
     <div className="smn-cockpit-modal-body smn-member-edit-body">
