@@ -203,7 +203,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      annualMonths.map(m=>m.month+": "+new Intl.NumberFormat(locale==="en"?"en-GB":"fr-FR",
       {maximumFractionDigits:1}).format(m.halfDays/2)+" "+t("memberTeamScope.annualDayUnit")).join("\n")}>
      {annual===null?t("memberTeamScope.notAvailable"):
-      new Intl.NumberFormat(locale==="en"?"en-GB":"fr-FR",{maximumFractionDigits:1}).format(annual/2)}</strong></div>
+      new Intl.NumberFormat(locale==="en"?"en-GB":"fr-FR",{maximumFractionDigits:1}).format(annual/2)+" "+t("memberTeamScope.annualDayUnit")}</strong></div>
    </div>}
    <div className="table-responsive">
     <table className="table table-striped align-middle smn-member-table">
