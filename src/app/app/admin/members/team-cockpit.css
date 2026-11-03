@@ -263,3 +263,19 @@
 [data-bs-theme="dark"] .smn-team-cockpit .smn-team-hero{
  background:linear-gradient(125deg,#25466e,#10294d)
 }
+
+/* Deux blocs distincts : affectations actives et historiques. */
+.smn-team-cockpit .smn-team-member-sections{display:grid;gap:16px;min-width:0}
+.smn-team-cockpit .smn-team-members-heading{
+ display:flex;align-items:center;gap:10px;margin:0 0 16px;
+}
+.smn-team-cockpit .smn-team-members-heading h2{
+ margin:0;font-size:1.05rem;font-weight:750;color:var(--smn-heading)
+}
+.smn-team-cockpit .smn-team-member-count{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-width:29px;padding:2px 8px;border-radius:999px;
+ border:1px solid var(--smn-border);background:var(--smn-muted-soft);
+ color:var(--smn-foreground);font-size:.8rem;font-weight:750
+}
+.smn-team-cockpit .smn-team-list-table td time{white-space:nowrap;font-variant-numeric:tabular-nums}
