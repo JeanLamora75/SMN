@@ -161,7 +161,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
      </select></div>
     <div><label htmlFor="smn-team-status-filter" className="form-label">{t("teamCockpit.statusLabel")}</label>
      <select id="smn-team-status-filter" className="form-select" value={draftFilters.status} onChange={e=>updateFilter("status",e.target.value as TeamFilters["status"])}>
-      <option value="active">{t("teamCockpit.activeMembers")}</option><option value="all">{t("teamCockpit.allAvailable")}</option>
+      <option value="active">{t("teamUX.nonArchivedMembers")}</option><option value="all">{t("teamCockpit.allAvailable")}</option>
       {hasProvisional&&<option value="provisional">{t("teamCockpit.provisional")}</option>}{hasArchived&&<option value="archived">{t("teamCockpit.archived")}</option>}
      </select></div>
     <div className="smn-team-filter-actions">
@@ -251,7 +251,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
          <td>{member.professionalFunction?.trim()||t("teamUX.functionMissing")}</td>
          <td><time dateTime={member.startOn??undefined}>{dateLabel(member.startOn)}</time></td>
          <td>{member.endOn?<time dateTime={member.endOn}>{dateLabel(member.endOn)}</time>:"—"}</td>
-         <td>{memberStatus(member)}</td>
+         <td>{section.id==="inactive"?t("teamUX.inactiveAssignmentStatus"):memberStatus(member)}</td>
          <td><BootstrapIcon name="arrow-right"/></td>
         </tr>)}</tbody>
        </table>
