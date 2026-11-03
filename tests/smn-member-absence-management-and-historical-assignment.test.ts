@@ -28,6 +28,7 @@ test("correction historique : le départ de l'équipe n'interdit plus l'édition
  const get=read("src/app/api/admin/members/[id]/team-assignment/route.ts");
  assert.match(editor,/teamScoped&&state\.endOn\?"\/team-assignment\/history-correction"/);
  assert.match(editor,/Corriger la version historique/);
+ assert.match(editor,/state\.assignmentId&&state\.startOn&&<div/);
  assert.match(editor,/state\.versions\.map\(v=>v\.effectiveFrom\)/);
  assert.match(endpoint,/authorizeApi\(req,"write"/);
  assert.match(endpoint,/correctHistoricalTeamAssignment/);
