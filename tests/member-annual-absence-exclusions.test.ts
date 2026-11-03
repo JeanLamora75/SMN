@@ -4,7 +4,8 @@ import type {Client} from "pg";
 import {readTeamAnnualAbsence} from "../src/server/members/team-annual-absence";
 
 const memberId="123e4567-e89b-42d3-a456-426614174000";
-function fake(halfDays=42){
+type Day={day:string;morning:boolean;afternoon:boolean};
+function fake(days:Day[]=[]){
  const calls:{sql:string;values:unknown[]}[]=[];
  const query=async(sql:string,values:unknown[]=[]):Promise<{rows:any[]}>=>{
   calls.push({sql,values});
@@ -17,16 +18,20 @@ function fake(halfDays=42){
   if(sql.includes("SELECT a.id FROM public.smn_member_assignment a"))
    return {rows:[{id:"historical_assignment"}]};
   if(sql.includes("WITH member_days AS"))
-   return {rows:[{half_days:halfDays}]};
+   return {rows:days};
   throw Error("Unexpected SQL: "+sql);
  };
  return {db:{query} as unknown as Client,calls};
 }
 
 test("compteur annuel : filtre week-ends et fériés du pays ACTUEL avant le compte des créneaux",async()=>{
- const {db,calls}=fake(18);
+ const {db,calls}=fake([
+  {day:"2026-01-05",morning:true,afternoon:true},
+  {day:"2026-01-06",morning:false,afternoon:true},
+  {day:"2026-02-03",morning:true,afternoon:false}
+ ]);
  assert.deepEqual(await readTeamAnnualAbsence(db,{accountId:"admin",role:"admin"},
-  memberId,"team_b",2026),{year:2026,halfDays:18});
+  memberId,"team_b",2026),{year:2026,halfDays:4,months:[{month:"2026-01",halfDays:3},{month:"2026-02",halfDays:1}]});
  const query=calls.find(c=>c.sql.includes("WITH member_days AS"))!;
  assert.deepEqual(query.values,[memberId,"team_b",2026]);
  assert.match(query.sql,/EXTRACT\(ISODOW FROM d\.day\) BETWEEN 1 AND 5/);
@@ -43,15 +48,31 @@ test("compteur annuel : filtre week-ends et fériés du pays ACTUEL avant le com
 });
 
 test("compteur annuel : prévu/imprévu inclus, créneaux distincts, suppression ignorée",async()=>{
- const {db,calls}=fake(0);
+ const {db,calls}=fake();
  assert.deepEqual(await readTeamAnnualAbsence(db,{accountId:"admin",role:"admin"},
-  memberId,"team_b",2026),{year:2026,halfDays:0});
+  memberId,"team_b",2026),{year:2026,halfDays:0,months:[]});
  const sql=calls.find(c=>c.sql.includes("WITH member_days AS"))!.sql;
  assert.doesNotMatch(sql,/a\.is_planned\s*=/);
  assert.match(sql,/EXISTS\(SELECT 1 FROM public\.smn_member_absence a/g);
  assert.match(sql,/a\.start_slot='morning'/);
  assert.match(sql,/a\.end_slot='afternoon'/);
  assert.match(sql,/h\.after_values->>'deleted'='true'/);
- assert.match(sql,/COUNT\(\*\) FILTER \(WHERE morning\)::int\+/);
- assert.match(sql,/COUNT\(\*\) FILTER \(WHERE afternoon\)::int/);
+ assert.match(sql,/SELECT day::text AS day,morning,afternoon FROM slots ORDER BY day/);
+});
+
+test("décompte déterministe de demi-journées, sans addition de lignes vides",async()=>{
+ const days=[
+  {day:"2026-04-01",morning:true,afternoon:false},
+  {day:"2026-04-02",morning:false,afternoon:true},
+  {day:"2026-04-03",morning:true,afternoon:true},
+  {day:"2026-04-07",morning:false,afternoon:false},
+  {day:"2026-05-04",morning:true,afternoon:true}
+ ];
+ const {db}=fake(days);
+ const counted=await readTeamAnnualAbsence(db,{accountId:"admin",role:"admin"},
+  memberId,"team_b",2026);
+ assert.deepEqual(counted,{year:2026,halfDays:6,months:[
+  {month:"2026-04",halfDays:4},{month:"2026-05",halfDays:2}
+ ]});
+ assert.equal(counted.months.reduce((total,m)=>total+m.halfDays,0),counted.halfDays);
 });
