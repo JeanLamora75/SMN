@@ -44,6 +44,8 @@ test("sélection d'affectation contextualisée, deux sections et dates en liste"
  assert.match(ui,/items:grouped\.inactive/);
  assert.match(ui,/t\("teamUX\.startDate"\)/);
  assert.match(ui,/t\("teamUX\.endDate"\)/);
+ assert.match(ui,/t\("teamUX\.inactiveAssignmentStatus"\)/);
+ assert.match(ui,/t\("teamUX\.nonArchivedMembers"\)/);
  assert.match(ui,/dateLabel\(member\.startOn\)/);
  assert.match(ui,/dateLabel\(member\.endOn\)/);
  assert.match(css,/smn-team-member-sections/);
@@ -52,7 +54,8 @@ test("sélection d'affectation contextualisée, deux sections et dates en liste"
 test("traductions FR et EN synchronisées",()=>{
  const fr=JSON.parse(read("src/i18n/fr.json")).teamUX;
  const en=JSON.parse(read("src/i18n/en.json")).teamUX;
- for(const key of ["activeAssignmentHeading","inactiveAssignmentHeading","startDate","endDate"]){
+ for(const key of ["activeAssignmentHeading","inactiveAssignmentHeading","startDate","endDate",
+  "inactiveAssignmentStatus","nonArchivedMembers"]){
   assert.ok(fr[key]);assert.ok(en[key]);
  }
 });
