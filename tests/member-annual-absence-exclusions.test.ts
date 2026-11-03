@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
 import {test} from "node:test";
 import type {Client} from "pg";
 import {readTeamAnnualAbsence} from "../src/server/members/team-annual-absence";
@@ -75,4 +76,11 @@ test("décompte déterministe de demi-journées, sans addition de lignes vides",
   {month:"2026-04",halfDays:4},{month:"2026-05",halfDays:2}
  ]});
  assert.equal(counted.months.reduce((total,m)=>total+m.halfDays,0),counted.halfDays);
+});
+
+test("membre réaffecté plusieurs fois : périmètre autorisé si au moins une affectation existe",()=>{
+ const source=readFileSync(new URL("../src/server/members/team-annual-absence.ts",import.meta.url),"utf8");
+ assert.match(source,/if\(!membership\.rows\.length\)throw Error\("member-out-of-team"\)/);
+ assert.match(source,/SELECT DISTINCT g\.day::date AS day/);
+ assert.match(source,/const perMonth=new Map<string,number>\(\)/);
 });
