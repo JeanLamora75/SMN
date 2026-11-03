@@ -37,7 +37,24 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
     LIMIT 1`,[id,team.team_id,onDate]);
    if(found.rows.length!==1)throw Error("member-out-of-team");
    const data=await readMemberAbsences(db,id,onDate);
-   return {...data,absences:[],onDate:[]};
+   // Absence records belong to people, but the modal may only expose
+   // intervals fully owned by this team; never leak another team's reasons.
+   const scoped=await db.query<{absence_id:string}>(`
+    SELECT a.id AS absence_id FROM public.smn_member_absence a
+    WHERE a.member_id=$1 AND EXISTS (
+     SELECT 1 FROM public.smn_member_assignment own
+     WHERE own.member_id=a.member_id AND own.team_id=$2
+       AND own.start_on<=a.start_on
+       AND (own.end_on IS NULL OR own.end_on>=a.end_on)
+    ) AND NOT EXISTS (
+     SELECT 1 FROM public.smn_member_assignment other
+     WHERE other.member_id=a.member_id AND other.team_id<>$2
+      AND other.start_on<=a.end_on
+      AND (other.end_on IS NULL OR other.end_on>=a.start_on)
+    )`,[id,team.team_id]);
+   const allowed=new Set(scoped.rows.map(row=>row.absence_id));
+   const absences=data.absences.filter(a=>!a.deleted&&allowed.has(a.id));
+   return {...data,absences,onDate:absences.filter(a=>data.onDate.some(d=>d.id===a.id))};
   });
   return jsonResult({...result,today:onDate});
  }catch{return jsonResult({error:"not-found"},404);}
