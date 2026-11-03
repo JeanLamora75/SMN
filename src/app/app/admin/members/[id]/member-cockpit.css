@@ -152,3 +152,20 @@
  font-weight:750;color:var(--smn-heading);text-align:center;
  white-space:normal;overflow-wrap:anywhere;
 }
+
+/* Sortie : événement d'affectation, distinct des jours de présence. */
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-exit > :is(th,td){
+ --bs-table-bg:color-mix(in srgb,#d18a52 18%,var(--smn-surface));
+ --bs-table-bg-state:transparent;
+ --bs-table-bg-type:transparent;
+ background-color:var(--bs-table-bg);
+ box-shadow:none;
+ border-bottom-color:color-mix(in srgb,#ab6430 50%,var(--smn-border));
+}
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-exit > th{
+ border-left:3px solid #ab6430;font-weight:800;
+}
+.smn-member-cockpit .smn-member-month-columns td.smn-member-exit-name{
+ text-align:center;font-weight:750;white-space:normal;overflow-wrap:anywhere;
+ color:var(--smn-heading);
+}
