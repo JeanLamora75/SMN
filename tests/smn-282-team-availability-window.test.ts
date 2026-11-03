@@ -6,7 +6,7 @@ import {parseTeamAvailabilityWindow,readTeamAvailabilityWindow}
 
 const memberId="123e4567-e89b-42d3-a456-426614174000";
 const params={memberId,teamId:"team_b",startOn:"2026-10-01",endOn:"2026-10-31"};
-type FakeOptions={assignment?:boolean;admin?:boolean};
+type FakeOptions={assignment?:boolean;admin?:boolean;days?:any[]};
 function fake(options:FakeOptions={}){
  const calls:{sql:string;values:unknown[]}[]=[];
  const query=async(sql:string,values:unknown[]=[]):Promise<{rows:any[]}>=>{
@@ -22,9 +22,9 @@ function fake(options:FakeOptions={}){
    return {rows:[{product_id:null,product:null,team_id:"team_b",
      team:"Panda",mode:"scrum"}]};
   if(sql.includes("WITH member_days AS"))
-   return {rows:options.assignment===false?[]:[
-    {day:"2026-10-01",morning_absent:true,afternoon_absent:false,holiday_name:null},
-    {day:"2026-10-02",morning_absent:false,afternoon_absent:false,holiday_name:"Fête nationale"}
+   return {rows:options.assignment===false?[]:options.days??[
+    {day:"2026-10-01",morning_absent:true,afternoon_absent:false,holiday_name:null,assigned:true,is_exit:false,exit_reason:null},
+    {day:"2026-10-02",morning_absent:false,afternoon_absent:false,holiday_name:"Fête nationale",assigned:true,is_exit:false,exit_reason:null}
    ]};
   throw Error("Unexpected SQL: "+sql);
  };
@@ -45,8 +45,8 @@ test("le lien historique explicite prime sur la préférence et vérifie l'insta
  assert.equal(result.teamId,"team_b");
  assert.equal(result.memberId,memberId);
  assert.deepEqual(result.days,[
-  {date:"2026-10-01",morningAbsent:true,afternoonAbsent:false,holidayName:null},
-  {date:"2026-10-02",morningAbsent:false,afternoonAbsent:false,holidayName:"Fête nationale"}
+  {date:"2026-10-01",morningAbsent:true,afternoonAbsent:false,holidayName:null,isExit:false,exitReason:null},
+  {date:"2026-10-02",morningAbsent:false,afternoonAbsent:false,holidayName:"Fête nationale",isExit:false,exitReason:null}
  ]);
  const context=calls.find(x=>x.sql.includes("SELECT p.id AS product_id"));
  assert.deepEqual(context?.values,["team_b","singleton"]);
@@ -115,4 +115,32 @@ test("jours fériés : même sélection du pays pour un mois antérieur ou post�
   assert.match(query.sql,/ORDER BY l\.revision DESC LIMIT 1/);
   assert.doesNotMatch(query.sql,/l\.effective_from<=d\.day/);
  }
+});
+
+test("calendrier : uniquement dates d'affectation et lendemain de sortie",async()=>{
+ const {db,calls}=fake({days:[
+  {day:"2026-10-12",assigned:false,is_exit:false,exit_reason:null,morning_absent:false,afternoon_absent:false,holiday_name:null},
+  {day:"2026-10-13",assigned:true,is_exit:false,exit_reason:null,morning_absent:true,afternoon_absent:false,holiday_name:null},
+  {day:"2026-10-14",assigned:true,is_exit:false,exit_reason:null,morning_absent:false,afternoon_absent:true,holiday_name:null},
+  {day:"2026-10-15",assigned:false,is_exit:true,exit_reason:"changement d'équipe",morning_absent:true,afternoon_absent:true,holiday_name:"Autre fête"},
+  {day:"2026-10-16",assigned:false,is_exit:false,exit_reason:null,morning_absent:false,afternoon_absent:false,holiday_name:null}
+ ]});
+ const result=await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
+ assert.deepEqual(result.days.map(d=>d.date),["2026-10-13","2026-10-14","2026-10-15"]);
+ assert.deepEqual(result.days[2],{date:"2026-10-15",morningAbsent:false,afternoonAbsent:false,
+  holidayName:null,isExit:true,exitReason:"changement d'équipe"});
+ const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
+ assert.match(sql,/x\.member_id=\$1 AND x\.team_id=\$2 AND x\.end_on=d\.day-1/);
+ assert.match(sql,/e\.member_id=\$1 AND e\.assignment_id=d\.exit_assignment_id/);
+ assert.match(sql,/e\.action='close'/);
+ assert.match(readTeamAvailabilityWindow.toString(),/result\.rows\.filter\(r=>r\.assigned\|\|r\.is_exit\)/);
+});
+test("calendrier : sortie sans motif et passage au mois suivant",async()=>{
+ const {db}=fake({days:[
+  {day:"2026-10-01",assigned:false,is_exit:true,exit_reason:null,morning_absent:false,afternoon_absent:false,holiday_name:null}
+ ]});
+ const result=await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},
+  {...params,startOn:"2026-10-01",endOn:"2026-10-31"});
+ assert.deepEqual(result.days,[{date:"2026-10-01",morningAbsent:false,afternoonAbsent:false,
+  holidayName:null,isExit:true,exitReason:null}]);
 });
