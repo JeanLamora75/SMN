@@ -54,6 +54,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const locale=useLocale();
  const year=Number(new Intl.DateTimeFormat("en-US",{year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
  const [annual,setAnnual]=useState<number|null>(null);
+ const [worked,setWorked]=useState<number|null>(null);
  const [annualMonths,setAnnualMonths]=useState<{month:string;halfDays:number}[]>([]);
  const [editor,setEditor]=useState<"profile"|"assignment"|"location"|"calendar"|"absence"|null>(null);
  const dialogRef=useRef<HTMLDialogElement>(null);
@@ -100,13 +101,14 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   void fetch("/api/admin/members/"+encodeURIComponent(memberId)+
    "/team-annual-absence?"+params.toString(),{cache:"no-store",signal:controller.signal})
    .then(async res=>{if(!res.ok)throw Error("annual-absence-unavailable");
-    return res.json() as Promise<{year:number;halfDays:number;months?:{month:string;halfDays:number}[]}>;})
+    return res.json() as Promise<{year:number;halfDays:number;workedHalfDays:number;months?:{month:string;halfDays:number}[]}>;})
    .then(data=>{if(!controller.signal.aborted){
     const valid=data.year===year&&Number.isInteger(data.halfDays);
     setAnnual(valid?data.halfDays:null);
+    setWorked(valid&&Number.isInteger(data.workedHalfDays)?data.workedHalfDays:null);
     setAnnualMonths(valid&&Array.isArray(data.months)?data.months:[]);
    }})
-   .catch(()=>{if(!controller.signal.aborted){setAnnual(null);setAnnualMonths([]);}});
+   .catch(()=>{if(!controller.signal.aborted){setAnnual(null);setWorked(null);setAnnualMonths([]);}});
   return()=>controller.abort();
  },[memberId,teamId,year,refreshKey]);
  useEffect(()=>{
@@ -199,6 +201,10 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    {active&&<div className="smn-member-metrics">
     <div><span>{t("memberTeamScope.start")}</span><strong>{formatCivil(active.startOn,locale)}</strong></div>
     <div><span>{t("memberTeamScope.allocation")}</span><strong>{active.allocationPercent} %</strong></div>
+    <div><span>{t("memberTeamScope.workedDays")}</span>
+     <strong>{worked===null?t("memberTeamScope.notAvailable"):
+      new Intl.NumberFormat(locale==="en"?"en-GB":"fr-FR",{maximumFractionDigits:1}).format(worked/2)+
+       " "+t("memberTeamScope.annualDayUnit")}</strong></div>
     <div><span>{t("memberTeamScope.annualAbsences")}</span><strong title={annual===null?undefined:
      annualMonths.map(m=>m.month+": "+new Intl.NumberFormat(locale==="en"?"en-GB":"fr-FR",
       {maximumFractionDigits:1}).format(m.halfDays/2)+" "+t("memberTeamScope.annualDayUnit")).join("\n")}>
