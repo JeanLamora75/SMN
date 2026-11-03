@@ -2058,7 +2058,11 @@
     "createError": "Création impossible : {reason}",
     "cancel": "Annuler",
     "create": "Créer le membre",
-    "openMember": "Ouvrir la fiche de {name}"
+    "openMember": "Ouvrir la fiche de {name}",
+    "activeAssignmentHeading": "Membres actifs dans l'équipe",
+    "inactiveAssignmentHeading": "Membres inactifs dans l'équipe",
+    "startDate": "Date début",
+    "endDate": "Date fin"
   },
   "memberUX": {
     "back": "Équipe",
