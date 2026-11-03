@@ -30,6 +30,7 @@
     "exit": "Left the team",
     "exitUnknownReason": "Reason not specified",
     "annualHalfDayUnit": "half-days",
-    "annualDayUnit": "days"
+    "annualDayUnit": "days",
+    "workedDays": "Days worked"
   }
 }
