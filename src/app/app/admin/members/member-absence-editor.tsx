@@ -92,7 +92,7 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
  };
  const deleteExisting=async(item:AbsenceItem)=>{
   if(busy||!state||state.archived)return;
-  if(!window.confirm("Annuler cette absence du "+item.startOn+" au "+item.endOn+" ? L'historique sera conservé."))return;
+  if(!window.confirm(t("memberAbsences.cancelConfirm",{start:item.startOn,end:item.endOn})))return;
   setBusy(true);setError("");
   try{
    const change={action:"delete",id:item.id,revision:item.revision};
@@ -103,9 +103,9 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
    const result=await response.json() as {error?:string};
    if(!response.ok){setError(result.error==="conflict"?
     t("memberAbsences.cancelConflict"):
-    "Impossible d'annuler cette absence.");return;}
+    t("memberAbsences.cancelFailed"));return;}
    onSaved();
-  }catch{setError("Impossible d'annuler cette absence.");}
+  }catch{setError(t("memberAbsences.cancelFailed"));}
   finally{setBusy(false);}
  };
  return <section className="smn-panel p-4 d-grid gap-3" aria-label={t("members.absence.newTitle")}>
