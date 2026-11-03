@@ -91,9 +91,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
  async function closeTeamAssignment(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(!teamScoped||!state?.assignmentId||!state.startOn||state.endOn!==null||busy)return;
-  if(!endOn||endOn<state.startOn||
-   state.versions.length>0&&endOn<state.versions.at(-1)!.effectiveFrom){
-   setError("La date de fin ne peut précéder le début de l'affectation ni sa dernière version.");return;
+  if(!endOn||endOn<state.startOn){
+   setError("La date de fin ne peut pas précéder la date de début de l'affectation.");return;
   }
   if(!window.confirm("Confirmer la fin de cette affectation au "+endOn+" ? Le membre ne sera pas archivé."))return;
   setBusy(true);setError("");
@@ -107,8 +106,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    const payload=await response.json() as {error?:string};
    if(!response.ok){
     setError(payload.error==="conflict"?"L'affectation a été modifiée. Rouvre la fenêtre.":
-     payload.error==="invalid-date"||payload.error==="future-version"?
-      "La date de fin doit être postérieure au début et aux modifications d'affectation.":
+     payload.error==="invalid-date"?
+      "La date de fin ne peut pas précéder le début de l'affectation.":
       "Impossible d'enregistrer la fin de l'affectation.");return;
    }
    onSaved();
@@ -188,8 +187,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      <div className="row g-3">
       <label className="col-md-5">Date de fin d'affectation
        <input type="date" className="form-control mt-1" required
-        min={state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.startOn?
-         state.versions.at(-1)!.effectiveFrom:state.startOn}
+        min={state.startOn}
         value={endOn} onChange={e=>setEndOn(e.target.value)} disabled={busy}/>
       </label>
       <label className="col-md-7">Motif de sortie (facultatif)
