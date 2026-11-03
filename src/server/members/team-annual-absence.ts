@@ -56,7 +56,7 @@ export async function readTeamAnnualWorkedForRoster(db:Client,teamId:string,
   throw Error("team-annual-absence-invalid-input");
  if(!memberIds.length)return new Map();
  const result=await db.query<EligibleWorkSlot>(eligibleWorkSql,[memberIds,teamId,year]);
- const counts=new Map(memberIds.map(id=>[id,0]));
+ const counts=new Map<string,number>(memberIds.map(id=>[id,0] as const));
  for(const day of result.rows)if(counts.has(day.member_id))
   counts.set(day.member_id,(counts.get(day.member_id)??0)+Number(!day.morning)+Number(!day.afternoon));
  return counts;
