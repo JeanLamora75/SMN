@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
 import {readFileSync} from "node:fs";
-import {parseTeamAssignmentEnd} from "../src/server/members/team-assignment-end";
+import {parseTeamAssignmentEnd,correctTeamAssignmentEnd} from "../src/server/members/team-assignment-end";
 
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const valid={teamId:"team_koala",assignmentId:"123e4567-e89b-42d3-a456-426614174000",
@@ -59,4 +59,36 @@ test("SMN-45 : une sortie avant la dernière révision datée reste autorisée",
  assert.match(editor,/min=\{state\.startOn\}/);
  assert.doesNotMatch(editor,/min=\{state\.versions\.at\(-1\)/);
  assert.match(editor,/if\(!endOn\|\|endOn<state\.startOn\)/);
+});
+
+test("SMN-45 : correction d'une affectation clôturée, sans suppression de l'audit précédent",()=>{
+ const service=read("src/server/members/team-assignment-end.ts");
+ const route=read("src/app/api/admin/members/[id]/team-assignment/end/route.ts");
+ const get=read("src/app/api/admin/members/[id]/team-assignment/route.ts");
+ const calendar=read("src/server/members/team-availability-window.ts");
+ assert.equal(typeof correctTeamAssignmentEnd,"function");
+ assert.match(route,/export async function PATCH/);
+ assert.match(route,/actor\.role!=="admin"/);
+ assert.match(route,/correctTeamAssignmentEnd\(db,/);
+ assert.match(service,/row\.end_on!==value\.expectedEndOn/);
+ assert.match(service,/input\.endOn<row\.start_on/);
+ assert.match(service,/latestRevision/);
+ assert.match(service,/start_on<=\$4::date AND \(end_on IS NULL OR end_on>=\$5::date\)/);
+ assert.match(service,/correction:true,previousEndOn:row\.end_on,previousReason/);
+ assert.match(service,/INSERT INTO public\.smn_member_lifecycle_event/);
+ assert.doesNotMatch(service,/DELETE FROM public\.smn_member_lifecycle_event/);
+ assert.match(get,/endReason:closing\?\.rows\[0\]\?\.reason\?\?null/);
+ assert.match(calendar,/ORDER BY e\.occurred_at DESC,e\.id DESC LIMIT 1/);
+});
+
+test("SMN-45 : une date et un motif clôturés restent éditables et le calendrier s'actualise",()=>{
+ const editor=read("src/app/app/admin/members/assignment-editor.tsx");
+ const calendar=read("src/app/app/admin/members/[id]/member-team-read-only.tsx");
+ assert.match(editor,/setEndReason\(data\.endReason\?\?""\)/);
+ assert.match(editor,/method:state\.endOn\?"PATCH":"POST"/);
+ assert.match(editor,/expectedEndOn:state\.endOn/);
+ assert.match(editor,/state\.endOn\?"Corriger la fin d’affectation"/);
+ assert.match(editor,/min=\{state\.startOn\}/);
+ assert.doesNotMatch(editor,/state\.endOn\?<p className="mb-0">Affectation terminée/);
+ assert.match(calendar,/\[memberId,teamId,month,refreshKey\]/);
 });
