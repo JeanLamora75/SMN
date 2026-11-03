@@ -25,7 +25,7 @@ export async function endTeamAssignment(db:Client,actor:TeamActor,memberId:strin
  if(actor.role!=="admin")throw Error("team-access-forbidden");
  await db.query("BEGIN");
  try{
-  const fail=async(error:"not-found"|"conflict"|"archived"|"invalid-date"|"future-version")=>{
+  const fail=async(error:"not-found"|"conflict"|"archived"|"invalid-date")=>{
    await db.query("ROLLBACK");return {ok:false as const,error};
   };
   const team=await resolveAdminTeam(db,actor,input.teamId);
@@ -49,7 +49,9 @@ export async function endTeamAssignment(db:Client,actor:TeamActor,memberId:strin
    ORDER BY revision DESC LIMIT 1`,[input.assignmentId]);
   const latest=version.rows[0];
   if(!latest||latest.revision!==input.latestRevision)return fail("conflict");
-  if(input.endOn<latest.effective_from)return fail("future-version");
+  // A closing date is bounded by the actual team assignment start, not by
+  // the effective date of its latest role/allocation revision. Version
+  // history remains immutable and optimistic revision checks remain active.
   await db.query(`UPDATE public.smn_member_assignment SET end_on=$1::date
    WHERE id=$2 AND member_id=$3 AND team_id=$4 AND end_on IS NULL`,
    [input.endOn,input.assignmentId,memberId,team.team_id]);
