@@ -99,3 +99,22 @@
  .smn-member-edit-dialog .smn-cockpit-form-actions{flex-wrap:wrap}
  .smn-member-edit-dialog .smn-cockpit-form-actions .btn{max-width:100%}
 }
+
+/* Calendrier membre : priorité visuelle férié > week-end > Sprint. */
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-weekend>:is(th,td){
+ background:color-mix(in srgb,var(--smn-muted-soft) 82%,var(--smn-surface));
+ color:var(--smn-foreground);
+}
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-holiday>:is(th,td){
+ background:color-mix(in srgb,#f4ca65 27%,var(--smn-surface));
+ border-bottom-color:color-mix(in srgb,#b77e1e 50%,var(--smn-border));
+}
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-holiday th{
+ color:var(--smn-heading);font-weight:800;
+}
+.smn-member-cockpit .smn-member-holiday-label{
+ display:inline-block;margin-left:7px;padding:1px 5px;border-radius:5px;
+ background:color-mix(in srgb,#f4ca65 45%,var(--smn-surface));
+ border:1px solid color-mix(in srgb,#b77e1e 50%,var(--smn-border));
+ font-size:.65rem;font-weight:700;white-space:nowrap;
+}
