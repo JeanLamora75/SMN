@@ -95,3 +95,17 @@ test("jours fériés : source nationale selon localisation historique, sans dét
  assert.match(sql,/CASE WHEN d\.assigned THEN/);
  assert.doesNotMatch(sql,/a\.reason|a\.category_id/);
 });
+
+test("jours fériés historiques : pays de la première localisation si aucune version encore effective",async()=>{
+ const {db,calls}=fake();
+ const result=await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
+ const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
+ assert.match(sql,/CASE WHEN EXISTS\(/);
+ assert.match(sql,/l\.effective_from<=d\.day/);
+ assert.match(sql,/ORDER BY l\.effective_from ASC,l\.revision ASC LIMIT 1/);
+ assert.match(sql,/ORDER BY l\.effective_from DESC,l\.revision DESC LIMIT 1/);
+ assert.match(sql,/CASE WHEN d\.assigned THEN/);
+ assert.match(sql,/h\.holiday_date=d\.day/);
+ assert.equal(result.days[1]?.holidayName,"Fête nationale");
+ assert.doesNotMatch(sql,/\b(?:INSERT|UPDATE|DELETE|ALTER|CREATE)\b/i);
+});
