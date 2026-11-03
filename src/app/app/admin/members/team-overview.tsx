@@ -4,7 +4,7 @@ import NeutralAvatar from "./neutral-avatar";
 import CountryFlag from "./country-flag";
 import {useRouter} from "next/navigation";
 import {useEffect,useRef,useState,type FormEvent} from "react";
-import {useTranslation} from "@/i18n/client";
+import {useLocale,useTranslation} from "@/i18n/client";
 import TeamContextEditor from "./team-context-editor";
 import BootstrapIcon from "../../bootstrap-icon";
 import {availableFunctions,filterTeamMembers,initialTeamFilters,splitTeamMembersByAssignment,type TeamFilters} from "./team-cockpit-filter";
@@ -21,6 +21,7 @@ type FilterState={scope:string;draft:TeamFilters;applied:TeamFilters};
 const CHOICE="smn-team-roster-view";
 export default function TeamOverview({canManage,initialTeamId=null}:{canManage:boolean;initialTeamId?:string|null}){
  const t=useTranslation();
+ const locale=useLocale();
  const router=useRouter();
  const [roster,setRoster]=useState<Roster|null>(null);
  const [teamContext,setTeamContext]=useState<TeamContextState>({status:"loading"});
@@ -100,7 +101,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
  const today=new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"});
  const grouped=splitTeamMembersByAssignment(members,today);
  const dateLabel=(date:string|null)=>date?
-  new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",
+  new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",
    timeZone:"UTC"}).format(new Date(date+"T00:00:00.000Z")):"—";
  const roles=(m:Member)=>([["SM",m.roleShares?.scrumMaster],["PO",m.roleShares?.productOwner],["Dev",m.roleShares?.developer]] as const);
  const memberHref=(m:Member)=>"/app/admin/members/"+encodeURIComponent(m.id)+(roster?.team.id?"?"+new URLSearchParams({teamId:roster.team.id}):"");
@@ -228,8 +229,8 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
          <th scope="col">{t("teamUX.member")}</th>
          <th scope="col">{t("teamUX.roles")}</th>
          <th scope="col">{t("teamCockpit.functionLabel")}</th>
-         <th scope="col">Date début</th>
-         <th scope="col">Date fin</th>
+         <th scope="col">{t("teamUX.startDate")}</th>
+         <th scope="col">{t("teamUX.endDate")}</th>
          <th scope="col">{t("teamCockpit.statusLabel")}</th>
          <th scope="col">{t("teamUX.details")}</th>
         </tr></thead>
