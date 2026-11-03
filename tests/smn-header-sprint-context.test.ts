@@ -79,7 +79,7 @@ describe("SMN — sélecteur Sprint contextuel",()=>{
   const cycle=read("src/app/app/cycle-overview.tsx");
   assert.match(shell,/mode==="kanban"\?"\/api\/kanban\/context":"\/api\/sprints\/context"/);
   assert.match(shell,/sprints\.map\(item=><option/);
-  assert.match(shell,/router\.push\("\/app\?"/);
+  assert.match(shell,/router\.push\(\(cyclePage\?pathname:"\/app"\)\+"\?"/);
   assert.match(route,/authorizeApi\(request,"read"/);
   assert.match(route,/withSprintIndexDb/);
   assert.match(dashboard,/selectedSprint\(sprintData\.items/);
