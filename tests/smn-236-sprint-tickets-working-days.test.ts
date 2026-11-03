@@ -164,6 +164,7 @@ describe("SMN-236 — tickets agrégés",()=>{
   assert.match(allow,/public\.smn_sprint_ticket_counts:r/);
   assert.match(allow,/public\.smn_sprint_ticket_counts_audit:r/);
   assert.doesNotMatch(view,/projection\?\.tickets\.initial/);
-  assert.match(closure,/ticketCounts:ticket\?\.rows\[0\]/);
+  assert.match(closure,/ticketCounts:ticket\?\?null/);
+  assert.match(closure,/indicatorsV33/);
  });
 });
