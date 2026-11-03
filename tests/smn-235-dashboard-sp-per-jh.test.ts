@@ -70,7 +70,7 @@ describe("SMN-235 — SP par jour-homme dans le cockpit",()=>{
  });
  it("v33: le cockpit ne réintroduit pas les anciennes cartes SP/JH fixes",()=>{
   const html=view("fr",projection(20,12,25,15));
-  assert.doesNotMatch(html,/smn-kpi-density|smn-kpi-ring/);
+  assert.doesNotMatch(html,/SP\\/J\\/H/);
   assert.equal((html.match(/class="smn-metric-card/g)||[]).length,2);
   assert.doesNotMatch(html,/NaN|Infinity/);
   assert.deepEqual(dashboardStoryPointsPerJh(known(20),known(25)),{state:"available",value:0.8});
@@ -81,14 +81,14 @@ describe("SMN-235 — SP par jour-homme dans le cockpit",()=>{
    storyPoints:{initial:known(18,"closure-snapshot"),done:known(10,"closure-snapshot")},
    capacity:{initialJh:known(20,"closure-snapshot"),actualJh:known(10,"closure-snapshot")}};
   const html=view("en",closed);
-  assert.doesNotMatch(html,/smn-kpi-density|NaN|Infinity/);
+  assert.doesNotMatch(html,/SP\\/J\\/H|NaN|Infinity/);
   assert.deepEqual(dashboardStoryPointsPerJh(closed.storyPoints.initial,closed.capacity.initialJh),{state:"available",value:0.9});
   assert.deepEqual(dashboardStoryPointsPerJh(closed.storyPoints.done,closed.capacity.actualJh),{state:"available",value:1});
  });
  it("v33: capacités nulles et manquantes ne créent jamais de ratios fictifs",()=>{
   const data=projection(8,0,0,10);
   const html=view("fr",data);
-  assert.doesNotMatch(html,/NaN|Infinity|smn-kpi-density/);
+  assert.doesNotMatch(html,/NaN|Infinity|SP\\/J\\/H/);
   assert.deepEqual(dashboardStoryPointsPerJh(data.storyPoints.initial,data.capacity.initialJh),{state:"not-calculable"});
   const missing:CollectiveCycleProjection={...data,
    storyPoints:{initial:metricNotRecorded(),done:metricNotRecorded()},
@@ -98,6 +98,6 @@ describe("SMN-235 — SP par jour-homme dans le cockpit",()=>{
  });
  it("v33: une période Kanban ne montre pas les anciens ratios Scrum",()=>{
   const html=view("fr",projection(20,12,25,15),"kanban");
-  assert.doesNotMatch(html,/smn-kpi-density|SP initialement engagés/);
+  assert.doesNotMatch(html,/SP\\/J\\/H|SP initialement engagés/);
  });
 });
