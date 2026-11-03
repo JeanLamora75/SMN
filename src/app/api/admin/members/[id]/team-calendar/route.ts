@@ -13,7 +13,7 @@ export async function GET(req:NextRequest,{params}:Context){
  const {id}=await params,teamId=req.nextUrl.searchParams.get("teamId");
  if(!teamId||req.nextUrl.searchParams.size!==1)return jsonResult({error:"invalid-input"},400);
  try{return jsonResult(await withAuthDb(async db=>{
-  await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,teamId);
+  await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,teamId,{allowHistoricalAssignment:true});
   const [weeks,clock]=await Promise.all([
    db.query<{revision:number;effective_from:string;days:{weekday:number;morning:boolean;afternoon:boolean}[]}>(`
     SELECT revision,effective_from::text,days FROM public.smn_member_calendar_week
@@ -33,7 +33,7 @@ export async function POST(req:NextRequest,{params}:Context){
  try{return await withAuthDb(async db=>{
   await db.query("BEGIN");
   try{
-   await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,body.teamId as string);
+   await requireTeamMemberScope(db,{accountId:actor.id,role:"admin"},id,body.teamId as string,{allowHistoricalAssignment:true});
    const member=await db.query<{archived_at:string|null}>(`SELECT archived_at::text FROM public.smn_member WHERE id=$1 FOR UPDATE`,[id]);
    if(!member.rows.length||member.rows[0].archived_at){await db.query("ROLLBACK");return jsonResult({error:"archived"},409);}
    const latest=(await db.query<{revision:number;effective_from:string}>(`SELECT revision,effective_from::text
