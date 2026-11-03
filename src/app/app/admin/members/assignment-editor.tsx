@@ -209,7 +209,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      <button type="submit" className="btn btn-outline-primary align-self-start"
       disabled={busy||!endOn||(state.endOn===endOn&&(state.endReason??"")===endReason)}>
       {state.endOn?"Corriger la fin d’affectation":"Enregistrer la fin d’affectation"}</button>
-    </>}
+    </>
    </form>}
    {state.assignmentId&&state.startOn&&(!teamScoped||state.endOn===null)&&<div className="border rounded-3 p-3">
     <h4 className="h6">{t("members.assignment.historicalTitle")}</h4>
