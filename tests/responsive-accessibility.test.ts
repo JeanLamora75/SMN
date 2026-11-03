@@ -16,9 +16,12 @@ describe("SMN-25 — structure responsive et accessibilité de base",()=>{
     assert.match(shell,/id="smn-main"/);
     assert.match(app,/PrivateShell/);
     for(const path of ["src/app/page.tsx","src/app/login/page.tsx",
-      "src/app/welcome/page.tsx","src/app/change-password/page.tsx","src/app/not-found.tsx"]){
+      "src/app/welcome/form/page.tsx","src/app/change-password/page.tsx","src/app/not-found.tsx"]){
       assert.match(source(path),/<main id="smn-main"/,path);
     }
+    const gate=source("src/app/welcome/route.ts");
+    assert.match(gate,/currentInstallationDiagnostic/);
+    assert.match(gate,/status:404/);
   });
   it("contient des styles de focus clavier, des cibles mobiles et la réduction de mouvement",()=>{
     const css=source("src/app/globals.css");
