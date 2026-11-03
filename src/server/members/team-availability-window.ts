@@ -63,13 +63,13 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
   FROM generate_series($3::date,$4::date,interval '1 day') AS gs(day)
  )
  SELECT d.day::text AS day,
-  (SELECT h.name FROM public.smn_national_holiday h
+  CASE WHEN d.assigned THEN (SELECT h.name FROM public.smn_national_holiday h
    WHERE h.country_code=(
     SELECT l.country_iso2 FROM public.smn_member_location l
     WHERE l.member_id=$1 AND l.effective_from<=d.day
     ORDER BY l.effective_from DESC,l.revision DESC LIMIT 1
    ) AND h.holiday_date=d.day
-   ORDER BY h.name LIMIT 1) AS holiday_name,
+   ORDER BY h.name LIMIT 1) ELSE NULL END AS holiday_name,
   COALESCE(bool_or(d.assigned AND a.id IS NOT NULL AND
    (a.start_on<d.day OR a.start_slot='morning')),false) AS morning_absent,
   COALESCE(bool_or(d.assigned AND a.id IS NOT NULL AND
