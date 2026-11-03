@@ -26,6 +26,8 @@
     "function": "Function",
     "noRole": "Role not specified",
     "noFunction": "Function not specified",
-    "notAvailable": "Unavailable"
+    "notAvailable": "Unavailable",
+    "exit": "Left the team",
+    "exitUnknownReason": "Reason not specified"
   }
 }
