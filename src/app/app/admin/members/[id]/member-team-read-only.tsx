@@ -144,6 +144,13 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
   active.productOwnerPercent>0?"Product Owner":null,
   active.developerPercent>0?(locale==="fr"?"Développeur":"Developer"):null
  ].filter(Boolean).join(" / "):"";
+ // Préremplir depuis le mois affiché, jamais depuis une date hors affectation.
+ // Pour un mois sans présence (après la sortie), proposer la dernière date
+ // d'affectation connue afin de permettre les corrections historiques.
+ const today=new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"});
+ const assignedDays=days.filter(d=>!d.isExit);
+ const absenceInitialDate=assignedDays.some(d=>d.date===today)?today:
+  assignedDays[0]?.date??active?.endOn??active?.startOn??today;
  const firstHalf=days.filter(d=>Number(d.date.slice(-2))<=15);
  const secondHalf=days.filter(d=>Number(d.date.slice(-2))>15);
  return <div className="smn-member-cockpit d-grid gap-3">
@@ -170,7 +177,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     </div>
     <div className="smn-cockpit-modal-body smn-member-edit-body">
      {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
-      editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={new Date().toISOString().slice(0,10)} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
+      editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={absenceInitialDate} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
       onCancel={()=>setEditor(null)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditor(null);router.refresh();}}/>:
       <MemberTeamPlanningEditor key={editor+"-"+refreshKey} memberId={memberId} teamId={teamId}
