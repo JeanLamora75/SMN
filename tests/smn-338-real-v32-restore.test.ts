@@ -22,7 +22,7 @@ test("SMN-338 : DDL sur restauration intégrale isolée de la base v32", {timeou
  const targetUri=new URL(uri.toString());targetUri.pathname="/"+targetName;
  const env:NodeJS.ProcessEnv={...process.env,
   PGHOST:uri.hostname,PGPORT:uri.port||"5432",PGUSER:decodeURIComponent(uri.username),
-  PGPASSWORD:decodeURIComponent(uri.password),PGDATABASE:"smn"};
+  PGPASSWORD:decodeURIComponent(uri.password),PGDATABASE:decodeURIComponent(uri.pathname.slice(1))};
  const temp=mkdtempSync(join(tmpdir(),"smn338-recovery-"));
  const backup=join(temp,"backup.dump");
  const admin=new Client({connectionString:adminUri.toString(),connectionTimeoutMillis:3500,statement_timeout:25000});
@@ -53,7 +53,7 @@ test("SMN-338 : DDL sur restauration intégrale isolée de la base v32", {timeou
    await source.query("ROLLBACK");
   }finally{await source.end().catch(()=>undefined)}
   cli(process.env.SMN_PG_DUMP_PATH||"pg_dump",
-   ["--format=custom","--no-owner","--no-privileges","--no-password","--file="+backup],"smn");
+   ["--format=custom","--no-owner","--no-privileges","--no-password","--file="+backup],uri.pathname.slice(1));
   await admin.query('CREATE DATABASE "'+targetName+'"');created=true;
   cli(process.env.SMN_PG_RESTORE_PATH||"pg_restore",
    ["--exit-on-error","--no-owner","--no-privileges","--no-password","--dbname="+targetName,backup],targetName);
