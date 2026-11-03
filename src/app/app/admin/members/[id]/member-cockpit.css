@@ -40,8 +40,18 @@
 .smn-member-cockpit .smn-member-back:hover{color:#fff;background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.75)}
 .smn-member-cockpit .smn-member-back:focus-visible{outline:3px solid #ffcf66;outline-offset:3px}
 
-.smn-member-cockpit .smn-member-month-columns tr.smn-member-sprint-day>:is(th,td){background:color-mix(in srgb,var(--smn-brand) 17%,var(--smn-surface));border-bottom-color:var(--smn-brand)}
-.smn-member-cockpit .smn-member-month-columns tr.smn-member-sprint-day th{font-weight:800;color:var(--smn-heading)}
+/* Sprint : repère vert distinct du week-end gris et des fériés dorés. */
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-sprint-day > :is(th,td){
+ --bs-table-bg:color-mix(in srgb,#35a487 10%,var(--smn-surface));
+ --bs-table-bg-state:transparent;
+ --bs-table-bg-type:transparent;
+ background-color:var(--bs-table-bg);
+ box-shadow:none;
+ border-bottom-color:color-mix(in srgb,#27836d 40%,var(--smn-border));
+}
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-sprint-day > th{
+ border-left:3px solid #27836d;font-weight:800;color:var(--smn-heading);
+}
 @media(max-width:1150px){.smn-member-cockpit .smn-member-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){.smn-member-cockpit .smn-member-metrics{grid-template-columns:1fr}}
 
@@ -105,7 +115,7 @@
    Définir les variables Bootstrap sur les cellules ET enlever ce calque
    garantit le contraste pour chaque mois et dans les deux colonnes. */
 .smn-member-cockpit .smn-member-month-columns tr.smn-member-weekend > :is(th,td){
- --bs-table-bg:color-mix(in srgb,var(--smn-brand) 14%,var(--smn-surface));
+ --bs-table-bg:color-mix(in srgb,#788390 18%,var(--smn-surface));
  --bs-table-bg-state:transparent;
  --bs-table-bg-type:transparent;
  background-color:var(--bs-table-bg);
@@ -113,7 +123,7 @@
  color:var(--smn-foreground);
 }
 .smn-member-cockpit .smn-member-month-columns tr.smn-member-weekend > th{
- border-left:3px solid var(--smn-brand);
+ border-left:3px solid #788390;
  font-weight:800;
 }
 .smn-member-cockpit .smn-member-month-columns tr.smn-member-holiday > :is(th,td){
@@ -135,4 +145,10 @@
  background:color-mix(in srgb,#f4ca65 45%,var(--smn-surface));
  border:1px solid color-mix(in srgb,#b77e1e 50%,var(--smn-border));
  font-size:.65rem;font-weight:700;white-space:nowrap;
+}
+
+/* Le jour férié affiche son libellé dans la cellule unique Matin + Après-midi. */
+.smn-member-cockpit .smn-member-month-columns td.smn-member-holiday-name{
+ font-weight:750;color:var(--smn-heading);text-align:center;
+ white-space:normal;overflow-wrap:anywhere;
 }
