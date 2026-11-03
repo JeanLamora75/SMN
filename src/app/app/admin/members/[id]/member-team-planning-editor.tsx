@@ -9,6 +9,7 @@ export default function MemberTeamPlanningEditor({memberId,teamId,kind,onSaved,o
  memberId:string;teamId:string;kind:"location"|"calendar";onSaved:()=>void;onCancel:()=>void;
 }){
  const [date,setDate]=useState("");
+ const [timeZones]=useState<string[]>(()=>["UTC",...Intl.supportedValuesOf("timeZone")]);
  const [revision,setRevision]=useState(0);
  const [location,setLocation]=useState({countryIso2:"",region:"",city:"",timeZone:""});
  const [week,setWeek]=useState<WorkDay[]>([]);
@@ -69,7 +70,15 @@ export default function MemberTeamPlanningEditor({memberId,teamId,kind,onSaved,o
     {field("countryIso2","Code pays (ISO 2 lettres)",2)}
     {field("region","Région",120)}
     {field("city","Ville",120)}
-    {field("timeZone","Fuseau horaire (IANA, ex. Europe/Paris)",128)}
+    <label className="col-md-6">Fuseau horaire (IANA)
+     <select className="form-select mt-1" value={location.timeZone} disabled={busy}
+      onChange={e=>setLocation(v=>({...v,timeZone:e.target.value}))}>
+      <option value="">Non renseigné</option>
+      {location.timeZone&&!timeZones.includes(location.timeZone)&&
+       <option value={location.timeZone}>{location.timeZone} (valeur existante)</option>}
+      {timeZones.map(zone=><option key={zone} value={zone}>{zone}</option>)}
+     </select>
+    </label>
    </>:<div className="col-12 table-responsive"><table className="table table-sm">
     <thead><tr><th>Jour</th><th>Matin travaillé</th><th>Après-midi travaillé</th></tr></thead>
     <tbody>{week.map((day,index)=><tr key={day.weekday}>
