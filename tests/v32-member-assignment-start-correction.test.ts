@@ -22,3 +22,14 @@ test("start correction retains transaction, audit and server diagnostics",()=>{
   assert.ok(service.includes(token),token);
  assert.match(route,/member-assignment-start-correction-failed/);
 });
+
+test("v33: correction de date postérieure encadrée et refus expliqué dans la modale",()=>{
+ assert.match(service,/newStartOn>a.start_on/);
+ assert.match(service,/historical-absences/);
+ assert.match(service,/historical-versions/);
+ assert.match(service,/COALESCE\(\$3::date,'infinity'::date\)/);
+ assert.doesNotMatch(service,/later-date-not-supported/);
+ assert.match(form,/historicalStart===state.startOn/);
+ assert.match(form,/max=\{state.endOn\?\?undefined\}/);
+ assert.match(form,/setError\(errors\[response.error\?\?""\]/);
+});
