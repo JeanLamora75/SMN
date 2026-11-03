@@ -42,7 +42,7 @@ test("compteur annuel : filtre week-ends et fériés du pays ACTUEL avant le com
  assert.match(query.sql,/l\.member_id=d\.member_id ORDER BY l\.revision DESC LIMIT 1/);
  assert.doesNotMatch(query.sql,/l\.effective_from<=d\.day/);
  assert.match(query.sql,/FROM eligible_days d/);
- assert.match(query.sql,/SELECT DISTINCT g\.day::date AS day/);
+ assert.match(query.sql,/SELECT DISTINCT x\.member_id,g\.day::date AS day/);
  assert.match(query.sql,/x\.member_id=ANY\(\$1::uuid\[\]\) AND x\.team_id=\$2/);
  assert.match(query.sql,/GREATEST\(x\.start_on,make_date\(\$3,1,1\)\)/);
  assert.match(query.sql,/LEAST\(COALESCE\(x\.end_on,make_date\(\$3,12,31\)\)/);
@@ -81,7 +81,7 @@ test("décompte déterministe de demi-journées, sans addition de lignes vides",
 test("membre réaffecté plusieurs fois : périmètre autorisé si au moins une affectation existe",()=>{
  const source=readFileSync(new URL("../src/server/members/team-annual-absence.ts",import.meta.url),"utf8");
  assert.match(source,/if\(!membership\.rows\.length\)throw Error\("member-out-of-team"\)/);
- assert.match(source,/SELECT DISTINCT g\.day::date AS day/);
+ assert.match(source,/SELECT DISTINCT x\.member_id,g\.day::date AS day/);
  assert.match(source,/const perMonth=new Map<string,number>\(\)/);
 });
 
