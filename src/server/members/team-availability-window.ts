@@ -78,7 +78,7 @@ export async function readTeamAvailabilityWindow(db:Client,actor:TeamActor,
     FROM public.smn_member_lifecycle_event e
     WHERE e.member_id=$1 AND e.assignment_id=d.exit_assignment_id
      AND e.action='close' AND e.effective_on=d.day-1
-    ORDER BY e.id DESC LIMIT 1)
+    ORDER BY e.occurred_at DESC,e.id DESC LIMIT 1)
   ELSE NULL END AS exit_reason,
   CASE WHEN d.assigned THEN (SELECT h.name FROM public.smn_national_holiday h
    WHERE h.country_code=(
