@@ -39,6 +39,7 @@ test("SMN-377 PG: role capacity is period-scoped, distinguishes absences and rec
    await db.query(`INSERT INTO public.smn_member_assignment_version
     (id,assignment_id,revision,effective_from,allocation_percent,contract_percent,contribution_percent,scrum_master_percent,product_owner_percent,developer_percent)
     VALUES('version377','assignment377',1,'2026-10-01',100,100,100,50,0,50)`);
+   await db.query("INSERT INTO public.smn_absence_category(id,name,color) VALUES('leave','Congés','#4F83CC'),('sick','Maladie','#D17B38') ON CONFLICT(id) DO NOTHING");
    await db.query(`INSERT INTO public.smn_member_absence
     (id,member_id,category_id,start_on,end_on,start_slot,end_slot,is_planned,reason) VALUES
     ('absence377a','123e4567-e89b-42d3-a456-426614174377','leave','2026-11-09','2026-11-09','morning','afternoon',true,'Congés'),
