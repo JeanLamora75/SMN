@@ -14,7 +14,7 @@ export async function PATCH(req:NextRequest,context:{params:Promise<{id:string}>
  const teamId=req.nextUrl.searchParams.get("teamId");
  try{const result=await withAuthDb(async db=>{
   const context=await resolveRegistryReadContext(db,{accountId:actor.id,role:actor.role},teamId);
-  if(context.version>=28&&context.version<=32){
+  if(context.version>=28){
    if(!teamId||context.team?.team_id!==teamId)return {ok:false as const,error:"not-found" as const};
    return renameSprint(db,actor.id,id,input,{actor:{accountId:actor.id,role:actor.role},teamId});
   }
