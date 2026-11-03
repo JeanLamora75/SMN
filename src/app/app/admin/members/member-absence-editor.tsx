@@ -102,7 +102,7 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
      body:JSON.stringify(teamId?{teamId,change}:change)});
    const result=await response.json() as {error?:string};
    if(!response.ok){setError(result.error==="conflict"?
-    "Cette absence a été modifiée. Fermez puis rouvrez la fenêtre.":
+    t("memberAbsences.cancelConflict"):
     "Impossible d'annuler cette absence.");return;}
    onSaved();
   }catch{setError("Impossible d'annuler cette absence.");}
@@ -112,31 +112,31 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
   {status==="loading"&&<p role="status">{t("members.absence.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.absence.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
-   <div className="d-flex gap-2 border-bottom pb-2" role="tablist" aria-label="Gestion des absences">
+   <div className="d-flex gap-2 border-bottom pb-2" role="tablist" aria-label={t("memberAbsences.manageHeading")}>
     <button type="button" role="tab" aria-selected={tab==="add"}
      className={"btn "+(tab==="add"?"btn-primary":"btn-outline-primary")}
-     onClick={()=>switchTab("add")} disabled={busy}>Ajouter une absence</button>
+     onClick={()=>switchTab("add")} disabled={busy}>{t("memberAbsences.add")}</button>
     <button type="button" role="tab" aria-selected={tab==="manage"}
      className={"btn "+(tab==="manage"?"btn-primary":"btn-outline-primary")}
-     onClick={()=>switchTab("manage")} disabled={busy}>Gérer les absences ({state.absences.filter(a=>!a.deleted).length})</button>
+     onClick={()=>switchTab("manage")} disabled={busy}>{t("memberAbsences.manageTab")} ({state.absences.filter(a=>!a.deleted).length})</button>
    </div>
-   {tab==="manage"&&<section role="tabpanel" aria-label="Gérer les absences">
+   {tab==="manage"&&<section role="tabpanel" aria-label={t("memberAbsences.manageHeading")}>
     {state.absences.filter(a=>!a.deleted).length===0?
-     <p className="text-secondary">Aucune absence enregistrée dans cette équipe.</p>:
+     <p className="text-secondary">{t("memberAbsences.manageEmpty")}</p>:
      <div className="table-responsive"><table className="table table-striped table-sm align-middle">
-      <thead><tr><th>Dates</th><th>Catégorie</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead>
+      <thead><tr><th>{t("memberAbsences.manageDates")}</th><th>{t("members.absence.category")}</th><th>{t("memberAbsences.manageReason")}</th><th>{t("memberAbsences.status")}</th><th>{t("memberAbsences.manageActions")}</th></tr></thead>
       <tbody>{state.absences.filter(a=>!a.deleted)
        .sort((a,b)=>b.startOn.localeCompare(a.startOn)||b.id.localeCompare(a.id))
        .map(item=><tr key={item.id}>
         <td>{item.startOn===item.endOn?item.startOn:item.startOn+" → "+item.endOn}
          <span className="d-block small text-secondary">{item.startSlot} → {item.endSlot}</span></td>
         <td>{item.categoryName}</td><td>{item.reason}</td>
-        <td>{item.isPlanned?"Prévue":"Imprévue"}</td>
+        <td>{t(item.isPlanned?"members.absence.plannedShort":"members.absence.unplanned")}</td>
         <td><div className="d-flex flex-wrap gap-1">
          <button type="button" className="btn btn-outline-primary btn-sm" disabled={busy||state.archived}
-          onClick={()=>editExisting(item)}>Modifier</button>
+          onClick={()=>editExisting(item)}>{t("members.absence.edit")}</button>
          <button type="button" className="btn btn-outline-danger btn-sm" disabled={busy||state.archived}
-          onClick={()=>void deleteExisting(item)}>Supprimer</button>
+          onClick={()=>void deleteExisting(item)}>{t("memberAbsences.delete")}</button>
         </div></td>
        </tr>)}</tbody>
      </table></div>}
