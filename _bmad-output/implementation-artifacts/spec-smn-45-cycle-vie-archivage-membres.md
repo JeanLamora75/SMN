@@ -39,3 +39,15 @@ Tests rédigés : `tests/member-lifecycle.test.ts` (validation, clôture, averti
 ## Étapes ultérieures
 
 La clôture et l'archivage n'annulent pas les calendriers historiques ni les absences à venir ; les tables détaillées des absences et capacités seront livrées dans des Stories ultérieures et devront référencer `smn_member.id` sans cascade destructrice. Une règle de rétention commune à tous les domaines n'est pas déduite de SMN-45.
+
+
+## Avenant du 03/11/2026 — Reprise d'historique après fin d'affectation
+
+**Décision :** la fermeture d'une affectation d'équipe ne rend pas les taux et rôles définitivement non modifiables. L'administrateur doit pouvoir corriger les versions datées d'une affectation clôturée, même si le membre a quitté l'équipe.
+
+**AC-H1 :** afficher un éditeur « Corriger une version historique » pour toute affectation terminée. Choix d'une date d'effet comprise dans `start_on..end_on` (bornes incluses), préremplissage des taux contractuel, allocation, contribution et parts des rôles.
+**AC-H2 :** enregistrer une nouvelle révision de correction sans effacer les révisions précédentes, avec référence à la date/version cible et attribution de l'auteur ; contrôler la cohérence des pourcentages, la révision courante, l'installation et l'équipe. Pas d'édition rétroactive silencieuse.
+**AC-H3 :** si une correction risque de modifier une capacité/snapshot historique clôturé, conserver le snapshot figé et tracer le changement. Les calculs dynamiques éventuels ne doivent être recalculés que selon les règles d'intégration approuvées.
+**AC-H4 :** rendre les erreurs explicites dans la modale ; tests UI, multiéquipe, versions concomitantes, dates limites et PG requis.
+
+**Traçabilité :** https://lmn24.atlassian.net/browse/SMN-45. La publication documentaire n'atteste pas une recette exécutée.
