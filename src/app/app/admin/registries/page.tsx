@@ -7,6 +7,7 @@ import RegistryList from "./registry-list";
 import "./registry-cockpit.css";
 import {registryTypes,type RegistryType} from "@/lib/registry-types";
 import {safeRegistryReturnPath} from "@/lib/registry-return-context";
+import {CURRENT_SCHEMA_VERSION} from "@/server/schema/compatibility";
 export const dynamic="force-dynamic";
 export default async function RegistriesPage({searchParams}:{
  searchParams:Promise<{type?:string;create?:string;sourceId?:string;cycleId?:string;returnTo?:string;teamId?:string}>;
@@ -28,7 +29,8 @@ export default async function RegistriesPage({searchParams}:{
    "WHERE id='singleton' AND state='initialized'");
   return {teamId:data.context.teamId,
    canManage:actor.role==="admin"&&
-    (version.rows[0]?.schema_version??0)<=32};
+    (version.rows[0]?.schema_version??0)>=1&&
+    (version.rows[0]?.schema_version??0)<=CURRENT_SCHEMA_VERSION};
  }).catch(()=>null);
  const teamId=context?.teamId??null;
  return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
