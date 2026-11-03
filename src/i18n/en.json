@@ -2271,7 +2271,16 @@
     "refreshFailed": "The deletion was saved, but the list could not be refreshed. Reload the tab to see the updated history.",
     "noneUpcoming": "No upcoming or ongoing absences.",
     "nonePast": "No past absences.",
-    "capacityNotice": "Non-frozen availability and capacity are recalculated on the next read. Frozen initial references and closed period reports remain unchanged."
+    "capacityNotice": "Non-frozen availability and capacity are recalculated on the next read. Frozen initial references and closed period reports remain unchanged.",
+    "manageTab": "Manage absences",
+    "manageHeading": "Manage absences",
+    "manageEmpty": "No recorded absences in this team.",
+    "manageDates": "Dates",
+    "manageReason": "Reason",
+    "manageActions": "Actions",
+    "cancelConfirm": "Cancel this absence from {start} to {end}? Its audit history will be preserved.",
+    "cancelFailed": "Could not cancel this absence.",
+    "cancelConflict": "This absence has changed. Close and reopen the dialog."
   },
   "settingsSprint": {
     "workingDaysTitle": "Working days — team hours",
