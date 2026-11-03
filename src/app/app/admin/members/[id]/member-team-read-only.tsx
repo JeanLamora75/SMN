@@ -200,8 +200,10 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <div><span>{t("memberTeamScope.start")}</span><strong>{formatCivil(active.startOn,locale)}</strong></div>
     <div><span>{t("memberTeamScope.allocation")}</span><strong>{active.allocationPercent} %</strong></div>
     <div><span>{t("memberTeamScope.annualAbsences")}</span><strong title={annual===null?undefined:
-     annualMonths.map(m=>m.month+": "+m.halfDays+" "+t("memberTeamScope.annualHalfDayUnit")).join("\n")}>
-     {annual===null?t("memberTeamScope.notAvailable"):annual}</strong></div>
+     annualMonths.map(m=>m.month+": "+new Intl.NumberFormat(locale==="en"?"en-GB":"fr-FR",
+      {maximumFractionDigits:1}).format(m.halfDays/2)+" "+t("memberTeamScope.annualDayUnit")).join("\n")}>
+     {annual===null?t("memberTeamScope.notAvailable"):
+      new Intl.NumberFormat(locale==="en"?"en-GB":"fr-FR",{maximumFractionDigits:1}).format(annual/2)}</strong></div>
    </div>}
    <div className="table-responsive">
     <table className="table table-striped align-middle smn-member-table">
