@@ -812,10 +812,10 @@
       "shareSummary": "SM {sm} % · PO {po} % · Dev {dev} %",
       "historyNote": "Les corrections réalisées le même jour conservent toutes leurs révisions ; la plus récente s'applique pour cette date. Une version future n'est appliquée qu'à compter de sa date d'effet.",
       "historicalTitle": "Corriger la date de début d'affectation",
-      "historicalDescription": "Date actuelle : {date}. Vous pouvez avancer l'arrivée à une date antérieure à l'installation de SMN, sans modifier les pourcentages ni les versions ultérieures. Les rapports clôturés restent figés.",
+      "historicalDescription": "Date actuelle : {date}. Vous pouvez corriger la date d'arrivée vers une date antérieure ou postérieure. Une date plus récente est refusée si elle exclut des absences ou des versions d'affectation existantes. Les rapports clôturés restent figés.",
       "historicalRealDate": "Date réelle d'arrivée",
       "historicalAction": "Corriger la date historique",
-      "historicalConfirm": "Antidater l'arrivée du membre du {current} au {next} ? Les capacités historiques non figées pourront être recalculées. Les rapports déjà clôturés resteront inchangés.",
+      "historicalConfirm": "Corriger la date d'arrivée de {current} à {next} ? Les historiques existants seront conservés. Les rapports déjà clôturés resteront inchangés.",
       "historicalFailure": "Correction impossible. Vérifiez l'historique avant de réessayer."
     },
     "lifecycle": {
