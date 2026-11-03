@@ -7,7 +7,7 @@ type Shares={scrumMaster:number;productOwner:number;developer:number};
 type Version={revision:number;effectiveFrom:string;contractPercent:number;
  allocationPercent:number;contributionPercent:number;shares:Shares;developerShare:number};
 type AssignmentState={memberId:string;teamId:string;assignmentId:string|null;
- startOn:string|null;endOn:string|null;today:string;latestRevision:number;memberRevision?:number;
+ startOn:string|null;endOn:string|null;endReason?:string|null;today:string;latestRevision:number;memberRevision?:number;
  current:Version|null;versions:Version[]};
 type Kind="loading"|"ready"|"error";
 type Draft={effectiveFrom:string;contractPercent:string;allocationPercent:string;
@@ -47,7 +47,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    .then(async r=>{if(!r.ok)throw new Error("load-failed");return r.json() as Promise<AssignmentState>;})
    .then(data=>{if(!active)return;
     if(data.memberId!==memberId||data.teamId!==teamId||!Array.isArray(data.versions))throw new Error("wrong-team");
-    const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setEndOn(data.endOn??"");setEndReason("");setStatus("ready");
+    const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setEndOn(data.endOn??"");setEndReason(data.endReason??"");setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
  },[memberId,teamId,teamScoped]);
@@ -90,16 +90,18 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
  }
  async function closeTeamAssignment(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
-  if(!teamScoped||!state?.assignmentId||!state.startOn||state.endOn!==null||busy)return;
+  if(!teamScoped||!state?.assignmentId||!state.startOn||busy)return;
   if(!endOn||endOn<state.startOn){
    setError("La date de fin ne peut pas précéder la date de début de l'affectation.");return;
   }
-  if(!window.confirm("Confirmer la fin de cette affectation au "+endOn+" ? Le membre ne sera pas archivé."))return;
+  if(state.endOn===endOn&&(state.endReason??"")===endReason)return;
+  if(!window.confirm((state.endOn?"Confirmer la correction de cette affectation au ":"Confirmer la fin de cette affectation au ")+endOn+" ? Le membre ne sera pas archivé."))return;
   setBusy(true);setError("");
   try{
    const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/team-assignment/end",{
-    method:"POST",headers:{"Content-Type":"application/json"},
+    method:state.endOn?"PATCH":"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({teamId,assignmentId:state.assignmentId,endOn,
+     ...(state.endOn?{expectedEndOn:state.endOn}:{}),
      reason:endReason.trim()||null,revision:state.memberRevision??memberRevision,
      latestRevision:state.latestRevision})
    });
@@ -181,7 +183,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    {teamScoped&&state.assignmentId&&state.startOn&&<form onSubmit={closeTeamAssignment}
     className="border rounded-3 p-3 d-grid gap-3">
     <h4 className="h6 mb-0">Fin d'affectation à l'équipe</h4>
-    {state.endOn?<p className="mb-0">Affectation terminée le {state.endOn}.</p>:<>
+    <>
+     {state.endOn&&<p className="small text-secondary mb-0">Affectation terminée le {state.endOn}. Vous pouvez corriger la date et le motif sans effacer l'historique.</p>}
      <p className="small text-secondary mb-0">Cette opération ferme uniquement l'affectation dans l'équipe.
       Elle n'archive pas le membre et conserve son historique.</p>
      <div className="row g-3">
