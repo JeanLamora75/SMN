@@ -43,3 +43,15 @@ Tests **rédigés, non encore exécutés dans cette session** :
 - `scripts/verify-http-ci.mjs` : HTTP/SQL réel sur base éphémère (rôles à 20/0/80, taux 80 et coefficient 75, refus 403/404/400/409, historique deux versions, droits Utilisateur refusés).
 
 Qualifications requises : `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, pipeline PostgreSQL 18.6/Linux/Windows puis recette manuelle. Ne pas passer Jira à « Terminé » avant preuves. Le workflow natif BMAD `bmad-build` requiert un dépôt complet et son lanceur `uv run --no-cache` ; cette implémentation passe par les connecteurs et constitue une adaptation manuelle, **sans invocation ni attestation du lanceur natif**.
+
+
+## Avenant du 03/11/2026 — Reprise d'historique après fin d'affectation
+
+**Décision :** la fermeture d'une affectation d'équipe ne rend pas les taux et rôles définitivement non modifiables. L'administrateur doit pouvoir corriger les versions datées d'une affectation clôturée, même si le membre a quitté l'équipe.
+
+**AC-H1 :** afficher un éditeur « Corriger une version historique » pour toute affectation terminée. Choix d'une date d'effet comprise dans `start_on..end_on` (bornes incluses), préremplissage des taux contractuel, allocation, contribution et parts des rôles.
+**AC-H2 :** enregistrer une nouvelle révision de correction sans effacer les révisions précédentes, avec référence à la date/version cible et attribution de l'auteur ; contrôler la cohérence des pourcentages, la révision courante, l'installation et l'équipe. Pas d'édition rétroactive silencieuse.
+**AC-H3 :** si une correction risque de modifier une capacité/snapshot historique clôturé, conserver le snapshot figé et tracer le changement. Les calculs dynamiques éventuels ne doivent être recalculés que selon les règles d'intégration approuvées.
+**AC-H4 :** rendre les erreurs explicites dans la modale ; tests UI, multiéquipe, versions concomitantes, dates limites et PG requis.
+
+**Traçabilité :** https://lmn24.atlassian.net/browse/SMN-45. La publication documentaire n'atteste pas une recette exécutée.
