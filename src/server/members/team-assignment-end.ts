@@ -67,3 +67,75 @@ export async function endTeamAssignment(db:Client,actor:TeamActor,memberId:strin
    endOn:input.endOn,revision:input.revision+1};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
+
+/** Correction d'une clôture existante, sans rouvrir ni archiver le membre.
+ * Une nouvelle entrée close conserve la précédente dans le journal immutable.
+ */
+export async function correctTeamAssignmentEnd(db:Client,actor:TeamActor,memberId:string,raw:unknown){
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return {ok:false as const,error:"invalid-input"};
+ const value=raw as Record<string,unknown>;
+ if(Object.keys(value).sort().join(",")!=="assignmentId,endOn,expectedEndOn,latestRevision,reason,revision,teamId"||
+  !isValidDate(value.expectedEndOn))return {ok:false as const,error:"invalid-input"};
+ const input=parseTeamAssignmentEnd({
+  teamId:value.teamId,assignmentId:value.assignmentId,endOn:value.endOn,
+  revision:value.revision,latestRevision:value.latestRevision,reason:value.reason
+ });
+ if(!input||!UUID.test(memberId))return {ok:false as const,error:"invalid-input"};
+ if(actor.role!=="admin")throw Error("team-access-forbidden");
+ await db.query("BEGIN");
+ try{
+  const fail=async(error:"not-found"|"conflict"|"archived"|"invalid-date"|"overlap"|"unchanged")=>{
+   await db.query("ROLLBACK");return {ok:false as const,error};
+  };
+  const team=await resolveAdminTeam(db,actor,input.teamId);
+  const member=await db.query<{revision:number;archived_at:string|null}>(`
+   SELECT revision,archived_at::text AS archived_at FROM public.smn_member
+   WHERE id=$1 AND installation_id='singleton' FOR UPDATE`,[memberId]);
+  if(member.rows.length!==1)return fail("not-found");
+  if(member.rows[0].archived_at!==null)return fail("archived");
+  if(member.rows[0].revision!==input.revision)return fail("conflict");
+  const assignment=await db.query<{start_on:string;end_on:string|null}>(`
+   SELECT start_on::text,end_on::text FROM public.smn_member_assignment
+   WHERE id=$1 AND member_id=$2 AND team_id=$3 FOR UPDATE`,
+   [input.assignmentId,memberId,team.team_id]);
+  const row=assignment.rows[0];
+  if(!row)return fail("not-found");
+  if(row.end_on!==value.expectedEndOn)return fail("conflict");
+  if(input.endOn<row.start_on)return fail("invalid-date");
+  const version=await db.query<{revision:number}>(`
+   SELECT revision FROM public.smn_member_assignment_version
+   WHERE assignment_id=$1 ORDER BY revision DESC LIMIT 1`,[input.assignmentId]);
+  if(version.rows[0]?.revision!==input.latestRevision)return fail("conflict");
+  const previous=await db.query<{reason:string|null}>(`
+   SELECT NULLIF(btrim(details->>'reason'),'') AS reason
+   FROM public.smn_member_lifecycle_event
+   WHERE member_id=$1 AND assignment_id=$2 AND action='close'
+    AND effective_on=$3::date
+   ORDER BY occurred_at DESC,id DESC LIMIT 1`,
+   [memberId,input.assignmentId,row.end_on]);
+  const previousReason=previous.rows[0]?.reason??null;
+  if(input.endOn===row.end_on&&input.reason===previousReason)return fail("unchanged");
+  // Les affectations suivantes de la même équipe ne doivent pas chevaucher
+  // la nouvelle fenêtre d'affectation (la fin reste inclusive).
+  const overlap=await db.query(`
+   SELECT 1 FROM public.smn_member_assignment
+   WHERE member_id=$1 AND team_id=$2 AND id<>$3
+    AND start_on<=$4::date AND (end_on IS NULL OR end_on>=$5::date)
+   LIMIT 1`,[memberId,team.team_id,input.assignmentId,input.endOn,row.start_on]);
+  if(overlap.rows.length)return fail("overlap");
+  await db.query(`UPDATE public.smn_member_assignment SET end_on=$1::date
+   WHERE id=$2 AND member_id=$3 AND team_id=$4 AND end_on=$5::date`,
+   [input.endOn,input.assignmentId,memberId,team.team_id,row.end_on]);
+  await db.query(`UPDATE public.smn_member SET revision=revision+1,updated_at=now()
+   WHERE id=$1 AND installation_id='singleton'`,[memberId]);
+  await db.query(`INSERT INTO public.smn_member_lifecycle_event
+   (id,member_id,assignment_id,action,effective_on,performed_by,details)
+   VALUES($1,$2,$3,'close',$4::date,$5,$6::jsonb)`,
+   [randomUUID(),memberId,input.assignmentId,input.endOn,actor.accountId,
+    JSON.stringify({teamId:team.team_id,reason:input.reason,
+     correction:true,previousEndOn:row.end_on,previousReason})]);
+  await db.query("COMMIT");
+  return {ok:true as const,assignmentId:input.assignmentId,teamId:team.team_id,
+   endOn:input.endOn,revision:input.revision+1};
+ }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
+}
