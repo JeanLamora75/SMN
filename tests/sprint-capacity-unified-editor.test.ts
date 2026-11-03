@@ -9,7 +9,9 @@ const service=read("src/server/sprints/sprint-capacity-kpis.ts");
 
 test("Sprint indicators do not render obsolete historical capacity forms",()=>{
  assert.doesNotMatch(page,/HistoricalCapacityForm|HistoricalActualCapacityForm/);
- assert.match(page,/SprintIndicatorsPanel/);
+ assert.match(page,/UniversalIndicatorInput/);
+ assert.match(page,/IndicatorReporting/);
+ assert.doesNotMatch(page,/<SprintIndicatorsPanel/);
 });
 test("C01 and C02 remain editable through the standard cockpit modal",()=>{
  assert.match(panel,/group==="capacity"\?"capacity-kpis"/);
