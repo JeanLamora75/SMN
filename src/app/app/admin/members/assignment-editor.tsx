@@ -7,7 +7,7 @@ type Shares={scrumMaster:number;productOwner:number;developer:number};
 type Version={revision:number;effectiveFrom:string;contractPercent:number;
  allocationPercent:number;contributionPercent:number;shares:Shares;developerShare:number};
 type AssignmentState={memberId:string;teamId:string;assignmentId:string|null;
- startOn:string|null;today:string;latestRevision:number;memberRevision?:number;
+ startOn:string|null;endOn:string|null;today:string;latestRevision:number;memberRevision?:number;
  current:Version|null;versions:Version[]};
 type Kind="loading"|"ready"|"error";
 type Draft={effectiveFrom:string;contractPercent:string;allocationPercent:string;
@@ -35,6 +35,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
  const [status,setStatus]=useState<Kind>("loading");
  const [busy,setBusy]=useState(false);
  const [historicalStart,setHistoricalStart]=useState("");
+ const [endOn,setEndOn]=useState("");
+ const [endReason,setEndReason]=useState("");
  const [error,setError]=useState("");
  const dirty=draft!==null&&baseline!==null&&JSON.stringify(draft)!==JSON.stringify(baseline);
  useUnsavedChanges(Boolean(dirty||busy),t("draft.leaveWarning"));
@@ -45,7 +47,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    .then(async r=>{if(!r.ok)throw new Error("load-failed");return r.json() as Promise<AssignmentState>;})
    .then(data=>{if(!active)return;
     if(data.memberId!==memberId||data.teamId!==teamId||!Array.isArray(data.versions))throw new Error("wrong-team");
-    const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setStatus("ready");
+    const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setEndOn(data.endOn??"");setEndReason("");setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
  },[memberId,teamId,teamScoped]);
@@ -84,6 +86,33 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    }
    onSaved();
   }catch{setError(t("members.assignment.failed"));}
+  finally{setBusy(false);}
+ }
+ async function closeTeamAssignment(event:FormEvent<HTMLFormElement>){
+  event.preventDefault();
+  if(!teamScoped||!state?.assignmentId||!state.startOn||state.endOn!==null||busy)return;
+  if(!endOn||endOn<state.startOn||
+   state.versions.length>0&&endOn<state.versions.at(-1)!.effectiveFrom){
+   setError("La date de fin ne peut précéder le début de l'affectation ni sa dernière version.");return;
+  }
+  if(!window.confirm("Confirmer la fin de cette affectation au "+endOn+" ? Le membre ne sera pas archivé."))return;
+  setBusy(true);setError("");
+  try{
+   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+"/team-assignment/end",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({teamId,assignmentId:state.assignmentId,endOn,
+     reason:endReason.trim()||null,revision:state.memberRevision??memberRevision,
+     latestRevision:state.latestRevision})
+   });
+   const payload=await response.json() as {error?:string};
+   if(!response.ok){
+    setError(payload.error==="conflict"?"L'affectation a été modifiée. Rouvre la fenêtre.":
+     payload.error==="invalid-date"||payload.error==="future-version"?
+      "La date de fin doit être postérieure au début et aux modifications d'affectation.":
+      "Impossible d'enregistrer la fin de l'affectation.");return;
+   }
+   onSaved();
+  }catch{setError("Service temporairement indisponible.");}
   finally{setBusy(false);}
  }
  async function correctHistoricalStart(){
@@ -150,6 +179,33 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
       {t("members.profile.cancel")}</button>
     </div>
    </form>
+   {teamScoped&&state.assignmentId&&state.startOn&&<form onSubmit={closeTeamAssignment}
+    className="border rounded-3 p-3 d-grid gap-3">
+    <h4 className="h6 mb-0">Fin d'affectation à l'équipe</h4>
+    {state.endOn?<p className="mb-0">Affectation terminée le {state.endOn}.</p>:<>
+     <p className="small text-secondary mb-0">Cette opération ferme uniquement l'affectation dans l'équipe.
+      Elle n'archive pas le membre et conserve son historique.</p>
+     <div className="row g-3">
+      <label className="col-md-5">Date de fin d'affectation
+       <input type="date" className="form-control mt-1" required
+        min={state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.startOn?
+         state.versions.at(-1)!.effectiveFrom:state.startOn}
+        value={endOn} onChange={e=>setEndOn(e.target.value)} disabled={busy}/>
+      </label>
+      <label className="col-md-7">Motif de sortie (facultatif)
+       <select className="form-select mt-1" value={endReason} onChange={e=>setEndReason(e.target.value)}
+        disabled={busy}>
+        <option value="">Non précisé</option>
+        <option value="fin de contrat">Fin de contrat</option>
+        <option value="changement d'équipe">Changement d'équipe</option>
+        <option value="autre">Autre</option>
+       </select>
+      </label>
+     </div>
+     <button type="submit" className="btn btn-outline-primary justify-self-start"
+      disabled={busy||!endOn}>Enregistrer la fin d'affectation</button>
+    </>}
+   </form>}
    {state.assignmentId&&state.startOn&&<div className="border rounded-3 p-3">
     <h4 className="h6">{t("members.assignment.historicalTitle")}</h4>
     <p className="small text-secondary">{t("members.assignment.historicalDescription",{date:state.startOn})}</p>
