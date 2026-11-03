@@ -29,6 +29,7 @@
     "notAvailable": "Indisponible",
     "exit": "Sortie de l'équipe",
     "exitUnknownReason": "Motif non renseigné",
-    "annualHalfDayUnit": "demi-journées"
+    "annualHalfDayUnit": "demi-journées",
+    "annualDayUnit": "jours"
   }
 }
