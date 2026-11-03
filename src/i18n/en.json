@@ -2058,7 +2058,11 @@
     "createError": "Unable to create member: {reason}",
     "cancel": "Cancel",
     "create": "Create member",
-    "openMember": "Open {name}'s profile"
+    "openMember": "Open {name}'s profile",
+    "activeAssignmentHeading": "Active team members",
+    "inactiveAssignmentHeading": "Inactive team members",
+    "startDate": "Start date",
+    "endDate": "End date"
   },
   "memberUX": {
     "back": "Team",
