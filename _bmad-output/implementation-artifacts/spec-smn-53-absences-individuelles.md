@@ -29,3 +29,18 @@ La logique de **calcul consolidé de capacité** et l'affichage du **calendrier 
 ## État de vérification
 
 Contrôles statiques possibles à travers le connecteur GitHub et tests de contrat rédigés. Aucune exécution `pnpm`, PostgreSQL, HTTP ou recette Windows n'est attestée tant qu'elle n'a pas eu lieu. GitHub Actions indisponible conformément à `docs/POLITIQUE-VALIDATION-SANS-GITHUB-ACTIONS.md`. Au terme du développement, conserver Jira **En cours** et suivi BMAD **review**. Le workflow BMAD n'est pas invoqué par `uv` depuis les seuls connecteurs ; son adaptation est manuelle, sans prétendre à une exécution du renderer.
+
+
+## Avenant fonctionnel — 03/11/2026 — « Absences cette année » (fiche membre)
+
+**Règle validée :** le compteur annuel sur la fiche du membre dans une équipe dénombre les **demi-journées d'absence planifiées ET imprévues** qui sont enregistrées, non supprimées, situées dans l'année civile de référence **et comprises dans une période d'affectation à l'équipe consultée**. Le compteur exclut impérativement **tous les samedis et dimanches**, ainsi que **les jours fériés nationaux inscrits dans le référentiel SMN pour le pays actuellement renseigné dans la localisation du membre**. La règle de pays est la même que sur le calendrier individuel, quel que soit le mois affiché. Si aucun pays n'est renseigné ou si le référentiel n'a aucune fête à cette date, ne pas inventer de fête. Les jours fériés tombant le week-end ne sont exclus qu'une fois. Une absence d'une demi-journée compte pour 1, une journée complète pour 2, avec dédoublonnage par date et créneau. Ne pas limiter aux absences « prévues » : `is_planned` peut être vrai ou faux. Les limites de dates d'entrée et de sortie sont **inclusives** ; les autres équipes ne doivent pas intervenir. Les tombstones sont ignorées. Aucun changement des snapshots déjà figés.
+
+**AC-AN1 :** une absence le samedi/dimanche = 0 demi-journée, quel que soit son statut de planification et même si elle couvre plusieurs dates.
+
+**AC-AN2 :** une absence située un jour férié du pays actuel du membre = 0 demi-journée, même si le jour férié est en semaine ; plusieurs fêtes la même date n'entraînent aucun double retrait.
+
+**AC-AN3 :** sur les jours ouvrables non fériés, matin seul = 1, après-midi seul = 1, les deux = 2, prévu et imprévu inclus ; seuls les jours couverts par l'affectation à l'équipe et par l'année sont comptés.
+
+**AC-AN4 :** le périmètre équipe, le filtrage des absences supprimées et l'isolation des membres sont conservés ; la valeur est une lecture dynamique, non une modification d'historique.
+
+**Code cible :** `src/server/members/team-annual-absence.ts` et tests associés. **Référence complémentaire Jira :** [SMN-55](https://lmn24.atlassian.net/browse/SMN-55). Statut de recette à qualifier : pas d'exécution locale/PostgreSQL attestée.
