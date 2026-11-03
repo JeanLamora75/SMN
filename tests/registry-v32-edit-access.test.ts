@@ -10,13 +10,13 @@ test("v32 detail displays editable team-scoped RegistryDetail",()=>{
 });
 test("list and detail requests retain team context",()=>{
  const list=read("src/app/app/admin/registries/page.tsx");
- assert.match(list,/schema_version\?\?0\)<=32/);
+ assert.match(list,/schema_version\?\?0\)<=CURRENT_SCHEMA_VERSION/);
  for(const file of ["registry-create.tsx","registry-detail.tsx"])
   assert.match(read("src/app/app/admin/registries/"+file),/\?teamId=/);
 });
 test("PATCH remains scoped and revision-guarded",()=>{
  const src=read("src/app/api/admin/registries/[id]/route.ts");
- assert.match(src,/schema\.rows\[0\]\?\.schema_version!==32/);
+ assert.match(src,/\[32,33\]\.includes\(schema\.rows\[0\]\?\.schema_version\?\?0\)/);
  assert.match(src,/context\.team\?\.team_id!==requestedTeamId/);
  assert.match(src,/updateRegistryItem\(db,actor\.id,id,revision as number,input\)/);
 });
