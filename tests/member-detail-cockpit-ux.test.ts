@@ -131,8 +131,10 @@ test("Cockpit membre : événement J+1 prioritaire, motif et absence de cellules
  assert.match(view,/isExit:boolean;exitReason:string\|null/);
  assert.match(view,/d\.isExit\?<td colSpan=\{2\} className="smn-member-exit-name">/);
  assert.match(view,/Sortie de l'équipe/);
- assert.match(view,/Motif non renseigné/);
+ assert.match(view,/t\("memberTeamScope\.exitUnknownReason"\)/);
  assert.match(view,/d\.exitReason/);
  assert.match(css,/tr\.smn-member-exit/);
  assert.match(css,/td\.smn-member-exit-name/);
+ assert.match(read("src/i18n/member-team-scope.fr.json"),/"exit": "Sortie de l\x27équipe"/);
+ assert.match(read("src/i18n/member-team-scope.en.json"),/"exit": "Left the team"/);
 });
