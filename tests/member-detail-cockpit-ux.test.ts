@@ -153,3 +153,11 @@ test("SMN-45 : ajout d'absence historique après fin d'affectation",()=>{
  assert.match(service,/a\.start_on<=startOn/);
  assert.match(service,/a\.end_on===null\|\|a\.end_on>=endOn/);
 });
+
+test("Cockpit membre : compteur annuel recalculé après modification des absences",()=>{
+ const service=read("src/server/members/team-annual-absence.ts");
+ assert.match(view,/\[memberId,teamId,year,refreshKey\]/);
+ assert.match(service,/FROM eligible_days d/);
+ assert.match(service,/EXTRACT\(ISODOW FROM d\.day\) BETWEEN 1 AND 5/);
+ assert.match(service,/public\.smn_national_holiday/);
+});
