@@ -233,17 +233,17 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
         <th scope="col">{t("memberTeamScope.morning")}</th>
         <th scope="col">{t("memberTeamScope.afternoon")}</th></tr></thead>
        <tbody>{part.map(d=>{
+        const holiday=d.holidayName!==null;
         const weekend=isWeekend(d.date);
-        const holiday=Boolean(d.holidayName);
         const inSprint=Boolean(sprintDays&&d.date>=sprintDays.start&&d.date<=sprintDays.end);
-        const classes=[inSprint?"smn-member-sprint-day":"",weekend?"smn-member-weekend":"",
-         holiday?"smn-member-holiday":""].filter(Boolean).join(" ");
-        return <tr key={d.date} className={classes||undefined}>
-         <th scope="row"><time dateTime={d.date}>{formatCalendarDay(d.date,locale)}</time>
-          {holiday&&<span className="smn-member-holiday-label" title={d.holidayName??undefined}>
-           {locale==="en"?"Holiday":"Férié"}</span>}</th>
-         <td>{d.morningAbsent?t("memberTeamScope.absent"):"—"}</td>
-         <td>{d.afternoonAbsent?t("memberTeamScope.absent"):"—"}</td>
+        const dayClass=holiday?"smn-member-holiday":weekend?"smn-member-weekend":
+         inSprint?"smn-member-sprint-day":undefined;
+        return <tr key={d.date} className={dayClass}>
+         <th scope="row"><time dateTime={d.date}>{formatCalendarDay(d.date,locale)}</time></th>
+         {holiday?<td colSpan={2} className="smn-member-holiday-name">{d.holidayName}</td>:
+          weekend?<><td aria-label={locale==="en"?"Weekend":"Week-end"}></td><td aria-label={locale==="en"?"Weekend":"Week-end"}></td></>:
+          <><td>{d.morningAbsent?t("memberTeamScope.absent"):"—"}</td>
+           <td>{d.afternoonAbsent?t("memberTeamScope.absent"):"—"}</td></>}
         </tr>;
        })}</tbody>
       </table>
