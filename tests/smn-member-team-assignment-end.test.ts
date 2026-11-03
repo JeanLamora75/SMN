@@ -26,7 +26,8 @@ test("fin d'affectation : isolation équipe, verrou, conflit et audit sans archi
  assert.match(service,/member\.rows\[0\]\.revision!==input\.revision/);
  assert.match(service,/latest\.revision!==input\.latestRevision/);
  assert.match(service,/input\.endOn<row\.start_on/);
- assert.match(service,/input\.endOn<latest\.effective_from/);
+ assert.doesNotMatch(service,/input\.endOn<latest\.effective_from/);
+ assert.doesNotMatch(service,/future-version/);
  assert.match(service,/UPDATE public\.smn_member_assignment SET end_on/);
  assert.match(service,/INSERT INTO public\.smn_member_lifecycle_event/);
  assert.match(service,/VALUES\(\$1,\$2,\$3,'close'/);
@@ -46,4 +47,16 @@ test("fin d'affectation : formulaire et API réservés à l'équipe",()=>{
  assert.match(get,/endOn:latest\.endOn/);
  assert.match(api,/actor\.role!=="admin"/);
  assert.match(api,/endTeamAssignment\(db,/);
+});
+
+test("SMN-45 : une sortie avant la dernière révision datée reste autorisée",()=>{
+ const service=read("src/server/members/team-assignment-end.ts");
+ const editor=read("src/app/app/admin/members/assignment-editor.tsx");
+ assert.match(service,/if\(input\.endOn<row\.start_on\)return fail\("invalid-date"\)/);
+ assert.match(service,/latest\.revision!==input\.latestRevision/);
+ assert.match(service,/member\.rows\[0\]\.revision!==input\.revision/);
+ assert.doesNotMatch(service,/if\(input\.endOn<latest\.effective_from\)/);
+ assert.match(editor,/min=\{state\.startOn\}/);
+ assert.doesNotMatch(editor,/min=\{state\.versions\.at\(-1\)/);
+ assert.match(editor,/if\(!endOn\|\|endOn<state\.startOn\)/);
 });
