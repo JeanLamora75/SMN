@@ -812,10 +812,10 @@
       "shareSummary": "SM {sm}% · PO {po}% · Dev {dev}%",
       "historyNote": "Corrections on the same day retain every revision; the latest applies to that date. A future version takes effect only on its chosen date.",
       "historicalTitle": "Correct assignment start date",
-      "historicalDescription": "Current date: {date}. You can move the start to before SMN was installed without changing allocation percentages or later versions. Closed reports remain unchanged.",
+      "historicalDescription": "Current date: {date}. You can correct the arrival date to an earlier or later date. A later date is rejected if it would exclude existing absences or assignment versions. Closed reports remain unchanged.",
       "historicalRealDate": "Actual arrival date",
       "historicalAction": "Correct historical start date",
-      "historicalConfirm": "Move this member's arrival date from {current} to {next}? Historical capacity that is not frozen may be recalculated. Closed reports will remain unchanged.",
+      "historicalConfirm": "Correct the arrival date from {current} to {next}? Existing history will be preserved. Closed reports will remain unchanged.",
       "historicalFailure": "Could not correct the start date. Check the history before trying again."
     },
     "lifecycle": {
