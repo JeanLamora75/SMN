@@ -7,9 +7,9 @@ import {useEffect,useRef,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import TeamContextEditor from "./team-context-editor";
 import BootstrapIcon from "../../bootstrap-icon";
-import {availableFunctions,filterTeamMembers,initialTeamFilters,type TeamFilters} from "./team-cockpit-filter";
+import {availableFunctions,filterTeamMembers,initialTeamFilters,splitTeamMembersByAssignment,type TeamFilters} from "./team-cockpit-filter";
 
-type Member={id:string;companyId?:string|null;companyName?:string|null;companyColor?:string|null;displayName:string;countryIso2:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
+type Member={id:string;companyId?:string|null;companyName?:string|null;companyColor?:string|null;displayName:string;countryIso2:string|null;professionalFunction?:string|null;isProvisional:boolean;memberNumber:number;archived:boolean;isAssigned:boolean;startOn:string|null;endOn:string|null;roleShares:{scrumMaster:number;productOwner:number;developer:number}};
 type CompanyChoice={id:string;name:string;archivedAt:string|null};
 type Roster={team:{id:string;name:string;mode:string};members:Member[]};
 type TeamContextOverview={teamId:string;name:string;productName:string;
@@ -97,7 +97,11 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
  const functions=availableFunctions(allMembers);
  const hasArchived=allMembers.some(m=>m.archived);
  const hasProvisional=allMembers.some(m=>m.isProvisional&&!m.archived);
- const capacity=Math.max(12,Math.ceil((members.length+(canAdd?1:0))/6)*6);
+ const today=new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"});
+ const grouped=splitTeamMembersByAssignment(members,today);
+ const dateLabel=(date:string|null)=>date?
+  new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",
+   timeZone:"UTC"}).format(new Date(date+"T00:00:00.000Z")):"—";
  const roles=(m:Member)=>([["SM",m.roleShares?.scrumMaster],["PO",m.roleShares?.productOwner],["Dev",m.roleShares?.developer]] as const);
  const memberHref=(m:Member)=>"/app/admin/members/"+encodeURIComponent(m.id)+(roster?.team.id?"?"+new URLSearchParams({teamId:roster.team.id}):"");
  const memberStatus=(m:Member)=>m.archived?t("teamCockpit.archived"):m.isProvisional?t("teamCockpit.provisional"):t("teamCockpit.active");
@@ -166,7 +170,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
    </form>
   </section>
 
-  <section className="smn-team-results" aria-label={t("teamCockpit.membersHeading")}>
+  <div className="smn-team-member-sections" aria-label={t("teamCockpit.membersHeading")}>
    {status==="loading"&&<p role="status">{t("members.loading")}</p>}
    {status==="error"&&<p role="alert">{t("members.loadFailed")}</p>}
    {status==="ready"&&roster?.members.length===0&&
@@ -174,21 +178,31 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
      {canManage&&<Link href="/app/admin/members/manage" className="alert-link">
       {t("teamUX.initialize")}</Link>}
     </div>}
-   {status==="ready"&&roster&&roster.members.length>0&&<>
-    {members.length===0&&<p role="status" className="smn-team-no-results">
-     {t("teamCockpit.noResults")}
-    </p>}
-    {view==="cards"?
-     <div className="smn-team-member-grid">
-      {Array.from({length:capacity},(_,index)=>{
-       const member=members[index];
-       return member?
+   {status==="ready"&&roster&&roster.members.length>0&&
+    ([
+     {id:"active",title:"Membres actifs dans l'équipe",items:grouped.active},
+     {id:"inactive",title:"Membres inactifs dans l'équipe",items:grouped.inactive}
+    ] as const).map(section=>
+    <section className="smn-team-results" key={section.id}
+     aria-labelledby={"smn-team-"+section.id+"-title"}>
+     <div className="smn-team-members-heading">
+      <h2 id={"smn-team-"+section.id+"-title"}>{section.title}</h2>
+      <span className="smn-team-member-count">{section.items.length}</span>
+     </div>
+     {section.items.length===0&&<p role="status" className="smn-team-no-results">
+      {t("teamCockpit.noResults")}
+     </p>}
+     {view==="cards"?
+      <div className="smn-team-member-grid">
+       {section.items.map(member=>
         <Link key={member.id} href={memberHref(member)}
          className="smn-team-member-card text-decoration-none"
          aria-label={t("teamUX.openMember",{name:member.displayName})}>
          <div className="smn-team-member-name">
           <CountryFlag countryIso2={member.countryIso2}/>
-          <strong>{member.displayName}</strong>{member.companyName&&<span className="d-block small text-secondary" title="Entreprise">Entreprise : {member.companyName}</span>}
+          <strong>{member.displayName}</strong>
+          {member.companyName&&<span className="d-block small text-secondary" title="Entreprise">
+           Entreprise : {member.companyName}</span>}
          </div>
          <NeutralAvatar size={60}/>
          <div className="smn-team-member-roles">
@@ -201,49 +215,52 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
           {t("teamCockpit.archived")}</span>}
          {!member.archived&&member.isProvisional&&<span className="smn-team-member-status">
           {t("teamCockpit.provisional")}</span>}
-        </Link>:canAdd&&index===members.length?
-        <button key={"slot-"+index} type="button"
-         className="smn-team-add-tile" onClick={()=>setCreationOpen(true)}>
-         <span aria-hidden="true" className="smn-team-plus">+</span><strong>{t("teamUX.addMember")}</strong>
-        </button>:
-        <div key={"slot-"+index} className="smn-team-empty-slot" aria-hidden="true"/>;
-      })}
-     </div>:
-     <div className="smn-team-list-table-wrapper">
-      <table className="table table-hover align-middle smn-team-list-table">
-       <thead><tr>
-        <th scope="col">{t("teamUX.member")}</th>
-        <th scope="col">{t("teamUX.roles")}</th>
-        <th scope="col">{t("teamCockpit.functionLabel")}</th>
-        <th scope="col">{t("teamCockpit.statusLabel")}</th>
-        <th scope="col">{t("teamUX.details")}</th>
-       </tr></thead>
-       <tbody>{members.map(member=><tr key={member.id}
-        role="link" tabIndex={0} className="smn-team-list-row"
-        aria-label={t("teamUX.openMember",{name:member.displayName})}
-        onClick={()=>router.push(memberHref(member))}
-        onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){
-         e.preventDefault();router.push(memberHref(member));
-        }}}>
-        <th scope="row"><span className="smn-team-list-name">
-         <CountryFlag countryIso2={member.countryIso2}/>{member.displayName}{member.companyName&&<span className="ms-2 small text-secondary">· {member.companyName}</span>}
-        </span></th>
-        <td><div className="smn-team-member-roles">
-         {roles(member).map(([name,share])=>roleBadge(name,share))}
-        </div></td>
-        <td>{member.professionalFunction?.trim()||t("teamUX.functionMissing")}</td>
-        <td>{memberStatus(member)}</td>
-        <td><BootstrapIcon name="arrow-right"/></td>
-       </tr>)}</tbody>
-      </table>
-      {canAdd&&<button type="button" className="btn btn-outline-primary mt-2"
-       onClick={()=>setCreationOpen(true)}>
-       <span aria-hidden="true" className="smn-team-plus">+</span> {t("teamUX.addMember")}
-      </button>}
-     </div>}
-   </>}
-  </section>
-
+        </Link>)}
+       {section.id==="active"&&canAdd&&<button type="button"
+        className="smn-team-add-tile" onClick={()=>setCreationOpen(true)}>
+        <span aria-hidden="true" className="smn-team-plus">+</span>
+        <strong>{t("teamUX.addMember")}</strong>
+       </button>}
+      </div>:
+      <div className="smn-team-list-table-wrapper table-responsive">
+       <table className="table table-hover align-middle smn-team-list-table">
+        <thead><tr>
+         <th scope="col">{t("teamUX.member")}</th>
+         <th scope="col">{t("teamUX.roles")}</th>
+         <th scope="col">{t("teamCockpit.functionLabel")}</th>
+         <th scope="col">Date début</th>
+         <th scope="col">Date fin</th>
+         <th scope="col">{t("teamCockpit.statusLabel")}</th>
+         <th scope="col">{t("teamUX.details")}</th>
+        </tr></thead>
+        <tbody>{section.items.map(member=><tr key={member.id}
+         role="link" tabIndex={0} className="smn-team-list-row"
+         aria-label={t("teamUX.openMember",{name:member.displayName})}
+         onClick={()=>router.push(memberHref(member))}
+         onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){
+          e.preventDefault();router.push(memberHref(member));
+         }}}>
+         <th scope="row"><span className="smn-team-list-name">
+          <CountryFlag countryIso2={member.countryIso2}/>{member.displayName}
+          {member.companyName&&<span className="ms-2 small text-secondary">· {member.companyName}</span>}
+         </span></th>
+         <td><div className="smn-team-member-roles">
+          {roles(member).map(([name,share])=>roleBadge(name,share))}
+         </div></td>
+         <td>{member.professionalFunction?.trim()||t("teamUX.functionMissing")}</td>
+         <td><time dateTime={member.startOn??undefined}>{dateLabel(member.startOn)}</time></td>
+         <td>{member.endOn?<time dateTime={member.endOn}>{dateLabel(member.endOn)}</time>:"—"}</td>
+         <td>{memberStatus(member)}</td>
+         <td><BootstrapIcon name="arrow-right"/></td>
+        </tr>)}</tbody>
+       </table>
+       {section.id==="active"&&canAdd&&<button type="button" className="btn btn-outline-primary mt-2"
+        onClick={()=>setCreationOpen(true)}>
+        <span aria-hidden="true" className="smn-team-plus">+</span> {t("teamUX.addMember")}
+       </button>}
+      </div>}
+    </section>)}
+  </div>
   {creationOpen&&canAdd&&<div className="modal d-block" role="dialog"
    aria-modal="true" aria-labelledby="team-create-title"
    style={{background:"rgba(0,0,0,.5)"}}>
