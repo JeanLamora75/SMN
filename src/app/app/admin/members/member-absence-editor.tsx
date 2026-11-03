@@ -24,6 +24,8 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
  const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
+ const [tab,setTab]=useState<"add"|"manage">("add");
+ const [selected,setSelected]=useState<AbsenceItem|null>(record);
  const dirty=Boolean(draft&&baseline&&JSON.stringify(draft)!==JSON.stringify(baseline));
  useUnsavedChanges(dirty||busy,t("draft.leaveWarning"));
  useEffect(()=>{onDirtyChange?.(Boolean(dirty),busy);},[dirty,busy,onDirtyChange]);
@@ -42,7 +44,7 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
       throw Error("absence-stale");
     }
     const values=initial(initialDate??data.today,record);
-    setState(data);setToday(data.today);setDraft(values);setBaseline(values);setStatus("ready");
+    setState(data);setToday(data.today);setDraft(values);setBaseline(values);setSelected(record);setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return()=>{active=false;};
  },[memberId,teamId,record,initialDate]);
@@ -57,8 +59,8 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
   event.preventDefault();if(!state||!draft||busy||state.archived)return;
   setBusy(true);setError("");
   try{
-   const payload={action:record?"update":"create",...(record?{id:record.id}:{}),
-    revision:record?.revision??0,...draft};
+   const payload={action:selected?"update":"create",...(selected?{id:selected.id}:{}),
+    revision:selected?.revision??0,...draft};
    const r=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+
     (teamId?"/team-absence":"/absences"),{
     method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(teamId?{teamId,change:payload}:payload)
@@ -77,10 +79,70 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
   }catch{setError(t("members.absence.failed"));}
   finally{setBusy(false);}
  };
- return <section className="smn-panel p-4 d-grid gap-3" aria-label={t(record?"members.absence.editTitle":"members.absence.newTitle")}>
+ const switchTab=(value:"add"|"manage")=>{
+  if(busy)return;
+  if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+  setTab(value);setSelected(null);
+  const values=initial(initialDate??today,null);setDraft(values);setBaseline(values);setError("");
+ };
+ const editExisting=(item:AbsenceItem)=>{
+  if(busy)return;
+  const values=initial(today,item);setSelected(item);setDraft(values);setBaseline(values);
+  setTab("add");setError("");
+ };
+ const deleteExisting=async(item:AbsenceItem)=>{
+  if(busy||!state||state.archived)return;
+  if(!window.confirm("Annuler cette absence du "+item.startOn+" au "+item.endOn+" ? L'historique sera conservé."))return;
+  setBusy(true);setError("");
+  try{
+   const change={action:"delete",id:item.id,revision:item.revision};
+   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+
+    (teamId?"/team-absence":"/absences"),{method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify(teamId?{teamId,change}:change)});
+   const result=await response.json() as {error?:string};
+   if(!response.ok){setError(result.error==="conflict"?
+    "Cette absence a été modifiée. Fermez puis rouvrez la fenêtre.":
+    "Impossible d'annuler cette absence.");return;}
+   onSaved();
+  }catch{setError("Impossible d'annuler cette absence.");}
+  finally{setBusy(false);}
+ };
+ return <section className="smn-panel p-4 d-grid gap-3" aria-label={t("members.absence.newTitle")}>
   {status==="loading"&&<p role="status">{t("members.absence.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.absence.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
+   <div className="d-flex gap-2 border-bottom pb-2" role="tablist" aria-label="Gestion des absences">
+    <button type="button" role="tab" aria-selected={tab==="add"}
+     className={"btn "+(tab==="add"?"btn-primary":"btn-outline-primary")}
+     onClick={()=>switchTab("add")} disabled={busy}>Ajouter une absence</button>
+    <button type="button" role="tab" aria-selected={tab==="manage"}
+     className={"btn "+(tab==="manage"?"btn-primary":"btn-outline-primary")}
+     onClick={()=>switchTab("manage")} disabled={busy}>Gérer les absences ({state.absences.filter(a=>!a.deleted).length})</button>
+   </div>
+   {tab==="manage"&&<section role="tabpanel" aria-label="Gérer les absences">
+    {state.absences.filter(a=>!a.deleted).length===0?
+     <p className="text-secondary">Aucune absence enregistrée dans cette équipe.</p>:
+     <div className="table-responsive"><table className="table table-striped table-sm align-middle">
+      <thead><tr><th>Dates</th><th>Catégorie</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody>{state.absences.filter(a=>!a.deleted)
+       .sort((a,b)=>b.startOn.localeCompare(a.startOn)||b.id.localeCompare(a.id))
+       .map(item=><tr key={item.id}>
+        <td>{item.startOn===item.endOn?item.startOn:item.startOn+" → "+item.endOn}
+         <span className="d-block small text-secondary">{item.startSlot} → {item.endSlot}</span></td>
+        <td>{item.categoryName}</td><td>{item.reason}</td>
+        <td>{item.isPlanned?"Prévue":"Imprévue"}</td>
+        <td><div className="d-flex flex-wrap gap-1">
+         <button type="button" className="btn btn-outline-primary btn-sm" disabled={busy||state.archived}
+          onClick={()=>editExisting(item)}>Modifier</button>
+         <button type="button" className="btn btn-outline-danger btn-sm" disabled={busy||state.archived}
+          onClick={()=>void deleteExisting(item)}>Supprimer</button>
+        </div></td>
+       </tr>)}</tbody>
+     </table></div>}
+    {error&&<p role="alert" className="alert alert-warning">{error}</p>}
+   </section>}
+   {tab==="add"&&<>
    {state.archived&&<p className="alert alert-secondary">{t("members.calendar.archived")}</p>}
    {(draft.startOn<today||Boolean(record&&record.startOn<today))&&<p role="status" className="alert alert-warning">
     {t("memberAbsences.pastWarning")}</p>}
@@ -129,11 +191,12 @@ export default function MemberAbsenceEditor({memberId,teamId,record,initialDate,
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
     <div className="smn-cockpit-form-actions">
      <button className="btn btn-primary" type="submit" disabled={busy||state.archived}>
-      {t(record?"members.absence.saveEdit":"members.absence.save")}</button>
+      {t(selected?"members.absence.saveEdit":"members.absence.save")}</button>
      <button className="btn btn-outline-secondary" type="button" disabled={busy} onClick={cancel}>
       {t("members.profile.cancel")}</button>
     </div>
    </form>
+   </>}
   </>}
   {status==="error"&&<button type="button" className="btn btn-outline-secondary align-self-start"
    onClick={cancel}>{t("members.profile.cancel")}</button>}
