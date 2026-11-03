@@ -114,6 +114,10 @@ test("calendrier membre : jours de semaine abrégés, week-ends et fériés dist
  assert.match(view,/smn-member-holiday-label/);
  assert.match(view,/dateTime=\{d\.date\}/);
  assert.match(css,/tr\.smn-member-weekend/);
+ assert.match(css,/--bs-table-bg:/);
+ assert.match(css,/--bs-table-bg-state:transparent/);
+ assert.match(css,/box-shadow:none/);
+ assert.match(css,/border-left:3px solid var\(--smn-brand\)/);
  assert.match(css,/tr\.smn-member-holiday/);
  assert.match(css,/tr\.smn-member-sprint-day/);
 });
