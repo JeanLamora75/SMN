@@ -201,6 +201,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
         <option value="fin de contrat">Fin de contrat</option>
         <option value="changement d'équipe">Changement d'équipe</option>
         <option value="autre">Autre</option>
+        {endReason&&!["fin de contrat","changement d\x27équipe","autre"].includes(endReason)&&
+         <option value={endReason}>{endReason}</option>}
        </select>
       </label>
      </div>
