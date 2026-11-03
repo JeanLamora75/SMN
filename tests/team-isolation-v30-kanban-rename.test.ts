@@ -6,6 +6,8 @@ test("renommage Kanban : transaction limite période et autorisation à une équ
  const source=read("src/server/kanban/rename.ts");
  assert.match(source,/resolveAdminTeam\(db,access\.actor,access\.teamId\)/);
  assert.match(source,/p\.team_id=\$2/);
+ assert.match(source,/i\.schema_version>=28/);
+ assert.doesNotMatch(source,/i\.schema_version IN \(28,29,30,31\)/);
  assert.match(source,/t\.is_archived=false/);
  assert.match(source,/i\.schema_version<=27/);
  assert.match(source,/FOR UPDATE OF p/);
@@ -16,4 +18,5 @@ test("renommage Kanban : HTTP v30 sous verrou et avec teamId explicite",()=>{
  assert.match(source,/!MULTI_TEAM_CONTEXT_READY/);
  assert.match(source,/SMN_MULTI_TEAM_WRITES_ENABLED/);
  assert.match(source,/teamId/);
+ assert.match(source,/schema_version!==33/);
 });
