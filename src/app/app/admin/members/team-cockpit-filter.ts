@@ -12,7 +12,7 @@ export type TeamFilters={
  status:"active"|"all"|"provisional"|"archived";
 };
 export const initialTeamFilters:TeamFilters={
- search:"",role:"all",functionName:"all",status:"active"
+ search:"",role:"all",functionName:"all",status:"all"
 };
 export function normalizedTeamSearch(value:string):string{
  return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().trim();
@@ -36,4 +36,21 @@ export function filterTeamMembers<T extends TeamFilterMember>(
   if(search&&!normalizedTeamSearch(member.displayName+" "+(member.professionalFunction??"")).includes(search))return false;
   return true;
  });
+}
+
+/** Team membership dates are inclusive: a departure on today stays active
+ * until the following day. Each member is shown once for the latest assignment.
+ */
+export type DatedTeamMember={id:string;startOn:string|null;endOn:string|null};
+export function splitTeamMembersByAssignment<T extends DatedTeamMember>(
+ members:readonly T[],today:string):{active:T[];inactive:T[]}{
+ const latestFirst=(a:T,b:T)=>b.startOn!.localeCompare(a.startOn!)||a.id.localeCompare(b.id);
+ const departureFirst=(a:T,b:T)=>b.endOn!.localeCompare(a.endOn!)||
+  b.startOn!.localeCompare(a.startOn!)||a.id.localeCompare(b.id);
+ return {
+  active:members.filter(m=>m.startOn!==null&&m.startOn<=today&&
+   (m.endOn===null||m.endOn>=today)).sort(latestFirst),
+  inactive:members.filter(m=>m.startOn!==null&&m.endOn!==null&&m.endOn<today)
+   .sort(departureFirst)
+ };
 }
