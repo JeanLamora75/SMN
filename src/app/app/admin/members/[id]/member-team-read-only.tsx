@@ -200,7 +200,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <div><span>{t("memberTeamScope.start")}</span><strong>{formatCivil(active.startOn,locale)}</strong></div>
     <div><span>{t("memberTeamScope.allocation")}</span><strong>{active.allocationPercent} %</strong></div>
     <div><span>{t("memberTeamScope.annualAbsences")}</span><strong title={annual===null?undefined:
-     annualMonths.map(m=>m.month+": "+m.halfDays+" demi-journées").join("\n")}>
+     annualMonths.map(m=>m.month+": "+m.halfDays+" "+t("memberTeamScope.annualHalfDayUnit")).join("\n")}>
      {annual===null?t("memberTeamScope.notAvailable"):annual}</strong></div>
    </div>}
    <div className="table-responsive">
