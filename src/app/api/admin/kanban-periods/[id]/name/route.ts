@@ -21,7 +21,10 @@ export async function PATCH(req:NextRequest,{params}:{params:Promise<{id:string}
    const context=await resolveRegistryReadContext(db,
     {accountId:actor.id,role:actor.role},teamId);
    if(context.version===28){
-    if(!MULTI_TEAM_CONTEXT_READY||process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true")
+    const version=await db.query<{schema_version:number}>(
+     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+    if(version.rows[0]?.schema_version!==33&&
+       (!MULTI_TEAM_CONTEXT_READY||process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
      throw Error("context-not-ready");
     if(!teamId||context.team?.team_id!==teamId)throw Error("team-access-forbidden");
     return renameKanbanPeriod(db,actor.id,id,input,{
