@@ -9,7 +9,7 @@ import MemberTeamPlanningEditor from "./member-team-planning-editor";
 import {useLocale,useTranslation} from "@/i18n/client";
 import type {TeamAssignmentRevision} from "@/server/members/team-assignment-history";
 
-type DailyAvailability={date:string;morningAbsent:boolean;afternoonAbsent:boolean};
+type DailyAvailability={date:string;morningAbsent:boolean;afternoonAbsent:boolean;holidayName:string|null};
 type Response={memberId:string;teamId:string;startOn:string;endOn:string;
  days:DailyAvailability[]};
 type Props=Readonly<{memberId:string;teamId:string;teamName:string;
@@ -21,6 +21,18 @@ function formatCivil(date:string,locale:string):string{
  const utc=new Date(Date.UTC(Number(parts[1]),Number(parts[2])-1,Number(parts[3])));
  return new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",
   {day:"2-digit",month:"2-digit",year:"numeric",timeZone:"UTC"}).format(utc);
+}
+function formatCalendarDay(date:string,locale:string):string{
+ const parts=/^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+ if(!parts)return date;
+ const utc=new Date(Date.UTC(Number(parts[1]),Number(parts[2])-1,Number(parts[3])));
+ return new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",{
+  weekday:"short",day:"2-digit",month:"2-digit",timeZone:"UTC"
+ }).format(utc);
+}
+function isWeekend(date:string):boolean{
+ const day=new Date(date+"T00:00:00.000Z").getUTCDay();
+ return day===0||day===6;
 }
 function monthRange(month:string):{startOn:string;endOn:string}|null{
  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return null;
@@ -220,11 +232,20 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
        <thead><tr><th scope="col">{t("memberTeamScope.day")}</th>
         <th scope="col">{t("memberTeamScope.morning")}</th>
         <th scope="col">{t("memberTeamScope.afternoon")}</th></tr></thead>
-       <tbody>{part.map(d=><tr key={d.date} className={sprintDays&&d.date>=sprintDays.start&&d.date<=sprintDays.end?"smn-member-sprint-day":undefined}>
-        <th scope="row">{formatCivil(d.date,locale)}</th>
-        <td>{d.morningAbsent?t("memberTeamScope.absent"):"—"}</td>
-        <td>{d.afternoonAbsent?t("memberTeamScope.absent"):"—"}</td>
-       </tr>)}</tbody>
+       <tbody>{part.map(d=>{
+        const weekend=isWeekend(d.date);
+        const holiday=Boolean(d.holidayName);
+        const inSprint=Boolean(sprintDays&&d.date>=sprintDays.start&&d.date<=sprintDays.end);
+        const classes=[inSprint?"smn-member-sprint-day":"",weekend?"smn-member-weekend":"",
+         holiday?"smn-member-holiday":""].filter(Boolean).join(" ");
+        return <tr key={d.date} className={classes||undefined}>
+         <th scope="row"><time dateTime={d.date}>{formatCalendarDay(d.date,locale)}</time>
+          {holiday&&<span className="smn-member-holiday-label" title={d.holidayName??undefined}>
+           {locale==="en"?"Holiday":"Férié"}</span>}</th>
+         <td>{d.morningAbsent?t("memberTeamScope.absent"):"—"}</td>
+         <td>{d.afternoonAbsent?t("memberTeamScope.absent"):"—"}</td>
+        </tr>;
+       })}</tbody>
       </table>
      </div>)}
    </div>}
