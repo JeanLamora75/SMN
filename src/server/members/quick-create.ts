@@ -66,7 +66,7 @@ const memberSelect=`SELECT m.id,m.member_number,m.display_name,m.email,to_jsonb(
   FROM public.smn_member_assignment a
   JOIN public.smn_team t ON t.id=a.team_id AND t.installation_id=m.installation_id
   WHERE a.member_id=m.id
-  ORDER BY (a.end_on IS NULL) DESC,a.start_on DESC,a.id DESC LIMIT 1
+  ORDER BY a.start_on DESC,a.id DESC LIMIT 1
  ) a ON true
  LEFT JOIN LATERAL (
   SELECT contract_percent,allocation_percent,contribution_percent,
@@ -95,7 +95,7 @@ function project(row:MemberRow):MemberListItem{
   email:row.email??null,countryIso2:row.country_iso2??null,professionalFunction:row.professional_function??null,revision:row.revision??0,isProvisional:row.is_provisional,
   agileRole:primary,startOn:row.start_on,endOn:row.end_on,
   archived:row.archived_at!=null,archivedAt:row.archived_at??null,
-  isAssigned:row.start_on!==null&&row.end_on===null,
+  isAssigned:row.start_on!==null,
   contractPercent:row.v_contract??row.contract_percent,
   contributionPercent:row.v_contribution??row.contribution_percent,
   allocationPercent:row.v_allocation??row.allocation_percent??0,rolePercent:row.role_percent??0,
