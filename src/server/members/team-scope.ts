@@ -37,7 +37,8 @@ export function withLegacyMemberApi<T>(operation:(db:Client)=>Promise<T>):Promis
  * restent bloqués et ne doivent pas invoquer directement leurs anciens lecteurs.
  */
 export async function requireTeamMemberScope(db:Client,actor:TeamActor,
- memberId:string,requestedTeamId?:string|null):Promise<{teamId:string;memberId:string}>{
+ memberId:string,requestedTeamId?:string|null,
+ options?:Readonly<{allowHistoricalAssignment?:boolean}>):Promise<{teamId:string;memberId:string}>{
  if(typeof memberId!=="string"||
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(memberId))
   throw new Error("member-id-invalid");
@@ -49,9 +50,9 @@ export async function requireTeamMemberScope(db:Client,actor:TeamActor,
   WHERE a.member_id=$1 AND a.team_id=$2
     AND m.installation_id=t.installation_id
     AND t.installation_id='singleton'
-    AND a.start_on<=CURRENT_DATE
-    AND (a.end_on IS NULL OR a.end_on>=CURRENT_DATE)
-  LIMIT 2`,[memberId,team.team_id]);
+    AND ($3::boolean OR (a.start_on<=CURRENT_DATE
+      AND (a.end_on IS NULL OR a.end_on>=CURRENT_DATE)))
+  LIMIT 2`,[memberId,team.team_id,options?.allowHistoricalAssignment===true]);
  if(memberships.rows.length!==1)throw new Error("member-out-of-team");
  return {teamId:team.team_id,memberId};
 }
