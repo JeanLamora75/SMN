@@ -242,8 +242,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
         return <tr key={d.date} className={dayClass}>
          <th scope="row"><time dateTime={d.date}>{formatCalendarDay(d.date,locale)}</time></th>
          {d.isExit?<td colSpan={2} className="smn-member-exit-name">
-           {locale==="en"?"Left the team":"Sortie de l'équipe"}
-           {" — "}{d.exitReason|| (locale==="en"?"Reason not specified":"Motif non renseigné")}
+           {t("memberTeamScope.exit")}
+           {" — "}{d.exitReason||t("memberTeamScope.exitUnknownReason")}
           </td>:
           holiday?<td colSpan={2} className="smn-member-holiday-name">{d.holidayName}</td>:
           weekend?<><td aria-label={locale==="en"?"Weekend":"Week-end"}></td><td aria-label={locale==="en"?"Weekend":"Week-end"}></td></>:
