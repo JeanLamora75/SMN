@@ -44,6 +44,8 @@ test("sélection d'affectation contextualisée, deux sections et dates en liste"
  assert.match(ui,/items:grouped\.inactive/);
  assert.match(ui,/t\("teamUX\.startDate"\)/);
  assert.match(ui,/t\("teamUX\.endDate"\)/);
+ assert.match(ui,/t\("teamUX\.workedDays"\)/);
+ assert.match(ui,/format\(member\.workedDays\)/);
  assert.match(ui,/t\("teamUX\.inactiveAssignmentStatus"\)/);
  assert.match(ui,/t\("teamUX\.nonArchivedMembers"\)/);
  assert.match(ui,/dateLabel\(member\.startOn\)/);
@@ -55,7 +57,17 @@ test("traductions FR et EN synchronisées",()=>{
  const fr=JSON.parse(read("src/i18n/fr.json")).teamUX;
  const en=JSON.parse(read("src/i18n/en.json")).teamUX;
  for(const key of ["activeAssignmentHeading","inactiveAssignmentHeading","startDate","endDate",
-  "inactiveAssignmentStatus","nonArchivedMembers"]){
+  "inactiveAssignmentStatus","nonArchivedMembers","workedDays"]){
   assert.ok(fr[key]);assert.ok(en[key]);
  }
+});
+
+test("vue Liste : jours travaillés proviennent du calcul groupé de l'équipe",()=>{
+ const source=read("src/app/api/admin/members/route.ts");
+ assert.match(source,/readTeamAnnualWorkedForRoster\(db,team\.team_id/);
+ assert.match(source,/enriched\.members\.map\(member=>member\.id\)/);
+ assert.match(source,/workedDays:\(worked\.get\(member\.id\)\?\?0\)\/2/);
+ const ui=read("src/app/app/admin/members/team-overview.tsx");
+ assert.match(ui,/typeof member\.workedDays==="number"/);
+ assert.match(ui,/maximumFractionDigits:1/);
 });
