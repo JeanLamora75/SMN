@@ -89,9 +89,9 @@ test("jours fériés : source nationale selon localisation historique, sans dét
  const {db,calls}=fake();
  await readTeamAvailabilityWindow(db,{accountId:"admin",role:"admin"},params);
  const sql=calls.find(x=>x.sql.includes("WITH member_days AS"))!.sql;
- assert.match(sql,/public\\.smn_national_holiday/);
- assert.match(sql,/public\\.smn_member_location/);
- assert.match(sql,/l\\.effective_from<=d\\.day/);
- assert.match(sql,/CASE WHEN d\\.assigned THEN/);
- assert.doesNotMatch(sql,/a\\.reason|a\\.category_id/);
+ assert.match(sql,/public\.smn_national_holiday/);
+ assert.match(sql,/public\.smn_member_location/);
+ assert.match(sql,/l\.effective_from<=d\.day/);
+ assert.match(sql,/CASE WHEN d\.assigned THEN/);
+ assert.doesNotMatch(sql,/a\.reason|a\.category_id/);
 });
