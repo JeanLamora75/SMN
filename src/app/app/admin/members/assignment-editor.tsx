@@ -118,7 +118,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
   finally{setBusy(false);}
  }
  async function correctHistoricalStart(){
-  if(!state?.assignmentId||!state.startOn||!historicalStart||historicalStart>=state.startOn||busy)return;
+  if(!state?.assignmentId||!state.startOn||!historicalStart||historicalStart===state.startOn||busy)return;
+  if(state.endOn&&historicalStart>state.endOn){setError("La date d’arrivée ne peut dépasser la date de fin d’affectation.");return;}
   if(!window.confirm(t("members.assignment.historicalConfirm",{current:state.startOn,next:historicalStart})))return;
   setBusy(true);setError("");
   try{
@@ -127,7 +128,18 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     body:JSON.stringify({assignmentId:state.assignmentId,newStartOn:historicalStart,
      revision:state.memberRevision??memberRevision,...(teamScoped?{teamId}:{})})
    });
-   if(!r.ok)throw Error("historical-correction-failed");
+   if(!r.ok){
+    const response=await r.json() as {error?:string};
+    const errors:Record<string,string>={
+     "historical-absences":"Des absences sont enregistrées dans la période que cette correction retirerait de l’affectation.",
+     "historical-versions":"Des versions de rôles ou d’allocation existent avant cette nouvelle date.",
+     "after-end":"La date d’arrivée ne peut pas dépasser la date de fin.",
+     "overlap":"Cette date entraîne un chevauchement avec une autre affectation.",
+     "conflict":"L’affectation a changé. Ferme et rouvre cette fenêtre.",
+     "unchanged":"La date d’arrivée est inchangée."
+    };
+    setError(errors[response.error??""]??t("members.assignment.historicalFailure"));return;
+   }
    onSaved();
   }catch{setError(t("members.assignment.historicalFailure"));}
   finally{setBusy(false);}
@@ -216,9 +228,9 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     <p className="small text-secondary">{t("members.assignment.historicalDescription",{date:state.startOn})}</p>
     <div className="d-flex flex-wrap align-items-end gap-2">
      <label className="form-label mb-0">{t("members.assignment.historicalRealDate")}
-      <input type="date" className="form-control" max={state.startOn} value={historicalStart} disabled={busy}
+      <input type="date" className="form-control" max={state.endOn??undefined} value={historicalStart} disabled={busy}
        onChange={e=>setHistoricalStart(e.target.value)}/></label>
-     <button type="button" className="btn btn-primary smn-member-assignment-historical-action" disabled={busy||!historicalStart||historicalStart>=state.startOn}
+     <button type="button" className="btn btn-primary smn-member-assignment-historical-action" disabled={busy||!historicalStart||historicalStart===state.startOn}
       onClick={()=>void correctHistoricalStart()}>{t("members.assignment.historicalAction")}</button>
     </div>
    </div>}
