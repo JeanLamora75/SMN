@@ -48,7 +48,7 @@ export function splitTeamMembersByAssignment<T extends DatedTeamMember>(
  const departureFirst=(a:T,b:T)=>b.endOn!.localeCompare(a.endOn!)||
   b.startOn!.localeCompare(a.startOn!)||a.id.localeCompare(b.id);
  return {
-  active:members.filter(m=>m.startOn!==null&&m.startOn<=today&&
+  active:members.filter(m=>m.startOn!==null&&
    (m.endOn===null||m.endOn>=today)).sort(latestFirst),
   inactive:members.filter(m=>m.startOn!==null&&m.endOn!==null&&m.endOn<today)
    .sort(departureFirst)
