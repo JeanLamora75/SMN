@@ -92,7 +92,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     if(!controller.signal.aborted){setDays([]);setStatus("error");}
    });
   return()=>controller.abort();
- },[memberId,teamId,month]);
+ },[memberId,teamId,month,refreshKey]);
  useEffect(()=>{
   const controller=new AbortController();
   const params=new URLSearchParams({teamId,year:String(year)});
