@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["main", "dev/smn-27-i18n-json-20261020", "docs/bmad-sprint-readiness-20261019"]
 
+concurrency:
+  group: smn-i0-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
