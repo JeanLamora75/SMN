@@ -161,3 +161,13 @@ test("Cockpit membre : compteur annuel recalculé après modification des absenc
  assert.match(service,/EXTRACT\(ISODOW FROM d\.day\) BETWEEN 1 AND 5/);
  assert.match(service,/public\.smn_national_holiday/);
 });
+
+test("Cockpit membre : total annuel en demi-journées vérifiable par mois",()=>{
+ assert.match(view,/annualMonths\.map\(m=>m\.month/);
+ assert.match(view,/t\("memberTeamScope\.annualHalfDayUnit"\)/);
+ assert.match(view,/setAnnualMonths\(valid&&Array\.isArray\(data\.months\)\?data\.months:\[\]\)/);
+ for(const lang of ["fr","en"]){
+  const obj=JSON.parse(read("src/i18n/member-team-scope."+lang+".json"));
+  assert.ok(obj.memberTeamScope.annualHalfDayUnit);
+ }
+});
