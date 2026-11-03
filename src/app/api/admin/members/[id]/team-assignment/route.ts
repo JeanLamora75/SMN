@@ -63,7 +63,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
    [id,latest.assignmentId,latest.endOn]):null;
   return {memberId:id,teamId,assignmentId:latest.assignmentId,startOn:latest.startOn,endOn:latest.endOn,
    endReason:closing?.rows[0]?.reason??null,today,
-   memberRevision:member.revision,latestRevision:latest.revision,current:{
+   memberRevision:member.revision,latestRevision:Math.max(...history.versions.filter(v=>v.assignmentId===latest.assignmentId).map(v=>v.revision)),current:{
     revision:latest.revision,effectiveFrom:latest.effectiveFrom,contractPercent:latest.contractPercent,
     allocationPercent:latest.allocationPercent,contributionPercent:latest.contributionPercent,
     shares:{scrumMaster:latest.scrumMasterPercent,productOwner:latest.productOwnerPercent,developer:latest.developerPercent},
