@@ -110,6 +110,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     setError(payload.error==="conflict"?"L'affectation a été modifiée. Rouvre la fenêtre.":
      payload.error==="invalid-date"?
       "La date de fin ne peut pas précéder le début de l'affectation.":
+     payload.error==="overlap"?"La date chevauche une autre affectation dans cette équipe.":
       "Impossible d'enregistrer la fin de l'affectation.");return;
    }
    onSaved();
@@ -204,7 +205,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
       </label>
      </div>
      <button type="submit" className="btn btn-outline-primary align-self-start"
-      disabled={busy||!endOn}>Enregistrer la fin d'affectation</button>
+      disabled={busy||!endOn||(state.endOn===endOn&&(state.endReason??"")===endReason)}>
+      {state.endOn?"Corriger la fin d’affectation":"Enregistrer la fin d’affectation"}</button>
     </>}
    </form>}
    {state.assignmentId&&state.startOn&&(!teamScoped||state.endOn===null)&&<div className="border rounded-3 p-3">
