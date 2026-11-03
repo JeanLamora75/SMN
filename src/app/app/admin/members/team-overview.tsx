@@ -92,7 +92,6 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
  function applyFilters(e:FormEvent<HTMLFormElement>){e.preventDefault();setFilters({scope,draft:draftFilters,applied:{...draftFilters}});}
  function resetFilters(){setFilters({scope,draft:{...initialTeamFilters},applied:{...initialTeamFilters}});}
  const allMembers=roster?.members??[];
- const activeCount=allMembers.filter(m=>!m.archived).length;
  const members=filterTeamMembers(allMembers,appliedFilters);
  const canAdd=canManage&&allMembers.length>0;
  const functions=availableFunctions(allMembers);
@@ -100,6 +99,7 @@ export default function TeamOverview({canManage,initialTeamId=null}:{canManage:b
  const hasProvisional=allMembers.some(m=>m.isProvisional&&!m.archived);
  const today=new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Paris"});
  const grouped=splitTeamMembersByAssignment(members,today);
+ const activeCount=splitTeamMembersByAssignment(allMembers,today).active.length;
  const dateLabel=(date:string|null)=>date?
   new Intl.DateTimeFormat(locale==="en"?"en-GB":"fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",
    timeZone:"UTC"}).format(new Date(date+"T00:00:00.000Z")):"—";
