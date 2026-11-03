@@ -24,6 +24,17 @@ export async function readTeamAnnualAbsence(db:Client,actor:TeamActor,
    interval '1 day') AS g(day)
   WHERE x.member_id=$1 AND x.team_id=$2
    AND m.installation_id='singleton' AND t.installation_id=m.installation_id
+ ), eligible_days AS (
+  SELECT d.day
+  FROM member_days d
+  WHERE EXTRACT(ISODOW FROM d.day) BETWEEN 1 AND 5
+   AND NOT EXISTS (
+    SELECT 1 FROM public.smn_national_holiday h
+    WHERE h.holiday_date=d.day AND h.country_code=(
+     SELECT l.country_iso2 FROM public.smn_member_location l
+     WHERE l.member_id=$1 ORDER BY l.revision DESC LIMIT 1
+    )
+   )
  ), slots AS (
   SELECT d.day,
    EXISTS(SELECT 1 FROM public.smn_member_absence a
@@ -38,7 +49,7 @@ export async function readTeamAnnualAbsence(db:Client,actor:TeamActor,
      AND NOT EXISTS(SELECT 1 FROM public.smn_member_absence_history h
       WHERE h.absence_id=a.id AND h.revision=a.revision
        AND h.after_values->>'deleted'='true')) AS afternoon
-  FROM member_days d
+  FROM eligible_days d
  )
  SELECT COUNT(*) FILTER (WHERE morning)::int+
         COUNT(*) FILTER (WHERE afternoon)::int AS half_days
