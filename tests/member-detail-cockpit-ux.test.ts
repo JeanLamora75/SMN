@@ -175,3 +175,17 @@ test("Cockpit membre : affichage en jours, détail mensuel et demi-journées con
   assert.ok(obj.memberTeamScope.annualDayUnit);
  }
 });
+
+test("fiche membre : jours travaillés entre allocation et absences, convertis en jours",()=>{
+ const allocation=view.indexOf('t("memberTeamScope.allocation")');
+ const worked=view.indexOf('t("memberTeamScope.workedDays")');
+ const absences=view.indexOf('t("memberTeamScope.annualAbsences")');
+ assert.ok(allocation>=0&&worked>allocation&&absences>worked);
+ assert.match(view,/setWorked\(valid&&Number\.isInteger\(data\.workedHalfDays\)\?data\.workedHalfDays:null\)/);
+ assert.match(view,/format\(worked\/2\)/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ for(const lang of ["fr","en"]){
+  const obj=JSON.parse(read("src/i18n/member-team-scope."+lang+".json"));
+  assert.ok(obj.memberTeamScope.workedDays);
+ }
+});
