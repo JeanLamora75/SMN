@@ -55,7 +55,7 @@ test("Cockpit membre : rôle, fonction, dates civiles localisées et annuel conf
  assert.match(view,/developerPercent/);
  assert.match(view,/Intl\.DateTimeFormat/);
  assert.match(view,/formatCivil\(v\.startOn,locale\)/);
- assert.match(view,/formatCivil\(d\.date,locale\)/);
+ assert.match(view,/formatCalendarDay\(d\.date,locale\)/);
  assert.match(view,/annual===null/);
  assert.match(service,/resolveAdminTeam/);
  assert.match(service,/x\.team_id=\$2/);
@@ -103,4 +103,17 @@ test("Cockpit membre : sélecteur de mois sur la ligne du titre sans compteurs",
  assert.match(css,/justify-content:space-between/);
  const fr=read("src/i18n/member-team-scope.fr.json");
  assert.match(fr,/"annualAbsences": "Absences cette année"/);
+});
+
+test("calendrier membre : jours de semaine abrégés, week-ends et fériés distingués",()=>{
+ assert.match(view,/weekday:"short",day:"2-digit",month:"2-digit",timeZone:"UTC"/);
+ assert.match(view,/function isWeekend\(date:string\)/);
+ assert.match(view,/holidayName:string\|null/);
+ assert.match(view,/smn-member-weekend/);
+ assert.match(view,/smn-member-holiday/);
+ assert.match(view,/smn-member-holiday-label/);
+ assert.match(view,/dateTime=\{d\.date\}/);
+ assert.match(css,/tr\.smn-member-weekend/);
+ assert.match(css,/tr\.smn-member-holiday/);
+ assert.match(css,/tr\.smn-member-sprint-day/);
 });
