@@ -16,7 +16,7 @@ test("SMN-355 PG: isolated account/team rows, optimistic locking and cancel",
  const origin=new URL(initialUri!);
  if(!["127.0.0.1","localhost","[::1]"].includes(origin.hostname))
   throw Error("SMN-355 requires local disposable PostgreSQL");
- const name="smn355_"+randomUUID().replaceAll("-","");
+ const name="smn_355_"+randomUUID().replaceAll("-","");
  const adminUri=new URL(origin);adminUri.pathname="/postgres";
  const isolatedUri=new URL(origin);isolatedUri.pathname="/"+name;
  const admin=ci?new Client({connectionString:adminUri.toString(),connectionTimeoutMillis:3500}):null;
