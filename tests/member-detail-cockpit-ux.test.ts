@@ -130,7 +130,7 @@ test("calendrier membre : jours de semaine abrégés, week-ends et fériés dist
 test("Cockpit membre : événement J+1 prioritaire, motif et absence de cellules de disponibilité",()=>{
  assert.match(view,/isExit:boolean;exitReason:string\|null/);
  assert.match(view,/d\.isExit\?<td colSpan=\{2\} className="smn-member-exit-name">/);
- assert.match(view,/Sortie de l'équipe/);
+ assert.match(view,/t\("memberTeamScope\.exit"\)/);
  assert.match(view,/t\("memberTeamScope\.exitUnknownReason"\)/);
  assert.match(view,/d\.exitReason/);
  assert.match(css,/tr\.smn-member-exit/);
