@@ -2271,7 +2271,16 @@
     "refreshFailed": "La suppression a été enregistrée, mais la liste n'a pas pu être rechargée. Actualisez l'onglet pour voir le résultat.",
     "noneUpcoming": "Aucune absence à venir ou en cours.",
     "nonePast": "Aucune absence passée.",
-    "capacityNotice": "Les disponibilités et capacités non figées sont recalculées lors de leur prochaine consultation. Les références initiales figées et les bilans clôturés restent inchangés."
+    "capacityNotice": "Les disponibilités et capacités non figées sont recalculées lors de leur prochaine consultation. Les références initiales figées et les bilans clôturés restent inchangés.",
+    "manageTab": "Gérer les absences",
+    "manageHeading": "Gestion des absences",
+    "manageEmpty": "Aucune absence enregistrée dans cette équipe.",
+    "manageDates": "Dates",
+    "manageReason": "Motif",
+    "manageActions": "Actions",
+    "cancelConfirm": "Annuler cette absence du {start} au {end} ? L'historique sera conservé.",
+    "cancelFailed": "Impossible d'annuler cette absence.",
+    "cancelConflict": "Cette absence a été modifiée. Fermez puis rouvrez la fenêtre."
   },
   "settingsSprint": {
     "workingDaysTitle": "Jours ouvrés — horaires d'équipe",
