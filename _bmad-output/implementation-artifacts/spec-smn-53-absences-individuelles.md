@@ -56,3 +56,16 @@ Contrôles statiques possibles à travers le connecteur GitHub et tests de contr
 **AC9 :** le formulaire Ajouter existant reste fonctionnel. États vide/chargement/erreur et traductions FR/EN ; les motifs personnels ne doivent jamais être divulgués hors du périmètre membre autorisé. Tests des parcours et de la concurrence.
 
 **Impacts :** `member-absence-editor.tsx`, `member-team-read-only.tsx`, routes `team-absence`, service `absence.ts`, tests UI et PostgreSQL. Ne pas confondre « annuler le congé » et supprimer les données de l'audit. Publication ≠ validation par exécution locale.
+
+
+## Avenant — 03/11/2026 : indicateur « Jours travaillés » dans la fiche et la liste d'équipe
+
+**Règle de restitution retenue :** sur l'année civile de référence, le nombre de jours travaillés équivalents est la somme des demi-journées ouvrables non absentes divisée par 2. Un jour éligible est un lundi-vendredi inclus dans une affectation à l'équipe, hors jour férié national configuré pour le **pays actuel du membre**. Une demi-journée d'absence planifiée ou imprévue retire 0,5 jour ; une journée entière retire 1 jour. Week-ends et jours fériés n'apportent aucun jour travaillé et ne sont pas déduits une seconde fois. Les absences supprimées logiquement sont exclues. Plusieurs périodes d'affectation dans la même équipe sont réunies sans double-compter un jour.
+
+**Périmètre temporel :** année civile complète, y compris les absences futures déjà planifiées ; il s'agit d'un **équivalent annuel calculé**, et non d'un pointage des jours effectivement réalisés à la date du jour. La mesure est exprimée en jours (entiers ou ,5), sans multiplication par le pourcentage d'allocation ni le coefficient de contribution ; les métriques de capacité restent distinctes.
+
+**AC-JT1 :** un jour ouvrable sans absence = 1 jour travaillé ; une demi-journée d'absence = 0,5 ; deux demi-journées d'absence = 0.
+**AC-JT2 :** jours fériés et week-ends = 0, y compris s'ils portent une absence ; dates hors affectation = 0 ; départ inclus jusqu'au dernier jour.
+**AC-JT3 :** nouvelle tuile « Jours travaillés » immédiatement après Allocation et avant Absences cette année ; colonne « Jours travaillés » en vue Liste (sections actifs et inactifs), années cohérentes entre les deux écrans.
+**AC-JT4 :** utilisation d'une même requête d'éligibilité pour les deux métriques, lecture groupée de l'équipe pour éviter les requêtes N+1, contrôles d'accès et tests de cohérence des demi-journées.
+**État :** code publié sur main ; tests unitaires, TypeScript, PostgreSQL et recette écran non exécutés depuis ChatGPT.
