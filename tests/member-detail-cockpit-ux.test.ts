@@ -138,3 +138,18 @@ test("Cockpit membre : événement J+1 prioritaire, motif et absence de cellules
  assert.match(read("src/i18n/member-team-scope.fr.json"),/"exit": "Sortie de l\x27équipe"/);
  assert.match(read("src/i18n/member-team-scope.en.json"),/"exit": "Left the team"/);
 });
+
+test("SMN-45 : ajout d'absence historique après fin d'affectation",()=>{
+ const editor=read("src/app/app/admin/members/member-absence-editor.tsx");
+ const endpoint=read("src/app/api/admin/members/[id]/team-absence/route.ts");
+ const service=read("src/server/members/absence.ts");
+ assert.match(view,/const assignedDays=days\.filter\(d=>!d\.isExit\)/);
+ assert.match(view,/assignedDays\.some\(d=>d\.date===today\)\?today/);
+ assert.match(view,/assignedDays\[0\]\?\.date\?\?active\?\.endOn\?\?active\?\.startOn/);
+ assert.match(view,/initialDate=\{absenceInitialDate\}/);
+ assert.doesNotMatch(view,/initialDate=\{new Date\(\)\.toISOString\(\)\.slice/);
+ assert.match(editor,/new URLSearchParams\(\{teamId,onDate:initialDate\?\?""\}\)/);
+ assert.match(endpoint,/a\.start_on<=\$3::date AND \(a\.end_on IS NULL OR a\.end_on>=\$3::date\)/);
+ assert.match(service,/a\.start_on<=startOn/);
+ assert.match(service,/a\.end_on===null\|\|a\.end_on>=endOn/);
+});
