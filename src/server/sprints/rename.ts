@@ -22,7 +22,7 @@ export async function renameSprint(db:Client,actorId:string,id:string,raw:unknow
  try{
   const current=await db.query<{id:string;team_id:string;name:string;status:string}>(`SELECT s.id,s.team_id,s.name,s.status FROM public.smn_sprint s
    JOIN public.smn_team t ON t.id=s.team_id JOIN public.smn_installation i ON i.id=t.installation_id
-   WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND ( (i.schema_version<=27 AND lower(i.mode)='scrum' AND $2::text IS NULL) OR (i.schema_version BETWEEN 28 AND 32 AND s.team_id=$2 AND lower(t.agile_mode)='scrum' AND t.is_archived=false) ) FOR UPDATE OF s`,[id,team?.team_id??null]);
+   WHERE s.id=$1 AND s.deleted_at IS NULL AND i.id='singleton' AND i.state='initialized' AND ( (i.schema_version<=27 AND lower(i.mode)='scrum' AND $2::text IS NULL) OR (i.schema_version>=28 AND s.team_id=$2 AND lower(t.agile_mode)='scrum' AND t.is_archived=false) ) FOR UPDATE OF s`,[id,team?.team_id??null]);
   const before=current.rows[0];
   if(!before){await db.query("ROLLBACK");return {ok:false as const,error:"not-found" as const};}
   const duplicate=await db.query<{id:string}>(`SELECT id FROM public.smn_sprint WHERE team_id=$1 AND deleted_at IS NULL AND id<>$2 AND lower(name)=lower($3) LIMIT 1`,[before.team_id,id,name]);
