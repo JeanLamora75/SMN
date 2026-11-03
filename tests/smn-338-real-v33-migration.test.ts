@@ -1,3 +1,4 @@
+import {createV32RestorationSource} from "./helpers/v32-restoration-fixture";
 import {test} from "node:test";
 import assert from "node:assert/strict";
 import {randomBytes} from "node:crypto";
@@ -12,9 +13,11 @@ import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
 
 test("SMN-338 : migration versionnée v33 sur restauration complète isolée", {timeout:240000},async()=>{
- const uri=new URL(await installedDatabaseUri());
+ const ci=process.env.CI==="true"&&process.env.GITHUB_ACTIONS==="true";
+ const fixture=ci?await createV32RestorationSource(process.env.SMN_DATABASE_URL!):null;
+ const uri=new URL(fixture?.uri??await installedDatabaseUri());
  if(!["postgres:","postgresql:"].includes(uri.protocol)||
-   !["127.0.0.1","localhost","::1"].includes(uri.hostname)||uri.pathname!=="/smn")
+   !["127.0.0.1","localhost","::1"].includes(uri.hostname)||(!fixture&&uri.pathname!=="/smn"))
   throw Error("Sécurité: la source doit être smn sur PostgreSQL local");
  const targetName="smn338_restaure_"+randomBytes(6).toString("hex");
  const adminUri=new URL(uri.toString());adminUri.pathname="/postgres";
@@ -89,6 +92,6 @@ test("SMN-338 : migration versionnée v33 sur restauration complète isolée", {
   }finally{await db.end().catch(()=>undefined)}
  }finally{
   try{if(created)await admin.query('DROP DATABASE "'+targetName+'" WITH (FORCE)')}
-  finally{await admin.end().catch(()=>undefined);rmSync(temp,{recursive:true,force:true})}
+  finally{await admin.end().catch(()=>undefined);rmSync(temp,{recursive:true,force:true});if(fixture)await fixture.dispose()}
  }
 });
