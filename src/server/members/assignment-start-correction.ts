@@ -29,7 +29,7 @@ export async function correctAssignmentStart(db:Client,memberId:string,actorId:s
   }
   // Check overlap with every other assignment, in both correction directions.
   const overlaps=await db.query(`SELECT id FROM public.smn_member_assignment WHERE member_id=$1 AND id<>$2
-    AND start_on<=COALESCE($3::date,$4::date)
+    AND start_on<=COALESCE($3::date,'infinity'::date)
     AND (end_on IS NULL OR end_on>=$4::date) LIMIT 1`,
     [memberId,v.assignmentId,a.end_on,newStartOn]);
   if(overlaps.rows.length){await db.query("ROLLBACK");return {ok:false as const,error:"overlap"};}
