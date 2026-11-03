@@ -26,6 +26,8 @@
     "function": "Fonction",
     "noRole": "Rôle non renseigné",
     "noFunction": "Fonction non renseignée",
-    "notAvailable": "Indisponible"
+    "notAvailable": "Indisponible",
+    "exit": "Sortie de l'équipe",
+    "exitUnknownReason": "Motif non renseigné"
   }
 }
