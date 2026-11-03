@@ -100,14 +100,32 @@
  .smn-member-edit-dialog .smn-cockpit-form-actions .btn{max-width:100%}
 }
 
-/* Calendrier membre : priorité visuelle férié > week-end > Sprint. */
-.smn-member-cockpit .smn-member-month-columns tr.smn-member-weekend>:is(th,td){
- background:color-mix(in srgb,var(--smn-muted-soft) 82%,var(--smn-surface));
+/* Bootstrap .table dessine son fond via un box-shadow inset.
+   Le simple background précédent restait invisible sous ce calque.
+   Définir les variables Bootstrap sur les cellules ET enlever ce calque
+   garantit le contraste pour chaque mois et dans les deux colonnes. */
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-weekend > :is(th,td){
+ --bs-table-bg:color-mix(in srgb,var(--smn-brand) 14%,var(--smn-surface));
+ --bs-table-bg-state:transparent;
+ --bs-table-bg-type:transparent;
+ background-color:var(--bs-table-bg);
+ box-shadow:none;
  color:var(--smn-foreground);
 }
-.smn-member-cockpit .smn-member-month-columns tr.smn-member-holiday>:is(th,td){
- background:color-mix(in srgb,#f4ca65 27%,var(--smn-surface));
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-weekend > th{
+ border-left:3px solid var(--smn-brand);
+ font-weight:800;
+}
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-holiday > :is(th,td){
+ --bs-table-bg:color-mix(in srgb,#f4ca65 35%,var(--smn-surface));
+ --bs-table-bg-state:transparent;
+ --bs-table-bg-type:transparent;
+ background-color:var(--bs-table-bg);
+ box-shadow:none;
  border-bottom-color:color-mix(in srgb,#b77e1e 50%,var(--smn-border));
+}
+.smn-member-cockpit .smn-member-month-columns tr.smn-member-holiday > th{
+ border-left:3px solid #b77e1e;
 }
 .smn-member-cockpit .smn-member-month-columns tr.smn-member-holiday th{
  color:var(--smn-heading);font-weight:800;
