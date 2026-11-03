@@ -68,7 +68,7 @@ export async function GET(request:NextRequest,{params}:{params:Promise<{id:strin
     allocationPercent:latest.allocationPercent,contributionPercent:latest.contributionPercent,
     shares:{scrumMaster:latest.scrumMasterPercent,productOwner:latest.productOwnerPercent,developer:latest.developerPercent},
     developerShare:latest.developerPercent/100
-   },versions:[...history.versions].reverse().map(v=>({
+   },versions:history.versions.filter(v=>v.assignmentId===latest.assignmentId).reverse().map(v=>({
     revision:v.revision,effectiveFrom:v.effectiveFrom,contractPercent:v.contractPercent,
     allocationPercent:v.allocationPercent,contributionPercent:v.contributionPercent,
     shares:{scrumMaster:v.scrumMasterPercent,productOwner:v.productOwnerPercent,developer:v.developerPercent},
