@@ -24,8 +24,11 @@ export async function POST(req:NextRequest){
     accountId:actor.id,role:actor.role
    },requestedTeamId);
    if(context.version===28){
-    if(!MULTI_TEAM_CONTEXT_READY||
-       process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true")
+    const version=await db.query<{schema_version:number}>(
+     "SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
+    if(version.rows[0]?.schema_version!==33&&
+       (!MULTI_TEAM_CONTEXT_READY||
+       process.env.SMN_MULTI_TEAM_WRITES_ENABLED!=="true"))
      throw Error("registry-team-write-not-ready");
     if(!requestedTeamId||context.team?.team_id!==requestedTeamId)
      throw Error("registry-team-write-forbidden");
