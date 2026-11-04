@@ -66,8 +66,25 @@ test("Dashboard Builder: en-tête Cockpit Agile unique et commandes intégrées"
  assert.doesNotMatch(page,/← Tableau de bord principal/);
  assert.doesNotMatch(page,/<h2 className="h5 mb-0">\{data.teamName\}/);
  assert.match(consultation,/aria-label="En-tête du tableau de bord"/);
- assert.match(consultation,/className="h4 fw-bold mb-0"/);
+ assert.match(consultation,/className=\{styles\.cockpitTitle\}/);
  assert.match(consultation,/\{headerActions\}/);
  assert.match(consultation,/Actualiser/);
  assert.doesNotMatch(consultation,/<h1 className="h4 mb-0">Tableau de bord<\/h1>/);
+});
+
+test("Dashboard Builder: référence Cockpit Agile respecte shell et jauge sans bornes fictives",()=>{
+ const shell=readFileSync(new URL("../src/app/app/private-shell.tsx",import.meta.url),"utf8");
+ const consultation=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+ const visual=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-visualization.tsx",import.meta.url),"utf8");
+ const css=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-dimensions.module.css",import.meta.url),"utf8");
+ assert.match(shell,/<PrivateNavigation /);
+ assert.match(shell,/<ActiveTeamSelector /);
+ assert.match(consultation,/styles\.cockpitHeader/);
+ assert.match(consultation,/styles\.headerKpis/);
+ assert.match(consultation,/layout\.header\.blocks\.map/);
+ assert.doesNotMatch(consultation,/<ActiveTeamSelector/);
+ assert.match(consultation,/slot\.view==="gauge"\?\{state:"invalid-bounds"/);
+ assert.match(visual,/model\.ratio===undefined/);
+ assert.match(css,/\.cockpitLayout/);
+ assert.match(css,/@media\(max-width:767\.98px\)/);
 });
