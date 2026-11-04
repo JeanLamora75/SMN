@@ -1,4 +1,5 @@
 import {nativeBaselineSql,nativeV32HistoryValid,NATIVE_V32_NAME} from "./native-v32";
+import {nativeV33BaselineSql,nativeV33HistoryValid,NATIVE_V33_NAME} from "./native-v33";
 import {SMN338_V33_NAME,INDICATOR_TABLES,indicatorV33Sql} from "./indicator-v33-contract";
 import { createHash } from "node:crypto";
 import {readFileSync} from "node:fs";
@@ -92,6 +93,10 @@ export function classifySnapshot(snapshot: Snapshot): Diagnostic {
   const isV29 = records[0].schema_version >= 29;
   const isV30 = records[0].schema_version >= 30;
   if(records[0].schema_version===33){
+    // Native v33 installations record one checksum for the complete schema.
+    // Do not alter the validation of existing v32+v33 installations.
+    if(migrations?.some(m=>m.migration_name===NATIVE_V33_NAME))
+      return result(nativeV33HistoryValid(snapshot,nativeV33BaselineSql())?"initialized":"installation-incomplete");
     const v33=migrations?.find(m=>m.migration_name===SMN338_V33_NAME);
     const ddl=indicatorV33Sql();
     const validV33=!!v33&&v33.checksum===createHash("sha256").update(ddl).digest("hex")&&
