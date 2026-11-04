@@ -1,3 +1,4 @@
+import {revisionImpactWindow} from "@/server/members/assignment-revision-impact";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
@@ -46,8 +47,9 @@ export async function cancelLatestTeamAssignmentRevision(db:Client,actor:TeamAct
    WHERE assignment_id=$1 ORDER BY revision DESC FOR UPDATE`,[input.assignmentId]);
   if(versions.rows.length<2||versions.rows[0].revision!==input.revision)
    return fail("conflict");
-  // A deleted version changes effective capacity: never change a closed sprint
-  // or a frozen sprint snapshot. Scope to the same team and assignment period.
+  const target=versions.rows[0];
+  const impact=revisionImpactWindow(versions.rows,target,assignment.rows[0].end_on);
+  if(impact){
   const frozen=await db.query(`
    SELECT 1 FROM public.smn_sprint s
    WHERE s.team_id=$1 AND
@@ -56,7 +58,7 @@ export async function cancelLatestTeamAssignmentRevision(db:Client,actor:TeamAct
     AND (s.start_at AT TIME ZONE s.time_zone)::date <=
       COALESCE($3::date,'infinity'::date)
     AND (s.end_at AT TIME ZONE s.time_zone)::date >= $2::date
-   LIMIT 1`,[team.team_id,assignment.rows[0].start_on,assignment.rows[0].end_on]);
+   LIMIT 1`,[team.team_id,impact.start,impact.end]);
   if(frozen.rows.length)return fail("frozen-period");
   // Initial capacity snapshots and archived reports are immutable and may
   // contain derived role capacity. Refuse conservatively, never infer safety.
@@ -65,7 +67,7 @@ export async function cancelLatestTeamAssignmentRevision(db:Client,actor:TeamAct
    JOIN public.smn_capacity_period_override period ON period.id=snap.period_id
    WHERE period.team_id=$1 AND period.start_on<=COALESCE($3::date,'infinity'::date)
     AND period.end_on>=$2::date LIMIT 1`,
-   [team.team_id,assignment.rows[0].start_on,assignment.rows[0].end_on]);
+   [team.team_id,impact.start,impact.end]);
   if(initial.rows.length)return fail("frozen-period");
   const archives=await db.query(`
    SELECT 1 FROM public.smn_report_pdf_archive archive
@@ -74,10 +76,10 @@ export async function cancelLatestTeamAssignmentRevision(db:Client,actor:TeamAct
     AND (s.id IS NULL OR (
      (s.start_at AT TIME ZONE s.time_zone)::date <= COALESCE($3::date,'infinity'::date)
      AND (s.end_at AT TIME ZONE s.time_zone)::date >= $2::date))
-   LIMIT 1`,[team.team_id,assignment.rows[0].start_on,assignment.rows[0].end_on]);
+   LIMIT 1`,[team.team_id,impact.start,impact.end]);
   if(archives.rows.length)return fail("frozen-period");
 
-  const target=versions.rows[0];
+  }
   // Audit is written first, in the same transaction as the actual deletion.
   // This is not an unaudited deletion, and the original row is recoverable.
   await db.query(`INSERT INTO public.smn_member_lifecycle_event
