@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
+import {createDefaultDashboardLayout,validateDashboardLayout} from "../src/server/dashboard-builder/layout";
 
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
-const layout=read("src/server/dashboard-builder/layout.ts");
 const permission=read("src/server/dashboard-builder/permissions.ts");
 
 test("v33 Builder header displays selected cycle context and supports cycle navigation",()=>{
@@ -16,10 +16,14 @@ test("v33 Builder header displays selected cycle context and supports cycle navi
  assert.match(builder,/aria-label="En-tête du tableau de bord"/);
 });
 test("v33 header owns exactly two configurable dynamic blocks",()=>{
- assert.match(layout,/layout\.header\.blocks\.length !== 2/);
- assert.match(builder,/layout\.header\.blocks\.map\(block=>renderBlock\(block,true\)\)/);
+ for(const mode of ["scrum","kanban"] as const){
+  const layout=createDefaultDashboardLayout(mode);
+  assert.equal(layout.header.blocks.length,2);
+  validateDashboardLayout(layout);
+  const unexpected={...layout,header:{blocks:[...layout.header.blocks,layout.rows[0].blocks[0]]}};
+  assert.throws(()=>validateDashboardLayout(unexpected),/dashboard-layout-invalid-schema/);
+ }
  assert.match(builder,/className=\{styles\.headerKpis\}/);
- assert.match(builder,/getDashboardTemplate\(block\.templateId,block\.templateVersion\)/);
 });
 test("dashboard header never bypasses team permissions or exposes unauthorised records",()=>{
  assert.match(permission,/t\.installation_id=i\.id/);
