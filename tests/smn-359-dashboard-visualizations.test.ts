@@ -40,8 +40,11 @@ test("SMN-359 AC2: view is part of persisted slot schema",()=>{
 });
 test("SMN-359 AC4: theme-inheriting SVG and accessible textual data",()=>{
  const renderer=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-visualization.tsx",import.meta.url),"utf8");
- assert.match(renderer,/currentColor/);
+ const css=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-dimensions.module.css",import.meta.url),"utf8");
  assert.match(renderer,/role="img"/);
  assert.match(renderer,/aria-valuenow/);
- assert.match(renderer,/<table>/);
+ assert.match(renderer,/<figcaption className="visually-hidden">/);
+ assert.match(renderer,/p\.value===null\?labels\.nullValue/);
+ assert.match(css,/\.chartStroke\{[^}]*stroke:var\(--smn-brand\)/);
+ assert.match(css,/\.chartLabel\{[^}]*fill:var\(--smn-muted\)/);
 });
