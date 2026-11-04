@@ -10,7 +10,9 @@ test("B01 additive migration and native installation parity",()=>{
  assert.match(sql,/UNIQUE\(team_id,indicator_id\)/);
  assert.match(sql,/slot_index BETWEEN 1 AND 4/);
  assert.match(sql,/slot_index BETWEEN 1 AND 2/);
- assert.match(installer,/20261101_smn_dashboard_slots_additive/);
+ const baseline=read("prisma/baseline/v33/schema.sql");
+ assert.ok(installer.includes("nativeV33BaselineSql("));
+ assert.ok(baseline.includes(sql.trim()),"Native v33 baseline includes legacy dashboard slots DDL");
  assert.match(diagnostic,/20261101_smn_dashboard_slots_additive/);
 });
 test("B01 assignment is atomic and validates selected active indicators",()=>{
