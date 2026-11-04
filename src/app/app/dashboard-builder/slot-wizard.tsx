@@ -5,7 +5,11 @@ import {compatibleVisualizations} from "@/server/dashboard-builder/visualization
 import type {DashboardSlot} from "@/server/dashboard-builder/layout";
 import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import {normalizeSlotOptions,type SlotOptions} from "@/lib/dashboard-builder/slot-options";
+import {useDashboardModalFocus} from "./modal-focus";
+import ui from "./modal-ux.module.css";
 
+const categoryNames:Record<string,string>={indicator:"Indicateurs",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",notes:"Notes",objective:"Objectifs",team:"Équipe",link:"Liens"};
+const columnNames:Record<string,string>={label:"Nom",kind:"Type",status:"Statut",date:"Date"};
 const viewNames:Partial<Record<SourceView,string>>={
  number:"Valeur numérique",card:"Carte KPI",gauge:"Jauge",line:"Courbe",bar:"Histogramme",list:"Liste métier",text:"Texte",
 };
@@ -38,11 +42,8 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
    }).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
   return ()=>controller.abort();
  },[teamId,initialSlot?.source]);
- useEffect(()=>{
-  const handle=(event:KeyboardEvent)=>{if(event.key==="Escape")onClose();};
-  window.addEventListener("keydown",handle);
-  return ()=>window.removeEventListener("keydown",handle);
- },[onClose]);
+ const focus=useDashboardModalFocus(onClose,!confirmClear);
+ const clearFocus=useDashboardModalFocus(()=>setConfirmClear(false),confirmClear);
  const filtered=useMemo(()=>sources.filter(s=>
   s.status==="available"&&
   (category==="all"||s.category===category)&&
@@ -55,39 +56,41 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
    onConfirm(selected.code,view,clean);
   }catch(e){setOptionError(e instanceof Error?e.message:"Options invalides");}
  };
- return <div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1060}}>
-  <div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-   <div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="slot-wizard-title">
-    <div className="modal-header">
-     <h2 className="modal-title fs-5" id="slot-wizard-title">Configurer un emplacement — étape {selected?"2":"1"} sur 2</h2>
-     <button type="button" className="btn-close" aria-label="Fermer" onClick={onClose}/>
+ return <div className={ui.overlay} role="presentation">
+  <div className={ui.dialog} ref={focus} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="slot-wizard-title">
+    <div className={ui.header}>
+     <div><h2 className={ui.headerTitle} id="slot-wizard-title">Configurer un emplacement</h2>
+      <p className={ui.headerSubtitle}>{selected?"Choisissez la représentation et ajustez les options.":"Sélectionnez les informations à afficher."}</p>
+      <div className={ui.steps}><span className={!selected?ui.stepCurrent:""}>1 · Choix de la source</span><span aria-hidden="true">→</span><span className={selected?ui.stepCurrent:""}>2 · Visualisation et options</span></div>
+     </div>
+     <button type="button" className={ui.close} aria-label="Fermer" onClick={onClose}>×</button>
     </div>
-    <div className="modal-body">
+    <div className={ui.body}>
      {!selected?<div>
-      <div className="row g-2 mb-3">
-       <div className="col-12 col-md-7"><label htmlFor="slot-search" className="form-label">Rechercher une source</label>
-        <input id="slot-search" className="form-control" value={search} onChange={e=>setSearch(e.target.value)}/></div>
-       <div className="col-12 col-md-5"><label htmlFor="slot-category" className="form-label">Catégorie</label>
-        <select id="slot-category" className="form-select" value={category} onChange={e=>setCategory(e.target.value)}>
-         <option value="all">Toutes les catégories</option>
-         {[...new Set(sources.filter(s=>s.status==="available").map(s=>s.category))].map(c=><option key={c} value={c}>{c}</option>)}
-        </select></div>
+      <div className="mb-3">
+       <label htmlFor="slot-search" className="form-label fw-semibold">Rechercher une source</label>
+       <input id="slot-search" className="form-control" placeholder="Par exemple : vélocité, risques, cérémonies…" value={search} onChange={e=>setSearch(e.target.value)}/>
+      </div>
+      <div className={`${ui.chips} mb-3`} role="group" aria-label="Catégorie des sources">
+       {["all",...[...new Set(sources.filter(item=>item.status==="available").map(item=>item.category))]].map(c=>
+        <button key={c} type="button" aria-pressed={category===c} className={`${ui.chip} ${category===c?ui.chipActive:""}`} onClick={()=>setCategory(c)}>
+         {c==="all"?"Toutes":categoryNames[c]??"Autres sources"}
+        </button>)}
       </div>
       {loading?<p role="status">Chargement des sources…</p>:error?<p role="alert" className="alert alert-warning">{error}</p>:
        !filtered.length?<p role="status">Aucune source correspondant à votre recherche.</p>:
-       <div className="list-group">{filtered.map(s=><button key={s.code} type="button"
-        className="list-group-item list-group-item-action text-start" disabled={s.status!=="available"}
-        onClick={()=>chooseSource(s)}>
-        <strong>{s.name}</strong>
-        <span className="ms-2 small text-body-secondary">{({indicator:"Indicateur",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",notes:"Notes",objective:"Objectifs",team:"Équipe",link:"Liens"} as const)[s.category]} · {s.scope==="cycle"?"Par cycle":"Par équipe"}{s.unit?" · "+s.unit:""}</span>
-        
-       </button>)}</div>}
+       <div className="row g-2" aria-label="Sources disponibles">{filtered.map(source=><div className="col-12 col-md-6" key={source.code}>
+        <button type="button" className={ui.card} onClick={()=>chooseSource(source)}>
+         <span className={ui.cardName}>{source.name}</span>
+         <span className="d-block small text-body-secondary mt-2">{categoryNames[source.category]??"Source métier"} · {source.scope==="cycle"?"Par cycle":"Par équipe"}{source.unit?" · "+source.unit:""}</span>
+        </button>
+       </div>)}</div>}
      </div>:<div className="row g-3">
       <div className="col-12 col-lg-7">
-       <h3 className="h6">Visualisations compatibles — {selected.name}</h3>
+       <h3 className={ui.sectionTitle}>Visualisations compatibles — {selected.name}</h3>
        <div className="row g-2">{views.map(item=><div key={item.kind} className="col-6 col-sm-4">
         <button type="button" onClick={()=>setView(item.kind)}
-         className={`btn w-100 h-100 p-3 ${view===item.kind?"btn-primary":"btn-outline-secondary"}`}
+         className={`${ui.card} ${view===item.kind?ui.cardSelected:""} text-center`}
          aria-pressed={view===item.kind}>
          <span aria-hidden="true" className="d-block fs-3">{item.thumbnail}</span>
          <span className="small fw-semibold d-block">{viewNames[item.kind]??item.kind}</span>
@@ -95,8 +98,8 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
        </div>)}</div>
       </div>
       <div className="col-12 col-lg-5">
-       <section className="smn-panel p-3 h-100" aria-label="Aperçu de la visualisation">
-        <h3 className="h6">Aperçu</h3>
+       <section className={ui.preview} aria-label="Aperçu de la visualisation">
+        <h3 className={ui.sectionTitle}>Aperçu du rendu</h3>
         {view?<div className="d-flex flex-column gap-3" aria-label="Aperçu de la composition, sans données fictives">
          <div className="small fw-semibold text-body-secondary">{viewNames[view]??view} · {selected.name}</div>
          <div className="border rounded-3 p-3 bg-body-tertiary">
@@ -113,7 +116,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
        </section>
       </div>
       <div className="col-12">
-       <details className="border rounded p-3">
+       <details className="border rounded-3 p-3 bg-body-tertiary">
         <summary>Options avancées</summary>
         <div className="row g-3 mt-2">
          <div className="col-12 col-md-6">
@@ -148,9 +151,17 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
             onChange={e=>setOptions(o=>({...o,sort:e.target.value as SlotOptions["sort"]||undefined}))}>
             <option value="">Par défaut</option><option value="asc">Croissant</option><option value="desc">Décroissant</option>
            </select></div>
-          <div className="col-12"><label htmlFor="slot-columns" className="form-label">Colonnes (codes séparés par une virgule)</label>
-           <input id="slot-columns" className="form-control" value={(options.columns??[]).join(",")}
-            onChange={e=>setOptions(o=>({...o,columns:e.target.value?e.target.value.split(",").map(x=>x.trim()):undefined}))}/></div>
+          <div className="col-12">
+           <fieldset className="border rounded-3 p-3"><legend className="float-none w-auto fs-6 px-2 mb-0">Colonnes à afficher</legend>
+            <p className="small text-body-secondary">Sélectionnez les informations utiles dans la liste.</p>
+            <div className="d-flex flex-wrap gap-3">{Object.entries(columnNames).map(([key,name])=>
+             <label key={key} className="form-check">
+              <input type="checkbox" className="form-check-input" checked={(options.columns??[]).includes(key)}
+               onChange={e=>setOptions(o=>{const previous=o.columns??[];const columns=e.target.checked?[...previous,key]:previous.filter(v=>v!==key);return {...o,columns};})}/>
+              <span className="form-check-label">{name}</span>
+             </label>)}</div>
+           </fieldset>
+          </div>
          </>}
         </div>
        </details>
@@ -158,25 +169,24 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
       </div>
      </div>}
     </div>
-    <div className="modal-footer justify-content-between">
+    <div className={ui.footer}>
      <div>{initialSlot?.source&&<button type="button" className="btn btn-outline-danger" onClick={()=>setConfirmClear(true)}>Vider cet emplacement</button>}{selected&&<button type="button" className="btn btn-outline-secondary" onClick={()=>{setSelected(null);setView(null);}}>Retour aux sources</button>}</div>
      <div className="d-flex gap-2">
       <button type="button" className="btn btn-outline-secondary" onClick={onClose}>Annuler</button>
       {selected&&<button type="button" className="btn btn-primary" disabled={!view}
-       onClick={confirm}>Confirmer</button>}
+       onClick={confirm}>Appliquer au brouillon</button>}
      </div>
     </div>
    </div>
-  </div>
-  {confirmClear&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1070}}>
-   <div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="dialog" aria-modal="true" aria-labelledby="slot-clear-title">
-    <div className="modal-header"><h3 className="modal-title fs-5" id="slot-clear-title">Vider cet emplacement ?</h3></div>
-    <div className="modal-body">Seul cet emplacement sera vidé dans le brouillon.</div>
-    <div className="modal-footer">
+  {confirmClear&&<div className={ui.overlay} role="presentation" style={{zIndex:1070}}>
+   <div className={`${ui.dialog} ${ui.dialogNarrow}`} ref={clearFocus} tabIndex={-1} role="alertdialog" aria-modal="true" aria-labelledby="slot-clear-title">
+    <div className={ui.header}><h3 className={ui.headerTitle} id="slot-clear-title">Vider cet emplacement ?</h3></div>
+    <div className={ui.body}>La source et les options de cet emplacement seront retirées du brouillon. Le Dashboard enregistré ne changera pas tant que vous ne sauvegarderez pas.</div>
+    <div className={ui.footer}>
      <button className="btn btn-outline-secondary" onClick={()=>setConfirmClear(false)}>Conserver</button>
      <button className="btn btn-danger" onClick={onClear}>Confirmer le vidage</button>
     </div>
-   </div></div>
+   </div>
   </div>}
  </div>;
 }
