@@ -22,8 +22,11 @@ test("SMN-365 AC3: confirmation updates draft only",()=>{
  assert.match(wizard,/onConfirm\(selected.code,view,clean\)/);
 });
 test("SMN-365 AC4: unavailable sources, return, cancel and close",()=>{
- assert.match(wizard,/disabled=\{s\.status!=="available"\}/);
+ assert.match(wizard,/disabled=\{source\.status!=="available"\}/);
+ assert.match(wizard,/chooseSource\(source\)/);
  assert.match(wizard,/Retour aux sources/);
  assert.match(wizard,/onClose/);
- assert.match(wizard,/event\.key==="Escape"/);
+ const focus=readFileSync(new URL("../src/app/app/dashboard-builder/modal-focus.ts",import.meta.url),"utf8");
+ assert.match(wizard,/useDashboardModalFocus\(onClose/);
+ assert.match(focus,/event\.key==="Escape"/);
 });
