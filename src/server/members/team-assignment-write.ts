@@ -70,7 +70,12 @@ export async function saveTeamAssignmentRevision(
   if(input.effectiveFrom<latest.effective_from)
    return fail("date-before-latest");
 
-  const next=latest.revision+1;
+  const cancelled=await db.query<{max_revision:number|null}>(`
+   SELECT MAX((details->>'cancelledRevision')::int) AS max_revision
+   FROM public.smn_member_lifecycle_event
+   WHERE assignment_id=$1 AND action='delete'
+    AND details->>'kind'='assignment-version-cancellation'`,[active.id]);
+  const next=Math.max(latest.revision,cancelled.rows[0]?.max_revision??0)+1;
   if(!Number.isSafeInteger(next))return fail("conflict");
   await db.query(`INSERT INTO public.smn_member_assignment_version
    (id,assignment_id,revision,allocation_percent,contract_percent,
