@@ -84,3 +84,20 @@ Un clic sur **Modifier** corrige désormais les valeurs de la révision choisie 
 **Conséquence** : les lecteurs dynamiques de capacité basés sur `smn_member_assignment_version` utilisent les seules révisions actives après l'annulation. Vérifier les indicateurs de charge totale et par rôle sur sprint ouvert avant/après la correction. Les données déjà figées ne sont pas recalculées.
 
 **État :** code publié sur main ; tests, compilation et recette PostgreSQL restent non exécutés dans cet environnement. Ne pas utiliser cette suppression avant sauvegarde vérifiée de la base.
+
+
+## Avenant du 04/11/2026 — changements de rôles datés (distincts des corrections)
+
+**Besoin validé :** permettre de tracer les changements réellement intervenus à une date d'effet libre dans la période d'affectation, indépendamment de la date du jour. Exemple : 06/01/2026 Développeur (100 %), 20/02/2026 Product Owner (100 %) pour remplacement, 04/05/2026 Développeur (100 %).
+
+**Règles et critères d'acceptation**
+1. L'action **Nouveau changement de rôle daté** crée une nouvelle version métier, avec date d'effet saisissable entre la date de début et la date de fin de l'affectation (si elle est terminée), y compris rétroactivement. La date du jour n'est pas une borne minimale.
+2. La version s'applique dès sa date d'effet incluse, jusqu'à la veille de la version suivante ou la fin d'affectation ; la sélection dans les capacités est gouvernée par `effective_from`, puis `revision`, et **non** par la seule date de création.
+3. La date du changement ne peut pas précéder l'entrée ni dépasser la sortie. Une autre révision à date identique est rejetée explicitement : utiliser **Corriger une révision existante** à la place.
+4. **Corriger une révision existante** modifie une erreur de saisie sur la version choisie et n'ajoute pas de nouvelle version ; l'audit avant/après est conservé.
+5. Un changement passé est interdit si son intervalle d'effet recouvre un sprint clôturé, un snapshot de clôture, une capacité initiale figée ou un rapport archivé. Un refus doit expliquer l'existence de données figées.
+6. Contrôles serveur : droits administrateur dans l'équipe, révisions optimistes, absence de chevauchement d'affectations, intégrité des 100 % de rôles et des taux d'allocation/contribution. La modale affiche clairement les deux parcours.
+7. Tableau historique : **Date d'effet** visible pour chaque version, et conservation des versions lors d'un changement réel de fonction.
+8. Tests : transitions Développeur → Product Owner → Développeur, insertion d'un changement passé entre deux versions, date déjà existante, concurrence, snapshots figés et calcul des charges de sprint.
+
+**Implémentation :** `src/server/members/team-assignment-dated-change.ts`, route `team-assignment/dated-change`, `assignment-editor.tsx`, `member-team-read-only.tsx`. Publication sur main ; exécution TypeScript/tests/PG non encore effectuée.
