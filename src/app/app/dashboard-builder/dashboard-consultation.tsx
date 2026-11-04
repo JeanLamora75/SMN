@@ -19,8 +19,8 @@ function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot
  const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
 }
-export default function DashboardConsultation({layout,teamId,navigation,mode,locale="fr",personalizing=false,canManage=false,headerActions}:{
- layout:DashboardLayout;teamId:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
+export default function DashboardConsultation({layout,teamId,teamName,navigation,mode,locale="fr",personalizing=false,canManage=false,headerActions}:{
+ layout:DashboardLayout;teamId:string;teamName?:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
  mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;headerActions?:ReactNode;
 }){
  const cycleId=navigation.current?.id??null;
@@ -89,6 +89,7 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
   <header className={styles.cockpitHeader} aria-label="En-tête du tableau de bord">
    <div className={styles.cockpitLayout}>
     <div>
+     {teamName&&<div className={styles.cockpitMeta}>Équipe : {teamName}</div>}
      <div className={styles.cockpitNav}>
       {navigation.previous&&!personalizing?<Link aria-label="Sprint précédent" href={cycleLink(navigation.previous)} className={styles.cycleLink}>‹</Link>:
        <button type="button" aria-label="Sprint précédent" className={styles.cycleLink} disabled>‹</button>}
