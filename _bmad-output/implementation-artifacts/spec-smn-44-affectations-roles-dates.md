@@ -71,3 +71,16 @@ Qualifications requises : `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnp
 **Critères d'acceptation** : voir [SMN-379](https://lmn24.atlassian.net/browse/SMN-379) ; tests client, serveur, PostgreSQL et rapports figés requis. Une évolution du schéma doit utiliser une migration additive/versionnée, jamais une DDL exécutée au chargement d'une page.
 
 **État** : documentation et Jira validés, implémentation à qualifier ; aucun test local/PG déclaré réussi sans exécution.
+
+
+## Correctif opérationnel du 04/11/2026 — annulation auditée des saisies erronées
+
+Un clic sur **Modifier** corrige désormais les valeurs de la révision choisie *sans créer une nouvelle révision*. La transaction capture les anciennes et nouvelles valeurs dans le journal de cycle de vie (identifiant de la version, date et auteur). La date d'effet n'est pas changée par ce geste.
+
+**Annuler la dernière révision** : cette opération ne s'applique qu'au numéro actif le plus élevé, jamais à R1. Elle réalise un DELETE transactionnel **dans la table des versions applicables**, après insertion de la ligne complète dans `smn_member_lifecycle_event` (details.kind=`assignment-version-cancellation`). L'annulation est donc réversible par une procédure de restauration auditée, mais cette procédure n'est pas encore disponible dans l'interface. Aucune renumérotation ; les nouveaux numéros des services multiéquipe sont calculés à partir de la table active **et** des numéros archivés dans l'audit.
+
+**Garde-fous** : équipe/administrateur contrôlés, verrou des écritures concurrentes, rejet si R1 ou non dernière, rejet si sprint clos ou snapshot de clôture sur la période, snapshot initial de capacité, ou rapport PDF archivé de l'équipe. Les requêtes de garde sont exécutées avant suppression ; si elles échouent, rollback total. Les rapports et les capacités figées ne sont pas modifiés.
+
+**Conséquence** : les lecteurs dynamiques de capacité basés sur `smn_member_assignment_version` utilisent les seules révisions actives après l'annulation. Vérifier les indicateurs de charge totale et par rôle sur sprint ouvert avant/après la correction. Les données déjà figées ne sont pas recalculées.
+
+**État :** code publié sur main ; tests, compilation et recette PostgreSQL restent non exécutés dans cet environnement. Ne pas utiliser cette suppression avant sauvegarde vérifiée de la base.
