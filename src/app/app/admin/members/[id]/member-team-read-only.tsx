@@ -57,6 +57,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const [worked,setWorked]=useState<number|null>(null);
  const [annualMonths,setAnnualMonths]=useState<{month:string;halfDays:number}[]>([]);
  const [editor,setEditor]=useState<"profile"|"assignment"|"location"|"calendar"|"absence"|null>(null);
+ const [targetRevision,setTargetRevision]=useState<number|null>(null);
  const dialogRef=useRef<HTMLDialogElement>(null);
  const [refreshKey,setRefreshKey]=useState(0);
  const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
@@ -170,7 +171,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
     <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("profile")}>Profil</button>
     <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("location")}>Localisation</button>
     <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("calendar")}>Calendrier</button>
-    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>setEditor("assignment")}>Affectation</button>
+    <button type="button" className="smn-member-readonly smn-member-back" onClick={()=>{setTargetRevision(null);setEditor("assignment");}}>Affectation</button>
     <Link className="smn-member-readonly smn-member-back" href={backHref}>← {t("memberTeamScope.back")}</Link>
    </div>
   </header>
@@ -182,7 +183,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
     </div>
     <div className="smn-cockpit-modal-body smn-member-edit-body">
-     {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
+     {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped targetRevision={targetRevision} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={absenceInitialDate} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
       onCancel={()=>setEditor(null)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditor(null);router.refresh();}}/>:
@@ -218,12 +219,26 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
       <th scope="col">{t("memberTeamScope.end")}</th>
       <th scope="col">{t("memberTeamScope.allocation")}</th>
       <th scope="col">SM</th><th scope="col">PO</th><th scope="col">DEV</th>
-      <th scope="col">{t("memberTeamScope.revision")}</th>
+      <th scope="col">{t("memberTeamScope.revision")}</th><th scope="col">{locale==="en"?"Actions":"Actions"}</th>
      </tr></thead>
      <tbody>{versions.map(v=><tr key={v.assignmentId+"-"+v.revision}>
       <td>{formatCivil(v.startOn,locale)}</td><td>{v.endOn?formatCivil(v.endOn,locale):"—"}</td>
       <td>{v.allocationPercent} %</td>
       <td>{v.scrumMasterPercent} %</td><td>{v.productOwnerPercent} %</td><td>{v.developerPercent} %</td><td><span className="smn-member-revision">{v.revision}</span></td>
+      <td><div className="d-flex gap-2 align-items-center">
+       <button type="button" className="btn btn-outline-primary btn-sm"
+        aria-label={(locale==="en"?"Edit revision ":"Modifier la révision ")+v.revision}
+        title={locale==="en"?"Edit this revision":"Modifier cette révision"}
+        onClick={()=>{setTargetRevision(v.revision);setEditor("assignment");}}>
+        <span aria-hidden="true">✎</span>
+       </button>
+       {v.revision===Math.max(...versions.filter(x=>x.assignmentId===v.assignmentId).map(x=>x.revision))&&v.revision>1&&
+        <button type="button" className="btn btn-outline-secondary btn-sm" disabled
+         title={locale==="en"?"Cancellation pending audited migration and frozen-snapshot checks":"Annulation indisponible avant la migration d’audit et les contrôles des rapports figés"}
+         aria-label={(locale==="en"?"Cancellation unavailable for revision ":"Annulation indisponible pour la révision ")+v.revision}>
+         <span aria-hidden="true">×</span>
+        </button>}
+      </div></td>
      </tr>)}</tbody>
     </table>
    </div>
