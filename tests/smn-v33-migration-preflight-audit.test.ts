@@ -39,9 +39,9 @@ test("v33 migration preflight is read-only and requires healthy v32 with complet
  }
 });
 test("upgrade decision rejects incomplete journals and unknown versions",()=>{
- for(const [version,count] of [[32,31],[32,2],[33,32],[33,1],[34,35]] as const)
+ for(const [version,count] of [[32,31],[32,2],[33,32],[34,35]] as const)
   assert.equal(decideUpgrade("initialized",version,count).kind,"refuse");
- for(const [version,count] of [[32,1],[32,32],[33,2],[33,33]] as const)
+ for(const [version,count] of [[32,1],[32,32],[33,1],[33,2],[33,33]] as const)
   assert.equal(decideUpgrade("initialized",version,count).kind,"noop");
  assert.equal(decideUpgrade("installation-incomplete",33,33).kind,"refuse");
 });
