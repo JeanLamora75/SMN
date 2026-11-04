@@ -45,7 +45,6 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
  const focus=useDashboardModalFocus(onClose,!confirmClear);
  const clearFocus=useDashboardModalFocus(()=>setConfirmClear(false),confirmClear);
  const filtered=useMemo(()=>sources.filter(s=>
-  s.status==="available"&&
   (category==="all"||s.category===category)&&
   (s.name+" "+(s.category==="indicator"?s.unit??"":"")).toLocaleLowerCase().includes(search.toLocaleLowerCase())),[sources,category,search]);
  const views=selected?compatibleVisualizations(selected):[];
@@ -72,7 +71,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
        <input id="slot-search" className="form-control" placeholder="Par exemple : vélocité, risques, cérémonies…" value={search} onChange={e=>setSearch(e.target.value)}/>
       </div>
       <div className={`${ui.chips} mb-3`} role="group" aria-label="Catégorie des sources">
-       {["all",...[...new Set(sources.filter(item=>item.status==="available").map(item=>item.category))]].map(c=>
+       {["all",...[...new Set(sources.map(item=>item.category))]].map(c=>
         <button key={c} type="button" aria-pressed={category===c} className={`${ui.chip} ${category===c?ui.chipActive:""}`} onClick={()=>setCategory(c)}>
          {c==="all"?"Toutes":categoryNames[c]??"Autres sources"}
         </button>)}
@@ -80,9 +79,10 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
       {loading?<p role="status">Chargement des sources…</p>:error?<p role="alert" className="alert alert-warning">{error}</p>:
        !filtered.length?<p role="status">Aucune source correspondant à votre recherche.</p>:
        <div className="row g-2" aria-label="Sources disponibles">{filtered.map(source=><div className="col-12 col-md-6" key={source.code}>
-        <button type="button" className={ui.card} onClick={()=>chooseSource(source)}>
+        <button type="button" className={ui.card} onClick={()=>chooseSource(source)} disabled={source.status!=="available"} aria-disabled={source.status!=="available"}>
          <span className={ui.cardName}>{source.name}</span>
          <span className="d-block small text-body-secondary mt-2">{categoryNames[source.category]??"Source métier"} · {source.scope==="cycle"?"Par cycle":"Par équipe"}{source.unit?" · "+source.unit:""}</span>
+         {source.status!=="available"&&<span className="d-block small text-warning-emphasis mt-2">Source non encore disponible dans ce Dashboard.</span>}
         </button>
        </div>)}</div>}
      </div>:<div className="row g-3">
