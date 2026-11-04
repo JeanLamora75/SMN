@@ -59,7 +59,7 @@ export function DashboardCopyModal({sourceTeamId,layout,unsaved,onClose,onSucces
        </select>
        {loading?<p role="status">Chargement…</p>:!targets.length?<p className="alert alert-info mt-3">Aucune autre équipe autorisée en édition.</p>:null}
        {target?.hasSavedLayout&&<p className="alert alert-warning mt-3">Une disposition enregistrée existe dans cette équipe. Elle sera remplacée après confirmation.</p>}
-       {incompatible.length>0&&<div className={`${ui.warning} mt-3`} role="status">⚠ {incompatible.length} source{incompatible.length>1?"s":""} de la disposition ne {incompatible.length>1?"sont":"sera"} pas disponible{incompatible.length>1?"s":""} dans l'équipe cible. Le{incompatible.length>1?"s":""} paramétrage{incompatible.length>1?"s":""} sera{incompatible.length>1?"ont":""} conservé{incompatible.length>1?"s":""}, et les emplacements concernés resteront à reconfigurer.</div>}
+       {incompatible.length>0&&<div className={`${ui.warning} mt-3`} role="status">⚠ {incompatible.length} source{incompatible.length>1?"s":""} de la disposition {incompatible.length>1?"ne sont pas disponibles":"n'est pas disponible"} dans l'équipe cible. Les paramètres seront conservés et les emplacements concernés pourront être reconfigurés.</div>}
       </section>
       <section className="col-12 col-lg-6" aria-label="Aperçu de la disposition copiée">
        <h3 className="h6">Aperçu — dernière disposition enregistrée</h3>
