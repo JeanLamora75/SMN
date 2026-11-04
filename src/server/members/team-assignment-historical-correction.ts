@@ -62,6 +62,20 @@ export async function correctHistoricalTeamAssignment(db:Client,actor:TeamActor,
     AND (s.end_at AT TIME ZONE s.time_zone)::date >=$2::date
    LIMIT 1`,[team.team_id,assignment.start_on,assignment.end_on]);
   if(frozen.rows.length)return fail("frozen-period");
+  // Initial capacity snapshots and archived reports are immutable and may
+  // contain derived role capacity. Refuse conservatively, never infer safety.
+  const initial=await db.query(`
+   SELECT 1 FROM public.smn_capacity_initial_snapshot snap
+   JOIN public.smn_capacity_period_override period ON period.id=snap.period_id
+   WHERE period.team_id=$1 AND period.start_on<=COALESCE($3::date,'infinity'::date)
+    AND period.end_on>=$2::date LIMIT 1`,
+   [team.team_id,assignment.start_on,assignment.end_on]);
+  if(initial.rows.length)return fail("frozen-period");
+  const archives=await db.query(`
+   SELECT 1 FROM public.smn_report_pdf_archive archive
+   WHERE archive.team_id=$1 LIMIT 1`,[team.team_id]);
+  if(archives.rows.length)return fail("frozen-period");
+
   await db.query(`INSERT INTO public.smn_member_lifecycle_event
    (id,member_id,assignment_id,action,effective_on,performed_by,details)
    VALUES($1,$2,$3,'delete',$4::date,$5,$6::jsonb)`,[
