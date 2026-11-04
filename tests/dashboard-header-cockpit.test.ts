@@ -17,7 +17,8 @@ test("v33 Builder header displays selected cycle context and supports cycle navi
 });
 test("v33 header owns exactly two configurable dynamic blocks",()=>{
  assert.match(layout,/layout\.header\.blocks\.length !== 2/);
- assert.match(builder,/layout\.header\.blocks\.map\(renderBlock\)/);
+ assert.match(builder,/layout\.header\.blocks\.map\(block=>renderBlock\(block,true\)\)/);
+ assert.match(builder,/className=\{styles\.headerKpis\}/);
  assert.match(builder,/getDashboardTemplate\(block\.templateId,block\.templateVersion\)/);
 });
 test("dashboard header never bypasses team permissions or exposes unauthorised records",()=>{
