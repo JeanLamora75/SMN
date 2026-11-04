@@ -17,7 +17,8 @@ export function nativeV33BaselineReady(sql:string):boolean{
  if(!sql||sql.length<200000)return false;
  for(const object of ["smn_installation","smn_account","smn_team","agile_mode",
    "smn_indicator_definition","smn_indicator_manual_value","smn_indicator_team_grant",
-   "smn_indicator_dashboard_slot","smn_indicator_assert_cycle_integrity","red-purple"])
+   "smn_indicator_dashboard_slot","smn_dashboard_layout","smn_dashboard_team_grant",
+   "smn_indicator_assert_cycle_integrity","red-purple"])
   if(!sql.includes(object))return false;
  return !/CREATE\s+TABLE\s+(?:(?:"?public"?\.)?)"?smn_installation"?\s*\([^;]*"?mode"?\s+(?:"?text"?)\s+NOT\s+NULL/i.test(sql);
 }
@@ -35,6 +36,7 @@ export function nativeV33HistoryValid(snapshot:Snapshot,sql:string|null):boolean
   snapshot.teamAgileModeSchemaValid===true&&snapshot.indicatorV33SchemaValid===true&&
   snapshot.paletteSchemaValid===true&&snapshot.tableRead===true&&snapshot.migrationsRead===true&&
   ["public.smn_indicator_team_grant:r","public.smn_indicator_dashboard_slot:r",
-    "public.smn_indicator_definition:r","public.smn_indicator_manual_value:r"]
+    "public.smn_indicator_definition:r","public.smn_indicator_manual_value:r",
+    "public.smn_dashboard_layout:r","public.smn_dashboard_team_grant:r"]
    .every(name=>names.has(name));
 }
