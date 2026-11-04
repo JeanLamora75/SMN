@@ -31,6 +31,7 @@ import {CAPACITY_REPLANNING_MIGRATION,CAPACITY_REPLANNING_MIGRATION_SQL} from ".
 import {MEMBER_IDENTITY_MIGRATION,MEMBER_IDENTITY_MIGRATION_SQL} from "../members/identity-migration";
 import {MULTI_TEAM_MIGRATION,MULTI_TEAM_SCHEMA_SQL} from "../teams/migration";
 import {CURRENT_SCHEMA_VERSION} from "../schema/compatibility";
+import {NATIVE_V33_NAME,nativeV33BaselineSql} from "../installation/native-v33";
 
 export const ACCOUNTS_MIGRATION = "20261020_smn15_accounts";
 export const ACCOUNTS_MIGRATION_SQL = `ALTER TABLE public.smn_account
@@ -81,6 +82,29 @@ export async function ensureAccountsSchema(client: Client): Promise<void> {
       "SELECT migration_name,checksum,finished_at,rolled_back_at FROM public._prisma_migrations ORDER BY migration_name");
     const applied=(name:string,sql:string)=>migrations.rows.some(x=>x.migration_name===name &&
       x.checksum===checksum(sql) && !!x.finished_at && !x.rolled_back_at);
+    // A canonical native v33 installation has one immutable schema checksum,
+    // not the 33 historic incremental migration entries.
+    if(version===33&&migrations.rows.length===1&&migrations.rows[0].migration_name===NATIVE_V33_NAME){
+      const native=nativeV33BaselineSql();
+      if(!native||!applied(NATIVE_V33_NAME,native))throw Error("smn-schema-incompatible");
+      const integrity=await client.query<{
+       account_valid:boolean;team_valid:boolean;indicator_valid:boolean;dashboard_valid:boolean;grants_valid:boolean;
+      }>(`SELECT
+        (SELECT count(*)=4 FROM information_schema.columns WHERE table_schema='public'
+          AND table_name='smn_account' AND column_name IN
+          ('id','installation_id','is_active','must_change_password')) account_valid,
+        (SELECT count(*)=2 FROM information_schema.columns WHERE table_schema='public'
+          AND table_name='smn_team' AND column_name IN ('installation_id','agile_mode')) team_valid,
+        to_regclass('public.smn_indicator_definition') IS NOT NULL indicator_valid,
+        to_regclass('public.smn_dashboard_layout') IS NOT NULL dashboard_valid,
+        to_regclass('public.smn_dashboard_team_grant') IS NOT NULL AND
+          to_regclass('public.smn_indicator_team_grant') IS NOT NULL grants_valid`);
+      const valid=integrity.rows[0];
+      if(!valid||!Object.values(valid).every(x=>x===true))throw Error("smn-schema-incompatible");
+      await client.query("COMMIT");
+      return;
+    }
+
     // Additive dashboard slots migration is independently checksummed and does not bump schema_version.
     const slotsName="20261101_smn_dashboard_slots_additive";
     const slots=migrations.rows.filter(m=>m.migration_name===slotsName);
