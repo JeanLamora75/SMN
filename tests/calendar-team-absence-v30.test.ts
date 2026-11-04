@@ -23,6 +23,11 @@ test("Lecture: équipe et affectation vérifiées, historique privé non exposé
  assert.match(code,/export async function GET/);
  assert.match(code,/resolveAdminTeam\(db,/);
  assert.match(code,/a\.member_id=\$1 AND a\.team_id=\$2/);
- assert.match(code,/absences:\[\],onDate:\[\]/);
+ assert.match(code,/const allowed=new Set\(scoped\.rows\.map/);
+ assert.match(code,/a\.member_id=\$1 AND EXISTS/);
+ assert.match(code,/own\.team_id=\$2/);
+ assert.match(code,/other\.team_id<>\$2/);
+ assert.match(code,/data\.absences\.filter\(a=>!a\.deleted&&allowed\.has\(a\.id\)\)/);
+ assert.match(code,/onDate:absences\.filter\(a=>data\.onDate\.some\(d=>d\.id===a\.id\)\)/);
  assert.match(code,/\/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\$\//);
 });
