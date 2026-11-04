@@ -52,7 +52,8 @@ test("résolution individuelle v28 : refus si affectation absente",async()=>{
  await assert.rejects(()=>requireTeamMemberScope(db,
   {accountId:"admin",role:"admin"},uuid,"team_a"),/member-out-of-team/);
  const membership=sqls.find(x=>x.sql.includes("FROM public.smn_member_assignment a"));
- assert.deepEqual(membership?.params,[uuid,"team_a"]);
+ assert.deepEqual(membership?.params,[uuid,"team_a",false]);
+ assert.match(membership!.sql,/\$3::boolean OR/);
  assert.match(membership!.sql,/a.team_id=\$2/);
  assert.match(membership!.sql,/t.installation_id='singleton'/);
 });
