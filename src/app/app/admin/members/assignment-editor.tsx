@@ -225,13 +225,13 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    </form>
    {teamScoped&&state.assignmentId&&state.startOn&&<form onSubmit={closeTeamAssignment}
     className="border rounded-3 p-3 d-grid gap-3">
-    <h4 className="h6 mb-0">Fin d'affectation à l'équipe</h4>
+    <h4 className="h6 mb-0">Fin d&apos;affectation à l&apos;équipe</h4>
     <>
-     {state.endOn&&<p className="small text-secondary mb-0">Affectation terminée le {state.endOn}. Vous pouvez corriger la date et le motif sans effacer l'historique.</p>}
-     <p className="small text-secondary mb-0">Cette opération ferme uniquement l'affectation dans l'équipe.
-      Elle n'archive pas le membre et conserve son historique.</p>
+     {state.endOn&&<p className="small text-secondary mb-0">Affectation terminée le {state.endOn}. Vous pouvez corriger la date et le motif sans effacer l&apos;historique.</p>}
+     <p className="small text-secondary mb-0">Cette opération ferme uniquement l&apos;affectation dans l&apos;équipe.
+      Elle n&apos;archive pas le membre et conserve son historique.</p>
      <div className="row g-3">
-      <label className="col-md-5">Date de fin d'affectation
+      <label className="col-md-5">Date de fin d&apos;affectation
        <input type="date" className="form-control mt-1" required
         min={state.startOn}
         value={endOn} onChange={e=>setEndOn(e.target.value)} disabled={busy}/>
