@@ -46,7 +46,9 @@ test("SMN-369 AC3: model reduction preserves first configured slot and reports l
 test("SMN-369 AC4: header is untouched and editor provides confirmation + cancel",()=>{
  const editor=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-editor.tsx",import.meta.url),"utf8");
  assert.match(editor,/Dupliquer/);
- assert.match(editor,/Confirmer la perte de contenu/);
+ assert.match(editor,/Confirmer la modification/);
+ assert.match(editor,/Le Dashboard enregistré restera inchangé/);
+ assert.match(editor,/onClick=\{commitPending\}/);
  assert.match(editor,/setPendingAction\(null\)/);
  const initial=createDefaultDashboardLayout("kanban");
  const changed=duplicateDashboardBlock(initial,initial.rows[0].blocks[0].id,"copy",["copy-slot"]);
