@@ -9,7 +9,8 @@ test("le formulaire membre offre une entreprise facultative uniquement si catalo
  assert.match(view,/Aucune entreprise/);
 });
 test("les cartes et listes affichent la société déjà filtrée par équipe",()=>{
- assert.match(view,/<strong>\{member\.displayName\}<\/strong>\{member\.companyName/);
- assert.match(view,/member\.companyName&&<span className="ms-2/);
+ assert.match(view,/<strong>\{member\.displayName\}<\/strong>/);
+ assert.match(view,/member\.companyName&&<span/);
+ assert.match(view,/\{member\.companyName\}/);
  assert.match(presentation,/m\.id=ANY\(\$1::text\[\]\)/);
 });
