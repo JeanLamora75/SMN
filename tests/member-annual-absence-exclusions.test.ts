@@ -43,7 +43,7 @@ test("compteur annuel : filtre week-ends et fériés du pays ACTUEL avant le com
  assert.doesNotMatch(query.sql,/l\.effective_from<=d\.day/);
  assert.match(query.sql,/FROM eligible_days d/);
  assert.match(query.sql,/SELECT DISTINCT x\.member_id,g\.day::date AS day/);
- assert.match(query.sql,/x\.member_id=ANY\(\$1::uuid\[\]\) AND x\.team_id=\$2/);
+ assert.match(query.sql,/x\.member_id=ANY\(\$1::text\[\]\) AND x\.team_id=\$2/);
  assert.match(query.sql,/GREATEST\(x\.start_on,make_date\(\$3,1,1\)\)/);
  assert.match(query.sql,/LEAST\(COALESCE\(x\.end_on,make_date\(\$3,12,31\)\)/);
 });
@@ -107,4 +107,17 @@ test("lecture groupée équipe : mêmes jours éligibles, aucune requête par me
  assert.deepEqual(query[0].values,[[memberId],"team_b",2026]);
  assert.match(query[0].sql,/SELECT DISTINCT x\.member_id,g\.day::date AS day/);
  assert.match(query[0].sql,/NOT EXISTS \(\s*SELECT 1 FROM public\.smn_national_holiday/);
+});
+
+test("régression chargement équipe : les IDs membres PostgreSQL sont de type text, pas uuid",()=>{
+ const source=readFileSync(new URL("../src/server/members/team-annual-absence.ts",import.meta.url),"utf8");
+ assert.match(source,/x\.member_id=ANY\(\$1::text\[\]\)/);
+ assert.doesNotMatch(source,/x\.member_id=ANY\(\$1::uuid\[\]\)/);
+});
+
+test("régression API équipe : un échec du calcul facultatif ne masque pas les membres",()=>{
+ const route=readFileSync(new URL("../src/app/api/admin/members/route.ts",import.meta.url),"utf8");
+ assert.match(route,/try\{\s*worked=await readTeamAnnualWorkedForRoster/);
+ assert.match(route,/catch\(error\)\{\s*console\.error\("smn-members-worked-days-unavailable",error\)/);
+ assert.match(route,/workedDays:worked===null\?null:/);
 });
