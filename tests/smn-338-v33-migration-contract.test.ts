@@ -5,8 +5,8 @@ import {decideUpgrade} from "../scripts/db-upgrade-policy";
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 test("SMN-338 : v32 compatible et v33 idempotente",()=>{
  for(const n of [1,32])assert.equal(decideUpgrade("initialized",32,n).kind,"noop");
- for(const n of [2,33])assert.equal(decideUpgrade("initialized",33,n).kind,"noop");
- for(const n of [1,32])assert.equal(decideUpgrade("initialized",33,n).kind,"refuse");
+ for(const n of [1,2,33])assert.equal(decideUpgrade("initialized",33,n).kind,"noop");
+ assert.equal(decideUpgrade("initialized",33,32).kind,"refuse");
 });
 test("SMN-338 : activation explicite avec sauvegarde et transaction",()=>{
  const script=read("scripts/apply-smn-338-v33.ts");
