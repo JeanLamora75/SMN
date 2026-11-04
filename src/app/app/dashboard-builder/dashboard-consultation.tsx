@@ -20,7 +20,7 @@ function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
 }
 export default function DashboardConsultation({layout,teamId,teamName,navigation,mode,locale="fr",personalizing=false,canManage=false,headerActions}:{
- layout:DashboardLayout;teamId:string;teamName?:string;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
+ layout:DashboardLayout;teamId:string;teamName?:string|null;navigation:{current:DashboardCycle|null;previous:string|null;next:string|null};
  mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;headerActions?:ReactNode;
 }){
  const cycleId=navigation.current?.id??null;
