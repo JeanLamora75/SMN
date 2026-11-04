@@ -66,7 +66,9 @@ test("vue Liste : jours travaillés proviennent du calcul groupé de l'équipe",
  const source=read("src/app/api/admin/members/route.ts");
  assert.match(source,/readTeamAnnualWorkedForRoster\(db,team\.team_id/);
  assert.match(source,/enriched\.members\.map\(member=>member\.id\)/);
- assert.match(source,/workedDays:\(worked\.get\(member\.id\)\?\?0\)\/2/);
+ assert.match(source,/workedDays:worked===null\?null:\(worked\.get\(member\.id\)\?\?0\)\/2/);
+ assert.match(source,/try\{[\s\S]*?readTeamAnnualWorkedForRoster/);
+ assert.match(source,/catch\(error\)\{/);
  const ui=read("src/app/app/admin/members/team-overview.tsx");
  assert.match(ui,/typeof member\.workedDays==="number"/);
  assert.match(ui,/maximumFractionDigits:1/);
