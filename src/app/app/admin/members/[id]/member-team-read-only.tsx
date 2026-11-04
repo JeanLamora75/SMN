@@ -58,6 +58,31 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
  const [annualMonths,setAnnualMonths]=useState<{month:string;halfDays:number}[]>([]);
  const [editor,setEditor]=useState<"profile"|"assignment"|"location"|"calendar"|"absence"|null>(null);
  const [targetRevision,setTargetRevision]=useState<number|null>(null);
+ const [cancellingRevision,setCancellingRevision]=useState<number|null>(null);
+ const [cancelError,setCancelError]=useState("");
+ async function cancelVersion(assignmentId:string,revision:number){
+  if(cancellingRevision!==null)return;
+  if(!window.confirm("Annuler la dernière révision "+revision+
+   " ? La version précédente sera rétablie et une copie de la révision annulée sera auditée. "+
+   "L'opération sera refusée si des sprints figés sont concernés."))return;
+  setCancellingRevision(revision);setCancelError("");
+  try{
+   const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+
+    "/team-assignment/revision-cancel",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({teamId,assignmentId,revision})
+   });
+   const result=await response.json() as {error?:string};
+   if(!response.ok){
+    setCancelError(result.error==="frozen-period"?
+     "Annulation refusée : des sprints clôturés ou des instantanés figés sont concernés.":
+     result.error==="conflict"?"La révision a changé. Rechargez la fiche.":
+     "Annulation impossible. Vérifiez les droits et les journaux du serveur.");return;
+   }
+   setRefreshKey(v=>v+1);router.refresh();
+  }catch{setCancelError("Impossible de contacter le serveur d'annulation.");}
+  finally{setCancellingRevision(null);}
+ }
  const dialogRef=useRef<HTMLDialogElement>(null);
  const [refreshKey,setRefreshKey]=useState(0);
  const [identity,setIdentity]=useState({name:memberName,profession:professionalFunction});
@@ -194,6 +219,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
    </div>
   </dialog>}
   <div className="smn-member-body">
+  {cancelError&&<p role="alert" className="alert alert-warning">{cancelError}</p>}
   <section className="smn-member-panel smn-member-history"
    aria-labelledby="smn-team-member-assignment-title">
    <h2 className="smn-member-panel-title" id="smn-team-member-assignment-title">
@@ -233,9 +259,11 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
         <span aria-hidden="true">✎</span>
        </button>
        {v.revision===Math.max(...versions.filter(x=>x.assignmentId===v.assignmentId).map(x=>x.revision))&&v.revision>1&&
-        <button type="button" className="btn btn-outline-secondary btn-sm" disabled
-         title={locale==="en"?"Cancellation pending audited migration and frozen-snapshot checks":"Annulation indisponible avant la migration d’audit et les contrôles des rapports figés"}
-         aria-label={(locale==="en"?"Cancellation unavailable for revision ":"Annulation indisponible pour la révision ")+v.revision}>
+        <button type="button" className="btn btn-outline-danger btn-sm"
+         disabled={cancellingRevision!==null}
+         onClick={()=>void cancelVersion(v.assignmentId,v.revision)}
+         title={locale==="en"?"Undo last revision (audited)":"Annuler la dernière révision (avec audit)"}
+         aria-label={(locale==="en"?"Undo revision ":"Annuler la révision ")+v.revision}>
          <span aria-hidden="true">×</span>
         </button>}
       </div></td>
