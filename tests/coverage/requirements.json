@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "source": "_bmad-output/planning-artifacts/dashboard-builder/dashboard-builder-dossier-ux-bmad-v1.md",
+  "description": "Scenario evidence is not a claim of end-to-end UX coverage. Behavioral means executable domain/service assertions only; source means static contract requiring behavioral verification.",
+  "scenarios": [
+    {
+      "id": "RX-01",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: listes configurées visibles",
+        "kind": "behavior"
+      },
+      "limitations": "Partial: empty result copy not verified"
+    },
+    {
+      "id": "RX-02",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard M01–M06: chacune",
+        "kind": "behavior"
+      },
+      "limitations": "Partial: actual UI clicks not verified"
+    },
+    {
+      "id": "RX-03",
+      "evidence": {
+        "file": "tests/smn-365-slot-wizard.test.ts",
+        "title": "SMN-365 AC1: catalog search",
+        "kind": "source"
+      },
+      "limitations": "Search and two-step UI not exercised"
+    },
+    {
+      "id": "RX-04",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: assistant sur un emplacement",
+        "kind": "behavior"
+      },
+      "limitations": "Draft cancellation covered; modal click not exercised"
+    },
+    {
+      "id": "RX-05",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: retour aux sources",
+        "kind": "behavior"
+      },
+      "limitations": "Clear model covered; modal confirmation needs E2E"
+    },
+    {
+      "id": "RX-06",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: duplication conserve",
+        "kind": "behavior"
+      },
+      "limitations": "Block movement is covered separately"
+    },
+    {
+      "id": "RX-07",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: suppression d",
+        "kind": "behavior"
+      },
+      "limitations": "Header lock and confirmation UI need E2E"
+    },
+    {
+      "id": "RX-08",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: réduction de modèle",
+        "kind": "behavior"
+      },
+      "limitations": "Lost content detected; UI confirmation needs E2E"
+    },
+    {
+      "id": "RX-09",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard M01–M06: chacune",
+        "kind": "behavior"
+      },
+      "limitations": "Template geometry covered, responsive appearance not"
+    },
+    {
+      "id": "RX-10",
+      "evidence": {
+        "file": "tests/smn-362-dashboard-header.test.ts",
+        "title": "SMN-362 AC1/AC3: independent cycle facts",
+        "kind": "source"
+      },
+      "limitations": "No navigation click + contextual network test"
+    },
+    {
+      "id": "RX-11",
+      "evidence": {
+        "file": "tests/smn-370-dashboard-states.test.ts",
+        "title": "SMN-370 AC2: retry is addressed",
+        "kind": "source"
+      },
+      "limitations": "No retry-button interaction test"
+    },
+    {
+      "id": "RX-12",
+      "evidence": {
+        "file": "tests/smn-363-dashboard-draft.test.ts",
+        "title": "SMN-363",
+        "kind": "source"
+      },
+      "limitations": "Check actual dirty state and fixed save bar"
+    },
+    {
+      "id": "RX-13",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: une copie sur une révision périmée",
+        "kind": "behavior"
+      },
+      "limitations": "Server conflict only; unsaved exit modal not exercised"
+    },
+    {
+      "id": "RX-14",
+      "evidence": {
+        "file": "tests/smn-371-dashboard-reset.test.ts",
+        "title": "SMN-371 AC3: reset cannot mutate",
+        "kind": "source"
+      },
+      "limitations": "Reset+undo browser journey still pending"
+    },
+    {
+      "id": "RX-15",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: copie interéquipes retire",
+        "kind": "behavior"
+      },
+      "limitations": "Snapshot selection and preview UI need E2E"
+    },
+    {
+      "id": "RX-16",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: une copie sur une révision périmée",
+        "kind": "behavior"
+      },
+      "limitations": "Conflict rollback covered; incompatible source warning needs E2E"
+    },
+    {
+      "id": "RX-17",
+      "evidence": {
+        "file": "tests/smn-367-dashboard-reorder.test.ts",
+        "title": "SMN-367 AC2/AC3: always visible",
+        "kind": "source"
+      },
+      "limitations": "No mobile browser or touch testing"
+    },
+    {
+      "id": "RX-18",
+      "evidence": {
+        "file": "tests/smn-381-dashboard-modal-ux.test.ts",
+        "title": "SMN-381: modal focus trap",
+        "kind": "source"
+      },
+      "limitations": "Keyboard focus navigation not executed"
+    },
+    {
+      "id": "RX-19",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: titre et dimensions",
+        "kind": "behavior"
+      },
+      "limitations": "Data model tested; actual overflow layout not"
+    },
+    {
+      "id": "RX-20",
+      "evidence": {
+        "file": "tests/smn-p1-dashboard-workflows.test.ts",
+        "title": "P1 Dashboard: droits de lecture et d",
+        "kind": "behavior"
+      },
+      "limitations": "Server scope covered; disabled controls not E2E"
+    },
+    {
+      "id": "RX-21",
+      "evidence": {
+        "file": "tests/smn-p1-team-assignment-regressions.test.ts",
+        "title": "P1 membres: correction rétroactive autorisée",
+        "kind": "behavior"
+      },
+      "limitations": "Historical archive protected; indicator rendering still not E2E"
+    },
+    {
+      "id": "RX-22",
+      "evidence": {
+        "file": "tests/smn-362-dashboard-header.test.ts",
+        "title": "SMN-362 AC2: exactly two non-removable",
+        "kind": "source"
+      },
+      "limitations": "Header layout and ARIA need browser review"
+    }
+  ],
+  "critical": [
+    {
+      "id": "MEM-ROLE-HISTORY",
+      "evidence": {
+        "file": "tests/smn-p1-team-assignment-regressions.test.ts",
+        "title": "P1 membres: correction rétroactive autorisée",
+        "kind": "behavior"
+      },
+      "limitations": "A live PostgreSQL end-to-end scenario remains desirable"
+    },
+    {
+      "id": "MEM-ROLE-UNDO",
+      "evidence": {
+        "file": "tests/smn-p1-team-assignment-regressions.test.ts",
+        "title": "P1 membres: annulation de révision à capacité identique",
+        "kind": "behavior"
+      },
+      "limitations": "Mock SQL transaction is not a production database proof"
+    },
+    {
+      "id": "MEM-ROLE-AUTH",
+      "evidence": {
+        "file": "tests/smn-p1-team-assignment-regressions.test.ts",
+        "title": "P1 membres: refus d",
+        "kind": "behavior"
+      },
+      "limitations": "Mock query denies unauthorized role before writes"
+    },
+    {
+      "id": "MEM-TEAM-ISOLATION",
+      "evidence": {
+        "file": "tests/smn-p1-team-assignment-regressions.test.ts",
+        "title": "P1 isolation: membre hors équipe",
+        "kind": "behavior"
+      },
+      "limitations": "No authenticated HTTP cross-team check"
+    },
+    {
+      "id": "MEM-FROZEN-SNAPSHOTS",
+      "evidence": {
+        "file": "tests/smn-p1-team-assignment-regressions.test.ts",
+        "title": "P1 membres: modification réelle signale",
+        "kind": "behavior"
+      },
+      "limitations": "Asserts no archive DML in service SQL calls"
+    },
+    {
+      "id": "MEM-DATED-ROLE",
+      "evidence": {
+        "file": "tests/smn-member-dated-role-change.test.ts",
+        "title": "06 janvier dev, 20 février PO",
+        "kind": "source"
+      },
+      "limitations": "Existing service test, not exercised by this matrix runner"
+    },
+    {
+      "id": "MEM-ABSENCE",
+      "evidence": {
+        "file": "tests/member-annual-absence-exclusions.test.ts",
+        "title": "",
+        "kind": "source"
+      },
+      "limitations": "Absence/holiday/country rules require separate complete cross-team assessment"
+    }
+  ]
+}
