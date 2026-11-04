@@ -13,6 +13,8 @@ import type {DashboardCycle} from "@/server/dashboard-builder/cycles";
 import DashboardConsultation from "./dashboard-consultation";
 import {DashboardTemplateGallery} from "./template-gallery";
 import {DashboardSlotWizard} from "./slot-wizard";
+import {useDashboardModalFocus} from "./modal-focus";
+import ui from "./modal-ux.module.css";
 import type {SourceDescriptor,SourceView} from "@/server/dashboard-builder/sources";
 import {appendDashboardRow,appendDashboardBlock} from "@/lib/dashboard-builder/composition";
 import type {DashboardTemplateId} from "@/lib/dashboard-builder/templates";
@@ -49,6 +51,9 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
  const [wizardSlot,setWizardSlot]=useState<string|null>(null);
  const [pendingAction,setPendingAction]=useState<{kind:"row"|"block"|"template";id:string;template?:DashboardTemplateId}|null>(null);
  const [dragged,setDragged]=useState<{kind:"row"|"block";id:string}|null>(null);
+ const resetFocus=useDashboardModalFocus(()=>setResetOpen(false),resetOpen);
+ const pendingFocus=useDashboardModalFocus(()=>setPendingAction(null),pendingAction!==null);
+ const exitFocus=useDashboardModalFocus(()=>setExitOpen(false),exitOpen);
  const editing=draft!==null;
  const changed=useMemo(()=>draft!==null&&signature(draft)!==signature(published),[draft,published]);
  const enter=()=>{if(!canEdit)return;setDraft(copy(published));setError(null);};
@@ -237,17 +242,30 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
    <button className="btn btn-outline-primary w-100" type="button" onClick={addRow} disabled={saving}>Ajouter une ligne</button>
   </section>}
   {copyOpen&&<DashboardCopyModal sourceTeamId={teamId} layout={published} unsaved={changed} onClose={()=>setCopyOpen(false)} onSuccess={setSuccess}/>}
-  {resetOpen&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1080}}>
-   <div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="dashboard-reset-title">
-    <div className="modal-header"><h2 className="modal-title fs-5" id="dashboard-reset-title">Réinitialiser le Dashboard {mode==="scrum"?"Scrum":"Kanban"} ?</h2></div>
-    <div className="modal-body"><p>La disposition de départ remplacera uniquement votre brouillon pour cette équipe.</p>
-     <p>Les deux zones dynamiques d’en-tête seront restaurées. Les informations fixes du cycle et les données métier ne seront pas modifiées.</p>
-     <p className="mb-0">Vous pourrez encore choisir « Annuler » pour retrouver votre Dashboard enregistré. Aucune sauvegarde automatique ne sera effectuée.</p></div>
-    <div className="modal-footer"><button className="btn btn-outline-secondary" type="button" onClick={()=>setResetOpen(false)}>Conserver mon brouillon</button>
+  {resetOpen&&<div className={ui.overlay} role="presentation">
+   <div className={`${ui.dialog} ${ui.dialogNarrow}`} ref={resetFocus} tabIndex={-1} role="alertdialog" aria-modal="true" aria-labelledby="dashboard-reset-title">
+    <div className={ui.header}><div><h2 className={ui.headerTitle} id="dashboard-reset-title">Réinitialiser le Dashboard {mode==="scrum"?"Scrum":"Kanban"} ?</h2>
+     <p className={ui.headerSubtitle}>Restaurer la disposition de départ</p></div></div>
+    <div className={ui.body}>
+     <div className={ui.warning}>Les modifications de composition du brouillon seront remplacées par la disposition initiale.</div>
+     <p className="mt-3">Les deux zones dynamiques d’en-tête seront restaurées. Les informations fixes du cycle et les données métier ne seront pas modifiées.</p>
+     <p className="mb-0 small text-body-secondary">Aucune sauvegarde automatique : la modification reste annulable jusqu'à l'enregistrement global.</p>
+    </div>
+    <div className={ui.footer}><button className="btn btn-outline-secondary" type="button" onClick={()=>setResetOpen(false)}>Conserver mon brouillon</button>
      <button className="btn btn-danger" type="button" onClick={confirmReset} disabled={saving}>Réinitialiser le brouillon</button></div>
-   </div></div>
+   </div>
   </div>}
-  {pendingAction&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.55)",zIndex:1070}}><div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="alertdialog" aria-modal="true" aria-labelledby="block-action-confirm"><div className="modal-header"><h2 className="modal-title fs-5" id="block-action-confirm">Confirmer la perte de contenu ?</h2></div><div className="modal-body">Cette opération retirera du brouillon des emplacements configurés. Annuler conserve l’intégralité de la configuration.</div><div className="modal-footer"><button type="button" className="btn btn-outline-secondary" onClick={()=>setPendingAction(null)}>Annuler</button><button type="button" className="btn btn-danger" onClick={commitPending}>Confirmer</button></div></div></div></div>}
+  {pendingAction&&<div className={ui.overlay} role="presentation">
+   <div className={`${ui.dialog} ${ui.dialogNarrow}`} ref={pendingFocus} tabIndex={-1} role="alertdialog" aria-modal="true" aria-labelledby="block-action-confirm">
+    <div className={ui.header}><div><h2 className={ui.headerTitle} id="block-action-confirm">{pendingAction.kind==="template"?"Changer de modèle ?":pendingAction.kind==="row"?"Supprimer cette ligne ?":"Supprimer ce bloc ?"}</h2>
+     <p className={ui.headerSubtitle}>Confirmation de modification du brouillon</p></div></div>
+    <div className={ui.body}><div className={ui.warning}>Cette opération retirera du brouillon les emplacements configurés qui ne peuvent pas être conservés. Annuler garde toute la configuration.</div>
+     <p className="small text-body-secondary mt-3 mb-0">Le Dashboard enregistré restera inchangé tant que vous n'aurez pas enregistré le brouillon.</p>
+    </div>
+    <div className={ui.footer}><button type="button" className="btn btn-outline-secondary" onClick={()=>setPendingAction(null)}>Conserver</button>
+     <button type="button" className="btn btn-danger" onClick={commitPending}>Confirmer la modification</button></div>
+   </div>
+  </div>}
   {galleryRow&&<DashboardTemplateGallery onChoose={addBlock} onClose={()=>setGalleryRow(null)}/>}
   {wizardSlot&&<DashboardSlotWizard teamId={teamId} initialSlot={activeSlot} cycles={cycles} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot} onClear={()=>{setDraft(current=>current?updateDashboardSlot(current,wizardSlot,null):null);setWizardSlot(null);}}/>}
 
@@ -262,24 +280,22 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
    </div>
    {error&&<p className="alert alert-danger mt-2 mb-0" role="alert">{error}</p>}
   </div>}
-  {exitOpen&&<div className="modal d-block" role="presentation" style={{background:"rgba(0,0,0,.45)"}}>
-   <div className="modal-dialog modal-dialog-centered"><div className="modal-content" role="dialog"
+  {exitOpen&&<div className={ui.overlay} role="presentation">
+   <div className={`${ui.dialog} ${ui.dialogNarrow}`} ref={exitFocus} tabIndex={-1} role="dialog"
     aria-modal="true" aria-labelledby="dashboard-exit-title">
-    <div className="modal-header"><h2 className="modal-title fs-5" id="dashboard-exit-title">Quitter la personnalisation ?</h2></div>
-    <div className="modal-body"><p>Des modifications ne sont pas enregistrées.</p>
-     {error&&<p className="alert alert-danger" role="alert">{error}</p>}</div>
-    <div className="modal-footer d-flex flex-wrap gap-2">
-     <button type="button" className="btn btn-primary" onClick={()=>void save(true)} disabled={saving}>
-      Enregistrer et quitter
-     </button>
-     <button type="button" className="btn btn-outline-danger" onClick={cancel} disabled={saving}>
-      Quitter sans enregistrer
-     </button>
-     <button type="button" className="btn btn-outline-secondary" onClick={()=>{setExitOpen(false);setError(null);}} disabled={saving}>
-      Continuer la personnalisation
-     </button>
+    <div className={ui.header}><div><h2 className={ui.headerTitle} id="dashboard-exit-title">Quitter la personnalisation ?</h2>
+     <p className={ui.headerSubtitle}>Des modifications ne sont pas enregistrées.</p></div></div>
+    <div className={ui.body}><p>Vous pouvez enregistrer votre disposition, quitter sans enregistrer ou continuer à la modifier.</p>
+     {error&&<p className="alert alert-danger" role="alert">{error}</p>}
     </div>
-   </div></div>
+    <div className={ui.footer}>
+     <button type="button" className="btn btn-outline-secondary" onClick={()=>{setExitOpen(false);setError(null);}} disabled={saving}>Continuer la personnalisation</button>
+     <div className="d-flex flex-wrap gap-2">
+      <button type="button" className="btn btn-outline-danger" onClick={cancel} disabled={saving}>Quitter sans enregistrer</button>
+      <button type="button" className="btn btn-primary" onClick={()=>void save(true)} disabled={saving}>Enregistrer et quitter</button>
+     </div>
+    </div>
+   </div>
   </div>}
  </div>;
 }
