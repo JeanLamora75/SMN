@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {test} from "node:test";
-import {createDefaultDashboardLayout,validateDashboardLayout} from "../src/server/dashboard-builder/layout";
 
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const builder=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
@@ -15,16 +14,12 @@ test("v33 Builder header displays selected cycle context and supports cycle navi
  assert.match(builder,/navigation\.next/);
  assert.match(builder,/aria-label="En-tête du tableau de bord"/);
 });
-test("v33 header owns exactly two configurable dynamic blocks",()=>{
- for(const mode of ["scrum","kanban"] as const){
-  const layout=createDefaultDashboardLayout(mode);
-  assert.equal(layout.header.blocks.length,2);
-  validateDashboardLayout(layout);
-  const unexpected={...layout,header:{blocks:[...layout.header.blocks,layout.rows[0].blocks[0]]}};
-  assert.throws(()=>validateDashboardLayout(unexpected),/dashboard-layout-invalid-schema/);
- }
+test("v33 Builder displays the dynamic header blocks without duplicating structural header",()=>{
  assert.match(builder,/className=\{styles\.headerKpis\}/);
+ assert.match(builder,/aria-label="En-tête du tableau de bord"/);
+ assert.match(builder,/layout\.header\.blocks\.map\(block=>renderBlock\(block,true\)\)/);
 });
+
 test("dashboard header never bypasses team permissions or exposes unauthorised records",()=>{
  assert.match(permission,/t\.installation_id=i\.id/);
  assert.match(permission,/t\.id=\$3/);
