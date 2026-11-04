@@ -249,7 +249,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
     <div className={ui.body}>
      <div className={ui.warning}>Les modifications de composition du brouillon seront remplacées par la disposition initiale.</div>
      <p className="mt-3">Les deux zones dynamiques d’en-tête seront restaurées. Les informations fixes du cycle et les données métier ne seront pas modifiées.</p>
-     <p className="mb-0 small text-body-secondary">Aucune sauvegarde automatique : la modification reste annulable jusqu'à l'enregistrement global.</p>
+     <p className="mb-0 small text-body-secondary">Aucune sauvegarde automatique : la modification reste annulable jusqu&apos;à l&apos;enregistrement global.</p>
     </div>
     <div className={ui.footer}><button className="btn btn-outline-secondary" type="button" onClick={()=>setResetOpen(false)}>Conserver mon brouillon</button>
      <button className="btn btn-danger" type="button" onClick={confirmReset} disabled={saving}>Réinitialiser le brouillon</button></div>
@@ -260,7 +260,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
     <div className={ui.header}><div><h2 className={ui.headerTitle} id="block-action-confirm">{pendingAction.kind==="template"?"Changer de modèle ?":pendingAction.kind==="row"?"Supprimer cette ligne ?":"Supprimer ce bloc ?"}</h2>
      <p className={ui.headerSubtitle}>Confirmation de modification du brouillon</p></div></div>
     <div className={ui.body}><div className={ui.warning}>Cette opération retirera du brouillon les emplacements configurés qui ne peuvent pas être conservés. Annuler garde toute la configuration.</div>
-     <p className="small text-body-secondary mt-3 mb-0">Le Dashboard enregistré restera inchangé tant que vous n'aurez pas enregistré le brouillon.</p>
+     <p className="small text-body-secondary mt-3 mb-0">Le Dashboard enregistré restera inchangé tant que vous n&apos;aurez pas enregistré le brouillon.</p>
     </div>
     <div className={ui.footer}><button type="button" className="btn btn-outline-secondary" onClick={()=>setPendingAction(null)}>Conserver</button>
      <button type="button" className="btn btn-danger" onClick={commitPending}>Confirmer la modification</button></div>
