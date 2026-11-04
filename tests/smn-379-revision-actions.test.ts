@@ -16,8 +16,13 @@ test("SMN-379 : interdiction de l'annulation initiale et verrou explicite sans a
  const page=read("src/app/app/admin/members/[id]/member-team-read-only.tsx");
  assert.match(page,/v\.revision===Math\.max\(\.\.\.versions\.filter/);
  assert.match(page,/v\.revision>1/);
- assert.match(page,/btn btn-outline-secondary btn-sm" disabled/);
- assert.match(page,/migration d’audit/);
+ assert.match(page,/btn btn-outline-danger btn-sm/);
+ assert.match(page,/cancelVersion\(v\.assignmentId,v\.revision\)/);
+ assert.match(page,/result\.error==="frozen-period"/);
+ const service=read("src/server/members/team-assignment-revision-cancel.ts");
+ assert.match(service,/INSERT INTO public\.smn_member_lifecycle_event/);
+ assert.match(service,/smn_sprint_closure_snapshot/);
+ assert.match(service,/if\(versions\.rows\.length<2\|\|versions\.rows\[0\]\.revision!==input\.revision\)/);
 });
 
 
@@ -28,4 +33,14 @@ test("SMN-379 : date hors affectation : message explicite, sans contrôle de dat
  assert.match(editor,/Cette incohérence historique doit être corrigée/);
  assert.match(editor,/en dehors de la période/);
  assert.match(editor,/else if\(draft\.effectiveFrom<state\.today/);
+});
+
+test("SMN-379 : le crayon corrige la version ciblée sans créer une cinquième ligne",()=>{
+ const form=read("src/app/app/admin/members/assignment-editor.tsx");
+ const service=read("src/server/members/team-assignment-historical-correction.ts");
+ assert.match(form,/targetRevision:selectedRevision/);
+ assert.match(service,/targetRevision/);
+ assert.match(service,/UPDATE public\.smn_member_assignment_version SET/);
+ assert.doesNotMatch(service,/INSERT INTO public\.smn_member_assignment_version/);
+ assert.match(service,/kind:"assignment-version-correction"/);
 });
