@@ -35,6 +35,8 @@ function fake(opts:{latest?:number;frozen?:boolean;noAssignment?:boolean}={}){
      scrum_master_percent:0,product_owner_percent:0,developer_percent:100}
    ]};
   if(sql.includes("FROM public.smn_sprint s"))return {rows:opts.frozen?[{one:1}]:[]};
+  if(sql.includes("FROM public.smn_capacity_initial_snapshot"))return {rows:opts.frozen?[{one:1}]:[]};
+  if(sql.includes("FROM public.smn_report_pdf_archive"))return {rows:[]};
   if(sql.includes("INSERT INTO public.smn_member_lifecycle_event"))return {rows:[],rowCount:1};
   if(sql.includes("UPDATE public.smn_member_assignment_version"))return {rows:[],rowCount:1};
   if(sql.includes("DELETE FROM public.smn_member_assignment_version"))return {rows:[],rowCount:1};
