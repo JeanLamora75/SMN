@@ -13,17 +13,20 @@ const statusNames:Record<string,string>={
  closed:"Clôturé",completed:"Terminé",satisfied:"Satisfaite",cancelled:"Annulé",
  planned:"Planifié",active:"Actif",blocked:"Bloquant",pending:"En attente",
 };
-export function DashboardBusinessList({data,onNext,onPrevious,page=0}:{
- data:DashboardListPayload;onNext:()=>void;onPrevious:()=>void;page?:number;
+export function DashboardBusinessList({data,onNext,onPrevious,page=0,columns}:{
+ data:DashboardListPayload;onNext:()=>void;onPrevious:()=>void;page?:number;columns?:readonly string[];
 }){
+ const visible=new Set(columns??["label","kind","status","date"]);
  if(!data.rows.length)return <p role="status" className="text-body-secondary mb-0">Aucun résultat</p>;
  return <div>
   <ul className={styles.businessList}>{data.rows.map(item=><li className={styles.businessItem} key={item.id}>
    <div className={styles.businessItemTop}>
     <Link href={item.href} className={styles.businessItemTitle}>{item.label}</Link>
-    {item.status&&<span className={styles.businessBadge}>{statusNames[item.status]??item.status}</span>}
+    {visible.has("status")&&item.status&&<span className={styles.businessBadge}>{statusNames[item.status]??item.status}</span>}
    </div>
-   <span className={styles.businessItemMeta}>{typeNames[item.kind]??item.kind}{item.date?" · "+item.date:""}</span>
+   {(visible.has("kind")||visible.has("date"))&&<span className={styles.businessItemMeta}>
+    {visible.has("kind")?(typeNames[item.kind]??item.kind):""}{visible.has("kind")&&visible.has("date")&&item.date?" · ":""}{visible.has("date")?(item.date??""):""}
+   </span>}
   </li>)}</ul>
   <nav className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3" aria-label="Pagination des fiches">
    <span className="small text-body-secondary">{data.total} résultat(s) · Page {page+1}</span>
