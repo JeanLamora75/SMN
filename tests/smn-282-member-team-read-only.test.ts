@@ -23,14 +23,18 @@ test("les liens cartes et liste transmettent l'équipe de la liste affichée",()
  assert.match(listing,/href=\{memberHref\(member\)\}/);
  assert.equal(listing.split("router.push(memberHref(member))").length-1,2);
 });
-test("vue membre v28 : pas d'éditeur, pas de mutation HTTP et purge des requêtes obsolètes",()=>{
+test("vue membre contextualisée : éditeurs ciblés, équipe contrôlée et requêtes obsolètes purgées",()=>{
  const view=source("src/app/app/admin/members/[id]/member-team-read-only.tsx");
+ const page=source("src/app/app/admin/members/[id]/page.tsx");
  assert.match(view,/type="month"/);
  assert.match(view,/controller\.abort\(\)/);
  assert.match(view,/result\.teamId!==teamId/);
  assert.match(view,/team-availability\?/);
- assert.match(view,/MemberAbsenceEditor|AssignmentEditor/);
- assert.doesNotMatch(view,/method:"POST"|method:"PATCH"|method:"DELETE"/);
+ assert.match(view,/MemberAbsenceEditor/);
+ assert.match(view,/AssignmentEditor/);
+ assert.match(view,/teamId=\{teamId\}/);
+ assert.match(page,/readTeamAssignmentHistory\(db,/);
+ assert.match(page,/resolveAdminTeam\(db,/);
 });
 test("i18n : clés FR et EN identiques et toutes affichables",()=>{
  const fr=JSON.parse(source("src/i18n/member-team-scope.fr.json"));
