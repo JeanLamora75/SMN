@@ -36,7 +36,9 @@ test("SMN-364 AC4: unknown rows and duplicate identifiers are rejected",()=>{
 test("SMN-364 AC2: gallery is modal and paginated six templates maximum",()=>{
  const gallery=readFileSync(new URL("../src/app/app/dashboard-builder/template-gallery.tsx",import.meta.url),"utf8");
  assert.match(gallery,/PAGE_SIZE=6/);
- assert.match(gallery,/modal-dialog-centered/);
+ assert.match(gallery,/useDashboardModalFocus/);
+ assert.match(gallery,/ui\.geometry/);
+ assert.match(gallery,/aria-pressed/);
  assert.match(gallery,/listCreatableDashboardTemplates/);
 });
 test("SMN-364 AC1/AC3: editor adds rows at bottom and does not open source assistant",()=>{
