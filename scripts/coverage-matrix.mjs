@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {existsSync,mkdirSync,readFileSync,writeFileSync} from "node:fs";
+import {mkdirSync,readFileSync,writeFileSync} from "node:fs";
 import {spawnSync} from "node:child_process";
 import {dirname,resolve} from "node:path";
 import {fileURLToPath} from "node:url";
