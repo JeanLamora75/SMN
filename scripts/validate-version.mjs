@@ -13,17 +13,25 @@ export const PROFILES = Object.freeze({
   "migration-v33": ["test:db:smn-338:v33:contracts","db:test:smn-338:upgrade","db:test:smn-338:v33","db:test:smn-338:native"],
 });
 export const PG_PROFILES = new Set(["smn-348","smn-349","smn-350","migration-v33"]);
-export function plan(profile, env = process.env) {
+export const COMMON_QUALITY_STEPS = Object.freeze(["i18n:check","typecheck","lint"]);
+export const FEATURE_PROFILES = new Set(["smn-348","smn-349","smn-350","smn-351"]);
+export const EXECUTION_SCOPES = new Set(["full","feature"]);
+export function plan(profile, env = process.env, scope = "full") {
   if (!Object.hasOwn(PROFILES,profile)) throw Error("Profil inconnu : "+profile);
+  if (!EXECUTION_SCOPES.has(scope) || (scope==="feature" && !FEATURE_PROFILES.has(profile))) {
+    throw Error("Périmètre de validation invalide : "+scope+" / "+profile);
+  }
   if (PG_PROFILES.has(profile) && !(env.SMN_TEST_DATABASE_URL || env.SMN_DATABASE_URL)) {
     throw Error("Profil PostgreSQL : SMN_TEST_DATABASE_URL ou SMN_DATABASE_URL requis");
   }
-  return PROFILES[profile];
+  const scripts=PROFILES[profile];
+  return scope==="feature"?scripts.filter(script=>!COMMON_QUALITY_STEPS.includes(script)):scripts;
 }
 export function run(profile, options={}) {
   const env=options.env??process.env;
-  const steps=plan(profile,env);
-  const result={profile,schemaTarget:SCHEMA_TARGET,platform:process.platform,commit:env.GITHUB_SHA??null,steps:[],success:false};
+  const scope=options.scope??"full";
+  const steps=plan(profile,env,scope);
+  const result={profile,scope,schemaTarget:SCHEMA_TARGET,platform:process.platform,commit:env.GITHUB_SHA??null,steps:[],success:false};
   const command=process.platform==="win32"?"pnpm.cmd":"pnpm";
   try {
     for (const script of steps) {
@@ -47,7 +55,9 @@ export function run(profile, options={}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
     const args=process.argv.slice(2);
-    if(args.length!==2||args[0]!=="--profile") throw Error("Usage : node scripts/validate-version.mjs --profile <profil>");
-    run(args[1]);
+    if((args.length!==2&&args.length!==4)||args[0]!=="--profile"||
+      (args.length===4&&args[2]!=="--scope"))
+      throw Error("Usage : node scripts/validate-version.mjs --profile <profil> [--scope feature]");
+    run(args[1],{scope:args.length===4?args[3]:"full"});
   } catch(error) { console.error(error.message);process.exitCode=1; }
 }
