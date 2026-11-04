@@ -83,3 +83,11 @@ test("interface : changement daté distinct de la correction et date d'effet vis
  assert.match(form,/min=\{teamScoped\?state\.startOn/);
  assert.match(page,/formatCivil\(v\.effectiveFrom,locale\)/);
 });
+
+test("moteur de capacité : sélection par date d'effet et rôle, non par numéro seul",()=>{
+ const engine=readFileSync(new URL("../src/server/capacity/engine.ts",import.meta.url),"utf8");
+ assert.match(engine,/v\.effective_from<=date/);
+ assert.match(engine,/a\.effective_from\.localeCompare\(b\.effective_from\)\|\|a\.revision-b\.revision/);
+ assert.match(engine,/role==="PRODUCT_OWNER"\?version\.product_owner_percent/);
+ assert.match(engine,/version\.developer_percent/);
+});
