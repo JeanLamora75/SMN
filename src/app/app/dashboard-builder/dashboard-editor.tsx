@@ -21,8 +21,8 @@ type Navigation={current:DashboardCycle|null;previous:string|null;next:string|nu
 type SaveResponse={layout:DashboardLayout;revision:number;persisted:boolean};
 const copy=(layout:DashboardLayout):DashboardLayout=>structuredClone(layout);
 const signature=(layout:DashboardLayout)=>JSON.stringify(layout);
-export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,navigation,cycles,mode,locale}:{
- initialLayout:DashboardLayout;initialRevision:number;canEdit:boolean;teamId:string;
+export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,teamName,navigation,cycles,mode,locale}:{
+ initialLayout:DashboardLayout;initialRevision:number;canEdit:boolean;teamId:string;teamName?:string;
  navigation:Navigation;cycles:readonly DashboardCycle[];mode:"scrum"|"kanban";locale:string;
 }){
  const [published,setPublished]=useState<DashboardLayout>(()=>copy(initialLayout));
@@ -167,7 +167,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,na
     </label>)}
    </div>)}</div>
   </details>}
-  {!editing&&<DashboardConsultation layout={published} teamId={teamId} navigation={navigation}
+  {!editing&&<DashboardConsultation layout={published} teamId={teamId} teamName={teamName} navigation={navigation}
    mode={mode} locale={locale} personalizing={editing} canManage={canEdit}
    headerActions={canEdit?<details className="dropdown">
     <summary className="btn btn-outline-primary btn-sm">Actions</summary>
