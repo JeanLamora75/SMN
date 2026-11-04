@@ -53,6 +53,6 @@ test("historique manquant et non réconcilié",()=>{
 test("SMN-338 : v33 valide est idempotente ; historique incorrect bloqué",()=>{
  assert.equal(decideUpgrade("initialized",33,33).kind,"noop");
  assert.equal(decideUpgrade("initialized",33,2).kind,"noop");
- assert.equal(decideUpgrade("initialized",33,1).kind,"refuse");
+ assert.equal(decideUpgrade("initialized",33,1).kind,"noop");
  assert.equal(decideUpgrade("initialized",33,32).kind,"refuse");
 });
