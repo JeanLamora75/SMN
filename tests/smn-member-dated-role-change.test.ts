@@ -36,10 +36,8 @@ function fake(rows:Version[],opts:{frozen?:boolean;end?:string|null}={}){
   if(sql.includes("FROM public.smn_member_assignment")&&!sql.includes("version"))
    return {rows:[{id:assignment,start_on:"2026-01-06",end_on:opts.end??null}]};
   if(sql.includes("FROM public.smn_member_assignment_version"))return {rows};
-  if(sql.includes("FROM public.smn_sprint s")||
-    sql.includes("FROM public.smn_capacity_initial_snapshot")||
-    sql.includes("FROM public.smn_report_pdf_archive"))
-   return {rows:opts.frozen?[{id:"frozen"}]:[]};
+  if(sql.includes("FROM public.smn_sprint s"))
+   return {rows:[{count:opts.frozen?"2":"0"}]};
   if(sql.includes("FROM public.smn_member_lifecycle_event"))
    return {rows:[{max_revision:null}]};
   if(sql.includes("INSERT INTO public.smn_member_assignment_version"))
@@ -62,17 +60,18 @@ test("insertion rétroactive avant une autre version : période limitée au chan
  const {db,queries}=fake([version(1,"2026-01-06",0),version(2,"2026-05-04",0)]);
  const result=await addDatedTeamRoleChange(db,actor,member,input("2026-02-20",100,2));
  assert.equal(result.ok,true);
- const frozen=queries.find(q=>q.sql.includes("FROM public.smn_sprint s"));
- assert.deepEqual(frozen?.params,[team,"2026-02-20","2026-05-03"]);
+ const impacted=queries.find(q=>q.sql.includes("FROM public.smn_sprint s"));
+ assert.deepEqual(impacted?.params,[team,"2026-02-20","2026-05-03"]);
 });
-test("date déjà affectée et données figées bloquent la nouvelle révision",async()=>{
+test("date déjà affectée refusée, sprint clôturé autorise une transition datée",async()=>{
  const rows=[version(1,"2026-01-06",0),version(2,"2026-02-20",100)];
  const duplicate=fake(rows);
  assert.deepEqual(await addDatedTeamRoleChange(duplicate.db,actor,member,input("2026-02-20",0,2)),
   {ok:false,error:"duplicate-date"});
  const frozen=fake([version(1,"2026-01-06",0)],{frozen:true});
- assert.deepEqual(await addDatedTeamRoleChange(frozen.db,actor,member,input("2026-02-20",100,1)),
-  {ok:false,error:"frozen-period"});
+ const result=await addDatedTeamRoleChange(frozen.db,actor,member,input("2026-02-20",100,1));
+ assert.equal(result.ok,true);
+ assert.equal(result.ok?result.affectedClosedSprints:0,2);
 });
 test("interface : changement daté distinct de la correction et date d'effet visible",()=>{
  const form=readFileSync(new URL("../src/app/app/admin/members/assignment-editor.tsx",import.meta.url),"utf8");
