@@ -31,6 +31,7 @@ function fixture(options:FixtureOptions={}){
   if(sql.includes("SELECT p.id AS product_id"))return {rows:[{product_id:null,product:null,team_id:team,team:"Koala",mode:"scrum"}]};
   if(sql.includes("SELECT a.installation_id,i.schema_version"))return {rows:[{installation_id:"singleton",schema_version:33}]};
   if(sql.includes("SELECT archived_at::text AS archived_at"))return {rows:[{archived_at:options.archived?"2026-10-01":null}]};
+
   if(sql.includes("FROM public.smn_member_assignment_version"))return {rows:versions};
   if(sql.includes("FROM public.smn_member_assignment"))return {rows:options.assignmentFound===false?[]:[{id:assignment,start_on:"2026-01-06",end_on:"2026-06-30"}]};
   if(sql.includes("FROM public.smn_sprint s"))return {rows:[{count:options.frozen?"2":"0"}]};
