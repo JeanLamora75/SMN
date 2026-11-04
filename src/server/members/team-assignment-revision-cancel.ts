@@ -1,4 +1,4 @@
-import {revisionImpactWindow,countAffectedClosedSprints,type CapacityRevision} from "@/server/members/assignment-revision-impact";
+import {revisionImpactWindow,countAffectedClosedSprints,isCapacityNeutralCancellation,type CapacityRevision} from "@/server/members/assignment-revision-impact";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
@@ -49,7 +49,8 @@ export async function cancelLatestTeamAssignmentRevision(db:Client,actor:TeamAct
    return fail("conflict");
   const target=versions.rows[0];
   const impact=revisionImpactWindow(versions.rows,target,assignment.rows[0].end_on);
-  const affectedClosedSprints=await countAffectedClosedSprints(db,team.team_id,impact);
+  const affectedClosedSprints=isCapacityNeutralCancellation(versions.rows,target)?0:
+  await countAffectedClosedSprints(db,team.team_id,impact);
   // Audit is written first, in the same transaction as the actual deletion.
   // This is not an unaudited deletion, and the original row is recoverable.
   await db.query(`INSERT INTO public.smn_member_lifecycle_event
