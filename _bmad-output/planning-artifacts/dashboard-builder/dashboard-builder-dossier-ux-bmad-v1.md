@@ -220,3 +220,12 @@
 - **Validé en conversation :** 33 décisions UX, 10 décisions de maquettes, format de dossier **Option B — complet**.
 - **Livré dans ce fichier :** contrats UX consolidés et critères de recette.
 - **Non revendiqué :** implémentation, intégration dans l'application locale, migration PostgreSQL, exécution de tests, validation visuelle finale, modification Jira.
+
+
+## 12. Avenant graphique validé — Modales Cockpit Agile (04/11/2026)
+
+**Décision UX complémentaire aux MAQ-DB-01 à 10** : une nouvelle planche de référence des fenêtres de personnalisation du Dashboard Builder a été validée. [Contrat détaillé des modales](../ux-designs/ux-dashboard-builder-2026-11-04/MODALES-PARAMETRAGE-REFERENCE-VALIDEE.md) · [Planche vectorielle reconstituée](../ux-designs/ux-dashboard-builder-2026-11-04/modales-parametrage-reference.svg).
+
+Six familles visuelles : galerie M01–M06, choix de source (étape 1/2), visualisations et options (étape 2/2), dimensions, copie interéquipes, confirmations et sorties. Les libellés métier, aperçus visuels, choix illustrés, messages contextualisés, accessibilité, responsive et thèmes Bootstrap sont obligatoires sans changement des règles de données, habilitations, brouillon et stockage. Le shell SMN conserve son en-tête global clair, son unique sélecteur d'équipe et le menu gauche existant. La planche présente six exemples simultanément à des fins pédagogiques, non l'état d'une application.
+
+**Jira** : [SMN-381](https://lmn24.atlassian.net/browse/SMN-381) (modales) et [SMN-380](https://lmn24.atlassian.net/browse/SMN-380) (restitution), rattachées à l'Epic [SMN-353](https://lmn24.atlassian.net/browse/SMN-353). Le PNG original est stocké dans la Bibliothèque ChatGPT et non sur GitHub ; le SVG dans le dépôt est une reconstitution. Publication documentaire uniquement, sans revendication de recette.
