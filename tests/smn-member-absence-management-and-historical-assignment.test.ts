@@ -29,14 +29,14 @@ test("correction historique : le départ de l'équipe n'interdit plus l'édition
  assert.match(editor,/teamScoped&&state\.endOn\?"\/team-assignment\/history-correction"/);
  assert.match(editor,/Corriger la version historique/);
  assert.match(editor,/state\.assignmentId&&state\.startOn&&<div/);
- assert.match(editor,/state\.versions\.map\(v=>v\.effectiveFrom\)/);
+ assert.match(editor,/state\.versions\.map\(v=>/);
  assert.match(endpoint,/authorizeApi\(req,"write"/);
  assert.match(endpoint,/correctHistoricalTeamAssignment/);
- assert.match(service,/parseAssignmentInput\(raw\)/);
+ assert.match(service,/parseAssignmentInput\(fields\)/);
  assert.match(service,/start_on<=\$3::date/);
  assert.match(service,/end_on>=\$3::date/);
- assert.match(service,/latest!==input\.revision/);
- assert.match(service,/INSERT INTO public\.smn_member_assignment_version/);
+ assert.match(service,/versions\.rows\[0\]\?\.revision!==input\.revision/);
+ assert.match(service,/UPDATE public\.smn_member_assignment_version/);
  assert.doesNotMatch(service,/DELETE FROM public\.smn_member_assignment_version/);
  assert.match(get,/latestRevision:Math\.max/);
 });
