@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import type {Client} from "pg";
 import {test} from "node:test";
 import {createDefaultDashboardLayout,validateDashboardLayout} from "../src/server/dashboard-builder/layout";
 import {listCreatableDashboardTemplates,getDashboardTemplate} from "../src/lib/dashboard-builder/templates";
@@ -7,7 +8,8 @@ import {updateDashboardSlot,normalizeSlotOptions} from "../src/lib/dashboard-bui
 import {updateBlockDimensions} from "../src/lib/dashboard-builder/dimensions";
 import {changeDashboardBlockTemplate,duplicateDashboardBlock,removeDashboardBlock} from "../src/lib/dashboard-builder/block-actions";
 import {visibleSlots,gridColumns} from "../src/lib/dashboard-builder/consultation-layout";
-import {prepareDashboardCopy} from "../src/server/dashboard-builder/copy";
+import {prepareDashboardCopy,copySavedDashboard} from "../src/server/dashboard-builder/copy";
+import {dashboardPermission,requireDashboardPermission} from "../src/server/dashboard-builder/permissions";
 
 test("P1 Dashboard M01–M06: chacune des six maquettes conserve une géométrie complète et unique",()=>{
  const models=listCreatableDashboardTemplates();
@@ -151,4 +153,61 @@ test("P1 Dashboard: listes configurées visibles et modèle de grille cohérent 
  assert.equal(gridColumns(complete),"1fr 1fr");
  assert.equal(complete.slots[0].filters?.type,"risk");
  assert.doesNotThrow(()=>validateDashboardLayout(second));
+});
+
+test("P1 Dashboard: droits de lecture et d'édition vérifiés dans le périmètre de l'équipe",async()=>{
+ const scope={installationId:"singleton",accountId:"account",teamId:"team-a"};
+ for(const {role,can_read,can_edit,expected} of [
+  {role:"admin",can_read:false,can_edit:false,expected:{canRead:true,canEdit:true}},
+  {role:"user",can_read:true,can_edit:false,expected:{canRead:true,canEdit:false}},
+  {role:"user",can_read:true,can_edit:true,expected:{canRead:true,canEdit:true}},
+  {role:"user",can_read:false,can_edit:true,expected:{canRead:false,canEdit:false}},
+ ]){
+  const calls:unknown[][]=[];
+  const db={query:async(_sql:string,params:unknown[])=>{
+   calls.push(params);return {rows:[{role,can_read,can_edit}]};
+  }} as unknown as Client;
+  assert.deepEqual(await dashboardPermission(db,scope),expected);
+  assert.deepEqual(calls,[[scope.installationId,scope.accountId,scope.teamId]]);
+  if(!expected.canEdit)await assert.rejects(()=>requireDashboardPermission(db,scope,"edit"),/dashboard-scope-forbidden/);
+  if(expected.canRead)await assert.doesNotReject(()=>requireDashboardPermission(db,scope,"read"));
+ }
+});
+
+test("P1 Dashboard: la copie source non autorisée est rejetée sans écriture",async()=>{
+ const scope={installationId:"singleton",accountId:"account",teamId:"team-a"};
+ const statements:string[]=[];
+ const db={query:async(sql:string)=>{
+  statements.push(sql);
+  if(sql==="BEGIN"||sql==="ROLLBACK")return {rows:[]};
+  if(sql.includes("FROM public.smn_account a"))return {rows:[]};
+  throw Error("Unexpected database access");
+ }} as unknown as Client;
+ await assert.rejects(()=>copySavedDashboard(db,scope,"team-b",0),/dashboard-scope-forbidden/);
+ assert.equal(statements[0],"BEGIN");
+ assert.equal(statements.at(-1),"ROLLBACK");
+ assert.ok(!statements.some(sql=>/\b(?:INSERT|UPDATE|DELETE)\b/i.test(sql)));
+});
+
+test("P1 Dashboard: une copie sur une révision périmée est annulée atomiquement",async()=>{
+ const scope={installationId:"singleton",accountId:"account",teamId:"team-a"};
+ const statements:string[]=[];
+ const layout=createDefaultDashboardLayout("scrum");
+ const db={query:async(sql:string)=>{
+  statements.push(sql);
+  if(["BEGIN","ROLLBACK"].includes(sql))return {rows:[]};
+  if(sql.includes("FROM public.smn_account a"))return {
+   rows:[{role:"admin",can_read:false,can_edit:false}]
+  };
+  if(sql.includes("FROM public.smn_dashboard_layout")&&sql.includes("FOR SHARE"))
+   return {rows:[{layout}]};
+  if(sql.includes("FROM public.smn_dashboard_layout")&&sql.includes("FOR UPDATE"))
+   return {rows:[{revision:"3"}]};
+  throw Error("Unexpected database access: "+sql);
+ }} as unknown as Client;
+ await assert.rejects(()=>copySavedDashboard(db,scope,"team-b",2),/dashboard-revision-conflict/);
+ assert.equal(statements[0],"BEGIN");
+ assert.equal(statements.at(-1),"ROLLBACK");
+ assert.ok(!statements.includes("COMMIT"));
+ assert.ok(!statements.some(sql=>/\b(?:INSERT|UPDATE|DELETE)\s+(?:INTO\s+|FROM\s+)?public\./i.test(sql)));
 });
