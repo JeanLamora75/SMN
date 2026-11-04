@@ -14,6 +14,14 @@ const root = path.resolve(process.env.SMN_PACKAGE_DIR || path.join(process.cwd()
 for (const file of ["node.exe", "server.js", "Demarrer SMN.cmd", "launch-portable.mjs", "recover-admin.mjs", "Recuperer admin SMN.cmd"]) {
   assert.ok(existsSync(path.join(root, file)), "Fichier manquant du paquet : " + file);
 }
+for(const file of [
+ "prisma/baseline/v33/schema.sql",
+ "prisma/baseline/v32/schema.sql",
+ "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",
+ "prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",
+]){
+ assert.ok(existsSync(path.join(root,file)),"Required installation SQL missing: "+file);
+}
 for (const forbidden of [".env",".settings-key","postgres-connection.json","runtime.json","postgres.log"]) {
   assert.equal(existsSync(path.join(root,forbidden)),false,
     "Un fichier de configuration sensible a été inclus dans le paquet : "+forbidden);
