@@ -1,4 +1,4 @@
-import {revisionImpactWindow} from "@/server/members/assignment-revision-impact";
+import {revisionImpactWindow,isCapacityNeutralCancellation,type CapacityRevision} from "@/server/members/assignment-revision-impact";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {resolveAdminTeam,type TeamActor} from "@/server/teams/resolve";
@@ -42,14 +42,14 @@ export async function cancelLatestTeamAssignmentRevision(db:Client,actor:TeamAct
    WHERE id=$1 AND member_id=$2 AND team_id=$3 FOR UPDATE`,
    [input.assignmentId,memberId,team.team_id]);
   if(assignment.rows.length!==1)return fail("not-found");
-  const versions=await db.query<Record<string,unknown>&{id:string;revision:number;effective_from:string}>(`
+  const versions=await db.query<Record<string,unknown>&CapacityRevision&{id:string}>(`
    SELECT *,effective_from::text AS effective_from FROM public.smn_member_assignment_version
    WHERE assignment_id=$1 ORDER BY revision DESC FOR UPDATE`,[input.assignmentId]);
   if(versions.rows.length<2||versions.rows[0].revision!==input.revision)
    return fail("conflict");
   const target=versions.rows[0];
   const impact=revisionImpactWindow(versions.rows,target,assignment.rows[0].end_on);
-  if(impact){
+  if(impact&&!isCapacityNeutralCancellation(versions.rows,target)){
   const frozen=await db.query(`
    SELECT 1 FROM public.smn_sprint s
    WHERE s.team_id=$1 AND
