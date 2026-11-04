@@ -34,10 +34,17 @@ export async function GET(request:NextRequest){
       await withMemberCompanies(db,listed):listed;
     const year=Number(new Intl.DateTimeFormat("en-US",
      {year:"numeric",timeZone:"Europe/Paris"}).format(new Date()));
-    const worked=await readTeamAnnualWorkedForRoster(db,team.team_id,
-     enriched.members.map(member=>member.id),year);
+    // Worked days are supplementary: never make the whole roster unavailable
+    // when this calculation fails (e.g. SQL, schema or data inconsistency).
+    let worked:Map<string,number>|null=null;
+    try{
+     worked=await readTeamAnnualWorkedForRoster(db,team.team_id,
+      enriched.members.map(member=>member.id),year);
+    }catch(error){
+     console.error("smn-members-worked-days-unavailable",error);
+    }
     return {...enriched,members:enriched.members.map(member=>({
-     ...member,workedDays:(worked.get(member.id)??0)/2
+     ...member,workedDays:worked===null?null:(worked.get(member.id)??0)/2
     }))};
    }
    if(typeof version!=="number"||version<1||version>27)
