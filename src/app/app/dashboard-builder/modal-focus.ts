@@ -5,7 +5,7 @@ import {useEffect,useRef} from "react";
 export function useDashboardModalFocus(onClose:()=>void,active=true){
  const dialog=useRef<HTMLDivElement>(null);
  const close=useRef(onClose);
- close.current=onClose;
+ useEffect(()=>{close.current=onClose;},[onClose]);
  useEffect(()=>{
   if(!active)return;
   const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
