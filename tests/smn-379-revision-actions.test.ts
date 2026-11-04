@@ -18,20 +18,18 @@ test("SMN-379 : interdiction de l'annulation initiale et verrou explicite sans a
  assert.match(page,/v\.revision>1/);
  assert.match(page,/btn btn-outline-danger btn-sm/);
  assert.match(page,/cancelVersion\(v\.assignmentId,v\.revision\)/);
- assert.match(page,/result\.error==="frozen-period"/);
+ assert.match(page,/affectedClosedSprints/);
  const service=read("src/server/members/team-assignment-revision-cancel.ts");
  assert.match(service,/INSERT INTO public\.smn_member_lifecycle_event/);
- assert.match(service,/smn_sprint_closure_snapshot/);
+ assert.match(service,/countAffectedClosedSprints/);
  assert.match(service,/if\(versions\.rows\.length<2\|\|versions\.rows\[0\]\.revision!==input\.revision\)/);
 });
 
 
-test("SMN-379 : date hors affectation : message explicite, sans contrôle de date courante",()=>{
+test("SMN-379 : contrôles de dates relatifs à l'affectation, non au jour courant",()=>{
  const editor=read("src/app/app/admin/members/assignment-editor.tsx");
- assert.match(editor,/if\(teamScoped&&state\.endOn\)\{/);
+ assert.match(editor,/if\(teamScoped\)\{/);
  assert.match(editor,/draft\.effectiveFrom>state\.endOn/);
- assert.match(editor,/Cette incohérence historique doit être corrigée/);
- assert.match(editor,/en dehors de la période/);
  assert.match(editor,/else if\(draft\.effectiveFrom<state\.today/);
 });
 
