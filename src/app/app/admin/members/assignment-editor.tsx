@@ -39,6 +39,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
  const [endOn,setEndOn]=useState("");
  const [endReason,setEndReason]=useState("");
  const [selectedRevision,setSelectedRevision]=useState<number|null>(targetRevision);
+ const [editMode,setEditMode]=useState<"change"|"correct">(targetRevision!==null?"correct":"change");
  const [error,setError]=useState("");
  const dirty=draft!==null&&baseline!==null&&JSON.stringify(draft)!==JSON.stringify(baseline);
  useUnsavedChanges(Boolean(dirty||busy),t("draft.leaveWarning"));
@@ -49,7 +50,16 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    .then(async r=>{if(!r.ok)throw new Error("load-failed");return r.json() as Promise<AssignmentState>;})
    .then(data=>{if(!active)return;
     if(data.memberId!==memberId||data.teamId!==teamId||!Array.isArray(data.versions))throw new Error("wrong-team");
-    const start=draftFrom(data,targetRevision);setSelectedRevision(targetRevision??data.versions.at(-1)?.revision??null);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setEndOn(data.endOn??"");setEndReason(data.endReason??"");setStatus("ready");
+    const start=draftFrom(data,targetRevision);
+    if(targetRevision===null){
+     const chosenDate=data.endOn?
+      (data.today>=data.startOn!&&data.today<=data.endOn?data.today:data.endOn):
+      data.today>=data.startOn!?data.today:data.startOn??data.today;
+     start.effectiveFrom=chosenDate;
+    }
+    setEditMode(targetRevision!==null?"correct":"change");
+    setSelectedRevision(targetRevision??data.versions.at(-1)?.revision??null);
+    setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setEndOn(data.endOn??"");setEndReason(data.endReason??"");setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
  },[memberId,teamId,teamScoped,targetRevision]);
@@ -58,7 +68,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(!state||!draft||busy)return;
-  if(teamScoped&&state.endOn&&!dirty){
+  if(teamScoped&&editMode==="correct"&&!dirty){
    setError("Aucune modification à enregistrer. Modifiez au moins un pourcentage pour corriger cette version.");return;
   }
   const contractPercent=num(draft.contractPercent),allocationPercent=num(draft.allocationPercent);
@@ -71,11 +81,10 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    allocationPercent>contractPercent){
    setError(t("members.assignment.invalidShares"));return;
   }
-  if(teamScoped&&state.endOn){
-   if(draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn){
-    setError("Cette révision est datée du "+draft.effectiveFrom+
-     ", en dehors de l'affectation du "+state.startOn+" au "+state.endOn+
-     ". Cette incohérence historique doit être corrigée avant de modifier les pourcentages.");return;
+  if(teamScoped){
+   if(!state.startOn||draft.effectiveFrom<state.startOn||
+    (state.endOn!==null&&draft.effectiveFrom>state.endOn)){
+    setError("La date d'effet doit appartenir à la période d'affectation de cette équipe.");return;
    }
   }else if(draft.effectiveFrom<state.today||
    (state.versions.length>0&&draft.effectiveFrom<state.versions.at(-1)!.effectiveFrom)){
@@ -84,20 +93,23 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
   setBusy(true);setError("");
   try{
    const response=await fetch("/api/admin/members/"+encodeURIComponent(memberId)+
-    (teamScoped&&state.endOn?"/team-assignment/history-correction":teamScoped?"/team-assignment":"/assignment"),{
+    (teamScoped?(editMode==="correct"?"/team-assignment/history-correction":"/team-assignment/dated-change"):"/assignment"),{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({memberId,teamId,effectiveFrom:draft.effectiveFrom,contractPercent,
      allocationPercent,contributionPercent,shares,revision:state.latestRevision,
-     ...(teamScoped&&state.endOn?{targetRevision:selectedRevision}:{} )})
+     ...(teamScoped&&editMode==="correct"?{targetRevision:selectedRevision}:{} )})
    });
    const payload=await response.json().catch(()=>({error:"invalid-response"})) as {error?:string};
    if(!response.ok){
-    if(teamScoped&&state.endOn){
+    if(teamScoped){
      const details:Record<string,string>={
       "conflict":"La version d'affectation a changé. Fermez puis rouvrez la fenêtre avant de recommencer.",
       "outside-assignment":"La date d'effet choisie ne correspond pas à une version de cette affectation.",
       "archived":"Ce membre est archivé. La correction nécessite une procédure de reprise d'historique adaptée.",
-      "invalid-input":"Les paramètres de la correction ne sont pas valides.",
+      "invalid-input":"Les paramètres de la modification ne sont pas valides.",
+      "duplicate-date":"Un changement existe déjà à cette date. Utilisez le crayon pour corriger cette révision.",
+      "unchanged":"La répartition des rôles est identique à la version précédente.",
+      "frozen-period":"Cette période contient un sprint ou une capacité figée. La modification rétroactive est refusée.",
       "forbidden":"Vous ne disposez pas des droits nécessaires pour corriger cette affectation.",
       "service-unavailable":"Le serveur n'a pas pu enregistrer la correction. Consultez son journal.",
       "invalid-response":"Le serveur n'a pas renvoyé une réponse exploitable."
@@ -174,11 +186,28 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
   {status==="loading"&&<p role="status">{t("members.assignment.loading")}</p>}
   {status==="error"&&<p role="alert" className="alert alert-warning">{t("members.assignment.loadFailed")}</p>}
   {state&&draft&&status==="ready"&&<>
+   {teamScoped&&<div className="d-flex gap-2 flex-wrap" role="group" aria-label="Type de modification des rôles">
+    <button type="button" className={"btn "+(editMode==="change"?"btn-primary":"btn-outline-primary")}
+     disabled={busy} onClick={()=>{
+      if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+      const values=draftFrom(state);
+      values.effectiveFrom=state.endOn?
+       (state.today>=state.startOn!&&state.today<=state.endOn?state.today:state.endOn):
+       state.today>=state.startOn!?state.today:state.startOn??state.today;
+      setDraft(values);setBaseline(values);setEditMode("change");setError("");
+     }}>Nouveau changement de rôle daté</button>
+    {state.endOn&&<button type="button" className={"btn "+(editMode==="correct"?"btn-primary":"btn-outline-primary")}
+     disabled={busy} onClick={()=>{
+      if(dirty&&!window.confirm(t("draft.discardWarning")))return;
+      const values=draftFrom(state,selectedRevision);
+      setDraft(values);setBaseline(values);setEditMode("correct");setError("");
+     }}>Corriger une révision existante</button>}
+   </div>}
    <form onSubmit={submit} className="d-grid gap-3">
     <div className="row g-3">
      <div className="col-md-4">
       <label htmlFor="effective-from" className="form-label">{t("members.assignment.effectiveFrom")}</label>
-      {teamScoped&&state.endOn?
+      {teamScoped&&editMode==="correct"?
        <select id="effective-from" className="form-select" value={selectedRevision??""}
         disabled={busy} onChange={e=>{
          const revision=Number(e.target.value);
@@ -193,8 +222,10 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
          </option>)}
        </select>:
        <input id="effective-from" type="date" className="form-control" required
-        min={state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.today?
+        min={teamScoped?state.startOn??undefined:
+         state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.today?
          state.versions.at(-1)!.effectiveFrom:state.today}
+        max={teamScoped?state.endOn??undefined:undefined}
         value={draft.effectiveFrom} disabled={busy}
         onChange={e=>change("effectiveFrom",e.target.value)}/>}
      </div>
@@ -225,10 +256,12 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      </div>)}
     </div>
     <p className="small text-secondary">{t("members.assignment.rules")}</p>
-    {teamScoped&&state.endOn&&<p className="small text-secondary">
-     Correction historisée : modifiez les pourcentages de la version sélectionnée, sans créer de nouvelle révision.
-     Les versions antérieures et les rapports clôturés restent conservés.</p>}
-    {teamScoped&&state.endOn&&draft.effectiveFrom&&
+    {teamScoped&&<p className="small text-secondary">
+     {editMode==="change"?
+      "Changement réel de fonction : sélectionnez sa date d'effet dans la période d'affectation. Une nouvelle révision débute à cette date, même si elle est passée.":
+      "Correction de saisie : modifiez la version sélectionnée sans créer de nouvelle révision."}
+     Les sprints et rapports figés restent protégés.</p>}
+    {teamScoped&&editMode==="correct"&&state.endOn&&draft.effectiveFrom&&
      (draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn)&&
      <p role="alert" className="alert alert-warning mb-0">
       La révision sélectionnée est datée du {draft.effectiveFrom}, en dehors de la période
@@ -237,9 +270,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      </p>}
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
     <div className="smn-cockpit-form-actions">
-     <button type="submit" disabled={busy||(!dirty&&state.versions.length>0&&!(teamScoped&&state.endOn))} className="btn btn-primary">
-      {busy?t("members.assignment.saving"):teamScoped&&state.endOn?
-       "Corriger la version historique":t("members.assignment.save")}</button>
+     <button type="submit" disabled={busy||(!dirty&&state.versions.length>0&&!(teamScoped&&editMode==="correct"))} className="btn btn-primary">
+      {busy?t("members.assignment.saving"):teamScoped?(editMode==="correct"?"Corriger cette révision":"Enregistrer le changement daté"):t("members.assignment.save")}</button>
      <button type="button" disabled={busy} className="btn btn-outline-secondary" onClick={cancel}>
       {t("members.profile.cancel")}</button>
     </div>
