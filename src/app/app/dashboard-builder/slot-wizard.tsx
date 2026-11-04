@@ -142,7 +142,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
             onChange={e=>setOptions(o=>({...o,showClosed:e.target.checked}))}/>
            <span className="form-check-label">Inclure les fiches clôturées</span></label></div>
          </>}
-         {["registry","cycle","calendar","team","link"].includes(selected.category)&&<>
+         {["registry","cycle","calendar","notes","team","link"].includes(selected.category)&&<>
           <div className="col-6 col-md-3"><label className="form-label" htmlFor="slot-limit">Nombre</label>
            <input id="slot-limit" type="number" min="1" max="100" className="form-control"
             value={options.limit??""} onChange={e=>setOptions(o=>({...o,limit:e.target.value?Number(e.target.value):undefined}))}/></div>
