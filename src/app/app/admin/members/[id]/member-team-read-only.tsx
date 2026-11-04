@@ -79,6 +79,8 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      result.error==="conflict"?"La révision a changé. Rechargez la fiche.":
      "Annulation impossible. Vérifiez les droits et les journaux du serveur.");return;
    }
+   if((result as {affectedClosedSprints?:number}).affectedClosedSprints)
+    window.alert("Révision annulée. Pour actualiser les KPI des sprints clôturés concernés, repassez ces sprints au statut Terminé, puis clôturez-les à nouveau. Les rapports déjà édités restent inchangés.");
    setRefreshKey(v=>v+1);router.refresh();
   }catch{setCancelError("Impossible de contacter le serveur d'annulation.");}
   finally{setCancellingRevision(null);}
@@ -208,7 +210,7 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
      <button type="button" className="btn-close" aria-label="Fermer" onClick={()=>setEditor(null)}/>
     </div>
     <div className="smn-cockpit-modal-body smn-member-edit-body">
-     {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped targetRevision={targetRevision} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
+     {editor==="assignment"?<AssignmentEditor memberId={memberId} teamId={teamId} teamName={teamName} memberRevision={1} teamScoped targetRevision={targetRevision} onSaved={()=>{window.alert("Si cette modification affecte un sprint clôturé, repassez ce sprint au statut Terminé, puis clôturez-le à nouveau pour actualiser ses KPI. Les rapports déjà édités restent inchangés.");setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="absence"?<MemberAbsenceEditor key={refreshKey} memberId={memberId} teamId={teamId} record={null} initialDate={absenceInitialDate} onSaved={()=>{setEditor(null);setRefreshKey(v=>v+1);router.refresh();}} onCancel={()=>setEditor(null)}/>:
       editor==="profile"?<MemberTeamProfileEditor memberId={memberId} teamId={teamId}
       onCancel={()=>setEditor(null)} onSaved={p=>{setIdentity({name:p.displayName,profession:p.professionalFunction});setEditor(null);router.refresh();}}/>:
