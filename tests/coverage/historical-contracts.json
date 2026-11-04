@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "policy": "retain-until-equivalent-proven",
+  "description": "Un test nommé v27–v32 peut garantir une migration ou une sécurité toujours applicable. Sa suppression exige une preuve d'équivalence métier, une validation de l'impact et une exécution comparative sur base isolée.",
+  "entries": [
+    {
+      "file": "tests/auth-schema-v27.test.ts",
+      "kind": "compatibility-security",
+      "decision": "retain",
+      "reason": "Garde les exigences d'authentification d'installations anciennes"
+    },
+    {
+      "file": "tests/smn-282-schema-v28.test.ts",
+      "kind": "compatibility-security",
+      "decision": "retain",
+      "reason": "Vérifie les frontières de version et les habilitations multiéquipes"
+    },
+    {
+      "file": "tests/smn-306-v29-compatibility.test.ts",
+      "kind": "compatibility-security",
+      "decision": "retain",
+      "reason": "Préserve la compatibilité des liens et le refus des schémas incomplets"
+    },
+    {
+      "file": "tests/team-isolation-v30-sprint-data.test.ts",
+      "kind": "compatibility-security",
+      "decision": "retain",
+      "reason": "Protège le cloisonnement des sprints par équipe"
+    },
+    {
+      "file": "tests/company-closures-v31.test.ts",
+      "kind": "compatibility-business",
+      "decision": "retain",
+      "reason": "Protège les fermetures d'entreprise historiques"
+    },
+    {
+      "file": "tests/db-upgrade-v32-compatibility.test.ts",
+      "kind": "migration",
+      "decision": "retain",
+      "reason": "Contrôle la transition v32 vers le moteur actuel"
+    },
+    {
+      "file": "tests/schema-v32-no-runtime-ddl-regression.test.ts",
+      "kind": "migration",
+      "decision": "retain",
+      "reason": "Empêche le retour de DDL métier implicite"
+    },
+    {
+      "file": "tests/smn-338-real-v32-restore.test.ts",
+      "kind": "migration",
+      "decision": "retain",
+      "reason": "Vérifie la restauration réelle avant montée en v33"
+    },
+    {
+      "file": "tests/smn-351-v32-history-upgrade-pg.test.ts",
+      "kind": "migration",
+      "decision": "retain",
+      "reason": "Vérifie la conservation des historiques de cycle"
+    },
+    {
+      "file": "tests/smn-v33-migration-preflight-audit.test.ts",
+      "kind": "migration",
+      "decision": "retain",
+      "reason": "Protège le précontrôle des préconditions v33"
+    },
+    {
+      "file": "tests/v32-member-assignment-start-correction.test.ts",
+      "kind": "compatibility-business",
+      "decision": "retain",
+      "reason": "Couvre les corrections historiques de date de début"
+    },
+    {
+      "file": "tests/v32-sprint-goals-points-closure-dynamic.test.ts",
+      "kind": "compatibility-business",
+      "decision": "retain",
+      "reason": "Vérifie le comportement des clôtures migrées et des points dynamiques"
+    }
+  ]
+}
