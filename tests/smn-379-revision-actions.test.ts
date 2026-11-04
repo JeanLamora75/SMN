@@ -19,3 +19,13 @@ test("SMN-379 : interdiction de l'annulation initiale et verrou explicite sans a
  assert.match(page,/btn btn-outline-secondary btn-sm" disabled/);
  assert.match(page,/migration d’audit/);
 });
+
+
+test("SMN-379 : date hors affectation : message explicite, sans contrôle de date courante",()=>{
+ const editor=read("src/app/app/admin/members/assignment-editor.tsx");
+ assert.match(editor,/if\(teamScoped&&state\.endOn\)\{/);
+ assert.match(editor,/draft\.effectiveFrom>state\.endOn/);
+ assert.match(editor,/Cette incohérence historique doit être corrigée/);
+ assert.match(editor,/en dehors de la période/);
+ assert.match(editor,/else if\(draft\.effectiveFrom<state\.today/);
+});
