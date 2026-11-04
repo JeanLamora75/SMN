@@ -37,7 +37,7 @@ test("SMN-381: copy retains saved-only, permissions, replacement confirmation an
 });
 test("SMN-381: modal focus trap, keyboard Escape and close focus restoration are implemented",()=>{
  const source=read("modal-focus.ts");
- for(const token of ["keydown","event.key===\"Tab\"","event.key===\"Escape\"","previous?.focus()","aria"])
+ for(const token of ["keydown","event.key!==\"Tab\"","event.key===\"Escape\"","previous?.focus()","aria"])
   if(token!=="aria")assert.ok(source.includes(token),token);
  const editor=read("dashboard-editor.tsx");
  for(const token of ["resetFocus","pendingFocus","exitFocus","role=\"alertdialog\"","role=\"dialog\""])
