@@ -34,7 +34,7 @@ export async function correctHistoricalTeamAssignment(db:Client,actor:TeamActor,
   const assignments=await db.query<{id:string;start_on:string;end_on:string|null}>(`
    SELECT id,start_on::text,end_on::text FROM public.smn_member_assignment
    WHERE member_id=$1 AND team_id=$2 AND start_on<=$3::date
-    AND end_on IS NOT NULL AND end_on>=$3::date FOR UPDATE`,
+    AND (end_on IS NULL OR end_on>=$3::date) FOR UPDATE`,
    [memberId,team.team_id,input.effectiveFrom]);
   if(assignments.rows.length!==1)return fail("outside-assignment");
   const assignment=assignments.rows[0];
