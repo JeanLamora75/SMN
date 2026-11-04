@@ -41,3 +41,19 @@ export function isCapacityNeutralCancellation(
   "scrum_master_percent","product_owner_percent","developer_percent"] as const)
   .every(key=>Number(predecessor[key])===Number(target[key]));
 }
+
+/** Inform-only read: historical corrections never mutate frozen KPI snapshots.
+ * The user may explicitly reopen a closed sprint and close it again to recapture.
+ */
+export async function countAffectedClosedSprints(
+ db:import("pg").Client,teamId:string,impact:RevisionImpact|null
+):Promise<number>{
+ if(!impact)return 0;
+ const result=await db.query<{count:string}>(`
+ SELECT COUNT(*)::text AS count FROM public.smn_sprint s
+ WHERE s.team_id=$1 AND s.deleted_at IS NULL AND s.status='closed'
+  AND (s.start_at AT TIME ZONE s.time_zone)::date<=COALESCE($3::date,'infinity'::date)
+  AND (s.end_at AT TIME ZONE s.time_zone)::date>=$2::date`,
+ [teamId,impact.start,impact.end]);
+ return Number(result.rows[0]?.count??0);
+}
