@@ -112,3 +112,6 @@ Deux versions ayant la même date sont résolues par le plus grand numéro. Une 
 En cas de réponse HTTP 409, l'interface affiche le code de refus reçu du service ; un conflit ou un gel réel doit rester identifiable. Le cas Harshal Sutariya, R1 Développeur / R2 PO à la même date du 05/01/2026, est un changement de charge métier, pas un simple doublon redondant : l'annulation de R2 ne saurait contourner un sprint clos. Une reprise historique consciente de l'impact sur les charges devra être arbitrée séparément.
 
 Tests : `smn-379-revision-impact.test.ts` et `smn-member-historical-correction-save.test.ts`. Aucune exécution locale déclarée.
+
+## Arbitrage confirmé — rectification rétroactive des rôles en sprint clôturé
+Une modification rétrospective de répartition SM/PO/DEV est autorisée même si elle recouvre un sprint clôturé. Les capacités dynamiques sont recalculées lors de leur prochaine lecture, mais les KPI capturés à la clôture et les rapports déjà édités demeurent strictement inchangés. Pour mettre à jour les KPI d'un sprint concerné, l'utilisateur doit le repasser à l'état **Terminé**, puis le clôturer à nouveau explicitement. Aucun changement automatique de statut, snapshot ou rapport n'est permis. La correction reste auditée et transactionnelle, avec contrôle de concurrence, d'appartenance à l'équipe et de cohérence des pourcentages.
