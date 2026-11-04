@@ -1,3 +1,4 @@
+import {countAffectedClosedSprints} from "@/server/members/assignment-revision-impact";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {parseAssignmentInput} from "@/server/members/assignment";
@@ -60,28 +61,7 @@ export async function addDatedTeamRoleChange(db:Client,actor:TeamActor,
   const affectedEnd=next?
    new Date(Date.parse(next.effective_from+"T00:00:00Z")-86400000).toISOString().slice(0,10):
    assignment.end_on;
-  const params=[team.team_id,input.effectiveFrom,affectedEnd];
-  const frozen=await db.query(`
-   SELECT 1 FROM public.smn_sprint s
-   WHERE s.team_id=$1 AND
-    (s.status='closed' OR EXISTS(SELECT 1 FROM public.smn_sprint_closure_snapshot
-      snap WHERE snap.sprint_id=s.id))
-    AND (s.start_at AT TIME ZONE s.time_zone)::date<=COALESCE($3::date,'infinity'::date)
-    AND (s.end_at AT TIME ZONE s.time_zone)::date>=$2::date LIMIT 1`,params);
-  if(frozen.rows.length)return fail("frozen-period");
-  const initial=await db.query(`
-   SELECT 1 FROM public.smn_capacity_initial_snapshot snap
-   JOIN public.smn_capacity_period_override period ON period.id=snap.period_id
-   WHERE period.team_id=$1 AND period.start_on<=COALESCE($3::date,'infinity'::date)
-    AND period.end_on>=$2::date LIMIT 1`,params);
-  if(initial.rows.length)return fail("frozen-period");
-  const archive=await db.query(`
-   SELECT 1 FROM public.smn_report_pdf_archive r
-   LEFT JOIN public.smn_sprint s ON s.id=r.cycle_id AND s.team_id=r.team_id
-   WHERE r.team_id=$1 AND (s.id IS NULL OR (
-    (s.start_at AT TIME ZONE s.time_zone)::date<=COALESCE($3::date,'infinity'::date)
-    AND (s.end_at AT TIME ZONE s.time_zone)::date>=$2::date)) LIMIT 1`,params);
-  if(archive.rows.length)return fail("frozen-period");
+  const affectedClosedSprints=await countAffectedClosedSprints(db,team.team_id,{start:input.effectiveFrom,end:affectedEnd});
   const cancelled=await db.query<{max_revision:number|null}>(`
    SELECT MAX((details->>'cancelledRevision')::int) AS max_revision
    FROM public.smn_member_lifecycle_event
@@ -97,6 +77,6 @@ export async function addDatedTeamRoleChange(db:Client,actor:TeamActor,
    input.contributionPercent,input.effectiveFrom,input.shares.scrumMaster,
    input.shares.productOwner,input.shares.developer,actor.accountId]);
   await db.query("COMMIT");
-  return {ok:true as const,revision,assignmentId:assignment.id,teamId:team.team_id};
+  return {ok:true as const,revision,assignmentId:assignment.id,teamId:team.team_id,affectedClosedSprints};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
