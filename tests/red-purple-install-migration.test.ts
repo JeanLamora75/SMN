@@ -14,8 +14,10 @@ test("migration CLI disponible avec check/apply et transaction",()=>{
  assert.match(paletteMigrationBody(migration),/ADD CONSTRAINT smn_general_settings_palette_check/);
  assert.doesNotMatch(paletteMigrationBody(migration),/^\s*(?:BEGIN|COMMIT);/m);
 });
-test("installation native v32 garde sa baseline et sélectionne Red Purple",()=>{
- assert.match(install,/await client.query\(sql\)/);
- assert.match(install,/paletteMigrationBody\(paletteSql\)/);
- assert.match(install,/INSERT INTO public\.smn_general_settings\(installation_id,palette\) VALUES \('singleton','red-purple'\)/);
+test("installation native v33 intègre Red Purple dans sa baseline autonome",()=>{
+ const baseline=readFileSync(new URL("../prisma/baseline/v33/schema.sql",import.meta.url),"utf8");
+ assert.ok(install.includes("nativeV33BaselineSql("));
+ assert.ok(install.includes('await client.query(sql)'));
+ assert.ok(baseline.includes("CHECK (palette IN ('ocean','forest','violet','red-purple'))"));
+ assert.ok(install.includes("INSERT INTO public.smn_general_settings(installation_id,palette) VALUES ('singleton','red-purple')"));
 });
