@@ -20,3 +20,24 @@ export function revisionImpactWindow(
  if(end!==null&&end<target.effective_from)return null;
  return {start:target.effective_from,end};
 }
+
+/** Cancellation can skip frozen-period checks only when the immediately
+ * applicable revision after removing the target has identical capacity inputs.
+ * Comparing the actual percentage columns prevents accidental historical drift.
+ */
+export type CapacityRevision=DatedRevision&Readonly<{
+ contract_percent:number;allocation_percent:number;contribution_percent:number;
+ scrum_master_percent:number;product_owner_percent:number;developer_percent:number;
+}>;
+export function isCapacityNeutralCancellation(
+ versions:readonly CapacityRevision[],target:CapacityRevision
+):boolean{
+ const remaining=versions.filter(v=>v.revision!==target.revision&&
+  v.effective_from<=target.effective_from);
+ const predecessor=remaining.sort((a,b)=>
+  a.effective_from.localeCompare(b.effective_from)||a.revision-b.revision).at(-1);
+ if(!predecessor)return false;
+ return (["contract_percent","allocation_percent","contribution_percent",
+  "scrum_master_percent","product_owner_percent","developer_percent"] as const)
+  .every(key=>Number(predecessor[key])===Number(target[key]));
+}
