@@ -12,8 +12,8 @@ type AssignmentState={memberId:string;teamId:string;assignmentId:string|null;
 type Kind="loading"|"ready"|"error";
 type Draft={effectiveFrom:string;contractPercent:string;allocationPercent:string;
  contributionPercent:string;scrumMaster:string;productOwner:string;developer:string};
-function draftFrom(state:AssignmentState):Draft{
- const baseline=state.versions.at(-1)??null;
+function draftFrom(state:AssignmentState,requestedRevision?:number|null):Draft{
+ const baseline=state.versions.find(v=>v.revision===requestedRevision)??state.versions.at(-1)??null;
  return {
   effectiveFrom:state.endOn?baseline?.effectiveFrom??state.startOn??state.today:
    baseline&&baseline.effectiveFrom>state.today?baseline.effectiveFrom:state.today,
@@ -26,8 +26,8 @@ function draftFrom(state:AssignmentState):Draft{
  };
 }
 const num=(s:string)=>/^(0|[1-9][0-9]{0,2})$/.test(s)?Number(s):NaN;
-export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved,onCancel,onDirtyChange,teamScoped=false}:{
- memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;teamScoped?:boolean;
+export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved,onCancel,onDirtyChange,teamScoped=false,targetRevision=null}:{
+ memberId:string;teamId:string;teamName:string;memberRevision:number;onSaved:()=>void;onCancel:()=>void;onDirtyChange?:(dirty:boolean,busy:boolean)=>void;teamScoped?:boolean;targetRevision?:number|null;
 }){
  const t=useTranslation();
  const [state,setState]=useState<AssignmentState|null>(null);
@@ -38,6 +38,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
  const [historicalStart,setHistoricalStart]=useState("");
  const [endOn,setEndOn]=useState("");
  const [endReason,setEndReason]=useState("");
+ const [selectedRevision,setSelectedRevision]=useState<number|null>(targetRevision);
  const [error,setError]=useState("");
  const dirty=draft!==null&&baseline!==null&&JSON.stringify(draft)!==JSON.stringify(baseline);
  useUnsavedChanges(Boolean(dirty||busy),t("draft.leaveWarning"));
@@ -48,10 +49,10 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    .then(async r=>{if(!r.ok)throw new Error("load-failed");return r.json() as Promise<AssignmentState>;})
    .then(data=>{if(!active)return;
     if(data.memberId!==memberId||data.teamId!==teamId||!Array.isArray(data.versions))throw new Error("wrong-team");
-    const start=draftFrom(data);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setEndOn(data.endOn??"");setEndReason(data.endReason??"");setStatus("ready");
+    const start=draftFrom(data,targetRevision);setSelectedRevision(targetRevision??data.versions.at(-1)?.revision??null);setState(data);setDraft(start);setBaseline(start);setHistoricalStart(data.startOn??"");setEndOn(data.endOn??"");setEndReason(data.endReason??"");setStatus("ready");
    }).catch(()=>{if(active)setStatus("error");});
   return ()=>{active=false;};
- },[memberId,teamId,teamScoped]);
+ },[memberId,teamId,teamScoped,targetRevision]);
  const change=(key:keyof Draft,value:string)=>setDraft(current=>current?{...current,[key]:value}:current);
  const cancel=()=>{if(busy)return;if(dirty&&!window.confirm(t("draft.discardWarning")))return;onCancel();};
  async function submit(event:FormEvent<HTMLFormElement>){
@@ -173,21 +174,18 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      <div className="col-md-4">
       <label htmlFor="effective-from" className="form-label">{t("members.assignment.effectiveFrom")}</label>
       {teamScoped&&state.endOn?
-       <select id="effective-from" className="form-select" value={draft.effectiveFrom}
+       <select id="effective-from" className="form-select" value={selectedRevision??""}
         disabled={busy} onChange={e=>{
-         const selected=[...state.versions].reverse().find(v=>v.effectiveFrom===e.target.value);
+         const revision=Number(e.target.value);
+         const selected=state.versions.find(v=>v.revision===revision);
          if(!selected)return;
-         const values:Draft={effectiveFrom:selected.effectiveFrom,
-          contractPercent:String(selected.contractPercent),
-          allocationPercent:String(selected.allocationPercent),
-          contributionPercent:String(selected.contributionPercent),
-          scrumMaster:String(selected.shares.scrumMaster),
-          productOwner:String(selected.shares.productOwner),
-          developer:String(selected.shares.developer)};
-         setDraft(values);setBaseline(values);setError("");
+         const values=draftFrom(state,revision);
+         setSelectedRevision(revision);setDraft(values);setBaseline(values);setError("");
         }}>
-        {[...new Set(state.versions.map(v=>v.effectiveFrom))].sort().map(date=>
-         <option key={date} value={date}>{date}</option>)}
+        {state.versions.map(v=>
+         <option key={v.revision} value={v.revision}>
+          {v.effectiveFrom} — Révision {v.revision}
+         </option>)}
        </select>:
        <input id="effective-from" type="date" className="form-control" required
         min={state.versions.at(-1)?.effectiveFrom&&state.versions.at(-1)!.effectiveFrom>state.today?
