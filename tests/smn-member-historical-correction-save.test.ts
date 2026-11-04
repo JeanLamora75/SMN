@@ -34,7 +34,7 @@ function fake(opts:{latest?:number;frozen?:boolean;noAssignment?:boolean;sameRol
      allocation_percent:100,contract_percent:100,contribution_percent:100,
      scrum_master_percent:0,product_owner_percent:opts.sameRoles?100:0,developer_percent:opts.sameRoles?0:100}
    ]};
-  if(sql.includes("FROM public.smn_sprint s"))return {rows:opts.frozen?[{one:1}]:[]};
+  if(sql.includes("FROM public.smn_sprint s"))return {rows:[{count:opts.frozen?"2":"0"}]};
   if(sql.includes("FROM public.smn_capacity_initial_snapshot"))return {rows:opts.frozen?[{one:1}]:[]};
   if(sql.includes("FROM public.smn_report_pdf_archive"))return {rows:[]};
   if(sql.includes("INSERT INTO public.smn_member_lifecycle_event"))return {rows:[],rowCount:1};
@@ -48,7 +48,7 @@ function fake(opts:{latest?:number;frozen?:boolean;noAssignment?:boolean;sameRol
 test("corriger la révision 1 n'ajoute aucune révision 3 : audit puis UPDATE ciblé",async()=>{
  const {db,queries}=fake();
  const result=await correctHistoricalTeamAssignment(db,actor,member,input);
- assert.deepEqual(result,{ok:true,revision:1,assignmentId:assignment,teamId:team,corrected:true});
+ assert.deepEqual(result,{ok:true,revision:1,assignmentId:assignment,teamId:team,corrected:true,affectedClosedSprints:0});
  assert.equal(queries.filter(q=>q.sql.includes("UPDATE public.smn_member_assignment_version")).length,1);
  assert.equal(queries.filter(q=>q.sql.includes("INSERT INTO public.smn_member_assignment_version")).length,0);
  const audit=queries.find(q=>q.sql.includes("INSERT INTO public.smn_member_lifecycle_event"));
@@ -65,17 +65,18 @@ test("conflit de révision : aucun UPDATE",async()=>{
  assert.ok(queries.some(q=>q.sql==="ROLLBACK"));
  assert.ok(!queries.some(q=>q.sql.includes("UPDATE public.smn_member_assignment_version")));
 });
-test("snapshot figé : aucune correction même historique",async()=>{
+test("sprint clôturé : correction autorisée, deux sprints à reclôturer",async()=>{
  const {db,queries}=fake({frozen:true});
  const result=await correctHistoricalTeamAssignment(db,actor,member,{...input,targetRevision:2});
- assert.deepEqual(result,{ok:false,error:"frozen-period"});
- assert.ok(!queries.some(q=>q.sql.includes("UPDATE public.smn_member_assignment_version")));
+ assert.equal(result.ok,true);
+ assert.equal(result.ok?result.affectedClosedSprints:0,2);
+ assert.ok(queries.some(q=>q.sql.includes("UPDATE public.smn_member_assignment_version")));
 });
 test("annuler dernière révision : audit avant suppression effective et aucune renumérotation",async()=>{
  const {db,queries}=fake();
  const result=await cancelLatestTeamAssignmentRevision(db,actor,member,
   {assignmentId:assignment,teamId:team,revision:2});
- assert.deepEqual(result,{ok:true,cancelledRevision:2,restoredRevision:1});
+ assert.deepEqual(result,{ok:true,cancelledRevision:2,restoredRevision:1,affectedClosedSprints:0});
  const audit=queries.find(q=>q.sql.includes("INSERT INTO public.smn_member_lifecycle_event"));
  assert.ok(audit);
  assert.equal(JSON.parse(String(audit.params[5])).kind,"assignment-version-cancellation");
@@ -88,8 +89,10 @@ test("annulation d'une révision non dernière ou d'un historique figé refusée
   {assignmentId:assignment,teamId:team,revision:1}),{ok:false,error:"invalid-input"});
  assert.ok(!queries.some(q=>q.sql.includes("DELETE FROM public.smn_member_assignment_version")));
  const f=fake({frozen:true});
- assert.deepEqual(await cancelLatestTeamAssignmentRevision(f.db,actor,member,
-  {assignmentId:assignment,teamId:team,revision:2}),{ok:false,error:"frozen-period"});
+ const result=await cancelLatestTeamAssignmentRevision(f.db,actor,member,
+  {assignmentId:assignment,teamId:team,revision:2});
+ assert.equal(result.ok,true);
+ assert.equal(result.ok?result.affectedClosedSprints:0,2);
 });
 
 test("correction d'une version masquée par une plus récente : audit permis sans toucher aux capacités figées",async()=>{
