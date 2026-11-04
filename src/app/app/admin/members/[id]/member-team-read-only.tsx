@@ -245,12 +245,12 @@ export default function MemberTeamReadOnly({memberId,teamId,teamName,memberName,
       <th scope="col">{t("memberTeamScope.end")}</th>
       <th scope="col">{t("memberTeamScope.allocation")}</th>
       <th scope="col">SM</th><th scope="col">PO</th><th scope="col">DEV</th>
-      <th scope="col">{t("memberTeamScope.revision")}</th><th scope="col">{locale==="en"?"Actions":"Actions"}</th>
+      <th scope="col">{locale==="en"?"Effective date":"Date d’effet"}</th><th scope="col">{t("memberTeamScope.revision")}</th><th scope="col">{locale==="en"?"Actions":"Actions"}</th>
      </tr></thead>
      <tbody>{versions.map(v=><tr key={v.assignmentId+"-"+v.revision}>
       <td>{formatCivil(v.startOn,locale)}</td><td>{v.endOn?formatCivil(v.endOn,locale):"—"}</td>
       <td>{v.allocationPercent} %</td>
-      <td>{v.scrumMasterPercent} %</td><td>{v.productOwnerPercent} %</td><td>{v.developerPercent} %</td><td><span className="smn-member-revision">{v.revision}</span></td>
+      <td>{v.scrumMasterPercent} %</td><td>{v.productOwnerPercent} %</td><td>{v.developerPercent} %</td><td>{formatCivil(v.effectiveFrom,locale)}</td><td><span className="smn-member-revision">{v.revision}</span></td>
       <td><div className="d-flex gap-2 align-items-center">
        <button type="button" className="btn btn-outline-primary btn-sm"
         aria-label={(locale==="en"?"Edit revision ":"Modifier la révision ")+v.revision}
