@@ -7,6 +7,9 @@ on:
       - "proxy.ts"
       - "src/**"
       - "scripts/**"
+      - "prisma/baseline/**"
+      - "prisma/migrations/20261101_smn_dashboard_slots_additive/**"
+      - "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql"
       - ".github/workflows/portable-package.yml"
   pull_request:
     branches: ["main"]
@@ -15,6 +18,9 @@ on:
       - "proxy.ts"
       - "src/**"
       - "scripts/**"
+      - "prisma/baseline/**"
+      - "prisma/migrations/20261101_smn_dashboard_slots_additive/**"
+      - "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql"
       - ".github/workflows/portable-package.yml"
   workflow_dispatch:
 permissions:
