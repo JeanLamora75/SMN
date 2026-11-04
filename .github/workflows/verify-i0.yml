@@ -73,6 +73,15 @@ jobs:
         run: pnpm test:smn-346
       - name: Tests unitaires et intégration PG réelle
         run: pnpm test
+      - name: Matrice traçabilité BMAD — preuves de tests exécutés
+        run: pnpm test:coverage-matrix
+      - name: Archiver la matrice de couverture
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smn-bmad-coverage-matrix
+          path: audit-output/coverage-matrix.json
+          if-no-files-found: warn
       - name: Valider le schéma Prisma
         run: pnpm exec prisma validate
       - name: Diagnostic de port et de prérequis
