@@ -4,7 +4,8 @@ import type {Client} from "pg";
 import {correctHistoricalTeamAssignment} from "../src/server/members/team-assignment-historical-correction";
 import {cancelLatestTeamAssignmentRevision,parseRevisionCancellation} from "../src/server/members/team-assignment-revision-cancel";
 import {addDatedTeamRoleChange} from "../src/server/members/team-assignment-dated-change";
-import {revisionImpactWindow,isCapacityNeutralCancellation} from "../src/server/members/assignment-revision-impact";
+import {revisionImpactWindow,isCapacityNeutralCancellation,countAffectedClosedSprints} from "../src/server/members/assignment-revision-impact";
+import {requireTeamMemberScope} from "../src/server/members/team-scope";
 
 const member="123e4567-e89b-42d3-a456-426614174000";
 const assignment="123e4567-e89b-42d3-a456-426614174111";
@@ -147,4 +148,62 @@ test("P1 membres: impact borné à la période et révision masquée ignorée",(
  assert.equal(isCapacityNeutralCancellation([a,b],b),false);
  assert.equal(isCapacityNeutralCancellation([a,{...b,product_owner_percent:0,developer_percent:100}],
   {...b,product_owner_percent:0,developer_percent:100}),true);
+});
+
+test("P1 isolation: membre hors équipe refusé, même avec un identifiant personnel connu",async()=>{
+ const calls:{sql:string;params:unknown[]}[]=[];
+ const db={query:async(sql:string,params:unknown[]=[])=>{
+  calls.push({sql,params});
+  if(sql.includes("SELECT a.installation_id,i.schema_version"))
+   return {rows:[{installation_id:"singleton",schema_version:33}]};
+  if(sql.includes("FROM public.smn_account_team_preference"))
+   return {rows:[{team_id:team}]};
+  if(sql.includes("SELECT p.id AS product_id"))
+   return {rows:[{product_id:null,product:null,team_id:team,team:"Koala",mode:"scrum"}]};
+  if(sql.includes("SELECT DISTINCT a.member_id FROM public.smn_member_assignment"))
+   return {rows:[]};
+  throw Error("unexpected query");
+ }} as unknown as Client;
+ await assert.rejects(()=>requireTeamMemberScope(db,admin,member,team),/member-out-of-team/);
+ const scope=calls.find(q=>q.sql.includes("SELECT DISTINCT a.member_id FROM public.smn_member_assignment"));
+ assert.ok(scope);
+ assert.deepEqual(scope.params,[member,team,false]);
+ assert.match(scope.sql,/a\.team_id=\$2/);
+ assert.equal(wrote(calls),false);
+});
+
+test("P1 isolation: accès à l'historique d'un ancien membre exige une autorisation explicite",async()=>{
+ const flags:boolean[]=[];
+ const db={query:async(sql:string,params:unknown[]=[])=>{
+  if(sql.includes("SELECT a.installation_id,i.schema_version"))
+   return {rows:[{installation_id:"singleton",schema_version:33}]};
+  if(sql.includes("FROM public.smn_account_team_preference"))
+   return {rows:[{team_id:team}]};
+  if(sql.includes("SELECT p.id AS product_id"))
+   return {rows:[{product_id:null,product:null,team_id:team,team:"Koala",mode:"scrum"}]};
+  if(sql.includes("SELECT DISTINCT a.member_id FROM public.smn_member_assignment")){
+   flags.push(params[2]===true);
+   return {rows:params[2]===true?[{member_id:member}]:[]};
+  }
+  throw Error("unexpected query");
+ }} as unknown as Client;
+ await assert.rejects(()=>requireTeamMemberScope(db,admin,member,team),/member-out-of-team/);
+ assert.deepEqual(await requireTeamMemberScope(db,admin,member,team,
+  {allowHistoricalAssignment:true}),{teamId:team,memberId:member});
+ assert.deepEqual(flags,[false,true]);
+});
+
+test("P1 capacités closes: requête bornée à l'équipe et à l'intervalle, jamais aux archives PDF",async()=>{
+ const calls:{sql:string;params:unknown[]}[]=[];
+ const db={query:async(sql:string,params:unknown[]=[])=>{
+  calls.push({sql,params});
+  return {rows:[{count:"2"}]};
+ }} as unknown as Client;
+ assert.equal(await countAffectedClosedSprints(db,team,{start:"2026-02-20",end:"2026-05-03"}),2);
+ assert.equal(await countAffectedClosedSprints(db,team,null),0);
+ assert.equal(calls.length,1);
+ assert.deepEqual(calls[0].params,[team,"2026-02-20","2026-05-03"]);
+ assert.match(calls[0].sql,/s\.team_id=\$1/);
+ assert.match(calls[0].sql,/s\.status='closed'/);
+ assert.equal(touchedFrozen(calls),false);
 });
