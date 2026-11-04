@@ -33,20 +33,21 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
    filters:slot.view==="list"?{...slot.filters,offset:(pages[slot.id]??0)*(Number(slot.filters?.limit) || 10)}:slot.filters,
   }))),[layout,cycleId,pages]);
  const {slots,refresh,retry}=useDashboardBatch(teamId,cycleId,requests);
- const renderBlock=(block:DashboardBlock)=>{
+ const renderBlock=(block:DashboardBlock,headerMode=false)=>{
   const active=visibleSlots(block);
   if(!active.length)return null;
   const template=getDashboardTemplate(block.templateId,block.templateVersion);
   const dimensions=block.dimensions;
-  return <section key={block.id} className="smn-panel p-3" aria-label={block.title?.trim()||"Bloc du tableau de bord"}>
-   {block.title?.trim()&&<h2 className="h6 mb-3">{block.title.trim()}</h2>}
-   <div className={`${styles.innerSlots} ${styles.fixedContent}`} style={{gridTemplateColumns:`repeat(${template?.columns??1},minmax(0,1fr))`,gridTemplateRows:`repeat(${template?.rows??1},minmax(0,auto))`,height:dimensions?.height==="auto"?undefined:dimensions?.height}}>
+  const complete=!!template&&active.length===template.slotCount;
+  return <section key={block.id} className={styles.blockPanel} aria-label={block.title?.trim()||"Bloc du tableau de bord"}>
+   {block.title?.trim()&&<h2 className={styles.blockHeading}>{block.title.trim()}</h2>}
+   <div className={`${styles.innerSlots} ${styles.fixedContent}`} style={{gridTemplateColumns:`repeat(${complete?template.columns:Math.max(1,active.length)},minmax(0,1fr))`,gridTemplateRows:complete?`repeat(${template.rows},minmax(0,auto))`:"auto",height:headerMode?undefined:dimensions?.height==="auto"?undefined:dimensions?.height}}>
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
-     if(!result||result.state==="loading")return <section key={slot.id} style={templateCellStyle(template,slot)} aria-busy="true" aria-label="Chargement de la donnée" className="p-2">{slot.title?.trim()&&<h3 className="h6">{slot.title.trim()}</h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
-     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.title?.trim()||"Liste du tableau de bord"}>
-      {slot.title?.trim()&&<h3 className="h6 mb-2">{slot.title.trim()}</h3>}
+     if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={styles.slotCard}>{slot.title?.trim()&&<h3 className={styles.slotTitle}>{slot.title.trim()}</h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
+     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={styles.slotCard} aria-label={slot.title?.trim()||"Liste du tableau de bord"}>
+      {slot.title?.trim()&&<h3 className={styles.slotTitle}>{slot.title.trim()}</h3>}
       <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
        onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
        onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
@@ -67,13 +68,13 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
      </section>;
      if(result.state==="available"){
       const number=result.value===undefined||result.value===null?NaN:Number(result.value);
-      model=result.points&&(["line","bar"].includes(slot.view!))?{state:"ready",kind:slot.view as VisualizationModel["kind"],points:result.points,unit:result.unit}:Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
+      model=slot.view==="gauge"?{state:"invalid-bounds",kind:"gauge"}:result.points&&(["line","bar"].includes(slot.view!))?{state:"ready",kind:slot.view as VisualizationModel["kind"],points:result.points,unit:result.unit}:Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
        {state:"error",kind:slot.view as VisualizationModel["kind"]};
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
-     return <section key={slot.id} style={templateCellStyle(template,slot)} className="p-2" aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>
-      {slot.title?.trim()&&<h3 className="h6 mb-2">{slot.title.trim()}</h3>}
+     return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={styles.slotCard} aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>
+      {slot.title?.trim()&&<h3 className={styles.slotTitle}>{slot.title.trim()}</h3>}
       {result.state==="absent"&&slot.view==="list"?<p role="status">Aucun résultat</p>:result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
        <DashboardVisualization model={model} locale={locale}/>}
       {model.state==="error"&&<button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>retry(slot.id)}>Réessayer cet emplacement</button>}
@@ -82,34 +83,35 @@ export default function DashboardConsultation({layout,teamId,navigation,mode,loc
    </div>
   </section>;
  };
- const header=layout.header.blocks.map(renderBlock).filter(Boolean);
+ const header=layout.header.blocks.map(block=>renderBlock(block,true)).filter(Boolean);
  const rows=layout.rows.map(row=>row.blocks.map(block=>({block,content:renderBlock(block)})).filter(item=>item.content)).filter(row=>row.length);
- return <main className="smn-dashboard-builder" aria-label="Dashboard personnalisé">
-  <header className="smn-panel p-3 mb-3" aria-label="En-tête du tableau de bord">
-   <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
-    <div className="d-flex align-items-center gap-2">
-     {navigation.previous&&!personalizing?<Link aria-label="Sprint précédent" href={cycleLink(navigation.previous)} className="btn btn-link btn-sm text-body-secondary px-1 text-decoration-none">‹</Link>:
-      <button type="button" aria-label="Sprint précédent" className="btn btn-link btn-sm text-body-secondary px-1" disabled>‹</button>}
-     <div>
-      <h1 className="h4 fw-bold mb-0">{navigation.current?.name??(mode==="scrum"?"Aucun sprint":"Aucune période")}</h1>
-      {navigation.current&&<div className="small text-body-secondary">{date(navigation.current.startAt)} — {date(navigation.current.endAt)}</div>}
+ return <div className="smn-dashboard-builder" aria-label="Dashboard personnalisé">
+  <header className={styles.cockpitHeader} aria-label="En-tête du tableau de bord">
+   <div className={styles.cockpitLayout}>
+    <div>
+     <div className={styles.cockpitNav}>
+      {navigation.previous&&!personalizing?<Link aria-label="Sprint précédent" href={cycleLink(navigation.previous)} className={styles.cycleLink}>‹</Link>:
+       <button type="button" aria-label="Sprint précédent" className={styles.cycleLink} disabled>‹</button>}
+      <div>
+       <h1 className={styles.cockpitTitle}>{navigation.current?.name??(mode==="scrum"?"Aucun sprint":"Aucune période")}</h1>
+       {navigation.current&&<div className={styles.cockpitMeta}>{date(navigation.current.startAt)} — {date(navigation.current.endAt)}</div>}
+      </div>
+      {navigation.next&&!personalizing?<Link aria-label="Sprint suivant" href={cycleLink(navigation.next)} className={styles.cycleLink}>›</Link>:
+       <button type="button" aria-label="Sprint suivant" className={styles.cycleLink} disabled>›</button>}
      </div>
-     {navigation.next&&!personalizing?<Link aria-label="Sprint suivant" href={cycleLink(navigation.next)} className="btn btn-link btn-sm text-body-secondary px-1 text-decoration-none">›</Link>:
-      <button type="button" aria-label="Sprint suivant" className="btn btn-link btn-sm text-body-secondary px-1" disabled>›</button>}
-     {navigation.current&&<span className="badge text-bg-secondary ms-2">{navigation.current.status}</span>}
+     {navigation.current&&<span className={`${styles.cockpitBadge} mt-2`}>{({closed:"Clôturé",completed:"Terminé",active:"En cours",in_progress:"En cours",planned:"Planifié"} as Record<string,string>)[navigation.current.status]??navigation.current.status}</span>}
     </div>
-    <div className="d-flex align-items-center gap-2">
+    <div className={styles.headerKpis}>{header}</div>
+    <div className={styles.cockpitActions}>
      {headerActions}
-     <button className="btn btn-outline-secondary btn-sm" type="button" onClick={refresh}>Actualiser</button>
+     <button className="btn btn-sm" type="button" onClick={refresh}>Actualiser</button>
     </div>
    </div>
   </header>
-  {header.length>0&&<div className="row g-3 mb-3">{header.map((block,i)=>
-   <div className="col-12 col-lg-6" key={i}>{block}</div>)}</div>}
   {rows.length>0?rows.map((row,i)=><div className={`${styles.blockRow} mb-3`} key={i}>
    {row.map(({block,content})=><div className={styles.blockCell} key={block.id} style={{"--smn-block-width":block.dimensions?.width??1} as CSSProperties}>{content}</div>)}
   </div>):<section className="smn-panel p-4" role="status">
    <p className="mb-0">Aucune donnée configurée pour ce tableau de bord.</p>
   </section>}
- </main>;
+ </div>;
 }
