@@ -29,7 +29,8 @@ test("correction historique : le départ de l'équipe n'interdit plus l'édition
  assert.match(editor,/teamScoped\?\(editMode==="correct"\?"\/team-assignment\/history-correction":"\/team-assignment\/dated-change"\)/);
  assert.match(editor,/state\.endOn!==null&&draft\.effectiveFrom>state\.endOn/);
  assert.match(editor,/targetRevision:selectedRevision/);
- assert.match(editor,/Corriger la version historique/);
+ assert.match(editor,/Corriger une révision existante/);
+ assert.match(editor,/editMode==="correct"/);
  assert.match(editor,/state\.assignmentId&&state\.startOn&&<div/);
  assert.match(editor,/state\.versions\.map\(v=>/);
  assert.match(endpoint,/authorizeApi\(req,"write"/);
