@@ -55,3 +55,19 @@ Qualifications requises : `pnpm i18n:check`, `pnpm lint`, `pnpm typecheck`, `pnp
 **AC-H4 :** rendre les erreurs explicites dans la modale ; tests UI, multiéquipe, versions concomitantes, dates limites et PG requis.
 
 **Traçabilité :** https://lmn24.atlassian.net/browse/SMN-45. La publication documentaire n'atteste pas une recette exécutée.
+
+
+## Avenant du 04/11/2026 — SMN-379 : correction ciblée et annulation contrôlée d'une révision
+
+**Objectif** : éviter l'accumulation de corrections de saisie dans l'historique des affectations sans supprimer les vrais changements de rôle.
+
+- Chaque révision dispose d'une commande **Modifier** (crayon) ciblant son identifiant exact. Le simple filtre par date d'effet ne suffit pas lorsque plusieurs révisions portent la même date.
+- La commande **Annuler** (croix) n'est proposée que pour la **dernière révision en numéro** de l'affectation concernée, jamais la révision 1. La date de création, et non l'ordre de tri de l'écran, ne doit pas modifier cette règle.
+- Annulation = retrait de l'état métier actif, **sans suppression physique des données historiques** et avec preuve d'audit (version, acteur, horodatage et motif). Les révisions restantes ne sont pas renumérotées ; une révision annulée ne doit plus déterminer la répartition applicable.
+- Précondition stricte : aucun lien à un snapshot ou rapport figé. Si la vérification de ces dépendances est indisponible, **refuser l'annulation** plutôt que supposer leur absence.
+- Contrôles de droits de l'équipe, concurrence et confirmation explicite ; actualisation de la fiche après succès.
+- La correction d'une version existante doit conserver la traçabilité des valeurs précédentes et ne jamais réécrire un rapport clos.
+
+**Critères d'acceptation** : voir [SMN-379](https://lmn24.atlassian.net/browse/SMN-379) ; tests client, serveur, PostgreSQL et rapports figés requis. Une évolution du schéma doit utiliser une migration additive/versionnée, jamais une DDL exécutée au chargement d'une page.
+
+**État** : documentation et Jira validés, implémentation à qualifier ; aucun test local/PG déclaré réussi sans exécution.
