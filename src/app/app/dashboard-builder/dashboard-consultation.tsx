@@ -48,7 +48,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={styles.slotCard}>{slot.title?.trim()&&<h3 className={styles.slotTitle}>{slot.title.trim()}</h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
      if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={styles.slotCard} aria-label={slot.title?.trim()||"Liste du tableau de bord"}>
       {slot.title?.trim()&&<h3 className={styles.slotTitle}>{slot.title.trim()}</h3>}
-      <DashboardBusinessList data={result.list} page={pages[slot.id]??0}
+      <DashboardBusinessList data={result.list} page={pages[slot.id]??0} columns={Array.isArray(slot.filters?.columns)?slot.filters.columns as string[]:undefined}
        onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
        onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
