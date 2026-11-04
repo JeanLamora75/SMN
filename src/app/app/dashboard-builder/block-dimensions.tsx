@@ -63,13 +63,13 @@ export function BlockDimensionControl({value,onChange,disabled=false}:{
          <div className={ui.previewCell} style={{gridColumn:`span ${draft.width}`,height:draft.height==="auto"?70:Math.round(draft.height/5)}}/>
          {Array.from({length:4-draft.width},(_,i)=><div className={ui.previewCell} key={i} style={{opacity:.35}}/>)}
         </div>
-        <p className={`${ui.muted} mt-3 mb-0`}>Aperçu géométrique uniquement. La hauteur s'adaptera au contenu si « Auto » est sélectionné.</p>
+        <p className={`${ui.muted} mt-3 mb-0`}>Aperçu géométrique uniquement. La hauteur s&apos;adaptera au contenu si « Auto » est sélectionné.</p>
        </div>
       </div>
      </div>
     </div>
     <div className={ui.footer}>
-     <span className={ui.muted}>La modification ne sera enregistrée qu'avec le Dashboard.</span>
+     <span className={ui.muted}>La modification ne sera enregistrée qu&apos;avec le Dashboard.</span>
      <div className="d-flex gap-2">
       <button type="button" className="btn btn-outline-secondary" onClick={()=>setOpen(false)}>Annuler</button>
       <button type="button" className="btn btn-primary" onClick={()=>{onChange(draft);setOpen(false);}}>Appliquer</button>
