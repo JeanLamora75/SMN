@@ -29,9 +29,11 @@ test("SMN-368 AC2/AC4: floating panel and mobile overrides",()=>{
  const panel=readFileSync(new URL("../src/app/app/dashboard-builder/block-dimensions.tsx",import.meta.url),"utf8");
  const css=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-dimensions.module.css",import.meta.url),"utf8");
  const page=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
- assert.match(panel,/position-absolute end-0 bottom-100/);
- assert.match(panel,/Largeur logique/);
- assert.match(panel,/Automatique/);
+ assert.match(panel,/useDashboardModalFocus/);
+ assert.match(panel,/Largeur du bloc/);
+ assert.match(panel,/Hauteur du bloc/);
+ assert.match(panel,/Auto/);
+ assert.match(panel,/onChange\(draft\)/);
  assert.match(css,/@media\(max-width:767\.98px\)/);
  assert.match(css,/height:auto!important/);
  assert.match(css,/overflow:auto/);
