@@ -32,11 +32,14 @@ test("SMN-338 : diagnostic autorise v33 et exige signature de migration",()=>{
   assert.ok(relations.includes("public."+n+":function"));
  assert.match(read("src/server/db/probe.ts"),/indicatorV33SchemaValid/);
 });
-test("SMN-338 : baseline v33 candidate non activée",()=>{
- const code=read("scripts/build-smn-338-v33-baseline-candidate.ts");
- assert.match(code,/nativeInstallationEnabled:false/);
- assert.match(code,/nativeBaselineSql/);
- assert.match(code,/indicatorV33Sql/);
+test("SMN-338 : baseline v33 autonome activée",()=>{
+ const sql=read("prisma/baseline/v33/schema.sql");
+ assert.match(sql,/CREATE TABLE public\.smn_indicator_definition/);
+ assert.match(sql,/CREATE TABLE IF NOT EXISTS public\.smn_dashboard_layout/);
+ assert.match(sql,/CREATE TABLE IF NOT EXISTS public\.smn_dashboard_team_grant/);
+ const install=read("src/server/installation/install.ts");
+ assert.match(install,/nativeV33BaselineSql\(\)/);
+ assert.doesNotMatch(install,/nativeBaselineSql\(\)|indicatorV33Sql\(\)/);
 });
 
 test("SMN-338 : tableaux SQL transmis comme un paramètre unique",()=>{
