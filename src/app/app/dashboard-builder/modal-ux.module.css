@@ -14,8 +14,8 @@
 .card:hover{border-color:var(--smn-brand);box-shadow:0 4px 12px rgba(21,84,145,.1)}
 .cardSelected{border:2px solid var(--smn-brand);background:var(--smn-soft);box-shadow:0 0 0 2px rgba(26,106,207,.09)}
 .card:focus-visible,.chip:focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
-.cardName{font-weight:750;color:var(--smn-heading);font-size:.95rem}
-.cardDetail{font-size:.79rem;color:var(--smn-muted);margin-top:.4rem;line-height:1.5}
+.cardName{display:block;font-weight:750;color:var(--smn-heading);font-size:.95rem}
+.cardDetail{display:block;font-size:.79rem;color:var(--smn-muted);margin-top:.4rem;line-height:1.5}
 .geometry{display:grid;gap:4px;margin:.8rem 0;min-height:72px;padding:.55rem;border:1px solid var(--smn-border);background:var(--smn-soft);border-radius:8px;align-items:stretch}
 .geometryCell{min-height:32px;border:1px solid rgba(34,101,171,.2);background:linear-gradient(130deg,#a8cfff,#d2e6fe);border-radius:4px}
 .chips{display:flex;flex-wrap:wrap;gap:.4rem}
