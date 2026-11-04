@@ -101,3 +101,14 @@ Un clic sur **Modifier** corrige désormais les valeurs de la révision choisie 
 8. Tests : transitions Développeur → Product Owner → Développeur, insertion d'un changement passé entre deux versions, date déjà existante, concurrence, snapshots figés et calcul des charges de sprint.
 
 **Implémentation :** `src/server/members/team-assignment-dated-change.ts`, route `team-assignment/dated-change`, `assignment-editor.tsx`, `member-team-read-only.tsx`. Publication sur main ; exécution TypeScript/tests/PG non encore effectuée.
+
+
+## Correctif du 04/11/2026 — portée réelle des révisions et nettoyage sans dérive
+
+Les contrôles d'interdiction liés aux sprints/rapports figés s'appliquent désormais **à l'intervalle réellement influencé par la version** : depuis sa date d'effet jusqu'à la veille de la prochaine version (ou fin d'affectation). Ils ne bloquent plus automatiquement toute la durée du contrat.
+
+Deux versions ayant la même date sont résolues par le plus grand numéro. Une correction de la version antérieure **masquée** ne peut pas modifier la capacité actuellement calculée : elle peut donc être auditée même en présence d'archives. L'annulation de la dernière version est autorisée en présence de gel uniquement si la version qui redeviendrait applicable possède exactement les six mêmes paramètres de capacité (contrat, allocation, contribution, SM, PO, DEV). La preuve d'identité des données est évaluée côté serveur. Sinon, les sprints figés demeurent prioritaires et l'annulation reste refusée.
+
+En cas de réponse HTTP 409, l'interface affiche le code de refus reçu du service ; un conflit ou un gel réel doit rester identifiable. Le cas Harshal Sutariya, R1 Développeur / R2 PO à la même date du 05/01/2026, est un changement de charge métier, pas un simple doublon redondant : l'annulation de R2 ne saurait contourner un sprint clos. Une reprise historique consciente de l'impact sur les charges devra être arbitrée séparément.
+
+Tests : `smn-379-revision-impact.test.ts` et `smn-member-historical-correction-save.test.ts`. Aucune exécution locale déclarée.
