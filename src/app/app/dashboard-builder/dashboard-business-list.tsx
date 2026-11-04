@@ -1,18 +1,31 @@
 "use client";
 import Link from "next/link";
 import type {DashboardListPayload} from "@/server/dashboard-builder/lists";
+import styles from "./dashboard-dimensions.module.css";
+
+const typeNames:Record<string,string>={
+ risk:"Risque",obstacle:"Obstacle",dependency:"Dépendance",highlight:"Événement",
+ decision:"Décision",action:"Action",ceremony:"Cérémonie",exceptional:"Événement",
+ note:"Note",alert:"Alerte",template:"Cérémonie",
+};
+const statusNames:Record<string,string>={
+ open:"Ouvert",in_progress:"En cours",resolved:"Résolu",abandoned:"Abandonné",
+ closed:"Clôturé",completed:"Terminé",satisfied:"Satisfaite",cancelled:"Annulé",
+ planned:"Planifié",active:"Actif",blocked:"Bloquant",pending:"En attente",
+};
 export function DashboardBusinessList({data,onNext,onPrevious,page=0}:{
  data:DashboardListPayload;onNext:()=>void;onPrevious:()=>void;page?:number;
 }){
- if(!data.rows.length)return <p role="status" className="text-body-secondary">Aucun résultat</p>;
+ if(!data.rows.length)return <p role="status" className="text-body-secondary mb-0">Aucun résultat</p>;
  return <div>
-  <div className="table-responsive"><table className="table table-sm align-middle">
-   <thead><tr><th scope="col">Fiche</th><th scope="col">Type</th><th scope="col">Statut</th><th scope="col">Date</th></tr></thead>
-   <tbody>{data.rows.map(item=><tr key={item.id}><th scope="row">
-    <Link href={item.href} className="text-decoration-none">{item.label}</Link></th>
-    <td>{item.kind}</td><td>{item.status}</td><td>{item.date??"—"}</td></tr>)}</tbody>
-  </table></div>
-  <nav className="d-flex align-items-center justify-content-between" aria-label="Pagination des fiches">
+  <ul className={styles.businessList}>{data.rows.map(item=><li className={styles.businessItem} key={item.id}>
+   <div className={styles.businessItemTop}>
+    <Link href={item.href} className={styles.businessItemTitle}>{item.label}</Link>
+    {item.status&&<span className={styles.businessBadge}>{statusNames[item.status]??item.status}</span>}
+   </div>
+   <span className={styles.businessItemMeta}>{typeNames[item.kind]??item.kind}{item.date?" · "+item.date:""}</span>
+  </li>)}</ul>
+  <nav className="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3" aria-label="Pagination des fiches">
    <span className="small text-body-secondary">{data.total} résultat(s) · Page {page+1}</span>
    <div className="d-flex gap-2">
     <button className="btn btn-outline-secondary btn-sm" type="button" disabled={page===0} onClick={onPrevious}>Précédent</button>
