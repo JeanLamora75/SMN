@@ -1,4 +1,4 @@
-import {revisionImpactWindow} from "@/server/members/assignment-revision-impact";
+import {revisionImpactWindow,countAffectedClosedSprints} from "@/server/members/assignment-revision-impact";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
 import {parseAssignmentInput} from "@/server/members/assignment";
@@ -54,37 +54,7 @@ export async function correctHistoricalTeamAssignment(db:Client,actor:TeamActor,
   if(Object.entries(values).every(([k,v])=>Number(selected[k])===v))
    return fail("unchanged");
   const impact=revisionImpactWindow(versions.rows,selected,assignment.end_on);
-  if(impact){
-  const frozen=await db.query(`
-   SELECT 1 FROM public.smn_sprint s
-   WHERE s.team_id=$1 AND
-    (s.status='closed' OR EXISTS(
-      SELECT 1 FROM public.smn_sprint_closure_snapshot cs WHERE cs.sprint_id=s.id))
-    AND (s.start_at AT TIME ZONE s.time_zone)::date<=
-       COALESCE($3::date,'infinity'::date)
-    AND (s.end_at AT TIME ZONE s.time_zone)::date >=$2::date
-   LIMIT 1`,[team.team_id,impact.start,impact.end]);
-  if(frozen.rows.length)return fail("frozen-period");
-  // Initial capacity snapshots and archived reports are immutable and may
-  // contain derived role capacity. Refuse conservatively, never infer safety.
-  const initial=await db.query(`
-   SELECT 1 FROM public.smn_capacity_initial_snapshot snap
-   JOIN public.smn_capacity_period_override period ON period.id=snap.period_id
-   WHERE period.team_id=$1 AND period.start_on<=COALESCE($3::date,'infinity'::date)
-    AND period.end_on>=$2::date LIMIT 1`,
-   [team.team_id,impact.start,impact.end]);
-  if(initial.rows.length)return fail("frozen-period");
-  const archives=await db.query(`
-   SELECT 1 FROM public.smn_report_pdf_archive archive
-   LEFT JOIN public.smn_sprint s ON s.id=archive.cycle_id AND s.team_id=archive.team_id
-   WHERE archive.team_id=$1
-    AND (s.id IS NULL OR (
-     (s.start_at AT TIME ZONE s.time_zone)::date <= COALESCE($3::date,'infinity'::date)
-     AND (s.end_at AT TIME ZONE s.time_zone)::date >= $2::date))
-   LIMIT 1`,[team.team_id,impact.start,impact.end]);
-  if(archives.rows.length)return fail("frozen-period");
-
-  }
+  const affectedClosedSprints=await countAffectedClosedSprints(db,team.team_id,impact);
   await db.query(`INSERT INTO public.smn_member_lifecycle_event
    (id,member_id,assignment_id,action,effective_on,performed_by,details)
    VALUES($1,$2,$3,'delete',$4::date,$5,$6::jsonb)`,[
@@ -104,6 +74,6 @@ export async function correctHistoricalTeamAssignment(db:Client,actor:TeamActor,
   if(update.rowCount!==1)return fail("conflict");
   await db.query("COMMIT");
   return {ok:true as const,revision:targetRevision,assignmentId:assignment.id,
-   teamId:team.team_id,corrected:true};
+   teamId:team.team_id,corrected:true,affectedClosedSprints};
  }catch(error){await db.query("ROLLBACK").catch(()=>undefined);throw error;}
 }
