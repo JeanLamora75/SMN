@@ -49,7 +49,7 @@ test("installation, migration additive et calendrier couvrent les modèles",()=>
  const calendar=source("src/app/api/team-calendar/meetings/route.ts");
  const detail=source("src/app/app/team-calendar/meeting/[kind]/[id]/page.tsx");
  const conflicts=source("src/server/sprints/meeting-conflicts.ts");
- assert.match(installation,/nativeBaselineSql\(/);
+ assert.ok(installation.includes("nativeV33BaselineSql("));
  assert.doesNotMatch(installation,/input\.mode\s*===\s*"scrum"/);
  assert.doesNotMatch(installation,/await seedDefaultScrumCeremonyTemplates/);
  assert.match(syncScript,/seedDefaultScrumCeremonyTemplates/);
