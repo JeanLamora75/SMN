@@ -860,3 +860,14 @@ Le sélecteur d'en-tête est alimenté exclusivement par les équipes autorisée
 **Contrat prioritaire** : conserver **sans réinvention** le shell commun de SMN (`src/app/app/private-shell.tsx`), son en-tête global clair, ses sélecteurs d'équipe et de sprint, son compte/déconnexion, ainsi que le menu gauche rétractable et soumis aux droits (`private-navigation.tsx`, `src/lib/private-navigation.ts`). **Pas de deuxième sélecteur d'équipe ni de navigation horizontale concurrente.** Le bandeau métier bleu Cockpit Agile, les deux KPI dynamiques et les blocs personnalisés M01–M06 restent dans la zone principale à droite du menu. La planche conserve des titres de modèles uniquement à titre pédagogique : ne pas les afficher comme identifiants techniques dans l'application.
 
 **Statut** : version visuelle conforme à la structure du code validée en conversation le 04/11/2026. Référence UX, **pas preuve d'implémentation ni recette exécutée**. Le PNG de référence validé dans la conversation n'est pas archivé dans GitHub ; le SVG est une reconstitution vectorielle schématique. Les décisions métier, droits et interfaces existants continuent de prévaloir sur les valeurs illustratives de la maquette.
+
+
+## Dashboard Builder — Référence UX des modales de personnalisation (04/11/2026 — VALIDÉE)
+
+**Maquette approuvée en conversation avec Sally le 04/11/2026** : [référentiel des six familles de modales](../_bmad-output/planning-artifacts/ux-designs/ux-dashboard-builder-2026-11-04/MODALES-PARAMETRAGE-REFERENCE-VALIDEE.md) et [planche vectorielle versionnée](../_bmad-output/planning-artifacts/ux-designs/ux-dashboard-builder-2026-11-04/modales-parametrage-reference.svg).
+
+**User Stories Jira dans l'Epic [SMN-353](https://lmn24.atlassian.net/browse/SMN-353)** : [SMN-381](https://lmn24.atlassian.net/browse/SMN-381) pour la refonte UX des modales et [SMN-380](https://lmn24.atlassian.net/browse/SMN-380) pour la conformité visuelle de la restitution.
+
+**Règles** : conserver l'en-tête clair et la navigation latérale réelle de SMN, le bandeau métier Cockpit Agile et la mécanique de brouillon/persistance existante. Galerie M01–M06, assistant en deux étapes, dimensions, copie interéquipes, confirmations et sortie doivent suivre les conventions graphiques et d'accessibilité communes. L'original PNG est conservé dans la Bibliothèque ChatGPT `/SMN/UX/Dashboard-Builder/MAQUETTE-MODALES-COCKPIT-AGILE-2026-11-04.png` ; GitHub contient une **reconstitution SVG**, non le PNG original.
+
+**Statut :** conception validée, implémentation et recette des modales non déclarées terminées.
