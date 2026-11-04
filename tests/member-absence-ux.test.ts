@@ -53,12 +53,15 @@ describe("Fiche membre V2 — onglet Absences et calculs affectés",()=>{
   assert.match(editor,/onSubmit=\{submit\}/);
   assert.match(list,/action:"delete",id:record\.id,revision:record\.revision/);
  });
- it("ne propose dans la modale que la création ou correction, sans historique ni suppression",()=>{
+ it("propose création et gestion des absences, suppression auditée avec confirmation",()=>{
   assert.match(editor,/members\.absence\.newTitle/);
-  assert.match(editor,/members\.absence\.editTitle/);
-  assert.doesNotMatch(editor,/<table|<thead|<tbody|MemberCalendarEditor|MemberAbsenceSummary/);
-  assert.doesNotMatch(editor,/members\.absence\.historyTitle|regionalAbsence\.dayReview/);
-  assert.doesNotMatch(editor,/action:"delete"/);
+  assert.match(editor,/role="tablist"/);
+  assert.match(editor,/tab==="manage"/);
+  assert.match(editor,/onClick=\{\(\)=>editExisting\(item\)\}/);
+  assert.match(editor,/onClick=\{\(\)=>void deleteExisting\(item\)\}/);
+  assert.match(editor,/memberAbsences\.cancelConfirm/);
+  assert.match(editor,/action:"delete",id:item\.id,revision:item\.revision/);
+  assert.doesNotMatch(editor,/MemberCalendarEditor|MemberAbsenceSummary/);
   assert.match(editor,/onSaved\(\)/);
  });
  it("conserve les suppressions auditables et les écarte de toutes les disponibilités courantes",()=>{
