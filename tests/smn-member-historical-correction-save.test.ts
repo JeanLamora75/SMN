@@ -10,7 +10,7 @@ const actor={accountId:"admin",role:"admin" as const};
 const input={memberId:member,teamId:team,effectiveFrom:"2026-01-01",
  contractPercent:100,allocationPercent:80,contributionPercent:100,
  shares:{scrumMaster:0,productOwner:80,developer:20},revision:2,targetRevision:1};
-function fake(opts:{latest?:number;frozen?:boolean;noAssignment?:boolean}={}){
+function fake(opts:{latest?:number;frozen?:boolean;noAssignment?:boolean;sameRoles?:boolean}={}){
  const queries:{sql:string;params:unknown[]}[]=[];
  const query=async(sql:string,params:unknown[]=[])=>{
   queries.push({sql,params});
@@ -32,7 +32,7 @@ function fake(opts:{latest?:number;frozen?:boolean;noAssignment?:boolean}={}){
      scrum_master_percent:0,product_owner_percent:100,developer_percent:0},
     {id:"version1",revision:1,effective_from:"2026-01-01",
      allocation_percent:100,contract_percent:100,contribution_percent:100,
-     scrum_master_percent:0,product_owner_percent:0,developer_percent:100}
+     scrum_master_percent:0,product_owner_percent:opts.sameRoles?100:0,developer_percent:opts.sameRoles?0:100}
    ]};
   if(sql.includes("FROM public.smn_sprint s"))return {rows:opts.frozen?[{one:1}]:[]};
   if(sql.includes("FROM public.smn_capacity_initial_snapshot"))return {rows:opts.frozen?[{one:1}]:[]};
@@ -67,7 +67,7 @@ test("conflit de révision : aucun UPDATE",async()=>{
 });
 test("snapshot figé : aucune correction même historique",async()=>{
  const {db,queries}=fake({frozen:true});
- const result=await correctHistoricalTeamAssignment(db,actor,member,input);
+ const result=await correctHistoricalTeamAssignment(db,actor,member,{...input,targetRevision:2});
  assert.deepEqual(result,{ok:false,error:"frozen-period"});
  assert.ok(!queries.some(q=>q.sql.includes("UPDATE public.smn_member_assignment_version")));
 });
@@ -90,4 +90,18 @@ test("annulation d'une révision non dernière ou d'un historique figé refusée
  const f=fake({frozen:true});
  assert.deepEqual(await cancelLatestTeamAssignmentRevision(f.db,actor,member,
   {assignmentId:assignment,teamId:team,revision:2}),{ok:false,error:"frozen-period"});
+});
+
+test("correction d'une version masquée par une plus récente : audit permis sans toucher aux capacités figées",async()=>{
+ const {db,queries}=fake({frozen:true});
+ const result=await correctHistoricalTeamAssignment(db,actor,member,input);
+ assert.equal(result.ok,true);
+ assert.ok(!queries.some(q=>q.sql.includes("FROM public.smn_sprint s")));
+});
+test("annulation d'une dernière révision redondante possible même avec un snapshot figé",async()=>{
+ const {db,queries}=fake({frozen:true,sameRoles:true});
+ const result=await cancelLatestTeamAssignmentRevision(db,actor,member,
+  {assignmentId:assignment,teamId:team,revision:2});
+ assert.equal(result.ok,true);
+ assert.ok(!queries.some(q=>q.sql.includes("FROM public.smn_sprint s")));
 });
