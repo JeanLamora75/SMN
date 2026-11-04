@@ -6,7 +6,9 @@ import {translate} from "../src/i18n/catalog";
 const source=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("page v28 : isolation Admin et appartenance membre-équipe vérifiées au serveur",()=>{
  const page=source("src/app/app/admin/members/[id]/page.tsx");
- assert.match(page,/schema<28\|\|schema>32\|\|actor\.role!=="admin"/);
+ assert.match(page,/evaluateSchemaCapability\(schema,"multi-team"\)\.ok/);
+ assert.match(page,/actor\.role!=="admin"/);
+ assert.match(page,/if\(schema>=1&&schema<=27\)return \{kind:"legacy"\}/);
  assert.match(page,/resolveAdminTeam\(db/);
  assert.match(page,/readTeamAssignmentHistory\(db/);
  assert.match(page,/a.member_id=m.id AND a.team_id=\$2/);
