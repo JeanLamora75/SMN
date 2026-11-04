@@ -20,19 +20,17 @@ test("deux révisions le même jour : la version masquée ne modifie aucun calcu
  assert.deepEqual(revisionImpactWindow(versions,versions[1],"2026-10-14"),
   {start:"2026-01-05",end:"2026-10-14"});
 });
-test("les deux écritures contrôlent la période effective, pas toute l'affectation",()=>{
+test("les écritures déclarent les sprints clôturés concernés sans bloquer la correction",()=>{
  for(const file of ["src/server/members/team-assignment-revision-cancel.ts",
   "src/server/members/team-assignment-historical-correction.ts"]){
   const content=read(file);
   assert.match(content,/revisionImpactWindow\(/);
-  assert.match(content,/\[team\.team_id,impact\.start,impact\.end\]/);
-  assert.match(content,/if\(impact\)\{/);
-  assert.doesNotMatch(content,/\[team\.team_id,assignment\.start_on,assignment\.end_on\]/);
+  assert.match(content,/countAffectedClosedSprints\(db,team\.team_id,impact\)/);
+  assert.doesNotMatch(content,/return fail\("frozen-period"\)/);
  }
  const editor=read("src/app/app/admin/members/assignment-editor.tsx");
  assert.match(editor,/motif : "\+reason/);
 });
-
 test("deux révisions de même contenu : annulation sans impact capacitaire",()=>{
  const v=(revision:number,po:number)=>({
   revision,effective_from:"2026-01-05",contract_percent:100,
@@ -42,5 +40,5 @@ test("deux révisions de même contenu : annulation sans impact capacitaire",()=
  assert.equal(isCapacityNeutralCancellation([v(1,100),v(2,100)],v(2,100)),true);
  assert.equal(isCapacityNeutralCancellation([v(1,0),v(2,100)],v(2,100)),false);
  const s=read("src/server/members/team-assignment-revision-cancel.ts");
- assert.match(s,/impact&&!isCapacityNeutralCancellation\(versions\.rows,target\)/);
+ assert.match(s,/countAffectedClosedSprints\(db,team\.team_id,impact\)/);
 });
