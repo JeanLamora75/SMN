@@ -1,8 +1,8 @@
 # SMN — Dashboard Builder — Référence graphique de restitution validée
 
-**Révision UX :** 4 novembre 2026 — en-tête Cockpit Agile réel, sans second sélecteur d'équipe.
+**Révision UX finale :** 4 novembre 2026 — structure complète de l'écran SMN (shell + menu gauche + en-tête), expressément validée par le commanditaire.
 **Validation :** 4 novembre 2026, par le commanditaire, lors de l'atelier UX avec Sally (BMAD UX Designer).
-**Statut :** direction graphique validée ; référence de conception, non preuve de conformité des écrans.
+**Statut : VALIDÉ — référence graphique de conception ; ne constitue pas une preuve de conformité de l'application.**
 **Périmètre :** restitution en consultation et langage visuel du Dashboard Builder Scrum/Kanban.
 
 ## Planche de référence
@@ -15,7 +15,7 @@
 
 ## Direction validée
 
-- Identité « Cockpit Agile » : fond clair légèrement bleuté, navigation bleu nuit, bandeaux de titre bleu foncé, cartes blanches, contours fins, coins arrondis et ombres discrètes.
+- Identité « Cockpit Agile » : **shell réel SMN conservé** (barre globale claire, menu gauche clair rétractable), bandeau de contexte métier bleu nuit dans la zone principale, fond de contenu clair légèrement bleuté, cartes blanches, contours fins, coins arrondis et ombres discrètes. Le bleu nuit ne doit pas recolorer la navigation globale.
 - Respect de Bootstrap, des thèmes et des composants existants de SMN ; aucune couleur figée ne doit casser les variantes de thème.
 - Hiérarchie lisible : libellé métier, valeur dominante, unité, tendance ou état, densité maîtrisée ; alignements et rythmes constants.
 - **En-tête Cockpit Agile obligatoire** : conserver l'en-tête global existant de SMN et son sélecteur d'équipe unique. Le dashboard ne crée **aucun second sélecteur d'équipe**, ni champ ni menu déroulant. Afficher, si pertinent, le nom de l'équipe en lecture seule comme contexte métier.
@@ -63,6 +63,36 @@ Ces constats ne remplacent pas une recette visuelle dans le navigateur ni les te
 
 ## Hiérarchie documentaire
 
-Cette version corrigée retire explicitement le sélecteur d'équipe redondant et impose le vrai bandeau Cockpit Agile. La validation de cette révision visuelle devra être confirmée avant toute implémentation sur la base de son aperçu dans ChatGPT. Cette décision est **la référence esthétique prioritaire de la restitution Dashboard Builder à compter du 04/11/2026**, en complément des arbitrages D-DB, A-DB, UX-DB et MAQ-DB préexistants. Elle ne remplace pas leurs contrats métier, de droits, de sécurité, de stockage ou d'accessibilité. En cas de conflit réel avec une règle fonctionnelle, demander un arbitrage explicite avant implémentation.
+Cette version finale respecte le menu gauche et l'en-tête existants de SMN, retire tout sélecteur d'équipe redondant et conserve le bandeau métier Cockpit Agile. **La maquette structurée a été explicitement validée par le commanditaire le 04/11/2026.** Cette décision est **la référence esthétique prioritaire de la restitution Dashboard Builder à compter du 04/11/2026**, en complément des arbitrages D-DB, A-DB, UX-DB et MAQ-DB préexistants. Elle ne remplace pas leurs contrats métier, de droits, de sécurité, de stockage ou d'accessibilité. En cas de conflit réel avec une règle fonctionnelle, demander un arbitrage explicite avant implémentation.
 
 **Publication :** documentation UX uniquement. Aucune modification de l'application, de Jira, ni exécution de tests ou de scripts.
+
+
+## Avenant définitif — conformité au shell SMN (04/11/2026)
+
+**Validation explicite :** « Ok c’est validé, met a jour la documentation » après présentation de la maquette avec le shell réel. Cette validation prévaut sur les variantes illustratives antérieures dont la barre horizontale et la navigation étaient différentes de SMN.
+
+### Structure normative de la restitution
+
+1. **En-tête global existant** : conserver `src/app/app/private-shell.tsx` avec logo/nom SMN, bouton de rétractation du menu, **sélecteur d'équipe unique**, sélecteur de sprint/période, recherche globale (actuellement indisponible), compte et déconnexion. En-tête clair selon les tokens de thème, non une barre de navigation métier inventée.
+2. **Menu latéral gauche existant** : `src/app/app/private-navigation.tsx` et `src/lib/private-navigation.ts` pilotent les entrées et leurs habilitations. En mode Scrum avec droits adéquats : Dashboard, Équipe, Sprints, Calendrier, Indicateurs, Registre, Liens, Reporting, Paramètres. Respecter l'ordre, les intitulés métier définis par les traductions, les entrées conditionnelles, l'état actif, la réduction et le mode mobile. Pas de second menu horizontal.
+3. **Contenu principal sous l'en-tête, à droite du menu** : bandeau Cockpit Agile bleu nuit avec équipe en **lecture seule**, sprint sélectionné, dates et statut, flèches de navigation, **deux zones dynamiques**, Actualiser et Actions. Il ne change jamais le contexte d'équipe indépendamment du shell.
+4. **Corps du Dashboard Builder** : modèles M01–M06, indicateurs et listes métiers de la maquette validée. Les intitulés techniques des modèles sont pédagogiques et n'apparaissent pas en mode consultation réel. Titres de blocs/emplacements métier, pas d'UUID ni de codes techniques.
+5. **Adaptation visuelle** : la zone principale ne chevauche jamais le menu ; les tailles et espacements s'adaptent au menu réduit, au mobile et aux thèmes clair/sombre, en réutilisant les classes et variables de style SMN plutôt qu'en créant un shell concurrent.
+
+### Sources de vérité dans le code
+
+- [PrivateShell](../../../../src/app/app/private-shell.tsx) — structure générale, sélecteurs et contrôles.
+- [PrivateNavigation](../../../../src/app/app/private-navigation.tsx) — rendu de la navigation gauche.
+- [Configuration du menu](../../../../src/lib/private-navigation.ts) — entrées conditionnelles et ordre.
+- [Sélecteur d'équipe](../../../../src/app/app/active-team-selector.tsx) — contrôle existant unique.
+- [Styles SMN](../../../../src/app/globals.css) — thème et styles.
+
+**Note de traçabilité :** le PNG original validé demeure dans la conversation ChatGPT, et n'est pas prétendu stocké dans GitHub. Le SVG versionné est une interprétation vectorielle structurelle de l'écran. Les valeurs sont illustratives ; le code SMN reste normatif pour la structure réelle du shell.
+
+### Contrôles de recette obligatoires
+
+- Comparer l'en-tête global et le menu de la page Dashboard Builder aux autres écrans SMN : **aucun doublon** et **aucune navigation inventée**.
+- Comparer l'aire centrale au visuel approuvé : bandeau bleu métier, deux KPI d'en-tête, Actions / Actualiser, M01–M06 avec graphiques et listes métiers.
+- Vérifier les rôles administrateur et consultation, les modes Scrum et Kanban, le menu réduit et le rendu mobile ; préserver Bootstrap et les thèmes.
+- Vérifier que le sélecteur de sprint global et les flèches du bandeau restent synchronisés, et que le contexte d'équipe ne diverge pas.
