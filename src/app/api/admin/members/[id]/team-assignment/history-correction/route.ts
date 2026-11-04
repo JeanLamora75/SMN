@@ -22,7 +22,9 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
   if(error instanceof Error&&["team-access-forbidden","team-context-unavailable",
    "team-id-invalid","team-context-not-ready"].includes(error.message))
    return jsonResult({error:"not-found"},404);
-  console.error("team-member-historical-assignment-correction-unavailable");
+  console.error("team-member-historical-assignment-correction-unavailable",error);
+  if((error as {code?:unknown})?.code==="23505")
+   return jsonResult({error:"conflict"},409);
   return jsonResult({error:"service-unavailable"},503);
  }
 }
