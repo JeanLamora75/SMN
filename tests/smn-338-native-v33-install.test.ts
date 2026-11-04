@@ -10,6 +10,7 @@ import {INDICATOR_TABLES} from "../src/server/installation/indicator-v33-contrac
 import {NATIVE_V33_NAME,nativeV33BaselineSql} from "../src/server/installation/native-v33";
 import {createHash} from "node:crypto";
 import {parseConnectionSettings} from "../src/server/db/config";
+import {ensureAccountsSchema} from "../src/server/accounts/migration";
 test("SMN-338 : installation native v33 complète sur base vierge isolée",{timeout:180000},async()=>{
  const source=new URL(await installedDatabaseUri());
  if(!["postgres:","postgresql:"].includes(source.protocol)||source.pathname!=="/smn"||
@@ -41,6 +42,7 @@ test("SMN-338 : installation native v33 complète sur base vierge isolée",{time
   try{
    const names=await db.query<{relname:string}>("SELECT relname FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname=ANY($1::text[])",[INDICATOR_TABLES]);
    assert.equal(names.rows.length,8);
+   await assert.doesNotReject(()=>ensureAccountsSchema(db),"Authentication must accept the native v33 history");
    const adminCount=await db.query<{n:string}>("SELECT count(*)::text n FROM public.smn_account WHERE role='admin'");
    assert.equal(adminCount.rows[0]?.n,"1");
    const palette=await db.query<{palette:string}>("SELECT palette FROM public.smn_general_settings WHERE installation_id='singleton'");
