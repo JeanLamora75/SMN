@@ -1,5 +1,6 @@
-import type {CSSProperties,ReactNode} from "react";
+import type {ReactNode} from "react";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
+import styles from "./dashboard-dimensions.module.css";
 
 export type VisualizationLabels=Readonly<{
  nullValue:string;absent:string;error:string;noHistory:string;invalidBounds:string;incompatible:string;
@@ -12,66 +13,71 @@ export const FALLBACK_LABELS:VisualizationLabels={
 const format=(value:number,locale:string)=>new Intl.NumberFormat(locale,{maximumFractionDigits:3}).format(value);
 const valueLabel=(value:number,unit:string|null|undefined,locale:string)=>
  format(value,locale)+(unit?" "+unit:"");
-const chartStyle:CSSProperties={display:"block",width:"100%",maxWidth:560,height:"auto"};
-/** Pure, theme-inheriting presentation; never fetches or recalculates source values. */
+
+/** Pure presentation. All values originate in the authorized v33 producer. */
 export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS}:{
  model:VisualizationModel;locale?:string;labels?:VisualizationLabels;
 }):ReactNode{
  if(model.state!=="ready"){
-  const message:Record<Exclude<VisualizationModel["state"],"ready">,string>={
+  const messages:Record<Exclude<VisualizationModel["state"],"ready">,string>={
    null:labels.nullValue,absent:labels.absent,error:labels.error,"no-history":labels.noHistory,
    "invalid-bounds":labels.invalidBounds,incompatible:labels.incompatible,
   };
-  return <span role="status">{message[model.state]}</span>;
+  return <span className={styles.state} role="status">{messages[model.state]}</span>;
  }
  if((model.kind==="number"||model.kind==="card")&&model.value!==undefined)
-  return <output>{valueLabel(model.value,model.unit,locale)}</output>;
- if(model.kind==="gauge"&&model.ratio!==undefined&&model.value!==undefined)
-  return <div role="progressbar" aria-valuenow={model.ratio*100} aria-valuemin={0} aria-valuemax={100}
-    aria-label={valueLabel(model.value,model.unit,locale)}>
-    <div aria-hidden="true" style={{height:12,border:"1px solid currentColor",borderRadius:6,overflow:"hidden"}}>
-      <div style={{height:"100%",width:`${model.ratio*100}%`,background:"currentColor"}}/>
-    </div>
-    <output>{valueLabel(model.value,model.unit,locale)}</output>
+  return <div className={styles.metric}>
+   <output className={styles.metricNumber}>{format(model.value,locale)}</output>
+   {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
   </div>;
- if(model.kind==="list"){
-  return <table><tbody>{(model.rows??[]).map((row,index)=><tr key={index}>
-   <th scope="row">{row.label}</th><td>{row.value}</td>
-  </tr>)}</tbody></table>;
+ if(model.kind==="gauge"){
+  if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
+   return <span role="status" className={styles.state}>{labels.invalidBounds}</span>;
+  return <div role="progressbar" aria-valuenow={model.ratio*100} aria-valuemin={0} aria-valuemax={100}
+   aria-label={valueLabel(model.value,model.unit,locale)}>
+   <div className={styles.metric}><output className={styles.metricNumber}>{format(model.value,locale)}</output>
+    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}</div>
+   <div className={styles.progressTrack} aria-hidden="true"><div className={styles.progressFill} style={{width:`${model.ratio*100}%`}}/></div>
+  </div>;
  }
- if(model.kind==="text")return <p>{model.text??""}</p>;
+ if(model.kind==="list")
+  return <ul className={styles.businessList}>{(model.rows??[]).map((item,i)=>
+   <li key={i} className={styles.businessItem}><strong>{item.label}</strong><span className={styles.businessItemMeta}>{item.value}</span></li>)}</ul>;
+ if(model.kind==="text")return <p className="mb-0">{model.text??""}</p>;
  if(model.kind==="line"||model.kind==="bar"){
-  const data=model.points??[];
-  const values=data.map(p=>p.value).filter((v):v is number=>v!==null);
-  if(!values.length)return <span role="status">{labels.noHistory}</span>;
-  const lo=Math.min(0,...values),hi=Math.max(0,...values);
-  const range=hi-lo||1;
-  const x=(i:number)=>36+i*440/Math.max(1,data.length-1);
-  const y=(v:number)=>150-(v-lo)*120/range;
-  const segments:string[][]=[];
-  let current:string[]=[];
-  for(let i=0;i<data.length;i++){
-   const v=data[i].value;
-   if(v===null){if(current.length)segments.push(current);current=[];}
-   else current.push(`${x(i)},${y(v)}`);
-  }
-  if(current.length)segments.push(current);
-  return <figure>
-   <svg viewBox="0 0 520 180" style={chartStyle} role="img"
-    aria-label={model.kind==="line"?"Courbe historique":"Histogramme historique"}>
-    <line x1="36" y1="150" x2="485" y2="150" stroke="currentColor" strokeOpacity=".4"/>
-    {model.kind==="line"?segments.map((points,i)=>
-      <polyline key={i} points={points.join(" ")} stroke="currentColor" strokeWidth="2"
-       fill="none"/>):data.map((p,i)=>p.value===null?null:
-       <rect key={i} x={x(i)-Math.min(14,220/data.length)} y={Math.min(y(p.value),y(0))}
-        width={Math.min(28,440/data.length)} height={Math.max(1,Math.abs(y(p.value)-y(0)))}
-        fill="currentColor"/>)}
+  const points=model.points??[];
+  const values=points.map(p=>p.value).filter((v):v is number=>v!==null&&Number.isFinite(v));
+  if(!values.length)return <span role="status" className={styles.state}>{labels.noHistory}</span>;
+  const lo=Math.min(0,...values),hi=Math.max(0,...values),range=hi-lo||1;
+  const plotLeft=42,plotRight=490,plotTop=18,plotBottom=155;
+  const x=(i:number)=>plotLeft+(points.length===1?(plotRight-plotLeft)/2:i*(plotRight-plotLeft)/Math.max(1,points.length-1));
+  const y=(v:number)=>plotBottom-(v-lo)*(plotBottom-plotTop)/range;
+  const segments:{items:{x:number;y:number}[]}[]=[];
+  let current:{x:number;y:number}[]=[];
+  points.forEach((p,i)=>{if(p.value===null||!Number.isFinite(p.value)){if(current.length)segments.push({items:current});current=[];}
+   else current.push({x:x(i),y:y(p.value)});});
+  if(current.length)segments.push({items:current});
+  const labelStep=Math.max(1,Math.ceil(points.length/6));
+  return <figure className="m-0">
+   <svg className={styles.chart} viewBox="0 0 520 190" role="img"
+    aria-label={model.kind==="line"?"Courbe historique des indicateurs":"Histogramme historique des indicateurs"}>
+    {[0,1,2,3,4].map(i=>{
+     const value=lo+range*i/4,yy=y(value);
+     return <g key={i}><line x1={plotLeft} x2={plotRight} y1={yy} y2={yy} className={styles.chartGrid}/>
+      <text className={styles.chartLabel} textAnchor="end" x={plotLeft-7} y={yy+4}>{format(value,locale)}</text></g>;
+    })}
+    {model.kind==="line"?segments.map((segment,i)=>
+     <polyline key={i} className={styles.chartStroke} points={segment.items.map(p=>`${p.x},${p.y}`).join(" ")}/>)
+     :points.map((p,i)=>p.value===null?null:<rect key={i} className={styles.chartBar}
+       x={x(i)-Math.min(14,170/points.length)} y={Math.min(y(p.value),y(0))}
+       width={Math.min(28,340/points.length)} height={Math.max(1,Math.abs(y(p.value)-y(0)))}/>)}
+    {model.kind==="line"&&segments.flatMap((segment,i)=>segment.items.map((p,j)=>
+     <circle key={`${i}-${j}`} cx={p.x} cy={p.y} r="3" fill="var(--smn-surface)" stroke="var(--smn-brand)" strokeWidth="2"/>))}
+    {points.map((p,i)=>i%labelStep===0||i===points.length-1?<text key={i}
+     className={styles.chartLabel} x={x(i)} y="175" textAnchor="middle">{p.label}</text>:null)}
    </svg>
-   <figcaption><table><thead><tr><th>Cycle</th><th>Valeur</th></tr></thead>
-    <tbody>{data.map((p,i)=><tr key={i}><th scope="row">{p.label}</th>
-      <td>{p.value===null?labels.nullValue:valueLabel(p.value,model.unit,locale)}</td></tr>)}</tbody>
-   </table></figcaption>
+   <figcaption className="visually-hidden">{points.map(p=>`${p.label}: ${p.value===null?labels.nullValue:valueLabel(p.value,model.unit,locale)}`).join("; ")}</figcaption>
   </figure>;
  }
- return <span role="status">{labels.incompatible}</span>;
+ return <span role="status" className={styles.state}>{labels.incompatible}</span>;
 }
