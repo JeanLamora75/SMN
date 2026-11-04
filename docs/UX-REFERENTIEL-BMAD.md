@@ -851,3 +851,12 @@ Le sélecteur d'en-tête est alimenté exclusivement par les équipes autorisée
 **Décision graphique prioritaire :** titre « Équipe », **Vision Produit** et **But du produit** côte à côte **dans le bandeau bleu** Cockpit Agile, remplaçant l'ancien sous-titre ; actions Liste/Cartes/Ajouter à droite. Sous le hero : panneau filtres, puis membres en six colonnes avec réserves grises basses. Le contrat graphique plus récent supplante **uniquement** les choix contradictoires de mise en page de l'index Équipe du 22/10, **pas** les comportements métier, les permissions et **pas la fiche membre V2**. Ne pas présumer SMN-282 entièrement livré. Le PNG validé en conversation n'est pas archivé dans le dépôt ; ne pas présenter la transcription textuelle comme un PNG.
 
 **Statut :** UX validée, développement et tests non exécutés par Sally.
+
+
+## Dashboard Builder — maquette de restitution conforme au shell SMN (04/11/2026 — VALIDÉE)
+
+**Référence graphique approuvée par le commanditaire** : [spécification de restitution et avenant définitif](../_bmad-output/planning-artifacts/ux-designs/ux-dashboard-builder-2026-11-04/REFERENCE-RESTITUTION-VALIDEE.md) et [planche vectorielle de référence M01–M06](../_bmad-output/planning-artifacts/ux-designs/ux-dashboard-builder-2026-11-04/dashboard-builder-reference.svg).
+
+**Contrat prioritaire** : conserver **sans réinvention** le shell commun de SMN (`src/app/app/private-shell.tsx`), son en-tête global clair, ses sélecteurs d'équipe et de sprint, son compte/déconnexion, ainsi que le menu gauche rétractable et soumis aux droits (`private-navigation.tsx`, `src/lib/private-navigation.ts`). **Pas de deuxième sélecteur d'équipe ni de navigation horizontale concurrente.** Le bandeau métier bleu Cockpit Agile, les deux KPI dynamiques et les blocs personnalisés M01–M06 restent dans la zone principale à droite du menu. La planche conserve des titres de modèles uniquement à titre pédagogique : ne pas les afficher comme identifiants techniques dans l'application.
+
+**Statut** : version visuelle conforme à la structure du code validée en conversation le 04/11/2026. Référence UX, **pas preuve d'implémentation ni recette exécutée**. Le PNG de référence validé dans la conversation n'est pas archivé dans GitHub ; le SVG est une reconstitution vectorielle schématique. Les décisions métier, droits et interfaces existants continuent de prévaloir sur les valeurs illustratives de la maquette.
