@@ -87,7 +87,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     (teamScoped&&state.endOn?"/team-assignment/history-correction":teamScoped?"/team-assignment":"/assignment"),{
     method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({memberId,teamId,effectiveFrom:draft.effectiveFrom,contractPercent,
-     allocationPercent,contributionPercent,shares,revision:state.latestRevision})
+     allocationPercent,contributionPercent,shares,revision:state.latestRevision,
+     ...(teamScoped&&state.endOn?{targetRevision:selectedRevision}:{} )})
    });
    const payload=await response.json().catch(()=>({error:"invalid-response"})) as {error?:string};
    if(!response.ok){
@@ -225,7 +226,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     </div>
     <p className="small text-secondary">{t("members.assignment.rules")}</p>
     {teamScoped&&state.endOn&&<p className="small text-secondary">
-     Correction historisée : sélectionnez une version datée et rectifiez ses pourcentages.
+     Correction historisée : modifiez les pourcentages de la version sélectionnée, sans créer de nouvelle révision.
      Les versions antérieures et les rapports clôturés restent conservés.</p>}
     {teamScoped&&state.endOn&&draft.effectiveFrom&&
      (draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn)&&
