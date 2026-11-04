@@ -40,7 +40,7 @@ test("fin d'affectation : formulaire et API réservés à l'équipe",()=>{
  const api=read("src/app/api/admin/members/[id]/team-assignment/end/route.ts");
  const get=read("src/app/api/admin/members/[id]/team-assignment/route.ts");
  assert.match(ui,/teamScoped&&state\.assignmentId&&state\.startOn/);
- assert.match(ui,/Date de fin d'affectation/);
+ assert.match(ui,/Date de fin d(?:'|&apos;)affectation/);
  assert.match(ui,/Motif de sortie \(facultatif\)/);
  assert.match(ui,/team-assignment\/end/);
  assert.match(ui,/latestRevision:state\.latestRevision/);
