@@ -6,8 +6,9 @@ import {installedDatabaseUri} from "../src/server/auth/database";
 import {installExpress} from "../src/server/installation/install";
 import {probePostgres} from "../src/server/db/probe";
 import {classifySnapshot} from "../src/server/installation/diagnostic";
-import {SMN338_V33_NAME,INDICATOR_TABLES} from "../src/server/installation/indicator-v33-contract";
-import {NATIVE_V32_NAME} from "../src/server/installation/native-v32";
+import {INDICATOR_TABLES} from "../src/server/installation/indicator-v33-contract";
+import {NATIVE_V33_NAME,nativeV33BaselineSql} from "../src/server/installation/native-v33";
+import {createHash} from "node:crypto";
 import {parseConnectionSettings} from "../src/server/db/config";
 test("SMN-338 : installation native v33 complète sur base vierge isolée",{timeout:180000},async()=>{
  const source=new URL(await installedDatabaseUri());
@@ -31,9 +32,10 @@ test("SMN-338 : installation native v33 complète sur base vierge isolée",{time
   const snapshot=await probePostgres(targetUri.toString());
   assert.equal(classifySnapshot(snapshot).status,"initialized");
   assert.equal(snapshot.installations?.[0]?.schema_version,33);
-  assert.ok((snapshot.migrations?.length??0)>=2);
-  assert.ok(snapshot.migrations?.some(m=>m.migration_name===NATIVE_V32_NAME));
-  assert.ok(snapshot.migrations?.some(m=>m.migration_name===SMN338_V33_NAME));
+  assert.equal(snapshot.migrations?.length,1,"One canonical v33 baseline journal entry");
+  assert.equal(snapshot.migrations?.[0]?.migration_name,NATIVE_V33_NAME);
+  assert.equal(snapshot.migrations?.[0]?.checksum,createHash("sha256").update(nativeV33BaselineSql()!).digest("hex"));
+  assert.equal(snapshot.migrations?.[0]?.rolled_back_at,null);
   const db=new Client({connectionString:targetUri.toString(),connectionTimeoutMillis:3500,statement_timeout:10000});
   await db.connect();
   try{
@@ -43,6 +45,8 @@ test("SMN-338 : installation native v33 complète sur base vierge isolée",{time
    assert.equal(adminCount.rows[0]?.n,"1");
    const palette=await db.query<{palette:string}>("SELECT palette FROM public.smn_general_settings WHERE installation_id='singleton'");
    assert.equal(palette.rows[0]?.palette,"red-purple");
+   const tables=await db.query<{name:string}>("SELECT relname name FROM pg_class WHERE relnamespace='public'::regnamespace AND relkind='r' AND relname=ANY($1::text[])",[["smn_indicator_team_grant","smn_indicator_dashboard_slot"]]);
+   assert.equal(tables.rows.length,2);
    await db.query("ALTER TABLE public.smn_indicator_manual_value DISABLE TRIGGER smn_indicator_manual_value_integrity");
    assert.equal(classifySnapshot(await probePostgres(targetUri.toString())).status,"installation-incomplete",
     "Un trigger critique désactivé doit invalider le diagnostic v33");
