@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {test} from "node:test";
-import {revisionImpactWindow} from "../src/server/members/assignment-revision-impact";
+import {revisionImpactWindow,isCapacityNeutralCancellation} from "../src/server/members/assignment-revision-impact";
 import {readFileSync} from "node:fs";
 const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 
@@ -31,4 +31,16 @@ test("les deux écritures contrôlent la période effective, pas toute l'affecta
  }
  const editor=read("src/app/app/admin/members/assignment-editor.tsx");
  assert.match(editor,/motif : "\+reason/);
+});
+
+test("deux révisions de même contenu : annulation sans impact capacitaire",()=>{
+ const v=(revision:number,po:number)=>({
+  revision,effective_from:"2026-01-05",contract_percent:100,
+  allocation_percent:100,contribution_percent:100,
+  scrum_master_percent:0,product_owner_percent:po,developer_percent:100-po
+ });
+ assert.equal(isCapacityNeutralCancellation([v(1,100),v(2,100)],v(2,100)),true);
+ assert.equal(isCapacityNeutralCancellation([v(1,0),v(2,100)],v(2,100)),false);
+ const s=read("src/server/members/team-assignment-revision-cancel.ts");
+ assert.match(s,/impact&&!isCapacityNeutralCancellation\(versions\.rows,target\)/);
 });
