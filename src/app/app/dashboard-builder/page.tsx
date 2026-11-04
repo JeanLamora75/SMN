@@ -37,6 +37,6 @@ export default async function DashboardBuilderPage({searchParams}:{
   const locale=await requestLocale();
   return <div className="py-3">
    <DashboardEditor initialLayout={data.layout} initialRevision={data.revision} canEdit={data.canEdit}
-    teamId={data.teamId} navigation={data.navigation} cycles={data.cycles} mode={data.mode} locale={locale}/>
+    teamId={data.teamId} teamName={data.teamName} navigation={data.navigation} cycles={data.cycles} mode={data.mode} locale={locale}/>
   </div>;
  }
