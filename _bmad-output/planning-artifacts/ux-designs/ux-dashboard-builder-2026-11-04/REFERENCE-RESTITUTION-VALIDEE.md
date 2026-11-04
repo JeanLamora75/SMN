@@ -1,5 +1,6 @@
 # SMN — Dashboard Builder — Référence graphique de restitution validée
 
+**Révision UX :** 4 novembre 2026 — en-tête Cockpit Agile réel, sans second sélecteur d'équipe.
 **Validation :** 4 novembre 2026, par le commanditaire, lors de l'atelier UX avec Sally (BMAD UX Designer).
 **Statut :** direction graphique validée ; référence de conception, non preuve de conformité des écrans.
 **Périmètre :** restitution en consultation et langage visuel du Dashboard Builder Scrum/Kanban.
@@ -17,7 +18,9 @@
 - Identité « Cockpit Agile » : fond clair légèrement bleuté, navigation bleu nuit, bandeaux de titre bleu foncé, cartes blanches, contours fins, coins arrondis et ombres discrètes.
 - Respect de Bootstrap, des thèmes et des composants existants de SMN ; aucune couleur figée ne doit casser les variantes de thème.
 - Hiérarchie lisible : libellé métier, valeur dominante, unité, tendance ou état, densité maîtrisée ; alignements et rythmes constants.
-- En-tête de sprint : nom visible, dates, statut, navigation discrète précédent/suivant, deux zones dynamiques, Actions et Actualiser intégrés.
+- **En-tête Cockpit Agile obligatoire** : conserver l'en-tête global existant de SMN et son sélecteur d'équipe unique. Le dashboard ne crée **aucun second sélecteur d'équipe**, ni champ ni menu déroulant. Afficher, si pertinent, le nom de l'équipe en lecture seule comme contexte métier.
+- Sous l'en-tête global : bandeau de contexte Cockpit Agile bleu nuit, nom du sprint dominant, dates, statut, navigation discrète précédent/suivant, deux zones dynamiques, Actions et Actualiser intégrés ; ne pas revenir à une simple carte blanche isolée.
+- La planche illustrative couvre aussi la navigation générale : pour l'implémentation, réutiliser exactement l'en-tête et la navigation réelle de SMN sans ajouter un deuxième système de navigation.
 - Les noms et codes **M01–M06 sont des annotations pédagogiques de la planche**, et ne doivent pas apparaître comme bandeaux techniques en consultation. En production, afficher le titre métier personnalisable du bloc et de chaque emplacement.
 - Conserver la capacité de construction de plusieurs lignes et blocs par équipe ; masquer les emplacements non configurés sans laisser de trous visuels inutiles.
 - Mode consultation = cockpit opérationnel, sans commandes de composition ; mode personnalisation = édition explicite des modèles, titres, sources, visualisations et dimensions.
@@ -60,6 +63,6 @@ Ces constats ne remplacent pas une recette visuelle dans le navigateur ni les te
 
 ## Hiérarchie documentaire
 
-Cette décision est **la référence esthétique prioritaire de la restitution Dashboard Builder à compter du 04/11/2026**, en complément des arbitrages D-DB, A-DB, UX-DB et MAQ-DB préexistants. Elle ne remplace pas leurs contrats métier, de droits, de sécurité, de stockage ou d'accessibilité. En cas de conflit réel avec une règle fonctionnelle, demander un arbitrage explicite avant implémentation.
+Cette version corrigée retire explicitement le sélecteur d'équipe redondant et impose le vrai bandeau Cockpit Agile. La validation de cette révision visuelle devra être confirmée avant toute implémentation sur la base de son aperçu dans ChatGPT. Cette décision est **la référence esthétique prioritaire de la restitution Dashboard Builder à compter du 04/11/2026**, en complément des arbitrages D-DB, A-DB, UX-DB et MAQ-DB préexistants. Elle ne remplace pas leurs contrats métier, de droits, de sécurité, de stockage ou d'accessibilité. En cas de conflit réel avec une règle fonctionnelle, demander un arbitrage explicite avant implémentation.
 
 **Publication :** documentation UX uniquement. Aucune modification de l'application, de Jira, ni exécution de tests ou de scripts.
