@@ -57,7 +57,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
   }catch(e){setOptionError(e instanceof Error?e.message:"Options invalides");}
  };
  return <div className={ui.overlay} role="presentation">
-  <div className={ui.dialog} ref={focus} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="slot-wizard-title">
+  <div className={ui.dialog} ref={focus} tabIndex={-1} role="dialog" aria-modal={!confirmClear} aria-hidden={confirmClear} aria-labelledby="slot-wizard-title">
     <div className={ui.header}>
      <div><h2 className={ui.headerTitle} id="slot-wizard-title">Configurer un emplacement</h2>
       <p className={ui.headerSubtitle}>{selected?"Choisissez la représentation et ajustez les options.":"Sélectionnez les informations à afficher."}</p>
