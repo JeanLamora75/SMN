@@ -18,6 +18,8 @@ test("v33 native: one immutable complete schema, independent of the historical v
   "CREATE TABLE public.smn_indicator_definition",
   "CREATE TABLE IF NOT EXISTS public.smn_indicator_team_grant",
   "CREATE TABLE IF NOT EXISTS public.smn_indicator_dashboard_slot",
+  "CREATE TABLE IF NOT EXISTS public.smn_dashboard_layout",
+  "CREATE TABLE IF NOT EXISTS public.smn_dashboard_team_grant",
   "CHECK (palette IN ('ocean','forest','violet','red-purple'))"
  ]) assert.ok(sql.includes(fragment),"Missing consolidated DDL fragment");
  const installer=read("src/server/installation/install.ts");
@@ -41,7 +43,8 @@ test("v33 native: journal with exact checksum, structure and single migration is
   paletteSchemaValid:true,indicatorV33SchemaValid:true,
   tables:[
    "public.smn_indicator_team_grant:r","public.smn_indicator_dashboard_slot:r",
-   "public.smn_indicator_definition:r","public.smn_indicator_manual_value:r"
+   "public.smn_indicator_definition:r","public.smn_indicator_manual_value:r",
+   "public.smn_dashboard_layout:r","public.smn_dashboard_team_grant:r"
   ]
  } as unknown as Snapshot;
  assert.equal(nativeV33HistoryValid(snap,sql),true);
