@@ -114,8 +114,10 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
       "service-unavailable":"Le serveur n'a pas pu enregistrer la correction. Consultez son journal.",
       "invalid-response":"Le serveur n'a pas renvoyé une réponse exploitable."
      };
-     setError(details[payload.error??""]??
-      "La correction historique a été refusée ("+response.status+").");return;
+     const reason=payload.error??"réponse sans code d'erreur";
+     setError(details[reason]??
+      "La correction a été refusée (HTTP "+response.status+", motif : "+reason+
+      "). Consultez les journaux serveur si le problème persiste.");return;
     }
     setError(t(response.status===409?"members.assignment.conflict":
      response.status===404?"members.assignment.notFound":
