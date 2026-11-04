@@ -6,6 +6,7 @@ import {
  NATIVE_V33_NAME,nativeV33BaselineSql,nativeV33BaselineReady,nativeV33HistoryValid
 } from "../src/server/installation/native-v33";
 import type {Snapshot} from "../src/server/installation/diagnostic";
+import {validateExpressInput} from "../src/server/installation/contract";
 
 const read=(path:string)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
 const sql=nativeV33BaselineSql();
@@ -67,4 +68,19 @@ test("v33 native: installation does not write or upgrade the existing local data
  const diagnostic=read("src/server/installation/diagnostic.ts");
  assert.match(diagnostic,/nativeV33HistoryValid\(snapshot,nativeV33BaselineSql\(\)\)/);
  assert.match(diagnostic,/nativeV32HistoryValid/,"legacy v33 install histories must remain readable");
+});
+
+test("v33 native: installation defaults to account-only setup without an Agile mode or team",()=>{
+ const valid={adminUsername:"admin",adminEmail:"admin@example.test",password:"secure-test-password"};
+ assert.deepEqual(validateExpressInput(valid),valid);
+ assert.deepEqual(validateExpressInput({...valid,mode:"kanban",team:"Équipe test"}),valid);
+ assert.equal(validateExpressInput({...valid,password:""}),null);
+ const actual=nativeV33BaselineSql();
+ assert.ok(actual);
+ const install=actual.match(/CREATE TABLE "public"\."smn_installation" \(([\s\S]*?)\n\);/);
+ assert.ok(install,"smn_installation declaration required");
+ assert.doesNotMatch(install[1],/"mode"\s+"text"/);
+ const team=actual.match(/CREATE TABLE "public"\."smn_team" \(([\s\S]*?)\n\);/);
+ assert.ok(team,"smn_team declaration required");
+ assert.match(team[1],/"agile_mode"\s+"text"/);
 });
