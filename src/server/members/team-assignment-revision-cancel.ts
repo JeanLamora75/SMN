@@ -69,7 +69,12 @@ export async function cancelLatestTeamAssignmentRevision(db:Client,actor:TeamAct
   if(initial.rows.length)return fail("frozen-period");
   const archives=await db.query(`
    SELECT 1 FROM public.smn_report_pdf_archive archive
-   WHERE archive.team_id=$1 LIMIT 1`,[team.team_id]);
+   LEFT JOIN public.smn_sprint s ON s.id=archive.cycle_id AND s.team_id=archive.team_id
+   WHERE archive.team_id=$1
+    AND (s.id IS NULL OR (
+     (s.start_at AT TIME ZONE s.time_zone)::date <= COALESCE($3::date,'infinity'::date)
+     AND (s.end_at AT TIME ZONE s.time_zone)::date >= $2::date))
+   LIMIT 1`,[team.team_id,assignment.rows[0].start_on,assignment.rows[0].end_on]);
   if(archives.rows.length)return fail("frozen-period");
 
   const target=versions.rows[0];
