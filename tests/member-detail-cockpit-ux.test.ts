@@ -27,12 +27,16 @@ test("Cockpit membre : panneaux, indicateurs réels, tableaux et mois conservés
  assert.match(view,/d\.afternoonAbsent\?t\("memberTeamScope\.absent"\)/);
  assert.match(view,/memberTeamScope\.privacy/);
 });
-test("Cockpit membre : style isolé et responsive, aucun accès métier ajouté",()=>{
+test("Cockpit membre : style isolé, éditions contextualisées et accès serveur contrôlés",()=>{
  assert.match(css,/\.smn-member-cockpit/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.match(view,/fetch\("\/api\/admin\/members\/"/);
- assert.doesNotMatch(view,/method:"(?:PATCH|POST|DELETE)"/);
+ assert.match(view,/method:"POST"/);
+ assert.match(view,/teamId/);
+ assert.match(view,/AssignmentEditor/);
+ assert.match(view,/MemberAbsenceEditor/);
  assert.match(page,/readTeamAssignmentHistory\(db,/);
+ assert.match(page,/resolveAdminTeam\(db,/);
 });
 
 test("Cockpit membre : largeur complète et grille historique/calendrier deux tiers",()=>{
