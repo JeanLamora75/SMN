@@ -74,6 +74,8 @@ test("v33 native : schéma PostgreSQL autonome identique à l'assemblage histori
    await oldDb.query(indicatorV33Sql());
    await oldDb.query(read("prisma/migrations/20261101_smn347_team_grants/migration.sql"));
    await oldDb.query(read("prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql"));
+   await oldDb.query(read("prisma/migrations/20261102_smn355_dashboard_layout/migration.sql"));
+   await oldDb.query(read("prisma/migrations/20261102_smn357_dashboard_permissions/migration.sql"));
    await oldDb.query("COMMIT");
    await newDb.query("BEGIN");
    const native=nativeV33BaselineSql();
