@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {existsSync,readFileSync} from "node:fs";
 import {checkCatalog,loadRequirements,parseTap,reportCoverage} from "../scripts/coverage-matrix.mjs";
 
 const catalog=JSON.parse(readFileSync(new URL("coverage/requirements.json",import.meta.url),"utf8"));
@@ -42,4 +42,16 @@ test("références manquantes et doublons de scénarios font échouer la vérifi
   file:"tests/nonexistent.test.ts",title:"absent",kind:"behavior"
  }}]};
  assert.throws(()=>checkCatalog(unknown,requirements),/ENOENT/);
+});
+
+test("aucun contrat historique classé n'est supprimé sans revue de migration",()=>{
+ const historical=JSON.parse(readFileSync(new URL("coverage/historical-contracts.json",import.meta.url),"utf8"));
+ assert.equal(historical.policy,"retain-until-equivalent-proven");
+ assert.equal(new Set(historical.entries.map(e=>e.file)).size,historical.entries.length);
+ for(const item of historical.entries){
+  assert.equal(item.decision,"retain");
+  assert.ok(["migration","compatibility-security","compatibility-business"].includes(item.kind));
+  assert.ok(item.reason.length>20);
+  assert.ok(existsSync(new URL("../"+item.file,import.meta.url)),item.file);
+ }
 });
