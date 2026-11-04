@@ -261,7 +261,7 @@
       "id": "MEM-ABSENCE",
       "evidence": {
         "file": "tests/member-annual-absence-exclusions.test.ts",
-        "title": "",
+        "title": "compteur annuel : filtre week-ends et fériés du pays ACTUEL avant le compte des créneaux",
         "kind": "source"
       },
       "limitations": "Absence/holiday/country rules require separate complete cross-team assessment"
