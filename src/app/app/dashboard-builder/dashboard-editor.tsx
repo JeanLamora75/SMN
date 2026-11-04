@@ -22,7 +22,7 @@ type SaveResponse={layout:DashboardLayout;revision:number;persisted:boolean};
 const copy=(layout:DashboardLayout):DashboardLayout=>structuredClone(layout);
 const signature=(layout:DashboardLayout)=>JSON.stringify(layout);
 export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,teamName,navigation,cycles,mode,locale}:{
- initialLayout:DashboardLayout;initialRevision:number;canEdit:boolean;teamId:string;teamName?:string;
+ initialLayout:DashboardLayout;initialRevision:number;canEdit:boolean;teamId:string;teamName?:string|null;
  navigation:Navigation;cycles:readonly DashboardCycle[];mode:"scrum"|"kanban";locale:string;
 }){
  const [published,setPublished]=useState<DashboardLayout>(()=>copy(initialLayout));
