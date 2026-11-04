@@ -196,7 +196,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
        state.today>=state.startOn!?state.today:state.startOn??state.today;
       setDraft(values);setBaseline(values);setEditMode("change");setError("");
      }}>Nouveau changement de rôle daté</button>
-    {state.endOn&&<button type="button" className={"btn "+(editMode==="correct"?"btn-primary":"btn-outline-primary")}
+    {state.versions.length>0&&<button type="button" className={"btn "+(editMode==="correct"?"btn-primary":"btn-outline-primary")}
      disabled={busy} onClick={()=>{
       if(dirty&&!window.confirm(t("draft.discardWarning")))return;
       const values=draftFrom(state,selectedRevision);
@@ -261,8 +261,8 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
       "Changement réel de fonction : sélectionnez sa date d'effet dans la période d'affectation. Une nouvelle révision débute à cette date, même si elle est passée.":
       "Correction de saisie : modifiez la version sélectionnée sans créer de nouvelle révision."}
      Les sprints et rapports figés restent protégés.</p>}
-    {teamScoped&&editMode==="correct"&&state.endOn&&draft.effectiveFrom&&
-     (draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn)&&
+    {teamScoped&&editMode==="correct"&&draft.effectiveFrom&&
+     (draft.effectiveFrom<(state.startOn??"")||(state.endOn!==null&&draft.effectiveFrom>state.endOn))&&
      <p role="alert" className="alert alert-warning mb-0">
       La révision sélectionnée est datée du {draft.effectiveFrom}, en dehors de la période
       d&apos;affectation du {state.startOn} au {state.endOn}.
