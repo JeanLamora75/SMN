@@ -57,6 +57,9 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
  async function submit(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(!state||!draft||busy)return;
+  if(teamScoped&&state.endOn&&!dirty){
+   setError("Aucune modification à enregistrer. Modifiez au moins un pourcentage pour corriger cette version.");return;
+  }
   const contractPercent=num(draft.contractPercent),allocationPercent=num(draft.allocationPercent);
   const contributionPercent=num(draft.contributionPercent);
   const shares={scrumMaster:num(draft.scrumMaster),productOwner:num(draft.productOwner),
@@ -81,12 +84,20 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     body:JSON.stringify({memberId,teamId,effectiveFrom:draft.effectiveFrom,contractPercent,
      allocationPercent,contributionPercent,shares,revision:state.latestRevision})
    });
-   const payload=await response.json() as {error?:string};
+   const payload=await response.json().catch(()=>({error:"invalid-response"})) as {error?:string};
    if(!response.ok){
     if(teamScoped&&state.endOn){
-     setError(payload.error==="conflict"?"Cette affectation a été modifiée. Rechargez la fiche.":
-      payload.error==="outside-assignment"?"La version choisie ne relève plus de cette période d'affectation.":
-      "La correction historique n'a pas pu être enregistrée.");return;
+     const details:Record<string,string>={
+      "conflict":"La version d'affectation a changé. Fermez puis rouvrez la fenêtre avant de recommencer.",
+      "outside-assignment":"La date d'effet choisie ne correspond pas à une version de cette affectation.",
+      "archived":"Ce membre est archivé. La correction nécessite une procédure de reprise d'historique adaptée.",
+      "invalid-input":"Les paramètres de la correction ne sont pas valides.",
+      "forbidden":"Vous ne disposez pas des droits nécessaires pour corriger cette affectation.",
+      "service-unavailable":"Le serveur n'a pas pu enregistrer la correction. Consultez son journal.",
+      "invalid-response":"Le serveur n'a pas renvoyé une réponse exploitable."
+     };
+     setError(details[payload.error??""]??
+      "La correction historique a été refusée ("+response.status+").");return;
     }
     setError(t(response.status===409?"members.assignment.conflict":
      response.status===404?"members.assignment.notFound":
@@ -94,7 +105,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     return;
    }
    onSaved();
-  }catch{setError(t("members.assignment.failed"));}
+  }catch{setError("Impossible de contacter le serveur pour enregistrer la correction.");}
   finally{setBusy(false);}
  }
  async function closeTeamAssignment(event:FormEvent<HTMLFormElement>){
@@ -216,7 +227,7 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
      Les versions antérieures et les rapports clôturés restent conservés.</p>}
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
     <div className="smn-cockpit-form-actions">
-     <button type="submit" disabled={busy||(!dirty&&state.versions.length>0)} className="btn btn-primary">
+     <button type="submit" disabled={busy||(!dirty&&state.versions.length>0&&!(teamScoped&&state.endOn))} className="btn btn-primary">
       {busy?t("members.assignment.saving"):teamScoped&&state.endOn?
        "Corriger la version historique":t("members.assignment.save")}</button>
      <button type="button" disabled={busy} className="btn btn-outline-secondary" onClick={cancel}>
