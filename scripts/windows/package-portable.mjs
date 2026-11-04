@@ -17,6 +17,19 @@ await cp(".next/standalone", target, { recursive: true, force: true, dereference
 await mkdir(path.join(target, ".next", "static"), { recursive: true });
 await cp(".next/static", path.join(target, ".next", "static"), { recursive: true, force: true });
 if (existsSync("public")) await cp("public", path.join(target, "public"), { recursive: true, force: true });
+// Runtime schema snapshots are resolved relative to process.cwd() by the installer.
+// Explicitly include them: Next standalone tracing does not guarantee dynamic SQL paths.
+for(const file of [
+ "prisma/baseline/v33/schema.sql",
+ "prisma/baseline/v32/schema.sql",
+ "_bmad-output/planning-artifacts/SMN-338-DDL-ADDITIF-DRAFT.sql",
+ "prisma/migrations/20261101_smn_dashboard_slots_additive/migration.sql",
+]){
+ const destination=path.join(target,file);
+ await mkdir(path.dirname(destination),{recursive:true});
+ await copyFile(file,destination);
+}
+
 await copyFile(process.execPath, path.join(target, "node.exe"));
 await copyFile("scripts/windows/launch-portable.mjs", path.join(target, "launch-portable.mjs"));
 await copyFile("scripts/recover-admin.mjs", path.join(target, "recover-admin.mjs"));
