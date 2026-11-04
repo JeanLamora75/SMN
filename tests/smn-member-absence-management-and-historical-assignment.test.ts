@@ -26,7 +26,9 @@ test("correction historique : le départ de l'équipe n'interdit plus l'édition
  const endpoint=read("src/app/api/admin/members/[id]/team-assignment/history-correction/route.ts");
  const service=read("src/server/members/team-assignment-historical-correction.ts");
  const get=read("src/app/api/admin/members/[id]/team-assignment/route.ts");
- assert.match(editor,/teamScoped&&state\.endOn\?"\/team-assignment\/history-correction"/);
+ assert.match(editor,/teamScoped\?\(editMode==="correct"\?"\/team-assignment\/history-correction":"\/team-assignment\/dated-change"\)/);
+ assert.match(editor,/state\.endOn!==null&&draft\.effectiveFrom>state\.endOn/);
+ assert.match(editor,/targetRevision:selectedRevision/);
  assert.match(editor,/Corriger la version historique/);
  assert.match(editor,/state\.assignmentId&&state\.startOn&&<div/);
  assert.match(editor,/state\.versions\.map\(v=>/);
