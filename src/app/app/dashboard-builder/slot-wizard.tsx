@@ -156,8 +156,8 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
             <p className="small text-body-secondary">Sélectionnez les informations utiles dans la liste.</p>
             <div className="d-flex flex-wrap gap-3">{Object.entries(columnNames).map(([key,name])=>
              <label key={key} className="form-check">
-              <input type="checkbox" className="form-check-input" checked={(options.columns??[]).includes(key)}
-               onChange={e=>setOptions(o=>{const previous=o.columns??[];const columns=e.target.checked?[...previous,key]:previous.filter(v=>v!==key);return {...o,columns};})}/>
+              <input type="checkbox" className="form-check-input" checked={(options.columns??Object.keys(columnNames)).includes(key)}
+               onChange={e=>setOptions(o=>{const previous=o.columns??Object.keys(columnNames);const columns=e.target.checked?[...previous,key]:previous.filter(v=>v!==key);return {...o,columns};})}/>
               <span className="form-check-label">{name}</span>
              </label>)}</div>
            </fieldset>
