@@ -48,7 +48,13 @@ export async function correctHistoricalTeamAssignment(db:Client,actor:TeamActor,
    WHERE assignment_id=$1 AND effective_from=$2::date LIMIT 1`,
    [assignment.id,input.effectiveFrom]);
   if(!existing.rows.length)return fail("outside-assignment");
-  const revision=latest+1;
+  // Never reuse a revision number already cancelled and preserved in audit.
+  const cancelled=await db.query<{max_revision:number|null}>(`
+   SELECT MAX((details->>'cancelledRevision')::int) AS max_revision
+   FROM public.smn_member_lifecycle_event
+   WHERE assignment_id=$1 AND action='delete'
+    AND details->>'kind'='assignment-version-cancellation'`,[assignment.id]);
+  const revision=Math.max(latest,cancelled.rows[0]?.max_revision??0)+1;
   await db.query(`INSERT INTO public.smn_member_assignment_version
    (id,assignment_id,revision,allocation_percent,contract_percent,
     contribution_percent,effective_from,scrum_master_percent,
