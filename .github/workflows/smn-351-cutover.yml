@@ -24,7 +24,7 @@ jobs:
       - name: Contrat orchestrateur
         run: pnpm test:validate-version
       - name: Validation commune v33 — SMN-351
-        run: node scripts/validate-version.mjs --profile smn-351
+        run: node scripts/validate-version.mjs --profile smn-351 --scope feature
       - name: Archiver le rapport commun
         if: always()
         uses: actions/upload-artifact@v4
