@@ -14,7 +14,7 @@ const eligibleWorkSql=`
    GREATEST(x.start_on,make_date($3,1,1)),
    LEAST(COALESCE(x.end_on,make_date($3,12,31)),make_date($3,12,31)),
    interval '1 day') AS g(day)
-  WHERE x.member_id=ANY($1::uuid[]) AND x.team_id=$2
+  WHERE x.member_id=ANY($1::text[]) AND x.team_id=$2
    AND m.installation_id='singleton' AND t.installation_id=m.installation_id
  ), eligible_days AS (
   SELECT d.member_id,d.day
@@ -52,7 +52,7 @@ export function countAnnualWorkedHalfDays(rows:readonly Pick<EligibleWorkSlot,"m
 /** Team ID must originate from a server-side authorization/resolve step. */
 export async function readTeamAnnualWorkedForRoster(db:Client,teamId:string,
  memberIds:readonly string[],year:number):Promise<Map<string,number>>{
- if(!Number.isInteger(year)||year<1900||year>2200||memberIds.some(id=>!UUID.test(id)))
+ if(!Number.isInteger(year)||year<1900||year>2200||memberIds.some(id=>!id||id.length>128))
   throw Error("team-annual-absence-invalid-input");
  if(!memberIds.length)return new Map();
  const result=await db.query<EligibleWorkSlot>(eligibleWorkSql,[memberIds,teamId,year]);
