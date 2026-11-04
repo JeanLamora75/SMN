@@ -71,10 +71,14 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
    allocationPercent>contractPercent){
    setError(t("members.assignment.invalidShares"));return;
   }
-  if(state.endOn?
-   (draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn):
-   (draft.effectiveFrom<state.today||
-   (state.versions.length>0&&draft.effectiveFrom<state.versions.at(-1)!.effectiveFrom))){
+  if(teamScoped&&state.endOn){
+   if(draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn){
+    setError("Cette révision est datée du "+draft.effectiveFrom+
+     ", en dehors de l'affectation du "+state.startOn+" au "+state.endOn+
+     ". Cette incohérence historique doit être corrigée avant de modifier les pourcentages.");return;
+   }
+  }else if(draft.effectiveFrom<state.today||
+   (state.versions.length>0&&draft.effectiveFrom<state.versions.at(-1)!.effectiveFrom)){
    setError(t("members.assignment.invalidDate"));return;
   }
   setBusy(true);setError("");
@@ -223,6 +227,13 @@ export default function AssignmentEditor({memberId,teamId,memberRevision,onSaved
     {teamScoped&&state.endOn&&<p className="small text-secondary">
      Correction historisée : sélectionnez une version datée et rectifiez ses pourcentages.
      Les versions antérieures et les rapports clôturés restent conservés.</p>}
+    {teamScoped&&state.endOn&&draft.effectiveFrom&&
+     (draft.effectiveFrom<(state.startOn??"")||draft.effectiveFrom>state.endOn)&&
+     <p role="alert" className="alert alert-warning mb-0">
+      La révision sélectionnée est datée du {draft.effectiveFrom}, en dehors de la période
+      d&apos;affectation du {state.startOn} au {state.endOn}.
+      La correction des pourcentages est bloquée pour éviter une incohérence historique.
+     </p>}
     {error&&<p role="alert" className="alert alert-warning mb-0">{error}</p>}
     <div className="smn-cockpit-form-actions">
      <button type="submit" disabled={busy||(!dirty&&state.versions.length>0&&!(teamScoped&&state.endOn))} className="btn btn-primary">
