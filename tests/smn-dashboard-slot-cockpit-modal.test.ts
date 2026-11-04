@@ -5,7 +5,9 @@ const read=(p:string)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("Dashboard Builder renders customizable slots with a Bootstrap cockpit panel",()=>{
  const view=read("src/app/app/dashboard-builder/dashboard-consultation.tsx");
  assert.match(view,/visibleSlots\(block\)/);
- assert.match(view,/className="smn-panel p-3"/);
+ assert.match(view,/className=\{styles\.blockPanel\}/);
+ assert.match(view,/className=\{styles\.cockpitHeader\}/);
+ assert.match(view,/styles\.slotCard/);
  assert.match(view,/getDashboardTemplate\(block\.templateId,block\.templateVersion\)/);
 });
 test("Dashboard Builder does not bypass team-scoped server authorization",()=>{
