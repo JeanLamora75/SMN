@@ -96,3 +96,10 @@ Cette version finale respecte le menu gauche et l'en-tête existants de SMN, ret
 - Comparer l'aire centrale au visuel approuvé : bandeau bleu métier, deux KPI d'en-tête, Actions / Actualiser, M01–M06 avec graphiques et listes métiers.
 - Vérifier les rôles administrateur et consultation, les modes Scrum et Kanban, le menu réduit et le rendu mobile ; préserver Bootstrap et les thèmes.
 - Vérifier que le sélecteur de sprint global et les flèches du bandeau restent synchronisés, et que le contexte d'équipe ne diverge pas.
+
+
+## Traçabilité Jira de la refonte de restitution (04/11/2026)
+
+La conformité visuelle de cette référence est désormais suivie dans la User Story [SMN-380 — Conformité graphique de la restitution Cockpit Agile au shell SMN](https://lmn24.atlassian.net/browse/SMN-380), enfant de l'Epic SMN-353. Le premier code de refonte est déjà publié sur `main`, mais typecheck, lint, tests et recette visuelle en navigateur restent à prouver ; conserver le statut « À faire » jusqu'aux preuves.
+
+La refonte des modales de paramétrage constitue une Story distincte : [SMN-381](https://lmn24.atlassian.net/browse/SMN-381) ; son [contrat UX validé](./MODALES-PARAMETRAGE-REFERENCE-VALIDEE.md) complète cette référence sans modifier les données métier ni le shell SMN.
