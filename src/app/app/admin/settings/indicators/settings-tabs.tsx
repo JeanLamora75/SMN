@@ -43,6 +43,7 @@ export default function IndicatorSettingsTabs({catalogue,permissions,teams=[],te
     <button type="button" className={"btn "+(view==="cards"?"btn-primary":"btn-outline-secondary")} aria-pressed={view==="cards"} onClick={()=>changeView("cards")}><i className="bi bi-grid-3x2-gap me-1" aria-hidden="true"/>Cartes</button>
     <button type="button" className={"btn "+(view==="list"?"btn-primary":"btn-outline-secondary")} aria-pressed={view==="list"} onClick={()=>changeView("list")}><i className="bi bi-list-ul me-1" aria-hidden="true"/>Liste</button>
    </div>
+   {selected==="catalogue"&&<button type="button" className="btn btn-primary btn-sm mb-1" onClick={()=>window.dispatchEvent(new Event("smn:indicator-create"))}>Créer un indicateur</button>}
    </div>
   </div>
   <section id="indicator-settings-catalogue" role="tabpanel" aria-label="Catalogue" hidden={selected!=="catalogue"}><div data-indicator-view={view}>{catalogue}</div>{permissions}</section>
