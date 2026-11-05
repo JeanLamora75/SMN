@@ -37,3 +37,8 @@
 .smn-indicator-cockpit .smn-indicator-cycle-scroll:focus-visible{
  outline:3px solid var(--smn-brand);outline-offset:2px;
 }
+
+/* Keep indicator tabs and their contextual actions on a shared toolbar. */
+.smn-indicator-cockpit .smn-indicator-toolbar{border-bottom:1px solid var(--smn-border)}
+.smn-indicator-cockpit .smn-indicator-toolbar .smn-indicator-tabs{border-bottom:0;margin-bottom:0;flex-wrap:wrap}
+.smn-indicator-cockpit .smn-indicator-toolbar .btn{white-space:nowrap}
