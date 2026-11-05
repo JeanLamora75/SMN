@@ -80,7 +80,28 @@ export async function readDashboardBatch(db:Client,scope:LayoutScope,requests:re
     FROM public.smn_indicator_computed_result
     WHERE team_id=$1 AND indicator_id=$2 AND cycle_id=$3
     LIMIT 2`,[scope.teamId,indicatorId,r.cycleId]);
-   if(!query.rows.length)return {state:"absent"};
+   if(!query.rows.length){
+    // Existing pilot CAPA_REEL_DEV was defined as manual. When no value was recorded,
+    // resolve current developer capacity from the same role engine as ROLE_JH.
+    // Never replace a manually entered value or write to historical snapshots.
+    const metadata=await db.query<{tag:string;indicator_type:string}>(
+     "SELECT tag,indicator_type FROM public.smn_indicator_definition WHERE id=$1 AND archived_at IS NULL",
+     [indicatorId]);
+    if(metadata.rows[0]?.tag==="CAPA_REEL_DEV"&&metadata.rows[0].indicator_type==="manual"){
+     const team=await db.query<{agile_mode:"scrum"|"kanban"}>(
+      "SELECT agile_mode FROM public.smn_team WHERE id=$1 AND NOT is_archived",[scope.teamId]);
+     const cycleType=team.rows[0]?.agile_mode;
+     if(cycleType==="scrum"||cycleType==="kanban"){
+      const {loadRoleCapacityResolver}=await import("../indicators/formula/role-context");
+      const role=await loadRoleCapacityResolver(db,{teamId:scope.teamId,cycleId:r.cycleId,cycleType},
+       [{name:"ROLE_JH",role:"DEVELOPER"}]);
+      const capacity=role("ROLE_JH","DEVELOPER");
+      if(capacity.kind==="available")return {state:"available",value:String(capacity.value),unit:source.source.unit};
+     }
+     return {state:"null"};
+    }
+    return {state:"absent"};
+   }
    if(query.rows.length!==1)return {state:"error",message:"ambiguous-producer"};
    const value=query.rows[0].value;
    return value===null?{state:"null"}:{state:"available",value,unit:source.source.unit};
