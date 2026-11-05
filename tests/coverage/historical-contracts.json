@@ -1,20 +1,8 @@
 {
   "version": 1,
   "policy": "retain-until-equivalent-proven",
-  "description": "Les contrats de migration et de sécurité historiquement indispensables sont conservés. Les seuls contrôles de compatibilité v29 devenus redondants ont été retirés après comparaison avec les suites de liens SMN-306 et les capacités de schéma actives en v33.",
+  "description": "Contrats historiques toujours applicables : restauration et préflight v32→v33, conservation des snapshots, isolation interéquipes et règles métier. Les tests purement v27/v28 ont été remplacés par des gardes v33 spécifiques et leurs contrats redondants supprimés.",
   "entries": [
-    {
-      "file": "tests/auth-schema-v27.test.ts",
-      "kind": "compatibility-security",
-      "decision": "retain",
-      "reason": "Garde les exigences d'authentification d'installations anciennes"
-    },
-    {
-      "file": "tests/smn-282-schema-v28.test.ts",
-      "kind": "compatibility-security",
-      "decision": "retain",
-      "reason": "Vérifie les frontières de version et les habilitations multiéquipes"
-    },
     {
       "file": "tests/team-isolation-v30-sprint-data.test.ts",
       "kind": "compatibility-security",
