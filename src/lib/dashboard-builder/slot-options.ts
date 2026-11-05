@@ -2,7 +2,7 @@ import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/lay
 export type SlotOptions={limit?:number;sort?:"asc"|"desc";columns?:string[];cycleIdOverride?:string;type?:string;showClosed?:boolean;minimum?:number;maximum?:number};
 export function normalizeSlotOptions(value:SlotOptions,category:string,cycleIds:readonly string[],view?:string):SlotOptions{
  const next:SlotOptions={};
- if(view==="tachometer"){
+ if(view==="tachometer"||view==="battery-horizontal"){
   if(category!=="indicator"||typeof value.minimum!=="number"||typeof value.maximum!=="number"||
    !Number.isFinite(value.minimum)||!Number.isFinite(value.maximum)||value.minimum>=value.maximum)
    throw Error("dashboard-slot-scale-invalid");
