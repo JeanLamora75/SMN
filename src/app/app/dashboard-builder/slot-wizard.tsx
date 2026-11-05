@@ -13,8 +13,10 @@ const columnNames:Record<string,string>={label:"Nom",kind:"Type",status:"Statut"
 const viewNames:Partial<Record<SourceView,string>>={
  number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",line:"Courbe",bar:"Histogramme",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
 };
-export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm,onClear}:{
- teamId:string;initialSlot?:DashboardSlot;cycles:readonly DashboardCycle[];onClose:()=>void;
+const viewLabel=(kind:SourceView,locale:string)=>!locale.toLowerCase().startsWith("fr")?
+ ({"card-watermark":"KPI card — Watermark","list-watermark":"List — Watermark"} as Partial<Record<SourceView,string>>)[kind]??viewNames[kind]??kind:viewNames[kind]??kind;
+export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClose,onConfirm,onClear}:{
+ teamId:string;initialSlot?:DashboardSlot;cycles:readonly DashboardCycle[];locale?:string;onClose:()=>void;
  onConfirm:(source:string,view:SourceView,options:SlotOptions)=>void;onClear:()=>void;
 }){
  const [sources,setSources]=useState<readonly SourceDescriptor[]>([]);
@@ -102,7 +104,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
          className={`${ui.card} ${view===item.kind?ui.cardSelected:""} text-center`}
          aria-pressed={view===item.kind}>
          <span aria-hidden="true" className="d-block fs-3">{item.thumbnail}</span>
-         <span className="small fw-semibold d-block">{viewNames[item.kind]??item.kind}</span>
+         <span className="small fw-semibold d-block">{viewLabel(item.kind,locale)}</span>
         </button>
        </div>)}</div>
       </div>
@@ -110,7 +112,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
        <section className={ui.preview} aria-label="Aperçu de la visualisation">
         <h3 className={ui.sectionTitle}>Aperçu du rendu</h3>
         {view?<div className="d-flex flex-column gap-3" aria-label="Aperçu de la composition, sans données fictives">
-         <div className="small fw-semibold text-body-secondary">{viewNames[view]??view} · {selected.name}</div>
+         <div className="small fw-semibold text-body-secondary">{viewLabel(view,locale)} · {selected.name}</div>
          <div className="border rounded-3 p-3 bg-body-tertiary">
           {view==="number"||view==="card"||view==="card-watermark"?<><div className="placeholder-glow"><span className="placeholder col-8 rounded mb-3"/><span className="placeholder col-5 rounded" style={{height:28}}/></div></>:
            view==="gauge"?<div className="progress" style={{height:13}}><div className="progress-bar w-50" style={{opacity:.35}}/></div>:
