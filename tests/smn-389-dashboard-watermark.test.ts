@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {readFileSync} from "node:fs";
+import type {Client} from "pg";
 import {compatibleVisualizations,resolveVisualization} from "../src/server/dashboard-builder/visualizations";
-import {resolveDashboardSource,validateSourceDescriptors,SOURCE_VIEWS,type SourceDescriptor} from "../src/server/dashboard-builder/sources";
+import {resolveDashboardSource,validateSourceDescriptors,listDashboardSources,SOURCE_VIEWS,type SourceDescriptor} from "../src/server/dashboard-builder/sources";
 
 const indicator:SourceDescriptor={
  code:"indicator:one",name:"Vélocité",category:"indicator",unit:"SP",scope:"cycle",
@@ -66,4 +67,19 @@ test("SMN-389 AC5/AC6: wizard choices, persistence and list adapters",()=>{
  assert.match(editor,/updateDashboardSlot\(current,wizardSlot,\{source,view,filters:options\}\)/);
  assert.match(visualization,/model\.kind==="card-watermark"/);
  assert.match(batch,/r\.view==="list-watermark"/);
+});
+
+test("SMN-389 AC1: all three live list producers expose the watermark choice",async()=>{
+ const db={query:async(sql:string)=>{
+  if(sql.includes("smn_dashboard_team_grant"))return {rows:[{role:"admin",can_read:true,can_edit:true}]};
+  if(sql.includes("schema_version"))return {rows:[{schema_version:33}]};
+  if(sql.includes("smn_indicator_definition"))return {rows:[]};
+  throw Error("unexpected query");
+ }} as unknown as Client;
+ const sources=await listDashboardSources(db,{installationId:"install1",accountId:"actor1",teamId:"team1"});
+ for(const id of ["registry:items","calendar:ceremonies","notes:sprint"]){
+  const found=sources.find(x=>x.code===id);
+  assert.equal(found?.status,"available");
+  assert.deepEqual(found?.views,["list","list-watermark"]);
+ }
 });
