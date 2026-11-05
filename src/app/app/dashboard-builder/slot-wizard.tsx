@@ -132,12 +132,12 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
         <summary>Options avancées</summary>
         <div className="row g-3 mt-2">
          {view==="tachometer"&&selected.category==="indicator"&&<>
-          <div className="col-12"><p className="small text-body-secondary mb-0">Définissez les bornes de l'échelle du tachymètre. Elles ne modifient pas la mesure de l'indicateur.</p></div>
-          {selected.unit==="%"&&<div className="col-12"><button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setOptions(o=>({...o,minimum:0,maximum:100}));setOptionError("");}}>Échelle 0–100 %</button></div>}
-          <div className="col-6"><label className="form-label" htmlFor="tachometer-minimum">Minimum de l'échelle</label>
+          <div className="col-12"><p className="small text-body-secondary mb-0">{locale.toLowerCase().startsWith("fr")?"Définissez les bornes de l’échelle du tachymètre. Elles ne modifient pas la mesure de l’indicateur.":"Define the tachometer scale limits. They do not change the indicator value."}</p></div>
+          {selected.unit==="%"&&<div className="col-12"><button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setOptions(o=>({...o,minimum:0,maximum:100}));setOptionError("");}}>{locale.toLowerCase().startsWith("fr")?"Échelle 0–100 %":"0–100% scale"}</button></div>}
+          <div className="col-6"><label className="form-label" htmlFor="tachometer-minimum">{locale.toLowerCase().startsWith("fr")?"Minimum de l’échelle":"Scale minimum"}</label>
            <input id="tachometer-minimum" className="form-control" type="number" step="any" required value={options.minimum??""}
             onChange={e=>setOptions(o=>({...o,minimum:e.target.value===""?undefined:Number(e.target.value)}))}/></div>
-          <div className="col-6"><label className="form-label" htmlFor="tachometer-maximum">Maximum de l'échelle</label>
+          <div className="col-6"><label className="form-label" htmlFor="tachometer-maximum">{locale.toLowerCase().startsWith("fr")?"Maximum de l’échelle":"Scale maximum"}</label>
            <input id="tachometer-maximum" className="form-control" type="number" step="any" required value={options.maximum??""}
             onChange={e=>setOptions(o=>({...o,maximum:e.target.value===""?undefined:Number(e.target.value)}))}/></div>
          </>}
