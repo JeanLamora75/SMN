@@ -39,6 +39,6 @@ export function DashboardBusinessList({data,columns,locale="fr"}:{
     {visible.has("kind")?(typeNames[item.kind]??item.kind):""}{visible.has("kind")&&visible.has("date")&&item.date?" · ":""}{visible.has("date")?(item.date?formatDate(item.date):""):""}
    </span>}
   </li>)}</ul>
-  <p className="small text-body-secondary mt-3 mb-0">{data.total} résultat(s)</p>
+  <p className="small text-body-secondary mt-3 mb-0">{data.rows.length<data.total?`${data.rows.length} sur ${data.total} résultat(s)`:`${data.total} résultat(s)`}</p>
  </div>;
 }
