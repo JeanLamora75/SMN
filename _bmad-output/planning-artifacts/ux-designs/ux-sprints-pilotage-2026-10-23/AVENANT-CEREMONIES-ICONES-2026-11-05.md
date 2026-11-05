@@ -20,3 +20,20 @@ Sous **Paramètres > Cérémonies et modèles**, un modèle de cérémonie exist
 
 ## État
 Cadrage validé par la demande utilisateur. Publication documentaire précède l'implémentation. Tests à exécuter réellement avant toute déclaration de conformité.
+
+## Réalisation publiée le 05/11/2026
+- `src/app/app/admin/sprints/template-form.tsx` : `IconPicker` partagé, palette et aperçu en édition.
+- `src/app/app/ceremony-color-picker.tsx` : sélecteur de couleur partagé.
+- `src/lib/ceremony-appearance.ts` : neuf couleurs autorisées et validation.
+- `src/server/sprints/ceremony-templates.ts` : lecture et écriture des propriétés, validation des icônes officielles et couleurs, audit de révision et contrôle d'équipe conservés.
+- `prisma/migrations/20261105_smn229_ceremony_appearance/migration.sql` : colonnes facultatives idempotentes.
+- `scripts/apply-smn-229-ceremony-appearance.ts` : script explicite de migration sécurisée; commandes `pnpm db:migrate:ceremony-appearance --check` et `--apply`.
+- `tests/smn-229-ceremony-appearance.test.ts` : tests métiers/contrats ajoutés. **Exécution CI à vérifier**.
+- La migration **n'est pas appliquée à la base locale de l'utilisateur par GitHub** : une sauvegarde vérifiée est requise avant son application. Commandes PowerShell après synchronisation :
+  1. `pnpm db:migrate:ceremony-appearance --check`
+  2. Effectuer et vérifier une sauvegarde de PostgreSQL.
+  3. `$env:SMN_V33_BACKUP_VERIFIED="YES"` puis `pnpm db:migrate:ceremony-appearance --apply`
+  4. `pnpm db:migrate:ceremony-appearance --check`
+  5. `pnpm test:ceremony-appearance`, `pnpm typecheck`, `pnpm lint`.
+- Tant que la migration additive n'est pas appliquée, l'API des modèles renvoie une indisponibilité maîtrisée; les anciennes occurrences ne sont pas mutées.
+- La recette navigateur, le comportement PostgreSQL sur l'installation utilisateur et la CI complète restent à confirmer.
