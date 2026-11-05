@@ -60,8 +60,8 @@ test("SMN-392 AC4/5: wizard preview and clear errors; theme-based rendering",()=
  assert.match(wizard,/Pile horizontale/);
  assert.match(wizard,/Horizontal battery/);
  assert.match(wizard,/view==="battery-horizontal"/);
- assert.match(wizard,/id="battery-horizontal-minimum"/);
- assert.match(wizard,/id="battery-horizontal-maximum"/);
+ assert.match(wizard,/id=\{view\+"-minimum"\}/);
+ assert.match(wizard,/id=\{view\+"-maximum"\}/);
  assert.match(consultation,/battery-horizontal/);
  assert.match(render,/batterySegmentFills/);
  assert.match(render,/styles\.batteryHorizontal/);
