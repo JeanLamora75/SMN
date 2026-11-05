@@ -2,6 +2,7 @@
 import {useEffect,useState} from "react";
 import UniversalIndicatorInput from "./universal-input";
 import {useTranslation} from "@/i18n/client";
+import {formatIndicatorMeasurement} from "@/lib/indicators/format-value";
 type Column={id:string;tag:string;name:string;unit:string};
 type Cycle={id:string;name:string;status:string;startAt?:string;endAt?:string;values:Record<string,string|null>};
 type Result={columns:Column[];cycles:Cycle[]};
@@ -22,7 +23,7 @@ export default function IndicatorCycles({teamId,cycleType,locale}:{teamId:string
   return()=>controller.abort();
  },[teamId,cycleType,revision]);
  const date=(v:string|undefined)=>{if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?v.slice(0,10):new Intl.DateTimeFormat(locale==="fr"?"fr-FR":"en-GB",{day:"2-digit",month:"short",year:"numeric"}).format(d);};
- const value=(v:string|null|undefined,unit:string)=>v==null?"—":v.replace(".",locale==="fr"?",":".")+(unit?" "+unit:"");
+ const value=(v:string|null|undefined,unit:string)=>formatIndicatorMeasurement(v,unit,locale);
  return <section className="smn-indicator-cycles" aria-label={t("indicators.reporting.title")}>
   {error&&<p role="alert" className="alert alert-warning">{t("indicators.reporting.unavailable")}</p>}
   {!data&&!error&&<p role="status">{t("indicators.reporting.loading")}</p>}
