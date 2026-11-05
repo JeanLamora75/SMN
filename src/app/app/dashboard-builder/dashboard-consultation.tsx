@@ -18,6 +18,14 @@ import {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-lay
 export {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
 import type {CSSProperties,ReactNode} from "react";
 
+const isWatermarkView=(view:unknown)=>view==="card-watermark"||view==="list-watermark";
+function watermark(slot:DashboardSlot){
+ if(!isWatermarkView(slot.view)||!isDashboardIcon(slot.icon))return null;
+ return <span className={styles.watermarkGraphic} aria-hidden="true" style={{color:ceremonyIconColorHex(slot.iconColor)??"currentColor"}}>
+  <SMNIcon name={slot.icon}/>
+ </span>;
+}
+
 function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot:DashboardSlot):CSSProperties {
  const cell=template?.slots.find(c=>c.slotId===slot.templateSlotId);
  return cell?{gridColumn:`${cell.column+1} / span ${cell.columnSpan}`,gridRow:`${cell.row+1} / span ${cell.rowSpan}`,minWidth:0}:{};
@@ -47,9 +55,9 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
-     if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={styles.slotCard}>{(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
-     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={styles.slotCard} aria-label={slot.title?.trim()||"Liste du tableau de bord"}>
-      {(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
+     if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`}>{watermark(slot)}{(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
+     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`} aria-label={slot.title?.trim()||"Liste du tableau de bord"}>{watermark(slot)}
+      {(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
       <DashboardBusinessList data={result.list} locale={locale} columns={Array.isArray(slot.filters?.columns)?slot.filters.columns as string[]:undefined}/>
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
        (slot.source==="calendar:ceremonies"||slot.source==="notes:sprint"||
@@ -73,9 +81,9 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
-     return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${styles.indicatorSlotCard}`} aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>
-      {(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
-      {result.state==="absent"&&slot.view==="list"?<p role="status">Aucun résultat</p>:result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
+     return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${styles.indicatorSlotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`} aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>{watermark(slot)}
+      {(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
+      {result.state==="absent"&&(slot.view==="list"||slot.view==="list-watermark")?<p role="status">Aucun résultat</p>:result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
        <DashboardVisualization model={model} locale={locale}/>}
       {model.state==="error"&&<button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>retry(slot.id)}>Réessayer cet emplacement</button>}
      </section>;
