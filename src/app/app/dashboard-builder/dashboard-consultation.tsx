@@ -13,6 +13,7 @@ import {useDashboardBatch} from "./use-dashboard-batch";
 import {DashboardVisualization} from "./dashboard-visualization";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
 import {getDashboardTemplate} from "@/lib/dashboard-builder/templates";
+import {resolveTachometerRatio} from "@/lib/dashboard-builder/tachometer";
 import styles from "./dashboard-dimensions.module.css";
 import {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
 export {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-layout";
@@ -35,6 +36,14 @@ function DashboardWatermark({slot}:{slot:DashboardSlot}){
  return <span ref={node} className={styles.watermarkGraphic} aria-hidden="true" style={{color:ceremonyIconColorHex(slot.iconColor)??"currentColor"}}>
   <SMNIcon name={slot.icon} size={size?size+"px":undefined}/>
  </span>;
+}
+
+function tachometerModel(value:number,unit:string|null|undefined,filters?:Record<string,unknown>):VisualizationModel {
+ if(!Number.isFinite(value))return {state:"error",kind:"tachometer"};
+ const ratio=resolveTachometerRatio(value,filters?.minimum,filters?.maximum);
+ return ratio===null
+  ?{state:"invalid-bounds",kind:"tachometer",value,unit}
+  :{state:"ready",kind:"tachometer",value,unit,ratio};
 }
 
 function templateCellStyle(template:ReturnType<typeof getDashboardTemplate>,slot:DashboardSlot):CSSProperties {
@@ -87,7 +96,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      </section>;
      if(result.state==="available"){
       const number=result.value===undefined||result.value===null?NaN:Number(result.value);
-      model=slot.view==="gauge"?{state:"invalid-bounds",kind:"gauge"}:result.points&&(["line","bar"].includes(slot.view!))?{state:"ready",kind:slot.view as VisualizationModel["kind"],points:result.points,unit:result.unit}:Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
+      model=slot.view==="tachometer"?tachometerModel(number,result.unit,slot.filters):slot.view==="gauge"?{state:"invalid-bounds",kind:"gauge"}:result.points&&(["line","bar"].includes(slot.view!))?{state:"ready",kind:slot.view as VisualizationModel["kind"],points:result.points,unit:result.unit}:Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
        {state:"error",kind:slot.view as VisualizationModel["kind"]};
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
