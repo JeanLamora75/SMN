@@ -61,8 +61,8 @@ test("SMN-383 AC03: picker et icônes dans le rendu réel",()=>{
  assert.match(editor,/setBlockIcon/);
  assert.match(editor,/setSlotIcon/);
  assert.match(editor,/IconPicker/);
- assert.match(consultation,/BootstrapIcon name=\{block\.icon\}/);
- assert.match(consultation,/BootstrapIcon name=\{slot\.icon\}/);
+ assert.match(consultation,/SMNIcon name=\{block\.icon\}/);
+ assert.match(consultation,/SMNIcon name=\{slot\.icon\}/);
  assert.match(picker,/aria-modal="true"/);
  assert.match(picker,/Sans icône/);
 });
