@@ -41,7 +41,7 @@ export default function TemplateForm(){
   <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
    <div>
     <div className="form-label fw-semibold mb-1">Icône de la cérémonie</div>
-    <p className="small text-body-secondary mb-2">Facultative. L’icône et sa couleur s'appliquent au modèle, sans modifier les réunions existantes.</p>
+    <p className="small text-body-secondary mb-2">Facultative. L’icône et sa couleur s&apos;appliquent au modèle, sans modifier les réunions existantes.</p>
     <IconPicker value={form.icon??undefined} onChange={icon=>setForm(current=>({...current,icon:icon??null}))} disabled={busy} label="du modèle de cérémonie"/>
    </div>
    <div className="d-inline-flex align-items-center gap-2 rounded-3 border px-3 py-2" role="status" aria-label="Aperçu de la cérémonie">
