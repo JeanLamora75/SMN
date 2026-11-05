@@ -60,3 +60,8 @@
  .innerSlots>*{grid-column:auto!important;grid-row:auto!important}
 }
 @media(max-width:480px){.headerKpis{grid-template-columns:minmax(0,1fr)}.cockpitHeader{padding:.8rem}.slotCard{padding:.6rem}}
+
+/* Indicator headings: a two-line-height icon beside the label, not a tiny inline glyph. */
+.slotTitle{display:flex;align-items:center;gap:.5rem}
+.slotTitleIcon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 2rem;width:2rem;min-height:2.35rem;font-size:1.85rem;line-height:1}
+.slotTitleIcon :global(i){font-size:inherit;line-height:1}
