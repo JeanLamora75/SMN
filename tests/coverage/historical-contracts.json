@@ -1,7 +1,7 @@
 {
   "version": 1,
   "policy": "retain-until-equivalent-proven",
-  "description": "Un test nommé v27–v32 peut garantir une migration ou une sécurité toujours applicable. Sa suppression exige une preuve d'équivalence métier, une validation de l'impact et une exécution comparative sur base isolée.",
+  "description": "Les contrats de migration et de sécurité historiquement indispensables sont conservés. Les seuls contrôles de compatibilité v29 devenus redondants ont été retirés après comparaison avec les suites de liens SMN-306 et les capacités de schéma actives en v33.",
   "entries": [
     {
       "file": "tests/auth-schema-v27.test.ts",
@@ -14,12 +14,6 @@
       "kind": "compatibility-security",
       "decision": "retain",
       "reason": "Vérifie les frontières de version et les habilitations multiéquipes"
-    },
-    {
-      "file": "tests/smn-306-v29-compatibility.test.ts",
-      "kind": "compatibility-security",
-      "decision": "retain",
-      "reason": "Préserve la compatibilité des liens et le refus des schémas incomplets"
     },
     {
       "file": "tests/team-isolation-v30-sprint-data.test.ts",
