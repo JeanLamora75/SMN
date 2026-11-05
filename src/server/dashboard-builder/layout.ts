@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import {isDashboardIcon} from "../../lib/dashboard-builder/icon-catalog";
+import {isCeremonyIconColor,type CeremonyIconColor} from "../../lib/ceremony-appearance";
 import {validateBlockDimensions,type BlockDimensions} from "../../lib/dashboard-builder/dimensions";
 import {normalizeSlotOptions,type SlotOptions} from "../../lib/dashboard-builder/slot-options";
 import { requireDashboardPermission } from "./permissions";
@@ -8,8 +9,8 @@ import type { Client } from "pg";
 import { getDashboardTemplate, type DashboardTemplateId } from "../../lib/dashboard-builder/templates";
 
 export const DASHBOARD_LAYOUT_SCHEMA_VERSION = 1;
-export type DashboardSlot = { id: string; templateSlotId: string; source?: string; view?: string; title?:string; icon?:string; filters?: Record<string,unknown> };
-export type DashboardBlock = { id: string; templateId: DashboardTemplateId; templateVersion: number; title?:string; icon?:string; dimensions?:BlockDimensions; slots: DashboardSlot[] };
+export type DashboardSlot = { id: string; templateSlotId: string; source?: string; view?: string; title?:string; icon?:string; iconColor?:CeremonyIconColor; filters?: Record<string,unknown> };
+export type DashboardBlock = { id: string; templateId: DashboardTemplateId; templateVersion: number; title?:string; icon?:string; iconColor?:CeremonyIconColor; dimensions?:BlockDimensions; slots: DashboardSlot[] };
 export type DashboardRow = { id: string; blocks: DashboardBlock[] };
 export type DashboardLayout = { schemaVersion: number; header: { blocks: DashboardBlock[] }; rows: DashboardRow[] };
 export type LayoutScope = { installationId: string; accountId: string; teamId: string };
@@ -29,6 +30,7 @@ export function validateDashboardLayout(layout: DashboardLayout, sources?:readon
     checkId(ids, block.id);
     if(block.title!==undefined&&(typeof block.title!=="string"||block.title.length>100))throw Error("dashboard-block-title-invalid");
     if(block.icon!==undefined&&!isDashboardIcon(block.icon))throw Error("dashboard-block-icon-invalid");
+    if(block.iconColor!==undefined&&!isCeremonyIconColor(block.iconColor))throw Error("dashboard-block-icon-color-invalid");
     if(block.dimensions!==undefined)validateBlockDimensions(block.dimensions);
     const template = getDashboardTemplate(block.templateId, block.templateVersion);
     if (!template || !Array.isArray(block.slots) || block.slots.length !== template.slotCount)
@@ -39,6 +41,7 @@ export function validateDashboardLayout(layout: DashboardLayout, sources?:readon
       checkId(ids, slot.id);
       if(slot.title!==undefined&&(typeof slot.title!=="string"||slot.title.length>100))throw Error("dashboard-slot-title-invalid");
       if(slot.icon!==undefined&&!isDashboardIcon(slot.icon))throw Error("dashboard-slot-icon-invalid");
+      if(slot.iconColor!==undefined&&!isCeremonyIconColor(slot.iconColor))throw Error("dashboard-slot-icon-color-invalid");
       if (!expected.has(slot.templateSlotId) || actual.has(slot.templateSlotId))
         throw new Error("dashboard-layout-invalid-slot");
       actual.add(slot.templateSlotId);
