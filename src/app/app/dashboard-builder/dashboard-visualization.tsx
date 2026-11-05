@@ -2,6 +2,7 @@ import type {ReactNode} from "react";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
 import {formatIndicatorValue} from "@/lib/indicators/format-value";
 import {tachometerNeedle} from "@/lib/dashboard-builder/tachometer";
+import {batterySegmentFills} from "@/lib/dashboard-builder/battery-horizontal";
 import {horizontalBarGeometry,shortCycleLabel} from "@/lib/dashboard-builder/horizontal-bars";
 import styles from "./dashboard-dimensions.module.css";
 
@@ -21,7 +22,7 @@ const valueLabel=(value:number,unit:string|null|undefined,locale:string)=>
 export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS}:{
  model:VisualizationModel;locale?:string;labels?:VisualizationLabels;
 }):ReactNode{
- if(model.kind==="tachometer"&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
+ if((model.kind==="tachometer"||model.kind==="battery-horizontal")&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
   {model.value!==undefined&&<span className={styles.metric}><output className={styles.metricNumber}>{format(model.value,locale)}</output>{model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}</span>}
   <span className={styles.state}>{model.label==="out-of-scale"?(locale.toLowerCase().startsWith("fr")?"Valeur hors échelle":"Value outside scale"):(locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale")}</span>
  </div>;
@@ -37,6 +38,26 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
   </div>;
+
+ if(model.kind==="battery-horizontal"){
+  if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
+   return <span className={styles.state} role="status">{locale.startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>;
+  const fills=batterySegmentFills(model.ratio);
+  return <div className={styles.batteryHorizontal}>
+   <svg className={styles.batteryHorizontalSvg} viewBox="0 0 330 100" aria-hidden="true" focusable="false">
+    <rect x="3" y="7" width="306" height="86" rx="12" className={styles.batteryHorizontalShell}/>
+    <rect x="308" y="32" width="19" height="36" rx="5" className={styles.batteryHorizontalTerminal}/>
+    {fills.map((fraction,i)=><g key={i}>
+     <rect x={11+i*49} y="16" width="43" height="68" rx="6" className={styles.batteryHorizontalEmpty}/>
+     {fraction>0&&<rect x={11+i*49} y="16" width={43*fraction} height="68" rx="6" className={styles.batteryHorizontalFill}/>}
+    </g>)}
+   </svg>
+   <div className={styles.batteryHorizontalValue}>
+    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
+    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
+   </div>
+  </div>;
+ }
  if(model.kind==="tachometer"){
   if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
    return <span role="status" className={styles.state}>{locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>;
