@@ -28,7 +28,8 @@ test("SMN-390 AC2/3: no silent clamping or imaginary scale",()=>{
  assert.deepEqual(tachometerNeedle(0),{x:34,y:128});
  assert.ok(Math.abs(tachometerNeedle(.5).x-130)<1e-9);
  assert.ok(Math.abs(tachometerNeedle(.5).y-32)<1e-9);
- assert.deepEqual(tachometerNeedle(1),{x:226,y:128});
+ assert.ok(Math.abs(tachometerNeedle(1).x-226)<1e-9);
+ assert.ok(Math.abs(tachometerNeedle(1).y-128)<1e-9);
 });
 test("SMN-390 AC2/4: scale persisted as presentation-only fields",()=>{
  assert.deepEqual(normalizeSlotOptions({minimum:0,maximum:100},"indicator",[],"tachometer"),{minimum:0,maximum:100});
