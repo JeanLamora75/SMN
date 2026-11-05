@@ -17,6 +17,19 @@ const serverTab=():Tab=>"catalogue";
 
 export default function IndicatorSettingsTabs({catalogue,permissions,teams=[],teamId=null}:{catalogue:ReactNode;permissions:ReactNode;teams?:readonly {id:string;name:string;mode:"scrum"|"kanban"}[];teamId?:string|null}){
  const selected=useSyncExternalStore(subscribeToHash,currentTab,serverTab);
+ const [views,setViews]=useState<Record<Tab,IndicatorView>>({catalogue:"list",guide:"cards",recommended:"cards"});
+ useEffect(()=>{
+  try{
+   const saved=JSON.parse(window.localStorage.getItem(VIEW_KEY)??"{}") as Partial<Record<Tab,IndicatorView>>;
+   setViews(old=>({...old,...Object.fromEntries((["catalogue","guide","recommended"] as const).filter(k=>saved[k]==="cards"||saved[k]==="list").map(k=>[k,saved[k]]))}));
+  }catch{/* La vue reste utilisable lorsque le stockage est désactivé. */}
+ },[]);
+ const changeView=(next:IndicatorView)=>{
+  const updated={...views,[selected]:next};
+  setViews(updated);
+  try{window.localStorage.setItem(VIEW_KEY,JSON.stringify(updated));}catch{/* Préférence facultative. */}
+ };
+ const view=views[selected];
  return <div>
   <div className="smn-panel rounded-4 p-3 mb-3">
    <div className="d-flex flex-wrap justify-content-between align-items-end gap-2">
