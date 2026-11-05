@@ -11,10 +11,10 @@ import ui from "./modal-ux.module.css";
 const categoryNames:Record<string,string>={indicator:"Indicateurs",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",notes:"Notes",objective:"Objectifs",team:"Équipe",link:"Liens"};
 const columnNames:Record<string,string>={label:"Nom",kind:"Type",status:"Statut",date:"Date"};
 const viewNames:Partial<Record<SourceView,string>>={
- number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",tachometer:"Tachymètre",line:"Courbe",bar:"Histogramme",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
+ number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",tachometer:"Tachymètre",line:"Courbe",bar:"Histogramme","bar-horizontal":"Histogramme horizontal",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
 };
 const viewLabel=(kind:SourceView,locale:string)=>!locale.toLowerCase().startsWith("fr")?
- ({"card-watermark":"KPI card — Watermark","list-watermark":"List — Watermark",tachometer:"Tachometer"} as Partial<Record<SourceView,string>>)[kind]??viewNames[kind]??kind:viewNames[kind]??kind;
+ ({"card-watermark":"KPI card — Watermark","list-watermark":"List — Watermark",tachometer:"Tachometer","bar-horizontal":"Horizontal bar chart"} as Partial<Record<SourceView,string>>)[kind]??viewNames[kind]??kind:viewNames[kind]??kind;
 export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClose,onConfirm,onClear}:{
  teamId:string;initialSlot?:DashboardSlot;cycles:readonly DashboardCycle[];locale?:string;onClose:()=>void;
  onConfirm:(source:string,view:SourceView,options:SlotOptions)=>void;onClear:()=>void;
@@ -118,6 +118,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
            view==="tachometer"?<svg viewBox="0 0 180 94" width="100%" aria-hidden="true"><path d="M 24 80 A 66 66 0 0 1 156 80" fill="none" stroke="var(--smn-border)" strokeWidth="12" strokeLinecap="round"/><line x1="90" y1="80" x2="90" y2="21" stroke="var(--smn-heading)" strokeWidth="3"/><circle cx="90" cy="80" r="5" fill="var(--smn-heading)"/></svg>:
            view==="gauge"?<div className="progress" style={{height:13}}><div className="progress-bar w-50" style={{opacity:.35}}/></div>:
            view==="line"?<svg viewBox="0 0 180 68" width="100%" aria-hidden="true"><polyline points="4,61 32,52 64,40 98,44 130,24 176,9" fill="none" stroke="currentColor" strokeWidth="2"/></svg>:
+           view==="bar-horizontal"?<div className="d-flex flex-column gap-1" style={{height:68}}>{[30,65,45,88].map((n,i)=><div key={i} className="bg-primary-subtle rounded-end" style={{width:n+"%",height:12}}/>)}</div>:
            view==="bar"?<div className="d-flex align-items-end gap-2" style={{height:68}}>{[30,65,45,88,60].map((n,i)=><div key={i} className="bg-primary-subtle rounded-top flex-fill" style={{height:n+"%"}}/>)}</div>:
            (view==="list"||view==="list-watermark")?<div className="placeholder-glow">{[0,1,2].map(i=><div key={i} className="border-bottom py-2"><span className="placeholder col-9 rounded"/></div>)}</div>:
            <div className="placeholder-glow"><span className="placeholder col-10 rounded"/></div>}
