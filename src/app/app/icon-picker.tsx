@@ -56,6 +56,7 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
  useEffect(()=>{
   if(!open)return;
   const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  const triggerElement=trigger.current;
   const frame=requestAnimationFrame(()=>dialog.current?.querySelector<HTMLInputElement>("input")?.focus());
   function handleKey(event:KeyboardEvent){
    if(event.key==="Escape"){event.preventDefault();setOpen(false);return;}
@@ -66,7 +67,7 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
    if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   }
   document.addEventListener("keydown",handleKey);
-  return()=>{cancelAnimationFrame(frame);document.removeEventListener("keydown",handleKey);(trigger.current??previous)?.focus();};
+  return()=>{cancelAnimationFrame(frame);document.removeEventListener("keydown",handleKey);(triggerElement??previous)?.focus();};
  },[open]);
  return <>
   <button ref={trigger} type="button" className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2"
