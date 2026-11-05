@@ -21,7 +21,8 @@ export default function IndicatorSettingsTabs({catalogue,permissions,teams=[],te
  useEffect(()=>{
   try{
    const saved=JSON.parse(window.localStorage.getItem(VIEW_KEY)??"{}") as Partial<Record<Tab,IndicatorView>>;
-   setViews(old=>({...old,...Object.fromEntries((["catalogue","guide","recommended"] as const).filter(k=>saved[k]==="cards"||saved[k]==="list").map(k=>[k,saved[k]]))}));
+   const frame=window.requestAnimationFrame(()=>setViews(old=>({...old,...Object.fromEntries((["catalogue","guide","recommended"] as const).filter(k=>saved[k]==="cards"||saved[k]==="list").map(k=>[k,saved[k]]))})));
+   return ()=>window.cancelAnimationFrame(frame);
   }catch{/* La vue reste utilisable lorsque le stockage est désactivé. */}
  },[]);
  const changeView=(next:IndicatorView)=>{
