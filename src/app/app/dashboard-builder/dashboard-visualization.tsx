@@ -26,7 +26,7 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
   };
   return <span className={styles.state} role="status">{messages[model.state]}</span>;
  }
- if((model.kind==="number"||model.kind==="card")&&model.value!==undefined)
+ if((model.kind==="number"||model.kind==="card"||model.kind==="card-watermark")&&model.value!==undefined)
   return <div className={styles.metric}>
    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
@@ -41,7 +41,7 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
    <div className={styles.progressTrack} aria-hidden="true"><div className={styles.progressFill} style={{width:`${model.ratio*100}%`}}/></div>
   </div>;
  }
- if(model.kind==="list")
+ if(model.kind==="list"||model.kind==="list-watermark")
   return <ul className={styles.businessList}>{(model.rows??[]).map((item,i)=>
    <li key={i} className={styles.businessItem}><strong>{item.label}</strong><span className={styles.businessItemMeta}>{item.value}</span></li>)}</ul>;
  if(model.kind==="text")return <p className="mb-0">{model.text??""}</p>;
