@@ -53,3 +53,21 @@ Sur le bandeau Cockpit Agile bleu, les commandes « Actions » et « Actualiser 
 - **BMAD :** cadrage publié ; aucune implémentation ou recette validée par cette documentation.
 - **Jira :** SMN-382 et SMN-383 créées sous SMN-353, laissées À faire.
 - **Blocage workflow Amelia :** `bmad-build/SKILL.md` exige l'exécution unique de `render_skill.py` et l'arrêt sur erreur. Tentative réelle effectuée le 05/11/2026 ; échec : script introuvable faute de copie locale du dépôt dans l'environnement d'exécution ChatGPT. Aucun script BMAD ni suite de tests n'a été exécuté. Ce blocage n'autorise pas de contourner le workflow officiel.
+
+## Publication de l'implémentation du 05/11/2026
+
+Code publié directement sur `main` pour les deux Stories :
+
+- `src/lib/dashboard-builder/icon-catalog.ts` : catalogue validé de **28** icônes Bootstrap intégrées (première sélection, pas encore l'intégralité du répertoire officiel).
+- `src/app/app/icon-picker.tsx` : composant transversal de choix, recherche et filtrage, sélection et suppression.
+- `src/server/dashboard-builder/layout.ts` : champs `icon?` facultatifs et validation côté serveur, conservation du schéma JSONB.
+- `src/app/app/dashboard-builder/dashboard-editor.tsx` : sélection par bloc et emplacement, y compris les zones d'en-tête.
+- `src/app/app/dashboard-builder/dashboard-consultation.tsx` : rendu des icônes en consultation et bouton Actualiser visible.
+- `src/app/app/dashboard-builder/dashboard-actions-menu.tsx` : menu interactif en consultation et personnalisation.
+- `src/app/app/dashboard-builder/dashboard-dimensions.module.css` : contraste boutons et correction d'overflow du bandeau.
+- `src/lib/dashboard-builder/block-actions.ts` : prévention des suppressions non confirmées quand une icône est configurée.
+- `tests/smn-382-383-dashboard-actions-icons.test.ts` : contrats automatisés ajoutés, **non exécutés localement**.
+
+Commits : `90f7145`, `ef87c3f`, `207e2a3`, `4c7061b`, `3497a5c`, `010ff81`, `2981da3`, `e317396`, `531c81c`, `32ea470`.
+
+**État de validation :** fichiers publiés, GitHub Actions déclenché sur le dernier commit ; résultats CI et recette navigateur Windows à confirmer. L'offre initiale de 28 icônes n'est pas le catalogue Bootstrap Icons exhaustif. Stories laissées non terminées.
