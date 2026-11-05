@@ -16,6 +16,7 @@ test("IND-17 : arrondi décimal HALF_UP, au maximum 2 décimales, virgule franç
  assert.equal(formatIndicatorValue("0.000003"),"0");
  assert.equal(formatIndicatorValue("-0.004"),"0");
  assert.equal(formatIndicatorValue("999.999"),"1000");
+ assert.equal(formatIndicatorValue(1e-7),"0");
  assert.equal(formatIndicatorValue(null),"—");
  assert.equal(formatIndicatorMeasurement(null,"%"),"—");
  assert.equal(formatIndicatorMeasurement("57.3913043478260869","%"),"57,39 %");
