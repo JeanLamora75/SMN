@@ -100,7 +100,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      </section>;
      if(result.state==="available"){
       const number=result.value===undefined||result.value===null?NaN:Number(result.value);
-      model=slot.view==="tachometer"?tachometerModel(number,result.unit,slot.filters):slot.view==="gauge"?{state:"invalid-bounds",kind:"gauge"}:result.points&&(["line","bar","bar-horizontal"].includes(slot.view!))?{state:"ready",kind:slot.view as VisualizationModel["kind"],points:result.points,unit:result.unit}:Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
+      model=(slot.view==="tachometer"||slot.view==="battery-horizontal")?{...tachometerModel(number,result.unit,slot.filters),kind:slot.view as VisualizationModel["kind"]}:slot.view==="gauge"?{state:"invalid-bounds",kind:"gauge"}:result.points&&(["line","bar","bar-horizontal"].includes(slot.view!))?{state:"ready",kind:slot.view as VisualizationModel["kind"],points:result.points,unit:result.unit}:Number.isFinite(number)?{state:"ready",kind:slot.view as VisualizationModel["kind"],value:number,unit:result.unit}:
        {state:"error",kind:slot.view as VisualizationModel["kind"]};
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
