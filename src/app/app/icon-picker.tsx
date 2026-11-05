@@ -25,14 +25,12 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
  const [search,setSearch]=useState("");
  const [category,setCategory]=useState<string>("Toutes");
  const [limit,setLimit]=useState(PAGE_SIZE);
- const [favorites,setFavorites]=useState<DashboardIconName[]>([]);
- const [recent,setRecent]=useState<DashboardIconName[]>([]);
+ const [favorites,setFavorites]=useState<DashboardIconName[]>(()=>typeof window==="undefined"?[]:readIcons(FAVORITES_KEY));
+ const [recent,setRecent]=useState<DashboardIconName[]>(()=>typeof window==="undefined"?[]:readIcons(RECENTS_KEY));
  const dialog=useRef<HTMLDivElement>(null);
  const trigger=useRef<HTMLButtonElement>(null);
  const id=useId();
  const selected=DASHBOARD_ICONS.find(icon=>icon.name===value);
- useEffect(()=>{setFavorites(readIcons(FAVORITES_KEY));setRecent(readIcons(RECENTS_KEY));},[]);
- useEffect(()=>{setLimit(PAGE_SIZE);},[search,category]);
  const recentRank=useMemo(()=>new Map(recent.map((name,index)=>[name,index])),[recent]);
  const filtered=useMemo(()=>{
   const query=normalize(search.trim());
@@ -91,11 +89,11 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
       <div className="row g-2 mb-3">
        <div className="col-12 col-md-7">
         <label className="form-label" htmlFor={id+"-search"}>Rechercher</label>
-        <input id={id+"-search"} className="form-control" value={search} onChange={event=>setSearch(event.target.value)} placeholder="Nom ou mot-clé"/>
+        <input id={id+"-search"} className="form-control" value={search} onChange={event=>{setSearch(event.target.value);setLimit(PAGE_SIZE);}} placeholder="Nom ou mot-clé"/>
        </div>
        <div className="col-12 col-md-5">
         <label className="form-label" htmlFor={id+"-category"}>Catégorie</label>
-        <select id={id+"-category"} className="form-select" value={category} onChange={event=>setCategory(event.target.value)}>
+        <select id={id+"-category"} className="form-select" value={category} onChange={event=>{setCategory(event.target.value);setLimit(PAGE_SIZE);}}>
          {ICON_CATEGORIES.map(item=><option key={item} value={item}>{item}{item==="Favoris"?" ("+favorites.length+")":item==="Récentes"?" ("+recent.length+")":""}</option>)}
         </select>
        </div>
