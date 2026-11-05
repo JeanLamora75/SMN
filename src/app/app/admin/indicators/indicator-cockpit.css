@@ -9,3 +9,31 @@
 .smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-heading{min-width:130px;max-width:225px;line-height:1.3}
 .smn-indicator-cockpit :is(button,a,summary,th[tabindex]):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
 @media(max-width:700px){.smn-indicator-cockpit .smn-indicator-cycle-table{font-size:.82rem}}
+
+/* Keep cycle metadata readable even when many metrics are selected.
+   The table scrolls inside its panel instead of compressing text into vertical letters. */
+.smn-indicator-cockpit .smn-indicator-cycle-scroll{
+ width:100%;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;
+ border:1px solid var(--smn-border);border-radius:10px;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table{
+ width:max-content;min-width:100%;table-layout:auto;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-cycle-name-col{
+ min-width:190px;max-width:260px;overflow-wrap:break-word;word-break:normal;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-cycle-status-col{
+ min-width:105px;white-space:nowrap;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-cycle-period-col{
+ min-width:210px;white-space:nowrap;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-heading{
+ min-width:165px;max-width:240px;overflow-wrap:normal;word-break:normal;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-table tbody td.text-end{
+ white-space:nowrap;
+}
+.smn-indicator-cockpit .smn-indicator-cycle-scroll:focus-visible{
+ outline:3px solid var(--smn-brand);outline-offset:2px;
+}
