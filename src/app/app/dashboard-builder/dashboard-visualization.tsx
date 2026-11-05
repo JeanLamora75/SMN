@@ -1,5 +1,6 @@
 import type {ReactNode} from "react";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
+import {formatIndicatorValue} from "@/lib/indicators/format-value";
 import styles from "./dashboard-dimensions.module.css";
 
 export type VisualizationLabels=Readonly<{
@@ -10,7 +11,7 @@ export const FALLBACK_LABELS:VisualizationLabels={
  noHistory:"Historique indisponible",invalidBounds:"Bornes de jauge invalides",
  incompatible:"Visualisation incompatible",
 };
-const format=(value:number,locale:string)=>new Intl.NumberFormat(locale,{maximumFractionDigits:3}).format(value);
+const format=(value:number,locale:string)=>formatIndicatorValue(value,locale.startsWith("fr")?"fr":"en");
 const valueLabel=(value:number,unit:string|null|undefined,locale:string)=>
  format(value,locale)+(unit?" "+unit:"");
 
