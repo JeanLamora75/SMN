@@ -13,7 +13,7 @@ function subscribeToHash(onChange:()=>void):()=>void{
 }
 const serverTab=():Tab=>"catalogue";
 
-export default function IndicatorSettingsTabs({catalogue,permissions,teams,teamId}:{catalogue:ReactNode;permissions:ReactNode;teams:readonly {id:string;name:string;mode:"scrum"|"kanban"}[];teamId:string|null}){
+export default function IndicatorSettingsTabs({catalogue,permissions,teams=[],teamId=null}:{catalogue:ReactNode;permissions:ReactNode;teams?:readonly {id:string;name:string;mode:"scrum"|"kanban"}[];teamId?:string|null}){
  const selected=useSyncExternalStore(subscribeToHash,currentTab,serverTab);
  return <div>
   <div className="smn-panel rounded-4 p-3 mb-3">
