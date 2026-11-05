@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from "react";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
+import {formatIndicatorValue} from "@/lib/indicators/format-value";
 type D={id:string;tag:string;name:string;indicator_type:string;formula:string|null};
 type Form={revision:number;definitions:D[];values:{indicator_id:string;value:string|null}[]};
 type Result={indicatorId:string;kind:string;value?:string;reason?:string;sourceTag?:string};
@@ -55,7 +56,7 @@ export default function UniversalIndicatorInput({teamId,cycleType,cycleId,button
       <input className="form-control" inputMode="decimal" type="text" value={draft[d.id]??""} onChange={e=>{setDraft(v=>({...v,[d.id]:e.target.value}));setPreview(null);setSystemRevision(null);}}/></label>)}
      {computed.length>0&&<section aria-label={t("indicators.input.computed")} aria-live="polite" className="border rounded-3 p-3">
       <h3 className="h6">{t("indicators.input.computed")}</h3>
-      {computed.map(d=>{const result=preview?.find(x=>x.indicatorId===d.id);return <p key={d.id}>{d.tag} — {d.name} : {result?.kind==="available"?result.value:result?.reason? t("indicators.input.unavailable")+": "+( ["missing_source","division_by_zero","dependency_unavailable","invalid_domain"].includes(result.reason)?t(("indicators.input.reasons."+result.reason) as "indicators.input.reasons.missing_source"):result.reason)+(result.sourceTag?" ("+result.sourceTag+")":""):t("indicators.input.previewRequired")}</p>;})}
+      {computed.map(d=>{const result=preview?.find(x=>x.indicatorId===d.id);return <p key={d.id}>{d.tag} — {d.name} : {result?.kind==="available"?formatIndicatorValue(result.value,"fr"):result?.reason? t("indicators.input.unavailable")+": "+( ["missing_source","division_by_zero","dependency_unavailable","invalid_domain"].includes(result.reason)?t(("indicators.input.reasons."+result.reason) as "indicators.input.reasons.missing_source"):result.reason)+(result.sourceTag?" ("+result.sourceTag+")":""):t("indicators.input.previewRequired")}</p>;})}
      </section>}
     </div>
     <div className="modal-footer">
