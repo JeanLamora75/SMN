@@ -8,7 +8,7 @@ import {duplicateDashboardBlock,changeDashboardBlockTemplate,blockHasConfiguredC
 test("SMN-383 AC01: catalogue de noms Bootstrap unique et validé",()=>{
  const names=DASHBOARD_ICONS.map(item=>item.name);
  assert.equal(names.length,new Set(names).size);
- assert.ok(names.length>=20);
+ assert.equal(names.length,2078);
  assert.equal(isDashboardIcon("ticket-perforated-fill"),true);
  assert.equal(isDashboardIcon("inconnu"),false);
  assert.equal(isDashboardIcon("<svg onload=alert(1)>"),false);
@@ -65,4 +65,24 @@ test("SMN-383 AC03: picker et icônes dans le rendu réel",()=>{
  assert.match(consultation,/BootstrapIcon name=\{slot\.icon\}/);
  assert.match(picker,/aria-modal="true"/);
  assert.match(picker,/Sans icône/);
+});
+
+test("SMN-383 AC08: catalogue exhaustif et anciennes icônes conservées",()=>{
+ assert.equal(DASHBOARD_ICONS.length,2078);
+ for(const name of ["alarm","star","star-fill","graph-up","ticket-perforated-fill","people-fill","calendar3"])
+  assert.equal(isDashboardIcon(name),true);
+ assert.equal(isDashboardIcon("__not_bootstrap_icon__"),false);
+});
+test("SMN-383 AC09-11: source officielle offline, pagination et favoris",()=>{
+ const picker=readFileSync(new URL("../src/app/app/icon-picker.tsx",import.meta.url),"utf8");
+ const layout=readFileSync(new URL("../src/app/layout.tsx",import.meta.url),"utf8");
+ const component=readFileSync(new URL("../src/app/app/smn-icon.tsx",import.meta.url),"utf8");
+ assert.match(picker,/PAGE_SIZE=72/);
+ assert.match(picker,/localStorage/);
+ assert.match(picker,/Favoris/);
+ assert.match(picker,/Récentes/);
+ assert.match(picker,/Afficher/);
+ assert.match(layout,/bootstrap-icons\/font\/bootstrap-icons\.css/);
+ assert.match(component,/isDashboardIcon/);
+ assert.doesNotMatch(picker,/https:\/\//);
 });
