@@ -21,3 +21,7 @@ test("sans entreprise ni jour férié ni absence, capacité complète",()=>{
  assert.equal(availability.deductedHalfDays,0);
  assert.deepEqual(computeDevelopmentDay(2,8,100,100,100),{hours:8,jh:1});
 });
+
+test("une fermeture hors période ne concerne aucun membre",()=>{
+ assert.equal(closureForMember(closures,a,"2027-01-01",true),false);
+});
