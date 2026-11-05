@@ -8,7 +8,7 @@ type Events=CollectiveCycleProjection["events"];
 type EventKind=DashboardEvent["kind"];
 type SourceRow={
  id:string;kind:EventKind;title:string;starts_at:string|Date;ends_at:string|Date;
- status:string|null;generation_source:string|null
+ status:string|null;generation_source:string|null;icon_name?:string|null;icon_color?:string|null
 };
 const TABLES=[
  {table:"smn_scrum_template_occurrence",kind:"template"},
@@ -37,6 +37,8 @@ function normalize(raw:unknown):DashboardEvent|null{
   startsAt,endsAt,
   status:typeof v.status==="string"&&v.status? v.status:"unknown",
   // Snapshot historique sans ce champ : provenance inconnue, jamais inventée.
+  icon:typeof v.icon_name==="string"?v.icon_name:null,
+  iconColor:typeof v.icon_color==="string"?v.icon_color:null,
   generationSource:generation==="reconstructed"?"reconstructed":
    generation==="standard"?"standard":null
  };
@@ -111,18 +113,26 @@ export async function readCurrentSprintEvents(db:Client,sprintId:string,
  const existing=new Set(registered.rows.map(x=>x.table_name));
  const parts:string[]=[];
  if(existing.has("smn_scrum_template_occurrence")){
-  parts.push(`SELECT id,'template'::text AS kind,name AS title,starts_at,ends_at,
-    COALESCE(status,'unknown') AS status,generation_source
-    FROM public.smn_scrum_template_occurrence WHERE sprint_id=$1`);
+  parts.push(`SELECT o.id,'template'::text AS kind,o.name AS title,o.starts_at,o.ends_at,
+    COALESCE(o.status,'unknown') AS status,o.generation_source,
+    appearance.icon_name,appearance.icon_color
+    FROM public.smn_scrum_template_occurrence o
+    LEFT JOIN LATERAL (SELECT t.icon_name,t.icon_color FROM public.smn_scrum_ceremony_template t
+      JOIN public.smn_sprint s ON s.team_id=t.team_id
+      WHERE s.id=o.sprint_id AND lower(btrim(t.name))=lower(btrim(o.name))
+      ORDER BY t.updated_at DESC,t.id LIMIT 1) appearance ON true
+    WHERE o.sprint_id=$1`);
  }
  if(existing.has("smn_sprint_ceremony")){
   parts.push(`SELECT id,'ceremony'::text AS kind,kind AS title,starts_at,ends_at,
-    COALESCE(occurrence_status,'unknown') AS status,generation_source
+    COALESCE(occurrence_status,'unknown') AS status,generation_source,
+    NULL::text AS icon_name,NULL::text AS icon_color
     FROM public.smn_sprint_ceremony WHERE sprint_id=$1`);
  }
  if(existing.has("smn_sprint_exceptional_meeting")){
   parts.push(`SELECT id,'exceptional'::text AS kind,name AS title,starts_at,ends_at,
-    COALESCE(status,'unknown') AS status,NULL::text AS generation_source
+    COALESCE(status,'unknown') AS status,NULL::text AS generation_source,
+    NULL::text AS icon_name,NULL::text AS icon_color
     FROM public.smn_sprint_exceptional_meeting WHERE sprint_id=$1`);
  }
  if(!parts.length)return collectionUnavailable("schema-missing");
