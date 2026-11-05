@@ -1,8 +1,11 @@
 import {resolveAdminTeam} from "@/server/teams/resolve";
+import {validateCeremonyAppearance} from "@/lib/ceremony-appearance";
+import type {DashboardIconName} from "@/lib/dashboard-builder/icon-catalog";
+import type {CeremonyIconColor} from "@/lib/ceremony-appearance";
 import {evaluateSchemaCapability} from "@/server/schema/compatibility";
 import {randomUUID} from "node:crypto";
 import type {Client} from "pg";
-export type TemplateInput={name:string;frequency:"daily"|"weekly"|"sprint";weekday:number|null;position:"start"|"end"|null;time:string;duration:number};
+export type TemplateInput={name:string;frequency:"daily"|"weekly"|"sprint";weekday:number|null;position:"start"|"end"|null;time:string;duration:number;icon?:DashboardIconName|null;iconColor?:CeremonyIconColor|null};
 // Valeurs initiales du MVP, sans règles additionnelles : l'administrateur peut tout modifier/désactiver.
 export const DEFAULT_SCRUM_CEREMONY_TEMPLATES: ReadonlyArray<TemplateInput> = [
  {name:"Sprint Planning",frequency:"sprint",weekday:null,position:"start",time:"09:30",duration:120},
@@ -41,19 +44,25 @@ const validTime=(v:unknown):v is string=>typeof v==="string"&&/^([01]\d|2[0-3]):
 export function parseTemplate(raw:unknown):TemplateInput|null{
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
  const v=raw as Record<string,unknown>;
- if(Object.keys(v).sort().join(",")!==["duration","frequency","name","position","time","weekday"].sort().join(","))return null;
+ if(Object.keys(v).some(key=>!["duration","frequency","name","position","time","weekday","icon","iconColor"].includes(key))||
+ ["duration","frequency","name","position","time","weekday"].some(key=>!(key in v))||
+ !validateCeremonyAppearance(v.icon,v.iconColor))return null;
  if(typeof v.name!=="string"||!v.name.trim()||v.name.trim().length>120||!validTime(v.time)||
  !Number.isInteger(v.duration)||Number(v.duration)<1||Number(v.duration)>480)return null;
  if(v.frequency==="daily"&&v.weekday===null&&v.position===null||
  v.frequency==="weekly"&&Number.isInteger(v.weekday)&&Number(v.weekday)>=1&&Number(v.weekday)<=7&&v.position===null||
  v.frequency==="sprint"&&v.weekday===null&&(v.position==="start"||v.position==="end"))
- return {name:v.name.trim(),frequency:v.frequency,weekday:v.weekday as number|null,position:v.position as "start"|"end"|null,time:v.time,duration:v.duration as number};
+ return {name:v.name.trim(),frequency:v.frequency,weekday:v.weekday as number|null,position:v.position as "start"|"end"|null,time:v.time,duration:v.duration as number,
+  ...(Object.hasOwn(v,"icon")?{icon:v.icon as DashboardIconName|null}:{}),
+  ...(Object.hasOwn(v,"iconColor")?{iconColor:v.iconColor as CeremonyIconColor|null}:{})};
  return null;
 }
 export async function ensureTemplateSchema(db:Client){
  const tables=["smn_scrum_ceremony_template","smn_scrum_ceremony_template_history"] as const;
  const state=await db.query<{present:string[]}>(`SELECT array_agg(c.relname)::text[] AS present FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname = ANY($1::text[]) AND c.relkind IN ('r','p')`,[tables]);
  if(tables.some(name=>!state.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
+ const appearance=await db.query<{name:string}>(`SELECT column_name AS name FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_scrum_ceremony_template' AND column_name IN ('icon_name','icon_color')`);
+ if(appearance.rows.length!==2)throw Error("ceremony-appearance-schema-not-ready: pnpm db:migrate:ceremony-appearance --apply");
 }
 async function activeTeam(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
  const state=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
@@ -72,7 +81,7 @@ async function activeTeam(db:Client,actor?:{accountId:string;role:"admin"|"user"
 }
 export async function listTemplates(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
  const teamId=await activeTeam(db,actor,requestedTeamId);
- const r=await db.query(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,active,revision
+ const r=await db.query(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,icon_name AS icon,icon_color AS "iconColor",active,revision
  FROM public.smn_scrum_ceremony_template WHERE team_id=$1 ORDER BY created_at,id`,[teamId]);
  return r.rows;
 }
@@ -92,16 +101,16 @@ export async function saveTemplate(db:Client,actorId:string,raw:unknown,requeste
    const old=await db.query(`SELECT * FROM public.smn_scrum_ceremony_template WHERE id=$1 AND team_id=$2 FOR UPDATE`,[id,teamId]);
    if(!old.rows[0]||old.rows[0].revision!==obj.revision){await db.query("ROLLBACK");return {ok:false as const,error:"conflict" as const};}
    before=old.rows[0];
-   await db.query(`UPDATE public.smn_scrum_ceremony_template SET name=$3,frequency=$4,weekday=$5,position=$6,local_time=$7,duration_minutes=$8,active=$9,
+   await db.query(`UPDATE public.smn_scrum_ceremony_template SET name=$3,frequency=$4,weekday=$5,position=$6,local_time=$7,duration_minutes=$8,active=$9,icon_name=$10,icon_color=$11,
    revision=revision+1,updated_at=now() WHERE id=$1 AND team_id=$2`,
-   [id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??old.rows[0].active]);
+   [id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??old.rows[0].active,input.icon===undefined?old.rows[0].icon_name:input.icon,input.iconColor===undefined?old.rows[0].icon_color:input.iconColor]);
   }else{
-   await db.query(`INSERT INTO public.smn_scrum_ceremony_template(id,team_id,name,frequency,weekday,position,local_time,duration_minutes,active)
-   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??true]);
+   await db.query(`INSERT INTO public.smn_scrum_ceremony_template(id,team_id,name,frequency,weekday,position,local_time,duration_minutes,active,icon_name,icon_color)
+   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,[id,teamId,input.name,input.frequency,input.weekday,input.position,input.time,input.duration,obj.active??true,input.icon??null,input.iconColor??null]);
   }
   const revision=isUpdate?Number(obj.revision)+1:1;
   await db.query(`INSERT INTO public.smn_scrum_ceremony_template_history(id,template_id,revision,before_values,after_values,actor_id)
-  VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,[randomUUID(),id,revision,before?JSON.stringify(before):null,JSON.stringify({...input,active:obj.active??before?.active??true}),actorId]);
+  VALUES($1,$2,$3,$4::jsonb,$5::jsonb,$6)`,[randomUUID(),id,revision,before?JSON.stringify(before):null,JSON.stringify({...input,icon:input.icon===undefined?(before?.icon_name??null):input.icon,iconColor:input.iconColor===undefined?(before?.icon_color??null):input.iconColor,active:obj.active??before?.active??true}),actorId]);
   await db.query("COMMIT");return {ok:true as const,id,revision};
  }catch(e){await db.query("ROLLBACK").catch(()=>undefined);throw e;}
 }
