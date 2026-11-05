@@ -1,7 +1,7 @@
 {
   "version": 1,
   "policy": "retain-until-equivalent-proven",
-  "description": "Contrats historiques toujours applicables : restauration et préflight v32→v33, conservation des snapshots, isolation interéquipes et règles métier. Les tests purement v27/v28 ont été remplacés par des gardes v33 spécifiques et leurs contrats redondants supprimés.",
+  "description": "Préserver les protections historiques PostgreSQL (rollback, restauration, snapshots et sécurité) qui ne sont pas couvertes par les contrats de la baseline native v33. Les tests de DDL implicite ont été déplacés vers schema-v33-no-runtime-ddl.test.ts.",
   "entries": [
     {
       "file": "tests/team-isolation-v30-sprint-data.test.ts",
@@ -20,12 +20,6 @@
       "kind": "migration",
       "decision": "retain",
       "reason": "Contrôle la transition v32 vers le moteur actuel"
-    },
-    {
-      "file": "tests/schema-v32-no-runtime-ddl-regression.test.ts",
-      "kind": "migration",
-      "decision": "retain",
-      "reason": "Empêche le retour de DDL métier implicite"
     },
     {
       "file": "tests/smn-338-real-v32-restore.test.ts",
