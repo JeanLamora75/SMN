@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {formatIndicatorValue} from "@/lib/indicators/format-value";
 type Indicator={id:string;tag:string;name:string;unit:string;value:string|null;state:"available"|"not-recorded"|"unavailable"};
 type BlockKey="story_points"|"tickets"|"complementary";
 type Block={key:BlockKey;positions:{index:number;indicator:Indicator|null}[]};
@@ -75,7 +76,7 @@ export default function DashboardIndicatorBlocks({teamId,cycleId,cycleType,local
       <button type="button" className="btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-1 d-inline-flex align-items-center justify-content-center" style={{width:25,height:25,padding:0,zIndex:1}} title={t("indicators.dashboard.configureSlot")} aria-label={t("indicators.dashboard.configureSlot")+" : "+titles[block.key]+" "+position.index} onClick={()=>void open(block.key,position.index,v?.id??null)}>+</button>
       {v?<><div className="small fw-medium pe-4">{v.name}</div>
        <div className="d-flex justify-content-center align-items-baseline gap-1 my-2">
-        <span className="fs-4 fw-bold">{v.state==="available"&&v.value!==null?v.value.replace(".",locale==="fr"?",":"."):"—"}</span>
+        <span className="fs-4 fw-bold">{v.state==="available"&&v.value!==null?formatIndicatorValue(v.value,locale):"—"}</span>
         {v.state==="available"&&v.unit&&<small className="text-secondary">{v.unit}</small>}
        </div><div className="small fw-bold">{v.tag}</div></>:
        <span className="small text-secondary my-auto py-3 pe-3">{t("indicators.dashboard.emptySlot")}</span>}
