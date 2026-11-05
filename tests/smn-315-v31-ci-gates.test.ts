@@ -16,3 +16,8 @@ test("v31 : entreprise facultative et isolation",()=>{
  assert.match(migration,/ON DELETE RESTRICT/);
  assert.match(migration,/UPDATE public\.smn_installation SET schema_version=31/);
 });
+
+test("v31: pas de suppression silencieuse des archives",()=>{
+ assert.match(migration,/smn_company_closure_history/);
+ assert.match(migration,/RAISE EXCEPTION/);
+});
