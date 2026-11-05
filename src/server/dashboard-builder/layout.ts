@@ -50,7 +50,7 @@ export function validateDashboardLayout(layout: DashboardLayout, sources?:readon
        const category=slot.source.split(":")[0];
        normalizeSlotOptions(slot.filters as SlotOptions,category,slot.filters.cycleIdOverride?[String(slot.filters.cycleIdOverride)]:[],slot.view);
       }
-      if(slot.view==="tachometer"&&!slot.filters)throw Error("dashboard-slot-scale-invalid");
+      if((slot.view==="tachometer"||slot.view==="battery-horizontal")&&!slot.filters)throw Error("dashboard-slot-scale-invalid");
       if(slot.source!==undefined || slot.view!==undefined){
         if(typeof slot.source!=="string"||typeof slot.view!=="string"||!slot.source||!slot.view)
           throw new Error("dashboard-layout-invalid-view");
