@@ -38,7 +38,8 @@ export type CatalogCommand=
  |{action:"archive";indicatorId:string}
  |{action:"recalculate";teamId:string}
  |{action:"selection";teamId:string;indicatorId:string;active:boolean}
- |{action:"preference";teamId:string;indicatorId:string;screenKey:ScreenKey;visible:boolean;order:number;style:typeof STYLES[number]};
+ |{action:"preference";teamId:string;indicatorId:string;screenKey:ScreenKey;visible:boolean;order:number;style:typeof STYLES[number]}
+ |{action:"reorder";teamId:string;screenKey:ScreenKey;indicatorIds:string[]};
 function colorOk(x:unknown){return x===null||x===undefined||typeof x==="string"&&/^#[0-9a-fA-F]{6}$/.test(x);}
 function meta(x:{name:string;description?:string;unitName?:string;unitShort?:string;color?:string|null;icon?:string|null}){
  guard(label(x.name), "invalid-input");guard(typeof x.description==="undefined"||typeof x.description==="string"&&x.description.length<=2000,"invalid-input");
@@ -66,7 +67,7 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
  try{
   await version(db);
   if(command.action==="create"||command.action==="edit"||command.action==="archive"||command.action==="recalculate")guard(actor.role==="admin","forbidden");
-  if(command.action==="selection"||command.action==="preference"||command.action==="recalculate"){
+  if(command.action==="selection"||command.action==="preference"||command.action==="reorder"||command.action==="recalculate"){
    await requireIndicatorTeam(db,actor,command.teamId).catch(()=>{throw new IndicatorCatalogError("forbidden")});
   }
   await lock(db);
@@ -102,6 +103,14 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
   }else if(command.action==="archive"){
    guard(id(command.indicatorId),"invalid-input");
    const r=await db.query("UPDATE public.smn_indicator_definition SET archived_at=now(),updated_at=now() WHERE id=$1 AND archived_at IS NULL RETURNING id",[command.indicatorId]);guard(r.rows.length===1,"not-found");
+  }else if(command.action==="reorder"){
+   guard(id(command.teamId)&&SCREENS.includes(command.screenKey)&&Array.isArray(command.indicatorIds)&&command.indicatorIds.length<=1000&&command.indicatorIds.every(id)&&new Set(command.indicatorIds).size===command.indicatorIds.length,"invalid-input");
+   const selected=await db.query<{indicator_id:string}>("SELECT indicator_id FROM public.smn_indicator_team_selection WHERE team_id=$1 AND is_active=true ORDER BY indicator_id FOR SHARE",[command.teamId]);
+   const selectedIds=new Set(selected.rows.map(row=>row.indicator_id));
+   guard(selectedIds.size===command.indicatorIds.length&&command.indicatorIds.every(indicatorId=>selectedIds.has(indicatorId)),"conflict");
+   for(let order=0;order<command.indicatorIds.length;order++){
+    await db.query("INSERT INTO public.smn_indicator_display_preference(team_id,indicator_id,screen_key,is_visible,display_order,display_style) VALUES($1,$2,$3,true,$4,'number') ON CONFLICT(team_id,indicator_id,screen_key) DO UPDATE SET display_order=EXCLUDED.display_order,updated_at=now()",[command.teamId,command.indicatorIds[order],command.screenKey,order]);
+   }
   }else if(command.action==="selection"||command.action==="preference"){
    guard(id(command.teamId)&&id(command.indicatorId),"invalid-input");
 
