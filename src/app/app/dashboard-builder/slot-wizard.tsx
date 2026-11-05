@@ -100,7 +100,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
       <div className="col-12 col-lg-7">
        <h3 className={ui.sectionTitle}>Visualisations compatibles — {selected.name}</h3>
        <div className="row g-2">{views.map(item=><div key={item.kind} className="col-6 col-sm-4">
-        <button type="button" onClick={()=>{setView(item.kind);if(item.kind!=="tachometer")setOptions(o=>{const {minimum,maximum,...rest}=o;return rest;});setOptionError("");}}
+        <button type="button" onClick={()=>{setView(item.kind);if(item.kind!=="tachometer")setOptions(o=>{const next={...o};delete next.minimum;delete next.maximum;return next;});setOptionError("");}}
          className={`${ui.card} ${view===item.kind?ui.cardSelected:""} text-center`}
          aria-pressed={view===item.kind}>
          <span aria-hidden="true" className="d-block fs-3">{item.thumbnail}</span>
