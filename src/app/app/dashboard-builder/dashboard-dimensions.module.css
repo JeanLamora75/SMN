@@ -76,3 +76,14 @@
 .watermarkGraphic{position:absolute;inset:5%;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;opacity:.1;z-index:0;overflow:hidden}
 .watermarkGraphic :global(i){line-height:1;font-size:clamp(3rem,12vw,12rem);font-weight:normal;display:block}
 .watermarkSlot>:not(.watermarkGraphic){position:relative;z-index:1}
+
+/* Compact semi-circular tachometer: one KPI value and no derived secondary percentage. */
+.tachometer{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;max-width:100%;margin-inline:auto}
+.tachometerSvg{display:block;width:min(100%,290px);height:auto;max-height:185px;overflow:visible}
+.tachometerTrack{fill:none;stroke:var(--smn-soft);stroke-width:17;stroke-linecap:round}
+.tachometerProgress{fill:none;stroke:var(--smn-brand);stroke-width:17;stroke-linecap:butt}
+.tachometerTick{stroke:var(--smn-surface);stroke-width:2;stroke-linecap:round}
+.tachometerNeedle{stroke:var(--smn-heading);stroke-width:3.5;stroke-linecap:round}
+.tachometerPivot{fill:var(--smn-heading);stroke:var(--smn-surface);stroke-width:2}
+.tachometerValue{display:flex;align-items:baseline;justify-content:center;gap:.35rem;min-width:0;flex-wrap:wrap;margin-top:-.25rem;text-align:center}
+.tachometerError{display:flex;flex-direction:column;gap:.5rem;align-items:center}
