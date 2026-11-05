@@ -311,7 +311,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
    </div>
   </div>}
   {galleryRow&&<DashboardTemplateGallery onChoose={addBlock} onClose={()=>setGalleryRow(null)}/>}
-  {wizardSlot&&<DashboardSlotWizard teamId={teamId} initialSlot={activeSlot} cycles={cycles} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot} onClear={()=>{setDraft(current=>current?updateDashboardSlot(current,wizardSlot,null):null);setWizardSlot(null);}}/>}
+  {wizardSlot&&<DashboardSlotWizard locale={locale} teamId={teamId} initialSlot={activeSlot} cycles={cycles} onClose={()=>setWizardSlot(null)} onConfirm={confirmSlot} onClear={()=>{setDraft(current=>current?updateDashboardSlot(current,wizardSlot,null):null);setWizardSlot(null);}}/>}
 
   {editing&&<div className="position-fixed bottom-0 start-0 end-0 bg-body border-top shadow-sm p-3" style={{zIndex:1040}}
     role="region" aria-label="Barre de sauvegarde du Dashboard">
