@@ -29,17 +29,17 @@ export default function RecommendedIndicatorGuide({teams,teamId,view="cards"}:{t
   <h2 className="h5 mb-2">Indicateurs recommandés</h2>
   <p className="small text-secondary">Bibliothèque de référence pour configurer vos propres indicateurs dans le catalogue SMN v33. Les tags affichés sont des exemples : adaptez-les à vos définitions. Aucune création automatique.</p>
   <div className="row g-2 mb-3">
-   <div className="col-md-5"><label htmlFor="recommended-team" className="form-label">Équipe</label>
+   <div className="col-12 col-md-6 col-xl-3"><label htmlFor="recommended-team" className="form-label">Équipe</label>
     <select id="recommended-team" className="form-select" value={team?.id??""} onChange={e=>selectTeam(e.target.value)}>
      <option value="">Sélectionner une équipe</option>
      {teams.map(t=><option key={t.id} value={t.id}>{t.name} — {t.mode==="scrum"?"Scrum":"Kanban"}</option>)}
     </select>
    </div>
-   {team&&<><div className="col-md-4"><label htmlFor="recommended-search" className="form-label">Rechercher</label>
+   {team&&<><div className="col-12 col-md-6 col-xl-4"><label htmlFor="recommended-search" className="form-label">Rechercher</label>
     <input id="recommended-search" type="search" className="form-control" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Nom, tag, description"/></div>
-   <div className="col-md-3"><label htmlFor="recommended-domain" className="form-label">Domaine</label>
+   <div className="col-12 col-md-6 col-xl-3"><label htmlFor="recommended-domain" className="form-label">Domaine</label>
     <select id="recommended-domain" className="form-select" value={domain} onChange={e=>setDomain(e.target.value)}><option value="">Tous les domaines</option>{domains.map(d=><option key={d} value={d}>{d}</option>)}</select></div>
-   <div className="col-md-3"><label htmlFor="recommended-type" className="form-label">Type</label>
+   <div className="col-12 col-md-6 col-xl-2"><label htmlFor="recommended-type" className="form-label">Type</label>
     <select id="recommended-type" className="form-select" value={type} onChange={e=>setType(e.target.value)}><option value="">Saisis et calculés</option><option value="manual">Saisis</option><option value="computed">Calculés</option></select></div></>}
   </div>
   {!team?<div className="alert alert-info" role="status">Sélectionnez une équipe pour consulter ses recommandations Scrum ou Kanban.</div>:
