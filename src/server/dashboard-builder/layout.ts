@@ -48,8 +48,9 @@ export function validateDashboardLayout(layout: DashboardLayout, sources?:readon
       if(slot.filters!==undefined){
        if(!slot.source||typeof slot.filters!=="object"||Array.isArray(slot.filters))throw Error("dashboard-slot-option-invalid");
        const category=slot.source.split(":")[0];
-       normalizeSlotOptions(slot.filters as SlotOptions,category,slot.filters.cycleIdOverride?[String(slot.filters.cycleIdOverride)]:[]);
+       normalizeSlotOptions(slot.filters as SlotOptions,category,slot.filters.cycleIdOverride?[String(slot.filters.cycleIdOverride)]:[],slot.view);
       }
+      if(slot.view==="tachometer"&&!slot.filters)throw Error("dashboard-slot-scale-invalid");
       if(slot.source!==undefined || slot.view!==undefined){
         if(typeof slot.source!=="string"||typeof slot.view!=="string"||!slot.source||!slot.view)
           throw new Error("dashboard-layout-invalid-view");
