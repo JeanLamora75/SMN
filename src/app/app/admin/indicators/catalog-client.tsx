@@ -46,14 +46,9 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
  const teamSelector=scope==="team"?<></>:<label className="form-label">{t("indicators.team")}<select className="form-select mt-1" value={team} onChange={e=>setTeam(e.target.value)}>{teams.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>;
  return <div>
   {error&&<div role="alert" className="alert alert-danger">{t("indicators.error")}: {error} <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>void load()}>{t("indicators.retry")}</button></div>}
-  <SettingsTabs label={t("indicators.title")} variant={scope==="team"?"cockpit":"default"} sections={[
+  <SettingsTabs label={t("indicators.title")} variant={scope==="team"?"cockpit":"default"} actionsTabId="cycles" actions={scope==="team"?<>{isAdmin&&<button type="button" className="btn btn-outline-primary btn-sm" disabled={busy||!team} onClick={()=>void rebuildComputedResults()}>{busy?"Recalcul en cours…":"Recalculer les indicateurs"}</button>}<button type="button" className="btn btn-outline-primary btn-sm" onClick={()=>{window.history.replaceState(null,"","#preferences");window.dispatchEvent(new HashChangeEvent("hashchange"));}}>Gérer les colonnes</button></>:undefined} sections={[
    ...(scope==="team"?[{id:"cycles",label:t("indicators.navTitle"),content:<section>
-    {isAdmin&&<div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-     <p className="small text-secondary mb-0">Les indicateurs calculés sont enregistrés par cycle. Recalculez après une création de formule historique si les anciens résultats sont absents.</p>
-     <button type="button" className="btn btn-outline-primary btn-sm" disabled={busy||!team} onClick={()=>void rebuildComputedResults()}>
-      {busy?"Recalcul en cours…":"Recalculer les indicateurs"}
-     </button>
-    </div>}
+    {isAdmin&&<p className="small text-secondary mb-3">Les indicateurs calculés sont enregistrés par cycle. Recalculez après une création de formule historique si les anciens résultats sont absents.</p>}
     {recalculationMessage&&<p role="status" className="alert alert-success py-2">{recalculationMessage}</p>}
     <IndicatorCycles teamId={team} cycleType={cycleType} locale={locale}/>
    </section>}]:[]),
