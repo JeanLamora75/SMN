@@ -21,7 +21,7 @@ const ceremonyKinds=new Set(["ceremony","template","exceptional"]);
 function ceremonyIcon(kind:string,label:string,configured:unknown):string|null{
  if(isDashboardIcon(configured))return configured;
  if(!ceremonyKinds.has(kind))return null;
- const normalized=label.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+ const normalized=label.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
  if(/planning|planification/.test(normalized))return "calendar-event";
  if(/daily|melee quotidienne|quotidien/.test(normalized))return "calendar-check";
  if(/review|revue/.test(normalized))return "bullseye";
