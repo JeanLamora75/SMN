@@ -36,3 +36,15 @@ Permettre de définir **indépendamment**, en mode Personnalisation du Dashboard
 - [User Story](https://lmn24.atlassian.net/browse/SMN-383)
 
 **Démarche d'exécution :** connecteurs GitHub/Jira, sans outil local uv/IDE. Les tests ne sont pas présumés exécutés tant que les résultats n'en apportent pas la preuve.
+
+## Réalisation publiée sur `main` — 05/11/2026
+
+- `src/server/dashboard-builder/layout.ts` : champs `iconColor?: CeremonyIconColor` ajoutés aux blocs et emplacements; liste blanche validée serveur pour chaque propriété sans versionner davantage JSONB v1.
+- `src/app/app/dashboard-builder/dashboard-editor.tsx` : choix de couleur individuel en en-tête, dans les blocs et dans les emplacements, connecté au brouillon et aux commandes de sauvegarde existantes.
+- `src/app/app/dashboard-builder/dashboard-consultation.tsx` : couleur appliquée au seul pictogramme pour blocs et emplacements sur les chemins de rendu standard, chargement, listes et résultats.
+- `src/app/app/ceremony-color-picker.tsx` : `useId` isole les groupes de boutons radio par instance; bénéfice partagé avec les cérémonies.
+- `src/lib/dashboard-builder/block-actions.ts` : les couleurs seules comptent comme contenu configuré pour la confirmation de suppression; duplication et changement de modèle conservent les propriétés via clonage structurel existant.
+- `tests/smn-383-dashboard-icon-colors.test.ts` : tests de validation, rétrocompatibilité, copie, changement de modèle et contrôle des éléments UI.
+- Aucun changement PostgreSQL nécessaire pour les couleurs du Dashboard Builder.
+- **Validation :** code et tests publiés; exécution des tests CI et recette visuelle Windows non prouvées lors de cette rédaction. Ne pas clôturer Jira avant les résultats.
+
