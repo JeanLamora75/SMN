@@ -30,3 +30,13 @@ Le sélecteur d'icônes transversal de SMN doit proposer **toutes les icônes of
 - [Skill Amelia](https://github.com/JeanLamora75/SMN/blob/main/.agents/skills/bmad-agent-dev/SKILL.md)
 
 **Adaptation d'exécution** : accès GitHub par connecteur, pas de script uv local; les tests doivent être prouvés par Actions et/ou poste utilisateur. Le document décrit les exigences et ne constitue pas une preuve de livraison.
+
+## Publication effective
+- Version de bibliothèque : `bootstrap-icons@1.13.2` dans `package.json` et `pnpm-lock.yaml`; empreinte SHA-512 confirmée dans le verrou pour installer avec `--frozen-lockfile`.
+- `src/lib/dashboard-builder/icon-catalog.ts` : **2078 identifiants** issus du registre officiel v1.13.2, catégories et libellés métier FR lorsque disponibles; validation serveur inchangée mais étendue au registre complet.
+- `src/app/app/smn-icon.tsx` : affichage commun des glyphes locaux; `src/app/layout.tsx` : CSS officiel importé dans le bundle Next.js.
+- `src/app/app/icon-picker.tsx` : favoris et récents stockés dans le navigateur, sélection indépendante de la mise en favori, recherche et affichage par 72 entrées.
+- `src/app/app/dashboard-builder/dashboard-consultation.tsx` : rendu des icônes arbitraires validées dans les blocs et les emplacements.
+- `tests/smn-382-383-dashboard-actions-icons.test.ts` : tests de catalogue complet et d'intégration ajoutés.
+- Validation initiale GitHub Actions du commit `c097ac66` : **installation pnpm verrouillée OK et étape TypeScript OK (Linux)**; autres jobs en cours au moment de la rédaction. Recette navigateur locale non effectuée.
+- Activation par connecteurs GitHub/Jira; script `uv` BMAD non exécuté dans cet environnement.
