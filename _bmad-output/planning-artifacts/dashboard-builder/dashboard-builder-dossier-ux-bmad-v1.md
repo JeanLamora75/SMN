@@ -229,3 +229,17 @@
 Six familles visuelles : galerie M01–M06, choix de source (étape 1/2), visualisations et options (étape 2/2), dimensions, copie interéquipes, confirmations et sorties. Les libellés métier, aperçus visuels, choix illustrés, messages contextualisés, accessibilité, responsive et thèmes Bootstrap sont obligatoires sans changement des règles de données, habilitations, brouillon et stockage. Le shell SMN conserve son en-tête global clair, son unique sélecteur d'équipe et le menu gauche existant. La planche présente six exemples simultanément à des fins pédagogiques, non l'état d'une application.
 
 **Jira** : [SMN-381](https://lmn24.atlassian.net/browse/SMN-381) (modales) et [SMN-380](https://lmn24.atlassian.net/browse/SMN-380) (restitution), rattachées à l'Epic [SMN-353](https://lmn24.atlassian.net/browse/SMN-353). Le PNG original est stocké dans la Bibliothèque ChatGPT et non sur GitHub ; le SVG dans le dépôt est une reconstitution. Publication documentaire uniquement, sans revendication de recette.
+
+## 13. Avenant UX-DB — Visualisations avec icône en filigrane (05/11/2026 — VALIDÉ)
+
+**Décision validée par l'utilisateur le 05/11/2026.** Ajouter exactement deux types de visualisation aux sept existants, sans changer le catalogue des géométries M01–M06 :
+- **Carte KPI — Filigrane** : variante distincte de la carte KPI classique.
+- **Liste — Filigrane** : variante distincte de la liste métier classique.
+
+**Contrat visuel :** utiliser l'icône et la couleur sélectionnées pour l'emplacement ; icône centrée horizontalement et verticalement dans la zone de contenu, hauteur cible égale à **90 % de la hauteur disponible**, largeur automatique sans déformation, **opacité fixe de 10 %**. Elle apparaît exclusivement à l'arrière-plan (aucune capture de clic ou de focus), sans perturber la valeur, les titres, unités, statuts, lignes, liens et actions. Empêcher tout débordement ; rendre lisibles les états vides, en chargement et en erreur. Sur petits blocs, conserver la lisibilité prioritaire ; adapter le filigrane sans déplacer le contenu métier.
+
+**Contrat fonctionnel :** l'assistant affiche deux choix supplémentaires avec miniatures et libellés traduits FR/EN ; seuls les types compatibles avec la source sont proposés. Paramétrage en brouillon, application explicite puis sauvegarde globale ; les sept choix actuels et les dashboards enregistrés restent inchangés. Le catalogue doit totaliser neuf visualisations (six pour indicateurs, deux pour listes, une pour texte), sous réserve du typage effectif des sources. Aucun recalcul ou stockage de données métier par la vue. Les icônes/couleurs sont celles de la configuration existante : vérifier leur chaîne de persistance et la disponibilité des métadonnées avant l'implémentation ; ne pas inventer de valeurs par défaut métier.
+
+**Recette UX :** comparer classique/filigrane sur M01–M06 ; cartes KPI à valeur nulle, nulle métier zéro, valeur longue, unité et titre long ; listes vides, longues, avec badges et bouton Ajouter ; dimensions S/M/L, clair/sombre, responsive, accessibilité clavier/lecteur d'écran, contraste, styles de couleur personnalisés, droits lecture seule, annulation du brouillon, sauvegarde/rechargement et compatibilité anciens layouts. L'icône décorative ne doit pas être annoncée comme une information redondante.
+
+**Traçabilité :** Epic Jira [SMN-353](https://lmn24.atlassian.net/browse/SMN-353). Implémentation confiée à Amelia seulement après création de la Story correspondante. **Statut : décision UX, non preuve d'implémentation ni de test.**
