@@ -35,7 +35,10 @@ test("Le formateur est utilisé par le tableau, les tendances, les prévisualisa
   "src/app/app/admin/indicators/indicator-cycles.tsx",
   "src/app/app/admin/indicators/indicator-trends.tsx",
   "src/app/app/admin/indicators/universal-input.tsx",
-  "src/app/app/dashboard-builder/dashboard-visualization.tsx"
+  "src/app/app/dashboard-builder/dashboard-visualization.tsx",
+  "src/app/app/admin/indicators/reporting-view.tsx",
+  "src/app/app/dashboard-indicator-blocks.tsx",
+  "src/app/app/reports/report-metric-display.tsx"
  ];
  for(const path of targets)assert.match(read(path),/formatIndicatorValue|formatIndicatorMeasurement/,path);
  assert.doesNotMatch(read("src/app/app/dashboard-builder/dashboard-visualization.tsx"),/maximumFractionDigits:3/);
