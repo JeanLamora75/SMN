@@ -175,6 +175,9 @@ importers:
       better-auth:
         specifier: 1.4.5
         version: 1.4.5(next@16.0.0(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      bootstrap-icons:
+        specifier: 1.13.2
+        version: 1.13.2
       bootstrap:
         specifier: 5.3.8
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -1312,6 +1315,9 @@ packages:
     peerDependenciesMeta:
       zod:
         optional: true
+
+  bootstrap-icons@1.13.2:
+    resolution: {tarball: https://registry.npmjs.org/bootstrap-icons/-/bootstrap-icons-1.13.2.tgz}
 
   bootstrap@5.3.8:
     resolution: {integrity: sha512-HP1SZDqaLDPwsNiqRqi5NcP0SSXciX2s9E+RyqJIIqGo+vJeN5AJVM98CXmW/Wux0nQ5L7jeWUdplCEf0Ee+tg==}
@@ -3902,6 +3908,8 @@ snapshots:
       set-cookie-parser: 2.7.2
     optionalDependencies:
       zod: 4.6.7
+
+  bootstrap-icons@1.13.2: {}
 
   bootstrap@5.3.8(@popperjs/core@2.11.8):
     dependencies:
