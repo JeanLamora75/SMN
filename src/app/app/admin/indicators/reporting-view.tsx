@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import Link from "next/link";
 import IndicatorTrends from "./indicator-trends";
 import {useTranslation} from "@/i18n/client";
+import {formatIndicatorValue,formatIndicatorMeasurement} from "@/lib/indicators/format-value";
 type Definition={id:string;tag:string;name:string;unit:string;style:string;order:number};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Definition[];cycles:Cycle[]};
@@ -12,7 +13,7 @@ function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{team
  const t=useTranslation();
  const [refreshKey,setRefreshKey]=useState(0);
  useEffect(()=>{const handler=(event:Event)=>{const detail=(event as CustomEvent<{teamId:string;cycleType:string;cycleId:string}>).detail;if(detail?.teamId===teamId&&detail.cycleType===cycleType&&(!cycleId||detail.cycleId===cycleId))setRefreshKey(k=>k+1);};window.addEventListener("smn:indicators-saved",handler);return()=>window.removeEventListener("smn:indicators-saved",handler);},[teamId,cycleType,cycleId]);
- const displayValue=(raw:string|null,unit:string)=>raw===null?"—":raw.replace(".",locale==="fr"?",":".")+(unit?" "+unit:"");
+ const displayValue=(raw:string|null,unit:string)=>formatIndicatorMeasurement(raw,unit,locale);
  useEffect(()=>{const ctrl=new AbortController();
   void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({...{teamId,cycleType,screen},...(cycleId?{cycleId}:{})}),{cache:"no-store",signal:ctrl.signal})
   .then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<Report>})
@@ -54,12 +55,12 @@ function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{team
     <rect width="960" height="360" fill="var(--bs-body-bg)"/><text x="480" y="35" fontSize="18" textAnchor="middle" fill="var(--bs-body-color)">{definition.tag} — {definition.name} ({definition.unit})</text>
     {(definition.style==="line"||definition.style==="bar")&&[0,.25,.5,.75,1].map(n=><line key={n} x1="75" x2="845" y1={290-n*205} y2={290-n*205} stroke="var(--bs-border-color)"/>)}
     {definition.style==="line"&&points.map((p,i)=>p.y!==null&&i>0&&points[i-1].y!==null?<line key={"l"+i} x1={points[i-1].x} y1={points[i-1].y!} x2={p.x} y2={p.y} stroke="var(--bs-primary)" strokeWidth="3"/>:null)}
-    {definition.style==="bar"&&points.map((p,i)=>p.y!==null?<rect key={"bar"+i} x={p.x-18} y={Math.min(baseline,p.y)} width="36" height={Math.abs(baseline-p.y)} fill="var(--bs-primary)"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></rect>:null)}
+    {definition.style==="bar"&&points.map((p,i)=>p.y!==null?<rect key={"bar"+i} x={p.x-18} y={Math.min(baseline,p.y)} width="36" height={Math.abs(baseline-p.y)} fill="var(--bs-primary)"><title>{data!.cycles[i].name}: {formatIndicatorMeasurement(p.value,definition.unit,locale)}</title></rect>:null)}
     {definition.style==="line"&&line.map(({p,i})=><circle key={i} cx={p.x} cy={p.y!} r="4" fill="var(--bs-primary)"><title>{data!.cycles[i].name}: {p.value} {definition.unit}</title></circle>)}
     {definition.style==="gauge"&&<g>
      <path d="M320 280 A160 160 0 0 1 640 280" stroke="var(--bs-border-color)" strokeWidth="28" fill="none"/>
      {last!==null&&last>=0&&last<=100&&<path d="M320 280 A160 160 0 0 1 640 280" stroke="var(--bs-primary)" strokeWidth="28" fill="none" pathLength="100" strokeDasharray={last+" 100"}/>}
-     <text x="480" y="215" textAnchor="middle" fontSize="35" fill="var(--bs-body-color)">{last===null?"—":last+" "+definition.unit}</text>
+     <text x="480" y="215" textAnchor="middle" fontSize="35" fill="var(--bs-body-color)">{formatIndicatorMeasurement(last,definition.unit,locale)}</text>
     </g>}
     {(definition.style==="number"||definition.style==="card")&&<text x="480" y="195" fontSize="52" textAnchor="middle" fill="var(--bs-primary)">{last===null?"—":last+" "+definition.unit}</text>}
     {(definition.style==="line"||definition.style==="bar")&&points.map((p,i)=><text key={"x"+i} x={p.x} y="314" fontSize="10" fill="var(--bs-body-color)" textAnchor="middle">{i+1}</text>)}
@@ -73,7 +74,7 @@ function LegacyIndicatorReporting({teamId,cycleType,screen,cycleId,locale}:{team
      <article className="border rounded-4 bg-body p-3 h-100 d-flex flex-column text-center">
       <h3 className="h6 fw-semibold mb-3">{column.name}</h3>
       <div className="d-flex align-items-baseline justify-content-center gap-1 my-auto py-2">
-       <span className="fs-2 fw-bold lh-1">{raw===null?"—":raw.replace(".",locale==="fr"?",":".")}</span>
+       <span className="fs-2 fw-bold lh-1">{formatIndicatorValue(raw,locale)}</span>
        {raw!==null&&column.unit&&<span className="small text-secondary">{column.unit}</span>}
       </div>
       <div className="small fw-bold text-center mt-3">{column.tag}</div>
