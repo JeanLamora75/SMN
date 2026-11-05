@@ -16,12 +16,29 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
  const t=useTranslation(),[team,setTeam]=useState(activeTeamId??teams[0]?.id??""),[data,setData]=useState<Data|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[search,setSearch]=useState(""),[filter,setFilter]=useState("all"),[edit,setEdit]=useState<D|null>(null),[create,setCreate]=useState(false);
  const [tag,setTag]=useState(""),[name,setName]=useState(""),[kind,setKind]=useState("manual"),[formula,setFormula]=useState(""),[description,setDescription]=useState("");
  const [unitName,setUnitName]=useState(""),[unitShort,setUnitShort]=useState(""),[color,setColor]=useState(""),[icon,setIcon]=useState("");
+ const [recalculationMessage,setRecalculationMessage]=useState("");
  const load=useCallback(async()=>{try{const r=await fetch("/api/admin/indicators/catalog"+(team?"?teamId="+encodeURIComponent(team):""),{cache:"no-store"});const j=await r.json();if(!r.ok)throw Error(j.error);setData(j);setError("");}catch(e){setError(String(e));}},[team]);
  useEffect(()=>{void Promise.resolve().then(()=>load());},[load]);
  async function send(command:Record<string,unknown>){setBusy(true);setError("");try{const r=await fetch("/api/admin/indicators/catalog",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(command)});const j=await r.json();if(!r.ok)throw Error(j.error);await load();return true;}catch(e){setError(String(e));return false;}finally{setBusy(false);}}
  const closeEditor=()=>{if(busy)return;setCreate(false);setEdit(null);setError("");};
  const modalFocus=useDashboardModalFocus(closeEditor,scope==="global"&&isAdmin&&(create||edit!==null));
  function editor(d?:D){setError("");setCreate(!d);setEdit(d??null);setTag(d?.tag??"");setName(d?.name??"");setKind(d?.indicator_type??"manual");setFormula(d?.formula??"");setDescription(d?.description??"");setUnitName(d?.unit_name??"");setUnitShort(d?.unit_short??"");setColor(d?.color??"");setIcon(d?.icon??"");}
+ async function rebuildComputedResults(){
+  if(!isAdmin||!team||busy)return;
+  setBusy(true);setError("");setRecalculationMessage("");
+  try{
+   const response=await fetch("/api/admin/indicators/catalog",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({action:"recalculate",teamId:team})
+   });
+   const result=await response.json() as {ok?:boolean;cycles?:number;results?:number;error?:string};
+   if(!response.ok||result.ok!==true)throw Error(result.error??"service-unavailable");
+   setRecalculationMessage("Recalcul terminé : "+(result.results??0)+" résultat(s) sur "+(result.cycles??0)+" cycle(s).");
+   window.dispatchEvent(new CustomEvent("smn:indicators-saved",{detail:{teamId:team}}));
+   await load();
+  }catch(e){setError(e instanceof Error?e.message:"service-unavailable");}
+  finally{setBusy(false);}
+ }
  const selections=new Map(data?.selections.map(x=>[x.indicator_id,x.is_active]));
  const prefs=new Map(data?.preferences.map(x=>[x.indicator_id+":"+x.screen_key,x]));
  const defs=(data?.definitions??[]).filter(d=>(filter==="all"||filter==="active"&&!d.archived_at||filter==="archived"&&d.archived_at)&&[d.tag,d.name].some(v=>v.toLowerCase().includes(search.toLowerCase())));
@@ -29,7 +46,16 @@ export default function IndicatorCatalog({teams,isAdmin,scope="team",activeTeamI
  return <div>
   {error&&<div role="alert" className="alert alert-danger">{t("indicators.error")}: {error} <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>void load()}>{t("indicators.retry")}</button></div>}
   <SettingsTabs label={t("indicators.title")} variant={scope==="team"?"cockpit":"default"} sections={[
-   ...(scope==="team"?[{id:"cycles",label:t("indicators.navTitle"),content:<IndicatorCycles teamId={team} cycleType={cycleType} locale={locale}/>}]:[]),
+   ...(scope==="team"?[{id:"cycles",label:t("indicators.navTitle"),content:<section>
+    {isAdmin&&<div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+     <p className="small text-secondary mb-0">Les indicateurs calculés sont enregistrés par cycle. Recalculez après une création de formule historique si les anciens résultats sont absents.</p>
+     <button type="button" className="btn btn-outline-primary btn-sm" disabled={busy||!team} onClick={()=>void rebuildComputedResults()}>
+      {busy?"Recalcul en cours…":"Recalculer les indicateurs"}
+     </button>
+    </div>}
+    {recalculationMessage&&<p role="status" className="alert alert-success py-2">{recalculationMessage}</p>}
+    <IndicatorCycles teamId={team} cycleType={cycleType} locale={locale}/>
+   </section>}]:[]),
    ...(scope==="global"?[{id:"catalog",label:t("indicators.catalog"),content:<section>
     <div className="d-flex flex-wrap gap-2 justify-content-between mb-3"><input aria-label={t("indicators.search")} placeholder={t("indicators.search")} type="search" className="form-control w-auto" value={search} onChange={e=>setSearch(e.target.value)}/><select aria-label={t("indicators.filter")} className="form-select w-auto" value={filter} onChange={e=>setFilter(e.target.value)}><option value="all">{t("indicators.all")}</option><option value="active">{t("indicators.active")}</option><option value="archived">{t("indicators.archived")}</option></select>{isAdmin&&<button type="button" className="btn btn-primary" onClick={()=>editor()}>{t("indicators.create")}</button>}</div>
     <div className="smn-panel rounded-4 p-3 table-responsive smn-indicator-global-list"><table className="table table-hover align-middle smn-indicator-guide-table"><thead><tr><th>{t("indicators.tag")}</th><th>{t("indicators.name")}</th><th>{t("indicators.type")}</th><th>{t("indicators.actions")}</th></tr></thead><tbody>{defs.map(d=><tr key={d.id}><th scope="row">{d.tag}</th><td>{d.name}{d.archived_at&&<span className="badge text-bg-secondary ms-2">{t("indicators.archived")}</span>}</td><td>{t(d.indicator_type==="manual"?"indicators.manual":"indicators.computed")}</td><td>{isAdmin&&!d.archived_at&&<div className="d-flex gap-2"><button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>editor(d)}>{t("indicators.edit")}</button><button type="button" className="btn btn-sm btn-outline-danger" disabled={busy} onClick={()=>{if(window.confirm(t("indicators.confirmArchive")))void send({action:"archive",indicatorId:d.id});}}>{t("indicators.archive")}</button></div>}</td></tr>)}</tbody></table>{defs.length===0&&<p role="status">{t("indicators.empty")}</p>}</div>
