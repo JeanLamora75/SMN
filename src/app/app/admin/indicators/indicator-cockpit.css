@@ -42,3 +42,9 @@
 .smn-indicator-cockpit .smn-indicator-toolbar{border-bottom:1px solid var(--smn-border)}
 .smn-indicator-cockpit .smn-indicator-toolbar .smn-indicator-tabs{border-bottom:0;margin-bottom:0;flex-wrap:wrap}
 .smn-indicator-cockpit .smn-indicator-toolbar .btn{white-space:nowrap}
+
+/* Drag-and-drop preference ordering, scoped to indicator settings. */
+.smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drag-handle{cursor:grab;touch-action:none;min-width:2.2rem;font-size:1.1rem;line-height:1.25}
+.smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drag-handle:active{cursor:grabbing}
+.smn-indicator-cockpit .smn-indicator-preference-table .smn-indicator-drop-target{outline:2px dashed var(--smn-brand);outline-offset:-2px;background:var(--smn-nav-active)}
+.smn-indicator-cockpit .smn-indicator-preference-table td:nth-child(3){white-space:nowrap}
