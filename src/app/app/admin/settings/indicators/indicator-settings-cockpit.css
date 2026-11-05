@@ -1,0 +1,24 @@
+/* Cockpit Agile — Paramètres / Indicateurs uniquement. */
+.smn-indicator-settings-cockpit{width:100%;max-width:none;min-width:0}
+.smn-indicator-settings-cockpit .smn-indicator-settings-subtitle{font-size:.94rem;color:rgba(255,255,255,.88)}
+.smn-indicator-settings-cockpit .smn-indicator-tabs{margin-bottom:0;border-bottom:1px solid var(--smn-border);gap:6px}
+.smn-indicator-settings-cockpit .smn-indicator-tabs .nav-link{font-size:.88rem;font-weight:650;border:1px solid transparent;border-radius:10px 10px 0 0;color:var(--smn-foreground);padding:11px 14px}
+.smn-indicator-settings-cockpit .smn-indicator-tabs .nav-link:hover{background:var(--smn-muted-soft);border-color:var(--smn-border)}
+.smn-indicator-settings-cockpit .smn-indicator-tabs .nav-link.active{background:var(--smn-surface);color:var(--smn-brand);border-color:var(--smn-border);border-bottom-color:var(--smn-surface)}
+.smn-indicator-settings-cockpit .smn-indicator-guide-panel{border:1px solid var(--smn-border);box-shadow:0 5px 17px rgba(12,34,64,.045)}
+.smn-indicator-settings-cockpit .smn-indicator-guide-card{background:var(--smn-surface);border-color:var(--smn-border)!important;box-shadow:0 3px 12px rgba(12,34,64,.05);transition:box-shadow .15s ease}
+.smn-indicator-settings-cockpit .smn-indicator-guide-card:hover{box-shadow:0 7px 18px rgba(12,34,64,.10)}
+.smn-indicator-settings-cockpit .smn-indicator-guide-card code{color:var(--smn-brand);overflow-wrap:anywhere}
+.smn-indicator-settings-cockpit .smn-indicator-domain-title{font-weight:750;color:var(--smn-brand);letter-spacing:.01em}
+.smn-indicator-settings-cockpit .smn-indicator-guide-table{font-size:.87rem;vertical-align:middle}
+.smn-indicator-settings-cockpit .smn-indicator-guide-table thead th{background:var(--smn-muted-soft);color:var(--smn-foreground);font-weight:700;padding:13px;white-space:nowrap}
+.smn-indicator-settings-cockpit .smn-indicator-guide-table tbody td,
+.smn-indicator-settings-cockpit .smn-indicator-guide-table tbody th{padding:12px;border-color:var(--smn-border)}
+.smn-indicator-settings-cockpit .smn-indicator-guide-table code{overflow-wrap:anywhere;color:var(--smn-brand)}
+.smn-indicator-settings-cockpit .smn-indicator-global-cards{display:none}
+.smn-indicator-settings-cockpit [data-indicator-view="cards"] .smn-indicator-global-list{display:none}
+.smn-indicator-settings-cockpit [data-indicator-view="cards"] .smn-indicator-global-cards{display:block}
+.smn-indicator-settings-cockpit [data-indicator-view="list"] .smn-indicator-global-list{display:block}
+.smn-indicator-settings-cockpit [data-indicator-view="list"] .smn-indicator-global-cards{display:none}
+.smn-indicator-settings-cockpit :is(button,a,input,select,summary):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
+@media(max-width:720px){.smn-indicator-settings-cockpit .smn-indicator-tabs{flex-basis:100%}.smn-indicator-settings-cockpit .smn-indicator-tabs .nav-link{font-size:.82rem;padding:9px}}
