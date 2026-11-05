@@ -23,7 +23,7 @@ test("SMN-358 AC1/AC3: SQL reads configured v33 indicator metadata only",async()
   calls.push(sql);
   if(sql.includes("smn_dashboard_team_grant"))return {rows:[{role:"admin",can_read:true,can_edit:true}]};
   if(sql.includes("schema_version"))return {rows:[{schema_version:33}]};
-  if(sql.includes("smn_indicator_definition"))return {rows:[{id:"uuid-1",tag:"CUSTOM",name:"Custom",unit:"%",display_style:"number"}]};
+  if(sql.includes("smn_indicator_definition"))return {rows:[{id:"uuid-1",tag:"CUSTOM",name:"Custom",unit:"%",display_style:"number",is_selected:true,is_visible:true}]};
   throw Error("unexpected SQL");
  }} as unknown as Client;
  const sources=await listDashboardSources(db,{installationId:"singleton",accountId:"actor1",teamId:"team1"});
