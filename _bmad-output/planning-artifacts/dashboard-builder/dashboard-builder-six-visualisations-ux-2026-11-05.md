@@ -80,3 +80,18 @@ La maquette d'histogramme horizontal utilise une série de cycles historiques de
 **Référentiel UX supérieur :** [Référence de restitution Cockpit Agile](../ux-designs/ux-dashboard-builder-2026-11-04/REFERENCE-RESTITUTION-VALIDEE.md), [Dossier UX Builder](./dashboard-builder-dossier-ux-bmad-v1.md), [Référentiel transversal](../../../docs/UX-REFERENTIEL-BMAD.md).
 
 **Traçabilité de la planche :** validation dans la conversation du 05/11/2026. Le PNG de synthèse n'est pas déclaré publié dans GitHub ; les exemples chiffrés illustrent les proportions sans engagement métier.
+
+## 6. Traçabilité des six User Stories Jira (créées le 05/11/2026)
+
+Les six Stories suivantes sont **vérifiées comme enfants de l'Epic SMN-353** :
+
+| Contrat UX | User Story | Objet |
+|---|---|---|
+| VIS-01 | [SMN-390](https://lmn24.atlassian.net/browse/SMN-390) | Tachymètre semi-circulaire à aiguille |
+| VIS-02 | [SMN-391](https://lmn24.atlassian.net/browse/SMN-391) | Histogramme horizontal d'un même indicateur |
+| VIS-03 | [SMN-392](https://lmn24.atlassian.net/browse/SMN-392) | Pile de remplissage horizontale |
+| VIS-04 | [SMN-393](https://lmn24.atlassian.net/browse/SMN-393) | Pile de remplissage verticale |
+| VIS-05 | [SMN-394](https://lmn24.atlassian.net/browse/SMN-394) | Flèche positive, nulle ou négative |
+| VIS-06 | [SMN-395](https://lmn24.atlassian.net/browse/SMN-395) | Cercle gradué épais |
+
+**Transmission à Amelia :** réaliser chaque Story séparément en s'appuyant sur ce contrat, avec preuves de tests et de recette. Aucun code de ces six nouveaux modèles n'a été modifié par cette publication documentaire. Les six Stories demeurent « À faire » à leur création.
