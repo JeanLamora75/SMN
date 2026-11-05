@@ -27,10 +27,7 @@ export default function IndicatorCycles({teamId,cycleType,locale}:{teamId:string
  return <section className="smn-indicator-cycles" aria-label={t("indicators.reporting.title")}>
   {error&&<p role="alert" className="alert alert-warning">{t("indicators.reporting.unavailable")}</p>}
   {!data&&!error&&<p role="status">{t("indicators.reporting.loading")}</p>}
-  {data&&<><div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-   <p className="small text-body-secondary mb-0">{data.columns.length} indicateur(s) affiché(s) pour cette équipe. Faites défiler le tableau horizontalement si nécessaire.</p>
-   <a className="btn btn-outline-primary btn-sm" href="#preferences" onClick={()=>{window.history.replaceState(null,"","#preferences");window.dispatchEvent(new HashChangeEvent("hashchange"));}}>Gérer les colonnes</a>
-  </div><div className="table-responsive smn-indicator-cycle-scroll" tabIndex={0} role="region" aria-label="Tableau des indicateurs par cycle, défilement horizontal"><table className="table table-hover align-middle smn-indicator-cycle-table">
+  {data&&<><p className="small text-body-secondary mb-2">{data.columns.length} indicateur(s) affiché(s) pour cette équipe. Faites défiler le tableau horizontalement si nécessaire.</p><div className="table-responsive smn-indicator-cycle-scroll" tabIndex={0} role="region" aria-label="Tableau des indicateurs par cycle, défilement horizontal"><table className="table table-hover align-middle smn-indicator-cycle-table">
    <thead><tr><th scope="col" className="smn-cycle-name-col">{t("indicators.reporting.cycle")}</th><th scope="col" className="smn-cycle-status-col">{t("indicators.reporting.status")}</th><th scope="col" className="smn-cycle-period-col">{t("indicators.dashboard.period")}</th>
     {data.columns.map(column=><th scope="col" key={column.id} title={column.tag} tabIndex={0} className="text-end smn-indicator-heading">{column.name}</th>)}
     <th scope="col" className="text-end">{t("indicators.actions")}</th></tr></thead>
