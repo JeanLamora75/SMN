@@ -2,6 +2,7 @@ import type {ReactNode} from "react";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
 import {formatIndicatorValue} from "@/lib/indicators/format-value";
 import {tachometerNeedle} from "@/lib/dashboard-builder/tachometer";
+import {horizontalBarGeometry,shortCycleLabel} from "@/lib/dashboard-builder/horizontal-bars";
 import styles from "./dashboard-dimensions.module.css";
 
 export type VisualizationLabels=Readonly<{
@@ -73,6 +74,42 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
   return <ul className={styles.businessList}>{(model.rows??[]).map((item,i)=>
    <li key={i} className={styles.businessItem}><strong>{item.label}</strong><span className={styles.businessItemMeta}>{item.value}</span></li>)}</ul>;
  if(model.kind==="text")return <p className="mb-0">{model.text??""}</p>;
+ if(model.kind==="bar-horizontal"){
+  const points=model.points??[];
+  if(!points.some(p=>p.value!==null&&Number.isFinite(p.value)))return <span role="status" className={styles.state}>{labels.noHistory}</span>;
+  const width=520,row=28,plotTop=18,plotBottom=plotTop+points.length*row,svgHeight=plotBottom+38;
+  const geometry=horizontalBarGeometry(points.map(p=>p.value),width);
+  const axis=Array.from({length:5},(_,i)=>geometry.min+(geometry.max-geometry.min)*i/4);
+  const x=(n:number)=>geometry.xLeft+(n-geometry.min)*(geometry.xRight-geometry.xLeft)/(geometry.max-geometry.min);
+  return <figure className="m-0">
+   <div className={styles.horizontalBarChart}>
+    <svg className={styles.horizontalBarSvg} viewBox={`0 0 ${width} ${svgHeight}`} role="img"
+     aria-label={locale.toLowerCase().startsWith("fr")?"Histogramme horizontal historique de l’indicateur":"Historical horizontal bar chart for the indicator"}>
+     {axis.map((value,i)=><g key={i}>
+      <line x1={x(value)} x2={x(value)} y1={plotTop-5} y2={plotBottom+4} className={styles.chartGrid}/>
+      <text x={x(value)} y={plotBottom+23} className={styles.chartLabel} textAnchor="middle">{format(value,locale)}</text>
+     </g>)}
+     <line x1={geometry.xZero} x2={geometry.xZero} y1={plotTop-5} y2={plotBottom+4} className={styles.horizontalZeroAxis}/>
+     {points.map((p,i)=>{
+      const yy=plotTop+i*row+row/2,bar=geometry.bars[i];
+      return <g key={i}>
+       <text x={geometry.xLeft-8} y={yy+4} textAnchor="end" className={styles.chartLabel}>
+        <title>{p.label}</title>{shortCycleLabel(p.label)}
+       </text>
+       {bar===null?
+        <text x={geometry.xZero+6} y={yy+4} className={styles.chartLabel}>—</text>
+        :bar.width===0?
+        <circle cx={geometry.xZero} cy={yy} r="3" className={styles.horizontalZeroPoint}><title>{p.label}: {format(0,locale)}</title></circle>
+        :<rect x={bar.x} y={yy-8} width={bar.width} height="16" rx="2" className={styles.chartBar}>
+         <title>{p.label}: {valueLabel(p.value!,model.unit,locale)}</title>
+        </rect>}
+      </g>;
+     })}
+    </svg>
+   </div>
+   <figcaption className="visually-hidden">{points.map(p=>`${p.label}: ${p.value===null?labels.nullValue:valueLabel(p.value,model.unit,locale)}`).join("; ")}</figcaption>
+  </figure>;
+ }
  if(model.kind==="line"||model.kind==="bar"){
   const points=model.points??[];
   const values=points.map(p=>p.value).filter((v):v is number=>v!==null&&Number.isFinite(v));
