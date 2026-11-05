@@ -70,3 +70,9 @@
 .indicatorSlotCard>.metric,.indicatorSlotCard>.state{margin-top:auto}
 .indicatorSlotCard>.metric{align-items:baseline}
 .indicatorSlotCard .metricNumber{font-size:clamp(1.5rem,2.1vw,2.1rem)}
+
+/* Decorative variants keep all data and interactive elements above the watermark. */
+.watermarkSlot{position:relative;isolation:isolate;overflow:hidden}
+.watermarkGraphic{position:absolute;inset:5%;display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;opacity:.1;z-index:0;overflow:hidden}
+.watermarkGraphic :global(i){line-height:1;font-size:clamp(3rem,12vw,12rem);font-weight:normal;display:block}
+.watermarkSlot>:not(.watermarkGraphic){position:relative;z-index:1}
