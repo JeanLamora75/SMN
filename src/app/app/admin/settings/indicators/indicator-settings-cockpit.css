@@ -22,3 +22,11 @@
 .smn-indicator-settings-cockpit [data-indicator-view="list"] .smn-indicator-global-cards{display:none}
 .smn-indicator-settings-cockpit :is(button,a,input,select,summary):focus-visible{outline:3px solid var(--smn-brand);outline-offset:2px}
 @media(max-width:720px){.smn-indicator-settings-cockpit .smn-indicator-tabs{flex-basis:100%}.smn-indicator-settings-cockpit .smn-indicator-tabs .nav-link{font-size:.82rem;padding:9px}}
+
+/* La navigation principale suffit : masquer le sous-onglet Catalogue redondant. */
+.smn-indicator-settings-cockpit #indicator-settings-catalogue .nav-tabs{display:none}
+.smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table th,
+.smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table td{text-align:left}
+.smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table th:last-child,
+.smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table td:last-child{text-align:right}
+.smn-indicator-settings-cockpit .smn-indicator-global-list .smn-indicator-guide-table td code{white-space:normal;overflow-wrap:anywhere}
