@@ -45,8 +45,9 @@ export default function TemplateForm(){
     <IconPicker value={form.icon??undefined} onChange={icon=>setForm(current=>({...current,icon:icon??null}))} disabled={busy} label="du modèle de cérémonie"/>
    </div>
    <div className="d-inline-flex align-items-center gap-2 rounded-3 border px-3 py-2" role="status" aria-label="Aperçu de la cérémonie">
-    {form.icon&&<SMNIcon name={form.icon} size="1.5rem" className="" />}
-    <span style={{color:ceremonyIconColorHex(form.iconColor)??"inherit"}} className="small fw-semibold">{form.icon?"●":""}</span>
+    {form.icon&&<span style={{color:ceremonyIconColorHex(form.iconColor)??"var(--smn-foreground)"}}>
+     <SMNIcon name={form.icon} size="1.5rem"/>
+    </span>}
     <span className="small">{form.name.trim()||"Aperçu de la cérémonie"}</span>
    </div>
   </div>
