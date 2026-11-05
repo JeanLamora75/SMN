@@ -29,7 +29,10 @@
  min-width:210px;white-space:nowrap;
 }
 .smn-indicator-cockpit .smn-indicator-cycle-table .smn-indicator-heading{
- min-width:165px;max-width:240px;overflow-wrap:normal;word-break:normal;
+ min-width:76px;max-width:116px;width:1%;white-space:nowrap;overflow-wrap:normal;word-break:normal;
+}
+.smn-indicator-cockpit .smn-indicator-initials{
+ text-decoration:none;cursor:help;letter-spacing:.02em;
 }
 .smn-indicator-cockpit .smn-indicator-cycle-table tbody td.text-end{
  white-space:nowrap;
