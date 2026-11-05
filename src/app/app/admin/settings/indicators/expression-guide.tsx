@@ -1,5 +1,6 @@
 "use client";
 import {useMemo,useState} from "react";
+import type {IndicatorView} from "./settings-tabs";
 
 type Entry={name:string;category:"Calcul"|"Historique"|"Capacité";description:string;example:string;available:boolean};
 const catalog:Entry[]=[
@@ -19,21 +20,27 @@ const catalog:Entry[]=[
  {name:"ROLE_JH_PLANNED(ROLE)",category:"Capacité",description:"J/H du rôle après absences planifiées uniquement.",example:'ROLE_JH_PLANNED("DEVELOPER")',available:true},
  {name:"ROLE_JH(ROLE)",category:"Capacité",description:"J/H du rôle après toutes les absences.",example:'ROLE_JH("DEVELOPER")',available:true}
 ];
-export default function ExpressionGuide(){
+export default function ExpressionGuide({view="cards"}:{view?:IndicatorView}){
  const [query,setQuery]=useState(""),[category,setCategory]=useState("Toutes"),[copied,setCopied]=useState("");
  const rows=useMemo(()=>catalog.filter(item=>(category==="Toutes"||item.category===category)&&
   `${item.name} ${item.description} ${item.example}`.toLocaleLowerCase("fr").includes(query.toLocaleLowerCase("fr"))),[query,category]);
- return <section aria-label="Guide des expressions" className="smn-panel rounded-4 p-3">
+ return <section aria-label="Guide des expressions" className="smn-panel rounded-4 p-3 smn-indicator-guide-panel">
   <h2 className="h5">Guide des expressions</h2>
   <p className="text-secondary small">Les exemples de tags doivent être remplacés par les tags de votre catalogue. Les rôles disponibles sont DEVELOPER, SCRUM_MASTER et PRODUCT_OWNER.</p>
   <div className="row g-2 mb-3"><div className="col-md-8"><label htmlFor="expression-search" className="form-label">Rechercher</label><input id="expression-search" className="form-control" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Fonction, exemple ou description"/></div>
   <div className="col-md-4"><label htmlFor="expression-category" className="form-label">Catégorie</label><select id="expression-category" className="form-select" value={category} onChange={e=>setCategory(e.target.value)}>{["Toutes","Calcul","Historique","Capacité"].map(v=><option key={v}>{v}</option>)}</select></div></div>
   <p aria-live="polite" className="small text-secondary">{rows.length} expression(s)</p>
-  <div className="row g-3">{rows.map(entry=><div className="col-12 col-xl-6" key={entry.name}><article className="border rounded-3 h-100 p-3">
+  {view==="list"?<div className="table-responsive"><table className="table table-hover align-middle smn-indicator-guide-table">
+   <thead><tr><th scope="col">Expression</th><th scope="col">Catégorie</th><th scope="col">Utilité</th><th scope="col">Exemple</th><th scope="col">Action</th></tr></thead>
+   <tbody>{rows.map(entry=><tr key={entry.name}><th scope="row"><code>{entry.name}</code></th><td><span className="badge text-bg-secondary">{entry.category}</span></td>
+    <td>{entry.description}</td><td><code className="text-break">{entry.example}</code></td>
+    <td><button type="button" className="btn btn-outline-primary btn-sm" disabled={!entry.available} onClick={()=>{void navigator.clipboard.writeText(entry.example).then(()=>setCopied(entry.name)).catch(()=>setCopied(""));}}>Copier</button>{copied===entry.name&&<span role="status" className="small text-success ms-2">Copié</span>}</td>
+   </tr>)}</tbody>
+  </table></div>:<div className="row g-3">{rows.map(entry=><div className="col-12 col-xl-6" key={entry.name}><article className="border rounded-4 h-100 p-3 smn-indicator-guide-card">
    <div className="d-flex gap-2 justify-content-between align-items-start"><h3 className="h6 text-break">{entry.name}</h3><span className={entry.available?"badge text-bg-secondary":"badge text-bg-warning"}>{entry.available?entry.category:"En préparation"}</span></div>
    <p className="small">{entry.description}</p><div className="d-flex gap-2 align-items-center flex-wrap"><code className="text-break flex-grow-1">{entry.example}</code>
    <button type="button" className="btn btn-outline-secondary btn-sm" disabled={!entry.available} onClick={()=>{void navigator.clipboard.writeText(entry.example).then(()=>setCopied(entry.name)).catch(()=>setCopied(""));}}>Copier</button></div>
    {copied===entry.name&&<span role="status" className="small text-success">Exemple copié</span>}
-  </article></div>)}</div>
+  </article></div>)}</div>}
  </section>;
 }
