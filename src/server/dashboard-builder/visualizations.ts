@@ -1,4 +1,5 @@
 import type {SourceDescriptor,SourceView} from "./sources";
+import {resolveTachometerRatio} from "../../lib/dashboard-builder/tachometer";
 
 export type DashboardValue =
  | {state:"available";value:number;unit:string|null}
@@ -15,7 +16,7 @@ export type DashboardVisualizationData = Readonly<{
  maximum?:number;
  snapshot?:boolean;
 }>;
-export type VisualizationKind="number"|"card"|"card-watermark"|"gauge"|"line"|"bar"|"list"|"list-watermark"|"text";
+export type VisualizationKind="number"|"card"|"card-watermark"|"tachometer"|"gauge"|"line"|"bar"|"list"|"list-watermark"|"text";
 export type VisualizationModel=Readonly<{
  state:"ready"|"null"|"absent"|"error"|"no-history"|"invalid-bounds"|"incompatible";
  kind:VisualizationKind;
@@ -29,7 +30,7 @@ export type VisualizationModel=Readonly<{
  snapshot?:boolean;
 }>;
 const choices:Readonly<Record<VisualizationKind,string>>={
- number:"123",card:"▣","card-watermark":"◉",gauge:"◔",line:"⌁",bar:"▥",list:"☷","list-watermark":"▤",text:"¶",
+ number:"123",card:"▣","card-watermark":"◉",tachometer:"◠",gauge:"◔",line:"⌁",bar:"▥",list:"☷","list-watermark":"▤",text:"¶",
 };
 export function compatibleVisualizations(source:SourceDescriptor):readonly Readonly<{kind:SourceView;thumbnail:string}>[]{
  if(source.status!=="available")return [];
@@ -42,6 +43,10 @@ export function resolveVisualization(source:SourceDescriptor,kind:VisualizationK
  if(data.result.state!=="available")return {...base,state:data.result.state};
  const value=data.result.value;
  if(!Number.isFinite(value))return {...base,state:"error"};
+ if(kind==="tachometer"){
+  const ratio=resolveTachometerRatio(value,data.minimum,data.maximum);
+  return ratio===null?{...base,state:"invalid-bounds"}:{...base,state:"ready",value,unit:data.result.unit,ratio};
+ }
  if(kind==="gauge"){
   if(!Number.isFinite(data.minimum)||!Number.isFinite(data.maximum)||
      data.minimum!>=data.maximum!||value<data.minimum!||value>data.maximum!)
