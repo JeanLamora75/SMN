@@ -22,7 +22,7 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
 }):ReactNode{
  if(model.kind==="tachometer"&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
   {model.value!==undefined&&<span className={styles.metric}><output className={styles.metricNumber}>{format(model.value,locale)}</output>{model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}</span>}
-  <span className={styles.state}>{locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>
+  <span className={styles.state}>{model.label==="out-of-scale"?(locale.toLowerCase().startsWith("fr")?"Valeur hors échelle":"Value outside scale"):(locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale")}</span>
  </div>;
  if(model.state!=="ready"){
   const messages:Record<Exclude<VisualizationModel["state"],"ready">,string>={
