@@ -169,7 +169,7 @@ jobs:
       - name: Contrats SMN 343
         run: pnpm test:smn-343
       - name: Audit indépendant préconditions migration v32 vers v33
-        run: pnpm exec tsx --test tests/smn-v33-migration-preflight-audit.test.ts tests/db-upgrade-v32-compatibility.test.ts tests/schema-compatibility.test.ts tests/auth-schema-v27.test.ts tests/auth-schema-v30.test.ts
+        run: pnpm exec tsx --test tests/smn-v33-migration-preflight-audit.test.ts tests/db-upgrade-v32-compatibility.test.ts tests/schema-compatibility.test.ts tests/auth-schema-v33-security.test.ts tests/team-schema-v33-isolation.test.ts
 
   company-v31-contracts:
     name: Contrats entreprise v31 indépendants
