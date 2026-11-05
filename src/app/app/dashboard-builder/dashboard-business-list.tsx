@@ -1,5 +1,8 @@
 "use client";
 import Link from "next/link";
+import {SMNIcon} from "../smn-icon";
+import {isDashboardIcon} from "@/lib/dashboard-builder/icon-catalog";
+import {ceremonyIconColorHex} from "@/lib/ceremony-appearance";
 import type {DashboardListPayload} from "@/server/dashboard-builder/lists";
 import styles from "./dashboard-dimensions.module.css";
 
@@ -21,7 +24,7 @@ export function DashboardBusinessList({data,onNext,onPrevious,page=0,columns}:{
  return <div>
   <ul className={styles.businessList}>{data.rows.map(item=><li className={styles.businessItem} key={item.id}>
    <div className={styles.businessItemTop}>
-    <Link href={item.href} className={styles.businessItemTitle}>{item.label}</Link>
+    <Link href={item.href} className={styles.businessItemTitle}>{isDashboardIcon(item.icon)&&<span className="me-2" style={{color:ceremonyIconColorHex(item.iconColor)??"inherit"}}><SMNIcon name={item.icon}/></span>}{item.label}</Link>
     {visible.has("status")&&item.status&&<span className={styles.businessBadge}>{statusNames[item.status]??item.status}</span>}
    </div>
    {(visible.has("kind")||visible.has("date"))&&<span className={styles.businessItemMeta}>
