@@ -1,7 +1,7 @@
 import type {Client} from "pg";
 import type {LayoutScope} from "./layout";
 import type {BatchRequest} from "./batch";
-export type DashboardListItem={id:string;label:string;status:string;kind:string;href:string;date:string|null};
+export type DashboardListItem={id:string;label:string;status:string;kind:string;href:string;date:string|null;icon?:string|null;iconColor?:string|null};
 export type DashboardListPayload={rows:DashboardListItem[];total:number;nextOffset:number|null};
 export function listFilters(filters:Record<string,unknown>|undefined){
  const limit=filters?.limit===undefined?10:Number(filters.limit);
@@ -62,7 +62,7 @@ export async function readCalendarDashboardList(db:Client,scope:LayoutScope,requ
  if(data.state!=="available")throw Error("dashboard-calendar-unavailable");
  const f=listFilters(request.filters);
  const rows=data.items.map(item=>({id:item.id,label:item.title,status:item.status,kind:item.kind,
-  href:"/app/team-calendar",date:item.startsAt}));
+  href:"/app/team-calendar",date:item.startsAt,icon:item.icon??null,iconColor:item.iconColor??null}));
  const ordered=f.sort==="asc"?[...rows].reverse():rows;
  return {rows:ordered.slice(f.offset,f.offset+f.limit),total:data.total,nextOffset:null};
 }
