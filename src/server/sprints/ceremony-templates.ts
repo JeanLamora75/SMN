@@ -61,8 +61,12 @@ export async function ensureTemplateSchema(db:Client){
  const tables=["smn_scrum_ceremony_template","smn_scrum_ceremony_template_history"] as const;
  const state=await db.query<{present:string[]}>(`SELECT array_agg(c.relname)::text[] AS present FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname = ANY($1::text[]) AND c.relkind IN ('r','p')`,[tables]);
  if(tables.some(name=>!state.rows[0]?.present?.includes(name)))throw Error("ceremony-schema-not-ready: apply-ceremony-schema-v32");
- const appearance=await db.query<{name:string}>(`SELECT column_name AS name FROM information_schema.columns WHERE table_schema='public' AND table_name='smn_scrum_ceremony_template' AND column_name IN ('icon_name','icon_color')`);
- if(appearance.rows.length!==2)throw Error("ceremony-appearance-schema-not-ready: pnpm db:migrate:ceremony-appearance --apply");
+
+}
+async function requireCeremonyAppearanceSchema(db:Client){
+ const result=await db.query<{name:string}>(`SELECT column_name AS name FROM information_schema.columns
+ WHERE table_schema='public' AND table_name='smn_scrum_ceremony_template' AND column_name IN ('icon_name','icon_color')`);
+ if(result.rows.length!==2)throw Error("ceremony-appearance-schema-not-ready: pnpm db:migrate:ceremony-appearance --apply");
 }
 async function activeTeam(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
  const state=await db.query<{schema_version:number}>("SELECT schema_version FROM public.smn_installation WHERE id='singleton' AND state='initialized'");
@@ -81,6 +85,7 @@ async function activeTeam(db:Client,actor?:{accountId:string;role:"admin"|"user"
 }
 export async function listTemplates(db:Client,actor?:{accountId:string;role:"admin"|"user"},requestedTeamId?:string|null){
  const teamId=await activeTeam(db,actor,requestedTeamId);
+ await requireCeremonyAppearanceSchema(db);
  const r=await db.query(`SELECT id,name,frequency,weekday,position,local_time::text AS time,duration_minutes AS duration,icon_name AS icon,icon_color AS "iconColor",active,revision
  FROM public.smn_scrum_ceremony_template WHERE team_id=$1 ORDER BY created_at,id`,[teamId]);
  return r.rows;
@@ -92,7 +97,7 @@ export async function saveTemplate(db:Client,actorId:string,raw:unknown,requeste
  if(obj.active!==undefined&&typeof obj.active!=="boolean")return {ok:false as const,error:"invalid-input" as const};
  const isUpdate=typeof obj.id==="string"&&/^[0-9a-f-]{36}$/i.test(obj.id);
  if(obj.id!==undefined&&!isUpdate||isUpdate&&(!Number.isSafeInteger(obj.revision)||Number(obj.revision)<1))return {ok:false as const,error:"invalid-input" as const};
- await ensureTemplateSchema(db);const teamId=await activeTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
+ await ensureTemplateSchema(db);await requireCeremonyAppearanceSchema(db);const teamId=await activeTeam(db,{accountId:actorId,role:"admin"},requestedTeamId);
  await db.query("BEGIN");
  try{
   const id=isUpdate?obj.id as string:randomUUID();
