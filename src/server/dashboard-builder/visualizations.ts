@@ -15,7 +15,7 @@ export type DashboardVisualizationData = Readonly<{
  maximum?:number;
  snapshot?:boolean;
 }>;
-export type VisualizationKind="number"|"card"|"gauge"|"line"|"bar"|"list"|"text";
+export type VisualizationKind="number"|"card"|"card-watermark"|"gauge"|"line"|"bar"|"list"|"list-watermark"|"text";
 export type VisualizationModel=Readonly<{
  state:"ready"|"null"|"absent"|"error"|"no-history"|"invalid-bounds"|"incompatible";
  kind:VisualizationKind;
@@ -29,7 +29,7 @@ export type VisualizationModel=Readonly<{
  snapshot?:boolean;
 }>;
 const choices:Readonly<Record<VisualizationKind,string>>={
- number:"123",card:"▣",gauge:"◔",line:"⌁",bar:"▥",list:"☷",text:"¶",
+ number:"123",card:"▣","card-watermark":"◉",gauge:"◔",line:"⌁",bar:"▥",list:"☷","list-watermark":"▤",text:"¶",
 };
 export function compatibleVisualizations(source:SourceDescriptor):readonly Readonly<{kind:SourceView;thumbnail:string}>[]{
  if(source.status!=="available")return [];
@@ -54,7 +54,7 @@ export function resolveVisualization(source:SourceDescriptor,kind:VisualizationK
   if(points.some(p=>p.value!==null&&!Number.isFinite(p.value)))return {...base,state:"error"};
   return {...base,state:"ready",points:points.map(p=>({...p})),unit:data.result.unit};
  }
- if(kind==="list")return {...base,state:"ready",rows:data.rows??[]};
+ if(kind==="list"||kind==="list-watermark")return {...base,state:"ready",rows:data.rows??[]};
  if(kind==="text")return {...base,state:"ready",text:data.text??""};
  return {...base,state:"ready",value,unit:data.result.unit};
 }
