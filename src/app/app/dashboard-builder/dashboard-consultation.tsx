@@ -41,8 +41,12 @@ function DashboardWatermark({slot}:{slot:DashboardSlot}){
 function tachometerModel(value:number,unit:string|null|undefined,filters?:Record<string,unknown>):VisualizationModel {
  if(!Number.isFinite(value))return {state:"error",kind:"tachometer"};
  const ratio=resolveTachometerRatio(value,filters?.minimum,filters?.maximum);
+ const minimum=filters?.minimum,maximum=filters?.maximum;
+ const outOfRange=typeof minimum==="number"&&typeof maximum==="number"&&
+  Number.isFinite(minimum)&&Number.isFinite(maximum)&&minimum<maximum&&
+  (value<minimum||value>maximum);
  return ratio===null
-  ?{state:"invalid-bounds",kind:"tachometer",value,unit}
+  ?{state:"invalid-bounds",kind:"tachometer",value,unit,label:outOfRange?"out-of-scale":undefined}
   :{state:"ready",kind:"tachometer",value,unit,ratio};
 }
 
