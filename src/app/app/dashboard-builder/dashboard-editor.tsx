@@ -97,7 +97,23 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
  const activeSlot:DashboardSlot|undefined=draft?[...draft.header.blocks,...draft.rows.flatMap(r=>r.blocks)].flatMap(b=>b.slots).find(s=>s.id===wizardSlot):undefined;
  const confirmSlot=(source:string,view:SourceView,options:SlotOptions)=>{
   if(!wizardSlot)return;
-  setDraft(current=>current?updateDashboardSlot(current,wizardSlot,{source,view,filters:options}):null);
+  const slotId=wizardSlot;
+  const suggestedTitle=sourceByCode.get(source)?.name??"";
+  setDraft(current=>{
+   if(!current)return null;
+   const previous=[...current.header.blocks,...current.rows.flatMap(row=>row.blocks)]
+    .flatMap(block=>block.slots).find(slot=>slot.id===slotId);
+   const configured=updateDashboardSlot(current,slotId,{source,view,filters:options});
+   // A new source supplies a real editable title, not a non-selectable placeholder.
+   if(previous?.title?.trim()||!suggestedTitle)return configured;
+   return {
+    ...configured,
+    header:{blocks:configured.header.blocks.map(block=>({...block,
+     slots:block.slots.map(slot=>slot.id===slotId?{...slot,title:suggestedTitle}:slot)}))},
+    rows:configured.rows.map(row=>({...row,blocks:row.blocks.map(block=>({...block,
+     slots:block.slots.map(slot=>slot.id===slotId?{...slot,title:suggestedTitle}:slot)}))})),
+   };
+  });
   setWizardSlot(null);
  };
  const setBlockTitle=(blockId:string,title:string)=>setDraft(layout=>layout?{
@@ -191,7 +207,11 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
     {block.slots.map(slot=><label className="form-label small w-100" key={slot.id}>Titre de l&apos;emplacement
      <input type="text" className="form-control form-control-sm" maxLength={100}
       value={slot.title??""} onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}
-      placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}/>
+      onFocus={()=>{if(!slot.title?.trim()&&slot.source){
+       const sourceName=sourceByCode.get(slot.source)?.name;
+       if(sourceName)setSlotTitle(slot.id,sourceName);
+      }}}
+      placeholder="Saisir un titre personnalisé (facultatif)"/>
     </label>)}
     {block.slots.map(slot=><div key={"icon-"+slot.id} className="mb-2"><IconPicker value={slot.icon} onChange={icon=>setSlotIcon(slot.id,icon)} color={slot.iconColor} onColorChange={color=>setSlotIconColor(slot.id,color)} disabled={saving} label="de l’emplacement d’en-tête"/></div>)}
    </div>)}</div>
@@ -245,7 +265,11 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
       <div className="row row-cols-1 row-cols-md-2 g-2">{block.slots.map(slot=><div className="col" key={slot.id}>
        <label className="form-label small w-100">Titre de l&apos;emplacement
         <input type="text" className="form-control form-control-sm" maxLength={100}
-         value={slot.title??""} placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}
+         value={slot.title??""} placeholder="Saisir un titre personnalisé (facultatif)"
+         onFocus={()=>{if(!slot.title?.trim()&&slot.source){
+          const sourceName=sourceByCode.get(slot.source)?.name;
+          if(sourceName)setSlotTitle(slot.id,sourceName);
+         }}}
          onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}/>
        </label>
        <div className="mb-2"><IconPicker value={slot.icon} onChange={icon=>setSlotIcon(slot.id,icon)} color={slot.iconColor} onColorChange={color=>setSlotIconColor(slot.id,color)} disabled={saving} label="de l’emplacement"/></div>
