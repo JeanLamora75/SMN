@@ -6,6 +6,11 @@ import {formatIndicatorMeasurement} from "@/lib/indicators/format-value";
 type Column={id:string;tag:string;name:string;unit:string};
 type Cycle={id:string;name:string;status:string;startAt?:string;endAt?:string;values:Record<string,string|null>};
 type Result={columns:Column[];cycles:Cycle[]};
+/** Initiales de chaque mot, y compris les petits mots (ex. "Taux de réalisation" → "TDR"). */
+export function indicatorHeaderInitials(name:string):string{
+ const words=name.match(/[\p{L}\p{N}]+/gu)??[];
+ return words.map(word=>word.charAt(0).toLocaleUpperCase("fr-FR")).join("")||name;
+}
 export default function IndicatorCycles({teamId,cycleType,locale}:{teamId:string;cycleType:"scrum"|"kanban";locale:"fr"|"en"}){
  const t=useTranslation(),[data,setData]=useState<Result|null>(null),[error,setError]=useState(false),[revision,setRevision]=useState(0);
  useEffect(()=>{
@@ -29,7 +34,7 @@ export default function IndicatorCycles({teamId,cycleType,locale}:{teamId:string
   {!data&&!error&&<p role="status">{t("indicators.reporting.loading")}</p>}
   {data&&<><p className="small text-body-secondary mb-2">{data.columns.length} indicateur(s) affiché(s) pour cette équipe. Faites défiler le tableau horizontalement si nécessaire.</p><div className="table-responsive smn-indicator-cycle-scroll" tabIndex={0} role="region" aria-label="Tableau des indicateurs par cycle, défilement horizontal"><table className="table table-hover align-middle smn-indicator-cycle-table">
    <thead><tr><th scope="col" className="smn-cycle-name-col">{t("indicators.reporting.cycle")}</th><th scope="col" className="smn-cycle-status-col">{t("indicators.reporting.status")}</th><th scope="col" className="smn-cycle-period-col">{t("indicators.dashboard.period")}</th>
-    {data.columns.map(column=><th scope="col" key={column.id} title={column.tag} tabIndex={0} className="text-end smn-indicator-heading">{column.name}</th>)}
+    {data.columns.map(column=><th scope="col" key={column.id} title={column.name} aria-label={column.name} tabIndex={0} className="text-end smn-indicator-heading"><abbr title={column.name} className="smn-indicator-initials">{indicatorHeaderInitials(column.name)}</abbr></th>)}
     <th scope="col" className="text-end">{t("indicators.actions")}</th></tr></thead>
    <tbody>{data.cycles.map(cycle=><tr key={cycle.id}>
     <th scope="row" className="smn-cycle-name-col">{cycle.name}</th><td className="smn-cycle-status-col">{cycle.status}</td><td className="smn-cycle-period-col text-nowrap">{date(cycle.startAt)} — {date(cycle.endAt)}</td>
