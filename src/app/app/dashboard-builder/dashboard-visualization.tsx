@@ -1,6 +1,7 @@
 import type {ReactNode} from "react";
 import type {VisualizationModel} from "@/server/dashboard-builder/visualizations";
 import {formatIndicatorValue} from "@/lib/indicators/format-value";
+import {tachometerNeedle} from "@/lib/dashboard-builder/tachometer";
 import styles from "./dashboard-dimensions.module.css";
 
 export type VisualizationLabels=Readonly<{
@@ -19,6 +20,10 @@ const valueLabel=(value:number,unit:string|null|undefined,locale:string)=>
 export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS}:{
  model:VisualizationModel;locale?:string;labels?:VisualizationLabels;
 }):ReactNode{
+ if(model.kind==="tachometer"&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
+  {model.value!==undefined&&<span className={styles.metric}><output className={styles.metricNumber}>{format(model.value,locale)}</output>{model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}</span>}
+  <span className={styles.state}>Échelle invalide</span>
+ </div>;
  if(model.state!=="ready"){
   const messages:Record<Exclude<VisualizationModel["state"],"ready">,string>={
    null:labels.nullValue,absent:labels.absent,error:labels.error,"no-history":labels.noHistory,
@@ -31,6 +36,29 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
   </div>;
+ if(model.kind==="tachometer"){
+  if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
+   return <span role="status" className={styles.state}>Échelle invalide</span>;
+  const tip=tachometerNeedle(model.ratio);
+  const ticks=Array.from({length:11},(_,i)=>{
+   const angle=i*Math.PI/10;
+   return {x1:130-96*Math.cos(angle),y1:128-96*Math.sin(angle),
+    x2:130-87*Math.cos(angle),y2:128-87*Math.sin(angle)};
+  });
+  return <div className={styles.tachometer}>
+   <svg viewBox="0 0 260 142" className={styles.tachometerSvg} aria-hidden="true" focusable="false">
+    <path d="M 30 128 A 100 100 0 0 1 230 128" className={styles.tachometerTrack}/>
+    {model.ratio>0&&<path d={`M 30 128 A 100 100 0 0 1 ${130-100*Math.cos(Math.PI*model.ratio)} ${128-100*Math.sin(Math.PI*model.ratio)}`} className={styles.tachometerProgress}/>}
+    {ticks.map((t,i)=><line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} className={styles.tachometerTick}/>)}
+    <line x1="130" y1="128" x2={tip.x} y2={tip.y} className={styles.tachometerNeedle}/>
+    <circle cx="130" cy="128" r="6" className={styles.tachometerPivot}/>
+   </svg>
+   <div className={styles.tachometerValue}>
+    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
+    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
+   </div>
+  </div>;
+ }
  if(model.kind==="gauge"){
   if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
    return <span role="status" className={styles.state}>{labels.invalidBounds}</span>;
