@@ -21,8 +21,8 @@ test("v33: services do not execute the retired deferred migration",()=>{
  for(const source of active){
   // A diagnostic error message may still mention the manual legacy command.
   // Reject executable migration calls, not explanatory text.
-  assert.doesNotMatch(source,/\\b(?:await\\s+)?applyDeferredSchemaV32\\s*\\(/);
-  assert.doesNotMatch(source,/\\b(?:await\\s+)?applyDeferredSchema\\s*\\(/);
-  assert.doesNotMatch(source,/\\b(?:from\\s+|import\\s*\\()(['"][^'"]*apply-deferred-schema-v32)/);
+  assert.doesNotMatch(source,/\b(?:await\s+)?applyDeferredSchemaV32\s*\(/);
+  assert.doesNotMatch(source,/\b(?:await\s+)?applyDeferredSchema\s*\(/);
+  assert.doesNotMatch(source,/\b(?:from\s+|import\s*\()(['"][^'"]*apply-deferred-schema-v32)/);
  }
 });
