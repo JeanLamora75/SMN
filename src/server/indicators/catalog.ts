@@ -36,6 +36,7 @@ export type CatalogCommand=
  |{action:"create";tag:string;name:string;indicatorType:"manual"|"computed";formula?:string;description?:string;unitName?:string;unitShort?:string;color?:string|null;icon?:string|null}
  |{action:"edit";indicatorId:string;name:string;description?:string;unitName?:string;unitShort?:string;color?:string|null;icon?:string|null}
  |{action:"archive";indicatorId:string}
+ |{action:"recalculate";teamId:string}
  |{action:"selection";teamId:string;indicatorId:string;active:boolean}
  |{action:"preference";teamId:string;indicatorId:string;screenKey:ScreenKey;visible:boolean;order:number;style:typeof STYLES[number]};
 function colorOk(x:unknown){return x===null||x===undefined||typeof x==="string"&&/^#[0-9a-fA-F]{6}$/.test(x);}
@@ -64,11 +65,17 @@ export async function applyCatalogCommand(db:Client,actor:TeamActor,command:Cata
  await db.query("BEGIN");
  try{
   await version(db);
-  if(command.action==="create"||command.action==="edit"||command.action==="archive")guard(actor.role==="admin","forbidden");
-  if(command.action==="selection"||command.action==="preference"){
+  if(command.action==="create"||command.action==="edit"||command.action==="archive"||command.action==="recalculate")guard(actor.role==="admin","forbidden");
+  if(command.action==="selection"||command.action==="preference"||command.action==="recalculate"){
    await requireIndicatorTeam(db,actor,command.teamId).catch(()=>{throw new IndicatorCatalogError("forbidden")});
   }
   await lock(db);
+  if(command.action==="recalculate"){
+   guard(id(command.teamId),"invalid-input");
+   const projection=await recalculateIndicatorResultsWithinTransaction(db,{teamId:command.teamId});
+   await bump(db);await db.query("COMMIT");
+   return {ok:true,...projection};
+  }
   if(command.action==="create"){
    meta(command);guard(tag(command.tag)&&!isCalendarSourceTag(command.tag),"invalid-input");
    guard(command.indicatorType==="manual"||command.indicatorType==="computed","invalid-input");
