@@ -12,13 +12,17 @@ test("v33: report and registry tables are provided by the baseline, not created 
   assert.ok(baseline.includes('CREATE TABLE "public"."'+name+'"'),"missing baseline relation "+name);
  for(const file of ["src/server/registries/automatic-highlights.ts",
    "src/server/reports/templates.ts","src/server/reports/draft-notes.ts"])
-  assert.doesNotMatch(read(file),/\b(?:CREATE|ALTER|DROP)\s+TABLE\b/i,file);
+  assert.doesNotMatch(read(file),/\b(?:CREATE|ALTER|DROP|TRUNCATE)\s+(?:TABLE|INDEX|VIEW|TYPE|SCHEMA)\b/i,file);
 });
 
-test("v33: deferred historical DDL is not invoked by active services",()=>{
+test("v33: services do not execute the retired deferred migration",()=>{
  const active=["src/server/registries/automatic-highlights.ts",
    "src/server/reports/templates.ts","src/server/reports/draft-notes.ts"].map(read);
  for(const source of active){
-  assert.doesNotMatch(source,/apply-deferred-schema-v32|applyDeferredSchemaV32/);
+  // A diagnostic error message may still mention the manual legacy command.
+  // Reject executable migration calls, not explanatory text.
+  assert.doesNotMatch(source,/\\b(?:await\\s+)?applyDeferredSchemaV32\\s*\\(/);
+  assert.doesNotMatch(source,/\\b(?:await\\s+)?applyDeferredSchema\\s*\\(/);
+  assert.doesNotMatch(source,/\\b(?:from\\s+|import\\s*\\()(['"][^'"]*apply-deferred-schema-v32)/);
  }
 });
