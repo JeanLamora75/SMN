@@ -1,5 +1,5 @@
 "use client";
-import {useMemo,useState} from "react";
+import {useMemo} from "react";
 import {DashboardBusinessList} from "./dashboard-business-list";
 import {SMNIcon} from "../smn-icon";
 import {isDashboardIcon} from "@/lib/dashboard-builder/icon-catalog";
@@ -27,14 +27,13 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
  mode:"scrum"|"kanban";locale?:string;personalizing?:boolean;canManage?:boolean;headerActions?:ReactNode;
 }){
  const cycleId=navigation.current?.id??null;
- const [pages,setPages]=useState<Record<string,number>>({});
  const cycleLink=(id:string)=>`/app/dashboard-builder?teamId=${encodeURIComponent(teamId)}&cycleId=${encodeURIComponent(id)}`;
  const date=(value:string)=>new Intl.DateTimeFormat(locale,{day:"2-digit",month:"short",year:"numeric"}).format(new Date(value));
  const requests=useMemo<BatchRequest[]>(()=>[...layout.header.blocks,...layout.rows.flatMap(r=>r.blocks)]
   .flatMap(block=>visibleSlots(block).map(slot=>({
    id:slot.id,source:slot.source!,view:slot.view!,cycleId:slot.filters?.cycleIdOverride as string|undefined ?? cycleId,
-   filters:slot.view==="list"?{...slot.filters,offset:(pages[slot.id]??0)*(Number(slot.filters?.limit) || 10)}:slot.filters,
-  }))),[layout,cycleId,pages]);
+   filters:slot.filters,
+  }))),[layout,cycleId]);
  const {slots,refresh,retry}=useDashboardBatch(teamId,cycleId,requests);
  const renderBlock=(block:DashboardBlock,headerMode=false)=>{
   const active=visibleSlots(block);
@@ -48,12 +47,10 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
-     if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={styles.slotCard}>{(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}{slot.title?.trim()}</h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
+     if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={styles.slotCard}>{(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
      if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={styles.slotCard} aria-label={slot.title?.trim()||"Liste du tableau de bord"}>
-      {(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}{slot.title?.trim()}</h3>}
-      <DashboardBusinessList data={result.list} page={pages[slot.id]??0} locale={locale} columns={Array.isArray(slot.filters?.columns)?slot.filters.columns as string[]:undefined}
-       onNext={()=>setPages(p=>({...p,[slot.id]:(p[slot.id]??0)+1}))}
-       onPrevious={()=>setPages(p=>({...p,[slot.id]:Math.max(0,(p[slot.id]??0)-1)}))}/>
+      {(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
+      <DashboardBusinessList data={result.list} locale={locale} columns={Array.isArray(slot.filters?.columns)?slot.filters.columns as string[]:undefined}/>
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
        (slot.source==="calendar:ceremonies"||slot.source==="notes:sprint"||
         (slot.source==="registry:items"&&["all","risk","obstacle"].includes(String(slot.filters?.type??"all"))))&&
@@ -76,8 +73,8 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
-     return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={styles.slotCard} aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>
-      {(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}{slot.title?.trim()}</h3>}
+     return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${styles.indicatorSlotCard}`} aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>
+      {(slot.title?.trim()||isDashboardIcon(slot.icon))&&<h3 className={styles.slotTitle}>{isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
       {result.state==="absent"&&slot.view==="list"?<p role="status">Aucun résultat</p>:result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
        <DashboardVisualization model={model} locale={locale}/>}
       {model.state==="error"&&<button type="button" className="btn btn-outline-secondary btn-sm mt-2" onClick={()=>retry(slot.id)}>Réessayer cet emplacement</button>}
