@@ -3,7 +3,7 @@ import { requireDashboardPermission } from "./permissions";
 import type { LayoutScope } from "./layout";
 
 export const SOURCE_CATEGORIES = ["indicator", "registry", "cycle", "calendar", "notes", "objective", "team", "link"] as const;
-export const SOURCE_VIEWS = ["number", "card", "gauge", "line", "bar", "list", "text"] as const;
+export const SOURCE_VIEWS = ["number", "card", "card-watermark", "gauge", "line", "bar", "list", "list-watermark", "text"] as const;
 export type SourceCategory = typeof SOURCE_CATEGORIES[number];
 export type SourceView = typeof SOURCE_VIEWS[number];
 export type SourceScope = "cycle" | "team";
@@ -49,13 +49,13 @@ export function validateSourceDescriptors(sources:readonly SourceDescriptor[]): 
 }
 
 const PENDING:readonly Omit<SourceDescriptor,"status"|"reason">[] = [
- {code:"cycle:overview",name:"Cycles Scrum/Kanban",category:"cycle",unit:null,scope:"cycle",permission:"read",views:["card","list"]},
- {code:"objective:team",name:"Objectifs",category:"objective",unit:null,scope:"team",permission:"read",views:["text","card"]},
+ {code:"cycle:overview",name:"Cycles Scrum/Kanban",category:"cycle",unit:null,scope:"cycle",permission:"read",views:["card","card-watermark","list","list-watermark"]},
+ {code:"objective:team",name:"Objectifs",category:"objective",unit:null,scope:"team",permission:"read",views:["text","card","card-watermark"]},
  {code:"team:overview",name:"Équipe",category:"team",unit:null,scope:"team",permission:"read",views:["card","list"]},
- {code:"link:catalog",name:"Liens",category:"link",unit:null,scope:"team",permission:"read",views:["list"]},
+ {code:"link:catalog",name:"Liens",category:"link",unit:null,scope:"team",permission:"read",views:["list","list-watermark"]},
 ];
 type IndicatorMeta={id:string;tag:string;name:string;unit:string|null;display_style:string|null;is_selected:boolean;is_visible:boolean};
-const styles:readonly SourceView[]=["number","card","gauge","line","bar"];
+const styles:readonly SourceView[]=["number","card","card-watermark","gauge","line","bar"];
 
 /**
  * Read-only metadata query. Indicator selections (v33), archived flags and explicit
