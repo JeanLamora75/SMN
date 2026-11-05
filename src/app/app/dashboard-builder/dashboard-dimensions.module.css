@@ -93,3 +93,11 @@
 .horizontalBarSvg{display:block;width:100%;height:auto;overflow:visible}
 .horizontalZeroAxis{stroke:var(--smn-muted);stroke-width:1.5}
 .horizontalZeroPoint{fill:var(--smn-brand)}
+/* SMN-392 — One indicator, horizontal segmented battery. */
+.batteryHorizontal{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;min-width:0;width:100%;max-width:100%;margin-inline:auto}
+.batteryHorizontalSvg{display:block;width:min(100%,330px);height:auto;max-height:110px}
+.batteryHorizontalShell{fill:var(--smn-surface);stroke:var(--smn-muted);stroke-width:3}
+.batteryHorizontalTerminal{fill:var(--smn-muted)}
+.batteryHorizontalEmpty{fill:var(--smn-soft)}
+.batteryHorizontalFill{fill:var(--smn-brand)}
+.batteryHorizontalValue{display:flex;align-items:baseline;justify-content:center;gap:.35rem;flex-wrap:wrap;min-width:0;text-align:center}
