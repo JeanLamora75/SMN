@@ -7,7 +7,8 @@ export function formatIndicatorValue(
  value:string|number|null|undefined,locale:"fr"|"en"|"fr-FR"|"en-GB"="fr"
 ):string{
  if(value===null||value===undefined)return "—";
- const raw=(typeof value==="number"&&Number.isFinite(value)?\n  value.toLocaleString("en-US",{useGrouping:false,maximumFractionDigits:20}):String(value)).trim();
+ const raw=(typeof value==="number"&&Number.isFinite(value)?
+  value.toLocaleString("en-US",{useGrouping:false,maximumFractionDigits:20}):String(value)).trim();
  const match=/^([+-]?)(\d+)(?:\.(\d+))?$/.exec(raw);
  if(!match)return raw;
  const [,sign,whole,fraction=""]=match;
