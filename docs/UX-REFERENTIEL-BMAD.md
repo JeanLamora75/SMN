@@ -871,3 +871,9 @@ Le sélecteur d'en-tête est alimenté exclusivement par les équipes autorisée
 **Règles** : conserver l'en-tête clair et la navigation latérale réelle de SMN, le bandeau métier Cockpit Agile et la mécanique de brouillon/persistance existante. Galerie M01–M06, assistant en deux étapes, dimensions, copie interéquipes, confirmations et sortie doivent suivre les conventions graphiques et d'accessibilité communes. L'original PNG est conservé dans la Bibliothèque ChatGPT `/SMN/UX/Dashboard-Builder/MAQUETTE-MODALES-COCKPIT-AGILE-2026-11-04.png` ; GitHub contient une **reconstitution SVG**, non le PNG original.
 
 **Statut :** conception validée, implémentation et recette des modales non déclarées terminées.
+
+## Dashboard Builder — deux visualisations « Filigrane » (05/11/2026 — VALIDÉES)
+
+**Décision de conception approuvée :** enrichir le catalogue des visualisations d'une **Carte KPI — Filigrane** et d'une **Liste — Filigrane** sans modifier les vues classiques ni les six modèles de géométrie M01–M06. Icône et couleur issues du paramétrage existant ; icône centrée horizontalement/verticalement, haute de **90 %** de la zone, **opacité fixe 10 %**, derrière les informations, sans déformer ni déborder. Textes, valeurs, badges, liens et commandes restent nets et interactifs ; filigrane purement décoratif et inaccessible au focus.
+
+**Contrats UX :** [avenant du dossier UX Dashboard Builder](../_bmad-output/planning-artifacts/dashboard-builder/dashboard-builder-dossier-ux-bmad-v1.md) et [avenant de restitution](../_bmad-output/planning-artifacts/ux-designs/ux-dashboard-builder-2026-11-04/REFERENCE-RESTITUTION-VALIDEE.md). L'assistant propose les nouvelles variantes uniquement pour les sources compatibles ; miniatures et libellés FR/EN, brouillon et sauvegarde explicite ; conformité aux thèmes, responsive, données v33 et configurations historiques. **Validation UX ≠ développement exécuté**. Epic Jira [SMN-353](https://lmn24.atlassian.net/browse/SMN-353).
