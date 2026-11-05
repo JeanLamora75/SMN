@@ -58,7 +58,7 @@ export async function readDashboardBatch(db:Client,scope:LayoutScope,requests:re
   if(!r.cycleId)return {state:"absent"};
   try{
    const indicatorId=r.source.slice("indicator:".length);
-   if(r.view==="line"||r.view==="bar"){
+   if(r.view==="line"||r.view==="bar"||r.view==="bar-horizontal"){
     const definitions=await db.query<{id:string;tag:string;formula:string|null}>(
      "SELECT id,tag,formula FROM public.smn_indicator_definition WHERE archived_at IS NULL");
     const current=definitions.rows.find(x=>x.id===indicatorId);
