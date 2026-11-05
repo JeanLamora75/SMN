@@ -76,13 +76,22 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
          {c==="all"?"Toutes":categoryNames[c]??"Autres sources"}
         </button>)}
       </div>
+      {sources.some(source=>source.category==="indicator"&&source.status==="unavailable"&&
+        (source.reason==="indicator-not-selected"||source.reason==="indicator-hidden-dashboard"))&&
+       <p className="alert alert-info small mb-3">Certains indicateurs du catalogue ne sont pas encore disponibles pour cette équipe.
+        Activez-les dans l’onglet « Sélection », puis vérifiez leur visibilité dans « Affichage ».
+        <a className="alert-link ms-2" href={"/app/admin/indicators?teamId="+encodeURIComponent(teamId)+"#selections"} target="_blank" rel="noopener noreferrer">Paramétrer les indicateurs de l’équipe</a>
+       </p>}
       {loading?<p role="status">Chargement des sources…</p>:error?<p role="alert" className="alert alert-warning">{error}</p>:
        !filtered.length?<p role="status">Aucune source correspondant à votre recherche.</p>:
        <div className="row g-2" aria-label="Sources disponibles">{filtered.map(source=><div className="col-12 col-md-6" key={source.code}>
         <button type="button" className={ui.card} onClick={()=>chooseSource(source)} disabled={source.status!=="available"} aria-disabled={source.status!=="available"}>
          <span className={ui.cardName}>{source.name}</span>
          <span className="d-block small text-body-secondary mt-2">{categoryNames[source.category]??"Source métier"} · {source.scope==="cycle"?"Par cycle":"Par équipe"}{source.unit?" · "+source.unit:""}</span>
-         {source.status!=="available"&&<span className="d-block small text-warning-emphasis mt-2">Source non encore disponible dans ce Dashboard.</span>}
+         {source.status!=="available"&&<span className="d-block small text-warning-emphasis mt-2">{source.reason==="indicator-not-selected"?
+          "Indicateur non activé pour cette équipe.":source.reason==="indicator-hidden-dashboard"?
+          "Indicateur masqué dans les préférences Dashboard de cette équipe.":
+          "Source non encore disponible dans ce Dashboard."}</span>}
         </button>
        </div>)}</div>}
      </div>:<div className="row g-3">
