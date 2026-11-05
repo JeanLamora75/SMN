@@ -1,5 +1,5 @@
 "use client";
-import {useMemo} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {DashboardBusinessList} from "./dashboard-business-list";
 import {SMNIcon} from "../smn-icon";
 import {isDashboardIcon} from "@/lib/dashboard-builder/icon-catalog";
@@ -19,10 +19,21 @@ export {visibleSlots,gridColumns} from "@/lib/dashboard-builder/consultation-lay
 import type {CSSProperties,ReactNode} from "react";
 
 const isWatermarkView=(view:unknown)=>view==="card-watermark"||view==="list-watermark";
-function watermark(slot:DashboardSlot){
+function DashboardWatermark({slot}:{slot:DashboardSlot}){
+ const node=useRef<HTMLSpanElement>(null);
+ const [size,setSize]=useState<number|undefined>();
+ useEffect(()=>{
+  const parent=node.current?.parentElement;
+  if(!parent)return;
+  const update=()=>setSize(Math.max(0,Math.floor(Math.min(parent.clientHeight,parent.clientWidth)*.9)));
+  update();
+  const observer=new ResizeObserver(update);
+  observer.observe(parent);
+  return ()=>observer.disconnect();
+ },[]);
  if(!isWatermarkView(slot.view)||!isDashboardIcon(slot.icon))return null;
- return <span className={styles.watermarkGraphic} aria-hidden="true" style={{color:ceremonyIconColorHex(slot.iconColor)??"currentColor"}}>
-  <SMNIcon name={slot.icon}/>
+ return <span ref={node} className={styles.watermarkGraphic} aria-hidden="true" style={{color:ceremonyIconColorHex(slot.iconColor)??"currentColor"}}>
+  <SMNIcon name={slot.icon} size={size?size+"px":undefined}/>
  </span>;
 }
 
@@ -55,8 +66,8 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
     {active.map(slot=>{
      const result=slots[slot.id];
      let model:VisualizationModel;
-     if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`}>{watermark(slot)}{(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
-     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`} aria-label={slot.title?.trim()||"Liste du tableau de bord"}>{watermark(slot)}
+     if(!result||result.state==="loading")return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} aria-busy="true" aria-label="Chargement de la donnée" className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`}><DashboardWatermark slot={slot}/>{(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}<div className="placeholder-glow" role="status" aria-label="Chargement en cours"><span className="placeholder col-12 rounded mb-2"/><span className="placeholder col-7 rounded"/></div></section>;
+     if(result.list&&(result.state==="available"||result.state==="absent"))return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`} aria-label={slot.title?.trim()||"Liste du tableau de bord"}><DashboardWatermark slot={slot}/>
       {(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
       <DashboardBusinessList data={result.list} locale={locale} columns={Array.isArray(slot.filters?.columns)?slot.filters.columns as string[]:undefined}/>
       {canManage&&mode==="scrum"&&cycleId&&!personalizing&&navigation.current?.status!=="closed"&&
@@ -81,7 +92,7 @@ export default function DashboardConsultation({layout,teamId,teamName,navigation
      }else if(result.state==="null"||result.state==="absent"||result.state==="error"){
       model={state:result.state,kind:slot.view as VisualizationModel["kind"]};
      }else model={state:"incompatible",kind:slot.view as VisualizationModel["kind"]};
-     return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${styles.indicatorSlotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`} aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}>{watermark(slot)}
+     return <section key={slot.id} style={complete?templateCellStyle(template,slot):{minWidth:0}} className={`${styles.slotCard} ${styles.indicatorSlotCard} ${isWatermarkView(slot.view)?styles.watermarkSlot:""}`} aria-label={slot.title?.trim()||"Indicateur du tableau de bord"}><DashboardWatermark slot={slot}/>
       {(slot.title?.trim()||(!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)))&&<h3 className={styles.slotTitle}>{!isWatermarkView(slot.view)&&isDashboardIcon(slot.icon)&&<span className={styles.slotTitleIcon} style={{color:ceremonyIconColorHex(slot.iconColor)??"inherit"}}><SMNIcon name={slot.icon}/></span>}<span className={styles.slotTitleLabel}>{slot.title?.trim()}</span></h3>}
       {result.state==="absent"&&(slot.view==="list"||slot.view==="list-watermark")?<p role="status">Aucun résultat</p>:result.state==="unavailable"||result.state==="incompatible"?<p role="status" className="text-body-secondary">{result.state==="unavailable"?"Source indisponible":"Source incompatible"}</p>:
        <DashboardVisualization model={model} locale={locale}/>}
