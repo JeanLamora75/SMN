@@ -22,7 +22,7 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
 }):ReactNode{
  if(model.kind==="tachometer"&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
   {model.value!==undefined&&<span className={styles.metric}><output className={styles.metricNumber}>{format(model.value,locale)}</output>{model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}</span>}
-  <span className={styles.state}>Échelle invalide</span>
+  <span className={styles.state}>{locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>
  </div>;
  if(model.state!=="ready"){
   const messages:Record<Exclude<VisualizationModel["state"],"ready">,string>={
@@ -38,7 +38,7 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
   </div>;
  if(model.kind==="tachometer"){
   if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
-   return <span role="status" className={styles.state}>Échelle invalide</span>;
+   return <span role="status" className={styles.state}>{locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>;
   const tip=tachometerNeedle(model.ratio);
   const ticks=Array.from({length:11},(_,i)=>{
    const angle=i*Math.PI/10;
