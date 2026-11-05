@@ -3,7 +3,6 @@ import {useEffect,useState,type FormEvent} from "react";
 import {useTranslation} from "@/i18n/client";
 import {IconPicker} from "../../icon-picker";
 import {SMNIcon} from "../../smn-icon";
-import {CeremonyColorPicker} from "../../ceremony-color-picker";
 import {ceremonyIconColorHex,type CeremonyIconColor} from "@/lib/ceremony-appearance";
 import type {DashboardIconName} from "@/lib/dashboard-builder/icon-catalog";
 type Frequency="daily"|"weekly"|"sprint";
@@ -42,7 +41,7 @@ export default function TemplateForm(){
    <div>
     <div className="form-label fw-semibold mb-1">Icône de la cérémonie</div>
     <p className="small text-body-secondary mb-2">Facultative. L’icône et sa couleur s&apos;appliquent au modèle, sans modifier les réunions existantes.</p>
-    <IconPicker value={form.icon??undefined} onChange={icon=>setForm(current=>({...current,icon:icon??null}))} disabled={busy} label="du modèle de cérémonie"/>
+    <IconPicker value={form.icon??undefined} onChange={icon=>setForm(current=>({...current,icon:icon??null}))} color={form.iconColor} onColorChange={iconColor=>setForm(current=>({...current,iconColor:iconColor??null}))} disabled={busy} label="du modèle de cérémonie"/>
    </div>
    <div className="d-inline-flex align-items-center gap-2 rounded-3 border px-3 py-2" role="status" aria-label="Aperçu de la cérémonie">
     {form.icon&&<span style={{color:ceremonyIconColorHex(form.iconColor)??"var(--smn-foreground)"}}>
@@ -51,7 +50,6 @@ export default function TemplateForm(){
     <span className="small">{form.name.trim()||"Aperçu de la cérémonie"}</span>
    </div>
   </div>
-  <CeremonyColorPicker value={form.iconColor} onChange={iconColor=>setForm(current=>({...current,iconColor:iconColor??null}))} disabled={busy}/>
  </div></div>
  <div className="col-md-4"><label htmlFor="template-active" className="form-check-label">{t("ceremonyTemplates.enabled")}</label><input id="template-active" type="checkbox" className="form-check-input ms-2" checked={active} onChange={e=>setActive(e.target.checked)}/></div>
  <div className="col-12"><button className="btn btn-primary" type="submit" disabled={busy}>{t("ceremonyTemplates.save")}</button></div></form>
