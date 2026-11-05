@@ -6,6 +6,8 @@ import {readAccountDashboard} from "@/server/dashboard/read";
 import IndicatorCatalog from "../../indicators/catalog-client";
 import TeamGrants from "../../indicators/team-grants";
 import IndicatorSettingsTabs from "./settings-tabs";
+import "../../sprints/[sprintId]/sprint-detail-cockpit.css";
+import "./indicator-settings-cockpit.css";
 
 export const dynamic="force-dynamic";
 
@@ -28,10 +30,11 @@ export default async function IndicatorSettingsPage({searchParams}:{searchParams
   return found.rows.filter(t=>t.agile_mode==="scrum"||t.agile_mode==="kanban")
    .map(t=>({id:t.id,name:t.name,mode:t.agile_mode as "scrum"|"kanban"}));
  }):[];
- return <main className="smn-page smn-team-page container-fluid px-3 px-lg-4 py-4">
-  <header className="smn-panel rounded-4 px-4 py-3 mb-3">
-   <h1 className="h4 mb-1">Paramètres · Indicateurs</h1>
-   <p className="small text-secondary mb-0">Catalogue global des définitions d’indicateurs — administration</p>
+ return <main className="smn-page smn-team-page smn-sprint-detail-cockpit smn-indicator-settings-cockpit container-fluid px-3 px-lg-4 py-4">
+  <header className="smn-sprint-detail-hero mb-3">
+   <p className="smn-cycle-eyebrow text-uppercase small fw-semibold mb-1">Cockpit Agile · Administration</p>
+   <h1 className="mb-1">Paramètres · Indicateurs</h1>
+   <p className="smn-indicator-settings-subtitle mb-0">Définir, comprendre et choisir les indicateurs de pilotage de vos équipes</p>
   </header>
   <IndicatorSettingsTabs teams={teams} teamId={teams.some(t=>t.id===selected)?selected??null:null}
    catalogue={<IndicatorCatalog teams={[]} isAdmin scope="global"/>}
