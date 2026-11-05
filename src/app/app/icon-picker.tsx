@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useId,useMemo,useRef,useState} from "react";
 import {SMNIcon} from "./smn-icon";
+import {CEREMONY_ICON_COLORS,ceremonyIconColorHex,type CeremonyIconColor} from "@/lib/ceremony-appearance";
 import {DASHBOARD_ICONS,ICON_CATEGORIES,isDashboardIcon,type DashboardIconName} from "@/lib/dashboard-builder/icon-catalog";
 
 const FAVORITES_KEY="smn-icon-picker-favorites-v1";
@@ -18,12 +19,15 @@ function persist(key:string,values:readonly DashboardIconName[]){
 }
 
 /** Sélecteur partagé : recherche intégrale, catégories, favoris/récents locaux et 72 tuiles maximum par page. */
-export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
- value?:DashboardIconName|string;onChange:(name:DashboardIconName|undefined)=>void;disabled?:boolean;label?:string;
+export function IconPicker({value,onChange,color,onColorChange,disabled=false,label="Icône"}:{
+ value?:DashboardIconName|string;onChange:(name:DashboardIconName|undefined)=>void;
+ color?:CeremonyIconColor|null;onColorChange?:(color:CeremonyIconColor|undefined)=>void;
+ disabled?:boolean;label?:string;
 }){
  const [open,setOpen]=useState(false);
  const [search,setSearch]=useState("");
  const [category,setCategory]=useState<string>("Toutes");
+ const [draftColor,setDraftColor]=useState<CeremonyIconColor|undefined>(color??undefined);
  const [limit,setLimit]=useState(PAGE_SIZE);
  const [favorites,setFavorites]=useState<DashboardIconName[]>(()=>typeof window==="undefined"?[]:readIcons(FAVORITES_KEY));
  const [recent,setRecent]=useState<DashboardIconName[]>(()=>typeof window==="undefined"?[]:readIcons(RECENTS_KEY));
@@ -47,7 +51,7 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
  const choose=(name:DashboardIconName)=>{
   const updated=[name,...recent.filter(entry=>entry!==name)].slice(0,24);
   setRecent(updated);persist(RECENTS_KEY,updated);
-  onChange(name);setOpen(false);
+  onChange(name);onColorChange?.(draftColor);setOpen(false);
  };
  const toggleFavorite=(name:DashboardIconName)=>{
   const updated=favorites.includes(name)?favorites.filter(item=>item!==name):[...favorites,name];
@@ -71,32 +75,46 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
  },[open]);
  return <>
   <button ref={trigger} type="button" className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2"
-   disabled={disabled} onClick={()=>{setSearch("");setCategory("Toutes");setLimit(PAGE_SIZE);setOpen(true);}} aria-haspopup="dialog">
-   {selected?<SMNIcon name={selected.name}/>:<SMNIcon name="grid-3x3-gap"/>}
+   disabled={disabled} onClick={()=>{setSearch("");setCategory("Toutes");setLimit(PAGE_SIZE);setDraftColor(color??undefined);setOpen(true);}} aria-haspopup="dialog">
+   <span style={{color:ceremonyIconColorHex(color)}}>{selected?<SMNIcon name={selected.name}/>:<SMNIcon name="grid-3x3-gap"/>}</span>
    <span>{selected?selected.label:"Choisir une icône"}</span>
   </button>
   {open&&<div className="modal d-block" style={{background:"rgba(0,0,0,.5)",zIndex:1080}} role="presentation"
     onMouseDown={event=>{if(event.target===event.currentTarget)setOpen(false);}}>
    <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
     <div ref={dialog} className="modal-content" role="dialog" aria-modal="true" aria-labelledby={id}>
-     <div className="modal-header">
-      <div>
-       <h2 id={id} className="modal-title fs-5">Choisir une icône — {label}</h2>
-       <span className="small text-body-secondary">Catalogue Bootstrap Icons · {DASHBOARD_ICONS.length} icônes</span>
+     <div className="modal-header align-items-start border-bottom" style={{background:"linear-gradient(110deg,var(--bs-primary-bg-subtle),var(--bs-body-bg))"}}>
+      <div className="d-flex align-items-start gap-3">
+       <span className="rounded-3 border bg-body p-2 d-flex align-items-center justify-content-center" style={{fontSize:"1.5rem",color:ceremonyIconColorHex(draftColor)??"var(--bs-primary)"}} aria-hidden="true"><SMNIcon name={selected?.name??"grid-3x3-gap"}/></span>
+       <div>
+        <div className="text-uppercase fw-semibold small text-primary mb-1" style={{letterSpacing:".08em"}}>Cockpit Agile · Personnalisation</div>
+        <h2 id={id} className="modal-title fs-5 fw-bold mb-1">Bibliothèque d’icônes</h2>
+        <p className="small text-body-secondary mb-0">{label} · Bootstrap Icons · {DASHBOARD_ICONS.length} icônes disponibles</p>
+       </div>
       </div>
       <button type="button" className="btn-close" onClick={()=>setOpen(false)} aria-label="Fermer"/>
      </div>
      <div className="modal-body">
-      <div className="row g-2 mb-3">
-       <div className="col-12 col-md-7">
-        <label className="form-label" htmlFor={id+"-search"}>Rechercher</label>
-        <input id={id+"-search"} className="form-control" value={search} onChange={event=>{setSearch(event.target.value);setLimit(PAGE_SIZE);}} placeholder="Nom ou mot-clé"/>
+      <div className="row g-2 mb-3 align-items-end flex-nowrap" style={{overflowX:"auto"}}>
+       <div className="col" style={{minWidth:160}}>
+        <label className="form-label fw-semibold small" htmlFor={id+"-search"}>Rechercher</label>
+        <input id={id+"-search"} type="search" className="form-control" value={search} onChange={event=>{setSearch(event.target.value);setLimit(PAGE_SIZE);}} placeholder="Nom ou mot-clé"/>
        </div>
-       <div className="col-12 col-md-5">
-        <label className="form-label" htmlFor={id+"-category"}>Catégorie</label>
+       <div className="col" style={{minWidth:160}}>
+        <label className="form-label fw-semibold small" htmlFor={id+"-category"}>Catégorie</label>
         <select id={id+"-category"} className="form-select" value={category} onChange={event=>{setCategory(event.target.value);setLimit(PAGE_SIZE);}}>
          {ICON_CATEGORIES.map(item=><option key={item} value={item}>{item}{item==="Favoris"?" ("+favorites.length+")":item==="Récentes"?" ("+recent.length+")":""}</option>)}
         </select>
+       </div>
+       <div className="col" style={{minWidth:145,maxWidth:210}}>
+        <label className="form-label fw-semibold small" htmlFor={id+"-color"}>Couleur</label>
+        <div className="d-flex gap-2 align-items-center">
+         <span className="rounded-circle border flex-shrink-0" aria-hidden="true" style={{width:26,height:26,backgroundColor:ceremonyIconColorHex(draftColor)??"var(--bs-body-color)"}}/>
+         <select id={id+"-color"} className="form-select" aria-label="Couleur des icônes" value={draftColor??""} onChange={event=>setDraftColor(event.target.value?event.target.value as CeremonyIconColor:undefined)}>
+          <option value="">Par défaut</option>
+          {CEREMONY_ICON_COLORS.map(item=><option key={item.id} value={item.id}>{item.label}</option>)}
+         </select>
+        </div>
        </div>
       </div>
       <div className="small text-body-secondary mb-2" role="status">{filtered.length} résultat{filtered.length>1?"s":""} · {visible.length} affiché{visible.length>1?"s":""}</div>
@@ -106,7 +124,7 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
          <button type="button" className={`btn w-100 h-100 d-flex flex-column align-items-center justify-content-center gap-2 ${icon.name===value?"btn-primary":"btn-outline-secondary"}`}
           style={{minHeight:94,paddingTop:18}} aria-label={"Choisir "+icon.label} aria-pressed={icon.name===value}
           onClick={()=>choose(icon.name)}>
-          <span style={{fontSize:"1.4rem"}}><SMNIcon name={icon.name}/></span>
+          <span style={{fontSize:"1.4rem",color:ceremonyIconColorHex(draftColor)??undefined}}><SMNIcon name={icon.name}/></span>
           <span className="small text-break">{icon.label}</span>
          </button>
          <button type="button" className="btn btn-sm position-absolute top-0 end-0"
@@ -125,8 +143,11 @@ export function IconPicker({value,onChange,disabled=false,label="Icône"}:{
       </div>}
      </div>
      <div className="modal-footer justify-content-between">
-      <button type="button" className="btn btn-outline-danger" onClick={()=>{onChange(undefined);setOpen(false);}}>Sans icône</button>
-      <button type="button" className="btn btn-outline-secondary" onClick={()=>setOpen(false)}>Annuler</button>
+      <button type="button" className="btn btn-outline-danger" onClick={()=>{onChange(undefined);onColorChange?.(undefined);setOpen(false);}}>Sans icône</button>
+      <div className="d-flex gap-2">
+       {selected&&onColorChange&&<button type="button" className="btn btn-primary" onClick={()=>{onColorChange(draftColor);setOpen(false);}}>Appliquer la couleur</button>}
+       <button type="button" className="btn btn-outline-secondary" onClick={()=>setOpen(false)}>Annuler</button>
+      </div>
      </div>
     </div>
    </div>
