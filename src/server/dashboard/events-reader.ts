@@ -37,8 +37,8 @@ function normalize(raw:unknown):DashboardEvent|null{
   startsAt,endsAt,
   status:typeof v.status==="string"&&v.status? v.status:"unknown",
   // Snapshot historique sans ce champ : provenance inconnue, jamais inventée.
-  icon:typeof v.icon_name==="string"?v.icon_name:null,
-  iconColor:typeof v.icon_color==="string"?v.icon_color:null,
+  ...(typeof v.icon_name==="string"?{icon:v.icon_name}:{}),
+  ...(typeof v.icon_color==="string"?{iconColor:v.icon_color}:{}),
   generationSource:generation==="reconstructed"?"reconstructed":
    generation==="standard"?"standard":null
  };
