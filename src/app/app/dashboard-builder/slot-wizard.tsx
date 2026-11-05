@@ -11,10 +11,10 @@ import ui from "./modal-ux.module.css";
 const categoryNames:Record<string,string>={indicator:"Indicateurs",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",notes:"Notes",objective:"Objectifs",team:"Équipe",link:"Liens"};
 const columnNames:Record<string,string>={label:"Nom",kind:"Type",status:"Statut",date:"Date"};
 const viewNames:Partial<Record<SourceView,string>>={
- number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",line:"Courbe",bar:"Histogramme",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
+ number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",tachometer:"Tachymètre",line:"Courbe",bar:"Histogramme",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
 };
 const viewLabel=(kind:SourceView,locale:string)=>!locale.toLowerCase().startsWith("fr")?
- ({"card-watermark":"KPI card — Watermark","list-watermark":"List — Watermark"} as Partial<Record<SourceView,string>>)[kind]??viewNames[kind]??kind:viewNames[kind]??kind;
+ ({"card-watermark":"KPI card — Watermark","list-watermark":"List — Watermark",tachometer:"Tachometer"} as Partial<Record<SourceView,string>>)[kind]??viewNames[kind]??kind:viewNames[kind]??kind;
 export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClose,onConfirm,onClear}:{
  teamId:string;initialSlot?:DashboardSlot;cycles:readonly DashboardCycle[];locale?:string;onClose:()=>void;
  onConfirm:(source:string,view:SourceView,options:SlotOptions)=>void;onClear:()=>void;
@@ -53,7 +53,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
  const chooseSource=(source:SourceDescriptor)=>{if(source.status!=="available")return;setSelected(source);setView(null);setOptions({});setOptionError("");};
  const confirm=()=>{
   if(!selected||!view)return;
-  try{const clean=normalizeSlotOptions(options,selected.category,cycles.map(c=>c.id));
+  try{const clean=normalizeSlotOptions(options,selected.category,cycles.map(c=>c.id),view);
    onConfirm(selected.code,view,clean);
   }catch(e){setOptionError(e instanceof Error?e.message:"Options invalides");}
  };
@@ -100,7 +100,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
       <div className="col-12 col-lg-7">
        <h3 className={ui.sectionTitle}>Visualisations compatibles — {selected.name}</h3>
        <div className="row g-2">{views.map(item=><div key={item.kind} className="col-6 col-sm-4">
-        <button type="button" onClick={()=>setView(item.kind)}
+        <button type="button" onClick={()=>{setView(item.kind);if(item.kind!=="tachometer")setOptions(o=>{const {minimum,maximum,...rest}=o;return rest;});setOptionError("");}}
          className={`${ui.card} ${view===item.kind?ui.cardSelected:""} text-center`}
          aria-pressed={view===item.kind}>
          <span aria-hidden="true" className="d-block fs-3">{item.thumbnail}</span>
@@ -115,6 +115,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
          <div className="small fw-semibold text-body-secondary">{viewLabel(view,locale)} · {selected.name}</div>
          <div className="border rounded-3 p-3 bg-body-tertiary">
           {view==="number"||view==="card"||view==="card-watermark"?<><div className="placeholder-glow"><span className="placeholder col-8 rounded mb-3"/><span className="placeholder col-5 rounded" style={{height:28}}/></div></>:
+           view==="tachometer"?<svg viewBox="0 0 180 94" width="100%" aria-hidden="true"><path d="M 24 80 A 66 66 0 0 1 156 80" fill="none" stroke="var(--smn-border)" strokeWidth="12" strokeLinecap="round"/><line x1="90" y1="80" x2="90" y2="21" stroke="var(--smn-heading)" strokeWidth="3"/><circle cx="90" cy="80" r="5" fill="var(--smn-heading)"/></svg>:
            view==="gauge"?<div className="progress" style={{height:13}}><div className="progress-bar w-50" style={{opacity:.35}}/></div>:
            view==="line"?<svg viewBox="0 0 180 68" width="100%" aria-hidden="true"><polyline points="4,61 32,52 64,40 98,44 130,24 176,9" fill="none" stroke="currentColor" strokeWidth="2"/></svg>:
            view==="bar"?<div className="d-flex align-items-end gap-2" style={{height:68}}>{[30,65,45,88,60].map((n,i)=><div key={i} className="bg-primary-subtle rounded-top flex-fill" style={{height:n+"%"}}/>)}</div>:
@@ -130,6 +131,16 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
        <details className="border rounded-3 p-3 bg-body-tertiary">
         <summary>Options avancées</summary>
         <div className="row g-3 mt-2">
+         {view==="tachometer"&&selected.category==="indicator"&&<>
+          <div className="col-12"><p className="small text-body-secondary mb-0">Définissez les bornes de l'échelle du tachymètre. Elles ne modifient pas la mesure de l'indicateur.</p></div>
+          {selected.unit==="%"&&<div className="col-12"><button type="button" className="btn btn-outline-secondary btn-sm" onClick={()=>{setOptions(o=>({...o,minimum:0,maximum:100}));setOptionError("");}}>Échelle 0–100 %</button></div>}
+          <div className="col-6"><label className="form-label" htmlFor="tachometer-minimum">Minimum de l'échelle</label>
+           <input id="tachometer-minimum" className="form-control" type="number" step="any" required value={options.minimum??""}
+            onChange={e=>setOptions(o=>({...o,minimum:e.target.value===""?undefined:Number(e.target.value)}))}/></div>
+          <div className="col-6"><label className="form-label" htmlFor="tachometer-maximum">Maximum de l'échelle</label>
+           <input id="tachometer-maximum" className="form-control" type="number" step="any" required value={options.maximum??""}
+            onChange={e=>setOptions(o=>({...o,maximum:e.target.value===""?undefined:Number(e.target.value)}))}/></div>
+         </>}
          <div className="col-12 col-md-6">
           <label className="form-label" htmlFor="slot-cycle">Exception de cycle</label>
           <select id="slot-cycle" className="form-select" value={options.cycleIdOverride??""}
