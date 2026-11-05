@@ -1,7 +1,7 @@
 "use client";
 import {useState,useEffect,type ReactNode} from "react";
 type Section={id:string;label:string;content:ReactNode};
-export default function SettingsTabs({sections,label,variant="default"}:{sections:Section[];label:string;variant?:"default"|"cockpit"}){
+export default function SettingsTabs({sections,label,variant="default",actions,actionsTabId}:{sections:Section[];label:string;variant?:"default"|"cockpit";actions?:ReactNode;actionsTabId?:string}){
  const [active,setActive]=useState(sections[0]?.id??"");
  const sectionIds=sections.map(section=>section.id).join("|");
  useEffect(()=>{
@@ -18,7 +18,8 @@ export default function SettingsTabs({sections,label,variant="default"}:{section
   window.history.replaceState(null,"","#"+id);
  };
  return <div>
-  <div className={"nav nav-tabs mb-3"+(variant==="cockpit"?" smn-indicator-tabs":"")} role="tablist" aria-label={label}>
+  <div className={"d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"+(variant==="cockpit"?" smn-indicator-toolbar":"")}>
+  <div className={"nav nav-tabs flex-grow-1"+(variant==="cockpit"?" smn-indicator-tabs":"")} role="tablist" aria-label={label}>
    {sections.map((section,index)=><button key={section.id} type="button" role="tab"
     id={"tab-"+section.id} aria-controls={"panel-"+section.id}
     aria-selected={active===section.id} tabIndex={active===section.id?0:-1}
@@ -30,6 +31,8 @@ export default function SettingsTabs({sections,label,variant="default"}:{section
      selectTab(sections[next].id);
      document.getElementById("tab-"+sections[next].id)?.focus();
     }} onClick={()=>selectTab(section.id)}>{section.label}</button>)}
+  </div>
+  {actions&&(!actionsTabId||active===actionsTabId)&&<div className="d-flex flex-wrap align-items-center gap-2 pb-1 ms-auto">{actions}</div>}
   </div>
   {sections.map(section=><section key={section.id} role="tabpanel"
    id={"panel-"+section.id} aria-labelledby={"tab-"+section.id}
