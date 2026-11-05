@@ -128,7 +128,7 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,locale="fr",onClo
        </section>
       </div>
       <div className="col-12">
-       <details className="border rounded-3 p-3 bg-body-tertiary">
+       <details open={view==="tachometer"} className="border rounded-3 p-3 bg-body-tertiary">
         <summary>Options avancées</summary>
         <div className="row g-3 mt-2">
          {view==="tachometer"&&selected.category==="indicator"&&<>
