@@ -1,7 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
 import {IconPicker} from "../icon-picker";
-import {CeremonyColorPicker} from "../ceremony-color-picker";
 import type {CeremonyIconColor} from "@/lib/ceremony-appearance";
 import {DashboardActionsMenu} from "./dashboard-actions-menu";
 import type {DashboardIconName} from "@/lib/dashboard-builder/icon-catalog";
@@ -188,13 +187,13 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
       value={block.title??""} onChange={e=>setBlockTitle(block.id,e.target.value)} disabled={saving}
       placeholder="Titre du bloc (facultatif)"/>
     </label>
-    <div className="mb-2"><IconPicker value={block.icon} onChange={icon=>setBlockIcon(block.id,icon)} disabled={saving} label="du bloc d’en-tête"/> <CeremonyColorPicker value={block.iconColor} onChange={color=>setBlockIconColor(block.id,color)} disabled={saving} label="Couleur de l’icône du bloc d’en-tête"/></div>
+    <div className="mb-2"><IconPicker value={block.icon} onChange={icon=>setBlockIcon(block.id,icon)} color={block.iconColor} onColorChange={color=>setBlockIconColor(block.id,color)} disabled={saving} label="du bloc d’en-tête"/></div>
     {block.slots.map(slot=><label className="form-label small w-100" key={slot.id}>Titre de l&apos;emplacement
      <input type="text" className="form-control form-control-sm" maxLength={100}
       value={slot.title??""} onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}
       placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}/>
     </label>)}
-    {block.slots.map(slot=><div key={"icon-"+slot.id} className="mb-2"><IconPicker value={slot.icon} onChange={icon=>setSlotIcon(slot.id,icon)} disabled={saving} label="de l’emplacement d’en-tête"/> <CeremonyColorPicker value={slot.iconColor} onChange={color=>setSlotIconColor(slot.id,color)} disabled={saving} label="Couleur de l’icône de l’emplacement d’en-tête"/></div>)}
+    {block.slots.map(slot=><div key={"icon-"+slot.id} className="mb-2"><IconPicker value={slot.icon} onChange={icon=>setSlotIcon(slot.id,icon)} color={slot.iconColor} onColorChange={color=>setSlotIconColor(slot.id,color)} disabled={saving} label="de l’emplacement d’en-tête"/></div>)}
    </div>)}</div>
   </details>}
   {!editing&&<DashboardConsultation layout={published} teamId={teamId} teamName={teamName} navigation={navigation}
@@ -241,7 +240,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
         placeholder="Titre du bloc (facultatif)" disabled={saving}
         onChange={e=>setBlockTitle(block.id,e.target.value)}/>
       </label>
-      <div className="mb-2"><IconPicker value={block.icon} onChange={icon=>setBlockIcon(block.id,icon)} disabled={saving} label="du bloc"/> <CeremonyColorPicker value={block.iconColor} onChange={color=>setBlockIconColor(block.id,color)} disabled={saving} label="Couleur de l’icône du bloc"/></div>
+      <div className="mb-2"><IconPicker value={block.icon} onChange={icon=>setBlockIcon(block.id,icon)} color={block.iconColor} onColorChange={color=>setBlockIconColor(block.id,color)} disabled={saving} label="du bloc"/></div>
       <div className="d-flex justify-content-end mb-2"><BlockDimensionControl value={block.dimensions} disabled={saving} onChange={value=>setDraft(d=>d?updateBlockDimensions(d,block.id,value):null)}/></div>
       <div className="row row-cols-1 row-cols-md-2 g-2">{block.slots.map(slot=><div className="col" key={slot.id}>
        <label className="form-label small w-100">Titre de l&apos;emplacement
@@ -249,7 +248,7 @@ export function DashboardEditor({initialLayout,initialRevision,canEdit,teamId,te
          value={slot.title??""} placeholder={sourceByCode.get(slot.source??"")?.name??"Titre facultatif"}
          onChange={e=>setSlotTitle(slot.id,e.target.value)} disabled={saving}/>
        </label>
-       <div className="mb-2"><IconPicker value={slot.icon} onChange={icon=>setSlotIcon(slot.id,icon)} disabled={saving} label="de l’emplacement"/> <CeremonyColorPicker value={slot.iconColor} onChange={color=>setSlotIconColor(slot.id,color)} disabled={saving} label="Couleur de l’icône de l’emplacement"/></div>
+       <div className="mb-2"><IconPicker value={slot.icon} onChange={icon=>setSlotIcon(slot.id,icon)} color={slot.iconColor} onColorChange={color=>setSlotIconColor(slot.id,color)} disabled={saving} label="de l’emplacement"/></div>
        <button type="button" className="btn btn-outline-secondary w-100" onClick={()=>setWizardSlot(slot.id)} disabled={saving}
         aria-label={`Configurer emplacement ${slot.templateSlotId}`}>
         {slot.source?<span className="d-flex flex-column align-items-start text-start"><strong>✎ {sourceByCode.get(slot.source)?.name??"Source introuvable"}</strong>{sourceByCode.get(slot.source)&&<span className="small text-body-secondary">{sourceByCode.get(slot.source)?.category==="indicator"?"Indicateur":sourceByCode.get(slot.source)?.category==="registry"?"Registre":"Source"} · {sourceByCode.get(slot.source)?.scope==="cycle"?"Par cycle":"Par équipe"}{sourceByCode.get(slot.source)?.unit?" · "+sourceByCode.get(slot.source)?.unit:""}</span>}</span>:"+"}</button>
