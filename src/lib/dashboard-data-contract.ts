@@ -61,6 +61,8 @@ export type DashboardEvent = Readonly<{
   endsAt: string;
   status: string;
   generationSource: "standard" | "reconstructed" | null;
+  icon?: string | null;
+  iconColor?: string | null;
 }>;
 
 export type DashboardAttention = Readonly<{
