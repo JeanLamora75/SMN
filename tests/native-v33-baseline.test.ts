@@ -84,3 +84,15 @@ test("v33 native: installation defaults to account-only setup without an Agile m
  assert.ok(team,"smn_team declaration required");
  assert.match(team[1],/"agile_mode"\s+"text"/);
 });
+
+test("v33 native: lien, catégorie et audit subsistent dans l'installation actuelle",()=>{
+ const baseline=nativeV33BaselineSql();
+ assert.ok(baseline);
+ for(const name of ["smn_link","smn_link_category","smn_link_audit"])
+  assert.ok(baseline.includes('CREATE TABLE "public"."'+name+'"'),name+" missing in v33");
+ const contract=read("src/server/installation/contract.ts");
+ for(const name of ["smn_link","smn_link_category","smn_link_audit"])
+  assert.ok(contract.includes("public."+name+":r"),name+" must be recognized by diagnosis");
+ const diagnostic=read("src/server/installation/diagnostic.ts");
+ assert.match(diagnostic,/linksSchemaValid/);
+});
