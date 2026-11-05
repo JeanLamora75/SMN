@@ -11,7 +11,7 @@ import ui from "./modal-ux.module.css";
 const categoryNames:Record<string,string>={indicator:"Indicateurs",registry:"Registres",cycle:"Cycles",calendar:"Calendrier",notes:"Notes",objective:"Objectifs",team:"Équipe",link:"Liens"};
 const columnNames:Record<string,string>={label:"Nom",kind:"Type",status:"Statut",date:"Date"};
 const viewNames:Partial<Record<SourceView,string>>={
- number:"Valeur numérique",card:"Carte KPI",gauge:"Jauge",line:"Courbe",bar:"Histogramme",list:"Liste métier",text:"Texte",
+ number:"Valeur numérique",card:"Carte KPI","card-watermark":"Carte KPI — Filigrane",gauge:"Jauge",line:"Courbe",bar:"Histogramme",list:"Liste métier","list-watermark":"Liste — Filigrane",text:"Texte",
 };
 export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm,onClear}:{
  teamId:string;initialSlot?:DashboardSlot;cycles:readonly DashboardCycle[];onClose:()=>void;
@@ -112,11 +112,11 @@ export function DashboardSlotWizard({teamId,initialSlot,cycles,onClose,onConfirm
         {view?<div className="d-flex flex-column gap-3" aria-label="Aperçu de la composition, sans données fictives">
          <div className="small fw-semibold text-body-secondary">{viewNames[view]??view} · {selected.name}</div>
          <div className="border rounded-3 p-3 bg-body-tertiary">
-          {view==="number"||view==="card"?<><div className="placeholder-glow"><span className="placeholder col-8 rounded mb-3"/><span className="placeholder col-5 rounded" style={{height:28}}/></div></>:
+          {view==="number"||view==="card"||view==="card-watermark"?<><div className="placeholder-glow"><span className="placeholder col-8 rounded mb-3"/><span className="placeholder col-5 rounded" style={{height:28}}/></div></>:
            view==="gauge"?<div className="progress" style={{height:13}}><div className="progress-bar w-50" style={{opacity:.35}}/></div>:
            view==="line"?<svg viewBox="0 0 180 68" width="100%" aria-hidden="true"><polyline points="4,61 32,52 64,40 98,44 130,24 176,9" fill="none" stroke="currentColor" strokeWidth="2"/></svg>:
            view==="bar"?<div className="d-flex align-items-end gap-2" style={{height:68}}>{[30,65,45,88,60].map((n,i)=><div key={i} className="bg-primary-subtle rounded-top flex-fill" style={{height:n+"%"}}/>)}</div>:
-           view==="list"?<div className="placeholder-glow">{[0,1,2].map(i=><div key={i} className="border-bottom py-2"><span className="placeholder col-9 rounded"/></div>)}</div>:
+           (view==="list"||view==="list-watermark")?<div className="placeholder-glow">{[0,1,2].map(i=><div key={i} className="border-bottom py-2"><span className="placeholder col-9 rounded"/></div>)}</div>:
            <div className="placeholder-glow"><span className="placeholder col-10 rounded"/></div>}
          </div>
          <p className="small text-body-secondary mb-0">Aperçu de mise en page uniquement — aucune valeur métier simulée.</p>
