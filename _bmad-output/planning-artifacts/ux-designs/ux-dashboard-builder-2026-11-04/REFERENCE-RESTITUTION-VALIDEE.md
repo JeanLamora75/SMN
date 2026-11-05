@@ -103,3 +103,13 @@ Cette version finale respecte le menu gauche et l'en-tête existants de SMN, ret
 La conformité visuelle de cette référence est désormais suivie dans la User Story [SMN-380 — Conformité graphique de la restitution Cockpit Agile au shell SMN](https://lmn24.atlassian.net/browse/SMN-380), enfant de l'Epic SMN-353. Le premier code de refonte est déjà publié sur `main`, mais typecheck, lint, tests et recette visuelle en navigateur restent à prouver ; conserver le statut « À faire » jusqu'aux preuves.
 
 La refonte des modales de paramétrage constitue une Story distincte : [SMN-381](https://lmn24.atlassian.net/browse/SMN-381) ; son [contrat UX validé](./MODALES-PARAMETRAGE-REFERENCE-VALIDEE.md) complète cette référence sans modifier les données métier ni le shell SMN.
+
+## Avenant UX — Carte KPI et liste avec filigrane (05/11/2026)
+
+**Décision validée :** ajouter deux *visualisations* « Carte KPI — Filigrane » et « Liste — Filigrane » ; elles ne constituent pas des modèles géométriques M07/M08. Les cinq vues d'indicateurs existantes, la liste classique et la vue texte sont conservées.
+
+**Traitement graphique imposé :** l'icône choisie et sa couleur configurée sont reprises en arrière-plan de la zone de restitution, **plein centre**, à **90 % de sa hauteur disponible**, sans déformation ni débordement, avec une **opacité fixe de 10 %**. Le contenu, la typographie, les liens, badges et contrôles demeurent à 100 % d'opacité et au premier plan. L'élément décoratif est non interactif et masqué aux lecteurs d'écran ; thèmes Bootstrap clair/sombre et dimensions responsives sont respectés. La lisibilité prime lorsque le contenu se superpose au filigrane.
+
+**Parcours :** choix explicite dans l'étape « Visualisation et options » de l'assistant, vignette illustrative et libellé métier FR/EN ; l'enregistrement reste soumis au workflow de brouillon. Préserver les données v33, les anciennes configurations et les cartes/listes classiques. Vérifier avant codage le raccordement technique de l'icône et de la couleur, sans supposer leur disponibilité dans toutes les sources.
+
+**Recette :** au moins M01–M06, KPI à 0 / absent / en erreur, listes avec lignes, badges et « + Ajouter », titres longs, S/M/L, thème sombre, navigation clavier et chargement après sauvegarde. **État : UX validée, réalisation et tests à démontrer séparément.** Epic [SMN-353](https://lmn24.atlassian.net/browse/SMN-353).
