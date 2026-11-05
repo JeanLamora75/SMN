@@ -15,8 +15,9 @@ type Draft={effectiveFrom:string;contractPercent:string;allocationPercent:string
 function draftFrom(state:AssignmentState,requestedRevision?:number|null):Draft{
  const baseline=state.versions.find(v=>v.revision===requestedRevision)??state.versions.at(-1)??null;
  return {
-  effectiveFrom:state.endOn?baseline?.effectiveFrom??state.startOn??state.today:
-   baseline&&baseline.effectiveFrom>state.today?baseline.effectiveFrom:state.today,
+  // Preserve the actual version date when correcting a historical revision.
+  // New dated changes explicitly select their own effective date below.
+  effectiveFrom:baseline?.effectiveFrom??state.startOn??state.today,
   contractPercent:String(baseline?.contractPercent??100),
   allocationPercent:String(baseline?.allocationPercent??100),
   contributionPercent:String(baseline?.contributionPercent??100),
