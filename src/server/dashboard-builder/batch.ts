@@ -44,11 +44,11 @@ export async function readDashboardBatch(db:Client,scope:LayoutScope,requests:re
   if(source.status==="unknown")return {state:"absent"};
   if(source.status==="unavailable")return {state:"unavailable",message:source.reason};
   if(source.status==="incompatible")return {state:"incompatible"};
-  if(source.source.category==="registry"&&r.view==="list"){
+  if(source.source.category==="registry"&&(r.view==="list"||r.view==="list-watermark")){
    try{const list=await readRegistryDashboardList(db,scope,r);return {state:list.rows.length?"available":"absent",list};}
    catch{return {state:"error",message:"registry-read-failed"};}
   }
-  if((source.source.category==="calendar"||source.source.category==="notes")&&r.view==="list"){
+  if((source.source.category==="calendar"||source.source.category==="notes")&&(r.view==="list"||r.view==="list-watermark")){
    try{
     const list=source.source.category==="calendar"?await readCalendarDashboardList(db,scope,r):await readNotesDashboardList(db,scope,r);
     return {state:list.rows.length?"available":"absent",list};
