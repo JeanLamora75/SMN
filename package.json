@@ -97,7 +97,9 @@
     "test:dashboard-builder": "tsx --test tests/smn-36*-*.test.ts tests/smn-37*-*.test.ts",
     "validate:version": "node scripts/validate-version.mjs --profile quality",
     "test:validate-version": "node --test tests/version-validation-runner.test.mjs",
-    "test:coverage-matrix": "node scripts/coverage-matrix.mjs --run"
+    "test:coverage-matrix": "node scripts/coverage-matrix.mjs --run",
+    "db:migrate:ceremony-appearance": "tsx scripts/apply-smn-229-ceremony-appearance.ts",
+    "test:ceremony-appearance": "tsx --test tests/smn-229-ceremony-appearance.test.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
