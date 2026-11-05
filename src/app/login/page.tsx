@@ -16,7 +16,7 @@ export default async function LoginPage(){
     <span className="smn-mark" aria-hidden="true">SMN</span>
     <span className="smn-brand-name">Scrum Master <strong>Notebook</strong></span>
    </div>
-   <h1 className="h3 smn-login-heading">{t("login.title")}</h1>
+   <h1 className="h3 smn-login-heading" aria-label={t("login.title")}><span>{t("login.title").replace(/[.…\s]+$/u,"")}</span><span className="smn-login-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></h1>
    <LoginForm/>
   </section>
  </main>;
