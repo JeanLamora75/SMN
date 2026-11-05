@@ -33,7 +33,7 @@ export default async function IndicatorSettingsPage({searchParams}:{searchParams
    <h1 className="h4 mb-1">Paramètres · Indicateurs</h1>
    <p className="small text-secondary mb-0">Catalogue global des définitions d’indicateurs — administration</p>
   </header>
-  <IndicatorSettingsTabs teams={teams} teamId={teams.some(t=>t.id===selected)?selected:null}
+  <IndicatorSettingsTabs teams={teams} teamId={teams.some(t=>t.id===selected)?selected??null:null}
    catalogue={<IndicatorCatalog teams={[]} isAdmin scope="global"/>}
    permissions={<details className="smn-panel rounded-4 p-3 mt-4"><summary className="fw-semibold">Habilitations des Scrum Masters par équipe</summary><TeamGrants/></details>}/>
  </main>;
