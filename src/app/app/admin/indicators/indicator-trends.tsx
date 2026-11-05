@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
+import {formatIndicatorValue} from "@/lib/indicators/format-value";
 type Column={id:string;tag:string;name:string;unit:string};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Column[];cycles:Cycle[]};
@@ -25,7 +26,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
  const min=Math.min(0,...actual),max=Math.max(1,...actual),span=Math.max(.000001,max-min);
  const x=(i:number)=>80+(i+.5)*800/Math.max(1,range.length);
  const y=(v:number)=>300-(v-min)/span*215;
- const format=(v:number|null)=>v===null?"—":new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:3}).format(v);
+ const format=(v:number|null)=>formatIndicatorValue(v,locale);
  const chartTitle=active&&range.length?active.name+" : "+range[0].name+" - "+range[range.length-1].name:"";
  const nonnegative=actual.length>0&&actual.every(v=>v>=0)&&actual.some(v=>v>0)&&actual.length===nums.length;
  const isParts=applied?.style==="pie"||applied?.style==="donut";
