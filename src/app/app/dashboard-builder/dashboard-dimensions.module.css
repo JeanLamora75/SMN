@@ -4,7 +4,7 @@
 .blockCell>*{width:100%}
 .fixedContent{min-width:0;overflow:auto}
 .innerSlots{display:grid;gap:.75rem;min-width:0;align-items:stretch}
-.cockpitHeader{position:relative;overflow:hidden;border:1px solid var(--smn-border);border-radius:16px;background:linear-gradient(115deg,#102a4e,#184b80 54%,#103461);color:#fff;box-shadow:0 8px 22px rgba(17,46,83,.15);padding:1rem 1.15rem;margin-bottom:1rem}
+.cockpitHeader{position:relative;overflow:visible;border:1px solid var(--smn-border);border-radius:16px;background:linear-gradient(115deg,#102a4e,#184b80 54%,#103461);color:#fff;box-shadow:0 8px 22px rgba(17,46,83,.15);padding:1rem 1.15rem;margin-bottom:1rem}
 .cockpitHeader::before{content:"";position:absolute;inset:0 auto 0 22%;width:4px;background:linear-gradient(180deg,transparent,#50a9ff,transparent);transform:skew(-28deg);opacity:.65;pointer-events:none}
 .cockpitLayout{position:relative;display:grid;grid-template-columns:minmax(210px,1fr) minmax(260px,1.35fr) auto;gap:1rem;align-items:center}
 .cockpitTitle{font-weight:800;font-size:clamp(1.35rem,2vw,1.9rem);line-height:1.2;margin:0;color:#fff}
@@ -13,8 +13,11 @@
 .cockpitNav .cycleLink{display:inline-flex;justify-content:center;align-items:center;flex:none;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.2);font-size:1.25rem}
 .cockpitNav .cycleLink:disabled{opacity:.4}
 .cockpitBadge{font-size:.72rem;padding:.3rem .6rem;border-radius:30px;background:#d5f6df;color:#116b35;font-weight:700;display:inline-block}
-.cockpitActions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
-.cockpitActions .btn{border-color:rgba(255,255,255,.65);color:#fff}
+.cockpitActions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;position:relative;z-index:5}
+.headerButton{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:36px;padding:.35rem .8rem;color:#fff;background:rgba(255,255,255,.16);border:1px solid #fff;border-radius:.4rem;font-weight:650;cursor:pointer}
+.headerButton:hover,.headerButton:focus-visible{background:#fff;color:#12365c;outline-offset:2px}
+.headerButton:focus-visible{outline:3px solid #f8ca4f}
+.cockpitActions .btn{border-color:#fff;color:#fff;background:rgba(255,255,255,.16)}
 .cockpitActions .btn:hover,.cockpitActions .btn:focus-visible{background:#fff;color:#153c67}
 .cockpitActions :global(.dropdown-menu){color:var(--smn-foreground)}
 .headerKpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;min-width:0}
