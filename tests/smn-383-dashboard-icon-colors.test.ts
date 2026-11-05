@@ -1,0 +1,54 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {readFileSync} from "node:fs";
+import {createDefaultDashboardLayout,validateDashboardLayout} from "../src/server/dashboard-builder/layout";
+import {ceremonyIconColorHex,isCeremonyIconColor} from "../src/lib/ceremony-appearance";
+import {blockHasConfiguredContent,duplicateDashboardBlock,changeDashboardBlockTemplate} from "../src/lib/dashboard-builder/block-actions";
+
+test("SMN-383 AC15: anciens layouts valides, couleurs indépendantes et validation stricte",()=>{
+ const layout=createDefaultDashboardLayout("scrum");
+ assert.doesNotThrow(()=>validateDashboardLayout(layout));
+ const block=layout.rows[0].blocks[0];
+ block.icon="calendar3";block.iconColor="purple";
+ block.slots[0].icon="ticket-perforated-fill";block.slots[0].iconColor="amber";
+ layout.header.blocks[0].icon="people-fill";layout.header.blocks[0].iconColor="teal";
+ assert.doesNotThrow(()=>validateDashboardLayout(layout));
+ const restored=JSON.parse(JSON.stringify(layout));
+ assert.equal(restored.rows[0].blocks[0].iconColor,"purple");
+ assert.equal(restored.rows[0].blocks[0].slots[0].iconColor,"amber");
+ assert.equal(restored.header.blocks[0].iconColor,"teal");
+ block.iconColor="background:red" as typeof block.iconColor;
+ assert.throws(()=>validateDashboardLayout(layout),/dashboard-block-icon-color-invalid/);
+ block.iconColor="purple";
+ block.slots[0].iconColor="#aabbcc" as typeof block.slots[0]["iconColor"];
+ assert.throws(()=>validateDashboardLayout(layout),/dashboard-slot-icon-color-invalid/);
+ assert.equal(isCeremonyIconColor("amber"),true);
+ assert.equal(isCeremonyIconColor("#ffffff"),false);
+ assert.equal(ceremonyIconColorHex("purple"),"#7040ae");
+});
+test("SMN-383 AC16: duplication et changement de modèle conservent les couleurs",()=>{
+ const layout=createDefaultDashboardLayout("scrum");
+ const block=layout.rows[0].blocks[0];
+ block.iconColor="blue";
+ block.slots[0].iconColor="red";
+ assert.equal(blockHasConfiguredContent(block),true);
+ const next=duplicateDashboardBlock(layout,block.id,"color-copy",["color-slot"]);
+ assert.equal(next.rows[0].blocks[1].iconColor,"blue");
+ assert.equal(next.rows[0].blocks[1].slots[0].iconColor,"red");
+ const changed=changeDashboardBlockTemplate(layout,block.id,"M02",["new-color-slot"]).layout;
+ assert.equal(changed.rows[0].blocks[0].iconColor,"blue");
+ assert.equal(changed.rows[0].blocks[0].slots[0].iconColor,"red");
+ assert.doesNotThrow(()=>validateDashboardLayout(changed));
+});
+test("SMN-383 AC13-14: éditeur et consultation utilisent la palette commune",()=>{
+ const editor=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-editor.tsx",import.meta.url),"utf8");
+ const consultation=readFileSync(new URL("../src/app/app/dashboard-builder/dashboard-consultation.tsx",import.meta.url),"utf8");
+ const picker=readFileSync(new URL("../src/app/app/ceremony-color-picker.tsx",import.meta.url),"utf8");
+ assert.match(editor,/setBlockIconColor/);
+ assert.match(editor,/setSlotIconColor/);
+ assert.equal((editor.match(/<CeremonyColorPicker /g)??[]).length,4);
+ assert.match(consultation,/ceremonyIconColorHex\(block\.iconColor\)/);
+ assert.equal((consultation.match(/ceremonyIconColorHex\(slot\.iconColor\)/g)??[]).length,3);
+ assert.match(picker,/useId/);
+ assert.match(picker,/name=\{id\}/);
+});
