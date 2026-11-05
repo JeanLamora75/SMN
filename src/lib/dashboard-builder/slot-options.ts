@@ -1,7 +1,13 @@
 import type {DashboardLayout,DashboardSlot} from "@/server/dashboard-builder/layout";
-export type SlotOptions={limit?:number;sort?:"asc"|"desc";columns?:string[];cycleIdOverride?:string;type?:string;showClosed?:boolean};
-export function normalizeSlotOptions(value:SlotOptions,category:string,cycleIds:readonly string[]):SlotOptions{
+export type SlotOptions={limit?:number;sort?:"asc"|"desc";columns?:string[];cycleIdOverride?:string;type?:string;showClosed?:boolean;minimum?:number;maximum?:number};
+export function normalizeSlotOptions(value:SlotOptions,category:string,cycleIds:readonly string[],view?:string):SlotOptions{
  const next:SlotOptions={};
+ if(view==="tachometer"){
+  if(category!=="indicator"||typeof value.minimum!=="number"||typeof value.maximum!=="number"||
+   !Number.isFinite(value.minimum)||!Number.isFinite(value.maximum)||value.minimum>=value.maximum)
+   throw Error("dashboard-slot-scale-invalid");
+  next.minimum=value.minimum;next.maximum=value.maximum;
+ }else if(value.minimum!==undefined||value.maximum!==undefined)throw Error("dashboard-slot-option-incompatible");
  if(value.cycleIdOverride){
   if(!cycleIds.includes(value.cycleIdOverride))throw Error("dashboard-slot-cycle-forbidden");
   next.cycleIdOverride=value.cycleIdOverride;
