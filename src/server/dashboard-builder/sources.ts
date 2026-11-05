@@ -54,12 +54,15 @@ const PENDING:readonly Omit<SourceDescriptor,"status"|"reason">[] = [
  {code:"team:overview",name:"Équipe",category:"team",unit:null,scope:"team",permission:"read",views:["card","list"]},
  {code:"link:catalog",name:"Liens",category:"link",unit:null,scope:"team",permission:"read",views:["list"]},
 ];
-type IndicatorMeta={id:string;tag:string;name:string;unit:string|null;display_style:string|null};
+type IndicatorMeta={id:string;tag:string;name:string;unit:string|null;display_style:string|null;is_selected:boolean;is_visible:boolean};
 const styles:readonly SourceView[]=["number","card","gauge","line","bar"];
 
 /**
  * Read-only metadata query. Indicator selections (v33), archived flags and explicit
- * dashboard team grants are authoritative. No synthetic Fxx or fallback KPI.
+ * dashboard team grants are authoritative. Admins may also see inactive definitions
+ * as disabled suggestions, so the picker explains what needs configuring.
+ * Non-admins cannot discover definitions not selected for their team.
+ * No synthetic Fxx or fallback KPI.
  * Non-indicator domains remain unavailable until their typed read adapters ship.
  */
 export async function listDashboardSources(db:Client,scope:LayoutScope):Promise<readonly SourceDescriptor[]>{
@@ -70,18 +73,31 @@ export async function listDashboardSources(db:Client,scope:LayoutScope):Promise<
  let indicators:SourceDescriptor[]=[];
  if(ready){
   const result=await db.query<IndicatorMeta>(`
- SELECT d.id,d.tag,d.name,d.unit_short AS unit,p.display_style
+ SELECT d.id,d.tag,d.name,d.unit_short AS unit,p.display_style,
+   COALESCE(s.is_active,false) AS is_selected,
+   COALESCE(p.is_visible,true) AS is_visible
  FROM public.smn_indicator_definition d
- JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id
-  AND s.team_id=$1 AND s.is_active=true
+ LEFT JOIN public.smn_indicator_team_selection s ON s.indicator_id=d.id
+  AND s.team_id=$1
  LEFT JOIN public.smn_indicator_display_preference p ON p.indicator_id=d.id
   AND p.team_id=$1 AND p.screen_key='dashboard'
- WHERE d.archived_at IS NULL AND COALESCE(p.is_visible,true)=true
- ORDER BY d.tag,d.id`,[scope.teamId]);
-  indicators=result.rows.map(row=>descriptor({
-   code:"indicator:"+row.id,name:row.name,category:"indicator",unit:row.unit??null,
-   scope:"cycle",permission:"read",views:styles,status:"available",
-  }));
+ WHERE d.archived_at IS NULL
+   AND (COALESCE(s.is_active,false)=true OR EXISTS (
+     SELECT 1 FROM public.smn_account a
+     WHERE a.id=$2 AND a.installation_id=$3 AND a.role='admin'
+       AND a.is_active=true AND a.must_change_password=false
+   ))
+ ORDER BY d.tag,d.id`,[scope.teamId,scope.accountId,scope.installationId]);
+  indicators=result.rows.map(row=>{
+   const selected=row.is_selected===true;
+   const visible=row.is_visible!==false;
+   return descriptor({
+    code:"indicator:"+row.id,name:row.name,category:"indicator",unit:row.unit??null,
+    scope:"cycle",permission:"read",views:styles,
+    status:selected&&visible?"available":"unavailable",
+    ...(!selected?{reason:"indicator-not-selected"}:!visible?{reason:"indicator-hidden-dashboard"}:{}),
+   });
+  });
  }
  const pending=PENDING.map(x=>descriptor({...x,status:"unavailable",reason:"adapter-not-connected"}));
  const registry:SourceDescriptor=descriptor({code:"registry:items",name:"Risques, obstacles et dépendances",category:"registry",unit:null,scope:"team",permission:"read",views:["list"],status:"available"});
