@@ -100,9 +100,9 @@ export async function listDashboardSources(db:Client,scope:LayoutScope):Promise<
   });
  }
  const pending=PENDING.map(x=>descriptor({...x,status:"unavailable",reason:"adapter-not-connected"}));
- const registry:SourceDescriptor=descriptor({code:"registry:items",name:"Risques, obstacles et dépendances",category:"registry",unit:null,scope:"team",permission:"read",views:["list"],status:"available"});
- const calendar:SourceDescriptor=descriptor({code:"calendar:ceremonies",name:"Calendrier et cérémonies",category:"calendar",unit:null,scope:"cycle",permission:"read",views:["list"],status:"available"});
- const notes:SourceDescriptor=descriptor({code:"notes:sprint",name:"Notes et alertes du sprint",category:"notes",unit:null,scope:"cycle",permission:"read",views:["list"],status:"available"});
+ const registry:SourceDescriptor=descriptor({code:"registry:items",name:"Risques, obstacles et dépendances",category:"registry",unit:null,scope:"team",permission:"read",views:["list","list-watermark"],status:"available"});
+ const calendar:SourceDescriptor=descriptor({code:"calendar:ceremonies",name:"Calendrier et cérémonies",category:"calendar",unit:null,scope:"cycle",permission:"read",views:["list","list-watermark"],status:"available"});
+ const notes:SourceDescriptor=descriptor({code:"notes:sprint",name:"Notes et alertes du sprint",category:"notes",unit:null,scope:"cycle",permission:"read",views:["list","list-watermark"],status:"available"});
  const sources=Object.freeze([...indicators,registry,calendar,notes,...pending]);
  validateSourceDescriptors(sources);
  return sources;
