@@ -3662,7 +3662,15 @@
     "officeEmpty": "Aucun modèle Office compatible dans le répertoire configuré.",
     "officeSelect": "Modèle Office",
     "officeChoose": "Choisir un modèle",
-    "officeSelected": "Modèle sélectionné"
+    "officeSelected": "Modèle sélectionné",
+    "officeSprint": "Sprint",
+    "officeFilename": "Nom du fichier",
+    "officeLanguage": "Langue du rapport",
+    "officeGenerate": "Générer et télécharger",
+    "officeGenerating": "Génération en cours…",
+    "officeGenerationError": "Impossible de générer ce document Office. Vérifiez le modèle et les tags.",
+    "officeRequiresTeam": "Sélectionnez une équipe et un sprint autorisés pour générer un rapport Office.",
+    "officeScalarOnly": "Cette première version remplace les tags simples. Les tableaux dynamiques et graphiques seront ajoutés dans les prochaines Stories."
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
