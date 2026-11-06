@@ -19,6 +19,16 @@ function decode(value){
 }
 export const SCALAR_NAMES=Object.freeze(["TEAM_NAME","SPRINT_NAME","SPRINT_START","SPRINT_END","SPRINT_STATUS"]);
 
+export function formatScalarNumber(value,language="fr"){
+ if(value===null||value===undefined)return null;
+ const raw=String(value).trim();
+ if(!/^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/.test(raw))return raw;
+ const number=Number(raw);
+ if(!Number.isFinite(number))return null;
+ return new Intl.NumberFormat(language==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:2}).format(number);
+}
+
+
 export function buildScalarValues(input){
  const values=Object.create(null);
  for(const key of SCALAR_NAMES)values[key]=input[key]??null;
