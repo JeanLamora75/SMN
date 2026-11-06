@@ -1,6 +1,7 @@
 import {createHash} from "node:crypto";
 import {lstat,readFile,readdir,realpath} from "node:fs/promises";
 import path from "node:path";
+import {inflateRawSync} from "node:zlib";
 
 export type OfficeTemplate={
  id:string;
@@ -45,6 +46,7 @@ export function isSupportedOfficePackage(buffer:Buffer,format:"docx"|"pptx"):boo
   centralSize===0xffffffff||start===0xffffffff||start+centralSize>eocd)return false;
  let offset=start,total=0;
  const names=new Set<string>();
+ const manifests=new Map<string,string>();
  for(let index=0;index<count;index++){
   if(offset+46>buffer.length||buffer.readUInt32LE(offset)!==0x02014b50)return false;
   const flags=buffer.readUInt16LE(offset+8),method=buffer.readUInt16LE(offset+10);
@@ -66,11 +68,24 @@ export function isSupportedOfficePackage(buffer:Buffer,format:"docx"|"pptx"):boo
   total+=unpacked;
   if(total>MAX_UNCOMPRESSED_BYTES||(packed===0&&unpacked>0)||
    (packed>0&&unpacked>packed*100))return false;
+  if(name==="[Content_Types].xml"||name==="_rels/.rels"){
+   if(unpacked>1024*1024)return false;
+   const chunk=buffer.subarray(dataStart,dataStart+packed);
+   let xml:string;
+   try{xml=(method===0?chunk:inflateRawSync(chunk,{maxOutputLength:1024*1024})).toString("utf8");}
+   catch{return false;}
+   if(xml.length<10||!xml.includes("<"))return false;
+   manifests.set(name,xml);
+  }
   offset=end;
  }
  if(offset!==start+centralSize)return false;
  const document=format==="docx"?"word/document.xml":"ppt/presentation.xml";
- return names.has("[Content_Types].xml")&&names.has("_rels/.rels")&&names.has(document);
+ const mime=format==="docx"?"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml":
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml";
+ return names.has(document)&&
+  (manifests.get("[Content_Types].xml")||"").includes(mime)&&
+  (manifests.get("_rels/.rels")||"").includes("/officeDocument");
 }
 export function templateIdentifier(filename:string):string{
  return createHash("sha256").update(filename,"utf8").digest("hex").slice(0,32);
