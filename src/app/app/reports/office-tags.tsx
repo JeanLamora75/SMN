@@ -148,3 +148,5 @@ export default function OfficeTags({locale="fr"}:{locale?:Locale}){
    <li>{fr?"Les fusions verticales, tableaux imbriqués et certains modèles Open XML complexes ne sont pas pris en charge. Les recettes visuelles Microsoft Office restent nécessaires.":"Vertical merges, nested tables and some complex Open XML templates are unsupported. Microsoft Office visual validation is still required."}</li>
   </ul>
  </details>;
+
+}
