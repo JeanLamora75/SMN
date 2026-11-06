@@ -5,6 +5,9 @@ import {jsonResult,readJsonObject} from "@/server/auth/request";
 import {resolveAdminTeam} from "@/server/teams/resolve";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators";
+import {readIndicatorReporting,type ReportData} from "@/server/indicators/reporting";
+import {renderOfficeIndicatorChart} from "@/server/reports/office-indicator-charts";
+import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../../../scripts/smn-402-office-chart-tags.mjs";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeWordMembers,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {generateWordTables} from "../../../../../../../scripts/smn-400-word-tables.mjs";
@@ -41,7 +44,15 @@ export async function POST(req:NextRequest){
     filename==="."||filename===".."||filename.endsWith(".")||
     (language!=="fr"&&language!=="en"))
   return jsonResult({error:"invalid-input"},400);
- let payload:{values:ReturnType<typeof buildScalarValues>;rows:Record<string,Record<string,string|null>[]>};
+ let selected:Awaited<ReturnType<typeof readOfficeTemplateById>>;
+ let chartCount=0;
+ try{
+  selected=await readOfficeTemplateById(modelId);
+  if(!selected)return jsonResult({error:"template-unavailable"},404);
+  chartCount=discoverOfficeChartTags(selected.bytes,selected.template.format).length;
+ }catch{return jsonResult({error:"office-chart-invalid-tag"},422);}
+ let payload:{values:ReturnType<typeof buildScalarValues>;
+  rows:Record<string,Record<string,string|null>[]>;report:ReportData|null};
  try{
   payload=await withAuthDb(async db=>{
    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},teamId);
@@ -71,7 +82,8 @@ export async function POST(req:NextRequest){
     indicators:indicators.map(indicator=>({...indicator,value:formatScalarNumber(indicator.value,locale)}))
    });
    const members=await readOfficeWordMembers(db,teamId,cycleId,locale);
-   return {values,rows:{MEMBERS:members,INDICATORS:officeWordIndicatorRows(indicators,locale)}};
+   const report=chartCount>0?await readIndicatorReporting(db,teamId,"trends","scrum"):null;
+   return {values,rows:{MEMBERS:members,INDICATORS:officeWordIndicatorRows(indicators,locale)},report};
   });
  }catch(error){
   if(error instanceof Error&&error.message==="too-many-indicators")
@@ -79,19 +91,21 @@ export async function POST(req:NextRequest){
   return jsonResult({error:"forbidden"},403);
  }
  try{
-  const selected=await readOfficeTemplateById(modelId);
-  if(!selected)return jsonResult({error:"template-unavailable"},404);
   const base=selected.template.format==="docx"?
    generateWordTables(selected.bytes,payload.rows).bytes:
    generatePowerPointTables(selected.bytes,payload.rows).bytes;
   const result=generateScalarOffice(base,selected.template.format,payload.values);
-  if(!isSupportedOfficePackage(result.bytes,selected.template.format))
+  const withCharts=chartCount>0&&payload.report?
+   insertOfficeTrendImages(result.bytes,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area";tags:string[]|null})=>
+    renderOfficeIndicatorChart(payload.report!,cycleId,options,language as Locale)).bytes:
+   result.bytes;
+  if(!isSupportedOfficePackage(withCharts,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
   const fullName=filename.replace(/\.(docx|pptx)$/i,"")+"."+selected.template.format;
   const mime=selected.template.format==="docx"?
    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
    "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-  return new Response(new Uint8Array(result.bytes),{
+  return new Response(new Uint8Array(withCharts),{
    status:200,
    headers:{
     "Content-Type":mime,
