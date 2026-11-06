@@ -120,8 +120,10 @@ export function renderOfficeTrendPng({cycles,series,type="line",language="fr"}){
    for(let xx=Math.floor(cx-outer);xx<=cx+outer;xx++){
     const dist=Math.hypot(xx-cx,yy-cy);
     if(dist>outer||dist<inner)continue;
-    const angle=(Math.atan2(yy-cy,xx-cx)+Math.PI/2+Math.PI*2)%(2*Math.PI);
-    const ratio=angle/(2*Math.PI);
+    if(type==="gauge"&&yy>=cy)continue; // semicircular gauge, not a donut
+    const angle=type==="gauge"?Math.atan2(yy-cy,xx-cx):
+     (Math.atan2(yy-cy,xx-cx)+Math.PI/2+Math.PI*2)%(2*Math.PI);
+    const ratio=type==="gauge"?(angle+Math.PI)/Math.PI:angle/(2*Math.PI);
     const index=stops.findIndex(stop=>ratio<stop);
     if(index<0)continue;
     pixel(xx,yy,type==="gauge"&&index===1?[226,232,240]:
@@ -129,7 +131,9 @@ export function renderOfficeTrendPng({cycles,series,type="line",language="fr"}){
    }
   }
   if(type==="gauge"){
-   text(String(chosen[0].value??0)+"%",cx-65,cy-13,[27,80,141],4,8);
+   text(String(chosen[0].value??0)+"%",cx-65,cy+36,[27,80,141],4,8);
+   text("0",cx-outer-7,cy+18,[80,95,109],2,4);
+   text("100",cx+outer-32,cy+18,[80,95,109],2,4);
   }
   const legend=type==="gauge"?[chosen[0]]:available;
   legend.forEach((s,i)=>{
