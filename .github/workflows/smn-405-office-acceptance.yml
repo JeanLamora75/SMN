@@ -1,0 +1,57 @@
+name: SMN-405 — Recette Office et non-régression
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "tests/smn-405-office-acceptance.test.ts"
+      - "src/server/reports/office-*"
+      - "scripts/smn-397-office-poc.mjs"
+      - "scripts/smn-399-office-scalars.mjs"
+      - "scripts/smn-400-word-tables.mjs"
+      - "scripts/smn-401-powerpoint-tables.mjs"
+      - "scripts/smn-402-*"
+      - ".github/workflows/smn-405-office-acceptance.yml"
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  office-acceptance:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      SMN_405_EVIDENCE_DIR: .smn-405-evidence
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Scénarios d'acceptation Office avec preuves
+        run: pnpm exec tsx --test tests/smn-405-office-acceptance.test.ts
+      - name: Contrats Office existants
+        run: pnpm exec tsx --test tests/smn-397-office-poc.test.mjs tests/smn-397-office-complex-poc.test.mjs tests/smn-399-office-scalars.test.mjs tests/smn-400-word-tables.test.mjs tests/smn-401-powerpoint-tables.test.mjs tests/smn-402-office-trends.test.ts tests/smn-403-office-storage.test.ts
+      - name: Contrats historiques PDF archives et isolation
+        run: pnpm exec tsx --test tests/smn-reports-pdf-byte-guard.test.ts tests/smn-127-d4-pdf-archive.test.ts tests/smn-282-report-center-isolation.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint tests/smn-405-office-acceptance.test.ts
+      - name: Conserver les modèles et empreintes de preuve
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smn405-office-evidence-${{ matrix.os }}
+          path: .smn-405-evidence/
+          if-no-files-found: warn
+          retention-days: 30
