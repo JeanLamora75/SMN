@@ -1,7 +1,7 @@
 # SMN-401 — Tableaux dynamiques PowerPoint
 
 **Story :** https://lmn24.atlassian.net/browse/SMN-401  
-**Statut :** En cours ; recette technique ciblée à vérifier, recette Microsoft PowerPoint/Windows et PostgreSQL réelle non effectuée.
+**Statut :** En cours ; **recette ciblée Node.js 24 réussie (8/8, TypeScript et ESLint)**, recette Microsoft PowerPoint/Windows et PostgreSQL réelle non effectuée.
 
 ## Contrat d'utilisation des modèles
 
@@ -43,3 +43,10 @@ Les données sont identiques à celles de SMN-400, issues des services SMN avec 
 **Suivi :** https://github.com/JeanLamora75/SMN/actions/workflows/smn-401-powerpoint-tables.yml
 
 Les tests isolés ne remplacent pas une recette complète depuis les données réelles de PostgreSQL, ni une validation sur PowerPoint installé sur Windows 11.
+
+## Résultat CI du 06/11/2026
+
+- Première exécution : 7/8, échec d'une assertion incorrectement écrite dans un test (aucun défaut moteur identifié pour ce cas).
+- Correction publiée sur `main` : commit `57473f1b56804af1af852e4f1c514a0913d44c56`.
+- [Exécution GitHub Actions 42300538698](https://github.com/JeanLamora75/SMN/actions/runs/42300538698) : **success**, 8/8 tests PowerPoint réussis sous Node 24 Linux, typecheck réussi, ESLint ciblé réussi.
+- La CI réussie confirme les tests de contrats synthétiques, pas la compatibilité visuelle sous Microsoft PowerPoint ni la lecture sur une installation Windows 11 réelle.
