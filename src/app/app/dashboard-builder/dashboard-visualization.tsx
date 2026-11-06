@@ -4,6 +4,7 @@ import {formatIndicatorValue} from "@/lib/indicators/format-value";
 import {tachometerNeedle} from "@/lib/dashboard-builder/tachometer";
 import {batterySegmentFills} from "@/lib/dashboard-builder/battery-horizontal";
 import {verticalBatteryFills} from "@/lib/dashboard-builder/battery-vertical";
+import {trendDirection} from "@/lib/dashboard-builder/trend-arrow";
 import {horizontalBarGeometry,shortCycleLabel} from "@/lib/dashboard-builder/horizontal-bars";
 import styles from "./dashboard-dimensions.module.css";
 
@@ -41,6 +42,28 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
   </div>;
 
 
+
+ if(model.kind==="trend-arrow"){
+  if(model.value===undefined||!Number.isFinite(model.value))
+   return <span className={styles.state} role="status">{labels.error}</span>;
+  const direction=trendDirection(model.value);
+  if(!direction)return <span className={styles.state} role="status">{labels.error}</span>;
+  const label=locale.toLowerCase().startsWith("fr")
+   ?(direction==="up"?"Valeur positive":direction==="flat"?"Valeur nulle":"Valeur négative")
+   :(direction==="up"?"Positive value":direction==="flat"?"Zero value":"Negative value");
+  const path=direction==="up"?"M35 136 L150 21 M105 21 H150 V66"
+   :direction==="down"?"M35 21 L150 136 M105 136 H150 V91"
+   :"M22 80 H166 M122 35 L166 80 L122 125";
+  return <div className={styles.trendArrow}>
+   <svg className={styles.trendArrowSvg} viewBox="0 0 190 160" role="img" aria-label={label}>
+    <path d={path} className={styles.trendArrowStroke} aria-hidden="true"/>
+   </svg>
+   <div className={styles.trendArrowValue}>
+    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
+    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
+   </div>
+  </div>;
+ }
  if(model.kind==="battery-vertical"){
   if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
    return <span className={styles.state} role="status">{locale.startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>;
