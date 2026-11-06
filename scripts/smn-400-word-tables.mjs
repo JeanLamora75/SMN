@@ -1,7 +1,7 @@
 import {readZip,writeZip} from "./smn-397-office-poc.mjs";
 import {replaceScalarXml} from "./smn-399-office-scalars.mjs";
 
-const SOURCES=new Set(["MEMBERS","INDICATORS"]);
+const SOURCES=new Set(["MEMBERS","INDICATORS","RISKS","OBSTACLES","NOTES","CEREMONIES","GOALS","ACTIONS","DECISIONS"]);
 const textRegex=/<w:t(?:\s[^>]*)?>[^<]*<\/w:t>/g;
 const tokenRegex=/\{\{ROW:([A-Z][A-Z0-9_]*)\}\}/g;
 
