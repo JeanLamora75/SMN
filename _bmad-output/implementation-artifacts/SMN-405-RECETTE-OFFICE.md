@@ -36,13 +36,13 @@ La suite couvre, pour les deux formats :
 
 ## 3. Écarts bloquants identifiés
 
-1. **Huit familles du catalogue Office non livrées.** Les lignes dynamiques actuellement implémentées par SMN-400 et SMN-401 sont `MEMBERS` et `INDICATORS` uniquement. Les autres familles (cérémonies, registres, capacités, etc.) exigées au catalogue complet ne disposent pas toutes des tags/transformations attendus.
+1. **Extension partiellement qualifiée :** les sept familles métier risques, obstacles, notes, cérémonies, objectifs, actions et décisions ont été implémentées en complément de `MEMBERS` et `INDICATORS`. Le contrôle exhaustif des huit familles du cadrage initial, des données de capacités et des cas historiques réels n'est pas encore attesté. Voir [extension du catalogue](SMN-OFFICE-EXTENSION-CATALOGUE-TAGS.md).
 2. **SMN-404 non réalisée :** l'interface intégrée et la découvrabilité du catalogue complet restent à recetter puis à développer pour couvrir le périmètre approuvé.
 3. **Moteur OOXML encore expérimental :** parseur ZIP/XML artisanal, certains éléments OOXML complexes non couverts ; pas de décision technique finale sur bibliothèque maintenue et sécurité complète. Les fusions verticales et tableaux imbriqués sont refusés.
 4. **Fidélité visuelle :** aucune validation de rendu de modèles professionnels avec Microsoft Word et PowerPoint sur la machine Windows 11 du projet. Les dimensions des images Word sont fixes dans le prototype.
 5. **Sauvegarde sous concurrence externe :** l'empreinte + le verrou coopératif SMN n'assurent pas une opération compare-and-swap OS atomique contre une modification effectuée entre le contrôle final et `rename`.
 6. **Tests d'intégration réels :** la route HTTP de génération et sauvegarde n'a pas été testée de bout en bout avec une installation PostgreSQL v33 chargée et des utilisateurs de rôles différents ; les tests actuels se concentrent sur les moteurs et contrats.
-7. **Éditions graphiques avancées :** les types pie, donut et gauge disponibles dans l'écran Tendances ne sont pas pris en charge dans le rendu Office actuel.
+7. **Graphiques avancés en cours de qualification :** secteurs, anneau et jauge sont implémentés et couverts par des tests techniques. Leur rendu exact dans Word et PowerPoint et les limites de données réelles restent à recetter.
 
 ## 4. Procédure de recette Windows 11 / Microsoft Office à exécuter
 
@@ -79,3 +79,9 @@ Les fichiers de preuve sont accessibles depuis la page d'exécution GitHub Actio
 **Historique de correction :** la première CI ([42303776648](https://github.com/JeanLamora75/SMN/actions/runs/42303776648)) a échoué sur la construction intentionnelle d'une archive ZIP dangereuse. Le producteur ZIP refusait le nom malveillant avant le test du lecteur ; la fixture a été corrigée en modifiant une archive initialement valide. La CI finale a ensuite réussi sur les deux plateformes.
 
 **Décision de recette :** `CI_TECHNIQUE=VERTE`, `ACCEPTATION_FONCTIONNELLE=PARTIELLE`, `LIVRAISON_OFFICE=NON_AUTORISEE`. Les réserves de la section 3 et la recette visuelle Microsoft Office continuent de bloquer la clôture de SMN-405.
+
+## Actualisation — extension des familles et styles (06/11/2026)
+
+Le générateur Office a été enrichi des sept catégories demandées et des graphiques secteurs/anneau/jauge, avec catalogue visible dans l'onglet Modèles. [Contrats et règles](SMN-OFFICE-EXTENSION-CATALOGUE-TAGS.md) ; [CI dédiée](https://github.com/JeanLamora75/SMN/actions/workflows/office-catalog-extensions.yml).
+
+**Ne pas réinterpréter le succès de cette CI comme une clôture de SMN-405.** La recette fonctionnelle réelle sous Microsoft Office, les sources de capacité du cadrage complet, l'intégration PostgreSQL sur les différents sprints, la sécurité OOXML et les exceptions de sauvegarde restent à confirmer.
