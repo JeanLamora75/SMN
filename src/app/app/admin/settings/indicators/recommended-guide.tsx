@@ -83,7 +83,7 @@ export default function RecommendedIndicatorGuide({teams,teamId,view="cards"}:{t
         <button type="button" className="btn btn-sm btn-outline-secondary" onClick={()=>void copy(entry)}>Copier</button>
        </div>
        {copied===entry.id&&<span className="text-success small" role="status">Copié</span>}
-       {entry.type==="manual"?<p className="small text-secondary mb-2">À saisir dans le catalogue (ou à renseigner à partir d'une mesure externe).</p>:
+       {entry.type==="manual"?<p className="small text-secondary mb-2">À saisir dans le catalogue (ou à renseigner à partir d&apos;une mesure externe).</p>:
         <p className="small mb-2"><strong>Prérequis :</strong> {entry.prerequisites.length?entry.prerequisites.join(", "):"Données de capacité associées au rôle sélectionné"}</p>}
        <p className="small mb-1"><strong>Exemple :</strong> {entry.exampleInputs} → <strong>{entry.exampleResult}</strong></p>
        <p className="small mb-1"><strong>Interprétation :</strong> {entry.interpretation}</p>
