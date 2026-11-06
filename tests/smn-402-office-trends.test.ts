@@ -35,7 +35,7 @@ test("SMN-402: options par défaut et paramètres optionnels vérifiés",()=>{
   assert.throws(()=>parseOfficeChartTag(token));
 });
 test("SMN-402: projection v33 multiseries 3 cycles, zéros et absences",()=>{
- const options=parseOfficeChartTag("{{CHART:TREND|TAGS=SP_DONE,SP_INIT|LAST=3|TYPE=line}}");
+ const options=parseOfficeChartTag("{{CHART:TREND|TAGS=SP_DONE,SP_INIT|LAST=3|TYPE=line}}") as {last:number;type:"line"|"bar"|"area";tags:string[]|null};
  const png=renderOfficeIndicatorChart(report,"c3",options,"fr");
  assert.ok(png&&png.length>2000);
  assert.deepEqual([...png.subarray(0,8)],[137,80,78,71,13,10,26,10]);
