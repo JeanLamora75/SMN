@@ -104,7 +104,7 @@ export async function POST(req:NextRequest){
    generatePowerPointTables(selected.bytes,payload.rows).bytes;
   const result=generateScalarOffice(base,selected.template.format,payload.values);
   const withCharts=chartCount>0&&payload.report?
-   insertOfficeTrendImages(result.bytes,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area";tags:string[]|null})=>
+   insertOfficeTrendImages(result.bytes,selected.template.format,(_index:number,options:{last:number;type:"bar"|"line"|"area"|"pie"|"donut"|"gauge";tags:string[]|null})=>
     renderOfficeIndicatorChart(payload.report!,cycleId,options,language as Locale)).bytes:
    result.bytes;
   if(!isSupportedOfficePackage(withCharts,selected.template.format))
