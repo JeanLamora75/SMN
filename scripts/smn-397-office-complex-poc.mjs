@@ -15,8 +15,10 @@ export function expandTableRows(xml, format, datasets) {
     if (!Object.hasOwn(datasets, key)) return row;
     const records = datasets[key];
     if (!Array.isArray(records)) throw Error("Jeu de données invalide");
-    if (/<w:vMerge\b|<w:gridSpan\b|<a:gridSpan\b|\b(?:rowSpan|gridSpan)="[2-9]/.test(row))
-      throw Error("Cellules fusionnées non prises en charge");
+    if (/<w:vMerge\b|\browSpan="[2-9]/.test(row))
+      throw Error("Fusion verticale non prise en charge");
+    if (/<w:tbl\b|<a:tbl\b/.test(row))
+      throw Error("Tableau imbriqué non pris en charge");
     // Technical guard against resource exhaustion, never silent truncation.
     if (records.length > 10000) throw Error("Protection technique : trop de lignes");
     tables++;
