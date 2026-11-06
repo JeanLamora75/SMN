@@ -29,9 +29,9 @@ function contentType(map){
     map.set(item.name,{...item,data:Buffer.from(xml)});
   }
 }
-function wordDrawing(id,rel){
+function wordDrawing(id,rel,docId){
   const cx=3200400,cy=1828800;
-  return '<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" distT="0" distB="0" distL="0" distR="0"><wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:docPr id="77" name="'+esc(id)+'"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="'+esc(id)+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip xmlns:r="'+URI+'" r:embed="'+rel+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
+  return '<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" distT="0" distB="0" distL="0" distR="0"><wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:docPr id="'+docId+'" name="'+esc(id)+'"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="'+esc(id)+'"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip xmlns:r="'+URI+'" r:embed="'+rel+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
 }
 function pptDrawing(id,rel,shape){
   const xfrm=shape.match(/<a:xfrm(?:\s[^>]*)?>[\s\S]*?<\/a:xfrm>/)?.[0]||'<a:xfrm><a:off x="457200" y="457200"/><a:ext cx="3200400" cy="1828800"/></a:xfrm>';
@@ -53,6 +53,7 @@ export function embedFreeChartTags(source,format,images){
     if(!docx&&!pptx)continue;
     const pattern=docx?/<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/g:/<p:sp(?:\s[^>]*)?>[\s\S]*?<\/p:sp>/g;
     const original=part.data.toString();
+    let docId=Math.max(0,...[...original.matchAll(/<wp:docPr\b[^>]*\bid="(\d+)"/g)].map(m=>Number(m[1])))+1;
     const xml=original.replace(pattern,block=>{
       const marker=textNodes(block,docx?"w:t":"a:t").match(/^\{\{CHART:([A-Z][A-Z0-9_]*)\}\}$/);
       if(!marker||!Object.hasOwn(images,marker[1]))return block;
@@ -64,7 +65,7 @@ export function embedFreeChartTags(source,format,images){
       changed.push({part:part.name,media,tag:id,relationship:rel});
       if(docx){
         const pPr=block.match(/<w:pPr(?:\s[^>]*)?>[\s\S]*?<\/w:pPr>/)?.[0]||"";
-        return "<w:p>"+pPr+wordDrawing(id,rel)+"</w:p>";
+        return "<w:p>"+pPr+wordDrawing(id,rel,docId++)+"</w:p>";
       }
       return pptDrawing(id,rel,block);
     });
