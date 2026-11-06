@@ -25,21 +25,58 @@ export default function OfficeTemplateCatalog({
  const [language,setLanguage]=useState<Language>(initialLanguage);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
+ const [saved,setSaved]=useState("");
+ const [confirmOverwrite,setConfirmOverwrite]=useState<{fingerprint:string;filename:string;directory:string}|null>(null);
  const current=templates.find(model=>model.id===selected);
  const sprintName=cycles.find(item=>item[0]===cycle)?.[1]??"";
  function suggestName(model:OfficeTemplate|undefined,sprint:string){
   setFilename(model&&sprint?(model.name+" - "+sprint).slice(0,120):"");
  }
- async function generate(){
+ async function checkThenSave(){
   if(!current||!teamId||!cycle||!filename.trim()||busy)return;
-  setBusy(true);setError("");
+  setBusy(true);setError("");setSaved("");
+  try{
+   const response=await fetch("/api/admin/reports/office-templates/generate",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action:"check"})
+   });
+   if(!response.ok)throw Error("office-check-failed");
+   const info=await response.json() as {exists:boolean;fingerprint:string;filename:string;directory:string};
+   if(info.exists){setConfirmOverwrite(info);return;}
+   await saveAfterCheck(info.fingerprint);
+  }catch{setError(tr("officeSaveError"));}
+  finally{setBusy(false);}
+ }
+ async function saveAfterCheck(fingerprint:string){
+  if(!current||!teamId||!cycle||!filename.trim())return;
+  const response=await fetch("/api/admin/reports/office-templates/generate",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action:"save",expectedFingerprint:fingerprint})
+  });
+  if(!response.ok){
+   setConfirmOverwrite(null);
+   setError(response.status===409?tr("officeSaveConflict"):tr("officeSaveError"));
+   return;
+  }
+  const savedInfo=await response.json() as {filename:string;directory:string};
+  setConfirmOverwrite(null);setSaved(savedInfo.directory+" / "+savedInfo.filename);
+ }
+ async function generate(action:"download"|"save"="download",fingerprint?:string){
+  if(!current||!teamId||!cycle||!filename.trim()||busy)return;
+  setBusy(true);setError("");setSaved("");
   try{
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language})
+    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action,expectedFingerprint:fingerprint})
    });
    if(!response.ok)throw Error("office-generation-unavailable");
+   if(action==="save"){
+    const result=await response.json() as {filename:string;directory:string};
+    setConfirmOverwrite(null);
+    setSaved(result.directory+" / "+result.filename);
+    return;
+   }
    const blob=await response.blob();
    const url=URL.createObjectURL(blob);
    const link=document.createElement("a");
@@ -98,13 +135,27 @@ export default function OfficeTemplateCatalog({
          </select>
         </label>
         <p className="text-secondary small mb-0">{tr("officeScalarOnly")}</p>
-        <button className="btn btn-primary align-self-start" type="button"
-         disabled={busy||!filename.trim()} onClick={()=>void generate()}>
-         {busy?tr("officeGenerating"):tr("officeGenerate")}
-        </button>
+        <div className="d-flex flex-wrap gap-2">
+         <button className="btn btn-outline-primary" type="button" disabled={busy||!filename.trim()}
+          onClick={()=>void generate()}>{busy?tr("officeGenerating"):tr("officeGenerate")}</button>
+         <button className="btn btn-primary" type="button" disabled={busy||!filename.trim()}
+          onClick={()=>void checkThenSave()}>{tr("officeSave")}</button>
+        </div>
        </>}
      </div>}
      {error&&<p role="alert" className="text-danger mt-2 mb-0">{error}</p>}
+     {saved&&<p role="status" className="alert alert-success mt-2 mb-0">{tr("officeSaved")}: {saved}</p>}
+     {confirmOverwrite&&<div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="office-confirm-title" style={{backgroundColor:"rgba(0,0,0,.55)"}}>
+      <div className="modal-dialog modal-dialog-centered"><div className="modal-content">
+       <div className="modal-header"><h4 className="modal-title h5" id="office-confirm-title">{tr("officeOverwriteTitle")}</h4></div>
+       <div className="modal-body"><p>{tr("officeOverwriteHint")}</p><p className="fw-semibold text-break mb-1">{confirmOverwrite.filename}</p><p className="small text-secondary text-break">{confirmOverwrite.directory}</p></div>
+       <div className="modal-footer">
+        <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={()=>setConfirmOverwrite(null)}>{tr("officeCancel")}</button>
+        <button type="button" className="btn btn-danger" disabled={busy} onClick={()=>{
+         setBusy(true);void saveAfterCheck(confirmOverwrite.fingerprint).catch(()=>{setConfirmOverwrite(null);setError(tr("officeSaveError"));}).finally(()=>setBusy(false));
+        }}>{tr("officeOverwriteConfirm")}</button>
+       </div></div></div>
+     </div>}
     </>
    }
   </div>
