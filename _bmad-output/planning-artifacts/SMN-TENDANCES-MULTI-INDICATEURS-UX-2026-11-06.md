@@ -29,3 +29,10 @@ src/app/app/admin/indicators/indicator-trends.tsx ; éventuellement helper pur d
 ## Validation
 
 Exiger tests exécutés, typecheck, lint, CI et recette navigateur avant de déclarer terminé. Les statuts de vérification sont documentés dans Jira.
+
+## Livraison et traçabilité du 06/11/2026
+
+- **Story Jira :** [SMN-396](https://lmn24.atlassian.net/browse/SMN-396), enfant de [SMN-228](https://lmn24.atlassian.net/browse/SMN-228).
+- **Code publié sur main :** `src/app/app/admin/indicators/indicator-trends.tsx`, `src/lib/indicators/trend-series.ts`.
+- **Tests de contrat ajoutés :** `tests/smn-396-trends-multi-series.test.ts` ; ancien test de rotation des sprints adapté aux nouvelles dimensions.
+- **Statut de qualification :** conformité du code relue statiquement ; exécution des tests tsx, typecheck, lint, CI Windows/Linux et recette visuelle **non attestées**. La Story ne doit pas être clôturée sans ces preuves.
