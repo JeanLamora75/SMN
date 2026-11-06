@@ -1,5 +1,7 @@
 import Link from "next/link";
 import TemplateLibrary from "./template-library";
+import OfficeTemplateCatalog from "./office-template-catalog";
+import {listOfficeTemplates} from "@/server/reports/office-catalog";
 import NewReportForm from "./new-report-form";
 import BootstrapIcon from "../bootstrap-icon";
 import {formatReportCenterDate} from "@/lib/report-center-date";
@@ -48,6 +50,7 @@ export default async function ReportsCenter({searchParams}:Params){
  }).catch(()=>null);
  if(!data)return <main className="container-fluid px-3 px-lg-4 py-4"><h1>{t("heading")}</h1><p role="alert" className="alert alert-danger">{t("error")}</p><Link href="/app/reports">{t("retry")}</Link></main>;
  const scoped=data.scope==="team";
+ const officeTemplates=tab==="templates"?await listOfficeTemplates().catch(()=>null):[];
  const docs=data.documents.filter(d=>(!sprint||d.sprintId===sprint)&&(!status||d.status===status)&&(!search||[d.title,d.sprintName,d.templateId].some(v=>v.toLocaleLowerCase().includes(search))));
  const archiveItems=data.archives.filter(a=>(!sprint||a.cycleId===sprint)&&(!search||a.cycleName.toLocaleLowerCase().includes(search)));
  const href=(next:string)=>{
@@ -114,6 +117,7 @@ export default async function ReportsCenter({searchParams}:Params){
   {tab==="templates"&&<section className="smn-report-results" aria-labelledby="smn-report-templates-title">
    <div className="smn-report-panel-heading"><h2 id="smn-report-templates-title">{t("templates")}</h2></div>
    {data.templates.length===0?<p className="alert alert-info mb-0">{t("emptyModels")}</p>:<TemplateLibrary templates={data.templates} canManage={account.role==="admin"&&!scoped}/>}
+   <OfficeTemplateCatalog templates={officeTemplates??[]} unavailable={officeTemplates===null}/>
   </section>}
   {tab==="archives"&&<section className="smn-report-results" aria-labelledby="smn-report-archives-title">
    <div className="smn-report-panel-heading"><h2 id="smn-report-archives-title">{t("archives")}</h2></div>
