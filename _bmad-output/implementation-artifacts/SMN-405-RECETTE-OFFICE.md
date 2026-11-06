@@ -60,3 +60,22 @@ La suite couvre, pour les deux formats :
 Le skill `.agents/skills/bmad-build/SKILL.md` a été lu sur le dépôt GitHub. Son workflow officiel demande la commande `uv run --no-cache .../_bmad/scripts/render_skill.py`, qui ne peut pas être lancée sur le dépôt Windows de l'utilisateur depuis l'environnement connecteur ; **aucune exécution de cette commande n'est revendiquée**. La recette autonome est réalisée et tracée via GitHub/Jira, selon le fonctionnement établi du projet.
 
 La preuve finale de SMN-405 est **conditionnelle** aux résultats des CI et à la levée des écarts. Le rôle de la recette est de découvrir et formaliser les écarts, pas de déclarer conforme un périmètre inachevé.
+
+## 6. Résultats GitHub Actions vérifiés — 06/11/2026
+
+**[Exécution 42303872385](https://github.com/JeanLamora75/SMN/actions/runs/42303872385) : `completed / success`.**
+
+| Contrôle | Linux Node 24 | Windows Node 24 |
+|---|---|---|
+| Scénarios d'acceptation SMN-405 | Réussi | Réussi |
+| Contrats Office existants SMN-397–403 sélectionnés | Réussi | Réussi |
+| Contrats historiques PDF/archives/isolation sélectionnés | Réussi | Réussi |
+| TypeScript | Réussi | Réussi |
+| ESLint ciblé | Réussi | Réussi |
+| Étape de dépôt d'artifacts de preuve | Réussie | Réussie |
+
+Les fichiers de preuve sont accessibles depuis la page d'exécution GitHub Actions (artifacts `smn405-office-evidence-ubuntu-latest` et `smn405-office-evidence-windows-latest`, si non expirés). Leur contenu est **synthétique** ; ils ne sont pas des rapports métier utilisateurs.
+
+**Historique de correction :** la première CI ([42303776648](https://github.com/JeanLamora75/SMN/actions/runs/42303776648)) a échoué sur la construction intentionnelle d'une archive ZIP dangereuse. Le producteur ZIP refusait le nom malveillant avant le test du lecteur ; la fixture a été corrigée en modifiant une archive initialement valide. La CI finale a ensuite réussi sur les deux plateformes.
+
+**Décision de recette :** `CI_TECHNIQUE=VERTE`, `ACCEPTATION_FONCTIONNELLE=PARTIELLE`, `LIVRAISON_OFFICE=NON_AUTORISEE`. Les réserves de la section 3 et la recette visuelle Microsoft Office continuent de bloquer la clôture de SMN-405.
