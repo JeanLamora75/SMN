@@ -63,15 +63,14 @@ export async function readOfficeBusinessRows(db:Client,teamId:string,
   throw Error("office-business-unknown-source");
  const registry=officeBusinessSources.filter(s=>kindBySource[s]&&unique.has(s));
  if(registry.length){
-  const provider=async (client:Client,t:string,p:Period)=>
-   readEpic5SprintRegisterSource(client,t,p);
-  const first=await readSprintRegisters(db,teamId,period,1,provider);
+
+  const first=await readSprintRegisters(db,teamId,period,1,readEpic5SprintRegisterSource);
   if(!first||first.state!=="available"||registry.some(s=>first.missingKinds.includes(kindBySource[s]!)))
    throw Error("office-business-registers-unavailable");
   ensureComplete(first.total);
   const records=[...first.items];
   for(let page=2;page<=first.pageCount;page++){
-   const next=await readSprintRegisters(db,teamId,period,page,provider);
+   const next=await readSprintRegisters(db,teamId,period,page,readEpic5SprintRegisterSource);
    if(!next||next.state!=="available"||next.total!==first.total)
     throw Error("office-business-registers-changed");
    records.push(...next.items);
