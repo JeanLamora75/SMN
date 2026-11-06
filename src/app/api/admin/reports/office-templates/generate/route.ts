@@ -8,6 +8,7 @@ import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeWordMembers,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {generateWordTables} from "../../../../../../../scripts/smn-400-word-tables.mjs";
+import {generatePowerPointTables} from "../../../../../../../scripts/smn-401-powerpoint-tables.mjs";
 import {buildScalarValues,formatScalarNumber,generateScalarOffice} from "../../../../../../../scripts/smn-399-office-scalars.mjs";
 
 export const runtime="nodejs";
@@ -81,7 +82,8 @@ export async function POST(req:NextRequest){
   const selected=await readOfficeTemplateById(modelId);
   if(!selected)return jsonResult({error:"template-unavailable"},404);
   const base=selected.template.format==="docx"?
-   generateWordTables(selected.bytes,payload.rows).bytes:selected.bytes;
+   generateWordTables(selected.bytes,payload.rows).bytes:
+   generatePowerPointTables(selected.bytes,payload.rows).bytes;
   const result=generateScalarOffice(base,selected.template.format,payload.values);
   if(!isSupportedOfficePackage(result.bytes,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
