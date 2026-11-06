@@ -42,3 +42,7 @@ inputDocuments:
 6. Validation du périmètre documentaire préalable requise par l'étape 01 du workflow `bmad-create-epics-and-stories`.
 
 **État de transmission :** références préparées pour John, premier inventaire disponible ; aucune User Story nouvelle ni ticket Jira encore créé. Le workflow officiel se poursuit après confirmation des intrants.
+
+## Actualisation de transmission — 06/11/2026
+
+John a reçu la validation des neuf Stories et des cinq points fonctionnels. Le contrat officiel pour les exports Office est : tags libres en zones compatibles ; nom obligatoire suggéré depuis le modèle + sprint et modifiable ; langue FR/EN choisie à chaque génération, langue utilisateur par défaut ; catalogue de huit familles de données dès la première livraison ; aucune limite métier supplémentaire sur les lignes de tableaux, garde-fous techniques obligatoires et six indicateurs compatibles maximum par graphique selon les tendances SMN. Les anciens arbitrages de débordement, placement, nom, langue et périmètre du catalogue sont donc **clos fonctionnellement**. Référence : [Stories validées](./EPIC-SMN-6-STORIES-OFFICE-DRAFT.md). Aucun ticket Jira créé.
