@@ -1,0 +1,47 @@
+name: Office — Styles graphiques et familles métier
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/server/reports/office-business-rows.ts"
+      - "src/server/reports/office-indicator-charts.ts"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "src/app/app/reports/office-tags.tsx"
+      - "src/app/app/reports/office-template-catalog.tsx"
+      - "scripts/smn-400-word-tables.mjs"
+      - "scripts/smn-401-powerpoint-tables.mjs"
+      - "scripts/smn-402-trend-png.mjs"
+      - "scripts/smn-402-office-chart-tags.mjs"
+      - "tests/smn-406-office-catalog-extensions.test.ts"
+      - ".github/workflows/office-catalog-extensions.yml"
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  office-extension:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Test des catégories et graphiques
+        run: pnpm exec tsx --test tests/smn-406-office-catalog-extensions.test.ts
+      - name: Non-régression graphiques et tableaux
+        run: pnpm exec tsx --test tests/smn-400-word-tables.test.mjs tests/smn-401-powerpoint-tables.test.mjs tests/smn-402-office-trends.test.ts
+      - name: Contrôle TypeScript
+        run: pnpm typecheck
+      - name: Contrôle ESLint
+        run: pnpm exec eslint src/server/reports/office-business-rows.ts src/server/reports/office-indicator-charts.ts src/app/api/admin/reports/office-templates/generate/route.ts src/app/app/reports/office-tags.tsx tests/smn-406-office-catalog-extensions.test.ts
