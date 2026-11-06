@@ -59,7 +59,7 @@ flowchart TD
 
 ### AD-06 — Tables expansibles sans reflow implicite PowerPoint [PROPOSÉ]
 **Binds :** tables Office ; **Prevents :** dépassement et masquage non détectés.  
-**Rule :** les tableaux Word dupliquent une ligne modèle compatible avec ses styles ; les tableaux PowerPoint ne sont agrandis que dans les limites géométriques démontrées par le POC. Toute politique de débordement (pages/slides supplémentaires ou refus avec message) est une **décision produit ouverte**, pas un comportement inventé par le moteur. Les tableaux complexes à fusions nécessitent une matrice de compatibilité documentée.
+**Rule :** les tableaux Word dupliquent une ligne modèle compatible avec ses styles. **Décision produit du 06/11/2026 :** les dépassements de tableaux, notamment dans PowerPoint, sont acceptés ; le moteur ne doit pas agrandir artificiellement les cadres, tableaux, formes ou diapositives, déplacer les éléments fixes, déformer les dimensions ni créer automatiquement de nouvelles diapositives pour tenter de faire tenir le contenu. Les données peuvent donc déborder du cadre disponible. Les limites techniques et les tableaux complexes à fusions font l'objet d'une matrice de compatibilité ; aucun dépassement ne justifie une mutation d'éléments non ciblés.
 
 ### AD-07 — Graphiques rendus en images par moteur commun [ADOPTED]
 **Binds :** tendances UI et exports ; **Prevents :** règles d'échelle et de série divergentes.  
@@ -109,8 +109,8 @@ flowchart TD
 
 ## 6. Questions ouvertes pour John / Product Owner
 
-- **Q1 — Débordement PowerPoint :** stratégie de limitation, nouvelle diapositive ou échec explicite si un tableau ne tient plus.
-- **Q2 — Valeur trop longue :** conservation avec débordement signalé, troncature explicitement demandée ou avertissement.
+- **Q1 — Tranchée le 06/11/2026 :** débordement PowerPoint accepté ; aucune augmentation artificielle des dimensions ni adaptation automatique de la disposition par SMN.
+- **Q2 — Tranchée sur la disposition le 06/11/2026 :** contenu trop long conservé ; aucun redimensionnement automatique artificiel pour le faire tenir. Modalités de signalement éventuel différées.
 - **Q3 — Cadre de placement :** balise seule dans forme/zone texte ou convention d'emplacement réservé plus structurée.
 - **Q4 — Nom de sortie :** règle et possibilité de modification par l'utilisateur.
 - **Q5 — Langue :** locale de l'utilisateur, de l'équipe ou paramètre du modèle.
