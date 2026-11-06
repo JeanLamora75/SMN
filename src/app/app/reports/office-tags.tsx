@@ -41,11 +41,30 @@ export default function OfficeTags({locale="fr"}:{locale?:"fr"|"en"}){
     </tr>)}</tbody>
    </table>
   </div>
-  <p className="small">
-   {fr?"Valeurs simples":"Scalar tags"} :
-   {" "}<code>{"{{TEAM_NAME}}"}</code>, <code>{"{{SPRINT_NAME}}"}</code>,
-   {" "}<code>{"{{SPRINT_START}}"}</code>, <code>{"{{SPRINT_END}}"}</code>,
-   {" "}<code>{"{{SPRINT_STATUS}}"}</code>, <code>{"{{INDICATOR_<TAG>}}"}</code>.
+  <h4 className="h6 mt-3">{fr?"Informations générales et contexte produit":"General information and product context"}</h4>
+  <div className="table-responsive">
+   <table className="table table-sm table-striped align-middle">
+    <thead><tr><th scope="col">Tag</th><th scope="col">{fr?"Valeur SMN":"SMN value"}</th></tr></thead>
+    <tbody>{[
+     ["TEAM_NAME",fr?"Nom de l'équipe":"Team name"],
+     ["SPRINT_NAME",fr?"Nom du sprint":"Sprint name"],
+     ["SPRINT_START",fr?"Début du sprint":"Sprint start"],
+     ["SPRINT_END",fr?"Fin du sprint":"Sprint end"],
+     ["TODAY",fr?"Date de génération du rapport":"Report generation date"],
+     ["SPRINT_GOAL",fr?"Tous les objectifs du sprint":"All sprint goals"],
+     ["PRODUCT_NAME",fr?"Nom du produit":"Product name"],
+     ["PRODUCT_GOAL",fr?"Objectif du produit":"Product goal"],
+     ["PRODUCT_VISION",fr?"Vision du produit":"Product vision"],
+     ["SPRINT_STATUS",fr?"Statut du sprint":"Sprint status"],
+     ["INDICATOR_<TAG>",fr?"Valeur d'un indicateur dynamique":"Dynamic indicator value"]
+    ].map(([tag,description])=><tr key={tag}>
+     <td><code>{"{{"+tag+"}}"}</code></td><td>{description}</td>
+    </tr>)}</tbody>
+   </table>
+  </div>
+  <p className="small text-secondary">
+   {fr?"Données absentes : N/D. Plusieurs objectifs de sprint sont restitués sans perte. Les dates suivent la langue du rapport.":
+    "Missing values: N/D. Multiple sprint goals are included. Dates follow the report language."}
   </p>
   <p className="small">
    {fr?"Graphiques PNG insérés depuis un tag texte libre (paragraphe/zone texte dédié) :":"PNG charts inserted from a free-standing tag (dedicated paragraph/text box):"}
