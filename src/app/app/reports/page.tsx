@@ -117,7 +117,7 @@ export default async function ReportsCenter({searchParams}:Params){
   {tab==="templates"&&<section className="smn-report-results" aria-labelledby="smn-report-templates-title">
    <div className="smn-report-panel-heading"><h2 id="smn-report-templates-title">{t("templates")}</h2></div>
    {data.templates.length===0?<p className="alert alert-info mb-0">{t("emptyModels")}</p>:<TemplateLibrary templates={data.templates} canManage={account.role==="admin"&&!scoped}/>}
-   <OfficeTemplateCatalog templates={officeTemplates??[]} unavailable={officeTemplates===null}/>
+   <OfficeTemplateCatalog templates={officeTemplates??[]} unavailable={officeTemplates===null} cycles={sprintOptions} teamId={data.teamId} initialLanguage={locale==="en"?"en":"fr"}/>
   </section>}
   {tab==="archives"&&<section className="smn-report-results" aria-labelledby="smn-report-archives-title">
    <div className="smn-report-panel-heading"><h2 id="smn-report-archives-title">{t("archives")}</h2></div>
