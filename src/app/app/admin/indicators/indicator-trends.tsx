@@ -66,12 +66,36 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
   <h2 className="h5 mb-3">{t("indicators.reporting.title")}</h2>
   {error&&<p role="alert" className="alert alert-warning">{error}</p>}
   {busy&&<p role="status">{t("indicators.reporting.loading")}</p>}
-  {report&&<><form className="d-flex flex-wrap align-items-end gap-3 mb-3" onSubmit={e=>{e.preventDefault();if(!validBounds){setError(locale==="fr"?"Plage de Sprints invalide.":"Invalid cycle range.");return;}setError("");setApplied({indicator,start,end,style});}}>
-   <label className="form-label mb-0 flex-grow-1">{t("indicators.reporting.indicator")}<select className="form-select mt-1" value={indicator} onChange={e=>setIndicator(e.target.value)}>{report.columns.map(c=><option key={c.id} value={c.id}>{c.name} ({c.unit})</option>)}</select></label>
+  {report&&<><form className="d-flex flex-wrap align-items-end gap-3 mb-3" onSubmit={e=>{e.preventDefault();if(!validBounds){setError(locale==="fr"?"Plage de Sprints invalide.":"Invalid cycle range.");return;}
+  const failure=validateTrendSelection(indicators,report.columns);
+  if(failure){setError(selectionError(failure));return;}
+  const selectedStyle=indicators.length>1&&["pie","donut","gauge"].includes(style)?"line":style;
+  if(selectedStyle!==style)setStyle(selectedStyle);
+  setError("");setApplied({indicators:[...indicators],start,end,style:selectedStyle});}}>
+   <div className="flex-grow-1" style={{minWidth:220}}>
+    <span className="form-label d-block mb-1">{locale==="fr"?"Indicateurs":"Indicators"}</span>
+    <details className="dropdown">
+     <summary className="form-select" style={{cursor:"pointer",minHeight:38}}>
+      {indicators.length===0?(locale==="fr"?"Choisir les indicateurs":"Choose indicators"):
+       indicators.length===1?report.columns.find(c=>c.id===indicators[0])?.name:
+       (locale==="fr"?indicators.length+" indicateurs sélectionnés":indicators.length+" indicators selected")}
+     </summary>
+     <div className="border rounded-3 bg-body p-3 shadow-sm mt-1" style={{position:"absolute",zIndex:5,minWidth:"min(360px,85vw)",maxHeight:280,overflowY:"auto"}}>
+      <p className="small text-body-secondary mb-2">{locale==="fr"?"Jusqu’à six indicateurs de même unité":"Up to six indicators with the same unit"}</p>
+      {report.columns.map(column=><label key={column.id} className="d-flex align-items-start gap-2 py-1" style={{cursor:"pointer"}}>
+       <input className="form-check-input mt-1" type="checkbox" checked={indicators.includes(column.id)}
+        disabled={!indicators.includes(column.id)&&(indicators.length>=MAX_TREND_SERIES||
+         indicators.some(id=>report.columns.find(c=>c.id===id)?.unit.trim().toLowerCase()!==column.unit.trim().toLowerCase()))}
+        onChange={e=>{setIndicators(current=>e.target.checked?[...current,column.id]:current.filter(id=>id!==column.id));}}/>
+       <span className="small">{column.name} <span className="text-body-secondary">({column.unit})</span></span>
+      </label>)}
+     </div>
+    </details>
+   </div>
    <label className="form-label mb-0">{locale==="fr"?"Sprint de départ":"Start cycle"}<select className="form-select mt-1" value={start} onChange={e=>setStart(e.target.value)}>{report.cycles.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-   <label className="form-label mb-0">{locale==="fr"?"Style graphique":"Chart style"}<select className="form-select mt-1" value={style} onChange={e=>setStyle(e.target.value as Style)}>{styles.map(s=><option key={s} value={s}>{({bar:locale==="fr"?"Barres":"Bars",line:locale==="fr"?"Ligne":"Line",pie:locale==="fr"?"Secteurs":"Pie",donut:locale==="fr"?"Anneau":"Donut",gauge:locale==="fr"?"Jauge":"Gauge",area:locale==="fr"?"Aire":"Area"})[s]}</option>)}</select></label>
+   <label className="form-label mb-0">{locale==="fr"?"Style graphique":"Chart style"}<select className="form-select mt-1" value={style} onChange={e=>setStyle(e.target.value as Style)}>{styles.map(s=><option key={s} value={s} disabled={indicators.length>1&&["pie","donut","gauge"].includes(s)}>{({bar:locale==="fr"?"Barres":"Bars",line:locale==="fr"?"Ligne":"Line",pie:locale==="fr"?"Secteurs":"Pie",donut:locale==="fr"?"Anneau":"Donut",gauge:locale==="fr"?"Jauge":"Gauge",area:locale==="fr"?"Aire":"Area"})[s]}</option>)}</select></label>
    <label className="form-label mb-0">{locale==="fr"?"Sprint de fin":"End cycle"}<select className="form-select mt-1" value={end} onChange={e=>setEnd(e.target.value)}>{report.cycles.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-   <button className="btn btn-primary" type="submit" disabled={!indicator||!validBounds}>{locale==="fr"?"Filtrer":"Filter"}</button>
+   <button className="btn btn-primary" type="submit" disabled={indicators.length===0||!validBounds}>{locale==="fr"?"Filtrer":"Filter"}</button>
   </form>
   {report.columns.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}
   {active&&<><div className="d-flex justify-content-end mb-2"><button type="button" className="btn btn-outline-primary btn-sm" disabled={actual.length===0||isParts&&!nonnegative||applied?.style==="gauge"&&!gaugeValid} onClick={()=>void exportPng()}>{locale==="fr"?"Enregistrer en PNG":"Save as PNG"}</button></div>
