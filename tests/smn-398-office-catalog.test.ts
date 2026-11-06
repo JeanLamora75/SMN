@@ -8,8 +8,8 @@ import {isSupportedOfficePackage,listOfficeTemplates,officeTemplatesDirectory,te
 
 function makePackage(format:"docx"|"pptx"):Buffer{
  const entries=[
-  {name:"[Content_Types].xml",data:Buffer.from("<Types/>")},
-  {name:"_rels/.rels",data:Buffer.from("<Relationships/>")},
+  {name:"[Content_Types].xml",data:Buffer.from(`<Types><Override PartName="/${format==="docx"?"word/document.xml":"ppt/presentation.xml"}" ContentType="application/vnd.openxmlformats-officedocument.${format==="docx"?"wordprocessingml.document.main+xml":"presentationml.presentation.main+xml"}"/></Types>`)},
+  {name:"_rels/.rels",data:Buffer.from('<Relationships><Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"/></Relationships>')},
   {name:format==="docx"?"word/document.xml":"ppt/presentation.xml",data:Buffer.from("<Document/>")}
  ];
  return writeZip(entries);
