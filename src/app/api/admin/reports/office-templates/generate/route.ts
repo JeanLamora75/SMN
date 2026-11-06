@@ -6,6 +6,8 @@ import {resolveAdminTeam} from "@/server/teams/resolve";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
+import {readOfficeWordMembers,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
+import {generateWordTables} from "../../../../../../../scripts/smn-400-word-tables.mjs";
 import {buildScalarValues,formatScalarNumber,generateScalarOffice} from "../../../../../../../scripts/smn-399-office-scalars.mjs";
 
 export const runtime="nodejs";
@@ -38,9 +40,9 @@ export async function POST(req:NextRequest){
     filename==="."||filename===".."||filename.endsWith(".")||
     (language!=="fr"&&language!=="en"))
   return jsonResult({error:"invalid-input"},400);
- let values:ReturnType<typeof buildScalarValues>;
+ let payload:{values:ReturnType<typeof buildScalarValues>;rows:Record<string,Record<string,string|null>[]>};
  try{
-  values=await withAuthDb(async db=>{
+  payload=await withAuthDb(async db=>{
    const team=await resolveAdminTeam(db,{accountId:actor.id,role:actor.role},teamId);
    if(team.mode!=="scrum"||!await assertTeamReportCycle(db,{accountId:actor.id,role:actor.role},teamId,cycleId))
     throw Error("forbidden-scope");
@@ -59,7 +61,7 @@ export async function POST(req:NextRequest){
    const indicators=selected.rows.length?await readReportIndicatorProjection(
      db,teamId,"scrum",cycleId,selected.rows.map(row=>row.id)):[];
    const sprint=cycle.rows[0],locale=language as Locale;
-   return buildScalarValues({
+   const values=buildScalarValues({
     TEAM_NAME:team.team,
     SPRINT_NAME:sprint.name,
     SPRINT_START:dateValue(sprint.start_at,locale),
@@ -67,6 +69,8 @@ export async function POST(req:NextRequest){
     SPRINT_STATUS:status[locale][sprint.status]??sprint.status,
     indicators:indicators.map(indicator=>({...indicator,value:formatScalarNumber(indicator.value,locale)}))
    });
+   const members=await readOfficeWordMembers(db,teamId,cycleId,locale);
+   return {values,rows:{MEMBERS:members,INDICATORS:officeWordIndicatorRows(indicators,locale)}};
   });
  }catch(error){
   if(error instanceof Error&&error.message==="too-many-indicators")
@@ -76,7 +80,9 @@ export async function POST(req:NextRequest){
  try{
   const selected=await readOfficeTemplateById(modelId);
   if(!selected)return jsonResult({error:"template-unavailable"},404);
-  const result=generateScalarOffice(selected.bytes,selected.template.format,values);
+  const base=selected.template.format==="docx"?
+   generateWordTables(selected.bytes,payload.rows).bytes:selected.bytes;
+  const result=generateScalarOffice(base,selected.template.format,payload.values);
   if(!isSupportedOfficePackage(result.bytes,selected.template.format))
    return jsonResult({error:"generation-failed"},422);
   const fullName=filename.replace(/\.(docx|pptx)$/i,"")+"."+selected.template.format;
