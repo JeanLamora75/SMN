@@ -3662,7 +3662,15 @@
     "officeEmpty": "No compatible Office templates in the configured directory.",
     "officeSelect": "Office template",
     "officeChoose": "Choose a template",
-    "officeSelected": "Selected template"
+    "officeSelected": "Selected template",
+    "officeSprint": "Sprint",
+    "officeFilename": "File name",
+    "officeLanguage": "Report language",
+    "officeGenerate": "Generate and download",
+    "officeGenerating": "Generating…",
+    "officeGenerationError": "Unable to generate this Office document. Check its template and tags.",
+    "officeRequiresTeam": "Select an authorized team and sprint to generate an Office report.",
+    "officeScalarOnly": "This first version replaces scalar tags. Dynamic tables and charts will follow in later stories."
   },
   "reportsStudio": {
     "modes": "Studio modes",
