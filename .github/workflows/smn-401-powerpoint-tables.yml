@@ -1,0 +1,37 @@
+name: SMN-401 — Tableaux PowerPoint
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/smn-397-office-poc.mjs"
+      - "scripts/smn-399-office-scalars.mjs"
+      - "scripts/smn-401-powerpoint-tables.mjs"
+      - "src/server/reports/office-word-rows.ts"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "tests/smn-401-powerpoint-tables.test.mjs"
+      - ".github/workflows/smn-401-powerpoint-tables.yml"
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  powerpoint-tables:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Vérifier les tableaux PowerPoint
+        run: pnpm exec tsx --test tests/smn-401-powerpoint-tables.test.mjs
+      - name: Vérifier les types
+        run: pnpm typecheck
+      - name: Vérifier le lint
+        run: pnpm exec eslint src/app/api/admin/reports/office-templates/generate/route.ts tests/smn-401-powerpoint-tables.test.mjs
