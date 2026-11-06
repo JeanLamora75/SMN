@@ -94,7 +94,7 @@ test("SMN-402: plusieurs graphiques Word possèdent des IDs de dessin distincts"
   renderOfficeIndicatorChart(report,"c3",options,"fr"));
  assert.equal(result.changes.length,2);
  const doc=readZip(result.bytes).find(p=>p.name==="word/document.xml")!.data.toString();
- const ids=[...doc.matchAll(/<wp:docPr[^>]*id="(\\d+)"/g)].map(m=>m[1]);
+ const ids=[...doc.matchAll(/<wp:docPr[^>]*id="(\d+)"/g)].map(m=>m[1]);
  assert.equal(ids.length,2);
  assert.equal(new Set(ids).size,2);
 });
