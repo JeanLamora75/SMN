@@ -38,7 +38,7 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Tester les tags Office contextuels
-        run: pnpm exec tsx --test tests/smn-office-context-scalars.test.ts tests/smn-office-tags-documentation.test.ts
+        run: pnpm exec tsx --test tests/smn-office-context-scalars.test.ts
       - name: Non-régression des tags et des contextes
         run: pnpm exec tsx --test tests/smn-399-office-scalars.test.mjs tests/smn-405-office-acceptance.test.ts
       - name: Cohérence du catalogue de tags Office
@@ -46,4 +46,4 @@ jobs:
       - name: TypeScript
         run: pnpm typecheck
       - name: ESLint ciblé
-        run: pnpm exec eslint src/server/reports/office-context-scalars.ts src/app/app/reports/office-tags.tsx tests/smn-office-context-scalars.test.ts
+        run: pnpm exec eslint src/server/reports/office-context-scalars.ts src/app/app/reports/office-tags.tsx tests/smn-office-context-scalars.test.ts tests/smn-office-tags-documentation.test.ts
