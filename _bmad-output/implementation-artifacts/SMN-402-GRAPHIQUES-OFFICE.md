@@ -36,7 +36,7 @@ Les paramètres sont facultatifs. `LAST` accepte 1 à 24 sprints, `TYPE` accepte
 
 ## Réserves techniques et preuve restante
 
-Le moteur XML et ZIP des prototypes Office SMN-397 reste expérimental, **pas** un parseur OpenXML de production. Les tags graphiques doivent occuper seuls le paragraphe/zone de texte. Les formes groupées, tags mélangés à du texte, tableaux imbriqués, tailles et relations Office complexes nécessitent des validations supplémentaires. Les types actuellement pris en charge sont barres, lignes et aire remplie ; secteurs, anneau et jauge sont encore hors périmètre technique.
+Le moteur XML et ZIP des prototypes Office SMN-397 reste expérimental, **pas** un parseur OpenXML de production. Les tags graphiques doivent occuper seuls le paragraphe/zone de texte. Les formes groupées, tags mélangés à du texte, tableaux imbriqués, tailles et relations Office complexes nécessitent des validations supplémentaires. Les types de graphiques désormais implémentés sont barres, lignes, aire remplie, secteurs, anneau et jauge semi-circulaire. Secteurs et anneaux exigent des valeurs non négatives de même unité ; la jauge exige une valeur entre 0 et 100 pour une seule série.
 
 Le POC Word utilise une taille fixe du dessin ; l'incrément SMN-402 attribue désormais des identifiants graphiques `wp:docPr` distincts dans chaque partie XML et les teste pour plusieurs graphiques. Il reste à adapter les dimensions aux contraintes du modèle et à vérifier les constructions complexes.
 
@@ -55,3 +55,9 @@ Le POC Word utilise une taille fixe du dessin ; l'incrément SMN-402 attribue d�
 
 - [Exécution 42301569751](https://github.com/JeanLamora75/SMN/actions/runs/42301569751) : **11/11 tests réussis**, TypeScript et ESLint réussis sur Node 24 Linux, y compris deux graphiques Word dans un même document.
 - Correctif ultérieur : l'option `TYPE=area` génère désormais une aire effectivement remplie, avec test discriminant contre le style `line`. La validation est effectuée : [exécution 42301779346](https://github.com/JeanLamora75/SMN/actions/runs/42301779346), **success** : 11/11 tests, typecheck et ESLint ciblé réussis sur Node 24 Linux.
+
+## Extension — six styles (06/11/2026)
+
+Les tags `TYPE=pie`, `TYPE=donut` et `TYPE=gauge` sont maintenant reconnus, en plus de `bar`, `line` et `area`. Pour les secteurs et l'anneau, les valeurs utilisées sont les dernières valeurs **du sprint sélectionné** (jusqu'à six séries de même unité), avec rejet des valeurs négatives et `N/D` si la somme est nulle. Pour la jauge, une seule série avec une valeur courante entre 0 et 100 ; représentation en demi-cercle avec niveau et unité %. L'insertion reste fondée sur un tag libre Word/PPTX.
+
+Voir le [catalogue enrichi et les tests associés](SMN-OFFICE-EXTENSION-CATALOGUE-TAGS.md). La recette Microsoft Office et PostgreSQL réelle reste à effectuer.
