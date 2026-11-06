@@ -3654,7 +3654,15 @@
     "committedSp": "Initially committed SP",
     "completedSp": "Completed SP",
     "plannedJh": "Planned capacity",
-    "actualJh": "Actual available capacity"
+    "actualJh": "Actual available capacity",
+    "officeTemplates": "Word and PowerPoint Office templates",
+    "officeRefresh": "Refresh",
+    "officeTemplatesHint": "DOCX and PPTX files discovered automatically in the authorized Office template folder. Existing report templates remain separate.",
+    "officeUnavailable": "Office templates are currently unavailable.",
+    "officeEmpty": "No compatible Office templates in the configured directory.",
+    "officeSelect": "Office template",
+    "officeChoose": "Choose a template",
+    "officeSelected": "Selected template"
   },
   "reportsStudio": {
     "modes": "Studio modes",
