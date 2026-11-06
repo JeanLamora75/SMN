@@ -78,3 +78,27 @@ Les tests de l'extension exécutent : découverte et génération des sept famil
 La validation **PostgreSQL v33 réel**, les rendus visuels dans Microsoft Word et PowerPoint sur Windows 11, les cas Open XML très complexes et la recette de concurrence SMN-403 restent à effectuer. Cette extension ne clôture donc pas automatiquement SMN-400, SMN-401, SMN-402 ni SMN-405.
 
 **Référence CI :** https://github.com/JeanLamora75/SMN/actions/workflows/office-catalog-extensions.yml
+
+## 6. Tags de contexte — équipe, sprint et produit
+
+**Nouvelle extension :** valeurs simples utilisables dans les paragraphes Word et les zones de texte PowerPoint, y compris lorsque le marqueur est fragmenté entre plusieurs runs. Aucun emplacement technique ne doit être configuré dans SMN.
+
+| Tag | Source SMN et comportement |
+|---|---|
+| `{{TEAM_NAME}}` | Nom de l'équipe autorisée |
+| `{{SPRINT_NAME}}` | Nom du sprint autorisé |
+| `{{SPRINT_START}}` | Date de début, formatée selon FR/EN |
+| `{{SPRINT_END}}` | Date de fin, formatée selon FR/EN |
+| `{{TODAY}}` | Date réelle de **génération**, selon le fuseau horaire du sprint et la langue du rapport |
+| `{{SPRINT_GOAL}}` | **Tous** les objectifs enregistrés du sprint, séparés par ` ; ` ; pour un sprint clôturé, lecture du snapshot de clôture |
+| `{{PRODUCT_NAME}}` | Produit lié à l'équipe, obtenu avec la résolution serveur autorisée |
+| `{{PRODUCT_GOAL}}` | Objectif de produit saisi dans le contexte propre à l'équipe |
+| `{{PRODUCT_VISION}}` | Vision du produit saisie dans le contexte propre à l'équipe |
+
+**Distinction métier :** `{{SPRINT_GOAL}}` restitue les intitulés des objectifs du sprint (pas un objectif arbitrairement choisi), tandis que `{{ROW:GOALS}}` permet de présenter les objectifs en plusieurs lignes avec leur évaluation. Les données `PRODUCT_GOAL` et `PRODUCT_VISION` proviennent du contexte de l'équipe `smn_team_context` et ne doivent pas être inventées depuis un autre produit. Une valeur manquante ou indisponible devient `N/D`. Le nombre `0` conserve sa valeur.
+
+L'identité du produit vient de `resolveAdminTeam` : elle est liée à l'équipe autorisée. Les valeurs historiques du sprint clôturé sont obtenues par `readSprintDetailGoals`, lequel exploite les snapshots existants lorsque disponibles.
+
+**Cas d'utilisation :** une page de couverture PowerPoint peut contenir `{{PRODUCT_NAME}}`, `{{SPRINT_NAME}}`, `{{SPRINT_START}}`, `{{SPRINT_END}}` et `{{TODAY}}` ; une page d'introduction peut afficher `{{PRODUCT_VISION}}`, `{{PRODUCT_GOAL}}` et `{{SPRINT_GOAL}}`.
+
+**Tests :** `tests/smn-office-context-scalars.test.ts` et workflow Windows/Linux `office-context-scalars.yml`. Ces vérifications restent distinctes de la recette visuelle Microsoft Office et de la recette PostgreSQL réelle.
