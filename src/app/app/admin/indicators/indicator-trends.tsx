@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "@/i18n/client";
 import {formatIndicatorValue} from "@/lib/indicators/format-value";
+import {MAX_TREND_SERIES,TREND_COLORS,trendNumbers,trendRange,trendSegments,validateTrendSelection} from "@/lib/indicators/trend-series";
 type Column={id:string;tag:string;name:string;unit:string};
 type Cycle={id:string;name:string;status:string;values:Record<string,string|null>};
 type Report={columns:Column[];cycles:Cycle[]};
@@ -14,24 +15,34 @@ export function defaultTrendRange(cycles:readonly Cycle[],currentId?:string){
 }
 export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamId:string;cycleType:"scrum"|"kanban";cycleId?:string;locale:"fr"|"en"}){
  const t=useTranslation(),[report,setReport]=useState<Report|null>(null),[error,setError]=useState(""),[busy,setBusy]=useState(true);
- const [indicator,setIndicator]=useState(""),[start,setStart]=useState(""),[end,setEnd]=useState(""),[style,setStyle]=useState<Style>("bar");
- const [applied,setApplied]=useState<{indicator:string;start:string;end:string;style:Style}|null>(null);
+ const [indicators,setIndicators]=useState<string[]>([]),[start,setStart]=useState(""),[end,setEnd]=useState(""),[style,setStyle]=useState<Style>("bar");
+ const [applied,setApplied]=useState<{indicators:string[];start:string;end:string;style:Style}|null>(null);
  const svgRef=useRef<SVGSVGElement>(null);
- useEffect(()=>{const ctrl=new AbortController();void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({teamId,cycleType,screen:"trends"}),{signal:ctrl.signal,cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<Report>}).then(data=>{if(ctrl.signal.aborted)return;const range=defaultTrendRange(data.cycles,cycleId);const selected=data.columns[0]?.id??"";setReport(data);setIndicator(selected);setStart(range.start);setEnd(range.end);setStyle("bar");setApplied({indicator:selected,start:range.start,end:range.end,style:"bar"});setBusy(false);setError("");}).catch(()=>{if(!ctrl.signal.aborted){setBusy(false);setError(t("indicators.reporting.unavailable"));}});return()=>ctrl.abort();},[teamId,cycleType,cycleId,t]);
+ useEffect(()=>{const ctrl=new AbortController();void fetch("/api/admin/indicators/reporting?"+new URLSearchParams({teamId,cycleType,screen:"trends"}),{signal:ctrl.signal,cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("unavailable");return r.json() as Promise<Report>}).then(data=>{if(ctrl.signal.aborted)return;const range=defaultTrendRange(data.cycles,cycleId);const selected=data.columns[0]?.id??"";setReport(data);setIndicators(selected?[selected]:[]);setStart(range.start);setEnd(range.end);setStyle("bar");setApplied({indicators:selected?[selected]:[],start:range.start,end:range.end,style:"bar"});setBusy(false);setError("");}).catch(()=>{if(!ctrl.signal.aborted){setBusy(false);setError(t("indicators.reporting.unavailable"));}});return()=>ctrl.abort();},[teamId,cycleType,cycleId,t]);
  const validBounds=!!report&&report.cycles.some(c=>c.id===start)&&report.cycles.some(c=>c.id===end)&&report.cycles.findIndex(c=>c.id===start)<=report.cycles.findIndex(c=>c.id===end);
- const active=report?.columns.find(c=>c.id===applied?.indicator);
+ const activeColumns=applied?.indicators.map(id=>report?.columns.find(c=>c.id===id)).filter((c):c is Column=>!!c)??[];
+ const active=activeColumns[0];
  const range=useMemo(()=>{if(!report||!applied)return [];const a=report.cycles.findIndex(c=>c.id===applied.start),b=report.cycles.findIndex(c=>c.id===applied.end);return a>=0&&b>=a?report.cycles.slice(a,b+1):[];},[report,applied]);
- const nums=range.map(c=>{const raw=active?c.values[active.id]:null;return raw!==null&&raw!==undefined&&raw!==""&&Number.isFinite(Number(raw))?Number(raw):null;});
- const actual=nums.filter((v):v is number=>v!==null);
- const min=Math.min(0,...actual),max=Math.max(1,...actual),span=Math.max(.000001,max-min);
+ const series=activeColumns.map((column,i)=>({column,values:trendNumbers(range,column.id),color:TREND_COLORS[i%TREND_COLORS.length]}));
+ const nums=series[0]?.values??[];
+ const actual=series.flatMap(item=>item.values).filter((v):v is number=>v!==null);
+ const {min,max,span}=trendRange(series.map(item=>item.values));
  const x=(i:number)=>80+(i+.5)*800/Math.max(1,range.length);
  const y=(v:number)=>300-(v-min)/span*215;
  const format=(v:number|null)=>formatIndicatorValue(v,locale);
- const chartTitle=active&&range.length?active.name+" : "+range[0].name+" - "+range[range.length-1].name:"";
+ const chartTitle=active&&range.length?(activeColumns.length===1?active.name:(locale==="fr"?"Comparaison d’indicateurs":"Indicator comparison"))+" : "+range[0].name+" - "+range[range.length-1].name:"";
  const nonnegative=actual.length>0&&actual.every(v=>v>=0)&&actual.some(v=>v>0)&&actual.length===nums.length;
  const isParts=applied?.style==="pie"||applied?.style==="donut";
- const total=actual.reduce((a,b)=>a+b,0);
- const colors=["#1b508d","#6d5faf","#159895","#dc8a36","#ab4b6e","#5474a5","#7a8a35","#b35252"];
+ const total=nums.filter((v):v is number=>v!==null).reduce((a,b)=>a+b,0);
+ const colors=[...TREND_COLORS];
+ const multiple=activeColumns.length>1;
+ const selectionIssue=validateTrendSelection(indicators,report?.columns??[]);
+ const selectionError=(code:NonNullable<typeof selectionIssue>)=>({
+  empty:locale==="fr"?"Sélectionnez au moins un indicateur.":"Select at least one indicator.",
+  limit:locale==="fr"?"Maximum 6 indicateurs par graphique.":"Maximum 6 indicators per chart.",
+  unknown:locale==="fr"?"Sélection d’indicateurs invalide.":"Invalid indicator selection.",
+  "mixed-unit":locale==="fr"?"Les indicateurs doivent avoir la même unité.":"Indicators must use the same unit."
+ })[code];
  const last=nums.length?nums[nums.length-1]:null;
  const gaugeValid=last!==null&&last>=0&&last<=100;
  async function exportPng(){
@@ -48,7 +59,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
    const ctx=canvas.getContext("2d");if(!ctx)throw Error("canvas");
    ctx.fillStyle=getComputedStyle(document.body).backgroundColor;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
    const blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(resolve,"image/png"));if(!blob)throw Error("png");
-   const link=URL.createObjectURL(blob),a=document.createElement("a");a.href=link;a.download="tendances-"+(active?.tag??"indicateur").replace(/[^a-z0-9_-]/gi,"_")+".png";a.click();URL.revokeObjectURL(link);
+   const link=URL.createObjectURL(blob),a=document.createElement("a");a.href=link;a.download="tendances-"+(multiple?"comparaison":active?.tag??"indicateur").replace(/[^a-z0-9_-]/gi,"_")+".png";a.click();URL.revokeObjectURL(link);
   }catch{setError(t("indicators.reporting.unavailable"));}finally{if(url)URL.revokeObjectURL(url);}
  }
  return <section className="smn-panel rounded-4 p-3 my-3" aria-label={t("indicators.reporting.title")}>
