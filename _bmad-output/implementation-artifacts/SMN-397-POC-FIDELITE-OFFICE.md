@@ -104,3 +104,35 @@ Les rendus observés présentent correctement les lignes et images et ne montren
 6. **Qualité du code :** le prototype utilise des expressions régulières simplifiées sur XML. Il ne constitue pas un moteur Open XML de production.
 
 **État de SMN-397 : toujours En cours.** La deuxième campagne prouve des capacités supplémentaires ciblées, mais **CA-1.3 et CA-1.5 restent partiels**, et **CA-1.4 n'est pas validé**.
+
+## Troisième campagne — graphiques depuis tags libres et cellules fusionnées (06/11/2026)
+
+**Objectif :** prouver la création d'une *nouvelle image Office* à partir d'un tag texte libre, sans image ou zone graphique préconfigurée dans SMN, puis répéter des lignes de tableaux avec fusions horizontales.
+
+**Code publié directement sur `main` :**
+- [`scripts/smn-397-free-chart-poc.mjs`](../../scripts/smn-397-free-chart-poc.mjs) : remplacement d'un paragraphe Word contenant uniquement `{{CHART:TREND}}` (tag éventuellement fragmenté en runs) par un `w:drawing/wp:inline` ; remplacement d'une zone texte PowerPoint contenant uniquement le tag par un `p:pic` avec sa géométrie `a:xfrm` conservée. Le moteur ajoute l'entrée média PNG, sa relation `rId` et le type MIME PNG lorsque nécessaire.
+- [`tests/smn-397-free-chart-poc.test.mjs`](../../tests/smn-397-free-chart-poc.test.mjs) : tests autonomes pour CI, couvrant DOCX et PPTX, relations, conservation de dimensions, coexistence tableaux, fusions horizontales et refus explicites.
+- [`scripts/smn-397-office-complex-poc.mjs`](../../scripts/smn-397-office-complex-poc.mjs) : étendu pour répliquer les cellules fusionnées **horizontalement** ; fusions verticales et tableaux imbriqués explicitement refusés, afin de ne pas introduire de corruption silencieuse.
+
+### Résultats réellement exécutés hors CI
+
+- **8/8 tests complémentaires réussis** dans un environnement Node.js 22 isolé, via `node --test` ; les tests reposent sur des packages synthétiques construits en mémoire pour être autonomes.
+- **DOCX réel** produit depuis un modèle Word contenant un tag `{{CHART:TREND}}` fragmenté dans un paragraphe normal, sans image préexistante. Ouverture réussie via `python-docx` ; **1 image inline présente**, 4 lignes de tableau (en-tête + 3 membres) et en-tête Word d'origine conservé.
+- **PPTX réel** produit depuis un modèle PowerPoint contenant le même tag fragmenté dans une zone de texte simple. Ouverture réussie via `python-pptx` ; la zone de texte est remplacée par **une nouvelle forme image**, avec ses dimensions/position initiales reprises, 4 lignes de tableau et notes intactes.
+- **Rendu LibreOffice :** fichiers générés exportés en PDF puis en PNG ; inspection visuelle des premières pages/diapositives : courbe PNG visible et tableaux lisibles sur les deux formats, sans disparition des objets fixes de ces échantillons.
+- **Fusions horizontales réelles :** modèles Word et PowerPoint avec première cellule métier fusionnée sur deux colonnes ; 3 lignes de données générées, documents réouverts via `python-docx` et `python-pptx`. En PPTX, `is_merge_origin` et `is_spanned` restent vrais sur les trois lignes ; en Word, les propriétés de grille fusionnée sont conservées dans les lignes clonées.
+- **Principe du tableau :** pas de plafond métier supplémentaire ; la limite `10000` présente dans ce POC est une protection technique expérimentale (échec explicite), non une limite fonctionnelle contractuelle.
+
+**Distinction essentielle :** le test prouve la transformation de **l'image PNG déjà rendue** en nouveau dessin intégré à partir d'un tag. Il **ne prouve pas** la génération de la courbe depuis les indicateurs SMN ou son moteur de tendances ; cette intégration relève des travaux ultérieurs.
+
+### Limites restantes avant livraison
+
+1. Un tag graphique doit actuellement être le **seul contenu** du paragraphe Word ou de la zone texte PowerPoint. L'insertion au milieu d'un paragraphe ou au sein de zones groupées/nested n'est pas couverte.
+2. Le prototype Word utilise une taille d'image inline de démonstration (3,5 × 2 pouces) ; les règles de cadrage destinées à la production doivent encore être décidées/testées. PowerPoint réutilise la géométrie de la zone texte d'origine.
+3. L'ID `wp:docPr` du POC est fixe ; plusieurs graphiques dans le même DOCX peuvent provoquer des collisions. Ce comportement doit être corrigé avant production.
+4. La validation PNG du POC se limite à une signature/taille minimale ; la robustesse XML/ZIP et des relations sur modèles Office complexes n'est pas démontrée.
+5. Le clonage des tableaux par expressions régulières reste expérimental. Les fusions **verticales**, les tableaux imbriqués, le découpage de groupes multi-lignes et la répétition de lignes modèles sur plusieurs diapositives ne sont pas pris en charge.
+6. LibreOffice/Linux et les lecteurs Python ne remplacent pas une recette sur **Microsoft Office / Windows 11 / Node.js 24**. Aucune conformité interversions ni inspection Office manuelle n'est revendiquée.
+7. Aucune validation CI du dernier commit ne peut être présumée : consulter les workflows GitHub Actions. Les essais publiés constituent un socle POC, non une implémentation de production.
+
+**Conclusion :** **CA-1.5 (création d'image depuis tag libre) démontré sur les échantillons simples DOCX/PPTX**, et fidélité de fusions horizontales simples démontrée. **SMN-397 reste En cours**, les critères complexes et la recette Windows/Office ne sont pas entièrement couverts.
