@@ -55,7 +55,7 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
    nodes.forEach(node=>{for(const key of ["fill","stroke"]){const v=node.getAttribute(key);if(v?.startsWith("var(")){const fallback=key==="fill"?"#172b4d":"#a5afbd";node.setAttribute(key,fallback);}}});
    url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:"image/svg+xml"}));
    const image=new Image();image.src=url;await image.decode();
-   const canvas=document.createElement("canvas");canvas.width=1920;canvas.height=930;
+   const canvas=document.createElement("canvas");canvas.width=1920;canvas.height=1180;
    const ctx=canvas.getContext("2d");if(!ctx)throw Error("canvas");
    ctx.fillStyle=getComputedStyle(document.body).backgroundColor;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
    const blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(resolve,"image/png"));if(!blob)throw Error("png");
@@ -100,20 +100,49 @@ export default function IndicatorTrends({teamId,cycleType,cycleId,locale}:{teamI
   {report.columns.length===0&&<p role="status">{t("indicators.reporting.empty")}</p>}
   {active&&<><div className="d-flex justify-content-end mb-2"><button type="button" className="btn btn-outline-primary btn-sm" disabled={actual.length===0||isParts&&!nonnegative||applied?.style==="gauge"&&!gaugeValid} onClick={()=>void exportPng()}>{locale==="fr"?"Enregistrer en PNG":"Save as PNG"}</button></div>
    {actual.length===0?<p role="status">{t("indicators.reporting.empty")}</p>:applied?.style==="gauge"&&!gaugeValid?<p role="alert">{locale==="fr"?"La jauge nécessite une valeur finale comprise entre 0 et 100 (référence : 100).":"Gauge requires a final value between 0 and 100 (reference: 100)."}</p>:isParts&&!nonnegative?<p role="alert">{locale==="fr"?"Secteurs et anneau nécessitent des valeurs non négatives et renseignées pour chaque Sprint.":"Pie and donut need nonnegative values for every cycle."}</p>:
-   <svg ref={svgRef} viewBox="0 0 960 465" className="w-100" role="img" aria-label={chartTitle} xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="960" height="465" fill="var(--bs-body-bg)"/>
+   <svg ref={svgRef} viewBox="0 0 960 590" className="w-100" role="img" aria-label={chartTitle} xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="960" height="590" fill="var(--bs-body-bg)"/>
     <text x="480" y="34" textAnchor="middle" fontSize="19" fill="var(--bs-body-color)">{chartTitle}</text>
     {!isParts&&applied?.style!=="gauge"&&<g>{[0,.25,.5,.75,1].map(p=><g key={p}><line x1="75" x2="885" y1={300-p*215} y2={300-p*215} stroke="var(--bs-border-color)"/><text x="67" y={304-p*215} textAnchor="end" fontSize="11" fill="var(--bs-body-color)">{format(min+p*span)}</text></g>)}
-     {nums.map((v,i)=>v===null?null:<g key={i}>
-      {applied?.style==="bar"?<rect x={x(i)-Math.min(28,320/Math.max(1,range.length))} width={Math.min(56,640/Math.max(1,range.length))} y={Math.min(y(v),y(0))} height={Math.max(1,Math.abs(y(v)-y(0)))} fill="#1b508d"/>:<circle cx={x(i)} cy={y(v)} r="4" fill="#1b508d"/>}
-      <title>{range[i].name}: {format(v)} {active.unit}</title></g>)}
-     {(applied?.style==="line"||applied?.style==="area")&&nums.map((v,i)=>i&&v!==null&&nums[i-1]!==null?<line key={"l"+i} x1={x(i-1)} y1={y(nums[i-1]!)} x2={x(i)} y2={y(v)} stroke="#1b508d" strokeWidth="3"/>:null)}
+     {series.map((item,j)=>{
+      const groupWidth=Math.min(66,640/Math.max(1,range.length));
+      const barWidth=Math.max(2,groupWidth/Math.max(1,series.length)-2);
+      const segments=trendSegments(item.values);
+      return <g key={item.column.id}>
+       {applied?.style==="bar"&&item.values.map((v,i)=>v===null?null:<rect key={i}
+        x={x(i)-groupWidth/2+j*(groupWidth/series.length)+1} width={barWidth}
+        y={Math.min(y(v),y(0))} height={Math.max(1,Math.abs(y(v)-y(0)))} fill={item.color}>
+        <title>{item.column.name} — {range[i].name}: {format(v)} {item.column.unit}</title>
+       </rect>)}
+       {(applied?.style==="line"||applied?.style==="area")&&segments.map((part,k)=>{
+        const coords=part.map(i=>({x:x(i),y:y(item.values[i]!)}));
+        const line=coords.map(p=>p.x+","+p.y).join(" ");
+        return <g key={k}>
+         {applied?.style==="area"&&coords.length>1&&<polygon
+          points={coords[0].x+","+y(0)+" "+line+" "+coords[coords.length-1].x+","+y(0)}
+          fill={item.color} fillOpacity=".14"/>}
+         {coords.length>1&&<polyline points={line} fill="none" stroke={item.color} strokeWidth="3"/>}
+        </g>;
+       })}
+       {(applied?.style==="line"||applied?.style==="area")&&item.values.map((v,i)=>v===null?null:
+        <circle key={i} cx={x(i)} cy={y(v)} r="4" fill={item.color} stroke="var(--bs-body-bg)" strokeWidth="1">
+         <title>{item.column.name} — {range[i].name}: {format(v)} {item.column.unit}</title>
+        </circle>)}
+      </g>;
+     })}
      {nums.map((_,i)=><text key={"label"+i} x={x(i)} y="325" transform={`rotate(-45 ${x(i)} 325)`} textAnchor="end" fontSize="11" fill="var(--bs-body-color)"><title>{range[i].name}</title>{range[i].name}</text>)}
-     <text x="480" y="448" textAnchor="middle" fontSize="13" fill="var(--bs-body-color)">{active.unit}</text></g>}
+     <text x="480" y="565" textAnchor="middle" fontSize="13" fill="var(--bs-body-color)">{active.unit}</text>
+     {series.map((item,j)=><g key={item.column.id} transform={`translate(${90+(j%2)*420} ${449+Math.floor(j/2)*31})`}>
+      <rect x="0" y="-11" width="22" height="11" rx="2" fill={item.color}/>
+      <text x="31" y="0" fontSize="12" fill="var(--bs-body-color)">
+       <title>{item.column.name} ({item.column.unit})</title>
+       {item.column.name.length>39?item.column.name.slice(0,38)+"…":item.column.name} ({item.column.unit})
+      </text>
+     </g>)}</g>}
     {applied?.style==="gauge"&&<g><path d="M320 285 A160 160 0 0 1 640 285" stroke="var(--bs-border-color)" strokeWidth="26" fill="none"/>{last!==null&&last>=0&&last<=100&&<path d="M320 285 A160 160 0 0 1 640 285" stroke="#1b508d" strokeWidth="26" fill="none" pathLength="100" strokeDasharray={last+" 100"}/>}<text x="480" y="215" textAnchor="middle" fontSize="36" fill="var(--bs-body-color)">{format(last)} {active.unit}</text><text x="480" y="250" textAnchor="middle" fontSize="12" fill="var(--bs-body-color)">0–100</text></g>}
     {isParts&&total>0&&<g>{nums.map((v,i)=>{const before=nums.slice(0,i).reduce<number>((s,n)=>s+(n??0),0)/total;const frac=(v??0)/total;const radius=112,circ=2*Math.PI*radius;return <circle key={i} cx="480" cy="205" r={radius} fill="none" stroke={colors[i%colors.length]} strokeWidth="55" strokeDasharray={frac*circ+" "+(1-frac)*circ} strokeDashoffset={-before*circ} transform="rotate(-90 480 205)"><title>{range[i].name}: {format(v)} {active.unit}</title></circle>;})}{applied?.style==="donut"&&<circle cx="480" cy="205" r="82" fill="var(--bs-body-bg)"/>}<text x="480" y="365" textAnchor="middle" fill="var(--bs-body-color)" fontSize="13">{active.unit}</text></g>}
    </svg>}
-   <div className="table-responsive mt-3"><table className="table table-sm table-striped"><thead><tr><th>{t("indicators.reporting.cycle")}</th><th>{t("indicators.reporting.status")}</th><th className="text-end">{active.name} ({active.unit})</th></tr></thead><tbody>{range.map((c,i)=><tr key={c.id}><th>{c.name}</th><td>{c.status}</td><td className="text-end">{format(nums[i])}</td></tr>)}</tbody></table></div>
+   <div className="table-responsive mt-3"><table className="table table-sm table-striped"><thead><tr><th>{t("indicators.reporting.cycle")}</th><th>{t("indicators.reporting.status")}</th>{activeColumns.map(column=><th key={column.id} className="text-end">{column.name} ({column.unit})</th>)}</tr></thead><tbody>{range.map((c,i)=><tr key={c.id}><th>{c.name}</th><td>{c.status}</td>{series.map(item=><td key={item.column.id} className="text-end">{format(item.values[i])}</td>)}</tr>)}</tbody></table></div>
   </>}
   </>}
  </section>;
