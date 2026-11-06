@@ -16,7 +16,7 @@ export type DashboardVisualizationData = Readonly<{
  maximum?:number;
  snapshot?:boolean;
 }>;
-export type VisualizationKind="number"|"card"|"card-watermark"|"tachometer"|"gauge"|"line"|"bar"|"bar-horizontal"|"battery-horizontal"|"battery-vertical"|"list"|"list-watermark"|"text";
+export type VisualizationKind="number"|"card"|"card-watermark"|"tachometer"|"gauge"|"line"|"bar"|"bar-horizontal"|"battery-horizontal"|"battery-vertical"|"trend-arrow"|"list"|"list-watermark"|"text";
 export type VisualizationModel=Readonly<{
  state:"ready"|"null"|"absent"|"error"|"no-history"|"invalid-bounds"|"incompatible";
  kind:VisualizationKind;
@@ -30,7 +30,7 @@ export type VisualizationModel=Readonly<{
  snapshot?:boolean;
 }>;
 const choices:Readonly<Record<VisualizationKind,string>>={
- number:"123",card:"▣","card-watermark":"◉",tachometer:"◠",gauge:"◔",line:"⌁",bar:"▥","bar-horizontal":"☰","battery-horizontal":"▰","battery-vertical":"▥",list:"☷","list-watermark":"▤",text:"¶",
+ number:"123",card:"▣","card-watermark":"◉",tachometer:"◠",gauge:"◔",line:"⌁",bar:"▥","bar-horizontal":"☰","battery-horizontal":"▰","battery-vertical":"▥","trend-arrow":"↗",list:"☷","list-watermark":"▤",text:"¶",
 };
 export function compatibleVisualizations(source:SourceDescriptor):readonly Readonly<{kind:SourceView;thumbnail:string}>[]{
  if(source.status!=="available")return [];
