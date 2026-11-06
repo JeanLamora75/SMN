@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readZip,writeZip} from "../scripts/smn-397-office-poc.mjs";
-import {replaceScalarXml,generateScalarOffice,buildScalarValues} from "../scripts/smn-399-office-scalars.mjs";
+import {replaceScalarXml,generateScalarOffice,buildScalarValues,formatScalarNumber} from "../scripts/smn-399-office-scalars.mjs";
 
 const w='<w:document><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Bonjour {{TE</w:t></w:r><w:r><w:t>AM_NAME}} et {{SPRINT_NAME}}</w:t></w:r></w:p><w:p><w:r><w:t>{{INDICATOR_VELOCITY}}</w:t></w:r><w:r><w:t> / {{INDICATOR_NULL}}</w:t></w:r></w:p><w:p><w:r><w:t>{{OTHER}}</w:t></w:r></w:p></w:document>';
 const p='<p:sld><p:sp><a:p><a:r><a:rPr b="1"/><a:t>{{TEAM_NAME}} = {{INDICATOR_VELOCITY}}</a:t></a:r></a:p></p:sp></p:sld>';
@@ -61,4 +61,11 @@ test("Indicateurs : source indisponible N/D, zéro conservé",()=>{
  assert.equal(values.INDICATOR_NULL,null);
  assert.equal(values.INDICATOR_VELOCITY,"0");
  assert.equal(values.TEAM_NAME,"Équipe & <Alpha>");
+});
+
+test("Format des nombres selon la langue de génération",()=>{
+ assert.equal(formatScalarNumber("12.345","fr"),"12,35");
+ assert.equal(formatScalarNumber("12.345","en"),"12.35");
+ assert.equal(formatScalarNumber(0,"fr"),"0");
+ assert.equal(formatScalarNumber(null,"fr"),null);
 });
