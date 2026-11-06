@@ -38,9 +38,15 @@ Les paramètres sont facultatifs. `LAST` accepte 1 à 24 sprints, `TYPE` accepte
 
 Le moteur XML et ZIP des prototypes Office SMN-397 reste expérimental, **pas** un parseur OpenXML de production. Les tags graphiques doivent occuper seuls le paragraphe/zone de texte. Les formes groupées, tags mélangés à du texte, tableaux imbriqués, tailles et relations Office complexes nécessitent des validations supplémentaires. Le rendu `area` reste pour l'instant une courbe et ne doit pas être présenté comme une aire remplie.
 
-Le POC Word utilise une taille fixe du dessin et un identifiant graphique `wp:docPr` constant, ce qui peut poser problème lorsqu'il y a plusieurs graphiques dans le même fichier ; l'incrément ne prouve donc pas encore la prise en charge de plusieurs images Word sans collisions. Une validation de production doit rendre les IDs uniques et s'assurer de la fidélité au cadre du modèle.
+Le POC Word utilise une taille fixe du dessin ; l'incrément SMN-402 attribue désormais des identifiants graphiques `wp:docPr` distincts dans chaque partie XML et les teste pour plusieurs graphiques. Il reste à adapter les dimensions aux contraintes du modèle et à vérifier les constructions complexes.
 
 **Recettes complémentaires nécessaires :** tests de la route avec une base PostgreSQL v33 réelle, validations Microsoft Word et PowerPoint sous Windows 11 / Node 24, contrôle visuel des dimensions et du rendu, traitement de formats et archives complexes. Les captures/export LibreOffice ne constituent pas une preuve de fidélité universelle Microsoft Office.
 
 **Jira :** https://lmn24.atlassian.net/browse/SMN-402  
 **CI :** https://github.com/JeanLamora75/SMN/actions/workflows/smn-402-office-trends.yml
+
+## Recette ciblée CI (06/11/2026)
+
+- [Exécution 42301404314](https://github.com/JeanLamora75/SMN/actions/runs/42301404314) : **success** sur Node.js 24 Linux, **10/10 tests**, typecheck et ESLint ciblé réussis après correction du typage du test.
+- Renforcement ultérieur : identifiants `wp:docPr` uniques pour plusieurs graphiques Word ; test supplémentaire ajouté. Consulter le [workflow SMN-402](https://github.com/JeanLamora75/SMN/actions/workflows/smn-402-office-trends.yml) pour l'état de la dernière révision.
+- Les résultats attestent la validité des packages synthétiques, pas une recette Microsoft Office sur l'installation Windows 11 de l'utilisateur.
