@@ -6,7 +6,7 @@ import {resolveAdminTeam} from "@/server/teams/resolve";
 import {assertTeamReportCycle} from "@/server/reports/team-cycle";
 import {readReportIndicatorProjection} from "@/server/reports/dynamic-indicators";
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
-import {buildScalarValues,generateScalarOffice} from "../../../../../../../scripts/smn-399-office-scalars.mjs";
+import {buildScalarValues,formatScalarNumber,generateScalarOffice} from "../../../../../../../scripts/smn-399-office-scalars.mjs";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -65,7 +65,7 @@ export async function POST(req:NextRequest){
     SPRINT_START:dateValue(sprint.start_at,locale),
     SPRINT_END:dateValue(sprint.end_at,locale),
     SPRINT_STATUS:status[locale][sprint.status]??sprint.status,
-    indicators
+    indicators:indicators.map(indicator=>({...indicator,value:formatScalarNumber(indicator.value,locale)}))
    });
   });
  }catch(error){
