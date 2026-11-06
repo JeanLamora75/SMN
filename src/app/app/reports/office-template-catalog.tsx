@@ -61,22 +61,16 @@ export default function OfficeTemplateCatalog({
   const savedInfo=await response.json() as {filename:string;directory:string};
   setConfirmOverwrite(null);setSaved(savedInfo.directory+" / "+savedInfo.filename);
  }
- async function generate(action:"download"|"save"="download",fingerprint?:string){
+ async function generate(){
   if(!current||!teamId||!cycle||!filename.trim()||busy)return;
   setBusy(true);setError("");setSaved("");
   try{
    const response=await fetch("/api/admin/reports/office-templates/generate",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action,expectedFingerprint:fingerprint})
+    body:JSON.stringify({modelId:current.id,teamId,cycleId:cycle,filename:filename.trim(),language,action:"download"})
    });
    if(!response.ok)throw Error("office-generation-unavailable");
-   if(action==="save"){
-    const result=await response.json() as {filename:string;directory:string};
-    setConfirmOverwrite(null);
-    setSaved(result.directory+" / "+result.filename);
-    return;
-   }
    const blob=await response.blob();
    const url=URL.createObjectURL(blob);
    const link=document.createElement("a");
