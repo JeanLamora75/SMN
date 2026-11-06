@@ -62,7 +62,7 @@ Permettre au Scrum Master ou au RTE de générer des rapports `.docx` et `.pptx`
 - **FR-016.** Le nombre de lignes produites s'adapte aux données disponibles ; le style du tableau et de la ligne modèle doit être reproduit autant que le permet le format Office.
 - **FR-017.** Si aucune donnée n'est disponible pour un tableau reconnu, une mention `N/D` apparaît dans la zone dédiée sans détruire la structure environnante.
 - **FR-018.** Le contenu non dynamique du tableau et les autres éléments du document doivent rester inchangés.
-- **FR-019.** Les éventuels débordements, fractionnements de tableaux Word et limites de place sur une diapositive PowerPoint doivent être détectés ou documentés. **À arbitrer avec Winston :** comportement précis en cas de capacité insuffisante dans PowerPoint.
+- **FR-019.** **Décision validée le 06/11/2026 :** lorsque des lignes ou du texte dépassent la zone disponible du modèle, ce débordement est accepté. SMN ne doit pas agrandir artificiellement les dimensions, déplacer les tableaux, modifier les dimensions de la diapositive, réduire ou déformer le contenu pour tenter de le faire tenir. Le modèle détermine l'espace disponible ; aucune pagination ou création de diapositive automatique n'est exigée. Les débordements dus aux données restent sous la responsabilité de la mise en page du modèle ; les limites techniques du moteur doivent être documentées.
 
 ### F05 — Graphiques rendus en images
 
@@ -87,7 +87,7 @@ Les noms exacts de tags, les limites de paramètres et leur grammaire relèvent 
 - **FR-026.** Les pages/diapositives, sections, thèmes, masques, styles, tableaux, formes, positions, images fixes et contenus non ciblés restent préservés pendant la génération.
 - **FR-027.** Le remplacement d'une valeur simple doit préserver le style défini autour du marqueur et, dans la mesure techniquement démontrée, le style de la zone remplacée.
 - **FR-028.** Le moteur doit traiter sans corruption les tags présents dans des structures Office courantes, y compris lorsqu'un marqueur est fractionné entre plusieurs segments de texte internes.
-- **FR-029.** Aucun réagencement automatique général n'est attendu. Les différences inévitables dues à une valeur plus longue, à l'ajout de lignes ou à l'insertion d'une image doivent être spécifiées, maîtrisées et validées.
+- **FR-029.** Aucun réagencement automatique général n'est attendu. Les dimensions et positions des objets du modèle ne doivent pas être augmentées ou modifiées par SMN pour compenser un contenu plus long. Les lignes de tableau ajoutées peuvent déborder de l'espace prévu ; ce résultat est accepté et ne doit pas entraîner de nouvelle diapositive imposée ni de redimensionnement automatique artificiel. Les limites doivent être documentées.
 - **FR-030.** Un document généré doit rester ouvrable dans l'application Office correspondant à son format.
 
 ### F07 — Génération et sauvegarde
@@ -144,7 +144,7 @@ Les noms exacts de tags, les limites de paramètres et leur grammaire relèvent 
 ## 7. Questions de cadrage restantes (non bloquantes pour la revue d'architecture)
 
 - **Q-01.** Comment les utilisateurs désignent-ils exactement une zone graphique ou une ligne modèle de tableau dans Office ? Le placement d'un simple tag suffit-il ? À confirmer après faisabilité.
-- **Q-02.** Que doit faire SMN lorsqu'une valeur dépasse l'espace disponible, surtout sur PowerPoint ? Une règle explicite doit précéder l'implémentation.
+- **Q-02 — Tranchée le 06/11/2026.** Le dépassement est accepté. SMN conserve les dimensions et positions du modèle et n'effectue aucun agrandissement ou recalage automatique pour faire tenir les données.
 - **Q-03.** Comment choisir le nom de sortie par défaut, et l'utilisateur peut-il l'éditer ? Proposition à valider.
 - **Q-04.** Quelle convention de langue et de format numérique/date les rapports utilisent-ils ? À arbitrer.
 - **Q-05.** Quelle liste initiale de tags, tableaux et graphiques est indispensable pour le premier incrément ? À établir avant les Stories.
