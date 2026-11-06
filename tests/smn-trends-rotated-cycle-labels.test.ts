@@ -6,12 +6,12 @@ const source=readFileSync(new URL("../src/app/app/admin/indicators/indicator-tre
 
 test("Tendances: labels complets inclinés à -45° et ancrés en fin de texte",()=>{
  assert.match(source,/rotate\(-45 \$\{x\(i\)\} 325\)/);
- assert.match(source,/textAnchor="end"[^>]*>\{range\[i\]\.name\}<\/text>/);
- assert.match(source,/viewBox="0 0 960 465"/);
- assert.match(source,/y="448" textAnchor="middle"/);
+ assert.match(source,/textAnchor="end"[^>]*><title>\{range\[i\]\.name\}<\/title>\{range\[i\]\.name\}<\/text>/);
+ assert.match(source,/viewBox="0 0 960 590"/);
+ assert.match(source,/y="565" textAnchor="middle"/);
 });
 test("Tendances: PNG inclut les labels inclinés sans couper le pied de graphique",()=>{
- assert.match(source,/canvas\.width=1920;canvas\.height=930/);
+ assert.match(source,/canvas\.width=1920;canvas\.height=1180/);
  assert.match(source,/ctx\.drawImage\(image,0,0,canvas\.width,canvas\.height\)/);
 });
 test("Tendances: labels inclinés uniquement sur les graphiques à axes",()=>{
