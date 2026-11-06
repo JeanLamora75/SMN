@@ -45,7 +45,7 @@ async function fingerprint(file:string):Promise<string|null>{
    throw new OfficeSaveFailure();
   const bytes=await readFile(file);
   return createHash("sha256").update(bytes).digest("hex")+":"+
-   stat.size+":"+stat.mtimeNs?.toString();
+   stat.size+":"+String(stat.mtimeMs);
  }catch(error){
   if((error as NodeJS.ErrnoException).code==="ENOENT")return null;
   if(error instanceof OfficeSaveFailure)throw error;
@@ -71,7 +71,7 @@ export async function saveOfficeReport(bytes:Buffer,filename:string,format:Forma
  expectedFingerprint:string,directory=officeReportsDirectory()):Promise<OfficeSaveSnapshot>{
  if(!Buffer.isBuffer(bytes)||bytes.length===0||bytes.length>MAX_REPORT_BYTES||
     typeof expectedFingerprint!=="string"||
-    !/^(absent|[a-f0-9]{64}:\d+:(?:\d+|undefined))$/.test(expectedFingerprint))
+    !/^(absent|[a-f0-9]{64}:\d+:\d+(?:\.\d+)?)$/.test(expectedFingerprint))
   throw new OfficeSaveFailure();
  const name=safeOfficeReportName(filename,format),root=await secureFolder(directory);
  const destination=path.join(root,name);
