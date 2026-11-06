@@ -1,0 +1,37 @@
+name: SMN-400 — Tableaux Word
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/smn-397-office-poc.mjs"
+      - "scripts/smn-399-office-scalars.mjs"
+      - "scripts/smn-400-word-tables.mjs"
+      - "src/server/reports/office-word-rows.ts"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "tests/smn-400-word-tables.test.mjs"
+      - ".github/workflows/smn-400-word-tables.yml"
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  word-tables:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Vérifier les tableaux Word
+        run: pnpm exec tsx --test tests/smn-400-word-tables.test.mjs
+      - name: Vérifier les types
+        run: pnpm typecheck
+      - name: Vérifier les fichiers modifiés avec ESLint
+        run: pnpm exec eslint src/server/reports/office-word-rows.ts src/app/api/admin/reports/office-templates/generate/route.ts tests/smn-400-word-tables.test.mjs
