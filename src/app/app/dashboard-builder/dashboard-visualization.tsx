@@ -5,6 +5,7 @@ import {tachometerNeedle} from "@/lib/dashboard-builder/tachometer";
 import {batterySegmentFills} from "@/lib/dashboard-builder/battery-horizontal";
 import {verticalBatteryFills} from "@/lib/dashboard-builder/battery-vertical";
 import {trendDirection} from "@/lib/dashboard-builder/trend-arrow";
+import {ringProgress,ringTicks} from "@/lib/dashboard-builder/graduated-ring";
 import {horizontalBarGeometry,shortCycleLabel} from "@/lib/dashboard-builder/horizontal-bars";
 import styles from "./dashboard-dimensions.module.css";
 
@@ -24,7 +25,7 @@ const valueLabel=(value:number,unit:string|null|undefined,locale:string)=>
 export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS}:{
  model:VisualizationModel;locale?:string;labels?:VisualizationLabels;
 }):ReactNode{
- if((model.kind==="tachometer"||model.kind==="battery-horizontal"||model.kind==="battery-vertical")&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
+ if((model.kind==="tachometer"||model.kind==="battery-horizontal"||model.kind==="battery-vertical"||model.kind==="graduated-ring")&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
   {model.value!==undefined&&<span className={styles.metric}><output className={styles.metricNumber}>{format(model.value,locale)}</output>{model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}</span>}
   <span className={styles.state}>{model.label==="out-of-scale"?(locale.toLowerCase().startsWith("fr")?"Valeur hors échelle":"Value outside scale"):(locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale")}</span>
  </div>;
@@ -43,6 +44,24 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
 
 
 
+
+ if(model.kind==="graduated-ring"){
+  if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
+   return <span className={styles.state} role="status">{locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>;
+  const progress=ringProgress(model.ratio),ticks=ringTicks(24);
+  return <div className={styles.graduatedRing}>
+   <svg viewBox="0 0 200 200" className={styles.graduatedRingSvg} aria-hidden="true" focusable="false">
+    <circle cx="100" cy="100" r="74" className={styles.graduatedRingTrack}/>
+    {model.ratio>0&&<circle cx="100" cy="100" r="74" className={styles.graduatedRingProgress}
+     strokeDasharray={progress.circumference} strokeDashoffset={progress.dashOffset} transform="rotate(-90 100 100)"/>}
+    {ticks.map((tick,i)=><line key={i} x1={tick.x1} y1={tick.y1} x2={tick.x2} y2={tick.y2} className={styles.graduatedRingTick}/>)}
+   </svg>
+   <div className={styles.graduatedRingValue}>
+    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
+    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
+   </div>
+  </div>;
+ }
  if(model.kind==="trend-arrow"){
   if(model.value===undefined||!Number.isFinite(model.value))
    return <span className={styles.state} role="status">{labels.error}</span>;
