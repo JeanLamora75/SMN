@@ -1,0 +1,35 @@
+name: SMN-402 — Graphiques Office
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/smn-402-*.mjs"
+      - "src/server/reports/office-indicator-charts.ts"
+      - "src/app/api/admin/reports/office-templates/generate/route.ts"
+      - "tests/smn-402-office-trends.test.ts"
+      - ".github/workflows/smn-402-office-trends.yml"
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  office-trends:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.10.0"
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - name: Contrats graphiques Office
+        run: pnpm exec tsx --test tests/smn-402-office-trends.test.ts
+      - name: TypeScript
+        run: pnpm typecheck
+      - name: ESLint ciblé
+        run: pnpm exec eslint tests/smn-402-office-trends.test.ts src/server/reports/office-indicator-charts.ts src/app/api/admin/reports/office-templates/generate/route.ts
