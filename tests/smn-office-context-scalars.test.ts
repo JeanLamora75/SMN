@@ -12,7 +12,7 @@ function dbMock({closed=false,hasContext=true,hasGoals=true}:{
 }={}){
  const seen:Query[]=[];
  const db={
-  query:async(sql:string,values:unknown[]=[]):Promise<{rows:any[]}>=>{
+  query:async(sql:string,values:unknown[]=[]):Promise<{rows:unknown[]}>=>{
    seen.push({sql,values});
    if(sql.includes("to_regclass('public.smn_team_context')"))
     return {rows:[{present:hasContext}]};
