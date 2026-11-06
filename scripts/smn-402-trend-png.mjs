@@ -70,7 +70,7 @@ function rasterPng(rgb,width,height) {
 }
 function normalized(value){return String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^\w \-.,:%/()=]/g," ").slice(0,110);}
 export function renderOfficeTrendPng({cycles,series,type="line",language="fr"}){
- if(!["line","bar","area"].includes(type))throw Error("office-chart-invalid-style");
+ if(!["line","bar","area","pie","donut","gauge"].includes(type))throw Error("office-chart-invalid-style");
  if(!Array.isArray(cycles)||cycles.length===0||cycles.length>24||!Array.isArray(series)||series.length<1||series.length>6)
   throw Error("office-chart-invalid-series");
  if(series.some(s=>!Array.isArray(s.values)||s.values.length!==cycles.length||
@@ -94,6 +94,51 @@ export function renderOfficeTrendPng({cycles,series,type="line",language="fr"}){
    rows.forEach((row,ry)=>{for(let rx=0;rx<5;rx++)if(row[rx]==="1")rect(pos+rx*scale,y+ry*scale,scale,scale,c);});
    pos+=6*scale;
   }
+ }
+ if(["pie","donut","gauge"].includes(type)){
+  const chosen=series.map(s=>({name:s.name||s.tag||"INDICATOR",
+   value:s.values.at(-1)}));
+  if(type==="gauge"&&chosen.length!==1)throw Error("office-chart-gauge-one-series");
+  if(chosen.some(s=>s.value!==null&&s.value<0))
+   throw Error("office-chart-negative-share");
+  if(type==="gauge"&&chosen[0].value!==null&&chosen[0].value>100)
+   throw Error("office-chart-gauge-range");
+  const available=chosen.filter(s=>s.value!==null);
+  if(!available.length)return null;
+  if(type!=="gauge"&&available.every(s=>s.value===0))return null;
+  text(type==="pie"?(language==="fr"?"REPARTITION - SECTEURS":"PIE BREAKDOWN"):
+   type==="donut"?(language==="fr"?"REPARTITION - ANNEAU":"DONUT BREAKDOWN"):
+   (language==="fr"?"JAUGE DE POURCENTAGE":"PERCENTAGE GAUGE"),95,32,[27,80,141],3,43);
+  const cx=370,cy=282,outer=182,inner=type==="donut"?102:type==="gauge"?108:0;
+  const values=type==="gauge"?[chosen[0].value??0,100-(chosen[0].value??0)]:
+   available.map(s=>s.value);
+  const total=values.reduce((a,b)=>a+b,0);
+  const stops=[];let sum=0;
+  for(const v of values){sum+=v/total;stops.push(sum);}
+  // Scan conversion, at most W*H pixels; allocation guards above apply.
+  for(let yy=Math.floor(cy-outer);yy<=cy+outer;yy++){
+   for(let xx=Math.floor(cx-outer);xx<=cx+outer;xx++){
+    const dist=Math.hypot(xx-cx,yy-cy);
+    if(dist>outer||dist<inner)continue;
+    const angle=(Math.atan2(yy-cy,xx-cx)+Math.PI/2+Math.PI*2)%(2*Math.PI);
+    const ratio=angle/(2*Math.PI);
+    const index=stops.findIndex(stop=>ratio<stop);
+    if(index<0)continue;
+    pixel(xx,yy,type==="gauge"&&index===1?[226,232,240]:
+     COLORS[index%COLORS.length]);
+   }
+  }
+  if(type==="gauge"){
+   text(String(chosen[0].value??0)+"%",cx-65,cy-13,[27,80,141],4,8);
+  }
+  const legend=type==="gauge"?[chosen[0]]:available;
+  legend.forEach((s,i)=>{
+   const ly=160+i*48;
+   rect(605,ly+3,20,18,COLORS[i%COLORS.length]);
+   text(s.name,638,ly,[45,60,78],2,24);
+   text(String(s.value),638,ly+21,[90,102,116],2,18);
+  });
+  return rasterPng(rgb,W,H);
  }
  const vals=series.flatMap(s=>s.values).filter(v=>v!==null),min=Math.min(0,...vals),max=Math.max(1,...vals),span=max-min||1;
  const left=100,right=900,top=90,bottom=405;
