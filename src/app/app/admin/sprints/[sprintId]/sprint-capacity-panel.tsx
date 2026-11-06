@@ -114,13 +114,13 @@ export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:
         <td>{member.professionalFunction?.trim()||"—"}</td>
         <td>{contribution(member.contributionPercents)}</td>
         <td><strong>{fmt(member.presenceJh)}</strong></td>
-        <td><span tabIndex={0} title={absenceTooltip(member)}
+        <td tabIndex={0} title={absenceTooltip(member)}
          aria-label={(locale==="fr"?"Absences : ":"Absences: ")+
           fmt(member.absenceJh??null)+". "+absenceTooltip(member)}
-         className="d-inline-block text-decoration-underline text-decoration-style-dotted"
-         style={{textUnderlineOffset:"3px",cursor:"help"}}>
+         className="text-decoration-underline"
+         style={{textDecorationStyle:"dotted",textUnderlineOffset:"3px",cursor:"help"}}>
           {fmt(member.absenceJh??null)}
-         </span></td>
+        </td>
         <td className="text-secondary">{fmt(member.developmentJh)}</td>
         <td>{member.unknownDays>0?
          <span className="badge text-bg-warning">
