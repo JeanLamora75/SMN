@@ -8,6 +8,9 @@ on:
       - "src/server/sprints/goals-detail-read.ts"
       - "src/app/api/admin/reports/office-templates/generate/route.ts"
       - "src/app/app/reports/office-tags.tsx"
+      - "src/i18n/fr.json"
+      - "src/i18n/en.json"
+      - "tests/smn-office-tags-documentation.test.ts"
       - "scripts/smn-399-office-scalars.mjs"
       - "tests/smn-office-context-scalars.test.ts"
       - ".github/workflows/office-context-scalars.yml"
@@ -35,9 +38,11 @@ jobs:
           run_install: false
       - run: pnpm install --frozen-lockfile
       - name: Tester les tags Office contextuels
-        run: pnpm exec tsx --test tests/smn-office-context-scalars.test.ts
+        run: pnpm exec tsx --test tests/smn-office-context-scalars.test.ts tests/smn-office-tags-documentation.test.ts
       - name: Non-régression des tags et des contextes
         run: pnpm exec tsx --test tests/smn-399-office-scalars.test.mjs tests/smn-405-office-acceptance.test.ts
+      - name: Cohérence du catalogue de tags Office
+        run: pnpm exec tsx --test tests/smn-office-tags-documentation.test.ts
       - name: TypeScript
         run: pnpm typecheck
       - name: ESLint ciblé
