@@ -50,3 +50,15 @@ Avant d'écrire, le navigateur demande au serveur si le fichier existe. S'il exi
 - **CA-7.6 :** aucune table ni nouvelle écriture PostgreSQL pour conserver un historique Office.
 
 **Recettes restantes avant clôture :** CI complète, tests Windows 11 sur poste utilisateur et vrais fichiers verrouillés Microsoft Office, test intégré avec la base PostgreSQL locale et vérification manuelle de la confirmation. Aucune validation Microsoft Office réelle n'est présumée.
+
+## Validation CI ciblée du 6 novembre 2026
+
+**Résultat confirmé :** [GitHub Actions 42302871381](https://github.com/JeanLamora75/SMN/actions/runs/42302871381) — **success** sur les deux plateformes :
+
+| Contrôle | Linux Node 24 | Windows Node 24 |
+|---|---|---|
+| Tests du stockage Office | 8/8 réussis | 8/8 réussis |
+| TypeScript | Réussi | Réussi |
+| ESLint ciblé | Réussi | Réussi |
+
+Cette CI vérifie les contrats du stockage via des fichiers temporaires et la compilation de l'intégration ; **elle ne constitue pas une recette de l'interface en navigateur, ni un test avec un fichier verrouillé dans Microsoft Word ou PowerPoint**. Conserver SMN-403 **En cours** jusqu'à ces vérifications et à la qualification de la course non coopérative documentée ci-dessus.
