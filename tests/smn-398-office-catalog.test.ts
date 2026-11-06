@@ -57,8 +57,8 @@ test("SMN-398: symbolic links, missing folders and non-directory roots are rejec
  }finally{await rm(root,{recursive:true,force:true});}
 });
 test("SMN-398: only absolute configured folders are accepted",()=>{
- assert.equal(officeTemplatesDirectory({SMN_OFFICE_TEMPLATES_DIR:"/tmp/test"} as NodeJS.ProcessEnv),"/tmp/test");
- assert.throws(()=>officeTemplatesDirectory({SMN_OFFICE_TEMPLATES_DIR:"../../outside"} as NodeJS.ProcessEnv),/not-absolute/);
+ assert.equal(officeTemplatesDirectory({...process.env,SMN_OFFICE_TEMPLATES_DIR:"/tmp/test"}),"/tmp/test");
+ assert.throws(()=>officeTemplatesDirectory({...process.env,SMN_OFFICE_TEMPLATES_DIR:"../../outside"}),/not-absolute/);
 });
 test("SMN-398: malformed, oversized or unsupported Office ZIP packages are rejected",()=>{
  assert.equal(isSupportedOfficePackage(makePackage("docx"),"docx"),true);
