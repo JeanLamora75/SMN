@@ -129,3 +129,20 @@ export async function listOfficeTemplates(directory=officeTemplatesDirectory()):
  }
  return templates.sort((a,b)=>a.filename.localeCompare(b.filename,"fr",{sensitivity:"base"}));
 }
+
+/** Revalidate the selected model at use time; never trust client-provided filenames or paths. */
+export async function readOfficeTemplateById(id:string,directory=officeTemplatesDirectory()):
+ Promise<{template:OfficeTemplate;bytes:Buffer}|null>{
+ if(!/^[0-9a-f]{32}$/.test(id))return null;
+ const models=await listOfficeTemplates(directory);
+ const template=models.find(item=>item.id===id);
+ if(!template)return null;
+ const root=await realpath(directory);
+ const filename=path.join(root,template.filename);
+ const stat=await lstat(filename);
+ if(!stat.isFile()||stat.isSymbolicLink()||stat.size>MAX_FILE_BYTES)return null;
+ if(path.dirname(await realpath(filename))!==root)return null;
+ const bytes=await readFile(filename);
+ if(!isSupportedOfficePackage(bytes,template.format))return null;
+ return {template,bytes};
+}
