@@ -1,6 +1,6 @@
 import Link from "next/link";
 import BootstrapIcon from "../../../bootstrap-icon";
-import {totalSprintDevelopmentJh,type SprintPresence,type PresenceMissingSource} from "@/lib/sprint-presence";
+import {totalSprintDevelopmentJh,type SprintPresence,type PresenceMember,type PresenceMissingSource} from "@/lib/sprint-presence";
 import type {TranslationKey} from "@/i18n/catalog";
 
 type Text=(key:TranslationKey,params?:Readonly<Record<string,string|number>>)=>string;
@@ -34,6 +34,20 @@ export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:
   values?.length?values.map(value=>
    new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB").format(value)+" %"
   ).join(" → "):"—";
+ const absenceTooltip=(member:PresenceMember)=>{
+  const fr=locale==="fr";
+  if(member.absenceJh===undefined||member.absenceJh===null)
+   return fr?"Détail des absences non disponible":"Absence details unavailable";
+  if(!member.absences?.length)return fr?"Aucune absence décomptée pendant ce sprint":"No counted absences during this sprint";
+  const formatDate=(date:string)=>new Intl.DateTimeFormat(fr?"fr-FR":"en-GB",{
+   timeZone:"UTC",day:"2-digit",month:"short",year:"numeric"
+  }).format(new Date(date+"T12:00:00Z"));
+  return member.absences.map(item=>{
+   const duration=item.halfDays===2?(fr?"1 jour":"1 day"):(fr?"0,5 jour":"0.5 day");
+   const nature=fr?(item.isPlanned?"Planifiée":"Imprévue"):(item.isPlanned?"Planned":"Unplanned");
+   return [formatDate(item.date),duration,item.category||nature,nature,item.reason].filter(Boolean).join(" · ");
+  }).join("\n");
+ };
  const fmt=(value:number|null)=>{
   if(value===null)return t("sprintDetail.presenceUnknown");
   return new Intl.NumberFormat(locale==="fr"?"fr-FR":"en-GB",{maximumFractionDigits:4}).format(value)+" J/H";
@@ -89,6 +103,7 @@ export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:
        <th scope="col">{t("sprintDetail.presenceFunction")}</th>
        <th scope="col">{t("sprintDetail.presenceContribution")}</th>
        <th scope="col">{t("sprintDetail.presenceJh")}</th>
+       <th scope="col">{locale==="fr"?"Absences (J/H)":"Absences (person-days)"}</th>
        <th scope="col">{t("sprintDetail.presenceDevelopmentJh")}</th>
        <th scope="col">{t("sprintDetail.presenceQuality")}</th>
       </tr></thead>
@@ -99,6 +114,13 @@ export default function SprintCapacityPanel({data,canViewNames,teamId,locale,t}:
         <td>{member.professionalFunction?.trim()||"—"}</td>
         <td>{contribution(member.contributionPercents)}</td>
         <td><strong>{fmt(member.presenceJh)}</strong></td>
+        <td><span tabIndex={0} title={absenceTooltip(member)}
+         aria-label={(locale==="fr"?"Absences : ":"Absences: ")+
+          fmt(member.absenceJh??null)+". "+absenceTooltip(member)}
+         className="d-inline-block text-decoration-underline text-decoration-style-dotted"
+         style={{textUnderlineOffset:"3px",cursor:"help"}}>
+          {fmt(member.absenceJh??null)}
+         </span></td>
         <td className="text-secondary">{fmt(member.developmentJh)}</td>
         <td>{member.unknownDays>0?
          <span className="badge text-bg-warning">
