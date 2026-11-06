@@ -32,7 +32,7 @@ test("SMN-395 AC3: progress starts at 12 o'clock and advances clockwise",()=>{
  assert.equal(ringProgress(0).filled,0);
  assert.ok(Math.abs(ringProgress(.5).filled-ringProgress(1).circumference/2)<1e-8);
  assert.ok(Math.abs(ringProgress(1).filled-ringProgress(1).circumference)<1e-8);
- assert.equal(ringProgress(.25).dashOffset,ringProgress(.75).dashOffset+ringProgress(1).circumference/2);
+ assert.ok(Math.abs(ringProgress(.25).dashOffset-(ringProgress(.75).dashOffset+ringProgress(1).circumference/2))<1e-8);
  const ticks=ringTicks(24);
  assert.equal(ticks.length,24);
  assert.ok(Math.abs(ticks[0].x1-100)<1e-8);
