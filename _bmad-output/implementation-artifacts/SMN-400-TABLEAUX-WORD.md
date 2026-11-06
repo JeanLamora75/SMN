@@ -42,3 +42,9 @@ La première recette couvre tableaux 0/1/N, deux sources de lignes indépendante
 **Restent non prouvés avant clôture :** tests de l'API avec base PostgreSQL réellement chargée, recette Microsoft Word sous Windows 11, tableaux très volumineux/complexes, vérification visuelle des modèles métiers et durcissement du traitement Open XML. Le moteur Open XML utilise encore des expressions régulières et un lecteur ZIP expérimental : il ne faut pas présumer une fidélité universelle.
 
 **Jira :** https://lmn24.atlassian.net/browse/SMN-400
+
+## Extension des sources de tableaux (06/11/2026)
+
+La prise en charge des sources initiales `MEMBERS` et `INDICATORS` est conservée. Les sources supplémentaires `RISKS`, `OBSTACLES`, `NOTES`, `CEREMONIES`, `GOALS`, `ACTIONS`, `DECISIONS` ont été intégrées à ce même moteur, sans repositionner les objets du modèle.
+
+Les champs, règles métier et limites sont documentés dans le [catalogue Office enrichi](SMN-OFFICE-EXTENSION-CATALOGUE-TAGS.md). Les tests de l'extension sont conservés dans `tests/smn-406-office-catalog-extensions.test.ts` et le workflow `office-catalog-extensions.yml`. La recette visuelle Microsoft Office reste à faire.
