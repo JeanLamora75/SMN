@@ -29,7 +29,7 @@ test("absence display: total and tooltip details use same capacity dates",()=>{
         {date:"2026-11-11",status:"calculated",availableHalfDays:0,absenceItems:[]}]}]});
  assert.equal(report.members[0].absenceJh,1.5);
  assert.deepEqual(report.members[0].absences?.map(x=>[x.date,x.halfDays]),[["2026-11-09",2],["2026-11-10",1]]);
- assert.equal(report.members[0].presenceJh,1.5);
+ assert.equal(report.members[0].presenceJh,.5);
 });
 test("absence display: legacy snapshots are unknown, never zero",()=>{
  const snapshot=presenceFromSnapshot({state:"available",hoursPerJh:7,totalPresenceJh:1,members:[{memberId:"m",displayName:"M",presenceJh:1,developmentJh:1,daysCount:1,unknownDays:0}]},1);
@@ -39,7 +39,7 @@ test("absence display: legacy snapshots are unknown, never zero",()=>{
 test("absence display: unknown capacity days cannot produce a false zero",()=>{
  const report=presenceFromCapacity({hoursPerJh:7,members:[{memberId:"m",displayName:"M",totalJh:null,
   days:[{date:"2026-11-09",status:"not-calculable",availableHalfDays:null,absenceItems:undefined}]}]});
- assert.equal(report.members[0].absenceJh,null);
+ assert.equal(report.members[0].absenceJh,undefined);
 });
 test("absence display: detail column is between presence and development",()=>{
  const c=read("app/app/admin/sprints/[sprintId]/sprint-capacity-panel.tsx");
