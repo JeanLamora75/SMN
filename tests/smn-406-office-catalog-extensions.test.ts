@@ -17,7 +17,6 @@ const fields=[
  ["DECISION_TITLE","DECISION_DATE"]
 ];
 function packageOf(format:"docx"|"pptx"){
- const head=format==="docx"?"w":"a";
  const rows=sources.map((name,i)=>
   format==="docx"
   ? '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>{{ROW:'+name+'}}{{'+fields[i][0]+'}}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>{{'+fields[i][1]+'}}</w:t></w:r></w:p></w:tc></w:tr></w:tbl>'
@@ -106,7 +105,8 @@ test("Invalid percentage, mixed units and negative shares fail without a fake ch
  assert.equal(renderOfficeTrendPng({cycles,series:[{name:"x",values:[0]}],type:"pie"}),null);
 });
 test("Projection of seven business sources uses authorized sprint and canonical projections",async()=>{
- const team="t1",cycle="c1",seen:Array<{sql:string;params:unknown[]}>=[]=[];
+ const team="t1",cycle="c1";
+ const seen:Array<{sql:string;params:unknown[]}>=[];
  const db={query:async(sql:string,params:unknown[]=[])=>{
   seen.push({sql,params});
   if(sql.includes("SELECT s.status FROM"))return {rows:[{status:"active"}]};
