@@ -133,7 +133,7 @@ Les noms exacts de tags, les limites de paramètres et leur grammaire relèvent 
 
 1. **Bibliothèques et manipulation Open XML** : compatibles avec l'architecture Node.js/Next.js actuelle, sans installation locale privilégiée et sans requérir Microsoft Office sur le serveur.
 2. **Fidélité des styles** : marqueurs fractionnés, textes enrichis, espaces réservés PowerPoint, formes groupées, tableaux complexes et masques.
-3. **Tableaux expansibles PowerPoint** : politique si le nombre de lignes dépasse la diapositive (échec explicite, limitation, nouvelle diapositive, autre) ; aucune option imposée à ce stade.
+3. **Tableaux expansibles PowerPoint** : le dépassement est accepté, sans redimensionnement artificiel par SMN ; vérifier la conformité technique par POC.
 4. **Insertion d'images** : convention de placement, dimensions, ancrage, transparence, rendu du texte `N/D` dans les emplacements prévus.
 5. **Graphiques** : extraction/réutilisation du pipeline graphique existant, rendu côté serveur, polices, échelles, légendes et choix des paramètres autorisés.
 6. **Conventions de tags** : catalogue métier, documentation, grammaire, formats et gestion des erreurs de paramètres ; ne pas confondre tag inconnu et tag connu mal paramétré.
@@ -157,3 +157,15 @@ Les noms exacts de tags, les limites de paramètres et leur grammaire relèvent 
 4. **Après validation seulement** : finaliser les documents BMAD dans `_bmad-output/planning-artifacts/`, puis utiliser le workflow `bmad-create-epics-and-stories` et soumettre les Stories à validation avant Jira.
 
 **Aucun résultat d'implémentation, test de fidélité ou validation Office n'est revendiqué dans ce document.**
+
+## Avenant fonctionnel validé — 06/11/2026 : cinq arbitrages
+
+Cet avenant prévaut sur les mentions antérieures « à arbitrer » des points correspondants.
+
+1. **Tags libres :** l'utilisateur place les tags directement dans les zones compatibles de Word et PowerPoint, y compris celles destinées aux tableaux et graphiques, sans paramétrer leurs emplacements dans SMN. Compatibilité exacte à démontrer en POC.
+2. **Nom de fichier :** à chaque génération, champ obligatoire prérempli avec `nom du modèle - nom du sprint`, librement modifiable. L'extension d'origine `.docx` / `.pptx` est ajoutée automatiquement. En cas de collision, confirmation explicite avant écrasement.
+3. **Langue :** sélecteur Français / Anglais lors de chaque génération, avec la langue de l'utilisateur présélectionnée. Les formats de dates, de nombres et les libellés injectés suivent ce choix ; les textes fixes du modèle et les contenus libres ne sont pas traduits.
+4. **Catalogue complet :** huit familles dès la première livraison : équipe, sprint/période, capacités, indicateurs, membres, cérémonies, registres et tendances. Catalogue consultable dans SMN avec tag, type, explication et exemple ; aucune donnée métier inventée, source et habilitations respectées.
+5. **Limites :** aucune limite métier supplémentaire sur le nombre de lignes d'un tableau. Toutes les lignes disponibles/autorisées sont générées par défaut ; un dépassement visuel est accepté, sans agrandissement ou déplacement artificiels. Les graphiques suivent les règles des tendances SMN (dont six indicateurs compatibles de même unité maximum). Garde-fous techniques de taille, durée, mémoire et complexité obligatoires : erreur explicite plutôt que troncature silencieuse.
+
+**Critères d'acceptation complémentaires :** (AC-16) tag libre remplacé dans une zone Office compatible ; (AC-17) nom obligatoire suggéré, éditable et extension conservée ; (AC-18) langue de sortie FR/EN choisie et contenus fixes inchangés ; (AC-19) huit familles documentées et consultables ; (AC-20) toutes les lignes autorisées générées sans plafond métier, sauf erreur technique explicite, sans corruption ni troncature silencieuse.
