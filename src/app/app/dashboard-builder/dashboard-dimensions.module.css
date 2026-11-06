@@ -110,3 +110,9 @@
 .batteryVerticalEmpty{fill:var(--smn-soft)}
 .batteryVerticalFill{fill:var(--smn-brand)}
 .batteryVerticalValue{display:flex;align-items:baseline;justify-content:center;gap:.35rem;flex-wrap:wrap;min-width:0;text-align:center}
+
+/* SMN-394 — Sign of a single KPI, communicated by arrow shape rather than colour alone. */
+.trendArrow{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;width:100%;min-width:0;max-width:100%;margin-inline:auto}
+.trendArrowSvg{display:block;width:min(100%,200px);height:auto;max-height:190px}
+.trendArrowStroke{fill:none;stroke:var(--smn-brand);stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
+.trendArrowValue{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:.35rem;min-width:0;text-align:center}
