@@ -80,8 +80,8 @@ test("Word tables: vertical merge and nested tables fail explicitly",()=>{
  assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("</w:tr>","<w:tbl/> </w:tr>")+"</w:tbl>",{MEMBERS:people}),/nested-not-supported/);
 });
 test("Word tables: unknown row source and ambiguous markers are rejected",()=>{
- assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("MEMBERS","UNKNOWN")+"</w:tbl>",{MEMBERS:people}),/invalid-source/);
- assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("</w:tr>","{{ROW:MEMBERS}}</w:tr>")+"</w:tbl>",{MEMBERS:people}),/invalid-source|ambiguous-marker/);
+ assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("{{ROW:MEM","{{ROW:UNKN")+"</w:tbl>",{MEMBERS:people}),/invalid-source/);
+ assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("{{MEMBER_ROLE}}","{{MEMBER_ROLE}}{{ROW:MEMBERS}}")+"</w:tbl>",{MEMBERS:people}),/invalid-source|ambiguous-marker/);
 });
 test("Word tables: technical resource limit rejects instead of truncating",()=>{
  const huge=Array.from({length:10001},()=>({MEMBER_NAME:"A",MEMBER_ROLE:"B"}));
