@@ -50,3 +50,9 @@ Les tests isolés ne remplacent pas une recette complète depuis les données r�
 - Correction publiée sur `main` : commit `57473f1b56804af1af852e4f1c514a0913d44c56`.
 - [Exécution GitHub Actions 42300538698](https://github.com/JeanLamora75/SMN/actions/runs/42300538698) : **success**, 8/8 tests PowerPoint réussis sous Node 24 Linux, typecheck réussi, ESLint ciblé réussi.
 - La CI réussie confirme les tests de contrats synthétiques, pas la compatibilité visuelle sous Microsoft PowerPoint ni la lecture sur une installation Windows 11 réelle.
+
+## Extension des sources de tableaux (06/11/2026)
+
+La prise en charge des sources initiales `MEMBERS` et `INDICATORS` est conservée. Les sources supplémentaires `RISKS`, `OBSTACLES`, `NOTES`, `CEREMONIES`, `GOALS`, `ACTIONS`, `DECISIONS` ont été intégrées à ce même moteur, sans repositionner les objets du modèle.
+
+Les champs, règles métier et limites sont documentés dans le [catalogue Office enrichi](SMN-OFFICE-EXTENSION-CATALOGUE-TAGS.md). Les tests de l'extension sont conservés dans `tests/smn-406-office-catalog-extensions.test.ts` et le workflow `office-catalog-extensions.yml`. La recette visuelle Microsoft Office reste à faire.
