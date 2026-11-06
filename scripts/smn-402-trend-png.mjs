@@ -121,6 +121,23 @@ export function renderOfficeTrendPng({cycles,series,type="line",language="fr"}){
     rect(bx,Math.min(base,p.y),Math.max(2,bar-2),Math.max(2,Math.abs(base-p.y)),color);
    });
   }else{
+   if(type==="area"){
+    const pale=color.map(v=>Math.round(255*.78+v*.22));
+    const baseline=y(0);
+    for(let i=0;i<points.length;i++){
+     const point=points[i];
+     if(!point)continue;
+     if(i>0&&points[i-1]){
+      const prior=points[i-1];
+      const steps=Math.max(1,Math.round(point.x-prior.x));
+      for(let step=0;step<=steps;step++){
+       const factor=step/steps,xx=prior.x+(point.x-prior.x)*factor;
+       const yy=prior.y+(point.y-prior.y)*factor;
+       rect(xx,Math.min(yy,baseline),1,Math.max(1,Math.abs(yy-baseline)),pale);
+      }
+     }else rect(point.x-2,Math.min(point.y,baseline),4,Math.max(1,Math.abs(point.y-baseline)),pale);
+    }
+   }
    for(let i=1;i<points.length;i++)if(points[i]&&points[i-1])line(points[i-1].x,points[i-1].y,points[i].x,points[i].y,color,3);
    points.forEach(p=>{if(p)rect(p.x-3,p.y-3,7,7,color);});
   }
