@@ -53,7 +53,7 @@ Les octets **décompressés** des autres parties étaient identiques dans l'insp
 
 ## Suite requise pour clore SMN-397
 
-Le harness expérimental a été publié sur `main` dans [`scripts/smn-397-office-poc.mjs`](../../../scripts/smn-397-office-poc.mjs), avec ses [tests de contrat](../../../tests/smn-397-office-poc.test.mjs). Il reste à construire des fixtures Word/PPTX réalistes incluant tableaux et graphiques, qualifier P1–P6 de l'architecture, exécuter les tests sur Node 24/Windows 11, identifier une bibliothèque ZIP/XML maintenue et compatible/licence, réaliser un examen visuel Microsoft Office, puis documenter les preuves et échecs.
+Le harness expérimental a été publié sur `main` dans [`scripts/smn-397-office-poc.mjs`](../../scripts/smn-397-office-poc.mjs), avec ses [tests de contrat](../../tests/smn-397-office-poc.test.mjs). Il reste à construire des fixtures Word/PPTX réalistes incluant tableaux et graphiques, qualifier P1–P6 de l'architecture, exécuter les tests sur Node 24/Windows 11, identifier une bibliothèque ZIP/XML maintenue et compatible/licence, réaliser un examen visuel Microsoft Office, puis documenter les preuves et échecs.
 
 **La Story reste En cours.**
 
