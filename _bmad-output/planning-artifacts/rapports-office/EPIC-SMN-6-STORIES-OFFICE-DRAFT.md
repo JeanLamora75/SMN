@@ -255,10 +255,25 @@ Architecture Winston : **AD-01 à AD-10**, circuit indépendant des rapports PDF
 
 1. **Arbitré le 06/11/2026 :** les tableaux PowerPoint et les valeurs trop longues peuvent déborder ; SMN conserve les dimensions et positions existantes sans agrandissement automatique, sans création forcée de diapositives et sans troncature implicite.
 2. **À détailler dans les tests de fidélité :** distinguer dimensions initiales fixes des lignes nouvellement ajoutées, et vérifier que SMN n'applique aucune déformation artificielle.
-3. Convention précise des emplacements images et lignes modèles.
-4. Nom de fichier de sortie proposé, et possibilité de le modifier.
-5. Langue et locale du rapport Office.
-6. Catalogue initial des tags, tableaux, types de graphiques et plafonds de ressources.
+3. **Validé :** tags libres en zones Office compatibles, démonstration POC.
+4. **Validé :** nom obligatoire suggéré modèle + sprint, modifiable et extension automatique.
+5. **Validé :** FR/EN au moment de la génération, langue utilisateur par défaut.
+6. **Validé :** huit familles de tags dès la première livraison ; tableaux sans plafond métier supplémentaire, sécurité technique et règles graphiques SMN existantes.
 7. Politique de fichiers Word/PPTX verrouillés et choix définitif de la bibliothèque après POC.
 
 **Statut au 06/11/2026 :** le Product Owner valide le découpage des neuf Stories et la règle de débordement. La validation finale de complétude BMAD et les arbitrages restants sont encore en cours. Pas de création, édition ni changement d'état Jira.
+
+## Validation des cinq arbitrages — 06/11/2026
+
+**Les neuf Stories et leur rattachement à l'Epic SMN-6 sont validés.** Les décisions ci-dessous complètent et, lorsqu'elles diffèrent, remplacent les formulations antérieures des critères d'acceptation :
+
+- **Story 6.1 / CA-1.5 :** démontrer par POC la substitution de tags librement placés en zones compatibles de DOCX et PPTX, y compris tableaux et graphiques, sans configuration d'emplacement SMN.
+- **Story 6.3 / CA-3.6 :** la substitution n'exige aucun repérage manuel d'emplacements dans SMN ; le style Office non visé reste préservé.
+- **Stories 6.4 et 6.5 / CA-4.5 et CA-5.5 :** toutes les lignes métier disponibles et autorisées sont générées par défaut sans plafond métier ni troncature silencieuse ; le dépassement de la zone est accepté et SMN n'agrandit pas artificiellement les dimensions du modèle. Si un garde-fou technique est atteint, la génération échoue explicitement, sans fichier corrompu.
+- **Story 6.6 / CA-6.6 :** les graphiques utilisent les limites des tendances SMN existantes, notamment jusqu'à six séries d'indicateurs compatibles de même unité, sans nouvelle limite métier propre aux exports.
+- **Story 6.7 / CA-7.7 :** chaque génération exige un nom de fichier saisi/confirmé, suggéré `nom du modèle - nom du sprint` et modifiable ; l'extension Word/PowerPoint est conservée automatiquement.
+- **Story 6.8 / CA-8.6 :** sélection FR/EN à chaque génération, initialisée selon la préférence linguistique de l'utilisateur ; seules les dates, nombres et libellés injectés sont localisés, jamais les textes fixes ou libres.
+- **Story 6.8 / CA-8.7 :** le catalogue consultable comporte dès la première livraison les huit familles : équipe, sprint/période, capacités, indicateurs, membres, cérémonies, registres et tendances, avec description, type et exemple pour chaque tag et source existante autorisée.
+- **Story 6.9 / CA-9.5 :** la recette inclut les tags libres, le nom et la langue obligatoires, les huit familles, les tableaux sans limitation métier et les garde-fous techniques, dont les dépassements doivent produire une erreur explicite plutôt qu'une troncature.
+
+**État :** découpage et cinq arbitrages approuvés, document non publié dans Jira. Preuve de concept et tests Office non exécutés ; leur réussite n'est pas présumée. L'extension BMAD reste un brouillon de travail jusqu'à clôture formelle du workflow.
