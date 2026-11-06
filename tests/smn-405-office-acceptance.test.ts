@@ -115,7 +115,11 @@ test("SMN-405: corruption ZIP, ZIP bombs and directory traversal are rejected",(
  assert.equal(isSupportedOfficePackage(good,"docx"),true);
  assert.equal(isSupportedOfficePackage(Buffer.from("not-a-zip"),"docx"),false);
  assert.equal(isSupportedOfficePackage(Buffer.alloc(20*1024*1024+1),"docx"),false);
- const malicious=writeZip([{name:"../escape",data:Buffer.from("BAD")}]);
+ const malicious=writeZip([{name:"abc/hello",data:Buffer.from("BAD")}]);
+ const harmless=Buffer.from("abc/hello"),attack=Buffer.from("../escape");
+ let at=0,rewritten=0;
+ while((at=malicious.indexOf(harmless,at))!==-1){attack.copy(malicious,at);at+=attack.length;rewritten++;}
+ assert.equal(rewritten,2);
  assert.equal(isSupportedOfficePackage(malicious,"docx"),false);
  assert.throws(()=>readZip(malicious));
  const altered=Buffer.from(good),tail=altered.length-22;
