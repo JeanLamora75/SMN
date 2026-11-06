@@ -10,7 +10,7 @@ Insérer un tag à la place du contenu d'un **paragraphe Word** ou d'une **zone 
 |---|---|
 | `{{CHART:TREND}}` | Graphique en barres du premier indicateur visible, six derniers sprints jusqu'au sprint choisi |
 | `{{CHART:TREND|TYPE=line}}` | Courbe pour les mêmes données |
-| `{{CHART:TREND|LAST=10|TYPE=area}}` | Dix derniers sprints, présentation de type aire (tracé de ligne dans ce premier incrément) |
+| `{{CHART:TREND|LAST=10|TYPE=area}}` | Dix derniers sprints, présentation de type aire remplie |
 | `{{CHART:TREND|TAGS=SP_DONE,SP_INITIAL|LAST=6|TYPE=line}}` | Deux indicateurs désignés par leurs tags, de même unité, sur six sprints |
 
 Les paramètres sont facultatifs. `LAST` accepte 1 à 24 sprints, `TYPE` accepte `bar`, `line` ou `area` ; l'aire n'est pas encore remplie. `TAGS` accepte 1 à 6 indicateurs actifs et visibles sur l'écran Tendances. Les tags doivent être uniques, disponibles dans le contexte et associés à **la même unité**. Un paramètre invalide ou une incompatibilité renvoie une erreur explicite. Les valeurs manquantes restent des points absents : aucun zéro n'est inventé.
@@ -36,7 +36,7 @@ Les paramètres sont facultatifs. `LAST` accepte 1 à 24 sprints, `TYPE` accepte
 
 ## Réserves techniques et preuve restante
 
-Le moteur XML et ZIP des prototypes Office SMN-397 reste expérimental, **pas** un parseur OpenXML de production. Les tags graphiques doivent occuper seuls le paragraphe/zone de texte. Les formes groupées, tags mélangés à du texte, tableaux imbriqués, tailles et relations Office complexes nécessitent des validations supplémentaires. Le rendu `area` reste pour l'instant une courbe et ne doit pas être présenté comme une aire remplie.
+Le moteur XML et ZIP des prototypes Office SMN-397 reste expérimental, **pas** un parseur OpenXML de production. Les tags graphiques doivent occuper seuls le paragraphe/zone de texte. Les formes groupées, tags mélangés à du texte, tableaux imbriqués, tailles et relations Office complexes nécessitent des validations supplémentaires. Les types actuellement pris en charge sont barres, lignes et aire remplie ; secteurs, anneau et jauge sont encore hors périmètre technique.
 
 Le POC Word utilise une taille fixe du dessin ; l'incrément SMN-402 attribue désormais des identifiants graphiques `wp:docPr` distincts dans chaque partie XML et les teste pour plusieurs graphiques. Il reste à adapter les dimensions aux contraintes du modèle et à vérifier les constructions complexes.
 
@@ -50,3 +50,8 @@ Le POC Word utilise une taille fixe du dessin ; l'incrément SMN-402 attribue d�
 - [Exécution 42301404314](https://github.com/JeanLamora75/SMN/actions/runs/42301404314) : **success** sur Node.js 24 Linux, **10/10 tests**, typecheck et ESLint ciblé réussis après correction du typage du test.
 - Renforcement ultérieur : identifiants `wp:docPr` uniques pour plusieurs graphiques Word ; test supplémentaire ajouté. Consulter le [workflow SMN-402](https://github.com/JeanLamora75/SMN/actions/workflows/smn-402-office-trends.yml) pour l'état de la dernière révision.
 - Les résultats attestent la validité des packages synthétiques, pas une recette Microsoft Office sur l'installation Windows 11 de l'utilisateur.
+
+## Renforcement de la recette finale
+
+- [Exécution 42301569751](https://github.com/JeanLamora75/SMN/actions/runs/42301569751) : **11/11 tests réussis**, TypeScript et ESLint réussis sur Node 24 Linux, y compris deux graphiques Word dans un même document.
+- Correctif ultérieur : l'option `TYPE=area` génère désormais une aire effectivement remplie, avec test discriminant contre le style `line`. La validation de ce dernier changement doit être vérifiée dans les runs postérieurs.
