@@ -31,7 +31,7 @@ function packageOf(format:"docx"|"pptx",xml:string){
 test("SMN-402: options par défaut et paramètres optionnels vérifiés",()=>{
  assert.deepEqual(parseOfficeChartTag("{{CHART:TREND}}"),{last:6,type:"bar",tags:null});
  assert.deepEqual(parseOfficeChartTag("{{CHART:TREND|TAGS=SP_DONE,SP_INIT|LAST=3|TYPE=line}}"),{last:3,type:"line",tags:["SP_DONE","SP_INIT"]});
- for(const token of ["{{CHART:TREND|LAST=0}}","{{CHART:TREND|LAST=25}}","{{CHART:TREND|TYPE=donut}}","{{CHART:TREND|LAST=2|LAST=4}}","{{CHART:TREND|TAGS=A,A}}","{{CHART:OTHER}}"])
+ for(const token of ["{{CHART:TREND|LAST=0}}","{{CHART:TREND|LAST=25}}","{{CHART:TREND|TYPE=heatmap}}","{{CHART:TREND|LAST=2|LAST=4}}","{{CHART:TREND|TAGS=A,A}}","{{CHART:OTHER}}"])
   assert.throws(()=>parseOfficeChartTag(token));
 });
 test("SMN-402: projection v33 multiseries 3 cycles, zéros et absences",()=>{
