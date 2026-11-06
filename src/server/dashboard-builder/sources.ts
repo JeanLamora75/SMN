@@ -3,7 +3,7 @@ import { requireDashboardPermission } from "./permissions";
 import type { LayoutScope } from "./layout";
 
 export const SOURCE_CATEGORIES = ["indicator", "registry", "cycle", "calendar", "notes", "objective", "team", "link"] as const;
-export const SOURCE_VIEWS = ["number", "card", "card-watermark", "tachometer", "gauge", "line", "bar", "bar-horizontal", "battery-horizontal", "list", "list-watermark", "text"] as const;
+export const SOURCE_VIEWS = ["number", "card", "card-watermark", "tachometer", "gauge", "line", "bar", "bar-horizontal", "battery-horizontal", "battery-vertical", "list", "list-watermark", "text"] as const;
 export type SourceCategory = typeof SOURCE_CATEGORIES[number];
 export type SourceView = typeof SOURCE_VIEWS[number];
 export type SourceScope = "cycle" | "team";
@@ -55,7 +55,7 @@ const PENDING:readonly Omit<SourceDescriptor,"status"|"reason">[] = [
  {code:"link:catalog",name:"Liens",category:"link",unit:null,scope:"team",permission:"read",views:["list","list-watermark"]},
 ];
 type IndicatorMeta={id:string;tag:string;name:string;unit:string|null;display_style:string|null;is_selected:boolean;is_visible:boolean};
-const styles:readonly SourceView[]=["number","card","card-watermark","tachometer","gauge","line","bar","bar-horizontal","battery-horizontal"];
+const styles:readonly SourceView[]=["number","card","card-watermark","tachometer","gauge","line","bar","bar-horizontal","battery-horizontal","battery-vertical"];
 
 /**
  * Read-only metadata query. Indicator selections (v33), archived flags and explicit
