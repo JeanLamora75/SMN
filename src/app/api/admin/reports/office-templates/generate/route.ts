@@ -11,6 +11,7 @@ import {discoverOfficeChartTags,insertOfficeTrendImages} from "../../../../../..
 import {isSupportedOfficePackage,readOfficeTemplateById} from "@/server/reports/office-catalog";
 import {readOfficeWordMembers,officeWordIndicatorRows} from "@/server/reports/office-word-rows";
 import {discoverOfficeBusinessSources,readOfficeBusinessRows} from "@/server/reports/office-business-rows";
+import {readOfficeContextScalars} from "@/server/reports/office-context-scalars";
 import {inspectOfficeReport,saveOfficeReport,OfficeSaveConflict,OfficeSaveFailure} from "@/server/reports/office-storage";
 import {generateWordTables} from "../../../../../../../scripts/smn-400-word-tables.mjs";
 import {generatePowerPointTables} from "../../../../../../../scripts/smn-401-powerpoint-tables.mjs";
@@ -80,7 +81,9 @@ export async function POST(req:NextRequest){
    const indicators=selected.rows.length?await readReportIndicatorProjection(
      db,teamId,"scrum",cycleId,selected.rows.map(row=>row.id)):[];
    const sprint=cycle.rows[0],locale=language as Locale;
+   const extra=await readOfficeContextScalars(db,teamId,cycleId,team.product,locale,sprint.time_zone);
    const values=buildScalarValues({
+    ...extra,
     TEAM_NAME:team.team,
     SPRINT_NAME:sprint.name,
     SPRINT_START:dateValue(sprint.start_at,locale),
