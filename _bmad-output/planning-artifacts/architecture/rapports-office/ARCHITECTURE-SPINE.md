@@ -111,10 +111,10 @@ flowchart TD
 
 - **Q1 — Tranchée le 06/11/2026 :** débordement PowerPoint accepté ; aucune augmentation artificielle des dimensions ni adaptation automatique de la disposition par SMN.
 - **Q2 — Tranchée sur la disposition le 06/11/2026 :** contenu trop long conservé ; aucun redimensionnement automatique artificiel pour le faire tenir. Modalités de signalement éventuel différées.
-- **Q3 — Cadre de placement :** balise seule dans forme/zone texte ou convention d'emplacement réservé plus structurée.
-- **Q4 — Nom de sortie :** règle et possibilité de modification par l'utilisateur.
-- **Q5 — Langue :** locale de l'utilisateur, de l'équipe ou paramètre du modèle.
-- **Q6 — Tags v1 :** jeux de données tableaux et graphes réellement prioritaires, limites acceptables.
+- **Q3 — Voir les décisions AD-11 à AD-13 ; fonctionnellement clos — Cadre de placement :** balise seule dans forme/zone texte ou convention d'emplacement réservé plus structurée.
+- **Q4 — Voir les décisions AD-11 à AD-13 ; fonctionnellement clos — Nom de sortie :** règle et possibilité de modification par l'utilisateur.
+- **Q5 — Voir les décisions AD-11 à AD-13 ; fonctionnellement clos — Langue :** locale de l'utilisateur, de l'équipe ou paramètre du modèle.
+- **Q6 — Voir les décisions AD-11 à AD-13 ; fonctionnellement clos — Tags v1 :** jeux de données tableaux et graphes réellement prioritaires, limites acceptables.
 - **Q7 — Fichier existant :** comportement exact si fichier verrouillé par Office ; recommandé : refus clair sans modification.
 
 ## 7. Handoff BMAD vers John
@@ -122,3 +122,13 @@ flowchart TD
 **Epic Jira cible confirmée : [SMN-6 — Composer, exporter et retrouver des rapports professionnels](https://lmn24.atlassian.net/browse/SMN-6).** Ne pas détourner le travail vers SMN-336 (indicateurs) ou SMN-353 (Dashboard Builder). Les nouvelles Stories doivent décrire les exports Office comme un circuit distinct des exports PDF déjà archivés. Privilégier des Stories indépendantes, chacune avec valeur, critères observables, dépendances, tests et mentions des décisions encore ouvertes. Rédiger d'abord dans BMAD ; **ne pas créer/modifier Jira sans accord explicite sur les Stories**.
 
 Références : [spécification fonctionnelle Office](../rapports-office/specification-fonctionnelle.md), [Epic SMN-6](https://lmn24.atlassian.net/browse/SMN-6), [skill architecture](https://github.com/JeanLamora75/SMN/tree/main/.agents/skills/bmad-architecture).
+
+## Avenant architecture — décisions validées 06/11/2026
+
+**AD-11 [ADOPTED] — Convention de tags et catalogue.** Les marqueurs sont placés librement dans les zones Office compatibles, sans configuration de placement SMN ; les huit familles (équipe, sprint/période, capacités, indicateurs, membres, cérémonies, registres, tendances) sont exposées dans un registre documenté (tag, type, description, exemple, source métier). Réutilisation des producteurs existants, contrôle des droits, `N/D` pour valeur absente, inconnu inchangé ; la compatibilité des structures Office complexes reste à démontrer par le POC.
+
+**AD-12 [ADOPTED] — Contrat de génération.** Le nom de sortie est obligatoire et éditable à chaque génération, prérempli avec nom du modèle + nom du sprint, extension Office fixée depuis le modèle. Un choix de locale FR/EN, prérempli selon la langue utilisateur, règle les valeurs injectées sans traduire les textes fixes. La confirmation avant écrasement conserve AD-09.
+
+**AD-13 [ADOPTED] — Volume de données.** Aucune limite métier additionnelle sur les lignes de tableaux ; toutes les lignes autorisées doivent être rendues, débordement visuel accepté sans redimensionner ou déplacer artificiellement les objets. Les tendances gardent la limite SMN de six indicateurs compatibles de même unité. Plafonds de sécurité/ressources explicitement documentés et contrôlés, erreur si dépassés, jamais de troncature silencieuse.
+
+Les anciens Q3 à Q6 sont **tranchés fonctionnellement** par ces décisions ; seules les preuves de faisabilité et l'inventaire concret de tags restent techniques.
