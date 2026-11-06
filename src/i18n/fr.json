@@ -3654,7 +3654,15 @@
     "committedSp": "SP initialement engagés",
     "completedSp": "SP terminés",
     "plannedJh": "Capacité prévue",
-    "actualJh": "Capacité réelle disponible"
+    "actualJh": "Capacité réelle disponible",
+    "officeTemplates": "Modèles Office Word et PowerPoint",
+    "officeRefresh": "Actualiser",
+    "officeTemplatesHint": "Fichiers DOCX et PPTX détectés automatiquement dans le répertoire de modèles Office autorisé. Les modèles historiques restent indépendants.",
+    "officeUnavailable": "Impossible de consulter le répertoire des modèles Office.",
+    "officeEmpty": "Aucun modèle Office compatible dans le répertoire configuré.",
+    "officeSelect": "Modèle Office",
+    "officeChoose": "Choisir un modèle",
+    "officeSelected": "Modèle sélectionné"
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
