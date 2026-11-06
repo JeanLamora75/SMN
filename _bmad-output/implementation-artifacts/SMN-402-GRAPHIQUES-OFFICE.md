@@ -54,4 +54,4 @@ Le POC Word utilise une taille fixe du dessin ; l'incrément SMN-402 attribue d�
 ## Renforcement de la recette finale
 
 - [Exécution 42301569751](https://github.com/JeanLamora75/SMN/actions/runs/42301569751) : **11/11 tests réussis**, TypeScript et ESLint réussis sur Node 24 Linux, y compris deux graphiques Word dans un même document.
-- Correctif ultérieur : l'option `TYPE=area` génère désormais une aire effectivement remplie, avec test discriminant contre le style `line`. La validation de ce dernier changement doit être vérifiée dans les runs postérieurs.
+- Correctif ultérieur : l'option `TYPE=area` génère désormais une aire effectivement remplie, avec test discriminant contre le style `line`. La validation est effectuée : [exécution 42301779346](https://github.com/JeanLamora75/SMN/actions/runs/42301779346), **success** : 11/11 tests, typecheck et ESLint ciblé réussis sur Node 24 Linux.
