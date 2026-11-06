@@ -3670,7 +3670,15 @@
     "officeGenerating": "Génération en cours…",
     "officeGenerationError": "Impossible de générer ce document Office. Vérifiez le modèle et les tags.",
     "officeRequiresTeam": "Sélectionnez une équipe et un sprint autorisés pour générer un rapport Office.",
-    "officeScalarOnly": "Cette première version remplace les tags simples. Les tableaux dynamiques et graphiques seront ajoutés dans les prochaines Stories."
+    "officeScalarOnly": "Cette première version remplace les tags simples. Les tableaux dynamiques et graphiques seront ajoutés dans les prochaines Stories.",
+    "officeSave": "Enregistrer dans SMN",
+    "officeSaveError": "L'enregistrement du rapport a échoué. Aucun fichier existant ne doit être remplacé.",
+    "officeSaveConflict": "Le fichier a changé depuis votre confirmation. Vérifiez la destination et recommencez.",
+    "officeSaved": "Rapport enregistré",
+    "officeOverwriteTitle": "Remplacer le rapport existant ?",
+    "officeOverwriteHint": "Un rapport portant ce nom existe déjà dans le dossier indiqué. Confirmez explicitement son remplacement.",
+    "officeOverwriteConfirm": "Remplacer le fichier",
+    "officeCancel": "Annuler"
   },
   "reportsStudio": {
     "modes": "Modes du Studio",
