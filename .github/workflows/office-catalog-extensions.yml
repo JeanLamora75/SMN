@@ -13,6 +13,7 @@ on:
       - "scripts/smn-402-trend-png.mjs"
       - "scripts/smn-402-office-chart-tags.mjs"
       - "tests/smn-406-office-catalog-extensions.test.ts"
+      - "tests/smn-402-office-trends.test.ts"
       - ".github/workflows/office-catalog-extensions.yml"
   pull_request:
     branches: ["main"]
