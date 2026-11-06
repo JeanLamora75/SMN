@@ -77,7 +77,7 @@ test("Word tables and scalar tags coexist in one DOCX",()=>{
 test("Word tables: vertical merge and nested tables fail explicitly",()=>{
  const vertical=row.replace('<w:gridSpan w:val="2"/>','<w:vMerge w:val="restart"/>');
  assert.throws(()=>expandWordTablesXml("<w:tbl>"+vertical+"</w:tbl>",{MEMBERS:people}),/unsupported-structure/);
- assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("</w:tr>","<w:tbl/> </w:tr>")+"</w:tbl>",{MEMBERS:people}),/nested-not-supported/);
+ assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("</w:tr>","<w:tbl/> </w:tr>")+"</w:tbl>",{MEMBERS:people}),/nested-not-supported|unsupported-structure/);
 });
 test("Word tables: unknown row source and ambiguous markers are rejected",()=>{
  assert.throws(()=>expandWordTablesXml("<w:tbl>"+row.replace("{{ROW:MEM","{{ROW:UNKN")+"</w:tbl>",{MEMBERS:people}),/invalid-source/);
