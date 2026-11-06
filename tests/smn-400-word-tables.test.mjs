@@ -44,7 +44,7 @@ test("Word tables: no business rows produces N/D, without deletion of the templa
  assert.match(result.xml,/GridTable/);
 });
 test("Word tables: indicator rows can be placed in a second independent table",()=>{
- const second=row.replace("MEMBERS","INDICATORS").replaceAll("MEMBER_NAME","INDICATOR_NAME")
+ const second=row.replace("{{ROW:MEM","{{ROW:INDI").replace("BERS}}","CATORS}}").replaceAll("MEMBER_NAME","INDICATOR_NAME")
   .replaceAll("MEMBER_ROLE","INDICATOR_VALUE");
  const xml=base.replace("</w:body>","<w:tbl>"+second+"</w:tbl></w:body>");
  const result=expandWordTablesXml(xml,{MEMBERS:people,INDICATORS:[
