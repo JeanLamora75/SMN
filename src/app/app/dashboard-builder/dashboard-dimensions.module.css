@@ -101,3 +101,12 @@
 .batteryHorizontalEmpty{fill:var(--smn-soft)}
 .batteryHorizontalFill{fill:var(--smn-brand)}
 .batteryHorizontalValue{display:flex;align-items:baseline;justify-content:center;gap:.35rem;flex-wrap:wrap;min-width:0;text-align:center}
+
+/* SMN-393 — Vertical battery: six segments filling bottom to top. One value and unit. */
+.batteryVertical{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;min-width:0;width:100%;max-width:100%;margin-inline:auto}
+.batteryVerticalSvg{display:block;width:min(100%,145px);max-height:210px;height:auto;min-width:0}
+.batteryVerticalShell{fill:var(--smn-surface);stroke:var(--smn-muted);stroke-width:3}
+.batteryVerticalTerminal{fill:var(--smn-muted)}
+.batteryVerticalEmpty{fill:var(--smn-soft)}
+.batteryVerticalFill{fill:var(--smn-brand)}
+.batteryVerticalValue{display:flex;align-items:baseline;justify-content:center;gap:.35rem;flex-wrap:wrap;min-width:0;text-align:center}
