@@ -3670,7 +3670,15 @@
     "officeGenerating": "Generating…",
     "officeGenerationError": "Unable to generate this Office document. Check its template and tags.",
     "officeRequiresTeam": "Select an authorized team and sprint to generate an Office report.",
-    "officeScalarOnly": "This first version replaces scalar tags. Dynamic tables and charts will follow in later stories."
+    "officeScalarOnly": "This first version replaces scalar tags. Dynamic tables and charts will follow in later stories.",
+    "officeSave": "Save in SMN",
+    "officeSaveError": "Could not save the report. An existing file must not be replaced on failure.",
+    "officeSaveConflict": "The file changed since confirmation. Review the destination and try again.",
+    "officeSaved": "Report saved",
+    "officeOverwriteTitle": "Replace existing report?",
+    "officeOverwriteHint": "A report with this name already exists in the displayed folder. Explicitly confirm its replacement.",
+    "officeOverwriteConfirm": "Replace file",
+    "officeCancel": "Cancel"
   },
   "reportsStudio": {
     "modes": "Studio modes",
