@@ -3,6 +3,7 @@ import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "@/i18n/client";
 import type {OfficeTemplate} from "@/server/reports/office-catalog";
+import OfficeTags from "./office-tags";
 
 type Language="fr"|"en";
 type Props={
@@ -91,6 +92,7 @@ export default function OfficeTemplateCatalog({
      onClick={()=>{setSelected("");setError("");router.refresh();}}>{tr("officeRefresh")}</button>
    </div>
    <p className="text-secondary small">{tr("officeTemplatesHint")}</p>
+   <OfficeTags locale={language}/>
    {unavailable?<p role="alert" className="alert alert-warning">{tr("officeUnavailable")}</p>:
     templates.length===0?<p className="alert alert-info mb-0">{tr("officeEmpty")}</p>:
     <>
