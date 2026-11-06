@@ -3,6 +3,7 @@ import type {VisualizationModel} from "@/server/dashboard-builder/visualizations
 import {formatIndicatorValue} from "@/lib/indicators/format-value";
 import {tachometerNeedle} from "@/lib/dashboard-builder/tachometer";
 import {batterySegmentFills} from "@/lib/dashboard-builder/battery-horizontal";
+import {verticalBatteryFills} from "@/lib/dashboard-builder/battery-vertical";
 import {horizontalBarGeometry,shortCycleLabel} from "@/lib/dashboard-builder/horizontal-bars";
 import styles from "./dashboard-dimensions.module.css";
 
@@ -22,7 +23,7 @@ const valueLabel=(value:number,unit:string|null|undefined,locale:string)=>
 export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS}:{
  model:VisualizationModel;locale?:string;labels?:VisualizationLabels;
 }):ReactNode{
- if((model.kind==="tachometer"||model.kind==="battery-horizontal")&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
+ if((model.kind==="tachometer"||model.kind==="battery-horizontal"||model.kind==="battery-vertical")&&model.state==="invalid-bounds")return <div className={styles.tachometerError} role="status">
   {model.value!==undefined&&<span className={styles.metric}><output className={styles.metricNumber}>{format(model.value,locale)}</output>{model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}</span>}
   <span className={styles.state}>{model.label==="out-of-scale"?(locale.toLowerCase().startsWith("fr")?"Valeur hors échelle":"Value outside scale"):(locale.toLowerCase().startsWith("fr")?"Échelle invalide":"Invalid scale")}</span>
  </div>;
@@ -39,6 +40,26 @@ export function DashboardVisualization({model,locale="fr",labels=FALLBACK_LABELS
    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
   </div>;
 
+
+ if(model.kind==="battery-vertical"){
+  if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
+   return <span className={styles.state} role="status">{locale.startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>;
+  const fills=verticalBatteryFills(model.ratio);
+  return <div className={styles.batteryVertical}>
+   <svg className={styles.batteryVerticalSvg} viewBox="0 0 150 250" aria-hidden="true" focusable="false">
+    <rect x="32" y="12" width="86" height="228" rx="12" className={styles.batteryVerticalShell}/>
+    <rect x="57" y="3" width="36" height="10" rx="3" className={styles.batteryVerticalTerminal}/>
+    {fills.map((fraction,i)=><g key={i}>
+     <rect x="41" y={21+i*35} width="68" height="30" rx="5" className={styles.batteryVerticalEmpty}/>
+     {fraction>0&&<rect x="41" y={21+i*35+30*(1-fraction)} width="68" height={30*fraction} rx="4" className={styles.batteryVerticalFill}/>}
+    </g>)}
+   </svg>
+   <div className={styles.batteryVerticalValue}>
+    <output className={styles.metricNumber}>{format(model.value,locale)}</output>
+    {model.unit&&<span className={styles.metricUnit}>{model.unit}</span>}
+   </div>
+  </div>;
+ }
  if(model.kind==="battery-horizontal"){
   if(model.ratio===undefined||model.value===undefined||!Number.isFinite(model.ratio)||model.ratio<0||model.ratio>1)
    return <span className={styles.state} role="status">{locale.startsWith("fr")?"Échelle invalide":"Invalid scale"}</span>;
