@@ -48,12 +48,17 @@ test("SMN-398: symbolic links, missing folders and non-directory roots are rejec
   await mkdir(allowed);
   const external=path.join(root,"outside.docx");
   await writeFile(external,makePackage("docx"));
-  await symlink(external,path.join(allowed,"linked.docx"));
-  assert.deepEqual(await listOfficeTemplates(allowed),[]);
+  try{
+   await symlink(external,path.join(allowed,"linked.docx"));
+   assert.deepEqual(await listOfficeTemplates(allowed),[]);
+   await symlink(allowed,path.join(root,"alias"),"dir");
+   await assert.rejects(()=>listOfficeTemplates(path.join(root,"alias")),/office-template-directory-invalid/);
+  }catch(error){
+   if(!["EPERM","EACCES","ENOTSUP"].includes((error as NodeJS.ErrnoException).code??""))throw error;
+   // Some Windows installations disallow symlink creation without developer rights.
+  }
   assert.deepEqual(await listOfficeTemplates(path.join(root,"missing")),[]);
   await assert.rejects(()=>listOfficeTemplates(external),/office-template-directory-invalid/);
-  await symlink(allowed,path.join(root,"alias"),"dir");
-  await assert.rejects(()=>listOfficeTemplates(path.join(root,"alias")),/office-template-directory-invalid/);
  }finally{await rm(root,{recursive:true,force:true});}
 });
 test("SMN-398: only absolute configured folders are accepted",()=>{
