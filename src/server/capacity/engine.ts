@@ -2,6 +2,7 @@ import type {Client} from "pg";
 import {isValidDate} from "../members/assignment";
 import {resolveCalendarDay,DEFAULT_WEEK,type WeekRow,type ExceptionRow} from "../members/calendar";
 import {resolveDayAvailability} from "../members/day-availability";
+import {eligibleAbsenceItems,type DisplayAbsence} from "./absence-projection";
 import {readWorkSlots,workingIntervals,occupiedMinutes} from "./work-slots";
 import {capacityImpactJh,type Interval} from "./meeting-intervals";
 
@@ -11,7 +12,8 @@ export type CapacityMissing="no-assignments"|"ambiguous-assignment"|
 export type DayCapacity={
  date:string;status:"calculated"|"not-calculable";
  developmentJh:number|null;developmentHours:number|null;
- availableHalfDays:number|null;allocationPercent:number|null;
+ availableHalfDays:number|null;absenceItems?:readonly DisplayAbsence[];
+ allocationPercent:number|null;
  contractPercent:number|null;developerPercent:number|null;
  contributionPercent:number|null;missing:CapacityMissing[];
 };
@@ -40,7 +42,8 @@ type Week=WeekRow&{member_id:string};
 type Exception=ExceptionRow&{member_id:string};
 type Location={member_id:string;revision:number;effective_from:string;country_iso2:string};
 type Absence={member_id:string;is_planned:boolean;start_on:string;end_on:string;
- start_slot:"morning"|"afternoon";end_slot:"morning"|"afternoon"};
+ start_slot:"morning"|"afternoon";end_slot:"morning"|"afternoon";
+ category_name:string|null;reason:string|null};
 type Holiday={country_code:string;holiday_date:string;name:string};
 type Closure={member_id:string;start_on:string;end_on:string};
 /** Une fermeture v31 ne concerne que les membres explicitement projetés par la requête entreprise. */
@@ -160,13 +163,14 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     "AND effective_from<=$2::date ORDER BY member_id,effective_from,revision LIMIT 10001"
    ].join(" "),[memberIds,end]),
    db.query<Absence>([
-    "SELECT member_id,is_planned,start_on::text AS start_on,end_on::text AS end_on,",
-    "start_slot,end_slot FROM public.smn_member_absence",
-    "WHERE member_id=ANY($1::text[]) AND start_on<=$3::date AND end_on>=$2::date",
+    "SELECT a.member_id,a.is_planned,a.start_on::text AS start_on,a.end_on::text AS end_on,",
+    "a.start_slot,a.end_slot,a.reason,c.name AS category_name FROM public.smn_member_absence a",
+    "LEFT JOIN public.smn_absence_category c ON c.id=a.category_id",
+    "WHERE a.member_id=ANY($1::text[]) AND a.start_on<=$3::date AND a.end_on>=$2::date",
     "AND NOT EXISTS (SELECT 1 FROM public.smn_member_absence_history h",
-    "WHERE h.absence_id=public.smn_member_absence.id",
-    "AND h.revision=public.smn_member_absence.revision AND h.after_values->>'deleted'='true')",
-    "ORDER BY member_id,start_on LIMIT 10001"
+    "WHERE h.absence_id=a.id",
+    "AND h.revision=a.revision AND h.after_values->>'deleted'='true')",
+    "ORDER BY a.member_id,a.start_on LIMIT 10001"
    ].join(" "),[memberIds,start,end]),
    usesCompanyClosures?db.query<Closure>([
     "SELECT m.id AS member_id,c.start_on::text AS start_on,c.end_on::text AS end_on",
@@ -290,6 +294,7 @@ export async function readDevelopmentCapacity(db:Client,start:string,end:string,
     days.push({
      date,status:"calculated",developmentJh:round(netJh),
      developmentHours:round(netHours),availableHalfDays,
+     absenceItems:eligibleAbsenceItems(date,calendar.slots,national,closure,memberAbsences),
      allocationPercent:version!.allocation_percent,
      contractPercent:version!.contract_percent,
      developerPercent:roleShare(version!,options.role),
