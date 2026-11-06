@@ -63,3 +63,44 @@ Le harness expérimental a été publié sur `main` dans [`scripts/smn-397-offic
 - Test de contrat POC publié sur `main` : `tests/smn-397-office-poc.test.mjs`, commit `4c6e1c3ccee1f1ec630e3aa8a57a01ada78b5531`.
 - Les résultats 4/4 et l'ouverture des fichiers Office concernent le banc d'essai local isolé. **L'exécution CI du fichier de tests effectivement publié doit être vérifiée séparément** avant d'affirmer que sa validation est acquise.
 - CI au moment de la dernière vérification : des workflows GitHub Actions sont encore `in_progress` ; aucune conclusion globale n'est revendiquée.
+
+## Deuxième campagne de tests — tableaux, médias et modèles réels (06/11/2026)
+
+**Code expérimental publié sur main :**
+- [Extension du POC tableaux et PNG](../../scripts/smn-397-office-complex-poc.mjs)
+- [Tests automatisés correspondants](../../tests/smn-397-office-complex-poc.test.mjs)
+
+### Vérifications exécutées en environnement isolé
+
+- **5 tests complémentaires réussis sur 5** via `node --test /mnt/data/smn-397-office-complex-poc.test.mjs` avec Node 22.16.0.
+- **DOCX :** ligne modèle Word dupliquée pour 0, 1 et 3 enregistrements ; propriétés `w:trPr` conservées, valeurs 0 et `N/D` éprouvées, échappement XML correct, source inconnue non modifiée.
+- **PPTX :** ligne `a:tr` répétée trois fois en conservant la hauteur `h` initiale et ses cellules. Une cellule fusionnée est refusée explicitement plutôt que traitée silencieusement.
+- **Archives :** comparaison des parties ZIP décompressées avant/après ; seules les parties métier ciblées sont changées.
+- **Image :** un PNG déjà référencé dans le DOCX et le PPTX a été remplacé par une autre image PNG ; seule la partie `word/media/image1.png` ou `ppt/media/image1.png` a changé, les relations et la géométrie sont identiques.
+
+### Essais sur vrais modèles
+
+Des modèles d'essai ont été produits en Python (bibliothèques de test uniquement) avec en-tête, titre, style de tableau, texte en gras et graphique PNG pour Word ; titre, tableau stylisé, image, masque et notes pour PowerPoint.
+
+| Vérification | DOCX | PPTX |
+|---|---|---|
+| Package initial | 19 parties ZIP | 44 parties ZIP |
+| Génération de 3 lignes depuis 1 ligne modèle | Succès : 4 lignes avec l'en-tête | Succès : 4 lignes avec l'en-tête |
+| Parties XML modifiées pour les lignes | `word/document.xml` seulement | `ppt/slides/slide1.xml` seulement |
+| Nouvelle image injectée dans un emplacement déjà lié | `word/media/image1.png` uniquement | `ppt/media/image1.png` uniquement |
+| Réouverture par bibliothèques Office | `python-docx` : réussie | `python-pptx` : réussie |
+| Contrôle du style, de l'en-tête et des notes | Style de tableau et en-tête conservés | Image et notes conservées |
+| Rendu LibreOffice | Une page PNG produite et inspectée | Une diapositive PNG produite et inspectée |
+
+Les rendus observés présentent correctement les lignes et images et ne montrent pas de corruption sur ces **fixtures simples mais représentatives de plusieurs parties Office**. Les preuves concernent LibreOffice, pas une validation visuelle Microsoft Word/PowerPoint.
+
+### Limites explicitement non levées
+
+1. **Graphiques :** seule une image déjà référencée dans le document est remplacée. La transformation d'un tag textuel libre en image, sans emplacement préalable, **n'est pas démontrée**.
+2. **Tableaux :** cas simples sans fusion de cellules. Les cellules fusionnées, tableaux imbriqués, répétition de plusieurs lignes modèles et schémas PowerPoint atypiques ne sont pas couverts.
+3. **Dépassements :** aucun mécanisme d'ajustement automatique n'a été introduit ; cela respecte la décision fonctionnelle. La mise en page sous fort débordement n'a pas été examinée exhaustivement.
+4. **Intégrité :** les parties non ciblées sont identiques après décompression ; la recompression change le ZIP physique. Le simple contrôle de signature PNG n'est **pas** une validation structurelle complète d'image.
+5. **Environnement :** Node 22.16.0 / Linux, pas Node 24 / Windows 11 ; aucun essai Microsoft Office, de sécurité exhaustive, de fichiers verrouillés, de performances extrêmes ni de rendu interversions.
+6. **Qualité du code :** le prototype utilise des expressions régulières simplifiées sur XML. Il ne constitue pas un moteur Open XML de production.
+
+**État de SMN-397 : toujours En cours.** La deuxième campagne prouve des capacités supplémentaires ciblées, mais **CA-1.3 et CA-1.5 restent partiels**, et **CA-1.4 n'est pas validé**.
